@@ -1,0 +1,23 @@
+@CHARSET "ISO-8859-1";
+
+a.imagetable {
+	text-decoration: none;
+}
+
+div.imagetable {
+	width: 600px;
+	height: 50px;
+	padding: 7px;
+	border: 1px solid #679BF5;
+	margin-bottom: 10px;
+}
+
+div.imagetable_label {
+	float: left;
+	width: 500px;
+	margin-right: 20px;
+}
+
+img.imagetable {
+	margin-right: 10px;
+}

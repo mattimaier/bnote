@@ -1,0 +1,19 @@
+@CHARSET "ISO-8859-1";
+
+div.pageview {
+	float: left;
+	width: 200px;
+	height: 500px;
+}
+
+li.webpage {
+	margin-bottom: 5px;
+}
+
+a.webpage {
+	text-decoration: none;
+}
+
+a.webpage:hover {
+	text-decoration: underline;
+}

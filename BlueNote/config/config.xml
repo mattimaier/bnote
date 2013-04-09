@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding='utf-8'?>
+
+<Software Name="BlueNote">
+
+ <!-- ID of the Start module -->
+ <StartModule>1</StartModule>
+ 
+ <!-- URL of the BlueNote system -->
+ <URL>http://bluenote.inizio.org</URL>
+ 
+ <!-- E-mail-address of the administrator -->
+ <Admin>info@mattimaier.de</Admin>
+ 
+ <!-- Path to the manual file, i.e. PDF file -->
+ <Manual>data/manual.pdf</Manual>
+ 
+ <!-- True when this is a demo system with deactived mailing function, otherwise false (default). -->
+ <DemoMode>false</DemoMode>
+ 
+ <!-- In case users have to be activated by the administrator set this to true,
+      otherwise users will be activated by clicking on a link in an email (false).
+ -->
+ <ManualUserActivation>false</ManualUserActivation>
+ 
+ <!-- The user IDs of all super users whos credentials will not be shown on the website.
+      This is a comma separated list without spaces.
+  -->
+ <SuperUsers>1</SuperUsers>
+ 
+ <!-- Default Permissions for a new user. Comma separated list of user IDs without spaces. -->
+ <DefaultPrivileges>9,10,12,13,14</DefaultPrivileges>
+ 
+ <!-- This property specifies who / which group can upload data to the share. This includes the right to edit folders.
+ 	  Possible values are: ADMIN, MEMBER, EXTERNAL, APPLICANT, OTHER
+ 	  Constraints: ADMIN can always edit;
+ 	  Advise: A value of EXTERNAL, APPLICANT or OTHER is not adviseable! 
+ 	  Only one value is accepted. -->
+ <ShareEditGroup>ADMIN</ShareEditGroup>
+</Software>
