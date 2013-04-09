@@ -1,0 +1,5 @@
+##
+## Change Notes
+##
+
+- User Management: LOGIN-Type mishandled

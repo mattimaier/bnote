@@ -1,0 +1,151 @@
+@CHARSET "UTF-8";
+
+body {
+	padding: 0px;
+	margin: 0px;
+	
+	min-width: 500px;
+	
+	background-image: url(../images/otis_redding.png);
+	background-repeat: repeat-x repeat-y;
+}
+
+#topline {
+	margin-top: 5%;
+	padding-left: 10%;
+	font-family: sans-serif;
+	font-size: 32px;
+	font-weight: bold;
+	color: #FFFFFF;
+	border-style: solid;
+	border-color: #DCDCDC;
+	border-width: 0px;
+	border-bottom-width: 2px;
+}
+
+#lowline {
+	padding-left: 10%;
+	font-family: sans-serif;
+	font-size: 14px;
+	color: #FFFFFF;
+	
+	border-style: solid;
+	border-color: #DCDCDC;
+	border-width: 0px;
+	border-top-width: 0px;
+}
+
+p.login {
+	color: #285DB8;
+	font-family: sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+div {
+	font-family: sans-serif;
+}
+
+#login {
+	font-size: 22px;
+	font-weight: bold;
+	color: #285DB8;
+	background-color: #F0F0F0;
+	
+	width: 330px;
+	
+	padding: 20px;
+	margin-top: 50px;
+	margin-left: 10%;
+	margin-bottom: 10px;
+}
+
+#login_options {	
+	color: #285DB8;
+	background-color: #F0F0F0;
+	
+	width: 350px;
+	
+	padding:10px;
+	
+	margin-top: 10px;
+	margin-left: 10%;
+	margin-bottom: 10px;
+}
+
+#login_info {	
+	color: #285DB8;
+	background-color: #F0F0F0;
+	
+	width: 350px;
+	
+	padding: 10px;
+	margin-top: 10px;
+	margin-left: 10%;
+	margin-bottom: 5%;
+}
+
+#registration {
+	display: block;
+	font-size: 22px;
+	font-weight: bold;
+	color: #285DB8;
+	
+	width: 360px;
+	background-color: #F0F0F0;
+	
+	margin-top: 10px;
+	margin-left: 10%;
+	margin-bottom: 5%;
+	padding: 10px;
+	padding-left: 20px;
+}
+
+table.login {
+	width: 300px;
+	color: #285DB8;
+}
+
+td.login {
+	vertical-align: top;
+	width: 120px;
+}
+
+td.loginInput {
+	padding-left: 4%;
+	padding-bottom: 2%;
+	text-align: left;
+}
+
+table {
+	font-family: sans-serif;
+	font-size: 14px;
+}
+
+form {
+	margin: 0px;
+}
+
+input {
+	border-style: solid;
+	border-color: #A0A0A0;
+	border-width: 1px;
+}
+
+a {
+	font-size: 12px;
+	color: #285DB8;
+}
+
+.why_bluenote_link {
+	font-size: 16px;
+}
+
+li.why_bluenote {
+	padding-bottom: 7px;
+}
+
+#why_bluenote {
+	display: none;
+	font-size: 13px;
+}

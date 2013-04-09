@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<update>
+	<copy>
+		<exclude>update.xml</exclude>
+		<exclude>readme.txt</exclude>
+		<exclude>release_notes.txt</exclude>
+	</copy>
+	<execute>update_db.php</execute>
+	<remove>update_db.php</remove>
+</update>

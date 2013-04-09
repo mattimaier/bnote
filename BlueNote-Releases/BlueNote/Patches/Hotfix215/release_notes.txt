@@ -1,0 +1,6 @@
+##
+## Change Notes
+##
+
+- Fehler in der Dateiendung beim vCard-Export von Kontakten behoben
+- Mitspielerliste drucken: Druck an neue Tabellenstruktur angepasst.

@@ -1,0 +1,129 @@
+@CHARSET "UTF-8";
+
+body {
+	padding: 0px;
+	margin: 0px;
+	font-family: sans-serif;
+}
+
+#login_bottom {
+	font-size: 12px;
+	color: #A0A0A0;
+	position: fixed;
+	bottom: 5px;
+	left: 10px;
+}
+
+a.login_bottom {
+	color: #A0A0A0;
+}
+
+a {
+	color: black;
+	text-decoration: underline;
+}
+
+a:hover {
+	color: rgb(40, 93, 184);
+	text-decoration: none;
+}
+
+#top_bar {
+	background-image: linear-gradient(bottom, rgb(40, 93, 184) 10%,
+		rgb(103, 155, 245) 86% );
+	background-image: -o-linear-gradient(bottom, rgb(40, 93, 184) 10%,
+		rgb(103, 155, 245) 86% );
+	background-image: -moz-linear-gradient(bottom, rgb(40, 93, 184) 10%,
+		rgb(103, 155, 245) 86% );
+	background-image: -webkit-linear-gradient(bottom, rgb(40, 93, 184) 10%,
+		rgb(103, 155, 245) 86% );
+	background-image: -ms-linear-gradient(bottom, rgb(40, 93, 184) 10%,
+		rgb(103, 155, 245) 86% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.1, rgb(40,
+		93, 184) ), color-stop(0.86, rgb(103, 155, 245) ) );
+	color: white;
+	margin-top: 2%;
+	font-size: 30px;
+	font-weight: bold;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 10%;
+	border: 2px solid #DCDCDC;
+	border-left-width: 0px;
+	border-right-width: 0px;
+	border-bottom-width: 0px;
+}
+
+#login_box {
+	margin-left: 10%;
+	margin-top: 5%;
+	background-color: #F0F0F0;
+	border-radius: 10px;
+	border: 1px solid #DCDCDC;
+	padding: 10px;
+	font-size: 12px;
+	width: 300px;
+}
+
+#whyBluenote {
+	margin-left: 10%;
+	margin-top: 10px;
+	margin-bottom: 20px;
+	background-color: #F0F0F0;
+	border-radius: 10px;
+	border: 1px solid #DCDCDC;
+	padding: 10px;
+	font-size: 12px;
+	width: 300px;
+}
+
+#whyBlueNotePage {
+	margin-left: 10%;
+	margin-top: 2%;
+	margin-right: 10%;
+	background-color: #F0F0F0;
+	border-radius: 10px;
+	border: 1px solid #DCDCDC;
+	padding: 10px;
+	font-size: 12px;
+}
+
+li.why_bluenote {
+	margin-bottom: 10px;
+}
+
+#impressum {
+	margin-left: 10%;
+	margin-top: 5px;
+	margin-right: 10%;
+	background-color: #F0F0F0;
+	border-radius: 10px;
+	border: 1px solid #DCDCDC;
+	padding: 10px;
+	font-size: 12px;
+	min-width: 300px;
+}
+
+#register {
+	margin-left: 10%;
+	margin-top: 2%;
+	margin-right: 10%;
+	background-color: #F0F0F0;
+	border-radius: 10px;
+	border: 1px solid #DCDCDC;
+	padding: 10px;
+	font-size: 12px;
+	width: 400px;
+}
+
+#pwforgotten {
+	margin-left: 10%;
+	margin-top: 2%;
+	margin-right: 10%;
+	background-color: #F0F0F0;
+	border-radius: 10px;
+	border: 1px solid #DCDCDC;
+	padding: 10px;
+	font-size: 12px;
+	width: 400px;
+}

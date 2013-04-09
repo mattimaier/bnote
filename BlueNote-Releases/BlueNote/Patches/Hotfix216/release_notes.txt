@@ -1,0 +1,5 @@
+##
+## Change Notes
+##
+
+- Fehler beim einbinden von Systempfaden (dirs.php, systemdata.php) behoben. 

@@ -1,0 +1,6 @@
+##
+## Change Notes
+##
+
+- The username/login was checked inconsistently across the platform. This lead to failed login attempts for some users.
+- Registration process failed -> wrong activation link address corrected

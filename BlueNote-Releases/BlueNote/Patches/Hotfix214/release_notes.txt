@@ -1,0 +1,13 @@
+##
+## Change Notes
+##
+
+- .htaccess für Kalender-Export hinzugefügt.
+- Konfiguierbare Super-User die nicht im System angezeigt werden.
+- Konfiguierbare Standard Privilegien für neue Benutzer.
+- Konzert-Teilnehmer können angezeigt werden.
+- Super User können nun aus der Anzeige der Band entfernt werden. Die Konfiguration erfolgt in der confix.xml.
+- Startmodul Fix: Probenteilnehmer wurden unabhängig von Zu- oder Absage angezeigt.
+- Encoding-Probleme beim Kalenderexport behoben.
+- Impressum zur Login-Seite hinzugefügt.
+- Redesign und Refactoring der Login-Seite.

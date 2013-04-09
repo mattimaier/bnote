@@ -1,0 +1,7 @@
+##
+## Change Notes
+##
+
+- Fügt Support für App hinzu; Mobile PIN wird erstellt und für jeden Benutzer angezeigt.
+- Fügt eine Web App im Ordner app/ hinzu
+- Fügt Abstimmungsmodul hinzu.

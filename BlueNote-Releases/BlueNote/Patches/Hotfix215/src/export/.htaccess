@@ -1,0 +1,3 @@
+RewriteEngine on
+RewriteRule ^calendar.ics$ calendar.php
+RewriteRule ^kontakte.vcd$ vcard.php

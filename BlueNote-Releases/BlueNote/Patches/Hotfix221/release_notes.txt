@@ -1,0 +1,9 @@
+##
+## Change Notes
+##
+
+- Abstimmung: neuer Button "Alle Mitspieler hinzufügen"
+- Abstimmung: Alle können Abstimmungen und Ergebnis sehen, jedoch Autor kann diese nur bearbeiten.
+- Kontaktliste drucken: Fehler beim Seitenumbruch der Tabelle behoben.
+- Hilfe: Die Hilfeseite wurde umgestaltet und erweitert.
+- Hinzufügen von Nutzungsbedingungen bei der Registrierung.

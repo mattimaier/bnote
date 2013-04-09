@@ -1,0 +1,61 @@
+@CHARSET "ISO-8859-1";
+
+div.filebrowser_navibar {
+	float: left;
+	width: 200px;
+	height: 500px;
+	padding: 10px;
+	padding-left: 0px;
+	padding-right: 5px;
+	border: 1px solid #679BF5;
+	overflow: auto;
+}
+
+a.filebrowser_navibar {
+}
+
+form.filebrowser_addfolder {
+	margin: 10px;
+	padding: 10px;
+	font-weight: bold;
+	background-color: #F0F0F0;
+}
+
+input.filebrowser_addfolder {
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
+
+div.filebrowser_content {
+	width: 820px;
+	height: 500px;
+	margin-left: 210px;
+	border: 1px solid #679BF5;
+	padding: 10px;
+	overflow: auto;
+}
+
+div.filebrowser_location {
+	font-size: 12px;
+	color: #679BF5;
+}
+
+table.filebrowser_content {
+	margin-top: 10px;
+	font-size: 12px;
+}
+
+th.filebrowser_content {
+	background-color: #285DB8;
+	color: #FFFFFF;
+	font-weight: bold;
+	text-align: left;
+	padding: 3px;
+	padding-left: 5px;
+}
+
+td.filebrowser_content {
+}
+
+a.filebrowser_option {
+}

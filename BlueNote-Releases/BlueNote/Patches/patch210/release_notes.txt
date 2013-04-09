@@ -1,0 +1,15 @@
+##
+## Change Notes
+##
+
+- Die Kontaktdaten wurden um "Geschäftlich" und "Mobil" als Telefonnumern erweitert.
+- Neues Banner-Konzept: Die Band steht im Vordergrund, nicht das Programm.
+- Styling überarbeitet: Freundlichere Farben und besser lesbare Buttons.
+- Rechtschreib- und Darstellungsfehler behoben
+- Start: Ist der persönliche Status eines Nutzers zu einer Probe gesetzt, so kann er die Teilnehmerliste einsehen.
+- Mitspieler: Neues Modul in dem jeder Benutzer mit Berechtigung (per Default alle) die Kontaktdaten (außer Adresse) der anderen Mitspieler sehen kann.
+- Registrierung: Datenvalidierung bei Eingabe nicht erst nach dem Senden des Formulars 
+- Änderung der Anmeldung und deren Darstellung
+- Einfügen von Informationen: Warum BlueNote?
+- Demo-Modus konfiguierbar in config.xml
+- Auto-Registrierung per Konfiguration möglich

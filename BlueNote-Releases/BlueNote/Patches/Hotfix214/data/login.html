@@ -1,0 +1,33 @@
+<div id="login_box">
+	<!-- LEFT SIDE -->
+	<form action="src/logic/login.php" method="POST">
+		<font
+			style="font-weight: bold; font-size: 16px; color: #A0A0A0; margin-bottom: 5px;">Login</font>
+		<table class="login">
+			<TR>
+				<TD class="login">Benutzername</TD>
+				<TD class="loginInput"><input name="login" type="text"
+					size="25" /></TD>
+			</TR>
+			<TR>
+				<TD class="login">Passwort</TD>
+				<TD class="loginInput"><input name="password" type="password" size="25" /></TD>
+			</TR>
+			<TR>
+				<TD class="login" colspan="2"><input type="submit" value="Anmelden"></TD>
+			</TR>
+		</table>
+	</form>
+
+	<div id="login_options">
+		<a href="?show=register">Registrierung</a>&nbsp;&nbsp;<a href="?show=pwforgotten">Passwort vergessen</a>
+
+		<p class="login">Wenn du dich wiederholt nicht anmelden kannst,
+			dann ist dein Konto gegebenenfalls noch nicht freigeschalten. Bitte
+			versuche es zu einem sp&auml;teren Zeitpunkt noch einmal.</p>
+	</div>
+</div>
+
+<div id="whyBluenote">
+	Warum BlueNote nutzen? <a class="why_bluenote_link" href="?show=whyBlueNote">Antwort</a>
+</div>
