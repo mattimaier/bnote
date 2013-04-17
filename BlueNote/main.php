@@ -55,6 +55,11 @@ include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
 		</div>
 	</div>
 </div>
+				
+<?php
+# Display Footer
+ include $GLOBALS["DIR_PRESENTATION"] . "footer.php";
+?>
 
 
 </BODY>
