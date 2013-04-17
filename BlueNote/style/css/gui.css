@@ -89,9 +89,9 @@ input[type="submit"]:hover, a.linkbox:hover
 	color: #fff;
 }
 
-input[type="text"],input[type="password"]
+input[type="text"],input[type="password"], textArea
 {
-	color: #505050;
+	color: #000;
 	background-color: #fff;
 	font-size: 11pt;
 	font-family:'PT Sans', 'Raleway', Arial, sans-serif;
@@ -150,9 +150,8 @@ padding: 24px;
 background-color: #fff;
 border:1px solid;
 border-color:#e0e0e0;
-font-size: 14pt;
-font-weight: 600;
-display: inline-block
+
+display: inline-block;
  }
 
 
@@ -168,6 +167,28 @@ span.linkbox {
  
 span.linkbox:hover {
 	
+}
+
+
+
+div.rehearsal
+{
+padding: 24px;
+background-color: #fff;
+border:1px solid;
+border-color:#e0e0e0;
+display: inline-block;
+}
+
+div.rehearsalDate
+{
+font-weight: 600;
+
+}
+
+div.rehearsalDescription
+{
+	color: #000;
 }
 
 

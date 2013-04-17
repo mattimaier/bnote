@@ -102,9 +102,9 @@ class ProbenView extends CrudRefView {
 		$when = Data::convertDateFromDb($row["begin"]) . " bis " . $finish . " Uhr";
 
 		// put the output together
-		$out = "<strong>$weekday, $when</strong><br />";
-		$out .= "<font size=\"-1\">" . $row["name"];
-		$out .= " (" . $row["street"] . ", " . $row["zip"] . " " . $row["city"] .  ")</font>";
+		$out = "<div class=\"rehearsalDate\">$weekday, $when</strong></div>";
+		$out .= "<div class=\"rehearsalDescription\">" . $row["name"];
+		$out .= " (" . $row["street"] . ", " . $row["zip"] . " " . $row["city"] .  ")</div>";
 		$out .= "<pre class=\"concert\">" . $row["notes"] . "</pre>\n";
 		echo "<a class=\"rehearsal\" href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">";
 		echo "<div class=\"rehearsal\">$out</div></a>\n";
