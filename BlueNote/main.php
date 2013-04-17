@@ -35,23 +35,27 @@ include $GLOBALS["DIR_PRESENTATION"] . "head.php";
 
 # Display Banner
 include $GLOBALS["DIR_PRESENTATION"] . "banner.php";
-
-# Display Navigation
-include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
-
 ?>
+
+
 
 <!-- Content Area -->
-<div id="content">
-
+<div id="content_container">
 <?php
- include $GLOBALS["DIR_LOGIC"] . "controller.php";
-
- # Build Controller
- $controller = new Controller();
+# Display Navigation
+include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
 ?>
-
+	<div id="content_insets">
+		<div id="content">
+			<?php
+			include $GLOBALS["DIR_LOGIC"] . "controller.php";
+			# Build Controller
+			$controller = new Controller();
+			?>
+		</div>
+	</div>
 </div>
+
 
 </BODY>
 

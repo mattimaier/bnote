@@ -1,0 +1,94 @@
+/* IDs */
+#banner {
+ float: none;
+ font-family: sans-serif;
+ font-size: 16px;
+ text-decoration: none;
+ color: #FFFFFF;
+
+ /*
+ background-color: #FFFFFF;
+ background-image: url("../images/Banner_bg.png");
+ background-repeat: repeat-x;
+ background-position: bottom;
+ */
+background-image: linear-gradient(bottom, rgb(103,155,245) 19%, rgb(40,93,184) 99%);
+background-image: -o-linear-gradient(bottom, rgb(103,155,245) 19%, rgb(40,93,184) 99%);
+background-image: -moz-linear-gradient(bottom, rgb(103,155,245) 19%, rgb(40,93,184) 99%);
+background-image: -webkit-linear-gradient(bottom, rgb(103,155,245) 19%, rgb(40,93,184) 99%);
+background-image: -ms-linear-gradient(bottom, rgb(103,155,245) 19%, rgb(40,93,184) 99%);
+
+background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0.19, rgb(103,155,245)),
+	color-stop(0.99, rgb(40,93,184))
+);
+
+filter:  progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#e6e6e6', endColorstr='#CCCCCC'); /* IE6 & IE7 */
+-ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#e6e6e6', endColorstr='#CCCCCC')"; /* IE8 */
+
+ border-style: solid;
+ border-color: white;
+ border-width: 0px;
+ border-bottom-width: 0px;
+ }
+
+#SystemName {
+ padding-top: 5px;
+ padding-bottom: 5px;
+ margin-left: 10px;
+
+ font-size: 11px;
+ color: #F0F0F0;
+ }
+
+#CompanyName {
+ padding-top: 10px;
+ margin-left: 10px;
+
+ font-size: 20px;
+ font-weight: bold;
+ }
+
+#UserInfo {
+ font-size: 12px;
+ font-weight: bold;
+ }
+
+#Logout {
+ float: right;
+ width: 200px;
+ 
+ font-size: 12px;
+ text-align: right;
+ 
+ padding-top: 35px;
+ padding-right: 10px;
+ }
+
+#Logout_link {
+	color: black;
+}
+
+#Logout_link:hover {
+	color: white;
+}
+
+#navigation {
+ height: 32px;
+ background-color: #679BF5;
+ }
+
+#content {
+ padding-left: 10px;
+ padding-top: 10px;
+ font-size: 12px;
+ background-color: #FFFFFF;
+ }
+	
+#refresh {
+	color: #000000;
+	margin-left: 5px;
+	}
