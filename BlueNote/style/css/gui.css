@@ -2,7 +2,7 @@
 body
 {
 	color: #000;
-	background-color:#f6f6f6;
+	background-color:#eee;
 	font-family:'PT Sans', 'Raleway', Arial, sans-serif;
 	font-size: 11pt;
 	line-height: 1.35;
@@ -21,9 +21,15 @@ h1
 	padding-bottom: 12pt;
 }
 
-.clearing {
+.clearing
+{
 	height: 0;
 	clear: both;
+}
+
+a.Logout
+{
+	color: #fff;
 }
 
 a.navi
@@ -34,7 +40,7 @@ a.navi
 a.navi:visited
 {
 
- }
+}
 
 div.navi_item 
 {
@@ -54,7 +60,7 @@ div.navi_item:hover
 div.navi_item_selected 
 {
 	padding: 14px;
-	background-color:#f6f6f6;
+	background-color:#eee;
 	color: #000;
 	border-bottom:1px solid;
 	border-bottom-color:#e0e0e0;	
@@ -66,18 +72,18 @@ div.navi_item_selected:hover {
  
  
 
-input[type="submit"]
+input[type="submit"], a.linkbox
 {
-	color: #505050;
-	background-color: #f6f6f6;
+	color: #000;
+	background-color: #eee;
 	font-size: 11pt;
 	font-family:'PT Sans', 'Raleway', Arial, sans-serif;
-	padding: 0 16px;
+	padding: 4px 16px;
 	border:1px solid;
 	border-color:#e0e0e0;
 }
 
-input[type="submit"]:hover
+input[type="submit"]:hover, a.linkbox:hover
 {
 	background-color: #61b3ff;
 	color: #fff;
@@ -126,12 +132,12 @@ tr:nth-of-type(even)
 
 tr:nth-of-type(odd) 
 { 
-  background: #f6f6f6; 
+  background: #eee; 
 }
 
 td a
 {
-	color: #505050;
+color: black;
 }
  
 td.DataTable_Sum {
@@ -141,7 +147,7 @@ td.DataTable_Sum {
 
 div.FormBox {
 padding: 24px;
-background-color: #f3f3f3;
+background-color: #fff;
 border:1px solid;
 border-color:#e0e0e0;
 font-size: 14pt;
@@ -164,13 +170,6 @@ span.linkbox:hover {
 	
 }
 
-a.linkbox {
-background-color: green;
- }
-
-a.linkbox:hover {
-
- }
 
 p.message {
 
