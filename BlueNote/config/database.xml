@@ -3,9 +3,9 @@
 <Database ConnectionName="Default MySQL-Connection">
  <Server>localhost</Server>
  <Port>3306</Port>
- <Name>bluenote_dev</Name>
- <User>bluenote_dev</User>
- <Password>3jLA6UZKh7CPbC68</Password>
+ <Name>bluenote_demo</Name>
+ <User>root</User>
+ <Password></Password>
  
  <UserTable>user</UserTable>
 </Database>

@@ -1,6 +1,7 @@
 <HEAD>
  <TITLE><?php echo $SYSTEM["appname"] . " | " . $SYSTEM["modtitle"]; ?></TITLE>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+ 
 <?php
 
 # Link all CSS Files in style/css
@@ -16,6 +17,9 @@ if($handle = opendir('style/css')) {
  //embed jQuery library
  $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
  ?>
+ <link href="https://fonts.googleapis.com/css?family=PT+Sans&amp;subset=latin" rel="stylesheet" type="text/css" />
+ <link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+ 
  <link type="text/css" href="<?php echo $jQuery_dir; ?>css/ui-lightness/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
  
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>js/jquery-1.6.4.min.js"></script>
