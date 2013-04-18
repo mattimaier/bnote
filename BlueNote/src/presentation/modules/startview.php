@@ -17,7 +17,7 @@ class StartView extends AbstractView {
 	function start() {
 		Writing::h1("Willkommen");
 		Writing::p("Hier befindest du dich auf der Startseite des internen Bereichs der Website.");
-		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics", "Kalender herunterladen");
+		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics", "Kalender Export");
 		$ical->addIcon("arrow_down");
 		$ical->write();
 		
@@ -54,8 +54,8 @@ class StartView extends AbstractView {
 			$when = Data::convertDateFromDb($row["begin"]) . " bis " . $finish . " Uhr";
 			
 			// put the output together
-			$out = "<strong>$weekday, $when</strong><br />";
-			$out .= "<font size=\"-1\">" . $row["name"];
+			$out = "<p class=\"start_rehearsal_title\">$weekday, $when</p>";
+			$out .= "<p class=\"start_rehearsal\">" . $row["name"];
 			$out .= " (" . $row["street"] . ", " . $row["zip"] . " " . $row["city"] .  ")";
 			$songs = $this->getData()->getSongsForRehearsal($row["id"]);
 			if(count($songs) > 1) {
@@ -68,8 +68,8 @@ class StartView extends AbstractView {
 				}
 				$out = substr($out, 0, strlen($out) -2);
 			}
-			$out .= "</font>";
-			$out .= "<pre class=\"concert\">" . $row["notes"] . "</pre>\n";
+			$out .= "</p>";
+			$out .= "<pre class=\"start_rehearsal\">" . $row["notes"] . "</pre>\n";
 			
 			$rehParticipation = $this->getData()->doesParticipateInRehearsal($row["id"]);
 			if($rehParticipation == -1) {
@@ -123,7 +123,7 @@ class StartView extends AbstractView {
 				
 				$out .= "</p>\n";
 			}
-			echo " <li>$out</li>\n";
+			echo " <li class=\"start_rehearsal\">$out</li>\n";
 		}
 		echo "</ul>\n";
 	}

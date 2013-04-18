@@ -23,37 +23,23 @@ class KontakteView extends CrudRefView {
 		Writing::h1("Kontakte");
 		
 		// Options		
-		$ext = new Link($this->modePrefix() . "showContacts&status=externals", "Externe Mitspieler");
-		$ext->write();
-		$this->buttonSpace();
-		
-		$ext = new Link($this->modePrefix() . "showContacts&status=applicants", "Bewerber");
-		$ext->write();
-		$this->buttonSpace();
-		
-		$other = new Link($this->modePrefix() . "showContacts&status=others", "Sonstige Kontakte");
-		$other->write();
-		$this->buttonSpace();
-		
-		$ext = new Link($this->modePrefix() . "showContacts&status=admins", "Administratoren");
-		$ext->write();
-		$this->verticalSpace();
-		
 		$add = new Link($this->modePrefix() . "addForm", "Kontakt hinzuf&uuml;gen");
+		$add->addIcon("add");
 		$add->write();
 		$this->buttonSpace();
 		
-		$export = new Link($this->modePrefix() . "printMembers", "Mitspielerliste drucken");
-		$export->write();
+		$print = new Link($this->modePrefix() . "printMembers", "Mitspielerliste drucken");
+		$print->addIcon("printer");
+		$print->write();
 		$this->buttonSpace();
 		
-		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", "Kontakte exportieren");
+		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", "Kontakte Export");
+		$vc->addIcon("arrow_down");
 		$vc->setTarget("_blank");
 		$vc->write();
 		$this->verticalSpace();
 		
 		// show band members
-		$_GET["status"] = "members";
 		$this->showContacts();
 	}
 	
@@ -65,9 +51,6 @@ class KontakteView extends CrudRefView {
 			case "admins":		$title = "Administratoren";
 								$data = $this->getData()->getAdmins();
 								break;
-			case "members":		$title = "Band Mitspieler";
-								$data = $this->getData()->getMembers();
-								break;
 			case "externals":	$title = "Externe Mitspieler";
 								$data = $this->getData()->getExternals();
 								break;
@@ -77,10 +60,12 @@ class KontakteView extends CrudRefView {
 			case "others":		$title = "Sonstige Kontakte";
 								$data = $this->getData()->getOthers();
 								break;
+			default:			$title = "Band Mitspieler";
+								$data = $this->getData()->getMembers();
+								break;
 		}
 		
 		// write
-		Writing::h2($title);
 		$this->showContactTable($data);
 		
 		$this->verticalSpace();
@@ -91,21 +76,80 @@ class KontakteView extends CrudRefView {
 	}
 	
 	private function showContactTable($data) {
-		$table = new Table($data);
-		$table->setEdit("id");
-		$table->renameAndAlign($this->getData()->getFields());
-		$table->removeColumn("id");
-		$table->renameHeader("street", "Stra&szlig;e");
-		$table->renameHeader("city", "Stadt");
-		$table->renameHeader("zip", "PLZ");
-		$table->removeColumn("10");
-		$table->removeColumn("instrument");
-		$table->removeColumn("9");
-		$table->removeColumn("status");
-		$table->removeColumn("8");
-		$table->removeColumn("address");
-		$table->renameHeader("instrumentname", "Instrument");
-		$table->write();
+		$tabs = array(
+				"members" => "Mitspieler",
+				"admins" => "Administratoren",
+				"externals" => "Externe Mitspieler",
+				"applicants" => "Bewerber",
+				"others" => "Sonstige"
+		);
+		
+		// show tabs
+		echo "<div class=\"contact_view\">\n";
+		echo " <div class=\"contact_view_tabs\">";
+		foreach($tabs as $cmd => $label) {
+			$active = "";
+			if($_GET["status"] == $cmd) $active = "_active";
+			else if(!isset($_GET["status"]) && $cmd == "members") $active = "_active";
+			echo "<a href=\"" . $this->modePrefix() . "start&status=$cmd\"><span class=\"contact_view_tab$active\">$label</span></a>";
+		}
+		
+		// show data
+		echo " <table class=\"contact_view\">\n";
+		foreach($data as $i => $row) {
+			echo "  <tr>\n";
+			
+			if($i == 0) {
+				// header
+				echo "   <td class=\"DataTable_Header\">Name, Vorname</td>";
+				echo "   <td class=\"DataTable_Header\">Instrument</td>";
+				echo "   <td class=\"DataTable_Header\">Adresse</td>";
+				echo "   <td class=\"DataTable_Header\">Telefone</td>";
+				echo "   <td class=\"DataTable_Header\">Online</td>";
+				//echo "   <td class=\"DataTable_Header\">Notizen</td>";
+			}
+			else {
+				// body
+				echo "   <td class=\"DataTable\"><a href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">" . $row["surname"] . ", " . $row["name"] . "</a></td>";
+				echo "   <td class=\"DataTable\">" . $row["instrumentname"] . "</td>";
+				echo "   <td class=\"DataTable\" style=\"width: 150px;\">" . $row["street"] . "<br/>" . $row["zip"] . " " . $row["city"] . "</td>";
+				
+				// phones
+				$phones = "";
+				if($row["phone"] != "") {
+					$phones .= "Tel: " . $row["phone"];
+				}
+				if($row["mobile"] != "") {
+					if($phones != "") $phones .= "<br/>";
+					$phones .= "Mobil: " . $row["mobile"]; 
+				}
+				if($row["business"] != "") {
+					if($phones != "") $phones .= "<br/>";
+					$phones .= "Arbeit: " . $row["business"];
+				}
+				echo "   <td class=\"DataTable\" style=\"width: 150px;\">$phones</td>";
+				
+				// online
+				echo "   <td class=\"DataTable\"><a href=\"mailto:" . $row["email"] . "\">" . $row["email"] . "</a>";
+				if($row["web"] != "") {
+					echo "<br/><a href=\"http://" . $row["web"] . "\">" . $row["web"] . "</a>";
+				} 
+				echo "</td>";
+				
+				// notizen
+				//echo "   <td class=\"DataTable\">" . $row["notes"] . "</td>";
+			}
+			
+			echo "  </tr>";
+		}
+		// show "no entries" row when this is the case
+		if(count($data) == 1) {
+			echo "<tr><td colspan=\"5\">Keine Kontaktdaten vorhanden.</td></tr>\n";
+		}
+		
+		echo "</table>\n";
+		echo " </div>";
+		echo "</div>";
 	}
 	
 	function addForm() {
@@ -154,6 +198,7 @@ class KontakteView extends CrudRefView {
 			// show button
 			$btn = new Link($this->modePrefix() . "createUserAccount&id=" . $_GET["id"],
 						"Benutzerkonto erstellen");
+			$btn->addIcon("user");
 			$btn->write();
 			$this->buttonSpace();
 		}

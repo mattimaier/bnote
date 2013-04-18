@@ -212,11 +212,14 @@ class Form implements iWriteable {
  public function write() {
   $this->createForeign();
   
-  echo '<div class="FormBox">' . "\n";
-  echo $this->formname . "<br /><br />\n";
+  //echo '<div class="FormBox">' . $this->formname . "\n";
 
-  echo '<form method="' . $this->method . '" action="' . $this->action . '"';
+  echo '<form method="' . $this->method . '" action="' . $this->action . '"';  
   echo $this->multipart . '>' . "\n";
+  
+  echo '<fieldset>';
+  echo "<legend class=\"FormBox\">" . $this->formname . "</legend>\n";
+  
   echo '<table>' . "\n";
 
   foreach($this->elements as $label => $element) {
@@ -226,7 +229,7 @@ class Form implements iWriteable {
    echo "  <td>" . $element->write() . "</td>\n";
    echo " </tr>\n";
   }
-  echo '</table>' . "\n<br />\n";
+  echo '</table>' . "\n";
   
    // add hidden values
   foreach($this->hidden as $name => $value) {
@@ -237,8 +240,9 @@ class Form implements iWriteable {
   if(!$this->removeSubmitButton) {
   	echo '<input type="submit" value="' . $this->submitValue . '">' . "\n";
   }
+  echo '</fieldset>' . "\n";
   echo '</form>' . "\n";
-  echo '</div>' . "\n";
+  //echo '</div>' . "\n";
  }
 
 }
