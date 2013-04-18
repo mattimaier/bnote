@@ -68,10 +68,12 @@ abstract class CrudView extends AbstractView {
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
 							$this->entityName . " bearbeiten");
+		$edit->addIcon("edit");
 		$edit->write();
 		$this->buttonSpace();
 		$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
 							$this->entityName . " l&ouml;schen");
+		$del->addIcon("remove");
 		$del->write();
 		$this->buttonSpace();
 		

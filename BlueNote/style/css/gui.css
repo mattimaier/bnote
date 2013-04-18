@@ -97,6 +97,10 @@ input[type="submit"], a.linkbox
 	border-color:#e0e0e0;
 }
 
+a.linkbox {
+	padding-left: 10px;
+}
+
 input[type="submit"]:hover, a.linkbox:hover
 {
 	background-color: #61b3ff;

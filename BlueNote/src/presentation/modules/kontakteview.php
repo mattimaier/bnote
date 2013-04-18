@@ -90,6 +90,7 @@ class KontakteView extends CrudRefView {
 		foreach($tabs as $cmd => $label) {
 			$active = "";
 			if($_GET["status"] == $cmd) $active = "_active";
+			else if(!isset($_GET["status"]) && $cmd == "members") $active = "_active";
 			echo "<a href=\"" . $this->modePrefix() . "start&status=$cmd\"><span class=\"contact_view_tab$active\">$label</span></a>";
 		}
 		
@@ -141,6 +142,11 @@ class KontakteView extends CrudRefView {
 			
 			echo "  </tr>";
 		}
+		// show "no entries" row when this is the case
+		if(count($data) == 1) {
+			echo "<tr><td colspan=\"5\">Keine Kontaktdaten vorhanden.</td></tr>\n";
+		}
+		
 		echo "</table>\n";
 		echo " </div>";
 		echo "</div>";
@@ -192,6 +198,7 @@ class KontakteView extends CrudRefView {
 			// show button
 			$btn = new Link($this->modePrefix() . "createUserAccount&id=" . $_GET["id"],
 						"Benutzerkonto erstellen");
+			$btn->addIcon("user");
 			$btn->write();
 			$this->buttonSpace();
 		}
