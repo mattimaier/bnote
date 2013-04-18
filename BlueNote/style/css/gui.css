@@ -252,3 +252,40 @@ pre.start_rehearsal {
 	padding-bottom: 10px;
 	font-style: italic;
 }
+
+div.contact_view_tabs {
+	background-color: #eee;
+	width: 100%;
+	padding: 8px;
+}
+
+span.contact_view_tab {
+	display: inline-block;
+	border: solid 0px #e0e0e0;
+	border-top-width: 1px;
+	padding: 5px 10px;
+	color: #000;
+	background-color: #fff;
+	margin-left: 1px;
+}
+
+span.contact_view_tab_active {
+	display: inline-block;
+	border: solid 0px #e0e0e0;
+	border-top-width: 1px;
+	padding: 5px 10px;
+	color: #fff;
+	background-color: #61b3ff;
+	margin-left: 1px;
+	font-size: 14pt;
+}
+
+span.contact_view_tab:hover {
+	background-color: #61b3ff;
+	color: #fff;
+}
+
+table.contact_view {
+	margin-top: 0px;
+	width: 100%;
+}
