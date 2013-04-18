@@ -21,6 +21,11 @@ class UserView extends CrudRefView {
 		Writing::h1("Benutzer");
 		Writing::p("Hier k&ouml;nnen Benutzer verwaltet werden. Benutzer k&ouml;nnen sich am System anmelden.");
 		
+		// show button to add a user
+		$addBtn = new Link($this->modePrefix() . "addUser", "Benutzer hinzufügen");
+		$addBtn->addIcon("add");
+		$addBtn->write();
+		
 		// show all users
 		$table = new Table($this->getData()->getUsers());
 		$table->setEdit("id");
@@ -29,9 +34,9 @@ class UserView extends CrudRefView {
 		$table->renameHeader("contactname", "Vorname");
 		$table->renameHeader("isactive", "Akiver Benutzer");
 		$table->write();
-		
-		$this->verticalSpace();
-		
+	}
+	
+	function addUser() {
 		// add form for new user
 		$form = new Form("Neuer Benutzer", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
@@ -42,8 +47,12 @@ class UserView extends CrudRefView {
 		
 		// manually add contacts
 		$form->addElement("Kontakt", $this->contactDropdown());
-		
 		$form->write();
+		
+		$this->verticalSpace();
+		
+		// back button
+		$this->backToStart();
 	}
 	
 	private function contactDropdown() {

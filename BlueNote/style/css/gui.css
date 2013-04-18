@@ -14,11 +14,24 @@ a
 	color: #61b3ff;
 }
 
+p {
+	margin-bottom: 8px;
+	margin-top: 5px;
+}
+
 h1
 {
 	font-size: 18pt;
 	font-weight: 600;
-	padding-bottom: 12pt;
+	margin-bottom: 6pt;
+	color: #61b3ff;
+}
+
+h2 {
+	font-size: 16pt;
+	font-weight: 600;
+	margin-bottom: 6pt;
+	margin-top: 12pt;
 }
 
 .clearing
@@ -146,14 +159,19 @@ td.DataTable_Sum {
 
 
 div.FormBox {
-padding: 24px;
-background-color: #fff;
-border:1px solid;
-border-color:#e0e0e0;
-font-size: 14pt;
-font-weight: 600;
-display: inline-block
- }
+	padding: 8px;
+	background-color: #fff;
+	border: 1px solid;
+	border-color: #e0e0e0;
+	font-size: 14pt;
+	font-weight: 600;
+	display: inline-block
+}
+
+legend.FormBox {
+	font-weight: 600;
+	padding-bottom: 8px;
+}
 
 
 div.FormBox.table
@@ -170,7 +188,6 @@ span.linkbox:hover {
 	
 }
 
-
 p.message {
 
  }
@@ -182,6 +199,7 @@ p.onpageMessage {
 p.footnote {
  
  }
+
 
 font.messageHeader {
 
@@ -209,4 +227,26 @@ a.silent:hover {
 
 a.silent:visited {
 	
+}
+
+/*
+li.start_rehearsal {
+	border-style: solid;
+	border-width: 0px;
+	border-color: #61b3ff;
+	border-left-width: 5px;
+	padding-left: 5px;
+	padding-top: 8px;
+	margin-bottom: 5px;
+}
+*/
+ 
+p.start_rehearsal_title {
+	font-size: 12pt;
+	font-weight: 600;
+}
+
+pre.start_rehearsal {
+	padding-bottom: 10px;
+	font-style: italic;
 }
