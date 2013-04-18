@@ -67,12 +67,6 @@ class KontakteView extends CrudRefView {
 		
 		// write
 		$this->showContactTable($data);
-		
-		$this->verticalSpace();
-		if($_GET["status"] != "members") {
-			$this->backToStart();
-			$this->verticalSpace();
-		}
 	}
 	
 	private function showContactTable($data) {
