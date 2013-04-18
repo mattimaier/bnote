@@ -71,9 +71,43 @@ class UserView extends CrudRefView {
 	
 	function view() {
 		$this->checkID();
+		
+		// get current user
+		$usr = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
+		
+		// show header
+		Writing::h1($usr["login"]  . " / " . $usr["contactsurname"] . ", " . $usr["contactname"]);
+		
+		// show options
+		$edit = new Link("?mod=" . $this->getModId() . "&mode=edit&id=" . $_GET["id"], "Benutzer bearbeiten");
+		$edit->addIcon("edit");
+		$edit->write();
+		$this->buttonSpace();
+		$privs = new Link("?mod=" . $this->getModId() . "&mode=privileges&id=" . $_GET["id"], "Rechte bearbeiten");
+		$privs->addIcon("key");
+		$privs->write();
+		$this->buttonSpace();
+		
+		if($this->getData()->isUserActive($_GET["id"])) {
+			$btnLbl = "Benutzer deaktivieren";
+			$btnIcon = "no_entry";
+		}
+		else {
+			$btnLbl = "Benutzer aktivieren";
+			$btnIcon = "checkmark";
+		}
+		$active = new Link($this->modePrefix() . "activate&id=" . $_GET["id"], $btnLbl);
+		$active->addIcon($btnIcon);
+		$active->write();
+		$this->buttonSpace();
+		
+		$delete = new Link("?mod=" . $this->getModId() . "&mode=delete_confirm&id=" . $_GET["id"], "Benutzer l&ouml;schen");
+		$delete->addIcon("remove");
+		$delete->write();
+		$this->buttonSpace();
+		
 		// show user data
 		$dv = new Dataview();
-		$usr = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
 		foreach($usr as $id => $value) {
 			if($id != "password") {
 				$dv->addElement($id, $value);
@@ -84,27 +118,7 @@ class UserView extends CrudRefView {
 		$dv->renameElement("contactsurname", "Nachname");
 		$dv->write();
 		
-		// show options
-		$edit = new Link("?mod=" . $this->getModId() . "&mode=edit&id=" . $_GET["id"], "Benutzer bearbeiten");
-		$edit->write();
-		$this->buttonSpace();
-		$privs = new Link("?mod=" . $this->getModId() . "&mode=privileges&id=" . $_GET["id"], "Rechte bearbeiten");
-		$privs->write();
-		$this->buttonSpace();
-		
-		if($this->getData()->isUserActive($_GET["id"])) {
-			$btnLbl = "Benutzer deaktivieren";
-		}
-		else {
-			$btnLbl = "Benutzer aktivieren";
-		}
-		$active = new Link($this->modePrefix() . "activate&id=" . $_GET["id"], $btnLbl);
-		$active->write();
-		$this->buttonSpace();
-		
-		$delete = new Link("?mod=" . $this->getModId() . "&mode=delete_confirm&id=" . $_GET["id"], "Benutzer l&ouml;schen");
-		$delete->write();
-		$this->buttonSpace();
+		// back button
 		$this->backToStart();
 	}
 	

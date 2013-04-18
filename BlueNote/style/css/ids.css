@@ -101,7 +101,8 @@ background-color: #fff;
 {
 	float: left;
 	width: 136px;
-	background-color: #fff;
+	background-color: #eee;
+	padding-bottom: 20px;
 }
 
 #content_insets

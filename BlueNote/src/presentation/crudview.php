@@ -65,9 +65,6 @@ abstract class CrudView extends AbstractView {
 		// heading
 		Writing::h2($this->entityName . " Details");
 		
-		// show the details
-		$this->viewDetailTable();
-		
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
 							$this->entityName . " bearbeiten");
@@ -80,6 +77,9 @@ abstract class CrudView extends AbstractView {
 		
 		// additional buttons
 		$this->additionalViewButtons();
+		
+		// show the details
+		$this->viewDetailTable();
 		
 		// back button
 		$this->backToStart();

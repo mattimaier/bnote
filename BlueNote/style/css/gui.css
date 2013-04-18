@@ -62,6 +62,7 @@ div.navi_item
 	border-right-color:#e0e0e0;	
 	border-bottom:1px solid;
 	border-bottom-color:#e0e0e0;	
+	background-color: #fff;
 }
 
 div.navi_item:hover
@@ -202,8 +203,9 @@ p.footnote {
 
 
 font.messageHeader {
-
- }
+	font-size: 12pt;
+	font-weight: 600;
+}
 
 p.alert {
 	
