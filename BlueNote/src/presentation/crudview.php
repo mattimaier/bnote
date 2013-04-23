@@ -33,6 +33,9 @@ abstract class CrudView extends AbstractView {
 	
 	public function addEntity() {
 		$this->addEntityForm();
+		
+		$this->verticalSpace();
+		$this->backToStart();
 	}
 	
 	protected function addEntityForm() {

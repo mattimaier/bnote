@@ -170,6 +170,9 @@ class KontakteView extends CrudRefView {
 		$form->addElement("Status", $dd);
 		
 		$form->write();
+		
+		$this->verticalSpace();
+		$this->backToStart();
 	}
 	
 	function viewDetailTable() {

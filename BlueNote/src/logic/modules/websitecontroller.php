@@ -34,7 +34,6 @@ class WebsiteController extends DefaultController {
 			}
 			else if($_GET["mode"] != "save" && isset($_GET["page"])) {
 				$this->getView()->start();
-				$this->getView()->editPage($_GET["page"]);
 			}
 			else {
 				$this->getView()->$_GET['mode']();

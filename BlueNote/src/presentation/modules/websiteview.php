@@ -18,33 +18,53 @@ class WebsiteView extends AbstractView {
 	function start() {
 		Writing::h1("Website Inhalte");
 		
-		$g = new Link($this->modePrefix() . "gallery", "Galerien bearbeiten");
-		//$g->write(); // deactivate due to use of Flickr/Satellite Integration
-		
-		$n = new Link($this->modePrefix() . "infos", "Informationen");
-		$n->write();
-		
 		Writing::p("Klicke auf eine Seite um deren Inhalte zu bearbeiten.");
 		
-		$this->pageBar();
+		global $system_data;
+		if($system_data->isGalleryFeatureEnabled()) {
+			$g = new Link($this->modePrefix() . "gallery", "Galerien bearbeiten");
+			$g->write();
+		}
+		if($system_data->isInfopageFeatureEnabled()) {
+			if($system_data->isGalleryFeatureEnabled()) $this->buttonSpace();
+			$n = new Link($this->modePrefix() . "infos", "Sonderseiten");
+			$n->write();
+		}
+		
+		$this->pageEditor();
 	}
 	
-	private function pageBar() {
+	private function pageEditor() {
 		?>
-		<div class="pageview">
-		<ul>
-		<?php		
+		<table id="website_editor">
+		 <tr>
+		  <td id="website_pages">
+		<?php
+		global $system_data;		
 		// loop through pages and write them to the bar
 		foreach($this->getData()->getPages() as $title => $file) {
+			if(!$system_data->isGalleryFeatureEnabled() && $file == "galerie") continue;
+			if(!$system_data->isInfopageFeatureEnabled() && $file == "infos") continue; 
 			?>
-			<li class="webpage"><a class="webpage" href="<?php
+			<div class="website_webpage_item"><a class="webpage" href="<?php
 				echo $this->modePrefix() . "start&page=" . $file; ?>">
-			<?php echo $title; ?></a></li>
+			<?php echo $title; ?></a></div>
 			<?php
 		}
 		?>
-		</ul>
-		</div>
+		  </td>
+		  <td>
+		  <?php 
+		  if(isset($_GET["page"])) {
+		  	$this->editPage($_GET["page"]);
+		  }
+		  else {
+		  	Writing::p("Bitte wähle eine Seite zum bearbeiten aus.");
+		  }
+		  ?>
+		  </td>
+		 </tr>
+		</table>
 		<?php
 	}
 	
@@ -73,7 +93,13 @@ class WebsiteView extends AbstractView {
 	}
 	
 	function infos() {
-		Writing::h2("Informationen");
+		Writing::h2("Sonderseiten");
+		Writing::p("Klicke auf eine Seite um diese zu bearbeiten.");
+		
+		// options
+		$addlink = new Link($this->modePrefix() . "addInfo", "Seite hinzuf&uuml;gen");
+		$addlink->addIcon("add");
+		$addlink->write();
 		
 		// show available pages
 		$infos = $this->getData()->getInfos();
@@ -86,13 +112,8 @@ class WebsiteView extends AbstractView {
 		$table->renameHeader("title", "&Uuml;berschrift");
 		$table->write();
 		
-		// show add page link
-		$this->verticalSpace();
-		$addlink = new Link($this->modePrefix() . "addInfo", "Informationsseite hinzuf&uuml;gen");
-		$addlink->write();
-		
 		// back
-		$this->buttonSpace();
+		$this->verticalSpace();
 		$this->backToStart();
 	}
 	

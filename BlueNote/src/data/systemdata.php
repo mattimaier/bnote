@@ -247,6 +247,24 @@ class Systemdata {
  public function getShareEditGroup() {
  	return "" . $this->cfg_system->getParameter("ShareEditGroup");
  }
+ 
+ /**
+  * @return True when the gallery management is used and should be displayed and functional, otherwise false.
+  */
+ public function isGalleryFeatureEnabled() {
+ 	$gal = $this->cfg_system->getParameter("UseGallery");
+ 	if($gal != null && strtolower($gal) == "true") return true;
+ 	else return false;
+ }
+ 
+ /**
+  * @return True when the infopage/news/additional pages management is used and should be displayed and functional, otherwise false.
+  */
+ public function isInfopageFeatureEnabled() {
+ 	$gal = $this->cfg_system->getParameter("UseInfoPages");
+ 	if($gal != null && strtolower($gal) == "true") return true;
+ 	else return false;
+ }
 }
 
 ?>
