@@ -17,7 +17,6 @@ class AbstimmungView extends CrudView {
 	
 	function writeTitle() {
 		Writing::h2("Deine Abstimmungen");
-		Writing::p("Du hast folgende aktive Abstimmungen ausgeschrieben:");
 	}
 
 	function showAllTable() {

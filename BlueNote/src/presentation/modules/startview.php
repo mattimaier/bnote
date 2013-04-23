@@ -151,10 +151,10 @@ class StartView extends AbstractView {
 			$when = Data::convertDateFromDb($row["begin"]) . " bis " . $finish . " Uhr";
 			
 			// put the output together
-			$out = "<strong>$weekday, $when</strong><br />";
-			$out .= "<font size=\"-1\">" . $row["location_name"];
-			$out .= " (" . $row["location_street"] . ", " . $row["location_zip"] . " " . $row["location_city"] .  ")</font>";
-			$out .= "<pre class=\"concert\">" . $row["notes"] . "</pre>\n";
+			$out = "<p class=\"start_rehearsal_title\">$weekday, $when</p>";
+			$out .= "<p class=\"start_rehearsal\">" . $row["location_name"];
+			$out .= " (" . $row["location_street"] . ", " . $row["location_zip"] . " " . $row["location_city"] .  ")</p>";
+			$out .= "<pre class=\"start_rehearsal\">" . $row["notes"] . "</pre>\n";
 			if($this->getData()->doesParticipateInConcert($row["id"]) == -1) {
 				$participate = new Link($this->modePrefix() . "participate&cid=" . $row["id"] . "&status=yes", "Ich werde mitspielen.");
 				$participate->addIcon("checkmark");
@@ -164,7 +164,7 @@ class StartView extends AbstractView {
 				$dnpart->addIcon("no_entry");
 				$out .= $dnpart->toString() . "<br /><br />";
 			}
-			echo " <li>$out</li>\n";
+			echo " <li class=\"start_rehearsal\">$out</li>\n";
 		}
 		echo "</ul>\n";
 		$this->verticalSpace();
@@ -221,15 +221,18 @@ class StartView extends AbstractView {
 		
 		echo "<ul>";
 		for($i = 1; $i < count($votes); $i++) {
-			echo "<li>";
-			echo "<b>" . $votes[$i]["name"] . "</b><br/>";
-			echo "Abstimmung bis " . Data::convertDateFromDb($votes[$i]["end"]);
-			$this->verticalSpace();
+			echo "<li class=\"start_rehearsal\">";
+			echo "<p class=\"start_rehearsal_title\">" . $votes[$i]["name"] . "</p>";
+			
 			if(!$this->getData()->hasUserVoted($votes[$i]["id"])) {
 				$btn = new Link($this->modePrefix() . "voteOptions&id=" . $votes[$i]["id"], "abstimmen");
+				$btn->addIcon("checkmark");
 				$btn->write();
 				$this->verticalSpace();
 			}
+			
+			echo "Die Abstimmung läuft bis " . Data::convertDateFromDb($votes[$i]["end"]) . " Uhr.";
+			
 			echo "</li>\n";
 		}
 		echo "</ul>";

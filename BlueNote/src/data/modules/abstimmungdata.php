@@ -66,9 +66,12 @@ class AbstimmungData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
+	/**
+	 * @return Database Selection with all active votes within the last year that are not marked as finished.
+	 */
 	function getAllActiveVotes() {
 		$query = "SELECT id, name, end, is_multi, is_date FROM " . $this->table;
-		$query .= " WHERE is_finished = 0";
+		$query .= " WHERE is_finished = 0 AND YEAR(end) >= (YEAR(NOW())-1)";
 		$query .= " ORDER BY end ASC";
 		return $this->database->getSelection($query);
 	}
@@ -169,11 +172,13 @@ class AbstimmungData extends AbstractData {
 		
 		// add the user ids to group
 		$query = "INSERT INTO vote_group (vote, user) VALUES ";
+		$addset = "";
 		for($i = 1; $i < count($users); $i++) {
-			if($i > 1) $query .= ",";
-			$query .= "($vid, " . $users[$i]["id"] . ")";
+			if($users[$i]["id"] == $_SESSION["user"]) continue; // skip author, because he/she is added automatically
+			if($addset != "") $addset .= ",";
+			$addset .= "($vid, " . $users[$i]["id"] . ")";
 		}
-		$this->database->execute($query);
+		$this->database->execute($query . $addset);
 	}
 	
 	function deleteFromGroup($vid, $uid) {

@@ -25,12 +25,15 @@ class KonzerteView extends CrudRefView {
 		
 		// Options
 		$lnk = new Link($this->modePrefix() . "wizzard", "Konzert hinzuf&uuml;gen");
+		$lnk->addIcon("add");
 		$lnk->write();
 		$this->buttonSpace();
 		$lnk = new Link($this->modePrefix() . "programs", "Programme verwalten");
+		$lnk->addIcon("note");
 		$lnk->write();
 		$this->buttonSpace();
 		$lnk = new Link($this->modePrefix() . "history", "Konzertchronik");
+		$lnk->addIcon("clock");
 		$lnk->write();
 		$this->verticalSpace();
 		
@@ -56,13 +59,14 @@ class KonzerteView extends CrudRefView {
 	
 	private function writeConcert($concert) {
 		// when? where? who to talk to? notes + program
-		$text = "<strong class=\"concert\">" . Data::convertDateFromDb($concert["begin"]);
+		$text = "<p class=\"concert_title\">" . Data::convertDateFromDb($concert["begin"]);
 		$text .= " bis " . substr($concert["end"], strlen($concert["end"])-8, 5);
-		$text .= " Uhr im " . $concert["location_name"] . "</strong><br />";
-		$text .= "<font size=\"-1\">Adresse: ";
+		$text .= " Uhr im " . $concert["location_name"] . "</p>";
+		$text .= "<p class=\"concert_details\">Adresse: ";
 		$text .= $concert["location_street"] . ", " . $concert["location_zip"];
 		$text .= " " . $concert["location_city"] . "&nbsp;&nbsp;";
 		if($concert["contact_name"] != "") {
+			$text .= "<br/>";
 			$text .= "Kontaktperson: " . $concert["contact_name"] . " (";
 
 			$ct = 0;
@@ -72,10 +76,6 @@ class KonzerteView extends CrudRefView {
 			}
 			if($concert["contact_email"] != "") {
 				$text .= "E-Mail " . $concert["contact_email"] . ", ";
-				$ct++;
-			}
-			if($concert["contact_web"] != "") {
-				$text .= "Web " . $concert["contact_web"] . ", ";
 				$ct++;
 			}
 			
@@ -91,14 +91,14 @@ class KonzerteView extends CrudRefView {
 			if($concert["contact_name"] != "") $text .= " - ";
 			$text .= "Programm: " . $concert["program_name"];
 		}
-		$text .= "</font>";
+		$text .= "</p>";
 		
 		// actually write concert
-		echo '<div class="concert"><a class="concert" href="' . $this->modePrefix();
-		echo "view&id=" . $concert["id"] . '">';
+		echo '<a class="concert" href="' . $this->modePrefix();
+		echo "view&id=" . $concert["id"] . '"><div class="concert">';
 		Writing::p($text);
 		echo "<pre class='concert'>" . $concert["notes"] . "</pre>\n";
-		echo "</a></div>";
+		echo "</div></a>";
 		$this->verticalSpace();
 	}
 	
@@ -179,6 +179,7 @@ class KonzerteView extends CrudRefView {
 	
 	function additionalViewButtons() {
 		$partLink = new Link($this->modePrefix() . "showParticipants&id=" . $_GET["id"], "Teilnehmer anzeigen");
+		$partLink->addIcon("user");
 		$partLink->write();
 		$this->buttonSpace();
 	}
@@ -227,6 +228,8 @@ class KonzerteView extends CrudRefView {
 			else $passed = "";
 			
 			echo '<div class="progressbar_step' . $passed . '">' . $caption . '</div>' . "\n";
+			if($passed != "") $passed .= '_arrow';
+			echo '<div class="arrow_right' . $passed . '"></div>' . "\n";
 		}
 		echo '</div>' . "\n";
 		
@@ -294,7 +297,7 @@ class KonzerteView extends CrudRefView {
 		$this->addCollectedData($form2);
 		$form2->write();
 		
-		Writing::p("Wird einer neuer Ort erstellt, so wird er automatisch als Auff&uuml;hrungsort gespeichert.");
+		Writing::p("Wird ein neuer Ort erstellt, so wird er automatisch als Auff&uuml;hrungsort gespeichert.");
 	}
 	
 	/**

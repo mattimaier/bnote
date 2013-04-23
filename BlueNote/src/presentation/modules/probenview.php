@@ -22,6 +22,10 @@ class ProbenView extends CrudRefView {
 		Writing::h1("Proben");
 		Writing::p("Bitte auf eine Probe klicken um diese zu bearbeiten.");
 		
+		$add = new Link($this->modePrefix() . "addEntity", "Probe hinzufügen");
+		$add->addIcon("add");
+		$add->write();
+		
 		Writing::h2("N&auml;chste Probe");
 		$nextRehearsal = $this->getData()->getNextRehearsal();
 		if($nextRehearsal != null && $nextRehearsal != "" && count($nextRehearsal) > 0) {
@@ -35,11 +39,18 @@ class ProbenView extends CrudRefView {
 		$this->writeRehearsalList($this->getData()->getAllRehearsals());
 		
 		// New Rehearsal
+		
+	}
+	
+	function addEntity() {
 		$form = new Form("Neue Probe", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		$form->setForeign("location", "location", "id", "name", -1);
 		$form->write();
+		
+		$this->verticalSpace();
+		$this->backToStart(); 
 	}
 	
 	function add() {
@@ -102,12 +113,14 @@ class ProbenView extends CrudRefView {
 		$when = Data::convertDateFromDb($row["begin"]) . " bis " . $finish . " Uhr";
 
 		// put the output together
-		$out = "<strong>$weekday, $when</strong><br />";
-		$out .= "<font size=\"-1\">" . $row["name"];
-		$out .= " (" . $row["street"] . ", " . $row["zip"] . " " . $row["city"] .  ")</font>";
-		$out .= "<pre class=\"concert\">" . $row["notes"] . "</pre>\n";
+		$out = "<p class=\"rehearsal_title\">$weekday, $when</p>";
+		$out .= "<p class=\"rehearsal_details\">" . $row["name"];
+		$out .= " (" . $row["street"] . ", " . $row["zip"] . " " . $row["city"] .  ")</p>";
+		$out .= "<pre class=\"rehearsal\">" . $row["notes"] . "</pre>\n";
+		
 		echo "<a class=\"rehearsal\" href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">";
-		echo "<div class=\"rehearsal\">$out</div></a>\n";
+		echo "<div class=\"rehearsal\">$out</div>";
+		echo "</a>\n";
 	}
 	
 	protected function editEntityForm() {
@@ -137,12 +150,21 @@ class ProbenView extends CrudRefView {
 	
 	protected function additionalViewButtons() {
 		$participants = new Link($this->modePrefix() . "participants&id=" . $_GET["id"], "Teilnehmer anzeigen");
+		$participants->addIcon("user");
 		$participants->write();
 		$this->buttonSpace();
 		
 		$songs = new Link($this->modePrefix() . "practise&id=" . $_GET["id"], "St&uuml;cke zum &uuml;ben");
+		$songs->addIcon("music_file");
 		$songs->write();
 		$this->buttonSpace();
+		
+		// show a button to send a reminder to all about this rehearsal
+		$remHref = "?mod=" . $this->getData()->getCommunicationModuleId() . "&mode=rehearsalMail&preselect=" . $_GET["id"]; 
+		
+		$reminder = new Link($remHref, "Benachrichtigung senden");
+		$reminder->addIcon("email");
+		$reminder->write();
 	}
 	
 	function participants() {
@@ -217,8 +239,8 @@ class ProbenView extends CrudRefView {
 		$form->addElement("Anmerkungen", new Field("notes", "", FieldType::CHAR));
 		$form->write();
 		
-		$this->backToViewButton($_GET["id"]);
 		$this->verticalSpace();
+		$this->backToViewButton($_GET["id"]);
 	}
 	
 	function practiseUpdate() {

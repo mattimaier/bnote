@@ -111,6 +111,15 @@ class ProbenData extends AbstractData {
 		$query = "DELETE FROM rehearsal_song WHERE rehearsal = $rid AND song = $sid";
 		$this->database->execute($query);
 	}
+	
+	function getCommunicationModuleId() {
+		global $system_data;
+		$mods = $system_data->getModuleArray();
+		foreach($mods as $id => $name) {
+			if($name == "Kommunikation") return $id;
+		}
+		return 0;
+	}
 }
 
 ?>
