@@ -34,12 +34,10 @@ class KommunikationView extends AbstractView {
 	
 	function rehearsalMail() {
 		Writing::h2("Probenbenachrichtigung");
-		
-		$form = $this->createMailForm($this->modePrefix() . "rehearsal");
-		
+				
 		$dd = new Dropdown("rehearsal");
 		$rhs = $this->getData()->getRehearsals();
-		$form->addElement("Probe", $dd);
+		
 		for($i = 1; $i < count($rhs); $i++) {
 			$label = Data::getWeekdayFromDbDate($rhs[$i]["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($rhs[$i]["begin"]);
@@ -47,10 +45,19 @@ class KommunikationView extends AbstractView {
 			$label .= " Uhr " . $rhs[$i]["name"];
 			$dd->addOption($label, $rhs[$i]["id"]);
 		}
+		if(isset($_GET["preselect"])) {
+			$dd->setSelected($_GET["preselect"]);
+		}
+		
+		$form = $this->createMailForm($this->modePrefix() . "rehearsal");
+		$form->addElement("Probe", $dd);
 		$form->removeElement("Betreff");
 		$form->write();
 		
-		$this->backToStart();
+		if(!isset($_GET["preselect"])) {
+			$this->verticalSpace();
+			$this->backToStart();
+		}
 	}
 	
 	private function createMailForm($action) {

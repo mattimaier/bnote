@@ -18,9 +18,24 @@ abstract class CrudView extends AbstractView {
 	public function start() {
 		$this->writeTitle();
 		
-		$this->showAllTable();
+		$add = new Link($this->modePrefix() . "addEntity", $this->getEntityName() . " hinzufügen");
+		$add->addIcon("add");
+		$add->write();
 		
+		$this->showAdditionStartButtons();
+		
+		$this->showAllTable();
+	}
+	
+	protected function showAdditionStartButtons() {
+		// by default empty;
+	}
+	
+	public function addEntity() {
 		$this->addEntityForm();
+		
+		$this->verticalSpace();
+		$this->backToStart();
 	}
 	
 	protected function addEntityForm() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding='utf-8'?>
 
-<Software Name="BlueNote">
+<Software Name="BNote">
 
  <!-- ID of the Start module -->
  <StartModule>1</StartModule>
@@ -36,4 +36,12 @@
  	  Advise: A value of EXTERNAL, APPLICANT or OTHER is not adviseable! 
  	  Only one value is accepted. -->
  <ShareEditGroup>ADMIN</ShareEditGroup>
+ 
+ <!-- True when the gallery management is used
+      and should be displayed and functional, otherwise false. -->
+ <UseGallery>True</UseGallery>
+ 
+ <!-- True when the infopage/news/additional pages management is used
+      and should be displayed and functional, otherwise false. -->
+ <UseInfoPages>True</UseInfoPages>
 </Software>

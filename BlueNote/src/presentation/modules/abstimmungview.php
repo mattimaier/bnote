@@ -17,7 +17,6 @@ class AbstimmungView extends CrudView {
 	
 	function writeTitle() {
 		Writing::h2("Deine Abstimmungen");
-		Writing::p("Du hast folgende aktive Abstimmungen ausgeschrieben:");
 	}
 
 	function showAllTable() {
@@ -113,8 +112,8 @@ class AbstimmungView extends CrudView {
 		$form->write();
 		
 		// back button
-		$back = new Link($this->modePrefix() . "view&id=" . $_GET["id"], "Zurück zur Abstimmung");
-		$back->write();
+		$this->verticalSpace();
+		$this->backToViewButton($_GET["id"]);
 	}
 	
 	function delOption() {
@@ -136,20 +135,21 @@ class AbstimmungView extends CrudView {
 	}
 	
 	function additionalViewButtons() {		
-		$this->verticalSpace();
-		
 		// options
 		$opt = new Link($this->modePrefix() . "options&id=" . $_GET["id"], "Optionen");
+		$opt->addIcon("list_unordered");
 		$opt->write();
 		$this->buttonSpace();
 		
 		// users
 		$grp = new Link($this->modePrefix() . "group&id=" . $_GET["id"], "Abstimmungsberechtigte");
+		$grp->addIcon("user");
 		$grp->write();
 		$this->buttonSpace();
 		
 		// result
 		$res = new Link($this->modePrefix() . "result&id=" . $_GET["id"], "Ergebnis");
+		$res->addIcon("note");
 		$res->write();
 		$this->buttonSpace();
 	}

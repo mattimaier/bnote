@@ -11,7 +11,7 @@ class HilfeView extends AbstractView {
 	
 	// format: name of the html-file => title
 	private $helpPages = array(
-			"bluenote2" => "Neuerungen in BlueNote 2",
+			"bluenote2" => "Neuerungen in BlueNote 2.3",
 			"mitspieler" => "Modul Mitspieler",
 			"abstimmung" => "Modul Abstimmung",
 			"support" => "Support"
@@ -43,8 +43,9 @@ class HilfeView extends AbstractView {
 		
 		// Help Navigation
 		?>
-		<div class="help_navigator">
-			<div class="help_navigator_menu">
+		<table class="help_navigator">
+			<tr>
+			<td class="help_navigator_menu">
 				<div class="help_navigator_menu_topic">Einführung</div>
 				<?php
 				// show an introduction video
@@ -76,10 +77,11 @@ class HilfeView extends AbstractView {
 				}
 				?>
 				
-			</div>
-			<div class="help_navigator_content">
+			</td>
+			<td class="help_navigator_content">
 				<?php 
 				if(isset($_GET["vid"])) {
+					Writing::h2("Video Tutorial");
 					echo '<iframe width="560" height="315" src="http://www.youtube.com/embed/' . $_GET["vid"] . '" frameborder="0" allowfullscreen></iframe>';
 				}
 				else if(isset($_GET["page"])) {
@@ -87,8 +89,9 @@ class HilfeView extends AbstractView {
 					include $this->helpPagesDir . $_GET["page"] . ".html";
 				}
 				?>
-			</div>
-		</div>
+			</td>
+			</tr>
+		</table>
 		<?php
 	}
 	
