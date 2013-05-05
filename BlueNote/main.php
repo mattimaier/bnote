@@ -1,4 +1,8 @@
 <?php 
+/**
+ * BNote - Band Management Software
+ * Developed by Matti Maier Internet Solutions 2013
+ */
 
 # Make a few settings
 date_default_timezone_set("Europe/Berlin");
@@ -11,17 +15,22 @@ header("Content-type: text/html; charset=utf-8");
 include "dirs.php";
 include $GLOBALS["DIR_LOGIC"] . "init.php";
 
+# Login forward if necessary
+if(isset($_GET["mod"]) && $_GET["mod"] === "login" && isset($_GET["mode"]) && $_GET["mode"] === "login") {
+	include $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
+	include $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
+	include $GLOBALS["DIR_DATA"] . "fieldtype.php";
+	include $GLOBALS["DIR_DATA"] . "abstractdata.php";
+	include $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
+	$ctrl = new LoginController();
+	$loginData = new LoginData();
+	$ctrl->setData($loginData);
+	$ctrl->doLogin();
+}
+
 ?>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<?php
-
-/**
- * Developed by Matti Maier Internet Solutions 2011
-**/
-
-?>
-
+<!DOCTYPE html>
 <HTML lang="de">
 
 <?php
@@ -37,20 +46,17 @@ include $GLOBALS["DIR_PRESENTATION"] . "head.php";
 include $GLOBALS["DIR_PRESENTATION"] . "banner.php";
 ?>
 
-
-
 <!-- Content Area -->
 <div id="content_container">
-<?php
-# Display Navigation
-include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
-?>
+	<?php
+	# Display Navigation
+	include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
+	?>
 	<div id="content_insets">
 		<div id="content">
 			<?php
 			include $GLOBALS["DIR_LOGIC"] . "controller.php";
-			# Build Controller
-			$controller = new Controller();
+			new Controller();
 			?>
 		</div>
 	</div>
@@ -58,9 +64,8 @@ include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
 				
 <?php
 # Display Footer
- include $GLOBALS["DIR_PRESENTATION"] . "footer.php";
+include $GLOBALS["DIR_PRESENTATION"] . "footer.php";
 ?>
-
 
 </BODY>
 

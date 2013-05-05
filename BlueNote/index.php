@@ -1,73 +1,23 @@
 <?php
-
 /**
- * Login
+ * BNote - Band Management Software
+ * by Matti Maier Internet Solutions
+ * 
+ * This is the entry point to the software. However, the main application
+ * starts with main.php, not with this file. This file is meant for
+ * routing between the desktop and the mobile application.
  */
 
-include "dirs.php";
-include "src/data/systemdata.php";
-$sd = new Systemdata();
-date_default_timezone_set("Europe/Berlin");
+include "lib/mobiledetect/Mobile_Detect.php";
+$detect = new Mobile_Detect();
+
+// Detect if the user is a mobile user -> forward to app/
+if($detect->isMobile()) {
+	header("location: app/");
+}
+// for all other users including tablet users, send him/her to application
+else {
+	header("location: main.php?mod=login");
+}
+
 ?>
-
-<html>
- <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title><?php echo $sd->getApplicationName(); ?> | Login</title>
-  <link href="<?php echo $GLOBALS["DIR_CSS"]; ?>login.css" rel="StyleSheet" type="text/css" /> 
- </head>
- <body>
-
- <?php 
- function loginBackButton($to = 'login') {
- 	echo '<a href="?show=' . $to . '">Zurück</a>';
- }
- 
- ?>
- 
- 	<div id="top_bar">BlueNote</div>
- 		<?php
- 		if(isset($_GET["show"]) && $_GET["show"] == "impressum") {
- 			?>
- 			<div id="impressum">
- 				<?php  
- 				loginBackButton();
- 				include "data/impressum.html";
- 				?>
- 			</div>
- 			<?php
-		}
-		else if(isset($_GET["show"]) && $_GET["show"] == "whyBlueNote") {
-			include "data/whyBlueNote.php";
-		}
-		else if(isset($_GET["show"]) && $_GET["show"] == "register") {
-			?>
-			<div id="register">
-				<?php
-				loginBackButton();
-				include "register.php";
-				?>
-			</div>
-			<?php
-		}
-		else if(isset($_GET["show"]) && $_GET["show"] == "pwforgotten") {
-			include "pwforgotten.php";			
-		}
-		else if(isset($_GET["show"]) && $_GET["show"] == "terms") {
-			?>
- 			<div id="impressum">
- 				<?php
- 				include "data/terms.html";
- 				?>
- 			</div>
- 			<?php
-		}
- 		else {
- 			include "data/login.html";
- 		}
- 		?>
-		
-	<div id="login_bottom">by Matti Maier Internet Solutions | <a class="login_bottom" href="?show=impressum">Impressum</a></div>
- 
-</body>
-</html>
