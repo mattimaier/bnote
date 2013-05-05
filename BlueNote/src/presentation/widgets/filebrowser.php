@@ -71,118 +71,97 @@ class Filebrowser implements iWriteable {
 		if(isset($_GET["fbfunc"]) && $_GET["fbfunc"] != "view") {
 			$this->$_GET["fbfunc"]();
 		}
+		else {
+			$this->mainView();
+		}
+	}
+	
+	private function mainView() {
+		// show the add folder button if in write-mode
+		if(!$this->viewmode) {
+			$lnk = new Link($this->linkprefix("addFolderForm"), "Ordner hinzufügen");
+			$lnk->addIcon("add");
+			$lnk->write();
+			
+			if($this->path != "") {
+				echo "&nbsp;&nbsp;";
+				$lnk = new Link($this->linkprefix("addFileForm&path=" . $this->path), "Datei hinzufügen");
+				$lnk->addIcon("add");
+				$lnk->write();
+			}
+			
+		}
 		
-		$this->writeNaviBar();
-		$this->writeFolderContent();
+		// show the folders and their contents
+		?>
+		<table id="filebrowser_content">
+			<tr>
+				<td id="filebrowser_folders">
+				<div class="filebrowser_foldertopic">Ordner</div>
+				<?php $this->writeFolders(); ?>
+				</td>
+				<td id="filebrowser_files">
+				<?php $this->writeFolderContent(); ?>
+				</td>
+			</tr>
+		</table>
+		<?php
 	}
 	
 	/**
-	 * Writes the navigation bar.
+	 * Writes all folders on the screen.
 	 */
-	private function writeNaviBar() {
-		?>
-		<div class="filebrowser_navibar">
-		<ul>
-		<?php 
-			// iterate through folder
-			if($handle = opendir($this->root)) {
-				while(false !== ($file = readdir($handle))) {
-					if($file != "." && $file != ".."
-						&& is_dir($this->root . $file)) {
-			?>
-			<li><a class="filebrowser_navibar" href="<?php echo $this->linkprefix("view&path=" . urlencode($file)); ?>"><?php echo $file; ?></a></li>
-			<?php
+	private function writeFolders() { 
+		// iterate through folder
+		if($handle = opendir($this->root)) {
+			while(false !== ($file = readdir($handle))) {
+				if($file != "." && $file != ".." && is_dir($this->root . $file)) {
+					$active = "";
+					if(isset($_GET["path"]) && urlencode($file) == $this->path) {
+						$active = "_active";
 					}
-				 }
-				closedir($handle);
-			}
-			?>
-		</ul>
-		<?php 
-		if(!$this->viewmode) {
-			?>
-			<form class="filebrowser_addfolder" method="POST" action="<? echo $this->linkprefix("addFolder") ?>">
-				Ordner erstellen<br />
-				<input class="filebrowser_addfolder" type="text" size="20" name="folder" />
-				<input class="filebrowser_addfolder" type="submit" value="Ordner erstellen" />
-			</form>
-			<?php
+					?>
+					<a href="<?php echo $this->linkprefix("view&path=" . urlencode($file)); ?>">
+						<div class="filebrowser_folderitem<?php echo $active; ?>"><?php echo $file; ?></div>
+					</a>
+					<?php
+				}
+			 }
+			closedir($handle);
 		}
-		?>
-		</div>
-		<?php
 	}
 	
 	/**
 	 * Writes the folder contents.
 	 */
 	private function writeFolderContent() {
-		$location = $this->path;
-		?>
-		<div class="filebrowser_content">
-			<?php 
-			if($location == "") {
-				Writing::p("Bitte w&auml;hle einen Ordner.");
-			}
-			else {
-				?>
-				<div class="filebrowser_location"><?php echo $location; ?></div>
-				<table class="filebrowser_content" cellpadding="0" cellspacing="0">
-					<tr>
-						<th class="filebrowser_content">Name</th>
-						<th class="filebrowser_content">Gr&ouml;&szlig;e</th>
-						<th class="filebrowser_content">Optionen</th>
-					</tr>
-					
-					<?php 
-					// iterate through folder
-					$filecount = 0;
-					if($handle = opendir($this->root . $location)) {
-						while(false !== ($file = readdir($handle))) {
-							if($file != "." && $file != ".." && !is_dir($this->root . $location . "/" . $file)) {
-								$size = filesize($this->root . $location . "/$file");
-								$size = ceil($size / 1000);
-								$size = number_format($size, 0) . " kb";
-								?>
-								<tr>
-									<td class="filebrowser_content"><?php echo $file; ?></td>
-									<td class="filebrowser_content"><?php echo $size; ?></td>
-									<td class="filebrowser_content">
-										<a class="filebrowser_option" href="<?php echo $this->root . $location . "/" . $file; ?>">Download</a>&nbsp;&nbsp;
-										<?php 
-										if(!$this->viewmode) {
-											?>
-											<a class="filebrowser_option" href="<?php echo $this->linkprefix("deleteFile&path=" . urlencode($location) . "&file=" . urlencode($file)) ?>">L&ouml;schen</a>
-											<?php
-										} ?>
-									</td>
-								</tr>
-								<?php
-								$filecount++;
-							}
-						}
-						closedir($handle);
-					}
-					
-					if($filecount < 1) {
-						?>
-						<tr><td colspan="3">Der Ordner ist leer.</td></tr>
-						<?php
-					}
-					?>
-				</table>
-				<?php
-				if(!$this->viewmode) {
-					$form = new Form("Datei hinzuf&uuml;gen", $this->linkprefix("addFile&path=$location"));
-					$form->setMultipart();
-					$form->addElement("Datei", new Field("file", "", FieldType::FILE));
-					$form->changeSubmitButton("Datei hochladen");
-					$form->write();
-				}
-			}
-			?>
-		</div>
-		<?php
+		if($this->path == "") {
+			Writing::p("Bitte w&auml;hle einen Ordner.");
+		}
+		else {
+			Writing::h3($this->path);
+				
+			// show table with files
+			$table = new Table($this->getFilesFromFolder($this->path));
+			$table->renameHeader("name", "Dateiname");
+			$table->renameHeader("size", "Größe");
+			$table->renameHeader("options", "Optionen");
+			$table->write();
+		}
+	}
+	
+	private function addFolderForm() {
+		$form = new Form("Ordner erstellen", $this->linkprefix("addFolder"));
+		$form->addElement("Ordnername", new Field("folder", "", FieldType::CHAR));
+		$form->write();
+	}
+	
+	private function addFileForm() {
+		$form = new Form("Datei hinzuf&uuml;gen", $this->linkprefix("addFile&path=" . $this->path));
+		$form->setMultipart();
+		$form->addElement("Datei", new Field("file", "", FieldType::FILE));
+		$form->changeSubmitButton("Datei hochladen");
+		$form->write();
 	}
 	
 	/**
@@ -217,6 +196,8 @@ class Filebrowser implements iWriteable {
 		if(!copy($_FILES["file"]["tmp_name"], $target . "/" . $_FILES["file"]["name"])) {
 			new Error("Die Datei konnte nicht gespeichert werden.");
 		}
+		
+		$this->mainView();
 	}
 	
 	/**
@@ -234,6 +215,8 @@ class Filebrowser implements iWriteable {
 		}
 		$fn = urldecode($_GET["file"]);
 		unlink($this->root . $this->path . "/" . $fn);
+		
+		$this->mainView();
 	}
 	
 	/**
@@ -251,6 +234,8 @@ class Filebrowser implements iWriteable {
 		
 		// create folder in root
 		mkdir($this->root . $_POST["folder"]);
+		
+		$this->mainView();
 	}
 	
 	/**
@@ -267,6 +252,56 @@ class Filebrowser implements iWriteable {
 		}
 		return "?mod=" . $system_data->getModuleId() . "$mode&fbfunc=$ext";
 	}
+	
+	/**
+	 * @param String $folder Folder to get the files and their infos from. 
+	 * @return A database selection like array with the contents of the folder.
+	 */
+	private function getFilesFromFolder($folder) {
+		$result = array();
+		
+		// header
+		$result[0] = array(
+			"name", "size", "options"
+		);
+		
+		// data body
+		if($handle = opendir($this->root . $folder)) {
+			while(false !== ($file = readdir($handle))) {
+				if($file != "." && $file != ".." && !is_dir($this->root . $folder . "/" . $file)) {
+					$fullpath = $this->root . $folder . "/$file";
+					// calculate size
+					$size = filesize($fullpath);
+					$size = ceil($size / 1000);
+					$size = number_format($size, 0) . " kb";
+					
+					// create options
+					$showLnk = new Link($fullpath, "Download");
+					$showLnk->setTarget("_blank");
+					$showLnk->addIcon("arrow_down");
+					$show = $showLnk->toString();
+					
+					$delLnk = new Link($this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file)), "Löschen");
+					$delLnk->addIcon("remove");
+					$delete = $delLnk->toString();
+					
+					$options = $show . "&nbsp;&nbsp;" . $delete;
+					
+					// add to result array
+					$row = array(
+						"name" => $file,
+						"size" => $size,
+						"options" => $options
+					);
+					array_push($result, $row);
+				}
+			}
+			closedir($handle);
+		}
+					
+		return $result;
+	}
+		
 }
 
 ?>
