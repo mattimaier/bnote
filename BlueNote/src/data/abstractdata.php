@@ -223,8 +223,10 @@ abstract class AbstractData {
 			foreach($colExchange as $fcol => $tcols) {
 				if(!isset($this->references[$fcol])) continue;
 				$foreign_table = $this->references[$fcol];
-				foreach($tcols as $cid => $col) {
-					$query .= $foreign_table . "." . $col . " as $foreign_table$col, "; // foreign_table.foreign_col
+				if(is_array($tcols)) {
+					foreach($tcols as $cid => $col) {
+						$query .= $foreign_table . "." . $col . " as $foreign_table$col, "; // foreign_table.foreign_col
+					}
 				}
 				// add table to required tables
 				if(!in_array($foreign_table, $tables)) array_push($tables, $foreign_table);
