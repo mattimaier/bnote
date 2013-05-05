@@ -6,11 +6,10 @@ class Controller {
 
  function __construct() {
 
-  global $SYSTEM;
   global $system_data;
 
   # Check for Permission
-  if(!$system_data->userHasPermission($SYSTEM["modid"])) {
+  if(!$system_data->userHasPermission($system_data->getModuleId())) {
   	echo "<b>Keine Berechtigung</b><br>Sie haben keine Berechtigung dieses Modul zu benutzen.";
   	exit();
   }
@@ -23,7 +22,12 @@ class Controller {
   	}
   }
   # Start Module
-  $modName = strtolower($system_data->getModuleTitle());
+  if(!is_numeric($system_data->getModuleId())) {
+  	$modName = "login";
+  }
+  else {
+  	$modName = strtolower($system_data->getModuleTitle());
+  }
   
   // include preliminaries
   require $GLOBALS['DIR_DATA'] . "fieldtype.php";

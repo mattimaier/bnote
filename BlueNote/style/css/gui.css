@@ -375,14 +375,7 @@ p.rehearsal_details {
 	color: #000;
 }
 
-#website_editor {
-	width: 100%;
-}
-
-#website_pages {
-	width: 130px;
-}
-
-.website_webpage_item {
-	
+.login_whyBNote_topic {
+	font-weight: 600;
+	margin-top: 20px;
 }

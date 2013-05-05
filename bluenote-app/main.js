@@ -1,7 +1,3 @@
-// url of the bluenote instance
-var srv_url = 'http://192.168.10.102/projects/BlueNote';
-var srv_location = '/src/export/bna-json.php';
-
 // stores the main application data
 var appdata;
 var pin;

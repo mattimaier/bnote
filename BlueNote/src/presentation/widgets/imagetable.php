@@ -126,8 +126,8 @@ class ImageTable implements iWriteable {
 			?>
 			<a class="imagetable" href="<?php echo $this->editmode . "&id=" . $entry["id"]; ?>">
 			<div class="imagetable">
-				<div class="imagetable_label"><?php echo $entry["name"]; ?></div>
-				<img class="imagetable" width="<?php echo $this->thumbwidth; ?>" height="<?php echo $this->thumbheight; ?>" src="<?php echo $imgsrc; ?>" alt="<?php echo $imgalt; ?>" />
+				<img class="imagetable" width="<?php echo $this->thumbwidth; ?>" height="<?php echo $this->thumbheight; ?>" src="<?php echo $imgsrc; ?>" alt="<?php echo $imgalt; ?>" /><br/>
+				<span class="imagetable_label"><?php echo $entry["name"]; ?></span>
 			</div></a>
 			<?php
 		}

@@ -49,7 +49,16 @@ class Systemdata {
   * Return the current module's title
   */
  public function getModuleTitle() {
-  return $this->dbcon->getCell("module", "name", "id = " . $this->current_modid);
+ 	if(is_numeric($this->current_modid)) {
+  		return $this->dbcon->getCell("module", "name", "id = " . $this->current_modid);
+ 	}
+ 	else if($this->loginMode()) {
+ 		$modarr = $this->getModuleArray();
+ 		return $modarr[$this->current_modid];
+ 	}
+ 	else {
+ 		return $this->current_modid;
+ 	}
  }
 
  public function getModuleDescriptor() {
@@ -91,6 +100,7 @@ class Systemdata {
  }
  
  public function userHasPermission($modulId) {
+ 	if($this->loginMode() && !is_numeric($modulId)) return true;
  	return in_array($modulId, $this->user_module_permission);
  }
 
@@ -98,23 +108,34 @@ class Systemdata {
   * Returns an array with all modules: id => name
   */
  public function getModuleArray() {
+ 	if($this->loginMode()) {
+ 		return array(
+ 				"login" => "Login",
+ 				"forgotPassword" => "Passwort vergessen",
+ 				"registration" => "Registrierung",
+ 				"whyBNote" => "Warum BNote?",
+ 				"terms" => "Nutzungs-bedingungen",
+ 				"impressum" => "Impressum"
+ 		);
+ 	}
+
  	if(isset($this->modulearray) && count($this->modulearray) > 0) {
  		return $this->modulearray;
  	}
 
-  $mods = array();
+	$mods = array();
+	
+	$query = "SELECT id, name FROM module ORDER BY id";
+	$res = mysql_query($query);
+	if(!$res) new Error("Die Datenbankabfrage schlug fehl.");
+	if(mysql_num_rows($res) == 0) new Error("Datenbankfehler. Es muss mindestens ein Modul eingetragen sein.");
 
-  $query = "SELECT id, name FROM module ORDER BY id";
-  $res = mysql_query($query);
-  if(!$res) new Error("Die Datenbankabfrage schlug fehl.");
-  if(mysql_num_rows($res) == 0) new Error("Datenbankfehler. Es muss mindestens ein Modul eingetragen sein.");
-
-  while($row = mysql_fetch_array($res)) {
-   $mods[$row["id"]] = $row["name"];
-  }
-
-  $this->modulearray = $mods;
-  return $mods;
+	while($row = mysql_fetch_array($res)) {
+		$mods[$row["id"]] = $row["name"];
+	}
+	
+	$this->modulearray = $mods;
+	return $mods;
  }
  
  /**
@@ -264,6 +285,13 @@ class Systemdata {
  	$gal = $this->cfg_system->getParameter("UseInfoPages");
  	if($gal != null && strtolower($gal) == "true") return true;
  	else return false;
+ }
+ 
+ /**
+  * @return True when the user is not logged in, otherwise false.
+  */
+ public function loginMode() {
+ 	return !isset($_SESSION["user"]);
  }
 }
 

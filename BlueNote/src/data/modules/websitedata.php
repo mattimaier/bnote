@@ -29,7 +29,7 @@ class WebsiteData extends AbstractData {
 		);
 		
 		$this->references = array(
-			"author" => "user", 
+			"author" => "user"
 		);
 		
 		$this->table = "infos";

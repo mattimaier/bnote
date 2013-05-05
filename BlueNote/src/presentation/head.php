@@ -1,5 +1,5 @@
 <HEAD>
- <TITLE><?php echo $SYSTEM["appname"] . " | " . $SYSTEM["modtitle"]; ?></TITLE>
+ <TITLE><?php echo $system_data->getApplicationName() . " | " . $system_data->getModuleTitle(); ?></TITLE>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
  
 <?php

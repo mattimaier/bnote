@@ -241,7 +241,7 @@ abstract class AbstractBNA implements iBNA {
 	function getRehearsalsWithParticipation($user) {
 		$query = "SELECT * ";
 		$query .= "FROM rehearsal r LEFT JOIN rehearsal_user ru ON ru.rehearsal = r.id ";
-		$query .= "WHERE end > now() AND (ru.user = 1 || ru.user IS NULL) ";
+		$query .= "WHERE end > now() AND (ru.user = $user || ru.user IS NULL) ";
 		$query .= "ORDER BY begin ASC";
 		$rehs = $this->db->getSelection($query);
 		$this->printEntities($rehs, "rehearsal");

@@ -23,8 +23,8 @@ class Table implements iWriteable {
   $this->data = $data;
   $this->edit = false;
 
-  global $SYSTEM;
-  $this->modid = $SYSTEM["modid"];
+  global $system_data;
+  $this->modid = $system_data->getModuleId();
   $this->mode = "view";
   }
 
