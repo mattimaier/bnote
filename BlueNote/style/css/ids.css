@@ -56,7 +56,7 @@
 	padding:0px 24px;
 }
 
-#fogoBanner
+#logoBanner
 {
 	float: left;
 	padding: 0px 24px 0px 0px;
@@ -72,6 +72,8 @@
 	float: left;
 	font-size: 18pt;
 	font-weight: 500;
+	display: inline-block;
+	
 }
 
 #UserInfo {
