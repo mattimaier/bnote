@@ -60,6 +60,7 @@
 {
 	float: left;
 	padding: 0px 24px 0px 0px;
+    line-height: 0;
 }
 
 #SystemName 
