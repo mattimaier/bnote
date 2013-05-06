@@ -16,6 +16,9 @@ class LoginView extends AbstractView {
 	}
 	
 	function login() {
+		
+		include $GLOBALS["DIR_PRESENTATION"] . "logo.php";
+					
 		Writing::h1("Login");
 		
 		Writing::p("Bitte melde dich an um BNote zu nutzen. Wenn du noch kein
