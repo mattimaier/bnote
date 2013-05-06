@@ -60,7 +60,7 @@ class LoginData extends AbstractData {
 		if($ct != 1) { return -1; }
 		
 		// if it's unique return the user's id
-		$contact = $this->database->getCell("contact", "id", "email = 'email'"); //TODO FIXME: bug - no contact is found for existing mail address
+		$contact = $this->database->getCell("contact", "id", "email = '$email'");
 		if($contact < 1) { return -1; }
 		
 		// check more than 1 user for this contact
@@ -112,7 +112,7 @@ class LoginData extends AbstractData {
 		$query = "INSERT INTO address (street, city, zip) VALUES (";
 		$query .= '"' . $_POST["street"] . '", "' . $_POST["city"] . '", "' . $_POST["zip"] . '"';
 		$query .= ")";
-		return $db->execute($query);
+		return $this->database->execute($query);
 	}
 	
 	function createContact($aid) {
@@ -126,7 +126,7 @@ class LoginData extends AbstractData {
 		$query .= '"MEMBER", ';
 		$query .= $_POST["instrument"];
 		$query .= ")";
-		return $db->execute($query);
+		return $this->database->execute($query);
 	}
 	
 	function createUser($login, $password, $cid) {
@@ -137,7 +137,7 @@ class LoginData extends AbstractData {
 		$query .= '"' . $password . '", ';
 		$query .= "0, $cid";
 		$query .= ")";
-		return $db->execute($query);
+		return $this->database->execute($query);
 	}
 	
 	function createDefaultRights($uid) {
@@ -147,7 +147,7 @@ class LoginData extends AbstractData {
 			$privQuery .= "($uid, $mod), ";
 		}
 		$privQuery = substr($privQuery, 0, strlen($privQuery)-2);
-		$db->execute($privQuery);
+		$this->database->execute($privQuery);
 	}
 }
 

@@ -56,6 +56,28 @@
 	padding:0px 24px;
 }
 
+#logoBanner
+{
+	float: left;
+	padding: 0px 24px 0px 0px;
+    line-height: 0;
+}
+
+#logoLoginContainer
+{
+	width: 100%;
+	text-align: center;
+}
+
+#logoLogin
+{
+	display: inline-block;
+	font-weight: 600;
+	font-size: 28pt;
+	color: #61b3ff;
+	padding-bottom: 48px;
+}
+
 #SystemName 
 {
 	float: left;
@@ -66,6 +88,8 @@
 	float: left;
 	font-size: 18pt;
 	font-weight: 500;
+	display: inline-block;
+	
 }
 
 #UserInfo {

@@ -6,6 +6,7 @@
 .help_navigator_menu {
 	width: 250px;
 	background: #eee;
+	padding: 0px;
 }
 
 .help_navigator_menu_topic {
@@ -30,7 +31,7 @@
 	padding-left: 15px;
 	padding-right: 20px;
 	background-color: #FFFFFF;
-	color: #285DB8;
+	color: #61b3ff;
 }
 
 .help_navigator_menu_page_active:hover {
@@ -41,6 +42,7 @@
 	width: 750px;
 	padding-left: 10px;
 	padding-right: 10px;
+	background-color: #fff;
 }
 
 a.help_navigator_menu_page_link {
@@ -50,5 +52,5 @@ a.help_navigator_menu_page_link {
 .help_page_title {
 	font-size: 20px;
 	font-weight: bold;
-	color: #285DB8;
+	color: #61b3ff;
 }

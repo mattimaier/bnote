@@ -146,7 +146,7 @@ class LoginController extends DefaultController {
 		// create entities for complete user
 		$aid = $this->getData()->createAddress(); // address id
 		$cid = $this->getData()->createContact($aid); // contact id
-		$uid = $this->getData()->createUser($cid); // user id
+		$uid = $this->getData()->createUser($_POST["login"], $password, $cid); // user id
 		$this->getData()->createDefaultRights($uid);
 		
 		// write success

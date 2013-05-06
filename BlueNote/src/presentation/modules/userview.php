@@ -76,7 +76,14 @@ class UserView extends CrudRefView {
 		$usr = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
 		
 		// show header
-		Writing::h1($usr["login"]  . " / " . $usr["contactsurname"] . ", " . $usr["contactname"]);
+		if(isset($usr["contactsurname"])) {
+			$title = $usr["login"]  . " / " . $usr["contactsurname"] . ", " . $usr["contactname"];
+		}
+		else {
+			$usr = $this->getData()->findByIdNoRef($_GET["id"]);
+			$title = "User " . $usr["login"];
+		}
+		Writing::h1($title);
 		
 		// show options
 		$edit = new Link("?mod=" . $this->getModId() . "&mode=edit&id=" . $_GET["id"], "Benutzer bearbeiten");

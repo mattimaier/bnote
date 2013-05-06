@@ -24,7 +24,7 @@ class HtmlEditor implements iWriteable {
 	
 	function write() {
 		$editor = '<textarea id="tinymcefull" name="' . $this->name . '"';
-		$editor .= ' cols="80" rows="17">';
+		$editor .= ' cols="100" rows="20">';
  		$editor .= $this->html . '</textarea>' . "\n";
  		echo $editor;
 	}

@@ -15,7 +15,7 @@ class LoginView extends AbstractView {
 		$this->login();
 	}
 	
-	function login() {
+	function login() {					
 		Writing::h1("Login");
 		
 		Writing::p("Bitte melde dich an um BNote zu nutzen. Wenn du noch kein
@@ -31,6 +31,7 @@ class LoginView extends AbstractView {
 		$form->addElement("Passwort", new Field("password", "", FieldType::PASSWORD));
 		$form->write();
 		
+		include $GLOBALS["DIR_PRESENTATION"] . "logo.php";
 	}
 	
 	function forgotPassword() {

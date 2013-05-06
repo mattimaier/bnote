@@ -88,6 +88,9 @@ class HilfeView extends AbstractView {
 					echo '<span class="help_page_title">' . $this->helpPages[$_GET["page"]] . '</span>';
 					include $this->helpPagesDir . $_GET["page"] . ".html";
 				}
+				else {
+					Writing::p("Bitte wähle eine Hilfeseite.");
+				}
 				?>
 			</td>
 			</tr>
