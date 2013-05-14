@@ -5,7 +5,7 @@
  <!-- ID of the Start module -->
  <StartModule>1</StartModule>
  
- <!-- URL of the BlueNote system -->
+ <!-- URL of the BNote system -->
  <URL>http://bluenote.inizio.org</URL>
  
  <!-- E-mail-address of the administrator -->
