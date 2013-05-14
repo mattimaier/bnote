@@ -110,6 +110,7 @@ class Systemdata {
  public function getModuleArray() {
  	if($this->loginMode()) {
  		return array(
+				"home" => "Start",
  				"login" => "Login",
  				"forgotPassword" => "Passwort vergessen",
  				"registration" => "Registrierung",

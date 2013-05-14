@@ -1,13 +1,16 @@
-body {
+
+body
+{
 	color: #000;
-	background-color: #eee;
-	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
+	background-color:#eee;
+	font-family:'PT Sans', 'Raleway', Arial, sans-serif;
 	font-size: 11pt;
 	line-height: 1.35;
 }
 
-a {
-	text-decoration: none;
+a
+{
+	text-decoration:none;
 	color: #61b3ff;
 }
 
@@ -31,138 +34,137 @@ h2 {
 	margin-top: 12pt;
 }
 
-h3 {
-	font-size: 13pt;
-	font-weight: 600;
-	margin-bottom: 4pt;
-	margin-top: 6pt;
-}
-
-.clearing {
+.clearing
+{
 	height: 0;
 	clear: both;
 }
 
-a.Logout {
+a.Logout
+{
 	color: #fff;
 }
 
-a.navi {
+a.navi
+{
 	color: #000;
 }
 
-a.navi:visited {
-	
+a.navi:visited
+{
+
 }
 
-div.navi_item {
+div.navi_item 
+{
 	padding: 14px;
-	border-right: 1px solid;
-	border-right-color: #e0e0e0;
-	border-bottom: 1px solid;
-	border-bottom-color: #e0e0e0;
+	border-right:1px solid;
+	border-right-color:#e0e0e0;	
+	border-bottom:1px solid;
+	border-bottom-color:#e0e0e0;	
 	background-color: #fff;
 }
 
-div.navi_item:hover {
-	background-color: #61b3ff;
+div.navi_item:hover
+{
+	background-color:#61b3ff;
 	color: #fff;
 }
 
-div.navi_item_selected {
+div.navi_item_selected 
+{
 	padding: 14px;
-	background-color: #eee;
+	background-color:#eee;
 	color: #000;
-	border-bottom: 1px solid;
-	border-bottom-color: #e0e0e0;
+	border-bottom:1px solid;
+	border-bottom-color:#e0e0e0;	
 }
+
 
 div.navi_item_selected:hover {
-	
-}
+ }
+ 
+ 
 
-input[type="submit"],a.linkbox {
+input[type="submit"], a.linkbox
+{
 	color: #000;
 	background-color: #eee;
 	font-size: 11pt;
-	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
+	font-family:'PT Sans', 'Raleway', Arial, sans-serif;
 	padding: 4px 16px;
-	border: 1px solid;
-	border-color: #e0e0e0;
+	border:1px solid;
+	border-color:#e0e0e0;
 }
 
 a.linkbox {
 	padding-left: 10px;
 }
 
-input[type="submit"]:hover,a.linkbox:hover {
+input[type="submit"]:hover, a.linkbox:hover
+{
 	background-color: #61b3ff;
 	color: #fff;
 }
 
-<<<<<<< HEAD
-input[type="text"],input[type="password"],textArea {
-=======
 input[type="text"],input[type="password"], textArea
 {
->>>>>>> 161557defcf74ea5b5edffeef31d75e1fccdb35b
 	color: #000;
 	background-color: #fff;
 	font-size: 11pt;
-	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
+	font-family:'PT Sans', 'Raleway', Arial, sans-serif;
 	padding: 0 4px;
-	border: 1px solid;
-	border-color: #e0e0e0;
+	border:1px solid;
+	border-color:#e0e0e0;
 }
 
+
+
 /* table */
-table {
-	border: 1px solid;
-	border-color: #e0e0e0;
+
+table
+{
+	border:1px solid;
+	border-color:#e0e0e0;
 	margin-top: 1em;
 	margin-bottom: 1em;
 }
 
-td {
-	padding: 10px;
+td
+{
+	 padding: 10px;
 }
-
+ 
 /* tables */
-td.DataTable_Header {
+td.DataTable_Header 
+{
 	background-color: #61b3ff;
 	color: #fff;
 }
 
 /* Zebra striping */
-tr:nth-of-type(even) {
-	background: #fff;
+tr:nth-of-type(even) 
+{ 
+  background: #fff; 
 }
 
-tr:nth-of-type(odd) {
-	background: #eee;
+tr:nth-of-type(odd) 
+{ 
+  background: #eee; 
 }
 
-td a {
-	color: black;
+td a
+{
+color: black;
 }
-
-td {
-	vertical-align: top;
-}
-
+ 
 td.DataTable_Sum {
-	
-}
+
+ }
+
 
 div.FormBox {
 <<<<<<< HEAD
-	padding: 24px;
-	background-color: #fff;
-	border: 1px solid;
-	border-color: #e0e0e0;
-	display: inline-block;
-}
-=======
 padding: 24px;
 background-color: #fff;
 border:1px solid;
@@ -170,33 +172,38 @@ border-color:#e0e0e0;
 
 display: inline-block;
  }
->>>>>>> 161557defcf74ea5b5edffeef31d75e1fccdb35b
+=======
+	padding: 8px;
+	background-color: #fff;
+	border: 1px solid;
+	border-color: #e0e0e0;
+	font-size: 14pt;
+	font-weight: 600;
+	display: inline-block
+}
 
 legend.FormBox {
 	font-weight: 600;
 	padding-bottom: 8px;
 }
+>>>>>>> 4fd542d9b15b97e1df90f5d64ae5c3c1295053fb
 
-div.FormBox.table {
-	border-color: red;
+
+div.FormBox.table
+{
+border-color:red;
+	
 }
 
 span.linkbox {
-}
 
+ }
+ 
 span.linkbox:hover {
 	
 }
 
 <<<<<<< HEAD
-div.rehearsal {
-	padding: 24px;
-	background-color: #fff;
-	border: 1px solid;
-	border-color: #e0e0e0;
-	display: inline-block;
-}
-=======
 
 
 div.rehearsal
@@ -220,28 +227,20 @@ div.rehearsalDescription
 }
 
 
+=======
+>>>>>>> 4fd542d9b15b97e1df90f5d64ae5c3c1295053fb
 p.message {
->>>>>>> 161557defcf74ea5b5edffeef31d75e1fccdb35b
 
-div.rehearsalDate {
-	font-weight: 600;
-}
-
-div.rehearsalDescription {
-	color: #000;
-}
-
-p.message {
-	
-}
-
+ }
+ 
 p.onpageMessage {
 	
-}
+	}
 
 p.footnote {
-	
-}
+ 
+ }
+
 
 font.messageHeader {
 	font-size: 12pt;
@@ -261,7 +260,7 @@ div.account {
 }
 
 a.silent {
-	
+
 }
 
 a.silent:hover {
@@ -283,6 +282,7 @@ li.start_rehearsal {
 	margin-bottom: 5px;
 }
 */
+ 
 p.start_rehearsal_title {
 	font-size: 12pt;
 	font-weight: 600;
@@ -328,62 +328,4 @@ span.contact_view_tab:hover {
 table.contact_view {
 	margin-top: 0px;
 	width: 100%;
-}
-
-.progressbar_step {
-	float: left;
-	padding: 10px;
-	background-color: #eee;
-}
-
-.passed {
-	background-color: #61b3ff;
-	color: #fff;
-}
-
-.arrow_right {
-	float: left;
-	margin-right: 3px;
-	border-top: 20px solid transparent;
-	border-bottom: 20px solid transparent;
-	border-left: 20px solid #eee;
-}
-
-.passed_arrow {
-	border-left: 20px solid #61b3ff;
-}
-
-div.concert {
-	padding: 10px;
-	background-color: #eee;
-	border: 1px solid #e0e0e0;
-}
-
-p.concert_title {
-	font-weight: 600;
-	color: #000;
-}
-
-p.concert_details {
-	color: #000;
-}
-
-div.rehearsal {
-	padding: 10px;
-	background-color: #eee;
-	border: 1px solid #e0e0e0;
-}
-
-p.rehearsal_title {
-	font-weight: 600;
-	color: #000;
-}
-
-p.rehearsal_details {
-	color: #000;
-}
-
-.login_whyBNote_topic {
-	font-weight: 600;
-	margin-top: 20px;
 }

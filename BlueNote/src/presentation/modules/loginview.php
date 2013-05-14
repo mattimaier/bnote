@@ -12,7 +12,7 @@ class LoginView extends AbstractView {
 	}
 	
 	function start() {
-		$this->login();
+		$this->home();
 	}
 	
 	function login() {					
@@ -30,8 +30,6 @@ class LoginView extends AbstractView {
 		$form->addElement("Benutzername", new Field("login", "", FieldType::CHAR));
 		$form->addElement("Passwort", new Field("password", "", FieldType::PASSWORD));
 		$form->write();
-		
-		include $GLOBALS["DIR_PRESENTATION"] . "logo.php";
 	}
 	
 	function forgotPassword() {
@@ -190,6 +188,11 @@ class LoginView extends AbstractView {
 	
 	function terms() {
 		include "data/terms.html";
+	}
+	
+	function home()
+	{
+		include $GLOBALS["DIR_PRESENTATION"] . "logo.php";
 	}
 }
 
