@@ -100,12 +100,8 @@ input[type="submit"]:hover,a.linkbox:hover {
 	color: #fff;
 }
 
-<<<<<<< HEAD
+
 input[type="text"],input[type="password"],textArea {
-=======
-input[type="text"],input[type="password"], textArea
-{
->>>>>>> 161557defcf74ea5b5edffeef31d75e1fccdb35b
 	color: #000;
 	background-color: #fff;
 	font-size: 11pt;
@@ -155,22 +151,12 @@ td.DataTable_Sum {
 }
 
 div.FormBox {
-<<<<<<< HEAD
 	padding: 24px;
 	background-color: #fff;
 	border: 1px solid;
 	border-color: #e0e0e0;
 	display: inline-block;
 }
-=======
-padding: 24px;
-background-color: #fff;
-border:1px solid;
-border-color:#e0e0e0;
-
-display: inline-block;
- }
->>>>>>> 161557defcf74ea5b5edffeef31d75e1fccdb35b
 
 legend.FormBox {
 	font-weight: 600;
@@ -188,24 +174,12 @@ span.linkbox:hover {
 	
 }
 
-<<<<<<< HEAD
 div.rehearsal {
 	padding: 24px;
 	background-color: #fff;
 	border: 1px solid;
 	border-color: #e0e0e0;
 	display: inline-block;
-}
-=======
-
-
-div.rehearsal
-{
-padding: 24px;
-background-color: #fff;
-border:1px solid;
-border-color:#e0e0e0;
-display: inline-block;
 }
 
 div.rehearsalDate
@@ -216,18 +190,6 @@ font-weight: 600;
 
 div.rehearsalDescription
 {
-	color: #000;
-}
-
-
-p.message {
->>>>>>> 161557defcf74ea5b5edffeef31d75e1fccdb35b
-
-div.rehearsalDate {
-	font-weight: 600;
-}
-
-div.rehearsalDescription {
 	color: #000;
 }
 
