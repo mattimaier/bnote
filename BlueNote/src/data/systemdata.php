@@ -214,7 +214,7 @@ class Systemdata {
  /**
   * @return All super users from the configuration.
   */
- private function getSuperUsers() {
+ public function getSuperUsers() {
  	$su = $this->cfg_system->getParameter("SuperUsers");
  	$sus = explode(",", $su);
  	if($sus[0] == "") return array();

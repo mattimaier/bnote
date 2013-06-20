@@ -80,7 +80,9 @@ class LoginData extends AbstractData {
 	}
 	
 	function getInstruments() {
-		$query = "SELECT id,name FROM instrument";
+		$query = "SELECT i.id, i.name as instrument, c.name as category";
+		$query .= " FROM instrument i JOIN category c ON i.category = c.id";
+		$query .= " ORDER BY category, instrument";
 		return $this->database->getSelection($query);
 	}
 	

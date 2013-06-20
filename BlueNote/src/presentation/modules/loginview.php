@@ -99,7 +99,7 @@ class LoginView extends AbstractView {
 		$instruments = $this->getData()->getInstruments();
 		for($i = 1; $i < count($instruments); $i++) {
 			echo '<OPTION value="' . $instruments[$i]["id"] . '">';
-			echo $instruments[$i]["name"] . "</OPTION>\n";
+			echo $instruments[$i]["category"] . ": " . $instruments[$i]["instrument"] . "</OPTION>\n";
 		}
 		?>
 		</SELECT>

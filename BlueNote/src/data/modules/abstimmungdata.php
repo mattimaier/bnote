@@ -50,9 +50,13 @@ class AbstimmungData extends AbstractData {
 		$query .= " )";
 		$vid = $this->database->execute($query);
 		
-		// add this user to vote
-		$query = "INSERT INTO vote_group (vote, user) VALUES ($vid, " . $_SESSION["user"] . ")";
-		$this->database->execute($query);
+		/*
+		 * enhancement #15: add all members and admins by default
+		 * - removed adding the current user, since it could be an admin and should
+		 *   thus be invisible.
+		 */
+		$this->addAllMembersAndAdminsToGroup($vid);	
+		
 		return $vid;
 	}
 	
@@ -155,6 +159,18 @@ class AbstimmungData extends AbstractData {
 	function getUsers() {
 		$query = "SELECT u.id, c.surname, c.name ";
 		$query .= "FROM user u JOIN contact c ON u.contact = c.id ";
+		
+		// bug #13: Filter out admins
+		global $system_data;
+		$superUsers = $system_data->getSuperUserContactIDs();
+		if(count($superUsers) > 0) {
+			$query .= "WHERE ";
+			for($i = 0; $i < count($superUsers); $i++) {
+				if($i > 0) $query .= "AND ";
+				$query .= "c.id <> " . $superUsers[$i] . " ";
+			}
+		}
+		
 		$query .= "ORDER BY c.name, c.surname";
 		return $this->database->getSelection($query);
 	}
@@ -170,15 +186,35 @@ class AbstimmungData extends AbstractData {
 		$query = "SELECT u.id FROM user u JOIN contact c ON u.contact = c.id WHERE c.status = 'MEMBER' OR c.status = 'ADMIN'";
 		$users = $this->database->getSelection($query);
 		
+		/* bug #13 and #14:
+		 * remove admins from being added to the group
+		* and don't add people who are already in the group
+		*/
+		$q1 = "SELECT user FROM vote_group WHERE vote = $vid";
+		$contactsInList = $this->database->getSelection($q1);
+		$contactList = array();
+		// flatten the list and remove header
+		for($i = 1; $i < count($contactsInList); $i++) {
+			array_push($contactList, $contactsInList[$i]["user"]);
+		}
+		global $system_data;
+		$superUsers = $system_data->getSuperUsers();
+		
 		// add the user ids to group
 		$query = "INSERT INTO vote_group (vote, user) VALUES ";
 		$addset = "";
 		for($i = 1; $i < count($users); $i++) {
-			if($users[$i]["id"] == $_SESSION["user"]) continue; // skip author, because he/she is added automatically
+			// exclude users already in the list and admins
+			if(in_array($users[$i]["id"], $superUsers) || in_array($users[$i]["id"], $contactList)) {
+				continue;
+			}
+			
 			if($addset != "") $addset .= ",";
 			$addset .= "($vid, " . $users[$i]["id"] . ")";
 		}
-		$this->database->execute($query . $addset);
+		if($addset != "") {
+			$this->database->execute($query . $addset);
+		}
 	}
 	
 	function deleteFromGroup($vid, $uid) {

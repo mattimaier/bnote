@@ -29,7 +29,20 @@ class KommunikationData extends KontakteData {
 	}
 	
 	function getMailaddressesFromGroup($group) {
-		$query = "SELECT email FROM contact WHERE status = '";
+		// bug #5: exclude configured administrators from mail-traffic
+		global $system_data;
+		$adminContacts = $system_data->getSuperUserContactIDs();
+		$exclAdminSqlWhere = "";
+		if(count($adminContacts) > 0) {
+			for($adminId = 0; $adminId < count($adminContacts); $adminId++) {
+				if($adminId > 0) $exclAdminSqlWhere .= " AND ";
+				$exclAdminSqlWhere .= "id <> " . $adminContacts[$adminId];
+			}
+		}
+		
+		$query = "SELECT email FROM contact WHERE ";
+		if(count($adminContacts) > 0) $query .= "($exclAdminSqlWhere) AND (";
+		$query .= "status = '";
 		$stat = $group;
 		
 		// 100 = Admins, Members
@@ -45,6 +58,7 @@ class KommunikationData extends KontakteData {
 		}
 		
 		$query .= $stat . "'";
+		if(count($adminContacts) > 0) $query .= ")";
 
 		return $this->database->getSelection($query);
 	}

@@ -201,6 +201,7 @@ class AbstimmungView extends CrudView {
 		// show a button to add all members and admins
 		$this->verticalSpace();
 		$addMembersBtn = new Link($this->modePrefix() . "group&func=addAllMembers&id=" . $_GET["id"], "Alle Mitspieler hinzufügen");
+		$addMembersBtn->addIcon("add");
 		$addMembersBtn->write();
 		
 		// show add users form
@@ -212,9 +213,11 @@ class AbstimmungView extends CrudView {
 		}
 		$form->addElement("Abstimmungsberechtigter", $dd);
 		$form->write();
+		$this->verticalSpace();
 		
 		// back button
 		$back = new Link($this->modePrefix() . "view&id=" . $_GET["id"], "Zurück zur Abstimmung");
+		$back->addIcon("arrow_left");
 		$back->write();
 	}
 	
