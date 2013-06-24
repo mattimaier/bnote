@@ -1,6 +1,6 @@
-# PATCH for BlueNote
-# BlueNote Version 2
-# Patch Version: 2
+# PATCH for BNote
+# BNote Version 2
+# Patch Version: 3.1
 
 # How to install patch?
 
