@@ -36,10 +36,12 @@ abstract class AbstractView {
 	protected function deleteConfirmationMessage($label, $linkDelete, $linkBack) {
 		new Message("L&ouml;schen?", "Wollen sie diesen Eintrag wirklich l&ouml;schen?");
 		$yes = new Link($linkDelete, strtoupper($label) . " L&Ouml;SCHEN");
+		$yes->addIcon("remove");
 		$yes->write();
 		$this->buttonSpace();
 		
 		$no = new Link($linkBack, "Zur&uuml;ck");
+		$no->addIcon("arrow_left");
 		$no->write();
 	}
 	

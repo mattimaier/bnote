@@ -222,11 +222,13 @@ class Systemdata {
  }
  
  /**
-  * Checks whether the current user is a super user or not.
-  * @return True when the current user is a super user, otherwise false.
+  * Checks whether the given user is a super user or not.
+  * @param Integer $uid User ID. In case no id is given, the current user is checked. 
+  * @return True when the user is a super user, otherwise false.
   */
- public function isUserSuperUser() {
- 	return in_array($_SESSION["user"], $this->getSuperUsers());
+ public function isUserSuperUser($uid = -1) {
+ 	if($uid == -1) $uid = $_SESSION["user"];
+ 	return in_array($uid, $this->getSuperUsers());
  }
  
  /**

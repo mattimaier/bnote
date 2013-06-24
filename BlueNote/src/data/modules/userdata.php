@@ -29,9 +29,19 @@ class UserData extends AbstractData {
 	}
 	
 	function getUsers() {
+		// filter out super-users, in case a non-super-user looks at the table
 		$query = "SELECT u.id, u.isActive, u.login, ";
 		$query .= "CONCAT_WS(' ', c.name, c.surname) as name, u.lastlogin";
 		$query .= " FROM user u LEFT JOIN contact c ON u.contact = c.id";
+		
+		if(!$this->getSysdata()->isUserSuperUser()
+				&& count($this->getSysdata()->getSuperUsers()) > 0) {
+			$query .= " WHERE ";
+			foreach($this->getSysdata()->getSuperUsers() as $i => $su) {
+				if($i > 0) $query .= " AND ";
+				$query .= "u.id <> $su";
+			}
+		}
 		$query .= " ORDER BY name, id";
 		return $this->database->getSelection($query);
 	}
@@ -77,10 +87,16 @@ class UserData extends AbstractData {
 	function update($id, $values) { // $values is the same than $_POST
 		$this->validate($_POST);
 		
+		// restrict access to super user for non-super-users
+		if(!$this->getSysdata()->isUserSuperUser()
+				&& $this->getSysdata()->isUserSuperUser($_GET["id"])) {
+			new Error("Zugriff verweigert.");
+		}
+		
 		$usr = array();
 		// encrypt password
 		foreach($this->getFields()as $id => $info) {
-			if($id == "id" || $id == "lastlogin") continue;
+			if($id == "id" || $id == "lastlogin" || $id == "login") continue;
 			else if($id == "password") {
 				if($_POST[$id] != "") $usr[$id] = crypt($_POST[$id], CRYPT_BLOWFISH);
 			} else {
@@ -88,7 +104,19 @@ class UserData extends AbstractData {
 			}
 			
 		}
+		
 		parent::update($_GET["id"], $usr);
+	}
+	
+	function delete($id) {
+		// restrict access to super user for non-super-users
+		if(!$this->getSysdata()->isUserSuperUser()
+				&& $this->getSysdata()->isUserSuperUser($id)) {
+			new Error("Zugriff verweigert.");
+		}
+		else {
+			parent::delete($id);
+		}
 	}
 	
 	/**
@@ -136,6 +164,12 @@ class UserData extends AbstractData {
 	 * @param int $uid User ID.
 	 */
 	function updatePrivileges($uid) {
+		// restrict access to super user for non-super-users
+		if(!$this->getSysdata()->isUserSuperUser()
+				&& $this->getSysdata()->isUserSuperUser($uid)) {
+			new Error("Zugriff verweigert.");
+		}
+		
 		// clear privileges
 		$query = "DELETE FROM privilege WHERE user = $uid";
 		$this->database->execute($query);
@@ -167,6 +201,12 @@ class UserData extends AbstractData {
 	 * @return boolean True when the user was activated, false when the user was deactivated.
 	 */
 	function changeUserStatus($id) {
+		// restrict access to super user for non-super-users
+		if(!$this->getSysdata()->isUserSuperUser()
+				&& $this->getSysdata()->isUserSuperUser($uid)) {
+			new Error("Zugriff verweigert.");
+		}
+		
 		$query = "UPDATE " . $this->table . " SET isActive =";
 		$isActiveNow = false;
 		if($this->isUserActive($id)) {

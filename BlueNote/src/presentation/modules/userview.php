@@ -72,6 +72,12 @@ class UserView extends CrudRefView {
 	function view() {
 		$this->checkID();
 		
+		// restrict access to super user for non-super-users
+		if(!$this->getData()->getSysdata()->isUserSuperUser()
+				&& $this->getData()->getSysdata()->isUserSuperUser($_GET["id"])) {
+			new Error("Zugriff verweigert.");
+		}
+		
 		// get current user
 		$usr = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
 		
@@ -132,7 +138,7 @@ class UserView extends CrudRefView {
 	function editEntityForm() {
 		$user = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form = new Form($this->getData()->getUsername($_GET["id"]) . " bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
-		$form->addElement("Login", new Field("login", $user["login"], FieldType::CHAR));
+		$form->addElement("Login", new Field("login", $user["login"], 99));
 		$form->addElement("Passwort", new Field("password", "", FieldType::PASSWORD));
 		$form->addHidden("isActive", $user["isActive"]);
 		$dd = $this->contactDropdown();
@@ -155,8 +161,8 @@ class UserView extends CrudRefView {
 		}
 		$form->write();
 		echo "<br /><br />\n";
-		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"],
-							"Go back");
+		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"], "Zur&uuml;ck");
+		$usrView->addIcon("arrow_left");
 		$usrView->write();
 	}
 	
@@ -165,8 +171,8 @@ class UserView extends CrudRefView {
 		$this->getData()->updatePrivileges($_GET["id"]);
 		
 		new Message("&Auml;nderungen gespeichert.", "Die Benutzerdaten wurden erfolgreich gespeichert.");
-		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"],
-							"Go back");
+		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"], "Zur&uuml;ck");
+		$usrView->addIcon("arrow_left");
 		$usrView->write();
 	}
 	

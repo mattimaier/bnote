@@ -49,10 +49,17 @@ abstract class AbstractData {
 	private $adp;
 	
 	/**
+	 * System Data: Application core settings and holder of diverse system functions.
+	 * @var Systemdata
+	 */
+	private $sysdata;
+	
+	/**
 	 * Initialize data provider.
 	 */
 	protected function init() {
 		global $system_data;
+		$this->sysdata = $system_data;
 		$this->database = $system_data->dbcon;
 		$this->regex = $system_data->regex;
 		
@@ -66,6 +73,14 @@ abstract class AbstractData {
 	public function adp() {
 		if($this->adp == null) echo "<strong>Application Data Provider not set! Call init()!</strong>";
 		return $this->adp;
+	}
+	
+	/**
+	 * <strong>init() must have been called first!</strong>
+	 * @return Systemdata Reference to application core settings and diverse system functions.
+	 */
+	public function getSysdata() {
+		return $this->sysdata;
 	}
 	
 	/**
