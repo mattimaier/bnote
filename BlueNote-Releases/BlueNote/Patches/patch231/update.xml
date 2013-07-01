@@ -8,4 +8,5 @@
 	</copy>
 	<execute>update_db.php</execute>
 	<remove>update_db.php</remove>
+	<remove>bluenote_version</remove>
 </update>

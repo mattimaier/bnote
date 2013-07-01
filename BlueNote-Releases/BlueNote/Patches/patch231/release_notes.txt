@@ -7,6 +7,9 @@
 - Bugfix #8: New concert program not added (not fixed, just closed since it was not an error)
 - Bugfix #13+14: Abstimmung: adding users and interface corrected
 - Bugfix #19: Timezone specification of calendar export fixed
+- Bugfix #25: Instruments encoding
+- Bugfix #29: Rehearsal creation without location
+- Bugfix #34: Location corrupt
 - Enhancement #5: Administrator is excluded from the mail traffic
 - Enhancement #7: Administrators are hidden and protected in the user module
 - Enhancement #15: All members are added by default when creating a vote

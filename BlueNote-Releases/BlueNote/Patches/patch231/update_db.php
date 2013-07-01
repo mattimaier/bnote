@@ -70,7 +70,13 @@ $db->execute("UPDATE instrument SET name = 'Musikalischer Leiter' WHERE id = 1")
 $db->execute("UPDATE instrument SET name = 'Sologesang' WHERE id = 2");
 $db->execute("UPDATE instrument SET name = 'keine Angabe' WHERE id = 23");
 
-echo "<i>Diverse Instrumente hinzugefügt und Instrumentnamen aktualisiert.</i><br/>\n";
+/*
+ * TASK 1.3: Update current categories
+ */
+$db->execute("UPDATE category SET name = 'Blechbl&auml;ser' WHERE id = 2");
+$db->execute("UPDATE category SET name = 'Holzbl&auml;ser' WHERE id = 3");
+
+echo "<i>Diverse Instrumente hinzugef&uuml;gt, Instrumentnamen und Kategorien aktualisiert.</i><br/>\n";
 
 ?>
 <br/>
