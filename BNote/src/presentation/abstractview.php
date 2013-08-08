@@ -93,6 +93,78 @@ abstract class AbstractView {
 	}
 	
 	/**
+	 * Checks the given keys whether it contains the needle.
+	 * @param String $needle Contains-String to search for.
+	 * @param Array $keyArray Keys.
+	 * @return Name of the first occurance of a fuzzy key or null if not found.
+	 */
+	private function fuzzyKeySearch($needle, $keyArray) {
+		foreach($keyArray as $i => $key) {
+			if(substr_count($key, $needle) > 0) return $key;
+		}
+		return null;
+	}
+	
+	/**
+	 * Searches the given array for the fields "city", "zip" and "street".
+	 * Then builds a string with the given address. In case a field cannot
+	 * be found, it is omitted.
+	 * @param Array $row Should contain at least one of the fields "city", "zip" or "street".
+	 */
+	protected function buildAddress($row) {		
+		$rowKeys = array_keys($row);
+		if(!isset($row["street"])) {
+			// look for a street field in the keys
+			$likeKey = $this->fuzzyKeySearch("street", $rowKeys);
+			if($likeKey != null) $street = $row[$likeKey];
+			else $street = "";
+		}
+		else $street = $row["street"];
+		
+		if(!isset($row["city"])) {
+			// look for a city field in the keys
+			$likeKey = $this->fuzzyKeySearch("city", $rowKeys);
+			if($likeKey != null) $city = $row[$likeKey];
+			else $city = "";
+		}
+		else $city = $row["city"];
+		
+		if(!isset($row["zip"])) {
+			// look for a zip field in the keys
+			$likeKey = $this->fuzzyKeySearch("zip", $rowKeys);
+			if($likeKey != null) $zip = $row[$likeKey];
+			else $zip = "";
+		}
+		else $zip = $row["zip"];
+		
+		/*
+		 * street & city
+		 * street & zip -> ignored, only street then
+		 * city & zip
+		 * only street
+		 * only city
+		 * only zip -> ignored, nothing then
+		 */
+		if($street != "" && $city != "" && $zip != "") {
+			return $street . ", " . $zip . " " . $city;
+		}
+		else if($street != "" && $city != "") {
+			return $street . ", " . $city;
+		} 
+		else if($street != "") {
+			return $street;
+		}
+		else if($city != "" && $zip != "") {
+			return $zip . " " . $city;
+		}
+		else if($city != "") {
+			return $city;
+		}
+		
+		return "";
+	}
+	
+	/**
 	 * Prints the string which contrains the space inbetween buttons.
 	 */
 	protected function buttonSpace() {

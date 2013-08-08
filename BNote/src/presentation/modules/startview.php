@@ -21,226 +21,280 @@ class StartView extends AbstractView {
 		$ical->addIcon("arrow_down");
 		$ical->write();
 		
-		Writing::h2("Proben");
-		$this->writeRehearsalList($this->getData()->adp()->getAllRehearsals());
+		$this->buttonSpace();
+		$calSubsc = new Link("webcal://" . $GLOBALS["DIR_EXPORT"] . "calendar.ics", "Kalender abonnieren");
+		$calSubsc->addIcon("arrow_right");
+		$calSubsc->write();
 		
-		Writing::h2("Konzerte");
-		$this->writeConcertList($this->getData()->adp()->getFutureConcerts());
-		
-		Writing::h2("Abstimmungen");
-		$this->writeVoteList();
-	}
-	
-	private function writeRehearsalList($data) {
-		echo "<ul>\n";
-		for($i = 1; $i < count($data); $i++) {
-			$row = $data[$i];
-			/* PHP > 5.2!!!
-			 *
-			// calculate day of the week
-			$date_begin = new DateTime($row["begin"]);
-			$date_end = new DateTime($row["end"]);
-			$weekday = Data::convertEnglishWeekday($date_begin->format('D'));
-
-			// check whether they are on the same day -> if so, only write hour as end
-			$finish = $date_end->format('H:i');
-			*/
-			// PHP 5.0 - 5.1
-			$date_begin = strtotime($row["begin"]);
-			$date_end = strtotime($row["end"]);
-			$weekday = Data::convertEnglishWeekday(date("D", $date_begin));
-			$finish = date('H:i', $date_end);
-
-			$when = Data::convertDateFromDb($row["begin"]) . " bis " . $finish . " Uhr";
-			
-			// put the output together
-			$out = "<p class=\"start_rehearsal_title\">$weekday, $when</p>";
-			$out .= "<p class=\"start_rehearsal\">" . $row["name"];
-			$out .= " (" . $row["street"] . ", " . $row["zip"] . " " . $row["city"] .  ")";
-			$songs = $this->getData()->getSongsForRehearsal($row["id"]);
-			if(count($songs) > 1) {
-				$out .= "<br />";
-				$out .= "St&uuml;cke zum <u>&uuml;ben</u>: ";
-				for($j = 1; $j < count($songs); $j++) {
-					$out .= $songs[$j]["title"];
-					if($songs[$j]["notes"] != "") $out .= " (" . $songs[$j]["notes"] . ")";
-					$out .= ", ";
-				}
-				$out = substr($out, 0, strlen($out) -2);
-			}
-			$out .= "</p>";
-			$out .= "<pre class=\"start_rehearsal\">" . $row["notes"] . "</pre>\n";
-			
-			$rehParticipation = $this->getData()->doesParticipateInRehearsal($row["id"]);
-			if($rehParticipation == -1) {
-				$participate = new Link($this->modePrefix() . "participate&rid=" . $row["id"] . "&status=yes", "Ich werde anwesend sein.");
-				$participate->addIcon("checkmark");
-				$out .= $participate->toString();
-				$out .= "&nbsp; &nbsp;";
-				$dnpart = new Link($this->modePrefix() . "participate&rid=" . $row["id"] . "&status=no", "Ich werde nicht anwesend sein.");
-				$dnpart->addIcon("no_entry");
-				$out .= $dnpart->toString();
-				$out .= "&nbsp; &nbsp;";
-				$maypart = new Link($this->modePrefix() . "participate&rid=" . $row["id"] . "&status=maybe", "Ich werde vielleicht anwesend sein.");
-				$maypart->addIcon("yield");
-				$out .= $maypart->toString();
-				$out .= "<br/><br/>";
-			}
-			else {
-				$partMsg = "";
-				$partStyle = "font-size: 14px; color: ";
-				$linkaddy = $this->modePrefix() . "participate&rid=" . $row["id"] . "&status=";
-				$links = array();
-				
-				if($rehParticipation == 0) {
-					$partMsg = "Du nimmst <u>nicht</u> an der Probe teil.";
-					$partStyle .= "#A61717";
-					$links["zusagen"] = "yes";
-					$links["vielleicht"] = "maybe";
-				}
-				else if($rehParticipation == 1) {
-					$partMsg = "Du nimmst an der Probe teil.";
-					$partStyle .= "#1EA617";
-					$links["absagen"] = "no";
-					$links["vielleicht"] = "maybe";
-				}
-				else if($rehParticipation == 2) {
-					$partMsg = "Du nimmst <u>vielleicht</u> an der Probe teil.";
-					$partStyle .= "#E6911C";
-					$links["zusagen"] = "yes";
-					$links["absagen"] = "no";
-				}				
-				$out .= "<p style=\"$partStyle;\">";
-				$out .= $partMsg;
-				
-				// Add a link to change decision
-				foreach($links as $action => $target) {
-					$out .= "&nbsp;&nbsp;";
-					$out .= "<a href=\"" . $linkaddy . $target . "\">$action</a>";
-				}
-				$out .= "&nbsp;&nbsp;";
-				$out .= '<a href="' . $this->modePrefix() . 'participants&rid=' . $row["id"] . '">Teilnehmer</a>';
-				
-				$out .= "</p>\n";
-			}
-			echo " <li class=\"start_rehearsal\">$out</li>\n";
-		}
-		echo "</ul>\n";
-	}
-	
-	private function writeConcertList($data) {
-		echo "<ul>\n";
-		for($i = 1; $i < count($data); $i++) {
-			$row = $data[$i];
-			/* PHP > 5.2!!!
-			 *
-			// calculate day of the week
-			$date_begin = new DateTime($row["begin"]);
-			$date_end = new DateTime($row["end"]);
-			$weekday = Data::convertEnglishWeekday($date_begin->format('D'));
-
-			// check whether they are on the same day -> if so, only write hour as end
-			$finish = $date_end->format('H:i');
-			*/
-			// PHP 5.0 - 5.1
-			$date_begin = strtotime($row["begin"]);
-			$date_end = strtotime($row["end"]);
-			$weekday = Data::convertEnglishWeekday(date("D", $date_begin));
-			$finish = date('H:i', $date_end);
-
-			$when = Data::convertDateFromDb($row["begin"]) . " bis " . $finish . " Uhr";
-			
-			// put the output together
-			$out = "<p class=\"start_rehearsal_title\">$weekday, $when</p>";
-			$out .= "<p class=\"start_rehearsal\">" . $row["location_name"];
-			$out .= " (" . $row["location_street"] . ", " . $row["location_zip"] . " " . $row["location_city"] .  ")</p>";
-			$out .= "<pre class=\"start_rehearsal\">" . $row["notes"] . "</pre>\n";
-			if($this->getData()->doesParticipateInConcert($row["id"]) == -1) {
-				$participate = new Link($this->modePrefix() . "participate&cid=" . $row["id"] . "&status=yes", "Ich werde mitspielen.");
-				$participate->addIcon("checkmark");
-				$out .= $participate->toString();
-				$out .= "&nbsp; &nbsp;";
-				$dnpart = new Link($this->modePrefix() . "participate&cid=" . $row["id"] . "&status=no", "Ich werde nicht mitspielen.");
-				$dnpart->addIcon("no_entry");
-				$out .= $dnpart->toString() . "<br /><br />";
-			}
-			echo " <li class=\"start_rehearsal\">$out</li>\n";
-		}
-		echo "</ul>\n";
 		$this->verticalSpace();
+		
+		$news = $this->getData()->getNews();
+		
+		if($news != "") {
+			?>
+			<div class="start_box_news">
+				<div class="start_box_heading">Nachrichten</div>
+				<div class="start_box_content">
+					<?php echo $news; ?>
+				</div>
+			</div>
+			<?php 
+		}
+		?>
+		
+		<div class="start_box_table">
+			<div class="start_box_row">
+				<div class="start_box">
+					<div class="start_box_heading">Proben</div>
+					<div class="start_box_content">
+						<?php $this->writeRehearsalList(); ?>
+					</div>
+				</div>
+				
+				<div class="start_box">
+					<div class="start_box_heading">Konzerte</div>
+					<div class="start_box_content">
+						<?php $this->writeConcertList(); ?>
+					</div>
+				</div>
+			</div>
+			<div class="start_box_row">
+				<div class="start_box">
+					<div class="start_box_heading">Aufgaben</div>
+					<div class="start_box_content">
+						<?php $this->writeTaskList(); ?>
+					</div>
+				</div>
+				
+				<div class="start_box">
+					<div class="start_box_heading">Abstimmungen</div>
+					<div class="start_box_content">
+						<?php $this->writeVoteList(); ?>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 	
-	public function participate() {
-		if(isset($_GET["status"]) && ($_GET["status"] == "no" || $_GET["status"] == "maybe")
-				&& !isset($_POST["rehearsal"])) {
-			$target = $this->modePrefix() . "participate&status=" . $_GET["status"];
-			$reasonMsg = "Ich werde nicht anwesend sein weil...";
-			if($_GET["status"] == "maybe") {
-				$reasonMsg = "Ich werde vielleicht nicht anwesend sein weil...";
-			}
-			
-			$form = new Form($reasonMsg, $target);
-			$form->addElement("", new Field("explanation", "", FieldType::CHAR));
-			if(isset($_GET["rid"])) {
-				$form->addHidden("rehearsal", $_GET["rid"]);
-			}
-			if(isset($_GET["cid"])) {
-				$form->addHidden("concert", $_GET["cid"]);
-			}
-			$form->write();
+	public function askReason($type) {
+		$form = new Form("Bitte gebe einen Grund an.",
+				$this->modePrefix() . "saveParticipation&obj=$type&id=" . $_GET["id"] . "&action=" . $_GET["action"]);
+		$form->addElement("", new Field("explanation", "", FieldType::CHAR));
+		$form->write();
+	}
+	
+	private function writeRehearsalList() {
+		$data = $this->getData()->adp()->getAllRehearsals();
+		echo "<ul>\n";
+		if($data == null || count($data) < 2) {
+			echo "<li>Keine Proben angesagt.</li>\n";
 		}
 		else {
-			$this->getData()->saveParticipation();
-			$this->start();
+			// iterate over rehearsals
+			for($i = 1; $i < count($data); $i++) {
+				$liCaption = Data::convertDateFromDb($data[$i]["begin"]) . " Uhr";
+				$liCaption = Data::getWeekdayFromDbDate($data[$i]["begin"]) . ", " . $liCaption;
+				
+				// create details for each rehearsal
+				$dataview = new Dataview();
+				$dataview->addElement("Beginn", Data::convertDateFromDb($data[$i]["begin"]) . " Uhr");
+				$dataview->addElement("Ende", Data::convertDateFromDb($data[$i]["end"]) . " Uhr");
+				$loc = $data[$i]["name"];
+				$dataview->addElement("Ort", $this->buildAddress($data[$i]));
+				
+				if($data[$i]["notes"] != "") {
+					$dataview->addElement("Anmerkung", $data[$i]["notes"]);
+				}
+				
+				$songs = $this->getData()->getSongsForRehearsal($data[$i]["id"]);
+				if(count($songs) > 2) {
+					$strSongs = "";
+					for($j = 1; $j < count($songs); $j++) {
+						if($j > 1) $strSongs .= ", ";
+						$songs .= $songs[$j]["name"];
+						if($songs[$j]["notes"] != "") $songs .= " (" . $songs[$j]["notes"] . ")";
+					}
+					$dataview->addElement("Stücke zum üben", $strSongs);
+				}
+				
+				// show three buttons to participate/maybe/not in rehearsal
+				$partButtonSpace = "<br/><br/>";
+				$partButtons = "";
+				$partLinkPrefix = $this->modePrefix() . "saveParticipation&obj=rehearsal&id=" . $data[$i]["id"] . "&action=";
+				
+				$partBtn = new Link($partLinkPrefix . "yes", "Ich nehme teil.");
+				$partBtn->addIcon("checkmark");
+				$partButtons .= $partBtn->toString() . $partButtonSpace;
+				
+				$mayBtn = new Link($partLinkPrefix . "maybe", "Ich nehme vielleicht teil.");
+				$mayBtn->addIcon("yield");
+				$partButtons .= $mayBtn->toString() . $partButtonSpace;
+				
+				$noBtn = new Link($partLinkPrefix . "no", "Ich kann leider nicht.");
+				$noBtn->addIcon("remove");
+				$partButtons .= $noBtn->toString();
+				
+				$userParticipation = $this->getData()->doesParticipateInRehearsal($data[$i]["id"]);
+				if($userParticipation < 0) {
+					$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahme angeben");
+				}
+				else {
+					$msg = "";
+					if($userParticipation == 1) {
+						$msg .= "Du nimmst an der Probe teil.";
+					}
+					else if($userParticipation == 2) {
+						$msg .= "Du nimmst an der Probe vielleicht teil.";
+					}
+					else if($userParticipation == 0) {
+						$msg .= "Du nimmst an der Probe nicht teil.";
+					}
+					
+					$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
+				}
+			}
 		}
+		echo "</ul>\n";
 	}
 	
-	public function participants() {
-		if(isset($_GET["rid"]) && $this->getData()->doesParticipateInRehearsal($_GET["rid"]) >= 0) {
-			// show list of participants
-			$parts = $this->getData()->getRehearsalParticipants($_GET["rid"]);
-			
-			Writing::h2("Probenteilnehmer");
-			echo "<p>";
-			for($i = 0; $i < count($parts); $i++) {
+	private function writeConcertList() {
+		$data = $this->getData()->adp()->getFutureConcerts();
+		echo "<ul>\n";
+		if($data == null || count($data) < 2) {
+			echo "<li>Keine Konzerte angesagt.</li>\n";
+		}
+		else {
+			// iterate over concerts
+			foreach($data as $i => $row) {
 				if($i == 0) continue;
-				$p = $parts[$i];
-				if($i > 1) echo "<br/>";
-				echo $p["name"] . " " . $p["surname"] . " (" . $p["instrument"] . ")";
+				$liCaption = Data::convertDateFromDb($row["begin"]) . " Uhr";
+				$liCaption = Data::getWeekdayFromDbDate($row["begin"]) . ", " . $liCaption;
+				
+				// concert details
+				$dataview = new Dataview();
+				$dataview->addElement("Beginn", Data::convertDateFromDb($row["begin"]) . " Uhr");
+				$dataview->addElement("Ende", Data::convertDateFromDb($row["end"]) . " Uhr");
+				$loc = $this->buildAddress($row);
+				if($loc != "") $loc = $row["location_name"] . " - " . $loc;
+				else $loc = $row["location_name"];
+				$dataview->addElement("Ort", $loc);
+				$contact = $row["contact_name"];
+				if($row["contact_phone"] != "") $contact .= "<br/>" . $row["contact_phone"];
+				if($contact != "" && $row["contact_email"] != "") $contact .= "<br/>" . $row["contact_email"];
+				if($contact != "" && $row["contact_web"] != "") $contact .= "<br/>" . $row["contact_web"];
+				$dataview->addElement("Kontakt", $contact);
+				if($row["program_name"] != "") {
+					$program = $row["program_name"];
+					if($program != "" && $row["program_notes"] != "") $program .= " (" . $row["program_notes"] . ")";
+					$dataview->addElement("Programm", $program);
+				}
+				
+				// show three buttons to participate/maybe/not in concert
+				$partButtonSpace = "<br/><br/>";
+				$partButtons = "";
+				$partLinkPrefix = $this->modePrefix() . "saveParticipation&obj=concert&id=" . $data[$i]["id"] . "&action=";
+				
+				$partBtn = new Link($partLinkPrefix . "yes", "Ich werde mitspielen.");
+				$partBtn->addIcon("checkmark");
+				$partButtons .= $partBtn->toString() . $partButtonSpace;
+				
+				$mayBtn = new Link($partLinkPrefix . "maybe", "Ich werde vielleicht mitspielen.");
+				$mayBtn->addIcon("yield");
+				$partButtons .= $mayBtn->toString() . $partButtonSpace;
+				
+				$noBtn = new Link($partLinkPrefix . "no", "Ich kann nicht mitspielen.");
+				$noBtn->addIcon("remove");
+				$partButtons .= $noBtn->toString();
+				
+				$userParticipation = $this->getData()->doesParticipateInConcert($data[$i]["id"]);
+				if($userParticipation < 0) {
+					$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahme angeben");
+				}
+				else {
+					$msg = "";
+					if($userParticipation == 1) {
+						$msg .= "Du nimmst am Konzert teil.";
+					}
+					else if($userParticipation == 2) {
+						$msg .= "Du nimmst am Konzert vielleicht teil.";
+					}
+					else if($userParticipation == 0) {
+						$msg .= "Du nimmst am Konzert nicht teil.";
+					}
+						
+					$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
+				}
 			}
-			echo "</p>\n";
 		}
-		else {
-			new Error("Es wurde keine Proben-ID angegeben.");
-		}
-		$this->backToStart();
+		echo "</ul>\n";
 	}
 	
-	public function writeVoteList() {
-		$votes = $this->getData()->getVotesForUser();
+	private function writeTaskList() {
+		$data = $this->getData()->adp()->getUserTasks();
+		//Data::viewArray($data);
+		echo "<ul>\n";
+		if($data == null || count($data) < 2) {
+			echo "<li>Keine Aufgaben vorhanden.</li>\n";
+		}
+		echo "</ul>\n";
 		
-		echo "<ul>";
-		for($i = 1; $i < count($votes); $i++) {
-			echo "<li class=\"start_rehearsal\">";
-			echo "<p class=\"start_rehearsal_title\">" . $votes[$i]["name"] . "</p>";
-			
-			if(!$this->getData()->hasUserVoted($votes[$i]["id"])) {
-				$btn = new Link($this->modePrefix() . "voteOptions&id=" . $votes[$i]["id"], "abstimmen");
-				$btn->addIcon("checkmark");
-				$btn->write();
-				$this->verticalSpace();
+		echo "TODO";
+	}
+	
+	private function writeVoteList() {
+		$data = $this->getData()->getVotesForUser();
+		
+		echo "<ul>\n";
+		if($data == null || count($data) < 2) {
+			echo "<li>Keine Abstimmungen offen.</li>\n";
+		}
+		else {
+			// iterate over votes
+			foreach($data as $i => $row) {
+				if($i < 1) continue;
+				$liCaption = $row["name"];
+				$dataview = new Dataview();
+				$dataview->addElement("Name", $row["name"]);
+				$dataview->addElement("Abstimmungsende", Data::convertDateFromDb($row["end"]) . " Uhr");
+				
+				$link = $this->modePrefix() . "voteOptions&id=" . $row["id"];
+				$this->writeBoxListItem("v" + $row["id"], $liCaption, $dataview, "", "Abstimmen", $link);
 			}
-			
-			echo "Die Abstimmung läuft bis " . Data::convertDateFromDb($votes[$i]["end"]) . " Uhr.";
-			
-			echo "</li>\n";
 		}
-		echo "</ul>";
-		
-		if(count($votes) == 1) {
-			Writing::p("<i>Derzeit sind keine Abstimmungen für dich offen.</i>");
-		}
-		$this->verticalSpace();
+		echo "</ul>\n";
+	}
+	
+	private function writeBoxListItem($popboxid, $liCaption, $dataview, $participation = "", $msg = "", $voteLink = "") {
+		?>
+		<li>
+			<a href="#" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 400 }); });"><?php echo $liCaption; ?></a>
+			<?php
+			if($msg != "" && $participation != "") {
+				?>
+				<br/>
+				<a href="#"
+				   class="participation"
+				   onClick="$(function() { $('#<?php echo $popboxid; ?>_participation').dialog({ width: 400 }); });"><?php echo $msg; ?></a>
+				<?php
+			}
+			else if($msg != "" && $voteLink != "") {
+				?>
+				<br/>
+				<a href="<?php echo $voteLink; ?>" class="participation"><?php echo $msg; ?></a>
+				<?php
+			}
+			?>
+			
+			<div id="<?php echo $popboxid; ?>" title="Details" style="display: none;">
+				<?php $dataview->write(); ?>
+			</div>
+			<div id="<?php echo $popboxid; ?>_participation" title="Teilnahme" style="display: none;">
+				<?php echo $participation; ?>
+			</div>
+			<?php $this->verticalSpace(); ?>
+		</li>
+		<?php
 	}
 	
 	public function voteOptions() {

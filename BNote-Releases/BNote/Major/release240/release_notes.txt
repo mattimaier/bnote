@@ -1,0 +1,5 @@
+##
+## Release Notes
+##
+
+Enhancement #37: Start: Update Link for Calendar so subscription can be accessed more easily.

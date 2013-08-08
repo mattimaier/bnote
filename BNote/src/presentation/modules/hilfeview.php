@@ -11,9 +11,11 @@ class HilfeView extends AbstractView {
 	
 	// format: name of the html-file => title
 	private $helpPages = array(
-			"bluenote2" => "Neuerungen in BNote 2.3",
+			"bnote2" => "Neuerungen in BNote 2.4",
 			"mitspieler" => "Modul Mitspieler",
 			"abstimmung" => "Modul Abstimmung",
+			"konfiguration" => "Modul Konfiguration",
+			"probenphase" => "Modul Probenphase",
 			"support" => "Support"
 	);
 	

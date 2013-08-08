@@ -26,6 +26,11 @@ class ProbenView extends CrudRefView {
 		$add->addIcon("add");
 		$add->write();
 		
+		$this->buttonSpace();
+		$series = new Link($this->modePrefix() . "addSerie", "Probenstrecke hinzufügen");
+		$series->addIcon("add");
+		$series->write();
+		
 		Writing::h2("N&auml;chste Probe");
 		$nextRehearsal = $this->getData()->getNextRehearsal();
 		if($nextRehearsal != null && $nextRehearsal != "" && count($nextRehearsal) > 0) {
@@ -85,6 +90,41 @@ class ProbenView extends CrudRefView {
 		$this->backToStart();
 	}
 	
+	function addSerie() {		
+		$form = new Form("Probenserie hinzufügen", $this->modePrefix() . "processSerie");
+		
+		$form->addElement("Erste Probe am", new Field("first_session", "", FieldType::DATE));
+		$form->addElement("Letzte Probe am", new Field("last_session", "", FieldType::DATE));
+		
+		$cycle = new Dropdown("cycle");
+		$cycle->addOption("wöchentlich", "7");
+		$cycle->addOption("zweiwöchentlich", "14");
+		$cycle->addOption("monatlich", "31");
+		$form->addElement("Zyklus", $cycle);
+		
+		$form->addElement("Uhrzeit", new Field("default_time", "", 96));
+		$form->addElement("Dauer in min", new Field("duration", "90", FieldType::INTEGER));
+		
+		$form->addElement("Ort", new Field("location", "", FieldType::REFERENCE));
+		$form->setForeign("Ort", "location", "id", "name", -1);
+		
+		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
+		
+		$form->write();
+		
+		$this->verticalSpace();
+		$this->backToStart();
+	}
+	
+	function processSerie() {
+		if($this->getData()->saveSerie()) {
+			new Message("Probenstrecke gespeichert", "Alle Proben wurde erfolgreich erstellt.");
+		}
+		else {
+			new Error("Die Probenserie konnte nicht verarbeitet werden.");
+		}
+	}
+	
 	/**
 	 * Writes out a list with rehearsals.
 	 * @param Array $data Data selection array.
@@ -114,7 +154,7 @@ class ProbenView extends CrudRefView {
 
 		$when = Data::convertDateFromDb($row["begin"]) . " bis " . $finish . " Uhr";
 
-		// put the output together
+		// put output together
 		$out = "<p class=\"rehearsal_title\">$weekday, $when</p>";
 		$out .= "<p class=\"rehearsal_details\">" . $row["name"];
 		$out .= " (" . $row["street"] . ", " . $row["zip"] . " " . $row["city"] .  ")</p>";

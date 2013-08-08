@@ -54,6 +54,7 @@ class Field implements iWriteable {
   case 10: return $this->Checkboxfield(); break;
   case 9: return $this->Passwordfield(); break;
   case 12: return $this->Filefield(); break;
+  case 96: return $this->TimeSelector(); break;
   case 97: return $this->DatetimeSelector(); break;
   case 98: return $this->tinyMCE(); break;
   case 99: return $this->UneditableField(); break;
@@ -172,6 +173,27 @@ class Field implements iWriteable {
  	
  	// combination
  	return $datefield . "&nbsp;&nbsp;" . $hourfield . ":" . $minutefield;
+ }
+ 
+ private function TimeSelector() {
+ 	// hour field
+ 	$hourfield = '<select name="' . $this->name . '_hour">';
+ 	for($h = 6; $h <= 23; $h++) {
+ 		$sel = ($h == 18) ? ' selected' : '';
+ 		$hourfield .= '<option value="' . $h . '"' . $sel . '>' . $h . '</option>';
+ 	}
+ 	$hourfield .= '</select>';
+ 	
+ 	// minute field
+ 	$minutefield = '<select name="' . $this->name . '_minute">';
+ 	for($m = 0; $m <= 45; $m = $m+15) {
+ 		$mf = ($m < 10) ? "00" : $m;
+ 		$minutefield .= '<option value="' . $mf . '">' . $mf . '</option>';
+ 	}
+ 	$minutefield .= '</select>';
+ 	
+ 	// combination
+ 	return $hourfield . ":" . $minutefield;
  }
 }
 

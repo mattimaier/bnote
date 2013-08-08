@@ -2,7 +2,7 @@
 
 class Config {
 	
-	public static $APPLICATION_NAME = "BlueNote WebApp";
+	public static $APPLICATION_NAME = "BNote WebApp";
 	
 	public static $DIR = array(
 		"pages" => "pages/",

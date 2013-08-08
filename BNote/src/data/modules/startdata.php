@@ -5,7 +5,11 @@
  * @author matti
  *
  */
+require_once($GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php");
+
 class StartData extends AbstractData {
+	
+	private $newsData;
 	
 	/**
 	 * Build data provider.
@@ -22,13 +26,15 @@ class StartData extends AbstractData {
 		$this->references = array();
 		$this->table = "user";
 		
+		$this->newsData = new NachrichtenData();
+		
 		$this->init();
 	}
 	
 	/**
 	 * Checks whether the current user participates in a rehearsal.
 	 * @param int $rid ID of the rehearsal.
-	 * @return 1 if the user participates, 0 if not, -1 if not chosen yet.
+	 * @return 2 if the user maybe participated, 1 if the user participates, 0 if not, -1 if not chosen yet.
 	 */
 	function doesParticipateInRehearsal($rid) {
 		$part = $this->database->getCell("rehearsal_user", "participate",
@@ -49,6 +55,7 @@ class StartData extends AbstractData {
 					"user = " . $_SESSION["user"] . " AND concert = $cid");
 		if($part == "1") return 1;
 		else if($part == "0") return 0;
+		else if($part == "2") return 2;
 		else return -1;
 	}
 	
@@ -66,6 +73,16 @@ class StartData extends AbstractData {
 			}
 			$query = "DELETE FROM rehearsal_user WHERE rehearsal = " . $rid;
 			$query .= " AND user = " . $_SESSION["user"];
+			$this->database->execute($query);
+		}
+		else if(isset($_GET["cid"]) || isset($_POST["concert"])) {
+			if(isset($_GET["cid"])) {
+				$cid = $_GET["cid"];
+			}
+			else {
+				$cid = $_POST["concert"];
+			}
+			$query = "DELETE FROM concert_user WHERE concert = $cid AND user =" . $_SESSION["user"];
 			$this->database->execute($query);
 		}
 			
@@ -96,6 +113,14 @@ class StartData extends AbstractData {
 			// save concert participation
 			$query = "INSERT INTO concert_user (concert, user, participate)";
 			$query .= " VALUES (" . $_GET["cid"] . ", " . $_SESSION["user"] . ", 1)";
+			$this->database->execute($query);
+		}
+		else if(isset($_POST["concert"]) && isset($_GET["status"]) && $_GET["status"] == "maybe") {
+			// save maybe participation in concert
+			$this->regex->isText($_POST["explanation"]);
+			$query = "INSERT INTO concert_user (concert, user, participate, reason)";
+			$query .= " VALUES (" . $_POST["concert"] . ", " . $_SESSION["user"] . ", 2, \"";
+			$query .= $_POST["explanation"] . "\")";
 			$this->database->execute($query);
 		}
 		else if(isset($_POST["concert"])) {
@@ -193,5 +218,9 @@ class StartData extends AbstractData {
 		$where .= ") AND user = " . $_SESSION["user"];
 		$c = $this->database->getCell("vote_option_user", "count(*)", $where);
 		return ($c > 0);
+	}
+	
+	function getNews() {
+		return $this->newsData->preparedContent();
 	}
 }

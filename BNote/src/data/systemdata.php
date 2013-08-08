@@ -105,7 +105,7 @@ class Systemdata {
  }
 
  /**
-  * Returns an array with all modules: id => name
+  * @return Array with all modules for the current situation: id => name
   */
  public function getModuleArray() {
  	if($this->loginMode()) {
@@ -124,19 +124,26 @@ class Systemdata {
  		return $this->modulearray;
  	}
 
-	$mods = array();
-	
-	$query = "SELECT id, name FROM module ORDER BY id";
-	$res = mysql_query($query);
-	if(!$res) new Error("Die Datenbankabfrage schlug fehl.");
-	if(mysql_num_rows($res) == 0) new Error("Datenbankfehler. Es muss mindestens ein Modul eingetragen sein.");
-
-	while($row = mysql_fetch_array($res)) {
-		$mods[$row["id"]] = $row["name"];
-	}
-	
-	$this->modulearray = $mods;
-	return $mods;
+	return $this->getInnerModuleArray();
+ }
+ 
+ /**
+  * @return Array with all modules of the inner system (not from the login-module).
+  */
+ public function getInnerModuleArray() {
+ 	$mods = array();
+ 	
+ 	$query = "SELECT id, name FROM module ORDER BY id";
+ 	$res = mysql_query($query);
+ 	if(!$res) new Error("Die Datenbankabfrage schlug fehl.");
+ 	if(mysql_num_rows($res) == 0) new Error("Datenbankfehler. Es muss mindestens ein Modul eingetragen sein.");
+ 	
+ 	while($row = mysql_fetch_array($res)) {
+ 		$mods[$row["id"]] = $row["name"];
+ 	}
+ 	
+ 	$this->modulearray = $mods;
+ 	return $mods;
  }
  
  /**

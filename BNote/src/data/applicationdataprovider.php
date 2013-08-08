@@ -337,4 +337,9 @@ class ApplicationDataProvider {
 		return ($ct == 1);
 	}
 	
+	function getUserTasks($uid = -1) {
+		if($uid == -1) $uid = $_SESSION["user"];
+		//TODO: get selection for new module
+	}
+	
 }
