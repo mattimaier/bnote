@@ -176,11 +176,20 @@ class Field implements iWriteable {
  }
  
  private function TimeSelector() {
+ 	// split value into hour and minute
+ 	$colonPos = strpos($this->default_value, ":");
+ 	$hour = "18"; // defaults
+ 	$minute = "00"; // defaults
+ 	if($colonPos > 0) {
+ 		$hour = substr($this->default_value, 0, $colonPos);
+ 		$minute = substr($this->default_value, $colonPos+1);
+ 	}
+ 	
  	// hour field
  	$hourfield = '<select name="' . $this->name . '_hour">';
  	for($h = 6; $h <= 23; $h++) {
- 		$sel = ($h == 18) ? ' selected' : '';
- 		$hourfield .= '<option value="' . $h . '"' . $sel . '>' . $h . '</option>';
+ 		$sel = ($h == $hour) ? ' selected' : '';
+ 		$hourfield .= '<option value="' . $h . '" ' . $sel . '>' . $h . '</option>';
  	}
  	$hourfield .= '</select>';
  	
@@ -188,7 +197,8 @@ class Field implements iWriteable {
  	$minutefield = '<select name="' . $this->name . '_minute">';
  	for($m = 0; $m <= 45; $m = $m+15) {
  		$mf = ($m < 10) ? "00" : $m;
- 		$minutefield .= '<option value="' . $mf . '">' . $mf . '</option>';
+ 		$sel = ($m == $minute) ? "selected" : ""; 
+ 		$minutefield .= '<option value="' . $mf . '" ' . $sel . '>' . $mf . '</option>';
  	}
  	$minutefield .= '</select>';
  	

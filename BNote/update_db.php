@@ -91,13 +91,8 @@ else {
 	echo "<i>New Modules already exists.</i><br/>";
 }
 
-/**************************************************************************************************************************************/
-//TODO: CONTINUE HERE...
-/**************************************************************************************************************************************/
-exit(0); // remove this to continue!
-
 /*
- * TASK 3: Create tables for "Abstimmung" module.
+ * TASK 2: Create tables for "Konfiguration" module.
  */
 $tabs = $db->getSelection("SHOW TABLES");
 $tables = array();
@@ -105,69 +100,26 @@ for($i = 1; $i < count($tabs); $i++) {
 	array_push($tables, $tabs[$i][0]);
 }
 
-// check whether table "vote" exists, if not create it
-if(!in_array("vote", $tables)) {
+// check whether table "configuration" exists, if not create it
+if(!in_array("configuration", $tables)) {
 	// add table
-	$query = "CREATE TABLE vote (";
-	$query .= " id int(11) PRIMARY KEY AUTO_INCREMENT, ";
-	$query .= " name varchar(100) NOT NULL, ";
-	$query .= " author int(11) NOT NULL, ";
-	$query .= " end datetime NOT NULL, ";
-	$query .= " is_multi int(1) NOT NULL, ";
-	$query .= " is_date int(1) NOT NULL, ";
-	$query .= " is_finished int(1) NOT NULL ";
+	$query = "CREATE TABLE configuration (";
+	$query .= " param varchar(100) PRIMARY KEY, ";
+	$query .= " value text NOT NULL, ";
+	$query .= " is_active int(1) NOT NULL ";
 	$query .= ")";
  	$db->execute($query);
-	echo "<i>Table vote created.</i><br/>";
+ 	
+ 	// insert initial configuration parameters
+ 	$query = "INSERT INTO configuration (param, value, is_activ) VALUES ";
+ 	$query .= "(rehearsal_start, \"18:00\", 1), ";
+ 	$query .= "(rehearsal_duration, \"90\", 1)";
+ 	$db->execute($query);
+ 	
+	echo "<i>Table configuration with initial parameters created.</i><br/>";
 }
 else {
-	echo "<i>Table vote already exists.</i><br/>";
-}
-
-// check whether table "vote_group" exists, if not create it
-if(!in_array("vote_group", $tables)) {
-	// add table
-	$query = "CREATE TABLE vote_group (";
-	$query .= " vote int(11) NOT NULL, ";
-	$query .= " user int(11) NOT NULL,";
-	$query .= "PRIMARY KEY (vote, user) ";
-	$query .= ")";
-	$db->execute($query);
-	echo "<i>Table vote_group created.</i><br/>";
-}
-else {
-	echo "<i>Table vote_group already exists.</i><br/>";
-}
-
-// check whether table "vote_option" exists, if not create it
-if(!in_array("vote_option", $tables)) {
-	// add table
-	$query = "CREATE TABLE vote_option (";
-	$query .= " id int(11) PRIMARY KEY AUTO_INCREMENT, ";
-	$query .= " vote int(11) NOT NULL, ";
-	$query .= " name varchar(100), ";
-	$query .= " odate datetime ";
-	$query .= ")";
-	$db->execute($query);
-	echo "<i>Table vote_option created.</i><br/>";
-}
-else {
-	echo "<i>Table vote_option already exists.</i><br/>";
-}
-
-// check whether table "vote_option_user" exists, if not create it
-if(!in_array("vote_option_user", $tables)) {
-	// add table
-	$query = "CREATE TABLE vote_option_user (";
-	$query .= " vote_option int(11) NOT NULL, ";
-	$query .= " user int(11) NOT NULL, ";
-	$query .= "PRIMARY KEY (vote_option, user) ";
-	$query .= ")";
-	$db->execute($query);
-	echo "<i>Table vote_option_user created.</i><br/>";
-}
-else {
-	echo "<i>Table vote_option_user already exists.</i><br/>";
+	echo "<i>Table configuration already exists.</i><br/>";
 }
 
 ?>

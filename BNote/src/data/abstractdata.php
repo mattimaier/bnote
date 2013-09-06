@@ -310,6 +310,9 @@ abstract class AbstractData {
 				else if($t == FieldType::DECIMAL) {
 					$value = Data::convertToDb($value);
 				}
+				else if($t == FieldType::BOOLEAN) {
+					$value = ($value == "on") ? 1 : 0; 
+				}
 				
 				if($t == FieldType::TEXT || $t == FieldType::CHAR || $t == FieldType::PASSWORD
 					|| $t == FieldType::DATETIME || $t == FieldType::TIME || $t == FieldType::ENUM
