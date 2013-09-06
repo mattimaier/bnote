@@ -54,8 +54,8 @@ class ProbenView extends CrudRefView {
 		
 		// New entity form
 		$form = new Form("Neue Probe", $this->modePrefix() . "add");
-		$form->addElement("Beginn", new Field("begin", date("d.m.Y"), 97));
-		$form->addElement("Dauer in min", new Field("duration", "90", FieldType::INTEGER));
+		$form->addElement("Beginn", new Field("begin", date("d.m.Y") . " " . $this->getData()->getDefaultTime(), 97));
+		$form->addElement("Dauer in min", new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
 		$form->addElement("location", new Field("location", "", FieldType::REFERENCE));
 		$form->setForeign("location", "location", "id", "name", -1);
 		$form->renameElement("location", "Ort");
@@ -101,8 +101,8 @@ class ProbenView extends CrudRefView {
 		$cycle->addOption("zweiwöchentlich", "2");
 		$form->addElement("Zyklus", $cycle);
 		
-		$form->addElement("Uhrzeit", new Field("default_time", "", 96));
-		$form->addElement("Dauer in min", new Field("duration", "90", FieldType::INTEGER));
+		$form->addElement("Uhrzeit", new Field("default_time", $this->getData()->getDefaultTime(), 96));
+		$form->addElement("Dauer in min", new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
 		
 		$form->addElement("Ort", new Field("location", "", FieldType::REFERENCE));
 		$form->setForeign("Ort", "location", "id", "name", -1);

@@ -185,6 +185,14 @@ class ProbenData extends AbstractData {
 		}
 		return $dates;
 	}
+	
+	public function getDefaultTime() {
+		return $this->getSysdata()->getDynamicConfigParameter("rehearsal_start");
+	}
+	
+	public function getDefaultDuration() {
+		return $this->getSysdata()->getDynamicConfigParameter("rehearsal_duration");
+	}
 }
 
 ?>

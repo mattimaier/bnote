@@ -13,6 +13,7 @@ class Systemdata {
 
  private $cfg_system;
  private $cfg_company;
+ private $cfg_dynamic;
  private $current_modid;
  
  private $user_module_permission;
@@ -35,6 +36,8 @@ class Systemdata {
   if(isset($_SESSION["user"]) && $_SESSION["user"] > 0) {
    $this->user_module_permission = $this->getUserModulePermissions();
   }
+  
+  $this->cfg_dynamic = $this->getDynamicConfiguration();
  }
 
  /* GETTER */
@@ -335,6 +338,28 @@ class Systemdata {
  		$result["".$page] = "".$attribs["file"];
  	}
  	return $result;
+ }
+ 
+ /**
+  * Fetches all dynamic configuration parameters from the configuration table.
+  * @return Array format: <parameter identifier> => <value>
+  */
+ private function getDynamicConfiguration() {
+ 	$res = $this->dbcon->getSelection("SELECT * FROM configuration");
+ 	$config = array();
+ 	for($i = 1; $i < count($res); $i++) {
+ 		$config[$res[$i]["param"]] = $res[$i]["value"];
+ 	}
+ 	return $config;
+ }
+ 
+ /**
+  * Determines the value of the dynamically configured parameter.
+  * @param String $parameter Identifier of the parameter.
+  * @return String Value of the parameter, "untyped".
+  */
+ public function getDynamicConfigParameter($parameter) {
+ 	return $this->cfg_dynamic[$parameter];
  }
 }
 
