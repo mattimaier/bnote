@@ -120,9 +120,7 @@ class ProbenData extends AbstractData {
 		return ($ct > 0);
 	}
 	
-	function saveSerie() {
-		Data::viewArray($_POST);
-		
+	function saveSerie() {		
 		// validate data
 		if($_POST["notes"] != "") $this->regex->isText($_POST["notes"]);
 		$this->regex->isPositiveAmount($_POST["duration"]);
@@ -138,22 +136,19 @@ class ProbenData extends AbstractData {
 		
 		// process accoding to cycle
 		if($_POST["cycle"] > 0) {
-			$rehearsalDates = $this->getRehearsalDates($dateFirstSession, $dateLastSession, intval($_POST["cycle"]));
-			Data::viewArray($rehearsalDates);
-// 			foreach($rehearsalDates as $rehDate) {
-// 				$beginDate = $rehDate . " " . $_POST["default_time_hour"] . ":" . $_POST["default_time_minute"];
-// 				$endDate = Data::addMinutesToDate($beginDate, $_POST["duration"]);
+			$rehearsalDates = $this->getRehearsalDates($_POST["first_session"], $_POST["last_session"], intval($_POST["cycle"]));
+			foreach($rehearsalDates as $rehDate) {
+				$beginDate = $rehDate . " " . $_POST["default_time_hour"] . ":" . $_POST["default_time_minute"];
+				$endDate = Data::addMinutesToDate($beginDate, $_POST["duration"]);
 				
-// 				$values = array(
-// 					"begin" => $beginDate,
-// 					"end" => $endDate,
-// 					"notes" => $_POST["notes"],
-// 					"location" => $_POST["Ort"]
-// 				);
-// 				echo "Creating: " . $values;
-// 				//TODO: check and activate
-// // 				$this->create($values);
-// 			}
+				$values = array(
+					"begin" => $beginDate,
+					"end" => $endDate,
+					"notes" => $_POST["notes"],
+					"location" => $_POST["Ort"]
+				);
+				$this->create($values);
+			}
 		}		
 		else {
 			return false;
@@ -166,42 +161,29 @@ class ProbenData extends AbstractData {
 	 * Finds all dates inbetween the first and the last date that fit to the cycle.
 	 * @param Date $firstDate First date of rehearsal.
 	 * @param Date $lastDate Last date of rehearsal.
-	 * @param Integer $cycle Cycle length in days.
+	 * @param Integer $cycle Cycle length in weeks.
 	 * @return Array All dates when a rehearsal should be created.
 	 */
 	private function getRehearsalDates($firstDate, $lastDate, $cycle) {
-		// create a rehearsal date every week
 		$dates = array($firstDate);
+		$finalDate = strtotime(Data::convertDateToDb($lastDate));
 		
-		// get weekday
-		$weekday = date("N", $firstDate); // 1=Monday, ..., 7=Sunday
-		
-		$currDate = $_POST["first_session"];
-		$endNotReached = true;
-		while($endNotReached) {
-			$newDate = Data::addDaysToDate($currDate, $cycle);
-			if(strtotime($newDate) - $lastDate < 0) {
-				$endNotReached = false;
+		$currDate = $firstDate;
+		$endReached = false;
+		$weekCount = 0;
+		while(!$endReached && $weekCount < 100) { // infinity prevention
+			// always multiples of a week
+			$newDate = Data::addDaysToDate($currDate, 7 * $cycle);
+			if(strtotime($newDate) - $finalDate > 0) {
+				$endReached = true;
 			}
 			else {
 				array_push($dates, $newDate);
 			}
+			$weekCount++;
+			$currDate = $newDate;
 		}
 		return $dates;
-		
-		// if cycle > 7 then sort out the ones that are not needed
-// 		$result = array();
-// 		for($i = 0; $i < count($dates); $i++) {
-// 			if($cycle == 14 && $i%2 == 0) {
-// 				// leave every second, kick others
-// 				array_push($dates[$i]);
-// 			}
-// 			else if($cycle == 31 && $i%4 == 0) {
-// 				// leave every fourth, kick others
-// 				array_push($dates[$i]);
-// 			}
-// 		}
-// 		return result;
 	}
 }
 

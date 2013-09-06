@@ -97,9 +97,8 @@ class ProbenView extends CrudRefView {
 		$form->addElement("Letzte Probe am", new Field("last_session", "", FieldType::DATE));
 		
 		$cycle = new Dropdown("cycle");
-		$cycle->addOption("wöchentlich", "7");
-		$cycle->addOption("zweiwöchentlich", "14");
-		$cycle->addOption("monatlich", "31");
+		$cycle->addOption("wöchentlich", "1");
+		$cycle->addOption("zweiwöchentlich", "2");
 		$form->addElement("Zyklus", $cycle);
 		
 		$form->addElement("Uhrzeit", new Field("default_time", "", 96));
@@ -119,6 +118,7 @@ class ProbenView extends CrudRefView {
 	function processSerie() {
 		if($this->getData()->saveSerie()) {
 			new Message("Probenstrecke gespeichert", "Alle Proben wurde erfolgreich erstellt.");
+			$this->backToStart();
 		}
 		else {
 			new Error("Die Probenserie konnte nicht verarbeitet werden.");
