@@ -339,7 +339,15 @@ class ApplicationDataProvider {
 	
 	function getUserTasks($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
-		//TODO: get selection for new module
+		
+		$query = "SELECT t.*, CONCAT(c1.name, ' ', c1.surname) as creator ";
+		$query .= "FROM user u, task t, contact c1, contact c2 ";
+		$query .= "WHERE u.id = $uid AND u.contact = t.assigned_to ";
+		$query .= " AND t.created_by = c1.id AND t.assigned_to = c2.id ";
+		$query .= " AND is_complete = 0 ";
+		$query .= "ORDER BY due_at DESC";
+		
+		return $this->database->getSelection($query);
 	}
 	
 }

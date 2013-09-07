@@ -223,4 +223,10 @@ class StartData extends AbstractData {
 	function getNews() {
 		return $this->newsData->preparedContent();
 	}
+	
+	function taskComplete($tid) {
+		$date = date("Y-m-d H:i:s");
+		$query = "UPDATE task SET is_complete = 1, completed_at = \"$date\" WHERE id = $tid";
+		$this->database->execute($query);
+	} 
 }

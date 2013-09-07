@@ -232,14 +232,24 @@ class StartView extends AbstractView {
 	
 	private function writeTaskList() {
 		$data = $this->getData()->adp()->getUserTasks();
-		//Data::viewArray($data);
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
 			echo "<li>Keine Aufgaben vorhanden.</li>\n";
 		}
+		else {
+			// iterate over tasks
+			foreach($data as $i => $row) {
+				if($i < 1) continue;
+				$liCaption = $row["title"];
+				$dataview = new Dataview();
+				$dataview->addElement("Titel", $row["title"]);
+				$dataview->addElement("Beschreibung", $row["description"]);
+				$dataview->addElement("Fällig am", Data::convertDateFromDb($row["due_at"]));
+				$lnk = $this->modePrefix() . "taskComplete&id=" . $row["id"];
+				$this->writeBoxListItem("t" + $row["id"], $liCaption, $dataview, "", "Als abgeschlossen markieren", $lnk);
+			}
+		}
 		echo "</ul>\n";
-		
-		echo "TODO";
 	}
 	
 	private function writeVoteList() {
@@ -343,6 +353,14 @@ class StartView extends AbstractView {
 		$this->checkID();
 		$this->getData()->saveVote($_GET["id"], $_POST);
 		$msg = new Message("Auswahl gespeichert", "Deine Auswahl wurde gespeichert.");
+		$msg->write();
+		$this->backToStart();
+	}
+	
+	public function taskComplete() {
+		$this->checkID();
+		$this->getData()->taskComplete($_GET["id"]);
+		$msg = new Message("Aufgabe abgeschlossen", "Die Aufgabe wurde als abgeschlossen markiert.");
 		$msg->write();
 		$this->backToStart();
 	}

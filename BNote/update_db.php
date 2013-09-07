@@ -92,7 +92,7 @@ else {
 }
 
 /*
- * TASK 2: Create tables for "Konfiguration" module.
+ * TASK 2: Create table for "Konfiguration" module.
  */
 $tabs = $db->getSelection("SHOW TABLES");
 $tables = array();
@@ -117,6 +117,31 @@ if(!in_array("configuration", $tables)) {
  	$db->execute($query);
  	
 	echo "<i>Table configuration with initial parameters created.</i><br/>";
+}
+else {
+	echo "<i>Table configuration already exists.</i><br/>";
+}
+
+/*
+ * TASK 3: Create table for "Aufgaben" module.
+ */
+// check whether table "configuration" exists, if not create it
+if(!in_array("task", $tables)) {
+	// add table
+	$query = "CREATE TABLE task (";
+	$query .= " id int(11) PRIMARY KEY AUTO_INCREMENT, ";
+	$query .= " title varchar(50) NOT NULL, ";
+	$query .= " description text, ";
+	$query .= " created_at datetime NOT NULL,";
+	$query .= " created_by int(11) NOT NULL,";
+	$query .= " due_at datetime,";
+	$query .= " assigned_to int(11),";
+	$query .= " is_complete int(1) NOT NULL, ";
+	$query .= " completed_at datetime ";
+	$query .= ")";
+	$db->execute($query);
+
+	echo "<i>Table task created.</i><br/>";
 }
 else {
 	echo "<i>Table configuration already exists.</i><br/>";

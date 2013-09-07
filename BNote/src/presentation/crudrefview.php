@@ -35,6 +35,7 @@ abstract class CrudRefView extends CrudView {
 		// show table rows
 		$table = new Table($this->getData()->findAllJoined($this->joinedAttributes));
 		$table->setEdit("id");
+		$table->renameAndAlign($this->getData()->getFields());
 		$table->write();
 	}
 	

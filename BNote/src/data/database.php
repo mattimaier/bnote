@@ -44,9 +44,9 @@ class Database extends Data {
 
  /**
   * Returns the value of a single cell.
-  * @param unknown_type $table Table of the cell.
-  * @param unknown_type $col Column of the cell.
-  * @param unknown_type $where Where clause without the "WHERE".
+  * @param String $table Table of the cell.
+  * @param String $col Column of the cell.
+  * @param String $where Where clause without the "WHERE".
   */
  public function getCell($table, $col, $where) {
   $query = "SELECT $col FROM $table WHERE $where";
@@ -91,7 +91,32 @@ class Database extends Data {
   * @param string $namecolumn The name for the reference
   */
  public function getForeign($table, $idcolumn, $namecolumn) {
- 	$query = "SELECT $idcolumn, $namecolumn FROM $table ORDER BY $namecolumn";
+ 	$query = "SELECT $idcolumn, $namecolumn FROM $table";
+ 	
+ 	// remove administrators from the corresponding tables
+ 	global $system_data;
+ 	if($table == "contact") {
+ 		$suContacts = $system_data->getSuperUserContactIDs();
+ 		if(count($suContacts) > 0) {
+ 			$query .= " WHERE ";
+ 			foreach($suContacts as $i => $cid) {
+ 				if($i > 0) $query .= " AND "; 
+ 				$query .= "id != $cid";
+ 			}
+ 		}
+ 	}
+ 	else if($table == "user") {
+ 		$suUsers = $system_data->getSuperUsers();
+ 		if(count($suUsers) > 0) {
+ 			$query .= " WHERE ";
+ 			foreach($suUsers as $i => $uid) {
+ 				if($i > 0) $query .= " AND ";
+ 				$query .= "id != $uid";
+ 			}
+ 		}
+ 	}
+ 	$query .= " ORDER BY $namecolumn";
+ 	
  	$res = $this->exe($query);
  	$ret = array();
  	
