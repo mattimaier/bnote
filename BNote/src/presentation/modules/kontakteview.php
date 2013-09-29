@@ -28,9 +28,14 @@ class KontakteView extends CrudRefView {
 		$add->write();
 		$this->buttonSpace();
 		
-		$print = new Link($this->modePrefix() . "printMembers", "Mitspielerliste drucken");
+		$print = new Link($this->modePrefix() . "selectPrintGroups", "Mitspielerliste drucken");
 		$print->addIcon("printer");
 		$print->write();
+		$this->buttonSpace();
+		
+		$groups = new Link($this->modePrefix() . "groups&func=start", "Gruppen verwalten");
+		$groups->addIcon("group");
+		$groups->write();
 		$this->buttonSpace();
 		
 		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", "Kontakte Export");
@@ -43,26 +48,17 @@ class KontakteView extends CrudRefView {
 		$this->showContacts();
 	}
 	
-	function showContacts() {
-		$title = "";
-		$data = array();
-		
-		switch($_GET["status"]) {
-			case "admins":		$title = "Administratoren";
-								$data = $this->getData()->getAdmins();
-								break;
-			case "externals":	$title = "Externe Mitspieler";
-								$data = $this->getData()->getExternals();
-								break;
-			case "applicants":	$title = "Bewerber";
-								$data = $this->getData()->getApplicants();
-								break;
-			case "others":		$title = "Sonstige Kontakte";
-								$data = $this->getData()->getOthers();
-								break;
-			default:			$title = "Band Mitspieler";
-								$data = $this->getData()->getMembers();
-								break;
+	function showContacts() {		
+		// show correct group
+		if(isset($_GET["group"]) && $_GET["group"] == "all") {
+			$data = $this->getData()->getAllContacts();
+		}
+		else if(isset($_GET["group"])) {
+			$data = $this->getData()->getGroupContacts($_GET["group"]);
+		}
+		else {
+			// default: MEMBERS
+			$data = $this->getData()->getMembers();
 		}
 		
 		// write
@@ -70,22 +66,26 @@ class KontakteView extends CrudRefView {
 	}
 	
 	private function showContactTable($data) {
-		$tabs = array(
-				"members" => "Mitspieler",
-				"admins" => "Administratoren",
-				"externals" => "Externe Mitspieler",
-				"applicants" => "Bewerber",
-				"others" => "Sonstige"
-		);
+		$groups = $this->getData()->getGroups();
 		
-		// show tabs
+		// show groups as tabs
 		echo "<div class=\"contact_view\">\n";
 		echo " <div class=\"contact_view_tabs\">";
-		foreach($tabs as $cmd => $label) {
+		foreach($groups as $cmd => $info) {
+			if($cmd == 0) {
+				// instead of skipping the first header-row,
+				// insert a tab with all contacts
+				$cmd = "all";
+				$info = array("name" => "Alle Kontakte", "id" => "all");
+			}
+			$label = $info["name"];
+			$groupId = $info["id"];
+			
 			$active = "";
-			if($_GET["status"] == $cmd) $active = "_active";
-			else if(!isset($_GET["status"]) && $cmd == "members") $active = "_active";
-			echo "<a href=\"" . $this->modePrefix() . "start&status=$cmd\"><span class=\"contact_view_tab$active\">$label</span></a>";
+			if($_GET["group"] == $cmd) $active = "_active";
+			else if(!isset($_GET["group"]) && $groupId == 2) $active = "_active";
+			
+			echo "<a href=\"" . $this->modePrefix() . "start&group=$groupId\"><span class=\"contact_view_tab$active\">$label</span></a>";
 		}
 		
 		// show data
@@ -160,14 +160,11 @@ class KontakteView extends CrudRefView {
 		$form->addElement("PLZ", new Field("zip", "", FieldType::CHAR));
 		
 		$form->removeElement("status");
-		$dd = new Dropdown("status");
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_ADMIN), KontakteData::$STATUS_ADMIN);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_MEMBER), KontakteData::$STATUS_MEMBER);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_EXTERNAL), KontakteData::$STATUS_EXTERNAL);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_APPLICANT), KontakteData::$STATUS_APPLICANT);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_OTHER), KontakteData::$STATUS_OTHER);
-		$dd->setSelected(KontakteData::$STATUS_MEMBER);
-		$form->addElement("Status", $dd);
+		
+		// group selection
+		$groups = $this->getData()->getGroups();
+		$gs = new GroupSelector($groups, array(), "group");
+		$form->addElement("Gruppen", $gs);
 		
 		$form->write();
 		
@@ -175,17 +172,31 @@ class KontakteView extends CrudRefView {
 		$this->backToStart();
 	}
 	
+	function add() {
+		$this->groupSelectionCheck();
+		
+		// do as usual
+		parent::add();
+	}
+	
 	function viewDetailTable() {
+		// user details
 		$entity = $this->getData()->getContact($_GET["id"]);
 		$details = new Dataview();
 		$details->autoAddElements($entity);
 		$details->autoRename($this->getData()->getFields());
+		$details->removeElement("Status");
 		$details->removeElement("Instrument");
 		$details->renameElement("instrumentname", "Instrument");
 		$details->removeElement("Adresse");
 		$details->renameElement("street", "Stra&szlig;e");
 		$details->renameElement("zip", "PLZ");
 		$details->renameElement("city", "Stadt");
+		
+		// the contact is a member of these groups
+		$groups = $this->getData()->getContactGroups($_GET["id"]);
+		$details->addElement("Gruppen", $groups);
+		
 		$details->write();
 	}
 	
@@ -203,7 +214,7 @@ class KontakteView extends CrudRefView {
 	
 	function editEntityForm() {
 		$contact = $this->getData()->findByIdNoRef($_GET["id"]);
-		$form = new Form("Kontakt hinzuf&uuml;gen", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
+		$form = new Form("Kontakt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);
 		$form->removeElement("id");
 		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
@@ -215,20 +226,72 @@ class KontakteView extends CrudRefView {
 		$form->addElement("PLZ", new Field("zip", $address["zip"], FieldType::CHAR));
 		
 		$form->removeElement("status");
-		$dd = new Dropdown("status");
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_ADMIN), KontakteData::$STATUS_ADMIN);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_MEMBER), KontakteData::$STATUS_MEMBER);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_EXTERNAL), KontakteData::$STATUS_EXTERNAL);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_APPLICANT), KontakteData::$STATUS_APPLICANT);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_OTHER), KontakteData::$STATUS_OTHER);
-		$dd->setSelected($contact["status"]);
-		$form->addElement("Status", $dd);
+		// group selection
+		$groups = $this->getData()->getGroups();
+		$userGroups = $this->getData()->getContactGroupsArray($_GET["id"]);
+		$gs = new GroupSelector($groups, $userGroups, "group");
+		$form->addElement("Gruppen", $gs);
 		
+		$form->write();
+	}
+	
+	function edit_process() {
+		$this->groupSelectionCheck();
+		
+		// do as usual
+		parent::edit_process();
+	}
+	
+	private function groupSelectionCheck() {
+		// make sure at least one group is selected
+		$groups = $this->getData()->getGroups();
+		$isAGroupSelected = false;
+		
+		for($i = 1; $i < count($groups); $i++) {
+			$fieldId = "group_" . $groups[$i]["id"];
+			if(isset($_POST[$fieldId])) {
+				$isAGroupSelected = true;
+				break;
+			}
+		}
+		
+		if(!$isAGroupSelected) {
+			new Error("Bitte weise dem Kontakt mindestens eine Gruppe zu.");
+		}
+	}
+	
+	function selectPrintGroups() {
+		Writing::h2("Mitspielerliste drucken");
+		Writing::p("Alle Mitspieler sind in Gruppen sortiert. Bitte wähle die Gruppen deren Mitglieder du drucken möchtest.");
+		
+		$form = new Form("Gruppenauswahl", $this->modePrefix() . "printMembers");
+		
+		// group selection
+		$groups = $this->getData()->getGroups();
+		$gs = new GroupSelector($groups, array(), "group");
+		$form->addElement("Gruppen", $gs);
+		
+		$form->changeSubmitButton("Druckvorschau anzeigen");
 		$form->write();
 	}
 	
 	function printMembers() {
 		Writing::h2("Mitspielerliste");
+		
+		// convert $_POST groups into a flat groups array
+		$allGroups = $this->getData()->getGroups();
+		$groups = array();
+		for($i = 1; $i < count($allGroups); $i++) {
+			$gid = $allGroups[$i]["id"];
+			if(isset($_POST["group_" . $gid])) {
+				array_push($groups, $gid);
+			}
+		}
+		if(count($groups) == 0) {
+			new Message("Fehler bei Gruppenauswahl", "Wähle mindestens eine Gruppe zum drucken aus.");
+			$this->backToStart();
+			return;
+		}
 		
 		// determine filename
 		$filename = $GLOBALS["DATA_PATHS"]["members"];
@@ -236,7 +299,7 @@ class KontakteView extends CrudRefView {
 		
 		// create report
 		require_once $GLOBALS["DIR_PRINT"] . "memberlist.php";
-		new MembersPDF($filename, $this->getData(), KontakteData::$STATUS_MEMBER);
+		new MembersPDF($filename, $this->getData(), $groups);
 		
 		// show report
 		echo "<embed src=\"$filename\" width=\"90%\" height=\"700px\" />\n";
@@ -263,6 +326,7 @@ class KontakteView extends CrudRefView {
 		new Message("Benutzer $username erstellt", $m);
 		$this->backToViewButton($_GET["id"]);
 	}
+	
 }
 
 ?>

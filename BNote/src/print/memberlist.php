@@ -23,92 +23,35 @@ class MembersPDF {
 	private $dao;
 	
 	/**
-	 * Either one of KontaktData or
-	 * 100 for admin, member
-	 * 101 for admin, member, external
-	 * @var String
+	 * Array of all groups to print.
+	 * @var array
 	 */
-	private $group;
+	private $groups;
 	
-	private $data;
+	/**
+	 * Document title.
+	 * @var string
+	 */
 	private $title;
 	
 	/**
 	 * Create a printout of contacts.
 	 * @param String $filename Path and name of pdf.
 	 * @param AbstractData $dao Data provider.
-	 * @param String $group Group to print. 
+	 * @param String $groups Groups to print. 
 	 */
-	function __construct($filename, $dao, $group) {
+	function __construct($filename, $dao, $groups) {
 		$this->pdf = new MemberlistPDF();
 		
 		$this->filename = $filename;
 		$this->dao = $dao;
-		$this->group = $group;
+		$this->groups = $groups;
 		
-		$this->prepareData();
+		$this->title = "Mitspielerliste";
 		
 		// do it		
 		$this->outline();
 		$this->pdf->finish($filename);
-	}
-	
-	private function prepareData() {
-		switch($this->group) {
-			case KontakteData::$STATUS_ADMIN:
-				$this->title = "Administratoren";
-				$this->data = $this->dao->getAdmins();
-				break;
-			case KontakteData::$STATUS_MEMBER:
-				$this->title = "Band Mitspieler";
-				$this->data = $this->dao->getMembers();
-				break;
-			case KontakteData::$STATUS_EXTERNAL:
-				$this->title = "Externe Mitspieler";
-				$this->data = $this->dao->getExternals();
-				break;
-			case KontakteData::$STATUS_APPLICANT:
-				$this->title = "Bewerber";
-				$this->data = $this->dao->getApplicants();
-				break;
-			case KontakteData::$STATUS_OTHER:
-				$this->title = "Sonstige Kontakte";
-				$this->data = $this->dao->getOthers();
-				break;
-			case 100:
-				$this->title = "Administratoren und Mitspieler";
-				$this->data = $this->dao->getMembers();
-				break;
-			case 101:
-				$this->title = "Administratoren, Mitspieler und Externe";
-				$d1 = $this->dao->getMembers();
-				$d2 = $this->dao->getExternals();
-				for($i = 1; $i < count($d2); $i++) {
-					array_push($d1, $d2[$i]);
-				}
-				$this->data = $d1;
-				break;
-		}
-		
-		// remove columns
-		$toremove = array("id", "fax", "web", "notes",
-							"address", "status", "instrument");
-		$deletedkeys = array();
-		
-		foreach($this->data[0] as $k => $v) {
-			if(in_array(strtolower($v), $toremove)) {
-				unset($this->data[0][$k]);
-				array_push($deletedkeys, $k);
-			}
-		}
-		
-		for($i = 1; $i < count($this->data); $i++) {
-			foreach($this->data[$i] as $k => $v) {
-				if(in_array($k, $toremove) || in_array($k, $deletedkeys)) {
-					unset($this->data[$i][$k]);
-				}
-			}
-		}
 	}
 	
 	/**
@@ -128,18 +71,54 @@ class MembersPDF {
 		$this->pdf->writeDate(date('d.m.Y'), utf8_encode($comp["City"]));
 		$this->pdf->Ln($this->pdf->lineHeight*2); //space
 		
-		// table
-		$this->writeTable();
+		// one table per group
+		foreach($this->groups as $i => $group) {
+			$this->pdf->setFontBold();
+			$this->pdf->Write($this->pdf->lineHeight, $this->dao->getGroupName($group));
+			$this->pdf->Ln($this->pdf->lineHeight*1.5); //space
+			$this->pdf->setFontStandard();
+			$this->writeTable($this->getGroupContacts($group));
+		}
+	}
+	
+	private function getGroupContacts($group) {
+		$contacts = $this->dao->getGroupContacts($group);
+		return $this->prepareData($contacts);
+	}
+	
+	private function prepareData($data) {
+		// remove columns
+		$toremove = array("id", "fax", "web", "notes",
+				"address", "status", "instrument");
+		$deletedkeys = array();
+	
+		foreach($data[0] as $k => $v) {
+			if(in_array(strtolower($v), $toremove)) {
+				unset($this->data[0][$k]);
+				array_push($deletedkeys, $k);
+			}
+		}
+	
+		for($i = 1; $i < count($data); $i++) {
+			foreach($data[$i] as $k => $v) {
+				if(in_array($k, $toremove) || in_array($k, $deletedkeys)) {
+					unset($data[$i][$k]);
+				}
+			}
+		}
+	
+		return $data;
 	}
 	
 	/**
-	 * Writes the main table.
+	 * Writes a contact table.
+	 * @param array $data Contacts.
 	 */
-	private function writeTable() {
+	private function writeTable($data) {
 		require_once $GLOBALS["DIR_PRINT"] . "pdftable.php";
 		
 		// create table with data and sum
-		$table = new PDFTable($this->data);
+		$table = new PDFTable($data);
 		
 		// set columns
 		$table->setColumnWidth(1, 30);

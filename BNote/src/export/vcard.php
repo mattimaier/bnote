@@ -5,6 +5,7 @@
  * @author matti
  *
  */
+session_start();
 
 // conncet to application
 $dir_prefix = "../../";
@@ -19,6 +20,18 @@ require_once($GLOBALS["DIR_WIDGETS"] . "link.php");
 
 // Build Database Connection
 $db = new Database();
+
+// check whether a user is registered and has contact (mod=3) permission
+$deniedMsg = "Du hast keine Berechtigung die Kontakte zu exportieren!";
+if(!isset($_SESSION["user"])) {
+	new Error($deniedMsg);
+}
+else {
+	$userCt = $db->getCell("privilege", "count(*)", "module = 3 AND user = " . $_SESSION["user"]);
+	if($userCt < 1) {
+		new Error($deniedMsg);
+	}
+}
 
 // read system config
 $sysconfig = new XmlData($dir_prefix . $GLOBALS["DIR_CONFIG"] . "config.xml", "Software");

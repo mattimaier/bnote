@@ -222,8 +222,9 @@ class PDFTable {
 		
 		// write "no data" of if the table is empty, except header
 		if(count($this->data) == 1)	{
-			$doc->Write($height, "No data available.");
-			$doc->Ln();
+			$doc->setFontStandard();
+			$doc->Write($height, utf8_encode("Keine Einträge verfügbar."));
+			$doc->Ln($doc->lineHeight*1.5);
 		}
 		
 		// write last lines

@@ -144,7 +144,80 @@ if(!in_array("task", $tables)) {
 	echo "<i>Table task created.</i><br/>";
 }
 else {
-	echo "<i>Table configuration already exists.</i><br/>";
+	echo "<i>Table task already exists.</i><br/>";
+}
+
+
+/*
+ * TASK 4.1: Create table "group" and add default groups.
+ */
+if(!in_array("group", $tables)) {
+	$query = "CREATE TABLE `group` (";
+	$query .= " `id` int(11) PRIMARY KEY AUTO_INCREMENT, ";
+	$query .= " `name` varchar(50) NOT NULL, ";
+	$query .= " `is_active` int(1) NOT NULL DEFAULT 1 ";
+	$query .= ")";
+	$db->execute($query);
+	
+	echo "<i>Table group created.</i><br/>";
+	
+	// add default groups
+	$query = "INSERT INTO `group` (id,name) VALUES ";
+	$query .= "(1, 'Administratoren'), ";
+	$query .= "(2, 'Mitspieler'), ";
+	$query .= "(3, 'Externe Mitspieler'), ";
+	$query .= "(4, 'Bewerber'), ";
+	$query .= "(5, 'Sonstige')";
+	$db->execute($query);
+	
+	echo "<i>Five initial groups added.</i></br>";
+}
+else {
+	echo "<i>Table group already exists.</i><br/>";
+}
+
+/*
+ * TASK 4.2: Add table contact_group.
+ */
+if(!in_array("contact_group", $tables)) {
+	$query = "CREATE TABLE `contact_group` (";
+	$query .= " `contact` int(11),";
+	$query .= " `group` varchar(50),";
+	$query .= " PRIMARY KEY (`contact`, `group`) ";
+	$query .= ")";
+	$db->execute($query);
+	
+	echo "<i>Table contact_group created.</i><br/>";
+}
+else {
+	echo "<i>Table contact_group already exists.</i><br/>";
+}
+
+/*
+ * TASK 4.3: Set contact.status to NULL and convert contact.status to a contact_group entry. 
+ */
+$contacts = $db->getSelection("SELECT id, status FROM contact");
+echo "<i>Updating contacts...</i><br>\n";
+for($i = 1; $i < count($contacts); $i++) {
+	$cid = $contacts[$i]["id"];
+	$status = $contacts[$i]["status"];
+	if($status == "") continue;
+	else {
+		if($status == "ADMIN") $grp = 1;
+		else if($status == "EXTERNAL") $grp = 3;
+		else if($status == "APPLICANT") $grp = 4;
+		else if($status == "OTHER") $grp = 5;
+		else $grp = 2;
+		
+		$query = "UPDATE contact SET status = NULL WHERE id = $cid";
+		$db->execute($query);
+		
+		$query = "INSERT INTO contact_group (`contact`, `group`) VALUES ";
+		$query .= "($cid, $grp)";
+		$db->execute($query);
+		
+		echo "&nbsp;&nbsp;&nbsp;<i>contact $cid updated to group $grp.</i><br>\n";		
+	}
 }
 
 ?>

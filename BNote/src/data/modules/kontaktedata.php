@@ -9,29 +9,16 @@ require_once $GLOBALS["DIR_DATA_MODULES"] . 'userdata.php';
 class KontakteData extends AbstractData {
 	
 	/**
-	 * Contact Status Option for Admins.
+	 * Group ID for administrator group.
+	 * @var Integer
 	 */
-	public static $STATUS_ADMIN = "ADMIN";
+	public static $GROUP_ADMIN = 1;
 	
 	/**
-	 * Contact Status Option for Membesr.
+	 * Group ID for member group.
+	 * @var Integer
 	 */
-	public static $STATUS_MEMBER = "MEMBER";
-	
-	/**
-	 * Contact Status Option for Externals.
-	 */
-	public static $STATUS_EXTERNAL = "EXTERNAL";
-	
-	/**
-	 * Contact Status Option for Applicants.
-	 */
-	public static $STATUS_APPLICANT = "APPLICANT";
-	
-	/**
-	 * Contact Status Option for Others.
-	 */
-	public static $STATUS_OTHER = "OTHER";
+	public static $GROUP_MEMBER = 2;
 	
 	/**
 	 * Build data provider.
@@ -67,32 +54,25 @@ class KontakteData extends AbstractData {
 	 * Returns all members and admins.
 	 */
 	function getMembers() {
-		$query = $this->createQuery();
-		$query .= "WHERE c2.status = '" . KontakteData::$STATUS_MEMBER . "'";
-		$query .= " OR c2.status = '" . KontakteData::$STATUS_ADMIN . "' ";
-		$query .= "ORDER BY c2.name ASC";
-		return $this->filterSuperUsers($this->database->getSelection($query));
-	}
-	
-	function getExternals() {
-		return $this->getContactsWithStatus(KontakteData::$STATUS_EXTERNAL);
-	}
-	
-	function getOthers() {
-		return $this->getContactsWithStatus(KontakteData::$STATUS_OTHER);
-	}
-	
-	function getApplicants() {
-		return $this->getContactsWithStatus(KontakteData::$STATUS_APPLICANT);
+		return $this->getGroupContacts(KontakteData::$GROUP_MEMBER);
 	}
 	
 	function getAdmins() {
-		return $this->getContactsWithStatus(KontakteData::$STATUS_ADMIN);
+		return $this->getGroupContacts(KontakteData::$GROUP_ADMIN);
 	}
 	
-	private function getContactsWithStatus($status) {
-		$query = $this->createQuery();
-		$query .= "WHERE c2.status = '$status'";
+	function getGroupContacts($group) {
+		$query = "SELECT c2.*, i.name as instrumentname ";
+		$query .= "FROM ";
+		$query .= " (SELECT c.*, a.street, a.city, a.zip ";
+		$query .= "  FROM (SELECT contact.* ";
+		$query .= "        FROM contact, contact_group grp ";
+		$query .= "        WHERE contact.id = grp.contact AND grp.group = $group";
+		$query .= "        ) as c ";
+		$query .= "  LEFT JOIN address a ";
+		$query .= "  ON c.address = a.id) as c2 ";
+		$query .= "LEFT JOIN instrument i ";
+		$query .= "ON c2.instrument = i.id ";
 		$query .= "ORDER BY c2.name ASC";
 		return $this->filterSuperUsers($this->database->getSelection($query));
 	}
@@ -111,12 +91,18 @@ class KontakteData extends AbstractData {
 	function getContact($id) {
 		$query = $this->createQuery();
 		$query .= "WHERE c2.id = $id";
-		$res = $this->database->getRow($query);
+		$contact = $this->database->getRow($query);
 		
-		// modify status
-		$res["status"] = $this->statusCaption($res["status"]);
+		// add user groups
+		$query = "SELECT g.id, g.name ";
+		$query .= "FROM `group` g, contact_group cg ";
+		$query .= "WHERE g.id = cg.group AND cg.contact = $id";
+		$groups = $this->database->getSelection($query);
+		for($i = 1; $i < count($groups); $i++) {
+			$contact["group_" + $groups[$i]["id"]] = $groups[$i]["name"];
+		}
 		
-		return $res;
+		return $contact;
 	}
 	
 	private function createQuery() {
@@ -174,7 +160,29 @@ class KontakteData extends AbstractData {
 		$query .= " \"" . $values["street"] . "\", \"" . $values["city"] . "\", \"" . $values["zip"] . "\")";
 		$values["address"] = $this->database->execute($query);
 		
-		parent::create($values);
+		$cid = parent::create($values);
+		
+		// create group entries
+		$this->createContactGroupEntries($cid);
+		
+		return $cid;
+	}
+	
+	private function createContactGroupEntries($cid) {
+		$groups = $this->getGroups();
+		$query = "INSERT INTO contact_group (contact, `group`) VALUES ";
+		$grpCount = 0;
+		for($i = 0; $i < count($groups); $i++) {
+			$fieldId = "group_" . $groups[$i]["id"];
+			$gid = $groups[$i]["id"];
+				
+			if(isset($_POST[$fieldId])) {
+				if($grpCount > 0) $query .= ", ";
+				$query .= "($cid, $gid)";
+				$grpCount++;
+			}
+		}
+		$this->database->execute($query);
 	}
 	
 	function update($id, $values) {
@@ -189,20 +197,22 @@ class KontakteData extends AbstractData {
 		$query .= "WHERE id = " . $user["address"];
 		$this->database->execute($query);
 		$values["address"] = $user["address"];
-		
-		/* Old Implementation (deprecated by Oct 15, 2012)
-		if($values["street"] != "" && $values["city"] != "" && $values["zip"] != "") {
-			$addy["street"] = $values["street"];
-			$addy["city"] = $values["city"];
-			$addy["zip"] = $values["zip"];
-			$values["address"] = $this->adp()->manageAddress($user["address"], $addy);
-		}
-		else {
-			$values["address"] = $user["address"];
-		}
-		*/
+			
+		// update groups
+		$query = "DELETE FROM contact_group WHERE contact = $id";
+		$this->database->execute($query);
+		$this->createContactGroupEntries($id);
 		
 		parent::update($id, $values);
+	}
+	
+	function delete($id) {
+		// remove group memberships
+		$query = "DELETE FROM contact_group WHERE contact = $id";
+		$this->database->execute($query);
+		
+		// remove contact
+		parent::delete($id);
 	}
 	
 	function getAddress($id) {
@@ -236,16 +246,35 @@ class KontakteData extends AbstractData {
 	}
 	
 	/**
-	 * Sets the captions of each status.
-	 * @param Const String $status One of the constant strings of this class.
+	 * Gets the group name from the database.
+	 * @param Integer $groupId ID of the group
+	 * @return string Name of the group.
 	 */
-	function statusCaption($status) {
-		switch($status) {
-			case KontakteData::$STATUS_ADMIN: return "Administrator";
-			case KontakteData::$STATUS_MEMBER: return "Mitglied";
-			case KontakteData::$STATUS_EXTERNAL: return "Externer Mitspieler";
-			case KontakteData::$STATUS_APPLICANT: return "Bewerber";
-			default: return "Sonstiger Kontakt";
+	function getGroupName($groupId) {
+		return $this->database->getCell("`group`", "name", "id = $groupId");
+	}
+	
+	function getGroups() {
+		return $this->adp()->getGroups();
+	}
+	
+	function getContactGroups($cid) {
+		$query = "SELECT GROUP_CONCAT(g.name) as grpConcat ";
+		$query .= "FROM `group` g JOIN contact_group cg ON cg.group = g.id ";
+		$query .= "WHERE cg.contact = $cid ";
+		$query .= "GROUP BY cg.contact";
+		$grpConcat = $this->database->getSelection($query);
+		$grpString = $grpConcat[1]["grpConcat"];
+		return $grpString;
+	}
+	
+	function getContactGroupsArray($cid) {
+		$query = "SELECT `group` FROM contact_group WHERE contact = $cid";
+		$res = $this->database->getSelection($query);
+		$groups = array();
+		for($i = 1; $i < count($res); $i++) {
+			array_push($groups, $res[$i]["group"]);
 		}
+		return $groups;
 	}
 }

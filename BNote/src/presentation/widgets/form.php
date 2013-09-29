@@ -40,7 +40,7 @@ class Form implements iWriteable {
  /**
   * adds an Element to the form
   * @param String $name Label of the element
-  * @param Field  $element Objectlink to an iWriteable implementing class-object
+  * @param iWriteable $element Reference to an iWriteable implementing object
   */ 
  public function addElement($name, $element) {
   $this->elements[$name] = $element;
@@ -212,8 +212,6 @@ class Form implements iWriteable {
  public function write() {
   $this->createForeign();
   
-  //echo '<div class="FormBox">' . $this->formname . "\n";
-
   echo '<form method="' . $this->method . '" action="' . $this->action . '"';  
   echo $this->multipart . '>' . "\n";
   
@@ -242,7 +240,6 @@ class Form implements iWriteable {
   }
   echo '</fieldset>' . "\n";
   echo '</form>' . "\n";
-  //echo '</div>' . "\n";
  }
 
 }

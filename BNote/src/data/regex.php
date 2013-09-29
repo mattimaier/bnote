@@ -36,9 +36,9 @@ class Regex {
    $this->regex["database_date"] = '/^\d{4}-\d{2}-\d{2}$/';
    $this->regex["db_datetime"] = '/^\d{4}-\d{2}-\d{2}\ \d{2}:\d{2}:\d{2}$/';
 
-   $this->regex["subject"] = '/^[[:alpha:]' . $specialchars . '\ \.\-\,\;\:\_\+\&\#\'\/\(\)]{1,255}$/';
+   $this->regex["subject"] = '/^[[:alnum:]' . $specialchars . '\ \.\-\,\;\:\_\+\&\#\'\/\(\)]{1,255}$/';
    $this->regex["name"] = '/^[[:alnum:]' . $specialchars . '\ \.\-\,\;\:\_\+\&\#\'\/\(\)]{1,100}$/';
-   $this->regex["short_name"] = '/^[[:alpha:]' . $specialchars . '\ \.\,\-\(\)]{1,50}$/';
+   $this->regex["short_name"] = '/^[[:alnum:]' . $specialchars . '\ \.\,\-\(\)]{1,50}$/';
    $this->regex_js["name"] = '^[\\\w' . $specialchars . '\\\s\\\.\\\,\\\-\\\/\\\(\\\)]{1,100}$';
    $this->regex_js["short_name"] = '^[\\\w' . $specialchars . '\\\s\\\.\\\,\\\-\\\(\\\)]{1,50}$';
 

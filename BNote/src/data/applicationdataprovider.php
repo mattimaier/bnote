@@ -337,6 +337,11 @@ class ApplicationDataProvider {
 		return ($ct == 1);
 	}
 	
+	/**
+	 * Retrieves the user's tasks.
+	 * @param Integer $uid optional: User ID, if not set current user.
+	 * @return array DB Selection of user's tasks.
+	 */
 	function getUserTasks($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
 		
@@ -348,6 +353,42 @@ class ApplicationDataProvider {
 		$query .= "ORDER BY due_at DESC";
 		
 		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Retrieves the contact id for the given user id.
+	 * @param Integer $uid optional: User ID, if not set current user.
+	 * @return Contact ID of the user. 
+	 */
+	function getUserContact($uid = -1) {
+		if($uid == -1) $uid = $_SESSION["user"];
+		return $this->database->getCell($this->database->getUserTable(), "contact", "id = $uid");
+	}
+	
+	/**
+	 * All available groups.
+	 * @param boolean optional: true, false or null accepted.
+	 * @return array DB Selection of all groups.
+	 */
+	function getGroups($active = null) {
+		$query = "SELECT * FROM `group`";
+		if($active != null) {
+			$query .= " WHERE is_active = ";
+			$query .= ($active) ? "1" : "0";
+		}
+		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Checks whether the given user (or current one) is member of the given group.
+	 * @param Integer $gid Group ID.
+	 * @param Integer $uid optional: User ID, if not set current user.
+	 * @return boolean True when the user is a member, otherwise false.
+	 */
+	function isGroupMember($gid, $uid = 0) {
+		$contact = $this->getUserContact($uid);
+		$ct = $this->database->getCell("contact_group", "count(*)", "group = $gid AND contact = $contact");
+		return ($ct > 0);
 	}
 	
 }

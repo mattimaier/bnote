@@ -7,10 +7,19 @@
  */
 class KontakteController extends DefaultController {
 	
+	/**
+	 * DAO for group sub-module.
+	 * @var GruppenData
+	 */
+	private $groupData;
+	
 	public function start() {
 		if(isset($_GET['mode'])) {
 			if($_GET['mode'] == "createUserAccount") {
 				$this->createUserAccount();
+			}
+			else if($_GET["mode"] == "groups") {
+				$this->groups();
 			}
 			else {
 				$this->getView()->$_GET['mode']();
@@ -85,4 +94,28 @@ class KontakteController extends DefaultController {
 		return $pass;
 	}
 	
+	private function groups() {
+		require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "gruppenview.php";
+		require_once $GLOBALS["DIR_DATA_MODULES"] . "gruppendata.php";
+		$this->groupData = new GruppenData();
+		
+		$view = new GruppenView($this);
+		
+
+		if(!isset($_GET["func"])) {
+			$view->start();
+		}
+		else {
+			$view->$_GET["func"]();
+		}
+	}
+	
+	function getData() {
+		if(isset($_GET["mode"]) && $_GET["mode"] == "groups") {
+			return $this->groupData;
+		}
+		else {
+			return parent::getData();
+		}
+	}
 }
