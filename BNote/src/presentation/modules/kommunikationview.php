@@ -25,6 +25,7 @@ class KommunikationView extends AbstractView {
 			
 		// options
 		$rh = new Link($this->modePrefix() . "rehearsalMail", "Probenbenachrichtigung");
+		$rh->addIcon("arrow_right");
 		$rh->write();
 		
 		// Rundmail form
@@ -63,19 +64,8 @@ class KommunikationView extends AbstractView {
 	private function createMailForm($action) {
 		$form = new Form("Rundmail", $action . "&sub=send");
 		
-		$dd = new Dropdown("group");
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_ADMIN) . "en",
-				KontakteData::$STATUS_ADMIN);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_MEMBER) . "er",
-				KontakteData::$STATUS_MEMBER);
-		$dd->addOption("Externe Mitspieler", KontakteData::$STATUS_EXTERNAL);
-		$dd->addOption($this->getData()->statusCaption(KontakteData::$STATUS_APPLICANT),
-				KontakteData::$STATUS_APPLICANT);
-		$dd->addOption("Sonstige Kontakte",	KontakteData::$STATUS_OTHER);
-		$dd->addOption("Administratoren, Mitglieder", 100);
-		$dd->addOption("Administratoren, Mitglieder, Externe", 101);
-		$dd->setSelected(101);
-		$form->addElement("Empf&auml;nger", $dd);
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(2), "group");
+		$form->addElement("Empf&auml;nger", $gs);
 		$form->addElement("Betreff", new Field("subject", "", FieldType::CHAR));
 		$form->addElement("Nachricht", new Field("message", "", 98));
 		$form->changeSubmitButton("SENDEN");

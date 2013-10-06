@@ -120,6 +120,7 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	function viewDetailTable() {
+		//TODO show the rehearsal phases this concert is related to
 		$c = $this->getData()->findByIdNoRef($_GET["id"]);
 		$dv = new Dataview();
 		$dv->autoAddElements($c);
@@ -373,6 +374,8 @@ class KonzerteView extends CrudRefView {
 		$msg = new Message("Konzert erstellt", $m);
 		$this->backToStart();
 	}
+	
+	//TODO add a step to select the groups (or all) the concert will be for
 }
 
 ?>

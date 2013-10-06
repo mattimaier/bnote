@@ -85,6 +85,7 @@ class StartView extends AbstractView {
 	}
 	
 	private function writeRehearsalList() {
+		//TODO only show rehearsals of groups and rehearsal phases the user is in
 		$data = $this->getData()->adp()->getAllRehearsals();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
@@ -159,6 +160,7 @@ class StartView extends AbstractView {
 	}
 	
 	private function writeConcertList() {
+		//TODO only show concerts of groups and rehearsal phases the user is in
 		$data = $this->getData()->adp()->getFutureConcerts();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {

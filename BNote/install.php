@@ -219,6 +219,8 @@ class Installation {
 		else {
 			// run database initialization
 			$db = $this->getDbConnection();
+			
+			//TODO update this script once the implementation/database updates are all done
 			$script = "
 SET SQL_MODE=\"NO_AUTO_VALUE_ON_ZERO\";
 

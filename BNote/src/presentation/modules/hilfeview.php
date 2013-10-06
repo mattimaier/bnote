@@ -14,8 +14,9 @@ class HilfeView extends AbstractView {
 			"bnote2" => "Neuerungen in BNote 2.4",
 			"mitspieler" => "Modul Mitspieler",
 			"abstimmung" => "Modul Abstimmung",
-			"konfiguration" => "Modul Konfiguration",
-			"probenphase" => "Modul Probenphase",
+			"aufgaben" => "Modul Aufgaben", //TODO write doku
+			"konfiguration" => "Modul Konfiguration", //TODO write doku
+			"probenphase" => "Modul Probenphase", //TODO write doku
 			"support" => "Support"
 	);
 	

@@ -23,6 +23,8 @@ class AbstimmungData extends AbstractData {
 
 		$this->references = array("user");
 
+		//TODO add N:M relation between votes and groups
+		
 		$this->table = "vote";
 
 		$this->init();

@@ -45,6 +45,8 @@ class Filebrowser implements iWriteable {
 	 */
 	function __construct($root) {
 		$this->root = $root;
+		
+		//TODO empower group enforcement on data
 	}
 	
 	/**

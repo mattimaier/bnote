@@ -60,6 +60,7 @@ class ProbenView extends CrudRefView {
 		$form->setForeign("location", "location", "id", "name", -1);
 		$form->renameElement("location", "Ort");
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
+		//TODO add a group the rehearsal should be for (or all)
 		$form->write();
 		
 		$this->verticalSpace();
@@ -108,6 +109,8 @@ class ProbenView extends CrudRefView {
 		$form->setForeign("Ort", "location", "id", "name", -1);
 		
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
+		
+		//TODO add a group the rehearsals should be for (or all)
 		
 		$form->write();
 		
@@ -187,6 +190,7 @@ class ProbenView extends CrudRefView {
 		$details->renameElement("street", "Stra&szlig;e");
 		$details->renameElement("zip", "Postleitzahl");
 		$details->renameElement("city", "Stadt");
+		//TODO show the rehearsal phases this rehearsal is part of
 		$details->write();
 	}
 	

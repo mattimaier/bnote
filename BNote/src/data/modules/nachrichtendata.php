@@ -18,6 +18,9 @@ class NachrichtenData extends AbstractData {
 		$this->references = array();
 
 		$this->table = "";
+		
+		//TODO add news for every group and rehearsal phase
+		
 		$this->init();
 		
 		$this->newsFile = "data/nachrichten.html";

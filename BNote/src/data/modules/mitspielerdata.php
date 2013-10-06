@@ -26,9 +26,10 @@ class MitspielerData extends AbstractData {
 	}
 	
 	function getMembers() {
+		//TODO only show members of groups and phases the current user is part of 
 		$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.business, c.email, i.name as instrument_name ";
 		$query .= "FROM contact c JOIN instrument i ON c.instrument = i.id ";
-		$query .= "WHERE c.status = 'ADMIN' or c.status = 'MEMBER' ";
+// 		$query .= "WHERE c.status = 'ADMIN' or c.status = 'MEMBER' ";
 		$query .= "ORDER BY c.surname, c.name ASC";
 		
 		return $this->filterSuperUsers($this->database->getSelection($query));

@@ -149,6 +149,7 @@ class StartData extends AbstractData {
 	}
 	
 	function getVotesForUser() {
+		//TODO only show votes of groups and rehearsal phases the user is in
 		$query = "SELECT v.id, v.name, v.end, v.is_date, v.is_multi ";
 		$query .= "FROM vote_group vg JOIN vote v ON vg.vote = v.id ";
 		$query .= "WHERE vg.user = " . $_SESSION["user"] . " AND v.is_finished = 0 AND end > now() ";

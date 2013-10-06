@@ -21,6 +21,7 @@ class AbstimmungView extends CrudView {
 
 	function showAllTable() {
 		//$votes = $this->getData()->getUserActiveVotes(); // deactivated, so all users can see the results at least
+		//TODO only show votes for groups the user is part of
 		$votes = $this->getData()->getAllActiveVotes();
 		$table = new Table($votes);
 		$table->setEdit("id");
