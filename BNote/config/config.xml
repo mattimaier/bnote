@@ -19,6 +19,7 @@
  
  <!-- In case users have to be activated by the administrator set this to true,
       otherwise users will be activated by clicking on a link in an email (false).
+      // NOT USED AS OF 2.4.0
  -->
  <ManualUserActivation>false</ManualUserActivation>
  
@@ -46,7 +47,9 @@
  <UseInfoPages>True</UseInfoPages>
  
  <!-- Only show the instruments of these category ids. Separate ids by comma without spaces.
- 	  If set to "ALL" then show all available instruments. -->
+ 	  If set to "ALL" then show all available instruments.
+ 	  // NOT USED AS OF 2.4.0
+ -->
  <InstrumentCategoryFilter>ALL</InstrumentCategoryFilter>
  
  <!-- The webpages available in the website module.

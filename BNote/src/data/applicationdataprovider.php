@@ -380,6 +380,15 @@ class ApplicationDataProvider {
 	}
 	
 	/**
+	 * Retrieves the name of the group.
+	 * @param Integer $groupId Group ID.
+	 * @return Name of group.
+	 */
+	function getGroupName($groupId) {
+		return $this->database->getCell("`group`", "name", "id = $groupId");
+	}
+	
+	/**
 	 * Checks whether the given user (or current one) is member of the given group.
 	 * @param Integer $gid Group ID.
 	 * @param Integer $uid optional: User ID, if not set current user.
@@ -387,7 +396,7 @@ class ApplicationDataProvider {
 	 */
 	function isGroupMember($gid, $uid = 0) {
 		$contact = $this->getUserContact($uid);
-		$ct = $this->database->getCell("contact_group", "count(*)", "group = $gid AND contact = $contact");
+		$ct = $this->database->getCell("contact_group", "count(*)", "`group` = $gid AND contact = $contact");
 		return ($ct > 0);
 	}
 	

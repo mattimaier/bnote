@@ -9,6 +9,8 @@ class KonfigurationData extends AbstractData {
 	
 	private $parameterConfig = array();
 	
+	private $parameterExclude = array();
+	
 	/**
 	 * Build data provider.
 	 */
@@ -19,13 +21,21 @@ class KonfigurationData extends AbstractData {
 				"is_active" => array("Aktiv", FieldType::BOOLEAN)
 		);
 	
-		$this->references = array();
+		$this->references = array(
+				"default_contact_group" => "group"
+		);
 	
 		$this->table = "configuration";
 	
 		$this->parameterConfig = array(
 				"rehearsal_start" => array("Probenbeginn", 96),
-				"rehearsal_duration" => array("Probendauer in min", FieldType::INTEGER)
+				"rehearsal_duration" => array("Probendauer in min", FieldType::INTEGER),
+				"default_contact_group" => array("Standardgruppe", FieldType::REFERENCE),
+				"auto_activation" => array("Automatische Benutzeraktivierung", FieldType::BOOLEAN)
+		);
+		
+		$this->parameterExclude = array(
+				"instrument_category_filter"
 		);
 		
 		$this->init();
@@ -37,15 +47,35 @@ class KonfigurationData extends AbstractData {
 		$params = array();
 		array_push($params, array("param", "caption", "value"));
 		for($i = 1; $i < count($res); $i++) {
+			if(in_array($res[$i]["param"], $this->parameterExclude)) continue;
+			
 			$param = array(
 					"param" => $res[$i]["param"],
 					"caption" => $this->getParameterCaption($res[$i]["param"]),
-					"value" => $res[$i]["value"]
+					"value" => $this->replaceParameterValue($res[$i]["param"], $res[$i]["value"])
 			);
 			array_push($params, $param);			
 		}
 		
 		return $params;
+	}
+	
+	/**
+	 * Converts the value of a parameter for view purposes.
+	 * @param string $param Name of the parameter.
+	 * @param string $value Original value of the parameter.
+	 * @return string New value, by default the $value input.
+	 */
+	private function replaceParameterValue($param, $value) {
+		if($param == "default_contact_group") {
+			return $this->adp()->getGroupName($value);
+		}
+		else if($param == "auto_activation") {
+			return ($value == 1) ? "ja" : "nein";
+		}
+		else {
+			return $value;
+		}
 	}
 	
 	function getParameterCaption($param) {
@@ -67,12 +97,20 @@ class KonfigurationData extends AbstractData {
 	
 	function update($id, $values) {
 		$val = $values["value"];
+		
+		// convert values to be saved to database
 		if($this->getParameterType($id) == 96) {
 			$val = $values["value_hour"] . ":" . $values["value_minute"];
 		}
+		if($id == "auto_activation") {
+			$val = (isset($_POST["value"])) ? "1" : "0";
+		}
+		
+		// save to db
 		$query = "UPDATE configuration SET value = \"$val\" WHERE param = \"$id\"";
 		$this->database->execute($query);
 	}
+	
 }
 
 ?>

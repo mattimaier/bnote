@@ -110,10 +110,23 @@ if(!in_array("configuration", $tables)) {
 	$query .= ")";
  	$db->execute($query);
  	
+ 	// get automatic user activation status from configuration
+ 	$userActivation = strtolower($sysdata->getSystemConfigParameter("ManualUserActivation"));
+ 	$autoActiv = 0;
+ 	if($userActivation == "false") {
+ 		$autoActiv = 1;
+ 	}
+ 	
+ 	// get category filter from configuration
+ 	$catFilter = $sysdata->getSystemConfigParameter("InstrumentCategoryFilter");
+ 	
  	// insert initial configuration parameters
  	$query = "INSERT INTO configuration (param, value, is_activ) VALUES ";
- 	$query .= "(rehearsal_start, \"18:00\", 1), ";
- 	$query .= "(rehearsal_duration, \"90\", 1)";
+ 	$query .= "(\"rehearsal_start\", \"18:00\", 1), ";
+ 	$query .= "(\"rehearsal_duration\", \"90\", 1), ";
+ 	$query .= "(\"default_contact_group\", \"2\", 1), "; // members
+ 	$query .= "(\"auto_activation\", \"$autoActiv\", 1), "; // converted from xml configuration
+ 	$query .= "(\"instrument_category_filter\", \"$catFilter\", 1)";  // converted from xml configuration
  	$db->execute($query);
  	
 	echo "<i>Table configuration with initial parameters created.</i><br/>";
@@ -219,6 +232,28 @@ for($i = 1; $i < count($contacts); $i++) {
 		echo "&nbsp;&nbsp;&nbsp;<i>contact $cid updated to group $grp.</i><br>\n";		
 	}
 }
+
+/*
+ * TASK 5: Insert important instruments.
+ */
+$instruments = array(
+	"Querfl&ouml;te" => "3",
+	"Blockfl&ouml;te" => "3",
+	"Panfl&ouml;te" => "3",
+	"Akkordeon" => "8",
+	"Althorn" => "2"
+);
+$added = 0;
+foreach($instruments as $name => $category) {
+	// check existance
+	$ct = $db->getCell("instrument", "count(*)", "name = '$name'");
+	if($ct < 1) {
+		$query = "INSERT INTO instrument (name, category) VALUES ('$name', $category)";
+		$db->execute($query);
+		$added++;
+	}
+}
+echo "<i>Added $added instruments.</i><br/>\n";
 
 ?>
 <br/>

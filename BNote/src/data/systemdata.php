@@ -216,9 +216,8 @@ class Systemdata {
   * by clicking on a link in an email after registration.
   */
  public function autoUserActivation() {
- 	$mua = $this->cfg_system->getParameter("ManualUserActivation");
- 	if(strtolower($mua) == "true") return false;
- 	else return true;
+ 	$autoActiv = $this->getDynamicConfigParameter('auto_activation');
+	return ($autoActiv == "1");
  }
  
  /**
@@ -313,7 +312,7 @@ class Systemdata {
   * @return Array simply containing all category ids.
   */
  public function getInstrumentCategories() {
- 	$catFilter = $this->cfg_system->getParameter("InstrumentCategoryFilter");
+ 	$catFilter = $this->dbcon->getCell("configuration", "value", "param = 'instrument_category_filter'");
  	$cats = explode(",", $catFilter);
  	$categories = $this->dbcon->getSelection("SELECT * FROM category");
  	$result = array();
@@ -360,6 +359,15 @@ class Systemdata {
   */
  public function getDynamicConfigParameter($parameter) {
  	return $this->cfg_dynamic[$parameter];
+ }
+ 
+ /**
+  * Retrieves static system configuraiton parameters.
+  * @param string $parameter Parameter name.
+  * @return string Value of the parameter.
+  */
+ public function getSystemConfigParameter($parameter) {
+ 	return $this->cfg_system->getParameter($parameter);
  }
 }
 

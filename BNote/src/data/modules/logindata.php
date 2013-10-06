@@ -118,17 +118,26 @@ class LoginData extends AbstractData {
 	}
 	
 	function createContact($aid) {
-		$query = "INSERT INTO contact (surname, name, phone, email, address, status, instrument)";
+		$query = "INSERT INTO contact (surname, name, phone, email, address, instrument)";
 		$query .= " VALUES (";
 		$query .= '"' . $_POST["surname"] . '", ';
 		$query .= '"' . $_POST["name"] . '", ';
 		$query .= '"' . $_POST["phone"] . '", ';
 		$query .= '"' . $_POST["email"] . '", ';
 		$query .= "$aid, ";
-		$query .= '"MEMBER", ';
 		$query .= $_POST["instrument"];
 		$query .= ")";
-		return $this->database->execute($query);
+		$cid = $this->database->execute($query);
+		
+		// get configured default group
+		$defaultGroup = $this->getSysdata()->getDynamicConfigParameter("default_contact_group");
+		if($defaultGroup == null || $defaultGroup == "") $defaultGroup = 2; // fallback
+		
+		// add the contact to the members group (gid=2)
+		$query = "INSERT INTO contact_group (contact, group) VALUES ($cid, $defaultGroup)"; 
+		$this->database->execute($query);
+		
+		return $cid;
 	}
 	
 	function createUser($login, $password, $cid) {

@@ -18,6 +18,11 @@ class KonfigurationView extends CrudView {
 		Writing::h1("Konfiguration");
 		Writing::p("Bitte klicke auf eine Zeile um deren Wert zu ändern.");
 		
+		// instrument configuration
+		$istr = new Link($this->modePrefix() . "instruments", "Instruments");
+		$istr->addIcon("music_file");
+		$istr->write();
+		
 		$parameter = $this->getData()->getActiveParameter();
 
 		$table = new Table($parameter);
@@ -31,6 +36,9 @@ class KonfigurationView extends CrudView {
 	
 	function edit() {
 		$this->checkID();
+		
+		// header
+		Writing::h2("Konfiguration");
 		
 		// show form
 		$this->editEntityForm();
@@ -46,21 +54,34 @@ class KonfigurationView extends CrudView {
 		$default = $param["value"];
 		$form = new Form($this->getData()->getParameterCaption($_GET["id"]),
 				$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
-		$form->addElement("Wert", new Field("value", $default, $this->getData()->getParameterType($_GET["id"])));
+		
+		if($_GET["id"] == "default_contact_group") {
+			Writing::p("Jeder neu registrierte Benutzer wird dieser Gruppe zugeordnet.");
+			$dd = new Dropdown("value");
+			$groups = $this->getData()->adp()->getGroups();
+			foreach($groups as $i => $group) {
+				if($i == 0) continue;
+				$dd->addOption($group["name"], $group["id"]);
+			}
+			$dd->setSelected($default);
+			$form->addElement("Wert", $dd);
+		}
+		else {
+			// default case
+			$form->addElement("Wert", new Field("value", $default, $this->getData()->getParameterType($_GET["id"])));
+		}
+		
 		$form->write();
 	}
 	
 	public function edit_process() {
 		$this->checkID();
 	
-		// validate
-		$this->getData()->validate($_POST);
-	
 		// update
 		$this->getData()->update($_GET["id"], $_POST);
 	
 		// show success
-		new Message($this->entityName . " ge&auml;ndert",
+		new Message($this->getEntityName() . " ge&auml;ndert",
 				"Der Eintrag wurde erfolgreich ge&auml;ndert.");
 	
 		// back button
