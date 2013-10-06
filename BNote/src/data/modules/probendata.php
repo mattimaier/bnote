@@ -75,6 +75,24 @@ class ProbenData extends AbstractData {
 		return $stats;
 	}
 	
+	function getAttendingInstruments($rid) {
+		$query = "SELECT i.name, GROUP_CONCAT(CONCAT(c.name, ' ', c.surname) SEPARATOR ', ') as player, count(c.name)
+					FROM rehearsal_user ru
+					     JOIN user u ON ru.user = u.id
+					     JOIN contact c ON u.contact = c.id
+					     JOIN instrument i ON c.instrument = i.id
+					WHERE ru.participate = 1 AND ru.rehearsal = 19
+					GROUP BY i.name
+					ORDER BY i.name";
+		$res = $this->database->getSelection($query);
+		$attInstruments = array();
+		foreach($res as $i => $info) {
+			if($i == 0) continue;
+			$attInstruments[$info["name"]] = $info["player"];
+		}
+		return $attInstruments;
+	}
+	
 	function getRehearsalBegin($rid) {
 		$d = $this->database->getCell($this->getTable(), "begin", "id = $rid");
 		return Data::convertDateFromDb($d);

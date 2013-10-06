@@ -222,6 +222,12 @@ class ProbenView extends CrudRefView {
 		$this->verticalSpace();
 		
 		// statistics
+		Writing::h3("Instrumente");
+		$dv = new Dataview();
+		$dv->autoAddElements($this->getData()->getAttendingInstruments($_GET["id"]));
+		$dv->write();
+		$this->verticalSpace();
+		
 		Writing::h3("Zusammenfassung");
 		$dv = new Dataview();
 		$dv->autoAddElements($this->getData()->getParticipantStats($_GET["id"]));
