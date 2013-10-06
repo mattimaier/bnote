@@ -32,6 +32,18 @@ class GroupSelector implements iWriteable {
 	private $remove;
 	
 	/**
+	 * The name of the column which is shown as caption.
+	 * @var string
+	 */
+	private $nameColumn;
+	
+	/**
+	 * Type of the caption content.
+	 * @var FieldType
+	 */
+	private $captionType;
+	
+	/**
 	 * Builds a new group selector.
 	 * @param array $groups DB Selection of groups.
 	 * @param array $selectedGroups Simple array with all groups that are marked selected.
@@ -42,10 +54,19 @@ class GroupSelector implements iWriteable {
 		$this->selectedGroups = $selectedGroups;
 		$this->fieldName = $fieldName;
 		$this->remove = array();
+		$this->nameColumn = "name";
 	}
 	
 	function removeGroup($groupId) {
 		array_push($remove, $groupId);
+	}
+	
+	function setNameColumn($nameCol) {
+		$this->nameColumn = $nameCol;
+	}
+	
+	function setCaptionType($captionType) {
+		$this->captionType = $captionType;
 	}
 	
 	function toString() {
@@ -55,7 +76,16 @@ class GroupSelector implements iWriteable {
 			$groupId = $this->groups[$i]["id"];
 			if(in_array($groupId, $this->remove)) continue;
 			
-			$groupName = $this->groups[$i]["name"];
+			// format caption
+			$groupName = $this->groups[$i][$this->nameColumn];
+			switch($this->captionType) {
+				case FieldType::BOOLEAN: $groupName = ($groupName == "1") ? "ja" : "nein"; break;
+				case FieldType::DATE: $groupName = Data::convertDateFromDb($groupName); break;
+				case FieldType::DATETIME: $groupName = Data::convertDateFromDb($groupName); break;
+				case FieldType::DECIMAL: $groupName = Data::convertFromDb($groupName); break;
+				case FieldType::INTEGER: $groupName = Data::formatInteger($groupName); break;
+			}
+			
 			$selected = "";
 			if(in_array($groupId, $this->selectedGroups)) {
 				$selected = "checked";

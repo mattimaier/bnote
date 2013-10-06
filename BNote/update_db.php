@@ -255,6 +255,60 @@ foreach($instruments as $name => $category) {
 }
 echo "<i>Added $added instruments.</i><br/>\n";
 
+
+/*
+ * TASK 6: Add rehearsal phase database structure.
+ */
+if(!in_array("rehearsalphase", $tables)) {
+	$query = "CREATE TABLE rehearsalphase ( ";
+	$query .= "id int(11) PRIMARY KEY AUTO_INCREMENT, ";
+	$query .= "name varchar(100) NOT NULL, ";
+	$query .= "begin date NOT NULL, ";
+	$query .= "end date NOT NULL, ";
+	$query .= "notes text )";
+	$db->execute($query);
+	echo "<i>Table rehearsalphase created.</i><br/>";
+}
+else {
+	echo "<i>Table rehearsalphase already exists.</i><br/>";
+}
+
+if(!in_array("rehearsalphase_rehearsal", $tables)) {
+	$query = "CREATE TABLE rehearsalphase_rehearsal ( ";
+	$query .= "rehearsalphase int(11) NOT NULL, ";
+	$query .= "rehearsal int(11) NOT NULL, ";
+	$query .= "PRIMARY KEY (rehearsalphase, rehearsal) )";
+	$db->execute($query);	
+	echo "<i>Table rehearsalphase_rehearsal created.</i><br/>";
+}
+else {
+	echo "<i>Table rehearsalphase_rehearsal already exists.</i><br/>";
+}
+
+if(!in_array("rehearsalphase_concert", $tables)) {
+	$query = "CREATE TABLE rehearsalphase_concert ( ";
+	$query .= "rehearsalphase int(11) NOT NULL, ";
+	$query .= "concert int(11) NOT NULL, ";
+	$query .= "PRIMARY KEY (rehearsalphase, concert) )";
+	$db->execute($query);	
+	echo "<i>Table rehearsalphase_concert created.</i><br/>";
+}
+else {
+	echo "<i>Table rehearsalphase_concert already exists.</i><br/>";
+}
+
+if(!in_array("rehearsalphase_contact", $tables)) {
+	$query = "CREATE TABLE rehearsalphase_contact ( ";
+	$query .= "rehearsalphase int(11) NOT NULL, ";
+	$query .= "contact int(11) NOT NULL, ";
+	$query .= "PRIMARY KEY (rehearsalphase, contact) )";
+	$db->execute($query);	
+	echo "<i>Table rehearsalphase_contact created.</i><br/>";
+}
+else {
+	echo "<i>Table rehearsalphase_contact already exists.</i><br/>";
+}
+
 ?>
 <br/>
 <b><i>COMPLETE.</i></b>
