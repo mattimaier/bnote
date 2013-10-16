@@ -22,8 +22,6 @@ class AbstimmungData extends AbstractData {
 		);
 
 		$this->references = array("user");
-
-		//TODO add N:M relation between votes and groups
 		
 		$this->table = "vote";
 
@@ -52,12 +50,15 @@ class AbstimmungData extends AbstractData {
 		$query .= " )";
 		$vid = $this->database->execute($query);
 		
-		/*
-		 * enhancement #15: add all members and admins by default
-		 * - removed adding the current user, since it could be an admin and should
-		 *   thus be invisible.
-		 */
-		$this->addAllMembersAndAdminsToGroup($vid);	
+		// resolve groups and add members	
+		$groups = $this->adp()->getGroups();
+		$grps = array();
+		foreach($groups as $i => $grp) {
+			if(isset($values["group_" . $grp["id"]]) && $values["group_" . $grp["id"]] == "on") {
+				array_push($grps, $grp["id"]);
+			}
+		}
+		$this->registerVoters($vid, $grps);
 		
 		return $vid;
 	}
@@ -79,6 +80,28 @@ class AbstimmungData extends AbstractData {
 		$query = "SELECT id, name, end, is_multi, is_date FROM " . $this->table;
 		$query .= " WHERE is_finished = 0 AND YEAR(end) >= (YEAR(NOW())-1)";
 		$query .= " ORDER BY end ASC";
+		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Returns all votes the user is part of.
+	 * @param Integer $uid optional: User ID, by default current user.
+	 */
+	function getVotesForUser($uid = -1) {
+		if($uid == -1) $uid = $_SESSION["user"];
+		
+		// in case the system admin look at the votes, show all of them
+		if($this->getSysdata()->isUserSuperUser()) {
+			$query = "SELECT id, name, end, is_multi, is_date, is_finished FROM " . $this->table;
+			$query .= " ORDER BY is_finished = 0, end ASC";
+		}
+		else {
+			$query = "SELECT v.id, v.name, v.end, v.is_multi, v.is_date ";
+			$query .= " FROM vote v JOIN vote_group vg ON vg.vote = v.id";
+			$query .= " WHERE vg.user = $uid AND v.is_finished = 0 AND YEAR(v.end) >= (YEAR(NOW())-1)";
+			$query .= " ORDER BY v.end ASC";
+		}
+		
 		return $this->database->getSelection($query);
 	}
 	
@@ -183,9 +206,24 @@ class AbstimmungData extends AbstractData {
 		return $this->database->execute($query);
 	}
 	
-	function addAllMembersAndAdminsToGroup($vid) {
-		// get all admin and member user ids
-		$query = "SELECT u.id FROM user u JOIN contact c ON u.contact = c.id WHERE c.status = 'MEMBER' OR c.status = 'ADMIN'";
+	/**
+	 * Takes the groups and extracts the users for a group. Then adds these users
+	 * to the given vote.
+	 * @param Integer $vid Vote ID.
+	 * @param array $groups Flat array with group IDs of users to add.
+	 */
+	function registerVoters($vid, $groups) {
+		if($groups == null || count($groups) == 0) return;
+		
+		// get all users for the given groups
+		$query = "SELECT u.id
+				  FROM `contact_group` cg JOIN user u ON u.contact = cg.contact
+				  WHERE ";
+		
+		foreach($groups as $i => $group) {
+			if($i > 0) $query .= " OR ";
+			$query .= "cg.group = " . $group;
+		}
 		$users = $this->database->getSelection($query);
 		
 		/* bug #13 and #14:

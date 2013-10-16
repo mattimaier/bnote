@@ -81,7 +81,7 @@ class ProbenData extends AbstractData {
 					     JOIN user u ON ru.user = u.id
 					     JOIN contact c ON u.contact = c.id
 					     JOIN instrument i ON c.instrument = i.id
-					WHERE ru.participate = 1 AND ru.rehearsal = 19
+					WHERE ru.participate = 1 AND ru.rehearsal = $rid
 					GROUP BY i.name
 					ORDER BY i.name";
 		$res = $this->database->getSelection($query);
@@ -210,6 +210,33 @@ class ProbenData extends AbstractData {
 	
 	public function getDefaultDuration() {
 		return $this->getSysdata()->getDynamicConfigParameter("rehearsal_duration");
+	}
+	
+	public function create($values) {
+		$rid = parent::create($values);
+		
+		// additionally add the groups' contacts to rehearsal_contact
+		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
+		$contacts = array();
+		foreach($groups as $i => $groupId) {
+			$cts = $this->adp()->getGroupContacts($groupId);
+			for($j = 1; $j < count($cts); $j++) {
+				$contact = $cts[$j]["id"];
+				if(!in_array($contact, $contacts)) array_push($contacts, $contact);
+			}
+		}
+		$query = "INSERT INTO rehearsal_contact VALUES ";
+		
+		foreach($contacts as $i => $contact) {
+			if($i > 0) $query .= ", ";
+			$query .= "($rid, $contact)";
+		}
+		
+		if(count($contacts) > 0) {
+			$this->database->execute($query);
+		}
+		
+		return $rid;
 	}
 }
 

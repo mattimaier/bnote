@@ -20,9 +20,7 @@ class AbstimmungView extends CrudView {
 	}
 
 	function showAllTable() {
-		//$votes = $this->getData()->getUserActiveVotes(); // deactivated, so all users can see the results at least
-		//TODO only show votes for groups the user is part of
-		$votes = $this->getData()->getAllActiveVotes();
+		$votes = $this->getData()->getVotesForUser();
 		$table = new Table($votes);
 		$table->setEdit("id");
 		$table->renameAndAlign($this->getData()->getFields());
@@ -37,6 +35,11 @@ class AbstimmungView extends CrudView {
 		$form->removeElement("id");
 		$form->removeElement("author");
 		$form->removeElement("is_finished");
+		
+		$groups = $this->getData()->adp()->getGroups();
+		$gs = new GroupSelector($groups, array(), "group");
+		$form->addElement("Abstimmungsberechtigte", $gs);
+		
 		$form->write();
 	}
 	
@@ -59,16 +62,20 @@ class AbstimmungView extends CrudView {
 		
 		// write success
 		new Message($this->getEntityName() . " gespeichert",
-				"Der Eintrag wurde erfolgreich gespeichert.");
+				"Die Abstimmung wurde erfolgreich gespeichert.");
 		
 		// show options link
 		$lnk = new Link($this->modePrefix() . "options&id=$vid", "Optionen hinzufügen");
+		$lnk->addIcon("add");
 		$lnk->write();
 		$this->buttonSpace();
 		
+		/*
+		 * With the introduction of contact groups (v2.4.0) this option is not necessary here. 
+		 */
 		// show group link
-		$grp = new Link($this->modePrefix() . "group&id=$vid", "Stimmberechtigte hinzufügen");
-		$grp->write();
+		//$grp = new Link($this->modePrefix() . "group&id=$vid", "Stimmberechtigte hinzufügen");
+		//$grp->write();
 	}
 	
 	function options() {
@@ -198,13 +205,7 @@ class AbstimmungView extends CrudView {
 		if(count($group) < 2) {
 			Writing::p("<i>Diese Abstimmung hat noch keine Abstimmungsberechtigten.</i>");
 		}
-		
-		// show a button to add all members and admins
-		$this->verticalSpace();
-		$addMembersBtn = new Link($this->modePrefix() . "group&func=addAllMembers&id=" . $_GET["id"], "Alle Mitspieler hinzufügen");
-		$addMembersBtn->addIcon("add");
-		$addMembersBtn->write();
-		
+			
 		// show add users form
 		$form = new Form("Abstimmungsberechtigte hinzufügen", $this->modePrefix() . "group&id=" . $_GET["id"]);
 		$users = $this->getData()->getUsers();

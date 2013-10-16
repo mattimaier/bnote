@@ -24,5 +24,6 @@
 	<natures>
 		<nature>org.eclipse.php.core.PHPNature</nature>
 		<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
+		<nature>com.nwire.studio.tools.nwireNature</nature>
 	</natures>
 </projectDescription>

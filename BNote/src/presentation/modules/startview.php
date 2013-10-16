@@ -85,8 +85,7 @@ class StartView extends AbstractView {
 	}
 	
 	private function writeRehearsalList() {
-		//TODO only show rehearsals of groups and rehearsal phases the user is in
-		$data = $this->getData()->adp()->getAllRehearsals();
+		$data = $this->getData()->getUsersRehearsals();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
 			echo "<li>Keine Proben angesagt.</li>\n";

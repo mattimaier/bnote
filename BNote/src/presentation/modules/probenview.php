@@ -60,7 +60,10 @@ class ProbenView extends CrudRefView {
 		$form->setForeign("location", "location", "id", "name", -1);
 		$form->renameElement("location", "Ort");
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
-		//TODO add a group the rehearsal should be for (or all)
+		
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
+		$form->addElement("Probe für", $gs);
+		
 		$form->write();
 		
 		$this->verticalSpace();
@@ -76,14 +79,14 @@ class ProbenView extends CrudRefView {
 		$this->getData()->validate($_POST);
 		
 		// save rehearsal
-		$this->getData()->create($_POST);
+		$rid = $this->getData()->create($_POST);
 		
 		// write success
 		new Message($this->getEntityName() . " gespeichert",
 				"Die Probe wurde erfolgreich gespeichert.");
 		
 		// Show link to create a rehearsal information
-		$lnk = new Link("?mod=7&mode=rehearsalMail", "Probenbenachrichtigung an Mitspieler senden");
+		$lnk = new Link("?mod=7&mode=rehearsalMail&preselect=$rid", "Probenbenachrichtigung an Mitspieler senden");
 		$lnk->write();
 		$this->verticalSpace();
 		
@@ -224,6 +227,12 @@ class ProbenView extends CrudRefView {
 		$table->renameHeader("reason", "Grund");
 		$table->write();
 		$this->verticalSpace();
+		
+		//TODO change this view completely!
+		/*
+		 * Table with all users who should participate and then with the ones who do and who don't.
+		 * Show statistics as below, but make sure they are correct!
+		 */
 		
 		// statistics
 		Writing::h3("Instrumente");

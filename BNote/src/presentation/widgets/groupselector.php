@@ -101,6 +101,31 @@ class GroupSelector implements iWriteable {
 	public function write() {
 		return $this->toString();
 	}
+	
+	/**
+	 * Converts the ids given in the $_POST array to a plain array of the selected items.<br/>
+	 * The selectedGroups parameter in the constructor has no effect on this method.<br/>
+	 * <strong>This method should be called when processing the $_POST request from the client!</strong>
+	 * @return Flat array with all selected item ids.
+	 */
+	public function getPlainSelection() {
+		$result = array();
+		foreach($this->groups as $i => $group) {
+			if($i == 0) continue;
+			$field = $this->fieldName . "_" . $group["id"];
+			if(isset($_POST[$field]) && $_POST[$field] == "on") array_push($result, $group["id"]);
+		}
+		return $result;
+	}
+	
+	/**
+	 * Convenience access method for instance method.<br/>
+	 * <i>See instance method for details.</i>
+	 */
+	public static function getPostSelection($groups, $fieldName) {
+		$gs = new GroupSelector($groups, array(), $fieldName);
+		return $gs->getPlainSelection();
+	}
 }
 
 ?>

@@ -116,8 +116,48 @@ class ProbenphasenData extends AbstractData {
 		$this->addEntities($phaseId, "contact", $this->getContacts());
 	}
 	
+	function addGroupContacts($phaseId) {
+		$groups = $this->adp()->getGroups(true);
+		$groupsToAdd = array();
+		foreach($groups as $i => $group) {
+			$field = "group_" . $group["id"];
+			if(isset($_POST[$field]) && $_POST[$field] == "on") {
+				array_push($groupsToAdd, $group["id"]);
+			}
+		}
+		
+		if(count($groupsToAdd) > 0) {
+			// get contact ids of selected groups
+			$query = "SELECT c.id FROM contact c JOIN contact_group cg ON cg.contact = c.id WHERE ";
+			foreach($groupsToAdd as $i => $grp) {
+				if($i > 0) $query .= "OR ";
+				$query .= "cg.group = $grp ";
+			}
+			$contacts = $this->database->getSelection($query);
+			
+			// add non-super-user contacts to phase
+			$query = "INSERT INTO rehearsalphase_contact VALUES ";
+			$count = 0;			
+			for($i = 1; $i < count($contacts); $i++) {
+				$cid = $contacts[$i]["id"];
+				if(!$this->isContactSuperUser($cid) && !$this->idInPhase($phaseId, $cid, "contact")) {
+					if($count++ > 0) $query .= ", ";
+					$query .= "( $phaseId, $cid )";
+				}
+			}
+			if($count > 0) {
+				$this->database->execute($query);
+			}
+		}
+	}
+	
 	function deleteEntity($entity, $phaseId, $entityId) {
 		$query = "DELETE FROM rehearsalphase_$entity WHERE rehearsalphase = $phaseId AND $entity = $entityId";
 		$this->database->execute($query);
+	}
+	
+	function isContactSuperUser($cid) {
+		$uid = $this->database->getCell("user", "id", "contact = $cid");
+		return $this->getSysdata()->isUserSuperUser($uid);
 	}
 }

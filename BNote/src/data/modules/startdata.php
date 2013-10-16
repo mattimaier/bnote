@@ -229,5 +229,10 @@ class StartData extends AbstractData {
 		$date = date("Y-m-d H:i:s");
 		$query = "UPDATE task SET is_complete = 1, completed_at = \"$date\" WHERE id = $tid";
 		$this->database->execute($query);
-	} 
+	}
+	
+	function getUsersRehearsals() {
+		//TODO only show rehearsals of groups and rehearsal phases the user is in
+		return $this->adp()->getAllRehearsals();
+	}
 }

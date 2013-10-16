@@ -64,7 +64,9 @@ class KommunikationView extends AbstractView {
 	private function createMailForm($action) {
 		$form = new Form("Rundmail", $action . "&sub=send");
 		
-		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(2), "group");
+		//TODO for rehearsal mails no receipients are needed, take the ones from the list
+		$selectedGroups = array(); // by default
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(), $selectedGroups, "group");
 		$form->addElement("Empf&auml;nger", $gs);
 		$form->addElement("Betreff", new Field("subject", "", FieldType::CHAR));
 		$form->addElement("Nachricht", new Field("message", "", 98));

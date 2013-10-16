@@ -89,6 +89,11 @@ class ProbenphasenView extends CrudView {
 		$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Kontakt hinzufügen");
 		$addContact->addIcon("add");
 		$addContact->write();
+		$this->buttonSpace();
+		
+		$addGroupContacts = new Link($this->modePrefix() . "addMultipleContacts&id=" . $_GET["id"], "Kontakte einer Gruppe hinzufügen");
+		$addGroupContacts->addIcon("add");
+		$addGroupContacts->write();
 
 		$contacts = $this->getData()->getContactsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("contact", $contacts));
@@ -162,12 +167,33 @@ class ProbenphasenView extends CrudView {
 		$this->verticalSpace();
 		$this->backToViewButton($_GET["id"]);
 	}
-
+	
 	function process_addContact() {
 		$this->getData()->addContacts($_GET["id"]);
 		new Message("Kontakte hinzugefügt", "Die ausgewählten Kontakte wurden der Probenphase hinzugefügt.");
 		$this->backToViewButton($_GET["id"]);
 	}
+	
+	function addMultipleContacts() {
+		$form = new Form("Alle Kontakte einer Gruppe zur Probenphase hinzufügen",
+				$this->modePrefix() . "process_addMultipleContacts&id=" . $_GET["id"]);
+		
+		Writing::p("Fügen durch anklicken einer oder mehrerer Gruppen alle deren Kontakte der Probenphase hinzu.");
+		
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(true), array(), "group");
+		$form->addElement("Gruppen", $gs);
+		$form->write();
+		
+		$this->verticalSpace();
+		$this->backToViewButton($_GET["id"]);
+	}
+
+	function process_addMultipleContacts() {
+		$this->getData()->addGroupContacts($_GET["id"]);
+		new Message("Kontakte hinzugefügt", "Die ausgewählten Kontakte wurden der Probenphase hinzugefügt.");
+		$this->backToViewButton($_GET["id"]);
+	}
+	
 	
 	function addRemoveColumnToTable($entity, $data) {
 		// header

@@ -152,6 +152,8 @@ class KonzerteView extends CrudRefView {
 		$dv->addElement("Kontakt", $cv);
 		
 		$dv->write();
+		
+		//TODO manage members who will play in this concert
 	}
 	
 	function editEntityForm() {

@@ -29,6 +29,8 @@ class KommunikationData extends KontakteData {
 	}
 	
 	function getMailaddressesFromGroup($group) {
+		//TODO change this to group setting!
+		
 		// bug #5: exclude configured administrators from mail-traffic
 		global $system_data;
 		$adminContacts = $system_data->getSuperUserContactIDs();

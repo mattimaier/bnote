@@ -221,6 +221,9 @@ class Installation {
 			$db = $this->getDbConnection();
 			
 			//TODO update this script once the implementation/database updates are all done
+			// - Add rehearsal contact relation
+			
+			//TODO make single statements instead of script execution!
 			$script = "
 SET SQL_MODE=\"NO_AUTO_VALUE_ON_ZERO\";
 
@@ -546,6 +549,7 @@ COMMIT;";
 		$db->execute($script);
 		
 		// fill database with initial content
+		//TODO make single statements instead of script execution!
 		$script = "
 INSERT INTO `category` (`id`, `name`) VALUES
 (1, 'Streicher'),

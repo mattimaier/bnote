@@ -309,6 +309,44 @@ else {
 	echo "<i>Table rehearsalphase_contact already exists.</i><br/>";
 }
 
+/*
+ * TASK 7: Add rehearsal contact relation.
+*/
+if(!in_array("rehearsal_contact", $tables)) {
+	$query = "CREATE TABLE rehearsal_contact ( ";
+	$query .= "rehearsal int(11) NOT NULL, ";
+	$query .= "contact   int(11) NOT NULL, ";
+	$query .= "PRIMARY KEY (rehearsal, contact) )";
+	$db->execute($query);	
+	echo "<i>Table rehearsal_contact created.</i><br/>";
+}
+else {
+	echo "<i>Table rehearsal_contact already exists.</i><br/>";
+}
+
+/*
+ * Task 7.1: Add all contacts to future rehearsals. Migration task.
+ */
+$futureRehearsals = $db->getSelection("SELECT id FROM rehearsal WHERE begin > NOW()");
+$allContacts = $db->getSelection("SELECT id FROM contact");
+$newEntries = 0;
+
+for($i = 1; $i < count($allContacts); $i++) {
+	$cid = $allContacts[$i]["id"];
+	
+	for($j = 1; $j < count($futureRehearsals); $j++) {
+		$rid = $futureRehearsals[$j]["id"];
+		
+		$ct = $db->getCell("rehearsal_contact", "count(contact)", "rehearsal = $rid AND contact = $cid");
+		if($ct == 0) {
+			$query = "INSERT INTO rehearsal_contact VALUES ($rid, $cid)";
+			$db->execute($query);
+			$newEntries++;
+		}
+	}
+}
+echo "<i>$newEntries entries were added to rehearsal_contact.</i><br/>\n";
+
 ?>
 <br/>
 <b><i>COMPLETE.</i></b>
