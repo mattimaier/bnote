@@ -8,6 +8,7 @@ class Dropdown implements iWriteable {
 	private $name;
 	private $options = array();
 	private $selected;
+	private $disabled = "";
 	private $styleClass;
 
 	function __construct($name) {
@@ -25,13 +26,17 @@ class Dropdown implements iWriteable {
 	public function setStyleClass($class) {
 		$this->styleClass = $class;
 	}
+	
+	public function setDisabled($disabled = true) {
+		$this->disabled = ($disabled) ? "disabled" : "";
+	}
 
 	public function write() {
 		$style = "";
 		if(isset($this->styleClass) && $this->styleClass != "") {
 			$style = ' class="' . $this->styleClass . '"';
 		}
-		$str = '<SELECT name="' . $this->name . '"' . $style . '>' . "\n";
+		$str = '<SELECT name="' . $this->name . '"' . $style . ' ' . $this->disabled .'>' . "\n";
 
 		foreach($this->options as $l => $v) {
 			$str .= ' <OPTION value="' . $v . '"';

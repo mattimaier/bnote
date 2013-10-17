@@ -25,7 +25,31 @@ class KonzerteController extends DefaultController {
 	 * 2) Choose or add a location
 	 * 3) Choose or add a contact person
 	 * 4) Choose or create a program
-	 * 5) summary and saving
+	 * 5) Choose players
+	 * 6) summary and saving
+	 */
+	
+	/**
+	 * Definition of the steps.<br/>
+	 * <i>To add a new step just insert the steps name at the correct position
+	 * in this array and change the names of the view accordingly.</i>
+	 * @var array
+	 */
+	private $addSteps = array(
+			"Stammdaten",
+			"Auff&uuml;hrungsort",
+			"Kontaktperson",
+			"Programm",
+			"Mitspieler",
+			"Fertig"
+	);
+	
+	public function getSteps() {
+		return $this->addSteps;
+	}
+	
+	/**
+	 * Method for concert creation. 
 	 */
 	private function wizzard() {
 		$this->getView()->showAddTitle();
@@ -40,7 +64,8 @@ class KonzerteController extends DefaultController {
 		$this->getView()->showProgressBar($progress);
 		
 		// save data when done
-		if($progress == 5) {
+		$numSteps = count($this->addSteps);
+		if($progress == $numSteps) {
 			if(isset($_POST["program"]) && $_POST["program"] == 0) {
 				unset($_POST["program"]);
 			}
@@ -53,7 +78,7 @@ class KonzerteController extends DefaultController {
 		$this->getView()->$func($action);
 		
 		// always show abort option
-		if($progress < 5) $this->getView()->abortButton();
+		if($progress < $numSteps) $this->getView()->abortButton();
 	}
 	
 	private function programs() {

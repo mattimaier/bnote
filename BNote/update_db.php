@@ -311,7 +311,7 @@ else {
 
 /*
  * TASK 7: Add rehearsal contact relation.
-*/
+ */
 if(!in_array("rehearsal_contact", $tables)) {
 	$query = "CREATE TABLE rehearsal_contact ( ";
 	$query .= "rehearsal int(11) NOT NULL, ";
@@ -338,7 +338,7 @@ for($i = 1; $i < count($allContacts); $i++) {
 		$rid = $futureRehearsals[$j]["id"];
 		
 		$ct = $db->getCell("rehearsal_contact", "count(contact)", "rehearsal = $rid AND contact = $cid");
-		if($ct == 0) {
+		if($ct == 0 && !$sysdata->isContactSuperUser($cid)) {
 			$query = "INSERT INTO rehearsal_contact VALUES ($rid, $cid)";
 			$db->execute($query);
 			$newEntries++;
@@ -346,6 +346,46 @@ for($i = 1; $i < count($allContacts); $i++) {
 	}
 }
 echo "<i>$newEntries entries were added to rehearsal_contact.</i><br/>\n";
+
+
+/*
+ * Task 8: Add concert contact relation.
+ */
+if(!in_array("concert_contact", $tables)) {
+	$query = "CREATE TABLE concert_contact ( ";
+	$query .= "concert int(11) NOT NULL, ";
+	$query .= "contact int(11) NOT NULL, ";
+	$query .= "PRIMARY KEY (concert, contact) )";
+	$db->execute($query);
+	echo "<i>Table concert_contact created.</i><br/>";
+}
+else {
+	echo "<i>Table concert_contact already exists.</i><br/>";
+}
+
+/*
+ * Task 8.1: Add all contacts to future concerts. Migration task.
+*/
+$futureConcerts = $db->getSelection("SELECT id FROM concert WHERE begin > NOW()");
+$allContacts = $db->getSelection("SELECT id FROM contact");
+$newEntries = 0;
+
+for($i = 1; $i < count($allContacts); $i++) {
+	$cid = $allContacts[$i]["id"];
+
+	for($j = 1; $j < count($futureConcerts); $j++) {
+		$conid = $futureConcerts[$j]["id"];
+
+		$ct = $db->getCell("concert_contact", "count(contact)", "concert = $conid AND contact = $cid");
+		if($ct == 0 && !$sysdata->isContactSuperUser($cid)) {
+			$query = "INSERT INTO concert_contact VALUES ($conid, $cid)";
+			$db->execute($query);
+			$newEntries++;
+		}
+	}
+}
+echo "<i>$newEntries entries were added to concert_contact.</i><br/>\n";
+
 
 ?>
 <br/>

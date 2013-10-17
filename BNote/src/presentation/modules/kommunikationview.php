@@ -46,12 +46,22 @@ class KommunikationView extends AbstractView {
 			$label .= " Uhr " . $rhs[$i]["name"];
 			$dd->addOption($label, $rhs[$i]["id"]);
 		}
-		if(isset($_GET["preselect"])) {
-			$dd->setSelected($_GET["preselect"]);
-		}
 		
-		$form = $this->createMailForm($this->modePrefix() . "rehearsal");
-		$form->addElement("Probe", $dd);
+		$form = $this->createMailForm($this->modePrefix() . "rehearsal", $message, false);
+		$message = "";
+		if(isset($_GET["preselect"])) {
+			$rhs = $this->getData()->getRehearsal($_GET["preselect"]);
+			$message = $rhs["notes"];
+			$label = Data::getWeekdayFromDbDate($rhs["begin"]) . ", ";
+			$label .= Data::convertDateFromDb($rhs["begin"]);
+			$label .= " - " . substr($rhs["end"], strlen($rhs["end"])-8, 5);
+			$label .= " Uhr " . $rhs["name"];
+			$form->addElement("Probe", new Field("rehearsal_view", $label, 99));
+			$form->addHidden("rehearsal", $_GET["preselect"]);
+		}
+		else {
+			$form->addElement("Probe", $dd);
+		}
 		$form->removeElement("Betreff");
 		$form->write();
 		
@@ -61,15 +71,16 @@ class KommunikationView extends AbstractView {
 		}
 	}
 	
-	private function createMailForm($action) {
+	private function createMailForm($action, $message = "", $showGroups = true) {
 		$form = new Form("Rundmail", $action . "&sub=send");
 		
-		//TODO for rehearsal mails no receipients are needed, take the ones from the list
-		$selectedGroups = array(); // by default
-		$gs = new GroupSelector($this->getData()->adp()->getGroups(), $selectedGroups, "group");
-		$form->addElement("Empf&auml;nger", $gs);
+		// for rehearsal mails no receipients are needed, take the ones from the list
+		if($showGroups) {
+			$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
+			$form->addElement("Empf&auml;nger", $gs);
+		}
 		$form->addElement("Betreff", new Field("subject", "", FieldType::CHAR));
-		$form->addElement("Nachricht", new Field("message", "", 98));
+		$form->addElement("Nachricht", new Field("message", $message, 98));
 		$form->changeSubmitButton("SENDEN");
 		
 		return $form;

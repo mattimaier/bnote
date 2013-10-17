@@ -203,17 +203,6 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	/***** CONCERT CREATION PROCESS ***********/
-	/**
-	 * Definition of the steps.
-	 * @var array
-	 */
-	private $addSteps = array(
-		"Stammdaten",
-		"Auff&uuml;hrungsort",
-		"Kontaktperson",
-		"Programm",
-		"Fertig"
-	);
 	
 	function showAddTitle() {
 		Writing::h2("Konzert hinzuf&uuml;gen");
@@ -226,7 +215,7 @@ class KonzerteView extends CrudRefView {
 	function showProgressBar($progress) {
 		echo '<div class="progressbar">' . "\n";
 		
-		foreach($this->addSteps as $i => $caption) {
+		foreach($this->getController()->getSteps() as $i => $caption) {
 			if($i < $progress) $passed = " passed";
 			else $passed = "";
 			
@@ -368,16 +357,31 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	/**
+	 * Ask for members participating in this concert.
+	 * @param String $action Method to call after modePrefix.
+	 */
+	function step5($action) {
+		// select the groups (or all) the concert will be for
+		Writing::p("Bitte wähle die Mitspieler für dieses Konzert aus.");
+		
+		$form = new Form("Mitspieler auswählen", $this->modePrefix() . $action);
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
+		$form->addElement("Gruppen", $gs);
+		$this->addCollectedData($form);
+		$form->changeSubmitButton("weiter");
+		$form->write(); 
+	}
+	
+	/**
 	 * Show saving message.
 	 * @param String $action Is not used.
 	 */
-	function step5($action) {
+	function step6($action) {
 		$m = "Das Konzert wurde erfolgreich erstellt.";
 		$msg = new Message("Konzert erstellt", $m);
 		$this->backToStart();
 	}
 	
-	//TODO add a step to select the groups (or all) the concert will be for
 }
 
 ?>

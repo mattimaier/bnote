@@ -222,6 +222,7 @@ class Installation {
 			
 			//TODO update this script once the implementation/database updates are all done
 			// - Add rehearsal contact relation
+			// - Add concert contact relation
 			
 			//TODO make single statements instead of script execution!
 			$script = "

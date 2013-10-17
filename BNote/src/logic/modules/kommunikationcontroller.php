@@ -50,27 +50,22 @@ class KommunikationController extends DefaultController {
 	}
 	
 	/**
-	 * Please make sure that the $_POST array has
-	 * either the group or the contact key set and
-	 * it must have a subject and message attribute.
+	 * Please make sure that the $_POST array has a subject and message attribute.
 	 */
 	private function sendMail() {
 		$addresses = array();
 		$subject = $_POST["subject"];
 		$body = $_POST["message"];
 		
-		// determine whether to send it to a group or to a single person
-		if(isset($_POST["group"]) && $_POST["group"] != "") {
-			// get all mail addresses
-			$addies = $this->getData()->getMailaddressesFromGroup($_POST["group"]);
-			for($i = 1; $i < count($addies); $i++) {
-				array_push($addresses, $addies[$i]["email"]);
-			}
+		// determine email adresses
+		if(isset($_POST["rehearsal"])) {
+			// get mail addresses for a rehearsal
+			$addresses = $this->getData()->getRehearsalContactMail($_POST["rehearsal"]);
 		}
 		else {
-			// get contact mail address
-			array_push($addresses, $this->getData()->getContactmail($_POST["contact"]));
-		}		
+			// get all mail addresses from selected groups
+			$addresses = $this->getData()->getMailaddressesFromGroup("group");
+		}
 		
 		// Receipient Setup
 		global $system_data;
@@ -90,16 +85,21 @@ class KommunikationController extends DefaultController {
 		}
 		$headers .= 'Bcc: ' . $bcc_addresses . "\r\n";
 		
+		echo "headers: $headers<br/>\n";
+		echo "receipient: $receipient<br/>\n";
+		echo "subject: $subject<br/>\n";
+		echo "body: $body<br/>\n";
+		
 		/*
 		 * MAIL FUNCTION
 		 * -------------
 		 * Some hosting providers require specific mail() settings
 		 * therefore this comment should show where the function is!
 		 */
-		if(!$GLOBALS["system_data"]->inDemoMode()) {
-			if(!mail($receipient, $subject, $body, $headers)) {
-				$this->getView()->reportMailError($bcc_addresses);
-			}
-		}
+// 		if(!$GLOBALS["system_data"]->inDemoMode()) {
+// 			if(!mail($receipient, $subject, $body, $headers)) {
+// 				$this->getView()->reportMailError($bcc_addresses);
+// 			}
+// 		}
 	}
 }

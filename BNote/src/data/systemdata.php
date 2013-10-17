@@ -240,6 +240,12 @@ class Systemdata {
  	return in_array($uid, $this->getSuperUsers());
  }
  
+ public function isContactSuperUser($cid = -1) {
+ 	if($cid == -1) return $this->isUserSuperUser();
+ 	$uid = $this->dbcon->getCell($this->dbcon->getUserTable(), "id", "contact = $cid");
+ 	return $this->isUserSuperUser($uid);
+ }
+ 
  /**
   * Creates a fraction of an SQL statement to add to a statement for the
   * user table. For example your statement is "SELECT * FROM user", then
@@ -368,6 +374,18 @@ class Systemdata {
   */
  public function getSystemConfigParameter($parameter) {
  	return $this->cfg_system->getParameter($parameter);
+ }
+ 
+ /**
+  * Retrieves the current user's contact in case there is one.
+  * @param Integer $uid optional: User ID, by default the current user.
+  * @return In case the user has a contact, this is returned, otherwise null.
+  */
+ public function getUsersContact($uid = -1) {
+ 	if($uid == -1) $uid = $_SESSION["user"];
+ 	$cid = $this->dbcon->getCell($this->dbcon->getUserTable(), "contact", "id = $uid");
+ 	if($cid == "") return null;
+ 	else return $this->dbcon->getRow("SELECT * FROM contact WHERE id = $cid");
  }
 }
 

@@ -25,14 +25,62 @@ class MitspielerData extends AbstractData {
 		$this->init();
 	}
 	
+	/**
+	 * @return Members of groups and phases the current user is part of.
+	 */
 	function getMembers() {
-		//TODO only show members of groups and phases the current user is part of 
-		$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.business, c.email, i.name as instrument_name ";
-		$query .= "FROM contact c JOIN instrument i ON c.instrument = i.id ";
-// 		$query .= "WHERE c.status = 'ADMIN' or c.status = 'MEMBER' ";
-		$query .= "ORDER BY c.surname, c.name ASC";
+		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, i.name as instrument";
+		$order = "ORDER BY fullname, instrument";
 		
-		return $this->filterSuperUsers($this->database->getSelection($query));
+		if($this->getSysdata()->isUserSuperUser()) {
+			$query = "SELECT $fields FROM contact c
+					  JOIN instrument i ON c.instrument = i.id
+					  $order";
+			return $this->database->getSelection($query);
+		}
+		
+		$contacts = array();
+		$currContact = $this->getSysdata()->getUsersContact();
+		$cid = $currContact["id"];
+		
+		// get user's groups
+		$query = "SELECT DISTINCT $fields
+					FROM (
+					  SELECT `group` as id FROM contact_group WHERE contact = $cid
+					) as groups JOIN contact_group ON groups.id = contact_group.group
+					JOIN contact c ON contact_group.contact = c.id
+					JOIN instrument i ON c.instrument = i.id
+					$order";
+		$groupContacts = $this->database->getSelection($query);
+		
+		// get user's phases
+		$query = "SELECT DISTINCT $fields
+					FROM (
+					  SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = $cid
+					) as phases JOIN rehearsalphase_contact ON phases.rehearsalphase = rehearsalphase_contact.rehearsalphase
+					JOIN contact c ON rehearsalphase_contact.contact = c.id
+					JOIN instrument i ON c.instrument = i.id
+					$order";
+		$phaseContacts = $this->database->getSelection($query);
+		
+		$contacts[0] = $groupContacts[0];
+		for($i = 1; $i < count($groupContacts); $i++) {
+			array_push($contacts, $groupContacts[$i]);
+		}
+		for($i = 1; $i < count($phaseContacts); $i++) {
+			if(!$this->isContactInArray($phaseContacts[$i], $contacts)) { 
+				array_push($contacts, $phaseContacts[$i]);
+			}
+		}
+		
+		return $this->filterSuperUsers($contacts);
+	}
+	
+	private function isContactInArray($contact, $contacts) {
+		foreach($contacts as $i => $c) {
+			if($c["id"] == $contact["id"]) return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -42,7 +90,7 @@ class MitspielerData extends AbstractData {
 	 */
 	private function filterSuperUsers($selection) {
 		$filtered = array();
-		$superUsers = $GLOBALS["system_data"]->getSuperUserContactIDs();
+		$superUsers = $this->getSysdata()->getSuperUserContactIDs();
 		$filtered[0] = $selection[0];
 		$count_f = 1;
 		for($i = 1; $i < count($selection); $i++) {

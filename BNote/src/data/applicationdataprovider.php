@@ -292,6 +292,17 @@ class ApplicationDataProvider {
 		$query .= "  ON c.address = a.id) as c2 ";
 		$query .= "LEFT JOIN instrument i ";
 		$query .= "ON c2.instrument = i.id ";
+		
+		// filter out super users
+		$suContacts = $this->sysdata->getSuperUserContactIDs();
+		if(count($suContacts) > 0 && !$this->sysdata->isUserSuperUser()) {
+			$query .= "WHERE ";
+			foreach($suContacts as $i => $suc) {
+				if($i > 0) $query .= " AND ";
+				$query .= "c2.id <> $suc";
+			}
+		}
+		
 		return $this->database->getSelection($query);
 	}
 	

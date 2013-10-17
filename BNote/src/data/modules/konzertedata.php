@@ -210,8 +210,31 @@ class KonzerteData extends AbstractData {
 			unset($values["program"]);
 		}
 		
+		
 		// create concert
-		parent::create($values);
+		$concertId = parent::create($values);
+		
+		// adds members of the selected group(s)
+		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
+		
+		foreach($groups as $i => $groupId) {
+			$contacts = $this->adp()->getGroupContacts($groupId);
+			$query = "INSERT INTO concert_contact VALUES ";
+			$newEntries = 0;
+			
+			foreach($contacts as $j => $contact) {
+				if($j == 0) continue;
+				$cid = $contact["id"];
+				if(!$this->isContactInConcert($concertId, $cid) && !$this->getSysdata()->isContactSuperUser($cid)) {
+					if($newEntries++ > 0) $query .= ",";
+					$query .= "($concertId, $cid)";
+				}
+			}
+			
+			if($newEntries > 0) {
+				$this->database->execute($query);
+			}
+		}
 	}
 	
 	function getParticipants($cid) {
@@ -221,6 +244,11 @@ class KonzerteData extends AbstractData {
 		$query .= ' WHERE cu.concert = ' . $cid . ' AND cu.user = u.id AND u.contact = c.id';
 		$query .= ' ORDER BY participate, name';
 		return $this->database->getSelection($query);
+	}
+	
+	private function isContactInConcert($concertId, $contactId) {
+		$ct = $this->database->getCell("concert_contact", "count(contact)", "concert = $concertId AND contact = $contactId");
+		return ($ct > 0);
 	}
 }
 

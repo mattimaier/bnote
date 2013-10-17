@@ -238,6 +238,63 @@ class ProbenData extends AbstractData {
 		
 		return $rid;
 	}
+	
+	public function getRehearsalContacts($rid) {
+		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, i.name as instrument, c.mobile, c.email ";
+		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";
+		$query .= " LEFT JOIN instrument i ON c.instrument = i.id ";
+		$query .= "WHERE rc.rehearsal = $rid ORDER BY name";
+		return $this->database->getSelection($query);
+	}
+	
+	public function getRehearsalsPhases($rid) {
+		$query = "SELECT p.* ";
+		$query .= "FROM rehearsalphase p JOIN rehearsalphase_rehearsal pr ON pr.rehearsalphase = p.id ";
+		$query .= "WHERE pr.rehearsal = $rid";
+		return $this->database->getSelection($query);
+	}
+	
+	public function deleteRehearsalContact($rid, $cid) {
+		$query = "DELETE FROM rehearsal_contact WHERE rehearsal = $rid AND contact = $cid";
+		$this->database->execute($query);
+	}
+	
+	public function addRehearsalContact($rid) {
+		$contacts = GroupSelector::getPostSelection($this->getContacts(), "contact");
+		$query = "INSERT INTO rehearsal_contact VALUES ";
+		$count = 0;
+		foreach($contacts as $i => $cid) {
+			if(!$this->isContactInRehearsal($rid, $cid)) {
+				if($count++ > 0) $query .= ", ";
+				$query .= "($rid, $cid)";
+			}
+		}
+		if($count > 0) $this->database->execute($query);
+	}
+	
+	private function isContactInRehearsal($rid, $cid) {
+		$ct = $this->database->getCell("rehearsal_contact", "count(contact)", "rehearsal = $rid AND contact = $cid");
+		return ($ct > 0);
+	}
+	
+	public function getContacts() {
+		$allContacts = $this->adp()->getContacts();
+		
+		// filter super-contacts
+		$result = array();
+		array_push($result, $allContacts[0]);
+		
+		for($i = 1; $i < count($allContacts); $i++) {
+			if($this->getSysdata()->isContactSuperUser($allContacts[$i]["id"])) continue;
+			
+			// adapt naming for output
+			$allContacts[$i]["fullname"] = $allContacts[$i]["name"] . " " . $allContacts[$i]["surname"];
+			
+			array_push($result, $allContacts[$i]);
+		}
+		
+		return $result;
+	}
 }
 
 ?>

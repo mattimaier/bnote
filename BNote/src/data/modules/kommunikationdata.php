@@ -13,7 +13,7 @@ class KommunikationData extends KontakteData {
 	}
 	
 	function getRehearsal($id) {
-		$query = "SELECT begin, name as location, street, city, zip ";
+		$query = "SELECT begin, name as location, street, city, zip, r.notes ";
 		$query .= "FROM rehearsal r, location l, address a ";
 		$query .= "WHERE r.location = l.id AND l.address = a.id AND r.id = " . $id;
 		return $this->database->getRow($query);
@@ -28,41 +28,20 @@ class KommunikationData extends KontakteData {
 		return $this->database->getCell("contact", "email", "id = $id");
 	}
 	
-	function getMailaddressesFromGroup($group) {
-		//TODO change this to group setting!
+	function getMailaddressesFromGroup($prefix) {
+		$selectedGroups = GroupSelector::getPostSelection($this->adp()->getGroups(), $prefix);
 		
-		// bug #5: exclude configured administrators from mail-traffic
-		global $system_data;
-		$adminContacts = $system_data->getSuperUserContactIDs();
-		$exclAdminSqlWhere = "";
-		if(count($adminContacts) > 0) {
-			for($adminId = 0; $adminId < count($adminContacts); $adminId++) {
-				if($adminId > 0) $exclAdminSqlWhere .= " AND ";
-				$exclAdminSqlWhere .= "id <> " . $adminContacts[$adminId];
-			}
+		$query = "SELECT c.email ";
+		$query .= "FROM contact c JOIN contact_group cg ON cg.contact = c.id ";
+		$query .= "WHERE ";
+		foreach($selectedGroups as $i => $group) {
+			if($i > 0) $query .= "OR ";
+			$query .= "cg.group = $group ";
 		}
 		
-		$query = "SELECT email FROM contact WHERE ";
-		if(count($adminContacts) > 0) $query .= "($exclAdminSqlWhere) AND (";
-		$query .= "status = '";
-		$stat = $group;
+		$mailaddies = $this->database->getSelection($query);
 		
-		// 100 = Admins, Members
-		if($stat == 100) {
-			$stat = KontakteData::$STATUS_ADMIN . "' OR status = '";
-			$stat .= KontakteData::$STATUS_MEMBER;
-		}
-		// 101 = Admins, Members, Externals
-		else if($stat == 101) {
-			$stat = KontakteData::$STATUS_ADMIN . "' OR status = '";
-			$stat .= KontakteData::$STATUS_MEMBER . "' OR status = '";
-			$stat .= KontakteData::$STATUS_EXTERNAL;
-		}
-		
-		$query .= $stat . "'";
-		if(count($adminContacts) > 0) $query .= ")";
-
-		return $this->database->getSelection($query);
+		return $this->flattenAddresses($mailaddies);
 	}
 	
 	function getSongsForRehearsal($rid) {
@@ -70,6 +49,24 @@ class KommunikationData extends KontakteData {
 		$query .= "FROM rehearsal_song rs, song s ";
 		$query .= "WHERE rs.song = s.id AND rs.rehearsal = $rid";
 		return $this->database->getSelection($query);
+	}
+	
+	function getRehearsalContactMail($rid) {
+		$query = "SELECT c.email ";
+		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";
+		$query .= "WHERE rc.rehearsal = $rid";
+		$mailaddies = $this->database->getSelection($query);
+		
+		return $this->flattenAddresses($mailaddies);
+	}
+	
+	private function flattenAddresses($selection) {
+		$addresses = array();
+		for($i = 1; $i < count($selection); $i++) {
+			$addy = $selection[$i]["email"];
+			if($addy != "") array_push($addresses, $addy);
+		}
+		return $addresses;
 	}
 }
 

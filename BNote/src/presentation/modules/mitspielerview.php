@@ -20,8 +20,8 @@ class MitspielerView extends AbstractView {
 		$members = $this->getData()->getMembers();
 		
 		$table = new Table($members);
-		$table->removeColumn("id");
 		$table->renameAndAlign($this->getData()->getFields());
+		$table->renameHeader("fullname", "Name");
 		$table->write();
 	}
 }

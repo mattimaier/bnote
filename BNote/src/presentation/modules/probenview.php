@@ -113,7 +113,8 @@ class ProbenView extends CrudRefView {
 		
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
-		//TODO add a group the rehearsals should be for (or all)
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
+		$form->addElement("Proben für", $gs);
 		
 		$form->write();
 		
@@ -193,8 +194,71 @@ class ProbenView extends CrudRefView {
 		$details->renameElement("street", "Stra&szlig;e");
 		$details->renameElement("zip", "Postleitzahl");
 		$details->renameElement("city", "Stadt");
-		//TODO show the rehearsal phases this rehearsal is part of
 		$details->write();
+		
+		// contacts who should participate in rehearsal
+		Writing::h2("Einladungen zur Teilnahme");
+		$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Einladung hinzufügen");
+		$addContact->addIcon("add");
+		$addContact->write();
+		
+		$contacts = $this->getData()->getRehearsalContacts($_GET["id"]);
+		
+		// add a link to the data to remove the contact from the list
+		$contacts[0]["delete"] = "Löschen";
+		for($i = 1; $i < count($contacts); $i++) {
+			$delLink = $this->modePrefix() . "delContact&id=" . $_GET["id"] . "&cid=" . $contacts[$i]["id"];
+			$btn = new Link($delLink, "");
+			$btn->addIcon("remove");
+			$contacts[$i]["delete"] = $btn->toString();
+		}
+		
+		$table = new Table($contacts);
+		$table->removeColumn("id");
+		$table->renameHeader("mobile", "Handynummer");
+		$table->write();
+		
+		$phases = $this->getData()->getRehearsalsPhases($_GET["id"]);
+		
+		if(count($phases) > 1) {
+			Writing::h2("Probenphasen");
+			$table = new Table($phases);
+			$table->removeColumn("id");
+			$table->renameHeader("name", "Probenphase");
+			$table->renameHeader("begin", "Von");
+			$table->renameHeader("end", "bis");
+			$table->renameHeader("notes", "Anmerkungen");
+			$table->write();
+		}
+		
+		$this->verticalSpace();
+	}
+	
+	public function addContact() {
+		$this->checkID();
+		
+		$form = new Form("Einladung zu Probe hinzufügen", $this->modePrefix() . "process_addContact&id=" . $_GET["id"]);
+		$contacts = $this->getData()->getContacts();
+		$gs = new GroupSelector($contacts, array(), "contact");
+		$gs->setNameColumn("fullname");
+		$form->addElement("Einladung für", $gs);
+		$form->write();
+		
+		$this->verticalSpace();
+		$this->backToViewButton($_GET["id"]);
+	}
+	
+	public function process_addContact() {
+		$this->checkID();
+		$this->getData()->addRehearsalContact($_GET["id"]);
+		new Message("Kontakt hinzugefügt", "Der Kontakt wurde zu dieser Probe hinzugefügt.");
+		$this->backToViewButton($_GET["id"]);
+	}
+	
+	public function delContact() {
+		$this->checkID();
+		$this->getData()->deleteRehearsalContact($_GET["id"], $_GET["cid"]);
+		$this->view();
 	}
 	
 	protected function additionalViewButtons() {
@@ -227,13 +291,7 @@ class ProbenView extends CrudRefView {
 		$table->renameHeader("reason", "Grund");
 		$table->write();
 		$this->verticalSpace();
-		
-		//TODO change this view completely!
-		/*
-		 * Table with all users who should participate and then with the ones who do and who don't.
-		 * Show statistics as below, but make sure they are correct!
-		 */
-		
+				
 		// statistics
 		Writing::h3("Instrumente");
 		$dv = new Dataview();
