@@ -120,7 +120,6 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	function viewDetailTable() {
-		//TODO show the rehearsal phases this concert is related to
 		$c = $this->getData()->findByIdNoRef($_GET["id"]);
 		$dv = new Dataview();
 		$dv->autoAddElements($c);
@@ -153,7 +152,57 @@ class KonzerteView extends CrudRefView {
 		
 		$dv->write();
 		
-		//TODO manage members who will play in this concert
+		// manage members who will play in this concert
+		Writing::h2("Eingeladene Mitspieler");
+		$addContact = new Link($this->modePrefix() . "addConcertContact&id=" . $_GET["id"], "Kontakt hinzufügen");
+		$addContact->addIcon("add");
+		$addContact->write();
+		
+		$contacts = $this->getData()->getConcertContacts($_GET["id"]);
+		$contacts = Table::addDeleteColumn($contacts, $this->modePrefix() . "delConcertContact&id=" . $_GET["id"] . "&contactid=");
+		$tab = new Table($contacts);
+		$tab->removeColumn("id");
+		$tab->renameHeader("fullname", "Name");
+		$tab->renameHeader("phone", "Telefon");
+		$tab->renameHeader("mobile", "Handy");
+		$tab->write();
+		$this->verticalSpace();
+		
+		// show the rehearsal phases this concert is related to
+		Writing::h2("Probenphasen");
+		$phases = $this->getData()->getRehearsalphases($_GET["id"]);
+		$tab = new Table($phases);
+		$tab->removeColumn("id");
+		$tab->renameHeader("Begin", "von");
+		$tab->renameHeader("end", "bis");
+		$tab->renameHeader("notes", "Notizen");
+		$tab->write();
+		
+		$this->verticalSpace();
+	}
+	
+	function addConcertContact() {
+		$this->checkID();
+		
+		$form = new Form("Kontakt hinzufügen", $this->modePrefix() . "process_addConcertContact&id=" . $_GET["id"]);
+		$gs = new GroupSelector($this->getData()->getContacts(), array(), "contact");
+		$gs->setNameColumn("fullname");
+		$form->addElement("Konzertmitspieler", $gs);
+		$form->write();
+	}
+	
+	function process_addConcertContact() {
+		$this->checkID();
+		$contacts = GroupSelector::getPostSelection($this->getData()->getContacts(), "contact");
+		$this->getData()->addConcertContact($_GET["id"], $contacts);
+		new Message("Kontakt hinzugefügt", "Der oder die Kontakte wurden dem Konzert hinzugefügt.");
+		$this->backToViewButton($_GET["id"]);
+	}
+	
+	function delConcertContact() {
+		$this->checkID();
+		$this->getData()->deleteConcertContact($_GET["id"], $_GET["contactid"]);
+		$this->view();
 	}
 	
 	function editEntityForm() {

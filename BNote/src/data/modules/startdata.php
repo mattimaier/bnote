@@ -149,7 +149,6 @@ class StartData extends AbstractData {
 	}
 	
 	function getVotesForUser() {
-		//TODO only show votes of groups and rehearsal phases the user is in
 		$query = "SELECT v.id, v.name, v.end, v.is_date, v.is_multi ";
 		$query .= "FROM vote_group vg JOIN vote v ON vg.vote = v.id ";
 		$query .= "WHERE vg.user = " . $_SESSION["user"] . " AND v.is_finished = 0 AND end > now() ";
@@ -231,8 +230,84 @@ class StartData extends AbstractData {
 		$this->database->execute($query);
 	}
 	
-	function getUsersRehearsals() {
-		//TODO only show rehearsals of groups and rehearsal phases the user is in
-		return $this->adp()->getAllRehearsals();
+	function getUsersRehearsals($uid = -1) {
+		// super users should see it all
+		if($this->getSysdata()->isUserSuperUser()) {
+			return $this->adp()->getAllRehearsals();
+		}
+		
+		// only show rehearsals of groups and rehearsal phases the user is in
+		if($uid == -1) $uid = $_SESSION["user"];
+		
+		$usersPhases = $this->adp()->getUsersPhases();
+		$rehearsals = array_merge($this->getRehearsalsForUser($uid), $this->getRehearsalsForPhases($usersPhases));
+		
+		$query = "SELECT * FROM rehearsal WHERE ";
+		foreach($rehearsals as $i => $reh) {
+			if($i > 0) $query .= " OR ";
+			$query .= "id = $reh";
+		}
+		$query .= " ORDER BY begin";
+		
+		return $this->database->getSelection($query);
+	}
+	
+	private function getRehearsalsForUser($uid) {
+		$cid = $this->adp()->getUserContact($uid);
+		$query = "SELECT rehearsal FROM rehearsal_contact WHERE contact = $cid";
+		$sel = $this->database->getSelection($query);
+		return Database::flattenSelection($sel, "rehearsal");
+	}
+	
+	private function getRehearsalsForPhases($phases) {
+		if(count($phases) == 0) return array();
+		$query = "SELECT rehearsal FROM rehearsalphase_rehearsal WHERE ";
+		foreach($phases as $i => $p) {
+			if($i > 0) $query .= " OR ";
+			$query .= "rehearsalphase = $p";
+		}
+		$sel = $this->database->getSelection($query);
+		return Database::flattenSelection($sel, "rehearsal");
+	}
+	
+	function getUsersConcerts() {
+		// super users will see it all
+		if($this->getSysdata()->isUserSuperUser()) {
+			return $this->adp()->getFutureConcerts();
+		}
+		
+		// only show concerts of groups and rehearsal phases the user is in
+		$phases = $this->adp()->getUsersPhases();
+		$phasesWhere = "WHERE ";
+		if(count($phases) == 0) {
+			$phasesWhere .= "0 = 1"; // no phases
+		}
+		else {
+			foreach($phases as $i => $p) {
+				if($i > 0) $phasesWhere .= " OR ";
+				$phasesWhere .= "rehearsalphase = $p";
+			}
+		}
+		
+		$cid = $this->adp()->getUserContact();
+		
+		$query = "SELECT DISTINCT c . * 
+					FROM concert c
+					JOIN (
+						(
+							SELECT concert
+							FROM rehearsalphase_concert
+							$phasesWhere
+						)
+						UNION ALL (
+							SELECT concert
+							FROM concert_contact
+							WHERE contact = $cid
+						)
+					) AS concerts ON c.id = concerts.concert
+					WHERE END > NOW( ) 
+					ORDER BY BEGIN , 
+					END";
+		return $this->database->getSelection($query);
 	}
 }

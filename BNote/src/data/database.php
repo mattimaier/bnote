@@ -190,6 +190,20 @@ class Database extends Data {
  	}
  	return $fields;
  }
+ 
+ /**
+  * Takes a selection and makes a flat array with the contents of the given column.
+  * @param array $selection Database Selection.
+  * @param string $col Column Name.
+  * @return Flat array containg only the contents of the column.
+  */
+ public static function flattenSelection($selection, $col) {
+ 	$flat = array();
+ 	for($i = 1; $i < count($selection); $i++) {
+ 		array_push($flat, $selection[$i][$col]);
+ 	}
+ 	return $flat;
+ }
 }
 
 ?>

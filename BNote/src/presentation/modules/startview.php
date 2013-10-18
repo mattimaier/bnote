@@ -159,8 +159,7 @@ class StartView extends AbstractView {
 	}
 	
 	private function writeConcertList() {
-		//TODO only show concerts of groups and rehearsal phases the user is in
-		$data = $this->getData()->adp()->getFutureConcerts();
+		$data = $this->getData()->getUsersConcerts();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
 			echo "<li>Keine Konzerte angesagt.</li>\n";

@@ -100,6 +100,24 @@ class Table implements iWriteable {
  protected function editValue($value, $col) {
  	return $value;
  }
+ 
+ /**
+  * Adds a column to the data with a link to delete the item.
+  * @param Selection $tabData Database Selection which is used in this table class. 
+  * @param String $delHref Link to the action of the buttons, format: "...&contactid=". The id of the item will be appended.
+  * @param String $delColName Name of the column in the data, by default "delete".
+  * @param String $delColCaption Caption of the column, by default "Löschen".
+  * @return Table data with delete column.
+  */
+ public static function addDeleteColumn($tabData, $delHref, $delColName = "delete", $delColCaption = "Löschen") {
+ 	$tabData[0][$delColName] = $delColCaption;
+ 	for($i = 1; $i < count($tabData); $i++) {
+ 		$btn = new Link($delHref . $tabData[$i]["id"], "");
+ 		$btn->addIcon("remove");
+ 		$tabData[$i][$delColName] = $btn->toString();
+ 	}
+ 	return $tabData;
+ } 
 
  /**
   * (non-PHPdoc)

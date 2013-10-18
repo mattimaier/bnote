@@ -321,6 +321,32 @@ class ApplicationDataProvider {
 	}
 	
 	/**
+	 * Retrieves the groups for the given/current user.
+	 * @param Integer $uid Optional: User ID, by default current user.
+	 * @return Flat array of groups.
+	 */
+	public function getUsersGroups($uid = -1) {
+		if($uid == -1) $uid = $_SESSION["user"];
+		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = $uid");
+		$query = "SELECT `group` FROM contact_group WHERE contact = $cid";
+		$sel = $this->database->getSelection($query);
+		Database::flattenSelection($sel, "group");
+	}
+	
+	/**
+	 * Retrieves the rehearsal phases for the given/current user.
+	 * @param Integer $uid Optional: User ID, by default current user.
+	 * @return Flat array of phases.
+	 */
+	public function getUsersPhases($uid = -1) {
+		if($uid == -1) $uid = $_SESSION["user"];
+		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = $uid");
+		$query = "SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = $cid";
+		$sel = $this->database->getSelection($query);
+		Database::flattenSelection($sel, "rehearsal_phase");
+	}
+	
+	/**
 	 * Retrieves the name of the user.
 	 * @param int $id ID of the user.
 	 * @return First and last name concatenated.

@@ -143,7 +143,15 @@ class KonzerteData extends AbstractData {
 	}
 	
 	function getContacts() {
-		return $this->adp()->getContacts();
+		$contacts = $this->adp()->getContacts();
+		
+		// add fullname
+		$contacts[0]["fullname"] = "Name";
+		for($i = 1; $i < count($contacts); $i++) {
+			$contacts[$i]["fullname"] = $contacts[$i]["name"] . " " . $contacts[$i]["surname"];
+		}
+		
+		return $contacts;
 	}
 	
 	function getTemplates() {
@@ -249,6 +257,36 @@ class KonzerteData extends AbstractData {
 	private function isContactInConcert($concertId, $contactId) {
 		$ct = $this->database->getCell("concert_contact", "count(contact)", "concert = $concertId AND contact = $contactId");
 		return ($ct > 0);
+	}
+	
+	function getConcertContacts($cid) {
+		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as fullname, c.phone, c.mobile, c.email, i.name as instrument ";
+		$query .= "FROM concert_contact cc JOIN contact c ON cc.contact = c.id JOIN instrument i ON c.instrument = i.id ";
+		$query .= "WHERE cc.concert = $cid ";
+		$query .= "ORDER BY fullname";
+		return $this->database->getSelection($query);
+	}
+	
+	function deleteConcertContact($concertid, $contactid) {
+		$query = "DELETE FROM concert_contact WHERE concert = $concertid AND contact = $contactid";
+		$this->database->execute($query);
+	}
+	
+	function addConcertContact($concertid, $contacts) {
+		$query = "INSERT INTO concert_contact VALUES ";
+		foreach($contacts as $i => $contact) {
+			if($i > 0) $query .= ",";
+			$query .= "($concertid, $contact)";
+		}
+		$this->database->execute($query);
+	}
+	
+	function getRehearsalphases($concertid) {
+		$query = "SELECT p.* ";
+		$query .= "FROM rehearsalphase_concert rc JOIN rehearsalphase p ON rc.rehearsalphase = p.id ";
+		$query .= "WHERE concert = $concertid ";
+		$query .= "ORDER BY p.begin, p.end";
+		return $this->database->getSelection($query);
 	}
 }
 
