@@ -387,6 +387,31 @@ class Systemdata {
  	if($cid == "") return null;
  	else return $this->dbcon->getRow("SELECT * FROM contact WHERE id = $cid");
  }
+ 
+ /**
+  * Holds the generation of the user's home directory.
+  * @param Integer $uid optional: User ID, by default current user.
+  * @return Relative path to user's directory.
+  */
+ public function getUsersHomeDir($uid = -1) {
+ 	if($uid == -1) $uid = $_SESSION["user"];
+ 	$login = $this->dbcon->getCell($this->dbcon->getUserTable(), "login", "id = $uid");
+ 	return $GLOBALS["DATA_PATHS"]["userhome"] . $login;
+ }
+ 
+ /**
+  * Holds the generation of the group's home directory.
+  * @param Integer $groupId Group ID.
+  * @return Relative path to group's directory.
+  */
+ public function getGroupHomeDir($groupId) {
+ 	$dirname = "group_" . $groupId; // name can contain spaces and other weird characters
+ 	return $GLOBALS["DATA_PATHS"]["grouphome"] . $dirname;
+ }
+ 
+ public function getFileHandler() {
+ 	return $GLOBALS["DIR_DATA"] . "filehandler.php";
+ }
 }
 
 ?>

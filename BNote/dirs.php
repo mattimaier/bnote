@@ -22,7 +22,9 @@ $DATA_PATHS = array(
 	"members" => "data/members/",
 	"webpages" => "data/webpages/",
 	"gallery" => "data/gallery/",
-	"share" => "data/share/"
+	"share" => "data/share/",
+	"userhome" => "data/share/users/",
+	"grouphome" => "data/share/groups/"
 );
 
 // set as global constants

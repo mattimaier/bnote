@@ -197,6 +197,26 @@ abstract class Data {
 		return $dt->format("d.m.Y H:i");
 	}
 	
+	/**
+	 * Checks whether a string starts with a substring.
+	 * @param string $haystack String to search in.
+	 * @param string $needle Prefix string.
+	 * @return boolean true when the string starts with the needle, otherwise false.
+	 */
+	public static function startsWith($haystack, $needle) {
+		return $needle === "" || strpos($haystack, $needle) === 0;
+	}
+	
+	/**
+	 * Checks whether a string ends with a substring.
+	 * @param string $haystack String to search in.
+	 * @param string $needle Suffix string.
+	 * @return boolean True when the string ends with the needs, otherwise false.
+	 */
+	public static function endsWith($haystack, $needle) {
+		return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
+	}
+	
 	// END OF CLASS
  }
 

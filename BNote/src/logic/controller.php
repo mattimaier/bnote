@@ -16,7 +16,7 @@ class Controller {
 
   # Check all $_GET attributes for attack
   foreach($_GET as $key => $value) {
-  	if(!preg_match("/^[[:alpha:]0-9\.\_\-\%\ ]{1,100}$/", $value)) {
+  	if(!preg_match("/^[[:alnum:]\.\_\-\%\ \/\'\(\)]{1,255}$/", $value)) {
   		new Error("Es wurde ein vermeintlicher Angriff festgestellt.<br>
   					Sollte diese Meldung weiterhin auftreten, wenden Sie sich bitten an Ihren Systemadministrator.");
   	}

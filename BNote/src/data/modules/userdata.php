@@ -82,6 +82,9 @@ class UserData extends AbstractData {
 		}
 		$privQuery = substr($privQuery, 0, strlen($privQuery)-2);
 		$this->database->execute($privQuery);
+		
+		// create user directory
+		mkdir($this->getSysdata()->getUsersHomeDir($userId));
 	}
 	
 	function update($id, $values) { // $values is the same than $_POST
@@ -117,6 +120,8 @@ class UserData extends AbstractData {
 		else {
 			parent::delete($id);
 		}
+		
+		//TODO delete also user directories with files
 	}
 	
 	/**

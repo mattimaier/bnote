@@ -386,6 +386,10 @@ for($i = 1; $i < count($allContacts); $i++) {
 }
 echo "<i>$newEntries entries were added to concert_contact.</i><br/>\n";
 
+/*
+ * Task 9: Create user and group directories
+ */
+//TODO implement
 
 ?>
 <br/>

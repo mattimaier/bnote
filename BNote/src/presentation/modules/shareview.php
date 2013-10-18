@@ -16,11 +16,8 @@ class ShareView extends AbstractView {
 	}
 	
 	function start() {
-		Writing::h1("Tausch Ordner");
-		
-		//TODO create a single dir for each user to share stuff from the admin with the user
-		
-		$fb = new Filebrowser($GLOBALS["DATA_PATHS"]["share"]);
+		Writing::h1("Dateiverwaltung");
+		$fb = new Filebrowser($GLOBALS["DATA_PATHS"]["share"], $this->getData()->getSysdata(), $this->getData()->adp());
 		if(!$this->getData()->canUserEdit($_SESSION["user"])) {
 			$fb->viewMode();
 		}

@@ -31,6 +31,15 @@ class GruppenData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
+	function create($values) {
+		$gid = parent::create($values);
+		
+		// create group directory
+		mkdir($this->getSysdata()->getGroupHomeDir($gid));
+		
+		return $gid;
+	}
+	
 	function delete($id) {
 		// check whether the members of this group still have at least one other group
 		$query = "SELECT cg.contact, count(cg.`group`) as numUserGroup
@@ -45,10 +54,13 @@ class GruppenData extends AbstractData {
 			new Error("In dieser Gruppe sind $numContactsWithNoOtherGroup Kontakte die keiner anderen Gruppe zugeordnet sind.
 					   Bitte ändere deren Gruppenzugehörigkeit bevor du die Gruppe löschen kannst.");
 		}
+		//TODO check if there are files in the folder -> cancel removal
 		
 		// first remove all members from the group
 		$query = "DELETE FROM contact_group WHERE `group`=$id";
 		$this->database->execute($query);
+		
+		//TODO remove files from share
 		
 		parent::delete($id);
 	}

@@ -18,7 +18,9 @@
 
 .filebrowser_folderitem {
 	padding: 5px;
-	margin-bottom: 5px;
+	border: 0px solid #d0d0d0;
+	border-top-width: 1px;
+	border-right-width: 1px;
 }
 
 .filebrowser_folderitem:hover {

@@ -749,6 +749,9 @@ INSERT INTO `status` (`id`, `name`) VALUES
 			$query .= "($uid, $mod)";
 		}
 		$db->execute($query);
+		
+		// create user directory
+		mkdir("data/share/users/" . $_POST["login"]);
 	}
 	
 	private function getDbConnection() {
