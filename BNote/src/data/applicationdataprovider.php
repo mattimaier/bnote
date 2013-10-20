@@ -1,5 +1,8 @@
 <?php
 
+// includes
+require_once($GLOBALS["DIR_LOGIC"] . "securitymanager.php");
+
 /**
  * ADP = Application Data Provider
  * A collection of data access methods used in multiple modules
@@ -30,6 +33,11 @@ class ApplicationDataProvider {
 	 */
 	private $sysdata;
 	
+	/**
+	 * Security Manager.
+	 * @var SecurityManager
+	 */
+	private $secManager;
 	
 	// APPLICATION SPECIFIC ATTRIBUTES
 	/**
@@ -54,8 +62,15 @@ class ApplicationDataProvider {
 		$this->database = $database;
 		$this->regex = $regex;
 		$this->sysdata = $sysdata;
+		$this->secManager = new SecurityManager($sysdata, $this);
 	}
 	
+	/**
+	 * @return SecurityManager
+	 */
+	function getSecurityManager() {
+		return $this->secManager;
+	}
 	
 	// GENERAL METHODS
 	/**

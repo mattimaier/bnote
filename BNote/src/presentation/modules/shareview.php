@@ -18,9 +18,6 @@ class ShareView extends AbstractView {
 	function start() {
 		Writing::h1("Dateiverwaltung");
 		$fb = new Filebrowser($GLOBALS["DATA_PATHS"]["share"], $this->getData()->getSysdata(), $this->getData()->adp());
-		if(!$this->getData()->canUserEdit($_SESSION["user"])) {
-			$fb->viewMode();
-		}
 		$fb->write();
 	}
 	

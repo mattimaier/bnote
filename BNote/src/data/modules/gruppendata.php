@@ -54,15 +54,25 @@ class GruppenData extends AbstractData {
 			new Error("In dieser Gruppe sind $numContactsWithNoOtherGroup Kontakte die keiner anderen Gruppe zugeordnet sind.
 					   Bitte ändere deren Gruppenzugehörigkeit bevor du die Gruppe löschen kannst.");
 		}
-		//TODO check if there are files in the folder -> cancel removal
+		// check if there are files in the folder -> cancel removal
+		if(!$this->isDirEmpty($this->getSysdata()->getGroupHomeDir($id))) {
+			new Error("Das Verzeichnis der Gruppe enthält noch Dateien. Bitte entfernen Sie diese aus dem Verzeichnis
+					   damit es gelöscht werden kann.");
+		}
 		
 		// first remove all members from the group
 		$query = "DELETE FROM contact_group WHERE `group`=$id";
 		$this->database->execute($query);
 		
-		//TODO remove files from share
+		// remove files from share
+		rmdir($this->getSysdata()->getGroupHomeDir($id));
 		
 		parent::delete($id);
+	}
+	
+	private function isDirEmpty($dir) {
+		if (!is_readable($dir)) return NULL;
+		return (count(scandir($dir)) == 2);
 	}
 }
 

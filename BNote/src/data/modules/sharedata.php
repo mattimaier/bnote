@@ -14,19 +14,6 @@ class ShareData extends AbstractData {
 		$this->init();
 	}
 	
-	function canUserEdit($uid) {
-		$cid = $this->database->getCell("user", "contact", "id = $uid");
-		$status = $this->database->getCell("contact", "status", "id = $cid");
-		
-		$group = $GLOBALS["system_data"]->getShareEditGroup();
-		if($group == $status) {
-			return true;
-		}
-		else if($status == "ADMIN") {
-			return true;
-		}
-		return false;
-	}
 }
 
 ?>

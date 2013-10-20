@@ -387,9 +387,23 @@ for($i = 1; $i < count($allContacts); $i++) {
 echo "<i>$newEntries entries were added to concert_contact.</i><br/>\n";
 
 /*
- * Task 9: Create user and group directories
+ * Task 9.1: Create user directories.
  */
-//TODO implement
+$logins = Database::flattenSelection($db->getSelection("SELECT login FROM " . $db->getUserTable()), "login");
+foreach($logins as $i => $login) {
+	$dir = "data/share/users/" . $login;
+	if(mkdir($dir))	echo "<i>User home directory $dir created.</i><br/>\n";
+}
+
+/*
+ * Task 9.2: Create group directories.
+ */
+$groups = Database::flattenSelection($db->getSelection("SELECT id FROM `group`"), "id");
+foreach($groups as $i => $group) {
+	$dir = "data/share/groups/group_" . $group;
+	if(mkdir($dir))	echo "<i>Group directory $dir created.</i><br/>\n";
+}
+
 
 ?>
 <br/>

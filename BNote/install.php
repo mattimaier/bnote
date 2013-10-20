@@ -133,13 +133,6 @@ class Installation {
  <!-- Default Permissions for a new user. Comma separated list of user IDs without spaces. -->
  <DefaultPrivileges>9,10,12,13,14</DefaultPrivileges>
  
- <!-- This property specifies who / which group can upload data to the share. This includes the right to edit folders.
- 	  Possible values are: ADMIN, MEMBER, EXTERNAL, APPLICANT, OTHER
- 	  Constraints: ADMIN can always edit;
- 	  Advise: A value of EXTERNAL, APPLICANT or OTHER is not adviseable! 
- 	  Only one value is accepted. -->
- <ShareEditGroup>ADMIN</ShareEditGroup>
- 
  <!-- True when the gallery management is used
       and should be displayed and functional, otherwise false. -->
  <UseGallery>True</UseGallery>
@@ -220,461 +213,474 @@ class Installation {
 			// run database initialization
 			$db = $this->getDbConnection();
 			
-			//TODO update this script once the implementation/database updates are all done
-			// - Add rehearsal contact relation
-			// - Add concert contact relation
+			$queries = array();
+			array_push($queries, 
+					"CREATE TABLE IF NOT EXISTS `address` (
+					  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					  `street` varchar(45) NOT NULL,
+					  `city` varchar(45) NOT NULL,
+					  `zip` varchar(45) DEFAULT NULL,
+					  `country` varchar(45) NOT NULL,
+					  PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `category` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`name` varchar(60) DEFAULT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `composer` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`name` varchar(45) NOT NULL,
+					`notes` text,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `concert` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`begin` datetime NOT NULL,
+					`end` datetime DEFAULT NULL,
+					`location` int(10) unsigned NOT NULL,
+					`program` int(10) unsigned DEFAULT NULL,
+					`notes` text,
+					`contact` int(11) DEFAULT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `concert_user` (
+					`concert` int(11) NOT NULL,
+					`user` int(11) NOT NULL,
+					`participate` tinyint(4) NOT NULL,
+					`reason` varchar(200) DEFAULT NULL,
+					PRIMARY KEY (`concert`,`user`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `configuration` (
+					`param` varchar(100) NOT NULL,
+					`value` text NOT NULL,
+					`is_active` int(1) NOT NULL,
+					PRIMARY KEY (`param`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `contact` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`surname` varchar(50) DEFAULT NULL,
+					`name` varchar(50) DEFAULT NULL,
+					`phone` varchar(45) DEFAULT NULL,
+					`fax` varchar(45) DEFAULT NULL,
+					`mobile` varchar(30) DEFAULT NULL,
+					`business` varchar(30) DEFAULT NULL,
+					`email` varchar(100) DEFAULT NULL,
+					`web` varchar(150) DEFAULT NULL,
+					`notes` text,
+					`address` int(10) unsigned NOT NULL,
+					`status` varchar(10) DEFAULT NULL,
+					`instrument` int(11) DEFAULT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `contact_group` (
+					`contact` int(11) NOT NULL DEFAULT '0',
+					`group` varchar(50) NOT NULL DEFAULT '',
+					PRIMARY KEY (`contact`,`group`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `gallery` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`name` varchar(50) NOT NULL,
+					`previewimage` int(10) unsigned DEFAULT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `galleryimage` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`filename` varchar(200) NOT NULL,
+					`name` varchar(100) NOT NULL,
+					`description` text,
+					`gallery` int(10) unsigned NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `genre` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`name` varchar(45) NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `group` (
+					`id` int(11) NOT NULL AUTO_INCREMENT,
+					`name` varchar(50) NOT NULL,
+					`is_active` int(1) NOT NULL DEFAULT '1',
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `infos` (
+					`id` int(11) NOT NULL AUTO_INCREMENT,
+					`author` int(11) NOT NULL,
+					`createdOn` datetime NOT NULL,
+					`editedOn` datetime DEFAULT NULL,
+					`title` varchar(200) NOT NULL,
+					PRIMARY KEY (`id`),
+					KEY `author` (`author`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `instrument` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`name` varchar(60) NOT NULL,
+					`category` int(10) unsigned NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `location` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`name` varchar(60) NOT NULL,
+					`notes` text,
+					`address` int(10) unsigned NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `module` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `privilege` (
+					`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+					`user` int(11) unsigned NOT NULL,
+					`module` int(11) unsigned NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `program` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`notes` text,
+					`isTemplate` tinyint(1) DEFAULT NULL,
+					`name` varchar(80) NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `program_song` (
+					`program` int(10) unsigned NOT NULL,
+					`song` int(10) unsigned NOT NULL,
+					`rank` int(11) DEFAULT NULL,
+					PRIMARY KEY (`program`,`song`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `rehearsal` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`begin` datetime NOT NULL,
+					`end` datetime DEFAULT NULL,
+					`notes` text,
+					`location` int(10) unsigned NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `rehearsalphase` (
+					`id` int(11) NOT NULL AUTO_INCREMENT,
+					`name` varchar(100) NOT NULL,
+					`begin` date NOT NULL,
+					`end` date NOT NULL,
+					`notes` text,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `rehearsalphase_concert` (
+					`rehearsalphase` int(11) NOT NULL,
+					`concert` int(11) NOT NULL,
+					PRIMARY KEY (`rehearsalphase`,`concert`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `rehearsalphase_contact` (
+					`rehearsalphase` int(11) NOT NULL,
+					`contact` int(11) NOT NULL,
+					PRIMARY KEY (`rehearsalphase`,`contact`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `rehearsalphase_rehearsal` (
+					`rehearsalphase` int(11) NOT NULL,
+					`rehearsal` int(11) NOT NULL,
+					PRIMARY KEY (`rehearsalphase`,`rehearsal`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `rehearsal_song` (
+					`rehearsal` int(11) NOT NULL,
+					`song` int(11) NOT NULL,
+					`notes` varchar(200) DEFAULT NULL,
+					PRIMARY KEY (`rehearsal`,`song`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `rehearsal_user` (
+					`rehearsal` int(11) NOT NULL,
+					`user` int(11) NOT NULL,
+					`participate` tinyint(4) NOT NULL,
+					`reason` varchar(200) DEFAULT NULL,
+					PRIMARY KEY (`rehearsal`,`user`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `song` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`title` varchar(60) NOT NULL,
+					`length` time DEFAULT NULL,
+					`notes` text,
+					`genre` int(10) unsigned NOT NULL,
+					`composer` int(10) unsigned NOT NULL,
+					`status` int(10) unsigned NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `status` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`name` varchar(45) NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `task` (
+					`id` int(11) NOT NULL AUTO_INCREMENT,
+					`title` varchar(50) NOT NULL,
+					`description` text,
+					`created_at` datetime NOT NULL,
+					`created_by` int(11) NOT NULL,
+					`due_at` datetime DEFAULT NULL,
+					`assigned_to` int(11) DEFAULT NULL,
+					`is_complete` int(1) NOT NULL,
+					`completed_at` datetime DEFAULT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `user` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`isActive` tinyint(1) NOT NULL DEFAULT '1',
+					`login` varchar(45) NOT NULL,
+					`password` varchar(60) NOT NULL,
+					`lastlogin` datetime DEFAULT NULL,
+					`contact` int(10) unsigned NOT NULL,
+					`pin` int(6) DEFAULT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `vote` (
+					`id` int(11) NOT NULL AUTO_INCREMENT,
+					`name` varchar(100) NOT NULL,
+					`author` int(11) NOT NULL,
+					`is_multi` int(1) NOT NULL,
+					`is_date` int(1) NOT NULL,
+					`end` datetime NOT NULL,
+					`is_finished` int(1) NOT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `vote_group` (
+					`vote` int(11) NOT NULL,
+					`user` int(11) NOT NULL,
+					PRIMARY KEY (`vote`,`user`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `vote_option` (
+					`id` int(11) NOT NULL AUTO_INCREMENT,
+					`vote` int(11) NOT NULL,
+					`name` varchar(100) DEFAULT NULL,
+					`odate` datetime DEFAULT NULL,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `vote_option_user` (
+					`vote_option` int(11) NOT NULL,
+					`user` int(11) NOT NULL,
+					PRIMARY KEY (`vote_option`,`user`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `rehearsal_contact` (
+					`rehearsal` int(11) NOT NULL,
+					`contact` int(11) NOT NULL,
+					PRIMARY KEY (`rehearsal`,`contact`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `concert_contact` (
+					`concert` int(11) NOT NULL,
+					`contact` int(11) NOT NULL,
+					PRIMARY KEY (`concert`,`contact`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+
+			foreach($queries as $i => $query) {
+				$db->execute($query);
+			}
+		
+			// fill database with initial content
+			$queries = array();
 			
-			//TODO make single statements instead of script execution!
-			$script = "
-SET SQL_MODE=\"NO_AUTO_VALUE_ON_ZERO\";
-
-SET AUTOCOMMIT=0;
-START TRANSACTION;
-
-
-CREATE TABLE IF NOT EXISTS `address` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `street` varchar(45) NOT NULL,
-  `city` varchar(45) NOT NULL,
-  `zip` varchar(45) DEFAULT NULL,
-  `country` varchar(45) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `category` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(60) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `composer` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) NOT NULL,
-  `notes` text,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `concert` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `begin` datetime NOT NULL,
-  `end` datetime DEFAULT NULL,
-  `location` int(10) unsigned NOT NULL,
-  `program` int(10) unsigned DEFAULT NULL,
-  `notes` text,
-  `contact` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `concert_user` (
-  `concert` int(11) NOT NULL,
-  `user` int(11) NOT NULL,
-  `participate` tinyint(4) NOT NULL,
-  `reason` varchar(200) DEFAULT NULL,
-  PRIMARY KEY (`concert`,`user`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `configuration` (
-  `param` varchar(100) NOT NULL,
-  `value` text NOT NULL,
-  `is_active` int(1) NOT NULL,
-  PRIMARY KEY (`param`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `contact` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `surname` varchar(50) DEFAULT NULL,
-  `name` varchar(50) DEFAULT NULL,
-  `phone` varchar(45) DEFAULT NULL,
-  `fax` varchar(45) DEFAULT NULL,
-  `mobile` varchar(30) DEFAULT NULL,
-  `business` varchar(30) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `web` varchar(150) DEFAULT NULL,
-  `notes` text,
-  `address` int(10) unsigned NOT NULL,
-  `status` varchar(10) DEFAULT NULL,
-  `instrument` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `contact_group` (
-  `contact` int(11) NOT NULL DEFAULT '0',
-  `group` varchar(50) NOT NULL DEFAULT '',
-  PRIMARY KEY (`contact`,`group`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `gallery` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `previewimage` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `galleryimage` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `filename` varchar(200) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `description` text,
-  `gallery` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `genre` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE IF NOT EXISTS `group` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `is_active` int(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `infos` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `author` int(11) NOT NULL,
-  `createdOn` datetime NOT NULL,
-  `editedOn` datetime DEFAULT NULL,
-  `title` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `author` (`author`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `instrument` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(60) NOT NULL,
-  `category` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `location` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(60) NOT NULL,
-  `notes` text,
-  `address` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `module` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `privilege` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `user` int(11) unsigned NOT NULL,
-  `module` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `program` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `notes` text,
-  `isTemplate` tinyint(1) DEFAULT NULL,
-  `name` varchar(80) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `program_song` (
-  `program` int(10) unsigned NOT NULL,
-  `song` int(10) unsigned NOT NULL,
-  `rank` int(11) DEFAULT NULL,
-  PRIMARY KEY (`program`,`song`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE IF NOT EXISTS `rehearsal` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `begin` datetime NOT NULL,
-  `end` datetime DEFAULT NULL,
-  `notes` text,
-  `location` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE IF NOT EXISTS `rehearsalphase` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `begin` date NOT NULL,
-  `end` date NOT NULL,
-  `notes` text,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `rehearsalphase_concert` (
-  `rehearsalphase` int(11) NOT NULL,
-  `concert` int(11) NOT NULL,
-  PRIMARY KEY (`rehearsalphase`,`concert`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `rehearsalphase_contact` (
-  `rehearsalphase` int(11) NOT NULL,
-  `contact` int(11) NOT NULL,
-  PRIMARY KEY (`rehearsalphase`,`contact`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `rehearsalphase_rehearsal` (
-  `rehearsalphase` int(11) NOT NULL,
-  `rehearsal` int(11) NOT NULL,
-  PRIMARY KEY (`rehearsalphase`,`rehearsal`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `rehearsal_song` (
-  `rehearsal` int(11) NOT NULL,
-  `song` int(11) NOT NULL,
-  `notes` varchar(200) DEFAULT NULL,
-  PRIMARY KEY (`rehearsal`,`song`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `rehearsal_user` (
-  `rehearsal` int(11) NOT NULL,
-  `user` int(11) NOT NULL,
-  `participate` tinyint(4) NOT NULL,
-  `reason` varchar(200) DEFAULT NULL,
-  PRIMARY KEY (`rehearsal`,`user`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `song` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(60) NOT NULL,
-  `length` time DEFAULT NULL,
-  `notes` text,
-  `genre` int(10) unsigned NOT NULL,
-  `composer` int(10) unsigned NOT NULL,
-  `status` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `status` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `task` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(50) NOT NULL,
-  `description` text,
-  `created_at` datetime NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `due_at` datetime DEFAULT NULL,
-  `assigned_to` int(11) DEFAULT NULL,
-  `is_complete` int(1) NOT NULL,
-  `completed_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `user` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `isActive` tinyint(1) NOT NULL DEFAULT '1',
-  `login` varchar(45) NOT NULL,
-  `password` varchar(60) NOT NULL,
-  `lastlogin` datetime DEFAULT NULL,
-  `contact` int(10) unsigned NOT NULL,
-  `pin` int(6) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `vote` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `author` int(11) NOT NULL,
-  `is_multi` int(1) NOT NULL,
-  `is_date` int(1) NOT NULL,
-  `end` datetime NOT NULL,
-  `is_finished` int(1) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `vote_group` (
-  `vote` int(11) NOT NULL,
-  `user` int(11) NOT NULL,
-  PRIMARY KEY (`vote`,`user`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `vote_option` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `vote` int(11) NOT NULL,
-  `name` varchar(100) DEFAULT NULL,
-  `odate` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-CREATE TABLE IF NOT EXISTS `vote_option_user` (
-  `vote_option` int(11) NOT NULL,
-  `user` int(11) NOT NULL,
-  PRIMARY KEY (`vote_option`,`user`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-COMMIT;";
-
-		$db->execute($script);
-		
-		// fill database with initial content
-		//TODO make single statements instead of script execution!
-		$script = "
-INSERT INTO `category` (`id`, `name`) VALUES
-(1, 'Streicher'),
-(2, 'Blechbl&auml;ser'),
-(3, 'Holzbl&auml;ser'),
-(4, 'Rhythmusgruppe'),
-(5, 'Gesang'),
-(6, 'Dirigent'),
-(7, 'Organisation'),
-(8, 'Sonstige');
-
-INSERT INTO `configuration` (`param`, `value`, `is_active`) VALUES
-('rehearsal_start', '18:00', 1),
-('rehearsal_duration', '120', 1),
-('default_contact_group', '2', 1),
-('auto_activation', '1', 1),
-('instrument_category_filter', 'ALL', 1);
-
-INSERT INTO `genre` (`id`, `name`) VALUES
-(1, 'Swing'),
-(2, 'Latin'),
-(3, 'Jazz'),
-(4, 'Traditional Jazz'),
-(5, 'Pop'),
-(6, 'Rock'),
-(7, 'Blues'),
-(8, 'Blues Rock'),
-(9, 'Metal'),
-(10, 'Klassik'),
-(11, 'Bebop'),
-(12, 'Dixyland'),
-(13, 'Free Jazz'),
-(14, 'Smooth Jazz'),
-(15, 'Instrumental Jazz'),
-(16, 'Vocal Jazz'),
-(17, 'Funk');
-
-INSERT INTO `group` (`id`, `name`, `is_active`) VALUES
-(1, 'Administratoren', 1),
-(2, 'Mitspieler', 1),
-(3, 'Externe Mitspieler', 1),
-(4, 'Bewerber', 1),
-(5, 'Sonstige', 1),
-(6, 'Rhythmusgruppe', 1);
-
-INSERT INTO `instrument` (`id`, `name`, `category`) VALUES
-(1, 'Musikalischer Leiter', 6),
-(2, 'Sologesang', 5),
-(3, 'Organisator', 7),
-(4, 'Klavier / ePiano', 4),
-(5, 'Orgel', 4),
-(6, 'Elektro Orgel', 4),
-(7, 'Schlagzeug', 4),
-(8, 'Kontrabass', 4),
-(9, 'E-Bass', 4),
-(10, 'Tuba', 4),
-(11, 'Posaune', 2),
-(12, 'Trompete', 2),
-(13, 'Altsaxophon', 3),
-(14, 'Tenorsaxophon', 3),
-(15, 'Bariton Saxophon', 3),
-(16, 'Sopran Saxophon', 3),
-(17, 'Klarinette', 3),
-(18, 'Bassklarinette', 3),
-(19, 'Geige', 1),
-(20, 'Bratsche', 1),
-(21, 'Violoncello', 1),
-(22, 'Gambe', 8),
-(23, 'keine Angabe', 8),
-(24, 'Gitarre', 4),
-(25, 'Fl&uuml;gelhorn', 2),
-(26, 'Basskarinette', 3),
-(27, 'Sopran', 5),
-(28, 'Mezzo-Sopran', 5),
-(29, 'Alt', 5),
-(30, 'Tenor', 5),
-(31, 'Bass', 5),
-(32, 'Bariton', 5),
-(33, 'Countertenor', 5),
-(34, 'Background', 5),
-(35, 'Solistin Sopran', 5),
-(36, 'Solistin Alt', 5),
-(37, 'Solist Bass', 5),
-(38, 'Solist Tenor', 5),
-(39, 'Solist Bariton', 5),
-(40, 'Solist Countertenor', 5),
-(41, 'Querfl&ouml;te', 3),
-(42, 'Blockfl&ouml;te', 3),
-(43, 'Panfl&ouml;te', 3),
-(44, 'Akkordeon', 8),
-(45, 'Althorn', 2),
-(46, 'Banjo', 8);
-
-INSERT INTO `module` (`id`, `name`) VALUES
-(1, 'Start'),
-(2, 'User'),
-(3, 'Kontakte'),
-(4, 'Konzerte'),
-(5, 'Proben'),
-(6, 'Repertoire'),
-(7, 'Kommunikation'),
-(8, 'Locations'),
-(9, 'Kontaktdaten'),
-(10, 'Hilfe'),
-(11, 'Website'),
-(12, 'Share'),
-(13, 'Mitspieler'),
-(14, 'Abstimmung'),
-(15, 'Nachrichten'),
-(16, 'Aufgaben'),
-(17, 'Konfiguration'),
-(18, 'Probenphasen');
-
-INSERT INTO `status` (`id`, `name`) VALUES
-(1, 'Konzertreif'),
-(2, 'Kernrepertoire'),
-(3, 'Noten vorhanden'),
-(4, 'ben&ouml;tigt weitere Proben'),
-(5, 'nicht im Notenbestand'),
-(6, 'Idee');
-
-		";
-		$db->execute($script);
-		
+			array_push($queries,
+					"INSERT INTO `category` (`id`, `name`) VALUES
+					(1, 'Streicher'),
+					(2, 'Blechbl&auml;ser'),
+					(3, 'Holzbl&auml;ser'),
+					(4, 'Rhythmusgruppe'),
+					(5, 'Gesang'),
+					(6, 'Dirigent'),
+					(7, 'Organisation'),
+					(8, 'Sonstige');");
+
+			array_push($queries,
+					"INSERT INTO `configuration` (`param`, `value`, `is_active`) VALUES
+					('rehearsal_start', '18:00', 1),
+					('rehearsal_duration', '120', 1),
+					('default_contact_group', '2', 1),
+					('auto_activation', '1', 1),
+					('instrument_category_filter', 'ALL', 1);");
+
+			array_push($queries,
+					"INSERT INTO `genre` (`id`, `name`) VALUES
+					(1, 'Swing'),
+					(2, 'Latin'),
+					(3, 'Jazz'),
+					(4, 'Traditional Jazz'),
+					(5, 'Pop'),
+					(6, 'Rock'),
+					(7, 'Blues'),
+					(8, 'Blues Rock'),
+					(9, 'Metal'),
+					(10, 'Klassik'),
+					(11, 'Bebop'),
+					(12, 'Dixyland'),
+					(13, 'Free Jazz'),
+					(14, 'Smooth Jazz'),
+					(15, 'Instrumental Jazz'),
+					(16, 'Vocal Jazz'),
+					(17, 'Funk');");
+
+			array_push($queries,
+					"INSERT INTO `group` (`id`, `name`, `is_active`) VALUES
+					(1, 'Administratoren', 1),
+					(2, 'Mitspieler', 1),
+					(3, 'Externe Mitspieler', 1),
+					(4, 'Bewerber', 1),
+					(5, 'Sonstige', 1);");
+			
+			// create group directories
+			mkdir("data/share/groups/group_1"); // Administrators
+			mkdir("data/share/groups/group_2"); // Members
+			mkdir("data/share/groups/group_3"); // Externals
+			mkdir("data/share/groups/group_4"); // Applicants
+			mkdir("data/share/groups/group_5"); // Others
+
+			array_push($queries,
+					"INSERT INTO `instrument` (`id`, `name`, `category`) VALUES
+					(1, 'Musikalischer Leiter', 6),
+					(2, 'Sologesang', 5),
+					(3, 'Organisator', 7),
+					(4, 'Klavier / ePiano', 4),
+					(5, 'Orgel', 4),
+					(6, 'Elektro Orgel', 4),
+					(7, 'Schlagzeug', 4),
+					(8, 'Kontrabass', 4),
+					(9, 'E-Bass', 4),
+					(10, 'Tuba', 4),
+					(11, 'Posaune', 2),
+					(12, 'Trompete', 2),
+					(13, 'Altsaxophon', 3),
+					(14, 'Tenorsaxophon', 3),
+					(15, 'Bariton Saxophon', 3),
+					(16, 'Sopran Saxophon', 3),
+					(17, 'Klarinette', 3),
+					(18, 'Bassklarinette', 3),
+					(19, 'Geige', 1),
+					(20, 'Bratsche', 1),
+					(21, 'Violoncello', 1),
+					(22, 'Gambe', 8),
+					(23, 'keine Angabe', 8),
+					(24, 'Gitarre', 4),
+					(25, 'Fl&uuml;gelhorn', 2),
+					(26, 'Basskarinette', 3),
+					(27, 'Sopran', 5),
+					(28, 'Mezzo-Sopran', 5),
+					(29, 'Alt', 5),
+					(30, 'Tenor', 5),
+					(31, 'Bass', 5),
+					(32, 'Bariton', 5),
+					(33, 'Countertenor', 5),
+					(34, 'Background', 5),
+					(35, 'Solistin Sopran', 5),
+					(36, 'Solistin Alt', 5),
+					(37, 'Solist Bass', 5),
+					(38, 'Solist Tenor', 5),
+					(39, 'Solist Bariton', 5),
+					(40, 'Solist Countertenor', 5),
+					(41, 'Querfl&ouml;te', 3),
+					(42, 'Blockfl&ouml;te', 3),
+					(43, 'Panfl&ouml;te', 3),
+					(44, 'Akkordeon', 8),
+					(45, 'Althorn', 2),
+					(46, 'Banjo', 8);");
+
+			array_push($queries,
+					"INSERT INTO `module` (`id`, `name`) VALUES
+					(1, 'Start'),
+					(2, 'User'),
+					(3, 'Kontakte'),
+					(4, 'Konzerte'),
+					(5, 'Proben'),
+					(6, 'Repertoire'),
+					(7, 'Kommunikation'),
+					(8, 'Locations'),
+					(9, 'Kontaktdaten'),
+					(10, 'Hilfe'),
+					(11, 'Website'),
+					(12, 'Share'),
+					(13, 'Mitspieler'),
+					(14, 'Abstimmung'),
+					(15, 'Nachrichten'),
+					(16, 'Aufgaben'),
+					(17, 'Konfiguration'),
+					(18, 'Probenphasen');");
+
+			array_push($queries,
+					"INSERT INTO `status` (`id`, `name`) VALUES
+					(1, 'Konzertreif'),
+					(2, 'Kernrepertoire'),
+					(3, 'Noten vorhanden'),
+					(4, 'ben&ouml;tigt weitere Proben'),
+					(5, 'nicht im Notenbestand'),
+					(6, 'Idee');");
+
+			foreach($queries as $i => $query) {
+				$db->execute($query);
+			}
 		}
 	}
 	

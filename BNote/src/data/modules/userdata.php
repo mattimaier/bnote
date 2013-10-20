@@ -121,7 +121,8 @@ class UserData extends AbstractData {
 			parent::delete($id);
 		}
 		
-		//TODO delete also user directories with files
+		// delete also user directories with files
+		rmdir($this->getSysdata()->getUsersHomeDir($id));
 	}
 	
 	/**

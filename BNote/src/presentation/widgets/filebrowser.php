@@ -37,7 +37,7 @@ class Filebrowser implements iWriteable {
 	 * Whether this filebrowser should be set to view only.
 	 * @var bool
 	 */
-	private $viewmode;
+	private $viewmode = false;
 	
 	/**
 	 * Access to system data.
@@ -77,18 +77,27 @@ class Filebrowser implements iWriteable {
 		if(isset($_GET["path"])) {
 			$this->path = urldecode($_GET["path"]);
 		}
+		else if(isset($_POST["path"])) {
+			$this->path = urldecode($_POST["path"]);
+		}
 		else {
 			$this->path = "";
 		}
 		
-		//TODO check permission for folder to prevent URL hacks within the system
-		/*
-		 * Permissions:
-		 * - Group members of Administrators have access to all folders
-		 * - Group members have access to their group folders
-		 * - Every user has access to only his folder
-		 * - Every user has access to general
-		 */
+		// strip root if path contains root
+		if(Data::startsWith($this->path, $this->root)) {
+			$this->path = substr($this->path, strlen($this->root));
+		}
+		
+		// make sure the path ends with a slash
+		if(!Data::endsWith($this->path, "/")) {
+			$this->path .= "/";
+		}
+		
+		// check permission for folder to prevent URL hacks within the system
+		if(!$this->adp->getSecurityManager()->canUserAccessFile($this->path)) {
+			new Error("Zugriff verweigert.");
+		}
 		
 		// execute functions
 		if(isset($_GET["fbfunc"]) && $_GET["fbfunc"] != "view") {
@@ -141,6 +150,10 @@ class Filebrowser implements iWriteable {
 			"Meine Dateien" => $this->sysdata->getUsersHomeDir(),
 			"Tauschordner" => $this->root
 		);
+		
+		if($this->adp->getSecurityManager()->isUserAdmin()) {
+			$favs["Benutzerordner"] = $GLOBALS["DATA_PATHS"]["userhome"];
+		}
 		
 		$groups = $this->adp->getUsersGroups();
 		if($this->sysdata->isUserSuperUser()) {
@@ -204,14 +217,14 @@ class Filebrowser implements iWriteable {
 			Writing::h3($caption);
 			
 			// level up
-			if(strpos($caption, "/") > 0) {
+			if(strpos($caption, "/") !== false) {
 				$up = new Link($this->linkprefix("view&path=" . urlencode($this->levelUp())), "In Überordner wechseln");
 				$up->addIcon("arrow_up");
 				$up->write();
 			}
 			
 			// show table with files
-			$table = new Table($this->getFilesFromFolder($this->path));
+			$table = new Table($this->getFilesFromFolder($this->root . $this->path));
 			$table->renameHeader("name", "Dateiname");
 			$table->renameHeader("size", "Größe");
 			$table->renameHeader("options", "Optionen");
@@ -220,8 +233,9 @@ class Filebrowser implements iWriteable {
 	}
 	
 	private function addFolderForm() {
-		$form = new Form("Ordner erstellen", $this->linkprefix("addFolder"));
+		$form = new Form("Ordner erstellen", $this->linkprefix("addFolder&path=" . $this->path));
 		$form->addElement("Ordnername", new Field("folder", "", FieldType::CHAR));
+		$form->addHidden("path", urlencode($_GET["path"]));
 		$form->write();
 	}
 	
@@ -229,6 +243,7 @@ class Filebrowser implements iWriteable {
 		$form = new Form("Datei hinzuf&uuml;gen", $this->linkprefix("addFile&path=" . $this->path));
 		$form->setMultipart();
 		$form->addElement("Datei", new Field("file", "", FieldType::FILE));
+		$form->addHidden("path", urlencode($_GET["path"]));
 		$form->changeSubmitButton("Datei hochladen");
 		$form->write();
 	}
@@ -260,6 +275,10 @@ class Filebrowser implements iWriteable {
 			new Error("Die Datei konnte nicht hochgeladen werden.");
 		}
 		
+		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_WRITE, $this->root . $this->path)) {
+			new Error("Du hast keine Berechtigung eine Datei hinzuzuf&uuml;gen.");
+		}
+		
 		// copy file to target directory
 		$target = $this->root . $this->path;
 		if(!copy($_FILES["file"]["tmp_name"], $target . "/" . $_FILES["file"]["name"])) {
@@ -283,7 +302,14 @@ class Filebrowser implements iWriteable {
 			new Error("Die Datei konnte nicht gefunden werden.");
 		}
 		$fn = urldecode($_GET["file"]);
-		unlink($this->root . $this->path . "/" . $fn);
+		$fullpath = $this->path . "/" . $fn; 
+		
+		if(is_dir($fullpath)) {
+			rmdir($fullpath);
+		}
+		else {
+			unlink($fullpath);
+		}
 		
 		$this->mainView();
 	}
@@ -291,9 +317,7 @@ class Filebrowser implements iWriteable {
 	/**
 	 * Adds a folder to the root directory.
 	 */
-	private function addFolder() {
-		//TODO prevent user from adding reserved directories to root folder
-		
+	private function addFolder() {		
 		// check permission
 		if($this->viewmode) {
 			new Error("Du hast keine Berechtigung einen Order hinzuzuf&uuml;gen.");
@@ -303,8 +327,14 @@ class Filebrowser implements iWriteable {
 		global $system_data;
 		$system_data->regex->isName($_POST["folder"]);
 		
+		// prevent user from adding reserved directories to root folder
+		if($_POST["folder"] == "users" || $_POST["folder"] == "groups") {
+			new Error("Der neue Ordner darf nicht \"users\" oder \"groups\" heißen.");
+		}
+		
 		// create folder in root
-		mkdir($this->root . $_POST["folder"]);
+		$fullpath = $this->root . $this->path . "/" . $_POST["folder"];
+		mkdir($fullpath);
 		
 		$this->mainView();
 	}
@@ -382,8 +412,8 @@ class Filebrowser implements iWriteable {
 		return $result;
 	}
 		
-	private function getFolderCaption() {
-		if($this->path == $this->sysdata->getUsersHomeDir()) {
+	private function getFolderCaption() {		
+		if($this->root . $this->path == $this->sysdata->getUsersHomeDir() . "/") {
 			return "Meine Dateien";
 		}
 		else if(Data::startsWith($this->path, $this->root . "groups")) {
@@ -392,11 +422,14 @@ class Filebrowser implements iWriteable {
 			else $groupName = $this->adp->getGroupName($gid);
 			return "Gruppenordner: " . $groupName;
 		}
-		else if($this->path == $this->root) {
+		else if($this->path == "users/") {
+			return "Benutzerordner";
+		}
+		else if($this->path == "/") {
 			return "Tauschordner";
 		}
 		else {
-			return substr($this->path, strlen($this->root));
+			return $this->path;
 		}
 	}
 	
@@ -407,7 +440,9 @@ class Filebrowser implements iWriteable {
 		return substr($this->path, $idstart, $len);
 	}
 	
-	private function fileValid($fullpath, $file) {
+	private function fileValid($fullpath, $file) {		
+		$fullpath = str_replace("//", "/", $fullpath);
+		
 		if($file == ".htaccess") return false;
 		else if($file == ".") return false;
 		else if($file == "..") return false;

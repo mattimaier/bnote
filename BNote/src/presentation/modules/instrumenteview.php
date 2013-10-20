@@ -96,4 +96,7 @@ class InstrumenteView extends CrudRefView {
 		$dv->renameElement("categoryname", "Kategorie");
 		$dv->write();
 	}
+	
+	//TODO bugfix: edit instrument -> category is shown as number, not as selection
+	
 }

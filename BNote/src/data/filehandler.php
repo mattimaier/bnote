@@ -55,32 +55,18 @@ class FileHandler {
 			require_once("systemdata.php");
 			$GLOBALS["DIR_WIDGETS"] = $this->dir_prefix . $GLOBALS["DIR_WIDGETS"];
 			require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
+			$GLOBALS["DIR_LOGIC"] = $this->dir_prefix . $GLOBALS["DIR_LOGIC"];
 			require_once("applicationdataprovider.php");
+			
 			
 			// Build Database Connection
 			$db = new Database();
 			$sysdata = new Systemdata($this->dir_prefix);
 			$adp = new ApplicationDataProvider($db, new Regex(), $sysdata);
+			$secManager = $adp->getSecurityManager();
 			
-			// give super user access to all files
-			if($sysdata->isUserSuperUser()) {
-				return true;
-			}
-			
-			// check where the file is and what permission is needed
-			if(Data::startsWith($this->innerpath, $sysdata->getUsersHomeDir())) {
-				return true;
-			}
-			else if(Data::startsWith($this->innerpath, "groups")) {
-				// check whether user is in group
-				$gid = $this->getGroupIdFromPath();
-				return $adp->isGroupMember($gid); // deny access to folders the user is not member of
-			}
-			else if(Data::startsWith($this->innerpath, "users")) {
-				return false; // deny access to other users homes
-			}
+			return ($secManager->canUserAccessFile($this->innerpath));
 		}
-		return true;
 	}
 	
 	private function getGroupIdFromPath() {
