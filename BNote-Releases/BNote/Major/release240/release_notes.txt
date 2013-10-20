@@ -2,4 +2,14 @@
 ## Release Notes
 ##
 
+Enhancement #3: Rename to BNote
+Enhancement #9: Created a rehearsal series addition possibility
+Enhancement #16: Redesigned and reorganized landing page (Start Module)
+Enhancement #20: Created an installation script
+Enhancement #31: Date and Time Widgets are updated at some points
+Enhancement #32: Konfiguration Module was introduced
+Enhancement #33: Instrument based rehearsal attenance view
 Enhancement #37: Start: Update Link for Calendar so subscription can be accessed more easily.
+Enhancement #39: Grouping of members is now dynamically possible and reaches many modules such as rehearsals, concerts, share, etc.
+Enhancement #40: Rehearsalphases were created linking rehearsals, concerts and contacts together.
+Enhancement #42: More instruments were added
