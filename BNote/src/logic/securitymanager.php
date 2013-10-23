@@ -126,6 +126,29 @@ class SecurityManager {
 		if($this->sysdata->isUserSuperUser($uid)) return true;
 		return in_array(1, $this->adp->getUsersGroups($uid));
 	}
+	
+	/**
+	 * Checks the access to resources based on the mode.
+	 * @param string $path Relative path to file.
+	 * @param string $mode Possible: "all" (every logged on user) or "module" (if access to module).
+	 * @return True when access is granted, otherwise false.
+	 */
+	public function modeAccess($path, $mode) {
+		if($mode == "all") {
+			return true;
+		}
+		else if($mode == "module") {
+			if(strpos($path, "members") !== false) {
+				$contactModId = 3; // Kontakte
+				return $this->sysdata->userHasPermission($contactModId);
+			}
+			else if(strpos($path, "programs") !== false) {
+				$concertModId = 4; // Konzerte
+				return $this->sysdata->userHasPermission($concertModId);
+			}
+		}
+		return false;
+	}
 }
 
 ?>

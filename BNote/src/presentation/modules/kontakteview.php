@@ -302,7 +302,7 @@ class KontakteView extends CrudRefView {
 		new MembersPDF($filename, $this->getData(), $groups);
 		
 		// show report
-		echo "<embed src=\"$filename\" width=\"90%\" height=\"700px\" />\n";
+		echo "<embed src=\"src/data/filehandler.php?mode=module&file=$filename\" width=\"90%\" height=\"700px\" />\n";
 		echo "<br /><br />\n";
 		
 		// back button

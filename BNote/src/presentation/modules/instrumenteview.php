@@ -97,6 +97,14 @@ class InstrumenteView extends CrudRefView {
 		$dv->write();
 	}
 	
-	//TODO bugfix: edit instrument -> category is shown as number, not as selection
+	function editEntityForm() {
+		$instrument = $this->getData()->findByIdNoRef($_GET["id"]);
+		$form = new Form("Instrument bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
+		$form->autoAddElements($this->getData()->getFields(),
+				$this->getData()->getTable(), $_GET["id"]);
+		$form->setForeign("category", "category", "id", "name", $instrument["category"]);
+		$form->removeElement("id");
+		$form->write();
+	}
 	
 }

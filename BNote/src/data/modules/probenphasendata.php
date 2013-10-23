@@ -160,4 +160,19 @@ class ProbenphasenData extends AbstractData {
 		$uid = $this->database->getCell("user", "id", "contact = $cid");
 		return $this->getSysdata()->isUserSuperUser($uid);
 	}
+	
+	function delete($id) {
+		// first remove all relations
+		$query = "DELETE FROM rehearsalphase_rehearsal WHERE rehearsalphase = $id";
+		$this->database->execute($query);
+		
+		$query = "DELETE FROM rehearsalphase_concert WHERE rehearsalphase = $id";
+		$this->database->execute($query);
+		
+		$query = "DELETE FROM rehearsalphase_contact WHERE rehearsalphase = $id";
+		$this->database->execute($query);
+		
+		// delete rehearsalphase
+		parent::delete($id);
+	}
 }

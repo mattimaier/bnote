@@ -17,8 +17,10 @@ class FileHandler {
 	 */
 	private $dir_prefix = "../../";
 	
-	function __construct() {		
-		if(!isset($GLOBALS["DATA_PATHS"]["share"])) echo "Filesystem configuration missing";
+	function __construct() {
+		if(!isset($_GET["mode"])) {	
+			if(!isset($GLOBALS["DATA_PATHS"]["share"])) echo "Filesystem configuration missing";
+		}
 		
 		$this->init();
 		if($this->authorize()) {
@@ -28,7 +30,12 @@ class FileHandler {
 	
 	private function init() {
 		if(!isset($_GET["file"])) exit;
-		$this->innerpath = $GLOBALS["DATA_PATHS"]["share"] . urldecode($_GET["file"]);
+		if(isset($_GET["mode"])) {
+			$this->innerpath = urldecode($_GET["file"]);
+		}
+		else {
+			$this->innerpath = $GLOBALS["DATA_PATHS"]["share"] . urldecode($_GET["file"]);
+		}
 		$this->filepath = $this->dir_prefix . $this->innerpath;
 		$this->filepath = str_replace("\\'", "'", $this->filepath);
 		
@@ -50,7 +57,7 @@ class FileHandler {
 			echo "No access to file.";			
 			return false;
 		}
-		else {		
+		else {			
 			// connect to application
 			require_once("systemdata.php");
 			$GLOBALS["DIR_WIDGETS"] = $this->dir_prefix . $GLOBALS["DIR_WIDGETS"];
@@ -58,12 +65,15 @@ class FileHandler {
 			$GLOBALS["DIR_LOGIC"] = $this->dir_prefix . $GLOBALS["DIR_LOGIC"];
 			require_once("applicationdataprovider.php");
 			
-			
 			// Build Database Connection
 			$db = new Database();
 			$sysdata = new Systemdata($this->dir_prefix);
 			$adp = new ApplicationDataProvider($db, new Regex(), $sysdata);
 			$secManager = $adp->getSecurityManager();
+			
+			if(isset($_GET["mode"])) {
+				return $secManager->modeAccess($this->innerpath, $_GET["mode"]);
+			}
 			
 			return ($secManager->canUserAccessFile($this->innerpath));
 		}

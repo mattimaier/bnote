@@ -19,7 +19,7 @@ class KonfigurationView extends CrudView {
 		Writing::p("Bitte klicke auf eine Zeile um deren Wert zu ändern.");
 		
 		// instrument configuration
-		$istr = new Link($this->modePrefix() . "instruments", "Instruments");
+		$istr = new Link($this->modePrefix() . "instruments", "Instrumente");
 		$istr->addIcon("music_file");
 		$istr->write();
 		

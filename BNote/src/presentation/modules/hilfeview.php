@@ -7,17 +7,25 @@
  */
 class HilfeView extends AbstractView {
 	
+	private $introPages = array(
+			"ovB7s2dIwCU" => "vid", // introduction video
+			"bnote2" => "Neuerungen in BNote 2.4",
+			"sicherheit" => "Sicherheitshinweise",
+			"support" => "Support / Kontakt"
+	);
+	
 	private $helpPagesDir = "data/help/";
 	
-	// format: name of the html-file => title
+	// alphabetically, format: name of the html-file => title
 	private $helpPages = array(
-			"bnote2" => "Neuerungen in BNote 2.4",
-			"mitspieler" => "Modul Mitspieler",
 			"abstimmung" => "Modul Abstimmung",
 			"aufgaben" => "Modul Aufgaben",
-			"konfiguration" => "Modul Konfiguration", //TODO write doku
-			"probenphase" => "Modul Probenphase", //TODO write doku
-			"support" => "Support"
+			"konfiguration" => "Modul Konfiguration",
+			"kontakte" => "Modul Kontakte",
+			"mitspieler" => "Modul Mitspieler",
+			"proben" => "Modul Proben",
+			"probenphase" => "Modul Probenphase",
+			"share" => "Modul Share"
 	);
 	
 	// format: code => description
@@ -35,8 +43,6 @@ class HilfeView extends AbstractView {
 			"kbBNbmlC__U" => "Tutorial 10 - Share"
 	);
 	
-	private $introVideoCode = "ovB7s2dIwCU";
-	
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 	}
@@ -53,9 +59,18 @@ class HilfeView extends AbstractView {
 				<?php
 				// show an introduction video
 				$active = false;
-				if(isset($_GET["vid"]) && $_GET["vid"] == $this->introVideoCode) $active = true;
-				$this->writePageLink($this->videos[$this->introVideoCode], $this->modePrefix() . "start&vid=" . $this->introVideoCode, $active);
-				$active = false;
+				foreach($this->introPages as $code => $page) {
+					if(isset($_GET["page"]) && $_GET["page"] == $helpPageId) $active = true;
+					else if(isset($_GET["vid"]) && $_GET["vid"] == $code) $active = true;
+					
+					if($page == "vid") {
+						$this->writePageLink($this->videos[$code], $this->modePrefix() . "start&vid=" . $code, $active);
+					}
+					else {
+						$this->writePageLink($page, $this->modePrefix() . "start&page=" . $code, $active);
+					}
+					$active = false;
+				}
 				?>
 						
 				<div class="help_navigator_menu_topic">Video Tutorials</div>
@@ -88,7 +103,11 @@ class HilfeView extends AbstractView {
 					echo '<iframe width="560" height="315" src="http://www.youtube.com/embed/' . $_GET["vid"] . '" frameborder="0" allowfullscreen></iframe>';
 				}
 				else if(isset($_GET["page"])) {
-					echo '<span class="help_page_title">' . $this->helpPages[$_GET["page"]] . '</span>';
+					if(isset($this->helpPages[$_GET["page"]])) $title = $this->helpPages[$_GET["page"]];
+					else if(isset($this->introPages[$_GET["page"]])) $title = $this->introPages[$_GET["page"]];
+					else $title = $_GET["page"];
+					
+					echo '<span class="help_page_title">' . $title . '</span>';
 					include $this->helpPagesDir . $_GET["page"] . ".html";
 				}
 				else {
