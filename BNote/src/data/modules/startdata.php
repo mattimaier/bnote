@@ -5,8 +5,6 @@
  * @author matti
  *
  */
-require_once($GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php");
-
 class StartData extends AbstractData {
 	
 	private $newsData;
@@ -14,7 +12,7 @@ class StartData extends AbstractData {
 	/**
 	 * Build data provider.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("User ID", FieldType::INTEGER),
 			"login" => array("Login", FieldType::CHAR),
@@ -26,9 +24,11 @@ class StartData extends AbstractData {
 		$this->references = array();
 		$this->table = "user";
 		
+		// includes
+		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php");
 		$this->newsData = new NachrichtenData();
 		
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	/**
@@ -249,7 +249,10 @@ class StartData extends AbstractData {
 		}
 		$query .= " ORDER BY begin";
 		
-		return $this->database->getSelection($query);
+		if(count($rehearsals) > 1) {
+			return $this->database->getSelection($query);
+		}
+		return null;		
 	}
 	
 	private function getRehearsalsForUser($uid) {

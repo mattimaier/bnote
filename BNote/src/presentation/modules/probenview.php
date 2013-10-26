@@ -72,7 +72,9 @@ class ProbenView extends CrudRefView {
 	
 	function add() {		
 		// convert data from view to process format
-		$_POST["begin"] = $_POST["begin"] . " " . $_POST["begin_hour"] . ":" . $_POST["begin_minute"];
+		$hour = $_POST["begin_hour"];
+		if($hour < 10) $hour = "0" . $hour;
+		$_POST["begin"] = $_POST["begin"] . " " . $hour . ":" . $_POST["begin_minute"];
 		$_POST["end"] = Data::addMinutesToDate($_POST["begin"], $_POST["duration"]);
 		
 		// validate

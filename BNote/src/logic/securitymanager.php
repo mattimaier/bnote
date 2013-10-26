@@ -40,6 +40,12 @@ class SecurityManager {
 	public static $FILE_ACTION_WRITE = "w";
 	
 	/**
+	 * Delete action on a file.
+	 * @var char
+	 */
+	public static $FILE_ACTION_DELETE = "d";
+	
+	/**
 	 * Initializes the security manager.
 	 * @param SystemData $sysdata System Data Access.
 	 * @param ApplicationDataProvider $adp Application Data Provider.
@@ -76,7 +82,12 @@ class SecurityManager {
 		$isAdmin = $this->isUserAdmin();
 			
 		// check where the file is and what permission is needed
-		if(Data::startsWith($this->innerpath, $this->sysdata->getUsersHomeDir())) {
+		$shareDir = "";
+		if(isset($GLOBALS["DATA_PATHS"]["share"])) {
+			$shareDir = $GLOBALS["DATA_PATHS"]["share"];
+		}
+		
+		if(Data::startsWith($shareDir . $file, $this->sysdata->getUsersHomeDir())) {
 			return true;
 		}
 		else if(Data::startsWith($file, "groups")) {
@@ -102,12 +113,29 @@ class SecurityManager {
 	
 	/**
 	 * Whether the user has access to read/write a file.
-	 * @param char $action @see $FILE_ACTION_READ and $FILE_ACTION_WRITE.
+	 * @param char $action See: $FILE_ACTION_* fields of this class.
 	 * @param string $file full path to file
+	 * @return True when the user has the right to perform the action on the file, otherwise false.
 	 */
 	public function userFilePermission($action, $file) {
 		// simplest implementation: when user can read the file he/she can write it as well.
-		$access = $this->canUserAccessFile($file);
+		if($action == SecurityManager::$FILE_ACTION_DELETE) {
+			// deny removing user directories
+			if(Data::startsWith($file, "users/")) {
+				$access = false;
+			}
+			// deny removing group directories
+			else if(Data::startsWith($file, "groups/")) {
+				$access = false;
+			}
+			else {
+				$access = $this->canUserAccessFile($file);
+			}
+			
+		}
+		else {
+			$access = $this->canUserAccessFile($file);
+		}
 		return $access;
 	}
 	

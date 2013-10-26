@@ -134,7 +134,7 @@ class LoginData extends AbstractData {
 		if($defaultGroup == null || $defaultGroup == "") $defaultGroup = 2; // fallback
 		
 		// add the contact to the members group (gid=2)
-		$query = "INSERT INTO contact_group (contact, group) VALUES ($cid, $defaultGroup)"; 
+		$query = "INSERT INTO contact_group (contact, `group`) VALUES ($cid, $defaultGroup)"; 
 		$this->database->execute($query);
 		
 		return $cid;
@@ -148,7 +148,12 @@ class LoginData extends AbstractData {
 		$query .= '"' . $password . '", ';
 		$query .= "0, $cid";
 		$query .= ")";
-		return $this->database->execute($query);
+		$uid = $this->database->execute($query);
+		
+		// create user directory
+		mkdir($GLOBALS["DATA_PATHS"]["userhome"] . $login);
+		
+		return $uid;
 	}
 	
 	function createDefaultRights($uid) {

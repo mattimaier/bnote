@@ -1,8 +1,5 @@
 <?php
 
-// includes
-require_once($GLOBALS["DIR_LOGIC"] . "securitymanager.php");
-
 /**
  * ADP = Application Data Provider
  * A collection of data access methods used in multiple modules
@@ -57,11 +54,15 @@ class ApplicationDataProvider {
 	 * @param Database $database Database connection.
 	 * @param Regex $regex Regular Expressions.
 	 * @param Systemdata $sysdata System Information.
+	 * @param string $dir_prefix Optional: Prefix for include(s).
 	 */
-	function __construct($database, $regex, $sysdata) {
+	function __construct($database, $regex, $sysdata, $dir_prefix = "") {
 		$this->database = $database;
 		$this->regex = $regex;
 		$this->sysdata = $sysdata;
+		
+		// includes
+		require_once($dir_prefix . $GLOBALS["DIR_LOGIC"] . "securitymanager.php");
 		$this->secManager = new SecurityManager($sysdata, $this);
 	}
 	
@@ -345,7 +346,7 @@ class ApplicationDataProvider {
 		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = $uid");
 		$query = "SELECT `group` FROM contact_group WHERE contact = $cid";
 		$sel = $this->database->getSelection($query);
-		Database::flattenSelection($sel, "group");
+		return Database::flattenSelection($sel, "group");
 	}
 	
 	/**
@@ -358,7 +359,7 @@ class ApplicationDataProvider {
 		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = $uid");
 		$query = "SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = $cid";
 		$sel = $this->database->getSelection($query);
-		Database::flattenSelection($sel, "rehearsal_phase");
+		return Database::flattenSelection($sel, "rehearsalphase");
 	}
 	
 	/**
@@ -372,6 +373,16 @@ class ApplicationDataProvider {
 		$query = "SELECT surname, name FROM contact WHERE id = $cid";
 		$cdata = $this->database->getRow($query);
 		return $cdata["name"] . " " . $cdata["surname"];
+	}
+	
+	/**
+	 * Retrieves the login name of the given user.
+	 * @param Integer $uid User ID, by default current user.
+	 * @return Login name.
+	 */
+	public function getLogin($uid = -1) {
+		if($uid == -1) $uid = $_SESSION["user"];
+		return $this->database->getCell($this->database->getUserTable(), "login", "id = $uid");
 	}
 	
 	/**
@@ -460,7 +471,7 @@ class ApplicationDataProvider {
 	 * @param Integer $uid optional: User ID, if not set current user.
 	 * @return boolean True when the user is a member, otherwise false.
 	 */
-	function isGroupMember($gid, $uid = 0) {
+	function isGroupMember($gid, $uid = -1) {
 		$contact = $this->getUserContact($uid);
 		$ct = $this->database->getCell("contact_group", "count(*)", "`group` = $gid AND contact = $contact");
 		return ($ct > 0);

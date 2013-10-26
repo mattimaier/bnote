@@ -56,14 +56,15 @@ abstract class AbstractData {
 	
 	/**
 	 * Initialize data provider.
+	 * @param string $dir_prefix Optional parameter for include(s) prefix.
 	 */
-	protected function init() {
+	protected function init($dir_prefix = "") {
 		global $system_data;
 		$this->sysdata = $system_data;
 		$this->database = $system_data->dbcon;
 		$this->regex = $system_data->regex;
 		
-		$this->adp = new ApplicationDataProvider($this->database, $this->regex, $system_data);
+		$this->adp = new ApplicationDataProvider($this->database, $this->regex, $system_data, $dir_prefix);
 	}
 	
 	/**
@@ -81,6 +82,14 @@ abstract class AbstractData {
 	 */
 	public function getSysdata() {
 		return $this->sysdata;
+	}
+	
+	/**
+	 * Sets the SystemData reference.
+	 * @param Systemdata $sysdata System Data Reference.
+	 */
+	public function setSysdata($sysdata) {
+		$this->sysdata = $sysdata;
 	}
 	
 	/**

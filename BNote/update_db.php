@@ -20,6 +20,7 @@ $PATH_TO_SRC = "src/";
 <?php 
 
 // include necessary libs
+require_once "dirs.php";
 require_once $PATH_TO_SRC . "data/systemdata.php";
 require_once $PATH_TO_SRC . "presentation/widgets/error.php";
 
@@ -121,7 +122,7 @@ if(!in_array("configuration", $tables)) {
  	$catFilter = $sysdata->getSystemConfigParameter("InstrumentCategoryFilter");
  	
  	// insert initial configuration parameters
- 	$query = "INSERT INTO configuration (param, value, is_activ) VALUES ";
+ 	$query = "INSERT INTO configuration (param, value, is_active) VALUES ";
  	$query .= "(\"rehearsal_start\", \"18:00\", 1), ";
  	$query .= "(\"rehearsal_duration\", \"90\", 1), ";
  	$query .= "(\"default_contact_group\", \"2\", 1), "; // members

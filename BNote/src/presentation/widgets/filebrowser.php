@@ -302,7 +302,12 @@ class Filebrowser implements iWriteable {
 			new Error("Die Datei konnte nicht gefunden werden.");
 		}
 		$fn = urldecode($_GET["file"]);
-		$fullpath = $this->path . "/" . $fn; 
+		$fullpath = $this->root . $this->path . "/" . $fn; 
+		
+		// check permission to delete
+		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $this->path . "/" . $fn)) {
+			new Error("Du hast keine Berechtigung die Datei zu löschen");
+		}
 		
 		if(is_dir($fullpath)) {
 			rmdir($fullpath);
@@ -416,7 +421,7 @@ class Filebrowser implements iWriteable {
 		if($this->root . $this->path == $this->sysdata->getUsersHomeDir() . "/") {
 			return "Meine Dateien";
 		}
-		else if(Data::startsWith($this->path, $this->root . "groups")) {
+		else if(Data::startsWith($this->path, "groups")) {
 			$gid = $this->getGroupIdFromPath();
 			if($gid == null || $gid == "") $groupName = "";
 			else $groupName = $this->adp->getGroupName($gid);

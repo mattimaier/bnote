@@ -11,15 +11,16 @@ class NachrichtenData extends AbstractData {
 	
 	/**
 	 * Build data provider.
+	 * @param string $dir_prefix Optional parameter for include(s) prefix.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array();
 
 		$this->references = array();
 
 		$this->table = "";
 				
-		$this->init();
+		//$this->init($dir_prefix);
 		
 		$this->newsFile = "data/nachrichten.html";
 	}

@@ -37,7 +37,11 @@ class Systemdata {
    $this->user_module_permission = $this->getUserModulePermissions();
   }
   
-  $this->cfg_dynamic = $this->getDynamicConfiguration();
+  // make sure dynamic configuration exists already
+  $tabs = Database::flattenSelection($this->dbcon->getSelection("SHOW TABLES"), 0);
+  if(in_array("configuration", $tabs)) {
+  	$this->cfg_dynamic = $this->getDynamicConfiguration();
+  }
  }
 
  /* GETTER */
@@ -282,6 +286,7 @@ class Systemdata {
  
  /**
   * @return The name of the group who can edit the share module.
+  * @deprecated as of 2.4.0, use grouping instead
   */
  public function getShareEditGroup() {
  	return "" . $this->cfg_system->getParameter("ShareEditGroup");

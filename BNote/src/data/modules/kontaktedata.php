@@ -80,7 +80,13 @@ class KontakteData extends AbstractData {
 	function getAllContacts() {
 		$query = $this->createQuery();
 		$query .= "ORDER BY c2.name";
-		return $this->filterSuperUsers($this->database->getSelection($query));
+		$sel = $this->database->getSelection($query);
+		if($this->getSysdata()->isUserSuperUser()) {
+			return $sel;
+		}
+		else {
+			return $this->filterSuperUsers($sel);
+		}
 	}
 	
 	/**

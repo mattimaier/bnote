@@ -67,7 +67,7 @@ class Installation {
 			
 			$form = new Form("Band Konfiguration", "?step=databaseConfig&func=process&last=companyConfig");
 			$form->addElement("Bandname", new Field("Name", "", FieldType::CHAR));
-			$form->addElement("Straße", new Field("Street", "", FieldType::CHAR));
+			$form->addElement("Stra&szlig;e", new Field("Street", "", FieldType::CHAR));
 			$form->addElement("PLZ", new Field("Zip", "", FieldType::INTEGER));
 			$form->addElement("Stadt", new Field("City", "", FieldType::CHAR));
 			$form->addElement("Land", new Field("Country", "", FieldType::CHAR));
