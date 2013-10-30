@@ -26,11 +26,19 @@ class LocationsData extends AbstractData {
 	}
 	
 	function create($values) {
+		if(!isset($_POST["city"]) || $_POST["city"] == "") {
+			new Error("Bitte gebe eine Stadt für diese Location an.");
+		}
+		
 		$_POST["address"] = $this->adp()->manageAddress(-1, $_POST);
 		parent::create($_POST);
 	}
 	
 	function update($id, $values) {
+		if(!isset($values["city"]) || $values["city"] == "") {
+			new Error("Bitte gebe eine Stadt für diese Location an.");
+		}
+		
 		// update address
 		$addressId = $this->getAddressFromId($id);
 		$this->adp()->manageAddress($addressId, $_POST);

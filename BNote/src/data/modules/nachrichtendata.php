@@ -38,7 +38,17 @@ class NachrichtenData extends AbstractData {
 	}
 	
 	public function storeContent($content) {
+		$this->check($content);
 		file_put_contents($this->newsFile, $content);
+	}
+	
+	private function check($content) {
+		$content = strtolower($content);
+		if(strpos($content, "<script") !== false
+			|| strpos($content, "<iframe") !== false
+			|| strpos($content, "<frame") !== false) {
+			new Error("Der Inhalt der Nachricht ist nicht sicher. Bitte verwende keine Frames und Skripte.");
+		}
 	}
 }
 

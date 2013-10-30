@@ -121,13 +121,23 @@ if(!in_array("configuration", $tables)) {
  	// get category filter from configuration
  	$catFilter = $sysdata->getSystemConfigParameter("InstrumentCategoryFilter");
  	
+ 	// get group edit mode
+ 	$shareGroup = $sysdata->getSystemConfigParameter("ShareEditGroup");
+ 	if($shareGroup == "ADMIN") {
+ 		$viewMode = 1;
+ 	}
+ 	else {
+ 		$viewMode = 0;
+ 	}
+ 	
  	// insert initial configuration parameters
  	$query = "INSERT INTO configuration (param, value, is_active) VALUES ";
  	$query .= "(\"rehearsal_start\", \"18:00\", 1), ";
  	$query .= "(\"rehearsal_duration\", \"90\", 1), ";
  	$query .= "(\"default_contact_group\", \"2\", 1), "; // members
  	$query .= "(\"auto_activation\", \"$autoActiv\", 1), "; // converted from xml configuration
- 	$query .= "(\"instrument_category_filter\", \"$catFilter\", 1)";  // converted from xml configuration
+ 	$query .= "(\"instrument_category_filter\", \"$catFilter\", 1), ";  // converted from xml configuration
+ 	$query .= "(\"share_nonadmin_viewmode\", \"$viewMode\", 1)"; // converted from xml configuration
  	$db->execute($query);
  	
 	echo "<i>Table configuration with initial parameters created.</i><br/>";

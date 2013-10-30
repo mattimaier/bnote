@@ -155,7 +155,7 @@ class ApplicationDataProvider {
 		else {
 			if($addy == null || count($addy) < 1 ||
 				(!isset($addy["street"]) && !isset($addy["city"]) && !isset($addy["zip"])) || 
-				($addy["street"] == "" && $addy["city"] = "" && $addy["zip"] = "")) {
+				($addy["street"] == "" && $addy["city"] == "" && $addy["zip"] == "")) {
 				// delete address if it isn't referenced by other entities
 				if($this->isKeyUsed("address", $id)) {
 					return $id;

@@ -36,7 +36,9 @@ class KontaktdatenView extends AbstractView {
 		$form1->write();
 		
 		// change password
-		$form2 = new Form("Passwort &auml;ndern", $this->modePrefix() . "password");
+		$pwNote = "Bitte gebe mindestens 6 Zeichen und keine Leerzeichen ein um dein Passwort zu ändern.";
+		
+		$form2 = new Form("Passwort &auml;ndern<br/><p style=\"font-weight: normal;\">$pwNote</p>", $this->modePrefix() . "password");
 		$form2->addElement("Neues Passwort", new Field("pw1", "", FieldType::PASSWORD));
 		$form2->addElement("Passwort Wiederholen", new Field("pw2", "", FieldType::PASSWORD));
 		$form2->write();

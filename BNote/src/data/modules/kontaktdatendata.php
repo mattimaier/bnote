@@ -33,7 +33,7 @@ class KontaktdatenData extends KontakteData {
 	}
 	
 	
-	function update($id, $values) {
+	function update($id, $values) {		
 		$current = $this->getContactForUser($id);
 		// modify array
 		foreach($current as $col => $v) {
@@ -42,8 +42,10 @@ class KontaktdatenData extends KontakteData {
 			}
 		}
 		
+		$values = $this->update_address($id, $values);
+		
 		// update info
-		parent::update($current["id"], $values); // includes validation
+		AbstractData::update($current["id"], $values); // includes validation
 	}
 	
 	function getPIN($uid) {

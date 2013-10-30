@@ -19,6 +19,14 @@ class AbstimmungView extends CrudView {
 		Writing::h2("Deine Abstimmungen");
 	}
 
+	function showAdditionStartButtons() {
+		$this->buttonSpace();
+		
+		$arc = new Link($this->modePrefix() . "archive", "Archiv");
+		$arc->addIcon("clock");
+		$arc->write();
+	}
+	
 	function showAllTable() {
 		$votes = $this->getData()->getVotesForUser();
 		$table = new Table($votes);
@@ -45,11 +53,35 @@ class AbstimmungView extends CrudView {
 	
 	function view() {
 		$this->checkID();
-		if(!$this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])) {
+		if(!$this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])
+				&& !$this->getData()->getSysdata()->isSuperUser()) {
 			$this->result();
 		}
 		else {
-			parent::view();
+			$this->checkID();
+		
+			// heading
+			Writing::h2("Abstimmungsdetails");
+			
+			// show buttons to edit and close
+			$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"], "Abstimmung bearbeiten");
+			$edit->addIcon("edit");
+			$edit->write();
+			$this->buttonSpace();
+			
+			$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"], "Abstimmung beenden");
+			$del->addIcon("erase");
+			$del->write();
+			$this->buttonSpace();
+			
+			// additional buttons
+			$this->additionalViewButtons();
+			
+			// show the details
+			$this->viewDetailTable();
+			
+			// back button
+			$this->backToStart();
 		}
 	}
 	
@@ -248,12 +280,33 @@ class AbstimmungView extends CrudView {
 		$table->renameHeader("voters", "W&auml;hler");
 		$table->write();
 		
-		if(!$this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])) {
+		if(isset($_GET["from"]) && $_GET["from"] == "history") {
+			$lnk = new Link($this->modePrefix() . "archive", "Zurück");
+			$lnk->addIcon("arrow_left");
+			$lnk->write();
+		}
+		else if(!$this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])
+				&& !$this->getData()->isSuperUser()) {
 			$this->backToStart();
 		}
 		else {
 			$this->backToViewButton($_GET["id"]);
 		}
+	}
+	
+	function archive() {
+		Writing::h2("Abstimmungsarchiv");
+		
+		$this->backToStart();
+		
+		$votes = $this->getData()->getVotesForUser(false);
+		$table = new Table($votes);
+		$table->setEdit("id");
+		$table->renameAndAlign($this->getData()->getFields());
+		$table->removeColumn("id");
+		$table->setColumnFormat("end", "DATE");
+		$table->changeMode("result&from=history");
+		$table->write();
 	}
 }
 

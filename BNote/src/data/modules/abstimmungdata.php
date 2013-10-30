@@ -85,20 +85,34 @@ class AbstimmungData extends AbstractData {
 	
 	/**
 	 * Returns all votes the user is part of.
+	 * @param Boolean $active optionl: Whether to show only active (true) or only inactive (false).
 	 * @param Integer $uid optional: User ID, by default current user.
 	 */
-	function getVotesForUser($uid = -1) {
+	function getVotesForUser($active = true, $uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
 		
 		// in case the system admin look at the votes, show all of them
 		if($this->getSysdata()->isUserSuperUser()) {
-			$query = "SELECT id, name, end, is_multi, is_date, is_finished FROM " . $this->table;
+			$query = "SELECT id, name, end, is_multi, is_date, is_finished ";
+			$query .= "FROM " . $this->table;
+			if(!$active) {
+				$query .= " WHERE is_finished = 1";
+			}
+			else {
+				$query .= " WHERE is_finished = 0";
+			}
 			$query .= " ORDER BY is_finished = 0, end ASC";
 		}
 		else {
 			$query = "SELECT v.id, v.name, v.end, v.is_multi, v.is_date ";
 			$query .= " FROM vote v JOIN vote_group vg ON vg.vote = v.id";
 			$query .= " WHERE vg.user = $uid AND v.is_finished = 0 AND YEAR(v.end) >= (YEAR(NOW())-1)";
+			if(!$active) {
+				$query .= " AND is_finished = 1";
+			}
+			else {
+				$query .= " AND is_finished = 0";
+			}
 			$query .= " ORDER BY v.end ASC";
 		}
 		

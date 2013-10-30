@@ -31,7 +31,8 @@ class KonfigurationData extends AbstractData {
 				"rehearsal_start" => array("Probenbeginn", 96),
 				"rehearsal_duration" => array("Probendauer in min", FieldType::INTEGER),
 				"default_contact_group" => array("Standardgruppe", FieldType::REFERENCE),
-				"auto_activation" => array("Automatische Benutzeraktivierung", FieldType::BOOLEAN)
+				"auto_activation" => array("Automatische Benutzeraktivierung", FieldType::BOOLEAN),
+				"share_nonadmin_viewmode" => array("Share-Lesemodus für Nicht-Administratoren", FieldType::BOOLEAN)
 		);
 		
 		$this->parameterExclude = array(
@@ -70,7 +71,7 @@ class KonfigurationData extends AbstractData {
 		if($param == "default_contact_group") {
 			return $this->adp()->getGroupName($value);
 		}
-		else if($param == "auto_activation") {
+		else if($this->getParameterType($param) == FieldType::BOOLEAN) {
 			return ($value == 1) ? "ja" : "nein";
 		}
 		else {

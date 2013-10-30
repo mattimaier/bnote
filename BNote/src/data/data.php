@@ -38,7 +38,7 @@ abstract class Data {
 	 * @return String in format d.m.Y H:i:s
 	 */
 	public static function convertDateFromDb($date) {
-		if(strlen($date) < 8) return "[not available]";
+		if(strlen($date) < 8) return "-";
 		
 		if(strlen($date) > 10) {
 			// with time in format yyyy-mm-dd hh:mm

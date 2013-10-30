@@ -33,6 +33,7 @@ class UserView extends CrudRefView {
 		$table->renameHeader("contactsurname", "Nachname");
 		$table->renameHeader("contactname", "Vorname");
 		$table->renameHeader("isactive", "Akiver Benutzer");
+		$table->setColumnFormat("lastlogin", "DATE");
 		$table->write();
 	}
 	

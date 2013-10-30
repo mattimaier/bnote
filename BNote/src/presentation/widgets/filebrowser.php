@@ -396,10 +396,14 @@ class Filebrowser implements iWriteable {
 						$show = $showLnk->toString();
 					}
 					
-					$delLnk = new Link($this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file)), "Löschen");
-					$delLnk->addIcon("remove");
-					$delete = $delLnk->toString();
-					
+					if(!$this->viewmode) { 
+						$delLnk = new Link($this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file)), "Löschen");
+						$delLnk->addIcon("remove");
+						$delete = $delLnk->toString();
+					}
+					else {
+						$delete = "";
+					}
 					$options = $show . "&nbsp;&nbsp;" . $delete;
 					
 					// add to result array

@@ -178,23 +178,34 @@ class KontakteData extends AbstractData {
 		$groups = $this->getGroups();
 		$query = "INSERT INTO contact_group (contact, `group`) VALUES ";
 		$grpCount = 0;
-		for($i = 0; $i < count($groups); $i++) {
-			$fieldId = "group_" . $groups[$i]["id"];
+		for($i = 1; $i < count($groups); $i++) {
 			$gid = $groups[$i]["id"];
-				
+			$fieldId = "group_" . $gid;
 			if(isset($_POST[$fieldId])) {
 				if($grpCount > 0) $query .= ", ";
 				$query .= "($cid, $gid)";
 				$grpCount++;
 			}
 		}
-		$this->database->execute($query);
+		
+		if($grpCount > 0) {
+			$this->database->execute($query);
+		}
 	}
 	
-	function update($id, $values) {
-		$this->validate($values);
-		
+	function update($id, $values) {	
 		// update address
+		$values = $this->update_address($id, $values);
+			
+		// update groups
+		$query = "DELETE FROM contact_group WHERE contact = $id";
+		$this->database->execute($query);
+		$this->createContactGroupEntries($id);
+		
+		parent::update($id, $values);
+	}
+	
+	protected function update_address($id, $values) {
 		$user = $this->findByIdNoRef($id);
 		$query = "UPDATE address SET ";
 		$query .= "street = \"" . $values["street"] . "\", ";
@@ -203,13 +214,7 @@ class KontakteData extends AbstractData {
 		$query .= "WHERE id = " . $user["address"];
 		$this->database->execute($query);
 		$values["address"] = $user["address"];
-			
-		// update groups
-		$query = "DELETE FROM contact_group WHERE contact = $id";
-		$this->database->execute($query);
-		$this->createContactGroupEntries($id);
-		
-		parent::update($id, $values);
+		return $values;
 	}
 	
 	function delete($id) {

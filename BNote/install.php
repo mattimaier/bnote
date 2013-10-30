@@ -562,7 +562,8 @@ class Installation {
 					('rehearsal_duration', '120', 1),
 					('default_contact_group', '2', 1),
 					('auto_activation', '1', 1),
-					('instrument_category_filter', 'ALL', 1);");
+					('instrument_category_filter', 'ALL', 1),
+					('share_nonadmin_viewmode', '0', 1);");
 
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES

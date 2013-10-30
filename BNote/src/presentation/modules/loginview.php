@@ -120,7 +120,9 @@ class LoginView extends AbstractView {
 	<TR>
 		<TD class="login">Passwort *</TD>
 		<TD class="loginInput"><input name="pw1" type="password" size="25"
-			onChange="validateInput(this, 'password');" /></TD>
+			onChange="validateInput(this, 'password');" /><br /> <span
+			style="font-size: 10px;">Bitte gebe mindestens 6 Zeichen und keine Leerzeichen ein.</span>
+		</TD>
 	</TR>
 	<TR>
 		<TD class="login">Passwort Wdh. *</TD>
