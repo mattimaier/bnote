@@ -42,7 +42,7 @@ class KontaktdatenData extends KontakteData {
 			}
 		}
 		
-		$values = $this->update_address($id, $values);
+		$values = $this->update_address($current["id"], $values);
 		
 		// update info
 		AbstractData::update($current["id"], $values); // includes validation

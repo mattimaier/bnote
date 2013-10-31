@@ -54,7 +54,7 @@ class AbstimmungView extends CrudView {
 	function view() {
 		$this->checkID();
 		if(!$this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])
-				&& !$this->getData()->getSysdata()->isSuperUser()) {
+				&& !$this->getData()->getSysdata()->isUserSuperUser()) {
 			$this->result();
 		}
 		else {

@@ -144,7 +144,7 @@ class Database extends Data {
   */
  public function execute($query) {
   $res = mysql_query($query);
-  if(!$res) new Error("The database query has failed:<br />" . mysql_error() . ".");
+  if(!$res) new Error("The database query has failed:<br />" . mysql_error() . ".<br>Debug:" . $query);
   return mysql_insert_id();
  }
 

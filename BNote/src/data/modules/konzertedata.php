@@ -175,7 +175,8 @@ class KonzerteData extends AbstractData {
 			$aid = $this->adp()->manageAddress(-1, $addy);
 			
 			// 2) create location
-			$notes = "Konzert am " . substr($values["begin"], 0, strlen($values["begin"])-5);
+			$begin = substr($values["begin"], 0, strlen("XX.XX.XXXX"));
+			$notes = "Konzert am " . $begin;
 			$query = "INSERT INTO location (name, notes, address) VALUES (";
 			$query .= "\"" . $values["location_name"] . "\", \"" . $notes . "\", $aid";
 			$query .= ")";

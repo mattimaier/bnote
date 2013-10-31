@@ -63,8 +63,16 @@ class KonzerteView extends CrudRefView {
 		$text .= " bis " . substr($concert["end"], strlen($concert["end"])-8, 5);
 		$text .= " Uhr im " . $concert["location_name"] . "</p>";
 		$text .= "<p class=\"concert_details\">Adresse: ";
-		$text .= $concert["location_street"] . ", " . $concert["location_zip"];
-		$text .= " " . $concert["location_city"] . "&nbsp;&nbsp;";
+		
+		if($concert["location_city"] != "") {
+			$text .= $concert["location_street"] . ", " . $concert["location_zip"];
+			$text .= " " . $concert["location_city"];
+		}
+		else {
+			$text .= $concert["location_name"];
+		}
+		$text .=  "&nbsp;&nbsp;";
+		
 		if($concert["contact_name"] != "") {
 			$text .= "<br/>";
 			$text .= "Kontaktperson: " . $concert["contact_name"] . " (";

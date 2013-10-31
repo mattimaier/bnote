@@ -206,14 +206,14 @@ class KontakteData extends AbstractData {
 	}
 	
 	protected function update_address($id, $values) {
-		$user = $this->findByIdNoRef($id);
+		$addressId = $this->database->getCell("contact", "address", "id = $id");
 		$query = "UPDATE address SET ";
 		$query .= "street = \"" . $values["street"] . "\", ";
 		$query .= "city = \"" . $values["city"] . "\", ";
 		$query .= "zip = \"" . $values["zip"] . "\" ";
-		$query .= "WHERE id = " . $user["address"];
+		$query .= "WHERE id = " . $addressId;
 		$this->database->execute($query);
-		$values["address"] = $user["address"];
+		$values["address"] = $addressId;
 		return $values;
 	}
 	
