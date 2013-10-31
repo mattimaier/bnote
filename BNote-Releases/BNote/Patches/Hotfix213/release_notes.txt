@@ -1,5 +1,0 @@
-##
-## Change Notes
-##
-
-- config/ folder was freely accessible -> blocked with htaccess
