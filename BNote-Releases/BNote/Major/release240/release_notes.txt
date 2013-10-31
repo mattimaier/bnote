@@ -13,3 +13,13 @@ Enhancement #37: Start: Update Link for Calendar so subscription can be accessed
 Enhancement #39: Grouping of members is now dynamically possible and reaches many modules such as rehearsals, concerts, share, etc.
 Enhancement #40: Rehearsalphases were created linking rehearsals, concerts and contacts together.
 Enhancement #42: More instruments were added
+
+Bugfix #43: Default admin password can be set using installation
+Bugfix #47: The introduction of groups changed the behaviour of changing a user's own data. This was corrected.
+Bugfix #48: Votes can always be edited by super users.
+Bugfix #49: Completed votes are shown in a archive mode and "delete" is renamed to "finish"
+Bugfix #50: Integration of scripts and frames in news is not permitted anymore
+Bugfix #51: Lastlogin-Column on User-Start is formatted correctly
+Bugfix #53: Location has to have a city as well to be added, except for adding a new location for concert.
+Bugfix #54: The user is told that the password has to have 6 figures and no spaces
+Bugfix #55: Added configuration to prevent non-administrators from editing files
