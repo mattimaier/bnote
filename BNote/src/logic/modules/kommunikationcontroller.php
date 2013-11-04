@@ -85,10 +85,10 @@ class KommunikationController extends DefaultController {
 		}
 		$headers .= 'Bcc: ' . $bcc_addresses . "\r\n";
 		
-		echo "headers: $headers<br/>\n";
-		echo "receipient: $receipient<br/>\n";
-		echo "subject: $subject<br/>\n";
-		echo "body: $body<br/>\n";
+// 		echo "headers: $headers<br/>\n";
+// 		echo "receipient: $receipient<br/>\n";
+// 		echo "subject: $subject<br/>\n";
+// 		echo "body: $body<br/>\n";
 		
 		/*
 		 * MAIL FUNCTION
@@ -96,10 +96,10 @@ class KommunikationController extends DefaultController {
 		 * Some hosting providers require specific mail() settings
 		 * therefore this comment should show where the function is!
 		 */
-// 		if(!$GLOBALS["system_data"]->inDemoMode()) {
-// 			if(!mail($receipient, $subject, $body, $headers)) {
-// 				$this->getView()->reportMailError($bcc_addresses);
-// 			}
-// 		}
+		if(!$GLOBALS["system_data"]->inDemoMode()) {
+			if(!mail($receipient, $subject, $body, $headers)) {
+				$this->getView()->reportMailError($bcc_addresses);
+			}
+		}
 	}
 }

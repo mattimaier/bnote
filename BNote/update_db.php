@@ -71,7 +71,7 @@ if(!in_array("Nachrichten", $mods)) {
 
 	$query = "INSERT INTO privilege (user, module) VALUES ";
 	for($i = 0; $i < count($users); $i++) {
-		if($i > 1) $query .= ",";
+		if($i > 0) $query .= ",";
 		$j = 0;
 		foreach($newModIds as $id => $name) {
 			if($j > 0) $query .= ",";
