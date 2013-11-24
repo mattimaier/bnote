@@ -59,6 +59,9 @@ class UserView extends CrudRefView {
 	private function contactDropdown() {
 		$dd = new Dropdown("contact");
 		
+		// add no-contact option
+		$dd->addOption("[kein Kontakt]", 0);
+		
 		$contacts = $this->getData()->getContacts();
 		for($i = 1; $i < count($contacts); $i++) {
 			$label = $contacts[$i]["name"] . " " . $contacts[$i]["surname"];
@@ -88,7 +91,7 @@ class UserView extends CrudRefView {
 		}
 		else {
 			$usr = $this->getData()->findByIdNoRef($_GET["id"]);
-			$title = "User " . $usr["login"];
+			$title = "Benutzer " . $usr["login"];
 		}
 		Writing::h1($title);
 		
@@ -147,6 +150,11 @@ class UserView extends CrudRefView {
 		$form->addElement("Kontakt", $dd);
 		$form->write();
 		Writing::p("Wird das Passwort-Feld leer gelassen, bleibt das aktuelle Passwort g&uuml;ltig.");
+	}
+	
+	function edit_process() {
+		if($_POST["contact"] == "0") unset($_POST["contact"]);
+		parent::edit_process();
 	}
 	
 	function privileges() {

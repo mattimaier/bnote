@@ -121,7 +121,8 @@ abstract class AbstractBNA implements iBNA {
 		global $system_data;
 		$system_data = $this->sysdata;
 		$this->uid = -1;
-		$this->startdata = new StartData();
+		global $dir_prefix;
+		$this->startdata = new StartData($dir_prefix);
 		
 		$this->authentication();
 		$this->route();
@@ -227,7 +228,7 @@ abstract class AbstractBNA implements iBNA {
 			$query .= " WHERE end > now() ORDER BY begin ASC";
 		}
 		else if($singular == "contact") {
-			$query .= " WHERE status = 'ADMIN' OR status = 'MEMBER' ORDER BY surname, name";
+			$query .= " ORDER BY surname, name"; //TODO nur kontakte, die man sehen soll
 		}
 		
 		$entities = $this->db->getSelection($query);

@@ -2,6 +2,9 @@
  <TITLE><?php echo $system_data->getApplicationName() . " | " . $system_data->getModuleTitle(); ?></TITLE>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
  
+ <link rel="shortcut icon" href="favicon.png" type="image/png" />
+ <link rel="icon" href="favicon.png" type="image/png" />
+ 
 <?php
 
 # Link all CSS Files in style/css

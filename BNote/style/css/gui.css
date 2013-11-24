@@ -353,3 +353,9 @@ p.rehearsal_details {
 	font-weight: 600;
 	margin-top: 20px;
 }
+
+#autoActivation {
+	color: black;
+	font-weight: bold;
+	margin-left: 20px;
+}

@@ -9,7 +9,14 @@
 		
 		<div id="CompanyName"><?php echo $system_data->getCompany(); ?></div>
  	   
-		<?php 
+		<?php
+		// check whether autologin is active and user is admin
+		if($system_data->isUserMemberGroup(1) && $system_data->isAutologinActive()) {
+			?>
+			<span id="autoActivation">Die automatische Registrierung ist aktiviert. Bitte Sicherheitshinweise beachten.</span>
+			<?php
+		}
+		
 	 	if(!$system_data->loginMode()) {
 	 	?> 
 		<div id="Logout">

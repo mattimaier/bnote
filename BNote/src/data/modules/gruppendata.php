@@ -40,6 +40,17 @@ class GruppenData extends AbstractData {
 		return $gid;
 	}
 	
+	function update($id, $values) {
+		if(isset($values["is_active"]) && $values["is_active"] == "on") {
+			$values["is_active"] = 1;
+		}
+		else {
+			$values["is_active"] = 0;
+		}
+		
+		parent::update($id, $values);
+	}
+	
 	function delete($id) {
 		// check whether the members of this group still have at least one other group
 		$query = "SELECT cg.contact, count(cg.`group`) as numUserGroup

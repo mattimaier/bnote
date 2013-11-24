@@ -195,7 +195,9 @@ class StartView extends AbstractView {
 				$dataview->addElement("Kontakt", $contact);
 				if($row["program_name"] != "") {
 					$program = $row["program_name"];
-					if($program != "" && $row["program_notes"] != "") $program .= " (" . $row["program_notes"] . ")";
+					if($row["program_notes"] != "") $program .= " (" . $row["program_notes"] . ")";
+					$viewProg = new Link($this->modePrefix() . "viewProgram&id=" . $row["program_id"], "Programm ansehen");
+					$program .= "<br/><br/>" . $viewProg->toString();
 					$dataview->addElement("Programm", $program);
 				}
 				
@@ -371,6 +373,24 @@ class StartView extends AbstractView {
 		$this->getData()->taskComplete($_GET["id"]);
 		$msg = new Message("Aufgabe abgeschlossen", "Die Aufgabe wurde als abgeschlossen markiert.");
 		$msg->write();
+		$this->backToStart();
+	}
+	
+	public function viewProgram() {
+		$this->checkID();
+		$titles = $this->getData()->getProgramTitles($_GET["id"]);
+		
+		Writing::h2("Programm");
+		
+		$table = new Table($titles);		
+		$table->renameHeader("rank", "Nr.");
+		$table->renameHeader("title", "Titel");
+		$table->renameHeader("composer", "Komponist/Arrangeuer");
+		$table->renameHeader("notes", "Notizen");
+		
+		$table->write();
+		
+		$this->verticalSpace();
 		$this->backToStart();
 	}
 }

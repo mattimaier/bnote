@@ -266,6 +266,14 @@ class AbstimmungView extends CrudView {
 		$vote = $this->getData()->findByIdNoRef($_GET["id"]);
 		Writing::h2($vote["name"] . " - Ergebnis");
 		
+		// in case vote isn't over yet, show button to vote
+		if($this->getData()->isVoteActive($_GET["id"])) {
+			$voteBtn = new Link("?mod=1&mode=voteOptions&id=" . $_GET["id"], "Jetzt Abstimmen");
+			$voteBtn->addIcon("checkmark");
+			$voteBtn->write();
+			$this->verticalSpace();
+		}
+		
 		if($vote["is_multi"] == 1) {
 			Writing::p("Mehrere Antworten waren möglich.");
 		}
@@ -286,7 +294,7 @@ class AbstimmungView extends CrudView {
 			$lnk->write();
 		}
 		else if(!$this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])
-				&& !$this->getData()->isSuperUser()) {
+				&& !$this->getData()->getSysdata()->isUserSuperUser()) {
 			$this->backToStart();
 		}
 		else {

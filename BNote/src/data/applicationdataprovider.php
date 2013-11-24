@@ -225,8 +225,46 @@ class ApplicationDataProvider {
 		));
 		
 		// get all future concerts
-		$query = "SELECT * FROM concert WHERE begin > NOW() ORDER BY begin ASC";
-		$concerts = $this->database->getSelection($query);
+		// super users will see it all
+		if($this->sysdata->isUserSuperUser()) {
+			$query = "SELECT * FROM concert WHERE begin > NOW() ORDER BY begin, end";
+			$concerts = $this->database->getSelection($query);
+		}
+		else {
+			// only show concerts of groups and rehearsal phases the user is in
+			$phases = $this->getUsersPhases();
+			$phasesWhere = "WHERE ";
+			if(count($phases) == 0) {
+				$phasesWhere .= "0 = 1"; // no phases
+			}
+			else {
+				foreach($phases as $i => $p) {
+					if($i > 0) $phasesWhere .= " OR ";
+					$phasesWhere .= "rehearsalphase = $p";
+				}
+			}
+			
+			$cid = $this->getUserContact();
+			
+			$query = "SELECT DISTINCT c.*
+				FROM concert c
+					JOIN (
+						(
+							SELECT concert
+							FROM rehearsalphase_concert
+							$phasesWhere
+						)
+						UNION ALL (
+							SELECT concert
+							FROM concert_contact
+							WHERE contact = $cid
+						)
+					) AS concerts ON c.id = concerts.concert
+				WHERE END > NOW( )
+				ORDER BY BEGIN,
+				END";
+			$concerts = $this->database->getSelection($query);
+		}
 		
 		// iterate over concerts and replace foreign keys with data
 		for($i = 1; $i < count($concerts); $i++) {
@@ -289,6 +327,7 @@ class ApplicationDataProvider {
 				"contact_phone" => $contact["phone"],
 				"contact_email" => $contact["email"],
 				"contact_web" => $contact["web"],
+				"program_id" => $concerts[$i]["program"],
 				"program_name" => $program["name"],
 				"program_notes" => $program["notes"]
 			));

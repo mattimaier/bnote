@@ -249,7 +249,7 @@ class StartData extends AbstractData {
 		}
 		$query .= " ORDER BY begin";
 		
-		if(count($rehearsals) > 1) {
+		if(count($rehearsals) > 0) {
 			return $this->database->getSelection($query);
 		}
 		return null;		
@@ -274,43 +274,14 @@ class StartData extends AbstractData {
 	}
 	
 	function getUsersConcerts() {
-		// super users will see it all
-		if($this->getSysdata()->isUserSuperUser()) {
-			return $this->adp()->getFutureConcerts();
-		}
-		
-		// only show concerts of groups and rehearsal phases the user is in
-		$phases = $this->adp()->getUsersPhases();
-		$phasesWhere = "WHERE ";
-		if(count($phases) == 0) {
-			$phasesWhere .= "0 = 1"; // no phases
-		}
-		else {
-			foreach($phases as $i => $p) {
-				if($i > 0) $phasesWhere .= " OR ";
-				$phasesWhere .= "rehearsalphase = $p";
-			}
-		}
-		
-		$cid = $this->adp()->getUserContact();
-		
-		$query = "SELECT DISTINCT c . * 
-					FROM concert c
-					JOIN (
-						(
-							SELECT concert
-							FROM rehearsalphase_concert
-							$phasesWhere
-						)
-						UNION ALL (
-							SELECT concert
-							FROM concert_contact
-							WHERE contact = $cid
-						)
-					) AS concerts ON c.id = concerts.concert
-					WHERE END > NOW( ) 
-					ORDER BY BEGIN , 
-					END";
+		return $this->adp()->getFutureConcerts();
+	}
+	
+	function getProgramTitles($pid) {
+		$query = "SELECT ps.rank, s.title, c.name as composer, s.notes ";
+		$query .= "FROM song s, program_song ps, composer c ";
+		$query .= "WHERE ps.program = $pid AND ps.song = s.id AND s.composer = c.id ";
+		$query .= "ORDER BY ps.rank ASC";
 		return $this->database->getSelection($query);
 	}
 }

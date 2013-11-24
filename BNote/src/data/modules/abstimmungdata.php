@@ -130,6 +130,18 @@ class AbstimmungData extends AbstractData {
 		return ($author == $uid);
 	}
 	
+	/**
+	 * Checks whether the vote is still on (time before end date).
+	 * @param Integer $vid Vote ID.
+	 * @return boolean True if the vote is active, otherwise false.
+	 */
+	function isVoteActive($vid) {
+		$vote = $this->findByIdNoRef($vid);
+		$time = strtotime($vote["end"]);
+		$now = date("U");
+		return ($time > $now);
+	}
+	
 	function getOptions($vid) {
 		$query = "SELECT vo.* ";
 		$query .= "FROM vote_option vo, vote v ";

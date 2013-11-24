@@ -26,7 +26,7 @@ class Controller {
   	$modName = "login";
   }
   else {
-  	$modName = strtolower($system_data->getModuleTitle());
+  	$modName = strtolower($system_data->getModuleTitle(-1, false));
   }
   
   // include preliminaries

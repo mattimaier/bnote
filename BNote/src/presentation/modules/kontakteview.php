@@ -82,7 +82,7 @@ class KontakteView extends CrudRefView {
 			$groupId = $info["id"];
 			
 			$active = "";
-			if($_GET["group"] == $cmd) $active = "_active";
+			if($_GET["group"] == $groupId) $active = "_active";
 			else if(!isset($_GET["group"]) && $groupId == 2) $active = "_active";
 			
 			echo "<a href=\"" . $this->modePrefix() . "start&group=$groupId\"><span class=\"contact_view_tab$active\">$label</span></a>";

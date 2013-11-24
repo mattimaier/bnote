@@ -87,9 +87,7 @@ class UserData extends AbstractData {
 		mkdir($this->getSysdata()->getUsersHomeDir($userId));
 	}
 	
-	function update($id, $values) { // $values is the same than $_POST
-		$this->validate($_POST);
-		
+	function update($id, $values) { // $values is the same than $_POST		
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($_GET["id"])) {
@@ -106,6 +104,11 @@ class UserData extends AbstractData {
 				$usr[$id] = $_POST[$id];
 			}
 			
+		}
+		
+		// check if contact is set, otherwise remove contact
+		if(!isset($usr["contact"]) || $usr["contact"] == "") {
+			$usr["contact"] = "-1";
 		}
 		
 		parent::update($_GET["id"], $usr);

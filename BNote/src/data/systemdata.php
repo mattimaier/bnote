@@ -53,18 +53,27 @@ class Systemdata {
  }
 
  /**
-  * Return the current module's title
+  * Retrieves the name of the (current) module.
+  * @param Module ID.
+  * @return The title of the module.
   */
- public function getModuleTitle() {
- 	if(is_numeric($this->current_modid)) {
-  		return $this->dbcon->getCell("module", "name", "id = " . $this->current_modid);
+ public function getModuleTitle($id = -1, $enableCustom = true) {
+ 	$modId = $id;
+ 	if($id == -1) $modId = $this->current_modid;
+ 	
+ 	if(is_numeric($modId)) {
+ 		// Custom Mapping when enabled
+ 		if($modId == 9 && $enableCustom) { // Kontaktdaten
+ 			return "Meine Kontaktdaten";
+ 		}
+  		return $this->dbcon->getCell("module", "name", "id = $modId");
  	}
  	else if($this->loginMode()) {
  		$modarr = $this->getModuleArray();
- 		return $modarr[$this->current_modid];
+ 		return $modarr[$modId];
  	}
  	else {
- 		return $this->current_modid;
+ 		return $modId;
  	}
  }
 
@@ -141,23 +150,15 @@ class Systemdata {
  	$mods = array();
  	
  	$query = "SELECT id, name FROM module ORDER BY id";
- 	$res = mysql_query($query);
- 	if(!$res) new Error("Die Datenbankabfrage schlug fehl.");
- 	if(mysql_num_rows($res) == 0) new Error("Datenbankfehler. Es muss mindestens ein Modul eingetragen sein.");
+ 	$mods = $this->dbcon->getSelection($query);
  	
- 	while($row = mysql_fetch_array($res)) {
- 		$mods[$row["id"]] = $row["name"];
+ 	$this->modulearray = null;
+ 	
+ 	for($i = 1; $i < count($mods); $i++) {
+ 		$this->modulearray[$mods[$i]["id"]] = $mods[$i]["name"];
  	}
  	
- 	$this->modulearray = $mods;
- 	return $mods;
- }
- 
- /**
-  * Returns the name of the module with the given id
-  */
- public function nameOfModule($id) {
- 	return $this->modulearray[$id];
+ 	return $this->modulearray;
  }
  
  /**
@@ -248,6 +249,21 @@ class Systemdata {
  	if($cid == -1) return $this->isUserSuperUser();
  	$uid = $this->dbcon->getCell($this->dbcon->getUserTable(), "id", "contact = $cid");
  	return $this->isUserSuperUser($uid);
+ }
+ 
+ /**
+  * Checks whether the given or current user is a member of the given group.<br/>
+  * Default Groups are: 1=Administrators, 2=Members
+  * @param Integer $groupId Group ID.
+  * @param Integer $uid optional: User ID, by default current user.
+  * @return True when the user is a member of the given group, otherwise false.
+  */
+ public function isUserMemberGroup($groupId, $uid = -1) {
+ 	if($this->loginMode()) return false;
+ 	if($uid == -1) $uid = $_SESSION["user"];
+ 	if($this->isUserSuperUser() && $groupId == 1) return true;
+ 	$ct = $this->dbcon->getCell("contact_group", "count(*)", "contact = $uid AND `group` = $groupId");
+ 	return false;
  }
  
  /**
@@ -414,8 +430,19 @@ class Systemdata {
  	return $GLOBALS["DATA_PATHS"]["grouphome"] . $dirname;
  }
  
+ /**
+  * Returns the path to the filehandler script.
+  */
  public function getFileHandler() {
  	return $GLOBALS["DIR_DATA"] . "filehandler.php";
+ }
+ 
+ /**
+  * @return True when auto activation of accounts is on, otherwise false.
+  */
+ public function isAutologinActive() {
+ 	$autoLogin = $this->getDynamicConfigParameter("auto_activation");
+ 	return ($autoLogin == 1);
  }
 }
 

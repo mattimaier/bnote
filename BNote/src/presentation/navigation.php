@@ -16,6 +16,8 @@
 		}
 		else $selected = "";
 
+		$name = $system_data->getModuleTitle($id);
+		
 		echo '<a class="navi" href="?mod=' . $id . '"><div class="navi_item' . $selected;
 		echo '">' . $name . '</div></a>' . "\n";
 	}

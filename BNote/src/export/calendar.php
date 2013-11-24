@@ -76,8 +76,19 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	echo "ORGANIZER:$organizer\n";
 	echo "DTSTART;TZID=$timezone:" . $rehearsals[$i]["begin"] . "\n";
 	echo "DTEND;TZID=$timezone:" . $rehearsals[$i]["end"] . "\n";
-	echo "LOCATION:" . $rehearsals[$i]["name"] . " - " .
+	
+	if($rehearsals[$i]["name"] != "") { 
+		echo "LOCATION:" . $rehearsals[$i]["name"] . " - " .
 			$rehearsals[$i]["street"] . ", " . $rehearsals[$i]["city"] . "\n";
+	}
+	else if($rehearsal[$i]["location"] != "") {
+		// fetch rehearsal location
+		$query = "SELECT l.name, a.street, a.city ";
+		$query .= "FROM location l JOIN address a ON l.address = a.id ";
+		$query .= "WHERE l.id = " . $rehearsal[$i]["location"];
+		$addy = $db->getRow($query);
+		echo "LOCATION:" . $addy["name"] . " - " . $addy["street"] . ", " . $addy["city"] . "\n";
+	}
 	
 	// get songs to practise
 	$query = "SELECT title ";
