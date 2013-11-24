@@ -2,6 +2,15 @@
 ## Release Notes
 ##
 
-Enhancement #: 
+Enhancement #46: Add favicon
+Enhancement #57: Programmeinsicht bei Konzerten
+Enhancement #58: Warnung bei aktivierter automatischer Registrierung
+Enhancement #65: Abstimmungsergebnis mit Link zur Abstimmung wenn noch nicht beendet
+Enhancement #66: Modul Kontaktdaten umbenannt 
 
-Bugfix #4: 
+Bugfix #52: "Kein Kontakt" in User-Modul möglich
+Bugfix #60: Bearbeiten einer Kontakt-Gruppe möglich
+Bugfix #61: Kontakt-Gruppen highlighting
+Bugfix #62: Nachrichtenspeicherung mit Erfolgsnachricht
+Bugfix #64: Fehler in Abstimmungsmodul für isSuperUser() behoben
+Bugfix #68: Kalenderexport Locationanzeige berichtigt 
