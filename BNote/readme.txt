@@ -3,7 +3,7 @@
 # www.mattimaier.de
 
 # Release Version 2.4.1
-# Release Date 2013-11-xx
+# Release Date 2013-11-25
 # License GPLv3
 
 Requirements
