@@ -17,6 +17,7 @@ class MitspielerView extends AbstractView {
 	function start() {
 		Writing::h1("Mitspieler");
 		
+		if($this->getData()->getSysdata()->getUsersContact() == "") return;
 		$members = $this->getData()->getMembers();
 		
 		$table = new Table($members);

@@ -231,9 +231,11 @@ class StartData extends AbstractData {
 	}
 	
 	function getUsersRehearsals($uid = -1) {
+		$data = $this->adp()->getAllRehearsals();
+		
 		// super users should see it all
 		if($this->getSysdata()->isUserSuperUser()) {
-			return $this->adp()->getAllRehearsals();
+			return $data;
 		}
 		
 		// only show rehearsals of groups and rehearsal phases the user is in
@@ -242,17 +244,15 @@ class StartData extends AbstractData {
 		$usersPhases = $this->adp()->getUsersPhases();
 		$rehearsals = array_merge($this->getRehearsalsForUser($uid), $this->getRehearsalsForPhases($usersPhases));
 		
-		$query = "SELECT * FROM rehearsal WHERE ";
-		foreach($rehearsals as $i => $reh) {
-			if($i > 0) $query .= " OR ";
-			$query .= "id = $reh";
-		}
-		$query .= " ORDER BY begin";
+		$result = array();
+		$result[0] = $data[0]; // header
 		
-		if(count($rehearsals) > 0) {
-			return $this->database->getSelection($query);
+		// add rehearsals to resultset which the user can see
+		foreach($data as $i => $row) {
+			if(in_array($row["id"], $rehearsals)) array_push($result, $row);
 		}
-		return null;		
+		
+		return $result;		
 	}
 	
 	private function getRehearsalsForUser($uid) {
