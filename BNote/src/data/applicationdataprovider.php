@@ -193,20 +193,24 @@ class ApplicationDataProvider {
 	}
 	
 	/**
-	 * Returns all rehearsals joined with location and address.
+	 * Retrieves all rehearsals without participation.
+	 * @return All rehearsals joined with location and address.
 	 */
 	public function getAllRehearsals() {
 		$query = "SELECT r.id as id, begin, end, r.notes as notes, name, street, city, zip";
 		$query .= " FROM rehearsal r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
-		$query .= " AND begin > NOW() ORDER BY begin ASC";
+		$query .= " AND begin > NOW() ORDER BY begin ASC";		
 		return $this->database->getSelection($query);
 	}
 	
 	/**
-	 * Returns all future concerts with joined attributes.
+	 * Retrieves all user specific future concerts.
+	 * @param Integer $uid optional: User ID, by default current user.
+	 * @return All future concerts with joined attributes.
 	 */
-	public function getFutureConcerts() {
+	public function getFutureConcerts($uid = -1) {
+		if($uid == -1) $uid = $_SESSION["user"];
 		/* 
 		 * For complexity reasons is this data filtering
 		 * done in PHP instead of SQL. Since there are only
@@ -226,13 +230,13 @@ class ApplicationDataProvider {
 		
 		// get all future concerts
 		// super users will see it all
-		if($this->sysdata->isUserSuperUser()) {
+		if($this->sysdata->isUserSuperUser($uid)) {
 			$query = "SELECT * FROM concert WHERE begin > NOW() ORDER BY begin, end";
 			$concerts = $this->database->getSelection($query);
 		}
 		else {
 			// only show concerts of groups and rehearsal phases the user is in
-			$phases = $this->getUsersPhases();
+			$phases = $this->getUsersPhases($uid);
 			$phasesWhere = "WHERE ";
 			if(count($phases) == 0) {
 				$phasesWhere .= "0 = 1"; // no phases
@@ -244,7 +248,7 @@ class ApplicationDataProvider {
 				}
 			}
 			
-			$cid = $this->getUserContact();
+			$cid = $this->getUserContact($uid);
 			
 			$query = "SELECT DISTINCT c.*
 				FROM concert c

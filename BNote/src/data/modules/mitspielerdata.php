@@ -26,9 +26,11 @@ class MitspielerData extends AbstractData {
 	}
 	
 	/**
+	 * Retrieves all members from the database which are associated with given or current user.
+	 * @param Integer $uid optional: User ID, by default current user.
 	 * @return Members of groups and phases the current user is part of.
 	 */
-	function getMembers() {
+	function getMembers($uid = -1) {
 		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, i.name as instrument";
 		$order = "ORDER BY fullname, instrument";
 		
@@ -40,7 +42,7 @@ class MitspielerData extends AbstractData {
 		}
 		
 		$contacts = array();
-		$currContact = $this->getSysdata()->getUsersContact();
+		$currContact = $this->getSysdata()->getUsersContact($uid);
 		$cid = $currContact["id"];
 		
 		// get user's groups

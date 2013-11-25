@@ -234,14 +234,14 @@ class StartData extends AbstractData {
 		$data = $this->adp()->getAllRehearsals();
 		
 		// super users should see it all
-		if($this->getSysdata()->isUserSuperUser()) {
+		if($this->getSysdata()->isUserSuperUser($uid)) {
 			return $data;
 		}
 		
 		// only show rehearsals of groups and rehearsal phases the user is in
 		if($uid == -1) $uid = $_SESSION["user"];
 		
-		$usersPhases = $this->adp()->getUsersPhases();
+		$usersPhases = $this->adp()->getUsersPhases($uid);
 		$rehearsals = array_merge($this->getRehearsalsForUser($uid), $this->getRehearsalsForPhases($usersPhases));
 		
 		$result = array();
@@ -273,8 +273,9 @@ class StartData extends AbstractData {
 		return Database::flattenSelection($sel, "rehearsal");
 	}
 	
-	function getUsersConcerts() {
-		return $this->adp()->getFutureConcerts();
+	function getUsersConcerts($uid = -1) {
+		if($uid == -1) $uid = $_SESSION["user"];
+		return $this->adp()->getFutureConcerts($uid);
 	}
 	
 	function getProgramTitles($pid) {

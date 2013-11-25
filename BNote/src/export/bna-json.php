@@ -30,7 +30,6 @@ class BNAjson extends AbstractBNA {
 	
 	function getAll() {
 		$this->beginOutputWith();
-		//$this->getRehearsals(); echo ",\n";
 		$this->getRehearsalsWithParticipation($this->uid); echo ",\n";
 		$this->getConcerts(); echo ",\n";
 		$this->getContacts(); echo ",\n";

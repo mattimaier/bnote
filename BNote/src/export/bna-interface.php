@@ -79,6 +79,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "abstractdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "applicationdataprovider.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "startdata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "mitspielerdata.php";
 
 $GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
 require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
@@ -228,7 +229,7 @@ abstract class AbstractBNA implements iBNA {
 			$query .= " WHERE end > now() ORDER BY begin ASC";
 		}
 		else if($singular == "contact") {
-			$query .= " ORDER BY surname, name"; //TODO nur kontakte, die man sehen soll
+			$query .= " ORDER BY surname, name";
 		}
 		
 		$entities = $this->db->getSelection($query);
@@ -236,24 +237,74 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	function getRehearsals() {
-		$this->prepareEntities("rehearsal");
+		if($this->sysdata->isUserSuperUser($this->uid)
+				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
+			$this->prepareEntities("rehearsal");
+		}
+		else {
+			// only get rehearsals for user considering phases and groups
+			$rehs = $this->startdata->getUsersRehearsals($this->uid);
+			$this->printEntities($rehs, "rehearsal");
+		}
 	}
 	
 	function getRehearsalsWithParticipation($user) {
-		$query = "SELECT * ";
-		$query .= "FROM rehearsal r LEFT JOIN rehearsal_user ru ON ru.rehearsal = r.id ";
-		$query .= "WHERE end > now() AND (ru.user = $user || ru.user IS NULL) ";
-		$query .= "ORDER BY begin ASC";
-		$rehs = $this->db->getSelection($query);
-		$this->printEntities($rehs, "rehearsal");
+		if($this->sysdata->isUserSuperUser($this->uid)
+				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
+			$query = "SELECT * ";
+			$query .= "FROM rehearsal r LEFT JOIN rehearsal_user ru ON ru.rehearsal = r.id ";
+			$query .= "WHERE end > now() AND (ru.user = $user || ru.user IS NULL) ";
+			$query .= "ORDER BY begin ASC";
+			$rehs = $this->db->getSelection($query);
+			$this->printEntities($rehs, "rehearsal");
+		}
+		else {
+			// only get rehearsals for user considering phases and groups
+			$rehs = $this->startdata->getUsersRehearsals($this->uid);
+			
+			// manually join participation
+			array_push($rehs[0], "participate");
+			array_push($rehs[0], "reason");
+			
+			for($i = 1; $i < count($rehs); $i++) {
+				$rid = $rehs[$i]["id"];
+				$query = "SELECT * FROM rehearsal_user WHERE rehearsal = $rid AND user = " . $this->uid;
+				$part = $this->db->getRow($query);
+				if($part == null) {
+					$part = array( "participate" => "", "reason" => "" );
+				}
+				$rehs[$i]["participate"] = $part["participate"];
+				$rehs[$i]["reason"] = $part["reason"];
+			}
+			
+			$this->printEntities($rehs, "rehearsal");
+		}
 	}
 	
 	function getConcerts() {
-		$this->prepareEntities("concert");
+		if($this->sysdata->isUserSuperUser($this->uid)
+				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
+			$this->prepareEntities("concert");
+		}
+		else {
+			// only get concerts for user considering phases and groups
+			$concerts = $this->startdata->getUsersConcerts($this->uid);
+			$this->printEntities($concerts, "concert");
+		}
 	}
 	
 	function getContacts() {
-		$this->prepareEntities("contact");
+		// let superusers and admins see all contacts
+		if($this->sysdata->isUserSuperUser($this->uid)
+				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
+			$this->prepareEntities("contact");
+		}
+		else {
+			// only get contacts for user considering phases and groups
+			$msd = new MitspielerData();
+			$contacts = $msd->getMembers($this->uid);
+			$this->printEntities($contacts, "contact");
+		}
 	}
 	
 	function getLocations() {
