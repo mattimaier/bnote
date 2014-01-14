@@ -2,8 +2,8 @@
 # by Matti Maier Internet Solutions
 # www.mattimaier.de
 
-# Release Version 2.4.2
-# Release Date 2014-01-14
+# Release Version 2.x.x
+# Release Date 2014-xx-xx
 # License GPLv3
 
 Requirements

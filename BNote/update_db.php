@@ -3,7 +3,7 @@
 /*************************
  * UPGRADES THE DATABASE *
  * @author Matti Maier   *
- * Update 2.4.2			 *
+ * Update 2.x.x			 *
  *************************/
 
 // path to src/ folder
@@ -41,30 +41,30 @@ $regex = $sysdata->regex;
  * Task 1: Insert Configuration
  */
 $confParams = $db->getSelection("SELECT param FROM configuration");
-$containsShowLength = false;
-$containsMaybe = false;
-foreach($confParams as $i => $row) {
-	if($row["param"] == "rehearsal_show_length") $containsShowLength = true;
-	else if($row["param"] == "allow_participation_maybe") $containsMaybe = true; 
-}
-if(!$containsShowLength) {
-	$query = "INSERT INTO configuration (param, value, is_active) VALUES ";
-	$query .= "('rehearsal_show_length', '1', 1)";
-	$db->execute($query);
-	echo "<i>Added configuration parameter rehearsal_show_length.</i><br/>";
-}
-else {
-	echo "<i>Configuration parameter rehearsal_show_length exists.</i><br/>";
-}
-if(!$containsMaybe) {
-	$query = "INSERT INTO configuration (param, value, is_active) VALUES ";
-	$query .= "('allow_participation_maybe', '1', 1)";
-	$db->execute($query);
-	echo "<i>Added configuration parameter allow_participation_maybe.</i><br/>";
-}
-else {
-	echo "<i>Configuration parameter allow_participation_maybe exists.</i><br/>";
-}
+// $containsShowLength = false;
+// $containsMaybe = false;
+// foreach($confParams as $i => $row) {
+// 	if($row["param"] == "rehearsal_show_length") $containsShowLength = true;
+// 	else if($row["param"] == "allow_participation_maybe") $containsMaybe = true; 
+// }
+// if(!$containsShowLength) {
+// 	$query = "INSERT INTO configuration (param, value, is_active) VALUES ";
+// 	$query .= "('rehearsal_show_length', '1', 1)";
+// 	$db->execute($query);
+// 	echo "<i>Added configuration parameter rehearsal_show_length.</i><br/>";
+// }
+// else {
+// 	echo "<i>Configuration parameter rehearsal_show_length exists.</i><br/>";
+// }
+// if(!$containsMaybe) {
+// 	$query = "INSERT INTO configuration (param, value, is_active) VALUES ";
+// 	$query .= "('allow_participation_maybe', '1', 1)";
+// 	$db->execute($query);
+// 	echo "<i>Added configuration parameter allow_participation_maybe.</i><br/>";
+// }
+// else {
+// 	echo "<i>Configuration parameter allow_participation_maybe exists.</i><br/>";
+// }
 
 ?>
 <br/><br/>
