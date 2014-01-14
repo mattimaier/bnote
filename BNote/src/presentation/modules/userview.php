@@ -39,7 +39,7 @@ class UserView extends CrudRefView {
 	
 	function addUser() {
 		// add form for new user
-		$form = new Form("Neuer Benutzer", $this->modePrefix() . "add");
+		$form = new Form("Neuer Benutzer", $this->modePrefix() . "add&manualValid=true");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		$form->removeElement("lastlogin");
@@ -126,7 +126,10 @@ class UserView extends CrudRefView {
 		// show user data
 		$dv = new Dataview();
 		foreach($usr as $id => $value) {
-			if($id != "password") {
+			if($id == "contact" && $value == "0") {
+				$dv->addElement($id, "-");
+			}
+			else if($id != "password") {
 				$dv->addElement($id, $value);
 			}
 		}

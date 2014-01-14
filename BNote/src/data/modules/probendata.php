@@ -50,12 +50,31 @@ class ProbenData extends AbstractData {
 	}
 	
 	function getParticipants($rid) {
-		$query = 'SELECT CONCAT_WS(" ", c.name, c.surname) as name, ';
+		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, ';
 		$query .= ' CASE ru.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, ru.reason';
 		$query .= ' FROM rehearsal_user ru, user u, contact c';
 		$query .= ' WHERE ru.rehearsal = ' . $rid . ' AND ru.user = u.id AND u.contact = c.id';
-		$query .= ' ORDER BY participate, name';
+		$query .= ' ORDER BY name';
 		return $this->database->getSelection($query);
+	}
+	
+	function getOpenParticipation($rid) {
+		// solve this problem programmatically - easier
+		$parts = $this->getParticipants($rid);
+		$contacts = $this->getRehearsalContacts($rid);
+		$result = array();
+		$result[0] = $contacts[0];
+		for($i = 1; $i < count($contacts); $i++) {
+			$contactParts = false;
+			for($j = 1; $j < count($parts); $j++) {
+				if($parts[$j]["id"] == $contacts[$i]["id"]) {
+					$contactParts = true;
+					break;
+				}
+			}
+			if(!$contactParts) array_push($result, $contacts[$i]);
+		}
+		return $result;
 	}
 	
 	function getParticipantStats($rid) {

@@ -92,7 +92,7 @@ class AbstimmungData extends AbstractData {
 		if($uid == -1) $uid = $_SESSION["user"];
 		
 		// in case the system admin look at the votes, show all of them
-		if($this->getSysdata()->isUserSuperUser()) {
+		if($this->getSysdata()->isUserSuperUser() || $this->getSysdata()->isUserMemberGroup(1)) {
 			$query = "SELECT id, name, end, is_multi, is_date, is_finished ";
 			$query .= "FROM " . $this->table;
 			if(!$active) {

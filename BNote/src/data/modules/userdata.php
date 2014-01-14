@@ -47,7 +47,10 @@ class UserData extends AbstractData {
 	}
 	
 	function create($values) { // values and $_POST is the same
-		$this->validate($values);
+		// Do a manual validation
+		if(!$this->regex->isLogin($_POST["login"])) new Error("Der angegebene Benutzername ist ung&uuml;ltig.");
+		if(!$this->regex->isPassword($_POST["password"])) new Error("Das angegebene Passwort ist ung&uuml;ltig (mindestens 6 Zeichen notwendig).");
+		if(!isset($_POST["contact"]) || $_POST["contact"] == "") new Error("Bitte w&auml;hle einen Kontakt aus.");
 		
 		// check that the login is not taken
 		if($this->adp()->doesLoginExist($values["login"])) {

@@ -141,10 +141,11 @@ class StartData extends AbstractData {
 	}
 	
 	function getRehearsalParticipants($rid) {
-		$query = "SELECT c.surname, c.name, i.name as instrument ";
+		$query = "SELECT c.name, c.surname, i.name as instrument ";
 		$query .= "FROM rehearsal_user r, user u, contact c, instrument i ";
 		$query .= "WHERE r.participate = 1 AND ";
-		$query .= "r.rehearsal = $rid AND r.user = u.id AND u.contact = c.id AND c.instrument = i.id";
+		$query .= "r.rehearsal = $rid AND r.user = u.id AND u.contact = c.id AND c.instrument = i.id ";
+		$query .= "ORDER BY name, surname, instrument";
 		return $this->database->getSelection($query);
 	}
 	
@@ -284,5 +285,9 @@ class StartData extends AbstractData {
 		$query .= "WHERE ps.program = $pid AND ps.song = s.id AND s.composer = c.id ";
 		$query .= "ORDER BY ps.rank ASC";
 		return $this->database->getSelection($query);
+	}
+	
+	function getRehearsal($rid) {
+		return $this->database->getRow("SELECT * FROM rehearsal WHERE id = $rid");
 	}
 }

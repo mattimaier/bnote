@@ -55,7 +55,13 @@ class ProbenView extends CrudRefView {
 		// New entity form
 		$form = new Form("Neue Probe", $this->modePrefix() . "add");
 		$form->addElement("Beginn", new Field("begin", date("d.m.Y") . " " . $this->getData()->getDefaultTime(), 97));
-		$form->addElement("Dauer in min", new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
+		if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
+			$end = Data::addMinutesToDate(date("d.m.Y") . " " . $this->getData()->getDefaultTime() . ":00", $this->getData()->getDefaultDuration());
+			$form->addElement("Ende", new Field("end", $end, 97));
+		}
+		else {
+			$form->addElement("Dauer in min", new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
+		}
 		$form->addElement("location", new Field("location", "", FieldType::REFERENCE));
 		$form->setForeign("location", "location", "id", "name", -1);
 		$form->renameElement("location", "Ort");
@@ -75,7 +81,15 @@ class ProbenView extends CrudRefView {
 		$hour = $_POST["begin_hour"];
 		if($hour < 10) $hour = "0" . $hour;
 		$_POST["begin"] = $_POST["begin"] . " " . $hour . ":" . $_POST["begin_minute"];
-		$_POST["end"] = Data::addMinutesToDate($_POST["begin"], $_POST["duration"]);
+		
+		if(!isset($_POST["end"])) {
+			$_POST["end"] = Data::addMinutesToDate($_POST["begin"], $_POST["duration"]);
+		}
+		else {
+			$endhour = $_POST["end_hour"];
+			if($endhour < 10) $endhour = "0" . $endhour;
+			$_POST["end"] = $_POST["end"] . " " . $endhour . ":" . $_POST["end_minute"];
+		}
 		
 		// validate
 		$this->getData()->validate($_POST);
@@ -166,7 +180,25 @@ class ProbenView extends CrudRefView {
 		// put output together
 		$out = "<p class=\"rehearsal_title\">$weekday, $when</p>";
 		$out .= "<p class=\"rehearsal_details\">" . $row["name"];
-		$out .= " (" . $row["street"] . ", " . $row["zip"] . " " . $row["city"] .  ")</p>";
+		
+		$out .= " (";
+		if($row["street"] == "" && $row["zip"] == "") {
+			$out .= $row["city"];
+		}
+		else if ($row["street"] == "") {
+			$out .= $row["zip"] . " " . $row["city"];
+		}
+		else if($row["city"] == "" && $row["zip"] == "") {
+			$out .= $row["street"];
+		}
+		else if($row["city"] == "") {
+			$out .= $row["zip"] . " - " . $row["street"];
+		}
+		else {		
+			$out .= $row["street"] . ", " . $row["zip"] . " " . $row["city"];
+		}
+		$out .= ")</p>";
+		
 		$out .= "<pre class=\"rehearsal\">" . $row["notes"] . "</pre>\n";
 		
 		echo "<a class=\"rehearsal\" href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">";
@@ -288,24 +320,32 @@ class ProbenView extends CrudRefView {
 		// participants table
 		$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
 		Writing::h2("Probe am $pdate Uhr");
-		$table = new Table($this->getData()->getParticipants($_GET["id"]));
-		$table->renameHeader("participate", "Nimmt teil");
-		$table->renameHeader("reason", "Grund");
-		$table->write();
-		$this->verticalSpace();
-				
-		// statistics
+		
 		Writing::h3("Instrumente");
 		$dv = new Dataview();
 		$dv->autoAddElements($this->getData()->getAttendingInstruments($_GET["id"]));
 		$dv->write();
-		$this->verticalSpace();
+		
+		Writing::h3("Teilnahme");
+		$table = new Table($this->getData()->getParticipants($_GET["id"]));
+		$table->removeColumn("id");
+		$table->renameHeader("participate", "Nimmt teil");
+		$table->renameHeader("reason", "Grund");
+		$table->write();
+		echo "<br/>\n";
+		
+		// remaining calls
+		Writing::h3("Ausstehende Zu-/Absagen");
+		$openTab = new Table($this->getData()->getOpenParticipation($_GET["id"]));
+		$openTab->removeColumn("id");
+		$openTab->renameHeader("mobile", "Handy");
+		$openTab->write();
+		echo "<br/>\n";
 		
 		Writing::h3("Zusammenfassung");
 		$dv = new Dataview();
 		$dv->autoAddElements($this->getData()->getParticipantStats($_GET["id"]));
 		$dv->write();
-		$this->verticalSpace();
 		
 		// back button
 		$this->backToViewButton($_GET["id"]);

@@ -2,6 +2,10 @@
 ## Release Notes
 ##
 
-Enhancement #: 
+Enhancement #74: Proben können einen Tag überdauern und die Probenlänge und das Probenende kann konfigurierbar angezeigt werden
+Enhancement #77: Vielleicht-Option bei Zu/Absage von Proben und Konzerten kann ausgeschaltet werden (Konfiguration)
+Enhancement #79: Ausstehende Zu/Absagen werden in Proben und Konzerten angezeigt
+Enhancement #81: Auf Startseite werden die Teilnehmer einer Probe wieder angezeigt
 
-Bugfix #:  
+Bugfix #72: Benutzer können ohne Kontakt angelegt werden
+Bugfix #73: Auf der Startseite wurden keine Stücke zum üben angezeigt bzw. ein Fehler 

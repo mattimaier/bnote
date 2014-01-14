@@ -255,6 +255,25 @@ class KonzerteData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
+	function getOpenParticipants($cid) {
+		// solve this problem programmatically - easier
+		$parts = $this->getParticipants($cid);
+		$contacts = $this->getConcertContacts($cid);
+		$result = array();
+		$result[0] = $contacts[0];
+		for($i = 1; $i < count($contacts); $i++) {
+			$contactParts = false;
+			for($j = 1; $j < count($parts); $j++) {
+				if($parts[$j]["id"] == $contacts[$i]["id"]) {
+					$contactParts = true;
+					break;
+				}
+			}
+			if(!$contactParts) array_push($result, $contacts[$i]);
+		}
+		return $result;
+	}
+	
 	private function isContactInConcert($concertId, $contactId) {
 		$ct = $this->database->getCell("concert_contact", "count(contact)", "concert = $concertId AND contact = $contactId");
 		return ($ct > 0);

@@ -61,7 +61,9 @@ abstract class CrudView extends AbstractView {
 	
 	public function add() {
 		// validate
-		$this->getData()->validate($_POST);
+		if(!isset($_GET["manualValid"]) || $_GET["manualValid"] != "true") {
+			$this->getData()->validate($_POST);
+		}
 		
 		// process
 		$this->getData()->create($_POST);

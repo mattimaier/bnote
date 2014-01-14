@@ -249,12 +249,15 @@ class KonzerteView extends CrudRefView {
 		$parts = $this->getData()->getParticipants($_GET["id"]);
 		
 		Writing::h2("Konzertteilnehmer");
-		
 		$table = new Table($parts);
 		$table->renameHeader("participate", "Nimmt teil");
 		$table->renameHeader("reason", "Grund");
 		$table->write();
 		$this->verticalSpace();
+		
+		Writing::h3("Ausstehende Zu-/Absagen");
+		$openTab = new Table($this->getData()->getOpenParticipants($_GET["id"]));
+		$openTab->write();
 		
 		$this->backToViewButton($_GET["id"]);
 	}

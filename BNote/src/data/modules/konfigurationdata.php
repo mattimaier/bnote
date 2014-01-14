@@ -32,7 +32,9 @@ class KonfigurationData extends AbstractData {
 				"rehearsal_duration" => array("Probendauer in min", FieldType::INTEGER),
 				"default_contact_group" => array("Standardgruppe", FieldType::REFERENCE),
 				"auto_activation" => array("Automatische Benutzeraktivierung", FieldType::BOOLEAN),
-				"share_nonadmin_viewmode" => array("Share-Lesemodus für Nicht-Administratoren", FieldType::BOOLEAN)
+				"share_nonadmin_viewmode" => array("Share-Lesemodus für Nicht-Administratoren", FieldType::BOOLEAN),
+				"rehearsal_show_length" => array("Probenl&auml;nge anzeigen", FieldType::BOOLEAN),
+				"allow_participation_maybe" => array("Vielleicht-Teilname zugelassen", FieldType::BOOLEAN)
 		);
 		
 		$this->parameterExclude = array(
@@ -96,6 +98,13 @@ class KonfigurationData extends AbstractData {
 		return $this->database->getRow($query);
 	}
 	
+	function createParameter($id, $defaultValue, $isActive) {
+		$active = $isActive ? "1" : "0";
+		$query = "INSERT INTO configuration (param, value, is_active) VALUES ";
+		$query .= "('$id', '$defaultValue', $active)";
+		$this->database->execute($query);
+	}
+	
 	function update($id, $values) {
 		$val = $values["value"];
 		
@@ -103,7 +112,7 @@ class KonfigurationData extends AbstractData {
 		if($this->getParameterType($id) == 96) {
 			$val = $values["value_hour"] . ":" . $values["value_minute"];
 		}
-		if($id == "auto_activation") {
+		else if($this->getParameterType($id) == FieldType::BOOLEAN) {
 			$val = (isset($_POST["value"])) ? "1" : "0";
 		}
 		

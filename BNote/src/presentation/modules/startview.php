@@ -104,6 +104,9 @@ class StartView extends AbstractView {
 			for($i = 1; $i < count($data); $i++) {
 				$liCaption = Data::convertDateFromDb($data[$i]["begin"]) . " Uhr";
 				$liCaption = Data::getWeekdayFromDbDate($data[$i]["begin"]) . ", " . $liCaption;
+				if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
+					$liCaption .= "<br/>bis " . Data::getWeekdayFromDbDate($data[$i]["end"]) . ", " . Data::convertDateFromDb($data[$i]["end"]) . " Uhr";
+				}
 				
 				// create details for each rehearsal
 				$dataview = new Dataview();
@@ -121,11 +124,15 @@ class StartView extends AbstractView {
 					$strSongs = "";
 					for($j = 1; $j < count($songs); $j++) {
 						if($j > 1) $strSongs .= ", ";
-						$songs .= $songs[$j]["name"];
-						if($songs[$j]["notes"] != "") $songs .= " (" . $songs[$j]["notes"] . ")";
+						$strSongs .= $songs[$j]["title"];
+						if($songs[$j]["notes"] != "") $strSongs .= " (" . $songs[$j]["notes"] . ")";
 					}
 					$dataview->addElement("Stücke zum üben", $strSongs);
 				}
+				
+				// add button to show participants
+				$participantsButton = new Link($this->modePrefix() . "rehearsalParticipants&id=" . $data[$i]["id"], "Teilnehmer anzeigen");
+				$dataview->addElement("Teilnehmer", $participantsButton->toString());
 				
 				// show three buttons to participate/maybe/not in rehearsal
 				$partButtonSpace = "<br/><br/>";
@@ -136,9 +143,11 @@ class StartView extends AbstractView {
 				$partBtn->addIcon("checkmark");
 				$partButtons .= $partBtn->toString() . $partButtonSpace;
 				
-				$mayBtn = new Link($partLinkPrefix . "maybe", "Ich nehme vielleicht teil.");
-				$mayBtn->addIcon("yield");
-				$partButtons .= $mayBtn->toString() . $partButtonSpace;
+				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") != 0) {
+					$mayBtn = new Link($partLinkPrefix . "maybe", "Ich nehme vielleicht teil.");
+					$mayBtn->addIcon("yield");
+					$partButtons .= $mayBtn->toString() . $partButtonSpace;
+				}
 				
 				$noBtn = new Link($partLinkPrefix . "no", "Ich kann leider nicht.");
 				$noBtn->addIcon("remove");
@@ -210,9 +219,11 @@ class StartView extends AbstractView {
 				$partBtn->addIcon("checkmark");
 				$partButtons .= $partBtn->toString() . $partButtonSpace;
 				
-				$mayBtn = new Link($partLinkPrefix . "maybe", "Ich werde vielleicht mitspielen.");
-				$mayBtn->addIcon("yield");
-				$partButtons .= $mayBtn->toString() . $partButtonSpace;
+				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") != 0) {
+					$mayBtn = new Link($partLinkPrefix . "maybe", "Ich werde vielleicht mitspielen.");
+					$mayBtn->addIcon("yield");
+					$partButtons .= $mayBtn->toString() . $partButtonSpace;
+				}
 				
 				$noBtn = new Link($partLinkPrefix . "no", "Ich kann nicht mitspielen.");
 				$noBtn->addIcon("remove");
@@ -391,6 +402,19 @@ class StartView extends AbstractView {
 		$table->write();
 		
 		$this->verticalSpace();
+		$this->backToStart();
+	}
+	
+	public function rehearsalParticipants() {
+		$rehearsal = $this->getData()->getRehearsal($_GET["id"]);
+		Writing::h2("Teilnehmer der Probe am " . Data::convertDateFromDb($rehearsal["begin"])) . " Uhr";
+		
+		$parts = $this->getData()->getRehearsalParticipants($_GET["id"]);
+		$table = new Table($parts);
+		$table->renameHeader("name", "Vorname");
+		$table->renameHeader("surname", "Nachname");
+		$table->write();
+		
 		$this->backToStart();
 	}
 }
