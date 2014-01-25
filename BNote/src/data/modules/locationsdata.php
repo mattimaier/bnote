@@ -9,7 +9,7 @@ class LocationsData extends AbstractData {
 	/**
 	 * Build data provider.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("ID", FieldType::INTEGER),
 			"name" => array("Name", FieldType::CHAR),
@@ -22,7 +22,7 @@ class LocationsData extends AbstractData {
 		);
 		
 		$this->table = "location";
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	function create($values) {

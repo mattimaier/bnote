@@ -7,7 +7,7 @@
  */
 class MitspielerData extends AbstractData {
 	
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 				"id" => array("ID", FieldType::INTEGER),
 				"surname" => array("Name", FieldType::CHAR),
@@ -22,7 +22,7 @@ class MitspielerData extends AbstractData {
 				"status" => array("Status", FieldType::ENUM)
 		);
 		
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	/**

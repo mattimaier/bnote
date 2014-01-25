@@ -10,8 +10,6 @@
 $dir_prefix = "../../";
 include $dir_prefix . "dirs.php";
 include $dir_prefix . $GLOBALS["DIR_DATA"] . "systemdata.php";
-// include $dir_prefix . $GLOBALS["DIR_DATA"] . "database.php";
-// include $dir_prefix . $GLOBALS["DIR_DATA"] . "regex.php";
 include $dir_prefix . $GLOBALS["DIR_DATA"] . "applicationdataprovider.php";
 
 $GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
@@ -26,6 +24,7 @@ require_once($GLOBALS["DIR_WIDGETS"] . "iwriteable.php");
 
 // SETUP
 $timezone = "Europe/Berlin"; // timezone in which the datetimes are specified
+$timezone_on = false; // set to true to turn the timezone setting on.
 
 // Build Database Connection
 $system_data = new Systemdata($dir_prefix);
@@ -37,6 +36,21 @@ require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php");
 require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "startdata.php");
 $startdata = new StartData($dir_prefix);
 $adp = $startdata->adp();
+
+/**
+ * define a function to write the timecodes correctly
+ * @param String $datetime Date Time String in Format: YYYY-MM-DD HH:ii:ss
+ * @return String in format YYYYMMDDTHHiissZ  
+ */
+function convertTime($datetime) {
+	$year = substr($datetime, 0, 4);
+	$month = substr($datetime, 5, 2);
+	$day = substr($datetime, 8, 2);
+	$hour = substr($datetime, 11, 2);
+	$min = substr($datetime, 14, 2);
+	
+	return $year . $month . $day . "T" . $hour . $min . "00Z";
+}
 
 // read system config
 $organizer = $system_data->getCompany();
@@ -52,13 +66,13 @@ else {
 
 // set content format
 header( "Content-type:text/calendar charset=utf-8" );
-echo "BEGIN:VCALENDAR\n";
-echo "VERSION:2.0\n";
+echo "BEGIN:VCALENDAR\r\n";
+echo "VERSION:2.0\r\n";
+echo "PRODID:" . $system_data->getSystemURL() . "\r\n";
 
 if($userid == null || $userid < 1) {
 	// get all rehearsals
-	$query = "SELECT rehearsal.id as id, DATE_FORMAT(begin, \"%Y%m%dT%H%i%s\") as begin,";
-	$query .= " DATE_FORMAT(end, \"%Y%m%dT%H%i%s\") as end, ";
+	$query = "SELECT rehearsal.id as id, begin, end, ";
 	$query .= " rehearsal.notes, name, street, city ";
 	$query .= " FROM rehearsal, location, address";
 	$query .= " WHERE location = location.id AND address = address.id";
@@ -71,15 +85,21 @@ else {
 
 // write them
 for($i = 1; $i < count($rehearsals); $i++) {
-	echo "BEGIN:VEVENT\n";
-	echo "SUMMARY:Probe $organizer\n";
-	echo "ORGANIZER:$organizer\n";
-	echo "DTSTART;TZID=$timezone:" . $rehearsals[$i]["begin"] . "\n";
-	echo "DTEND;TZID=$timezone:" . $rehearsals[$i]["end"] . "\n";
+	echo "BEGIN:VEVENT\r\n";
+	echo "SUMMARY:Probe $organizer\r\n";
+	echo "ORGANIZER:$organizer\r\n";
+	
+	if($timezone_on) {
+		echo "DTSTART;TZID=$timezone:" . convertTime($rehearsals[$i]["begin"]) . "\r\n";
+		echo "DTEND;TZID=$timezone:" . convertTime($rehearsals[$i]["end"]) . "\r\n";
+	} else {
+		echo "DTSTART:" . convertTime($rehearsals[$i]["begin"]) . "\r\n";
+		echo "DTEND:" . convertTime($rehearsals[$i]["end"]) . "\r\n";
+	}
 	
 	if($rehearsals[$i]["name"] != "") { 
 		echo "LOCATION:" . $rehearsals[$i]["name"] . " - " .
-			$rehearsals[$i]["street"] . ", " . $rehearsals[$i]["city"] . "\n";
+			$rehearsals[$i]["street"] . "\\, " . $rehearsals[$i]["city"] . "\r\n";
 	}
 	else if($rehearsal[$i]["location"] != "") {
 		// fetch rehearsal location
@@ -87,7 +107,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		$query .= "FROM location l JOIN address a ON l.address = a.id ";
 		$query .= "WHERE l.id = " . $rehearsal[$i]["location"];
 		$addy = $db->getRow($query);
-		echo "LOCATION:" . $addy["name"] . " - " . $addy["street"] . ", " . $addy["city"] . "\n";
+		echo "LOCATION:" . $addy["name"] . " - " . $addy["street"] . "\\, " . $addy["city"] . "\r\n";
 	}
 	
 	// get songs to practise
@@ -100,7 +120,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	// write songs to practise in notes
 	$notes = "Bitte folgende Stücke üben: ";
 	for($j = 1; $j < count($songs); $j++) {
-		$notes .= $songs[$j]["title"] . ", ";
+		$notes .= $songs[$j]["title"] . "\\, ";
 	}
 	if(count($songs) > 1) {
 		$notes = substr($notes, 0, strlen($notes)-2);
@@ -109,14 +129,13 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		$notes .= "keine";
 	}
 	
-	echo "COMMENT:$notes\n";
-	echo "END:VEVENT\n";
+	echo "COMMENT:$notes\r\n";
+	echo "END:VEVENT\r\n";
 }
 
 if($userid == null || $userid < 1) {
 	// get all concerts
-	$query = "SELECT DATE_FORMAT(begin, \"%Y%m%dT%H%i%s\") as begin,";
-	$query .= " DATE_FORMAT(end, \"%Y%m%dT%H%i%s\") as end, ";
+	$query = "SELECT begin, end, ";
 	$query .= " concert.notes, name, street, city ";
 	$query .= " FROM concert, location, address";
 	$query .= " WHERE location = location.id AND address = address.id";
@@ -129,24 +148,31 @@ else {
 
 // write them
 for($i = 1; $i < count($concerts); $i++) {
-	echo "BEGIN:VEVENT\n";
-	echo "SUMMARY:Konzert " . $concerts[$i]["name"] . "\n";
-	echo "ORGANIZER:$organizer\n";
-	echo "DTSTART;TZID=$timezone:" . $concerts[$i]["begin"] . "\n";
-	echo "DTEND;TZID=$timezone:" . $concerts[$i]["end"] . "\n";
+	echo "BEGIN:VEVENT\r\n";
+	echo "SUMMARY:Konzert " . $concerts[$i]["name"] . "\r\n";
+	echo "ORGANIZER:$organizer\r\n";
+	
+	if($timezone_on) {
+		echo "DTSTART;TZID=$timezone:" . convertTime($concerts[$i]["begin"]) . "\r\n";
+		echo "DTEND;TZID=$timezone:" . convertTime($concerts[$i]["end"]) . "\r\n";
+	} else {
+		echo "DTSTART:" . convertTime($concerts[$i]["begin"]) . "\r\n";
+		echo "DTEND:" . convertTime($concerts[$i]["end"]) . "\r\n";
+	}
+	
 	if($userid == null || $userid < 1) {
-		$location = $concerts[$i]["name"] . " (" .$concerts[$i]["street"] . ", ";
+		$location = $concerts[$i]["name"] . " (" .$concerts[$i]["street"] . "\\, ";
 		$location .= $concerts[$i]["city"] . ")";
 	}
 	else {
-		$location = $concerts[$i]["location_name"] . " (" . $concerts[$i]["location_street"] . ", ";
+		$location = $concerts[$i]["location_name"] . " (" . $concerts[$i]["location_street"] . "\\, ";
 		$location .= $concerts[$i]["location_city"] . ")";
 	}
-	echo "LOCATION:" . $location . "\n";
-	echo "COMMENT:" . $concerts[$i]["notes"] . "\n";
-	echo "END:VEVENT\n";
+	echo "LOCATION:" . $location . "\r\n";
+	echo "COMMENT:" . $concerts[$i]["notes"] . "\r\n";
+	echo "END:VEVENT\r\n";
 }
 
 // finish
-echo "END:VCALENDAR\n";
+echo "END:VCALENDAR\r\n";
 ?>

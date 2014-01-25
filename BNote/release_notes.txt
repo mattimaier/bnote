@@ -2,6 +2,5 @@
 ## Release Notes
 ##
 
-Enhancement #: 
-
-Bugfix #: 
+Bugfix #56: BNote Interface Model Adaptation
+Bugfix #86: iCal Export Dateformat

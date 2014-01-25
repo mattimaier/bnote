@@ -35,6 +35,9 @@ interface iBNA {
 	public function getLocations();
 	
 	/**
+	 * <strong>Since version 2.4.3 this method is not implemented by default and does not
+	 * return any results. Please make sure to use other methods!</strong>
+	 * @deprecated Please use getLocations() and other methods to retrieve the addresses.
 	 * @return Returns all addresses.
 	 */
 	public function getAddresses();
@@ -80,6 +83,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "abstractdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "applicationdataprovider.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "startdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "mitspielerdata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "locationsdata.php";
 
 $GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
 require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
@@ -215,37 +219,12 @@ abstract class AbstractBNA implements iBNA {
 	 */
 	protected abstract function printEntities($entities, $nodeName);
 	
-	/**
-	 * Writes entities to output.
-	 * @param String $singular Name of the entity to write,
-	 * 						   e.g. "location" (matches table name)
-	 */
-	protected function prepareEntities($singular) {
-		$query = "SELECT * FROM $singular";
-		if($singular == "rehearsal") {
-			$query .= " WHERE end > now() ORDER BY begin ASC";
-		}
-		else if($singular == "concert") {
-			$query .= " WHERE end > now() ORDER BY begin ASC";
-		}
-		else if($singular == "contact") {
-			$query .= " ORDER BY surname, name";
-		}
-		
-		$entities = $this->db->getSelection($query);
-		$this->printEntities($entities, $singular);
-	}
+	
+	/* DEFAULT IMPLEMENTATIONS */
 	
 	function getRehearsals() {
-		if($this->sysdata->isUserSuperUser($this->uid)
-				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
-			$this->prepareEntities("rehearsal");
-		}
-		else {
-			// only get rehearsals for user considering phases and groups
-			$rehs = $this->startdata->getUsersRehearsals($this->uid);
-			$this->printEntities($rehs, "rehearsal");
-		}
+		$entities = $this->startdata->getUsersRehearsals($this->uid);
+		$this->printEntities($entities, "rehearsal");
 	}
 	
 	function getRehearsalsWithParticipation($user) {
@@ -282,37 +261,26 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	function getConcerts() {
-		if($this->sysdata->isUserSuperUser($this->uid)
-				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
-			$this->prepareEntities("concert");
-		}
-		else {
-			// only get concerts for user considering phases and groups
-			$concerts = $this->startdata->getUsersConcerts($this->uid);
-			$this->printEntities($concerts, "concert");
-		}
+		$concerts = $this->startdata->getUsersConcerts($this->uid);
+		$this->printEntities($concerts, "concert");
 	}
 	
 	function getContacts() {
-		// let superusers and admins see all contacts
-		if($this->sysdata->isUserSuperUser($this->uid)
-				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
-			$this->prepareEntities("contact");
-		}
-		else {
-			// only get contacts for user considering phases and groups
-			$msd = new MitspielerData();
-			$contacts = $msd->getMembers($this->uid);
-			$this->printEntities($contacts, "contact");
-		}
+		$msd = new MitspielerData($GLOBALS["dir_prefix"]);
+		$contacts = $msd->getMembers($this->uid);
+		$this->printEntities($contacts, "contact");
 	}
 	
 	function getLocations() {
-		$this->prepareEntities("location");
+		$locData = new LocationsData($GLOBALS["dir_prefix"]);
+		$locs = $locData->findAllJoined(array(
+			"address" => array("street", "city", "zip")
+		));
+		$this->printEntities($locs, "location");
 	}
-	
+
 	function getAddresses() {
-		$this->prepareEntities("address");
+		// this method should not be used anymore starting from version 2.4.3
 	}
 	
 	function getAll() {
