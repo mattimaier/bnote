@@ -15,6 +15,8 @@ class RepertoireData extends AbstractData {
 			"title" => array("Titel", FieldType::CHAR),
 			"length" => array("L&auml;nge", FieldType::CHAR), // not TIME, because of second precision
 			"genre" => array("Genre", FieldType::REFERENCE),
+			"bpm" => array("Beats per Minute (bpm)", FieldType::INTEGER),
+			"music_key" => array("Tonart", FieldType::CHAR),
 			"composer" => array("Komponist / Arrangeur", FieldType::CHAR),
 			"status" => array("Status", FieldType::REFERENCE),
 			"notes" => array("Anmerkungen", FieldType::TEXT)
@@ -29,6 +31,14 @@ class RepertoireData extends AbstractData {
 		$this->table = "song";
 		
 		$this->init();
+	}
+	
+	public static function getJoinedAttributes() {
+		return array(
+			"genre" => array("name"),
+			"composer" => array("name"),
+			"status" => array("name")
+		);
 	}
 	
 	/**
@@ -143,6 +153,112 @@ class RepertoireData extends AbstractData {
 		$str = str_replace("<", "", $str); // no HTML injection
 		$str = str_replace(">", "", $str);
 		return $str;
+	}
+	
+	function getSolists($songId) {
+		$distict = "";
+		if(songId < 1) $distinct = " DISTINCT";
+		$query = "SELECT$distinct c.id, c.surname, c.name, i.name as instrument ";
+		$query .= "FROM song_solist s JOIN contact c ON s.contact = c.id ";
+		$query .= "JOIN instrument i ON c.instrument = i.id ";
+		if($songId > 0) {
+			$query .= "WHERE s.song = $songId ";
+		}
+		$query .= "ORDER BY c.surname, c.name ";
+		return $this->database->getSelection($query);
+	}
+	
+	function addSolist($songId) {
+		$solistIds = GroupSelector::getPostSelection($this->adp()->getContacts(), "solists");
+		
+		$query = "INSERT INTO song_solist VALUES ";
+		foreach($solistIds as $i => $solistId) {
+			if($i > 0) $query .= ",";
+			$query .= "($songId, $solistId, \"\")";
+		}
+		
+		$this->database->execute($query);
+	}
+	
+	function deleteSolist($songId, $solistId) {
+		$query = "DELETE FROM song_solist WHERE song = $songId AND contact = $solistId";
+		$this->database->execute($query);
+	}
+	
+	function getGenres() {
+		$query = "SELECT * FROM genre ORDER BY name";
+		return $this->database->getSelection($query);
+	}
+	
+	function getAllSolists() {
+		return $this->getSolists(-1);
+	}
+	
+	function getStatuses() {
+		$query = "SELECT * FROM status ORDER BY id";
+		return $this->database->getSelection($query);
+	}
+	
+	function getComposers() {
+		$query = "SELECT DISTINCT * FROM composer ORDER BY name";
+		return $this->database->getSelection($query);
+	}
+	
+	function getFilteredRepertoire($filters) {
+		$query = "SELECT DISTINCT s.id, s.title, s.length, s.bpm, s.music_key, s.notes, g.name as genre, c.name as composer, stat.name as status ";
+		$query .= "FROM song s JOIN composer c ON s.composer = c.id ";
+		$query .= "JOIN genre g ON s.genre = g.id ";
+		$query .= "JOIN status stat ON s.status = stat.id ";
+		$query .= "LEFT OUTER JOIN song_solist sol ON sol.song = s.id ";
+		$query .= "WHERE ";
+		
+		// remove empty values from filters
+		$cleanFilters = array();
+		foreach($filters as $field => $value) {
+			if($value != "") {
+				if($field == "composer") {
+					$value = $this->database->getCell("composer", "name", "id = $value");
+				}
+				$cleanFilters[$field] = $value;
+			}
+		}
+		
+		// return standard if not filters are set
+		if(count($cleanFilters) == 0) {
+			return $this->findAllJoined(RepertoireData::getJoinedAttributes(), "length >= 0 ORDER BY title");
+		}
+		
+		// build filter query
+		$where = "";
+		foreach($cleanFilters as $field => $value) {
+			if($where != "") {
+				$where .= " AND ";
+			}
+			$type = $this->getTypeOfField($field);
+			
+			if($field == "solist") {
+				$where .= "sol.contact = $value";
+			}
+			else if($field == "music_key") {
+				$where .= $field . " LIKE \"%$value%\"";
+			}
+			else if($field == "composer") {
+				// get name of composer and filter for that
+				$where .= "c.name LIKE \"%$value%\"";
+			}
+			else if($type == FieldType::INTEGER
+					|| $type == FieldType::BOOLEAN
+					|| $type == FieldType::DECIMAL
+					|| $type == FieldType::REFERENCE) {
+				$where .= $field . " = " . $value;
+			}
+			else {
+				$where .= $field . " = \"" . $value . "\"";
+			}
+		}
+		
+		$query .= "$where ORDER BY title";
+		return $this->database->getSelection($query);
 	}
 }
 

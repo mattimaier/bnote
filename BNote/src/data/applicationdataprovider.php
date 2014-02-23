@@ -362,6 +362,9 @@ class ApplicationDataProvider {
 			}
 		}
 		
+		// order contacts
+		$query .= " ORDER BY c2.name, c2.surname";
+		
 		return $this->database->getSelection($query);
 	}
 	
@@ -375,7 +378,8 @@ class ApplicationDataProvider {
 		$query .= "LEFT JOIN instrument i ";
 		$query .= "ON c2.instrument = i.id ";
 		$query .= "JOIN contact_group cg ON c2.id = cg.contact ";
-		$query .= "WHERE cg.group = $groupId";
+		$query .= "WHERE cg.group = $groupId ";
+		$query .= "ORDER BY c2.name, c2.surname";
 		return $this->database->getSelection($query);
 	}
 	

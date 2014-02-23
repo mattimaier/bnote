@@ -32,8 +32,8 @@ class GroupSelector implements iWriteable {
 	private $remove;
 	
 	/**
-	 * The name of the column which is shown as caption.
-	 * @var string
+	 * The name of the column which is shown as option caption.
+	 * @var Array
 	 */
 	private $nameColumn;
 	
@@ -54,15 +54,28 @@ class GroupSelector implements iWriteable {
 		$this->selectedGroups = $selectedGroups;
 		$this->fieldName = $fieldName;
 		$this->remove = array();
-		$this->nameColumn = "name";
+		$this->nameColumn = array("name");
 	}
 	
 	function removeGroup($groupId) {
 		array_push($remove, $groupId);
 	}
 	
+	/**
+	 * Set a single name column.
+	 * @param String $nameCol
+	 */
 	function setNameColumn($nameCol) {
-		$this->nameColumn = $nameCol;
+		$this->nameColumn = array($nameCol);
+	}
+	
+	/**
+	 * Set multiple name columns.
+	 * They will be concatenated by space.
+	 * @param Array $nameCols
+	 */
+	function setNameColumns($nameCols) {
+		$this->nameColumn = $nameCols;
 	}
 	
 	function setCaptionType($captionType) {
@@ -77,7 +90,11 @@ class GroupSelector implements iWriteable {
 			if(in_array($groupId, $this->remove)) continue;
 			
 			// format caption
-			$groupName = $this->groups[$i][$this->nameColumn];
+			$groupName = "";
+			for($j = 0; $j < count($this->nameColumn); $j++) {
+				if($j > 0) $groupName .= " ";
+				$groupName .= $this->groups[$i][$this->nameColumn[$j]];
+			}
 			switch($this->captionType) {
 				case FieldType::BOOLEAN: $groupName = ($groupName == "1") ? "ja" : "nein"; break;
 				case FieldType::DATE: $groupName = Data::convertDateFromDb($groupName); break;

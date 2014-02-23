@@ -21,6 +21,7 @@ class FieldType {
 	const ENUM = 11;
 	const FILE = 12;
 	const LOGIN = 13;
+	const SET = 14;
 	
 	const TEXT = 0;
 	
@@ -43,6 +44,7 @@ class FieldType {
 			case 11: return "ENUM";
 			case 12: return "FILE";
 			case 13: return "LOGIN";
+			case 14: return "SET";
 			default: return "TEXT";
 		}
 	}

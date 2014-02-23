@@ -10,7 +10,7 @@ session_start();
 $widgets = array(
 	"iwriteable", "box", "dropdown", "dataview", "error", "field",
 	"form", "link", "message", "table", "writing", "textwriteable",
-	"htmleditor", "imagetable", "filebrowser", "groupselector"
+	"htmleditor", "imagetable", "filebrowser", "groupselector", "filterbox"
 );
 
 foreach($widgets as $id => $file) {

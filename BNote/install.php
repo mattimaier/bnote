@@ -455,6 +455,8 @@ class Installation {
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					`title` varchar(60) NOT NULL,
 					`length` time DEFAULT NULL,
+					`bpm` int(3),
+					`music_key` varchar(40), 
 					`notes` text,
 					`genre` int(10) unsigned NOT NULL,
 					`composer` int(10) unsigned NOT NULL,
@@ -462,6 +464,15 @@ class Installation {
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `song_solist` (
+					`song` int(11) NOT NULL,
+					`contact` int(11) NOT NULL,
+					`notes` varchar(200) DEFAULT NULL,
+					PRIMARY KEY (`rehearsal`,`contact`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+			);
+			
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `status` (
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
