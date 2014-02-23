@@ -35,7 +35,7 @@ class RepertoireView extends CrudRefView {
 		});	
 		</script>
 		<?php
-		$form = new Form("Song hinzuf&uuml;gen", $this->modePrefix() . "add");
+		$form = new Form("Song hinzuf&uuml;gen", $this->modePrefix() . "add&manualValid=true");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		
 		$form->removeElement("id");
@@ -54,7 +54,7 @@ class RepertoireView extends CrudRefView {
 	}
 	
 	protected function showAllTable() {
-		$data = $this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "length > 0 ORDER BY title");
+		$data = $this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "length >= 0 ORDER BY title");
 		$table = new Table($data);
 		$table->setEdit("id");
 		$table->renameAndAlign($this->getData()->getFields());
@@ -81,7 +81,7 @@ class RepertoireView extends CrudRefView {
 	protected function editEntityForm() {
 		$song = $this->getData()->findByIdNoRef($_GET["id"]);
 		
-		$form = new Form("Song bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
+		$form = new Form("Song bearbeiten", $this->modePrefix() . "edit_process&manualValid=true&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);
 		$form->removeElement("id");
 		$form->renameElement("length", "L&auml;nge in Stunden");

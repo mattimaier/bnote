@@ -50,8 +50,16 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function create($values) {
+		// validation
+		$this->regex->isSubject($values["composer"]);
+		
 		// modify length
+		if($values["length"] == "") $values["length"] = "00"; 
 		$values["length"] = "0:" . $values["length"];
+		
+		// convert title and composer
+		$values["composer"] = $this->modifyString($values["composer"]);
+		$values["title"] = $this->modifyString($values["title"]);
 		
 		/* look for composer, if there don't add him/her
 		 * -> use key, otherwise add and use key.
@@ -70,6 +78,10 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function update($id, $values) {
+		// convert title and composer
+		$values["composer"] = $this->modifyString($values["composer"]);
+		$values["title"] = $this->modifyString($values["title"]);
+		
 		$song = $this->findByIdNoRef($id);
 		// don't update composer if used by another song
 		if($this->isComposerUsedByAnotherSong($song["composer"])) {
@@ -123,6 +135,14 @@ class RepertoireData extends AbstractData {
 		else {
 			return $this->database->getCell("composer", "id", "name = \"" . $values["composer"] . "\"");
 		}
+	}
+	
+	private function modifyString($input) {
+		// just replace double quotes with single quotes and remove < and >
+		$str = str_replace("\"", "'", $input);
+		$str = str_replace("<", "", $str); // no HTML injection
+		$str = str_replace(">", "", $str);
+		return $str;
 	}
 }
 
