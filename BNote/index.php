@@ -1,6 +1,6 @@
 <?php
 /**
- * BNote - Band Management Software
+ * BNote - Ensemble Management Software
  * by Matti Maier Internet Solutions
  * 
  * This is the entry point to the software. However, the main application
@@ -9,11 +9,21 @@
  * in case a configuration is missing.
  */
 
-include "lib/mobiledetect/Mobile_Detect.php";
-$detect = new Mobile_Detect();
+/*
+ * As of version 2.5.0 the web app is disabled by default, because 
+ * native apps are planned for the future and the current web apps do not
+ * implement the interface properly.
+ */
+$enableWebApp = false;
+
+$detect = null;
+if($enableWebApp) {
+	include "lib/mobiledetect/Mobile_Detect.php";
+	$detect = new Mobile_Detect();
+}
 
 // Detect if the user is a mobile user -> forward to app/
-if($detect->isMobile() && file_exists("app")) {
+if($enableWebApp && $detect->isMobile() && file_exists("app")) {
 	header("location: app/");
 }
 // for all other users including tablet users, send him/her to application
