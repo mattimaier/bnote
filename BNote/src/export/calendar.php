@@ -24,7 +24,7 @@ require_once($GLOBALS["DIR_WIDGETS"] . "iwriteable.php");
 
 // SETUP
 $timezone = "Europe/Berlin"; // timezone in which the datetimes are specified
-$timezone_on = false; // set to true to turn the timezone setting on.
+$timezone_on = true; // set to true to turn the timezone setting on.
 
 // Build Database Connection
 $system_data = new Systemdata($dir_prefix);
@@ -69,6 +69,27 @@ header( "Content-type:text/calendar charset=utf-8" );
 echo "BEGIN:VCALENDAR\r\n";
 echo "VERSION:2.0\r\n";
 echo "PRODID:" . $system_data->getSystemURL() . "\r\n";
+
+// add timezone definition
+echo "BEGIN:VTIMEZONE\r\n";
+echo "TZID:Europe/Berlin\r\n";
+echo "TZURL:http://tzurl.org/zoneinfo-outlook/Europe/Berlin\r\n";
+echo "X-LIC-LOCATION:Europe/Berlin\r\n";
+echo "BEGIN:DAYLIGHT\r\n";
+echo "TZOFFSETFROM:+0100\r\n";
+echo "TZOFFSETTO:+0200\r\n";
+echo "TZNAME:CEST\r\n";
+echo "DTSTART:19700329T020000\r\n";
+echo "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU\r\n";
+echo "END:DAYLIGHT\r\n";
+echo "BEGIN:STANDARD\r\n";
+echo "TZOFFSETFROM:+0200\r\n";
+echo "TZOFFSETTO:+0100\r\n";
+echo "TZNAME:CET\r\n";
+echo "DTSTART:19701025T030000\r\n";
+echo "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\r\n";
+echo "END:STANDARD\r\n";
+echo "END:VTIMEZONE\r\n";
 
 if($userid == null || $userid < 1) {
 	// get all rehearsals
