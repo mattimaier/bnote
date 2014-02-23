@@ -20,6 +20,11 @@ class AufgabenView extends CrudRefView {
 	
 	protected function showAdditionStartButtons() {
 		$this->buttonSpace();
+		$grpTask = new Link($this->modePrefix() . "addGroupTask", "Gruppenaufgabe hinzufügen");
+		$grpTask->addIcon("add");
+		$grpTask->write();
+		
+		$this->buttonSpace();
 		if(isset($_GET["table"]) && $_GET["table"] == "completed") {
 			$showOpen = new Link($this->modePrefix() . "start&table=open", "Offene Aufgaben anzeigen");
 			$showOpen->addIcon("note");
@@ -59,16 +64,49 @@ class AufgabenView extends CrudRefView {
 		$table->write();
 	}
 	
-	protected function addEntityForm() {
-		// add entry form
-		$form = new Form($this->getEntityName() ." hinzuf&uuml;gen", $this->modePrefix() . "add");
+	private function getAddForm($mode = "add") {
+		$form = new Form($this->getEntityName() ." hinzuf&uuml;gen", $this->modePrefix() . $mode);
 		$form->addElement("Titel", new Field("title", "", FieldType::CHAR));
 		$form->addElement("Beschreibung", new Field("description", "", FieldType::TEXT));
 		$form->addElement("Fällig am", new Field("due_at", "", FieldType::DATETIME));
+		
+		return $form;
+	}
+	
+	protected function addEntityForm() {
+		$form = $this->getAddForm();
 		$form->addElement("Verantwortlicher", new Field("assigned_to", "", FieldType::REFERENCE));
 		$currContactId = $this->getData()->getUserContactId();
 		$form->setForeign("Verantwortlicher", "contact", "id", "CONCAT(name, ' ', surname)", $currContactId);
 		$form->write();
+	}
+	
+	function addGroupTask() {
+		$form = $this->getAddForm("process_addGroupTask");
+		$groups = $this->getData()->adp()->getGroups();
+		$selector = new GroupSelector($groups, array(), "group");
+		$form->addElement("Verantwortliche Gruppe(n)", $selector);
+		$form->write();
+		
+		$this->verticalSpace();
+		$this->backToStart();
+	}
+	
+	function process_addGroupTask() {
+		$groups = GroupSelector::getPostSelection($this->getData()->adp()->getGroups(), "group");
+		$values = $_POST;
+		$this->getData()->validate($values);
+		
+		foreach($groups as $i => $gid) {
+			$contacts = $this->getData()->adp()->getGroupContacts($gid);
+			for($j = 1; $j < count($contacts); $j++) {
+				$values["Verantwortlicher"] = $contacts[$j]["id"];
+				if($values["Verantwortlicher"] == "") continue;
+				$this->getData()->create($values);
+			}
+		}
+		new Message("Aufgabe hinzugefügt", "Die Aufgabe wurde allen Mitgliedern der ausgewählten Gruppen hinzugefügt.");
+		$this->backToStart();
 	}
 	
 	protected function viewDetailTable() {

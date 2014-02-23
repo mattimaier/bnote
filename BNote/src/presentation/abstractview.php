@@ -179,7 +179,10 @@ abstract class AbstractView {
 		return $this->controller;
 	}
 	
-	//** convenience methods **
+	/**
+	 * Returns the data component for this module.
+	 * @return AbstractData
+	 */	
 	protected function getData() {
 		return $this->controller->getData();
 	}
