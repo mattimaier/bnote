@@ -100,70 +100,72 @@ class Installation {
 		if(!$res) {
 			new Error("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
 		}
-		
-		// write config.xml, too.
+	}
+	
+	private function write_appConfig() {
+		// write config.xml if it does not exist already
 		if(!file_exists("config/config.xml")) {
 			$bnotePath = $_SERVER["SCRIPT_NAME"];
 			$bnotePath = str_replace("install.php", "", $bnotePath);
 			$system_url = $_SERVER["HTTP_ORIGIN"] . $bnotePath;
-			
+				
 			$fileContent = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>
-<Software Name=\"BNote\">
-
- <!-- ID of the Start module -->
- <StartModule>1</StartModule>
- 
- <!-- URL of the BNote system -->
- <URL>$system_url</URL>
- 
- <!-- E-mail-address of the administrator -->
- <Admin>" . $_POST["Mail"] . "</Admin>
- 
- <!-- Path to the manual file, i.e. PDF file -->
- <Manual>data/manual.pdf</Manual>
- 
- <!-- True when this is a demo system with deactived mailing function, otherwise false (default). -->
- <DemoMode>false</DemoMode>
- 
- <!-- The user IDs of all super users whos credentials will not be shown on the website.
-      This is a comma separated list without spaces.
-  -->
- <SuperUsers>1</SuperUsers>
- 
- <!-- Default Permissions for a new user. Comma separated list of user IDs without spaces. -->
- <DefaultPrivileges>9,10,12,13,14</DefaultPrivileges>
- 
- <!-- True when the gallery management is used
-      and should be displayed and functional, otherwise false. -->
- <UseGallery>True</UseGallery>
- 
- <!-- True when the infopage/news/additional pages management is used
-      and should be displayed and functional, otherwise false. -->
- <UseInfoPages>True</UseInfoPages>
- 
- <!-- The webpages available in the website module.
- 	  A page tag contains an attribute \"file\" specifying the filename without the html-extension
- 	  in the data/webpages folder and the body containing the displayed name of the page. -->
- <WebPages>
- 	<Page file=\"startseite\">Startseite</Page>
-	<Page file=\"news\">Nachrichten</Page>
- 	<Page file=\"infos\">Informationen</Page>
-	<Page file=\"band\">Die Band</Page>
- 	<Page file=\"geschichte\">Geschichte</Page>
-	<Page file=\"mitspieler\">Besetzung</Page>
-	<Page file=\"konzerte\">Konzerte</Page>
- 	<Page file=\"mediathek\">mediathek</Page>
- 	<Page file=\"galerie\">Galerie</Page>
- 	<Page file=\"videos\">Videos</Page>
- 	<Page file=\"samples\">Aufnahmen</Page>
-	<Page file=\"kontakt\">Kontakt</Page>
-	<Page file=\"impressum\">Impressum</Page>
- </WebPages>
-</Software>";
-			
+			<Software Name=\"BNote\">
+		
+			<!-- ID of the Start module -->
+			<StartModule>1</StartModule>
+		
+			<!-- URL of the BNote system -->
+			<URL>$system_url</URL>
+		
+			<!-- E-mail-address of the administrator -->
+			<Admin>" . $_POST["Mail"] . "</Admin>
+		
+			<!-- Path to the manual file, i.e. PDF file -->
+			<Manual>data/manual.pdf</Manual>
+		
+			<!-- True when this is a demo system with deactived mailing function, otherwise false (default). -->
+			<DemoMode>false</DemoMode>
+		
+			<!-- The user IDs of all super users whos credentials will not be shown on the website.
+			This is a comma separated list without spaces.
+			-->
+			<SuperUsers></SuperUsers>
+		
+			<!-- Default Permissions for a new user. Comma separated list of user IDs without spaces. -->
+			<DefaultPrivileges>9,10,12,13,14</DefaultPrivileges>
+		
+			<!-- True when the gallery management is used
+			and should be displayed and functional, otherwise false. -->
+			<UseGallery>True</UseGallery>
+		
+			<!-- True when the infopage/news/additional pages management is used
+			and should be displayed and functional, otherwise false. -->
+			<UseInfoPages>True</UseInfoPages>
+		
+			<!-- The webpages available in the website module.
+			A page tag contains an attribute \"file\" specifying the filename without the html-extension
+			in the data/webpages folder and the body containing the displayed name of the page. -->
+			<WebPages>
+			<Page file=\"startseite\">Startseite</Page>
+			<Page file=\"news\">Nachrichten</Page>
+			<Page file=\"infos\">Informationen</Page>
+			<Page file=\"band\">Die Band</Page>
+			<Page file=\"geschichte\">Geschichte</Page>
+			<Page file=\"mitspieler\">Besetzung</Page>
+			<Page file=\"konzerte\">Konzerte</Page>
+			<Page file=\"mediathek\">mediathek</Page>
+			<Page file=\"galerie\">Galerie</Page>
+			<Page file=\"videos\">Videos</Page>
+			<Page file=\"samples\">Aufnahmen</Page>
+			<Page file=\"kontakt\">Kontakt</Page>
+			<Page file=\"impressum\">Impressum</Page>
+			</WebPages>
+			</Software>";
+				
 			$res = file_put_contents("config/config.xml", $fileContent);
 			if(!$res) {
-				new Error("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
+			new Error("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
 			}
 		}
 	}
@@ -172,6 +174,10 @@ class Installation {
 	 * Step 3: Ask for database configuration if not present.
 	 */
 	function databaseConfig() {
+		// before getting to the database configuration, make sure to write the app config, if necessary
+		$this->write_appConfig();
+		
+		// continue with database configuration
 		Writing::h1("Datenbank Konfiguration");
 		
 		if(file_exists("config/database.xml")) {
