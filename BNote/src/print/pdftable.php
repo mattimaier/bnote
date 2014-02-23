@@ -100,7 +100,7 @@ class PDFTable {
 	
 	/**
 	 * Sets the Y coordinate at which the table breaks for a new page. 
-	 * @param Integer $threshold Y coordinate, for landscape by default 175.
+	 * @param Integer $threshold Y coordinate, for landscape by default 175, for portrait default 250.
 	 */
 	function setPageBreakThreshold($threshold) {
 		$this->pageBreakThreshold = $threshold;

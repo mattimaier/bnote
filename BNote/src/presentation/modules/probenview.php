@@ -235,6 +235,12 @@ class ProbenView extends CrudRefView {
 		$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Einladung hinzufügen");
 		$addContact->addIcon("add");
 		$addContact->write();
+		$this->buttonSpace();
+		
+		$printPartlist = new Link($this->modePrefix() . "printPartlist&id=" . $_GET["id"], "Teilnehmerliste drucken");
+		$printPartlist->addIcon("printer");
+		$printPartlist->write();
+		
 		
 		$contacts = $this->getData()->getRehearsalContacts($_GET["id"]);
 		
@@ -416,6 +422,21 @@ class ProbenView extends CrudRefView {
 		$this->getData()->removeSongForRehearsal($_GET["song"], $_GET["id"]);
 		unset($_GET["song"]);
 		$this->practise();
+	}
+	
+	function printPartlist() {
+		require_once($GLOBALS["DIR_PRINT"] . "partlist.php");
+		$contacts = $this->getData()->getRehearsalContacts($_GET["id"]);
+		$filename = $GLOBALS["DATA_PATHS"]["members"] . "partlist_rehearsal_" . $_GET["id"] . ".pdf";
+		new PartlistPDF($filename, $this->getData(), $contacts, $_GET["id"]);
+		
+		// show report
+		echo "<embed src=\"src/data/filehandler.php?mode=module&file=$filename\" width=\"90%\" height=\"700px\" />\n";
+		$this->verticalSpace();
+		
+		// back button
+		$this->backToStart();
+		$this->verticalSpace();
 	}
 }
 
