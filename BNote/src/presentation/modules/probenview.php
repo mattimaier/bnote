@@ -65,6 +65,7 @@ class ProbenView extends CrudRefView {
 		$form->addElement("location", new Field("location", "", FieldType::REFERENCE));
 		$form->setForeign("location", "location", "id", "name", -1);
 		$form->renameElement("location", "Ort");
+		$form->addElement("Zusagen bis", new Field("approve_until", "", FieldType::DATETIME));
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
@@ -89,6 +90,10 @@ class ProbenView extends CrudRefView {
 			$endhour = $_POST["end_hour"];
 			if($endhour < 10) $endhour = "0" . $endhour;
 			$_POST["end"] = $_POST["end"] . " " . $endhour . ":" . $_POST["end_minute"];
+		}
+		
+		if($_POST["approve_until"] == "") {
+			$_POST["approve_until"] = $_POST["begin"];
 		}
 		
 		// validate

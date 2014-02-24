@@ -314,6 +314,7 @@ class KonzerteView extends CrudRefView {
 		
 		$form->addElement("Beginn", new Field("begin", "", FieldType::DATETIME));
 		$form->addElement("Ende", new Field("end", "", FieldType::DATETIME));
+		$form->addElement("Zusagen bis", new Field("approve_until", "", FieldType::DATETIME));
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));		
 		
 		$this->addCollectedData($form);

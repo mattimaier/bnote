@@ -14,6 +14,7 @@ class ProbenData extends AbstractData {
 			"id" => array("Probennummer", FieldType::INTEGER),
 			"begin" => array("Beginn", FieldType::DATETIME),
 			"end" => array("Ende", FieldType::DATETIME),
+			"approve_until" => array("Zusagen bis", FieldType::DATETIME),
 			"location" => array("Ort", FieldType::REFERENCE),
 			"notes" => array("Notizen", FieldType::TEXT)
 		);
@@ -28,7 +29,7 @@ class ProbenData extends AbstractData {
 	}
 	
 	private function defaultQuery() {
-		$query = "SELECT r.id as id, begin, end, r.notes as notes, name, street, city, zip";
+		$query = "SELECT r.id as id, begin, end, approve_until, r.notes as notes, name, street, city, zip";
 		$query .= " FROM " . $this->table . " r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
 		return $query;
@@ -181,6 +182,7 @@ class ProbenData extends AbstractData {
 				$values = array(
 					"begin" => $beginDate,
 					"end" => $endDate,
+					"approve_until" => $beginDate,
 					"notes" => $_POST["notes"],
 					"location" => $_POST["Ort"]
 				);

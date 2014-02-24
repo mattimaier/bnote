@@ -217,6 +217,29 @@ abstract class Data {
 		return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 	}
 	
+	/**
+	 * Compares two dates.
+	 * <strong>Requires PHP >5.2.0</strong>
+	 * @param string $date1 Date in YYYY-MM-DD HH:ii:ss (Db-)format.
+	 * @param string $date2 Date in YYYY-MM-DD HH:ii:ss (Db-)format.
+	 * @return int 1=Date1 after Date2, 0=Date1 same as Date2, -1=Date1 before Date2
+	 */
+	public static function compareDates($date1, $date2) {
+		$ts1 = strtotime($date1);
+		$ts2 = strtotime($date2);
+		
+		if($ts1 < $ts2) return -1; // Date 1 before Date 2
+		else if($ts1 == $ts2) return 0; // Date 1 is same than Date 2
+		else return 1; // Date 1 after Date 2
+	}
+	
+	/**
+	 * @return Current date in YYYY-MM-DD HH:ii:ss (Db-)format.
+	 */
+	public static function getDateNow() {
+		return date('Y-m-d H:i:s');
+	}
+	
 	// END OF CLASS
  }
 

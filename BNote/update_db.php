@@ -185,6 +185,16 @@ $update->addTable("song_solist",
 */
 $update->createFolder("data/share/_temp");
 
+/*
+ * Task 4.1: Adapt rehearsal table
+*/
+$update->addColumnToTable("rehearsal", "approve_until", "datetime", "AFTER end");
+
+/*
+ * Task 4.2: Adapt concert table
+*/
+$update->addColumnToTable("concert", "approve_until", "datetime", "AFTER end");
+
 ?>
 <br/><br/>
 <b><i>COMPLETE.</i></b>

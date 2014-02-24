@@ -197,7 +197,7 @@ class ApplicationDataProvider {
 	 * @return All rehearsals joined with location and address.
 	 */
 	public function getAllRehearsals() {
-		$query = "SELECT r.id as id, begin, end, r.notes as notes, name, street, city, zip";
+		$query = "SELECT r.id as id, begin, end, approve_until, r.notes as notes, name, street, city, zip";
 		$query .= " FROM rehearsal r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
 		$query .= " AND begin > NOW() ORDER BY begin ASC";		
@@ -221,11 +221,11 @@ class ApplicationDataProvider {
 		
 		// add header
 		array_push($result, array(
-			"id", "begin", "end", "notes", // 0-3
-			"location_name", "location_notes", // 4-5
-			"location_street", "location_city", "location_zip", // 6-8
-			"contact_name", "contact_phone", "contact_email", "contact_web", // 9-12
-			"program_name", "program_notes" // 13-14
+			"id", "begin", "end", "approve_until", "notes", // 0-4
+			"location_name", "location_notes", // 5,6
+			"location_street", "location_city", "location_zip", // 7-9
+			"contact_name", "contact_phone", "contact_email", "contact_web", // 10-13
+			"program_name", "program_notes" // 14,15
 		));
 		
 		// get all future concerts
@@ -320,7 +320,8 @@ class ApplicationDataProvider {
 			array_push($result, array(
 				"id" => $concerts[$i]["id"],
 				"begin" => $concerts[$i]["begin"],
-				"end" => $concerts[$i]["end"], 
+				"end" => $concerts[$i]["end"],
+				"approve_until" => $concerts[$i]["approve_until"],
 				"notes" => $concerts[$i]["notes"],
 				"location_name" => $location["name"],
 				"location_notes" => $location["notes"],

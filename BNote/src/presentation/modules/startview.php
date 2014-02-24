@@ -155,7 +155,12 @@ class StartView extends AbstractView {
 				
 				$userParticipation = $this->getData()->doesParticipateInRehearsal($data[$i]["id"]);
 				if($userParticipation < 0) {
-					$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahme angeben");
+					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
+						$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahme angeben");
+					}
+					else {
+						$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahmefrist abgelaufen", "", true);
+					}
 				}
 				else {
 					$msg = "";
@@ -231,7 +236,12 @@ class StartView extends AbstractView {
 				
 				$userParticipation = $this->getData()->doesParticipateInConcert($data[$i]["id"]);
 				if($userParticipation < 0) {
-					$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahme angeben");
+					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
+						$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahme angeben");
+					}
+					else {
+						$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahmefrist abgelaufen", "", true);
+					}
 				}
 				else {
 					$msg = "";
@@ -297,17 +307,33 @@ class StartView extends AbstractView {
 		echo "</ul>\n";
 	}
 	
-	private function writeBoxListItem($popboxid, $liCaption, $dataview, $participation = "", $msg = "", $voteLink = "") {
+	/**
+	 * Writes one item to the start page.
+	 * @param string $popboxid ID of the popup window.
+	 * @param string $liCaption Caption of the Item (writing in blue).
+	 * @param string $dataview Content of the popup window.
+	 * @param string $participation optional: Buttons/content for the participation window.
+	 * @param string $msg optional: Participation message, e.g. "Teilnahme angeben" or "Abstimmen".
+	 * @param string $voteLink optional: Link to the voting-screen.
+	 * @param boolean $partOver optional: Whether the participation deadline (approve_until) is over, by default false.
+	 */
+	private function writeBoxListItem($popboxid, $liCaption, $dataview, $participation = "", $msg = "", $voteLink = "", $partOver = false) {
 		?>
 		<li>
 			<a href="#" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 400 }); });"><?php echo $liCaption; ?></a>
 			<?php
-			if($msg != "" && $participation != "") {
+			if($msg != "" && $participation != "" && !$partOver) {
 				?>
 				<br/>
 				<a href="#"
 				   class="participation"
 				   onClick="$(function() { $('#<?php echo $popboxid; ?>_participation').dialog({ width: 400 }); });"><?php echo $msg; ?></a>
+				<?php
+			}
+			else if($msg != "" && participation != "" && $partOver) {
+				?>
+				<br/>
+				<span><?php echo $msg; ?></span>
 				<?php
 			}
 			else if($msg != "" && $voteLink != "") {
