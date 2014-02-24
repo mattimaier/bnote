@@ -29,6 +29,14 @@ class Form implements iWriteable {
   $this->submitValue = "OK";
  }
 
+  /**
+   * Sets the form's header.
+   * @param String $title Title of the form.
+   */
+ function setTitle($title) {
+ 	$this->formname = $title;
+ }
+ 
  /**
   * Sets either POST or GET as method.
   * @param String $method Method attribute of form-tag.

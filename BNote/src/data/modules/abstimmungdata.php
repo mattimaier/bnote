@@ -174,6 +174,27 @@ class AbstimmungData extends AbstractData {
 		return $this->database->execute($query);
 	}
 	
+	function addOptions($vid, $from, $to) {
+		$options = array();
+		$current = Data::convertDateToDb($from);
+		$to = Data::convertDateToDb($to);
+		$infPrevention = 0; // max. 1 year, every day
+		while(Data::compareDates($current, $to) < 1 && $infPrevention < 365) {
+			if(strlen($current) <= 10) { // only date, no time
+				$current .= substr($from, 10);
+			}
+			array_push($options, $current);
+			$current = Data::addDaysToDate(substr(Data::convertDateFromDb($current), 0, 10), 1);
+			$current = Data::convertDateToDb($current);
+			$infPrevention++;
+		}
+		
+		foreach($options as $i => $option) {
+			$_POST["odate"] = Data::convertDateFromDb($option);
+			$this->addOption($vid);
+		}
+	}
+	
 	function deleteOption($oid) {
 		$query = "DELETE FROM vote_option WHERE id = $oid";
 		$this->database->execute($query);
@@ -289,16 +310,106 @@ class AbstimmungData extends AbstractData {
 	}
 	
 	function getResult($vid) {
-		$query = 'SELECT vo.id,
-       					 IF(v.is_date=1, vo.odate, vo.name) as `option`,
-       					 count(vo.id) as votes,
-       					 GROUP_CONCAT(CONCAT(c.name, \' \', c.surname, " (", i.name, ")" ) SEPARATOR \', \') as voters
-  					FROM vote v, vote_option vo, vote_option_user vou, user u, contact c, instrument i
- 				   WHERE v.id = vo.vote AND vou.vote_option = vo.id AND vou.user = u.id AND u.contact = c.id AND c.instrument = i.id
- 				     AND vote = ' . $vid . '
- 				GROUP BY vo.id
-		        ORDER BY vo.id ASC';
-		return $this->database->getSelection($query); 
+		$vote = $this->findByIdNoRef($vid);
+		$maybeOn = ($this->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == 1);
+		
+		if($vote["is_date"] == 1 && $vote["is_multi"] == 1 && $maybeOn) {
+			/* 
+			 * compile result for date-multi-maybe votes
+			 * 
+			 * target table look:
+			 * OPTION  STIMMEN        WÄHLER
+			 * =================================================
+			 * <Date>  Ja: 4		  Hans, Hektor, Oskar, Heidi
+			 *         Nein: 2        Josef, Viktor
+			 *         Vielleicht: 1  Marta
+			 * -------------------------------------------------
+			 */
+			$result = array();
+			
+			$options = $this->getOptions($vid);			
+			foreach($options as $i => $row) {
+				if($i == 0) {
+					// header
+					array_push($result, array(
+						"id", "Option", "votes", "voters"
+					));
+				}
+				else {
+					// body of result table
+					$optionId = $row["id"];
+					$name = substr(Data::getWeekdayFromDbDate($row["odate"]), 0, 2) . ", ";
+					$name .= Data::convertDateFromDb($row["odate"]) . " Uhr";
+					
+					$choiceY = $this->getOptionVotes($optionId, 1);
+					$yes = $choiceY["count"];
+					$yesNames = $choiceY["names"];
+					
+					$choiceN = $this->getOptionVotes($optionId, 0);
+					$no = $choiceN["count"];
+					$noNames = $choiceN["names"];
+					
+					$choiceM = $this->getOptionVotes($optionId, 2);
+					$may = $choiceM["count"];
+					$mayNames = $choiceM["names"];
+					
+					if($yes == 0 && $no == 0 && $may == 0) {
+						$name = "<span style=\"font-style: italic;\">$name</span>";
+						$votesOut = "-";
+						$votersOut = "-";
+					}
+					else {
+						$name = "<span style=\"font-weight: bold;\">$name</span>";
+						$votesOut = "$yes Ja<br/>$no Nein</br>$may Vielleicht";
+						$votersOut = "$yesNames<br/>$noNames<br/>$mayNames";
+					}
+					
+					$resRow = array(
+						"id" => $optionId,
+						"Option" => $name,
+						"votes" => $votesOut,
+						"voters" => $votersOut
+					);
+					array_push($result, $resRow);
+				}
+			}
+			
+			return $result;
+		}
+		else {
+			// result for all types of votes, but date-multi-maybe votes
+			$query = 'SELECT vo.id,
+	       					 IF(v.is_date=1, vo.odate, vo.name) as `option`,
+	       					 count(vo.id) as votes,
+	       					 GROUP_CONCAT(CONCAT(c.name, \' \', c.surname, " (", i.name, ")" ) SEPARATOR \', \') as voters
+	  					FROM vote v, vote_option vo, vote_option_user vou, user u, contact c, instrument i
+	 				   WHERE v.id = vo.vote AND vou.vote_option = vo.id AND vou.user = u.id AND u.contact = c.id AND c.instrument = i.id
+	 				     AND vote = ' . $vid . ' AND vou.choice > 0
+	 				GROUP BY vo.id
+			        ORDER BY vo.id ASC';
+			return $this->database->getSelection($query);
+		}
+	}
+	
+	private function getOptionVotes($optionId, $choice) {
+		$result = array( "count" => 0, "names" => "" );
+		
+		$query = 'SELECT CONCAT(c.name, \' \', c.surname, " (", i.name, ")" ) as voter ';
+		$query .= 'FROM vote_option_user vou JOIN user u ON vou.user = u.id ';
+		$query .= '     JOIN contact c ON u.contact = c.id ';
+		$query .= '     JOIN instrument i ON c.instrument = i.id ';
+		$query .= 'WHERE vou.vote_option = ' . $optionId . ' AND vou.choice = ' . $choice . ' ';
+		$query .= 'ORDER BY voter';
+		
+		$voters = $this->database->getSelection($query);
+		foreach($voters as $i => $voter) {
+			if($i == 0) continue;
+			if($result["names"] != "") $result["names"] .= ", ";
+			$result["names"] .= $voter["voter"];
+			$result["count"]++;
+		}
+		
+		return $result;
 	}
 }
 

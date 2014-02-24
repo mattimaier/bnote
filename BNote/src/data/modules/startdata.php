@@ -189,23 +189,34 @@ class StartData extends AbstractData {
 		
 		if($vote["is_multi"] == 1) {
 			// mutiple options choosable
-			$query = "INSERT INTO vote_option_user (vote_option, user) VALUES ";
+			$maybeOn = ($this->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == 1);
+			$query = "INSERT INTO vote_option_user (vote_option, user, choice) VALUES ";
 			$c = 0;
-			foreach($values as $optionId => $isOn) {
+			foreach($values as $optionId => $choice) {
 				if($c > 0) $query .= ",";
-				$query .= "($optionId, $user)";
+				if($maybeOn) {
+					$query .= "($optionId, $user, $choice)";
+				}
+				else {
+					$query .= "($optionId, $user, 1)";
+				}
 				$c++;
 			}
  			$this->database->execute($query);
 		}
 		else {
 			// single option only
-			$query = "INSERT INTO vote_option_user (vote_option, user) VALUES ";
-			$query .= "(" . $values["uservote"] . ", $user)";
+			$query = "INSERT INTO vote_option_user (vote_option, user, choice) VALUES ";
+			$query .= "(" . $values["uservote"] . ", $user, 1)";
 			$this->database->execute($query);
 		}
 	}
 	
+	/**
+	 * @deprecated According to a file-search this method is never used!
+	 * @param int $vid Vote ID.
+	 * @return boolean True when the user has already voted, otherwise false.
+	 */
 	function hasUserVoted($vid) {
 		$options = $this->getOptionsForVote($vid);
 		if(count($options) == 1) {

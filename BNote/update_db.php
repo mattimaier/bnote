@@ -182,18 +182,23 @@ $update->addTable("song_solist",
 
 /*
  * Task 3: Add temporary zip configuration
-*/
+ */
 $update->createFolder("data/share/_temp");
 
 /*
  * Task 4.1: Adapt rehearsal table
-*/
+ */
 $update->addColumnToTable("rehearsal", "approve_until", "datetime", "AFTER end");
 
 /*
  * Task 4.2: Adapt concert table
-*/
+ */
 $update->addColumnToTable("concert", "approve_until", "datetime", "AFTER end");
+
+/*
+ * Task 5: Adapt vote_option_user table
+*/
+$update->addColumnToTable("vote_option_user", "choice", "int(1) DEFAULT 1");
 
 ?>
 <br/><br/>

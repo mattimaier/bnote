@@ -369,13 +369,24 @@ class StartView extends AbstractView {
 			$dv = new Dataview();
 			for($i = 1 ; $i < count($options); $i++) {
 				if($vote["is_date"] == 1) {
-					$label = Data::convertDateFromDb($options[$i]["odate"]);
+					$label = substr(Data::getWeekdayFromDbDate($options[$i]["odate"]), 0, 2) . ", ";
+					$label .= Data::convertDateFromDb($options[$i]["odate"]) . " Uhr";
 				}
 				else {
 					$label = $options[$i]["name"];
 				}
+				
 				$in = '<input type="';
-				if($vote["is_multi"] == 1) {
+				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == "1"
+						&& $vote["is_multi"] == 1) {
+					$dd = new Dropdown($options[$i]["id"]);
+					$dd->addOption("Geht nicht", 0);
+					$dd->addOption("Geht", 1);
+					$dd->addOption("Vielleicht", 2);
+					$dd->setSelected(1);					
+					$in = $dd->write();
+				}
+				else if($vote["is_multi"] == 1) {
 					$in .= "checkbox";
 					$in .= '" name="' . $options[$i]["id"] . '" />';
 				}
@@ -386,8 +397,9 @@ class StartView extends AbstractView {
 				
 				$dv->addElement($label, $in);
 			}
-			$dv->addElement('<input type="submit" value="abstimmen" />', "&nbsp;");
+// 			$dv->addElement('', "&nbsp;");
 			$dv->write();
+			echo '<input type="submit" value="abstimmen" />' . "\n";
 		}
 		else {
 			Writing::p("Es wurden noch keine Optionen angegeben. Schau später noch einmal nach.");

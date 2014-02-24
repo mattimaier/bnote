@@ -538,6 +538,7 @@ class Installation {
 					"CREATE TABLE IF NOT EXISTS `vote_option_user` (
 					`vote_option` int(11) NOT NULL,
 					`user` int(11) NOT NULL,
+					`choice` int(1) DEFAULT 1,
 					PRIMARY KEY (`vote_option`,`user`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
 

@@ -118,6 +118,9 @@ class AbstimmungView extends CrudView {
 		if(isset($_POST["name"]) || isset($_POST["odate"])) {
 			$this->getData()->addOption($_GET["id"]);
 		}
+		else if(isset($_POST["odate_from"]) && isset($_POST["odate_to"])) {
+			$this->getData()->addOptions($_GET["id"], $_POST["odate_from"], $_POST["odate_to"]);
+		}
 		
 		// show options that are already present
 		Writing::h2($vote["name"] . " - Optionen");
@@ -144,12 +147,43 @@ class AbstimmungView extends CrudView {
 		// show add options form
 		$form = new Form("Option hinzufügen", $this->modePrefix() . "options&id=" . $_GET["id"]);
 		if($vote["is_date"] == 1) {
+			/* DATE VOTE -> show 2 Forms:
+			 * a) add single datetimes
+			 * b) add multiple datetimes (in between start and end)
+			 */
+			echo "<table>\n";
+			echo " <tr>\n";
+			echo "  <td>Eine Option hinzufügen</td>\n";
+			echo "  <td>Mehrere Optionen hinzufügen</td>\n";
+			echo " </tr>\n";
+			echo " <tr>\n";
+			echo "  <td>\n";
+			
+			// single form
+			$form->setTitle("");
+			$form->addElement("Datum", new Field("odate", "", FieldType::DATETIME));
+			$form->write();
+			
+			echo "  </td>\n";
+			echo "  <td>\n";
+			
+			// multiform
+			$form->setTitle("");
+			$form->removeElement("Datum");
+			$form->addElement("Erster Tag", new Field("odate_from", "", FieldType::DATETIME));
+			$form->addElement("Letzter Tag", new Field("odate_to", "", FieldType::DATE));
+			$form->write();
+			
+			echo "  </td>\n";
+			echo " </tr>\n";
+			echo "</table>\n";
+			
 			$form->addElement("Datum", new Field("odate", "", FieldType::DATETIME));
 		}
 		else {
 			$form->addElement("Name", new Field("name", "", FieldType::CHAR));
+			$form->write();
 		}
-		$form->write();
 		
 		// back button
 		$this->verticalSpace();
