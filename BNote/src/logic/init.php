@@ -29,7 +29,7 @@ if($system_data->getModuleId() === "logout") {
 	$_SESSION["user"] = "null";
 	unset($_SESSION);
 	session_destroy();
-	new Message("Abmeldung erfolgreich", "Du bist nun abgemeldet. Bitte schließe das Browserfenster.");
+	include $GLOBALS["DIR_PRESENTATION_MODULES"] . "logoutview.php";
 	exit(0);
 }
 

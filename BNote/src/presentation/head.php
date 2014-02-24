@@ -5,12 +5,13 @@
  <link rel="shortcut icon" href="favicon.png" type="image/png" />
  <link rel="icon" href="favicon.png" type="image/png" />
  
+ <LINK href="style/css/reset.css" rel="StyleSheet" type="text/css">
 <?php
 
 # Link all CSS Files in style/css
 if($handle = opendir('style/css')) {
  while(false !== ($file = readdir($handle))) {
-  if($file != "." && $file != "..") {
+  if($file != "." && $file != ".." && $file != "reset.css") {
    echo ' <LINK href="style/css/' . $file . '" rel="StyleSheet" type="text/css">'. "\n";
    }
   }
