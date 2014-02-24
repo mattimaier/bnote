@@ -131,6 +131,20 @@ class UpdateDb {
 			$this->message("Module $modname already exists.");
 		}
 	}
+	
+	function createFolder($path) {
+		if(file_exists($path)) {
+			$this->message("Folder $path already exists.");
+		}
+		else {
+			if(mkdir($path)) {
+				$this->message("Folder $path was created.");
+			}
+			else {
+				$this->message("Failed to create folder $path.");
+			}
+		}
+	}
 }
 
 $update = new UpdateDb();
@@ -147,7 +161,7 @@ $update = new UpdateDb();
 /*
  * Task 1: Insert Configuration
  */
-
+$update->addDynConfigParam("allow_zip_download", "1");
 
 /*
  * Task 2.1: Adapt songs table
@@ -165,6 +179,11 @@ $update->addTable("song_solist",
 			`notes` varchar(200) DEFAULT NULL,
 			PRIMARY KEY (`song`,`contact`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+/*
+ * Task 3: Add temporary zip configuration
+*/
+$update->createFolder("data/share/_temp");
 
 ?>
 <br/><br/>

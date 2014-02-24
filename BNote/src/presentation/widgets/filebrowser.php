@@ -221,6 +221,14 @@ class Filebrowser implements iWriteable {
 				$up = new Link($this->linkprefix("view&path=" . urlencode($this->levelUp())), "In Überordner wechseln");
 				$up->addIcon("arrow_up");
 				$up->write();
+				
+				if($this->sysdata->getDynamicConfigParameter("allow_zip_download") == "1") {
+					// only allow downloads of subfolders, not the root-folders to prevent heavy load on server
+					echo "&nbsp;&nbsp;";
+					$dl = new Link($this->linkprefix("download&path=" . urlencode($this->path)), "Ordner als Zip-Archiv herunterladen");
+					$dl->addIcon("arrow_down");
+					$dl->write();
+				}
 			}
 			
 			// show table with files
@@ -457,12 +465,54 @@ class Filebrowser implements iWriteable {
 		else if($file == "..") return false;
 		else if($fullpath . "/" == $GLOBALS["DATA_PATHS"]["userhome"]) return false;
 		else if($fullpath . "/" == $GLOBALS["DATA_PATHS"]["grouphome"]) return false;
+		else if($file == "_temp") return false;
 		return true;
 	}
 	
 	private function levelUp() {
 		$lastSlash = strrpos($this->path, "/", -2);
 		return substr($this->path, 0, $lastSlash+1);
+	}
+	
+	public function download() {
+		// get filename of zip-archive in temp
+		/*
+		 * Only one temporary zip -> not multiuser access to this function!
+		 * Temporary file access via tmpnam or alike is not possible, since the
+		 * filehandler only supports the share-directory for security reasons.
+		 * In case date('U') would be used as zip-Filename it would be sufficient
+		 * for multi-user access, but there is no or a very complicated cleanup -
+		 * thus this very simple solution.
+		 */
+		$zip_suffix = "_temp/download.zip";
+		$zip_fname = $this->root . $zip_suffix;
+		
+		// initialize zip-archive
+		$zip = new ZipArchive();
+		$zip->open($zip_fname, ZipArchive::CREATE);
+		
+		$files = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($this->root . $this->path),
+				RecursiveIteratorIterator::LEAVES_ONLY);
+		
+		foreach($files as $name => $file) {
+			$zip->addFile($file->getPathname());
+		}
+		
+		// create zip file by closing this archive
+		$zip->close();
+		
+		Writing::p("Das Archiv wurde erstellt und kann unter folgendem Link heruntergeladen werden.");
+		
+		$link = new Link($this->sysdata->getFileHandler() . "?file=" . $zip_suffix, "Archiv herunterladen");
+		$link->setTarget("_blank");
+		$link->addIcon("arrow_down");
+		$link->write();
+		echo "<br/><br/>";
+		
+		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)), "Zur&uuml;ck");
+		$back->addIcon("arrow_left");
+		$back->write();
 	}
 }
 

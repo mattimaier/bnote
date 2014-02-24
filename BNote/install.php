@@ -582,7 +582,8 @@ class Installation {
 					('instrument_category_filter', 'ALL', 1),
 					('share_nonadmin_viewmode', '0', 1),
 					('rehearsal_show_length', '1', 1),
-					('allow_participation_maybe', '1', 1);");
+					('allow_participation_maybe', '1', 1),
+					('allow_zip_download', '1', 1);");
 
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES

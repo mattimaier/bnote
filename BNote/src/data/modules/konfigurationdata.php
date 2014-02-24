@@ -34,7 +34,8 @@ class KonfigurationData extends AbstractData {
 				"auto_activation" => array("Automatische Benutzeraktivierung", FieldType::BOOLEAN),
 				"share_nonadmin_viewmode" => array("Share-Lesemodus für Nicht-Administratoren", FieldType::BOOLEAN),
 				"rehearsal_show_length" => array("Probenl&auml;nge anzeigen", FieldType::BOOLEAN),
-				"allow_participation_maybe" => array("Vielleicht-Teilname zugelassen", FieldType::BOOLEAN)
+				"allow_participation_maybe" => array("Vielleicht-Teilname zugelassen", FieldType::BOOLEAN),
+				"allow_zip_download" => array("Zip-Download für Ordner zulassen", FieldType::BOOLEAN)
 		);
 		
 		$this->parameterExclude = array(
