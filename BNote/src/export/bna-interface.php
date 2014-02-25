@@ -35,18 +35,48 @@ interface iBNA {
 	public function getLocations();
 	
 	/**
-	 * <strong>Since version 2.4.3 this method is not implemented by default and does not
-	 * return any results. Please make sure to use other methods!</strong>
-	 * @deprecated Please use getLocations() and other methods to retrieve the addresses.
-	 * @return Returns all addresses.
+	 * @return Returns all tasks for this user.
 	 */
-	public function getAddresses();
+	public function getTasks();
+	
+	/**
+	 * @return Returns the news.
+	 */
+	public function getNews();
+	
+	/**
+	 * @return Returns all votes for this user.
+	 */
+	public function getVotes();
+	
+	/**
+	 * @return Returns all songs in the repertoire.
+	 */
+	public function getSongs();
+	
+	/**
+	 * @return Returns all genres.
+	 */
+	public function getGenres();
+	
+	/**
+	 * @return Returns all statuses.
+	 */
+	public function getStatuses();
 	
 	/**
 	 * <b>Use this function only to fetch all data for a user once!</b>
-	 * @return Returns all rehearsals, concerts, contacts, location and addresses.
+	 * @return Returns all rehearsals, concerts, contacts, location and so on.
 	 */
 	public function getAll();
+	
+	/**
+	 * Retrieves all comments for the given object.
+	 * @param char $otype R=Rehearsal, C=Concert, V=Vote
+	 * @param Integer $oid ID of the object to comment on.
+	 * @return All comments for the given object.
+	 */
+	public function getComments($otype, $oid);
 	
 	/**
 	 * Gets the participation choice of a user for a rehearsal.
@@ -64,290 +94,56 @@ interface iBNA {
 	 * @param String $reason Optional parameter to give a reason for not participating.
 	 */
 	public function setParticipation($rid, $uid, $part, $reason);
+	
+	/**
+	 * Set a task as completed. (POST)
+	 * @param int $tid Task ID.
+	 */
+	public function taskCompleted($tid);
+	
+	/**
+	 * Adds a song to the repertoire. (POST)
+	 * @param String $title Title of the song.
+	 * @param String $length Lenght in format mm:ss.
+	 * @param Integer $bpm Beats per Minute.
+	 * @param String $music_key Musical key of the song.
+	 * @param String $notes Additional Notes to the song.
+	 * @param Integer $genre Genre ID.
+	 * @param String $composer Name of the composer.
+	 * @param Integer $status Status ID.
+	 * @return The ID of the new song.
+	 */
+	public function addSong($title, $length, $bpm, $music_key, $notes, $genre, $composer, $status);
+	
+	/**
+	 * Adds a rehearsal. (POST)
+	 * @param String $begin Begin of the rehearsal, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $end End of the rehearsal, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $approve_until Approve participation until, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $notes Notes for the rehearsal.
+	 * @param Integer $location Location ID.
+	 * @return The ID of the new rehearsal.
+	 */
+	public function addRehearsal($begin, $end, $approve_until, $notes, $location);
+	
+	/**
+	 * Adds a vote to the voting. (POST)
+	 * @param Integer $vid ID of the voting.
+	 * @param Array $options Options in format: [vote_option id] => [0 as no, 1 as yes, 2 as maybe].
+	 */
+	public function vote($vid, $options);
+	
+	/**
+	 * Adds a comment to an object. (POST)
+	 * @param char $otype R=Rehearsal, C=Concert, V=Vote
+	 * @param Integer $oid ID of the object to comment on.
+	 * @param String $message Urlencoded message.
+	 * @return ID of the newly created comment.
+	 */
+	public function addComment($otype, $oid, $message); 
 }
 
-/******************************************
- * Abstract Implementation Class		  *
-*******************************************/
-
-// connect to application
-$dir_prefix = "../../";
-global $dir_prefix;
-
-require_once $dir_prefix . "dirs.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "database.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "regex.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "systemdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "abstractdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "applicationdataprovider.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "startdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "mitspielerdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "locationsdata.php";
-
-$GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
-require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
-
-/**
- * Scheme for BNote Interface implementation.
- * @author Matti
- *
- */
-abstract class AbstractBNA implements iBNA {
-	
-	/**
-	 * Database instance.
-	 * @var Database
-	 */
-	protected $db;
-	
-	/**
-	 * System data instance.
-	 * @var Systemdata
-	 */
-	protected $sysdata;
-	
-	/**
-	 * Data Access Object for "Start" Module which contains
-	 * many valuable functions for this interface.
-	 * @var StartData
-	 */
-	protected $startdata;
-	
-	/**
-	 * The user ID assoicated with the PIN.
-	 * @var Integer
-	 */
-	protected $uid;
-	
-	function __construct() {
-		$this->sysdata = new Systemdata($GLOBALS["dir_prefix"]);
-		$this->db = $this->sysdata->dbcon;
-		global $system_data;
-		$system_data = $this->sysdata;
-		$this->uid = -1;
-		global $dir_prefix;
-		$this->startdata = new StartData($dir_prefix);
-		
-		$this->init();
-		
-		$this->authentication();
-		$this->route();
-	}
-	
-	/**
-	 * Use this function to execute code before authentication and routing.
-	 */
-	protected function init() {
-		// do nothing by default
-	}
-	
-	/**
-	 * Authenticates users with pin.
-	 */
-	protected function authentication() {
-		if(!isset($_GET["pin"])) {
-			header("HTTP/1.0 403 Permission Denied.");
-			exit();
-		}
-		else {
-			$pin = $_GET["pin"];
-		
-			$this->uid = $this->db->getCell($this->db->getUserTable(), "id", "pin = $pin");
-		
-			if($this->uid == null || $this->uid < 1) {
-				header("HTTP/1.0 403 Permission Denied.");
-				exit();
-			}
-		}
-	}
-	
-	/**
-	 * Routes a request to the correct function.
-	 */
-	protected function route() {
-		$function = "";
-		if(!isset($_GET["func"])) {
-			header("HTTP/1.0 400 Function not specified.");
-			exit();
-		}
-		else {
-			$function = $_GET["func"];
-		}
-		
-		if($function == "getParticipation" || $function == "setParticipation") {
-			if(!isset($_GET["rehearsal"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			else if($function == "getParticipation") {
-				$this->getParticipation($_GET["rehearsal"], $this->uid);
-			}
-			else if($function == "setParticipation") {
-				if(!isset($_GET["participation"])) {
-					header("HTTP/1.0 412 Insufficient Parameters.");
-					exit();
-				}
-				$part = $_GET["participation"];
-				if($part > 1 || $part < -1) {
-					$part = -1;
-				}
-				$reason = "";
-				if(isset($_GET["reason"])) {
-					$reason = $_GET["reason"];
-				}
-				$this->setParticipation($_GET["rehearsal"], $this->uid, $part, $reason);
-			}
-		}
-		else if($function == "getRehearsalsWithParticipation") {
-			$this->getRehearsalsWithParticipation($this->uid);
-		}
-		else {
-			$this->$function();
-		}
-	}
-	
-	/* METHODS TO IMPLEMENT BY SUBCLASSES */
-	
-	/**
-	 * Prints out a statement with which the document start,
-	 * e.g. "<?xml ...><entities>".
-	 */
-	protected abstract function beginOutputWith();
-	
-	/**
-	 * Prints out a statement with which the document ends,
-	 * e.g. "</entities>".
-	 */
-	protected abstract function endOutputWith();
-	
-	/**
-	 * Prints the entities out.
-	 * @param Array $entities SQL selection array with the entities.
-	 * @param String $nodeName Name of the node in case required, e.g. singluar.
-	 */
-	protected abstract function printEntities($entities, $nodeName);
-	
-	
-	/* DEFAULT IMPLEMENTATIONS */
-	
-	function getRehearsals() {
-		$entities = $this->startdata->getUsersRehearsals($this->uid);
-		$this->printEntities($entities, "rehearsal");
-	}
-	
-	function getRehearsalsWithParticipation($user) {
-		if($this->sysdata->isUserSuperUser($this->uid)
-				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
-			$query = "SELECT * ";
-			$query .= "FROM rehearsal r LEFT JOIN rehearsal_user ru ON ru.rehearsal = r.id ";
-			$query .= "WHERE end > now() AND (ru.user = $user || ru.user IS NULL) ";
-			$query .= "ORDER BY begin ASC";
-			$rehs = $this->db->getSelection($query);
-			$this->printEntities($rehs, "rehearsal");
-		}
-		else {
-			// only get rehearsals for user considering phases and groups
-			$rehs = $this->startdata->getUsersRehearsals($this->uid);
-			
-			// manually join participation
-			array_push($rehs[0], "participate");
-			array_push($rehs[0], "reason");
-			
-			for($i = 1; $i < count($rehs); $i++) {
-				$rid = $rehs[$i]["id"];
-				$query = "SELECT * FROM rehearsal_user WHERE rehearsal = $rid AND user = " . $this->uid;
-				$part = $this->db->getRow($query);
-				if($part == null) {
-					$part = array( "participate" => "", "reason" => "" );
-				}
-				$rehs[$i]["participate"] = $part["participate"];
-				$rehs[$i]["reason"] = $part["reason"];
-			}
-			
-			$this->printEntities($rehs, "rehearsal");
-		}
-	}
-	
-	function getConcerts() {
-		$concerts = $this->startdata->getUsersConcerts($this->uid);
-		$this->printEntities($concerts, "concert");
-	}
-	
-	function getContacts() {
-		$msd = new MitspielerData($GLOBALS["dir_prefix"]);
-		$contacts = $msd->getMembers($this->uid);
-		$this->printEntities($contacts, "contact");
-	}
-	
-	function getLocations() {
-		$locData = new LocationsData($GLOBALS["dir_prefix"]);
-		$locs = $locData->findAllJoined(array(
-			"address" => array("street", "city", "zip")
-		));
-		$this->printEntities($locs, "location");
-	}
-
-	function getAddresses() {
-		// this method should not be used anymore starting from version 2.4.3
-	}
-	
-	function getAll() {
-		$this->beginOutputWith();
-		$sep = $this->entitySeparator();
-		
-		$this->getRehearsalsWithParticipation($this->uid); echo $sep . "\n";
-		
-		$this->getConcerts(); echo $sep . "\n";
-		$this->getContacts(); echo $sep . "\n";
-		$this->getLocations(); echo "\n";
-		// getAddresses() removed by 2.5.0
-		$this->endOutputWith();
-	}
-	
-	/**
-	 * @return A separator between entities, in JSON for example ",".
-	 */
-	protected function entitySeparator() {
-		return "";
-	}
-	
-	function getParticipation($rid, $uid) {
-		$_SESSION["user"] = $uid;
-		$res = $this->startdata->doesParticipateInRehearsal($rid);
-		unset($_SESSION["user"]);
-		return $res;
-	}
-	
-	function setParticipation($rid, $uid, $part, $reason) {
-		$_GET["rid"] = $rid;
-		$_SESSION["user"] = $uid;
-		
-		if($part == 1) {
-			// participate
-			$_GET["status"] = "yes";
-		}
-		elseif($part == 2) {
-			// maybe participate
-			$_POST["rehearsal"] = $rid;
-			$_GET["status"] = "maybe";
-		}
-		else {
-			// do not participate
-			$_POST["rehearsal"] = $rid;
-			$_GET["status"] = "no";
-		}
-		if($reason == "") {
-			$_POST["explanation"] = "nicht angegeben";
-		}
-		else {
-			$_POST["explanation"] = $reason;
-		}
-		$this->startdata->saveParticipation();
-		unset($_SESSION["user"]);
-		echo "true";
-	}
-	
-}
+// Abstract Implementation of BNote Application Interface
+include "bna-abstract.php";
 
 ?>

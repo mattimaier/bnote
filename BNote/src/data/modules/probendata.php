@@ -9,7 +9,7 @@ class ProbenData extends AbstractData {
 	/**
 	 * Build data provider.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("Probennummer", FieldType::INTEGER),
 			"begin" => array("Beginn", FieldType::DATETIME),
@@ -25,7 +25,7 @@ class ProbenData extends AbstractData {
 		
 		$this->table = "rehearsal";
 		
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	private function defaultQuery() {

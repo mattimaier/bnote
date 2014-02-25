@@ -43,7 +43,15 @@ to access the JSON interface.
 <i>http://demo.bnote.info/src/export/bna-json.php?pin=123456&amp;func=getRehearsals</i>
 </p>
 
+<h3>JSON Specialty: Parameter Global</h3>
+<p>
+The implementation of the JSON-BNA-interface (bna-json.php) allows the URL-Parameter <strong>global</strong>.
+In case this parameter is set to <i>true</i>, the ID is given in the format <code>instance/type/id</code> and every
+entity has a field <strong>type</strong> which contains its type.
+</p>
+
 <h2>Interface Methods</h2>
+<p>By default all methods use the HTTP-Method GET.</p>
 
 <h3>getRehearsals</h3>
 <ul>
@@ -80,12 +88,58 @@ to access the JSON interface.
 	<li><i>Parameters</i>: None.</li>
 </ul>
 
-<h3>getAddresses</h3>
+<h3>getTasks</h3>
 <ul>
-	<li><strong>DEPRECATED</strong>. Please use other methods like getLocations() starting from version 2.4.3 on.</li>
-	<li><i>Description</i>: Fetches all addresses from the database and renders them.</li>
-	<li><i>Returns</i>: <strong>void</strong> (prior to 2.4.3: All addresses in the specified format.)</li>
+	<li><i>Description</i>: Fetches all tasks from the database and renders them.</li>
+	<li><i>Returns</i>: All tasks in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
+</ul>
+
+<h3>getNews</h3>
+<ul>
+	<li><i>Description</i>: Fetches the news in HTML.</li>
+	<li><i>Returns</i>: News as plain HTML.</li>
+	<li><i>Parameters</i>: None.</li>
+</ul>
+
+<h3>getVotes</h3>
+<ul>
+	<li><i>Description</i>: Fetches all votes from the database and renders them.</li>
+	<li><i>Returns</i>: All votes in the specified format.</li>
+	<li><i>Parameters</i>: None.</li>
+</ul>
+
+<h3>getSongs</h3>
+<ul>
+	<li><i>Description</i>: Fetches all songs from the repertoire and renders them.</li>
+	<li><i>Returns</i>: All songs in the specified format.</li>
+	<li><i>Parameters</i>: None.</li>
+</ul>
+
+<h3>getGenres</h3>
+<ul>
+	<li><i>Description</i>: Fetches all genres from the repertoire and renders them.</li>
+	<li><i>Returns</i>: All genres in the specified format.</li>
+	<li><i>Parameters</i>: None.</li>
+</ul>
+
+<h3>getStatuses</h3>
+<ul>
+	<li><i>Description</i>: Fetches all statuses from the repertoire and renders them.</li>
+	<li><i>Returns</i>: All statuses in the specified format.</li>
+	<li><i>Parameters</i>: None.</li>
+</ul>
+
+<h3>getComments</h3>
+<ul>
+	<li><i>Description</i>: Retrieves all comments for the given object.</li>
+	<li><i>Returns</i>: All comments in the specified format.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>otype</b>: <i>Character</i> R=Rehearsal, C=Concert, V=Vote</li>
+			<li><b>oid</b>: <i>Integer</i> ID of the object to comment on.</li>
+		</ul>
+	</li>
 </ul>
 
 <h3>getParticipation</h3>
@@ -108,6 +162,80 @@ to access the JSON interface.
 			<li><b>rehearsal</b>: The numeric/integer ID of the rehearsal.</li>
 			<li><b>participation</b>: <b>1</b> when the user participates in the rehearsal, <b>2</b> when he/she is not sure (maybe), otherwise <b>0</b>.</li>
 			<li><b>reason</b>: (optional) When the user does not participate in the rehearsal, a reason should be given.</li>
+		</ul>
+	</li>
+</ul>
+
+<h3>taskCompleted</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Set a task as completed.</li>
+	<li><i>Returns</i>: void</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>taskId</b>: The numeric/integer ID of the task.</li>
+		</ul>
+	</li>
+</ul>
+
+<h3>addSong</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Adds a song to the repertoire.</li>
+	<li><i>Returns</i>: ID of the newly created song.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>title</b>: <i>String</i> Title of the song.</li>
+	 		<li><b>length</b>: <i>String</i> Lenght in format mm:ss.</li>
+	 		<li><b>bpm</b>: <i>Integer</i> Beats per Minute.</li>
+	  		<li><b>music_key</b>: <i>String</i> Musical key of the song.</li>
+	  		<li><b>notes</b>: <i>String</i> Additional Notes to the song.</li>
+	  		<li><b>genre</b>: <i>Integer</i> Genre ID.</li>
+	  		<li><b>composer</b>: <i>String</i> Name of the composer.</li>
+	  		<li><b>status</b>: <i>Integer</i> Status ID.</li>
+		</ul>
+	</li>
+</ul>
+
+<h3>addRehearsal</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Adds a rehearsal to the default group.</li>
+	<li><i>Returns</i>: ID of the newly created rehearsal.</li>
+	<li><i>Parameters</i>:
+		<ul>
+	 		<li><b>begin</b>: <i>String</i> Begin of the rehearsal, format: YYYY-MM-DD HH:ii:ss.</li>
+			<li><b>end</b>: <i>String</i> End of the rehearsal, format: YYYY-MM-DD HH:ii:ss.</li>
+	 		<li><b>approve_until</b>: <i>String</i> Approve participation until, format: YYYY-MM-DD HH:ii:ss.</li>
+	 		<li><b>notes</b>: <i>String</i> Notes for the rehearsal.</li>
+	 		<li><b>location</b>: <i>Integer</i> Location ID.</li>
+		</ul>
+	</li>
+</ul>
+
+<h3>vote</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Adds a vote to the voting.</li>
+	<li><i>Returns</i>: void</li>
+	<li><i>Parameters</i>:
+		<ul>
+	 		<li><b>vid</b>: <i>Integer</i> ID of the voting.</li>
+			<li><b>options</b>: <i>Array</i> Options in format: [vote_option id] : [0 as no, 1 as yes, 2 as maybe]</li>
+		</ul>
+	</li>
+</ul>
+
+<h3>addComment</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Adds a comment to an object.</li>
+	<li><i>Returns</i>: ID of the newly created comment.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>otype</b>: <i>Character</i> R=Rehearsal, C=Concert, V=Vote</li>
+			<li><b>oid</b>: <i>Integer</i> ID of the object to comment on.</li>
+	 		<li><b>message</b>: <i>String</i> Urlencoded message.</li> 
 		</ul>
 	</li>
 </ul>

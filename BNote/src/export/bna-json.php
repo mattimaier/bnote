@@ -40,10 +40,19 @@ class BNAjson extends AbstractBNA {
 		if(Data::startsWith($this->instanceUrl, "http://")) {
 			$this->instanceUrl = substr($this->instanceUrl, 7); // cut prefix
 		}
+		
+		header('Content-type: application/json; charset=utf-8');
+	}
+	
+	function documentBegin() {
+		echo "{ \"entities\" : [ ";
+	}
+	
+	function documentEnd() {
+		echo "] }";
 	}
 	
 	function beginOutputWith() {
-		header('Content-type: application/json; charset=utf-8');
 		echo "{\n";
 	}
 	
@@ -56,6 +65,7 @@ class BNAjson extends AbstractBNA {
 	}
 	
 	function printEntities($selection, $line_node) {
+		$this->beginOutputWith();
 		echo '"' . $line_node . 's" : [';
 		for($i = 1; $i < count($selection); $i++) {
 			$e = $selection[$i];
@@ -80,6 +90,8 @@ class BNAjson extends AbstractBNA {
 			echo "}";
 		}
 		echo ']';
+		
+		$this->endOutputWith();
 	}
 }
 

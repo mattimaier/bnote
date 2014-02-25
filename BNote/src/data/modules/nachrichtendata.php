@@ -22,7 +22,7 @@ class NachrichtenData extends AbstractData {
 				
 		//$this->init($dir_prefix);
 		
-		$this->newsFile = "data/nachrichten.html";
+		$this->newsFile = $dir_prefix . "data/nachrichten.html";
 	}
 	
 	public function fetchContent() {

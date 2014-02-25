@@ -149,10 +149,12 @@ class StartData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
-	function getVotesForUser() {
+	function getVotesForUser($uid = -1) {
+		if($uid == -1) $uid = $_SESSION["user"];
+		
 		$query = "SELECT v.id, v.name, v.end, v.is_date, v.is_multi ";
 		$query .= "FROM vote_group vg JOIN vote v ON vg.vote = v.id ";
-		$query .= "WHERE vg.user = " . $_SESSION["user"] . " AND v.is_finished = 0 AND end > now() ";
+		$query .= "WHERE vg.user = $uid AND v.is_finished = 0 AND end > now() ";
 		$query .= "ORDER BY v.end ASC";
 		return $this->database->getSelection($query);
 	}
@@ -173,9 +175,9 @@ class StartData extends AbstractData {
 		return ($c == 1);
 	}
 	
-	function saveVote($vid, $values) {
+	function saveVote($vid, $values, $user = -1) {
 		$vote = $this->getVote($vid);
-		$user = $_SESSION["user"];
+		if($user == -1) $user = $_SESSION["user"];
 		
 		// remove eventual old votes first
 		$options = $this->getOptionsForVote($vid);
@@ -348,15 +350,20 @@ class StartData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
-	function addComment($otype, $oid) {
+	function addComment($otype, $oid, $message = "", $author = -1) {
+		if($message == "") {
+			$message = $_POST["message"];
+		}
+		
 		// validation
 		require_once $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
 		$newsData = new NachrichtenData();
-		$newsData->check($_POST["message"]);
+		$newsData->check($message);
 		
 		// preparation
-		$message = urlencode($_POST["message"]);
-		$author = $_SESSION["user"];
+		$message = urlencode($message);
+		
+		if($author == -1) $author = $_SESSION["user"];
 		
 		// insertion
 		$query = "INSERT INTO comment (otype, oid, author, created_at, message) VALUES (";

@@ -20,14 +20,25 @@ require_once($dir_prefix . $GLOBALS['DIR_LIB'] . "xmlarray.php");
 
 class BNAxml extends AbstractBNA {
 	
-	function beginOutputWith() {
+	function init() {
 		header('Content-type: application/xml');
+	}
+	
+	function documentBegin() {
 		echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 		echo "<entities>\n";
 	}
 	
-	function endOutputWith() {
+	function documentEnd() {
 		echo "</entities>";
+	}
+	
+	function beginOutputWith() {
+		// empty
+	}
+	
+	function endOutputWith() {
+		// empty
 	}
 
 	function printEntities($selection, $line_node) {

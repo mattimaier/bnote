@@ -9,7 +9,7 @@ class RepertoireData extends AbstractData {
 	/**
 	 * Build data provider.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("Titel ID", FieldType::INTEGER),
 			"title" => array("Titel", FieldType::CHAR),
@@ -30,7 +30,7 @@ class RepertoireData extends AbstractData {
 		
 		$this->table = "song";
 		
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	public static function getJoinedAttributes() {
