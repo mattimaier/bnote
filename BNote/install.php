@@ -237,6 +237,17 @@ class Installation {
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
+			array_push($querties,
+					"CREATE TABLE IF NOT EXISTS `comment` (
+					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+					`author` int(11) NOT NULL,
+					`created_at` datetime NOT NULL,
+					`otype` char(2) NOT NULL,
+					`oid` int(10) unsigned NOT NULL,
+					`message` text,
+					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `composer` (
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -503,6 +514,7 @@ class Installation {
 					`lastlogin` datetime DEFAULT NULL,
 					`contact` int(10) unsigned NOT NULL,
 					`pin` int(6) DEFAULT NULL,
+					`email_notification` int(1) DEFAULT 1,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -584,7 +596,10 @@ class Installation {
 					('share_nonadmin_viewmode', '0', 1),
 					('rehearsal_show_length', '1', 1),
 					('allow_participation_maybe', '1', 1),
-					('allow_zip_download', '1', 1);");
+					('allow_zip_download', '1', 1),
+					('rehearsal_show_max', '5', 1),
+					('updates_show_max', '5', 1),
+					('discussion_on', '1', 1);");
 
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES

@@ -8,6 +8,21 @@
 class StartView extends AbstractView {
 	
 	/**
+	 * During the creation of all rehearsal, concert, vote and task items on the start page
+	 * this listing is filled in the format:  [otype] => array( oid1, oid2, ...) .
+	 * Then the updates are calculated based on this list.
+	 * This trick is necessary, since the recalculation of the possible discussions for the
+	 * user would put unnecessary load on the server.
+	 * @var array
+	 */
+	private $objectListing = array(
+		"R" => array(),
+		"C" => array(),
+		"V" => array(),
+		"T" => array()	
+	);
+	
+	/**
 	 * Create the start view.
 	 */
 	function __construct($ctrl) {
@@ -56,7 +71,14 @@ class StartView extends AbstractView {
 				<div class="start_box">
 					<div class="start_box_heading">Proben</div>
 					<div class="start_box_content">
-						<?php $this->writeRehearsalList(); ?>
+						<?php
+						if(isset($_GET["max"]) && $_GET["max"] >= 0) {
+							$this->writeRehearsalList($_GET["max"]);
+						}
+						else {
+							$this->writeRehearsalList($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_max"));
+						}
+						?>
 					</div>
 				</div>
 				
@@ -65,22 +87,34 @@ class StartView extends AbstractView {
 					<div class="start_box_content">
 						<?php $this->writeConcertList(); ?>
 					</div>
-				</div>
-			</div>
-			<div class="start_box_row">
-				<div class="start_box">
+					
+					<div class="start_box_heading">Abstimmungen</div>
+					<div class="start_box_content">
+						<?php $this->writeVoteList(); ?>
+					</div>
+					
 					<div class="start_box_heading">Aufgaben</div>
 					<div class="start_box_content">
 						<?php $this->writeTaskList(); ?>
 					</div>
 				</div>
 				
-				<div class="start_box">
-					<div class="start_box_heading">Abstimmungen</div>
-					<div class="start_box_content">
-						<?php $this->writeVoteList(); ?>
+				<?php
+				/*
+				 * The update generation has to be last!
+				 * For explanation see comment for $objectListing.
+				 */
+				if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) { 
+					?>
+					<div class="start_box" style="max-width: 250px;">
+						<div class="start_box_heading">Diskussionen</div>
+						<div class="start_box_content">
+							<?php $this->writeUpdateList(); ?>
+						</div>
 					</div>
-				</div>
+					<?php 
+				}
+				?>
 			</div>
 		</div>
 		<?php
@@ -93,7 +127,7 @@ class StartView extends AbstractView {
 		$form->write();
 	}
 	
-	private function writeRehearsalList() {
+	private function writeRehearsalList($max = 0) {
 		$data = $this->getData()->getUsersRehearsals();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
@@ -102,6 +136,19 @@ class StartView extends AbstractView {
 		else {
 			// iterate over rehearsals
 			for($i = 1; $i < count($data); $i++) {
+				
+				// add every item to the discussion
+				array_push($this->objectListing["R"], $data[$i]["id"]);
+				
+				// limit the number of rehearsals if necessary
+				if($max > 0 && $i > $max) {
+					if($i == $max+1) {
+						echo "<span style=\"font-style: italic;\">Es werden nur die ersten $max Proben angezeigt.</span>\n";
+						echo "<br/><a href=\"" . $this->modePrefix() . "start&max=0" . "\">Alle anzeigen</a>";
+					}					
+					continue; // cannot break due to discussion addition of objects
+				}
+				
 				$liCaption = Data::convertDateFromDb($data[$i]["begin"]) . " Uhr";
 				$liCaption = Data::getWeekdayFromDbDate($data[$i]["begin"]) . ", " . $liCaption;
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
@@ -156,10 +203,12 @@ class StartView extends AbstractView {
 				$userParticipation = $this->getData()->doesParticipateInRehearsal($data[$i]["id"]);
 				if($userParticipation < 0) {
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
-						$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahme angeben");
+						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
+								$dataview, $partButtons, "Teilnahme angeben");
 					}
 					else {
-						$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahmefrist abgelaufen", "", true);
+						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
+								$dataview, $partButtons, "Teilnahmefrist abgelaufen", "", true);
 					}
 				}
 				else {
@@ -174,7 +223,7 @@ class StartView extends AbstractView {
 						$msg .= "Du nimmst an der Probe nicht teil.";
 					}
 					
-					$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
+					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
 				}
 			}
 		}
@@ -191,6 +240,10 @@ class StartView extends AbstractView {
 			// iterate over concerts
 			foreach($data as $i => $row) {
 				if($i == 0) continue;
+				
+				// add every item to the discussion
+				array_push($this->objectListing["C"], $data[$i]["id"]);
+				
 				$liCaption = Data::convertDateFromDb($row["begin"]) . " Uhr";
 				$liCaption = Data::getWeekdayFromDbDate($row["begin"]) . ", " . $liCaption;
 				
@@ -237,10 +290,12 @@ class StartView extends AbstractView {
 				$userParticipation = $this->getData()->doesParticipateInConcert($data[$i]["id"]);
 				if($userParticipation < 0) {
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
-						$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahme angeben");
+						$this->writeBoxListItem("C", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
+								$dataview, $partButtons, "Teilnahme angeben");
 					}
 					else {
-						$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, "Teilnahmefrist abgelaufen", "", true);
+						$this->writeBoxListItem("C", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
+								$dataview, $partButtons, "Teilnahmefrist abgelaufen", "", true);
 					}
 				}
 				else {
@@ -255,7 +310,7 @@ class StartView extends AbstractView {
 						$msg .= "Du nimmst am Konzert nicht teil.";
 					}
 						
-					$this->writeBoxListItem("r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
+					$this->writeBoxListItem("C", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
 				}
 			}
 		}
@@ -272,13 +327,17 @@ class StartView extends AbstractView {
 			// iterate over tasks
 			foreach($data as $i => $row) {
 				if($i < 1) continue;
+				
+				// add every item to the discussion
+				array_push($this->objectListing["T"], $row["id"]);
+				
 				$liCaption = $row["title"];
 				$dataview = new Dataview();
 				$dataview->addElement("Titel", $row["title"]);
 				$dataview->addElement("Beschreibung", $row["description"]);
 				$dataview->addElement("Fällig am", Data::convertDateFromDb($row["due_at"]));
 				$lnk = $this->modePrefix() . "taskComplete&id=" . $row["id"];
-				$this->writeBoxListItem("t" + $row["id"], $liCaption, $dataview, "", "Als abgeschlossen markieren", $lnk);
+				$this->writeBoxListItem("T", $row["id"],"t" + $row["id"], $liCaption, $dataview, "", "Als abgeschlossen markieren", $lnk);
 			}
 		}
 		echo "</ul>\n";
@@ -295,13 +354,17 @@ class StartView extends AbstractView {
 			// iterate over votes
 			foreach($data as $i => $row) {
 				if($i < 1) continue;
+				
+				// add every item to the discussion
+				array_push($this->objectListing["V"], $row["id"]);
+				
 				$liCaption = $row["name"];
 				$dataview = new Dataview();
 				$dataview->addElement("Name", $row["name"]);
 				$dataview->addElement("Abstimmungsende", Data::convertDateFromDb($row["end"]) . " Uhr");
 				
 				$link = $this->modePrefix() . "voteOptions&id=" . $row["id"];
-				$this->writeBoxListItem("v" + $row["id"], $liCaption, $dataview, "", "Abstimmen", $link);
+				$this->writeBoxListItem("V", $row["id"], "v" + $row["id"], $liCaption, $dataview, "", "Abstimmen", $link);
 			}
 		}
 		echo "</ul>\n";
@@ -309,6 +372,8 @@ class StartView extends AbstractView {
 	
 	/**
 	 * Writes one item to the start page.
+	 * @param char $otype {R = Rehearsal, C = Concert, V = Vote, T = Task}, but T is not supported in 2.5.0
+	 * @param int $oid ID of the discussion object (see $otype).
 	 * @param string $popboxid ID of the popup window.
 	 * @param string $liCaption Caption of the Item (writing in blue).
 	 * @param string $dataview Content of the popup window.
@@ -317,7 +382,8 @@ class StartView extends AbstractView {
 	 * @param string $voteLink optional: Link to the voting-screen.
 	 * @param boolean $partOver optional: Whether the participation deadline (approve_until) is over, by default false.
 	 */
-	private function writeBoxListItem($popboxid, $liCaption, $dataview, $participation = "", $msg = "", $voteLink = "", $partOver = false) {
+	private function writeBoxListItem($otype, $oid, $popboxid, $liCaption, $dataview,
+			$participation = "", $msg = "", $voteLink = "", $partOver = false) {
 		?>
 		<li>
 			<a href="#" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 400 }); });"><?php echo $liCaption; ?></a>
@@ -341,6 +407,17 @@ class StartView extends AbstractView {
 				<br/>
 				<a href="<?php echo $voteLink; ?>" class="participation"><?php echo $msg; ?></a>
 				<?php
+			}
+			?>
+			
+			<?php 
+			if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) {
+				$commentCaption = "Diskussion";
+				if(!$this->getData()->hasObjectDiscussion($otype, $oid)) {
+					$commentCaption = "Neue Diskussion";
+				}
+				echo '&nbsp;<a href="' . $this->modePrefix() . "discussion&otype=$otype&oid=$oid" . '" class="participation">';
+				echo $commentCaption . '</a>';
 			}
 			?>
 			
@@ -397,7 +474,6 @@ class StartView extends AbstractView {
 				
 				$dv->addElement($label, $in);
 			}
-// 			$dv->addElement('', "&nbsp;");
 			$dv->write();
 			echo '<input type="submit" value="abstimmen" />' . "\n";
 		}
@@ -454,6 +530,113 @@ class StartView extends AbstractView {
 		$table->write();
 		
 		$this->backToStart();
+	}
+	
+	private function writeUpdateList() {
+		$maxNumUpdates = $this->getData()->getSysdata()->getDynamicConfigParameter("updates_show_max");
+		if($maxNumUpdates <= 0) $maxNumUpdates = 1;
+		
+		$comments = $this->getData()->getUserUpdates($this->objectListing);
+		
+		if(count($comments) == 1) {
+			echo "<p>Keine Neuigkeiten</p>\n";
+			return;
+		}
+		
+		foreach($comments as $i => $comment) {
+			if($i == 0) continue; // header
+			
+			$objTitle = $this->getObjectTitle($comment["otype"], $comment["oid"]); 
+			$objLink = $this->modePrefix() . "discussion&otype=" . $comment["otype"] . "&oid=" . $comment["oid"];
+			
+			$contact = $this->getData()->getSysdata()->getUsersContact($comment["author"]);
+			$author = $contact["name"] . " " . $contact["surname"] . " am " . Data::convertDateFromDb($comment["created_at"]) . " Uhr";
+			
+			$message = urldecode($comment["message"]);
+			if(strlen($message) > 140) {
+				$message = substr($message, 0, 140) . "...";
+			}
+			?>
+			<div class="start_update_box">
+			<a href="<?php echo $objLink; ?>"><?php echo $objTitle; ?></a><br/>
+			<span class="start_update_box_author"><?php echo $author; ?></span><br/>
+				<p>
+				<?php echo $message; ?>
+				</p>
+			</div>
+			<?php
+		}
+	}
+	public function getObjectTitle($otype, $oid) {
+		$objTitle = "";
+		if($otype == "R") {
+			$reh = $this->getData()->getRehearsal($oid);
+			$objTitle = "Probe am " . Data::convertDateFromDb($reh["begin"]) . " Uhr";
+		}
+		else if($otype == "C") {
+			$con = $this->getData()->getConcert($oid);
+			$objTitle = "Konzert am " . Data::convertDateFromDb($con["begin"]) . " Uhr";
+		}
+		else if($otype == "V") {
+			$vote = $this->getData()->getVote($oid);
+			$objTitle = "Abstimmung: " . $vote["name"];
+		}
+		else if($otype == "T") {
+			//FIXME: In case tasks can be commented as well, fix this
+			$objTitle = "Aufgabe " + $oid;
+		}
+		return $objTitle;
+	}
+	
+	public function discussion() {
+		if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") != 1) {
+			new Error("Diskussionen sind in dieser Anwendung deaktiviert.");
+		}
+		if(!isset($_GET["otype"]) || !isset($_GET["oid"])) {
+			new Error("Bitte geben Sie den Dikussionsgegenstand an.");
+		}
+		
+		Writing::h2("Diskussion: " . $this->getObjectTitle($_GET["otype"], $_GET["oid"]));
+		
+		// show comments
+		$comments = $this->getData()->getDiscussion($_GET["otype"], $_GET["oid"]);
+		
+		if(count($comments) == 1) {
+			echo "Keine Kommentare in dieser Diskussion.";
+		}
+		else {
+			foreach($comments as $i => $comment) {
+				if($i == 0) continue; // header
+				
+				$author = $comment["author"] . " am " . Data::convertDateFromDb($comment["created_at"]) . " Uhr";
+				?>
+				<div class="start_update_box">
+					<span class="start_update_box_author"><?php echo $author; ?></span><br/>
+					<p>
+					<?php echo urldecode($comment["message"]); ?>
+					</p>
+				</div>
+				<?php
+			}
+		}
+		
+		// add comment form
+		$submitLink = $this->modePrefix() . "addComment&otype=" . $_GET["otype"] . "&oid=" . $_GET["oid"];
+		$form = new Form("Kommentar hinzufügen", $submitLink);
+		$form->addElement("", new Field("message", "", FieldType::TEXT));
+		$form->changeSubmitButton("Kommentar senden");
+		$form->write();
+		$this->verticalSpace();
+		
+		$this->backToStart();
+	}
+	
+	public function addComment() {
+		// save comment
+		$this->getData()->addComment($_GET["otype"], $_GET["oid"]);
+		
+		// show discussion again
+		$this->discussion();
 	}
 }
 

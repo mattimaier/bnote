@@ -20,7 +20,7 @@ class KommunikationData extends KontakteData {
 	}
 	
 	function getUsermail() {
-		$cid = $this->database->getCell("user", "contact", "id = " . $_SESSION["user"]);
+		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = " . $_SESSION["user"]);
 		return $this->getContactmail($cid);
 	}
 	

@@ -69,6 +69,16 @@ class KontaktdatenData extends KontakteData {
 		return $pin; 
 	}
 	
+	function saveSettings($uid) {
+		// prepare data
+		$emn = ($_POST["email_notification"] == "") ? "0" : "1";
+		
+		// update settings
+		$query = "UPDATE " . $this->database->getUserTable() . " SET ";
+		$query .= "email_notification = " . $emn . " ";
+		$query .= "WHERE id = $uid";
+		$this->database->execute($query);
+	}
 }
 
 ?>

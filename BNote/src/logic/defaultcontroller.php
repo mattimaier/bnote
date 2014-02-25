@@ -7,7 +7,16 @@
  */
 class DefaultController {
 	
+	/**
+	 * View of the module.
+	 * @var AbstractView
+	 */
 	private $view;
+	
+	/**
+	 * Data Access Object.
+	 * @var AbstractData
+	 */
 	private $data;
 	
 	/**

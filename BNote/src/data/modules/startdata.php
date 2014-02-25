@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * This is needed to clean the comments from crap.
+ */
+require_once $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
+
+/**
  * Data Access Class for Start data.
  * @author matti
  *
@@ -300,5 +305,97 @@ class StartData extends AbstractData {
 	
 	function getRehearsal($rid) {
 		return $this->database->getRow("SELECT * FROM rehearsal WHERE id = $rid");
+	}
+	
+	function getConcert($cid) {
+		return $this->database->getRow("SELECT * FROM concert WHERE id = $cid");
+	}
+	
+	function getUserUpdates($objectListing) {
+		// create appropriate where statement		
+		// super users and administrators can see all updates
+		if($this->getSysdata()->isUserSuperUser() || $this->getSysdata()->isUserMemberGroup(1)) {
+			$where = "";
+		}
+		else {
+			$where = "";
+			foreach($objectListing as $otype => $oids) {
+				foreach($oids as $i => $oid) {
+					if($where != "") $where .= " OR ";
+					$where .= "( otype = '$otype' AND oid = $oid )";
+				}
+			}
+			
+			if($where == "") $where = "1 = 2"; // make sure if there are no objects, no updates are displayed
+			
+			$where = "WHERE $where";
+		}
+		
+		$query = "SELECT * FROM comment ";
+		$query .= "$where ";
+		$query .= "ORDER BY created_at DESC LIMIT 0, ";
+		$query .= $this->getSysdata()->getDynamicConfigParameter("updates_show_max");
+		
+		return $this->database->getSelection($query);
+	}
+	
+	function hasObjectDiscussion($otype, $oid) {
+		$ct = $this->database->getCell("comment", "count(*)", "otype = '$otype' AND oid = $oid");
+		return ($ct > 0);
+	}
+	
+	function getDiscussion($otype, $oid) {
+		$query = "SELECT c.*, CONCAT(a.name, ' ', a.surname) as author ";
+		$query .= "FROM comment c JOIN user u ON c.author = u.id ";
+		$query .= "JOIN contact a ON u.contact = a.id ";
+		$query .= "WHERE c.oid = $oid AND c.otype = '$otype' ";
+		$query .= "ORDER BY c.created_at DESC";
+		return $this->database->getSelection($query);
+	}
+	
+	function addComment($otype, $oid) {
+		// validation
+		$newsData = new NachrichtenData();
+		$newsData->check($_POST["message"]);
+		
+		// preparation
+		$message = urlencode($_POST["message"]);
+		$author = $_SESSION["user"];
+		
+		// insertion
+		$query = "INSERT INTO comment (otype, oid, author, created_at, message) VALUES (";
+		$query .= "'$otype', $oid, $author, now(), '$message'";
+		$query .= ")";
+		
+		return $this->database->execute($query);
+	}
+	
+	function getContactsForObject($otype, $oid) {
+		if($otype == "R") {
+			require_once $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
+			$probenData = new ProbenData();
+			return $probenData->getRehearsalContacts($oid);
+		}
+		else if($otype == "C") {
+			require_once $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
+			$konzerteData = new KonzerteData();
+			return $konzerteData->getConcertContacts($oid);
+		}
+		else if($otype == "V") {
+			require_once $GLOBALS["DIR_DATA_MODULES"] . "abstimmungdata.php";
+			$absData = new AbstimmungData();
+			$users = $absData->getGroup($oid);
+			
+			if(count($users) == 1) return null;
+			
+			$where = "";
+			foreach($users as $i => $user) {
+				if($where != "") $where .= " OR ";
+				$where .= " id = " . $user["contact"];
+			}
+			$query = "SELECT * FROM contact WHERE $where";
+			return $this->database->getSelection($query);
+		}
+		return null;
 	}
 }

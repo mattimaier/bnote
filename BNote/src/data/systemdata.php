@@ -444,6 +444,29 @@ class Systemdata {
  	$autoLogin = $this->getDynamicConfigParameter("auto_activation");
  	return ($autoLogin == 1);
  }
+ 
+ /**
+  * @param $uid optional: User ID, by default current user.
+  * @return True when the user allows email notifications, otherwise false.
+  */
+ public function userEmailNotificationOn($uid = -1) {
+ 	if($uid == -1) $uid = $_SESSION["user"];
+ 	
+ 	$val = $this->dbcon->getCell($this->dbcon->getUserTable(), "email_notification", 
+ 			"id = $uid AND isActive = 1");
+ 	return ($val == 1);
+ }
+ 
+ /**
+  * @param $cid Contact ID.
+  * @return True when the user allows email notifications, otherwise false.
+  */
+ public function contactEmailNotificationOn($cid) {
+ 	if($cid == "") return false;
+ 	$contactsUserId = $this->dbcon->getCell($this->dbcon->getUserTable(), "id", "contact = $cid");
+ 	if($contactsUserId == "") return false;
+ 	return $this->userEmailNotificationOn($contactsUserId); 
+ }
 }
 
 ?>

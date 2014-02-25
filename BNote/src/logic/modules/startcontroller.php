@@ -12,6 +12,10 @@ class StartController extends DefaultController {
 			if($_GET['mode'] == "saveParticipation") {
 				$this->saveParticipation();
 			}
+			else if($_GET['mode'] == "addComment") {
+				$this->getView()->addComment();
+				$this->notifyContactsOnComment();
+			}
 			else {
 				$this->getView()->$_GET['mode']();
 			}
@@ -42,6 +46,49 @@ class StartController extends DefaultController {
 			$this->getData()->saveParticipation();
 			$this->getView()->start();
 		}
+	}
+	
+	private function notifyContactsOnComment() {
+		// get contacts to notify
+		$contacts = $this->getData()->getContactsForObject($_GET["otype"], $_GET["oid"]);
+		
+		// dont notify anyone if nobody has to be notified
+		if($contacts == null) return;
+		else if(count($contacts) <= 1) return;
+		
+		// create message
+		$headers  = "From: " . $this->getData()->getSysdata()->getCompany() . "\r\n";
+		$headers .= 'MIME-Version: 1.0' . "\r\n";
+		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+		
+		$contact = $this->getData()->getSysdata()->getUsersContact();
+		
+		$to = ""; // no to, only bcc
+		$bcc = "";
+		$subject = "Diskussion: " . $this->getView()->getObjectTitle($_GET["otype"], $_GET["oid"]);
+		$body = "<h3>Neue Nachricht zu Diskussion</h3>";
+		$body .= "<p>von " . $contact["name"] . " " . $contact["surname"] . "</p>";
+		$body .= "<p>" . $_POST["message"] . "</p>"; // checked here already
+		
+		foreach($contacts as $i => $contact) {
+			if($i == 0) continue; // header
+			
+			// check whether the user has turned email notification on
+			$emn = $this->getData()->getSysdata()->contactEmailNotificationOn($contact["id"]);
+			if($emn) {
+				if($bcc != "") $bcc .= ",";
+				$bcc .= $contact["email"];
+			}
+		}
+		$headers .= 'Bcc: ' . $bcc . "\r\n";
+		
+//  	echo "headers: $headers<br/>\n";
+//  	echo "receipient: $to<br/>\n";
+// 		echo "subject: $subject<br/>\n";
+// 		echo "body: $body<br/>\n";
+		
+		// send only one email to notify all users
+		mail($to, $subject, $body, $headers);
 	}
 }
 

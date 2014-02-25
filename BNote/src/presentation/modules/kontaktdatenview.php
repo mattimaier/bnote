@@ -14,6 +14,22 @@ class KontaktdatenView extends AbstractView {
 	function start() {
 		Writing::h1("Meine Kontaktdaten");
 		
+		$chPw = new Link($this->modePrefix() . "changePassword", "Passwort ändern");
+		$chPw->addIcon("key");
+		$chPw->write();
+		$this->buttonSpace();
+		
+		$settings = new Link($this->modePrefix() . "settings", "Meine Einstellungen");
+		$settings->addIcon("settings");
+		$settings->write();
+		
+		// show mobile PIN
+		$pin = $this->getData()->getPIN($_SESSION["user"]);
+		$form3 = new Form("Mobile PIN", "");
+		$form3->addElement("Deine Mobile PIN:", new Field("pin", $pin, 99));
+		$form3->removeSubmitButton();
+		$form3->write();
+		
 		// personal data
 		$contact = $this->getData()->getContactForUser($_SESSION["user"]);
 		if($contact <= 0) {
@@ -34,6 +50,16 @@ class KontaktdatenView extends AbstractView {
 		$form1->addElement("PLZ", new Field("zip", $address["zip"], FieldType::CHAR));
 		
 		$form1->write();
+	}
+	
+	function savePD() {
+		$this->getData()->update($_SESSION["user"], $_POST);
+		new Message("Daten gespeichert", "Die &Auml;nderungen wurden gespeichert.");
+		$this->backToStart();
+	}
+	
+	function changePassword() {
+		Writing::h2("Persönliches Kennwort");
 		
 		// change password
 		$pwNote = "Bitte gebe mindestens 6 Zeichen und keine Leerzeichen ein um dein Passwort zu ändern.";
@@ -43,23 +69,32 @@ class KontaktdatenView extends AbstractView {
 		$form2->addElement("Passwort Wiederholen", new Field("pw2", "", FieldType::PASSWORD));
 		$form2->write();
 		
-		// show mobile PIN
-		$pin = $this->getData()->getPIN($_SESSION["user"]);
-		$form3 = new Form("Mobile PIN", "");
-		$form3->addElement("Deine Mobile PIN:", new Field("pin", $pin, 99));
-		$form3->removeSubmitButton();
-		$form3->write();
-	}
-	
-	function savePD() {
-		$this->getData()->update($_SESSION["user"], $_POST);
-		new Message("Daten gespeichert", "Die &Auml;nderungen wurden gespeichert.");
+		$this->verticalSpace();
 		$this->backToStart();
 	}
 	
 	function password() {
 		$this->getData()->updatePassword();
 		new Message("Passwort ge&auml;ndert", "Das Passwort wurde ge&auml;ndert.<br />Ab sofort bitte mit neuem Passwort anmelden.");
+		$this->backToStart();
+	}
+	
+	function settings() {
+		Writing::h2("Meine Einstellungen");
+		
+		$form = new Form("Einstellungen ändern", $this->modePrefix() . "saveSettings");
+		
+		// E-Mail Notification
+		$default = $this->getData()->getSysdata()->userEmailNotificationOn() ? "1" : "0";
+		$form->addElement("E-Mail Benachrichtigung an", new Field("email_notification", $default, FieldType::BOOLEAN));
+		
+		$form->write();
+	}
+	
+	function saveSettings() {
+		$this->getData()->saveSettings($_SESSION["user"]);
+		
+		new Message("Einstellungen gespeichert", "Deine Einstellungen wurden gesperichert.");
 		$this->backToStart();
 	}
 }

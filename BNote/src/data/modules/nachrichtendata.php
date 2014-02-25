@@ -42,7 +42,7 @@ class NachrichtenData extends AbstractData {
 		file_put_contents($this->newsFile, $content);
 	}
 	
-	private function check($content) {
+	public function check($content) {
 		$content = strtolower($content);
 		if(strpos($content, "<script") !== false
 			|| strpos($content, "<iframe") !== false

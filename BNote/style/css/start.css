@@ -40,6 +40,17 @@ div.start_box_row {
 	display: table-row;
 }
 
+div.start_update_box {
+	border: 0px solid #eee;
+	border-bottom-width: 1px;
+	margin-bottom: 10px;
+}
+
+span.start_update_box_author {
+	font-size: 9pt;
+	color: #A0A0A0;
+}
+
 a.participation {
 	color: #000;
 }
