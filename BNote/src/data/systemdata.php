@@ -44,12 +44,22 @@ class Systemdata {
   }
  }
 
- /* GETTER */
  /**
-  * Return the current module's id
+  * @return The current module's id.
   */
  public function getModuleId() {
   return $this->current_modid;
+ }
+ 
+ /**
+  * @return The communication module's id.
+  */
+ function getCommunicationModuleId() {
+ 	$mods = $this->getModuleArray();
+ 	foreach($mods as $id => $name) {
+ 		if($name == "Kommunikation") return $id;
+ 	}
+ 	return 0;
  }
 
  /**

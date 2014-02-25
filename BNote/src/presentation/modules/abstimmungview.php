@@ -208,7 +208,9 @@ class AbstimmungView extends CrudView {
 		$dv->write();
 	}
 	
-	function additionalViewButtons() {		
+	function additionalViewButtons() {
+		$this->verticalSpace();
+		
 		// options
 		$opt = new Link($this->modePrefix() . "options&id=" . $_GET["id"], "Optionen");
 		$opt->addIcon("list_unordered");
@@ -219,6 +221,14 @@ class AbstimmungView extends CrudView {
 		$grp = new Link($this->modePrefix() . "group&id=" . $_GET["id"], "Abstimmungsberechtigte");
 		$grp->addIcon("user");
 		$grp->write();
+		$this->buttonSpace();
+		
+		// notifications
+		$emLink = "?mod=" . $this->getData()->getSysdata()->getCommunicationModuleId();
+		$emLink .= "&mode=voteMail&preselect=" . $_GET["id"];
+		$em = new Link($emLink, "Abstimmungsbenachrichtigung");
+		$em->addIcon("email");
+		$em->write();
 		$this->buttonSpace();
 		
 		// result

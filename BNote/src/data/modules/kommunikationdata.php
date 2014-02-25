@@ -60,6 +60,39 @@ class KommunikationData extends KontakteData {
 		return $this->flattenAddresses($mailaddies);
 	}
 	
+	function getConcerts() {
+		return $this->adp()->getFutureConcerts();
+	}
+	
+	function getConcert($cid) {
+		return $this->adp()->getEntityForId("concert", $cid);
+	}
+	
+	function getConcertContactMail($cid) {
+		$query = "SELECT c.email ";
+		$query .= "FROM contact c JOIN concert_contact cc ON cc.contact = c.id ";
+		$query .= "WHERE cc.concert = $cid";
+		$mailaddies = $this->database->getSelection($query);
+		
+		return $this->flattenAddresses($mailaddies);
+	}
+	
+	function getVotes() {
+		require_once $GLOBALS["DIR_DATA_MODULES"] . "abstimmungdata.php";
+		$vData = new AbstimmungData();
+		return $vData->getAllActiveVotes();
+	}
+	
+	function getVote($vid) {
+		return $this->adp()->getEntityForId("vote", $vid);
+	}
+	
+	function getVoteContactMail($vid) {
+		require_once $GLOBALS["DIR_DATA_MODULES"] . "startdata.php";
+		$sData = new StartData();
+		return $this->flattenAddresses($sData->getContactsForObject("V", $vid));
+	}
+	
 	private function flattenAddresses($selection) {
 		$addresses = array();
 		for($i = 1; $i < count($selection); $i++) {

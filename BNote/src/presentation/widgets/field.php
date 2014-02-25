@@ -14,11 +14,28 @@ class Field implements iWriteable {
  private $type;
 
  /**
+  * Uneditable textfield.
+  * @var int
+  */
+ const FIELDTYPE_UNEDITABLE = 99;
+ 
+ /**
+  * Shows a tinyMCE editor instead of a textarea.
+  * @var int
+  */
+ const FIELDTYPE_TINYMCE = 98;
+ 
+ /**
+  * DateTime Selector.
+  * @var int
+  */
+ const FIELDTYPE_DATETIME_SELECTOR = 97;
+ 
+ /**
   * Constructor
   * @param String $name label in the post/get array
   * @param String $default Default data to be displayed in the field
-  * @param FieldType $type Set a constant of the FieldType class,
-  * 						99 (uneditable text), 98 tinyMCE, 97 Datetime selector.
+  * @param FieldType $type Set a constant of the FieldType class or FIELDTYPE-constants of this class.
   */
  function __construct($name, $default, $type) {
   $this->name = $name;

@@ -165,6 +165,15 @@ class KonzerteView extends CrudRefView {
 		$addContact = new Link($this->modePrefix() . "addConcertContact&id=" . $_GET["id"], "Kontakt hinzufügen");
 		$addContact->addIcon("add");
 		$addContact->write();
+		$this->buttonSpace();
+		
+		// notifications
+		$emLink = "?mod=" . $this->getData()->getSysdata()->getCommunicationModuleId();
+		$emLink .= "&mode=concertMail&preselect=" . $_GET["id"];
+		$em = new Link($emLink, "Benachrichtigung senden");
+		$em->addIcon("email");
+		$em->write();
+		$this->buttonSpace();
 		
 		$contacts = $this->getData()->getConcertContacts($_GET["id"]);
 		$contacts = Table::addDeleteColumn($contacts, $this->modePrefix() . "delConcertContact&id=" . $_GET["id"] . "&contactid=");

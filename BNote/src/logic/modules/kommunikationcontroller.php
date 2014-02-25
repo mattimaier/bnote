@@ -43,6 +43,34 @@ class KommunikationController extends DefaultController {
 				$_POST["message"] .= "\n$ext";
 			}
 		}
+		else if(isset($_POST["concert"])) {
+			$concert = $this->getData()->getConcert($_POST["concert"]);
+			
+			// subject
+			$subj = "Konzert am " . Data::getWeekdayFromDbDate($concert["begin"]);
+			$text .= ", " . Data::convertDateFromDb($concert["begin"]) . " Uhr";
+			$_POST["subject"] = $subj;
+			
+			// body
+			if($_POST["message"] == "") {
+				$body = "Am " . Data::getWeekdayFromDbDate($concert["begin"]) . " den ";
+				$body .= Data::convertDateFromDb($concert["begin"]) . " Uhr findet ein Konzert ";
+				$body .= "von " . $this->getData()->getSysdata()->getCompany() . " statt.\n";
+				$body .= "Weitere Details findest du in BNote.";
+				$_POST["message"] = $body;
+			}
+		}
+		else if(isset($_POST["vote"])) {
+			$vote = $this->getData()->getVote($_POST["vote"]);
+			
+			// subject
+			$_POST["subject"] = "Abstimmung: " . $vote["name"];
+			
+			// body
+			if($_POST["message"] == "") {
+				$_POST["message"] = "Bitte gebe deine Stimme für die im Betreff genannte Abstimmung auf BNote ab.";
+			}
+		}
 		else if($_POST["subject"] == "") {
 			global $system_data;
 			$_POST["subject"] = $system_data->getCompany(); // band name
@@ -61,6 +89,12 @@ class KommunikationController extends DefaultController {
 		if(isset($_POST["rehearsal"])) {
 			// get mail addresses for a rehearsal
 			$addresses = $this->getData()->getRehearsalContactMail($_POST["rehearsal"]);
+		}
+		else if(isset($_POST["concert"])) {
+			$addresses = $this->getData()->getConcertContactMail($_POST["concert"]);
+		}
+		else if(isset($_POST["vote"])) {
+			$addresses = $this->getData()->getVoteContactMail($_POST["vote"]);
 		}
 		else {
 			// get all mail addresses from selected groups

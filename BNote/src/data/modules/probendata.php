@@ -144,15 +144,6 @@ class ProbenData extends AbstractData {
 		$this->database->execute($query);
 	}
 	
-	function getCommunicationModuleId() {
-		global $system_data;
-		$mods = $system_data->getModuleArray();
-		foreach($mods as $id => $name) {
-			if($name == "Kommunikation") return $id;
-		}
-		return 0;
-	}
-	
 	function locationsPresent() {
 		$ct = $this->database->getCell("location", "count(*)", "id > 0");
 		return ($ct > 0);

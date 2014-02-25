@@ -390,8 +390,10 @@ class StartData extends AbstractData {
 			
 			$where = "";
 			foreach($users as $i => $user) {
+				if($i == 0) continue;
 				if($where != "") $where .= " OR ";
-				$where .= " id = " . $user["contact"];
+				$contact = $this->adp()->getUserContact($user["id"]);
+				$where .= " id = " . $contact["id"];
 			}
 			$query = "SELECT * FROM contact WHERE $where";
 			return $this->database->getSelection($query);
