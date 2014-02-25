@@ -1,11 +1,6 @@
 <?php
 
 /**
- * This is needed to clean the comments from crap.
- */
-require_once $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
-
-/**
  * Data Access Class for Start data.
  * @author matti
  *
@@ -355,6 +350,7 @@ class StartData extends AbstractData {
 	
 	function addComment($otype, $oid) {
 		// validation
+		require_once $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
 		$newsData = new NachrichtenData();
 		$newsData->check($_POST["message"]);
 		

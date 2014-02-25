@@ -129,8 +129,17 @@ abstract class AbstractBNA implements iBNA {
 		global $dir_prefix;
 		$this->startdata = new StartData($dir_prefix);
 		
+		$this->init();
+		
 		$this->authentication();
 		$this->route();
+	}
+	
+	/**
+	 * Use this function to execute code before authentication and routing.
+	 */
+	protected function init() {
+		// do nothing by default
 	}
 	
 	/**
@@ -285,15 +294,22 @@ abstract class AbstractBNA implements iBNA {
 	
 	function getAll() {
 		$this->beginOutputWith();
+		$sep = $this->entitySeparator();
 		
-		//$this->getRehearsals(); echo "\n";
-		$this->getRehearsalsWithParticipation($this->uid); echo "\n";
+		$this->getRehearsalsWithParticipation($this->uid); echo $sep . "\n";
 		
-		$this->getConcerts(); echo "\n";
-		$this->getContacts(); echo "\n";
+		$this->getConcerts(); echo $sep . "\n";
+		$this->getContacts(); echo $sep . "\n";
 		$this->getLocations(); echo "\n";
-		$this->getAddresses(); echo "\n";
+		// getAddresses() removed by 2.5.0
 		$this->endOutputWith();
+	}
+	
+	/**
+	 * @return A separator between entities, in JSON for example ",".
+	 */
+	protected function entitySeparator() {
+		return "";
 	}
 	
 	function getParticipation($rid, $uid) {

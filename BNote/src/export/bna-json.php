@@ -19,8 +19,31 @@ require_once("bna-interface.php");
 
 class BNAjson extends AbstractBNA {
 	
+	/**
+	 * Globally unique identifiers.
+	 * @var boolean
+	 */
+	private $global_on = false;
+	
+	/**
+	 * The URL where this BNote instance runs.
+	 * @var string
+	 */
+	private $instanceUrl = "";
+	
+	function init() {
+		if(isset($_GET["global"]) && $_GET["global"] != "") {
+			$this->global_on = true;
+		}
+		
+		$this->instanceUrl = $this->sysdata->getSystemURL();
+		if(Data::startsWith($this->instanceUrl, "http://")) {
+			$this->instanceUrl = substr($this->instanceUrl, 7); // cut prefix
+		}
+	}
+	
 	function beginOutputWith() {
-		header('Content-type: application/json');
+		header('Content-type: application/json; charset=utf-8');
 		echo "{\n";
 	}
 	
@@ -28,14 +51,8 @@ class BNAjson extends AbstractBNA {
 		echo "}";
 	}
 	
-	function getAll() {
-		$this->beginOutputWith();
-		$this->getRehearsalsWithParticipation($this->uid); echo ",\n";
-		$this->getConcerts(); echo ",\n";
-		$this->getContacts(); echo ",\n";
-		$this->getLocations(); echo ",\n";
-		$this->getAddresses(); echo "\n";
-		$this->endOutputWith();
+	function entitySeparator() {
+		return ",";
 	}
 	
 	function printEntities($selection, $line_node) {
@@ -43,13 +60,21 @@ class BNAjson extends AbstractBNA {
 		for($i = 1; $i < count($selection); $i++) {
 			$e = $selection[$i];
 			if($i > 1) echo ",";
-			//echo "\"$i\" : {";
 			echo "{";
 			$j = 0;
 			foreach($e as $index => $value) {
 				if(is_numeric($index)) continue;
 				if($j > 0) echo ",";
+				
+				// conversions for globally unique identifiers
+				if($this->global_on && $index == "id") {
+					// singluar type
+					echo '"type" : "' . $line_node . '", ';
+					$value = $this->instanceUrl . "/$line_node/$value"; 
+				}
+				
 				echo "\"$index\" : \"" . $value . "\"";
+				
 				$j++;
 			}
 			echo "}";
