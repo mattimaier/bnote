@@ -2,8 +2,8 @@
 # by Matti Maier Internet Solutions
 # www.mattimaier.de
 
-# Release Version 2.x.x
-# Release Date 2014-xx-xx
+# Release Version 2.5.0
+# Release Date 2014-02-27
 # License GPLv3
 
 Requirements
@@ -41,6 +41,4 @@ How to update an existing BNote instance?
 	- all files from the config/ folder including the folder itself
 	- readme.txt
 	- release_notes.txt
-2. Open the config/config.xml file in the subdirectory of this folder in an editor of your choice.
-   Compare the config.xml file with the config.xml file of your current instance and add the missing tags.
-3. Execute update_db.php to update your database schema.
+2. Execute update_db.php to update your database schema.

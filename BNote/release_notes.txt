@@ -2,6 +2,25 @@
 ## Release Notes
 ##
 
-Bugfix #:
+Issue #88: Remove app/ FWD in index.php
 
-Enhancement #:
+Bugfix #89: Kalender-Export: Zeitzone
+Bugfix #92: Installation: config.xml wurde nicht richtig erstellt
+Bugfix #93: [User Request] Rechtschreibfehler: "vergangene"
+Bugfix #95: [User Request] Repertoire: Sonderzeichen in Titel
+
+Enhancement #12: Print: Teilnehmerliste 
+Enhancement #63: Abstimmung: Vielleicht Option
+Enhancement #69: Blog für alle optional einführen
+Enhancement #76: Proben/Konzerte: Deadlines für Zusagen
+Enhancement #82: Gruppenaufgabe
+Enhancement #83: [User Request] Repertoire: Genre individuell angeben
+Enhancement #84: [User Request] Repertoire: Beats per Minute (bpm) angeben
+Enhancement #85: Repertoire: Sortiermöglichkeiten hinzufügen
+Enhancement #87: BNA: Aufgaben, Nachrichten, Abstimmungen, Repertoire hinzufügen
+Enhancement #90: Erweiterung der JSON-Schnittstelle
+Enhancement #94: [User Request] Repertoire: Tonart, Solisten
+Enhancement #96: [User Request] Button zum Download aller Dateien (in einem Ordner) im Share
+Enhancement #97: Logout Page: Redo
+Enhancement #99: Benachrichtigung Konzert
+Enhancement #100: Benachrichtigung Abstimmung
