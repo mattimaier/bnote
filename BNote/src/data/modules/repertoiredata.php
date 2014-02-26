@@ -84,7 +84,7 @@ class RepertoireData extends AbstractData {
 			$values["composer"] = $this->database->execute($query);
 		}
 		
-		parent::create($values);
+		return parent::create($values);
 	}
 	
 	function update($id, $values) {

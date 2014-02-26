@@ -60,7 +60,7 @@ abstract class Data {
 	
 	/**
 	 * Converts a german formatted date to an american format of YYYY-MM-DD
-	 * @param dedate $date Date in format DD.MM.YYYY
+	 * @param dedate $date Date in format DD.MM.YYYY or DD.MM.YYYY HH:ii
 	 */
 	public static function convertDateToDb($date) {
 		$date = trim($date);

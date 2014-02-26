@@ -139,6 +139,14 @@ abstract class AbstractBNA implements iBNA {
 		else if($function == "getRehearsalsWithParticipation") {
 			$this->getRehearsalsWithParticipation($this->uid);
 		}
+		else if($function == "getVoteOptions") {
+			// validation
+			if(!isset($_GET["vid"]) || $_GET["vid"] == "") {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->getVoteOptions($_GET["vid"]);
+		}
 		else if($function == "getComments") {
 			if(!isset($_GET["otype"]) || !isset($_GET["oid"])
 				|| $_GET["otype"] == "" || $_GET["oid"] == "") {
@@ -148,15 +156,15 @@ abstract class AbstractBNA implements iBNA {
 			$this->getComments($_GET["otype"], $_GET["oid"]);
 		}
 		else if($function == "taskCompleted") {
-			if(!isset($_GET["taskId"]) || $_GET["taskId"] == "") {
+			if(!isset($_POST["taskId"]) || $_POST["taskId"] == "") {
 				header("HTTP/1.0 412 Insufficient Parameters.");
 				exit();
 			}
-			$this->taskCompleted($_GET["taskId"]);
+			$this->taskCompleted($_POST["taskId"]);
 		}
 		else if($function == "addSong") {
 			// check permission
-			if(!$this->sysdata->userHasPermission(6)) { // 6=Repertoire
+			if(!$this->sysdata->userHasPermission(6, $this->uid)) { // 6=Repertoire
 				header("HTTP/1.0 403 Permission denied.");
 				exit();
 			}
@@ -181,7 +189,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		else if($function == "addRehearsal") {
 			// check permission
-			if(!$this->sysdata->userHasPermission(5)) { // 6=Rehearsals
+			if(!$this->sysdata->userHasPermission(5, $this->uid)) { // 6=Rehearsals
 				header("HTTP/1.0 403 Permission denied.");
 				exit();
 			}
@@ -217,9 +225,9 @@ abstract class AbstractBNA implements iBNA {
 				}
 			}
 			
-			$this->vote($_GET["vid"], $options);
+			$this->vote($_POST["vid"], $options);
 		}
-		else if($funciton == "addComment") {
+		else if($function == "addComment") {
 			if(!isset($_POST["otype"]) || !isset($_POST["oid"]) || !isset($_POST["message"])
 					|| $_POST["otype"] == "" || $_POST["oid"] == ""
 					|| $_POST["message"] == "") {
@@ -339,6 +347,11 @@ abstract class AbstractBNA implements iBNA {
 	function getVotes() {
 		$votes = $this->startdata->getVotesForUser($this->uid);
 		$this->printEntities($votes, "vote");
+	}
+	
+	function getVoteOptions($vid) {
+		$options = $this->startdata->getOptionsForVote($vid);
+		$this->printEntities($options, "vote_option");
 	}
 	
 	function getSongs() {
@@ -479,6 +492,13 @@ abstract class AbstractBNA implements iBNA {
 		$values["location"] = $location;
 		
 		// add rehearsal to default group
+		$defaultGroup = $this->sysdata->getDynamicConfigParameter("default_contact_group");
+		$values["group_" . $defaultGroup] = "on";
+		$_POST["group_" . $defaultGroup] = "on";
+		
+		// create rehearsal
+		require_once $GLOBALS["DIR_WIDGETS"] . "iwriteable.php";
+		require_once $GLOBALS["DIR_WIDGETS"] . "groupselector.php";
 		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
 		echo $rehData->create($values);
 	}

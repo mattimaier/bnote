@@ -50,6 +50,13 @@ interface iBNA {
 	public function getVotes();
 	
 	/**
+	 * Retrieves all possible options for the given vote.
+	 * @param Integer $vid Vote ID.
+	 * @return All vote options for this vote.
+	 */
+	public function getVoteOptions($vid);
+	
+	/**
 	 * @return Returns all songs in the repertoire.
 	 */
 	public function getSongs();

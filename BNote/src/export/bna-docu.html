@@ -109,6 +109,17 @@ entity has a field <strong>type</strong> which contains its type.
 	<li><i>Parameters</i>: None.</li>
 </ul>
 
+<h3>getVoteOptions</h3>
+<ul>
+	<li><i>Description</i>: Fetches all vote options from the database and renders them.</li>
+	<li><i>Returns</i>: All vote options in the specified format.</li>
+	<li><i>Parameters</i>:
+		<ul>
+	 		<li><b>vid</b>: <i>Integer</i> ID of the vote.</li>
+	 	</ul>
+	</li>
+</ul>
+
 <h3>getSongs</h3>
 <ul>
 	<li><i>Description</i>: Fetches all songs from the repertoire and renders them.</li>
@@ -200,13 +211,13 @@ entity has a field <strong>type</strong> which contains its type.
 <h3>addRehearsal</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
-	<li><i>Description</i>: Adds a rehearsal to the default group.</li>
+	<li><i>Description</i>: Adds a rehearsal to the default group (see configuration).</li>
 	<li><i>Returns</i>: ID of the newly created rehearsal.</li>
 	<li><i>Parameters</i>:
 		<ul>
-	 		<li><b>begin</b>: <i>String</i> Begin of the rehearsal, format: YYYY-MM-DD HH:ii:ss.</li>
-			<li><b>end</b>: <i>String</i> End of the rehearsal, format: YYYY-MM-DD HH:ii:ss.</li>
-	 		<li><b>approve_until</b>: <i>String</i> Approve participation until, format: YYYY-MM-DD HH:ii:ss.</li>
+	 		<li><b>begin</b>: <i>String</i> Begin of the rehearsal, format: DD.MM.YYYY HH:ii.</li>
+			<li><b>end</b>: <i>String</i> End of the rehearsal, format: DD.MM.YYYY HH:ii.</li>
+	 		<li><b>approve_until</b>: <i>String</i> Approve participation until, format: DD.MM.YYYY HH:ii.</li>
 	 		<li><b>notes</b>: <i>String</i> Notes for the rehearsal.</li>
 	 		<li><b>location</b>: <i>Integer</i> Location ID.</li>
 		</ul>
@@ -216,7 +227,9 @@ entity has a field <strong>type</strong> which contains its type.
 <h3>vote</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
-	<li><i>Description</i>: Adds a vote to the voting.</li>
+	<li><i>Description</i>: Adds a vote to the voting.<br/>
+		Use a POST data string like: <code>vid=11&38=1&39=0&40=1&41=2&42=2&43=2&44=0</code>.
+	</li>
 	<li><i>Returns</i>: void</li>
 	<li><i>Parameters</i>:
 		<ul>

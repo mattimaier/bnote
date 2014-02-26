@@ -8,11 +8,14 @@
 class StartData extends AbstractData {
 	
 	private $newsData;
+	private $dir_prefix;
 	
 	/**
 	 * Build data provider.
 	 */
 	function __construct($dir_prefix = "") {
+		$this->dir_prefix = $dir_prefix;
+		
 		$this->fields = array(
 			"id" => array("User ID", FieldType::INTEGER),
 			"login" => array("Login", FieldType::CHAR),
@@ -356,7 +359,7 @@ class StartData extends AbstractData {
 		}
 		
 		// validation
-		require_once $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
+		require_once $this->dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
 		$newsData = new NachrichtenData();
 		$newsData->check($message);
 		

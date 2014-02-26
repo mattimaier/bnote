@@ -109,12 +109,15 @@ class Systemdata {
  }
  
  /**
-  * Returns an array with the module-ids the current user has permission for
+  * @param Integer $uid optional: User ID, by default current user.
+  * @return An array with the module-ids the current user has permission for
   */
- public function getUserModulePermissions() {
+ public function getUserModulePermissions($uid = -1) {
  	$ret = array();
  	
- 	$query = "SELECT module FROM privilege WHERE user = " . $_SESSION["user"];
+ 	if($uid == -1) $uid = $_SESSION["user"];
+ 	
+ 	$query = "SELECT module FROM privilege WHERE user = $uid";
  	$res = mysql_query($query);
  	if(!$res) new Error("The database query to retrieve the privileges failed.");
  	if(mysql_num_rows($res) == 0) new Error("You don't have sufficient privileges to access this system. Please contact your system administrator.");
@@ -125,9 +128,17 @@ class Systemdata {
  	return $ret;
  }
  
- public function userHasPermission($modulId) {
+ public function userHasPermission($modulId, $uid = -1) {
  	if($this->loginMode() && !is_numeric($modulId)) return true;
- 	return in_array($modulId, $this->user_module_permission);
+ 	
+ 	if($uid == -1) {
+ 		$permissions = $this->user_module_permission;
+ 	}
+ 	else {
+ 		$permissions = $this->getUserModulePermissions($uid);
+ 	}
+ 	
+ 	return in_array($modulId, $permissions);
  }
 
  /**
