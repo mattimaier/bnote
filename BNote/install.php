@@ -237,7 +237,7 @@ class Installation {
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
-			array_push($querties,
+			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `comment` (
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					`author` int(11) NOT NULL,
@@ -261,6 +261,7 @@ class Installation {
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					`begin` datetime NOT NULL,
 					`end` datetime DEFAULT NULL,
+					`approve_until` datetime,
 					`location` int(10) unsigned NOT NULL,
 					`program` int(10) unsigned DEFAULT NULL,
 					`notes` text,
@@ -408,6 +409,7 @@ class Installation {
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					`begin` datetime NOT NULL,
 					`end` datetime DEFAULT NULL,
+					`approve_until` datetime,
 					`notes` text,
 					`location` int(10) unsigned NOT NULL,
 					PRIMARY KEY (`id`)
@@ -480,7 +482,7 @@ class Installation {
 					`song` int(11) NOT NULL,
 					`contact` int(11) NOT NULL,
 					`notes` varchar(200) DEFAULT NULL,
-					PRIMARY KEY (`rehearsal`,`contact`)
+					PRIMARY KEY (`song`,`contact`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
 			);
 			
