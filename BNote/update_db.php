@@ -3,7 +3,7 @@
 /*************************
  * UPGRADES THE DATABASE *
  * @author Matti Maier   *
- * Update 2.5.0			 *
+ * Update 2.5.1			 *
  *************************/
 
 // path to src/ folder
@@ -159,50 +159,7 @@ $update = new UpdateDb();
 <?php 
 
 // Task 1: Insert Configuration
-$update->addDynConfigParam("allow_zip_download", "1");
-$update->addDynConfigParam("rehearsal_show_max", "5");
-$update->addDynConfigParam("updates_show_max", "5");
-$update->addDynConfigParam("discussion_on", "1");
 
-// Task 2.1: Adapt songs table
-$update->addColumnToTable("song", "bpm", "int(3)", "AFTER length");
-$update->addColumnToTable("song", "music_key", "varchar(40)", "AFTER bpm");
-
-// Task 2.2: Add table song_solist
-$update->addTable("song_solist", 
-		"CREATE TABLE IF NOT EXISTS `song_solist` (
-			`song` int(11) NOT NULL,
-			`contact` int(11) NOT NULL,
-			`notes` varchar(200) DEFAULT NULL,
-			PRIMARY KEY (`song`,`contact`)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-
-// Task 3: Add temporary zip configuration
-$update->createFolder("data/share/_temp");
-
-// Task 4.1: Adapt rehearsal table
-$update->addColumnToTable("rehearsal", "approve_until", "datetime", "AFTER end");
-
-// Task 4.2: Adapt concert table
-$update->addColumnToTable("concert", "approve_until", "datetime", "AFTER end");
-
-// Task 5: Adapt vote_option_user table
-$update->addColumnToTable("vote_option_user", "choice", "int(1) DEFAULT 1");
-
-// Task 6.1: Add table comment
-$update->addTable("comment",
-		"CREATE TABLE IF NOT EXISTS `comment` (
-		`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-		`author` int(11) NOT NULL,
-		`created_at` datetime NOT NULL,
-		`otype` char(2) NOT NULL,
-		`oid` int(10) unsigned NOT NULL,
-		`message` text,
-		PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-
-// Task 6.2 Adapt user table
-$update->addColumnToTable("user", "email_notification", "int(1) DEFAULT 1");
 
 ?>
 <br/><br/>
