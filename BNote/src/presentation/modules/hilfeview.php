@@ -9,7 +9,7 @@ class HilfeView extends AbstractView {
 	
 	private $introPages = array(
 			"ovB7s2dIwCU" => "vid", // introduction video
-			"bnote2" => "Neuerungen in BNote 2.5",
+			"bnote_news" => "Neuerungen in BNote",
 			"sicherheit" => "Sicherheitshinweise",
 			"support" => "Support / Kontakt"
 	);

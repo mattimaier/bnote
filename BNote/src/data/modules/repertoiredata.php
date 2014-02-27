@@ -71,6 +71,9 @@ class RepertoireData extends AbstractData {
 		$values["composer"] = $this->modifyString($values["composer"]);
 		$values["title"] = $this->modifyString($values["title"]);
 		
+		// modify bpm
+		if($values["bpm"] == "") $values["bpm"] = 0;
+		
 		/* look for composer, if there don't add him/her
 		 * -> use key, otherwise add and use key.
 		 */

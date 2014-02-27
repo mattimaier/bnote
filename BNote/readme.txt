@@ -39,6 +39,7 @@ How to update an existing BNote instance?
 -----------------------------------------
 1. Copy all files (including hidden ones like .htaccess files) from this folder, except:
 	- all files from the config/ folder including the folder itself
+	- data/nachrichten.html
 	- readme.txt
 	- release_notes.txt
 2. Execute update_db.php to update your database schema.
