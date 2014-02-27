@@ -31,26 +31,6 @@ class StartView extends AbstractView {
 	
 	function start() {
 		Writing::h1("Willkommen");
-		Writing::p("Hier befindest du dich auf der Startseite des internen Bereichs der Website.");
-		
-		// Calendar Exports
-		$userExt = "?user=" . urlencode($this->getData()->adp()->getLogin());
-		
-		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender Export");
-		$ical->addIcon("arrow_down");
-		$ical->write();
-		$this->buttonSpace();
-		
-		$systemUrl = $this->getData()->getSysdata()->getSystemURL();
-		if(!Data::endsWith($systemUrl, "/")) $systemUrl .= "/";
-		if(Data::startsWith($systemUrl, "http://")) $systemUrl = substr($systemUrl, 7);
-		else if(Data::startsWith($systemUrl, "https://")) $systemUrl = substr($systemUrl, 8);
-				
-		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender abonnieren");
-		$calSubsc->addIcon("arrow_right");
-		$calSubsc->write();
-		
-		$this->verticalSpace();
 		
 		$news = $this->getData()->getNews();
 		
@@ -117,7 +97,26 @@ class StartView extends AbstractView {
 				?>
 			</div>
 		</div>
+		<?php $this->verticalSpace(); ?>
+		
 		<?php
+		// Calendar Exports
+		$userExt = "?user=" . urlencode($this->getData()->adp()->getLogin());
+		
+		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender Export");
+		$ical->addIcon("arrow_down");
+		$ical->write();
+		$this->buttonSpace();
+		
+		$systemUrl = $this->getData()->getSysdata()->getSystemURL();
+		if(!Data::endsWith($systemUrl, "/")) $systemUrl .= "/";
+		if(Data::startsWith($systemUrl, "http://")) $systemUrl = substr($systemUrl, 7);
+		else if(Data::startsWith($systemUrl, "https://")) $systemUrl = substr($systemUrl, 8);
+				
+		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender abonnieren");
+		$calSubsc->addIcon("arrow_right");
+		$calSubsc->write();
+		
 	}
 	
 	public function askReason($type) {

@@ -14,15 +14,25 @@ div.start_box {
 	border: 1px solid #e0e0e0;
 }
 
-div.start_box_heading {
+div.start_box a{
+	color: #000;
+}
+
+div.start_box a:hover{
+text-decoration: underline;
+}
+div.start_box_heading {	
 	display: block;
-	background-color: #61b3ff;
-	color: #fff;
+	background-color: #e6e6e6;
+	color: #8A8A8A;
 	padding: 14px;
 	padding-top: 7px;
 	padding-bottom: 7px;
 	text-transform: uppercase;
+	font-weight: 700;
+	letter-spacing: 0.1em;
 }
+
 
 div.start_box_content {
 	padding: 14px;
@@ -51,10 +61,6 @@ span.start_update_box_author {
 	color: #A0A0A0;
 }
 
-a.participation {
-	color: #000;
-}
-
-a.participation:hover {
-	text-decoration: underline;
+div.start_box a.participation {
+	color: #61b3ff;
 }

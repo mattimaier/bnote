@@ -3,7 +3,7 @@ body {
 	background-color: #eee;
 	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
 	font-size: 11pt;
-	line-height: 1.35;
+	line-height: 1.5;
 }
 
 a {
@@ -86,7 +86,7 @@ input[type="submit"],a.linkbox {
 	background-color: #eee;
 	font-size: 11pt;
 	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
-	padding: 4px 16px;
+	padding: 6px 20px;
 	border: 1px solid;
 	border-color: #e0e0e0;
 }
@@ -106,9 +106,9 @@ input[type="text"],input[type="password"],textArea {
 	background-color: #fff;
 	font-size: 11pt;
 	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
-	padding: 0 4px;
+	padding: 2px 6px;
 	border: 1px solid;
-	border-color: #e0e0e0;
+	border-color: #61b3ff;
 }
 
 /* table */
@@ -117,6 +117,7 @@ table {
 	border-color: #e0e0e0;
 	margin-top: 1em;
 	margin-bottom: 1em;
+	background-color: #fff;
 }
 
 td {
@@ -129,13 +130,18 @@ td.DataTable_Header {
 	color: #fff;
 }
 
-/* Zebra striping */
+/* Zebra striping 
 tr:nth-of-type(even) {
 	background: #fff;
 }
 
 tr:nth-of-type(odd) {
 	background: #eee;
+}*/
+
+tr {
+	border-bottom: 1px solid;
+	border-color: #eee;
 }
 
 td a {
@@ -355,15 +361,27 @@ p.rehearsal_details {
 }
 
 #autoActivation {
-	color: black;
+	color: #F9FF61;
 	font-weight: bold;
 	margin-left: 20px;
+	letter-spacing: 0.1em;
 }
-
 .logout {
 	margin: 2%;
 	display: inline-block;
 	padding: 10px;
 	border: 1px solid #e0e0e0;
 	background: #FFFFFF;
+}
+
+fieldset table {
+	border: none;
+}
+
+fieldset tr {
+	border: none;
+}
+
+.login {
+	border: none;
 }

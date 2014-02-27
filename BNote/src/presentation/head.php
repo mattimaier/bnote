@@ -21,8 +21,7 @@ if($handle = opendir('style/css')) {
  //embed jQuery library
  $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
  ?>
- <link href="https://fonts.googleapis.com/css?family=PT+Sans&amp;subset=latin" rel="stylesheet" type="text/css" />
- <link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+ <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
  
  <link type="text/css" href="<?php echo $jQuery_dir; ?>css/ui-lightness/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
  
