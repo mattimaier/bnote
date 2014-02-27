@@ -25,22 +25,23 @@ class HilfeView extends AbstractView {
 			"mitspieler" => "Modul Mitspieler",
 			"proben" => "Modul Proben",
 			"probenphase" => "Modul Probenphase",
+			"repertoire" => "Modul Repertoire",
 			"share" => "Modul Share"
 	);
 	
 	// format: code => description
 	private $videos = array(
 			"ovB7s2dIwCU" => "Grundlagen und Einführungsvideo",
-			"6OTzjJbMsHY" => "Tutorial 1 - Mitgliedersicht",
-			"dVJYFbWgj4E" => "Tutorial 2 - Administrations&uuml;berblick",
-			"CXCbngJM8zU" => "Tutorial 3 - Benutzer und Kontakte",
-			"PCWTS0jq-24" => "Tutorial 4 - Kommunikation",
-			"VGCWdZr3reU" => "Tutorial 5 - Locations",
-			"dWlnssimDzs" => "Tutorial 6 - Repertoire",
-			"jAmp2H7GaDg" => "Tutorial 7 - Probe",
-			"UsqMTUEWNiw" => "Tutorial 8 - Konzerte",
-			"A09dIMCfuig" => "Tutorial 9 - Website",
-			"kbBNbmlC__U" => "Tutorial 10 - Share"
+			"6OTzjJbMsHY" => "Mitgliedersicht",
+			"dVJYFbWgj4E" => "Administrations&uuml;berblick",
+			"CXCbngJM8zU" => "Benutzer und Kontakte",
+			"PCWTS0jq-24" => "Kommunikation",
+			"VGCWdZr3reU" => "Locations",
+// 			"dWlnssimDzs" => "Repertoire",
+// 			"jAmp2H7GaDg" => "Probe",
+			"UsqMTUEWNiw" => "Konzerte",
+			"A09dIMCfuig" => "Website"
+// 			"kbBNbmlC__U" => "Tutorial 10 - Share"
 	);
 	
 	function __construct($ctrl) {
