@@ -27,11 +27,22 @@ class LoginData extends AbstractData {
 	}
 	
 	function validateLogin() {
-		$this->regex->isLogin($_POST["login"]);
+		if(!$this->regex->isLoginQuiet($_POST["login"])) {
+			$this->regex->isEmail($_POST["login"]);
+		}
 		$this->regex->isPassword($_POST["password"]);
 	}
 	
 	function getPasswordForLogin($login) {
+		if(strpos($login, "@") !== false) {
+			$cid = $this->database->getCell("contact", "id", "email = \"" . $login . "\"");
+			if($cid > 0) {
+				return $this->database->getCell($this->table, "password", "contact = $cid AND isActive = 1");
+			}
+			else {
+				return null;
+			}
+		}
 		return $this->database->getCell($this->table, "password", "login = '" . $login . "' AND isActive = 1");
 	}
 	

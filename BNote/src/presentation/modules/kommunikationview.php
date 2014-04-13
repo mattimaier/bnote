@@ -38,6 +38,8 @@ class KommunikationView extends AbstractView {
 		$vm->addIcon("arrow_right");
 		$vm->write();
 		
+		$this->verticalSpace();
+		
 		// Rundmail form
 		$form = $this->createMailForm($this->modePrefix() . "groupmail");
 		$form->write();

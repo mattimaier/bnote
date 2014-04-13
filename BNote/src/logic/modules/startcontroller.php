@@ -48,7 +48,7 @@ class StartController extends DefaultController {
 		}
 	}
 	
-	private function notifyContactsOnComment() {
+	public function notifyContactsOnComment($uid = -1) {
 		// get contacts to notify
 		$contacts = $this->getData()->getContactsForObject($_GET["otype"], $_GET["oid"]);
 		
@@ -56,19 +56,19 @@ class StartController extends DefaultController {
 		if($contacts == null) return;
 		else if(count($contacts) <= 1) return;
 		
-		// create message
-		$headers  = "From: " . $this->getData()->getSysdata()->getCompany() . "\r\n";
-		$headers .= 'MIME-Version: 1.0' . "\r\n";
-		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+		$sender = $this->getData()->getSysdata()->getUsersContact($uid);
 		
-		$contact = $this->getData()->getSysdata()->getUsersContact();
+		// create message
+		$headers  = "From: " . $sender["email"] . "\r\n";
+		$headers .= 'MIME-Version: 1.0' . "\r\n";
+		$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
 		
 		$to = ""; // no to, only bcc
 		$bcc = "";
-		$subject = "Diskussion: " . $this->getView()->getObjectTitle($_GET["otype"], $_GET["oid"]);
+		$subject = "Diskussion: " . utf8_encode($this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]));
 		$body = "<h3>Neue Nachricht zu Diskussion</h3>";
-		$body .= "<p>von " . $contact["name"] . " " . $contact["surname"] . "</p>";
-		$body .= "<p>" . $_POST["message"] . "</p>"; // checked here already
+		$body .= "<p>von " . $sender["name"] . " " . $sender["surname"] . "</p>";
+		$body .= "<p>" . utf8_encode($_POST["message"]) . "</p>"; // checked here already
 		
 		foreach($contacts as $i => $contact) {
 			if($i == 0) continue; // header
@@ -82,8 +82,8 @@ class StartController extends DefaultController {
 		}
 		$headers .= 'Bcc: ' . $bcc . "\r\n";
 		
-//  	echo "headers: $headers<br/>\n";
-//  	echo "receipient: $to<br/>\n";
+//  		echo "headers: $headers<br/>\n";
+//  		echo "receipient: $to<br/>\n";
 // 		echo "subject: $subject<br/>\n";
 // 		echo "body: $body<br/>\n";
 		

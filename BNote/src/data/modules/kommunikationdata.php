@@ -31,6 +31,10 @@ class KommunikationData extends KontakteData {
 	function getMailaddressesFromGroup($prefix) {
 		$selectedGroups = GroupSelector::getPostSelection($this->adp()->getGroups(), $prefix);
 		
+		if($selectedGroups == null || count($selectedGroups) == 0) {
+			return null;
+		}
+		
 		$query = "SELECT c.email ";
 		$query .= "FROM contact c JOIN contact_group cg ON cg.contact = c.id ";
 		$query .= "WHERE ";

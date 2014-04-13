@@ -61,7 +61,12 @@ class LoginController extends DefaultController {
 		}
 		
 		if($db_pw == $password) {
-			$_SESSION["user"] = $this->getData()->getUserIdForLogin($_POST["login"]);
+			if(strpos($_POST["login"], "@") !== false) {
+				$_SESSION["user"] = $this->getData()->getUserIdForEMail($_POST["login"]);
+			}
+			else {
+				$_SESSION["user"] = $this->getData()->getUserIdForLogin($_POST["login"]);
+			}
 			$this->getData()->saveLastLogin();
 		
 			// go to application

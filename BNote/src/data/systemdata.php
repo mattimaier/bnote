@@ -129,7 +129,14 @@ class Systemdata {
  }
  
  public function userHasPermission($modulId, $uid = -1) {
- 	if($this->loginMode() && !is_numeric($modulId)) return true;
+ 	if($this->loginMode() && !is_numeric($modulId)) {
+ 		// not logged in users requesting login-pages
+ 		return true;
+ 	}
+ 	else if(!$this->loginMode() && !is_numeric($modulId)) {
+ 		// logged in users requesting login-pages
+ 		return true;
+ 	}
  	
  	if($uid == -1) {
  		$permissions = $this->user_module_permission;

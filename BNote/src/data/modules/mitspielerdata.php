@@ -32,12 +32,17 @@ class MitspielerData extends AbstractData {
 	 * @return Members of groups and phases the current user is part of.
 	 */
 	function getMembers($uid = -1, $singleInfo = true) {
+		if($uid == -1) {
+			$uid = $_SESSION["user"];
+		}
+		
 		$single = "";
 		if($singleInfo) $single = ", c.name, c.surname, c.id";
-		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, i.name as instrument" . $single;
+		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, i.name as instrument" . $single;
 		$order = "ORDER BY fullname, instrument";
 		
-		if($this->getSysdata()->isUserSuperUser()) {
+		// Super User or Admin
+		if($this->getSysdata()->isUserSuperUser($uid) || $this->getSysdata()->isUserMemberGroup(1, $uid)) {
 			$query = "SELECT $fields FROM contact c
 					  JOIN instrument i ON c.instrument = i.id
 					  $order";

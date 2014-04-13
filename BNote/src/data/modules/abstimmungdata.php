@@ -10,7 +10,7 @@ class AbstimmungData extends AbstractData {
 	/**
 	 * Build data provider.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 				"id" => array("Abstimmungs-ID", FieldType::INTEGER),
 				"name" => array("Titel", FieldType::CHAR),
@@ -25,7 +25,7 @@ class AbstimmungData extends AbstractData {
 		
 		$this->table = "vote";
 
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	function create($values) {

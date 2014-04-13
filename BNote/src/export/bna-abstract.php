@@ -1,8 +1,8 @@
 <?php
 
-/*****************************************************
+/**********************************************************
  * Abstract Implementation of BNote Application Interface *
-*******************************************/
+ **********************************************************/
 
 // connect to application
 $dir_prefix = "../../";
@@ -21,6 +21,8 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "locationsdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "repertoiredata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
+require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
+require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
 
 $GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
 require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
@@ -126,7 +128,7 @@ abstract class AbstractBNA implements iBNA {
 					exit();
 				}
 				$part = $_GET["participation"];
-				if($part > 1 || $part < -1) {
+				if($part > 2 || $part < -1) {
 					$part = -1;
 				}
 				$reason = "";
@@ -518,7 +520,19 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	function addComment($otype, $oid, $message) {
+		// save comments
 		echo $this->startdata->addComment($otype, $oid, $message, $this->uid);
+		
+		// notify contacts
+		$startCtrl = new StartController();
+		$startCtrl->setData($this->startdata);
+		
+		// $_POST["message"] is set from the interface
+		// set $_GET array
+		$_GET["oid"] = $_POST["oid"];
+		$_GET["otype"] = $_POST["otype"];
+		
+		$startCtrl->notifyContactsOnComment($this->uid);
 	}
 }
 ?>

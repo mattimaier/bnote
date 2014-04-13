@@ -10,7 +10,7 @@ class KonzerteData extends AbstractData {
 	/**
 	 * Build data provider.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("Konzert ID", FieldType::INTEGER),
 			"begin" => array("Beginn", FieldType::DATETIME),
@@ -30,7 +30,7 @@ class KonzerteData extends AbstractData {
 		
 		$this->table = "concert";
 		
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	function getFutureConcerts() {

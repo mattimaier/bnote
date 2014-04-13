@@ -95,7 +95,7 @@ class FileHandler {
 		header("Content-Type: $type");
         // forces direct download of media files instead of displaying them in the browser
         header("Content-Disposition: attachment; filename=\"" . basename($this->innerpath) . "\";");
-		
+        
 		header("Content-Length: " . filesize($this->filepath));
 		
 		// dump the picture and stop the script

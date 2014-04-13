@@ -101,6 +101,10 @@ class KommunikationController extends DefaultController {
 			$addresses = $this->getData()->getMailaddressesFromGroup("group");
 		}
 		
+		if($addresses == null || count($addresses) == 0) {
+			new Error("Es wurden keine Empfänger gefunden.");
+		}
+		
 		// Receipient Setup
 		global $system_data;
 		$ci = $system_data->getCompanyInformation();		

@@ -545,7 +545,7 @@ class StartView extends AbstractView {
 		foreach($comments as $i => $comment) {
 			if($i == 0) continue; // header
 			
-			$objTitle = $this->getObjectTitle($comment["otype"], $comment["oid"]); 
+			$objTitle = $this->getData()->getObjectTitle($comment["otype"], $comment["oid"]); 
 			$objLink = $this->modePrefix() . "discussion&otype=" . $comment["otype"] . "&oid=" . $comment["oid"];
 			
 			$contact = $this->getData()->getSysdata()->getUsersContact($comment["author"]);
@@ -566,26 +566,6 @@ class StartView extends AbstractView {
 			<?php
 		}
 	}
-	public function getObjectTitle($otype, $oid) {
-		$objTitle = "";
-		if($otype == "R") {
-			$reh = $this->getData()->getRehearsal($oid);
-			$objTitle = "Probe am " . Data::convertDateFromDb($reh["begin"]) . " Uhr";
-		}
-		else if($otype == "C") {
-			$con = $this->getData()->getConcert($oid);
-			$objTitle = "Konzert am " . Data::convertDateFromDb($con["begin"]) . " Uhr";
-		}
-		else if($otype == "V") {
-			$vote = $this->getData()->getVote($oid);
-			$objTitle = "Abstimmung: " . $vote["name"];
-		}
-		else if($otype == "T") {
-			//FIXME: In case tasks can be commented as well, fix this
-			$objTitle = "Aufgabe " + $oid;
-		}
-		return $objTitle;
-	}
 	
 	public function discussion() {
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") != 1) {
@@ -595,7 +575,7 @@ class StartView extends AbstractView {
 			new Error("Bitte geben Sie den Dikussionsgegenstand an.");
 		}
 		
-		Writing::h2("Diskussion: " . $this->getObjectTitle($_GET["otype"], $_GET["oid"]));
+		Writing::h2("Diskussion: " . $this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]));
 		
 		// show comments
 		$comments = $this->getData()->getDiscussion($_GET["otype"], $_GET["oid"]);

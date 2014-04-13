@@ -15,7 +15,7 @@ class RepertoireData extends AbstractData {
 			"title" => array("Titel", FieldType::CHAR),
 			"length" => array("L&auml;nge", FieldType::CHAR), // not TIME, because of second precision
 			"genre" => array("Genre", FieldType::REFERENCE),
-			"bpm" => array("Beats per Minute (bpm)", FieldType::INTEGER),
+			"bpm" => array("Tempo (bpm)", FieldType::INTEGER),
 			"music_key" => array("Tonart", FieldType::CHAR),
 			"composer" => array("Komponist / Arrangeur", FieldType::CHAR),
 			"status" => array("Status", FieldType::REFERENCE),

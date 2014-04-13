@@ -266,7 +266,10 @@ class StartData extends AbstractData {
 		
 		// add rehearsals to resultset which the user can see
 		foreach($data as $i => $row) {
-			if(in_array($row["id"], $rehearsals)) array_push($result, $row);
+			if($i == 0) continue; // skip header
+			if(in_array($row["id"], $rehearsals)) {
+				array_push($result, $row);
+			}
 		}
 		
 		return $result;		
@@ -274,14 +277,14 @@ class StartData extends AbstractData {
 	
 	private function getRehearsalsForUser($uid) {
 		$cid = $this->adp()->getUserContact($uid);
-		$query = "SELECT rehearsal FROM rehearsal_contact WHERE contact = $cid";
+		$query = "SELECT rehearsal as id FROM rehearsal_contact WHERE contact = $cid";
 		$sel = $this->database->getSelection($query);
 		return Database::flattenSelection($sel, "rehearsal");
 	}
 	
 	private function getRehearsalsForPhases($phases) {
 		if(count($phases) == 0) return array();
-		$query = "SELECT rehearsal FROM rehearsalphase_rehearsal WHERE ";
+		$query = "SELECT rehearsal as id FROM rehearsalphase_rehearsal WHERE ";
 		foreach($phases as $i => $p) {
 			if($i > 0) $query .= " OR ";
 			$query .= "rehearsalphase = $p";
@@ -378,18 +381,18 @@ class StartData extends AbstractData {
 	
 	function getContactsForObject($otype, $oid) {
 		if($otype == "R") {
-			require_once $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
-			$probenData = new ProbenData();
+			require_once $this->dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
+			$probenData = new ProbenData($this->dir_prefix);
 			return $probenData->getRehearsalContacts($oid);
 		}
 		else if($otype == "C") {
-			require_once $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
-			$konzerteData = new KonzerteData();
+			require_once $this->dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
+			$konzerteData = new KonzerteData($this->dir_prefix);
 			return $konzerteData->getConcertContacts($oid);
 		}
 		else if($otype == "V") {
-			require_once $GLOBALS["DIR_DATA_MODULES"] . "abstimmungdata.php";
-			$absData = new AbstimmungData();
+			require_once $this->dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "abstimmungdata.php";
+			$absData = new AbstimmungData($this->dir_prefix);
 			$users = $absData->getGroup($oid);
 			
 			if(count($users) == 1) return null;
@@ -405,5 +408,26 @@ class StartData extends AbstractData {
 			return $this->database->getSelection($query);
 		}
 		return null;
+	}
+	
+	public function getObjectTitle($otype, $oid) {
+		$objTitle = "";
+		if($otype == "R") {
+			$reh = $this->getRehearsal($oid);
+			$objTitle = "Probe am " . Data::convertDateFromDb($reh["begin"]) . " Uhr";
+		}
+		else if($otype == "C") {
+			$con = $this->getConcert($oid);
+			$objTitle = "Konzert am " . Data::convertDateFromDb($con["begin"]) . " Uhr";
+		}
+		else if($otype == "V") {
+			$vote = $this->getVote($oid);
+			$objTitle = "Abstimmung: " . $vote["name"];
+		}
+		else if($otype == "T") {
+			//FIXME: In case tasks can be commented as well, fix this
+			$objTitle = "Aufgabe " + $oid;
+		}
+		return $objTitle;
 	}
 }

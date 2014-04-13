@@ -5,7 +5,7 @@
  */
 
 // Target System
-$bn_host = "http://bluenote.inizio.org";
+$bn_host = "http://test.bnote.info";
 
 // Login-Action
 $bn_action = $bn_host . "/login.php";

@@ -27,7 +27,7 @@ class LoginView extends AbstractView {
 		
 		// login form
 		$form = new Form("Anmeldung", $this->modePrefix() . "login");
-		$form->addElement("Benutzername", new Field("login", "", FieldType::CHAR));
+		$form->addElement("Benutzername<br/>oder E-Mail-Adresse", new Field("login", "", FieldType::CHAR));
 		$form->addElement("Passwort", new Field("password", "", FieldType::PASSWORD));
 		$form->write();
 	}
@@ -184,7 +184,7 @@ class LoginView extends AbstractView {
 		
 		Writing::h3("Überzeugt?");
 		Writing::p('Wenn ja, dann <a href="?mod=registration">registriert</a>
-			euch!<br /> Wenn nicht, dann sagt <a href="mailto:server@inizio.org">mir</a> Bescheid, warum nicht.
+			euch!<br /> Wenn nicht, dann sagt <a href="mailto:support@bnote.info">mir</a> Bescheid, warum nicht.
 			Entwicklung ist immer notwendig.');
 	}
 	

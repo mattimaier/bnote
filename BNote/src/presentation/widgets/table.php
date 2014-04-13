@@ -119,11 +119,7 @@ class Table implements iWriteable {
  	return $tabData;
  } 
 
- /**
-  * (non-PHPdoc)
-  * @see iWriteable::write()
-  */
- function write() { 	
+ function write() {
   echo '<table cellpadding="0" cellspacing="0">' . "\n";
 
   $head = true;
@@ -137,102 +133,114 @@ class Table implements iWriteable {
   
   foreach($this->data as $id => $row) {
    echo ' <tr>' . "\n";
-   
+    
    foreach($row as $id => $value) {
-   	if(in_array($id, $this->remove)) continue;
     if($head) {
-     # Header
-     if(isset($this->headernames[strtolower($value)])) {
-     	$headerLabel = $this->headernames[strtolower($value)];
-     }
-     else {
-     	$headerLabel = $value;
-     	}
-     echo '  <td class="DataTable_Header">' . $headerLabel . '</td>' . "\n";
-     }
-     else if(!is_numeric($id)) {
-      # Data
-      echo '  <td class="DataTable"';
-      
-      // Check whether the value is a decimal -> if so, align right
-      $isMoney = $regex->isMoneyQuiet($value);
-      if($isMoney && !isset($this->formats[$id])) echo ' align="right"';
-      
-      // Check for special format requests
-      if(isset($this->formats[$id])) {
-      	if($this->formats[$id] == "INT" || $this->formats[$id] == "DECIMAL") echo ' align="right"';
-      }
-      
-      echo '>';
-      
-      // Check for primary keys
-      if($this->edit) { # && $id == $this->primkey
-		echo '<a class="silent" href="?mod=' . $this->modid . '&mode=' . $this->mode . '&id=' . $row[$this->primkey] . '">';
-      }
-      
-      // Check for foreign keys
-      if(isset($this->foreign[$id]) && !empty($value)) {
-      	global $system_data;
-      	$arr = $system_data->dbcon->getForeign($this->foreign[$id][0], $this->foreign[$id][1], $this->foreign[$id][2]);
-      	$value = $arr[$value];
-      }
-      
-      // Check whether the value is a decimal -> if so, change . to ,
-      if($isMoney && !isset($this->formats[$id])) $value = Data::convertFromDb($value);
-      
-      // Check for special format requests
-      if(isset($this->formats[$id])) {
-      	if($this->formats[$id] == "DECIMAL") {
-      		$value = Data::convertFromDb($value);
-      	}
-      	if($this->formats[$id] == "DATE") {
-      		$value = Data::convertDateFromDb($value);
-      	}
-      	if($this->formats[$id] == "BOOLEAN") {
-      		if($value == 1) $value = "ja";
-      		else $value = "nein";
-      	}
-      }
-      
-      // Check whether the value is empty -> if so, change to -
-      if(empty($value)) $value = "-";
-      
-      // Check whether the value is a textarea -> if so, display breaks, etc.
-      if(strlen($value) > 100) $value = "<pre>$value</pre>";
-      
-      // Check for date values
-      if($regex->isDatabaseDateQuiet($value) && !isset($this->formats[$id])) {
-      	$value = Data::convertDateFromDb($value);
-      }
-      
-      // build in functionality to edit values for special cases
-      $value = $this->editValue($value, $id);
-      
-      echo $value;
-      
-      if($this->edit) echo '</a>'; # && $id == $this->primkey
-      echo '</td>' . "\n";
-      }
+    	// skip removed columns
+    	if(in_array(strtolower($value), $this->remove)) {
+    		continue;
+    	}
+    	    	
+    	# Header
+    	if(isset($this->headernames[strtolower($value)])) {
+    		$headerLabel = $this->headernames[strtolower($value)];
+    	}
+    	else {
+    		$headerLabel = $value;
+    	}
+    
+    	echo '  <td class="DataTable_Header">' . $headerLabel . '</td>' . "\n";
     }
+    else if(!is_numeric($id)) {
+    	// skip removed columns
+    	if(in_array(strtolower($id), $this->remove)) {
+    		continue;
+    	}
+    	
+    	# Data
+    	echo '  <td class="DataTable"';
+
+    	// Check whether the value is a decimal -> if so, align right
+    	$isMoney = $regex->isMoneyQuiet($value);
+    	if($isMoney && !isset($this->formats[$id])) echo ' align="right"';
+
+    	// Check for special format requests
+    	if(isset($this->formats[$id])) {
+    		if($this->formats[$id] == "INT" || $this->formats[$id] == "DECIMAL") echo ' align="right"';
+    	}
+
+    	echo '>';
+
+    	// Check for primary keys
+    	if($this->edit) { # && $id == $this->primkey
+    		echo '<a class="silent" href="?mod=' . $this->modid . '&mode=' . $this->mode . '&id=' . $row[$this->primkey] . '">';
+    	}
+
+    	// Check for foreign keys
+    	if(isset($this->foreign[$id]) && !empty($value)) {
+    		global $system_data;
+    		$arr = $system_data->dbcon->getForeign($this->foreign[$id][0], $this->foreign[$id][1], $this->foreign[$id][2]);
+    		$value = $arr[$value];
+    	}
+
+    	// Check whether the value is a decimal -> if so, change . to ,
+    	if($isMoney && !isset($this->formats[$id])) $value = Data::convertFromDb($value);
+
+    	// Check for special format requests
+    	if(isset($this->formats[$id])) {
+    		if($this->formats[$id] == "DECIMAL") {
+    			$value = Data::convertFromDb($value);
+    		}
+    		if($this->formats[$id] == "DATE") {
+    			$value = Data::convertDateFromDb($value);
+    		}
+    		if($this->formats[$id] == "BOOLEAN") {
+    			if($value == 1) $value = "ja";
+    			else $value = "nein";
+    		}
+    	}
+
+    	// Check whether the value is empty -> if so, change to -
+    	if(empty($value)) $value = "-";
+
+    	// Check whether the value is a textarea -> if so, display breaks, etc.
+    	if(strlen($value) > 100) $value = "<pre>$value</pre>";
+
+    	// Check for date values
+    	if($regex->isDatabaseDateQuiet($value) && !isset($this->formats[$id])) {
+    		$value = Data::convertDateFromDb($value);
+    	}
+
+    	// build in functionality to edit values for special cases
+    	$value = $this->editValue($value, $id);
+
+    	echo $value;
+
+    	if($this->edit) echo '</a>'; # && $id == $this->primkey
+    	echo '</td>' . "\n";
+    }
+   }
    echo ' </tr>';
    if($head) $head = false;
 
    # Write empty message
-   if($empty) echo ' <TR><TD colspan="' . count($row) . '">[Es wurden keine Eintr&auml;ge gefunden.]</TD></TR>' . "\n";
+   if($empty) {
+   	echo ' <TR><TD colspan="' . count($row) . '">[Es wurden keine Eintr&auml;ge gefunden.]</TD></TR>' . "\n";
    }
+  }
    
   // write last lines
   foreach($this->lastlines as $label => $value) {
   	echo " <tr>\n";
-   	// last row for sums
-   	echo "  <td colspan=\"" . (count($this->data[0])-count($this->remove)-1). "\" class=\"DataTable_Sum\" align=\"right\">" . $label . "</td>\n";
-   	if($regex->isMoneyQuiet($value)) $value = Data::convertFromDb($value);
-	echo "  <td class=\"DataTable_Sum\" align=\"right\">" . $value . "</td>\n";
-	echo ' </tr>';
-  } 
-  
-  echo '</table>' . "\n";
+  	// last row for sums
+  	echo "  <td colspan=\"" . (count($this->data[0])-count($this->remove)-1). "\" class=\"DataTable_Sum\" align=\"right\">" . $label . "</td>\n";
+  	if($regex->isMoneyQuiet($value)) $value = Data::convertFromDb($value);
+  	echo "  <td class=\"DataTable_Sum\" align=\"right\">" . $value . "</td>\n";
+  	echo ' </tr>';
   }
+
+  echo '</table>' . "\n";
+ }
 
 }
 
