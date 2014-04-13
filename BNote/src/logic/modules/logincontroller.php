@@ -49,8 +49,10 @@ class LoginController extends DefaultController {
 	 * This function is executed from without the context of the rest of this controller.
 	 * This way it's not possible to call too many fancy things. Just forward on success
 	 * and show an echo on failure.
+	 * @param Boolean $quite When true, no output is made, but true or false is returned.
+	 * @return (Optional) True (login ok), false (not ok).
 	 */
-	function doLogin() {
+	function doLogin($quite = false) {
 		// verify information
 		$this->getData()->validateLogin();
 		$db_pw = $this->getData()->getPasswordForLogin($_POST["login"]);
@@ -70,12 +72,22 @@ class LoginController extends DefaultController {
 			$this->getData()->saveLastLogin();
 		
 			// go to application
-			header("Location: ?mod=" . $this->getData()->getStartModuleId());
+			if($quite) {
+				return true;
+			}
+			else {
+				header("Location: ?mod=" . $this->getData()->getStartModuleId());
+			}
 		}
 		else {
-			new Error("Bitte &uuml;berpr&uuml;fe deine Anmeldedaten.<br />
-					Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Bandleiter.<br />
-					<a href=\"?mod=login\">Zur&uuml;ck</a><br />");
+			if($quite) {
+				return false;
+			}
+			else {
+				new Error("Bitte &uuml;berpr&uuml;fe deine Anmeldedaten.<br />
+						Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Bandleiter.<br />
+						<a href=\"?mod=login\">Zur&uuml;ck</a><br />");
+			}
 		}
 	}
 	

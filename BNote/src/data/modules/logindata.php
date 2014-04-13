@@ -11,7 +11,7 @@ class LoginData extends AbstractData {
 	/**
 	 * Build data provider.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 				"id" => array("User ID", FieldType::INTEGER),
 				"login" => array("Login", FieldType::CHAR),
@@ -23,7 +23,7 @@ class LoginData extends AbstractData {
 		$this->references = array();
 		$this->table = "user";
 	
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	function validateLogin() {

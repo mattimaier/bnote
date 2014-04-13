@@ -21,8 +21,10 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "locationsdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "repertoiredata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
+require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
 
 $GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
 require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
@@ -85,7 +87,10 @@ abstract class AbstractBNA implements iBNA {
 	 * Authenticates users with pin.
 	 */
 	protected function authentication() {
-		if(!isset($_GET["pin"])) {
+		if(isset($_GET["func"]) && $_GET["func"] == "mobilePin") {
+			$this->uid = null;
+		}
+		else if(!isset($_GET["pin"])) {
 			header("HTTP/1.0 403 Permission Denied.");
 			exit();
 		}
@@ -239,6 +244,27 @@ abstract class AbstractBNA implements iBNA {
 			
 			$this->addComment($_POST["otype"], $_POST["oid"], $_POST["message"]);
 		}
+		else if($function == "hasUserAccess") {
+			if(!isset($_GET["moduleId"]) || $_GET["moduleId"] == "") {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->hasUserAccess($_GET["moduleId"]);
+		}
+		else if($function == "getSongsToPractise") {
+			if(!isset($_GET["rid"]) || $_GET["rid"] == "") {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->getSongsToPractise($_GET["rid"]);
+		}
+		else if($function == "mobilePin") {
+			if(!isset($_POST["login"]) || !isset($_POST["password"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->mobilePin($_POST["login"], $_POST["password"]);
+		}
 		else {
 			$this->$function();
 		}
@@ -265,6 +291,12 @@ abstract class AbstractBNA implements iBNA {
 	 */
 	protected abstract function printEntities($entities, $nodeName);
 
+	/**
+	 * Writes a single, flat entity.
+	 * @param Object $entity Object with attributes and values.
+	 * @param String $type Name, e.g. "song", "rehearsal", "concert"
+	 */
+	protected abstract function writeEntity($entity, $type);
 
 	/* DEFAULT IMPLEMENTATIONS */
 
@@ -533,6 +565,49 @@ abstract class AbstractBNA implements iBNA {
 		$_GET["otype"] = $_POST["otype"];
 		
 		$startCtrl->notifyContactsOnComment($this->uid);
+	}
+	
+	function getVersion() {
+		echo $this->sysdata->getVersion();
+	}
+	
+	function getUserInfo() {	
+		$contact = $this->sysdata->getUsersContact($this->uid);
+		$instrument = $this->db->getCell("instrument", "name", "id = " . $contact["instrument"]);
+		$addy = $this->startdata->adp()->getEntityForId("address", $contact["address"]);
+		$contact["instrument"] = $instrument;
+		$contact["street"] = $addy["street"];
+		$contact["zip"] = $addy["zip"];
+		$contact["city"] = $addy["city"];
+		unset($contact["address"]);
+		unset($contact["status"]); // not existent anymore
+		
+		$this->writeEntity($contact, "contact");
+	}
+	
+	function mobilePin($login, $password) {
+		$loginCtrl = new LoginController();
+		$loginData = new LoginData($GLOBALS["dir_prefix"]);
+		$loginCtrl->setData($loginData);
+		if($loginCtrl->doLogin(true)) {
+			$pin = $this->db->getCell($this->db->getUserTable(), "pin", "id = " . $_SESSION["user"]);
+			unset($_SESSION["user"]); // logout
+			echo $pin;
+		}
+		else {
+			header("HTTP/1.0 403 Permission Denied.");
+			echo "Invalid Credentials.";
+		}
+	}
+	
+	function hasUserAccess($moduleId) {
+		echo ($this->sysdata->userHasPermission($moduleId, $this->uid)) ? "true" : "false";
+	}
+	
+	function getSongsToPractise($rid) {
+		$probenData = new ProbenData($GLOBALS["dir_prefix"]);
+		$songs = $probenData->getSongsForRehearsal($rid);
+		$this->printEntities($songs, "song");
 	}
 }
 ?>

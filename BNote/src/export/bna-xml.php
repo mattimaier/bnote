@@ -24,8 +24,12 @@ class BNAxml extends AbstractBNA {
 		header('Content-type: application/xml');
 	}
 	
-	function documentBegin() {
+	private function xmlHeader() {
 		echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+	}
+	
+	function documentBegin() {
+		$this->xmlHeader();
 		echo "<entities>\n";
 	}
 	
@@ -60,6 +64,16 @@ class BNAxml extends AbstractBNA {
 		echo "</$root_node>";
 	}
 	
+	function writeEntity($entity, $type) {
+		$this->xmlHeader();
+		echo "<" . $type . ">\n";
+		
+		foreach($entity as $attribute => $value) {
+			echo "<" . $attribute . ">" . $value . "</" . $attribute . ">\n";
+		}
+		
+		echo "</" . $type . ">";
+	}
 }
 
 // run

@@ -18,6 +18,9 @@ class Systemdata {
  
  private $user_module_permission;
  private $modulearray;
+ 
+ private $version;
+ private $dir_prefix;
 
  /**
   * Creates a new system data object.
@@ -32,7 +35,9 @@ class Systemdata {
 
   $this->dbcon = new Database();
   $this->regex = new Regex();
-
+  $this->version = "";
+  $this->dir_prefix = $dir_prefix;
+  
   if(isset($_SESSION["user"]) && $_SESSION["user"] > 0) {
    $this->user_module_permission = $this->getUserModulePermissions();
   }
@@ -494,6 +499,22 @@ class Systemdata {
  	$contactsUserId = $this->dbcon->getCell($this->dbcon->getUserTable(), "id", "contact = $cid");
  	if($contactsUserId == "") return false;
  	return $this->userEmailNotificationOn($contactsUserId); 
+ }
+ 
+ /**
+  * @return BNote version as a string.
+  */
+ public function getVersion() {
+ 	if($this->version == "") {
+ 		$contents = file_get_contents($this->dir_prefix . "bnote_version");
+ 		$lines = explode("\n", $contents);
+ 		foreach($lines as $i => $line) {
+ 			if(substr(trim($line), 0, 1) == "#") continue;
+ 			$this->version = $line;
+ 			break;
+ 		}
+ 	}
+ 	return $this->version;
  }
 }
 

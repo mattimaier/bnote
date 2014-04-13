@@ -148,6 +148,42 @@ interface iBNA {
 	 * @return ID of the newly created comment.
 	 */
 	public function addComment($otype, $oid, $message); 
+	
+	/**
+	 * Retrives the version of this BNote instance.
+	 * @return Version as a string.
+	 */
+	public function getVersion();
+	
+	/**
+	 * Retrives information on the currently registered user.
+	 * The user is identified using the PIN.
+	 * @return Array with contact information.
+	 */
+	public function getUserInfo();
+	
+	/**
+	 * Retrives the Mobile PIN for the given credentials in case they are correct.
+	 * <i>This method can be used without the need of a mobile PIN!</i>
+	 * @param string $login Login or E-Mail of the user.
+	 * @param string $password Password of the user.
+	 * @return Mobile PIN as string.
+	 */
+	public function mobilePin($login, $password);
+	
+	/**
+	 * Checks whether the user has access to a given module.
+	 * @param Integer $moduleId Module ID.
+	 * @return Boolean value true (has access) or false (no access).
+	 */
+	public function hasUserAccess($moduleId);
+	
+	/**
+	 * Retrives all songs to practise from a rehearsal.
+	 * @param Integer $rid Rehearsal ID.
+	 * @return Array with songs to practise and their information.
+	 */
+	public function getSongsToPractise($rid);
 }
 
 // Abstract Implementation of BNote Application Interface

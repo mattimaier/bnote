@@ -253,6 +253,59 @@ entity has a field <strong>type</strong> which contains its type.
 	</li>
 </ul>
 
+<h3>getVersion</h3>
+<ul>
+	<li><i>HTTP-Method</i>: GET</li>
+	<li><i>Description</i>: Retrieves the version of the instance.</li>
+	<li><i>Returns</i>: Version as a string.</li>
+	<li><i>Parameters</i>: None.</li>
+</ul>
+
+<h3>getUserInfo</h3>
+<ul>
+	<li><i>HTTP-Method</i>: GET</li>
+	<li><i>Description</i>: Retrieves Retrives information on the currently registered user. The user is identified using the PIN.</li>
+	<li><i>Returns</i>: Contact information..</li>
+	<li><i>Parameters</i>: None.</li>
+</ul>
+
+<h3>mobilePin</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Retrives the Mobile PIN for the given credentials in case they are correct. <i>This method can be used without the need of a mobile PIN!</i></li>
+	<li><i>Returns</i>: Mobile PIN as string.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>login</b>: <i>String</i> Login or E-Mail of the user.</li>
+			<li><b>password</b>: <i>String</i> Password of the user.</li>
+		</ul>
+	</li>
+</ul>
+
+<h3>hasUserAccess</h3>
+<ul>
+	<li><i>HTTP-Method</i>: GET</li>
+	<li><i>Description</i>: Checks whether the user has access to a given module.</li>
+	<li><i>Returns</i>: Boolean value true (has access) or false (no access).</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>moduleId</b>: <i>Integer</i> Module ID.</li>
+		</ul>
+	</li>
+</ul>
+
+<h3>getSongsToPractise</h3>
+<ul>
+	<li><i>HTTP-Method</i>: GET</li>
+	<li><i>Description</i>: Retrives all songs to practise from a rehearsal.</li>
+	<li><i>Returns</i>: Songs to practise for a rehearsal and their information.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>rid</b>: <i>Integer</i> Rehearsal ID.</li>
+		</ul>
+	</li>
+</ul>
+
 <h2>Data Model</h2>
 <p>The following data model describes the data that is returned from this interface.</p>
 <img src="bna-interface-data.png" alt="Data Model" />

@@ -93,6 +93,19 @@ class BNAjson extends AbstractBNA {
 		
 		$this->endOutputWith();
 	}
+	
+	function writeEntity($entity, $type) {
+		$this->beginOutputWith();
+		
+		$i = 0;
+		foreach($entity as $attribute => $value) {
+			if($i > 0) echo ",";
+			echo "\"$attribute\":\"$value\"";
+			$i++;
+		}
+		
+		$this->endOutputWith();
+	}
 }
 
 // run
