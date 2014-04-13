@@ -289,11 +289,11 @@ class StartView extends AbstractView {
 				$userParticipation = $this->getData()->doesParticipateInConcert($data[$i]["id"]);
 				if($userParticipation < 0) {
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
-						$this->writeBoxListItem("C", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
+						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
 								$dataview, $partButtons, "Teilnahme angeben");
 					}
 					else {
-						$this->writeBoxListItem("C", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
+						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
 								$dataview, $partButtons, "Teilnahmefrist abgelaufen", "", true);
 					}
 				}
@@ -309,7 +309,7 @@ class StartView extends AbstractView {
 						$msg .= "Du nimmst am Konzert nicht teil.";
 					}
 						
-					$this->writeBoxListItem("C", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
+					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
 				}
 			}
 		}
