@@ -335,13 +335,37 @@ abstract class AbstractBNA implements iBNA {
 		}
 		
 		// resolve location
+		array_push($rehs[0], "name", "street", "city", "zip");
 		for($i = 1; $i < count($rehs); $i++) {
-			$loc = $this->db->getRow("SELECT * FROM address WHERE id = " . $rehs[$i]["location"]);
-			unset($rehs[$i]["location"]);
+			$query = "SELECT name, street, city, zip ";
+			$query .= "FROM location JOIN address ON location.address = address.id ";
+			$query .= "WHERE location.id = " . $rehs[$i]["location"];
+			$loc = $this->db->getRow($query);
+			$rehs[$i]["name"] = $loc["name"];
 			$rehs[$i]["street"] = $loc["street"];
 			$rehs[$i]["city"] = $loc["city"];
 			$rehs[$i]["zip"] = $loc["zip"];
 		}
+		
+		// remove unwanted properties
+		$props = array( "location", "rehearsal", "user" );
+		foreach($props as $i => $prop) {
+			// find location
+			$pos = -1;
+			for($j = 0; $j < count($rehs[0]); $j++) {
+				if(strtolower($rehs[0][$j]) == $prop) {
+					$pos = $j;
+					break;
+				}
+			}
+			// remove from array
+			if($pos >= 0) {
+				for($k = 0; $k < count($rehs); $k++) {
+					unset($rehs[$k][$pos]);
+				}
+			}
+		}
+		
 		$this->printEntities($rehs, "rehearsal");
 	}
 
