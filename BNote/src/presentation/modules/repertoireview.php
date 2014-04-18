@@ -30,6 +30,7 @@ class RepertoireView extends CrudRefView {
 		$genre_mod = new Link($this->modePrefix() . "genre&func=start", "Genres verwalten");
 		$genre_mod->addIcon("music_file");
 		$genre_mod->write();
+		$this->verticalSpace();
 	}
 	
 	protected function addEntityForm() {

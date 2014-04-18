@@ -2,8 +2,16 @@
 ## Release Notes
 ##
 
-Issue #: 
+Bugfix #102: Absender-Emailadresse für Benachrichtigungen bei Diskussionen festlegen
+Bugfix #106: User Bug Report: Logged in, but non numerical modul requested
+Bugfix #108: Neu angelegte Proben werden nicht auf der Startseite publiziert
+Bugfix #109: Umbenennung: Schnelligkeit in Tempo
+Bugfix #111: BNA: Kontakte / Website wird nicht mitgegeben
+Bugfix #113: Send E-Mail without group - Error message looks wrong
+Bugfix #122: Encoding E-Mails
+Bugfix #123: BNA addComment erzeugt keine E-Mail
+Bugfix #125: Konzertlink auf Startseite öffnet Probe anstatt Konzert (bug)
+Bugfix #134: Falscher Mail-Link in "Warum BNote?"
 
-Bugfix #: 
-
-Enhancement #:
+Enhancement #104: Anmeldung am System nicht mehr über Benutzernamen sondern über Email ermöglichen
+Enhancement #110, #112, #124: Extension of the BNA interface

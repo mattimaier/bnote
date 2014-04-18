@@ -313,7 +313,6 @@ abstract class AbstractBNA implements iBNA {
 			$query .= "WHERE end > now() AND (ru.user = $user || ru.user IS NULL) ";
 			$query .= "ORDER BY begin ASC";
 			$rehs = $this->db->getSelection($query);
-			$this->printEntities($rehs, "rehearsal");
 		}
 		else {
 			// only get rehearsals for user considering phases and groups
@@ -333,9 +332,17 @@ abstract class AbstractBNA implements iBNA {
 				$rehs[$i]["participate"] = $part["participate"];
 				$rehs[$i]["reason"] = $part["reason"];
 			}
-				
-			$this->printEntities($rehs, "rehearsal");
 		}
+		
+		// resolve location
+		for($i = 1; $i < count($rehs); $i++) {
+			$loc = $this->db->getRow("SELECT * FROM address WHERE id = " . $rehs[$i]["location"]);
+			unset($rehs[$i]["location"]);
+			$rehs[$i]["street"] = $loc["street"];
+			$rehs[$i]["city"] = $loc["city"];
+			$rehs[$i]["zip"] = $loc["zip"];
+		}
+		$this->printEntities($rehs, "rehearsal");
 	}
 
 	function getConcerts() {

@@ -22,6 +22,7 @@ class KontaktdatenView extends AbstractView {
 		$settings = new Link($this->modePrefix() . "settings", "Meine Einstellungen");
 		$settings->addIcon("settings");
 		$settings->write();
+		$this->verticalSpace();
 		
 		// show mobile PIN
 		$pin = $this->getData()->getPIN($_SESSION["user"]);
