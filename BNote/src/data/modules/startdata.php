@@ -277,7 +277,7 @@ class StartData extends AbstractData {
 	
 	private function getRehearsalsForUser($uid) {
 		$cid = $this->adp()->getUserContact($uid);
-		$query = "SELECT rehearsal as id FROM rehearsal_contact WHERE contact = $cid";
+		$query = "SELECT rehearsal FROM rehearsal_contact WHERE contact = $cid";
 		$sel = $this->database->getSelection($query);
 		return Database::flattenSelection($sel, "rehearsal");
 	}
