@@ -101,13 +101,6 @@ class AbstimmungView extends CrudView {
 		$lnk->addIcon("add");
 		$lnk->write();
 		$this->buttonSpace();
-		
-		/*
-		 * With the introduction of contact groups (v2.4.0) this option is not necessary here. 
-		 */
-		// show group link
-		//$grp = new Link($this->modePrefix() . "group&id=$vid", "Stimmberechtigte hinzufügen");
-		//$grp->write();
 	}
 	
 	function options() {

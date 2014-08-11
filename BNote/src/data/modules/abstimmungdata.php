@@ -50,14 +50,8 @@ class AbstimmungData extends AbstractData {
 		$query .= " )";
 		$vid = $this->database->execute($query);
 		
-		// resolve groups and add members	
-		$groups = $this->adp()->getGroups();
-		$grps = array();
-		foreach($groups as $i => $grp) {
-			if(isset($values["group_" . $grp["id"]]) && $values["group_" . $grp["id"]] == "on") {
-				array_push($grps, $grp["id"]);
-			}
-		}
+		// resolve groups and add members
+		$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 		$this->registerVoters($vid, $grps);
 		
 		return $vid;
@@ -410,6 +404,16 @@ class AbstimmungData extends AbstractData {
 		}
 		
 		return $result;
+	}
+	
+	function validate($input) {
+		parent::validate($input);
+		
+		// additionally validate whether a group is set -> otherwise the vote "disappears"
+		$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
+		if(count($grps) == 0) {
+			new Error("Bitte wählen Sie eine Gruppe für die Abstimmung.");
+		}
 	}
 }
 
