@@ -2,5 +2,6 @@
 ## Release Notes
 ##
 
+Bugfix #157: Quotes dependent on Magic Quotes settings turned off
 Bugfix #164: Concert Edit Details - Programmauswahl  
 

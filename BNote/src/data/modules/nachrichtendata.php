@@ -26,7 +26,11 @@ class NachrichtenData extends AbstractData {
 	}
 	
 	public function fetchContent() {
-		return file_get_contents($this->newsFile);
+		$content = file_get_contents($this->newsFile);
+		if(get_magic_quotes_gpc() != 0) {
+			$content = stripcslashes($content);
+		}
+		return $content;
 	}
 	
 	/**
