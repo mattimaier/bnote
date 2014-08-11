@@ -223,13 +223,14 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	function editEntityForm() {
-		$form = new Form("Konzert bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
+		$form = new Form("Konzert bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"] . "&manualValid=true");
 		$c = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), "concert", $_GET["id"]);
 		$form->removeElement("id");
 		
 		$form->setForeign("location", "location", "id", "name", $c["location"]);
 		$form->setForeign("program", "program", "id", "name", $c["program"]);
+		$form->addForeignOption("program", "Kein Programm", "0");
 		
 		$form->removeElement("contact");
 		$dd = new Dropdown("contact");

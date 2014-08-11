@@ -248,7 +248,7 @@ class KonzerteData extends AbstractData {
 	}
 	
 	function getParticipants($cid) {
-		$query = 'SELECT CONCAT_WS(" ", c.name, c.surname) as name, ';
+		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, ';
 		$query .= ' CASE cu.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, cu.reason';
 		$query .= ' FROM concert_user cu, user u, contact c';
 		$query .= ' WHERE cu.concert = ' . $cid . ' AND cu.user = u.id AND u.contact = c.id';
@@ -308,6 +308,33 @@ class KonzerteData extends AbstractData {
 		$query .= "WHERE concert = $concertid ";
 		$query .= "ORDER BY p.begin, p.end";
 		return $this->database->getSelection($query);
+	}
+	
+	// add manual validation to default update method
+	function update($id, $values) {
+		if(isset($values["begin"])) {
+			$this->regex->isDateTime($values["begin"]);
+		}
+		if(isset($values["end"])) {
+			$this->regex->isDateTime($values["end"]);
+		}
+		if(isset($values["approve_until"])) {
+			$this->regex->isDateTime($values["approve_until"]);
+		}
+		if(isset($values["location"])) {
+			$this->regex->isPositiveAmount($values["location"]);
+		}
+		if(isset($values["program"]) && $values["program"] > 0) {
+			$this->regex->isPositiveAmount($values["program"]);
+		}
+		if(isset($values["notes"])) {
+			$this->regex->isText($values["notes"]);
+		}
+		if(isset($values["contact"])) {
+			$this->regex->isPositiveAmount($values["contact"]);
+		}
+		
+		parent::update($id, $values);
 	}
 }
 
