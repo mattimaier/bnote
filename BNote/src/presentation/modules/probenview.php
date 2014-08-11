@@ -31,6 +31,11 @@ class ProbenView extends CrudRefView {
 		$series->addIcon("add");
 		$series->write();
 		
+		$this->buttonSpace();
+		$history = new Link($this->modePrefix() . "history", "Verganene Proben anzeigen");
+		$history->addIcon("clock");
+		$history->write();
+		
 		Writing::h2("N&auml;chste Probe");
 		$nextRehearsal = $this->getData()->getNextRehearsal();
 		if($nextRehearsal != null && $nextRehearsal != "" && count($nextRehearsal) > 0) {
@@ -235,48 +240,49 @@ class ProbenView extends CrudRefView {
 		$details->renameElement("city", "Stadt");
 		$details->write();
 		
-		// contacts who should participate in rehearsal
-		Writing::h2("Einladungen zur Teilnahme");
-		$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Einladung hinzufügen");
-		$addContact->addIcon("add");
-		$addContact->write();
-		$this->buttonSpace();
-		
-		$printPartlist = new Link($this->modePrefix() . "printPartlist&id=" . $_GET["id"], "Teilnehmerliste drucken");
-		$printPartlist->addIcon("printer");
-		$printPartlist->write();
-		
-		
-		$contacts = $this->getData()->getRehearsalContacts($_GET["id"]);
-		
-		// add a link to the data to remove the contact from the list
-		$contacts[0]["delete"] = "Löschen";
-		for($i = 1; $i < count($contacts); $i++) {
-			$delLink = $this->modePrefix() . "delContact&id=" . $_GET["id"] . "&cid=" . $contacts[$i]["id"];
-			$btn = new Link($delLink, "");
-			$btn->addIcon("remove");
-			$contacts[$i]["delete"] = $btn->toString();
-		}
-		
-		$table = new Table($contacts);
-		$table->removeColumn("id");
-		$table->renameHeader("mobile", "Handynummer");
-		$table->write();
-		
-		$phases = $this->getData()->getRehearsalsPhases($_GET["id"]);
-		
-		if(count($phases) > 1) {
-			Writing::h2("Probenphasen");
-			$table = new Table($phases);
+		if(!$this->isReadOnlyView()) {
+			// contacts who should participate in rehearsal
+			Writing::h2("Einladungen zur Teilnahme");
+			$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Einladung hinzufügen");
+			$addContact->addIcon("add");
+			$addContact->write();
+			$this->buttonSpace();
+			
+			$printPartlist = new Link($this->modePrefix() . "printPartlist&id=" . $_GET["id"], "Teilnehmerliste drucken");
+			$printPartlist->addIcon("printer");
+			$printPartlist->write();
+			
+			$contacts = $this->getData()->getRehearsalContacts($_GET["id"]);
+			
+			// add a link to the data to remove the contact from the list
+			$contacts[0]["delete"] = "Löschen";
+			for($i = 1; $i < count($contacts); $i++) {
+				$delLink = $this->modePrefix() . "delContact&id=" . $_GET["id"] . "&cid=" . $contacts[$i]["id"];
+				$btn = new Link($delLink, "");
+				$btn->addIcon("remove");
+				$contacts[$i]["delete"] = $btn->toString();
+			}
+			
+			$table = new Table($contacts);
 			$table->removeColumn("id");
-			$table->renameHeader("name", "Probenphase");
-			$table->renameHeader("begin", "Von");
-			$table->renameHeader("end", "bis");
-			$table->renameHeader("notes", "Anmerkungen");
+			$table->renameHeader("mobile", "Handynummer");
 			$table->write();
+			
+			$phases = $this->getData()->getRehearsalsPhases($_GET["id"]);
+			
+			if(count($phases) > 1) {
+				Writing::h2("Probenphasen");
+				$table = new Table($phases);
+				$table->removeColumn("id");
+				$table->renameHeader("name", "Probenphase");
+				$table->renameHeader("begin", "Von");
+				$table->renameHeader("end", "bis");
+				$table->renameHeader("notes", "Anmerkungen");
+				$table->write();
+			}
+			
+			$this->verticalSpace();
 		}
-		
-		$this->verticalSpace();
 	}
 	
 	public function addContact() {
@@ -328,9 +334,10 @@ class ProbenView extends CrudRefView {
 	function participants() {
 		$this->checkID();
 		
-		// participants table
-		$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
-		Writing::h2("Probe am $pdate Uhr");
+		if(!$this->isReadOnlyView()) {
+			$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
+			Writing::h2("Probe am $pdate Uhr");
+		}
 		
 		Writing::h3("Instrumente");
 		$dv = new Dataview();
@@ -358,9 +365,11 @@ class ProbenView extends CrudRefView {
 		$dv->autoAddElements($this->getData()->getParticipantStats($_GET["id"]));
 		$dv->write();
 		
-		// back button
-		$this->backToViewButton($_GET["id"]);
-		$this->verticalSpace();
+		if(!$this->isReadOnlyView()) {
+			// back button
+			$this->backToViewButton($_GET["id"]);
+			$this->verticalSpace();
+		}
 	}
 	
 	function practise() {
@@ -442,6 +451,78 @@ class ProbenView extends CrudRefView {
 		// back button
 		$this->backToStart();
 		$this->verticalSpace();
+	}
+	
+	function history() {
+		// presets
+		if(isset($_POST["year"])) {
+			$year = $_POST["year"];
+		}
+		else if(isset($_GET["year"])) {
+			$year = $_GET["year"];
+		}
+		else {
+			$year = date("Y");
+		}
+		
+		// filtering
+		$form = new Form("Filter", $this->modePrefix() . "history");
+		$dd = new Dropdown("year");
+		$years = $this->getData()->getRehearsalYears();
+		for($i = 1; $i < count($years); $i++) {
+			$y = $years[$i]["year"];
+			$dd->addOption($y, $y);
+		}
+		$dd->setSelected($year);
+		
+		$form->addElement("Jahr", $dd);
+		$form->changeSubmitButton("Filtern");
+		$form->write();
+		
+		// result
+		Writing::p("Klicke auf einen Eintrag um diesen anzuzeigen.");
+		
+		$data = $this->getData()->getPastRehearsals($year);
+		$tab = new Table($data);
+		$tab->setEdit("id");
+		$tab->changeMode("view&readonly=true&year=" . $year);
+		$tab->renameAndAlign($this->getData()->getFields());
+		$tab->setColumnFormat("begin", "DATE");
+		$tab->setColumnFormat("end", "DATE");
+		$tab->renameHeader("street", "Straße");
+		$tab->renameHeader("zip", "PLZ");
+		$tab->renameHeader("city", "Stadt");
+		$tab->write();
+		
+		$this->backToStart();
+	}
+	
+	function view() {
+		if($this->isReadOnlyView()) {
+			$this->checkID();
+			Writing::h2("Probendetails");
+			$this->viewDetailTable();
+			$this->participants();
+			
+			Writing::h3("Stücke zum üben");
+			$songs = $this->getData()->getSongsForRehearsal($_GET["id"]);
+			$tab = new Table($songs);
+			$tab->removeColumn("id");
+			$tab->renameHeader("title", "Stück");
+			$tab->renameHeader("notes", "Aktuelle Notizen");
+			$tab->write();
+			
+			$back = new Link($this->modePrefix() . "history&year=" . $_GET["year"], "Zurück");
+			$back->addIcon("arrow_left");
+			$back->write();
+		}
+		else {
+			parent::view();
+		}
+	}
+	
+	private function isReadOnlyView() {
+		return (isset($_GET["readonly"]) && $_GET["readonly"] == "true");
 	}
 }
 

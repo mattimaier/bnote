@@ -307,6 +307,19 @@ class ProbenData extends AbstractData {
 		
 		return $result;
 	}
+	
+	public function getRehearsalYears() {
+		$query = "SELECT DISTINCT year(begin) as year FROM rehearsal ORDER BY year DESC";
+		return $this->database->getSelection($query);
+	}
+	
+	public function getPastRehearsals($year) {
+		$query = "SELECT rehearsal.id, begin, end, location.name as Location, address.street, address.zip, address.city ";
+		$query .= "FROM rehearsal JOIN location ON rehearsal.location = location.id ";
+		$query .= "LEFT JOIN address ON location.address = address.id ";
+		$query .= "WHERE YEAR(begin) = $year ORDER BY begin DESC";
+		return $this->database->getSelection($query);
+	}
 }
 
 ?>
