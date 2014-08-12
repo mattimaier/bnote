@@ -52,7 +52,6 @@ class KontakteController extends DefaultController {
 		if(isset($contact["email"]) && $contact["email"] != "") {
 			// send email
 			global $system_data;
-			
 			$subject = "Anmeldeinformationen " . $system_data->getCompany();
 			
 			$body = "Du kannst dich nun unter ";
@@ -60,10 +59,12 @@ class KontakteController extends DefaultController {
 			$body .= "Dein Benutzername ist " . $username . " und dein ";
 			$body .= "Kennwort ist " . $password . " .\n";
 			
-			$headers  = 'From: ' . $username . '<' . $contact["email"] . '>' . "\r\n";
-			
 			// notify user about result
-			if(!mail($contact["email"], $subject, $body, $headers)) {
+			require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
+			$mail = new Mailing($contact["email"], $subject, $body);
+			$mail->setFrom($username . '<' . $contact["email"] . '>');
+				
+			if(!$mail->sendMail()) {
 				$this->getView()->userCredentials($username , $password);
 			}
 			else {

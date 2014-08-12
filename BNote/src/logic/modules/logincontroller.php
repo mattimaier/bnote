@@ -111,7 +111,10 @@ class LoginController extends DefaultController {
 		$body .= "Dein neues Passwort lautet: $password .";
 		
 		// only change password if mail was sent
-		if(!mail($email, $subject, $body)) {
+		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
+		$mail = new Mailing($email, $subject, $body);
+		
+		if(!$mail->sendMail()) {
 			// talk to leader
 			new Error("Leider konnte die E-Mail an dich nicht versandt werden.<br />
 					Bitte wende dich an deinen Bandleiter.");
@@ -177,7 +180,10 @@ class LoginController extends DefaultController {
 			$message = "Bitte klicke auf folgenden Link zur Aktivierung deines Benutzerkontos:\n$linkurl";
 						
 			// send email to activate account and write message
-			if(!mail($_POST["email"], $subject, $message)) {
+			require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
+			$mail = new Mailing($_POST["email"], $subject, $message);
+			
+			if(!$mail->sendMail()) {
 				echo "Leider trat bei der Aktivierung ein <b>Fehler</b> auf. Wende dich zur Freischaltung bitte an deinen Bandleader.<br/>";
 			}
 			else {

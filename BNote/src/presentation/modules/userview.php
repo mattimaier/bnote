@@ -188,26 +188,6 @@ class UserView extends CrudRefView {
 		$usrView->write();
 	}
 	
-	function activate() {
-		$this->checkID();
-		
-		// change status of user and send email in case the user was activated
-		if($this->getData()->changeUserStatus($_GET["id"])) {
-			global $system_data;
-			$to = $this->getData()->getUsermail($_GET["id"]);
-			$subject = "Benutzerkonto freigeschaltet.";
-			$body = "Dein " . $system_data->getCompany() . " Benutzerkonto wurde aktiviert. ";
-			$body .= "Du kannst dich nun unter " . $system_data->getSystemURL() . " anmelden.";
-			if(!mail($to, $subject, $body)) {
-				new Message("Aktivierungsemail fehlgeschlagen",
-						"Das Senden der Aktivierungsemail war nicht erfolgreich. Bitte benachrichtigen Sie den Benutzer selbst.");
-			}
-		}
-		
-		// simply show the user view again
-		$this->view();
-	}
-	
 	function deleteConfirmationMessage($label, $linkDelete, $linkBack) {
 		new Message("L&ouml;schen?", "Wollen sie diesen Benutzer mit allen seinen Dateien wirklich l&ouml;schen?");
 		$yes = new Link($linkDelete, strtoupper($label) . " L&Ouml;SCHEN");

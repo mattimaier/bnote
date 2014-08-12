@@ -31,6 +31,8 @@ class AufgabenController extends DefaultController {
 			$body .= " Bitte melde dich in BNote an um die Aufgabe einzusehen.";
 		}
 		
-		mail($to, $subject, $body);
+		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
+		$mail = new Mailing($to, $subject, $body);
+		$mail->sendMailWithFailError();
 	}
 }

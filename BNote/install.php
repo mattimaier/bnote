@@ -430,21 +430,21 @@ class Installation {
 					`rehearsalphase` int(11) NOT NULL,
 					`concert` int(11) NOT NULL,
 					PRIMARY KEY (`rehearsalphase`,`concert`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `rehearsalphase_contact` (
 					`rehearsalphase` int(11) NOT NULL,
 					`contact` int(11) NOT NULL,
 					PRIMARY KEY (`rehearsalphase`,`contact`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `rehearsalphase_rehearsal` (
 					`rehearsalphase` int(11) NOT NULL,
 					`rehearsal` int(11) NOT NULL,
 					PRIMARY KEY (`rehearsalphase`,`rehearsal`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `rehearsal_song` (
@@ -537,7 +537,7 @@ class Installation {
 					`vote` int(11) NOT NULL,
 					`user` int(11) NOT NULL,
 					PRIMARY KEY (`vote`,`user`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `vote_option` (
@@ -554,21 +554,21 @@ class Installation {
 					`user` int(11) NOT NULL,
 					`choice` int(1) DEFAULT 1,
 					PRIMARY KEY (`vote_option`,`user`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `rehearsal_contact` (
 					`rehearsal` int(11) NOT NULL,
 					`contact` int(11) NOT NULL,
 					PRIMARY KEY (`rehearsal`,`contact`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `concert_contact` (
 					`concert` int(11) NOT NULL,
 					`contact` int(11) NOT NULL,
 					PRIMARY KEY (`concert`,`contact`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
 			foreach($queries as $i => $query) {
 				$db->execute($query);

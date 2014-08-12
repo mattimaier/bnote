@@ -56,20 +56,15 @@ class StartController extends DefaultController {
 		if($contacts == null) return;
 		else if(count($contacts) <= 1) return;
 		
-		$sender = $this->getData()->getSysdata()->getUsersContact($uid);
-		
 		// create message
-		$headers  = "From: " . $sender["email"] . "\r\n";
-		$headers .= 'MIME-Version: 1.0' . "\r\n";
-		$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
-		
-		$to = ""; // no to, only bcc
-		$bcc = "";
 		$subject = "Diskussion: " . utf8_encode($this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]));
 		$body = "<h3>Neue Nachricht zu Diskussion</h3>";
+		$sender = $this->getData()->getSysdata()->getUsersContact($uid);
 		$body .= "<p>von " . $sender["name"] . " " . $sender["surname"] . "</p>";
 		$body .= "<p>" . utf8_encode($_POST["message"]) . "</p>"; // checked here already
 		
+		// create receipients as BCC, no to
+		$bcc = "";
 		foreach($contacts as $i => $contact) {
 			if($i == 0) continue; // header
 			
@@ -80,15 +75,16 @@ class StartController extends DefaultController {
 				$bcc .= $contact["email"];
 			}
 		}
-		$headers .= 'Bcc: ' . $bcc . "\r\n";
-		
-//  		echo "headers: $headers<br/>\n";
-//  		echo "receipient: $to<br/>\n";
-// 		echo "subject: $subject<br/>\n";
-// 		echo "body: $body<br/>\n";
 		
 		// send only one email to notify all users
-		mail($to, $subject, $body, $headers);
+		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
+		$mail = new Mailing(null, $subject, null);
+		$mail->setBodyInHtml($body);
+		$mail->setFromUser($uid);
+		$mail->setBcc($bcc);
+		
+		// no error handling since it is just a notification
+		$mail->sendMail();
 	}
 }
 

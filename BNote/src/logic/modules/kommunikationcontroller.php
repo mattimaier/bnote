@@ -107,13 +107,8 @@ class KommunikationController extends DefaultController {
 		
 		// Receipient Setup
 		global $system_data;
-		$ci = $system_data->getCompanyInformation();		
-		$headers  = 'From: ' . $this->getData()->getUsermail() . "\r\n";
+		$ci = $system_data->getCompanyInformation();
 		$receipient = $ci["Mail"];
-		
-		// To send HTML mail, the Content-type header must be set
-		$headers .= 'MIME-Version: 1.0' . "\r\n";
-		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 		
 		// place sender addresses into the bcc field
 		$bcc_addresses = "";
@@ -121,23 +116,15 @@ class KommunikationController extends DefaultController {
 			if($i > 0) $bcc_addresses .= ",";
 			$bcc_addresses .= $to;
 		}
-		$headers .= 'Bcc: ' . $bcc_addresses . "\r\n";
 		
-// 		echo "headers: $headers<br/>\n";
-// 		echo "receipient: $receipient<br/>\n";
-// 		echo "subject: $subject<br/>\n";
-// 		echo "body: $body<br/>\n";
-		
-		/*
-		 * MAIL FUNCTION
-		 * -------------
-		 * Some hosting providers require specific mail() settings
-		 * therefore this comment should show where the function is!
-		 */
-		if(!$GLOBALS["system_data"]->inDemoMode()) {
-			if(!mail($receipient, $subject, $body, $headers)) {
-				$this->getView()->reportMailError($bcc_addresses);
-			}
+		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
+		$mail = new Mailing($receipient, $subject, "");
+		$mail->setBodyInHtml($body);
+		$mail->setFrom($this->getData()->getUsermail());
+		$mail->setBcc($bcc_addresses);
+			
+		if(!$mail->sendMail()) {
+			$this->getView()->reportMailError($bcc_addresses);
 		}
 	}
 }

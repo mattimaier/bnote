@@ -48,7 +48,7 @@ abstract class AbstractView {
 	/**
 	 * Checks whether $_GET["id"] is set, otherwise terminates with error.
 	 */
-	protected function checkID() {
+	public function checkID() {
 		if(!isset($_GET["id"])) {
 			new Error("Please specify a user id.");
 		}
