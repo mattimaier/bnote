@@ -430,4 +430,14 @@ class StartData extends AbstractData {
 		}
 		return $objTitle;
 	}
+	
+	public function getSelectedOptionsForUser($optionId, $uid) {
+		$choice = $this->database->getCell("vote_option_user", "choice", "vote_option = $optionId AND user = $uid");
+		if($choice == null || $choice == "") {
+			return -1;
+		}
+		else {
+			return $choice;
+		}
+	}
 }

@@ -453,22 +453,40 @@ class StartView extends AbstractView {
 				}
 				
 				$in = '<input type="';
+				$selected = $this->getData()->getSelectedOptionsForUser($options[$i]["id"], $_SESSION["user"]);
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == "1"
 						&& $vote["is_multi"] == 1) {
 					$dd = new Dropdown($options[$i]["id"]);
 					$dd->addOption("Geht nicht", 0);
 					$dd->addOption("Geht", 1);
 					$dd->addOption("Vielleicht", 2);
-					$dd->setSelected(1);					
+					if($selected != -1) {
+						$dd->setSelected($selected);
+					}		
+					else {
+						$dd->setSelected(1);
+					}			
 					$in = $dd->write();
 				}
 				else if($vote["is_multi"] == 1) {
+					if($selected == 1) {
+						$checked = "checked";
+					}
+					else {
+						$checked = "";
+					}
 					$in .= "checkbox";
-					$in .= '" name="' . $options[$i]["id"] . '" />';
+					$in .= '" name="' . $options[$i]["id"] . '" ' . $checked . '/>';
 				}
 				else {
+					if($selected == 1) {
+						$checked = "checked";
+					}
+					else {
+						$checked = "";
+					}
 					$in .= "radio";
-					$in .= '" name="uservote" value="' . $options[$i]["id"] . '" />';
+					$in .= '" name="uservote" value="' . $options[$i]["id"] . '" ' . $checked . '/>';
 				}
 				
 				$dv->addElement($label, $in);

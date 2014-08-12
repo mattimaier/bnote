@@ -119,7 +119,7 @@ class AbstimmungView extends CrudView {
 		Writing::h2($vote["name"] . " - Optionen");
 		$options = $this->getData()->getOptions($_GET["id"]);
 		
-		Writing::p("Klicke auf eine Option um diese zu löschen.");
+		Writing::p("Klicke auf eine Option um diese von der Liste zu löschen.");
 		
 		echo "<ul>";
 		for($i = 1; $i < count($options); $i++) {
@@ -262,7 +262,7 @@ class AbstimmungView extends CrudView {
 		Writing::h2($vote["name"] . " - Abstimmungsberechtigte");
 		$group = $this->getData()->getGroup($_GET["id"]);
 		
-		Writing::p("Klicke auf einen Benutzer um diesen zu löschen.");
+		Writing::p("Klicke auf einen Benutzer um diesen von der Liste zu löschen.");
 		
 		echo "<ul>";
 		for($i = 1; $i < count($group); $i++) {
@@ -279,8 +279,16 @@ class AbstimmungView extends CrudView {
 		$form = new Form("Abstimmungsberechtigte hinzufügen", $this->modePrefix() . "group&id=" . $_GET["id"]);
 		$users = $this->getData()->getUsers();
 		$dd = new Dropdown("user");
+		$amIinUsers = false;
 		for($i = 1; $i < count($users); $i++) {
 			$dd->addOption($users[$i]["name"] . " " . $users[$i]["surname"], $users[$i]["id"]);
+			if($users[$i]["id"] == $_SESSION["user"]) {
+				$amIinUsers = true;
+			}
+		}
+		if(!$amIinUsers) {
+			$contact = $this->getData()->getSysdata()->getUsersContact();
+			$dd->addOption($contact["name"] . " " . $contact["surname"], $_SESSION["user"]);
 		}
 		$form->addElement("Abstimmungsberechtigter", $dd);
 		$form->write();
