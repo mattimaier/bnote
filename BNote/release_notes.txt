@@ -8,4 +8,5 @@ Bugfix #157: Quote-Handling dependent on Magic Quotes settings
 Bugfix #164: Concert Edit Details - Programmauswahl  
 
 Enhancement #132: Abstimmungsnavigation verbessert
+Enhancement #141: Abstimmung bearbeiten nun möglich
 Enhancement #161: Probenhistorie
