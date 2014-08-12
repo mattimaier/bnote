@@ -7,4 +7,5 @@ Bugfix #156: Encoding and Standardization of E-Mail-Handling
 Bugfix #157: Quote-Handling dependent on Magic Quotes settings
 Bugfix #164: Concert Edit Details - Programmauswahl  
 
+Enhancement #132: Abstimmungsnavigation verbessert
 Enhancement #161: Probenhistorie

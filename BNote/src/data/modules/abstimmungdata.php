@@ -125,12 +125,18 @@ class AbstimmungData extends AbstractData {
 	}
 	
 	/**
-	 * Checks whether the vote is still on (time before end date).
+	 * Checks whether the vote is still on (time before end date and isFinished false).
 	 * @param Integer $vid Vote ID.
 	 * @return boolean True if the vote is active, otherwise false.
 	 */
 	function isVoteActive($vid) {
 		$vote = $this->findByIdNoRef($vid);
+		// check is finished
+		if($vote["is_finished"] == 1) {
+			return false;
+		}
+		
+		// check time
 		$time = strtotime($vote["end"]);
 		$now = date("U");
 		return ($time > $now);

@@ -31,6 +31,7 @@ class AbstimmungView extends CrudView {
 		$votes = $this->getData()->getVotesForUser();
 		$table = new Table($votes);
 		$table->setEdit("id");
+		$table->changeMode("view&resultview=true");
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->removeColumn("id");
 		$table->setColumnFormat("end", "DATE");		
@@ -53,13 +54,14 @@ class AbstimmungView extends CrudView {
 	
 	function view() {
 		$this->checkID();
-		if(!$this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])
+		if(isset($_GET["resultview"]) && $_GET["resultview"] == "true") {
+			$this->result();
+		}
+		else if(!$this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])
 				&& !$this->getData()->getSysdata()->isUserSuperUser()) {
 			$this->result();
 		}
-		else {
-			$this->checkID();
-		
+		else {		
 			// heading
 			Writing::h2("Abstimmungsdetails");
 			
@@ -310,12 +312,27 @@ class AbstimmungView extends CrudView {
 		$this->checkID();
 		$vote = $this->getData()->findByIdNoRef($_GET["id"]);
 		Writing::h2($vote["name"] . " - Ergebnis");
+				
+		$hasButtons = false;
+		// in case the user is the author or a superuser, he/she can edit the vote
+		if($this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])
+				|| $this->getData()->getSysdata()->isUserSuperUser()) {
+			$editBtn = new Link($this->modePrefix() . "view&id=" . $_GET["id"], "Abstimmung bearbeiten");
+			$editBtn->addIcon("edit");
+			$editBtn->write();
+			$this->buttonSpace();
+			$hasButtons = true;
+		}
 		
-		// in case vote isn't over yet, show button to vote
+		// in case vote isn't over yet, show button to view
 		if($this->getData()->isVoteActive($_GET["id"])) {
 			$voteBtn = new Link("?mod=1&mode=voteOptions&id=" . $_GET["id"], "Jetzt Abstimmen");
 			$voteBtn->addIcon("checkmark");
 			$voteBtn->write();
+			$hasButtons = true;
+		}
+		
+		if($hasButtons) {
 			$this->verticalSpace();
 		}
 		
@@ -338,13 +355,10 @@ class AbstimmungView extends CrudView {
 			$lnk->addIcon("arrow_left");
 			$lnk->write();
 		}
-		else if(!$this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])
-				&& !$this->getData()->getSysdata()->isUserSuperUser()) {
+		else {
 			$this->backToStart();
 		}
-		else {
-			$this->backToViewButton($_GET["id"]);
-		}
+		
 	}
 	
 	function archive() {
