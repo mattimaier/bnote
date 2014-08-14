@@ -262,6 +262,8 @@ class KonzerteView extends CrudRefView {
 		$table = new Table($parts);
 		$table->renameHeader("participate", "Nimmt teil");
 		$table->renameHeader("reason", "Grund");
+		$table->renameHeader("category", "Gruppe");
+		$table->removeColumn("id");
 		$table->write();
 		$this->verticalSpace();
 		

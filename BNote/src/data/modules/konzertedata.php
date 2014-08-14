@@ -248,11 +248,15 @@ class KonzerteData extends AbstractData {
 	}
 	
 	function getParticipants($cid) {
-		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, ';
-		$query .= ' CASE cu.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, cu.reason';
-		$query .= ' FROM concert_user cu, user u, contact c';
-		$query .= ' WHERE cu.concert = ' . $cid . ' AND cu.user = u.id AND u.contact = c.id';
-		$query .= ' ORDER BY participate, name';
+		$query = 'SELECT c.id, cat.name as category, i.name as instrument, CONCAT_WS(" ", c.name, c.surname) as name, ';
+		$query .= ' CASE cu.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, cu.reason';		
+		$query .= ' FROM concert_user cu JOIN user u ON cu.user = u.id';
+		$query .= '  JOIN contact c ON u.contact = c.id';
+		$query .= '  LEFT JOIN instrument i ON c.instrument = i.id';
+		$query .= '  LEFT JOIN category cat ON i.category = cat.id';
+		$query .= ' WHERE cu.concert = ' . $cid;
+		$query .= ' ORDER BY cat.id, i.name, participate, name';
+		
 		return $this->database->getSelection($query);
 	}
 	
