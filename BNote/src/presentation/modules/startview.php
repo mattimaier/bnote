@@ -39,7 +39,19 @@ class StartView extends AbstractView {
 			<div class="start_box_news">
 				<div class="start_box_heading">Nachrichten</div>
 				<div class="start_box_content">
-					<?php echo $news; ?>
+					<?php
+					// news
+					echo $news;
+					
+					// warning
+					if(($this->getData()->getSysdata()->isUserSuperUser() || $this->getData()->getSysdata()->isUserMemberGroup(1))
+							&& $this->getController()->usersToIntegrate()) {
+						$this->verticalSpace();
+						echo '<span class="warning">';
+						echo 'Es gibt inaktive oder nicht integrierte Nutzer. Bitte gehe auf Kontakte/Einphasung und kümmere dich darum.';
+						echo '</span>';
+					}
+					?>
 				</div>
 			</div>
 			<?php 

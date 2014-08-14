@@ -288,4 +288,37 @@ class KontakteData extends AbstractData {
 		}
 		return $groups;
 	}
+	
+	function getPhases() {
+		$query = "SELECT * FROM rehearsalphase";
+		return $this->database->getSelection($query);
+	}
+	
+	function getVotes() {
+		$query = "SELECT * FROM vote WHERE end >= now() AND is_finished = 0";
+		return $this->database->getSelection($query);
+	}
+	
+	function addContactRelation($otype, $oid, $cid) {
+		$tab = $otype . "_contact";
+		$ct = $this->database->getCell($tab, "count(*)", "$otype = $oid AND contact = $cid");
+		if($ct <= 0) {
+			$query = "INSERT INTO $tab ($otype, contact) VALUES ($oid, $cid)";
+			return $this->database->execute($query);
+		}
+		return 0;
+	}
+	
+	function addContactToVote($vid, $cid) {
+		$uid = $this->database->getCell($this->database->getUserTable(), "id", "contact = $cid");
+		if($uid != null && $uid > 0) {
+			$ct = $this->database->getCell("vote_group", "count(*)", "vote = $vid AND user = $uid");
+			if($ct <= 0) {
+				$query = "INSERT INTO vote_group (vote, user) VALUES ($vid, $uid)";
+				return $this->database->execute($query);
+			}
+			return 0;
+		}
+		return -1;
+	}
 }

@@ -21,6 +21,9 @@ class KontakteController extends DefaultController {
 			else if($_GET["mode"] == "groups") {
 				$this->groups();
 			}
+			else if($_GET["mode"] == "integration_process") {
+				$this->integrate();
+			}
 			else {
 				$this->getView()->$_GET['mode']();
 			}
@@ -118,5 +121,42 @@ class KontakteController extends DefaultController {
 		else {
 			return parent::getData();
 		}
+	}
+	
+	function integrate() {
+		$members = GroupSelector::getPostSelection($this->getData()->getMembers(), "member");
+		$rehearsals = GroupSelector::getPostSelection($this->getData()->adp()->getFutureRehearsals(), "rehearsal");
+		$phases = GroupSelector::getPostSelection($this->getData()->getPhases(), "rehearsalphase");
+		$concerts = GroupSelector::getPostSelection($this->getData()->adp()->getFutureConcerts(), "concert");
+		$votes = GroupSelector::getPostSelection($this->getData()->getVotes(), "vote");
+		
+		foreach($members as $cid) {
+			foreach($rehearsals as $rid) {
+				$res = $this->getData()->addContactRelation("rehearsal", $rid, $cid);
+				if($res < 0) {
+					new Message("Relation fehlgeschlagen", "Die Relation R$rid - $cid kann nicht gesetzt werden.");
+				} 
+			}
+			foreach($phases as $pid) {
+				$this->getData()->addContactRelation("rehearsalphase", $pid, $cid);
+				if($res < 0) {
+					new Message("Relation fehlgeschlagen", "Die Relation RP$pid - $cid kann nicht gesetzt werden.");
+				}
+			}
+			foreach($concerts as $conid) {
+				$this->getData()->addContactRelation("concert", $conid, $cid);
+				if($res < 0) {
+					new Message("Relation fehlgeschlagen", "Die Relation C$conid - $cid kann nicht gesetzt werden.");
+				}
+			}
+			foreach($votes as $vid) {
+				$this->getData()->addContactToVote($vid, $cid);
+				if($res < 0) {
+					new Message("Relation fehlgeschlagen", "Die Relation V$vid - $cid kann nicht gesetzt werden.");
+				}
+			}
+		}
+		
+		new Message("Zuordnungen gespeichert", "Die Zuordnungen wurden gespeichert.");
 	}
 }

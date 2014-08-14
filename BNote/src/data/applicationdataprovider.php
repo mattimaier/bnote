@@ -193,10 +193,10 @@ class ApplicationDataProvider {
 	}
 	
 	/**
-	 * Retrieves all rehearsals without participation.
+	 * Retrieves all future rehearsals without participation in ascending order.
 	 * @return All rehearsals joined with location and address.
 	 */
-	public function getAllRehearsals() {
+	public function getFutureRehearsals() {
 		$query = "SELECT r.id as id, begin, end, approve_until, r.notes as notes, name, street, city, zip";
 		$query .= " FROM rehearsal r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";

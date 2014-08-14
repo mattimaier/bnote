@@ -49,7 +49,7 @@ class KommunikationView extends AbstractView {
 		Writing::h2("Probenbenachrichtigung");
 				
 		$dd = new Dropdown("rehearsal");
-		$rhs = $this->getData()->getRehearsals();
+		$rhs = $this->getData()->adp()->getFutureRehearsals();
 		
 		for($i = 1; $i < count($rhs); $i++) {
 			$label = Data::getWeekdayFromDbDate($rhs[$i]["begin"]) . ", ";

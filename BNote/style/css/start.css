@@ -64,3 +64,8 @@ span.start_update_box_author {
 div.start_box a.participation {
 	color: #61b3ff;
 }
+
+.warning {
+	color: orange;
+	font-weight: bold;
+}

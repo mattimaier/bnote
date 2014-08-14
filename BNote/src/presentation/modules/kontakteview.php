@@ -28,9 +28,9 @@ class KontakteView extends CrudRefView {
 		$add->write();
 		$this->buttonSpace();
 		
-		$print = new Link($this->modePrefix() . "selectPrintGroups", "Mitspielerliste drucken");
-		$print->addIcon("printer");
-		$print->write();
+		$eps = new Link($this->modePrefix() . "integration", "Einphasung");
+		$eps->addIcon("arrow_right");
+		$eps->write();
 		$this->buttonSpace();
 		
 		$groups = new Link($this->modePrefix() . "groups&func=start", "Gruppen verwalten");
@@ -38,7 +38,13 @@ class KontakteView extends CrudRefView {
 		$groups->write();
 		$this->buttonSpace();
 		
-		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", "Kontakte Export");
+		$this->verticalSpace();
+		$print = new Link($this->modePrefix() . "selectPrintGroups", "Mitspielerliste drucken");
+		$print->addIcon("printer");
+		$print->write();
+		$this->buttonSpace();
+		
+		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", "Kontakte Export (vCard)");
 		$vc->addIcon("arrow_down");
 		$vc->setTarget("_blank");
 		$vc->write();
@@ -327,6 +333,75 @@ class KontakteView extends CrudRefView {
 		$this->backToViewButton($_GET["id"]);
 	}
 	
+	function integration() {
+		Writing::h2("Einphasung neuer Mitspieler");
+		Writing::p("Wähle zunächst die Mitspieler aus, die du einphasen möchtest.
+				Dann klickst du alle Einträge an, die du diesen Mitspielern zuweisen möchtest.
+				Schließlich klickst du auf den Speichern Button um die Zuweisungen zu speichern.");
+		?>
+		<form method="POST" action="<?php echo $this->modePrefix(); ?>integration_process">
+		<div class="start_box_table">
+			<div class="start_box_row">
+				<div class="start_box">
+					<div class="start_box_heading">Mitspieler</div>
+					<div class="start_box_content">
+						<?php 
+						$members = $this->getData()->getMembers();
+						$group = new GroupSelector($members, array(), "member");
+						$group->setNameColumns(array("name", "surname"));
+						echo $group->write();
+						?>
+					</div>
+				</div>
+				<div class="start_box">
+					<div class="start_box_heading">Proben</div>
+					<div class="start_box_content">
+						<?php
+						$rehearsals = $this->getData()->adp()->getFutureRehearsals();
+						$group = new GroupSelector($rehearsals, array(), "rehearsal");
+						$group->setNameColumn("begin");
+						$group->setCaptionType(FieldType::DATE);
+						echo $group->write();
+						?>
+					</div>
+					<div class="start_box_heading">Probenphasen</div>
+					<div class="start_box_content">
+						<?php 
+						$phases = $this->getData()->getPhases();
+						$group = new GroupSelector($phases, array(), "rehearsalphase");
+						echo $group->write();
+						?>
+					</div>
+				</div>
+				<div class="start_box">
+					<div class="start_box_heading">Konzerte</div>
+					<div class="start_box_content">
+						<?php
+						$concerts = $this->getData()->adp()->getFutureConcerts();
+						$group = new GroupSelector($concerts, array(), "concert");
+						$group->setNameColumn("begin");
+						$group->setCaptionType(FieldType::DATE);
+						echo $group->write();
+						?>
+					</div>
+					<div class="start_box_heading">Abstimmungen</div>
+					<div class="start_box_content">
+						<?php
+						$votes = $this->getData()->getVotes();
+						$group = new GroupSelector($votes, array(), "vote");
+						echo $group->write();
+						?>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<input type="submit" value="speichern" />
+		</form>
+		<?php
+		$this->verticalSpace();
+		$this->backToStart();
+	}
 }
 
 ?>

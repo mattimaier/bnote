@@ -46,7 +46,7 @@ class ProbenView extends CrudRefView {
 		}
 
 		Writing::h2("Weitere Proben");
-		$this->writeRehearsalList($this->getData()->getAllRehearsals());
+		$this->writeRehearsalList($this->getData()->adp()->getFutureRehearsals());
 	}
 	
 	function addEntity() {

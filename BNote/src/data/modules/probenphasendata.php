@@ -46,7 +46,7 @@ class ProbenphasenData extends AbstractData {
 	function getContactsForPhase($phaseId) {
 		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, i.name as instrument, c.phone, c.mobile, c.email ";
 		$query .= "FROM rehearsalphase_contact rc JOIN contact c ON rc.contact = c.id ";
-		$query .= "     JOIN instrument i ON c.instrument = i.id ";
+		$query .= "     LEFT JOIN instrument i ON c.instrument = i.id ";
 		$query .= "WHERE rc.rehearsalphase = $phaseId ";
 		$query .= "ORDER BY name";
 		return $this->database->getSelection($query);
@@ -87,13 +87,8 @@ class ProbenphasenData extends AbstractData {
 		}
 	}
 	
-	function getFutureRehearsals() {
-		$query = "SELECT * FROM rehearsal WHERE begin > NOW() ORDER BY begin, end";
-		return $this->database->getSelection($query);
-	}
-	
 	function addRehearsals($phaseId) {		
-		$this->addEntities($phaseId, "rehearsal", $this->getFutureRehearsals());
+		$this->addEntities($phaseId, "rehearsal", $this->adp()->getFutureRehearsals());
 	}
 	
 	function getFutureConcerts() {

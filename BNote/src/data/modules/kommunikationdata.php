@@ -8,10 +8,6 @@ require_once $GLOBALS["DIR_DATA_MODULES"] . "kontaktedata.php";
  */
 class KommunikationData extends KontakteData {
 	
-	function getRehearsals() {
-		return $this->adp()->getAllRehearsals();
-	}
-	
 	function getRehearsal($id) {
 		$query = "SELECT begin, name as location, street, city, zip, r.notes ";
 		$query .= "FROM rehearsal r, location l, address a ";

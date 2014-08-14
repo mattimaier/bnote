@@ -86,6 +86,12 @@ class StartController extends DefaultController {
 		// no error handling since it is just a notification
 		$mail->sendMail();
 	}
+	
+	public function usersToIntegrate() {
+		$inactiveUsers = $this->getData()->hasInactiveUsers();
+		$usersWithoutRelations = $this->getData()->hasMembersWithoutRelations();
+		return ($inactiveUsers || $usersWithoutRelations);
+	}
 }
 
 ?>

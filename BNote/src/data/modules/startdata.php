@@ -248,7 +248,7 @@ class StartData extends AbstractData {
 	}
 	
 	function getUsersRehearsals($uid = -1) {
-		$data = $this->adp()->getAllRehearsals();
+		$data = $this->adp()->getFutureRehearsals();
 		
 		// super users should see it all
 		if($this->getSysdata()->isUserSuperUser($uid)) {
@@ -439,5 +439,23 @@ class StartData extends AbstractData {
 		else {
 			return $choice;
 		}
+	}
+	
+	public function hasInactiveUsers() {
+		$ct = $this->database->getCell($this->database->getUserTable(), "count(*)", "isActive = 0");
+		return ($ct > 0);
+	}
+	
+	public function hasMembersWithoutRelations() {
+		// check if a member has no concerts, no rehearsals, no phase and no vote
+		$query = "SELECT count(*) as numNonIntegrated
+					FROM contact c
+					 LEFT JOIN (SELECT contact, count(*) as ct FROM concert_contact GROUP BY contact) as con ON c.id = con.contact
+					 LEFT JOIN (SELECT contact, count(*) as ct FROM rehearsal_contact GROUP BY contact) as reh ON c.id = reh.contact
+					 LEFT JOIN (SELECT contact, count(*) as ct FROM rehearsalphase_contact GROUP BY contact) as rph ON c.id = rph.contact
+					 LEFT JOIN (SELECT contact, count(*) as ct FROM vote_group JOIN user ON vote_group.user = user.id GROUP BY user) as vot ON c.id = vot.contact
+					WHERE con.ct IS NULL AND reh.ct IS NULL AND rph.ct IS NULL AND vot.ct IS NULL";
+		$ct = $this->database->getSelection($query);
+		return $ct[1]["numNonIntegrated"] > 0;
 	}
 }

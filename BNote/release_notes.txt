@@ -4,9 +4,11 @@
 
 Bugfix #129: Programm Titelliste bearbeiten - nach Namen sortiert
 Bugfix #131: Abstimmung nur mit Abstimmungsberechtigten
+Bugfix #144: Einphasung neuer Nutzer
 Bugfix #156: Encoding and Standardization of E-Mail-Handling
 Bugfix #157: Quote-Handling dependent on Magic Quotes settings
 Bugfix #164: Concert Edit Details - Programmauswahl  
+Bugfix #165: Benutzererstellung aus Kontakt wieder möglich
 
 Enhancement #11: Teilnehmer sortiert nach Gruppe anzeigen (Kategorie/Instrument)
 Enhancement #126: CSV Export von Konzertprogrammen

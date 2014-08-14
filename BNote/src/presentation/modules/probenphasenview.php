@@ -115,7 +115,7 @@ class ProbenphasenView extends CrudView {
 
 		Writing::p("Füge durch anklicken einer Probe diese zur Probenphase hinzu.");
 
-		$futRehearsals = $this->getData()->getFutureRehearsals();
+		$futRehearsals = $this->getData()->adp()->getFutureRehearsals();
 		$gs = new GroupSelector($futRehearsals, array(), "rehearsal");
 		$gs->setNameColumn("begin");
 		$gs->setCaptionType(FieldType::DATE);

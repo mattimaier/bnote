@@ -41,10 +41,6 @@ class ProbenData extends AbstractData {
 		return $this->database->getRow($query);
 	}
 	
-	function getAllRehearsals() {
-		return $this->adp()->getAllRehearsals();
-	}
-	
 	function findByIdJoined($id, $colExchange) {
 		$query = $this->defaultQuery() . " AND r.id = $id";
 		return $this->database->getRow($query);
