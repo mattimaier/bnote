@@ -50,21 +50,20 @@ class Systemdata {
  }
 
  /**
+  * @param name Name of a module, e.g. "Konzerte".
   * @return The current module's id.
   */
- public function getModuleId() {
-  return $this->current_modid;
- }
- 
- /**
-  * @return The communication module's id.
-  */
- function getCommunicationModuleId() {
- 	$mods = $this->getModuleArray();
- 	foreach($mods as $id => $name) {
- 		if($name == "Kommunikation") return $id;
+ public function getModuleId($name = null) {
+ 	if($name == null) {
+ 		return $this->current_modid;
  	}
- 	return 0;
+ 	else {
+ 		$mods = $this->getModuleArray();
+ 		foreach($mods as $id => $modName) {
+ 			if($name == $modName) return $id;
+ 		}
+ 		return 0;
+ 	}
  }
 
  /**

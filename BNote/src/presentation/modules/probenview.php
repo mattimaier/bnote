@@ -324,7 +324,7 @@ class ProbenView extends CrudRefView {
 		$this->buttonSpace();
 		
 		// show a button to send a reminder to all about this rehearsal
-		$remHref = "?mod=" . $this->getData()->getSysdata()->getCommunicationModuleId() . "&mode=rehearsalMail&preselect=" . $_GET["id"]; 
+		$remHref = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation") . "&mode=rehearsalMail&preselect=" . $_GET["id"]; 
 		
 		$reminder = new Link($remHref, "Benachrichtigung senden");
 		$reminder->addIcon("email");

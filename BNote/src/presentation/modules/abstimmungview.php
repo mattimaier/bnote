@@ -219,7 +219,7 @@ class AbstimmungView extends CrudView {
 		$this->buttonSpace();
 		
 		// notifications
-		$emLink = "?mod=" . $this->getData()->getSysdata()->getCommunicationModuleId();
+		$emLink = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation");
 		$emLink .= "&mode=voteMail&preselect=" . $_GET["id"];
 		$em = new Link($emLink, "Abstimmungsbenachrichtigung");
 		$em->addIcon("email");

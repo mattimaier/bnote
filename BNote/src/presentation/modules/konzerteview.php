@@ -168,7 +168,7 @@ class KonzerteView extends CrudRefView {
 		$this->buttonSpace();
 		
 		// notifications
-		$emLink = "?mod=" . $this->getData()->getSysdata()->getCommunicationModuleId();
+		$emLink = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation");
 		$emLink .= "&mode=concertMail&preselect=" . $_GET["id"];
 		$em = new Link($emLink, "Benachrichtigung senden");
 		$em->addIcon("email");

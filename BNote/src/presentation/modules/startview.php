@@ -524,6 +524,15 @@ class StartView extends AbstractView {
 		
 		Writing::h2("Programm");
 		
+		// Enhancement #127
+		$konzertMod = $this->getData()->getSysdata()->getModuleId("Konzerte");
+		if($this->getData()->getSysdata()->userHasPermission($konzertMod)) {
+			$editLink = new Link("?mod=" . $konzertMod . "&mode=programs&sub=view&id=" . $_GET["id"], "Programm bearbeiten");
+			$editLink->addIcon("edit");
+			$editLink->write();
+			$this->verticalSpace();
+		}
+		
 		$table = new Table($titles);		
 		$table->renameHeader("rank", "Nr.");
 		$table->renameHeader("title", "Titel");
