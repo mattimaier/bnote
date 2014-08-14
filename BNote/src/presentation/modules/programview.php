@@ -131,6 +131,11 @@ class ProgramView extends CrudView {
 		$lnk->addIcon("printer");
 		$lnk->write();
 		$this->buttonSpace();
+		
+		$lnk = new Link("src/export/programm.csv?id=" . $_GET["id"], "Titelliste exportieren (CSV)");
+		$lnk->addIcon("arrow_down");
+		$lnk->setTarget("_blank");
+		$lnk->write();
 	}
 	
 	function editList() {
