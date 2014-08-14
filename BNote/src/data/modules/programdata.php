@@ -80,7 +80,7 @@ class ProgramData extends AbstractData {
 	}
 	
 	function getAllSongs() {
-		$query = "SELECT id, title, length FROM song";
+		$query = "SELECT id, title, length FROM song ORDER BY title";
 		return $this->database->getSelection($query);
 	}
 	
