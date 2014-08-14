@@ -9,19 +9,10 @@
  <URL>http://demo.bnote.info</URL>
  
  <!-- E-mail-address of the administrator -->
- <Admin>matti@bnote.info</Admin>
- 
- <!-- Path to the manual file, i.e. PDF file -->
- <Manual>data/manual.pdf</Manual>
+ <Admin>mail@bnote.info</Admin>
  
  <!-- True when this is a demo system with deactived mailing function, otherwise false (default). -->
  <DemoMode>false</DemoMode>
- 
- <!-- In case users have to be activated by the administrator set this to true,
-      otherwise users will be activated by clicking on a link in an email (false).
-      // NOT USED AS OF 2.4.0
- -->
- <ManualUserActivation>false</ManualUserActivation>
  
  <!-- The user IDs of all super users whos credentials will not be shown on the website.
       This is a comma separated list without spaces.
@@ -45,12 +36,6 @@
  <!-- True when the infopage/news/additional pages management is used
       and should be displayed and functional, otherwise false. -->
  <UseInfoPages>True</UseInfoPages>
- 
- <!-- Only show the instruments of these category ids. Separate ids by comma without spaces.
- 	  If set to "ALL" then show all available instruments.
- 	  // NOT USED AS OF 2.4.0
- -->
- <InstrumentCategoryFilter>ALL</InstrumentCategoryFilter>
  
  <!-- The webpages available in the website module.
  	  A page tag contains an attribute "file" specifying the filename without the html-extension

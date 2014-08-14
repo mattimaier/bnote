@@ -233,13 +233,6 @@ class Systemdata {
  }
  
  /**
-  * Returns the full manual path.
-  */
- public function getManualPath() {
- 	return $this->cfg_system->getParameter("Manual");
- }
- 
- /**
   * Returns true when DemoMode is on, otherwise false.
   */
  public function inDemoMode() {

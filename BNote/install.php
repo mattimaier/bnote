@@ -121,9 +121,6 @@ class Installation {
 			<!-- E-mail-address of the administrator -->
 			<Admin>" . $_POST["Mail"] . "</Admin>
 		
-			<!-- Path to the manual file, i.e. PDF file -->
-			<Manual>data/manual.pdf</Manual>
-		
 			<!-- True when this is a demo system with deactived mailing function, otherwise false (default). -->
 			<DemoMode>false</DemoMode>
 		
