@@ -231,6 +231,10 @@ class KonzerteView extends CrudRefView {
 		$form->setForeign("location", "location", "id", "name", $c["location"]);
 		$form->setForeign("program", "program", "id", "name", $c["program"]);
 		$form->addForeignOption("program", "Kein Programm", "0");
+		if($c["program"] == "") {
+			$c["program"] = "0";
+		}
+		$form->setForeignOptionSelected("program", $c["program"]);
 		
 		$form->removeElement("contact");
 		$dd = new Dropdown("contact");
