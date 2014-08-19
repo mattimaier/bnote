@@ -71,7 +71,7 @@ class UserData extends AbstractData {
 			}
 		}
 		if(!array_key_exists("isActive", $newUsr) || $newUsr["isActive"] == "") {
-			$newUsr["isActive"] = 1;
+			$newUsr["isActive"] = "on";
 		}
 		
 		$userId = parent::create($newUsr);

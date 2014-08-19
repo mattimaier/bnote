@@ -251,7 +251,8 @@ class KontakteData extends AbstractData {
 		$values = array(
 			"contact" => $cid,
 			"login" => $username,
-			"password" => $password
+			"password" => $password,
+			"isActive" => ""
 		);
 		$dao->create($values);
 	}
