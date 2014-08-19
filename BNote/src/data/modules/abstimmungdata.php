@@ -418,7 +418,7 @@ class AbstimmungData extends AbstractData {
 		// additionally validate whether a group is set -> otherwise the vote "disappears"
 		$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 		if(count($grps) == 0) {
-			new Error("Bitte wählen Sie eine Gruppe für die Abstimmung.");
+			new Error("Bitte wähle eine Gruppe für die Abstimmung.");
 		}
 	}
 }
