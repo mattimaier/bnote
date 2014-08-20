@@ -193,7 +193,7 @@ class Mailing {
 	 * Calls the {@link sendMail()} method and throws and error if it returns false.
 	 */
 	public function sendMailWithFailError() {
-		if(sendMail() === false) {
+		if($this->sendMail() === false) {
 			new Error("Die E-Mail konnte nicht gesendet werden.");
 		}
 	}

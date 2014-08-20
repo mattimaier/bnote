@@ -412,13 +412,15 @@ class AbstimmungData extends AbstractData {
 		return $result;
 	}
 	
-	function validate($input) {
+	function validate($input, $groupRequired = false) {
 		parent::validate($input);
 		
 		// additionally validate whether a group is set -> otherwise the vote "disappears"
-		$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
-		if(count($grps) == 0) {
-			new Error("Bitte wähle eine Gruppe für die Abstimmung.");
+		if($groupRequired) {
+			$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
+			if(count($grps) == 0) {
+				new Error("Bitte wähle eine Gruppe für die Abstimmung.");
+			}
 		}
 	}
 }

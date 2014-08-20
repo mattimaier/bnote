@@ -2,8 +2,8 @@
 # by Matti Maier Internet Solutions
 # www.mattimaier.de
 
-# Release Version 2.5.1
-# Release Date 2014-04-18
+# Release Version 2.5.2
+# Release Date 2014-08-20
 # License GPLv3
 
 Requirements
@@ -42,3 +42,4 @@ How to update an existing BNote instance?
 	- data/nachrichten.html
 	- readme.txt
 	- release_notes.txt
+2. Delete data/manual.pdf

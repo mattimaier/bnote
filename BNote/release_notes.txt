@@ -4,6 +4,7 @@
 
 Bugfix #129: Programm Titelliste bearbeiten - nach Namen sortiert
 Bugfix #131: Abstimmung nur mit Abstimmungsberechtigten
+Bugfix #142: Proben werden wieder auf Startseite angezeigt
 Bugfix #144: Einphasung neuer Nutzer
 Bugfix #156: Encoding and Standardization of E-Mail-Handling
 Bugfix #157: Quote-Handling dependent on Magic Quotes settings

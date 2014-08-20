@@ -57,11 +57,11 @@ class StartController extends DefaultController {
 		else if(count($contacts) <= 1) return;
 		
 		// create message
-		$subject = "Diskussion: " . utf8_encode($this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]));
+		$subject = "Diskussion: " . $this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]);
 		$body = "<h3>Neue Nachricht zu Diskussion</h3>";
 		$sender = $this->getData()->getSysdata()->getUsersContact($uid);
 		$body .= "<p>von " . $sender["name"] . " " . $sender["surname"] . "</p>";
-		$body .= "<p>" . utf8_encode($_POST["message"]) . "</p>"; // checked here already
+		$body .= "<p>" . $_POST["message"] . "</p>"; // checked here already
 		
 		// create receipients as BCC, no to
 		$bcc = "";

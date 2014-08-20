@@ -112,7 +112,7 @@ class LoginController extends DefaultController {
 		
 		// only change password if mail was sent
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
-		$mail = new Mailing($email, $subject, $body);
+		$mail = new Mailing($_POST["email"], $subject, $body);
 		
 		if(!$mail->sendMail()) {
 			// talk to leader

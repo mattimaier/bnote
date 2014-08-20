@@ -89,7 +89,7 @@ class AbstimmungView extends CrudView {
 	
 	function add() {
 		// validate
-		$this->getData()->validate($_POST);
+		$this->getData()->validate($_POST, true);
 		
 		// process
 		$vid = $this->getData()->create($_POST);
