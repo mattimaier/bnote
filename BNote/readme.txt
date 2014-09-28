@@ -42,4 +42,3 @@ How to update an existing BNote instance?
 	- data/nachrichten.html
 	- readme.txt
 	- release_notes.txt
-2. Delete data/manual.pdf
