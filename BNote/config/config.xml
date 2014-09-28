@@ -6,7 +6,7 @@
  <StartModule>1</StartModule>
  
  <!-- URL of the BNote system -->
- <URL>http://demo.bnote.info</URL>
+ <URL></URL>
  
  <!-- E-mail-address of the administrator -->
  <Admin>mail@bnote.info</Admin>

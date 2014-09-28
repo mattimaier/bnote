@@ -2,18 +2,5 @@
 ## Release Notes
 ##
 
-Bugfix #129: Programm Titelliste bearbeiten - nach Namen sortiert
-Bugfix #131: Abstimmung nur mit Abstimmungsberechtigten
-Bugfix #142: Proben werden wieder auf Startseite angezeigt
-Bugfix #144: Einphasung neuer Nutzer
-Bugfix #156: Encoding and Standardization of E-Mail-Handling
-Bugfix #157: Quote-Handling dependent on Magic Quotes settings
-Bugfix #164: Concert Edit Details - Programmauswahl  
-Bugfix #165: Benutzererstellung aus Kontakt wieder möglich
-
-Enhancement #11: Teilnehmer sortiert nach Gruppe anzeigen (Kategorie/Instrument)
-Enhancement #126: CSV Export von Konzertprogrammen
-Enhancement #127: Link auf Startseite zu Programm für Berechtigte  
-Enhancement #132: Abstimmungsnavigation verbessert
-Enhancement #141: Abstimmung bearbeiten nun möglich
-Enhancement #161: Probenhistorie
+Bugfix #166: Webcal Link broken
+Bugfix #169: Filesystem navigation in Share possible  

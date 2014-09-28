@@ -121,14 +121,17 @@ class StartView extends AbstractView {
 		$this->buttonSpace();
 		
 		$systemUrl = $this->getData()->getSysdata()->getSystemURL();
-		if(!Data::endsWith($systemUrl, "/")) $systemUrl .= "/";
-		if(Data::startsWith($systemUrl, "http://")) $systemUrl = substr($systemUrl, 7);
-		else if(Data::startsWith($systemUrl, "https://")) $systemUrl = substr($systemUrl, 8);
-				
+		if($systemUrl != "") {
+			if(!Data::endsWith($systemUrl, "/")) $systemUrl .= "/";
+			if(Data::startsWith($systemUrl, "http://")) $systemUrl = substr($systemUrl, 7);
+			else if(Data::startsWith($systemUrl, "https://")) $systemUrl = substr($systemUrl, 8);
+		}
+		else {
+			$systemUrl = $_SERVER["HTTP_HOST"] . str_replace("main.php", "", $_SERVER["SCRIPT_NAME"]);
+		}
 		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender abonnieren");
 		$calSubsc->addIcon("arrow_right");
 		$calSubsc->write();
-		
 	}
 	
 	public function askReason($type) {

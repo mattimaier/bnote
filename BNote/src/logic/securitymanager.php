@@ -73,6 +73,11 @@ class SecurityManager {
 	public function canUserAccessFile($file, $uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
 		
+		// make sure no user leaves the context of the web application (#169).
+		if(strpos($file, "../") !== false) {
+			return false;
+		}
+		
 		// give super user access to all files
 		if($this->sysdata->isUserSuperUser()) {
 			return true;

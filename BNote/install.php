@@ -107,7 +107,7 @@ class Installation {
 		if(!file_exists("config/config.xml")) {
 			$bnotePath = $_SERVER["SCRIPT_NAME"];
 			$bnotePath = str_replace("install.php", "", $bnotePath);
-			$system_url = $_SERVER["HTTP_ORIGIN"] . $bnotePath;
+			$system_url = $_SERVER["HTTP_HOST"] . $bnotePath;
 				
 			$fileContent = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>
 			<Software Name=\"BNote\">
