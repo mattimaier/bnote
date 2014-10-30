@@ -2,5 +2,3 @@
 ## Release Notes
 ##
 
-Bugfix #166: Webcal Link broken
-Bugfix #169: Filesystem navigation in Share possible  

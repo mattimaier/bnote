@@ -15,7 +15,7 @@ require_once("bna-interface.php");
 
 /*********************************************************
  * IMPLEMENTATION										 *
-*********************************************************/
+ *********************************************************/
 
 class BNAjson extends AbstractBNA {
 	
@@ -45,7 +45,7 @@ class BNAjson extends AbstractBNA {
 	}
 	
 	function documentBegin() {
-		echo "{ \"entities\" : [ ";
+		echo "{ \"data\" : [ ";
 	}
 	
 	function documentEnd() {
@@ -69,17 +69,17 @@ class BNAjson extends AbstractBNA {
 		echo '"' . $line_node . 's" : [';
 		for($i = 1; $i < count($selection); $i++) {
 			$e = $selection[$i];
-			if($i > 1) echo ",";
+			if($i > 1) echo $this->entitySeparator();
 			echo "{";
 			$j = 0;
 			foreach($e as $index => $value) {
 				if(is_numeric($index)) continue;
-				if($j > 0) echo ",";
+				if($j > 0) echo $this->entitySeparator();
 				
 				// conversions for globally unique identifiers
 				if($this->global_on && $index == "id") {
 					// singluar type
-					echo '"type" : "' . $line_node . '", ';
+					echo '"type" : "' . $line_node . '"' . $this->entitySeparator() . ' ';
 					$value = $this->instanceUrl . "/$line_node/$value"; 
 				}
 				
@@ -92,6 +92,40 @@ class BNAjson extends AbstractBNA {
 		echo ']';
 		
 		$this->endOutputWith();
+	}
+	
+	function printEntityStructure($entities, $nodeName, $newOutput = true) {
+		if($newOutput) $this->beginOutputWith();
+		
+		echo '"' . $nodeName . 's" : [';
+		$count = 0;
+		foreach($entities as $index => $entity) {
+			if($count > 0) {
+				echo $this->entitySeparator();
+			}
+			$fcnt = 0;
+			foreach($entity as $field => $fieldVal) {
+				if($fcnt > 0) {
+					echo $this->entitySeparator();
+				}
+				if($field == "id" && $this->global_on) {
+					echo '"type" : "' . $nodeName . '"' . $this->entitySeparator() . ' ';
+					$fieldVal = $this->instanceUrl . "/$fieldVal/$value"; 
+				}
+				if(is_array($fieldVal)) {
+					$this->printEntityStructure(array($fieldVal), $field, false);
+				}
+				else {
+					echo '"' . $field . '": "' . $fieldVal . '"';
+				}
+				$fcnt++;
+			}
+			
+			$count++;
+		}
+		echo ']';
+		
+		if($newOutput) $this->endOutputWith();
 	}
 	
 	function writeEntity($entity, $type) {

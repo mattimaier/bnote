@@ -247,6 +247,12 @@ class ProbenData extends AbstractData {
 		return $rid;
 	}
 	
+	public function delete($id) {
+		//TODO remove all rehearsal references!
+		
+		parent::delete($id);
+	}
+	
 	public function getRehearsalContacts($rid) {
 		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, i.name as instrument, c.mobile, c.email ";
 		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";

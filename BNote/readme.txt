@@ -2,7 +2,7 @@
 # by Matti Maier Internet Solutions
 # www.mattimaier.de
 
-# Release Version 2.5.2
+# Release Version 3.0.0
 # Release Date 2014-08-20
 # License GPLv3
 

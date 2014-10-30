@@ -33,6 +33,11 @@ class KonzerteData extends AbstractData {
 		$this->init($dir_prefix);
 	}
 	
+	public function delete($id) {
+		//TODO delete all concert references!
+		parent::delete($id);
+	}
+	
 	function getFutureConcerts() {
 		return $this->adp()->getFutureConcerts();
 	}

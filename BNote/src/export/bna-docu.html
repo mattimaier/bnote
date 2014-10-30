@@ -53,6 +53,13 @@ entity has a field <strong>type</strong> which contains its type.
 <h2>Interface Methods</h2>
 <p>By default all methods use the HTTP-Method GET.</p>
 
+<h3>getAll</h3>
+<ul>
+	<li><i>Description</i>: Fetches all rehearsals, concerts, contacts, locations, votes and groups at once.</li>
+	<li><i>Returns</i>: An object containing one array for each object type.</li>
+	<li><i>Parameters</i>: None.</li>
+</ul>
+
 <h3>getRehearsals</h3>
 <ul>
 	<li><i>Description</i>: Fetches all future rehearsals from the database and renders them.</li>
@@ -153,7 +160,7 @@ entity has a field <strong>type</strong> which contains its type.
 	</li>
 </ul>
 
-<h3>getParticipation</h3>
+<h3>getRehearsalParticipation</h3>
 <ul>
 	<li><i>Description</i>: Fetches whether the user participates in a rehearsal.</li>
 	<li><i>Returns</i>: <b>0</b> when the user does not participate, <b>1</b> when the user participates and <b>-1</b> when the user has not decided yet.</li>
@@ -164,7 +171,7 @@ entity has a field <strong>type</strong> which contains its type.
 	</li>
 </ul>
 
-<h3>setParticipation</h3>
+<h3>setRehearsalParticipation</h3>
 <ul>
 	<li><i>Description</i>: Sets the rehearsal participation.</li>
 	<li><i>Returns</i>: (format unspecific) "true" when the request was successfully processed, otherwise an error message is returned.</li>
@@ -220,6 +227,7 @@ entity has a field <strong>type</strong> which contains its type.
 	 		<li><b>approve_until</b>: <i>String</i> Approve participation until, format: DD.MM.YYYY HH:ii.</li>
 	 		<li><b>notes</b>: <i>String</i> Notes for the rehearsal.</li>
 	 		<li><b>location</b>: <i>Integer</i> Location ID.</li>
+	 		<li><b>groups</b>: <i>Comma separated string of IDs</i> Group IDs, e.g. 5,6,7,8.</li>
 		</ul>
 	</li>
 </ul>
@@ -305,6 +313,16 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+
+<h3>getGroups</h3>
+<h3>getVoteResult</h3>
+<h3>setConcertParticipation</h3>
+<h3>addConcert</h3>
+<h3>updateRehearsal</h3>
+<h3>updateConcert</h3>
+<h3>deleteRehearsal</h3>
+<h3>deleteConcert</h3>
+<h3>sendMail</h3>
 
 <h2>Data Model</h2>
 <p>The following data model describes the data that is returned from this interface.</p>

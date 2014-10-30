@@ -13,12 +13,13 @@ interface iBNA {
 	public function getRehearsals();
 	
 	/**
+	 * @deprecated Please use getRehearsals()
 	 * Retrieves all rehearsals for a user and whether he/she participates or not.
 	 * @param Integer $user ID of the user.
 	 * @return All rehearsal with participation information for the user.
 	 */
 	public function getRehearsalsWithParticipation($user);
-
+	
 	/**
 	 * @return Returns all concerts.
 	 */
@@ -28,6 +29,11 @@ interface iBNA {
 	 * @return Returns all contacts.
 	 */
 	public function getContacts();
+	
+	/**
+	 * @return Returns all groups without members.
+	 */
+	public function getGroups();
 	
 	/**
 	 * @return Returns all locations.
@@ -55,6 +61,13 @@ interface iBNA {
 	 * @return All vote options for this vote.
 	 */
 	public function getVoteOptions($vid);
+	
+	/**
+	 * Retrieves the result of a vote.
+	 * @param Integer $vid Vote ID.
+	 * @return Array with all options and their counts.
+	 */
+	public function getVoteResult($vid);
 	
 	/**
 	 * @return Returns all songs in the repertoire.
@@ -91,7 +104,7 @@ interface iBNA {
 	 * @param Integer $uid User ID
 	 * @return 1 if the user participates, 0 if not, -1 if not chosen yet.
 	 */
-	public function getParticipation($rid, $uid);
+	public function getRehearsalParticipation($rid, $uid);
 	
 	/**
 	 * Saves the participation of a user in a rehearsal.
@@ -100,7 +113,16 @@ interface iBNA {
 	 * @param Integer $part 1=participates, 0=does not participate, 2=maybe participates
 	 * @param String $reason Optional parameter to give a reason for not participating.
 	 */
-	public function setParticipation($rid, $uid, $part, $reason);
+	public function setRehearsalParticipation($rid, $uid, $part, $reason);
+	
+	/**
+	 * Saves the participation of a user in a concert.
+	 * @param Integer $cid Concert ID
+	 * @param Integer $uid User ID
+	 * @param Integer $part 1=participates, 0=does not participate, 2=maybe participates
+	 * @param String $reason Optional parameter to give a reason for not participating.
+	 */
+	public function setConcertParticipation($cid, $uid, $part, $reason);
 	
 	/**
 	 * Set a task as completed. (POST)
@@ -129,9 +151,64 @@ interface iBNA {
 	 * @param String $approve_until Approve participation until, format: YYYY-MM-DD HH:ii:ss.
 	 * @param String $notes Notes for the rehearsal.
 	 * @param Integer $location Location ID.
+	 * @param Array $groups List of groups the rehearsal belongs to.
 	 * @return The ID of the new rehearsal.
 	 */
-	public function addRehearsal($begin, $end, $approve_until, $notes, $location);
+	public function addRehearsal($begin, $end, $approve_until, $notes, $location, $groups);
+	
+	/**
+	 * Adds a concert. (POST)
+	 * @param String $begin Begin of the concert, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $end End of the concert, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $approve_until Approve participation until, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $notes Notes for the concert.
+	 * @param Integer $location Location ID.
+	 * @param Integer $program Program ID.
+	 * @param Array $groups List of groups the concert belongs to.
+	 * @return The ID of the new concert.
+	 */
+	public function addConcert($begin, $end, $approve_until, $notes, $location, $program, $groups);
+	
+	/**
+	 * Updates a rehearsal. (POST)
+	 * @param Integer $id Rehearsal ID.
+	 * @param String $begin Begin of the rehearsal, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $end End of the rehearsal, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $approve_until Approve participation until, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $notes Notes for the rehearsal.
+	 * @param Integer $location Location ID.
+	 * @param Array $groups List of groups the rehearsal belongs to.
+	 * @return The ID of the rehearsal.
+	 */
+	public function updateRehearsal($id, $begin, $end, $approve_until, $notes, $location, $groups);
+	
+	/**
+	 * Updates a concert. (POST)
+	 * $param Integer $id Concert ID.
+	 * @param String $begin Begin of the concert, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $end End of the concert, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $approve_until Approve participation until, format: YYYY-MM-DD HH:ii:ss.
+	 * @param String $notes Notes for the concert.
+	 * @param Integer $location Location ID.
+	 * @param Integer $program Program ID.
+	 * @param Array $groups List of groups the concert belongs to.
+	 * @return The ID of the concert.
+	 */
+	public function updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $groups);
+	
+	/**
+	 * Deletes a rehearsal. (POST)
+	 * @param Integer $id Rehearsal ID.
+	 * @return boolean True when successfully deleted, otherwise false.
+	 */
+	public function deleteRehearsal($id);
+	
+	/**
+	 * Deletes a concert. (POST)
+	 * @param Integer $id Concert ID.
+	 * @return boolean True when successfully deleted, otherwise false.
+	 */ 
+	public function deleteConcert($id);
 	
 	/**
 	 * Adds a vote to the voting. (POST)
@@ -184,6 +261,14 @@ interface iBNA {
 	 * @return Array with songs to practise and their information.
 	 */
 	public function getSongsToPractise($rid);
+	
+	/**
+	 * Sends an email to all members of the specified groups.
+	 * @param String $subject Mail subject.
+	 * @param String $body Body of the mail.
+	 * @param Array $groups Groups the mail is sent to.
+	 */
+	public function sendMail($subject, $body, $groups);
 }
 
 // Abstract Implementation of BNote Application Interface

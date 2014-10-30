@@ -172,9 +172,12 @@ class StartData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
-	function canUserVote($vid) {
+	function canUserVote($vid, $uid = null) {
+		if($uid == null) {
+			$uid = $_SESSION["user"];
+		}
 		// security function
-		$c = $this->database->getCell("vote_group", "count(vote)", "vote = $vid AND user = " . $_SESSION["user"]);
+		$c = $this->database->getCell("vote_group", "count(vote)", "vote = $vid AND user = " . $uid);
 		return ($c == 1);
 	}
 	

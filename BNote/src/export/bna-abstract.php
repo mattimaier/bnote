@@ -21,6 +21,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "locationsdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "repertoiredata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
@@ -91,7 +92,7 @@ abstract class AbstractBNA implements iBNA {
 			$this->uid = null;
 		}
 		else if(!isset($_GET["pin"])) {
-			header("HTTP/1.0 403 Permission Denied.");
+			header("HTTP/1.0 401 Permission Denied.");
 			exit();
 		}
 		else {
@@ -100,7 +101,7 @@ abstract class AbstractBNA implements iBNA {
 			$this->uid = $this->db->getCell($this->db->getUserTable(), "id", "pin = $pin");
 
 			if($this->uid == null || $this->uid < 1) {
-				header("HTTP/1.0 403 Permission Denied.");
+				header("HTTP/1.0 401 Permission Denied.");
 				exit();
 			}
 		}
@@ -119,15 +120,15 @@ abstract class AbstractBNA implements iBNA {
 			$function = $_GET["func"];
 		}
 
-		if($function == "getParticipation" || $function == "setParticipation") {
+		if($function == "getRehearsalParticipation" || $function == "setRehearsalParticipation") {
 			if(!isset($_GET["rehearsal"])) {
 				header("HTTP/1.0 412 Insufficient Parameters.");
 				exit();
 			}
-			else if($function == "getParticipation") {
-				$this->getParticipation($_GET["rehearsal"], $this->uid);
+			else if($function == "getRehearsalParticipation") {
+				$this->getRehearsalParticipation($_GET["rehearsal"], $this->uid);
 			}
-			else if($function == "setParticipation") {
+			else if($function == "setRehearsalParticipation") {
 				if(!isset($_GET["participation"])) {
 					header("HTTP/1.0 412 Insufficient Parameters.");
 					exit();
@@ -140,7 +141,7 @@ abstract class AbstractBNA implements iBNA {
 				if(isset($_GET["reason"])) {
 					$reason = $_GET["reason"];
 				}
-				$this->setParticipation($_GET["rehearsal"], $this->uid, $part, $reason);
+				$this->setRehearsalParticipation($_GET["rehearsal"], $this->uid, $part, $reason);
 			}
 		}
 		else if($function == "getRehearsalsWithParticipation") {
@@ -196,7 +197,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		else if($function == "addRehearsal") {
 			// check permission
-			if(!$this->sysdata->userHasPermission(5, $this->uid)) { // 6=Rehearsals
+			if(!$this->sysdata->userHasPermission(5, $this->uid)) { // 5=Rehearsals
 				header("HTTP/1.0 403 Permission denied.");
 				exit();
 			}
@@ -214,8 +215,12 @@ abstract class AbstractBNA implements iBNA {
 			$approve_until = isset($_POST["approve_until"]) ? $_POST["approve_until"] : "";
 			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
 			$location = isset($_POST["location"]) ? $_POST["location"] : "";
+			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
+			if(!is_array($groups)) {
+				$groups = explode(",", $groups);
+			}
 			
-			$this->addRehearsal($begin, $end, $approve_until, $notes, $location);
+			$this->addRehearsal($begin, $end, $approve_until, $notes, $location, $groups);
 		}
 		else if($function == "vote") {
 			// validation
@@ -265,6 +270,177 @@ abstract class AbstractBNA implements iBNA {
 			}
 			$this->mobilePin($_POST["login"], $_POST["password"]);
 		}
+		else if($function == "getVoteResult") {
+			// validation
+			if(!isset($_GET["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			
+			// permission check
+			if(!$this->startdata->canUserVote($_GET["id"], $this->uid)
+					&& !$this->sysdata->isUserSuperUser($this->uid)) {
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			
+			$this->getVoteResult($_GET["id"]);
+		}
+		else if($function == "setConcertParticipation") {
+			if(!isset($_POST["concert"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			if(!isset($_POST["participation"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$part = $_POST["participation"];
+			if($part > 2 || $part < -1) {
+				$part = -1;
+			}
+			$reason = "";
+			if(isset($_POST["reason"])) {
+				$reason = $_POST["reason"];
+			}
+			$this->setConcertParticipation($_POST["concert"], $this->uid, $part, $reason);
+		}
+		else if($function == "addConcert") {
+			// check permission
+			if(!$this->sysdata->userHasPermission(4, $this->uid)) { // 4=Concerts
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			
+			// validation
+			if(!isset($_POST["begin"]) || $_POST["begin"] == ""
+					|| !isset($_POST["end"]) || $_POST["end"] == "") {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			
+			// Parameter mapping
+			$begin = isset($_POST["begin"]) ? $_POST["begin"] : "";
+			$end = isset($_POST["end"]) ? $_POST["end"] : "";
+			$approve_until = isset($_POST["approve_until"]) ? $_POST["approve_until"] : "";
+			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
+			$location = isset($_POST["location"]) ? $_POST["location"] : "";
+			$program = isset($_POST["program"]) ? $_POST["program"] : "";
+			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
+			if(!is_array($groups)) {
+				$groups = explode(",", $groups);
+			}
+			$this->addConcert($begin, $end, $approve_until, $notes, $location, $program, $groups);
+		}
+		else if($function == "updateRehearsal") {
+			// check permission
+			if(!$this->sysdata->userHasPermission(5, $this->uid)) { // 5=Rehearsals
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+				
+			// validation
+			if(!isset($_POST["id"]) || $_POST["id"] == ""
+					|| !isset($_POST["begin"]) || $_POST["begin"] == ""
+					|| !isset($_POST["end"]) || $_POST["end"] == "") {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+				
+			// Parameter mapping
+			$id = $_POST["id"];
+			$begin = isset($_POST["begin"]) ? $_POST["begin"] : "";
+			$end = isset($_POST["end"]) ? $_POST["end"] : "";
+			$approve_until = isset($_POST["approve_until"]) ? $_POST["approve_until"] : "";
+			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
+			$location = isset($_POST["location"]) ? $_POST["location"] : "";
+			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
+			if(!is_array($groups)) {
+				$groups = explode(",", $groups);
+			}
+			$this->updateRehearsal($id, $begin, $end, $approve_until, $notes, $location, $groups);
+		}
+		else if($function == "updateConcert") {
+			// check permission
+			if(!$this->sysdata->userHasPermission(4, $this->uid)) { // 4=Concerts
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+				
+			// validation
+			if(!isset($_POST["id"]) || $_POST["id"] == ""
+					|| !isset($_POST["begin"]) || $_POST["begin"] == ""
+					|| !isset($_POST["end"]) || $_POST["end"] == "") {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+				
+			// Parameter mapping
+			$id = $_POST["id"];
+			$begin = isset($_POST["begin"]) ? $_POST["begin"] : "";
+			$end = isset($_POST["end"]) ? $_POST["end"] : "";
+			$approve_until = isset($_POST["approve_until"]) ? $_POST["approve_until"] : "";
+			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
+			$location = isset($_POST["location"]) ? $_POST["location"] : "";
+			$program = isset($_POST["program"]) ? $_POST["program"] : "";
+			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
+			if(!is_array($groups)) {
+				$groups = explode(",", $groups);
+			}
+			$this->updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $groups);
+		}
+		else if($function == "deleteRehearsal") {
+			// check permission
+			if(!$this->sysdata->userHasPermission(5, $this->uid)) { // 5=Rehearsals
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+				
+			// validation
+			if(!isset($_POST["id"]) || $_POST["id"] == "") {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			
+			$this->deleteRehearsal($id);
+		}
+		else if($function == "deleteConcert") {
+			// check permission
+			if(!$this->sysdata->userHasPermission(4, $this->uid)) { // 4=Concerts
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			
+			// validation
+			if(!isset($_POST["id"]) || $_POST["id"] == "") {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			
+			$this->deleteConcert($_POST["id"]);
+		}
+		else if($function == "sendMail") {
+			// check permission
+			if(!$this->sysdata->userHasPermission(7, $this->uid)) { // 7=Communication
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			
+			// validation
+			if(!isset($_POST["subject"]) || !isset($_POST["body"]) 
+					|| !isset($_POST["groups"]) || $_POST["groups"] == "") {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			
+			// mapping
+			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
+			if(!is_array($groups)) {
+				$groups = explode(",", $groups);
+			}
+			
+			$this->sendMail($_POST["subject"], $_POST["body"], $groups);
+		}
 		else {
 			$this->$function();
 		}
@@ -292,6 +468,14 @@ abstract class AbstractBNA implements iBNA {
 	protected abstract function printEntities($entities, $nodeName);
 
 	/**
+	 * Prints entities based on a structure.
+	 * @param Array $entities Array with entities - no header line, nested array possible.
+	 * @param Boolean $newOutput True by default which opens a document/object, false for recursive calls.
+	 * @param String $nodeName Name of the node in case required, e.g. singluar.
+	 */
+	protected abstract function printEntityStructure($entities, $nodeName, $newOutput = true);
+	
+	/**
 	 * Writes a single, flat entity.
 	 * @param Object $entity Object with attributes and values.
 	 * @param String $type Name, e.g. "song", "rehearsal", "concert"
@@ -301,6 +485,8 @@ abstract class AbstractBNA implements iBNA {
 	/* DEFAULT IMPLEMENTATIONS */
 
 	function getRehearsals() {
+		//TODO consolidate getRehearsal methods and change return structure
+		
 		$entities = $this->startdata->getUsersRehearsals($this->uid);
 		$this->printEntities($entities, "rehearsal");
 	}
@@ -370,6 +556,8 @@ abstract class AbstractBNA implements iBNA {
 	}
 
 	function getConcerts() {
+		//TODO implement more complex return structure
+		
 		$concerts = $this->startdata->getUsersConcerts($this->uid);
 		$this->printEntities($concerts, "concert");
 	}
@@ -410,6 +598,8 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	function getVotes() {
+		//TODO implement more complex return structure
+		
 		$votes = $this->startdata->getVotesForUser($this->uid);
 		$this->printEntities($votes, "vote");
 	}
@@ -462,6 +652,7 @@ abstract class AbstractBNA implements iBNA {
 		$this->getVotes(); echo $sep . "\n";
 		$this->getGenres(); echo $sep . "\n";
 		$this->getStatuses(); echo $sep . "\n";
+		$this->getGroups(); echo $sep . "\n";
 		
 		$this->documentEnd();
 	}
@@ -492,14 +683,14 @@ abstract class AbstractBNA implements iBNA {
 		$this->printEntities($comments, "comment");
 	}
 
-	function getParticipation($rid, $uid) {
+	function getRehearsalParticipation($rid, $uid) {
 		$_SESSION["user"] = $uid;
 		$res = $this->startdata->doesParticipateInRehearsal($rid);
 		unset($_SESSION["user"]);
 		return $res;
 	}
 
-	function setParticipation($rid, $uid, $part, $reason) {
+	function setRehearsalParticipation($rid, $uid, $part, $reason) {
 		$_GET["rid"] = $rid;
 		$_SESSION["user"] = $uid;
 
@@ -548,7 +739,7 @@ abstract class AbstractBNA implements iBNA {
 		echo $repData->create($values);
 	}
 	
-	function addRehearsal($begin, $end, $approve_until, $notes, $location) {
+	function addRehearsal($begin, $end, $approve_until, $notes, $location, $groups) {
 		// semantic parameter mappings
 		$values["begin"] = $begin;
 		$values["end"] = $end;
@@ -556,10 +747,18 @@ abstract class AbstractBNA implements iBNA {
 		$values["notes"] = $notes;
 		$values["location"] = $location;
 		
-		// add rehearsal to default group
-		$defaultGroup = $this->sysdata->getDynamicConfigParameter("default_contact_group");
-		$values["group_" . $defaultGroup] = "on";
-		$_POST["group_" . $defaultGroup] = "on";
+		if($groups == null || count($groups) == 0) {
+			// add rehearsal to default group
+			$defaultGroup = $this->sysdata->getDynamicConfigParameter("default_contact_group");
+			$values["group_" . $defaultGroup] = "on";
+			$_POST["group_" . $defaultGroup] = "on";
+		}
+		else {
+			foreach($groups as $i => $grp) {
+				$values["group_" . $grp] = "on";
+				$_POST["group_" . $grp] = "on";
+			}
+		}
 		
 		// create rehearsal
 		require_once $GLOBALS["DIR_WIDGETS"] . "iwriteable.php";
@@ -639,6 +838,45 @@ abstract class AbstractBNA implements iBNA {
 		$probenData = new ProbenData($GLOBALS["dir_prefix"]);
 		$songs = $probenData->getSongsForRehearsal($rid);
 		$this->printEntities($songs, "song");
+	}
+	
+	function getGroups() {
+		$selection = $this->startdata->adp()->getGroups(true);
+		$this->printEntities($selection, "group");
+	}
+	
+	function getVoteResult($vid) {
+		//TODO implement
+	}
+	
+	function setConcertParticipation($cid, $uid, $part, $reason) {
+		//TODO implement
+	}
+	
+	function addConcert($begin, $end, $approve_until, $notes, $location, $program, $groups) {
+		//TODO implement
+	}
+	
+	function updateRehearsal($id, $begin, $end, $approve_until, $notes, $location, $groups) {
+		//TODO implement
+	}
+	
+	function updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $groups) {
+		//TODO implement
+	}
+	
+	function deleteRehearsal($id) {
+		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
+		echo $rehData->delete($id);
+	}
+	
+	function deleteConcert($id) {
+		$conData = new KonzerteData($GLOBALS["dir_prefix"]);
+		echo $conData->delete($id);
+	}
+	
+	function sendMail($subject, $body, $groups) {
+		//TODO implement
 	}
 }
 ?>
