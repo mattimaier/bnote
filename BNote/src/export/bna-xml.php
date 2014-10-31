@@ -64,6 +64,47 @@ class BNAxml extends AbstractBNA {
 		echo "</$root_node>";
 	}
 	
+	function printVotes($votes) {
+		$this->toXml($votes);
+	}
+	
+	function printRehearsals($rehs) {
+		$this->toXml($rehs);
+	}
+	
+	function printConcerts($concerts) {
+		$this->toXml($concerts);
+	}
+	
+	function printVoteResult($vote) {
+		$this->toXml($vote);
+	}
+	
+	private function toXml($array) {
+		$template = '<?xml version="1.0" encoding="UTF-8"?><entities></entities>';
+		$xml = new SimpleXMLElement($template);
+		$this->recArray2Xml($array, $xml);
+		echo $xml->asXML();
+	}
+	
+	private function recArray2Xml($array, $xml) {
+		foreach($array as $key => $value) {
+			if(is_array($value)) {
+				if(!is_numeric($key)){
+					$subnode = $xml->addChild("$key");
+					$this->recArray2Xml($value, $subnode);
+				}
+				else{
+					$subnode = $xml->addChild("item");
+					$this->recArray2Xml($value, $subnode);
+				}
+			}
+			else {
+				$xml->addChild("$key",htmlspecialchars("$value"));
+			}
+		}
+	}
+	
 	function writeEntity($entity, $type) {
 		$this->xmlHeader();
 		echo "<" . $type . ">\n";

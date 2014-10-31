@@ -24,6 +24,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
+require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
 
@@ -326,11 +327,12 @@ abstract class AbstractBNA implements iBNA {
 			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
 			$location = isset($_POST["location"]) ? $_POST["location"] : "";
 			$program = isset($_POST["program"]) ? $_POST["program"] : "";
+			$contact = isset($_POST["contact"]) ? $_POST["contact"] : "";
 			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
 			if(!is_array($groups)) {
 				$groups = explode(",", $groups);
 			}
-			$this->addConcert($begin, $end, $approve_until, $notes, $location, $program, $groups);
+			$this->addConcert($begin, $end, $approve_until, $notes, $location, $program, $contact, $groups);
 		}
 		else if($function == "updateRehearsal") {
 			// check permission
@@ -383,11 +385,12 @@ abstract class AbstractBNA implements iBNA {
 			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
 			$location = isset($_POST["location"]) ? $_POST["location"] : "";
 			$program = isset($_POST["program"]) ? $_POST["program"] : "";
+			$contact = isset($_POST["contact"]) ? $_POST["contact"] : "";
 			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
 			if(!is_array($groups)) {
 				$groups = explode(",", $groups);
 			}
-			$this->updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $groups);
+			$this->updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $contact, $groups);
 		}
 		else if($function == "deleteRehearsal") {
 			// check permission
@@ -402,7 +405,7 @@ abstract class AbstractBNA implements iBNA {
 				exit();
 			}
 			
-			$this->deleteRehearsal($id);
+			$this->deleteRehearsal($_POST["id"]);
 		}
 		else if($function == "deleteConcert") {
 			// check permission
@@ -466,14 +469,6 @@ abstract class AbstractBNA implements iBNA {
 	 * @param String $nodeName Name of the node in case required, e.g. singluar.
 	 */
 	protected abstract function printEntities($entities, $nodeName);
-
-	/**
-	 * Prints entities based on a structure.
-	 * @param Array $entities Array with entities - no header line, nested array possible.
-	 * @param Boolean $newOutput True by default which opens a document/object, false for recursive calls.
-	 * @param String $nodeName Name of the node in case required, e.g. singluar.
-	 */
-	protected abstract function printEntityStructure($entities, $nodeName, $newOutput = true);
 	
 	/**
 	 * Writes a single, flat entity.
@@ -485,10 +480,7 @@ abstract class AbstractBNA implements iBNA {
 	/* DEFAULT IMPLEMENTATIONS */
 
 	function getRehearsals() {
-		//TODO consolidate getRehearsal methods and change return structure
-		
-		$entities = $this->startdata->getUsersRehearsals($this->uid);
-		$this->printEntities($entities, "rehearsal");
+		$this->getRehearsalsWithParticipation($this->uid);
 	}
 
 	function getRehearsalsWithParticipation($user) {
@@ -521,46 +513,130 @@ abstract class AbstractBNA implements iBNA {
 		}
 		
 		// resolve location
-		array_push($rehs[0], "name", "street", "city", "zip");
 		for($i = 1; $i < count($rehs); $i++) {
-			$query = "SELECT name, street, city, zip ";
+			$query = "SELECT location.id, name, street, city, zip ";
 			$query .= "FROM location JOIN address ON location.address = address.id ";
 			$query .= "WHERE location.id = " . $rehs[$i]["location"];
 			$loc = $this->db->getRow($query);
-			$rehs[$i]["name"] = $loc["name"];
-			$rehs[$i]["street"] = $loc["street"];
-			$rehs[$i]["city"] = $loc["city"];
-			$rehs[$i]["zip"] = $loc["zip"];
+			
+			$rehs[$i]["location"] = $loc;
 		}
 		
-		// remove unwanted properties
-		$props = array( "location", "rehearsal", "user" );
-		foreach($props as $i => $prop) {
-			// find location
-			$pos = -1;
-			for($j = 0; $j < count($rehs[0]); $j++) {
-				if(strtolower($rehs[0][$j]) == $prop) {
-					$pos = $j;
-					break;
+		// remove header
+		unset($rehs[0]);
+		
+		// add potential participants
+		foreach($rehs as $i => $rehearsal) {
+			$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.email";
+			$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
+			$query .= " WHERE rc.rehearsal = " . $rehearsal["id"];
+			$contacts = $this->db->getSelection($query);
+			unset($contacts[0]);
+			foreach($contacts as $j => $contact) {
+				foreach($contact as $ck => $cv) {
+					if(is_numeric($ck)) {
+						unset($contacts[$j][$ck]);
+					}
 				}
 			}
-			// remove from array
-			if($pos >= 0) {
-				for($k = 0; $k < count($rehs); $k++) {
-					unset($rehs[$k][$pos]);
+			$rehs[$i]["contacts"] = $contacts;
+		}
+		
+		// cleanup
+		foreach($rehs as $i => $rehearsal) {
+			foreach($rehearsal as $k => $v) {
+				if(is_numeric($k) || $k == "rehearsal" || $k == "user") {
+					unset($rehs[$i][$k]);
 				}
 			}
 		}
 		
-		$this->printEntities($rehs, "rehearsal");
+		$this->printRehearsals($rehs);
 	}
+	
+	protected abstract function printRehearsals($rehs);
 
 	function getConcerts() {
-		//TODO implement more complex return structure
-		
 		$concerts = $this->startdata->getUsersConcerts($this->uid);
-		$this->printEntities($concerts, "concert");
+		
+		// remove header
+		unset($concerts[0]);
+		
+		// enrichment of objects
+		foreach($concerts as $i => $concert) {
+			$dbConcert = $this->db->getRow("SELECT * FROM concert WHERE id = " . $concert["id"]);
+			
+			// location
+			$concerts[$i]["location"] = array(
+				"id" => $dbConcert["location"],
+				"name" => $concert["location_name"],
+				"notes" => $concert["location_notes"],
+				"street" => $concert["location_street"],
+				"city" => $concert["location_city"],
+				"zip" => $concert["location_zip"],
+			);
+			unset($concerts[$i]["location_name"]);
+			unset($concerts[$i]["location_notes"]);
+			unset($concerts[$i]["location_street"]);
+			unset($concerts[$i]["location_city"]);
+			unset($concerts[$i]["location_zip"]);
+			
+			// contact
+			$concerts[$i]["contact"] = array(
+				"id" => $dbConcert["contact"],
+				"name" => $concert["contact_name"],
+				"phone" => $concert["contact_phone"],
+				"mobile" => $concert["contact_mobile"],
+				"email" => $concert["contact_email"],
+				"web" => $concert["contact_web"]
+			);
+			unset($concerts[$i]["contact_name"]);
+			unset($concerts[$i]["contact_phone"]);
+			unset($concerts[$i]["contact_mobile"]);
+			unset($concerts[$i]["contact_email"]);
+			unset($concerts[$i]["contact_web"]);
+			
+			// program
+			$concerts[$i]["program"] = array(
+					"id" => $dbConcert["program"],
+					"name" => $concert["program_name"],
+					"notes" => $concert["program_notes"]
+			);
+			unset($concerts[$i]["program_id"]);
+			unset($concerts[$i]["program_name"]);
+			unset($concerts[$i]["program_notes"]);
+			
+			// participation
+			$concerts[$i]["participate"] = $this->startdata->doesParticipateInConcert($concert["id"], $this->uid);
+			if($concerts[$i]["participate"] >= 0) {
+				$concerts[$i]["reason"] = $this->db->getCell(
+						"concert_user", "reason",
+						"concert = " . $concert["id"] . " AND user = " . $this->uid );
+			}
+			else {
+				$concerts[$i]["reason"] = "";
+			}
+			
+			// contacts
+			$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.email";
+			$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
+			$query .= " WHERE cc.concert = " . $concert["id"];
+			$contacts = $this->db->getSelection($query);
+			unset($contacts[0]);
+			foreach($contacts as $j => $contact) {
+				foreach($contact as $ck => $cv) {
+					if(is_numeric($ck)) {
+						unset($contacts[$j][$ck]);
+					}
+				}
+			}
+			$concerts[$i]["contacts"] = $contacts;
+		}
+		
+		$this->printConcerts($concerts);
 	}
+	
+	protected abstract function printConcerts($concerts);
 
 	function getContacts() {
 		$msd = new MitspielerData($GLOBALS["dir_prefix"]);
@@ -598,11 +674,37 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	function getVotes() {
-		//TODO implement more complex return structure
-		
 		$votes = $this->startdata->getVotesForUser($this->uid);
-		$this->printEntities($votes, "vote");
+		unset($votes[0]); // remove header
+		foreach($votes as $i => $vote) {
+			// remove numeric fields
+			foreach($vote as $k => $v) {
+				if(is_numeric($k)) {
+					unset($votes[$i][$k]);
+				}
+			}
+			
+			// add vote options
+			$opts = $this->startdata->getOptionsForVote($vote["id"]);
+			unset($opts[0]); // options header
+			foreach($opts as $oi => $option) {
+				foreach($option as $ok => $ov)
+				if(is_numeric($ok) || $ok == "vote") {
+					unset($opts[$oi][$ok]);
+				}
+				if($ok == "odate" && $ov != "") {
+					$opts[$oi]["name"] = $ov;
+					unset($opts[$oi][$ok]);
+				}
+			}
+
+			$votes[$i]["options"] = $opts;
+		}
+		
+		$this->printVotes($votes);
 	}
+	
+	protected abstract function printVotes($votes);
 	
 	function getVoteOptions($vid) {
 		$options = $this->startdata->getOptionsForVote($vid);
@@ -846,37 +948,220 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	function getVoteResult($vid) {
-		//TODO implement
+		/* target structure:
+		 * array(
+		 * 	id => ...
+		 *  name => ...
+		 *  options => array(
+		 *  	0 => array(
+		 *  		id => ...
+		 *  		name => ...
+		 *  		choice => array(
+		 *  			0 => 2 // no
+		 *  			1 => 4 // yes
+		 *  			2 => 0 // maybe
+		 *  		)
+		 *  	)
+		 *  )
+		 * )
+		 */
+		$vote = $this->startdata->getVote($vid);
+		$options = $options = $this->startdata->getOptionsForVote($vid);
+		
+		$opts = array();
+		for($i = 1; $i < count($options); $i++) {
+			$opt = array();
+			$opt["id"] = $options[$i]["id"];
+			if(isset($options[$i]["odate"]) && $options[$i]["odate"] != "") {
+				$opt["name"] = $options[$i]["odate"];
+			}
+			else {
+				$opt["name"] = $options[$i]["name"];
+			}
+			$opt["choice"] = array();
+			
+			$query = "SELECT choice, count(user) as num FROM vote_option_user";
+			$query .= " WHERE vote_option = " . $opt["id"];
+			$query .= " GROUP BY vote_option, choice";
+			$choice = $this->db->getSelection($query);
+			
+			for($possChoice = 0; $possChoice <= 2; $possChoice++) {
+				$num = $choice[$possChoice]["num"];
+				if($num == null || $num == "") {
+					$num = 0;
+				}
+				$opt["choice"][$possChoice] = $num;
+			}
+			
+			array_push($opts, $opt);
+		}
+		
+		$vote["options"] = $opts;
+		
+		$this->printVoteResult($vote);
 	}
+	
+	protected abstract function printVoteResult($vote);
 	
 	function setConcertParticipation($cid, $uid, $part, $reason) {
-		//TODO implement
+		$this->startdata->saveParticipation($uid);
+		echo "true"; // success
 	}
 	
-	function addConcert($begin, $end, $approve_until, $notes, $location, $program, $groups) {
-		//TODO implement
+	function addConcert($begin, $end, $approve_until, $notes, $location, $program, $contact, $groups) {
+		// semantic parameter mappings
+		$values["begin"] = $begin;
+		$values["end"] = $end;
+		$values["approve_until"] = ($approve_until == "") ? $begin : $approve_until;
+		$values["notes"] = $notes;
+		$values["location"] = $location;
+		if($program != null && $program != "") {
+			$values["program"] = $program;
+		}
+		$values["contact"] = $contact;
+		
+		$conData = new KonzerteData($GLOBALS["dir_prefix"]);
+		$id = $conData->create($values);
+		
+		if($id > 0) {
+			// add contacts to concert
+			if($groups == null || count($groups) == 0) {
+				// add default group to concert
+				$groups = $this->sysdata->getDynamicConfigParameter("default_contact_group");
+			}
+			$conData->addMembersToConcert($groups, $id);
+			
+			// write output
+			$con = $conData->findByIdNoRef($id);
+			$this->writeEntity($con, "concert");
+		}
+		else {
+			echo "Error: Cannot create concert.";
+		}
 	}
 	
 	function updateRehearsal($id, $begin, $end, $approve_until, $notes, $location, $groups) {
-		//TODO implement
+		// semantic parameter mappings
+		$values["begin"] = $begin;
+		$values["end"] = $end;
+		$values["approve_until"] = ($approve_until == "") ? $begin : $approve_until;
+		$values["notes"] = $notes;
+		if($location == null || $location == "") {
+			unset($values["location"]);
+		}
+		else {
+			$values["location"] = $location;
+		}
+		
+		if($groups != null && $group != "" && count($groups) > 0) {
+			foreach($groups as $i => $grp) {
+				$values["group_" . $grp] = "on";
+				$_POST["group_" . $grp] = "on";
+			}
+		}
+		
+		// create rehearsal
+		require_once $GLOBALS["DIR_WIDGETS"] . "iwriteable.php";
+		require_once $GLOBALS["DIR_WIDGETS"] . "groupselector.php";
+		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
+		echo $rehData->update($id, $values);
+		
+		// return updated entry
+		$reh = $rehData->findByIdNoRef($id);
+		$this->writeEntity($reh, "rehearsal");
 	}
 	
-	function updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $groups) {
-		//TODO implement
+	function updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $contact, $groups) {
+		// semantic parameter mappings
+		$values["begin"] = $begin;
+		$values["end"] = $end;
+		$values["approve_until"] = ($approve_until == "") ? $begin : $approve_until;
+		$values["notes"] = $notes;
+		$values["location"] = $location;
+		if($program != null && $program != "") {
+			$values["program"] = $program;
+		}
+		$values["contact"] = $contact;
+		
+		$conData = new KonzerteData($GLOBALS["dir_prefix"]);
+		$conData->update($id, $values);
+		
+		// add contacts to concert
+		if($groups != null && count($groups) > 0) {
+			$conData->addMembersToConcert($groups, $id);
+		}
+			
+		// write output
+		$con = $conData->findByIdNoRef($id);
+		$this->writeEntity($con, "concert");
 	}
 	
 	function deleteRehearsal($id) {
 		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
-		echo $rehData->delete($id);
+		$rehData->delete($id);
+		echo "true";
 	}
 	
 	function deleteConcert($id) {
 		$conData = new KonzerteData($GLOBALS["dir_prefix"]);
-		echo $conData->delete($id);
+		$conData->delete($id);
+		echo "true";
 	}
 	
 	function sendMail($subject, $body, $groups) {
-		//TODO implement
+		// fetch addresses
+		if($groups == null || group == "" || count($groups) == 0) {
+			echo "Error: no groups.";
+			exit;
+		}
+		
+		$query = "SELECT DISTINCT c.email ";
+		$query .= "FROM contact c JOIN contact_group cg ON cg.contact = c.id ";
+		$query .= "WHERE ";
+		foreach($groups as $i => $group) {
+			if($i > 0) $query .= "OR ";
+			$query .= "cg.group = $group ";
+		}
+		
+		$mailaddies = $this->db->getSelection($query);
+		$addresses = $this->flattenAddresses($mailaddies);
+		
+		if($addresses == null || count($addresses) == 0) {
+			new Error("Es wurden keine Empfänger gefunden.");
+		}
+		
+		// Receipient Setup
+		$ci = $this->sysdata->getCompanyInformation();
+		$receipient = $ci["Mail"];
+		
+		// place sender addresses into the bcc field
+		$bcc_addresses = "";
+		foreach($addresses as $i => $to) {
+			if($i > 0) $bcc_addresses .= ",";
+			$bcc_addresses .= $to;
+		}
+		
+		$mail = new Mailing($receipient, $subject, "");
+		$mail->setBodyInHtml($body);
+		$userContact = $this->sysdata->getUsersContact($this->uid);
+		$mail->setFrom($userContact["email"]);
+		$mail->setBcc($bcc_addresses);
+		
+		if(!$mail->sendMail()) {
+			echo "Error: Cannot send mail.";
+		}
+		else {
+			echo "true";
+		}
+	}
+	
+	private function flattenAddresses($selection) {
+		$addresses = array();
+		for($i = 1; $i < count($selection); $i++) {
+			$addy = $selection[$i]["email"];
+			if($addy != "") array_push($addresses, $addy);
+		}
+		return $addresses;
 	}
 }
 ?>

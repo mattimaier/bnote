@@ -248,7 +248,17 @@ class ProbenData extends AbstractData {
 	}
 	
 	public function delete($id) {
-		//TODO remove all rehearsal references!
+		$query = "DELETE FROM rehearsal_contact WHERE rehearsal = $id";
+		$this->database->execute($query);
+		
+		$query = "DELETE FROM rehearsal_song WHERE rehearsal = $id";
+		$this->database->execute($query);
+		
+		$query = "DELETE FROM rehearsal_contact WHERE rehearsal = $id";
+		$this->database->execute($query);
+		
+		$query = "DELETE FROM rehearsal_user WHERE rehearsal = $id";
+		$this->database->execute($query);
 		
 		parent::delete($id);
 	}

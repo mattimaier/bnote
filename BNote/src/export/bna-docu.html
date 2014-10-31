@@ -43,12 +43,16 @@ to access the JSON interface.
 <i>http://demo.bnote.info/src/export/bna-json.php?pin=123456&amp;func=getRehearsals</i>
 </p>
 
-<h3>JSON Specialty: Parameter Global</h3>
+<h3 class="noMethod">JSON Specialty: Parameter Global</h3>
 <p>
 The implementation of the JSON-BNA-interface (bna-json.php) allows the URL-Parameter <strong>global</strong>.
 In case this parameter is set to <i>true</i>, the ID is given in the format <code>instance/type/id</code> and every
 entity has a field <strong>type</strong> which contains its type.
 </p>
+
+<h2>Method Summary</h2>
+<ul id="methodSummary">
+</ul>
 
 <h2>Interface Methods</h2>
 <p>By default all methods use the HTTP-Method GET.</p>
@@ -218,7 +222,7 @@ entity has a field <strong>type</strong> which contains its type.
 <h3>addRehearsal</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
-	<li><i>Description</i>: Adds a rehearsal to the default group (see configuration).</li>
+	<li><i>Description</i>: Adds a rehearsal.</li>
 	<li><i>Returns</i>: ID of the newly created rehearsal.</li>
 	<li><i>Parameters</i>:
 		<ul>
@@ -292,7 +296,6 @@ entity has a field <strong>type</strong> which contains its type.
 
 <h3>hasUserAccess</h3>
 <ul>
-	<li><i>HTTP-Method</i>: GET</li>
 	<li><i>Description</i>: Checks whether the user has access to a given module.</li>
 	<li><i>Returns</i>: Boolean value true (has access) or false (no access).</li>
 	<li><i>Parameters</i>:
@@ -304,7 +307,6 @@ entity has a field <strong>type</strong> which contains its type.
 
 <h3>getSongsToPractise</h3>
 <ul>
-	<li><i>HTTP-Method</i>: GET</li>
 	<li><i>Description</i>: Retrives all songs to practise from a rehearsal.</li>
 	<li><i>Returns</i>: Songs to practise for a rehearsal and their information.</li>
 	<li><i>Parameters</i>:
@@ -315,14 +317,161 @@ entity has a field <strong>type</strong> which contains its type.
 </ul>
 
 <h3>getGroups</h3>
+<ul>
+	<li><i>Description</i>: Returns all groups available in the system without members.</li>
+	<li><i>Returns</i>: Groups with id, name and is_active.</li>
+	<li><i>Parameters</i>: None.</li>
+</ul>
+
 <h3>getVoteResult</h3>
+<ul>
+	<li><i>Description</i>: Retrieves the result of a vote if the user was allowed to vote.</li>
+	<li><i>Returns</i>: Complex structure. JSON Example:
+		<pre>
+{
+	"id" : "...",
+	"name" : "...",
+	...
+	"options": [
+		{
+			"id" : "123"
+			"name" : "ABC",
+			"choice": {
+				"0": "[number of votes for no]",
+				"1": "[number of votes for yes]",
+				"2": "[number of votes for maybe]"
+			}
+		},
+		...
+	]
+}
+		</pre> 
+	</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>id</b>: <i>Integer</i> Vote ID.</li>
+		</ul>
+	</li>
+</ul>
+
 <h3>setConcertParticipation</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Sets the user's participation of a concert.</li>
+	<li><i>Returns</i>: "true" whenn successful, otherwise error message.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>concert</b>: <i>Integer</i> Concert ID.</li>
+			<li><b>participation</b>: <i>Integer</i> 0=no, 1=yes, 2=maybe.</li>
+			<li><b>explanation</b>: <i>String</i> Reason if 0 or 2.</li>
+		</ul>
+	</li>
+</ul>
+
 <h3>addConcert</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Creates a new concert.</li>
+	<li><i>Returns</i>: Object with concert information.</li>
+	<li><i>Parameters</i>:
+		<ul>
+	 		<li><b>begin</b>: <i>String</i> Begin of the concert, format: DD.MM.YYYY HH:ii.</li>
+			<li><b>end</b>: <i>String</i> End of the concert, format: DD.MM.YYYY HH:ii.</li>
+	 		<li><b>approve_until</b>: <i>String</i> Approve participation until, format: DD.MM.YYYY HH:ii.</li>
+	 		<li><b>notes</b>: <i>String</i> Notes for the concert.</li>
+	 		<li><b>location</b>: <i>Integer</i> Location ID.</li>
+	 		<li><b>program</b>: <i>Integer</i> Program ID or leave out.</li>
+	 		<li><b>contact</b>: <i>Integer</i> Contact ID.</li>
+	 		<li><b>groups</b>: <i>Comma separated string of IDs</i> Group IDs, e.g. 5,6,7,8.</li>
+		</ul>
+	</li>
+</ul>
+
 <h3>updateRehearsal</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Updates a rehearsal.</li>
+	<li><i>Returns</i>: Object with rehearsal information.</li>
+	<li><i>Parameters</i>:
+		<ul>
+	 		<li><b>begin</b>: <i>String</i> Begin of the rehearsal, format: DD.MM.YYYY HH:ii.</li>
+			<li><b>end</b>: <i>String</i> End of the rehearsal, format: DD.MM.YYYY HH:ii.</li>
+	 		<li><b>approve_until</b>: <i>String</i> Approve participation until, format: DD.MM.YYYY HH:ii.</li>
+	 		<li><b>notes</b>: <i>String</i> Notes for the rehearsal.</li>
+	 		<li><b>location</b>: <i>Integer</i> Location ID.</li>
+	 		<li><b>groups</b>: <i>Comma separated string of IDs</i> Group IDs, e.g. 5,6,7,8.</li>
+		</ul>
+	</li>
+</ul>
+
 <h3>updateConcert</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Updates concert information.</li>
+	<li><i>Returns</i>: Object with concert information.</li>
+	<li><i>Parameters</i>:
+		<ul>
+	 		<li><b>begin</b>: <i>String</i> Begin of the concert, format: DD.MM.YYYY HH:ii.</li>
+			<li><b>end</b>: <i>String</i> End of the concert, format: DD.MM.YYYY HH:ii.</li>
+	 		<li><b>approve_until</b>: <i>String</i> Approve participation until, format: DD.MM.YYYY HH:ii.</li>
+	 		<li><b>notes</b>: <i>String</i> Notes for the concert.</li>
+	 		<li><b>location</b>: <i>Integer</i> Location ID.</li>
+	 		<li><b>program</b>: <i>Integer</i> Program ID or leave out.</li>
+	 		<li><b>contact</b>: <i>Integer</i> Contact ID.</li>
+	 		<li><b>groups</b>: <i>Comma separated string of IDs</i> Group IDs, e.g. 5,6,7,8.</li>
+		</ul>
+	</li>
+</ul>
+
 <h3>deleteRehearsal</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Deletes a rehearsal.</li>
+	<li><i>Returns</i>: "true" whenn successful, otherwise error message.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>id</b>: <i>Integer</i> Rehearsal ID.</li>
+		</ul>
+	</li>
+</ul>
+
 <h3>deleteConcert</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Deletes a concert.</li>
+	<li><i>Returns</i>: "true" whenn successful, otherwise error message.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>id</b>: <i>Integer</i> Concert ID.</li>
+		</ul>
+	</li>
+</ul>
+
 <h3>sendMail</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Sends an email to all members of the selected groups.</li>
+	<li><i>Returns</i>: "true" whenn successful, otherwise error message.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>subject</b>: <i>String</i> Mail subject.</li>
+			<li><b>body</b>: <i>String</i> Mail message.</li>
+			<li><b>groups</b>: <i>Comma separated List of Integer</i> List of group IDs, e.g. "1,2,3".</li>
+		</ul>
+	</li>
+</ul>
+
+<script type="text/javascript">
+var h3s = document.getElementsByTagName("h3");
+var summary = document.getElementById("methodSummary");
+var summaryHtml = "";
+for(var i = 0; i < h3s.length; i++) {
+	if(h3s[i].className == "noMethod") continue;
+	h3s[i].id = h3s[i].textContent;
+	summaryHtml += "<li><a href=\"#" + h3s[i].textContent + "\">" + h3s[i].textContent + "</a></li>\n";
+}
+summary.innerHTML = summaryHtml;
+</script>
 
 <h2>Data Model</h2>
 <p>The following data model describes the data that is returned from this interface.</p>

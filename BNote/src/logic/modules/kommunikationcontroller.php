@@ -23,7 +23,7 @@ class KommunikationController extends DefaultController {
 	/**
 	 * Prepares the data for the mail.
 	 */
-	private function prepareMail() {
+	public function prepareMail() {
 		// adjust subject & body
 		if(isset($_POST["rehearsal"])) {
 			// adjust subject
@@ -80,7 +80,7 @@ class KommunikationController extends DefaultController {
 	/**
 	 * Please make sure that the $_POST array has a subject and message attribute.
 	 */
-	private function sendMail() {
+	public function sendMail() {
 		$addresses = array();
 		$subject = $_POST["subject"];
 		$body = $_POST["message"];

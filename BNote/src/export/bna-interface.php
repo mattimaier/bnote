@@ -164,10 +164,11 @@ interface iBNA {
 	 * @param String $notes Notes for the concert.
 	 * @param Integer $location Location ID.
 	 * @param Integer $program Program ID.
+	 * @param Integer $contact Contact ID.
 	 * @param Array $groups List of groups the concert belongs to.
 	 * @return The ID of the new concert.
 	 */
-	public function addConcert($begin, $end, $approve_until, $notes, $location, $program, $groups);
+	public function addConcert($begin, $end, $approve_until, $notes, $location, $program, $contact, $groups);
 	
 	/**
 	 * Updates a rehearsal. (POST)
@@ -191,10 +192,11 @@ interface iBNA {
 	 * @param String $notes Notes for the concert.
 	 * @param Integer $location Location ID.
 	 * @param Integer $program Program ID.
+	 * @param Integer $contact Contact ID.
 	 * @param Array $groups List of groups the concert belongs to.
 	 * @return The ID of the concert.
 	 */
-	public function updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $groups);
+	public function updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $contact, $groups);
 	
 	/**
 	 * Deletes a rehearsal. (POST)

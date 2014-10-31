@@ -294,13 +294,15 @@ class ApplicationDataProvider {
 			
 			// resolve contact
 			if($concerts[$i]["contact"] != "") {
-				$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, email, web ";
+				$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, mobile, email, web ";
 				$q3 .= "FROM contact WHERE id = " . $concerts[$i]["contact"];
 				$contact = $this->database->getRow($q3);
 			}
 			else {
 				$contact = array(
-					"name" => "", "phone" => "", "email" => "", "web" => ""
+					"name" => "",
+					"phone" => "", "mobile" => "",
+					"email" => "", "web" => ""
 				);
 			}
 			
@@ -330,6 +332,7 @@ class ApplicationDataProvider {
 				"location_zip" => $address["zip"],
 				"contact_name" => $contact["name"],
 				"contact_phone" => $contact["phone"],
+				"contact_mobile" => $contact["mobile"],
 				"contact_email" => $contact["email"],
 				"contact_web" => $contact["web"],
 				"program_id" => $concerts[$i]["program"],

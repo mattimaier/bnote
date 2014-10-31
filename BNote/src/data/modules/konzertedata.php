@@ -34,7 +34,12 @@ class KonzerteData extends AbstractData {
 	}
 	
 	public function delete($id) {
-		//TODO delete all concert references!
+		$query = "DELETE FROM concert_contact WHERE concert = $id";
+		$this->database->execute($query);
+		
+		$query = "DELETE FROM concert_user WHERE concert = $id";
+		$this->database->execute($query);
+		
 		parent::delete($id);
 	}
 	
@@ -232,11 +237,15 @@ class KonzerteData extends AbstractData {
 		// adds members of the selected group(s)
 		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 		
+		$this->addMembersToConcert($groups, $concertId);		
+	}
+	
+	public function addMembersToConcert($groups, $concertId) {
 		foreach($groups as $i => $groupId) {
 			$contacts = $this->adp()->getGroupContacts($groupId);
 			$query = "INSERT INTO concert_contact VALUES ";
 			$newEntries = 0;
-			
+				
 			foreach($contacts as $j => $contact) {
 				if($j == 0) continue;
 				$cid = $contact["id"];
@@ -245,7 +254,7 @@ class KonzerteData extends AbstractData {
 					$query .= "($concertId, $cid)";
 				}
 			}
-			
+				
 			if($newEntries > 0) {
 				$this->database->execute($query);
 			}

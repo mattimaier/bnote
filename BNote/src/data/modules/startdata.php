@@ -51,11 +51,15 @@ class StartData extends AbstractData {
 	/**
 	 * Checks whether the current user participates in a concert.
 	 * @param int $cid ID of the concert.
+	 * @param int $uid Optional: user ID.
 	 * @return 1 if the user participates, 0 if not, -1 if not chosen yet.
 	 */
-	function doesParticipateInConcert($cid) {
+	function doesParticipateInConcert($cid, $uid = -1) {
+		if($uid == -1) {
+			$uid = $_SESSION["user"];
+		}
 		$part = $this->database->getCell("concert_user", "participate",
-					"user = " . $_SESSION["user"] . " AND concert = $cid");
+					"user = $uid AND concert = $cid");
 		if($part == "1") return 1;
 		else if($part == "0") return 0;
 		else if($part == "2") return 2;
@@ -65,7 +69,11 @@ class StartData extends AbstractData {
 	/**
 	 * Takes the $_GET and $_POST array and extracts the information.
 	 */
-	function saveParticipation() {
+	function saveParticipation($uid = null) {
+		if($uid == null) {
+			$uid = $_SESSION["user"];
+		}
+		
 		// remove old decision
 		if(isset($_GET["rid"]) || isset($_POST["rehearsal"])) {
 			if(isset($_GET["rid"])) {
@@ -75,7 +83,7 @@ class StartData extends AbstractData {
 				$rid = $_POST["rehearsal"];
 			}
 			$query = "DELETE FROM rehearsal_user WHERE rehearsal = " . $rid;
-			$query .= " AND user = " . $_SESSION["user"];
+			$query .= " AND user = " . $uid;
 			$this->database->execute($query);
 		}
 		else if(isset($_GET["cid"]) || isset($_POST["concert"])) {
@@ -85,7 +93,7 @@ class StartData extends AbstractData {
 			else {
 				$cid = $_POST["concert"];
 			}
-			$query = "DELETE FROM concert_user WHERE concert = $cid AND user =" . $_SESSION["user"];
+			$query = "DELETE FROM concert_user WHERE concert = $cid AND user =" . $uid;
 			$this->database->execute($query);
 		}
 			
@@ -93,14 +101,14 @@ class StartData extends AbstractData {
 		if(isset($_GET["rid"]) && isset($_GET["status"]) && $_GET["status"] == "yes") {
 			// save rehearsal participation
 			$query = "INSERT INTO rehearsal_user (rehearsal, user, participate)";
-			$query .= " VALUES (" . $_GET["rid"] . ", " . $_SESSION["user"] . ", 1)";
+			$query .= " VALUES (" . $_GET["rid"] . ", " . $uid . ", 1)";
 			$this->database->execute($query);
 		}
 		else if(isset($_POST["rehearsal"]) && isset($_GET["status"]) && $_GET["status"] == "maybe") {
 			// save maybe participation in rehearsal with reason
 			$this->regex->isText($_POST["explanation"]);
 			$query = "INSERT INTO rehearsal_user (rehearsal, user, participate, reason)";
-			$query .= " VALUES (" . $_POST["rehearsal"] . ", " . $_SESSION["user"] . ", 2, \"";
+			$query .= " VALUES (" . $_POST["rehearsal"] . ", " . $uid . ", 2, \"";
 			$query .= $_POST["explanation"] . "\")";
 			$this->database->execute($query);
 		}
@@ -108,21 +116,21 @@ class StartData extends AbstractData {
 			// save not participating in rehearsal with reason
 			$this->regex->isText($_POST["explanation"]);
 			$query = "INSERT INTO rehearsal_user (rehearsal, user, participate, reason)";
-			$query .= " VALUES (" . $_POST["rehearsal"] . ", " . $_SESSION["user"] . ", 0, \"";
+			$query .= " VALUES (" . $_POST["rehearsal"] . ", " . $uid . ", 0, \"";
 			$query .= $_POST["explanation"] . "\")";
 			$this->database->execute($query);
 		}
 		else if(isset($_GET["cid"]) && isset($_GET["status"]) && $_GET["status"] == "yes") {
 			// save concert participation
 			$query = "INSERT INTO concert_user (concert, user, participate)";
-			$query .= " VALUES (" . $_GET["cid"] . ", " . $_SESSION["user"] . ", 1)";
+			$query .= " VALUES (" . $_GET["cid"] . ", " . $uid . ", 1)";
 			$this->database->execute($query);
 		}
 		else if(isset($_POST["concert"]) && isset($_GET["status"]) && $_GET["status"] == "maybe") {
 			// save maybe participation in concert
 			$this->regex->isText($_POST["explanation"]);
 			$query = "INSERT INTO concert_user (concert, user, participate, reason)";
-			$query .= " VALUES (" . $_POST["concert"] . ", " . $_SESSION["user"] . ", 2, \"";
+			$query .= " VALUES (" . $_POST["concert"] . ", " . $uid . ", 2, \"";
 			$query .= $_POST["explanation"] . "\")";
 			$this->database->execute($query);
 		}
@@ -130,7 +138,7 @@ class StartData extends AbstractData {
 			// save not participating in concert with reason 
 			$this->regex->isText($_POST["explanation"]);
 			$query = "INSERT INTO concert_user (concert, user, participate, reason)";
-			$query .= " VALUES (" . $_POST["concert"] . ", " . $_SESSION["user"] . ", 0, \"";
+			$query .= " VALUES (" . $_POST["concert"] . ", " . $uid . ", 0, \"";
 			$query .= $_POST["explanation"] . "\")";
 			$this->database->execute($query);
 		}
