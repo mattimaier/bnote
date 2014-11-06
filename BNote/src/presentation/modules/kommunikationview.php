@@ -140,7 +140,7 @@ class KommunikationView extends AbstractView {
 			$form->addHidden("vote", $_GET["preselect"]);
 		}
 		else {
-			$form->addElement("Konzert", $dd);
+			$form->addElement("Abstimmung", $dd);
 		}
 		$form->removeElement("Betreff");
 		$form->write();

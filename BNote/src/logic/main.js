@@ -2,53 +2,62 @@
  * Main JavaScript file.
  */
 
+// NORMAL EDITOR -> used for rich text fields, e.g. communication
 tinyMCE.init({
 	mode: "exact",
 	elements: "tinymce",
 	language: "de",
-	theme: "advanced",
-	theme_advanced_buttons1: "bold, italic, underline, strikethrough, separator," +
-			"justifyleft, justifycenter, justifyright, justifyfull, separator," +
-			"forecolor, fontsizeselect",
-	theme_advanced_buttons2: "",
-	theme_advanced_buttons3: "",
-	theme_advanced_buttons4: "",
-	theme_advanced_toolbar_location: "top",
-	theme_advanced_toolbar_align: "left"
+	theme: "modern",
+	plugins: "textcolor",
+	toolbar: "bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | forecolor backcolor | fontsizeselect",
+	menubar: false,
+	statusbar: false
 });
 
+// FULL EDITOR -> used for website editing
 tinyMCE.init({
 	mode: "exact",
 	elements: "tinymcefull",
 	language: "de",
-	theme: "advanced",
-	plugins: "preview,table",
-	theme_advanced_buttons1: "bold, italic, underline, strikethrough, separator," +
-			"justifyleft, justifycenter, justifyright, justifyfull, separator," +
-			"styleselect, fontselect, forecolor, fontsizeselect, separator, code",
-	theme_advanced_buttons1_add: "preview",
-	theme_advanced_buttons2: "bullist, numlist, separator, " +
-			"link, unlink, image, separator",
-	theme_advanced_buttons2_add: "tablecontrols",
-	theme_advanced_buttons3: "",
-	theme_advanced_buttons4: "",
-	theme_advanced_toolbar_location: "top",
-	theme_advanced_toolbar_align: "left",
-	plugin_preview_width : "800",
-	plugin_preview_height : "440"
+	theme: "modern",
+	plugins: "preview table hr print textcolor code",
+	menubar: "edit format tools table",
+	toolbar: "preview | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | forecolor backcolor | fontsizeselect | cut copy paste | undo redo | hr | print",
+	statusbar: false,
+	tools: "inserttable"
 });
 
-$(function() {
+$(document).ready(function() {
 	$(".dateChooser").datepicker({
 		autoSize: true,
-		dateFormat: 'dd.mm.yy'
+		dateFormat: 'dd.mm.yy',
+		dayNames: [ "Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag" ],
+		dayNamesMin: [ "So", "Mo", "Di", "Mi", "Do", "Fr", "Sa" ],
+		monthNames: [ "Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember" ],
+		firstDay: 1
 	});
 	
 	$(".datetimeChooser").datetimepicker({
-		stepMinute: 5,
-		dateFormat: 'dd.mm.yy',
-		hour: 19,
-		minute: 30
+		 lang:'de',
+		 i18n:{
+		  de:{
+		   months:[
+		    'Januar','Februar','März','April',
+		    'Mai','Juni','Juli','August',
+		    'September','Oktober','November','Dezember',
+		   ],
+		   dayOfWeek:[
+		    "So", "Mo", "Di", "Mi", 
+		    "Do", "Fr", "Sa",
+		   ]
+		  }
+		 },
+		 format:'d.m.Y H:i',
+		 defaultTime: '18:00',
+		 step: 15,
+		 weeks: true,
+		 dayOfWeekStart: 1,
+		 scrollMonth: true
 	});
 	
 	$("#sortable").sortable();

@@ -1,7 +1,7 @@
 <?php 
 /**
- * BNote - Band Management Software
- * Developed by Matti Maier Internet Solutions 2014
+ * Main entry file for the web application.
+ * @see index.php for details on the authors.
  */
 
 # Make a few settings

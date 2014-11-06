@@ -59,10 +59,10 @@ class ProbenView extends CrudRefView {
 		
 		// New entity form
 		$form = new Form("Neue Probe", $this->modePrefix() . "add");
-		$form->addElement("Beginn", new Field("begin", date("d.m.Y") . " " . $this->getData()->getDefaultTime(), 97));
+		$form->addElement("Beginn", new Field("begin", date("d.m.Y") . " " . $this->getData()->getDefaultTime(), Field::FIELDTYPE_DATETIME_SELECTOR));
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
 			$end = Data::addMinutesToDate(date("d.m.Y") . " " . $this->getData()->getDefaultTime() . ":00", $this->getData()->getDefaultDuration());
-			$form->addElement("Ende", new Field("end", $end, 97));
+			$form->addElement("Ende", new Field("end", $end, Field::FIELDTYPE_DATETIME_SELECTOR));
 		}
 		else {
 			$form->addElement("Dauer in min", new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
