@@ -353,40 +353,45 @@ class AbstimmungData extends AbstractData {
 					$may = $choiceM["count"];
 					$mayNames = $choiceM["names"];
 					
-					if($yes == 0 && $no == 0 && $may == 0) {
-						$name = "<span style=\"font-style: italic;\">$name</span>";
-						$votesOut = "-";
-						$votersOut = "-";
-					}
-					else {
-						$name = "<span style=\"font-weight: bold;\">$name</span>";
-						$votesOut = "$yes Ja<br/>$no Nein</br>$may Vielleicht";
-						$votersOut = "$yesNames<br/>$noNames<br/>$mayNames";
-					}
 					
+					// build 3 rows
 					$resRow = array(
 						"id" => $optionId,
 						"Option" => $name,
-						"votes" => $votesOut,
-						"voters" => $votersOut
+						"votes" => 0,
+						"voters" => 0
 					);
-					array_push($result, $resRow);
+					$resYes = $resRow;
+					$resYes["votes"] = $yes . " Ja";
+					$resYes["voters"] = $yesNames;
+					array_push($result, $resYes);
+					
+					$resNo = $resRow;
+					$resNo["votes"] = $no . " Nein";
+					$resNo["voters"] = $noNames;
+					array_push($result, $resNo);
+					
+					$resMay = $resRow;
+					$resMay["votes"] = $may . " Vllt.";
+					$resMay["voters"] = $mayNames;
+					array_push($result, $resMay);
 				}
 			}
-			
 			return $result;
 		}
 		else {
 			// result for all types of votes, but date-multi-maybe votes
-			$query = 'SELECT vo.id,
-	       					 IF(v.is_date=1, vo.odate, vo.name) as `option`,
-	       					 count(vo.id) as votes,
-	       					 GROUP_CONCAT(CONCAT(c.name, \' \', c.surname, " (", i.name, ")" ) SEPARATOR \', \') as voters
-	  					FROM vote v, vote_option vo, vote_option_user vou, user u, contact c, instrument i
-	 				   WHERE v.id = vo.vote AND vou.vote_option = vo.id AND vou.user = u.id AND u.contact = c.id AND c.instrument = i.id
-	 				     AND vote = ' . $vid . ' AND vou.choice > 0
-	 				GROUP BY vo.id
-			        ORDER BY vo.id ASC';
+			$query = 'SELECT vo.id, IF(v.is_date=1, vo.odate, vo.name) as `option`, 
+						       count(vo.id) as votes, 
+						       GROUP_CONCAT(CONCAT(c.name, \' \', c.surname, " (", i.name, ")" ) SEPARATOR \', \') as voters 
+						FROM vote v JOIN vote_option vo ON v.id = vo.vote
+						     LEFT OUTER JOIN vote_option_user vou ON vou.vote_option = vo.id
+						     LEFT OUTER JOIN user u ON vou.user = u.id
+						     LEFT OUTER JOIN contact c ON u.contact = c.id
+						     LEFT OUTER JOIN instrument i ON c.instrument = i.id
+						WHERE v.id = ' . $vid . '
+						GROUP BY vo.id 
+						ORDER BY vo.id';
 			return $this->database->getSelection($query);
 		}
 	}
@@ -395,9 +400,9 @@ class AbstimmungData extends AbstractData {
 		$result = array( "count" => 0, "names" => "" );
 		
 		$query = 'SELECT CONCAT(c.name, \' \', c.surname, " (", i.name, ")" ) as voter ';
-		$query .= 'FROM vote_option_user vou JOIN user u ON vou.user = u.id ';
-		$query .= '     JOIN contact c ON u.contact = c.id ';
-		$query .= '     JOIN instrument i ON c.instrument = i.id ';
+		$query .= 'FROM vote_option_user vou LEFT OUTER JOIN user u ON vou.user = u.id ';
+		$query .= '     LEFT OUTER JOIN contact c ON u.contact = c.id ';
+		$query .= '     LEFT OUTER JOIN instrument i ON c.instrument = i.id ';
 		$query .= 'WHERE vou.vote_option = ' . $optionId . ' AND vou.choice = ' . $choice . ' ';
 		$query .= 'ORDER BY voter';
 		
@@ -422,6 +427,13 @@ class AbstimmungData extends AbstractData {
 				new Error("Bitte wähle eine Gruppe für die Abstimmung.");
 			}
 		}
+	}
+	
+	function getUserPin($uid = -1) {
+		if($uid == -1) {
+			$uid = $_SESSION["user"];
+		}
+		return $this->database->getCell($this->database->getUserTable(), "pin", "id = $uid");
 	}
 }
 

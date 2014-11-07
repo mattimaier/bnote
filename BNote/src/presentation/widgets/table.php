@@ -15,6 +15,9 @@ class Table implements iWriteable {
 	private $formats = array();
 	private $headernames = array();
 
+	private $dataRowSpan = 0;
+	private $allowContentWrap = true;
+	
 	/**
 	 * Creates a new table
 	 * @param Array $data Table data, e.g. from a getSelection-Query
@@ -102,6 +105,22 @@ class Table implements iWriteable {
 	}
 
 	/**
+	 * Allows a line to wrap.
+	 * @param boolean $bool True to wrap (default), false not to wrap (adds a <pre> to the content).
+	 */
+	public function allowWordwrap($bool) {
+		$this->allowContentWrap = $bool;
+	}
+	
+	/**
+	 * If the number is greater than 1 every n-th row will be grouped at the first visible row.
+	 * @param int $n Rowspan for first visible column.
+	 */
+	public function setDataRowSpan($n) {
+		$this->dataRowSpan = $n;
+	}
+	
+	/**
 	 * Adds a column to the data with a link to delete the item.
 	 * @param Selection $tabData Database Selection which is used in this table class.
 	 * @param String $delHref Link to the action of the buttons, format: "...&contactid=". The id of the item will be appended.
@@ -131,13 +150,15 @@ class Table implements iWriteable {
 		# Table
 		$regex = new Regex();
 
+		$rowSpanCount = 0;
 		foreach($this->data as $id => $row) {
 			if($head) {
 				echo "<thead>\n";
 			}
 			 
 			echo ' <tr>' . "\n";
-
+			
+			$firstVisibleColumn = true;
 			foreach($row as $id => $value) {
 				if($head) {
 					// skip removed columns
@@ -160,9 +181,18 @@ class Table implements iWriteable {
 					if(in_array(strtolower($id), $this->remove)) {
 						continue;
 					}
-					 
+					if($firstVisibleColumn && $this->dataRowSpan > 0 && $rowSpanCount % $this->dataRowSpan > 0) {
+						$rowSpanCount++;
+						$firstVisibleColumn = false;
+						continue;
+					}
+					
 					# Data
 					echo '  <td class="DataTable"';
+					if($firstVisibleColumn && $this->dataRowSpan > 0) {
+						echo ' rowspan="' . $this->dataRowSpan . '"';
+						$rowSpanCount++;
+					}
 
 					// Check whether the value is a decimal -> if so, align right
 					$isMoney = $regex->isMoneyQuiet($value);
@@ -208,7 +238,7 @@ class Table implements iWriteable {
 					if(empty($value)) $value = "-";
 
 					// Check whether the value is a textarea -> if so, display breaks, etc.
-					if(strlen($value) > 100) $value = "<pre>$value</pre>";
+					if(!$this->allowContentWrap && strlen($value) > 100) $value = "<pre>$value</pre>";
 
 					// Check for date values
 					if($regex->isDatabaseDateQuiet($value) && !isset($this->formats[$id])) {
@@ -222,6 +252,7 @@ class Table implements iWriteable {
 
 					if($this->edit) echo '</a>'; # && $id == $this->primkey
 					echo '</td>' . "\n";
+					$firstVisibleColumn = false;
 				}
 			}
 			echo ' </tr>' . "\n";

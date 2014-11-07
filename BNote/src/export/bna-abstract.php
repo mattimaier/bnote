@@ -980,17 +980,36 @@ abstract class AbstractBNA implements iBNA {
 			}
 			$opt["choice"] = array();
 			
-			$query = "SELECT choice, count(user) as num FROM vote_option_user";
+			$query = "SELECT choice, count(*) as num FROM vote_option_user";
 			$query .= " WHERE vote_option = " . $opt["id"];
-			$query .= " GROUP BY vote_option, choice";
+			$query .= " GROUP BY choice";
 			$choice = $this->db->getSelection($query);
 			
-			for($possChoice = 0; $possChoice <= 2; $possChoice++) {
-				$num = $choice[$possChoice]["num"];
-				if($num == null || $num == "") {
-					$num = 0;
+			if($vote["is_multi"]) {
+				$numYes = 0;
+				$numNo = 0;
+				$numMay = 0;
+				
+				for($c = 1; $c < count($choice); $c++) {
+					if($choice[$c]["choice"] == 1) {
+						$numYes = $choice[$c]["num"];
+					}
+					else if($choice[$c]["choice"] == 0) {
+						$numNo = $choice[$c]["num"];
+					}
+					else if($choice[$c]["choice"] == 2) {
+						$numMay = $choice[$c]["num"];
+					}
 				}
-				$opt["choice"][$possChoice] = $num;
+				
+				$opt["choice"]["0"] = $numNo;
+				$opt["choice"]["1"] = $numYes;
+				$opt["choice"]["2"] = $numMay;
+			}
+			else {
+				$opt["choice"]["0"] = 0;
+				$opt["choice"]["1"] = $choice[1]["num"];
+				$opt["choice"]["2"] = 0;
 			}
 			
 			array_push($opts, $opt);

@@ -343,13 +343,119 @@ class AbstimmungView extends CrudView {
 			Writing::p("Jeder Abstimmungsberechtigte konnte nur eine Stimme abgeben.");
 		}
 		
+		// Javascript
+		?>
+		<script type="text/javascript" src="lib/jquery/plugins/jqplot.barRenderer.min.js"></script>
+		<script type="text/javascript" src="lib/jquery/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+		<script type="text/javascript" src="lib/jquery/plugins/jqplot.pointLabels.min.js"></script>
+		<script>
+		$(document).ready(function() {
+			// load result over BNA
+			$.ajax({
+				url: "src/export/bna-json.php?pin=<?php echo $this->getData()->getUserPin(); ?>&func=getVoteResult&id=<?php echo $_GET["id"]; ?>",
+				dataType: "json",
+				success: function(data) {
+					graphData = convertVoteResult(data);
+					
+					$.jqplot('voteResult', graphData.data, {
+						stackSeries: true,
+						seriesDefaults: {
+					            renderer:$.jqplot.BarRenderer,
+					            rendererOptions: {
+						            barDirection: 'horizontal'
+					            }/*,
+					            pointLabels: {
+						            show: true,
+						            location: 'e',
+						            edgeTolerance: 10
+						        }*/
+					    },
+						series: [
+						         { label: "yes",   color: "#4EE330" },
+						         { label: "maybe", color: "#EBEB50" },
+						         { label: "no",    color: "#EB5A50" }
+						],
+						axes: {
+							yaxis: {
+								renderer: $.jqplot.CategoryAxisRenderer,
+				                ticks: graphData.options
+							}
+						}
+					});
+				},
+				error: function(x,y,z) {
+					$("#voteResult").html("Fehler. " + z);
+				}
+			});
+
+			function convertVoteResult(data) {
+				//TODO convert
+				var options = new Array();
+				var yes = new Array();
+				var no = new Array();
+				var may = new Array(); 
+				for(var o = 0; o < data.options.length; o++) {
+					var option = data.options[o];
+					options.push(option.name);
+					yes.push(parseInt(option.choice[1]));
+					no.push(parseInt(option.choice[0]));
+					may.push(parseInt(option.choice[2]));
+				}
+
+				// complex sorting by yes, (yes+may)
+				// idea: sort object of structure { optionIndex: weightValue } by weightValue
+				// weightValue = Yes [+ Maybe]
+				var weightObject = {};
+				for(var i = 0; i < data.options.length; i++) {
+					weightObject[i] = yes[i]+ may[i];
+				}
+				//TODO fix this
+				var sortArray = [];
+				for(var index in weightObject) {
+					sortArray.push([index, weightObject[index]]);
+				}
+				sortArray.sort(function(a,b) {
+					return a[1] - b[1];
+				});
+
+				var sortOptions = new Array();
+				var sortYes = new Array();
+				var sortNo = new Array();
+				var sortMay = new Array();
+
+				for(var i = 0; i < sortArray.length; i++) {
+					var index = sortArray[i][0];
+					sortOptions[i] = options[index];
+					sortYes[i] = yes[index];
+					sortNo[i] = no[index];
+					sortMay[i] = may[index];
+				}
+				
+				// target structure
+				/* [ [yes_optionA, yes_optionB]
+				 *   [ no_optionA,  no_optionB]
+				 *   [may_optoinA, may_optionB] ]
+				 */
+				return {
+					options: sortOptions,
+					data: [ sortYes, sortMay, sortNo ]
+				};
+			}
+		});
+		</script>
+		<div id="voteResult" style="height: 600px;"></div>
+		
+		<?php
+		// Test Results
 		$result = $this->getData()->getResult($_GET["id"]);
 		$table = new Table($result);
 		$table->removeColumn("id");
 		$table->renameHeader("votes", "Stimmen");
 		$table->renameHeader("voters", "W&auml;hler");
+		$table->setDataRowSpan(3);
 		$table->write();
 		
+		// back
 		if(isset($_GET["from"]) && $_GET["from"] == "history") {
 			$lnk = new Link($this->modePrefix() . "archive", "Zurück");
 			$lnk->addIcon("arrow_left");
@@ -358,7 +464,6 @@ class AbstimmungView extends CrudView {
 		else {
 			$this->backToStart();
 		}
-		
 	}
 	
 	function archive() {
