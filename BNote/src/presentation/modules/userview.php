@@ -18,13 +18,7 @@ class UserView extends CrudRefView {
 	}
 
 	function start() {
-		Writing::h1("Benutzer");
 		Writing::p("Hier k&ouml;nnen Benutzer verwaltet werden. Benutzer k&ouml;nnen sich am System anmelden.");
-		
-		// show button to add a user
-		$addBtn = new Link($this->modePrefix() . "addUser", "Benutzer hinzufügen");
-		$addBtn->addIcon("add");
-		$addBtn->write();
 		
 		// show all users
 		$table = new Table($this->getData()->getUsers());

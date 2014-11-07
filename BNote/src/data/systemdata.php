@@ -76,10 +76,6 @@ class Systemdata {
  	if($id == -1) $modId = $this->current_modid;
  	
  	if(is_numeric($modId)) {
- 		// Custom Mapping when enabled
- 		if($modId == 9 && $enableCustom) { // Kontaktdaten
- 			return "Meine Kontaktdaten";
- 		}
   		return $this->dbcon->getCell("module", "name", "id = $modId");
  	}
  	else if($this->loginMode()) {
@@ -160,10 +156,10 @@ class Systemdata {
  		return array(
 				"home" => "Start",
  				"login" => "Login",
- 				"forgotPassword" => "Passwort vergessen",
+ 				"forgotPassword" => "Passwort",
  				"registration" => "Registrierung",
  				"whyBNote" => "Warum BNote?",
- 				"terms" => "Nutzungs-bedingungen",
+ 				"terms" => "Bedingungen",
  				"impressum" => "Impressum"
  		);
  	}

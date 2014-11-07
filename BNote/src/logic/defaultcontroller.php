@@ -25,7 +25,7 @@ class DefaultController {
 	 */
 	public function start() {
 		if(!isset($this->view)) {
-			echo "Inactive Module";
+			echo "No view.";
 		}
 		else {
 			if(isset($_GET['mode'])) {

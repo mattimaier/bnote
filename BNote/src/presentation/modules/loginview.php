@@ -12,12 +12,41 @@ class LoginView extends AbstractView {
 	}
 	
 	function start() {
-		$this->home();
+		include $GLOBALS["DIR_PRESENTATION"] . "logo.php";
 	}
 	
-	function login() {					
-		Writing::h1("Login");
+	function showOptions() {
+		// Login
+		$login = new Link("?mod=login", "Login");
+		$login->write();
+		$this->buttonSpace();
 		
+		// PW
+		$pwForgot = new Link("?mod=forgotPassword", "Passwort vergessen");
+		$pwForgot->write();
+		$this->buttonSpace();
+		
+		// Why BNote?
+		$why = new Link("?mod=whyBNote", "Warum BNote nutzen?");
+		$why->write();
+		$this->buttonSpace();
+		
+		// Registration
+		$reg = new Link("?mod=registration", "Registrierung");
+		$reg->write();
+		$this->buttonSpace();
+		
+		// Terms
+		$terms = new Link("?mod=terms", "Nutzungsbedingungen");
+		$terms->write();
+		$this->buttonSpace();
+		
+		// Impressum
+		$imp = new Link("?mod=impressum", "Impressum");
+		$imp->write();
+	}
+	
+	function login() {
 		Writing::p("Bitte melde dich an um BNote zu nutzen. Wenn du noch kein
 				Konto deiner Band hast, dann <a href=\"?mod=registration\">registriere</a> dich jetzt.");
 		
@@ -37,7 +66,7 @@ class LoginView extends AbstractView {
 		Writing::p("Bitte gebe deine E-Mail-Adresse ein und das System wird dir ein neues Passwort per E-Mail zuschicken.");
 		
 		// forgotten password form
-		$form = new Form("Neues Passwort anfordern", $this->modePrefix() . "password");
+		$form = new Form("", $this->modePrefix() . "password");
 		$form->addElement("E-Mail-Adresse", new Field("email", "", FieldType::EMAIL));
 		$form->write();
 	}
@@ -130,15 +159,13 @@ class LoginView extends AbstractView {
 			onChange="validateInput(this, 'password');" /></TD>
 	</TR>
 	<TR>
-		<TD class="login">Ich stimme den<br />
-		 <a href="?mod=terms" style="text-decoration: underline;" target="_blank">Nutzungsbedingungen</a> zu.*
+		<TD class="login">Ich stimme den <a href="?mod=terms" style="text-decoration: underline;" target="_blank">Nutzungsbedingungen</a> zu.*
 		</TD>
 		<TD class="loginInput"><input type="checkbox" name="terms" /></TD>
 	</TR>
 	<TR>
 		<TD class="login" colspan="2"
-			style="font-size: 10pt; padding-bottom: 15px; width: 100%;">* Die mit
-			Stern gekennzeichneten Felder sind auszuf&uuml;llen.</TD>
+			style="font-size: 10pt; padding-bottom: 15px; width: 100%;">* Die mit Stern gekennzeichneten Felder sind auszuf&uuml;llen.</TD>
 	</TR>
 	<TR>
 		<TD class="login" colspan="2"><input name="register" type="submit"
@@ -194,11 +221,6 @@ class LoginView extends AbstractView {
 	
 	function terms() {
 		include "data/terms.html";
-	}
-	
-	function home()
-	{
-		include $GLOBALS["DIR_PRESENTATION"] . "logo.php";
 	}
 }
 

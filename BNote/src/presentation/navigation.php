@@ -1,3 +1,10 @@
+<?php 
+/**
+ * Only show navigation when not logged in.
+ */
+if(isset($_GET["mod"]) && is_numeric($_GET["mod"])) {
+?>
+
 <!-- Navigation -->
 <div id="navigation">
 
@@ -16,12 +23,19 @@
 		}
 		else $selected = "";
 
-		$name = $system_data->getModuleTitle($id);
+		$tecName = $name;
+		$caption = $system_data->getModuleTitle($id);
 		
-		echo '<a class="navi" href="?mod=' . $id . '"><div class="navi_item' . $selected;
-		echo '">' . $name . '</div></a>' . "\n";
+		echo "<a class=\"navi\" href=\"?mod=$id\"><div class=\"navi_item$selected\">";
+		echo "<img src=\"" . $GLOBALS["DIR_ICONS"] . $tecName . ".png\" alt=\"$tecName\" height=\"14px\" class=\"navi_item_icon\" />";
+		echo $caption;
+		echo "</div></a>\n";
 	}
 
 
 	?>
 </div>
+
+<?php 
+}
+?>

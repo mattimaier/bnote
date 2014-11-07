@@ -19,7 +19,8 @@ class AbstimmungView extends CrudView {
 		Writing::h2("Deine Abstimmungen");
 	}
 
-	function showAdditionStartButtons() {
+	function startOptions() {
+		parent::startOptions();
 		$this->buttonSpace();
 		
 		$arc = new Link($this->modePrefix() . "archive", "Archiv");

@@ -32,7 +32,8 @@ class ProgramView extends CrudView {
 		Writing::p("Klicke auf ein Programm um Details anzuzeigen und die St&uuml;cke zu bearbeiten.");
 	}
 	
-	function showAdditionStartButtons() {
+	function startOptions() {
+		parent::startOptions();
 		$this->buttonSpace();
 		$addTpl = new Link($this->modePrefix() . "addFromTemplate", "Programm mit Vorlage hinzufügen");
 		$addTpl->addIcon("add");

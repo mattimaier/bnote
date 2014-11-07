@@ -15,7 +15,8 @@ class RepertoireView extends CrudRefView {
 		$this->setJoinedAttributes(RepertoireData::getJoinedAttributes());
 	}
 	
-	protected function showAdditionStartButtons() {
+	protected function startOptions() {
+		parent::startOptions();
 		$this->buttonSpace();
 		if(isset($_GET["showFilters"]) && $_GET["showFilters"] == "true") {
 			$filterbox = new Link($this->modePrefix() . "start", "Filter ausblenden");

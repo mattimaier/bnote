@@ -16,19 +16,24 @@ abstract class CrudView extends AbstractView {
 	 * @see AbstractView::start()
 	 */
 	public function start() {
-		$this->writeTitle();
-		
-		$add = new Link($this->modePrefix() . "addEntity", $this->getEntityName() . " hinzufügen");
-		$add->addIcon("add");
-		$add->write();
-		
-		$this->showAdditionStartButtons();
-		
+		Writing::p("Bitte wählen Sie einen Eintrag um diesen anzuzeigen oder zu bearbeiten.");		
 		$this->showAllTable();
 	}
 	
-	protected function showAdditionStartButtons() {
-		// by default empty;
+	function showOptions() {
+		if(!isset($_GET["sub"]) || $_GET["sub"] == "start") {
+			$this->startOptions();
+		}
+		else {
+			$subOptionFunc = $_GET["sub"] . "Options";
+			$this->$subOptionFunc();
+		}
+	}
+	
+	protected function startOptions() {
+		$add = new Link($this->modePrefix() . "addEntity", $this->getEntityName() . " hinzufügen");
+		$add->addIcon("plus");
+		$add->write();
 	}
 	
 	public function addEntity() {

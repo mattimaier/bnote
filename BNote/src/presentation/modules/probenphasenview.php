@@ -12,7 +12,8 @@ class ProbenphasenView extends CrudView {
 		$this->setEntityName("Probenphase");
 	}
 
-	function showAdditionStartButtons() {
+	function startOptions() {
+		parent::startOptions();
 		$this->buttonSpace();
 		$hist = new Link($this->modePrefix() . "history", "Vergangene Probenphasen");
 		$hist->addIcon("clock");

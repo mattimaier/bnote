@@ -18,8 +18,8 @@
 
 #banner 
 {
-	height: 44px;
-	width:100%;
+	height: 60px;
+	width: 100%;
 	background-color:#61b3ff;
 	border-bottom:1px solid;
 	border-bottom-color:#e0e0e0;
@@ -29,7 +29,7 @@
 #bannerContent
 {
 	color: #fff;
-	padding:0px 24px;
+	padding: 8px 24px;
 }
 
 #footer
@@ -124,26 +124,40 @@ background-color: #fff;
 #navigation 
 {
 	float: left;
-	width: 136px;
-	background-color: #eee;
+	width: 160px;
+	background-color: #fff;
 	padding-bottom: 20px;
 }
 
 #content_insets
 {
 	padding: 24px;
-	margin-left: 136px;
+	margin-left: 160px;
 }
 
 
 #content 
 {
-	padding: 24px;
+	padding: 0px;
 	background-color: #fff;
-	border:1px solid;
 	border-color:#e0e0e0;	
 }
-	
-#refresh {
 
-	}
+#optionsbar {
+	height: 40px;
+	border-bottom: 1px solid #dcdcdc;
+	padding-top: 10px;
+}
+
+#optionsContainer {
+	position: absolute;
+	left: 184px;
+	top: 70px;
+	display: inline-block;
+}
+
+#moduleTitle {
+	padding-left: 10px;
+	font-size: 14pt;
+	color: #61b3ff;
+}

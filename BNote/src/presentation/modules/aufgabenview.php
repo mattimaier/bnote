@@ -18,7 +18,8 @@ class AufgabenView extends CrudRefView {
 				));
 	}
 	
-	protected function showAdditionStartButtons() {
+	function startOptions() {
+		parent::startOptions();
 		$this->buttonSpace();
 		$grpTask = new Link($this->modePrefix() . "addGroupTask", "Gruppenaufgabe hinzufügen");
 		$grpTask->addIcon("add");

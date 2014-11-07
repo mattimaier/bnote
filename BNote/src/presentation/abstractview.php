@@ -10,6 +10,11 @@ abstract class AbstractView {
 	private $controller;
 	
 	/**
+	 * Contains the buttons with the options that are available on this page/view.
+	 */
+	abstract function showOptions();
+	
+	/**
 	 * Entry Point for any view.
 	 */
 	abstract function start();

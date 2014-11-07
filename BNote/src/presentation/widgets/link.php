@@ -48,14 +48,15 @@ class Link implements iWriteable {
 		}
 		
 		if(isset($this->icon) && $this->icon != "") {
-			$icon = "<img src=\"" . $GLOBALS["DIR_ICONS"] . $this->icon . ".png\" height=\"15px\" alt=\"\" border=\"0\" />&nbsp;";
+			$icon = "<img src=\"" . $GLOBALS["DIR_ICONS"] . $this->icon . ".png\""
+				    . " height=\"15px\" class=\"linkIcon\" alt=\"" . $this->icon . "\" border=\"0\" />&nbsp;";
 		}
 		else {
 			$icon = "";
 		}
 		
 		return '<a class="linkbox" ' . $target . 'href="' . $this->href . '">'
-		     . '<span class="linkbox">' . $icon . $this->label . '</span></a>';
+		     . '<div class="linkbox">' . $icon . $this->label . '</div></a>';
 	}
 
 	/**

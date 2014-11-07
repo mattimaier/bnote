@@ -2,25 +2,23 @@
 
 div.start_box_news {
 	background-color: #fff;
-	margin: 10px;
 	color: #000;
-	border: 1px solid #e0e0e0;
 }
 
 div.start_box {
 	display: table-cell;
 	background-color: #fff;
 	color: #000;
-	border: 1px solid #e0e0e0;
 }
 
-div.start_box a{
+div.start_box a {
 	color: #000;
 }
 
-div.start_box a:hover{
-text-decoration: underline;
+div.start_box a:hover {
+	text-decoration: underline;
 }
+
 div.start_box_heading {	
 	display: block;
 	background-color: #e6e6e6;
@@ -33,7 +31,6 @@ div.start_box_heading {
 	letter-spacing: 0.1em;
 }
 
-
 div.start_box_content {
 	padding: 14px;
 	background-color: white;
@@ -43,7 +40,6 @@ div.start_box_table {
 	display: table;
 	width: 100%;
 	margin-top: 10px;
-	border-spacing: 10px;
 }
 
 div.start_box_row {

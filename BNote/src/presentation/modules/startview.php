@@ -29,11 +29,41 @@ class StartView extends AbstractView {
 		$this->setController($ctrl);
 	}
 	
+	function showOptions() {
+		if(!isset($_GET["sub"])) {
+			$this->startOptions();
+		}
+		else {
+			$optFunc = $_GET["sub"] . "Options";
+			$this->$optFunc();
+		}
+	}
+	
+	private function startOptions() {
+		// Calendar Exports
+		$userExt = "?user=" . urlencode($this->getData()->adp()->getLogin());
+		
+		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender Export");
+		$ical->addIcon("arrow_down");
+		$ical->write();
+		$this->buttonSpace();
+		
+		$systemUrl = $this->getData()->getSysdata()->getSystemURL();
+		if($systemUrl != "") {
+			if(!Data::endsWith($systemUrl, "/")) $systemUrl .= "/";
+			if(Data::startsWith($systemUrl, "http://")) $systemUrl = substr($systemUrl, 7);
+			else if(Data::startsWith($systemUrl, "https://")) $systemUrl = substr($systemUrl, 8);
+		}
+		else {
+			$systemUrl = $_SERVER["HTTP_HOST"] . str_replace("main.php", "", $_SERVER["SCRIPT_NAME"]);
+		}
+		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender abonnieren");
+		$calSubsc->addIcon("arrow_right");
+		$calSubsc->write();
+	}
+	
 	function start() {
-		Writing::h1("Willkommen");
-		
 		$news = $this->getData()->getNews();
-		
 		if($news != "") {
 			?>
 			<div class="start_box_news">
@@ -57,10 +87,9 @@ class StartView extends AbstractView {
 			<?php 
 		}
 		?>
-		
 		<div class="start_box_table">
 			<div class="start_box_row">
-				<div class="start_box">
+				<div class="start_box" style="padding-right: 10px;">
 					<div class="start_box_heading">Proben</div>
 					<div class="start_box_content">
 						<?php
@@ -98,7 +127,7 @@ class StartView extends AbstractView {
 				 */
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) { 
 					?>
-					<div class="start_box" style="max-width: 250px;">
+					<div class="start_box" style="max-width: 250px; padding-left: 10px;">
 						<div class="start_box_heading">Diskussionen</div>
 						<div class="start_box_content">
 							<?php $this->writeUpdateList(); ?>
@@ -109,29 +138,7 @@ class StartView extends AbstractView {
 				?>
 			</div>
 		</div>
-		<?php $this->verticalSpace(); ?>
-		
 		<?php
-		// Calendar Exports
-		$userExt = "?user=" . urlencode($this->getData()->adp()->getLogin());
-		
-		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender Export");
-		$ical->addIcon("arrow_down");
-		$ical->write();
-		$this->buttonSpace();
-		
-		$systemUrl = $this->getData()->getSysdata()->getSystemURL();
-		if($systemUrl != "") {
-			if(!Data::endsWith($systemUrl, "/")) $systemUrl .= "/";
-			if(Data::startsWith($systemUrl, "http://")) $systemUrl = substr($systemUrl, 7);
-			else if(Data::startsWith($systemUrl, "https://")) $systemUrl = substr($systemUrl, 8);
-		}
-		else {
-			$systemUrl = $_SERVER["HTTP_HOST"] . str_replace("main.php", "", $_SERVER["SCRIPT_NAME"]);
-		}
-		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender abonnieren");
-		$calSubsc->addIcon("arrow_right");
-		$calSubsc->write();
 	}
 	
 	public function askReason($type) {

@@ -28,6 +28,10 @@ if(isset($_GET["mod"]) && $_GET["mod"] === "login" && isset($_GET["mode"]) && $_
 	$ctrl->doLogin();
 }
 
+include $GLOBALS["DIR_LOGIC"] . "controller.php";
+$mainController = new Controller();
+global $mainController;
+
 ?>
 
 <!DOCTYPE html>
@@ -49,14 +53,16 @@ include $GLOBALS["DIR_PRESENTATION"] . "banner.php";
 <!-- Content Area -->
 <div id="content_container">
 	<?php
+	include $GLOBALS["DIR_PRESENTATION"] . "optionsbar.php"; 
+	?>
+	<?php
 	# Display Navigation
 	include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
 	?>
 	<div id="content_insets">
 		<div id="content">
 			<?php
-			include $GLOBALS["DIR_LOGIC"] . "controller.php";
-			new Controller();
+			$mainController->getController()->start();
 			?>
 		</div>
 	</div>
