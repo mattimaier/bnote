@@ -197,7 +197,7 @@ class ApplicationDataProvider {
 	 * @return All rehearsals joined with location and address.
 	 */
 	public function getFutureRehearsals() {
-		$query = "SELECT r.id as id, begin, end, approve_until, r.notes as notes, name, street, city, zip";
+		$query = "SELECT r.id as id, begin, end, approve_until, r.notes as notes, name, street, city, zip, l.id as location";
 		$query .= " FROM rehearsal r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
 		$query .= " AND begin > NOW() ORDER BY begin ASC";		
