@@ -38,7 +38,7 @@ class MitspielerData extends AbstractData {
 		
 		$single = "";
 		if($singleInfo) $single = ", c.name, c.surname, c.id";
-		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, i.name as instrument" . $single;
+		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, fax, business, notes,  a.street, a.city, a.zip, a.country , i.name as instrument" . $single;
 		$order = "ORDER BY fullname, instrument";
 		
 		// Super User or Admin
@@ -60,6 +60,8 @@ class MitspielerData extends AbstractData {
 					) as groups JOIN contact_group ON groups.id = contact_group.group
 					JOIN contact c ON contact_group.contact = c.id
 					JOIN instrument i ON c.instrument = i.id
+					LEFT JOIN address a ON c.address = a.id
+					
 					$order";
 		$groupContacts = $this->database->getSelection($query);
 		
@@ -70,6 +72,8 @@ class MitspielerData extends AbstractData {
 					) as phases JOIN rehearsalphase_contact ON phases.rehearsalphase = rehearsalphase_contact.rehearsalphase
 					JOIN contact c ON rehearsalphase_contact.contact = c.id
 					JOIN instrument i ON c.instrument = i.id
+					LEFT JOIN address a ON c.address = a.id
+					
 					$order";
 		$phaseContacts = $this->database->getSelection($query);
 		
