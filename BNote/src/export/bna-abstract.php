@@ -327,7 +327,7 @@ abstract class AbstractBNA implements iBNA {
 			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
 			$location = isset($_POST["location"]) ? $_POST["location"] : "";
 			$program = isset($_POST["program"]) ? $_POST["program"] : "";
-			$contact = isset($_POST["contact"]) ? $_POST["contact"] : "";
+			$contact = isset($_POST["contact"]) ? $_POST["coxntact"] : "";
 			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
 			if(!is_array($groups)) {
 				$groups = explode(",", $groups);
@@ -641,7 +641,20 @@ abstract class AbstractBNA implements iBNA {
 	function getContacts() {
 		$msd = new MitspielerData($GLOBALS["dir_prefix"]);
 		$contacts = $msd->getMembers($this->uid);
-		$this->printEntities($contacts, "contact");
+		
+		$entities = array();
+		array_push($entities, $songs[0]);
+		
+		foreach($contacts as $i => $contact) {
+			if($i == 0) continue; // header
+			
+			// convert strings
+			$contact["notes"] = urlencode($contact["notes"]);
+				
+			array_push($entities, $contact);
+		}
+		
+		$this->printEntities($entities, "contact");
 	}
 
 	function getLocations() {
