@@ -257,9 +257,20 @@ class BNAjson extends AbstractBNA {
 					}
 					echo ']';
 				}
-				else {
-					echo "\"$rehK\":\"$rehV\"";
-				}
+				else if($rehK == "participate") 
+					{
+						if ($rehV == "")
+						{
+							$rehV = "-1";
+						}
+						echo "\"$rehK\" : $rehV ";
+					}
+					
+				
+					else
+					{
+						echo "\"$rehK\" : \"" . $rehV . "\"";
+					}
 				
 				$rehC++;
 			}
