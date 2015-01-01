@@ -831,7 +831,11 @@ abstract class AbstractBNA implements iBNA {
 		}
 		$this->startdata->saveParticipation();
 		unset($_SESSION["user"]);
-		echo "true";
+		
+		$response = array(
+			"success" => "true"
+		);
+		$this->writeEntity($response, null);
 	}
 
 	function taskCompleted($tid) {
