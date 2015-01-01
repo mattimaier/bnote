@@ -524,23 +524,77 @@ abstract class AbstractBNA implements iBNA {
 		
 		// remove header
 		unset($rehs[0]);
-		
-		// add potential participants
+
+	
+		// add  participants (NO)
 		foreach($rehs as $i => $rehearsal) {
-			$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.email";
-			$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
-			$query .= " WHERE rc.rehearsal = " . $rehearsal["id"];
+			$query = "SELECT c.id, c.surname, c.name, ru.participate, ru.reason";
+			$query .= " FROM rehearsal_user ru, user u, contact c";
+			$query .= " WHERE ru.rehearsal = " . $rehearsal["id"] . " AND ru.user = u.id AND u.contact = c.id" ;
 			$contacts = $this->db->getSelection($query);
 			unset($contacts[0]);
-			foreach($contacts as $j => $contact) {
+
+			// ids for filterting contacts without response
+			$contactIDs = array();
+			$participantsNo = array();
+			$participantsYes = array();
+			$participantsMaybe = array();
+						
+			foreach($contacts as $j => $contact) 
+			{
 				foreach($contact as $ck => $cv) {
 					if(is_numeric($ck)) {
-						unset($contacts[$j][$ck]);
+						unset($contact[$ck]);
 					}
 				}
+				array_push($contactIDs, $contact["id"]);
+				
+				if ($contact["participate"] == 0)
+				{
+					array_push($participantsNo, $contact);
+				}
+				else if ($contact["participate"] == 1)
+				{
+					array_push($participantsYes, $contact);
+				}
+				else if ($contact["participate"] == 2)
+				{
+					array_push($participantsMaybe, $contact);
+				}
 			}
-			$rehs[$i]["contacts"] = $contacts;
+
+			
+			// get contacts without response (filter other contacts)
+			array_push($contactIDs, PHP_INT_MAX);
+			$contactIDsString = join(',',$contactIDs);  
+		
+			$query = "SELECT c.id, c.surname, c.name";
+			$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
+			$query .= " WHERE rc.rehearsal = " . $rehearsal["id"] . " AND rc.contact NOT IN (" . $contactIDsString .")";
+			$participantsNoRepsonse = $this->db->getSelection($query);
+			unset($participantsNoRepsonse[0]);
+			
+			foreach($participantsNoRepsonse as $j => $contact) 
+			{
+				
+				foreach($contact as $ck => $cv) {
+					if(is_numeric($ck)) {
+						unset($participantsNoRepsonse[$j][$ck]);
+					}
+				
+				}
+				
+			}
+//			print_r($participantsNoRepsonse);
+			
+			$rehs[$i]["participantsNo"] = $participantsNo;
+			$rehs[$i]["participantsYes"] = $participantsYes;
+			$rehs[$i]["participantsMaybe"] = $participantsMaybe;
+			$rehs[$i]["participantsNoRepsonse"] = $participantsNoRepsonse;
+			
 		}
+		
+	
 		
 		// cleanup
 		foreach($rehs as $i => $rehearsal) {
