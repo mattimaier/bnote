@@ -571,26 +571,26 @@ abstract class AbstractBNA implements iBNA {
 			$query = "SELECT c.id, c.surname, c.name";
 			$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
 			$query .= " WHERE rc.rehearsal = " . $rehearsal["id"] . " AND rc.contact NOT IN (" . $contactIDsString .")";
-			$participantsNoRepsonse = $this->db->getSelection($query);
-			unset($participantsNoRepsonse[0]);
+			$participantsNoResponse = $this->db->getSelection($query);
+			unset($participantsNoResponse[0]);
 			
-			foreach($participantsNoRepsonse as $j => $contact) 
+			foreach($participantsNoResponse as $j => $contact) 
 			{
 				
 				foreach($contact as $ck => $cv) {
 					if(is_numeric($ck)) {
-						unset($participantsNoRepsonse[$j][$ck]);
+						unset($participantsNoResponse[$j][$ck]);
 					}
 				
 				}
 				
 			}
-//			print_r($participantsNoRepsonse);
+//			print_r($participantsNoResponse);
 			
 			$rehs[$i]["participantsNo"] = $participantsNo;
 			$rehs[$i]["participantsYes"] = $participantsYes;
 			$rehs[$i]["participantsMaybe"] = $participantsMaybe;
-			$rehs[$i]["participantsNoRepsonse"] = $participantsNoRepsonse;
+			$rehs[$i]["participantsNoResponse"] = $participantsNoResponse;
 			
 		}
 		

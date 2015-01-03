@@ -306,8 +306,8 @@ class BNAjson extends AbstractBNA {
 					}
 					echo ']';
 				}
-				else if($rehK == "participantsNoRepsonse") {
-					echo '"participantsNoRepsonse": [';
+				else if($rehK == "participantsNoResponse") {
+					echo '"participantsNoResponse": [';
 					
 					foreach($rehV as $j => $contact) {
 						if($j > 1) echo $this->entitySeparator();
