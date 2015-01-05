@@ -64,7 +64,50 @@ class BNAjson extends AbstractBNA {
 		return ",";
 	}
 	
-	function printEntities($selection, $line_node) {
+	function isArrayAllKeyInt($InputArray)
+	{
+	    if(!is_array($InputArray))
+	    {
+	        return false;
+	    }
+
+	    if(count($InputArray) <= 0)
+	    {
+	        return true;
+	    }
+
+	    return array_unique(array_map("is_int", array_keys($InputArray))) === array(true);
+	}
+	
+	
+	function removeNumericKeys($array)
+	{
+		$isArrayAllKeysInt = $this->isArrayAllKeyInt($array);
+		foreach ($array as $key => $value) 
+		{
+//			echo $isArrayAllKeysInt . "-" . $key . " " . is_numeric($key) . " ". $value . "\n" ;
+		   if (is_numeric($key)  &&  $isArrayAllKeysInt == false) 
+			 {
+		     unset($array[$key]);
+//					print_r( $array);
+					//	echo "remove";
+				}
+		if(is_array($value))
+			{
+					$array[$key] = $this->removeNumericKeys($value);
+			}
+			}
+			return $array;
+	}
+	
+	function printEntities($selection, $line_node) 
+	{
+		$foo = $this->removeNumericKeys($selection);
+//		print_r($foo);
+		echo json_encode(array_values($foo));
+		
+//		echo json_encode(array_values($selection));
+		return;
 		$this->beginOutputWith();
 		echo '"' . $line_node . 's" : [';
 		for($i = 1; $i < count($selection); $i++) {
@@ -200,6 +243,8 @@ class BNAjson extends AbstractBNA {
 	}
 	
 	function printRehearsals($rehs) {
+		$this->printEntities($rehs);
+		return;
 		$this->beginOutputWith();
 		echo '"rehearsals" : [';
 		
@@ -354,179 +399,9 @@ class BNAjson extends AbstractBNA {
 		$this->endOutputWith();
 	}
 	
-	function printConcerts($concerts) {
-		$this->beginOutputWith();
-		
-		echo "\"concerts\": [";
-		
-		foreach($concerts as $i => $concert) {
-			if($i > 1) echo $this->entitySeparator();
-			echo "{";
-			$this->printEntityId($concert, "concert");
-			
-			foreach($concert as $conK => $conV) 
-			{
-				
-				if($conK == "id") continue;
-				echo $this->entitySeparator();
-				
-				if($conK == "location") {
-					echo '"location" : ';
-					$this->writeEntity($conV, "location");
-				}
-				else if($conK == "contact") {
-					echo '"contact" : ';
-					$this->writeEntity($conV, "contact");
-				}
-				else if($conK == "program") {
-					echo '"program" : ';
-					$this->writeEntity($conV, "program");
-				}
-				else if($conK == "contacts") {
-					echo '"contacts": [';
-						
-					foreach($conV as $j => $contact) {
-						if($j > 1) echo $this->entitySeparator();
-						echo "{";
-						$cntC = 0;
-						foreach($contact as $conK => $conV) {
-							if($cntC > 0) echo $this->entitySeparator();
-					
-							if($conK == "id" && $conK != "0" && $this->global_on) {
-								echo '"type": "contact",';
-								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
-							}
-							else {
-								echo "\"$conK\":\"$conV\"";
-							}
-					
-							$cntC++;
-						}
-						echo "}";
-					}
-					echo ']';
-				}
-				else if($conK == "participantsYes") 
-				{
-					$rehV = $conV;
-					echo '"participantsYes": [';
-					
-					foreach($rehV as $j => $contact) {
-						// TODO check why $j needs to be > 0 (and not 1)
-						if($j > 0) echo $this->entitySeparator();
-						echo "{";
-						$cntC = 0;
-						foreach($contact as $conK => $conV) {
-							if($cntC > 0) echo $this->entitySeparator();
-						
-							if($conK == "id" && $conK != "0" && $this->global_on) {
-								echo '"type": "contact",';
-								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
-							}
-							else {
-								echo "\"$conK\":\"$conV\"";
-							}
-						
-							$cntC++;
-						}
-						echo "}";
-					}
-					echo ']';
-				}
-				else if($conK == "participantsMaybe") {
-					$rehV = $conV;
-					echo '"participantsMaybe": [';
-					
-					foreach($rehV as $j => $contact) {
-						if($j > 1) echo $this->entitySeparator();
-						echo "{";
-						$cntC = 0;
-						foreach($contact as $conK => $conV) {
-							if($cntC > 0) echo $this->entitySeparator();
-						
-							if($conK == "id" && $conK != "0" && $this->global_on) {
-								echo '"type": "contact",';
-								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
-							}
-							else {
-								echo "\"$conK\":\"$conV\"";
-							}
-						
-							$cntC++;
-						}
-						echo "}";
-					}
-					echo ']';
-				}
-				else if($conK == "participantsNo") {
-					$rehV = $conV;
-					echo '"participantsNo": [';
-					
-					foreach($rehV as $j => $contact) {
-						if($j > 1) echo $this->entitySeparator();
-						echo "{";
-						$cntC = 0;
-						foreach($contact as $conK => $conV) {
-							if($cntC > 0) echo $this->entitySeparator();
-						
-							if($conK == "id" && $conK != "0" && $this->global_on) {
-								echo '"type": "contact",';
-								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
-							}
-							else {
-								echo "\"$conK\":\"$conV\"";
-							}
-						
-							$cntC++;
-						}
-						echo "}";
-					}
-					echo ']';
-				}
-				else if($conK == "participantsNoResponse") {
-										$rehV = $conV;
-					echo '"participantsNoResponse": [';
-					
-					foreach($rehV as $j => $contact) {
-						if($j > 1) echo $this->entitySeparator();
-						echo "{";
-						$cntC = 0;
-						foreach($contact as $conK => $conV) {
-							if($cntC > 0) echo $this->entitySeparator();
-						
-							if($conK == "id" && $conK != "0" && $this->global_on) {
-								echo '"type": "contact",';
-								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
-							}
-							else {
-								echo "\"$conK\":\"$conV\"";
-							}
-						
-							$cntC++;
-						}
-						echo "}";
-					}
-					echo ']';
-				}
-				else if($conK == "participate") 
-					{
-						if ($conK == "")
-						{
-							$conK = "-1";
-						}
-						echo "\"$conK\" : $conV ";
-					}
-				else {
-					echo "\"$conK\":\"$conV\"";
-				}
-			}
-			
-			echo "}";
-		}
-		
-		echo "]\n";
-		
-		$this->endOutputWith();
+	function printConcerts($concerts) 
+	{
+		$this->printEntities($concerts);
 	}
 	
 	private function printEntityId($entity, $entityName) {

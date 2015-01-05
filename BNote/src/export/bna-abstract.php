@@ -507,7 +507,7 @@ abstract class AbstractBNA implements iBNA {
 				if($part == null) {
 					$part = array( "participate" => "", "reason" => "" );
 				}
-				$rehs[$i]["participate"] = $part["participate"];
+				$rehs[$i]["participate"] = intval($part["participate"]);
 				$rehs[$i]["reason"] = $part["reason"];
 			}
 		}
@@ -587,10 +587,10 @@ abstract class AbstractBNA implements iBNA {
 			}
 //			print_r($participantsNoResponse);
 			
-			$rehs[$i]["participantsNo"] = $participantsNo;
-			$rehs[$i]["participantsYes"] = $participantsYes;
-			$rehs[$i]["participantsMaybe"] = $participantsMaybe;
-			$rehs[$i]["participantsNoResponse"] = $participantsNoResponse;
+$rehs[$i]["participantsNo"] = array_values($participantsNo);
+$rehs[$i]["participantsYes"] = array_values($participantsYes);
+$rehs[$i]["participantsMaybe"] = array_values($participantsMaybe);
+$rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);	
 			
 		}
 		
@@ -748,10 +748,10 @@ abstract class AbstractBNA implements iBNA {
 				
 			}
 			
-			$concerts[$i]["participantsNo"] = $participantsNo;
-			$concerts[$i]["participantsYes"] = $participantsYes;
-			$concerts[$i]["participantsMaybe"] = $participantsMaybe;
-			$concerts[$i]["participantsNoResponse"] = $participantsNoResponse;	
+			$concerts[$i]["participantsNo"] = array_values($participantsNo);
+			$concerts[$i]["participantsYes"] = array_values($participantsYes);
+			$concerts[$i]["participantsMaybe"] = array_values($participantsMaybe);
+			$concerts[$i]["participantsNoResponse"] = array_values($participantsNoResponse);	
 
 		}
 		
@@ -759,7 +759,7 @@ abstract class AbstractBNA implements iBNA {
 
 //		print_r($concerts);
 		
-		$this->printConcerts($concerts);
+		$this->printConcerts(array_values($concerts));
 	}
 	
 	protected abstract function printConcerts($concerts);
@@ -775,11 +775,10 @@ abstract class AbstractBNA implements iBNA {
 			if($i == 0) continue; // header
 			
 			// convert strings
-			$contact["notes"] = urlencode($contact["notes"]);
+			//$contact["notes"] = urlencode($contact["notes"]);
 				
 			array_push($entities, $contact);
 		}
-		
 		$this->printEntities($entities, "contact");
 	}
 
