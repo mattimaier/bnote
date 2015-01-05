@@ -526,7 +526,7 @@ abstract class AbstractBNA implements iBNA {
 		unset($rehs[0]);
 
 	
-		// add  participants (NO)
+		// add  participants
 		foreach($rehs as $i => $rehearsal) {
 			$query = "SELECT c.id, c.surname, c.name, ru.participate, ru.reason";
 			$query .= " FROM rehearsal_user ru, user u, contact c";
@@ -672,20 +672,92 @@ abstract class AbstractBNA implements iBNA {
 			}
 			
 			// contacts
-			$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.email";
-			$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
-			$query .= " WHERE cc.concert = " . $concert["id"];
+///			$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.email";
+//			$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
+//			$query .= " WHERE cc.concert = " . $concert["id"];
+//			$contacts = $this->db->getSelection($query);
+//			unset($contacts[0]);
+//			foreach($contacts as $j => $contact) {
+//				foreach($contact as $ck => $cv) {
+//					if(is_numeric($ck)) {
+//						unset($contacts[$j][$ck]);
+//					}
+//				}
+//			}
+//			$concerts[$i]["contacts"] = $contacts;
+		}
+		
+		// add  participants
+		foreach($concerts as $i => $concert) {
+			$query = "SELECT c.id, c.surname, c.name, cu.participate, cu.reason";
+			$query .= " FROM concert_user cu, user u, contact c";
+			$query .= " WHERE cu.concert = " . $concert["id"] . " AND cu.user = u.id AND u.contact = c.id" ;
 			$contacts = $this->db->getSelection($query);
 			unset($contacts[0]);
-			foreach($contacts as $j => $contact) {
+
+			// ids for filterting contacts without response
+			$contactIDs = array();
+			$participantsNo = array();
+			$participantsYes = array();
+			$participantsMaybe = array();
+						
+			foreach($contacts as $j => $contact) 
+			{
 				foreach($contact as $ck => $cv) {
 					if(is_numeric($ck)) {
-						unset($contacts[$j][$ck]);
+						unset($contact[$ck]);
 					}
 				}
+				array_push($contactIDs, $contact["id"]);
+				
+				if ($contact["participate"] == 0)
+				{
+					array_push($participantsNo, $contact);
+				}
+				else if ($contact["participate"] == 1)
+				{
+					array_push($participantsYes, $contact);
+				}
+				else if ($contact["participate"] == 2)
+				{
+					array_push($participantsMaybe, $contact);
+				}
 			}
-			$concerts[$i]["contacts"] = $contacts;
+
+			// get contacts without response (filter other contacts)
+			array_push($contactIDs, PHP_INT_MAX);
+			$contactIDsString = join(',',$contactIDs);  
+			
+			$query = "SELECT c.id, c.surname, c.name";
+			$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
+			$query .= " WHERE cc.concert = " . $concert["id"] . " AND cc.contact NOT IN (" . $contactIDsString .")";
+			$participantsNoResponse = $this->db->getSelection($query);
+			unset($participantsNoResponse[0]);
+			
+			
+			
+			foreach($participantsNoResponse as $j => $contact) 
+			{
+				
+				foreach($contact as $ck => $cv) {
+					if(is_numeric($ck)) {
+						unset($participantsNoResponse[$j][$ck]);
+					}
+				
+				}
+				
+			}
+			
+			$concerts[$i]["participantsNo"] = $participantsNo;
+			$concerts[$i]["participantsYes"] = $participantsYes;
+			$concerts[$i]["participantsMaybe"] = $participantsMaybe;
+			$concerts[$i]["participantsNoResponse"] = $participantsNoResponse;	
+
 		}
+		
+		
+
+//		print_r($concerts);
 		
 		$this->printConcerts($concerts);
 	}

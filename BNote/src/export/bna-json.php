@@ -364,7 +364,9 @@ class BNAjson extends AbstractBNA {
 			echo "{";
 			$this->printEntityId($concert, "concert");
 			
-			foreach($concert as $conK => $conV) {
+			foreach($concert as $conK => $conV) 
+			{
+				
 				if($conK == "id") continue;
 				echo $this->entitySeparator();
 				
@@ -404,6 +406,116 @@ class BNAjson extends AbstractBNA {
 					}
 					echo ']';
 				}
+				else if($conK == "participantsYes") 
+				{
+					$rehV = $conV;
+					echo '"participantsYes": [';
+					
+					foreach($rehV as $j => $contact) {
+						// TODO check why $j needs to be > 0 (and not 1)
+						if($j > 0) echo $this->entitySeparator();
+						echo "{";
+						$cntC = 0;
+						foreach($contact as $conK => $conV) {
+							if($cntC > 0) echo $this->entitySeparator();
+						
+							if($conK == "id" && $conK != "0" && $this->global_on) {
+								echo '"type": "contact",';
+								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
+							}
+							else {
+								echo "\"$conK\":\"$conV\"";
+							}
+						
+							$cntC++;
+						}
+						echo "}";
+					}
+					echo ']';
+				}
+				else if($conK == "participantsMaybe") {
+					$rehV = $conV;
+					echo '"participantsMaybe": [';
+					
+					foreach($rehV as $j => $contact) {
+						if($j > 1) echo $this->entitySeparator();
+						echo "{";
+						$cntC = 0;
+						foreach($contact as $conK => $conV) {
+							if($cntC > 0) echo $this->entitySeparator();
+						
+							if($conK == "id" && $conK != "0" && $this->global_on) {
+								echo '"type": "contact",';
+								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
+							}
+							else {
+								echo "\"$conK\":\"$conV\"";
+							}
+						
+							$cntC++;
+						}
+						echo "}";
+					}
+					echo ']';
+				}
+				else if($conK == "participantsNo") {
+					$rehV = $conV;
+					echo '"participantsNo": [';
+					
+					foreach($rehV as $j => $contact) {
+						if($j > 1) echo $this->entitySeparator();
+						echo "{";
+						$cntC = 0;
+						foreach($contact as $conK => $conV) {
+							if($cntC > 0) echo $this->entitySeparator();
+						
+							if($conK == "id" && $conK != "0" && $this->global_on) {
+								echo '"type": "contact",';
+								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
+							}
+							else {
+								echo "\"$conK\":\"$conV\"";
+							}
+						
+							$cntC++;
+						}
+						echo "}";
+					}
+					echo ']';
+				}
+				else if($conK == "participantsNoResponse") {
+										$rehV = $conV;
+					echo '"participantsNoResponse": [';
+					
+					foreach($rehV as $j => $contact) {
+						if($j > 1) echo $this->entitySeparator();
+						echo "{";
+						$cntC = 0;
+						foreach($contact as $conK => $conV) {
+							if($cntC > 0) echo $this->entitySeparator();
+						
+							if($conK == "id" && $conK != "0" && $this->global_on) {
+								echo '"type": "contact",';
+								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
+							}
+							else {
+								echo "\"$conK\":\"$conV\"";
+							}
+						
+							$cntC++;
+						}
+						echo "}";
+					}
+					echo ']';
+				}
+				else if($conK == "participate") 
+					{
+						if ($conK == "")
+						{
+							$conK = "-1";
+						}
+						echo "\"$conK\" : $conV ";
+					}
 				else {
 					echo "\"$conK\":\"$conV\"";
 				}
