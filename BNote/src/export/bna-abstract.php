@@ -890,7 +890,11 @@ abstract class AbstractBNA implements iBNA {
 	
 	function getGenres() {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
-		$this->printEntities($repData->getGenres(), "genre");
+		$genres = $repData->getGenres();
+		unset($genres[0]);
+		$genres =  $this -> removeNumericKeys($genres);
+		
+		$this->printEntities($genres, "genres");
 	}
 	
 	function getStatuses() {
