@@ -868,21 +868,24 @@ abstract class AbstractBNA implements iBNA {
 	function getSongs() {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$songs = $repData->findAllNoRef();
-		
+				
 		$entities = array();
-		array_push($entities, $songs[0]);
 		
 		foreach($songs as $i => $song) {
 			if($i == 0) continue; // header
+			$composerId = $song["composer"];
+			$song["composer"] = $repData -> getComposerName($composerId);
 			
-			// convert stirngs
-			$song["notes"] = urlencode($song["notes"]);
-			$song["title"] = urlencode($song["title"]);
-				
+			$genre = $repData -> getGenre($song["genre"]);
+
+			$song["genre"] = $this -> removeNumericKeys($genre[1]);
+			
+			$song["status"] = intval($song["status"]);
+			$song = $this -> removeNumericKeys($song);
 			array_push($entities, $song);
 		}
 		
-		$this->printEntities($entities, "song");
+		$this->printEntities($entities, "songs");
 	}
 	
 	function getGenres() {
