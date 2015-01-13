@@ -64,77 +64,14 @@ class BNAjson extends AbstractBNA {
 		return ",";
 	}
 	
-	function isArrayAllKeyInt($InputArray)
-	{
-	    if(!is_array($InputArray))
-	    {
-	        return false;
-	    }
 
-	    if(count($InputArray) <= 0)
-	    {
-	        return true;
-	    }
-
-	    return array_unique(array_map("is_int", array_keys($InputArray))) === array(true);
-	}
-	
-	
-	function removeNumericKeys($array)
-	{
-		$isArrayAllKeysInt = $this->isArrayAllKeyInt($array);
-		foreach ($array as $key => $value) 
-		{
-//			echo $isArrayAllKeysInt . "-" . $key . " " . is_numeric($key) . " ". $value . "\n" ;
-		   if (is_numeric($key)  &&  $isArrayAllKeysInt == false) 
-			 {
-		     unset($array[$key]);
-//					print_r( $array);
-					//	echo "remove";
-				}
-		if(is_array($value))
-			{
-					$array[$key] = $this->removeNumericKeys($value);
-			}
-			}
-			return $array;
-	}
 	
 	function printEntities($selection, $line_node) 
 	{
-		$foo = $this->removeNumericKeys($selection);
-//		print_r($foo);
-		echo json_encode(array_values($foo));
-		
-//		echo json_encode(array_values($selection));
-		return;
-		$this->beginOutputWith();
-		echo '"' . $line_node . 's" : [';
-		for($i = 1; $i < count($selection); $i++) {
-			$e = $selection[$i];
-			if($i > 1) echo $this->entitySeparator();
-			echo "{";
-			$j = 0;
-			foreach($e as $index => $value) {
-				if(is_numeric($index)) continue;
-				if($j > 0) echo $this->entitySeparator();
-				
-				// conversions for globally unique identifiers
-				if($this->global_on && $index == "id") {
-					// singluar type
-					echo '"type" : "' . $line_node . '"' . $this->entitySeparator() . ' ';
-					$value = $this->instanceUrl . "/$line_node/$value"; 
-				}
-				
-				echo "\"$index\" : \"" . $value . "\"";
-				
-				$j++;
-			}
-			echo "}";
-		}
-		echo ']';
-		
-		$this->endOutputWith();
+		$entities = array();
+		$cleanedSelection = $this->removeNumericKeys($selection);
+		$entities[$line_node] = array_values($selection);
+		echo json_encode($entities);
 	}
 	
 	function printVotes($votes) {
