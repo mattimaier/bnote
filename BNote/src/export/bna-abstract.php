@@ -479,9 +479,12 @@ abstract class AbstractBNA implements iBNA {
 
 	/* DEFAULT IMPLEMENTATIONS */
 
+	
+	
 	function getRehearsals() {
 		$this->getRehearsalsWithParticipation($this->uid);
 	}
+	
 
 	function getRehearsalsWithParticipation($user) {
 		if($this->sysdata->isUserSuperUser($this->uid)
@@ -507,10 +510,14 @@ abstract class AbstractBNA implements iBNA {
 				if($part == null) {
 					$part = array( "participate" => "", "reason" => "" );
 				}
-				$rehs[$i]["participate"] = intval($part["participate"]);
+				$rehs[$i]["participate"] = $part["participate"];
 				$rehs[$i]["reason"] = $part["reason"];
 			}
 		}
+		
+		// remove header
+		unset($rehs[0]);
+		
 		
 		// resolve location
 		for($i = 1; $i < count($rehs); $i++) {
@@ -522,8 +529,17 @@ abstract class AbstractBNA implements iBNA {
 			$rehs[$i]["location"] = $loc;
 		}
 		
-		// remove header
-		unset($rehs[0]);
+		// resolve songs for rehearsal
+		for($i = 1; $i < count($rehs); $i++)
+		{
+			$rehearsal = $rehs[$i];
+			$probenData = new ProbenData($GLOBALS["dir_prefix"]);
+			$songs = $probenData->getSongsForRehearsal($rehearsal["id"]);
+			unset($songs[0]);
+			
+			$rehs[$i]["songsToPractice"] = array_values($this->removeNumericKeys($songs));
+		}
+
 
 	
 		// add  participants
@@ -587,15 +603,14 @@ abstract class AbstractBNA implements iBNA {
 			}
 //			print_r($participantsNoResponse);
 			
-$rehs[$i]["participantsNo"] = array_values($participantsNo);
-$rehs[$i]["participantsYes"] = array_values($participantsYes);
-$rehs[$i]["participantsMaybe"] = array_values($participantsMaybe);
-$rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);	
+			$rehs[$i]["participantsNo"] = array_values($participantsNo);
+			$rehs[$i]["participantsYes"] = array_values($participantsYes);
+			$rehs[$i]["participantsMaybe"] = array_values($participantsMaybe);
+			$rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
 			
 		}
 		
 	
-		
 		// cleanup
 		foreach($rehs as $i => $rehearsal) {
 			foreach($rehearsal as $k => $v) {
@@ -605,7 +620,7 @@ $rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
 			}
 		}
 		
-		$this->printRehearsals($rehs);
+		$this->printEntities($rehs, "rehearsals");
 	}
 	
 	protected abstract function printRehearsals($rehs);
@@ -748,10 +763,10 @@ $rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
 				
 			}
 			
-			$concerts[$i]["participantsNo"] = array_values($participantsNo);
-			$concerts[$i]["participantsYes"] = array_values($participantsYes);
-			$concerts[$i]["participantsMaybe"] = array_values($participantsMaybe);
-			$concerts[$i]["participantsNoResponse"] = array_values($participantsNoResponse);	
+			$concerts[$i]["participantsNo"] = $participantsNo;
+			$concerts[$i]["participantsYes"] = $participantsYes;
+			$concerts[$i]["participantsMaybe"] = $participantsMaybe;
+			$concerts[$i]["participantsNoResponse"] = $participantsNoResponse;	
 
 		}
 		
@@ -759,7 +774,7 @@ $rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
 
 //		print_r($concerts);
 		
-		$this->printConcerts(array_values($concerts));
+		$this->printConcerts($concerts);
 	}
 	
 	protected abstract function printConcerts($concerts);
@@ -775,10 +790,11 @@ $rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
 			if($i == 0) continue; // header
 			
 			// convert strings
-			//$contact["notes"] = urlencode($contact["notes"]);
+			$contact["notes"] = urlencode($contact["notes"]);
 				
 			array_push($entities, $contact);
 		}
+		
 		$this->printEntities($entities, "contact");
 	}
 
@@ -1324,5 +1340,45 @@ $rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
 		}
 		return $addresses;
 	}
+	
+	/* array helpers */
+	
+	function isArrayAllKeyInt($InputArray)
+	{
+	    if(!is_array($InputArray))
+	    {
+	        return false;
+	    }
+
+	    if(count($InputArray) <= 0)
+	    {
+	        return true;
+	    }
+
+	    return array_unique(array_map("is_int", array_keys($InputArray))) === array(true);
+	}
+	
+	
+	function removeNumericKeys($array)
+	{
+		$isArrayAllKeysInt = $this->isArrayAllKeyInt($array);
+		foreach ($array as $key => $value) 
+		{
+//			echo $isArrayAllKeysInt . "-" . $key . " " . is_numeric($key) . " ". $value . "\n" ;
+		   if (is_numeric($key)  &&  $isArrayAllKeysInt == false) 
+			 {
+		     unset($array[$key]);
+//					print_r( $array);
+					//	echo "remove";
+				}
+		if(is_array($value))
+			{
+					$array[$key] = $this->removeNumericKeys($value);
+			}
+			}
+			return $array;
+	}
 }
+
+
 ?>
