@@ -359,7 +359,7 @@ class StartData extends AbstractData {
 	}
 	
 	function getDiscussion($otype, $oid) {
-		$query = "SELECT c.*, CONCAT(a.name, ' ', a.surname) as author ";
+		$query = "SELECT c.*, CONCAT(a.name, ' ', a.surname) as author, a.id as author_id ";
 		$query .= "FROM comment c JOIN user u ON c.author = u.id ";
 		$query .= "JOIN contact a ON u.contact = a.id ";
 		$query .= "WHERE c.oid = $oid AND c.otype = '$otype' ";

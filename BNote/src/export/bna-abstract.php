@@ -549,6 +549,12 @@ abstract class AbstractBNA implements iBNA {
 				$comments = $this->startdata->getDiscussion("r", $rehearsal["id"]);
 				unset($comments[0]);
 				
+				foreach($comments as $j => $comment)
+				{
+					$comments[$j]["author"] = array("id" => $comments[$j]["author_id"], "fullname" => $comments[$j]["author"]);
+					unset($comments[$j]["author_id"]);
+										$comments[$j]["message"] = urldecode($comments[$j]["message"]);
+				}				
 				$rehs[$i]["comments"] = array_values($this->removeNumericKeys($comments));
 			
 		}
@@ -705,7 +711,14 @@ abstract class AbstractBNA implements iBNA {
 				$comments = $this->startdata->getDiscussion("c", $concert["id"]);
 				unset($comments[0]);
 				
+				foreach($comments as $j => $comment)
+				{
+					$comments[$j]["author"] = array("id" => $comments[$j]["author_id"], "fullname" => $comments[$j]["author"]);
+					unset($comments[$j]["author_id"]);
+										$comments[$j]["message"] = urldecode($comments[$j]["message"]);
+				}				
 				$concerts[$i]["comments"] = array_values($this->removeNumericKeys($comments));
+				
 			
 		}
 		
