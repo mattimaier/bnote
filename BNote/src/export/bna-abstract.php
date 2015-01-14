@@ -508,14 +508,12 @@ abstract class AbstractBNA implements iBNA {
 				$query = "SELECT * FROM rehearsal_user WHERE rehearsal = $rid AND user = " . $this->uid;
 				$part = $this->db->getRow($query);
 				if($part == null) {
-					$part = array( "participate" => "", "reason" => "" );
+					$part = array( "participate" => "-1", "reason" => "" );
 				}
 				$rehs[$i]["participate"] = intval($part["participate"]);
 				$rehs[$i]["reason"] = $part["reason"];
 			}
 		}
-		
-
 		
 		
 		// resolve location
