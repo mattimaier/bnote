@@ -510,13 +510,12 @@ abstract class AbstractBNA implements iBNA {
 				if($part == null) {
 					$part = array( "participate" => "", "reason" => "" );
 				}
-				$rehs[$i]["participate"] = $part["participate"];
+				$rehs[$i]["participate"] = intval($part["participate"]);
 				$rehs[$i]["reason"] = $part["reason"];
 			}
 		}
 		
-		// remove header
-		unset($rehs[0]);
+
 		
 		
 		// resolve location
@@ -529,6 +528,11 @@ abstract class AbstractBNA implements iBNA {
 			$rehs[$i]["location"] = $loc;
 		}
 		
+
+		
+		// remove header
+		unset($rehs[0]);
+		
 		// resolve songs for rehearsal
 		for($i = 1; $i < count($rehs); $i++)
 		{
@@ -540,6 +544,16 @@ abstract class AbstractBNA implements iBNA {
 			$rehs[$i]["songsToPractice"] = array_values($this->removeNumericKeys($songs));
 		}
 
+		// resolve comments
+		for($i = 1; $i < count($rehs); $i++) 
+		{
+			$rehearsal = $rehs[$i];
+				$comments = $this->startdata->getDiscussion("r", $rehearsal["id"]);
+				unset($comments[0]);
+				
+				$rehs[$i]["comments"] = array_values($this->removeNumericKeys($comments));
+			
+		}
 
 	
 		// add  participants
@@ -685,22 +699,18 @@ abstract class AbstractBNA implements iBNA {
 			else {
 				$concerts[$i]["reason"] = "";
 			}
-			
-			// contacts
-///			$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.email";
-//			$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
-//			$query .= " WHERE cc.concert = " . $concert["id"];
-//			$contacts = $this->db->getSelection($query);
-//			unset($contacts[0]);
-//			foreach($contacts as $j => $contact) {
-//				foreach($contact as $ck => $cv) {
-//					if(is_numeric($ck)) {
-//						unset($contacts[$j][$ck]);
-//					}
-//				}
-//			}
-//			$concerts[$i]["contacts"] = $contacts;
 		}
+		
+		// resolve comments
+		foreach($concerts as $i => $concert) {
+
+				$comments = $this->startdata->getDiscussion("c", $concert["id"]);
+				unset($comments[0]);
+				
+				$concerts[$i]["comments"] = array_values($this->removeNumericKeys($comments));
+			
+		}
+		
 		
 		// add  participants
 		foreach($concerts as $i => $concert) {
@@ -763,10 +773,10 @@ abstract class AbstractBNA implements iBNA {
 				
 			}
 			
-			$concerts[$i]["participantsNo"] = $participantsNo;
-			$concerts[$i]["participantsYes"] = $participantsYes;
-			$concerts[$i]["participantsMaybe"] = $participantsMaybe;
-			$concerts[$i]["participantsNoResponse"] = $participantsNoResponse;	
+			$concerts[$i]["participantsNo"] = array_values($participantsNo);
+			$concerts[$i]["participantsYes"] = array_values($participantsYes);
+			$concerts[$i]["participantsMaybe"] = array_values($participantsMaybe);
+			$concerts[$i]["participantsNoResponse"] = array_values($participantsNoResponse);	
 
 		}
 		
@@ -774,7 +784,8 @@ abstract class AbstractBNA implements iBNA {
 
 //		print_r($concerts);
 		
-		$this->printConcerts($concerts);
+	$concerts = $this -> removeNumericKeys($concerts);
+		$this->printEntities($concerts, "concerts");
 	}
 	
 	protected abstract function printConcerts($concerts);
@@ -782,20 +793,10 @@ abstract class AbstractBNA implements iBNA {
 	function getContacts() {
 		$msd = new MitspielerData($GLOBALS["dir_prefix"]);
 		$contacts = $msd->getMembers($this->uid);
+		unset($contacts[0]);
 		
-		$entities = array();
-		array_push($entities, $songs[0]);
-		
-		foreach($contacts as $i => $contact) {
-			if($i == 0) continue; // header
-			
-			// convert strings
-			$contact["notes"] = urlencode($contact["notes"]);
-				
-			array_push($entities, $contact);
-		}
-		
-		$this->printEntities($entities, "contact");
+		$contacts = $this -> removeNumericKeys($contacts);
+		$this->printEntities($contacts, "contacts");
 	}
 
 	function getLocations() {
