@@ -178,7 +178,6 @@ td a {
 }
 
 td.DataTable_Sum {
-	
 }
 
 div.FormBox {
@@ -427,4 +426,8 @@ fieldset tr {
 	margin: -2px;
 	margin-right: 3px;
 	margin-left: 0px;
+}
+
+ul.groupSelector {
+	line-height: 40%;
 }

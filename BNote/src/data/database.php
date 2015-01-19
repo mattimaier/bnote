@@ -121,7 +121,13 @@ class Database extends Data {
  	$ret = array();
  	
  	while($row = mysql_fetch_array($res)) {
- 		$ret[$row[$idcolumn]] = $row[$namecolumn];
+ 		if(!isset($row[$idcolumn])) continue;
+ 		if(!isset($row[$namecolumn])) {
+ 			$ret[$row[$idcolumn]] = null;
+ 		}
+ 		else {
+ 			$ret[$row[$idcolumn]] = $row[$namecolumn];
+ 		}
  	}
  	
  	return $ret;

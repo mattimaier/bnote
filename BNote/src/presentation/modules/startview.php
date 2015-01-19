@@ -44,7 +44,7 @@ class StartView extends AbstractView {
 		$userExt = "?user=" . urlencode($this->getData()->adp()->getLogin());
 		
 		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender Export");
-		$ical->addIcon("arrow_down");
+		$ical->addIcon("save");
 		$ical->write();
 		$this->buttonSpace();
 		
@@ -58,7 +58,7 @@ class StartView extends AbstractView {
 			$systemUrl = $_SERVER["HTTP_HOST"] . str_replace("main.php", "", $_SERVER["SCRIPT_NAME"]);
 		}
 		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender abonnieren");
-		$calSubsc->addIcon("arrow_right");
+		$calSubsc->addIcon("calendar");
 		$calSubsc->write();
 	}
 	
@@ -218,7 +218,7 @@ class StartView extends AbstractView {
 				}
 				
 				$noBtn = new Link($partLinkPrefix . "no", "Ich kann leider nicht.");
-				$noBtn->addIcon("remove");
+				$noBtn->addIcon("cancel");
 				$partButtons .= $noBtn->toString();
 				
 				$userParticipation = $this->getData()->doesParticipateInRehearsal($data[$i]["id"]);
@@ -305,7 +305,7 @@ class StartView extends AbstractView {
 				}
 				
 				$noBtn = new Link($partLinkPrefix . "no", "Ich kann nicht mitspielen.");
-				$noBtn->addIcon("remove");
+				$noBtn->addIcon("cancel");
 				$partButtons .= $noBtn->toString();
 				
 				$userParticipation = $this->getData()->doesParticipateInConcert($data[$i]["id"]);
@@ -417,7 +417,7 @@ class StartView extends AbstractView {
 				   onClick="$(function() { $('#<?php echo $popboxid; ?>_participation').dialog({ width: 400 }); });"><?php echo $msg; ?></a>
 				<?php
 			}
-			else if($msg != "" && participation != "" && $partOver) {
+			else if($msg != "" && $participation != "" && $partOver) {
 				?>
 				<br/>
 				<span><?php echo $msg; ?></span>

@@ -777,7 +777,7 @@ class Installation {
 		$cid = $db->execute($query);
 		
 		// create user
-		$password = crypt($_POST["password"], CRYPT_BLOWFISH);
+		$password = crypt($_POST["password"], 'BNot3pW3ncryp71oN');
 		$query = "INSERT INTO user (login, password, contact, isActive) VALUES (";
 		$query .= '"' . $_POST["login"] . '", "' . $password . '", ' . $cid . ', 1)';
 		$uid = $db->execute($query);

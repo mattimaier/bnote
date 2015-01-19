@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;/bnote/style/icons/Start.png&apos; to &apos;start.png&apos;&#x0D;&#x0A;- Original project: &apos;bnote&apos;&#x0D;&#x0A;- Original element: &apos;Start.png&apos;" description="Rename resource &apos;Start.png&apos;" flags="7" id="org.eclipse.wst.jsdt.ui.rename.resource" input="style/icons/Start.png" name="start.png" stamp="1421692887193" version="1.0"/>
+</session>

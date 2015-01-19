@@ -31,7 +31,7 @@ class UserView extends CrudRefView {
 		$table->write();
 	}
 	
-	function addUser() {
+	function addEntity() {
 		// add form for new user
 		$form = new Form("Neuer Benutzer", $this->modePrefix() . "add&manualValid=true");
 		$form->autoAddElementsNew($this->getData()->getFields());
@@ -43,11 +43,6 @@ class UserView extends CrudRefView {
 		// manually add contacts
 		$form->addElement("Kontakt", $this->contactDropdown());
 		$form->write();
-		
-		$this->verticalSpace();
-		
-		// back button
-		$this->backToStart();
 	}
 	
 	private function contactDropdown() {
@@ -89,11 +84,23 @@ class UserView extends CrudRefView {
 		}
 		Writing::h1($title);
 		
-		// show options
-		$edit = new Link("?mod=" . $this->getModId() . "&mode=edit&id=" . $_GET["id"], "Benutzer bearbeiten");
-		$edit->addIcon("edit");
-		$edit->write();
-		$this->buttonSpace();
+		// show user data
+		$dv = new Dataview();
+		foreach($usr as $id => $value) {
+			if($id == "contact" && $value == "0") {
+				$dv->addElement($id, "-");
+			}
+			else if($id != "password") {
+				$dv->addElement($id, $value);
+			}
+		}
+		$dv->autoRename($this->getData()->getFields());
+		$dv->renameElement("contactname", "Vorname");
+		$dv->renameElement("contactsurname", "Nachname");
+		$dv->write();
+	}
+	
+	function additionalViewButtons() {
 		$privs = new Link("?mod=" . $this->getModId() . "&mode=privileges&id=" . $_GET["id"], "Rechte bearbeiten");
 		$privs->addIcon("key");
 		$privs->write();
@@ -110,30 +117,6 @@ class UserView extends CrudRefView {
 		$active = new Link($this->modePrefix() . "activate&id=" . $_GET["id"], $btnLbl);
 		$active->addIcon($btnIcon);
 		$active->write();
-		$this->buttonSpace();
-		
-		$delete = new Link("?mod=" . $this->getModId() . "&mode=delete_confirm&id=" . $_GET["id"], "Benutzer l&ouml;schen");
-		$delete->addIcon("remove");
-		$delete->write();
-		$this->buttonSpace();
-		
-		// show user data
-		$dv = new Dataview();
-		foreach($usr as $id => $value) {
-			if($id == "contact" && $value == "0") {
-				$dv->addElement($id, "-");
-			}
-			else if($id != "password") {
-				$dv->addElement($id, $value);
-			}
-		}
-		$dv->autoRename($this->getData()->getFields());
-		$dv->renameElement("contactname", "Vorname");
-		$dv->renameElement("contactsurname", "Nachname");
-		$dv->write();
-		
-		// back button
-		$this->backToStart();
 	}
 	
 	function editEntityForm() {

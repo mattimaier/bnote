@@ -56,9 +56,9 @@ class LoginController extends DefaultController {
 		// verify information
 		$this->getData()->validateLogin();
 		$db_pw = $this->getData()->getPasswordForLogin($_POST["login"]);
-		$password = crypt($_POST["password"], CRYPT_BLOWFISH);
+		$password = crypt($_POST["password"], 'BNot3pW3ncryp71oN');
 		
-		if($SHOW_PASSWORD_HASH) {
+		if($this->SHOW_PASSWORD_HASH) {
 			echo "The password entered is hashed as " . $password . "</br>\n";
 		}
 		

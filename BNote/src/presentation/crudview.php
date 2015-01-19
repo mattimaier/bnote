@@ -21,13 +21,22 @@ abstract class CrudView extends AbstractView {
 	}
 	
 	function showOptions() {
-		if(!isset($_GET["sub"]) || $_GET["sub"] == "start") {
+		if(!isset($_GET["mode"]) || $_GET["mode"] == "start") {
 			$this->startOptions();
 		}
 		else {
-			$subOptionFunc = $_GET["sub"] . "Options";
-			$this->$subOptionFunc();
+			$subOptionFunc = $_GET["mode"] . "Options";
+			if(method_exists($this, $subOptionFunc)) { 
+				$this->$subOptionFunc();
+			}
+			else {
+				$this->defaultOptions();
+			}
 		}
+	}
+	
+	protected function defaultOptions() {
+		$this->backToStart();
 	}
 	
 	protected function startOptions() {
@@ -87,26 +96,29 @@ abstract class CrudView extends AbstractView {
 		// heading
 		Writing::h2($this->entityName . " Details");
 		
+		// show the details
+		$this->viewDetailTable();
+	}
+	
+	function viewOptions() {
+		// back button
+		$this->backToStart();
+		$this->buttonSpace();
+		
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
-							$this->entityName . " bearbeiten");
+				$this->entityName . " bearbeiten");
 		$edit->addIcon("edit");
 		$edit->write();
 		$this->buttonSpace();
 		$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
-							$this->entityName . " l&ouml;schen");
+				$this->entityName . " l&ouml;schen");
 		$del->addIcon("remove");
 		$del->write();
 		$this->buttonSpace();
 		
 		// additional buttons
 		$this->additionalViewButtons();
-		
-		// show the details
-		$this->viewDetailTable();
-		
-		// back button
-		$this->backToStart();
 	}
 	
 	protected function viewDetailTable() {

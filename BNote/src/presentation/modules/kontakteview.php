@@ -22,36 +22,33 @@ class KontakteView extends CrudRefView {
 	function start() {
 		Writing::h1("Kontakte");
 		
-		// Options		
-		$add = new Link($this->modePrefix() . "addForm", "Kontakt hinzuf&uuml;gen");
-		$add->addIcon("add");
-		$add->write();
+		// show band members
+		$this->showContacts();
+	}
+	
+	protected function startOptions() {
 		$this->buttonSpace();
 		
 		$eps = new Link($this->modePrefix() . "integration", "Einphasung");
-		$eps->addIcon("arrow_right");
+		$eps->addIcon("integration");
 		$eps->write();
 		$this->buttonSpace();
 		
 		$groups = new Link($this->modePrefix() . "groups&func=start", "Gruppen verwalten");
-		$groups->addIcon("group");
+		$groups->addIcon("mitspieler");
 		$groups->write();
 		$this->buttonSpace();
 		
-		$this->verticalSpace();
 		$print = new Link($this->modePrefix() . "selectPrintGroups", "Mitspielerliste drucken");
 		$print->addIcon("printer");
 		$print->write();
 		$this->buttonSpace();
 		
 		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", "Kontakte Export (vCard)");
-		$vc->addIcon("arrow_down");
+		$vc->addIcon("save");
 		$vc->setTarget("_blank");
 		$vc->write();
 		$this->verticalSpace();
-		
-		// show band members
-		$this->showContacts();
 	}
 	
 	function showContacts() {		
@@ -88,7 +85,7 @@ class KontakteView extends CrudRefView {
 			$groupId = $info["id"];
 			
 			$active = "";
-			if($_GET["group"] == $groupId) $active = "_active";
+			if(isset($_GET["group"]) && $_GET["group"] == $groupId) $active = "_active";
 			else if(!isset($_GET["group"]) && $groupId == 2) $active = "_active";
 			
 			echo "<a href=\"" . $this->modePrefix() . "start&group=$groupId\"><span class=\"contact_view_tab$active\">$label</span></a>";
@@ -152,7 +149,7 @@ class KontakteView extends CrudRefView {
 		echo "</div>";
 	}
 	
-	function addForm() {
+	function addEntity() {
 		$form = new Form("Kontakt hinzuf&uuml;gen", $this->modePrefix() . "add");
 		
 		$form->autoAddElementsNew($this->getData()->getFields());

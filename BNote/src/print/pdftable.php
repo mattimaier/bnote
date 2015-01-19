@@ -138,7 +138,7 @@ class PDFTable {
 				if(in_Array($col, $this->ignoreCols)) continue; // ignore cols, e.g. don't print id column
 
 				// Set align right, when values are decimal
-				if(isset($this->data[1]) && $regex->isNumber($this->data[1][$col]) &&
+				if(isset($this->data[1][$col]) && $regex->isNumber($this->data[1][$col]) &&
 					(!isset($this->colType[$col]) || $this->colType[$col] == FieldType::DECIMAL
 						 || $this->colType[$col] == FieldType::INTEGER)) {
 					$align = 'R';
@@ -154,7 +154,7 @@ class PDFTable {
 				}
 				
 				// format dates
-				if(isset($this->data[1]) && $regex->isDatabaseDateQuiet($this->data[1][$col])) {
+				if(isset($this->data[1][$col]) && $regex->isDatabaseDateQuiet($this->data[1][$col])) {
 					$value = Data::convertDateFromDb($value);
 				}
 				

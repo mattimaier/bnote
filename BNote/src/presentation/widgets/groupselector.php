@@ -83,7 +83,7 @@ class GroupSelector implements iWriteable {
 	}
 	
 	function toString() {
-		$out = "<ul>\n";
+		$out = "<ul class=\"groupSelector\">\n";
 		
 		for($i = 1; $i < count($this->groups); $i++) {
 			$groupId = $this->groups[$i]["id"];

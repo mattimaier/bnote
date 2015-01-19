@@ -203,6 +203,10 @@ abstract class AbstractView {
 	protected function verticalSpace() {
 		echo "<br /><br />\n";
 	}
+	
+	protected function isMode($mode) {
+		return (isset($_GET["mode"]) && $_GET[$mode] == $mode);
+	}
 }
 
 ?>
