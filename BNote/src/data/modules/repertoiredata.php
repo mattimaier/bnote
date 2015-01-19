@@ -193,6 +193,12 @@ class RepertoireData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
+	function getGenre($genreId) {
+		$query = "SELECT * FROM genre WHERE id = ". $genreId;
+		return $this->database->getSelection($query);
+	}
+	
+	
 	function getAllSolists() {
 		return $this->getSolists(-1);
 	}

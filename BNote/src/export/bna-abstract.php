@@ -327,7 +327,7 @@ abstract class AbstractBNA implements iBNA {
 			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
 			$location = isset($_POST["location"]) ? $_POST["location"] : "";
 			$program = isset($_POST["program"]) ? $_POST["program"] : "";
-			$contact = isset($_POST["contact"]) ? $_POST["contact"] : "";
+			$contact = isset($_POST["contact"]) ? $_POST["coxntact"] : "";
 			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
 			if(!is_array($groups)) {
 				$groups = explode(",", $groups);
@@ -479,9 +479,12 @@ abstract class AbstractBNA implements iBNA {
 
 	/* DEFAULT IMPLEMENTATIONS */
 
+	
+	
 	function getRehearsals() {
 		$this->getRehearsalsWithParticipation($this->uid);
 	}
+	
 
 	function getRehearsalsWithParticipation($user) {
 		if($this->sysdata->isUserSuperUser($this->uid)
@@ -505,12 +508,13 @@ abstract class AbstractBNA implements iBNA {
 				$query = "SELECT * FROM rehearsal_user WHERE rehearsal = $rid AND user = " . $this->uid;
 				$part = $this->db->getRow($query);
 				if($part == null) {
-					$part = array( "participate" => "", "reason" => "" );
+					$part = array( "participate" => "-1", "reason" => "" );
 				}
-				$rehs[$i]["participate"] = $part["participate"];
+				$rehs[$i]["participate"] = intval($part["participate"]);
 				$rehs[$i]["reason"] = $part["reason"];
 			}
 		}
+		
 		
 		// resolve location
 		for($i = 1; $i < count($rehs); $i++) {
@@ -522,26 +526,109 @@ abstract class AbstractBNA implements iBNA {
 			$rehs[$i]["location"] = $loc;
 		}
 		
+
+		
 		// remove header
 		unset($rehs[0]);
 		
-		// add potential participants
+		// resolve songs for rehearsal
+		for($i = 1; $i < count($rehs); $i++)
+		{
+			$rehearsal = $rehs[$i];
+			$probenData = new ProbenData($GLOBALS["dir_prefix"]);
+			$songs = $probenData->getSongsForRehearsal($rehearsal["id"]);
+			unset($songs[0]);
+			
+			$rehs[$i]["songsToPractice"] = array_values($this->removeNumericKeys($songs));
+		}
+
+		// resolve comments
+		for($i = 1; $i < count($rehs); $i++) 
+		{
+			$rehearsal = $rehs[$i];
+				$comments = $this->startdata->getDiscussion("r", $rehearsal["id"]);
+				unset($comments[0]);
+				
+				foreach($comments as $j => $comment)
+				{
+					$comments[$j]["author"] = array("id" => $comments[$j]["author_id"], "fullname" => $comments[$j]["author"]);
+					unset($comments[$j]["author_id"]);
+										$comments[$j]["message"] = urldecode($comments[$j]["message"]);
+				}				
+				$rehs[$i]["comments"] = array_values($this->removeNumericKeys($comments));
+			
+		}
+
+	
+		// add  participants
 		foreach($rehs as $i => $rehearsal) {
-			$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.email";
-			$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
-			$query .= " WHERE rc.rehearsal = " . $rehearsal["id"];
+			$query = "SELECT c.id, c.surname, c.name, ru.participate, ru.reason";
+			$query .= " FROM rehearsal_user ru, user u, contact c";
+			$query .= " WHERE ru.rehearsal = " . $rehearsal["id"] . " AND ru.user = u.id AND u.contact = c.id" ;
 			$contacts = $this->db->getSelection($query);
 			unset($contacts[0]);
-			foreach($contacts as $j => $contact) {
+
+			// ids for filterting contacts without response
+			$contactIDs = array();
+			$participantsNo = array();
+			$participantsYes = array();
+			$participantsMaybe = array();
+						
+			foreach($contacts as $j => $contact) 
+			{
 				foreach($contact as $ck => $cv) {
 					if(is_numeric($ck)) {
-						unset($contacts[$j][$ck]);
+						unset($contact[$ck]);
 					}
 				}
+				array_push($contactIDs, $contact["id"]);
+				
+				if ($contact["participate"] == 0)
+				{
+					array_push($participantsNo, $contact);
+				}
+				else if ($contact["participate"] == 1)
+				{
+					array_push($participantsYes, $contact);
+				}
+				else if ($contact["participate"] == 2)
+				{
+					array_push($participantsMaybe, $contact);
+				}
 			}
-			$rehs[$i]["contacts"] = $contacts;
+
+			
+			// get contacts without response (filter other contacts)
+			array_push($contactIDs, PHP_INT_MAX);
+			$contactIDsString = join(',',$contactIDs);  
+		
+			$query = "SELECT c.id, c.surname, c.name";
+			$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
+			$query .= " WHERE rc.rehearsal = " . $rehearsal["id"] . " AND rc.contact NOT IN (" . $contactIDsString .")";
+			$participantsNoResponse = $this->db->getSelection($query);
+			unset($participantsNoResponse[0]);
+			
+			foreach($participantsNoResponse as $j => $contact) 
+			{
+				
+				foreach($contact as $ck => $cv) {
+					if(is_numeric($ck)) {
+						unset($participantsNoResponse[$j][$ck]);
+					}
+				
+				}
+				
+			}
+//			print_r($participantsNoResponse);
+			
+			$rehs[$i]["participantsNo"] = array_values($participantsNo);
+			$rehs[$i]["participantsYes"] = array_values($participantsYes);
+			$rehs[$i]["participantsMaybe"] = array_values($participantsMaybe);
+			$rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
+			
 		}
 		
+	
 		// cleanup
 		foreach($rehs as $i => $rehearsal) {
 			foreach($rehearsal as $k => $v) {
@@ -551,7 +638,7 @@ abstract class AbstractBNA implements iBNA {
 			}
 		}
 		
-		$this->printRehearsals($rehs);
+		$this->printEntities($rehs, "rehearsals");
 	}
 	
 	protected abstract function printRehearsals($rehs);
@@ -616,24 +703,100 @@ abstract class AbstractBNA implements iBNA {
 			else {
 				$concerts[$i]["reason"] = "";
 			}
-			
-			// contacts
-			$query = "SELECT c.id, c.surname, c.name, c.phone, c.mobile, c.email";
-			$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
-			$query .= " WHERE cc.concert = " . $concert["id"];
-			$contacts = $this->db->getSelection($query);
-			unset($contacts[0]);
-			foreach($contacts as $j => $contact) {
-				foreach($contact as $ck => $cv) {
-					if(is_numeric($ck)) {
-						unset($contacts[$j][$ck]);
-					}
-				}
-			}
-			$concerts[$i]["contacts"] = $contacts;
 		}
 		
-		$this->printConcerts($concerts);
+		// resolve comments
+		foreach($concerts as $i => $concert) {
+
+				$comments = $this->startdata->getDiscussion("c", $concert["id"]);
+				unset($comments[0]);
+				
+				foreach($comments as $j => $comment)
+				{
+					$comments[$j]["author"] = array("id" => $comments[$j]["author_id"], "fullname" => $comments[$j]["author"]);
+					unset($comments[$j]["author_id"]);
+										$comments[$j]["message"] = urldecode($comments[$j]["message"]);
+				}				
+				$concerts[$i]["comments"] = array_values($this->removeNumericKeys($comments));
+				
+			
+		}
+		
+		
+		// add  participants
+		foreach($concerts as $i => $concert) {
+			$query = "SELECT c.id, c.surname, c.name, cu.participate, cu.reason";
+			$query .= " FROM concert_user cu, user u, contact c";
+			$query .= " WHERE cu.concert = " . $concert["id"] . " AND cu.user = u.id AND u.contact = c.id" ;
+			$contacts = $this->db->getSelection($query);
+			unset($contacts[0]);
+
+			// ids for filterting contacts without response
+			$contactIDs = array();
+			$participantsNo = array();
+			$participantsYes = array();
+			$participantsMaybe = array();
+						
+			foreach($contacts as $j => $contact) 
+			{
+				foreach($contact as $ck => $cv) {
+					if(is_numeric($ck)) {
+						unset($contact[$ck]);
+					}
+				}
+				array_push($contactIDs, $contact["id"]);
+				
+				if ($contact["participate"] == 0)
+				{
+					array_push($participantsNo, $contact);
+				}
+				else if ($contact["participate"] == 1)
+				{
+					array_push($participantsYes, $contact);
+				}
+				else if ($contact["participate"] == 2)
+				{
+					array_push($participantsMaybe, $contact);
+				}
+			}
+
+			// get contacts without response (filter other contacts)
+			array_push($contactIDs, PHP_INT_MAX);
+			$contactIDsString = join(',',$contactIDs);  
+			
+			$query = "SELECT c.id, c.surname, c.name";
+			$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
+			$query .= " WHERE cc.concert = " . $concert["id"] . " AND cc.contact NOT IN (" . $contactIDsString .")";
+			$participantsNoResponse = $this->db->getSelection($query);
+			unset($participantsNoResponse[0]);
+			
+			
+			
+			foreach($participantsNoResponse as $j => $contact) 
+			{
+				
+				foreach($contact as $ck => $cv) {
+					if(is_numeric($ck)) {
+						unset($participantsNoResponse[$j][$ck]);
+					}
+				
+				}
+				
+			}
+			
+			$concerts[$i]["participantsNo"] = array_values($participantsNo);
+			$concerts[$i]["participantsYes"] = array_values($participantsYes);
+			$concerts[$i]["participantsMaybe"] = array_values($participantsMaybe);
+			$concerts[$i]["participantsNoResponse"] = array_values($participantsNoResponse);	
+
+		}
+		
+		
+
+//		print_r($concerts);
+		
+	$concerts = $this -> removeNumericKeys($concerts);
+		$this->printEntities($concerts, "concerts");
 	}
 	
 	protected abstract function printConcerts($concerts);
@@ -641,7 +804,10 @@ abstract class AbstractBNA implements iBNA {
 	function getContacts() {
 		$msd = new MitspielerData($GLOBALS["dir_prefix"]);
 		$contacts = $msd->getMembers($this->uid);
-		$this->printEntities($contacts, "contact");
+		unset($contacts[0]);
+		
+		$contacts = $this -> removeNumericKeys($contacts);
+		$this->printEntities($contacts, "contacts");
 	}
 
 	function getLocations() {
@@ -714,26 +880,33 @@ abstract class AbstractBNA implements iBNA {
 	function getSongs() {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$songs = $repData->findAllNoRef();
-		
+				
 		$entities = array();
-		array_push($entities, $songs[0]);
 		
 		foreach($songs as $i => $song) {
 			if($i == 0) continue; // header
+			$composerId = $song["composer"];
+			$song["composer"] = $repData -> getComposerName($composerId);
 			
-			// convert stirngs
-			$song["notes"] = urlencode($song["notes"]);
-			$song["title"] = urlencode($song["title"]);
-				
+			$genre = $repData -> getGenre($song["genre"]);
+
+			$song["genre"] = $this -> removeNumericKeys($genre[1]);
+			
+			$song["status"] = intval($song["status"]);
+			$song = $this -> removeNumericKeys($song);
 			array_push($entities, $song);
 		}
 		
-		$this->printEntities($entities, "song");
+		$this->printEntities($entities, "songs");
 	}
 	
 	function getGenres() {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
-		$this->printEntities($repData->getGenres(), "genre");
+		$genres = $repData->getGenres();
+		unset($genres[0]);
+		$genres =  $this -> removeNumericKeys($genres);
+		
+		$this->printEntities($genres, "genres");
 	}
 	
 	function getStatuses() {
@@ -818,7 +991,11 @@ abstract class AbstractBNA implements iBNA {
 		}
 		$this->startdata->saveParticipation();
 		unset($_SESSION["user"]);
-		echo "true";
+		
+		$response = array(
+			"success" => "true"
+		);
+		$this->writeEntity($response, null);
 	}
 
 	function taskCompleted($tid) {
@@ -885,7 +1062,7 @@ abstract class AbstractBNA implements iBNA {
 	
 	function addComment($otype, $oid, $message) {
 		// save comments
-		echo $this->startdata->addComment($otype, $oid, $message, $this->uid);
+		$commentId = $this->startdata->addComment($otype, $oid, $message, $this->uid);
 		
 		// notify contacts
 		$startCtrl = new StartController();
@@ -895,6 +1072,16 @@ abstract class AbstractBNA implements iBNA {
 		// set $_GET array
 		$_GET["oid"] = $_POST["oid"];
 		$_GET["otype"] = $_POST["otype"];
+
+		$response = array(
+			"id" => $commentId,
+			"oid" => $oid,
+			"message" => $message,
+			"otype" => $otype,
+		);
+		
+		$this -> writeEntity($response);
+	
 		
 		$startCtrl->notifyContactsOnComment($this->uid);
 	}
@@ -1024,6 +1211,10 @@ abstract class AbstractBNA implements iBNA {
 	
 	function setConcertParticipation($cid, $uid, $part, $reason) {
 		$this->startdata->saveParticipation($uid);
+		$response = array(
+			"success" => "true"
+		);
+		$this->writeEntity($response, null);
 		echo "true"; // success
 	}
 	
@@ -1182,5 +1373,45 @@ abstract class AbstractBNA implements iBNA {
 		}
 		return $addresses;
 	}
+	
+	/* array helpers */
+	
+	function isArrayAllKeyInt($InputArray)
+	{
+	    if(!is_array($InputArray))
+	    {
+	        return false;
+	    }
+
+	    if(count($InputArray) <= 0)
+	    {
+	        return true;
+	    }
+
+	    return array_unique(array_map("is_int", array_keys($InputArray))) === array(true);
+	}
+	
+	
+	function removeNumericKeys($array)
+	{
+		$isArrayAllKeysInt = $this->isArrayAllKeyInt($array);
+		foreach ($array as $key => $value) 
+		{
+//			echo $isArrayAllKeysInt . "-" . $key . " " . is_numeric($key) . " ". $value . "\n" ;
+		   if (is_numeric($key)  &&  $isArrayAllKeysInt == false) 
+			 {
+		     unset($array[$key]);
+//					print_r( $array);
+					//	echo "remove";
+				}
+		if(is_array($value))
+			{
+					$array[$key] = $this->removeNumericKeys($value);
+			}
+			}
+			return $array;
+	}
 }
+
+
 ?>

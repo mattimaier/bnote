@@ -64,34 +64,14 @@ class BNAjson extends AbstractBNA {
 		return ",";
 	}
 	
-	function printEntities($selection, $line_node) {
-		$this->beginOutputWith();
-		echo '"' . $line_node . 's" : [';
-		for($i = 1; $i < count($selection); $i++) {
-			$e = $selection[$i];
-			if($i > 1) echo $this->entitySeparator();
-			echo "{";
-			$j = 0;
-			foreach($e as $index => $value) {
-				if(is_numeric($index)) continue;
-				if($j > 0) echo $this->entitySeparator();
-				
-				// conversions for globally unique identifiers
-				if($this->global_on && $index == "id") {
-					// singluar type
-					echo '"type" : "' . $line_node . '"' . $this->entitySeparator() . ' ';
-					$value = $this->instanceUrl . "/$line_node/$value"; 
-				}
-				
-				echo "\"$index\" : \"" . $value . "\"";
-				
-				$j++;
-			}
-			echo "}";
-		}
-		echo ']';
-		
-		$this->endOutputWith();
+
+	
+	function printEntities($selection, $line_node) 
+	{
+		$entities = array();
+		$cleanedSelection = $this->removeNumericKeys($selection);
+		$entities[$line_node] = array_values($selection);
+		echo json_encode($entities);
 	}
 	
 	function printVotes($votes) {
@@ -200,6 +180,8 @@ class BNAjson extends AbstractBNA {
 	}
 	
 	function printRehearsals($rehs) {
+		$this->printEntities($rehs);
+		return;
 		$this->beginOutputWith();
 		echo '"rehearsals" : [';
 		
@@ -233,8 +215,33 @@ class BNAjson extends AbstractBNA {
 					}
 					echo '}';
 				}
-				else if($rehK == "contacts") {
-					echo '"contacts": [';
+				else if($rehK == "participantsYes") {
+					echo '"participantsYes": [';
+					
+					foreach($rehV as $j => $contact) {
+						// TODO check why $j needs to be > 0 (and not 1)
+						if($j > 0) echo $this->entitySeparator();
+						echo "{";
+						$cntC = 0;
+						foreach($contact as $conK => $conV) {
+							if($cntC > 0) echo $this->entitySeparator();
+						
+							if($conK == "id" && $conK != "0" && $this->global_on) {
+								echo '"type": "contact",';
+								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
+							}
+							else {
+								echo "\"$conK\":\"$conV\"";
+							}
+						
+							$cntC++;
+						}
+						echo "}";
+					}
+					echo ']';
+				}
+				else if($rehK == "participantsMaybe") {
+					echo '"participantsMaybe": [';
 					
 					foreach($rehV as $j => $contact) {
 						if($j > 1) echo $this->entitySeparator();
@@ -257,9 +264,68 @@ class BNAjson extends AbstractBNA {
 					}
 					echo ']';
 				}
-				else {
-					echo "\"$rehK\":\"$rehV\"";
+				else if($rehK == "participantsNo") {
+					echo '"participantsNo": [';
+					
+					foreach($rehV as $j => $contact) {
+						if($j > 1) echo $this->entitySeparator();
+						echo "{";
+						$cntC = 0;
+						foreach($contact as $conK => $conV) {
+							if($cntC > 0) echo $this->entitySeparator();
+						
+							if($conK == "id" && $conK != "0" && $this->global_on) {
+								echo '"type": "contact",';
+								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
+							}
+							else {
+								echo "\"$conK\":\"$conV\"";
+							}
+						
+							$cntC++;
+						}
+						echo "}";
+					}
+					echo ']';
 				}
+				else if($rehK == "participantsNoResponse") {
+					echo '"participantsNoResponse": [';
+					
+					foreach($rehV as $j => $contact) {
+						if($j > 1) echo $this->entitySeparator();
+						echo "{";
+						$cntC = 0;
+						foreach($contact as $conK => $conV) {
+							if($cntC > 0) echo $this->entitySeparator();
+						
+							if($conK == "id" && $conK != "0" && $this->global_on) {
+								echo '"type": "contact",';
+								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
+							}
+							else {
+								echo "\"$conK\":\"$conV\"";
+							}
+						
+							$cntC++;
+						}
+						echo "}";
+					}
+					echo ']';
+				}
+				else if($rehK == "participate") 
+					{
+						if ($rehV == "")
+						{
+							$rehV = "-1";
+						}
+						echo "\"$rehK\" : $rehV ";
+					}
+					
+				
+					else
+					{
+						echo "\"$rehK\" : \"" . $rehV . "\"";
+					}
 				
 				$rehC++;
 			}
@@ -270,67 +336,9 @@ class BNAjson extends AbstractBNA {
 		$this->endOutputWith();
 	}
 	
-	function printConcerts($concerts) {
-		$this->beginOutputWith();
-		
-		echo "\"concerts\": [";
-		
-		foreach($concerts as $i => $concert) {
-			if($i > 1) echo $this->entitySeparator();
-			echo "{";
-			$this->printEntityId($concert, "concert");
-			
-			foreach($concert as $conK => $conV) {
-				if($conK == "id") continue;
-				echo $this->entitySeparator();
-				
-				if($conK == "location") {
-					echo '"location" : ';
-					$this->writeEntity($conV, "location");
-				}
-				else if($conK == "contact") {
-					echo '"contact" : ';
-					$this->writeEntity($conV, "contact");
-				}
-				else if($conK == "program") {
-					echo '"program" : ';
-					$this->writeEntity($conV, "program");
-				}
-				else if($conK == "contacts") {
-					echo '"contacts": [';
-						
-					foreach($conV as $j => $contact) {
-						if($j > 1) echo $this->entitySeparator();
-						echo "{";
-						$cntC = 0;
-						foreach($contact as $conK => $conV) {
-							if($cntC > 0) echo $this->entitySeparator();
-					
-							if($conK == "id" && $conK != "0" && $this->global_on) {
-								echo '"type": "contact",';
-								echo '"id": "' . $this->instanceUrl . "/contact/" . $conV . '"';
-							}
-							else {
-								echo "\"$conK\":\"$conV\"";
-							}
-					
-							$cntC++;
-						}
-						echo "}";
-					}
-					echo ']';
-				}
-				else {
-					echo "\"$conK\":\"$conV\"";
-				}
-			}
-			
-			echo "}";
-		}
-		
-		echo "]\n";
-		
-		$this->endOutputWith();
+	function printConcerts($concerts) 
+	{
+		$this->printEntities($concerts);
 	}
 	
 	private function printEntityId($entity, $entityName) {
