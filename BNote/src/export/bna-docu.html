@@ -1,16 +1,44 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	 <meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html">
 	<title>BNote App Interface Documentation</title>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+	
 	<style>
 	body {
-		font-family: sans-serif;
+		font-family: "Open Sans";
+		background-color: #e9eaed;
 	}
-	</style>
+	pre {
+	background: #f6f6f6;
+	border: 1px solid #e9eaed;
+	-webkit-border-radius: 3px;
+	color: #4e5665;
+	font-family: Menlo, Monaco, Andale Mono, Courier New, monospace;
+	font-size: 14px;
+	line-height: 20px;
+	margin: 20px 0;
+	overflow: auto;
+	padding: 12px;
+}
+	.method
+	{
+		background: #fff;
+		border: 1px solid;
+		border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+		padding: 20px;
+		margin-top: px;
+		margin-bottom: 20px;
+	}
+		
+}
+	</style>	
 </head>
 <body>
 
+<div class="method">
 <h1>BNote App Interface Documentation</h1>
 
 <h2>Introduction</h2>
@@ -49,77 +77,368 @@ The implementation of the JSON-BNA-interface (bna-json.php) allows the URL-Param
 In case this parameter is set to <i>true</i>, the ID is given in the format <code>instance/type/id</code> and every
 entity has a field <strong>type</strong> which contains its type.
 </p>
+</div>
 
+<div class="method">
 <h2>Method Summary</h2>
 <ul id="methodSummary">
 </ul>
+</div>
 
+<div class="method">
 <h2>Interface Methods</h2>
 <p>By default all methods use the HTTP-Method GET.</p>
+</div>
 
+<div class="method">
 <h3>getAll</h3>
 <ul>
 	<li><i>Description</i>: Fetches all rehearsals, concerts, contacts, locations, votes and groups at once.</li>
 	<li><i>Returns</i>: An object containing one array for each object type.</li>
 	<li><i>Parameters</i>: None.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getRehearsals</h3>
 <ul>
 	<li><i>Description</i>: Fetches all future rehearsals from the database and renders them.</li>
-	<li><i>Returns</i>: All rehearsals in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
+	<li><i>Returns</i>: All rehearsals in the specified format.</li>
+		<pre class="prettyprint">
+			<code>
+{
+    "rehearsals": [
+        {
+            "id": "50",
+            "begin": "2015-01-25 18:00:00",
+            "end": "2015-01-25 20:00:00",
+            "approve_until": "2015-01-25 18:00:00",
+            "notes": "Die normale wöchentliche Probe",
+            "name": "Probenraum",
+            "street": "Probenraumstrasse 251",
+            "city": "Testtown",
+            "zip": "1654",
+            "location": {
+                "id": "1",
+                "name": "Probenraum",
+                "street": "Probenraumstrasse 251",
+                "city": "Testtown",
+                "zip": "1654"
+            },
+            "participate": 1,
+            "reason": null,
+            "songsToPractice": [],
+            "comments": [
+                {
+                    "id": "31",
+                    "author": {
+                        "id": "21",
+                        "fullname": "Pocke Paula"
+                    },
+                    "created_at": "2015-01-19 11:06:15",
+                    "otype": "R",
+                    "oid": "50",
+                    "message": "Die Probe ist ein Test!"
+                }
+            ],
+            "participantsNo": [],
+            "participantsYes": [
+                {
+                    "id": "302",
+                    "surname": "Hansi",
+                    "name": "Hans",
+                    "participate": "1",
+                    "reason": null
+                }
+            ],
+            "participantsMaybe": [],
+            "participantsNoResponse": [
+                {
+                    "id": "6",
+                    "surname": "Albers",
+                    "name": "Anton"
+                },
+                {
+                    "id": "7",
+                    "surname": "Bering",
+                    "name": "Betrand"
+                },
+                {
+                    "id": "8",
+                    "surname": "Celler",
+                    "name": "Celine"
+                }
+            ]
+        }
+    ]
+}
+			</code>
+</pre>
+</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getRehearsalsWithParticipation</h3>
 <ul>
-	<li><i>Description</i>: Fetches all future rehearsals with the participation information for the user identified by the PIN from the database and renders them.</li>
+	<li><i>Description</i>: Fetches all future rehearsals with the participation information for the user identified by the PIN from the database and renders them. Output is the same as getRehearsals.</li>
 	<li><i>Returns</i>: All rehearsals in the specified format.</li>
 	<li><i>Parameters</i>: None, cause the user is identified implicitly by the PIN.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getConcerts</h3>
 <ul>
 	<li><i>Description</i>: Fetches all concerts from the database and renders them.</li>
-	<li><i>Returns</i>: All concerts in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
+	<li><i>Returns</i>: All concerts in the specified format.
+	<pre>
+		<code class="prettyprint">
+{
+    "concerts": [
+        {
+            "id": "5",
+            "begin": "2015-01-3118: 00: 00",
+            "end": "2015-01-3119: 15: 00",
+            "approve_until": "2015-01-2419: 00: 00",
+            "notes": "DasisteinTest-Konzert",
+            "location": {
+                "id": "2",
+                "name": "GroßerKonzertsaal",
+                "notes": "",
+                "street": "Konzersaalweg1a",
+                "city": "Irgendwo",
+                "zip": "123456"
+            },
+            "contact": {
+                "id": "302",
+                "name": "HansHansi",
+                "phone": "123123",
+                "mobile": null,
+                "email": "Hans.Hansi@bnote.info",
+                "web": null
+            },
+            "program": {
+                "id": null,
+                "name": "",
+                "notes": ""
+            },
+            "participate": 0,
+            "reason": "",
+            "comments": [
+                {
+                    "id": "17",
+                    "author": {
+                        "id": "302",
+                        "fullname": "HansHansi"
+                    },
+                    "created_at": "2015-01-1423: 24: 51",
+                    "otype": "C",
+                    "oid": "5",
+                    "message": "HalloichbinderHans"
+                },
+                {
+                    "id": "16",
+                    "author": {
+                        "id": "302",
+                        "fullname": "HansHansi"
+                    },
+                    "created_at": "2015-01-1423: 24: 47",
+                    "otype": "C",
+                    "oid": "5",
+                    "message": "nocheinKommentar"
+                }
+            ],
+            "participantsNo": [
+                {
+                    "id": "302",
+                    "surname": "Hansi",
+                    "name": "Hans",
+                    "participate": "0",
+                    "reason": ""
+                }
+            ],
+            "participantsYes": [],
+            "participantsMaybe": [],
+            "participantsNoResponse": [
+                {
+                    "id": "300",
+                    "surname": "test",
+                    "name": "test"
+                },
+                {
+                    "id": "301",
+                    "surname": "test",
+                    "name": "test"
+                }
+            ]
+        },
+        {
+            "id": "6",
+            "begin": "2015-10-0418: 00: 00",
+            "end": "2015-10-0418: 10: 00",
+            "approve_until": "2015-10-0418: 00: 00",
+            "notes": "sdfas\r\n\r\nasd\r\nf\r\nasdf",
+            "location": {
+                "id": "2",
+                "name": "GroßerKonzertsaal",
+                "notes": "",
+                "street": "Konzersaalweg1a",
+                "city": "Irgendwo",
+                "zip": "123456"
+            },
+            "contact": {
+                "id": "10",
+                "name": "EmilEisenhauer",
+                "phone": "053153812835",
+                "mobile": "01759234812",
+                "email": "emil.eisenhauer@mattimaier.de",
+                "web": ""
+            },
+            "program": {
+                "id": null,
+                "name": "",
+                "notes": ""
+            },
+            "participate": -1,
+            "reason": "",
+            "comments": [],
+            "participantsNo": [],
+            "participantsYes": [],
+            "participantsMaybe": [],
+            "participantsNoResponse": [
+                {
+                    "id": "6",
+                    "surname": "Albers",
+                    "name": "Anton"
+                },
+                {
+                    "id": "7",
+                    "surname": "Bering",
+                    "name": "Betrand"
+                }
+            ]
+        }
+    ]
+}			    
+		</code>
+	</pre>
+	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getContacts</h3>
 <ul>
 	<li><i>Description</i>: Fetches all contacts from the database and renders them.</li>
-	<li><i>Returns</i>: All contacts in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
+	<li><i>Returns</i>: All contacts in the specified format.</li>
+	<li>
+		<pre>
+			<code class="prettyprint">
+{
+    "contacts": [
+        {
+            "fullname": "Andreas Admin",
+            "phone": "01234567",
+            "mobile": "491788841042",
+            "email": "andreas.admin@bnote.info",
+            "web": "",
+            "fax": "",
+            "business": "",
+            "notes": "",
+            "street": "Adminstraße",
+            "city": "Adminhausen",
+            "zip": "1337",
+            "country": "",
+            "instrument": "Organisator",
+            "name": "Andreas",
+            "surname": "Admin",
+            "id": "99"
+        },
+        {
+            "fullname": "Anton Albers",
+            "phone": "1953871935",
+            "mobile": "0183571257",
+            "email": "anton.albers@mattimaier.de",
+            "web": "www.mattimaier.de",
+            "fax": "13958235",
+            "business": "1238019283091823",
+            "notes": "Anton Albers ist ein Test-User für die Entwicklung von BNote. Er existierst nur für diesen Zweck. Alle Felder von \r\nAnton Albers sind ausgefüllt, somit können wir in der iPhone-App das Kontakt-UI testen.",
+            "street": "Anton-Albers-Str. 42",
+            "city": "München",
+            "zip": "15745",
+            "country": "Germany",
+            "instrument": "Gambe",
+            "name": "Anton",
+            "surname": "Albers",
+            "id": "6"
+        },
+        {
+            "fullname": "Betrand Bering",
+            "phone": "0195781395",
+            "mobile": "0168239856",
+            "email": "betrand.bering@mattimaier.de",
+            "web": "www.mattimaier.de",
+            "fax": "",
+            "business": "",
+            "notes": "",
+            "street": "teststr",
+            "city": "tesstr",
+            "zip": "12345",
+            "country": "",
+            "instrument": "Orgel",
+            "name": "Betrand",
+            "surname": "Bering",
+            "id": "7"
+        }
+    ]
+}
+			</code>
+			</pre>
+	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getLocations</h3>
 <ul>
 	<li><i>Description</i>: Fetches all locations from the database and renders them.</li>
 	<li><i>Returns</i>: All locations in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getTasks</h3>
 <ul>
 	<li><i>Description</i>: Fetches all tasks from the database and renders them.</li>
 	<li><i>Returns</i>: All tasks in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getNews</h3>
 <ul>
 	<li><i>Description</i>: Fetches the news in HTML.</li>
 	<li><i>Returns</i>: News as plain HTML.</li>
 	<li><i>Parameters</i>: None.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getVotes</h3>
 <ul>
 	<li><i>Description</i>: Fetches all votes from the database and renders them.</li>
 	<li><i>Returns</i>: All votes in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getVoteOptions</h3>
 <ul>
 	<li><i>Description</i>: Fetches all vote options from the database and renders them.</li>
@@ -130,28 +449,116 @@ entity has a field <strong>type</strong> which contains its type.
 	 	</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getSongs</h3>
 <ul>
 	<li><i>Description</i>: Fetches all songs from the repertoire and renders them.</li>
-	<li><i>Returns</i>: All songs in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
+	<li><i>Returns</i>: All songs in the specified format.</li>
+	<li>
+		<pre>
+			<code class="prettyprint">
+{
+    "songs": [
+        {
+            "id": "1",
+            "title": "Test Song 123",
+            "length": "00:03:00",
+            "bpm": "223",
+            "music_key": "C-Minor",
+            "notes": "Blubl",
+            "genre": {
+                "id": "11",
+                "name": "Bebop"
+            },
+            "composer": "Karl Komponist",
+            "status": 4
+        },
+        {
+            "id": "2",
+            "title": "Foo Bar",
+            "length": "00:20:00",
+            "bpm": "123",
+            "music_key": "A",
+            "notes": "bla",
+            "genre": {
+                "id": "3",
+                "name": "Jazz"
+            },
+            "composer": "Bar Foo",
+            "status": 1
+        }
+    ]
+}
+			</code>
+		</pre>
+	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getGenres</h3>
 <ul>
 	<li><i>Description</i>: Fetches all genres from the repertoire and renders them.</li>
-	<li><i>Returns</i>: All genres in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
+	<li><i>Returns</i>: All genres in the specified format.</li>
+	<li>
+		<pre>
+			<code class="prettyprint">
+{
+    "genres": [
+        {
+            "id": "11",
+            "name": "Bebop"
+        },
+        {
+            "id": "7",
+            "name": "Blues"
+        },
+        {
+            "id": "8",
+            "name": "Blues Rock"
+        },
+        {
+            "id": "12",
+            "name": "Dixyland"
+        },
+        {
+            "id": "13",
+            "name": "Free Jazz"
+        },
+        {
+            "id": "17",
+            "name": "Funk"
+        },
+        {
+            "id": "15",
+            "name": "Instrumental Jazz"
+        },
+        {
+            "id": "3",
+            "name": "Jazz"
+        }
+    ]
+}
+			</code>
+		</pre>
+	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getStatuses</h3>
 <ul>
 	<li><i>Description</i>: Fetches all statuses from the repertoire and renders them.</li>
 	<li><i>Returns</i>: All statuses in the specified format.</li>
 	<li><i>Parameters</i>: None.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getComments</h3>
 <ul>
 	<li><i>Description</i>: Retrieves all comments for the given object.</li>
@@ -163,7 +570,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getRehearsalParticipation</h3>
 <ul>
 	<li><i>Description</i>: Fetches whether the user participates in a rehearsal.</li>
@@ -174,11 +583,12 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>setRehearsalParticipation</h3>
 <ul>
 	<li><i>Description</i>: Sets the rehearsal participation.</li>
-	<li><i>Returns</i>: (format unspecific) "true" when the request was successfully processed, otherwise an error message is returned.</li>
 	<li><i>Parameters</i>:
 		<ul>
 			<li><b>rehearsal</b>: The numeric/integer ID of the rehearsal.</li>
@@ -186,8 +596,21 @@ entity has a field <strong>type</strong> which contains its type.
 			<li><b>reason</b>: (optional) When the user does not participate in the rehearsal, a reason should be given.</li>
 		</ul>
 	</li>
+	<li><i>Returns</i> "true" when the request was successfully processed, otherwise an error message is returned.</li>
+	<li>
+		<pre>
+			<code class="prettyprint">
+{
+    "success": "true"
+}
+			</code>
+		</pre>
+	</li>
+	
 </ul>
+</div>
 
+<div class="method">
 <h3>taskCompleted</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -199,7 +622,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>addSong</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -218,7 +643,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
-
+</div>
+	
+<div class="method">
 <h3>addRehearsal</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -235,7 +662,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>vote</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -250,12 +679,14 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+
+<div class="method">
 <h3>addComment</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
 	<li><i>Description</i>: Adds a comment to an object.</li>
-	<li><i>Returns</i>: ID of the newly created comment.</li>
 	<li><i>Parameters</i>:
 		<ul>
 			<li><b>otype</b>: <i>Character</i> R=Rehearsal, C=Concert, V=Vote</li>
@@ -263,8 +694,23 @@ entity has a field <strong>type</strong> which contains its type.
 	 		<li><b>message</b>: <i>String</i> Urlencoded message.</li> 
 		</ul>
 	</li>
+	<li><i>Returns</i>: The newly created comment.</li>
+	<li>
+		<pre>
+			<code class="prettyprint">
+{
+    "id": "32",
+    "oid": "49",
+    "message": "Ich bin ein Kommentar",
+    "otype": "R"
+}
+			</code>
+		</pre>
+	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getVersion</h3>
 <ul>
 	<li><i>HTTP-Method</i>: GET</li>
@@ -272,7 +718,9 @@ entity has a field <strong>type</strong> which contains its type.
 	<li><i>Returns</i>: Version as a string.</li>
 	<li><i>Parameters</i>: None.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getUserInfo</h3>
 <ul>
 	<li><i>HTTP-Method</i>: GET</li>
@@ -280,7 +728,9 @@ entity has a field <strong>type</strong> which contains its type.
 	<li><i>Returns</i>: Contact information..</li>
 	<li><i>Parameters</i>: None.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>mobilePin</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -293,7 +743,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>hasUserAccess</h3>
 <ul>
 	<li><i>Description</i>: Checks whether the user has access to a given module.</li>
@@ -304,7 +756,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getSongsToPractise</h3>
 <ul>
 	<li><i>Description</i>: Retrives all songs to practise from a rehearsal.</li>
@@ -315,19 +769,23 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getGroups</h3>
 <ul>
 	<li><i>Description</i>: Returns all groups available in the system without members.</li>
 	<li><i>Returns</i>: Groups with id, name and is_active.</li>
 	<li><i>Parameters</i>: None.</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>getVoteResult</h3>
 <ul>
 	<li><i>Description</i>: Retrieves the result of a vote if the user was allowed to vote.</li>
 	<li><i>Returns</i>: Complex structure. JSON Example:
-		<pre>
+		<pre class"prettyprint">
 {
 	"id" : "...",
 	"name" : "...",
@@ -353,21 +811,34 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>setConcertParticipation</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
 	<li><i>Description</i>: Sets the user's participation of a concert.</li>
-	<li><i>Returns</i>: "true" whenn successful, otherwise error message.</li>
 	<li><i>Parameters</i>:
 		<ul>
 			<li><b>concert</b>: <i>Integer</i> Concert ID.</li>
 			<li><b>participation</b>: <i>Integer</i> 0=no, 1=yes, 2=maybe.</li>
 			<li><b>explanation</b>: <i>String</i> Reason if 0 or 2.</li>
 		</ul>
+		<li><i>Returns</i>: "true" whenn successful, otherwise error message.</li>
 	</li>
+		<li>
+			<pre>
+				<code class="prettyprint">
+{
+	"success": "true"
+}
+				</code>
+			</pre>
+		</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>addConcert</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -386,7 +857,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>updateRehearsal</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -403,7 +876,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>updateConcert</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -422,7 +897,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>deleteRehearsal</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -434,7 +911,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>deleteConcert</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -446,7 +925,9 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
+</div>
 
+<div class="method">
 <h3>sendMail</h3>
 <ul>
 	<li><i>HTTP-Method</i>: POST</li>
@@ -460,7 +941,7 @@ entity has a field <strong>type</strong> which contains its type.
 		</ul>
 	</li>
 </ul>
-
+</div>
 <script type="text/javascript">
 var h3s = document.getElementsByTagName("h3");
 var summary = document.getElementById("methodSummary");
@@ -473,9 +954,12 @@ for(var i = 0; i < h3s.length; i++) {
 summary.innerHTML = summaryHtml;
 </script>
 
+<div class="method">	
 <h2>Data Model</h2>
 <p>The following data model describes the data that is returned from this interface.</p>
 <img src="bna-interface-data.png" alt="Data Model" />
+</div>
 
 </body>
+<script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
 </html>
