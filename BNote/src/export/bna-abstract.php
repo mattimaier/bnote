@@ -1062,7 +1062,7 @@ abstract class AbstractBNA implements iBNA {
 	
 	function addComment($otype, $oid, $message) {
 		// save comments
-		echo $this->startdata->addComment($otype, $oid, $message, $this->uid);
+		$commentId = $this->startdata->addComment($otype, $oid, $message, $this->uid);
 		
 		// notify contacts
 		$startCtrl = new StartController();
@@ -1072,6 +1072,16 @@ abstract class AbstractBNA implements iBNA {
 		// set $_GET array
 		$_GET["oid"] = $_POST["oid"];
 		$_GET["otype"] = $_POST["otype"];
+
+		$response = array(
+			"id" => $commentId,
+			"oid" => $oid,
+			"message" => $message,
+			"otype" => $otype,
+		);
+		
+		$this -> writeEntity($response);
+	
 		
 		$startCtrl->notifyContactsOnComment($this->uid);
 	}
