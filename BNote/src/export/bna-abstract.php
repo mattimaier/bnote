@@ -1211,6 +1211,10 @@ abstract class AbstractBNA implements iBNA {
 	
 	function setConcertParticipation($cid, $uid, $part, $reason) {
 		$this->startdata->saveParticipation($uid);
+		$response = array(
+			"success" => "true"
+		);
+		$this->writeEntity($response, null);
 		echo "true"; // success
 	}
 	
