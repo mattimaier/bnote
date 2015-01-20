@@ -20,23 +20,19 @@ class KonzerteView extends CrudRefView {
 		));
 	}
 	
+	function showOptions() {
+		if(isset($_GET["mode"]) && Data::startsWith($_GET["mode"], "step")) {
+			if($this->isMode("step1")) {
+				$this->backToStart();
+			}
+		}
+		else {
+			parent::showOptions();
+		}
+	}
+	
 	function start() {
 		Writing::h1("Konzerte");
-		
-		// Options
-		$lnk = new Link($this->modePrefix() . "wizzard", "Konzert hinzuf&uuml;gen");
-		$lnk->addIcon("add");
-		$lnk->write();
-		$this->buttonSpace();
-		$lnk = new Link($this->modePrefix() . "programs", "Programme verwalten");
-		$lnk->addIcon("note");
-		$lnk->write();
-		$this->buttonSpace();
-		$lnk = new Link($this->modePrefix() . "history", "Konzertchronik");
-		$lnk->addIcon("clock");
-		$lnk->write();
-		$this->verticalSpace();
-		
 		Writing::p("Um ein Konzert anzuzeigen oder zu bearbeiten, bitte auf das entsprechende Konzert klicken.");
 		
 		// Next Concert
@@ -49,6 +45,22 @@ class KonzerteView extends CrudRefView {
 		// More Concerts
 		Writing::h2("Geplante Konzerte");
 		$this->writeConcerts($concerts);
+	}
+	
+	protected function startOptions() {
+		$lnk = new Link($this->modePrefix() . "wizzard", "Konzert hinzuf&uuml;gen");
+		$lnk->addIcon("add");
+		$lnk->write();
+		
+		$this->buttonSpace();
+		$lnk = new Link($this->modePrefix() . "programs", "Programme verwalten");
+		$lnk->addIcon("note");
+		$lnk->write();
+		
+		$this->buttonSpace();
+		$lnk = new Link($this->modePrefix() . "history", "Konzertchronik");
+		$lnk->addIcon("clock");
+		$lnk->write();
 	}
 	
 	private function writeConcerts($concerts) {
@@ -122,9 +134,6 @@ class KonzerteView extends CrudRefView {
 		$table->setColumnFormat("begin", "DATE");
 		$table->setColumnFormat("end", "DATE");
 		$table->write();
-		
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	function viewDetailTable() {
@@ -162,18 +171,6 @@ class KonzerteView extends CrudRefView {
 		
 		// manage members who will play in this concert
 		Writing::h2("Eingeladene Mitspieler");
-		$addContact = new Link($this->modePrefix() . "addConcertContact&id=" . $_GET["id"], "Kontakt hinzufügen");
-		$addContact->addIcon("add");
-		$addContact->write();
-		$this->buttonSpace();
-		
-		// notifications
-		$emLink = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation");
-		$emLink .= "&mode=concertMail&preselect=" . $_GET["id"];
-		$em = new Link($emLink, "Benachrichtigung senden");
-		$em->addIcon("email");
-		$em->write();
-		$this->buttonSpace();
 		
 		$contacts = $this->getData()->getConcertContacts($_GET["id"]);
 		$contacts = Table::addDeleteColumn($contacts, $this->modePrefix() . "delConcertContact&id=" . $_GET["id"] . "&contactid=");
@@ -194,8 +191,6 @@ class KonzerteView extends CrudRefView {
 		$tab->renameHeader("end", "bis");
 		$tab->renameHeader("notes", "Notizen");
 		$tab->write();
-		
-		$this->verticalSpace();
 	}
 	
 	function addConcertContact() {
@@ -256,6 +251,20 @@ class KonzerteView extends CrudRefView {
 		$partLink->addIcon("user");
 		$partLink->write();
 		$this->buttonSpace();
+		
+		// concert contact
+		$addContact = new Link($this->modePrefix() . "addConcertContact&id=" . $_GET["id"], "Mitspieler hinzufügen");
+		$addContact->addIcon("add");
+		$addContact->write();
+		$this->buttonSpace();
+		
+		// notifications
+		$emLink = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation");
+		$emLink .= "&mode=concertMail&preselect=" . $_GET["id"];
+		$em = new Link($emLink, "Benachrichtigung senden");
+		$em->addIcon("email");
+		$em->write();
+		$this->buttonSpace();
 	}
 	
 	function showParticipants() {
@@ -274,7 +283,9 @@ class KonzerteView extends CrudRefView {
 		Writing::h3("Ausstehende Zu-/Absagen");
 		$openTab = new Table($this->getData()->getOpenParticipants($_GET["id"]));
 		$openTab->write();
-		
+	}
+	
+	protected function showParticipantsOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
 	

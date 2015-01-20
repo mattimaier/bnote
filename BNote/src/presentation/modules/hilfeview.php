@@ -48,6 +48,10 @@ class HilfeView extends AbstractView {
 		$this->setController($ctrl);
 	}
 	
+	function showOptions() {
+		// none
+	}
+	
 	function start() {
 		Writing::h1("Hilfe");
 		

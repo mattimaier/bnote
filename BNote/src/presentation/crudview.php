@@ -11,9 +11,6 @@ abstract class CrudView extends AbstractView {
 	/**
 	 * Views all entities in a table.<br />
 	 * <strong>Make sure to set the entity name!</storng>
-	 * 
-	 * (non-PHPdoc)
-	 * @see AbstractView::start()
 	 */
 	public function start() {
 		Writing::p("Bitte wählen Sie einen Eintrag um diesen anzuzeigen oder zu bearbeiten.");		
@@ -36,7 +33,13 @@ abstract class CrudView extends AbstractView {
 	}
 	
 	protected function defaultOptions() {
-		$this->backToStart();
+		if($this->isMode("edit") || $this->isMode("edit_process")
+				|| $this->isMode("delete_confirm")) {
+			$this->backToViewButton($_GET["id"]);
+		}
+		else {
+			$this->backToStart();
+		}
 	}
 	
 	protected function startOptions() {
@@ -47,9 +50,6 @@ abstract class CrudView extends AbstractView {
 	
 	public function addEntity() {
 		$this->addEntityForm();
-		
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	protected function addEntityForm() {
@@ -85,9 +85,6 @@ abstract class CrudView extends AbstractView {
 		// write success
 		new Message($this->entityName . " gespeichert",
 						"Der Eintrag wurde erfolgreich gespeichert.");
-		
-		// write back button
-		$this->backToStart();
 	}
 	
 	public function view() {
@@ -115,7 +112,6 @@ abstract class CrudView extends AbstractView {
 				$this->entityName . " l&ouml;schen");
 		$del->addIcon("remove");
 		$del->write();
-		$this->buttonSpace();
 		
 		// additional buttons
 		$this->additionalViewButtons();
@@ -139,11 +135,6 @@ abstract class CrudView extends AbstractView {
 		
 		// show form
 		$this->editEntityForm();
-		
-		// back button
-		$this->verticalSpace();
-		$this->backToViewButton($_GET["id"]);
-		$this->verticalSpace();
 	}
 	
 	protected function editEntityForm() {
@@ -169,16 +160,12 @@ abstract class CrudView extends AbstractView {
 		// show success
 		new Message($this->entityName . " ge&auml;ndert",
 						"Der Eintrag wurde erfolgreich ge&auml;ndert.");
-		
-		// back button
-		$this->backToViewButton($_GET["id"]);
 	}
 	
 	public function delete_confirm() {
 		$this->checkID();
 		$this->deleteConfirmationMessage($this->getEntityName(),
-					$this->modePrefix() . "delete&id=" . $_GET["id"],
-					$this->modePrefix() . "view&id=" . $_GET["id"]);
+					$this->modePrefix() . "delete&id=" . $_GET["id"], null);
 	}
 	
 	public function delete() {
@@ -189,9 +176,6 @@ abstract class CrudView extends AbstractView {
 		// show success
 		new Message($this->entityName . " gel&ouml;cht",
 						"Der Eintrag wurde erfolgreich gel&ouml;scht.");
-		
-		// back button
-		$this->backToStart();
 	}
 	
 	/**

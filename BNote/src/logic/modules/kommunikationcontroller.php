@@ -13,7 +13,9 @@ class KommunikationController extends DefaultController {
 				$this->prepareMail();
 				$this->sendMail();
 			}
-			$this->getView()->$_GET['mode']();
+			else {
+				$this->getView()->$_GET['mode']();
+			}
 		}
 		else {
 			$this->getView()->start();
@@ -125,6 +127,9 @@ class KommunikationController extends DefaultController {
 			
 		if(!$mail->sendMail()) {
 			$this->getView()->reportMailError($bcc_addresses);
+		}
+		else {
+			$this->getView()->messageSent();
 		}
 	}
 }

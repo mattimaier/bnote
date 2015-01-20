@@ -6,6 +6,8 @@
  */
 class UserView extends CrudRefView {
 	
+	private $reversedAdditionalButtons;
+	
 	/**
 	 * Create the start view.
 	 */
@@ -101,12 +103,19 @@ class UserView extends CrudRefView {
 	}
 	
 	function additionalViewButtons() {
+		$this->buttonSpace();
+		
 		$privs = new Link("?mod=" . $this->getModId() . "&mode=privileges&id=" . $_GET["id"], "Rechte bearbeiten");
 		$privs->addIcon("key");
 		$privs->write();
 		$this->buttonSpace();
 		
-		if($this->getData()->isUserActive($_GET["id"])) {
+		$userActive = $this->getData()->isUserActive($_GET["id"]);
+		if($this->reversedAdditionalButtons) {
+			$userActive = !$userActive;
+		}
+		
+		if($userActive) {
 			$btnLbl = "Benutzer deaktivieren";
 			$btnIcon = "no_entry";
 		}
@@ -149,10 +158,6 @@ class UserView extends CrudRefView {
 			$form->addElement($name, new Field($mid, $selected, FieldType::BOOLEAN));
 		}
 		$form->write();
-		echo "<br /><br />\n";
-		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"], "Zur&uuml;ck");
-		$usrView->addIcon("arrow_left");
-		$usrView->write();
 	}
 	
 	function privileges_process() {
@@ -160,21 +165,6 @@ class UserView extends CrudRefView {
 		$this->getData()->updatePrivileges($_GET["id"]);
 		
 		new Message("&Auml;nderungen gespeichert.", "Die Benutzerdaten wurden erfolgreich gespeichert.");
-		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"], "Zur&uuml;ck");
-		$usrView->addIcon("arrow_left");
-		$usrView->write();
-	}
-	
-	function deleteConfirmationMessage($label, $linkDelete, $linkBack) {
-		new Message("L&ouml;schen?", "Wollen sie diesen Benutzer mit allen seinen Dateien wirklich l&ouml;schen?");
-		$yes = new Link($linkDelete, strtoupper($label) . " L&Ouml;SCHEN");
-		$yes->addIcon("remove");
-		$yes->write();
-		$this->buttonSpace();
-		
-		$no = new Link($linkBack, "Zur&uuml;ck");
-		$no->addIcon("arrow_left");
-		$no->write();
 	}
 }
 

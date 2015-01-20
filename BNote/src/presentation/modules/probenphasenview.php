@@ -36,8 +36,6 @@ class ProbenphasenView extends CrudView {
 	function history() {
 		Writing::h2("Vergangene Probenphasen");
 
-		$this->backToStart();
-
 		$data = $this->getData()->getPhases(false);
 		$this->showPhaseTable($data);
 	}
@@ -107,8 +105,6 @@ class ProbenphasenView extends CrudView {
 		));
 		$table->removeColumn("id");
 		$table->write();
-
-		$this->verticalSpace();
 	}
 
 	function addRehearsal() {

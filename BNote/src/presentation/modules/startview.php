@@ -30,11 +30,11 @@ class StartView extends AbstractView {
 	}
 	
 	function showOptions() {
-		if(!isset($_GET["sub"])) {
+		if(!isset($_GET["mode"])) {
 			$this->startOptions();
 		}
 		else {
-			$optFunc = $_GET["sub"] . "Options";
+			$optFunc = $_GET["mode"] . "Options";
 			$this->$optFunc();
 		}
 	}

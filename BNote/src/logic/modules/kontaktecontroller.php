@@ -1,4 +1,6 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "gruppenview.php";
+require_once $GLOBALS["DIR_DATA_MODULES"] . "gruppendata.php";
 
 /**
  * Special controller for contact module.
@@ -12,6 +14,12 @@ class KontakteController extends DefaultController {
 	 * @var GruppenData
 	 */
 	private $groupData;
+	
+	/**
+	 * View for group sub-module.
+	 * @var GruppenView
+	 */
+	private $groupView;
 	
 	public function start() {
 		if(isset($_GET['mode'])) {
@@ -99,18 +107,11 @@ class KontakteController extends DefaultController {
 	}
 	
 	private function groups() {
-		require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "gruppenview.php";
-		require_once $GLOBALS["DIR_DATA_MODULES"] . "gruppendata.php";
-		$this->groupData = new GruppenData();
-		
-		$view = new GruppenView($this);
-		
-
 		if(!isset($_GET["func"])) {
-			$view->start();
+			$this->groupView->start();
 		}
 		else {
-			$view->$_GET["func"]();
+			$this->groupView->$_GET["func"]();
 		}
 	}
 	
@@ -158,5 +159,12 @@ class KontakteController extends DefaultController {
 		}
 		
 		new Message("Zuordnungen gespeichert", "Die Zuordnungen wurden gespeichert.");
+	}
+	
+	public function setView($view) {
+		parent::setView($view);
+		$this->groupData = new GruppenData();
+		$this->groupView = new GruppenView($this);
+		$view->setGroupView($this->groupView);
 	}
 }

@@ -8,6 +8,12 @@
 class KontakteView extends CrudRefView {
 	
 	/**
+	 * Sub-module group.
+	 * @var GruppenView
+	 */
+	private $groupView;
+	
+	/**
 	 * Create the contact view.
 	 */
 	function __construct($ctrl) {
@@ -19,11 +25,18 @@ class KontakteView extends CrudRefView {
 		));
 	}
 	
+	protected function showOptions() {
+		if($this->isMode("groups")) {
+			$groupView->showOptions();
+		}
+		else {
+			parent::showOptions();
+		}
+	}
+	
 	function start() {
 		Writing::h1("Kontakte");
-		
-		// show band members
-		$this->showContacts();
+		parent::start();
 	}
 	
 	protected function startOptions() {
@@ -51,7 +64,7 @@ class KontakteView extends CrudRefView {
 		$this->verticalSpace();
 	}
 	
-	function showContacts() {		
+	function showAllTable() {		
 		// show correct group
 		if(isset($_GET["group"]) && $_GET["group"] == "all") {
 			$data = $this->getData()->getAllContacts();
@@ -306,16 +319,14 @@ class KontakteView extends CrudRefView {
 		
 		// show report
 		echo "<embed src=\"src/data/filehandler.php?mode=module&file=$filename\" width=\"90%\" height=\"700px\" />\n";
-		echo "<br /><br />\n";
-		
-		// back button
-		$this->backToStart();
-		$this->verticalSpace();
 	}
 	
 	function userCreatedAndMailed($username, $email) {
 		$m = "Die Zugangsdaten wurden an $email geschickt.";
 		new Message("Benutzer $username erstellt", $m);
+	}
+	
+	function userCreatedAndMailedOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
 	
@@ -327,6 +338,9 @@ class KontakteView extends CrudRefView {
 		$m .= "Benutzername <strong>$username</strong><br />";
 		$m .= "Passwort <strong>$password</strong>";
 		new Message("Benutzer $username erstellt", $m);
+	}
+	
+	function userCredentialsOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
 	
@@ -396,8 +410,10 @@ class KontakteView extends CrudRefView {
 		<input type="submit" value="speichern" />
 		</form>
 		<?php
-		$this->verticalSpace();
-		$this->backToStart();
+	}
+	
+	function setGroupView($gv) {
+		$this->groupView = $gv;
 	}
 }
 

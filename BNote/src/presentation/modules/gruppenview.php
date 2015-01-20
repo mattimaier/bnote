@@ -24,23 +24,12 @@ class GruppenView extends CrudView {
 						Möglich weitere Gruppen sind, z.B. Rhythmusgruppe, Combo, etc.";
 		Writing::p($explanation);
 		
-		$new = new Link($this->modePrefix() . "addEntity", "Gruppe hinzufügen");
-		$new->addIcon("add");
-		$new->write();
-		$this->verticalSpace();
-		
 		$groups = $this->getData()->getGroups();
 		$table = new Table($groups);
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->setEdit("id");
 		$table->changeMode("groups&func=view");
 		$table->write();
-		
-		$this->verticalSpace();
-		
-		$back = new Link("?mod=" . $_GET["mod"], "Zurück");
-		$back->addIcon("arrow_left");
-		$back->write();
 	}
 	
 	function backToStart() {
@@ -55,6 +44,21 @@ class GruppenView extends CrudView {
 		$group = $this->getData()->findByIdNoRef($_GET["id"]);
 		Writing::h2("Gruppe: " . $group["name"]);
 		
+		// group information
+		$dv = new Dataview();
+		$dv->autoAddElements($group);
+		$dv->autoRename($this->getData()->getFields());
+		$dv->write();
+		
+		// group members
+		Writing::h3("Gruppenmitglieder");
+		
+		$members = $this->getData()->getGroupMembers($_GET["id"]);
+		$table = new Table($members);
+		$table->write();
+	}
+	
+	function viewOptions() {
 		if($_GET["id"] != KontakteData::$GROUP_ADMIN && $_GET["id"] != KontakteData::$GROUP_MEMBER) {
 			// show buttons to edit and delete
 			$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
@@ -68,21 +72,6 @@ class GruppenView extends CrudView {
 			$del->write();
 			$this->buttonSpace();
 		}
-		
-		// group information
-		$dv = new Dataview();
-		$dv->autoAddElements($group);
-		$dv->autoRename($this->getData()->getFields());
-		$dv->write();
-		
-		// group members
-		Writing::h3("Gruppenmitglieder");
-		
-		$members = $this->getData()->getGroupMembers($_GET["id"]);
-		$table = new Table($members);
-		$table->write();
-		
-		$this->backToStart();
 	}
 }
 

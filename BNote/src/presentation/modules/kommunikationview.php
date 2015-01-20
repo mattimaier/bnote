@@ -22,8 +22,13 @@ class KommunikationView extends AbstractView {
 			echo 'Der Versandt von E-Mails wurde zu Demonstrationszwecken deaktiviert. Sie können gerne auf "SENDEN" klicken.';
 			echo '</p>';
 		}
-			
-		// options
+		
+		// Rundmail form
+		$form = $this->createMailForm($this->modePrefix() . "groupmail");
+		$form->write();
+	}
+	
+	function startOptions() {
 		$rh = new Link($this->modePrefix() . "rehearsalMail", "Probenbenachrichtigung");
 		$rh->addIcon("arrow_right");
 		$rh->write();
@@ -37,12 +42,6 @@ class KommunikationView extends AbstractView {
 		$vm = new Link($this->modePrefix() . "voteMail", "Abstimmungsbenachrichtigung");
 		$vm->addIcon("arrow_right");
 		$vm->write();
-		
-		$this->verticalSpace();
-		
-		// Rundmail form
-		$form = $this->createMailForm($this->modePrefix() . "groupmail");
-		$form->write();
 	}
 	
 	function rehearsalMail() {
@@ -76,9 +75,10 @@ class KommunikationView extends AbstractView {
 		}
 		$form->removeElement("Betreff");
 		$form->write();
-		
+	}
+	
+	protected function rehearsalMailOptions() {
 		if(!isset($_GET["preselect"])) {
-			$this->verticalSpace();
 			$this->backToStart();
 		}
 	}
@@ -112,9 +112,10 @@ class KommunikationView extends AbstractView {
 		}
 		$form->removeElement("Betreff");
 		$form->write();
-		
+	}
+	
+	protected function concertMailOptions() {
 		if(!isset($_GET["preselect"])) {
-			$this->verticalSpace();
 			$this->backToStart();
 		}
 	}
@@ -144,9 +145,10 @@ class KommunikationView extends AbstractView {
 		}
 		$form->removeElement("Betreff");
 		$form->write();
-		
+	}
+	
+	protected function voteMailOptions() {
 		if(!isset($_GET["preselect"])) {
-			$this->verticalSpace();
 			$this->backToStart();
 		}
 	}
@@ -166,31 +168,11 @@ class KommunikationView extends AbstractView {
 		return $form;
 	}
 	
-	function rehearsal() {
-		$this->messageSent();
-		$this->backToStart();
-	}
-	
-	function concert() {
-		$this->messageSent();
-		$this->backToStart();
-	}
-	
-	function vote() {
-		$this->messageSent();
-		$this->backToStart();
-	}
-	
-	function groupmail() {
-		$this->messageSent();
-		$this->backToStart();
-	}
-	
 	function reportMailError($email) {
 		Writing::p("<strong>Mail Error:</strong> Die E-Mail an <strong>$email</strong> konnte nicht gesendet werden.");
 	}
 	
-	private function messageSent() {
+	function messageSent() {
 		new Message("E-Mails versandt", "Alle E-Mails wurden erfolgreich versandt.");
 	} 
 }

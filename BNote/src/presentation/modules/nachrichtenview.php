@@ -22,7 +22,6 @@ class NachrichtenView extends AbstractView {
 	public function save() {
 		$this->getData()->storeContent($_POST["news"]);
 		new Message("Nachricht gespeichert", "Die eingegebene Nachricht wurde gespeichert.");
-		$this->backToStart();
 	}
 }
 

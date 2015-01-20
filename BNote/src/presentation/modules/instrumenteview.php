@@ -15,11 +15,36 @@ class InstrumenteView extends CrudRefView {
 		));
 	}
 	
+	function showOptions() {
+		if(!isset($_GET["func"])) {
+			$this->startOptions();
+		}
+		else {
+			$opt = $_GET["func"] . "Options";
+			if(method_exists($this, $opt)) {
+				$this->$opt();
+			}
+			else {
+				if($this->isFunc("edit") || $this->isFunc("edit_process")
+					|| $this->isFunc("delete_confirm")) {
+					$this->backToViewButton($_GET["id"]);
+				}
+				else {
+					$this->backToStart();
+				}
+			}
+		}
+	}
+	
+	protected function isFunc($func) {
+		return (isset($_GET["func"]) && $_GET["func"] == $func);
+	}
+	
 	/**
 	 * Extended version of modePrefix for sub-module.
 	 */
 	function modePrefix() {
-		return "?mod=" . $this->getModId() . "&mode=instruments&sub=";
+		return "?mod=" . $this->getModId() . "&mode=instruments&func=";
 	}
 	
 	function backToStart() {
@@ -58,7 +83,7 @@ class InstrumenteView extends CrudRefView {
 		$table->removeColumn("catid");
 		$table->removeColumn(2);
 		$table->setEdit("id");
-		$table->changeMode("instruments&sub=view");
+		$table->changeMode("instruments&func=view");
 		$table->write();
 	}
 	
