@@ -149,10 +149,10 @@ class UserView extends CrudRefView {
 			$form->addElement($name, new Field($mid, $selected, FieldType::BOOLEAN));
 		}
 		$form->write();
-		echo "<br /><br />\n";
-		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"], "Zur&uuml;ck");
-		$usrView->addIcon("arrow_left");
-		$usrView->write();
+	}
+	
+	protected function privilegesOptions() {
+		$this->backToViewButton($_GET["id"]);
 	}
 	
 	function privileges_process() {

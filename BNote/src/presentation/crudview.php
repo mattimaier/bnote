@@ -24,6 +24,9 @@ abstract class CrudView extends AbstractView {
 		if(!isset($_GET["mode"]) || $_GET["mode"] == "start") {
 			$this->startOptions();
 		}
+		else if($this->isSubModule($_GET["mode"])) {
+			$this->subModuleOptions();
+		}
 		else {
 			$subOptionFunc = $_GET["mode"] . "Options";
 			if(method_exists($this, $subOptionFunc)) { 
@@ -33,6 +36,22 @@ abstract class CrudView extends AbstractView {
 				$this->defaultOptions();
 			}
 		}
+	}
+	
+	/**
+	 * Integrate submodules by overwriting this method not to return null.
+	 * @param $mode String Name of mode
+	 * @return True when the given mode belongs to a submodule, otherwise false.
+	 */
+	protected function isSubModule($mode) {
+		return false;
+	}
+	
+	/**
+	 * Overwrite this method to implement submodule options.
+	 */
+	protected function subModuleOptions() {
+		// blank by default
 	}
 	
 	protected function defaultOptions() {
@@ -47,9 +66,6 @@ abstract class CrudView extends AbstractView {
 	
 	public function addEntity() {
 		$this->addEntityForm();
-		
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	protected function addEntityForm() {
@@ -139,11 +155,10 @@ abstract class CrudView extends AbstractView {
 		
 		// show form
 		$this->editEntityForm();
-		
-		// back button
-		$this->verticalSpace();
+	}
+	
+	protected function editOptions() {
 		$this->backToViewButton($_GET["id"]);
-		$this->verticalSpace();
 	}
 	
 	protected function editEntityForm() {
@@ -181,6 +196,10 @@ abstract class CrudView extends AbstractView {
 					$this->modePrefix() . "view&id=" . $_GET["id"]);
 	}
 	
+	public function delete_confirmOptions() {
+		// none
+	}
+	
 	public function delete() {
 		$this->checkID();
 		// remove
@@ -189,9 +208,6 @@ abstract class CrudView extends AbstractView {
 		// show success
 		new Message($this->entityName . " gel&ouml;cht",
 						"Der Eintrag wurde erfolgreich gel&ouml;scht.");
-		
-		// back button
-		$this->backToStart();
 	}
 	
 	/**

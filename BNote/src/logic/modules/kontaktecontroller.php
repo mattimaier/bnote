@@ -1,4 +1,6 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "gruppenview.php";
+require_once $GLOBALS["DIR_DATA_MODULES"] . "gruppendata.php";
 
 /**
  * Special controller for contact module.
@@ -8,10 +10,16 @@
 class KontakteController extends DefaultController {
 	
 	/**
-	 * DAO for group sub-module.
+	 * DAO for group submodule.
 	 * @var GruppenData
 	 */
 	private $groupData;
+	
+	/**
+	 * View for submodule.
+	 * @var GruppenView
+	 */
+	private $groupView;
 	
 	public function start() {
 		if(isset($_GET['mode'])) {
@@ -98,20 +106,26 @@ class KontakteController extends DefaultController {
 		return $pass;
 	}
 	
+	private function initGroup() {
+		if($this->groupData == null || $this->groupView == null) {
+			$this->groupData = new GruppenData();
+			$this->groupView = new GruppenView($this);
+		}
+	}
+	
 	private function groups() {
-		require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "gruppenview.php";
-		require_once $GLOBALS["DIR_DATA_MODULES"] . "gruppendata.php";
-		$this->groupData = new GruppenData();
-		
-		$view = new GruppenView($this);
-		
-
+		$this->initGroup();
 		if(!isset($_GET["func"])) {
-			$view->start();
+			$this->groupView->start();
 		}
 		else {
-			$view->$_GET["func"]();
+			$this->groupView->$_GET["func"]();
 		}
+	}
+	
+	function groupOptions() {
+		$this->initGroup();
+		$this->groupView->showOptions();
 	}
 	
 	function getData() {

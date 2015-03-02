@@ -26,7 +26,17 @@ class KontakteView extends CrudRefView {
 		$this->showContacts();
 	}
 	
+	protected function isSubModule($mode) {
+		if($mode == "groups") return true;
+		return false;
+	}
+	
+	protected function subModuleOptions() {
+		$this->getController()->groupOptions();
+	}
+	
 	protected function startOptions() {
+		parent::startOptions();
 		$this->buttonSpace();
 		
 		$eps = new Link($this->modePrefix() . "integration", "Einphasung");
@@ -170,9 +180,6 @@ class KontakteView extends CrudRefView {
 		$form->addElement("Gruppen", $gs);
 		
 		$form->write();
-		
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	function add() {
@@ -396,8 +403,6 @@ class KontakteView extends CrudRefView {
 		<input type="submit" value="speichern" />
 		</form>
 		<?php
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 }
 
