@@ -22,20 +22,6 @@ class ProbenView extends CrudRefView {
 		Writing::h1("Proben");
 		Writing::p("Bitte auf eine Probe klicken um diese zu bearbeiten.");
 		
-		$add = new Link($this->modePrefix() . "addEntity", "Probe hinzufügen");
-		$add->addIcon("add");
-		$add->write();
-		
-		$this->buttonSpace();
-		$series = new Link($this->modePrefix() . "addSerie", "Probenstrecke hinzufügen");
-		$series->addIcon("add");
-		$series->write();
-		
-		$this->buttonSpace();
-		$history = new Link($this->modePrefix() . "history", "Verganene Proben anzeigen");
-		$history->addIcon("clock");
-		$history->write();
-		
 		Writing::h2("N&auml;chste Probe");
 		$nextRehearsal = $this->getData()->getNextRehearsal();
 		if($nextRehearsal != null && $nextRehearsal != "" && count($nextRehearsal) > 0) {
@@ -47,6 +33,20 @@ class ProbenView extends CrudRefView {
 
 		Writing::h2("Weitere Proben");
 		$this->writeRehearsalList($this->getData()->adp()->getFutureRehearsals());
+	}
+	
+	function startOptions() {
+		parent::startOptions();
+		
+		$this->buttonSpace();
+		$series = new Link($this->modePrefix() . "addSerie", "Probenstrecke hinzufügen");
+		$series->addIcon("add");
+		$series->write();
+		
+		$this->buttonSpace();
+		$history = new Link($this->modePrefix() . "history", "Verganene Proben anzeigen");
+		$history->addIcon("clock");
+		$history->write();
 	}
 	
 	function addEntity() {
