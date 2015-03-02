@@ -7,6 +7,8 @@
  */
 class KonzerteController extends DefaultController {
 	
+	private $programView;
+	
 	function start() {
 		if(isset($_GET["mode"]) && $_GET["mode"] == "wizzard") {
 			$this->wizzard();
@@ -81,17 +83,27 @@ class KonzerteController extends DefaultController {
 		if($progress < $numSteps) $this->getView()->abortButton();
 	}
 	
-	private function programs() {
+	private function programs($init = false) {
 		require_once $GLOBALS["DIR_DATA_MODULES"] . "programdata.php";
 		require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "programview.php";
 		require_once $GLOBALS["DIR_LOGIC_MODULES"] . "programcontroller.php";
 		
 		$ctrl = new ProgramController();
 		$data = new ProgramData();
-		$view = new ProgramView($ctrl);
+		$this->programView = new ProgramView($ctrl);
 		$ctrl->setData($data);
-		$ctrl->setView($view);
-		$ctrl->start();
+		$ctrl->setView($this->programView);
+		
+		if(!$init) {
+			$ctrl->start();
+		}
+	}
+	
+	function getProgramView() {
+		if($this->programView == null) {
+			$this->programs(true);
+		}
+		return $this->programView;
 	}
 	
 }

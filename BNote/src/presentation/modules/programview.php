@@ -7,12 +7,6 @@ class ProgramView extends CrudView {
 		$this->setEntityName("Programm");
 	}
 	
-	function start() {
-		parent::start();
-		parent::backToStart();
-		$this->verticalSpace();
-	}
-	
 	/**
 	 * Extended version of modePrefix for sub-module.
 	 */
@@ -20,24 +14,42 @@ class ProgramView extends CrudView {
 		return "?mod=" . $this->getModId() . "&mode=programs&sub=";
 	}
 	
+	function isSubModule($mode) {
+		if($mode == "programs") return true;
+		return false;
+	}
+	
+	function subModuleOptions() {
+		$subOptionFunc = isset($_GET["sub"]) ? $_GET["sub"] . "Options" : "startOptions";
+		if(method_exists($this, $subOptionFunc)) {
+			$this->$subOptionFunc();
+		}
+		else {
+			$this->defaultOptions();
+		}
+	}
+	
 	function backToStart() {
-		global $system_data;
-		$link = new Link("?mod=" . $system_data->getModuleId() . "&mode=programs", "Zur&uuml;ck");
+		$link = new Link("?mod=" . $this->getModId() . "&mode=programs", "Zur&uuml;ck");
 		$link->addIcon("arrow_left");
 		$link->write();
+	}
+	
+	function startOptions() {
+		$back = new Link("?mod=" . $this->getModId() . "&mode=start", "Zurück");
+		$back->addIcon("arrow_left");
+		$back->write();
+		
+		$this->buttonSpace();
+		
+		$addTpl = new Link($this->modePrefix() . "addFromTemplate", "Programm mit Vorlage hinzufügen");
+		$addTpl->addIcon("plus");
+		$addTpl->write();
 	}
 	
 	function writeTitle() {
 		Writing::h2("Programme");
 		Writing::p("Klicke auf ein Programm um Details anzuzeigen und die St&uuml;cke zu bearbeiten.");
-	}
-	
-	function startOptions() {
-		parent::startOptions();
-		$this->buttonSpace();
-		$addTpl = new Link($this->modePrefix() . "addFromTemplate", "Programm mit Vorlage hinzufügen");
-		$addTpl->addIcon("add");
-		$addTpl->write();
 	}
 	
 	function addFromTemplate() {
@@ -51,9 +63,6 @@ class ProgramView extends CrudView {
 		}
 		$form->addElement("Vorlage", $dd);
 		$form->write();
-		
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	function showAllTable() {
@@ -66,19 +75,7 @@ class ProgramView extends CrudView {
 		$table->write();
 	}
 	
-	function viewDetailTable() {
-		// program options
-		// show buttons to edit and delete
-		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"], "Details bearbeiten");
-		$edit->addIcon("edit");
-		$edit->write();
-		$this->buttonSpace();
-		
-		$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
-				$this->getEntityName() . " l&ouml;schen");
-		$del->addIcon("remove");
-		$del->write();
-		
+	function viewDetailTable() {		
 		// program details
 		$dv = new Dataview();
 		$dv->autoAddElements($this->getData()->findByIdNoRef($_GET["id"]));
@@ -86,10 +83,7 @@ class ProgramView extends CrudView {
 		$dv->write();
 		
 		// track list heading
-		Writing::h2("Titel Liste");
-		
-		// show options for list
-		$this->additionalViewButtons();
+		Writing::h2("Titelliste");
 		
 		// actual track list
 		$table = new Table($this->getData()->getSongsForProgram($_GET["id"]));
@@ -115,11 +109,7 @@ class ProgramView extends CrudView {
 		Writing::h2($this->getData()->getProgramName($_GET["id"]));
 		
 		// show the details and tracks
-		$this->viewDetailTable();		
-		
-		// back button
-		$this->verticalSpace();
-		$this->backToStart();
+		$this->viewDetailTable();
 	}
 	
 	function additionalViewButtons() {
@@ -197,9 +187,9 @@ class ProgramView extends CrudView {
 		
 		echo " </tr>\n";
 		echo "</table>\n";
-		
-		// back button
-		$this->verticalSpace();
+	}
+	
+	protected function editListOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
 	
@@ -241,11 +231,10 @@ class ProgramView extends CrudView {
 		
 		// show report
 		echo "<embed src=\"$filename\" width=\"90%\" height=\"700px\" />\n";
-		echo "<br /><br />\n";
-		
-		// back button
+	}
+	
+	protected function printListOptions() {
 		$this->backToViewButton($_GET["id"]);
-		$this->verticalSpace();
 	}
 	
 	private function writeIcon($name) {
