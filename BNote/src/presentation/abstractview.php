@@ -10,14 +10,32 @@ abstract class AbstractView {
 	private $controller;
 	
 	/**
-	 * Contains the buttons with the options that are available on this page/view.
-	 */
-	abstract function showOptions();
-	
-	/**
 	 * Entry Point for any view.
 	 */
 	abstract function start();
+	
+	/**
+	 * Contains the buttons with the options that are available on this page/view.
+	 */
+	function showOptions() {
+		if(isset($_GET["mode"])) {
+			$mode = $_GET["mode"];
+		}
+		else {
+			$mode = "start";
+		}
+		
+		$opt = $mode . "Options";
+		if(method_exists($this, $opt)) {
+			$this->$opt();
+		}
+		else {
+			// no button on start page
+			if(!$this->isMode("start")) {
+				$this->backToStart();
+			}
+		}
+	}
 	
 	/**
 	 * Write a button with caption "Back" to bring the user back to the
@@ -35,19 +53,21 @@ abstract class AbstractView {
 	 * the view mode with the given ID in the $_GET array. The delete-button links
 	 * to the delete mode.
 	 * @param String $label Name of the entity to remove, e.g. "user" or "project" 
-	 * @param String $linkBack The link the back button links to, usually to the view-mode.
+	 * @param String $linkBack The link the back button links to, usually to the view-mode (by default not shown).
 	 * @param String $linkDelete The link the confirmation links to, usually to the delete-mode.
 	 */
-	protected function deleteConfirmationMessage($label, $linkDelete, $linkBack) {
-		new Message("L&ouml;schen?", "Wollen sie diesen Eintrag wirklich l&ouml;schen?");
+	protected function deleteConfirmationMessage($label, $linkDelete, $linkBack = null) {
+		new Message("$label L&ouml;schen?", "Wollen sie diesen Eintrag wirklich l&ouml;schen?");
 		$yes = new Link($linkDelete, strtoupper($label) . " L&Ouml;SCHEN");
 		$yes->addIcon("remove");
 		$yes->write();
 		$this->buttonSpace();
 		
-		$no = new Link($linkBack, "Zur&uuml;ck");
-		$no->addIcon("arrow_left");
-		$no->write();
+		if($linkBack != null) {
+			$no = new Link($linkBack, "Zur&uuml;ck");
+			$no->addIcon("arrow_left");
+			$no->write();
+		}
 	}
 	
 	/**

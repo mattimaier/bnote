@@ -88,9 +88,6 @@ class AufgabenView extends CrudRefView {
 		$selector = new GroupSelector($groups, array(), "group");
 		$form->addElement("Verantwortliche Gruppe(n)", $selector);
 		$form->write();
-		
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	function process_addGroupTask() {
@@ -107,7 +104,6 @@ class AufgabenView extends CrudRefView {
 			}
 		}
 		new Message("Aufgabe hinzugefügt", "Die Aufgabe wurde allen Mitgliedern der ausgewählten Gruppen hinzugefügt.");
-		$this->backToStart();
 	}
 	
 	protected function viewDetailTable() {
@@ -123,6 +119,8 @@ class AufgabenView extends CrudRefView {
 	}
 	
 	protected function additionalViewButtons() {
+		$this->buttonSpace();
+		
 		if($this->getData()->isTaskComplete($_GET["id"])) {
 			$markTodo = new Link($this->modePrefix() . "markTask&as=open&id=" . $_GET["id"], "Als offen markieren");
 			$markTodo->addIcon("note");
@@ -133,7 +131,6 @@ class AufgabenView extends CrudRefView {
 			$markComplete->addIcon("checkmark");
 			$markComplete->write();
 		}
-		$this->buttonSpace();
 	}
 	
 	protected function editEntityForm() {

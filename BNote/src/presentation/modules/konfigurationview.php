@@ -18,11 +18,6 @@ class KonfigurationView extends CrudView {
 		Writing::h1("Konfiguration");
 		Writing::p("Bitte klicke auf eine Zeile um deren Wert zu ändern.");
 		
-		// instrument configuration
-		$istr = new Link($this->modePrefix() . "instruments", "Instrumente");
-		$istr->addIcon("music_file");
-		$istr->write();
-		
 		$parameter = $this->getData()->getActiveParameter();
 
 		$table = new Table($parameter);
@@ -34,6 +29,16 @@ class KonfigurationView extends CrudView {
 		$table->write();
 	}
 	
+	function startOptions() {
+		parent::startOptions();
+		$this->buttonSpace();
+		
+		// instrument configuration
+		$istr = new Link($this->modePrefix() . "instruments", "Instrumente");
+		$istr->addIcon("music_file");
+		$istr->write();
+	}
+	
 	function edit() {
 		$this->checkID();
 		
@@ -42,11 +47,6 @@ class KonfigurationView extends CrudView {
 		
 		// show form
 		$this->editEntityForm();
-		
-		// back button
-		$this->verticalSpace();
-		$this->backToStart();
-		$this->verticalSpace();
 	}
 	
 	function editEntityForm() {
@@ -83,9 +83,6 @@ class KonfigurationView extends CrudView {
 		// show success
 		new Message($this->getEntityName() . " ge&auml;ndert",
 				"Der Eintrag wurde erfolgreich ge&auml;ndert.");
-	
-		// back button
-		$this->backToStart();
 	}
 	
 }

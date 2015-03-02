@@ -56,7 +56,6 @@ class KontaktdatenView extends AbstractView {
 	function savePD() {
 		$this->getData()->update($_SESSION["user"], $_POST);
 		new Message("Daten gespeichert", "Die &Auml;nderungen wurden gespeichert.");
-		$this->backToStart();
 	}
 	
 	function changePassword() {
@@ -69,15 +68,11 @@ class KontaktdatenView extends AbstractView {
 		$form2->addElement("Neues Passwort", new Field("pw1", "", FieldType::PASSWORD));
 		$form2->addElement("Passwort Wiederholen", new Field("pw2", "", FieldType::PASSWORD));
 		$form2->write();
-		
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	function password() {
 		$this->getData()->updatePassword();
 		new Message("Passwort ge&auml;ndert", "Das Passwort wurde ge&auml;ndert.<br />Ab sofort bitte mit neuem Passwort anmelden.");
-		$this->backToStart();
 	}
 	
 	function settings() {
@@ -96,6 +91,5 @@ class KontaktdatenView extends AbstractView {
 		$this->getData()->saveSettings($_SESSION["user"]);
 		
 		new Message("Einstellungen gespeichert", "Deine Einstellungen wurden gesperichert.");
-		$this->backToStart();
 	}
 }
