@@ -16,11 +16,11 @@ class InstrumenteView extends CrudRefView {
 	}
 	
 	function showOptions() {
-		if(!isset($_GET["func"])) {
+		if(!isset($_GET["sub"])) {
 			$this->startOptions();
 		}
 		else {
-			$opt = $_GET["func"] . "Options";
+			$opt = $_GET["sub"] . "Options";
 			if(method_exists($this, $opt)) {
 				$this->$opt();
 			}
@@ -37,14 +37,14 @@ class InstrumenteView extends CrudRefView {
 	}
 	
 	protected function isFunc($func) {
-		return (isset($_GET["func"]) && $_GET["func"] == $func);
+		return (isset($_GET["sub"]) && $_GET["sub"] == $func);
 	}
 	
 	/**
 	 * Extended version of modePrefix for sub-module.
 	 */
 	function modePrefix() {
-		return "?mod=" . $this->getModId() . "&mode=instruments&func=";
+		return "?mod=" . $this->getModId() . "&mode=instruments&sub=";
 	}
 	
 	function backToStart() {
@@ -56,24 +56,6 @@ class InstrumenteView extends CrudRefView {
 	
 	function start() {
 		Writing::h2("Instrumentenkonfiguration");
-		
-		// show a back button
-		$back = new Link(parent::modePrefix() . "start", "Zurück");
-		$back->addIcon("arrow_left");
-		$back->write();
-		$this->buttonSpace();
-	
-		// add new ones
-		$new = new Link($this->modePrefix() . "instruments&sub=addEntity", "Instrument hinzufügen");
-		$new->addIcon("add");
-		$new->write();
-		$this->buttonSpace();
-	
-		// configure visible instrument groups
-		$cat = new Link($this->modePrefix() . "activeInstrumentGroups", "Instrumentenfilter");
-		$cat->addIcon("edit");
-		$cat->write();
-		$this->verticalSpace();
 	
 		// show instruments
 		$instruments = $this->getData()->getInstrumentsWithCatName();
@@ -83,8 +65,28 @@ class InstrumenteView extends CrudRefView {
 		$table->removeColumn("catid");
 		$table->removeColumn(2);
 		$table->setEdit("id");
-		$table->changeMode("instruments&func=view");
+		$table->changeMode("instruments&sub=view");
 		$table->write();
+	}
+	
+	function startOptions() {
+		// show a back button
+		$back = new Link(parent::modePrefix() . "start", "Zurück");
+		$back->addIcon("arrow_left");
+		$back->write();
+		$this->buttonSpace();
+		
+		// add new ones
+		$new = new Link($this->modePrefix() . "addEntity", "Instrument hinzufügen");
+		$new->addIcon("plus");
+		$new->write();
+		$this->buttonSpace();
+		
+		// configure visible instrument groups
+		$cat = new Link($this->modePrefix() . "activeInstrumentGroups", "Instrumentenfilter");
+		$cat->addIcon("edit");
+		$cat->write();
+		$this->verticalSpace();
 	}
 	
 	function activeInstrumentGroups() {
@@ -101,17 +103,12 @@ class InstrumenteView extends CrudRefView {
 	
 		$form->changeSubmitButton("speichern");
 		$form->write();
-		$this->verticalSpace();
-	
-		$this->backToStart();
 	}
 	
 	function process_activeInstrumentGroups() {
 		$this->getData()->saveInstrumentGroupConfig();
 		
 		new Message("Aktive Instrumenten-Gruppen gespeichert", "Die neuen aktiven Instrumenten-Gruppen wurden gespeichert.");
-		
-		$this->backToStart();
 	}
 	
 	function viewDetailTable() {

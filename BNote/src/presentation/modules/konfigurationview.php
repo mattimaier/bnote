@@ -13,6 +13,15 @@ class KonfigurationView extends CrudView {
 		$this->setController($ctrl);
 		$this->setEntityName("Konfiguration");
 	}
+	
+	function showOptions() {
+		if(isset($_GET["mode"]) && $_GET["mode"] == "instruments") {
+			$this->getController()->getInstrumentsView()->showOptions();
+		}
+		else {
+			parent::showOptions();
+		}
+	}
 
 	function start() {
 		Writing::h1("Konfiguration");

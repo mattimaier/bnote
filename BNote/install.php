@@ -181,6 +181,7 @@ class Installation {
 			new Message("Datenbank Konfiguration bereits vorhanden", "Es wurde erkannt, dass du bereits eine Datenbank Konfiguration angelegt hast.
 					Daher kannst du diesen Schritt überspringen.");
 			$this->next("adminUser");
+			//TODO ask the user whether to install the database content or use the one present in the db
 		}
 		else {
 			Writing::p("Bitte gebe die Zugangsdaten zur BNote Datenbank ein.");

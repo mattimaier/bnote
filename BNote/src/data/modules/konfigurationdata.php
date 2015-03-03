@@ -110,7 +110,12 @@ class KonfigurationData extends AbstractData {
 	}
 	
 	function update($id, $values) {
-		$val = $values["value"];
+		if(!isset($values["value"])) {
+			$val = NULL;
+		}
+		else {
+			$val = $values["value"];
+		}
 		
 		// convert values to be saved to database
 		if($this->getParameterType($id) == 96) {
