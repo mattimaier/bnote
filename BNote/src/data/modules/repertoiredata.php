@@ -146,7 +146,7 @@ class RepertoireData extends AbstractData {
 								"name = \"$name\"");
 		if($ct < 1) return -1;
 		else {
-			return $this->database->getCell("composer", "id", "name = \"" . $values["composer"] . "\"");
+			return $this->database->getCell("composer", "id", "name = \"" . $_POST["composer"] . "\"");
 		}
 	}
 	
@@ -159,8 +159,8 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function getSolists($songId) {
-		$distict = "";
-		if(songId < 1) $distinct = " DISTINCT";
+		$distinct = "";
+		if($songId < 1) $distinct = " DISTINCT";
 		$query = "SELECT$distinct c.id, c.surname, c.name, i.name as instrument ";
 		$query .= "FROM song_solist s JOIN contact c ON s.contact = c.id ";
 		$query .= "JOIN instrument i ON c.instrument = i.id ";

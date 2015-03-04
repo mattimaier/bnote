@@ -198,6 +198,18 @@ class Form implements iWriteable {
  }
  
  /**
+  * Sets the value for a element
+  * @param String $name Name of element.
+  * @param String $value Value as string.
+  */
+ public function setFieldValue($name, $value) {
+ 	if(isset($this->elements[$name])) {
+	 	$el = $this->elements[$name];
+	 	$el->setValue($value);
+ 	}
+ }
+ 
+ /**
   * Sets whether the form contains multipart fields, e.g. file fields.
   * @param boolean $bool True if it contains multipart data (default), otherwise false.
   */

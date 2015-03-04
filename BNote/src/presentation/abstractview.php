@@ -225,7 +225,7 @@ abstract class AbstractView {
 	}
 	
 	protected function isMode($mode) {
-		return (isset($_GET["mode"]) && $_GET[$mode] == $mode);
+		return (isset($_GET["mode"]) && $_GET["mode"] == $mode);
 	}
 }
 

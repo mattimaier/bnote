@@ -9,7 +9,7 @@ require_once $GLOBALS["DIR_DATA_MODULES"] . "kontaktedata.php";
 class KommunikationData extends KontakteData {
 	
 	function getRehearsal($id) {
-		$query = "SELECT begin, name as location, street, city, zip, r.notes ";
+		$query = "SELECT begin, end, name as location, street, city, zip, r.notes ";
 		$query .= "FROM rehearsal r, location l, address a ";
 		$query .= "WHERE r.location = l.id AND l.address = a.id AND r.id = " . $id;
 		return $this->database->getRow($query);

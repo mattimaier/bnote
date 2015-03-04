@@ -101,9 +101,6 @@ abstract class CrudView extends AbstractView {
 		// write success
 		new Message($this->entityName . " gespeichert",
 						"Der Eintrag wurde erfolgreich gespeichert.");
-		
-		// write back button
-		$this->backToStart();
 	}
 	
 	public function view() {
@@ -184,9 +181,6 @@ abstract class CrudView extends AbstractView {
 		// show success
 		new Message($this->entityName . " ge&auml;ndert",
 						"Der Eintrag wurde erfolgreich ge&auml;ndert.");
-		
-		// back button
-		$this->backToViewButton($_GET["id"]);
 	}
 	
 	public function delete_confirm() {

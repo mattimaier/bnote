@@ -20,8 +20,7 @@ class GenreView extends CrudView {
 	}
 	
 	function backToStart() {
-		global $system_data;
-		$link = new Link("?mod=" . $system_data->getModuleId() . "&mode=genre", "Zur&uuml;ck");
+		$link = new Link("?mod=" . $this->getModId() . "&mode=genre", "Zur&uuml;ck");
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
@@ -32,12 +31,34 @@ class GenreView extends CrudView {
 		$table->changeMode("genre&func=view");
 		$table->setEdit("id");
 		$table->write();
-		
-		$this->verticalSpace();
-		global $system_data;
-		$back = new Link("?mod=" . $system_data->getModuleId(), "Zur&uuml;ck");
+	}
+	
+	function startOptions() {
+		$back = new Link("?mod=" . $this->getModId(), "Zur&uuml;ck");
 		$back->addIcon("arrow_left");
 		$back->write();
+		
+		$this->buttonSpace();
+		parent::startOptions();
+	}
+	
+	protected function isSubModule($mode) {
+		return true;
+	}
+	
+	protected function subModuleOptions() {
+		if(!isset($_GET["func"])) {
+			$this->startOptions();
+		}
+		else {
+			$subOptionFunc = $_GET["func"] . "Options";
+			if(method_exists($this, $subOptionFunc)) {
+				$this->$subOptionFunc();
+			}
+			else {
+				$this->defaultOptions();
+			}
+		}
 	}
 }
 

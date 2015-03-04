@@ -70,11 +70,15 @@ class Filterbox implements iWriteable {
 					for($j = 0; $j < count($this->nameCols[$column]); $j++) {
 						if($j > 0) $name .= " ";
 						$nameCol = $this->nameCols[$column][$j];
-						$name .= $val[$nameCol];
+						if(isset($val[$nameCol])) {
+							$name .= $val[$nameCol];
+						}
 					}
 					
 					// build element
-					$element->addOption($name, $val["id"]);
+					if(isset($val["id"])) {
+						$element->addOption($name, $val["id"]);
+					}
 				}
 				
 				if(isset($_POST[$column])) {
@@ -82,7 +86,7 @@ class Filterbox implements iWriteable {
 				}
 			}
 			else {
-				$element = new Field($column, $values, $infos["type"]);
+				$element = new Field($column, "", $infos["type"]);
 			}
 			
 			$form->addElement($infos["caption"], $element);

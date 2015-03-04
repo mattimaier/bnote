@@ -15,6 +15,15 @@ class RepertoireView extends CrudRefView {
 		$this->setJoinedAttributes(RepertoireData::getJoinedAttributes());
 	}
 	
+	function showOptions() {
+		if(isset($_GET["mode"]) && $_GET["mode"] == "genre") {
+			$this->getController()->getGenreView()->showOptions();
+		}
+		else {
+			parent::showOptions();
+		}
+	}
+	
 	protected function startOptions() {
 		parent::startOptions();
 		$this->buttonSpace();
@@ -29,7 +38,7 @@ class RepertoireView extends CrudRefView {
 		
 		$this->buttonSpace();
 		$genre_mod = new Link($this->modePrefix() . "genre&func=start", "Genres verwalten");
-		$genre_mod->addIcon("music_file");
+		$genre_mod->addIcon("music_folder");
 		$genre_mod->write();
 		$this->verticalSpace();
 	}
@@ -112,11 +121,7 @@ class RepertoireView extends CrudRefView {
 		$dv->renameElement("statusname", "Status");
 		$dv->write();
 		
-		Writing::h3("Solisten");
-		$addSol = new Link($this->modePrefix() . "addSolist&id=" . $_GET["id"], "Solist hinzufügen");
-		$addSol->addIcon("add");
-		$addSol->write();
-		
+		Writing::h3("Solisten");		
 		$solists = $this->getData()->getSolists($_GET["id"]);
 		// add a link to the data to remove the solist from the list
 		$solists[0]["delete"] = "Löschen";
@@ -134,6 +139,12 @@ class RepertoireView extends CrudRefView {
 		$solTab->write();
 		
 		$this->verticalSpace();
+	}
+	
+	protected function additionalViewButtons() {
+		$addSol = new Link($this->modePrefix() . "addSolist&id=" . $_GET["id"], "Solist hinzufügen");
+		$addSol->addIcon("plus");
+		$addSol->write();
 	}
 	
 	protected function editEntityForm() {

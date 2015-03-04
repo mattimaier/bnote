@@ -58,15 +58,14 @@ class KommunikationView extends AbstractView {
 			$dd->addOption($label, $rhs[$i]["id"]);
 		}
 		
-		$form = $this->createMailForm($this->modePrefix() . "rehearsal", $message, false);
-		$message = "";
+		$form = $this->createMailForm($this->modePrefix() . "rehearsal", "", false);
 		if(isset($_GET["preselect"])) {
 			$rhs = $this->getData()->getRehearsal($_GET["preselect"]);
-			$message = $rhs["notes"];
+			$form->setFieldValue("Nachricht", $rhs["notes"]);
 			$label = Data::getWeekdayFromDbDate($rhs["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($rhs["begin"]);
 			$label .= " - " . substr($rhs["end"], strlen($rhs["end"])-8, 5);
-			$label .= " Uhr " . $rhs["name"];
+			$label .= " Uhr " . $rhs["location"];
 			$form->addElement("Probe", new Field("rehearsal_view", $label, 99));
 			$form->addHidden("rehearsal", $_GET["preselect"]);
 		}
@@ -96,11 +95,10 @@ class KommunikationView extends AbstractView {
 			$dd->addOption($label, $concerts[$i]["id"]);
 		}
 		
-		$form = $this->createMailForm($this->modePrefix() . "concert", $message, false);
-		$message = "";
+		$form = $this->createMailForm($this->modePrefix() . "concert", "", false);
 		if(isset($_GET["preselect"])) {
 			$concert = $this->getData()->getConcert($_GET["preselect"]);
-			$message = $concert["notes"];
+			$form->setFieldValue("Nachricht", $concert["notes"]);
 			$label = Data::getWeekdayFromDbDate($concert["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($concert["begin"]);
 			$label .= " Uhr";
@@ -131,11 +129,9 @@ class KommunikationView extends AbstractView {
 			$dd->addOption($label, $votes[$i]["id"]);
 		}
 		
-		$form = $this->createMailForm($this->modePrefix() . "vote", $message, false);
-		$message = "";
+		$form = $this->createMailForm($this->modePrefix() . "vote", "", false);
 		if(isset($_GET["preselect"])) {
 			$vote = $this->getData()->getVote($_GET["preselect"]);
-			$message = "";
 			$label = $vote["name"];
 			$form->addElement("Abstimmung", new Field("vote_view", $label, Field::FIELDTYPE_UNEDITABLE));
 			$form->addHidden("vote", $_GET["preselect"]);

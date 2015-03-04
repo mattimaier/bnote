@@ -11,26 +11,7 @@ class KontaktdatenView extends AbstractView {
 		$this->setController($ctrl);
 	}
 	
-	function start() {
-		Writing::h1("Meine Kontaktdaten");
-		
-		$chPw = new Link($this->modePrefix() . "changePassword", "Passwort ändern");
-		$chPw->addIcon("key");
-		$chPw->write();
-		$this->buttonSpace();
-		
-		$settings = new Link($this->modePrefix() . "settings", "Meine Einstellungen");
-		$settings->addIcon("settings");
-		$settings->write();
-		$this->verticalSpace();
-		
-		// show mobile PIN
-		$pin = $this->getData()->getPIN($_SESSION["user"]);
-		$form3 = new Form("Mobile PIN", "");
-		$form3->addElement("Deine Mobile PIN:", new Field("pin", $pin, 99));
-		$form3->removeSubmitButton();
-		$form3->write();
-		
+	function start() {		
 		// personal data
 		$contact = $this->getData()->getContactForUser($_SESSION["user"]);
 		if($contact <= 0) {
@@ -53,14 +34,24 @@ class KontaktdatenView extends AbstractView {
 		$form1->write();
 	}
 	
+	function startOptions() {
+		$chPw = new Link($this->modePrefix() . "changePassword", "Passwort ändern");
+		$chPw->addIcon("key");
+		$chPw->write();
+		$this->buttonSpace();
+		
+		$settings = new Link($this->modePrefix() . "settings", "Meine Einstellungen");
+		$settings->addIcon("settings");
+		$settings->write();
+		$this->verticalSpace();
+	}
+	
 	function savePD() {
 		$this->getData()->update($_SESSION["user"], $_POST);
 		new Message("Daten gespeichert", "Die &Auml;nderungen wurden gespeichert.");
 	}
 	
-	function changePassword() {
-		Writing::h2("Persönliches Kennwort");
-		
+	function changePassword() {		
 		// change password
 		$pwNote = "Bitte gebe mindestens 6 Zeichen und keine Leerzeichen ein um dein Passwort zu ändern.";
 		
@@ -75,9 +66,7 @@ class KontaktdatenView extends AbstractView {
 		new Message("Passwort ge&auml;ndert", "Das Passwort wurde ge&auml;ndert.<br />Ab sofort bitte mit neuem Passwort anmelden.");
 	}
 	
-	function settings() {
-		Writing::h2("Meine Einstellungen");
-		
+	function settings() {		
 		$form = new Form("Einstellungen ändern", $this->modePrefix() . "saveSettings");
 		
 		// E-Mail Notification

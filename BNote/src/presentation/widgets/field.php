@@ -57,6 +57,10 @@ class Field implements iWriteable {
  	return $this->default_value;
  }
  
+ public function setValue($value) {
+ 	$this->default_value = $value;
+ }
+ 
  /**
   * Returns a string with the field in html
   */

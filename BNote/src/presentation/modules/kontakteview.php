@@ -83,7 +83,7 @@ class KontakteView extends CrudRefView {
 		
 		// show groups as tabs
 		echo "<div class=\"contact_view\">\n";
-		echo " <div class=\"contact_view_tabs\">";
+		echo " <div class=\"view_tabs\">";
 		foreach($groups as $cmd => $info) {
 			if($cmd == 0) {
 				// instead of skipping the first header-row,
@@ -98,7 +98,7 @@ class KontakteView extends CrudRefView {
 			if(isset($_GET["group"]) && $_GET["group"] == $groupId) $active = "_active";
 			else if(!isset($_GET["group"]) && $groupId == 2) $active = "_active";
 			
-			echo "<a href=\"" . $this->modePrefix() . "start&group=$groupId\"><span class=\"contact_view_tab$active\">$label</span></a>";
+			echo "<a href=\"" . $this->modePrefix() . "start&group=$groupId\"><span class=\"view_tab$active\">$label</span></a>";
 		}
 		
 		// show data

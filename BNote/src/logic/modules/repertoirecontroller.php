@@ -7,6 +7,8 @@
  */
 class RepertoireController extends DefaultController {
 	
+	private $genreView;
+	
 	function start() {
 		if(isset($_GET["mode"]) && $_GET["mode"] == "genre") {
 			$this->genre();
@@ -16,21 +18,31 @@ class RepertoireController extends DefaultController {
 		}
 	}
 	
+	private function initGenre() {
+		if($this->genreView == null) {
+			require_once $GLOBALS["DIR_DATA_MODULES"] . "genredata.php";
+			require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "genreview.php";
+			
+			$ctrl = new DefaultController();
+			$data = new GenreData();
+			$this->genreView = new GenreView($ctrl);
+			$ctrl->setData($data);
+			$ctrl->setView($this->genreView);
+		}
+	}
+	
+	function getGenreView() {
+		$this->initGenre();
+		return $this->genreView;
+	}
+	
 	private function genre() {
-		require_once $GLOBALS["DIR_DATA_MODULES"] . "genredata.php";
-		require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "genreview.php";
-		
-		$ctrl = new DefaultController();
-		$data = new GenreData();
-		$view = new GenreView($ctrl);
-		$ctrl->setData($data);
-		$ctrl->setView($view);
-		
+		$this->initGenre();
 		if(isset($_GET["func"])) {
-			$view->$_GET["func"]();
+			$this->genreView->$_GET["func"]();
 		}
 		else {
-			$view->start();
+			$this->genreView->start();
 		}
 	}
 	

@@ -295,12 +295,12 @@ pre.start_rehearsal {
 	font-style: italic;
 }
 
-div.contact_view_tabs {
+div.view_tabs {
 	width: 100%;
 	padding: 8px;
 }
 
-span.contact_view_tab {
+span.view_tab {
 	display: inline-block;
 	border: solid 0px #e0e0e0;
 	padding: 5px 10px;
@@ -308,7 +308,7 @@ span.contact_view_tab {
 	background-color: #eee;
 }
 
-span.contact_view_tab_active {
+span.view_tab_active {
 	display: inline-block;
 	border: solid 0px #e0e0e0;
 	padding: 5px 10px;
@@ -317,9 +317,13 @@ span.contact_view_tab_active {
 	font-size: 14pt;
 }
 
-span.contact_view_tab:hover {
+span.view_tab:hover {
 	background-color: #61b3ff;
 	color: #fff;
+}
+
+.view_tab_content {
+	padding-top: 0px;
 }
 
 table.contact_view {

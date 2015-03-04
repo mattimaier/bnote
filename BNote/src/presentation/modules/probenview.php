@@ -40,12 +40,12 @@ class ProbenView extends CrudRefView {
 		
 		$this->buttonSpace();
 		$series = new Link($this->modePrefix() . "addSerie", "Probenstrecke hinzufügen");
-		$series->addIcon("add");
+		$series->addIcon("plus"); //TODO find another icon
 		$series->write();
 		
 		$this->buttonSpace();
 		$history = new Link($this->modePrefix() . "history", "Verganene Proben anzeigen");
-		$history->addIcon("clock");
+		$history->addIcon("timer");
 		$history->write();
 	}
 	
@@ -77,9 +77,6 @@ class ProbenView extends CrudRefView {
 		$form->addElement("Probe für", $gs);
 		
 		$form->write();
-		
-		$this->verticalSpace();
-		$this->backToStart(); 
 	}
 	
 	function add() {		
@@ -114,10 +111,6 @@ class ProbenView extends CrudRefView {
 		// Show link to create a rehearsal information
 		$lnk = new Link("?mod=7&mode=rehearsalMail&preselect=$rid", "Probenbenachrichtigung an Mitspieler senden");
 		$lnk->write();
-		$this->verticalSpace();
-		
-		// write back button
-		$this->backToStart();
 	}
 	
 	function addSerie() {		
@@ -229,6 +222,24 @@ class ProbenView extends CrudRefView {
 		$form->write();
 	}
 	
+	function invitations() {
+		$contacts = $this->getData()->getRehearsalContacts($_GET["id"]);
+			
+		// add a link to the data to remove the contact from the list
+		$contacts[0]["delete"] = "Löschen";
+		for($i = 1; $i < count($contacts); $i++) {
+			$delLink = $this->modePrefix() . "delContact&id=" . $_GET["id"] . "&cid=" . $contacts[$i]["id"];
+			$btn = new Link($delLink, "");
+			$btn->addIcon("remove");
+			$contacts[$i]["delete"] = $btn->toString();
+		}
+			
+		$table = new Table($contacts);
+		$table->removeColumn("id");
+		$table->renameHeader("mobile", "Handynummer");
+		$table->write();
+	}
+	
 	protected function viewDetailTable() {
 		$entity = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
 		$details = new Dataview();
@@ -241,33 +252,7 @@ class ProbenView extends CrudRefView {
 		$details->write();
 		
 		if(!$this->isReadOnlyView()) {
-			// contacts who should participate in rehearsal
-			Writing::h2("Einladungen zur Teilnahme");
-			$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Einladung hinzufügen");
-			$addContact->addIcon("add");
-			$addContact->write();
-			$this->buttonSpace();
-			
-			$printPartlist = new Link($this->modePrefix() . "printPartlist&id=" . $_GET["id"], "Teilnehmerliste drucken");
-			$printPartlist->addIcon("printer");
-			$printPartlist->write();
-			
-			$contacts = $this->getData()->getRehearsalContacts($_GET["id"]);
-			
-			// add a link to the data to remove the contact from the list
-			$contacts[0]["delete"] = "Löschen";
-			for($i = 1; $i < count($contacts); $i++) {
-				$delLink = $this->modePrefix() . "delContact&id=" . $_GET["id"] . "&cid=" . $contacts[$i]["id"];
-				$btn = new Link($delLink, "");
-				$btn->addIcon("remove");
-				$contacts[$i]["delete"] = $btn->toString();
-			}
-			
-			$table = new Table($contacts);
-			$table->removeColumn("id");
-			$table->renameHeader("mobile", "Handynummer");
-			$table->write();
-			
+			// contacts who should participate in rehearsal			
 			$phases = $this->getData()->getRehearsalsPhases($_GET["id"]);
 			
 			if(count($phases) > 1) {
@@ -280,8 +265,6 @@ class ProbenView extends CrudRefView {
 				$table->renameHeader("notes", "Anmerkungen");
 				$table->write();
 			}
-			
-			$this->verticalSpace();
 		}
 	}
 	
@@ -312,32 +295,8 @@ class ProbenView extends CrudRefView {
 		$this->view();
 	}
 	
-	protected function additionalViewButtons() {
-		$participants = new Link($this->modePrefix() . "participants&id=" . $_GET["id"], "Teilnehmer anzeigen");
-		$participants->addIcon("user");
-		$participants->write();
-		$this->buttonSpace();
-		
-		$songs = new Link($this->modePrefix() . "practise&id=" . $_GET["id"], "St&uuml;cke zum &uuml;ben");
-		$songs->addIcon("music_file");
-		$songs->write();
-		$this->buttonSpace();
-		
-		// show a button to send a reminder to all about this rehearsal
-		$remHref = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation") . "&mode=rehearsalMail&preselect=" . $_GET["id"]; 
-		
-		$reminder = new Link($remHref, "Benachrichtigung senden");
-		$reminder->addIcon("email");
-		$reminder->write();
-	}
-	
 	function participants() {
 		$this->checkID();
-		
-		if(!$this->isReadOnlyView()) {
-			$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
-			Writing::h2("Probe am $pdate Uhr");
-		}
 		
 		Writing::h3("Instrumente");
 		$dv = new Dataview();
@@ -364,7 +323,9 @@ class ProbenView extends CrudRefView {
 		$dv = new Dataview();
 		$dv->autoAddElements($this->getData()->getParticipantStats($_GET["id"]));
 		$dv->write();
-		
+	}
+	
+	function participantsOptions() {
 		if(!$this->isReadOnlyView()) {
 			// back button
 			$this->backToViewButton($_GET["id"]);
@@ -374,8 +335,7 @@ class ProbenView extends CrudRefView {
 	
 	function practise() {
 		$this->checkID();
-		$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
-		Writing::h2("St&uuml;cke zum &uuml;ben f&uuml;r Probe am $pdate Uhr");
+		Writing::h3("Stückauswahl");
 		
 		// check if a new song was added
 		if(isset($_POST["song"])) {
@@ -413,14 +373,15 @@ class ProbenView extends CrudRefView {
 		echo "</ul>\n";
 		
 		// add a song
-		$form = new Form("St&uuml;ck hinzuf&uuml;gen", $this->modePrefix() . "practise&id=" . $_GET["id"]);
+		$form = new Form("St&uuml;ck hinzuf&uuml;gen", $this->modePrefix() . "view&tab=practise&id=" . $_GET["id"]);
 		$form->addElement("song", new Field("song", "", FieldType::REFERENCE));
 		$form->setForeign("song", "song", "id", "title", -1);
 		$form->renameElement("song", "St&uuml;ck");
 		$form->addElement("Anmerkungen", new Field("notes", "", FieldType::CHAR));
 		$form->write();
-		
-		$this->verticalSpace();
+	}
+	
+	function practiseOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
 	
@@ -493,12 +454,11 @@ class ProbenView extends CrudRefView {
 		$tab->renameHeader("zip", "PLZ");
 		$tab->renameHeader("city", "Stadt");
 		$tab->write();
-		
-		$this->backToStart();
 	}
 	
 	function view() {
 		if($this->isReadOnlyView()) {
+			// history view
 			$this->checkID();
 			Writing::h2("Probendetails");
 			$this->viewDetailTable();
@@ -511,13 +471,81 @@ class ProbenView extends CrudRefView {
 			$tab->renameHeader("title", "Stück");
 			$tab->renameHeader("notes", "Aktuelle Notizen");
 			$tab->write();
+		}
+		else {
+			// title
+			$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
+			Writing::h2("Probe am $pdate Uhr");
 			
+			// tabs
+			$tabs = array(
+				"details" => "Details",
+				"invitations" => "Einladungen",
+				"participants" => "Teilnehmer",
+				"practise" => "Stücke zum Üben"
+			);
+			echo "<div class=\"view_tabs\">\n";
+			foreach($tabs as $tabid => $label) {
+				$href = $this->modePrefix() . "view&id=" . $_GET["id"] . "&tab=$tabid";
+				
+				$active = "";
+				if(isset($_GET["tab"]) && $_GET["tab"] == $tabid) $active = "_active";
+				else if(!isset($_GET["tab"]) && $tabid == "details") $active = "_active";
+			
+				echo "<a href=\"$href\"><span class=\"view_tab$active\">$label</span></a>";
+			}
+			echo "</div>\n";
+			echo "<div class=\"view_tab_content\">\n";
+			
+			// content
+			if(!isset($_GET["tab"]) || $_GET["tab"] == "details") {
+				$this->viewDetailTable();
+			}
+			else if($_GET["tab"] == "invitations") {
+				$this->invitations();
+			}
+			else if($_GET["tab"] == "participants") {
+				$this->participants();
+			}
+			else if($_GET["tab"] == "practise") {
+				$this->practise();
+			}
+			
+			echo "</div>\n";
+		}
+	}
+	
+	function viewOptions() {
+		if($this->isReadOnlyView()) {
 			$back = new Link($this->modePrefix() . "history&year=" . $_GET["year"], "Zurück");
 			$back->addIcon("arrow_left");
 			$back->write();
 		}
+		else if(!isset($_GET["tab"]) || $_GET["tab"] == "details") {
+			parent::viewOptions();
+			
+			// show a button to send a reminder to all about this rehearsal
+			$remHref = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation") . "&mode=rehearsalMail&preselect=" . $_GET["id"];
+			
+			$reminder = new Link($remHref, "Benachrichtigung senden");
+			$reminder->addIcon("email");
+			$reminder->write();
+		}
+		else if(isset($_GET["tab"]) && $_GET["tab"] == "invitations") {
+			$this->backToStart();
+			$this->buttonSpace();
+			
+			$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Einladung hinzufügen");
+			$addContact->addIcon("plus");
+			$addContact->write();
+			$this->buttonSpace();
+				
+			$printPartlist = new Link($this->modePrefix() . "printPartlist&id=" . $_GET["id"], "Teilnehmerliste drucken");
+			$printPartlist->addIcon("printer");
+			$printPartlist->write();
+		}
 		else {
-			parent::view();
+			$this->backToStart();
 		}
 	}
 	
