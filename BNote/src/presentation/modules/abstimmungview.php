@@ -24,7 +24,7 @@ class AbstimmungView extends CrudView {
 		$this->buttonSpace();
 		
 		$arc = new Link($this->modePrefix() . "archive", "Archiv");
-		$arc->addIcon("clock");
+		$arc->addIcon("archive");
 		$arc->write();
 	}
 	
@@ -101,7 +101,7 @@ class AbstimmungView extends CrudView {
 		
 		// show options link
 		$lnk = new Link($this->modePrefix() . "options&id=$vid", "Optionen hinzufügen");
-		$lnk->addIcon("add");
+		$lnk->addIcon("plus");
 		$lnk->write();
 		$this->buttonSpace();
 	}

@@ -20,6 +20,10 @@ class WebsiteView extends AbstractView {
 		
 		Writing::p("Klicke auf eine Seite um deren Inhalte zu bearbeiten.");
 		
+		$this->pageEditor();
+	}
+	
+	function startOptions() {
 		global $system_data;
 		if($system_data->isGalleryFeatureEnabled()) {
 			$g = new Link($this->modePrefix() . "gallery", "Galerien bearbeiten");
@@ -29,11 +33,9 @@ class WebsiteView extends AbstractView {
 		if($system_data->isInfopageFeatureEnabled()) {
 			if($system_data->isGalleryFeatureEnabled()) $this->buttonSpace();
 			$n = new Link($this->modePrefix() . "infos", "Sonderseiten");
-			$n->addIcon("webpage");
+			$n->addIcon("copy_link");
 			$n->write();
 		}
-		
-		$this->pageEditor();
 	}
 	
 	private function pageEditor() {
@@ -78,7 +80,7 @@ class WebsiteView extends AbstractView {
 		// setup
 		$filename = $this->getController()->getFilenameFromPage($page);
 		$html = file_get_contents($filename);
-		$title = "Seite <i>" . ucfirst($page) . "</i> bearbeiten";
+		$title = ucfirst($page) . " bearbeiten";
 		$saveHref = $this->modePrefix() . "save&page=" . $page;
 		
 		// show tinyMCE editor
@@ -104,14 +106,13 @@ class WebsiteView extends AbstractView {
 		$this->start();
 	}
 	
+	function saveOptions() {
+		$this->startOptions();
+	}
+	
 	function infos() {
 		Writing::h2("Sonderseiten");
 		Writing::p("Klicke auf eine Seite um diese zu bearbeiten.");
-		
-		// options
-		$addlink = new Link($this->modePrefix() . "addInfo", "Seite hinzuf&uuml;gen");
-		$addlink->addIcon("add");
-		$addlink->write();
 		
 		// show available pages
 		$infos = $this->getData()->getInfos();
@@ -123,10 +124,15 @@ class WebsiteView extends AbstractView {
 		$table->renameHeader("editedon", "Zuletzt bearbeitet am");
 		$table->renameHeader("title", "&Uuml;berschrift");
 		$table->write();
-		
-		// back
-		$this->verticalSpace();
+	}
+	
+	function infosOptions() {
 		$this->backToStart();
+		$this->buttonSpace();
+		
+		$addlink = new Link($this->modePrefix() . "addInfo", "Seite hinzuf&uuml;gen");
+		$addlink->addIcon("plus");
+		$addlink->write();
 	}
 	
 	function addInfo() {
@@ -134,8 +140,9 @@ class WebsiteView extends AbstractView {
 		$form->addElement("Titel", new Field("title", "", 7));
 		$form->addElement("Text", new Field("page", "", 98));
 		$form->write();
-		
-		// back
+	}
+	
+	function addInfoOptions() {
 		$this->backToInfos();
 	}
 	
@@ -146,8 +153,9 @@ class WebsiteView extends AbstractView {
 		else {
 			new Message("Seite gespeichert", "Die Seite wurde erfolgreich gespeichert.");
 		}
-		
-		// back
+	}
+	
+	function processAddInfoOptions() {
 		$this->backToInfos();
 	}
 	
@@ -160,11 +168,7 @@ class WebsiteView extends AbstractView {
 		// show edit information
 		Writing::h2($info["title"]);
 		
-		// show delete button
-		$delBtn = new Link($this->modePrefix() . "deleteInfo&id=" . $_GET["id"], "Seite l&ouml;schen");
-		$delBtn->addIcon("remove");
-		$delBtn->write();
-		
+		// details
 		$dv = new Dataview();
 		$dv->addElement("Autor", $author);
 		$dv->addElement("Erstellt am:", Data::convertDateFromDb($info["createdOn"]));
@@ -175,15 +179,21 @@ class WebsiteView extends AbstractView {
 		Writing::h3("Seiteninhalt bearbeiten");
 		echo "<form action=\"" . $this->modePrefix() . "processEditInfo&id=" . $_GET["id"] . "\" method=\"POST\">\n";
 		echo "<input type=\"submit\" value=\"speichern\" />\n";
+		$this->verticalSpace();
 		
 		$html = new HtmlEditor("page", $page_content);
 		$html->write();
 		
 		echo "</form>\n";
-		
-		// back
-		$this->verticalSpace();
+	}
+	
+	function editInfoOptions() {
 		$this->backToInfos();
+		$this->buttonSpace();
+		
+		$delBtn = new Link($this->modePrefix() . "deleteInfo&id=" . $_GET["id"], "Seite l&ouml;schen");
+		$delBtn->addIcon("remove");
+		$delBtn->write();
 	}
 	
 	function processEditInfo() {
@@ -193,16 +203,18 @@ class WebsiteView extends AbstractView {
 		else {
 			echo '<p>Die Seite wurde erfolgreich gespeichert.</p>';
 		}
-		
-		// back
+	}
+	
+	function processEditInfoOptions() {
 		$this->backToInfos();
 	}
 	
 	function deleteInfo() {
 		$this->getData()->deleteInfo($_GET["id"]);
 		echo '<p>Die Seite wurde erfolgreich gel&ouml;scht.</p>';
-		
-		// back
+	}
+	
+	function deleteInfoOptions() {
 		$this->backToInfos();
 	}
 	
@@ -230,10 +242,6 @@ class WebsiteView extends AbstractView {
 		$form = new Form("Galerie hinzuf&uuml;gen", $this->galleryModePrefix("addgallery"));
 		$form->addElement("Name", new Field("name", "", FieldType::CHAR));
 		$form->write();
-		
-		// show backButton
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	function gallery_addgallery() {
@@ -254,22 +262,6 @@ class WebsiteView extends AbstractView {
 		Writing::h2("Galerie " . $gallery["name"]);
 		Writing::p("Um ein Bild zu bearbeiten, klicke auf dieses.");		
 		
-		// show options: add image, edit, delete
-		$add = new Link($this->galleryModePrefix("addImageForm", "&id=$gid"), "Bild hinzufügen");
-		$add->addIcon("add");
-		$add->write();
-		$this->buttonSpace();
-		
-		$edit = new Link($this->galleryModePrefix("editgallery", "&id=$gid"), "Galeriename &auml;ndern");
-		$edit->addIcon("edit");
-		$edit->write();
-		$this->buttonSpace();
-		
-		$del = new Link($this->galleryModePrefix("deletegallery", "&id=$gid"), "Galerie l&ouml;schen");
-		$del->addIcon("remove");
-		$del->write();
-		$this->verticalSpace();
-		
 		// show images
 		$it = new ImageTable($images);
 		$it->setPrefixPath($GLOBALS["DATA_PATHS"]["gallery"] . "thumbs/$gid/");
@@ -277,11 +269,92 @@ class WebsiteView extends AbstractView {
 		$it->setImageColumn("filename");
 		$it->setIdBasedFilename();
 		$it->write();
-		
-		// back button
-		$this->verticalSpace();
-		$this->backToGallery();
-		
+	}
+	
+	function galleryOptions() {
+		if(isset($_GET["sub"])) {
+			switch ($_GET["sub"]) {
+				case "viewgallery": 
+					$this->backToGallery();
+					$this->buttonSpace();
+					$gid = $_GET["id"]; // convenience
+					
+					// show options: add image, edit, delete
+					$add = new Link($this->galleryModePrefix("addImageForm", "&id=$gid"), "Bild hinzufügen");
+					$add->addIcon("plus");
+					$add->write();
+					$this->buttonSpace();
+					
+					$edit = new Link($this->galleryModePrefix("editgallery", "&id=$gid"), "Galeriename &auml;ndern");
+					$edit->addIcon("edit");
+					$edit->write();
+					$this->buttonSpace();
+					
+					$del = new Link($this->galleryModePrefix("deletegallery", "&id=$gid"), "Galerie l&ouml;schen");
+					$del->addIcon("remove");
+					$del->write();
+					break;
+				case "addImageForm":
+					$this->backToGalleryView($_GET["id"]);
+					break;
+				case "editgallery":
+					$this->backToGalleryView($_GET["id"]);
+					break;
+				case "editgalleryprocess":
+					$this->backToGalleryView($_GET["id"]);
+					break;
+				case "addimage":
+					$this->backToGalleryView($_GET["id"]);
+					break;
+				case "viewimage":
+					$img = $this->getData()->getImage($_GET["id"]);
+					$this->backToGalleryView($img["gallery"]);
+					$this->buttonSpace();
+					
+					// show options
+					$std = new Link($this->galleryModePrefix("setimageasgallerydefault", "&id=" . $_GET["id"]), "als Vorschaubild setzen");
+					$std->addIcon("checkmark");
+					$std->write();
+					$this->buttonSpace();
+					$edit = new Link($this->galleryModePrefix("editimage", "&id=" . $_GET["id"]), "Bildbeschreibung &auml;ndern");
+					$edit->addIcon("edit");
+					$edit->write();
+					$this->buttonSpace();
+					$del = new Link($this->galleryModePrefix("deleteimage", "&id=" . $_GET["id"]), "Bild l&ouml;schen");
+					$del->addIcon("remove");
+					$del->write();
+					$this->verticalSpace();
+					break;
+				case "setimageasgallerydefault":
+					$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zur&uuml;ck");
+					$back->addIcon("arrow_left");
+					$back->write();
+					break;
+				case "editimage":
+					$img = $this->getData()->getImage($_GET["id"]);
+					$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zur&uuml;ck");
+					$back->addIcon("arrow_left");
+					$back->write();
+					break;
+				case "editimageprocess":
+					$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zur&uuml;ck");
+					$back->addIcon("arrow_left");
+					$back->write();
+					break;
+				case "deleteimage":
+					// none;
+					break;
+				case "deleteimageprocess":
+					$img = $this->getData()->getImage($_GET["id"]);
+					$this->backToGalleryView($img["gallery"]);
+					break;
+				default: 
+					$this->backToStart(); break;
+			}
+		}
+		else {
+			$this->backToStart();
+		}
 	}
 	
 	function gallery_addImageForm() {
@@ -292,10 +365,6 @@ class WebsiteView extends AbstractView {
 		$form->addElement("Beschreibung", new Field("description", "", FieldType::TEXT));
 		$form->addElement("Bild", new Field("file", "", FieldType::FILE));
 		$form->write();
-		
-		// back button
-		$this->verticalSpace();
-		$this->backToGalleryView($_GET["id"]);
 	}
 	
 	function gallery_editgallery() {
@@ -309,10 +378,6 @@ class WebsiteView extends AbstractView {
 		$form = new Form("Galerienamen &auml;ndern", $this->galleryModePrefix("editgalleryprocess", "&id=$gid"));
 		$form->addElement("Name", new Field("name", $gallery["name"], FieldType::CHAR));
 		$form->write();
-		$this->verticalSpace();
-		
-		// back button
-		$this->backToGalleryView($gid);
 	}
 	
 	function gallery_editgalleryprocess() {
@@ -321,7 +386,6 @@ class WebsiteView extends AbstractView {
 		
 		// show success
 		new Message("Galerie ge&auml;ndert", "Die Galerie wurde erfolgreich ge&auml;ndert.");
-		$this->backToGalleryView($_GET["id"]);
 	}
 	
 	/**
@@ -362,7 +426,6 @@ class WebsiteView extends AbstractView {
 		$this->getData()->addImageToGallery($_GET["id"]);
 		
 		new Message("Bild hinzuge&uuml;gt", "Das Bild wurde erfolgreiche zur Galerie hinzugef&uuml;gt.");
-		$this->backToGalleryView($_GET["id"]);
 	}
 	
 	function gallery_viewimage() {
@@ -373,30 +436,12 @@ class WebsiteView extends AbstractView {
 		// Show name
 		Writing::h2($img["name"]);
 		
-		// show options
-		$std = new Link($this->galleryModePrefix("setimageasgallerydefault", "&id=" . $_GET["id"]), "als Vorschaubild setzen");
-		$std->addIcon("checkmark");
-		$std->write();
-		$this->buttonSpace();
-		$edit = new Link($this->galleryModePrefix("editimage", "&id=" . $_GET["id"]), "Bildbeschreibung &auml;ndern");
-		$edit->addIcon("edit");
-		$edit->write();
-		$this->buttonSpace();
-		$del = new Link($this->galleryModePrefix("deleteimage", "&id=" . $_GET["id"]), "Bild l&ouml;schen");
-		$del->addIcon("remove");
-		$del->write();
-		$this->verticalSpace();
-		
 		// show image
 		$path = $this->getController()->getGalleryDir();
 		$imgtype = substr($img["filename"], strrpos($img["filename"], ".")); // e.g. ".jpg"
 		$src = $path . $img["gallery"] . "/" . $img["id"] . $imgtype; 
 		Writing::img($src, $img["name"]);
 		Writing::p($img["description"]);
-		
-		// show back button
-		$this->verticalSpace();
-		$this->backToGalleryView($img["gallery"]);
 	}
 	
 	function gallery_editimage() {
@@ -409,11 +454,6 @@ class WebsiteView extends AbstractView {
 		$form->addElement("Name", new Field("name", $img["name"], FieldType::CHAR));
 		$form->addElement("Beschreibung", new Field("description", $img["description"], FieldType::TEXT));
 		$form->write();
-		
-		// show back button
-		$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zur&uuml;ck");
-		$back->addIcon("arrow_left");
-		$back->write();
 	}
 	
 	function gallery_editimageprocess() {
@@ -422,9 +462,6 @@ class WebsiteView extends AbstractView {
 		
 		// show success
 		new Message("Bild ge&auml;ndert", "Die Beschreibungen wurden ge&auml;ndert.");
-		$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zur&uuml;ck");
-		$back->addIcon("arrow_left");
-		$back->write();
 	}
 	
 	function gallery_deleteimage() {
@@ -445,7 +482,6 @@ class WebsiteView extends AbstractView {
 		
 		// show success
 		new Message("Bild gel&ouml;scht", "Das Bild wurde gel&ouml;scht.");
-		$this->backToGalleryView($img["gallery"]);
 	}
 	
 	function gallery_setimageasgallerydefault() {
@@ -454,9 +490,6 @@ class WebsiteView extends AbstractView {
 		
 		// show success
 		new Message("Bild als Vorschaubild gespeichert", "Das Bild wurde als Vorschau f&uuml;r diese Galerie gespeichert.");
-		$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zur&uuml;ck");
-		$back->addIcon("arrow_left");
-		$back->write();
 	}
 	
 	private function backToGallery() {

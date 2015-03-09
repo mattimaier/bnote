@@ -65,7 +65,7 @@ class HilfeView extends AbstractView {
 				// show an introduction video
 				$active = false;
 				foreach($this->introPages as $code => $page) {
-					if(isset($_GET["page"]) && $_GET["page"] == $helpPageId) $active = true;
+					if(isset($_GET["page"]) && $_GET["page"] == $code) $active = true;
 					else if(isset($_GET["vid"]) && $_GET["vid"] == $code) $active = true;
 					
 					if($page == "vid") {
