@@ -16,7 +16,7 @@ class ProbenphasenView extends CrudView {
 		parent::startOptions();
 		$this->buttonSpace();
 		$hist = new Link($this->modePrefix() . "history", "Vergangene Probenphasen");
-		$hist->addIcon("clock");
+		$hist->addIcon("timer");
 		$hist->write();
 	}
 
@@ -39,21 +39,8 @@ class ProbenphasenView extends CrudView {
 		$data = $this->getData()->getPhases(false);
 		$this->showPhaseTable($data);
 	}
-
-	function viewDetailTable() {
-		// stem data
-		$dv = new Dataview();
-		$dv->autoAddElements($this->getData()->findByIdNoRef($_GET["id"]));
-		$dv->removeElement("id");
-		$dv->autoRename($this->getData()->getFields());
-		$dv->write();
-
-		// rehearsals
-		Writing::h3("Proben");
-		$addReh = new Link($this->modePrefix() . "addRehearsal&id=" . $_GET["id"], "Probe hinzufügen");
-		$addReh->addIcon("add");
-		$addReh->write();
-
+	
+	protected function tab_rehearsals() {		
 		$rehearsals = $this->getData()->getRehearsalsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("rehearsal", $rehearsals));
 		$table->renameAndAlign(array(
@@ -64,13 +51,9 @@ class ProbenphasenView extends CrudView {
 		$table->setColumnFormat("begin", "DATE");
 		$table->removeColumn("id");
 		$table->write();
-
-		// concerts
-		Writing::h3("Konzerte");
-		$addConcert = new Link($this->modePrefix() . "addConcert&id=" . $_GET["id"], "Konzert hinzufügen");
-		$addConcert->addIcon("add");
-		$addConcert->write();
-
+	}
+	
+	protected function tab_concerts() {		
 		$concerts = $this->getData()->getConcertsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("concert", $concerts));
 		$table->renameAndAlign(array(
@@ -82,18 +65,9 @@ class ProbenphasenView extends CrudView {
 		$table->setColumnFormat("begin", "DATE");
 		$table->removeColumn("id");
 		$table->write();
-
-		// contacts
-		Writing::h3("Kontakte");
-		$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Kontakt hinzufügen");
-		$addContact->addIcon("add");
-		$addContact->write();
-		$this->buttonSpace();
-		
-		$addGroupContacts = new Link($this->modePrefix() . "addMultipleContacts&id=" . $_GET["id"], "Kontakte einer Gruppe hinzufügen");
-		$addGroupContacts->addIcon("add");
-		$addGroupContacts->write();
-
+	}
+	
+	protected function tab_contacts() {		
 		$contacts = $this->getData()->getContactsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("contact", $contacts));
 		$table->renameAndAlign(array(
@@ -107,6 +81,92 @@ class ProbenphasenView extends CrudView {
 		$table->write();
 	}
 
+	function viewDetailTable() {
+		// stem data
+		$dv = new Dataview();
+		$dv->autoAddElements($this->getData()->findByIdNoRef($_GET["id"]));
+		$dv->removeElement("id");
+		$dv->autoRename($this->getData()->getFields());
+		$dv->write();
+	}
+	
+	function view() {
+		$this->checkID();
+		
+		// always write title first
+		$pp = $this->getData()->findByIdNoRef($_GET["id"]);
+		Writing::h2($pp["name"]);
+		
+		$tabs = array(
+				"details" => "Details",
+				"rehearsals" => "Proben",
+				"contacts" => "Teilnehmer",
+				"concerts" => "Konzerte"
+		);
+		echo "<div class=\"view_tabs\">\n";
+		foreach($tabs as $tabid => $label) {
+			$href = $this->modePrefix() . "view&id=" . $_GET["id"] . "&tab=$tabid";
+
+			$active = "";
+			if(isset($_GET["tab"]) && $_GET["tab"] == $tabid) $active = "_active";
+			else if(!isset($_GET["tab"]) && $tabid == "details") $active = "_active";
+
+			echo "<a href=\"$href\"><span class=\"view_tab$active\">$label</span></a>";
+		}
+		echo "</div>\n";
+		echo "<div class=\"view_tab_content\">\n";
+
+		// content
+		if(!isset($_GET["tab"]) || $_GET["tab"] == "details") {
+			$this->viewDetailTable();
+		}
+		else {
+			$func = "tab_" . $_GET["tab"];
+			$this->$func();
+		}
+			
+		echo "</div>\n";
+	}
+	
+	function viewOptions() {
+		if(!isset($_GET["tab"]) || $_GET["tab"] == "details") {
+			parent::viewOptions();
+		}
+		else {
+			$this->backToStart();
+			$this->buttonSpace();
+			
+			switch($_GET["tab"]) {
+				case "rehearsals":
+					$addReh = new Link($this->modePrefix() . "addRehearsal&id=" . $_GET["id"], "Probe hinzufügen");
+					$addReh->addIcon("plus");
+					$addReh->write();
+					break;
+				case "contacts":
+					$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Kontakt hinzufügen");
+					$addContact->addIcon("plus");
+					$addContact->write();
+					$this->buttonSpace();
+					
+					$addGroupContacts = new Link($this->modePrefix() . "addMultipleContacts&id=" . $_GET["id"], "Kontakte einer Gruppe hinzufügen");
+					$addGroupContacts->addIcon("plus");
+					$addGroupContacts->write();
+					break;
+				case "concerts":
+					$addConcert = new Link($this->modePrefix() . "addConcert&id=" . $_GET["id"], "Konzert hinzufügen");
+					$addConcert->addIcon("plus");
+					$addConcert->write();
+					break;
+			}
+		}
+	}
+	
+	protected function backToViewTab($id, $tab) {
+		$back = new Link($this->modePrefix() . "view&id=$id&tab=$tab", "Zurück");
+		$back->addIcon("arrow_left");
+		$back->write();
+	}
+
 	function addRehearsal() {
 		$form = new Form("Probe hinzufügen", $this->modePrefix() . "process_addRehearsal&id=" . $_GET["id"]);
 
@@ -118,15 +178,19 @@ class ProbenphasenView extends CrudView {
 		$gs->setCaptionType(FieldType::DATE);
 		$form->addElement("kommende Proben", $gs);
 		$form->write();
-
-		$this->verticalSpace();
+	}
+	
+	function addRehearsalOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
 
 	function process_addRehearsal() {
 		$this->getData()->addRehearsals($_GET["id"]);
 		new Message("Proben hinzugefügt", "Die ausgewählten Proben wurden der Probenphase hinzugefügt.");
-		$this->backToViewButton($_GET["id"]);
+	}
+	
+	function process_addRehearsalOptions() {
+		$this->backToViewTab($_GET["id"], "rehearsals");
 	}
 
 	function addConcert() {
@@ -140,15 +204,19 @@ class ProbenphasenView extends CrudView {
 		$gs->setCaptionType(FieldType::DATE);
 		$form->addElement("kommende Konzerte", $gs);
 		$form->write();
-
-		$this->verticalSpace();
-		$this->backToViewButton($_GET["id"]);
+	}
+	
+	function addConcertOptions() {
+		$this->backToViewTab($_GET["id"], "concerts");
 	}
 
 	function process_addConcert() {
 		$this->getData()->addConcerts($_GET["id"]);
 		new Message("Konzerte hinzugefügt", "Die ausgewählten Konzerte wurden der Probenphase hinzugefügt.");
-		$this->backToViewButton($_GET["id"]);
+	}
+	
+	function process_addConcertOptions() {
+		$this->backToViewTab($_GET["id"], "concerts");
 	}
 
 	function addContact() {
@@ -160,15 +228,20 @@ class ProbenphasenView extends CrudView {
 		$gs = new GroupSelector($contacts, array(), "contact");
 		$form->addElement("Kontakte", $gs);
 		$form->write();
-
-		$this->verticalSpace();
-		$this->backToViewButton($_GET["id"]);
+	}
+	
+	function addContactOptions() {
+		$this->backToViewTab($_GET["id"], "contacts");
 	}
 	
 	function process_addContact() {
 		$this->getData()->addContacts($_GET["id"]);
 		new Message("Kontakte hinzugefügt", "Die ausgewählten Kontakte wurden der Probenphase hinzugefügt.");
 		$this->backToViewButton($_GET["id"]);
+	}
+	
+	function process_addContactOptions() {
+		$this->backToViewTab($_GET["id"], "contacts");
 	}
 	
 	function addMultipleContacts() {
@@ -180,14 +253,18 @@ class ProbenphasenView extends CrudView {
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(true), array(), "group");
 		$form->addElement("Gruppen", $gs);
 		$form->write();
-		
-		$this->verticalSpace();
-		$this->backToViewButton($_GET["id"]);
+	}
+	
+	function addMultipleContactsOptions() {
+		$this->backToViewTab($_GET["id"], "contacts");
 	}
 
 	function process_addMultipleContacts() {
 		$this->getData()->addGroupContacts($_GET["id"]);
 		new Message("Kontakte hinzugefügt", "Die ausgewählten Kontakte wurden der Probenphase hinzugefügt.");
+	}
+	
+	function process_addMultipleContactsOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
 	

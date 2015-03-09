@@ -38,10 +38,7 @@ class KonfigurationView extends CrudView {
 		$table->write();
 	}
 	
-	function startOptions() {
-		parent::startOptions();
-		$this->buttonSpace();
-		
+	function startOptions() {		
 		// instrument configuration
 		$istr = new Link($this->modePrefix() . "instruments", "Instrumente");
 		$istr->addIcon("instrument");
@@ -56,6 +53,10 @@ class KonfigurationView extends CrudView {
 		
 		// show form
 		$this->editEntityForm();
+	}
+	
+	function editOptions() {
+		$this->backToStart();
 	}
 	
 	function editEntityForm() {

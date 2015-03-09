@@ -72,6 +72,7 @@ class ProbenphasenData extends AbstractData {
 		$count = 0;
 		
 		foreach($data as $i => $row) {
+			if($i == 0) continue;
 			$fieldName = $entity . "_" . $row["id"];
 		
 			if(isset($_POST[$fieldName]) && $_POST[$fieldName] == "on") {
@@ -115,6 +116,7 @@ class ProbenphasenData extends AbstractData {
 		$groups = $this->adp()->getGroups(true);
 		$groupsToAdd = array();
 		foreach($groups as $i => $group) {
+			if($i == 0) continue;
 			$field = "group_" . $group["id"];
 			if(isset($_POST[$field]) && $_POST[$field] == "on") {
 				array_push($groupsToAdd, $group["id"]);
