@@ -22,18 +22,18 @@ class AufgabenView extends CrudRefView {
 		parent::startOptions();
 		$this->buttonSpace();
 		$grpTask = new Link($this->modePrefix() . "addGroupTask", "Gruppenaufgabe hinzufügen");
-		$grpTask->addIcon("add");
+		$grpTask->addIcon("plus");
 		$grpTask->write();
 		
 		$this->buttonSpace();
 		if(isset($_GET["table"]) && $_GET["table"] == "completed") {
 			$showOpen = new Link($this->modePrefix() . "start&table=open", "Offene Aufgaben anzeigen");
-			$showOpen->addIcon("note");
+			$showOpen->addIcon("tasks");
 			$showOpen->write();
 		}
 		else {
 			$showCompleted = new Link($this->modePrefix() . "start&table=completed", "Abgeschlossene Aufgaben anzeigen");
-			$showCompleted->addIcon("note");
+			$showCompleted->addIcon("tasks");
 			$showCompleted->write();
 		}
 	}
@@ -123,7 +123,7 @@ class AufgabenView extends CrudRefView {
 		
 		if($this->getData()->isTaskComplete($_GET["id"])) {
 			$markTodo = new Link($this->modePrefix() . "markTask&as=open&id=" . $_GET["id"], "Als offen markieren");
-			$markTodo->addIcon("note");
+			$markTodo->addIcon("tasks");
 			$markTodo->write();
 		}
 		else {

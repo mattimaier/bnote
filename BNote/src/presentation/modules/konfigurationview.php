@@ -44,7 +44,7 @@ class KonfigurationView extends CrudView {
 		
 		// instrument configuration
 		$istr = new Link($this->modePrefix() . "instruments", "Instrumente");
-		$istr->addIcon("music_file");
+		$istr->addIcon("instrument");
 		$istr->write();
 	}
 	
