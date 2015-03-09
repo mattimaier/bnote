@@ -156,6 +156,7 @@ class Systemdata {
  		return array(
 				"home" => "Start",
  				"login" => "Login",
+ 				"logout" => "Logout",
  				"forgotPassword" => "Passwort",
  				"registration" => "Registrierung",
  				"whyBNote" => "Warum BNote?",

@@ -8,6 +8,12 @@
 class ShareView extends AbstractView {
 	
 	/**
+	 * Main widget to manage files and folders.
+	 * @var Filebrowser
+	 */
+	private $filebrowser;
+	
+	/**
 	 * Create a new share module view.
 	 * @param DefaultController $ctrl Controller of the module.
 	 */
@@ -15,17 +21,27 @@ class ShareView extends AbstractView {
 		$this->setController($ctrl);
 	}
 	
+	private function initFilebrowser() {
+		if($this->filebrowser == null) {
+			$this->filebrowser = new Filebrowser($GLOBALS["DATA_PATHS"]["share"], $this->getData()->getSysdata(), $this->getData()->adp());
+		}
+	}
+	
 	function start() {
 		Writing::h1("Dateiverwaltung");
-		$fb = new Filebrowser($GLOBALS["DATA_PATHS"]["share"], $this->getData()->getSysdata(), $this->getData()->adp());
-		
+		$this->initFilebrowser();
 		$viewMode = $this->getData()->getSysdata()->getDynamicConfigParameter("share_nonadmin_viewmode");
 		if($viewMode == "1" && !$this->getData()->getSysdata()->isUserSuperUser()
 				&& !$this->getData()->adp()->isGroupMember(1)) {
-			$fb->viewMode(true);
+			$this->filebrowser->viewMode(true);
 		}
 		
-		$fb->write();
+		$this->filebrowser->write();
+	}
+	
+	function startOptions() {
+		$this->initFilebrowser();
+		$this->filebrowser->showOptions();
 	}
 	
 }

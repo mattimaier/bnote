@@ -192,7 +192,7 @@ abstract class AbstractView {
 	/**
 	 * Prints the string which contrains the space inbetween buttons.
 	 */
-	protected function buttonSpace() {
+	static function buttonSpace() {
 		echo "&nbsp;&nbsp;";
 	}
 	

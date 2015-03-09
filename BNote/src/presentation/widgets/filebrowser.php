@@ -72,7 +72,7 @@ class Filebrowser implements iWriteable {
 		$this->viewmode = $bool;
 	}
 	
-	function write() {
+	protected function setCurrentPath() {
 		// determine current location
 		if(isset($_GET["path"])) {
 			$this->path = urldecode($_GET["path"]);
@@ -83,6 +83,10 @@ class Filebrowser implements iWriteable {
 		else {
 			$this->path = "";
 		}
+	}
+	
+	function write() {
+		$this->setCurrentPath();
 		
 		// strip root if path contains root
 		if(Data::startsWith($this->path, $this->root)) {
@@ -108,22 +112,26 @@ class Filebrowser implements iWriteable {
 		}
 	}
 	
-	private function mainView() {
+	function showOptions() {
+		$this->setCurrentPath();
+		
 		// show the add folder button if in write-mode
 		if(!$this->viewmode) {
 			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($this->path)), "Ordner hinzufügen");
-			$lnk->addIcon("add");
+			$lnk->addIcon("plus");
 			$lnk->write();
-			
+				
 			if($this->path != "") {
-				echo "&nbsp;&nbsp;";
+				AbstractView::buttonSpace();
 				$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($this->path)), "Datei hinzufügen");
-				$lnk->addIcon("add");
+				$lnk->addIcon("plus");
 				$lnk->write();
 			}
-			
+				
 		}
-		
+	}
+	
+	private function mainView() {		
 		// show the folders and their contents
 		?>
 		<table id="filebrowser_content">
