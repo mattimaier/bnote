@@ -45,6 +45,7 @@ class MitspielerData extends AbstractData {
 		if($this->getSysdata()->isUserSuperUser($uid) || $this->getSysdata()->isUserMemberGroup(1, $uid)) {
 			$query = "SELECT $fields FROM contact c
 					  JOIN instrument i ON c.instrument = i.id
+					  LEFT JOIN address a ON c.address = a.id
 					  $order";
 			return $this->database->getSelection($query);
 		}

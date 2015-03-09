@@ -26,6 +26,10 @@ class MitspielerView extends AbstractView {
 		$table->renameHeader("fullname", "Name");
 		$table->write();
 	}
+	
+	function startOptions() {
+		// none
+	}
 }
 
 ?>
