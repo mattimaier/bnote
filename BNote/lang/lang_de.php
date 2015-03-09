@@ -81,8 +81,14 @@ class Translation {
 			"download" => "Download",
 			"archiveCreated" => "Das Archiv wurde erstellt und kann unter folgendem Link heruntergeladen werden.",
 			"downloadArchive" => "Archiv herunterladen",
-			
 			"noEntries" => "Keine Eintr&auml;ge vorhanden",
+			
+			// module: start
+			"start_calendarExport" => "Kalender Export",
+			"start_calendarSubscribe" => "Kalender abonnieren",
+			"news" => "Nachrichten",
+			"nonIntegratedUsers" => 'Es gibt inaktive oder nicht integrierte Nutzer. Bitte gehe auf Kontakte/Einphasung und kümmere dich darum.',
+			"rehearsals" => "Proben"
 	);
 	
 	public function getText($code) {

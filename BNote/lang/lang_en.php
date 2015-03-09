@@ -11,7 +11,7 @@ class Translation {
 			"welcome" => "Welcome",
 			"autoActivation" => "The automated user activation is enabled. Please see the security notes for details.",
 			"back" => "Back",
-			"delete" => "delete",
+			"delete" => "Delete",
 			"deleted" => "deleted",
 			"reallyDeleteQ" => "Do you really want to delete this entry?",
 			"noUserId" => "Please specify a user id.",
@@ -81,8 +81,14 @@ class Translation {
 			"download" => "Download",
 			"archiveCreated" => "The archive was created and can be downloaded now from the following link.",
 			"downloadArchive" => "Download Archive",
-			
 			"noEntries" => "Keine Eintr&auml;ge vorhanden",
+
+			// module: start
+			"start_calendarExport" => "Export Calendar",
+			"start_calendarSubscribe" => "Subscribe to Calendar",
+			"news" => "News",
+			"nonIntegratedUsers" => 'Non integrated users have been detected. Please change to Contacts/Integration to integrate them into your ensemble.',
+			"rehearsals" => "Rehearsals"
 	);
 	
 	public function getText($code) {

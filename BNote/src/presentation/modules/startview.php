@@ -43,7 +43,7 @@ class StartView extends AbstractView {
 		// Calendar Exports
 		$userExt = "?user=" . urlencode($this->getData()->adp()->getLogin());
 		
-		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender Export");
+		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("start_calendarExport"));
 		$ical->addIcon("save");
 		$ical->write();
 		$this->buttonSpace();
@@ -57,7 +57,7 @@ class StartView extends AbstractView {
 		else {
 			$systemUrl = $_SERVER["HTTP_HOST"] . str_replace("main.php", "", $_SERVER["SCRIPT_NAME"]);
 		}
-		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", "Kalender abonnieren");
+		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("start_calendarSubscribe"));
 		$calSubsc->addIcon("calendar");
 		$calSubsc->write();
 	}
@@ -67,7 +67,7 @@ class StartView extends AbstractView {
 		if($news != "") {
 			?>
 			<div class="start_box_news">
-				<div class="start_box_heading">Nachrichten</div>
+				<div class="start_box_heading"><?php echo Lang::txt("news"); ?></div>
 				<div class="start_box_content">
 					<?php
 					// news
@@ -78,7 +78,7 @@ class StartView extends AbstractView {
 							&& $this->getController()->usersToIntegrate()) {
 						$this->verticalSpace();
 						echo '<span class="warning">';
-						echo 'Es gibt inaktive oder nicht integrierte Nutzer. Bitte gehe auf Kontakte/Einphasung und kümmere dich darum.';
+						echo Lang::txt("nonIntegratedUsers");
 						echo '</span>';
 					}
 					?>
@@ -90,7 +90,7 @@ class StartView extends AbstractView {
 		<div class="start_box_table">
 			<div class="start_box_row">
 				<div class="start_box" style="padding-right: 10px;">
-					<div class="start_box_heading">Proben</div>
+					<div class="start_box_heading"><?php echo Lang::txt("rehearsals"); ?></div>
 					<div class="start_box_content">
 						<?php
 						if(isset($_GET["max"]) && $_GET["max"] >= 0) {
