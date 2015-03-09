@@ -117,13 +117,13 @@ class Filebrowser implements iWriteable {
 		
 		// show the add folder button if in write-mode
 		if(!$this->viewmode) {
-			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($this->path)), "Ordner hinzufügen");
+			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($this->path)), Lang::txt("addFolder"));
 			$lnk->addIcon("plus");
 			$lnk->write();
 				
 			if($this->path != "") {
 				AbstractView::buttonSpace();
-				$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($this->path)), "Datei hinzufügen");
+				$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($this->path)), Lang::txt("addFile"));
 				$lnk->addIcon("plus");
 				$lnk->write();
 			}
@@ -137,7 +137,7 @@ class Filebrowser implements iWriteable {
 		<table id="filebrowser_content">
 			<tr>
 				<td id="filebrowser_folders">
-				<div class="filebrowser_foldertopic">Favoriten</div>
+				<div class="filebrowser_foldertopic"><?php echo Lang::txt("favorites"); ?></div>
 				<?php $this->writeFavs(); ?>
 				</td>
 				<td id="filebrowser_files">
@@ -155,12 +155,12 @@ class Filebrowser implements iWriteable {
 	private function writeFavs() {
 		// get favorite dirs
 		$favs = array(
-			"Meine Dateien" => $this->sysdata->getUsersHomeDir(),
-			"Tauschordner" => $this->root
+			Lang::txt("myFiles") => $this->sysdata->getUsersHomeDir(),
+			Lang::txt("commonShare") => $this->root
 		);
 		
 		if($this->adp->getSecurityManager()->isUserAdmin()) {
-			$favs["Benutzerordner"] = $GLOBALS["DATA_PATHS"]["userhome"];
+			$favs[Lang::txt("userFolder")] = $GLOBALS["DATA_PATHS"]["userhome"];
 		}
 		
 		$groups = $this->adp->getUsersGroups();
@@ -171,7 +171,7 @@ class Filebrowser implements iWriteable {
 		if($groups != null && count($groups) > 0) { 
 			foreach($groups as $i => $gid) {
 				$name = $this->sysdata->dbcon->getCell("`group`", "name", "id = $gid");
-				$name = "<span style=\"font-style: italic;\">Gruppenorder</span>:<br/>" . $name;
+				$name = "<span style=\"font-style: italic;\">" . Lang::txt("groupFolder") . "</span>:<br/>" . $name;
 				$favs[$name] = $this->root . "groups/group_" . $gid . "/";
 			}
 		}
@@ -218,7 +218,7 @@ class Filebrowser implements iWriteable {
 	 */
 	private function writeFolderContent() {
 		if($this->path == "") {
-			Writing::p("Bitte w&auml;hle einen Ordner.");
+			Writing::p(Lang::txt("selectFolder"));
 		}
 		else {
 			$caption = $this->getFolderCaption();
@@ -226,14 +226,14 @@ class Filebrowser implements iWriteable {
 			
 			// level up
 			if(strpos($caption, "/") !== false) {
-				$up = new Link($this->linkprefix("view&path=" . urlencode($this->levelUp())), "In Überordner wechseln");
+				$up = new Link($this->linkprefix("view&path=" . urlencode($this->levelUp())), Lang::txt("folderUp"));
 				$up->addIcon("arrow_up");
 				$up->write();
 				
 				if($this->sysdata->getDynamicConfigParameter("allow_zip_download") == "1") {
 					// only allow downloads of subfolders, not the root-folders to prevent heavy load on server
-					echo "&nbsp;&nbsp;";
-					$dl = new Link($this->linkprefix("download&path=" . urlencode($this->path)), "Ordner als Zip-Archiv herunterladen");
+					AbstractView::buttonSpace();
+					$dl = new Link($this->linkprefix("download&path=" . urlencode($this->path)), Lang::txt("folderAsZip"));
 					$dl->addIcon("arrow_down");
 					$dl->write();
 				}
@@ -241,26 +241,26 @@ class Filebrowser implements iWriteable {
 			
 			// show table with files
 			$table = new Table($this->getFilesFromFolder($this->root . $this->path));
-			$table->renameHeader("name", "Dateiname");
-			$table->renameHeader("size", "Größe");
-			$table->renameHeader("options", "Optionen");
+			$table->renameHeader("name", Lang::txt("filename"));
+			$table->renameHeader("size", Lang::txt("filesize"));
+			$table->renameHeader("options", Lang::txt("fileoptions"));
 			$table->write();
 		}
 	}
 	
 	private function addFolderForm() {
-		$form = new Form("Ordner erstellen", $this->linkprefix("addFolder&path=" . $this->path));
-		$form->addElement("Ordnername", new Field("folder", "", FieldType::CHAR));
+		$form = new Form(Lang::txt("createFolder"), $this->linkprefix("addFolder&path=" . $this->path));
+		$form->addElement(Lang::txt("foldername"), new Field("folder", "", FieldType::CHAR));
 		$form->addHidden("path", urlencode($_GET["path"]));
 		$form->write();
 	}
 	
 	private function addFileForm() {
-		$form = new Form("Datei hinzuf&uuml;gen", $this->linkprefix("addFile&path=" . $this->path));
+		$form = new Form(Lang::txt("createFile"), $this->linkprefix("addFile&path=" . $this->path));
 		$form->setMultipart();
-		$form->addElement("Datei", new Field("file", "", FieldType::FILE));
+		$form->addElement(Lang::txt("file"), new Field("file", "", FieldType::FILE));
 		$form->addHidden("path", urlencode($_GET["path"]));
-		$form->changeSubmitButton("Datei hochladen");
+		$form->changeSubmitButton(Lang::txt("uploadFile"));
 		$form->write();
 	}
 	
@@ -270,35 +270,35 @@ class Filebrowser implements iWriteable {
 	private function addFile() {
 		// check permission
 		if($this->viewmode) {
-			new Error("Du hast keine Berechtigung eine Datei hinzuzuf&uuml;gen.");
+			new Error(Lang::txt("noFileAddPermission"));
 		}
 		
 		// validate upload
 		if(!isset($_FILES["file"])) {
-			new Error("Es trat ein Fehler beim verarbeiten der Datei auf. Bitte versuche es noch einmal.");
+			new Error(Lang::txt("errorWithFile"));
 		}
 		if($_FILES["file"]["error"] > 0) {
 			switch($_FILES["file"]["error"]) {
-				case 1: $msg = "Die maximale Dateigr&ouml;&szlig;e wurde &uuml;berschritten."; break;
-				case 2: $msg = "Die maximale Dateigr&ouml;&szlig;e wurde &uuml;berschritten."; break;
-				case 3: $msg = "Die Datei wurde nur teilweise hochgeladen. Bitte &uuml;berpr&uuml;fe deine Internetverbindung."; break;
-				case 4: $msg = "Es wurde keine Datei hochgeladen."; break;
-				default: $msg = "Serverfehler beim Speichern der Datei."; break;
+				case 1: $msg = Lang::txt("errorFileMaxSize"); break;
+				case 2: $msg = Lang::txt("errorFileMaxSize"); break;
+				case 3: $msg = Lang::txt("errorFileAbort"); break;
+				case 4: $msg = Lang::txt("errorNoFile"); break;
+				default: $msg = Lang::txt("errorSavingFile"); break;
 			}
 			new Error($msg);
 		}
 		if(!is_uploaded_file($_FILES["file"]["tmp_name"])) {
-			new Error("Die Datei konnte nicht hochgeladen werden.");
+			new Error(Lang::txt("errorUploadingFile"));
 		}
 		
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_WRITE, $this->root . $this->path)) {
-			new Error("Du hast keine Berechtigung eine Datei hinzuzuf&uuml;gen.");
+			new Error(Lang::txt("noFileAddPermission"));
 		}
 		
 		// copy file to target directory
 		$target = $this->root . $this->path;
 		if(!copy($_FILES["file"]["tmp_name"], $target . "/" . $_FILES["file"]["name"])) {
-			new Error("Die Datei konnte nicht gespeichert werden.");
+			new Error(Lang::txt("errorSavingFile"));
 		}
 		
 		$this->mainView();
@@ -310,19 +310,19 @@ class Filebrowser implements iWriteable {
 	private function deleteFile() {
 		// check permission
 		if($this->viewmode) {
-			new Error("Du hast keine Berechtigung eine Datei zu l&uml;schen.");
+			new Error(Lang::txt("errorDeletingFile"));
 		}
 		
 		// decode filename
 		if(!isset($_GET["file"])) {
-			new Error("Die Datei konnte nicht gefunden werden.");
+			new Error(Lang::txt("errorFileNotFound"));
 		}
 		$fn = urldecode($_GET["file"]);
 		$fullpath = $this->root . $this->path . "/" . $fn; 
 		
 		// check permission to delete
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $this->path . "/" . $fn)) {
-			new Error("Du hast keine Berechtigung die Datei zu löschen");
+			new Error(Lang::txt("errorDeletingFile"));
 		}
 		
 		if(is_dir($fullpath)) {
@@ -341,7 +341,7 @@ class Filebrowser implements iWriteable {
 	private function addFolder() {		
 		// check permission
 		if($this->viewmode) {
-			new Error("Du hast keine Berechtigung einen Order hinzuzuf&uuml;gen.");
+			new Error(Lang::txt("noFolderAddPermission"));
 		}
 		
 		// validate name
@@ -350,7 +350,7 @@ class Filebrowser implements iWriteable {
 		
 		// prevent user from adding reserved directories to root folder
 		if($_POST["folder"] == "users" || $_POST["folder"] == "groups") {
-			new Error("Der neue Ordner darf nicht \"users\" oder \"groups\" heißen.");
+			new Error(Lang::txt("errorReservedFolderNames"));
 		}
 		
 		// create folder in root
@@ -400,20 +400,20 @@ class Filebrowser implements iWriteable {
 					
 					// create options
 					if(is_dir($fullpath)) {
-						$openLink = new Link($this->linkprefix("view&path=" . urlencode($fullpath . "/")), "Öffnen");
+						$openLink = new Link($this->linkprefix("view&path=" . urlencode($fullpath . "/")), Lang::txt("open"));
 						$openLink->addIcon("arrow_right");
 						$show = $openLink->toString();
 					}
 					else {
 						$sharePath = substr($fullpath, strlen($this->root)-1);
-						$showLnk = new Link($this->sysdata->getFileHandler() . "?file=" . $sharePath, "Download");
+						$showLnk = new Link($this->sysdata->getFileHandler() . "?file=" . $sharePath, Lang::txt("download"));
 						$showLnk->setTarget("_blank");
 						$showLnk->addIcon("arrow_down");
 						$show = $showLnk->toString();
 					}
 					
 					if(!$this->viewmode) { 
-						$delLnk = new Link($this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file)), "Löschen");
+						$delLnk = new Link($this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file)), Lang::txt("delete"));
 						$delLnk->addIcon("remove");
 						$delete = $delLnk->toString();
 					}
@@ -439,19 +439,19 @@ class Filebrowser implements iWriteable {
 		
 	private function getFolderCaption() {		
 		if($this->root . $this->path == $this->sysdata->getUsersHomeDir() . "/") {
-			return "Meine Dateien";
+			return Lang::txt("myFiles");
 		}
 		else if(Data::startsWith($this->path, "groups")) {
 			$gid = $this->getGroupIdFromPath();
 			if($gid == null || $gid == "") $groupName = "";
 			else $groupName = $this->adp->getGroupName($gid);
-			return "Gruppenordner: " . $groupName;
+			return Lang::txt("groupFolder") . ": " . $groupName;
 		}
 		else if($this->path == "users/") {
-			return "Benutzerordner";
+			return Lang::txt("userFolder");
 		}
 		else if($this->path == "/") {
-			return "Tauschordner";
+			return Lang::txt("commonShare");
 		}
 		else {
 			return $this->path;
@@ -510,15 +510,15 @@ class Filebrowser implements iWriteable {
 		// create zip file by closing this archive
 		$zip->close();
 		
-		Writing::p("Das Archiv wurde erstellt und kann unter folgendem Link heruntergeladen werden.");
+		Writing::p(Lang::txt("archiveCreated"));
 		
-		$link = new Link($this->sysdata->getFileHandler() . "?file=" . $zip_suffix, "Archiv herunterladen");
+		$link = new Link($this->sysdata->getFileHandler() . "?file=" . $zip_suffix, Lang::txt("downloadArchive"));
 		$link->setTarget("_blank");
 		$link->addIcon("arrow_down");
 		$link->write();
-		echo "<br/><br/>";
+		AbstractView::verticalSpace();
 		
-		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)), "Zur&uuml;ck");
+		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)), Lang::txt("back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 	}

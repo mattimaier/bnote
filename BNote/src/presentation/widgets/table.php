@@ -229,8 +229,8 @@ class Table implements iWriteable {
 							$value = Data::convertDateFromDb($value);
 						}
 						if($this->formats[$id] == "BOOLEAN") {
-							if($value == 1) $value = "ja";
-							else $value = "nein";
+							if($value == 1) $value = Lang::txt("yes");
+							else $value = Lang::txt("no");
 						}
 					}
 

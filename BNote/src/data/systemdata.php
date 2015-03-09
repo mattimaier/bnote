@@ -505,6 +505,10 @@ class Systemdata {
  	}
  	return $this->version;
  }
+ 
+ public function getLang() {
+ 	return $this->getDynamicConfigParameter("language");
+ }
 }
 
 ?>

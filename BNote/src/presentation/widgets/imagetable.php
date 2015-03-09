@@ -134,7 +134,7 @@ class ImageTable implements iWriteable {
 		
 		if(count($this->data) < 2) {
 			?>
-			<i>Keine Eintr&auml;ge vorhanden.</i>
+			<i><?php echo Lang::txt("noEntries"); ?></i>
 			<?php
 		}
 	}

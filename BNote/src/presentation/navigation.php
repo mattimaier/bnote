@@ -24,7 +24,7 @@ if(isset($_GET["mod"]) && is_numeric($_GET["mod"])) {
 		else $selected = "";
 
 		$tecName = strtolower($name);
-		$caption = $system_data->getModuleTitle($id);
+		$caption = Lang::txt("mod_" . $system_data->getModuleTitle($id));
 		
 		echo "<a class=\"navi\" href=\"?mod=$id\"><div class=\"navi_item$selected\">";
 		echo "<img src=\"" . $GLOBALS["DIR_ICONS"] . $tecName . ".png\" alt=\"$tecName\" height=\"14px\" class=\"navi_item_icon\" />";

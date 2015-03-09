@@ -3,7 +3,7 @@
 /*************************
  * UPGRADES THE DATABASE *
  * @author Matti Maier   *
- * Update 2.5.1			 *
+ * Update 2.5.x to 3.0.0 *
  *************************/
 
 // path to src/ folder
@@ -86,7 +86,7 @@ class UpdateDb {
 		$confParams = $this->db->getSelection("SELECT param FROM configuration");
 		$containsParam = false;
 		foreach($confParams as $i => $row) {
-			if($row["param"] == $param) {
+			if(isset($row["param"]) && $row["param"] == $param) {
 				$containsParam = true;
 				break;
 			}
@@ -158,8 +158,8 @@ $update = new UpdateDb();
 <p>
 <?php 
 
-// Task 1: Insert Configuration
-
+// Task 1: Insert Language Configuration
+$update->addDynConfigParam("language", "de", 1);
 
 ?>
 <br/><br/>

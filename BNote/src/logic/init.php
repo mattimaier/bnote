@@ -24,6 +24,9 @@ require_once $GLOBALS["DIR_LIB"] . "simpleimage.php";
 include $GLOBALS["DIR_DATA"] . "systemdata.php";
 $system_data = new Systemdata();
 
+# Load language
+include "lang.php";
+
 # Logout
 if($system_data->getModuleId() === "logout") {
 	$_SESSION["user"] = "null";

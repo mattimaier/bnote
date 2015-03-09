@@ -1,6 +1,6 @@
 <div id="optionsbar">
 	<span id="moduleTitle"><?php
-	echo $GLOBALS["system_data"]->getModuleTitle(); 
+	echo Lang::txt("mod_" . $GLOBALS["system_data"]->getModuleTitle()); 
 	?></span>
 	<div id="optionsContainer">
 	<?php 

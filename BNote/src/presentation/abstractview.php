@@ -43,7 +43,7 @@ abstract class AbstractView {
 	 */
 	public function backToStart() {
 		global $system_data;
-		$link = new Link("?mod=" . $system_data->getModuleId(), "Zur&uuml;ck");
+		$link = new Link("?mod=" . $system_data->getModuleId(), Lang::txt("back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
@@ -57,14 +57,14 @@ abstract class AbstractView {
 	 * @param String $linkDelete The link the confirmation links to, usually to the delete-mode.
 	 */
 	protected function deleteConfirmationMessage($label, $linkDelete, $linkBack = null) {
-		new Message("$label L&ouml;schen?", "Wollen sie diesen Eintrag wirklich l&ouml;schen?");
-		$yes = new Link($linkDelete, strtoupper($label) . " L&Ouml;SCHEN");
+		new Message($label . Lang::txt("delete") . "?", Lang::txt("reallyDeleteQ"));
+		$yes = new Link($linkDelete, strtoupper($label) . " " . strtoupper(Lang::txt("delete")));
 		$yes->addIcon("remove");
 		$yes->write();
 		$this->buttonSpace();
 		
 		if($linkBack != null) {
-			$no = new Link($linkBack, "Zur&uuml;ck");
+			$no = new Link($linkBack, Lang::txt("back"));
 			$no->addIcon("arrow_left");
 			$no->write();
 		}
@@ -75,7 +75,7 @@ abstract class AbstractView {
 	 */
 	public function checkID() {
 		if(!isset($_GET["id"])) {
-			new Error("Please specify a user id.");
+			new Error(Lang::txt("noUserId"));
 		}
 	}
 	
@@ -220,7 +220,7 @@ abstract class AbstractView {
 	/**
 	 * Prints two br-tags.
 	 */
-	protected function verticalSpace() {
+	public static function verticalSpace() {
 		echo "<br /><br />\n";
 	}
 	

@@ -38,7 +38,8 @@ class KonfigurationData extends AbstractData {
 				"allow_zip_download" => array("Zip-Download für Ordner zulassen", FieldType::BOOLEAN),
 				"rehearsal_show_max" => array("Anzahl Proben auf Startseite", FieldType::INTEGER),
 				"discussion_on" => array("Diskussionen erlauben", FieldType::BOOLEAN),
-				"updates_show_max" => array("Anzahl Updates auf Startseite", FieldType::INTEGER)
+				"updates_show_max" => array("Anzahl Updates auf Startseite", FieldType::INTEGER),
+				"language" => array("Sprache", FieldType::CHAR)
 		);
 		
 		$this->parameterExclude = array(
