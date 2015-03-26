@@ -1,13 +1,15 @@
 <?php
 
+require_once 'lang_base.php';
+
 /**
  * English translation of BNote.
  * @author mattimaier
  *
  */
-class Translation {
+class Translation extends BNoteTranslation {
 	
-	private $texts = array(
+	protected $texts = array(
 			"welcome" => "Welcome",
 			"autoActivation" => "The automated user activation is enabled. Please see the security notes for details.",
 			"back" => "Back",
@@ -91,10 +93,7 @@ class Translation {
 			"rehearsals" => "Rehearsals"
 	);
 	
-	public function getText($code) {
-		if(!isset($this->texts[$code])) return null;
-		return $this->texts[$code];
-	}
+	
 }
 
 

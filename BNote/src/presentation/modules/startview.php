@@ -104,17 +104,17 @@ class StartView extends AbstractView {
 				</div>
 				
 				<div class="start_box">
-					<div class="start_box_heading">Konzerte</div>
+					<div class="start_box_heading"><?php echo Lang::txt("concerts"); ?></div>
 					<div class="start_box_content">
 						<?php $this->writeConcertList(); ?>
 					</div>
 					
-					<div class="start_box_heading">Abstimmungen</div>
+					<div class="start_box_heading"><?php echo Lang::txt("votes"); ?></div>
 					<div class="start_box_content">
 						<?php $this->writeVoteList(); ?>
 					</div>
 					
-					<div class="start_box_heading">Aufgaben</div>
+					<div class="start_box_heading"><?php echo Lang::txt("tasks"); ?></div>
 					<div class="start_box_content">
 						<?php $this->writeTaskList(); ?>
 					</div>
@@ -128,7 +128,7 @@ class StartView extends AbstractView {
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) { 
 					?>
 					<div class="start_box" style="max-width: 250px; padding-left: 10px;">
-						<div class="start_box_heading">Diskussionen</div>
+						<div class="start_box_heading"><?php echo Lang::txt("discussions"); ?></div>
 						<div class="start_box_content">
 							<?php $this->writeUpdateList(); ?>
 						</div>
@@ -142,7 +142,7 @@ class StartView extends AbstractView {
 	}
 	
 	public function askReason($type) {
-		$form = new Form("Bitte gebe einen Grund an.",
+		$form = new Form(Lang::txt("start_pleaseGiveReason"),
 				$this->modePrefix() . "saveParticipation&obj=$type&id=" . $_GET["id"] . "&action=" . $_GET["action"]);
 		$form->addElement("", new Field("explanation", "", FieldType::CHAR));
 		$form->write();
@@ -152,7 +152,7 @@ class StartView extends AbstractView {
 		$data = $this->getData()->getUsersRehearsals();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
-			echo "<li>Keine Proben angesagt.</li>\n";
+			echo "<li>" . Lang::txt("start_noRehearsalsScheduled") . "</li>\n";
 		}
 		else {
 			// iterate over rehearsals
@@ -164,27 +164,27 @@ class StartView extends AbstractView {
 				// limit the number of rehearsals if necessary
 				if($max > 0 && $i > $max) {
 					if($i == $max+1) {
-						echo "<span style=\"font-style: italic;\">Es werden nur die ersten $max Proben angezeigt.</span>\n";
-						echo "<br/><a href=\"" . $this->modePrefix() . "start&max=0" . "\">Alle anzeigen</a>";
+						echo "<span style=\"font-style: italic;\">" . Lang::txt("start_showNumRehearsals", array($max)) . "</span>\n";
+						echo "<br/><a href=\"" . $this->modePrefix() . "start&max=0" . "\">" . Lang::txt("showAll") . "</a>";
 					}					
 					continue; // cannot break due to discussion addition of objects
 				}
 				
-				$liCaption = Data::convertDateFromDb($data[$i]["begin"]) . " Uhr";
+				$liCaption = Data::convertDateFromDb($data[$i]["begin"]);
 				$liCaption = Data::getWeekdayFromDbDate($data[$i]["begin"]) . ", " . $liCaption;
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
-					$liCaption .= "<br/>bis " . Data::getWeekdayFromDbDate($data[$i]["end"]) . ", " . Data::convertDateFromDb($data[$i]["end"]) . " Uhr";
+					$liCaption .= "<br/>bis " . Data::getWeekdayFromDbDate($data[$i]["end"]) . ", " . Data::convertDateFromDb($data[$i]["end"]);
 				}
 				
 				// create details for each rehearsal
 				$dataview = new Dataview();
-				$dataview->addElement("Beginn", Data::convertDateFromDb($data[$i]["begin"]) . " Uhr");
-				$dataview->addElement("Ende", Data::convertDateFromDb($data[$i]["end"]) . " Uhr");
+				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($data[$i]["begin"]));
+				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($data[$i]["end"]));
 				$loc = $data[$i]["name"];
-				$dataview->addElement("Ort", $this->buildAddress($data[$i]));
+				$dataview->addElement(Lang::txt("location"), $this->buildAddress($data[$i]));
 				
 				if($data[$i]["notes"] != "") {
-					$dataview->addElement("Anmerkung", $data[$i]["notes"]);
+					$dataview->addElement(Lang::txt("comment"), $data[$i]["notes"]);
 				}
 				
 				$songs = $this->getData()->getSongsForRehearsal($data[$i]["id"]);
@@ -195,29 +195,29 @@ class StartView extends AbstractView {
 						$strSongs .= $songs[$j]["title"];
 						if($songs[$j]["notes"] != "") $strSongs .= " (" . $songs[$j]["notes"] . ")";
 					}
-					$dataview->addElement("Stücke zum üben", $strSongs);
+					$dataview->addElement("start_songsToPractise", $strSongs);
 				}
 				
 				// add button to show participants
 				$participantsButton = new Link($this->modePrefix() . "rehearsalParticipants&id=" . $data[$i]["id"], "Teilnehmer anzeigen");
-				$dataview->addElement("Teilnehmer", $participantsButton->toString());
+				$dataview->addElement(Lang::txt("participants"), $participantsButton->toString());
 				
 				// show three buttons to participate/maybe/not in rehearsal
 				$partButtonSpace = "<br/><br/>";
 				$partButtons = "";
 				$partLinkPrefix = $this->modePrefix() . "saveParticipation&obj=rehearsal&id=" . $data[$i]["id"] . "&action=";
 				
-				$partBtn = new Link($partLinkPrefix . "yes", "Ich nehme teil.");
+				$partBtn = new Link($partLinkPrefix . "yes", Lang::txt("start_iParticipate"));
 				$partBtn->addIcon("checkmark");
 				$partButtons .= $partBtn->toString() . $partButtonSpace;
 				
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") != 0) {
-					$mayBtn = new Link($partLinkPrefix . "maybe", "Ich nehme vielleicht teil.");
+					$mayBtn = new Link($partLinkPrefix . "maybe", Lang::txt("start_iMightParticipate"));
 					$mayBtn->addIcon("yield");
 					$partButtons .= $mayBtn->toString() . $partButtonSpace;
 				}
 				
-				$noBtn = new Link($partLinkPrefix . "no", "Ich kann leider nicht.");
+				$noBtn = new Link($partLinkPrefix . "no", Lang::txt("start_iDoNotParticipate"));
 				$noBtn->addIcon("cancel");
 				$partButtons .= $noBtn->toString();
 				
@@ -225,23 +225,23 @@ class StartView extends AbstractView {
 				if($userParticipation < 0) {
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
 						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, "Teilnahme angeben");
+								$dataview, $partButtons, Lang::txt("start_setParticipation"));
 					}
 					else {
 						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, "Teilnahmefrist abgelaufen", "", true);
+								$dataview, $partButtons, Lang::txt("start_participationOver"), "", true);
 					}
 				}
 				else {
 					$msg = "";
 					if($userParticipation == 1) {
-						$msg .= "Du nimmst an der Probe teil.";
+						$msg .= Lang::txt("start_rehearsalParticipate");
 					}
 					else if($userParticipation == 2) {
-						$msg .= "Du nimmst an der Probe vielleicht teil.";
+						$msg .= Lang::txt("start_rehearsalMaybeParticipate");
 					}
 					else if($userParticipation == 0) {
-						$msg .= "Du nimmst an der Probe nicht teil.";
+						$msg .= Lang::txt("start_rehearsalNotParticipate");
 					}
 					
 					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);

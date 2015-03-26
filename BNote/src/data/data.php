@@ -48,14 +48,14 @@ abstract class Data {
 			$hour = substr($date, 11, 2);
 			$minute = substr($date, 14, 2);
 			//$second = substr($date, 17, 2); // second is ignored!
-			return "$day.$month.$year $hour:$minute";
+			return Lang::dt($day, $month, $year, $hour, $minute);
 		}
 		
 		// Because it's always in full format character lengths are constant
 		$year = substr($date, 0, 4);
 		$month = substr($date, 5, 2);
 		$day = substr($date, 8, 2);
-		return $day . "." . $month . "." . $year;
+		return Lang::dt($day, $month, $year, null, null);
 	}
 	
 	/**
@@ -64,26 +64,7 @@ abstract class Data {
 	 */
 	public static function convertDateToDb($date) {
 		$date = trim($date);
-		if(strlen($date) > 10) {
-			// datetime conversion
-			$dot1 = strpos($date, ".");
-			$dot2 = strpos($date, ".", $dot1+1);
-			
-			$time = substr($date, $dot2+6, 5);
-			$year = substr($date, $dot2+1, 4);
-			$month = substr($date, $dot1+1, $dot2-$dot1-1);
-			$day = substr($date, 0, $dot1);
-			return $year . "-" . $month . "-" . $day . " $time";
-		}
-		else {
-			// standard conversion
-			$dot1 = strpos($date, ".");
-			$dot2 = strpos($date, ".", $dot1+1);
-			$year = substr($date, $dot2+1);
-			$month = substr($date, $dot1+1, $dot2-$dot1-1);
-			$day = substr($date, 0, $dot1);
-			return $year . "-" . $month . "-" . $day;
-		}
+		return Lang::dtdb($date);
 	}
 	
 	/**

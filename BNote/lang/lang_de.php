@@ -1,13 +1,15 @@
 <?php
 
+require_once 'lang_base.php';
+
 /**
  * German translation of BNote.
  * @author mattimaier
  *
  */
-class Translation {
+class Translation extends BNoteTranslation {
 	
-	private $texts = array(
+	protected $texts = array(
 			"welcome" => "Willkommen",
 			"autoActivation" => "Die automatische Registrierung ist aktiviert. Bitte Sicherheitshinweise beachten.",
 			"back" => "Zurück",
@@ -26,6 +28,19 @@ class Translation {
 			"entryDeleted" => "Der Eintrag wurde erfolgreich gel&ouml;scht.",
 			"yes" => "ja",
 			"no" => "nein",
+			"showAll" => "Alle anzeigen",
+			"begin" => "Beginn",
+			"end" => "Ende",
+			"location" => "Ort",
+			"news" => "Nachrichten",
+			"nonIntegratedUsers" => 'Es gibt inaktive oder nicht integrierte Nutzer. Bitte gehe auf Kontakte/Einphasung und kümmere dich darum.',
+			"rehearsals" => "Proben",
+			"concerts" => "Konzerte",
+			"votes" => "Abstimmungen",
+			"tasks" => "Aufgaben",
+			"discussions" => "Diskussionen",
+			"comment" => "Anmerkung",
+			"participants" => "Teilnehmer",
 			
 			// navigation
 			"mod_Start" => "Start",
@@ -86,14 +101,49 @@ class Translation {
 			// module: start
 			"start_calendarExport" => "Kalender Export",
 			"start_calendarSubscribe" => "Kalender abonnieren",
-			"news" => "Nachrichten",
-			"nonIntegratedUsers" => 'Es gibt inaktive oder nicht integrierte Nutzer. Bitte gehe auf Kontakte/Einphasung und kümmere dich darum.',
-			"rehearsals" => "Proben"
+			"start_pleaseGiveReason" => "Bitte gebe einen Grund an.",
+			"start_noRehearsalsScheduled" => "Keine Proben angesagt.",
+			"start_showNumRehearsals" => "Es werden nur die ersten %p Proben angezeigt.",
+			"start_songsToPractise" => "Stücke zum üben",
+			"start_iParticipate" => "Ich nehme teil.",
+			"start_iMightParticipate" => "Ich nehme vielleicht teil.",
+			"start_iDoNotParticipate" => "Ich kann leider nicht.",
+			"start_setParticipation" => "Teilnahme angeben",
+			"start_participationOver" => "Teilnahmefrist abgelaufen",
+			"start_rehearsalParticipate" => "Du nimmst an der Probe teil.",
+			"start_rehearsalMaybeParticipate" => "Du nimmst an der Probe vielleicht teil.",
+			"start_rehearsalNotParticipate" => "Du nimmst an der Probe nicht teil."
 	);
 	
-	public function getText($code) {
-		if(!isset($this->texts[$code])) return null;
-		return $this->texts[$code];
+	public function formatDate($day, $month, $year, $hour, $minute) {
+		$time = "";
+		if($hour != null && $minute != null) {
+			$time = " $hour:$minute Uhr";
+		} 
+		return "$day.$month.$year" . $time;
+	}
+	
+	public function formatDateForDb($formattedDate) {
+		if(strlen($formattedDate) > 10) {
+			// datetime conversion
+			$dot1 = strpos($formattedDate, ".");
+			$dot2 = strpos($formattedDate, ".", $dot1+1);
+				
+			$time = substr($formattedDate, $dot2+6, 5);
+			$year = substr($formattedDate, $dot2+1, 4);
+			$month = substr($formattedDate, $dot1+1, $dot2-$dot1-1);
+			$day = substr($formattedDate, 0, $dot1);
+			return $year . "-" . $month . "-" . $day . " $time";
+		}
+		else {
+			// standard conversion
+			$dot1 = strpos($formattedDate, ".");
+			$dot2 = strpos($formattedDate, ".", $dot1+1);
+			$year = substr($formattedDate, $dot2+1);
+			$month = substr($formattedDate, $dot1+1, $dot2-$dot1-1);
+			$day = substr($formattedDate, 0, $dot1);
+			return $year . "-" . $month . "-" . $day;
+		}
 	}
 }
 
