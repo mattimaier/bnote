@@ -8,6 +8,12 @@
 class Lang {
 	
 	/**
+	 * Parameter Placeholder.
+	 * @var String
+	 */
+	public static $PARAMETER = "%p";
+	
+	/**
 	 * The language that has been set.
 	 * @var String
 	 */
@@ -23,7 +29,7 @@ class Lang {
 	 * Singleton.
 	 * @var Lang
 	 */
-	private static $INSTANCE;
+	private static $INSTANCE = null;
 	
 	protected static function getInstance() {
 		if(Lang::$INSTANCE == null) {
@@ -51,9 +57,13 @@ class Lang {
 		$inst = Lang::getInstance();
 		$txt = $inst->langObj->getText($code);
 		if($txt == null) return $code;
-		$i = 0;
-		while(($pos = strpos($txt, "%p")) !== null) {
-			$txt = str_replace("%p", $params[$i++], $txt, 1);
+		$nump = substr_count($txt, Lang::$PARAMETER);
+		for($i = 0; $i < $nump; $i++) {
+			$p = "";
+			if(isset($params[$i])) {
+				$p = $params[$i];
+			}
+			$txt = str_replace("%p", $p, $txt);
 		}
 		return $txt;
 	}
@@ -69,7 +79,7 @@ class Lang {
 	 */
 	public static function dt($day, $month, $year, $hour, $minute) {
 		$inst = Lang::getInstance();
-		return $inst->dt($day, $month, $year, $hour, $minute);
+		return $inst->langObj->formatDate($day, $month, $year, $hour, $minute);
 	}
 	
 	/**
@@ -79,7 +89,41 @@ class Lang {
 	 */
 	public static function dtdb($formattedDate) {
 		$inst = Lang::getInstance();
-		return $inst->formatDateForDb($formattedDate);
+		return $inst->langObj->formatDateForDb($formattedDate);
+	}
+	
+	/**
+	 * @return Array with keys 1-12 and the respective month names.
+	 */
+	public static function getMonths() {
+		$inst = Lang::getInstance();
+		return $inst->langObj->getMonths();
+	}
+	
+	/**
+	 * Converts the English name of the weekday to another language.
+	 * @param String $wd [Mon/Tue/.../Sun]
+	 * @return String Printable full name, e.g. "Samstag".
+	 */
+	public static function convertEnglishWeekday($wd) {
+		$inst = Lang::getInstance();
+		return $inst->langObj->convertEnglishWeekday($wd);
+	}
+	
+	/**
+	 * @return A language-specific datetime format pattern like d.m.Y HH:ii.
+	 */
+	public static function getDateTimeFormatPattern() {
+		$inst = Lang::getInstance();
+		return $inst->langObj->getDateTimeFormatPattern();
+	}
+	
+	/**
+	 * @return A language-specific date format pattern like d.m.Y.
+	 */
+	public static function getDateFormatPattern() {
+		$inst = Lang::getInstance();
+		return $inst->langObj-> getDateFormatPattern();
 	}
 }
 

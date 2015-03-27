@@ -25,15 +25,36 @@ abstract class BNoteTranslation {
 	 * @param int $minute Minute of hour
 	 * @return Localized date(time) string.
 	 */
-	public function formatDate($day, $month, $year, $hour, $minute);
+	public abstract function formatDate($day, $month, $year, $hour, $minute);
 	
 	/**
 	 * Translates a language-specific date into a standardized database format date.
 	 * @param String $formattedDate Formatted date.
 	 * @return String Date in format YYYY-MM-DD [HH:ii]
 	 */
-	public function formatDateForDb($formattedDate); 
+	public abstract function formatDateForDb($formattedDate); 
 	
+	/**
+	 * @return Array with keys 1-12 and the respective month names.
+	 */
+	public abstract function getMonths();
+	
+	/**
+	 * Converts the English name of the weekday to another language.
+	 * @param String $wd [Mon/Tue/.../Sun]
+	 * @return String Printable full name, e.g. "Samstag".
+	 */
+	public abstract function convertEnglishWeekday($wd);
+	
+	/**
+	 * @return A language-specific datetime format pattern like d.m.Y HH:ii.
+	 */
+	public abstract function getDateTimeFormatPattern();
+	
+	/**
+	 * @return A language-specific date format pattern like d.m.Y.
+	 */
+	public abstract function getDateFormatPattern();
 }
 
 ?>

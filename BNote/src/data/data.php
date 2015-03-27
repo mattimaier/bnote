@@ -86,7 +86,7 @@ abstract class Data {
 	public static function addDaysToDate($date, $numDays) {
 		$date = Data::convertDateToDb($date);
 		$newdate = strtotime("+$numDays day", strtotime($date));
-		return date('d.m.Y', $newdate);
+		return date(Lang::getDateFormatPattern(), $newdate);
 	}
 	
 	/**
@@ -98,27 +98,14 @@ abstract class Data {
 	public static function subtractDaysFromDate($date, $numDays) {
 		$date = Data::convertDateToDb($date);
 		$newdate = strtotime("-$numDays day", strtotime($date));
-		return date('d.m.Y', $newdate);
+		return date(Lang::getDateFormatPattern(), $newdate);
 	}
 	
 	/**
 	 * @return array All months in format [number] => [name], e.g. 6 => Juni.
 	 */
 	public static function getMonths() {
-		return array(
-			1 => "Januar",
-			2 => "Februar",
-			3 => "M&auml;rz",
-			4 => "April",
-			5 => "Mai",
-			6 => "Juni",
-			7 => "Juli",
-			8 => "August",
-			9 => "September",
-			10 => "Oktober",
-			11 => "November",
-			12 => "Dezember"
-			);
+		return Lang::getMonths();
 	}
 	
 	/**
@@ -127,38 +114,15 @@ abstract class Data {
 	 * @return String Printable full name, e.g. "Samstag".
 	 */
 	public static function convertEnglishWeekday($wd) {
-		$res = "";
-		switch($wd) {
-			case "Mon": $res = "Montag"; break;
-			case "Monday": $res = "Montag"; break;
-			case "Tue": $res = "Dienstag"; break;
-			case "Tuesday": $res = "Dienstag"; break;
-			case "Wed": $res = "Mittwoch"; break;
-			case "Wednesday": $res = "Mittwoch"; break;
-			case "Thu": $res = "Donnerstag"; break;
-			case "Thursday": $res = "Donnerstag"; break;
-			case "Fri": $res = "Freitag"; break;
-			case "Friday": $res = "Freitag"; break;
-			case "Sat": $res = "Samstag"; break;
-			case "Saturday": $res = "Samstag"; break;
-			case "Sun": $res = "Sonntag"; break;
-			case "Sunday": $res = "Sonntag"; break;
-		}
-		return $res;
+		return Lang::convertEnglishWeekday($wd);
 	}
 	
 	/**
 	 * Retrieves the weekday of the given date.
 	 * @param String $dbdate Format YYYY-MM-DD
 	 */
-	public static function getWeekdayFromDbDate($dbdate) {
-		/* PHP >5.3 necessary!!!
-		
-		 * $date = new DateTime($dbdate);
-		 * return Data::convertEnglishWeekday($date->format('D'));
-		 */
-		 
-		 // old PHP version
+	public static function getWeekdayFromDbDate($dbdate) {		 
+		 // this works with PHP <5.3 - we leave it for now
 		 $t = strtotime($dbdate);
 		 $dinfo = getdate($t);
 		 return Data::convertEnglishWeekday($dinfo["weekday"]);
@@ -175,7 +139,7 @@ abstract class Data {
 		if($numMinutes == 0) return $date;
 		$dt = new DateTime(Data::convertDateToDb($date));
 		$dt->modify("+$numMinutes minutes");
-		return $dt->format("d.m.Y H:i");
+		return $dt->format(Lang::getDateTimeFormatPattern());
 	}
 	
 	/**

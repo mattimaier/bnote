@@ -255,7 +255,7 @@ class StartView extends AbstractView {
 		$data = $this->getData()->getUsersConcerts();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
-			echo "<li>Keine Konzerte angesagt.</li>\n";
+			echo "<li>" . Lang::txt("start_noConcertsScheduled") . "</li>\n";
 		}
 		else {
 			// iterate over concerts
@@ -265,28 +265,28 @@ class StartView extends AbstractView {
 				// add every item to the discussion
 				array_push($this->objectListing["C"], $data[$i]["id"]);
 				
-				$liCaption = Data::convertDateFromDb($row["begin"]) . " Uhr";
+				$liCaption = Data::convertDateFromDb($row["begin"]);
 				$liCaption = Data::getWeekdayFromDbDate($row["begin"]) . ", " . $liCaption;
 				
 				// concert details
 				$dataview = new Dataview();
-				$dataview->addElement("Beginn", Data::convertDateFromDb($row["begin"]) . " Uhr");
-				$dataview->addElement("Ende", Data::convertDateFromDb($row["end"]) . " Uhr");
+				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($row["begin"]));
+				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($row["end"]));
 				$loc = $this->buildAddress($row);
 				if($loc != "") $loc = $row["location_name"] . " - " . $loc;
 				else $loc = $row["location_name"];
-				$dataview->addElement("Ort", $loc);
+				$dataview->addElement(Lang::txt("location"), $loc);
 				$contact = $row["contact_name"];
 				if($row["contact_phone"] != "") $contact .= "<br/>" . $row["contact_phone"];
 				if($contact != "" && $row["contact_email"] != "") $contact .= "<br/>" . $row["contact_email"];
 				if($contact != "" && $row["contact_web"] != "") $contact .= "<br/>" . $row["contact_web"];
-				$dataview->addElement("Kontakt", $contact);
+				$dataview->addElement(Lang::txt("contact"), $contact);
 				if($row["program_name"] != "") {
 					$program = $row["program_name"];
 					if($row["program_notes"] != "") $program .= " (" . $row["program_notes"] . ")";
-					$viewProg = new Link($this->modePrefix() . "viewProgram&id=" . $row["program_id"], "Programm ansehen");
+					$viewProg = new Link($this->modePrefix() . "viewProgram&id=" . $row["program_id"], Lang::txt("start_viewProgram"));
 					$program .= "<br/><br/>" . $viewProg->toString();
-					$dataview->addElement("Programm", $program);
+					$dataview->addElement(Lang::txt("program"), $program);
 				}
 				
 				// show three buttons to participate/maybe/not in concert
@@ -294,17 +294,17 @@ class StartView extends AbstractView {
 				$partButtons = "";
 				$partLinkPrefix = $this->modePrefix() . "saveParticipation&obj=concert&id=" . $data[$i]["id"] . "&action=";
 				
-				$partBtn = new Link($partLinkPrefix . "yes", "Ich werde mitspielen.");
+				$partBtn = new Link($partLinkPrefix . "yes", Lang::txt("start_iPlay"));
 				$partBtn->addIcon("checkmark");
 				$partButtons .= $partBtn->toString() . $partButtonSpace;
 				
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") != 0) {
-					$mayBtn = new Link($partLinkPrefix . "maybe", "Ich werde vielleicht mitspielen.");
+					$mayBtn = new Link($partLinkPrefix . "maybe", Lang::txt("start_iMayPlay"));
 					$mayBtn->addIcon("yield");
 					$partButtons .= $mayBtn->toString() . $partButtonSpace;
 				}
 				
-				$noBtn = new Link($partLinkPrefix . "no", "Ich kann nicht mitspielen.");
+				$noBtn = new Link($partLinkPrefix . "no", Lang::txt("start_iDontPlay"));
 				$noBtn->addIcon("cancel");
 				$partButtons .= $noBtn->toString();
 				
@@ -312,23 +312,23 @@ class StartView extends AbstractView {
 				if($userParticipation < 0) {
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
 						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, "Teilnahme angeben");
+								$dataview, $partButtons, Lang::txt("start_setParticipation"));
 					}
 					else {
 						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, "Teilnahmefrist abgelaufen", "", true);
+								$dataview, $partButtons, Lang::txt("start_participationOver"), "", true);
 					}
 				}
 				else {
 					$msg = "";
 					if($userParticipation == 1) {
-						$msg .= "Du nimmst am Konzert teil.";
+						$msg .= Lang::txt("start_youParticipate");
 					}
 					else if($userParticipation == 2) {
-						$msg .= "Du nimmst am Konzert vielleicht teil.";
+						$msg .= Lang::txt("start_youMayParticipate");
 					}
 					else if($userParticipation == 0) {
-						$msg .= "Du nimmst am Konzert nicht teil.";
+						$msg .= Lang::txt("start_youDontParticipate");
 					}
 						
 					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
@@ -342,7 +342,7 @@ class StartView extends AbstractView {
 		$data = $this->getData()->adp()->getUserTasks();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
-			echo "<li>Keine Aufgaben vorhanden.</li>\n";
+			echo "<li>" . Lang::txt("start_noTasks") . "</li>\n";
 		}
 		else {
 			// iterate over tasks
@@ -354,11 +354,11 @@ class StartView extends AbstractView {
 				
 				$liCaption = $row["title"];
 				$dataview = new Dataview();
-				$dataview->addElement("Titel", $row["title"]);
-				$dataview->addElement("Beschreibung", $row["description"]);
-				$dataview->addElement("Fällig am", Data::convertDateFromDb($row["due_at"]));
+				$dataview->addElement(Lang::txt("title"), $row["title"]);
+				$dataview->addElement(Lang::txt("description"), $row["description"]);
+				$dataview->addElement(Lang::txt("dueAt"), Data::convertDateFromDb($row["due_at"]));
 				$lnk = $this->modePrefix() . "taskComplete&id=" . $row["id"];
-				$this->writeBoxListItem("T", $row["id"],"t" + $row["id"], $liCaption, $dataview, "", "Als abgeschlossen markieren", $lnk);
+				$this->writeBoxListItem("T", $row["id"],"t" + $row["id"], $liCaption, $dataview, "", Lang::txt("start_markAsCompleted"), $lnk);
 			}
 		}
 		echo "</ul>\n";
@@ -369,7 +369,7 @@ class StartView extends AbstractView {
 		
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
-			echo "<li>Keine Abstimmungen offen.</li>\n";
+			echo "<li>" . Lang::txt("start_noVotes") . "</li>\n";
 		}
 		else {
 			// iterate over votes
@@ -381,11 +381,11 @@ class StartView extends AbstractView {
 				
 				$liCaption = $row["name"];
 				$dataview = new Dataview();
-				$dataview->addElement("Name", $row["name"]);
-				$dataview->addElement("Abstimmungsende", Data::convertDateFromDb($row["end"]) . " Uhr");
+				$dataview->addElement(Lang::txt("name"), $row["name"]);
+				$dataview->addElement(Lang::txt("start_endOfVote"), Data::convertDateFromDb($row["end"]));
 				
 				$link = $this->modePrefix() . "voteOptions&id=" . $row["id"];
-				$this->writeBoxListItem("V", $row["id"], "v" + $row["id"], $liCaption, $dataview, "", "Abstimmen", $link);
+				$this->writeBoxListItem("V", $row["id"], "v" + $row["id"], $liCaption, $dataview, "", Lang::txt("vote"), $link);
 			}
 		}
 		echo "</ul>\n";
@@ -433,9 +433,9 @@ class StartView extends AbstractView {
 			
 			<?php 
 			if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) {
-				$commentCaption = "Diskussion";
+				$commentCaption = Lang::txt("discussion");
 				if(!$this->getData()->hasObjectDiscussion($otype, $oid)) {
-					$commentCaption = "Neue Diskussion";
+					$commentCaption = Lang::txt("start_newDiscussion");
 				}
 				echo '&nbsp;<a href="' . $this->modePrefix() . "discussion&otype=$otype&oid=$oid" . '" class="participation">';
 				echo $commentCaption . '</a>';
@@ -456,7 +456,7 @@ class StartView extends AbstractView {
 	public function voteOptions() {
 		$this->checkID();
 		if(!$this->getData()->canUserVote($_GET["id"])) {
-			new Error("Sie können in dieser Abstimmung nicht teilnehmen.");
+			new Error("Sie können an dieser Abstimmung nicht teilnehmen.");
 		}
 		$vote = $this->getData()->getVote($_GET["id"]);
 		Writing::h2($vote["name"]);

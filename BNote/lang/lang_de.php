@@ -41,6 +41,14 @@ class Translation extends BNoteTranslation {
 			"discussions" => "Diskussionen",
 			"comment" => "Anmerkung",
 			"participants" => "Teilnehmer",
+			"contact" => "Kontakt",
+			"program" => "Programm",
+			"title" => "Titel",
+			"description" => "Beschreibung",
+			"dueAt" => "Fällig am",
+			"name" => "Name",
+			"vote" => "Abstimmen",
+			"discussion" => "Diskussion",
 			
 			// navigation
 			"mod_Start" => "Start",
@@ -112,7 +120,20 @@ class Translation extends BNoteTranslation {
 			"start_participationOver" => "Teilnahmefrist abgelaufen",
 			"start_rehearsalParticipate" => "Du nimmst an der Probe teil.",
 			"start_rehearsalMaybeParticipate" => "Du nimmst an der Probe vielleicht teil.",
-			"start_rehearsalNotParticipate" => "Du nimmst an der Probe nicht teil."
+			"start_rehearsalNotParticipate" => "Du nimmst an der Probe nicht teil.",
+			"start_noConcertsScheduled" => "Keine Konzerte angesagt.",
+			"start_viewProgram" => "Programm ansehen",
+			"start_iPlay" => "Ich werde mitspielen.",
+			"start_iMayPlay" => "Ich werde vielleicht mitspielen.",
+			"start_iDontPlay" => "Ich kann nicht mitspielen.",
+			"start_youParticipate" => "Du nimmst am Konzert teil.",
+			"start_youMayParticipate" => "Du nimmst am Konzert vielleicht teil.",
+			"start_youDontParticipate" => "Du nimmst am Konzert nicht teil.",
+			"start_noTasks" => "Keine Aufgaben vorhanden.",
+			"start_markAsCompleted" => "Als abgeschlossen markieren",
+			"start_noVotes" => "Keine Abstimmungen offen.",
+			"start_endOfVote" => "Abstimmungsende",
+			"start_newDiscussion" => "Neue Diskussion"
 	);
 	
 	public function formatDate($day, $month, $year, $hour, $minute) {
@@ -144,6 +165,52 @@ class Translation extends BNoteTranslation {
 			$day = substr($formattedDate, 0, $dot1);
 			return $year . "-" . $month . "-" . $day;
 		}
+	}
+	
+	public function getMonths() {
+		return array(
+				1 => "Januar",
+				2 => "Februar",
+				3 => "M&auml;rz",
+				4 => "April",
+				5 => "Mai",
+				6 => "Juni",
+				7 => "Juli",
+				8 => "August",
+				9 => "September",
+				10 => "Oktober",
+				11 => "November",
+				12 => "Dezember"
+		);
+	}
+	
+	public abstract function convertEnglishWeekday($wd) {
+		$res = "";
+		switch($wd) {
+			case "Mon": $res = "Montag"; break;
+			case "Monday": $res = "Montag"; break;
+			case "Tue": $res = "Dienstag"; break;
+			case "Tuesday": $res = "Dienstag"; break;
+			case "Wed": $res = "Mittwoch"; break;
+			case "Wednesday": $res = "Mittwoch"; break;
+			case "Thu": $res = "Donnerstag"; break;
+			case "Thursday": $res = "Donnerstag"; break;
+			case "Fri": $res = "Freitag"; break;
+			case "Friday": $res = "Freitag"; break;
+			case "Sat": $res = "Samstag"; break;
+			case "Saturday": $res = "Samstag"; break;
+			case "Sun": $res = "Sonntag"; break;
+			case "Sunday": $res = "Sonntag"; break;
+		}
+		return $res;
+	}
+	
+	public function getDateTimeFormatPattern() {
+		return "d.m.Y H:i";
+	}
+	
+	public function getDateFormatPattern() {
+		return "d.m.Y";
 	}
 }
 

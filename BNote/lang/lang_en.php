@@ -28,6 +28,27 @@ class Translation extends BNoteTranslation {
 			"entryDeleted" => "the entry has been deleted.",
 			"yes" => "yes",
 			"no" => "no",
+			"showAll" => "Show all",
+			"begin" => "Begin",
+			"end" => "End",
+			"location" => "Location",
+			"news" => "News",
+			"nonIntegratedUsers" => 'Non integrated users have been detected. Please change to Contacts/Integration to integrate them into your ensemble.',
+			"rehearsals" => "Rehearsals",
+			"concerts" => "Concerts",
+			"votes" => "Votes",
+			"tasks" => "Tasks",
+			"discussions" => "Discussions",
+			"comment" => "Comment",
+			"participants" => "Participant",
+			"contact" => "Contact",
+			"program" => "Program",
+			"title" => "Title",
+			"description" => "Description",
+			"dueAt" => "Due at",
+			"name" => "Name",
+			"vote" => "Vote",
+			"discussion" => "Discussion",
 			
 			// navigation
 			"mod_Start" => "Start",
@@ -88,12 +109,92 @@ class Translation extends BNoteTranslation {
 			// module: start
 			"start_calendarExport" => "Export Calendar",
 			"start_calendarSubscribe" => "Subscribe to Calendar",
-			"news" => "News",
-			"nonIntegratedUsers" => 'Non integrated users have been detected. Please change to Contacts/Integration to integrate them into your ensemble.',
-			"rehearsals" => "Rehearsals"
+			"start_pleaseGiveReason" => "Please give a reason.",
+			"start_noRehearsalsScheduled" => "No rehearsals scheduled.",
+			"start_showNumRehearsals" => "Only the first %p rehearsals are displayed.",
+			"start_songsToPractise" => "Songs to practise",
+			"start_iParticipate" => "I participate",
+			"start_iMightParticipate" => "I may participate.",
+			"start_iDoNotParticipate" => "I cannot participate.",
+			"start_setParticipation" => "Set participation",
+			"start_participationOver" => "Participation over",
+			"start_rehearsalParticipate" => "You participate in this rehearsal.",
+			"start_rehearsalMaybeParticipate" => "You may participate in this rehearsal.",
+			"start_rehearsalNotParticipate" => "You don't participate in this rehearsal.",
+			"start_noConcertsScheduled" => "No concerts scheduled.",
+			"start_viewProgram" => "View program",
+			"start_iPlay" => "I will play.",
+			"start_iMayPlay" => "I may play.",
+			"start_iDontPlay" => "I won't play.",
+			"start_youParticipate" => "You participate in this concert.",
+			"start_youMayParticipate" => "You may participate in this concert.",
+			"start_youDontParticipate" => "You cannot participate in this concert.",
+			"start_noTasks" => "No tasks present.",
+			"start_markAsCompleted" => "Mark as completed",
+			"start_noVotes" => "No votes present.",
+			"start_endOfVote" => "End of vote",
+			"start_newDiscussion" => "New discussion"
 	);
 	
+	public function formatDate($day, $month, $year, $hour, $minute) {
+		$time = "";
+		if($hour != null && $minute != null) {
+			$time = " $hour:$minute";
+		}
+		return "$year/$month/$day" . $time;
+	}
 	
+	public function formatDateForDb($formattedDate) {
+		if(strlen($formattedDate) > 10) {
+			// datetime conversion
+			$dot1 = strpos($formattedDate, "/");
+			$dot2 = strpos($formattedDate, "/", $dot1+1);
+
+			$time = substr($formattedDate, $dot2+2, 5);
+			$year = substr($formattedDate, 0, 4);
+			$month = substr($formattedDate, $dot1+1, $dot2-$dot1-1);
+			$day = substr($formattedDate, $dot2+1, 2);
+			return $year . "-" . $month . "-" . $day . " $time";
+		}
+		else {
+			// standard conversion
+			$dot1 = strpos($formattedDate, "/");
+			$dot2 = strpos($formattedDate, "/", $dot1+1);
+			$year = substr($formattedDate, 0, 4);
+			$month = substr($formattedDate, $dot1+1, $dot2-$dot1-1);
+			$day = substr($formattedDate, $dot2+1, 2);
+			return $year . "-" . $month . "-" . $day;
+		}
+	}
+	
+	public function getMonths() {
+		return array(
+				1 => "January",
+				2 => "February",
+				3 => "March",
+				4 => "April",
+				5 => "May",
+				6 => "June",
+				7 => "July",
+				8 => "August",
+				9 => "September",
+				10 => "October",
+				11 => "November",
+				12 => "December"
+		);
+	}
+	
+	public function convertEnglishWeekday($wd) {
+		return $wd;
+	}
+	
+	public function getDateTimeFormatPattern() {
+		return "Y/m/d H:i";
+	}
+	
+	public function getDateFormatPattern() {
+		return "Y/m/d";
+	}
 }
 
 
