@@ -51,6 +51,7 @@ class Translation extends BNoteTranslation {
 			"discussion" => "Discussion",
 			
 			// navigation
+			"mod_Login" => "Login",
 			"mod_Start" => "Start",
 			"mod_User" => "Users",
 			"mod_Kontakte" => "Contacts",
@@ -133,7 +134,8 @@ class Translation extends BNoteTranslation {
 			"start_markAsCompleted" => "Mark as completed",
 			"start_noVotes" => "No votes present.",
 			"start_endOfVote" => "End of vote",
-			"start_newDiscussion" => "New discussion"
+			"start_newDiscussion" => "New discussion",
+			"start_participation" => "Participation"
 	);
 	
 	public function formatDate($day, $month, $year, $hour, $minute) {

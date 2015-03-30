@@ -51,6 +51,7 @@ class Translation extends BNoteTranslation {
 			"discussion" => "Diskussion",
 			
 			// navigation
+			"mod_Login" => "Anmeldung",
 			"mod_Start" => "Start",
 			"mod_User" => "Benutzer",
 			"mod_Kontakte" => "Kontakte",
@@ -133,7 +134,8 @@ class Translation extends BNoteTranslation {
 			"start_markAsCompleted" => "Als abgeschlossen markieren",
 			"start_noVotes" => "Keine Abstimmungen offen.",
 			"start_endOfVote" => "Abstimmungsende",
-			"start_newDiscussion" => "Neue Diskussion"
+			"start_newDiscussion" => "Neue Diskussion",
+			"start_participation" => "Teilnahme"
 	);
 	
 	public function formatDate($day, $month, $year, $hour, $minute) {
@@ -184,7 +186,7 @@ class Translation extends BNoteTranslation {
 		);
 	}
 	
-	public abstract function convertEnglishWeekday($wd) {
+	public function convertEnglishWeekday($wd) {
 		$res = "";
 		switch($wd) {
 			case "Mon": $res = "Montag"; break;

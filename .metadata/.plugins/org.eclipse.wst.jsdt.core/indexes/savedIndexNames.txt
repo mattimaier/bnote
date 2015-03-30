@@ -1,7 +1,0 @@
-INDEX VERSION 1.122+V:\html\bnote\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
-609122060.index
-3587404753.index
-4080891815.index
-1948107093.index
-1334624592.index
-3347408906.index

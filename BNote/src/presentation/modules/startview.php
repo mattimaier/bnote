@@ -445,7 +445,7 @@ class StartView extends AbstractView {
 			<div id="<?php echo $popboxid; ?>" title="Details" style="display: none;">
 				<?php $dataview->write(); ?>
 			</div>
-			<div id="<?php echo $popboxid; ?>_participation" title="Teilnahme" style="display: none;">
+			<div id="<?php echo $popboxid; ?>_participation" title="<?php echo Lang::txt("start_participation")?>" style="display: none;">
 				<?php echo $participation; ?>
 			</div>
 			<?php $this->verticalSpace(); ?>
