@@ -54,11 +54,22 @@ class Regex {
  }
 
  private function isCorrect($d, $type) {
-  if(empty($d) || !preg_match($this->regex[$type], $d)) {
-  	if($type == "password") $d = "-";
-  	$this->fail($d, $type);
-  }
-  else return true;
+ 	$re = $this->regex[$type];
+ 	$langTypes = array(
+ 			"positive_amount", "positive_decimal", "signed_amount",
+ 			"date", "datetime"
+ 	);
+ 	if(in_array($type, $langTypes)) {
+ 		$re = Lang::regex($type);
+ 	}
+ 	
+  	if(empty($d) || !preg_match($re, $d)) {
+  		if($type == "password") $d = "-";
+  		$this->fail($d, $type);
+  	}
+  	else {
+  		return true;
+  	}
  }
 
  // Default Methods to check against data fraud

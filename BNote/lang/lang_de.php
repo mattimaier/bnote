@@ -57,6 +57,13 @@ class Translation extends BNoteTranslation {
 			"name" => "Name",
 			"firstname" => "Vorname",
 			"discussion" => "Diskussion",
+			"add_entity" => "%p hinzufügen",
+			"edit_entity" => "%p bearbeiten",
+			"delete_entity" => "%p löschen",
+			"saved_entity" => "%p gespeichert",
+			"details_entity" => "%p Details",
+			"deleted_entity" => "%p gelöscht",
+			"user" => "Benutzer",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",
@@ -168,6 +175,14 @@ class Translation extends BNoteTranslation {
 			"start_sendComment" => "Kommentar senden"
 	);
 	
+	protected $regex = array(
+			"positive_amount" => '/^\d{1,12}$/',
+			"positive_decimal" => '/^\d{0,8}\,\d{0,2}$/',
+   			"signed_amount" => '/^-?\d{1,12}$/',
+			"date" => '/^\d{1,2}.\d{1,2}.\d{4}$/',
+			"datetime" => '/^\d{1,2}.\d{1,2}.\d{4}\ \d{2}:\d{2}$/'
+	);
+	
 	public function formatDate($day, $month, $year, $hour, $minute) {
 		$time = "";
 		if($hour != null && $minute != null) {
@@ -243,6 +258,13 @@ class Translation extends BNoteTranslation {
 	
 	public function getDateFormatPattern() {
 		return "d.m.Y";
+	}
+	
+	public function getRegex($patternCode) {
+		if(!isset($this->regex[$patternCode])) {
+			return null;
+		}
+		return $this->regex[$patternCode];
 	}
 }
 

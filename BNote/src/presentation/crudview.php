@@ -59,7 +59,7 @@ abstract class CrudView extends AbstractView {
 	}
 	
 	protected function startOptions() {
-		$add = new Link($this->modePrefix() . "addEntity", $this->getEntityName() . " " . Lang::txt("add"));
+		$add = new Link($this->modePrefix() . "addEntity", Lang::txt("add_entity", array($this->getEntityName())));
 		$add->addIcon("plus");
 		$add->write();
 	}
@@ -70,7 +70,7 @@ abstract class CrudView extends AbstractView {
 	
 	protected function addEntityForm() {
 		// add entry form
-		$form = new Form($this->entityName ." " . Lang::txt("add"), $this->modePrefix() . "add");
+		$form = new Form(Lang::txt("add_entity", array($this->entityName)), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		$form->write();
@@ -99,15 +99,14 @@ abstract class CrudView extends AbstractView {
 		$this->getData()->create($_POST);
 		
 		// write success
-		new Message($this->entityName . " " . Lang::txt("saved"),
-						Lang::txt("entrySaved"));
+		new Message(Lang::txt("saved_entity", array($this->entityName)), Lang::txt("entrySaved"));
 	}
 	
 	public function view() {
 		$this->checkID();
 		
 		// heading
-		Writing::h2($this->entityName . " " . Lang::txt("details"));
+		Writing::h2(Lang::txt("details_entity", array($this->entityName)));
 		
 		// show the details
 		$this->viewDetailTable();
@@ -120,12 +119,12 @@ abstract class CrudView extends AbstractView {
 		
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
-				$this->entityName . " " . Lang::txt("edit"));
+				Lang::txt("edit_entity", array($this->entityName)));
 		$edit->addIcon("edit");
 		$edit->write();
 		$this->buttonSpace();
 		$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
-				$this->entityName . " " . Lang::txt("delete"));
+				Lang::txt("delete_entity", array($this->entityName)));
 		$del->addIcon("remove");
 		$del->write();
 		$this->buttonSpace();
@@ -159,7 +158,7 @@ abstract class CrudView extends AbstractView {
 	}
 	
 	protected function editEntityForm() {
-		$form = new Form($this->entityName . " " . Lang::txt("edit"),
+		$form = new Form(Lang::txt("edit", array($this->entityName)),
 							$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(),
 									$this->getData()->getTable(), $_GET["id"]);
@@ -200,7 +199,7 @@ abstract class CrudView extends AbstractView {
 		$this->getData()->delete($_GET["id"]);
 		
 		// show success
-		new Message($this->entityName . " " . Lang::txt("deleted"),
+		new Message(Lang::txt("deleted_entity", array($this->entityName)),
 						Lang::txt("entryDeleted"));
 	}
 	

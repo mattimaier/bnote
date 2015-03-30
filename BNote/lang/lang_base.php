@@ -55,6 +55,13 @@ abstract class BNoteTranslation {
 	 * @return A language-specific date format pattern like d.m.Y.
 	 */
 	public abstract function getDateFormatPattern();
+	
+	/**
+	 * Language-specific regular expressions to check dates, times, numbers, etc.
+	 * @param string $patternCode Code of the pattern.
+	 * @return string Language-specific regular expression.
+	 */
+	public abstract function getRegex($patternCode);
 }
 
 ?>

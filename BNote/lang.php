@@ -123,7 +123,17 @@ class Lang {
 	 */
 	public static function getDateFormatPattern() {
 		$inst = Lang::getInstance();
-		return $inst->langObj-> getDateFormatPattern();
+		return $inst->langObj->getDateFormatPattern();
+	}
+	
+	/**
+	 * Language-specific regular expressions.
+	 * @param string $code Pattern code.
+	 * @return string Language-specific regular expression.
+	 */
+	public static function regex($code) {
+		$inst = Lang::getInstance();
+		return $inst->langObj->getRegex($code);
 	}
 }
 
