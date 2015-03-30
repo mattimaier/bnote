@@ -425,19 +425,19 @@ class StartData extends AbstractData {
 		$objTitle = "";
 		if($otype == "R") {
 			$reh = $this->getRehearsal($oid);
-			$objTitle = "Probe am " . Data::convertDateFromDb($reh["begin"]) . " Uhr";
+			$objTitle = Lang::txt("rehearsal") . " " . Data::convertDateFromDb($reh["begin"]);
 		}
 		else if($otype == "C") {
 			$con = $this->getConcert($oid);
-			$objTitle = "Konzert am " . Data::convertDateFromDb($con["begin"]) . " Uhr";
+			$objTitle = Lang::txt("concert") . " " . Data::convertDateFromDb($con["begin"]);
 		}
 		else if($otype == "V") {
 			$vote = $this->getVote($oid);
-			$objTitle = "Abstimmung: " . $vote["name"];
+			$objTitle = Lang::txt("vote") . ": " . $vote["name"];
 		}
 		else if($otype == "T") {
 			//FIXME: In case tasks can be commented as well, fix this
-			$objTitle = "Aufgabe " + $oid;
+			$objTitle = Lang::txt("task") . " " + $oid;
 		}
 		return $objTitle;
 	}

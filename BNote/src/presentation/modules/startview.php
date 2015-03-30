@@ -456,7 +456,7 @@ class StartView extends AbstractView {
 	public function voteOptions() {
 		$this->checkID();
 		if(!$this->getData()->canUserVote($_GET["id"])) {
-			new Error("Sie können an dieser Abstimmung nicht teilnehmen.");
+			new Error(Lang::txt("start_youCannotParticipateVote"));
 		}
 		$vote = $this->getData()->getVote($_GET["id"]);
 		Writing::h2($vote["name"]);
@@ -468,7 +468,7 @@ class StartView extends AbstractView {
 			for($i = 1 ; $i < count($options); $i++) {
 				if($vote["is_date"] == 1) {
 					$label = substr(Data::getWeekdayFromDbDate($options[$i]["odate"]), 0, 2) . ", ";
-					$label .= Data::convertDateFromDb($options[$i]["odate"]) . " Uhr";
+					$label .= Data::convertDateFromDb($options[$i]["odate"]);
 				}
 				else {
 					$label = $options[$i]["name"];
@@ -479,9 +479,9 @@ class StartView extends AbstractView {
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == "1"
 						&& $vote["is_multi"] == 1) {
 					$dd = new Dropdown($options[$i]["id"]);
-					$dd->addOption("Geht nicht", 0);
-					$dd->addOption("Geht", 1);
-					$dd->addOption("Vielleicht", 2);
+					$dd->addOption(Lang::txt("start_worksForMeNot"), 0);
+					$dd->addOption(Lang::txt("start_worksForMe"), 1);
+					$dd->addOption(Lang::txt("start_worksForMeMaybe"), 2);
 					if($selected != -1) {
 						$dd->setSelected($selected);
 					}		
@@ -517,7 +517,7 @@ class StartView extends AbstractView {
 			echo '<input type="submit" value="abstimmen" />' . "\n";
 		}
 		else {
-			Writing::p("Es wurden noch keine Optionen angegeben. Schau später noch einmal nach.");
+			Writing::p(Lang::txt("start_noOptionsYet"));
 		}
 		echo "</form>\n";
 		$this->verticalSpace();
@@ -527,7 +527,7 @@ class StartView extends AbstractView {
 	public function saveVote() {
 		$this->checkID();
 		$this->getData()->saveVote($_GET["id"], $_POST);
-		$msg = new Message("Auswahl gespeichert", "Deine Auswahl wurde gespeichert.");
+		$msg = new Message(Lang::txt("start_selectionSavedTitle"), Lang::txt("start_selectionSavedMsg"));
 		$msg->write();
 		$this->backToStart();
 	}
@@ -535,7 +535,7 @@ class StartView extends AbstractView {
 	public function taskComplete() {
 		$this->checkID();
 		$this->getData()->taskComplete($_GET["id"]);
-		$msg = new Message("Aufgabe abgeschlossen", "Die Aufgabe wurde als abgeschlossen markiert.");
+		$msg = new Message(Lang::txt("start_taskCompletedTitle"), Lang::txt("start_taskCompletedMsg"));
 		$msg->write();
 		$this->backToStart();
 	}
@@ -547,19 +547,19 @@ class StartView extends AbstractView {
 		Writing::h2("Programm");
 		
 		// Enhancement #127
-		$konzertMod = $this->getData()->getSysdata()->getModuleId("Konzerte");
+		$konzertMod = $this->getData()->getSysdata()->getModuleId(Lang::txt("concerts"));
 		if($this->getData()->getSysdata()->userHasPermission($konzertMod)) {
-			$editLink = new Link("?mod=" . $konzertMod . "&mode=programs&sub=view&id=" . $_GET["id"], "Programm bearbeiten");
+			$editLink = new Link("?mod=" . $konzertMod . "&mode=programs&sub=view&id=" . $_GET["id"], Lang::txt("start_editProgram"));
 			$editLink->addIcon("edit");
 			$editLink->write();
 			$this->verticalSpace();
 		}
 		
 		$table = new Table($titles);		
-		$table->renameHeader("rank", "Nr.");
-		$table->renameHeader("title", "Titel");
-		$table->renameHeader("composer", "Komponist/Arrangeuer");
-		$table->renameHeader("notes", "Notizen");
+		$table->renameHeader("rank", Lang::txt("start_rank"));
+		$table->renameHeader("title", Lang::txt("start_title"));
+		$table->renameHeader("composer", Lang::txt("start_composer"));
+		$table->renameHeader("notes", Lang::txt("start_notes"));
 		
 		$table->write();
 		
@@ -569,12 +569,12 @@ class StartView extends AbstractView {
 	
 	public function rehearsalParticipants() {
 		$rehearsal = $this->getData()->getRehearsal($_GET["id"]);
-		Writing::h2("Teilnehmer der Probe am " . Data::convertDateFromDb($rehearsal["begin"])) . " Uhr";
+		Writing::h2(Lang::txt("start_participantsOfRehearsal", array(Data::convertDateFromDb($rehearsal["begin"]))));
 		
 		$parts = $this->getData()->getRehearsalParticipants($_GET["id"]);
 		$table = new Table($parts);
-		$table->renameHeader("name", "Vorname");
-		$table->renameHeader("surname", "Nachname");
+		$table->renameHeader("name", Lang::txt("firstname"));
+		$table->renameHeader("surname", Lang::txt("surname"));
 		$table->write();
 		
 		$this->backToStart();
@@ -587,7 +587,7 @@ class StartView extends AbstractView {
 		$comments = $this->getData()->getUserUpdates($this->objectListing);
 		
 		if(count($comments) == 1) {
-			echo "<p>Keine Neuigkeiten</p>\n";
+			echo "<p>" . Lang::txt("start_noNews") . "</p>\n";
 			return;
 		}
 		
@@ -598,7 +598,7 @@ class StartView extends AbstractView {
 			$objLink = $this->modePrefix() . "discussion&otype=" . $comment["otype"] . "&oid=" . $comment["oid"];
 			
 			$contact = $this->getData()->getSysdata()->getUsersContact($comment["author"]);
-			$author = $contact["name"] . " " . $contact["surname"] . " am " . Data::convertDateFromDb($comment["created_at"]) . " Uhr";
+			$author = $contact["name"] . " " . $contact["surname"] . " - " . Data::convertDateFromDb($comment["created_at"]);
 			
 			$message = urldecode($comment["message"]);
 			if(strlen($message) > 140) {
@@ -618,25 +618,25 @@ class StartView extends AbstractView {
 	
 	public function discussion() {
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") != 1) {
-			new Error("Diskussionen sind in dieser Anwendung deaktiviert.");
+			new Error(Lang::txt("start_discussionsDeactivated"));
 		}
 		if(!isset($_GET["otype"]) || !isset($_GET["oid"])) {
-			new Error("Bitte geben Sie den Dikussionsgegenstand an.");
+			new Error(Lang::txt("start_giveDiscussionReason"));
 		}
 		
-		Writing::h2("Diskussion: " . $this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]));
+		Writing::h2(Lang::txt("discussion") . ": " . $this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]));
 		
 		// show comments
 		$comments = $this->getData()->getDiscussion($_GET["otype"], $_GET["oid"]);
 		
 		if(count($comments) == 1) {
-			echo "Keine Kommentare in dieser Diskussion.";
+			new Message(Lang::txt("start_noComments"), Lang::txt("start_noCommentsInDiscussion"));
 		}
 		else {
 			foreach($comments as $i => $comment) {
 				if($i == 0) continue; // header
 				
-				$author = $comment["author"] . " am " . Data::convertDateFromDb($comment["created_at"]) . " Uhr";
+				$author = $comment["author"] . " / " . Data::convertDateFromDb($comment["created_at"]);
 				?>
 				<div class="start_update_box">
 					<span class="start_update_box_author"><?php echo $author; ?></span><br/>
@@ -650,12 +650,13 @@ class StartView extends AbstractView {
 		
 		// add comment form
 		$submitLink = $this->modePrefix() . "addComment&otype=" . $_GET["otype"] . "&oid=" . $_GET["oid"];
-		$form = new Form("Kommentar hinzufügen", $submitLink);
+		$form = new Form(Lang::txt("start_addComment"), $submitLink);
 		$form->addElement("", new Field("message", "", FieldType::TEXT));
-		$form->changeSubmitButton("Kommentar senden");
+		$form->changeSubmitButton(Lang::txt("start_sendComment"));
 		$form->write();
-		$this->verticalSpace();
-		
+	}
+	
+	protected function discussionOptions() {
 		$this->backToStart();
 	}
 	
