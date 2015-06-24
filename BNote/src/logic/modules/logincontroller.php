@@ -14,6 +14,12 @@ class LoginController extends DefaultController {
 	 */
 	private $SHOW_PASSWORD_HASH = false;
 	
+	/**
+	 * Globally used encryption hash for the passwords.
+	 * @var String
+	 */
+	const ENCRYPTION_HASH = 'BNot3pW3ncryp71oN';
+	
 	private $current_page;
 	
 	function __construct() {
@@ -56,7 +62,7 @@ class LoginController extends DefaultController {
 		// verify information
 		$this->getData()->validateLogin();
 		$db_pw = $this->getData()->getPasswordForLogin($_POST["login"]);
-		$password = crypt($_POST["password"], 'BNot3pW3ncryp71oN');
+		$password = crypt($_POST["password"], LoginController::ENCRYPTION_HASH);
 		
 		if($this->SHOW_PASSWORD_HASH) {
 			echo "The password entered is hashed as " . $password . "</br>\n";
