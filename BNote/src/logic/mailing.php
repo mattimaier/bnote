@@ -175,18 +175,22 @@ class Mailing {
 			$body = $this->body;
 		}
 		
-		if($this->isHtmlBody()) {
-			$htmlBody = $body;
-			$body = "<html><head>";
-			$body .= '<meta http-equiv="Content-Type" content="text/html; charset=' . $this->encoding . '" />';
-			$body .= "<title>" . $subject . "</title>";
-			$body .= "</head><body>";
-			$body .= $htmlBody;
-			$body .= "</body></html>";
-		}
+		// load template
+		$tpl_path = "data/mail_template.html";
+		$template = file_get_contents($tpl_path);
+		
+		// replace placeholders
+		$tpl_mail = str_replace("%encoding%", $this->encoding, $template);
+		
+		$tpl_mail = str_replace("%title%", $subject, $tpl_mail);
+		$tpl_mail = str_replace("%content%", $body, $tpl_mail);
+		$link = $this->sysdata->getSystemURL();
+		$tpl_mail = str_replace("%link%", $link, $tpl_mail);
+		$tpl_mail = str_replace("%link_name%", $this->sysdata->getCompany(), $tpl_mail);
+		$tpl_mail = str_replace("%footer%", Lang::txt("mail_footerText"), $tpl_mail);
 		
 		// sending mail
-		return mail($to, $subject, $body, $headers);
+		return mail($to, $subject, $tpl_mail, $headers);
 	}
 	
 	/**

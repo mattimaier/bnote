@@ -161,6 +161,8 @@ $update = new UpdateDb();
 // Task 1: Insert Language Configuration
 $update->addDynConfigParam("language", "de", 1);
 
+//FIXME: Migration of all passwords might be necessary -> ask for new default password!
+
 ?>
 <br/><br/>
 <b><i>COMPLETE.</i></b>

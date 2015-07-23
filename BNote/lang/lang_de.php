@@ -64,6 +64,8 @@ class Translation extends BNoteTranslation {
 			"details_entity" => "%p Details",
 			"deleted_entity" => "%p gelöscht",
 			"user" => "Benutzer",
+			"date" => "Datum",
+			"mail_footerText" => "Diese E-Mail wurde automatisch von BNote versandt:",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",
@@ -172,7 +174,45 @@ class Translation extends BNoteTranslation {
 			"start_noComments" => "Keine Kommentare",
 			"start_noCommentsInDiscussion" => "Keine Kommentare in dieser Diskussion.",
 			"start_addComment" => "Kommentar hinzufügen",
-			"start_sendComment" => "Kommentar senden"
+			"start_sendComment" => "Kommentar senden",
+			
+			// module: vote
+			"vote_yourVotes" => "Deine Abstimmungen",
+			"vote_archive" => "Archiv",
+			"vote_voters" => "Abstimmungsberechtigte",
+			"vote_fields_id" => "Abstimmungsnr.",
+			"vote_fields_name" => "Titel",
+			"vote_fields_author" => "Ersteller",
+			"vote_fields_end" => "Abstimmungsende",
+			"vote_fields_is_date" => "Datumsabstimmung",
+			"vote_fields_is_multi" => "Mehrere Optionen möglich",
+			"vote_fields_is_finished" => "Abstimmung beendet",
+			"vote_details_header" => "Abstimmungsdetails",
+			"vote_edit" => "Abstimmung bearbeiten",
+			"vote_now" => "Jetzt Abstimmen",
+			"vote_finish" => "Abstimmung beenden",
+			"vote_saved_message" => "Die Abstimmung wurde erfolgreich gespeichert.",
+			"vote_add_options" => "Optionen hinzufügen",
+			"vote_remove_option_tip" => "Klicke auf eine Option um diese von der Liste zu löschen.",
+			"vote_options" => "Optionen",
+			"vote_no_options_yet" => "Diese Abstimmung hat noch keine Optionen.",
+			"vote_option" => "Option",
+			"vote_addSingleOption" => "Eine Option hinzufügen",
+			"vote_addMultipleOptions" => "Mehrere Optionen hinzufügen",
+			"vote_firstDay" => "Erster Tag",
+			"vote_lastDay" => "Letzter Tag",
+			"vote_end" => "Abstimmungsende",
+			"vote_notification" => "Abstimmungsbenachrichtigung",
+			"vote_result" => "Ergebnis",
+			"vote_clickToRemoveUser" => "Klicke auf einen Benutzer um diesen von der Liste zu löschen.",
+			"vote_noVotersYet" => "Diese Abstimmung hat noch keine Abstimmungsberechtigten.",
+			"vote_addVoter" => "Abstimmungsberechtigte hinzufügen",
+			"vote_voter" => "Abstimmungsberechtigter",
+			"vote_multipleAnswersPossible" => "Mehrere Antworten waren möglich.",
+			"vote_singleOnlyPossible" => "Jeder Abstimmungsberechtigte konnte nur eine Stimme abgeben.",
+			"vote_votes" => "Stimmen",
+			"vote_archive" => "Abstimmungsarchiv",
+			
 	);
 	
 	protected $regex = array(

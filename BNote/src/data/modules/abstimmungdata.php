@@ -12,13 +12,13 @@ class AbstimmungData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("Abstimmungs-ID", FieldType::INTEGER),
-				"name" => array("Titel", FieldType::CHAR),
-				"author" => array("Ersteller", FieldType::REFERENCE),
-				"end" => array("Abstimmungsende", FieldType::DATETIME),
-				"is_date" => array("Datumsabstimmung", FieldType::BOOLEAN),
-				"is_multi" => array("Mehrere Optionen möglich", FieldType::BOOLEAN),
-				"is_finished" => array("Abstimmung beendet", FieldType::BOOLEAN)
+				"id" => array(Lang::txt("vote_fields_id"), FieldType::INTEGER),
+				"name" => array(Lang::txt("vote_fields_name"), FieldType::CHAR),
+				"author" => array(Lang::txt("vote_fields_author"), FieldType::REFERENCE),
+				"end" => array(Lang::txt("vote_fields_end"), FieldType::DATETIME),
+				"is_date" => array(Lang::txt("vote_fields_is_date"), FieldType::BOOLEAN),
+				"is_multi" => array(Lang::txt("vote_fields_is_multi"), FieldType::BOOLEAN),
+				"is_finished" => array(Lang::txt("vote_fields_is_finished"), FieldType::BOOLEAN)
 		);
 
 		$this->references = array("user");
