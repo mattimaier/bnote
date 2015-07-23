@@ -127,7 +127,7 @@ class LoginController extends DefaultController {
 		}
 		else {					
 			// Change password in system only if mail has been sent.
-			$pwenc = crypt($password, CRYPT_BLOWFISH);
+			$pwenc = crypt($password, LoginController::ENCRYPTION_HASH);
 			$this->getData()->saveNewPassword($uid, $pwenc);
 					
 			// success message
