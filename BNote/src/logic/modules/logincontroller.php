@@ -167,7 +167,7 @@ class LoginController extends DefaultController {
 		if($_POST["pw1"] != $_POST["pw2"]) {
 			new Error("Bitte &uuml;berpr&uuml;fe dein Kennwort.");
 		}
-		$password = crypt($_POST["pw1"], CRYPT_BLOWFISH);
+		$password = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
 		
 		// create entities for complete user
 		$aid = $this->getData()->createAddress(); // address id
