@@ -87,6 +87,7 @@ class Translation extends BNoteTranslation {
 			"mod_Aufgaben" => "Aufgaben",
 			"mod_Nachrichten" => "Nachrichten",
 			"mod_Probenphasen" => "Probephasen",
+			"mod_Finance" => "Finanzen",
 			
 			// widgets
 			"addFolder" => "Ordner hinzufügen",
@@ -123,6 +124,8 @@ class Translation extends BNoteTranslation {
 			"archiveCreated" => "Das Archiv wurde erstellt und kann unter folgendem Link heruntergeladen werden.",
 			"downloadArchive" => "Archiv herunterladen",
 			"noEntries" => "Keine Eintr&auml;ge vorhanden",
+			"table_no_entries" => "Es wurden keine Eintr&auml;ge gefunden.",
+			"sum" => "Summe",
 			
 			// module: start
 			"start_calendarExport" => "Kalender Export",
@@ -213,6 +216,30 @@ class Translation extends BNoteTranslation {
 			"vote_votes" => "Stimmen",
 			"vote_archive" => "Abstimmungsarchiv",
 			
+			// module: finance
+			"finance_account_id" => "Kontonummer",
+			"finance_account_name" => "Kontobezeichnung",
+			"finance_filter_items" => "Buchungen filtern",
+			"finance_date_from" => "Datum von",
+			"finance_date_to" => "bis",
+			"finance_date_filter" => "Filter",
+			"finance_add_booking" => "Buchung hinzufügen",
+			"finance_booking_bdate" => "Datum",
+			"finance_booking_id" => "Buchungsnummer",
+			"finance_booking_subject" => "Betreff",
+			"finance_booking_amount" => "Betrag",
+			"finance_booking_notes" => "Anmerkungen",
+			"finance_booking_btype" => "Typ",
+			"finance_booking_type_0" => "Einnahme",
+			"finance_booking_type_1" => "Ausgabe",
+			"finance_bookings_filter" => "Filtern",
+			"finance_booking_saved_title" => "Buchung gespeichert.",
+			"finance_booking_saved" => "Die Buchung wurde erfolgreiche gespeichert.",
+			"finance_metrics_header" => "Ergebnisse",
+			"finance_metrics_income" => "Einnahmen",
+			"finance_metrics_expenses" => "Ausgaben",
+			"finance_metrics_total" => "Saldo",
+			"finance_metrics_margin" => "Marge"
 	);
 	
 	protected $regex = array(
@@ -306,7 +333,10 @@ class Translation extends BNoteTranslation {
 		}
 		return $this->regex[$patternCode];
 	}
+	
+	public function decimalToDb($decimal) {
+		return Data::convertToDb($decimal);
+	}
 }
-
 
 ?>

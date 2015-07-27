@@ -49,7 +49,7 @@ class UpdateDb {
 		for($i = 1; $i < count($tabs); $i++) {
 			array_push($tables, $tabs[$i][0]);
 		}
-		$this->tabs = $tabs;
+		$this->tabs = $tables;
 	}
 	
 	private function loadMods() {
@@ -103,10 +103,10 @@ class UpdateDb {
 	}
 	
 	function addModule($modname) {
-		if(!in_array($modname, $mods)) {
+		if(!in_array($modname, $this->mods)) {
 			// add new module
 			$query = 'INSERT INTO module (name) VALUES ("' . $modname . '")';
-			$modId = $db->execute($query);
+			$modId = $this->db->execute($query);
 		
 			$this->message("New module $modname (ID $modId) added.");
 		
@@ -119,7 +119,7 @@ class UpdateDb {
 				$query .= "(" . $users[$i] . ", " . $modId . ")";
 			}
 			if(count($users) > 0) {
-				$db->execute($query);
+				$this->db->execute($query);
 				$this->message("Privileges for module $modId added for all super users.");
 			}
 			else {
@@ -162,6 +162,31 @@ $update = new UpdateDb();
 $update->addDynConfigParam("language", "de", 1);
 
 //FIXME: Migration of all passwords might be necessary -> ask for new default password!
+
+// Task 2a: Insert new table account
+$account_def = "CREATE TABLE account (
+			id INT(11) PRIMARY KEY AUTO_INCREMENT,
+			name VARCHAR(100) NOT NULL
+)";
+
+$update->addTable("account", $account_def);
+
+// Task 2b: Insert new table booking
+$booking_def = "CREATE TABLE booking (
+		id INT(11) PRIMARY KEY AUTO_INCREMENT,
+		account INT(11) NOT NULL,
+		bdate DATE NOT NULL,
+		subject VARCHAR(100) NOT NULL,
+		amount DECIMAL(9,2) NOT NULL,
+		btype INT(1) NOT NULL,
+		otype CHAR(1),
+		oid INT(11),
+		notes TEXT
+)";
+$update->addTable("booking", $booking_def);
+
+// Task 2c: Add module finance
+$update->addModule("Finance");
 
 ?>
 <br/><br/>

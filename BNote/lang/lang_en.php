@@ -87,6 +87,7 @@ class Translation extends BNoteTranslation {
 			"mod_Aufgaben" => "Tasks",
 			"mod_Nachrichten" => "News",
 			"mod_Probenphasen" => "Planning",
+			"mod_Finance" => "Finance",
 			
 			// widgets
 			"addFolder" => "Add Folder",
@@ -122,7 +123,9 @@ class Translation extends BNoteTranslation {
 			"download" => "Download",
 			"archiveCreated" => "The archive was created and can be downloaded now from the following link.",
 			"downloadArchive" => "Download Archive",
-			"noEntries" => "Keine Eintr&auml;ge vorhanden",
+			"noEntries" => "No entries present.",
+			"table_no_entries" => "No entries found.",
+			"sum" => "Sum",
 
 			// module: start
 			"start_calendarExport" => "Export Calendar",
@@ -212,6 +215,25 @@ class Translation extends BNoteTranslation {
 			"vote_singleOnlyPossible" => "Only one option could be selected.",
 			"vote_votes" => "Votes",
 			"vote_archive" => "Vote Archive",
+
+			// module: finance
+			"finance_account_id" => "Account ID",
+			"finance_account_name" => "Account Name",
+			"finance_filter_items" => "Filter Bookings",
+			"finance_date_from" => "Date from",
+			"finance_date_to" => "to",
+			"finance_date_filter" => "Filter",
+			"finance_add_booking" => "Add Booking",
+			"finance_booking_bdate" => "Date",
+			"finance_booking_subject" => "Subject",
+			"finance_booking_amount" => "Amount",
+			"finance_booking_notes" => "Notes",
+			"finance_booking_btype" => "Type",
+			"finance_booking_type_0" => "Income",
+			"finance_booking_type_1" => "Expense",
+			"finance_bookings_filter" => "Filter",
+			"finance_booking_saved_title" => "Booking saved",
+			"finance_booking_saved" => "The booking was successfully saved."
 	);
 	
 	protected $regex = array(
@@ -287,6 +309,10 @@ class Translation extends BNoteTranslation {
 			return null;
 		}
 		return $this->regex[$patternCode];
+	}
+	
+	public function decimalToDb($decimal) {
+		return str_replace(",", "", $decimal);
 	}
 }
 

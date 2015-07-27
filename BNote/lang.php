@@ -135,6 +135,16 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->getRegex($code);
 	}
+	
+	/**
+	 * Language-specific decimal representation to decimal in database format.
+	 * @param String $decimal Language-string, e.g. "203.203,20"
+	 * @return More or less float/double.
+	 */
+	public static function decimalToDb($decimal) {
+		$inst = Lang::getInstance();
+		return $inst->langObj->decimalToDb($decimal);
+	}
 }
 
 ?>

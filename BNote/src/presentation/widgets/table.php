@@ -264,7 +264,7 @@ class Table implements iWriteable {
 
 			# Write empty message
 			if($empty) {
-				echo ' <TR><TD colspan="' . count($row) . '">[Es wurden keine Eintr&auml;ge gefunden.]</TD></TR>' . "\n";
+				echo ' <TR><TD colspan="' . count($row) . '">[' . Lang::txt("table_no_entries") . ']</TD></TR>' . "\n";
 			}
 		}
 		 

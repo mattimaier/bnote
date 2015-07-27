@@ -81,7 +81,7 @@ class Form implements iWriteable {
 
  /**
   * automatically adds elements from an array, but without values
-  * @param $array Array with format field => fieldtype
+  * @param $array Array with format fieldid => [fieldname, fieldtype]
   */
  public function autoAddElementsNew($array) {
   foreach($array as $field => $info) {

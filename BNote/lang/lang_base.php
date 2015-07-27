@@ -62,6 +62,14 @@ abstract class BNoteTranslation {
 	 * @return string Language-specific regular expression.
 	 */
 	public abstract function getRegex($patternCode);
+	
+	/**
+	 * Converts the given decimal in language-specific format to
+	 * a database-conform decimal.
+	 * @param String $decimal Decimal in language-format.
+	 * @return more or less a float/double.
+	 */
+	public abstract function decimalToDb($decimal);
 }
 
 ?>
