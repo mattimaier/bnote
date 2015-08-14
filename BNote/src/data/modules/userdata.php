@@ -1,4 +1,5 @@
 <?php
+require_once $GLOBALS['DIR_LOGIC_MODULES'] . "logincontroller.php";
 
 /**
  * DAO for user module.
@@ -64,7 +65,7 @@ class UserData extends AbstractData {
 			if($id == "password") {
 				// specially validate password for empty passwords
 				if($values[$id] == "") new Error("Das angegebene Password ist nicht ausreichend.");
-				$newUsr[$id] = crypt($values[$id], CRYPT_BLOWFISH);
+				$newUsr[$id] = crypt($values[$id], LoginController::ENCRYPTION_HASH);
 			}
 			else if($id != "isActive") {
 				$newUsr[$id] = $values[$id];
@@ -102,7 +103,7 @@ class UserData extends AbstractData {
 		foreach($this->getFields()as $id => $info) {
 			if($id == "id" || $id == "lastlogin" || $id == "login") continue;
 			else if($id == "password") {
-				if($_POST[$id] != "") $usr[$id] = crypt($_POST[$id], CRYPT_BLOWFISH);
+				if($_POST[$id] != "") $usr[$id] = crypt($_POST[$id], LoginController::ENCRYPTION_HASH);
 			} else {
 				$usr[$id] = $_POST[$id];
 			}

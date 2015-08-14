@@ -16,6 +16,12 @@ class LoginController extends DefaultController {
 	
 	private $current_page;
 	
+	/**
+	 * Globally used encryption hash for passwords.
+	 * @var String
+	 */
+	const ENCRYPTION_HASH = 'BNot3pW3ncryp71oN';
+	
 	function __construct() {
 		if(isset($_GET["mod"])) {
 			$this->current_page = $_GET["mod"];
@@ -56,7 +62,7 @@ class LoginController extends DefaultController {
 		// verify information
 		$this->getData()->validateLogin();
 		$db_pw = $this->getData()->getPasswordForLogin($_POST["login"]);
-		$password = crypt($_POST["password"], CRYPT_BLOWFISH);
+		$password = crypt($_POST["password"], LoginController::ENCRYPTION_HASH);
 		
 		if($SHOW_PASSWORD_HASH) {
 			echo "The password entered is hashed as " . $password . "</br>\n";
@@ -121,7 +127,7 @@ class LoginController extends DefaultController {
 		}
 		else {					
 			// Change password in system only if mail has been sent.
-			$pwenc = crypt($password, CRYPT_BLOWFISH);
+			$pwenc = crypt($password, LoginController::ENCRYPTION_HASH);
 			$this->getData()->saveNewPassword($uid, $pwenc);
 					
 			// success message
@@ -161,7 +167,7 @@ class LoginController extends DefaultController {
 		if($_POST["pw1"] != $_POST["pw2"]) {
 			new Error("Bitte &uuml;berpr&uuml;fe dein Kennwort.");
 		}
-		$password = crypt($_POST["pw1"], CRYPT_BLOWFISH);
+		$password = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
 		
 		// create entities for complete user
 		$aid = $this->getData()->createAddress(); // address id

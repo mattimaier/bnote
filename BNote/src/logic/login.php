@@ -38,7 +38,7 @@ $sysconfig = new XmlData($dir_prefix . $GLOBALS["DIR_CONFIG"] . "config.xml", "S
 $db_pw = $db->getCell($db->getUserTable(), "password", "login = '" . $username . "' AND isActive = 1");
 
 // Encrypt password
-$password = crypt($password, CRYPT_BLOWFISH);
+$password = crypt($password, LoginController::ENCRYPTION_HASH);
 
 //echo "encpw: " . $password;
 
