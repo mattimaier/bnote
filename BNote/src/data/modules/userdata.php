@@ -1,5 +1,4 @@
 <?php
-
 require_once $GLOBALS['DIR_LOGIC_MODULES'] . "logincontroller.php";
 
 /**

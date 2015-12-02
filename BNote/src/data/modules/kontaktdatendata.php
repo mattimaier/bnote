@@ -1,5 +1,6 @@
 <?php
 require_once $GLOBALS["DIR_DATA_MODULES"] . "kontaktedata.php";
+require_once $GLOBALS['DIR_LOGIC_MODULES'] . "logincontroller.php";
 
 /**
  * Data access object for personal data management module.
@@ -25,7 +26,8 @@ class KontaktdatenData extends KontakteData {
 		}
 		
 		// encrypt passwords
-		$pw = crypt($_POST["pw1"], CRYPT_BLOWFISH);
+		
+		$pw = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
 		
 		// update in db
 		$query = "UPDATE user SET password = '$pw' WHERE id = " . $_SESSION["user"];
