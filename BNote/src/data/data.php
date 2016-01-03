@@ -185,6 +185,19 @@ abstract class Data {
 		return date('Y-m-d H:i:s');
 	}
 	
+	public static function dbSelectionToDict($selection, $k, $v_arr, $glue=" ") {
+		$dict = array();
+		foreach($selection as $i => $row) {
+			if($i == 0) continue;
+			$v_vals = array();
+			foreach($v_arr as $vk) {
+				array_push($v_vals, $row[$vk]);
+			}
+			$dict[$row[$k]] = join($glue, $v_vals);
+		}
+		return $dict;
+	}
+	
 	// END OF CLASS
  }
 

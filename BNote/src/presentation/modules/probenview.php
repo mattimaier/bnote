@@ -40,7 +40,7 @@ class ProbenView extends CrudRefView {
 		
 		$this->buttonSpace();
 		$series = new Link($this->modePrefix() . "addSerie", "Probenstrecke hinzufügen");
-		$series->addIcon("plus"); //TODO find another icon
+		$series->addIcon("overtime");
 		$series->write();
 		
 		$this->buttonSpace();

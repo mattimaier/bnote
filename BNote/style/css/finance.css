@@ -1,6 +1,6 @@
 @CHARSET "UTF-8";
 
-.finance_filter_line {
+.finance_filter_box {
 	border: 1px solid #eee;
 	padding: 10px;	
 }
@@ -9,10 +9,21 @@
 	font-weight: 600;
 }
 
-.finance_filter_line form {
+.finance_filter_box form {
 	margin-top: 5px;
 }
 
-.finance_filter_line input {
-	margin: 0px 10px;
+.finance_filter_box input {
+	margin: 0px;
+	margin-right: 5px;
+}
+
+.finance_filter_box label {
+	display: inline-block;
+	width: 80px;
+}
+
+.finance_filter_row {
+	padding-top: 5px;
+    padding-bottom: 5px;
 }

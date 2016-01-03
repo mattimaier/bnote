@@ -36,6 +36,8 @@ class Translation extends BNoteTranslation {
 			"nonIntegratedUsers" => 'Non integrated users have been detected. Please change to Contacts/Integration to integrate them into your ensemble.',
 			"rehearsals" => "Rehearsals",
 			"rehearsal" => "Rehearsal",
+			"rehearsalphase" => "Rehearsal Phase",
+			"rehearsalphases" => "Rehearsal Phases",
 			"concerts" => "Concerts",
 			"concert" => "Concert",
 			"votes" => "Votes",
@@ -217,6 +219,7 @@ class Translation extends BNoteTranslation {
 			"vote_archive" => "Vote Archive",
 
 			// module: finance
+			"finance_account" => "Account",
 			"finance_account_id" => "Account ID",
 			"finance_account_name" => "Account Name",
 			"finance_filter_items" => "Filter Bookings",
@@ -233,7 +236,8 @@ class Translation extends BNoteTranslation {
 			"finance_booking_type_1" => "Expense",
 			"finance_bookings_filter" => "Filter",
 			"finance_booking_saved_title" => "Booking saved",
-			"finance_booking_saved" => "The booking was successfully saved."
+			"finance_booking_saved" => "The booking was successfully saved.",
+			"finance_recpay" => "Recurring Payments"
 	);
 	
 	protected $regex = array(

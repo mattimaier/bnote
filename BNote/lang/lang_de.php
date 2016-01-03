@@ -36,6 +36,8 @@ class Translation extends BNoteTranslation {
 			"nonIntegratedUsers" => 'Es gibt inaktive oder nicht integrierte Nutzer. Bitte gehe auf Kontakte/Einphasung und kümmere dich darum.',
 			"rehearsals" => "Proben",
 			"rehearsal" => "Probe",
+			"rehearsalphase" => "Probenphase",
+			"rehearsalphases" => "Probenphasen",
 			"concerts" => "Konzerte",
 			"concert" => "Konzert",
 			"votes" => "Abstimmungen",
@@ -217,6 +219,7 @@ class Translation extends BNoteTranslation {
 			"vote_archive" => "Abstimmungsarchiv",
 			
 			// module: finance
+			"finance_account" => "Konto",
 			"finance_account_id" => "Kontonummer",
 			"finance_account_name" => "Kontobezeichnung",
 			"finance_filter_items" => "Buchungen filtern",
@@ -227,7 +230,9 @@ class Translation extends BNoteTranslation {
 			"finance_booking_bdate" => "Datum",
 			"finance_booking_id" => "Buchungsnummer",
 			"finance_booking_subject" => "Betreff",
-			"finance_booking_amount" => "Betrag",
+			"finance_booking_amount_net" => "Netto",
+			"finance_booking_amount_tax" => "Steuer",
+			"finance_booking_amount_total" => "Brutto",
 			"finance_booking_notes" => "Anmerkungen",
 			"finance_booking_btype" => "Typ",
 			"finance_booking_type_0" => "Einnahme",
@@ -239,7 +244,21 @@ class Translation extends BNoteTranslation {
 			"finance_metrics_income" => "Einnahmen",
 			"finance_metrics_expenses" => "Ausgaben",
 			"finance_metrics_total" => "Saldo",
-			"finance_metrics_margin" => "Marge"
+			"finance_metrics_margin" => "Marge",
+			"finance_metrics_sum" => "Summe",
+			
+			"finance_recpay" => "Laufende Zahlungen",
+			"recurringpayment" => "Laufende Zahlung",
+			"recpay_account" => "Konto",
+			"recpay_otype" => "Referenztyp",
+			"recpay_oid" => "Referenz",
+			"recpay_accountname" => "Konto",
+			"recpay_book" => "Buchen",
+			"recpay_book_title" => "Laufende Zahlungen Buchen",
+			"recpay_add_form_title" => "Laufende Zahlung hinzufügen",
+			"recpay_no_otype" => "[keine Referenz]",
+			"recpay_book_success_title" => "Buchung erfolgreich",
+			"recpay_book_success_msg" => "Alle Buchungen wurden erfolgreich eingefügt."
 	);
 	
 	protected $regex = array(

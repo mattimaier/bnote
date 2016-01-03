@@ -11,7 +11,7 @@ class FinanceView extends CrudView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Account");
+		$this->setEntityName(Lang::txt("finance_account"));
 	}
 	
 	private function getFilterSettings() {
@@ -27,7 +27,48 @@ class FinanceView extends CrudView {
 			$from = date("Y") . "-01-01";
 			$to = date("Y-m-d");
 		}
-		return array($from, $to);
+		
+		if(isset($_POST["oid"])) {
+			$oid = $_POST["oid"];
+			$otype = $_POST["otype"];
+		}
+		else if(isset($_GET["oid"])) {
+			$oid = $_GET["oid"];
+			$otype = $_GET["otype"];
+		}
+		else {
+			$otype = 0;
+			$oid = null;
+		}
+		
+		return array($from, $to, $otype, $oid);
+	}
+	
+	function isSubModule($mode) {
+		if($mode == "recpay") return true;
+		return false;
+	}
+	
+	function subModuleOptions() {
+		$subOptionFunc = isset($_GET["sub"]) ? $_GET["sub"] . "Options" : "startOptions";
+		if($this->isSubModule($_GET['mode'])) {
+			if($_GET['mode'] == "recpay") {
+				$ctrl = $this->getController()->getRecpayCtrl();
+			}
+			$ctrl->getView()->$subOptionFunc();
+		}
+		else {
+			$this->defaultOptions();
+		}
+	}
+	
+	function startOptions() {
+		parent::startOptions();
+		$this->buttonSpace();
+		
+		$btn = new Link($this->modePrefix() . "recpay", Lang::txt("finance_recpay"));
+		$btn->addIcon("recurring");
+		$btn->write();
 	}
 	
 	function view() {
@@ -40,42 +81,68 @@ class FinanceView extends CrudView {
 		$fromToArr = $this->getFilterSettings();
 		$default_from = $fromToArr[0];
 		$default_to = $fromToArr[1];
+		$default_otype = $fromToArr[2];
+		$default_oid = $fromToArr[3];
+		
 		?>
-		<div class="finance_filter_line">
+		<div class="finance_filter_box">
 			<span class="finance_filter_title"><?php echo Lang::txt("finance_filter_items"); ?></span>
 			<form action="<?php echo $this->modePrefix() . "view&id=" . $_GET["id"]; ?>" method="POST">
-			<label for="from"><?php echo Lang::txt("finance_date_from"); ?></label><input type="date" name="from" value="<?php echo $default_from; ?>" />
-			<label for="to"><?php echo Lang::txt("finance_date_to"); ?></label><input type="date" name="to" value="<?php echo $default_to; ?>" />
-			<input type="submit" value="<?php echo Lang::txt("finance_bookings_filter"); ?>" />
+				<div class="finance_filter_row">
+					<label for="from"><?php echo Lang::txt("finance_date_from"); ?></label>
+					<input type="date" name="from" value="<?php echo $default_from; ?>" />
+					<label for="to" style="width: 30px;"><?php echo Lang::txt("finance_date_to"); ?></label>
+					<input type="date" name="to" value="<?php echo $default_to; ?>" />
+				</div>
+				<div class="finance_filter_row">
+					<label for="otype"><?php echo Lang::txt("recpay_oid"); ?></label>
+					<?php 
+					$objdd = $this->getController()->getRecpayCtrl()->getView()->objectReferenceForm($default_otype, $default_oid);
+					if($default_otype != NULL) {
+						$objdd->setSelected($default_otype);
+					}
+					echo $objdd->write();
+					if($default_otype != NULL) {
+						?>
+						<script>changeReference(document.getElementById("oref"));</script>
+						<?php
+					}
+					?>
+				</div>
+			<input type="submit" style="margin-left: 0px;" value="<?php echo Lang::txt("finance_bookings_filter"); ?>" />
 			</form>
 		</div>
 		<?php
 		
 		// Show bookings with total
-		$bookings = $this->getData()->findBookings($default_from, $default_to, $accId);
+		$bookings = $this->getData()->findBookings($default_from, $default_to, $accId, $default_otype, $default_oid);
 		$table = new Table($bookings);
 		$table->removeColumn("account");
 		$table->renameHeader("id", Lang::txt("finance_booking_id"));
 		$table->renameHeader("bdate", Lang::txt("finance_booking_bdate"));
 		$table->renameHeader("subject", Lang::txt("finance_booking_subject"));
-		$table->renameHeader("amount", Lang::txt("finance_booking_amount"));
+		$table->renameHeader("amount_net", Lang::txt("finance_booking_amount_net"));
+		$table->renameHeader("amount_tax", Lang::txt("finance_booking_amount_tax"));
+		$table->renameHeader("amount_total", Lang::txt("finance_booking_amount_total"));
 		$table->renameHeader("btype", Lang::txt("finance_booking_btype"));
+		$table->renameHeader("otype", Lang::txt("recpay_otype"));
+		$table->renameHeader("oid", Lang::txt("recpay_oid"));
 		$table->renameHeader("notes", Lang::txt("finance_booking_notes"));
-		$table->removeColumn("otype");
-		$table->removeColumn("oid");
 		$table->allowWordwrap(false);
 		$table->setColumnFormat("amount", "DECIMAL");
 		$table->write();
 		
 		// show metrics
+		$this->verticalSpace();
+		
 		Writing::h3(Lang::txt("finance_metrics_header"));
-		$dv = new Dataview();
-		$metrics = $this->getData()->findBookingsMetrics($default_from, $default_to, $accId);
-		$dv->addElement(Lang::txt("finance_metrics_income"), $metrics["income"]);
-		$dv->addElement(Lang::txt("finance_metrics_expenses"), $metrics["expenses"]);
-		$dv->addElement(Lang::txt("finance_metrics_total"), $metrics["total"]);
-		$dv->addElement(Lang::txt("finance_metrics_margin"), $metrics["margin"]);
-		$dv->write();
+		$metrics = $this->getData()->findBookingsMetrics($default_from, $default_to, $accId, $default_otype, $default_oid);
+		$mtab = new Table($metrics);
+		$mtab->renameHeader("btype", Lang::txt("finance_booking_btype"));
+		$mtab->renameHeader("total_net", Lang::txt("finance_booking_amount_net"));
+		$mtab->renameHeader("total_tax", Lang::txt("finance_booking_amount_tax"));
+		$mtab->renameHeader("total", Lang::txt("finance_booking_amount_total"));
+		$mtab->write();
 	}
 	
 	function additionalViewButtons() {
@@ -99,11 +166,14 @@ class FinanceView extends CrudView {
 		}
 		$dd->setSelected(1);
 		$form->addElement(Lang::txt("finance_booking_btype"), $dd);
+		$objdd = $this->getController()->getRecpayCtrl()->getView()->objectReferenceForm();
+		$form->addElement(Lang::txt("recpay_otype"), $objdd);
 		$form->autoAddElementsNew(array(
 			"bdate" => array(Lang::txt("finance_booking_bdate"), FieldType::DATE),
 			"subject" => array(Lang::txt("finance_booking_subject"), FieldType::CHAR),
-			"amount" => array(Lang::txt("finance_booking_amount"), FieldType::DECIMAL),
-			"notes" => array(Lang::txt("finance_booking_notes"), FieldType::TEXT)
+			"amount_net" => array(Lang::txt("finance_booking_amount_net"), FieldType::DECIMAL),
+			"amount_tax" => array(Lang::txt("finance_booking_amount_tax"), FieldType::DECIMAL),
+			"notes" => array(Lang::txt("finance_booking_notes"), FieldType::CHAR)
 		));
 		
 		$form->write();

@@ -177,7 +177,8 @@ $booking_def = "CREATE TABLE booking (
 		account INT(11) NOT NULL,
 		bdate DATE NOT NULL,
 		subject VARCHAR(100) NOT NULL,
-		amount DECIMAL(9,2) NOT NULL,
+		amount_net DECIMAL(9,2) NOT NULL,
+		amount_tax DECIMAL(9,2) NOT NULL DEFAULT 0,
 		btype INT(1) NOT NULL,
 		otype CHAR(1),
 		oid INT(11),
@@ -185,7 +186,21 @@ $booking_def = "CREATE TABLE booking (
 )";
 $update->addTable("booking", $booking_def);
 
-// Task 2c: Add module finance
+// Task 2c: Insert new table recpay
+$recpay_def = "CREATE TABLE recpay (
+		id INT(11) PRIMARY KEY AUTO_INCREMENT,
+		account INT(11) NOT NULL,
+		subject VARCHAR(100) NOT NULL,
+		amount_net DECIMAL(9,2) NOT NULL,
+		amount_tax DECIMAL(9,2) NOT NULL DEFAULT 0,
+		btype INT(1) NOT NULL,
+		otype CHAR(1),
+		oid INT(11),
+		notes TEXT
+)";
+$update->addTable("recpay", $recpay_def);
+
+// Task 2d: Add module finance
 $update->addModule("Finance");
 
 ?>

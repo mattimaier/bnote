@@ -568,6 +568,8 @@ class Installation {
 					PRIMARY KEY (`concert`,`contact`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
+			//TODO: add account, booking
+			
 			foreach($queries as $i => $query) {
 				$db->execute($query);
 			}
@@ -602,6 +604,8 @@ class Installation {
 					('language', 'de', 1),
 					('discussion_on', '1', 1);");
 
+			//TODO: check if all config items for v3 are present
+			
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES
 					(1, 'Swing'),
