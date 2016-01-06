@@ -91,6 +91,11 @@ class Translation extends BNoteTranslation {
 			"mod_Probenphasen" => "Probephasen",
 			"mod_Finance" => "Finanzen",
 			"mod_Calendar" => "Kalender",
+			"mod_Passwort" => "Passwort vergessen",
+			"mod_Warum BNote?" => "Warum BNote?",
+			"mod_Registrierung" => "Registrierung",
+			"mod_Bedingungen" => "Bedingungen",
+			"mod_Impressum" => "Impressum",
 			
 			// widgets
 			"addFolder" => "Ordner hinzufügen",
