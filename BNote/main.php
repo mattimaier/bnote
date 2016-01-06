@@ -35,7 +35,7 @@ global $mainController;
 ?>
 
 <!DOCTYPE html>
-<HTML lang="de">
+<HTML lang="de" manifest="bnote.appcache">
 
 <?php
 # Display HTML HEAD
