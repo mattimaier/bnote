@@ -48,6 +48,10 @@ class KontakteController extends DefaultController {
 		// find a not taken username
 		$username = $contact["name"] . $contact["surname"];
 		$username = strtolower($username);
+		
+		// fix #173: only allow lower-case letters and numbers (alphanum)
+		$username = preg_replace("/[^a-z0-9]/", '', $username);
+		
 		$i = 2;
 		$un = $username;
 		while($this->getData()->adp()->doesLoginExist($un)) {
