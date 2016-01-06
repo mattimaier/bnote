@@ -299,6 +299,7 @@ class Installation {
 					`address` int(10) unsigned NOT NULL,
 					`status` varchar(10) DEFAULT NULL,
 					`instrument` int(11) DEFAULT NULL,
+					`birthday` DATE,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 

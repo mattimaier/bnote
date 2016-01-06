@@ -263,7 +263,8 @@ class Translation extends BNoteTranslation {
 			
 			"calendar_rehearsal" => "Probe",
 			"calendar_concert" => "Konzert",
-			"calendar_end_vote" => "Abst.-Ende:"
+			"calendar_end_vote" => "Abst.-Ende:",
+			"calendar_birthday" => "Geb.:"
 	);
 	
 	protected $regex = array(

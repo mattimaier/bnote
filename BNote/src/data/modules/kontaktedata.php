@@ -37,6 +37,7 @@ class KontakteData extends AbstractData {
 			"notes" => array("Anmerkungen", FieldType::TEXT),
 			"address" => array("Adresse", FieldType::REFERENCE),
 			"instrument" => array("Instrument", FieldType::REFERENCE),
+			"birthday" => array("Geburtstag", FieldType::DATE),
 			"status" => array("Status", FieldType::ENUM)
 		);
 		
@@ -276,7 +277,9 @@ class KontakteData extends AbstractData {
 		$query .= "WHERE cg.contact = $cid ";
 		$query .= "GROUP BY cg.contact";
 		$grpConcat = $this->database->getSelection($query);
-		$grpString = $grpConcat[1]["grpConcat"];
+		if(count($grpConcat) > 0) {
+			$grpString = $grpConcat[1]["grpConcat"];
+		}
 		return $grpString;
 	}
 	

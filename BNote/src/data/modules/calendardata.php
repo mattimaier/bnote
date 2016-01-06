@@ -1,19 +1,20 @@
 <?php
 require_once($GLOBALS["DIR_DATA_MODULES"] . "startdata.php");
-
+require_once($GLOBALS["DIR_DATA_MODULES"] . "mitspielerdata.php");
 
 class CalendarData extends AbstractData {
 
 	private $startdata;
+	private $mitspielerdata;
 	
 	function __construct() {
 		$this->startdata = new StartData();
+		$this->mitspielerdata = new MitspielerData();
 		$this->init();
 	}
 	
 	private function reduce_data($dbsel, $fields, $key_replace=array(), $title_prefix="") {
 		$result = array();
-		
 		for($i = 1; $i < count($dbsel); $i++) {
 			$row = $dbsel[$i];
 			$res_row = array();
@@ -30,6 +31,7 @@ class CalendarData extends AbstractData {
 					$res_row[$field] = str_replace(" ", "T", $res_row[$field]);
 				}
 			}
+			
 			if(isset($res_row["title"])) {
 				$res_row["title"] = $title_prefix . " " . $res_row["title"]; 
 			}
@@ -48,6 +50,29 @@ class CalendarData extends AbstractData {
 		$phases_db = $this->adp()->getUsersPhases();
 		$concerts_db = $this->adp()->getFutureConcerts();
 		$votes_db = $this->startdata->getVotesForUser();
+		$contacts_db = $this->mitspielerdata->getMembers();
+		
+		// birthday: replace year with the current year
+		$contacts_db_edit = array();
+		for($i = 0; $i < count($contacts_db); $i++) {
+			$row = $contacts_db[$i];
+			if($i == 0) {
+				array_push($contacts_db_edit, $row);
+				continue;
+			}
+			if(!isset($row["birthday"])) continue;
+			
+			$bday = $row["birthday"]; 
+			if($bday == null || $bday == "" || $bday == "-") {
+				continue;
+			}
+			$bday = date("Y") . substr($bday, 4);
+			$row["birthday"] = $bday;
+			
+			$row["title"] = $row["name"] . " " . $row["surname"];
+			
+			array_push($contacts_db_edit, $row);
+		}
 		
 		$rehs = $this->reduce_data(
 				$rehs_db,
@@ -72,12 +97,19 @@ class CalendarData extends AbstractData {
 				array("end" => "start", "name" => "title"),
 				Lang::txt("calendar_end_vote")
 		);
+		$contacts = $this->reduce_data(
+				$contacts_db_edit,
+				array("id", "birthday", "title"),
+				array("birthday" => "start"),
+				Lang::txt("calendar_birthday")
+		);
 		
 		return array(
 			"rehearsals" => $rehs,
 			"rehearsalphases" => $phases,
 			"concerts" => $concerts,
-			"votes" => $votes
+			"votes" => $votes,
+			"contacts" => $contacts
 		);
 	}
 	

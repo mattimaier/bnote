@@ -40,6 +40,10 @@ class CalendarView extends AbstractView {
 				events: calendar_events["votes"],
 				color: '#FFCD61'  // orange
 			});
+			$("#calendar").fullCalendar( 'addEventSource', {
+				events: calendar_events["contacts"],
+				color: '#66FF61'  // green
+			});
 		});
 		</script>
 		<?php

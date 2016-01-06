@@ -185,7 +185,9 @@ $update = new UpdateDb();
 // Task 1: Insert Language Configuration
 $update->addDynConfigParam("language", "de", 1);
 
-//FIXME: Migration of all passwords might be necessary -> ask for new default password!
+// Migration of all passwords might be necessary -> ask for new default password!
+echo "<span style=\"color: red; font-weight: bold;\">Please be aware that you might have to reset all passwords, except you upgrade from v2.5.5!</span>";
+echo "<br/>";
 
 // Task 2a: Insert new table account
 $account_def = "CREATE TABLE account (
@@ -232,6 +234,9 @@ $calendar_mod_id = $update->addModule("Calendar");
 
 // Task 3b: Insert privileges for calendar module for everybody
 $update->addPrivilegeForAllUsers($calendar_mod_id);
+
+// Task 4: add birthday to users
+$update->addColumnToTable("contact", "birthday", "DATE");
 
 ?>
 <br/><br/>

@@ -19,7 +19,10 @@ class MitspielerData extends AbstractData {
 				"email" => array("E-Mail", FieldType::EMAIL),
 				"address" => array("Adresse", FieldType::REFERENCE),
 				"instrument_name" => array("Instrument", FieldType::REFERENCE),
-				"status" => array("Status", FieldType::ENUM)	
+				"birthday" => array("Geburtstag", FieldType::DATE),
+				"status" => array("Status", FieldType::ENUM),
+				"city" => array("Stadt", FieldType::CHAR),
+				"zip" => array("PLZ", FieldType::CHAR)
 		);
 		
 		$this->init($dir_prefix);
@@ -38,7 +41,8 @@ class MitspielerData extends AbstractData {
 		
 		$single = "";
 		if($singleInfo) $single = ", c.name, c.surname, c.id";
-		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, fax, business, notes,  a.street, a.city, a.zip, a.country , i.name as instrument" . $single;
+		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, fax, business, 
+				notes,  a.street, a.zip, a.city, i.name as instrument, birthday" . $single;
 		$order = "ORDER BY fullname, instrument";
 		
 		// Super User or Admin
