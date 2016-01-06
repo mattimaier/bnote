@@ -1,0 +1,19 @@
+@CHARSET "UTF-8";
+
+@media print {
+	#banner {
+		display: none;
+	}
+	#optionsbar {
+		display: none;
+	}
+	#navigation {
+		display: none;
+	}
+	#footer {
+		display: none;
+	}
+	#content_insets {
+		margin: 0px;
+	}
+}
