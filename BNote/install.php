@@ -130,7 +130,7 @@ class Installation {
 			<SuperUsers></SuperUsers>
 		
 			<!-- Default Permissions for a new user. Comma separated list of user IDs without spaces. -->
-			<DefaultPrivileges>9,10,12,13,14</DefaultPrivileges>
+			<DefaultPrivileges>9,10,12,13,14,20</DefaultPrivileges>
 		
 			<!-- True when the gallery management is used
 			and should be displayed and functional, otherwise false. -->
@@ -710,6 +710,7 @@ class Installation {
 					(16, 'Aufgaben'),
 					(17, 'Konfiguration'),
 					(18, 'Probenphasen');");
+			//TODO: ADD MODULES
 
 			array_push($queries,
 					"INSERT INTO `status` (`id`, `name`) VALUES

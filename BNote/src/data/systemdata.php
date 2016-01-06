@@ -144,7 +144,9 @@ class Systemdata {
  	else {
  		$permissions = $this->getUserModulePermissions($uid);
  	}
- 	
+ 	if($permissions == null) {
+ 		return false;
+ 	}
  	return in_array($modulId, $permissions);
  }
 

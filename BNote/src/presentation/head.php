@@ -19,7 +19,7 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery-ui.theme.min.css" rel="stylesheet" />
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery.datetimepicker.css" rel="stylesheet" />
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery.jqplot.min.css" rel="stylesheet" />
- 
+ <link type="text/css" href='<?php echo $jQuery_dir; ?>fullcalendar.css' rel='stylesheet' />
 <?php
 
 # Link all CSS Files in style/css
@@ -37,6 +37,9 @@ if($handle = opendir('style/css')) {
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery-ui.min.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.datetimepicker.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.jqplot.min.js"></script>
+ <script src='<?php echo $jQuery_dir; ?>moment.min.js'></script>
+ <script src='<?php echo $jQuery_dir; ?>fullcalendar.js'></script>
+ <script src='<?php echo $jQuery_dir; ?>lang-all.js'></script>
  <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="<?php echo $jQuery_dir; ?>excanvas.js"></script><![endif]-->
  <script type="text/javascript" src="<?php echo $GLOBALS["DIR_LIB"];?>tinymce/tinymce.min.js" ></script>
  

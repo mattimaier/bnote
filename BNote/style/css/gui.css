@@ -435,3 +435,7 @@ fieldset tr {
 ul.groupSelector {
 	line-height: 40%;
 }
+
+.fc-toolbar {
+	height: 20px;
+}

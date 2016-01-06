@@ -125,10 +125,11 @@ class UpdateDb {
 			else {
 				$this->message("Please add privileges yourself, since no super users are configured.");
 			}
-		
+			return $modId;
 		}
 		else {
 			$this->message("Module $modname already exists.");
+			return $this->sysdata->getModuleId($modname);
 		}
 	}
 	
@@ -144,6 +145,29 @@ class UpdateDb {
 				$this->message("Failed to create folder $path.");
 			}
 		}
+	}
+	
+	function addPrivilegeForAllUsers($module_id) {
+		if($module_id <= 0) {
+			$this->message("Cannot insert privileges. Invalid module ID.");
+			return;
+		}
+		
+		// remove all privileges for this module first
+		$this->db->execute("DELETE FROM privilege WHERE module = $module_id");
+		
+		// insert privilege for all
+		$users_db = $this->db->getSelection("SELECT id FROM user");
+		
+		$query = "INSERT INTO privilege (user, module) VALUES ";
+		for($i = 1; $i < count($users_db); $i++) {
+			if($i > 1) $query .= ",";
+			$uid = $users_db[$i]["id"];
+			$query .= "($uid, $module_id)";
+		}
+		
+		$this->db->execute($query);
+		$this->message($this->mods[$module_id] . " privileges for all users added.");
 	}
 }
 
@@ -202,6 +226,12 @@ $update->addTable("recpay", $recpay_def);
 
 // Task 2d: Add module finance
 $update->addModule("Finance");
+
+// Task 3a: Calendar
+$calendar_mod_id = $update->addModule("Calendar");
+
+// Task 3b: Insert privileges for calendar module for everybody
+$update->addPrivilegeForAllUsers($calendar_mod_id);
 
 ?>
 <br/><br/>

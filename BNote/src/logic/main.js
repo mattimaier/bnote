@@ -62,4 +62,9 @@ $(document).ready(function() {
 	
 	$("#sortable").sortable();
 	$("#sortable").disableSelection();
+	
+	$('#calendar').fullCalendar({
+		height: 700,
+		lang: "de"
+    })
 });

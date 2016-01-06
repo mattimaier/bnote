@@ -90,6 +90,7 @@ class Translation extends BNoteTranslation {
 			"mod_Nachrichten" => "Nachrichten",
 			"mod_Probenphasen" => "Probephasen",
 			"mod_Finance" => "Finanzen",
+			"mod_Calendar" => "Kalender",
 			
 			// widgets
 			"addFolder" => "Ordner hinzufügen",
@@ -258,7 +259,11 @@ class Translation extends BNoteTranslation {
 			"recpay_add_form_title" => "Laufende Zahlung hinzufügen",
 			"recpay_no_otype" => "[keine Referenz]",
 			"recpay_book_success_title" => "Buchung erfolgreich",
-			"recpay_book_success_msg" => "Alle Buchungen wurden erfolgreich eingefügt."
+			"recpay_book_success_msg" => "Alle Buchungen wurden erfolgreich eingefügt.",
+			
+			"calendar_rehearsal" => "Probe",
+			"calendar_concert" => "Konzert",
+			"calendar_end_vote" => "Abst.-Ende:"
 	);
 	
 	protected $regex = array(
