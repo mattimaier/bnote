@@ -14,8 +14,7 @@ class Controller {
 
 		# Check for Permission
 		if(!$system_data->userHasPermission($system_data->getModuleId())) {
-			echo "<b>Keine Berechtigung</b><br>Sie haben keine Berechtigung dieses Modul zu benutzen.";
-			exit();
+			new Error("<b>Keine Berechtigung</b><br>Sie haben keine Berechtigung dieses Modul zu benutzen.");
 		}
 
 		# Check all $_GET attributes for attack

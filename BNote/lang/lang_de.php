@@ -68,6 +68,7 @@ class Translation extends BNoteTranslation {
 			"user" => "Benutzer",
 			"date" => "Datum",
 			"mail_footerText" => "Diese E-Mail wurde automatisch von BNote versandt:",
+			"error" => "Fehler",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",
