@@ -12,7 +12,7 @@ class Form implements iWriteable {
  protected $elements = array();
  protected $foreign = array();
  protected $hidden = array();
- private $rename = array();
+ protected $rename = array();
  protected $submitValue; 
  protected $removeSubmitButton = false;
 
@@ -139,7 +139,7 @@ class Form implements iWriteable {
  /**
   * Prepare dropdownlists to be written
   */
- private function createForeign() {
+ protected function createForeign() {
  	foreach($this->foreign as $field => $dropdown) {
 	 	// write dropdown list to elements array
 	 	$this->elements[$field] = $dropdown; 

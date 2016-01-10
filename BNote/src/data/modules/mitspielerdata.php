@@ -120,6 +120,24 @@ class MitspielerData extends AbstractData {
 		return $filtered;
 	}
 	
+	public function getContact($cid) {
+		// check access
+		$members = $this->getMembers();
+		$found = false;
+		for($i = 1; $i < count($members); $i++) {
+			if($members[$i]["id"] == $cid) {
+				$found = true;
+				break;
+			}
+		}
+		if($found) {
+			$query = "SELECT c.*, i.name as instrument 
+				FROM contact c JOIN instrument i ON c.instrument = i.id 
+				WHERE c.id = $cid";
+			return $this->database->getRow($query);
+		}
+		return null;
+	}
 }
 
 ?>

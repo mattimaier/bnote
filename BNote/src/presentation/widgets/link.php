@@ -9,6 +9,7 @@ class Link implements iWriteable {
 	private $label;
 	private $target;
 	private $icon;
+	private $jsClick;
 
 	/**
 	 * Creates a link
@@ -18,6 +19,7 @@ class Link implements iWriteable {
 	function __construct($href, $label) {
 		$this->href = $href;
 		$this->label = $label;
+		$this->jsClick = null;
 	}
 
 	/**
@@ -28,6 +30,10 @@ class Link implements iWriteable {
 		$this->target = $target;
 	}
 
+	function setJsClick($jsClick) {
+		$this->jsClick = $jsClick;
+	}
+	
 	function write() {
 		echo $this->generate();
 	}
@@ -55,7 +61,12 @@ class Link implements iWriteable {
 			$icon = "";
 		}
 		
-		return '<a class="linkbox" ' . $target . 'href="' . $this->href . '">'
+		$options = "";
+		if($this->jsClick != null) {
+			$options .= ' onclick="' . $this->jsClick . '"';
+		}
+		
+		return '<a class="linkbox" ' . $target . 'href="' . $this->href . '"' . $options . '>'
 		     . '<div class="linkbox">' . $icon . $this->label . '</div></a>';
 	}
 

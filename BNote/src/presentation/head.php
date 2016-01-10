@@ -9,10 +9,8 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
  
  <link rel="shortcut icon" href="favicon.png" type="image/png" />
  <link rel="icon" href="favicon.png" type="image/png" />
- 
- <!-- 
+  
  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-  -->
   
  <link href="style/css/reset.css" rel="StyleSheet" type="text/css" />
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery-ui.min.css" rel="stylesheet" />

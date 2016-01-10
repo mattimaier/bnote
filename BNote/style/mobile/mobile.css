@@ -1,0 +1,15 @@
+@CHARSET "UTF-8";
+
+body {
+	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
+}
+
+#mobile_header {
+	background-color: #61b3ff;
+	color: #fff;
+	text-shadow: none;
+}
+
+#footerConent {
+	display: none;
+}

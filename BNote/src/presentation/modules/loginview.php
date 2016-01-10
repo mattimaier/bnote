@@ -16,6 +16,11 @@ class LoginView extends AbstractView {
 	}
 	
 	function showOptions() {
+		// Mobile Website
+		$mobile = new Link("?mod=login&device=mobile", "Mobil");
+		$mobile->write();
+		$this->buttonSpace();
+		
 		// Login
 		$login = new Link("?mod=login", "Login");
 		$login->write();

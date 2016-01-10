@@ -10,11 +10,20 @@ session_start();
 $widgets = array(
 	"iwriteable", "box", "dropdown", "dataview", "error", "field",
 	"form", "link", "message", "table", "writing", "textwriteable",
-	"htmleditor", "imagetable", "filebrowser", "groupselector", "filterbox"
+	"htmleditor", "imagetable", "filebrowser", "groupselector", "filterbox",
+	"list"
 );
 
 foreach($widgets as $id => $file) {
-	require($GLOBALS["DIR_WIDGETS"] . $file . ".php");
+	if($isMobile && file_exists($GLOBALS["DIR_WIDGETS_MOBILE"] . $file . ".php")) {
+		require($GLOBALS["DIR_WIDGETS_MOBILE"] . $file . ".php");
+	}
+	else {
+		$widget_file = $GLOBALS["DIR_WIDGETS"] . $file . ".php";
+		if(file_exists($widget_file)) {
+			require($widget_file);
+		}
+	}
 }
 
 # load additional PHP libraries
