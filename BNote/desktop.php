@@ -21,5 +21,3 @@ include $GLOBALS["DIR_PRESENTATION"] . "banner.php";
 		</div>
 	</div>
 </div>
-
-?>

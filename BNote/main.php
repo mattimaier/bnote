@@ -6,9 +6,11 @@
 
 # Desktop or mobile
 $isMobile = false;
+/* DEACTIVATE MOBILE VERSION
 if(isset($_GET["device"]) && $_GET["device"] == "mobile") {
 	$isMobile = true;
 }
+*/
 global $isMobile;
 
 # Make a few settings
