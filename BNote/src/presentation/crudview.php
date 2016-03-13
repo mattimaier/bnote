@@ -80,6 +80,7 @@ abstract class CrudView extends AbstractView {
 		// show table rows
 		$table = new Table($this->getData()->findAllNoRef());
 		$table->setEdit("id");
+		$table->renameAndAlign($this->getData()->getFields());
 		$table->write();
 	}
 	

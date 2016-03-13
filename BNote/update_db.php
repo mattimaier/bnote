@@ -238,6 +238,32 @@ $update->addPrivilegeForAllUsers($calendar_mod_id);
 // Task 4: add birthday to users
 $update->addColumnToTable("contact", "birthday", "DATE");
 
+// Task 5: Equipment module
+$update->addTable("equipment", "CREATE TABLE equipment (
+	id INT(11) PRIMARY KEY AUTO_INCREMENT,
+	model VARCHAR(100) NOT NULL,
+	make VARCHAR(100) NOT NULL,
+	name VARCHAR(100),
+	purchase_price DECIMAL(9,2),
+	current_value DECIMAL(9,2),
+	quantity INT(10) NOT NULL DEFAULT 1,
+	notes TEXT
+)");
+$update->addModule("Equipment");
+
+// Task 6a: add module Tour
+$update->addModule("Tour");
+
+// Task 6b: tour main table
+$update->addTable("tour", "CREATE TABLE tour (
+	id INT(11) PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(100) NOT NULL,
+	start DATE NOT NULL,
+	end DATE NOT NULL,
+	notes
+)");
+
+
 ?>
 <br/><br/>
 <b><i>COMPLETE.</i></b>

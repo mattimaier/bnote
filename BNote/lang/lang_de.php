@@ -97,6 +97,8 @@ class Translation extends BNoteTranslation {
 			"mod_Registrierung" => "Registrierung",
 			"mod_Bedingungen" => "Bedingungen",
 			"mod_Impressum" => "Impressum",
+			"mod_Equipment" => "Equipment",
+			"mod_Tour" => "Tour",
 			
 			// widgets
 			"addFolder" => "Ordner hinzufügen",
@@ -135,6 +137,7 @@ class Translation extends BNoteTranslation {
 			"noEntries" => "Keine Eintr&auml;ge vorhanden",
 			"table_no_entries" => "Es wurden keine Eintr&auml;ge gefunden.",
 			"sum" => "Summe",
+			"equipment" => "Equipment",
 			
 			// module: start
 			"start_calendarExport" => "Kalender Export",
@@ -270,7 +273,15 @@ class Translation extends BNoteTranslation {
 			"calendar_rehearsal" => "Probe",
 			"calendar_concert" => "Konzert",
 			"calendar_end_vote" => "Abst.-Ende:",
-			"calendar_birthday" => "Geb.:"
+			"calendar_birthday" => "Geb.:",
+			
+			"equipment_model" => "Modell",
+			"equipment_make" => "Marke",
+			"equipment_purchase_price" => "Einkaufspreis",
+			"equipment_current_value" => "Aktueller Wert",
+			"equipment_quantity" => "Menge",
+			
+			"tour_heading" => "Tourplanung"
 	);
 	
 	protected $regex = array(
