@@ -10,6 +10,18 @@ abstract class AbstractView {
 	private $controller;
 	
 	/**
+	 * Name of the parameter that is used in the URL to represent the ID of the record.
+	 * @var String
+	 */
+	protected $idParameter = "id";
+	
+	/**
+	 * Name of the ID field in the record from the database.
+	 * @var String
+	 */
+	protected $idField = "id";
+	
+	/**
 	 * Entry Point for any view.
 	 */
 	abstract function start();
@@ -74,7 +86,7 @@ abstract class AbstractView {
 	 * Checks whether $_GET["id"] is set, otherwise terminates with error.
 	 */
 	public function checkID() {
-		if(!isset($_GET["id"])) {
+		if(!isset($_GET[$this->idParameter])) {
 			new Error(Lang::txt("noUserId"));
 		}
 	}

@@ -145,6 +145,16 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->decimalToDb($decimal);
 	}
+	
+	/**
+	 * Database representation to language-specific representation of decimals. 
+	 * @param float/String $dbDecimal A floating point number or a String in database decimal format, usually with "." as decimal separator.
+	 * @return A language-specific decimal.
+	 */
+	public static function formatDecimal($dbDecimal) {
+		$inst = Lang::getInstance();
+		return $inst->langObj->formatDecimal($dbDecimal);
+	}
 }
 
 ?>

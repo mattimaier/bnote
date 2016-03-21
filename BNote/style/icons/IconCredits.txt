@@ -12,3 +12,5 @@
 <a href="http://ic8.link/12491">recurring</a>
 <a href="http://ic8.link/3524">overtime</a>
 <a href="http://ic8.link/7400">booking</a>
+<a href="http://ic8.link/4190">tourbus</a>
+<a href="http://ic8.link/3417">equipment</a>

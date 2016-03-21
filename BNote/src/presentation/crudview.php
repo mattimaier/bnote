@@ -6,7 +6,7 @@
  */
 abstract class CrudView extends AbstractView {
 	
-	private $entityName;
+	protected $entityName;
 	
 	/**
 	 * Views all entities in a table.<br />
@@ -72,14 +72,15 @@ abstract class CrudView extends AbstractView {
 		// add entry form
 		$form = new Form(Lang::txt("add_entity", array($this->entityName)), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
-		$form->removeElement("id");
+		$form->removeElement($this->idField);
 		$form->write();
 	}
 	
 	protected function showAllTable() {
 		// show table rows
 		$table = new Table($this->getData()->findAllNoRef());
-		$table->setEdit("id");
+		$table->setEdit($this->idField);
+		$table->setEditIdField($this->idParameter);
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->write();
 	}
@@ -119,12 +120,12 @@ abstract class CrudView extends AbstractView {
 		$this->buttonSpace();
 		
 		// show buttons to edit and delete
-		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
+		$edit = new Link($this->modePrefix() . "edit&" . $this->idParameter . "=" . $_GET[$this->idParameter],
 				Lang::txt("edit_entity", array($this->entityName)));
 		$edit->addIcon("edit");
 		$edit->write();
 		$this->buttonSpace();
-		$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
+		$del = new Link($this->modePrefix() . "delete_confirm&" . $this->idParameter . "=" . $_GET[$this->idParameter],
 				Lang::txt("delete_entity", array($this->entityName)));
 		$del->addIcon("remove");
 		$del->write();
@@ -135,7 +136,7 @@ abstract class CrudView extends AbstractView {
 	}
 	
 	protected function viewDetailTable() {
-		$entity = $this->getData()->findByIdNoRef($_GET["id"]);
+		$entity = $this->getData()->findByIdNoRef($_GET[$this->idParameter]);
 		$details = new Dataview();
 		foreach($this->getData()->getFields() as $dbf => $info) {
 			$details->addElement($info[0], $entity[$dbf]);
@@ -155,15 +156,15 @@ abstract class CrudView extends AbstractView {
 	}
 	
 	protected function editOptions() {
-		$this->backToViewButton($_GET["id"]);
+		$this->backToViewButton($_GET[$this->idParameter]);
 	}
 	
 	protected function editEntityForm() {
 		$form = new Form(Lang::txt("edit", array($this->entityName)),
-							$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
+							$this->modePrefix() . "edit_process&" . $this->idParameter . "=" . $_GET[$this->idParameter]);
 		$form->autoAddElements($this->getData()->getFields(),
-									$this->getData()->getTable(), $_GET["id"]);
-		$form->removeElement("id");
+									$this->getData()->getTable(), $_GET[$this->idParameter]);
+		$form->removeElement($this->idField);
 		$form->write();
 	}
 	
@@ -176,7 +177,7 @@ abstract class CrudView extends AbstractView {
 		}
 		
 		// update
-		$this->getData()->update($_GET["id"], $_POST);
+		$this->getData()->update($_GET[$this->idParameter], $_POST);
 		
 		// show success
 		new Message($this->entityName . " " . Lang::txt("changed"),
@@ -186,8 +187,8 @@ abstract class CrudView extends AbstractView {
 	public function delete_confirm() {
 		$this->checkID();
 		$this->deleteConfirmationMessage($this->getEntityName(),
-					$this->modePrefix() . "delete&id=" . $_GET["id"],
-					$this->modePrefix() . "view&id=" . $_GET["id"]);
+					$this->modePrefix() . "delete&" . $this->idParameter . "=" . $_GET[$this->idParameter],
+					$this->modePrefix() . "view&" . $this->idParameter . "=" . $_GET[$this->idParameter]);
 	}
 	
 	public function delete_confirmOptions() {
@@ -197,7 +198,7 @@ abstract class CrudView extends AbstractView {
 	public function delete() {
 		$this->checkID();
 		// remove
-		$this->getData()->delete($_GET["id"]);
+		$this->getData()->delete($_GET[$this->idParameter]);
 		
 		// show success
 		new Message(Lang::txt("deleted_entity", array($this->entityName)),
@@ -211,7 +212,7 @@ abstract class CrudView extends AbstractView {
 	 */
 	public function backToViewButton($id) {
 		global $system_data;
-		$btv = new Link($this->modePrefix() . "view&id=$id", Lang::txt("back"));
+		$btv = new Link($this->modePrefix() . "view&" . $this->idParameter . "=$id", Lang::txt("back"));
 		$btv->addIcon("arrow_left");
 		$btv->write();
 	}

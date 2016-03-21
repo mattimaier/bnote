@@ -18,9 +18,7 @@ abstract class Data {
 	 * @param float $decimal Decimal number in the form of x.xx
 	 */
 	public static function convertFromDb($decimal) {
-		// round decimals to 2nd digit
-		$decimal = round($decimal, 2);
-		return number_format($decimal, 2, ',', '.');
+		return Lang::formatDecimal($decimal);
 	}
 	
 	/**

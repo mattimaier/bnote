@@ -42,17 +42,5 @@
  	  in the data/webpages folder and the body containing the displayed name of the page. -->
  <WebPages>
  	<Page file="startseite">Startseite</Page>
-	<Page file="news">Nachrichten</Page>
- 	<Page file="infos">Informationen</Page>
-	<Page file="band">Die Band</Page>
- 	<Page file="geschichte">Geschichte</Page>
-	<Page file="mitspieler">Besetzung</Page>
-	<Page file="konzerte">Konzerte</Page>
- 	<Page file="mediathek">mediathek</Page>
- 	<Page file="galerie">Galerie</Page>
- 	<Page file="videos">Videos</Page>
- 	<Page file="samples">Aufnahmen</Page>
-	<Page file="kontakt">Kontakt</Page>
-	<Page file="impressum">Impressum</Page>
  </WebPages>
 </Software>

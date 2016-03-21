@@ -16,7 +16,7 @@ abstract class CrudRefView extends CrudView {
 	protected function addEntityForm() {
 		$form = new Form($this->getEntityName() ." hinzuf&uuml;gen", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
-		$form->removeElement("id");
+		$form->removeElement($this->idField);
 		foreach($this->joinedAttributes as $field => $cols) {
 			
 			$caption = "";
@@ -34,17 +34,36 @@ abstract class CrudRefView extends CrudView {
 	protected function showAllTable() {
 		// show table rows
 		$table = new Table($this->getData()->findAllJoined($this->joinedAttributes));
-		$table->setEdit("id");
+		$table->setEdit($this->idField);
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->write();
 	}
 	
 	protected function viewDetailTable() {
-		$entity = $this->getData()->findByIdJoined($_GET["id"], $this->joinedAttributes);
+		$entity = $this->getData()->findByIdJoined($_GET[$this->idParameter], $this->joinedAttributes);
 		$details = new Dataview();
 		$details->autoAddElements($entity);
 		$details->autoRename($this->getData()->getFields());
 		$details->write();
+	}
+	
+	protected function editEntityForm() {
+		$entityId = $_GET[$this->idParameter];
+		$form = new Form(Lang::txt("edit", array($this->getEntityName())),
+				$this->modePrefix() . "edit_process&" . $this->idParameter . "=" . $entityId);
+		$form->autoAddElements($this->getData()->getFields(),
+				$this->getData()->getTable(), $entityId);
+		
+		// replace the reference fields with object selection from join table
+		$record = $this->getData()->findByIdNoRef($entityId);
+		foreach($this->joinedAttributes as $joinField => $targetFields) {
+			$joinTable = $this->getData()->getReferencedTable($joinField);
+			$selectedId = $record[$joinField];
+			$form->setForeign($joinField, $joinTable, $this->idField, $targetFields[0], $selectedId);
+		}
+		
+		$form->removeElement($this->idField);
+		$form->write();
 	}
 	
 	/**

@@ -138,6 +138,7 @@ class Translation extends BNoteTranslation {
 			"table_no_entries" => "Es wurden keine Eintr&auml;ge gefunden.",
 			"sum" => "Summe",
 			"equipment" => "Equipment",
+			"tour" => "Tour",
 			
 			// module: start
 			"start_calendarExport" => "Kalender Export",
@@ -281,7 +282,9 @@ class Translation extends BNoteTranslation {
 			"equipment_current_value" => "Aktueller Wert",
 			"equipment_quantity" => "Menge",
 			
-			"tour_heading" => "Tourplanung"
+			"tour_heading" => "Tourplanung",
+			"accommodation_price" => "Preis (geplant)",
+			"accommodation_locationname" => "Unterkunftsname"
 	);
 	
 	protected $regex = array(
@@ -378,6 +381,10 @@ class Translation extends BNoteTranslation {
 	
 	public function decimalToDb($decimal) {
 		return Data::convertToDb($decimal);
+	}
+	
+	public function formatDecimal($dbDecimal) {
+		return number_format($dbDecimal, 2, ',', '.');
 	}
 }
 

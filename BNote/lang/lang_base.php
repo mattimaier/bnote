@@ -70,6 +70,13 @@ abstract class BNoteTranslation {
 	 * @return more or less a float/double.
 	 */
 	public abstract function decimalToDb($decimal);
+	
+	/**
+	 * Converts a database-formatted decimal to language-specific format.
+	 * @param float/String $dbDecimal Number to convert.
+	 * @return Formatted string.
+	 */
+	public abstract function formatDecimal($dbDecimal);
 }
 
 ?>

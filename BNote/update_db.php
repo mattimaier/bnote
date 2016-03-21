@@ -260,9 +260,31 @@ $update->addTable("tour", "CREATE TABLE tour (
 	name VARCHAR(100) NOT NULL,
 	start DATE NOT NULL,
 	end DATE NOT NULL,
-	notes
+	notes TEXT
 )");
 
+// Task 6c: sub-module table for accommodation
+$update->addTable("accommodation", "CREATE TABLE accommodation (
+	id INT(11) PRIMARY KEY AUTO_INCREMENT,
+	location INT(11) NOT NULL,
+	checkin DATE NOT NULL,
+	checkout DATE NOT NULL,
+	breakfast INT(1) NOT NULL DEFAULT 0,
+	lunch INT(1) NOT NULL DEFAULT 0,
+	dinner INT(1) NOT NULL DEFAULT 0,
+	planned_cost DECIMAL(9,2),
+	notes TEXT
+)");
+
+// Task 6d: sub-module table for travel
+$update->addTable("travel", "CREATE TABLE travel (
+	id INT(11) PRIMARY KEY AUTO_INCREMENT,
+	transportation VARCHAR(50),
+	num VARCHAR(100),
+	departure DATETIME NOT NULL,
+	arrival DATETIME NOT NULL,
+	notes TEXT
+)");
 
 ?>
 <br/><br/>

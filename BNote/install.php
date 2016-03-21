@@ -569,7 +569,7 @@ class Installation {
 					PRIMARY KEY (`concert`,`contact`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
-			//TODO: add account, booking
+			//TODO: add account, booking, equipment, tour-tables
 			
 			foreach($queries as $i => $query) {
 				$db->execute($query);

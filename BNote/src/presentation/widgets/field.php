@@ -128,9 +128,7 @@ class Field implements iWriteable {
   * Output for a textfield in decimalstyle
   */
  private function Decimalfield() {
-  if(strpos($this->default_value, ",") !== false) $value = str_replace(",", "", $this->default_value);
-   else $value = $this->default_value;
-  return  '<input type="text" size="' . $this->DECIMALLENGTH . '" name="' . $this->name . '" value="' . $value . '" />' . "\n";
+  return  '<input type="text" size="' . $this->DECIMALLENGTH . '" name="' . $this->name . '" value="' . $this->default_value . '" />' . "\n";
  }
 
  /**

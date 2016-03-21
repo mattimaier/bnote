@@ -7,6 +7,7 @@ class Table implements iWriteable {
 	private $data;
 	private $edit;
 	private $primkey;
+	private $edit_id_field = "id";
 	private $modid;
 	private $mode;
 	private $foreign;
@@ -121,6 +122,14 @@ class Table implements iWriteable {
 	}
 	
 	/**
+	 * Set the ID field that is used to plug the id in.
+	 * @param String $edit_id_field Name of the field.
+	 */
+	public function setEditIdField($edit_id_field) {
+		$this->edit_id_field = $edit_id_field;
+	}
+	
+	/**
 	 * Adds a column to the data with a link to delete the item.
 	 * @param Selection $tabData Database Selection which is used in this table class.
 	 * @param String $delHref Link to the action of the buttons, format: "...&contactid=". The id of the item will be appended.
@@ -207,7 +216,7 @@ class Table implements iWriteable {
 
 					// Check for primary keys
 					if($this->edit) { # && $id == $this->primkey
-						echo '<a class="silent" href="?mod=' . $this->modid . '&mode=' . $this->mode . '&id=' . $row[$this->primkey] . '">';
+						echo '<a class="silent" href="?mod=' . $this->modid . '&mode=' . $this->mode . '&' . $this->edit_id_field . '=' . $row[$this->primkey] . '">';
 					}
 
 					// Check for foreign keys
