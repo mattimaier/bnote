@@ -96,7 +96,25 @@ class TourView extends CrudView {
 	}
 	
 	function summarySheet() {
-		Writing::h1("Toursheet");
+		$tour = $this->getData()->findByIdNoRef($_GET[$this->idParameter]);
+		
+		// Details
+		Writing::h1($tour["name"]);
+		Writing::p(Data::convertDateFromDb($tour["start"]) . " - " . Data::convertDateFromDb($tour["end"]));
+		Writing::p($tour["notes"]);
+		
+		// Participants
+		
+		// Concerts
+		
+		// Rehearsals
+		
+		// Travel and Accommodation List
+		
+		// Task Checklist
+		
+		// Equipment
+		
 	}
 	
 	function summarySheetOptions() {
