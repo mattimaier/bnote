@@ -20,13 +20,17 @@ class HilfeView extends AbstractView {
 	private $helpPages = array(
 			"abstimmung" => "Modul Abstimmung",
 			"aufgaben" => "Modul Aufgaben",
+			"equipment" => "Modul Equipment",  //TODO write help
 			"konfiguration" => "Modul Konfiguration",
+			"calendar" => "Modul Kalender",  //TODO write help
 			"kontakte" => "Modul Kontakte",
 			"mitspieler" => "Modul Mitspieler",
+			"nachrichten" => "Modul Nachrichten",  //TODO write help
 			"proben" => "Modul Proben",
 			"probenphase" => "Modul Probenphase",
 			"repertoire" => "Modul Repertoire",
-			"share" => "Modul Share"
+			"share" => "Modul Share", 
+			"tour" => "Modul Tour"  //TODO write help
 	);
 	
 	// format: code => description
