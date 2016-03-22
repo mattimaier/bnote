@@ -53,6 +53,11 @@ class TourView extends CrudView {
 		else {
 			$this->additionalViewButtons();
 		}
+		
+		// show the option of a tour summary sheet
+		$summary = new Link($this->modePrefix() . "summarySheet&accId=" . $_GET[$this->idParameter], Lang::txt("tour_summarysheet"));
+		$summary->addIcon("printer");
+		$summary->write();
 	}
 	
 	function additionalViewButtons() {
@@ -64,6 +69,7 @@ class TourView extends CrudView {
 				case "accommodation": 
 					$view = $this->getController()->getAccommodationView();
 					$view->subModuleOptions();
+					$this->buttonSpace();
 					break;
 			}
 		}
@@ -87,6 +93,14 @@ class TourView extends CrudView {
 	
 	function tab_equipment() {
 		//TODO implement equipment tab --> use submodule?
+	}
+	
+	function summarySheet() {
+		Writing::h1("Toursheet");
+	}
+	
+	function summarySheetOptions() {
+		$this->backToViewButton($_GET[$this->idParameter]);
 	}
 }
 

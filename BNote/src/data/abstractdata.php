@@ -203,12 +203,11 @@ abstract class AbstractData {
 			return $this->database->getSelection($q);
 		}
 		else {
-			return findAllJoined($colExchange);
+			return $this->findAllJoined($colExchange);
 		}
 	}
 	
 	/**
-	 * 
 	 * Returns all entities with the foreign key columns exchanged for the given exchange columns.
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
 	 * 		Format: [foreign_key_column] => [col1, col2, ...] with colX in the referred table.
@@ -221,7 +220,24 @@ abstract class AbstractData {
 			return $this->database->getSelection($q);
 		}
 		else {
-			return findAllJoined($colExchange);
+			return $this->findAllJoined($colExchange);
+		}
+	}
+	
+	/**
+	 * Returns all entities with the foreign key columns exchanged for the given exchange columns.
+	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
+	 * 		Format: [foreign_key_column] => [col1, col2, ...] with colX in the referred table.
+	 * @param String $orderByCol Order By clause in SQL without the "ORDER BY" identifier, so basically just the column name and eventually ASC/DESC.
+	 * @return Returns an database getSelection(...) result array.
+	 */
+	public function findAllJoinedOrdered($colExchange, $orderByCol) {
+		if(strlen($orderByCol) > 0) {
+			$q = $this->createJoinedQuery($colExchange) . " ORDER BY $orderByCol";
+			return $this->database->getSelection($q);
+		}
+		else {
+			return $this->findAllJoined($colExchange);
 		}
 	}
 	

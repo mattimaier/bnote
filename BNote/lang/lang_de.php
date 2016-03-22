@@ -283,8 +283,10 @@ class Translation extends BNoteTranslation {
 			"equipment_quantity" => "Menge",
 			
 			"tour_heading" => "Tourplanung",
+			"tour_summarysheet" => "Toursheet",
 			"accommodation_price" => "Preis (geplant)",
-			"accommodation_locationname" => "Unterkunftsname"
+			"accommodation_locationname" => "Unterkunftsname",
+			"accommodation_tourname" => "Tour"
 	);
 	
 	protected $regex = array(

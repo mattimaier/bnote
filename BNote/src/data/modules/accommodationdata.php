@@ -8,6 +8,7 @@ class AccommodationData extends AbstractData {
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("ID", FieldType::INTEGER),
+			"tour" => array(lang::txt("tour"), FieldType::REFERENCE),
 			"location" => array(lang::txt("location"), FieldType::REFERENCE),
 			"checkin" => array("Checkin", FieldType::DATE),
 			"checkout" => array("Checkout", FieldType::DATE),
@@ -19,6 +20,7 @@ class AccommodationData extends AbstractData {
 		);
 	
 		$this->references = array(
+			"tour" => "tour",
 			"location" => "location"
 		);
 	

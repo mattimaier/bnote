@@ -13,6 +13,11 @@ abstract class CrudRefView extends CrudView {
 	 */
 	private $joinedAttributes;
 	
+	/**
+	 * @var Array Column names that are fixed valued based on the given URL parameter for each field.
+	 */
+	protected $internalReferenceFields = array();
+	
 	protected function addEntityForm() {
 		$form = new Form($this->getEntityName() ." hinzuf&uuml;gen", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
@@ -27,6 +32,11 @@ abstract class CrudRefView extends CrudView {
 			
 			$form->setForeign($field, $this->getData()->getReferencedTable($field),
 						"id", $caption, -1);
+		}
+		// remove internal reference fields
+		foreach($this->internalReferenceFields as $field => $value) {
+			$form->removeElement($field);
+			$form->addHidden($field, $value);
 		}
 		$form->write();
 	}
@@ -61,7 +71,12 @@ abstract class CrudRefView extends CrudView {
 			$selectedId = $record[$joinField];
 			$form->setForeign($joinField, $joinTable, $this->idField, $targetFields[0], $selectedId);
 		}
-		
+		// remove internal reference fields
+		foreach($this->internalReferenceFields as $field => $value) {
+			$form->removeElement($field);
+			$form->addHidden($field, $value);
+		}
+		// remoe id field
 		$form->removeElement($this->idField);
 		$form->write();
 	}

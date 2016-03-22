@@ -266,6 +266,7 @@ $update->addTable("tour", "CREATE TABLE tour (
 // Task 6c: sub-module table for accommodation
 $update->addTable("accommodation", "CREATE TABLE accommodation (
 	id INT(11) PRIMARY KEY AUTO_INCREMENT,
+	tour INT(11) NOT NULL,
 	location INT(11) NOT NULL,
 	checkin DATE NOT NULL,
 	checkout DATE NOT NULL,
@@ -279,11 +280,36 @@ $update->addTable("accommodation", "CREATE TABLE accommodation (
 // Task 6d: sub-module table for travel
 $update->addTable("travel", "CREATE TABLE travel (
 	id INT(11) PRIMARY KEY AUTO_INCREMENT,
+	tour INT(11) NOT NULL,
 	transportation VARCHAR(50),
 	num VARCHAR(100),
 	departure DATETIME NOT NULL,
 	arrival DATETIME NOT NULL,
 	notes TEXT
+)");
+
+// Task 6e: reference tables
+$update->addTable("tour_rehearsal", "CREATE TABLE tour_rehearsal (
+	tour INT(11) NOT NULL,
+	rehearsal INT(11) NOT NULL
+)");
+$update->addTable("tour_concert", "CREATE TABLE tour_concert (
+	tour INT(11) NOT NULL,
+	concert INT(11) NOT NULL
+)");
+$update->addTable("tour_contact", "CREATE TABLE tour_contact (
+	tour INT(11) NOT NULL,
+	contact INT(11) NOT NULL
+)");
+$update->addTable("tour_equipment", "CREATE TABLE tour_equipment (
+	tour INT(11) NOT NULL,
+	equipment INT(11) NOT NULL,
+	quantity VARCHAR(50) NOT NULL DEFAULT '',
+	notes TEXT
+)");
+$update->addTable("tour_task", "CREATE TABLE tour_task (
+	tour INT(11) NOT NULL,
+	task INT(11) NOT NULL
 )");
 
 ?>

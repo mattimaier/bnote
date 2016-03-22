@@ -9,8 +9,12 @@ class AccommodationView extends CrudRefView {
 		$this->setController($ctrl);
 		$this->setEntityName("Übernachtung");
 		$this->setJoinedAttributes(array(
-			"location" => array("name")
+			"location" => array("name"),
+			"tour" => array("name")
 		));
+		$this->internalReferenceFields = array(
+			"tour" => $_GET["accId"]
+		);
 	}
 	
 	/**
@@ -42,11 +46,14 @@ class AccommodationView extends CrudRefView {
 	}
 	
 	function showAllTable() {
-		$table = new Table($this->getData()->findAllJoined($this->getJoinedAttributes()));
+		$table = new Table($this->getData()->findAllJoinedOrdered($this->getJoinedAttributes(), "checkin"));
 		$table->setEdit("id");
 		$table->changeMode("view&tab=accommodation&func=view&accId=" . $_GET["accId"]);
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->renameHeader("locationname", "Unterkunft");
+		$table->removeColumn("tour");
+		$table->removeColumn("id");
+		$table->removeColumn("tourname");
 		$table->write();
 	}
 	
@@ -56,6 +63,7 @@ class AccommodationView extends CrudRefView {
 		$details->autoAddElements($entity);
 		$details->autoRename($this->getData()->getFields());
 		$details->renameElement("locationname", Lang::txt("accommodation_locationname"));
+		$details->renameElement("tourname", Lang::txt("accommodation_tourname"));
 		$details->write();
 	}
 }
