@@ -286,7 +286,8 @@ class Translation extends BNoteTranslation {
 			"tour_summarysheet" => "Toursheet",
 			"accommodation_price" => "Preis (geplant)",
 			"accommodation_locationname" => "Unterkunftsname",
-			"accommodation_tourname" => "Tour"
+			"accommodation_tourname" => "Tour",
+			"tour_add_rehearsal" => "Probe hinzufügen"
 	);
 	
 	protected $regex = array(

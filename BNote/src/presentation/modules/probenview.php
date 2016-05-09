@@ -49,7 +49,7 @@ class ProbenView extends CrudRefView {
 		$history->write();
 	}
 	
-	function addEntity() {
+	function addEntity($form_target=null) {
 		// check whether a location exists
 		if(!$this->getData()->locationsPresent()) {
 			$msg = new Message("Keine Location vorhanden", "Bevor du eine Probe anlegen kannst, erstelle bitte eine Location.");
@@ -58,7 +58,10 @@ class ProbenView extends CrudRefView {
 		}
 		
 		// New entity form
-		$form = new Form("Neue Probe", $this->modePrefix() . "add");
+		if($form_target == null) {
+			$form_target = $this->modePrefix() . "add";
+		}
+		$form = new Form("Neue Probe", $form_target);
 		$form->addElement("Beginn", new Field("begin", date("d.m.Y") . " " . $this->getData()->getDefaultTime(), Field::FIELDTYPE_DATETIME_SELECTOR));
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
 			$end = Data::addMinutesToDate(date("d.m.Y") . " " . $this->getData()->getDefaultTime() . ":00", $this->getData()->getDefaultDuration());

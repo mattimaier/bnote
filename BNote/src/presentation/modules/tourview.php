@@ -71,12 +71,40 @@ class TourView extends CrudView {
 					$view->subModuleOptions();
 					$this->buttonSpace();
 					break;
+				case "rehearsals":
+					$this->addReferenceButton("tour_add_rehearsal", "addRehearsal");
+					break;
 			}
 		}
 	}
 	
+	private function addReferenceButton($lang_txt, $target) {
+		$addRef = new Link($this->modePrefix() . $target . "&accId=" . $_GET[$this->idParameter], Lang::txt($lang_txt));
+		$addRef->addIcon("plus");
+		$addRef->write();
+		$this->buttonSpace();
+	}
+	
 	function tab_rehearsals() {
-		//TODO implement rehearsal tab --> use submodule?
+		//TODO show all rehearsals in this tour
+		
+	}
+	
+	function addRehearsal() {
+		# show form to add a new rehearsal that's automatically assigned to this tour
+		$this->getController()->getRehearsalView()->addEntity(
+			$this->modePrefix() . "addRehearsalProcess&accId=" .  $_GET[$this->idParameter] . "&tab=rehearsals"
+		);
+	}
+	
+	function addRehearsalOptions() {
+		$back = new Link($this->modePrefix() . "view&accId=" . $_GET[$this->idParameter] . "&tab=rehearsals", Lang::txt("back"));
+		$back->addIcon("arrow_left");
+		$back->write();
+	}
+	
+	function addRehearsalProcess() {
+		$this->getController()->getRehearsalView()->add();  //TODO continue...
 	}
 	
 	function tab_contacts() {

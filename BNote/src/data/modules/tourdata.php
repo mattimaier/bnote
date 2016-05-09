@@ -32,6 +32,26 @@ class TourData extends AbstractData {
 		$this->init($dir_prefix);
 	}
 	
+	function createRehearsal($values) {
+		require_once $GLOBALS['DIR_DATA_MODULES'] . "probendata.php";
+		$rehData = new ProbenData();
+		$rehId = $rehData->create($values);
+		$tour_id = $values["tour"];
+		$this->addReference($tour_id, "rehearsal", $rehId);
+	}
+	
+	function addReference($tour_id, $ref_entity, $ref_id) {
+		$this->regex->isPositiveAmount($tour_id);
+		$this->regex->isPositiveAmount($ref_id);
+		
+		$table = "tour_" . $ref_entity;
+		$remove = "DELETE FROM $table WHERE tour = $tour_id AND $ref_entity = $ref_id";
+		$insert = "INSERT INTO $table (tour, $ref_entity) VALUES ($tour_id, $ref_id)";
+		
+		$this->database->execute($remove);
+		$this->database->execute($insert);
+	}
+	
 }
 
 ?>
