@@ -318,7 +318,7 @@ class Translation extends BNoteTranslation {
 			$day = substr($formattedDate, 0, $dot1);
 			return $year . "-" . $month . "-" . $day . " $time";
 		}
-		else {
+		else if(strlen($formattedDate) > 5) {
 			// standard conversion
 			$dot1 = strpos($formattedDate, ".");
 			$dot2 = strpos($formattedDate, ".", $dot1+1);
@@ -326,6 +326,9 @@ class Translation extends BNoteTranslation {
 			$month = substr($formattedDate, $dot1+1, $dot2-$dot1-1);
 			$day = substr($formattedDate, 0, $dot1);
 			return $year . "-" . $month . "-" . $day;
+		}
+		else {
+			return $formattedDate;
 		}
 	}
 	

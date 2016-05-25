@@ -277,7 +277,7 @@ class KontakteData extends AbstractData {
 		$query .= "WHERE cg.contact = $cid ";
 		$query .= "GROUP BY cg.contact";
 		$grpConcat = $this->database->getSelection($query);
-		if(count($grpConcat) > 0) {
+		if(count($grpConcat) > 1) {
 			$grpString = $grpConcat[1]["grpConcat"];
 		}
 		return $grpString;

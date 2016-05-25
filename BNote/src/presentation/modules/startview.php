@@ -35,7 +35,12 @@ class StartView extends AbstractView {
 		}
 		else {
 			$optFunc = $_GET["mode"] . "Options";
-			$this->$optFunc();
+			if(function_exists($this->$optFunc)) {
+				$this->$optFunc();
+			}
+			else {
+				$this->startOptions();
+			}
 		}
 	}
 	
