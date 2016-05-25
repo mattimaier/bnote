@@ -637,6 +637,7 @@ class Installation {
 					(5, 'Sonstige', 1);");
 			
 			// create group directories
+			mkdir("data/share/groups");
 			mkdir("data/share/groups/group_1"); // Administrators
 			mkdir("data/share/groups/group_2"); // Members
 			mkdir("data/share/groups/group_3"); // Externals
