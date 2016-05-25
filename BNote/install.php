@@ -803,6 +803,7 @@ class Installation {
 		$db->execute($query);
 		
 		// create user directory
+		mkdir("data/share/users");
 		mkdir("data/share/users/" . $_POST["login"]);
 	}
 	
