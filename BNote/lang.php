@@ -34,7 +34,12 @@ class Lang {
 	protected static function getInstance() {
 		if(Lang::$INSTANCE == null) {
 			global $system_data;
-			$l = $system_data->getLang();
+			if($system_data != null) { 
+				$l = $system_data->getLang();
+			}
+			else {
+				$l = "de";
+			}
 			Lang::$INSTANCE = new Lang($l);
 		}
 		return Lang::$INSTANCE;
