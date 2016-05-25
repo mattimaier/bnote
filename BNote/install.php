@@ -5,6 +5,7 @@
  * This is an installation wizzard to install BNote. 
  */
 require_once("dirs.php");
+require_once("lang.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "iwriteable.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "message.php");
