@@ -42,7 +42,10 @@ class Lang {
 	
 	function __construct($lang) {
 		$this->lang = $lang;
-		require_once 'lang/lang_' . $lang . ".php";
+		if($this->lang == null) {
+			$this->lang = "de";
+		}
+		require_once 'lang/lang_' . $this->lang . ".php";
 		$this->langObj = new Translation();
 	}
 	
