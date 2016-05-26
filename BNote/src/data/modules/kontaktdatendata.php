@@ -26,7 +26,6 @@ class KontaktdatenData extends KontakteData {
 		}
 		
 		// encrypt passwords
-		
 		$pw = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
 		
 		// update in db
@@ -53,20 +52,7 @@ class KontaktdatenData extends KontakteData {
 	function getPIN($uid) {
 		$pin = $this->database->getCell($this->database->getUserTable(), "pin", "id = $uid");
 		if($pin == null || $pin == "") {
-			// create a pin
-			$lower_bound = 100000;
-			$upper_bound = 999999;
-			$pin = 0;
-			$pin_exists = 1;
-			
-			while($pin_exists > 0) {
-				$pin = rand($lower_bound, $upper_bound);
-				$pin_exists = $this->database->getCell($this->database->getUserTable(), "count(id)", "pin = $pin");
-			}
-			
-			// save new pin
-			$query = "UPDATE " . $this->database->getUserTable() . " SET pin = $pin WHERE id = $uid";
-			$this->database->execute($query);
+			$pid = LoginController::createPin($this->database, $uid);
 		}
 		return $pin; 
 	}

@@ -200,6 +200,25 @@ class LoginController extends DefaultController {
 			echo 'Bitte wende dich an deinen Bandleader und warte bis dein Konto freigeschalten ist.<br/>';
 		}
 	}
+	
+	public static function createPin($db, $uid) {
+		// create a pin
+		$lower_bound = 100000;
+		$upper_bound = 999999;
+		$pin = 0;
+		$pin_exists = 1;
+			
+		while($pin_exists > 0) {
+			$pin = rand($lower_bound, $upper_bound);
+			$pin_exists = $db->getCell($db->getUserTable(), "count(id)", "pin = $pin");
+		}
+			
+		// save new pin
+		$query = "UPDATE " . $db->getUserTable() . " SET pin = $pin WHERE id = $uid";
+		$db->execute($query);
+		
+		return $pin;
+	}
 }
 
 ?>

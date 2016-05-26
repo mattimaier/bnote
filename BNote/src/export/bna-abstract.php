@@ -98,9 +98,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		else {
 			$pin = $_GET["pin"];
-
 			$this->uid = $this->db->getCell($this->db->getUserTable(), "id", "pin = $pin");
-
 			if($this->uid == null || $this->uid < 1) {
 				header("HTTP/1.0 401 Permission Denied.");
 				exit();
@@ -1109,7 +1107,8 @@ abstract class AbstractBNA implements iBNA {
 		$loginData = new LoginData($GLOBALS["dir_prefix"]);
 		$loginCtrl->setData($loginData);
 		if($loginCtrl->doLogin(true)) {
-			$pin = $this->db->getCell($this->db->getUserTable(), "pin", "id = " . $_SESSION["user"]);
+			$ktdData = new KontaktdatenData($GLOBALS["dir_prefix"]);
+			$pin = LoginController::createPin($this->db, $_SESSION["user"]);
 			unset($_SESSION["user"]); // logout
 			echo $pin;
 		}
