@@ -40,6 +40,17 @@ class TourData extends AbstractData {
 		$this->addReference($tour_id, "rehearsal", $rehId);
 	}
 	
+	function getRehearsals($tour_id) {
+		$query = "SELECT r.id, r.begin, r.notes as rehearsal_notes, l.name, l.notes as location_notes, a.street, a.city
+				FROM rehearsal r 
+				JOIN tour_rehearsal t ON r.id = t.rehearsal 
+				LEFT OUTER JOIN location l ON r.location = l.id
+				LEFT OUTER JOIN address a ON l.address = a.id
+				WHERE begin > now()
+				ORDER BY begin";
+		return $this->database->getSelection($query);
+	}
+	
 	function addReference($tour_id, $ref_entity, $ref_id) {
 		$this->regex->isPositiveAmount($tour_id);
 		$this->regex->isPositiveAmount($ref_id);

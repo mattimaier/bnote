@@ -69,6 +69,8 @@ class Translation extends BNoteTranslation {
 			"date" => "Datum",
 			"mail_footerText" => "Diese E-Mail wurde automatisch von BNote versandt:",
 			"error" => "Fehler",
+			"street" => "Straße",
+			"city" => "Stadt",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",
@@ -287,7 +289,13 @@ class Translation extends BNoteTranslation {
 			"accommodation_price" => "Preis (geplant)",
 			"accommodation_locationname" => "Unterkunftsname",
 			"accommodation_tourname" => "Tour",
-			"tour_add_rehearsal" => "Probe hinzufügen"
+			"tour_add_rehearsal" => "Probe hinzufügen",
+			"tour_rehearsal_created" => "Probe hinzugefügt",
+			"tour_rehearsal_created_msg" => "Die Probe wurde der Tour erfolgreich hinzugefügt.",
+			"tour_rehearsal_tab_begin" => "Probenbeginn",
+			"tour_rehearsal_tab_notes" => "Probennotizen",
+			"tour_rehearsal_tab_location" => "Ort",
+			"tour_rehearsal_tab_location_notes" => "Notizen zum Ort"
 	);
 	
 	protected $regex = array(

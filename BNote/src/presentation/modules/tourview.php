@@ -86,14 +86,26 @@ class TourView extends CrudView {
 	}
 	
 	function tab_rehearsals() {
-		//TODO show all rehearsals in this tour
-		
+		// show all rehearsals in this tour
+		$rehearsals = $this->getData()->getRehearsals($_GET[$this->idParameter]);
+		$table = new Table($rehearsals);
+		$table->renameHeader("begin", Lang::txt("tour_rehearsal_tab_begin"));
+		$table->renameHeader("rehearsal_notes", Lang::txt("tour_rehearsal_tab_notes"));
+		$table->renameHeader("name", Lang::txt("name"));
+		$table->renameHeader("location_notes", Lang::txt("tour_rehearsal_tab_location_notes"));
+		$table->renameHeader("street", Lang::txt("street"));
+		$table->renameHeader("city", Lang::txt("city"));
+		$table->setEdit("id");
+		$table->removeColumn("id");
+		$table->setModId(5);
+		$table->write();
 	}
 	
 	function addRehearsal() {
 		# show form to add a new rehearsal that's automatically assigned to this tour
+		$tour = $_GET[$this->idParameter];
 		$this->getController()->getRehearsalView()->addEntity(
-			$this->modePrefix() . "addRehearsalProcess&accId=" .  $_GET[$this->idParameter] . "&tab=rehearsals"
+			$this->modePrefix() . "addRehearsalProcess&accId=$tour&tab=rehearsals", $tour
 		);
 	}
 	
@@ -104,7 +116,12 @@ class TourView extends CrudView {
 	}
 	
 	function addRehearsalProcess() {
-		$this->getController()->getRehearsalView()->add();  //TODO continue...
+		$this->getData()->createRehearsal($_POST);
+		new Message(Lang::txt("tour_rehearsal_created"), Lang::txt("tour_rehearsal_created_msg"));
+	}
+	
+	function addRehearsalProcessOptions() {
+		$this->addRehearsalOptions();
 	}
 	
 	function tab_contacts() {

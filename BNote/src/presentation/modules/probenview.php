@@ -49,7 +49,7 @@ class ProbenView extends CrudRefView {
 		$history->write();
 	}
 	
-	function addEntity($form_target=null) {
+	function addEntity($form_target=null, $tour=null) {
 		// check whether a location exists
 		if(!$this->getData()->locationsPresent()) {
 			$msg = new Message("Keine Location vorhanden", "Bevor du eine Probe anlegen kannst, erstelle bitte eine Location.");
@@ -78,6 +78,10 @@ class ProbenView extends CrudRefView {
 		
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
 		$form->addElement("Probe für", $gs);
+		
+		if($tour != null) {
+			$form->addHidden("tour", $tour);
+		}
 		
 		$form->write();
 	}

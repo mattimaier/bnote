@@ -130,6 +130,14 @@ class Table implements iWriteable {
 	}
 	
 	/**
+	 * Set a new module ID.
+	 * @param int $modId Module ID.
+	 */
+	public function setModId($modId) {
+		$this->modid = $modId;
+	}
+	
+	/**
 	 * Adds a column to the data with a link to delete the item.
 	 * @param Selection $tabData Database Selection which is used in this table class.
 	 * @param String $delHref Link to the action of the buttons, format: "...&contactid=". The id of the item will be appended.
@@ -216,7 +224,8 @@ class Table implements iWriteable {
 
 					// Check for primary keys
 					if($this->edit) { # && $id == $this->primkey
-						echo '<a class="silent" href="?mod=' . $this->modid . '&mode=' . $this->mode . '&' . $this->edit_id_field . '=' . $row[$this->primkey] . '">';
+						$href = '?mod=' . $this->modid . '&mode=' . $this->mode . '&' . $this->edit_id_field . '=' . $row[$this->primkey];
+						echo '<a class="silent" href="' . $href . '">';
 					}
 
 					// Check for foreign keys
