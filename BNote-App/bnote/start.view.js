@@ -14,7 +14,7 @@ sap.ui.jsview("bnote.start", {
             sorter : new sap.ui.model.Sorter("begin"),
             template : new sap.m.StandardListItem({
                 title: "{begin}",
-                icon: "http://localhost/Projekte/bnote-ui5/icons/proben.png",
+                icon: "icons/proben.png",
                 description: "{name}",
                 type: sap.m.ListType.Navigation,
                 press: function(evt) {
@@ -24,17 +24,12 @@ sap.ui.jsview("bnote.start", {
                     var model = oBindingContext.getModel();
                     var path = oBindingContext.getPath();
                     var participate = model.getProperty(path + "/participate");
-                    
-                    
                     rehearsalView.setButtons(participate);
                     
-                    
                     app.to("rehearsal");
-                   
                 }
             })
         });
-        
         
 		var page = new sap.m.Page("StartPage", {
             title: "Start",
