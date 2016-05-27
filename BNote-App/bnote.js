@@ -8,10 +8,10 @@ mobilePin = null;  // Default null
 backend = {
 	host: "localhost",
 	protocol: "http",
-	path: "/Projekte/bnote/BNote/src/export/bna-json.php",
+	path: "../BNote/src/export/bna-json.php",
 	
 	get_url: function(func) {
-		var url = this.protocol + "://" + this.host + this.path + "?func=" + func;
+		var url = this.path + "?func=" + func;
 		if(func != "mobilePin") {
 			// add token
 			url += "&pin=" + mobilePin;

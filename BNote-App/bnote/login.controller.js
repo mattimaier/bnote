@@ -14,11 +14,10 @@ sap.ui.controller("bnote.login", {
         var model = oEvent.getSource().getParent().getModel();
         var login = model.getProperty("/login");
         var pw = model.getProperty("/password");
-      
         
         jQuery.ajax({
-        	url: "data/login.txt", // backend.get_url("mobilePin"),
-            type: "POST",          	         
+        	url: backend.get_url("mobilePin"),
+            type: "POST",
             data:  {"login": login, "password": pw},
             success: function(data) {
             	mobilePin = data;
@@ -26,7 +25,6 @@ sap.ui.controller("bnote.login", {
             },
             error: function(a,b,c) {
                console.log(a,b,c);
-               
             }
         });
     }
