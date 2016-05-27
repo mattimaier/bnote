@@ -1107,7 +1107,6 @@ abstract class AbstractBNA implements iBNA {
 		$loginData = new LoginData($GLOBALS["dir_prefix"]);
 		$loginCtrl->setData($loginData);
 		if($loginCtrl->doLogin(true)) {
-			$ktdData = new KontaktdatenData($GLOBALS["dir_prefix"]);
 			$pin = LoginController::createPin($this->db, $_SESSION["user"]);
 			unset($_SESSION["user"]); // logout
 			echo $pin;
