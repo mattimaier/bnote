@@ -120,7 +120,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 
 		if($function == "getRehearsalParticipation" || $function == "setRehearsalParticipation") {
-			if(!isset($_GET["rehearsal"])) {
+			if(!isset($_GET["rehearsal"]) && !isset($_POST["rehearsal"])) {
 				header("HTTP/1.0 412 Insufficient Parameters.");
 				exit();
 			}
@@ -128,19 +128,19 @@ abstract class AbstractBNA implements iBNA {
 				$this->getRehearsalParticipation($_GET["rehearsal"], $this->uid);
 			}
 			else if($function == "setRehearsalParticipation") {
-				if(!isset($_GET["participation"])) {
+				if(!isset($_POST["participation"])) {
 					header("HTTP/1.0 412 Insufficient Parameters.");
 					exit();
 				}
-				$part = $_GET["participation"];
+				$part = $_POST["participation"];
 				if($part > 2 || $part < -1) {
 					$part = -1;
 				}
 				$reason = "";
-				if(isset($_GET["reason"])) {
-					$reason = $_GET["reason"];
+				if(isset($_POST["reason"])) {
+					$reason = $_POST["reason"];
 				}
-				$this->setRehearsalParticipation($_GET["rehearsal"], $this->uid, $part, $reason);
+				$this->setRehearsalParticipation($_POST["rehearsal"], $this->uid, $part, $reason);
 			}
 		}
 		else if($function == "getRehearsalsWithParticipation") {
