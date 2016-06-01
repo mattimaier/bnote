@@ -14,17 +14,19 @@ sap.ui.controller("bnote.login", {
         var model = oEvent.getSource().getParent().getModel();
         var login = model.getProperty("/login");
         var pw = model.getProperty("/password");
+      
         
         jQuery.ajax({
-        	url: backend.get_url("mobilePin"),
-            type: "POST",
-            data:  {"login": login, "password": pw},
+        	url: backend.get_url("mobilePin"),//"data/login.txt",//backend.get_url("mobilePin"), 
+            type: "POST",          	         
+            data:  {"login": "admin", "password": "banane"},//{"login": login, "password": pw},
             success: function(data) {
             	mobilePin = data;
                 app.to("start");
             },
             error: function(a,b,c) {
                console.log(a,b,c);
+               
             }
         });
     }

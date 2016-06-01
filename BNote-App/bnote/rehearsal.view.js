@@ -10,9 +10,9 @@ sap.ui.jsview("bnote.rehearsal", {
 		if(this.buttonBar != null) {
 			var bid = "";
 			switch(participate) {
-			case -1: bid = "rehearsalNoBtn"; break;
-			case 0: bid = "rehearsalMaybeBtn"; break;
-			default: bid = "rehearsalOkBtn";
+			case 0: bid = "rehearsalNoBtn"; break;
+			case 2: bid = "rehearsalMaybeBtn"; break;
+			case 1: bid = "rehearsalOkBtn";
 			}
 			this.buttonBar.setSelectedButton(bid);
 		}
@@ -36,29 +36,35 @@ sap.ui.jsview("bnote.rehearsal", {
                 new sap.m.Text({text: "{notes}"}),
             ]
         });
-        
-        this.buttonBar = new sap.m.SegmentedButton({
-            width: "100%",
-            buttons: [
-               new sap.m.Button("rehearsalOkBtn", {
-            	   text: "OK",            	  
-            	   //press: oController.onOkPress
-            	   }),
-               new sap.m.Button("rehearsalMaybeBtn",{
-            	   text: "vielleicht",
-            	
-            	   //press: onMaybePress,
-            	   
-            	   }),
-               new sap.m.Button("rehearsalNoBtn",{
-            	   text: "Kann nicht",
-            	  
-            	   //press: onNoPress
-            	   })
-            ]
-        });
-        
 		
+	  this.buttonBar = new sap.m.SegmentedButton({
+		            width: "100%", 
+		            buttons: [
+		                  new sap.m.Button("rehearsalOkBtn", {
+		                      text: "OK",       
+		            	      press: function(){
+		            		  var rehearsalSetParticipation = 1;
+		            	      oController.onParticipationPress(rehearsalSetParticipation);  
+		            	   	  },            	  
+		            	      }),
+		           	      new sap.m.Button("rehearsalMaybeBtn",{
+		            	      text: "vielleicht",
+		            	      press: function(){
+		            		  var rehearsalSetParticipation = 2;
+		            		  oController.onParticipationPress(rehearsalSetParticipation);  
+		            	   	  }, 
+		            	      }),
+		            	  new sap.m.Button("rehearsalNoBtn",{
+		            	      text: "Kann nicht",
+		            	      press: function(){
+		                	  var rehearsalSetParticipation = 0;
+		                	  oController.onParticipationPress(rehearsalSetParticipation);  
+		                	  }
+		            	      }),
+		                   ]
+		                      
+		        });
+	
 		var page = new sap.m.Page("RehearsalPage", {
             title: "Probe",
             showNavButton: true,
