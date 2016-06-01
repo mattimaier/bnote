@@ -6,7 +6,6 @@ sap.ui.localResources("bnote");
 mobilePin = null;  // Default null
 
 
-                
 backend = {
 		
 	get_url: function(func) {
@@ -19,21 +18,21 @@ backend = {
 		return url;
 	},
 	
-	formatdate: function(datepath, model){
-		var rehearsals = model.getProperty("/rehearsals");	    
-	    rehearsals.forEach(function(rehearsal, idx) {
-        	var olddate = model.getProperty("/rehearsals/" + idx + datepath);
-        	var newdate = new Date(Date.parse(olddate)); 
-        	newdate.toString = function(){
-        		var d = backend.leadingZero(this.getDate());
-        		var m = backend.leadingZero(this.getMonth());
-        		var h = backend.leadingZero(this.getHours());
-        		var min = backend.leadingZero(this.getMinutes());
-        		return d + "." + m + "." + this.getFullYear() + " " + h + ":" + min + " Uhr";
-        	}
-          	model.setProperty("/rehearsals/"+ idx + datepath ,newdate);
- 	   });
-	   return model; 
+	formatdate: function(collectionpath, datepath, model){
+		var items = model.getProperty(collectionpath);
+		items.forEach(function(entity, idx) {
+			var olddate = model.getProperty(collectionpath + "/" + idx + datepath);
+			var newdate = new Date(Date.parse(olddate)); 
+			newdate.toString = function() {
+				var d = backend.leadingZero(this.getDate());
+				var m = backend.leadingZero(this.getMonth());
+				var h = backend.leadingZero(this.getHours());
+				var min = backend.leadingZero(this.getMinutes());
+				return d + "." + m + "." + this.getFullYear() + " " + h + ":" + min + " Uhr";
+			};
+			model.setProperty(collectionpath + "/"+ idx + datepath, newdate);
+		});
+		return model;
 	},
 	
 	leadingZero: function(i) {
@@ -97,4 +96,5 @@ var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",
     app: app
 });
+
 shell.placeAt("content");

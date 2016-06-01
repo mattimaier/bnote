@@ -1,7 +1,7 @@
 sap.ui.jsview("bnote.login", {
     
     login_form: null,
-    
+
 	getControllerName: function() {
 		return "bnote.login";
 	},
@@ -33,7 +33,7 @@ sap.ui.jsview("bnote.login", {
                 })
             ]
         });
-		
+
 		var page = new sap.m.Page("LoginPage", {
             title: "Login",
 			content: [ this.loginForm ]

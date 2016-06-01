@@ -5,32 +5,32 @@ sap.ui.jsview("bnote.start", {
 	},
 
 	createContent : function(oController) {
-		var mainList = new sap.m.List({
-			headerText : "Proben",
-
-		});
+		var mainList = new sap.m.List();
 
 		mainList.bindItems({
 			growingScrollToLoad : "true",
-			path : "/rehearsals",
-			sorter : new sap.ui.model.Sorter("begin"),
+			path : "/items",
+			sorter : new sap.ui.model.Sorter("start"),
 			template : new sap.m.StandardListItem({
-				title : "{begin}",
-				icon : "icons/proben.png",
-				description : "{name}",
+				title : "{start}",
+				icon : "{icon}",
+				description : "{description}",
 				type : sap.m.ListType.Navigation,
 				press : function(evt) {
 					var oBindingContext = evt.getSource().getBindingContext(); // evt.getSource() is the ListItem
-					rehearsalView.setBindingContext(oBindingContext); // make sure the detail page has the correct data context
-
 					var model = oBindingContext.getModel();
 					var path = oBindingContext.getPath();
-					var participate = model.getProperty(path + "/participate");
+					var objType = model.getProperty(path + "/type");
 
-					rehearsalView.setButtons(participate);
-
-					app.to("rehearsal");
-
+					if(objType == "Rehearsal") {
+						rehearsalView.setBindingContext(oBindingContext); // make sure the detail page has the correct data context
+						var participate = model.getProperty(path + "/participate");
+						rehearsalView.setButtons(participate);
+						app.to("rehearsal");
+					}
+					else {
+						sap.m.MessageToast.show("Konzert nicht implementiert");
+					}
 				}
 			})
 		});
