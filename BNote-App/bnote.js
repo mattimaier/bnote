@@ -20,23 +20,19 @@ backend = {
 	},
 	
 	formatdate: function(datepath, model){
-		var rehearsals = model.getProperty("/rehearsals");
-	    var rehearsalNr = 0;
-	    
-	    rehearsals.forEach(function(){
-	            	var olddate = model.getProperty("/rehearsals/" + rehearsalNr + datepath);
-	            	var newdate = new Date(Date.parse(olddate)); 
-	            	newdate.toString = function(){
-	            		var d = backend.leadingZero(this.getDate());
-	            		var m = backend.leadingZero(this.getMonth());
-	            		var h = backend.leadingZero(this.getHours());
-	            		var min = backend.leadingZero(this.getMinutes());
-	            		
-	            		return d + "." + m + "." + this.getFullYear() + " " + h + ":" + min + " Uhr";
-	            	}
-	              	model.setProperty("/rehearsals/"+ rehearsalNr + datepath ,newdate);
-	               	rehearsalNr++;
-	             	  });
+		var rehearsals = model.getProperty("/rehearsals");	    
+	    rehearsals.forEach(function(rehearsal, idx) {
+        	var olddate = model.getProperty("/rehearsals/" + idx + datepath);
+        	var newdate = new Date(Date.parse(olddate)); 
+        	newdate.toString = function(){
+        		var d = backend.leadingZero(this.getDate());
+        		var m = backend.leadingZero(this.getMonth());
+        		var h = backend.leadingZero(this.getHours());
+        		var min = backend.leadingZero(this.getMinutes());
+        		return d + "." + m + "." + this.getFullYear() + " " + h + ":" + min + " Uhr";
+        	}
+          	model.setProperty("/rehearsals/"+ idx + datepath ,newdate);
+ 	   });
 	   return model; 
 	},
 	
