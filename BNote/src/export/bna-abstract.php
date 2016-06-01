@@ -476,11 +476,9 @@ abstract class AbstractBNA implements iBNA {
 	protected abstract function writeEntity($entity, $type);
 
 	/* DEFAULT IMPLEMENTATIONS */
-
-	
 	
 	function getRehearsals() {
-		$this->getRehearsalsWithParticipation($this->uid);
+		return $this->getRehearsalsWithParticipation($this->uid);
 	}
 	
 
@@ -617,7 +615,6 @@ abstract class AbstractBNA implements iBNA {
 				}
 				
 			}
-//			print_r($participantsNoResponse);
 			
 			$rehs[$i]["participantsNo"] = array_values($participantsNo);
 			$rehs[$i]["participantsYes"] = array_values($participantsYes);
@@ -637,6 +634,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		
 		$this->printEntities($rehs, "rehearsals");
+		return $rehs;
 	}
 	
 	protected abstract function printRehearsals($rehs);
@@ -786,15 +784,12 @@ abstract class AbstractBNA implements iBNA {
 			$concerts[$i]["participantsYes"] = array_values($participantsYes);
 			$concerts[$i]["participantsMaybe"] = array_values($participantsMaybe);
 			$concerts[$i]["participantsNoResponse"] = array_values($participantsNoResponse);	
-
+		
 		}
 		
-		
-
-//		print_r($concerts);
-		
-	$concerts = $this -> removeNumericKeys($concerts);
+		$concerts = $this -> removeNumericKeys($concerts);
 		$this->printEntities($concerts, "concerts");
+		return $concerts;
 	}
 	
 	protected abstract function printConcerts($concerts);
@@ -806,6 +801,7 @@ abstract class AbstractBNA implements iBNA {
 		
 		$contacts = $this -> removeNumericKeys($contacts);
 		$this->printEntities($contacts, "contacts");
+		return $contacts;
 	}
 
 	function getLocations() {
@@ -814,6 +810,7 @@ abstract class AbstractBNA implements iBNA {
 				"address" => array("street", "city", "zip")
 		));
 		$this->printEntities($locs, "location");
+		return $locs;
 	}
 
 	function getTasks() {
@@ -830,6 +827,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		
 		$this->printEntities($entities, "task");
+		return $entities;
 	}
 	
 	function getNews() {
@@ -866,6 +864,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		
 		$this->printVotes($votes);
+		return $votes;
 	}
 	
 	protected abstract function printVotes($votes);
@@ -896,6 +895,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		
 		$this->printEntities($entities, "songs");
+		return $songs;
 	}
 	
 	function getGenres() {
@@ -905,6 +905,7 @@ abstract class AbstractBNA implements iBNA {
 		$genres =  $this -> removeNumericKeys($genres);
 		
 		$this->printEntities($genres, "genres");
+		return $genres;
 	}
 	
 	function getStatuses() {
@@ -925,7 +926,7 @@ abstract class AbstractBNA implements iBNA {
 		$this->getVotes(); echo $sep . "\n";
 		$this->getGenres(); echo $sep . "\n";
 		$this->getStatuses(); echo $sep . "\n";
-		$this->getGroups(); echo $sep . "\n";
+		$this->getGroups(); echo "\n";
 		
 		$this->documentEnd();
 	}
