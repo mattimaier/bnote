@@ -66,5 +66,5 @@ $(document).ready(function() {
 	$('#calendar').fullCalendar({
 		height: 700,
 		lang: "de"
-    })
+    });
 });

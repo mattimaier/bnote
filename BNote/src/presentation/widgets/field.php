@@ -182,8 +182,19 @@ class Field implements iWriteable {
  	
  	// parse default value for time
  	$colonPos = strpos($this->default_value, ":");
- 	$hour = "18"; // defaults
- 	$minute = "00"; // defaults
+ 	
+ 	// preset defaults
+ 	$hour = "18";
+ 	$minute = "00";
+ 	
+ 	// load defaults from DB
+ 	global $system_data;
+ 	$default_time_str = $system_data->getDynamicConfigParameter("rehearsal_start");
+ 	if($default_time_str != null && $default_time_str != "") {
+ 		$hour = substr($default_time_str, 0, 2);
+ 		$minute = substr($default_time_str, 3, 2);
+ 	}
+ 	
  	if($colonPos > 0) {
  		$hour = substr($this->default_value, $spacePos+1, $colonPos);
  		$minute = substr($this->default_value, $colonPos+1);
