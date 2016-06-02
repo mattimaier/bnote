@@ -15,14 +15,9 @@ $widgets = array(
 );
 
 foreach($widgets as $id => $file) {
-	if($isMobile && file_exists($GLOBALS["DIR_WIDGETS_MOBILE"] . $file . ".php")) {
-		require($GLOBALS["DIR_WIDGETS_MOBILE"] . $file . ".php");
-	}
-	else {
-		$widget_file = $GLOBALS["DIR_WIDGETS"] . $file . ".php";
-		if(file_exists($widget_file)) {
-			require($widget_file);
-		}
+	$widget_file = $GLOBALS["DIR_WIDGETS"] . $file . ".php";
+	if(file_exists($widget_file)) {
+		require($widget_file);
 	}
 }
 

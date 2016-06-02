@@ -3,16 +3,6 @@
  * Main entry file for the web application.
  * @see index.php for details on the authors.
  */
-
-# Desktop or mobile
-$isMobile = false;
-/* DEACTIVATE MOBILE VERSION
-if(isset($_GET["device"]) && $_GET["device"] == "mobile") {
-	$isMobile = true;
-}
-*/
-global $isMobile;
-
 # Make a few settings
 date_default_timezone_set("Europe/Berlin");
 
@@ -22,12 +12,6 @@ header("Content-type: text/html; charset=utf-8");
 
 # Initialize System
 include "dirs.php";
-
-# change dirs for mobile
-if($isMobile) {
-	$DIR_PRESENTATION_MODULES = $GLOBALS["DIR_PRESENTATION_MOBILE"];
-}
-
 include $GLOBALS["DIR_LOGIC"] . "init.php";
 
 # Login forward if necessary
@@ -50,29 +34,17 @@ global $mainController;
 ?>
 
 <!DOCTYPE html>
-<HTML lang="de"> <!--  manifest="bnote.appcache" -->
+<HTML> <!--  manifest="bnote.appcache" -->
 
 <?php
-
 # Display HEAD
-if($isMobile) {
-	include $GLOBALS["DIR_PRESENTATION_MOBILE"] . "head.php";
-}
-else {
-	include $GLOBALS["DIR_PRESENTATION"] . "head.php";
-}
-
+include $GLOBALS["DIR_PRESENTATION"] . "head.php";
 ?>
 
 <BODY>
 
 <?php
-if($isMobile) {
-	include "mobile.php";
-}
-else {
-	include "desktop.php";
-}
+include "desktop.php";
 
 # Display Footer
 include $GLOBALS["DIR_PRESENTATION"] . "footer.php";
