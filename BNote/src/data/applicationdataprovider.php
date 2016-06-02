@@ -269,7 +269,7 @@ class ApplicationDataProvider {
 				END";
 			$concerts = $this->database->getSelection($query);
 		}
-		
+
 		// iterate over concerts and replace foreign keys with data
 		for($i = 1; $i < count($concerts); $i++) {
 			// resolve location -> mandatory!

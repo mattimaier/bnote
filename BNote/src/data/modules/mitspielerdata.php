@@ -39,8 +39,8 @@ class MitspielerData extends AbstractData {
 			$uid = $_SESSION["user"];
 		}
 		
-		$single = "";
-		if($singleInfo) $single = ", c.name, c.surname, c.id";
+		$single = ", c.id";
+		if($singleInfo) $single .= ", c.name, c.surname";
 		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, fax, business, 
 				notes,  a.street, a.zip, a.city, i.name as instrument, birthday" . $single;
 		$order = "ORDER BY fullname, instrument";
