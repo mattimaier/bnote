@@ -766,25 +766,19 @@ abstract class AbstractBNA implements iBNA {
 			$participantsNoResponse = $this->db->getSelection($query);
 			unset($participantsNoResponse[0]);
 			
-			
-			
 			foreach($participantsNoResponse as $j => $contact) 
 			{
-				
 				foreach($contact as $ck => $cv) {
 					if(is_numeric($ck)) {
 						unset($participantsNoResponse[$j][$ck]);
 					}
-				
 				}
-				
 			}
 			
 			$concerts[$i]["participantsNo"] = array_values($participantsNo);
 			$concerts[$i]["participantsYes"] = array_values($participantsYes);
 			$concerts[$i]["participantsMaybe"] = array_values($participantsMaybe);
 			$concerts[$i]["participantsNoResponse"] = array_values($participantsNoResponse);	
-		
 		}
 		
 		$concerts = $this -> removeNumericKeys($concerts);
@@ -799,7 +793,7 @@ abstract class AbstractBNA implements iBNA {
 		$contacts = $msd->getMembers($this->uid);
 		unset($contacts[0]);
 		
-		$contacts = $this -> removeNumericKeys($contacts);
+		$contacts = $this->removeNumericKeys($contacts);
 		$this->printEntities($contacts, "contacts");
 		return $contacts;
 	}
@@ -807,9 +801,9 @@ abstract class AbstractBNA implements iBNA {
 	function getLocations() {
 		$locData = new LocationsData($GLOBALS["dir_prefix"]);
 		$locs = $locData->findAllJoined(array(
-				"address" => array("street", "city", "zip")
+			"address" => array("street", "city", "zip")
 		));
-		$this->printEntities($locs, "location");
+		$this->printEntities($locs, "locations");
 		return $locs;
 	}
 

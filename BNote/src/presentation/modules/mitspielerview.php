@@ -24,6 +24,8 @@ class MitspielerView extends AbstractView {
 		$table->removeColumn("web");
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->renameHeader("fullname", "Name");
+		$table->removeColumn("id");
+		$table->removeColumn("notes");
 		$table->write();
 	}
 	

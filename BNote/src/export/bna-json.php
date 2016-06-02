@@ -53,7 +53,7 @@ class BNAjson extends AbstractBNA {
 	}
 	
 	function beginOutputWith() {
-		echo "{\n";
+		echo "{";
 	}
 	
 	function endOutputWith() {
@@ -63,15 +63,36 @@ class BNAjson extends AbstractBNA {
 	function entitySeparator() {
 		return ",";
 	}
-	
 
+	protected function recursiveEncode($value) {
+		$t = gettype($value);
+		if($t == "array") {
+			$encArray = array();
+			foreach($value as $i => $v) {
+				$encArray[$i] = $this->recursiveEncode($v);
+			}
+			return $encArray;
+		}
+		else if($t == "string") {
+			return utf8_encode($value);
+		}
+		else {
+			return $value;
+		}
+	}
 	
-	function printEntities($selection, $line_node) 
-	{
+	function printEntities($selection, $line_node) {
 		$entities = array();
 		$cleanedSelection = $this->removeNumericKeys($selection);
 		$entities[$line_node] = array_values($selection);
-		echo json_encode($entities);
+		
+		$json = json_encode($this->recursiveEncode($entities));
+		if($json === FALSE) {
+			echo '{"' . $line_node . '": []}';
+		}
+		else {
+			echo $json;
+		}
 	}
 	
 	function printVotes($votes) {
