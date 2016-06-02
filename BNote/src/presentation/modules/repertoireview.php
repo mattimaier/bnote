@@ -5,7 +5,7 @@
  *
  */
 class RepertoireView extends CrudRefView {
-	
+	//TODO check encoding and saving titles
 	/**
 	 * Create the repertoire view.
 	 */

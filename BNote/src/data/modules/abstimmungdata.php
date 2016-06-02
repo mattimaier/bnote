@@ -191,6 +191,7 @@ class AbstimmungData extends AbstractData {
 		
 		foreach($options as $i => $option) {
 			$_POST["odate"] = Data::convertDateFromDb($option);
+			$_POST["odate"] = substr($_POST["odate"], 0,16); // eventually cut whatever is behind the first 16 chars
 			$this->addOption($vid);
 		}
 	}
