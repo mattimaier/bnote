@@ -318,6 +318,10 @@ class Translation extends BNoteTranslation {
 	public function decimalToDb($decimal) {
 		return str_replace(",", "", $decimal);
 	}
+	
+	public function formatDecimal($dbDecimal) {
+		return $dbDecimal;
+	}
 }
 
 
