@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>NotificationBar</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A NotificationBar is a &quot;toolbar&quot; that can be added to a page to show messages and notifications from the application.
+Its position, height and width is inherited from the element that the notification bar is added to.</documentation>
+    <since>1.7.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="Default" type="sap.ui.ux3/NotificationBarStatus" name="visibleStatus">
+            <documentation>This property displays the bar corresponding to given status</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="resizeEnabled">
+            <documentation>This property enables the bar to be resized by the user.</documentation>
+        </property>
+        <property defaultValue="false" type="sap.ui.core/boolean" name="alwaysShowToggler">
+            <documentation>This property defines if the toggler should be displayed the whole time when the NotificationBar is shown.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="display">
+            <documentation>Event is fired when the bar wants to be displayed depending on given flag. This allows the application to decide what to do.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="show">
+                    <documentation>Indicates if the bar wants to be shown or hidden</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.12.2" name="resize">
+            <documentation>This event is thrown when the bar was resized (to the different valid states: Min, Max, Default, None). The event itself can be used from SAPUI5-version 1.12.2 since there was a bug in the previous versions firing this event.</documentation>
+            <parameters>
+                <parameter type="sap.ui.ux3/NotificationBarStatus" name="status">
+                    <documentation>The corresponding status to which the bar was resized. The corresponding heights can be taken for the bar's CSS file.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..1" type="sap.ui.core/Element" name="messageNotifier">
+            <documentation>Notifier that shows messages</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/Element" name="notifiers">
+            <documentation>Notifiers that monitor something within the application and display the corresponding notifications.</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.core/boolean" name="hasItems">
+            <documentation>This method checks if the NotificationBar has any items (notifications or messages) to show and returns true if there are any items to show. So the application should decide if the bar should be displayed.</documentation>
+        </method>
+    </methods>
+</control>

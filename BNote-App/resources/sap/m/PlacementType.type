@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>PlacementType</name>
+    <derived/>
+    <documentation>Types for the placement of popover control.</documentation>
+    <enumeration>
+        <value name="Left">
+            <documentation>Popover will be placed at the left side of the reference control.</documentation>
+        </value>
+        <value name="Right">
+            <documentation>Popover will be placed at the right side of the reference control.</documentation>
+        </value>
+        <value name="Top">
+            <documentation>Popover will be placed at the top of the reference control.</documentation>
+        </value>
+        <value name="Bottom">
+            <documentation>Popover will be placed at the bottom of the reference control.</documentation>
+        </value>
+        <value name="Vertical">
+            <documentation>Popover will be placed at the top or bottom of the reference control.</documentation>
+        </value>
+        <value since="1.29" name="VerticalPreferedTop">
+            <documentation>Deprecated - use &lt;code&gt;sap.m.PlacementType.VerticalPreferredTop&lt;/code&gt; type.</documentation>
+            <deprecation since="1.36">Instead, use &lt;code&gt;sap.m.PlacementType.VerticalPreferredTop&lt;/code&gt; type.</deprecation>
+        </value>
+        <value since="1.36" name="VerticalPreferredTop">
+            <documentation>Popover will be placed at the top or bottom of the reference control but will try to position on the
+top side if the space is greater than the Popover's height.</documentation>
+        </value>
+        <value since="1.29" name="VerticalPreferedBottom">
+            <documentation>Deprecated - use &lt;code&gt;sap.m.PlacementType.VerticalPreferredBottom&lt;/code&gt; type.</documentation>
+            <deprecation since="1.36">Instead, use &lt;code&gt;sap.m.PlacementType.VerticalPreferredBottom&lt;/code&gt; type.</deprecation>
+        </value>
+        <value since="1.36" name="VerticalPreferredBottom">
+            <documentation>Popover will be placed at the top or bottom of the reference control but will try to position on the
+bottom side if the space is greater than the Popover's height.</documentation>
+        </value>
+        <value name="Horizontal">
+            <documentation>Popover will be placed at the right or left side of the reference control.</documentation>
+        </value>
+        <value since="1.29" name="HorizontalPreferedRight">
+            <documentation>Deprecated - use &lt;code&gt;sap.m.PlacementType.HorizontalPreferredRight&lt;/code&gt; type.</documentation>
+            <deprecation since="1.36">Instead, use &lt;code&gt;sap.m.PlacementType.HorizontalPreferredRight&lt;/code&gt; type.</deprecation>
+        </value>
+        <value since="1.36" name="HorizontalPreferredRight">
+            <documentation>Popover will be placed at the right or left side of the reference control but will try to position on the
+right side if the space is greater than the Popover's width.</documentation>
+        </value>
+        <value since="1.29" name="HorizontalPreferedLeft">
+            <documentation>Deprecated - use &lt;code&gt;sap.m.PlacementType.HorizontalPreferredLeft&lt;/code&gt; type.</documentation>
+            <deprecation since="1.36">Instead, use &lt;code&gt;sap.m.PlacementType.HorizontalPreferredLeft&lt;/code&gt; type.</deprecation>
+        </value>
+        <value since="1.36" name="HorizontalPreferredLeft">
+            <documentation>Popover will be placed at the right or left side of the reference control but will try to position on the
+left side if the space is greater than the Popover's width.</documentation>
+        </value>
+        <value name="Auto">
+            <documentation>Popover will be placed automatically at the reference control.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>NumericContent</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Shows numeric values used for example in tiles colored according to their meaning and displays deviations.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="animateTextChange">
+            <documentation>If set to true, the change of the value will be animated.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="formatterValue">
+            <documentation>If set to true, the value parameter contains a numeric value and scale. If set to false (default), the value parameter contains a numeric value only.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="icon">
+            <documentation>The icon to be displayed as a graphical element within the control. This can be an image or an icon from the icon font.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="iconDescription">
+            <documentation>Description of an icon that is used in the tooltip.</documentation>
+        </property>
+        <property group="Misc" defaultValue="None" type="sap.m/DeviationIndicator" name="indicator">
+            <documentation>The indicator arrow that shows value deviation.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="nullifyValue">
+            <documentation>If set to true, the omitted value property is set to 0.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="scale">
+            <documentation>The scaling prefix. Financial characters can be used for currencies and counters. The SI prefixes can be used for units. If the scaling prefix contains more than three characters, only the first three characters are displayed.</documentation>
+        </property>
+        <property group="Misc" defaultValue="Auto" type="sap.m/Size" name="size">
+            <documentation>Updates the size of the chart. If not set then the default size is applied based on the device tile.</documentation>
+        </property>
+        <property group="Misc" defaultValue="4" type="sap.ui.core/int" name="truncateValueTo">
+            <documentation>The number of characters to display for the value property.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="value">
+            <documentation>The actual value.</documentation>
+        </property>
+        <property group="Misc" defaultValue="Neutral" type="sap.m/ValueColor" name="valueColor">
+            <documentation>The semantic color of the value.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/CSSSize" name="width">
+            <documentation>The width of the chart. If it is not set, the size of the control is defined by the size property.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="withMargin">
+            <documentation>If the value is set to false, the content will fit to the whole size of the control.</documentation>
+        </property>
+        <property group="Misc" defaultValue="Loaded" type="sap.m/LoadState" name="state">
+            <documentation>Indicates the load status.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>The event is fired when the user chooses the numeric content.</documentation>
+        </event>
+    </events>
+</control>

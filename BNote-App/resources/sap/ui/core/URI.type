@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>URI</name>
+    <derived/>
+    <documentation>A string type that represents an RFC 3986 conformant URI.</documentation>
+    <final/>
+    <pattern>(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?</pattern>
+</simple-type>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ActionBarSocialActions</name>
+    <derived/>
+    <documentation>Enumeration of available standard actions for 'sap.ui.ux3.ActionBar'. To be used as parameters for function 'sap.ui.ux3.ActionBar.getSocialAction'.</documentation>
+    <developmentState since="1.2" state="experimental">API is not yet finished and might change completely</developmentState>
+    <enumeration>
+        <value name="Update">
+            <documentation>Standard action 'Create an update' (Feed)</documentation>
+        </value>
+        <value name="Follow">
+            <documentation>Standard action 'Follow/Unfollow'</documentation>
+        </value>
+        <value name="Flag">
+            <documentation>Standard action 'Mark for Follow up'</documentation>
+        </value>
+        <value name="Favorite">
+            <documentation>Standards action 'Mark as Favorite'</documentation>
+        </value>
+        <value name="Open">
+            <documentation>Standard action 'Open Thing Inspector'</documentation>
+        </value>
+    </enumeration>
+</simple-type>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SideContentVisibility</name>
+    <derived/>
+    <documentation>Types of the DynamicSideContent Visibility options</documentation>
+    <since>1.30</since>
+    <enumeration>
+        <value name="AlwaysShow">
+            <documentation>Show the side content on any breakpoint</documentation>
+        </value>
+        <value name="ShowAboveL">
+            <documentation>Show the side content on XL breakpoint</documentation>
+        </value>
+        <value name="ShowAboveM">
+            <documentation>Show the side content on L and XL breakpoints</documentation>
+        </value>
+        <value name="ShowAboveS">
+            <documentation>Show the side content on M, L and XL breakpoints</documentation>
+        </value>
+        <value name="NeverShow">
+            <documentation>Don't show the side content on any breakpoints</documentation>
+        </value>
+    </enumeration>
+</simple-type>

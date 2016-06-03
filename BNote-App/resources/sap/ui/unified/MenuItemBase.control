@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MenuItemBase</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Abstract base class for menu item which provides common properties and events for all concrete item implementations.</documentation>
+    <since>1.21.0</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>When an item is disabled the item can not be selected by the user.
+The enabled property of the item has no effect when the menu of the item is disabled ({@link sap.ui.unified.Menu#getEnabled Menu#getEnabled}).</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Invisible items do not appear in the menu.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="startsSection">
+            <documentation>Defines whether a visual separator should be rendered before the item.
+&lt;b&gt;Note:&lt;/b&gt; If an item is invisible also the separator of this item is not shown.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Fired when the item is selected by the user.
+&lt;b&gt;Note:&lt;/b&gt; The event is also available for items which have a submenu.
+In general, applications must not handle event in this case because the user selection opens the sub menu.</documentation>
+            <parameters>
+                <parameter type="sap.ui.unified/MenuItemBase" name="item">
+                    <documentation>The current item</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="submenu">
+        <aggregation cardinality="0..1" type="sap.ui.unified/Menu" name="submenu">
+            <documentation>An optional submenu of the item which is opened when the item is selected by the user.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

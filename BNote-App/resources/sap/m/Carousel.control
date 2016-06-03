@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Carousel</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The Carousel control can be used to navigate through a list of sap.m controls just like flipping through the pages of a book by swiping right or left. An indicator shows the current position within the control list. When displayed in a desktop browser, a left- and right-arrow button is displayed on the carousel's sides, which can be used to navigate through the carousel.
+
+Note: when displa Internet Explorer 9, page changes are not animated.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="height">
+            <documentation>The height of the carousel. Note that when a percentage value is used, the height of the surrounding container must be defined.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>The width of the carousel. Note that when a percentage value is used, the height of the surrounding container must be defined.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="loop">
+            <documentation>Defines whether the carousel should loop, i.e show the first page after the last page is reached and vice versa.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showPageIndicator">
+            <documentation>Show or hide carousel's page indicator.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Bottom" type="sap.m/PlacementType" name="pageIndicatorPlacement">
+            <documentation>Defines where the carousel's page indicator is displayed. Possible values are sap.m.PlacementType.Top, sap.m.PlacementType.Bottom. Other values are ignored and the default value will be applied. The default value is sap.m.PlacementType.Bottom.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showBusyIndicator">
+            <documentation>Show or hide busy indicator in the carousel when loading pages after swipe.</documentation>
+            <deprecation since="1.18.7">Since 1.18.7 pages are no longer loaded or unloaded. Therefore busy indicator is not necessary any longer.</deprecation>
+        </property>
+        <property group="Dimension" defaultValue="6em" type="sap.ui.core/CSSSize" name="busyIndicatorSize">
+            <documentation>Size of the busy indicators which can be displayed in the carousel.</documentation>
+            <deprecation since="1.18.7">Since 1.18.7 pages are no longer loaded or unloaded. Therefore busy indicator is not necessary any longer.</deprecation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="loadPage">
+            <documentation>Carousel requires a new page to be loaded. This event may be used to fill the content of that page</documentation>
+            <deprecation since="1.18.7">Since 1.18.7 pages are no longer loaded or unloaded</deprecation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="pageId">
+                    <documentation>Id of the page which will be loaded</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="unloadPage">
+            <documentation>Carousel does not display a page any longer and unloads it. This event may be used to clean up the content of that page.</documentation>
+            <deprecation since="1.18.7">Since 1.18.7 pages are no longer loaded or unloaded</deprecation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="pageId">
+                    <documentation>Id of the page which will be unloaded</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="pageChanged">
+            <documentation>This event is fired after a carousel swipe has been completed. It is triggered both by physical swipe events and through API carousel manipulations such as calling 'next', 'previous' or 'setActivePageId' functions.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="oldActivePageId">
+                    <documentation>Id of the page which was active before the page change.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="newActivePageId">
+                    <documentation>Id of the page which is active after the page change.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="pages">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="pages">
+            <documentation>The content which the carousel displays.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/Control" name="activePage">
+            <documentation>Provides getter and setter for the currently displayed page. For the setter, argument may be the control itself, which must be member of the carousel's page list, or the control's id.
+The getter will return the control id</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method type="sap.m/Carousel" name="previous">
+            <documentation>Call this method to display the previous page (corresponds to a swipe left). Returns 'this' for method chaining.</documentation>
+        </method>
+        <method type="sap.m/Carousel" name="next">
+            <documentation>Call this method to display the next page (corresponds to a swipe right). Returns 'this' for method chaining.</documentation>
+        </method>
+    </methods>
+</control>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ColumnMenu</name>
+    <derived/>
+    <documentation>The column menu provides all common actions that can be performed on a column.</documentation>
+    <baseType>sap.ui.unified/Menu</baseType>
+</control>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>DeviationIndicator</name>
+    <derived/>
+    <documentation>Enum of the available deviation markers for the NumericContent control.</documentation>
+    <since>1.34</since>
+    <enumeration>
+        <value name="Up">
+            <documentation>The actual value is more than the target value.</documentation>
+        </value>
+        <value name="Down">
+            <documentation>The actual value is less than the target value.</documentation>
+        </value>
+        <value name="None">
+            <documentation>No value.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

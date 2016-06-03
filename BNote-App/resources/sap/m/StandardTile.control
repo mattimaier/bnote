@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>StandardTile</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The StandardTile control is displayed in the tile container.</documentation>
+    <since>1.12</since>
+    <baseType>sap.m/Tile</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="title">
+            <documentation>Defines the title of the StandardTile.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="info">
+            <documentation>Defines the description of the StandardTile.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="icon">
+            <documentation>Defines the icon of the StandardTile.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="activeIcon">
+            <documentation>Defines the active icon of the StandardTile.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="number">
+            <documentation>Defines the number field of the StandardTile.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="numberUnit">
+            <documentation>Defines the number units qualifier of the StandardTile.</documentation>
+        </property>
+        <property group="Misc" defaultValue="None" type="sap.ui.core/ValueState" name="infoState">
+            <documentation>Defines the color of the info text. Possible values are Error, Warning, Success and so on.</documentation>
+        </property>
+        <property group="Misc" defaultValue="None" type="sap.m/StandardTileType" name="type">
+            <documentation>Defines the type of the StandardTile.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="iconDensityAware">
+            <documentation>By default, this is set to true but then one or more requests are sent trying to get the density perfect version of image if this version of image doesn't exist on the server.
+
+If bandwidth is key for the application, set this value to false.</documentation>
+        </property>
+    </properties>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / IDs, which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+    </associations>
+</control>

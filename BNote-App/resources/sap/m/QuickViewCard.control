@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>QuickViewCard</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The QuickViewCard control displays information of an object in a business-card format.
+It also allows this object to be linked to another object using one of the links.
+Clicking that link updates the information with the data of the linked object.
+Unlimited number of objects can be linked.</documentation>
+    <since>1.28.11</since>
+    <baseType>sap.m/QuickViewBase</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="showVerticalScrollBar">
+            <documentation>Determines whether the browser displays the vertical scroll bar or simply cuts the content of the QuickViewCard.</documentation>
+        </property>
+    </properties>
+</control>

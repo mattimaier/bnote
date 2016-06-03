@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MessagePopoverItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Items provide information about Error Messages in the page.</documentation>
+    <since>1.28</since>
+    <baseType>sap.ui.core/Item</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="Error" type="sap.ui.core/MessageType" name="type">
+            <documentation>Specifies the type of the message</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="title">
+            <documentation>Specifies the title of the message</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="description">
+            <documentation>Specifies detailed description of the message</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="markupDescription">
+            <documentation>Specifies if description should be interpreted as markup</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/URI" name="longtextUrl">
+            <documentation>Specifies long text description location URL</documentation>
+        </property>
+    </properties>
+</control>

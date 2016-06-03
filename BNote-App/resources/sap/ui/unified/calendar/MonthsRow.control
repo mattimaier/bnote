@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>calendar/MonthsRow</name>
+    <derived/>
+    <documentation>Renders a row of months using ItemNavigation. There is no paging or navigation outside the rendered area implemented.
+This is done inside the CalendarMonthInterval.
+If used inside the CalendarMonthInterval the properties and aggregation are directly taken from the parent
+(to not duplicate and synchronize DateRanges and so on...).
+
+The MontsRow works with JavaScript Date objects, but only the month and the year are used to display and interact.
+As representation for a month, the 1st of the month will always be returned in the API.</documentation>
+    <since>1.32.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/object" name="date">
+            <documentation>A date as JavaScript Date object. The month including this date is rendered and this date is focused initially (if no other focus is set).
+If the date property is not in the range &lt;code&gt;startDate&lt;/code&gt; + &lt;code&gt;months&lt;/code&gt; in the rendering phase,
+it is set to the &lt;code&gt;startDate&lt;/code&gt;.
+So after setting the &lt;code&gt;startDate&lt;/code&gt; the date should be set to be in the visible range.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/object" name="startDate">
+            <documentation>Start date, as JavaScript Date object, of the row. The month of this date is the first month of the displayed row.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="12" type="sap.ui.core/int" name="months">
+            <documentation>Number of months displayed</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="intervalSelection">
+            <documentation>If set, interval selection is allowed</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="singleSelection">
+            <documentation>If set, only a single month or interval, if intervalSelection is enabled, can be selected
+
+&lt;b&gt;Note:&lt;/b&gt; Selection of multiple intervals is not supported in the current version.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showHeader">
+            <documentation>If set, a header with the years is shown to visualize what month belongs to what year.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Month selection changed</documentation>
+        </event>
+        <event allowPreventDefault="false" name="focus">
+            <documentation>Month focus changed</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="date">
+                    <documentation>First date, as JavaScript Date object, of the month that is focused.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="notVisible">
+                    <documentation>If set, the focused date is not rendered yet. (This happens by navigating out of the visible area.)</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.unified/DateRange" name="selectedDates">
+            <documentation>Date ranges for selected dates.
+If &lt;code&gt;singleSelection&lt;/code&gt; is set, only the first entry is used.
+
+&lt;b&gt;Note:&lt;/b&gt; Even if only one day is selected, the whole corresponding month is selected.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.unified/DateTypeRange" name="specialDates">
+            <documentation>Date ranges with type to visualize special months in the row.
+If one day is assigned to more than one type, only the first one will be used.
+
+&lt;b&gt;Note:&lt;/b&gt; Even if only one day is set as a special day, the whole corresponding month is displayed in this way.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method type="sap.ui.unified/calendar/MonthsRow" name="displayDate">
+            <documentation>Displays the month of a given date without setting the focus</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="date">
+                    <documentation>JavaScript Date object for focused date.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/boolean" name="checkDateFocusable">
+            <documentation>Checks if a date is focusable in the current rendered output.
+This means that if it is not rendered, it is not focusable.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="date">
+                    <documentation>JavaScript Date object for focused date.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

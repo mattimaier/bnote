@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ListType</name>
+    <derived/>
+    <documentation>Defines the visual indication and behaviour of the list items.</documentation>
+    <enumeration>
+        <value name="Inactive">
+            <documentation>Indicates the list item does not have any active feedback when item is pressed.
+&lt;b&gt;Note:&lt;/b&gt; &lt;code&gt;Inactive&lt;/code&gt; type cannot be used to disable list items.</documentation>
+        </value>
+        <value name="Detail">
+            <documentation>Enables detail button of the list item that fires &lt;code&gt;detailPress&lt;/code&gt; event.
+Also see {@link sap.m.ListBase#attachDetailPress}.</documentation>
+        </value>
+        <value name="Navigation">
+            <documentation>Indicates the list item is navigable to show extra information about the item.</documentation>
+        </value>
+        <value name="Active">
+            <documentation>Indicates that the item is clickable via active feedback when item is pressed.</documentation>
+        </value>
+        <value name="DetailAndActive">
+            <documentation>Enables {@link sap.m.ListType#Detail} and {@link sap.m.ListType#Active} enumerations together.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

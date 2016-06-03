@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>TileContent</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This control is used within the GenericTile control.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/string" name="footer">
+            <documentation>The footer text of the tile.</documentation>
+        </property>
+        <property group="Misc" defaultValue="Auto" type="sap.m/Size" name="size">
+            <documentation>Updates the size of the tile. If it is not set, then the default size is applied based on the device tile.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="unit">
+            <documentation>The percent sign, the currency symbol, or the unit of measure.</documentation>
+        </property>
+        <property since="1.23" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="disabled">
+            <documentation>Disables control if true.</documentation>
+        </property>
+        <property since="1.25" group="Appearance" defaultValue="Auto" type="sap.m/FrameType" name="frameType">
+            <documentation>The frame type: 1x1 or 2x1.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation cardinality="0..1" type="sap.ui.core/Control" name="content">
+            <documentation>The switchable view that depends on the tile type.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

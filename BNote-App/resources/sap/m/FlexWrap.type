@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>FlexWrap</name>
+    <derived/>
+    <documentation>Available options for the wrapping behavior of a flex container.</documentation>
+    <enumeration>
+        <value name="NoWrap">
+            <documentation>The flex container is single-line.</documentation>
+        </value>
+        <value name="Wrap">
+            <documentation>The flex container is multi-line.</documentation>
+        </value>
+        <value name="WrapReverse">
+            <documentation>The flex container is multi-line with the cross-axis start and end being swapped.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

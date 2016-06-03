@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>AnchorBar</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Anchor bar is the navigation bar of an Object page. Its purpose is to provide links to all Sections and Subsections. Takes the form of a Select on phone.</documentation>
+    <since>1.26</since>
+    <baseType>sap.m/Toolbar</baseType>
+    <properties>
+        <property defaultValue="true" type="sap.ui.core/boolean" name="showPopover">
+            <documentation>Determines whether to show a Popover with Subsection links when clicking on Section links in the Anchor bar.</documentation>
+        </property>
+        <property defaultValue="false" type="sap.ui.core/boolean" name="upperCase">
+            <documentation>Determines whether the Anchor bar items are displayed in upper case.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.uxap/HierarchicalSelect" name="_select"/>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.m/Popover" name="_popovers"/>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_scrollArrowLeft"/>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_scrollArrowRight"/>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.m/Button" name="selectedButton">
+            <documentation>The button that represents the Section being scrolled by the user.</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method name="scrollToSection">
+            <documentation>Scroll to a specific Section.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The Section ID to scroll to</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="duration">
+                    <documentation>Scroll duration (in ms). Default value is 0</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/object" name="getScrollDelegate">
+            <documentation>Returns a sap.ui.core.delegate.ScrollEnablement object used to handle scrolling.</documentation>
+        </method>
+    </methods>
+</control>

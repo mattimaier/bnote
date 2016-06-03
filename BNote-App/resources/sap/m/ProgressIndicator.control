@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ProgressIndicator</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Shows the progress of a process in a graphical way. To indicate the progress, the inside of the ProgressIndicator is filled with a color.
+Additionally, a user-defined string can be displayed on the ProgressIndicator.</documentation>
+    <since>1.13.1</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Switches enabled state of the control. Disabled fields have different colors, and cannot be focused.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="None" type="sap.ui.core/ValueState" name="state">
+            <documentation>Specifies the state of the bar. Enumeration sap.ui.core.ValueState provides Error (red), Warning (yellow), Success (green), None (blue) (default value).</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="displayValue">
+            <documentation>Specifies the text value to be displayed in the bar.</documentation>
+        </property>
+        <property group="Data" defaultValue="0" type="sap.ui.core/float" name="percentValue">
+            <documentation>Specifies the numerical value in percent for the length of the progress bar.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showValue">
+            <documentation>Indicates whether the displayValue should be shown in the ProgressIndicator.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Specifies the width of the control.</documentation>
+        </property>
+        <property since="1.15.0" group="Dimension" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Specifies the height of the control. The default value depends on the theme. Suggested size for normal use is 2.5rem (40px). Suggested size for small size (like for use in ObjectHeader) is 1.375rem (22px).</documentation>
+        </property>
+        <property since="1.28.0" group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>Specifies the element's text directionality with enumerated options (RTL or LTR). By default, the control inherits text direction from the DOM.</documentation>
+        </property>
+    </properties>
+</control>

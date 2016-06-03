@@ -1,0 +1,46 @@
+{
+  "_version": "1.1.0",
+  "resources": [
+    {
+      "name": "Component-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "Component.js"
+    },
+    {
+      "name": "all-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "all.js"
+    },
+    {
+      "name": "controller/Root-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "controller/Root.controller.js"
+    },
+    {
+      "name": "css/style.css"
+    },
+    {
+      "name": "model/libraryData-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "model/libraryData.js"
+    },
+    {
+      "name": "model/sourceFileDownloader-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "model/sourceFileDownloader.js"
+    },
+    {
+      "name": "view/Root.view.xml"
+    }
+  ]
+}

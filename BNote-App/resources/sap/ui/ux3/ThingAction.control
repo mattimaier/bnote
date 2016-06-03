@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ThingAction</name>
+    <derived/>
+    <documentation>Thing Action for Swatch, QuickView, Thinginspector</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="text">
+            <documentation>text of action</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>action enabled (true/false)</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Event will be fired when the action was triggered.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>Id of selected action</documentation>
+                </parameter>
+                <parameter type="sap.ui.ux3/ThingAction" name="action">
+                    <documentation>Selected Thing Action</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+</control>

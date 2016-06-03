@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>IconTabSeparator</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Represents an Icon used to separate 2 tab filters.</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Misc" defaultValue="" type="sap.ui.core/URI" name="icon">
+            <documentation>The icon to display for this separator. If no icon is given, a separator line is used instead.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="iconDensityAware">
+            <documentation>If set to true, it sends one or more requests,
+trying to get the density perfect version of the image if this version of
+the image doesn't exist on the server. Default value is set to true.
+
+If bandwidth is key for the application, set this value to false.</documentation>
+        </property>
+    </properties>
+</control>

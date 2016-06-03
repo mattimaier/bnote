@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>QuickViewBase</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>QuickViewBase class provides base functionality for QuickView and QuickViewCard.
+Do not use it directly.</documentation>
+    <since>1.28.11</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <events>
+        <event allowPreventDefault="true" name="navigate">
+            <documentation>The event is fired when navigation between two pages has been triggered.
+The transition (if any) to the new page has not started yet.
+This event can be aborted by the application with preventDefault(),
+which means that there will be no navigation.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="from">
+                    <documentation>The page which was displayed before the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="fromId">
+                    <documentation>The ID of the page which was displayed before the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="to">
+                    <documentation>The page which will be displayed after the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="toId">
+                    <documentation>The ID of the page which will be displayed after the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="firstTime">
+                    <documentation>Determines whether the &quot;to&quot; page (a control with the ID of the page
+which is currently navigated to) has not been displayed/navigated to before.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isTo">
+                    <documentation>Determines whether this is a forward navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBack">
+                    <documentation>Determines whether this is a back navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBackToTop">
+                    <documentation>Determines  whether this is a navigation to the root page.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBackToPage">
+                    <documentation>Determines whether this was a navigation to a specific page.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="direction">
+                    <documentation>Determines how the navigation was triggered, possible values are
+&quot;to&quot;, &quot;back&quot;, &quot;backToPage&quot;, and &quot;backToTop&quot;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="afterNavigate">
+            <documentation>The event is fired when navigation between two pages has completed.
+In case of animated transitions this event is fired with some delay
+after the &quot;navigate&quot; event.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="from">
+                    <documentation>Determines the page, which has been displayed before navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="fromId">
+                    <documentation>Determines the ID of the page, which has been displayed before navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="to">
+                    <documentation>Determines the page, which is now displayed after navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="toId">
+                    <documentation>Determines the ID of the page, which is now displayed after navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="firstTime">
+                    <documentation>Determines whether the &quot;to&quot; page (a control with the ID of the page, which has been navigated to) has not been displayed/navigated to before.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isTo">
+                    <documentation>Determines whether this was a forward navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBack">
+                    <documentation>Determines whether this was a back navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBackToTop">
+                    <documentation>Determines whether this was a navigation to the root page.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBackToPage">
+                    <documentation>Determines whether this was a navigation to a specific page.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="direction">
+                    <documentation>Determines  how the navigation was triggered, possible values are
+&quot;to&quot;, &quot;back&quot;, &quot;backToPage&quot;, and &quot;backToTop&quot;.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isTopPage">
+                    <documentation>Determines whether this is a navigation to the top page.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="pages">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.m/QuickViewPage" name="pages">
+            <documentation>Displays a page header, object icon or image, object name with short description,
+and object information divided in groups</documentation>
+        </aggregation>
+    </aggregations>
+</control>

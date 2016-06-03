@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Page</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A page is a basic container for a mobile application screen. Usually one page is displayed at a time (in landscape mode or on tablets depending on the layout two pages might be displayed side-by-side).</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/string" name="title">
+            <documentation>The title text appearing in the page header bar.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Auto" type="sap.ui.core/TitleLevel" name="titleLevel">
+            <documentation>Defines the semantic level of the title. Using &quot;Auto&quot; no explicit level information is written.
+Used for accessibility purposes only.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showNavButton">
+            <documentation>A nav button will be rendered on the left area of header bar if this property is set to true.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showHeader">
+            <documentation>Whether this page shall have a header.
+If set to true, either the control under the &quot;customHeader&quot; aggregation is used, or if there is no such control, a Header control is constructed from the properties &quot;title&quot;, &quot;showNavButton&quot;, &quot;navButtonText&quot; and &quot;icon&quot; depending on the platform.</documentation>
+        </property>
+        <property since="1.28" group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showSubHeader">
+            <documentation>Whether this page shall show the subheader.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="navButtonText">
+            <documentation>The text of the nav button when running in iOS (if shown) in case it deviates from the default, which is &quot;Back&quot;. This property is mvi-theme-dependent and will not have any effect in other themes.</documentation>
+            <deprecation since="1.20">Deprecated since the MVI theme is removed now. This property only affected the NavButton in that theme.</deprecation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="navButtonTooltip">
+            <documentation>The tooltip of the nav button
+
+Since version 1.34</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enableScrolling">
+            <documentation>Enable vertical scrolling of page contents. Page headers and footers are fixed and do not scroll.
+If set to false, there will be no scrolling at all.
+
+The Page only allows vertical scrolling because horizontal scrolling is discouraged in general for full-page content. If it still needs to be achieved, disable the Page scrolling and use a ScrollContainer as full-page content of the Page. This allows you to freely configure scrolling. It can also be used to create horizontally-scrolling sub-areas of (vertically-scrolling) Pages.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/URI" name="icon">
+            <documentation>the icon that is rendered in the page header bar in non-iOS phone/tablet platforms. This property is theme-dependent and only has an effect in the MVI theme.</documentation>
+            <deprecation since="1.20">Deprecated since the MVI theme is removed now. This property only affected the NavButton in that theme.</deprecation>
+        </property>
+        <property group="Appearance" defaultValue="Standard" type="sap.m/PageBackgroundDesign" name="backgroundDesign">
+            <documentation>This property is used to set the background color of a page. When a list is placed inside a page, the value &quot;List&quot; should be used to display a gray background. &quot;Standard&quot;, with the value white, is used as default if not specified.</documentation>
+        </property>
+        <property since="1.12" group="Appearance" defaultValue="Back" type="sap.m/ButtonType" name="navButtonType">
+            <documentation>This property is used to set the appearance of the NavButton. By default when showNavButton is set to true, a back button will be shown in iOS and an up button in other platforms. In case you want to show a normal button in the left header area, you can set the value to &quot;Default&quot;.</documentation>
+            <deprecation since="1.20">Deprecated since the MVI theme is removed now. This property is only usable with a Button text in that theme.</deprecation>
+        </property>
+        <property since="1.13.1" group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showFooter">
+            <documentation>Whether this page shall have a footer</documentation>
+        </property>
+        <property since="1.29.0" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="contentOnlyBusy">
+            <documentation>Decides which area is covered by the local BusyIndicator when &lt;code&gt;page.setBusy()&lt;/code&gt; is called. By default the entire page is covered, including headers and footer. When this property is set to &quot;true&quot;, only the content area is covered (not header/sub header and footer), which is useful e.g. when there is a SearchField in the sub header and live search continuously updates the content area while the user is still able to type.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="navButtonTap">
+            <documentation>this event is fired when Nav Button is tapped</documentation>
+            <deprecation since="1.12.2">the navButtonPress event is replacing this event</deprecation>
+        </event>
+        <event allowPreventDefault="false" since="1.12.2" name="navButtonPress">
+            <documentation>this event is fired when Nav Button is pressed</documentation>
+        </event>
+    </events>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>The content of this page</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.m/IBar" name="customHeader">
+            <documentation>The (optional) custom header of this page.
+Use this aggregation only when a custom header is constructed where the default header consisting of title text + nav button is not sufficient.
+If this aggregation is set, the simple properties &quot;title&quot;, &quot;showNavButton&quot;, &quot;NavButtonText&quot; and &quot;icon&quot; are not used.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.m/IBar" name="footer">
+            <documentation>The (optional) footer of this page. It is always located at the bottom of the page</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.m/IBar" name="subHeader">
+            <documentation>a subHeader will be rendered directly under the header</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="headerContent">
+            <documentation>Controls to be added to the right side of the page header. Usually an application would use Button controls and limit the number to one when the application needs to run on smartphones. There is no automatic overflow handling when the space is insufficient.
+When a customHeader is used, this aggregation will be ignored.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.m/PageAccessibleLandmarkInfo" name="landmarkInfo">
+            <documentation>Accessible landmark settings to be applied on the containers of the &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If not set, no landmarks will be written.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/IBar" name="_internalHeader">
+            <documentation>A header bar which is managed internally by the Page control</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.m/Page" name="scrollTo">
+            <documentation>Scrolls to the given position. Only available if enableScrolling is set to &quot;true&quot;.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="y">
+                    <documentation>The vertical pixel position to scroll to. Scrolling down happens with positive values.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="time">
+                    <documentation>The duration of animated scrolling. To scroll immediately without animation, give 0 as value. 0 is also the default value, when this optional parameter is omitted.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

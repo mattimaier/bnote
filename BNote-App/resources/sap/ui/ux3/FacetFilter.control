@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>FacetFilter</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>FacetFilter Control.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="Fixed" type="sap.ui.ux3/VisibleItemCountMode" name="visibleItemCountMode">
+            <documentation>If the value is &quot;Auto&quot; - the Facet Filter takes the whole available height. If &quot;Fixed&quot; , then the default number of Facet Filter Items (5) is visible.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.ux3/FacetFilterList" name="lists">
+            <documentation>Facet Filter list represents the list of the filter values and the title of this list.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

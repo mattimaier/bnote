@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ImageMode</name>
+    <derived/>
+    <documentation>Determines how the source image is used on the output DOM element.</documentation>
+    <since>1.30.0</since>
+    <enumeration>
+        <value name="Image">
+            <documentation>The image is rendered with 'img' tag and the 'src' property is set to the src attribute on the output DOM element.</documentation>
+        </value>
+        <value name="Background">
+            <documentation>The image is rendered with 'span' tag and the 'src' property is set to the 'background-image' CSS style on the output DOM element</documentation>
+        </value>
+    </enumeration>
+</simple-type>

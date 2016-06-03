@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectPageHeaderLayoutData</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This is a LayoutData Element that can be added to a control if this control is used within an ObjectPage headerContent aggregation</documentation>
+    <since>1.26</since>
+    <baseType>sap.ui.core/LayoutData</baseType>
+    <properties>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="visibleS">
+            <documentation>If this property is set the control will be visible (or not) in a small sized layout.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="visibleM">
+            <documentation>If this property is set the control will be visible (or not) in a medium sized layout.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="visibleL">
+            <documentation>If this property is set the control will be visible (or not) in a large sized layout.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="showSeparatorBefore">
+            <documentation>If this property is set the control will display a separator before it.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="showSeparatorAfter">
+            <documentation>If this property is set the control will display a separator after it.</documentation>
+        </property>
+        <property group="Misc" defaultValue="auto" type="sap.ui.core/CSSSize" name="width">
+            <documentation>If this property is set the control will take the provided size.</documentation>
+        </property>
+    </properties>
+</control>

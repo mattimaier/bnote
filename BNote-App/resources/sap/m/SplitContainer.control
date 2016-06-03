@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SplitContainer</name>
+    <derived/>
+    <documentation>SplitContainer maintains two NavContainers if running on tablet or desktop and one NavContainer - on phone.
+The display of the master NavContainer depends on the portrait/landscape mode of the device and the mode of SplitContainer.
+
+NOTE: This control must be rendered as a full screen control in order to make the show/hide master area work properly.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="slide" type="sap.ui.core/string" name="defaultTransitionNameDetail">
+            <documentation>Determines the type of the transition/animation to apply when to() is called without defining the
+transition to use. The default is &quot;slide&quot;, other options are &quot;fade&quot;, &quot;show&quot;, and the names of any registered custom transitions.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="slide" type="sap.ui.core/string" name="defaultTransitionNameMaster">
+            <documentation>Determines the type of the transition/animation to apply when to() is called, without defining the
+transition to use. The default is &quot;slide&quot;, other options are &quot;fade&quot;, &quot;show&quot;, and the names of any registered custom transitions.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="ShowHideMode" type="sap.m/SplitAppMode" name="mode">
+            <documentation>Defines whether the master page will always be displayed (in portrait and landscape mode - StretchCompressMode),
+or if it should be hidden when in portrait mode (ShowHideMode). Default is ShowHideMode.
+Other possible values are Hide (Master is always hidden) and Popover (master is displayed in popover).</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="masterButtonText">
+            <documentation>Determines the text displayed in master button, which has a default value &quot;Navigation&quot;.
+This text is only displayed in iOS platform and the icon from the current page in detail area is
+displayed in the master button for the other platforms.
+The master button is shown/hidden depending on the orientation of the device and whether
+the master area is opened or not. SplitContainer manages the show/hide of the master button by itself
+only when the pages added to the detail area are sap.m.Page with built-in header or sap.m.Page
+with built-in header, which is wrapped by one or several sap.ui.core.mvc.View.
+Otherwise, the show/hide of master button needs to be managed by the application.</documentation>
+        </property>
+        <property since="1.11.2" group="Appearance" type="sap.ui.core/string" name="backgroundColor">
+            <documentation>Determines the background color of the SplitContainer. If set, this color overrides the default one,
+which is defined by the theme (should only be used when really required).
+Any configured background image will be placed above this colored background,
+but any theme adaptation in the Theme Designer will override this setting.
+Use the backgroundRepeat property to define whether this image should be stretched
+to cover the complete SplitContainer or whether it should be tiled.</documentation>
+        </property>
+        <property since="1.11.2" group="Appearance" type="sap.ui.core/URI" name="backgroundImage">
+            <documentation>Sets the background image of the SplitContainer. When set, this image overrides
+the default background defined by the theme (should only be used when really required).
+This background image will be placed above any color set for the background,
+but any theme adaptation in the Theme Designer will override this image setting.
+Use the backgroundRepeat property to define whether this image should be stretched
+to cover the complete SplitContainer or whether it should be tiled.</documentation>
+        </property>
+        <property since="1.11.2" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="backgroundRepeat">
+            <documentation>Defines whether the background image (if configured) is proportionally stretched
+to cover the whole SplitContainer (false) or whether it should be tiled (true).</documentation>
+        </property>
+        <property since="1.11.2" group="Appearance" defaultValue="1" type="sap.ui.core/float" name="backgroundOpacity">
+            <documentation>Defines the opacity of the background image - between 0 (fully transparent) and 1 (fully opaque).
+This can be used to improve the content visibility by making the background image partly transparent.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="true" name="masterNavigate">
+            <documentation>Fires when navigation between two pages in master area has been triggered. The transition (if any) to the new page has not started yet.
+This event can be aborted by the application with preventDefault(), which means that there will be no navigation.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="from">
+                    <documentation>The page, which was displayed before the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="fromId">
+                    <documentation>The ID of the page, which was displayed before the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="to">
+                    <documentation>The page, which will be displayed after the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="toId">
+                    <documentation>The ID of the page, which will be displayed after the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="firstTime">
+                    <documentation>Determines whether the &quot;to&quot; page (more precisely: a control with the ID of the page,
+which is currently being navigated to) has not been displayed/navigated to before.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isTo">
+                    <documentation>Determines whether this is a forward navigation, triggered by to().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBack">
+                    <documentation>Determines whether this is a back navigation, triggered by back().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBackToTop">
+                    <documentation>Determines whether this is a navigation to the root page, triggered by backToTop().</documentation>
+                </parameter>
+                <parameter since="1.7.2" type="sap.ui.core/boolean" name="isBackToPage">
+                    <documentation>Determines whether this was a navigation to a specific page, triggered by backToPage().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="direction">
+                    <documentation>Determines how the navigation was triggered, possible values are &quot;to&quot;, &quot;back&quot;, &quot;backToPage&quot;, and &quot;backToTop&quot;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="afterMasterNavigate">
+            <documentation>Fires when navigation between two pages in master area has completed.
+NOTE: In case of animated transitions this event is fired with some delay after the navigate event.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="from">
+                    <documentation>The page, which had been displayed before navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="fromId">
+                    <documentation>The ID of the page, which had been displayed before navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="to">
+                    <documentation>The page, which is now displayed after navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="toId">
+                    <documentation>The ID of the page, which is now displayed after navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="firstTime">
+                    <documentation>Whether the &quot;to&quot; page (more precisely: a control with the ID of the page, which has been navigated to)
+has not been displayed/navigated to before.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isTo">
+                    <documentation>Determines whether was a forward navigation, triggered by to().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBack">
+                    <documentation>Determines whether this was a back navigation, triggered by back().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBackToTop">
+                    <documentation>Determines whether this was a navigation to the root page, triggered by backToTop().</documentation>
+                </parameter>
+                <parameter since="1.7.2" type="sap.ui.core/boolean" name="isBackToPage">
+                    <documentation>Determines whether this was a navigation to a specific page, triggered by backToPage().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="direction">
+                    <documentation>Determines how the navigation was triggered, possible values are &quot;to&quot;, &quot;back&quot;, &quot;backToPage&quot;, and &quot;backToTop&quot;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="masterButton">
+            <documentation>Fires when a Master Button needs to be shown or hidden. This is necessary for custom headers when the SplitContainer control does not handle the placement of the master button automatically.</documentation>
+        </event>
+        <event allowPreventDefault="false" name="beforeMasterOpen">
+            <documentation>Fires before the master area is opened.</documentation>
+        </event>
+        <event allowPreventDefault="false" name="afterMasterOpen">
+            <documentation>Fires when the master area is fully opened after animation if any.</documentation>
+        </event>
+        <event allowPreventDefault="false" name="beforeMasterClose">
+            <documentation>Fires before the master area is closed.</documentation>
+        </event>
+        <event allowPreventDefault="false" name="afterMasterClose">
+            <documentation>Fires when the master area is fully closed after the animation (if any).</documentation>
+        </event>
+        <event allowPreventDefault="true" name="detailNavigate">
+            <documentation>Fires when navigation between two pages in detail area has been triggered.
+The transition (if any) to the new page has not started yet.
+NOTE: This event can be aborted by the application with preventDefault(), which means that there will be no navigation.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="from">
+                    <documentation>The page, which was displayed before the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="fromId">
+                    <documentation>The ID of the page, which was displayed before the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="to">
+                    <documentation>The page, which will be displayed after the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="toId">
+                    <documentation>The ID of the page, which will be displayed after the current navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="firstTime">
+                    <documentation>Determines whether the &quot;to&quot; page (more precisely: a control with the ID of the page,
+which is currently navigated to) has not been displayed/navigated to before.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isTo">
+                    <documentation>Determines whether this is a forward navigation, triggered by to().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBack">
+                    <documentation>Determines whether this is a back navigation, triggered by back().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBackToTop">
+                    <documentation>Determines whether this is a navigation to the root page, triggered by backToTop().</documentation>
+                </parameter>
+                <parameter since="1.7.2" type="sap.ui.core/boolean" name="isBackToPage">
+                    <documentation>Determines whether this was a navigation to a specific page, triggered by backToPage().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="direction">
+                    <documentation>Determines how the navigation was triggered, possible values are &quot;to&quot;, &quot;back&quot;, &quot;backToPage&quot;, and &quot;backToTop&quot;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="afterDetailNavigate">
+            <documentation>Fires when navigation between two pages in detail area has completed.
+NOTE: In case of animated transitions this event is fired with some delay after the &quot;navigate&quot; event.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="from">
+                    <documentation>The page, which had been displayed before navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="fromId">
+                    <documentation>The ID of the page, which had been displayed before navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="to">
+                    <documentation>The page, which is now displayed after navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="toId">
+                    <documentation>The ID of the page, which is now displayed after navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="firstTime">
+                    <documentation>Determines whether the &quot;to&quot; page (more precisely: a control with the ID of the page,
+which has been navigated to) has not been displayed/navigated to before.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isTo">
+                    <documentation>Determines whether was a forward navigation, triggered by to().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBack">
+                    <documentation>Determines whether this was a back navigation, triggered by back().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="isBackToTop">
+                    <documentation>Determines whether this was a navigation to the root page, triggered by backToTop().</documentation>
+                </parameter>
+                <parameter since="1.7.2" type="sap.ui.core/boolean" name="isBackToPage">
+                    <documentation>Determines whether this was a navigation to a specific page, triggered by backToPage().</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="direction">
+                    <documentation>Determines how the navigation was triggered, possible values are &quot;to&quot;, &quot;back&quot;, &quot;backToPage&quot;, and &quot;backToTop&quot;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="masterPages">
+            <documentation>Determines the content entities, between which the SplitContainer navigates in master area.
+These can be of type sap.m.Page, sap.ui.core.View, sap.m.Carousel or any other control with fullscreen/page semantics.
+These aggregated controls receive navigation events like {@link sap.m.NavContainerChild#beforeShow beforeShow},
+they are documented in the pseudo interface {@link sap.m.NavContainerChild sap.m.NavContainerChild}.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="detailPages">
+            <documentation>Determines the content entities, between which the SplitContainer navigates in detail area.
+These can be of type sap.m.Page, sap.ui.core.View, sap.m.Carousel or any other control with fullscreen/page semantics.
+These aggregated controls receive navigation events like {@link sap.m.NavContainerChild#beforeShow beforeShow},
+they are documented in the pseudo interface {@link sap.m.NavContainerChild sap.m.NavContainerChild}.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/NavContainer" name="_navMaster">
+            <documentation>The master navigation container managed by the SplitContainer control.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/NavContainer" name="_navDetail">
+            <documentation>The detail navigation container managed by the SplitContainer control.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Popover" name="_navPopover">
+            <documentation>A Popover managed by the SplitContainer control.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/Control" name="initialDetail">
+            <documentation>Sets the initial detail page, which is displayed on application launch.</documentation>
+        </association>
+        <association cardinality="0..1" type="sap.ui.core/Control" name="initialMaster">
+            <documentation>Sets the initial master page, which is displayed on application launch.</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method since="1.10.0" type="sap.m/SplitContainer" name="to">
+            <documentation>Navigates to the given page inside the SplitContainer.
+The navigation is done inside the master area if the page has been added,
+otherwise, it tries to do the page navigation in the detail area.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="pageId">
+                    <documentation>The screen to which we are navigating to. The ID or the control itself can be given.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="transitionName">
+                    <documentation>The type of the transition/animation to apply. This parameter can be omitted; then the default value is &quot;slide&quot; (horizontal movement from the right).</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="data">
+                    <documentation>This optional object can carry any payload data which should be made available to the target page. The beforeShow event on the target page will contain this data object as data property.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="transitionParameters">
+                    <documentation>This optional object can contain additional information for the transition function, like the DOM element which triggered the transition or the desired transition duration.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method since="1.10.0" type="sap.m/SplitContainer" name="backToPage">
+            <documentation>Navigates back to the nearest previous page in the SplitContainer history with the given ID (if there is no such page among the previous pages, nothing happens).
+The transition effect, which had been used to get to the current page is inverted and used for this navigation.
+
+Calling this navigation method, first triggers the (cancelable) navigate event on the SplitContainer,
+then the beforeHide pseudo event on the source page, beforeFirstShow (if applicable),
+and beforeShow on the target page. Later, after the transition has completed,
+the afterShow pseudo event is triggered on the target page and afterHide - on the page, which has been left.
+The given backData object is available in the beforeFirstShow, beforeShow, and afterShow event objects as data
+property. The original &quot;data&quot; object from the &quot;to&quot; navigation is also available in these event objects.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="pageId">
+                    <documentation>The screen to which is being navigated to. The ID or the control itself can be given.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="backData">
+                    <documentation>This optional object can carry any payload data which should be made available to the target page of the back navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="transitionParameters">
+                    <documentation>This optional object can give additional information to the transition function, like the DOM element, which triggered the transition or the desired transition duration.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.m/SplitContainer" name="insertPreviousPage">
+            <documentation>Inserts the page/control with the specified ID into the navigation history stack of the NavContainer.
+
+This can be used for deep-linking when the user directly reached a drilldown detail page using a bookmark and then wants to navigate up in the drilldown hierarchy.
+Normally, such a back navigation would not be possible as there is no previous page in the SplitContainer's history stack.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="pageId">
+                    <documentation>The ID of the control/page/screen, which is inserted into the history stack. The respective control must be aggregated by the SplitContainer, otherwise this will cause an error.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="transitionName">
+                    <documentation>The type of the transition/animation, which would have been used to navigate from the (inserted) previous page to the current page. When navigating back, the inverse animation will be applied.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="data">
+                    <documentation>This optional object can carry any payload data which would have been given to the inserted previous page if the user would have done a normal forward navigation to it.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.m/SplitContainer" name="toMaster">
+            <documentation>Navigates to a given master page.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="pageId">
+                    <documentation>The screen to which drilldown should happen. The ID or the control itself can be given.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="transitionName">
+                    <documentation>The type of the transition/animation to apply. This parameter can be omitted; then the default value is &quot;slide&quot; (horizontal movement from the right).</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="data">
+                    <documentation>Since version 1.7.1. This optional object can carry any payload data which should be made available to the target page. The beforeShow event on the target page will contain this data object as data property.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="transitionParameters">
+                    <documentation>Since version 1.7.1. This optional object can contain additional information for the transition function, like the DOM element, which triggered the transition or the desired transition duration.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.m/SplitContainer" name="backMaster">
+            <documentation>Navigates back to the previous master page which is found in the history.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="backData">
+                    <documentation>This optional object can carry any payload data which should be made available to the target page of the back navigation.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="transitionParameter">
+                    <documentation>This optional object can give additional information to the transition function, like the DOM element, which triggered the transition or the desired transition duration.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.m/SplitContainer" name="toDetail">
+            <documentation>Navigates to a given detail page.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="pageId">
+                    <documentation></documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="transitionName">
+                    <documentation>The type of the transition/animation to apply. This parameter can be omitted; then the default is &quot;slide&quot; (horizontal movement from the right).</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="data">
+                    <documentation>This optional object can carry any payload data which should be made available to the target page. The beforeShow event on the target page will contain this data object as data property.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="transitionParameter">
+                    <documentation>This optional object can contain additional information for the transition function, like the DOM element, which triggered the transition or the desired transition duration.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.m/SplitContainer" name="backDetail">
+            <documentation>Navigates back to the previous detail page found in the history.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="backData">
+                    <documentation>This optional object can carry any payload data which should be made available to the target page of the back navigation. The event on the target page will contain this data object as backData property. (The original data from the to() navigation will still be available as data property.)</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="transitionParameter">
+                    <documentation>This optional object can give additional information to the transition function, like the DOM element, which triggered the transition or the desired transition duration.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/Control" name="backToTopMaster">
+            <documentation>Navigates back to the initial/top level of Master (this is the element aggregated as &quot;initialPage&quot;, or the first added element).
+NOTE: If already on the initial page, nothing happens.
+The transition effect which had been used to get to the current page is inverted and used for this navigation.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="backData">
+                    <documentation>This optional object can carry any payload data which should be made available to the target page of the back navigation. The event on the target page will contain this data object as &quot;backData&quot; property. (The original data from the &quot;to()&quot; navigation will still be available as &quot;data&quot; property.)</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="transitionParameter">
+                    <documentation>This optional object can give additional information to the transition function, like the DOM element which triggered the transition or the desired transition duration.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/Control" name="backToTopDetail">
+            <documentation>Navigates back to the initial/top level of Detail (this is the element aggregated as initialPage, or the first added element).
+NOTE: If already on the initial page, nothing happens.
+The transition effect which had been used to get to the current page is inverted and used for this navigation.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="backData">
+                    <documentation>This optional object can carry any payload data which should be made available to the target page of the back navigation. The event on the target page will contain this data object as backData property (the original data from the to() navigation will still be available as data property).</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="transitionParameter">
+                    <documentation>This optional object can give additional information to the transition function, like the DOM element, which triggered the transition or the desired transition duration.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method since="1.11.1" type="sap.m/SplitContainer" name="addPage">
+            <documentation>Adds a content entity either to master area or detail area depending on the master parameter.
+
+The method is provided mainly for providing API consistency between sap.m.SplitContainer and sap.m.App. So that the same code line can be reused.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="page">
+                    <documentation>The content entities between which this SplitContainer navigates in either master area or detail area depending on the master parameter. These can be of type sap.m.Page, sap.ui.core.View, sap.m.Carousel or any other control with fullscreen/page semantics.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="master">
+                    <documentation>States if the page should be added to the master area. If it's set to false, the page is added to detail area.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.m/SplitContainer" name="showMaster">
+            <documentation>Used to make the master page visible when in ShowHideMode and the device is in portrait mode.</documentation>
+        </method>
+        <method type="sap.m/SplitContainer" name="hideMaster">
+            <documentation>Used to hide the master page when in ShowHideMode and the device is in portrait mode.</documentation>
+        </method>
+        <method type="sap.ui.core/Control" name="getCurrentMasterPage">
+            <documentation>Returns the current displayed master page.</documentation>
+        </method>
+        <method type="sap.ui.core/Control" name="getCurrentDetailPage">
+            <documentation>Returns the current displayed detail page.</documentation>
+        </method>
+        <method since="1.11.1" type="sap.ui.core/Control" name="getCurrentPage">
+            <documentation>Returns the currently displayed page either in master area or in detail area.
+When the parameter is set to true, the current page in master area is returned, otherwise, the current page in detail area is returned.
+
+This method is provided mainly for API consistency between sap.m.SplitContainer and sap.m.App, so that the same code line can be reused.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="master">
+                    <documentation>States if this function returns the current page in master area. If it's set to false, the current page in detail area will be returned.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/Control" name="getPreviousPage">
+            <documentation>Returns the previous page (the page, from which the user drilled down to the current page with to()).
+Note: this is not the page, which the user has seen before, but the page which is the target of the next back() navigation.
+If there is no previous page, &quot;undefined&quot; is returned.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="master">
+                    <documentation>States if this function returns the previous page in master area. If it's set to false, the previous page in detail area will be returned.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method since="1.11.1" type="sap.ui.core/Control" name="getMasterPage">
+            <documentation>Returns the page with the given ID in master area (if there's no page that has the given ID, null is returned).</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The ID of the page that needs to be fetched</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method since="1.11.1" type="sap.ui.core/Control" name="getDetailPage">
+            <documentation>Returns the page with the given ID in detail area. If there's no page that has the given ID, null is returned.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The ID of the page that needs to be fetched.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method since="1.11.1" type="sap.ui.core/Control" name="getPage">
+            <documentation>Returns the page with the given ID from either master area, or detail area depending on the master parameter (if there's no page that has the given ID, null is returned).</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The ID of the page that needs to be fetched</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="master">
+                    <documentation>If the page with given ID should be fetched from the master area. If it's set to false, the page will be fetched from detail area.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method since="1.16.5" type="sap.ui.core/boolean" name="isMasterShown">
+            <documentation>Returns whether master area is currently displayed on the screen.
+In desktop browser or tablet, this method returns true when master area is displayed on the screen, regardless if in portrait or landscape mode.
+On mobile phone devices, this method returns true when the currently displayed page is from the pages, which are added to the master area, otherwise, it returns false.</documentation>
+        </method>
+    </methods>
+</control>

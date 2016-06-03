@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>QuickViewGroupElementType</name>
+    <derived/>
+    <documentation>QuickViewGroupElement is a combination of one label and another control (Link or Text) associated to this label</documentation>
+    <enumeration>
+        <value name="phone">
+            <documentation>Displays a phone number link for direct dialing</documentation>
+        </value>
+        <value name="mobile">
+            <documentation>Displays a phone number link for direct dialing and an icon for sending a text message</documentation>
+        </value>
+        <value name="email">
+            <documentation>Displays an e-mail link</documentation>
+        </value>
+        <value name="link">
+            <documentation>Displayes a regular HTML link</documentation>
+        </value>
+        <value name="text">
+            <documentation>Dislpays text</documentation>
+        </value>
+        <value name="pageLink">
+            <documentation>Dislpays a link for navigating to another QuickViewPage</documentation>
+        </value>
+    </enumeration>
+</simple-type>

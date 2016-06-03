@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CalendarLegend</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A legend for the Calendar Control. Displays special dates colors with their corresponding description. The aggregation specialDates can be set herefor.</documentation>
+    <since>1.24.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="120px" type="sap.ui.core/CSSSize" name="columnWidth">
+            <documentation>Width of the columns created in which the items are arranged.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.unified/CalendarLegendItem" name="items">
+            <documentation>Items to be displayed.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.unified/CalendarLegendItem" name="standardItems"/>
+    </aggregations>
+</control>

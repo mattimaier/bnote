@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Label</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The control is used for labeling other controls. The API provides formatting options, for example, for bold display or alignment. A label can have an icon.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="Standard" type="sap.ui.commons/LabelDesign" name="design">
+            <documentation>Defines whether the labels are in bold format.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>Determines the text direction - right-to-left (RTL) and left-to-right (LTR).</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="wrapping">
+            <documentation>Specifies whether a line wrapping width shall be displayed when the text value is longer than the width is.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Determines the control width as common CSS-size (for example, px or % as unit).</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="text">
+            <documentation>Determines the text to be displayed.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/URI" name="icon">
+            <documentation>Determines the icon to be displayed in the control.
+This can be an URI to an image or an icon font URI.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Begin" type="sap.ui.core/TextAlign" name="textAlign">
+            <documentation>Determines the alignment of the text. Available options are &lt;code&gt;Begin&lt;/code&gt;, &lt;code&gt;Center&lt;/code&gt;, &lt;code&gt;End&lt;/code&gt;, &lt;code&gt;Left&lt;/code&gt;, and &lt;code&gt;Right&lt;/code&gt;.</documentation>
+        </property>
+        <property since="1.11.0" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="required">
+            <documentation>Allows to enforce the required indicator even when the associated control doesn't have a getRequired method (a required property) or when the flag is not set.
+If the associated control has a required property, the values of both required flags are combined with the OR operator, so a Label can't override a required=true value.</documentation>
+        </property>
+        <property since="1.14.0" group="Misc" type="sap.ui.core/boolean" name="requiredAtBegin">
+            <documentation>Determines whether the required indicator is at the beginning of the label (if set) or at the end (if not set).</documentation>
+        </property>
+    </properties>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/Control" name="labelFor">
+            <documentation>Defines the association to the labeled control.
+By default, the label is set the for the attribute to the ID of the labeled control.
+This can be changed with the implementation of function getIdForLabel on the labelled control.</documentation>
+        </association>
+    </associations>
+</control>

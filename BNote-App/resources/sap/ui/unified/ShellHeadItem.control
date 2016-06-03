@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ShellHeadItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Header Action item of the Shell.</documentation>
+    <since>1.15.1</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="startsSection">
+            <documentation>If set to true, a divider is displayed before the item.</documentation>
+            <deprecation since="1.18">Dividers are not supported anymore.</deprecation>
+        </property>
+        <property since="1.22.5" group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showSeparator">
+            <documentation>If set to true, a separator is displayed after the item.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="selected">
+            <documentation>Defines the toggle state in case the item represents a toggle button (see also property &lt;code&gt;toggleEnabled&lt;/code&gt;).</documentation>
+        </property>
+        <property since="1.34.3" group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="toggleEnabled">
+            <documentation>If set to true, the item represents a toggle button. The &lt;code&gt;selected&lt;/code&gt; property can the be used to
+define the toggle state. Otherwise the item is displayed as action button. In this case the &lt;code&gt;selected&lt;/code&gt; property
+is ignored.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showMarker">
+            <documentation>If set to true, a theme dependent marker is shown on the item.</documentation>
+            <deprecation since="1.18">Markers should not be used anymore.</deprecation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/URI" name="icon">
+            <documentation>The icon of the item, either defined in the sap.ui.core.IconPool or an URI to a custom image. An icon must be set.</documentation>
+        </property>
+        <property since="1.18" group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Invisible items are not shown on the UI.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Event is fired when the user presses the item.</documentation>
+        </event>
+    </events>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ModelMapping</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Define the entity that will be passed to the ObjectPageLayout.</documentation>
+    <since>1.26</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="externalModelName">
+            <documentation>Determines the the external model name.</documentation>
+        </property>
+        <property group="Misc" defaultValue="Model" type="sap.ui.core/string" name="internalModelName">
+            <documentation>Determines the the internal model name.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="externalPath">
+            <documentation>Determines the the external path.</documentation>
+        </property>
+    </properties>
+</control>

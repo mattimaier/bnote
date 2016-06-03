@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Feed</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A container control representing a full feed page, including feeder and updates.</documentation>
+    <developmentState since="1.2" state="experimental">The whole Feed/Feeder API is still under discussion, significant changes are likely. Especially text presentation (e.g. @-references and formatted text) is not final. Also the Feed model topic is still open.</developmentState>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/URI" name="feederThumbnailSrc">
+            <documentation>The path to the thumbnail image used for the feeder</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="feederSender">
+            <documentation>The sender of the feeder</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="live">
+            <documentation>Specifies whether the feed shall be in live mode</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="title">
+            <documentation>Title text of the Feed. If no text is entered &quot;FEED&quot; is displayed.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="filterChange">
+            <documentation>Event is fired when the filter is changed</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="newValue">
+                    <documentation>The new/changed value of the filter</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="search">
+            <documentation>Event is fired when the search function on SearchField is triggered</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="query">
+                    <documentation>The search query</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="chunkAdded">
+            <documentation>Event is fired when a new chunk is added</documentation>
+            <parameters>
+                <parameter type="sap.ui.ux3/FeedChunk" name="chunk">
+                    <documentation>New chunk</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="toolsItemSelected">
+            <documentation>Event is fired when an item from the tools MenuButton was selected</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="itemId">
+                    <documentation>The Id of the selected item</documentation>
+                </parameter>
+                <parameter type="sap.ui.unified/MenuItemBase" name="item">
+                    <documentation>The selected item</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="toggleLive">
+            <documentation>Event is fired when the live mode has changed</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="live">
+                    <documentation>Current live indicator</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.core/ListItem" name="filterItems">
+            <documentation>Items of the filter</documentation>
+        </aggregation>
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.ux3/FeedChunk" name="chunks">
+            <documentation>The chunks</documentation>
+        </aggregation>
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.commons/MenuItem" name="toolsMenuItems">
+            <documentation>MenuItems to open when the tool button is clicked by the user</documentation>
+        </aggregation>
+    </aggregations>
+</control>

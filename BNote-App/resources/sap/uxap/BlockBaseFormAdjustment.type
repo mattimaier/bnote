@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>BlockBaseFormAdjustment</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Used by the BlockBase control to define if it should do automatic adjustment of its nested forms.</documentation>
+    <enumeration>
+        <value name="BlockColumns">
+            <documentation>Any form within the block will be automatically adjusted to have as many columns as the colspan of its parent block.</documentation>
+        </value>
+        <value name="OneColumn">
+            <documentation>Any form within the block will be automatically adjusted to have only one column.</documentation>
+        </value>
+        <value name="None">
+            <documentation>No automatic adjustment of forms.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

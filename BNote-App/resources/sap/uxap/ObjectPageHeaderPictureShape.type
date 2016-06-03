@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectPageHeaderPictureShape</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Used by the ObjectPageHeader control to define which shape to use for the image.</documentation>
+    <enumeration>
+        <value name="Circle">
+            <documentation>Circle shape for the images in the ObjectPageHeader.</documentation>
+        </value>
+        <value name="Square">
+            <documentation>Square shape for the images in the ObjectPageHeader.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

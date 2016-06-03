@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Button</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Enables users to trigger actions. For the button UI, you can define some text or an icon, or both.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="text">
+            <documentation>Button text</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Default" type="sap.m/ButtonType" name="type">
+            <documentation>Type of a button (e.g. Default, Accept, Reject, Back, etc.)</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Defines the width of the button.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Boolean property to enable the control (default is true). Buttons that are disabled have other colors than enabled ones, depending on custom settings</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/URI" name="icon">
+            <documentation>Icon to be displayed as graphical element within the button. This can be an image or an icon from the icon font.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="iconFirst">
+            <documentation>If set to true (default), the display sequence is 1. icon 2. control text</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="activeIcon">
+            <documentation>The source property of an alternative icon for the active (depressed) state of the button.
+Both active and default icon properties should be defined and have the same type: image or icon font.
+If the &lt;code&gt;icon&lt;/code&gt; property is not set or has a different type, the active icon is not displayed.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="iconDensityAware">
+            <documentation>By default, this is set to true but then one or more requests are sent trying to get the density perfect version of image if this version of image doesn't exist on the server.
+
+If only one version of image is provided, set this value to false to avoid the attempt of fetching density perfect image.</documentation>
+        </property>
+        <property since="1.28.0" group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>This property specifies the element's text directionality with enumerated options. By default, the control inherits text direction from the DOM.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="tap">
+            <documentation>Event is fired when the user taps the control.</documentation>
+            <deprecation since="1.20.0">This event is deprecated, use the press event instead.</deprecation>
+        </event>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Event is fired when the user clicks on the control.</documentation>
+        </event>
+    </events>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>form/FormElement</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A &lt;code&gt;FormElement&lt;/code&gt; represents a row in a &lt;code&gt;FormContainer&lt;/code&gt;.
+A &lt;code&gt;FormElement&lt;/code&gt; is a combination of one label and different controls associated to this label.</documentation>
+    <since>1.16.0</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>If set to &lt;code&gt;false&lt;/code&gt;, the &lt;code&gt;FormElement&lt;/code&gt; is not rendered.</documentation>
+        </property>
+    </properties>
+    <aggregations default="fields">
+        <aggregation cardinality="0..1" type="sap.ui.core/Label" name="label">
+            <documentation>Label of the fields. Can either be a &lt;code&gt;Label&lt;/code&gt; object, or a string.
+If a &lt;code&gt;Label&lt;/code&gt; object is used, the properties of the &lt;code&gt;Label&lt;/code&gt; can be set.
+If no assignment between &lt;code&gt;Label&lt;/code&gt; and the fields is set, it will be done automatically by the
+&lt;code&gt;FormElement&lt;/code&gt;. In this case the &lt;code&gt;Label&lt;/code&gt; is assigned to the fields of the &lt;code&gt;FormElement&lt;/code&gt;.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="fields">
+            <documentation>Formular controls that belong together to be displayed in one row of a &lt;code&gt;Form&lt;/code&gt;.
+
+&lt;b&gt;Note:&lt;/b&gt; Do not put any layout controls in here. This could destroy the visual layout,
+keyboard support and screen-reader support.</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.core/Label" name="getLabelControl">
+            <documentation>Returns the &lt;code&gt;Label&lt;/code&gt; of the &lt;code&gt;FormElement&lt;/code&gt;, even if the &lt;code&gt;Label&lt;/code&gt; is assigned as string.
+The &lt;code&gt;FormLayout&lt;/code&gt; needs the information of the label to render the &lt;code&gt;Form&lt;/code&gt;.</documentation>
+        </method>
+    </methods>
+</control>

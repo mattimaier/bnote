@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nDialog</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The P13nDialog control provides a dialog that contains one or more panels. On each of the panels, one or more changes with regards to a
+       table can be processed. For example, a panel to set a column to invisible, change the order of the columns or a panel to sort or filter
+       tables.</documentation>
+    <since>1.26.0</since>
+    <baseType>sap.m/Dialog</baseType>
+    <properties>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/string" name="initialVisiblePanelType">
+            <documentation>This property determines which panel is initially shown when dialog is opened. Due to extensibility reason the type should be
+&lt;code&gt;string&lt;/code&gt;. So it is feasible to add a custom panel without expanding the type.</documentation>
+        </property>
+        <property since="1.26.0" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showReset">
+            <documentation>This property determines whether the 'Reset' button is shown inside the dialog. If this property is set to true, clicking the
+'Reset' button will trigger the &lt;code&gt;reset&lt;/code&gt; event sending a notification that model data must be reset.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/object" name="validationExecutor">
+            <documentation>Calls the validation listener once all panel-relevant validation checks have been done. This callback function is called in order
+to perform cross-model validation checks.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" since="1.26.0" name="ok">
+            <documentation>Event fired if the 'ok' button in P13nDialog is clicked.</documentation>
+        </event>
+        <event allowPreventDefault="false" since="1.26.0" name="cancel">
+            <documentation>Event fired if the 'cancel' button in P13nDialog is clicked.</documentation>
+        </event>
+        <event allowPreventDefault="false" since="1.26.0" name="reset">
+            <documentation>Event fired if the 'reset' button in P13nDialog is clicked.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation bindable="bindable" cardinality="0..n" since="1.26.0" type="sap.m/P13nPanel" name="panels">
+            <documentation>The dialog panels displayed in the dialog.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

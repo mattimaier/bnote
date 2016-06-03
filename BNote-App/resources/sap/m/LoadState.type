@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>LoadState</name>
+    <derived/>
+    <documentation>Enumeration of possible load statuses.</documentation>
+    <since>1.34.0</since>
+    <enumeration>
+        <value name="Loading">
+            <documentation>The control is loading.</documentation>
+        </value>
+        <value name="Loaded">
+            <documentation>The control has loaded.</documentation>
+        </value>
+        <value name="Failed">
+            <documentation>The control failed to load.</documentation>
+        </value>
+        <value name="Disabled">
+            <documentation>The control is disabled.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

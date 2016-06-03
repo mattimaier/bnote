@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Title</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Represents a title element that can be used for aggregation with other controls</documentation>
+    <since>1.16.0</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/string" name="text">
+            <documentation>Defines the title text</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/URI" name="icon">
+            <documentation>Defines the URL for icon display</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Auto" type="sap.ui.core/TitleLevel" name="level">
+            <documentation>Defines the level of the title. If set to auto the level of the title is chosen by the control rendering the title.
+
+Currently not all controls using the Title.control supporting this property.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="emphasized">
+            <documentation>If set the title is displayed emphasized.
+This feature is nor supported by all controls using the Title.control.</documentation>
+        </property>
+    </properties>
+</control>

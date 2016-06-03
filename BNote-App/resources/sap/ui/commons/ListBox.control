@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ListBox</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Provides a list of items from which users can choose an item.
+For the design of the list box, features such as defining the list box height, fixing the number of visible items,
+choosing one item to be the item that is marked by default when the list box is shown,
+or a scroll bar for large list boxes are available.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="editable">
+            <documentation>Determines whether the ListBox is interactive or not.
+Can be used to disable interaction with mouse or keyboard.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Determines whether the ListBox is enabled or not.
+Can be used to disable interaction with mouse or keyboard.
+Disabled controls have another color display depending on custom settings.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="allowMultiSelect">
+            <documentation>Determines whether multiple selection is allowed.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Control width as common CSS-size (px or % as unit, for example).</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Control height as common CSS-size (px or % as unit, for example).
+The setting overrides any definitions made for the setVisibleItems() method.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="-1" type="sap.ui.core/int" name="scrollTop">
+            <documentation>Scroll bar position from the top.
+Setting the scrollTop property and calling scrollToIndex are two operations
+influencing the same &quot;physical&quot; property, so the last call &quot;wins&quot;.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="displayIcons">
+            <documentation>Determines whether the icons of the list items shall also be displayed.
+Enabling icons requires some space to be reserved for them.
+Displaying icons can also influence the width and height of a single item,
+which affects the overall height of the ListBox when defined in number of items.
+Note that the number of icons that can be displayed in the ListBox depends on the
+size of the icons themselves and of the total ListBox height.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="displaySecondaryValues">
+            <documentation>Determines whether the text values from the additionalText property (see sap.ui.core.ListItems) shall be displayed.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Begin" type="sap.ui.core/TextAlign" name="valueTextAlign">
+            <documentation>Determines the text alignment in the primary ListBox column.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Begin" type="sap.ui.core/TextAlign" name="secondaryValueTextAlign">
+            <documentation>Determines the text alignment in the secondary ListBox text column (if available).</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="minWidth">
+            <documentation>Determines the minimum width of the ListBox. If not set, there is no minimum width.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="maxWidth">
+            <documentation>Determines the maximum width of the ListBox. If not set, there is no maximum width.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/int" name="visibleItems">
+            <documentation>The ListBox height in number of items that are initially displayed without scrolling.
+This setting overwrites height settings in terms of CSS size that have been made.
+When the items have different heights, the height of the first item is used for all
+other item height calculations.
+Note that if there are one or more separators between the visible ListBox items,
+the displayed items might not relate 1:1 to the initially specified number of items.
+When the value is retrieved, it equals the previously set value if it was set;
+otherwise, it will be the number of items completely fitting into the ListBox without
+scrolling in the case the control was already rendered.
+Note that if the control was not rendered, the behavior will be undefined,
+it may return -1 or any other number.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Event is fired when selection is changed by user interaction.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>ID of the ListBox which triggered the event.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="selectedIndex">
+                    <documentation>The currently selected index of the ListBox.
+In the case of multiple selection, this is exactly one of the selected indices -
+the one whose selection has triggered the selection change.
+To get all currently selected indices, use selectedIndices.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Item" name="selectedItem">
+                    <documentation>The currently selected item of the ListBox.
+In the case of multiple selection, this is exactly one of the selected items -
+the one whose selection has triggered the selection change.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int[]" name="selectedIndices">
+                    <documentation>Array containing the indices which are selected.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="items">
+        <aggregation cardinality="0..n" type="sap.ui.core/Item" name="items">
+            <documentation>Aggregation of items to be displayed. Must be either of type sap.ui.core.ListItem or sap.ui.core.SeparatorItem.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

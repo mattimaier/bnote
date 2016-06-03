@@ -1,0 +1,170 @@
+{
+  "_version": "1.1.0",
+  "resources": [
+    {
+      "name": ".theming",
+      "theme": "base"
+    },
+    {
+      "name": "CodeSampleContainer.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "CodeViewer.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "DemokitApp.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "DemokitPage.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "FileUploadIntrospector.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "HexagonButton.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "HexagonButtonGroup.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "IndexLayout.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "Link.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "SimpleTree.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "TagCloud.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "UI5EntityCueCard.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "fonts/BusinessSuiteInAppSymbolsSmall.eot",
+      "theme": "base"
+    },
+    {
+      "name": "fonts/BusinessSuiteInAppSymbolsSmall.ttf",
+      "theme": "base"
+    },
+    {
+      "name": "highlight-query-terms.css",
+      "theme": "base"
+    },
+    {
+      "name": "images/OpenUI5_new_small_size.png",
+      "theme": "base"
+    },
+    {
+      "name": "images/bg_white_transparent.png",
+      "theme": "base"
+    },
+    {
+      "name": "images/file.gif",
+      "theme": "base"
+    },
+    {
+      "name": "images/hexagon-blue.gif",
+      "theme": "base"
+    },
+    {
+      "name": "images/hexagon-gray.gif",
+      "theme": "base"
+    },
+    {
+      "name": "images/hexagon-green.gif",
+      "theme": "base"
+    },
+    {
+      "name": "images/hexagon-pink.gif",
+      "theme": "base"
+    },
+    {
+      "name": "images/hexagon-red.gif",
+      "theme": "base"
+    },
+    {
+      "name": "images/hexagon-yellow.gif",
+      "theme": "base"
+    },
+    {
+      "name": "images/hexagon.svg",
+      "theme": "base"
+    },
+    {
+      "name": "images/hexagon_blue_small.png",
+      "theme": "base"
+    },
+    {
+      "name": "images/hexagon_grey_small.png",
+      "theme": "base"
+    },
+    {
+      "name": "images/logo-SAPUI5-blue-446x140.png",
+      "theme": "base"
+    },
+    {
+      "name": "library-RTL-dbg.css",
+      "isDebug": true,
+      "theme": "base"
+    },
+    {
+      "name": "library-RTL.css",
+      "theme": "base"
+    },
+    {
+      "name": "library-dbg.css",
+      "isDebug": true,
+      "theme": "base"
+    },
+    {
+      "name": "library-parameters.json",
+      "theme": "base"
+    },
+    {
+      "name": "library.css",
+      "theme": "base"
+    },
+    {
+      "name": "library.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "library.source.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "shared.less",
+      "designtime": true,
+      "theme": "base"
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "_version": "1.1.0",
+  "resources": [
+    {
+      "name": ".theming",
+      "theme": "base"
+    },
+    {
+      "name": "AnalyticalColumnMenu.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "AnalyticalTable.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "Table.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico12_closed_plus.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico12_filter.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico12_help_options.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico12_leaf.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico12_open_minus.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico12_open_top.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico12_sort_asc.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico12_sort_desc.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico12_unsorted.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico_act_menu.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico_filter_sml.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/ico_tick.png",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/resize_vertical.png",
+      "theme": "base"
+    },
+    {
+      "name": "img-RTL/splitter_horiz_grip.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico12_closed_plus.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico12_filter.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico12_help_options.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico12_leaf.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico12_open_minus.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico12_open_top.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico12_sort_asc.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico12_sort_desc.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico12_unsorted.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico_act_menu.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico_filter_sml.gif",
+      "theme": "base"
+    },
+    {
+      "name": "img/ico_tick.png",
+      "theme": "base"
+    },
+    {
+      "name": "img/resize_vertical.png",
+      "theme": "base"
+    },
+    {
+      "name": "img/sort.cur",
+      "theme": "base"
+    },
+    {
+      "name": "img/splitter_horiz_grip.gif",
+      "theme": "base"
+    },
+    {
+      "name": "library-RTL-dbg.css",
+      "isDebug": true,
+      "theme": "base"
+    },
+    {
+      "name": "library-RTL.css",
+      "theme": "base"
+    },
+    {
+      "name": "library-dbg.css",
+      "isDebug": true,
+      "theme": "base"
+    },
+    {
+      "name": "library-parameters.json",
+      "theme": "base"
+    },
+    {
+      "name": "library.css",
+      "theme": "base"
+    },
+    {
+      "name": "library.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "library.source.less",
+      "designtime": true,
+      "theme": "base"
+    }
+  ]
+}

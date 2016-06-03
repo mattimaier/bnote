@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MessagePopover</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A MessagePopover is a Popover containing a summarized list with messages.</documentation>
+    <since>1.28</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" type="sap.ui.core/any" name="asyncDescriptionHandler">
+            <documentation>Callback function for resolving a promise after description has been asynchronously loaded inside this function</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/any" name="asyncURLHandler">
+            <documentation>Callback function for resolving a promise after a link has been asynchronously validated inside this function</documentation>
+        </property>
+        <property group="Behavior" defaultValue="Vertical" type="sap.m/VerticalPlacementType" name="placement">
+            <documentation>Determines the position, where the control will appear on the screen. Possible values are: sap.m.VerticalPlacementType.Top, sap.m.VerticalPlacementType.Bottom and sap.m.VerticalPlacementType.Vertical.
+The default value is sap.m.VerticalPlacementType.Vertical. Setting this property while the control is open, will not cause any re-rendering and changing of the position. Changes will only be applied with the next interaction.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="initiallyExpanded">
+            <documentation>Sets the initial state of the control - expanded or collapsed. By default the control opens as expanded</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="afterOpen">
+            <documentation>This event will be fired after the popover is opened</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="openBy">
+                    <documentation>This refers to the control which opens the popover</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="afterClose">
+            <documentation>This event will be fired after the popover is closed</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="openBy">
+                    <documentation>Refers to the control which opens the popover</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="beforeOpen">
+            <documentation>This event will be fired before the popover is opened</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="openBy">
+                    <documentation>Refers to the control which opens the popover</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="beforeClose">
+            <documentation>This event will be fired before the popover is closed</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="openBy">
+                    <documentation>Refers to the control which opens the popover
+See sap.ui.core.MessageType enum values for types</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="itemSelect">
+            <documentation>This event will be fired when description is shown</documentation>
+            <parameters>
+                <parameter type="sap.m/MessagePopoverItem" name="item">
+                    <documentation>Refers to the message popover item that is being presented</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/MessageType" name="messageTypeFilter">
+                    <documentation>Refers to the type of messages being shown
+See sap.ui.core.MessageType values for types</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="listSelect">
+            <documentation>This event will be fired when one of the lists is shown when (not) filtered  by type</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/MessageType" name="messageTypeFilter">
+                    <documentation>This parameter refers to the type of messages being shown.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="longtextLoaded">
+            <documentation>This event will be fired when the long text description data from a remote URL is loaded</documentation>
+        </event>
+        <event allowPreventDefault="false" name="urlValidated">
+            <documentation>This event will be fired when a validation of a URL from long text description is ready</documentation>
+        </event>
+    </events>
+    <aggregations default="items">
+        <aggregation cardinality="0..n" type="sap.m/MessagePopoverItem" name="items">
+            <documentation>A list with message items</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.m/MessagePopover" name="openBy">
+            <documentation>Opens the MessagePopover</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="control">
+                    <documentation>Control which opens the MessagePopover</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

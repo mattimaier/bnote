@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>form/GridLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This &lt;code&gt;FormLayout&lt;/code&gt; renders a &lt;code&gt;Form&lt;/code&gt; using a HTML-table based grid.
+This can be a 16 column grid or an 8 column grid. The grid is stable, so the alignment of the fields is the same for all screen sizes or widths of the &lt;code&gt;Form&lt;/code&gt;.
+Only the width of the single grid columns depends on the available width.
+
+To adjust the appearance inside the &lt;code&gt;GridLayout&lt;/code&gt;, you can use &lt;code&gt;GridContainerData&lt;/code&gt; for &lt;code&gt;FormContainers&lt;/code&gt;
+and &lt;code&gt;GridElementData&lt;/code&gt; for content fields.
+
+&lt;b&gt;Note:&lt;/b&gt; If content fields have a &lt;code&gt;width&lt;/code&gt; property this will be ignored, as the width of the controls is set by the grid cells.
+
+This control cannot be used stand alone, it only renders a &lt;code&gt;Form&lt;/code&gt;, so it must be assigned to a &lt;code&gt;Form&lt;/code&gt;.</documentation>
+    <since>1.16.0</since>
+    <baseType>sap.ui.layout/form/FormLayout</baseType>
+    <properties>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="singleColumn">
+            <documentation>If set, the grid renders only one &lt;code&gt;FormContainer&lt;/code&gt; per column. That means one &lt;code&gt;FormContainer&lt;/code&gt; is below the other. The whole grid has 8 cells per row.
+
+If not set, &lt;code&gt;FormContainer&lt;/code&gt; can use the full width of the grid or two &lt;code&gt;FormContainers&lt;/code&gt; can be placed beside each other. In this case the whole grid has 16 cells per row.</documentation>
+        </property>
+    </properties>
+</control>

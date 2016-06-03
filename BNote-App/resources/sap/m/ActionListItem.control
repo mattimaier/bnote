@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ActionListItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The &lt;code&gt;sap.m.ActionListItem&lt;/code&gt; can be used like a &lt;code&gt;button&lt;/code&gt; to fire actions when pressed.
+&lt;b&gt;Note:&lt;/b&gt; The inherited &lt;code&gt;selected&lt;/code&gt; property of the &lt;code&gt;sap.m.ListItemBase&lt;/code&gt; is not supported.</documentation>
+    <baseType>sap.m/ListItemBase</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="text">
+            <documentation>Defines the text that appears in the control.</documentation>
+        </property>
+    </properties>
+</control>

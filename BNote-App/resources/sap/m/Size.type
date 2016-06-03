@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Size</name>
+    <derived/>
+    <documentation>Enumeration of possible size settings.</documentation>
+    <since>1.34.0</since>
+    <enumeration>
+        <value name="XS">
+            <documentation>Extra small size.</documentation>
+        </value>
+        <value name="S">
+            <documentation>Small size.</documentation>
+        </value>
+        <value name="M">
+            <documentation>Medium size.</documentation>
+        </value>
+        <value name="L">
+            <documentation>Large size.</documentation>
+        </value>
+        <value name="Auto">
+            <documentation>The size of the tile depends on the device it is running on. It is medium size for desktop and tablet and small size for phone.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

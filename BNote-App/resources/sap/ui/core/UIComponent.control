@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>UIComponent</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Creates and initializes a new UIComponent with the given &lt;code&gt;sId&lt;/code&gt; and
+settings.
+
+The set of allowed entries in the &lt;code&gt;mSettings&lt;/code&gt; object depends on
+the concrete subclass and is described there. See {@link sap.ui.core.Component}
+for a general description of this argument.</documentation>
+    <since>1.9.2</since>
+    <abstract/>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="rootControl">
+            <documentation>The root control of the UIComponent.
+
+The root control should be created inside the function {@link sap.ui.core.UIComponent#createContent}.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

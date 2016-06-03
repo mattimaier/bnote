@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>NavigationBar</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Provides enhanced navigation capabilities and is the parent control of NavigationItem. It is displayed in the form of a horizontal line
+with switching markers depending on the currently selected item. The size of an item which is currently chosen by the user is enlarged. In the case
+that a large number of items are defined for the bar, this is made transparent to the user by showing symbols for scrolling options (forwards and backwards)
+to see the next or previous items.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="toplevelVariant">
+            <documentation>Defines whether the navigation bar shall have top-level appearance</documentation>
+        </property>
+        <property since="1.36" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="overflowItemsToUpperCase">
+            <documentation>Sets the appearance of the menu items in the overflow menu to uppercase</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="true" name="select">
+            <documentation>Event is fired when an item is selected by the user</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="itemId">
+                    <documentation>The ID of the newly selected NavigationItem.</documentation>
+                </parameter>
+                <parameter type="sap.ui.ux3/NavigationItem" name="item">
+                    <documentation>The newly selected NavigationItem.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="items">
+        <aggregation cardinality="0..n" type="sap.ui.ux3/NavigationItem" name="items">
+            <documentation>If the navigation items need to have a different parent than the NavigationBar, alternatively the associatedItems association can be used.
+The NavigationBar follows the approach to use the items aggregation. If this aggregation is empty, associatedItems is used.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.commons/Menu" name="overflowMenu">
+            <documentation>Hidden aggregation for the overflow menu if applicable</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.ux3/NavigationItem" name="selectedItem">
+            <documentation>The selected NavigationItem.</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.ux3/NavigationItem" name="associatedItems">
+            <documentation>This association is ignored as long as the items aggregation is used; and supposed to be used alternatively when the items should be aggregated by other
+entities.</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method type="sap.ui.ux3/NavigationBar" name="setAssociatedItems">
+            <documentation>Replaces the currently associated items with the ones in the given array</documentation>
+            <parameters>
+                <parameter type="sap.ui.ux3/NavigationItem[]" name="items">
+                    <documentation>The items to associate</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/boolean" name="isSelectedItemValid">
+            <documentation>Returns whether there is a selectedItem set which is actually present in the items aggregation; or, if the aggregation is empty, in the associatedItems association.</documentation>
+        </method>
+    </methods>
+</control>

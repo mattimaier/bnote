@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ViewSettingsCustomTab</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The ViewSettingsCustomTab control is used for adding custom tabs in the ViewSettingsDialog.</documentation>
+    <since>1.30</since>
+    <baseType>sap.ui.core/Item</baseType>
+    <properties>
+        <property group="Misc" defaultValue="sap-icon://competitor" type="sap.ui.core/URI" name="icon">
+            <documentation>Custom tab button icon</documentation>
+        </property>
+        <property defaultValue="" type="sap.ui.core/string" name="title">
+            <documentation>Custom tab title</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>The content of this Custom tab</documentation>
+        </aggregation>
+    </aggregations>
+</control>

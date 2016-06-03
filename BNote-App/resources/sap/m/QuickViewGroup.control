@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>QuickViewGroup</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>QuickViewGroup consists of a title (optional) and an entity of group elements.</documentation>
+    <since>1.28.11</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Determines whether the group is visible on the screen.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="heading">
+            <documentation>The title of the group</documentation>
+        </property>
+    </properties>
+    <aggregations default="elements">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.m/QuickViewGroupElement" name="elements">
+            <documentation>A combination of one label and another control (Link or Text) associated to this label.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

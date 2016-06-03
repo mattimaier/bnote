@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ThingViewer</name>
+    <derived/>
+    <documentation>ThingViewer: Same as ThingInspector but decoupled from the Overlay and the ActionBar.
+The control can be added to a Parent container that has a defined width. The ThingViewer fill the whole container. If the parent container has no width defined the control will not work properly.</documentation>
+    <since>1.9.1</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="title">
+            <documentation>Title of the Thing Inspector</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="type">
+            <documentation>Thing type</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="icon">
+            <documentation>Thing Icon Url</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="subtitle">
+            <documentation>Subtitle of the Thing Inspector</documentation>
+        </property>
+        <property group="Misc" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of the ThingViewer</documentation>
+        </property>
+        <property group="Misc" defaultValue="100%" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Height of the ThingViewer</documentation>
+        </property>
+        <property since="1.16.3" group="Misc" defaultValue="Standard" type="sap.ui.ux3/ThingViewerHeaderType" name="headerType">
+            <documentation>Defines which header type should be used.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="true" name="facetSelected">
+            <documentation>Event for facet selection. The application is responsible for displaying the correct content for the selected one. The ThingInspector will currently always mark the first facet as selected.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>Id of selected NavigationItem</documentation>
+                </parameter>
+                <parameter type="sap.ui.ux3/NavigationItem" name="item">
+                    <documentation>The selected NavigationItem</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="key">
+                    <documentation>Key of selected NavigationItem</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.ux3/ThingGroup" name="headerContent">
+            <documentation>ThingGroups for the header content</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.ux3/NavigationItem" name="facets">
+            <documentation>Thing Inspector facets</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.ux3/ThingGroup" name="facetContent">
+            <documentation>ThingGroups for content of the selected facet</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.ui.ux3/ActionBar" name="actionBar">
+            <documentation>An ActionBar can be given</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.ux3/NavigationBar" name="navBar">
+            <documentation>NavigationBar that is managed by this ThingViewer</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.ux3/NavigationItem" name="selectedFacet">
+            <documentation>The Facet that is currently selected.</documentation>
+        </association>
+    </associations>
+</control>

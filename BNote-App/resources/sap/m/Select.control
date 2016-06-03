@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Select</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The &lt;code&gt;sap.m.Select&lt;/code&gt; control provides a list of items that allows users to select an item.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="name">
+            <documentation>The name to be used in the HTML code (for example, for HTML forms that send data to the server via submit).</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Indicates whether the user can change the selection.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="auto" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Sets the width of the control. The default width is derived from the widest item.
+If the width defined is smaller than the widest item in the selection list, only the width of the selection field will be changed:
+the list will keep the width of its widest item.
+If the list is wider than the viewport, it is truncated and an ellipsis is displayed for each item.
+For phones, the width of the list is always the same as the viewport.
+
+&lt;b&gt;Note:&lt;/b&gt; This property is ignored if the &lt;code&gt;autoAdjustWidth&lt;/code&gt; property is set to &lt;code&gt;true&lt;/code&gt;.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="maxWidth">
+            <documentation>Sets the maximum width of the control.
+
+&lt;b&gt;Note:&lt;/b&gt; This property is ignored if the &lt;code&gt;autoAdjustWidth&lt;/code&gt; property is set to &lt;code&gt;true&lt;/code&gt;.</documentation>
+        </property>
+        <property since="1.11" group="Data" defaultValue="" type="sap.ui.core/string" name="selectedKey">
+            <documentation>Key of the selected item.
+
+&lt;b&gt;Note:&lt;/b&gt; If duplicate keys exist, the first item matching the key is used.</documentation>
+        </property>
+        <property since="1.12" group="Misc" defaultValue="" type="sap.ui.core/string" name="selectedItemId">
+            <documentation>ID of the selected item.</documentation>
+        </property>
+        <property since="1.16" group="Appearance" defaultValue="" type="sap.ui.core/URI" name="icon">
+            <documentation>The URI to the icon that will be displayed only when using the &lt;code&gt;IconOnly&lt;/code&gt; type.</documentation>
+        </property>
+        <property since="1.16" group="Appearance" defaultValue="Default" type="sap.m/SelectType" name="type">
+            <documentation>Type of a select. Possible values &lt;code&gt;Default&lt;/code&gt;, &lt;code&gt;IconOnly&lt;/code&gt;.</documentation>
+        </property>
+        <property since="1.16" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="autoAdjustWidth">
+            <documentation>Indicates whether the width of the input field is determined by the selected item's content.</documentation>
+        </property>
+        <property since="1.28" group="Appearance" defaultValue="Initial" type="sap.ui.core/TextAlign" name="textAlign">
+            <documentation>Sets the horizontal alignment of the text within the input field.</documentation>
+        </property>
+        <property since="1.28" group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>Specifies the direction of the text within the input field with enumerated options. By default, the control inherits text direction from the DOM.</documentation>
+        </property>
+        <property since="1.34" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="forceSelection">
+            <documentation>Indicates whether the selection is restricted to one of the items in the list.
+&lt;b&gt;Note:&lt;/b&gt; We strongly recommend that you always set this property to &lt;code&gt;false&lt;/code&gt; and bind
+the &lt;code&gt;selectedKey&lt;/code&gt; property to the desired value for better interoperability with data binding.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="change">
+            <documentation>This event is fired when the value in the selection field is changed in combination with one of the following actions:
+&lt;ul&gt;
+	&lt;li&gt;The focus leaves the selection field&lt;/li&gt;
+	&lt;li&gt;The &lt;i&gt;Enter&lt;/i&gt; key is pressed&lt;/li&gt;
+	&lt;li&gt;The item is pressed&lt;/li&gt;
+&lt;/ul&gt;</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Item" name="selectedItem">
+                    <documentation>The selected item.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="items">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.core/Item" name="items">
+            <documentation>Defines the items contained within this control.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/PopupInterface" name="picker">
+            <documentation>Internal aggregation to hold the inner picker popup.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/Item" name="selectedItem">
+            <documentation>Sets or retrieves the selected item from the aggregation named items.</documentation>
+        </association>
+        <association since="1.27.0" cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute &lt;code&gt;aria-labelledby&lt;/code&gt;).</documentation>
+        </association>
+    </associations>
+</control>

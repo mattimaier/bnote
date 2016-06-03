@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ColumnListItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>&lt;code&gt;sap.m.ColumnListItem&lt;/code&gt; can be used with the &lt;code&gt;cells&lt;/code&gt; aggregation to create rows for the &lt;code&gt;sap.m.Table&lt;/code&gt; control.
+The &lt;code&gt;columns&lt;/code&gt; aggregation of the &lt;code&gt;sap.m.Table&lt;/code&gt; should match with the cells aggregation.
+
+&lt;b&gt;Note:&lt;/b&gt; This control should only be used within the &lt;code&gt;sap.m.Table&lt;/code&gt; control.
+The inherited &lt;code&gt;counter&lt;/code&gt; property of &lt;code&gt;sap.m.ListItemBase&lt;/code&gt; is not supported.</documentation>
+    <since>1.12</since>
+    <baseType>sap.m/ListItemBase</baseType>
+    <properties>
+        <property since="1.20" group="Appearance" defaultValue="Inherit" type="sap.ui.core/VerticalAlign" name="vAlign">
+            <documentation>Sets the vertical alignment of all the cells within the table row (including selection and navigation).
+&lt;b&gt;Note:&lt;/b&gt; &lt;code&gt;vAlign&lt;/code&gt; property of &lt;code&gt;sap.m.Column&lt;/code&gt; overrides the property for cell vertical alignment if both are set.</documentation>
+        </property>
+    </properties>
+    <aggregations default="cells">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.core/Control" name="cells">
+            <documentation>Every &lt;code&gt;control&lt;/code&gt; inside the &lt;code&gt;cells&lt;/code&gt; aggregation defines one cell of the row.
+&lt;b&gt;Note:&lt;/b&gt; The order of the &lt;code&gt;cells&lt;/code&gt; aggregation must match the order of the &lt;code&gt;columns&lt;/code&gt; aggregation of &lt;code&gt;sap.m.Table&lt;/code&gt;.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

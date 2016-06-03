@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>PlanningCalendarView</name>
+    <derived/>
+    <documentation>View of the &lt;code&gt;PlanningCalendar&lt;/code&gt;.
+
+The &lt;code&gt;PlanningCalendarView&lt;/code&gt; defines the granularity of the output. It defines what type of intervals (hours, days or months)
+and how many intervals are shown.</documentation>
+    <since>1.34.0</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/string" name="key">
+            <documentation>Key of the view. This must be set to identify the used view in the &lt;code&gt;PlanningCalendar&lt;/code&gt;</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Hour" type="sap.ui.unified/CalendarIntervalType" name="intervalType">
+            <documentation>Type of the intervals of the row. Default is Hour.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="description">
+            <documentation>Description of the &lt;code&gt;PlanningCalendarView&lt;/code&gt;</documentation>
+        </property>
+        <property group="Appearance" defaultValue="6" type="sap.ui.core/int" name="intervalsS">
+            <documentation>Number of intervals (defined with &lt;code&gt;intervalType&lt;/code&gt;) that are displayed on small size (phones).
+
+&lt;b&gt;Note:&lt;/b&gt; It is not only the screen size which is used to determine the available space, the size of the &lt;code&gt;PlanningCalendar&lt;/code&gt; is used as well.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="8" type="sap.ui.core/int" name="intervalsM">
+            <documentation>Number of intervals (defined with &lt;code&gt;intervalType&lt;/code&gt;) that are displayed on medium size (tablet)
+
+&lt;b&gt;Note:&lt;/b&gt; It is not only the screen size which is used to determine the available space, the size of the &lt;code&gt;PlanningCalendar&lt;/code&gt; is used as well.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="12" type="sap.ui.core/int" name="intervalsL">
+            <documentation>Number of intervals (defined with &lt;code&gt;intervalType&lt;/code&gt;) that are displayed on large size (desktop)
+
+&lt;b&gt;Note:&lt;/b&gt; It is not only the screen size which is used to determine the available space, the size of the &lt;code&gt;PlanningCalendar&lt;/code&gt; is used as well.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showSubIntervals">
+            <documentation>If set subintervals are shown.
+
+If the interval type is &lt;code&gt;Hour&lt;/code&gt;, quarter hours are shown.
+
+If the interval type is &lt;code&gt;Day&lt;/code&gt;, hours are shown.
+
+If the interval type is &lt;code&gt;Month&lt;/code&gt;, days are shown.</documentation>
+        </property>
+    </properties>
+</control>

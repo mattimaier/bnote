@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CalendarType</name>
+    <derived/>
+    <documentation>The types of Calendar</documentation>
+    <enumeration>
+        <value name="Gregorian">
+            <documentation>The Gregorian calendar</documentation>
+        </value>
+        <value name="Islamic">
+            <documentation>The Islamic calendar</documentation>
+        </value>
+        <value name="Japanese">
+            <documentation>The Japanese emperor calendar</documentation>
+        </value>
+    </enumeration>
+</simple-type>

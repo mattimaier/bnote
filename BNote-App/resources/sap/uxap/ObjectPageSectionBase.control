@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectPageSectionBase</name>
+    <derived/>
+    <documentation>An abstract container for object page sections and subSections</documentation>
+    <since>1.26</since>
+    <abstract/>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/string" name="title">
+            <documentation>Section Title</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Invisible ObjectPageSectionBase are not rendered</documentation>
+        </property>
+        <property since="1.32.0" group="Behavior" defaultValue="High" type="sap.uxap/Importance" name="importance">
+            <documentation>Determines whether the section will be hidden on low resolutions.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation cardinality="0..1" type="sap.m/Button" name="customAnchorBarButton">
+            <documentation>The custom button that will provide a link to the section in the ObjectPageLayout anchor bar.
+This button will be used as a custom template to be into the ObjectPageLayout anchorBar area, therefore property changes happening on this button template after the first rendering won't affect the actual button copy used in the anchorBar.
+
+If you want to change some of the button properties, you would need to bind them to a model.</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.core/void" name="connectToModels">
+            <documentation>Explicitly ask to connect to the UI5 model tree</documentation>
+        </method>
+    </methods>
+</control>

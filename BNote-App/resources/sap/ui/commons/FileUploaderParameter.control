@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>FileUploaderParameter</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Represents a parameter for the FileUploader which is rendered as a hidden inputfield.</documentation>
+    <deprecation since="1.21.0">Please use the element sap.ui.unified.FileUploaderParameter of the library sap.ui.unified instead.</deprecation>
+    <baseType>sap.ui.unified/FileUploaderParameter</baseType>
+</control>

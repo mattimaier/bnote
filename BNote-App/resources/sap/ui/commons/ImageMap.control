@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ImageMap</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Combination of image areas where at runtime these areas are starting points for hyperlinks or actions</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="name">
+            <documentation>Name for the image that serves as reference</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Event for the areas that can be clicked in an ImageMap</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="areaId">
+                    <documentation>Id of clicked Area.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.commons/Area" name="areas">
+            <documentation>Area representing the reference to the target location</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.commons/ImageMap" name="createArea">
+            <documentation>Adds areas to the Image Map.
+
+Each argument must be either a JSon object or a list of objects or the area element or elements.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/any" name="content">
+                    <documentation>Area content to add</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

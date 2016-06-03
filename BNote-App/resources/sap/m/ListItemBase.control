@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ListItemBase</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>ListItemBase contains the base features of all specific list items.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="Inactive" type="sap.m/ListType" name="type">
+            <documentation>Defines the visual indication and behavior of the list items, e.g. &lt;code&gt;Active&lt;/code&gt;, &lt;code&gt;Navigation&lt;/code&gt;, &lt;code&gt;Detail&lt;/code&gt;.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Whether the control should be visible on the screen. If set to false, a placeholder is rendered instead of the real control.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="unread">
+            <documentation>Activates the unread indicator for the list item, if set to &lt;code&gt;true&lt;/code&gt;.
+&lt;b&gt;Note:&lt;/b&gt; This flag is ignored when the &lt;code&gt;showUnread&lt;/code&gt; property of the parent is set to &lt;code&gt;false&lt;/code&gt;.</documentation>
+        </property>
+        <property defaultValue="false" type="sap.ui.core/boolean" name="selected">
+            <documentation>Defines the selected state of the list items.
+&lt;b&gt;Note:&lt;/b&gt; Binding the &lt;code&gt;selected&lt;/code&gt; property in single selection modes may cause unwanted results if you have more than one selected items in your binding.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/int" name="counter">
+            <documentation>Defines the counter value of the list items.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="tap">
+            <documentation>Fires when the user taps on the control.</documentation>
+            <deprecation since="1.20.0">Instead, use &lt;code&gt;press&lt;/code&gt; event.</deprecation>
+        </event>
+        <event allowPreventDefault="false" name="detailTap">
+            <documentation>Fires when the user taps on the detail button of the control.</documentation>
+            <deprecation since="1.20.0">Instead, use &lt;code&gt;detailPress&lt;/code&gt; event.</deprecation>
+        </event>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Fires when the user clicks on the control.
+&lt;b&gt;Note:&lt;/b&gt; This event is not fired when the parent &lt;code&gt;mode&lt;/code&gt; is &lt;code&gt;SingleSelectMaster&lt;/code&gt; or when the &lt;code&gt;includeItemInSelection&lt;/code&gt; property is set to &lt;code&gt;true&lt;/code&gt;.
+If there is an interactive element that handles its own &lt;code&gt;press&lt;/code&gt; event then the list item's &lt;code&gt;press&lt;/code&gt; event is not fired.
+Also see {@link sap.m.ListBase#attachItemPress}.</documentation>
+        </event>
+        <event allowPreventDefault="false" name="detailPress">
+            <documentation>Fires when the user clicks on the detail button of the control.</documentation>
+        </event>
+    </events>
+    <associations>
+        <association since="1.28.0" cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

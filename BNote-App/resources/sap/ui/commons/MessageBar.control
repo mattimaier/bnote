@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MessageBar</name>
+    <derived/>
+    <documentation>Creates an instance of a MessageBar Control, for displaying messages.</documentation>
+    <deprecation since="1.4.0">A new messaging concept will be created in future. Therefore this control might be removed in one of the next versions.</deprecation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="anchorID">
+            <documentation>Element ID upon which the MessageBar will be initially positioned.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Specifies whether or not the MessageBar is visible. Invisible controls are not rendered.</documentation>
+        </property>
+        <property group="Misc" defaultValue="3" type="sap.ui.core/int" name="maxToasted">
+            <documentation>Maximum number of simultaneous messages being toasted in a row. Value '0' means this dynamic part is switched off.</documentation>
+        </property>
+        <property group="Misc" defaultValue="7" type="sap.ui.core/int" name="maxListed">
+            <documentation>Maximum number of messages being displayed in the List before a scrollbar appears. Value '0' means no limit.</documentation>
+        </property>
+        <property group="Misc" defaultValue="begin top" type="sap.ui.core/string" name="anchorSnapPoint">
+            <documentation>Type: sap.ui.core.Popup.Dock
+SnapPoint of MessageBar over anchorId.
+Note: Use &quot;begin&quot; or &quot;end&quot; for RTL support.
+Note: &quot;center&quot; is not indicated, as positioning is only set once, either via the css &quot;left&quot; or the &quot;right&quot; attribute. Therefore a MessageBar will only be extended in one direction, as Messages come in.</documentation>
+        </property>
+    </properties>
+    <methods>
+        <method type="sap.ui.core/void" name="addMessages">
+            <documentation>Adds/updates a supplied list of messages.
+The MessageBar will appear if at least one message exists.</documentation>
+            <parameters>
+                <parameter type="sap.ui.commons/Message[]" name="aMessages">
+                    <documentation>Array of messages.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/void" name="deleteMessages">
+            <documentation>Deletes a supplied list of messages.
+The MessageBar will disappear when no message remains.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string[]" name="ids">
+                    <documentation>Messages IDs to be deleted.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.commons/MessageBar" name="deleteAllMessages">
+            <documentation>Deletes all messages.</documentation>
+        </method>
+    </methods>
+</control>

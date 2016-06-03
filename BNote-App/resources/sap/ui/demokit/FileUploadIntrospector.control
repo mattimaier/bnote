@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>FileUploadIntrospector</name>
+    <derived/>
+    <documentation>Control that allows to monitor uploaded files in a demo scenario. This is not a general purpose monitor but only works with the demo fileupload service.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="uploadUrl">
+            <documentation>The URL to check the upload content with....</documentation>
+        </property>
+        <property group="Misc" defaultValue="0" type="sap.ui.core/string" name="autoRefreshInterval">
+            <documentation>Interval in milliseconds after which the content is checked again. values lower or equal to 0 mean 'no automatic refresh'.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/CSSSize" name="height">
+            <documentation>(CSS) Height of the control</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of the file list</documentation>
+        </property>
+    </properties>
+    <methods>
+        <method name="refresh">
+            <documentation>Trigger an explicit refresh of the displayed information</documentation>
+        </method>
+    </methods>
+</control>

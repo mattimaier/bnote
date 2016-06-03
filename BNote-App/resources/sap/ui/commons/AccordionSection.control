@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>AccordionSection</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Represents a panel which is a container for other controls. The container does not have any layout function.</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="maxHeight">
+            <documentation>When the section content exceeds maxHeight, a vertical scroll bar appears.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>It is required that the used theme supports the control.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="collapsed">
+            <documentation>It is recommended to adjust the settings for the width when the section is set to 'collapsed'.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="title">
+            <documentation>Text for the section header</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="scroll">
+            <documentation>Event is fired when the user scrolls the panel</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="left">
+                    <documentation>Horizontal scroll position</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="top">
+                    <documentation>Vertical scroll position</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Aggregates the controls that are contained in the panel. The control layout is browser-dependent.
+For a stable content layout, use a layout control as direct single child.
+When the panel dimensions are set, the child control may have width and height of 100%;
+when the panel dimensions are not set, the child defines the panel size.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

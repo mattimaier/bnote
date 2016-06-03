@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Table</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>&lt;code&gt;sap.m.Table&lt;/code&gt; control provides a set of sophisticated and convenience functions for responsive table design.
+To render the &lt;code&gt;sap.m.Table&lt;/code&gt; properly, the order of the &lt;code&gt;columns&lt;/code&gt; aggregation should match with the order of the items &lt;code&gt;cells&lt;/code&gt; aggregation. Also &lt;code&gt;sap.m.Table&lt;/code&gt; requires at least one visible &lt;code&gt;sap.m.Column&lt;/code&gt; in &lt;code&gt;columns&lt;/code&gt; aggregation.
+For mobile devices, the recommended limit of table rows is 100 (based on 4 columns) to assure proper performance. To improve initial rendering on large tables, use the &lt;code&gt;growing&lt;/code&gt; feature.</documentation>
+    <since>1.16</since>
+    <baseType>sap.m/ListBase</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="Translucent" type="sap.m/BackgroundDesign" name="backgroundDesign">
+            <documentation>Sets the background style of the table. Depending on the theme, you can change the state of the background from &lt;code&gt;Solid&lt;/code&gt; to &lt;code&gt;Translucent&lt;/code&gt; or to &lt;code&gt;Transparent&lt;/code&gt;.</documentation>
+        </property>
+        <property since="1.22" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="fixedLayout">
+            <documentation>Defines the algorithm to be used to layout the table cells, rows, and columns.
+By default, a table is rendered with fixed layout algorithm. This means the horizontal layout only depends on the table's width and the width of the columns, not the contents of the cells. Cells in subsequent rows do not affect column widths. This allows a browser to layout the table faster than the auto table layout since the browser can begin to display the table once the first row has been analyzed.
+
+When this property is set to &lt;code&gt;false&lt;/code&gt;, &lt;code&gt;sap.m.Table&lt;/code&gt; is rendered with auto layout algorithm. This means, the width of the table and its cells depends on the contents of the cells. The column width is set by the widest unbreakable content inside the cells. This can make the rendering slow, since the browser needs to read through all the content in the table before determining the final layout.
+&lt;b&gt;Note:&lt;/b&gt; Since &lt;code&gt;sap.m.Table&lt;/code&gt; does not have its own scrollbars, setting &lt;code&gt;fixedLayout&lt;/code&gt; to false can force the table to overflow, which may cause visual problems. It is suggested to use this property when a table has a few columns in wide screens or within the horizontal scroll container (e.g &lt;code&gt;sap.m.Dialog&lt;/code&gt;) to handle overflow.
+In auto layout mode the &lt;code&gt;width&lt;/code&gt; property of &lt;code&gt;sap.m.Column&lt;/code&gt; is taken into account as a minimum width.</documentation>
+        </property>
+        <property since="1.22.1" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showOverlay">
+            <documentation>Setting this property to &lt;code&gt;true&lt;/code&gt; will show an overlay on top of the table content and prevents the user interaction with it.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.m/Column" name="columns">
+            <documentation>Defines the columns of the table.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

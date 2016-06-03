@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ComboBox</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The control provides a field that allows end users to either enter some text, or to choose an entry out of a list of pre-defined items.
+The choosable items can be provided in the form of a complete &lt;code&gt;ListBox&lt;/code&gt;, single &lt;code&gt;ListItems&lt;/code&gt;.</documentation>
+    <baseType>sap.ui.commons/TextField</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="10" type="sap.ui.core/int" name="maxPopupItems">
+            <documentation>Defines the number of items that shall be displayed at once. If the overall number of items is higher than this setting, a scrollbar is provided.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="displaySecondaryValues">
+            <documentation>Indicates whether the &lt;code&gt;additionalText&lt;/code&gt; property that is available for &lt;code&gt;sap.ui.core.ListItem&lt;/code&gt; shall be displayed in the list.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="selectedKey">
+            <documentation>Key of the selected item.
+
+If the value has no corresponding item the key is empty.
+
+If duplicate keys exists the first item matching the key is used.
+
+If the key is set to a not existing value it will not be changed.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="selectedItemId">
+            <documentation>Id of the selected item. If the value has no corresponding item, the &lt;code&gt;selectedItemId&lt;/code&gt; is empty.
+
+If the &lt;code&gt;selectedItemId&lt;/code&gt; is set to an not existing item, it will not be changed.</documentation>
+        </property>
+    </properties>
+    <aggregations default="items">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.core/ListItem" name="items">
+            <documentation>&lt;code&gt;ListItems&lt;/code&gt; (see &lt;code&gt;sap.ui.core.ListBox&lt;/code&gt;) that shall be displayed in the list.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.commons/ListBox" name="myListBox">
+            <documentation>The hidden &lt;code&gt;ListBox&lt;/code&gt; which is only used when no shared &lt;code&gt;ListBox&lt;/code&gt; is set via association listBox</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.commons/ListBox" name="listBox">
+            <documentation>Using this method, you provide a &lt;code&gt;ListBox&lt;/code&gt; control. This allows reuse of item lists in different controls. Either a control id can be used as new target, or a control instance.
+
+&lt;b&gt;Note:&lt;/b&gt; The ListBox must not be rendered somewhere in the UI. But if you want to bind the &lt;code&gt;ListBox&lt;/code&gt; items to a model it must be in the control tree.
+So we suggest to add it as dependent somewhere (e.g. to the view or the first used &lt;code&gt;ComboBox&lt;/code&gt;). If it is not set as child or dependant to an other control it will be automatically set as dependent to the first ComboBox where it is assigned.</documentation>
+        </association>
+    </associations>
+</control>

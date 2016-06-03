@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>DataSetSimpleView</name>
+    <derived/>
+    <documentation>DataSetSimpleView provides a simple view example for DataSet usage.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="floating">
+            <documentation>When true the DatSet items are floating containers. When set to false The Items are rendered in a 1 column Layout.</documentation>
+        </property>
+        <property group="Misc" defaultValue="Name of this View" type="sap.ui.core/string" name="name">
+            <documentation>Name of the View</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="icon">
+            <documentation>Icon source for this view</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="iconHovered">
+            <documentation>icon: hovered state</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="iconSelected">
+            <documentation>icon: selected state</documentation>
+        </property>
+        <property since="1.9.2" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="responsive">
+            <documentation>When true and the property floating is true the DatSet items are floating containers filling the whole space of a row.</documentation>
+        </property>
+        <property since="1.9.2" group="Misc" defaultValue="0" type="sap.ui.core/int" name="itemMinWidth">
+            <documentation>When itemMinWidth&gt;0 and the property floating is true the given minimum width in pixels is set to DatSet items. A minimum width must be given when the property responsive is set.</documentation>
+        </property>
+        <property since="1.13.0" group="Appearance" defaultValue="0" type="sap.ui.core/int" name="initialItemCount">
+            <documentation>If this value is greater zero only this amount of items is loaded in the first place. New items are loaded automatically when the user scrolls down. The number of items which are reloaded can be defined with the property &quot;reloadItemCount&quot;</documentation>
+        </property>
+        <property since="1.13.0" group="Appearance" defaultValue="0" type="sap.ui.core/int" name="reloadItemCount">
+            <documentation>This number defines the item count which is reloaded on scroll if initialItemCount is enabled.</documentation>
+        </property>
+        <property since="1.13.0" group="Appearance" type="sap.ui.core/any" name="scrollArea">
+            <documentation>ID of the DOM Element or jQuery reference to the dom which holds the scrollbar for the dataset</documentation>
+        </property>
+        <property since="1.13.0" group="Appearance" type="sap.ui.core/CSSSize" name="height">
+            <documentation>If the pagination feature is used without specifying a scroll area, a height for the dataset must be defined.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation cardinality="0..1" type="sap.ui.core/Control" name="template">
+            <documentation>template</documentation>
+        </aggregation>
+    </aggregations>
+</control>

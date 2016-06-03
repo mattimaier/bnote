@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MessageToast</name>
+    <derived/>
+    <documentation>Responsible for displaying the new incoming messages, one at the time, on top of the MessageBar.</documentation>
+    <deprecation since="1.4.0">A new messaging concept will be created in future. Therefore this control might be removed in one of the next versions.</deprecation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="anchorId">
+            <documentation>ID of the anchor on top of which the MessageToast is to render.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="next">
+            <documentation>Fired once the &lt;code&gt;toast()&lt;/code&gt; method is over, so that the MessageBar can &quot;toast&quot; another message if needed.</documentation>
+        </event>
+    </events>
+    <methods>
+        <method type="sap.ui.core/void" name="toast">
+            <documentation>Triggers the toasting of a message, on top of the MessageBar.
+If no message is supplied, displays the &quot;Multiple new messages...&quot; message.
+
+Receives the list of Messages to be displayed,
+and re-renders this Control if it is visible.</documentation>
+            <parameters>
+                <parameter type="sap.ui.commons/Message" name="message">
+                    <documentation>The Message to be toasted.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="anchorId">
+                    <documentation>DOM ID of the anchor against which the Toast Arrow should align for a given Toast.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/boolean" name="isIdle">
+            <documentation>Returns the idle state of the control. Returns true if no message is being toasted.</documentation>
+        </method>
+    </methods>
+</control>

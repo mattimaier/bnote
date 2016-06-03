@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>FileUploaderParameter</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Represents a parameter for the FileUploader which is rendered as a hidden inputfield.</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property since="1.12.2" group="Data" type="sap.ui.core/string" name="name">
+            <documentation>The name of the hidden inputfield.</documentation>
+        </property>
+        <property since="1.12.2" group="Data" type="sap.ui.core/string" name="value">
+            <documentation>The value of the hidden inputfield.</documentation>
+        </property>
+    </properties>
+</control>

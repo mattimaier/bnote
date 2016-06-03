@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CSSSizeShortHand</name>
+    <derived/>
+    <documentation>This type checks the short hand form of a margin or padding definition.
+
+E.g. &quot;1px 1px&quot; or up to four CSSSize values are allowed or tHe special keyword &lt;code&gt;inherit&lt;/code&gt;.</documentation>
+    <since>1.11.0</since>
+    <final/>
+    <pattern>inherit|(auto|[-+]?(0*|(\d+|\d*\.\d+)([eE][mM]|[eE][xX]|[pP][xX]|[cC][mM]|[mM][mM]|[iI][nN]|[pP][tT]|[pP][cC]|%))){1}(\s(auto|[-+]?(0*|(\d+|\d*\.\d+)([eE][mM]|[eE][xX]|[pP][xX]|[cC][mM]|[mM][mM]|[iI][nN]|[pP][tT]|[pP][cC]|%)))){0,3}</pattern>
+</simple-type>

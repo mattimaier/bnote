@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Overlay</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Overlay Control</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="openButtonVisible">
+            <documentation>Defines whether the 'Open' button shall be visible.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="closeButtonVisible">
+            <documentation>Defines whether the 'Close' button shall be visible.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="true" name="close">
+            <documentation>Event is fired when the Overlay starts closing.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The ID of the Overlay instance.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="true" name="closed">
+            <documentation>Event is fired when the Overlay is closed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The ID of the Overlay instance.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="openNew">
+            <documentation>Event is fired when the 'Open' button of the Overlay is clicked.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The ID of the Overlay instance.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="open">
+            <documentation>Event is fired when the Overlay is opened.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The ID of the Overlay instance</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <methods>
+        <method name="open">
+            <documentation>Opens the Overlay.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="initialFocusId">
+                    <documentation>ID of the control that gets focused when the overlay is openend</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method name="close">
+            <documentation>Closes the Overlay.</documentation>
+        </method>
+        <method type="sap.ui.core/boolean" name="isOpen">
+            <documentation>Checks whether Overlay is open.</documentation>
+        </method>
+    </methods>
+</control>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>IBarHTMLTag</name>
+    <derived/>
+    <documentation>Allowed tags for the implementation of the IBar interface.</documentation>
+    <since>1.22</since>
+    <enumeration>
+        <value name="Div">
+            <documentation>Renders as a div element.</documentation>
+        </value>
+        <value name="Header">
+            <documentation>Renders as a header element.</documentation>
+        </value>
+        <value name="Footer">
+            <documentation>Renders as a footer element.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

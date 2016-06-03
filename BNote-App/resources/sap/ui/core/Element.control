@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Element</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Base Class for Elements.</documentation>
+    <abstract/>
+    <properties>
+        <property type="sap.ui.core/ID" name="id">
+            <documentation>The unique identifier within a page, either configured or automatically generated.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation cardinality="0..1" type="sap.ui.core/TooltipBase" name="tooltip">
+            <documentation>The tooltip that should be shown for this Element.
+
+Can either be an instance of a TooltipBase subclass or a simple string.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/CustomData" name="customData">
+            <documentation>Custom Data, a data structure like a map containing arbitrary key value pairs.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.ui.core/LayoutData" name="layoutData">
+            <documentation>Defines the layout constraints for this control when it is used inside a Layout.
+LayoutData classes are typed classes and must match the embedding Layout.
+See VariantLayoutData for aggregating multiple alternative LayoutData instances to a single Element.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" since="1.19" type="sap.ui.core/Control" name="dependents">
+            <documentation>Dependents are not rendered, but their databinding context and lifecycle are bound to the aggregating Element.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

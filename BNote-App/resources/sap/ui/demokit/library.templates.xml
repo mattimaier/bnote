@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Library name="sap.ui.demokit" xmlns="http://www.sap.com/ui5/ide/templates/xmlview">
+<Template name="sap.ui.demokit.CodeSampleContainer" alias="CodeSampleContainer,Container">
+	<jsTemplate><![CDATA[new sap.ui.demokit.CodeSampleContainer({
+	id: "${id}", // sap.ui.core.ID
+	busy: false, // boolean
+	busyIndicatorDelay: 1000, // int
+	visible: true, // boolean
+	fieldGroupIds: [], // string[], since 1.31
+	scriptElementId: undefined, // string
+	uiAreaId: undefined, // string
+	title: undefined, // string
+	sourceVisible: false, // boolean
+	width: "90%", // sap.ui.core.CSSSize
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	validateFieldGroup: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this],
+	apply: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this]
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<CodeSampleContainer xmlns="sap.ui.demokit"
+	id="${id}"
+	busy="false"
+	busyIndicatorDelay="1000"
+	visible="true"
+	fieldGroupIds=""
+	scriptElementId=""
+	uiAreaId=""
+	title=""
+	sourceVisible="false"
+	width="90%"
+	validateFieldGroup=""
+	apply="">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+</CodeSampleContainer>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.demokit.CodeViewer" alias="CodeViewer,Viewer">
+	<jsTemplate><![CDATA[new sap.ui.demokit.CodeViewer({
+	id: "${id}", // sap.ui.core.ID
+	busy: false, // boolean
+	busyIndicatorDelay: 1000, // int
+	visible: true, // boolean
+	fieldGroupIds: [], // string[], since 1.31
+	source: undefined, // string
+	width: undefined, // sap.ui.core.CSSSize
+	height: undefined, // sap.ui.core.CSSSize
+	editable: false, // boolean
+	lineNumbering: false, // boolean
+	visible: true, // boolean
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	validateFieldGroup: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this],
+	press: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this],
+	save: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this]
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<CodeViewer xmlns="sap.ui.demokit"
+	id="${id}"
+	busy="false"
+	busyIndicatorDelay="1000"
+	visible="true"
+	fieldGroupIds=""
+	source=""
+	width=""
+	height=""
+	editable="false"
+	lineNumbering="false"
+	visible="true"
+	validateFieldGroup=""
+	press=""
+	save="">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+</CodeViewer>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.demokit.FileUploadIntrospector" alias="FileUploadIntrospector,Introspector">
+	<jsTemplate><![CDATA[new sap.ui.demokit.FileUploadIntrospector({
+	id: "${id}", // sap.ui.core.ID
+	busy: false, // boolean
+	busyIndicatorDelay: 1000, // int
+	visible: true, // boolean
+	fieldGroupIds: [], // string[], since 1.31
+	uploadUrl: undefined, // string
+	autoRefreshInterval: "0", // string
+	height: undefined, // sap.ui.core.CSSSize
+	width: undefined, // sap.ui.core.CSSSize
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	validateFieldGroup: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this]
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<FileUploadIntrospector xmlns="sap.ui.demokit"
+	id="${id}"
+	busy="false"
+	busyIndicatorDelay="1000"
+	visible="true"
+	fieldGroupIds=""
+	uploadUrl=""
+	autoRefreshInterval="0"
+	height=""
+	width=""
+	validateFieldGroup="">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+</FileUploadIntrospector>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.demokit.HexagonButton" alias="HexagonButton,Button">
+	<jsTemplate><![CDATA[new sap.ui.demokit.HexagonButton({
+	id: "${id}", // sap.ui.core.ID
+	busy: false, // boolean
+	busyIndicatorDelay: 1000, // int
+	visible: true, // boolean
+	fieldGroupIds: [], // string[], since 1.31
+	icon: undefined, // string
+	color: "blue", // string
+	position: undefined, // string
+	enabled: true, // boolean
+	imagePosition: undefined, // string
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	validateFieldGroup: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this],
+	press: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this]
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<HexagonButton xmlns="sap.ui.demokit"
+	id="${id}"
+	busy="false"
+	busyIndicatorDelay="1000"
+	visible="true"
+	fieldGroupIds=""
+	icon=""
+	color="blue"
+	position=""
+	enabled="true"
+	imagePosition=""
+	validateFieldGroup=""
+	press="">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+</HexagonButton>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.demokit.HexagonButtonGroup" alias="HexagonButtonGroup,Group">
+	<jsTemplate><![CDATA[new sap.ui.demokit.HexagonButtonGroup({
+	id: "${id}", // sap.ui.core.ID
+	busy: false, // boolean
+	busyIndicatorDelay: 1000, // int
+	visible: true, // boolean
+	fieldGroupIds: [], // string[], since 1.31
+	colspan: 3, // int
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	buttons: [], // sap.ui.demokit.HexagonButton
+	validateFieldGroup: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this]
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<HexagonButtonGroup xmlns="sap.ui.demokit"
+	id="${id}"
+	busy="false"
+	busyIndicatorDelay="1000"
+	visible="true"
+	fieldGroupIds=""
+	colspan="3"
+	validateFieldGroup="">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<buttons></buttons> <!-- sap.ui.demokit.HexagonButton -->
+</HexagonButtonGroup>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.demokit.IndexLayout" alias="IndexLayout,Layout">
+	<jsTemplate><![CDATA[new sap.ui.demokit.IndexLayout({
+	id: "${id}", // sap.ui.core.ID
+	busy: false, // boolean
+	busyIndicatorDelay: 1000, // int
+	visible: true, // boolean
+	fieldGroupIds: [], // string[], since 1.31
+	itemWidth: "200px", // sap.ui.core.CSSSize
+	itemHeight: "200px", // sap.ui.core.CSSSize
+	enableScaling: true, // boolean
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	content: [], // sap.ui.core.Control
+	validateFieldGroup: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this]
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<IndexLayout xmlns="sap.ui.demokit"
+	id="${id}"
+	busy="false"
+	busyIndicatorDelay="1000"
+	visible="true"
+	fieldGroupIds=""
+	itemWidth="200px"
+	itemHeight="200px"
+	enableScaling="true"
+	validateFieldGroup="">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<content></content> <!-- sap.ui.core.Control -->
+</IndexLayout>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.demokit.Tag" alias="Tag">
+	<jsTemplate><![CDATA[new sap.ui.demokit.Tag({
+	id: "${id}", // sap.ui.core.ID
+	text: undefined, // string
+	weight: 1, // int
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [] // sap.ui.core.Control, since 1.19
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<Tag xmlns="sap.ui.demokit"
+	id="${id}"
+	text=""
+	weight="1">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+</Tag>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.demokit.TagCloud" alias="TagCloud,Cloud">
+	<jsTemplate><![CDATA[new sap.ui.demokit.TagCloud({
+	id: "${id}", // sap.ui.core.ID
+	busy: false, // boolean
+	busyIndicatorDelay: 1000, // int
+	visible: true, // boolean
+	fieldGroupIds: [], // string[], since 1.31
+	maxFontSize: 30, // int
+	minFontSize: 10, // int
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	tags: [], // sap.ui.demokit.Tag
+	validateFieldGroup: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this],
+	press: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this]
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<TagCloud xmlns="sap.ui.demokit"
+	id="${id}"
+	busy="false"
+	busyIndicatorDelay="1000"
+	visible="true"
+	fieldGroupIds=""
+	maxFontSize="30"
+	minFontSize="10"
+	validateFieldGroup=""
+	press="">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<tags></tags> <!-- sap.ui.demokit.Tag -->
+</TagCloud>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.demokit.UI5EntityCueCard" alias="UI5EntityCueCard,Card">
+	<jsTemplate><![CDATA[new sap.ui.demokit.UI5EntityCueCard({
+	id: "${id}", // sap.ui.core.ID
+	busy: false, // boolean
+	busyIndicatorDelay: 1000, // int
+	visible: true, // boolean
+	fieldGroupIds: [], // string[], since 1.31
+	collapsible: true, // boolean
+	expanded: false, // boolean
+	navigable: false, // boolean
+	entityName: undefined, // string
+	style: undefined, // sap.ui.demokit.UI5EntityCueCardStyle
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	validateFieldGroup: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this],
+	navigate: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this]
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<UI5EntityCueCard xmlns="sap.ui.demokit"
+	id="${id}"
+	busy="false"
+	busyIndicatorDelay="1000"
+	visible="true"
+	fieldGroupIds=""
+	collapsible="true"
+	expanded="false"
+	navigable="false"
+	entityName=""
+	style=""
+	validateFieldGroup=""
+	navigate="">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+</UI5EntityCueCard>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.demokit.UIAreaSubstitute" alias="UIAreaSubstitute,Substitute">
+	<jsTemplate><![CDATA[new sap.ui.demokit.UIAreaSubstitute({
+	id: "${id}", // sap.ui.core.ID
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	content: [] // sap.ui.core.Control
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<UIAreaSubstitute xmlns="sap.ui.demokit"
+	id="${id}">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<content></content> <!-- sap.ui.core.Control -->
+</UIAreaSubstitute>
+]]></xmlTemplate>
+</Template>
+</Library>

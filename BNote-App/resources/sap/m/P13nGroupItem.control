@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nGroupItem</name>
+    <derived/>
+    <documentation>Type for &lt;code&gt;groupItems&lt;/code&gt; aggregation in P13nGroupPanel control.</documentation>
+    <baseType>sap.ui.core/Item</baseType>
+    <properties>
+        <property since="1.28.0" group="Misc" type="sap.ui.core/string" name="operation">
+            <documentation>sap.m.P13nConditionOperation</documentation>
+        </property>
+        <property since="1.28.0" group="Misc" type="sap.ui.core/string" name="columnKey">
+            <documentation>key of the column</documentation>
+        </property>
+        <property since="1.28.0" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="showIfGrouped">
+            <documentation>make the grouped column as normalcolumn visible</documentation>
+        </property>
+    </properties>
+</control>

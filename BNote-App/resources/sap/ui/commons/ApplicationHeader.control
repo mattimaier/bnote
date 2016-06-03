@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ApplicationHeader</name>
+    <derived/>
+    <documentation>The application header control stands on the top of any application page. It consists of 4 areas: Logo area, Function area provided by application, Search area, Logout area.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/URI" name="logoSrc">
+            <documentation>Path (src) to the logo icon to be displayed in the application header.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="logoText">
+            <documentation>The text that will be displayed beside the logo in the application header. This property is optional.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="displayLogoff">
+            <documentation>Determines if the logoff area will be displayed at the right hand side of the application header.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="userName">
+            <documentation>User name that will be displayed beside the welcome text</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="displayWelcome">
+            <documentation>Determines if the welcome text is displayed</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="logoff">
+            <documentation>Fires an event to log off the user from the application.
+No parameters.</documentation>
+        </event>
+    </events>
+</control>

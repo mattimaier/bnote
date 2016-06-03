@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>OverflowToolbarPriority</name>
+    <derived/>
+    <documentation>Defines the priorities of the controls within sap.m.OverflowToolbar</documentation>
+    <since>1.32</since>
+    <enumeration>
+        <value value="Never" name="NeverOverflow">
+            <documentation>NeverOverflow priority forces OverflowToolbar items to remain always in the toolbar</documentation>
+        </value>
+        <value name="High">
+            <documentation>High priority OverflowToolbar items overflow after the items with lower priority</documentation>
+        </value>
+        <value name="Low">
+            <documentation>Low priority  OverflowToolbar items overflow before the items with higher priority such as High priority items</documentation>
+        </value>
+        <value name="Disappear">
+            <documentation>Disappear priority  OverflowToolbar items overflow before the items with higher priority such as Low and High priority items and remain hidden in the overflow area</documentation>
+        </value>
+        <value value="Always" name="AlwaysOverflow">
+            <documentation>AlwaysOverflow priority forces OverflowToolbar items to remain always in the overflow area</documentation>
+        </value>
+    </enumeration>
+</simple-type>

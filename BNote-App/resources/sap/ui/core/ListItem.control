@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ListItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>An item that is used in lists or list-similar controls such as DropdownBox, for example.
+The element foresees the usage of additional texts displayed in a second column.</documentation>
+    <baseType>sap.ui.core/Item</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/string" name="icon">
+            <documentation>The icon belonging to this list item instance.
+This can be an URI to an image or an icon font URI.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="additionalText">
+            <documentation>Some additional text of type string, optionally to be displayed along with this item.</documentation>
+        </property>
+    </properties>
+</control>

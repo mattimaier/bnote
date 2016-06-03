@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Importance</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Used by the ObjectSectionBase control to define the importance of the content contained in it.</documentation>
+    <since>1.32.0</since>
+    <enumeration>
+        <value name="Low">
+            <documentation>Low importance of the content</documentation>
+        </value>
+        <value name="Medium">
+            <documentation>Medium importance of the content</documentation>
+        </value>
+        <value name="High">
+            <documentation>High importance of the content</documentation>
+        </value>
+    </enumeration>
+</simple-type>

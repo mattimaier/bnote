@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>DisplayListItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>&lt;code&gt;sap.m.DisplayListItem&lt;/code&gt; can be used to represent a label and a value.</documentation>
+    <baseType>sap.m/ListItemBase</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="label">
+            <documentation>Defines the label of the list item.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="value">
+            <documentation>Defines the value of the list item.</documentation>
+        </property>
+        <property since="1.28.0" group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="valueTextDirection">
+            <documentation>Defines the &lt;code&gt;value&lt;/code&gt; text directionality with enumerated options. By default, the control inherits text direction from the DOM.</documentation>
+        </property>
+    </properties>
+</control>

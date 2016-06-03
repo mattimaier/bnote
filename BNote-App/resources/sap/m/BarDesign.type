@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>BarDesign</name>
+    <derived/>
+    <documentation>Types of the Bar design</documentation>
+    <since>1.20</since>
+    <enumeration>
+        <value name="Auto">
+            <documentation>The Bar can be inserted into other controls and if the design is &quot;Auto&quot; then it inherits the design from parent control.</documentation>
+        </value>
+        <value name="Header">
+            <documentation>The bar will be styled like a header of the page.</documentation>
+        </value>
+        <value name="SubHeader">
+            <documentation>The bar will be styled like a subheader of the page.</documentation>
+        </value>
+        <value name="Footer">
+            <documentation>The bar will be styled like a footer of the page.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

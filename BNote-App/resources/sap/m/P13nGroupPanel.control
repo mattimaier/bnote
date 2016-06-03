@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nGroupPanel</name>
+    <derived/>
+    <documentation>The P13nGroupPanel control is used to define group-specific settings for table personalization.</documentation>
+    <baseType>sap.m/P13nPanel</baseType>
+    <properties>
+        <property since="1.26" group="Misc" defaultValue="-1" type="sap.ui.core/string" name="maxGroups">
+            <documentation>Defines the maximum number of groups.</documentation>
+        </property>
+        <property since="1.26" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="containerQuery">
+            <documentation>Defines if &lt;code&gt;mediaQuery&lt;/code&gt; or &lt;code&gt;ContainerResize&lt;/code&gt; is used for a layout update. If &lt;code&gt;ConditionPanel&lt;/code&gt;
+is used in a dialog, the property must be set to true.</documentation>
+        </property>
+        <property since="1.26" group="Misc" type="sap.ui.core/string" name="layoutMode">
+            <documentation>Can be used to control the layout behavior. Default is &quot;&quot; which will automatically change the layout. With &quot;Desktop&quot;, &quot;Table&quot;
+or&quot;Phone&quot; you can set a fixed layout.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" since="1.26" name="addGroupItem">
+            <documentation>Event raised if a &lt;code&gt;GroupItem&lt;/code&gt; has been added.</documentation>
+        </event>
+        <event allowPreventDefault="false" since="1.26" name="removeGroupItem">
+            <documentation>Removes a group item.</documentation>
+        </event>
+        <event allowPreventDefault="false" since="1.26" name="updateGroupItem">
+            <documentation>Updates a group item.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Contains content for include and exclude panels.</documentation>
+        </aggregation>
+        <aggregation bindable="bindable" cardinality="0..n" since="1.26" type="sap.m/P13nGroupItem" name="groupItems">
+            <documentation>Defined group items.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>FlexAlignItems</name>
+    <derived/>
+    <documentation>Available options for the layout of all elements along the cross axis of the flexbox layout.</documentation>
+    <enumeration>
+        <value name="Start">
+            <documentation>The cross-start margin edges of the flex items are placed flush with the cross-start edge of the line.</documentation>
+        </value>
+        <value name="End">
+            <documentation>The cross-start margin edges of the flex items are placed flush with the cross-end edge of the line.</documentation>
+        </value>
+        <value name="Center">
+            <documentation>The flex item's margin boxes are centered in the cross axis within the line.</documentation>
+        </value>
+        <value name="Baseline">
+            <documentation>If the flex item's inline axes are the same as the cross axis, this value is identical to &quot;Start&quot;. Otherwise, it participates in baseline alignment: all participating box items on the line are aligned such that their baselines align, and the item with the largest distance between its baseline and its cross-start margin edge is placed flush against the cross-start edge of the line.</documentation>
+        </value>
+        <value name="Stretch">
+            <documentation>Make the cross size of the item's margin boxes as close to the same size as the line as possible.</documentation>
+        </value>
+        <value name="Inherit">
+            <documentation>Inherits the value from its parent.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

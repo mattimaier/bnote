@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>TabContainerItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>An item to be used in a TabContainer.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="name">
+            <documentation>Determines the text to be displayed for the item.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="key">
+            <documentation>Determines the name of the item. Can be used as input for subsequent actions.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="modified">
+            <documentation>Shows if a control is edited (default is false). Items that are marked as modified have a * symbol to indicate that they haven't been saved.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="itemPropertyChanged">
+            <documentation>Sends information that some of the properties have changed.</documentation>
+            <parameters>
+                <parameter type="sap.m/TabContainerItem" name="itemChanged">
+                    <documentation>The item changed.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="propertyKey">
+                    <documentation>The key of the property.</documentation>
+                </parameter>
+                <parameter type="any" name="propertyValue">
+                    <documentation>The value of the property.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>The content displayed for this item.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

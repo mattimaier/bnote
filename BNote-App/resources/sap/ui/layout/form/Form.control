@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>form/Form</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Form control.
+A &lt;code&gt;Form&lt;/code&gt; is structured into &lt;code&gt;FormContainers&lt;/code&gt;. Each &lt;code&gt;FormContainer&lt;/code&gt; consists of &lt;code&gt;FormElements&lt;/code&gt;.
+The &lt;code&gt;FormElements&lt;/code&gt; consists of a label and the form fields.
+A &lt;code&gt;Form&lt;/code&gt; doesn't render its content by itself. The rendering is done by the assigned &lt;code&gt;FormLayout&lt;/code&gt;.
+This is so that the rendering can be adopted to new UI requirements without changing the Form itself.
+
+For the content of a &lt;code&gt;Form&lt;/code&gt;, &lt;code&gt;VariantLayoutData&lt;/code&gt; are supported to allow simple switching of the &lt;code&gt;FormLayout&lt;/code&gt;.
+&lt;code&gt;LayoutData&lt;/code&gt; on the content can be used to overwrite the default layout of the code&gt;Form&lt;/code&gt;.
+
+&lt;b&gt;Note:&lt;/b&gt; Do not put any layout controls into the &lt;code&gt;FormElements&lt;/code&gt;. This could destroy the visual layout,
+keyboard support and screen-reader support.</documentation>
+    <since>1.16.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of the &lt;code&gt;Form&lt;/code&gt;.</documentation>
+        </property>
+        <property since="1.20.0" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="editable">
+            <documentation>Applies a device and theme specific line-height to the form rows if the form has editable content.
+If set, all (not only the editable) rows of the form will get the line height of editable fields.
+The accessibility aria-readonly attribute is set according to this property.
+&lt;b&gt;Note:&lt;/b&gt; The setting of the property has no influence on the editable functionality of the form's content.</documentation>
+        </property>
+    </properties>
+    <aggregations default="formContainers">
+        <aggregation cardinality="0..n" type="sap.ui.layout/form/FormContainer" name="formContainers">
+            <documentation>Containers with the content of the form. A &lt;code&gt;FormContainer&lt;/code&gt; represents a group inside the &lt;code&gt;Form&lt;/code&gt;.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.ui.core/Title" name="title">
+            <documentation>Title of the &lt;code&gt;Form&lt;/code&gt;. Can either be a &lt;code&gt;Title&lt;/code&gt; object, or a string.
+If a &lt;code&gt;Title&lt;/code&gt; object it used, the style of the title can be set.
+
+&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;Toolbar&lt;/code&gt; is used, the &lt;code&gt;Title&lt;/code&gt; is ignored.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" since="1.36.0" type="sap.ui.core/Toolbar" name="toolbar">
+            <documentation>Toolbar of the &lt;code&gt;Form&lt;/code&gt;.
+
+&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;Toolbar&lt;/code&gt; is used, the &lt;code&gt;Title&lt;/code&gt; is ignored.
+If a title is needed inside the &lt;code&gt;Toolbar&lt;/code&gt; it must be added at content to the &lt;code&gt;Toolbar&lt;/code&gt;.
+In this case add the &lt;code&gt;Title&lt;/code&gt; to the &lt;code&gt;ariaLabelledBy&lt;/code&gt; association.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.ui.layout/form/FormLayout" name="layout">
+            <documentation>Layout of the &lt;code&gt;Form&lt;/code&gt;. The assigned &lt;code&gt;Layout&lt;/code&gt; renders the &lt;code&gt;Form&lt;/code&gt;.
+We suggest using the &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; for rendering a &lt;code&gt;Form&lt;/code&gt;, as its responsiveness allows the available space to be used in the best way possible.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association since="1.28.0" cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs that label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

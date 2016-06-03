@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Percentage</name>
+    <derived/>
+    <documentation>A string type that represents a percentage value.</documentation>
+    <final/>
+    <pattern>[0-9][0-9]*(\.[0-9]+)?%</pattern>
+</simple-type>

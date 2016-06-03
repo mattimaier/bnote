@@ -1,0 +1,1630 @@
+{
+  "_version": "1.1.0",
+  "resources": [
+    {
+      "name": ".library"
+    },
+    {
+      "name": ".theming"
+    },
+    {
+      "name": "CodeSampleContainer-dbg.js",
+      "module": "sap/ui/demokit/CodeSampleContainer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/core/ResizeHandler.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "CodeSampleContainer.control",
+      "designtime": true
+    },
+    {
+      "name": "CodeSampleContainer.js",
+      "module": "sap/ui/demokit/CodeSampleContainer.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/core/ResizeHandler.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "CodeSampleContainerRenderer-dbg.js",
+      "module": "sap/ui/demokit/CodeSampleContainerRenderer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "CodeSampleContainerRenderer.js",
+      "module": "sap/ui/demokit/CodeSampleContainerRenderer.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "CodeViewer-dbg.js",
+      "module": "sap/ui/demokit/CodeViewer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/commons/Button.js",
+        "sap/ui/commons/Dialog.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ],
+      "condRequired": [
+        "sap/ui/demokit/js/google-code-prettify/prettify.js"
+      ]
+    },
+    {
+      "name": "CodeViewer.control",
+      "designtime": true
+    },
+    {
+      "name": "CodeViewer.js",
+      "module": "sap/ui/demokit/CodeViewer.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/commons/Button.js",
+        "sap/ui/commons/Dialog.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ],
+      "condRequired": [
+        "sap/ui/demokit/js/google-code-prettify/prettify.js"
+      ]
+    },
+    {
+      "name": "CodeViewerRenderer-dbg.js",
+      "module": "sap/ui/demokit/CodeViewerRenderer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "CodeViewerRenderer.js",
+      "module": "sap/ui/demokit/CodeViewerRenderer.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "DemokitApp-dbg.js",
+      "module": "sap/ui/demokit/DemokitApp.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/commons/DropdownBox.js",
+        "sap/ui/commons/TextView.js",
+        "sap/ui/commons/Link.js",
+        "sap/ui/commons/Splitter.js",
+        "sap/ui/commons/layout/AbsoluteLayout.js",
+        "sap/ui/core/ListItem.js",
+        "sap/ui/core/search/OpenSearchProvider.js",
+        "sap/ui/demokit/Tag.js",
+        "sap/ui/demokit/TagCloud.js",
+        "sap/ui/demokit/library.js",
+        "sap/ui/ux3/NavigationItem.js",
+        "sap/ui/ux3/Shell.js",
+        "sap/ui/model/json/JSONModel.js",
+        "sap/ui/core/Icon.js"
+      ],
+      "condRequired": [
+        "jquery.sap.script.js",
+        "sap/ui/core/util/LibraryInfo.js"
+      ]
+    },
+    {
+      "name": "DemokitApp.js",
+      "module": "sap/ui/demokit/DemokitApp.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/commons/DropdownBox.js",
+        "sap/ui/commons/TextView.js",
+        "sap/ui/commons/Link.js",
+        "sap/ui/commons/Splitter.js",
+        "sap/ui/commons/layout/AbsoluteLayout.js",
+        "sap/ui/core/ListItem.js",
+        "sap/ui/core/search/OpenSearchProvider.js",
+        "sap/ui/demokit/Tag.js",
+        "sap/ui/demokit/TagCloud.js",
+        "sap/ui/demokit/library.js",
+        "sap/ui/ux3/NavigationItem.js",
+        "sap/ui/ux3/Shell.js",
+        "sap/ui/model/json/JSONModel.js",
+        "sap/ui/core/Icon.js"
+      ],
+      "condRequired": [
+        "jquery.sap.script.js",
+        "sap/ui/core/util/LibraryInfo.js"
+      ]
+    },
+    {
+      "name": "EntityInfo-dbg.js",
+      "module": "sap/ui/demokit/EntityInfo.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/util/jsanalyzer/ModuleAnalyzer.js"
+      ]
+    },
+    {
+      "name": "EntityInfo.js",
+      "module": "sap/ui/demokit/EntityInfo.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/util/jsanalyzer/ModuleAnalyzer.js"
+      ]
+    },
+    {
+      "name": "FeedbackClient-dbg.js",
+      "module": "sap/ui/demokit/FeedbackClient.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "FeedbackClient.js",
+      "module": "sap/ui/demokit/FeedbackClient.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "FileUploadIntrospector-dbg.js",
+      "module": "sap/ui/demokit/FileUploadIntrospector.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "FileUploadIntrospector.control",
+      "designtime": true
+    },
+    {
+      "name": "FileUploadIntrospector.js",
+      "module": "sap/ui/demokit/FileUploadIntrospector.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "FileUploadIntrospectorRenderer-dbg.js",
+      "module": "sap/ui/demokit/FileUploadIntrospectorRenderer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "FileUploadIntrospectorRenderer.js",
+      "module": "sap/ui/demokit/FileUploadIntrospectorRenderer.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "HexagonButton-dbg.js",
+      "module": "sap/ui/demokit/HexagonButton.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "HexagonButton.control",
+      "designtime": true
+    },
+    {
+      "name": "HexagonButton.js",
+      "module": "sap/ui/demokit/HexagonButton.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "HexagonButtonGroup-dbg.js",
+      "module": "sap/ui/demokit/HexagonButtonGroup.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "HexagonButtonGroup.control",
+      "designtime": true
+    },
+    {
+      "name": "HexagonButtonGroup.js",
+      "module": "sap/ui/demokit/HexagonButtonGroup.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "HexagonButtonGroupRenderer-dbg.js",
+      "module": "sap/ui/demokit/HexagonButtonGroupRenderer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "HexagonButtonGroupRenderer.js",
+      "module": "sap/ui/demokit/HexagonButtonGroupRenderer.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "HexagonButtonRenderer-dbg.js",
+      "module": "sap/ui/demokit/HexagonButtonRenderer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "HexagonButtonRenderer.js",
+      "module": "sap/ui/demokit/HexagonButtonRenderer.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "IndexLayout-dbg.js",
+      "module": "sap/ui/demokit/IndexLayout.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/Device.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/core/IntervalTrigger.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "IndexLayout.control",
+      "designtime": true
+    },
+    {
+      "name": "IndexLayout.js",
+      "module": "sap/ui/demokit/IndexLayout.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/Device.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/core/IntervalTrigger.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "IndexLayoutPage-dbg.js",
+      "module": "sap/ui/demokit/IndexLayoutPage.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/IconPool.js",
+        "sap/ui/demokit/IndexLayout.js",
+        "sap/ui/model/json/JSONModel.js",
+        "jquery.sap.encoder.js"
+      ]
+    },
+    {
+      "name": "IndexLayoutPage.js",
+      "module": "sap/ui/demokit/IndexLayoutPage.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/IconPool.js",
+        "sap/ui/demokit/IndexLayout.js",
+        "sap/ui/model/json/JSONModel.js",
+        "jquery.sap.encoder.js"
+      ]
+    },
+    {
+      "name": "IndexLayoutRenderer-dbg.js",
+      "module": "sap/ui/demokit/IndexLayoutRenderer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "IndexLayoutRenderer.js",
+      "module": "sap/ui/demokit/IndexLayoutRenderer.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "IndexPage-dbg.js",
+      "module": "sap/ui/demokit/IndexPage.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/DemokitApp.js"
+      ]
+    },
+    {
+      "name": "IndexPage.js",
+      "module": "sap/ui/demokit/IndexPage.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/DemokitApp.js"
+      ]
+    },
+    {
+      "name": "SimpleTree-dbg.js",
+      "module": "sap/ui/demokit/SimpleTree.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/core/delegate/ItemNavigation.js"
+      ]
+    },
+    {
+      "name": "SimpleTree.js",
+      "module": "sap/ui/demokit/SimpleTree.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/core/delegate/ItemNavigation.js"
+      ]
+    },
+    {
+      "name": "SimpleTreeNode-dbg.js",
+      "module": "sap/ui/demokit/SimpleTreeNode.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/core/Icon.js"
+      ]
+    },
+    {
+      "name": "SimpleTreeNode.js",
+      "module": "sap/ui/demokit/SimpleTreeNode.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/core/Icon.js"
+      ]
+    },
+    {
+      "name": "SimpleTreeRenderer-dbg.js",
+      "module": "sap/ui/demokit/SimpleTreeRenderer.js",
+      "isDebug": true
+    },
+    {
+      "name": "SimpleTreeRenderer.js",
+      "module": "sap/ui/demokit/SimpleTreeRenderer.js"
+    },
+    {
+      "name": "Tag-dbg.js",
+      "module": "sap/ui/demokit/Tag.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "Tag.control",
+      "designtime": true
+    },
+    {
+      "name": "Tag.js",
+      "module": "sap/ui/demokit/Tag.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "TagCloud-dbg.js",
+      "module": "sap/ui/demokit/TagCloud.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "TagCloud.control",
+      "designtime": true
+    },
+    {
+      "name": "TagCloud.js",
+      "module": "sap/ui/demokit/TagCloud.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "TagCloudRenderer-dbg.js",
+      "module": "sap/ui/demokit/TagCloudRenderer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "TagCloudRenderer.js",
+      "module": "sap/ui/demokit/TagCloudRenderer.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "UI5EntityCueCard-dbg.js",
+      "module": "sap/ui/demokit/UI5EntityCueCard.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/commons/Link.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/EntityInfo.js",
+        "sap/ui/demokit/library.js"
+      ],
+      "condRequired": [
+        "sap/ui/commons/Button.js",
+        "sap/ui/commons/Dialog.js",
+        "sap/ui/commons/Toolbar.js"
+      ]
+    },
+    {
+      "name": "UI5EntityCueCard.control",
+      "designtime": true
+    },
+    {
+      "name": "UI5EntityCueCard.js",
+      "module": "sap/ui/demokit/UI5EntityCueCard.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/commons/Link.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/demokit/EntityInfo.js",
+        "sap/ui/demokit/library.js"
+      ],
+      "condRequired": [
+        "sap/ui/commons/Button.js",
+        "sap/ui/commons/Dialog.js",
+        "sap/ui/commons/Toolbar.js"
+      ]
+    },
+    {
+      "name": "UI5EntityCueCardRenderer-dbg.js",
+      "module": "sap/ui/demokit/UI5EntityCueCardRenderer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "UI5EntityCueCardRenderer.js",
+      "module": "sap/ui/demokit/UI5EntityCueCardRenderer.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "UI5EntityCueCardStyle.type",
+      "designtime": true
+    },
+    {
+      "name": "UIAreaSubstitute-dbg.js",
+      "module": "sap/ui/demokit/UIAreaSubstitute.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "UIAreaSubstitute.control",
+      "designtime": true
+    },
+    {
+      "name": "UIAreaSubstitute.js",
+      "module": "sap/ui/demokit/UIAreaSubstitute.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/demokit/library.js"
+      ]
+    },
+    {
+      "name": "configuration/properties.json"
+    },
+    {
+      "name": "demoapps/Component-dbg.js",
+      "module": "sap/ui/demokit/demoapps/Component.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/UIComponent.js",
+        "sap/ui/demokit/demoapps/model/libraryData.js",
+        "sap/ui/model/json/JSONModel.js"
+      ]
+    },
+    {
+      "name": "demoapps/Component.js",
+      "module": "sap/ui/demokit/demoapps/Component.js",
+      "required": [
+        "sap/ui/core/UIComponent.js",
+        "sap/ui/demokit/demoapps/model/libraryData.js",
+        "sap/ui/model/json/JSONModel.js"
+      ]
+    },
+    {
+      "name": "demoapps/all-dbg.js",
+      "module": "sap/ui/demokit/demoapps/all.js",
+      "isDebug": true
+    },
+    {
+      "name": "demoapps/all.js",
+      "module": "sap/ui/demokit/demoapps/all.js"
+    },
+    {
+      "name": "demoapps/controller/Root-dbg.controller.js",
+      "module": "sap/ui/demokit/demoapps/controller/Root.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "jquery.sap.global.js",
+        "sap/ui/demokit/demoapps/model/sourceFileDownloader.js",
+        "sap/m/MessageBox.js",
+        "sap/ui/model/Filter.js",
+        "sap/ui/model/FilterOperator.js"
+      ]
+    },
+    {
+      "name": "demoapps/controller/Root.controller.js",
+      "module": "sap/ui/demokit/demoapps/controller/Root.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "jquery.sap.global.js",
+        "sap/ui/demokit/demoapps/model/sourceFileDownloader.js",
+        "sap/m/MessageBox.js",
+        "sap/ui/model/Filter.js",
+        "sap/ui/model/FilterOperator.js"
+      ]
+    },
+    {
+      "name": "demoapps/css/style.css"
+    },
+    {
+      "name": "demoapps/model/libraryData-dbg.js",
+      "module": "sap/ui/demokit/demoapps/model/libraryData.js",
+      "isDebug": true,
+      "condRequired": [
+        "sap/ui/core/IconPool.js"
+      ]
+    },
+    {
+      "name": "demoapps/model/libraryData.js",
+      "module": "sap/ui/demokit/demoapps/model/libraryData.js",
+      "condRequired": [
+        "sap/ui/core/IconPool.js"
+      ]
+    },
+    {
+      "name": "demoapps/model/sourceFileDownloader-dbg.js",
+      "module": "sap/ui/demokit/demoapps/model/sourceFileDownloader.js",
+      "isDebug": true
+    },
+    {
+      "name": "demoapps/model/sourceFileDownloader.js",
+      "module": "sap/ui/demokit/demoapps/model/sourceFileDownloader.js"
+    },
+    {
+      "name": "demoapps/view/Root.view.xml",
+      "module": "sap/ui/demokit/demoapps/view/Root.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/demoapps/controller/Root.controller.js",
+        "sap/ui/core/CustomData.js"
+      ]
+    },
+    {
+      "name": "explored/Bootstrap-dbg.js",
+      "module": "sap/ui/demokit/explored/Bootstrap.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ],
+      "condRequired": [
+        "sap/ui/core/util/LibraryInfo.js"
+      ]
+    },
+    {
+      "name": "explored/Bootstrap.js",
+      "module": "sap/ui/demokit/explored/Bootstrap.js",
+      "required": [
+        "jquery.sap.global.js"
+      ],
+      "condRequired": [
+        "sap/ui/core/util/LibraryInfo.js"
+      ]
+    },
+    {
+      "name": "explored/Component-dbg.js",
+      "module": "sap/ui/demokit/explored/Component.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/explored/util/MyRouter.js"
+      ]
+    },
+    {
+      "name": "explored/Component.js",
+      "module": "sap/ui/demokit/explored/Component.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/explored/util/MyRouter.js"
+      ]
+    },
+    {
+      "name": "explored/css/stars.png"
+    },
+    {
+      "name": "explored/css/style.css"
+    },
+    {
+      "name": "explored/css/titles.css"
+    },
+    {
+      "name": "explored/i18n/messageBundle.properties",
+      "module": "sap/ui/demokit/explored/i18n/messageBundle.properties"
+    },
+    {
+      "name": "explored/img/114_iPhone-Retina_Web_Clip.png"
+    },
+    {
+      "name": "explored/img/144_iPad_Retina_Web_Clip.png"
+    },
+    {
+      "name": "explored/img/57_iPhone_Desktop_Launch.png"
+    },
+    {
+      "name": "explored/img/72_iPad_Desktop_Launch.png"
+    },
+    {
+      "name": "explored/img/favicon.ico"
+    },
+    {
+      "name": "explored/tmpl/index.html.tmpl"
+    },
+    {
+      "name": "explored/util/MyRouter-dbg.js",
+      "module": "sap/ui/demokit/explored/util/MyRouter.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/routing/Router.js"
+      ]
+    },
+    {
+      "name": "explored/util/MyRouter.js",
+      "module": "sap/ui/demokit/explored/util/MyRouter.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/routing/Router.js"
+      ]
+    },
+    {
+      "name": "explored/util/ObjectSearch-dbg.js",
+      "module": "sap/ui/demokit/explored/util/ObjectSearch.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "explored/util/ObjectSearch.js",
+      "module": "sap/ui/demokit/explored/util/ObjectSearch.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "explored/util/ToggleFullScreenHandler-dbg.js",
+      "module": "sap/ui/demokit/explored/util/ToggleFullScreenHandler.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "explored/util/ToggleFullScreenHandler.js",
+      "module": "sap/ui/demokit/explored/util/ToggleFullScreenHandler.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "explored/view/app-dbg.controller.js",
+      "module": "sap/ui/demokit/explored/view/app.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js"
+      ]
+    },
+    {
+      "name": "explored/view/app-dbg.view.js",
+      "module": "sap/ui/demokit/explored/view/app.view.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/JSView.js"
+      ]
+    },
+    {
+      "name": "explored/view/app.controller.js",
+      "module": "sap/ui/demokit/explored/view/app.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js"
+      ]
+    },
+    {
+      "name": "explored/view/app.view.js",
+      "module": "sap/ui/demokit/explored/view/app.view.js",
+      "required": [
+        "sap/ui/core/mvc/JSView.js"
+      ]
+    },
+    {
+      "name": "explored/view/appSettingsDialog.fragment.xml",
+      "module": "sap/ui/demokit/explored/view/appSettingsDialog.fragment.xml",
+      "required": [
+        "sap/ui/core/Fragment.js",
+        "sap/ui/layout/Grid.js",
+        "sap/ui/layout/GridData.js",
+        "sap/ui/core/Item.js"
+      ]
+    },
+    {
+      "name": "explored/view/code-dbg.controller.js",
+      "module": "sap/ui/demokit/explored/view/code.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/Device.js",
+        "sap/m/MessageToast.js"
+      ]
+    },
+    {
+      "name": "explored/view/code.controller.js",
+      "module": "sap/ui/demokit/explored/view/code.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/Device.js",
+        "sap/m/MessageToast.js"
+      ]
+    },
+    {
+      "name": "explored/view/code.view.xml",
+      "module": "sap/ui/demokit/explored/view/code.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/explored/view/code.controller.js",
+        "sap/ui/demokit/CodeViewer.js"
+      ]
+    },
+    {
+      "name": "explored/view/entity-dbg.controller.js",
+      "module": "sap/ui/demokit/explored/view/entity.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/demokit/EntityInfo.js"
+      ]
+    },
+    {
+      "name": "explored/view/entity.controller.js",
+      "module": "sap/ui/demokit/explored/view/entity.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/demokit/EntityInfo.js"
+      ]
+    },
+    {
+      "name": "explored/view/entity.view.xml",
+      "module": "sap/ui/demokit/explored/view/entity.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/explored/view/entity.controller.js",
+        "sap/ui/core/CustomData.js",
+        "sap/ui/core/HTML.js",
+        "sap/ui/layout/VerticalLayout.js"
+      ]
+    },
+    {
+      "name": "explored/view/master-dbg.controller.js",
+      "module": "sap/ui/demokit/explored/view/master.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "jquery.sap.storage.js"
+      ]
+    },
+    {
+      "name": "explored/view/master.controller.js",
+      "module": "sap/ui/demokit/explored/view/master.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "jquery.sap.storage.js"
+      ]
+    },
+    {
+      "name": "explored/view/master.view.xml",
+      "module": "sap/ui/demokit/explored/view/master.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/explored/view/master.controller.js"
+      ]
+    },
+    {
+      "name": "explored/view/notFound-dbg.controller.js",
+      "module": "sap/ui/demokit/explored/view/notFound.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js"
+      ]
+    },
+    {
+      "name": "explored/view/notFound.controller.js",
+      "module": "sap/ui/demokit/explored/view/notFound.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js"
+      ]
+    },
+    {
+      "name": "explored/view/notFound.view.xml",
+      "module": "sap/ui/demokit/explored/view/notFound.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/explored/view/notFound.controller.js",
+        "sap/ui/core/HTML.js"
+      ]
+    },
+    {
+      "name": "explored/view/sample-dbg.controller.js",
+      "module": "sap/ui/demokit/explored/view/sample.controller.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/mvc/Controller.js"
+      ]
+    },
+    {
+      "name": "explored/view/sample.controller.js",
+      "module": "sap/ui/demokit/explored/view/sample.controller.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/mvc/Controller.js"
+      ]
+    },
+    {
+      "name": "explored/view/sample.view.xml",
+      "module": "sap/ui/demokit/explored/view/sample.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/explored/view/sample.controller.js"
+      ]
+    },
+    {
+      "name": "explored/view/titles.view.html",
+      "module": "sap/ui/demokit/explored/view/titles.view.html"
+    },
+    {
+      "name": "explored/view/viewSettingsDialog.fragment.xml",
+      "module": "sap/ui/demokit/explored/view/viewSettingsDialog.fragment.xml",
+      "required": [
+        "sap/ui/core/Fragment.js"
+      ]
+    },
+    {
+      "name": "explored/view/welcome.view.xml",
+      "module": "sap/ui/demokit/explored/view/welcome.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/core/mvc/HTMLView.js",
+        "sap/ui/demokit/explored/view/titles.view.html"
+      ]
+    },
+    {
+      "name": "icex/Component-dbg.js",
+      "module": "sap/ui/demokit/icex/Component.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/UIComponent.js",
+        "sap/ui/demokit/icex/model/FavoriteModel.js",
+        "sap/ui/demokit/icex/util/Sorter.js"
+      ]
+    },
+    {
+      "name": "icex/Component.js",
+      "module": "sap/ui/demokit/icex/Component.js",
+      "required": [
+        "sap/ui/core/UIComponent.js",
+        "sap/ui/demokit/icex/model/FavoriteModel.js",
+        "sap/ui/demokit/icex/util/Sorter.js"
+      ]
+    },
+    {
+      "name": "icex/css/style.css"
+    },
+    {
+      "name": "icex/img/114_iPhone-Retina_Web_Clip.png"
+    },
+    {
+      "name": "icex/img/144_iPad_Retina_Web_Clip.png"
+    },
+    {
+      "name": "icex/img/57_iPhone_Desktop_Launch.png"
+    },
+    {
+      "name": "icex/img/72_iPad_Desktop_Launch.png"
+    },
+    {
+      "name": "icex/img/SAPUI5Icon.png"
+    },
+    {
+      "name": "icex/img/favicon.ico"
+    },
+    {
+      "name": "icex/model/Config-dbg.js",
+      "module": "sap/ui/demokit/icex/model/Config.js",
+      "isDebug": true
+    },
+    {
+      "name": "icex/model/Config.js",
+      "module": "sap/ui/demokit/icex/model/Config.js"
+    },
+    {
+      "name": "icex/model/FavoriteModel-dbg.js",
+      "module": "sap/ui/demokit/icex/model/FavoriteModel.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/demokit/icex/util/Sorter.js",
+        "jquery.sap.storage.js"
+      ]
+    },
+    {
+      "name": "icex/model/FavoriteModel.js",
+      "module": "sap/ui/demokit/icex/model/FavoriteModel.js",
+      "required": [
+        "sap/ui/demokit/icex/util/Sorter.js",
+        "jquery.sap.storage.js"
+      ]
+    },
+    {
+      "name": "icex/model/groups.json"
+    },
+    {
+      "name": "icex/model/img.json"
+    },
+    {
+      "name": "icex/util/Sorter-dbg.js",
+      "module": "sap/ui/demokit/icex/util/Sorter.js",
+      "isDebug": true
+    },
+    {
+      "name": "icex/util/Sorter.js",
+      "module": "sap/ui/demokit/icex/util/Sorter.js"
+    },
+    {
+      "name": "icex/view/App-dbg.controller.js",
+      "module": "sap/ui/demokit/icex/view/App.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/m/InstanceManager.js",
+        "jquery.sap.history.js"
+      ]
+    },
+    {
+      "name": "icex/view/App-dbg.view.js",
+      "module": "sap/ui/demokit/icex/view/App.view.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/JSView.js",
+        "sap/ui/core/mvc/XMLView.js"
+      ]
+    },
+    {
+      "name": "icex/view/App.controller.js",
+      "module": "sap/ui/demokit/icex/view/App.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/m/InstanceManager.js",
+        "jquery.sap.history.js"
+      ]
+    },
+    {
+      "name": "icex/view/App.view.js",
+      "module": "sap/ui/demokit/icex/view/App.view.js",
+      "required": [
+        "sap/ui/core/mvc/JSView.js",
+        "sap/ui/core/mvc/XMLView.js"
+      ]
+    },
+    {
+      "name": "icex/view/Detail-dbg.controller.js",
+      "module": "sap/ui/demokit/icex/view/Detail.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/core/IconPool.js"
+      ]
+    },
+    {
+      "name": "icex/view/Detail.controller.js",
+      "module": "sap/ui/demokit/icex/view/Detail.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/core/IconPool.js"
+      ]
+    },
+    {
+      "name": "icex/view/Detail.view.xml",
+      "module": "sap/ui/demokit/icex/view/Detail.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/icex/view/Detail.controller.js",
+        "sap/ui/core/Icon.js"
+      ]
+    },
+    {
+      "name": "icex/view/Favorite-dbg.controller.js",
+      "module": "sap/ui/demokit/icex/view/Favorite.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js"
+      ]
+    },
+    {
+      "name": "icex/view/Favorite.controller.js",
+      "module": "sap/ui/demokit/icex/view/Favorite.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js"
+      ]
+    },
+    {
+      "name": "icex/view/Favorite.view.xml",
+      "module": "sap/ui/demokit/icex/view/Favorite.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/icex/view/Favorite.controller.js"
+      ]
+    },
+    {
+      "name": "icex/view/Group-dbg.controller.js",
+      "module": "sap/ui/demokit/icex/view/Group.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/demokit/icex/model/Config.js"
+      ]
+    },
+    {
+      "name": "icex/view/Group.controller.js",
+      "module": "sap/ui/demokit/icex/view/Group.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/demokit/icex/model/Config.js"
+      ]
+    },
+    {
+      "name": "icex/view/Group.view.xml",
+      "module": "sap/ui/demokit/icex/view/Group.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/icex/view/Group.controller.js"
+      ]
+    },
+    {
+      "name": "icex/view/Master-dbg.controller.js",
+      "module": "sap/ui/demokit/icex/view/Master.controller.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/demokit/icex/model/Config.js"
+      ]
+    },
+    {
+      "name": "icex/view/Master.controller.js",
+      "module": "sap/ui/demokit/icex/view/Master.controller.js",
+      "required": [
+        "sap/ui/core/mvc/Controller.js",
+        "sap/ui/demokit/icex/model/Config.js"
+      ]
+    },
+    {
+      "name": "icex/view/Master.view.xml",
+      "module": "sap/ui/demokit/icex/view/Master.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/demokit/icex/view/Master.controller.js"
+      ]
+    },
+    {
+      "name": "icex/view/Welcome.view.xml",
+      "module": "sap/ui/demokit/icex/view/Welcome.view.xml",
+      "required": [
+        "sap/ui/core/mvc/XMLView.js",
+        "sap/ui/core/Icon.js"
+      ]
+    },
+    {
+      "name": "js/esprima-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "js/esprima.js"
+    },
+    {
+      "name": "js/google-code-prettify/lang-css-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "js/google-code-prettify/lang-css.js"
+    },
+    {
+      "name": "js/google-code-prettify/prettify-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "js/google-code-prettify/prettify.css"
+    },
+    {
+      "name": "js/google-code-prettify/prettify.js"
+    },
+    {
+      "name": "js/google-code-prettify/run_prettify-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "js/google-code-prettify/run_prettify.js"
+    },
+    {
+      "name": "js/highlight-query-terms-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "js/highlight-query-terms.js"
+    },
+    {
+      "name": "js/licenses/esprima-BSD-LICENSE.txt"
+    },
+    {
+      "name": "js/licenses/google-code-prettify-Apache-LICENSE.txt"
+    },
+    {
+      "name": "library-all-dbg.js",
+      "isDebug": true,
+      "merged": true
+    },
+    {
+      "name": "library-all.js",
+      "merged": true
+    },
+    {
+      "name": "library-dbg.js",
+      "module": "sap/ui/demokit/library.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/js/highlight-query-terms.js",
+        "sap/ui/core/library.js",
+        "sap/ui/commons/library.js"
+      ],
+      "condRequired": [
+        "sap/ui/core/util/LibraryInfo.js"
+      ]
+    },
+    {
+      "name": "library-preload.json",
+      "merged": true
+    },
+    {
+      "name": "library.dependencies.json"
+    },
+    {
+      "name": "library.dependencies.xml"
+    },
+    {
+      "name": "library.js",
+      "module": "sap/ui/demokit/library.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/js/highlight-query-terms.js",
+        "sap/ui/core/library.js",
+        "sap/ui/commons/library.js"
+      ],
+      "condRequired": [
+        "sap/ui/core/util/LibraryInfo.js"
+      ]
+    },
+    {
+      "name": "library.templates.xml"
+    },
+    {
+      "name": "manifest.json",
+      "module": "sap/ui/demokit/manifest.json"
+    },
+    {
+      "name": "resources.json"
+    },
+    {
+      "name": "themes/base/.theming",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/CodeSampleContainer.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/CodeViewer.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/DemokitApp.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/DemokitPage.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/FileUploadIntrospector.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/HexagonButton.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/HexagonButtonGroup.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/IndexLayout.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/Link.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/SimpleTree.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/TagCloud.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/UI5EntityCueCard.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/fonts/BusinessSuiteInAppSymbolsSmall.eot",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/fonts/BusinessSuiteInAppSymbolsSmall.ttf",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/highlight-query-terms.css",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/OpenUI5_new_small_size.png",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/bg_white_transparent.png",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/file.gif",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/hexagon-blue.gif",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/hexagon-gray.gif",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/hexagon-green.gif",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/hexagon-pink.gif",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/hexagon-red.gif",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/hexagon-yellow.gif",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/hexagon.svg",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/hexagon_blue_small.png",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/hexagon_grey_small.png",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/images/logo-SAPUI5-blue-446x140.png",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/library-RTL-dbg.css",
+      "isDebug": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/library-RTL.css",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/library-dbg.css",
+      "isDebug": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/library-parameters.json",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/library.css",
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/library.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/library.source.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/base/shared.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
+      "name": "themes/sap_bluecrystal/.theming",
+      "theme": "sap_bluecrystal"
+    },
+    {
+      "name": "themes/sap_bluecrystal/library-RTL-dbg.css",
+      "isDebug": true,
+      "theme": "sap_bluecrystal"
+    },
+    {
+      "name": "themes/sap_bluecrystal/library-RTL.css",
+      "theme": "sap_bluecrystal"
+    },
+    {
+      "name": "themes/sap_bluecrystal/library-dbg.css",
+      "isDebug": true,
+      "theme": "sap_bluecrystal"
+    },
+    {
+      "name": "themes/sap_bluecrystal/library-parameters.json",
+      "theme": "sap_bluecrystal"
+    },
+    {
+      "name": "themes/sap_bluecrystal/library.css",
+      "theme": "sap_bluecrystal"
+    },
+    {
+      "name": "themes/sap_bluecrystal/library.less",
+      "designtime": true,
+      "theme": "sap_bluecrystal"
+    },
+    {
+      "name": "themes/sap_bluecrystal/library.source.less",
+      "designtime": true,
+      "theme": "sap_bluecrystal"
+    },
+    {
+      "name": "themes/sap_bluecrystal/shared.less",
+      "designtime": true,
+      "theme": "sap_bluecrystal"
+    },
+    {
+      "name": "themes/sap_goldreflection/.theming",
+      "theme": "sap_goldreflection"
+    },
+    {
+      "name": "themes/sap_goldreflection/library-RTL-dbg.css",
+      "isDebug": true,
+      "theme": "sap_goldreflection"
+    },
+    {
+      "name": "themes/sap_goldreflection/library-RTL.css",
+      "theme": "sap_goldreflection"
+    },
+    {
+      "name": "themes/sap_goldreflection/library-dbg.css",
+      "isDebug": true,
+      "theme": "sap_goldreflection"
+    },
+    {
+      "name": "themes/sap_goldreflection/library-parameters.json",
+      "theme": "sap_goldreflection"
+    },
+    {
+      "name": "themes/sap_goldreflection/library.css",
+      "theme": "sap_goldreflection"
+    },
+    {
+      "name": "themes/sap_goldreflection/library.less",
+      "designtime": true,
+      "theme": "sap_goldreflection"
+    },
+    {
+      "name": "themes/sap_goldreflection/library.source.less",
+      "designtime": true,
+      "theme": "sap_goldreflection"
+    },
+    {
+      "name": "themes/sap_goldreflection/shared.less",
+      "designtime": true,
+      "theme": "sap_goldreflection"
+    },
+    {
+      "name": "themes/sap_hcb/.theming",
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "themes/sap_hcb/library-RTL-dbg.css",
+      "isDebug": true,
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "themes/sap_hcb/library-RTL.css",
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "themes/sap_hcb/library-dbg.css",
+      "isDebug": true,
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "themes/sap_hcb/library-parameters.json",
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "themes/sap_hcb/library.css",
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "themes/sap_hcb/library.less",
+      "designtime": true,
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "themes/sap_hcb/library.source.less",
+      "designtime": true,
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "themes/sap_hcb/shared.less",
+      "designtime": true,
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "util/jsanalyzer/ASTUtils-dbg.js",
+      "module": "sap/ui/demokit/util/jsanalyzer/ASTUtils.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/js/esprima.js"
+      ]
+    },
+    {
+      "name": "util/jsanalyzer/ASTUtils.js",
+      "module": "sap/ui/demokit/util/jsanalyzer/ASTUtils.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/demokit/js/esprima.js"
+      ]
+    },
+    {
+      "name": "util/jsanalyzer/Doclet-dbg.js",
+      "module": "sap/ui/demokit/util/jsanalyzer/Doclet.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "util/jsanalyzer/Doclet.js",
+      "module": "sap/ui/demokit/util/jsanalyzer/Doclet.js",
+      "required": [
+        "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "util/jsanalyzer/ModuleAnalyzer-dbg.js",
+      "module": "sap/ui/demokit/util/jsanalyzer/ModuleAnalyzer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/base/ManagedObjectMetadata.js",
+        "sap/ui/demokit/util/jsanalyzer/ASTUtils.js",
+        "sap/ui/demokit/util/jsanalyzer/Doclet.js",
+        "sap/ui/demokit/js/esprima.js"
+      ]
+    },
+    {
+      "name": "util/jsanalyzer/ModuleAnalyzer.js",
+      "module": "sap/ui/demokit/util/jsanalyzer/ModuleAnalyzer.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/base/ManagedObjectMetadata.js",
+        "sap/ui/demokit/util/jsanalyzer/ASTUtils.js",
+        "sap/ui/demokit/util/jsanalyzer/Doclet.js",
+        "sap/ui/demokit/js/esprima.js"
+      ]
+    }
+  ]
+}

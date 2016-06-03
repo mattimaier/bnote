@@ -1,0 +1,6 @@
+/*!
+ * UI development toolkit for HTML5 (OpenUI5)
+ * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
+ */
+sap.ui.define(['jquery.sap.global','sap/ui/base/EventProvider','sap/ui/core/routing/async/Target','sap/ui/core/routing/sync/Target'],function($,E,a,s){"use strict";var T=E.extend("sap.ui.core.routing.Target",{constructor:function(o,v){function c(){if(jQuery.sap.getUriParameters().get("sap-ui-xx-asyncRouting")==="true"){jQuery.sap.log.warning("Activation of async view loading in routing via url parameter is only temporarily supported and may be removed soon","Target");return true;}return false;}if(o._async===undefined){o._async=c();}this._oOptions=o;this._oViews=v;E.apply(this,arguments);var b=this._oOptions._async?a:s;for(var f in b){this[f]=b[f];}},destroy:function(){this._oParent=null;this._oOptions=null;this._oViews=null;E.prototype.destroy.apply(this,arguments);this.bIsDestroyed=true;return this;},attachDisplay:function(d,f,l){return this.attachEvent(this.M_EVENTS.DISPLAY,d,f,l);},detachDisplay:function(f,l){return this.detachEvent(this.M_EVENTS.DISPLAY,f,l);},fireDisplay:function(A){return this.fireEvent(this.M_EVENTS.DISPLAY,A);},_getEffectiveViewName:function(v){var V=this._oOptions.viewPath;if(V){v=V+"."+v;}return v;},M_EVENTS:{DISPLAY:"display"}});return T;});

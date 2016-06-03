@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>RoadMap</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>RoadMap is used to display step-by-step work flows of a clearly defined work process.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/int" name="numberOfVisibleSteps">
+            <documentation>Total number of steps to be displayed at once</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="firstVisibleStep">
+            <documentation>ID of the first step to be displayed</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="selectedStep">
+            <documentation>ID of the step which is currently selected</documentation>
+        </property>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Determines the control width in CSS size</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="stepSelected">
+            <documentation>Event is fired when the user selects a step.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="stepId">
+                    <documentation>ID of the selected step</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="stepExpanded">
+            <documentation>Event is fired when a given step is expanded or collapsed by user.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="stepId">
+                    <documentation>ID of the expanded/collapsed step</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="steps">
+        <aggregation cardinality="0..n" type="sap.ui.commons/RoadMapStep" name="steps">
+            <documentation>Steps that are composing the RoadMap</documentation>
+        </aggregation>
+    </aggregations>
+</control>

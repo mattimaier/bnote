@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Carousel</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Carousel holds multiple controls and displays them vertically or horizontally next to each other. You can define how many content items should be displayed at once or let the Carousel determine that for you. Navigation is done through buttons or keys.</documentation>
+    <since>1.8.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="horizontal" type="sap.ui.commons/enums/Orientation" name="orientation">
+            <documentation>Determines the orientation of the Carousel. Can be either &quot;horizontal&quot; or &quot;vertical&quot;</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Determines the width of the Carousel</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Determines the height of the Carousel</documentation>
+        </property>
+        <property group="Misc" defaultValue="150" type="sap.ui.core/int" name="defaultItemHeight">
+            <documentation>Default height of the item in a carousel if no height can be determined</documentation>
+        </property>
+        <property group="Misc" defaultValue="150" type="sap.ui.core/int" name="defaultItemWidth">
+            <documentation>Default width of the item in a carousel if no height can be determined</documentation>
+        </property>
+        <property group="Misc" defaultValue="500" type="sap.ui.core/int" name="animationDuration">
+            <documentation>Duration for animation when navigating through the contents of the Carousel</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/int" name="visibleItems">
+            <documentation>If defined, the carousel displays the number of items defined. Items will be resized to fit the area.</documentation>
+        </property>
+        <property group="Misc" defaultValue="22" type="sap.ui.core/int" name="handleSize">
+            <documentation>Determines the size of the handle in pixels. (Height for vertical carousel, width for horizontal carousel)</documentation>
+        </property>
+        <property since="1.11.0" group="Appearance" defaultValue="0" type="sap.ui.core/int" name="firstVisibleIndex">
+            <documentation>The index of the element in the content aggreation which is displayed first on rendering</documentation>
+        </property>
+    </properties>
+    <aggregations default="content">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Controls which are displayed inside the Carousel</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method name="showPrevious">
+            <documentation>Shows the previous item in carousel. This can be only used after the component is rendered.</documentation>
+        </method>
+        <method name="showNext">
+            <documentation>Shows the next item in carousel. This can be only used after the component is rendered.</documentation>
+        </method>
+        <method name="showElementWithId">
+            <documentation>Shows the element with the specified Id. This can be only used after the component is rendered.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="elementId">
+                    <documentation>Id of the element to slide to.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

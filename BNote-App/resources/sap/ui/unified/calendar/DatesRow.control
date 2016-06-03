@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>calendar/DatesRow</name>
+    <derived/>
+    <documentation>renders a row of days with ItemNavigation
+This is used inside the calendar. Not for stand alone usage
+If used inside the calendar the properties and aggregation are directly taken from the parent
+(To not duplicate and sync DateRanges and so on...)</documentation>
+    <since>1.30.0</since>
+    <baseType>sap.ui.unified/calendar/Month</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/object" name="startDate">
+            <documentation>Start date of the row
+If in rendering phase the date property is not in the range startDate + days,
+it is set to the start date
+So after setting the start date the date should be set to be in the range of the start date</documentation>
+        </property>
+        <property group="Appearance" defaultValue="7" type="sap.ui.core/int" name="days">
+            <documentation>number of days displayed</documentation>
+        </property>
+        <property since="1.34.0" group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showDayNamesLine">
+            <documentation>If set the day names are shown in a separate line.
+If not set the day names are shown inside the single days.</documentation>
+        </property>
+    </properties>
+    <methods>
+        <method type="sap.ui.unified/calendar/DatesRow" name="displayDate">
+            <documentation>displays the a given date without setting the focus
+
+Property &lt;code&gt;date&lt;/code&gt; date to be focused or displayed. It must be in the displayed date range
+beginning with &lt;code&gt;startDate&lt;/code&gt; and &lt;code&gt;days&lt;/code&gt; days
+So set this properties before setting the date.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="date">
+                    <documentation>JavaScript date object for focused date.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

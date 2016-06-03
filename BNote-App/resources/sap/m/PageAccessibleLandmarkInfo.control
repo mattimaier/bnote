@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>PageAccessibleLandmarkInfo</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Settings for accessible landmarks which can be applied to the container elements of a &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+These landmarks are e.g. used by assistive technologies (like screenreaders) to provide a meaningful page overview.</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property defaultValue="Region" type="sap.ui.core/AccessibleLandmarkRole" name="rootRole">
+            <documentation>Landmark role of the root container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If set to &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt;, no landmark will be added to the container.</documentation>
+        </property>
+        <property type="sap.ui.core/string" name="rootLabel">
+            <documentation>Texts which describes the landmark of the root container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If not set (and a landmark different than &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt; is defined), a predefined text
+is used.</documentation>
+        </property>
+        <property defaultValue="Main" type="sap.ui.core/AccessibleLandmarkRole" name="contentRole">
+            <documentation>Landmark role of the content container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If set to &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt;, no landmark will be added to the container.</documentation>
+        </property>
+        <property type="sap.ui.core/string" name="contentLabel">
+            <documentation>Texts which describes the landmark of the content container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If not set (and a landmark different than &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt; is defined), a predefined text
+is used.</documentation>
+        </property>
+        <property defaultValue="Region" type="sap.ui.core/AccessibleLandmarkRole" name="headerRole">
+            <documentation>Landmark role of the header container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If set to &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt;, no landmark will be added to the container.</documentation>
+        </property>
+        <property type="sap.ui.core/string" name="headerLabel">
+            <documentation>Texts which describes the landmark of the header container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If not set (and a landmark different than &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt; is defined), a predefined text
+is used.</documentation>
+        </property>
+        <property type="sap.ui.core/AccessibleLandmarkRole" name="subHeaderRole">
+            <documentation>Landmark role of the subheader container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If set to &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt;, no landmark will be added to the container.</documentation>
+        </property>
+        <property type="sap.ui.core/string" name="subHeaderLabel">
+            <documentation>Texts which describes the landmark of the subheader container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If not set (and a landmark different than &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt; is defined), a predefined text
+is used.</documentation>
+        </property>
+        <property defaultValue="Region" type="sap.ui.core/AccessibleLandmarkRole" name="footerRole">
+            <documentation>Landmark role of the footer container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If set to &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt;, no landmark will be added to the container.</documentation>
+        </property>
+        <property type="sap.ui.core/string" name="footerLabel">
+            <documentation>Texts which describes the landmark of the header container of the corresponding &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If not set (and a landmark different than &lt;code&gt;sap.ui.core.AccessibleLandmarkRole.None&lt;/code&gt; is defined), a predefined text
+is used.</documentation>
+        </property>
+    </properties>
+</control>

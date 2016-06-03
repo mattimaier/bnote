@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>FlexDirection</name>
+    <derived/>
+    <documentation>Available directions for flex layouts.</documentation>
+    <enumeration>
+        <value name="Row">
+            <documentation>Flex items are laid out along the direction of the inline axis (text direction).</documentation>
+        </value>
+        <value name="Column">
+            <documentation>Flex items are laid out along the direction of the block axis (usually top to bottom).</documentation>
+        </value>
+        <value name="RowReverse">
+            <documentation>Flex items are laid out along the reverse direction of the inline axis (against the text direction).</documentation>
+        </value>
+        <value name="ColumnReverse">
+            <documentation>Flex items are laid out along the reverse direction of the block axis (usually bottom to top).</documentation>
+        </value>
+        <value name="Inherit">
+            <documentation>Inherits the value from its parent.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

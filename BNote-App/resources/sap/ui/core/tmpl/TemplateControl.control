@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>tmpl/TemplateControl</name>
+    <derived/>
+    <documentation>This is the base class for all template controls. Template controls are declared based on templates.</documentation>
+    <developmentState since="1.15" state="experimental">The templating might be changed in future versions.</developmentState>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/object" name="context">
+            <documentation>The context is a data object. It can be used for default template expressions. A change of the context object leads to a re-rendering whereas a change of a nested property of the context object doesn't. By default the context is an empty object.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="afterRendering">
+            <documentation>Fired when the Template Control has been (re-)rendered and its HTML is present in the DOM.</documentation>
+        </event>
+        <event allowPreventDefault="false" name="beforeRendering">
+            <documentation>Fired before this Template Control is re-rendered. Use to unbind event handlers from HTML elements etc.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="controls">
+            <documentation>The nested controls of the template control</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/tmpl/Template" name="template">
+            <documentation>The template on which the template control is based on.</documentation>
+        </association>
+    </associations>
+</control>

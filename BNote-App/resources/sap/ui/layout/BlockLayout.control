@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>BlockLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The BlockLayout is used to display several objects in a section-based manner. It features horizontal and vertical subdivisions, and full-width banners seen frequently in contemporary web design. Background colors are attached directly to these “blocks” of the layout. Special full-width sections of the BlockLayout allow horizontal scrolling through a set of blocks.
+Example use cases are SAP HANA Cloud Integration and the SAPUI5 Demo Kit. In SAP HANA Cloud Integration the BlockLayout serves as a banner-like presentation of illustrative icons with associated text. By placing pictorial and textual elements side by side in different blocks, a relation of content is established. In the SAPUI5 Demo Kit the BlockLayout serves as a flexible container for diverging content, such as headings, explanatory texts, code snippets, remarks, and examples.
+The BlockLayout comes in three types: Layout only (default), Bright, and Mixed background colors.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="Default" type="sap.ui.layout/BlockBackgroundType" name="background">
+            <documentation>Determines the background used for the Layout</documentation>
+        </property>
+    </properties>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.layout/BlockLayoutRow" name="content">
+            <documentation>The Rows to be included in the content of the control</documentation>
+        </aggregation>
+    </aggregations>
+</control>

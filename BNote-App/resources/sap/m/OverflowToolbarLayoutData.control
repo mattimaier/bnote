@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>OverflowToolbarLayoutData</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Holds layout data for the OverflowToolbar items.</documentation>
+    <since>1.28</since>
+    <baseType>sap.m/ToolbarLayoutData</baseType>
+    <properties>
+        <property defaultValue="true" type="sap.ui.core/boolean" name="moveToOverflow">
+            <documentation>The OverflowToolbar item can or cannot move to the overflow area</documentation>
+            <deprecation since="1.32"></deprecation>
+        </property>
+        <property defaultValue="false" type="sap.ui.core/boolean" name="stayInOverflow">
+            <documentation>The OverflowToolbar item can or cannot stay in the overflow area</documentation>
+            <deprecation since="1.32"></deprecation>
+        </property>
+        <property since="1.32" group="Behavior" defaultValue="High" type="sap.m/OverflowToolbarPriority" name="priority">
+            <documentation>Defines OverflowToolbar items priority, Available priorities ate NeverOverflow, High, Low, Disappear and AlwaysOverflow</documentation>
+        </property>
+        <property since="1.32" group="Behavior" defaultValue="0" type="sap.ui.core/int" name="group">
+            <documentation>Defines OverflowToolbar items group number.
+Default value is 0, which means that the control does not belong to any group.
+Elements that belong to a group overflow together. The overall priority of the group is defined by the element with highest priority.
+Elements that belong to a group are not allowed to have AlwaysOverflow or NeverOverflow priority.</documentation>
+        </property>
+    </properties>
+</control>

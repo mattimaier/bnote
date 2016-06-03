@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MenuTextFieldItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Special menu item which contains a label and a text field. This menu item is e.g. helpful for filter implementations.
+The aggregation &lt;code&gt;submenu&lt;/code&gt; (inherited from parent class) is not supported for this type of menu item.</documentation>
+    <deprecation since="1.21.0">Please use the control &lt;code&gt;sap.ui.unified.MenuTextFieldItem&lt;/code&gt; of the library &lt;code&gt;sap.ui.unified&lt;/code&gt; instead.</deprecation>
+    <baseType>sap.ui.unified/MenuTextFieldItem</baseType>
+</control>

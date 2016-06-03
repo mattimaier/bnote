@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SelectList</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The &lt;code&gt;sap.m.SelectList&lt;/code&gt; displays a list of items that allows the user to select an item.</documentation>
+    <since>1.26.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Indicates whether the user can change the selection.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="auto" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Sets the width of the control.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="maxWidth">
+            <documentation>Sets the maximum width of the control.</documentation>
+        </property>
+        <property group="Data" defaultValue="" type="sap.ui.core/string" name="selectedKey">
+            <documentation>Key of the selected item.
+
+&lt;b&gt;Note: &lt;/b&gt; If duplicate keys exist, the first item matching the key is used.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="selectedItemId">
+            <documentation>ID of the selected item.</documentation>
+        </property>
+        <property since="1.32.3" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="showSecondaryValues">
+            <documentation>Indicates whether the text values of the &lt;code&gt;additionalText&lt;/code&gt; property of a {@link sap.ui.core.ListItem} is shown.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="selectionChange">
+            <documentation>This event is fired when the selection has changed.
+
+&lt;b&gt;Note: &lt;/b&gt; The selection can be changed by pressing an non-selected item or
+via keyboard and after the enter or space key is pressed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Item" name="selectedItem">
+                    <documentation>The selected item.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.32.4" name="itemPress">
+            <documentation>This event is fired when an item is pressed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Item" name="item">
+                    <documentation>The pressed item.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="items">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.core/Item" name="items">
+            <documentation>Defines the items contained within this control.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/Item" name="selectedItem">
+            <documentation>Sets or retrieves the selected item from the aggregation named items.</documentation>
+        </association>
+        <association since="1.27.0" cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute &lt;code&gt;aria-labelledby&lt;/code&gt;).</documentation>
+        </association>
+    </associations>
+</control>

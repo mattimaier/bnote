@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>UIAreaSubstitute</name>
+    <derived/>
+    <documentation>A substitute for an UIArea that can be embedded in the control tree.</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Content Area used for the running sample code</documentation>
+        </aggregation>
+    </aggregations>
+</control>

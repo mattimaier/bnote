@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>TaskCircle</name>
+    <derived/>
+    <author>Svetozar Buzdumovic</author>
+    <documentation>This control shows a circle which radius and color depends on the given parameters</documentation>
+    <developmentState since="1.2" state="experimental">The API may change. User with care.</developmentState>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="0" type="sap.ui.core/int" name="value">
+            <documentation>Current value of the task circle to be displayed. In dependency of the parameters maxValue and minValue it controls the size of the circle.</documentation>
+        </property>
+        <property group="Misc" defaultValue="100" type="sap.ui.core/int" name="maxValue">
+            <documentation>Upper limit of the displayed values. Default is 100.</documentation>
+        </property>
+        <property group="Misc" defaultValue="0" type="sap.ui.core/int" name="minValue">
+            <documentation>Lower limit of the displayed values. Default is 0.</documentation>
+        </property>
+        <property group="Misc" defaultValue="Gray" type="sap.ui.suite/TaskCircleColor" name="color">
+            <documentation>Color of the circle. The default color is red.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Event is fired when the user clicks the control.</documentation>
+        </event>
+    </events>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method type="sap.ui.core/void" name="focus">
+            <documentation>Puts the focus to the control.</documentation>
+        </method>
+    </methods>
+</control>

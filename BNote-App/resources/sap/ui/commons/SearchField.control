@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SearchField</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Allows the user to type search queries and to trigger the search. Optionally, suggestions can be added.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enableListSuggest">
+            <documentation>Defines whether a pop up list shall be provided for suggestions</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="showListExpander">
+            <documentation>Defines whether the list expander shall be displayed in the case of an enabled list for suggestions. This feature is deactivated on mobile devices.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="enableClear">
+            <documentation>Defines whether the clear functionality shall be active</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="showExternalButton">
+            <documentation>Defines whether an additional search button shall be displayed</documentation>
+        </property>
+        <property since="1.10.3" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enableCache">
+            <documentation>When list suggestion is enabled all suggestions are cached and no suggest event is fired.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="enableFilterMode">
+            <documentation>Defines whether the search event should also be fired when the SearchField is empty (like a Filter field) and when the clear button (if activated) is pressed.</documentation>
+        </property>
+        <property group="Data" defaultValue="" type="sap.ui.core/string" name="value">
+            <documentation>Text that shall be displayed within the search field</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Disabled fields have different colors, and they can not be focused.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="editable">
+            <documentation>Non-editable controls have different colors, depending on custom settings</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Control width in CSS-size</documentation>
+        </property>
+        <property group="Behavior" defaultValue="0" type="sap.ui.core/int" name="maxLength">
+            <documentation>Maximum number of characters. Value '0' means the feature is switched off.</documentation>
+        </property>
+        <property since="1.32" group="Appearance" defaultValue="None" type="sap.ui.core/ValueState" name="valueState">
+            <documentation>Visualizes warnings or errors related to the input field. Possible values: Warning, Error, Success, None.</documentation>
+        </property>
+        <property since="1.32" group="Appearance" defaultValue="" type="sap.ui.core/string" name="placeholder">
+            <documentation>Placeholder for the input field.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Begin" type="sap.ui.core/TextAlign" name="textAlign">
+            <documentation>Sets the horizontal alignment of the text</documentation>
+        </property>
+        <property group="Behavior" defaultValue="20" type="sap.ui.core/int" name="visibleItemCount">
+            <documentation>Defines the number of items in the suggestion list that shall be displayed at once. If the overall number of list items is higher than the setting,
+a scroll bar is provided.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="3" type="sap.ui.core/int" name="startSuggestion">
+            <documentation>Minimum length of the entered string triggering the suggestion list.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="10" type="sap.ui.core/int" name="maxSuggestionItems">
+            <documentation>Maximum number of suggestion items in the suggestion list.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="0" type="sap.ui.core/int" name="maxHistoryItems">
+            <documentation>Maximum number of history items in the suggestion list.
+0 displays and stores no history. The history is locally stored on the client. Therefore do not activate this feature when this control handles confidential data.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="search">
+            <documentation>Event which is fired when the user triggers a search</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="query">
+                    <documentation>The search query</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="suggest">
+            <documentation>Event which is fired when new suggest values are required.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="value">
+                    <documentation>The value for which suggestions are required.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..1" type="sap.ui.core/search/SearchProvider" name="searchProvider">
+            <documentation>Search provider instance which handles the suggestions for this SearchField (e.g. Open Search Protocol).</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / IDs which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method type="sap.ui.core/void" name="clearHistory">
+            <documentation>Clears the history of the control</documentation>
+        </method>
+        <method type="sap.ui.core/void" name="suggest">
+            <documentation>Callback function used to provide the suggest values in the handler of the suggest event (only in list suggestion mode)</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="sSuggestValue">
+                    <documentation>The value which was provided in the corresponding suggest event (parameter 'value')</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string[]" name="aSuggestions">
+                    <documentation>The list of suggestions belonging to the suggest value</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

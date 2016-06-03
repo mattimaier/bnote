@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>DateRangeSelection</name>
+    <derived/>
+    <documentation>This is a date range input control with a calendar as date picker.
+
+A date range can be entered using a calendar that opens in a popup. Alternatively a value can be entered directly in the input field by typing it in.
+(This is only possible on desktop devices, on mobile devices keyboard input is not possible.)
+If a date range is entered by typing it into the input field, it must fit to the used date format and locale. (See &lt;code&gt;sap.ui.core.format.DateFormat&lt;/code&gt;)
+
+There are two options to provide a date for the &lt;code&gt;DateRangeSelection&lt;/code&gt;.
+You can put a date range as a string to the property &lt;code&gt;value&lt;/code&gt; or you can put JavaScript Date objects to the properties &lt;code&gt;dateValue&lt;/code&gt; and &lt;code&gt;secondDateValue&lt;/code&gt;.
+Only one of the properties should be used at one time, but they are synchronized internally.
+What property to use depends on the use case of the application.
+&lt;ul&gt;
+&lt;li&gt;Use the &lt;code&gt;value&lt;/code&gt; property if the date range is already provided as a formatted string.&lt;/li&gt;
+&lt;li&gt;Use the &lt;code&gt;dateValue&lt;/code&gt; and &lt;code&gt;secondDateValue&lt;/code&gt; properties if the date range is already provided as JavaScript Date objects or you want to work with JavaScript Date objects.&lt;/li&gt;
+&lt;/ul&gt;
+
+All formatting and parsing of dates from and to strings is done using the {@link sap.ui.core.format.DateFormat}, so read the corresponding documentation if you need some information about this.
+
+Supported format options are pattern-based on Unicode LDML Date Format notation. {@link http://unicode.org/reports/tr35/#Date_Field_Symbol_Table}
+
+For example, if the &lt;code&gt;displayFormat&lt;/code&gt; is &quot;MMM d, y&quot;, &lt;code&gt;delimiter&lt;/code&gt; is &quot;-&quot; and the used locale is English,
+a valid &lt;code&gt;value&lt;/code&gt; string is &quot;Jul 29, 2015 - Jul 31, 2015&quot; and it will be displayed in the same way in the input field.
+
+If no &lt;code&gt;placeholder&lt;/code&gt; is set to the &lt;code&gt;DatePicker&lt;/code&gt; the used &lt;code&gt;displayFormat&lt;/code&gt; is shown as placeholder.
+If another placeholder is needed, it must be set.
+
+Internally the &lt;code&gt;sap.ui.unified.Calendar&lt;/code&gt; is used, but it is only needed if the &lt;code&gt;DateRangeSelection&lt;/code&gt; is opened. This means that it is not needed for the initial rendering.
+If the &lt;code&gt;sap.ui.unified&lt;/code&gt; library is not loaded before the &lt;code&gt;DateRangeSelection&lt;/code&gt; is opened, it will be loaded upon opening.
+This could lead to a waiting time before a &lt;code&gt;DateRangeSelection&lt;/code&gt; is opened the first time. To prevent this, applications using the &lt;code&gt;DateRangeSelection&lt;/code&gt; should also load
+the &lt;code&gt;sap.ui.unified&lt;/code&gt; library.</documentation>
+    <since>1.22.0</since>
+    <baseType>sap.m/DatePicker</baseType>
+    <properties>
+        <property group="Misc" defaultValue="-" type="sap.ui.core/string" name="delimiter">
+            <documentation>Delimiter between start and end date. Default value is &quot;-&quot;.
+If no delimiter is given, the one defined for the used locale is used.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/object" name="secondDateValue">
+            <documentation>The end date of the range as JavaScript Date object. This is independent from any formatter.
+
+&lt;b&gt;Note:&lt;/b&gt; If this property is used, the &lt;code&gt;value&lt;/code&gt; property should not be changed from the caller.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/object" name="from">
+            <documentation>Start date of the range.</documentation>
+            <deprecation since="1.22.0">Use &lt;code&gt;dateValue&lt;/code&gt; instead.</deprecation>
+        </property>
+        <property group="Misc" type="sap.ui.core/object" name="to">
+            <documentation>End date of the range.</documentation>
+            <deprecation since="1.22.0">Use &lt;code&gt;secondDateValue&lt;/code&gt; instead.</deprecation>
+        </property>
+    </properties>
+</control>

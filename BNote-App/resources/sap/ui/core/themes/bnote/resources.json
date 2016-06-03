@@ -1,0 +1,190 @@
+{
+  "_version": "1.1.0",
+  "resources": [
+    {
+      "name": ".theme",
+      "theme": "bnote"
+    },
+    {
+      "name": ".theming",
+      "theme": "bnote"
+    },
+    {
+      "name": "BrowserScrollbar.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "BusyIndicator.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "DatePicker.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Icon.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Shadow.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "base.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "fonts/bluecrystal_icons.ttf",
+      "theme": "bnote"
+    },
+    {
+      "name": "global.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/Busy.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/arrow_DOWN.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/arrow_DOWN_hover.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/arrow_LEFT.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/arrow_LEFT_hover.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/arrow_RIGHT.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/arrow_RIGHT_hover.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/arrow_UP.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/arrow_UP_hover.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/bg_white_transparent.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/scrollbar_grip_horizontal.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/scrollbar_grip_vertical.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/Busy.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/arrow_DOWN.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/arrow_DOWN_hover.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/arrow_LEFT.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/arrow_LEFT_hover.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/arrow_RIGHT.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/arrow_RIGHT_hover.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/arrow_UP.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/arrow_UP_hover.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/bg_white_transparent.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/scrollbar_grip_horizontal.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/scrollbar_grip_vertical.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "library-RTL-dbg.css",
+      "isDebug": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "library-RTL.css",
+      "theme": "bnote"
+    },
+    {
+      "name": "library-dbg.css",
+      "isDebug": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "library-parameters.json",
+      "theme": "bnote"
+    },
+    {
+      "name": "library.css",
+      "theme": "bnote"
+    },
+    {
+      "name": "library.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "library.source.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "parameterClasses.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "shared.less",
+      "designtime": true,
+      "theme": "bnote"
+    }
+  ]
+}

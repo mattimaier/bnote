@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>FlexJustifyContent</name>
+    <derived/>
+    <documentation>Available options for the layout of elements along the main axis of the flexbox layout.</documentation>
+    <enumeration>
+        <value name="Start">
+            <documentation>Flex items are packed toward the start of the line.</documentation>
+        </value>
+        <value name="End">
+            <documentation>Flex items are packed toward the end of the line.</documentation>
+        </value>
+        <value name="Center">
+            <documentation>Flex items are packed toward the center of the line.</documentation>
+        </value>
+        <value name="SpaceBetween">
+            <documentation>Flex items are evenly distributed in the line.</documentation>
+        </value>
+        <value name="SpaceAround">
+            <documentation>Flex items are evenly distributed in the line, with half-size spaces on either end.
+&lt;b&gt;Note:&lt;/b&gt; This value behaves like SpaceBetween in Internet Explorer 10.</documentation>
+        </value>
+        <value name="Inherit">
+            <documentation>Inherits the value from its parent.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Slider</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The interactive control is displayed either as a horizontal or a vertical line with a pointer and units of measurement.
+Users can move the pointer along the line to change values with graphical support.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of the horizontal slider.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="0" type="sap.ui.core/float" name="min">
+            <documentation>Minimal value of the slider.
+
+&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;min&lt;/code&gt; is larger than &lt;code&gt;max&lt;/code&gt; both values will be switched</documentation>
+        </property>
+        <property group="Appearance" defaultValue="100" type="sap.ui.core/float" name="max">
+            <documentation>Maximal value of the slider
+
+&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;min&lt;/code&gt; is larger than &lt;code&gt;max&lt;/code&gt; both values will be switched</documentation>
+        </property>
+        <property group="Appearance" defaultValue="50" type="sap.ui.core/float" name="value">
+            <documentation>Current value of the slider. (Position of the grip.)
+
+&lt;b&gt;Note:&lt;/b&gt; If the value is not in the valid range (between &lt;code&gt;min&lt;/code&gt; and &lt;code&gt;max&lt;/code&gt;) it will be changed to be in the valid range.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/float" name="smallStepWidth">
+            <documentation>The grip can only be moved in steps of this width.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/int" name="totalUnits">
+            <documentation>Number of units that are displayed by ticks. The PageUp and PageDown keys navigate according to these units.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="stepLabels">
+            <documentation>Display step numbers for the ticks on the slider.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="editable">
+            <documentation>Using the slider interactively requires value &quot;true&quot;.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Switches enabled state of the control. Disabled fields have different colors, and can not be focused.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string[]" name="labels">
+            <documentation>Labels to be displayed instead of numbers. Attribute totalUnits and label count should be the same
+
+&lt;b&gt;Note:&lt;/b&gt; To show the labels &lt;code&gt;stepLabels&lt;/code&gt; must be activated.</documentation>
+        </property>
+        <property since="1.7.1" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="vertical">
+            <documentation>Orientation of slider</documentation>
+        </property>
+        <property since="1.7.1" group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Height of the vertical slider.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="change">
+            <documentation>Value was changed. This event is fired if the value has changed by an user action.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/float" name="value">
+                    <documentation>Current value of the slider after a change.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="liveChange">
+            <documentation>Value was changed. This event is fired during the mouse move. The normal change event is only fired by mouseup.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/float" name="value">
+                    <documentation>Current value of the slider after a change.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / IDs which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

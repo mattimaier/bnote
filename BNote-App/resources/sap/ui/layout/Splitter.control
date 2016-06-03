@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Splitter</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A layout that contains several content areas. The content that is added to the splitter should contain LayoutData of the type SplitterLayoutData that defines its size and size contraints.
+
+By adding or changing SplitterLayoutData to the controls that make up the content areas, the size can be changed programatically. Additionally the contents can be made non-resizable individually and a minimal size (in px) can be set.
+
+The orientation of the splitter can be set to horizontal (default) or vertical. All content areas of the splitter will be arranged in that way. In order to split vertically and horizontally at the same time, Splitters need to be nested.
+
+The splitter bars can be focused to enable resizing of the content areas via keyboard. The contents size can be manipulated when the splitter bar is focused and Shift-Left/Down/Right/Up are pressed. When Shift-Home/End are pressed, the contents are set their minimum or maximum size (keep in mind though, that resizing an auto-size content-area next to another auto-size one might lead to the effect that the former does not take its maximum size but only the maximum size before recalculating auto sizes).
+
+The splitter bars used for resizing the contents by the user can be set to different widths (or heights in vertical mode) and the splitter will automatically resize the other contents accordingly. In case the splitter bar is resized after the splitter has rendered, a manual resize has to be triggered by invoking triggerResize() on the Splitter.</documentation>
+    <since>1.22.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="Horizontal" type="sap.ui.core/Orientation" name="orientation">
+            <documentation>Whether to split the contents horizontally (default) or vertically.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>The width of the control</documentation>
+        </property>
+        <property group="Appearance" defaultValue="100%" type="sap.ui.core/CSSSize" name="height">
+            <documentation>The height of the control</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="resize">
+            <documentation>Event is fired when contents are resized.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The ID of the splitter control. The splitter control can also be accessed by calling getSource() on the event.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int[]" name="oldSizes">
+                    <documentation>An array of values representing the old (pixel-)sizes of the splitter contents</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int[]" name="newSizes">
+                    <documentation>An array of values representing the new (pixel-)sizes of the splitter contents</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="contentAreas">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="contentAreas">
+            <documentation>The content areas to be split. The control will show n-1 splitter bars between n controls in this aggregation.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

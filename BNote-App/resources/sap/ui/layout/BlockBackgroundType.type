@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>BlockBackgroundType</name>
+    <derived/>
+    <documentation>A string type that is used inside the BlockLayout to set predefined background color to the cells inside
+the control.</documentation>
+    <enumeration>
+        <value name="Default">
+            <documentation>Background is transparent</documentation>
+        </value>
+        <value name="Light">
+            <documentation>Background is with predefined light colors</documentation>
+        </value>
+    </enumeration>
+</simple-type>

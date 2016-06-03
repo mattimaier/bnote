@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>NotificationListItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The NotificationListItem control is suitable for showing notifications to the user.</documentation>
+    <since>1.34</since>
+    <baseType>sap.m/ListItemBase</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="None" type="sap.ui.core/Priority" name="priority">
+            <documentation>Determines the priority of the Notification.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="title">
+            <documentation>Determines the title of the NotificationListItem.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="description">
+            <documentation>Determines the description of the NotificationListItem.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="datetime">
+            <documentation>Determines the due date of the NotificationListItem.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="showButtons">
+            <documentation>Determines the action buttons visibility.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="showCloseButton">
+            <documentation>Determines the close button visibility.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="authorName">
+            <documentation>Determines the notification's author name.</documentation>
+        </property>
+        <property type="sap.ui.core/URI" name="authorPicture">
+            <documentation>Determines the notification's author picture address.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="truncate">
+            <documentation>Determines if the text in the title and the description of the notification are truncated to the first two lines.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="close">
+            <documentation>Fired when the list item is closed.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.m/Button" name="buttons">
+            <documentation>Action buttons.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Text" name="_headerTitle">
+            <documentation>The title control that holds the datetime text of the NotificationListItem.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Text" name="_bodyText">
+            <documentation>The text control that holds the description text of the NotificationListItem.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Text" name="_dateTime">
+            <documentation>The text control that holds the datetime text of the NotificationListItem.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/OverflowToolbar" name="_overflowToolbar">
+            <documentation>The OverflowToolbar control that holds the footer buttons.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Text" name="_authorName">
+            <documentation>The sap.m.Text that holds the author name.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_authorImage">
+            <documentation>The sap.m.Image or sap.ui.core.Control control that holds the author image or icon.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Button" name="_closeButton">
+            <documentation>The close button of the notification item/group.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Button" name="_collapseButton">
+            <documentation>The collapse button of the notification item/group.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/InvisibleText" name="_ariaDetailsText">
+            <documentation>InvisibleText used to implement the ARIA specification.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

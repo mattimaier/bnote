@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectPageSubSectionMode</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Used by the ObjectPageLayout control to define which layout to use (either Collapsed or Expanded).</documentation>
+    <enumeration>
+        <value name="Collapsed">
+            <documentation>Collapsed mode of display of the ObjectPageLayout.</documentation>
+        </value>
+        <value name="Expanded">
+            <documentation>Expanded mode of displaying the ObjectPageLayout.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

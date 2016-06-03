@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>layout/ResponsiveFlowLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This is a layout where several controls can be added. These controls are blown up to fit a whole line. If the window resizes the controls are moved between the lines and resized again.</documentation>
+    <since>1.9.1</since>
+    <deprecation since="1.16.0">moved to sap.ui.layout library. Please use this one.</deprecation>
+    <baseType>sap.ui.layout/ResponsiveFlowLayout</baseType>
+</control>

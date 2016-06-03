@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>semantic/SemanticSelect</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A semantic select is a {@link sap.m.Select} eligible for aggregation content of a {@link sap.m.semantic.SemanticPage}.</documentation>
+    <since>1.30</since>
+    <baseType>sap.m/semantic/SemanticControl</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>See {@link sap.m.Select#enabled}</documentation>
+        </property>
+        <property group="Data" defaultValue="" type="sap.ui.core/string" name="selectedKey">
+            <documentation>See {@link sap.m.Select#selectedKey}</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="change">
+            <documentation>See {@link sap.m.Select#change}</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Item" name="selectedItem">
+                    <documentation>The selected item.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="items">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.core/Item" name="items">
+            <documentation>See {@link sap.m.Select#items}</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/Item" name="selectedItem">
+            <documentation>See {@link sap.m.Select#selectedItem}</documentation>
+        </association>
+    </associations>
+</control>

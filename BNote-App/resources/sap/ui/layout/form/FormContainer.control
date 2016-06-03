@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>form/FormContainer</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A &lt;code&gt;FormContainer&lt;/code&gt; represents a group inside a &lt;code&gt;Form&lt;/code&gt;. It consists of &lt;code&gt;FormElements&lt;/code&gt;.
+The rendering of the &lt;code&gt;FormContainer&lt;/code&gt; is done by the &lt;code&gt;FormLayout&lt;/code&gt; assigned to the &lt;code&gt;Form&lt;/code&gt;.</documentation>
+    <since>1.16.0</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="expanded">
+            <documentation>Container is expanded.
+&lt;b&gt;Note:&lt;/b&gt; This property only works if &lt;code&gt;expandable&lt;/code&gt; is set to &lt;code&gt;true&lt;/code&gt;.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="expandable">
+            <documentation>Defines if the &lt;code&gt;FormContainer&lt;/code&gt; is expandable.
+&lt;b&gt;Note:&lt;/b&gt; The expander icon will only be shown if a &lt;code&gt;title&lt;/code&gt; is set for the &lt;code&gt;FormContainer&lt;/code&gt;.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>If set to &lt;code&gt;false&lt;/code&gt;, the &lt;code&gt;FormContainer&lt;/code&gt; is not rendered.</documentation>
+        </property>
+    </properties>
+    <aggregations default="formElements">
+        <aggregation cardinality="0..n" type="sap.ui.layout/form/FormElement" name="formElements">
+            <documentation>The &lt;code&gt;FormElements&lt;/code&gt; contain the content (labels and fields) of the &lt;code&gt;FormContainers&lt;/code&gt;.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.ui.core/Title" name="title">
+            <documentation>Title of the &lt;code&gt;FormContainer&lt;/code&gt;. Can either be a &lt;code&gt;Title&lt;/code&gt; object, or a string.
+If a &lt;code&gt;Title&lt;/code&gt; object is used, the style of the title can be set.
+
+&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;Toolbar&lt;/code&gt; is used, the &lt;code&gt;Title&lt;/code&gt; is ignored.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" since="1.36.0" type="sap.ui.core/Toolbar" name="toolbar">
+            <documentation>Toolbar of the &lt;code&gt;FormContainer&lt;/code&gt;.
+
+&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;Toolbar&lt;/code&gt; is used, the &lt;code&gt;Title&lt;/code&gt; is ignored.
+If a title is needed inside the &lt;code&gt;Toolbar&lt;/code&gt; it must be added at content to the &lt;code&gt;Toolbar&lt;/code&gt;.
+In this case add the &lt;code&gt;Title&lt;/code&gt; to the &lt;code&gt;ariaLabelledBy&lt;/code&gt; association.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association since="1.36.0" cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs that label this control (see WAI-ARIA attribute aria-labelledby).
+
+&lt;b&gt;Note:&lt;/b&gt; This attribute is only rendered if the &lt;code&gt;FormContainer&lt;/code&gt; has it's own
+DOM representation in the used &lt;code&gt;FormLayout&lt;/code&gt;.</documentation>
+        </association>
+    </associations>
+</control>

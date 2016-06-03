@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Collision</name>
+    <derived/>
+    <documentation>Collision behavior: horizontal/vertical.
+
+Defines how the position of an element should be adjusted in case it overflows the window in some direction. For both
+directions this can be &quot;flip&quot;, &quot;fit&quot; or &quot;none&quot;. If only one behavior is provided it is applied to both directions.
+Examples: &quot;flip&quot;, &quot;fit none&quot;.</documentation>
+    <final/>
+    <pattern>(flip|fit|none)( (flip|fit|none))?</pattern>
+</simple-type>

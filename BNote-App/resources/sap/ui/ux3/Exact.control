@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Exact</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A comprehensive UI design approach with graphical and functional elements for searching data, exploring data, and acting on the data
+(&quot;Explore and Act (Exact) Pattern&quot;).</documentation>
+    <developmentState since="1.2" state="experimental">API is not yet finished and might change completely</developmentState>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="resultText">
+            <documentation>A title text which is displayed above the result section</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="search">
+            <documentation>Event is fired when the search button is clicked</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="query">
+                    <documentation>The query string which was entered in the search field.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="refineSearch">
+            <documentation>Event which is fired when an attribute is selected or unselected.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="query">
+                    <documentation>The query string which was entered in the search field</documentation>
+                </parameter>
+                <parameter type="sap.ui.ux3/ExactAttribute" name="changedAttribute">
+                    <documentation>The attribute which was selected or unselected recently</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="allSelectedAttributes">
+                    <documentation>Array of all selected ExcatAttribute.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="attributes">
+        <aggregation cardinality="0..1" type="sap.ui.commons/Menu" name="settingsMenu">
+            <documentation>Defines the 'Settings' button in the browse section tool bar</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.ux3/ExactAttribute" name="attributes">
+            <documentation>The attributes which shall be available to refine the search</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="controls">
+            <documentation>Controls managed by the Exact control</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.ux3/ExactArea" name="getResultArea">
+            <documentation>Returns the ExactArea representing the result section. Arbitrary content can be added here.</documentation>
+        </method>
+        <method type="sap.ui.commons/SearchField" name="getSearchField">
+            <documentation>Returns the SearchField control which is used by the Exact control.</documentation>
+        </method>
+    </methods>
+</control>

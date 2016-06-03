@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>layout/VAlign</name>
+    <derived/>
+    <documentation>Vertical alignment, e.g. of a layout cell's content within the cell's borders.</documentation>
+    <enumeration>
+        <value name="Bottom">
+            <documentation>Aligned at the bottom.</documentation>
+        </value>
+        <value name="Middle">
+            <documentation>Vertically centered.</documentation>
+        </value>
+        <value name="Top">
+            <documentation>Aligned at the top.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

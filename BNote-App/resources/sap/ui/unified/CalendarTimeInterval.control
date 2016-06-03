@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CalendarTimeInterval</name>
+    <derived/>
+    <documentation>Calendar with granularity of time items displayed in one line.</documentation>
+    <since>1.32.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of the &lt;code&gt;CalendarTimeInterval&lt;/code&gt;. The width of the single months depends on this width.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/object" name="startDate">
+            <documentation>Start date of the Interval as JavaScript Date object.
+The time interval corresponding to this Date and &lt;code&gt;items&lt;/code&gt; and &lt;code&gt;intervalMinutes&lt;/code&gt;
+will be the first time in the displayed row.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="intervalSelection">
+            <documentation>If set, interval selection is allowed</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="singleSelection">
+            <documentation>If set, only a single date or interval, if &lt;code&gt;intervalSelection&lt;/code&gt; is enabled, can be selected
+
+&lt;b&gt;Note:&lt;/b&gt; Selection of multiple intervals is not supported in the current version.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="12" type="sap.ui.core/int" name="items">
+            <documentation>Number of time items displayed. Default is 12.
+
+&lt;b&gt;Note:&lt;/b&gt; On phones, the maximum number of items displayed in the row is always 6.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="60" type="sap.ui.core/int" name="intervalMinutes">
+            <documentation>Size of on time interval in minutes, default is 60 minutes.
+
+&lt;b&gt;Note:&lt;/b&gt; the start of the interval calculation is always on the corresponding date at 00:00.
+
+A interval longer then 720 minutes is not allowed. Please use the &lt;code&gt;CalendarDateInterval&lt;/code&gt; instead.
+
+A day must be divisible by this interval size. One interval must not include more than one day.</documentation>
+        </property>
+        <property since="1.34.0" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="pickerPopup">
+            <documentation>If set, the day-, month- and yearPicker opens on a popup</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Time selection changed</documentation>
+        </event>
+        <event allowPreventDefault="false" name="cancel">
+            <documentation>Time selection was cancelled</documentation>
+        </event>
+        <event allowPreventDefault="false" since="1.34.0" name="startDateChange">
+            <documentation>&lt;code&gt;startDate&lt;/code&gt; was changed while navigation in &lt;code&gt;CalendarTimeInterval&lt;/code&gt;</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.unified/DateRange" name="selectedDates">
+            <documentation>Date ranges for selected items of the &lt;code&gt;CalendarTimeInterval&lt;/code&gt;.
+
+If &lt;code&gt;singleSelection&lt;/code&gt; is set, only the first entry is used.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.unified/DateTypeRange" name="specialDates">
+            <documentation>Date ranges with type to visualize special items in the &lt;code&gt;CalendarTimeInterval&lt;/code&gt;.
+If one interval is assigned to more than one type, only the first one will be used.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.unified/calendar/Header" name="header">
+            <documentation>Hidden, for internal use only.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.unified/calendar/TimesRow" name="timesRow"/>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.unified/calendar/Month" name="datesRow"/>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.unified/calendar/MonthPicker" name="monthPicker"/>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.unified/calendar/YearPicker" name="yearPicker"/>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method type="sap.ui.unified/Calendar" name="focusDate">
+            <documentation>Sets the focused item of the &lt;code&gt;CalendarTimeInterval&lt;/code&gt;.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="date">
+                    <documentation>JavaScript date object for focused item.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.unified/Calendar" name="displayDate">
+            <documentation>Displays a item in the &lt;code&gt;CalendarTimeInterval&lt;/code&gt; but doesn't set the focus.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="date">
+                    <documentation>JavaScript date object for displayed item.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

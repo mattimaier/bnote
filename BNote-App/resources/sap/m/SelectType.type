@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SelectType</name>
+    <derived/>
+    <documentation>Enumeration for different Select types.</documentation>
+    <since>1.16</since>
+    <enumeration>
+        <value name="Default">
+            <documentation>Will show the text.</documentation>
+        </value>
+        <value name="IconOnly">
+            <documentation>Will show only the specified icon.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

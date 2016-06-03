@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MessagePage</name>
+    <derived/>
+    <documentation>MessagePage is displayed when there is no data or matching content. There are different use cases where a MessagePage might be visualized, for example:
+	- The search query returned no results
+	- The app contains no items
+	- There are too many items
+	- The application is loading
+The layout is unchanged but the text varies depending on the use case.</documentation>
+    <since>1.28</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="No matching items found." type="sap.ui.core/string" name="text">
+            <documentation>Determines the main text displayed on the MessagePage.</documentation>
+        </property>
+        <property group="Misc" defaultValue="Check the filter settings." type="sap.ui.core/string" name="description">
+            <documentation>Determines the detailed description that shows additional information on the MessagePage.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="title">
+            <documentation>Determines the title in the header of MessagePage.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showHeader">
+            <documentation>Determines the visibility of the MessagePage header.
+Can be used to hide the header of the MessagePage when it's embedded in another page.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showNavButton">
+            <documentation>Determines the visibility of the navigation button in MessagePage header.</documentation>
+        </property>
+        <property group="Misc" defaultValue="IconPool.getIconURI(&quot;documents&quot;)" type="sap.ui.core/URI" name="icon">
+            <documentation>Determines the icon displayed on the MessagePage.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>Determines the element's text directionality with enumerated options. By default, the control inherits text direction from the DOM.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" since="1.28.1" name="navButtonPress">
+            <documentation>This event is fired when Nav Button is pressed.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..1" type="sap.m/Link" name="customText">
+            <documentation>The (optional) custom Text control of this page.
+Use this aggregation when the &quot;text&quot; (sap.m.Text) control needs to be replaced with a sap.m.Link control.
+&quot;text&quot; and &quot;textDirection&quot; setters can be used for this aggregation.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.m/Link" name="customDescription">
+            <documentation>The (optional) custom description control of this page.
+Use this aggregation when the &quot;description&quot; (sap.m.Text) control needs to be replaced with a sap.m.Link control.
+&quot;description&quot; and &quot;textDirection&quot; setters can be used for this aggregation.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Page" name="_page">
+            <documentation>A Page control which is managed internally by the MessagePage control.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

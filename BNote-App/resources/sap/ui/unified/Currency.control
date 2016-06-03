@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Currency</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A text view which displays currency values and aligns them at the separator</documentation>
+    <since>1.21.1</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="0" type="sap.ui.core/float" name="value">
+            <documentation>The currency value</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="currency">
+            <documentation>The ISO 4217 currency code</documentation>
+        </property>
+        <property group="Appearance" defaultValue="3" type="sap.ui.core/int" name="maxPrecision">
+            <documentation>Defines the space that is available for the precision of the various currencies.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="useSymbol">
+            <documentation>Show the currency symbol instead of the ISO currency code</documentation>
+        </property>
+    </properties>
+    <methods>
+        <method type="sap.ui.core/string" name="getFormattedValue">
+            <documentation>The formatted value</documentation>
+        </method>
+        <method type="sap.ui.core/string" name="getCurrencySymbol">
+            <documentation>Get symbol of the currency, if available</documentation>
+        </method>
+    </methods>
+</control>

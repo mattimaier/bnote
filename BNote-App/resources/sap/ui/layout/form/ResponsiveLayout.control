@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>form/ResponsiveLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Renders a &lt;code&gt;Form&lt;/code&gt; with a responsive layout. Internally the &lt;code&gt;ResponsiveFlowLayout&lt;/code&gt; is used.
+The responsiveness of this layout tries to best use the available space. This means that the order of the &lt;code&gt;FormContainers&lt;/code&gt;, labels and fields depends on the available space.
+
+On the &lt;code&gt;FormContainers&lt;/code&gt;, &lt;code&gt;FormElements&lt;/code&gt;, labels and content fields, &lt;code&gt;ResponsiveFlowLayoutData&lt;/code&gt; can be used to change the default rendering.
+
+We suggest using the &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; instead of this layout because this is easier to consume and brings more stable responsive output.
+
+&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;ResponsiveFlowLayoutData&lt;/code&gt; are used this may result in a much more complex layout than the default one. This means that in some cases, the calculation for the other content may not bring the expected result.
+In such cases, &lt;code&gt;ResponsiveFlowLayoutData&lt;/code&gt; should be used for all content controls to disable the default behavior.
+
+This control cannot be used stand alone, it only renders a &lt;code&gt;Form&lt;/code&gt;, so it must be assigned to a &lt;code&gt;Form&lt;/code&gt;.</documentation>
+    <since>1.16.0</since>
+    <baseType>sap.ui.layout/form/FormLayout</baseType>
+</control>

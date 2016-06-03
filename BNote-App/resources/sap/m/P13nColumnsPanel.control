@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nColumnsPanel</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The P13nColumnsPanel control is used to define column-specific settings for table personalization.</documentation>
+    <since>1.26.0</since>
+    <baseType>sap.m/P13nPanel</baseType>
+    <properties>
+        <property since="1.26.7" group="Behavior" defaultValue="-1" type="sap.ui.core/int" name="visibleItemsThreshold">
+            <documentation>Specifies a threshold of visible items.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" since="1.26.0" name="addColumnsItem">
+            <documentation>Event raised when a &lt;code&gt;columnsItem&lt;/code&gt; is added.</documentation>
+            <parameters>
+                <parameter type="sap.m/P13nColumnsItem" name="newItem">
+                    <documentation>&lt;code&gt;columnsItem&lt;/code&gt; that needs to be added in the model.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.26.7" name="changeColumnsItems">
+            <documentation>Event raised if &lt;code&gt;columnsItems&lt;/code&gt; is changed or new one needs to be created in the model.</documentation>
+            <parameters>
+                <parameter type="sap.m/P13nColumnsItem[]" name="newItems">
+                    <documentation>Contains &lt;code&gt;columnsItems&lt;/code&gt; that needs to be created in the model.</documentation>
+                </parameter>
+                <parameter type="sap.m/P13nColumnsItem[]" name="existingItems">
+                    <documentation>Contains &lt;code&gt;columnsItems&lt;/code&gt; that needs to be changed in the model.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.26.7" name="setData">
+            <documentation>Event raised if &lt;code&gt;setData&lt;/code&gt; is called in model. The event serves the purpose of minimizing such calls since they can
+take up a lot of performance.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation bindable="bindable" cardinality="0..n" since="1.26.0" type="sap.m/P13nColumnsItem" name="columnsItems">
+            <documentation>List of columns that has been changed.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Internal aggregation for the toolbar.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

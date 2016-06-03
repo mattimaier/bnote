@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>InvisibleText</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>An InvisibleText is used to bring hidden texts to the UI for screen reader support. The hidden text can e.g. be referenced
+in the ariaLabelledBy or ariaDescribedBy associations of other controls.
+
+The inherited properties busy, busyIndicatorDelay and visible and the aggregation tooltip is not supported by this control.</documentation>
+    <since>1.27.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property defaultValue="" type="sap.ui.core/string" name="text">
+            <documentation>The text of the InvisibleText.</documentation>
+        </property>
+    </properties>
+</control>

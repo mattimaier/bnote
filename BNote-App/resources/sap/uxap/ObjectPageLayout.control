@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectPageLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>An ObjectPageLayout is the layout control, used to put together all parts of an Object page - Header, Navigation bar and Sections/Subsections.</documentation>
+    <since>1.26</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property defaultValue="true" type="sap.ui.core/boolean" name="showAnchorBar">
+            <documentation>Determines whether the Navigation bar (Anchor bar) is displayed.</documentation>
+        </property>
+        <property defaultValue="true" type="sap.ui.core/boolean" name="showAnchorBarPopover">
+            <documentation>Determines whether to show a Popover with Subsection links when clicking on Section links in the Anchor bar.</documentation>
+        </property>
+        <property defaultValue="true" type="sap.ui.core/boolean" name="upperCaseAnchorBar">
+            <documentation>Determines whether the Anchor bar items are displayed in upper case.</documentation>
+        </property>
+        <property defaultValue="100%" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Determines the height of the ObjectPage.</documentation>
+        </property>
+        <property defaultValue="false" type="sap.ui.core/boolean" name="enableLazyLoading">
+            <documentation>Enable lazy loading for the Object page Subsections.</documentation>
+        </property>
+        <property defaultValue="TitleOnTop" type="sap.uxap/ObjectPageSubSectionLayout" name="subSectionLayout">
+            <documentation>Determines whether Subsection titles are displayed on top or to the left of the Subsection content.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="useIconTabBar">
+            <documentation>Use sap.m.IconTabBar instead of the default Anchor bar</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="showHeaderContent">
+            <documentation>Determines the visibility of the Header content (headerContent aggregation).</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="useTwoColumnsForLargeScreen">
+            <documentation>Determines whether the to use two column layout for the L screen size.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showTitleInHeaderContent">
+            <documentation>Determines whether the title, image, markers and selectTitleArrow are shown in the Header content area.</documentation>
+        </property>
+        <property since="1.32.0" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="showOnlyHighImportance">
+            <documentation>Determines whether sections and subsections with importance Low and Medium are hidden even on large screens.</documentation>
+        </property>
+        <property since="1.34.0" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="isChildPage">
+            <documentation>Determines whether the page is a child page and renders it with a different design.
+Child pages have an additional (darker/lighter) stripe on the left side of their header content area.</documentation>
+        </property>
+        <property since="1.34.0" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="alwaysShowContentHeader">
+            <documentation>Determines whether Header Content will always be expanded on desktop.</documentation>
+        </property>
+        <property since="1.34.0" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="showEditHeaderButton">
+            <documentation>Determines whether an Edit button will be shown in Header Content.</documentation>
+        </property>
+        <property since="1.34.0" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="flexEnabled">
+            <documentation>Specifies whether the object page enables flexibility features, such as hiding and adding sections.&lt;br&gt;
+For more information about SAPUI5 flexibility, refer to the Developer Guide.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="toggleAnchorBar">
+            <documentation>The event is fired when the Anchor bar is switched from moving to fixed or the other way round.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="fixed">
+                    <documentation>False indicates that the Anchor bar has just detached from the Header and became part of the scrolling area. True means that the Anchor bar has just snapped to the Header.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="editHeaderButtonPress">
+            <documentation>The event is fired when the Edit Header button is pressed</documentation>
+        </event>
+    </events>
+    <aggregations default="sections">
+        <aggregation cardinality="0..n" type="sap.uxap/ObjectPageSection" name="sections">
+            <documentation>The sections that make up the Object page content area.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.uxap/ObjectPageHeader" name="headerTitle">
+            <documentation>Object page header title - the upper, always static, part of the Object page header.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="headerContent">
+            <documentation>Object page header content - the dynamic part of the Object page header.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.uxap/AnchorBar" name="_anchorBar">
+            <documentation>Internal aggregation to hold the reference to the AnchorBar.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/IconTabBar" name="_iconTabBar">
+            <documentation>Internal aggregation to hold the reference to the IconTabBar.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.uxap/ObjectPageHeaderContent" name="_headerContent">
+            <documentation>Internal aggregation to hold the reference to the ObjectPageHeaderContent.</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method name="scrollToSection">
+            <documentation>Scrolls the Object page to the given Section.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The Section ID to scroll to</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="duration">
+                    <documentation>Scroll duration (in ms). Default value is 0</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="offset">
+                    <documentation>Additional pixels to scroll</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/string" name="getScrollingSectionId">
+            <documentation>Returns the UI5 ID of the Section that is currently being scrolled.</documentation>
+        </method>
+        <method type="sap.ui.core/object" name="getScrollDelegate">
+            <documentation>Returns a sap.ui.core.delegate.ScrollEnablement object used to handle scrolling</documentation>
+        </method>
+    </methods>
+</control>

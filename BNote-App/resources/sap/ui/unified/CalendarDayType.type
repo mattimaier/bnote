@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CalendarDayType</name>
+    <derived/>
+    <documentation>Type of a calendar day used for visualization.</documentation>
+    <since>1.24.0</since>
+    <enumeration>
+        <value name="None">
+            <documentation>None: No special type is used</documentation>
+        </value>
+        <value name="Type01">
+            <documentation>Type 01: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+        <value name="Type02">
+            <documentation>Type 02: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+        <value name="Type03">
+            <documentation>Type 03: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+        <value name="Type04">
+            <documentation>Type 04: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+        <value name="Type05">
+            <documentation>Type 05: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+        <value name="Type06">
+            <documentation>Type 06: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+        <value name="Type07">
+            <documentation>Type 07: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+        <value name="Type08">
+            <documentation>Type 08: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+        <value name="Type09">
+            <documentation>Type 09: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+        <value name="Type10">
+            <documentation>Type 10: The semantic meaning must be defined by the application. It can be shown in a legend.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

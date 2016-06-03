@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ProgressIndicator</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Shows the progress of a process in a graphical way.
+The indicator can be displayed with or without numerical values.
+The filling can be displayed in color only, or additionally with the percentage rate.
+The indicator status can be interactive.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Determines whether the control is enabled or not.
+Disabled controls have different colors, and can not be focused.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="NEUTRAL" type="sap.ui.core/BarColor" name="barColor">
+            <documentation>Determines the color of the bar which visualizes the progress.
+Possible values defined in the sap.ui.core.BarColor enumeration are the following:
+CRITICAL (yellow), NEGATIVE (red), POSITIVE (green), NEUTRAL (blue) (default value).</documentation>
+        </property>
+        <property group="Appearance" defaultValue="0%" type="sap.ui.core/string" name="displayValue">
+            <documentation>Determines the text value that will be displayed in the bar.</documentation>
+        </property>
+        <property group="Data" defaultValue="0" type="sap.ui.core/int" name="percentValue">
+            <documentation>Determines the numerical value for the displayed length of the progress bar.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showValue">
+            <documentation>Determines whether the percent value shall be rendered inside the bar.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Determines the width of the control.</documentation>
+        </property>
+    </properties>
+</control>

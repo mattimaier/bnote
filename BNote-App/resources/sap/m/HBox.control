@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>HBox</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The HBox control builds the container for a horizontal flexible box layout. HBox is a convenience control as it is just a specialized FlexBox control.
+
+Browser support:
+This control is not supported in Internet Explorer 9!</documentation>
+    <baseType>sap.m/FlexBox</baseType>
+</control>

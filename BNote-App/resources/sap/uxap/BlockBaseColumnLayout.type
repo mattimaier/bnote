@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>BlockBaseColumnLayout</name>
+    <derived/>
+    <documentation>Used by the BlockBase control to define how many columns should it be assigned by the objectPageSubSection.
+    The allowed values can be auto (subsection assigned a number of columns based on the parent objectPageLayout subsectionLayout property), 1, 2 or 3
+    (This may not be a valid value for some subSectionLayout, for example asking for 3 columns in a 2 column layout would raise warnings).</documentation>
+    <pattern>auto|[1-4]{1}</pattern>
+</simple-type>

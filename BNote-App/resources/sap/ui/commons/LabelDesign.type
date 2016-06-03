@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>LabelDesign</name>
+    <derived/>
+    <documentation>Available label display modes.</documentation>
+    <enumeration>
+        <value name="Bold">
+            <documentation>Displays the label in bold.</documentation>
+        </value>
+        <value name="Standard">
+            <documentation>Displays the label in normal mode.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>RatingIndicator</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Is used to rate content. The amount of rating symbols can be specified, as well as the URIs to the
+image icons which shall be used as rating symbols. When the user performs a rating, an event is fired.</documentation>
+    <since>1.14</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Value &quot;true&quot; is required to let the user rate with this control. It is recommended to set this parameter to &quot;false&quot; for the &quot;Small&quot; size which is meant for indicating a value only</documentation>
+        </property>
+        <property group="Behavior" defaultValue="5" type="sap.ui.core/int" name="maxValue">
+            <documentation>The number of displayed rating symbols</documentation>
+        </property>
+        <property bindable="bindable" group="Behavior" defaultValue="0" type="sap.ui.core/float" name="value">
+            <documentation>The indicated value of the rating</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/CSSSize" name="iconSize">
+            <documentation>The Size of the image or icon to be displayed. The default value depends on the theme. Please be sure that the size is corresponding to a full pixel value as some browsers don't support subpixel calculations. Recommended size is 1.375rem (22px) for normal, 1rem (16px) for small, and 2rem (32px) for large icons correspondingly.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/URI" name="iconSelected">
+            <documentation>The URI to the icon font icon or image that will be displayed for selected rating symbols. A star icon will be used if the property is not set</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/URI" name="iconUnselected">
+            <documentation>The URI to the icon font icon or image that will be displayed for all unselected rating symbols. A star icon will be used if the property is not set</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/URI" name="iconHovered">
+            <documentation>The URI to the icon font icon or image that will be displayed for hovered rating symbols. A star icon will be used if the property is not set</documentation>
+        </property>
+        <property group="Behavior" defaultValue="Half" type="sap.m/RatingIndicatorVisualMode" name="visualMode">
+            <documentation>Defines how float values are visualized: Full, Half (see enumeration RatingIndicatorVisualMode)</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="change">
+            <documentation>The event is fired when the user has done a rating.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="value">
+                    <documentation>The rated value</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="liveChange">
+            <documentation>This event is triggered during the dragging period, each time the rating value changes.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/float" name="value">
+                    <documentation>The current value of the rating after a live change event.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="_iconsSelected">
+            <documentation>The internal selected rating icons are managed in this aggregation</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="_iconsUnselected">
+            <documentation>The internal unselected rating icons are managed in this aggregation</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="_iconsHovered">
+            <documentation>The internal hovered rating icons are managed in this aggregation</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

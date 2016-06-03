@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SideContentFallDown</name>
+    <derived/>
+    <documentation>Types of the DynamicSideContent FallDown options</documentation>
+    <since>1.30</since>
+    <enumeration>
+        <value name="BelowXL">
+            <documentation>Side content falls down on breakpoints below XL</documentation>
+        </value>
+        <value name="BelowL">
+            <documentation>Side content falls down on breakpoints below L</documentation>
+        </value>
+        <value name="BelowM">
+            <documentation>Side content falls down on breakpoints below M</documentation>
+        </value>
+        <value name="OnMinimumWidth">
+            <documentation>Side content falls down on breakpoint M and the minimum width for the side content</documentation>
+        </value>
+    </enumeration>
+</simple-type>

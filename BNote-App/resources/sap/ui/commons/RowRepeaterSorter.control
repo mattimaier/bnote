@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>RowRepeaterSorter</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This element is used by the RowRepeater and allows to define a sorter in this context along with the related data such as a text and an icon.</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/string" name="text">
+            <documentation>The sorter title if needed for display.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="icon">
+            <documentation>The sorter icon if needed for display.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/object" name="sorter">
+            <documentation>The sorter object.</documentation>
+        </property>
+    </properties>
+</control>

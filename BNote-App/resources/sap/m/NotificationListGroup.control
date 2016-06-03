@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>NotificationListGroup</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The NotificationListItemGroup control is used for grouping NotificationListItems of the same type.</documentation>
+    <since>1.34</since>
+    <baseType>sap.m/ListItemBase</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="None" type="sap.ui.core/Priority" name="priority">
+            <documentation>Determines the priority of the NotificationListGroup.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="title">
+            <documentation>Determines the title of the NotificationListGroup.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="datetime">
+            <documentation>Determines the due date of the NotificationListGroup.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="showButtons">
+            <documentation>Determines the visibility of the action buttons.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="showCloseButton">
+            <documentation>Determines the visibility of the close button.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="collapsed">
+            <documentation>Determines if the group is collapsed or expanded.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="autoPriority">
+            <documentation>Determines if the group will automatically set the priority based on the highest priority of its notifications or get its priority from the developer.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="authorName">
+            <documentation>Determines the notification group's author name.</documentation>
+        </property>
+        <property type="sap.ui.core/URI" name="authorPicture">
+            <documentation>Determines the URL of the notification group's author picture.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="close">
+            <documentation>Fired when the list item is closed.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.m/Button" name="buttons">
+            <documentation>Action buttons.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.m/NotificationListItem" name="items">
+            <documentation>The NotificationListItems inside the group.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Title" name="_headerTitle">
+            <documentation>The header title of the NotificationListGroup.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Text" name="_dateTime">
+            <documentation>The timestamp string that will be displayed in the NotificationListGroup.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Text" name="_authorName">
+            <documentation>The sap.m.Text that holds the author name.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_authorImage">
+            <documentation>The sap.m.Image or sap.ui.core.Control control that holds the author image or icon.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/OverflowToolbar" name="_overflowToolbar">
+            <documentation>The OverflowToolbar control that holds the footer buttons.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Button" name="_closeButton">
+            <documentation>The close button of the notification item/group.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Button" name="_collapseButton">
+            <documentation>The collapse button of the notification item/group.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

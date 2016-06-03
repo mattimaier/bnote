@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>layout/VerticalLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>In this layout the elemnts are orderd one below the other</documentation>
+    <deprecation since="1.16.0">Moved to sap.ui.layout library. Please use this one.</deprecation>
+    <baseType>sap.ui.layout/VerticalLayout</baseType>
+</control>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>VerticalProgressIndicator</name>
+    <derived/>
+    <author>Svetozar Buzdumovic</author>
+    <documentation>This control shows a vertical progress bar in dependency of the given percentage. Only values between 0 and 100 are valid.</documentation>
+    <developmentState since="1.2" state="experimental">The API may change. User with care.</developmentState>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/int" name="percentage">
+            <documentation>The numerical value between 0 and 100 which determines the height of the vertical bar. Values higher than 100 will be displayed as 100%, values lower than zero will be displayed as 0%.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Event is fired when the user clicks the control.</documentation>
+        </event>
+    </events>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method type="sap.ui.core/void" name="focus">
+            <documentation>Puts the focus to the control.</documentation>
+        </method>
+    </methods>
+</control>

@@ -1,0 +1,610 @@
+/* NOTE: This file was generated as an optimized version of "library.source.less" for the Theme Designer. */
+
+/*!
+ * UI development toolkit for HTML5 (OpenUI5)
+ * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
+ */
+
+@import "../base/library.less";
+@import "../../../../../../Base/baseLib/sap_bluecrystal/base.less"; /* ORIGINAL IMPORT PATH: "../../../../../sap/ui/core/themes/sap_bluecrystal/base.less" */
+
+@import "../../../../../sap/ui/core/themes/sap_bluecrystal/global.less";
+
+/* START "Form.less" */
+/* ===================================================== */
+/* CSS for control sap.ui.layout/form/Form.control       */
+/* Bluecrystal                                           */
+/* ===================================================== */
+
+@sapUiFormContainerExpImageURL: ~"sap-icon://expand-group";
+@sapUiFormContainerColImageURL: ~"sap-icon://collapse-group";
+
+.sap-tablet .sapUiFioriObjectPage > section > .sapUiForm,
+.sap-desktop .sapUiFioriObjectPage > section > .sapUiForm {
+	margin: 1rem 0;
+	padding: 0 1rem;
+	box-sizing: border-box;
+}
+
+/* END "Form.less" */
+
+/* START "FormLayout.less" */
+/* ===================================================== */
+/* CSS for control sap.ui.layout/form/FormLayout.control */
+/* Blue Crystal                                          */
+/* ===================================================== */
+
+@sapUiFormTitleSize: ~"H4";
+@sapUiFormSubTitleSize: ~"H5";
+
+.sapUiFormLayout{
+	font-family: @sapUiDesktopFontFamily;
+	font-size: @sapUiDesktopFontSize;
+}
+
+.sapUiFormLayout.sapUiFormBackgrTranslucent > section{
+	background-color: fade(@sapUiGroupContentBackground, @sapUiTranslucentBGOpacity);
+}
+
+.sapUiFormLayout.sapUiFormBackgrSolid > section{
+	background-color: @sapUiGroupContentBackground;
+}
+
+.sapUiForm .sapUiFormTitle{
+	border-width: 0.0625rem;
+	font-family: @sapUiFontHeaderFamily;
+	font-weight: @sapUiFontHeaderWeight;
+	color: @sapUiGroupTitleTextColor;
+	height: 3rem;
+	line-height: 3rem;
+}
+
+.sapUiFormContainerTitle > .sapUiFormTitle{
+	border: none;
+	box-sizing: border-box;
+	margin-bottom: 0.5rem;
+	height: 2rem;
+	line-height: 2rem;
+}
+
+.sapUiFormM .sapUiFormContainerTitle > .sapUiFormTitle{
+	height: 3rem;
+	line-height: 3rem;
+}
+
+.sapUiSizeCompact .sapUiFormContainerTitle > .sapUiFormTitle{
+	height: 2rem;
+	line-height: 2rem;
+}
+
+.sapUiFormTitle.sapUiFormTitleEmph{
+	border-color: @sapUiMediumBorder;
+}
+
+.sapUiFormTitle > .sapUiBtn{
+	bottom: 0.25rem;
+}
+
+/* Title levels - use m-parameter for bluecrystal */
+.sapUiFormTitleH1 {
+	font-size: @sapMFontHeader1Size;
+}
+
+.sapUiFormTitleH2 {
+	font-size: @sapMFontHeader2Size;
+}
+
+.sapUiFormTitleH3 {
+	font-size: @sapMFontHeader3Size;
+}
+
+.sapUiFormTitleH4 {
+	font-size: @sapMFontHeader4Size;
+}
+
+.sapUiFormTitleH5 {
+	font-size: @sapMFontHeader5Size;
+}
+
+.sapUiFormTitleH6 {
+	font-size: @sapMFontHeader6Size;
+}
+
+/* Toolbar */
+.sapUiFormContainerToolbar > div:first-child {
+	margin-bottom: 0.5rem;
+}
+/* END "FormLayout.less" */
+
+/* START "GridLayout.less" */
+/* ===================================================== */
+/* CSS for control sap.ui.layout/form/GridLayout.control */
+/* Bluecrystal                                           */
+/* ===================================================== */
+
+.sapUiGrid{
+	font-family: @sapUiDesktopFontFamily;
+	font-size: @sapUiDesktopFontSize;
+}
+
+.sapUiGrid.sapUiFormBackgrTranslucent > tbody > tr {
+	background-color: fade(@sapUiGroupContentBackground, @sapUiTranslucentBGOpacity);
+}
+
+.sapUiGrid.sapUiFormBackgrSolid > tbody > tr {
+	background-color: @sapUiGroupContentBackground;
+}
+
+.sapUiGrid > tbody > tr.sapUiGridTitle{
+	background-color: transparent;
+}
+
+.sapUiGrid > tbody > tr > td{
+	padding: 0.25rem 0 0.25rem 0.5rem;
+}
+
+.sapUiFormM > .sapUiGrid > tbody > tr > td{
+	padding: 0 0 0 0.5rem;
+}
+
+.sapUiGrid > tbody > tr > td:first-child{
+	padding-left: 1rem;
+}
+
+.sapUiGrid > tbody > tr.sapUiGridConteinerFirstRow > td{
+	padding-top: 2rem;
+}
+
+.sapUiGrid > tbody > tr:first-child > td, /* if no Form title */
+.sapUiForm[aria-labelledby] > .sapUiGrid > tbody > tr:nth-child(2) > td{
+	padding-top: 1rem;
+}
+
+/* In Cozy mode put first FormContainers with title or toolbar 0.5rem on top */
+.sapUiFormM > .sapUiGrid > tbody > tr:first-child > td.sapUiFormContainerTitle, /* if no Form title */
+.sapUiFormM > .sapUiGrid > tbody > tr:first-child > td.sapUiFormContainerToolbar, /* if no Form title */
+.sapUiFormM[aria-labelledby] > .sapUiGrid > tbody > tr:nth-child(2) > td.sapUiFormContainerTitle,
+.sapUiFormM[aria-labelledby] > .sapUiGrid > tbody > tr:nth-child(2) > td.sapUiFormContainerToolbar{
+	padding-top: 0.75rem;
+}
+
+.sapUiSizeCompact .sapUiFormM > .sapUiGrid > tbody > tr:first-child > td.sapUiFormContainerTitle, /* if no Form title */
+.sapUiSizeCompact .sapUiFormM > .sapUiGrid > tbody > tr:first-child > td.sapUiFormContainerToolbar, /* if no Form title */
+.sapUiSizeCompact .sapUiFormM[aria-labelledby] > .sapUiGrid > tbody > tr:nth-child(2) > td.sapUiFormContainerTitle,
+.sapUiSizeCompact .sapUiFormM[aria-labelledby] > .sapUiGrid > tbody > tr:nth-child(2) > td.sapUiFormContainerToolbar{
+	padding-top: 1rem;
+}
+
+.sapUiGrid > tbody > tr > td:last-child{
+	padding-right: 1rem;
+}
+
+.sapUiGrid > tbody > tr:last-child > td{
+	padding-bottom: 1rem;
+}
+
+.sapUiFormM > .sapUiGrid > tbody > tr:last-child > td{
+	padding-bottom: 0.75rem;
+}
+
+.sapUiGrid > tbody > tr > td.sapUiFormElementLbl{
+	padding-right: 0.25rem;
+}
+
+.sapUiGrid > tbody > tr > td.sapUiGridLabelFull{
+	padding-bottom: 0.125rem;
+}
+
+.sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr > td.sapUiFormElementLbl{
+	padding-top: 1rem;
+}
+
+.sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr.sapUiGridConteinerFirstRow > td.sapUiFormElementLbl{
+	padding-top: 3rem;
+}
+
+.sapUiFormEdit.sapUiFormM >.sapUiGrid > tbody > tr:first-child > td.sapUiFormElementLbl, /* if no Form title */
+.sapUiFormEdit[aria-labelledby].sapUiFormM > .sapUiGrid > tbody > tr:nth-child(2) > td.sapUiFormElementLbl{
+	padding-top: 2rem;
+}
+
+html[data-sap-ui-browser^="ff"] {
+	.sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr > td.sapUiFormElementLbl{
+		padding-top: 0.9375rem;
+	}
+
+	.sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr.sapUiGridConteinerFirstRow > td.sapUiFormElementLbl{
+		padding-top: 2.9375rem;
+	}
+
+	.sapUiFormEdit.sapUiFormM >.sapUiGrid > tbody > tr:first-child > td.sapUiFormElementLbl, /* if no Form title */
+	.sapUiFormEdit[aria-labelledby].sapUiFormM > .sapUiGrid > tbody > tr:nth-child(2) > td.sapUiFormElementLbl{
+		padding-top: 1.9375rem;
+	}
+}
+
+.sapUiSizeCompact .sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr > td.sapUiFormElementLbl{
+	padding-top: 0.5rem;
+}
+
+.sapUiSizeCompact .sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr.sapUiGridConteinerFirstRow > td.sapUiFormElementLbl{
+	padding-top: 2.5rem;
+}
+
+.sapUiSizeCompact .sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr:first-child > td.sapUiFormElementLbl, /* if no Form title */
+.sapUiSizeCompact .sapUiFormEdit[aria-labelledby].sapUiFormM > .sapUiGrid > tbody > tr:nth-child(2) > td.sapUiFormElementLbl{
+	padding-top: 1.5rem;
+}
+
+html[data-sap-ui-browser^="ff"].sapUiSizeCompact,
+html[data-sap-ui-browser^="ff"] .sapUiSizeCompact{
+	.sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr > td.sapUiFormElementLbl{
+		padding-top: 0.4375rem;
+	}
+
+	.sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr.sapUiGridConteinerFirstRow > td.sapUiFormElementLbl{
+		padding-top: 2.4375rem;
+	}
+
+	.sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr:first-child > td.sapUiFormElementLbl, /* if no Form title */
+	.sapUiFormEdit[aria-labelledby].sapUiFormM > .sapUiGrid > tbody > tr:nth-child(2) > td.sapUiFormElementLbl{
+		padding-top: 1.4375rem;
+	}
+}
+
+.sapUiFormEdit.sapUiFormM > .sapUiGrid > tbody > tr > td.sapUiGridLabelFull{
+	padding-top: 0;
+}
+
+.sapUiGridSpace{
+	width: 1.5rem; /* as cells after separator have padding-left of 0.5rem */
+}
+
+.sapUiGrid .sapUiGridHeader{
+	padding: 0 0 0 0.5rem;
+}
+
+/* Title */
+.sapUiGrid th > .sapUiFormTitle{
+	box-sizing: border-box;
+	padding: 0 1rem 0 1rem;
+	text-shadow: 0em 0.0625em 0em fade(@sapUiTextInverted, 100%);
+}
+
+.sapUiGrid .sapUiFormTitle > img,
+.sapUiGrid .sapUiFormTitle > span{
+	margin-right: 0.25rem;
+}
+
+.sapUiGridHeader > .sapUiFormTitle > .sapUiBtnS.sapUiBtnLite{
+	bottom: 0.3125rem;
+}
+
+/* Toolbar */
+.sapUiGrid.sapUiFormToolbar th > div{
+	height: 3rem; /* to have in compact mode and in commons always 3rem on Form header */
+	line-height: 3rem;
+	padding: 0 1rem 0 1rem;
+	box-sizing: border-box;
+}
+
+.sapUiGrid > tbody > tr > .sapUiFormContainerToolbar > div{
+	margin-bottom: 0.5rem;
+}
+/* END "GridLayout.less" */
+
+/* START "ResponsiveFlowLayout.less" */
+/* ========================================================== */
+/* CSS for control sap.ui.layout/ResponsiveFlowLayout.control */
+/* BlueCrystal                                                */
+/* ========================================================== */
+
+@sapUiRFLPadding: ~"8px";
+
+.sapUiRFLPaddingClass {
+	padding: 0 0 8px 8px;
+}
+
+.sapUiRFLFullLength > .sapUiRFLPaddingClass{
+	padding-left: 0;
+}
+
+.sapUiRFLMultiContent.sapUiRFLPaddingClass {
+	padding: 0 0 8px 8px;
+}
+
+.sapUiRFLMultiContainerContent > .sapUiRFLMultiContent.sapUiRFLPaddingClass:first-child{
+	padding-left: 0;
+}
+
+/* END "ResponsiveFlowLayout.less" */
+
+/* START "ResponsiveGridLayout.less" */
+/* =============================================================== */
+/* CSS for control sap.ui.layout.form/ResponsiveGridLayout.control */
+/* BlueCrystal                                                     */
+/* =============================================================== */
+
+/* Title */
+.sapUiFormResGrid > .sapUiFormTitle{
+	text-shadow: 0em 0.0625em 0em fade(@sapUiTextInverted, 100%);
+}
+
+/* Toolbar */
+.sapUiFormResGrid.sapUiFormToolbar > div:first-child {
+	background-color: transparent;
+}
+
+/* Grid */
+.sapUiFormResGrid.sapUiFormBackgrTranslucent > div {
+	background-color: fade(@sapUiGroupContentBackground, @sapUiTranslucentBGOpacity);
+}
+
+.sapUiFormResGrid.sapUiFormBackgrSolid > div {
+	background-color: @sapUiGroupContentBackground;
+}
+/* END "ResponsiveGridLayout.less" */
+
+/* START "ResponsiveLayout.less" */
+/* =========================================================== */
+/* CSS for control sap.ui.layout.form/ResponsiveLayout.control */
+/* BlueCrystal                                                 */
+/* =========================================================== */
+
+.sapUiFormResLayout > div {
+	padding: 1rem;
+	box-sizing: border-box;
+}
+
+.sapUiFormResLayout.sapUiFormBackgrTranslucent > div {
+	background-color: fade(@sapUiGroupContentBackground, @sapUiTranslucentBGOpacity);
+}
+
+.sapUiFormResLayout.sapUiFormBackgrSolid > div {
+	background-color: @sapUiGroupContentBackground;
+}
+
+.sapUiFormM .sapUiRFLPaddingClass,
+.sapUiFormM .sapUiRFLMultiContent.sapUiRFLPaddingClass {
+	padding: 0 0 0 0.5rem;
+}
+
+.sapUiRLContainerCont > .sapUiRFL >.sapUiRFLRow >.sapUiRFLContainer{
+	padding-right: 0.5rem;
+}
+
+.sapUiRLContainerCont > .sapUiRFL >.sapUiRFLRow >.sapUiRFLContainer:last-child{
+	padding-right: 0;
+}
+
+.sapUiRLElementWithLabel > .sapUiRFLCompleteRow:first-child > .sapUiRFLContainer.sapUiRFLFullLength > .sapUiRFLContainerContent.sapUiRFLPaddingClass{
+	padding-bottom: 0;
+}
+
+.sapUiFormEdit.sapUiFormM .sapUiRLElementWithLabel > .sapUiRFLRow:not(.sapUiRFLCompleteRow) > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent{
+	padding-top: 1rem;
+}
+
+html[data-sap-ui-browser^="ff"] .sapUiFormEdit.sapUiFormM .sapUiRLElementWithLabel > .sapUiRFLRow:not(.sapUiRFLCompleteRow) > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent{
+	padding-top: 0.9375rem;
+}
+
+.sapUiSizeCompact .sapUiFormEdit.sapUiFormM .sapUiRLElementWithLabel > .sapUiRFLRow:not(.sapUiRFLCompleteRow) > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent{
+	padding-top: 0.5rem;
+}
+
+html[data-sap-ui-browser^="ff"].sapUiSizeCompact .sapUiFormEdit.sapUiFormM .sapUiRLElementWithLabel > .sapUiRFLRow:not(.sapUiRFLCompleteRow) > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent,
+html[data-sap-ui-browser^="ff"] .sapUiSizeCompact .sapUiFormEdit.sapUiFormM .sapUiRLElementWithLabel > .sapUiRFLRow:not(.sapUiRFLCompleteRow) > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent{
+	padding-top: 0.4375rem;
+}
+
+.sapUiFormResLayout .sapUiRFLRow > .sapUiRFLContainer.sapUiRFLFullLength > .sapUiRFLContainerContent > .sapUiRLElement > .sapUiRFLRow:last-child > .sapUiRFLFullLength:last-child{
+	padding-bottom: 0.625rem;
+}
+.sapUiFormResLayout .sapUiRFLRow:last-child > .sapUiRFLContainer.sapUiRFLFullLength > .sapUiRFLContainerContent > .sapUiRLElement > .sapUiRFLRow:last-child > .sapUiRFLFullLength:last-child{
+	/* last element in row has no padding bottom */
+	padding-bottom: 0;
+}
+
+.sapUiRLElementFields > .sapUiRFLRow > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent.sapUiRFLPaddingClass:first-child,
+.sapUiRLElementFields > .sapUiRFLRow > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent.sapUiRFLMultiContainerContent.sapUiRFLPaddingClass:first-child > .sapUiRFLMultiContent.sapUiRFLPaddingClass:first-child{
+	padding-left: 0.5rem;
+}
+.sapUiRLElementFields > .sapUiRFLRow > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent.sapUiRFLMultiContainerContent.sapUiRFLPaddingClass:first-child,
+.sapUiRFLFullLength > .sapUiRFLContainerContent > .sapUiRLElementFields > .sapUiRFLRow > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent.sapUiRFLPaddingClass:first-child,
+.sapUiRFLFullLength > .sapUiRFLContainerContent > .sapUiRLElementFields > .sapUiRFLRow > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent.sapUiRFLPaddingClass:first-child > .sapUiRFLMultiContent.sapUiRFLPaddingClass:first-child{
+	padding-left: 0;
+}
+
+.sapUiRFLRow > .sapUiRFLContainer > .sapUiRFLContainerContent > .sapUiRLContainer{
+	/* space between 2 containers, devide it to previous and next container to have the same size for all*/
+	padding-left: 0.5rem;
+	padding-right: 1rem;
+}
+.sapUiRFLRow > .sapUiRFLContainer:first-child > .sapUiRFLContainerContent > .sapUiRLContainer{
+	padding-left: 0;
+}
+.sapUiRFLRow > .sapUiRFLContainer:last-child > .sapUiRFLContainerContent > .sapUiRLContainer{
+	padding-right: 0;
+}
+
+/* full size labels in mobile */
+.sapUiFormM .sapUiFormResLayout .sapUiRFLRow:first-child > .sapUiRFLContainer.sapUiRFLFullLength > .sapUiFormElementLbl{
+	padding-top: 0.25rem;
+}
+
+/* full-size label under title/toolbar in compact mode */
+.sapUiSizeCompact .sapUiFormM .sapUiFormContainerTitle > .sapUiRLContainerCont > .sapUiRFL > .sapUiRFLRow:first-child > .sapUiRFLContainer .sapUiRFLContainerContent > .sapUiRLElementWithLabel > .sapUiRFLRow:first-child > .sapUiRFLContainer.sapUiRFLFullLength > .sapUiFormElementLbl{
+	padding-top: 0.5rem;
+}
+
+/* Title */
+.sapUiFormResLayout > .sapUiFormTitle{
+	box-sizing: border-box;
+	padding: 0 1rem 0 1rem;
+	text-shadow: 0em 0.0625em 0em fade(@sapUiTextInverted, 100%);
+}
+
+.sapUiFormResLayout .sapUiFormTitle > img,
+.sapUiFormResLayout .sapUiFormTitle > span{
+	margin-right: 0.1875rem;
+}
+
+.sapUiRLContainer > .sapUiFormTitle > .sapUiBtn{
+	bottom: 0.3125rem;
+}
+
+/* Toolbar */
+.sapUiFormResLayout.sapUiFormToolbar > div:first-child {
+	height: 3rem; /* to have in compact mode and in commons always 3rem on Form header */
+	line-height: 3rem;
+	padding: 0 1rem 0 1rem;
+	background-color: transparent;
+}
+
+/* vertical spacing between containers */
+.sapUiFormResLayout > .sapUiRFL > .sapUiRFLRow > .sapUiRFLContainer > .sapUiRFLContainerContent > .sapUiRLContainer{
+	padding-top: 2rem;
+}
+
+.sap-phone .sapUiFormResLayout > .sapUiRFL > .sapUiRFLRow > .sapUiRFLContainer > .sapUiRFLContainerContent > .sapUiRLContainer{
+	padding-top: 1rem;
+}
+
+.sapUiFormResLayout > .sapUiRFL > .sapUiRFLRow:first-child > .sapUiRFLContainer > .sapUiRFLContainerContent > .sapUiRLContainer{
+	padding-top: 0;
+}
+
+/* In Cozy mode put first FormContainers with title or toolbar 0.5rem on top */
+.sapUiFormM > .sapUiFormResLayout > .sapUiRFL > .sapUiRFLRow:first-child > .sapUiRFLContainer > .sapUiRFLContainerContent > .sapUiRLContainer.sapUiFormContainerTitle,
+.sapUiFormM > .sapUiFormResLayout > .sapUiRFL > .sapUiRFLRow:first-child > .sapUiRFLContainer > .sapUiRFLContainerContent > .sapUiRLContainer.sapUiFormContainerToolbar{
+	margin-top: -0.5rem;
+}
+
+/* only one container - reduce top padding*/
+.sapUiFormM > .sapUiFormResLayout > .sapUiFormContainerTitle,
+.sapUiFormM > .sapUiFormResLayout > .sapUiFormContainerToolbar{
+	padding-top: 0.5rem;
+}
+
+.sapUiSizeCompact .sapUiFormM > .sapUiFormResLayout > .sapUiRFL > .sapUiRFLRow:first-child > .sapUiRFLContainer > .sapUiRFLContainerContent > .sapUiRLContainer.sapUiFormContainerTitle,
+.sapUiSizeCompact .sapUiFormM > .sapUiFormResLayout > .sapUiRFL > .sapUiRFLRow:first-child > .sapUiRFLContainer > .sapUiRFLContainerContent > .sapUiRLContainer.sapUiFormContainerToolbar{
+	margin-top: 0;
+}
+
+.sapUiSizeCompact .sapUiFormM > .sapUiFormResLayout > .sapUiFormContainerTitle,
+.sapUiSizeCompact .sapUiFormM > .sapUiFormResLayout > .sapUiFormContainerToolbar{
+	padding-top: 1rem;
+}
+/* END "ResponsiveLayout.less" */
+
+/* START "SimpleForm.less" */
+/* ===================================================== */
+/* CSS for control sap.ui.layout/form/SimpleForm.control */
+/* ===================================================== */
+
+.sapUiFormEdit-CTX .sapMRb {
+	vertical-align: top;
+	line-height:1em;
+	z-index: 0;
+}
+
+.sapUiFormEdit-CTX .sapMRbHasLabel.sapMRb:focus:before {
+	right: -0.0312rem;
+}
+
+.sapUiFormEdit-CTX .sapMRbBLabel {
+	line-height:3rem;
+}
+
+.sapUiSizeCompact .sapUiFormEdit-CTX .sapMRbBLabel {
+	line-height:  2rem;
+}
+
+.sapUiFormEdit-CTX .sapMSwtCont {
+	vertical-align:middle;
+}
+
+/* END "SimpleForm.less" */
+
+/* START "Splitter.less" */
+
+/* ============================================= */
+/* CSS for control sap.ui.unified/Splitter.control */
+/* ============================================= */
+
+.sapUiLoSplitter > .sapUiLoSplitterBar,
+.sapUiLoSplitterOverlay > .sapUiLoSplitterOverlayBar {
+	color: darken(@sapUiElement, 20);
+	text-shadow: 1px 1px @sapUiLightShadowTint;
+}
+
+.sapUiLoSplitter > .sapUiLoSplitterBar:hover {
+	background-color: @sapUiDarkBG;
+	color: @sapUiInvertedElement;
+}
+
+.sapUiLoSplitterOverlay > .sapUiLoSplitterOverlayBar {
+	background-color: @sapUiHighlight;
+	color: @sapUiInvertedElement;
+}
+
+.sapUiLoSplitter > .sapUiLoSplitterBar:focus {
+	outline: 1px dotted @sapUiFocus;
+}
+
+/* END "Splitter.less" */
+
+/* START "BlockLayout.less" */
+/* Predefined colors for the Light background type */
+@sapUiBlockColorA: rgb(255,255,255);
+@sapUiBlockColorB: rgb(250,250,250);
+@sapUiBlockColorC: rgb(239,244,249);
+@sapUiBlockColorD: rgb(232,239,246);
+
+.sapUiBlockLayoutLightBackground {
+
+	.sapUiBlockLayoutRow:nth-child(4n + 1) {
+		.sapUiBlockLayoutCell:nth-child(odd) {
+			background-color: @sapUiBlockColorA;
+		}
+
+		.sapUiBlockLayoutCell:nth-child(even) {
+			background-color: @sapUiBlockColorC;
+		}
+	}
+
+	.sapUiBlockLayoutRow:nth-child(4n + 2) {
+		.sapUiBlockLayoutCell:nth-child(odd) {
+			background-color: @sapUiBlockColorB;
+		}
+
+		.sapUiBlockLayoutCell:nth-child(even) {
+			background-color: @sapUiBlockColorD;
+		}
+	}
+
+	.sapUiBlockLayoutRow:nth-child(4n + 3) {
+		.sapUiBlockLayoutCell:nth-child(odd) {
+			background-color: @sapUiBlockColorC;
+		}
+
+		.sapUiBlockLayoutCell:nth-child(even) {
+			background-color: @sapUiBlockColorA;
+		}
+	}
+
+	.sapUiBlockLayoutRow:nth-child(4n + 4) {
+		.sapUiBlockLayoutCell:nth-child(odd) {
+			background-color: @sapUiBlockColorD;
+		}
+
+		.sapUiBlockLayoutCell:nth-child(even) {
+			background-color: @sapUiBlockColorB;
+		}
+	}
+}
+
+/* END "BlockLayout.less" */
+

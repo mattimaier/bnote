@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>TabContainer</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The TabContainer control represents a collection of tabs with associated content.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="showAddNewButton">
+            <documentation>Defines whether an &lt;code&gt;Add New Tab&lt;/code&gt; button is displayed in the TabStrip.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="true" name="itemClose">
+            <documentation>Fired when an item is closed.</documentation>
+            <parameters>
+                <parameter type="sap.m/TabContainerItem" name="item">
+                    <documentation>The item to be closed.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="true" name="itemSelect">
+            <documentation>Fired when an item is pressed.</documentation>
+            <parameters>
+                <parameter type="sap.m/TabContainerItem" name="item">
+                    <documentation>The selected item.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="addNewButtonPress">
+            <documentation>Fired when &lt;code&gt;Add New Tab&lt;/code&gt; button is pressed.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.m/TabContainerItem" name="items">
+            <documentation>The items displayed in the &lt;code&gt;TabContainer&lt;/code&gt;.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Button" name="_addNewButton">
+            <documentation>The &lt;code&gt;Add New Tab&lt;/code&gt; button displayed in the &lt;code&gt;TabStrip&lt;/code&gt;.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_tabStrip">
+            <documentation>Internal aggregation for managing the tab elements.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.m/TabContainerItem" name="selectedItem">
+            <documentation>Sets or retrieves the selected item from the aggregation named items.</documentation>
+        </association>
+    </associations>
+</control>

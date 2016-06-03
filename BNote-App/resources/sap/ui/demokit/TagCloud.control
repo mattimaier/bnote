@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>TagCloud</name>
+    <derived/>
+    <documentation>A simple TagCloud representing a set of weighted tags</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="30" type="sap.ui.core/int" name="maxFontSize">
+            <documentation>Maximum font size that may be chosen for a tag in this cloud</documentation>
+        </property>
+        <property group="Misc" defaultValue="10" type="sap.ui.core/int" name="minFontSize">
+            <documentation>Minimum font size that must be used for a tag in this cloud</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Fired when a Tag is clicked.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="tagId">
+                    <documentation>Id of the selected Tag.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="tags">
+        <aggregation cardinality="0..n" type="sap.ui.demokit/Tag" name="tags">
+            <documentation>The tags displayed in this tag cloud</documentation>
+        </aggregation>
+    </aggregations>
+</control>

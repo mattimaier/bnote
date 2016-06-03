@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>QuickViewPage</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>QuickViewPage consists of  a page header, an object icon or image,
+an object name with short description, and an object information divided in groups.
+The control uses the sap.m.SimpleForm control to display information.</documentation>
+    <since>1.28.11</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="pageId">
+            <documentation>Page id</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="header">
+            <documentation>Specifies the text displayed in the header of the control.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="title">
+            <documentation>Specifies the text displayed in the header of the content section of the control.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="titleUrl">
+            <documentation>Specifies the URL which opens when the title or the thumbnail is clicked.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/object" name="crossAppNavCallback">
+            <documentation>Specifies the application which provides target and param configuration  for cross-application navigation from the 'page header'.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="description">
+            <documentation>Specifies the text displayed under the header of the content section</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="icon">
+            <documentation>Specifies the URL of the icon displayed under the header of the page</documentation>
+        </property>
+    </properties>
+    <aggregations default="groups">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.m/QuickViewGroup" name="groups">
+            <documentation>QuickViewGroup consists of a title (optional) and an entity of group elements.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

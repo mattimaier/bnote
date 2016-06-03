@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CalendarRow</name>
+    <derived/>
+    <documentation>A calendar row with an header and appointments. The Appointments will be placed in the defined interval.</documentation>
+    <since>1.34.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/object" name="startDate">
+            <documentation>Start date, as JavaScript Date object, of the row. As default, the current date is used.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="12" type="sap.ui.core/int" name="intervals">
+            <documentation>Number of displayed intervals. The size of the intervals is defined with &lt;code&gt;intervalType&lt;/code&gt;</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Hour" type="sap.ui.unified/CalendarIntervalType" name="intervalType">
+            <documentation>Type of the intervals of the row. The default is one hour.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showSubIntervals">
+            <documentation>If set, subintervals are shown.
+
+If the interval type is &lt;code&gt;Hour&lt;/code&gt;, quarter hours are shown.
+
+If the interval type is &lt;code&gt;Day&lt;/code&gt;, hours are shown.
+
+If the interval type is &lt;code&gt;Month&lt;/code&gt;, days are shown.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showIntervalHeaders">
+            <documentation>If set, interval headers are shown even if no &lt;code&gt;intervalHeaders&lt;/code&gt; are assigned to the visible time frame.
+
+If not set, no interval headers are shown even if &lt;code&gt;intervalHeaders&lt;/code&gt; are assigned.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/int[]" name="nonWorkingDays">
+            <documentation>If set, the provided weekdays are displayed as non-working days.
+Valid values inside the array are 0 to 6. (Other values will just be ignored.)
+
+If not set, the weekend defined in the locale settings is displayed as non-working days.
+
+&lt;b&gt;Note:&lt;/b&gt; The non working days are only visualized if &lt;code&gt;intervalType&lt;/code&gt; is set to day.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/int[]" name="nonWorkingHours">
+            <documentation>If set, the provided hours are displayed as non-working hours.
+Valid values inside the array are 0 to 23. (Other values will just be ignored.)
+
+&lt;b&gt;Note:&lt;/b&gt; The non working hours are only visualized if &lt;code&gt;intervalType&lt;/code&gt; is set to hour.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of the row</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Height of the row</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="checkResize">
+            <documentation>If set, the &lt;code&gt;CalendarRow&lt;/code&gt; checks for resize by itself.
+
+If a lot of &lt;code&gt;CalendarRow&lt;/code&gt; controls are used in one container control (like &lt;code&gt;PlanningCalendar&lt;/code&gt;).
+the resize checks should be done only by this container control. Then the container control should
+call &lt;code&gt;handleResize&lt;/code&gt; of the &lt;code&gt;CalendarRow&lt;/code&gt; if a resize happens.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="updateCurrentTime">
+            <documentation>If set the &lt;code&gt;CalendarRow&lt;/code&gt; triggers a periodic update to visualize the current time.
+
+If a lot of &lt;code&gt;CalendarRow&lt;/code&gt; controls are used in one container control (like &lt;code&gt;PlanningCalendar&lt;/code&gt;)
+the periodic update should be triggered only by this container control. Then the container control should
+call &lt;code&gt;updateCurrentTimeVisualization&lt;/code&gt; of the &lt;code&gt;CalendarRow&lt;/code&gt; to update the visualization.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Fired if an appointment was selected</documentation>
+            <parameters>
+                <parameter type="sap.ui.unified/CalendarAppointment" name="appointment">
+                    <documentation>selected appointment</documentation>
+                </parameter>
+                <parameter type="sap.ui.unified/CalendarAppointment[]" name="appointments">
+                    <documentation>selected appointments in case a group appointment is selected</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="multiSelect">
+                    <documentation>If set, the appointment was selected by multiple selection (e.g. shift + mouse click).
+So more than the current appointment could be selected.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="startDateChange">
+            <documentation>&lt;code&gt;startDate&lt;/code&gt; was changed while navigating in &lt;code&gt;CalendarRow&lt;/code&gt;</documentation>
+        </event>
+        <event allowPreventDefault="false" name="leaveRow">
+            <documentation>The &lt;code&gt;CalendarRow&lt;/code&gt; should be left while navigating. (Arrow up or arrow down.)
+The caller should determine the next control to be focused</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="type">
+                    <documentation>The type of the event that triggers this &lt;code&gt;leaveRow&lt;/code&gt;</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.unified/CalendarAppointment" name="appointments">
+            <documentation>Appointments to be displayed in the row. Appointments outside the visible time frame are not rendered.
+
+&lt;b&gt;Note:&lt;/b&gt; For performance reasons, only appointments in the visible time range or nearby should be assigned.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.unified/CalendarAppointment" name="intervalHeaders">
+            <documentation>Appointments to be displayed in the top of the intervals. The &lt;code&gt;intervalHeaders&lt;/code&gt; are used to visualize
+public holidays and similar things.
+
+Appointments outside the visible time frame are not rendered.
+
+The &lt;code&gt;intervalHeaders&lt;/code&gt; always fill whole intervals. If they are shorter than one interval, they are not displayed.
+
+&lt;b&gt;Note:&lt;/b&gt; For performance reasons, only appointments in the visible time range or nearby should be assigned.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.unified/CalendarAppointment" name="groupAppointments"/>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

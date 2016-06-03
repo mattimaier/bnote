@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>InputBase</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The &lt;code&gt;sap.m.InputBase&lt;/code&gt; control provides a base functionality of the Input controls, e.g. &lt;code&gt;sap.m.Input&lt;/code&gt;, &lt;code&gt;sap.m.DatePicker&lt;/code&gt;, &lt;code&gt;sap.m.TextArea&lt;/code&gt;, &lt;code&gt;sap.m.ComboBox&lt;/code&gt;.</documentation>
+    <since>1.12.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property bindable="bindable" group="Data" type="sap.ui.core/string" name="value">
+            <documentation>Defines the value of the control.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Defines the width of the control.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Indicates whether the user can interact with the control or not.
+&lt;b&gt;Note:&lt;b&gt; Disabled controls cannot be focused and they are out of the tab-chain.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="None" type="sap.ui.core/ValueState" name="valueState">
+            <documentation>Visualizes the validation state of the the control, e.g. &lt;code&gt;Error&lt;/code&gt;, &lt;code&gt;Warning&lt;/code&gt;, &lt;code&gt;Success&lt;/code&gt;.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="name">
+            <documentation>Defines the name of the control for the purposes of form submission.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="placeholder">
+            <documentation>Defines a short hint intended to aid the user with data entry when the control has no value.</documentation>
+        </property>
+        <property since="1.12.0" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="editable">
+            <documentation>Defines whether the control can be modified by the user or not.
+&lt;b&gt;Note:&lt;b&gt; A user can tab to non-editable control, highlight it, and copy the text from it.</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/string" name="valueStateText">
+            <documentation>Defines the text that appears in the value state message pop-up. If this is not specified, a default text is shown from the resource bundle.</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="showValueStateMessage">
+            <documentation>Indicates whether the value state message should be shown or not.</documentation>
+        </property>
+        <property since="1.26.0" group="Appearance" defaultValue="Initial" type="sap.ui.core/TextAlign" name="textAlign">
+            <documentation>Defines the horizontal alignment of the text that is shown inside the input field.</documentation>
+        </property>
+        <property since="1.28.0" group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>Defines the text directionality of the input field, e.g. &lt;code&gt;RTL&lt;/code&gt;, &lt;code&gt;LTR&lt;/code&gt;</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="change">
+            <documentation>Is fired when the text in the input field has changed and the focus leaves the input field or the enter key is pressed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="value">
+                    <documentation>The new &lt;code&gt;value&lt;/code&gt; of the &lt;code&gt;control&lt;/code&gt;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <associations>
+        <association since="1.27.0" cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs that label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

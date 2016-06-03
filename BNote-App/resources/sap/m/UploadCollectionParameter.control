@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>UploadCollectionParameter</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Represents a parameter for the UploadCollection.</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property since="1.12.2" group="Data" type="sap.ui.core/string" name="name">
+            <documentation>Specifies the name of the parameter.</documentation>
+        </property>
+        <property since="1.12.2" group="Data" type="sap.ui.core/string" name="value">
+            <documentation>Specifies the value of the parameter.</documentation>
+        </property>
+    </properties>
+</control>

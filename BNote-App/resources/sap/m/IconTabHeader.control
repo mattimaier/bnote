@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>IconTabHeader</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This control displays a number of IconTabFilters and IconTabSeparators. If the available horizontal
+space is exceeded, a horizontal scrolling appears.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="showSelection">
+            <documentation>Defines whether the current selection is visualized.</documentation>
+            <deprecation since="1.15.0">Regarding to changes of this control this property is not needed anymore.</deprecation>
+        </property>
+        <property since="1.15.0" group="Data" type="sap.ui.core/string" name="selectedKey">
+            <documentation>Key of the selected item.
+
+If the key has no corresponding aggregated item, no changes will apply.
+If duplicate keys exists the first item matching, the key is used.</documentation>
+        </property>
+        <property since="1.15.0" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Specifies whether the control is rendered.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Fires when an item is selected.</documentation>
+            <parameters>
+                <parameter since="1.15.0" type="sap.m/IconTabFilter" name="item">
+                    <documentation>The selected item</documentation>
+                </parameter>
+                <parameter since="1.15.0" type="sap.ui.core/string" name="key">
+                    <documentation>The key of the selected item</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.m/IconTab" name="items">
+            <documentation>The items displayed in the IconTabHeader.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

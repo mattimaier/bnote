@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>BackgroundDesign</name>
+    <derived/>
+    <documentation>Available Background Design.</documentation>
+    <enumeration>
+        <value name="Solid">
+            <documentation>A solid background color dependent on the theme.</documentation>
+        </value>
+        <value name="Transparent">
+            <documentation>Transparent background.</documentation>
+        </value>
+        <value name="Translucent">
+            <documentation>A translucent background depending on the opacity value of the theme.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

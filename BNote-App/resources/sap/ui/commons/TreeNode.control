@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>TreeNode</name>
+    <derived/>
+    <documentation>Tree node element</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="text">
+            <documentation>Node text</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="expanded">
+            <documentation>Node is expanded</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="hasExpander">
+            <documentation>Should the node has an expander.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="icon">
+            <documentation>Icon to display in front of the node</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="isSelected">
+            <documentation>Node is selected</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="selectable">
+            <documentation>The node is selectable. If true, clicking on the node text triggers &quot;selected&quot; event</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="toggleOpenState">
+            <documentation>Node state has changed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="opened">
+                    <documentation>Node has been opened if true</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="selected">
+            <documentation>Node is selected</documentation>
+        </event>
+    </events>
+    <aggregations default="nodes">
+        <aggregation cardinality="0..n" type="sap.ui.commons/TreeNode" name="nodes">
+            <documentation>Subnodes for the current node</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.commons/TreeNode" name="selectedForNodes">
+            <documentation>When this node is collapsed and it has selected children, it looks as if it were
+selected itself.
+This association holds the references of the selected children.</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method name="expand">
+            <documentation>Expands the node.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="expandChildren">
+                    <documentation>Propagates expand to node's children</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="disableExpandFinishedHandler">
+                    <documentation>Disables the expand finished handler</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method name="collapse">
+            <documentation>Collapses the node.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="collapseChildren">
+                    <documentation>Propagates collapse to node's children</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="disableCollapseFinishedHandler">
+                    <documentation>Disables the collapse finished handler</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method name="select">
+            <documentation>Select the node, and if any, deselects the previously selected node</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="suppressEvent">
+                    <documentation></documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="deselectOtherNodes">
+                    <documentation></documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

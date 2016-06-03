@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nSortPanel</name>
+    <derived/>
+    <documentation>The P13nSortPanel control is used to define settings for sorting in table personalization.</documentation>
+    <baseType>sap.m/P13nPanel</baseType>
+    <properties>
+        <property since="1.26" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="containerQuery">
+            <documentation>defines if the mediaQuery or a ContainerResize will be used for layout update. When the ConditionPanel is used on a dialog the
+property should be set to true!</documentation>
+        </property>
+        <property since="1.26" group="Misc" type="sap.ui.core/string" name="layoutMode">
+            <documentation>can be used to control the layout behavior. Default is &quot;&quot; which will automatically change the layout. With &quot;Desktop&quot;, &quot;Table&quot;
+or&quot;Phone&quot; you can set a fixed layout.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" since="1.26" name="addSortItem">
+            <documentation>event raised when a SortItem was added</documentation>
+        </event>
+        <event allowPreventDefault="false" since="1.26" name="removeSortItem">
+            <documentation>remove a sort item</documentation>
+        </event>
+        <event allowPreventDefault="false" since="1.26" name="updateSortItem">
+            <documentation>update a sort item</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>content for include and exclude panels</documentation>
+        </aggregation>
+        <aggregation bindable="bindable" cardinality="0..n" since="1.26" type="sap.m/P13nSortItem" name="sortItems">
+            <documentation>defined Sort Items</documentation>
+        </aggregation>
+    </aggregations>
+</control>

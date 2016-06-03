@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>TextField</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Renders a input field for text input.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property bindable="bindable" group="Data" defaultValue="" type="sap.ui.core/string" name="value">
+            <documentation>Text inside the &lt;code&gt;TextField&lt;/code&gt;</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>Direction of the text. Possible values: &quot;rtl&quot;, &quot;ltr&quot;.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Switches enabled state of the control. Disabled fields have different colors, and can not be focused.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="editable">
+            <documentation>Switches edit state of the control. Read-only fields have different colors, depending on theme setting.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="required">
+            <documentation>Depending on theme the &lt;code&gt;TextField&lt;/code&gt; is shown as required.
+If a &lt;code&gt;Label&lt;/code&gt; is assigned to the &lt;code&gt;TextField&lt;/code&gt; it will visualize the requires state too.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of text field. When it is set (CSS-size such as % or px), this is the exact size. When left blank, the text field length defines the width.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="0" type="sap.ui.core/int" name="maxLength">
+            <documentation>Maximum number of characters. Value '0' means the feature is switched off.</documentation>
+        </property>
+        <property group="Data" defaultValue="None" type="sap.ui.core/ValueState" name="valueState">
+            <documentation>Visualizes warnings or errors related to the text field. Possible values: Warning, Error, Success.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Begin" type="sap.ui.core/TextAlign" name="textAlign">
+            <documentation>Sets the horizontal alignment of the text.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="Auto" type="sap.ui.core/ImeMode" name="imeMode">
+            <documentation>State of the Input Method Editor (IME).</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Standard" type="sap.ui.core/Design" name="design">
+            <documentation>Font type. valid values are Standard and Monospace.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="" type="sap.ui.core/string" name="helpId">
+            <documentation>Unique identifier used for help service.</documentation>
+        </property>
+        <property group="Accessibility" defaultValue="Textbox" type="sap.ui.core/AccessibleRole" name="accessibleRole">
+            <documentation>Accessibility role for the text field.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="name">
+            <documentation>The &lt;code&gt;name&lt;/code&gt; property to be used in the HTML code (e.g. for HTML forms that send data to the server via 'submit').</documentation>
+        </property>
+        <property since="1.14.0" group="Appearance" type="sap.ui.core/string" name="placeholder">
+            <documentation>Placeholder for the text field.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="change">
+            <documentation>Event is fired when the text in the field has changed AND the focus leaves the TextField or the Enter key is pressed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="newValue">
+                    <documentation>The new / changed value of the &lt;code&gt;TextField&lt;/code&gt;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="liveChange">
+            <documentation>This event if fired during typing into the &lt;code&gt;TextField&lt;/code&gt; and returns the currently entered value.
+&lt;b&gt;Note:&lt;/b&gt; This is not the content of the value property.
+The value property is only updated by ENTER and by leaving the control.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="liveValue">
+                    <documentation>Current visible value of the &lt;code&gt;TextField&lt;/code&gt;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / IDs which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method type="sap.ui.core/string" name="getLiveValue">
+            <documentation>Returns the current value of the &lt;code&gt;TextField&lt;/code&gt;.
+In case of editing the &lt;code&gt;TextField&lt;/code&gt; you can access the current value via this method.
+The validated value is accessible via the property value.</documentation>
+        </method>
+    </methods>
+</control>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SuggestionItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Display suggestion list items.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Item</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="icon">
+            <documentation>The icon belonging to this list item instance.
+This can be an URI to an image or an icon font URI.</documentation>
+        </property>
+        <property group="Data" defaultValue="" type="sap.ui.core/string" name="description">
+            <documentation>Additional text of type string, optionally to be displayed along with this item.</documentation>
+        </property>
+    </properties>
+</control>

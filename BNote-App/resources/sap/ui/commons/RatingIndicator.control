@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>RatingIndicator</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>RatingIndicator is used to let the user do some rating on a given topic. The amount of
+rating symbols can be specified, as well as the URIs to the image icons which shall be
+used as rating symbols. When the user performs a rating, an event is fired.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="editable">
+            <documentation>Determines if the rating symbols can be edited.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="5" type="sap.ui.core/int" name="maxValue">
+            <documentation>Determines the number of displayed rating symbols</documentation>
+        </property>
+        <property bindable="bindable" group="Behavior" defaultValue="0" type="sap.ui.core/float" name="value">
+            <documentation>Determines the currently selected value. If value is set to sap.ui.commons.RatingIndicator.NoValue,
+the averageValue is shown.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="0" type="sap.ui.core/float" name="averageValue">
+            <documentation>Determines the average value. This value is shown if no value is set.
+This can be used to display an average Value before the user votes.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/URI" name="iconSelected">
+            <documentation>The URI to the image which shall be displayed for all selected rating symbols.
+Note that when this attribute is used, also the other icon attributes need to be set.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/URI" name="iconUnselected">
+            <documentation>The URI to the image which shall be displayed for all unselected rating symbols.
+If this attribute is used, a requirement is that all custom icons need to have the same size.
+Note that when this attribute is used also the other icon attributes need to be set.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/URI" name="iconHovered">
+            <documentation>The URI to the image which is displayed when the mouse hovers onto a rating symbol.
+If used, a requirement is that all custom icons need to have the same size.
+Note that when this attribute is used also the other icon attributes need to be set.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="Half" type="sap.ui.commons/RatingIndicatorVisualMode" name="visualMode">
+            <documentation>Defines how float values are visualized: Full, Half, Continuous
+(see enumeration RatingIndicatorVisualMode)</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="change">
+            <documentation>The event is fired when the user has done a rating.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="value">
+                    <documentation>The value of the user rating</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

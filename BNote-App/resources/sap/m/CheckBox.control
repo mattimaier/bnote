@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CheckBox</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The CheckBox control allows the user to select one or multiple items from a list. To select each item the user has to select the square box in front of it.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Data" defaultValue="false" type="sap.ui.core/boolean" name="selected">
+            <documentation>Stores the state of the checkbox whether it is selected or not.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Disables the Checkbox. Disabled controls are not interactive and are rendered differently according to the theme.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="name">
+            <documentation>The 'name' property to be used in the HTML code, for example for HTML forms that send data to the server via submit.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="text">
+            <documentation>Defines the text displayed next to the checkbox</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>Options for the text direction are RTL and LTR. Alternatively, the control can inherit the text direction from its parent container.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Begin" type="sap.ui.core/TextAlign" name="textAlign">
+            <documentation>Aligns the text of the checkbox. Available alignment settings are &quot;Begin&quot;, &quot;Center&quot;, &quot;End&quot;, &quot;Left&quot;, and &quot;Right&quot;.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of the checkbox`s label</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="activeHandling">
+            <documentation>Flag to switch on activeHandling, when it is switched off, there will be no visual changes on active state. Default value is 'true'</documentation>
+        </property>
+        <property since="1.25" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="editable">
+            <documentation>Specifies whether the user shall be allowed to edit the state of the checkbox</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Event is triggered when the control status is changed by the user by selecting or deselecting the checkbox.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="selected">
+                    <documentation>Checks whether the CheckBox is marked or not .</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Label" name="_label">
+            <documentation>The label that represents the text of the checkbox control</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / IDs which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

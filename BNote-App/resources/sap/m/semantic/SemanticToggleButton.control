@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>semantic/SemanticToggleButton</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A SemanticToggleButton is eligible for aggregation content of a {@link sap.m.semantic.SemanticPage}.</documentation>
+    <since>1.30.0</since>
+    <baseType>sap.m/semantic/SemanticButton</baseType>
+    <properties>
+        <property group="Data" defaultValue="false" type="sap.ui.core/boolean" name="pressed">
+            <documentation>The property is “true” when the control is toggled. The default state of this property is &quot;false&quot;.</documentation>
+        </property>
+    </properties>
+</control>

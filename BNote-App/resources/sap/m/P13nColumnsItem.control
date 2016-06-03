@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nColumnsItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Type for &lt;code&gt;columnsItems&lt;/code&gt; aggregation in P13nColumnsPanel control.</documentation>
+    <since>1.26.0</since>
+    <baseType>sap.ui.core/Item</baseType>
+    <properties>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/string" name="columnKey">
+            <documentation>This property contains the unique table column key</documentation>
+        </property>
+        <property since="1.26.0" group="Appearance" type="sap.ui.core/int" name="index">
+            <documentation>This property contains the index of a table column</documentation>
+        </property>
+        <property since="1.26.0" group="Appearance" type="sap.ui.core/boolean" name="visible">
+            <documentation>This property decides whether a P13nColumnsItem is visible</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/string" name="width">
+            <documentation>This property contains the with of a table column.</documentation>
+        </property>
+    </properties>
+</control>

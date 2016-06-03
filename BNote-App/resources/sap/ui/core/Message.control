@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Message</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This element used to provide messages. Rendering must be done within the control that uses this kind of element.
+
+Its default level is none.</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="text">
+            <documentation>Message text</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="timestamp">
+            <documentation>Message's timestamp. It is just a simple String that will be used without any transformation. So the application that uses messages needs to format the timestamp to its own needs.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="icon">
+            <documentation>A possible icon URI of the message</documentation>
+        </property>
+        <property group="Misc" defaultValue="None" type="sap.ui.core/MessageType" name="level">
+            <documentation>Setting the message's level.</documentation>
+        </property>
+        <property since="1.19.0" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="readOnly">
+            <documentation>Determines whether the message should be read only. This helps the application to handle a message a different way if the application differentiates between read-only and common messages.</documentation>
+        </property>
+    </properties>
+    <methods>
+        <method type="sap.ui.core/URI" name="getDefaultIcon">
+            <documentation>Returns the icon's default URI depending on given size.
+
+There are default icons for messages available that can be used this way. If no
+parameter is given, the size will be 16x16 per default. If larger icons are needed,
+the parameter &quot;32x32&quot; might be given.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="size">
+                    <documentation>If parameter is not set the default icon's size will be 16x16. If parameter</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

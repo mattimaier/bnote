@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ShellOverlay</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>ShellOverlay to be opened in front of a sap.ui.unified.Shell</documentation>
+    <since>1.16.3</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <events>
+        <event allowPreventDefault="false" name="closed">
+            <documentation>Fired when the overlay was closed.</documentation>
+        </event>
+    </events>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>The content to appear in the overlay.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.ui.core/Control" name="search">
+            <documentation>Experimental (This aggregation might change in future!): The search control which should be displayed in the overlay header.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.unified/ShellLayout" name="shell">
+            <documentation>Reference to the sap.ui.unified.Shell or sap.ui.unified.ShellLayout control.</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ToolbarSeparator</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A small vertical line that is generally added to the tool bar between the items to visually separate them.</documentation>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="displayVisualSeparator">
+            <documentation>When set to false, there is no visual indication of separation by a vertical line but by a wider space.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.commons/ToolbarSeparatorDesign" name="design">
+            <documentation>Design of the Separator.</documentation>
+        </property>
+    </properties>
+</control>

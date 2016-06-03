@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ListMode</name>
+    <derived/>
+    <documentation>Defines the mode of the list.</documentation>
+    <enumeration>
+        <value name="None">
+            <documentation>Default mode (no selection).</documentation>
+        </value>
+        <value name="SingleSelect">
+            <documentation>Right-positioned single selection mode (only one list item can be selected).</documentation>
+        </value>
+        <value name="SingleSelectLeft">
+            <documentation>Left-positioned single selection mode (only one list item can be selected).</documentation>
+        </value>
+        <value name="SingleSelectMaster">
+            <documentation>Selected item is highlighted but no selection control is visible (only one list item can be selected).</documentation>
+        </value>
+        <value name="MultiSelect">
+            <documentation>Multi selection mode (more than one list item can be selected).</documentation>
+        </value>
+        <value name="Delete">
+            <documentation>Delete mode (only one list item can be deleted via provided delete button)</documentation>
+        </value>
+    </enumeration>
+</simple-type>

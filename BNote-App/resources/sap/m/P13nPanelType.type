@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nPanelType</name>
+    <derived/>
+    <documentation>Type of panels used in the personalization dialog.</documentation>
+    <enumeration>
+        <value name="sort">
+            <documentation>Panel type for sorting.</documentation>
+        </value>
+        <value name="filter">
+            <documentation>Panel type for filtering.</documentation>
+        </value>
+        <value name="group">
+            <documentation>Panel type for grouping.</documentation>
+        </value>
+        <value name="columns">
+            <documentation>Panel type for column settings.</documentation>
+        </value>
+        <value name="dimeasure">
+            <documentation>Panel type for dimension and measure settings.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

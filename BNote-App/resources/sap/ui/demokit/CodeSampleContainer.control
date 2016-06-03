@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CodeSampleContainer</name>
+    <derived/>
+    <documentation>A container for both the source and the runtime results of a CodeSample. By default, only the runtime results are shown. There are additional controls that allow the user to display the source, modify and run it.
+
+The container provides a sub container that can be used in calls to sap.ui.setRoot() as if it would be a normal UIArea. So the sample code doesn't have to know that it runs in a CodeSample container.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="scriptElementId">
+            <documentation>Id of the script element that contains the initial sample code for this code sample.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="uiAreaId">
+            <documentation>Id of the container for the running code. This Id can be used in calls to sap.ui.setRoot as if it would be a normal UIArea. Internally, a container UIElement is created with that Id.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="title">
+            <documentation>A title to be displayed above the code.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="sourceVisible">
+            <documentation>Whether the source code is visible or not.</documentation>
+        </property>
+        <property group="Misc" defaultValue="90%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of the CodeSample container.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="apply">
+            <documentation>Fired when the user decides to apply his/her changes to the sample code</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="code">
+                    <documentation>the current code that will be applied</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.demokit/UIAreaSubstitute" name="_uiarea">
+            <documentation>The UIAreaSubstitute used by this code sample container</documentation>
+        </aggregation>
+    </aggregations>
+</control>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SegmentedButtonItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The SegmentedButtonItem control is used for creating buttons for the sap.m.SegmentedButton.
+It is derived from a core sap.ui.core.Item.</documentation>
+    <since>1.28</since>
+    <baseType>sap.ui.core/Item</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/string" name="icon">
+            <documentation>The icon, which belongs to the button.
+This can be an URI to an image or an icon font URI.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Sets the width of the buttons.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Fires when the user clicks on an individual button.</documentation>
+        </event>
+    </events>
+</control>

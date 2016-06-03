@@ -1,0 +1,117 @@
+{
+  "_version": "1.1.0",
+  "resources": [
+    {
+      "name": "Component-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "Component.js"
+    },
+    {
+      "name": "css/style.css"
+    },
+    {
+      "name": "img/114_iPhone-Retina_Web_Clip.png"
+    },
+    {
+      "name": "img/144_iPad_Retina_Web_Clip.png"
+    },
+    {
+      "name": "img/57_iPhone_Desktop_Launch.png"
+    },
+    {
+      "name": "img/72_iPad_Desktop_Launch.png"
+    },
+    {
+      "name": "img/SAPUI5Icon.png"
+    },
+    {
+      "name": "img/favicon.ico"
+    },
+    {
+      "name": "model/Config-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "model/Config.js"
+    },
+    {
+      "name": "model/FavoriteModel-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "model/FavoriteModel.js"
+    },
+    {
+      "name": "model/groups.json"
+    },
+    {
+      "name": "model/img.json"
+    },
+    {
+      "name": "util/Sorter-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "util/Sorter.js"
+    },
+    {
+      "name": "view/App-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/App-dbg.view.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/App.controller.js"
+    },
+    {
+      "name": "view/App.view.js"
+    },
+    {
+      "name": "view/Detail-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/Detail.controller.js"
+    },
+    {
+      "name": "view/Detail.view.xml"
+    },
+    {
+      "name": "view/Favorite-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/Favorite.controller.js"
+    },
+    {
+      "name": "view/Favorite.view.xml"
+    },
+    {
+      "name": "view/Group-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/Group.controller.js"
+    },
+    {
+      "name": "view/Group.view.xml"
+    },
+    {
+      "name": "view/Master-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/Master.controller.js"
+    },
+    {
+      "name": "view/Master.view.xml"
+    },
+    {
+      "name": "view/Welcome.view.xml"
+    }
+  ]
+}

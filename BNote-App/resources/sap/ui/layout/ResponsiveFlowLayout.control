@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ResponsiveFlowLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This is a layout where several controls can be added. These controls are blown up to fit in an entire row. If the window resizes, the controls are moved between the rows and resized again.</documentation>
+    <since>1.16.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="responsive">
+            <documentation>If set to false, all added controls will keep their width, or otherwise, the controls will be stretched to the possible width of a row.</documentation>
+        </property>
+    </properties>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Added content that should be positioned. Every content item should have a ResponsiveFlowLayoutData attached, or otherwise, the default values are used.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

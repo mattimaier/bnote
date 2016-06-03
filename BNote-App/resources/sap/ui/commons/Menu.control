@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Menu</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A menu is an interactive element which provides a choice of different actions to the user. These actions (items) can also be organized in submenus.
+Like other dialog-like controls, the menu is not rendered within the control hierarchy. Instead it can be opened at a specified position via a function call.</documentation>
+    <since>1.0.0</since>
+    <deprecation since="1.21.0">Please use the control sap.ui.unified.Menu of the library sap.ui.unified instead.</deprecation>
+    <baseType>sap.ui.unified/Menu</baseType>
+</control>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>GridData</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Grid layout data</documentation>
+    <since>1.15.0</since>
+    <baseType>sap.ui.core/LayoutData</baseType>
+    <properties>
+        <property group="Behavior" type="sap.ui.layout/GridSpan" name="span">
+            <documentation>A string type that represents Grid's span values for large, medium and small screens. Allowed values are separated by space Letters L, M or S followed by number of columns from 1 to 12 that the container has to take, for example: &quot;L2 M4 S6&quot;, &quot;M12&quot;, &quot;s10&quot; or &quot;l4 m4&quot;. Note that the parameters has to be provided in the order large medium small.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="spanXL">
+            <documentation>Optional. Defines a span value for extra large screens. This value overwrites the value for extra large screens defined in the parameter &quot;span&quot;.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="spanL">
+            <documentation>Optional. Defines a span value for large screens. This value overwrites the value for large screens defined in the parameter &quot;span&quot;.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="spanM">
+            <documentation>Optional. Defines a span value for medium size screens. This value overwrites the value for medium screens defined in the parameter &quot;span&quot;.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="spanS">
+            <documentation>Optional. Defines a span value for small screens. This value overwrites the value for small screens defined in the parameter &quot;span&quot;.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.layout/GridIndent" name="indent">
+            <documentation>A string type that represents Grid's span values for large, medium and small screens. Allowed values are separated by space Letters L, M or S followed by number of columns from 1 to 12 that the container has to take, for example: &quot;L2 M4 S6&quot;, &quot;M12&quot;, &quot;s10&quot; or &quot;l4 m4&quot;. Note that the parameters has to be provided in the order large medium small.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="indentXL">
+            <documentation>Optional. Defines a span value for extra large screens. This value overwrites the value for extra large screens defined in the parameter &quot;indent&quot;.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="indentL">
+            <documentation>Optional. Defines a span value for large screens. This value overwrites the value for large screens defined in the parameter &quot;indent&quot;.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="indentM">
+            <documentation>Optional. Defines a span value for medium size screens. This value overwrites the value for medium screens defined in the parameter &quot;indent&quot;.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="indentS">
+            <documentation>Optional. Defines a span value for small screens. This value overwrites the value for small screens defined in the parameter &quot;indent&quot;.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visibleXL">
+            <documentation>Defines if this Control is visible on XL - extra Large screens.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visibleL">
+            <documentation>Defines if this Control is visible on Large screens.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visibleM">
+            <documentation>Defines if this Control is visible on Medium size screens.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visibleS">
+            <documentation>Defines if this Control is visible on small screens.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.layout/GridIndent" name="moveBackwards">
+            <documentation>Optional. Moves a cell backwards so many columns as specified.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.layout/GridIndent" name="moveForward">
+            <documentation>Optional. Moves a cell forwards so many columns as specified.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="linebreak">
+            <documentation>Optional. If this property is set to true, the control on all-size screens causes a line break within the Grid and becomes the first within the next line.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="linebreakXL">
+            <documentation>Optional. If this property is set to true, the control on extra large screens causes a line break within the Grid and becomes the first within the next line.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="linebreakL">
+            <documentation>Optional. If this property is set to true, the control on large screens causes a line break within the Grid and becomes the first within the next line.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="linebreakM">
+            <documentation>Optional. If this property is set to true, the control on medium sized screens causes a line break within the Grid and becomes the first within the next line.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="linebreakS">
+            <documentation>Optional. If this property is set to true, the control on small screens causes a line break within the Grid and becomes the first within the next line.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="spanLarge">
+            <documentation>Deprecated. Defines a span value for large screens. This value overwrites the value for large screens defined in the parameter &quot;span&quot;.</documentation>
+            <deprecation since="1.17.1">Use spanL instead.</deprecation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="spanMedium">
+            <documentation>Deprecated. Defines a span value for medium size screens. This value overwrites the value for medium screens defined in the parameter &quot;span&quot;.</documentation>
+            <deprecation since="1.17.1">Use spanM instead.</deprecation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="spanSmall">
+            <documentation>Deprecated. Defines a span value for small screens. This value overwrites the value for small screens defined in the parameter &quot;span&quot;.</documentation>
+            <deprecation since="1.17.1">Use spanS instead.</deprecation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="indentLarge">
+            <documentation>Deprecated. Defines a span value for large screens. This value overwrites the value for large screens defined in the parameter &quot;indent&quot;.</documentation>
+            <deprecation since="1.17.1">Use indentL instead.</deprecation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="indentMedium">
+            <documentation>Deprecated. Defines a span value for medium size screens. This value overwrites the value for medium screens defined in the parameter &quot;indent&quot;.</documentation>
+            <deprecation since="1.17.1">Use indentM instead.</deprecation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="indentSmall">
+            <documentation>Deprecated. Defines a span value for small screens. This value overwrites the value for small screens defined in the parameter &quot;indent&quot;.</documentation>
+            <deprecation since="1.17.1">Use indentS instead.</deprecation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visibleOnLarge">
+            <documentation>Deprecated. Defines if this Control is visible on Large screens.</documentation>
+            <deprecation since="1.17.1">Use visibleL instead.</deprecation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visibleOnMedium">
+            <documentation>Deprecated. Defines if this Control is visible on Medium size screens.</documentation>
+            <deprecation since="1.17.1">Use visibleM instead.</deprecation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visibleOnSmall">
+            <documentation>Deprecated. Defines if this Control is visible on small screens.</documentation>
+            <deprecation since="1.17.1">Use visibleS instead.</deprecation>
+        </property>
+    </properties>
+</control>

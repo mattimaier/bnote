@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>HorizontalDividerType</name>
+    <derived/>
+    <documentation>Enumeration of possible HorizontalDivider types.</documentation>
+    <enumeration>
+        <value name="Area">
+            <documentation>Type Area</documentation>
+        </value>
+        <value name="Page">
+            <documentation>Type Page</documentation>
+        </value>
+    </enumeration>
+</simple-type>

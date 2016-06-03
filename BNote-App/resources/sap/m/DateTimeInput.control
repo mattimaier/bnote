@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>DateTimeInput</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Allows end users to interact with date and/or time and select from a date and/or time pad.
+Note: Since 1.22, this control should not be used as a date picker(type property &quot;Date&quot;), instead please use dedicated sap.m.DatePicker control.
+Note: This control does not support the Islamic calendar.</documentation>
+    <since>1.9.1</since>
+    <deprecation since="1.32.8">Instead, use dedicated &lt;code&gt;sap.m.DatePicker&lt;/code&gt; and/or &lt;code&gt;sap.m.TimePicker&lt;/code&gt; controls.</deprecation>
+    <baseType>sap.m/InputBase</baseType>
+    <properties>
+        <property group="Data" defaultValue="Date" type="sap.m/DateTimeInputType" name="type">
+            <documentation>Type of DateTimeInput (e.g. Date, Time, DateTime)</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="displayFormat">
+            <documentation>Displays date value in this given format in text field. Default value is taken from locale settings.
+If you use data-binding on value property with type sap.ui.model.type.Date then you can ignore this property or latter wins.
+If user browser supports native picker then this property is overwritten by browser with locale settings.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="valueFormat">
+            <documentation>Given value property should match with valueFormat to parse date. Default value is taken from locale settings.
+You can only set and get value in this format.
+If you use data-binding on value property with type sap.ui.model.type.Date you can ignore this property or latter wins.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/object" name="dateValue">
+            <documentation>This property as JavaScript Date Object can be used to assign a new value which is independent from valueFormat.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="change">
+            <documentation>This event gets fired when the selection has finished and the value has changed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="value">
+                    <documentation>The string value of the control in given valueFormat(or locale format).</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/object" name="dateValue">
+                    <documentation>The value of control as JavaScript Date Object or null if value is empty.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+</control>

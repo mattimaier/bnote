@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>VerticalLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>In this layout the content controls are rendered one below the other.</documentation>
+    <since>1.16.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of the &lt;code&gt;VerticalLayout&lt;/code&gt;. If no width is set, the width of the content is used.
+If the content of the layout has a larger width than the layout, it is cut off.
+There is no scrolling inside the layout.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>If not enabled, all controls inside are not enabled automatically.</documentation>
+        </property>
+    </properties>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Content controls within the layout.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

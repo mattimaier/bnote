@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectIdentifier</name>
+    <derived/>
+    <documentation>The ObjectIdentifier is a display control that enables the user to easily identify a specific object. The ObjectIdentifier title is the key identifier of the object and additional text and icons can be used to further distinguish it from other objects.</documentation>
+    <since>1.12</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="title">
+            <documentation>Defines the object title.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="text">
+            <documentation>Defines the object text.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/boolean" name="badgeNotes">
+            <documentation>Indicates whether or not the notes icon is displayed.</documentation>
+            <deprecation since="1.24.0">Will be replaced in the future by a more generic mechanism.</deprecation>
+        </property>
+        <property group="Misc" type="sap.ui.core/boolean" name="badgePeople">
+            <documentation>Indicates whether or not the address book icon is displayed.</documentation>
+            <deprecation since="1.24.0">Will be replaced in the future by a more generic mechanism.</deprecation>
+        </property>
+        <property group="Misc" type="sap.ui.core/boolean" name="badgeAttachments">
+            <documentation>Indicates whether or not the attachments icon is displayed.</documentation>
+            <deprecation since="1.24.0">Will be replaced in the future by a more generic mechanism.</deprecation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Indicates if the ObjectIdentifier is visible. An invisible ObjectIdentifier is not being rendered.</documentation>
+        </property>
+        <property since="1.26" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="titleActive">
+            <documentation>Indicates if the ObjectIdentifier's title is clickable.</documentation>
+        </property>
+        <property since="1.28.0" group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>Specifies the element's text directionality with enumerated options. By default, the control inherits text direction from the DOM.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" since="1.26" name="titlePress">
+            <documentation>Fires when the title is active and the user taps/clicks on it.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/object" name="domRef">
+                    <documentation>DOM reference of the object identifier's title.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_titleControl">
+            <documentation>Control to display the object title (can be either Text or Link).</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_textControl">
+            <documentation>Text control to display the object text.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / IDs, which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

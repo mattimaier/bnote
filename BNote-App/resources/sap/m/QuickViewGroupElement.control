@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>QuickViewGroupElement</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>QuickViewGroupElement is a combination of one label and another control (Link or Text) associated to this label.</documentation>
+    <since>1.28.11</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Determines whether the element should be visible on the screen.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="label">
+            <documentation>Specifies the text displayed below the associated label.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="value">
+            <documentation>Specifies the text of the control that associates with the label.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="url">
+            <documentation>Specifies the address of the QuickViewGroupElement link. Works only with QuickViewGroupElement of type link.</documentation>
+        </property>
+        <property group="Misc" defaultValue="_blank" type="sap.ui.core/string" name="target">
+            <documentation>Specifies the target of the link – it works like the target property of the HTML &lt;a&gt; tag. Works only with QuickViewGroupElement of type link.</documentation>
+        </property>
+        <property group="Misc" defaultValue="text" type="sap.m/QuickViewGroupElementType" name="type">
+            <documentation>Specifies the type of the displayed information – phone number, mobile number, e-mail, link, text or a link to another QuickViewPage. Default value is ‘text’.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="pageLinkId">
+            <documentation>Specifies the ID of the QuickViewPage, which is opened from the link in the QuickViewGroupElement.
+Works only with QuickViewGroupElement of type pageLink.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="emailSubject">
+            <documentation>The subject of the email.
+Works only with QuickViewGroupElement of type email.</documentation>
+        </property>
+    </properties>
+</control>

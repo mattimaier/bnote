@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ComponentContainer</name>
+    <derived/>
+    <documentation>Component Container</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property type="sap.ui.core/string" name="name">
+            <documentation>Component name, the package where the component is contained. The property can only be applied initially.</documentation>
+        </property>
+        <property type="sap.ui.core/URI" name="url">
+            <documentation>The URL of the component. The property can only be applied initially.</documentation>
+        </property>
+        <property defaultValue="false" type="sap.ui.core/boolean" name="handleValidation">
+            <documentation>Enable/disable validation handling by MessageManager for this component.
+The resulting Messages will be propagated to the controls.</documentation>
+        </property>
+        <property type="sap.ui.core/object" name="settings">
+            <documentation>The settings object passed to the component when created. The property can only be applied initially.</documentation>
+        </property>
+        <property defaultValue="false" type="sap.ui.core/boolean" name="propagateModel">
+            <documentation>Defines whether binding information is propagated to the component.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Container width in CSS size</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Container height in CSS size</documentation>
+        </property>
+    </properties>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/UIComponent" name="component">
+            <documentation>The component displayed in this ComponentContainer.</documentation>
+        </association>
+    </associations>
+</control>

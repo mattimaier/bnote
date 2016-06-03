@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SlideTile</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The control that displays multiple GenericTile controls as changing slides.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="5000" type="sap.ui.core/int" name="displayTime">
+            <documentation>The time of the slide display in milliseconds.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="500" type="sap.ui.core/int" name="transitionTime">
+            <documentation>The time of the slide changing in milliseconds.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.m/GenericTile" name="tiles">
+            <documentation>The set of Generic Tiles to be shown in the control.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ListBase</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The &lt;code&gt;sap.m.ListBase&lt;/code&gt; control provides a base functionality of the &lt;code&gt;sap.m.List&lt;/code&gt; and &lt;code&gt;sap.m.Table&lt;/code&gt; controls. Selection, deletion, unread states and inset style are also maintained in &lt;code&gt;sap.m.ListBase&lt;/code&gt;.
+
+&lt;b&gt;Note:&lt;/b&gt; The ListBase including all contained items may be completely re-rendered when the data of a bound model is changed. Due to the limited hardware resources of mobile devices this can lead to longer delays for lists that contain many items. As such the usage of a list is not recommended for these use cases.</documentation>
+    <since>1.16</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="inset">
+            <documentation>Defines the indentation of the container. Setting it to &lt;code&gt;true&lt;/code&gt; indents the list.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="headerText">
+            <documentation>Defines the header text that appears in the control.
+&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;headerToolbar&lt;/code&gt; aggregation is set, then this property is ignored.</documentation>
+        </property>
+        <property since="1.14" group="Appearance" defaultValue="Standard" type="sap.m/ListHeaderDesign" name="headerDesign">
+            <documentation>Defines the header style of the control. Possible values are &lt;code&gt;Standard&lt;/code&gt; and &lt;code&gt;Plain&lt;/code&gt;.</documentation>
+            <deprecation since="1.16">No longer has any functionality.</deprecation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="footerText">
+            <documentation>Defines the footer text that appears in the control.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="None" type="sap.m/ListMode" name="mode">
+            <documentation>Defines the mode of the control (e.g. &lt;code&gt;None&lt;/code&gt;, &lt;code&gt;SingleSelect&lt;/code&gt;, &lt;code&gt;MultiSelect&lt;/code&gt;, &lt;code&gt;Delete&lt;/code&gt;).</documentation>
+        </property>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Sets the width of the control.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="includeItemInSelection">
+            <documentation>Defines whether the items are selectable by clicking on the item itself (&lt;code&gt;true&lt;/code&gt;) rather than having to set the selection control first.
+&lt;b&gt;Note:&lt;/b&gt; The &lt;code&gt;SingleSelectMaster&lt;/code&gt; mode also provides this functionality by default.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="showUnread">
+            <documentation>Activates the unread indicator for all items, if set to &lt;code&gt;true&lt;/code&gt;.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="noDataText">
+            <documentation>This text is displayed when the control contains no items.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="showNoData">
+            <documentation>Defines whether or not the text specified in the &lt;code&gt;noDataText&lt;/code&gt; property is displayed.</documentation>
+        </property>
+        <property since="1.20.2" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enableBusyIndicator">
+            <documentation>When this property is set to &lt;code&gt;true&lt;/code&gt;, the control will automatically display a busy indicator when it detects that data is being loaded. This busy indicator blocks the interaction with the items until data loading is finished.
+By default, the busy indicator will be shown after one second. This behavior can be customized by setting the &lt;code&gt;busyIndicatorDelay&lt;/code&gt; property.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="modeAnimationOn">
+            <documentation>Defines if animations will be shown while switching between modes.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="All" type="sap.m/ListSeparators" name="showSeparators">
+            <documentation>Defines which item separator style will be used.</documentation>
+        </property>
+        <property group="Misc" defaultValue="Both" type="sap.m/SwipeDirection" name="swipeDirection">
+            <documentation>Defines the direction of the swipe movement (e.g LeftToRight, RightToLeft, Both) to display the control defined in the &lt;code&gt;swipeContent&lt;/code&gt; aggregation.</documentation>
+        </property>
+        <property since="1.16" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="growing">
+            <documentation>If set to &lt;code&gt;true&lt;/code&gt;, enables the growing feature of the control to load more items by requesting from the model.
+&lt;b&gt;Note:&lt;/b&gt;: This feature only works when an &lt;code&gt;items&lt;/code&gt; aggregation is bound. Growing must not be used together with two-way binding.</documentation>
+        </property>
+        <property since="1.16" group="Misc" defaultValue="20" type="sap.ui.core/int" name="growingThreshold">
+            <documentation>Defines the number of items to be requested from the model for each grow.
+This property can only be used if the &lt;code&gt;growing&lt;/code&gt; property is set to &lt;code&gt;true&lt;/code&gt;.</documentation>
+        </property>
+        <property since="1.16" group="Appearance" type="sap.ui.core/string" name="growingTriggerText">
+            <documentation>Defines the text displayed on the growing button. The default is a translated text (&quot;More&quot;) coming from the message bundle.
+This property can only be used if the &lt;code&gt;growing&lt;/code&gt; property is set to &lt;code&gt;true&lt;/code&gt;.</documentation>
+        </property>
+        <property since="1.16" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="growingScrollToLoad">
+            <documentation>If set to true, the user can scroll down to load more items. Otherwise a growing button is displayed at the bottom of the control.
+&lt;b&gt;Note:&lt;/b&gt; This property can only be used if the &lt;code&gt;growing&lt;/code&gt; property is set to &lt;code&gt;true&lt;/code&gt; and only if there is one instance of &lt;code&gt;sap.m.List&lt;/code&gt; or &lt;code&gt;sap.m.Table&lt;/code&gt; inside the scrollable scroll container (e.g &lt;code&gt;sap.m.Page&lt;/code&gt;).</documentation>
+        </property>
+        <property since="1.16.6" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="rememberSelections">
+            <documentation>If set to true, this control remembers the selections after a binding update has been performed (e.g. sorting, filtering).
+&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;items&lt;/code&gt; aggregation is not bound then this property is ignored.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Fires when selection is changed via user interaction. In &lt;code&gt;MultiSelect&lt;/code&gt; mode, this event is also fired on deselection.</documentation>
+            <deprecation since="1.16">Use the &lt;code&gt;selectionChange&lt;/code&gt; event instead.</deprecation>
+            <parameters>
+                <parameter type="sap.m/ListItemBase" name="listItem">
+                    <documentation>The item which fired the select event.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.16" name="selectionChange">
+            <documentation>Fires when selection is changed via user interaction inside the control.</documentation>
+            <parameters>
+                <parameter type="sap.m/ListItemBase" name="listItem">
+                    <documentation>The item whose selection has changed. In &lt;code&gt;MultiSelect&lt;/code&gt; mode, only the up-most selected item is returned. This parameter can be used for single-selection modes.</documentation>
+                </parameter>
+                <parameter type="sap.m/ListItemBase[]" name="listItems">
+                    <documentation>Array of items whose selection has changed. This parameter can be used for &lt;code&gt;MultiSelect&lt;/code&gt; mode.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="selected">
+                    <documentation>Indicates whether the &lt;code&gt;listItem&lt;/code&gt; parameter is selected or not.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="delete">
+            <documentation>Fires when delete icon is pressed by user.</documentation>
+            <parameters>
+                <parameter type="sap.m/ListItemBase" name="listItem">
+                    <documentation>The item which fired the delete event.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="true" name="swipe">
+            <documentation>Fires after user's swipe action and before the &lt;code&gt;swipeContent&lt;/code&gt; is shown. On the &lt;code&gt;swipe&lt;/code&gt; event handler, &lt;code&gt;swipeContent&lt;/code&gt; can be changed according to the swiped item.
+Calling the &lt;code&gt;preventDefault&lt;/code&gt; method of the event cancels the swipe action.</documentation>
+            <parameters>
+                <parameter type="sap.m/ListItemBase" name="listItem">
+                    <documentation>The item which fired the swipe.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="swipeContent">
+                    <documentation>Aggregated &lt;code&gt;swipeContent&lt;/code&gt; control that is shown on the right hand side of the item.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="srcControl">
+                    <documentation>Holds which control caused the swipe event within the item.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.16" name="growingStarted">
+            <documentation>Fires before the new growing chunk is requested from the model.</documentation>
+            <deprecation since="1.16.3">Instead, use &lt;code&gt;updateStarted&lt;/code&gt; event with listening &lt;code&gt;changeReason&lt;/code&gt;.</deprecation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="actual">
+                    <documentation>Actual number of items.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="total">
+                    <documentation>Total number of items.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.16" name="growingFinished">
+            <documentation>Fires after the new growing chunk has been fetched from the model and processed by the control.</documentation>
+            <deprecation since="1.16.3">Instead, use &quot;updateFinished&quot; event.</deprecation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="actual">
+                    <documentation>Actual number of items.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="total">
+                    <documentation>Total number of items.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.16.3" name="updateStarted">
+            <documentation>Fires before &lt;code&gt;items&lt;/code&gt; binding is updated (e.g. sorting, filtering)
+
+&lt;b&gt;Note:&lt;/b&gt; Event handler should not invalidate the control.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="reason">
+                    <documentation>The reason of the update, e.g. Binding, Filter, Sort, Growing, Change, Refresh, Context.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="actual">
+                    <documentation>Actual number of items.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="total">
+                    <documentation>The total count of bound items. This can be used if the &lt;code&gt;growing&lt;/code&gt; property is set to &lt;code&gt;true&lt;/code&gt;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.16.3" name="updateFinished">
+            <documentation>Fires after &lt;code&gt;items&lt;/code&gt; binding is updated and processed by the control.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="reason">
+                    <documentation>The reason of the update, e.g. Binding, Filter, Sort, Growing, Change, Refresh, Context.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="actual">
+                    <documentation>Actual number of items.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="total">
+                    <documentation>The total count of bound items. This can be used if the &lt;code&gt;growing&lt;/code&gt; property is set to &lt;code&gt;true&lt;/code&gt;.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.20" name="itemPress">
+            <documentation>Fires when an item is pressed unless the item's &lt;code&gt;type&lt;/code&gt; property is &lt;code&gt;Inactive&lt;/code&gt;.</documentation>
+            <parameters>
+                <parameter type="sap.m/ListItemBase" name="listItem">
+                    <documentation>The item which fired the pressed event.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="srcControl">
+                    <documentation>The control which caused the press event within the container.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="items">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.m/ListItemBase" name="items">
+            <documentation>Defines the items contained within this control.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.ui.core/Control" name="swipeContent">
+            <documentation>User can swipe to bring in this control on the right hand side of an item.
+&lt;b&gt;Note:&lt;/b&gt; For non-touch devices, this functionality is ignored.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" since="1.16" type="sap.m/Toolbar" name="headerToolbar">
+            <documentation>The header area can be used as a toolbar to add extra controls for user interactions.
+&lt;b&gt;Note:&lt;/b&gt; When set, this overwrites the &lt;code&gt;headerText&lt;/code&gt; property.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" since="1.16" type="sap.m/Toolbar" name="infoToolbar">
+            <documentation>A toolbar that is placed below the header to show extra information to the user.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association since="1.28.0" cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method type="sap.m/ListItemBase" name="getSelectedItem">
+            <documentation>Returns selected list item. When no item is selected, &quot;null&quot; is returned. When &quot;multi-selection&quot; is enabled and multiple items are selected, only the up-most selected item is returned.</documentation>
+        </method>
+        <method type="sap.m/ListBase" name="setSelectedItem">
+            <documentation>Selects or deselects the given list item.</documentation>
+            <parameters>
+                <parameter type="sap.m/ListItemBase" name="listItem">
+                    <documentation>The list item whose selection to be changed. This parameter is mandatory.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="select">
+                    <documentation>Sets selected status of the list item. Default value is true.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.m/ListItemBase[]" name="getSelectedItems">
+            <documentation>Returns an array containing the selected list items. If no items are selected, an empty array is returned.</documentation>
+        </method>
+        <method type="sap.m/ListBase" name="setSelectedItemById">
+            <documentation>Sets a list item to be selected by id. In single mode the method removes the previous selection.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>The id of the list item whose selection to be changed.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="select">
+                    <documentation>Sets selected status of the list item. Default value is true.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method since="1.18.6" type="sap.ui.core/object[]" name="getSelectedContexts">
+            <documentation>Returns the binding contexts of the selected items.
+Note: This method returns an empty array if no databinding is used.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="all">
+                    <documentation>Set true to include even invisible selected items(e.g. the selections from the previous filters).</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.m/ListBase" name="removeSelections">
+            <documentation>Removes visible selections of the current selection mode.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="all">
+                    <documentation>Since version 1.16.3. This control keeps old selections after filter or sorting. Set this parameter &quot;true&quot; to remove all selections.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method since="1.16" type="sap.m/ListBase" name="selectAll">
+            <documentation>Select all items in &quot;MultiSelection&quot; mode.</documentation>
+        </method>
+        <method since="1.16" type="sap.ui.core/object" name="getGrowingInfo">
+            <documentation>Returns growing information as object with &quot;actual&quot; and &quot;total&quot; keys.
+Note: This function returns &quot;null&quot; if &quot;growing&quot; feature is disabled.</documentation>
+        </method>
+        <method type="sap.m/ListBase" name="swipeOut">
+            <documentation>After swipeContent is shown, user can interact with this control(e.g Tap). After interaction is done, you can/should use this method to hide swipeContent from screen.
+Note: If users try to tap inside of the list but outside of the swipeContent then control hides automatically.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/any" name="callback">
+                    <documentation>This callback function is called with two parameters(swipedListItem and swipedContent) after swipe-out animation is finished.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.m/ListItemBase" name="getSwipedItem">
+            <documentation>Returns swiped list item. When no item is swiped, &quot;null&quot; is returned.</documentation>
+        </method>
+    </methods>
+</control>

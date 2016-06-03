@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>IconTabFilterDesign</name>
+    <derived/>
+    <documentation>Available Filter Item Design.</documentation>
+    <enumeration>
+        <value name="Horizontal">
+            <documentation>A horizontally layouted design providing more space for texts.</documentation>
+        </value>
+        <value name="Vertical">
+            <documentation>A vertically layouted design using minimum horizontal space.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

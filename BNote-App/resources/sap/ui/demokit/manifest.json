@@ -1,0 +1,57 @@
+{
+  "_version": "1.2.0",
+  "sap.app": {
+    "_version": "1.2.0",
+    "id": "sap.ui.demokit",
+    "type": "library",
+    "embeds": [
+      "explored",
+      "demoapps",
+      "icex"
+    ],
+    "applicationVersion": {
+      "version": "1.36.11"
+    },
+    "title": "Non-public controls that should be used in a UI5 demokit (SDK) only.",
+    "description": "Non-public controls that should be used in a UI5 demokit (SDK) only.",
+    "ach": "CA-UI5-CTR",
+    "resources": "resources.json",
+    "offline": true,
+    "openSourceComponents": [
+      {
+        "name": "esprima",
+        "packagedWithMySelf": true,
+        "version": "0.0.0"
+      },
+      {
+        "name": "google-code-prettify",
+        "packagedWithMySelf": true,
+        "version": "0.0.0"
+      }
+    ]
+  },
+  "sap.ui": {
+    "_version": "1.1.0",
+    "technology": "UI5",
+    "supportedThemes": [
+      "base",
+      "sap_bluecrystal",
+      "sap_goldreflection",
+      "sap_hcb"
+    ]
+  },
+  "sap.ui5": {
+    "_version": "1.1.0",
+    "dependencies": {
+      "minUI5Version": "1.36",
+      "libs": {
+        "sap.ui.core": {
+          "minVersion": "1.36.11"
+        },
+        "sap.ui.commons": {
+          "minVersion": "1.36.11"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ResponsiveFlowLayoutData</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This is a LayoutData element that can be added to a control if this control is used within a ResponsiveFlowLayout.</documentation>
+    <since>1.16.0</since>
+    <baseType>sap.ui.core/LayoutData</baseType>
+    <properties>
+        <property group="Misc" defaultValue="100" type="sap.ui.core/int" name="minWidth">
+            <documentation>Defines the minimal size in px of an ResponsiveFlowLayout element. The element will be shrunk down to this value.</documentation>
+        </property>
+        <property group="Misc" defaultValue="1" type="sap.ui.core/int" name="weight">
+            <documentation>Defines the weight of the element, that influences the resulting width. If there are several elements within a row of the ResponsiveFlowLayout, each element could have another weight. The bigger the weight of a single element, the wider it will be stretched, i.e. a bigger weight results in a larger width.</documentation>
+        </property>
+        <property group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="linebreak">
+            <documentation>If this property is set, the control in which the LayoutData is added, will always cause a line break within the ResponsiveFlowLayout.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="margin">
+            <documentation>Prevents any margin of the element if set to false.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="linebreakable">
+            <documentation>Shows if an element can be wrapped into a new row. If this value is set to false, the min-width will be set to 0 and the wrapping is up to the previous element.</documentation>
+        </property>
+    </properties>
+</control>

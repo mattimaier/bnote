@@ -34,9 +34,20 @@ sap.ui.jsview("bnote.login", {
             ]
         });
 
+		var bnoteImg = new sap.m.Image({
+			src: "img/BNote_Logo_blue_on_white_192px.png",
+			height: "128px"
+		});
+		var logo_layout = new sap.m.HBox({
+			justifyContent: sap.m.FlexJustifyContent.SpaceAround,
+			alignItems: sap.m.FlexAlignItems.Center,
+			items: [bnoteImg]
+		});
+		logo_layout.addStyleClass("bnote_logo")
+		
 		var page = new sap.m.Page("LoginPage", {
             title: "Login",
-			content: [ this.loginForm ]
+			content: [ logo_layout, this.loginForm ]
 		});
 		
 		return page;

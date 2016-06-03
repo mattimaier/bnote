@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>tmpl/DOMElement</name>
+    <derived/>
+    <documentation>Represents a DOM element. It allows to use databinding for the properties and nested DOM attributes.</documentation>
+    <developmentState since="1.15" state="experimental">The templating might be changed in future versions.</developmentState>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/string" name="text">
+            <documentation>The text content of the DOM element</documentation>
+        </property>
+        <property group="Behavior" defaultValue="span" type="sap.ui.core/string" name="tag">
+            <documentation>The HTML-tag of the DOM element which contains the text</documentation>
+        </property>
+    </properties>
+    <aggregations default="attributes">
+        <aggregation cardinality="0..n" type="sap.ui.core/tmpl/DOMAttribute" name="attributes">
+            <documentation>DOM attributes which are rendered as part of the DOM element and bindable</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/tmpl/DOMElement" name="elements">
+            <documentation>Nested DOM elements to support nested bindable structures</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.core/any" name="attr">
+            <documentation>Returns the value of a DOM attribute if available or undefined if the DOM attribute is not available when using this method with the parameter name only.
+When using the method with the parameter name and value the method acts as a setter and sets the value of a DOM attribute.
+In this case the return value is the reference to this DOM element to support method chaining. If you pass null as value of the attribute the attribute will be removed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="name">
+                    <documentation>The name of the DOM attribute.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="value">
+                    <documentation>The value of the DOM attribute. If the value is undefined the DOM attribute will be removed.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/tmpl/DOMElement" name="removeAttr">
+            <documentation>Removes the DOM attribute for the given name and returns the reference to this DOM element to support method chaining.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="name">
+                    <documentation>The name of the DOM attribute.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>mvc/JSONView</name>
+    <derived/>
+    <documentation>A View defined using JSON.</documentation>
+    <baseType>sap.ui.core/mvc/View</baseType>
+</control>

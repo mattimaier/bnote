@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>QuickView</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The QuickView control renders a responsive popover (sap.m.Popover or sap.m.Dialog)
+and displays information of an object in a business-card format. It also allows this object to be linked to
+another object using one of the links in the responsive popover. Clicking that link updates the information in the
+popover with the data of the linked object. Unlimited number of objects can be linked.</documentation>
+    <since>1.28.11</since>
+    <baseType>sap.m/QuickViewBase</baseType>
+    <properties>
+        <property group="Misc" defaultValue="Right" type="sap.m/PlacementType" name="placement">
+            <documentation>This property is reused from sap.m.Popover and only takes effect when running on desktop or tablet. Please refer the documentation of the placement property of sap.m.Popover.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="320px" type="sap.ui.core/CSSSize" name="width">
+            <documentation>The width of the QuickView. The property takes effect only when running on desktop or tablet.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="afterOpen">
+            <documentation>This event fires after the QuickView is opened.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="openBy">
+                    <documentation>This parameter refers to the control, which opens the QuickView.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="afterClose">
+            <documentation>This event fires after the QuickView is closed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="openBy">
+                    <documentation>This parameter refers to the control, which opens the QuickView.</documentation>
+                </parameter>
+                <parameter type="sap.m/Button" name="origin">
+                    <documentation>This parameter contains the control,
+which triggers the close of the QuickView.
+It is undefined when running on desktop or tablet.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="beforeOpen">
+            <documentation>This event fires before the QuickView is opened.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="openBy">
+                    <documentation>This parameter refers to the control, which opens the QuickView.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="beforeClose">
+            <documentation>This event fires before the QuickView is closed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="openBy">
+                    <documentation>This parameter refers to the control, which opens the QuickView.</documentation>
+                </parameter>
+                <parameter type="sap.m/Button" name="origin">
+                    <documentation>This parameter contains the control,
+which triggers the close of the QuickView.
+It is undefined when running on desktop or tablet.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+</control>

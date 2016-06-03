@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>mvc/ViewType</name>
+    <derived/>
+    <documentation>Specifies possible view types</documentation>
+    <enumeration>
+        <value name="JSON">
+            <documentation>JSON View</documentation>
+        </value>
+        <value name="XML">
+            <documentation>XML view</documentation>
+        </value>
+        <value name="HTML">
+            <documentation>HTML view</documentation>
+        </value>
+        <value name="JS">
+            <documentation>JS View</documentation>
+        </value>
+        <value name="Template">
+            <documentation>Template View</documentation>
+        </value>
+    </enumeration>
+</simple-type>

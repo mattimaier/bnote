@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>semantic/ForwardAction</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A ForwardAction button has default semantic-specific properties and is
+eligible for aggregation content of a {@link sap.m.semantic.SemanticPage}.</documentation>
+    <since>1.30.0</since>
+    <baseType>sap.m/semantic/SemanticButton</baseType>
+</control>

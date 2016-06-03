@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Icon</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Icon uses embedded font instead of pixel image. Comparing to image, Icon is easily scalable, color can be altered live and various effects can be added using css.
+
+A set of built in Icons is available and they can be fetched by calling sap.ui.core.IconPool.getIconURI and set this value to the src property on the Icon.</documentation>
+    <since>1.11.1</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/URI" name="src">
+            <documentation>This property should be set by the return value of calling sap.ui.core.IconPool.getIconURI with a Icon name parameter and an optional collection parameter which is required when using application extended Icons. A list of standard FontIcon is available here.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="size">
+            <documentation>Since Icon uses font, this property will be applied to the css font-size property on the rendered DOM element.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="color">
+            <documentation>The color of the Icon. If color is not defined here, the Icon inherits the color from its DOM parent.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="hoverColor">
+            <documentation>This color is shown when icon is hovered. This property has no visual effect when run on mobile device.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="activeColor">
+            <documentation>This color is shown when icon is pressed/activated by the user.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>This is the width of the DOM element which contains the Icon. Setting this property doesn't affect the size of the font. If you want to make the font bigger, increase the size property.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="height">
+            <documentation>This is the height of the DOM element which contains the Icon. Setting this property doesn't affect the size of the font. If you want to make the font bigger, increase the size property.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="backgroundColor">
+            <documentation>Background color of the Icon in normal state.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="hoverBackgroundColor">
+            <documentation>Background color for Icon in hover state. This property has no visual effect when run on mobile device.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="activeBackgroundColor">
+            <documentation>Background color for Icon in active state.</documentation>
+        </property>
+        <property since="1.16.4" group="Accessibility" defaultValue="true" type="sap.ui.core/boolean" name="decorative">
+            <documentation>A decorative icon is included for design reasons. Accessibility tools will ignore decorative icons. Tab stop isn't affected by this property anymore and it's now controlled by the existence of press event handler and the noTabStop property.</documentation>
+        </property>
+        <property since="1.30.0" group="Accessibility" defaultValue="true" type="sap.ui.core/boolean" name="useIconTooltip">
+            <documentation>Decides whether a default Icon tooltip should be used if no tooltip is set.</documentation>
+        </property>
+        <property since="1.30.0" group="Accessibility" type="sap.ui.core/string" name="alt">
+            <documentation>This defines the alternative text which is used for outputting the aria-label attribute on the DOM.</documentation>
+        </property>
+        <property since="1.30.1" group="Accessibility" defaultValue="false" type="sap.ui.core/boolean" name="noTabStop">
+            <documentation>Defines whether the tab stop of icon is controlled by the existence of press event handler. When it's set to false, Icon control has tab stop when press event handler is attached.
+If it's set to true, Icon control never has tab stop no matter whether press event handler exists or not.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>This event is fired when icon is pressed/activated by the user. When a handler is attached to this event, the Icon gets tab stop. If you want to disable this behavior, set the noTabStop property to true.</documentation>
+        </event>
+    </events>
+    <associations>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaLabelledBy">
+            <documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</documentation>
+        </association>
+    </associations>
+</control>

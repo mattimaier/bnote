@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>InputListItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>List item should be used for a label and an input field.</documentation>
+    <baseType>sap.m/ListItemBase</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="label">
+            <documentation>Label of the list item</documentation>
+        </property>
+        <property since="1.30.0" group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="labelTextDirection">
+            <documentation>This property specifies the label text directionality with enumerated options. By default, the label inherits text direction from the DOM.</documentation>
+        </property>
+    </properties>
+    <aggregations default="content">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Content controls can be added</documentation>
+        </aggregation>
+    </aggregations>
+</control>

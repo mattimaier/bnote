@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ComboBoxBase</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>An abstract class for combo boxes.</documentation>
+    <since>1.22.0</since>
+    <baseType>sap.m/ComboBoxTextField</baseType>
+    <aggregations default="items">
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.ui.core/Item" name="items">
+            <documentation>Defines the items contained within this control.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/PopupInterface" name="picker">
+            <documentation>Internal aggregation to hold the inner picker popup.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ScrollBar</name>
+    <derived/>
+    <documentation>The ScrollBar control can be used for virtual scrolling of a certain area.
+This means: to simulate a very large scrollable area when technically the area is small and the control takes care of displaying the respective part only. E.g. a Table control can take care of only rendering the currently visible rows and use this ScrollBar control to make the user think he actually scrolls through a long list.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="vertical">
+            <documentation>Orientation. Defines if the Scrollbar is vertical or horizontal.</documentation>
+        </property>
+        <property group="Behavior" type="sap.ui.core/int" name="scrollPosition">
+            <documentation>Scroll position in steps or pixels.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="size">
+            <documentation>Size of the Scrollbar (in pixels).</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="contentSize">
+            <documentation>Size of the scrollable content (in pixels).</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/int" name="steps">
+            <documentation>Number of steps to scroll. Used if the size of the content is not known as the data is loaded dynamically.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="scroll">
+            <documentation>Scroll event.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/ScrollBarAction" name="action">
+                    <documentation>Actions are: Click on track, button, drag of thumb, or mouse wheel click.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="forward">
+                    <documentation>Direction of scrolling: back (up) or forward (down).</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="newScrollPos">
+                    <documentation>Current Scroll position either in pixels or in steps.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="oldScrollPos">
+                    <documentation>Old Scroll position - can be in pixels or in steps.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <methods>
+        <method name="unbind">
+            <documentation>Unbinds the mouse wheel scroll event of the control that has the scrollbar</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="ownerDomRef">
+                    <documentation>Dom ref of the Control that uses the scrollbar</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method name="bind">
+            <documentation>Binds the mouse wheel scroll event of the control that has the scrollbar to the scrollbar itself.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="ownerDomRef">
+                    <documentation>Dom ref of the control that uses the scrollbar</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method name="pageUp">
+            <documentation>Page Up is used to scroll one page back.</documentation>
+        </method>
+        <method name="pageDown">
+            <documentation>Page Down is used to scroll one page forward.</documentation>
+        </method>
+    </methods>
+</control>

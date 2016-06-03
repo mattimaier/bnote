@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>WizardStep</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The WizardStep is a container control which should be used mainly to aggregate user input controls.
+It gives the developer the ability to validate, invalidate the step and define subsequent steps.
+Note: The WizardStep control control is supposed to be used only as an aggregation of the Wizard control,
+and should not be used as a standalone one.</documentation>
+    <since>1.30</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="title">
+            <documentation>Determines the title of the step.
+The title is visualized in the Wizard control.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/URI" name="icon">
+            <documentation>Determines the icon that is displayed for this step.
+The icon is visualized in the progress navigation part of the Wizard control.
+&lt;b&gt;Note:&lt;/b&gt; In order for the icon to be displayed, each step in the Wizard should have
+this property defined, otherwise the default numbering will be displayed.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="validated">
+            <documentation>Indicates whether or not the step is validated.
+When a step is validated a Next button is visualized in the Wizard control.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="complete">
+            <documentation>This event is fired after the user presses the Next button in the Wizard,
+or on &lt;code&gt;nextStep&lt;/code&gt; method call from the app developer.</documentation>
+        </event>
+        <event allowPreventDefault="false" name="activate">
+            <documentation>This event is fired on next step activation from the Wizard.</documentation>
+        </event>
+    </events>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>The content of the Wizard Step.</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..n" type="sap.m/WizardStep" name="subsequentSteps">
+            <documentation>This association is used only when the &lt;code&gt;enableBranching&lt;/code&gt; property of the Wizard is set to true.
+Use the association to store the next steps that are about to come after the current.
+If this is going to be a final step - leave this association empty.</documentation>
+        </association>
+        <association cardinality="0..1" type="sap.m/WizardStep" name="nextStep">
+            <documentation>The next step to be taken after the step is completed.
+Set this association value in the complete event of the current WizardStep.</documentation>
+        </association>
+    </associations>
+</control>

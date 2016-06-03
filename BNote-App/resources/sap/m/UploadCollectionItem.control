@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>UploadCollectionItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Items provide information about the uploaded files.</documentation>
+    <since>1.26</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/string" name="contributor">
+            <documentation>Specifies the name of the user who uploaded the file.</documentation>
+            <deprecation since="1.30">This property is deprecated; use the aggregation attributes instead.
+However, if the property is filled, it is displayed as an attribute. To make sure the title does not appear twice, do not use the property.</deprecation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="documentId">
+            <documentation>Specifies a unique identifier of the file (created by the application).</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="fileName">
+            <documentation>Specifies the name of the uploaded file.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/float" name="fileSize">
+            <documentation>Specifies the size of the uploaded file (in megabytes).</documentation>
+            <deprecation since="1.30">This property is deprecated; use the aggregation attributes instead.</deprecation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="mimeType">
+            <documentation>Specifies the MIME type of the file.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="thumbnailUrl">
+            <documentation>Specifies the URL where the thumbnail of the file is located.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="uploadedDate">
+            <documentation>Specifies the date on which the file was uploaded.
+The application has to define the date format.</documentation>
+            <deprecation since="1.30">This property is deprecated; use the aggregation attributes instead.</deprecation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="url">
+            <documentation>Specifies the URL where the file is located.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enableEdit">
+            <documentation>Enables/Disables the Edit button.
+If the value is true, the Edit button is enabled and the edit function can be used.
+If the value is false, the edit function is not available.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enableDelete">
+            <documentation>Enables/Disables the Edit button.
+If the value is true, the Edit button is enabled and the edit function can be used.
+If the value is false, the edit function is not available.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visibleEdit">
+            <documentation>Show/Hide the Edit button.
+If the value is true, the Edit button is visible.
+If the value is false, the Edit button is not visible.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="visibleDelete">
+            <documentation>Show/Hide the Delete button.
+If the value is true, the Delete button is visible.
+If the value is false, the Delete button is not visible.</documentation>
+        </property>
+        <property group="Accessibility" type="sap.ui.core/string" name="ariaLabelForPicture">
+            <documentation>Aria label for the icon (or for the image).</documentation>
+            <developmentState since="1.30" state="experimental">The behavior of the property might change in the next version.</developmentState>
+        </property>
+        <property since="1.34" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="selected">
+            <documentation>Defines the selected state of the UploadCollectionItem.</documentation>
+        </property>
+    </properties>
+    <aggregations default="attributes">
+        <aggregation cardinality="0..n" since="1.30" type="sap.m/ObjectAttribute" name="attributes">
+            <documentation>Attributes of an uploaded item, for example, 'Uploaded By', 'Uploaded On', 'File Size'
+attributes are displayed after an item has been uploaded.
+Additionally, the Active property of sap.m.ObjectAttribute is supported.&lt;br&gt;
+Note that if one of the deprecated properties contributor, fileSize or UploadedDate is filled in addition to this attribute, two attributes with the same title
+are displayed as these properties get displayed as an attribute.
+Example: An application passes the property ‘contributor’ with the value ‘A’ and the aggregation attributes ‘contributor’: ‘B’. As a result, the attributes
+‘contributor’:’A’ and ‘contributor’:’B’ are displayed. To make sure the title does not appear twice, check if one of the properties is filled.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" since="1.30" type="sap.m/ObjectAttribute" name="_propertyAttributes">
+            <documentation>Hidden aggregation for the attributes created from the deprecated properties uploadedDate, contributor and fileSize</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" since="1.30" type="sap.m/ObjectStatus" name="statuses">
+            <documentation>Statuses of an uploaded item
+Statuses will be displayed after an item has been uploaded</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.unified/FileUploader" name="fileUploader">
+            <documentation>ID of the FileUploader instance
+since version 1.30</documentation>
+        </association>
+    </associations>
+</control>

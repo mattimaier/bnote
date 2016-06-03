@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Dock</name>
+    <derived/>
+    <documentation>Docking position: horizontal/vertical.
+
+Defines a position on the element which is used for aligned positioning of another element (e.g. the left top
+corner of a popup is positioned at the left bottom corner of the input field). For the horizontal position possible values
+are &quot;begin&quot;, &quot;left&quot;, &quot;center&quot;, &quot;right&quot; and &quot;end&quot;, where left/right always are left and right, or begin/end which are
+dependent on the text direction. For the vertical position possible values are &quot;top&quot;, &quot;center&quot; and &quot;bottom&quot;.
+Examples: &quot;left top&quot;, &quot;end bottom&quot;, &quot;center center&quot;.</documentation>
+    <final/>
+    <pattern>(begin|left|center|right|end) (top|center|bottom)</pattern>
+</simple-type>

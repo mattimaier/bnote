@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>TileContainer</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A container that arranges same-size tiles nicely on carousel pages.</documentation>
+    <since>1.12</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Defines the width of the TileContainer in px.</documentation>
+        </property>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Defines the height of the TileContainer in px.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/boolean" name="editable">
+            <documentation>Determines whether the TileContainer is editable so you can move, delete or add tiles.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/boolean" name="allowAdd">
+            <documentation>Determines whether the user is allowed to add Tiles in Edit mode (editable = true).</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="tileMove">
+            <documentation>Fires if a Tile is moved.</documentation>
+            <parameters>
+                <parameter type="sap.m/Tile" name="tile">
+                    <documentation>The Tile that has been moved.</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="newIndex">
+                    <documentation>The new index of the Tile in the tiles aggregation.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="tileDelete">
+            <documentation>Fires if a Tile is deleted in Edit mode.</documentation>
+            <parameters>
+                <parameter type="sap.m/Tile" name="tile">
+                    <documentation>The deleted Tile.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="tileAdd">
+            <documentation>Fires when a Tile is added.</documentation>
+        </event>
+    </events>
+    <aggregations default="tiles">
+        <aggregation cardinality="0..n" type="sap.m/Tile" name="tiles">
+            <documentation>The Tiles to be displayed by the TileContainer.</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.core/int" name="getPageFirstTileIndex">
+            <documentation>Returns the index of the first Tile visible in the current page.</documentation>
+        </method>
+        <method type="sap.m/TileContainer" name="moveTile">
+            <documentation>Moves a given Tile to the given index.</documentation>
+            <parameters>
+                <parameter type="sap.m/Tile" name="tile">
+                    <documentation>The tile to move</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/int" name="newIndex">
+                    <documentation>The new Tile position in the tiles aggregation</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method name="scrollIntoView">
+            <documentation>Scrolls to the page where the given Tile or tile index is included.
+Optionally this can be done animated or not. With IE9 the scroll is never animated.</documentation>
+            <parameters>
+                <parameter type="sap.m/Tile" name="tile">
+                    <documentation>The Tile or tile index to be scrolled into view</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/boolean" name="animated">
+                    <documentation>Whether the scroll should be animated</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

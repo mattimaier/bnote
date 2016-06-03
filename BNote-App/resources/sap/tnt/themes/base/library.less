@@ -1,0 +1,611 @@
+/* NOTE: This file was generated as an optimized version of "library.source.less" for the Theme Designer. */
+
+/*!
+ * UI development toolkit for HTML5 (OpenUI5)
+ * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
+ */
+
+@import "../../../../../Base/baseLib/baseTheme/base.less"; /* ORIGINAL IMPORT PATH: "../../../../sap/ui/core/themes/base/base.less" */
+
+@import "../../../../sap/ui/core/themes/base/global.less";
+
+/* START "NavigationList.less" */
+/* ============================================== */
+/* CSS for control sap.tnt/NavigationList.control */
+/* ============================================== */
+.sapTntNavLI {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.sapTntNavLI ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.sapTntNavLIItem {
+	width : 100%;
+	height: 2.5rem;
+
+	box-sizing: border-box;
+
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
+
+	cursor: pointer;
+
+	& > span {
+		cursor: pointer;
+	}
+
+	&.sapTntNavLIItemDisabled {
+		cursor: auto;
+
+		& > span {
+			cursor: auto;
+		}
+	}
+}
+
+.sapTntNavLIText {
+	-webkit-box-flex: 1;
+	-webkit-flex-grow: 1;
+	-ms-flex: 1 1;
+	flex-grow: 1;
+	display: block;
+}
+
+.sapTntNavLIGroupItem > .sapMText {
+	padding-left: 3rem;
+}
+
+.sapTntNavLIPopup .sapTntNavLIGroupItem > .sapMText {
+	padding: 0 1rem;
+}
+
+.sapTntNavLIPopup .sapTntNavLIGroup > .sapMText {
+	margin: 0 1rem 0 0;
+}
+
+.sapTntNavLI {
+  .sapTntNavLIGroupIcon {
+	width: 3rem;
+	padding: 0.6875rem 0;
+
+	outline: none;
+	-webkit-user-select: none; /* Chrome all / Safari all */
+	-moz-user-select: none; /* Firefox all */
+	-ms-user-select: none; /* IE 10+ */
+	user-select: none;
+  }
+
+  img.sapTntNavLIGroupIcon {
+	height: 1.125rem;
+	width: 1.125rem;
+	padding: 0.6875rem 0.9375rem;
+  }
+}
+
+
+.sapTntNavLIPopup {
+  .sapTntNavLIGroupIcon {
+	width: 1rem;
+	visibility: hidden;
+	min-width: 0;
+  }
+
+  img.sapTntNavLIGroupIcon {
+	width: 1rem;
+	visibility: hidden;
+	min-width: 0;
+	padding: 0;
+  }
+}
+
+.sapTntNavLI .sapTntNavLIExpandIcon {
+	width: 2rem;
+	padding: 0.6875rem 0;
+
+	outline: none;
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
+	user-select: none;
+}
+
+.sapTntNavLIHiddenGroupItems {
+	display: none;
+}
+
+.sapTntNavLICollapsed {
+	width: 3rem;
+}
+
+.sapTntNavLI li,
+.sapTntNavLIItem {
+	position: relative;
+}
+
+/* Compact size */
+.sapUiSizeCompact {
+
+	.sapTntNavLIItem {
+		height: 2rem;
+	}
+
+	.sapTntNavLIGroupItem > .sapMText {
+		padding-left: 2rem;
+	}
+
+	.sapTntNavLIPopup .sapTntNavLIGroupItem > .sapMText {
+		padding: 0 0.5rem;
+	}
+
+	.sapTntNavLIPopup .sapTntNavLIGroup > .sapMText {
+		margin: 0 0.5rem 0 0;
+	}
+
+  	.sapTntNavLI span.sapTntNavLIGroupIcon {
+		width: 2rem;
+		padding: 0.5rem 0;
+	}
+
+	.sapTntNavLI img.sapTntNavLIGroupIcon {
+	  padding: 0.5rem 0.4375rem;
+	}
+
+
+	.sapTntNavLIPopup span.sapTntNavLIGroupIcon {
+		width: 0.5rem;
+	}
+
+	.sapTntNavLI .sapTntNavLIExpandIcon {
+		width: 2rem;
+		padding: 0.5rem 0;
+	}
+
+	.sapTntNavLICollapsed {
+		width: 2rem;
+	}
+}
+/* END "NavigationList.less" */
+
+/* START "ToolHeader.less" */
+/* ==========================================================================
+   CSS for control sap.tnt.ToolHeader
+   ========================================================================== */
+
+.sapTntToolHeaderPopover.sapMOTAPopover.sapMPopover .sapMPopoverCont .sapMPopoverScroll,
+.sapTntToolHeaderPopover.sapMOTAPopover.sapMPopover .sapMPopoverCont .sapMPopoverScroll .sapMBtn {
+	padding: 0;
+}
+
+/* END "ToolHeader.less" */
+
+/* START "SideNavigation.less" */
+/* ==========================================================================
+   CSS for control sap.tnt.SideNavigation
+   ========================================================================== */
+
+.sapTntSideNavigation {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+
+  -webkit-box-direction: normal;
+  -webkit-box-orient: vertical;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex: 1 1;
+  flex-grow: 1;
+
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.sapTntSideNavigationNotExpanded {
+  max-width: 3rem;
+
+  .sapTntNavLIText, .sapTntNavLIExpandIcon  {
+    display: none;
+  }
+  .sapTntSideNavigationSeparator {
+    margin: 0.25rem 0.5rem;
+  }
+
+  .sapTntSideNavigationFlexible {
+    padding-right: 3rem;
+    width: 6rem;
+  }
+}
+
+.sapTntSideNavigationFlexible {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex: 1 1;
+  flex-grow: 1;
+
+  -webkit-flex-basis: 100%;
+  -ms-flex-preferred-size: 100%;
+  flex-basis: 100%;
+
+  position: relative;
+  overflow: hidden;
+
+  box-sizing: border-box;
+}
+
+.sapTntSideNavigationSeparator {
+  margin: 0.25rem 1rem;
+  height: 1px;
+  min-height: 1px;
+}
+
+.sapTntSideNavigationFixed {
+  position: relative;
+}
+
+.sapTntSideNavigationVerticalScrolling {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+/* Styles for layout with arrows
+   ========================================================================== */
+
+.sapTntSideNavigationScrollIcon {
+  display: none;
+  padding: 0.6875rem 0;
+
+  outline: none;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;
+}
+
+.sapTntSideNavigationScrollIcon.sapUiIcon:focus {
+  outline: none;
+}
+
+.sapTntSideNavigationScrollIconDisabled {
+  cursor: auto;
+}
+/*  Compact size
+   ========================================================================== */
+
+.sapUiSizeCompact {
+  .sapTntSideNavigationNotExpanded {
+    max-width: 2rem;
+
+    .sapTntSideNavigationSeparator {
+      margin: 0.125rem 0.25rem;
+    }
+  }
+
+  .sapTntSideNavigationSeparator {
+    margin: 0.125rem 0.5rem;
+  }
+
+  .sapTntSideNavigationScrollIcon {
+    padding: 0.5rem 0;
+  }
+}
+
+/* END "SideNavigation.less" */
+
+/* START "ToolPage.less" */
+/* ==========================================================================
+   CSS for control sap.tnt.ToolPage
+   ========================================================================== */
+
+/* ==========================================================================
+   Variables and mixins
+   ========================================================================== */
+
+@sapTntToolPageAsideWidth : 20rem;
+@sapTntToolPageAsideWidthOnTablet : 3rem;
+@sapTntToolPageHeaderHeight : 3rem;
+@sapTntToolPageFooterHeight : 3rem;
+
+@sapTntToolPageCompactAsideWidth : 16rem;
+@sapTntToolPageCompactAsideWidthOnTablet : 2rem;
+@sapTntToolPageCompactHeaderHeight : 2rem;
+@sapTntToolPageCompactFooterHeight : 2rem;
+
+.display-flex() {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.flex-direction-column() {
+  -webkit-box-direction: normal;
+  -webkit-box-orient: vertical;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.flex-grow(@flex-grow) {
+  -webkit-box-flex: @flex-grow;
+  -webkit-flex-grow: @flex-grow;
+  -ms-flex: @flex-grow @flex-grow;
+  flex-grow: @flex-grow;
+}
+
+/* ==========================================================================
+   Root element
+   ========================================================================== */
+.sapTntToolPage {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  .display-flex();
+  .flex-direction-column();
+
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+.sapTntToolPageHeader {
+  height: @sapTntToolPageHeaderHeight;
+}
+
+/* ==========================================================================
+   Content wrapper
+   ========================================================================== */
+.sapTntToolPageContentWrapper {
+  .display-flex();
+  .flex-grow(1);
+
+  position: relative;
+}
+
+/* Aside container
+   ========================================================================== */
+
+.sapTntToolPageAside {
+  .display-flex();
+  .flex-direction-column();
+
+  will-change: transform;
+}
+
+.sapTntToolPageAsideContent {
+  .display-flex();
+  .flex-direction-column();
+  .flex-grow(1);
+  height: 100%;
+}
+
+.sapTntToolPageAsideFooter {
+  height: @sapTntToolPageFooterHeight;
+  overflow: hidden;
+}
+
+.sap-desktop,
+.sap-tablet {
+  .sapTntToolPageAside {
+    width: @sapTntToolPageAsideWidth;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    top: 0;
+    z-index: 1;
+  }
+
+  .sapTntToolPageMain {
+    padding-left: @sapTntToolPageAsideWidth;
+  }
+}
+
+.sap-desktop,
+.sap-tablet {
+  .sapTntToolPageAsideCollapsed {
+    .sapTntToolPageAside {
+      width: @sapTntToolPageAsideWidthOnTablet;
+    }
+
+    .sapTntToolPageMain {
+      padding-left: @sapTntToolPageAsideWidthOnTablet;
+    }
+  }
+}
+
+.sap-phone {
+  .sapTntToolPageAside {
+    width: @sapTntToolPageAsideWidth;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    top: 0;
+    z-index: 1;
+  }
+
+  .sapTntToolPageMain {
+    -webkit-transform: translateX(@sapTntToolPageAsideWidth);
+    -ms-transform: translateX(@sapTntToolPageAsideWidth);
+    transform: translateX(@sapTntToolPageAsideWidth);
+  }
+
+  .sapTntToolPageAsideCollapsed {
+    .sapTntToolPageAside {
+      -webkit-transform: translateX(-@sapTntToolPageAsideWidth);
+      -ms-transform: translateX(-@sapTntToolPageAsideWidth);
+      transform: translateX(-@sapTntToolPageAsideWidth);
+    }
+    .sapTntToolPageMain {
+      -webkit-transform: translateX(0);
+      -ms-transform: translateX(0);
+      transform: translateX(0);
+    }
+  }
+}
+
+/* Main container
+   ========================================================================== */
+
+.sapTntToolPageMain {
+  .display-flex();
+  .flex-direction-column();
+  .flex-grow(1);
+
+  will-change: transform;
+}
+
+.sapTntToolPageMainContent {
+  .flex-grow(1);
+
+  position: relative;
+}
+
+.sapTntToolPageMainContentWrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.sapTntToolPageMainFooter {
+  height: @sapTntToolPageFooterHeight;
+  overflow: hidden;
+}
+
+/* Compact size */
+.sapUiSizeCompact {
+
+  .sapTntToolPageHeader {
+    height: @sapTntToolPageCompactHeaderHeight;
+  }
+
+  .sapTntToolPageAsideFooter {
+    height: @sapTntToolPageCompactFooterHeight;
+  }
+
+  .sapTntToolPageMainFooter {
+    height: @sapTntToolPageCompactFooterHeight;
+  }
+}
+
+.sap-desktop .sapUiSizeCompact,
+.sap-tablet .sapUiSizeCompact {
+  .sapTntToolPageAside {
+    width: @sapTntToolPageCompactAsideWidth;
+  }
+
+  .sapTntToolPageMain {
+    padding-left: @sapTntToolPageCompactAsideWidth;
+  }
+}
+
+.sap-desktop .sapUiSizeCompact,
+.sap-tablet .sapUiSizeCompact {
+  .sapTntToolPageAsideCollapsed {
+    .sapTntToolPageAside {
+      width: @sapTntToolPageCompactAsideWidthOnTablet;
+    }
+
+    .sapTntToolPageMain {
+      padding-left: @sapTntToolPageCompactAsideWidthOnTablet;
+    }
+  }
+}
+
+.sap-phone .sapUiSizeCompact {
+
+  .sapTntToolPageAside {
+    width: @sapTntToolPageCompactAsideWidth;
+  }
+
+  .sapTntToolPageMain {
+    -webkit-transform: translateX(@sapTntToolPageCompactAsideWidth);
+    -ms-transform: translateX(@sapTntToolPageCompactAsideWidth);
+    transform: translateX(@sapTntToolPageCompactAsideWidth);
+  }
+
+  .sapTntToolPageAsideCollapsed {
+    .sapTntToolPageAside {
+      -webkit-transform: translateX(-@sapTntToolPageCompactAsideWidth);
+      -ms-transform: translateX(-@sapTntToolPageCompactAsideWidth);
+      transform: translateX(-@sapTntToolPageCompactAsideWidth);
+    }
+    .sapTntToolPageMain {
+      -webkit-transform: translateX(0);
+      -ms-transform: translateX(0);
+      transform: translateX(0);
+    }
+  }
+}
+
+/* ==========================================================================
+   RTL
+   ========================================================================== */
+
+html[dir=rtl] {
+  &.sap-phone {
+    .sapTntToolPageMain {
+      -webkit-transform: translateX(-@sapTntToolPageAsideWidth);
+      -ms-transform: translateX(-@sapTntToolPageAsideWidth);
+      transform: translateX(-@sapTntToolPageAsideWidth);
+    }
+
+    .sapTntToolPageAsideCollapsed {
+      .sapTntToolPageAside {
+        -webkit-transform: translateX(@sapTntToolPageAsideWidth);
+        -ms-transform: translateX(@sapTntToolPageAsideWidth);
+        transform: translateX(@sapTntToolPageAsideWidth);
+      }
+      .sapTntToolPageMain {
+        -webkit-transform: translateX(0);
+        -ms-transform: translateX(0);
+        transform: translateX(0);
+      }
+    }
+  }
+
+  &.sap-phone .sapUiSizeCompact {
+    .sapTntToolPageMain {
+      -webkit-transform: translateX(-@sapTntToolPageCompactAsideWidth);
+      -ms-transform: translateX(-@sapTntToolPageCompactAsideWidth);
+      transform: translateX(-@sapTntToolPageCompactAsideWidth);
+    }
+
+    .sapTntToolPageAsideCollapsed {
+      .sapTntToolPageAside {
+        -webkit-transform: translateX(@sapTntToolPageCompactAsideWidth);
+        -ms-transform: translateX(@sapTntToolPageCompactAsideWidth);
+        transform: translateX(@sapTntToolPageCompactAsideWidth);
+      }
+      .sapTntToolPageMain {
+        -webkit-transform: translateX(0);
+        -ms-transform: translateX(0);
+        transform: translateX(0);
+      }
+    }
+  }
+}
+/* END "ToolPage.less" */
+

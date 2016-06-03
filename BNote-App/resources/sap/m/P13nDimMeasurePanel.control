@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nDimMeasurePanel</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The P13nDimMeasurePanel control is used to define chart-specific settings like chart type, the visibility, the order and roles of
+       dimensions and measures for table personalization.</documentation>
+    <since>1.34.0</since>
+    <baseType>sap.m/P13nPanel</baseType>
+    <properties>
+        <property since="1.34.0" defaultValue="" type="sap.ui.core/string" name="chartTypeKey">
+            <documentation>Specifies a chart type key.</documentation>
+        </property>
+    </properties>
+    <aggregations>
+        <aggregation bindable="bindable" cardinality="0..n" since="1.34.0" type="sap.m/P13nDimMeasureItem" name="dimMeasureItems">
+            <documentation>List of columns that has been changed.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Internal aggregation for the toolbar.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" since="1.34.0" type="sap.ui.core/Item" name="availableChartTypes">
+            <documentation>Specifies available chart types.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

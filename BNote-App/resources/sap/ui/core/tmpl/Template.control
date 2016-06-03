@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>tmpl/Template</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Base Class for Template.</documentation>
+    <developmentState since="1.15.0" state="experimental">The Template concept is still under construction, so some implementation details can be changed in future.</developmentState>
+    <abstract/>
+    <properties>
+        <property group="Data" type="sap.ui.core/string" name="content">
+            <documentation>The Template definition as a String.</documentation>
+        </property>
+    </properties>
+</control>

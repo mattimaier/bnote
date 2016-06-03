@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CalendarDateInterval</name>
+    <derived/>
+    <documentation>Calendar with dates displayed in one line.</documentation>
+    <since>1.30.0</since>
+    <baseType>sap.ui.unified/Calendar</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/object" name="startDate">
+            <documentation>Start date of the Interval</documentation>
+        </property>
+        <property group="Appearance" defaultValue="7" type="sap.ui.core/int" name="days">
+            <documentation>number of days displayed
+on phones the maximum rendered number of days is 8.</documentation>
+        </property>
+        <property since="1.34.0" group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showDayNamesLine">
+            <documentation>If set the day names are shown in a separate line.
+If not set the day names are shown inside the single days.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Width of Calendar</documentation>
+        </property>
+        <property since="1.34.0" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="pickerPopup">
+            <documentation>If set, the month- and yearPicker opens on a popup</documentation>
+        </property>
+    </properties>
+</control>

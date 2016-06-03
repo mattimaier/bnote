@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectPageSection</name>
+    <derived/>
+    <documentation>An ObjectPageSection is the top-level information container of an Object page. Its purpose is to aggregate Subsections.
+Disclaimer: This control is intended to be used only as part of the Object page layout</documentation>
+    <since>1.26</since>
+    <baseType>sap.uxap/ObjectPageSectionBase</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showTitle">
+            <documentation>Determines whether to display the Section title or not.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="titleUppercase">
+            <documentation>Determines whether the Section title is displayed in upper case.</documentation>
+        </property>
+    </properties>
+    <aggregations default="subSections">
+        <aggregation cardinality="0..n" type="sap.uxap/ObjectPageSubSection" name="subSections">
+            <documentation>The list of Subsections.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/InvisibleText" name="ariaLabelledBy">
+            <documentation>Screen Reader ariaLabelledBy</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Button" name="_showHideAllButton"/>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Button" name="_showHideButton"/>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.uxap/ObjectPageSubSection" name="selectedSubSection">
+            <documentation>The most recently selected Subsection by the user.</documentation>
+        </association>
+    </associations>
+</control>

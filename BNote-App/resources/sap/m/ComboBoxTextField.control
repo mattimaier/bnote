@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ComboBoxTextField</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The &lt;code&gt;sap.m.ComboBoxTextField&lt;/code&gt;.</documentation>
+    <since>1.34</since>
+    <baseType>sap.m/InputBase</baseType>
+    <properties>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="maxWidth">
+            <documentation>Sets the maximum width of the text field.</documentation>
+        </property>
+    </properties>
+</control>

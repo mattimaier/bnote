@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>layout/MatrixLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>&lt;p&gt;
+A matrix layout arranges controls in a grid structure, using rows which
+need not have the same number of cells.
+&lt;/p&gt;
+
+&lt;p&gt;
+It uses predefined cell classes that guarantee appropriate distances
+between cells in the grid. The cell's &lt;code&gt;vGutter&lt;/code&gt; property lets
+you specify additional horizontal distances easily. You can set these
+additional distances (known as gutters) with or without separators.
+The distance for each cell is specified by assigning a specific
+enumeration value of the class &lt;code&gt;LayoutCellSeparator&lt;/code&gt; of the
+matrix data object.
+&lt;/p&gt;
+
+&lt;p&gt;
+You should &lt;b&gt;avoid nesting&lt;/b&gt; matrix layouts. You should only use a
+matrix layout if you need to align controls horizontally across rows.
+&lt;/p&gt;</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>CSS width of the matrix layout.
+If the LayoutFixed = true a adequate width should be provided.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="height">
+            <documentation>CSS height of the matrix layout.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="layoutFixed">
+            <documentation>Sets the table layout. If fixed the width parameter of a column has priority, if not the width of the content of the colums has priority.
+The default is &quot;fixed&quot;.
+If the fixed layout is used a adequate width of the MatrixLayout should be provided. Otherwise the column width displayed could be different than the given ones because of browser dependend optimazations.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/int" name="columns">
+            <documentation>Number of columns. If not specified, the number of columns will be determined from the given cells.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/CSSSize[]" name="widths">
+            <documentation>Widths of the columns. Use an array to define the widths of the columns.
+If a column shall have an automatical sizing enter &quot;auto&quot; for this column width.</documentation>
+        </property>
+    </properties>
+    <aggregations default="rows">
+        <aggregation cardinality="0..n" type="sap.ui.commons/layout/MatrixLayoutRow" name="rows">
+            <documentation>The matrix layout's individual rows.</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.commons/layout/MatrixLayout" name="createRow">
+            <documentation>Creates a new matrix layout row and appends it to this matrix layout.
+
+Each argument must be either a matrix layout cell, which is added to the row
+&quot;as is&quot;, or an arbitrary content control, which is wrapped with a new
+(default) matrix layout cell first and then added to the row.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Control" name="rowContent">
+                    <documentation>to add</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

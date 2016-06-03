@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SplitterSize</name>
+    <derived/>
+    <documentation>A string type that represents subset of CSS size values. For the Splitter only px and % are allowed.</documentation>
+    <final/>
+    <pattern>(0*|([0-9]+|[0-9]*\.[0-9]+)([pP][xX]|%))</pattern>
+</simple-type>

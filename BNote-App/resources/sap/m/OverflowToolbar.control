@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>OverflowToolbar</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The OverflowToolbar control is a container based on sap.m.Toolbar, that provides overflow when its content does not fit in the visible area.
+
+Note: It is recommended that you use OverflowToolbar over {@link sap.m.Toolbar}, unless you want to avoid overflow in favor of shrinking.</documentation>
+    <since>1.28</since>
+    <baseType>sap.m/Toolbar</baseType>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/ToggleButton" name="_overflowButton"/>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Popover" name="_popover"/>
+    </aggregations>
+</control>

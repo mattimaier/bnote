@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>HierarchicalSelect</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A select that display items on 2 level of hierarchy.
+If a provided item has a custom data named &quot;secondLevel&quot;, then it will be displayed as a second level, otherwise it would be displayed as a first level.</documentation>
+    <since>1.26</since>
+    <baseType>sap.m/Select</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="upperCase">
+            <documentation>Determines whether the HierarchicalSelect items are displayed in upper case.</documentation>
+        </property>
+    </properties>
+</control>

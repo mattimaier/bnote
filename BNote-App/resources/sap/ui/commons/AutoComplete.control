@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>AutoComplete</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Textfield with list based text completion.</documentation>
+    <since>1.10.0</since>
+    <baseType>sap.ui.commons/ComboBox</baseType>
+    <properties>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="enableScrolling">
+            <documentation>Determines whether scrolling should be enabled when the number of items is higher than maxPopupItems.
+If set to false only the first n items (n=maxPopupItems) are shown.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="suggest">
+            <documentation>Fired when the user has changed the value and a suggestion list update should occur.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="suggestValue">
+                    <documentation>The current value which was typed in.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <methods>
+        <method name="setFilterFunction">
+            <documentation>Sets a custom filter function for items. Default is to check whether the item text begins with the typed value.
+
+Example:
+&lt;code&gt;
+function(sValue, oItem){
+  return jQuery.sap.startsWithIgnoreCase(oItem.getText(), sValue);
+}
+&lt;/code&gt;</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/any" name="filter">
+                    <documentation>The filter function. If not set the default filter function will be used.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>BlockBase</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A block is the main element that will be displayed, mainly in an object page, but not necessarily
+only there.
+
+A block is a control that use a XML view for storing its internal control tree.
+A block is a control that has modes and a view associated to each modes.
+At rendering time, the view associated to the mode is rendered.
+
+&lt;b&gt;Note:&lt;/b&gt; The control supports only XML views.
+
+As any UI5 views, the XML view can have a controller which automatically comes a this.oParentBlock attribute (so that the controller can interacts with the block).
+If the controller implements the onParentBlockModeChange method, this method will get called with the sMode parameter when the view is used or re-used by the block.</documentation>
+    <since>1.26</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/string" name="mode">
+            <documentation>Determines the mode of the block.
+When block is used inside ObjectPage this mode is inherited my the SubSection.
+The mode of the block is changed when SubSection mode changes.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Determines the visibility of the block.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="auto" type="sap.uxap/BlockBaseColumnLayout" name="columnLayout">
+            <documentation>Determines on how columns the layout will be rendered.
+Allowed values are integers from 1 to 4 and &quot;auto&quot;.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="BlockColumns" type="sap.uxap/BlockBaseFormAdjustment" name="formAdjustment">
+            <documentation>Determines if the block should automatically adjust its inner forms.
+Allowed values are &quot;BlockColumns&quot; and &quot;OneColumn&quot; and &quot;None&quot;.
+If the value is &quot;BlockColumns&quot;, then the inner form will have as many columns as the colspan of its parent block.
+If the value is &quot;OneColumn&quot;, the inner form will have exactly one column, regardless the colspan of its parent block.
+If the value is &quot;None&quot;, no automatic adjustment of inner forms will be made and the form will keep its original column count.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="showSubSectionMore">
+            <documentation>Determines whether the show more button should be shown.</documentation>
+        </property>
+    </properties>
+    <aggregations default="mappings">
+        <aggregation cardinality="0..n" type="sap.uxap/ModelMapping" name="mappings">
+            <documentation>Map external UI5 model and internal Block model</documentation>
+        </aggregation>
+        <aggregation singularName="view" visibility="hidden" cardinality="0..n" type="sap.ui.core/Control" name="_views">
+            <documentation>Internal aggregation that contains all views inside this Block</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/Control" name="selectedView">
+            <documentation>The view that is rendered now.
+Can be used as getter for the rendered view.</documentation>
+        </association>
+    </associations>
+</control>

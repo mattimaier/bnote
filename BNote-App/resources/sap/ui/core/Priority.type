@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Priority</name>
+    <derived/>
+    <documentation>Priorities for general use.</documentation>
+    <enumeration>
+        <value name="None">
+            <documentation>Default, none priority</documentation>
+        </value>
+        <value name="Low">
+            <documentation>Low priority</documentation>
+        </value>
+        <value name="Medium">
+            <documentation>Medium priority</documentation>
+        </value>
+        <value name="High">
+            <documentation>High priority</documentation>
+        </value>
+    </enumeration>
+</simple-type>

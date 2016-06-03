@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>GroupHeaderListItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>&lt;code&gt;sap.m.GroupHeaderListItem&lt;/code&gt; is used to display the title of a group and act as separator between groups in &lt;code&gt;sap.m.List&lt;/code&gt; and &lt;code&gt;sap.m.Table&lt;/code&gt;.
+&lt;b&gt;Note:&lt;/b&gt; The inherited properties &lt;code&gt;unread&lt;/code&gt;, &lt;code&gt;selected&lt;/code&gt;, &lt;code&gt;counter&lt;/code&gt; and &lt;code&gt;press&lt;/code&gt; event from &lt;code&gt;sap.m.ListItemBase&lt;/code&gt; are not supported.</documentation>
+    <since>1.12</since>
+    <baseType>sap.m/ListItemBase</baseType>
+    <properties>
+        <property group="Data" type="sap.ui.core/string" name="title">
+            <documentation>Defines the title of the group header.</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="count">
+            <documentation>Defines the count of items in the group, but it could also be an amount which represents the sum of all amounts in the group.
+&lt;b&gt;Note:&lt;/b&gt; Will not be displayed if not set.</documentation>
+        </property>
+        <property since="1.13.2" group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="upperCase">
+            <documentation>By default, the title is capitalized automatically. To disable this automation, set this property to &lt;b&gt;false&lt;/b&gt;.</documentation>
+        </property>
+        <property since="1.28.0" group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="titleTextDirection">
+            <documentation>Defines the title text directionality with enumerated options. By default, the control inherits text direction from the DOM.</documentation>
+        </property>
+    </properties>
+</control>

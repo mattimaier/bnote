@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MessageStrip</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>MessageStrip is a control that enables the embedding of application-related messages in the application.
+There are 4 types of messages: Information, Success, Warning and Error.
+Each message can have a close button, so that it can be removed from the UI if needed.</documentation>
+    <since>1.30</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/string" name="text">
+            <documentation>Determines the text of the message.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Information" type="sap.ui.core/MessageType" name="type">
+            <documentation>Determines the type of messages that are displayed in the MessageStrip.
+Possible values are: Information (default), Success, Warning, Error.
+If None is passed, the value is set to Information and a warning is displayed in the console.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="" type="sap.ui.core/URI" name="customIcon">
+            <documentation>Determines a custom icon which is displayed.
+If none is set, the default icon for this message type is used.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showIcon">
+            <documentation>Determines if an icon is displayed for the message.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showCloseButton">
+            <documentation>Determines if the message has a close button in the upper right corner.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="close">
+            <documentation>This event will be fired after the container is closed.</documentation>
+        </event>
+    </events>
+    <aggregations default="link">
+        <aggregation cardinality="0..1" type="sap.m/Link" name="link">
+            <documentation>Adds a sap.m.Link control which will be displayed at the end of the message.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Text" name="_text">
+            <documentation>Hidden aggregation which is used to transform the string message into sap.m.Text control.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>HexagonButton</name>
+    <derived/>
+    <documentation>A custom button with a 'hexagon' shape</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="icon">
+            <documentation>Icon to display</documentation>
+        </property>
+        <property group="Misc" defaultValue="blue" type="sap.ui.core/string" name="color">
+            <documentation>The color of the hexagon</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="position">
+            <documentation>The position. If set, the button is rendered with an absolute position.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Whether the button is enabled or not.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="imagePosition">
+            <documentation>The position of the contained image. If not set the image is rendered with a fixed relative position.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Fired when the user clicks the hex button</documentation>
+        </event>
+    </events>
+</control>

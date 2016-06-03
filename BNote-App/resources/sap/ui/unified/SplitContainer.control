@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SplitContainer</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Provides a main content and a secondary content area</documentation>
+    <since>1.15.0</since>
+    <developmentState since="1.15.0" state="experimental">API is not yet finished and might change completely</developmentState>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/boolean" name="showSecondaryContent">
+            <documentation>Shows / Hides the secondary area.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="250px" type="sap.ui.core/CSSSize" name="secondaryContentSize">
+            <documentation>The width if the secondary content. The height is always 100%.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="250px" type="sap.ui.core/CSSSize" name="secondaryContentWidth">
+            <documentation>Do not use. Use secondaryContentSize instead.</documentation>
+            <deprecation since="1.22">Only available for backwards compatibility.</deprecation>
+        </property>
+        <property since="1.22.0" group="Appearance" defaultValue="Horizontal" type="sap.ui.core/Orientation" name="orientation">
+            <documentation>Whether to show the secondary content on the left (&quot;Horizontal&quot;, default) or on the top (&quot;Vertical&quot;).</documentation>
+        </property>
+    </properties>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>The content to appear in the main area.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="secondaryContent">
+            <documentation>The content to appear in the secondary area.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

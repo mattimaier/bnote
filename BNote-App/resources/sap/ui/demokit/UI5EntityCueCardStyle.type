@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>UI5EntityCueCardStyle</name>
+    <derived/>
+    <documentation>different styles for an entity cue card.</documentation>
+    <enumeration>
+        <value name="Standard">
+            <documentation>default style (no special styling).</documentation>
+        </value>
+        <value name="Demokit">
+            <documentation>Demokit style</documentation>
+        </value>
+    </enumeration>
+</simple-type>

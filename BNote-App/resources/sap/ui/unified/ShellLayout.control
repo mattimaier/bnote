@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ShellLayout</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The shell layout is the base for the shell control which is meant as root control (full-screen) of an application.
+It was build as root control of the Fiori Launchpad application and provides the basic capabilities
+for this purpose. Do not use this control within applications which run inside the Fiori Lauchpad and
+do not use it for other scenarios than the root control usecase.</documentation>
+    <since>1.25.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showPane">
+            <documentation>Shows / Hides the side pane.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="headerHiding">
+            <documentation>Whether the header can be hidden (manually or automatically). This feature is only available when touch events are supported.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="headerVisible">
+            <documentation>If set to false, no header (and no items, search, ...) is shown.</documentation>
+        </property>
+    </properties>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>The content to appear in the main canvas.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="paneContent">
+            <documentation>The content to appear in the pane area.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.ui.core/Control" name="header">
+            <documentation>The control to appear in the header area.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.unified/SplitContainer" name="canvasSplitContainer">
+            <documentation>Private storage for the internal split container for the canvas.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.unified/SplitContainer" name="curtainSplitContainer">
+            <documentation>Private storage for the internal split container for the curtain.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

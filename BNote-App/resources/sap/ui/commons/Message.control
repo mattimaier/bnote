@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Message</name>
+    <derived/>
+    <documentation>Creates the &quot;Message&quot;s to be supplied to the &quot;MessageBar&quot; Control.</documentation>
+    <deprecation since="1.4.0">A new messaging concept will be created in future. Therefore this control might be removed in one of the next versions.</deprecation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" type="sap.ui.commons/MessageType" name="type">
+            <documentation>&quot;Success&quot;, or &quot;Warning&quot;, or &quot;Error&quot; messages. (Mandatory)</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="text">
+            <documentation>Message short text. (Mandatory)</documentation>
+        </property>
+        <property group="Data" type="sap.ui.core/string" name="associatedElementId">
+            <documentation>Associated UI element ID. (Optional)
+For navigation to error field.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="design">
+            <documentation>Internal attribute, used to force the display of the &quot;short&quot; or the &quot;long&quot; text only.</documentation>
+        </property>
+    </properties>
+    <methods>
+        <method name="bindDetails">
+            <documentation>Registers a callback function to be invoked if long text Details are to be made available.
+
+This callback function will be supplied the corresponding Message &quot;id&quot;, and should
+return the (simple) HTML string to be displayed within the Message Details Dialog.
+
+E.g.: myMessage.bindDetails(getDetails);
+function getDetails(sId) {... return htmlString;}</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/any" name="callBack">
+                    <documentation>the callback function</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

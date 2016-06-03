@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ComboBox</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The &lt;code&gt;sap.m.ComboBox&lt;/code&gt; control combines a dropdown list with items and a text field with a button, allowing the user to either type a value directly or choose from the list of existing items.</documentation>
+    <since>1.22</since>
+    <baseType>sap.m/ComboBoxBase</baseType>
+    <properties>
+        <property group="Data" defaultValue="" type="sap.ui.core/string" name="selectedKey">
+            <documentation>Key of the selected item.
+
+&lt;b&gt;Note:&lt;/b&gt; If duplicate keys exist, the first item matching the key is used.</documentation>
+        </property>
+        <property group="Misc" defaultValue="" type="sap.ui.core/string" name="selectedItemId">
+            <documentation>ID of the selected item.</documentation>
+        </property>
+        <property since="1.32.3" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="showSecondaryValues">
+            <documentation>Indicates whether the text values of the &lt;code&gt;additionalText&lt;/code&gt; property of a {@link sap.ui.core.ListItem} are shown.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="selectionChange">
+            <documentation>This event is fired when the user types something that matches with an item in the list; it is also fired when the user presses on a list item, or when navigating via keyboard.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Item" name="selectedItem">
+                    <documentation>The selected item.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.core/Item" name="selectedItem">
+            <documentation>Sets or retrieves the selected item from the aggregation named items.</documentation>
+        </association>
+    </associations>
+</control>

@@ -1,0 +1,146 @@
+{
+  "_version": "1.1.0",
+  "resources": [
+    {
+      "name": "Bootstrap-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "Bootstrap.js"
+    },
+    {
+      "name": "Component-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "Component.js"
+    },
+    {
+      "name": "css/stars.png"
+    },
+    {
+      "name": "css/style.css"
+    },
+    {
+      "name": "css/titles.css"
+    },
+    {
+      "name": "i18n/messageBundle.properties"
+    },
+    {
+      "name": "img/114_iPhone-Retina_Web_Clip.png"
+    },
+    {
+      "name": "img/144_iPad_Retina_Web_Clip.png"
+    },
+    {
+      "name": "img/57_iPhone_Desktop_Launch.png"
+    },
+    {
+      "name": "img/72_iPad_Desktop_Launch.png"
+    },
+    {
+      "name": "img/favicon.ico"
+    },
+    {
+      "name": "tmpl/index.html.tmpl"
+    },
+    {
+      "name": "util/MyRouter-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "util/MyRouter.js"
+    },
+    {
+      "name": "util/ObjectSearch-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "util/ObjectSearch.js"
+    },
+    {
+      "name": "util/ToggleFullScreenHandler-dbg.js",
+      "isDebug": true
+    },
+    {
+      "name": "util/ToggleFullScreenHandler.js"
+    },
+    {
+      "name": "view/app-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/app-dbg.view.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/app.controller.js"
+    },
+    {
+      "name": "view/app.view.js"
+    },
+    {
+      "name": "view/appSettingsDialog.fragment.xml"
+    },
+    {
+      "name": "view/code-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/code.controller.js"
+    },
+    {
+      "name": "view/code.view.xml"
+    },
+    {
+      "name": "view/entity-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/entity.controller.js"
+    },
+    {
+      "name": "view/entity.view.xml"
+    },
+    {
+      "name": "view/master-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/master.controller.js"
+    },
+    {
+      "name": "view/master.view.xml"
+    },
+    {
+      "name": "view/notFound-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/notFound.controller.js"
+    },
+    {
+      "name": "view/notFound.view.xml"
+    },
+    {
+      "name": "view/sample-dbg.controller.js",
+      "isDebug": true
+    },
+    {
+      "name": "view/sample.controller.js"
+    },
+    {
+      "name": "view/sample.view.xml"
+    },
+    {
+      "name": "view/titles.view.html"
+    },
+    {
+      "name": "view/viewSettingsDialog.fragment.xml"
+    },
+    {
+      "name": "view/welcome.view.xml"
+    }
+  ]
+}

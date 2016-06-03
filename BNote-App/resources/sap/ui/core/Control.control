@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Control</name>
+    <derived/>
+    <author>Martin Schaus, Daniel Brinkmann</author>
+    <documentation>Base Class for Controls.</documentation>
+    <abstract/>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property defaultValue="false" type="sap.ui.core/boolean" name="busy">
+            <documentation>Whether the control is currently in busy state.</documentation>
+        </property>
+        <property defaultValue="1000" type="sap.ui.core/int" name="busyIndicatorDelay">
+            <documentation>The delay in milliseconds, after which the busy indicator will show up for this control.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="visible">
+            <documentation>Whether the control should be visible on the screen. If set to false, a placeholder is rendered instead of the real control</documentation>
+        </property>
+        <property since="1.31" defaultValue="[]" type="sap.ui.core/string[]" name="fieldGroupIds">
+            <documentation>The IDs of a logical field group that this control belongs to. All fields in a logical field group should share the same &lt;code&gt;fieldGroupId&lt;/code&gt;.
+Once a logical field group is left, the validateFieldGroup event is raised.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="validateFieldGroup">
+            <documentation>Event is fired if a logical field group defined by &lt;code&gt;fieldGroupIds&lt;/code&gt; of a control was left or the user explicitly pressed a validation key combination.
+Use this event to validate data of the controls belonging to a field group.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string[]" name="fieldGroupIds">
+                    <documentation>field group IDs of the logical field groups to validate</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+</control>

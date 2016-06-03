@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ID</name>
+    <derived/>
+    <documentation>A string type representing an Id or a name.</documentation>
+    <final/>
+    <pattern>[A-Za-z_][-A-Za-z0-9_.:]*</pattern>
+</simple-type>

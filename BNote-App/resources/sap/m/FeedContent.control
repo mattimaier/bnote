@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>FeedContent</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Displays a tile containing the text of the feed, a subheader, and a numeric value.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="Auto" type="sap.m/Size" name="size">
+            <documentation>Updates the size of the chart. If not set then the default size is applied based on the device tile.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="contentText">
+            <documentation>The content text.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="subheader">
+            <documentation>The subheader.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="value">
+            <documentation>The actual value.</documentation>
+        </property>
+        <property group="Misc" type="sap.m/ValueColor" name="valueColor">
+            <documentation>The semantic color of the value.</documentation>
+        </property>
+        <property group="Misc" defaultValue="4" type="sap.ui.core/int" name="truncateValueTo">
+            <documentation>The number of characters to display for the value property.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>The event is fired when the user chooses the feed content.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Text" name="contentTextAgr">
+            <documentation>The hidden aggregation for the content text.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

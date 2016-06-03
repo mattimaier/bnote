@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Panel</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Represents a container with scroll functionality, that can be used for text and controls.
+The Panel does not layout the embedded controls.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Dimension" defaultValue="100%" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Determines the width of the Panel in CSS size.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Determines the height of the Panel in CSS size.
+Per default, the height for the Panel is automatically adjusted to the content.
+Dimension allows to explicitly specify the height.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enabled">
+            <documentation>Represents the state of the of the Panel (enabled or disabled)</documentation>
+        </property>
+        <property group="Behavior" defaultValue="0" type="sap.ui.core/int" name="scrollLeft">
+            <documentation>Determines the scroll position from left to right. Value &quot;0&quot; means leftmost position.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="0" type="sap.ui.core/int" name="scrollTop">
+            <documentation>Determines the scroll position from top to bottom. Value &quot;0&quot; means topmost position.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="applyContentPadding">
+            <documentation>Determines whether the Panel will have padding.
+Padding is theme-dependent.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="collapsed">
+            <documentation>Determines whether the Panel will be initially collapsed.
+When it is initially collapsed, the contents are not rendered.
+A collapsed Panel consumes less space than an expanded one.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Fill" type="sap.ui.commons/enums/AreaDesign" name="areaDesign">
+            <documentation>Determines the background color.
+Note that color settings are theme-dependent.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Box" type="sap.ui.commons/enums/BorderDesign" name="borderDesign">
+            <documentation>Determines if the Panel can have a box as border.
+Note that displaying borders is theme-dependent.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="showCollapseIcon">
+            <documentation>Determines whether the Panel will have an icon for collapsing/expanding, or not.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="text">
+            <documentation>Specifies the text that is rendered in the Panel header.
+Can be used to create a simple titles that do not require an icon in the header.</documentation>
+        </property>
+    </properties>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>Aggregates the controls that are contained in the Panel.
+It is recommended to use a layout control as single direct child.
+When the Panel dimensions are set, the child control may have width and height of 100%.
+When the dimensions are not set, the child defines the size of the Panel.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.ui.core/Title" name="title">
+            <documentation>Aggregates the title element of the Panel.
+For text titles only, you alternatively could use setText() which also creates a title in the background.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.commons/Button" name="buttons">
+            <documentation>The buttons that shall be displayed in the Panel header</documentation>
+        </aggregation>
+    </aggregations>
+</control>

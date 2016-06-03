@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SortOrder</name>
+    <derived/>
+    <documentation>Sort order of a column</documentation>
+    <enumeration>
+        <value name="Ascending">
+            <documentation>Sort Order: ascending.</documentation>
+        </value>
+        <value name="Descending">
+            <documentation>Sort Order: descending.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

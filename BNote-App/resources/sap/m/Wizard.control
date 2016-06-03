@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Wizard</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The Wizard control enables users to accomplish a single goal
+which consists of multiple dependable sub-tasks.
+Each sub-task is provided in the form of a WizardStep.</documentation>
+    <since>1.30</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="auto" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Determines the width of the Wizard.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="100%" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Determines the height of the Wizard.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="showNextButton">
+            <documentation>Controls the visibility of the next button. The developers can choose to control the flow of the
+steps either through the API (with &lt;code&gt;nextStep&lt;/code&gt; and &lt;code&gt;previousStep&lt;/code&gt; methods) or let the user click
+the next button, and control it with &lt;code&gt;validateStep&lt;/code&gt; or &lt;code&gt;invalidateStep&lt;/code&gt; methods.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Review" type="sap.ui.core/string" name="finishButtonText">
+            <documentation>Changes the text of the finish button for the last step.
+This property can be used only if &lt;code&gt;showNextButton&lt;/code&gt; is set to true.
+By default the text of the button is &quot;Review&quot;.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="enableBranching">
+            <documentation>Enables the branching functionality of the Wizard.
+Branching gives the developer the ability to define multiple routes a user
+is able to take based on the input in the current step.
+It is up to the developer to programatically check for what is the input in the
+current step and set a concrete next step amongs the available subsequent steps.
+Note: If this property is set to false, &lt;code&gt;next&lt;/code&gt; and &lt;code&gt;subSequentSteps&lt;/code&gt;
+associations of the WizardStep control are ignored.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="stepActivate">
+            <documentation>The StepActivated event is fired every time a new step is activated.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="index">
+                    <documentation>The index of the activated step as a parameter. One-based.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="complete">
+            <documentation>The complete event is fired when the user clicks the finish button of the Wizard.
+The finish button is only available on the last step of the Wizard.</documentation>
+        </event>
+    </events>
+    <aggregations default="steps">
+        <aggregation cardinality="0..n" type="sap.m/WizardStep" name="steps">
+            <documentation>The wizard steps to be included in the content of the control.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_progressNavigator">
+            <documentation>The progress navigator for the wizard.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Button" name="_nextButton">
+            <documentation>The next button for the wizard.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>DraftIndicatorState</name>
+    <derived/>
+    <documentation>Enum for the state of sap.m.DraftIndicator control.</documentation>
+    <enumeration>
+        <value name="Clear">
+            <documentation>This is the default value for DraftIndicatorState type. This state has no visual information displayed.</documentation>
+        </value>
+        <value name="Saving">
+            <documentation>Indicates that the draft currently is being saved</documentation>
+        </value>
+        <value name="Saved">
+            <documentation>Indicates that the draft is already saved</documentation>
+        </value>
+    </enumeration>
+</simple-type>

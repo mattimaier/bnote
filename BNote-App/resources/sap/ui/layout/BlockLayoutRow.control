@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>BlockLayoutRow</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The BlockLayoutRow is used as an aggregation to the BlockLayout. It aggregates Block Layout  cells.
+The BlockLayoutRow has 2 rendering modes - scrollable and non scrollable.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="scrollable">
+            <documentation>Sets the rendering mode of the BlockLayoutRow to scrollable. In scrollable mode, the cells get
+aligned side by side, with horizontal scroll bar for the row.</documentation>
+        </property>
+    </properties>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.layout/BlockLayoutCell" name="content">
+            <documentation>The content cells to be included in the row.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>TabStrip</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>TabStrip represents a container for tab controls, which contain the content and generally other controls.
+The user switches between the tabs to display the content.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="height">
+            <documentation>Specifies the height of the tab bar and content area.</documentation>
+        </property>
+        <property group="Dimension" type="sap.ui.core/CSSSize" name="width">
+            <documentation>Specifies the width of the bar and content area.</documentation>
+        </property>
+        <property group="Misc" defaultValue="0" type="sap.ui.core/int" name="selectedIndex">
+            <documentation>Specifies the index of the currently selected tab.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="enableTabReordering">
+            <documentation>Specifies whether tab reordering is enabled.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Fires when the user selects a tab.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="index">
+                    <documentation>The index of the selected tab.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="close">
+            <documentation>Fires when the user closes a tab.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="index">
+                    <documentation>The index of the closed tab.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="tabs">
+        <aggregation cardinality="0..n" type="sap.ui.commons/Tab" name="tabs">
+            <documentation>The tabs contained in the TabStrip.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Icon" name="_leftArrowControl">
+            <documentation>The left arrow, used for tab scrolling.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Icon" name="_rightArrowControl">
+            <documentation>The right arrow, used for tab scrolling.</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.commons/Tab" name="createTab">
+            <documentation>Creates a Tab and adds it to the TabStrip.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="text">
+                    <documentation>Defines the title text of the newly created tab</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/Control" name="content">
+                    <documentation>Defines the root control of the content area</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method type="sap.ui.core/void" name="closeTab">
+            <documentation>Closes a tab (if the tab is selected, the next one will be selected;
+if it's the last tab, the previous one will be selected).
+
+This method should be called if the close event is fired.
+It can not be called automatically because the consumer might need to run some logic before the tab is closed.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/int" name="index">
+                    <documentation>The index of the tab that should be closed</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

@@ -9,7 +9,7 @@ mobilePin = null;  // Default null
 backend = {
 		
 	get_url: function(func) {
-		var path = "../BNote/src/export/bna-json.php";
+		var path = "../bnote/src/export/bna-json.php";
 		var url = path + "?func=" + func;
 		if(func != "mobilePin") {
 			// add token

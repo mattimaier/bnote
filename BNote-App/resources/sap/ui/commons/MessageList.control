@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MessageList</name>
+    <derived/>
+    <documentation>Instantiated by the &quot;MessageBar&quot; Control if the user requests to generate the corresponding &quot;MessageList&quot;.</documentation>
+    <deprecation since="1.4.0">A new messaging concept will be created in future. Therefore this control might be removed in one of the next versions.</deprecation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="visible">
+            <documentation>Specifies whether or not the MessageList is visible. Invisible controls are not rendered.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="anchorId">
+            <documentation>ID of the anchor under which the MessageList will render.</documentation>
+        </property>
+        <property group="Misc" defaultValue="7" type="sap.ui.core/string" name="maxListed">
+            <documentation>Maximum number of messages being display in the List before a scrollbar appears. Value '0' means no limit.</documentation>
+        </property>
+    </properties>
+    <methods>
+        <method type="sap.ui.core/void" name="setMessages">
+            <documentation>Sets the list of Messages to be displayed and re-renders this Control if it is visible.</documentation>
+            <parameters>
+                <parameter type="sap.ui.commons/Message[]" name="messages">
+                    <documentation>Message list.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>

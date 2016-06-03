@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>semantic/SemanticPage</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A semantic page is an enhanced {@link sap.m.Page}, that can contain controls with semantic meaning @see sap.m.semantic.SemanticControl.&lt;br&gt;
+
+Content specified in the {@link sap.m.semantic.SemanticPage#semanticControls} aggregations will be automatically positioned in dedicated sections of the footer or the header of the page, depending on the control's semantics.&lt;br&gt;
+For example, a semantic button of type {@link sap.m.semantic.PositiveAction} will be positioned in the right side of the footer, and in logically correct sequence order with respect to any other included semantic controls.&lt;br&gt;
+
+The full list of what we internally define for semantic content is:
+ &lt;ul&gt;
+     &lt;li&gt;Visual properties (e.g. AddAction will be styled as an icon button)&lt;/li&gt;
+     &lt;li&gt;Position in the page (UX guidelines specify that some buttons should be in the header only, while others are in the footer or the &quot;share&quot; menu, so we do the correct positioning)&lt;/li&gt;
+     &lt;li&gt;Sequence order (UX guidelines define a specific sequence order of semantic controls with respect to each other)&lt;/li&gt;
+     &lt;li&gt;Default localized tooltip for icon-only buttons&lt;/li&gt;
+     &lt;li&gt;Overflow behavior (UX quidelines define which buttons are allowed to go to the overflow of the toolbar when the screen gets narrower). For icon buttons, we ensure that the text label of the button appears when the button is in overflow, as specified by UX.&lt;/li&gt;
+     &lt;li&gt;Screen reader support (invisible text for reading the semantic type)&lt;/li&gt;
+ &lt;/ul&gt;
+
+In addition to the predefined semantic controls, the SemanticPage can host also custom application-provided controls. It preserves most of the API of {@link sap.m.Page} for specifying page content.&lt;br&gt;</documentation>
+    <since>1.30.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="title">
+            <documentation>See {@link sap.m.Page#title}</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Auto" type="sap.ui.core/TitleLevel" name="titleLevel">
+            <documentation>See {@link sap.m.Page#titleLevel}</documentation>
+        </property>
+        <property group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="showNavButton">
+            <documentation>See {@link sap.m.Page#showNavButton}</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showSubHeader">
+            <documentation>See {@link sap.m.Page#showSubHeader}</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="enableScrolling">
+            <documentation>See {@link sap.m.Page#enableScrolling}</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showFooter">
+            <documentation>Hides or shows the page footer</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="navButtonPress">
+            <documentation>See {@link sap.m.Page#navButtonPress}</documentation>
+        </event>
+    </events>
+    <aggregations default="content">
+        <aggregation cardinality="0..1" type="sap.m/IBar" name="subHeader">
+            <documentation>See {@link sap.m.Page#subHeader}</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>See {@link sap.m.Page#content}</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.m/Button" name="customHeaderContent">
+            <documentation>Custom header buttons</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.m/Button" name="customFooterContent">
+            <documentation>Custom footer buttons</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.m/PageAccessibleLandmarkInfo" name="landmarkInfo">
+            <documentation>Accessible landmark settings to be applied to the containers of the &lt;code&gt;sap.m.Page&lt;/code&gt; control.
+
+If not set, no landmarks will be written.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/Page" name="_page">
+            <documentation>Wrapped instance of {@link sap.m.Page}</documentation>
+        </aggregation>
+    </aggregations>
+</control>

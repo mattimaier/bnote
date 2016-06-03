@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>calendar/MonthPicker</name>
+    <derived/>
+    <documentation>renders a MonthPicker with ItemNavigation
+This is used inside the calendar. Not for stand alone usage</documentation>
+    <since>1.28.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Data" defaultValue="0" type="sap.ui.core/int" name="month">
+            <documentation>The month is initial focused and selected
+The value must be between 0 and 11</documentation>
+        </property>
+        <property since="1.30.0" group="Appearance" defaultValue="12" type="sap.ui.core/int" name="months">
+            <documentation>number of displayed months
+The value must be between 1 and 12</documentation>
+        </property>
+        <property since="1.30.0" group="Appearance" defaultValue="3" type="sap.ui.core/int" name="columns">
+            <documentation>number of months in each row
+The value must be between 0 and 12 (0 means just to have all months in one row, independent of the number)</documentation>
+        </property>
+        <property since="1.34.0" group="Appearance" type="sap.ui.core/CalendarType" name="primaryCalendarType">
+            <documentation>If set, the calendar type is used for display.
+If not set, the calendar type of the global configuration is used.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="select">
+            <documentation>Month selection changed</documentation>
+        </event>
+    </events>
+    <methods>
+        <method type="sap.ui.unified/calendar/MonthPicker" name="nextPage">
+            <documentation>displays the next page</documentation>
+        </method>
+        <method type="sap.ui.unified/calendar/MonthPicker" name="previousPage">
+            <documentation>displays the previous page</documentation>
+        </method>
+    </methods>
+</control>

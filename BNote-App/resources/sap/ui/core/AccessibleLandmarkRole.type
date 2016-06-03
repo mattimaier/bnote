@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>AccessibleLandmarkRole</name>
+    <derived/>
+    <documentation>Defines the accessible landmark roles for ARIA support. This enumeration is used with the AccessibleRole control property.
+For more information, goto &quot;Roles for Accessible Rich Internet Applications (WAI-ARIA Roles)&quot; at the www.w3.org homepage.</documentation>
+    <enumeration>
+        <value name="None">
+            <documentation>No explicit role is applicable.
+
+The interpretation of this value depends on the control / element which defines a property with this type.
+Normally this value means that no accessible landmark should be written.</documentation>
+        </value>
+        <value name="Banner">
+            <documentation>Represents the ARIA role &lt;code&gt;banner&lt;/code&gt;.
+
+A banner usually appears at the top of the page and typically spans the full width.</documentation>
+        </value>
+        <value name="Main">
+            <documentation>Represents the ARIA role &lt;code&gt;main&lt;/code&gt;.
+
+The main content of a page.</documentation>
+        </value>
+        <value name="Region">
+            <documentation>Represents the ARIA role &lt;code&gt;region&lt;/code&gt;.
+
+A section of a page, that is important enough to be included in a page summary or table of contents.</documentation>
+        </value>
+        <value name="Navigation">
+            <documentation>Represents the ARIA role &lt;code&gt;navigation&lt;/code&gt;.
+
+A region that contains a collection of items and objects that, as a whole, combine to create a navigation facility.</documentation>
+        </value>
+        <value name="Search">
+            <documentation>Represents the ARIA role &lt;code&gt;search&lt;/code&gt;.
+
+A region that contains a collection of items and objects that, as a whole, combine to create a search facility.</documentation>
+        </value>
+        <value name="Complementary">
+            <documentation>Represents the ARIA role &lt;code&gt;complementary&lt;/code&gt;.
+
+A section of the page, designed to be complementary to the main content at a similar level in the DOM hierarchy.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

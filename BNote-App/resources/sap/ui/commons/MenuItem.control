@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MenuItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Standard item to be used inside a menu. A menu item represents an action which can be selected by the user in the menu or
+it can provide a submenu to organize the actions hierarchically.</documentation>
+    <since>1.0.0</since>
+    <deprecation since="1.21.0">Please use the element &lt;code&gt;sap.ui.unified.MenuItem&lt;/code&gt; of the library &lt;code&gt;sap.ui.unified&lt;/code&gt; instead.</deprecation>
+    <baseType>sap.ui.unified/MenuItem</baseType>
+</control>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nPanel</name>
+    <derived/>
+    <documentation>Base type for &lt;code&gt;panels&lt;/code&gt; aggregation in P13nDialog control.</documentation>
+    <since>1.26.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property since="1.26.0" group="Appearance" type="sap.ui.core/string" name="title">
+            <documentation>Title text appears in the panel.</documentation>
+        </property>
+        <property since="1.30.0" group="Appearance" type="sap.ui.core/string" name="titleLarge">
+            <documentation>Large title text appears e.g. in dialog header in case that only one panel is shown.</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/string" name="type">
+            <documentation>Panel type for generic use. Due to extensibility reason the type of &lt;code&gt;type&lt;/code&gt; property should be &lt;code&gt;string&lt;/code&gt;. So it is feasible to add a
+custom panel without expanding the type.</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="verticalScrolling">
+            <documentation>Enables the vertical Scrolling on the P13nDialog when the panel is shown.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/object" name="validationExecutor">
+            <documentation>Callback method which is called in order to validate end user entry.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/object" name="validationListener">
+            <documentation>Callback method which is called in order to register for validation result.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" since="1.28.0" name="beforeNavigationTo">
+            <documentation>Due to performance the data of the panel can be requested in lazy mode e.g. when the panel is displayed</documentation>
+        </event>
+    </events>
+    <aggregations default="items">
+        <aggregation bindable="bindable" cardinality="0..n" since="1.26.0" type="sap.m/P13nItem" name="items">
+            <documentation>Aggregation of items</documentation>
+        </aggregation>
+    </aggregations>
+</control>

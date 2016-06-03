@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Dialog</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>The Dialog control is used to interrupt the current processing of an application to prompt the user for information or a response.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/URI" name="icon">
+            <documentation>Icon displayed in the dialog's header. This icon is invisible on the iOS platform and it's density aware. You can use the density convention (@2, @1.5, etc.) to provide higher resolution image for higher density screen.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/string" name="title">
+            <documentation>Title text appears in the dialog header.</documentation>
+        </property>
+        <property since="1.15.1" group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="showHeader">
+            <documentation>Determines whether the header is shown inside the dialog. If this property is set to true, the text and icon property are ignored. This property has a default value true.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Standard" type="sap.m/DialogType" name="type">
+            <documentation>The type of the dialog. In theme sap_bluecrystal, the type &quot;message&quot; will limit the dialog's width within 480px on tablet and desktop.</documentation>
+        </property>
+        <property since="1.11.2" group="Appearance" defaultValue="None" type="sap.ui.core/ValueState" name="state">
+            <documentation>The state affects the icon and the title color. If other than &quot;None&quot; is set, a predefined icon will be added to the dialog. Setting icon property will overwrite the predefined icon. The default value is &quot;None&quot; which doesn't add any icon to the Dialog control. This property is by now only supported by blue crystal theme.</documentation>
+        </property>
+        <property since="1.11.2" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="stretchOnPhone">
+            <documentation>Determines whether the dialog will displayed on full screen on a phone.</documentation>
+            <deprecation since="1.13.1">Please use the new stretch property instead. This enables a stretched dialog even on tablet and desktop. If you want to achieve the same effect as stretchOnPhone, please set the stretch with jQuery.device.is.phone, then dialog is only stretched when runs on phone.</deprecation>
+        </property>
+        <property since="1.13.1" group="Appearance" defaultValue="false" type="sap.ui.core/boolean" name="stretch">
+            <documentation>Determines  if the dialog will be stretched to full screen. This property is only applicable to standard dialog and message type dialog ignores this property.</documentation>
+        </property>
+        <property since="1.12.1" group="Dimension" type="sap.ui.core/CSSSize" name="contentWidth">
+            <documentation>Preferred width of content in Dialog. This property affects the width of dialog on phone in landscape mode, tablet or desktop, because the dialog has a fixed width on phone in portrait mode. If the preferred width is less than the minimum width of dilaog or more than the available width of the screen, it will be overwritten by the min or max value. The current mininum value of dialog width on tablet is 400px.</documentation>
+        </property>
+        <property since="1.12.1" group="Dimension" type="sap.ui.core/CSSSize" name="contentHeight">
+            <documentation>Preferred height of content in Dialog. If the preferred height is bigger than the available space on screen, it will be overwritten by the maximum available height on screen in order to make sure that dialog isn't cut off.</documentation>
+        </property>
+        <property since="1.15.1" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="horizontalScrolling">
+            <documentation>Indicates if user can scroll horizontally inside dialog when the content is bigger than the content area. However, when scrollable control (sap.m.ScrollContainer, sap.m.Page) is in the dialog, this property needs to be set to false to disable the scrolling in dialog in order to make the scrolling in the child control work properly.
+Dialog detects if there's sap.m.NavContainer, sap.m.Page, or sap.m.ScrollContainer as direct child added to dialog. If there is, dialog will turn off scrolling by setting this property to false automatically ignoring the existing value of this property.</documentation>
+        </property>
+        <property since="1.15.1" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="verticalScrolling">
+            <documentation>Indicates if user can scroll vertically inside dialog when the content is bignger than the content area. However, when scrollable control (sap.m.ScrollContainer, sap.m.Page) is in the dialog, this property needs to be set to false to disable the scrolling in dialog in order to make the scrolling in the child control work properly.
+Dialog detects if there's sap.m.NavContainer, sap.m.Page, or sap.m.ScrollContainer as direct child added to dialog. If there is, dialog will turn off scrolling by setting this property to false automatically ignoring the existing value of this property.</documentation>
+        </property>
+        <property since="1.30" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="resizable">
+            <documentation>Indicates whether the dialog is resizable. the dialog is resizable. If this property is set to true, the dialog will have a resize handler in it's bottom right corner. This property has a default value false. The Dialog can be resizable only in desktop mode.</documentation>
+        </property>
+        <property since="1.30" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="draggable">
+            <documentation>Indicates whether the dialog is draggable. If this property is set to true, the dialog will be draggable by it's header. This property has a default value false. The Dialog can be draggable only in desktop mode.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="beforeOpen">
+            <documentation>This event will be fired before the dialog is opened.</documentation>
+        </event>
+        <event allowPreventDefault="false" name="afterOpen">
+            <documentation>This event will be fired after the dialog is opened.</documentation>
+        </event>
+        <event allowPreventDefault="false" name="beforeClose">
+            <documentation>This event will be fired before the dialog is closed.</documentation>
+            <parameters>
+                <parameter since="1.9.2" type="sap.m/Button" name="origin">
+                    <documentation>This indicates the trigger of closing the dialog. If dialog is closed by either leftButton or rightButton, the button that closes the dialog is set to this parameter. Otherwise this parameter is set to null.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="afterClose">
+            <documentation>This event will be fired after the dialog is closed.</documentation>
+            <parameters>
+                <parameter since="1.9.2" type="sap.m/Button" name="origin">
+                    <documentation>This indicates the trigger of closing the dialog. If dialog is closed by either leftButton or rightButton, the button that closes the dialog is set to this parameter. Otherwise this parameter is set to null.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="content">
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>The content inside the dialog.&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; When the content of the &lt;code&gt;Dialog&lt;/code&gt; is comprised of controls that use &lt;code&gt;position: absolute&lt;/code&gt;, such as &lt;code&gt;SplitContainer&lt;/code&gt;, the dialog has to have either &lt;code&gt;stretch: true&lt;/code&gt; or &lt;code&gt;contentHeight&lt;/code&gt; set.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" since="1.12.2" type="sap.m/IBar" name="subHeader">
+            <documentation>When subHeader is assigned to Dialog, it's rendered directly after the main header in Dialog. SubHeader is out of the content area and won't be scrolled when content's size is bigger than the content area's size.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" since="1.15.1" type="sap.m/IBar" name="customHeader">
+            <documentation>CustomHeader is only supported in theme sap_bluecrystal. When it's set, the icon, title and showHeader are properties ignored. Only the customHeader is shown as the header of the dialog.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" since="1.15.1" type="sap.m/Button" name="beginButton">
+            <documentation>The button which is rendered to the left side (right side in RTL mode) of the endButton in the footer area inside the dialog. From UI5 version 1.21.1, there's a new aggregation &quot;buttons&quot; created with which more than 2 buttons can be added to the footer area of dialog. If the new &quot;buttons&quot; aggregation is set, any change made to this aggregation has no effect anymore. When runs on the phone, this button (and the endButton together when set) is (are) rendered at the center of the footer area. When runs on the other platforms, this button (and the endButton together when set) is (are) rendered at the right side (left side in RTL mode) of the footer area.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" since="1.15.1" type="sap.m/Button" name="endButton">
+            <documentation>The button which is rendered to the right side (left side in RTL mode) of the beginButton in the footer area inside the dialog. From UI5 version 1.21.1, there's a new aggregation &quot;buttons&quot; created with which more than 2 buttons can be added to the footer area of dialog. If the new &quot;buttons&quot; aggregation is set, any change made to this aggregation has no effect anymore. When runs on the phone, this button (and the beginButton together when set) is (are) rendered at the center of the footer area. When runs on the other platforms, this button (and the beginButton together when set) is (are) rendered at the right side (left side in RTL mode) of the footer area.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" since="1.21.1" type="sap.m/Button" name="buttons">
+            <documentation>Buttons can be added to the footer area of dialog through this aggregation. When this aggregation is set, any change to beginButton and endButton has no effect anymore. Buttons which are inside this aggregation are aligned at the right side (left side in RTL mode) of the footer instead of in the middle of the footer.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_header">
+            <documentation>The hidden aggregation for internal maintained header.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_title">
+            <documentation>The hidden aggregation for internal maintained title control.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_icon">
+            <documentation>The hidden aggregation for internal maintained icon control.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.m/OverflowToolbar" name="_toolbar">
+            <documentation>The hidden aggregation for internal maintained toolbar instance</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.m/Button" name="leftButton">
+            <documentation>LeftButton is shown at the left edge of the bar in iOS, and at the right side of the bar for the other platforms. Please set this to null if you want to remove the left button from the bar. And the button is only removed from the bar, not destroyed. When showHeader is set to false, this property will be ignored. Setting leftButton will also set the beginButton internally.</documentation>
+            <deprecation since="1.15.1">LeftButton has been deprecated since 1.15.1. Please use the beginButton instead which is more RTL friendly.</deprecation>
+        </association>
+        <association cardinality="0..1" type="sap.m/Button" name="rightButton">
+            <documentation>RightButton is always shown at the right edge of the bar. Please set this to null if you want to remove the right button from the bar. And the button is only removed from the bar, not destroyed. When showHeader is set to false, this property will be ignored. Setting rightButton will also set the endButton internally.</documentation>
+            <deprecation since="1.15.1">RightButton has been deprecated since 1.15.1. Please use the endButton instead which is more RTL friendly.</deprecation>
+        </association>
+        <association since="1.15.0" cardinality="0..1" type="sap.ui.core/Control" name="initialFocus">
+            <documentation>Focus is set to the dialog in the sequence of leftButton and rightButton when available. But if some other control needs to get the focus other than one of those two buttons, set the initialFocus with the control which should be focused on. Setting initialFocus to input controls doesn't open the on screen keyboard on mobile device, this is due to the browser limitation that the on screen keyboard can't be opened with javascript code. The opening of on screen keyboard must be triggered by real user action.</documentation>
+        </association>
+        <association cardinality="0..n" type="sap.ui.core/Control" name="ariaDescribedBy">
+            <documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</documentation>
+        </association>
+    </associations>
+    <methods>
+        <method name="open">
+            <documentation>Open the dialog.</documentation>
+        </method>
+        <method name="close">
+            <documentation>Close the dialog.</documentation>
+        </method>
+        <method since="1.9.1" name="isOpen">
+            <documentation>The method checks if the Dialog is open. It returns true when the Dialog is currently open (this includes opening and closing animations), otherwise it returns false.</documentation>
+        </method>
+    </methods>
+</control>

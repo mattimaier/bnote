@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SearchProvider</name>
+    <derived/>
+    <documentation>A SearchProvider which can be attached to a Search Field.</documentation>
+    <deprecation since="1.6.0">Replaced by sap.ui.core.search.OpenSearchProvider</deprecation>
+    <baseType>sap.ui.core/search/OpenSearchProvider</baseType>
+</control>

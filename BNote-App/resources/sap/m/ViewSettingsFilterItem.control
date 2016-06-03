@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ViewSettingsFilterItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A ViewSettingsFilterItem control is used for modelling filter behaviour in the ViewSettingsDialog.
+It is derived from a core Item, but does not support the base class properties like textDirection and enabled.
+Setting these properties will not have any effects.</documentation>
+    <since>1.16</since>
+    <baseType>sap.m/ViewSettingsItem</baseType>
+    <properties>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="multiSelect">
+            <documentation>If set to (true), multi selection will be allowed for the items aggregation.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="filterDetailItemsAggregationChange">
+            <documentation>Let the outside world know that the filter detail aggregation was changed.</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation bindable="bindable" cardinality="0..n" type="sap.m/ViewSettingsItem" name="items">
+            <documentation>Items that are logically grouped under this filter item. They are used to display filter details in the ViewSettingsDialog.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

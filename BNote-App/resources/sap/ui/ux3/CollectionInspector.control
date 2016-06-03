@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>CollectionInspector</name>
+    <derived/>
+    <documentation>CollectionInspector</documentation>
+    <since>1.9.0</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="sidebarVisible">
+            <documentation>Defines if the list of collection items is visible on the left</documentation>
+        </property>
+        <property group="Appearance" defaultValue="true" type="sap.ui.core/boolean" name="fitParent">
+            <documentation>If set to true, control will fit parents content area</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="collectionSelected">
+            <documentation>Event is fired if user selects a collection</documentation>
+        </event>
+        <event allowPreventDefault="false" name="itemSelectionChanged">
+            <documentation>Fires when an item in a collection is selected</documentation>
+        </event>
+        <event allowPreventDefault="false" name="editCollection">
+            <documentation>Fires when the edit button is clicked</documentation>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.ux3/Collection" name="collections">
+            <documentation>Collections which are displayed in the COllectionInspector</documentation>
+        </aggregation>
+        <aggregation cardinality="0..n" type="sap.ui.core/Control" name="content">
+            <documentation>All controls that are currently displayed</documentation>
+        </aggregation>
+    </aggregations>
+    <associations>
+        <association cardinality="0..1" type="sap.ui.ux3/Collection" name="selectedCollection">
+            <documentation>Collection which is currently selected</documentation>
+        </association>
+    </associations>
+</control>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectListItem</name>
+    <derived/>
+    <documentation>ObjectListItem is a display control that provides summary information about an object as a list item. The ObjectListItem title is the key identifier of the object. Additional text and icons can be used to further distinguish it from other objects. Attributes and statuses can be used to provide additional meaning about the object to the user.</documentation>
+    <since>1.12</since>
+    <baseType>sap.m/ListItemBase</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="title">
+            <documentation>Defines the ObjectListItem title.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="number">
+            <documentation>Defines the ObjectListItem number.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="numberUnit">
+            <documentation>Defines the number units qualifier of the ObjectListItem.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="intro">
+            <documentation>Defines the introductory text for the ObjectListItem.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="icon">
+            <documentation>ObjectListItem icon displayed to the left of the title.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="activeIcon">
+            <documentation>Icon displayed when the ObjectListItem is active.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="iconDensityAware">
+            <documentation>By default, this is set to true but then one or more requests are sent trying to get the density perfect version of image (in case this version of image dоesn't exist on the server).
+
+If bandwidth is key for the application, set this value to false.</documentation>
+        </property>
+        <property since="1.16.0" group="Misc" type="sap.ui.core/boolean" name="markFavorite">
+            <documentation>Sets the favorite state for the ObjectListItem.</documentation>
+        </property>
+        <property since="1.16.0" group="Misc" type="sap.ui.core/boolean" name="markFlagged">
+            <documentation>Sets the flagged state for the ObjectListItem.</documentation>
+        </property>
+        <property since="1.16.0" group="Misc" type="sap.ui.core/boolean" name="showMarkers">
+            <documentation>If set to true, the ObjectListItem can be marked with icons such as favorite and flag.</documentation>
+        </property>
+        <property since="1.16.0" group="Misc" defaultValue="None" type="sap.ui.core/ValueState" name="numberState">
+            <documentation>Defines the ObjectListItem number and numberUnit value state.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="titleTextDirection">
+            <documentation>Determines the text direction of the item title.
+Available options for the title direction are LTR (left-to-right) and RTL (right-to-left).
+By default the item title inherits the text direction from its parent.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="introTextDirection">
+            <documentation>Determines the text direction of the item intro.
+Available options for the intro direction are LTR (left-to-right) and RTL (right-to-left).
+By default the item intro inherits the text direction from its parent.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="numberTextDirection">
+            <documentation>Determines the text direction of the item number.
+Available options for the number direction are LTR (left-to-right) and RTL (right-to-left).
+By default the item number inherits the text direction from its parent.</documentation>
+        </property>
+        <property since="1.28" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="markLocked">
+            <documentation>Sets the locked state of the ObjectListItem.</documentation>
+        </property>
+    </properties>
+    <aggregations default="attributes">
+        <aggregation cardinality="0..n" type="sap.m/ObjectAttribute" name="attributes">
+            <documentation>List of attributes displayed below the title to the left of the status fields.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.m/ObjectStatus" name="firstStatus">
+            <documentation>First status text field displayed on the right side of the attributes.</documentation>
+        </aggregation>
+        <aggregation cardinality="0..1" type="sap.m/ObjectStatus" name="secondStatus">
+            <documentation>Second status text field displayed on the right side of the attributes.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

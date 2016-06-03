@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>P13nItem</name>
+    <derived/>
+    <documentation>Base type for &lt;code&gt;items&lt;/code&gt; aggregation in P13nPanel control.</documentation>
+    <since>1.26.0</since>
+    <baseType>sap.ui.core/Element</baseType>
+    <properties>
+        <property since="1.26.0" group="Data" type="sap.ui.core/string" name="columnKey">
+            <documentation>Can be used as input for subsequent actions.</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" defaultValue="" type="sap.ui.core/string" name="text">
+            <documentation>The text to be displayed for the item.</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/boolean" name="visible">
+            <documentation>Defines visibility of column</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" defaultValue="text" type="sap.ui.core/string" name="type">
+            <documentation>data type of the column (text, numeric or date is supported)</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/string" name="precision">
+            <documentation>if type==numeric the precision will be used to format the entered value (maxIntegerDigits of the used Formatter)</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/string" name="scale">
+            <documentation>if type==numeric the scale will be used to format the entered value (maxFractionDigits of the used Formatter)</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/string" name="maxLength">
+            <documentation>specifies the number of characters which can be entered in the value fields of the condition panel</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" type="sap.ui.core/string" name="width">
+            <documentation>Defines column width</documentation>
+        </property>
+        <property since="1.26.0" group="Misc" defaultValue="false" type="sap.ui.core/boolean" name="isDefault">
+            <documentation>the column with isDefault==true will be used as the selected column item on the conditionPanel</documentation>
+        </property>
+        <property since="1.34.0" group="Misc" type="sap.ui.core/string[]" name="values">
+            <documentation>the array of values for type bool. e.g. [&quot;&quot;, &quot;Off&quot;, &quot;On&quot;]. The first entry can be empty (used to blank the value field). Next value
+represent the false value, last entry the true value.</documentation>
+        </property>
+        <property since="1.34.0" type="sap.ui.core/string" name="role">
+            <documentation>Defines role. The role is reflected in the manner how the dimension will influence the chart layout.</documentation>
+        </property>
+        <property since="1.34.0" type="sap.ui.core/string" name="aggregationRole">
+            <documentation>Defines aggregation role</documentation>
+        </property>
+    </properties>
+</control>

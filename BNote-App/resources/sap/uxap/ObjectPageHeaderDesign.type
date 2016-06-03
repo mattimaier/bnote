@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectPageHeaderDesign</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Used by the ObjectPageHeader control to define which design to use.</documentation>
+    <enumeration>
+        <value name="Light">
+            <documentation>Light theme for the ObjectPageHeader.</documentation>
+        </value>
+        <value name="Dark">
+            <documentation>Dark theme for the ObjectPageHeader.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

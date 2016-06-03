@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectPageHeaderActionButton</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Button that can be used in the ObjectPageHeader action aggregation.</documentation>
+    <since>1.26</since>
+    <baseType>sap.m/Button</baseType>
+    <properties>
+        <property defaultValue="true" type="sap.ui.core/boolean" name="hideText">
+            <documentation>Hide the button text when rendered into the headerTitle part of the ObjectPageLayout.
+This is useful if you want to display icons only in the headerTitle part but still want to display text + icon in the actionSheet that appears when not enough space is available on the screen for displaying all actions.</documentation>
+        </property>
+        <property defaultValue="false" type="sap.ui.core/boolean" name="hideIcon">
+            <documentation>Hide the button icon when rendered into the headerTitle part of the ObjectPageLayout.
+This is useful if you want to display texts only in the headerTitle part but still want to display text + icon in the actionSheet that appears when not enough space is available on the screen for displaying all actions.</documentation>
+        </property>
+        <property since="1.34.0" group="Behavior" defaultValue="High" type="sap.uxap/Importance" name="importance">
+            <documentation>Determines the order in which the button overflows.</documentation>
+        </property>
+    </properties>
+</control>

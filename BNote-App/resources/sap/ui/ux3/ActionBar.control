@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ActionBar</name>
+    <derived/>
+    <documentation>A special toolbar with predefined social actions which can be shown as needed. These are: Create an update (Feed), Follow, Mark for Follow Up, Mark as Favorite and Open Thing.
+
+In addition business actions (ThingAction instances) can be added which are either displayed as MenuItems of the 'More' menu button or as individual tool bar buttons.
+
+When using this control, please be aware that it fulfills rather specific requirements: it has been designed for and is used within composite controls QuickView and ThingInspector.</documentation>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" defaultValue="Default" type="sap.ui.ux3/FollowActionState" name="followState">
+            <documentation>Keeps track of the actionBars Follow/Unfollow button’s state. Its value is one of
+- FollowActionState.Default
+- FollowActionState.Follow
+- FollowActionState.Hold</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/boolean" name="flagState">
+            <documentation>Indicates whether “Mark for Follow Up” is active</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/boolean" name="favoriteState">
+            <documentation>Indicates whether “Favorite” is active</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/boolean" name="updateState">
+            <documentation>Indicates whether “Update” is active</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/URI" name="thingIconURI">
+            <documentation>The thing icon uri. Icon will be displayed in Feeder</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="alwaysShowMoreMenu">
+            <documentation>If true, business actions are rendered as menu items of the 'More' menu button. Otherwise, 'More' menu button is only displayed for overflow and business actions are rendered as inidividual buttons.</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="showUpdate">
+            <documentation>Indicates whether social action “Update” is shown, default is ‘true’</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="showFollow">
+            <documentation>Indicates whether social action “Follow” is shown, default is ‘true’</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="showFlag">
+            <documentation>Indicates whether social action “Mark for Follow Up” is shown, default is ‘true’</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="showFavorite">
+            <documentation>Indicates whether social action “Favorite” is shown, default is ‘true’</documentation>
+        </property>
+        <property group="Misc" defaultValue="true" type="sap.ui.core/boolean" name="showOpen">
+            <documentation>Indicates whether social action “Open” is shown, default is ‘true’</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/CSSSize" name="dividerWidth">
+            <documentation>The minimum width of ActionBar's the social actions part: business action controls have to be rendered outside this area</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="actionSelected">
+            <documentation>Fired when any of the social action’s toolbar buttons except ‘Update’ or any of the business action’s menu items resp. buttons is pressed. The selected action can be identified by its id and newState (the latter if applicable only)
+‘Follow’ button + menu: id: follow, newState: Follow/Hold/Default
+‘Mark for follow up’ button: id: flag, newState: true/false
+‘Favorite’ button: id: favorite, newState: true/false
+‘Open Thing Inspector’ button id: open
+Business Actions: id: the ThingAction id
+
+For ‘Update’, please refer to event ‘feedSubmit’</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="id">
+                    <documentation>Id of selected ThingAction</documentation>
+                </parameter>
+                <parameter type="sap.ui.ux3/ThingAction" name="action">
+                    <documentation>Selected ThingAction</documentation>
+                </parameter>
+                <parameter type="sap.ui.core/string" name="newState">
+                    <documentation>New State of the selected action.Only filled if the respective action maintains a state property, for example 'FollowUp' or 'Favorite'</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" name="feedSubmit">
+            <documentation>Fired when a new feed entry is submitted.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="text">
+                    <documentation>Feed text</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..n" type="sap.ui.ux3/ThingAction" name="businessActions">
+            <documentation>Displayed on the actionBar's right hand-side, either as menu item under 'More' or as individual buttons</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.commons/Button" name="_businessActionButtons">
+            <documentation>Buttons for the business actions - managed by this ActionBar</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..n" type="sap.ui.ux3/ThingAction" name="_socialActions">
+            <documentation>The social actions which are managed by this ActionBar</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method type="sap.ui.core/void" name="closePopups">
+            <documentation>Closes all popups which might be opened as ActionBar children
+These are the more- and follow menu and the feeder popup</documentation>
+        </method>
+    </methods>
+</control>

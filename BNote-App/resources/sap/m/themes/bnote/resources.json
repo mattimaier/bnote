@@ -1,0 +1,589 @@
+{
+  "_version": "1.1.0",
+  "resources": [
+    {
+      "name": ".theming",
+      "theme": "bnote"
+    },
+    {
+      "name": "ActionListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ActionSheet.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "App.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Bar.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "BarBase.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Breadcrumbs.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "BusyDialog.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Button.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Carousel.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "CheckBox.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ColumnListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ComboBox.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ComboBoxBase.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ComboBoxTextField.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "CustomListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "CustomTile.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "DatePicker.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "DateRangeSelection.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "DateTimeInput.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Dialog.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "DisplayListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "FacetFilter.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "FacetFilterItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "FacetFilterList.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "FeedContent.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "FeedInput.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "FeedListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "FlexBox.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "GenericTile.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "GroupHeaderListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "GrowingList.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "IconTabBar.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Image.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Input.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "InputBase.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "InputListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Label.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Link.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "List.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ListBase.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ListItemBase.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "List_noFlex.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "MaskInput.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "MessageBox.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "MessagePage.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "MessagePopover.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "MessageStrip.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "MessageToast.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "MultiComboBox.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "MultiInput.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "NewsContent.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "NotificationListGroup.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "NotificationListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "NumericContent.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ObjectAttribute.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ObjectHeader.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ObjectIdentifier.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ObjectListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ObjectNumber.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ObjectStatus.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "OverflowToolbarAssociativePopover.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "P13nColumnsPanel.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Page.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Panel.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "PlanningCalendar.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Popover.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ProgressIndicator.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "PullToRefresh.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "QuickView.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "RadioButton.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "RadioButtonGroup.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "RatingIndicator.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ResponsivePopover.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "SearchField.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "SegmentedButton.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Select.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "SelectDialog.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "SelectList.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Shell.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "SlideTile.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Slider.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "SplitContainer.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "StandardListItem.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "StandardTile.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Switch.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "TabContainer.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "TabStrip.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "TabStripSelect.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "TabStripSelectList.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Table.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "TablePersoDialog.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Text.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "TextArea.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Tile.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "TileContainer.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "TileContent.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "TimePicker.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Title.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ToggleButton.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Token.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Toolbar.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ToolbarSeparator.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "UploadCollection.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "ViewSettingsDialog.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "Wizard.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "WizardProgressNavigator.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "WizardStep.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "img-RTL/sap_inset.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "img/sap_inset.png",
+      "theme": "bnote"
+    },
+    {
+      "name": "library-RTL-dbg.css",
+      "isDebug": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "library-RTL.css",
+      "theme": "bnote"
+    },
+    {
+      "name": "library-dbg.css",
+      "isDebug": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "library-parameters.json",
+      "theme": "bnote"
+    },
+    {
+      "name": "library.css",
+      "theme": "bnote"
+    },
+    {
+      "name": "library.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "library.source.less",
+      "designtime": true,
+      "theme": "bnote"
+    },
+    {
+      "name": "shared.less",
+      "designtime": true,
+      "theme": "bnote"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>form/GridElementCells</name>
+    <derived/>
+    <documentation>A string that defines the number of used cells in a &lt;code&gt;GridLayout&lt;/code&gt;. This can be a number from 1 to 16, &quot;auto&quot; or &quot;full&quot;.
+If set to &quot;auto&quot; the size is determined by the number of fields and the available cells. For labels the auto size is 3 cells.
+If set to &quot;full&quot; only one field is allowed within the &lt;code&gt;FormElement&lt;/code&gt;. It gets the full width of the row and the label is displayed above. &lt;b&gt;Note:&lt;/b&gt; For labels full size has no effect.</documentation>
+    <pattern>auto|full|([1-9]|1[0-6])</pattern>
+</simple-type>

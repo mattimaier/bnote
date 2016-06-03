@@ -1,0 +1,6 @@
+{
+  "sEntity" : "Theme",
+  "sId" : "bnote",
+  "oExtends" : "UI5.sap/m.base",
+  "sVendor" : "Stefan Kreminski und Matti Maier BNote Software GbR"
+}

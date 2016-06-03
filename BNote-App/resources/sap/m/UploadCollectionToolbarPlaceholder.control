@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>UploadCollectionToolbarPlaceholder</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>This control needs to be used when you would like to create a customizable toolbar for the UploadCollection. Always a FileUploader instance is
+required in the toolbar, the FileUploader will be placed in the position defined by the application.</documentation>
+    <since>1.34</since>
+    <baseType>sap.ui.core/Control</baseType>
+</control>

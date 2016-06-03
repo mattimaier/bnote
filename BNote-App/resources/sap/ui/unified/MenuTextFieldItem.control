@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>MenuTextFieldItem</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Special menu item which contains a label and a text field. This menu item is e.g. helpful for filter implementations.
+The aggregation &lt;code&gt;submenu&lt;/code&gt; (inherited from parent class) is not supported for this type of menu item.</documentation>
+    <since>1.21.0</since>
+    <baseType>sap.ui.unified/MenuItemBase</baseType>
+    <properties>
+        <property group="Appearance" type="sap.ui.core/string" name="label">
+            <documentation>Defines the label of the text field of the item.</documentation>
+        </property>
+        <property group="Appearance" type="sap.ui.core/URI" name="icon">
+            <documentation>Defines the icon of the {@link sap.ui.core.IconPool sap.ui.core.IconPool} or an image which should be displayed on the item.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="value">
+            <documentation>Defines the value of the text field of the item.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="None" type="sap.ui.core/ValueState" name="valueState">
+            <documentation>Defines the value state of the text field of the item. This allows you to visualize e.g. warnings or errors.</documentation>
+        </property>
+    </properties>
+</control>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>AnalyticalColumnMenu</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>A column menu which is used by the analytical column</documentation>
+    <developmentState since="1.21" state="experimental">The AnalyticalColumnMenu will be productized soon.</developmentState>
+    <baseType>sap.ui.table/ColumnMenu</baseType>
+</control>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<simple-type xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>SelectionMode</name>
+    <derived/>
+    <documentation>Selection mode of the tree</documentation>
+    <enumeration>
+        <value name="Multi">
+            <documentation>Select multiple overlays at a time.</documentation>
+        </value>
+        <value name="Single">
+            <documentation>Select one overlay at a time.</documentation>
+        </value>
+    </enumeration>
+</simple-type>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>ObjectAttribute</name>
+    <derived/>
+    <documentation>The ObjectAttribute control displays a text field that can be normal or active. The ObjectAttribute fires a press event when the user selects active text.</documentation>
+    <since>1.12</since>
+    <baseType>sap.ui.core/Control</baseType>
+    <properties>
+        <property group="Misc" type="sap.ui.core/string" name="title">
+            <documentation>Defines the ObjectAttribute title.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="text">
+            <documentation>Defines the ObjectAttribute text.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/boolean" name="active">
+            <documentation>Indicates if the ObjectAttribute text is selectable for the user.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="Inherit" type="sap.ui.core/TextDirection" name="textDirection">
+            <documentation>Determines the direction of the text, not including the title.
+Available options for the text direction are LTR (left-to-right) and RTL (right-to-left). By default the control inherits the text direction from its parent control.</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="press">
+            <documentation>Fires when the user clicks on active text.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="domRef">
+                    <documentation>DOM reference of the ObjectAttribute's text to be used for positioning.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations>
+        <aggregation cardinality="0..1" type="sap.ui.core/Control" name="customContent">
+            <documentation>When the aggregation is set, it replaces the text, active and textDirection properties. This also ignores the press event. The provided control is displayed as an active link.
+&lt;b&gt;Note:&lt;/b&gt; It will only allow sap.m.Text and sap.m.Link controls.</documentation>
+        </aggregation>
+        <aggregation visibility="hidden" cardinality="0..1" type="sap.ui.core/Control" name="_textControl">
+            <documentation>Text control to display title and text property.</documentation>
+        </aggregation>
+    </aggregations>
+</control>

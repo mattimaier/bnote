@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<control xmlns="http://www.sap.com/sap.ui.library.xsd">
+    <name>Input</name>
+    <derived/>
+    <author>SAP SE</author>
+    <documentation>Enables users to input data.</documentation>
+    <baseType>sap.m/InputBase</baseType>
+    <properties>
+        <property group="Data" defaultValue="Text" type="sap.m/InputType" name="type">
+            <documentation>HTML type of the internal &lt;code&gt;input&lt;/code&gt; tag (e.g. Text, Number, Email, Phone).
+The particular effect of this property differs depending on the browser and the current language settings,
+especially for the type Number.&lt;br&gt;
+This parameter is intended to be used with touch devices that use different soft keyboard layouts depending on the given input type.&lt;br&gt;
+Only the default value &lt;code&gt;sap.m.InputType.Text&lt;/code&gt; may be used in combination with data model formats.
+&lt;code&gt;sap.ui.model&lt;/code&gt; defines extended formats that are mostly incompatible with normal HTML
+representations for numbers and dates.</documentation>
+        </property>
+        <property group="Behavior" defaultValue="0" type="sap.ui.core/int" name="maxLength">
+            <documentation>Maximum number of characters. Value '0' means the feature is switched off.
+This parameter is not compatible with the input type &lt;code&gt;sap.m.InputType.Number&lt;/code&gt;.
+If the input type is set to &lt;code&gt;Number&lt;/code&gt;, the &lt;code&gt;maxLength&lt;/code&gt; value is ignored.</documentation>
+        </property>
+        <property group="Misc" defaultValue="YYYY-MM-dd" type="sap.ui.core/string" name="dateFormat">
+            <documentation>Only used if type=date and no datepicker is available.
+The data is displayed and the user input is parsed according to this format.
+NOTE: The value property is always of the form RFC 3339 (YYYY-MM-dd).</documentation>
+            <deprecation since="1.9.1">sap.m.DateTimeInput should be used for date/time inputs and formating.</deprecation>
+        </property>
+        <property since="1.16" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="showValueHelp">
+            <documentation>If set to true, a value help indicator will be displayed inside the control. When clicked the event &quot;valueHelpRequest&quot; will be fired.</documentation>
+        </property>
+        <property since="1.16.1" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="showSuggestion">
+            <documentation>If this is set to true, suggest event is fired when user types in the input. Changing the suggestItems aggregation in suggest event listener will show suggestions within a popup. When runs on phone, input will first open a dialog where the input and suggestions are shown. When runs on a tablet, the suggestions are shown in a popup next to the input.</documentation>
+        </property>
+        <property since="1.21.0" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="valueHelpOnly">
+            <documentation>If set to true, direct text input is disabled and the control will trigger the event &quot;valueHelpRequest&quot; for all user interactions. The properties &quot;showValueHelp&quot;, &quot;editable&quot;, and &quot;enabled&quot; must be set to true, otherwise the property will have no effect</documentation>
+        </property>
+        <property group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="filterSuggests">
+            <documentation>Defines whether to filter the provided suggestions before showing them to the user.</documentation>
+        </property>
+        <property since="1.21.1" group="Appearance" type="sap.ui.core/CSSSize" name="maxSuggestionWidth">
+            <documentation>If set, the value of this parameter will control the horizontal size of the suggestion list to display more data. This allows suggestion lists to be wider than the input field if there is enough space available. By default, the suggestion list is always as wide as the input field.
+Note: The value will be ignored if the actual width of the input field is larger than the specified parameter value.</documentation>
+        </property>
+        <property since="1.21.2" group="Behavior" defaultValue="1" type="sap.ui.core/int" name="startSuggestion">
+            <documentation>Minimum length of the entered text in input before suggest event is fired. The default value is 1 which means the suggest event is fired after user types in input. When it's set to 0, suggest event is fired when input with no text gets focus.</documentation>
+        </property>
+        <property since="1.22.1" group="Behavior" defaultValue="true" type="sap.ui.core/boolean" name="showTableSuggestionValueHelp">
+            <documentation>For tabular suggestions, this flag will show/hide the button at the end of the suggestion table that triggers the event &quot;valueHelpRequest&quot; when pressed. The default value is true.
+
+NOTE: If suggestions are not tabular or no suggestions are used, the button will not be displayed and this flag is without effect.</documentation>
+        </property>
+        <property group="Misc" type="sap.ui.core/string" name="description">
+            <documentation>The description is a text after the input field, e.g. units of measurement, currencies.</documentation>
+        </property>
+        <property group="Appearance" defaultValue="50%" type="sap.ui.core/CSSSize" name="fieldWidth">
+            <documentation>This property only takes effect if the description property is set. It controls the distribution of space between the input field and the description text. The default value is 50% leaving the other 50% for the description.</documentation>
+        </property>
+        <property since="1.24" group="Behavior" defaultValue="false" type="sap.ui.core/boolean" name="valueLiveUpdate">
+            <documentation>Indicates when the value gets updated with the user changes: At each keystroke (true) or first when the user presses enter or tabs out (false).</documentation>
+        </property>
+    </properties>
+    <events>
+        <event allowPreventDefault="false" name="liveChange">
+            <documentation>This event is fired when the value of the input is changed - e.g. at each keypress</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="value">
+                    <documentation>The new value of the input.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.16" name="valueHelpRequest">
+            <documentation>When the value help indicator is clicked, this event will be fired.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/boolean" name="fromSuggestions">
+                    <documentation>The event parameter is set to true, when the button at the end of the suggestion table is clicked, otherwise false. It can be used to determine whether the &quot;value help&quot; trigger or the &quot;show all items&quot; trigger has been pressed.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.16.1" name="suggest">
+            <documentation>This event is fired when user types in the input and showSuggestion is set to true. Changing the suggestItems aggregation will show the suggestions within a popup.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="suggestValue">
+                    <documentation>The current value which has been typed in the input.</documentation>
+                </parameter>
+                <parameter type="sap.m/ListBase" name="suggestionColumns">
+                    <documentation>The suggestion list is passed to this event for convenience. If you use list-based or tabular suggestions, fill the suggestionList with the items you want to suggest. Otherwise, directly add the suggestions to the &quot;suggestionItems&quot; aggregation of the input control.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.16.3" name="suggestionItemSelected">
+            <documentation>This event is fired when suggestionItem shown in suggestion popup are selected. This event is only fired when showSuggestion is set to true and there are suggestionItems shown in the suggestion popup.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/Item" name="selectedItem">
+                    <documentation>This is the item selected in the suggestion popup for one and two-value suggestions. For tabular suggestions, this value will not be set.</documentation>
+                </parameter>
+                <parameter since="1.21.1" type="sap.m/ColumnListItem" name="selectedRow">
+                    <documentation>This is the row selected in the tabular suggestion popup represented as a ColumnListItem. For one and two-value suggestions, this value will not be set.
+
+Note: The row result function to select a result value for the string is already executed at this time. To pick different value for the input field or to do follow up steps after the item has been selected.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+        <event allowPreventDefault="false" since="1.33.0" name="submit">
+            <documentation>This event is fired when user presses the &lt;code&gt;Enter&lt;/code&gt; key on the input.
+
+&lt;b&gt;Note:&lt;/b&gt;
+The event is fired independent of whether there was a change before or not. If a change was performed the event is fired after the change event.
+The event is also fired when an item of the select list is selected via &lt;code&gt;Enter&lt;/code&gt;.
+The event is only fired on an input which allows text input (&lt;code&gt;editable&lt;/code&gt;, &lt;code&gt;enabled&lt;/code&gt; and not &lt;code&gt;valueHelpOnly&lt;/code&gt;).</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/string" name="value">
+                    <documentation>The new value of the input.</documentation>
+                </parameter>
+            </parameters>
+        </event>
+    </events>
+    <aggregations default="suggestionItems">
+        <aggregation cardinality="0..n" since="1.16.1" type="sap.ui.core/Item" name="suggestionItems">
+            <documentation>SuggestItems are the items which will be shown in the suggestion popup. Changing this aggregation (by calling addSuggestionItem, insertSuggestionItem, removeSuggestionItem, removeAllSuggestionItems, destroySuggestionItems) after input is rendered will open/close the suggestion popup. o display suggestions with two text values, it is also possible to add sap.ui.core/ListItems as SuggestionItems (since 1.21.1). For the selected ListItem, only the first value is returned to the input field.</documentation>
+        </aggregation>
+        <aggregation bindable="bindable" cardinality="0..n" since="1.21.1" type="sap.m/Column" name="suggestionColumns">
+            <documentation>The suggestionColumns and suggestionRows are for tabular input suggestions. This aggregation allows for binding the table columns; for more details see the aggregation &quot;suggestionRows&quot;.</documentation>
+        </aggregation>
+        <aggregation bindable="bindable" cardinality="0..n" since="1.21.1" type="sap.m/ColumnListItem" name="suggestionRows">
+            <documentation>The suggestionColumns and suggestionRows are for tabular input suggestions. This aggregation allows for binding the table cells.
+The items of this aggregation are to be bound directly or to set in the suggest event method.
+Note: If this aggregation is filled, the aggregation suggestionItems will be ignored.</documentation>
+        </aggregation>
+    </aggregations>
+    <methods>
+        <method since="1.16.1" type="sap.m/Input" name="setFilterFunction">
+            <documentation>Sets a custom filter function for suggestions. The default is to check whether the first item text begins with the typed value. For one and two-value suggestions this callback function will operate on sap.ui.core.Item types, for tabular suggestions the function will operate on sap.m.ColumnListItem types.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/any" name="filter">
+                    <documentation>The filter function is called when displaying suggestion items and has two input parameters: the first one is the string that is currently typed in the input field and the second one is the item that is being filtered. Returning true will add this item to the popup, returning false will not display it.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+        <method since="1.21.1" type="sap.m/Input" name="setRowResultFunction">
+            <documentation>Sets a custom result filter function for tabular suggestions to select the text that is passed to the input field. Default is to check whether the first cell with a &quot;text&quot; property begins with the typed value. For one value and two-value suggestions this callback function is not called.</documentation>
+            <parameters>
+                <parameter type="sap.ui.core/any" name="filter">
+                    <documentation>The result function is called with one parameter: the sap.m.ColumnListItem that is selected. The function must return a result string that will be displayed as the input field's value.</documentation>
+                </parameter>
+            </parameters>
+        </method>
+    </methods>
+</control>
