@@ -43,7 +43,7 @@ sap.ui.jsview("bnote.login", {
 			alignItems: sap.m.FlexAlignItems.Center,
 			items: [bnoteImg]
 		});
-		logo_layout.addStyleClass("bnote_logo")
+		logo_layout.addStyleClass("bnote_logo");
 		
 		var page = new sap.m.Page("LoginPage", {
             title: "Login",
