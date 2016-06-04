@@ -238,12 +238,12 @@ class TourView extends CrudView {
 	
 	// --- CHECKLIST ---
 	function tab_checklist() {
-		
+		//TODO add a reference to tasks like to rehearsals and concerts
 	}
 	
 	// --- EQUIPMENT ---
 	function tab_equipment() {
-		//TODO implement equipment tab --> use submodule?
+		//TODO add a reference to equipment like to contacts --> only remove reference, not the equipment itself
 	}
 	
 	function summarySheet() {
@@ -270,6 +270,11 @@ class TourView extends CrudView {
 	
 	function summarySheetOptions() {
 		$this->backToViewButton($_GET[$this->idParameter]);
+		$this->buttonSpace();
+		
+		$prt = new Link("javascript:window.print()", Lang::txt("print"));
+		$prt->addIcon("printer");
+		$prt->write();
 	}
 }
 

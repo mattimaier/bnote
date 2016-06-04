@@ -74,6 +74,7 @@ class Translation extends BNoteTranslation {
 			"phone" => "Telefon",
 			"mobile" => "Mobil",
 			"birthday" => "Geburtstag",
+			"print" => "Drucken",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",
