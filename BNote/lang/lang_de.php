@@ -329,6 +329,12 @@ class Translation extends BNoteTranslation {
 			"tour_concert_approve_until" => "Teilnahme angeben bis",
 			"tour_summary_show_checklist" => "Checkliste anzeigen",
 			"tour_summary_hide_checklist" => "Checkliste ausblenden",
+			"tour_add_equipment" => "Equipment hinzufügen",
+			"add_equipment_form_title" => "Tour-Equipment",
+			"tour_equipment_general_notes" => "Equipment Beschreibung",
+			"tour_equipment_notes" => "Notizen für die Tour",
+			"tour_equipment_saved" => "Equipment gespeichert",
+			"tour_equipment_saved_msg" => "Die Equipmentliste für die Tour wurde gespeichert."
 	);
 	
 	protected $regex = array(

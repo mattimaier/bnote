@@ -16,4 +16,8 @@
 	#content_insets {
 		margin: 0px;
 	}
+	
+	.pagebreak {
+		page-break-before: always;
+	}
 }

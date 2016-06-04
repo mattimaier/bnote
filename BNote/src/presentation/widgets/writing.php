@@ -7,40 +7,48 @@
  */
 class Writing {
 	
-	private static function createOutput($caption, $level) {
-		return "<h" . $level . ">" . $caption . "</h" . $level . ">\n"; 
+	private static function createOutput($caption, $level, $css_classes="") {
+		$css = "";
+		if($css_classes != "") {
+			$css = ' class="' . $css_classes . '"'; 
+		}
+		return "<h" . $level . $css . ">" . $caption . "</h" . $level . ">\n"; 
 	}
 	
 	/**
 	 * Convenience method to print an h1.
 	 * @param String $caption Content/text of the header.
+	 * @param String $css_classes CSS classes that can be added to the header
 	 */
-	public static function h1($caption) {
-		echo Writing::createOutput($caption, 1);
+	public static function h1($caption, $css_classes="") {
+		echo Writing::createOutput($caption, 1, $css_classes);
 	}
 	
 	/**
 	 * Convenience method to print an h2.
 	 * @param String $caption Content/text of the header.
+	 * @param String $css_classes CSS classes that can be added to the header
 	 */
-	public static function h2($caption) {
-		echo Writing::createOutput($caption, 2);
+	public static function h2($caption, $css_classes="") {
+		echo Writing::createOutput($caption, 2, $css_classes);
 	}
 	
 	/**
 	 * Convenience method to print an h3.
 	 * @param String $caption Content/text of the header.
+	 * @param String $css_classes CSS classes that can be added to the header
 	 */
-	public static function h3($caption) {
-		echo Writing::createOutput($caption, 3);
+	public static function h3($caption, $css_classes="") {
+		echo Writing::createOutput($caption, 3, $css_classes);
 	}
 	
 	/**
 	 * Convenience method to print an h4.
 	 * @param String $caption Content/text of the header.
+	 * @param String $css_classes CSS classes that can be added to the header
 	 */
-	public static function h4($caption) {
-		echo Writing::createOutput($caption, 4);
+	public static function h4($caption, $css_classes="") {
+		echo Writing::createOutput($caption, 4, $css_classes);
 	}
 	
 	/**

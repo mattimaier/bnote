@@ -298,12 +298,79 @@ class TourView extends CrudView {
 	
 	// --- EQUIPMENT ---
 	function tab_equipment() {
-		//TODO add a reference to equipment like to contacts --> only remove reference, not the equipment itself
+		$tour = $_GET[$this->idParameter];
+		$idf = $this->idParameter;
+		$form = new Form(Lang::txt("add_equipment_form_title"), $this->modePrefix() . "addEquipmentProcess&$idf=$tour&tab=equipment");
 		
+		// Building an editable table --> replace quantity with an input field and add tour notes for each equipment
+		$equipment = $this->getData()->getEquipment($tour);
+		for($i = 1; $i < count($equipment); $i++) {
+			$eq = $equipment[$i];
+			$field_name_q = "e_q_" . $eq["id"];
+			$field_name_t = "e_t_" . $eq["id"];
+			$q_val = 0;
+			$t_val = "";
+			if(isset($eq["tour_quantity"])) {
+				$q_val = $eq["tour_quantity"];
+			}
+			if(isset($eq["eq_tour_notes"])) {
+				$t_val = $eq["eq_tour_notes"];
+			}
+			$equipment[$i]["tour_quantity"] = '<input type="number" name="' . $field_name_q . '" value="' . $q_val . '" min="0" style="width: 30px;" />';
+			$equipment[$i]["eq_tour_notes"] = '<input type="text" name="' . $field_name_t . '" size="30" value="' . $t_val . '" />';
+		}
+		
+		$table = new Table($equipment);
+		$table->removeColumn("id");
+		$table->removeColumn("purchase_price");
+		$table->removeColumn("current_value");
+		$table->renameHeader("model", Lang::txt("equipment_model"));
+		$table->renameHeader("make", Lang::txt("equipment_make"));
+		$table->renameHeader("tour_quantity", Lang::txt("equipment_quantity"));
+		$table->renameHeader("equipment_notes", Lang::txt("tour_equipment_general_notes"));
+		$table->renameHeader("eq_tour_notes", Lang::txt("tour_equipment_notes"));
+		
+		$form->addElement("", $table);
+		$form->write();
+	}
+	
+	function equipmentPrint() {
+		$tour = $_GET[$this->idParameter];
+		$equipment = $this->getData()->getEquipment($tour, false);
+		
+		$table = new Table($equipment);
+		$table->removeColumn("id");
+		$table->removeColumn("purchase_price");
+		$table->removeColumn("current_value");
+		$table->renameHeader("model", Lang::txt("equipment_model"));
+		$table->renameHeader("make", Lang::txt("equipment_make"));
+		$table->setColumnFormat("tour_quantity", "INT");
+		$table->renameHeader("tour_quantity", Lang::txt("equipment_quantity"));
+		$table->renameHeader("equipment_notes", Lang::txt("tour_equipment_general_notes"));
+		$table->renameHeader("eq_tour_notes", Lang::txt("tour_equipment_notes"));
+		$table->write();
+	}
+	
+	function addEquipmentOptions() {
+		$this->addXOptionsBack("equipment");
+	}
+	
+	function addEquipmentProcess() {
+		$tour = $_GET[$this->idParameter];
+		$idf = $this->idParameter;
+		$this->getData()->saveEquipment($tour, $_POST);
+		new Message(Lang::txt("tour_equipment_saved"), Lang::txt("tour_equipment_saved_msg"));
+	}
+	
+	function addEquipmentProcessOptions() {
+		$this->addEquipmentOptions();
 	}
 	
 	function summarySheet() {
 		$tour = $this->getData()->findByIdNoRef($_GET[$this->idParameter]);
+		
+		// insert a div for custom print control
+		echo '<div id="tourSummarySheet">';
 		
 		// Details
 		Writing::h1($tour["name"]);
@@ -315,25 +382,31 @@ class TourView extends CrudView {
 		$this->tab_contacts(true);
 		
 		// Concerts
-		Writing::h2(Lang::txt("concerts"));
+		Writing::h2(Lang::txt("concerts"), "pagebreak");
 		$this->tab_concerts();
 		
 		// Rehearsals
-		Writing::h2(Lang::txt("rehearsals"));
+		Writing::h2(Lang::txt("rehearsals"), "pagebreak");
 		$this->tab_rehearsals();
 		
-		//TODO Travel and Accommodation List
+		// Travel and Accommodation List
+		Writing::h2(Lang::txt("tour_transfers"), "pagebreak");
+		$this->getController()->getTravelView()->showAllTable();
 		
+		Writing::h2(Lang::txt("accommodation"));
+		$this->getController()->getAccommodationView()->showAllTable();
 		
 		// Task Checklist
 		if(isset($_GET["checklist"]) && $_GET["checklist"] == "1") {
-			Writing::h2(Lang::txt("tasks"));
+			Writing::h2(Lang::txt("tasks"), "pagebreak");
 			$this->tab_checklist();
 		}
 		
 		// Equipment
-		Writing::h2(Lang::txt("Equipment"));
-		$this->tab_equipment();
+		Writing::h2(Lang::txt("Equipment"), "pagebreak");
+		$this->equipmentPrint();
+		
+		echo '</div>'; 
 	}
 	
 	function summarySheetOptions() {

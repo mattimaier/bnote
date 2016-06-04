@@ -135,6 +135,48 @@ class TourData extends AbstractData {
 		$this->addReference($tour_id, "task", $tid);
 	}
 	
+	function getEquipment($tour_id, $show_all=true) {
+		// return all equipment with tour information where available
+		$where = "te.tour = $tour_id OR te.tour IS NULL";
+		if(!$show_all) {
+			$where = "te.tour = $tour_id and te.quantity > 0";
+		}
+		$query = "SELECT e.id, e.name, e.model, e.make, e.notes as equipment_notes,
+						 te.notes as eq_tour_notes, te.quantity as tour_quantity 
+				  FROM equipment e LEFT OUTER JOIN tour_equipment te ON e.id = te.equipment
+				  WHERE $where
+				  ORDER BY e.name ASC";
+		
+		return $this->database->getSelection($query);
+	}
+	
+	function saveEquipment($tour, $values) {
+		// figure out what was added first
+		$equipment = $this->getEquipment($tour);
+		for($i = 1; $i < count($equipment); $i++) {
+			$eqid = $equipment[$i]["id"];
+			$notes_field = "e_t_" . $eqid;
+			$quantity_field = "e_q_" . $eqid;
+			$quantity = 0;
+			$notes = "";
+			if(isset($_POST[$quantity_field])) {
+				$quantity = $_POST[$quantity_field];
+			}
+			if(isset($_POST[$notes_field])) {
+				$notes = $_POST[$notes_field];
+			}
+			
+			// validate values
+			$this->regex->isText($notes);
+			
+			// remove from list if present --> update by replacement
+			$this->removeReference($tour, "equipment", $eqid);
+			$insert = "INSERT INTO tour_equipment (tour, equipment, quantity, notes)
+					   VALUES ($tour, $eqid, $quantity, \"$notes\")";
+			$this->database->execute($insert);
+		}
+	}
+	
 }
 
 ?>
