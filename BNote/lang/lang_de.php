@@ -312,7 +312,14 @@ class Translation extends BNoteTranslation {
 			"travel_departure_location" => "Von",
 			"travel_arrival_datetime" => "Ankunft",
 			"travel_arrival_location" => "Nach",
-			"travel_planned_cost" => "Vorauss. Reisekosten"
+			"travel_planned_cost" => "Vorauss. Reisekosten",
+			"tour_add_task" => "Aufgabe hinzufügen",
+			"tour_task_title" => "Aufgabe",
+			"tour_task_assigned_to" => "Verantwortlicher",
+			"tour_task_due_at" => "Fälligkeit",
+			"tour_task_is_complete" => "Abgeschlossen",
+			"tour_todos" => "Ausstehende Aufgaben",
+			"tour_completed_tasks" => "Abgeschlossene Aufgaben"
 	);
 	
 	protected $regex = array(

@@ -86,6 +86,9 @@ class TourView extends CrudView {
 					$view->subModuleOptions();
 					$this->buttonSpace();
 					break;
+				case "checklist":
+					$this->addReferenceButton("tour_add_task", "addTask");
+					break;
 			}
 		}
 	}
@@ -238,7 +241,51 @@ class TourView extends CrudView {
 	
 	// --- CHECKLIST ---
 	function tab_checklist() {
-		//TODO add a reference to tasks like to rehearsals and concerts
+		// add a reference to tasks like to rehearsals and concerts
+		$tour_id = $_GET[$this->idParameter];
+		
+		$todos = $this->getData()->getTasks($tour_id, false);
+		Writing::h3(Lang::txt("tour_todos"));
+		$this->checklist_table($todos);
+		
+		$completed_tasks = $this->getData()->getTasks($tour_id, true);
+		Writing::h3(Lang::txt("tour_completed_tasks"));
+		$this->checklist_table($completed_tasks);
+	}
+	
+	protected function checklist_table($tasks) {
+		$table = new Table($tasks);
+		$table->removeColumn("id");
+		$table->removeColumn("is_complete");
+		$table->renameHeader("title", Lang::txt("tour_task_title"));
+		$table->renameHeader("description", Lang::txt("description"));
+		$table->renameHeader("assigned_to", Lang::txt("tour_task_assigned_to"));
+		$table->renameHeader("due_at", Lang::txt("tour_task_due_at"));
+		$table->setColumnFormat("is_complete", "BOOLEAN");
+		$table->setEdit("id");
+		$table->setModId(16);
+		$table->write();
+	}
+	
+	function addTask() {
+		$tour = $_GET[$this->idParameter];
+		$idf = $this->idParameter;
+		$this->getController()->getChecklistView()->addEntity(
+			$this->modePrefix() . "addTaskProcess&$idf=$tour&tab=checklist", $tour
+		);
+	}
+	
+	function addTaskOptions() {
+		$this->addXOptionsBack("checklist");
+	}
+	
+	function addTaskProcess() {
+		$this->getData()->createTask($_GET[$this->idParameter], $_POST);
+		$this->view();
+	}
+	
+	function addTaskProcessOptions() {
+		$this->viewOptions();
 	}
 	
 	// --- EQUIPMENT ---

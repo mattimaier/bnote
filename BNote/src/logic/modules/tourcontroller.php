@@ -3,11 +3,16 @@ require_once($GLOBALS["DIR_DATA_MODULES"] . "accommodationdata.php");
 require_once($GLOBALS["DIR_DATA_MODULES"] . "probendata.php");
 require_once($GLOBALS['DIR_DATA_MODULES'] . "konzertedata.php");
 require_once($GLOBALS["DIR_DATA_MODULES"] . "traveldata.php");
+require_once($GLOBALS["DIR_DATA_MODULES"] . "aufgabendata.php");
+require_once($GLOBALS["DIR_DATA_MODULES"] . "equipmentdata.php");
 require_once($GLOBALS["DIR_PRESENTATION_MODULES"] . "accommodationview.php");
 require_once $GLOBALS['DIR_PRESENTATION_MODULES'] . "probenview.php";
 require_once($GLOBALS['DIR_PRESENTATION_MODULES'] . "konzerteview.php");
 require_once($GLOBALS['DIR_PRESENTATION_MODULES'] . "travelview.php");
+require_once($GLOBALS['DIR_PRESENTATION_MODULES'] . "aufgabenview.php");
+require_once($GLOBALS['DIR_PRESENTATION_MODULES'] . "equipmentview.php");
 require_once($GLOBALS['DIR_LOGIC_MODULES'] . "konzertecontroller.php");
+require_once($GLOBALS['DIR_LOGIC_MODULES'] . "aufgabencontroller.php");
 
 
 class TourController extends DefaultController {
@@ -20,6 +25,8 @@ class TourController extends DefaultController {
 	
 	private $rehearsalView;
 	private $concertView;
+	private $taskView;
+	private $equipmentView;
 
 	function start() {
 		if(isset($_GET["tab"]) && $_GET["tab"] == "accommodation") {
@@ -91,6 +98,17 @@ class TourController extends DefaultController {
 			$ctrl->setView($this->travelView);
 		}
 		return $this->travelView;
+	}
+	
+	function getChecklistView() {
+		if($this->taskView == null) {
+			$ctrl = new AufgabenController();
+			$data = new AufgabenData();
+			$ctrl->setData($data);
+			$this->taskView = new AufgabenView($ctrl);
+			$ctrl->setView($this->taskView);
+		}
+		return $this->taskView;
 	}
 }
 

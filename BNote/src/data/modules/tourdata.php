@@ -117,6 +117,24 @@ class TourData extends AbstractData {
 		$this->addReference($tour_id, "concert", $konzertId);
 	}
 	
+	function getTasks($tour_id, $is_complete) {
+		$isc = 0;
+		if($is_complete) $isc = 1;
+		$where = "WHERE is_complete = $isc";
+		$query = "SELECT task.id, title, description, CONCAT(c.name, ' ', c.surname) as assigned_to, due_at, is_complete
+				  FROM task JOIN tour_task ON task.id = tour_task.task
+				  JOIN contact c ON task.assigned_to = c.id
+				  $where
+				  ORDER BY task.is_complete ASC, task.due_at DESC";
+		return $this->database->getSelection($query);
+	}
+	
+	function createTask($tour_id, $values) {
+		$taskData = new AufgabenData();
+		$tid = $taskData->create($values);
+		$this->addReference($tour_id, "task", $tid);
+	}
+	
 }
 
 ?>

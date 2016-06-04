@@ -65,17 +65,27 @@ class AufgabenView extends CrudRefView {
 		$table->write();
 	}
 	
-	private function getAddForm($mode = "add") {
-		$form = new Form($this->getEntityName() ." hinzuf&uuml;gen", $this->modePrefix() . $mode);
+	private function getAddForm($mode = "add", $form_target=null, $tour=null) {
+		$target = $this->modePrefix() . $mode;
+		if($form_target != null) {
+			$target = $form_target;
+		}
+		$form = new Form($this->getEntityName() ." hinzuf&uuml;gen", $target);
 		$form->addElement("Titel", new Field("title", "", FieldType::CHAR));
 		$form->addElement("Beschreibung", new Field("description", "", FieldType::TEXT));
 		$form->addElement("Fällig am", new Field("due_at", "", FieldType::DATETIME));
-		
+		if($tour != null) {
+			$form->addHidden("tour", $tour);
+		}
 		return $form;
 	}
 	
-	protected function addEntityForm() {
-		$form = $this->getAddForm();
+	function addEntity($form_target=null, $tour=null) {
+		$this->addEntityForm($form_target, $tour);
+	}
+	
+	protected function addEntityForm($form_target=null, $tour=null) {
+		$form = $this->getAddForm("add", $form_target, $tour);
 		$form->addElement("Verantwortlicher", new Field("assigned_to", "", FieldType::REFERENCE));
 		$currContactId = $this->getData()->getUserContactId();
 		$form->setForeign("Verantwortlicher", "contact", "id", "CONCAT(name, ' ', surname)", $currContactId);

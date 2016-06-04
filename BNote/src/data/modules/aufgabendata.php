@@ -59,7 +59,7 @@ class AufgabenData extends AbstractData {
 		$values["created_by"] = $this->getUserContactId();
 		$values["assigned_to"] = $values["Verantwortlicher"];
 		$values["is_complete"] = "0";
-		parent::create($values);	
+		return parent::create($values);	
 	}
 	
 	function isTaskComplete($tid) {
