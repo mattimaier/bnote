@@ -172,6 +172,13 @@ class KonzerteData extends AbstractData {
 	// NOT TRANSACTION SECURE!
 	function saveConcert() {
 		$values = $_POST;
+		
+		// edit program if not set
+		if(isset($values["program"]) && $values["program"] == 0) {
+			unset($values["program"]);
+		}
+		
+		// Validation
 		$this->validate($values);
 		
 		// check for location
@@ -230,14 +237,15 @@ class KonzerteData extends AbstractData {
 			unset($values["program"]);
 		}
 		
-		
 		// create concert
 		$concertId = parent::create($values);
 		
 		// adds members of the selected group(s)
 		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 		
-		$this->addMembersToConcert($groups, $concertId);		
+		$this->addMembersToConcert($groups, $concertId);	
+		
+		return $concertId;
 	}
 	
 	public function addMembersToConcert($groups, $concertId) {

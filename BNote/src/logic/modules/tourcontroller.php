@@ -1,8 +1,11 @@
 <?php
 require_once($GLOBALS["DIR_DATA_MODULES"] . "accommodationdata.php");
 require_once($GLOBALS["DIR_DATA_MODULES"] . "probendata.php");
+require_once($GLOBALS['DIR_DATA_MODULES'] . "konzertedata.php");
 require_once($GLOBALS["DIR_PRESENTATION_MODULES"] . "accommodationview.php");
 require_once $GLOBALS['DIR_PRESENTATION_MODULES'] . "probenview.php";
+require_once($GLOBALS['DIR_PRESENTATION_MODULES'] . "konzerteview.php");
+require_once($GLOBALS['DIR_LOGIC_MODULES'] . "konzertecontroller.php");
 
 
 class TourController extends DefaultController {
@@ -11,6 +14,7 @@ class TourController extends DefaultController {
 	private $accommodationData;
 	
 	private $rehearsalView;
+	private $concertView;
 
 	function start() {
 		if(isset($_GET["tab"]) && $_GET["tab"] == "accommodation") {
@@ -51,6 +55,17 @@ class TourController extends DefaultController {
 			$defaultCtrl->setView($this->rehearsalView);
 		}
 		return $this->rehearsalView;
+	}
+	
+	function getConcertView() {
+		if($this->concertView == null) {
+			$ctrl = new KonzerteController();
+			$data = new KonzerteData();
+			$ctrl->setData($data);
+			$this->concertView = new KonzerteView($ctrl);
+			$ctrl->setView($this->concertView);
+		}
+		return $this->concertView;
 	}
 }
 

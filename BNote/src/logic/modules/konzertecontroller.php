@@ -68,9 +68,6 @@ class KonzerteController extends DefaultController {
 		// save data when done
 		$numSteps = count($this->addSteps);
 		if($progress == $numSteps) {
-			if(isset($_POST["program"]) && $_POST["program"] == 0) {
-				unset($_POST["program"]);
-			}
 			$this->getData()->saveConcert();
 		}
 		

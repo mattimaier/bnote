@@ -139,7 +139,15 @@ abstract class CrudView extends AbstractView {
 		$entity = $this->getData()->findByIdNoRef($_GET[$this->idParameter]);
 		$details = new Dataview();
 		foreach($this->getData()->getFields() as $dbf => $info) {
-			$details->addElement($info[0], $entity[$dbf]);
+			# format values
+			$val = $entity[$dbf];
+			if($info[1] == FieldType::DATE || $info[1] == FieldType::DATETIME) {
+				$val = Data::convertDateFromDb($val);
+			}
+			elseif ($info[1] == FieldType::DECIMAL) {
+				$val = Lang::formatDecimal($val);
+			}
+			$details->addElement($info[0], $val);
 		}
 		$details->write();
 	}

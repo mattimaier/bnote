@@ -71,6 +71,9 @@ class Translation extends BNoteTranslation {
 			"error" => "Fehler",
 			"street" => "Straße",
 			"city" => "Stadt",
+			"phone" => "Telefon",
+			"mobile" => "Mobil",
+			"birthday" => "Geburtstag",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",
@@ -295,7 +298,13 @@ class Translation extends BNoteTranslation {
 			"tour_rehearsal_tab_begin" => "Probenbeginn",
 			"tour_rehearsal_tab_notes" => "Probennotizen",
 			"tour_rehearsal_tab_location" => "Ort",
-			"tour_rehearsal_tab_location_notes" => "Notizen zum Ort"
+			"tour_rehearsal_tab_location_notes" => "Notizen zum Ort",
+			"tour_add_contacts" => "Teilnehmer hinzufügen",
+			"add_contacts_form_title" => "Teilnehmer für Tour auswählen",
+			"tour_add_contacts_success_title" => "Teilnehmer hinzugefügt",
+			"tour_add_contacts_success_msg" => "Die Teilnehmer wurden der Tour erfolgreich hinzugefügt.",
+			"tour_contact_remove_ref" => "Teilnehmer entfernen",
+			"tour_add_concert" => "Konzert hinzufügen"
 	);
 	
 	protected $regex = array(
@@ -309,7 +318,7 @@ class Translation extends BNoteTranslation {
 	public function formatDate($day, $month, $year, $hour, $minute) {
 		$time = "";
 		if($hour != null && $minute != null) {
-			$time = " $hour:$minute Uhr";
+			$time = " $hour:$minute";
 		} 
 		return "$day.$month.$year" . $time;
 	}

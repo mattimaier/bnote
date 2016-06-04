@@ -53,14 +53,15 @@ class TourView extends CrudView {
 		else {
 			$this->additionalViewButtons();
 		}
-		
+	}
+	
+	function additionalViewButtons() {
 		// show the option of a tour summary sheet
 		$summary = new Link($this->modePrefix() . "summarySheet&accId=" . $_GET[$this->idParameter], Lang::txt("tour_summarysheet"));
 		$summary->addIcon("printer");
 		$summary->write();
-	}
-	
-	function additionalViewButtons() {
+		$this->buttonSpace();
+		
 		// show options based on selected tab
 		if(isset($_GET["tab"])) {
 			$tab = $_GET["tab"];
@@ -74,6 +75,12 @@ class TourView extends CrudView {
 				case "rehearsals":
 					$this->addReferenceButton("tour_add_rehearsal", "addRehearsal");
 					break;
+				case "contacts":
+					$this->addReferenceButton("tour_add_contacts", "addContacts");
+					break;
+				case "concerts":
+					$this->addReferenceButton("tour_add_concert", "addConcert");
+					break;
 			}
 		}
 	}
@@ -85,6 +92,7 @@ class TourView extends CrudView {
 		$this->buttonSpace();
 	}
 	
+	// --- REHEARSALS ---
 	function tab_rehearsals() {
 		// show all rehearsals in this tour
 		$rehearsals = $this->getData()->getRehearsals($_GET[$this->idParameter]);
@@ -104,15 +112,21 @@ class TourView extends CrudView {
 	function addRehearsal() {
 		# show form to add a new rehearsal that's automatically assigned to this tour
 		$tour = $_GET[$this->idParameter];
+		$idf = $this->idParameter;
 		$this->getController()->getRehearsalView()->addEntity(
-			$this->modePrefix() . "addRehearsalProcess&accId=$tour&tab=rehearsals", $tour
+			$this->modePrefix() . "addRehearsalProcess&$idf=$tour&tab=rehearsals", $tour
 		);
 	}
 	
-	function addRehearsalOptions() {
-		$back = new Link($this->modePrefix() . "view&accId=" . $_GET[$this->idParameter] . "&tab=rehearsals", Lang::txt("back"));
+	protected function addXOptionsBack($tab) {
+		$idf = $this->idParameter;
+		$back = new Link($this->modePrefix() . "view&$idf=" . $_GET[$this->idParameter] . "&tab=$tab", Lang::txt("back"));
 		$back->addIcon("arrow_left");
 		$back->write();
+	}
+	
+	function addRehearsalOptions() {
+		$this->addXOptionsBack("rehearsals");
 	}
 	
 	function addRehearsalProcess() {
@@ -124,18 +138,105 @@ class TourView extends CrudView {
 		$this->addRehearsalOptions();
 	}
 	
+	// --- CONTACTS ---
 	function tab_contacts() {
-		//TODO implement contact tab --> use submodule?
+		$contacts = $this->getData()->getContacts($_GET[$this->idParameter]);
+		$tour_id = $_GET[$this->idParameter];
+		$idf = $this->idParameter;
+		$contacts = Table::addDeleteColumn(
+				$contacts,
+				$this->modePrefix() . "removeContact&$idf=$tour_id&tab=contacts&id=", 
+				"delete",
+				Lang::txt("tour_contact_remove_ref"));
+		
+		$table = new Table($contacts);
+		$cols_to_remove = array("id", "fax", "business", "web", "notes", "address", "status", "instrument", "street", "city", "zip");
+		foreach($cols_to_remove as $col) {
+			$table->removeColumn($col);
+		}
+		$table->renameHeader("surname", Lang::txt("surname"));
+		$table->renameHeader("name", Lang::txt("name"));
+		$table->renameHeader("phone", Lang::txt("phone"));
+		$table->renameHeader("mobile", Lang::txt("mobile"));
+		$table->renameHeader("birthday", Lang::txt("birthday"));
+		$table->renameHeader("instrumentname", Lang::txt("instrument"));
+		
+		$table->write();
 	}
 	
+	function addContacts() {
+		$tour = $_GET[$this->idParameter];
+		$idf = $this->idParameter;
+		$form = new Form(Lang::txt("add_contacts_form_title"), $this->modePrefix() . "addContactsProcess&$idf=$tour&tab=contacts");
+		$contacts = $this->getData()->adp()->getContacts();
+		$grpSelector = new GroupSelector($contacts, array(), "contact");
+		$grpSelector->setNameColumns(array("name", "surname"));
+		$form->addElement("", $grpSelector);
+		$form->write();
+	}
+	
+	function addContactsOptions() {
+		$this->addXOptionsBack("contacts");
+	}
+	
+	function addContactsProcess() {
+		$tour_id = $_GET[$this->idParameter];
+		$contacts = $this->getData()->adp()->getContacts($tour_id);
+		$contactIds = GroupSelector::getPostSelection($contacts, "contact");
+		$this->getData()->addContacts($tour_id, $contactIds);
+		new Message(Lang::txt("tour_add_contacts_success_title"), Lang::txt("tour_add_contacts_success_msg"));
+	}
+	
+	function addContactsProcessOptions() {
+		$this->addContactsOptions();
+	}
+	
+	function removeContact() {
+		$this->getData()->removeReference($_GET[$this->idParameter], "contact", $_GET[$this->idField]);
+		$this->view();
+	}
+	
+	function removeContactOptions() {
+		$this->viewOptions();
+	}
+	
+	// --- CONCERTS ---
 	function tab_concerts() {
-		//TODO implement concert tab --> use submodule?
+		$concerts = $this->getData()->getConcerts($_GET[$this->idParameter]);
+		
+		$table = new Table($concerts);
+		$table->removeColumn("id");
+		$table->setEdit("id");
+		$table->setModId(4);
+		$table->write();
 	}
 	
+	function addConcert() {
+		$view = $this->getController()->getConcertView();
+		$tour_id = $_GET[$this->idParameter];
+		$idf = $this->idParameter;
+		$step = 1;
+		if(isset($_GET["step"])) {
+			$step = $_GET["step"];
+		}
+		$nextStep = $step+1;
+		$step_func = "step$step";
+		if($nextStep == 7) {
+			$this->getData()->addConcert($tour_id, $_POST);
+		}
+		$view->$step_func("addConcert&step=$nextStep&$idf=$tour_id&tab=concerts");
+	}
+
+	function addConcertOptions() {
+		$this->addXOptionsBack("concerts");
+	}
+	
+	// --- CHECKLIST ---
 	function tab_checklist() {
 		
 	}
 	
+	// --- EQUIPMENT ---
 	function tab_equipment() {
 		//TODO implement equipment tab --> use submodule?
 	}
