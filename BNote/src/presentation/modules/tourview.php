@@ -81,6 +81,11 @@ class TourView extends CrudView {
 				case "concerts":
 					$this->addReferenceButton("tour_add_concert", "addConcert");
 					break;
+				case "travel":
+					$view = $this->getController()->getTravelView();
+					$view->subModuleOptions();
+					$this->buttonSpace();
+					break;
 			}
 		}
 	}

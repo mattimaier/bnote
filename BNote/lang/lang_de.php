@@ -304,7 +304,14 @@ class Translation extends BNoteTranslation {
 			"tour_add_contacts_success_title" => "Teilnehmer hinzugefügt",
 			"tour_add_contacts_success_msg" => "Die Teilnehmer wurden der Tour erfolgreich hinzugefügt.",
 			"tour_contact_remove_ref" => "Teilnehmer entfernen",
-			"tour_add_concert" => "Konzert hinzufügen"
+			"tour_add_concert" => "Konzert hinzufügen",
+			"travel" => "Reise",
+			"travel_num" => "Reise Nr.",
+			"travel_departure_datetime" => "Abreise",
+			"travel_departure_location" => "Von",
+			"travel_arrival_datetime" => "Ankunft",
+			"travel_arrival_location" => "Nach",
+			"travel_planned_cost" => "Vorauss. Reisekosten"
 	);
 	
 	protected $regex = array(

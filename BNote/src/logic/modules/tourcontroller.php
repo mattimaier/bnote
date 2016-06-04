@@ -2,9 +2,11 @@
 require_once($GLOBALS["DIR_DATA_MODULES"] . "accommodationdata.php");
 require_once($GLOBALS["DIR_DATA_MODULES"] . "probendata.php");
 require_once($GLOBALS['DIR_DATA_MODULES'] . "konzertedata.php");
+require_once($GLOBALS["DIR_DATA_MODULES"] . "traveldata.php");
 require_once($GLOBALS["DIR_PRESENTATION_MODULES"] . "accommodationview.php");
 require_once $GLOBALS['DIR_PRESENTATION_MODULES'] . "probenview.php";
 require_once($GLOBALS['DIR_PRESENTATION_MODULES'] . "konzerteview.php");
+require_once($GLOBALS['DIR_PRESENTATION_MODULES'] . "travelview.php");
 require_once($GLOBALS['DIR_LOGIC_MODULES'] . "konzertecontroller.php");
 
 
@@ -12,6 +14,9 @@ class TourController extends DefaultController {
 
 	private $accommodationView;
 	private $accommodationData;
+	
+	private $travelView;
+	private $travelData;
 	
 	private $rehearsalView;
 	private $concertView;
@@ -25,6 +30,15 @@ class TourController extends DefaultController {
 				$func = $_GET["func"];
 			}
 			$this->getAccommodationView()->$func();
+		}
+		elseif(isset($_GET["tab"]) && $_GET["tab"] == "travel") {
+			$this->getView()->view();
+			// check which func (mode from submodule) to "play"
+			$func = "start";
+			if(isset($_GET["func"])) {
+				$func = $_GET["func"];
+			}
+			$this->getTravelView()->$func();
 		}
 		else {
 			parent::start();
@@ -66,6 +80,17 @@ class TourController extends DefaultController {
 			$ctrl->setView($this->concertView);
 		}
 		return $this->concertView;
+	}
+	
+	function getTravelView() {
+		if($this->travelView == null) {
+			$ctrl = new DefaultController();
+			$this->travelData = new TravelData();
+			$ctrl->setData($this->travelData);
+			$this->travelView = new TravelView($ctrl);
+			$ctrl->setView($this->travelView);
+		}
+		return $this->travelView;
 	}
 }
 

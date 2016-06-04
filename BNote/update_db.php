@@ -284,7 +284,10 @@ $update->addTable("travel", "CREATE TABLE travel (
 	transportation VARCHAR(50),
 	num VARCHAR(100),
 	departure DATETIME NOT NULL,
+	departure_location VARCHAR(255),
 	arrival DATETIME NOT NULL,
+	arrival_location VARCHAR(255),
+	planned_cost DECIMAL(9,2),
 	notes TEXT
 )");
 
