@@ -75,6 +75,7 @@ class Translation extends BNoteTranslation {
 			"mobile" => "Mobil",
 			"birthday" => "Geburtstag",
 			"print" => "Drucken",
+			"notes" => "Notizen",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",
@@ -288,8 +289,12 @@ class Translation extends BNoteTranslation {
 			"equipment_current_value" => "Aktueller Wert",
 			"equipment_quantity" => "Menge",
 			
+			"tour_details" => "Details",
 			"tour_heading" => "Tourplanung",
 			"tour_summarysheet" => "Toursheet",
+			"tour_transfers" => "Transfers",
+			"tour_checklist" => "Checklist",
+			"accommodation" => "Übernachtungen",
 			"accommodation_price" => "Preis (geplant)",
 			"accommodation_locationname" => "Unterkunftsname",
 			"accommodation_tourname" => "Tour",
@@ -306,7 +311,7 @@ class Translation extends BNoteTranslation {
 			"tour_add_contacts_success_msg" => "Die Teilnehmer wurden der Tour erfolgreich hinzugefügt.",
 			"tour_contact_remove_ref" => "Teilnehmer entfernen",
 			"tour_add_concert" => "Konzert hinzufügen",
-			"travel" => "Reise",
+			"travel" => "Transfer",
 			"travel_num" => "Reise Nr.",
 			"travel_departure_datetime" => "Abreise",
 			"travel_departure_location" => "Von",
@@ -319,7 +324,11 @@ class Translation extends BNoteTranslation {
 			"tour_task_due_at" => "Fälligkeit",
 			"tour_task_is_complete" => "Abgeschlossen",
 			"tour_todos" => "Ausstehende Aufgaben",
-			"tour_completed_tasks" => "Abgeschlossene Aufgaben"
+			"tour_completed_tasks" => "Abgeschlossene Aufgaben",
+			"tour_concert_location" => "Auftrittsort",
+			"tour_concert_approve_until" => "Teilnahme angeben bis",
+			"tour_summary_show_checklist" => "Checkliste anzeigen",
+			"tour_summary_hide_checklist" => "Checkliste ausblenden",
 	);
 	
 	protected $regex = array(

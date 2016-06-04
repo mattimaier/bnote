@@ -26,6 +26,16 @@ class TravelData extends AbstractData {
 		$this->init($dir_prefix);
 	}
 	
+	function filterTourAccommodations($items, $tour_id, $filterAttribute="tour") {
+		$result = array();
+		for($i = 0; $i < count($items); $i++) {
+			if($i == 0 || $items[$i][$filterAttribute] == $tour_id) {
+				array_push($result, $items[$i]);
+			}
+		}
+		return $result;
+	}
+	
 }
 
 ?>

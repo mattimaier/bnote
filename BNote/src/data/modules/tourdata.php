@@ -47,7 +47,7 @@ class TourData extends AbstractData {
 				JOIN tour_rehearsal t ON r.id = t.rehearsal 
 				LEFT OUTER JOIN location l ON r.location = l.id
 				LEFT OUTER JOIN address a ON l.address = a.id
-				WHERE begin > now()
+				WHERE begin > now() and t.tour = $tour_id
 				ORDER BY begin";
 		return $this->database->getSelection($query);
 	}
@@ -120,7 +120,7 @@ class TourData extends AbstractData {
 	function getTasks($tour_id, $is_complete) {
 		$isc = 0;
 		if($is_complete) $isc = 1;
-		$where = "WHERE is_complete = $isc";
+		$where = "WHERE tour_task.tour = $tour_id AND is_complete = $isc";
 		$query = "SELECT task.id, title, description, CONCAT(c.name, ' ', c.surname) as assigned_to, due_at, is_complete
 				  FROM task JOIN tour_task ON task.id = tour_task.task
 				  JOIN contact c ON task.assigned_to = c.id

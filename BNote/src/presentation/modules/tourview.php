@@ -12,14 +12,14 @@ class TourView extends CrudView {
 		$this->checkID();
 		
 		$tabs = array(
-				"details" => "Details",
-				"rehearsals" => "Proben",
-				"contacts" => "Teilnehmer",
-				"concerts" => "Konzerte",
-				"accommodation" => "Übernachtungen",
-				"travel" => "Reisen",
-				"checklist" => "Checklist",
-				"equipment" => "Equipment"
+				"details" => Lang::txt("tour_details"),
+				"rehearsals" => Lang::txt("rehearsals"),
+				"contacts" => Lang::txt("participants"),
+				"concerts" => Lang::txt("concerts"),
+				"accommodation" => Lang::txt("accommodation"),
+				"travel" => Lang::txt("tour_transfers"),
+				"checklist" => Lang::txt("tour_checklist"),
+				"equipment" => Lang::txt("equipment")
 		);
 		echo "<div class=\"view_tabs\">\n";
 		foreach($tabs as $tabid => $label) {
@@ -147,16 +147,18 @@ class TourView extends CrudView {
 	}
 	
 	// --- CONTACTS ---
-	function tab_contacts() {
+	function tab_contacts($sheetMode=false) {
 		$contacts = $this->getData()->getContacts($_GET[$this->idParameter]);
 		$tour_id = $_GET[$this->idParameter];
 		$idf = $this->idParameter;
-		$contacts = Table::addDeleteColumn(
-				$contacts,
-				$this->modePrefix() . "removeContact&$idf=$tour_id&tab=contacts&id=", 
-				"delete",
-				Lang::txt("tour_contact_remove_ref"));
 		
+		if(!$sheetMode) {
+			$contacts = Table::addDeleteColumn(
+					$contacts,
+					$this->modePrefix() . "removeContact&$idf=$tour_id&tab=contacts&id=", 
+					"delete",
+					Lang::txt("tour_contact_remove_ref"));
+		}
 		$table = new Table($contacts);
 		$cols_to_remove = array("id", "fax", "business", "web", "notes", "address", "status", "instrument", "street", "city", "zip");
 		foreach($cols_to_remove as $col) {
@@ -214,6 +216,12 @@ class TourView extends CrudView {
 		
 		$table = new Table($concerts);
 		$table->removeColumn("id");
+		$table->renameHeader("begin", Lang::txt("begin"));
+		$table->renameHeader("end", Lang::txt("end"));
+		$table->renameHeader("notes", Lang::txt("notes"));
+		$table->renameHeader("locationname", Lang::txt("tour_concert_location"));
+		$table->renameHeader("program", Lang::txt("program"));
+		$table->renameHeader("approve_until", Lang::txt("tour_concert_approve_until"));
 		$table->setEdit("id");
 		$table->setModId(4);
 		$table->write();
@@ -291,6 +299,7 @@ class TourView extends CrudView {
 	// --- EQUIPMENT ---
 	function tab_equipment() {
 		//TODO add a reference to equipment like to contacts --> only remove reference, not the equipment itself
+		
 	}
 	
 	function summarySheet() {
@@ -302,17 +311,29 @@ class TourView extends CrudView {
 		Writing::p($tour["notes"]);
 		
 		// Participants
+		Writing::h2(Lang::txt("participants"));
+		$this->tab_contacts(true);
 		
 		// Concerts
+		Writing::h2(Lang::txt("concerts"));
+		$this->tab_concerts();
 		
 		// Rehearsals
+		Writing::h2(Lang::txt("rehearsals"));
+		$this->tab_rehearsals();
 		
-		// Travel and Accommodation List
+		//TODO Travel and Accommodation List
+		
 		
 		// Task Checklist
+		if(isset($_GET["checklist"]) && $_GET["checklist"] == "1") {
+			Writing::h2(Lang::txt("tasks"));
+			$this->tab_checklist();
+		}
 		
 		// Equipment
-		
+		Writing::h2(Lang::txt("Equipment"));
+		$this->tab_equipment();
 	}
 	
 	function summarySheetOptions() {
@@ -322,6 +343,22 @@ class TourView extends CrudView {
 		$prt = new Link("javascript:window.print()", Lang::txt("print"));
 		$prt->addIcon("printer");
 		$prt->write();
+		$this->buttonSpace();
+		
+		$checklist = 1;
+		$checklist_action = "show";
+		$checklist_icon = "plus"; 
+		if(isset($_GET["checklist"]) && $_GET["checklist"] == "1") {
+			$checklist = 0;
+			$checklist_action = "hide";
+			$checklist_icon = "cancel";
+		}
+		$checklist = new Link(
+			$this->modePrefix() . "summarySheet&" . $this->idParameter . "=" . $_GET[$this->idParameter] . "&checklist=$checklist",
+			Lang::txt("tour_summary_" . $checklist_action . "_checklist")
+		);
+		$checklist->addIcon($checklist_icon);
+		$checklist->write();
 	}
 }
 

@@ -9,7 +9,7 @@ class TravelView extends CrudRefView {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("travel"));
 		$this->setJoinedAttributes(array(
-			"tour" => array("name")
+			"tour" => array("id", "name")
 		));
 		$this->internalReferenceFields = array(
 			"tour" => $_GET["accId"]
@@ -45,11 +45,17 @@ class TravelView extends CrudRefView {
 	}
 	
 	function showAllTable() {
-		$table = new Table($this->getData()->findAllJoinedOrdered($this->getJoinedAttributes(), "departure"));
+		$trips = $this->getData()->findAllJoinedOrdered($this->getJoinedAttributes(), "departure");
+		if(isset($_GET["accId"])) {
+			$tour_id = $_GET["accId"];
+			$trips = $this->getData()->filterTourAccommodations($trips, $tour_id, "tourid");
+		}
+		$table = new Table($trips);
 		$table->setEdit("id");
 		$table->changeMode("view&tab=travel&func=view&accId=" . $_GET["accId"]);
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->removeColumn("tour");
+		$table->removeColumn("tourid");
 		$table->removeColumn("id");
 		$table->removeColumn("tourname");
 		$table->setColumnFormat("departure", "DATE");
