@@ -142,11 +142,10 @@ class RepertoireData extends AbstractData {
 	 * @return The ID of the existent composer or -1 if not exists.
 	 */
 	private function doesComposerExist($name) {
-		$ct = $this->database->getCell("composer", "count(id)",
-								"name = \"$name\"");
+		$ct = $this->database->getCell("composer", "count(id)", "name = \"$name\"");
 		if($ct < 1) return -1;
 		else {
-			return $this->database->getCell("composer", "id", "name = \"" . $_POST["composer"] . "\"");
+			return $this->database->getCell("composer", "id", "name = \"$name\"");
 		}
 	}
 	

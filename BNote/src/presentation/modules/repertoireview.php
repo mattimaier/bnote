@@ -40,7 +40,11 @@ class RepertoireView extends CrudRefView {
 		$genre_mod = new Link($this->modePrefix() . "genre&func=start", "Genres verwalten");
 		$genre_mod->addIcon("music_folder");
 		$genre_mod->write();
-		$this->verticalSpace();
+		
+		$this->buttonSpace();
+		$xlsImport = new Link($this->modePrefix() . "xlsUpload", "Excel Import");
+		$xlsImport->addIcon("arrow_down");
+		$xlsImport->write();
 	}
 	
 	protected function addEntityForm() {
@@ -180,6 +184,97 @@ class RepertoireView extends CrudRefView {
 	function delSolist() {
 		$this->getData()->deleteSolist($_GET["id"], $_GET["solistId"]);
 		$this->view();
+	}
+	
+	function xlsUpload() {
+		// file upload
+		$form = new Form("Excel Dateiupload", $this->modePrefix() . "xlsMapping");
+		$form->addElement("XLSX Datei (Excel 2007+)", new Field("xlsfile", "", FieldType::FILE));
+		$form->setMultipart(true);
+		$form->changeSubmitButton("Hochladen und weiter");
+		$form->write();
+	}
+	
+	function xlsMapping($data, $header) {		
+		// show which columns were detected and allow mapping
+		$form = new Form("Spalten zuweisen", $this->modePrefix() . "xlsImport");
+		
+		// create column selector
+		$form->addElement("Titel", $this->columnSelector("col_title", $header));
+		$form->addElement("Komponist/Arrangeur", $this->columnSelector("col_composer", $header));
+		$form->addElement("Tonart", $this->columnSelector("col_key", $header));
+		$form->addElement("Tempo (BPM)", $this->columnSelector("col_tempo", $header));
+		$form->addElement("Notizen", $this->columnSelector("col_notes", $header));
+		
+		// Status
+		$dd_status = new Dropdown("status");
+		$stati = $this->getData()->getStatuses();
+		for($i = 1; $i < count($stati); $i++) {
+			$dd_status->addOption($stati[$i]["name"], $stati[$i]["id"]);
+		}
+		$form->addElement("Status", $dd_status);
+		
+		// Genre
+		$genres = $this->getData()->getGenres();
+		$dd_genre = new Dropdown("genre");
+		for($i = 1; $i < count($genres); $i++) {
+			$dd_genre->addOption($genres[$i]["name"], $genres[$i]["id"]);
+		}
+		$form->addElement("Gerne", $dd_genre);
+		
+		// finalize form
+		$form->changeSubmitButton("Weiter");
+		$xlsData = urlencode(json_encode($data));
+		$form->addHidden("xlsData", $xlsData);
+		$form->write();
+	}
+	
+	protected function columnSelector($fieldname, $header) {
+		$dd = new Dropdown($fieldname);
+		
+		$dd->addOption("- Nicht importieren", "-1");
+		foreach($header as $idx => $name) {
+			$n = $name;
+			if($n == "") {
+				$n = "(unnamed)";
+			}
+			$dd->addOption($n, $idx);
+		}
+		
+		$dd->setSelected("-1");
+		return $dd;
+	}
+	
+	function xlsImport($duplicates, $num_rows, $empties) {
+		// show how many can be imported directly
+		Writing::h2("Import");
+		Writing::p("$num_rows Zeilen können direkt importiert werden. " . 
+				count($empties) . " Zeilen enthalten keinen Titel und wurden als leer gekennzeichnet.");
+		
+		// show duplicates and ask to overwrite (use from sheet) or ignore (use from BNote) for each
+		$form = new Form("Duplikate", $this->modePrefix() . "xlsProcess");
+		foreach($duplicates as $idx => $row) {
+			$name = $row[$_POST["col_title"]];
+			$element = new Dropdown("duplicate_$idx");
+			$element->addOption("Überschreiben", $row["duplicate_id"]);
+			$element->addOption("Ignorieren", -1);
+			$form->addElement($name, $element);
+		}
+		if(count($duplicates) == 0) {
+			$form->addElement("Keine Duplikate erkannt", new Field("", "", 99));
+		}
+		$form->addHidden("empties", join(",", $empties));
+		
+		// add data from previous form
+		foreach($_POST as $k => $v) {
+			$form->addHidden($k, $v);
+		}
+		
+		$form->write();
+	}
+	
+	function xlsProcessSuccess() {
+		new Message("Import erfolgreich", "Die Stücke wurden erfolgreich importiert.");
 	}
 }
 
