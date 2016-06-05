@@ -62,7 +62,13 @@ class ProbenView extends CrudRefView {
 			$form_target = $this->modePrefix() . "add";
 		}
 		$form = new Form("Neue Probe", $form_target);
-		$form->addElement("Beginn", new Field("begin", date("d.m.Y") . " " . $this->getData()->getDefaultTime(), Field::FIELDTYPE_DATETIME_SELECTOR));
+		
+		// begin
+		$beginField = new Field("begin", date("d.m.Y") . " " . $this->getData()->getDefaultTime(), Field::FIELDTYPE_DATETIME_SELECTOR);
+		$beginField->setCssClass("copyDateOrigin");
+		$form->addElement("Beginn", $beginField);
+		
+		// end
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
 			$end = Data::addMinutesToDate(date("d.m.Y") . " " . $this->getData()->getDefaultTime() . ":00", $this->getData()->getDefaultDuration());
 			$form->addElement("Ende", new Field("end", $end, Field::FIELDTYPE_DATETIME_SELECTOR));
@@ -70,10 +76,17 @@ class ProbenView extends CrudRefView {
 		else {
 			$form->addElement("Dauer in min", new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
 		}
+		
+		// location
 		$form->addElement("location", new Field("location", "", FieldType::REFERENCE));
 		$form->setForeign("location", "location", "id", "name", -1);
 		$form->renameElement("location", "Ort");
-		$form->addElement("Zusagen bis", new Field("approve_until", "", FieldType::DATETIME));
+		
+		// approve until
+		$approve_until_field = new Field("approve_until", "", FieldType::DATETIME);
+		$approve_until_field->setCssClass("copyDateTarget");
+		$form->addElement("Zusagen bis", $approve_until_field);
+		
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
@@ -84,6 +97,33 @@ class ProbenView extends CrudRefView {
 		}
 		
 		$form->write();
+		
+		// add JS to copy begin to approve_until when changed
+		?>
+		<script>
+		$(document).ready(function() {
+			$(".copyDateOrigin").on('change', function(event) {
+				// get all origin values and build target values
+				var h = "";
+				var m = "";
+				var dt = "";
+				$(".copyDateOrigin").each(function(i, obj) {
+					if($(obj).hasClass("hour")) {
+						h = $(obj).val();
+					}
+					else if($(obj).hasClass("minute")) {
+						m = $(obj).val();
+					}
+					else {
+						dt = $(obj).val();
+					}
+				});
+				var val = dt + " " + h + ":" + m;
+				$('.copyDateTarget').val(val);
+			});
+		});
+		</script>
+		<?php
 	}
 	
 	function add() {		
