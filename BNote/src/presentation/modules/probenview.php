@@ -97,33 +97,6 @@ class ProbenView extends CrudRefView {
 		}
 		
 		$form->write();
-		
-		// add JS to copy begin to approve_until when changed
-		?>
-		<script>
-		$(document).ready(function() {
-			$(".copyDateOrigin").on('change', function(event) {
-				// get all origin values and build target values
-				var h = "";
-				var m = "";
-				var dt = "";
-				$(".copyDateOrigin").each(function(i, obj) {
-					if($(obj).hasClass("hour")) {
-						h = $(obj).val();
-					}
-					else if($(obj).hasClass("minute")) {
-						m = $(obj).val();
-					}
-					else {
-						dt = $(obj).val();
-					}
-				});
-				var val = dt + " " + h + ":" + m;
-				$('.copyDateTarget').val(val);
-			});
-		});
-		</script>
-		<?php
 	}
 	
 	function add() {		
@@ -142,8 +115,13 @@ class ProbenView extends CrudRefView {
 	function addSerie() {		
 		$form = new Form("Probenserie hinzufügen", $this->modePrefix() . "processSerie");
 		
-		$form->addElement("Erste Probe am", new Field("first_session", "", FieldType::DATE));
-		$form->addElement("Letzte Probe am", new Field("last_session", "", FieldType::DATE));
+		$first_session = new Field("first_session", "", FieldType::DATE);
+		$first_session->setCssClass("copyDateOrigin");
+		$form->addElement("Erste Probe am", $first_session);
+		
+		$last_session = new Field("last_session", "", FieldType::DATE);
+		$last_session->setCssClass("copyDateTarget");
+		$form->addElement("Letzte Probe am", $last_session);
 		
 		$cycle = new Dropdown("cycle");
 		$cycle->addOption("wöchentlich", "1");
@@ -162,9 +140,6 @@ class ProbenView extends CrudRefView {
 		$form->addElement("Proben für", $gs);
 		
 		$form->write();
-		
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	function processSerie() {

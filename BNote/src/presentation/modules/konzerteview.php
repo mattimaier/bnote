@@ -348,9 +348,15 @@ class KonzerteView extends CrudRefView {
 	function step1($action) {
 		$form = new Form("Stammdaten", $this->modePrefix() . $action);
 		
-		$form->addElement("Beginn", new Field("begin", "", FieldType::DATETIME));
-		$form->addElement("Ende", new Field("end", "", FieldType::DATETIME));
-		$form->addElement("Zusagen bis", new Field("approve_until", "", FieldType::DATETIME));
+		$begin_field = new Field("begin", "", FieldType::DATETIME);
+		$begin_field->setCssClass("copyDateOrigin");
+		$form->addElement("Beginn", $begin_field);
+		$end_field = new Field("end", "", FieldType::DATETIME);
+		$end_field->setCssClass("copyDateTarget");
+		$form->addElement("Ende", $end_field);
+		$approve_field = new Field("approve_until", "", FieldType::DATETIME);
+		$approve_field->setCssClass("copyDateTarget");
+		$form->addElement("Zusagen bis", $approve_field);
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));		
 		
 		$this->addCollectedData($form);

@@ -67,4 +67,33 @@ $(document).ready(function() {
 		height: 700,
 		lang: "de"
     });
+	
+	$(".copyDateOrigin").on('change', function(event) {
+		// get all origin values and build target values
+		var h = "";
+		var m = "";
+		var dt = "";
+		$(".copyDateOrigin").each(function(i, obj) {
+			if($(obj).hasClass("hour")) {
+				h = $(obj).val();
+			}
+			else if($(obj).hasClass("minute")) {
+				m = $(obj).val();
+			}
+			else {
+				dt = $(obj).val();
+			}
+		});
+		var val = "";
+		if(h == "" || m == "") {
+			val = dt;
+		}
+		else if(dt == "") {
+			val = h + ":" + m;
+		}
+		else {
+			val = dt + " " + h + ":" + m;
+		}
+		$('.copyDateTarget').val(val);
+	});
 });
