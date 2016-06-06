@@ -271,6 +271,58 @@ interface iBNA {
 	 * @param Array $groups Groups the mail is sent to.
 	 */
 	public function sendMail($subject, $body, $groups);
+	
+	/**
+	 * Updates a song in the repertoire. (POST)
+	 * @param Integer $id Song ID.
+	 * @param String $title Title of the song.
+	 * @param String $length Lenght in format mm:ss.
+	 * @param Integer $bpm Beats per Minute.
+	 * @param String $music_key Musical key of the song.
+	 * @param String $notes Additional Notes to the song.
+	 * @param Integer $genre Genre ID.
+	 * @param String $composer Name of the composer.
+	 * @param Integer $status Status ID.
+	 */
+	public function updateSong($id, $title, $length, $bpm, $music_key, $notes, $genre, $composer, $status);
+	
+	/**
+	 * Reads all equipment from the database and returns it.
+	 * @return Array with equipment.
+	 */
+	public function getEquipment();
+	
+	/**
+	 * Adds the equipment to the database.
+	 * @param String $model Equipment model.
+	 * @param String $make Equipment manufacturer.
+	 * @param String $name Nickname of the equipment.
+	 * @param Decimal $purchase_price Price at which this equipment was purchased.
+	 * @param Decimal $current_value Estimated current value of the equipment. 
+	 * @param Integer $quantity Quantity of which this equipment is present.
+	 * @param String $notes Notes for the equipment.
+	 * @return Integer ID of the equipment.
+	 */
+	public function addEquipment($model, $make, $name, $purchase_price, $current_value, $quantity, $notes);
+	
+	/**
+	 * Update equipment in the system.
+	 * @param Integer $id Equipment ID.
+	 * @param String $model Equipment model.
+	 * @param String $make Equipment manufacturer.
+	 * @param String $name Nickname of the equipment.
+	 * @param Decimal $purchase_price Price at which this equipment was purchased.
+	 * @param Decimal $current_value Estimated current value of the equipment. 
+	 * @param Integer $quantity Quantity of which this equipment is present.
+	 * @param String $notes Notes for the equipment.
+	 */
+	public function updateEquipment($id, $model, $make, $name, $purchase_price, $current_value, $quantity, $notes);
+	
+	/**
+	 * Removes the equipment from the database.
+	 * @param Integer $id Equipment ID.
+	 */
+	public function deleteEquipment($id);
 }
 
 // Abstract Implementation of BNote Application Interface

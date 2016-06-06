@@ -1362,6 +1362,26 @@ abstract class AbstractBNA implements iBNA {
 		}
 	}
 	
+	public function addEquipment($model, $make, $name, $purchase_price, $current_value, $quantity, $notes) {
+		//TODO implement
+	}
+	
+	public function updateEquipment($id, $model, $make, $name, $purchase_price, $current_value, $quantity, $notes) {
+		//TODO implement
+	}
+	
+	public function deleteEquipment($id) {
+		//TODO implement
+	}
+	
+	public function getEquipment() {
+		//TODO implement
+	}
+	
+	public function updateSong($id, $title, $length, $bpm, $music_key, $notes, $genre, $composer, $status) {
+		//TODO implement
+	}
+	
 	private function flattenAddresses($selection) {
 		$addresses = array();
 		for($i = 1; $i < count($selection); $i++) {
@@ -1372,7 +1392,6 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	/* array helpers */
-	
 	function isArrayAllKeyInt($InputArray)
 	{
 	    if(!is_array($InputArray))
@@ -1388,25 +1407,21 @@ abstract class AbstractBNA implements iBNA {
 	    return array_unique(array_map("is_int", array_keys($InputArray))) === array(true);
 	}
 	
-	
 	function removeNumericKeys($array)
 	{
 		$isArrayAllKeysInt = $this->isArrayAllKeyInt($array);
-		foreach ($array as $key => $value) 
+		foreach ($array as $key => $value)
 		{
-//			echo $isArrayAllKeysInt . "-" . $key . " " . is_numeric($key) . " ". $value . "\n" ;
-		   if (is_numeric($key)  &&  $isArrayAllKeysInt == false) 
-			 {
-		     unset($array[$key]);
-//					print_r( $array);
-					//	echo "remove";
-				}
-		if(is_array($value))
+			if (is_numeric($key)  &&  $isArrayAllKeysInt == false)
 			{
-					$array[$key] = $this->removeNumericKeys($value);
+				unset($array[$key]);
 			}
+			if(is_array($value))
+			{
+				$array[$key] = $this->removeNumericKeys($value);
 			}
-			return $array;
+		}
+		return $array;
 	}
 }
 
