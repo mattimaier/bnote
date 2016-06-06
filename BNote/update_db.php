@@ -315,6 +315,17 @@ $update->addTable("tour_task", "CREATE TABLE tour_task (
 	task INT(11) NOT NULL
 )");
 
+// Task 7: add reservation table
+$update->addTable("reservation", "CREATE TABLE reservation (
+	id INT(11) PRIMARY KEY AUTO_INCREMENT,
+	begin DATETIME NOT NULL,
+	end DATETIME NOT NULL,
+	name VARCHAR(100) NOT NULL,
+	location INT(11),
+	contact INT(11),
+	notes TEXT
+)");
+
 ?>
 <br/><br/>
 <b><i>COMPLETE.</i></b>

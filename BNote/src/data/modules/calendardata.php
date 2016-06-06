@@ -8,6 +8,21 @@ class CalendarData extends AbstractData {
 	private $mitspielerdata;
 	
 	function __construct() {
+		$this->fields = array(
+			"id" => array(Lang::txt("id"), FieldType::INTEGER),
+			"begin" => array(Lang::txt("begin"), FieldType::DATETIME),
+			"end" => array(Lang::txt("end"), FieldType::DATETIME),
+			"name" => array(Lang::txt("name"), FieldType::CHAR),
+			"location" => array(Lang::txt("location"), FieldType::REFERENCE),
+			"contact" => array(Lang::txt("contact"), FieldType::REFERENCE),
+			"notes" => array(Lang::txt("notes"), FieldType::TEXT)
+		);
+		
+		$this->references = array(
+			"location" => "location",
+			"contact" => "contact"
+		);
+		
 		$this->startdata = new StartData();
 		$this->mitspielerdata = new MitspielerData();
 		$this->init();

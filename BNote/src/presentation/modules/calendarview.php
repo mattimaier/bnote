@@ -1,12 +1,18 @@
 <?php
 
-class CalendarView extends AbstractView {
+class CalendarView extends CrudRefView {
 	
 	/**
 	 * Create the start view.
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
+		$this->setEntityName(lang::txt("reservation"));
+		
+		$this->setJoinedAttributes(array(
+			"contact" => array("name", "surname"),
+			"location" => array("name")
+		));
 	}
 	
 	function start() {
@@ -47,10 +53,6 @@ class CalendarView extends AbstractView {
 		});
 		</script>
 		<?php
-	}
-	
-	function startOptions() {
-		// none
 	}
 	
 }
