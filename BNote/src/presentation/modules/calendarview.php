@@ -9,10 +9,7 @@ class CalendarView extends CrudRefView {
 		$this->setController($ctrl);
 		$this->setEntityName(lang::txt("reservation"));
 		
-		$this->setJoinedAttributes(array(
-			"contact" => array("name", "surname"),
-			"location" => array("name")
-		));
+		$this->setJoinedAttributes(CalendarData::$colExchange);
 	}
 	
 	function start() {
@@ -50,11 +47,21 @@ class CalendarView extends CrudRefView {
 				events: calendar_events["contacts"],
 				color: '#66FF61'  // green
 			});
+			$("#calendar").fullCalendar( 'addEventSource', {
+				events: calendar_events["reservations"],
+				color: '#A0A0A0'  // gray
+			});
 		});
 		</script>
 		<?php
 	}
 	
+	function changeDefaultAddEntityForm($form) {
+		$beginField = $form->getElement("begin");
+		$beginField->setCssClass("copyDateOrigin");
+		$endField = $form->getElement("end");
+		$endField->setCssClass("copyDateTarget");
+	}
 }
 
 ?>

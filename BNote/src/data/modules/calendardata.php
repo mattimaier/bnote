@@ -7,6 +7,11 @@ class CalendarData extends AbstractData {
 	private $startdata;
 	private $mitspielerdata;
 	
+	public static $colExchange = array(
+		"contact" => array("name", "surname"),
+		"location" => array("name")
+	);
+	
 	function __construct() {
 		$this->fields = array(
 			"id" => array(Lang::txt("id"), FieldType::INTEGER),
@@ -23,12 +28,18 @@ class CalendarData extends AbstractData {
 			"contact" => "contact"
 		);
 		
+		$this->table = "reservation";
+		
 		$this->startdata = new StartData();
 		$this->mitspielerdata = new MitspielerData();
 		$this->init();
 	}
 	
-	private function reduce_data($dbsel, $fields, $key_replace=array(), $title_prefix="") {
+	public function getJoinedAttributes() {
+		return $this->colExchange;
+	}
+	
+	private function reduce_data($entityType, $dbsel, $fields, $key_replace=array(), $title_prefix="", $link="#") {
 		$result = array();
 		for($i = 1; $i < count($dbsel); $i++) {
 			$row = $dbsel[$i];
@@ -53,7 +64,8 @@ class CalendarData extends AbstractData {
 			else {
 				$res_row["title"] = $title_prefix;
 			}
-			
+			$res_row["bnoteType"] = $entityType;
+			$res_row["link"] = $link . $res_row["id"];
 			array_push($result, $res_row);
 		}
 		
@@ -66,6 +78,7 @@ class CalendarData extends AbstractData {
 		$concerts_db = $this->adp()->getFutureConcerts();
 		$votes_db = $this->startdata->getVotesForUser();
 		$contacts_db = $this->mitspielerdata->getMembers();
+		$reservations_db = $this->findAllNoRef();
 		
 		// birthday: replace year with the current year
 		$contacts_db_edit = array();
@@ -90,33 +103,51 @@ class CalendarData extends AbstractData {
 		}
 		
 		$rehs = $this->reduce_data(
+				"rehearsal",
 				$rehs_db,
 				array("id", "begin", "end", "approve_until", "notes"),
 				array("begin" => "start"),
-				Lang::txt("calendar_rehearsal")
+				Lang::txt("calendar_rehearsal"),
+				"?mod=" . $this->getSysdata()->getModuleId("Proben") . "&mode=view&id="
 		);
 		$phases = $this->reduce_data(
+				"phase",
 				$phases_db,
 				array("id", "name", "begin", "end", "notes"),
-				array("begin" => "start", "name" => "title")
+				array("begin" => "start", "name" => "title"),
+				"?mod=" . $this->getSysdata()->getModuleId("Probenphasen") . "&mode=view&id="
 		);
 		$concerts = $this->reduce_data(
+				"concert",
 				$concerts_db,
 				array("id", "begin", "end", "approve_until", "location_name","notes"),
 				array("begin" => "start"),
-				Lang::txt("calendar_concert")
+				Lang::txt("calendar_concert"),
+				"?mod=" . $this->getSysdata()->getModuleId("Konzerte") . "&mode=view&id="
 		);
 		$votes = $this->reduce_data(
+				"vote",
 				$votes_db,
 				array("id", "name", "end"),
 				array("end" => "start", "name" => "title"),
-				Lang::txt("calendar_end_vote")
+				Lang::txt("calendar_end_vote"),
+				"?mod=" . $this->getSysdata()->getModuleId("Abstimmung") . "&mode=view&id="
 		);
 		$contacts = $this->reduce_data(
+				"contact",
 				$contacts_db_edit,
 				array("id", "birthday", "title"),
 				array("birthday" => "start"),
-				Lang::txt("calendar_birthday")
+				Lang::txt("calendar_birthday"),
+				"?mod=" . $this->getSysdata()->getModuleId("Kontakte") . "&mode=view&id="
+		);
+		$reservations = $this->reduce_data(
+				"reservation",
+				$reservations_db,
+				array("id", "begin", "name"),
+				array("begin" => "start", "name" => "title"),
+				Lang::txt("calendar_reservation"),
+				"?mod=" . $this->getSysdata()->getModuleId("Calendar") . "&mode=view&id="
 		);
 		
 		return array(
@@ -124,7 +155,8 @@ class CalendarData extends AbstractData {
 			"rehearsalphases" => $phases,
 			"concerts" => $concerts,
 			"votes" => $votes,
-			"contacts" => $contacts
+			"contacts" => $contacts,
+			"reservations" => $reservations
 		);
 	}
 	

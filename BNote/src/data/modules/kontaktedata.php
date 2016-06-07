@@ -91,8 +91,7 @@ class KontakteData extends AbstractData {
 	}
 	
 	/**
-	 * Returns the row with the contact, but with readable and modified
-	 * status values.
+	 * Returns the row with the contact, but with readable and modified status values.
 	 * @param int $id ID of the contact.
 	 */
 	function getContact($id) {

@@ -70,6 +70,7 @@ class Dataview {
   echo '<table>' . "\n";
 
   foreach($this->elements as $label => $element) {
+  	if(is_numeric($label)) continue;
   	echo " <tr>\n";
   	echo "  <td><b>" . ucfirst($label) . "</b></td>\n";
   	echo "  <td>" . $element . "</td>\n";

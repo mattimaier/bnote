@@ -65,7 +65,12 @@ $(document).ready(function() {
 	
 	$('#calendar').fullCalendar({
 		height: 700,
-		lang: "de"
+		lang: "de",
+		eventClick: function(calEvent, jsEvent, view) {
+			if(calEvent.bnoteType) {
+				window.location.href = "main.php" + calEvent.link;
+			}
+		}
     });
 	
 	$(".copyDateOrigin").on('change', function(event) {

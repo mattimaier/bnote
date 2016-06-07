@@ -16,7 +16,7 @@ class KonzerteView extends CrudRefView {
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
 			"program" => array("name"),
-			"contact" => array("surname", "name")
+			"contact" => array("name", "surname")
 		));
 	}
 	

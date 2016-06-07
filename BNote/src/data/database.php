@@ -88,10 +88,11 @@ class Database extends Data {
   * Returns an array of the form $id => name with the possible foreign keys
   * @param string $table The referenced table
   * @param string $idcolumn The referenced id column
-  * @param string $namecolumn The name for the reference
+  * @param string $namecolumn Name columns for reference
   */
- public function getForeign($table, $idcolumn, $namecolumn) {
- 	$query = "SELECT $idcolumn, $namecolumn FROM $table";
+ public function getForeign($table, $idcolumn, $namecolumns) {
+ 	$namecols = join(",", $namecolumns);
+ 	$query = "SELECT $idcolumn, $namecols FROM $table";
  	
  	// remove administrators from the corresponding tables
  	global $system_data;
@@ -115,21 +116,18 @@ class Database extends Data {
  			}
  		}
  	}
- 	$query .= " ORDER BY $namecolumn";
+ 	$query .= " ORDER BY $namecols";
  	
- 	$res = $this->exe($query);
- 	$ret = array();
- 	
- 	while($row = mysql_fetch_array($res)) {
- 		if(!isset($row[$idcolumn])) continue;
- 		if(!isset($row[$namecolumn])) {
- 			$ret[$row[$idcolumn]] = null;
- 		}
- 		else {
- 			$ret[$row[$idcolumn]] = $row[$namecolumn];
- 		}
- 	}
- 	
+ 	$dbSelection = $this->getSelection($query);
+	$ret = array();
+	for($i = 1; $i < count($dbSelection); $i++) {
+		$row = $dbSelection[$i];
+		$naming = array();
+		foreach($namecolumns as $col) {
+			array_push($naming, $row[$col]);
+		}
+		$ret[$row[$idcolumn]] = join(" ", $naming);
+	}
  	return $ret;
  }
 

@@ -282,6 +282,7 @@ class Translation extends BNoteTranslation {
 			"calendar_concert" => "Konzert",
 			"calendar_end_vote" => "Abst.-Ende:",
 			"calendar_birthday" => "Geb.:",
+			"calendar_reservation" => "Res.:",
 			
 			"equipment_model" => "Modell",
 			"equipment_make" => "Marke",
@@ -361,7 +362,7 @@ class Translation extends BNoteTranslation {
 			$dot1 = strpos($formattedDate, ".");
 			$dot2 = strpos($formattedDate, ".", $dot1+1);
 				
-			$time = substr($formattedDate, $dot2+6, 5);
+			$time = substr($formattedDate, $dot2+6, 5) . ":00";
 			$year = substr($formattedDate, $dot2+1, 4);
 			$month = substr($formattedDate, $dot1+1, $dot2-$dot1-1);
 			$day = substr($formattedDate, 0, $dot1);

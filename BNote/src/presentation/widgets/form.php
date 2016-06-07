@@ -54,6 +54,13 @@ class Form implements iWriteable {
   $this->elements[$name] = $element;
  }
 
+ public function getElement($name) {
+ 	if(isset($this->elements[$name])) {
+ 		return $this->elements[$name];
+ 	}
+ 	return null;
+ }
+ 
  /**
   *  Automatically adds elements from an array
   *  @param $array Array with format field => fieldtype
@@ -95,10 +102,10 @@ class Form implements iWriteable {
   * @param string $field The column which is the foreign key 
   * @param string $table The table the foreign key references to
   * @param string $idcolumn The column in the foreign table which is referenced
-  * @param string $namecolumn The column in the foreign table which contains the names for the refereced keys
+  * @param string $namecolumns An array with the naming columns
   * @param string $selectedid The id which is currently set, set -1 if none
   */
- public function setForeign($field, $table, $idcolumn, $namecolumn, $selectedid) {
+ public function setForeign($field, $table, $idcolumn, $namecolumns, $selectedid) {
  	// check whether key even exists
  	if(!array_key_exists($field, $this->elements)) new Error("Der Fremdschl&uuml;ssel konnte nicht gefunden werden.");
  	
@@ -106,7 +113,7 @@ class Form implements iWriteable {
  	$dropdown = new Dropdown($field);
  	
  	global $system_data;
- 	$choices = $system_data->dbcon->getForeign($table, $idcolumn, $namecolumn);
+ 	$choices = $system_data->dbcon->getForeign($table, $idcolumn, $namecolumns);
  	foreach($choices as $id => $name) {
  		$dropdown->addOption($name, $id);
  	}

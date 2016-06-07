@@ -22,23 +22,24 @@ abstract class CrudRefView extends CrudView {
 		$form = new Form($this->getEntityName() ." hinzuf&uuml;gen", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement($this->idField);
-		foreach($this->joinedAttributes as $field => $cols) {
-			
-			$caption = "";
-			foreach($cols as $i => $col) {
-				$caption .= $col . ", ";
-			}
-			$caption = substr($caption, 0, strlen($caption)-2);
-			
-			$form->setForeign($field, $this->getData()->getReferencedTable($field),
-						"id", $caption, -1);
+		foreach($this->joinedAttributes as $field => $naming_cols) {
+			$form->setForeign($field, $this->getData()->getReferencedTable($field), "id", $naming_cols, -1);
 		}
 		// remove internal reference fields
 		foreach($this->internalReferenceFields as $field => $value) {
 			$form->removeElement($field);
 			$form->addHidden($field, $value);
 		}
+		$this->changeDefaultAddEntityForm($form);
 		$form->write();
+	}
+	
+	/**
+	 * Change the default entity form rather than completely reimplementing it.
+	 * @param Form $form Form to change.
+	 */
+	protected function changeDefaultAddEntityForm($form) {
+		// leave blank by default
 	}
 	
 	protected function showAllTable() {
@@ -69,7 +70,7 @@ abstract class CrudRefView extends CrudView {
 		foreach($this->joinedAttributes as $joinField => $targetFields) {
 			$joinTable = $this->getData()->getReferencedTable($joinField);
 			$selectedId = $record[$joinField];
-			$form->setForeign($joinField, $joinTable, $this->idField, $targetFields[0], $selectedId);
+			$form->setForeign($joinField, $joinTable, $this->idField, $targetFields, $selectedId);
 		}
 		// remove internal reference fields
 		foreach($this->internalReferenceFields as $field => $value) {
