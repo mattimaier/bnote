@@ -23,11 +23,12 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "repertoiredata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "equipmentdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
-
+require_once $dir_prefix . "lang.php";
 $GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
 require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
 
@@ -441,6 +442,59 @@ abstract class AbstractBNA implements iBNA {
 			}
 			
 			$this->sendMail($_POST["subject"], $_POST["body"], $groups);
+		}
+		else if($function == "updateSong") {
+			// permission
+			if(!$this->sysdata->userHasPermission(6, $this->uid)) { // 6=Repertoire
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			if(!isset($_POST["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->updateSong($_POST["id"]);
+		}
+		else if($function == "addEquipment") {
+			// permission
+			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Repertoire
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			
+			$this->addEquipment();
+		}
+		else if($function == "updateEquipment") {
+			// permission
+			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Repertoire
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			if(!isset($_POST["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->updateEquipment($_POST["id"]);
+		}
+		else if($function == "getEquipment") {
+			// permission
+			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Repertoire
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			$this->getEquipment();
+		}
+		else if($function == "deleteEquipment") {
+			// permission
+			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Repertoire
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			if(!isset($_POST["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->deleteEquipment($_POST["id"]);
 		}
 		else {
 			$this->$function();
@@ -1362,24 +1416,30 @@ abstract class AbstractBNA implements iBNA {
 		}
 	}
 	
-	public function addEquipment($model, $make, $name, $purchase_price, $current_value, $quantity, $notes) {
-		//TODO implement
+	public function addEquipment() {
+		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
+		echo $eqData->create($_POST);
 	}
 	
-	public function updateEquipment($id, $model, $make, $name, $purchase_price, $current_value, $quantity, $notes) {
-		//TODO implement
+	public function updateEquipment($id) {
+		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
+		$eqData->update($id, $_POST);
 	}
 	
 	public function deleteEquipment($id) {
-		//TODO implement
+		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
+		$eqData->delete($id);
 	}
 	
 	public function getEquipment() {
-		//TODO implement
+		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
+		$eq = $eqData->findAllNoRef();
+		$this->printEntities($eq, "equipment");
 	}
 	
-	public function updateSong($id, $title, $length, $bpm, $music_key, $notes, $genre, $composer, $status) {
-		//TODO implement
+	public function updateSong($id) {
+		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
+		$repData->update($id, $_POST);
 	}
 	
 	private function flattenAddresses($selection) {
