@@ -21,8 +21,12 @@ sap.ui.jsview("bnote.member", {
                 press: function(evt) {
                 	  var oBindingContext = evt.getSource().getBindingContext(); // evt.getSource() is the ListItem
                       memberdetailView.setBindingContext(oBindingContext); // make sure the detail page has the correct data context
+                     
+                      var model = oBindingContext.getModel();
+                      var path = oBindingContext.getPath();
+                      var dataVisibility = [model.getProperty(path + "/phone") , model.getProperty(path + "/mobile") , model.getProperty(path + "/email")];
+                      memberdetailView.setDataVisibility(dataVisibility);
                       
-                                          
                       app.to("memberdetail");
                 }
             })
@@ -34,26 +38,32 @@ sap.ui.jsview("bnote.member", {
       	  design: sap.m.ToolbarDesign.Solid,
       	  content: [
       		   new sap.m.Button({
-      			   text: "Start",
       			   icon: sap.ui.core.IconPool.getIconURI( "home" ),
       			   press: function(){
       				   app.to("start")
       			   }
       		   }),
       		   new sap.m.Button({
-      			   text: "Mitspieler",
       			   icon: sap.ui.core.IconPool.getIconURI( "person-placeholder" ),
       			   press: function(){
       				   app.to("member")
       			   }
       		   }),
       		   new sap.m.Button({
-      			   text: "Kommunikation",
       			   icon: sap.ui.core.IconPool.getIconURI( "email" ),
       			   press: function(){
       				   app.to("communication")
       			   }
-      		   })
+      		   }),
+      		   new sap.m.Button({
+      			   icon: sap.ui.core.IconPool.getIconURI("marketing-campaign" ),
+      		   }),
+   		   	   new sap.m.Button({
+   		   		   icon: sap.ui.core.IconPool.getIconURI( "documents" ),
+   		   	   }),
+   		   	   new sap.m.Button({
+   		   		   icon: sap.ui.core.IconPool.getIconURI( "projector" ),
+   		   	   })
       		   ]
         });
 	

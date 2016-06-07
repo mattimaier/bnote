@@ -6,9 +6,6 @@ sap.ui.controller("bnote.member", {
         	url: backend.get_url("getContacts"),
         	success: function(data) {
                 var model = new sap.ui.model.json.JSONModel(data);
-               
-            
-                
                 oCtrl.getView().setModel(model);
                 memberdetailView.setModel(model);
             }

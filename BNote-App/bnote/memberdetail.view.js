@@ -4,42 +4,64 @@ sap.ui.jsview("bnote.memberdetail", {
 		return "bnote.memberdetail";
 	},
 	
+	setDataVisibility: function (dataVisibility){
+		
+	if (dataVisibility[0] == ""){	// dataVisibility[0] == phonenummber
+			this.phoneButton.setVisible(false);
+		}
+	else{
+			this.phoneButton.setVisible(true);
+		}
+	if (dataVisibility[1] == ""){	// dataVisibility[1] == mobilenummber
+			this.mobileButton.setVisible(false);
+		}
+	else{
+			this.mobileButton.setVisible(true);
+		}
+	if (dataVisibility[2] == ""){	// dataVisibility[2] == emailadress
+			this.emailButton.setVisible(false);
+		}
+	else{
+			this.emailButton.setVisible(true);
+		}
+	},
+	
 	createContent: function(){
+	         
 		   jQuery.sap.require("sap.ui.core.IconPool");
 		var memberdetailsForm = new sap.ui.layout.form.SimpleForm({
             title: "Kontaktdaten",
             content: [
                 new sap.m.Label({text: "Name"}),
-                new sap.m.Text({text: "{fullname}"}),
+                new sap.m.Text({text: "{fullname}"}),  
                 
+                new sap.m.Label({text: "Instrument"}),
+                new sap.m.Text({text: "{instrument}"}),
                 
-               
+                new sap.m.Label({text: "Adresse"}),
+                new sap.m.Text({text: "{street}"}),
+                new sap.m.Text({text: "{city}"}),
+           
                 new sap.m.Label({text: "Telefon"}),
-                //new sap.m.Text({text: "{phone}"}),
-                new sap.m.Button({
+                this.phoneButton = new sap.m.Button({
                 	text: "{phone}",
                 	width: "100%",
                 	icon: sap.ui.core.IconPool.getIconURI( "phone" ),
                 }),
                
                 new sap.m.Label({text: "Handy"}),
-                //new sap.m.Text({text: "{mobile}"}),
-                new sap.m.Button({
+                this.mobileButton = new sap.m.Button({
                 	text: "{mobile}",
                 	width: "100%",
                 	icon: sap.ui.core.IconPool.getIconURI( "iphone-2" ),
                 }),
                 
                 new sap.m.Label({text: "Email"}),
-                //new sap.m.Text({text: "{email}"}),
-                new sap.m.Button({
+                this.emailButton = new sap.m.Button({
                 	text: "{email}",
                 	width: "100%",
                 	icon: sap.ui.core.IconPool.getIconURI( "email" ),
                 }),
-                
-                new sap.m.Label({text: "Instrument"}),
-                new sap.m.Text({text: "{instrument}"}),
             ]
         });
 		

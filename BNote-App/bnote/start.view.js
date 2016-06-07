@@ -5,7 +5,7 @@ sap.ui.jsview("bnote.start", {
 	},
 
 	createContent : function(oController) {
-		var mainList = new sap.m.List();
+			var mainList = new sap.m.List();
 
 		mainList.bindItems({
 			growingScrollToLoad : "true",
@@ -37,35 +37,49 @@ sap.ui.jsview("bnote.start", {
 
 		jQuery.sap.require("sap.ui.core.IconPool");
 		var rehearsalBar = new sap.m.OverflowToolbar({
-
 			active : true,
 			design : sap.m.ToolbarDesign.Solid,
-			content : [ new sap.m.Button("rehearsalStartBtn", {
-				text : "Start",
+			content : [
+			new sap.m.Button("rehearsalStartBtn", {
 				icon : sap.ui.core.IconPool.getIconURI("home"),
 				press : function() {
 					app.to("start")
 				}
-			}), new sap.m.Button({
-				text : "Mitspieler",
+			}),
+			new sap.m.Button({
 				icon : sap.ui.core.IconPool.getIconURI("person-placeholder"),
 				press : function() {
 					app.to("member")
 				}
-			}), new sap.m.Button({
-				text : "Kommunikation",
+			}), 
+			new sap.m.Button({
 				icon : sap.ui.core.IconPool.getIconURI("email"),
 				press : function() {
 					app.to("communication")
 				}
-			}) ]
+			}),
+			new sap.m.Button({
+  			    icon: sap.ui.core.IconPool.getIconURI( "marketing-campaign" ),
+  		   }),
+		   	new sap.m.Button({
+		   		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
+		   	   }),
+		    new sap.m.Button({
+		    	icon: sap.ui.core.IconPool.getIconURI("projector"),
+		   	   })
+			]
 
 		});
 
+		var startaddButton = new sap.m.Button({
+			icon : sap.ui.core.IconPool.getIconURI("add")
+		});
+		
 		var page = new sap.m.Page("StartPage", {
 			title : "Start",
-			showNavButton : true,
+			showNavButton : true,			
 			navButtonPress : oController.onLogout,
+			headerContent : [ startaddButton ],
 			content : [ mainList ],
 			footer : [ rehearsalBar ]
 		});
