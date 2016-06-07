@@ -47,6 +47,9 @@ sap.ui.jsview("bnote.memberdetail", {
                 	text: "{phone}",
                 	width: "100%",
                 	icon: sap.ui.core.IconPool.getIconURI( "phone" ),
+                	press: function(){
+                		window.location = "tel:" + this.getText()
+                	}
                 }),
                
                 new sap.m.Label({text: "Handy"}),
@@ -54,6 +57,9 @@ sap.ui.jsview("bnote.memberdetail", {
                 	text: "{mobile}",
                 	width: "100%",
                 	icon: sap.ui.core.IconPool.getIconURI( "iphone-2" ),
+                	press:  function(){
+                		window.location = "tel:" + this.getText()
+                	}
                 }),
                 
                 new sap.m.Label({text: "Email"}),
@@ -61,6 +67,9 @@ sap.ui.jsview("bnote.memberdetail", {
                 	text: "{email}",
                 	width: "100%",
                 	icon: sap.ui.core.IconPool.getIconURI( "email" ),
+                	press:  function(){
+                		window.location = "mailto:" + this.getText()
+                	}
                 }),
             ]
         });
@@ -72,7 +81,7 @@ sap.ui.jsview("bnote.memberdetail", {
             app.back();
         },
 		content: [ memberdetailsForm ],
-        footer: [  ]
+        footer: [ naviBar ]
 	});
 	return page;
 	}

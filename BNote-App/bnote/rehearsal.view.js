@@ -71,7 +71,8 @@ sap.ui.jsview("bnote.rehearsal", {
             navButtonPress: function() {
                 app.back();
             },
-			content: [ rehearsalForm, this.buttonBar ]
+			content: [ rehearsalForm, this.buttonBar ],
+			footer: [naviBar]
 		});
 		
 		return page;

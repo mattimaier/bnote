@@ -44,6 +44,45 @@ backend = {
 	
 };
 
+// Global Navigation bar
+jQuery.sap.require("sap.ui.core.IconPool");
+naviBar = new sap.m.OverflowToolbar({
+	active : true,
+	design : sap.m.ToolbarDesign.Solid,
+	content : [
+	new sap.m.Button({
+		icon : sap.ui.core.IconPool.getIconURI("home"),
+		press : function() {
+			app.to("start")
+		}
+	}),
+	new sap.m.Button({
+		icon : sap.ui.core.IconPool.getIconURI("person-placeholder"),
+		press : function() {
+			app.to("member")
+		}
+	}), 
+	new sap.m.Button({
+		icon : sap.ui.core.IconPool.getIconURI("email"),
+		press : function() {
+			
+			app.to("communication")
+		}
+	}),
+	new sap.m.Button({
+		    icon: sap.ui.core.IconPool.getIconURI( "marketing-campaign" ),
+	   }),
+   	new sap.m.Button({
+   		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
+   	   }),
+    new sap.m.Button({
+    	icon: sap.ui.core.IconPool.getIconURI("projector"),
+   	   })
+	]
+
+});
+
+
 // Global View Definitions
 loginView = sap.ui.view({
     id: "login",
@@ -80,6 +119,7 @@ memberdetailView = sap.ui.view({
 	viewName: "bnote.memberdetail",
 	type: sap.ui.core.mvc.ViewType.JS	
 });
+
 // Build the app together
 app = new sap.m.App("bnoteApp", {
     initialPage: "login"

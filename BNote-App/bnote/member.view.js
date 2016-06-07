@@ -31,42 +31,7 @@ sap.ui.jsview("bnote.member", {
                 }
             })
         });
-	
-        jQuery.sap.require("sap.ui.core.IconPool");
-        var memberBar = new sap.m.OverflowToolbar({
-      	  active: true,
-      	  design: sap.m.ToolbarDesign.Solid,
-      	  content: [
-      		   new sap.m.Button({
-      			   icon: sap.ui.core.IconPool.getIconURI( "home" ),
-      			   press: function(){
-      				   app.to("start")
-      			   }
-      		   }),
-      		   new sap.m.Button({
-      			   icon: sap.ui.core.IconPool.getIconURI( "person-placeholder" ),
-      			   press: function(){
-      				   app.to("member")
-      			   }
-      		   }),
-      		   new sap.m.Button({
-      			   icon: sap.ui.core.IconPool.getIconURI( "email" ),
-      			   press: function(){
-      				   app.to("communication")
-      			   }
-      		   }),
-      		   new sap.m.Button({
-      			   icon: sap.ui.core.IconPool.getIconURI("marketing-campaign" ),
-      		   }),
-   		   	   new sap.m.Button({
-   		   		   icon: sap.ui.core.IconPool.getIconURI( "documents" ),
-   		   	   }),
-   		   	   new sap.m.Button({
-   		   		   icon: sap.ui.core.IconPool.getIconURI( "projector" ),
-   		   	   })
-      		   ]
-        });
-	
+        
 	var page = new sap.m.Page("MemberPage", {
         title: "Mitspieler",
         showNavButton: true,
@@ -74,7 +39,7 @@ sap.ui.jsview("bnote.member", {
             app.back();
         }, 
 		content: [ memberList ],
-        footer: [ memberBar ]
+        footer: [ naviBar ]
 	});
 	return page;
 	}
