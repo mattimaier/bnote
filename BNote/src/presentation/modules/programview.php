@@ -41,7 +41,11 @@ class ProgramView extends CrudView {
 		$back->write();
 		
 		$this->buttonSpace();
+		$add = new Link($this->modePrefix() . "addEntity", "Programm hinzufügen");
+		$add->addIcon("plus");
+		$add->write();
 		
+		$this->buttonSpace();
 		$addTpl = new Link($this->modePrefix() . "addFromTemplate", "Programm mit Vorlage hinzufügen");
 		$addTpl->addIcon("plus");
 		$addTpl->write();
@@ -151,7 +155,7 @@ class ProgramView extends CrudView {
 		echo "<table>\n";
 		
 		echo " <tr>\n";
-		echo "  <td colspan=\"2\">"; $this->writeIcon("add"); echo "Titel hinzufügen</td>\n";
+		echo "  <td colspan=\"2\">"; $this->writeIcon("plus"); echo "Titel hinzufügen</td>\n";
 		echo "  <td style=\"width: 20px;\">&nbsp;</td>\n";
 		echo "  <td colspan=\"2\">"; $this->writeIcon("remove"); echo "Titel von Programm entfernen</td>\n";
 		echo " </tr>\n";

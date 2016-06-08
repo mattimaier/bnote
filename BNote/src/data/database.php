@@ -91,7 +91,12 @@ class Database extends Data {
   * @param string $namecolumn Name columns for reference
   */
  public function getForeign($table, $idcolumn, $namecolumns) {
- 	$namecols = join(",", $namecolumns);
+ 	if(gettype($namecolumns) == "string") {
+ 		$namecols = $namecolumns;
+ 	}
+ 	else {
+ 		$namecols = join(",", $namecolumns);
+ 	}
  	$query = "SELECT $idcolumn, $namecols FROM $table";
  	
  	// remove administrators from the corresponding tables
@@ -122,11 +127,17 @@ class Database extends Data {
 	$ret = array();
 	for($i = 1; $i < count($dbSelection); $i++) {
 		$row = $dbSelection[$i];
-		$naming = array();
-		foreach($namecolumns as $col) {
-			array_push($naming, $row[$col]);
+		if(gettype($namecolumns) == "string") {
+			$nameVal = $row[$namecolumns];
 		}
-		$ret[$row[$idcolumn]] = join(" ", $naming);
+		else {
+			$naming = array();
+			foreach($namecolumns as $col) {
+				array_push($naming, $row[$col]);
+			}
+			$nameVal = join(" ", $naming);
+		}
+		$ret[$row[$idcolumn]] = $nameVal;
 	}
  	return $ret;
  }

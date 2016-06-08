@@ -845,7 +845,7 @@ abstract class AbstractBNA implements iBNA {
 	function getContacts() {
 		$msd = new MitspielerData($GLOBALS["dir_prefix"]);
 		$contacts = $msd->getMembers($this->uid);
-		unset($contacts[0]);
+		unset($contacts[0]);  // header
 		
 		$contacts = $this->removeNumericKeys($contacts);
 		$this->printEntities($contacts, "contacts");
@@ -857,6 +857,7 @@ abstract class AbstractBNA implements iBNA {
 		$locs = $locData->findAllJoined(array(
 			"address" => array("street", "city", "zip")
 		));
+		unset($locs[0]);  // header
 		$this->printEntities($locs, "locations");
 		return $locs;
 	}
@@ -873,9 +874,8 @@ abstract class AbstractBNA implements iBNA {
 			
 			array_push($entities, $task);
 		}
-		
+		unset($entities[0]);  // header
 		$this->printEntities($entities, "task");
-		return $entities;
 	}
 	
 	function getNews() {
@@ -1182,6 +1182,7 @@ abstract class AbstractBNA implements iBNA {
 	
 	function getGroups() {
 		$selection = $this->startdata->adp()->getGroups(true);
+		unset($selection[0]);  // header
 		$this->printEntities($selection, "group");
 	}
 	
@@ -1266,7 +1267,6 @@ abstract class AbstractBNA implements iBNA {
 			"success" => "true"
 		);
 		$this->writeEntity($response, null);
-		echo "true"; // success
 	}
 	
 	function addConcert($begin, $end, $approve_until, $notes, $location, $program, $contact, $groups) {
