@@ -8,6 +8,14 @@ mobilePin = null;  // Default null
 
 backend = {
 		
+	comparedates: function(startDatePath, stopDatePath, model){
+		var startdate = model.getProperty(startDatePath); // Already Date Object
+		var stopdate = new Date(Date.parse(model.getProperty(stopDatePath)));
+		var differenceInMilliseconds = stopdate.getTime() - startdate.getTime();
+		var delta = new Date (differenceInMilliseconds);
+		return delta;
+	},	
+		
 	get_url: function(func) {
 		var path = "../bnote/src/export/bna-json.php";
 		var url = path + "?func=" + func;
@@ -25,12 +33,13 @@ backend = {
 			var newdate = new Date(Date.parse(olddate)); 
 			newdate.toString = function() {
 				var d = backend.leadingZero(this.getDate());
-				var m = backend.leadingZero(this.getMonth());
+				var m = backend.leadingZero(this.getMonth() + 1); // getMonth begins with 0 for January
 				var h = backend.leadingZero(this.getHours());
 				var min = backend.leadingZero(this.getMinutes());
 				return d + "." + m + "." + this.getFullYear() + " " + h + ":" + min + " Uhr";
 			};
 			model.setProperty(collectionpath + "/"+ idx + datepath, newdate);
+			model.setProperty(collectionpath + "/"+ idx + datepath + "_original", olddate);
 		});
 		return model;
 	},
@@ -120,6 +129,18 @@ memberdetailView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS	
 });
 
+concertView = sap.ui.view({
+	id: "concert",
+	viewName: "bnote.concert",
+	type: sap.ui.core.mvc.ViewType.JS	
+});
+
+taskView = sap.ui.view({
+	id: "task",
+	viewName: "bnote.task",
+	type: sap.ui.core.mvc.ViewType.JS
+})
+
 // Build the app together
 app = new sap.m.App("bnoteApp", {
     initialPage: "login"
@@ -131,6 +152,8 @@ app.addPage(rehearsalView);
 app.addPage(memberView);
 app.addPage(communicationView);
 app.addPage(memberdetailView);
+app.addPage(concertView);
+app.addPage(taskView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",

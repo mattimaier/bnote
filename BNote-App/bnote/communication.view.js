@@ -7,8 +7,7 @@ sap.ui.jsview("bnote.communication", {
 	//This function is dynamically adding a checkbox for every group
 	setCheckboxVisibility : function(model) {
 		this.setModel(model);
-		for (i = 1; model.getProperty("/group/" + i + "/name") != undefined; i++) {
-			console.log(model.getProperty("/group/" + i + "/name"));
+		for (var i = 1; model.getProperty("/group/" + i + "/name") != undefined; i++) {
 			this.communicationForm.addContent(new sap.m.CheckBox({
 				text : model.getProperty("/group/" + i + "/name"),
 				selected: "{/group/" + i + "/selected}"
@@ -20,8 +19,29 @@ sap.ui.jsview("bnote.communication", {
 				var subject = model.getProperty("/subject");
 				var body = model.getProperty("/body");
 				var groups = model.getProperty("/group");
-				console.log(subject,body,groups);
-				
+				var groupids = [];
+				for(var i = 0;i < groups.length;i++){
+					if(groups[i].selected){
+						groupids.push(groups[i].id);
+					}
+				}
+				var requestdata = {subject: subject, body: body, groups: groupids.join(",")};
+				jQuery.ajax({
+			        	url: backend.get_url("sendMail"),
+			            type: "POST",          	         
+			            data: requestdata, 
+			            success: function(data) {
+			            	// TODO: reset form and toast 
+			            	this.communicationForm.resetForm();
+			            	sap.m.MessageToast.show("Senden erfolgreich");
+			                console.log(data);
+			            },
+			            error: function(a,b,c) {
+			            	this.communicationForm.resetForm();
+			                sap.m.MessageToast.show("Senden fehlgeschlagen");
+			                console.log(b + ": " + c);
+			            }
+			       });
 			}
 		}))
 	},
@@ -49,13 +69,12 @@ sap.ui.jsview("bnote.communication", {
 		
 		var page = new sap.m.Page("CommunicationPage", {
 	        title: "Kommunikation",
-	        enableScrolling: true,
 	        showNavButton: true,
 	        navButtonPress: function() {
 	            app.back();
 	        },
 			content: [ this.communicationForm ],
-	        footer: [ naviBar ]
+	        footer: [naviBar]
 		});
 		return page;
 	}	

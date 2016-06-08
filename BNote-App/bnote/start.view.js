@@ -28,8 +28,19 @@ sap.ui.jsview("bnote.start", {
 						rehearsalView.setButtons(participate);
 						app.to("rehearsal");
 					}
-					else {
-						sap.m.MessageToast.show("Konzert nicht implementiert");
+					else if (objType == "Concert"){
+						
+						concertView.setBindingContext(oBindingContext);
+						var participate = model.getProperty(path + "/participate");
+						var location = model.getProperty(path + "/location");
+						concertView.prepareModel(location);
+						concertView.setButtons(participate);
+						app.to("concert");
+					}
+					else if (objType == "Task"){
+						taskView.setBindingContext(oBindingContext);
+						taskView.getController().onTaskPress();
+						app.to("task");
 					}
 				}
 			})

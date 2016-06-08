@@ -39,7 +39,7 @@ sap.ui.jsview("bnote.member", {
             app.back();
         }, 
 		content: [ memberList ],
-        footer: [ naviBar ]
+        footer: [naviBar]
 	});
 	return page;
 	}
