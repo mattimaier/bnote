@@ -53,7 +53,7 @@ sap.ui.controller("bnote.vote",{
 		var path = oBindingContext.getPath();
 		var vote_option = 0;
 		var vote_optionid = 0;
-		var option = new Array [];
+		var option = [];
 		
 		for (var i = 0; i < model.getProperty(path + "/options").length; i++){
 			
@@ -78,7 +78,7 @@ sap.ui.controller("bnote.vote",{
 		jQuery.ajax({
 			url : backend.get_url("vote"),
 			type : "POST",
-			data : ,
+			data : "",
 			success : function(result) {
 				console.log(result);
 			},

@@ -81,7 +81,7 @@ sap.ui.jsview("bnote.memberdetail", {
             app.back();
         },
 		content: [ memberdetailsForm ],
-        footer: [ naviBar ]
+        footer: [ getNaviBar() ]
 	});
 	return page;
 	}

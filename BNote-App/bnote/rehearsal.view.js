@@ -101,7 +101,7 @@ sap.ui.jsview("bnote.rehearsal", {
                 app.back();
             },
 			content: [ rehearsalForm, this.buttonBar ],
-			footer: [naviBar]
+			footer: [getNaviBar()]
 		});
 		
 		return page;

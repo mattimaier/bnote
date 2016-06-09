@@ -12,5 +12,15 @@ sap.ui.controller("bnote.member", {
         });
     },
 	
+
+    filterList: function(oEvent){  
+              var like = oEvent.getParameter("newValue");  
+              var oFilter = new sap.ui.model.Filter("fullname",   
+                                                      sap.ui.model.FilterOperator.Contains,   
+                                                      like);  
+              var element = sap.ui.getCore().getElementById("memberList");  
+              var listBinding = element.getBinding("items");  
+              listBinding.filter([oFilter]);  
+    }
 	
 });

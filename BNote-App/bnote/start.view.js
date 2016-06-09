@@ -57,49 +57,13 @@ sap.ui.jsview("bnote.start", {
 			
 		});
 		
-		var xnaviBar = new sap.m.OverflowToolbar({
-			active : true,
-			design : sap.m.ToolbarDesign.Solid,
-			content : [
-			new sap.m.Button({
-				icon : sap.ui.core.IconPool.getIconURI("home"),
-				press : function() {
-					app.to("start")
-				}
-			}),
-			new sap.m.Button({
-				icon : sap.ui.core.IconPool.getIconURI("person-placeholder"),
-				press : function() {
-					app.to("member")
-				}
-			}), 
-			new sap.m.Button({
-				icon : sap.ui.core.IconPool.getIconURI("email"),
-				press : function() {
-					communicationView.getController().onemailClick(),
-					app.to("communication")
-				}
-			}),
-			new sap.m.Button({
-				    icon: sap.ui.core.IconPool.getIconURI( "marketing-campaign" ),
-			   }),
-		   	new sap.m.Button({
-		   		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
-		   	   }),
-		    new sap.m.Button({
-		    	icon: sap.ui.core.IconPool.getIconURI("projector"),
-		   	   })
-			]
-
-		});
-		
 		var page = new sap.m.Page("StartPage", {
 			title : "Start",
 			showNavButton : true,			
 			navButtonPress : oController.onLogout,
 			headerContent : [ startaddButton ],
 			content : [ mainList ],
-			footer : [ xnaviBar ]
+			footer : [ getNaviBar() ]
 		});
 
 		return page;

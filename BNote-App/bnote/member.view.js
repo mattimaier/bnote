@@ -4,11 +4,18 @@ sap.ui.jsview("bnote.member", {
 		return "bnote.member";
 	},
 	 
-	createContent: function(){
-		var memberList = new sap.m.List({
+	createContent: function(oController){
+		
+		var memberSearch = new sap.m.SearchField("memberSearch",{  
+	         tooltip: "Mitspieler durchsuchen",  
+	         liveChange: oController.filterList  
+	  });  
+		
+		var memberList = new sap.m.List("memberList",{
             headerText: "Mitspieler",
         });
 		
+			
         memberList.bindItems({
         	growingScrollToLoad : "true",
             path : "/contacts",
@@ -38,8 +45,8 @@ sap.ui.jsview("bnote.member", {
         navButtonPress: function() {
             app.back();
         }, 
-		content: [ memberList ],
-        footer: [naviBar]
+		content: [memberSearch, memberList ],
+        footer: [getNaviBar()]
 	});
 	return page;
 	}

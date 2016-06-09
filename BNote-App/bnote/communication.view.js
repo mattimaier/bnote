@@ -74,7 +74,7 @@ sap.ui.jsview("bnote.communication", {
 	            app.back();
 	        },
 			content: [ this.communicationForm ],
-	        footer: [naviBar]
+	        footer: [ getNaviBar() ]
 		});
 		return page;
 	}	

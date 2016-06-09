@@ -118,7 +118,7 @@ sap.ui.jsview("bnote.concert", {
                 app.back();
             },
 			content: [ concertForm, this.buttonBar ],
-			footer: [naviBar]
+			footer: [getNaviBar()]
 		});
 		return page;
 	}
