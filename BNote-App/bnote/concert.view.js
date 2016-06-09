@@ -61,7 +61,8 @@ sap.ui.jsview("bnote.concert", {
 		                      text: "OK",       
 		            	      press: function(){
 		            		  var concertSetParticipation = 1;
-		            	      oController.onParticipationPress(concertSetParticipation);  
+		            	      oController.onParticipationPress(concertSetParticipation); 
+		            	      oController.submit();
 		            	   	  },            	  
 		            	      }),
 		           	      new sap.m.Button("concertMaybeBtn",{
@@ -79,8 +80,36 @@ sap.ui.jsview("bnote.concert", {
 		                	  }
 		            	      }),
 		                   ]
-		                      
 		        });
+	  
+	  this.submitButton = new sap.m.Button({
+	  		text: "Abschicken",
+	  		press: function(){
+	  			oController.submit();
+	  			concertView.oDialog.close();
+	  		}
+	  });
+
+	  this.closeButton = new sap.m.Button({
+	  		text: "Abbrechen",
+	  		press: function(){
+	  			concertView.oDialog.close();
+	  		}
+	  });
+
+	  this.oDialog = new sap.m.Dialog({
+	   		title: "Grund",
+	   		modal: true,
+	   		contentWidth:"1em",
+	   		buttons: [ this.submitButton, this.closeButton ],
+	   		content:[
+	   		         this.explanation = new sap.m.Input({
+	   		        	 	type: sap.m.InputType.Text,
+	   		        	 	value: "",
+	   		        	 	valueLiveUpdate: true
+	   		         })
+	      	]
+	  });  
 	
 		var page = new sap.m.Page("ConcertPage", {
             title: "Konzert",

@@ -17,8 +17,9 @@ sap.ui.controller("bnote.start", {
                 items = items.concat(concert_items);
                 var tasks_items = oCtrl.startItemMapping(tasks, "Task", "due_at", ["title"], "icons/tasks.png");
                 items = items.concat(tasks_items);
-                // var votes_items = oCtrl.startItemMapping(votes, "Vote", "", [""]);
-
+                var votes_items = oCtrl.startItemMapping(votes, "Vote", "end", ["name"], "icons/abstimmung.png");
+                items = items.concat(votes_items);
+                
                 // set model on related views
                 var model = new sap.ui.model.json.JSONModel({
                     /*
@@ -30,8 +31,8 @@ sap.ui.controller("bnote.start", {
                      * - icon
                      */
                     "items": items
-                });
-                
+                });        
+                   
                 backend.formatdate("/items", "/due_at", model);
                 backend.formatdate("/items", "/start", model);
                 backend.formatdate("/items", "/begin", model);
@@ -40,6 +41,7 @@ sap.ui.controller("bnote.start", {
                 rehearsalView.setModel(model);
                 concertView.setModel(model);
                 taskView.setModel(model);
+                voteView.setModel(model);
             },
             error: function(a,b,c) {
                 sap.m.MessageToast.show("Laden der Daten fehlgeschlagen");

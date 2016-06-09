@@ -44,26 +44,55 @@ sap.ui.jsview("bnote.rehearsal", {
 		                      text: "OK",       
 		            	      press: function(){
 		            		  var rehearsalSetParticipation = 1;
-		            	      oController.onParticipationPress(rehearsalSetParticipation);  
+		            	      oController.onParticipationPress(rehearsalSetParticipation); 
+		            	      oController.submit();
 		            	   	  },            	  
 		            	      }),
 		           	      new sap.m.Button("rehearsalMaybeBtn",{
 		            	      text: "vielleicht",
 		            	      press: function(){
 		            		  var rehearsalSetParticipation = 2;
-		            		  oController.onParticipationPress(rehearsalSetParticipation);  
+		            		  oController.onParticipationPress(rehearsalSetParticipation); 
 		            	   	  }, 
 		            	      }),
 		            	  new sap.m.Button("rehearsalNoBtn",{
 		            	      text: "Kann nicht",
 		            	      press: function(){
 		                	  var rehearsalSetParticipation = 0;
-		                	  oController.onParticipationPress(rehearsalSetParticipation);  
+		                	  oController.onParticipationPress(rehearsalSetParticipation); 
 		                	  }
 		            	      }),
 		                   ]
-		                      
 		        });
+	  
+	  this.submitButton = new sap.m.Button({
+		  		text: "Abschicken",
+		  		press: function(){
+		  			oController.submit();
+		  			rehearsalView.oDialog.close();
+		  		}
+	  });
+	  
+	  this.closeButton = new sap.m.Button({
+		  		text: "Abbrechen",
+		  		press: function(){
+		  			rehearsalView.oDialog.close();
+		  		}
+	  });
+	  
+	   this.oDialog = new sap.m.Dialog({
+		   		title: "Grund",
+		   		modal: true,
+		   		contentWidth:"1em",
+		   		buttons: [ this.submitButton, this.closeButton ],
+		   		content:[
+		   		         this.reason = new sap.m.Input({
+		   		        	 	type: sap.m.InputType.Text,
+		   		        	 	value: "",
+		   		        	 	valueLiveUpdate: true
+		   		         })
+		      	]
+	   });       
 	
 		var page = new sap.m.Page("RehearsalPage", {
             title: "Probe",

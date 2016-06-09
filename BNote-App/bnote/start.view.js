@@ -40,7 +40,12 @@ sap.ui.jsview("bnote.start", {
 					else if (objType == "Task"){
 						taskView.setBindingContext(oBindingContext);
 						taskView.getController().onTaskPress();
-						app.to("task");
+						app.to("task");						
+					}
+					else if (objType == "Vote"){
+						voteView.setBindingContext(oBindingContext);
+						voteView.getController().onVotePress();
+						app.to("vote");
 					}
 				}
 			})

@@ -139,7 +139,14 @@ taskView = sap.ui.view({
 	id: "task",
 	viewName: "bnote.task",
 	type: sap.ui.core.mvc.ViewType.JS
-})
+});
+
+voteView = sap.ui.view({
+	id: "vote",
+	viewName: "bnote.vote",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
 
 // Build the app together
 app = new sap.m.App("bnoteApp", {
@@ -154,6 +161,7 @@ app.addPage(communicationView);
 app.addPage(memberdetailView);
 app.addPage(concertView);
 app.addPage(taskView);
+app.addPage(voteView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",
