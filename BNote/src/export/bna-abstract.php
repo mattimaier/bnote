@@ -75,9 +75,7 @@ abstract class AbstractBNA implements iBNA {
 		$this->startdata = new StartData($dir_prefix);
 
 		$this->init();
-		
 		$this->authentication();
-		
 		$this->route();
 	}
 
@@ -302,8 +300,8 @@ abstract class AbstractBNA implements iBNA {
 				$part = -1;
 			}
 			$reason = "";
-			if(isset($_POST["reason"])) {
-				$reason = $_POST["reason"];
+			if(isset($_POST["explanation"])) {
+				$reason = $_POST["explanation"];
 			}
 			$this->setConcertParticipation($_POST["concert"], $this->uid, $part, $reason);
 		}
@@ -1015,36 +1013,12 @@ abstract class AbstractBNA implements iBNA {
 	}
 
 	function setRehearsalParticipation($rid, $uid, $part, $reason) {
-		$_GET["rid"] = $rid;
-		$_SESSION["user"] = $uid;
-
-		if($part == 1) {
-			// participate
-			$_GET["status"] = "yes";
+		$reason = "";
+		if(isset($_POST["reason"])) {
+			$reason = $_POST["reason"];
 		}
-		elseif($part == 2) {
-			// maybe participate
-			$_POST["rehearsal"] = $rid;
-			$_GET["status"] = "maybe";
-		}
-		else {
-			// do not participate
-			$_POST["rehearsal"] = $rid;
-			$_GET["status"] = "no";
-		}
-		if($reason == "") {
-			$_POST["explanation"] = "nicht angegeben";
-		}
-		else {
-			$_POST["explanation"] = $reason;
-		}
-		$this->startdata->saveParticipation();
-		unset($_SESSION["user"]);
-		
-		$response = array(
-			"success" => "true"
-		);
-		$this->writeEntity($response, null);
+		$this->startdata->saveParticipation("rehearsal", $uid, $rid, $part, $reason);
+		$this->writeEntity(array("success" => "true"), null);
 	}
 
 	function taskCompleted($tid) {
@@ -1264,11 +1238,8 @@ abstract class AbstractBNA implements iBNA {
 	protected abstract function printVoteResult($vote);
 	
 	function setConcertParticipation($cid, $uid, $part, $reason) {
-		$this->startdata->saveParticipation($uid);
-		$response = array(
-			"success" => "true"
-		);
-		$this->writeEntity($response, null);
+		$this->startdata->saveParticipation("concert", $uid, $cid, $part, $reason);
+		$this->writeEntity(array("success" => "true"), null);
 	}
 	
 	function addConcert($begin, $end, $approve_until, $notes, $location, $program, $contact, $groups) {
@@ -1426,22 +1397,26 @@ abstract class AbstractBNA implements iBNA {
 	public function updateEquipment($id) {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		$eqData->update($id, $_POST);
+		echo "{success: true}";
 	}
 	
 	public function deleteEquipment($id) {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		$eqData->delete($id);
+		echo "{success: true}";
 	}
 	
 	public function getEquipment() {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		$eq = $eqData->findAllNoRef();
+		unset($eq[0]);
 		$this->printEntities($eq, "equipment");
 	}
 	
 	public function updateSong($id) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$repData->update($id, $_POST);
+		echo "{success: true}";
 	}
 	
 	private function flattenAddresses($selection) {

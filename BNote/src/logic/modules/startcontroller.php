@@ -33,17 +33,19 @@ class StartController extends DefaultController {
 		}
 		else {
 			// map parameters (this is necessary due to old implementation)
-			if($_GET["obj"] == "rehearsal") {
-				$_GET["rid"] = $_GET["id"];
-				$_POST["rehearsal"] = $_GET["id"];
+			switch($_GET["action"]) {
+				case "yes": $participate = 1; break;
+				case "no": $participate = 0; break;
+				case "maybe": $participate = 2; break;
+				default: $participate = -1; break;  // not set
 			}
-			else if($_GET["obj"] == "concert") {
-				$_GET["cid"] = $_GET["id"];
-				$_POST["concert"] = $_GET["id"];
-			}
-			$_GET["status"] = $_GET["action"];
 			
-			$this->getData()->saveParticipation();
+			$reason = "";
+			if(isset($_POST['explanation'])) {
+				$reason = $_POST['explanation'];
+			}
+			
+			$this->getData()->saveParticipation($_GET["obj"], null, $_GET["id"], $participate, $reason);
 			$this->getView()->start();
 		}
 	}
