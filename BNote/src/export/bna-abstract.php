@@ -29,6 +29,7 @@ require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
 require_once $dir_prefix . "lang.php";
+
 $GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
 require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
 
@@ -74,8 +75,9 @@ abstract class AbstractBNA implements iBNA {
 		$this->startdata = new StartData($dir_prefix);
 
 		$this->init();
-
+		
 		$this->authentication();
+		
 		$this->route();
 	}
 
@@ -1371,7 +1373,7 @@ abstract class AbstractBNA implements iBNA {
 	
 	function sendMail($subject, $body, $groups) {
 		// fetch addresses
-		if($groups == null || group == "" || count($groups) == 0) {
+		if($groups == null || $groups == "" || count($groups) == 0) {
 			echo "Error: no groups.";
 			exit;
 		}
