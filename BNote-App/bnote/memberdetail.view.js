@@ -4,31 +4,14 @@ sap.ui.jsview("bnote.memberdetail", {
 		return "bnote.memberdetail";
 	},
 	
-	setDataVisibility: function (dataVisibility){
-		
-	if (dataVisibility[0] == ""){	// dataVisibility[0] == phonenummber
-			this.phoneButton.setVisible(false);
-		}
-	else{
-			this.phoneButton.setVisible(true);
-		}
-	if (dataVisibility[1] == ""){	// dataVisibility[1] == mobilenummber
-			this.mobileButton.setVisible(false);
-		}
-	else{
-			this.mobileButton.setVisible(true);
-		}
-	if (dataVisibility[2] == ""){	// dataVisibility[2] == emailadress
-			this.emailButton.setVisible(false);
-		}
-	else{
-			this.emailButton.setVisible(true);
-		}
+	setDataVisibility: function (dataVisibility) {
+        this.phoneButton.setVisible(dataVisibility[0] != "");
+    	this.mobileButton.setVisible(dataVisibility[1] != "");
+        this.emailButton.setVisible(dataVisibility[2] != "");
 	},
 	
-	createContent: function(){
-	         
-		   jQuery.sap.require("sap.ui.core.IconPool");
+	createContent: function() {
+	    jQuery.sap.require("sap.ui.core.IconPool");
 		var memberdetailsForm = new sap.ui.layout.form.SimpleForm({
             title: "Kontaktdaten",
             content: [
@@ -39,8 +22,12 @@ sap.ui.jsview("bnote.memberdetail", {
                 new sap.m.Text({text: "{instrument}"}),
                 
                 new sap.m.Label({text: "Adresse"}),
-                new sap.m.Text({text: "{street}"}),
-                new sap.m.Text({text: "{city}"}),
+                new sap.m.VBox({
+                    items: [
+                        new sap.m.Text({text: "{street}"}),
+                        new sap.m.Text({text: "{city}"})
+                    ]
+                }),
            
                 new sap.m.Label({text: "Telefon"}),
                 this.phoneButton = new sap.m.Button({

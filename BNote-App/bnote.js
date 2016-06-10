@@ -30,10 +30,24 @@ backend = {
 		var items = model.getProperty(collectionpath);
 		items.forEach(function(entity, idx) {
 			var olddate = model.getProperty(collectionpath + "/" + idx + datepath);
-			var newdate = new Date(Date.parse(olddate)); 
+			if(typeof(olddate) == "undefined") {
+				return;
+			}
+			// manual parsing due to a Safari bug is necessary
+			var y = olddate.substr(0,4);
+			var m = olddate.substr(5,2);
+			var d = olddate.substr(8,2);
+			var h = 0;
+			var i = 0;
+			var s = 0;
+			if(olddate.length > 10) {
+				h = olddate.substr(11,2);
+				i = olddate.substr(14,2);
+			}
+			var newdate = new Date(y,m,d,h,i,s);
 			newdate.toString = function() {
 				var d = backend.leadingZero(this.getDate());
-				var m = backend.leadingZero(this.getMonth() + 1); // getMonth begins with 0 for January
+				var m = backend.leadingZero(this.getMonth()); // getMonth begins with 0 for January
 				var h = backend.leadingZero(this.getHours());
 				var min = backend.leadingZero(this.getMinutes());
 				return d + "." + m + "." + this.getFullYear() + " " + h + ":" + min + " Uhr";
@@ -60,33 +74,36 @@ function getNaviBar(){
 			active : true,
 			design : sap.m.ToolbarDesign.Solid,
 			content : [
-			new sap.m.Button({
-				icon : sap.ui.core.IconPool.getIconURI("home"),
-				press : function() {
-					app.to("start")
-				}
-			}),
-			new sap.m.Button({
-				icon : sap.ui.core.IconPool.getIconURI("person-placeholder"),
-				press : function() {
-					app.to("member")
-				}
-			}), 
-			new sap.m.Button({
-				icon : sap.ui.core.IconPool.getIconURI("email"),
-				press : function() {
-					communicationView.getController().onEmailClick();					
-				}
-			}),
-			new sap.m.Button({
+				new sap.m.Button({
+					icon : sap.ui.core.IconPool.getIconURI("home"),
+					press : function() {
+						app.to("start")
+					}
+				}),
+				new sap.m.Button({
+					icon : sap.ui.core.IconPool.getIconURI("person-placeholder"),
+					press : function() {
+						app.to("member")
+					}
+				}), 
+				new sap.m.Button({
+					icon : sap.ui.core.IconPool.getIconURI("email"),
+					press : function() {
+						communicationView.getController().onEmailClick();					
+					}
+				}),
+				new sap.m.Button({
 				    icon: sap.ui.core.IconPool.getIconURI( "marketing-campaign" ),
-			   }),
-		   	new sap.m.Button({
-		   		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
-		   	   }),
-		    new sap.m.Button({
-		    	icon: sap.ui.core.IconPool.getIconURI("projector"),
-		   	   })
+				    press: function() {
+				    	app.to("news");
+				    }
+			    }),
+			   	new sap.m.Button({
+			   		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
+			   	}),
+			    new sap.m.Button({
+			    	icon: sap.ui.core.IconPool.getIconURI("projector"),
+			   	})
 			]
 		
 		});
@@ -147,6 +164,11 @@ voteView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
+newsView = sap.ui.view({
+	id: "news",
+	viewName: "bnote.news",
+	type: sap.ui.core.mvc.ViewType.JS
+});
 
 // Build the app together
 app = new sap.m.App("bnoteApp", {
@@ -162,6 +184,7 @@ app.addPage(memberdetailView);
 app.addPage(concertView);
 app.addPage(taskView);
 app.addPage(voteView);
+app.addPage(newsView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",

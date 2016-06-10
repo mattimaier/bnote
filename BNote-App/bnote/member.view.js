@@ -14,7 +14,6 @@ sap.ui.jsview("bnote.member", {
 		var memberList = new sap.m.List("memberList",{
             headerText: "Mitspieler",
         });
-		
 			
         memberList.bindItems({
         	growingScrollToLoad : "true",
