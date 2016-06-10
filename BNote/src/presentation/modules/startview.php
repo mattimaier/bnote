@@ -672,6 +672,10 @@ class StartView extends AbstractView {
 		// show discussion again
 		$this->discussion();
 	}
+	
+	function saveParticipationOptions() {
+		$this->backToStart();
+	}
 }
 
 ?>

@@ -177,7 +177,11 @@ class Mailing {
 		
 		// load template
 		$tpl_path = "data/mail_template.html";
-		$template = file_get_contents($tpl_path);
+		$dir_prefix = "";
+		if(isset($GLOBALS['dir_prefix'])) {
+			$dir_prefix = $GLOBALS["dir_prefix"];
+		}
+		$template = file_get_contents($dir_prefix . $tpl_path);
 		
 		// replace placeholders
 		$tpl_mail = str_replace("%encoding%", $this->encoding, $template);

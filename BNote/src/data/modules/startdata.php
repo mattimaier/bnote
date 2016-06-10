@@ -66,82 +66,27 @@ class StartData extends AbstractData {
 		else return -1;
 	}
 	
-	/**
-	 * Takes the $_GET and $_POST array and extracts the information.
-	 */
-	function saveParticipation($uid = null) {
+	function saveParticipation($entity, $uid, $id, $participate, $reason) {
 		if($uid == null) {
 			$uid = $_SESSION["user"];
 		}
+		$table = $entity . "_user";
 		
-		// remove old decision
-		if(isset($_GET["rid"]) || isset($_POST["rehearsal"])) {
-			if(isset($_GET["rid"])) {
-				$rid = $_GET["rid"];
-			}
-			else {
-				$rid = $_POST["rehearsal"];
-			}
-			$query = "DELETE FROM rehearsal_user WHERE rehearsal = " . $rid;
-			$query .= " AND user = " . $uid;
-			$this->database->execute($query);
-		}
-		else if(isset($_GET["cid"]) || isset($_POST["concert"])) {
-			if(isset($_GET["cid"])) {
-				$cid = $_GET["cid"];
-			}
-			else {
-				$cid = $_POST["concert"];
-			}
-			$query = "DELETE FROM concert_user WHERE concert = $cid AND user =" . $uid;
-			$this->database->execute($query);
-		}
-			
-		// save new decision
-		if(isset($_GET["rid"]) && isset($_GET["status"]) && $_GET["status"] == "yes") {
-			// save rehearsal participation
-			$query = "INSERT INTO rehearsal_user (rehearsal, user, participate)";
-			$query .= " VALUES (" . $_GET["rid"] . ", " . $uid . ", 1)";
-			$this->database->execute($query);
-		}
-		else if(isset($_POST["rehearsal"]) && isset($_GET["status"]) && $_GET["status"] == "maybe") {
-			// save maybe participation in rehearsal with reason
+		// remove
+		$query = "DELETE FROM $table WHERE $entity = $id AND user = $uid";
+		$this->database->execute($query);
+		
+		// insert
+		if($reason != null) {
+			// save not participating in concert with reason
 			$this->regex->isText($_POST["explanation"]);
-			$query = "INSERT INTO rehearsal_user (rehearsal, user, participate, reason)";
-			$query .= " VALUES (" . $_POST["rehearsal"] . ", " . $uid . ", 2, \"";
-			$query .= $_POST["explanation"] . "\")";
-			$this->database->execute($query);
 		}
-		else if(isset($_POST["rehearsal"])) {
-			// save not participating in rehearsal with reason
-			$this->regex->isText($_POST["explanation"]);
-			$query = "INSERT INTO rehearsal_user (rehearsal, user, participate, reason)";
-			$query .= " VALUES (" . $_POST["rehearsal"] . ", " . $uid . ", 0, \"";
-			$query .= $_POST["explanation"] . "\")";
-			$this->database->execute($query);
+		else {
+			$reason = "";
 		}
-		else if(isset($_GET["cid"]) && isset($_GET["status"]) && $_GET["status"] == "yes") {
-			// save concert participation
-			$query = "INSERT INTO concert_user (concert, user, participate)";
-			$query .= " VALUES (" . $_GET["cid"] . ", " . $uid . ", 1)";
-			$this->database->execute($query);
-		}
-		else if(isset($_POST["concert"]) && isset($_GET["status"]) && $_GET["status"] == "maybe") {
-			// save maybe participation in concert
-			$this->regex->isText($_POST["explanation"]);
-			$query = "INSERT INTO concert_user (concert, user, participate, reason)";
-			$query .= " VALUES (" . $_POST["concert"] . ", " . $uid . ", 2, \"";
-			$query .= $_POST["explanation"] . "\")";
-			$this->database->execute($query);
-		}
-		else if(isset($_POST["concert"])) {
-			// save not participating in concert with reason 
-			$this->regex->isText($_POST["explanation"]);
-			$query = "INSERT INTO concert_user (concert, user, participate, reason)";
-			$query .= " VALUES (" . $_POST["concert"] . ", " . $uid . ", 0, \"";
-			$query .= $_POST["explanation"] . "\")";
-			$this->database->execute($query);
-		}
+		$query = "INSERT INTO $table ($entity, user, participate, reason)";
+		$query .= " VALUES ($id, $uid, $participate, \"$reason\")";
+		$this->database->execute($query);
 	}
 	
 	function getSongsForRehearsal($rid) {
