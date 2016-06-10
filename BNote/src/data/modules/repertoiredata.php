@@ -115,6 +115,10 @@ class RepertoireData extends AbstractData {
 			$this->database->execute($query);
 			$values["composer"] = $song["composer"];
 		}
+		
+		// modify bpm
+		if($values["bpm"] == "") $values["bpm"] = 0;
+		
 		parent::update($id, $values);
 	}
 	
