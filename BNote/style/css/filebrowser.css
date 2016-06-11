@@ -18,9 +18,8 @@
 
 .filebrowser_folderitem {
 	padding: 5px;
-	border: 0px solid #d0d0d0;
-	border-top-width: 1px;
-	border-right-width: 1px;
+	border: 1px solid #d0d0d0;
+	border-bottom-width: 0px;
 }
 
 .filebrowser_folderitem:hover {
@@ -41,4 +40,6 @@
 
 #filebrowser_files {
 	background-color: #fff;
+	border-top: 1px solid #d0d0d0;
+    border-right: 1px solid #d0d0d0;
 }

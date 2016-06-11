@@ -141,7 +141,15 @@ class Filebrowser implements iWriteable {
 				<?php $this->writeFavs(); ?>
 				</td>
 				<td id="filebrowser_files">
-				<?php $this->writeFolderContent(); ?>
+					<?php $this->writeFolderContent(); ?>
+					
+					<div id="fb-fileupload">
+						<form id="fb-fileupload-form" action="<?php echo $this->linkprefix("addFile&path=" . $this->path); ?>" class="dropzone">
+						  <div class="fallback">
+						    <input name="file" type="file" multiple />
+						  </div>
+						</form>
+					</div>
 				</td>
 			</tr>
 		</table>
@@ -386,6 +394,11 @@ class Filebrowser implements iWriteable {
 		$result[0] = array(
 			"name", "size", "options"
 		);
+
+		// create directory if not present
+		if(!file_exists($folder)) {
+			$this->createFolder($folder);
+		}
 		
 		// data body
 		if($handle = opendir($folder)) {
@@ -435,6 +448,17 @@ class Filebrowser implements iWriteable {
 		}
 					
 		return $result;
+	}
+	
+	private function createFolder($folder) {
+		// check if base structure is present
+		if(!file_exists($this->root)) {
+			mkdir($this->root);
+		}
+		if(!file_exists($this->root . "groups")) {
+			mkdir($this->root . "groups");
+		}
+		mkdir($folder);
 	}
 		
 	private function getFolderCaption() {		
