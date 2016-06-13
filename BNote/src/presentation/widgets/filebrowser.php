@@ -148,6 +148,7 @@ class Filebrowser implements iWriteable {
 						  <div class="fallback">
 						    <input name="file" type="file" multiple />
 						  </div>
+						  <div class="dz-message" data-dz-message><span>Dateien auf diesen Bereich ziehen um Sie dem Ordner hinzuzufügen</span></div>
 						</form>
 					</div>
 				</td>

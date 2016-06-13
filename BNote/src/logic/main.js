@@ -64,7 +64,7 @@ $(document).ready(function() {
 	$("#sortable").disableSelection();
 	
 	$('#calendar').fullCalendar({
-		height: 700,
+		height: "auto",
 		lang: "de",
 		eventClick: function(calEvent, jsEvent, view) {
 			if(calEvent.bnoteType) {
@@ -102,5 +102,7 @@ $(document).ready(function() {
 		$('.copyDateTarget').val(val);
 	});
 	
-	$("#fb-fileupload").dropzone({ url: $('#fb-fileupload-form').attr('action') });
+	$("#fb-fileupload").dropzone({
+		url: $('#fb-fileupload-form').attr('action')
+	});
 });
