@@ -240,7 +240,6 @@ class BNAjson extends AbstractBNA {
 					echo '"participantsYes": [';
 					
 					foreach($rehV as $j => $contact) {
-						// TODO check why $j needs to be > 0 (and not 1)
 						if($j > 0) echo $this->entitySeparator();
 						echo "{";
 						$cntC = 0;

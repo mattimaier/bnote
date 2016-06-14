@@ -1,6 +1,6 @@
-<p>
+﻿<p>
 Um den richtigen Umgang mit BNote zu gewährleisten sind auf dieser Seite die wichtigsten Hinweise zur Einhaltung
-der Sicherheit im System aufgeführt. Wenn du Administrator dieses Systems bist, dann lies dir diese Hinweise sorgfälig
+der Sicherheit im System aufgeführt. Wenn du Administrator dieses Systems bist, dann lies dir diese Hinweise sorgfältig
 durch und gib Sie an alle weiter!
 </p>
 
@@ -45,7 +45,7 @@ Benutzerkonto im Modul User auf "deaktiviert" setzen oder ebenfalls löschen.</s
 
 <h2>Dateizugriff</h2>
 <p>
-An manchen Stelle im System ist der Zugriff auf Dateien, z.B. PDFs oder Share möglich. Dieser Zugriff ist über den Apache Webserver blockiert
+An manchen Stellen im System ist der Zugriff auf Dateien, z.B. PDFs oder Share möglich. Dieser Zugriff ist über den Apache Webserver blockiert
 und wird vom System nur für angemeldete Benutzer geöffnet. Die Berechtigungssteuerung findet auf Anwendungsebene statt. Für Details lese
 bitte in der Hilfeseite für das Modul Share. Für Informationen zur Absicherung des Webservers steht auch die readme.txt Datei der Installationsdaten
 zur Verfügung (z.B. für Unix-Berechtiungseinstellungen).
@@ -53,21 +53,38 @@ zur Verfügung (z.B. für Unix-Berechtiungseinstellungen).
 
 <h2>Schutz ins Internet</h2>
 <p>
-Das System ist nach bestem Wissen und Gewissen gegenüber Angreifern aus dem Internet geschützt. Leider ist es nicht möglich Sicherheit zu garantieren,
-da diese zum einen von den Benutzern und zum anderen von der Konfiguration des Systems abhängt. Daher sollte das System von einem Fachmann installiert
-und konfiguriert werden. Nicht regelmäßig installierte Updates für BNote und Systemkomponenten können zu einer zusätzlichen Gefahr für das System führen.
+Das System ist nach bestem Wissen und Gewissen gegenüber Angreifern aus dem Internet geschützt. Leider ist es nicht möglich Sicherheit zu garantieren, da diese zum einen von den Benutzern und zum anderen von der Konfiguration des Systems abhängt. Daher sollte das System von einem Fachmann installiert und konfiguriert werden. Nicht regelmäßig installierte Updates für BNote und Systemkomponenten können zu einer zusätzlichen Gefahr für das System führen.
 </p>
 
 <h2>Funktionssicherheit</h2>
 <p>
-Auch Programmierer sind Menschen und machen Fehler. Daher kann die Funktionalität des Systems nicht zu jeder Zeit garantiert werden. Wenn du ein Problem
-gefunden hast oder eine Verbesserung melden möchtest, dann gehe auf www.bnote.info und sende uns eine E-Mail. Alternativ kannst du uns auch helfen
-BNote zu verbessern indem du auf GitHub dich in das Projekt einbringst.
+Auch Programmierer sind Menschen und machen Fehler. Daher kann die Funktionalität des Systems nicht zu jeder Zeit garantiert werden. Wenn du ein Problem gefunden hast oder eine Verbesserung melden möchtest, dann gehe auf www.bnote.info und sende uns eine E-Mail. Alternativ kannst du uns auch helfen BNote zu verbessern indem du auf GitHub dich in das Projekt einbringst.
 </p>
 
 <h2>Hinweise für Schulen</h2>
 <p>
-Es ist zu empfehlen das System zusätzlich zu den von BNote vorgesehenen Maßnahmen beispielsweise über einen HTTP-Basic Authentication oder über
+Es ist zu empfehlen das System zusätzlich zu den von BNote vorgesehenen Maßnahmen beispielsweise über eine HTTP-Basic Authentication oder über
 ein Zertifikate-basiertes Zugangsverfahren zu sichern, da es sich bei den im System befindlichen Daten um deren Minderjähriger handeln kann. Der
-Zugriff auf das System sollte aber in jedem Fall über gültige und verifizierte HTTPs-Zertifikate geschehen. 
+Zugriff auf das System sollte aber in jedem Fall über gültige und verifizierte SSL-Zertifikate geschehen. 
 </p>
+
+<h2>Schlüssel ändern</h2>
+<style>
+.security_item { margin-left: 30px; padding-left: 3px; }
+.code { font-family: 'Courier New';  font-size: 10pt; display: inline; }
+</style>
+<p>
+BNote verwendet einen mitgelieferten Standardschlüssel zur Verschlüsselung der Passwörter in der Datenbank. Dieser Schlüssel wird außerhalb der 
+Datenbank gespeichert. Um die Sicherheit des Systems zusätzlich zu erhöhen, gehe wie folgt vor:</p>
+<ol style="list-style-type:decimal;">
+	<li class="security_item">Stelle sicher, dass du Zugang zum Quellcode auf deinem Server hast.</li>
+    <li class="security_item">Öffne die Datei <pre class="code">src/logic/modules/logincontroller.php</pre></li>
+    <li class="security_item">Ändere die Konstante <pre class="code">ENCRYPTION_HASH</pre> auf einen beliebigen (aber wenn möglich langen) Wert mit Zahlen und Buchstaben.</li>
+    <li class="security_item">Setze nun kurzfristig die variable <pre class="code">$SHOW_PASSWORD_HASH</pre> auf <pre class="code">true</pre>.</li>
+    <li class="security_item">Speichere die Datei und versuche dich mit deinem Benutzernamen und Passwort an BNote anzumelden.</li>
+    <li class="security_item">Der Anmeldeversuch schlägt fehl, zeigt dir aber einen Hash an. Kopiere diesen Hash in die Zwischenablage.</li>
+    <li class="security_item">Melde dich an der Datenbank an und öffne die Tabelle <pre class="code">user</pre>.</li>
+    <li class="security_item">Ändere den Wert deines Passworts auf den in der Zwischenablage befindlichen Hash.</li>
+    <li class="security_item">Nun stelle <pre class="code">$SHOW_PASSWORD_HASH</pre> wieder auf <pre class="code">false</pre> und speichere die Datei <pre class="code">src/logic/modules/logincontroller.php</pre>.</li>
+    <li class="security_item">Bitte teile allen Benutzern des Systems mit ihr Passwort zurückzusetzen bzw. zu ändern.</li>
+</ol>
