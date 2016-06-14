@@ -2,3 +2,38 @@
 	margin-top: 10px;
 }
 
+.bnote_vote_option_text {
+	padding-top: 16px;
+}
+
+.bn-green-txt {
+	border: #8FE835 !important;
+}
+
+.bn-orange-txt {
+	color: #E8A935 !important;
+}
+
+.bn-red-txt {
+	color: #E83535 !important;
+}
+
+.bn-black-txt {
+	color: black !important;
+}
+
+.bn-green-bg:not(.sapMSegBBtnSel) {
+	background-color: #8FE835 !important;
+}
+
+.bn-orange-bg:not(.sapMSegBBtnSel) {
+	background-color: #E8A935 !important;
+}
+
+.bn-red-bg:not(.sapMSegBBtnSel) {
+	background-color: #E83535 !important;
+}
+
+.test {
+	 display:inline-block !important;
+}

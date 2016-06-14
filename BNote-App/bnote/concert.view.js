@@ -54,33 +54,45 @@ sap.ui.jsview("bnote.concert", {
             ]
         });
 		
+		 var concertOkBtn = new sap.m.Button({
+              text: "OK",       
+    	      press: function(){
+    	    	  var concertSetParticipation = 1;
+    	    	  oController.onParticipationPress(concertSetParticipation); 
+    	    	  oController.submit();
+    	      }           	  
+    	    });
+		                
+	    var concertMaybeBtn = new sap.m.Button({
+    	      text: "vielleicht",
+    	      press: function(){
+    	    	  var concertSetParticipation = 2;
+    	    	  oController.onParticipationPress(concertSetParticipation);  
+    	   	  }, 
+    	    });
+	    
+	   	var concertNoBtn = new sap.m.Button({
+    	      text: "Kann nicht",
+    	      press: function(){
+    	    	  var concertSetParticipation = 0;
+    	    	  oController.onParticipationPress(concertSetParticipation);  
+        	  }
+    	    });
+	   	
+	  
+	   	concertOkBtn.addStyleClass("bn-green-bg bn-black-txt");
+	   	concertMaybeBtn.addStyleClass("bn-orange-bg bn-black-txt");
+	   	concertNoBtn.addStyleClass("bn-red-bg bn-black-txt");
+	   	
+
 	  this.buttonBar = new sap.m.SegmentedButton({
 		            width: "100%", 
-		            buttons: [
-		                  new sap.m.Button("concertOkBtn", {
-		                      text: "OK",       
-		            	      press: function(){
-		            		  var concertSetParticipation = 1;
-		            	      oController.onParticipationPress(concertSetParticipation); 
-		            	      oController.submit();
-		            	   	  },            	  
-		            	      }),
-		           	      new sap.m.Button("concertMaybeBtn",{
-		            	      text: "vielleicht",
-		            	      press: function(){
-		            		  var concertSetParticipation = 2;
-		            		  oController.onParticipationPress(concertSetParticipation);  
-		            	   	  }, 
-		            	      }),
-		            	  new sap.m.Button("concertNoBtn",{
-		            	      text: "Kann nicht",
-		            	      press: function(){
-		                	  var concertSetParticipation = 0;
-		                	  oController.onParticipationPress(concertSetParticipation);  
-		                	  }
-		            	      }),
-		                   ]
-		        });
+		            buttons: [concertOkBtn, concertMaybeBtn, concertNoBtn]
+	  });
+		              
+		      
+	
+	  
 	  
 	  this.submitButton = new sap.m.Button({
 	  		text: "Abschicken",

@@ -89,7 +89,7 @@ function getNaviBar(){
 				new sap.m.Button({
 					icon : sap.ui.core.IconPool.getIconURI("email"),
 					press : function() {
-						communicationView.getController().onEmailClick();					
+						communicationView.onEmailClick();				
 					}
 				}),
 				new sap.m.Button({

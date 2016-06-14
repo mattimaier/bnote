@@ -42,7 +42,7 @@ sap.ui.controller("bnote.start", {
                 concertView.setModel(model);
                 taskView.setModel(model);
                 voteView.setModel(model);
-                communicationView.setModel(model);
+                //communicationView.setModel(model);
                 
             },
             error: function(a,b,c) {

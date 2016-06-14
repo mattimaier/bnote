@@ -37,33 +37,40 @@ sap.ui.jsview("bnote.rehearsal", {
             ]
         });
 		
+	 
+         var rehearsalOkBtn = new sap.m.Button({
+	          text: "OK",       
+		      press: function(){
+				  var rehearsalSetParticipation = 1;
+			      oController.onParticipationPress(rehearsalSetParticipation); 
+			      oController.submit();
+		   	  },            	  
+	     });
+         
+   	    var rehearsalMaybeBtn = new sap.m.Button({
+		      text: "vielleicht",
+		      press: function(){
+				  var rehearsalSetParticipation = 2;
+				  oController.onParticipationPress(rehearsalSetParticipation); 
+		   	  }, 
+	    });
+   	    
+       var rehearsalNoBtn = new sap.m.Button({
+		      text: "Kann nicht",
+		      press: function(){
+		    	  var rehearsalSetParticipation = 0;
+		    	  oController.onParticipationPress(rehearsalSetParticipation); 
+	    	  }
+	  });
+		       
+      rehearsalOkBtn.addStyleClass("bn-green-bg bn-black-txt"); 
+      rehearsalMaybeBtn.addStyleClass("bn-orange-bg bn-black-txt"); 
+      rehearsalNoBtn.addStyleClass("bn-red-bg bn-black-txt"); 
+       
 	  this.buttonBar = new sap.m.SegmentedButton({
-		            width: "100%", 
-		            buttons: [
-		                  new sap.m.Button("rehearsalOkBtn", {
-		                      text: "OK",       
-		            	      press: function(){
-		            		  var rehearsalSetParticipation = 1;
-		            	      oController.onParticipationPress(rehearsalSetParticipation); 
-		            	      oController.submit();
-		            	   	  },            	  
-		            	      }),
-		           	      new sap.m.Button("rehearsalMaybeBtn",{
-		            	      text: "vielleicht",
-		            	      press: function(){
-		            		  var rehearsalSetParticipation = 2;
-		            		  oController.onParticipationPress(rehearsalSetParticipation); 
-		            	   	  }, 
-		            	      }),
-		            	  new sap.m.Button("rehearsalNoBtn",{
-		            	      text: "Kann nicht",
-		            	      press: function(){
-		                	  var rehearsalSetParticipation = 0;
-		                	  oController.onParticipationPress(rehearsalSetParticipation); 
-		                	  }
-		            	      }),
-		                   ]
-		        });
+        width: "100%", 
+        buttons: [rehearsalOkBtn, rehearsalMaybeBtn, rehearsalNoBtn]
+	  });  	  
 	  
 	  this.submitButton = new sap.m.Button({
 		  		text: "Abschicken",

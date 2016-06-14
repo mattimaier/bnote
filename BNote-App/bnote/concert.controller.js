@@ -15,6 +15,7 @@ onParticipationPress: function(concertSetParticipation){
 		participation : concertSetParticipation,
 		explanation : ""
 	};
+	model.setProperty(path + "/participate", concertSetParticipation);
 },	
 
 submit: function(){
