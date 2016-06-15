@@ -457,7 +457,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		else if($function == "addEquipment") {
 			// permission
-			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Repertoire
+			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Equipment
 				header("HTTP/1.0 403 Permission denied.");
 				exit();
 			}
@@ -466,7 +466,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		else if($function == "updateEquipment") {
 			// permission
-			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Repertoire
+			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Equipment
 				header("HTTP/1.0 403 Permission denied.");
 				exit();
 			}
@@ -478,7 +478,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		else if($function == "getEquipment") {
 			// permission
-			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Repertoire
+			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Equipment
 				header("HTTP/1.0 403 Permission denied.");
 				exit();
 			}
@@ -486,7 +486,7 @@ abstract class AbstractBNA implements iBNA {
 		}
 		else if($function == "deleteEquipment") {
 			// permission
-			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Repertoire
+			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Equipment
 				header("HTTP/1.0 403 Permission denied.");
 				exit();
 			}
@@ -495,6 +495,30 @@ abstract class AbstractBNA implements iBNA {
 				exit();
 			}
 			$this->deleteEquipment($_POST["id"]);
+		}
+		else if($function == "deleteSong") {
+			// permission
+			if(!$this->sysdata->userHasPermission(6, $this->uid)) { // 6=Repertoire
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			if(!isset($_POST["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->deleteSong($_POST["id"]);
+		}
+		else if($function == "getSong") {
+			// permission
+			if(!$this->sysdata->userHasPermission(6, $this->uid)) { // 6=Repertoire
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			if(!isset($_GET["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->getSong($_GET['id']);
 		}
 		else {
 			$this->$function();
@@ -1417,6 +1441,25 @@ abstract class AbstractBNA implements iBNA {
 	public function updateSong($id) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$repData->update($id, $_POST);
+		echo "{success: true}";
+	}
+	
+	public function getSong($id) {
+		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
+		$song = $repData->findByIdNoRef($id);
+		
+		$song = $this->removeNumericKeys($song);
+		$genre = $repData -> getGenre($song["genre"]);
+		$song["genre"] = $this->removeNumericKeys($genre[1]);
+		$songstatus = $this->db->getRow("SELECT * FROM status WHERE id = " . intval($song["status"]));
+		$song["status"] = $songstatus;
+		
+		$this->writeEntity($song, "song");
+	}
+	
+	public function deleteSong($id) {
+		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
+		$repData->delete($id);
 		echo "{success: true}";
 	}
 	

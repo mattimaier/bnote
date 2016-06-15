@@ -279,6 +279,18 @@ interface iBNA {
 	public function updateSong($id);
 	
 	/**
+	 * Gets just one song from the database.
+	 * @param Integer $id Song ID.
+	 */
+	public function getSong($id);
+	
+	/**
+	 * Deletes this song from the database.
+	 * @param Integer $id Song ID.
+	 */
+	public function deleteSong($id);
+	
+	/**
 	 * Reads all equipment from the database and returns it.
 	 * @return Array with equipment.
 	 */
