@@ -80,9 +80,9 @@ sap.ui.jsview("bnote.concert", {
     	    });
 	   	
 	  
-	   	concertOkBtn.addStyleClass("bn-green-bg bn-black-txt");
-	   	concertMaybeBtn.addStyleClass("bn-orange-bg bn-black-txt");
-	   	concertNoBtn.addStyleClass("bn-red-bg bn-black-txt");
+	   	//concertOkBtn.addStyleClass("bn-green-bg bn-black-txt");
+	   	//concertMaybeBtn.addStyleClass("bn-orange-bg bn-black-txt");
+	   	//concertNoBtn.addStyleClass("bn-red-bg bn-black-txt");
 	   	
 
 	  this.buttonBar = new sap.m.SegmentedButton({

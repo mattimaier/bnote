@@ -95,14 +95,20 @@ function getNaviBar(){
 				new sap.m.Button({
 				    icon: sap.ui.core.IconPool.getIconURI( "marketing-campaign" ),
 				    press: function() {
-				    	app.to("news");
+				    	app.to("news")
 				    }
 			    }),
 			   	new sap.m.Button({
 			   		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
+			   		press: function() {
+			   			app.to("repertoire")
+			   		}
 			   	}),
 			    new sap.m.Button({
 			    	icon: sap.ui.core.IconPool.getIconURI("projector"),
+			    	press: function() {
+			    		app.to("equipment")
+			    	}
 			   	})
 			]
 		
@@ -170,6 +176,32 @@ newsView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
+repertoireView = sap.ui.view({
+	id: "repertoire",
+	viewName: "bnote.repertoire",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
+equipmentView = sap.ui.view({
+	id: "equipment",
+	viewName: "bnote.equipment",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
+repertoiredetailView = sap.ui.view({
+	id: "repertoiredetail",
+	viewName: "bnote.repertoiredetail",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
+repertoireaddView = sap.ui.view({
+	id: "repertoireadd",
+	viewName: "bnote.repertoireadd",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
+
+
 // Build the app together
 app = new sap.m.App("bnoteApp", {
     initialPage: "login"
@@ -185,6 +217,10 @@ app.addPage(concertView);
 app.addPage(taskView);
 app.addPage(voteView);
 app.addPage(newsView);
+app.addPage(repertoireView);
+app.addPage(equipmentView);
+app.addPage(repertoiredetailView);
+app.addPage(repertoireaddView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",

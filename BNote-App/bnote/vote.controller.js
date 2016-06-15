@@ -4,7 +4,8 @@ sap.ui.controller("bnote.vote",{
 		var model = this.getView().getModel(model);
 		var oBindingContext = this.getView().getBindingContext(oBindingContext);
 		var path = oBindingContext.getPath();
-		
+		console.log(model);
+		console.log(path);
 		model.setProperty(path + "/currentdate", new Date());
 		var delta = backend.comparedates(path + "/currentdate", path + "/end_original", model);
 		
@@ -45,9 +46,9 @@ sap.ui.controller("bnote.vote",{
 				var radioBtnV = new sap.m.RadioButton({text : "?"});
 				var radioBtnN = new sap.m.RadioButton({text : "N"});
 				
-				radioBtnJ.addStyleClass("bn-green-bg");
-				radioBtnV.addStyleClass("bn-orange-bg");
-				radioBtnN.addStyleClass("bn-red-bg");
+				radioBtnJ.addStyleClass("bn-green-txt");
+				radioBtnV.addStyleClass("bn-orange-txt");
+				radioBtnN.addStyleClass("bn-red-txt");
 				
 				selectGroup.addButton(radioBtnJ);
 				selectGroup.addButton(radioBtnV);

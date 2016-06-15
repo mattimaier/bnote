@@ -63,9 +63,9 @@ sap.ui.jsview("bnote.rehearsal", {
 	    	  }
 	  });
 		       
-      rehearsalOkBtn.addStyleClass("bn-green-bg bn-black-txt"); 
-      rehearsalMaybeBtn.addStyleClass("bn-orange-bg bn-black-txt"); 
-      rehearsalNoBtn.addStyleClass("bn-red-bg bn-black-txt"); 
+      //rehearsalOkBtn.addStyleClass("bn-green-bg bn-black-txt"); 
+      //rehearsalMaybeBtn.addStyleClass("bn-orange-bg bn-black-txt"); 
+      //rehearsalNoBtn.addStyleClass("bn-red-bg bn-black-txt"); 
        
 	  this.buttonBar = new sap.m.SegmentedButton({
         width: "100%", 

@@ -6,16 +6,19 @@
 	padding-top: 16px;
 }
 
-.bn-green-txt {
-	border: #8FE835 !important;
+.bn-green-txt .sapMLabel {
+	color: #69AB26 !important;
+	font-weight: 600;
 }
 
-.bn-orange-txt {
+.bn-orange-txt .sapMLabel {
 	color: #E8A935 !important;
+	font-weight: 600;
 }
 
-.bn-red-txt {
+.bn-red-txt .sapMLabel {
 	color: #E83535 !important;
+	font-weight: 600;
 }
 
 .bn-black-txt {
