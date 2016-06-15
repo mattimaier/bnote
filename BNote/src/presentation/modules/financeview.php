@@ -116,6 +116,7 @@ class FinanceView extends CrudView {
 		
 		// Show bookings with total
 		$bookings = $this->getData()->findBookings($default_from, $default_to, $accId, $default_otype, $default_oid);
+		$bookings = Table::addDeleteColumn($bookings, $this->modePrefix() . "cancelBooking&id=" . $_GET["id"] . "&booking=", "cancel", "stornieren");
 		$table = new Table($bookings);
 		$table->removeColumn("account");
 		$table->renameHeader("id", Lang::txt("finance_booking_id"));
@@ -191,6 +192,13 @@ class FinanceView extends CrudView {
 	
 	function addBookingProcessOptions() {
 		$this->addBookingOptions();
+	}
+	
+	function cancelBooking() {
+		$account = $_GET["id"];
+		$booking = $_GET["booking"];
+		$this->getData()->cancelBooking($account, $booking);
+		$this->view();
 	}
 }
 

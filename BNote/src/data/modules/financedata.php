@@ -153,6 +153,24 @@ class FinanceData extends AbstractData {
 		
 		$this->database->execute($query);
 	}
+	
+	function cancelBooking($account, $booking_id) {
+		// validation
+		$this->regex->isPositiveAmount($account);
+		$this->regex->isPositiveAmount($booking_id);
+		
+		// get the booking
+		$booking = $this->database->getRow("SELECT * FROM booking WHERE account = $account AND id = $booking");
+		
+		// update the booking - just set the amounts to 0 and add the previous ones to the notes
+		$notes = $booking["notes"];
+		if($notes == null) $notes = "";
+		if($notes != "") $notes .= "; ";
+		$notes .= "STORNIERT: netto " . Lang::formatDecimal($booking["amount_net"]) . ", steuer " . Lang::formatDecimal($booking["amount_tax"]);
+		
+		$query = "UPDATE booking SET amount_net = 0, amount_tax = 0, notes = \"$notes\" WHERE id = $booking_id";
+		$this->database->execute($query);
+	}
 }
 
 ?>
