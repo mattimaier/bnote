@@ -937,7 +937,8 @@ abstract class AbstractBNA implements iBNA {
 
 			$song["genre"] = $this -> removeNumericKeys($genre[1]);
 			
-			$song["status"] = intval($song["status"]);
+			$songstatus = $this->db->getRow("SELECT * FROM status WHERE id = " . intval($song["status"]));
+			$song["status"] = $songstatus;
 			$song = $this -> removeNumericKeys($song);
 			array_push($entities, $song);
 		}
