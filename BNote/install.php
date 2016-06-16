@@ -570,7 +570,130 @@ class Installation {
 					PRIMARY KEY (`concert`,`contact`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
-			//TODO: add account, booking, equipment, tour-tables
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `account` (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					name VARCHAR(100) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `booking` (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					account INT(11) NOT NULL,
+					bdate DATE NOT NULL,
+					subject VARCHAR(100) NOT NULL,
+					amount_net DECIMAL(9,2) NOT NULL,
+					amount_tax DECIMAL(9,2) NOT NULL DEFAULT 0,
+					btype INT(1) NOT NULL,
+					otype CHAR(1),
+					oid INT(11),
+					notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `recpay` (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					account INT(11) NOT NULL,
+					subject VARCHAR(100) NOT NULL,
+					amount_net DECIMAL(9,2) NOT NULL,
+					amount_tax DECIMAL(9,2) NOT NULL DEFAULT 0,
+					btype INT(1) NOT NULL,
+					otype CHAR(1),
+					oid INT(11),
+					notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `equipment` (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					model VARCHAR(100) NOT NULL,
+					make VARCHAR(100) NOT NULL,
+					name VARCHAR(100),
+					purchase_price DECIMAL(9,2),
+					current_value DECIMAL(9,2),
+					quantity INT(10) NOT NULL DEFAULT 1,
+					notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `tour` (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					name VARCHAR(100) NOT NULL,
+					start DATE NOT NULL,
+					end DATE NOT NULL,
+					notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `accommodation` (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					tour INT(11) NOT NULL,
+					location INT(11) NOT NULL,
+					checkin DATE NOT NULL,
+					checkout DATE NOT NULL,
+					breakfast INT(1) NOT NULL DEFAULT 0,
+					lunch INT(1) NOT NULL DEFAULT 0,
+					dinner INT(1) NOT NULL DEFAULT 0,
+					planned_cost DECIMAL(9,2),
+					notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `travel` (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					tour INT(11) NOT NULL,
+					transportation VARCHAR(50),
+					num VARCHAR(100),
+					departure DATETIME NOT NULL,
+					departure_location VARCHAR(255),
+					arrival DATETIME NOT NULL,
+					arrival_location VARCHAR(255),
+					planned_cost DECIMAL(9,2),
+					notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `tour_rehearsal` (
+					tour INT(11) NOT NULL,
+					rehearsal INT(11) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `tour_concert` (
+					tour INT(11) NOT NULL,
+					concert INT(11) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `tour_contact` (
+					tour INT(11) NOT NULL,
+					contact INT(11) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `tour_equipment` (
+					tour INT(11) NOT NULL,
+					equipment INT(11) NOT NULL,
+					quantity VARCHAR(50) NOT NULL DEFAULT '',
+					notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `tour_task` (
+					tour INT(11) NOT NULL,
+					task INT(11) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `reservation` (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					begin DATETIME NOT NULL,
+					end DATETIME NOT NULL,
+					name VARCHAR(100) NOT NULL,
+					location INT(11),
+					contact INT(11),
+					notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
 			foreach($queries as $i => $query) {
 				$db->execute($query);
@@ -605,8 +728,6 @@ class Installation {
 					('updates_show_max', '5', 1),
 					('language', 'de', 1),
 					('discussion_on', '1', 1);");
-
-			//TODO: check if all config items for v3 are present
 			
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES
@@ -637,6 +758,7 @@ class Installation {
 					(5, 'Sonstige', 1);");
 			
 			// create group directories
+			mkdir("data/share");
 			mkdir("data/share/groups");
 			mkdir("data/share/groups/group_1"); // Administrators
 			mkdir("data/share/groups/group_2"); // Members
@@ -712,8 +834,11 @@ class Installation {
 					(15, 'Nachrichten'),
 					(16, 'Aufgaben'),
 					(17, 'Konfiguration'),
-					(18, 'Probenphasen');");
-			//TODO: ADD MODULES
+					(18, 'Probenphasen'),
+					(19, 'Finance'),
+					(20, 'Calendar'),
+					(21, 'Equipment'),
+					(22, 'Tour');");
 
 			array_push($queries,
 					"INSERT INTO `status` (`id`, `name`) VALUES
