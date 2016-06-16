@@ -68,6 +68,14 @@ class Translation extends BNoteTranslation {
 			"user" => "User",
 			"date" => "Date",
 			"mail_footerText" => "This e-mail was automatically sent by BNote:",
+			"error" => "Error",
+			"street" => "Street",
+			"city" => "City",
+			"phone" => "Phone",
+			"mobile" => "Mobile",
+			"birthday" => "Birthday",
+			"print" => "Print",
+			"notes" => "Notes",
 			
 			// navigation
 			"mod_Login" => "Login",
@@ -90,6 +98,14 @@ class Translation extends BNoteTranslation {
 			"mod_Nachrichten" => "News",
 			"mod_Probenphasen" => "Planning",
 			"mod_Finance" => "Finance",
+			"mod_Calendar" => "Calendar",
+			"mod_Passwort" => "Forgot password",
+			"mod_Warum BNote?" => "Why BNote?",
+			"mod_Registrierung" => "Registration",
+			"mod_Bedingungen" => "Terms and Conditions",
+			"mod_Impressum" => "Impressum",
+			"mod_Equipment" => "Equipment",
+			"mod_Tour" => "Tour",
 			
 			// widgets
 			"addFolder" => "Add Folder",
@@ -128,6 +144,8 @@ class Translation extends BNoteTranslation {
 			"noEntries" => "No entries present.",
 			"table_no_entries" => "No entries found.",
 			"sum" => "Sum",
+			"equipment" => "Equipment",
+			"tour" => "Tour",
 
 			// module: start
 			"start_calendarExport" => "Export Calendar",
@@ -228,8 +246,11 @@ class Translation extends BNoteTranslation {
 			"finance_date_filter" => "Filter",
 			"finance_add_booking" => "Add Booking",
 			"finance_booking_bdate" => "Date",
+			"finance_booking_id" => "Booking ID",
 			"finance_booking_subject" => "Subject",
-			"finance_booking_amount" => "Amount",
+			"finance_booking_amount_net" => "Net",
+			"finance_booking_amount_tax" => "Tax",
+			"finance_booking_amount_total" => "Gross",
 			"finance_booking_notes" => "Notes",
 			"finance_booking_btype" => "Type",
 			"finance_booking_type_0" => "Income",
@@ -237,7 +258,86 @@ class Translation extends BNoteTranslation {
 			"finance_bookings_filter" => "Filter",
 			"finance_booking_saved_title" => "Booking saved",
 			"finance_booking_saved" => "The booking was successfully saved.",
-			"finance_recpay" => "Recurring Payments"
+			"finance_metrics_header" => "Summary",
+			"finance_metrics_income" => "Income",
+			"finance_metrics_expenses" => "Expenses",
+			"finance_metrics_total" => "Total",
+			"finance_metrics_margin" => "Margin",
+			"finance_metrics_sum" => "Sum",
+			
+			"finance_recpay" => "Recurring Payments",
+			"recurringpayment" => "Recurring Payment",
+			"recpay_account" => "Account",
+			"recpay_otype" => "Reference Type",
+			"recpay_oid" => "Reference",
+			"recpay_accountname" => "Account",
+			"recpay_book" => "Book",
+			"recpay_book_title" => "Book Recurring Payment",
+			"recpay_add_form_title" => "Add Recurring Payment",
+			"recpay_no_otype" => "[No Reference]",
+			"recpay_book_success_title" => "Booking inserted",
+			"recpay_book_success_msg" => "All bookings have been inserted successfully.",
+			
+			"calendar_rehearsal" => "Rehearsal",
+			"calendar_concert" => "Concert",
+			"calendar_end_vote" => "Vote End:",
+			"calendar_birthday" => "Bday:",
+			"calendar_reservation" => "Res.:",
+			
+			"equipment_model" => "Model",
+			"equipment_make" => "Make",
+			"equipment_purchase_price" => "Purchase Price",
+			"equipment_current_value" => "Current Value",
+			"equipment_quantity" => "Quantity",
+			
+			"tour_details" => "Details",
+			"tour_heading" => "Tour Planning",
+			"tour_summarysheet" => "Toursheet",
+			"tour_transfers" => "Transfers",
+			"tour_checklist" => "Checklist",
+			"accommodation" => "Accommodation",
+			"accommodation_price" => "Price (planned)",
+			"accommodation_locationname" => "Location Name",
+			"accommodation_tourname" => "Tour",
+			"tour_add_rehearsal" => "Add Rehearsal",
+			"tour_rehearsal_created" => "Rehearsal added",
+			"tour_rehearsal_created_msg" => "Successfully added the rehearsal to the tour.",
+			"tour_rehearsal_tab_begin" => "Rehearsal Begin",
+			"tour_rehearsal_tab_notes" => "Rehearsal Notes",
+			"tour_rehearsal_tab_location" => "Location",
+			"tour_rehearsal_tab_location_notes" => "Location Notes",
+			"tour_add_contacts" => "Add Participant",
+			"add_contacts_form_title" => "Select Tour Participants",
+			"tour_add_contacts_success_title" => "Participant added",
+			"tour_add_contacts_success_msg" => "The participants were successfully added to the tour.",
+			"tour_contact_remove_ref" => "Remove Participant",
+			"tour_add_concert" => "Add Concert",
+			"travel" => "Transfer",
+			"travel_num" => "Trip No.",
+			"travel_departure_datetime" => "Departure",
+			"travel_departure_location" => "From",
+			"travel_arrival_datetime" => "Arrival",
+			"travel_arrival_location" => "To",
+			"travel_planned_cost" => "Planned Cost",
+			"tour_add_task" => "Add Task",
+			"tour_task_title" => "Task",
+			"tour_task_assigned_to" => "Assignee",
+			"tour_task_due_at" => "Due At",
+			"tour_task_is_complete" => "Completed",
+			"tour_todos" => "ToDos",
+			"tour_completed_tasks" => "Completes Tasks",
+			"tour_concert_location" => "Concert Venue",
+			"tour_concert_approve_until" => "Approve participation until",
+			"tour_summary_show_checklist" => "Show Checklist",
+			"tour_summary_hide_checklist" => "Hide Checklist",
+			"tour_add_equipment" => "Add Equipment",
+			"add_equipment_form_title" => "Tour-Equipment",
+			"tour_equipment_general_notes" => "Equipment Notes",
+			"tour_equipment_notes" => "Notes for the Tour",
+			"tour_equipment_saved" => "Equipment Saved",
+			"tour_equipment_saved_msg" => "The list of equipment for this tour has been saved.",
+			
+			"reservation" => "Reservation"
 	);
 	
 	protected $regex = array(
@@ -268,7 +368,7 @@ class Translation extends BNoteTranslation {
 			$day = substr($formattedDate, $dot2+1, 2);
 			return $year . "-" . $month . "-" . $day . " $time";
 		}
-		else {
+		else if(strlen($formattedDate) > 5) {
 			// standard conversion
 			$dot1 = strpos($formattedDate, "/");
 			$dot2 = strpos($formattedDate, "/", $dot1+1);
@@ -276,6 +376,9 @@ class Translation extends BNoteTranslation {
 			$month = substr($formattedDate, $dot1+1, $dot2-$dot1-1);
 			$day = substr($formattedDate, $dot2+1, 2);
 			return $year . "-" . $month . "-" . $day;
+		}
+		else {
+			return $formattedDate;
 		}
 	}
 	
