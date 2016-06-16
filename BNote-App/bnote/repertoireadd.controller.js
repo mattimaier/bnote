@@ -9,7 +9,7 @@ sap.ui.controller("bnote.repertoireadd", {
 		var path = repertoireaddView.getBindingContext().getPath();
 		var updateSongData = model.getProperty(path);
 		console.log(updateSongData);
-		updateSongData.genre. = repertoireaddView.genreitems.indexOfItem(repertoireaddView.genreitems.getSelectedItem());
+		updateSongData.genre = repertoireaddView.genreitems.indexOfItem(repertoireaddView.genreitems.getSelectedItem());
 		updateSongData.status = repertoireaddView.statusitems.indexOfItem(repertoireaddView.statusitems.getSelectedItem());
 		console.log(updateSongData);
 		//update backend
@@ -69,5 +69,5 @@ sap.ui.controller("bnote.repertoireadd", {
      
         repertoireaddView.genreitems.setSelectedItemId(model.getProperty(path + "/genre/id"));
         repertoireaddView.statusitems.setSelectedItemId(model.getProperty(path + "/status/id"));
-    },
+    }
 });

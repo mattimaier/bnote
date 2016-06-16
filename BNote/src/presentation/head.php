@@ -19,7 +19,7 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery.jqplot.min.css" rel="stylesheet" />
  <link type="text/css" href='<?php echo $jQuery_dir; ?>fullcalendar.css' rel='stylesheet' />
  <link type="text/css" href='<?php echo $jQuery_dir; ?>fullcalendar.css' rel='stylesheet' />
- <link type="text/css" href="lib/dropzone.js" rel="stylesheet" />
+ <link type="text/css" href="lib/dropzone.css" rel="stylesheet" />
 <?php
 
 # Link all CSS Files in style/css

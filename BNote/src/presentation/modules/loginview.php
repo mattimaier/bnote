@@ -17,41 +17,62 @@ class LoginView extends AbstractView {
 	
 	function showOptions() {
 		// Mobile Website
-		$mobile = new Link("?mod=login&device=mobile", "Mobil");
+		$mobile = new Link("../BNote-App", "Mobil");
 		$mobile->write();
 		$this->buttonSpace();
 		
 		// Login
-		$login = new Link("?mod=login", "Login");
-		$login->write();
-		$this->buttonSpace();
+		$mod = "login";
+		if($_GET["mod"] != $mod) {
+			$login = new Link("?mod=$mod", "Login");
+			$login->write();
+			$this->buttonSpace();
+		}
 		
 		// PW
-		$pwForgot = new Link("?mod=forgotPassword", "Passwort vergessen");
-		$pwForgot->write();
-		$this->buttonSpace();
-		
-		// Why BNote?
-		$why = new Link("?mod=whyBNote", "Warum BNote nutzen?");
-		$why->write();
-		$this->buttonSpace();
+		$mod = "forgotPassword";
+		if($_GET["mod"] != $mod) {
+			$pwForgot = new Link("?mod=$mod", "Passwort vergessen");
+			$pwForgot->write();
+			$this->buttonSpace();
+		}
 		
 		// Registration
-		$reg = new Link("?mod=registration", "Registrierung");
-		$reg->write();
-		$this->buttonSpace();
+		$mod = "registration";
+		if($_GET["mod"] != $mod) {
+			$reg = new Link("?mod=$mod", "Registrierung");
+			$reg->write();
+			$this->buttonSpace();
+		}
 		
 		// Terms
-		$terms = new Link("?mod=terms", "Nutzungsbedingungen");
-		$terms->write();
-		$this->buttonSpace();
+		$mod = "terms";
+		if($_GET["mod"] != $mod) {
+			$terms = new Link("?mod=$mod", "Nutzungsbedingungen");
+			$terms->write();
+			$this->buttonSpace();
+		}
 		
 		// Impressum
-		$imp = new Link("?mod=impressum", "Impressum");
-		$imp->write();
+		$mod = "impressum";
+		if($_GET["mod"] != $mod) {
+			$imp = new Link("?mod=$mod", "Impressum");
+			$imp->write();
+		}
 	}
 	
 	function login() {
+		?>
+		<script>
+		$(document).ready(function() {
+			// when the width of the screen is less than 560px (UI5 default) -> switch to app view
+			var ww = window.screen.width;
+			if(ww < 560) {
+				location = "../BNote-App";
+			}
+		});
+		</script>
+		<?php
 		Writing::p("Bitte melde dich an um BNote zu nutzen. Wenn du noch kein
 				Konto deiner Band hast, dann <a href=\"?mod=registration\">registriere</a> dich jetzt.");
 		
@@ -179,45 +200,6 @@ class LoginView extends AbstractView {
 </table>
 </form>
 <?php
-	}
-	
-	function whyBNote() {
-		Writing::h1("Warum BNote nutzen?");
-		
-		Writing::p("Du denkst: noch so eine Software? Muss das denn sein???<br />
-			BNote ist nicht nur irgendeine Software, sie hilft dir und deiner
-			Band euch besser zu organisieren. Aus Erfahrung dauern
-			organisatorische Dinge lange und das geht von der Probenzeit (und
-			natürlich dem Spass) ab. Das ist schade! BNote hilft euch die
-			Organisation zu systematisieren und damit Zeit zu sparen. Konkret
-			sind hier ein paar Gründe aufgelistet warum ihr BNote nutzt
-			solltet:");
-		
-		Writing::p("
-			<span class=\"login_whyBNote_topic\">BNote nimmt euch arbeit ab</span><br/>
-			Zum Beispiel: Probenbenachrichtigungen an alle Mitglieder können automatisch versandt werden.<br/><br/>
-					
-			<span class=\"login_whyBNote_topic\">Ihr behaltet den Überblick</span><br/>
-			Konzerte, Proben, Kontaktdaten, wer kommt wann, wohin eigentlich? - hiermit hilft BNote!<br/><br/>
-			
-			<span class=\"login_whyBNote_topic\">Organisatorische Fehler werden reduziert</span><br/>
-			Zum Beispiel wechselt ein Bandmitglieder seine Handynummer.	Neue Nummern zu verteilen ist mühsam, dauert und man erwischt nie
-			alle. Ändert man seine persönlichen Daten in BNote haben alle immer die aktuelle Nummer parat.<br/><br/>
-			
-			<span class=\"login_whyBNote_topic\">Informationen werden schnell und zuverlässig verteilt</span><br/>
-			Ein kleiner Dateimanager ermöglicht es,	Noten zu verteilen, Plakate, Setlisten, usw. einzustellen und allen
-			Bandmitgliedern zugänglich zu machen.<br/><br/>
-	
-			<span class=\"login_whyBNote_topic\">Ihr behaltet das Reperatoire im Griff</span><br/>
-			Wie lange dauert ein Titel? Welche Titel haben wir eigentlich? Wie lange dauert unser Programm? Ein Programm
-			zusammenzustellen ist nicht einfach - doch wenn man die notwendigen Informationen zur Hand hat, kann man sich
-			auf die eigentliche Gestaltung konzentrieren und sich nicht mit Zahlen und Druckern	rumschlagen.");
-		
-		
-		Writing::h3("Überzeugt?");
-		Writing::p('Wenn ja, dann <a href="?mod=registration">registriert</a>
-			euch!<br /> Wenn nicht, dann sagt <a href="mailto:support@bnote.info">mir</a> Bescheid, warum nicht.
-			Entwicklung ist immer notwendig.');
 	}
 	
 	function impressum() {
