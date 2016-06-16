@@ -21,12 +21,12 @@ class HilfeView extends AbstractView {
 			"abstimmung" => "Modul Abstimmung",
 			"aufgaben" => "Modul Aufgaben",
 			"equipment" => "Modul Equipment",
-			"finance" => "Modul Finanzen",  //TODO write help
+			"finance" => "Modul Finanzen",
 			"konfiguration" => "Modul Konfiguration",
-			"calendar" => "Modul Kalender",  //TODO write help
+			"calendar" => "Modul Kalender (Reservierungen)",
 			"kontakte" => "Modul Kontakte",
 			"mitspieler" => "Modul Mitspieler",
-			"nachrichten" => "Modul Nachrichten",  //TODO write help
+			"nachrichten" => "Modul Nachrichten",
 			"proben" => "Modul Proben",
 			"probenphase" => "Modul Probenphase",
 			"repertoire" => "Modul Repertoire",
@@ -62,6 +62,12 @@ class HilfeView extends AbstractView {
 		
 		// Help Navigation
 		?>
+		<style>
+		p { text-align: justify; }
+		.bn-help-strong { font-weight: bold; }
+		.bn-help-item { margin-left: 25px; text-align: justify; }
+		.bn-help-link { color: #61b3ff; }
+		</style>
 		<table class="help_navigator">
 			<tr>
 			<td class="help_navigator_menu">
