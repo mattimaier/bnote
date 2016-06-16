@@ -20,4 +20,8 @@
 	.pagebreak {
 		page-break-before: always;
 	}
+	
+	.bn-table-option-column {
+		display: none;
+	}
 }

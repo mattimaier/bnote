@@ -72,6 +72,16 @@ class FinanceView extends CrudView {
 	}
 	
 	function view() {
+		?>
+		<style>
+		/* Optimize Print Styling for this page */
+		@media print {
+			.finance_filter_box {
+				display: none;
+			}
+		}
+		</style>
+		<?php
 		$accId = $_GET["id"];
 		$accDetails = $this->getData()->findByIdNoRef($accId);
 		Writing::h2($accDetails["name"]);
@@ -116,7 +126,13 @@ class FinanceView extends CrudView {
 		
 		// Show bookings with total
 		$bookings = $this->getData()->findBookings($default_from, $default_to, $accId, $default_otype, $default_oid);
-		$bookings = Table::addDeleteColumn($bookings, $this->modePrefix() . "cancelBooking&id=" . $_GET["id"] . "&booking=", "cancel", "stornieren");
+		$bookings = Table::addDeleteColumn(
+				$bookings,
+				$this->modePrefix() . "cancelBooking&id=" . $_GET["id"] . "&booking=",
+				"cancel",
+				"stornieren",
+				"cancel"
+		);
 		$table = new Table($bookings);
 		$table->removeColumn("account");
 		$table->renameHeader("id", Lang::txt("finance_booking_id"));
@@ -131,6 +147,7 @@ class FinanceView extends CrudView {
 		$table->renameHeader("notes", Lang::txt("finance_booking_notes"));
 		$table->allowWordwrap(false);
 		$table->setColumnFormat("amount", "DECIMAL");
+		$table->setOptionColumnNames(array("cancel"));
 		$table->write();
 		
 		// show metrics
@@ -153,6 +170,11 @@ class FinanceView extends CrudView {
 		$addBooking = new Link($this->modePrefix() . "addBooking&id=" . $_GET["id"] . "&from=$from&to=$to", Lang::txt("finance_add_booking"));
 		$addBooking->addIcon("plus");
 		$addBooking->write();
+		
+		$this->buttonSpace();
+		$prt = new Link("javascript:window.print()", Lang::txt("print"));
+		$prt->addIcon("printer");
+		$prt->write();
 	}
 	
 	function addBooking() {
@@ -199,6 +221,10 @@ class FinanceView extends CrudView {
 		$booking = $_GET["booking"];
 		$this->getData()->cancelBooking($account, $booking);
 		$this->view();
+	}
+	
+	function cancelBookingOptions() {
+		$this->viewOptions();
 	}
 }
 

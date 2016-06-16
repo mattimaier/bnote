@@ -15,6 +15,7 @@ class Table implements iWriteable {
 	private $remove = array();
 	private $formats = array();
 	private $headernames = array();
+	private $optColumns = array();
 
 	private $dataRowSpan = 0;
 	private $allowContentWrap = true;
@@ -143,18 +144,27 @@ class Table implements iWriteable {
 	 * @param String $delHref Link to the action of the buttons, format: "...&contactid=". The id of the item will be appended.
 	 * @param String $delColName Name of the column in the data, by default "delete".
 	 * @param String $delColCaption Caption of the column, by default "Löschen".
+	 * @param String $icon Icon to use, by default "remove".
 	 * @return Table data with delete column.
 	 */
-	public static function addDeleteColumn($tabData, $delHref, $delColName = "delete", $delColCaption = "Löschen") {
+	public static function addDeleteColumn($tabData, $delHref, $delColName = "delete", $delColCaption = "Löschen", $icon="remove") {
 		$tabData[0][$delColName] = $delColCaption;
 		for($i = 1; $i < count($tabData); $i++) {
 			$btn = new Link($delHref . $tabData[$i]["id"], "");
-			$btn->addIcon("remove");
+			$btn->addIcon($icon);
 			$tabData[$i][$delColName] = $btn->toString();
 		}
 		return $tabData;
 	}
 
+	/**
+	 * The these columns as option columns so they can be ignored for print.
+	 * @param Array $cols Column names in an array.
+	 */
+	function setOptionColumnNames($cols) {
+		$this->optColumns = $cols;
+	}
+	
 	function write() {
 		echo '<table cellpadding="0" cellspacing="0" class="BNoteTable">' . "\n";
 
@@ -191,7 +201,12 @@ class Table implements iWriteable {
 						$headerLabel = $value;
 					}
 
-					echo '  <td class="DataTable_Header">' . $headerLabel . '</td>' . "\n";
+					$cssClasses = "";
+					if(!is_numeric($id) && in_array($id, $this->optColumns)) {
+						$cssClasses = " bn-table-option-column";
+					}
+					
+					echo '  <td class="DataTable_Header' . $cssClasses . '">' . $headerLabel . '</td>' . "\n";
 				}
 				else if(!is_numeric($id)) {
 					// skip removed columns
@@ -205,7 +220,12 @@ class Table implements iWriteable {
 					}
 					
 					# Data
-					echo '  <td class="DataTable"';
+					echo '  <td class="DataTable';
+					if(in_array($id, $this->optColumns)) {
+						echo ' bn-table-option-column';
+					}
+					
+					echo '"';
 					if($firstVisibleColumn && $this->dataRowSpan > 0) {
 						echo ' rowspan="' . $this->dataRowSpan . '"';
 						$rowSpanCount++;
