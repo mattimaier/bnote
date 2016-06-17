@@ -1,9 +1,9 @@
 # BNote
-# by Matti Maier Internet Solutions
-# www.mattimaier.de
+# by Matti Maier und Stefan Kreminski BNote Software GbR
+# www.bnote.info
 
 # Release Version 3.0.0
-# Release Date 2014-08-20
+# Release Date 2016-xx-xx
 # License GPLv3
 
 Requirements
@@ -42,3 +42,9 @@ How to update an existing BNote instance?
 	- data/nachrichten.html
 	- readme.txt
 	- release_notes.txt
+
+
+Note on Database Installation
+-----------------------------
+If the database.xml configuration file is present, the database will not be initialized. Therefore remove the file and enter
+the configuration parameters manually in the form to activate the installation.
