@@ -1059,9 +1059,9 @@ abstract class AbstractBNA implements iBNA {
 		$values["bpm"] = $bpm == "" ? "0" : $bpm;
 		$values["music_key"] = $music_key;
 		$values["notes"] = urldecode($notes);
-		$values["genre"] = $genre;
+		$values["genre"] = $genre["id"];
 		$values["composer"] = $composer;
-		$values["status"] = $status;
+		$values["status"] = $status["id"];
 		
 		echo $repData->create($values);
 	}
@@ -1440,8 +1440,10 @@ abstract class AbstractBNA implements iBNA {
 	
 	public function updateSong($id) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
+		$_POST["status"] = $_POST["status"]["id"];
+		$_POST["genre"] = $_POST["genre"]["id"];
 		$repData->update($id, $_POST);
-		echo "{success: true}";
+		echo '{"success": true}';
 	}
 	
 	public function getSong($id) {

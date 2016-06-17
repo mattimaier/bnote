@@ -155,9 +155,16 @@ class RepertoireData extends AbstractData {
 	
 	private function modifyString($input) {
 		// just replace double quotes with single quotes and remove < and >
-		$str = str_replace("\"", "'", $input);
-		$str = str_replace("<", "", $str); // no HTML injection
-		$str = str_replace(">", "", $str);
+		$str = $input;
+		if(strpos($input, '"') >= 0) {
+			$str = str_replace("\"", "'", $input);
+		}
+		if(strpos($str, "<") >= 0) {
+			$str = str_replace("<", "", $str); // no HTML injection
+		}
+		if(strpos($str, ">") >= 0) {
+			$str = str_replace(">", "", $str);
+		}
 		return $str;
 	}
 	

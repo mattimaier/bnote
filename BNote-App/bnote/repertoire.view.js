@@ -4,8 +4,14 @@ sap.ui.jsview("bnote.repertoire", {
 		return "bnote.repertoire";
 	},
 	
-	createContent: function(){
-		var repertoireList = new sap.m.List();
+	createContent: function(oController){
+		
+		var repertoireSearch = new sap.m.SearchField("repertoireSearch",{  
+	         tooltip: "Repertoire durchsuchen",  
+	         liveChange: oController.filterList  
+	  });  
+		
+		var repertoireList = new sap.m.List("repertoireList");
 		
 			repertoireList.bindItems({
 	        	growingScrollToLoad : "true",
@@ -27,10 +33,31 @@ sap.ui.jsview("bnote.repertoire", {
 	var repertoireAddButton = new sap.m.Button({
 		icon : sap.ui.core.IconPool.getIconURI("add"),
 		press: function() {
-			   var data = {};
-			   var model = new sap.ui.model.json.JSONModel(data);
+				var model = repertoireView.getModel();
+					 var emptydata = {
+							 id: -1,
+							   title: "",
+							   length: "00:00:00",
+							   bpm: "",
+							   music_key: "",
+							   notes: "",
+							   genre: {
+									   id: "",
+									   name: ""
+							   },
+							   composer: "",
+							   status: {
+								   id: "",
+								   name: ""
+							   }
+				   		};
+		         model.oData.songs.push(emptydata);
+		         var newindex = model.oData.songs.length -1;
+		         var bcEmpty = model.createBindingContext("/songs/" + newindex);
 			   repertoireaddView.setModel(model);
+			   repertoireaddView.setBindingContext(bcEmpty);
 			   repertoireaddView.getController().setData();
+			   repertoireaddView.getController().mode = "add";
 			   app.to("repertoireadd");
 		}		
 	});
@@ -43,7 +70,7 @@ sap.ui.jsview("bnote.repertoire", {
 	            app.back();
 	        },
 	        headerContent: [ repertoireAddButton ],
-			content: [ repertoireList ],
+			content: [ repertoireSearch, repertoireList ],
 	        footer: [ getNaviBar() ]
 		});
 		return page;

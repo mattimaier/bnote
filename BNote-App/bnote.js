@@ -101,7 +101,7 @@ function getNaviBar(){
 			   	new sap.m.Button({
 			   		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
 			   		press: function() {
-			   			app.to("repertoire")
+			   			repertoireView.getController().onRepertoireClick();
 			   		}
 			   	}),
 			    new sap.m.Button({

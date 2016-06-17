@@ -9,7 +9,8 @@ sap.ui.jsview("bnote.repertoireadd", {
 		var path = "/genres/";
 		for(i=0; i < genres.getProperty(path).length; i++){
 			var name = genres.getProperty(path + i + "/name");
-			this.genreitems.addItem(new sap.ui.core.Item({ text : name}));
+			var key = genres.getProperty(path + i + "/id");
+			this.genreitems.addItem(new sap.ui.core.Item({ text : name, key: key}));
 		}
 	},
 	
@@ -18,17 +19,25 @@ sap.ui.jsview("bnote.repertoireadd", {
 		var path = "/status/";
 		for(i=1; i < statuses.getProperty(path).length; i++){
 			var name = statuses.getProperty(path + i + "/name");
-			this.statusitems.addItem(new sap.ui.core.Item({ text : name}));
+			var key = statuses.getProperty(path + i + "/id");
+			this.statusitems.addItem(new sap.ui.core.Item({ text : name, key: key}));
 		}
+		
 	},
 	
 	createContent: function(){
 		this.genreitems = new sap.m.Select({
-      	  items: []
+			change: function(){
+				repertoireaddView.getController().setdirtyflag();
+			},
+      	  	items: []
         }),
 
         this.statusitems = new sap.m.Select({
-      	  items: []
+        	change: function(){
+				repertoireaddView.getController().setdirtyflag();
+			},
+        	items: []
         }),
         
         
@@ -58,7 +67,7 @@ sap.ui.jsview("bnote.repertoireadd", {
               }),              
               new sap.m.Label({text: "Tonart"}),
               new sap.m.Input({
-            	  value: "{music-key}",
+            	  value: "{music_key}",
             	  liveChange: function(){
                  	 repertoireaddView.getController().setdirtyflag();
              	  }
