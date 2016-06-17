@@ -1449,7 +1449,7 @@ abstract class AbstractBNA implements iBNA {
 		$song = $repData->findByIdNoRef($id);
 		$song = $this->removeNumericKeys($song);
 		
-		$song["composer"] = $repData->getComposerName($composerId);
+		$song["composer"] = $repData->getComposerName($song["composer"]);
 		
 		$genre = $repData->getGenre($song["genre"]);
 		$song["genre"] = $this->removeNumericKeys($genre[1]);
