@@ -1,6 +1,4 @@
 <?php
-require_once($GLOBALS["DIR_DATA_MODULES"] . "startdata.php");
-require_once($GLOBALS["DIR_DATA_MODULES"] . "mitspielerdata.php");
 
 class CalendarData extends AbstractData {
 
@@ -12,7 +10,7 @@ class CalendarData extends AbstractData {
 		"location" => array("name")
 	);
 	
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array(Lang::txt("id"), FieldType::INTEGER),
 			"begin" => array(Lang::txt("begin"), FieldType::DATETIME),
@@ -29,10 +27,12 @@ class CalendarData extends AbstractData {
 		);
 		
 		$this->table = "reservation";
+		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "startdata.php");
+		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "mitspielerdata.php");
 		
-		$this->startdata = new StartData();
-		$this->mitspielerdata = new MitspielerData();
-		$this->init();
+		$this->startdata = new StartData($dir_prefix);
+		$this->mitspielerdata = new MitspielerData($dir_prefix);
+		$this->init($dir_prefix);
 	}
 	
 	public function getJoinedAttributes() {
@@ -160,6 +160,16 @@ class CalendarData extends AbstractData {
 		);
 	}
 	
+	function getContact($id) {
+		return $this->database->getRow("SELECT * FROM contact WHERE id = $id");
+	}
+	
+	function getLocation($id) {
+		$query = "SELECT l.*, address.street, address.city, address.zip 
+			FROM location l JOIN address ON l.address = address.id 
+			WHERE l.id = $id";
+		return $this->database->getRow($query);
+	}
 }
 
 ?>

@@ -1061,6 +1061,83 @@ entity has a field <strong>type</strong> which contains its type.
 </ul>
 </div>
 
+<div class="method">
+<h3>getReservation</h3>
+<ul>
+	<li><i>HTTP-Method</i>: GET</li>
+	<li><i>Description</i>: Retrieves one reservation.</li>
+	<li><i>Returns</i>: Reservation details.</li>
+	<li><i>URL Parameters</i>:
+		<ul>
+			<li><b>id</b>: <i>Integer</i> Reservation ID</li>
+		</ul>
+	</li>
+</ul>
+</div>
+
+<div class="method">
+<h3>getReservations</h3>
+<ul>
+	<li><i>HTTP-Method</i>: GET</li>
+	<li><i>Description</i>: Retrieves future reservations.</li>
+	<li><i>Returns</i>: Array of reservations in the future.</li>
+	<li><i>URL Parameters</i>: None</li>
+</ul>
+</div>
+
+<div class="method">
+<h3>addReservation</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Adds a new reservation.</li>
+	<li><i>Returns</i>: "true" whenn successful, otherwise error message.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>begin</b>: <i>DateTime String</i> Begin of the reservation.</li>
+	 		<li><b>end</b>: <i>DateTime String</i> End of the reservation.</li>
+	 		<li><b>name</b>: <i>String</i> Name, e.g. Birthday of Mr. Smith.</li>
+	  		<li><b>location</b>: <i>Decimal</i> Location ID where the reservation is.</li>
+	  		<li><b>contact</b>: <i>Decimal</i> Contact ID for the reservation.</li>
+	  		<li><b>notes</b>: <i>String</i> Notes for this reservation.</li>
+		</ul>
+	</li>
+</ul>
+</div>
+
+<div class="method">
+<h3>updateReservation</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Updates a reservation.</li>
+	<li><i>Returns</i>: "true" whenn successful, otherwise error message.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>id</b>: <i>Integer</i> Reservation ID.</li>
+			<li><b>begin</b>: <i>DateTime String</i> Begin of the reservation.</li>
+	 		<li><b>end</b>: <i>DateTime String</i> End of the reservation.</li>
+	 		<li><b>name</b>: <i>String</i> Name, e.g. Birthday of Mr. Smith.</li>
+	  		<li><b>location</b>: <i>Decimal</i> Location ID where the reservation is.</li>
+	  		<li><b>contact</b>: <i>Decimal</i> Contact ID for the reservation.</li>
+	  		<li><b>notes</b>: <i>String</i> Notes for this reservation.</li>
+		</ul>
+	</li>
+</ul>
+</div>
+
+<div class="method">
+<h3>deleteReservation</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Deletes a reservation.</li>
+	<li><i>Returns</i>: "true" whenn successful, otherwise error message.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>id</b>: <i>Integer</i> Reservation ID.</li>
+		</ul>
+	</li>
+</ul>
+</div>
+
 <script type="text/javascript">
 var h3s = document.getElementsByTagName("h3");
 var summary = document.getElementById("methodSummary");

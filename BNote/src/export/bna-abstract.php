@@ -24,6 +24,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "equipmentdata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "calendardata.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
@@ -515,6 +516,58 @@ abstract class AbstractBNA implements iBNA {
 				exit();
 			}
 			$this->getSong($_GET['id']);
+		}
+		else if($function == "getReservation") {
+			// permission
+			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			if(!isset($_GET["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->getReservation($_GET['id']);
+		}
+		else if($function == "getReservations") {
+			// permission
+			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			$this->getReservations();
+		}
+		else if($function == "addReservation") {
+			// permission
+			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			$this->addReservation();
+		}
+		else if($function == "updateReservation") {
+			// permission
+			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			if(!isset($_POST["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->updateReservation($_POST["id"]);
+		}
+		else if($function == "deleteReservation") {
+			// permission
+			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			if(!isset($_POST["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->deleteReservation($_POST["id"]);
 		}
 		else {
 			$this->$function();
@@ -1479,7 +1532,41 @@ abstract class AbstractBNA implements iBNA {
 	public function deleteSong($id) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$repData->delete($id);
-		echo "{success: true}";
+		echo "{'success': true}";
+	}
+	
+	public function getReservation($id) {
+		$calData = new CalendarData($GLOBALS["dir_prefix"]);
+		$entity = $calData->findByIdNoRef($id);
+		// resolve contact and location
+		$entity["contact"] = $calData->getContact($entity["contact"]);
+		$entity["location"] = $calData->getLocation($entity["location"]);
+		$this->removeNumericKeys($entity);
+		$this->writeEntity($entity, "reservation");
+	}
+	
+	public function getReservations() {
+		$calData = new CalendarData($GLOBALS["dir_prefix"]);
+		$entities = $calData->findAllNoRefWhere("begin >= NOW()");
+		unset($entities[0]);
+		$this->printEntities($entities, "reservation");
+	}
+	
+	public function addReservation() {
+		$calData = new CalendarData($GLOBALS["dir_prefix"]);
+		echo $calData->create($_POST);
+	}
+	
+	public function updateReservation($id) {
+		$calData = new CalendarData($GLOBALS["dir_prefix"]);
+		$calData->update($id, $_POST);
+		echo '{"success": true}';
+	}
+	
+	public function deleteReservation($id) {
+		$calData = new CalendarData($GLOBALS["dir_prefix"]);
+		$calData->delete($id);
+		echo '{"success": true}';
 	}
 	
 	private function flattenAddresses($selection) {

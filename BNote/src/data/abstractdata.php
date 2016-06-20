@@ -166,7 +166,7 @@ abstract class AbstractData {
 	 * @return Returns an database getSelection(...) result array.
 	 */
 	public function findAllNoRefLimit($limit) {
-		$query = "SELECT * FROM $table LIMIT $limit";
+		$query = "SELECT * FROM " . $this->table . " LIMIT $limit";
 		return $this->database->getSelection($query);
 	}
 	
@@ -176,7 +176,7 @@ abstract class AbstractData {
 	 * @return Returns an database getSelection(...) result array.
 	 */
 	public function findAllNoRefWhere($where) {
-		$query = "SELECT * FROM $table WHERE $where";
+		$query = "SELECT * FROM " . $this->table . " WHERE $where";
 		return $this->database->getSelection($query);
 	}
 	

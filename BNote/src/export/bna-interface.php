@@ -310,6 +310,34 @@ interface iBNA {
 	 * @param Integer $id Equipment ID.
 	 */
 	public function deleteEquipment($id);
+	
+	/**
+	 * Adds a reservation in the database using the $_POST array.
+	 */
+	public function addReservation();
+	
+	/**
+	 * Deletes the reservation from the database.
+	 * @param Integer $id Reservation ID.
+	 */
+	public function deleteReservation($id);
+	
+	/**
+	 * Updates the reservation from the $_POST array.
+	 * @param Integer $id Reservation ID.
+	 */
+	public function updateReservation($id);
+	
+	/**
+	 * Retrieves the reservation details for the given ID.
+	 * @param Integer $id Reservation ID.
+	 */
+	public function getReservation($id);
+	
+	/**
+	 * Retrieves all future reservations from the database.
+	 */
+	public function getReservations();
 }
 
 // Abstract Implementation of BNote Application Interface
