@@ -1045,6 +1045,7 @@ abstract class AbstractBNA implements iBNA {
 		$this->getContacts(); echo $sep . "\n";
 		$this->getLocations(); echo $sep . "\n";
 		$this->getTasks(); echo $sep . "\n";
+		$this->getReservations(); echo $sep . "\n";
 		$this->getVotes(); echo $sep . "\n";
 		$this->getGenres(); echo $sep . "\n";
 		$this->getStatuses(); echo $sep . "\n";
