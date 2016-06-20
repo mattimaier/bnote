@@ -252,10 +252,9 @@ interface iBNA {
 	
 	/**
 	 * Checks whether the user has access to a given module.
-	 * @param Integer $moduleId Module ID.
 	 * @return Boolean value true (has access) or false (no access).
 	 */
-	public function hasUserAccess($moduleId);
+	public function hasUserAccess();
 	
 	/**
 	 * Retrives all songs to practise from a rehearsal.

@@ -250,11 +250,7 @@ abstract class AbstractBNA implements iBNA {
 			$this->addComment($_POST["otype"], $_POST["oid"], $_POST["message"]);
 		}
 		else if($function == "hasUserAccess") {
-			if(!isset($_GET["moduleId"]) || $_GET["moduleId"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->hasUserAccess($_GET["moduleId"]);
+			$this->hasUserAccess();
 		}
 		else if($function == "getSongsToPractise") {
 			if(!isset($_GET["rid"]) || $_GET["rid"] == "") {
@@ -1171,8 +1167,14 @@ abstract class AbstractBNA implements iBNA {
 		}
 	}
 	
-	function hasUserAccess($moduleId) {
-		echo ($this->sysdata->userHasPermission($moduleId, $this->uid)) ? "true" : "false";
+	function hasUserAccess() {
+		if(!isset($_GET["moduleId"]) || $_GET["moduleId"] == "") {
+			$arr = $this->sysdata->getUserModulePermissions($this->uid);
+			$this->writeEntity($arr, "permission");
+		}
+		else {
+			echo ($this->sysdata->userHasPermission($_GET["moduleId"], $this->uid)) ? "true" : "false";
+		}
 	}
 	
 	function getSongsToPractise($rid) {
