@@ -62,17 +62,20 @@ class LoginView extends AbstractView {
 	}
 	
 	function login() {
-		?>
-		<script>
-		$(document).ready(function() {
-			// when the width of the screen is less than 560px (UI5 default) -> switch to app view
-			var ww = window.screen.width;
-			if(ww < 560) {
-				location = "../BNote-App";
-			}
-		});
-		</script>
-		<?php
+		if(!isset($_GET["device"]) || $_GET["device"] != "desktop") {
+			?>
+			<script>
+			$(document).ready(function() {
+				// when the width of the screen is less than 560px (UI5 default) -> switch to app view
+				var ww = window.screen.width;
+				if(ww < 560) {
+					location = "../BNote-App";
+				}
+			});
+			</script>
+			<?php
+		}
+		
 		Writing::p("Bitte melde dich an um BNote zu nutzen. Wenn du noch kein
 				Konto deiner Band hast, dann <a href=\"?mod=registration\">registriere</a> dich jetzt.");
 		
