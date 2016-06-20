@@ -1416,6 +1416,7 @@ abstract class AbstractBNA implements iBNA {
 	
 	public function addEquipment() {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
+		unset($_POST["id"]);
 		echo $eqData->create($_POST);
 	}
 	
@@ -1433,9 +1434,20 @@ abstract class AbstractBNA implements iBNA {
 	
 	public function getEquipment() {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
-		$eq = $eqData->findAllNoRef();
-		unset($eq[0]);
-		$this->printEntities($eq, "equipment");
+		if(isset($_GET["id"]) && $_GET["id"] != "") {
+			$eq = $eqData->findByIdNoRef($_GET["id"]);
+			$this->writeEntity($eq, "equipment");
+		}
+		else {
+			$eq = $eqData->findAllNoRef();
+			$out = array();
+			foreach($eq as $i => $e) {
+				if($i == 0) continue;
+				$e_out = $this->removeNumericKeys($e);
+				array_push($out, $e_out);
+			}
+			$this->printEntities($out, "equipment");
+		}
 	}
 	
 	public function updateSong($id) {

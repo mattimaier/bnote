@@ -996,9 +996,13 @@ entity has a field <strong>type</strong> which contains its type.
 <h3>getEquipment</h3>
 <ul>
 	<li><i>HTTP-Method</i>: GET</li>
-	<li><i>Description</i>: Retrieves all equipment.</li>
+	<li><i>Description</i>: Retrieves equipment. All if no ID is specified.</li>
 	<li><i>Returns</i>: Equipment as an array of objects.</li>
-	<li><i>Parameters</i>: None.</li>
+	<li><i>URL Parameters</i>:
+		<ul>
+			<li><b>id</b>: <i>Integer</i> Equipment ID (optional)</li>
+		</ul>
+	</li>
 </ul>
 </div>
 
