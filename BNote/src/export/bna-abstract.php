@@ -1423,13 +1423,13 @@ abstract class AbstractBNA implements iBNA {
 	public function updateEquipment($id) {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		$eqData->update($id, $_POST);
-		echo "{success: true}";
+		echo '{"success": true}';
 	}
 	
 	public function deleteEquipment($id) {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		$eqData->delete($id);
-		echo "{success: true}";
+		echo '{"success": true}';
 	}
 	
 	public function getEquipment() {
