@@ -25,6 +25,7 @@ sap.ui.jsview("bnote.repertoire", {
 	                press: function(evt) {
 	                	  var oBindingContext = evt.getSource().getBindingContext(); // evt.getSource() is the ListItem
 	                      repertoiredetailView.setBindingContext(oBindingContext); // make sure the detail page has the correct data context
+	                      repertoiredetailView.getController().mode = "edit";
 	                      app.to("repertoiredetail");
 	                }
 	            })

@@ -22,6 +22,7 @@ sap.ui.controller("bnote.login", {
             data:  {"login": "admin", "password": "banane"}, //{"login": login, "password": pw},
             success: function(data) {
             	mobilePin = data;
+            	setPermissions();
                 app.to("start");
             },
             error: function(a,b,c) {

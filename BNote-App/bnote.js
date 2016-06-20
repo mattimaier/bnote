@@ -67,9 +67,79 @@ backend = {
 	
 };
 
+// Permission Control
+permission = null;
+/*
+ * Foreach module contains access controlled controls
+ */
+accessControls = {
+		5: [],
+		6: [],
+		7: [],
+		16: [],
+		20: [],
+		21: []		
+}
+
+function setPermissions() {
+	if (permission == null){
+		jQuery.ajax({
+			async: false,
+			type: "POST",
+        	url: backend.get_url("hasUserAccess"),        	
+        	success: function(data) {
+        		permission = data; 
+        		$.each(accessControls, function(index, value) {
+        		    if (permission.indexOf(index) != -1){
+        		    	value.forEach(function(element, arrindex, array){
+        		    		var myelement = sap.ui.getCore().byId(element.sId);
+        		    		myelement.setVisible(true);
+        		    	});
+        		    }        		    
+        		}); 
+            },
+			error: function(){		
+				permission = null;
+			}
+        });
+		
+	}
+	
+	return permission;
+}
+
 // Global Navigation bar
 jQuery.sap.require("sap.ui.core.IconPool");
+	
 function getNaviBar(){
+	
+	var emailButton = new sap.m.Button({
+		visible: false,
+		icon : sap.ui.core.IconPool.getIconURI("email"),
+		press : function() {
+			communicationView.onEmailClick();				
+		}
+	});	
+	accessControls[7].push(emailButton);
+
+	var repertoireButton = new sap.m.Button({
+		visible: false,
+		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
+		press: function() {
+			repertoireView.getController().onRepertoireClick();
+		}
+	});
+	accessControls[6].push(repertoireButton);
+	   	
+	var equipmentButton = new sap.m.Button({
+		visible: false,
+		icon: sap.ui.core.IconPool.getIconURI("projector"),
+		press: function() {
+			equipmentView.getController().onEquipmentClick();
+		}
+	});
+	accessControls[21].push(equipmentButton);
+	
 	return new sap.m.OverflowToolbar({
 			active : true,
 			design : sap.m.ToolbarDesign.Solid,
@@ -86,34 +156,20 @@ function getNaviBar(){
 						app.to("member")
 					}
 				}), 
-				new sap.m.Button({
-					icon : sap.ui.core.IconPool.getIconURI("email"),
-					press : function() {
-						communicationView.onEmailClick();				
-					}
-				}),
+				emailButton,
 				new sap.m.Button({
 				    icon: sap.ui.core.IconPool.getIconURI( "marketing-campaign" ),
 				    press: function() {
 				    	app.to("news")
 				    }
 			    }),
-			   	new sap.m.Button({
-			   		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
-			   		press: function() {
-			   			repertoireView.getController().onRepertoireClick();
-			   		}
-			   	}),
-			    new sap.m.Button({
-			    	icon: sap.ui.core.IconPool.getIconURI("projector"),
-			    	press: function() {
-			    		app.to("equipment")
-			    	}
-			   	})
+			   repertoireButton,			   
+			   equipmentButton
 			]
 		
 		});
 	}
+
 
 // Global View Definitions
 loginView = sap.ui.view({
@@ -200,6 +256,18 @@ repertoireaddView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
+equipmentdetailView = sap.ui.view({
+	id: "equipmentdetail",
+	viewName: "bnote.equipmentdetail",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
+equipmentaddView = sap.ui.view({
+	id: "equipmentadd",
+	viewName: "bnote.equipmentadd",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
 
 
 // Build the app together
@@ -221,6 +289,8 @@ app.addPage(repertoireView);
 app.addPage(equipmentView);
 app.addPage(repertoiredetailView);
 app.addPage(repertoireaddView);
+app.addPage(equipmentdetailView);
+app.addPage(equipmentaddView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",

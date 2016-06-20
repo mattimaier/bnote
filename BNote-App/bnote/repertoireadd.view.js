@@ -97,6 +97,7 @@ sap.ui.jsview("bnote.repertoireadd", {
 		var updateButton = new sap.m.Button({
 			icon: sap.ui.core.IconPool.getIconURI("save"),
 			press: function() {
+				
 				repertoireaddView.getController().savechanges();
 			}
 		})
