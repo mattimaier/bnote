@@ -25,6 +25,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "equipmentdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "calendardata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "aufgabendata.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
@@ -569,6 +570,30 @@ abstract class AbstractBNA implements iBNA {
 			}
 			$this->deleteReservation($_POST["id"]);
 		}
+		else if($function == "addTask") {
+			// permission
+			if(!$this->sysdata->userHasPermission(16, $this->uid)) { // 16=Tasks
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			$this->addTask();
+		}
+		else if($function == "addLocation") {
+			// permission
+			if(!$this->sysdata->userHasPermission(8, $this->uid)) { // 8=Locations
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			$this->addLocation();
+		}
+		else if($function == "addContact") {
+			// permission
+			if(!$this->sysdata->userHasPermission(3, $this->uid)) { // 3=Contacts
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			$this->addContact();
+		}
 		else {
 			$this->$function();
 		}
@@ -841,8 +866,6 @@ abstract class AbstractBNA implements iBNA {
 										$comments[$j]["message"] = urldecode($comments[$j]["message"]);
 				}				
 				$concerts[$i]["comments"] = array_values($this->removeNumericKeys($comments));
-				
-			
 		}
 		
 		
@@ -1568,6 +1591,26 @@ abstract class AbstractBNA implements iBNA {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$calData->delete($id);
 		echo '{"success": true}';
+	}
+	
+	public function addTask() {
+		$taskData = new AufgabenData($GLOBALS["dir_prefix"]);
+		$_SESSION["user"] = $this->uid;
+		$taskId = $taskData->create($_POST);
+		unset($_SESSION["user"]);
+		echo $taskId;
+	}
+	
+	public function addContact() {
+		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
+		$cid = $contactData->create($_POST);
+		echo $cid;
+	}
+	
+	public function addLocation() {
+		$locData = new LocationsData($GLOBALS["dir_prefix"]);
+		$lid = $locData->create($_POST);
+		echo $lid;
 	}
 	
 	private function flattenAddresses($selection) {

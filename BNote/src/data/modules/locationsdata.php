@@ -31,7 +31,7 @@ class LocationsData extends AbstractData {
 		}
 		
 		$_POST["address"] = $this->adp()->manageAddress(-1, $_POST);
-		parent::create($_POST);
+		return parent::create($_POST);
 	}
 	
 	function update($id, $values) {

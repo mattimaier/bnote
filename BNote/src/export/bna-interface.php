@@ -338,6 +338,21 @@ interface iBNA {
 	 * Retrieves all future reservations from the database.
 	 */
 	public function getReservations();
+	
+	/**
+	 * Adds a contact given the $_POST array data.
+	 */
+	public function addTask();
+	
+	/**
+	 * Adds a location given the $_POST array data.
+	 */
+	public function addLocation();
+	
+	/**
+	 * Adds a contact given the $_POST array data.
+	 */
+	public function addContact();
 }
 
 // Abstract Implementation of BNote Application Interface

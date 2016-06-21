@@ -10,7 +10,7 @@ class AufgabenData extends AbstractData {
 	/**
 	 * Build data provider.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 				"id" => array("ID", FieldType::INTEGER),
 				"title" => array("Titel", FieldType::CHAR),
@@ -29,7 +29,7 @@ class AufgabenData extends AbstractData {
 		);
 	
 		$this->table = "task";
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	function getTasks($onlyOpen = true) {

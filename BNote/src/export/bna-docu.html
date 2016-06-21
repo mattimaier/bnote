@@ -1138,6 +1138,71 @@ entity has a field <strong>type</strong> which contains its type.
 </ul>
 </div>
 
+<div class="method">
+<h3>addTask</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Adds a task.</li>
+	<li><i>Returns</i>: Task ID.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>title</b>: <i>String</i> Title of the task.</li>
+	 		<li><b>description</b>: <i>String</i> What should be done?</li>
+	 		<li><b>due_at</b>: <i>DateTime String</i> German-formatted due date of the task</li>
+	  		<li><b>Verantwortlicher</b>: <i>Integer</i> ID of the contact the task is assigned to.</li>
+		</ul>
+	</li>
+</ul>
+</div>
+
+<div class="method">
+<h3>addLocation</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Adds a location.</li>
+	<li><i>Returns</i>: Location ID.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>name</b>: <i>String</i> Location name, e.g. Jimmy's Cocktail Bar.</li>
+	 		<li><b>notes</b>: <i>String</i> Location notes</li>
+	 		<li><b>street</b>: <i>String</i> Street address</li>
+	  		<li><b>city</b>: <i>String</i> City / municipality</li>
+	  		<li><b>zip</b>: <i>String</i> Postal Code / ZIP Code / PLZ / etc.</li>
+		</ul>
+	</li>
+</ul>
+</div>
+
+<div class="method">
+<h3>addContact</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Adds a contact.</li>
+	<li><i>Returns</i>: Contact ID.</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>surname</b>: <i>String</i> Surname of the contact.</li>
+			<li><b>name</b>: <i>String</i> First name of the contact.</li>
+	 		<li><b>phone</b>: <i>String</i> Phone number</li>
+	 		<li><b>fax</b>: <i>String</i> Fax number</li>
+	  		<li><b>mobile</b>: <i>String</i> Cell phone / mobile number</li>
+	  		<li><b>business</b>: <i>String</i> Business phone of contact</li>
+	  		<li><b>email</b>: <i>String</i> E-mail address of contact</li>
+	  		<li><b>web</b>: <i>String</i> Website URL</li>
+	  		<li><b>notes</b>: <i>String</i> Notes for this contact</li>
+	  		<li><b>instrument</b>: <i>Integer</i> Instrument ID (0 for not selected)</li>
+	  		<li><b>business</b>: <i>String</i> Business phone of contact</li>
+	  		<li><b>birthday</b>: <i>Date String</i> German-formatted birthday of contact</li>
+	  		<li><b>street</b>: <i>String</i> Street address</li>
+	  		<li><b>city</b>: <i>String</i> City / municipality</li>
+	  		<li><b>zip</b>: <i>String</i> Postal Code / ZIP Code / PLZ / etc.</li>
+	  		<li><b>group_*</b>: <i>Boolean</i> Set or not for each group, e.g. if you want to set group with the ID 1 then make sure group_1 is set.</li>
+		</ul>
+	</li>
+</ul>
+</div>
+
+
 <script type="text/javascript">
 var h3s = document.getElementsByTagName("h3");
 var summary = document.getElementById("methodSummary");
