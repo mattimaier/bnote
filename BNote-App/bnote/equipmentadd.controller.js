@@ -2,6 +2,10 @@ sap.ui.controller("bnote.equipmentadd", {
 
 	mode: "edit",
 	
+	setData: function() {
+		equipmentaddView.getController().dirty = false;
+	},
+	
 	setdirtyflag: function() {
 		equipmentaddView.getController().dirty = true;
 	},
@@ -14,7 +18,7 @@ sap.ui.controller("bnote.equipmentadd", {
 		console.log(updateEquipmentData);
 		
 		//update backend
-		if(this.dirty){
+		if(equipmentaddView.getController().dirty){
 			if(this.mode == "edit") {
 				// update
 				jQuery.ajax({
@@ -53,8 +57,7 @@ sap.ui.controller("bnote.equipmentadd", {
 		}
 		else {
 			sap.m.MessageToast.show("Es wurde nichts verändert.");
-		}
-						
+		}			
 	  },
 	
 	checkdirtyflag: function() {
@@ -77,14 +80,13 @@ sap.ui.controller("bnote.equipmentadd", {
 		        	}
 				});
 		}
-		else if (equipmentaddView.getController().dirty && this.mode == "add"){
+		else if (this.mode == "add"){
 			var model = equipmentaddView.getModel();			
 			var path = equipmentaddView.getBindingContext().sPath.split("/");
     		var idxNewItem = path[path.length -1];
 			model.oData.equipment.splice(idxNewItem, 1);
 			model.setProperty("/equipment", model.oData.equipment);
 			equipmentaddView.getController().dirty = false;
-			
 		}
 	}		
 });

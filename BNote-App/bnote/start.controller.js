@@ -1,6 +1,6 @@
 sap.ui.controller("bnote.start", {
 	
-	onAfterRendering: function() {
+	loadAllData: function() {
     	var oCtrl = this;
 
         // load all data asynchronously
@@ -11,7 +11,8 @@ sap.ui.controller("bnote.start", {
                 var rehearsals = data[0]['rehearsals'];
                 var concerts = data[1]['concerts'];
                 var tasks = data[4]['task'];
-                var votes = data[5]['votes'];
+                var reservation = data[5]['reservation'];
+                var votes = data[6]['votes'];                
                 var items = oCtrl.startItemMapping(rehearsals, "Rehearsal", "begin", ["location", "name"], "icons/proben.png");
                 var concert_items = oCtrl.startItemMapping(concerts, "Concert", "begin", ["notes"], "icons/konzerte.png");
                 items = items.concat(concert_items);
@@ -19,6 +20,8 @@ sap.ui.controller("bnote.start", {
                 items = items.concat(tasks_items);
                 var votes_items = oCtrl.startItemMapping(votes, "Vote", "end", ["name"], "icons/abstimmung.png");
                 items = items.concat(votes_items);
+                var reservation_items = oCtrl.startItemMapping(reservation, "Reservation", "begin", ["location"], "icons/booking.png");
+                items = items.concat(reservation_items);
                 
                 // set model on related views
                 var model = new sap.ui.model.json.JSONModel({
@@ -31,8 +34,7 @@ sap.ui.controller("bnote.start", {
                      * - icon
                      */
                     "items": items
-                });        
-                   
+                });                          
                 backend.formatdate("/items", "/due_at", model);
                 backend.formatdate("/items", "/start", model);
                 backend.formatdate("/items", "/begin", model);
@@ -42,11 +44,11 @@ sap.ui.controller("bnote.start", {
                 concertView.setModel(model);
                 taskView.setModel(model);
                 voteView.setModel(model);
-                loadingscreen.close();
-                //app.to("start");
+                reservationView.setModel(model);
+                sap.ui.core.BusyIndicator.hide();
             },
             error: function(a,b,c) {
-            	loadingscreen.close();
+            	sap.ui.core.BusyIndicator.hide();
                 sap.m.MessageToast.show("Laden der Daten fehlgeschlagen");
                 console.log(b + ": " + c);
             }

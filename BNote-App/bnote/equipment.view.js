@@ -51,6 +51,7 @@ sap.ui.jsview("bnote.equipment", {
 		         var bcEmpty = model.createBindingContext("/equipment/" + newindex);
 		         equipmentaddView.setModel(model);
 		         equipmentaddView.setBindingContext(bcEmpty);
+		         equipmentaddView.getController().setData(); // equipment dirtyflag = false
 			     equipmentaddView.getController().mode = "add";
 			     app.to("equipmentadd");
 		}		

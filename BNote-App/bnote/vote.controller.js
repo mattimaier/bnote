@@ -4,8 +4,7 @@ sap.ui.controller("bnote.vote",{
 		var model = this.getView().getModel(model);
 		var oBindingContext = this.getView().getBindingContext(oBindingContext);
 		var path = oBindingContext.getPath();
-		console.log(model);
-		console.log(path);
+		
 		model.setProperty(path + "/currentdate", new Date());
 		var delta = backend.comparedates(path + "/currentdate", path + "/end_original", model);
 		
@@ -17,16 +16,11 @@ sap.ui.controller("bnote.vote",{
 		var is_multi = model.getProperty(path + "/is_multi");	
 		
 		
-		
+		if (is_date == 1){			
+			backend.formatdate(path + "/options", "/name", model);			
+		}
 		
 		for (var i = 0; i < model.getProperty(path + "/options").length; i++) {
-			if (is_date == 1){
-				
-				var collectionpath = "/items"
-				backend.formatdate(collectionpath, "/options/" + i + "/name", model);
-				
-			}
-			
 			if (is_multi == "0"){
 				model.setProperty(path + "/options/" + 0 + "/selected_single", undefined);
 				model.setProperty(path + "/options/" + 1 + "/selected_single", undefined);
@@ -66,8 +60,7 @@ sap.ui.controller("bnote.vote",{
 		this.getView().voteForm.addContent(
 				new sap.m.Button({
 					text: "Abstimmen",
-					press: function(){
-						 
+					press: function(){						 
 						voteView.getController().vote();
 					}
 				})
@@ -120,7 +113,6 @@ sap.ui.controller("bnote.vote",{
 			},
 			error : function(a, b, c) {
 				sap.m.MessageToast.show("Abstimmen fehlgeschlagen");
-				console.log(model);
 				console.log(a, b, c);
 			}
 		});

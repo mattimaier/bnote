@@ -24,7 +24,14 @@ sap.ui.controller("bnote.task", {
 			data : {"taskId": model.getProperty(path + "/id")},
 			success : function(result) {
 				model.setProperty(path + "is_completed", "1");
-				sap.m.MessageToast.show("Aufgabe erfolgreich beendet");
+				
+				// Delete the task from model after completion				
+				var path = oBindingContext.sPath.split("/");
+				var idxDelItem = path[path.length -1];
+				model.oData.items.splice(idxDelItem, 1);
+        		model.setProperty("/items", model.oData.items);  
+				
+				sap.m.MessageToast.show("Aufgabe erfolgreich beendet");		
 				app.to("start");
 			},
 			error : function(a, b, c) {

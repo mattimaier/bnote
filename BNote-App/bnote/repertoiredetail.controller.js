@@ -9,17 +9,15 @@ sap.ui.controller("bnote.repertoiredetail", {
 	        	url: backend.get_url("deleteSong"),
 	        	data: {"id": songid},
 	        	success: function(data) {
-	        		var BindingContext = repertoiredetailView.getBindingContext().oModel.sPath;
-	        		var spliced = model.oData.songs.splice(BindingContext, 1)
+	        		var path = repertoiredetailView.getBindingContext().sPath.split("/");
+	        		var idxDelItem = path[path.length -1];	        		
+	        		model.oData.songs.splice(idxDelItem, 1);
 	        		model.setProperty("/songs", model.oData.songs); 
 	        		app.to("repertoire");
-	                console.log("success");
 	            },
 	        error: function() {
-	        	console.log("error");
+	        	sap.m.MessageToast.show("Löschen derzeit nicht möglich. Bitte Internetverbindung überprüfen.");
 	        }
-	        });
-				
+	    });
 	}
-	
 });

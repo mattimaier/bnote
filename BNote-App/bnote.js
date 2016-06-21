@@ -5,6 +5,8 @@ sap.ui.localResources("bnote");
 // Global Data
 mobilePin = null;  // Default null
 
+// Please change this if your desktop application is at a different location
+desktop_path = "../bnote/main.php?mod=login&device=desktop";
 
 backend = {
 		
@@ -66,11 +68,6 @@ backend = {
 	}
 	
 };
-
-// Loading Screen (Busyindicator)
-loadingscreen = new sap.m.BusyDialog({});
-
-
 
 // Permission Control
 permission = null;
@@ -273,6 +270,19 @@ equipmentaddView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
+reservationView = sap.ui.view({
+	id: "reservation",
+	viewName: "bnote.reservation",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
+reservationaddView = sap.ui.view({
+	id: "reservationadd",
+	viewName: "bnote.reservationadd",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
+
 
 
 // Build the app together
@@ -296,6 +306,8 @@ app.addPage(repertoiredetailView);
 app.addPage(repertoireaddView);
 app.addPage(equipmentdetailView);
 app.addPage(equipmentaddView);
+app.addPage(reservationView);
+app.addPage(reservationaddView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",

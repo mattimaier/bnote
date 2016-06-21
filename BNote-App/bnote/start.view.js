@@ -28,8 +28,7 @@ sap.ui.jsview("bnote.start", {
 						rehearsalView.setButtons(participate);
 						app.to("rehearsal");
 					}
-					else if (objType == "Concert"){
-						
+					else if (objType == "Concert"){						
 						concertView.setBindingContext(oBindingContext);
 						var participate = model.getProperty(path + "/participate");
 						var location = model.getProperty(path + "/location");
@@ -45,27 +44,64 @@ sap.ui.jsview("bnote.start", {
 					else if (objType == "Vote"){
 						voteView.setBindingContext(oBindingContext);
 						voteView.getController().onVotePress();
-						app.to("vote");
+						app.to("vote");					
+					}
+					else if (objType == "Reservation"){
+						reservationView.setBindingContext(oBindingContext);
+						app.to("reservation");
 					}
 				}
 			})
 		});
-
+		
+		var startActionSheet = new sap.m.ActionSheet({
+			cancelButtonText: "Abbrechen",
+			buttons:[
+			         new sap.m.Button({
+			        	 text: "Reservierung hinzufügen",
+			        	 press: function(){	
+			        		 reservationaddView.getController().buildModel();
+			        		 app.to("reservationadd");
+			        	 }
+			         }),
+			         new sap.m.Button({
+			        	 text: "Probe hinzufügen"
+			         }),
+			         new sap.m.Button({
+			        	 text: "Aufgabe hinzufügen"
+			         }),
+			         new sap.m.Button({
+			        	 text: "Kontakt hinzufügen"
+			         })
+			         ],
+		});
 		
 		var startaddButton = new sap.m.Button({
 			icon : sap.ui.core.IconPool.getIconURI("add"),
-			
+			press: function(){
+				startActionSheet.setPlacement(sap.m.PlacementType.HorizontalPreferedRight);
+				startActionSheet.openBy(this);
+			}
+		});
+		var logoutButton = new sap.m.Button({
+			text: "Logout",
+			press: oController.onLogout
+		});
+		var startTitle = new sap.m.Title({
+			text: "Start"
+		});
+		var headerBar = new sap.m.Bar({
+			contentLeft: [logoutButton],
+			contentMiddle: [startTitle],
+			contentRight: [startaddButton]
 		});
 		
 		var page = new sap.m.Page("StartPage", {
 			title : "Start",
-			showNavButton : true,			
-			navButtonPress : oController.onLogout,
-			headerContent : [ startaddButton ],
+			customHeader : [ headerBar ],
 			content : [ mainList ],
 			footer : [ getNaviBar() ]
 		});
-
 		return page;
 	}
 });

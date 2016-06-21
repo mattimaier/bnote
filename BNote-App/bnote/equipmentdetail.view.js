@@ -36,6 +36,7 @@ sap.ui.jsview("bnote.equipmentdetail", {
 			press: function(){
 				equipmentaddView.setModel(this.getModel());
 				equipmentaddView.setBindingContext(this.getBindingContext());
+				equipmentaddView.getController().setData();  // equipment dirtyflag = false
 				equipmentaddView.getController().mode = "edit";
 				app.to("equipmentadd");
 			}

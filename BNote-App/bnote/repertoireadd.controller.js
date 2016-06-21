@@ -19,10 +19,11 @@ sap.ui.controller("bnote.repertoireadd", {
 				id: repertoireaddView.statusitems.getSelectedKey(),
 				name: repertoireaddView.statusitems.getItemByKey(repertoireaddView.statusitems.getSelectedKey()).getText()
 		};
-		console.log(updateSongData);
+	
 		
 		//update backend
 		if(repertoireaddView.getController().dirty){
+			// update
 			if(this.mode == "edit") {
 				jQuery.ajax({
 					type: "POST",
@@ -39,6 +40,7 @@ sap.ui.controller("bnote.repertoireadd", {
 		        });
 			}
 			else {
+				// add
 				jQuery.ajax({
 					type: "POST",
 		        	url: backend.get_url("addSong"),
@@ -46,15 +48,12 @@ sap.ui.controller("bnote.repertoireadd", {
 		        	success: function(data) {
 		        		var songid = data;
 		        		updateSongData.id = songid;
-		        		repertoiredetailView.getModel().setProperty(path, updateSongData);
+		        		repertoireaddView.getModel().setProperty(path, updateSongData);
 		        		repertoireaddView.getController().dirty = false;
 		        		sap.m.MessageToast.show("Speichern erfolgreich");
+		        		app.to("repertoire");
 		            },
-					error: function(){		
-						var BindingContext = repertoireaddView.getBindingContext().oModel.sPath;
-        				var spliced = model.oData.songs.splice(BindingContext, 1)
-        				model.setProperty("/songs", model.oData.songs);
-        				
+					error: function(){	
 						sap.m.MessageToast.show("Speichern fehlgeschlagen");
 					}
 		        });
@@ -62,8 +61,7 @@ sap.ui.controller("bnote.repertoireadd", {
 		}
 		else {
 			sap.m.MessageToast.show("Es wurde nichts verändert.");
-		}
-						
+		}			
 	},
 	
 	checkdirtyflag: function() {
@@ -77,22 +75,22 @@ sap.ui.controller("bnote.repertoireadd", {
 	        	url: backend.get_url("getSong"),
 	        	data: {"id" : songid},
 	        	success: function(data) {
-	        		console.log("checkdirtyflag success");
-	        		console.log(data);
 	        		repertoiredetailView.getModel().setProperty(path, data);
 	        		repertoireaddView.getController().dirty = false;
 	            },
 	        	error: function(){
-	        		console.log("checkdirtyflag error");
+	        		console.log("Error: Cannot retrieve fresh song.");
+	        		sap.m.MessageToast.show("Fehler! Bitte lade die App neu.");	
 	        	}
 	        });
 		}
-		else if (repertoireaddView.getController().dirty && this.mode == "add"){
+		else if (this.mode == "add"){
 			var model = repertoireaddView.getModel();			
-			var BindingContext = repertoireaddView.getBindingContext().oModel.sPath;
-			var spliced = model.oData.songs.splice(BindingContext, 1)
+			var path = repertoireaddView.getBindingContext().sPath.split("/");
+			var idxNewItem = path[path.length -1];
+			model.oData.songs.splice(idxNewItem, 1)
 			model.setProperty("/songs", model.oData.songs);
-			console.log("dirty and add");
+			repertoireaddView.getController().dirty = false;
 		}
 	}, 
 	 
