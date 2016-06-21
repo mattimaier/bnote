@@ -10,22 +10,17 @@ deleteEquipment: function(){
         	url: backend.get_url("deleteEquipment"),
         	data: {"id": equipmentid},
         	success: function(data) {
-        		var a = equipmentdetailView.getBindingContext().sPath.split("/");
-        		var BindingContext = a[a.length -1];
+        		var path = equipmentdetailView.getBindingContext().sPath.split("/");
+        		var idxDelItem = path[path.length -1];
         		
-        		console.log(BindingContext);
-        		model.oData.equipment.splice(BindingContext, 1)
-        		console.log(model);
+        		model.oData.equipment.splice(idxDelItem, 1);
+        		model.setProperty("/equipment", model.oData.equipment);        			
         		
-        		model.setProperty("/equipment", model.oData.equipment.splice(BindingContext, 1));
-        			
-        				console.log(model);
-        		console.log("success");
         		app.to("equipment");
         		
         	},            
         	error: function() {
-        		console.log("error");
+        		sap.m.MessageToast.show("Löschen derzeit nicht möglich. Bitte Internetverbindung überprüfen.");
         	}
         });
 	}

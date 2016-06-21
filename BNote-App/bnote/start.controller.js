@@ -42,10 +42,11 @@ sap.ui.controller("bnote.start", {
                 concertView.setModel(model);
                 taskView.setModel(model);
                 voteView.setModel(model);
-                //communicationView.setModel(model);
-                
+                loadingscreen.close();
+                //app.to("start");
             },
             error: function(a,b,c) {
+            	loadingscreen.close();
                 sap.m.MessageToast.show("Laden der Daten fehlgeschlagen");
                 console.log(b + ": " + c);
             }

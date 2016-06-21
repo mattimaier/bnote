@@ -67,6 +67,11 @@ backend = {
 	
 };
 
+// Loading Screen (Busyindicator)
+loadingscreen = new sap.m.BusyDialog({});
+
+
+
 // Permission Control
 permission = null;
 /*

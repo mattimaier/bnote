@@ -16,6 +16,9 @@ sap.ui.controller("bnote.login", {
         var login = model.getProperty("/login");
         var pw = model.getProperty("/password");
         
+        //Open BusyIndicator 
+        //loadingscreen.open();
+        
         jQuery.ajax({
         	url: backend.get_url("mobilePin"),//"data/login.txt",//backend.get_url("mobilePin"), 
             type: "POST",          	         
@@ -26,6 +29,7 @@ sap.ui.controller("bnote.login", {
                 app.to("start");
             },
             error: function(a,b,c) {
+            	loadingscreen.close();
                 sap.m.MessageToast.show("Anmeldung fehlgeschlagen");
                 console.log(b + ": " + c);
             }
