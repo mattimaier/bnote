@@ -15,17 +15,22 @@ sap.ui.controller("bnote.login", {
         var model = oEvent.getSource().getParent().getModel();
         var login = model.getProperty("/login");
         var pw = model.getProperty("/password");
-        
+               
         jQuery.ajax({
         	url: backend.get_url("mobilePin"),//"data/login.txt",//backend.get_url("mobilePin"), 
             type: "POST",          	         
-            data:  {"login": "admin", "password": "banane"}, //{"login": login, "password": pw},
+            data:  {"login": "admin", "password": "banane"}, //{"login": login, "password": pw},            
+            beforeSend: function (){ // Open BusyDialog
+            	 sap.ui.core.BusyIndicator.show(500);   
+            },
             success: function(data) {
             	mobilePin = data;
             	setPermissions();
+            	startView.getController().loadAllData();
                 app.to("start");
             },
             error: function(a,b,c) {
+            	sap.ui.core.BusyIndicator.hide();
                 sap.m.MessageToast.show("Anmeldung fehlgeschlagen");
                 console.log(b + ": " + c);
             }

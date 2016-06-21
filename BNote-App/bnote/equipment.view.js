@@ -35,23 +35,23 @@ sap.ui.jsview("bnote.equipment", {
 	var equipmentAddButton = new sap.m.Button({
 		icon : sap.ui.core.IconPool.getIconURI("add"),
 		press: function() {
-			console.log(equipmentView.getModel());
 				var model = equipmentView.getModel();
 					 var emptydata = {
 							 id: -1,
-							   name: "1",
-							   model: "1",
-							   make: "1",
-							   purchase_price: "1",
-							   current_value: "1",
-							   quantity: "1",
-							   notes: "1"
+							   name: "",
+							   model: "",
+							   make: "",
+							   purchase_price: "",
+							   current_value: "",
+							   quantity: "",
+							   notes: ""
 				   		};
 		         model.oData.equipment.push(emptydata);
 		         var newindex = model.oData.equipment.length -1;
 		         var bcEmpty = model.createBindingContext("/equipment/" + newindex);
 		         equipmentaddView.setModel(model);
 		         equipmentaddView.setBindingContext(bcEmpty);
+		         equipmentaddView.getController().setData(); // equipment dirtyflag = false
 			     equipmentaddView.getController().mode = "add";
 			     app.to("equipmentadd");
 		}		

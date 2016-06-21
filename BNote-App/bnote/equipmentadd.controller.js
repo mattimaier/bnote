@@ -2,6 +2,10 @@ sap.ui.controller("bnote.equipmentadd", {
 
 	mode: "edit",
 	
+	setData: function() {
+		equipmentaddView.getController().dirty = false;
+	},
+	
 	setdirtyflag: function() {
 		equipmentaddView.getController().dirty = true;
 	},
@@ -14,8 +18,9 @@ sap.ui.controller("bnote.equipmentadd", {
 		console.log(updateEquipmentData);
 		
 		//update backend
-		if(this.dirty){
+		if(equipmentaddView.getController().dirty){
 			if(this.mode == "edit") {
+				// update
 				jQuery.ajax({
 					type: "POST",
 		        	url: backend.get_url("updateEquipment"),
@@ -31,6 +36,7 @@ sap.ui.controller("bnote.equipmentadd", {
 		        });
 			}
 			else {
+				// add
 				jQuery.ajax({
 					type: "POST",
 		        	url: backend.get_url("addEquipment"),
@@ -38,17 +44,12 @@ sap.ui.controller("bnote.equipmentadd", {
 		        	success: function(data) {
 		        		var equipmentid = data;
 		        		updateEquipmentData.id = equipmentid;
-		        		equipmentdetailView.getModel().setProperty(path, updateEquipmentData);
+		        		equipmentaddView.getModel().setProperty(path, updateEquipmentData);
 		        		equipmentaddView.getController().dirty = false;
 		        		sap.m.MessageToast.show("Speichern erfolgreich");
 		        		app.to("equipment");
 		            },
 					error: function(){
-						
-						var a = equipmentdetailView.getBindingContext().sPath.split("/");
-		        		var BindingContext = a[a.length -1];
-        				model.oData.equipment.splice(BindingContext, 1)
-        				
 						sap.m.MessageToast.show("Speichern fehlgeschlagen");
 					}
 		        });
@@ -56,8 +57,7 @@ sap.ui.controller("bnote.equipmentadd", {
 		}
 		else {
 			sap.m.MessageToast.show("Es wurde nichts verändert.");
-		}
-						
+		}			
 	  },
 	
 	checkdirtyflag: function() {
@@ -71,25 +71,22 @@ sap.ui.controller("bnote.equipmentadd", {
 		        	url: backend.get_url("getEquipment"),
 		        	data: {"id" : equipmentid},
 		        	success: function(data) {
-		        		console.log("dirty and edit");
-		        		console.log(data);
 		        		equipmentdetailView.getModel().setProperty(path, data);
-		        		this.dirty = false;
-		        		console.log(model);
+		        		equipmentaddView.getController().dirty = false;
 		            },
 		        	error: function(){	        		
-		        		console.log("checkdirtyflag error");
+		        		console.log("Error: Cannot retrieve fresh equipment.");
+		        		sap.m.MessageToast.show("Fehler! Bitte lade die App neu.");		        		
 		        	}
 				});
 		}
-		else if (equipmentaddView.getController().dirty && this.mode == "add"){
+		else if (this.mode == "add"){
 			var model = equipmentaddView.getModel();			
-			var a = equipmentdetailView.getBindingContext().sPath.split("/");
-    		var BindingContext = a[a.length -1];
-			model.oData.equipment.splice(BindingContext, 1)
-			console.log("dirty and add");
-			console.log(model);
-			
+			var path = equipmentaddView.getBindingContext().sPath.split("/");
+    		var idxNewItem = path[path.length -1];
+			model.oData.equipment.splice(idxNewItem, 1);
+			model.setProperty("/equipment", model.oData.equipment);
+			equipmentaddView.getController().dirty = false;
 		}
 	}		
 });

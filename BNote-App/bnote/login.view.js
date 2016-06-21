@@ -45,8 +45,16 @@ sap.ui.jsview("bnote.login", {
 		});
 		logo_layout.addStyleClass("bnote_logo");
 		
+		var desktopButton = new sap.m.Button({
+			text: "Desktop",
+			press: function(){
+				window.location = desktop_path;
+			}
+		})
+		
 		var page = new sap.m.Page("LoginPage", {
             title: "Login",
+            headerContent : [ desktopButton ],
 			content: [ logo_layout, this.loginForm ]
 		});
 		

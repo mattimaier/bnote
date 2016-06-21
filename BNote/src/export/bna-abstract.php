@@ -1121,6 +1121,7 @@ abstract class AbstractBNA implements iBNA {
 
 	function taskCompleted($tid) {
 		$this->startdata->taskComplete($tid);
+		echo '{"success": true}';
 	}
 	
 	function addSong($title, $length, $bpm, $music_key, $notes, $genre, $composer, $status) {
