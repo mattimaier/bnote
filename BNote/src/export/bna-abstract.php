@@ -1621,7 +1621,9 @@ abstract class AbstractBNA implements iBNA {
 	public function addContact() {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
 		$values = $_POST;
-		$values["birthday"] = Data::convertDateFromDb($values["birthday"]);
+		if($values["birthday"] != "") {
+			$values["birthday"] = Data::convertDateFromDb($values["birthday"]);
+		}
 		$cid = $contactData->create($values);
 		echo $cid;
 	}
