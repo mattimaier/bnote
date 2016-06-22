@@ -1574,11 +1574,14 @@ abstract class AbstractBNA implements iBNA {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$entities = $calData->findAllNoRefWhere("begin >= NOW()");
 		unset($entities[0]);
+		$reservations = array();
 		foreach($entities as $i => $entity) {
+			$entity = $this->removeNumericKeys($entity);
 			$entity["contact"] = $calData->getContact($entity["contact"]);
 			$entity["location"] = $calData->getLocation($entity["location"]);
+			array_push($reservations, $entity);
 		}
-		$this->printEntities($entities, "reservation");
+		$this->printEntities($reservations, "reservation");
 	}
 	
 	public function addReservation() {
