@@ -579,11 +579,10 @@ abstract class AbstractBNA implements iBNA {
 			$this->addTask();
 		}
 		else if($function == "addLocation") {
-			// permission
-			if(!$this->sysdata->userHasPermission(8, $this->uid)) { // 8=Locations
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
+			// NO PERMISSION CHECK, because we want to allow users to create locations
+			// as references where needed. The worst case really is that a registered user
+			// adds a very large number of locations to flood the system. But from the
+			// server logs we would know who (at least IP address).
 			$this->addLocation();
 		}
 		else if($function == "addContact") {
@@ -1180,6 +1179,7 @@ abstract class AbstractBNA implements iBNA {
 			$options["uservote"] = $firstOption;
 		}
 		$this->startdata->saveVote($vid, $options, $this->uid);
+		echo '{"success": true}';
 	}
 	
 	function addComment($otype, $oid, $message) {
@@ -1574,6 +1574,10 @@ abstract class AbstractBNA implements iBNA {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$entities = $calData->findAllNoRefWhere("begin >= NOW()");
 		unset($entities[0]);
+		foreach($entities as $i => $entity) {
+			$entity["contact"] = $calData->getContact($entity["contact"]);
+			$entity["location"] = $calData->getLocation($entity["location"]);
+		}
 		$this->printEntities($entities, "reservation");
 	}
 	
