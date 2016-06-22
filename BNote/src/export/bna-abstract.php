@@ -27,6 +27,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "equipmentdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "calendardata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "aufgabendata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "instrumentedata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "kontaktedata.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
