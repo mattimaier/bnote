@@ -1,6 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_DATA_MODULES"] . 'userdata.php';
-
 /**
  * Data Access Class for contact data.
  * @author matti
@@ -48,6 +46,7 @@ class KontakteData extends AbstractData {
 		
 		$this->table = "contact";
 		
+		require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . 'userdata.php';
 		$this->init($dir_prefix);
 	}
 	
