@@ -26,6 +26,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "equipmentdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "calendardata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "aufgabendata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "instrumentedata.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
@@ -1626,6 +1627,18 @@ abstract class AbstractBNA implements iBNA {
 		$locData = new LocationsData($GLOBALS["dir_prefix"]);
 		$lid = $locData->create($_POST);
 		echo $lid;
+	}
+	
+	public function getInstruments() {
+		$instrData = new InstrumenteData($GLOBALS["dir_prefix"]);
+		$entities = $instrData->getInstrumentsWithCatName();
+		unset($entities[0]);
+		$instruments = array();
+		foreach($entities as $i => $entity) {
+			$entity = $this->removeNumericKeys($entity);
+			array_push($instruments, $entity);
+		}
+		$this->printEntities($instruments, "instrument");
 	}
 	
 	private function flattenAddresses($selection) {

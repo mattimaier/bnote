@@ -353,6 +353,11 @@ interface iBNA {
 	 * Adds a contact given the $_POST array data.
 	 */
 	public function addContact();
+	
+	/**
+	 * Retrieves all instruments available in the system.
+	 */
+	public function getInstruments();
 }
 
 // Abstract Implementation of BNote Application Interface
