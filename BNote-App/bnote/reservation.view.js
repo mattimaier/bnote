@@ -15,13 +15,13 @@ sap.ui.jsview("bnote.reservation", {
 			        new sap.m.Text({text: "{end}"}),
 
 			        new sap.m.Label({text: "Name"}),
-			        new sap.m.Text({text: "{text}"}),
+			        new sap.m.Text({text: "{name}"}),
 			         
 			        new sap.m.Label({text: "Ort"}),
-			        new sap.m.Text({text: "{location}"}),
+			        new sap.m.Text({text: "{location/name}"}),
 			        
 			        new sap.m.Label({text: "Kontakt"}),
-			        new sap.m.Text({text: "{contact}"}),
+			        new sap.m.Text({text: "{contact/fullname}"}),
 			        
 			        new sap.m.Label({text: "Notizen"}),
 			        new sap.m.Text({text: "{notes}"}),

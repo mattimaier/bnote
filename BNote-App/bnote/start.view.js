@@ -71,7 +71,12 @@ sap.ui.jsview("bnote.start", {
 			        	 text: "Aufgabe hinzufügen"
 			         }),
 			         new sap.m.Button({
-			        	 text: "Kontakt hinzufügen"
+			        	 text: "Kontakt hinzufügen",
+			        	 press: function() {
+			        		 contactaddView.getController().prepareModel();
+			        		 app.to("contactadd");
+			        	 }
+			        	
 			         })
 			         ],
 		});

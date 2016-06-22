@@ -20,7 +20,7 @@ sap.ui.controller("bnote.start", {
                 items = items.concat(tasks_items);
                 var votes_items = oCtrl.startItemMapping(votes, "Vote", "end", ["name"], "icons/abstimmung.png");
                 items = items.concat(votes_items);
-                var reservation_items = oCtrl.startItemMapping(reservation, "Reservation", "begin", ["location"], "icons/booking.png");
+                var reservation_items = oCtrl.startItemMapping(reservation, "Reservation", "begin", ["name"], "icons/booking.png");
                 items = items.concat(reservation_items);
                 
                 // set model on related views
