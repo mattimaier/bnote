@@ -949,7 +949,9 @@ abstract class AbstractBNA implements iBNA {
 
 	function getContacts() {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
+		$_SESSION["user"] = $this->uid;
 		$entities = $contactData->getAllContacts();
+		unset($_SESSION["user"]);
 		unset($entities[0]);
 		$allContacts = array();
 		foreach($entities as $i => $entity) {
