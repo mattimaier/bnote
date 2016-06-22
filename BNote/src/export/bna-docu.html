@@ -654,9 +654,9 @@ entity has a field <strong>type</strong> which contains its type.
 	<li><i>Returns</i>: ID of the newly created rehearsal.</li>
 	<li><i>Parameters</i>:
 		<ul>
-	 		<li><b>begin</b>: <i>String</i> Begin of the rehearsal, format: DD.MM.YYYY HH:ii.</li>
-			<li><b>end</b>: <i>String</i> End of the rehearsal, format: DD.MM.YYYY HH:ii.</li>
-	 		<li><b>approve_until</b>: <i>String</i> Approve participation until, format: DD.MM.YYYY HH:ii.</li>
+	 		<li><b>begin</b>: <i>DateTime String</i> Begin of the rehearsal, format: YYYY-MM-DD HH:ii:ss.</li>
+			<li><b>end</b>: <i>DateTime String</i> End of the rehearsal, format: YYYY-MM-DD HH:ii:ss.</li>
+	 		<li><b>approve_until</b>: <i>DateTime String</i> Approve participation until, format: YYYY-MM-DD HH:ii:ss.</li>
 	 		<li><b>notes</b>: <i>String</i> Notes for the rehearsal.</li>
 	 		<li><b>location</b>: <i>Integer</i> Location ID.</li>
 	 		<li><b>groups</b>: <i>Comma separated string of IDs</i> Group IDs, e.g. 5,6,7,8.</li>
@@ -1148,7 +1148,7 @@ entity has a field <strong>type</strong> which contains its type.
 		<ul>
 			<li><b>title</b>: <i>String</i> Title of the task.</li>
 	 		<li><b>description</b>: <i>String</i> What should be done?</li>
-	 		<li><b>due_at</b>: <i>DateTime String</i> German-formatted due date of the task</li>
+	 		<li><b>due_at</b>: <i>DateTime String</i> Due date of the task</li>
 	  		<li><b>Verantwortlicher</b>: <i>Integer</i> ID of the contact the task is assigned to.</li>
 		</ul>
 	</li>

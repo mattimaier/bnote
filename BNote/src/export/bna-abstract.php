@@ -1141,9 +1141,9 @@ abstract class AbstractBNA implements iBNA {
 	
 	function addRehearsal($begin, $end, $approve_until, $notes, $location, $groups) {
 		// semantic parameter mappings
-		$values["begin"] = $begin;
-		$values["end"] = $end;
-		$values["approve_until"] = ($approve_until == "") ? $begin : $approve_until;
+		$values["begin"] = Data::convertDateFromDb($begin);
+		$values["end"] = Data::convertDateFromDb($end);
+		$values["approve_until"] = ($approve_until == "") ? Data::convertDateFromDb($begin) : Data::convertDateFromDb($approve_until);
 		$values["notes"] = $notes;
 		$values["location"] = $location;
 		
@@ -1586,7 +1586,10 @@ abstract class AbstractBNA implements iBNA {
 	
 	public function addReservation() {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
-		echo $calData->create($_POST);
+		$values = $_POST;
+		$values["begin"] = Data::convertDateFromDb($values["begin"]);
+		$values["end"] = Data::convertDateFromDb($values["end"]);
+		echo $calData->create($values);
 	}
 	
 	public function updateReservation($id) {
@@ -1604,7 +1607,11 @@ abstract class AbstractBNA implements iBNA {
 	public function addTask() {
 		$taskData = new AufgabenData($GLOBALS["dir_prefix"]);
 		$_SESSION["user"] = $this->uid;
+		
+		$values = $_POST;
+		$values["due_at"] = Data::convertDateFromDb($values["due_at"]);
 		$taskId = $taskData->create($_POST);
+		
 		unset($_SESSION["user"]);
 		echo $taskId;
 	}
