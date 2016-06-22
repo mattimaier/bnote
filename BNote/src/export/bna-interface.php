@@ -31,6 +31,11 @@ interface iBNA {
 	public function getContacts();
 	
 	/**
+	 * @return Returns all members.
+	 */
+	public function getMembers();
+	
+	/**
 	 * @return Returns all groups without members.
 	 */
 	public function getGroups();

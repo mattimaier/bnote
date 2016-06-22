@@ -131,7 +131,7 @@ class Installation {
 			<SuperUsers></SuperUsers>
 		
 			<!-- Default Permissions for a new user. Comma separated list of user IDs without spaces. -->
-			<DefaultPrivileges>9,10,12,13,14,20</DefaultPrivileges>
+			<DefaultPrivileges>9,10,12,13,14</DefaultPrivileges>
 		
 			<!-- True when the gallery management is used
 			and should be displayed and functional, otherwise false. -->

@@ -595,6 +595,14 @@ abstract class AbstractBNA implements iBNA {
 			}
 			$this->addContact();
 		}
+		else if($function == "getContacts") {
+			// permission
+			if(!$this->sysdata->userHasPermission(3, $this->uid)) { // 3=Contacts
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}
+			$this->getContacts();
+		}
 		else {
 			$this->$function();
 		}
@@ -940,6 +948,19 @@ abstract class AbstractBNA implements iBNA {
 	protected abstract function printConcerts($concerts);
 
 	function getContacts() {
+		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
+		$entities = $contactData->getAllContacts();
+		unset($entities[0]);
+		$allContacts = array();
+		foreach($entities as $i => $entity) {
+			$entity = $this->removeNumericKeys($entity);
+			$entity["fullname"] = join(' ', array($entity["name"], $entity["surname"]));
+			array_push($allContacts, $entity);
+		}
+		$this->printEntities($allContacts, "contact");
+	}
+	
+	function getMembers() {
 		$msd = new MitspielerData($GLOBALS["dir_prefix"]);
 		$contacts = $msd->getMembers($this->uid);
 		unset($contacts[0]);  // header
@@ -1066,7 +1087,7 @@ abstract class AbstractBNA implements iBNA {
 
 		$this->getRehearsalsWithParticipation($this->uid); echo $sep . "\n";
 		$this->getConcerts(); echo $sep . "\n";
-		$this->getContacts(); echo $sep . "\n";
+		$this->getMembers(); echo $sep . "\n";
 		$this->getLocations(); echo $sep . "\n";
 		$this->getTasks(); echo $sep . "\n";
 		$this->getReservations(); echo $sep . "\n";
@@ -1580,6 +1601,9 @@ abstract class AbstractBNA implements iBNA {
 		foreach($entities as $i => $entity) {
 			$entity = $this->removeNumericKeys($entity);
 			$entity["contact"] = $calData->getContact($entity["contact"]);
+			$entity["contact"]["fullname"] = join(" ", array(
+				$entity["contact"]["name"], $entity["contact"]["surname"]
+			));
 			$entity["location"] = $calData->getLocation($entity["location"]);
 			array_push($reservations, $entity);
 		}

@@ -330,11 +330,11 @@ entity has a field <strong>type</strong> which contains its type.
 </div>
 
 <div class="method">
-<h3>getContacts</h3>
+<h3>getMembers</h3>
 <ul>
-	<li><i>Description</i>: Fetches all contacts from the database and renders them.</li>
+	<li><i>Description</i>: Fetches all members that this user had to do with from the database and renders them.</li>
 	<li><i>Parameters</i>: None.</li>
-	<li><i>Returns</i>: All contacts in the specified format.</li>
+	<li><i>Returns</i>: Contacts in the specified format.</li>
 	<li>
 		<pre>
 			<code class="prettyprint">
@@ -1203,11 +1203,21 @@ entity has a field <strong>type</strong> which contains its type.
 </ul>
 </div>
 
+<div class="method">
+<h3>getContacts</h3>
+<ul>
+	<li><i>HTTP-Method</i>: GET</li>
+	<li><i>Description</i>: Retrieves all contacts.</li>
+	<li><i>Returns</i>: Contacts as array.</li>
+	<li><i>Parameters</i>: None</li>
+</ul>
+</div>
+
 
 <div class="method">
 <h3>getInstruments</h3>
 <ul>
-	<li><i>HTTP-Method</i>: Get</li>
+	<li><i>HTTP-Method</i>: GET</li>
 	<li><i>Description</i>: Retrieves all instruments.</li>
 	<li><i>Returns</i>: Instruments as array.</li>
 	<li><i>Parameters</i>: None</li>
