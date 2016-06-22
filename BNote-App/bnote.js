@@ -75,6 +75,7 @@ permission = null;
  * Foreach module contains access controlled controls
  */
 accessControls = {
+		3: [],
 		5: [],
 		6: [],
 		7: [],
@@ -282,6 +283,12 @@ reservationaddView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
+contactaddView = sap.ui.view({
+	id: "contactadd",
+	viewName: "bnote.contactadd",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
 
 
 
@@ -308,6 +315,7 @@ app.addPage(equipmentdetailView);
 app.addPage(equipmentaddView);
 app.addPage(reservationView);
 app.addPage(reservationaddView);
+app.addPage(contactaddView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",
