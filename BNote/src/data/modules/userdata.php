@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS['DIR_LOGIC_MODULES'] . "logincontroller.php";
 
 /**
  * DAO for user module.
@@ -11,7 +10,7 @@ class UserData extends AbstractData {
 	/**
 	 * Build data provider.
 	 */
-	function __construct() {
+	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("User ID", FieldType::INTEGER),
 			"isActive" => array("Aktiver Benutzer", FieldType::BOOLEAN),
@@ -26,7 +25,8 @@ class UserData extends AbstractData {
 		);
 		$this->table = "user";
 		
-		$this->init();
+		require_once $dir_prefix . $GLOBALS['DIR_LOGIC_MODULES'] . "logincontroller.php";
+		$this->init($dir_prefix);
 	}
 	
 	function getUsers() {
