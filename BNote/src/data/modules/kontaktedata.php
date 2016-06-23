@@ -291,6 +291,14 @@ class KontakteData extends AbstractData {
 		return $groups;
 	}
 	
+	function getContactFullGroups($cid) {
+		$query = "SELECT g.id, g.name
+			    FROM contact_group cg JOIN `group` g ON cg.group = g.id
+				WHERE cg.contact = $cid AND g.is_active = 1
+		        ORDER BY g.id";
+		return $this->database->getSelection($query);
+	}
+	
 	function getPhases() {
 		$query = "SELECT * FROM rehearsalphase";
 		return $this->database->getSelection($query);

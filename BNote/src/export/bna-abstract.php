@@ -957,9 +957,16 @@ abstract class AbstractBNA implements iBNA {
 		foreach($entities as $i => $entity) {
 			$entity = $this->removeNumericKeys($entity);
 			$entity["fullname"] = join(' ', array($entity["name"], $entity["surname"]));
+			$groups = $contactData->getContactFullGroups($entity["id"]);
+			unset($groups[0]);
+			$grps = array();
+			foreach($groups as $i => $grp) {
+				array_push($grps, $this->removeNumericKeys($grp));
+			}
+			$entity["groups"] = $grps;
 			array_push($allContacts, $entity);
 		}
-		$this->printEntities($allContacts, "contact");
+		$this->printEntities($allContacts, "contacts");
 	}
 	
 	function getMembers() {
@@ -1682,32 +1689,25 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	/* array helpers */
-	function isArrayAllKeyInt($InputArray)
-	{
-	    if(!is_array($InputArray))
-	    {
+	function isArrayAllKeyInt($InputArray) {
+	    if(!is_array($InputArray)) {
 	        return false;
 	    }
 
-	    if(count($InputArray) <= 0)
-	    {
+	    if(count($InputArray) <= 0) {
 	        return true;
 	    }
 
 	    return array_unique(array_map("is_int", array_keys($InputArray))) === array(true);
 	}
 	
-	function removeNumericKeys($array)
-	{
+	function removeNumericKeys($array) {
 		$isArrayAllKeysInt = $this->isArrayAllKeyInt($array);
-		foreach ($array as $key => $value)
-		{
-			if (is_numeric($key)  &&  $isArrayAllKeysInt == false)
-			{
+		foreach ($array as $key => $value) {
+			if (is_numeric($key)  &&  $isArrayAllKeysInt == false) {
 				unset($array[$key]);
 			}
-			if(is_array($value))
-			{
+			if(is_array($value)) {
 				$array[$key] = $this->removeNumericKeys($value);
 			}
 		}
