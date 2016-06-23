@@ -1645,7 +1645,7 @@ abstract class AbstractBNA implements iBNA {
 		
 		$values = $_POST;
 		$values["due_at"] = Data::convertDateFromDb($values["due_at"]);
-		$taskId = $taskData->create($_POST);
+		$taskId = $taskData->create($values);
 		
 		unset($_SESSION["user"]);
 		echo $taskId;
