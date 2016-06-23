@@ -222,14 +222,16 @@ class ProbenData extends AbstractData {
 	
 	public function create($values) {
 		// convert data from view to process format
-		$hour = $values["begin_hour"];
-		if($hour < 10) $hour = "0" . $hour;
-		$values["begin"] = $values["begin"] . " " . $hour . ":" . $values["begin_minute"];
+		if(strpos($values["begin"], ":") === false) {
+			$hour = $values["begin_hour"];
+			if($hour < 10) $hour = "0" . $hour;
+			$values["begin"] = $values["begin"] . " " . $hour . ":" . $values["begin_minute"];
+		}
 		
 		if(!isset($values["end"])) {
 			$values["end"] = Data::addMinutesToDate($values["begin"], $values["duration"]);
 		}
-		else {
+		else if(strpos($values["end"], ":") === false) {
 			$endhour = $values["end_hour"];
 			if($endhour < 10) $endhour = "0" . $endhour;
 			$values["end"] = $values["end"] . " " . $endhour . ":" . $values["end_minute"];
