@@ -28,6 +28,21 @@ backend = {
 		return url;
 	},
 	
+	parsedate: function(date_str){
+		// manual parsing due to a Safari bug is necessary
+		var y = date_str.substr(0,4);
+		var m = date_str.substr(5,2);
+		var d = date_str.substr(8,2);
+		var h = 0;
+		var i = 0;
+		var s = 0;
+		if(date_str.length > 10) {
+			h = date_str.substr(11,2);
+			i = date_str.substr(14,2);
+		}
+		return new Date(y,parseInt(m)-1,d,h,i,s);
+	},
+	
 	formatdate: function(collectionpath, datepath, model){
 		var items = model.getProperty(collectionpath);
 		items.forEach(function(entity, idx) {
@@ -35,18 +50,7 @@ backend = {
 			if(typeof(olddate) == "undefined") {
 				return;
 			}
-			// manual parsing due to a Safari bug is necessary
-			var y = olddate.substr(0,4);
-			var m = olddate.substr(5,2);
-			var d = olddate.substr(8,2);
-			var h = 0;
-			var i = 0;
-			var s = 0;
-			if(olddate.length > 10) {
-				h = olddate.substr(11,2);
-				i = olddate.substr(14,2);
-			}
-			var newdate = new Date(y,m,d,h,i,s);
+			var newdate = backend.parsedate(olddate);
 			newdate.toString = function() {
 				var d = backend.leadingZero(this.getDate());
 				var m = backend.leadingZero(this.getMonth()); // getMonth begins with 0 for January
@@ -289,6 +293,24 @@ contactaddView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
+rehearsaladdView = sap.ui.view({
+	id: "rehearsaladd",
+	viewName: "bnote.rehearsaladd",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
+taskaddView = sap.ui.view({
+	id: "taskadd",
+	viewName: "bnote.taskadd",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
+voteresultView =  sap.ui.view({
+	id: "voteresult",
+	viewName: "bnote.voteresult",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+ 
 
 
 
@@ -316,6 +338,9 @@ app.addPage(equipmentaddView);
 app.addPage(reservationView);
 app.addPage(reservationaddView);
 app.addPage(contactaddView);
+app.addPage(rehearsaladdView);
+app.addPage(taskaddView);
+app.addPage(voteresultView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",

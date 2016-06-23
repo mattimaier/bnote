@@ -5,9 +5,10 @@ sap.ui.jsview("bnote.reservationadd", {
 	},
 	
 	loadlocations: function(locations){
-		this.locationitems.destroyItems();
+		this.locationitems.destroyItems();		
 		this.locationitems.addItem(new sap.ui.core.Item({text : "Neue Location hinzufügen", key : "-1"}));
-		for(i=0; i < locations.getProperty("/locations").length; i++){
+		
+		for(var i=0; i < locations.getProperty("/locations").length; i++){
 			var name = locations.getProperty("/locations/" + i + "/name");
 			var key = locations.getProperty("/locations/" + i + "/id");
 			this.locationitems.addItem(new sap.ui.core.Item({text : name, key : key}));
@@ -17,19 +18,22 @@ sap.ui.jsview("bnote.reservationadd", {
 	
 	loadcontacts: function(contacts){
 		this.contactitems.destroyItems();
-		for(i=0; i < contacts.getProperty("/contact").length; i++){
-			var name = contacts.getProperty("/contact/" + i + "/name");
-			var surname = contacts.getProperty("/contact/" + i + "/surname");
-			var key = contacts.getProperty("/contact/" + i + "/id");
+		
+		for(var i=0; i < contacts.getProperty("/contacts").length; i++){
+			var name = contacts.getProperty("/contacts/" + i + "/name");
+			var surname = contacts.getProperty("/contacts/" + i + "/surname");
+			var key = contacts.getProperty("/contacts/" + i + "/id");
 			this.contactitems.addItem(new sap.ui.core.Item({text : surname + "," + " " +  name, key : key}));
 		};
 	},
 	
 	createContent: function() {
+		var view = this;
+		
 		this.locationitems = new sap.m.Select({
 			change: function(){
 					reservationaddView.getController().setdirtyflag();
-					reservationaddView.getController().checknewreservation();
+					reservationaddView.getController().checknewlocation();					
 			},	
       	  	items: []
         });
@@ -45,19 +49,29 @@ sap.ui.jsview("bnote.reservationadd", {
         	visible: true,
         	content:[
 			        new sap.m.Label({text: "Straße"}),
-			        new sap.m.Input("locationaddstreet",{}),
+			        new sap.m.Input("reservationadd_addlocation_street",{
+			        	change: view.getController().addlocation_setdirtyflag			        	
+			        }),
 			        
 			        new sap.m.Label({text: "Stadt"}),
-			        new sap.m.Input("locationaddcity",{}),
+			        new sap.m.Input("reservationadd_addlocation_city",{
+			        	change: view.getController().addlocation_setdirtyflag
+			        }),
 			        
 			        new sap.m.Label({text: "Postleitzahl"}),
-			        new sap.m.Input("locationaddzip",{}),
+			        new sap.m.Input("reservationadd_addlocation_zip",{
+			        	change: view.getController().addlocation_setdirtyflag
+			        }),
 			        
 			        new sap.m.Label({text: "Location Notizen"}),
-			        new sap.m.Input("locationaddnotes",{}),
+			        new sap.m.Input("reservationadd_addlocation_notes",{
+			        	change: view.getController().addlocation_setdirtyflag
+			        }),
 			        
 			        new sap.m.Label({text: "Location Name"}),			        
-			        new sap.m.Input("locationaddname",{}),
+			        new sap.m.Input("reservationadd_addlocation_name",{
+			        	change: view.getController().addlocation_setdirtyflag
+			        }),
 		   ]
         });
 		 
@@ -65,20 +79,23 @@ sap.ui.jsview("bnote.reservationadd", {
 			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
 			content:[			         
 					new sap.m.Label({text: "Beginn"}),
-					new sap.m.DateTimeInput({
+					new sap.m.DateTimeInput("reservationadd_begin",{
 						type: sap.m.DateTimeInputType.DateTime,
 						change: function(){
 			        		 reservationaddView.getController().setdirtyflag();
+			        		 var oldtime = sap.ui.getCore().byId("reservationadd_begin").getDateValue();
+			        		 sap.ui.getCore().byId("reservationadd_end").setDateValue(new Date(oldtime.getTime() + 120*60000)); // 120 (minutes) * 60000 (milliseconds) = 2 hours
+			        		 
 			        		 },
 						dateValue: "{/begin}"
 					}),
 					
 					
 					new sap.m.Label({text: "Ende"}),
-					new sap.m.DateTimeInput({
+					new sap.m.DateTimeInput("reservationadd_end",{
 						type: sap.m.DateTimeInputType.DateTime,
 						change: function(){
-			        		 reservationaddView.getController().setdirtyflag();
+			        		 reservationaddView.getController().setdirtyflag();			        		 
 			        		 },
 						dateValue: "{/end}"
 					}),
@@ -112,17 +129,17 @@ sap.ui.jsview("bnote.reservationadd", {
 			        })
 			]  
 	});
-	var view = this;
 		
 		var createReservationButton = new sap.m.Button({
 			icon: sap.ui.core.IconPool.getIconURI("save"),			
-			press: view.getController().createReservation
+			press: view.getController().addReservation
 		});
 		
 		var page = new sap.m.Page("ReservationaddPage", {
 	        title: "Reservierung hinzufügen",
 	        showNavButton: true,
 	        navButtonPress: function() {
+	        	view.getModel().destroy();
 	            app.back();
 	        },
 	        headerContent: [ createReservationButton ],

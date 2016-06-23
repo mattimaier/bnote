@@ -8,7 +8,7 @@ sap.ui.controller("bnote.task", {
 		model.setProperty(path + "/currentdate", new Date());
 		var delta = backend.comparedates(path + "/currentdate", path + "/due_at_original", model);
 		
-		deltams = delta.getTime()/(3600000*24);
+		var deltams = delta.getTime()/(3600000*24);
 		var remainingtime = (deltams-deltams%1) + " Tage" + ", " + Math.round((deltams%1)*24) + " Stunden";
 		model.setProperty(path + "/remainingtime", remainingtime);
 	},

@@ -11,7 +11,7 @@ sap.ui.controller("bnote.communication",{
 				  console.log(model);
 					
 					console.log("render communicationview");
-					for (i = 0; model.getProperty("/group/" + i + "/name") != undefined; i++) {
+					for (var i = 0; model.getProperty("/group/" + i + "/name") != undefined; i++) {
 						communicationView.communicationForm.addContent(new sap.m.CheckBox({
 							text : model.getProperty("/group/" + i + "/name"),
 							selected: "{/group/" + i + "/selected}"
@@ -24,7 +24,7 @@ sap.ui.controller("bnote.communication",{
 							var body = model.getProperty("/body");
 							var groups = model.getProperty("/group");
 							var groupids = [];
-							for(i = 0;i < groups.length;i++){
+							for(var i = 0;i < groups.length;i++){
 								if(groups[i].selected){
 									groupids.push(groups[i].id);
 								}
@@ -59,7 +59,7 @@ sap.ui.controller("bnote.communication",{
 		model.setProperty("/body", "");
 		var groups = model.getProperty("/group");
 		var groupids = [];
-		for(i = 0;i < groups.length;i++){
+		for(var i = 0;i < groups.length;i++){
 			if(groups[i].selected){
 				model.setProperty("/group/" + i + "/selected", false);
 			}

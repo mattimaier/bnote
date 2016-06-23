@@ -5,8 +5,7 @@ sap.ui.jsview("bnote.vote", {
 	},
 	
 	createContent: function(oController){
-		
-		
+		var view = this;
 		
 		this.voteinfoForm = new sap.ui.layout.form.SimpleForm({
 			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
@@ -31,6 +30,16 @@ sap.ui.jsview("bnote.vote", {
             content: [] 
 		});
 		
+		var voteResultButton = new sap.m.Button({
+			icon: sap.ui.core.IconPool.getIconURI("save"),
+			press: function() {
+				var model = view.getModel();
+				var path = view.getBindingContext().getPath();
+				var voteid = model.getProperty(path + "/id");
+				voteresultView.getController().getVoteResult(voteid);
+			}
+		}); 
+		
 		var page = new sap.m.Page("VotePage", {
 			title : "",
 			showNavButton : true,			
@@ -38,7 +47,7 @@ sap.ui.jsview("bnote.vote", {
 			voteView.voteForm.destroyContent();
 			app.back();
 			},
-			headerContent : [ ],
+			headerContent : [ voteResultButton ],
 			content : [ this.voteinfoForm, this.voteForm ]
 		});
 		return page;

@@ -13,8 +13,8 @@ sap.ui.jsview("bnote.rehearsal", {
 			case 0: bid = "rehearsalNoBtn"; break;
 			case 2: bid = "rehearsalMaybeBtn"; break;
 			case 1: bid = "rehearsalOkBtn";
-			}
-			this.buttonBar.setSelectedButton(bid);
+			}		
+			this.buttonBar.setSelectedButton(bid);		
 		}
 	},
 	
@@ -62,11 +62,7 @@ sap.ui.jsview("bnote.rehearsal", {
 		    	  oController.onParticipationPress(rehearsalSetParticipation); 
 	    	  }
 	  });
-		       
-      //rehearsalOkBtn.addStyleClass("bn-green-bg bn-black-txt"); 
-      //rehearsalMaybeBtn.addStyleClass("bn-orange-bg bn-black-txt"); 
-      //rehearsalNoBtn.addStyleClass("bn-red-bg bn-black-txt"); 
-       
+		             
 	  this.buttonBar = new sap.m.SegmentedButton({
         width: "100%", 
         buttons: [rehearsalOkBtn, rehearsalMaybeBtn, rehearsalNoBtn]
