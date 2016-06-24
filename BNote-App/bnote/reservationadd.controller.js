@@ -4,9 +4,13 @@ sap.ui.controller("bnote.reservationadd",{
 		reservationaddView.getController().dirty = true;
 	},
 	
-	buildModel: function(){
+	addlocation_setdirtyflag: function() {
+		reservationaddView.getController().addlocation_dirty = true;		
+	},
+	
+	prepareModel: function(){
 		reservationaddView.getController().dirty = false;
-		var oData = {
+		var oReservationadd = {
 			begin: "",
 			end: "",
 			name: "",
@@ -14,7 +18,7 @@ sap.ui.controller("bnote.reservationadd",{
 			contact: "",
 			notes: "",	
    		};		 
-		var model = new sap.ui.model.json.JSONModel(oData); 
+		var model = new sap.ui.model.json.JSONModel(oReservationadd); 
 		reservationaddView.setModel(model);	
 		 
 		jQuery.ajax({	
@@ -22,7 +26,10 @@ sap.ui.controller("bnote.reservationadd",{
 			 url: backend.get_url("getLocations"),
 			 success: function(data) {
 				 var locations = new sap.ui.model.json.JSONModel(data);
-			     reservationaddView.loadlocations(locations);
+			     reservationaddView.loadlocations(locations);			     
+			     reservationView.locationitems.setSelectedKey("-1"); 
+			 	 reservationsddView.getController().addlocation_dirty = false;		
+			 	
              },
 	         error: function() { 
 	        	 console.log("error loading locations");
@@ -33,21 +40,26 @@ sap.ui.controller("bnote.reservationadd",{
 			 type: "GET",
 			 url: backend.get_url("getContacts"),
 			 success: function(data) {
-				 data.contact.sort(function(a, b) {
+				 data.contacts.sort(function(a, b) {
 					 return a.surname.localeCompare(b.surname);
 				 });
 				 var model = new sap.ui.model.json.JSONModel(data);
 				 reservationaddView.loadcontacts(model);	
+				 reservationView.contactitems.setSelectedKey("-1");
 			 },
 	         error: function() {
 	        	 console.log("error loading contacts");
 	         }
 	    });		 
+		sap.ui.getCore().byId("reservationadd_begin").setValue(null);
+		sap.ui.getCore().byId("reservationadd_end").setValue(null)
+		
 	},
 	
-	checknewreservation: function(){	
+	checknewlocation: function(){	
 		if (reservationaddView.locationitems.getSelectedKey() == "-1"){
-			reservationaddView.locationaddForm.setVisible(true);
+			reservationaddView.locationaddForm.setVisible(true);			
+			reservationaddView.getController().addlocation_dirty = false;
 		}
 		else {
 			reservationaddView.locationaddForm.setVisible(false);
@@ -56,11 +68,11 @@ sap.ui.controller("bnote.reservationadd",{
 	
 	addlocation: function(){
 		var oLocation = {
-				name: sap.ui.getCore().byId("locationaddname").getValue(),
-				notes:  sap.ui.getCore().byId("locationaddnotes").getValue(),
-				street:  sap.ui.getCore().byId("locationaddstreet").getValue(),
-				city:  sap.ui.getCore().byId("locationaddcity").getValue(),
-				zip:  sap.ui.getCore().byId("locationaddzip").getValue()
+				name: sap.ui.getCore().byId("reservationadd_addlocation_name").getValue(),
+				notes:  sap.ui.getCore().byId("reservationadd_addlocation_notes").getValue(),
+				street:  sap.ui.getCore().byId("reservationadd_addlocation_street").getValue(),
+				city:  sap.ui.getCore().byId("reservationadd_addlocation_city").getValue(),
+				zip:  sap.ui.getCore().byId("reservationadd_addlocation_zip").getValue()
 		};
 		jQuery.ajax({
 			 async: false,
@@ -72,6 +84,7 @@ sap.ui.controller("bnote.reservationadd",{
 	       		reservationaddView.locationitems.addItem(new sap.ui.core.Item({text : oLocation.name, key : key}));
 	       		reservationaddView.locationitems.setSelectedKey(key);
 	       		sap.m.MessageToast.show("Location erfolgreich gespeichert.");	
+	       		reservationaddView.getController().addlocation_dirty = false;
              },
 	         error: function() { 
 	        	 sap.m.MessageToast.show("Location konnte nicht gespeichert werden");
@@ -79,39 +92,41 @@ sap.ui.controller("bnote.reservationadd",{
 	    });
 	},
 	
-	createReservation: function(){		
+	addReservation: function(){		
 		if (reservationaddView.getController().dirty == true){			
 				var model = reservationaddView.getModel();
-				if (reservationaddView.locationitems.getSelectedKey() == "-1"){
+				if (reservationaddView.locationitems.getSelectedKey() == "-1" && reservationaddView.getController().addlocation_dirty == false){
 					reservationaddView.getController().addlocation();
+				}
+				else if (reservationaddView.locationitems.getSelectedKey() == "-1"){
+					sap.m.MessageToast.show("Keine neue Location eingegeben.");
+					return;
 				}
 				model.oData.location = reservationaddView.locationitems.getSelectedKey();
 				model.oData.contact = reservationaddView.contactitems.getSelectedKey();
 				
-				// format the date
-				var oldbegin = model.oData.begin;
-				var oldend = model.oData.end;
+				// format the date values
+				var old_begin = model.oData.begin;
+				var old_end = model.oData.end;
 				
-				oldbegin = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm"}).format(oldbegin);
-				oldend = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm"}).format(oldend);
-				
-				var emptyseconds = ":00";
-				model.oData.begin = oldbegin.concat(emptyseconds);
-				model.oData.end = oldend.concat(emptyseconds);
-			
-				
+				model.oData.begin = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(old_begin);
+				model.oData.end = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(old_end);
+								
 				 jQuery.ajax({
 					 type: "POST",
 				  	 data: model.oData,
 		        	 url: backend.get_url("addReservation"),
+		        	 beforeSend: function() {
+						 sap.ui.core.BusyIndicator.show(500);   
+					 },
 		        	 success: function(data) {		   
 		        		 model.oData.id = data;
-		        		 sap.m.MessageToast.show("Reservierung erfolgreich gespeichert.")
-		        		 reservationaddView.getController().dirty = false;
+		        		 sap.m.MessageToast.show("Reservierung erfolgreich gespeichert.");		        		
 		        		 startView.getController().loadAllData();
 		        		 app.to("start");
 		             },
 			         error: function() { 
+			        	 sap.ui.core.BusyIndicator.hide(); 
 			        	 sap.m.MessageToast.show("Speichern der Reservierung fehlgeschlagen.");
 			         }
 			    });

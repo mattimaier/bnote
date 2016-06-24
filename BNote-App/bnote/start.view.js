@@ -5,9 +5,9 @@ sap.ui.jsview("bnote.start", {
 	},
 
 	createContent : function(oController) {
-			var mainList = new sap.m.List();
+			this.mainList = new sap.m.List();
 
-		mainList.bindItems({
+		this.mainList.bindItems({
 			growingScrollToLoad : "true",
 			path : "/items",
 			sorter : new sap.ui.model.Sorter("start"),
@@ -54,34 +54,54 @@ sap.ui.jsview("bnote.start", {
 			})
 		});
 		
+		
+		this.reservationaddButton = new sap.m.Button({			
+       		text: "Reservierung hinzufügen",
+       		press: function(){	       			
+       			reservationaddView.getController().prepareModel();
+       			app.to("reservationadd");
+       		}
+		});
+		
+		this.rehearsaladdButton =  new sap.m.Button({	
+			visible: false,
+			text: "Probe hinzufügen",
+			press: function(){
+				rehearsaladdView.getController().prepareModel();
+				app.to("rehearsaladd");
+			}
+		});
+		
+		this.taskaddButton =  new sap.m.Button({
+			visible: false,
+			text: "Aufgabe hinzufügen",
+			press: function(){
+				taskaddView.getController().prepareModel();
+				app.to("taskadd");
+			}
+		});
+		
+		this.contactaddButton =  new sap.m.Button({
+			visible: false,
+			text: "Kontakt hinzufügen",
+			press: function(){
+				contactaddView.getController().prepareModel();
+				app.to("contactadd");
+			}
+		});
+		
+		
 		var startActionSheet = new sap.m.ActionSheet({
 			cancelButtonText: "Abbrechen",
-			buttons:[
-			         new sap.m.Button({
-			        	 text: "Reservierung hinzufügen",
-			        	 press: function(){	
-			        		 reservationaddView.getController().buildModel();
-			        		 app.to("reservationadd");
-			        	 }
-			         }),
-			         new sap.m.Button({
-			        	 text: "Probe hinzufügen"
-			         }),
-			         new sap.m.Button({
-			        	 text: "Aufgabe hinzufügen"
-			         }),
-			         new sap.m.Button({
-			        	 text: "Kontakt hinzufügen",
-			        	 press: function() {
-			        		 contactaddView.getController().prepareModel();
-			        		 app.to("contactadd");
-			        	 }
-			        	
-			         })
+			buttons:[        			        
+			         this.reservationaddButton,
+			         this.rehearsaladdButton,
+			         this.taskaddButton,
+			         this.contactaddButton,			      
 			         ],
 		});
 		
-		var startaddButton = new sap.m.Button({
+		this.startaddButton = new sap.m.Button({			
 			icon : sap.ui.core.IconPool.getIconURI("add"),
 			press: function(){
 				startActionSheet.setPlacement(sap.m.PlacementType.HorizontalPreferedRight);
@@ -98,13 +118,13 @@ sap.ui.jsview("bnote.start", {
 		var headerBar = new sap.m.Bar({
 			contentLeft: [logoutButton],
 			contentMiddle: [startTitle],
-			contentRight: [startaddButton]
+			contentRight: [this.startaddButton]
 		});
 		
 		var page = new sap.m.Page("StartPage", {
 			title : "Start",
 			customHeader : [ headerBar ],
-			content : [ mainList ],
+			content : [ this.mainList ],
 			footer : [ getNaviBar() ]
 		});
 		return page;

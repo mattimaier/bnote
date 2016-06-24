@@ -7,7 +7,7 @@ sap.ui.jsview("bnote.contactadd", {
 
 	loadinstruments: function(instruments){
 		this.instrumentitems.destroyItems();
-		for(i=0; i < instruments.getProperty("/instrument").length; i++){
+		for(var i=0; i < instruments.getProperty("/instrument").length; i++){
 			var name = instruments.getProperty("/instrument/" + i + "/name");
 			var key = instruments.getProperty("/instrument/" + i + "/id");
 			this.instrumentitems.addItem(new sap.ui.core.Item({text : name, key : key}));

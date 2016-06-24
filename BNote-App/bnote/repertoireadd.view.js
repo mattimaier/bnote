@@ -7,7 +7,7 @@ sap.ui.jsview("bnote.repertoireadd", {
 	loadgenres: function(genres){
 		this.genreitems.destroyItems();
 		var path = "/genres/";
-		for(i=0; i < genres.getProperty(path).length; i++){
+		for(var i=0; i < genres.getProperty(path).length; i++){
 			var name = genres.getProperty(path + i + "/name");
 			var key = genres.getProperty(path + i + "/id");
 			this.genreitems.addItem(new sap.ui.core.Item({ text : name, key: key}));
@@ -17,7 +17,7 @@ sap.ui.jsview("bnote.repertoireadd", {
 	loadstatuses: function(statuses){
 		this.statusitems.destroyItems();
 		var path = "/status/";
-		for(i=1; i < statuses.getProperty(path).length; i++){
+		for(var i=1; i < statuses.getProperty(path).length; i++){
 			var name = statuses.getProperty(path + i + "/name");
 			var key = statuses.getProperty(path + i + "/id");
 			this.statusitems.addItem(new sap.ui.core.Item({ text : name, key: key}));

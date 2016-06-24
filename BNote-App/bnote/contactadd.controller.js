@@ -21,7 +21,6 @@ sap.ui.controller("bnote.contactadd",{
 				groups: {}
 		};		
 		
-		var oController = this;
         jQuery.ajax({
 			url : backend.get_url("getGroups"),
 			type : "GET",
@@ -29,7 +28,7 @@ sap.ui.controller("bnote.contactadd",{
 				oContact.groups = data.group;
 				var model = new sap.ui.model.json.JSONModel(oContact);
 			    contactaddView.setModel(model);
-				for (i = 0; model.getProperty("/groups/" + i + "/name") != undefined; i++) {
+				for (var i = 0; model.getProperty("/groups/" + i + "/name") != undefined; i++) {
 					contactaddView.contactaddForm.addContent(new sap.m.CheckBox({
 						text : model.getProperty("/groups/" + i + "/name"),
 						selected: "{/groups/" + i + "/selected}"
@@ -59,12 +58,13 @@ sap.ui.controller("bnote.contactadd",{
 		var model = contactaddView.getModel();
 		var groups = model.oData.groups;
 		var groupids = [];
-		for(i = 0;i < groups.length;i++){
+		for(var i = 0;i < groups.length;i++){
 			if(groups[i].selected){
 				model.oData["group_" + groups[i].id] = 1;
 			}
 		}	
 		
+		// format the date values
 		var oldbirthday = model.oData.birthday;
 		model.oData.birthday = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd"}).format(oldbirthday);
 		

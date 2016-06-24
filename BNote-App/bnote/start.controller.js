@@ -45,7 +45,7 @@ sap.ui.controller("bnote.start", {
                 taskView.setModel(model);
                 voteView.setModel(model);
                 reservationView.setModel(model);
-                sap.ui.core.BusyIndicator.hide();
+                sap.ui.core.BusyIndicator.hide();               
             },
             error: function(a,b,c) {
             	sap.ui.core.BusyIndicator.hide();
@@ -53,12 +53,43 @@ sap.ui.controller("bnote.start", {
                 console.log(b + ": " + c);
             }
         });
-    },
-
+        // set visibility of "add" Buttons 
+        if (permission.indexOf("3") != -1) {
+        	startView.contactaddButton.setVisible(true);
+        	startView.startaddButton.setVisible(true);
+        }
+        if (permission.indexOf("5") != -1) {
+        	startView.rehearsaladdButton.setVisible(true);
+        	startView.startaddButton.setVisible(true);
+        }
+        if (permission.indexOf("16") != -1) {
+        	startView.taskaddButton.setVisible(true);
+        	startView.startaddButton.setVisible(true);
+        }
+        if (permission.indexOf("20") != -1) {
+        	startView.reservationaddButton.setVisible(true);
+        	startView.startaddButton.setVisible(true);
+        }               
+	},	
+	
     startItemMapping: function(data, typename, titlefield, descriptionfield, icon) {
         var items = [];
         for(var item_idx in data) {
-            var item = data[item_idx];
+            var item = data[item_idx]; 
+            if (typename == "Task"){
+            	// Check the remaining time for the task
+            	var startDate = backend.parsedate(item.due_at);
+        		var delta = startDate.getTime() - new Date().getTime();
+        		
+        		var deltadays = delta/(3600000*24);        		
+        		console.log(deltadays);
+        		if(0 < deltadays && deltadays < 3){
+        			icon = "icons/task_orange.png";
+        		}
+        		else if(deltadays < 0){
+        			icon = "icons/task_red.png";
+        		}
+            }
             item['type'] = typename;
             item['start'] = item[titlefield];
             var desc = item[descriptionfield[0]];
