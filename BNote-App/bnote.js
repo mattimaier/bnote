@@ -29,6 +29,7 @@ backend = {
 	},
 	
 	parsedate: function(date_str){
+		console.log(date_str);
 		// manual parsing due to a Safari bug is necessary
 		var y = date_str.substr(0,4);
 		var m = date_str.substr(5,2);
@@ -53,7 +54,7 @@ backend = {
 			var newdate = backend.parsedate(olddate);
 			newdate.toString = function() {
 				var d = backend.leadingZero(this.getDate());
-				var m = backend.leadingZero(this.getMonth()); // getMonth begins with 0 for January
+				var m = backend.leadingZero(this.getMonth()+1); // getMonth begins with 0 for January
 				var h = backend.leadingZero(this.getHours());
 				var min = backend.leadingZero(this.getMinutes());
 				return d + "." + m + "." + this.getFullYear() + " " + h + ":" + min + " Uhr";

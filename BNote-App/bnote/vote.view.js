@@ -13,15 +13,13 @@ sap.ui.jsview("bnote.vote", {
             content: [
                 new sap.m.Label({text: "Beschreibung"}),
                 new sap.m.Text({text: "{description}"}),
-                
+             
                 new sap.m.Label({text: "Abstimmungsende"}),
                 new sap.m.Text({text: "{end}"}),
                 
                 new sap.m.Label({text: "Verbleibende Zeit"}),
                 new sap.m.Text({text: "{remainingtime}"}),
-                
-                
-            ]
+                ]
         });
 		
 		this.voteForm = new sap.ui.layout.form.SimpleForm({
@@ -30,13 +28,14 @@ sap.ui.jsview("bnote.vote", {
             content: [] 
 		});
 		
-		var voteResultButton = new sap.m.Button({
-			icon: sap.ui.core.IconPool.getIconURI("save"),
+		var voteResultButton = new sap.m.Button({			
+			text: "Ergebnis",
 			press: function() {
 				var model = view.getModel();
 				var path = view.getBindingContext().getPath();
 				var voteid = model.getProperty(path + "/id");
 				voteresultView.getController().getVoteResult(voteid);
+				app.to("voteresult");
 			}
 		}); 
 		

@@ -16,10 +16,11 @@ sap.ui.controller("bnote.vote",{
 		var is_multi = model.getProperty(path + "/is_multi");	
 		
 		
-		if (is_date == 1){			
+		if (is_date == 1 && model.getProperty(path +"/options/1/name_original") == null){
+			console.log("huhu");
 			backend.formatdate(path + "/options", "/name", model);			
 		}
-		
+	
 		for (var i = 0; i < model.getProperty(path + "/options").length; i++) {
 			if (is_multi == "0"){
 				model.setProperty(path + "/options/" + 0 + "/selected_single", undefined);

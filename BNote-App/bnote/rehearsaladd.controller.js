@@ -18,6 +18,56 @@ sap.ui.controller("bnote.rehearsaladd",{
 		}
 	},
 	
+	prepareModelFromVoteresult: function(title) {
+		rehearsaladdView.getController().dirty = false;		
+		var oRehearsaladd = {
+				begin: "",
+				end: "",
+				approve_until: "",
+				notes: "",
+				location: "",
+				groupboxes: {},
+				groups: ""
+		};
+		
+		jQuery.ajax({	
+			 type: "GET",
+			 url: backend.get_url("getLocations"),
+			 success: function(data) {				 
+				 var model = new sap.ui.model.json.JSONModel(data);
+			     rehearsaladdView.loadlocations(model);
+			     rehearsaladdView.locationitems.setSelectedKey("-1"); 
+			     rehearsaladdView.getController().addlocation_dirty = false;	
+            },
+	         error: function() { 
+	        	 console.log("error loading locations");
+	         }
+	    });		
+		
+		jQuery.ajax({
+			url : backend.get_url("getGroups"),
+			type : "GET",
+			success : function(data) {
+				oRehearsaladd.groupboxes = data.group;
+				var model = new sap.ui.model.json.JSONModel(oRehearsaladd);
+			    rehearsaladdView.setModel(model);
+				for (var i = 0; model.getProperty("/groupboxes/" + i + "/name") != undefined; i++) {
+					rehearsaladdView.rehearsaladdForm.addContent(new sap.m.CheckBox({
+						text : model.getProperty("/groupboxes/" + i + "/name"),
+						selected: "{/groupboxes/" + i + "/selected}"
+					}));
+				}				
+			},
+        	error: function(a,b,c){
+        		console.log(a,b,c);
+        	}
+        });	  	
+		var titledate = backend.parsedate(title);
+		console.log(title, titledate);
+		sap.ui.getCore().byId("rehearsaladd_begin").setDateValue(backend.parsedate(title));
+		sap.ui.getCore().byId("rehearsaladd_end").setDateValue(new Date(backend.parsedate(title).getTime() + 120*60000));
+	},
+	
 	prepareModel: function(){
 		rehearsaladdView.getController().dirty = false;		
 		var oRehearsaladd = {
