@@ -1360,7 +1360,12 @@ abstract class AbstractBNA implements iBNA {
 			}
 			else {
 				$opt["choice"]["0"] = 0;
-				$opt["choice"]["1"] = $choice[1]["num"];
+				if(count($choice) > 1) {
+					$opt["choice"]["1"] = $choice[1]["num"];
+				}
+				else {
+					$opt["choice"]["1"] = 0;
+				}
 				$opt["choice"]["2"] = 0;
 			}
 			
