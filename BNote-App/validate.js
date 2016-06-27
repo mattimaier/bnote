@@ -194,25 +194,13 @@ validator = {
 			}
 		},
 		
-		text: function(evt) {
-			var element = validator.getElement(evt);
-			var newvalue = validator.getValue(element);
-			var specialchars = validator.getSpecialchars();
-						
-			var text = "^[\\\w." + specialchars + ".\\\s\\\.\\\,\\\-\\\/\\\(\\\)]{1,255}$";
-			if (newvalue.match(text)) {
-				element.setValueState(sap.ui.core.ValueState.Success);
-			}
-			else {			
-				element.setValueState(sap.ui.core.ValueState.Error);
-			}
+		text: function(evt) {				
+			element.setValueState(sap.ui.core.ValueState.Success);		
 		},
 		
 		website_url: function(evt) {
 			var element = validator.getElement(evt);
 			var newvalue = validator.getValue(element);
-			var specialchars = validator.getSpecialchars();
-						
 			var website_url = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
 			if (newvalue.match(website_url)) {
 				element.setValueState(sap.ui.core.ValueState.Success);

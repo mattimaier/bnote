@@ -1,7 +1,8 @@
 sap.ui.controller("bnote.vote",{
 	
 	// calculate and display the remaining time
-	onVotePress: function(oController){
+	onVotePress: function(){
+		var oController = this;
 		var model = this.getView().getModel(model);
 		var oBindingContext = this.getView().getBindingContext(oBindingContext);
 		var path = oBindingContext.getPath();
@@ -17,8 +18,7 @@ sap.ui.controller("bnote.vote",{
 		var is_multi = model.getProperty(path + "/is_multi");	
 		
 		
-		if (is_date == 1 && model.getProperty(path +"/options/1/name_original") == null){
-			console.log("huhu");
+		if (is_date == 1 && model.getProperty(path +"/options/1/name_original") == null){			
 			backend.formatdate(path + "/options", "/name", model);			
 		}
 	

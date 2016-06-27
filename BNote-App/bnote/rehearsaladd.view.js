@@ -21,8 +21,8 @@ sap.ui.jsview("bnote.rehearsaladd",{
 		
 		this.locationitems = new sap.m.Select({
 			change: function(){
-					oController().setdirtyflag();
-					oController().checknewlocation();
+					oController.setdirtyflag();
+					oController.checknewlocation();
 			},	
 			items: []			
 		})

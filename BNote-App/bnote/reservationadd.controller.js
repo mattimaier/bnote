@@ -27,8 +27,8 @@ sap.ui.controller("bnote.reservationadd",{
 			 success: function(data) {
 				 var locations = new sap.ui.model.json.JSONModel(data);
 			     reservationaddView.loadlocations(locations);			     
-			     reservationView.locationitems.setSelectedKey("-1"); 
-			 	 reservationsddView.getController().addlocation_dirty = false;		
+			     reservationaddView.locationitems.setSelectedKey(-1); 
+			 	 reservationaddView.getController().addlocation_dirty = false;		
 			 	
              },
 	         error: function() { 
@@ -45,7 +45,7 @@ sap.ui.controller("bnote.reservationadd",{
 				 });
 				 var model = new sap.ui.model.json.JSONModel(data);
 				 reservationaddView.loadcontacts(model);	
-				 reservationView.contactitems.setSelectedKey("-1");
+				 reservationaddView.contactitems.setSelectedKey(-1);
 			 },
 	         error: function() {
 	        	 console.log("error loading contacts");

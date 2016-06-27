@@ -84,8 +84,7 @@ sap.ui.controller("bnote.start", {
             	var startDate = backend.parsedate(item.due_at);
         		var delta = startDate.getTime() - new Date().getTime();
         		
-        		var deltadays = delta/(3600000*24);        		
-        		console.log(deltadays);
+        		var deltadays = delta/(3600000*24); 
         		if(0 < deltadays && deltadays < 3){
         			icon = "icons/task_orange.png";
         		}

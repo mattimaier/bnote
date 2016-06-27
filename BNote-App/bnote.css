@@ -25,15 +25,4 @@
 	color: black !important;
 }
 
-.bn-green-bg:not(.sapMSegBBtnSel) {
-	background-color: #8FE835 !important;
-}
-
-.bn-orange-bg:not(.sapMSegBBtnSel) {
-	background-color: #E8A935 !important;
-}
-
-.bn-red-bg:not(.sapMSegBBtnSel) {
-	background-color: #E83535 !important;
-}
 

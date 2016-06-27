@@ -94,16 +94,17 @@ function setPermissions() {
 			async: false,
 			type: "POST",
         	url: backend.get_url("hasUserAccess"),        	
-        	success: function(data) {
-        		permission = data; 
-        		$.each(accessControls, function(index, value) {
+        	success: function(data) {        		
+        		permission = data;
+        		$.each(accessControls, function(index, value) { 
         		    if (permission.indexOf(index) != -1){
         		    	value.forEach(function(element, arrindex, array){
         		    		var myelement = sap.ui.getCore().byId(element.sId);
-        		    		myelement.setVisible(true);
+        		    		myelement.setVisible(true);        		    		
         		    	});
         		    }        		    
         		}); 
+        		console.log(permission);
             },
 			error: function(){		
 				permission = null;
