@@ -16,13 +16,13 @@ sap.ui.jsview("bnote.rehearsaladd",{
 		
 	},
 	
-	createContent: function() {
+	createContent: function(oController) {
 		var view = this;
 		
 		this.locationitems = new sap.m.Select({
 			change: function(){
-					rehearsaladdView.getController().setdirtyflag();
-					rehearsaladdView.getController().checknewlocation();
+					oController().setdirtyflag();
+					oController().checknewlocation();
 			},	
 			items: []			
 		})
@@ -34,23 +34,29 @@ sap.ui.jsview("bnote.rehearsaladd",{
 			          
 		        	 new sap.m.Label({text: "Straße"}),
 		        	 new sap.m.Input("rehearsaladd_addlocation_street",{
-		        		 change: view.getController().setdirtyflag
+		        		 change: oController.addlocation_setdirtyflag,
+		        		 liveChange: validator.street   		 
 		        	 }),			        
 		        	 new sap.m.Label({text: "Stadt"}),
 		        	 new sap.m.Input("rehearsaladd_addlocation_city",{
-		        		 change: view.getController().setdirtyflag
+		        		 change: oController.addlocation_setdirtyflag,
+		        		 liveChange: validator.city 
 		        	 }),			        
 		        	 new sap.m.Label({text: "Postleitzahl"}),
 		        	 new sap.m.Input("rehearsaladd_addlocation_zip",{
-		        		 change: view.getController().setdirtyflag
+		        		 change: oController.addlocation_setdirtyflag,
+		        		 liveChange: validator.zip 
 		        	 }),			        
 		        	 new sap.m.Label({text: "Location Notizen"}),
 		        	 new sap.m.Input("rehearsaladd_addlocation_notes",{
-		        		 change: view.getController().setdirtyflag
-		        	 }),			        
+		        		 change: oController.addlocation_setdirtyflag,
+		              	 liveChange: validator.text
+		        	 }),
+		        	 
 		        	 new sap.m.Label({text: "Location Name"}),			        
 		        	 new sap.m.Input("rehearsaladd_addlocation_name",{
-		        		 change: view.getController().setdirtyflag
+		        		 change: oController.addlocation_setdirtyflag,
+		        		 liveChange: validator.name
 		        	 }),
 			        ]
 		 });
@@ -62,27 +68,26 @@ sap.ui.jsview("bnote.rehearsaladd",{
 		        	         new sap.m.DateTimeInput("rehearsaladd_begin",{
 		        	        	 type: sap.m.DateTimeInputType.DateTime,		        	        	 
 		 					     change: function(){		 					    	 
-		 			        		 reservationaddView.getController().setdirtyflag();
+		 			        		 oController.setdirtyflag();
 		 			        		 var oldtime = sap.ui.getCore().byId("rehearsaladd_begin").getDateValue();
 					        		 sap.ui.getCore().byId("rehearsaladd_end").setDateValue(new Date(oldtime.getTime() + 120*60000)); // 120 (minutes) * 60000 (milliseconds) = 2 hours
-		 			        		 },
-		 						 dateValue: "{/begin}"
+		 			        		 },		 			        		 
+		 						 dateValue: "{/begin}",			 						 
+		 						 liveChange: validator.datetime
 		 					 }),
 						     new sap.m.Label({text: "Ende"}),
 						     new sap.m.DateTimeInput("rehearsaladd_end",{
 		        	        	 type: sap.m.DateTimeInputType.DateTime,		        	        	 
-		 					     change: function(){		 					    	 
-		 			        		 reservationaddView.getController().setdirtyflag();
-		 			        		 },
-		 						 dateValue: "{/end}"
+		 					     change: oController.setdirtyflag,
+		 						 dateValue: "{/end}",		 						 
+		 						 liveChange: validator.datetime
 		 					 }),
 					         new sap.m.Label({text: "Zusage bis"}),
-					         new sap.m.DateTimeInput("rehearsaladd_approve_until",{
-		        	        	 type: sap.m.DateTimeInputType.DateTime,		        	        	 
-		 					     change: function(){		 					    	 
-		 			        		 reservationaddView.getController().setdirtyflag();
-		 			        		 },
-		 						 dateValue: "{/approve_until}"
+					         new sap.m.DateTimeInput("rehearsaladd_approve_until",{					        	 
+					        	 type: sap.m.DateTimeInputType.DateTime,					        	 
+		 					     change: oController.setdirtyflag,
+		 						 dateValue: "{/approve_until}",			 						 
+		 						 liveChange: validator.datetime
 		 					 }),
 					         new sap.m.Label({text: "Location"}),
 						     this.locationitems,
@@ -91,6 +96,7 @@ sap.ui.jsview("bnote.rehearsaladd",{
 					         new sap.m.Label({text: "Notizen"}),
 						     new sap.m.Input({
 						    	 value: "{/notes}",
+						    	 change: oController.setdirtyflag,
 						         valueLiveUpdate: true
 						         }),
 		        	         ]
@@ -98,7 +104,7 @@ sap.ui.jsview("bnote.rehearsaladd",{
 		
 		var addRehearsalButton = new sap.m.Button({
 			icon: sap.ui.core.IconPool.getIconURI("save"),			
-			press: view.getController().addRehearsal
+			press: oController.addRehearsal
 		});
 		
 		var page = new sap.m.Page("RehearsaladdPage", {

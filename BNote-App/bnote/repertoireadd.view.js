@@ -25,18 +25,16 @@ sap.ui.jsview("bnote.repertoireadd", {
 		
 	},
 	
-	createContent: function(){
+	createContent: function(oController){
+		var view = this;
+		
 		this.genreitems = new sap.m.Select({
-			change: function(){
-				repertoireaddView.getController().setdirtyflag();
-			},
+			change: oController.setdirtyflag,
       	  	items: []
         }),
 
         this.statusitems = new sap.m.Select({
-        	change: function(){
-				repertoireaddView.getController().setdirtyflag();
-			},
+        	change: oController.setdirtyflag,
         	items: []
         }),
         
@@ -47,30 +45,27 @@ sap.ui.jsview("bnote.repertoireadd", {
               new sap.m.Label({text: "Name"}),
               new sap.m.Input({
             	  value: "{title}",
-            	  liveChange: function(){
-            		  repertoireaddView.getController().setdirtyflag();
-            	  }
+            	  change: oController.setdirtyflag,
+            	  liveChange: validator.name
               }),                
               new sap.m.Label({text: "Komponist / Arrangeur"}),
               new sap.m.Input({
             	  value: "{composer}",
-            	  liveChange: function(){
-                	 repertoireaddView.getController().setdirtyflag();
-            	  }
+            	  change: oController.setdirtyflag,
+            	  liveChange: validator.name
               }),              
               new sap.m.Label({text: "Länge"}),
               new sap.m.Input({
             	  value: "{length}",
-            	  liveChange: function(){
-                     repertoireaddView.getController().setdirtyflag();
-                 }
+            	  change: oController.setdirtyflag,
+                 liveChange: validator.time
               }),              
               new sap.m.Label({text: "Tonart"}),
               new sap.m.Input({
             	  value: "{music_key}",
-            	  liveChange: function(){
-                 	 repertoireaddView.getController().setdirtyflag();
-             	  }
+            	  change: oController.setdirtyflag,
+             	  liveChange: validator.short_name
+             	 
               }),              
               new sap.m.Label({text: "Genre"}),
               this.genreitems,
@@ -78,16 +73,14 @@ sap.ui.jsview("bnote.repertoireadd", {
               new sap.m.Label({text: "Tempo (bpm)"}),
               new sap.m.Input({
             	  value: "{bpm}",
-            	  liveChange: function(){
-                  	 repertoireaddView.getController().setdirtyflag();
-              	  }
+            	  change: oController.setdirtyflag,
+              	  liveChange: validator.positive_amount
               }),              
               new sap.m.Label({text: "Notizen"}),
               new sap.m.Input({
             	  value: "{notes}",
-            	  liveChange: function(){
-                  	 repertoireaddView.getController().setdirtyflag();
-              	  }
+            	  change: oController.setdirtyflag,            	  
+              	  liveChange: validator.text
               }),              
               new sap.m.Label({text: "Status"}),
               this.statusitems,
@@ -96,17 +89,14 @@ sap.ui.jsview("bnote.repertoireadd", {
 		
 		var updateButton = new sap.m.Button({
 			icon: sap.ui.core.IconPool.getIconURI("save"),
-			press: function() {
-				
-				repertoireaddView.getController().savechanges();
-			}
-		})
+			press: oController.savechanges
+		});
 		
 		var page = new sap.m.Page("RepertoireAddPage", {
 	        title: "",
 	        showNavButton: true,
 	        navButtonPress: function() {
-	        	repertoireaddView.getController().checkdirtyflag();
+	        	oController.checkdirtyflag();
 	            app.back();
 	        },
 	        headerContent: [ updateButton ],

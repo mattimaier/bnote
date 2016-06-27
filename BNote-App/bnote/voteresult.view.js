@@ -4,21 +4,11 @@ sap.ui.jsview("bnote.voteresult", {
 		return "bnote.voteresult";
 	},	
 	
-	createContent: function() {
+	createContent: function() {		
 		this.voteResultList = new sap.m.List({
-			press: function() {
-				
-			}
 		});		
 		
-		var backButton = new sap.m.Button({
-			icon: sap.ui.core.IconPool.getIconURI("nav-back"),
-			press: function() {
-                app.back();
-            },
-		});
-		
-		this.headerBar = new sap.m.Bar({
+		this.headerBar = new sap.m.Bar({			
 			contentLeft: [],
 			contentMiddle: [],
 			contentRight: []

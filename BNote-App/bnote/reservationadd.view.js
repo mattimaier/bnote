@@ -27,50 +27,56 @@ sap.ui.jsview("bnote.reservationadd", {
 		};
 	},
 	
-	createContent: function() {
+	createContent: function(oController) {
 		var view = this;
 		
 		this.locationitems = new sap.m.Select({
 			change: function(){
-					reservationaddView.getController().setdirtyflag();
-					reservationaddView.getController().checknewlocation();					
+					oController.setdirtyflag();
+					oController.checknewlocation();					
 			},	
       	  	items: []
         });
         
         this.contactitems = new sap.m.Select({
 			change: function(){
-				reservationaddView.getController().setdirtyflag();
+				oController.setdirtyflag();
 			},
       	  	items: []
         });
         
-        this.locationaddForm = new sap.ui.layout.form.SimpleForm({
+        this.locationaddForm = new sap.ui.layout.form.SimpleForm({        	
         	visible: true,
         	content:[
 			        new sap.m.Label({text: "Straße"}),
 			        new sap.m.Input("reservationadd_addlocation_street",{
-			        	change: view.getController().addlocation_setdirtyflag			        	
+			        	change: oController.addlocation_setdirtyflag,
+			        	liveChange: validator.street
+			        
 			        }),
 			        
 			        new sap.m.Label({text: "Stadt"}),
 			        new sap.m.Input("reservationadd_addlocation_city",{
-			        	change: view.getController().addlocation_setdirtyflag
+			        	change: oController.addlocation_setdirtyflag,
+			        	liveChange: validator.city
 			        }),
 			        
 			        new sap.m.Label({text: "Postleitzahl"}),
 			        new sap.m.Input("reservationadd_addlocation_zip",{
-			        	change: view.getController().addlocation_setdirtyflag
+			        	change: oController.addlocation_setdirtyflag,
+			        	liveChange: validator.zip
 			        }),
 			        
 			        new sap.m.Label({text: "Location Notizen"}),
 			        new sap.m.Input("reservationadd_addlocation_notes",{
-			        	change: view.getController().addlocation_setdirtyflag
+			        	change: oController.addlocation_setdirtyflag,
+			        	liveChange: validator.text
 			        }),
 			        
 			        new sap.m.Label({text: "Location Name"}),			        
 			        new sap.m.Input("reservationadd_addlocation_name",{
-			        	change: view.getController().addlocation_setdirtyflag
+			        	change: oController.addlocation_setdirtyflag,
+			        	liveChange: validator.name
 			        }),
 		   ]
         });
@@ -81,33 +87,31 @@ sap.ui.jsview("bnote.reservationadd", {
 					new sap.m.Label({text: "Beginn"}),
 					new sap.m.DateTimeInput("reservationadd_begin",{
 						type: sap.m.DateTimeInputType.DateTime,
-						change: function(){
-			        		 reservationaddView.getController().setdirtyflag();
-			        		 var oldtime = sap.ui.getCore().byId("reservationadd_begin").getDateValue();
-			        		 sap.ui.getCore().byId("reservationadd_end").setDateValue(new Date(oldtime.getTime() + 120*60000)); // 120 (minutes) * 60000 (milliseconds) = 2 hours
-			        		 
-			        		 },
-						dateValue: "{/begin}"
+						change: function(){					
+							oController.setdirtyflag();
+			        		var oldtime = sap.ui.getCore().byId("reservationadd_begin").getDateValue();
+			        		sap.ui.getCore().byId("reservationadd_end").setDateValue(new Date(oldtime.getTime() + 120*60000)); // 120 (minutes) * 60000 (milliseconds) = 2 hours
+			        	},
+						dateValue: "{/begin}",
+			        	liveChange: validator.datetime
 					}),
 					
 					
 					new sap.m.Label({text: "Ende"}),
 					new sap.m.DateTimeInput("reservationadd_end",{
 						type: sap.m.DateTimeInputType.DateTime,
-						change: function(){
-			        		 reservationaddView.getController().setdirtyflag();			        		 
-			        		 },
-						dateValue: "{/end}"
+						change: oController.setdirtyflag,
+						dateValue: "{/end}",
+			        	liveChange: validator.datetime
 					}),
 					
 	
 			        new sap.m.Label({text: "Name"}),
 			        new sap.m.Input({
-			        	 value: "{/name}",
-			        	 valueLiveUpdate: true,
-			        	 liveChange: function(){
-			        		 reservationaddView.getController().setdirtyflag();
-		                 }
+			        	value: "{/name}",
+			        	valueLiveUpdate: true,
+			        	change: oController.setdirtyflag,
+			        	liveChange: validator.name
 			        }),
 			         
 			        new sap.m.Label({text: "Ort"}),
@@ -121,18 +125,17 @@ sap.ui.jsview("bnote.reservationadd", {
 			        
 			        new sap.m.Label({text: "Notizen"}),
 			        new sap.m.Input({
-			        	 value: "{/notes}",
-			        	 valueLiveUpdate: true,
-			        	 liveChange: function(){
-			        		 reservationaddView.getController().setdirtyflag();
-		                 }
+			        	value: "{/notes}",
+			        	valueLiveUpdate: true,
+			        	change: oController.setdirtyflag,
+			        	liveChange: validator.text
 			        })
 			]  
 	});
 		
 		var createReservationButton = new sap.m.Button({
 			icon: sap.ui.core.IconPool.getIconURI("save"),			
-			press: view.getController().addReservation
+			press: oController.addReservation
 		});
 		
 		var page = new sap.m.Page("ReservationaddPage", {

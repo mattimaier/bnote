@@ -1,7 +1,7 @@
 sap.ui.controller("bnote.communication",{
 	
-	getData: function() {
-		var oController = this;
+	getData: function() {		
+		var oController = this;		
         jQuery.ajax({
 			url : backend.get_url("getGroups"),
 			type : "POST",			

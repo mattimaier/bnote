@@ -26,10 +26,13 @@ sap.ui.jsview("bnote.concert", {
 			case 1: bid = "concertOkBtn";
 			}
 			this.buttonBar.setSelectedButton(bid);
+			console.log(this.buttonBar.getSelectedButton());
 		}
 	},
 	
     createContent: function(oController) {
+    	var view = this;    	
+    	
 		var concertForm = new sap.ui.layout.form.SimpleForm({
             title: "Konzertdetails",
             content: [
@@ -56,12 +59,12 @@ sap.ui.jsview("bnote.concert", {
 		
 		 var concertOkBtn = new sap.m.Button({
               text: "OK",       
-    	      press: function(){
+    	      press: function(){    	    	 
     	    	  var concertSetParticipation = 1;
     	    	  oController.onParticipationPress(concertSetParticipation); 
     	    	  oController.submit();
     	      }           	  
-    	    });
+    	 });
 		                
 	    var concertMaybeBtn = new sap.m.Button({
     	      text: "vielleicht",
@@ -69,7 +72,7 @@ sap.ui.jsview("bnote.concert", {
     	    	  var concertSetParticipation = 2;
     	    	  oController.onParticipationPress(concertSetParticipation);  
     	   	  }, 
-    	    });
+    	});
 	    
 	   	var concertNoBtn = new sap.m.Button({
     	      text: "Kann nicht",
@@ -77,18 +80,11 @@ sap.ui.jsview("bnote.concert", {
     	    	  var concertSetParticipation = 0;
     	    	  oController.onParticipationPress(concertSetParticipation);  
         	  }
-    	    });
-	   	
-	  
-	   	//concertOkBtn.addStyleClass("bn-green-bg bn-black-txt");
-	   	//concertMaybeBtn.addStyleClass("bn-orange-bg bn-black-txt");
-	   	//concertNoBtn.addStyleClass("bn-red-bg bn-black-txt");
-	   	
+    	});
 
-	  this.buttonBar = new sap.m.SegmentedButton({
-		            width: "100%", 
-		            buttons: [concertOkBtn, concertMaybeBtn, concertNoBtn]
-	  });
+	    this.buttonBar = new sap.m.SegmentedButton({             width: "100%", 
+            buttons: [concertOkBtn, concertMaybeBtn, concertNoBtn]
+	    });
 		              
 		      
 	
@@ -98,18 +94,18 @@ sap.ui.jsview("bnote.concert", {
 	  		text: "Abschicken",
 	  		press: function(){
 	  			oController.submit();
-	  			concertView.oDialog.close();
+	  			view.oDialog.close();
 	  		}
 	  });
 
-	  this.closeButton = new sap.m.Button({
+	  this.closeButton = new sap.m.Button({		  
 	  		text: "Abbrechen",
 	  		press: function(){
-	  			concertView.oDialog.close();
+	  			view.oDialog.close();
 	  		}
 	  });
 
-	  this.oDialog = new sap.m.Dialog({
+	  this.oDialog = new sap.m.Dialog({			  
 	   		title: "Grund",
 	   		modal: true,
 	   		contentWidth:"1em",
@@ -123,7 +119,7 @@ sap.ui.jsview("bnote.concert", {
 	      	]
 	  });  
 	
-		var page = new sap.m.Page("ConcertPage", {
+		var page = new sap.m.Page("ConcertPage", {			
             title: "Konzert",
             showNavButton: true,
             navButtonPress: function() {

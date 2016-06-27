@@ -18,7 +18,7 @@ sap.ui.controller("bnote.equipment", {
             },
         error: function() {
         	sap.ui.core.BusyIndicator.hide();
-        	console.log("error");
+        	sap.m.MessageToast.show("Equipment konnte nicht geladen werden.");
         }
         });
     },

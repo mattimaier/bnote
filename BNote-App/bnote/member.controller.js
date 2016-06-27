@@ -15,9 +15,9 @@ sap.ui.controller("bnote.member", {
                     if(data.contacts[i].groups && data.contacts[i].groups.length > 0) {
                         var firstGroup = data.contacts[i].groups[0];
                         switch(firstGroup.id) {
-                          case "1": icon = "icons/alphabet/dot_red_10px.png"; break; // admins
-                          case "2": icon = "icons/alphabet/dot_blue_10px.png"; break;  // members
-                          default: icon = "icons/alphabet/dot_gray_10px.png";  // all others
+                        case "1": icon = "icons/alphabet/dot_red_10px.png"; break; // admins
+                        case "2": icon = "icons/alphabet/dot_blue_10px.png"; break;  // members
+                        default: icon = "icons/alphabet/dot_gray_10px.png";  // all others
                         }
                     }
                     data.contacts[i].icon = icon;
@@ -27,8 +27,7 @@ sap.ui.controller("bnote.member", {
                 memberdetailView.setModel(model);
             }
         });
-    },
-	
+    },	
 
     filterList: function(oEvent){  
         var like = oEvent.getParameter("newValue");  

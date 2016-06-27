@@ -35,7 +35,7 @@ sap.ui.controller("bnote.taskadd",{
 		 sap.ui.getCore().byId("taskadd_due_at").setValue(null);
 	},
 	
-	addTask: function() {
+	addTask: function() {		
 		if (taskaddView.getController().dirty){
 			var model = taskaddView.getModel();			
 			model.oData.Verantwortlicher = taskaddView.contactitems.getSelectedKey();
@@ -54,7 +54,7 @@ sap.ui.controller("bnote.taskadd",{
 	        	 success: function(data) {		   
 	        		 model.oData.id = data;
 	        		 sap.m.MessageToast.show("Aufgabe erfolgreich gespeichert.")
-	        		 reservationaddView.getController().dirty = false;
+	        		 taskaddView.getController().dirty = false;
 	        		 startView.getController().loadAllData();
 	        		 app.to("start");
 	             },

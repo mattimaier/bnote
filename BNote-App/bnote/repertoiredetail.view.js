@@ -5,8 +5,9 @@ sap.ui.jsview("bnote.repertoiredetail", {
 	},
 	
 	createContent: function(){
+		var view = this;
+		
 		var repertoiredetailForm = new sap.ui.layout.form.SimpleForm({
-            title: "",
             content: [
                       new sap.m.Label({text: "Name"}),
                       new sap.m.Text({text: "{title}"}),  
@@ -36,54 +37,50 @@ sap.ui.jsview("bnote.repertoiredetail", {
 		
 		var repertoireUpdateButton = new sap.m.Button({
 			icon : sap.ui.core.IconPool.getIconURI("edit"),
-			press: function(){
+			press: function(){				
 				repertoireaddView.setModel(this.getModel());
 				repertoireaddView.setBindingContext(this.getBindingContext());
 				repertoireaddView.getController().setData();
 				repertoireaddView.getController().mode = "edit";
 				app.to("repertoireadd");
 			}
-		});
+		});		
 		
-		var repertoireDeleteButton = new sap.m.Button({
+		var repertoireDeleteButton = new sap.m.Button({			
 			icon : sap.ui.core.IconPool.getIconURI("delete"),
-			press: function(){
-				repertoiredetailView.deleteDialog.open();
-			}
+			press: function() {
+				view.deleteDialog.open()				
+			},
 		});
 		
+	    this.deleteButton = new sap.m.Button({		   
+		    text: "Löschen",
+  		    press: function(){
+  			    repertoiredetailView.getController().deleteSong();
+  		 	    repertoiredetailView.deleteDialog.close();
+  		    }
+	    });
 		  
-		  this.deleteButton = new sap.m.Button({
-			  		text: "Löschen",
-			  		press: function(){
-			  			repertoiredetailView.getController().deleteSong();
-			  			repertoiredetailView.deleteDialog.close();
-			  		}
-		  });
-		  
-		  this.closeButton = new sap.m.Button({
-			  		text: "Abbrechen",
-			  		press: function(){
-			  			repertoiredetailView.deleteDialog.close();
-			  		}
-		  });
-		  
-		   this.deleteDialog = new sap.m.Dialog({
-			   		title: "Sind Sie Sicher?",
-			   		modal: true,
-			   		contentWidth:"1em",
-			   		buttons: [ this.deleteButton, this.closeButton ],
-			   		content: [
-			   		          new sap.m.Text({text: "Dieser Song wird aus dem Repertoire gelöscht."})
-			   		          ]
-		   });       
-		
+	    this.closeButton = new sap.m.Button({		   
+		    text: "Abbrechen",
+  		    press: function() {
+  		    	view.deleteDialog.close()		 
+  		    },
+  		  });
+	    
+	    this.deleteDialog = new sap.m.Dialog({	    	
+		    title: "Sind Sie Sicher?",
+	   	    modal: true,
+	   	    contentWidth:"1em",
+	   	    buttons: [ this.deleteButton, this.closeButton ],
+	   	    content: [ new sap.m.Text({text: "Dieser Song wird aus dem Repertoire gelöscht."}) ]
+	    }); 
 		
 		var page = new sap.m.Page("RepertoiredetailPage", {
 	        title: "Repertoiredetail",
 	        showNavButton: true,
 	        navButtonPress: function() {
-	            app.back();
+	        	app.back()
 	        },
 	        headerContent: [ repertoireUpdateButton, repertoireDeleteButton ],
 			content: [ repertoiredetailForm ],

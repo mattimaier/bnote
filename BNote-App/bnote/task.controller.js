@@ -1,5 +1,6 @@
 sap.ui.controller("bnote.task", {
 	
+	// calculate and display the remaining time
 	onTaskPress: function(){
 		var model = this.getView().getModel(model);
 		var oBindingContext = this.getView().getBindingContext(oBindingContext);

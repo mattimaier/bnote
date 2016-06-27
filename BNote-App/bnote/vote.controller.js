@@ -1,5 +1,6 @@
 sap.ui.controller("bnote.vote",{
 	
+	// calculate and display the remaining time
 	onVotePress: function(oController){
 		var model = this.getView().getModel(model);
 		var oBindingContext = this.getView().getBindingContext(oBindingContext);
@@ -30,7 +31,7 @@ sap.ui.controller("bnote.vote",{
 							selected: "{" + path + "/options/" + i + "/selected_single}"
 				}));
 			}
-			else {
+			else {				
 				var selectGroup = new sap.m.RadioButtonGroup({
 					width: "210px",
 					columns: 3,
@@ -61,9 +62,7 @@ sap.ui.controller("bnote.vote",{
 		this.getView().voteForm.addContent(
 				new sap.m.Button({
 					text: "Abstimmen",
-					press: function(){						 
-						voteView.getController().vote();
-					}
+					press: oController.vote,
 				})
 		);
 	},
@@ -73,8 +72,7 @@ sap.ui.controller("bnote.vote",{
 		var oBindingContext = this.getView().getBindingContext(oBindingContext);
 		var path = oBindingContext.getPath();
 		var vote_option = 0;
-		var vote_optionid = 0;
-		
+		var vote_optionid = 0;		
 		
 		var oData = {
 				vid : model.getProperty(path + "/id"),				
@@ -109,7 +107,6 @@ sap.ui.controller("bnote.vote",{
 			type : "POST",
 			data : oData,
 			success : function(result) {
-				console.log(result);
 				sap.m.MessageToast.show("Abstimmen erfolgreich");
 			},
 			error : function(a, b, c) {

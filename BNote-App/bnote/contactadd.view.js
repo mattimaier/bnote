@@ -15,8 +15,11 @@ sap.ui.jsview("bnote.contactadd", {
 		
 	},
 	
-	createContent: function(){
+	createContent: function(oController){
+		var view = this;
+		
 		 this.instrumentitems = new sap.m.Select({
+			 	change: oController.setdirtyflag,
 	      	  	items: []
 	        });
 		
@@ -26,13 +29,17 @@ sap.ui.jsview("bnote.contactadd", {
 				        new sap.m.Label({text: "Nachname"}),
 				        new sap.m.Input({
 				        	value: "{/surname}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.name
 				        }),
 				        
 				        new sap.m.Label({text: "Vorname"}),
 				        new sap.m.Input({
 				        	value: "{/name}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.name
 				        }),
 				        
 				        new sap.m.Label({text: "Instrument"}),
@@ -41,72 +48,89 @@ sap.ui.jsview("bnote.contactadd", {
 				        new sap.m.Label({text: "Telefon (privat)"}),
 				        new sap.m.Input({
 				        	value: "{/phone}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.phone
 				        }),
 				        
 				        new sap.m.Label({text: "Telefon (geschäftlich)"}),
 				        new sap.m.Input({
 				        	value: "{/business}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.phone
 				        }),
 				        
 				        new sap.m.Label({text: "Handy"}),			        
 				        new sap.m.Input({
 				        	value: "{/mobile}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.phone
 				        }),
 				        
 				        new sap.m.Label({text: "Email"}),
 				        new sap.m.Input({
 				        	value: "{/email}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.email
 				        }),
 				        
 				        new sap.m.Label({text: "Homepage"}),
 				        new sap.m.Input({
 				        	value: "{/web}",
-				        	valueLiveUpdate: true
+				        	change: oController.setdirtyflag,
+				        	valueLiveUpdate: true,
+				        	liveChange: validator.website_url
 				        }),
 				        
 				        new sap.m.Label({text: "Fax"}),
 				        new sap.m.Input({
 				        	value: "{/fax}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.phone
 				        }),
 				        
 				        new sap.m.Label({text: "Geburtstag"}),	
 				        new sap.m.DateTimeInput({
-							type: sap.m.DateTimeInputType.Date,
-							dateValue: "{/birthday}"
-						}),
-						
+	        	        	type: sap.m.DateTimeInputType.Date,   
+	 						dateValue: "{/birthday}",
+	 						change: oController.setdirtyflag,
+	 						liveChange: validator.datetime
+	 					 }),
 				        
 				        new sap.m.Label({text: "Straße"}),
 				        new sap.m.Input({
 				        	value: "{/street}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.street
 				        }),
 				        
 				        new sap.m.Label({text: "Stadt"}),
 				        new sap.m.Input({
 				        	value: "{/city}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.city
 				        }),
 				        
 				        new sap.m.Label({text: "Postleitzahl"}),	
 				        new sap.m.Input({
 				        	value: "{/zip}",
-				        	valueLiveUpdate: true
+				        	valueLiveUpdate: true,	
+				        	change: oController.setdirtyflag,
+				        	liveChange: validator.zip
 				        }),
 				        new sap.m.Label({text: "Gruppen"}),
 			   ]
-	        });
-	
-	  var view = this;
+	        });	  
 		
 		var addContactButton = new sap.m.Button({
 			icon: sap.ui.core.IconPool.getIconURI("save"),			
-			press: view.getController().addContact
+			press: oController.addContact
 		});
 		  
 	var page = new sap.m.Page("contactaddPage", {

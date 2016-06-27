@@ -7,22 +7,22 @@ sap.ui.jsview("bnote.vote", {
 	createContent: function(oController){
 		var view = this;
 		
-		this.voteinfoForm = new sap.ui.layout.form.SimpleForm({
+		this.voteinfoForm = new sap.ui.layout.form.SimpleForm({			
 			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             title: "{name}",
             content: [
-                new sap.m.Label({text: "Beschreibung"}),
-                new sap.m.Text({text: "{description}"}),
-             
-                new sap.m.Label({text: "Abstimmungsende"}),
-                new sap.m.Text({text: "{end}"}),
-                
-                new sap.m.Label({text: "Verbleibende Zeit"}),
-                new sap.m.Text({text: "{remainingtime}"}),
-                ]
+	                 new sap.m.Label({text: "Beschreibung"}),
+	                 new sap.m.Text({text: "{description}"}),
+	             
+	                 new sap.m.Label({text: "Abstimmungsende"}),
+	                 new sap.m.Text({text: "{end}"}),
+	                
+	                 new sap.m.Label({text: "Verbleibende Zeit"}),
+	                 new sap.m.Text({text: "{remainingtime}"}),
+                     ]
         });
 		
-		this.voteForm = new sap.ui.layout.form.SimpleForm({
+		this.voteForm = new sap.ui.layout.form.SimpleForm({			
 			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             title: "Abstimmung",
             content: [] 

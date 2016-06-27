@@ -9,9 +9,7 @@ deleteEquipment: function(){
 		 	type:"POST",
         	url: backend.get_url("deleteEquipment"),
         	data: {"id": equipmentid},
-        	success: function(data) {
-        		
-        		
+        	success: function(data) {    
         		var path = equipmentdetailView.getBindingContext().sPath.split("/");
         		var idxDelItem = path[path.length -1];        		
         		model.oData.equipment.splice(idxDelItem, 1);

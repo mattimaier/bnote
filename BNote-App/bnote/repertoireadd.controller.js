@@ -18,8 +18,7 @@ sap.ui.controller("bnote.repertoireadd", {
 		updateSongData["status"] = {
 				id: repertoireaddView.statusitems.getSelectedKey(),
 				name: repertoireaddView.statusitems.getItemByKey(repertoireaddView.statusitems.getSelectedKey()).getText()
-		};
-	
+		};	
 		
 		//update backend
 		if(repertoireaddView.getController().dirty){

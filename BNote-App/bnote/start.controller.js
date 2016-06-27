@@ -34,11 +34,14 @@ sap.ui.controller("bnote.start", {
                      * - icon
                      */
                     "items": items
-                });                          
+                }); 
+                // transform the date into a readable format
                 backend.formatdate("/items", "/due_at", model);
                 backend.formatdate("/items", "/start", model);
                 backend.formatdate("/items", "/begin", model);
                 backend.formatdate("/items", "/end", model);
+                
+                // hand over the model to the Views
                 oCtrl.getView().setModel(model);
                 rehearsalView.setModel(model);
                 concertView.setModel(model);
@@ -53,7 +56,7 @@ sap.ui.controller("bnote.start", {
                 console.log(b + ": " + c);
             }
         });
-        // set visibility of "add" Buttons 
+        // set visibility of "add" Buttons and actionsheet
         if (permission.indexOf("3") != -1) {
         	startView.contactaddButton.setVisible(true);
         	startView.startaddButton.setVisible(true);

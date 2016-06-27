@@ -4,11 +4,10 @@ sap.ui.jsview("bnote.repertoire", {
 		return "bnote.repertoire";
 	},
 	
-	createContent: function(oController){
-		
-		var repertoireSearch = new sap.m.SearchField("repertoireSearch",{  
-	         tooltip: "Repertoire durchsuchen",  
-	         liveChange: oController.filterList  
+	createContent: function(oController) {
+		var repertoireSearch = new sap.m.SearchField("repertoireSearch",{ 
+	        tooltip: "Repertoire durchsuchen",  
+	        liveChange: oController.filterList  
 	  });  
 		
 		var repertoireList = new sap.m.List("repertoireList");
@@ -34,41 +33,41 @@ sap.ui.jsview("bnote.repertoire", {
 	var repertoireAddButton = new sap.m.Button({
 		icon : sap.ui.core.IconPool.getIconURI("add"),
 		press: function() {
-				var model = repertoireView.getModel();
-					 var emptydata = {
-							 id: -1,
-							   title: "",
-							   length: "00:00:00",
-							   bpm: "",
-							   music_key: "",
-							   notes: "",
-							   genre: {
-									   id: "",
-									   name: ""
-							   },
-							   composer: "",
-							   status: {
+			var model = repertoireView.getModel();
+				 var emptydata = {
+						 id: -1,
+						   title: "",
+						   length: "00:00:00",
+						   bpm: "",
+						   music_key: "",
+						   notes: "",
+						   genre: {
 								   id: "",
 								   name: ""
-							   }
-				   		};
+						   },
+						   composer: "",
+						   status: {
+							   id: "",
+							   name: ""
+						   }
+			   		};
+				 
 		         model.oData.songs.push(emptydata);
 		         var newindex = model.oData.songs.length -1;
 		         var bcEmpty = model.createBindingContext("/songs/" + newindex);
-			   repertoireaddView.setModel(model);
-			   repertoireaddView.setBindingContext(bcEmpty);
-			   repertoireaddView.getController().setData();
-			   repertoireaddView.getController().mode = "add";
-			   app.to("repertoireadd");
+			     repertoireaddView.setModel(model);
+			     repertoireaddView.setBindingContext(bcEmpty);
+			     repertoireaddView.getController().setData();
+			     repertoireaddView.getController().mode = "add";
+			     app.to("repertoireadd");
 		}		
 	});
-	
 		
 		var page = new sap.m.Page("RepertoirePage", {
 	        title: "Repertoire",
 	        showNavButton: true,
 	        navButtonPress: function() {
-	            app.back();
+	        	app.back()
 	        },
 	        headerContent: [ repertoireAddButton ],
 			content: [ repertoireSearch, repertoireList ],

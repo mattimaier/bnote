@@ -8,11 +8,9 @@ sap.ui.controller("bnote.repertoire", {
         		sap.ui.core.BusyIndicator.show(500);   
         	},
         	success: function(data) {
-                var model = new sap.ui.model.json.JSONModel(data);
-               
+                var model = new sap.ui.model.json.JSONModel(data);               
                 oCtrl.getView().setModel(model);
-                repertoiredetailView.setModel(model);
-                
+                repertoiredetailView.setModel(model);                
                 sap.ui.core.BusyIndicator.hide();
                 app.to("repertoire");
             },

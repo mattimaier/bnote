@@ -13,8 +13,8 @@ backend = {
 	comparedates: function(startDatePath, stopDatePath, model){
 		var startdate = model.getProperty(startDatePath); // Already Date Object
 		var stopdate = new Date(Date.parse(model.getProperty(stopDatePath)));
-		var differenceInMilliseconds = stopdate.getTime() - startdate.getTime();
-		var delta = new Date (differenceInMilliseconds);
+		var deltams = stopdate.getTime() - startdate.getTime();
+		var delta = new Date (deltams);
 		return delta;
 	},	
 		
@@ -29,7 +29,6 @@ backend = {
 	},
 	
 	parsedate: function(date_str){
-		console.log(date_str);
 		// manual parsing due to a Safari bug is necessary
 		var y = date_str.substr(0,4);
 		var m = date_str.substr(5,2);

@@ -13,9 +13,7 @@ sap.ui.controller("bnote.equipmentadd", {
 	savechanges: function(){
 		var model = equipmentaddView.getModel();
 		var path = equipmentaddView.getBindingContext().getPath();
-		var updateEquipmentData = model.getProperty(path);
-		
-		console.log(updateEquipmentData);
+		var updateEquipmentData = model.getProperty(path);	
 		
 		//update backend
 		if(equipmentaddView.getController().dirty){

@@ -4,9 +4,10 @@ sap.ui.jsview("bnote.equipmentdetail", {
 		return "bnote.equipmentdetail";
 	},
 	
-	createContent: function(){
+	createContent: function(oController){
+		var view = this;
+		
 		var equipmentdetailForm = new sap.ui.layout.form.SimpleForm({
-            title: "",
             content: [
                       new sap.m.Label({text: "Name"}),
                       new sap.m.Text({text: "{name}"}),  
@@ -44,25 +45,25 @@ sap.ui.jsview("bnote.equipmentdetail", {
 		
 		var equipmentDeleteButton = new sap.m.Button({
 			icon : sap.ui.core.IconPool.getIconURI("delete"),
-			press: function(){
-				equipmentdetailView.deleteDialog.open();
-			}
+			press: function() {
+				view.deleteDialog.open()
+			},
 		});
 		
 		  
 		  this.deleteButton = new sap.m.Button({
 			  		text: "Löschen",
 			  		press: function(){
-			  			equipmentdetailView.getController().deleteEquipment();
-			  			equipmentdetailView.deleteDialog.close();
+			  			oController().deleteEquipment();
+			  			view.deleteDialog.close();
 			  		}
 		  });
 		  
 		  this.closeButton = new sap.m.Button({
 			  		text: "Abbrechen",
-			  		press: function(){
-			  			equipmentdetailView.deleteDialog.close();
-			  		}
+			  		press: function() {
+			  			view.deleteDialog.close()
+			  		},
 		  });
 		  
 		   this.deleteDialog = new sap.m.Dialog({
@@ -70,9 +71,7 @@ sap.ui.jsview("bnote.equipmentdetail", {
 			   		modal: true,
 			   		contentWidth:"1em",
 			   		buttons: [ this.deleteButton, this.closeButton ],
-			   		content: [
-			   		          new sap.m.Text({text: "Dieses Item wird aus dem Equipment gelöscht."})
-			   		          ]
+			   		content: [ new sap.m.Text({text: "Dieses Item wird aus dem Equipment gelöscht."}) ]
 		   });       
 		
 		

@@ -4,7 +4,7 @@ sap.ui.jsview("bnote.taskadd",{
 		return "bnote.taskadd";
 	},
 	
-	loadcontacts: function(contacts){
+	loadcontacts: function(contacts){		
 		this.contactitems.destroyItems();
 		
 		for(var i=0; i < contacts.getProperty("/contacts").length; i++){
@@ -15,11 +15,11 @@ sap.ui.jsview("bnote.taskadd",{
 		};
 	},
 	
-	createContent: function(){
+	createContent: function(oController){		
 		var view = this;
 		
 		this.contactitems = new sap.m.Select({
-			change: function() {view.getController().setdirtyflag()},
+			change: oController.setdirtyflag,
 			items: []			
 			});
 		
@@ -29,19 +29,19 @@ sap.ui.jsview("bnote.taskadd",{
         	         new sap.m.Label({text: "Titel"}),	
         	         new sap.m.Input({
 				    	 value: "{/title}",
+				    	 change: oController.setdirtyflag,
 				         valueLiveUpdate: true
 				         }),				         
 			         new sap.m.Label({text: "Beschreibung"}),	
         	         new sap.m.Input({
 				    	 value: "{/description}",
+				    	 change: oController.setdirtyflag,
 				         valueLiveUpdate: true
 				         }),
 			         new sap.m.Label({text: "Erledigen bis"}),
 			         new sap.m.DateTimeInput("taskadd_due_at",{
         	        	 type: sap.m.DateTimeInputType.DateTime,		        	        	 
- 					     change: function(){		 					    	 
- 			        		 taskaddView.getController().setdirtyflag();
- 			        		 },
+ 					     change: oController.setdirtyflag,
  						 dateValue: "{/due_at}"
  					 }),			  
 			         new sap.m.Label({text: "Verantwortlicher"}),
@@ -51,7 +51,7 @@ sap.ui.jsview("bnote.taskadd",{
 		
 		var createTaskButton = new sap.m.Button({
 			icon: sap.ui.core.IconPool.getIconURI("save"),			
-			press: view.getController().addTask
+			press: oController.addTask
 		});
 		
 		var page = new sap.m.Page("TaskaddPage", {
