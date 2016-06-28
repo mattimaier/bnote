@@ -35,7 +35,7 @@ class StartView extends AbstractView {
 		}
 		else {
 			$optFunc = $_GET["mode"] . "Options";
-			if(function_exists($this->$optFunc)) {
+			if(method_exists($this, $optFunc)) {
 				$this->$optFunc();
 			}
 			else {
@@ -581,7 +581,9 @@ class StartView extends AbstractView {
 		$table->renameHeader("name", Lang::txt("firstname"));
 		$table->renameHeader("surname", Lang::txt("surname"));
 		$table->write();
-		
+	}
+	
+	public function rehearsalParticipantsOptions() {
 		$this->backToStart();
 	}
 	
