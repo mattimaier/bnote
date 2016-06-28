@@ -13,7 +13,7 @@ class LocationsView extends CrudRefView {
 		$this->setController($ctrl);
 		$this->setEntityName("Location");
 		$this->setJoinedAttributes(array(
-			"address" => array("street", "city", "zip")
+			"address" => array("street", "zip", "city")
 		));
 	}
 	

@@ -500,9 +500,11 @@ class ApplicationDataProvider {
 	 */
 	function getGroups($active = null) {
 		$query = "SELECT * FROM `group`";
-		if($active != null) {
-			$query .= " WHERE is_active = ";
-			$query .= ($active) ? "1" : "0";
+		$query .= " WHERE is_active = ";
+		if($active != null && $active = false) {
+			$query .= "0";
+		} else {
+			$query .= "1";
 		}
 		return $this->database->getSelection($query);
 	}

@@ -160,7 +160,10 @@ class UserView extends CrudRefView {
 		$this->getData()->updatePrivileges($_GET["id"]);
 		
 		new Message("&Auml;nderungen gespeichert.", "Die Benutzerdaten wurden erfolgreich gespeichert.");
-		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"], "Zur&uuml;ck");
+	}
+	
+	function privileges_processOptions() {
+		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"], Lang::txt("back"));
 		$usrView->addIcon("arrow_left");
 		$usrView->write();
 	}
