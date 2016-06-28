@@ -14,7 +14,7 @@ sap.ui.jsview("bnote.start", {
 			template : new sap.m.StandardListItem({
 				title : "{start}",
 				icon : "{icon}",
-				description : "{description}",
+				description : "{listdescription}",
 				type : sap.m.ListType.Navigation,
 				press : function(evt) {
 					var oBindingContext = evt.getSource().getBindingContext(); // evt.getSource() is the ListItem

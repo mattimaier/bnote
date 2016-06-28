@@ -19,7 +19,7 @@ sap.ui.jsview("bnote.memberdetail", {
                 new sap.m.Text({text: "{fullname}"}),  
                 
                 new sap.m.Label({text: "Instrument"}),
-                new sap.m.Text({text: "{instrument}"}),
+                new sap.m.Text({text: "{instrumentname}"}),
                 
                 new sap.m.Label({text: "Adresse"}),
                 new sap.m.VBox({

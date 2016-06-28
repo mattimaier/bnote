@@ -95,7 +95,7 @@ sap.ui.controller("bnote.reservationadd",{
 	addReservation: function(){		
 		if (reservationaddView.getController().dirty == true){			
 				var model = reservationaddView.getModel();
-				if (reservationaddView.locationitems.getSelectedKey() == "-1" && reservationaddView.getController().addlocation_dirty == false){
+				if (reservationaddView.locationitems.getSelectedKey() == "-1" && reservationaddView.getController().addlocation_dirty == true){
 					reservationaddView.getController().addlocation();
 				}
 				else if (reservationaddView.locationitems.getSelectedKey() == "-1"){

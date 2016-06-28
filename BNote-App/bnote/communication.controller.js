@@ -7,10 +7,7 @@ sap.ui.controller("bnote.communication",{
 			type : "POST",			
 			success : function(data) {
 				  var model = new sap.ui.model.json.JSONModel(data);
-				  communicationView.setModel(model);
-				  console.log(model);
-					
-					console.log("render communicationview");
+				  communicationView.setModel(model);				 
 					for (var i = 0; model.getProperty("/group/" + i + "/name") != undefined; i++) {
 						communicationView.communicationForm.addContent(new sap.m.CheckBox({
 							text : model.getProperty("/group/" + i + "/name"),
@@ -37,8 +34,7 @@ sap.ui.controller("bnote.communication",{
 						            data: requestdata, 
 						            success: function(data) {
 						            	oController.resetForm();
-						            	sap.m.MessageToast.show("Senden erfolgreich");
-						                console.log(data);
+						            	sap.m.MessageToast.show("Senden erfolgreich");						           
 						            },
 						            error: function(a,b,c) {
 						                sap.m.MessageToast.show("Senden fehlgeschlagen");

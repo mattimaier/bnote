@@ -98,7 +98,7 @@ sap.ui.controller("bnote.start", {
             if(typeof(desc) == "object") {
                 desc = desc[descriptionfield[1]];
             }
-            item['description'] = desc;
+            item['listdescription'] = desc;
             item['icon'] = icon
             items.push(item);
         }

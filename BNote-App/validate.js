@@ -195,6 +195,7 @@ validator = {
 		},
 		
 		text: function(evt) {				
+			var element = validator.getElement(evt);
 			element.setValueState(sap.ui.core.ValueState.Success);		
 		},
 		

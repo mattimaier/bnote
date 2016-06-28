@@ -1,10 +1,13 @@
 sap.ui.controller("bnote.rehearsaladd",{
 	
 	setdirtyflag: function() {
+		console.log("dirty:", rehearsaladdView.getController().dirty);
 		rehearsaladdView.getController().dirty = true;
+		console.log("dirty2:", rehearsaladdView.getController().dirty);
 	},
 	
 	addlocation_setdirtyflag: function() {
+		console.log("dirty:", this.dirty)
 		rehearsaladdView.getController().addlocation_dirty = true;		
 	},	
 	
@@ -19,7 +22,7 @@ sap.ui.controller("bnote.rehearsaladd",{
 	},
 	
 	prepareModelFromVoteresult: function(title) {
-		rehearsaladdView.getController().dirty = false;		
+		this.dirty = false;		
 		var oRehearsaladd = {
 				begin: "",
 				end: "",
@@ -69,7 +72,7 @@ sap.ui.controller("bnote.rehearsaladd",{
 	},
 	
 	prepareModel: function(){
-		rehearsaladdView.getController().dirty = false;		
+		this.dirty = false;		
 		var oRehearsaladd = {
 				begin: "",
 				end: "",
@@ -145,10 +148,10 @@ sap.ui.controller("bnote.rehearsaladd",{
 	addRehearsal: function(){
 		if (rehearsaladdView.getController().dirty){			
 			var model = rehearsaladdView.getModel();			
-			if (rehearsaladdView.locationitems.getSelectedKey() == "-1" && rehearsaladdView.getController().addlocation_dirty == false){
+			if (rehearsaladdView.locationitems.getSelectedKey() == "-1" && rehearsaladdView.getController().addlocation_dirty == true){
 				rehearsaladdView.getController().addlocation();
 			}
-			else if (rehearsaladdView.locationitems.getSelectedKey() == "-1"){
+			else if (rehearsaladdView.locationitems.getSelectedKey() == "-1"){			
 				sap.m.MessageToast.show("Keine neue Location eingegeben.");
 				return;
 			}
@@ -172,7 +175,7 @@ sap.ui.controller("bnote.rehearsaladd",{
 			model.oData.end = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(oldend);
 			model.oData.approve_until = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(oldapprove_until );
 			
-			console.log(model);
+			c
 			 jQuery.ajax({	
 				 type: "POST",
 				 data: model.oData,

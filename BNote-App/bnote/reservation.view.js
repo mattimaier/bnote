@@ -7,15 +7,15 @@ sap.ui.jsview("bnote.reservation", {
 	createContent: function() {
 		
 		var reservationForm = new sap.ui.layout.form.SimpleForm({
-			content:[			         
+			content:[  			           
+			        new sap.m.Label({text: "Name"}),
+			        new sap.m.Text({text: "{name}"}),	
+			        
 					new sap.m.Label({text: "Beginn"}),
 					new sap.m.Text({text: "{begin}"}),
 					
 					new sap.m.Label({text: "Ende"}),
-			        new sap.m.Text({text: "{end}"}),
-
-			        new sap.m.Label({text: "Name"}),
-			        new sap.m.Text({text: "{name}"}),
+			        new sap.m.Text({text: "{end}"}),			      
 			         
 			        new sap.m.Label({text: "Ort"}),
 			        new sap.m.Text({text: "{location/name}"}),

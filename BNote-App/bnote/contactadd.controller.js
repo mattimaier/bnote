@@ -32,8 +32,11 @@ sap.ui.controller("bnote.contactadd",{
 				oContact.groups = data.group;
 				var model = new sap.ui.model.json.JSONModel(oContact);
 			    contactaddView.setModel(model);
+			   console.log(oContact);
+			    
+			    
 				for (var i = 0; model.getProperty("/groups/" + i + "/name") != undefined; i++) {
-					contactaddView.contactaddForm.addContent(new sap.m.CheckBox({
+					contactaddView.contactaddForm.addContent(new sap.m.CheckBox({						
 						text : model.getProperty("/groups/" + i + "/name"),
 						selected: "{/groups/" + i + "/selected}"
 					}));
@@ -83,7 +86,7 @@ sap.ui.controller("bnote.contactadd",{
 				 success: function(data) {
 					 contactaddView.getController().dirty = false;
 					 sap.m.MessageToast.show("Kontakt wurde erfolgreich gespeichert.");
-					 app.to("start");
+					 app.to("start");					
 	             },
 		         error: function() { 
 		        	 sap.m.MessageToast.show("Kontakt konnte nicht gespeichert werden.");

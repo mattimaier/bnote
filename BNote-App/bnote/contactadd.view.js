@@ -136,7 +136,7 @@ sap.ui.jsview("bnote.contactadd", {
 	var page = new sap.m.Page("contactaddPage", {
 		  showNavButton: true,
 	        navButtonPress: function() {
-	            app.back();
+	            app.back();	           
 	        },
 		title : "Kontakte",
 		headerContent : [ addContactButton ],

@@ -1,3 +1,3 @@
-sap.ui.controller("bnote.memberdetail",{
+sap.ui.controller("bnote.memberdetail",{	
 	
 });

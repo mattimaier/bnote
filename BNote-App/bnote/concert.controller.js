@@ -28,7 +28,7 @@ submit: function(){
 			sap.m.MessageToast.show("Teilnahme wurde aktualisiert.");
 		},
 		error : function(a, b, c) {
-			sap.m.MessageToast.show("Updaten der Teilnahme aktualisiert.");
+			sap.m.MessageToast.show("Teilnahme konnte nicht aktualisiert werden.");
 			console.log(a, b, c);
 		}
 	});

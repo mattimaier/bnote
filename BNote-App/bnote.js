@@ -89,7 +89,7 @@ accessControls = {
 }
 
 function setPermissions() {
-	if (permission == null){
+	permission = null;
 		jQuery.ajax({
 			async: false,
 			type: "POST",
@@ -102,17 +102,19 @@ function setPermissions() {
         		    		var myelement = sap.ui.getCore().byId(element.sId);
         		    		myelement.setVisible(true);        		    		
         		    	});
-        		    }        		    
-        		}); 
-        		console.log(permission);
+        		    } else{
+        		    	value.forEach(function(element, arrindex, array){
+        		    		var myelement = sap.ui.getCore().byId(element.sId);
+        		    		myelement.setVisible(false);        		    		
+        		    	});
+        		    
+        		    }       		    
+        		});
             },
 			error: function(){		
 				permission = null;
 			}
-        });
-		
-	}
-	
+        });	
 	return permission;
 }
 
