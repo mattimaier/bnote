@@ -1594,7 +1594,7 @@ abstract class AbstractBNA implements iBNA {
 	public function deleteSong($id) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$repData->delete($id);
-		echo "{'success': true}";
+		echo '{"success": true}';
 	}
 	
 	public function getReservation($id) {
