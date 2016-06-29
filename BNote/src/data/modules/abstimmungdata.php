@@ -381,8 +381,8 @@ class AbstimmungData extends AbstractData {
 						       count(vo.id) as votes, 
 						       GROUP_CONCAT(CONCAT(c.name, \' \', c.surname, " (", i.name, ")" ) SEPARATOR \', \') as voters 
 						FROM vote v JOIN vote_option vo ON v.id = vo.vote
-						     LEFT OUTER JOIN vote_option_user vou ON vou.vote_option = vo.id
-						     LEFT OUTER JOIN user u ON vou.user = u.id
+						     JOIN vote_option_user vou ON vou.vote_option = vo.id
+						     JOIN user u ON vou.user = u.id
 						     LEFT OUTER JOIN contact c ON u.contact = c.id
 						     LEFT OUTER JOIN instrument i ON c.instrument = i.id
 						WHERE v.id = ' . $vid . '

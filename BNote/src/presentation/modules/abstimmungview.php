@@ -466,7 +466,9 @@ class AbstimmungView extends CrudView {
 		$table->removeColumn("id");
 		$table->renameHeader("votes", Lang::txt("vote_votes"));
 		$table->renameHeader("voters", Lang::txt("vote_voters"));
-		$table->setDataRowSpan(3);
+		if($vote["is_multi"] == 1) {
+			$table->setDataRowSpan(3);
+		}
 		$table->write();
 	}
 	
