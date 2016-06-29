@@ -15,8 +15,7 @@ sap.ui.controller("bnote.voteresult",{
 				 if (model.oData.is_date == 1){			
 						backend.formatdate("/options", "/name", model);			
 					}	
-				 oCtrl.buildList(model);
-				 console.log(model);
+				 oCtrl.buildList(model);				 
 			 },
 	         error: function() {
 	        	 sap.m.MessageToast.show("Das Abstimmungsergebnis konnte nicht geladen werden.");	        	
@@ -26,15 +25,24 @@ sap.ui.controller("bnote.voteresult",{
 
 	buildList: function(model) {
 			for (var i = 0; i < model.getProperty("/options").length; i++){
-				
+				console.log(i);
 				var yesresult = "Ja: " + model.getProperty("/options/" + i + "/choice/1");
 				var noresult = model.getProperty("/options/" + i + "/choice/0");
 				var resultname = model.getProperty("/options/" + i + "/name");
+				var voter = 0;
 				
-				var voter = parseInt(model.getProperty("/options/0/choice/0")) + 
+				if(model.getProperty("/is_multi") == 1){
+					voter = parseInt(model.getProperty("/options/0/choice/0")) + 
 							parseInt(model.getProperty("/options/0/choice/1")) +
 							parseInt(model.getProperty("/options/0/choice/2"));
-				
+				}
+				else{				 
+					for (var k=0; k < model.getProperty("/options/").length;k++){
+						if (model.getProperty("/options/" + k + "/choice/1") == "1"){
+							voter++;
+						}
+					}
+				}
 				if (model.getProperty("/is_multi") == 1){
 					var mayberesult = model.getProperty("/options/" + i + "/choice/2");
 					var intro = new sap.m.ObjectStatus({text: "Nein: " + noresult + " Vielleicht: " + mayberesult});

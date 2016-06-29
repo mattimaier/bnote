@@ -1,10 +1,10 @@
 sap.ui.controller("bnote.vote",{
 	
 	// calculate and display the remaining time
-	onVotePress: function(){
+	onVotePress: function(){		
 		var oController = this;
-		var model = this.getView().getModel(model);
-		var oBindingContext = this.getView().getBindingContext(oBindingContext);
+		var model = oController.getView().getModel(model);
+		var oBindingContext = oController.getView().getBindingContext(oBindingContext);
 		var path = oBindingContext.getPath();
 		
 		model.setProperty(path + "/currentdate", new Date());
@@ -24,8 +24,6 @@ sap.ui.controller("bnote.vote",{
 	
 		for (var i = 0; i < model.getProperty(path + "/options").length; i++) {
 			if (is_multi == "0"){
-				model.setProperty(path + "/options/" + 0 + "/selected_single", undefined);
-				model.setProperty(path + "/options/" + 1 + "/selected_single", undefined);
 				this.getView().voteForm.addContent(new sap.m.RadioButton({
 							text : model.getProperty(path + "/options/" + i + "/name"),
 							selected: "{" + path + "/options/" + i + "/selected_single}"
@@ -53,7 +51,7 @@ sap.ui.controller("bnote.vote",{
 				var selectText = new sap.m.Text({text: model.getProperty(path + "/options/" + i + "/name")});
 				selectText.addStyleClass("bnote_vote_option_text");
 				
-				this.getView().voteForm.addContent(new sap.m.HBox({
+				oController.getView().voteForm.addContent(new sap.m.HBox({
 					items:[selectGroup, selectText]
 				}));	
 			}
@@ -68,39 +66,47 @@ sap.ui.controller("bnote.vote",{
 	},
 	
 	vote: function(){
-		var model = this.getView().getModel(model);
-		var oBindingContext = this.getView().getBindingContext(oBindingContext);
+		
+		var model = voteView.getModel(model);
+		var oBindingContext = voteView.getBindingContext(oBindingContext);
 		var path = oBindingContext.getPath();
 		var vote_option = 0;
-		var vote_optionid = 0;		
+		var vote_optionid = 0;	
+		var is_multi = model.getProperty(path + "/is_multi");
 		
 		var oData = {
 				vid : model.getProperty(path + "/id"),				
 		};
 		
 		for (var i = 0; i < model.getProperty(path + "/options").length; i++){
-			//get VoteOption
-			if (model.getProperty(path + "/options/" + i + "/selected") == 0  || model.getProperty(path + "/options/" + i + "/selected") == undefined || model.getProperty(path + "/options/" + i + "/selected_single") == true){
-				vote_option = 1;
-			}
-			else if (model.getProperty(path + "/options/" + i + "/selected") == 1){
-				vote_option = 2;
-			}
-			else if (model.getProperty(path + "/options/" + i + "/selected") == 2){
+			
+			if(is_multi == 1){
 				vote_option = 0;
+			//get VoteOption
+				if (model.getProperty(path + "/options/" + i + "/selected") == 0  || model.getProperty(path + "/options/" + i + "/selected") == undefined){
+					vote_option = 1;
+				}
+				else if (model.getProperty(path + "/options/" + i + "/selected") == 1){
+					vote_option = 2;
+				}
+				else if (model.getProperty(path + "/options/" + i + "/selected") == 2){
+					vote_option = 0;
+				}
+			}
+			else if(is_multi == 0){
+				if(model.getProperty(path + "/options/" + i + "/selected_single") == true){
+					vote_option = 1;	
+				}else if(model.getProperty(path + "/options/" + i + "/selected_single") == false || model.getProperty(path + "/options/" + i + "/selected_single") == undefined){
+					vote_option = 0;
+				}							
 			}
 			
-			//get VoteOptionId
+			//get VoteOptionId			
 			vote_optionid = model.getProperty(path + "/options/" + i + "/id");
-			
-			
-			if (vote_option != 0 &&  model.getProperty(path + "/is_multi") == 0){
+			if ((is_multi == 0 && vote_option == 1) || is_multi == 1){
 				oData[vote_optionid] = vote_option;
 			}
-			else if ( model.getProperty(path + "/is_multi") == 1){
-				oData[vote_optionid] = vote_option;
-			}
-		};
+	    }; 
 		
 		jQuery.ajax({
 			url : backend.get_url("vote"),

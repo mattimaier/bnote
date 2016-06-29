@@ -11,13 +11,14 @@ sap.ui.controller("bnote.equipmentadd", {
 	},
 	
 	savechanges: function(){
+		console.log(equipmentaddView.getController().mode);
 		var model = equipmentaddView.getModel();
 		var path = equipmentaddView.getBindingContext().getPath();
 		var updateEquipmentData = model.getProperty(path);	
 		
 		//update backend
 		if(equipmentaddView.getController().dirty){
-			if(this.mode == "edit") {
+			if(equipmentaddView.getController().mode == "edit") {
 				// update
 				jQuery.ajax({
 					type: "POST",
@@ -59,7 +60,7 @@ sap.ui.controller("bnote.equipmentadd", {
 	  },
 	
 	checkdirtyflag: function() {
-		if (equipmentaddView.getController().dirty && this.mode == "edit"){
+		if (equipmentaddView.getController().dirty && equipmentaddView.getController().mode == "edit"){
 			var model = equipmentaddView.getModel();
 			var path = equipmentaddView.getBindingContext().getPath();
 			var equipmentid = model.getProperty(path + "/id");
@@ -78,7 +79,7 @@ sap.ui.controller("bnote.equipmentadd", {
 		        	}
 				});
 		}
-		else if (this.mode == "add"){
+		else if (equipmentaddView.getController().mode == "add"){
 			var model = equipmentaddView.getModel();			
 			var path = equipmentaddView.getBindingContext().sPath.split("/");
     		var idxNewItem = path[path.length -1];

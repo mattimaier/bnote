@@ -77,7 +77,7 @@ sap.ui.jsview("bnote.repertoiredetail", {
 	    }); 
 		
 		var page = new sap.m.Page("RepertoiredetailPage", {
-	        title: "Repertoiredetail",
+	        title: "",
 	        showNavButton: true,
 	        navButtonPress: function() {
 	        	app.back()

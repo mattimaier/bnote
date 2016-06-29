@@ -40,6 +40,7 @@ sap.ui.jsview("bnote.equipmentdetail", {
 				equipmentaddView.getController().setData();  // equipment dirtyflag = false
 				equipmentaddView.getController().mode = "edit";
 				app.to("equipmentadd");
+				console.log(equipmentaddView.getController().mode);
 			}
 		});
 		
@@ -54,7 +55,7 @@ sap.ui.jsview("bnote.equipmentdetail", {
 		  this.deleteButton = new sap.m.Button({
 			  		text: "Löschen",
 			  		press: function(){
-			  			oController().deleteEquipment();
+			  			oController.deleteEquipment();
 			  			view.deleteDialog.close();
 			  		}
 		  });
@@ -76,7 +77,7 @@ sap.ui.jsview("bnote.equipmentdetail", {
 		
 		
 		var page = new sap.m.Page("EquipmentdetailPage", {
-	        title: "Equipmentdetail",
+	        title: "",
 	        showNavButton: true,
 	        navButtonPress: function() {
 	            app.back();

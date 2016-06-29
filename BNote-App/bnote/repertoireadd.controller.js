@@ -23,7 +23,7 @@ sap.ui.controller("bnote.repertoireadd", {
 		//update backend
 		if(repertoireaddView.getController().dirty){
 			// update
-			if(this.mode == "edit") {
+			if(repertoireaddView.getController().mode == "edit") {
 				jQuery.ajax({
 					type: "POST",
 		        	url: backend.get_url("updateSong"),
@@ -64,7 +64,7 @@ sap.ui.controller("bnote.repertoireadd", {
 	},
 	
 	checkdirtyflag: function() {
-		if (repertoireaddView.getController().dirty && this.mode == "edit"){
+		if (repertoireaddView.getController().dirty && repertoireaddView.getController().mode == "edit"){
 			var model = repertoireaddView.getModel();
 			var path = repertoireaddView.getBindingContext().getPath();
 			var songid = model.getProperty(path + "/id");
@@ -83,7 +83,7 @@ sap.ui.controller("bnote.repertoireadd", {
 	        	}
 	        });
 		}
-		else if (this.mode == "add"){
+		else if (repertoireaddView.getController().mode == "add"){
 			var model = repertoireaddView.getModel();			
 			var path = repertoireaddView.getBindingContext().sPath.split("/");
 			var idxNewItem = path[path.length -1];
