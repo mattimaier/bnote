@@ -276,17 +276,12 @@ class AbstimmungData extends AbstractData {
 		
 		/* bug #13 and #14:
 		 * remove admins from being added to the group
-		* and don't add people who are already in the group
-		*/
+		 * and don't add people who are already in the group
+		 */
 		$q1 = "SELECT user FROM vote_group WHERE vote = $vid";
 		$contactsInList = $this->database->getSelection($q1);
-		$contactList = array();
-		// flatten the list and remove header
-		for($i = 1; $i < count($contactsInList); $i++) {
-			array_push($contactList, $contactsInList[$i]["user"]);
-		}
-		global $system_data;
-		$superUsers = $system_data->getSuperUsers();
+		$contactList = $this->database->flattenSelection($contactsInList, "user");
+		$superUsers = $this->getSysdata()->getSuperUsers();
 		
 		// add the user ids to group
 		$query = "INSERT INTO vote_group (vote, user) VALUES ";

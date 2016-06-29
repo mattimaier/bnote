@@ -15,7 +15,7 @@ class AbstimmungView extends CrudView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName(Lang::txt("vote"));
+		$this->setEntityName(Lang::txt("vote_entity"));
 		$this->entityName_option = Lang::txt("vote_option");
 		$this->entityName_options = Lang::txt("vote_options");
 	}
@@ -135,7 +135,7 @@ class AbstimmungView extends CrudView {
 		$vid = $this->getData()->create($_POST);
 		
 		// write success
-		new Message(Lang::txt("saved_entity", $this->getEntityName()),
+		new Message(Lang::txt("saved_entity", array($this->getEntityName())),
 				Lang::txt("vote_saved_message"));
 		
 		// show options link

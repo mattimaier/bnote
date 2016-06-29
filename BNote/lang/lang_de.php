@@ -41,7 +41,7 @@ class Translation extends BNoteTranslation {
 			"concerts" => "Konzerte",
 			"concert" => "Konzert",
 			"votes" => "Abstimmungen",
-			"vote" => "Abstimmung",
+			"vote_entity" => "Abstimmung",
 			"tasks" => "Aufgaben",
 			"task" => "Aufgabe",
 			"discussions" => "Diskussionen",
