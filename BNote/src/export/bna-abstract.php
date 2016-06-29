@@ -1294,7 +1294,7 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	function getGroups() {
-		$selection = $this->startdata->adp()->getGroups(true);
+		$selection = $this->startdata->adp()->getGroups();
 		unset($selection[0]);  // header
 		$this->printEntities($selection, "group");
 	}

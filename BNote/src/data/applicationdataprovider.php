@@ -501,7 +501,7 @@ class ApplicationDataProvider {
 	function getGroups($active = null) {
 		$query = "SELECT * FROM `group`";
 		$query .= " WHERE is_active = ";
-		if($active != null && $active = false) {
+		if($active != null && $active == false) {
 			$query .= "0";
 		} else {
 			$query .= "1";
