@@ -39,7 +39,7 @@ class KonzerteController extends DefaultController {
 	 */
 	private $addSteps = array(
 			"Stammdaten",
-			"Auff&uuml;hrungsort",
+			"Aufführungsort",
 			"Kontaktperson",
 			"Programm",
 			"Mitspieler",

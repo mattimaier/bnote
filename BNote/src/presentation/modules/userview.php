@@ -18,7 +18,7 @@ class UserView extends CrudRefView {
 	}
 
 	function start() {
-		Writing::p("Hier k&ouml;nnen Benutzer verwaltet werden. Benutzer k&ouml;nnen sich am System anmelden.");
+		Writing::p("Hier können Benutzer verwaltet werden. Benutzer können sich am System anmelden.");
 		
 		// show all users
 		$table = new Table($this->getData()->getUsers());
@@ -129,7 +129,7 @@ class UserView extends CrudRefView {
 		$dd->setSelected($user["contact"]);
 		$form->addElement("Kontakt", $dd);
 		$form->write();
-		Writing::p("Wird das Passwort-Feld leer gelassen, bleibt das aktuelle Passwort g&uuml;ltig.");
+		Writing::p("Wird das Passwort-Feld leer gelassen, bleibt das aktuelle Passwort gültig.");
 	}
 	
 	function edit_process() {
@@ -159,7 +159,7 @@ class UserView extends CrudRefView {
 		$this->checkID();
 		$this->getData()->updatePrivileges($_GET["id"]);
 		
-		new Message("&Auml;nderungen gespeichert.", "Die Benutzerdaten wurden erfolgreich gespeichert.");
+		new Message("Änderungen gespeichert.", "Die Benutzerdaten wurden erfolgreich gespeichert.");
 	}
 	
 	function privileges_processOptions() {
@@ -169,13 +169,13 @@ class UserView extends CrudRefView {
 	}
 	
 	function deleteConfirmationMessage($label, $linkDelete, $linkBack) {
-		new Message("L&ouml;schen?", "Wollen sie diesen Benutzer mit allen seinen Dateien wirklich l&ouml;schen?");
-		$yes = new Link($linkDelete, strtoupper($label) . " L&Ouml;SCHEN");
+		new Message("Löschen?", "Wollen sie diesen Benutzer mit allen seinen Dateien wirklich löschen?");
+		$yes = new Link($linkDelete, strtoupper($label) . " LÖSCHEN");
 		$yes->addIcon("remove");
 		$yes->write();
 		$this->buttonSpace();
 		
-		$no = new Link($linkBack, "Zur&uuml;ck");
+		$no = new Link($linkBack, Lang::txt("back"));
 		$no->addIcon("arrow_left");
 		$no->write();
 	}

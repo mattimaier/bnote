@@ -160,7 +160,7 @@ class KontakteView extends CrudRefView {
 	}
 	
 	function addEntity() {
-		$form = new Form("Kontakt hinzuf&uuml;gen", $this->modePrefix() . "add");
+		$form = new Form("Kontakt hinzufügen", $this->modePrefix() . "add");
 		
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");

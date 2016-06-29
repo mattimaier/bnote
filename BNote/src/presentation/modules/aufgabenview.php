@@ -70,7 +70,7 @@ class AufgabenView extends CrudRefView {
 		if($form_target != null) {
 			$target = $form_target;
 		}
-		$form = new Form($this->getEntityName() ." hinzuf&uuml;gen", $target);
+		$form = new Form($this->getEntityName() ." hinzufügen", $target);
 		$form->addElement("Titel", new Field("title", "", FieldType::CHAR));
 		$form->addElement("Beschreibung", new Field("description", "", FieldType::TEXT));
 		$form->addElement("Fällig am", new Field("due_at", "", FieldType::DATETIME));

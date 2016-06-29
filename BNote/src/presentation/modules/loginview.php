@@ -81,7 +81,7 @@ class LoginView extends AbstractView {
 		
 		Writing::p("Wenn du dich wiederholt nicht anmelden kannst,
 				dann ist dein Konto gegebenenfalls noch nicht freigeschalten. Bitte
-				versuche es zu einem sp&auml;teren Zeitpunkt noch einmal.");
+				versuche es zu einem späteren Zeitpunkt noch einmal.");
 		
 		// login form
 		$form = new Form("Anmeldung", $this->modePrefix() . "login");
@@ -110,7 +110,7 @@ class LoginView extends AbstractView {
 	  <?php echo $this->getData()->getJSValidationFunctions(); ?>
 </script> 
 		
-<p class="login">Bitte f&uuml;lle dieses Formular aus um dich als
+<p class="login">Bitte fülle dieses Formular aus um dich als
 	Mitglied zu registrieren. Die angegebenen Daten werden vertraulich
 	behandelt und nicht an Dritte weitergegeben.</p>
 
@@ -194,7 +194,7 @@ class LoginView extends AbstractView {
 	</TR>
 	<TR>
 		<TD class="login" colspan="2"
-			style="font-size: 10pt; padding-bottom: 15px; width: 100%;">* Die mit Stern gekennzeichneten Felder sind auszuf&uuml;llen.</TD>
+			style="font-size: 10pt; padding-bottom: 15px; width: 100%;">* Die mit Stern gekennzeichneten Felder sind auszufüllen.</TD>
 	</TR>
 	<TR>
 		<TD class="login" colspan="2"><input name="register" type="submit"

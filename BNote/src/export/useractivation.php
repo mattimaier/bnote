@@ -12,7 +12,7 @@ $db = new Database();
 
 // CHECK INPUT
 if(!isset($_GET["uid"]) || !isset($_GET["email"])) {
-	printError("Ung&uuml;ltige Eingabe.");
+	printError("Ungültige Eingabe.");
 }
 
 $userid = $_GET["uid"];
@@ -26,7 +26,7 @@ if($uid_exists < 1) {
 $cid = $db->getCell($db->getUserTable(), "contact", "id = $userid");
 $user_email = $db->getCell("contact", "email", "id = $cid");
 if($email != $user_email) {
-	printError("Ung&uuml;ltige E-Mail-Adresse.");
+	printError("Ungültige E-Mail-Adresse.");
 }
 
 // ACTIVATE USER

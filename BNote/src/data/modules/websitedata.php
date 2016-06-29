@@ -182,7 +182,7 @@ class WebsiteData extends AbstractData {
 		
 		// validate upload
 		if($_FILES["file"]["error"] > 0) {
-			new Error("Es trat ein Fehler w&auml;hrend des Uploads auf. Bitte versuche es noch einmal.");
+			new Error("Es trat ein Fehler während des Uploads auf. Bitte versuche es noch einmal.");
 		}
 		if(!is_uploaded_file($_FILES["file"]["tmp_name"])) {
 			new Error("Die Datei konnte nicht hochgeladen werden.");

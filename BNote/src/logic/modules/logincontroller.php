@@ -90,9 +90,9 @@ class LoginController extends DefaultController {
 				return false;
 			}
 			else {
-				new Error("Bitte &uuml;berpr&uuml;fe deine Anmeldedaten.<br />
+				new Error("Bitte überprüfe deine Anmeldedaten.<br />
 						Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Bandleiter.<br />
-						<a href=\"?mod=login\">Zur&uuml;ck</a><br />");
+						<a href=\"?mod=login\">Zurück</a><br />");
 			}
 		}
 	}
@@ -165,7 +165,7 @@ class LoginController extends DefaultController {
 		
 		// check passwords and encrypt it
 		if($_POST["pw1"] != $_POST["pw2"]) {
-			new Error("Bitte &uuml;berpr&uuml;fe dein Kennwort.");
+			new Error("Bitte überprüfe dein Kennwort.");
 		}
 		$password = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
 		

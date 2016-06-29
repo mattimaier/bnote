@@ -155,7 +155,7 @@ class KommunikationView extends AbstractView {
 		// for rehearsal mails no receipients are needed, take the ones from the list
 		if($showGroups) {
 			$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
-			$form->addElement("Empf&auml;nger", $gs);
+			$form->addElement("Empfänger", $gs);
 		}
 		$form->addElement("Betreff", new Field("subject", "", FieldType::CHAR));
 		$form->addElement("Nachricht", new Field("message", $message, 98));

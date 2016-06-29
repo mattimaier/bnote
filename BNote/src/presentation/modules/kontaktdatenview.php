@@ -18,7 +18,7 @@ class KontaktdatenView extends AbstractView {
 			Writing::p("Ihrem Benutzer wurde kein Kontakt zugeordnet.");
 			return;
 		}
-		$form1 = new Form("Pers&ouml;nliche Daten &auml;ndern", $this->modePrefix() . "savePD");
+		$form1 = new Form("Persönliche Daten ändern", $this->modePrefix() . "savePD");
 		$form1->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $contact["id"]);
 		$form1->removeElement("id");
 		$form1->removeElement("notes");
@@ -48,14 +48,14 @@ class KontaktdatenView extends AbstractView {
 	
 	function savePD() {
 		$this->getData()->update($_SESSION["user"], $_POST);
-		new Message("Daten gespeichert", "Die &Auml;nderungen wurden gespeichert.");
+		new Message("Daten gespeichert", "Die Änderungen wurden gespeichert.");
 	}
 	
 	function changePassword() {		
 		// change password
 		$pwNote = "Bitte gebe mindestens 6 Zeichen und keine Leerzeichen ein um dein Passwort zu ändern.";
 		
-		$form2 = new Form("Passwort &auml;ndern<br/><p style=\"font-weight: normal;\">$pwNote</p>", $this->modePrefix() . "password");
+		$form2 = new Form("Passwort ändern<br/><p style=\"font-weight: normal;\">$pwNote</p>", $this->modePrefix() . "password");
 		$form2->addElement("Neues Passwort", new Field("pw1", "", FieldType::PASSWORD));
 		$form2->addElement("Passwort Wiederholen", new Field("pw2", "", FieldType::PASSWORD));
 		$form2->write();
@@ -63,7 +63,7 @@ class KontaktdatenView extends AbstractView {
 	
 	function password() {
 		$this->getData()->updatePassword();
-		new Message("Passwort ge&auml;ndert", "Das Passwort wurde ge&auml;ndert.<br />Ab sofort bitte mit neuem Passwort anmelden.");
+		new Message("Passwort geändert", "Das Passwort wurde geändert.<br />Ab sofort bitte mit neuem Passwort anmelden.");
 	}
 	
 	function settings() {		

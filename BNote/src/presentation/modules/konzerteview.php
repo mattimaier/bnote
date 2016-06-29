@@ -40,7 +40,7 @@ class KonzerteView extends CrudRefView {
 		
 		// Next Concert
 		$concerts = $this->getData()->getFutureConcerts();
-		Writing::h2("N&auml;chstes Konzert");
+		Writing::h2("Nächstes Konzert");
 		if(count($concerts) > 1) {
 			$this->writeConcert($concerts[1]);
 		}
@@ -51,7 +51,7 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	protected function startOptions() {
-		$lnk = new Link($this->modePrefix() . "wizzard", "Konzert hinzuf&uuml;gen");
+		$lnk = new Link($this->modePrefix() . "wizzard", "Konzert hinzufügen");
 		$lnk->addIcon("plus");
 		$lnk->write();
 		
@@ -130,7 +130,7 @@ class KonzerteView extends CrudRefView {
 		
 		$table = new Table($this->getData()->getPastConcerts());
 		$table->renameAndAlign($this->getData()->getFields());
-		$table->renameHeader("location_name", "Auff&uuml;hrungsort");
+		$table->renameHeader("location_name", "Aufführungsort");
 		$table->renameHeader("location_city", "Stadt");
 		$table->renameHeader("contact_name", "Kontaktperson");
 		$table->renameHeader("program_name", "Programm");
@@ -295,7 +295,7 @@ class KonzerteView extends CrudRefView {
 	/***** CONCERT CREATION PROCESS ***********/
 	
 	function showAddTitle() {
-		Writing::h2("Konzert hinzuf&uuml;gen");
+		Writing::h2("Konzert hinzufügen");
 	}
 	
 	/**
@@ -368,10 +368,10 @@ class KonzerteView extends CrudRefView {
 	 * @param String $action Method to call after modePrefix.
 	 */
 	function step2($action) {
-		Writing::p("Bitte w&auml;hle einen Ort aus oder erstelle einen neuen Ort.");
+		Writing::p("Bitte wähle einen Ort aus oder erstelle einen neuen Ort.");
 		
 		// form 1: choose location
-		$form1 = new Form("Ort ausw&auml;hlen", $this->modePrefix() . $action);
+		$form1 = new Form("Ort auswählen", $this->modePrefix() . $action);
 		$dd1 = new Dropdown("location");
 		$locs = $this->getData()->getLocations();		
 		for($i = 1; $i < count($locs); $i++) {
@@ -392,7 +392,7 @@ class KonzerteView extends CrudRefView {
 		$this->addCollectedData($form2);
 		$form2->write();
 		
-		Writing::p("Wird ein neuer Ort erstellt, so wird er automatisch als Auff&uuml;hrungsort gespeichert.");
+		Writing::p("Wird ein neuer Ort erstellt, so wird er automatisch als Aufführungsort gespeichert.");
 	}
 	
 	/**
@@ -400,10 +400,10 @@ class KonzerteView extends CrudRefView {
 	 * @param String $action Method to call after modePrefix.
 	 */
 	function step3($action) {
-		Writing::p("Bitte w&auml;hle eine Kontaktperson oder erstelle einen neuen Kontakt.");
+		Writing::p("Bitte wähle eine Kontaktperson oder erstelle einen neuen Kontakt.");
 		
 		// form 1: choose contact
-		$form1 = new Form("Kontakt ausw&auml;hlen", $this->modePrefix() . $action);
+		$form1 = new Form("Kontakt auswählen", $this->modePrefix() . $action);
 		$dd = new Dropdown("contact");
 		$contacts = $this->getData()->getContacts();
 		for($i = 1; $i < count($contacts); $i++) {
@@ -417,7 +417,7 @@ class KonzerteView extends CrudRefView {
 		$form1->write();
 		
 		// form 2: add contact
-		$form2 = new Form("Kontaktperson hinzuf&uuml;gen", $this->modePrefix() . $action);
+		$form2 = new Form("Kontaktperson hinzufügen", $this->modePrefix() . $action);
 		$form2->addElement("Vorname", new Field("contact_name", "", FieldType::CHAR));
 		$form2->addElement("Nachname", new Field("contact_surname", "", FieldType::CHAR));
 		$form2->addElement("Telefon", new Field("contact_phone", "", FieldType::CHAR));
@@ -434,14 +434,14 @@ class KonzerteView extends CrudRefView {
 	 * @param String $action Method to call after modePrefix.
 	 */
 	function step4($action) {
-		$msg = "Bitte w&auml;hle eine Programmvorlage aus ";
-		$msg .= "oder fuege ein Programm sp&auml;ter hinzu.<br />";
-		$msg .= "Das Programm kann unter Konzerte/Programme sp&auml;ter ";
+		$msg = "Bitte wähle eine Programmvorlage aus ";
+		$msg .= "oder fuege ein Programm später hinzu.<br />";
+		$msg .= "Das Programm kann unter Konzerte/Programme später ";
 		$msg .= "bearbeitet werden.";
 		Writing::p($msg);
 		
 		// form 1: choose program template
-		$form1 = new Form("Programmvorlage ausw&auml;hlen", $this->modePrefix() . $action);
+		$form1 = new Form("Programmvorlage auswählen", $this->modePrefix() . $action);
 		$dd = new Dropdown("program");
 		$templates = $this->getData()->getTemplates();
 		for($i = 1; $i < count($templates); $i++) {
