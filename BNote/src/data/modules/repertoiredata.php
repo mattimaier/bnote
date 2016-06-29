@@ -13,7 +13,7 @@ class RepertoireData extends AbstractData {
 		$this->fields = array(
 			"id" => array("Titel ID", FieldType::INTEGER),
 			"title" => array("Titel", FieldType::CHAR),
-			"length" => array("L&auml;nge", FieldType::CHAR), // not TIME, because of second precision
+			"length" => array("Länge", FieldType::CHAR), // not TIME, because of second precision
 			"genre" => array("Genre", FieldType::REFERENCE),
 			"bpm" => array("Tempo (bpm)", FieldType::INTEGER),
 			"music_key" => array("Tonart", FieldType::CHAR),

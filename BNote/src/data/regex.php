@@ -181,7 +181,7 @@ class Regex {
   * @param unknown_type $type The fieldtype which is wrong
   */
  private function fail($d, $type) {
- 	new Error("Ein oder mehrere Felder enthalten ung&uuml;ltige Werte. ($type / $d)");
+ 	new Error("Ein oder mehrere Felder enthalten ungültige Werte. ($type / $d)");
  }
  
  /**

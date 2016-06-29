@@ -91,8 +91,8 @@ class KonfigurationView extends CrudView {
 		$this->getData()->update($_GET["id"], $_POST);
 	
 		// show success
-		new Message($this->getEntityName() . " ge&auml;ndert",
-				"Der Eintrag wurde erfolgreich ge&auml;ndert.");
+		new Message($this->getEntityName() . " geändert",
+				"Der Eintrag wurde erfolgreich geändert.");
 	}
 	
 }

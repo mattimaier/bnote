@@ -49,7 +49,7 @@ class InstrumenteView extends CrudRefView {
 	
 	function backToStart() {
 		global $system_data;
-		$link = new Link("?mod=" . $system_data->getModuleId() . "&mode=instruments", "Zur&uuml;ck");
+		$link = new Link("?mod=" . $system_data->getModuleId() . "&mode=instruments", Lang::txt("back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}

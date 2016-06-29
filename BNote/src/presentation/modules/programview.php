@@ -30,13 +30,13 @@ class ProgramView extends CrudView {
 	}
 	
 	function backToStart() {
-		$link = new Link("?mod=" . $this->getModId() . "&mode=programs", "Zur&uuml;ck");
+		$link = new Link("?mod=" . $this->getModId() . "&mode=programs", Lang::txt("back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
 	
 	function startOptions() {
-		$back = new Link("?mod=" . $this->getModId() . "&mode=start", "Zurück");
+		$back = new Link("?mod=" . $this->getModId() . "&mode=start", Lang::txt("back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 		
@@ -53,12 +53,12 @@ class ProgramView extends CrudView {
 	
 	function writeTitle() {
 		Writing::h2("Programme");
-		Writing::p("Klicke auf ein Programm um Details anzuzeigen und die St&uuml;cke zu bearbeiten.");
+		Writing::p("Klicke auf ein Programm um Details anzuzeigen und die Stücke zu bearbeiten.");
 	}
 	
 	function addFromTemplate() {
 		// add the form to insert a program from a template		
-		$form = new Form("Program aus Vorlage hinzuf&uuml;gen", $this->modePrefix() . "addWithTemplate");
+		$form = new Form("Program aus Vorlage hinzufügen", $this->modePrefix() . "addWithTemplate");
 		$form->addElement("Name", new Field("name", "", FieldType::CHAR));
 		$dd = new Dropdown("template");
 		$templates = $this->getData()->getTemplates();
@@ -95,7 +95,7 @@ class ProgramView extends CrudView {
 		$table->renameHeader("rank", "Nr.");
 		$table->renameHeader("title", "Titel");
 		$table->renameHeader("composer", "Komponist/Arrangeuer");
-		$table->renameHeader("length", "L&auml;nge");
+		$table->renameHeader("length", "Länge");
 		$table->renameHeader("notes", "Notizen");
 		$table->write();
 		$this->writeProgramLength();
@@ -103,7 +103,7 @@ class ProgramView extends CrudView {
 	
 	private function writeProgramLength() {
 		$tt = $this->getData()->totalProgramLength($_GET["id"]);
-		Writing::p("Das Programm hat eine Gesamtl&auml;nge von <span style=\"font-weight: 600;\">" . $tt . "</span> Stunden.");		
+		Writing::p("Das Programm hat eine Gesamtlänge von <span style=\"font-weight: 600;\">" . $tt . "</span> Stunden.");		
 	}
 	
 	public function view() {
@@ -135,7 +135,7 @@ class ProgramView extends CrudView {
 	
 	function editList() {
 		Writing::h2($this->getData()->getProgramName($_GET["id"]));
-		Writing::p("Schiebe die Titel in die Reihenfolge, die du m&ouml;chtest.");
+		Writing::p("Schiebe die Titel in die Reihenfolge, die du möchtest.");
 		
 		$tracks = $this->getData()->getSongsForProgram($_GET["id"]);
 		echo "<form action=\"" . $this->modePrefix() . "saveList&id=" . $_GET["id"] . "\" method=\"POST\">\n";

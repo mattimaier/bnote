@@ -20,7 +20,7 @@ class GenreView extends CrudView {
 	}
 	
 	function backToStart() {
-		$link = new Link("?mod=" . $this->getModId() . "&mode=genre", "Zur&uuml;ck");
+		$link = new Link("?mod=" . $this->getModId() . "&mode=genre", Lang::txt("back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
@@ -34,7 +34,7 @@ class GenreView extends CrudView {
 	}
 	
 	function startOptions() {
-		$back = new Link("?mod=" . $this->getModId(), "Zur&uuml;ck");
+		$back = new Link("?mod=" . $this->getModId(), Lang::txt("back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 		

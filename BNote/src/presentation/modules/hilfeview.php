@@ -38,7 +38,7 @@ class HilfeView extends AbstractView {
 	private $videos = array(
 			"ovB7s2dIwCU" => "Grundlagen und Einführungsvideo",
 			"6OTzjJbMsHY" => "Mitgliedersicht",
-			"dVJYFbWgj4E" => "Administrations&uuml;berblick",
+			"dVJYFbWgj4E" => "Administrationsüberblick",
 			"CXCbngJM8zU" => "Benutzer und Kontakte",
 			"PCWTS0jq-24" => "Kommunikation",
 			"VGCWdZr3reU" => "Locations",

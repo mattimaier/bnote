@@ -20,8 +20,8 @@ if(!file_exists("config/company.xml")
 		header("location: " . $installFile);
 	}
 	else {
-		echo "Fehler! Deine Konfiguration ist nicht vollst&auml;ndig. ";
-		echo "Bitte kopiere install.php erneut auf deinen Server und f&uuml;hre die Datei aus.";
+		echo "Fehler! Deine Konfiguration ist nicht vollständig. ";
+		echo "Bitte kopiere install.php erneut auf den Server und lade die Seite neu.";
 	}
 }
 else {

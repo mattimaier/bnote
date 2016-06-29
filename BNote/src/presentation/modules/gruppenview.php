@@ -99,7 +99,7 @@ class GruppenView extends CrudView {
 			$this->buttonSpace();
 			
 			$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
-					$this->getEntityName() . " l&ouml;schen");
+					$this->getEntityName() . " löschen");
 			$del->addIcon("remove");
 			$del->write();
 		}

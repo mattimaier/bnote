@@ -705,8 +705,8 @@ class Installation {
 			array_push($queries,
 					"INSERT INTO `category` (`id`, `name`) VALUES
 					(1, 'Streicher'),
-					(2, 'Blechbl&auml;ser'),
-					(3, 'Holzbl&auml;ser'),
+					(2, 'Blechbläser'),
+					(3, 'Holzbläser'),
 					(4, 'Rhythmusgruppe'),
 					(5, 'Gesang'),
 					(6, 'Dirigent'),
@@ -792,7 +792,7 @@ class Installation {
 					(22, 'Gambe', 8),
 					(23, 'keine Angabe', 8),
 					(24, 'Gitarre', 4),
-					(25, 'Fl&uuml;gelhorn', 2),
+					(25, 'Flügelhorn', 2),
 					(26, 'Basskarinette', 3),
 					(27, 'Sopran', 5),
 					(28, 'Mezzo-Sopran', 5),
@@ -808,9 +808,9 @@ class Installation {
 					(38, 'Solist Tenor', 5),
 					(39, 'Solist Bariton', 5),
 					(40, 'Solist Countertenor', 5),
-					(41, 'Querfl&ouml;te', 3),
-					(42, 'Blockfl&ouml;te', 3),
-					(43, 'Panfl&ouml;te', 3),
+					(41, 'Querflöte', 3),
+					(42, 'Blockflöte', 3),
+					(43, 'Panflöte', 3),
 					(44, 'Akkordeon', 8),
 					(45, 'Althorn', 2),
 					(46, 'Banjo', 8);");
@@ -845,7 +845,7 @@ class Installation {
 					(1, 'Konzertreif'),
 					(2, 'Kernrepertoire'),
 					(3, 'Noten vorhanden'),
-					(4, 'ben&ouml;tigt weitere Proben'),
+					(4, 'benötigt weitere Proben'),
 					(5, 'nicht im Notenbestand'),
 					(6, 'Idee');");
 

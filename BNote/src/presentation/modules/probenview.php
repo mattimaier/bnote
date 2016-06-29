@@ -22,7 +22,7 @@ class ProbenView extends CrudRefView {
 		Writing::h1("Proben");
 		Writing::p("Bitte auf eine Probe klicken um diese zu bearbeiten.");
 		
-		Writing::h2("N&auml;chste Probe");
+		Writing::h2("Nächste Probe");
 		$nextRehearsal = $this->getData()->getNextRehearsal();
 		if($nextRehearsal != null && $nextRehearsal != "" && count($nextRehearsal) > 0) {
 			$this->writeRehearsal($nextRehearsal);
@@ -359,7 +359,7 @@ class ProbenView extends CrudRefView {
 				echo ' <input type="text" name="notes" size="30" value="' . $s["notes"] . '" />';
 				echo ' <input type="submit" value="speichern" />&nbsp;&nbsp;';
 				$del = new Link($this->modePrefix() .
-					"practiseDelete&id=" . $_GET["id"] . "&song=" . $s["id"], "l&ouml;schen");
+					"practiseDelete&id=" . $_GET["id"] . "&song=" . $s["id"], "löschen");
 				$del->write();
 				echo '</form>';
 			}
@@ -369,15 +369,15 @@ class ProbenView extends CrudRefView {
 			echo "</li>\n";
 		}
 		if(count($songs) == 1) {
-			echo "<li>Keine St&uuml;cke ausgew&auml;hlt.</li>\n";
+			echo "<li>Keine Stücke ausgewählt.</li>\n";
 		}
 		echo "</ul>\n";
 		
 		// add a song
-		$form = new Form("St&uuml;ck hinzuf&uuml;gen", $this->modePrefix() . "view&tab=practise&id=" . $_GET["id"]);
+		$form = new Form("Stück hinzufügen", $this->modePrefix() . "view&tab=practise&id=" . $_GET["id"]);
 		$form->addElement("song", new Field("song", "", FieldType::REFERENCE));
 		$form->setForeign("song", "song", "id", "title", -1);
-		$form->renameElement("song", "St&uuml;ck");
+		$form->renameElement("song", "Stück");
 		$form->addElement("Anmerkungen", new Field("notes", "", FieldType::CHAR));
 		$form->write();
 	}

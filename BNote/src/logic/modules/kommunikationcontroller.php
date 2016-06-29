@@ -37,7 +37,7 @@ class KommunikationController extends DefaultController {
 			// adjust body: append songs to practise
 			$songs = $this->getData()->getSongsForRehearsal($_POST["rehearsal"]);
 			if(count($songs) > 1) {
-				$ext = "<p>Bitte probt folgende St&uuml;cke:</p><ul>\n";
+				$ext = "<p>Bitte probt folgende Stücke:</p><ul>\n";
 				for($i = 1; $i < count($songs); $i++) {
 					$ext .= "<li>" . $songs[$i]["title"] . " (" . $songs[$i]["notes"] . ")</li>\n";
 				}

@@ -63,7 +63,7 @@ class RepertoireView extends CrudRefView {
 		});	
 		</script>
 		<?php
-		$form = new Form("Song hinzuf&uuml;gen", $this->modePrefix() . "add&manualValid=true");
+		$form = new Form("Song hinzufügen", $this->modePrefix() . "add&manualValid=true");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		
 		$form->removeElement("id");
@@ -76,7 +76,7 @@ class RepertoireView extends CrudRefView {
 		
 		$form->removeElement("length");
 		$length = "<input type=\"text\" name=\"length\" size=\"6\" />&nbsp;min";
-		$form->addElement("L&auml;nge", new TextWriteable($length));
+		$form->addElement("Länge", new TextWriteable($length));
 		
 		$form->write();
 	}
@@ -111,7 +111,7 @@ class RepertoireView extends CrudRefView {
 		$table->write();
 		
 		$tt = $this->getData()->totalRepertoireLength();
-		Writing::p("Das Reperatoire hat eine Gesamtl&auml;nge von <strong>" . $tt . "</strong> Stunden.");
+		Writing::p("Das Reperatoire hat eine Gesamtlänge von <strong>" . $tt . "</strong> Stunden.");
 	}
 	
 	protected function viewDetailTable() {
@@ -155,7 +155,7 @@ class RepertoireView extends CrudRefView {
 		$form = new Form("Song bearbeiten", $this->modePrefix() . "edit_process&manualValid=true&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);
 		$form->removeElement("id");
-		$form->renameElement("length", "L&auml;nge in Stunden");
+		$form->renameElement("length", "Länge in Stunden");
 		$form->setForeign("genre", "genre", "id", "name", $song["genre"]);
 		$form->setForeign("status", "status", "id", "name", $song["status"]);
 		$form->removeElement("composer");

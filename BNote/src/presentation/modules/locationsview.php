@@ -18,7 +18,7 @@ class LocationsView extends CrudRefView {
 	}
 	
 	function addEntityForm() {
-		$form = new Form("Location hinzuf&uuml;gen", $this->modePrefix() . "add");
+		$form = new Form("Location hinzufügen", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		$form->removeElement("address");
