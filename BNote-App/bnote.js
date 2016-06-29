@@ -12,7 +12,7 @@ backend = {
 		
 	comparedates: function(startDatePath, stopDatePath, model){
 		var startdate = model.getProperty(startDatePath); // Already Date Object
-		var stopdate = new Date(Date.parse(model.getProperty(stopDatePath)));
+		var stopdate = backend.parsedate(model.getProperty(stopDatePath));
 		var deltams = stopdate.getTime() - startdate.getTime();
 		var delta = new Date (deltams);
 		return delta;

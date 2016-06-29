@@ -19,7 +19,7 @@ sap.ui.controller("bnote.login", {
         jQuery.ajax({
         	url: backend.get_url("mobilePin"),
             type: "POST",          	         
-            data:  {"login": "admin", "password": "banane"}, //{"login": login, "password": pw},            
+            data:  {"login": login, "password": pw},            
             beforeSend: function (){ 
             	 sap.ui.core.BusyIndicator.show(500);   
             },
