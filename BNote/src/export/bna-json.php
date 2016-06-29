@@ -72,10 +72,7 @@ class BNAjson extends AbstractBNA {
 				$encArray[$i] = $this->recursiveEncode($v);
 			}
 			return $encArray;
-		}
-		else if($t == "string") {
-			return utf8_encode($value);
-		}
+		}		
 		else {
 			return $value;
 		}
