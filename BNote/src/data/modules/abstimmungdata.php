@@ -264,7 +264,7 @@ class AbstimmungData extends AbstractData {
 		if($groups == null || count($groups) == 0) return;
 		
 		// get all users for the given groups
-		$query = "SELECT u.id
+		$query = "SELECT DISTINCT u.id
 				  FROM `contact_group` cg JOIN user u ON u.contact = cg.contact
 				  WHERE ";
 		
@@ -282,8 +282,8 @@ class AbstimmungData extends AbstractData {
 		$contactsInList = $this->database->getSelection($q1);
 		$contactList = $this->database->flattenSelection($contactsInList, "user");
 		$superUsers = $this->getSysdata()->getSuperUsers();
-		
-		// add the user ids to group
+        
+        // add the user ids to group
 		$query = "INSERT INTO vote_group (vote, user) VALUES ";
 		$addset = "";
 		for($i = 1; $i < count($users); $i++) {
