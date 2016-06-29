@@ -14,7 +14,7 @@ deleteEquipment: function(){
         		var idxDelItem = path[path.length -1];        		
         		model.oData.equipment.splice(idxDelItem, 1);
         		model.setProperty("/equipment", model.oData.equipment);        		
-        		app.to("equipment");        		
+        		app.to("equipment","slide");        		
         	},            
         	error: function() {
         		sap.m.MessageToast.show("Löschen derzeit nicht möglich. Bitte Internetverbindung überprüfen.");

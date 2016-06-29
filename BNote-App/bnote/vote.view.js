@@ -11,9 +11,6 @@ sap.ui.jsview("bnote.vote", {
 			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             title: "{name}",
             content: [
-	                 new sap.m.Label({text: "Beschreibung"}),
-	                 new sap.m.Text({text: "{description}"}),
-	             
 	                 new sap.m.Label({text: "Abstimmungsende"}),
 	                 new sap.m.Text({text: "{end}"}),
 	                
@@ -35,7 +32,7 @@ sap.ui.jsview("bnote.vote", {
 				var path = view.getBindingContext().getPath();
 				var voteid = model.getProperty(path + "/id");
 				voteresultView.getController().getVoteResult(voteid);
-				app.to("voteresult");
+				app.to("voteresult","slide");
 			}
 		}); 
 		

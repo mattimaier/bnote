@@ -11,7 +11,6 @@ sap.ui.controller("bnote.equipmentadd", {
 	},
 	
 	savechanges: function(){
-		console.log(equipmentaddView.getController().mode);
 		var model = equipmentaddView.getModel();
 		var path = equipmentaddView.getBindingContext().getPath();
 		var updateEquipmentData = model.getProperty(path);	
@@ -74,7 +73,6 @@ sap.ui.controller("bnote.equipmentadd", {
 		        		equipmentaddView.getController().dirty = false;
 		            },
 		        	error: function(){	        		
-		        		console.log("Error: Cannot retrieve fresh equipment.");
 		        		sap.m.MessageToast.show("Fehler! Bitte lade die App neu.");		        		
 		        	}
 				});

@@ -1,13 +1,10 @@
 sap.ui.controller("bnote.rehearsaladd",{
 	
 	setdirtyflag: function() {
-		console.log("dirty:", rehearsaladdView.getController().dirty);
 		rehearsaladdView.getController().dirty = true;
-		console.log("dirty2:", rehearsaladdView.getController().dirty);
 	},
 	
 	addlocation_setdirtyflag: function() {
-		console.log("dirty:", this.dirty)
 		rehearsaladdView.getController().addlocation_dirty = true;		
 	},	
 	
@@ -66,7 +63,6 @@ sap.ui.controller("bnote.rehearsaladd",{
         	}
         });	  	
 		var titledate = backend.parsedate(title);
-		console.log(title, titledate);
 		sap.ui.getCore().byId("rehearsaladd_begin").setDateValue(backend.parsedate(title));
 		sap.ui.getCore().byId("rehearsaladd_end").setDateValue(new Date(backend.parsedate(title).getTime() + 120*60000));
 	},

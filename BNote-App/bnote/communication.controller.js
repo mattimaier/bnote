@@ -26,8 +26,7 @@ sap.ui.controller("bnote.communication",{
 									groupids.push(groups[i].id);
 								}
 							}
-							var requestdata = {subject: subject, body: body, groups: groupids.join(",")};
-							console.log(requestdata);
+							var requestdata = {subject: subject, body: body, groups: groupids.join(",")};							
 							jQuery.ajax({
 						        	url: backend.get_url("sendMail"),
 						            type: "POST",          	         

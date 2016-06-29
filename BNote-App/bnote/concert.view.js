@@ -25,8 +25,7 @@ sap.ui.jsview("bnote.concert", {
 			case 2: bid = "concertMaybeBtn"; break;
 			case 1: bid = "concertOkBtn";
 			}
-			this.buttonBar.setSelectedButton(bid);
-			console.log(this.buttonBar.getSelectedButton());
+			this.buttonBar.setSelectedButton(bid);			
 		}
 	},
 	

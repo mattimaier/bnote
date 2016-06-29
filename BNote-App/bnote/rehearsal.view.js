@@ -23,7 +23,7 @@ sap.ui.jsview("bnote.rehearsal", {
     	var view = this;
     	
 		var rehearsalForm = new sap.ui.layout.form.SimpleForm({
-            title: "Probendetails",
+			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             content: [ 
 		              new sap.m.Label({text: "Probenbeginn"}),
 		              new sap.m.Text({text: "{begin}"}),
@@ -99,9 +99,9 @@ sap.ui.jsview("bnote.rehearsal", {
 	   		        })
 	   		        ]
 	   });       
-	
+	  	
 	   var page = new sap.m.Page("RehearsalPage", {		   
-	       title: "Probe",
+	       title: "Probendetails",
 	       showNavButton: true,
 	       navButtonPress: function() {
 	           app.back();

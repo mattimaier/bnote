@@ -13,6 +13,7 @@ sap.ui.jsview("bnote.memberdetail", {
 	createContent: function() {
 	    jQuery.sap.require("sap.ui.core.IconPool");
 		var memberdetailsForm = new sap.ui.layout.form.SimpleForm({
+			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             title: "Kontaktdaten",
             content: [
                 new sap.m.Label({text: "Name"}),

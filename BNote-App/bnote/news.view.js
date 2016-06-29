@@ -12,6 +12,7 @@ sap.ui.jsview("bnote.news", {
 	
 	createContent: function() {
 		this.htmlView = new sap.ui.core.HTML({
+			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
 			content: ""
 		});
 

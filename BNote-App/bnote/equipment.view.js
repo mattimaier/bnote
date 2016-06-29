@@ -16,6 +16,7 @@ sap.ui.jsview("bnote.equipment", {
 		var equipmentList = new sap.m.List("equipmentList");
 		
 			equipmentList.bindItems({
+				layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
 	        	growingScrollToLoad : "true",
 	            path : "/equipment",
 	            sorter : new sap.ui.model.Sorter("name"),
@@ -27,7 +28,7 @@ sap.ui.jsview("bnote.equipment", {
 	                press: function(evt) {
 	                	  var oBindingContext = evt.getSource().getBindingContext(); // evt.getSource() is the ListItem
 	                      equipmentdetailView.setBindingContext(oBindingContext); // make sure the detail page has the correct data context
-	                      app.to("equipmentdetail");
+	                      app.to("equipmentdetail","slide");
 	                }
 	            })
 	        });
@@ -53,7 +54,7 @@ sap.ui.jsview("bnote.equipment", {
 		         equipmentaddView.setBindingContext(bcEmpty);
 		         equipmentaddView.getController().setData(); // equipment dirtyflag = false
 			     equipmentaddView.getController().mode = "add";
-			     app.to("equipmentadd");
+			     app.to("equipmentadd","slide");
 		}		
 	});
 	

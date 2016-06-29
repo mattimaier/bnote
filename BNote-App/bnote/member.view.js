@@ -33,7 +33,7 @@ sap.ui.jsview("bnote.member", {
 	                  var dataVisibility = [model.getProperty(path + "/phone") , model.getProperty(path + "/mobile") , model.getProperty(path + "/email")];
 	                  memberdetailView.setDataVisibility(dataVisibility);
 	                  
-	                  app.to("memberdetail");
+	                  app.to("memberdetail","slide");
 	            }
 	        })
     });

@@ -8,6 +8,7 @@ sap.ui.jsview("bnote.equipmentdetail", {
 		var view = this;
 		
 		var equipmentdetailForm = new sap.ui.layout.form.SimpleForm({
+			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             content: [
                       new sap.m.Label({text: "Name"}),
                       new sap.m.Text({text: "{name}"}),  
@@ -40,7 +41,6 @@ sap.ui.jsview("bnote.equipmentdetail", {
 				equipmentaddView.getController().setData();  // equipment dirtyflag = false
 				equipmentaddView.getController().mode = "edit";
 				app.to("equipmentadd");
-				console.log(equipmentaddView.getController().mode);
 			}
 		});
 		

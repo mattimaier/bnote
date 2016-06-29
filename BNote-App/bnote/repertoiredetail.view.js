@@ -8,6 +8,7 @@ sap.ui.jsview("bnote.repertoiredetail", {
 		var view = this;
 		
 		var repertoiredetailForm = new sap.ui.layout.form.SimpleForm({
+			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             content: [
                       new sap.m.Label({text: "Name"}),
                       new sap.m.Text({text: "{title}"}),  

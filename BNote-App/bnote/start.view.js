@@ -26,7 +26,7 @@ sap.ui.jsview("bnote.start", {
 						rehearsalView.setBindingContext(oBindingContext); // make sure the detail page has the correct data context
 						var participate = model.getProperty(path + "/participate");
 						rehearsalView.setButtons(participate);
-						app.to("rehearsal");
+						app.to("rehearsal","slide");
 					}
 					else if (objType == "Concert"){						
 						concertView.setBindingContext(oBindingContext);
@@ -34,21 +34,21 @@ sap.ui.jsview("bnote.start", {
 						var location = model.getProperty(path + "/location");
 						concertView.prepareModel(location);
 						concertView.setButtons(participate);
-						app.to("concert");
+						app.to("concert","slide");
 					}
 					else if (objType == "Task"){
 						taskView.setBindingContext(oBindingContext);
 						taskView.getController().onTaskPress();
-						app.to("task");						
+						app.to("task","slide");						
 					}
 					else if (objType == "Vote"){
 						voteView.setBindingContext(oBindingContext);
 						voteView.getController().onVotePress();
-						app.to("vote");					
+						app.to("vote","slide");					
 					}
 					else if (objType == "Reservation"){
 						reservationView.setBindingContext(oBindingContext);
-						app.to("reservation");
+						app.to("reservation","slide");
 					}
 				}
 			})

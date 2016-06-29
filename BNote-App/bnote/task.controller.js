@@ -12,7 +12,6 @@ sap.ui.controller("bnote.task", {
 		var deltams = delta.getTime()/(3600000*24);
 		var remainingtime = (deltams-deltams%1) + " Tage" + ", " + Math.round((deltams%1)*24) + " Stunden";
 		model.setProperty(path + "/remainingtime", remainingtime);
-		console.log(model);
 	},
 	
 	ontaskDoneBtnpress: function(){

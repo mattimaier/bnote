@@ -13,6 +13,7 @@ sap.ui.jsview("bnote.repertoire", {
 		var repertoireList = new sap.m.List("repertoireList");
 		
 			repertoireList.bindItems({
+				layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
 	        	growingScrollToLoad : "true",
 	            path : "/songs",
 	            sorter : new sap.ui.model.Sorter("title"),
@@ -25,7 +26,7 @@ sap.ui.jsview("bnote.repertoire", {
 	                	  var oBindingContext = evt.getSource().getBindingContext(); // evt.getSource() is the ListItem
 	                      repertoiredetailView.setBindingContext(oBindingContext); // make sure the detail page has the correct data context
 	                      repertoiredetailView.getController().mode = "edit";
-	                      app.to("repertoiredetail");
+	                      app.to("repertoiredetail","slide");
 	                }
 	            })
 	        });
@@ -59,7 +60,7 @@ sap.ui.jsview("bnote.repertoire", {
 			     repertoireaddView.setBindingContext(bcEmpty);
 			     repertoireaddView.getController().setData();
 			     repertoireaddView.getController().mode = "add";
-			     app.to("repertoireadd");
+			     app.to("repertoireadd","slide");
 		}		
 	});
 		

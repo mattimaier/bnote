@@ -12,11 +12,11 @@ sap.ui.controller("bnote.repertoire", {
                 oCtrl.getView().setModel(model);
                 repertoiredetailView.setModel(model);                
                 sap.ui.core.BusyIndicator.hide();
-                app.to("repertoire");
+                app.to("repertoire","slide");
             },
-        error: function() {    
+        error: function(a,b,c) {    
         	sap.ui.core.BusyIndicator.hide(); 
-        	console.log("error");
+        	console.log(a,b,c);
         }
         });
     },

@@ -32,8 +32,6 @@ sap.ui.controller("bnote.contactadd",{
 				oContact.groups = data.group;
 				var model = new sap.ui.model.json.JSONModel(oContact);
 			    contactaddView.setModel(model);
-			   console.log(oContact);
-			    
 			    
 				for (var i = 0; model.getProperty("/groups/" + i + "/name") != undefined; i++) {
 					contactaddView.contactaddForm.addContent(new sap.m.CheckBox({						

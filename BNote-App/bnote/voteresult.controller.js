@@ -25,7 +25,6 @@ sap.ui.controller("bnote.voteresult",{
 
 	buildList: function(model) {
 			for (var i = 0; i < model.getProperty("/options").length; i++){
-				console.log(i);
 				var yesresult = "Ja: " + model.getProperty("/options/" + i + "/choice/1");
 				var noresult = model.getProperty("/options/" + i + "/choice/0");
 				var resultname = model.getProperty("/options/" + i + "/name");

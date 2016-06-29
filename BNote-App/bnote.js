@@ -177,7 +177,8 @@ function getNaviBar(){
 			   equipmentButton
 			]
 		
-		});
+		}).addStyleClass("bn-navibar");
+	
 	}
 
 
@@ -319,6 +320,7 @@ voteresultView =  sap.ui.view({
 
 // Build the app together
 app = new sap.m.App("bnoteApp", {
+	defaultTransitionName: "flip",
     initialPage: "login"
 });
 

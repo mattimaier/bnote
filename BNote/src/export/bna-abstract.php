@@ -991,18 +991,9 @@ abstract class AbstractBNA implements iBNA {
 
 	function getTasks() {
 		$tasks = $this->startdata->adp()->getUserTasks($this->uid);
-		$entities = array();
-		array_push($entities, $tasks[0]);
-		
-		foreach($tasks as $i => $task) {
-			if($i == 0) continue; // header
-			// convert description
-			$task["description"] = urlencode($task["description"]);
-			
-			array_push($entities, $task);
-		}
-		unset($entities[0]);  // header
-		$this->printEntities($entities, "task");
+		unset($tasks[0]);  // header
+        $this->removeNumericKeys($tasks);
+		$this->printEntities($tasks, "task");
 	}
 	
 	function getNews() {
@@ -1163,7 +1154,7 @@ abstract class AbstractBNA implements iBNA {
 		$values["length"] = $length;
 		$values["bpm"] = $bpm == "" ? "0" : $bpm;
 		$values["music_key"] = $music_key;
-		$values["notes"] = urldecode($notes);
+		$values["notes"] = $notes;
 		$values["genre"] = $genre["id"];
 		$values["composer"] = $composer;
 		$values["status"] = $status["id"];

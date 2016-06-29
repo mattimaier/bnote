@@ -8,6 +8,7 @@ sap.ui.jsview("bnote.equipmentadd", {
 		var view = this;
         
 		this.equipmentaddForm = new sap.ui.layout.form.SimpleForm({
+			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             title: "",
             content: [
               new sap.m.Label({text: "Name"}),
