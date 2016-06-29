@@ -80,7 +80,13 @@ class Regex {
  public function isEmail($d) { return $this->isCorrect($d, "email"); }
  public function isPositiveAmount($d) { return $this->isCorrect($d, "positive_amount"); }
  public function isSignedAmount($d) { return $this->isCorrect($d, "signed_amount"); }
- public function isMoney($d) { return $this->isCorrect($d, "money"); }
+ 
+ public function isMoney($d) {
+ 	// receives a decimal in language format
+ 	$dbDecimal = Lang::decimalToDb($d);
+ 	return $this->isCorrect($dbDecimal, "moneyEnglish");
+ }
+ 
  public function isDate($d) { return $this->isCorrect($d, "date"); }
  public function isTime($d) { return $this->isCorrect($d, "time"); }
  public function isDateTime($d) { return $this->isCorrect($d, "datetime"); }

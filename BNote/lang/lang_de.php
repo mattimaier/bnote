@@ -436,7 +436,8 @@ class Translation extends BNoteTranslation {
 	}
 	
 	public function decimalToDb($decimal) {
-		return Data::convertToDb($decimal);
+		$dec = str_replace(".", "", $decimal);  # remove thousand separator
+		return str_replace(",", ".", $dec);  # remove decimal separator
 	}
 	
 	public function formatDecimal($dbDecimal) {

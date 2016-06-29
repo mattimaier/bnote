@@ -10,7 +10,7 @@ abstract class Data {
 	 * @param decimal $decimal Decimal number in the form of x,xx
 	 */
 	public static function convertToDb($decimal) {
-		return str_replace(",", ".", $decimal);
+		return Lang::decimalToDb($decimal);
 	}
 	
 	/**
