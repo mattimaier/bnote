@@ -20,9 +20,9 @@ sap.ui.jsview("bnote.rehearsal", {
 	
     createContent: function(oController) {
     	
-    	var view = this;
+    	var view = this;    
     	
-		var rehearsalForm = new sap.ui.layout.form.SimpleForm({
+		this.rehearsalForm = new sap.ui.layout.form.SimpleForm({
 			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             content: [ 
 		              new sap.m.Label({text: "Probenbeginn"}),
@@ -36,10 +36,19 @@ sap.ui.jsview("bnote.rehearsal", {
 		              
 		              new sap.m.Label({text: "Anmerkungen"}),
 		              new sap.m.Text({text: "{notes}"}),
+		              
+		              new sap.m.Label({text: "Songs zum Üben"}),
+		              new sap.m.Text({text: "{songs}"})
 		              ]
         });
 		
-	 
+		var participationlayout = new sap.m.FlexBox({
+			items: [
+			        new sap.m.Label({text: "Nimmst du an der Probe teil?"})
+			]
+		});
+		participationlayout.addStyleClass("bn-participation-q");
+		
         var rehearsalOkBtn = new sap.m.Button({        	
 	         text: "OK",       
 		     press: function(){
@@ -106,7 +115,9 @@ sap.ui.jsview("bnote.rehearsal", {
 	       navButtonPress: function() {
 	           app.back();
 	       },
-	       content: [ rehearsalForm, this.buttonBar ],
+	       content: [ this.rehearsalForm, 
+	                  participationlayout, 
+	                  this.buttonBar ],
 	       footer: [getNaviBar()]
 	   });		
 		return page;

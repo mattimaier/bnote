@@ -40,7 +40,7 @@ sap.ui.jsview("bnote.equipmentdetail", {
 				equipmentaddView.setBindingContext(this.getBindingContext());
 				equipmentaddView.getController().setData();  // equipment dirtyflag = false
 				equipmentaddView.getController().mode = "edit";
-				app.to("equipmentadd");
+				app.to("equipmentadd","slide");
 			}
 		});
 		
@@ -77,7 +77,7 @@ sap.ui.jsview("bnote.equipmentdetail", {
 		
 		
 		var page = new sap.m.Page("EquipmentdetailPage", {
-	        title: "",
+	        title: "Equipmentdetails",
 	        showNavButton: true,
 	        navButtonPress: function() {
 	            app.back();

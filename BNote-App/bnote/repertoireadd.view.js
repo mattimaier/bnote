@@ -93,7 +93,7 @@ sap.ui.jsview("bnote.repertoireadd", {
 		});
 		
 		var page = new sap.m.Page("RepertoireAddPage", {
-	        title: "",
+	        title: "Song hinzufügen/ ändern",
 	        showNavButton: true,
 	        navButtonPress: function() {
 	        	oController.checkdirtyflag();

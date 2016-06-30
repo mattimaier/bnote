@@ -12,8 +12,33 @@ sap.ui.controller("bnote.rehearsal", {
 			rehearsal : model.getProperty(path + "/id"),
 			participation :rehearsalSetParticipation,
 			reason : ""
-		};
+		};		
 	},	
+	
+	prepareView: function() {
+		var model = rehearsalView.getModel();
+		var oBindingContext = rehearsalView.getBindingContext();
+		var path = oBindingContext.getPath();		
+		
+		var songs = model.getProperty(path + "/songsToPractice");
+		if(songs == null || songs.length == 0){
+			model.setProperty(path + "/songs", "");
+		}
+		else {
+			var song_titles = [];
+			for (var i = 0; i < songs.length; i++){
+				var song = model.getProperty(path + "/songsToPractice/" + i + "/title");
+				var notes = model.getProperty(path + "/songsToPractice/" + i + "/notes");
+				
+				if (notes != null && notes != ""){
+					song = song.concat(" (" + notes + ")" );
+				}			
+				song_titles.push(song);				
+			}
+			model.setProperty(path + "/songs", song_titles.join("\n"));
+		}			
+		
+	},
 	
 	submit: function(){		 
 		this.oData.reason = this.getView().reason.getValue();		

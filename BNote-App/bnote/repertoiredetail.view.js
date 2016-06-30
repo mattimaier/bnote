@@ -43,7 +43,7 @@ sap.ui.jsview("bnote.repertoiredetail", {
 				repertoireaddView.setBindingContext(this.getBindingContext());
 				repertoireaddView.getController().setData();
 				repertoireaddView.getController().mode = "edit";
-				app.to("repertoireadd");
+				app.to("repertoireadd","slide");
 			}
 		});		
 		
@@ -78,7 +78,7 @@ sap.ui.jsview("bnote.repertoiredetail", {
 	    }); 
 		
 		var page = new sap.m.Page("RepertoiredetailPage", {
-	        title: "",
+	        title: "Songdetails",
 	        showNavButton: true,
 	        navButtonPress: function() {
 	        	app.back()

@@ -22,7 +22,7 @@ sap.ui.jsview("bnote.voteresult", {
 			subHeader : [this.headerBar],
             customHeader :[],
 			content: [this.voteResultList],
-			footer: [getNaviBar()]
+			footer: []
 		});		
 		return page;
 	}		

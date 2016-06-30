@@ -175,12 +175,9 @@ function getNaviBar(){
 			    }),
 			   repertoireButton,			   
 			   equipmentButton
-			]
-		
-		}).addStyleClass("bn-navibar");
-	
+			]		
+		});	
 	}
-
 
 // Global View Definitions
 loginView = sap.ui.view({
@@ -309,14 +306,17 @@ taskaddView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
-voteresultView =  sap.ui.view({
+voteresultView = sap.ui.view({
 	id: "voteresult",
 	viewName: "bnote.voteresult",
 	type: sap.ui.core.mvc.ViewType.JS
 });
- 
 
-
+songstopractiseView = sap.ui.view({
+	id: "songstopractise",
+	viewName: "bnote.songstopractise",
+	type: sap.ui.core.mvc.ViewType.JS
+});
 
 // Build the app together
 app = new sap.m.App("bnoteApp", {
@@ -346,6 +346,7 @@ app.addPage(contactaddView);
 app.addPage(rehearsaladdView);
 app.addPage(taskaddView);
 app.addPage(voteresultView);
+app.addPage(songstopractiseView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",

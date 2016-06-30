@@ -3,7 +3,7 @@
 }
 
 .bnote_vote_option_text {
-	padding-top: 16px;
+	padding-top: 16px;	
 }
 
 .bn-green-txt .sapMLabel {
@@ -25,4 +25,15 @@
 	color: black !important;
 }
 
+.bn-participation-q {
+	padding: 10px;
+}
+
+.sapMLabel {
+	color: #0F75D4 !important;		
+}
+
+.sapMObjLNumber {
+	color: #69AB26 !important;		
+}
 

@@ -26,6 +26,7 @@ sap.ui.jsview("bnote.start", {
 						rehearsalView.setBindingContext(oBindingContext); // make sure the detail page has the correct data context
 						var participate = model.getProperty(path + "/participate");
 						rehearsalView.setButtons(participate);
+						rehearsalView.getController().prepareView();
 						app.to("rehearsal","slide");
 					}
 					else if (objType == "Concert"){						
@@ -55,11 +56,12 @@ sap.ui.jsview("bnote.start", {
 		});
 		
 		
-		this.reservationaddButton = new sap.m.Button({			
+		this.reservationaddButton = new sap.m.Button({
+			visible: false,
        		text: "Reservierung hinzufügen",
        		press: function(){	       			
        			reservationaddView.getController().prepareModel();
-       			app.to("reservationadd");
+       			app.to("reservationadd","slide");
        		}
 		});
 		
@@ -68,7 +70,7 @@ sap.ui.jsview("bnote.start", {
 			text: "Probe hinzufügen",
 			press: function(){
 				rehearsaladdView.getController().prepareModel();
-				app.to("rehearsaladd");
+				app.to("rehearsaladd","slide");
 			}
 		});
 		
@@ -77,7 +79,7 @@ sap.ui.jsview("bnote.start", {
 			text: "Aufgabe hinzufügen",
 			press: function(){
 				taskaddView.getController().prepareModel();
-				app.to("taskadd");
+				app.to("taskadd","slide");
 			}
 		});
 		
@@ -86,7 +88,7 @@ sap.ui.jsview("bnote.start", {
 			text: "Kontakt hinzufügen",
 			press: function(){
 				contactaddView.getController().prepareModel();
-				app.to("contactadd");
+				app.to("contactadd","slide");
 			}
 		});
 		
@@ -101,7 +103,8 @@ sap.ui.jsview("bnote.start", {
 			         ],
 		});
 		
-		this.startaddButton = new sap.m.Button({			
+		this.startaddButton = new sap.m.Button({	
+			visible: false,
 			icon : sap.ui.core.IconPool.getIconURI("add"),
 			press: function(){
 				startActionSheet.setPlacement(sap.m.PlacementType.HorizontalPreferedRight);
