@@ -62,6 +62,19 @@ class CalendarView extends CrudRefView {
 		$endField = $form->getElement("end");
 		$endField->setCssClass("copyDateTarget");
 	}
+	
+	function viewDetailTable() {
+		$reservation = $this->getData()->findByIdJoined($_GET["id"], CalendarData::$colExchange);
+		$dv = new Dataview();
+		$dv->autoAddElements($reservation);
+		$dv->autoRename($this->getData()->getFields());
+		$dv->renameElement("id", Lang::txt("reservation_id"));
+		$dv->removeElement("contactname");
+		$dv->removeElement("contactsurname");
+		$dv->renameElement("locationname", Lang::txt("location"));
+		$dv->addElement(Lang::txt("contact"), $reservation["contactname"] . " " . $reservation["contactsurname"]);
+		$dv->write();
+	}
 }
 
 ?>

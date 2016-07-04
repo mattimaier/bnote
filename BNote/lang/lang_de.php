@@ -338,7 +338,8 @@ class Translation extends BNoteTranslation {
 			"tour_equipment_saved_msg" => "Die Equipmentliste für die Tour wurde gespeichert.",
 			
 			"reservation" => "Reservierung",
-			"reservations" => "Reservierungen"
+			"reservations" => "Reservierungen",
+			"reservation_id" => "Reservierungsnr."
 	);
 	
 	protected $regex = array(
