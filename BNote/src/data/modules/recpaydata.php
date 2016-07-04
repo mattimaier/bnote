@@ -34,17 +34,23 @@ class RecpayData extends AbstractData {
 	function ref2val($otype, $oid) {
 		switch($otype) {
 			case "L": $otype = Lang::txt("location");
-			$oid = $this->getLocationName($oid);
-			break;
+				$oid = $this->getLocationName($oid);
+				break;
 			case "H": $otype = Lang::txt("contact");
-			$oid = $this->getContactName($oid);
-			break;
+				$oid = $this->getContactName($oid);
+				break;
 			case "C": $otype = Lang::txt("concert");
-			$oid = $this->getConcertName($oid);
-			break;
+				$oid = $this->getConcertName($oid);
+				break;
 			case "P": $otype = Lang::txt("rehearsalphase");
-			$oid = $this->getPhaseName($oid);
-			break;
+				$oid = $this->getPhaseName($oid);
+				break;
+			case "T": $otype = Lang::txt("tour");
+				$oid = $this->getTourName($oid);
+				break;
+			case "E": $otype = Lang::txt("equipment");
+				$oid = $this->getEquipmentName($oid);
+				break;
 			default:
 				$otype = Lang::txt("recpay_no_otype");
 				$oid = null;
@@ -89,6 +95,14 @@ class RecpayData extends AbstractData {
 	function getContactName($id) {
 		$c = $this->database->getRow("SELECT surname, name FROM contact WHERE id = $id");
 		return $c["name"] . " " . $c["surname"];
+	}
+	
+	function getTourName($id) {
+		return $this->database->getCell("tour", "name", "id = $id");
+	}
+	
+	function getEquipmentName($id) {
+		return $this->database->getCell("equipment", "name", "id = $id");
 	}
 	
 	function create($values) {

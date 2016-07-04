@@ -51,11 +51,15 @@ class RecpayView extends CrudRefView {
 		$concerts = $this->getData()->adp()->getFutureConcerts();
 		$phases = $this->getData()->getPhases();
 		$locations = $this->getData()->adp()->getLocations();
+		$tours = $this->getData()->adp()->getTours();
+		$equipment = $this->getData()->adp()->getEquipment();
 		
 		$contacts = Data::dbSelectionToDict($contacts, "id", array("name", "surname"));
 		$concerts = Data::dbSelectionToDict($concerts, "id", array("begin"));
 		$phases = Data::dbSelectionToDict($phases, "id", array("name"));
 		$locations = Data::dbSelectionToDict($locations, "id", array("name"));
+		$tours = Data::dbSelectionToDict($tours, "id", array("name"));
+		$equipment = Data::dbSelectionToDict($equipment, "id", array("name"));
 		?>
 		<script type="text/javascript">
 		function changeReference(dd) {
@@ -77,6 +81,12 @@ class RecpayView extends CrudRefView {
 			}
 			else if(dd.value == "L") {
 				dict = <?php echo json_encode($locations); ?>;
+			}
+			else if(dd.value == "T") {
+				dict = <?php echo json_encode($tours); ?>;
+			}
+			else if(dd.value == "E") {
+				dict = <?php echo json_encode($equipment); ?>;
 			}
 			else {
 				hide = true;
@@ -111,6 +121,8 @@ class RecpayView extends CrudRefView {
 		$objdd->addOption(Lang::txt("concert"), "C");
 		$objdd->addOption(Lang::txt("rehearsalphase"), "P");
 		$objdd->addOption(Lang::txt("location"), "L");
+		$objdd->addOption(Lang::txt("tour"), "T");
+		$objdd->addOption(Lang::txt("equipment"), "E");
 		$objdd->setOnChange("changeReference(this)");
 		$objdd->setId("oref");
 		

@@ -530,4 +530,12 @@ class ApplicationDataProvider {
 		return ($ct > 0);
 	}
 	
+	function getTours() {
+		return $this->database->getSelection("SELECT * FROM tour ORDER BY start");
+	}
+	
+	function getEquipment() {
+		return $this->database->getSelection("SELECT * FROM equipment ORDER BY name");
+	}
+	
 }
