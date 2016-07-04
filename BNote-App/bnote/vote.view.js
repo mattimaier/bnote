@@ -37,7 +37,7 @@ sap.ui.jsview("bnote.vote", {
 		}); 
 		
 		var page = new sap.m.Page("VotePage", {
-			title : "",
+			title : "Abstimmung",
 			showNavButton : true,			
 			navButtonPress : function(){
 			voteView.voteForm.destroyContent();

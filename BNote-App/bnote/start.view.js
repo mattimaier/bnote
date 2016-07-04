@@ -53,8 +53,7 @@ sap.ui.jsview("bnote.start", {
 					}
 				}
 			})
-		});
-		
+		});		
 		
 		this.reservationaddButton = new sap.m.Button({
 			visible: false,
@@ -63,8 +62,7 @@ sap.ui.jsview("bnote.start", {
        			reservationaddView.getController().prepareModel();
        			app.to("reservationadd","slide");
        		}
-		});
-		
+		});		
 		this.rehearsaladdButton =  new sap.m.Button({	
 			visible: false,
 			text: "Probe hinzufügen",
@@ -72,8 +70,7 @@ sap.ui.jsview("bnote.start", {
 				rehearsaladdView.getController().prepareModel();
 				app.to("rehearsaladd","slide");
 			}
-		});
-		
+		});		
 		this.taskaddButton =  new sap.m.Button({
 			visible: false,
 			text: "Aufgabe hinzufügen",
@@ -81,8 +78,7 @@ sap.ui.jsview("bnote.start", {
 				taskaddView.getController().prepareModel();
 				app.to("taskadd","slide");
 			}
-		});
-		
+		});		
 		this.contactaddButton =  new sap.m.Button({
 			visible: false,
 			text: "Kontakt hinzufügen",
@@ -90,9 +86,7 @@ sap.ui.jsview("bnote.start", {
 				contactaddView.getController().prepareModel();
 				app.to("contactadd","slide");
 			}
-		});
-		
-		
+		});				
 		var startActionSheet = new sap.m.ActionSheet({
 			cancelButtonText: "Abbrechen",
 			buttons:[        			        
@@ -101,8 +95,7 @@ sap.ui.jsview("bnote.start", {
 			         this.taskaddButton,
 			         this.contactaddButton,			      
 			         ],
-		});
-		
+		});		
 		this.startaddButton = new sap.m.Button({	
 			visible: false,
 			icon : sap.ui.core.IconPool.getIconURI("add"),

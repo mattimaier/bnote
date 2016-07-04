@@ -32,8 +32,7 @@ sap.ui.jsview("bnote.concert", {
     createContent: function(oController) {
     	var view = this;    	
     	
-		var concertForm = new sap.ui.layout.form.SimpleForm({
-            title: "Konzertdetails",
+		var concertForm = new sap.ui.layout.form.SimpleForm({            
             content: [
                 // begin
                 new sap.m.Label({text: "Konzertbeginn"}),
@@ -119,7 +118,7 @@ sap.ui.jsview("bnote.concert", {
 	  });  
 	
 		var page = new sap.m.Page("ConcertPage", {			
-            title: "Konzert",
+            title: "Konzertdetails",
             showNavButton: true,
             navButtonPress: function() {
                 app.back();

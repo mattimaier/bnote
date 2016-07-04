@@ -32,7 +32,7 @@ sap.ui.jsview("bnote.task", {
         });
 	
 	var page = new sap.m.Page("TaskPage", {
-		title : "Aufgaben",
+		title : "Aufgabe",
 		showNavButton : true,			
 		navButtonPress : function(){
 			app.back()
