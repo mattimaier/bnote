@@ -27,8 +27,8 @@ class Regex {
    $this->regex["positive_amount"] = '/^\d{1,12}$/';
    $this->regex["positive_decimal"] = '/^\d{0,8}\,\d{0,2}$/';
    $this->regex["signed_amount"] = '/^-?\d{1,12}$/';
-   $this->regex["money"] = '/^-?\d{0,8},\d{0,2}$/';
-   $this->regex["moneyEnglish"] = '/^-?\d{0,8}\.\d{0,2}$/';
+   $this->regex["money"] = '/^-?\d{0,8}[,\d{1,2}]$/';
+   $this->regex["moneyEnglish"] = '/^-?\d{0,8}[\.\d{1,2}]$/';
 
    $this->regex["date"] = '/^\d{1,2}.\d{1,2}.\d{4}$/';
    $this->regex["time"] = '/^\d{2}:\d{2}$/';
