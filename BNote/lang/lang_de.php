@@ -246,7 +246,7 @@ class Translation extends BNoteTranslation {
 			"finance_date_filter" => "Filter",
 			"finance_add_booking" => "Buchung hinzufügen",
 			"finance_booking_bdate" => "Datum",
-			"finance_booking_id" => "Buchungsnummer",
+			"finance_booking_id" => "Nr.",
 			"finance_booking_subject" => "Betreff",
 			"finance_booking_amount_net" => "Netto",
 			"finance_booking_amount_tax" => "Steuer",

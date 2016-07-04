@@ -136,6 +136,13 @@ class FinanceData extends AbstractData {
 		$this->regex->isPositiveDecimalOrInteger($values["btype"]);
 		$this->regex->isText($values["notes"]);
 		
+		if(!isset($values["oid"])) {
+			$values["oid"] = "NULL";
+		}
+		if($values["amount_tax"] == "") {
+			$values["amount_tax"] = 0;
+		}
+		
 		// insert to db
 		$query = "INSERT INTO booking (
 			account, bdate, subject, amount_net, amount_tax, btype, otype, oid, notes

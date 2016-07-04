@@ -147,6 +147,7 @@ class FinanceView extends CrudView {
 		$table->renameHeader("notes", Lang::txt("finance_booking_notes"));
 		$table->allowWordwrap(false);
 		$table->setColumnFormat("amount", "DECIMAL");
+		$table->setColumnFormat("id", "TEXT");
 		$table->setOptionColumnNames(array("cancel"));
 		$table->write();
 		
