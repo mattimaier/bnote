@@ -55,10 +55,13 @@ function convertTime($datetime) {
 // read system config
 $organizer = $system_data->getCompany();
 
-// set username if set
+// set username
 if(isset($_GET["user"])) {
 	$userid = $db->getCell($db->getUserTable(), "id", "login = '" . $_GET["user"] . "'");
 	$_SESSION["user"] = $userid;
+}
+else if(isset($_SESSION["user"])) {
+	$userid = $_SESSION["user"];
 }
 else {
 	$userid = null;
@@ -91,6 +94,9 @@ echo "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\r\n";
 echo "END:STANDARD\r\n";
 echo "END:VTIMEZONE\r\n";
 
+/*
+ * REHEARSALS
+ */
 if($userid == null || $userid < 1) {
 	// get all rehearsals
 	$query = "SELECT rehearsal.id as id, begin, end, ";
@@ -154,6 +160,9 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	echo "END:VEVENT\r\n";
 }
 
+/*
+ * CONCERTS
+ */
 if($userid == null || $userid < 1) {
 	// get all concerts
 	$query = "SELECT begin, end, ";
@@ -170,7 +179,7 @@ else {
 // write them
 for($i = 1; $i < count($concerts); $i++) {
 	echo "BEGIN:VEVENT\r\n";
-	echo "SUMMARY:Konzert " . $concerts[$i]["name"] . "\r\n";
+	echo "SUMMARY:Konzert " . $concerts[$i]["notes"] . "\r\n";
 	echo "ORGANIZER:$organizer\r\n";
 	
 	if($timezone_on) {
@@ -192,6 +201,63 @@ for($i = 1; $i < count($concerts); $i++) {
 	echo "LOCATION:" . $location . "\r\n";
 	echo "COMMENT:" . $concerts[$i]["notes"] . "\r\n";
 	echo "END:VEVENT\r\n";
+}
+
+/*
+ * RESERVATIONS
+ */
+$reservations = $startdata->getReservations();
+
+// write them
+for($i = 1; $i < count($reservations); $i++) {
+	echo "BEGIN:VEVENT\r\n";
+	echo "SUMMARY:Reservierung " . $reservations[$i]["name"] . "\r\n";
+	echo "ORGANIZER:$organizer\r\n";
+
+	if($timezone_on) {
+		echo "DTSTART;TZID=$timezone:" . convertTime($reservations[$i]["begin"]) . "\r\n";
+		echo "DTEND;TZID=$timezone:" . convertTime($reservations[$i]["end"]) . "\r\n";
+	} else {
+		echo "DTSTART:" . convertTime($reservations[$i]["begin"]) . "\r\n";
+		echo "DTEND:" . convertTime($reservations[$i]["end"]) . "\r\n";
+	}
+	
+	echo "LOCATION:" . $reservations[$i]["locationname"] . "\r\n";
+	echo "COMMENT:" . $reservations[$i]["notes"] . "\r\n";
+	echo "END:VEVENT\r\n";
+}
+
+/*
+ * TOURS
+ * Only write them if the user name is set.
+ */
+if($userid != null && $userid > 0) {
+	// get all tours for this user
+	$contact = $system_data->getUsersContact($userid);
+	$cid = $contact["id"];
+	$query = "SELECT t.*
+			FROM tour t JOIN tour_contact tc ON tc.tour = t.id
+			WHERE tc.contact = $cid";
+	$tours = $db->getSelection($query);
+
+	// write them
+	for($i = 1; $i < count($tours); $i++) {
+		$tour = $tours[$i];
+		echo "BEGIN:VEVENT\r\n";
+		echo "SUMMARY:" . $tour["name"] . "\r\n";
+		echo "ORGANIZER:$organizer\r\n";
+	
+		if($timezone_on) {
+			echo "DTSTART;TZID=$timezone:" . convertTime($tour["start"]) . "\r\n";
+			echo "DTEND;TZID=$timezone:" . convertTime($tour["end"]) . "\r\n";
+		} else {
+			echo "DTSTART:" . convertTime($tour["begin"]) . "\r\n";
+			echo "DTEND:" . convertTime($tour["end"]) . "\r\n";
+		}
+		echo "LOCATION:\r\n";
+		echo "COMMENT:" . $tour["notes"] . "\r\n";
+		echo "END:VEVENT\r\n";
+	}	
 }
 
 // finish

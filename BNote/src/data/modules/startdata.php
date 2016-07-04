@@ -425,7 +425,11 @@ class StartData extends AbstractData {
 	}
 	
 	function getReservations() {
-		return $this->database->getSelection("SELECT * FROM reservation WHERE begin > NOW() ORDER BY begin");
+		$query = "SELECT r.*, l.name as locationname 
+				FROM reservation r JOIN location l ON r.location = l.id
+				WHERE begin > NOW() 
+				ORDER BY begin";
+		return $this->database->getSelection($query);
 	}
 	
 	function getReservation($id) {
