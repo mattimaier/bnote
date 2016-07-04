@@ -381,8 +381,12 @@ class StartData extends AbstractData {
 			$objTitle = Lang::txt("vote") . ": " . $vote["name"];
 		}
 		else if($otype == "T") {
-			//TODO: In case tasks can be commented as well, fix this
+			//FIXME: In case tasks can be commented as well, fix this
 			$objTitle = Lang::txt("task") . " " + $oid;
+		}
+		else if($otype == "B") {
+			$rv = $this->getReservation($oid);
+			$objTitle = Lang::txt("reservation") . " " . Data::convertDateFromDb($rv["begin"]);
 		}
 		return $objTitle;
 	}
@@ -413,5 +417,18 @@ class StartData extends AbstractData {
 					WHERE con.ct IS NULL AND reh.ct IS NULL AND rph.ct IS NULL AND vot.ct IS NULL";
 		$ct = $this->database->getSelection($query);
 		return $ct[1]["numNonIntegrated"] > 0;
+	}
+	
+	function hasReservations() {
+		$res = $this->database->getCell("reservation", "count(*)", "begin >= NOW()");
+		return ($res > 0);
+	}
+	
+	function getReservations() {
+		return $this->database->getSelection("SELECT * FROM reservation WHERE begin > NOW() ORDER BY begin");
+	}
+	
+	function getReservation($id) {
+		return $this->database->getRow("SELECT * FROM reservation WHERE id = $id");
 	}
 }

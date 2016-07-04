@@ -19,7 +19,8 @@ class StartView extends AbstractView {
 		"R" => array(),
 		"C" => array(),
 		"V" => array(),
-		"T" => array()	
+		"T" => array(),
+		"B" => array()  # reservations (B=blocked date)
 	);
 	
 	/**
@@ -113,6 +114,17 @@ class StartView extends AbstractView {
 					<div class="start_box_content">
 						<?php $this->writeConcertList(); ?>
 					</div>
+					
+					<?php
+					if($this->getData()->hasReservations()) {
+					?>
+					<div class="start_box_heading"><?php echo Lang::txt("reservations"); ?></div>
+					<div class="start_box_content">
+						<?php $this->writeReservationList(); ?>
+					</div>	
+					<?php
+					}
+					?>
 					
 					<div class="start_box_heading"><?php echo Lang::txt("votes"); ?></div>
 					<div class="start_box_content">
@@ -396,9 +408,30 @@ class StartView extends AbstractView {
 		echo "</ul>\n";
 	}
 	
+	private function writeReservationList() {
+		$data = $this->getData()->getReservations();
+	
+		echo "<ul>\n";
+		// iterate over votes
+		foreach($data as $i => $row) {
+			if($i < 1) continue;
+
+			// add every item to the discussion
+			array_push($this->objectListing["B"], $row["id"]);
+
+			$liCaption =  Data::convertDateFromDb($row["begin"]) . " (" . $row["name"] . ")";
+			$dataview = new Dataview();
+			$dataview->addElement(Lang::txt("name"), $row["name"]);
+
+			$link = $this->modePrefix() . "voteOptions&id=" . $row["id"];
+			$this->writeBoxListItem("B", $row["id"], "b" + $row["id"], $liCaption, $dataview, "", Lang::txt("vote"));
+		}
+		echo "</ul>\n";
+	}
+	
 	/**
 	 * Writes one item to the start page.
-	 * @param char $otype {R = Rehearsal, C = Concert, V = Vote, T = Task}, but T is not supported in 2.5.0
+	 * @param char $otype {R = Rehearsal, C = Concert, V = Vote, T = Task}, but T is not supported yet
 	 * @param int $oid ID of the discussion object (see $otype).
 	 * @param string $popboxid ID of the popup window.
 	 * @param string $liCaption Caption of the Item (writing in blue).
