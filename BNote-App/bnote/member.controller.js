@@ -1,10 +1,10 @@
 sap.ui.controller("bnote.member", {
 	
-	onAfterRendering: function() {
-      var backend_method = "getMembers";  // default
+	onMemberClick: function() {
+      var backend_method = "getMembers";// default    
       // if the user has access to module 3 -> show contacts instead
       if(permission.indexOf("3") != -1) {
-          backend_method = "getContacts";
+          backend_method = "getContacts";          
       }
     	var oCtrl = this;
         jQuery.ajax({
@@ -29,6 +29,14 @@ sap.ui.controller("bnote.member", {
         });
     },	
 
+    onAfterRendering: function() {
+    	 if(permission.indexOf("3") != -1) {
+			   sap.ui.getCore().byId("MemberPage").setTitle("Kontakte")    
+		  }else if(permission.indexOf("3") == -1){
+			  sap.ui.getCore().byId("MemberPage").setTitle("Mitspieler")      
+		  }
+    },
+    
     filterList: function(oEvent){  
         var like = oEvent.getParameter("newValue");  
         var oFilter = new sap.ui.model.Filter("fullname",   

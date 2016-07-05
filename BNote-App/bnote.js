@@ -163,6 +163,7 @@ function getNaviBar(){
 				new sap.m.Button({
 					icon : sap.ui.core.IconPool.getIconURI("person-placeholder"),
 					press : function() {
+						memberView.getController().onMemberClick();
 						app.to("member")
 					}
 				}), 
@@ -312,12 +313,6 @@ voteresultView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
-songstopractiseView = sap.ui.view({
-	id: "songstopractise",
-	viewName: "bnote.songstopractise",
-	type: sap.ui.core.mvc.ViewType.JS
-});
-
 // Build the app together
 app = new sap.m.App("bnoteApp", {
 	defaultTransitionName: "flip",
@@ -346,7 +341,6 @@ app.addPage(contactaddView);
 app.addPage(rehearsaladdView);
 app.addPage(taskaddView);
 app.addPage(voteresultView);
-app.addPage(songstopractiseView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",

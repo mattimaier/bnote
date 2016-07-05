@@ -5,9 +5,6 @@ sap.ui.jsview("bnote.member", {
 	},
 	 
 	createContent: function(oController){	
-		
-		var object_title = "Kontakte";  // default
-
 		var memberSearch = new sap.m.SearchField("memberSearch",{ 
 			tooltip: "Liste durchsuchen",  
 	        liveChange: oController.filterList  
@@ -36,9 +33,9 @@ sap.ui.jsview("bnote.member", {
 	                  app.to("memberdetail","slide");
 	            }
 	        })
-    });
-    
-	  var page = new sap.m.Page("MemberPage", {  title: object_title,
+    });	
+		
+	  var page = new sap.m.Page("MemberPage", {
           showNavButton: true,
           navButtonPress: function() {        	  
               app.back();

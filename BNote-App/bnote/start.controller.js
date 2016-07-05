@@ -56,23 +56,33 @@ sap.ui.controller("bnote.start", {
                 console.log(b + ": " + c);
             }
         });
+        
+        console.log(permission);
         // set visibility of "add" Buttons and actionsheet
         if (permission.indexOf("3") != -1) {
         	startView.contactaddButton.setVisible(true);
         	startView.startaddButton.setVisible(true);
+        } else {
+        	startView.contactaddButton.setVisible(false);
         }
         if (permission.indexOf("5") != -1) {
         	startView.rehearsaladdButton.setVisible(true);
         	startView.startaddButton.setVisible(true);
+        } else {
+        	startView.rehearsaladdButton.setVisible(false);
         }
         if (permission.indexOf("16") != -1) {
         	startView.taskaddButton.setVisible(true);
         	startView.startaddButton.setVisible(true);
+        } else {
+        	startView.taskaddButton.setVisible(false);
         }
         if (permission.indexOf("20") != -1) {
         	startView.reservationaddButton.setVisible(true);
         	startView.startaddButton.setVisible(true);
-        }               
+        } else {
+        	startView.reservationaddButton.setVisible(false);
+        }              
 	},	
 	
     startItemMapping: function(data, typename, titlefield, descriptionfield, icon) {
