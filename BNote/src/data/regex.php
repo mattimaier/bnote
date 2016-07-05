@@ -29,6 +29,7 @@ class Regex {
    $this->regex["signed_amount"] = '/^-?\d{1,12}$/';
    $this->regex["money"] = '/^-?\d{0,8}[,\d{1,2}]$/';
    $this->regex["moneyEnglish"] = '/^-?\d{0,8}[\.\d{1,2}]$/';
+   $this->regex["moneyEnglishFull"] = '/^-?\d{0,8}\.\d{1,2}$/';
 
    $this->regex["date"] = '/^\d{1,2}.\d{1,2}.\d{4}$/';
    $this->regex["time"] = '/^\d{2}:\d{2}$/';
@@ -105,7 +106,7 @@ class Regex {
   * @param data $d The data to test
   */
  public function isMoneyQuiet($d) {
- 	if(empty($d) || !preg_match($this->regex["moneyEnglish"], $d)) return false;
+ 	if(empty($d) || !preg_match($this->regex["moneyEnglishFull"], $d)) return false;
   	 else return true;
  }
  
