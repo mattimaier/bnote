@@ -42,7 +42,7 @@ class MitspielerData extends AbstractData {
 		$single = ", c.id";
 		if($singleInfo) $single .= ", c.name, c.surname";
 		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, fax, business, 
-				notes,  a.street, a.zip, a.city, i.name as instrument, birthday" . $single;
+				notes,  a.street, a.zip, a.city, i.id as instrument, i.name as instrumentname, birthday" . $single;
 		$order = "ORDER BY fullname, instrument";
 		
 		// Super User or Admin

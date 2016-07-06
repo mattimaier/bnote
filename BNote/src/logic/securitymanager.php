@@ -126,11 +126,11 @@ class SecurityManager {
 		// simplest implementation: when user can read the file he/she can write it as well.
 		if($action == SecurityManager::$FILE_ACTION_DELETE) {
 			// deny removing user directories
-			if(Data::startsWith($file, "users/")) {
+			if(Data::startsWith($file, "users/") && is_dir($file)) {
 				$access = false;
 			}
 			// deny removing group directories
-			else if(Data::startsWith($file, "groups/")) {
+			else if(Data::startsWith($file, "groups/") && is_dir($file)) {
 				$access = false;
 			}
 			else {

@@ -26,6 +26,8 @@ class MitspielerView extends AbstractView {
 		$table->renameHeader("fullname", "Name");
 		$table->removeColumn("id");
 		$table->removeColumn("notes");
+		$table->removeColumn("instrument");
+		$table->renameHeader("instrumentname", Lang::txt("instrument"));
 		$table->write();
 	}
 	

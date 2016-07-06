@@ -133,7 +133,7 @@ class Translation extends BNoteTranslation {
 			"errorNoFile" => "Es wurde keine Datei hochgeladen.",
 			"errorSavingFile" => "Serverfehler beim Speichern der Datei.",
 			"errorUploadingFile" => "Die Datei konnte nicht hochgeladen werden.",
-			"errorDeletingFile" => "Du hast keine Berechtigung eine Datei zu l&uml;schen.",
+			"errorDeletingFile" => "Du hast keine Berechtigung eine Datei zu löschen.",
 			"errorFileNotFound" => "Die Datei konnte nicht gefunden werden.",
 			"noFolderAddPermission" => "Du hast keine Berechtigung einen Order hinzuzufügen.",
 			"errorReservedFolderNames" => "Der neue Ordner darf nicht \"users\" oder \"groups\" heißen.",

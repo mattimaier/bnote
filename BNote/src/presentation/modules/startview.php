@@ -548,7 +548,9 @@ class StartView extends AbstractView {
 					$in .= "radio";
 					$in .= '" name="uservote" value="' . $options[$i]["id"] . '" ' . $checked . '/>';
 				}
-				
+				if(is_numeric($label)) {
+					$dv->allowNumericLabels();
+				}
 				$dv->addElement($label, $in);
 			}
 			$dv->write();

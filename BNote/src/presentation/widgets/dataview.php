@@ -7,6 +7,7 @@ class Dataview {
 
  /* ATTRIBUTES */
  private $elements;
+ private $allowNumericLabels = false;
  
  /**
   * Adds an element to the view
@@ -46,6 +47,10 @@ class Dataview {
  	}
  }
  
+ function allowNumericLabels($anl = true) {
+ 	$this->allowNumericLabels = $anl;
+ }
+ 
  function autoRename($fields) {
  	foreach($fields as $col => $info) {
  		// convert values in case of dates and decimals
@@ -70,7 +75,7 @@ class Dataview {
   echo '<table>' . "\n";
 
   foreach($this->elements as $label => $element) {
-  	if(is_numeric($label)) continue;
+  	if(is_numeric($label) && !$this->allowNumericLabels) continue;
   	echo " <tr>\n";
   	echo "  <td><b>" . ucfirst($label) . "</b></td>\n";
   	echo "  <td>" . $element . "</td>\n";

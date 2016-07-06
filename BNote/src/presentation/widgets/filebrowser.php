@@ -117,13 +117,18 @@ class Filebrowser implements iWriteable {
 		
 		// show the add folder button if in write-mode
 		if(!$this->viewmode) {
-			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($this->path)), Lang::txt("addFolder"));
+			$path = $this->path;
+			if($path == "") {
+				$path = "/";
+			}
+			
+			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($path)), Lang::txt("addFolder"));
 			$lnk->addIcon("plus");
 			$lnk->write();
 				
 			if($this->path != "") {
 				AbstractView::buttonSpace();
-				$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($this->path)), Lang::txt("addFile"));
+				$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($path)), Lang::txt("addFile"));
 				$lnk->addIcon("plus");
 				$lnk->write();
 			}
