@@ -171,7 +171,6 @@ sap.ui.controller("bnote.rehearsaladd",{
 			model.oData.end = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(oldend);
 			model.oData.approve_until = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(oldapprove_until );
 			
-			c
 			 jQuery.ajax({	
 				 type: "POST",
 				 data: model.oData,

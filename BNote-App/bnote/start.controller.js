@@ -14,7 +14,7 @@ sap.ui.controller("bnote.start", {
                 var reservation = data[5]['reservation'];
                 var votes = data[6]['votes'];                
                 var items = oCtrl.startItemMapping(rehearsals, "Rehearsal", "begin", ["location", "name"], "icons/proben.png");
-                var concert_items = oCtrl.startItemMapping(concerts, "Concert", "begin", ["notes"], "icons/konzerte.png");
+                var concert_items = oCtrl.startItemMapping(concerts, "Concert", "begin", ["location","name"], "icons/konzerte.png");
                 items = items.concat(concert_items);
                 var tasks_items = oCtrl.startItemMapping(tasks, "Task", "due_at", ["title"], "icons/tasks.png");
                 items = items.concat(tasks_items);
@@ -56,8 +56,7 @@ sap.ui.controller("bnote.start", {
                 console.log(b + ": " + c);
             }
         });
-        
-        console.log(permission);
+      
         // set visibility of "add" Buttons and actionsheet
         if (permission.indexOf("3") != -1) {
         	startView.contactaddButton.setVisible(true);

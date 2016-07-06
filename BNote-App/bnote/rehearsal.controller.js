@@ -7,6 +7,8 @@ sap.ui.controller("bnote.rehearsal", {
 		
 		if (rehearsalSetParticipation == 2 || rehearsalSetParticipation == 0){
 			this.getView().oDialog.open();
+		}else {
+			this.getView().reason.setValue("");
 		}		
 		this.oData = {
 			rehearsal : model.getProperty(path + "/id"),

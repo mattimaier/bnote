@@ -7,6 +7,8 @@ onParticipationPress: function(concertSetParticipation){
 	
 	if (concertSetParticipation == 2 || concertSetParticipation == 0){		
 		this.getView().oDialog.open();
+	}else{
+		this.getView().explanation.setValue("");
 	}
 	
 	this.oData = {
