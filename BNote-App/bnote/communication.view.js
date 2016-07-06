@@ -4,18 +4,9 @@ sap.ui.jsview("bnote.communication", {
 	
 	getControllerName: function() {
 		return "bnote.communication";
-	},
+	},	
 	
-	
-	
-	//This function is dynamically adding a checkbox for every group
-	onEmailClick: function(){
-		communicationView.getController().getData();
-		app.to("communication");
-	},
-	
-	createContent: function(){
-		
+	createContent: function(){		
 		this.communicationForm = new sap.ui.layout.form.SimpleForm("communicationForm",{
 			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
 						content:[

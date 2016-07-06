@@ -127,7 +127,8 @@ function getNaviBar(){
 		visible: false,
 		icon : sap.ui.core.IconPool.getIconURI("email"),
 		press : function() {
-			communicationView.onEmailClick();				
+			communicationView.getController().getData();
+			app.to("communication");
 		}
 	});	
 	accessControls[7].push(emailButton);

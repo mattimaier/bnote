@@ -1,6 +1,11 @@
 sap.ui.controller("bnote.communication",{
 	
+	onInit: function() {
+		this.alreadyDone = false;
+	},
+	
 	getData: function() {		
+		if (this.alreadyDone == false){
 		var oController = this;		
         jQuery.ajax({
 			url : backend.get_url("getGroups"),
@@ -47,7 +52,13 @@ sap.ui.controller("bnote.communication",{
 				console.log(a, b, c);
 			}
 		});
+        this.alreadyDone = true;
+		}
+		else {
+			return;
+		}
 	},
+	
 	resetForm: function(){
 		var model = communicationView.getModel();
 		model.setProperty("/subject", "");
@@ -58,7 +69,6 @@ sap.ui.controller("bnote.communication",{
 			if(groups[i].selected){
 				model.setProperty("/group/" + i + "/selected", false);
 			}
-		}
-		
+		}		
 	}
 });
