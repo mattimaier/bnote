@@ -55,6 +55,13 @@ sap.ui.jsview("bnote.concert", {
             ]
         });
 		
+		var participationlayout = new sap.m.FlexBox({
+			items: [
+			        new sap.m.Label({text: "Nimmst du an dem Konzert teil?"})
+			]
+		});
+		participationlayout.addStyleClass("bn-participation-q");
+		
 		 var concertOkBtn = new sap.m.Button({
               text: "OK",       
     	      press: function(){    	    	 
@@ -123,7 +130,10 @@ sap.ui.jsview("bnote.concert", {
             navButtonPress: function() {
                 app.back();
             },
-			content: [ concertForm, this.buttonBar ],
+			content: [ concertForm, 
+			           participationlayout,
+			           this.buttonBar 
+			         ],
 			footer: [getNaviBar()]
 		});
 		return page;
