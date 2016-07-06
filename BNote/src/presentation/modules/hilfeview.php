@@ -8,7 +8,7 @@
 class HilfeView extends AbstractView {
 	
 	private $introPages = array(
-			"ovB7s2dIwCU" => "vid", // introduction video
+			"p7LrJzVxl-M" => "vid", // introduction video
 			"bnote_news" => "Neuerungen in BNote",
 			"sicherheit" => "Sicherheitshinweise",
 			"support" => "Support / Kontakt"
@@ -36,17 +36,9 @@ class HilfeView extends AbstractView {
 	
 	// format: code => description
 	private $videos = array(
-			"ovB7s2dIwCU" => "Grundlagen und Einführungsvideo",
-			"6OTzjJbMsHY" => "Mitgliedersicht",
-			"dVJYFbWgj4E" => "Administrationsüberblick",
-			"CXCbngJM8zU" => "Benutzer und Kontakte",
-			"PCWTS0jq-24" => "Kommunikation",
-			"VGCWdZr3reU" => "Locations",
-// 			"dWlnssimDzs" => "Repertoire",
-// 			"jAmp2H7GaDg" => "Probe",
-			"UsqMTUEWNiw" => "Konzerte",
-			"A09dIMCfuig" => "Website"
-// 			"kbBNbmlC__U" => "Tutorial 10 - Share"
+			"p7LrJzVxl-M" => "BNote Teaser",
+			"TEdY7biXXpw" => "BNote Einführung",
+			"kOWQjX8kSaQ" => "Administrationsüberblick"
 	);
 	
 	function __construct($ctrl) {
@@ -93,7 +85,7 @@ class HilfeView extends AbstractView {
 				<?php 
 				// show all the videos available for this software
 				foreach($this->videos as $code => $vid) {
-					if($code == "ovB7s2dIwCU") continue;
+					if($code == "p7LrJzVxl-M") continue;
 					if(isset($_GET["vid"]) && $_GET["vid"] == $code) $active = true;
 					$this->writePageLink($vid, $this->modePrefix() . "start&vid=" . $code, $active);
 					$active = false;
