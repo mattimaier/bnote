@@ -111,7 +111,7 @@ class RepertoireView extends CrudRefView {
 		$table->write();
 		
 		$tt = $this->getData()->totalRepertoireLength();
-		Writing::p("Das Reperatoire hat eine Gesamtlänge von <strong>" . $tt . "</strong> Stunden.");
+		Writing::p("Das Repertoire hat eine Gesamtlänge von <strong>" . $tt . "</strong> Stunden.");
 	}
 	
 	protected function viewDetailTable() {
