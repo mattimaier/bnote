@@ -9,6 +9,8 @@ div.start_box {
 	display: table-cell;
 	background-color: #fff;
 	color: #000;
+		padding: 0.5em;
+
 }
 
 div.start_box a {
@@ -32,7 +34,8 @@ div.start_box_heading {
 }
 
 div.start_box_content {
-	padding: 14px;
+	padding-top: 2em;
+	padding-bottom: 2em;
 	background-color: white;
 }
 
@@ -62,6 +65,13 @@ div.start_box a.participation {
 }
 
 .warning {
-	color: orange;
+	color: ff821e;
 	font-weight: bold;
+}
+
+.block_list_item {
+    padding: 0.5em;
+    background: #fafafa;
+    margin-bottom: 0.5em;
+    border: 1px solid #f0f0f0;
 }

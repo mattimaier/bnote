@@ -355,16 +355,16 @@ class StartView extends AbstractView {
 				else {
 				$msg = "";
 					if($userParticipation == 1) {
-						$text = Lang::txt("start_rehearsalParticipate");
+						$text = Lang::txt("start_youParticipate");
 						$msg = "<div class=\"participation_status_yes\">" .$text  ."</div>";
 					}
 					else if($userParticipation == 2) {
-						$text = Lang::txt("start_rehearsalMaybeParticipate");
+						$text = Lang::txt("start_youMayParticipate");
 						$msg = "<div class=\"participation_status_maybe\">" .$text  ."</div>";
 
 					}
 					else if($userParticipation == 0) {
-						$text = Lang::txt("start_rehearsalNotParticipate");
+						$text = Lang::txt("start_youDontParticipate");
 						$msg = "<div class=\"participation_status_no\">" .$text  ."</div>";
 					}
 					
@@ -464,7 +464,7 @@ class StartView extends AbstractView {
 	private function writeBoxListItem($otype, $oid, $popboxid, $liCaption, $dataview,
 			$participation = "", $msg = "", $voteLink = "", $partOver = false) {
 		?>
-		<li>
+		<li class="block_list_item">
 			<a href="#" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 400 }); });"><?php echo $liCaption; ?></a>
 			<?php
 			if($msg != "" && $participation != "" && !$partOver) {
@@ -477,13 +477,11 @@ class StartView extends AbstractView {
 			}
 			else if($msg != "" && $participation != "" && $partOver) {
 				?>
-				<br/>
 				<span><?php echo $msg; ?></span>
 				<?php
 			}
 			else if($msg != "" && $voteLink != "") {
-				?>
-				<br/>
+				?>		
 				<a href="<?php echo $voteLink; ?>" class="participation"><?php echo $msg; ?></a>
 				<?php
 			}
@@ -506,7 +504,6 @@ class StartView extends AbstractView {
 			<div id="<?php echo $popboxid; ?>_participation" title="<?php echo Lang::txt("start_participation")?>" style="display: none;">
 				<?php echo $participation; ?>
 			</div>
-			<?php $this->verticalSpace(); ?>
 		</li>
 		<?php
 	}

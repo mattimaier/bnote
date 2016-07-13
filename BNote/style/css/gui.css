@@ -451,6 +451,7 @@ ul.groupSelector {
 	color: #58b658;
 	background-image: url("../icons/Selected.png");
 }
+
 .participation_status_maybe {
 		background-repeat: no-repeat;
     background-position: left 45%; 
@@ -460,6 +461,7 @@ ul.groupSelector {
 	color: #ff821e;
 		background-image: url("../icons/maybe.png");
 }
+
 .participation_status_no {
 		background-repeat: no-repeat;
     background-position: left 45%; 
@@ -477,7 +479,14 @@ color: #ff6161;
 	background-size: 20px 20px;
 	padding: 0.75em;
 	padding-left: 32px;
-color: #7a7a7a;
+	color: #7a7a7a;
 	background-image: url("../icons/unspecified.png");
 
+}
+
+.block_list_item {
+    padding: 0.5em;
+    background: #fafafa;
+    margin-bottom: 0.5em;
+    border: 1px solid #f0f0f0;
 }
