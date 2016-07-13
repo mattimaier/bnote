@@ -72,6 +72,13 @@ div.start_box a.participation {
 .block_list_item {
     padding: 0.5em;
     background: #fafafa;
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
     border: 1px solid #f0f0f0;
+}
+
+.block_list_item_alert {
+    padding: 0.5em;
+    background: #fafafa;
+    margin-bottom: 1em;
+    border: 1px solid #ff6161;
 }
