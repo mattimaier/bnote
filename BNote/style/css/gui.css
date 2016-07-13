@@ -439,3 +439,45 @@ ul.groupSelector {
 .fc-toolbar {
 	height: 20px;
 }
+
+
+
+.participation_status_yes {
+	background-repeat: no-repeat;
+    background-position: left 45%; 
+	background-size: 20px 20px;
+	padding: 0.75em;
+	padding-left: 32px;
+	color: #58b658;
+	background-image: url("../icons/Selected.png");
+}
+.participation_status_maybe {
+		background-repeat: no-repeat;
+    background-position: left 45%; 
+	background-size: 20px 20px;
+	padding: 0.75em;
+	padding-left: 32px;
+	color: #ff821e;
+		background-image: url("../icons/maybe.png");
+}
+.participation_status_no {
+		background-repeat: no-repeat;
+    background-position: left 45%; 
+	background-size: 20px 20px;
+	padding: 0.75em;
+	padding-left: 32px;
+color: #ff6161;
+	background-image: url("../icons/no.png");
+
+}
+
+.participation_status_unspecified {
+		background-repeat: no-repeat;
+    background-position: left 45%; 
+	background-size: 20px 20px;
+	padding: 0.75em;
+	padding-left: 32px;
+color: #7a7a7a;
+	background-image: url("../icons/unspecified.png");
+
+}

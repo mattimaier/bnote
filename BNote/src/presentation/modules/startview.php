@@ -241,24 +241,34 @@ class StartView extends AbstractView {
 				$userParticipation = $this->getData()->doesParticipateInRehearsal($data[$i]["id"]);
 				if($userParticipation < 0) {
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
+					
+						$text = Lang::txt("start_setParticipation");
+						$msg = "<div class=\"participation_status_unspecified\">" .$text  ."</div>";
 						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, Lang::txt("start_setParticipation"));
+								$dataview, $partButtons, $msg);
 					}
 					else {
+						$text = Lang::txt("start_setParticipation");
+						$msg = "<div class=\"participation_status_unspecified\">" .$text  ."</div>";
+
 						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, Lang::txt("start_participationOver"), "", true);
+								$dataview, $partButtons, $msg, "", true);
 					}
 				}
 				else {
 					$msg = "";
 					if($userParticipation == 1) {
-						$msg .= Lang::txt("start_rehearsalParticipate");
+						$text = Lang::txt("start_rehearsalParticipate");
+						$msg = "<div class=\"participation_status_yes\">" .$text  ."</div>";
 					}
 					else if($userParticipation == 2) {
-						$msg .= Lang::txt("start_rehearsalMaybeParticipate");
+						$text = Lang::txt("start_rehearsalMaybeParticipate");
+						$msg = "<div class=\"participation_status_maybe\">" .$text  ."</div>";
+
 					}
 					else if($userParticipation == 0) {
-						$msg .= Lang::txt("start_rehearsalNotParticipate");
+						$text = Lang::txt("start_rehearsalNotParticipate");
+						$msg = "<div class=\"participation_status_no\">" .$text  ."</div>";
 					}
 					
 					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
@@ -327,27 +337,37 @@ class StartView extends AbstractView {
 				
 				$userParticipation = $this->getData()->doesParticipateInConcert($data[$i]["id"]);
 				if($userParticipation < 0) {
+						$text = Lang::txt("start_setParticipation");
+						$msg = "<div class=\"participation_status_unspecified\">" .$text  ."</div>";
+						
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
 						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, Lang::txt("start_setParticipation"));
+								$dataview, $partButtons, $msg);
 					}
 					else {
+						$text = Lang::txt("start_participationOver");
+						$msg = "<div class=\"participation_status_unspecified\">" .$text  ."</div>";
+
 						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, Lang::txt("start_participationOver"), "", true);
+								$dataview, $partButtons, $msg, "", true);
 					}
 				}
 				else {
-					$msg = "";
+				$msg = "";
 					if($userParticipation == 1) {
-						$msg .= Lang::txt("start_youParticipate");
+						$text = Lang::txt("start_rehearsalParticipate");
+						$msg = "<div class=\"participation_status_yes\">" .$text  ."</div>";
 					}
 					else if($userParticipation == 2) {
-						$msg .= Lang::txt("start_youMayParticipate");
+						$text = Lang::txt("start_rehearsalMaybeParticipate");
+						$msg = "<div class=\"participation_status_maybe\">" .$text  ."</div>";
+
 					}
 					else if($userParticipation == 0) {
-						$msg .= Lang::txt("start_youDontParticipate");
+						$text = Lang::txt("start_rehearsalNotParticipate");
+						$msg = "<div class=\"participation_status_no\">" .$text  ."</div>";
 					}
-						
+					
 					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
 				}
 			}
@@ -449,7 +469,7 @@ class StartView extends AbstractView {
 			<?php
 			if($msg != "" && $participation != "" && !$partOver) {
 				?>
-				<br/>
+
 				<a href="#"
 				   class="participation"
 				   onClick="$(function() { $('#<?php echo $popboxid; ?>_participation').dialog({ width: 400 }); });"><?php echo $msg; ?></a>
