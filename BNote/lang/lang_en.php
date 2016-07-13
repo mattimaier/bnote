@@ -143,6 +143,7 @@ class Translation extends BNoteTranslation {
 			"downloadArchive" => "Download Archive",
 			"noEntries" => "No entries present.",
 			"table_no_entries" => "No entries found.",
+			"table_search" => "Search:",
 			"sum" => "Sum",
 			"equipment" => "Equipment",
 			"tour" => "Tour",
