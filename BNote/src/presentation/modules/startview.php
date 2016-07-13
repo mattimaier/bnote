@@ -245,14 +245,14 @@ class StartView extends AbstractView {
 						$text = Lang::txt("start_setParticipation");
 						$msg = "<div class=\"participation_status_unspecified\">" .$text  ."</div>";
 						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, $msg);
+								$dataview, $partButtons, $msg, "", false, true);
 					}
 					else {
 						$text = Lang::txt("start_setParticipation");
 						$msg = "<div class=\"participation_status_unspecified\">" .$text  ."</div>";
 
 						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, $msg, "", true);
+								$dataview, $partButtons, $msg, "", true, true);
 					}
 				}
 				else {
@@ -342,14 +342,14 @@ class StartView extends AbstractView {
 						
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
 						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, $msg);
+								$dataview, $partButtons, $msg, "", false, true);
 					}
 					else {
 						$text = Lang::txt("start_participationOver");
 						$msg = "<div class=\"participation_status_unspecified\">" .$text  ."</div>";
 
 						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, $msg, "", true);
+								$dataview, $partButtons, $msg, "", true, true);
 					}
 				}
 				else {
@@ -460,12 +460,17 @@ class StartView extends AbstractView {
 	 * @param string $msg optional: Participation message, e.g. "Teilnahme angeben" or "Abstimmen".
 	 * @param string $voteLink optional: Link to the voting-screen.
 	 * @param boolean $partOver optional: Whether the participation deadline (approve_until) is over, by default false.
+	 * @param boolean $alertStyle optional: Display the box list item with a highlighted design
 	 */
 	private function writeBoxListItem($otype, $oid, $popboxid, $liCaption, $dataview,
-			$participation = "", $msg = "", $voteLink = "", $partOver = false) {
+			$participation = "", $msg = "", $voteLink = "", $partOver = false, $alertStyle = false) {
+				if ($alertStyle) {
+					echo "<li class=\"block_list_item_alert\">";
+				} else {
+					echo "<li class=\"block_list_item\">";
+				}
 		?>
-		<li class="block_list_item">
-			<a href="#" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 400 }); });"><?php echo $liCaption; ?></a>
+			<a href="#" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 400 }); });"><?php echo "<div class=block_list_item_caption>" .$liCaption ."</div>"; ?></a>
 			<?php
 			if($msg != "" && $participation != "" && !$partOver) {
 				?>

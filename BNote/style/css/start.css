@@ -71,9 +71,10 @@ div.start_box a.participation {
 
 .block_list_item {
     padding: 0.5em;
-    background: #fafafa;
+	padding-bottom: 1em;
     margin-bottom: 1em;
-    border: 1px solid #f0f0f0;
+    border-bottom: 1px solid #dcdcdc;
+
 }
 
 .block_list_item_alert {
@@ -81,4 +82,8 @@ div.start_box a.participation {
     background: #fafafa;
     margin-bottom: 1em;
     border: 1px solid #ff6161;
+}
+
+.block_list_item_caption {
+	font-weight: bold;
 }
