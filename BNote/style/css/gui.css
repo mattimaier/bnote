@@ -109,7 +109,7 @@ input[type="submit"]:hover,a.linkbox:hover {
 }
 
 
-input[type="text"],input[type="password"],textArea,select {
+input[type="text"],input[type="password"],input[type="search"],textArea,select {
 	color: #000;
 	background-color: #fff;
 	font-size: 11pt;
@@ -117,6 +117,7 @@ input[type="text"],input[type="password"],textArea,select {
 	padding: 2px 6px;
 	border: 1px solid;
 	border-color: #61b3ff;
+	margin-left: 1em;
 }
 
 /* table */
@@ -159,14 +160,14 @@ td.DataTable_Header {
 	font-size: 10pt;
 }
 
-/* Zebra striping 
+/*Zebra striping*/ 
 tr:nth-of-type(even) {
 	background: #fff;
 }
 
 tr:nth-of-type(odd) {
-	background: #eee;
-}*/
+	background: #fafafa;
+}
 
 tr {
 	border-bottom: 1px solid;
@@ -438,4 +439,35 @@ ul.groupSelector {
 
 .fc-toolbar {
 	height: 20px;
+}
+
+input[type="search"] {
+    -webkit-appearance: textfield;
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration  {
+    -webkit-appearance: none;
+}
+
+td.DataTable_Header {
+	padding-right: 24px;
+
+}
+td.DataTable_Header.sorting_asc {
+	background-image: url("../icons/SortAsc.png");
+	background-repeat: no-repeat;
+    background-position: right 4px center; 
+	background-size: 16px 16px;
+
+}
+
+td.DataTable_Header.sorting_desc {
+	background-image: url("../icons/SortDesc.png");
+	background-repeat: no-repeat;
+    background-position: right; 
+	background-position: right 4px center; 
+	background-size: 16px 16px;
 }
