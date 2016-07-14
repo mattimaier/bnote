@@ -257,6 +257,8 @@ class StartView extends AbstractView {
 				}
 				else {
 					$msg = "";
+					$grayOut = false;
+
 					if($userParticipation == 1) {
 						$text = Lang::txt("start_rehearsalParticipate");
 						$msg = "<div class=\"participation_status_yes\">" .$text  ."</div>";
@@ -269,9 +271,10 @@ class StartView extends AbstractView {
 					else if($userParticipation == 0) {
 						$text = Lang::txt("start_rehearsalNotParticipate");
 						$msg = "<div class=\"participation_status_no\">" .$text  ."</div>";
+						$grayOut = true;
 					}
 					
-					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
+					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg, "", false, false, $grayOut);
 				}
 			}
 		}
@@ -354,6 +357,7 @@ class StartView extends AbstractView {
 				}
 				else {
 				$msg = "";
+				$grayOut = false;
 					if($userParticipation == 1) {
 						$text = Lang::txt("start_youParticipate");
 						$msg = "<div class=\"participation_status_yes\">" .$text  ."</div>";
@@ -366,9 +370,10 @@ class StartView extends AbstractView {
 					else if($userParticipation == 0) {
 						$text = Lang::txt("start_youDontParticipate");
 						$msg = "<div class=\"participation_status_no\">" .$text  ."</div>";
+						$grayOut = true;
 					}
 					
-					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
+					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg, "", false, false, $grayOut);
 				}
 			}
 		}
@@ -463,11 +468,17 @@ class StartView extends AbstractView {
 	 * @param boolean $alertStyle optional: Display the box list item with a highlighted design
 	 */
 	private function writeBoxListItem($otype, $oid, $popboxid, $liCaption, $dataview,
-			$participation = "", $msg = "", $voteLink = "", $partOver = false, $alertStyle = false) {
+			$participation = "", $msg = "", $voteLink = "", $partOver = false, $alertStyle = false, $grayOut = false) {
 				if ($alertStyle) {
-					echo "<li class=\"block_list_item_alert\">";
+					echo "<li class=\"block_list_item_alert";
 				} else {
-					echo "<li class=\"block_list_item\">";
+					echo "<li class=\"block_list_item";
+				}
+
+				if ($grayOut) {
+					echo " gray_out\">";
+				} else {
+					echo "\">";
 				}
 		?>
 			<a href="#" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 400 }); });"><?php echo "<div class=block_list_item_caption>" .$liCaption ."</div>"; ?></a>

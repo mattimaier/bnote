@@ -87,3 +87,15 @@ div.start_box a.participation {
 .block_list_item_caption {
 	font-weight: bold;
 }
+
+.gray_out {
+   transition: opacity .25s ease-in-out;
+   -moz-transition: opacity .25s ease-in-out;
+   -webkit-transition: opacity .25s ease-in-out;
+
+	opacity:  0.4;
+}
+
+.gray_out:hover {
+	opacity:  1;
+}
