@@ -258,6 +258,7 @@ class StartView extends AbstractView {
 				else {
 					$msg = "";
 					$grayOut = false;
+					$alertStyle = false;
 
 					if($userParticipation == 1) {
 						$text = Lang::txt("start_rehearsalParticipate");
@@ -266,7 +267,7 @@ class StartView extends AbstractView {
 					else if($userParticipation == 2) {
 						$text = Lang::txt("start_rehearsalMaybeParticipate");
 						$msg = "<div class=\"participation_status_maybe\">" .$text  ."</div>";
-
+						$alertStyle = true;
 					}
 					else if($userParticipation == 0) {
 						$text = Lang::txt("start_rehearsalNotParticipate");
@@ -274,7 +275,7 @@ class StartView extends AbstractView {
 						$grayOut = true;
 					}
 					
-					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg, "", false, false, $grayOut);
+					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg, "", false, $alertStyle, $grayOut);
 				}
 			}
 		}
@@ -358,6 +359,7 @@ class StartView extends AbstractView {
 				else {
 				$msg = "";
 				$grayOut = false;
+				$alertStyle = false;
 					if($userParticipation == 1) {
 						$text = Lang::txt("start_youParticipate");
 						$msg = "<div class=\"participation_status_yes\">" .$text  ."</div>";
@@ -365,6 +367,7 @@ class StartView extends AbstractView {
 					else if($userParticipation == 2) {
 						$text = Lang::txt("start_youMayParticipate");
 						$msg = "<div class=\"participation_status_maybe\">" .$text  ."</div>";
+						$alertStyle = true;
 
 					}
 					else if($userParticipation == 0) {
@@ -373,7 +376,7 @@ class StartView extends AbstractView {
 						$grayOut = true;
 					}
 					
-					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg, "", false, false, $grayOut);
+					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg, "", false, $alertStyle, $grayOut);
 				}
 			}
 		}
