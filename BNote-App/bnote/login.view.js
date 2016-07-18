@@ -8,16 +8,7 @@ sap.ui.jsview("bnote.login", {
 	
 	createContent: function(oController) {        
 		this.loginForm = new sap.ui.layout.form.SimpleForm({
-			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             content: [
-                // BNote Server      
-                new sap.m.Label({text: "BNote Adresse"}),
-                new sap.m.Input({
-                    type: sap.m.InputType.Text,
-                    value: "{/bnoteserver_adress}",
-                    valueLiveUpdate: true
-                }),                     	
-                      
                 // login
                 new sap.m.Label({text: "Benutzername / E-Mail-Adresse"}),
                 new sap.m.Input({
@@ -27,15 +18,11 @@ sap.ui.jsview("bnote.login", {
                 }),
                 
                 // end
-                new sap.m.Label({text: "Passwort"}),
+                new sap.m.Label({text: "Password"}),
                 new sap.m.Input({
                     type: sap.m.InputType.Password,
                     value: "{/password}",
                     valueLiveUpdate: true
-                }),
-                
-                new sap.m.CheckBox("saveLoginCheckBox",{
-                	text: "Logindaten speichern"                	
                 }),
                 
                 // submit

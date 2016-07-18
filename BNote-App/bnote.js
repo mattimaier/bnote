@@ -4,15 +4,9 @@ sap.ui.localResources("bnote");
 
 // Global Data
 mobilePin = null;  // Default null
-logindata = {
-    	bnoteserver_adress: "",
-        login: "",
-        password: "",
-    };
-prefs = AppPreferences;
 
 // Please change this if your desktop application is at a different location
-desktop_path = "../BNote/main.php?mod=login&device=desktop";
+desktop_path = "../bnote/main.php?mod=login&device=desktop";
 
 backend = {
 		
