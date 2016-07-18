@@ -363,6 +363,12 @@ interface iBNA {
 	 * Retrieves all instruments available in the system.
 	 */
 	public function getInstruments();
+	
+	/**
+	 * Creates a user and a linked contact with the given POST data.
+	 * @return Integer User ID.
+	 */
+	public function signup();
 }
 
 // Abstract Implementation of BNote Application Interface

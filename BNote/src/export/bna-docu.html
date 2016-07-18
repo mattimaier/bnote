@@ -1225,6 +1225,32 @@ entity has a field <strong>type</strong> which contains its type.
 </div>
 
 
+<div class="method">
+<h3>signup</h3>
+<ul>
+	<li><i>HTTP-Method</i>: POST</li>
+	<li><i>Description</i>: Sign a user up.</li>
+	<li><i>Returns</i>: Object with user, contact, address IDs and mailOk status as well as a message</li>
+	<li><i>Parameters</i>:
+		<ul>
+			<li><b>surname</b>: <i>String</i> Surname of the contact.</li>
+			<li><b>name</b>: <i>String</i> First name of the contact.</li>
+	 		<li><b>phone</b>: <i>String</i> Phone number</li>
+	  		<li><b>email</b>: <i>String</i> E-mail address of contact</li>
+	  		<li><b>instrument</b>: <i>Integer</i> Instrument ID (0 for not selected)</li>
+	  		<li><b>street</b>: <i>String</i> Street address</li>
+	  		<li><b>city</b>: <i>String</i> City / municipality</li>
+	  		<li><b>zip</b>: <i>String</i> Postal Code / ZIP Code / PLZ / etc.</li>
+	  		<li><b>login</b>: <i>String</i> Login Name</li>
+	  		<li><b>pw1</b>: <i>String</i> Password</li>
+	  		<li><b>pw2</b>: <i>String</i> Repeated Password</li>
+	  		<li><b>terms</b>: <i>Boolean</i> Set to accept terms</li>
+		</ul>
+	</li>
+</ul>
+</div>
+
+
 <script type="text/javascript">
 var h3s = document.getElementsByTagName("h3");
 var summary = document.getElementById("methodSummary");

@@ -149,7 +149,7 @@ class LoginController extends DefaultController {
 		return $pass;
 	}
 	
-	private function register() {
+	public function register($writeOutput=true) {
 		// check agreement to terms
 		if(!isset($_POST["terms"])) {
 			new Error("Bitte stimme den Nutzungsbedingungen zu.");
@@ -175,10 +175,15 @@ class LoginController extends DefaultController {
 		$uid = $this->getData()->createUser($_POST["login"], $password, $cid); // user id
 		$this->getData()->createDefaultRights($uid);
 		
-		// write success
-		new Message("Registrierung abgeschlossen", "Du hast dich erfolgreich registriert");
+		$outMsg = "Du hast dich erfolgreich registriert";
+		if($writeOutput) {
+			// write success
+			new Message("Registrierung abgeschlossen", $outMsg);
+		}
 		
 		global $system_data;
+		$mailMessage = null;
+		$mailOk = true;
 		if($system_data->autoUserActivation()) {
 			// create link for activation
 			$linkurl = $system_data->getSystemURL() . "/src/export/useractivation.php?uid=$uid&email=" . $_POST["email"];
@@ -186,19 +191,29 @@ class LoginController extends DefaultController {
 			$message = "Bitte klicke auf folgenden Link zur Aktivierung deines Benutzerkontos:\n$linkurl";
 						
 			// send email to activate account and write message
-			require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
+			$dir_prefix = "";
+			if(isset($GLOBALS['dir_prefix'])) {
+				$dir_prefix = $GLOBALS['dir_prefix'];
+			}
+			require_once($dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php");
 			$mail = new Mailing($_POST["email"], $subject, $message);
 			
 			if(!$mail->sendMail()) {
-				echo "Leider trat bei der Aktivierung ein <b>Fehler</b> auf. Wende dich zur Freischaltung bitte an deinen Bandleader.<br/>";
+				$mailMessage = "Leider trat bei der Aktivierung ein <b>Fehler</b> auf. Wende dich zur Freischaltung bitte an deinen Bandleader.<br/>";
+				$mailOk = false;
 			}
 			else {
-				echo 'Bitte prüfe deine E-Mails. Klicke auf den Aktivierungslink um dein Konto zu bestätigen. Dann kannst du dich anmelden.<br/>';
+				$mailMessage = 'Bitte prüfe deine E-Mails. Klicke auf den Aktivierungslink um dein Konto zu bestätigen. Dann kannst du dich anmelden.<br/>';
 			}
 		}
 		else {
-			echo 'Bitte wende dich an deinen Bandleader und warte bis dein Konto freigeschalten ist.<br/>';
+			$mailMessage = 'Bitte wende dich an deinen Bandleader und warte bis dein Konto freigeschalten ist.<br/>';
 		}
+		if($mailMessage != null && $writeOutput) {
+			echo $mailMessage;
+		}
+		
+		return array("user" => $uid, "contact" => $cid, "address" => $aid, "mailOk" => $mailOk, "message" => $outMsg);
 	}
 	
 	public static function createPin($db, $uid) {

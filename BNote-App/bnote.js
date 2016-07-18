@@ -26,6 +26,7 @@ backend = {
 		
 	get_url: function(func) {
 		var path = logindata.bnoteserver_adresse + "/BNote/src/export/bna-json.php";
+		var path = "../BNote/src/export/bna-json.php";
 		var url = path + "?func=" + func;
 		if(func != "mobilePin") {
 			// add token
