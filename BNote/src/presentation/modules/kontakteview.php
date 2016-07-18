@@ -102,20 +102,24 @@ class KontakteView extends CrudRefView {
 		}
 		
 		// show data
-		echo " <table class=\"contact_view\">\n";
+		echo " <table id=\"contact_table\" class=\"contact_view\">\n";
 		foreach($data as $i => $row) {
-			echo "  <tr>\n";
+			
 			
 			if($i == 0) {
 				// header
+				echo "<thead>";
 				echo "   <td class=\"DataTable_Header\">Name, Vorname</td>";
 				echo "   <td class=\"DataTable_Header\">Instrument</td>";
 				echo "   <td class=\"DataTable_Header\">Adresse</td>";
 				echo "   <td class=\"DataTable_Header\">Telefone</td>";
 				echo "   <td class=\"DataTable_Header\">Online</td>";
 				//echo "   <td class=\"DataTable_Header\">Notizen</td>";
+				echo "</thead>";
+				echo "<tbody>";
 			}
 			else {
+				echo "  <tr>\n";
 				// body
 				echo "   <td class=\"DataTable\"><a href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">" . $row["surname"] . ", " . $row["name"] . "</a></td>";
 				echo "   <td class=\"DataTable\">" . $row["instrumentname"] . "</td>";
@@ -154,9 +158,30 @@ class KontakteView extends CrudRefView {
 			echo "<tr><td colspan=\"5\">Keine Kontaktdaten vorhanden.</td></tr>\n";
 		}
 		
+		echo "</tbody>";
 		echo "</table>\n";
 		echo " </div>";
 		echo "</div>";
+
+		?>
+			<script>
+		
+		// convert table to javasript DataTable
+		$(document).ready(function() {
+			var identifier = "#contact_table";
+    		$(identifier).DataTable({
+				 "paging": false, 
+				 "info": false,  
+				 "oLanguage": {
+					 		 "sEmptyTable":  "<?php echo Lang::txt("table_no_entries"); ?>",
+							  "sInfoEmpty":  "<?php echo Lang::txt("table_no_entries"); ?>",
+							  "sZeroRecords":  "<?php echo Lang::txt("table_no_entries"); ?>",
+        					 "sSearch": "<?php echo Lang::txt("table_search"); ?>"
+		       }
+			});
+	});
+		</script>
+		<?php
 	}
 	
 	function addEntity() {
