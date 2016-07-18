@@ -4,9 +4,15 @@ sap.ui.localResources("bnote");
 
 // Global Data
 mobilePin = null;  // Default null
+logindata = {
+    	bnoteserver_adress: "",
+        login: "",
+        password: "",
+    };
+prefs = AppPreferences;
 
 // Please change this if your desktop application is at a different location
-desktop_path = "../bnote/main.php?mod=login&device=desktop";
+desktop_path = "../BNote/main.php?mod=login&device=desktop";
 
 backend = {
 		
@@ -19,7 +25,7 @@ backend = {
 	},	
 		
 	get_url: function(func) {
-		var path = "../bnote/src/export/bna-json.php";
+		var path = logindata.bnoteserver_adresse + "/BNote/src/export/bna-json.php";
 		var url = path + "?func=" + func;
 		if(func != "mobilePin") {
 			// add token
