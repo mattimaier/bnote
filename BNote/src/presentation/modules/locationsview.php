@@ -49,6 +49,39 @@ class LocationsView extends CrudRefView {
 		$details->renameElement("addresszip", "PLZ");
 		$details->renameElement("addresscity", "Stadt");
 		$details->write();
+		
+		// show map
+		Writing::h3("Karte");
+		$addy = $entity['addressstreet'] . ", " . $entity["addresszip"] . " " . $entity["addresscity"];
+		$google_api_key = $this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key");
+		
+		if($google_api_key != "") {
+			?>
+			<div id="location_map" style="width: 1000px; height: 500px;"></div>
+			<script>
+			var map;
+			function initMap() {
+				var geocoder = new google.maps.Geocoder();
+				geocoder.geocode( { 'address': '<?php echo $addy; ?>'}, function(results, status) {
+				      if (status == google.maps.GeocoderStatus.OK) {
+				        map.setCenter(results[0].geometry.location);
+				        var marker = new google.maps.Marker({
+				            map: map,
+				            position: results[0].geometry.location
+				        });
+				      }
+				    });
+				
+			  map = new google.maps.Map(document.getElementById('location_map'), {
+			    center: {lat: 48.135125, lng: 11.574789},
+			    zoom: 15
+			  });
+			}
+			</script>
+			<script async defer src="https://maps.googleapis.com/maps/api/js?key=<?php echo $google_api_key; ?>&callback=initMap">
+		    </script>
+			<?php
+		}
 	}
 	
 	protected function editEntityForm() {

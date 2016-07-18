@@ -185,6 +185,9 @@ $update = new UpdateDb();
 // Task 1: Add title to concert table
 $update->addColumnToTable("concert", "title", "VARCHAR(255)", "NOT NULL");
 
+// Task 2: Add Google API Key
+$update->addDynConfigParam("google_api_key", "");
+
 ?>
 <br/><br/>
 <b><i>COMPLETE.</i></b>

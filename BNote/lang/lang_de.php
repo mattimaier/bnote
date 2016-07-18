@@ -146,6 +146,7 @@ class Translation extends BNoteTranslation {
 			"sum" => "Summe",
 			"equipment" => "Equipment",
 			"tour" => "Tour",
+			"map" => "Karte",
 			
 			// module: start
 			"start_calendarExport" => "Kalender Export",

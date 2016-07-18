@@ -294,6 +294,7 @@ class StartView extends AbstractView {
 				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($row["begin"]));
 				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($row["end"]));
 				$loc = $this->buildAddress($row);
+				$addy = $loc;
 				if($loc != "") $loc = $row["location_name"] . " - " . $loc;
 				else $loc = $row["location_name"];
 				$dataview->addElement(Lang::txt("location"), $loc);
@@ -308,6 +309,14 @@ class StartView extends AbstractView {
 					$viewProg = new Link($this->modePrefix() . "viewProgram&id=" . $row["program_id"], Lang::txt("start_viewProgram"));
 					$program .= "<br/><br/>" . $viewProg->toString();
 					$dataview->addElement(Lang::txt("program"), $program);
+				}
+				
+				// show static map if Google key is set
+				$google_api_key = $this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key");
+				if($google_api_key != "") {
+					$addy = urlencode($addy);
+					$src = "https://maps.googleapis.com/maps/api/staticmap?center=$addy&size=350x250&markers=color:red|$addy&key=$google_api_key";
+					$dataview->addElement(Lang::txt("map"), "<img src=\"$src\" alt=\"map\" />");
 				}
 				
 				// show three buttons to participate/maybe/not in concert
@@ -456,14 +465,14 @@ class StartView extends AbstractView {
 			}
 		?>
 		<li>
-			<a href="#" class="start_item_heading <?php echo $participate_class; ?>" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 400 }); });"><?php echo $liCaption; ?></a>
+			<a href="#" class="start_item_heading <?php echo $participate_class; ?>" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 500 }); });"><?php echo $liCaption; ?></a>
 			<?php
 			if($msg != "" && $participation != "" && !$partOver) {
 				?>
 				<br/>
 				<a href="#"
 				   class="participation <?php echo $participate_class; ?>"
-				   onClick="$(function() { $('#<?php echo $popboxid; ?>_participation').dialog({ width: 400 }); });"><?php echo $msg; ?></a>
+				   onClick="$(function() { $('#<?php echo $popboxid; ?>_participation').dialog({ width: 500 }); });"><?php echo $msg; ?></a>
 				<?php
 			}
 			else if($msg != "" && $participation != "" && $partOver) {
