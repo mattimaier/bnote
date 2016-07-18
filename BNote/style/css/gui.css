@@ -369,6 +369,10 @@ p.concert_title {
 	color: #000;
 }
 
+span.start_concert_title {
+	font-weight: 600;
+}
+
 p.concert_details {
 	color: #000;
 }

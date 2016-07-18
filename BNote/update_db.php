@@ -3,7 +3,7 @@
 /*************************
  * UPGRADES THE DATABASE *
  * @author Matti Maier   *
- * Update 2.5.x to 3.0.0 *
+ * Update 3.0.0 to 3.0.1 *
  *************************/
 
 // path to src/ folder
@@ -182,149 +182,8 @@ $update = new UpdateDb();
 <p>
 <?php 
 
-// Task 1: Insert Language Configuration
-$update->addDynConfigParam("language", "de", 1);
-
-// Migration of all passwords might be necessary -> ask for new default password!
-echo "<span style=\"color: red; font-weight: bold;\">Please be aware that you might have to reset all passwords, except you upgrade from v2.5.5!</span>";
-echo "<br/>";
-
-// Task 2a: Insert new table account
-$account_def = "CREATE TABLE account (
-			id INT(11) PRIMARY KEY AUTO_INCREMENT,
-			name VARCHAR(100) NOT NULL
-)";
-
-$update->addTable("account", $account_def);
-
-// Task 2b: Insert new table booking
-$booking_def = "CREATE TABLE booking (
-		id INT(11) PRIMARY KEY AUTO_INCREMENT,
-		account INT(11) NOT NULL,
-		bdate DATE NOT NULL,
-		subject VARCHAR(100) NOT NULL,
-		amount_net DECIMAL(9,2) NOT NULL,
-		amount_tax DECIMAL(9,2) NOT NULL DEFAULT 0,
-		btype INT(1) NOT NULL,
-		otype CHAR(1),
-		oid INT(11),
-		notes TEXT
-)";
-$update->addTable("booking", $booking_def);
-
-// Task 2c: Insert new table recpay
-$recpay_def = "CREATE TABLE recpay (
-		id INT(11) PRIMARY KEY AUTO_INCREMENT,
-		account INT(11) NOT NULL,
-		subject VARCHAR(100) NOT NULL,
-		amount_net DECIMAL(9,2) NOT NULL,
-		amount_tax DECIMAL(9,2) NOT NULL DEFAULT 0,
-		btype INT(1) NOT NULL,
-		otype CHAR(1),
-		oid INT(11),
-		notes TEXT
-)";
-$update->addTable("recpay", $recpay_def);
-
-// Task 2d: Add module finance
-$update->addModule("Finance");
-
-// Task 3a: Calendar
-$calendar_mod_id = $update->addModule("Calendar");
-
-// Task 3b: Insert privileges for calendar module for everybody
-$update->addPrivilegeForAllUsers($calendar_mod_id);
-
-// Task 4: add birthday to users
-$update->addColumnToTable("contact", "birthday", "DATE");
-
-// Task 5: Equipment module
-$update->addTable("equipment", "CREATE TABLE equipment (
-	id INT(11) PRIMARY KEY AUTO_INCREMENT,
-	model VARCHAR(100) NOT NULL,
-	make VARCHAR(100) NOT NULL,
-	name VARCHAR(100),
-	purchase_price DECIMAL(9,2),
-	current_value DECIMAL(9,2),
-	quantity INT(10) NOT NULL DEFAULT 1,
-	notes TEXT
-)");
-$update->addModule("Equipment");
-
-// Task 6a: add module Tour
-$update->addModule("Tour");
-
-// Task 6b: tour main table
-$update->addTable("tour", "CREATE TABLE tour (
-	id INT(11) PRIMARY KEY AUTO_INCREMENT,
-	name VARCHAR(100) NOT NULL,
-	start DATE NOT NULL,
-	end DATE NOT NULL,
-	notes TEXT
-)");
-
-// Task 6c: sub-module table for accommodation
-$update->addTable("accommodation", "CREATE TABLE accommodation (
-	id INT(11) PRIMARY KEY AUTO_INCREMENT,
-	tour INT(11) NOT NULL,
-	location INT(11) NOT NULL,
-	checkin DATE NOT NULL,
-	checkout DATE NOT NULL,
-	breakfast INT(1) NOT NULL DEFAULT 0,
-	lunch INT(1) NOT NULL DEFAULT 0,
-	dinner INT(1) NOT NULL DEFAULT 0,
-	planned_cost DECIMAL(9,2),
-	notes TEXT
-)");
-
-// Task 6d: sub-module table for travel
-$update->addTable("travel", "CREATE TABLE travel (
-	id INT(11) PRIMARY KEY AUTO_INCREMENT,
-	tour INT(11) NOT NULL,
-	transportation VARCHAR(50),
-	num VARCHAR(100),
-	departure DATETIME NOT NULL,
-	departure_location VARCHAR(255),
-	arrival DATETIME NOT NULL,
-	arrival_location VARCHAR(255),
-	planned_cost DECIMAL(9,2),
-	notes TEXT
-)");
-
-// Task 6e: reference tables
-$update->addTable("tour_rehearsal", "CREATE TABLE tour_rehearsal (
-	tour INT(11) NOT NULL,
-	rehearsal INT(11) NOT NULL
-)");
-$update->addTable("tour_concert", "CREATE TABLE tour_concert (
-	tour INT(11) NOT NULL,
-	concert INT(11) NOT NULL
-)");
-$update->addTable("tour_contact", "CREATE TABLE tour_contact (
-	tour INT(11) NOT NULL,
-	contact INT(11) NOT NULL
-)");
-$update->addTable("tour_equipment", "CREATE TABLE tour_equipment (
-	tour INT(11) NOT NULL,
-	equipment INT(11) NOT NULL,
-	quantity VARCHAR(50) NOT NULL DEFAULT '',
-	notes TEXT
-)");
-$update->addTable("tour_task", "CREATE TABLE tour_task (
-	tour INT(11) NOT NULL,
-	task INT(11) NOT NULL
-)");
-
-// Task 7: add reservation table
-$update->addTable("reservation", "CREATE TABLE reservation (
-	id INT(11) PRIMARY KEY AUTO_INCREMENT,
-	begin DATETIME NOT NULL,
-	end DATETIME NOT NULL,
-	name VARCHAR(100) NOT NULL,
-	location INT(11),
-	contact INT(11),
-	notes TEXT
-)");
+// Task 1: Add title to concert table
+$update->addColumnToTable("concert", "title", "VARCHAR(255)", "NOT NULL");
 
 ?>
 <br/><br/>

@@ -216,6 +216,7 @@ class TourView extends CrudView {
 		
 		$table = new Table($concerts);
 		$table->removeColumn("id");
+		$table->renameHeader("title", Lang::txt("title"));
 		$table->renameHeader("begin", Lang::txt("begin"));
 		$table->renameHeader("end", Lang::txt("end"));
 		$table->renameHeader("notes", Lang::txt("notes"));

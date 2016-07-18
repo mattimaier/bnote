@@ -61,6 +61,48 @@ div.start_box a.participation {
 	color: #61b3ff;
 }
 
+div.start_box a.participation.participate_1 {
+	color: green;
+}
+
+div.start_box a.participation.participate_1::before {
+	content: "\2713";  /* checkmark */
+	margin-right: 5px;
+	text-decoration: none;
+}
+
+div.start_box a.participation.participate_0 {
+	color: #d0d0d0;
+}
+
+div.start_box a.participation.participate_0::before {
+	content: "\2715";  /* checkmark */
+	margin-right: 5px;
+	text-decoration: none;
+}
+
+a.start_item_heading.participate_0 {
+	color: #d0d0d0;
+}
+
+div.start_box a.discussion_participate_0 {
+	color: #d0d0d0;
+}
+
+div.start_box a.participation.participate_2 {
+	color: orange;
+}
+
+div.start_box a.participation.participate_2::before {
+	content: "?";  /* checkmark */
+	margin-right: 5px;
+	text-decoration: none;
+}
+
+.start_rehearsal_title {
+	font-weight: 600;
+}
+
 .warning {
 	color: orange;
 	font-weight: bold;

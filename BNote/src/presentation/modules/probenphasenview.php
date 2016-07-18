@@ -58,6 +58,7 @@ class ProbenphasenView extends CrudView {
 		$table = new Table($this->addRemoveColumnToTable("concert", $concerts));
 		$table->renameAndAlign(array(
 				"id" => array("ID", FieldType::INTEGER),
+				"title" => array("Titel", FieldType::CHAR),
 				"begin" => array("Beginn", FieldType::DATETIME),
 				"location" => array("Ort", FieldType::CHAR),
 				"notes" => array("Notizen", FieldType::TEXT)
@@ -200,8 +201,8 @@ class ProbenphasenView extends CrudView {
 
 		$futConcerts = $this->getData()->getFutureConcerts();
 		$gs = new GroupSelector($futConcerts, array(), "concert");
-		$gs->setNameColumn("begin");
-		$gs->setCaptionType(FieldType::DATE);
+		$gs->setNameColumn("title");
+		$gs->setCaptionType(FieldType::CHAR);
 		$form->addElement("kommende Konzerte", $gs);
 		$form->write();
 	}

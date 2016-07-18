@@ -35,7 +35,7 @@ class ProbenphasenData extends AbstractData {
 	}
 	
 	function getConcertsForPhase($phaseId) {
-		$query = "SELECT c.id, c.begin, l.name as location, c.notes ";
+		$query = "SELECT c.id, c.title, c.begin, l.name as location, c.notes ";
 		$query .= "FROM rehearsalphase_concert rc JOIN concert c ON rc.concert = c.id ";
 		$query .= "     JOIN location l ON c.location = l.id ";
 		$query .= "WHERE rc.rehearsalphase = $phaseId ";

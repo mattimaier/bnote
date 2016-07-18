@@ -120,7 +120,7 @@ class CalendarData extends AbstractData {
 		$concerts = $this->reduce_data(
 				"concert",
 				$concerts_db,
-				array("id", "begin", "end", "approve_until", "location_name","notes"),
+				array("id", "title", "begin", "end", "approve_until", "location_name","notes"),
 				array("begin" => "start"),
 				Lang::txt("calendar_concert"),
 				"?mod=" . $this->getSysdata()->getModuleId("Konzerte") . "&mode=view&id="

@@ -74,19 +74,17 @@ class KonzerteView extends CrudRefView {
 	
 	private function writeConcert($concert) {
 		// when? where? who to talk to? notes + program
-		$text = "<p class=\"concert_title\">" . Data::convertDateFromDb($concert["begin"]);
+		$text = "<p class=\"concert_title\">" . $concert["title"] . " am " . Data::convertDateFromDb($concert["begin"]);
 		$text .= " bis " . substr($concert["end"], strlen($concert["end"])-8, 5);
-		$text .= " Uhr im " . $concert["location_name"] . "</p>";
-		$text .= "<p class=\"concert_details\">Adresse: ";
+		$text .= " Uhr</p>";
+		$text .= "<p class=\"concert_details\">Location: ";
+		$text .= $concert["location_name"];
 		
 		if($concert["location_city"] != "") {
-			$text .= $concert["location_street"] . ", " . $concert["location_zip"];
+			$text .= ", " . $concert["location_street"] . ", " . $concert["location_zip"];
 			$text .= " " . $concert["location_city"];
 		}
-		else {
-			$text .= $concert["location_name"];
-		}
-		$text .=  "&nbsp;&nbsp;";
+		$text .= "&nbsp;&nbsp;";
 		
 		if($concert["contact_name"] != "") {
 			$text .= "<br/>";
@@ -348,6 +346,8 @@ class KonzerteView extends CrudRefView {
 	function step1($action) {
 		$form = new Form("Stammdaten", $this->modePrefix() . $action);
 		
+		$title_field = new Field("title", "", FieldType::CHAR);
+		$form->addElement("Titel", $title_field);
 		$begin_field = new Field("begin", "", FieldType::DATETIME);
 		$begin_field->setCssClass("copyDateOrigin");
 		$form->addElement("Beginn", $begin_field);
