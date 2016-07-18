@@ -63,11 +63,18 @@ sap.ui.jsview("bnote.login", {
 			press: function(){
 				window.location = desktop_path;
 			}
-		})
+		});
+		
+		var signupButton = new sap.m.Button({
+			text: "Anmeldung",
+			press: function() {
+				signupView.getController().prepareModel();
+			}
+		});
 		
 		var page = new sap.m.Page("LoginPage", {
             title: "Login",
-            headerContent : [ desktopButton ],
+            headerContent : [ signupButton, desktopButton ],
 			content: [ logo_layout, this.loginForm ]
 		});
 		
