@@ -162,7 +162,12 @@ class LoginData extends AbstractData {
 		$uid = $this->database->execute($query);
 		
 		// create user directory
-		mkdir($GLOBALS["DATA_PATHS"]["userhome"] . $login);
+		$dir_prefix = "";
+		if(isset($GLOBALS['dir_prefix'])) {
+			$dir_prefix = $GLOBALS['dir_prefix'];
+		}
+		$path = $dir_prefix . $GLOBALS["DATA_PATHS"]["userhome"] . $login;
+		mkdir($path);
 		
 		return $uid;
 	}

@@ -94,7 +94,7 @@ abstract class AbstractBNA implements iBNA {
 	 * Authenticates users with pin.
 	 */
 	protected function authentication() {
-		if(isset($_GET["func"]) && $_GET["func"] == "mobilePin") {
+		if(isset($_GET["func"]) && ($_GET["func"] == "mobilePin" || $_GET["func"] == "signup")) {
 			$this->uid = null;
 		}
 		else if(!isset($_GET["pin"])) {
@@ -1673,6 +1673,13 @@ abstract class AbstractBNA implements iBNA {
 			array_push($instruments, $entity);
 		}
 		$this->printEntities($instruments, "instrument");
+	}
+	
+	public function signup() {
+		$loginCtrl = new LoginController();
+		$loginCtrl->setData(new LoginData($GLOBALS["dir_prefix"]));
+		$res = $loginCtrl->register(false);
+		echo json_encode($res);
 	}
 	
 	private function flattenAddresses($selection) {
