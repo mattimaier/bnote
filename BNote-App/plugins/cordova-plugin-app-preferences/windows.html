@@ -1,0 +1,13 @@
+<html>
+	<body>
+		<script type="text/javascript">
+
+			// windows app startpage must be local file.
+			// this file is a workaround
+			var contentTag = '<content src="http://127.0.0.1:50000" />';
+			var url = contentTag.split ('"')[1];
+			location.href = url;
+
+		</script>
+	</body>
+</html>
