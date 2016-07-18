@@ -192,6 +192,7 @@ class StartView extends AbstractView {
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
 					$liCaption .= "<br/>bis " . Data::getWeekdayFromDbDate($data[$i]["end"]) . ", " . Data::convertDateFromDb($data[$i]["end"]);
 				}
+				$liCaption = "<span class=\"start_rehearsal_title\">" . $liCaption . "</span>";
 				
 				// create details for each rehearsal
 				$dataview = new Dataview();
@@ -261,7 +262,8 @@ class StartView extends AbstractView {
 						$msg .= Lang::txt("start_rehearsalNotParticipate");
 					}
 					
-					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
+					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons,
+							$msg, "", false, $userParticipation);
 				}
 			}
 		}
@@ -284,12 +286,15 @@ class StartView extends AbstractView {
 				
 				$liCaption = Data::convertDateFromDb($row["begin"]);
 				$liCaption = Data::getWeekdayFromDbDate($row["begin"]) . ", " . $liCaption;
+				$liCaption = "<span class=\"start_concert_title\">" . $row["title"] . "</span><br/>" . $liCaption . "";
 				
 				// concert details
 				$dataview = new Dataview();
+				$dataview->addElement(Lang::txt("title"), $row["title"]);
 				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($row["begin"]));
 				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($row["end"]));
 				$loc = $this->buildAddress($row);
+				$addy = $loc;
 				if($loc != "") $loc = $row["location_name"] . " - " . $loc;
 				else $loc = $row["location_name"];
 				$dataview->addElement(Lang::txt("location"), $loc);
@@ -304,6 +309,14 @@ class StartView extends AbstractView {
 					$viewProg = new Link($this->modePrefix() . "viewProgram&id=" . $row["program_id"], Lang::txt("start_viewProgram"));
 					$program .= "<br/><br/>" . $viewProg->toString();
 					$dataview->addElement(Lang::txt("program"), $program);
+				}
+				
+				// show static map if Google key is set
+				$google_api_key = $this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key");
+				if($google_api_key != "") {
+					$addy = urlencode($addy);
+					$src = "https://maps.googleapis.com/maps/api/staticmap?center=$addy&size=350x250&markers=color:red|$addy&key=$google_api_key";
+					$dataview->addElement(Lang::txt("map"), "<img src=\"$src\" alt=\"map\" />");
 				}
 				
 				// show three buttons to participate/maybe/not in concert
@@ -348,7 +361,8 @@ class StartView extends AbstractView {
 						$msg .= Lang::txt("start_youDontParticipate");
 					}
 						
-					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons, $msg);
+					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons,
+							$msg, "", false, $userParticipation);
 				}
 			}
 		}
@@ -440,19 +454,25 @@ class StartView extends AbstractView {
 	 * @param string $msg optional: Participation message, e.g. "Teilnahme angeben" or "Abstimmen".
 	 * @param string $voteLink optional: Link to the voting-screen.
 	 * @param boolean $partOver optional: Whether the participation deadline (approve_until) is over, by default false.
+	 * @param int $participate -1 not set, 0 not, 1 yes, 2 maybe
 	 */
 	private function writeBoxListItem($otype, $oid, $popboxid, $liCaption, $dataview,
-			$participation = "", $msg = "", $voteLink = "", $partOver = false) {
+			$participation = "", $msg = "", $voteLink = "", $partOver = false, $participate=9) {
+		
+			$participate_class = "";
+			if($otype == "R" || $otype == "C") {
+				$participate_class = "participate_" . $participate;
+			}
 		?>
 		<li>
-			<a href="#" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 400 }); });"><?php echo $liCaption; ?></a>
+			<a href="#" class="start_item_heading <?php echo $participate_class; ?>" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 500 }); });"><?php echo $liCaption; ?></a>
 			<?php
 			if($msg != "" && $participation != "" && !$partOver) {
 				?>
 				<br/>
 				<a href="#"
-				   class="participation"
-				   onClick="$(function() { $('#<?php echo $popboxid; ?>_participation').dialog({ width: 400 }); });"><?php echo $msg; ?></a>
+				   class="participation <?php echo $participate_class; ?>"
+				   onClick="$(function() { $('#<?php echo $popboxid; ?>_participation').dialog({ width: 500 }); });"><?php echo $msg; ?></a>
 				<?php
 			}
 			else if($msg != "" && $participation != "" && $partOver) {
@@ -475,7 +495,8 @@ class StartView extends AbstractView {
 				if(!$this->getData()->hasObjectDiscussion($otype, $oid)) {
 					$commentCaption = Lang::txt("start_newDiscussion");
 				}
-				echo '&nbsp;<a href="' . $this->modePrefix() . "discussion&otype=$otype&oid=$oid" . '" class="participation">';
+				$participate_class = "discussion_" . $participate_class;
+				echo '<br/><a href="' . $this->modePrefix() . "discussion&otype=$otype&oid=$oid" . '" class="participation ' . $participate_class . '">';
 				echo $commentCaption . '</a>';
 			}
 			?>

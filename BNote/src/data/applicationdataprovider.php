@@ -221,11 +221,11 @@ class ApplicationDataProvider {
 		
 		// add header
 		array_push($result, array(
-			"id", "begin", "end", "approve_until", "notes", // 0-4
-			"location_name", "location_notes", // 5,6
-			"location_street", "location_city", "location_zip", // 7-9
-			"contact_name", "contact_phone", "contact_email", "contact_web", // 10-13
-			"program_name", "program_notes" // 14,15
+			"id", "title", "begin", "end", "approve_until", "notes", // 0-5
+			"location_name", "location_notes", // 6,7
+			"location_street", "location_city", "location_zip", // 8-10
+			"contact_name", "contact_phone", "contact_email", "contact_web", // 11-14
+			"program_name", "program_notes" // 15,16
 		));
 		
 		// get all future concerts
@@ -321,6 +321,7 @@ class ApplicationDataProvider {
 			// build result for by row
 			array_push($result, array(
 				"id" => $concerts[$i]["id"],
+				"title" => $concerts[$i]["title"],
 				"begin" => $concerts[$i]["begin"],
 				"end" => $concerts[$i]["end"],
 				"approve_until" => $concerts[$i]["approve_until"],

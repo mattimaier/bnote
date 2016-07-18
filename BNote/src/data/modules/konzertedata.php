@@ -13,6 +13,7 @@ class KonzerteData extends AbstractData {
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("Konzert ID", FieldType::INTEGER),
+			"title" => array("Titel", FieldType::CHAR),
 			"begin" => array("Beginn", FieldType::DATETIME),
 			"end" => array("Ende", FieldType::DATETIME),
 			"approve_until" => array("Zusagen bis", FieldType::DATETIME),
@@ -58,7 +59,7 @@ class KonzerteData extends AbstractData {
 		
 		// add header
 		array_push($result, array(
-			"id", "begin", "end", "notes", 
+			"id", "title", "begin", "end", "notes", 
 			"location_name", "location_city",
 			"contact_name", "program_name"
 		));
@@ -112,6 +113,7 @@ class KonzerteData extends AbstractData {
 			// build result for by row
 			array_push($result, array(
 				"id" => $concerts[$i]["id"],
+				"title" => $concerts[$i]["title"],
 				"begin" => $concerts[$i]["begin"],
 				"end" => $concerts[$i]["end"], 
 				"notes" => $concerts[$i]["notes"],

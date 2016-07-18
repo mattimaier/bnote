@@ -102,7 +102,7 @@ class TourData extends AbstractData {
 	}
 	
 	function getConcerts($tour_id) {
-		$query = "SELECT c.id, c.begin, c.end, c.notes, l.name as locationname, p.name as program, c.approve_until 
+		$query = "SELECT c.id, c.title, c.begin, c.end, c.notes, l.name as locationname, p.name as program, c.approve_until 
 				  FROM concert c JOIN tour_concert t ON c.id = t.concert
 				  LEFT OUTER JOIN location l ON c.location = l.id
 				  LEFT OUTER JOIN program p on c.program = p.id

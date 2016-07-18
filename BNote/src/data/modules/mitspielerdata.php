@@ -41,7 +41,7 @@ class MitspielerData extends AbstractData {
 		
 		$single = ", c.id";
 		if($singleInfo) $single .= ", c.name, c.surname";
-		$fields = "CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, fax, business, 
+		$fields = "c.id, CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, fax, business, 
 				notes,  a.street, a.zip, a.city, i.id as instrument, i.name as instrumentname, birthday" . $single;
 		$order = "ORDER BY fullname, instrument";
 		
@@ -97,7 +97,7 @@ class MitspielerData extends AbstractData {
 	
 	private function isContactInArray($contact, $contacts) {
 		foreach($contacts as $i => $c) {
-			if($c["id"] == $contact["id"]) return true;
+			if($i > 0 && $c["id"] == $contact["id"]) return true;
 		}
 		return false;
 	}

@@ -279,6 +279,9 @@ class KontakteData extends AbstractData {
 		if(count($grpConcat) > 1) {
 			$grpString = $grpConcat[1]["grpConcat"];
 		}
+		else {
+			$grpString = "-";
+		}
 		return $grpString;
 	}
 	
