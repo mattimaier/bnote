@@ -37,6 +37,8 @@ if($handle = opendir('style/css')) {
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery-ui.min.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.datetimepicker.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.jqplot.min.js"></script>
+  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.dataTables.min.js"></script>
+
  <script src='<?php echo $jQuery_dir; ?>moment.min.js'></script>
  <script src='<?php echo $jQuery_dir; ?>fullcalendar.js'></script>
  <script src='<?php echo $jQuery_dir; ?>lang-all.js'></script>

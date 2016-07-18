@@ -166,7 +166,11 @@ class Table implements iWriteable {
 	}
 	
 	function write() {
-		echo '<table cellpadding="0" cellspacing="0" class="BNoteTable">' . "\n";
+		// generate id for each table to apply the javascript DataTable function later
+		$identifier = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 10);
+		echo '<table id=';
+		echo $identifier;
+		echo ' cellpadding="0" cellspacing="0" class="BNoteTable">' . "\n";
 
 		$head = true;
 		$empty = false;
@@ -318,6 +322,28 @@ class Table implements iWriteable {
 
 		echo "</tbody>\n";
 		echo "</table>\n";
+
+		?>
+		<script>
+		
+		// convert table to javasript DataTable
+		$(document).ready(function() {
+			var identifier = "#<?php echo $identifier?>"
+    		$(identifier).DataTable({
+				 "paging": false, 
+				 "info": false,  
+				 "oLanguage": {
+					 		 "sEmptyTable":  "<?php echo Lang::txt("table_no_entries"); ?>",
+							  "sInfoEmpty":  "<?php echo Lang::txt("table_no_entries"); ?>",
+							  "sZeroRecords":  "<?php echo Lang::txt("table_no_entries"); ?>",
+        					 "sSearch": "<?php echo Lang::txt("table_search"); ?>"
+		 
+		
+       }
+			});
+	});
+		</script>
+		<?php
 	}
 
 }
