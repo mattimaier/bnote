@@ -94,7 +94,7 @@ abstract class AbstractBNA implements iBNA {
 	 * Authenticates users with pin.
 	 */
 	protected function authentication() {
-		if(isset($_GET["func"]) && ($_GET["func"] == "mobilePin" || $_GET["func"] == "signup")) {
+		if(isset($_GET["func"]) && ($_GET["func"] == "mobilePin" || $_GET["func"] == "signup" || $_GET["func"] == "getInstruments")) {
 			$this->uid = null;
 		}
 		else if(!isset($_GET["pin"])) {
