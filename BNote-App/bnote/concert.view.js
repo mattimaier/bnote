@@ -128,6 +128,7 @@ sap.ui.jsview("bnote.concert", {
             title: "Konzertdetails",
             showNavButton: true,
             navButtonPress: function() {
+            	startView.getController().reloadList(view.getModel().oData);
                 app.back();
             },
 			content: [ concertForm, 

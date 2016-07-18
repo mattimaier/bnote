@@ -42,15 +42,20 @@ sap.ui.controller("bnote.rehearsal", {
 		
 	},
 	
-	submit: function(){		 
-		this.oData.reason = this.getView().reason.getValue();		
+	submit: function(){			
+		this.oData.reason = this.getView().reason.getValue();
+		var participation = this.oData.participation
 		
 		jQuery.ajax({
 			url : backend.get_url("setRehearsalParticipation"),
 			type : "POST",
 			data : this.oData,
 			success : function(result) {
-				sap.m.MessageToast.show("Teilnahme wurde aktualisiert.");				
+				sap.m.MessageToast.show("Teilnahme wurde aktualisiert.");	
+				var model = rehearsalView.getModel();
+				var oBindingContext = rehearsalView.getBindingContext();
+				var path = oBindingContext.getPath();
+				model.setProperty(path + "/participate", participation);
 			},
 			error : function(a, b, c) {
 				sap.m.MessageToast.show("Teilnahme konnte nicht aktualisiert werden.");	

@@ -6,7 +6,7 @@ sap.ui.localResources("bnote");
 mobilePin = null;  // Default null
 
 // Please change this if your desktop application is at a different location
-desktop_path = "../bnote/main.php?mod=login&device=desktop";
+desktop_path = "../BNote/main.php?mod=login&device=desktop";
 
 backend = {
 		
@@ -19,7 +19,6 @@ backend = {
 	},	
 		
 	get_url: function(func) {
-		var path = logindata.bnoteserver_adresse + "/BNote/src/export/bna-json.php";
 		var path = "../BNote/src/export/bna-json.php";
 		var url = path + "?func=" + func;
 		if(func != "mobilePin") {
@@ -315,6 +314,12 @@ voteresultView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
+signupView = sap.ui.view({
+	id: "signup",
+	viewName: "bnote.signup",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
 // Build the app together
 app = new sap.m.App("bnoteApp", {
 	defaultTransitionName: "flip",
@@ -343,6 +348,7 @@ app.addPage(contactaddView);
 app.addPage(rehearsaladdView);
 app.addPage(taskaddView);
 app.addPage(voteresultView);
+app.addPage(signupView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote WebApp",

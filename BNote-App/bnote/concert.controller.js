@@ -15,12 +15,11 @@ onParticipationPress: function(concertSetParticipation){
 		concert : model.getProperty(path + "/id"),
 		participation : concertSetParticipation,
 		explanation : ""
-	};
-	model.setProperty(path + "/participate", concertSetParticipation);
+	};	
 },	
 
 submit: function(){
-	 
+	var participation = this.oData.participation;
 	this.oData.explanation = this.getView().explanation.getValue();	
 	jQuery.ajax({
 		url : backend.get_url("setConcertParticipation"),
@@ -28,6 +27,10 @@ submit: function(){
 		data : this.oData,
 		success : function(result) {
 			sap.m.MessageToast.show("Teilnahme wurde aktualisiert.");
+			var model = concertView.getModel();
+			var oBindingContext = concertView.getBindingContext();
+			var path = oBindingContext.getPath();
+			model.setProperty(path + "/participate", participation);
 		},
 		error : function(a, b, c) {
 			sap.m.MessageToast.show("Teilnahme konnte nicht aktualisiert werden.");

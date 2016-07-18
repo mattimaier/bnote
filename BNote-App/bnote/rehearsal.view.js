@@ -113,6 +113,7 @@ sap.ui.jsview("bnote.rehearsal", {
 	       title: "Probendetails",
 	       showNavButton: true,
 	       navButtonPress: function() {
+	    	   startView.getController().reloadList(view.getModel().oData);
 	           app.back();
 	       },
 	       content: [ this.rehearsalForm, 

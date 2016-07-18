@@ -30,7 +30,18 @@ sap.ui.jsview("bnote.login", {
                 new sap.m.Button({
                     text: "Login",
                     press: oController.onLoginPress
-                })
+                }),                
+                   
+                new sap.m.Label({
+        			text: "Noch keinen Account? Jetzt registrieren"
+        		}),
+        		new sap.m.Button({
+        			text: "Registrierung",
+        			press: function() {
+        				signupView.getController().prepareModel();
+        				app.to("signup");
+        			}
+        		})
             ]
         });
 
@@ -51,17 +62,10 @@ sap.ui.jsview("bnote.login", {
 				window.location = desktop_path;
 			}
 		});
-		
-		var signupButton = new sap.m.Button({
-			text: "Anmeldung",
-			press: function() {
-				signupView.getController().prepareModel();
-			}
-		});
-		
+					
 		var page = new sap.m.Page("LoginPage", {
             title: "Login",
-            headerContent : [ signupButton, desktopButton ],
+            headerContent : [ desktopButton ],
 			content: [ logo_layout, this.loginForm ]
 		});
 		
