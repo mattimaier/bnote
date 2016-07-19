@@ -62,13 +62,18 @@ div.start_box a.participation {
 }
 
 div.start_box a.participation.participate_1 {
-	color: green;
+	color: #2ecc71;
 }
 
 div.start_box a.participation.participate_1::before {
-	content: "\2713";  /* checkmark */
+	content: '';
+	background-image: url('../icons/checked.png');
+	background-size: 16px 16px;
+	height: 16px;
+	width: 16px;
 	margin-right: 5px;
 	text-decoration: none;
+	display: inline-block;
 }
 
 div.start_box a.participation.participate_0 {
@@ -76,9 +81,14 @@ div.start_box a.participation.participate_0 {
 }
 
 div.start_box a.participation.participate_0::before {
-	content: "\2715";  /* checkmark */
+	content: '';
+	background-image: url('../icons/cancel_gray.png');
+	background-size: 16px 16px;
+	height: 16px;
+	width: 16px;
 	margin-right: 5px;
 	text-decoration: none;
+	display: inline-block;
 }
 
 a.start_item_heading.participate_0 {
@@ -94,9 +104,14 @@ div.start_box a.participation.participate_2 {
 }
 
 div.start_box a.participation.participate_2::before {
-	content: "?";  /* checkmark */
+	content: '';
+	background-image: url('../icons/help_orange.png');
+	background-size: 16px 16px;
+	height: 16px;
+	width: 16px;
 	margin-right: 5px;
 	text-decoration: none;
+	display: inline-block;
 }
 
 .start_rehearsal_title {

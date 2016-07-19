@@ -14,3 +14,9 @@
 <a href="http://ic8.link/7400">booking</a>
 <a href="http://ic8.link/4190">tourbus</a>
 <a href="http://ic8.link/3417">equipment</a>
+<a href="https://icons8.com/web-app/15427/checked-checkbox-2">checkbox</a>
+<a href="https://icons8.com/web-app/13903/close-window">close</a>
+<a gref="https://icons8.com/web-app/20229/ask-question">question</a>
+<a href="https://icons8.com/web-app/6225/help">help_orange</a>
+<a href="https://icons8.com/web-app/15478/checked">checked</a>
+<a href="https://icons8.com/web-app/3062/cancel">cancel_gray</a>
