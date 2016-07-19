@@ -209,6 +209,9 @@ class KonzerteView extends CrudRefView {
 		$contacts = GroupSelector::getPostSelection($this->getData()->getContacts(), "contact");
 		$this->getData()->addConcertContact($_GET["id"], $contacts);
 		new Message("Kontakt hinzugefügt", "Der oder die Kontakte wurden dem Konzert hinzugefügt.");
+	}
+	
+	function process_addConcertContactOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
 	

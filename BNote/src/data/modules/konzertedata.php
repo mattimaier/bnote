@@ -323,11 +323,15 @@ class KonzerteData extends AbstractData {
 	
 	function addConcertContact($concertid, $contacts) {
 		$query = "INSERT INTO concert_contact VALUES ";
+		$count = 0;
 		foreach($contacts as $i => $contact) {
 			if($i > 0) $query .= ",";
 			$query .= "($concertid, $contact)";
+			$count++;
 		}
-		$this->database->execute($query);
+		if($count > 0) {
+			$this->database->execute($query);
+		}
 	}
 	
 	function getRehearsalphases($concertid) {
