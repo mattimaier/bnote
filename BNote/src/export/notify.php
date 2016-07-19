@@ -62,6 +62,9 @@ class Notifier {
 	
 	private function sendEmailToContacts($contacts) {
 		//TODO implement
+		require_once($dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php");
+		$mail = new Mailing($to, $subject, $body);
+		$mail->setBcc($addresses);  // string of addresses separated properly
 	}
 	
 	private function ok() {
@@ -77,11 +80,17 @@ class Notifier {
 	}
 	
 	private function sendConcertNotification($concertId) {
-		//TODO implement
+		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php");
+		$dao = new KonzerteData($dir_prefix);
+		$laggardIds = $dao->getOpenParticipants($concertId);
+		$this->sendEmailToContacts($laggardIds);
+		$this->ok();
 	}
 	
 	private function sendVoteNotification($voteId) {
-		//TODO implement
+		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "abstimmungdata.php");
+		$dao = new AbstimmungData($dir_prefix);
+		$dao->getOpenVoters($voteId); //TODO implement
 	}
 	
 }

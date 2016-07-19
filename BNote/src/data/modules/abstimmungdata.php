@@ -431,6 +431,11 @@ class AbstimmungData extends AbstractData {
 		}
 		return $this->database->getCell($this->database->getUserTable(), "pin", "id = $uid");
 	}
+	
+	function getOpenVoters($voteId) {
+		//TODO find all contacts that have not voted so far
+		
+	}
 }
 
 ?>
