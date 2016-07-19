@@ -1,5 +1,6 @@
 sap.ui.controller("bnote.concert", {
 
+
 onParticipationPress: function(concertSetParticipation){
 	var model = concertView.getModel();
 	var oBindingContext = concertView.getBindingContext();

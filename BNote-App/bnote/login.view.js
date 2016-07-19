@@ -8,10 +8,11 @@ sap.ui.jsview("bnote.login", {
 	
 	createContent: function(oController) {        
 		this.loginForm = new sap.ui.layout.form.SimpleForm({
+			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             content: [
                 // login
                 new sap.m.Label({text: "Benutzername / E-Mail-Adresse"}),
-                new sap.m.Input({
+                new sap.m.Input("loginField",{
                     type: sap.m.InputType.Text,
                     value: "{/login}",
                     valueLiveUpdate: true
@@ -19,11 +20,15 @@ sap.ui.jsview("bnote.login", {
                 
                 // end
                 new sap.m.Label({text: "Password"}),
-                new sap.m.Input({
+                new sap.m.Input("passwordField",{
                     type: sap.m.InputType.Password,
                     value: "{/password}",
                     valueLiveUpdate: true
                 }),
+                new sap.m.CheckBox("saveuser",{
+        			text: "Benutzer speichern",
+        			selected: "{/save}"
+        		}),
                 
                 // submit
                 new sap.m.Label({text: ""}),  // spacer
@@ -41,9 +46,11 @@ sap.ui.jsview("bnote.login", {
         				signupView.getController().prepareModel();
         				app.to("signup");
         			}
-        		})
+        		})        		
             ]
         });
+		
+	
 
 		var bnoteImg = new sap.m.Image({
 			src: "img/BNote_Logo_blue_on_white_192px.png",

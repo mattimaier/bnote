@@ -34,6 +34,9 @@ sap.ui.jsview("bnote.concert", {
     	
 		var concertForm = new sap.ui.layout.form.SimpleForm({            
             content: [
+                // title     
+				new sap.m.Label({text: "Titel"}),
+				new sap.m.Text({text: "{title}"}),
                 // begin
                 new sap.m.Label({text: "Konzertbeginn"}),
                 new sap.m.Text({text: "{begin}"}),
@@ -63,7 +66,7 @@ sap.ui.jsview("bnote.concert", {
 		participationlayout.addStyleClass("bn-participation-q");
 		
 		 var concertOkBtn = new sap.m.Button({
-              text: "OK",       
+              text: "Ich bin dabei",       
     	      press: function(){    	    	 
     	    	  var concertSetParticipation = 1;
     	    	  oController.onParticipationPress(concertSetParticipation); 
@@ -80,7 +83,7 @@ sap.ui.jsview("bnote.concert", {
     	});
 	    
 	   	var concertNoBtn = new sap.m.Button({
-    	      text: "Kann nicht",
+    	      text: "nicht dabei",
     	      press: function(){
     	    	  var concertSetParticipation = 0;
     	    	  oController.onParticipationPress(concertSetParticipation);  

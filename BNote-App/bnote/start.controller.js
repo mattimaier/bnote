@@ -14,7 +14,7 @@ sap.ui.controller("bnote.start", {
                 var reservation = data[5]['reservation'];
                 var votes = data[6]['votes'];                
                 var items = oCtrl.startItemMapping(rehearsals, "Rehearsal", "begin", ["location", "name"], "icons/proben.png");
-                var concert_items = oCtrl.startItemMapping(concerts, "Concert", "begin", ["location","name"], "icons/konzerte.png");
+                var concert_items = oCtrl.startItemMapping(concerts, "Concert", "begin", ["title"], "icons/konzerte.png");
                 items = items.concat(concert_items);
                 var tasks_items = oCtrl.startItemMapping(tasks, "Task", "due_at", ["title"], "icons/tasks.png");
                 items = items.concat(tasks_items);
@@ -171,9 +171,9 @@ sap.ui.controller("bnote.start", {
             item['type'] = typename;
             item['start'] = item[titlefield];
             var desc = item[descriptionfield[0]];
-            if(typeof(desc) == "object") {
+            if(typeof(desc) == "object" || desc == "") {
                 desc = desc[descriptionfield[1]];
-            }
+            }          
             item['listdescription'] = desc;
             item['icon'] = icon
             items.push(item);
