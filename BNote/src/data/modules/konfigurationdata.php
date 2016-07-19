@@ -39,7 +39,9 @@ class KonfigurationData extends AbstractData {
 				"rehearsal_show_max" => array("Anzahl Proben auf Startseite", FieldType::INTEGER),
 				"discussion_on" => array("Diskussionen erlauben", FieldType::BOOLEAN),
 				"updates_show_max" => array("Anzahl Updates auf Startseite", FieldType::INTEGER),
-				"language" => array("Sprache", FieldType::CHAR)
+				"language" => array("Sprache", FieldType::CHAR),
+				"google_api_key" => array("Google Maps API Key", FieldType::CHAR),
+				"trigger_key" => array("Trigger Interface Key", FieldType::CHAR)
 		);
 		
 		$this->parameterExclude = array(

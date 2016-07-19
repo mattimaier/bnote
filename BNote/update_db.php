@@ -188,6 +188,12 @@ $update->addColumnToTable("concert", "title", "VARCHAR(255)", "NOT NULL");
 // Task 2: Add Google API Key
 $update->addDynConfigParam("google_api_key", "");
 
+// Task 3: Add trigger Key
+require_once $PATH_TO_SRC . "logic/defaultcontroller.php";
+require_once $PATH_TO_SRC . "logic/modules/logincontroller.php";
+$random_key = LoginController::generatePassword(12);
+$update->addDynConfigParam("trigger_key", $random_key);
+
 ?>
 <br/><br/>
 <b><i>COMPLETE.</i></b>
