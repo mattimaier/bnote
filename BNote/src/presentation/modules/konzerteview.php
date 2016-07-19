@@ -171,7 +171,7 @@ class KonzerteView extends CrudRefView {
 		$dv->write();
 		
 		// manage members who will play in this concert
-		Writing::h2("Eingeladene Mitspieler");
+		Writing::h2("Eingeladene Kontakte");
 		
 		$contacts = $this->getData()->getConcertContacts($_GET["id"]);
 		$contacts = Table::addDeleteColumn($contacts, $this->modePrefix() . "delConcertContact&id=" . $_GET["id"] . "&contactid=");
@@ -198,17 +198,35 @@ class KonzerteView extends CrudRefView {
 		$this->checkID();
 		
 		$form = new Form("Kontakt hinzufügen", $this->modePrefix() . "process_addConcertContact&id=" . $_GET["id"]);
+		
+		// single contacts
 		$gs = new GroupSelector($this->getData()->getContacts(), array(), "contact");
 		$gs->setNameColumn("fullname");
-		$form->addElement("Konzertmitspieler", $gs);
+		$form->addElement("Einzeln", $gs);
+		
+		// contact groups
+		$grp = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
+		$form->addElement("Gruppe", $grp);
+		
 		$form->write();
+	}
+	
+	function addConcertContactOptions() {
+		$this->backToViewButton($_GET["id"]);
 	}
 	
 	function process_addConcertContact() {
 		$this->checkID();
+		
+		// single contacts
 		$contacts = GroupSelector::getPostSelection($this->getData()->getContacts(), "contact");
 		$this->getData()->addConcertContact($_GET["id"], $contacts);
-		new Message("Kontakt hinzugefügt", "Der oder die Kontakte wurden dem Konzert hinzugefügt.");
+		
+		// groups
+		$groups = GroupSelector::getPostSelection($this->getData()->adp()->getGroups(), "group");
+		$this->getData()->addConcertContactGroup($_GET["id"], $groups);
+		
+		new Message("Kontakte hinzugefügt", "Der oder die Kontakte wurden dem Konzert hinzugefügt.");
 	}
 	
 	function process_addConcertContactOptions() {
@@ -219,6 +237,10 @@ class KonzerteView extends CrudRefView {
 		$this->checkID();
 		$this->getData()->deleteConcertContact($_GET["id"], $_GET["contactid"]);
 		$this->view();
+	}
+	
+	function delConcertContactOptions() {
+		$this->viewOptions();
 	}
 	
 	function editEntityForm() {
@@ -257,7 +279,7 @@ class KonzerteView extends CrudRefView {
 		$this->buttonSpace();
 		
 		// concert contact
-		$addContact = new Link($this->modePrefix() . "addConcertContact&id=" . $_GET["id"], "Mitspieler hinzufügen");
+		$addContact = new Link($this->modePrefix() . "addConcertContact&id=" . $_GET["id"], "Kontakt hinzufügen");
 		$addContact->addIcon("plus");
 		$addContact->write();
 		$this->buttonSpace();

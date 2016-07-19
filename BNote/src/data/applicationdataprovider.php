@@ -380,8 +380,7 @@ class ApplicationDataProvider {
 		$query .= "  FROM contact c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";
-		$query .= "LEFT JOIN instrument i ";
-		$query .= "ON c2.instrument = i.id ";
+		$query .= "LEFT OUTER JOIN instrument i ON c2.instrument = i.id ";
 		$query .= "JOIN contact_group cg ON c2.id = cg.contact ";
 		$query .= "WHERE cg.group = $groupId ";
 		$query .= "ORDER BY c2.name, c2.surname";

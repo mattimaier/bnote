@@ -310,7 +310,7 @@ class KonzerteData extends AbstractData {
 	
 	function getConcertContacts($cid) {
 		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as fullname, c.phone, c.mobile, c.email, i.name as instrument ";
-		$query .= "FROM concert_contact cc JOIN contact c ON cc.contact = c.id JOIN instrument i ON c.instrument = i.id ";
+		$query .= "FROM concert_contact cc JOIN contact c ON cc.contact = c.id LEFT OUTER JOIN instrument i ON c.instrument = i.id ";
 		$query .= "WHERE cc.concert = $cid ";
 		$query .= "ORDER BY fullname";
 		return $this->database->getSelection($query);
@@ -322,16 +322,30 @@ class KonzerteData extends AbstractData {
 	}
 	
 	function addConcertContact($concertid, $contacts) {
-		$query = "INSERT INTO concert_contact VALUES ";
-		$count = 0;
+		// do not insert duplicates, therefore check which contacts are in it already
+		$contactsInConcertDbSel = $this->database->getSelection("SELECT contact FROM concert_contact WHERE concert = $concertid");
+		$contactsInConcert = $this->database->flattenSelection($contactsInConcertDbSel, "contact");
+		
+		$values = array();
 		foreach($contacts as $i => $contact) {
-			if($i > 0) $query .= ",";
-			$query .= "($concertid, $contact)";
-			$count++;
+			if(!in_array($contact, $contactsInConcert)) {
+				array_push($values, "($concertid, $contact)");
+			}
 		}
-		if($count > 0) {
+		if(count($values) > 0) {
+			$query = "INSERT INTO concert_contact VALUES " . join(",", $values); 
 			$this->database->execute($query);
 		}
+	}
+	
+	function addConcertContactGroup($concertid, $groups) {
+		$contactsToAdd = array();
+		foreach($groups as $i => $group) {
+			$contactSelection = $this->adp()->getGroupContacts($group);
+			$grpContactIds = $this->database->flattenSelection($contactSelection, "id");
+			$contactsToAdd = array_merge($contactsToAdd, $grpContactIds);
+		}
+		$this->addConcertContact($concertid, $contactsToAdd);
 	}
 	
 	function getRehearsalphases($concertid) {
