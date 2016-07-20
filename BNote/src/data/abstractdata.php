@@ -83,6 +83,19 @@ abstract class AbstractData {
 		}
 	}
 	
+	protected function getNotificationTriggerUrl() {
+		$bnote_url = $this->sysdata->getSystemURL();
+		return $bnote_url . "src/export/notify.php";
+	}
+	
+	protected function buildTriggerData($otype, $oid) {
+		return array(
+			"oid" => $oid,
+			"otype" => $otype,
+			"token" => $this->sysdata->getDynamicConfigParameter("trigger_key")
+		);
+	}
+	
 	/**
 	 * <strong>init() must have been called first!</strong>
 	 * @return ApplicationDataProvider The application data provider reference.

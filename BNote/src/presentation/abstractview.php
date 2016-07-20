@@ -247,7 +247,7 @@ abstract class AbstractView {
 	 */
 	public static function flash($message, $level="warn") {
 		?>
-		<div class="flash_message <?php echo $level;?>"><?php echo $message?></div>
+		<div class="flash_message <?php echo $level; ?>"><?php echo $message; ?></div>
 		<?php
 	}
 }

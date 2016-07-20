@@ -197,8 +197,9 @@ $update->addDynConfigParam("trigger_key", $random_key);
 // Task 4: Atrigger.com Keys
 $update->addDynConfigParam("atriggercom_key", "");
 $update->addDynConfigParam("atriggercom_secret", "");
-
 ?>
+<strong>DO NOT FORGET TO UPDATE YOUR CONFIGURATION AND UPLOAD THE DOMAIN VERIFICATION FILE FROM ATRIGGER.COM.</strong><br/>
+
 <br/><br/>
 <b><i>COMPLETE.</i></b>
 </p>
