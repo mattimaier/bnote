@@ -22,9 +22,11 @@ class KonfigurationView extends CrudView {
 			parent::showOptions();
 		}
 	}
-
+	
 	function start() {
 		Writing::h1("Konfiguration");
+		$this->showWarnings();
+		
 		Writing::p("Bitte klicke auf eine Zeile um deren Wert zu ändern.");
 		
 		$parameter = $this->getData()->getActiveParameter();
@@ -43,6 +45,15 @@ class KonfigurationView extends CrudView {
 		$istr = new Link($this->modePrefix() . "instruments", "Instrumente");
 		$istr->addIcon("instrument");
 		$istr->write();
+	}
+	
+	protected function showWarnings() {
+		if($this->getData()->getSysdata()->getDynamicConfigParameter("atriggercom_key") == "") {
+			$this->flash("ATrigger.com API Key or Secret not set.");
+		}
+		if($this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key") == "") {
+			$this->flash("Google Maps API Key not set.");
+		}
 	}
 	
 	function edit() {

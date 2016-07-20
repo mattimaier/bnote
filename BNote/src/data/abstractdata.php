@@ -55,6 +55,12 @@ abstract class AbstractData {
 	private $sysdata;
 	
 	/**
+	 * True when the trigger service is available.
+	 * @var boolean
+	 */
+	protected $triggerServiceEnabled = false;
+	
+	/**
 	 * Initialize data provider.
 	 * @param string $dir_prefix Optional parameter for include(s) prefix.
 	 */
@@ -65,6 +71,16 @@ abstract class AbstractData {
 		$this->regex = $system_data->regex;
 		
 		$this->adp = new ApplicationDataProvider($this->database, $this->regex, $system_data, $dir_prefix);
+	}
+	
+	protected function init_trigger($dir_prefix) {
+		require_once($dir_prefix . $GLOBALS['DIR_LIB'] . "ATriggerPHP/ATrigger.php");
+		$api_key = $this->sysdata->getDynamicConfigParameter("atriggercom_key");
+		$api_secret = $this->sysdata->getDynamicConfigParameter("atriggercom_key");
+		if($api_key != null && $api_key != "") {
+			ATrigger::init($api_key, $api_secret);
+			$this->triggerServiceEnabled = true;
+		}
 	}
 	
 	/**

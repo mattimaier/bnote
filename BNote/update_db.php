@@ -194,6 +194,10 @@ require_once $PATH_TO_SRC . "logic/modules/logincontroller.php";
 $random_key = LoginController::generatePassword(12);
 $update->addDynConfigParam("trigger_key", $random_key);
 
+// Task 4: Atrigger.com Keys
+$update->addDynConfigParam("atriggercom_key", "");
+$update->addDynConfigParam("atriggercom_secret", "");
+
 ?>
 <br/><br/>
 <b><i>COMPLETE.</i></b>

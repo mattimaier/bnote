@@ -480,3 +480,25 @@ td.DataTable_Header.sorting_desc {
 div#contact_table_filter.dataTables_filter {
 	padding: 10px;
 }
+
+div.flash_message {
+	border-radius: 2px;
+	border: 1px solid #d0d0d0;
+	background-color: #e8e8e8;
+	color: #383838;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+
+div.flash_message.warn {
+	border: 1px solid #EAED93;
+	background-color: #F9FF61;
+	color: #383838;
+}
+
+div.flash_message.error {
+	border: 1px solid #ED9393;
+	background-color: #ED6D6D;
+	color: #383838;
+}
+

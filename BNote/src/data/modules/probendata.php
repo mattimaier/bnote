@@ -24,8 +24,9 @@ class ProbenData extends AbstractData {
 		);
 		
 		$this->table = "rehearsal";
-		
+
 		$this->init($dir_prefix);
+		$this->init_trigger($dir_prefix);
 	}
 	
 	private function defaultQuery() {
@@ -266,6 +267,11 @@ class ProbenData extends AbstractData {
 		
 		if(count($contacts) > 0) {
 			$this->database->execute($query);
+		}
+		
+		// create notification
+		if($this->triggerServiceEnabled) {
+			
 		}
 		
 		return $rid;
