@@ -165,7 +165,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
  */
 if($userid == null || $userid < 1) {
 	// get all concerts
-	$query = "SELECT begin, end, ";
+	$query = "SELECT title, begin, end, ";
 	$query .= " concert.notes, name, street, city ";
 	$query .= " FROM concert, location, address";
 	$query .= " WHERE location = location.id AND address = address.id";
@@ -179,7 +179,7 @@ else {
 // write them
 for($i = 1; $i < count($concerts); $i++) {
 	echo "BEGIN:VEVENT\r\n";
-	echo "SUMMARY:Konzert " . $concerts[$i]["notes"] . "\r\n";
+	echo "SUMMARY:" . $concerts[$i]["title"] . "\r\n";
 	echo "ORGANIZER:$organizer\r\n";
 	
 	if($timezone_on) {
