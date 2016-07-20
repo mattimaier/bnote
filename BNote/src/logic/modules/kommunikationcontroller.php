@@ -113,11 +113,7 @@ class KommunikationController extends DefaultController {
 		$receipient = $ci["Mail"];
 		
 		// place sender addresses into the bcc field
-		$bcc_addresses = "";
-		foreach($addresses as $i => $to) {
-			if($i > 0) $bcc_addresses .= ",";
-			$bcc_addresses .= $to;
-		}
+		$bcc_addresses = join(",", $addresses);
 		
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
 		$mail = new Mailing($receipient, $subject, "");

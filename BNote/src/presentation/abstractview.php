@@ -239,6 +239,17 @@ abstract class AbstractView {
 	protected function isMode($mode) {
 		return (isset($_GET["mode"]) && $_GET["mode"] == $mode);
 	}
+	
+	/**
+	 * Print a flash message.
+	 * @param String $message Message body.
+	 * @param string $level Level: info, warn, error
+	 */
+	public static function flash($message, $level="warn") {
+		?>
+		<div class="flash_message <?php echo $level; ?>"><?php echo $message; ?></div>
+		<?php
+	}
 }
 
 ?>

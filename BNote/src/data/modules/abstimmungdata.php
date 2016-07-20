@@ -433,8 +433,31 @@ class AbstimmungData extends AbstractData {
 	}
 	
 	function getOpenVoters($voteId) {
-		//TODO find all contacts that have not voted so far
+		// find all contacts that can vote
+		$votersDbSel = $this->database->getSelection("SELECT c.id 
+				FROM vote_group vg JOIN user u ON vg.user = u.id
+				JOIN contact c ON u.contact = c.id
+				WHERE vote = $voteId"
+		);
+		$voterContacts = $this->database->flattenSelection($votersDbSel, "id");  # contact ids
 		
+		// find all contacts that have voted already
+		$alreadyVotedContactsDbSel = $this->database->getSelection("SELECT DISTINCT c.id 
+				FROM vote_option vo JOIN vote_option_user vou ON vo.id = vou.vote_option
+			    JOIN user u ON vou.user = u.id
+			    JOIN contact c ON u.contact = c.id
+			    WHERE vote = 1;"
+		);
+		$alreadyVotedContacts = $this->database->flattenSelection($alreadyVotedContactsDbSel, "id");
+		
+		// return only an array of contact ids that have not voted yet
+		$laggards = array();
+		foreach($voterContacts as $i => $contact) {
+			if(!in_array($contact, $alreadyVotedContacts)) {
+				array_push($laggards, $contact);
+			}
+		}
+		return $laggards;
 	}
 }
 

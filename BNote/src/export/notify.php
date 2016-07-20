@@ -13,7 +13,7 @@
  */
 
 // check if parameters are set correctly
-if(!isset($_GET["token"]) || !isset($_GET["otype"]) || !isset($_GET["oid"])) {
+if(!isset($_POST["token"]) || !isset($_POST["otype"]) || !isset($_POST["oid"])) {
 	header("HTTP/1.0 400 Insufficient Parameters");
 	exit(400);
 }
@@ -27,6 +27,7 @@ include $dir_prefix . $GLOBALS["DIR_DATA"] . "applicationdataprovider.php";
 $GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
 require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "iwriteable.php");
+require_once($dir_prefix . "lang.php");
 
 // Build Database Connection
 $system_data = new Systemdata($dir_prefix);
@@ -37,7 +38,7 @@ require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php");
 
 // Check token
 $trigger_key = $system_data->getDynamicConfigParameter("trigger_key");
-if($_GET["token"] != $trigger_key) {
+if($_POST["token"] != $trigger_key) {
 	header("HTTP/1.0 403 Invalid Key");
 	exit(403);
 }
@@ -60,43 +61,113 @@ class Notifier {
 		}
 	}
 	
-	private function sendEmailToContacts($contacts) {
-		//TODO implement
-		require_once($dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php");
-		$mail = new Mailing($to, $subject, $body);
-		$mail->setBcc($addresses);  // string of addresses separated properly
+	private function getMailAddresses($contacts) {
+		$where = join(" OR id = ", $contacts);
+		$q = "SELECT DISTINCT email FROM contact WHERE id = $where";
+		global $system_data;
+		$addressesDbSel = $system_data->dbcon->getSelection($q);
+		return $system_data->dbcon->flattenSelection($addressesDbSel, "email");
 	}
 	
-	private function ok() {
-		echo json_encode(array("success" => true, "message" => "OK"));
+	private function getEnsembleEmail() {
+		global $system_data;
+		$ensemble = $system_data->getCompanyInformation();
+		return $ensemble['Mail'];
+	}
+	
+	private function sendEmailToContacts($contacts, $subject, $body) {
+		// no email must be sent, all good
+		if(count($contacts) == 0) {
+			return true;
+		}
+		global $dir_prefix;
+		require_once($dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php");
+		$mail = new Mailing(null, $subject, null);
+		$addresses = join(",", $this->getMailAddresses($contacts));
+		$mail->setBcc($addresses);  // string of addresses separated properly
+		$mail->setBodyInHtml($body);
+		return $mail->sendMail();
+	}
+	
+	private function ok($ok=true) {
+		if(!$ok) {
+			header("HTTP/1.0 500 Unable to send notification.");
+		}
+		else {
+			echo json_encode(array("success" => $ok, "message" => "OK"));
+		}
 	}
 	
 	private function sendRehearsalNotification($rehearsalId) {
+		// data access object
+		global $dir_prefix;
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php");
 		$dao = new ProbenData($dir_prefix);
-		$laggardIds = $dao->getOpenParticipation($rehearsalId);
-		$this->sendEmailToContacts($laggardIds);
-		$this->ok();
+		
+		// open participation
+		$laggards = $dao->getOpenParticipation($rehearsalId);
+		$laggardIds = Database::flattenSelection($laggards, "id");
+		
+		// message
+		$rehearsal = $dao->findByIdNoRef($rehearsalId);
+		$reh_begin = Data::convertDateFromDb($rehearsal['begin']);
+		$subject = "Probe am $reh_begin - Erinnerung";
+		$body = "Bitte gebe deine Teilnahme an der Probe am $reh_begin an.<br/>";
+		$bnote_url = $dao->getSysdata()->getSystemURL();
+		$body .= "<a href=\"$bnote_url\">BNote aufrufen</a><br/>";
+		$body .= "Danke!";
+		
+		// send and ok
+		$this->ok($this->sendEmailToContacts($laggardIds, $subject, $body));
 	}
 	
 	private function sendConcertNotification($concertId) {
+		// data access object
+		global $dir_prefix;
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php");
 		$dao = new KonzerteData($dir_prefix);
-		$laggardIds = $dao->getOpenParticipants($concertId);
-		$this->sendEmailToContacts($laggardIds);
-		$this->ok();
+		
+		// open participation
+		$laggards = $dao->getOpenParticipants($concertId);
+		$laggardIds = Database::flattenSelection($laggards, "id");
+		
+		// message
+		$concert = $dao->findByIdNoRef($concertId);
+		$subject = $concert['title'] . " - Erinnerung";
+		$body = "Bitte gebe deine Teilnahme für " . $concert['title'] . " an:<br/>";
+		$bnote_url = $dao->getSysdata()->getSystemURL();
+		$body .= "<a href=\"$bnote_url\">BNote aufrufen</a><br/>";
+		$body .= "Danke!";
+		
+		// send and ok
+		$this->ok($this->sendEmailToContacts($laggardIds, $subject, $body));
 	}
 	
 	private function sendVoteNotification($voteId) {
+		// data access object
+		global $dir_prefix;
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "abstimmungdata.php");
 		$dao = new AbstimmungData($dir_prefix);
-		$dao->getOpenVoters($voteId); //TODO implement
+		
+		// open votes
+		$laggardIds = $dao->getOpenVoters($voteId);
+		
+		// message
+		$vote = $dao->findByIdNoRef($voteId);
+		$subject = $vote['name'] . " - Erinnerung";
+		$body = "Bitte stimme noch für " . $vote['name'] . " ab:";
+		$bnote_url = $dao->getSysdata()->getSystemURL();
+		$body .= "<a href=\"$bnote_url\">BNote aufrufen</a><br/>";
+		$body .= "Danke!";
+		
+		// send and ok
+		$this->ok($this->sendEmailToContacts($laggardIds, $subject, $body));
 	}
 	
 }
 
 $notifier = new Notifier();
-$notifier->sendNotification($_GET["otype"], $_GET["oid"]);
+$notifier->sendNotification($_POST["otype"], $_POST["oid"]);
 
 
 ?>

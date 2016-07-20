@@ -713,6 +713,9 @@ class Installation {
 					(7, 'Organisation'),
 					(8, 'Sonstige');");
 
+			// simple key
+			$trigger_key = date("Ymd") . "X" . date("His") . rand(1000, 9999);
+			
 			array_push($queries,
 					"INSERT INTO `configuration` (`param`, `value`, `is_active`) VALUES
 					('rehearsal_start', '18:00', 1),
@@ -727,7 +730,11 @@ class Installation {
 					('rehearsal_show_max', '5', 1),
 					('updates_show_max', '5', 1),
 					('language', 'de', 1),
-					('discussion_on', '1', 1);");
+					('discussion_on', '1', 1),
+					('google_api_key', '', 1),
+					('trigger_key', '" . $trigger_key . "', 1),
+					('atriggercom_key', '', 1),
+					('atriggercom_secret', '', 1);");
 			
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES

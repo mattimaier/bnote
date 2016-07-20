@@ -24,8 +24,9 @@ class ProbenData extends AbstractData {
 		);
 		
 		$this->table = "rehearsal";
-		
+
 		$this->init($dir_prefix);
+		$this->init_trigger($dir_prefix);
 	}
 	
 	private function defaultQuery() {
@@ -266,6 +267,20 @@ class ProbenData extends AbstractData {
 		
 		if(count($contacts) > 0) {
 			$this->database->execute($query);
+		}
+		
+		// create notification
+		if($this->triggerServiceEnabled) {
+			$repeatCycle = 3;  # every 3 days send a reminder
+			$first = Data::addDaysToDate(date(Lang::getDateFormatPattern()), $repeatCycle);
+			ATrigger::doCreate("3day", 
+					$this->getNotificationTriggerUrl(), 
+					array("bnote_rehearsal"), 
+					3,  # retries from atrigger.com to the server
+					$repeatCycle,  # how often should this be repeated
+					$first,  # first day to start 
+					$this->buildTriggerData("R", $rid)
+			);
 		}
 		
 		return $rid;

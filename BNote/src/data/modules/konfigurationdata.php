@@ -41,7 +41,9 @@ class KonfigurationData extends AbstractData {
 				"updates_show_max" => array("Anzahl Updates auf Startseite", FieldType::INTEGER),
 				"language" => array("Sprache", FieldType::CHAR),
 				"google_api_key" => array("Google Maps API Key", FieldType::CHAR),
-				"trigger_key" => array("Trigger Interface Key", FieldType::CHAR)
+				"trigger_key" => array("Notification Interface Key", FieldType::CHAR),
+				"atriggercom_key" => array("ATrigger.com API Key", FieldType::CHAR),
+				"atriggercom_secret" => array("ATrigger.com API Secret", FieldType::CHAR)
 		);
 		
 		$this->parameterExclude = array(
