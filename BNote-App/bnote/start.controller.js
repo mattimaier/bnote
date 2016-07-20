@@ -151,8 +151,7 @@ sap.ui.controller("bnote.start", {
             			icon = "icons/task_red.png";
             		}; break;             		
             	case "Rehearsal": 
-            		var participate = item.participate; 
-            		console.log(item);
+            		var participate = item.participate;             	
             		switch (participate){            														
             			case 1 : icon = "icons/proben_green.png"; break;            			
             			case 2 : icon = "icons/proben_orange.png"; break;		

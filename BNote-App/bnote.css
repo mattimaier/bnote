@@ -41,3 +41,10 @@
 	color: black !important;
 }
 
+.sapMLnk {
+	text-decoration: underline !important;
+}
+
+.sapMSegBBtnSel {
+	background-color: #175A97 !important;
+}

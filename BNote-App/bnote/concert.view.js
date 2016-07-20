@@ -13,7 +13,10 @@ sap.ui.jsview("bnote.concert", {
 			comma = "";
 		}
 		var preparedlocation = location.street + comma + location.zip + " " + location.city;
+		var location_link =  "http://maps.google.com/?q=" + preparedlocation;
 		model.setProperty(path + "/location/preparedlocation", preparedlocation);
+		model.setProperty(path + "/location/link", location_link);
+		
 		return model;
 	},
 	
@@ -30,9 +33,10 @@ sap.ui.jsview("bnote.concert", {
 	},
 	
     createContent: function(oController) {
-    	var view = this;    	
+    	var view = this;    
     	
-		var concertForm = new sap.ui.layout.form.SimpleForm({            
+		var concertForm = new sap.ui.layout.form.SimpleForm({ 
+			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             content: [
                 // title     
 				new sap.m.Label({text: "Titel"}),
@@ -45,9 +49,13 @@ sap.ui.jsview("bnote.concert", {
                 new sap.m.Text({text: "{end}"}),
                 // location
                 new sap.m.Label({text: "Ort"}),
-                new sap.m.Text({text: "{location/name}"}),
-                new sap.m.Text({text: "\u00a0"}),
-                new sap.m.Text({text: "{location/preparedlocation}" }),
+                new sap.m.Text({text: "{location/name}"}),               
+                new sap.m.Text({text: "{location/preparedlocation}"}),
+                new sap.m.Link({
+                	text: "Auf Karte zeigen",
+                	href: "{location/link}", 
+                	target: "_blank"
+                }),
                 // notes
                 new sap.m.Label({text: "Anmerkungen"}),
                 new sap.m.Text({text: "{notes}"}),

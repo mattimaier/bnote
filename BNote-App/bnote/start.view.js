@@ -88,19 +88,34 @@ sap.ui.jsview("bnote.start", {
 				contactaddView.getController().prepareModel();
 				app.to("contactadd","slide");
 			}
-		});				
+		});	
+		var calendarButton = new sap.m.Button({
+			text: "Kalender abonnieren",
+			press: function() {			
+				var pathname = location.pathname;
+				var hostname = location.hostname;
+				var port = "";
+				if	(location.port != ""){
+					port = ":" + location.port;
+				}
+				
+				window.location = "webcal://" + hostname + port + "/" + pathname + core_bnote_path + "src/export/calendar.ics?user=" + username;
+			}
+		});
+		
 		var startActionSheet = new sap.m.ActionSheet({
 			cancelButtonText: "Abbrechen",
 			buttons:[        			        
 			         this.reservationaddButton,
 			         this.rehearsaladdButton,
 			         this.taskaddButton,
-			         this.contactaddButton,			      
+			         this.contactaddButton,	
+			         calendarButton
 			         ],
 		});		
 		this.startaddButton = new sap.m.Button({	
 			visible: false,
-			icon : sap.ui.core.IconPool.getIconURI("add"),
+			icon : sap.ui.core.IconPool.getIconURI("drop-down-list"),
 			press: function(){
 				startActionSheet.setPlacement(sap.m.PlacementType.HorizontalPreferedRight);
 				startActionSheet.openBy(this);

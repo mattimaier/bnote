@@ -45,6 +45,7 @@ sap.ui.controller("bnote.login", {
             },
             success: function(data) {
             	mobilePin = data;
+            	username = login;
             	setPermissions();
             	startView.getController().loadAllData();
                 app.to("start");
