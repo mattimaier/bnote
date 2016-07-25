@@ -3,7 +3,7 @@
 /*************************
  * UPGRADES THE DATABASE *
  * @author Matti Maier   *
- * Update 3.0.0 to 3.0.1 *
+ * Update 3.0.0 to 3.1.0 *
  *************************/
 
 // path to src/ folder
@@ -22,6 +22,7 @@ $PATH_TO_SRC = "src/";
 // include necessary libs
 require_once "dirs.php";
 require_once $PATH_TO_SRC . "data/systemdata.php";
+require_once "lang.php";
 require_once $PATH_TO_SRC . "presentation/widgets/error.php";
 
 class UpdateDb {
@@ -202,8 +203,16 @@ $update->addDynConfigParam("atriggercom_secret", "");
 $update->addDynConfigParam("trigger_cycle_days", "3");
 $update->addDynConfigParam("trigger_repeat_count", "3");
 
-?>
-<br/>
+// Task 6: Associate Songs and Files
+$update->addTable("song_files", "CREATE TABLE IF NOT EXISTS song_files (
+	id INT(11) PRIMARY KEY AUTO_INCREMENT,
+	song INT(11) NOT NULL,
+	filepath VARCHAR(255) NOT NULL,
+	notes TEXT
+)");
+
+// Additional Comments
+?><br/>
 <strong>DO NOT FORGET TO UPDATE YOUR CONFIGURATION AND UPLOAD THE DOMAIN VERIFICATION FILE FROM ATRIGGER.COM.</strong><br/>
 
 <br/><br/>

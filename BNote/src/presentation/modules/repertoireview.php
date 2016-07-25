@@ -82,6 +82,7 @@ class RepertoireView extends CrudRefView {
 	}
 	
 	protected function showAllTable() {
+		// Filters
 		if(isset($_GET["showFilters"])) {
 			$filter = new Filterbox($this->modePrefix() . "start&showFilters=true&filters=true");
 			$filter->addFilter("genre", "Genre", FieldType::SET, $this->getData()->getGenres());
@@ -101,6 +102,7 @@ class RepertoireView extends CrudRefView {
 			$data = $this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "length >= 0 ORDER BY title");
 		}
 		
+		// Table
 		$table = new Table($data);
 		$table->setEdit("id");
 		$table->renameAndAlign($this->getData()->getFields());
@@ -110,11 +112,18 @@ class RepertoireView extends CrudRefView {
 		$table->removeColumn("id");
 		$table->write();
 		
+		// Length
 		$tt = $this->getData()->totalRepertoireLength();
 		Writing::p("Das Repertoire hat eine Gesamtlänge von <strong>" . $tt . "</strong> Stunden.");
 	}
 	
 	protected function viewDetailTable() {
+		// Files
+		if($this->getData()->getSysdata()->userHasPermission(12)) {
+			$this->songFiles();
+		}
+		
+		// Details
 		$dv = new Dataview();
 		$dv->autoAddElements($this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes()));
 		$dv->autoRename($this->getData()->getFields());
@@ -123,6 +132,7 @@ class RepertoireView extends CrudRefView {
 		$dv->renameElement("statusname", "Status");
 		$dv->write();
 		
+		// Solists
 		Writing::h3("Solisten");		
 		$solists = $this->getData()->getSolists($_GET["id"]);
 		// add a link to the data to remove the solist from the list
@@ -141,6 +151,75 @@ class RepertoireView extends CrudRefView {
 		$solTab->write();
 		
 		$this->verticalSpace();
+	}
+	
+	private function songFiles() {
+		$songs = $this->getData()->getFiles($_GET["id"]);
+		?>
+		<div class="songfiles_box">
+			<h3>Dateien</h3>
+			<ul>
+			<?php
+			// show files
+			for($i = 1; $i < count($songs); $i++) {
+				$file = $songs[$i]["filepath"];
+				$href = "src/data/filehandler.php?file=/" . $file;
+				$preview = $href;
+				$delHref = $this->modePrefix() . "removeSongFile&id=" . $_GET["id"] . "&songfile=" . $songs[$i]["id"];
+				$imgWidth = "50px";
+				?>
+				<li class="songfiles_filebox">
+					<?php
+					if(!Data::endsWith($file, "png") && !Data::endsWith($file, "jpg") && !Data::endsWith($file, "jpeg") && !Data::endsWith($file, "bmp")) {
+						$preview = "style/icons/copy_link.png";
+						$imgWidth = "32px";
+					}
+					?>
+					<a href="<?php echo $href; ?>" target="_blank">
+						<img class="songfiles_preview" src="<?php echo $preview; ?>" width="<?php echo $imgWidth; ?>">
+					</a>
+					<div class="songfiles_textbox">
+						<a class="songfiles_filelink" href="<?php echo $href; ?>" target="_blank"><?php echo $file; ?></a><br/>
+						<a href="<?php echo $delHref; ?>">Verknüpfung löschen</a>
+					</div>
+				</li>
+				<?php
+			}
+			?>
+			</ul>
+			<?php
+			// add files form
+			$form = new Form("Datei hinzufügen", $this->modePrefix() . "addSongFile&id=" . $_GET["id"]);
+			$dd = new Dropdown("file");
+			$possibleFiles = $this->getData()->getShareFiles();
+			foreach($possibleFiles as $i => $fileinfo) {
+				$dd->addOption($fileinfo["filename"], $fileinfo["fullpath"]);
+			}
+			$form->addElement("Datei aus Tauschordner", $dd);
+			$form->write();
+			?>
+		</div>
+		<?php
+	}
+	
+	public function addSongFile() {
+		$songId = $_GET["id"];
+		$fullpath = $_POST["file"];
+		$this->getData()->addFile($songId, $fullpath);
+		$this->view();
+	}
+	
+	function addSongFileOptions() {
+		$this->viewOptions();
+	}
+	
+	function removeSongFile() {
+		$this->getData()->deleteFileReference($_GET["songfile"]);
+		$this->view();
+	}
+
+	function removeSongFileOptions() {
+		$this->viewOptions();
 	}
 	
 	protected function additionalViewButtons() {

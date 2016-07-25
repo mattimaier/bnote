@@ -2,7 +2,7 @@
 /*
  * PHP Version >= 5.2 !!!
  *
- * WEB APPLICATION INTERFACE: Blue Note Interface (BNI)
+ * WEB APPLICATION INTERFACE: BNote Interface (BNI)
  * This file can be called with various parameters to retrieve
  * information from the web application.
  * 

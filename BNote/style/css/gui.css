@@ -502,3 +502,30 @@ div.flash_message.error {
 	color: #383838;
 }
 
+.songfiles_box {
+	display: block;
+	min-width: 400px;
+	min-height: 400px;
+	float: right;
+	padding: 10px;
+}
+
+.songfiles_filebox {
+	height: 50px;
+	position: relative;
+}
+
+.songfiles_filelink {
+	font-weight: bold;
+}
+
+.songfiles_textbox {
+	display: block;
+	position: absolute;
+	left: 60px;
+	top: 0px;
+}
+
+.songfiles_preview {
+	padding: 3px;
+}

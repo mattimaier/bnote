@@ -236,7 +236,7 @@ class Filebrowser implements iWriteable {
 		}
 		else {
 			$caption = $this->getFolderCaption();
-			Writing::h3($caption);
+			Writing::h3($caption, "filebrowser_folder_header");
 			
 			// level up
 			if(strpos($caption, "/") !== false) {
@@ -495,7 +495,7 @@ class Filebrowser implements iWriteable {
 		return substr($this->path, $idstart, $len);
 	}
 	
-	private function fileValid($fullpath, $file) {		
+	static function fileValid($fullpath, $file) {		
 		$fullpath = str_replace("//", "/", $fullpath);
 		
 		if($file == ".htaccess") return false;

@@ -4,6 +4,10 @@
 	width: 100%;
 }
 
+#filebrowser_content tr {
+	border-width: 0px;
+}
+
 #filebrowser_folders {
 	padding: 0px;
 	width: 200px;
@@ -19,7 +23,7 @@
 .filebrowser_folderitem {
 	padding: 5px;
 	border: 1px solid #d0d0d0;
-	border-bottom-width: 0px;
+	border-top-width: 0px;
 }
 
 .filebrowser_folderitem:hover {
@@ -40,6 +44,11 @@
 
 #filebrowser_files {
 	background-color: #fff;
-	border-top: 1px solid #d0d0d0;
-    border-right: 1px solid #d0d0d0;
+	padding-top: 0px;
+	/* border-top: 1px solid #d0d0d0;
+    border-right: 1px solid #d0d0d0; */
 }
+
+.filebrowser_folder_header {
+	margin-top: 0px;
+} 

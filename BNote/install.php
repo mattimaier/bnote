@@ -695,6 +695,14 @@ class Installation {
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
+			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS song_files (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					song INT(11) NOT NULL,
+					filepath VARCHAR(255) NOT NULL,
+					notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
 			foreach($queries as $i => $query) {
 				$db->execute($query);
 			}

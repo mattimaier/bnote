@@ -122,6 +122,7 @@ background-color: #fff;
 
 #content 
 {
+	min-width: 822px;
 	padding: 0px;
 	background-color: #fff;
 	border-color:#e0e0e0;	

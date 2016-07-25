@@ -279,6 +279,55 @@ class RepertoireData extends AbstractData {
 		$query .= "$where ORDER BY title";
 		return $this->database->getSelection($query);
 	}
+	
+	function getFiles($songId) {
+		$this->regex->isPositiveAmount($songId);
+		$dbResult = $this->database->getSelection("SELECT * FROM song_files WHERE song = $songId");
+		$songfiles = array($dbResult[0]);
+		for($i = 1; $i < count($dbResult); $i++) {
+			$songfile = $dbResult[$i];
+			$songfile['filepath'] = substr($songfile['filepath'], strlen("data/share/"));
+			array_push($songfiles, $songfile);
+		}
+		return $songfiles;
+	}
+	
+	function addFile($songId, $filename) {
+		$q = "INSERT INTO song_files (song, filepath) VALUES ($songId, \"$filename\")";
+		$this->database->execute($q);
+	}
+	
+	function deleteFileReference($songfileId) {
+		$this->database->execute("DELETE FROM song_files WHERE id = $songfileId");
+	}
+	
+	function getShareFiles() {
+		return $this->recursiveFiles("data/share/");
+	}
+	
+	function recursiveFiles($folder) {
+		// data body
+		$content = array();
+		if($handle = opendir($folder)) {
+			while(false !== ($file = readdir($handle))) {
+				$fullpath = $folder . $file;
+				if(Filebrowser::fileValid($fullpath, $file)) {
+					if(is_dir($fullpath)) {
+						$subdir_content = $this->recursiveFiles($fullpath . "/");
+						$content = array_merge($content, $subdir_content);
+					}
+					else {
+						$caption = $file;
+						if($folder != "data/share/") {
+							$caption = substr($fullpath, strlen("data/share/"));
+						}
+						array_push($content, array("fullpath" => $fullpath, "filename" => $caption));
+					}
+				}
+			}
+		}
+		return $content;
+	}
 }
 
 ?>
