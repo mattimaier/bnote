@@ -25,7 +25,7 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
 # Link all CSS Files in style/css
 if($handle = opendir('style/css')) {
 	while(false !== ($file = readdir($handle))) {
-		if($file != "." && $file != ".." && $file != "!reset.css") {
+		if($file != "." && $file != ".." && $file != "!reset.css" && $file != "reset.css") {
 			echo ' <LINK href="style/css/' . $file . '" rel="StyleSheet" type="text/css">'. "\n";
 		}
 	}
