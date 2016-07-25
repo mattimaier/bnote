@@ -96,6 +96,24 @@ abstract class AbstractData {
 		);
 	}
 	
+	protected function createTrigger($tags, $triggerData) {
+		# every n days send a reminder
+		$repeatCycle = intval($this->getSysdata()->getDynamicConfigParameter("trigger_cycle_days"));
+		# how often should this be repeated
+		$repeatCount = intval($this->getSysdata()->getDynamicConfigParameter("trigger_repeat_count"));
+		# first day to start
+		$first = Data::addDaysToDate(date(Lang::getDateFormatPattern()), $repeatCycle);
+		# Execute PHP API
+		ATrigger::doCreate($repeatCycle . "day",
+			$this->getNotificationTriggerUrl(),
+			$tags,
+			3,  # retries from atrigger.com to the server
+			$repeatCount,
+			$first,
+			$triggerData
+		);
+	}
+	
 	/**
 	 * <strong>init() must have been called first!</strong>
 	 * @return ApplicationDataProvider The application data provider reference.

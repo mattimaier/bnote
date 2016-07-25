@@ -26,6 +26,7 @@ class AbstimmungData extends AbstractData {
 		$this->table = "vote";
 
 		$this->init($dir_prefix);
+		$this->init_trigger($dir_prefix);
 	}
 	
 	function create($values) {
@@ -53,6 +54,11 @@ class AbstimmungData extends AbstractData {
 		// resolve groups and add members
 		$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 		$this->registerVoters($vid, $grps);
+		
+		// create trigger if available
+		if($this->triggerServiceEnabled) {
+			$this->createTrigger(array("bnote_vote", "vote_$vid"), $this->buildTriggerData("V", $vid));
+		}
 		
 		return $vid;
 	}

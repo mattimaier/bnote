@@ -197,7 +197,13 @@ $update->addDynConfigParam("trigger_key", $random_key);
 // Task 4: Atrigger.com Keys
 $update->addDynConfigParam("atriggercom_key", "");
 $update->addDynConfigParam("atriggercom_secret", "");
+
+// Task 5: Reminder Configuration
+$update->addDynConfigParam("trigger_cycle_days", "3");
+$update->addDynConfigParam("trigger_repeat_count", "3");
+
 ?>
+<br/>
 <strong>DO NOT FORGET TO UPDATE YOUR CONFIGURATION AND UPLOAD THE DOMAIN VERIFICATION FILE FROM ATRIGGER.COM.</strong><br/>
 
 <br/><br/>

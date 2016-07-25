@@ -32,6 +32,7 @@ class KonzerteData extends AbstractData {
 		$this->table = "concert";
 		
 		$this->init($dir_prefix);
+		$this->init_trigger($dir_prefix);
 	}
 	
 	public function delete($id) {
@@ -244,8 +245,12 @@ class KonzerteData extends AbstractData {
 		
 		// adds members of the selected group(s)
 		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
-		
 		$this->addMembersToConcert($groups, $concertId);	
+		
+		// create trigger if configured
+		if($this->triggerServiceEnabled) {
+			$this->createTrigger(array("bnote_concert", "concert_$concertId"), $this->buildTriggerData("C", $concertId));
+		}
 		
 		return $concertId;
 	}
