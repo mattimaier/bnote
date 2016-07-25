@@ -103,13 +103,14 @@ abstract class AbstractData {
 		$repeatCount = intval($this->getSysdata()->getDynamicConfigParameter("trigger_repeat_count"));
 		# first day to start
 		$first = Data::addDaysToDate(date(Lang::getDateFormatPattern()), $repeatCycle);
+		$first = date_create_from_format(Lang::getDateFormatPattern(), $first);
 		# Execute PHP API
 		ATrigger::doCreate($repeatCycle . "day",
 			$this->getNotificationTriggerUrl(),
 			$tags,
-			3,  # retries from atrigger.com to the server
-			$repeatCount,
 			$first,
+			$repeatCount,
+			3,  # retries from atrigger.com to the server
 			$triggerData
 		);
 	}
