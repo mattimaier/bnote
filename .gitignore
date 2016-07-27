@@ -5,3 +5,6 @@ BNote-App/.classpath
 BNote-App/.project
 BNote-App/.settings/
 BNote/data/
+TriggerServer/.settings/
+TriggerServer/.project
+TriggerServer/.buildpath
