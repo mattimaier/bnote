@@ -1,0 +1,42 @@
+RewriteEngine on
+
+# publically available actions
+RewriteRule createTrigger createTrigger.php
+
+# Protect the htaccess file
+<Files .htaccess>
+	Order Allow,Deny
+	Deny from all
+</Files>
+
+# Protect log
+<Files notification.log>
+	Order Allow,Deny
+	Deny from all
+</Files>
+
+# Protect all PHP files
+<Files *.php>
+	Order Allow,Deny
+	Deny from all
+</Files>
+
+# Protect all XML files
+<Files *.xml>
+	Order Allow,Deny
+	Deny from all
+</Files>
+
+
+# Allow access to endpoint
+<Files createTrigger.php>
+	Allow from all
+</Files>
+
+<Files update_db.php>
+	Allow from all
+	# Order Deny,Allow
+	# Deny from all
+	# Allow from 127.0.0.1
+	# Allow from localhost
+</Files>
