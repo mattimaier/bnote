@@ -9,8 +9,8 @@ RewriteRule createTrigger createTrigger.php
 	Deny from all
 </Files>
 
-# Protect log
-<Files notification.log>
+# Protect logs
+<Files *.log>
 	Order Allow,Deny
 	Deny from all
 </Files>
@@ -34,6 +34,13 @@ RewriteRule createTrigger createTrigger.php
 </Files>
 
 <Files update_db.php>
+	Order Deny,Allow
+	Deny from all
+	Allow from 127.0.0.1
+	Allow from localhost
+</Files>
+
+<Files notifyClients.php>
 	Allow from all
 	# Order Deny,Allow
 	# Deny from all

@@ -1,4 +1,5 @@
 <?php
+require_once 'notificationLogger.php';
 
 /*
  * - Read from the post
@@ -16,17 +17,26 @@ class TriggerPublicInterface {
 	public static function error($code=500, $message) {
 		http_response_code($code);
 		echo $message;
+		NotificationLogger::error($code . " " . $message);
 		exit($code);
+	}
+	
+	public static function success() {
+		header('Content-Type: application/json; charset=utf-8');
+		echo json_encode(array(
+			"success" => TRUE,
+			"message" => "OK"
+		));
 	}
 	
 	/**
 	 * Singleton for database access in lazy way.
-	 * @return TriggerDB
+	 * @return TriggerData
 	 */
 	private function getData() {
 		if($this->dao == null) {
-			require_once("triggerdb.php");
-			$this->dao = new TriggerDB();
+			require_once("triggerdata.php");
+			$this->dao = new TriggerData();
 		}
 		return $this->dao;
 	}
@@ -45,10 +55,12 @@ class TriggerPublicInterface {
 	}
 	
 	private function isValidInput($data) {
-		if(!isset($data->oid) || !isset($data->otype) || !isset($data->token)) {
+		if(!isset($data->trigger_on) || !isset($data->callback_url) || !isset($data->token)) {
 			return false;
 		}
-		return (is_numeric($data->oid) && preg_match("/^[A-Z]{1}$/", $data->otype) && preg_match("/^[a-zA-Z0-9]{10,100}$/", $data->token));
+		return (preg_match("/^[a-zA-Z0-9]{10,100}$/", $data->token) 
+				&& preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}$/", $data->trigger_on)
+				&& strpos($data->callback_url, "http") !== FALSE);
 	}
 	
 	public function validateToken() {
@@ -58,14 +70,57 @@ class TriggerPublicInterface {
 		}
 	}
 	
+	protected function now() {
+		return date("Y-m-d H:i:s");
+	}
+	
 	public function createTrigger() {
-		//TODO implement
+		$created = $this->now();
+		$trigger_on = $this->input_data->trigger_on;
+		if(isset($this->input_data->callback_data)) {
+			$callback_data = json_encode($this->input_data->callback_data);
+			$callback_data = urlencode($callback_data);  # for safety reasons
+		}
+		else {
+			$callback_data = "";
+		}
+		$callback_url = $this->input_data->callback_url;
+		
+		// check if this host is known
+		// -> yes: increase count
+		// -> no:  insert it
+		$parse_result = parse_url($callback_url);
+		if($parse_result === FALSE) {
+			TriggerPublicInterface::error(404, "URL not valid.");
+		}
+		try {
+			// Update instance
+			$this->updateInstance($parse_result['host']);
+			
+			// Create job
+			$this->getData()->addJob($created, $trigger_on, $callback_data, $callback_url);
+			
+		} catch(Exception $e) {
+			$this->error(500, $e->getMessage());
+		}
+		TriggerPublicInterface::success();
+	}
+	
+	protected function updateInstance($hostname) {
+		if($this->dao->instanceExists($hostname)) {
+			$this->dao->increaseCountOfInstance($hostname);
+		}
+		else {
+			$first_seen = $this->now();
+			$this->dao->addInstance($hostname, $first_seen);
+		}
 	}
 	
 	public function run() {
 		$this->readInput();
 		$this->validateToken();
 		$this->createTrigger();
+		$this->getData()->disconnect();
 	}
 }
 

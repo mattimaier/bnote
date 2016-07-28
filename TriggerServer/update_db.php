@@ -99,9 +99,7 @@ $update->addTable("jobs", "CREATE TABLE IF NOT EXISTS jobs (
 	id INT(11) PRIMARY KEY AUTO_INCREMENT,
 	created DATETIME NOT NULL DEFAULT NOW(),
 	trigger_on DATETIME NOT NULL,
-	otype CHAR(1) NOT NULL,
-	oid INT(11) NOT NULL,
-	token VARCHAR(100) NOT NULL,
+	callback_data TEXT NOT NULL,
 	callback_url VARCHAR(255) NOT NULL
 )");
 

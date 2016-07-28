@@ -3,14 +3,15 @@
 class TriggerDB {
 	
 	const CONFIG_FILE = "db.xml";
+	const DATETIME_FORMAT_DB = "Y-m-d H:i:s";
 	
-	private $config = null;
+	protected $config = null;
 	
 	/**
 	 * MySQLi Connection
 	 * @var mysqli
 	 */
-	private $db = null;
+	protected $db = null;
 	
 	function __construct() {
 		$this->readConfig();
@@ -78,10 +79,6 @@ class TriggerDB {
 		}
 		$row = $res->fetch_row();
 		return $row[0];
-	}
-	
-	public function getSetting($key) {
-		return $this->getCell("settings", "value", "setting ='$key'");
 	}
 	
 	public function disconnect() {
