@@ -32,18 +32,3 @@ RewriteRule createTrigger createTrigger.php
 <Files createTrigger.php>
 	Allow from all
 </Files>
-
-<Files update_db.php>
-	Order Deny,Allow
-	Deny from all
-	Allow from 127.0.0.1
-	Allow from localhost
-</Files>
-
-<Files notifyClients.php>
-	Allow from all
-	# Order Deny,Allow
-	# Deny from all
-	# Allow from 127.0.0.1
-	# Allow from localhost
-</Files>
