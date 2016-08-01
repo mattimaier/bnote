@@ -2,8 +2,8 @@
 # by Matti Maier und Stefan Kreminski BNote Software GbR
 # www.bnote.info
 
-# Release Version 3.0.0
-# Release Date 2016-xx-xx
+# Release Version 3.1.0
+# Release Date 2016-08-02
 # License GPLv3
 
 Requirements

@@ -2,3 +2,20 @@
 ## Release Notes
 ##
 
+#179: Package mail_template with release
+#181: Link files to songs
+#182: Register users from mobile
+#183: Rename participation option for rehearsal
+#184: Save username in app login
+#185: Add concert title
+#186: Google Maps link for addresses in app
+#188: Endpoint in URL was wrong
+#189: Reminder/Notification infrastructure
+#190: Adding members to concerts via group
+#191: Improve concert overview with title
+#192: Rename discussions to comments
+#193: Repertoire typo fixed
+#194: Add group to concert, not just single contact
+#199,187,200: Improve start to show participation better
+#202: Add nickname to contacts
+#203: Improve CSV export of programs
