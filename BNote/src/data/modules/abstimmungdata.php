@@ -40,13 +40,15 @@ class AbstimmungData extends AbstractData {
 		if(isset($_POST["is_multi"])) { $is_multi = 1; } else { $is_multi = 0; }
 		$is_finished = 0;
 		
+		$end_dt = Data::convertDateToDb($_POST["end"]);
+		
 		// insert vote
 		$query = "INSERT INTO " . $this->table;
 		$query .= " (name, author, end, is_multi, is_date, is_finished)";
 		$query .= " VALUES (";
 		$query .= '"' . $_POST["name"] . '", ';
 		$query .= "$author, ";
-		$query .= '"' . Data::convertDateToDb($_POST["end"]) . '", ';
+		$query .= '"' . $end_dt . '", ';
 		$query .= "$is_multi, $is_date, $is_finished";
 		$query .= " )";
 		$vid = $this->database->execute($query);
@@ -57,7 +59,7 @@ class AbstimmungData extends AbstractData {
 		
 		// create trigger if available
 		if($this->triggerServiceEnabled) {
-			$this->createTrigger(array("bnote_vote", "vote_$vid"), $this->buildTriggerData("V", $vid));
+			$this->createTrigger($end_dt, $this->buildTriggerData("V", $vid));
 		}
 		
 		return $vid;

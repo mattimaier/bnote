@@ -271,7 +271,8 @@ class ProbenData extends AbstractData {
 		
 		// create notification
 		if($this->triggerServiceEnabled) {
-			$this->createTrigger(array("bnote_rehearsal", "rehearsal_$rid"), $this->buildTriggerData("R", $rid));
+			$begin_dt = Data::convertDateToDb($values["begin"]);
+			$this->createTrigger($begin_dt, $this->buildTriggerData("R", $rid));
 		}
 		
 		return $rid;

@@ -741,10 +741,9 @@ class Installation {
 					('discussion_on', '1', 1),
 					('google_api_key', '', 1),
 					('trigger_key', '" . $trigger_key . "', 1),
-					('atriggercom_key', '', 1),
-					('atriggercom_secret', '', 1),
 					('trigger_cycle_days', '3', 1),
-					('trigger_repeat_count', '3', 1);");
+					('trigger_repeat_count', '3', 1),
+					('enable_trigger_service', '1', 1);");
 			
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES

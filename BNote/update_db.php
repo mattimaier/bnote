@@ -194,26 +194,20 @@ require_once $PATH_TO_SRC . "logic/defaultcontroller.php";
 require_once $PATH_TO_SRC . "logic/modules/logincontroller.php";
 $random_key = LoginController::generatePassword(12);
 $update->addDynConfigParam("trigger_key", $random_key);
+$update->addDynConfigParam("enable_trigger_service", "1");
 
-// Task 4: Atrigger.com Keys
-$update->addDynConfigParam("atriggercom_key", "");
-$update->addDynConfigParam("atriggercom_secret", "");
-
-// Task 5: Reminder Configuration
+// Task 4: Reminder Configuration
 $update->addDynConfigParam("trigger_cycle_days", "3");
 $update->addDynConfigParam("trigger_repeat_count", "3");
 
-// Task 6: Associate Songs and Files
+// Task 5: Associate Songs and Files
 $update->addTable("song_files", "CREATE TABLE IF NOT EXISTS song_files (
 	id INT(11) PRIMARY KEY AUTO_INCREMENT,
 	song INT(11) NOT NULL,
 	filepath VARCHAR(255) NOT NULL,
 	notes TEXT
 )");
-
-// Additional Comments
-?><br/>
-<strong>DO NOT FORGET TO UPDATE YOUR CONFIGURATION AND UPLOAD THE DOMAIN VERIFICATION FILE FROM ATRIGGER.COM.</strong><br/>
+?>
 
 <br/><br/>
 <b><i>COMPLETE.</i></b>

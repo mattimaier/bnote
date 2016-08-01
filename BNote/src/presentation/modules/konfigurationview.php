@@ -48,9 +48,6 @@ class KonfigurationView extends CrudView {
 	}
 	
 	protected function showWarnings() {
-		if($this->getData()->getSysdata()->getDynamicConfigParameter("atriggercom_key") == "") {
-			$this->flash("ATrigger.com API Key or Secret not set.");
-		}
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key") == "") {
 			$this->flash("Google Maps API Key not set.");
 		}

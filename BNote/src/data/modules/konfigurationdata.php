@@ -42,10 +42,9 @@ class KonfigurationData extends AbstractData {
 				"language" => array("Sprache", FieldType::CHAR),
 				"google_api_key" => array("Google Maps API Key", FieldType::CHAR),
 				"trigger_key" => array("Notification Interface Key", FieldType::CHAR),
-				"atriggercom_key" => array("ATrigger.com API Key", FieldType::CHAR),
-				"atriggercom_secret" => array("ATrigger.com API Secret", FieldType::CHAR),
 				"trigger_cycle_days" => array("Erinnerungszyklus (jede X Tage)", FieldType::INTEGER),
-				"trigger_repeat_count" => array("Anzahl der Erinnerungen", FieldType::INTEGER)
+				"trigger_repeat_count" => array("Anzahl der Erinnerungen", FieldType::INTEGER),
+				"enable_trigger_service" => array("Benachrichtigungen aktiv", FieldType::BOOLEAN)
 		);
 		
 		$this->parameterExclude = array(

@@ -61,6 +61,12 @@ abstract class AbstractData {
 	protected $triggerServiceEnabled = false;
 	
 	/**
+	 * BNote.info Trigger service
+	 * @var TriggerServiceClient
+	 */
+	protected $triggerServiceClient = null;
+	
+	/**
 	 * Initialize data provider.
 	 * @param string $dir_prefix Optional parameter for include(s) prefix.
 	 */
@@ -74,17 +80,19 @@ abstract class AbstractData {
 	}
 	
 	protected function init_trigger($dir_prefix) {
-		require_once($dir_prefix . $GLOBALS['DIR_LIB'] . "ATriggerPHP/ATrigger.php");
-		$api_key = $this->sysdata->getDynamicConfigParameter("atriggercom_key");
-		$api_secret = $this->sysdata->getDynamicConfigParameter("atriggercom_key");
-		if($api_key != null && $api_key != "") {
-			ATrigger::init($api_key, $api_secret);
+		$service_active = $this->getSysdata()->getDynamicConfigParameter("enable_trigger_service");
+		if($service_active) {
+			require_once($GLOBALS['DIR_EXPORT'] . "triggerService.php");
+			$this->triggerServiceClient = new TriggerServiceClient();
 			$this->triggerServiceEnabled = true;
 		}
 	}
 	
 	protected function getNotificationTriggerUrl() {
 		$bnote_url = $this->sysdata->getSystemURL();
+		if(substr($bnote_url, 0, 4) != "http") {
+			$bnote_url = "http://" . $bnote_url;
+		}
 		return $bnote_url . "src/export/notify.php";
 	}
 	
@@ -96,23 +104,33 @@ abstract class AbstractData {
 		);
 	}
 	
-	protected function createTrigger($tags, $triggerData) {
+	/**
+	 * Creates a trigger.
+	 * @param String $event_dt Date when the event begins/ends in Format: YYYY-mm-dd HH:ii:ss
+	 * @param Array $triggerData Data, usually from buildTriggerData()
+	 */
+	protected function createTrigger($event_dt, $triggerData) {
+		# End of the event
+		$limit_dt = DateTime::createFromFormat(TriggerServiceClient::DATE_FORMAT, $event_dt);
 		# every n days send a reminder
 		$repeatCycle = intval($this->getSysdata()->getDynamicConfigParameter("trigger_cycle_days"));
 		# how often should this be repeated
 		$repeatCount = intval($this->getSysdata()->getDynamicConfigParameter("trigger_repeat_count"));
-		# first day to start
-		$first = Data::addDaysToDate(date(Lang::getDateFormatPattern()), $repeatCycle);
-		$first = date_create_from_format(Lang::getDateFormatPattern(), $first);
-		# Execute PHP API
-		ATrigger::doCreate($repeatCycle . "day",
-			$this->getNotificationTriggerUrl(),
-			$tags,
-			$first,
-			$repeatCount,
-			3,  # retries from atrigger.com to the server
-			$triggerData
-		);
+		
+		# Create triggers
+		if($repeatCount > 0) {
+			$trigger_on = clone $limit_dt;
+			$dtinterval = new DateInterval("P" . strval($repeatCycle) . "D");
+			
+			for($i = 0; $i < $repeatCount;$i++) {
+				date_sub($trigger_on, $dtinterval);  // inplace operation				
+				$this->triggerServiceClient->createTrigger(
+					date_format($trigger_on, TriggerServiceClient::DATE_FORMAT),
+					$this->getNotificationTriggerUrl(),
+					$triggerData
+				);
+			}
+		}
 	}
 	
 	/**

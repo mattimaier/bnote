@@ -172,7 +172,7 @@ class KonzerteData extends AbstractData {
 		return $this->adp()->getTemplatePrograms();
 	}
 	
-	// NOT TRANSACTION SECURE!
+	// NOT TRANSACTION SAFE!
 	function saveConcert() {
 		$values = $_POST;
 		
@@ -249,7 +249,8 @@ class KonzerteData extends AbstractData {
 		
 		// create trigger if configured
 		if($this->triggerServiceEnabled) {
-			$this->createTrigger(array("bnote_concert", "concert_$concertId"), $this->buildTriggerData("C", $concertId));
+			$approve_dt = Data::convertDateToDb($values["approve_until"]);
+			$this->createTrigger($approve_dt, $this->buildTriggerData("C", $concertId));
 		}
 		
 		return $concertId;

@@ -71,7 +71,7 @@ class Lang {
 			if(isset($params[$i])) {
 				$p = $params[$i];
 			}
-			$txt = str_replace("%p", $p, $txt);
+			$txt = str_replace(Lang::$PARAMETER, $p, $txt);
 		}
 		return $txt;
 	}

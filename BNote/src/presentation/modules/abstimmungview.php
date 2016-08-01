@@ -180,7 +180,7 @@ class AbstimmungView extends CrudView {
 		}
 		
 		// show add options form
-		$form = new Form(Lang::txt("add_entity", $this->entityName_option), $this->modePrefix() . "options&id=" . $_GET["id"]);
+		$form = new Form(Lang::txt("add_entity", array($this->entityName_option)), $this->modePrefix() . "options&id=" . $_GET["id"]);
 		if($vote["is_date"] == 1) {
 			/* DATE VOTE -> show 2 Forms:
 			 * a) add single datetimes
