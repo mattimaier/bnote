@@ -76,6 +76,8 @@ class Translation extends BNoteTranslation {
 			"birthday" => "Birthday",
 			"print" => "Print",
 			"notes" => "Notes",
+			"nickname" => "Nick",
+			"fullname" => "Name",
 			
 			// navigation
 			"mod_Login" => "Login",
@@ -338,7 +340,9 @@ class Translation extends BNoteTranslation {
 			"tour_equipment_saved" => "Equipment Saved",
 			"tour_equipment_saved_msg" => "The list of equipment for this tour has been saved.",
 			
-			"reservation" => "Reservation"
+			"reservation" => "Reservation",
+			"reservations" => "Reservations",
+			"reservation_id" => "Reservation No."
 	);
 	
 	protected $regex = array(
