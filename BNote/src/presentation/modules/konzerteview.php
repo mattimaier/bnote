@@ -178,6 +178,7 @@ class KonzerteView extends CrudRefView {
 		$tab = new Table($contacts);
 		$tab->removeColumn("id");
 		$tab->renameHeader("fullname", "Name");
+		$tab->renameHeader("nickname", Lang::txt("nickname"));
 		$tab->renameHeader("phone", "Telefon");
 		$tab->renameHeader("mobile", "Handy");
 		$tab->write();
@@ -302,12 +303,18 @@ class KonzerteView extends CrudRefView {
 		$table->renameHeader("participate", "Nimmt teil");
 		$table->renameHeader("reason", "Grund");
 		$table->renameHeader("category", "Gruppe");
+		$table->renameHeader("nickname", Lang::txt("nickname"));
 		$table->removeColumn("id");
 		$table->write();
 		$this->verticalSpace();
 		
 		Writing::h3("Ausstehende Zu-/Absagen");
 		$openTab = new Table($this->getData()->getOpenParticipants($_GET["id"]));
+		$openTab->removeColumn("id");
+		$openTab->renameHeader("nickname", Lang::txt("nickname"));
+		$openTab->renameHeader("fullname", Lang::txt("fullname"));
+		$openTab->renameHeader("phone", Lang::txt("phone"));
+		$openTab->renameHeader("mobile", Lang::txt("mobile"));
 		$openTab->write();
 	}
 	

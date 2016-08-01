@@ -19,6 +19,9 @@ sap.ui.jsview("bnote.memberdetail", {
                 new sap.m.Label({text: "Name"}),
                 new sap.m.Text({text: "{fullname}"}),  
                 
+                new sap.m.Label({text: "Spitzname"}),
+                new sap.m.Text({text: "{nickname}"}),  
+                
                 new sap.m.Label({text: "Instrument"}),
                 new sap.m.Text({text: "{instrumentname}"}),
                 
@@ -40,7 +43,7 @@ sap.ui.jsview("bnote.memberdetail", {
                 	}
                 }),
                
-                new sap.m.Label({text: "Handy"}),
+                new sap.m.Label({text: "Mobil"}),
                 this.mobileButton = new sap.m.Button({
                 	text: "{mobile}",
                 	width: "100%",
@@ -50,7 +53,7 @@ sap.ui.jsview("bnote.memberdetail", {
                 	}
                 }),
                 
-                new sap.m.Label({text: "Email"}),
+                new sap.m.Label({text: "E-Mail"}),
                 this.emailButton = new sap.m.Button({
                 	text: "{email}",
                 	width: "100%",

@@ -48,7 +48,7 @@ class ProbenData extends AbstractData {
 	}
 	
 	function getParticipants($rid) {
-		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, ';
+		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, ';
 		$query .= ' CASE ru.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, ru.reason';
 		$query .= ' FROM rehearsal_user ru, user u, contact c';
 		$query .= ' WHERE ru.rehearsal = ' . $rid . ' AND ru.user = u.id AND u.contact = c.id';
@@ -295,7 +295,7 @@ class ProbenData extends AbstractData {
 	}
 	
 	public function getRehearsalContacts($rid) {
-		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, i.name as instrument, c.mobile, c.email ";
+		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, c.nickname, i.name as instrument, c.mobile, c.email ";
 		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";
 		$query .= " LEFT JOIN instrument i ON c.instrument = i.id ";
 		$query .= "WHERE rc.rehearsal = $rid ORDER BY name";

@@ -46,7 +46,12 @@ class KontakteController extends DefaultController {
 		$contact = $this->getData()->findByIdNoRef($_GET["id"]);
 		
 		// find a not taken username
-		$username = $contact["name"] . $contact["surname"];
+		if($contact['nickname'] != "") {
+			$username = $contact['nickname'];
+		}
+		else {
+			$username = $contact["name"] . $contact["surname"];
+		}
 		$username = strtolower($username);
 		
 		// fix #173: only allow lower-case letters and numbers (alphanum)
@@ -97,12 +102,12 @@ class KontakteController extends DefaultController {
 	 * @param int $length Length of password.
 	 */
 	private function createRandomPassword($length) {
-		$chars = "abcdefghijkmnpqrstuvwxyz123456789";
+		$chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
 		srand((double)microtime()*1000000);
 		$i = 0;
 		$pass = '';
 		while ($i <= $length) {
-			$num = rand() % 33;
+			$num = rand() % strlen($chars);
 			$tmp = substr($chars, $num, 1);
 			$pass = $pass . $tmp;
 			$i++;

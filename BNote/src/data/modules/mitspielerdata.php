@@ -12,6 +12,7 @@ class MitspielerData extends AbstractData {
 				"id" => array("ID", FieldType::INTEGER),
 				"surname" => array("Name", FieldType::CHAR),
 				"name" => array("Vorname", FieldType::CHAR),
+				"nickname" => array("Spitzname", FieldType::CHAR),
 				"phone" => array("Telefon", FieldType::CHAR),
 				"fax" => array("Fax", FieldType::CHAR),
 				"mobile" => array("Mobil", FieldType::CHAR),
@@ -41,7 +42,7 @@ class MitspielerData extends AbstractData {
 		
 		$single = ", c.id";
 		if($singleInfo) $single .= ", c.name, c.surname";
-		$fields = "c.id, CONCAT(c.name, ' ', c.surname) as fullname, phone, mobile, email, web, fax, business, 
+		$fields = "c.id, CONCAT(c.name, ' ', c.surname) as fullname, nickname, phone, mobile, email, web, fax, business, 
 				notes,  a.street, a.zip, a.city, i.id as instrument, i.name as instrumentname, birthday" . $single;
 		$order = "ORDER BY fullname, instrument";
 		

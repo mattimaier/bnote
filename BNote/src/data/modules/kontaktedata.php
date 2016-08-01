@@ -26,6 +26,7 @@ class KontakteData extends AbstractData {
 			"id" => array("ID", FieldType::INTEGER),
 			"surname" => array("Name", FieldType::CHAR),
 			"name" => array("Vorname", FieldType::CHAR),
+			"nickname" => array("Spitzname", FieldType::CHAR),
 			"phone" => array("Telefon", FieldType::CHAR),
 			"fax" => array("Fax", FieldType::CHAR),
 			"mobile" => array("Mobil", FieldType::CHAR),

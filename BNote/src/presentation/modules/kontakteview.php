@@ -114,14 +114,17 @@ class KontakteView extends CrudRefView {
 				echo "   <td class=\"DataTable_Header\">Adresse</td>";
 				echo "   <td class=\"DataTable_Header\">Telefone</td>";
 				echo "   <td class=\"DataTable_Header\">Online</td>";
-				//echo "   <td class=\"DataTable_Header\">Notizen</td>";
 				echo "</thead>";
 				echo "<tbody>";
 			}
 			else {
 				echo "  <tr>\n";
 				// body
-				echo "   <td class=\"DataTable\"><a href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">" . $row["surname"] . ", " . $row["name"] . "</a></td>";
+				$contact_name = $row["surname"] . ", " . $row["name"];
+				if($row['nickname'] != "") {
+					$contact_name .= "<br/>(" . $row['nickname'] . ")";
+				}
+				echo "   <td class=\"DataTable\"><a href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">$contact_name</a></td>";
 				echo "   <td class=\"DataTable\">" . $row["instrumentname"] . "</td>";
 				echo "   <td class=\"DataTable\" style=\"width: 150px;\">" . $row["street"] . "<br/>" . $row["zip"] . " " . $row["city"] . "</td>";
 				
@@ -146,9 +149,6 @@ class KontakteView extends CrudRefView {
 					echo "<br/><a href=\"http://" . $row["web"] . "\">" . $row["web"] . "</a>";
 				} 
 				echo "</td>";
-				
-				// notizen
-				//echo "   <td class=\"DataTable\">" . $row["notes"] . "</td>";
 			}
 			
 			echo "  </tr>";
@@ -239,8 +239,7 @@ class KontakteView extends CrudRefView {
 		// only show when it doesn't already exist
 		if(!$this->getData()->hasContactUserAccount($_GET["id"])) {
 			// show button
-			$btn = new Link($this->modePrefix() . "createUserAccount&id=" . $_GET["id"],
-						"Benutzerkonto erstellen");
+			$btn = new Link($this->modePrefix() . "createUserAccount&id=" . $_GET["id"], "Benutzerkonto erstellen");
 			$btn->addIcon("user");
 			$btn->write();
 			$this->buttonSpace();

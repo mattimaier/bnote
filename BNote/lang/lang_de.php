@@ -75,6 +75,8 @@ class Translation extends BNoteTranslation {
 			"birthday" => "Geburtstag",
 			"print" => "Drucken",
 			"notes" => "Notizen",
+			"nickname" => "Spitzname",
+			"fullname" => "Name",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",

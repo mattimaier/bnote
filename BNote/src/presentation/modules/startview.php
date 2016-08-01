@@ -636,6 +636,7 @@ class StartView extends AbstractView {
 		$table = new Table($parts);
 		$table->renameHeader("name", Lang::txt("firstname"));
 		$table->renameHeader("surname", Lang::txt("surname"));
+		$table->renameHeader("nickname", Lang::txt("nickname"));
 		$table->write();
 	}
 	

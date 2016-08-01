@@ -55,8 +55,12 @@ for($i = 1; $i < count($data); $i++) {
 	$c = $data[$i];
 	echo 'BEGIN:VCARD' . "\n";
 	echo 'VERSION:3.0' . "\n";
+	$nick = "";
 	echo 'N:' . $c["surname"] .';' . $c["name"] . "\n";
 	echo 'FN:' . $c["name"] . " " . $c["surname"] . "\n";
+	if($c['nickname'] != "") {
+		echo 'NICKNAME:' . $c['nickname'] . "\n";
+	}
 	echo 'TEL;TYPE=HOME,VOICE:' . $c["phone"] . "\n";
 	echo 'ADR;TYPE=HOME:;;' . $c["street"] . ';' . $c["city"] . ";;" . $c["zip"] . ";\n";
 	echo 'EMAIL;PREF;INTERNET:' . $c["email"] . "\n";

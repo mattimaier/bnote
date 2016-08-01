@@ -278,7 +278,7 @@ class KonzerteData extends AbstractData {
 	}
 	
 	function getParticipants($cid) {
-		$query = 'SELECT c.id, cat.name as category, i.name as instrument, CONCAT_WS(" ", c.name, c.surname) as name, ';
+		$query = 'SELECT c.id, cat.name as category, i.name as instrument, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, ';
 		$query .= ' CASE cu.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, cu.reason';		
 		$query .= ' FROM concert_user cu JOIN user u ON cu.user = u.id';
 		$query .= '  JOIN contact c ON u.contact = c.id';
@@ -315,7 +315,7 @@ class KonzerteData extends AbstractData {
 	}
 	
 	function getConcertContacts($cid) {
-		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as fullname, c.phone, c.mobile, c.email, i.name as instrument ";
+		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as fullname, c.nickname, c.phone, c.mobile, c.email, i.name as instrument ";
 		$query .= "FROM concert_contact cc JOIN contact c ON cc.contact = c.id LEFT OUTER JOIN instrument i ON c.instrument = i.id ";
 		$query .= "WHERE cc.concert = $cid ";
 		$query .= "ORDER BY fullname";

@@ -82,7 +82,7 @@ abstract class AbstractData {
 	protected function init_trigger($dir_prefix) {
 		$service_active = $this->getSysdata()->getDynamicConfigParameter("enable_trigger_service");
 		if($service_active) {
-			require_once($GLOBALS['DIR_EXPORT'] . "triggerService.php");
+			require_once($dir_prefix . $GLOBALS['DIR_EXPORT'] . "triggerService.php");
 			$this->triggerServiceClient = new TriggerServiceClient();
 			$this->triggerServiceEnabled = true;
 		}

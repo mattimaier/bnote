@@ -207,6 +207,10 @@ $update->addTable("song_files", "CREATE TABLE IF NOT EXISTS song_files (
 	filepath VARCHAR(255) NOT NULL,
 	notes TEXT
 )");
+
+// Task 6: Add nickname to contact
+$update->addColumnToTable("contact", "nickname", "VARCHAR(20)");
+
 ?>
 
 <br/><br/>
