@@ -24,14 +24,14 @@ sap.ui.jsview("bnote.signup", {
 		this.signupForm = new sap.ui.layout.form.SimpleForm({
 			   layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
 			   content: [
-			             new sap.m.Label({text: "Nachname"}),
+			             new sap.m.Label({text: "Nachname", required: true}),
 					     new sap.m.Input({					    	  
 					    	 value: "{/surname}",
 					    	 valueLiveUpdate: true,
 					    	 change: oController.setdirtyflag,
 					         liveChange: validator.name
 					     }),
-					     new sap.m.Label({text: "Vorname"}),
+					     new sap.m.Label({text: "Vorname", required: true}),
 					     new sap.m.Input({
 					      	 value: "{/name}",
 					    	 valueLiveUpdate: true,
@@ -48,7 +48,7 @@ sap.ui.jsview("bnote.signup", {
 					    	 change: oController.setdirtyflag,
 					    	 liveChange: validator.phone
 					     }),
-					     new sap.m.Label({text: "Email"}),
+					     new sap.m.Label({text: "Email", required: true}),
 					     new sap.m.Input({
 					       	 value: "{/email}",
 					    	 valueLiveUpdate: true,
@@ -69,21 +69,21 @@ sap.ui.jsview("bnote.signup", {
 					    	 change: oController.setdirtyflag,
 					    	 liveChange: validator.city
 					     }),
-					     new sap.m.Label({text: "Postleitzahl"}),
+					     new sap.m.Label({text: "PLZ"}),
 					     new sap.m.Input({
 					       	 value: "{/zip}",
 					    	 valueLiveUpdate: true,
 					    	 change: oController.setdirtyflag,
 					    	 liveChange: validator.zip
 					     }),	 
-					     new sap.m.Label({text: "Login Name"}),
+					     new sap.m.Label({text: "Anmeldename", required: true}),
 					     new sap.m.Input({
 					      	 value: "{/login}",
 					    	 valueLiveUpdate: true,
 					    	 change: oController.setdirtyflag,
 					    	 liveChange: validator.name
 					     }),
-					     new sap.m.Label({text: "Passwort"}),
+					     new sap.m.Label({text: "Passwort", required: true}),
 					     new sap.m.Input({
 					      	 value: "{/pw1}",
 					      	 type: sap.m.InputType.Password,
@@ -91,7 +91,7 @@ sap.ui.jsview("bnote.signup", {
 					    	 change: oController.setdirtyflag,
 					    	 liveChange: validator.name
 					     }),
-					     new sap.m.Label({text: "Passwort wiederholen"}),
+					     new sap.m.Label({text: "Passwort wiederholen", required: true}),
 					     new sap.m.Input({
 					      	 value: "{/pw2}",
 					      	 type: sap.m.InputType.Password,
@@ -103,7 +103,7 @@ sap.ui.jsview("bnote.signup", {
 					    	 text: "Nutzerbedingungen zustimmen",
 					    	 selected: "{/terms}"
 					     })					      
-			             ]
+			    ]
 		 });
 		
 		var signupButton = new sap.m.Button({
