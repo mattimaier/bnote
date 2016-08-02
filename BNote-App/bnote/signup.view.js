@@ -55,21 +55,21 @@ sap.ui.jsview("bnote.signup", {
 					    	 change: oController.setdirtyflag,
 					    	 liveChange: validator.email
 					     }),
-					     new sap.m.Label({text: "Straße"}),
+					     new sap.m.Label({text: "Straße", required: true}),
 					     new sap.m.Input({
 					       	 value: "{/street}",
 					    	 valueLiveUpdate: true,
 					    	 change: oController.setdirtyflag,
 					    	 liveChange: validator.street
 					     }),
-					     new sap.m.Label({text: "Stadt"}),
+					     new sap.m.Label({text: "Stadt", required: true}),
 					     new sap.m.Input({
 					       	 value: "{/city}",
 					    	 valueLiveUpdate: true,
 					    	 change: oController.setdirtyflag,
 					    	 liveChange: validator.city
 					     }),
-					     new sap.m.Label({text: "PLZ"}),
+					     new sap.m.Label({text: "PLZ", required: true}),
 					     new sap.m.Input({
 					       	 value: "{/zip}",
 					    	 valueLiveUpdate: true,
