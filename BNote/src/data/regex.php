@@ -33,7 +33,7 @@ class Regex {
 
    $this->regex["date"] = '/^\d{1,2}.\d{1,2}.\d{4}$/';
    $this->regex["time"] = '/^\d{2}:\d{2}$/';
-   $this->regex["datetime"] = '/^\d{1,2}.\d{1,2}.\d{4}\ \d{2}:\d{2}$/';
+   $this->regex["datetime"] = '/^\d{1,2}.\d{1,2}.\d{4}\ \d{1,2}:\d{2}$/';
    $this->regex["database_date"] = '/^\d{4}-\d{2}-\d{2}$/';
    $this->regex["db_datetime"] = '/^\d{4}-\d{2}-\d{2}\ \d{2}:\d{2}:\d{2}$/';
 

@@ -350,7 +350,7 @@ class Translation extends BNoteTranslation {
 			"positive_decimal" => '/^\d{0,8}\,\d{0,2}$/',
    			"signed_amount" => '/^-?\d{1,12}$/',
 			"date" => '/^\d{1,2}.\d{1,2}.\d{4}$/',
-			"datetime" => '/^\d{1,2}.\d{1,2}.\d{4}\ \d{2}:\d{2}$/'
+			"datetime" => '/^\d{1,2}.\d{1,2}.\d{4}\ \d{1,2}:\d{2}$/'
 	);
 	
 	public function formatDate($day, $month, $year, $hour, $minute) {
