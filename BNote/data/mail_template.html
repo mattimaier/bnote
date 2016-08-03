@@ -2,29 +2,37 @@
 
 <html>
 	<head>
+		<link href="http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic" rel="stylesheet" type="text/css">
 		<meta http-equiv="Content-Type" content="text/html; charset=%encoding%" />
 		<title>%title%</title>
 		<style>
 		body {
-			font-family: sans-serif;
+			font-family: "PT Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 			font-size: 12pt;
 			margin: 0px;
-			background: #eee;
+			padding: 0.25em 1.25em 1.25em 1.25em;
+			background: #fff;
+			line-height: 1.25;
 		}
 		#header {
-			height: 50px;
-			margin-bottom: 8px;
-			vertical-align: top;
+			padding: 1em 1em 1em 0em;
+		}
+
+		h2 {
+			color: #61b3ff;
 		}
 		#header_writing {
-			margin-top: 20px;
+			padding-left: 0.5em;
 			font-weight: bold;
+			font-size: 1.5em;
 			color: #61b3ff;
 		}
 		#footer {
-			margin-top: 10px;
 			font-size: 10pt;
 			color: #a0a0a0;
+			border: 0px solid #a0a0a0;
+			border-top-width: 1px;
+			padding-top: 1em;
 		}
 		a {
 			color: #61b3ff;
@@ -38,26 +46,19 @@
 			color: #61b3ff;
 		}
 		
-		#mail {
-			background: #fff;
-			border: 1px solid #e0e0e0;
-			padding: 7px;
-			margin: 10px;
-		}
-		
 		#content {
-			padding-top: 10px;
+			padding-top: 2em;
+			padding-bottom: 2em;
 		}
-		
 		</style>
 	</head>
 
-<body><div id="mail">
-
+<body>
 	<div id="header">
-		<img src="http://bnote.info/images/BNote_Logo_blue_on_white_192px.png" alt="BNote" height="48px" style="margin: 5px; margin-right: 10px; float: left"/>
-		<div id="header_writing" style="">BNote &#183; %title%</div>
-	</div>
+  <img style="vertical-align:middle"  alt="BNote" src="http://bnote.info/images/BNote_Logo_blue_on_white_192px.png" height="48px">
+	<span id="header_writing" style="">BNote &#183; %title%</span>
+</div>
+
 
 	<div id="content">
 		%content%
@@ -67,6 +68,6 @@
 		%footer% <a href="%link%">%link_name%</a>
 	</div>
 
-</div></body>
+</body>
 
 </html>
