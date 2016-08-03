@@ -90,7 +90,15 @@ abstract class AbstractData {
 	
 	protected function getNotificationTriggerUrl() {
 		// use $_SERVER info over configuration, because it's often mal-configured
-		$bnote_url = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'];
+		if(isset($_SERVER['REQUEST_SCHEME'])) {
+			$proto = $_SERVER['REQUEST_SCHEME'];
+		} else if(isset($_SERVER['SERVER_PROTOCOL']) && strpos($_SERVER['SERVER_PROTOCOL'], "HTTPS") !== FALSE) {
+			$proto = "https";
+		} else {
+			$proto = "http";
+		}
+		
+		$bnote_url = $proto . "://" . $_SERVER['HTTP_HOST'];
 		$bnote_url .= substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], "/"));  # bnote path on this server
 		$bnote_url .= "/src/export/notify.php";
 		return $bnote_url;

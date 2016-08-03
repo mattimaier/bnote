@@ -25,11 +25,11 @@ foreach($widgets as $id => $file) {
 require_once $GLOBALS["DIR_LIB"] . "simpleimage.php";
 
 # Inizialize System Array
-include $GLOBALS["DIR_DATA"] . "systemdata.php";
+require_once $GLOBALS["DIR_DATA"] . "systemdata.php";
 $system_data = new Systemdata();
 
 # Load language
-include "lang.php";
+require_once "lang.php";
 
 # Logout
 if($system_data->getModuleId() === "logout") {

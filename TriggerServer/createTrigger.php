@@ -91,7 +91,7 @@ class TriggerPublicInterface {
 		// -> no:  insert it
 		$parse_result = parse_url($callback_url);
 		if($parse_result === FALSE || $parse_result['host'] == "localhost" || $parse_result['host'] == "127.0.0.1") {
-			TriggerPublicInterface::error(404, "URL not valid.");
+			TriggerPublicInterface::error(421, "URL not valid.");
 		}
 		try {
 			// Update instance
