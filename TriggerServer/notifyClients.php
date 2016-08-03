@@ -31,7 +31,15 @@ class NotificationService {
 		$count = 0;
 		$failed = 0;
 		foreach($jobs as $i => $job) {
+			// process data
 			$callback_data = urldecode($job[1]);
+			$callback_data = json_decode($callback_data);
+			if($callback_data == NULL) {
+				NotificationLogger::warn("Cannot decode data: " . $job[1]);
+				$failed++;
+				continue;
+			}
+			
 			$callback_url = $job[2];
 			try {
 				$this->sendRequest($callback_url, $callback_data);
@@ -42,21 +50,21 @@ class NotificationService {
 				$failed++;
 			}
 		}
-		echo date(TriggerDB::DATETIME_FORMAT_DB) . "\t$count Notifications successfully sent. $failed failed.";
+		echo date(TriggerDB::DATETIME_FORMAT_DB) . "\t$count Notifications successfully sent. $failed failed.\n";
 	}
 	
 	protected function sendRequest($url, $post_data) {
 		$options = array(
 				'http' => array(
-						'header'  => "Content-type: application/json\r\n",
+						'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
 						'method'  => 'POST',
-						'content' => $post_data
+						'content' => http_build_query($post_data)
 				)
 		);
 		$context  = stream_context_create($options);
 		$result = file_get_contents($url, false, $context);
 		if ($result === FALSE) {
-			throw new Exception("Sending request to $url failed: $result");
+			throw new Exception("Sending request to $url failed.");
 		}
 	}
 	

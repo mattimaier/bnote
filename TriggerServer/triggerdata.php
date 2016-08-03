@@ -60,11 +60,14 @@ class TriggerData extends TriggerDB {
 		if(!$stmt->execute()) {
 			throw new Exception("Cannot get jobs: " . $this->db->error);
 		}
-		$result = $stmt->get_result();
-		if(!$result) {
-			throw new Exception("Cannot fetch result: " . $this->db->error);
+		// process result
+		$stmt->bind_result($jobid, $callback_data, $callback_url);
+		$jobs = array();
+		while($stmt->fetch()) {
+			array_push($jobs, array($jobid, $callback_data, $callback_url));
 		}
-		return $result->fetch_all();
+		$stmt->close();
+		return $jobs;
 	}
 
 	public function getSetting($key) {
