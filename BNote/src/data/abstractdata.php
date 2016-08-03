@@ -89,11 +89,11 @@ abstract class AbstractData {
 	}
 	
 	protected function getNotificationTriggerUrl() {
-		$bnote_url = $this->sysdata->getSystemURL();
-		if(substr($bnote_url, 0, 4) != "http") {
-			$bnote_url = "http://" . $bnote_url;
-		}
-		return $bnote_url . "src/export/notify.php";
+		// use $_SERVER info over configuration, because it's often mal-configured
+		$bnote_url = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'];
+		$bnote_url .= substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], "/"));  # bnote path on this server
+		$bnote_url .= "/src/export/notify.php";
+		return $bnote_url;
 	}
 	
 	protected function buildTriggerData($otype, $oid) {
