@@ -457,14 +457,19 @@ class StartView extends AbstractView {
 	 * @param int $participate -1 not set, 0 not, 1 yes, 2 maybe
 	 */
 	private function writeBoxListItem($otype, $oid, $popboxid, $liCaption, $dataview,
-			$participation = "", $msg = "", $voteLink = "", $partOver = false, $participate=9) {
+			$participation = "", $msg = "", $voteLink = "", $partOver = false, $participate=-1) {
 		
 			$participate_class = "";
 			if($otype == "R" || $otype == "C") {
 				$participate_class = "participate_" . $participate;
+					echo "<li>";
+					echo "<div class=\"" . $participate_class . "\">"; 
+			} else {
+				echo "<li>";
+				echo "<div>";
 			}
-		?>
-		<li>
+			?>
+
 			<a href="#" class="start_item_heading <?php echo $participate_class; ?>" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 500 }); });"><?php echo $liCaption; ?></a>
 			<?php
 			if($msg != "" && $participation != "" && !$partOver) {
@@ -507,8 +512,8 @@ class StartView extends AbstractView {
 			<div id="<?php echo $popboxid; ?>_participation" title="<?php echo Lang::txt("start_participation")?>" style="display: none;">
 				<?php echo $participation; ?>
 			</div>
-			<?php $this->verticalSpace(); ?>
-		</li>
+			</div>
+			</li>
 		<?php
 	}
 	
