@@ -470,14 +470,30 @@ class StartView extends AbstractView {
 			}
 			?>
 
-			<a href="#" class="start_item_heading <?php echo $participate_class; ?>" onClick="$(function() { $('#<?php echo $popboxid; ?>').dialog({ width: 500 }); });"><?php echo $liCaption; ?></a>
+			<a href="#" class="start_item_heading <?php echo $participate_class; ?>" onClick="$(function() { 
+				$('#<?php echo $popboxid; ?>').dialog({ 
+					width: 500,
+					 modal: true,
+					 resizable: false,
+					 draggable: false,
+					 }); 
+				});
+
+				"><?php echo $liCaption; ?></a>
 			<?php
 			if($msg != "" && $participation != "" && !$partOver) {
 				?>
 				<br/>
 				<a href="#"
 				   class="participation <?php echo $participate_class; ?>"
-				   onClick="$(function() { $('#<?php echo $popboxid; ?>_participation').dialog({ width: 500 }); });"><?php echo $msg; ?></a>
+				   onClick="$(function() {
+					    $('#<?php echo $popboxid; ?>_participation').dialog({
+							 	width: 500,
+								 modal: true,
+								resizable: false,
+								 draggable: false,
+							  }); 
+						});"><?php echo $msg; ?></a>
 				<?php
 			}
 			else if($msg != "" && $participation != "" && $partOver) {
