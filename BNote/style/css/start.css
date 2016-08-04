@@ -68,7 +68,7 @@ div.start_box a.participation.participate_1 {
 
 div.start_box a.participation.participate_1::before {
 	content: '';
-	background-image: url("../icons/Selected.png");
+	background-image: url("../icons/selected.png");
 	height: 20px;
 	width: 20px;
 	margin-bottom: -4px;
