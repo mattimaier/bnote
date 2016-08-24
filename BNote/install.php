@@ -290,6 +290,7 @@ class Installation {
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					`surname` varchar(50) DEFAULT NULL,
 					`name` varchar(50) DEFAULT NULL,
+					`nickname` varchar(20) DEFAULT NULL,
 					`phone` varchar(45) DEFAULT NULL,
 					`fax` varchar(45) DEFAULT NULL,
 					`mobile` varchar(30) DEFAULT NULL,
