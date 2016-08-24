@@ -28,7 +28,7 @@ class Regex {
    $this->regex["positive_decimal"] = '/^\d{0,8}\,\d{0,2}$/';
    $this->regex["signed_amount"] = '/^-?\d{1,12}$/';
    $this->regex["money"] = '/^-?\d{0,8}[,\d{1,2}]$/';
-   $this->regex["moneyEnglish"] = '/^-?\d{0,8}[\.\d{1,2}]$/';
+   $this->regex["moneyEnglish"] = '/^-?\d{1,8}(\.\d{1,2})?$/';
    $this->regex["moneyEnglishFull"] = '/^-?\d{0,8}\.\d{1,2}$/';
 
    $this->regex["date"] = '/^\d{1,2}.\d{1,2}.\d{4}$/';
@@ -84,8 +84,18 @@ class Regex {
  
  public function isMoney($d) {
  	// receives a decimal in language format
- 	$dbDecimal = Lang::decimalToDb($d);
- 	return $this->isCorrect($dbDecimal, "moneyEnglish");
+ 	$dbDecimal = Data::convertToDb($d);
+ 	$match = preg_match($this->regex['moneyEnglish'], $dbDecimal);
+ 	if($match) {
+ 		return true;
+ 	}
+ 	else if($match == 0) {
+ 		new Error("Betrag nicht erkannt.");
+ 	}
+ 	else {
+ 		$this->fail($d, "Betrag");
+ 	}
+ 	return false;
  }
  
  public function isDate($d) { return $this->isCorrect($d, "date"); }
