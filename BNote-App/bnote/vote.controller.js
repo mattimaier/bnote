@@ -1,10 +1,9 @@
 sap.ui.controller("bnote.vote",{
 	
 	// calculate and display the remaining time
-	onVotePress: function(){		
-		var oController = this;
-		var model = oController.getView().getModel(model);
-		var oBindingContext = oController.getView().getBindingContext(oBindingContext);
+	onVotePress: function() {
+		var model = this.getView().getModel(model);
+		var oBindingContext = this.getView().getBindingContext(oBindingContext);
 		var path = oBindingContext.getPath();
 		
 		model.setProperty(path + "/currentdate", new Date());
@@ -29,7 +28,7 @@ sap.ui.controller("bnote.vote",{
 							selected: "{" + path + "/options/" + i + "/selected_single}"
 				}));
 			}
-			else {				
+			else {		
 				var selectGroup = new sap.m.RadioButtonGroup({
 					width: "210px",
 					columns: 3,
@@ -48,25 +47,18 @@ sap.ui.controller("bnote.vote",{
 				selectGroup.addButton(radioBtnV);
 				selectGroup.addButton(radioBtnN);
 				
-				var selectText = new sap.m.Text({text: model.getProperty(path + "/options/" + i + "/name")});
+				var selectText = new sap.m.Label({text: model.getProperty(path + "/options/" + i + "/name")});
 				selectText.addStyleClass("bnote_vote_option_text");
 				
-				oController.getView().voteForm.addContent(new sap.m.HBox({
-					items:[selectGroup, selectText]
-				}));	
+				this.getView().voteForm.addContent(selectText);
+                this.getView().voteForm.addContent(selectGroup);
 			}
 		}
-		
-		this.getView().voteForm.addContent(
-				new sap.m.Button({
-					text: "Abstimmen",
-					press: oController.vote,
-				})
-		);
+        this.getView().voteForm.addContent(new sap.m.Label({text: ""}));
+		this.getView().voteForm.addContent(new sap.m.Button({text: "Abstimmen", press: this.vote}));
 	},
 	
 	vote: function(){
-		
 		var model = voteView.getModel(model);
 		var oBindingContext = voteView.getBindingContext(oBindingContext);
 		var path = oBindingContext.getPath();
