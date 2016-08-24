@@ -15,6 +15,7 @@ class Form implements iWriteable {
  protected $rename = array();
  protected $submitValue; 
  protected $removeSubmitButton = false;
+ protected $requiredFields = array();
 
  /**
   * Constructor
@@ -83,6 +84,9 @@ class Form implements iWriteable {
    }
    $this->addElement($field, new Field($field, $value, $info[1]));
    $this->renameElement($field, $info[0]);
+   if(count($info) > 2 && $info[2] == true) {
+   	$this->setFieldRequired($field);
+   }
   }
  }
 
@@ -94,7 +98,10 @@ class Form implements iWriteable {
   foreach($array as $field => $info) {
    $this->addElement($field, new Field($field, "", $info[1]));
    $this->renameElement($field, $info[0]);
+   if(count($info) > 2 && $info[2] == true) {
+   	$this->setFieldRequired($field);
    }
+  }
  }
  
  /**
@@ -232,6 +239,10 @@ class Form implements iWriteable {
  public function removeSubmitButton($bool = true) {
  	$this->removeSubmitButton = $bool;
  }
+ 
+ public function setFieldRequired($field, $required=true) {
+ 	$this->requiredFields[$field] = $required;
+ }
 
  /**
   *  print html output
@@ -249,10 +260,15 @@ class Form implements iWriteable {
 
   foreach($this->elements as $label => $element) {
    echo " <tr>\n";
+   $required = "";
+   if(isset($this->requiredFields[$label])) $required = "*";
    if(isset($this->rename[$label])) $label = $this->rename[$label];
-   echo "  <td>" . $label . "</td>\n";
+   echo "  <td>$label$required</td>\n";
    echo "  <td>" . $element->write() . "</td>\n";
    echo " </tr>\n";
+  }
+  if(count($this->requiredFields) > 0) {
+  	echo "<tr><td colspan=\"2\" style=\"font-size: 8pt;\">* markierte Felder sind anzugeben</td></tr>";
   }
   echo '</table>' . "\n";
   
