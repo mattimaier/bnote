@@ -1,0 +1,11 @@
+CACHE MANIFEST
+# 2016-08-31:v3.1.1
+
+CACHE:
+../resources/
+icons/
+img/
+favicon.png
+
+NETWORK:
+../BNote/

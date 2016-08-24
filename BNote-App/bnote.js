@@ -75,6 +75,9 @@ backend = {
 	
 };
 
+// set locale
+sap.ui.getCore().getConfiguration().setLanguage('de');
+
 // Permission Control
 permission = null;
 /*
