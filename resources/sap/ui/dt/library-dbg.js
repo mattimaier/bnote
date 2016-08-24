@@ -21,14 +21,14 @@ function(jQuery) {
 	 * @namespace
 	 * @name sap.ui.dt
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @private
 	 */
 
 	// delegate further initialization of this library to the Core
 	sap.ui.getCore().initLibrary({
 		name : "sap.ui.dt",
-		version: "1.36.11",
+		version: "1.38.7",
 		dependencies : ["sap.ui.core"],
 		types: [
 			"sap.ui.dt.SelectionMode"
@@ -42,7 +42,7 @@ function(jQuery) {
 	 * Selection mode of the tree
 	 *
 	 * @enum {string}
-	 * @public
+	 * @private
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
 	sap.ui.dt.SelectionMode = {

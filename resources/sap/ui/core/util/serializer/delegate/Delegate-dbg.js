@@ -18,7 +18,7 @@ sap.ui.define(['sap/ui/base/EventProvider'],
 	 * @class Abstract serializer delegate class.
 	 * @extends sap.ui.base.EventProvider
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @alias sap.ui.core.util.serializer.delegate.Delegate
 	 * @experimental Since 1.15.1. The abstract serializer delegate is still under construction, so some implementation details can be changed in future.
 	 */

@@ -29,6 +29,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 		var rb = sap.ui.getCore().getLibraryResourceBundle("sap.ui.unified");
 		var sId = oMonth.getId();
 		var oAriaLabel = {value: sId + "-Descr", append: true};
+		var sWidth = oMonth.getWidth();
 
 		oRm.write("<div");
 		oRm.writeControlData(oMonth);
@@ -44,6 +45,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 
 		if (oMonth._getShowHeader()) {
 			oAriaLabel.value = oAriaLabel.value + " " + sId + "-Head";
+		}
+
+		if (sWidth) {
+			oRm.addStyle("width", sWidth);
+			oRm.writeStyles();
 		}
 
 		oRm.writeAccessibilityState(oMonth, {
@@ -192,7 +198,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 			oDate = oMonth._getFocusedDate();
 		}
 
-		if (!oDate.getTime()) {
+		if (!oDate.getTime() && oDate.getTime() !== 0) {
 			// invalid date
 			throw new Error("Date is invalid " + oMonth);
 		}
@@ -259,6 +265,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 		oHelper.oFormatLong = oMonth._getFormatLong();
 		oHelper.sSecondaryCalendarType = oMonth._getSecondaryCalendarType();
 
+		var sLegendId = oMonth.getLegend();
+		if (sLegendId) {
+			var oLegend = sap.ui.getCore().byId(sLegendId);
+			if (oLegend) {
+				if (!(oLegend instanceof sap.ui.unified.CalendarLegend)) {
+					throw new Error(oLegend + " is not a sap.ui.unified.CalendarLegend. " + oMonth);
+				}
+				oHelper.aTypes = oLegend.getItems();
+			} else {
+				jQuery.sap.log.warning("CalendarLegend " + sLegendId + " does not exist!", oMonth);
+			}
+		} else {
+			oHelper.aTypes = [];
+		}
+
 		return oHelper;
 
 	};
@@ -276,6 +297,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 		var iWeekDay = oDay.getUTCDay();
 		var iSelected = oMonth._checkDateSelected(oDay);
 		var oType = oMonth._getDateType(oDay);
+		var bEnabled = oMonth._checkDateEnabled(oDay);
+		var i = 0;
 
 		var iWeekNumber = 0;
 		if (bWeekNum) {
@@ -333,15 +356,20 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 			mAccProps["describedby"] = mAccProps["describedby"] + " " + oHelper.sId + "-End";
 		}
 
-		if (oType && oType != sap.ui.unified.CalendarDayType.None) {
+		if (oType && oType.type != sap.ui.unified.CalendarDayType.None) {
 			oRm.addClass("sapUiCalItem" + oType.type);
 			if (oType.tooltip) {
 				oRm.writeAttributeEscaped('title', oType.tooltip);
 			}
 		}
 
+		if (!bEnabled) {
+			oRm.addClass("sapUiCalItemDsbl"); // day disabled
+			mAccProps["disabled"] = true;
+		}
+
 		if (oHelper.aNonWorkingDays) {
-			for (var i = 0; i < oHelper.aNonWorkingDays.length; i++) {
+			for (i = 0; i < oHelper.aNonWorkingDays.length; i++) {
 				if (iWeekDay == oHelper.aNonWorkingDays[i]) {
 					oRm.addClass("sapUiCalItemWeekEnd");
 					break;
@@ -355,6 +383,18 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 		oRm.writeAttribute("tabindex", "-1");
 		oRm.writeAttribute("data-sap-day", sYyyymmdd);
 		mAccProps["label"] = mAccProps["label"] + oHelper.oFormatLong.format(oDay, true);
+
+		if (oType && oType.type != sap.ui.unified.CalendarDayType.None) {
+			// as legend must not be rendered add text of type
+			for (i = 0; i < oHelper.aTypes.length; i++) {
+				var oLegendType = oHelper.aTypes[i];
+				if (oLegendType.getType() == oType.type) {
+					mAccProps["label"] = mAccProps["label"] + "; " + oLegendType.getText();
+					break;
+				}
+			}
+		}
+
 		oRm.writeAccessibilityState(null, mAccProps);
 		oRm.writeClasses();
 		oRm.writeStyles();

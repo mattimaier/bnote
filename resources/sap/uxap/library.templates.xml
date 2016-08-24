@@ -240,6 +240,7 @@
 	breadCrumbsLinks: [], // sap.m.Link
 	navigationBar: undefined, // sap.m.Bar
 	actions: [], // sap.ui.core.Control
+	sideContentButton: undefined, // sap.m.Button, since 1.38.0
 	validateFieldGroup: [function (oEvent) {
 		var ${control} = oEvent.getSource();
 	}, this],
@@ -287,6 +288,7 @@
 		<breadCrumbsLinks></breadCrumbsLinks> <!-- sap.m.Link -->
 		<navigationBar></navigationBar> <!-- sap.m.Bar -->
 		<actions></actions> <!-- sap.ui.core.Control -->
+		<sideContentButton></sideContentButton> <!-- sap.m.Button, since 1.38.0 -->
 </ObjectPageHeader>
 ]]></xmlTemplate>
 </Template>
@@ -447,6 +449,9 @@
 	}, this],
 	editHeaderButtonPress: [function (oEvent) {
 		var ${control} = oEvent.getSource();
+	}, this],
+	tabSelect: [function (oEvent) {
+		var ${control} = oEvent.getSource();
 	}, this]
 })
 ]]></jsTemplate>
@@ -473,13 +478,31 @@
 	flexEnabled="false"
 	validateFieldGroup=""
 	toggleAnchorBar=""
-	editHeaderButtonPress="">
+	editHeaderButtonPress=""
+	tabSelect="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
 		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
 		<sections></sections> <!-- sap.uxap.ObjectPageSection -->
 		<headerTitle></headerTitle> <!-- sap.uxap.ObjectPageHeader -->
 		<headerContent></headerContent> <!-- sap.ui.core.Control -->
 </ObjectPageLayout>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.uxap.ObjectPageLazyLoader" alias="ObjectPageLazyLoader,Loader">
+	<jsTemplate><![CDATA[new sap.uxap.ObjectPageLazyLoader({
+	id: "${id}", // sap.ui.core.ID
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Control, since 1.19
+	content: [] // sap.ui.core.Control
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<ObjectPageLazyLoader xmlns="sap.uxap"
+	id="${id}">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<content></content> <!-- sap.ui.core.Control -->
+</ObjectPageLazyLoader>
 ]]></xmlTemplate>
 </Template>
 <Template name="sap.uxap.ObjectPageSection" alias="ObjectPageSection,Section">

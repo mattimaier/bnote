@@ -22,7 +22,7 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -157,7 +157,19 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 			/**
 			 * Called when the reset filters button is pressed. It can be used to clear the state of custom filter controls.
 			 */
-			resetFilters : {}
+			resetFilters : {},
+
+			/**
+			 * Fired when the filter detail page is opened.
+			 */
+			filterDetailPageOpened: {
+				parameters: {
+					/**
+					 * The filter item for which the details are opened.
+					 */
+					parentFilterItem: {type: "sap.m.ViewSettingsFilterItem"}
+				}
+			}
 		}
 	}});
 
@@ -427,16 +439,38 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 
 
 	/**
-	 * Override the method in order to attach an event handler responsible for propagating item property changes.
+	 * Override the method in order to attach some event handlers
 	 * @override
 	 * @param {string} sAggregationName Name of the added aggregation
-	 * @param {object} oObject Intance that is going to be added
+	 * @param {object} oObject Instance that is going to be added
 	 * @param {boolean} bSuppressInvalidate Flag indicating whether invalidation should be supressed
 	 * @returns {object} This instance for chaining
 	 */
 	ViewSettingsDialog.prototype.addAggregation = function (sAggregationName, oObject, bSuppressInvalidate) {
 		sap.ui.base.ManagedObject.prototype.addAggregation.apply(this, arguments);
+		return this._attachItemEventHandlers(sAggregationName, oObject);
+	};
 
+	/**
+	 * Override the method in order to attach some event handlers
+	 * @override
+	 * @param {string} sAggregationName Name of the added aggregation
+	 * @param {object} oObject Instance that is going to be added
+	 * @param {int} iIndex the <code>0</code>-based index the managed object should be inserted
+	 * @param {boolean} bSuppressInvalidate Flag indicating whether invalidation should be supressed
+	 * @returns {sap.ui.base.ManagedObject} Returns <code>this</code> to allow method chaining
+	 */
+	ViewSettingsDialog.prototype.insertAggregation = function(sAggregationName, oObject, iIndex, bSuppressInvalidate) {
+		sap.ui.base.ManagedObject.prototype.insertAggregation.apply(this, arguments);
+		return this._attachItemEventHandlers(sAggregationName, oObject);
+	};
+
+	/**
+	 * Attaches event handlers responsible for propagating
+	 * item property changes as well as filter detail items' change
+	 * @returns {object} This instance for chaining
+	 */
+	ViewSettingsDialog.prototype._attachItemEventHandlers = function(sAggregationName, oObject) {
 		// perform the following logic only for the items aggregations, except custom tabs
 		if (sAggregationName !== 'sortItems' && sAggregationName !== 'groupItems' && sAggregationName !== 'filterItems') {
 			return this;
@@ -452,7 +486,7 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 			 * then threat it differently as filter detail item.
 			 * */
 			if (sAggregationName === 'filterItems' &&
-				oEvent.getParameter('changedItem').getMetadata().getName() === 'sap.m.ViewSettingsItem') {
+				oEvent.getParameter('changedItem').getParent().getMetadata().getName() === 'sap.m.ViewSettingsFilterItem') {
 				// handle the select differently
 				if (oEvent.getParameter('propertyKey') !== 'selected') {
 					// if on filter details page for a concrete filter item
@@ -492,6 +526,8 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 				this._initFilterDetailItems(this._oContentItem);
 			}
 		}.bind(this));
+
+		return this;
 	};
 
 	/**
@@ -994,6 +1030,8 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 				}).attachPress(this._onCancel, this)
 			}).addStyleClass("sapMVSD");
 
+			this.addDependent(this._dialog);
+
 			// CSN# 3696452/2013: ESC key should also cancel dialog, not only close
 			// it
 			var fnDialogEscape = this._dialog.onsapescape;
@@ -1153,7 +1191,6 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 	ViewSettingsDialog.prototype._getSortButton = function() {
 		if (this._sortButton === undefined) {
 			this._sortButton = new sap.m.Button(this.getId() + "-sortbutton", {
-				visible : false, // controlled by update state method
 				icon : IconPool.getIconURI("sort"),
 				tooltip : this._rb.getText("VIEWSETTINGS_TITLE_SORT")
 			});
@@ -1168,7 +1205,6 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 	ViewSettingsDialog.prototype._getGroupButton = function() {
 		if (this._groupButton === undefined) {
 			this._groupButton = new sap.m.Button(this.getId() + "-groupbutton", {
-				visible : false, // controlled by update state method
 				icon : IconPool.getIconURI("group-2"),
 				tooltip : this._rb.getText("VIEWSETTINGS_TITLE_GROUP")
 			});
@@ -1183,7 +1219,6 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 	ViewSettingsDialog.prototype._getFilterButton = function() {
 		if (this._filterButton === undefined) {
 			this._filterButton = new sap.m.Button(this.getId() + "-filterbutton", {
-				visible : false, // controlled by update state method
 				icon : IconPool.getIconURI("filter"),
 				tooltip : this._rb.getText("VIEWSETTINGS_TITLE_FILTER")
 			});
@@ -1270,7 +1305,7 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 				    aEventListItems = oEvent.getParameter("listItems"),
 				    aSubItems,
 				    i = 0,
-				    bNewProperty;
+				    bNewValue;
 
 				that._clearPresetFilter();
 
@@ -1300,9 +1335,10 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 							}
 						}
 					}
-					bNewProperty = oEvent.getParameter("listItem").getSelected();
-					if (oSubItem.getProperty('selected') !== bNewProperty) {
-						oSubItem.setProperty('selected', oEvent.getParameter("listItem").getSelected(), true);
+
+					bNewValue = oEvent.getParameter("listItem").getSelected();
+					if (oSubItem.getProperty('selected') !== bNewValue) {
+						oSubItem.setProperty('selected', bNewValue, true);
 					}
 				}
 			}.bind(this)
@@ -1336,21 +1372,18 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 	 */
 	ViewSettingsDialog.prototype._initSortItems = function() {
 		var aSortItems,
-			oListItem;
-
-		this._sortList.removeAllItems();
+		    oListItem;
+		this._sortList.destroyItems();
 		aSortItems = this.getSortItems();
 
 		if (aSortItems.length) {
 			aSortItems.forEach(function(oItem) {
-				oListItem = sap.ui.getCore().byId(oItem.getId() + LIST_ITEM_SUFFIX);
-				if (!oListItem) {
-					oListItem = new sap.m.StandardListItem({
-						id: oItem.getId() + LIST_ITEM_SUFFIX,
-						type: sap.m.ListType.Active
-					}).data("item", oItem);
-				}
-				oListItem.setTitle(oItem.getText());
+				oListItem = new sap.m.StandardListItem({
+					id: oItem.getId() + LIST_ITEM_SUFFIX,
+					title : oItem.getText(),
+					type : sap.m.ListType.Active,
+					selected : oItem.getSelected()
+				}).data("item", oItem);
 				this._sortList.addItem(oListItem);
 			}, this);
 		}
@@ -1422,21 +1455,16 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 			bHasSelections,
 			aGroupItems = this.getGroupItems();
 
-		this._groupList.removeAllItems();
+		this._groupList.destroyItems();
 
 		if (!!aGroupItems.length) {
 			aGroupItems.forEach(function (oItem) {
-				oListItem = sap.ui.getCore().byId(oItem.getId() + LIST_ITEM_SUFFIX);
-				if (!oListItem) {
-					oListItem = new sap.m.StandardListItem({
-						id: oItem.getId() + LIST_ITEM_SUFFIX,
-						type: sap.m.ListType.Active,
-						selected: oItem.getSelected()
-					}).data("item", oItem);
-				}
-
-				oListItem.setTitle(oItem.getText());
-
+				oListItem = new sap.m.StandardListItem({
+					id: oItem.getId() + LIST_ITEM_SUFFIX,
+					title: oItem.getText(),
+					type: sap.m.ListType.Active,
+					selected: oItem.getSelected()
+				}).data("item", oItem);
 				this._groupList.addItem(oListItem);
 			}, this);
 
@@ -1456,19 +1484,15 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 				});
 
 				!bHasSelections && this.setAssociation("selectedGroupItem", this._oGroupingNoneItem, true);
-
-				// Append the None button to the list
-				oListItem = new sap.m.StandardListItem({
-					id: this._oGroupingNoneItem.getId() + LIST_ITEM_SUFFIX,
-					title: this._oGroupingNoneItem.getText(),
-					type: sap.m.ListType.Active,
-					selected: this._oGroupingNoneItem.getSelected()
-				}).data("item", this._oGroupingNoneItem);
-			} else {
-				oListItem = sap.ui.getCore().byId(this._oGroupingNoneItem.getId() + LIST_ITEM_SUFFIX);
 			}
 
-
+			// Append the None button to the list
+			oListItem = new sap.m.StandardListItem({
+				id: this._oGroupingNoneItem.getId() + LIST_ITEM_SUFFIX,
+				title: this._oGroupingNoneItem.getText(),
+				type: sap.m.ListType.Active,
+				selected: this._oGroupingNoneItem.getSelected()
+			}).data("item", this._oGroupingNoneItem);
 			this._groupList.addItem(oListItem);
 		}
 	};
@@ -1534,63 +1558,54 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 		    oListItem,
 			that = this;
 
-		this._presetFilterList.removeAllItems();
+		this._presetFilterList.destroyItems();
 		aPresetFilterItems = this.getPresetFilterItems();
 		if (aPresetFilterItems.length) {
 			aPresetFilterItems.forEach(function(oItem) {
-				oListItem = sap.ui.getCore().byId(oItem.getId() + LIST_ITEM_SUFFIX);
-				if (!oListItem) {
-					oListItem = new sap.m.StandardListItem({
-						id: oItem.getId() + LIST_ITEM_SUFFIX,
-						type: sap.m.ListType.Active,
-						selected: oItem.getSelected()
-					}).data("item", oItem);
-				}
-				oListItem.setTitle(oItem.getText());
-
+				oListItem = new sap.m.StandardListItem({
+					id: oItem.getId() + LIST_ITEM_SUFFIX,
+					title: oItem.getText(),
+					type: sap.m.ListType.Active,
+					selected: oItem.getSelected()
+				}).data("item", oItem);
 				this._presetFilterList.addItem(oListItem);
 			}, this);
 		}
 		// add none item to preset filter list
 		if (aPresetFilterItems.length) {
-			oListItem = sap.ui.getCore().byId("none" + LIST_ITEM_SUFFIX);
-			if (!oListItem) {
-				oListItem = new sap.m.StandardListItem({
-					id: "none" + LIST_ITEM_SUFFIX,
-					title: this._rb.getText("VIEWSETTINGS_NONE_ITEM"),
-					selected: !!this.getSelectedPresetFilterItem()
-				});
-			}
+			oListItem = new sap.m.StandardListItem({
+				id: "none" + LIST_ITEM_SUFFIX,
+				title : this._rb.getText("VIEWSETTINGS_NONE_ITEM"),
+				selected : !!this.getSelectedPresetFilterItem()
+			});
 			this._presetFilterList.addItem(oListItem);
 		}
 
-		this._filterList.removeAllItems();
+		this._filterList.destroyItems();
 		aFilterItems = this.getFilterItems();
 		if (aFilterItems.length) {
-			aFilterItems.forEach(function (oItem) {
-				oListItem = sap.ui.getCore().byId(oItem.getId() + LIST_ITEM_SUFFIX);
-				if (!oListItem) {
-					oListItem = new sap.m.StandardListItem({
+			aFilterItems.forEach(function(oItem) {
+				oListItem = new sap.m.StandardListItem(
+					{
 						id: oItem.getId() + LIST_ITEM_SUFFIX,
-						type: sap.m.ListType.Active,
-						press: (function (oItem) {
-							return function (oEvent) {
+						title : oItem.getText(),
+						type : sap.m.ListType.Active,
+						press : (function(oItem) {
+							return function(oEvent) {
 								// navigate to details page
-								if (that._navContainer.getCurrentPage().getId() !== that.getId() + '-page2') {
+								if (that._navContainer.getCurrentPage() .getId() !== that.getId() + '-page2') {
 									that._switchToPage(3, oItem);
 									that._prevSelectedFilterItem = this;
-									jQuery.sap.delayedCall(0, that._navContainer, "to", [that.getId() + '-page2', "slide"]);
+									jQuery.sap.delayedCall(0, that._navContainer, "to", [ that.getId() + '-page2', "slide" ]);
 								}
 								if (sap.ui.Device.system.desktop && that._filterDetailList && that._filterDetailList.getItems()[0]) {
-									that._getNavContainer().attachEventOnce("afterNavigate", function () {
+									that._getNavContainer().attachEventOnce("afterNavigate", function() {
 										that._filterDetailList.getItems()[0].focus();
 									});
 								}
 							};
 						}(oItem))
 					}).data("item", oItem);
-				}
-				oListItem.setTitle(oItem.getText());
 				this._filterList.addItem(oListItem);
 			}, this);
 		}
@@ -2110,6 +2125,11 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 
 				break;
 		}
+
+		// fire "filterDetailPageOpened" event if that is the case
+		if (vWhich === 3) {
+			this.fireFilterDetailPageOpened({parentFilterItem : oItem});
+		}
 	};
 
 	/**
@@ -2187,19 +2207,19 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 	ViewSettingsDialog.prototype._getFilterSearchField = function(oFilterDetailList) {
 		var that = this,
 			oFilterSearchField = new SearchField({
-			search: function(oEvent) {
-				var sQuery = oEvent.getParameter('query').toLowerCase();
+				liveChange: function(oEvent) {
+					var sQuery = oEvent.getParameter('newValue').toLowerCase();
 
-				//update the list items visibility
-				oFilterDetailList.getItems().forEach(function(oItem) {
-					var bStartsWithQuery = oItem.getTitle().toLowerCase().indexOf(sQuery) === 0;
-					oItem.setVisible(bStartsWithQuery);
-				});
+					//update the list items visibility
+					oFilterDetailList.getItems().forEach(function(oItem) {
+						var bStartsWithQuery = oItem.getTitle().toLowerCase().indexOf(sQuery) === 0;
+						oItem.setVisible(bStartsWithQuery);
+					});
 
-				//update Select All checkbox
-				that._updateSelectAllCheckBoxState();
-			}
-		});
+					//update Select All checkbox
+					that._updateSelectAllCheckBoxState();
+				}
+			});
 
 		return oFilterSearchField;
 	};
@@ -2668,6 +2688,17 @@ function(jQuery, library, Control, IconPool, Toolbar, CheckBox, SearchField) {
 		];
 		return (this._getPage1().getContent().length && aPageIds.indexOf(this._vContentPage) === -1);
 	}
+
+	/**
+	 * Forward the busy state setting to the internal dialog instance.
+	 * Needed because of the not-bullet proof implementation of setBusy in sap.ui.core.Control
+	 * @public
+	 * @param {boolean} bBusy The busy state flag
+	 * @return {sap.m.ViewSettingsDialog} this Instance for chaining
+	 */
+	ViewSettingsDialog.prototype.setBusy = function (bBusy) {
+		this._getDialog().setBusy(bBusy);
+	};
 
 
 	return ViewSettingsDialog;

@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library', 'sap/ui/core/
 		 * @class
 		 * ObjectListItem is a display control that provides summary information about an object as a list item. The ObjectListItem title is the key identifier of the object. Additional text and icons can be used to further distinguish it from other objects. Attributes and statuses can be used to provide additional meaning about the object to the user.
 		 * @extends sap.m.ListItemBase
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -138,7 +138,8 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library', 'sap/ui/core/
 				 * Second status text field displayed on the right side of the attributes.
 				 */
 				secondStatus : {type : "sap.m.ObjectStatus", multiple : false}
-			}
+			},
+			designtime : true
 		}});
 
 		// get resource translation bundle;

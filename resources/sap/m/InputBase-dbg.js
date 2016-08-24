@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -45,12 +45,12 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 			/**
 			 * Indicates whether the user can interact with the control or not.
-			 * <b>Note:<b> Disabled controls cannot be focused and they are out of the tab-chain.
+			 * <b>Note:</b> Disabled controls cannot be focused and they are out of the tab-chain.
 			 */
 			enabled: { type: "boolean", group: "Behavior", defaultValue: true },
 
 			/**
-			 * Visualizes the validation state of the the control, e.g. <code>Error</code>, <code>Warning</code>, <code>Success</code>.
+			 * Visualizes the validation state of the control, e.g. <code>Error</code>, <code>Warning</code>, <code>Success</code>.
 			 */
 			valueState: { type: "sap.ui.core.ValueState", group: "Appearance", defaultValue: sap.ui.core.ValueState.None },
 
@@ -66,7 +66,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 			/**
 			 * Defines whether the control can be modified by the user or not.
-			 * <b>Note:<b> A user can tab to non-editable control, highlight it, and copy the text from it.
+			 * <b>Note:</b> A user can tab to non-editable control, highlight it, and copy the text from it.
 			 * @since 1.12.0
 			 */
 			editable: { type: "boolean", group: "Behavior", defaultValue: true },
@@ -93,7 +93,15 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			 * Defines the text directionality of the input field, e.g. <code>RTL</code>, <code>LTR</code>
 			 * @since 1.28.0
 			 */
-			textDirection: { type: "sap.ui.core.TextDirection", group: "Appearance", defaultValue: sap.ui.core.TextDirection.Inherit }
+			textDirection: { type: "sap.ui.core.TextDirection", group: "Appearance", defaultValue: sap.ui.core.TextDirection.Inherit },
+
+			/**
+			 * Indicates that user input is required. This property is only needed for accessibility purposes when a single relationship between
+			 * the field and a label (see aggregation <code>labelFor</code> of <code>sap.m.Label</code>) cannot be established
+			 * (e.g. one label should label multiple fields).
+			 * @since 1.38.4
+			 */
+			required : {type : "boolean", group : "Misc", defaultValue : false}
 		},
 		associations: {
 
@@ -202,6 +210,17 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		});
 	};
 
+	/**
+	 * Returns the name of the tag element used for the input.
+	 */
+	InputBase.prototype._getInputElementTagName = function() {
+		if (!this._sInputTagElementName) {
+			this._sInputTagElementName = this._$input && this._$input.get(0) && this._$input.get(0).tagName;
+		}
+
+		return this._sInputTagElementName;
+	};
+
 	/* =========================================================== */
 	/* Lifecycle methods                                           */
 	/* =========================================================== */
@@ -254,9 +273,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 */
 	InputBase.prototype.onAfterRendering = function() {
 
-		// cache input as jQuery
-		this._$input = this.$("inner");
-
 		// maybe control is invalidated on keystrokes and
 		// even the value property did not change
 		// dom value is still the old value
@@ -271,10 +287,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		this._bCheckDomValue = false;
 
 		// handle synthetic placeholder visibility
-		if (this.bShowLabelAsPlaceholder) {
-			this._$label = this.$("placeholder");
-			this._setLabelVisibility();
-		}
+		this._setLabelVisibility();
 
 		// rendering phase is finished
 		this.bRenderingPhase = false;
@@ -286,9 +299,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @private
 	 */
 	InputBase.prototype.exit = function() {
-		this._$input = null;
-		this._$label = null;
-		if ( this._popup ){
+		if (this._popup) {
 			this._popup.destroy();
 			this._popup = null;
 		}
@@ -316,75 +327,17 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @private
 	 */
 	InputBase.prototype.onfocusin = function(oEvent) {
-
 		// iE10+ fires the input event when an input field with a native placeholder is focused
 		this._bIgnoreNextInput = !this.bShowLabelAsPlaceholder &&
 									sap.ui.Device.browser.msie &&
 									sap.ui.Device.browser.version > 9 &&
 									!!this.getPlaceholder() &&
-									!this._getInputValue();
-
+									!this._getInputValue() &&
+									this._getInputElementTagName() === "INPUT"; // Make sure that we are applying this fix only for input html elements
 		this.$().toggleClass("sapMFocus", true);
-		if (sap.ui.Device.support.touch) {
-			// listen to all touch events
-			jQuery(document).on('touchstart.sapMIBtouchstart', jQuery.proxy(this._touchstartHandler, this));
-		}
 
 		// open value state message popup when focus is in the input
 		this.openValueStateMessage();
-	};
-
-	/**
-	 * Captures the initial touch position and sets up listeners for touchmove, touchcancel and touchend
-	 *
-	 * @private
-	 */
-	InputBase.prototype._touchstartHandler = function (oEvent) {
-		if (oEvent.target != this._$input[0]) {
-			this._touchX = oEvent.targetTouches[0].pageX;
-			this._touchY = oEvent.targetTouches[0].pageY;
-			this._touchT = oEvent.timestamp;
-			jQuery(oEvent.target)
-				.on(  'touchmove.sapMIBtouch', jQuery.proxy(this._touchmoveHandler,this))
-				.on(   'touchend.sapMIBtouch', jQuery.proxy(this._touchendHandler ,this))
-				.on('touchcancel.sapMIBtouch', this._removeTouchHandler);
-		}
-	};
-
-	/**
-	 * Calculates if a touch session is a click event or something else (scoll, longtouch)
-	 *
-	 * @private
-	 */
-	InputBase.prototype._isClick = function(oEvent) {
-		return Math.abs(oEvent.changedTouches[0].pageX - this._touchX) < 10 && Math.abs(oEvent.changedTouches[0].pageY - this._touchY) < 10 &&  oEvent.timestamp - this._touchT < jQuery.event.special.tap.tapholdThreshold; // 750ms
-	};
-
-	/**
-	 * Cancels the action if the touch session is a long tap or scroll
-	 *
-	 * @private
-	 */
-	InputBase.prototype._touchmoveHandler = function(oEvent){
-		if (!this._isClick(oEvent)) {
-			jQuery(oEvent.target).off('.sapMIBtouch');
-		}
-	};
-
-	/**
-	 * Sends an early change event to the input if a tap has happened outside the input - e.g. on a button
-	 *
-	 * @private
-	 */
-	InputBase.prototype._touchendHandler = function(oEvent) {
-		// cancel if scrolling or long tap
-		if (this._isClick(oEvent)) {
-			// simulate change event
-			this.onChange(oEvent);
-		}
-
-		// remove all touch handlers
-		jQuery(oEvent.target).off('.sapMIBtouch');
 	};
 
 	/**
@@ -396,9 +349,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	InputBase.prototype.onfocusout = function(oEvent) {
 		this.bFocusoutDueRendering = this.bRenderingPhase;
 		this.$().toggleClass("sapMFocus", false);
-
-		// remove touch handler from document for mobile devices
-		jQuery(document).off(".sapMIBtouchstart");
 
 		// because dom is replaced during the rendering
 		// onfocusout event is triggered probably focus goes to the document
@@ -653,8 +603,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * Selects the text within the input field between the specified start and end positions.
 	 * Only supported for input control's type of Text, Url, Tel and Password.
 	 *
-	 * @param {integer} iSelectionStart The index into the text at which the first selected character is located.
-	 * @param {integer} iSelectionEnd The index into the text at which the last selected character is located.
+	 * @param {int} iSelectionStart The index into the text at which the first selected character is located.
+	 * @param {int} iSelectionEnd The index into the text at which the last selected character is located.
 	 * @returns {sap.m.InputBase} <code>this</code> to allow method chaining.
 	 * @protected
 	 * @since 1.22.1
@@ -900,9 +850,9 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	InputBase.prototype.updateValueStateClasses = function(sValueState, sOldValueState) {
-		var mValueState = sap.ui.core.ValueState,
-			$This = this.$(),
-			$Input = this.$("inner");
+		var $This = this.$(),
+			$Input = this.$("inner"),
+			mValueState = sap.ui.core.ValueState;
 
 		if (sOldValueState !== mValueState.None) {
 			$This.removeClass("sapMInputBaseState sapMInputBase" + sOldValueState);
@@ -1097,6 +1047,30 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			this.propagateMessages(sName, oDataState.getMessages());
 		}
 	};
+
+	/**
+	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @protected
+	 */
+	InputBase.prototype.getAccessibilityInfo = function() {
+		var oRenderer = this.getRenderer();
+		return {
+			role: oRenderer.getAriaRole(this),
+			type: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("ACC_CTR_TYPE_INPUT"),
+			description: [this.getValue() || "", oRenderer.getLabelledByAnnouncement(this), oRenderer.getDescribedByAnnouncement(this)].join(" ").trim(),
+			focusable: this.getEnabled(),
+			enabled: this.getEnabled(),
+			editable: this.getEnabled() && this.getEditable()
+		};
+	};
+
+	// do not cache jQuery object and define _$input for compatibility reasons
+	Object.defineProperty(InputBase.prototype, "_$input", {
+		get: function() {
+			return this.$("inner");
+		}
+	});
+
 	return InputBase;
 
 }, /* bExport= */ true);

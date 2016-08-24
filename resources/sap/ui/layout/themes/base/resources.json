@@ -71,6 +71,11 @@
       "theme": "base"
     },
     {
+      "name": "ResponsiveSplitter.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
       "name": "SimpleForm.less",
       "designtime": true,
       "theme": "base"

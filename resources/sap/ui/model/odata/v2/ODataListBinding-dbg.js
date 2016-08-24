@@ -410,14 +410,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/FilterType', 'sap/ui/model/Lis
 						this.bClientOperation = true;
 						this.applyFilter();
 						this.applySort();
-						this._fireChange();
+						this._fireChange({ reason: ChangeReason.Context });
 					} else if (!this.oModel.resolve(this.sPath, this.oContext) || oRef === null){
 						// if path does not resolve, or data is known to be null (e.g. expanded list)
 						this.aAllKeys = null;
 						this.aKeys = [];
 						this.iLength = 0;
 						this.bLengthFinal = true;
-						this._fireChange();
+						this._fireChange({ reason: ChangeReason.Context });
 					} else {
 						this._refresh();
 					}
@@ -610,7 +610,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/FilterType', 'sap/ui/model/Lis
 					that.bNeedsUpdate = true;
 					that.checkUpdate();
 					that.oModel.fireRequestCompleted({url: sUrl, method: "GET", async: true, success: true});
-					that.fireDataReceived();
+					that.fireDataReceived({data: {}});
 				}, 0);
 			} else {
 				// Execute the request and use the metadata if available
@@ -807,10 +807,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/FilterType', 'sap/ui/model/Lis
 		if (this.oModel.oMetadata && this.oModel.oMetadata.isLoaded() && this.bInitial) {
 			this.bInitial = false;
 			this._initSortersFilters();
-			if (this.bDataAvailable) {
-				this._fireChange({reason: ChangeReason.Change});
-			} else {
-				this._fireRefresh({reason: ChangeReason.Refresh});
+			if (!this.bSuspended) {
+				if (this.bDataAvailable) {
+					this._fireChange({reason: ChangeReason.Change});
+				} else {
+					this._fireRefresh({reason: ChangeReason.Refresh});
+				}
 			}
 		}
 		return this;
@@ -1203,13 +1205,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/FilterType', 'sap/ui/model/Lis
 	};
 
 	ODataListBinding.prototype.resume = function() {
-        this.bIgnoreSuspend = false;
-        this.bSuspended = false;
-        if (this.bPendingRefresh) {
-            this._refresh();
-        } else {
-            this.checkUpdate();
-        }
+		this.bIgnoreSuspend = false;
+		this.bSuspended = false;
+		if (this.bPendingRefresh) {
+			this._refresh();
+		} else {
+			this.checkUpdate();
+		}
 	};
 
 	return ODataListBinding;

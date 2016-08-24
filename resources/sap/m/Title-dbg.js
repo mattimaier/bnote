@@ -21,7 +21,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/Device', './l
 	 * @implements sap.ui.core.IShrinkable
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @since 1.27.0
 	 *
 	 * @constructor
@@ -81,6 +81,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/Device', './l
 
 	}});
 
+	Title.prototype.setText = function(sText) {
+		var oRef = this.getDomRef("inner");
+		var bPatchDom = oRef && !this._getTitle();
+		this.setProperty("text", sText, bPatchDom);
+		if (bPatchDom) {
+			oRef.innerHTML = jQuery.sap.encodeHTML(this.getText() || "");
+		}
+		return this;
+	};
+
+
 	// Returns the instance of the associated sap.ui.core.Title if exists
 	Title.prototype._getTitle = function(){
 		var sTitle = this.getTitle();
@@ -131,6 +142,18 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/Device', './l
 		return this;
 	};
 
+	/**
+	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @protected
+	 */
+	Title.prototype.getAccessibilityInfo = function() {
+		var oTitle = this._getTitle() || this;
+		return {
+			role: "heading",
+			description: oTitle.getText(),
+			focusable: false
+		};
+	};
 
 	return Title;
 

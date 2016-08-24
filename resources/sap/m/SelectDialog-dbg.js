@@ -30,7 +30,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -299,6 +299,19 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 		this._bFirstRequest = true; // to only show the busy indicator for the first request when the dialog has been openend
 		this._bLiveChange = false; // to check if the triggered event is LiveChange
 		this._iListUpdateRequested = 0; // to only show the busy indicator when we initiated the change
+	};
+
+	SelectDialog.prototype.setBusy = function () {
+		// Overwrite setBusy as it should be handled in the "real" dialog
+		this._oDialog.setBusy.apply(this._oDialog, arguments);
+
+		// Should return "this" (sap.m.SelectDialog)
+		return this;
+	};
+
+	SelectDialog.prototype.getBusy = function () {
+		// Overwrite getBusy as it should be handled in the "real" dialog
+		return this._oDialog.getBusy.apply(this._oDialog, arguments);
 	};
 
 	/**
@@ -816,15 +829,9 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 	SelectDialog.prototype._setBusy = function (bBusy) {
 		if (this._iListUpdateRequested) { // check if the event was caused by our control
 			if (bBusy) {
-				if (this._bFirstRequest) { // also disable the search field for the first request
-					this._oSearchField.setEnabled(false);
-				}
 				this._oList.addStyleClass('sapMSelectDialogListHide');
 				this._oBusyIndicator.$().css('display', 'inline-block');
 			} else {
-				if (this._bFirstRequest) { // also enable the search field again for the first request
-					this._oSearchField.setEnabled(true);
-				}
 				this._oList.removeStyleClass('sapMSelectDialogListHide');
 				this._oBusyIndicator.$().css('display', 'none');
 			}

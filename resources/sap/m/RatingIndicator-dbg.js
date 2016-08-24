@@ -23,7 +23,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -954,6 +954,21 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	/* =========================================================== */
 	/*           end: event handlers                               */
 	/* =========================================================== */
+
+	/**
+	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @protected
+	 */
+	RatingIndicator.prototype.getAccessibilityInfo = function() {
+		var oBundle = sap.ui.getCore().getLibraryResourceBundle("sap.m");
+		return {
+			role: "slider",
+			type: oBundle.getText("ACC_CTR_TYPE_RATING"),
+			description: oBundle.getText("ACC_CTR_STATE_RATING", [this.getValue(), this.getMaxValue()]),
+			focusable: this.getEnabled(),
+			enabled: this.getEnabled()
+		};
+	};
 
 	return RatingIndicator;
 

@@ -9,7 +9,8 @@ sap.ui.define([
 		'sap/ui/Device'
 	], function (jQuery, URI, Device) {
 	"use strict";
-	var $ = jQuery,
+	var sLogPrefix = "Opa5 - finding controls",
+		$ = jQuery,
 		oFrameWindow = null,
 		$Frame = null,
 		oFramePlugin = null,
@@ -172,7 +173,7 @@ sap.ui.define([
 		//that is running in the test and not the (evtl. not available) version of Opa of the running App.
 		registerAbsoluteModulePathInIframe("sap.ui.test");
 		oFrameJQuery.sap.require("sap.ui.test.OpaPlugin");
-		oFramePlugin = new oFrameWindow.sap.ui.test.OpaPlugin();
+		oFramePlugin = new oFrameWindow.sap.ui.test.OpaPlugin(sLogPrefix);
 
 		registerAbsoluteModulePathInIframe("sap.ui.qunit.QUnitUtils");
 		oFrameWindow.jQuery.sap.require("sap.ui.qunit.QUnitUtils");
@@ -256,7 +257,8 @@ sap.ui.define([
 		},
 		teardown: function () {
 			destroyFrame();
-		}
+		},
+		_sLogPrefix :sLogPrefix
 	};
 }, /* export= */ true);
 

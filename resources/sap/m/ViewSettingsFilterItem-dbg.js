@@ -24,7 +24,7 @@ sap.ui.define(['jquery.sap.global', './ViewSettingsItem', './library'],
 	 * @extends sap.m.ViewSettingsItem
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -72,7 +72,9 @@ sap.ui.define(['jquery.sap.global', './ViewSettingsItem', './library'],
 				propertyValue   : oEvent.getParameter('propertyValue')
 			});
 		}.bind(this));
-		this.fireFilterDetailItemsAggregationChange();
+		this.fireFilterDetailItemsAggregationChange({
+			item: oObject
+		});
 	};
 
 

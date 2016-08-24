@@ -28,7 +28,7 @@ function(jQuery, Overlay, DOMUtil, ElementUtil, OverlayUtil) {
 	 * @extends sap.ui.core.Overlay
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @private
@@ -104,7 +104,7 @@ function(jQuery, Overlay, DOMUtil, ElementUtil, OverlayUtil) {
 			if (typeof vAggregationDomRef === "function") {
 				return vAggregationDomRef.call(oElement, sAggregationName);
 			} else if (typeof vAggregationDomRef === "string") {
-				return DOMUtil.getDomRefForCSSSelector(oElementDomRef, vAggregationDomRef);
+				return DOMUtil.getDomRefForCSSSelector(oElementDomRef, vAggregationDomRef).get(0);
 			}
 		}
 	};

@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @param {object} [mSettings] initial settings for the new control
 	 * @class The P13nSortPanel control is used to define settings for sorting in table personalization.
 	 * @extends sap.m.P13nPanel
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @public
 	 * @alias sap.m.P13nSortPanel
@@ -409,6 +409,7 @@ sap.ui.define([
 					index: iIndex,
 					sortItemData: oSortItem
 				});
+				that._notifyChange();
 			}
 			if (sOperation === "add") {
 				oSortItem = new sap.m.P13nSortItem({
@@ -423,6 +424,7 @@ sap.ui.define([
 					sortItemData: oSortItem
 				});
 				that._bIgnoreBindCalls = false;
+				that._notifyChange();
 			}
 			if (sOperation === "remove") {
 				that._bIgnoreBindCalls = true;
@@ -431,8 +433,16 @@ sap.ui.define([
 					index: iIndex
 				});
 				that._bIgnoreBindCalls = false;
+				that._notifyChange();
 			}
 		};
+	};
+
+	P13nSortPanel.prototype._notifyChange = function() {
+		var fListener = this.getChangeNotifier();
+		if (fListener) {
+			fListener(this);
+		}
 	};
 
 	return P13nSortPanel;

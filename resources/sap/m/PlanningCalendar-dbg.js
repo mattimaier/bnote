@@ -5,8 +5,9 @@
  */
 
 //Provides control sap.m.PlanningCalendar.
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleData', './PlanningCalendarRow', './library', 'sap/ui/unified/library'],
-		function(jQuery, Control, LocaleData, PlanningCalendarRow, library, unifiedLibrary) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleData', './PlanningCalendarRow',
+               './library', 'sap/ui/unified/library', 'sap/ui/unified/calendar/CalendarUtils'],
+		function(jQuery, Control, LocaleData, PlanningCalendarRow, library, unifiedLibrary, CalendarUtils) {
 	"use strict";
 
 	/**
@@ -26,7 +27,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 	 * This could lead to a waiting time before a <code>PlanningCalendar</code> is used for the first time.
 	 * To prevent this, applications using the <code>PlanningCalendar</code> should also load the <code>sap.ui.unified</code> library.
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -66,11 +67,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			height : {type : "sap.ui.core.CSSSize", group : "Dimension", defaultValue : null},
 
 			/**
-			 * If set, interval headers are shown even if no <code>intervalHeaders</code> are assigned to the row in the visible time frame.
+			 * If set, interval headers are shown like specified in <code>showEmptyIntervalHeaders</code>.
 			 *
-			 * If not set, no interval headers are shown even if <code>intervalHeaders</code> are assigned to the row.
+			 * If not set, no interval headers are shown even if <code>intervalHeaders</code> are assigned.
 			 */
 			showIntervalHeaders : {type : "boolean", group : "Appearance", defaultValue : true},
+
+			/**
+			 * If set, interval headers are shown even if no <code>intervalHeaders</code> are assigned to the visible time frame.
+			 *
+			 * If not set, no interval headers are shown if no <code>intervalHeaders</code> are assigned.
+			 *
+			 * <b>Note:</b> This property is only used if <code>showIntervalHeaders</code> is set to <code>true</code>.
+			 * @since 1.38.0
+			 */
+			showEmptyIntervalHeaders : {type : "boolean", group : "Appearance", defaultValue : true},
 
 			/**
 			 * If set, headers of the <code>PlanningCalendarRows</code> are shown. This means the column with the headers is shown.
@@ -82,8 +93,34 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			/**
 			 * This text is displayed when no rows are assigned.
 			 */
-			noDataText : {type : "string", group : "Misc", defaultValue : null}
+			noDataText : {type : "string", group : "Misc", defaultValue : null},
 
+			/**
+			 * If set the appointments without text (only title) are rendered with a smaller height.
+			 *
+			 * <b>Note:</b> On phone devices this property is ignored, appointments are always rendered in full height
+			 * to allow touching.
+			 * @since 1.38.0
+			 */
+			appointmentsReducedHeight : {type : "boolean", group : "Appearance", defaultValue : false},
+
+			/**
+			 * Minimum date that can be shown and selected in the <code>PlanningCalendar</code>. This must be a JavaScript date object.
+			 *
+			 * <b>Note:</b> If the <code>minDate</code> is set to be after the <code>maxDate</code>,
+			 * the <code>maxDate</code> is set to the end of the month of the <code>minDate</code>.
+			 * @since 1.38.0
+			 */
+			minDate : {type : "object", group : "Misc", defaultValue : null},
+
+			/**
+			 * Maximum date that can be shown and selected in the <code>PlanningCalendar</code>. This must be a JavaScript date object.
+			 *
+			 * <b>Note:</b> If the <code>maxDate</code> is set to be before the <code>minDate</code>,
+			 * the <code>minDate</code> is set to the begin of the month of the <code>maxDate</code>.
+			 * @since 1.38.0
+			 */
+			maxDate : {type : "object", group : "Misc", defaultValue : null}
 		},
 		aggregations : {
 
@@ -143,14 +180,32 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			},
 
 			/**
-			 * Fired if an interval was selected in the header calendar
+			 * Fired if an interval was selected in the header calendar or in the row
 			 */
 			intervalSelect : {
 				parameters : {
 					/**
 					 * Start date of the selected interval, as JavaScript date object.
 					 */
-					startDate : {type : "object"}
+					startDate : {type : "object"},
+
+					/**
+					 * Interval end date as JavaScript date object
+					 * @since 1.38.0
+					 */
+					endDate : {type : "object"},
+
+					/**
+					 * If set, the selected interval is a subinterval
+					 * @since 1.38.0
+					 */
+					subInterval : {type : "boolean"},
+
+					/**
+					 * Row of the selected interval
+					 * @since 1.38.0
+					 */
+					row : {type : "sap.m.PlanningCalendarRow"}
 				}
 			},
 
@@ -228,15 +283,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			this._iSizeScreen = 2;
 		}
 
-		var sLocale = sap.ui.getCore().getConfiguration().getFormatSettings().getFormatLocale().toString();
-		var oLocale = new sap.ui.core.Locale(sLocale);
-		this._oLocaleData = LocaleData.getInstance(oLocale);
+		this._oRB = sap.ui.getCore().getLibraryResourceBundle("sap.m");
 
 		this._oIntervalTypeSelect = new sap.m.Select(this.getId() + "-IntType", {maxWidth: "15rem"});
 		this._oIntervalTypeSelect.attachEvent("change", _changeIntervalType, this);
 
 		this._oTodayButton = new sap.m.Button(this.getId() + "-Today", {
-			text: this._oLocaleData.getRelativeDay(0),
+			text: this._oRB.getText("PLANNINGCALENDAR_TODAY"),
 			type: sap.m.ButtonType.Transparent
 		});
 		this._oTodayButton.attachEvent("press", _handleTodayPress, this);
@@ -374,6 +427,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			oStartDate = new Date();
 		}
 
+		if (jQuery.sap.equal(oStartDate, this.getStartDate())) {
+			return this;
+		}
+
 		if (!(oStartDate instanceof Date)) {
 			throw new Error("Date must be a JavaScript date object; " + this);
 		}
@@ -381,6 +438,23 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		var iYear = oStartDate.getFullYear();
 		if (iYear < 1 || iYear > 9999) {
 			throw new Error("Date must not be in valid range (between 0001-01-01 and 9999-12-31); " + this);
+		}
+
+		var oMinDate = this.getMinDate();
+		if (oMinDate && oMinDate.getTime() > oStartDate.getTime()) {
+			jQuery.sap.log.warning("StartDate < minDate -> StartDate set to minDate", this);
+			oStartDate = new Date(oMinDate.getTime());
+		} else {
+			var oMaxDate = this.getMaxDate();
+			if (oMaxDate && oMaxDate.getTime() < oStartDate.getTime()) {
+				jQuery.sap.log.warning("StartDate > maxDate -> StartDate set to minDate", this);
+				if (oMinDate) {
+					oStartDate = new Date(oMinDate.getTime());
+				} else {
+					oStartDate = new Date(1, 0, 1);
+					oStartDate.setFullYear(1);
+				}
+			}
 		}
 
 		this.setProperty("startDate", oStartDate, true);
@@ -412,6 +486,167 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 
 	};
 
+	PlanningCalendar.prototype.setMinDate = function(oDate){
+
+		if (jQuery.sap.equal(oDate, this.getMinDate())) {
+			return this;
+		}
+
+		var oMaxDate = this.getMaxDate();
+
+		if (oDate) {
+			if (!(oDate instanceof Date)) {
+				throw new Error("Date must be a JavaScript date object; " + this);
+			}
+
+			var iYear = oDate.getFullYear();
+			if (iYear < 1 || iYear > 9999) {
+				throw new Error("Date must not be in valid range (between 0001-01-01 and 9999-12-31); " + this);
+			}
+
+			this.setProperty("minDate", oDate, true);
+			this._bNoStartDateChange = true; // set the start date after all calendars are updated
+
+			if (this._oTimeInterval) {
+				this._oTimeInterval.setMinDate(new Date(oDate.getTime())); // use new date object
+			}
+
+			if (this._oDateInterval) {
+				this._oDateInterval.setMinDate(new Date(oDate.getTime())); // use new date object
+			}
+
+			if (this._oMonthInterval) {
+				this._oMonthInterval.setMinDate(new Date(oDate.getTime())); // use new date object
+			}
+
+			if (oMaxDate && oMaxDate.getTime() < oDate.getTime()) {
+				jQuery.sap.log.warning("minDate > maxDate -> maxDate set to end of the month", this);
+				oMaxDate = new Date(oDate.getTime());
+				oMaxDate.setMonth(oMaxDate.getMonth() + 1, 0);
+				oMaxDate.setHours(23);
+				oMaxDate.setMinutes(59);
+				oMaxDate.setSeconds(59);
+				oMaxDate.setMilliseconds(0);
+				this.setMaxDate(oMaxDate);
+			}
+
+			this._bNoStartDateChange = undefined;
+			var oStartDate = this.getStartDate();
+			if (oStartDate && oStartDate.getTime() < oDate.getTime()) {
+				jQuery.sap.log.warning("StartDate < minDate -> StartDate set to minDate", this);
+				oStartDate = new Date(oDate.getTime());
+				this.setStartDate(oStartDate);
+			}
+		} else {
+			this.setProperty("minDate", undefined, true);
+
+			if (this._oTimeInterval) {
+				this._oTimeInterval.setMinDate();
+			}
+
+			if (this._oDateInterval) {
+				this._oDateInterval.setMinDate();
+			}
+
+			if (this._oMonthInterval) {
+				this._oMonthInterval.setMinDate();
+			}
+		}
+
+		var oToday = new Date();
+		if (oDate && oToday.getTime() < oDate.getTime()) {
+			this._oTodayButton.setVisible(false);
+		} else if (!oMaxDate || oToday.getTime() < oMaxDate.getTime()) {
+				this._oTodayButton.setVisible(true);
+		}
+
+		return this;
+
+	};
+
+	PlanningCalendar.prototype.setMaxDate = function(oDate){
+
+		if (jQuery.sap.equal(oDate, this.getMaxDate())) {
+			return this;
+		}
+
+		var oMinDate = this.getMinDate();
+
+		if (oDate) {
+			if (!(oDate instanceof Date)) {
+				throw new Error("Date must be a JavaScript date object; " + this);
+			}
+
+			var iYear = oDate.getFullYear();
+			if (iYear < 1 || iYear > 9999) {
+				throw new Error("Date must not be in valid range (between 0001-01-01 and 9999-12-31); " + this);
+			}
+
+			this.setProperty("maxDate", oDate, true);
+			this._bNoStartDateChange = true; // set the start date after all calendars are updated
+
+			if (this._oTimeInterval) {
+				this._oTimeInterval.setMaxDate(new Date(oDate.getTime())); // use new date object
+			}
+
+			if (this._oDateInterval) {
+				this._oDateInterval.setMaxDate(new Date(oDate.getTime())); // use new date object
+			}
+
+			if (this._oMonthInterval) {
+				this._oMonthInterval.setMaxDate(new Date(oDate.getTime())); // use new date object
+			}
+
+			if (oMinDate && oMinDate.getTime() > oDate.getTime()) {
+				jQuery.sap.log.warning("maxDate < minDate -> maxDate set to begin of the month", this);
+				oMinDate = new Date(oDate.getTime());
+				oMinDate.setUTCDate(1);
+				oMinDate.setHours(0);
+				oMinDate.setMinutes(0);
+				oMinDate.setSeconds(0);
+				oMinDate.setMilliseconds(0);
+				this.setMinDate(oMinDate);
+			}
+
+			this._bNoStartDateChange = undefined;
+			var oStartDate = this.getStartDate();
+			if (oStartDate && oStartDate.getTime() > oDate.getTime()) {
+				jQuery.sap.log.warning("StartDate > maxDate -> StartDate set to minDate", this);
+				if (oMinDate) {
+					oStartDate = new Date(oMinDate.getTime());
+				} else {
+					oStartDate = new Date(1, 0, 1);
+					oStartDate.setFullYear(1);
+				}
+				this.setStartDate(oStartDate);
+			}
+		} else {
+			this.setProperty("maxDate", undefined, true);
+
+			if (this._oTimeInterval) {
+				this._oTimeInterval.setMaxDate();
+			}
+
+			if (this._oDateInterval) {
+				this._oDateInterval.setMaxDate();
+			}
+
+			if (this._oMonthInterval) {
+				this._oMonthInterval.setMaxDate();
+			}
+		}
+
+		var oToday = new Date();
+		if (oDate && oToday.getTime() > oDate.getTime()) {
+			this._oTodayButton.setVisible(false);
+		} else if (!oMinDate || oToday.getTime() > oMinDate.getTime()) {
+				this._oTodayButton.setVisible(true);
+		}
+
+		return this;
+
+	};
+
 	PlanningCalendar.prototype.setViewKey = function(sKey){
 
 		this.setProperty("viewKey", sKey, true);
@@ -423,6 +658,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		}
 
 		var oStartDate = this.getStartDate();
+		var oMinDate = this.getMinDate();
+		var oMaxDate = this.getMaxDate();
 		var oView = _getView.call(this, sKey, !this._bBeforeRendering);
 
 		if (!oView) {
@@ -431,6 +668,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		} else {
 			var sIntervalType = oView.getIntervalType();
 			var iIntervals = _getIntervals.call(this, oView);
+
+			this._bCheckView = false; // no additional check needed
 
 			switch (sIntervalType) {
 			case sap.ui.unified.CalendarIntervalType.Hour:
@@ -441,11 +680,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 						pickerPopup: true
 					});
 					this._oTimeInterval.attachEvent("startDateChange", _handleStartDateChange, this);
-					this._oTimeInterval.attachEvent("select", _handleIntervalSelect, this);
+					this._oTimeInterval.attachEvent("select", _handleCalendarSelect, this);
 					this._oTimeInterval._oPlanningCalendar = this;
 					this._oTimeInterval.getSpecialDates = function(){
 						return this._oPlanningCalendar.getSpecialDates();
 					};
+					if (oMinDate) {
+						this._oTimeInterval.setMinDate(new Date(oMinDate.getTime()));
+					}
+					if (oMaxDate) {
+						this._oTimeInterval.setMaxDate(new Date(oMaxDate.getTime()));
+					}
 				}else if (this._oTimeInterval.getItems() != iIntervals) {
 					this._oTimeInterval.setItems(iIntervals);
 				}
@@ -461,11 +706,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 						pickerPopup: true
 					});
 					this._oDateInterval.attachEvent("startDateChange", _handleStartDateChange, this);
-					this._oDateInterval.attachEvent("select", _handleIntervalSelect, this);
+					this._oDateInterval.attachEvent("select", _handleCalendarSelect, this);
 					this._oDateInterval._oPlanningCalendar = this;
 					this._oDateInterval.getSpecialDates = function(){
 						return this._oPlanningCalendar.getSpecialDates();
 					};
+					if (oMinDate) {
+						this._oDateInterval.setMinDate(new Date(oMinDate.getTime()));
+					}
+					if (oMaxDate) {
+						this._oDateInterval.setMaxDate(new Date(oMaxDate.getTime()));
+					}
 				}else if (this._oDateInterval.getDays() != iIntervals) {
 					this._oDateInterval.setDays(iIntervals);
 				}
@@ -480,11 +731,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 						pickerPopup: true
 					});
 					this._oMonthInterval.attachEvent("startDateChange", _handleStartDateChange, this);
-					this._oMonthInterval.attachEvent("select", _handleIntervalSelect, this);
+					this._oMonthInterval.attachEvent("select", _handleCalendarSelect, this);
 					this._oMonthInterval._oPlanningCalendar = this;
 					this._oMonthInterval.getSpecialDates = function(){
 						return this._oPlanningCalendar.getSpecialDates();
 					};
+					if (oMinDate) {
+						this._oMonthInterval.setMinDate(new Date(oMinDate.getTime()));
+					}
+					if (oMaxDate) {
+						this._oMonthInterval.setMaxDate(new Date(oMaxDate.getTime()));
+					}
 				}else if (this._oMonthInterval.setMonths() != iIntervals) {
 					this._oMonthInterval.setMonths(iIntervals);
 				}
@@ -528,6 +785,34 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 
 	};
 
+	PlanningCalendar.prototype.setShowEmptyIntervalHeaders = function(bShowEmptyIntervalHeaders){
+
+		this.setProperty("showEmptyIntervalHeaders", bShowEmptyIntervalHeaders, true);
+
+		var aRows = this.getRows();
+		for (var i = 0; i < aRows.length; i++) {
+			var oRow = aRows[i];
+			oRow.getCalendarRow().setShowEmptyIntervalHeaders(bShowEmptyIntervalHeaders);
+		}
+
+		return this;
+
+	};
+
+	PlanningCalendar.prototype.setAppointmentsReducedHeight = function(bAppointmentsReducedHeight){
+
+		this.setProperty("appointmentsReducedHeight", bAppointmentsReducedHeight, true);
+
+		var aRows = this.getRows();
+		for (var i = 0; i < aRows.length; i++) {
+			var oRow = aRows[i];
+			oRow.getCalendarRow().setAppointmentsReducedHeight(bAppointmentsReducedHeight);
+		}
+
+		return this;
+
+	};
+
 	PlanningCalendar.prototype.setShowRowHeaders = function(bShowRowHeaders){
 
 		// set header column to invisible as each row is a ColumnListItem with two columns
@@ -558,9 +843,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		var oCalendarRow = oRow.getCalendarRow();
 		oCalendarRow.setStartDate(this.getStartDate());
 		oCalendarRow.setShowIntervalHeaders(this.getShowIntervalHeaders());
+		oCalendarRow.setShowEmptyIntervalHeaders(this.getShowEmptyIntervalHeaders());
+		oCalendarRow.setAppointmentsReducedHeight(this.getAppointmentsReducedHeight());
 		oCalendarRow.attachEvent("select", _handleAppointmentSelect, this);
 		oCalendarRow.attachEvent("startDateChange", _handleStartDateChange, this);
 		oCalendarRow.attachEvent("leaveRow", _handleLeaveRow, this);
+		oCalendarRow.attachEvent("intervalSelect", _handleIntervalSelect, this);
 
 		_updateSelectAllCheckBox.call(this);
 
@@ -592,9 +880,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		var oCalendarRow = oRow.getCalendarRow();
 		oCalendarRow.setStartDate(this.getStartDate());
 		oCalendarRow.setShowIntervalHeaders(this.getShowIntervalHeaders());
+		oCalendarRow.setShowEmptyIntervalHeaders(this.getShowEmptyIntervalHeaders());
+		oCalendarRow.setAppointmentsReducedHeight(this.getAppointmentsReducedHeight());
 		oCalendarRow.attachEvent("select", _handleAppointmentSelect, this);
 		oCalendarRow.attachEvent("startDateChange", _handleStartDateChange, this);
 		oCalendarRow.attachEvent("leaveRow", _handleLeaveRow, this);
+		oCalendarRow.attachEvent("intervalSelect", _handleIntervalSelect, this);
 
 		_updateSelectAllCheckBox.call(this);
 
@@ -627,6 +918,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		oCalendarRow.detachEvent("select", _handleAppointmentSelect, this);
 		oCalendarRow.detachEvent("startDateChange", _handleStartDateChange, this);
 		oCalendarRow.detachEvent("leaveRow", _handleLeaveRow, this);
+		oCalendarRow.detachEvent("intervalSelect", _handleIntervalSelect, this);
 
 		_updateSelectAllCheckBox.call(this);
 
@@ -651,6 +943,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			oCalendarRow.detachEvent("select", _handleAppointmentSelect, this);
 			oCalendarRow.detachEvent("startDateChange", _handleStartDateChange, this);
 			oCalendarRow.detachEvent("leaveRow", _handleLeaveRow, this);
+			oCalendarRow.detachEvent("intervalSelect", _handleIntervalSelect, this);
 		}
 
 		_updateSelectAllCheckBox.call(this);
@@ -797,6 +1090,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			}
 			this._bDateRangeChanged = undefined;
 		} else {
+			if (oOrigin && oOrigin instanceof sap.m.PlanningCalendarView) {
+				this._bCheckView = true; // update view setting onbeforerendering
+			}
 			Control.prototype.invalidate.apply(this, arguments);
 		}
 
@@ -814,6 +1110,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 
 		this._bDateRangeChanged = true;
 		var oDestroyed = this.destroyAggregation("specialDates");
+		return oDestroyed;
+
+	};
+
+	PlanningCalendar.prototype.removeAllViews = function() {
+
+		this._bCheckView = true; // update view setting onbeforerendering
+		var aRemoved = this.removeAllAggregation("views");
+		return aRemoved;
+
+	};
+
+	PlanningCalendar.prototype.destroyViews = function() {
+
+		this._bCheckView = true; // update view setting onbeforerendering
+		var oDestroyed = this.destroyAggregation("views");
 		return oDestroyed;
 
 	};
@@ -870,7 +1182,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			var oRow = aRows[0];
 
 			var oNewEvent = new jQuery.Event("saphome");
-			oNewEvent.originalEvent = oNewEvent.originalEvent || {};
 			oNewEvent._bPlanningCalendar = true;
 
 			oRow.getCalendarRow().onsaphome(oNewEvent);
@@ -888,7 +1199,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			var oRow = aRows[aRows.length - 1];
 
 			var oNewEvent = new jQuery.Event("sapend");
-			oNewEvent.originalEvent = oNewEvent.originalEvent || {};
 			oNewEvent._bPlanningCalendar = true;
 
 			oRow.getCalendarRow().onsapend(oNewEvent);
@@ -917,6 +1227,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 
 	function _handleStartDateChange(oEvent){
 
+		if (this._bNoStartDateChange) {
+			return;
+		}
+
 		var oStartDate = oEvent.oSource.getStartDate();
 
 		this.setStartDate(new Date(oStartDate.getTime())); // use new Date object
@@ -925,7 +1239,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 
 	}
 
-	function _handleIntervalSelect(oEvent){
+	function _handleCalendarSelect(oEvent){
 
 		var aSelectedDates = oEvent.oSource.getSelectedDates();
 		var oStartDate = new Date(aSelectedDates[0].getStartDate());
@@ -933,7 +1247,44 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		// remove old selection
 		aSelectedDates[0].setStartDate();
 
-		this.fireIntervalSelect({startDate: oStartDate});
+		// calculate end date
+		var oEndDate = CalendarUtils._createUniversalUTCDate(oStartDate, undefined, true);
+		var sKey = this.getViewKey();
+		var oView = _getView.call(this, sKey);
+		var sIntervalType = oView.getIntervalType();
+
+		switch (sIntervalType) {
+		case sap.ui.unified.CalendarIntervalType.Hour:
+			oEndDate.setUTCHours(oEndDate.getUTCHours() + 1);
+			break;
+
+		case sap.ui.unified.CalendarIntervalType.Day:
+			oEndDate.setUTCDate(oEndDate.getUTCDate() + 1);
+			break;
+
+		case sap.ui.unified.CalendarIntervalType.Month:
+			oEndDate.setUTCMonth(oEndDate.getUTCMonth() + 1);
+			break;
+
+		default:
+			throw new Error("Unknown IntervalType: " + sIntervalType + "; " + this);
+		}
+
+		oEndDate.setUTCMilliseconds(oEndDate.getUTCMilliseconds() - 1);
+		oEndDate = CalendarUtils._createLocalDate(oEndDate, true);
+
+		this.fireIntervalSelect({startDate: oStartDate, endDate: oEndDate, subInterval: false, row: undefined});
+
+	}
+
+	function _handleIntervalSelect(oEvent){
+
+		var oStartDate = oEvent.getParameter("startDate");
+		var oEndDate = oEvent.getParameter("endDate");
+		var bSubInterval = oEvent.getParameter("subInterval");
+		var oRow = oEvent.oSource._oPlanningCalendarRow;
+
+		this.fireIntervalSelect({startDate: oStartDate, endDate: oEndDate, subInterval: bSubInterval, row: oRow});
 
 	}
 
@@ -1157,7 +1508,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 				var oViewHour = new sap.m.PlanningCalendarView(this.getId() + "-HourView", {
 					key: sap.ui.unified.CalendarIntervalType.Hour,
 					intervalType: sap.ui.unified.CalendarIntervalType.Hour,
-					description: this._oLocaleData.getDisplayName("hour"),
+					description: this._oRB.getText("PLANNINGCALENDAR_HOURS"),
 					intervalsS: 6,
 					intervalsM: 6,
 					intervalsL: 12
@@ -1167,7 +1518,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 				var oViewDay = new sap.m.PlanningCalendarView(this.getId() + "-DayView", {
 					key: sap.ui.unified.CalendarIntervalType.Day,
 					intervalType: sap.ui.unified.CalendarIntervalType.Day,
-					description: this._oLocaleData.getDisplayName("day"),
+					description: this._oRB.getText("PLANNINGCALENDAR_DAYS"),
 					intervalsS: 7,
 					intervalsM: 7,
 					intervalsL: 14
@@ -1177,7 +1528,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 				var oViewMonth = new sap.m.PlanningCalendarView(this.getId() + "-MonthView", {
 					key: sap.ui.unified.CalendarIntervalType.Month,
 					intervalType: sap.ui.unified.CalendarIntervalType.Month,
-					description: this._oLocaleData.getDisplayName("month"),
+					description: this._oRB.getText("PLANNINGCALENDAR_MONTHS"),
 					intervalsS: 3,
 					intervalsM: 6,
 					intervalsL: 12
@@ -1344,7 +1695,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 				oNewRow = aRows[0];
 
 				oNewEvent = new jQuery.Event(sType);
-				oNewEvent.originalEvent = oNewEvent.originalEvent || {};
 				oNewEvent._bPlanningCalendar = true;
 
 				oNewRow.getCalendarRow().onsaphome(oNewEvent);
@@ -1357,7 +1707,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 				oNewRow = aRows[aRows.length - 1];
 
 				oNewEvent = new jQuery.Event(sType);
-				oNewEvent.originalEvent = oNewEvent.originalEvent || {};
 				oNewEvent._bPlanningCalendar = true;
 
 				oNewRow.getCalendarRow().onsapend(oNewEvent);
@@ -1396,7 +1745,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		} else {
 			if (!this._oSelectAllCheckBox) {
 				this._oSelectAllCheckBox = new sap.m.CheckBox(this.getId() + "-All", {
-					text: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("COLUMNSPANEL_SELECT_ALL")
+					text: this._oRB.getText("COLUMNSPANEL_SELECT_ALL")
 				});
 				this._oSelectAllCheckBox.attachEvent("select", _handleSelectAll, this);
 			}

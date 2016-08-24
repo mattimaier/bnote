@@ -143,6 +143,12 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './SuggestionsList', '.
 				offsetY: 0,
 				initialFocus: parent,
 				bounce: false,
+				afterOpen: function () {
+					oInput.$("I").attr("aria-autocomplete","list").attr("aria-haspopup","true");
+				},
+				beforeClose: function() {
+					oInput.$("I").attr("aria-haspopup","false").removeAttr("aria-activedecendant");
+				},
 				content: getList()
 			})
 				.addStyleClass("sapMSltPicker")
@@ -245,7 +251,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './SuggestionsList', '.
 		/**
 		 * Getter for the selected item index.
 		 *
-		 * @returns {integer} Index of the selected item or -1
+		 * @returns {int} Index of the selected item or -1
 		 * @private
 		 */
 		this.getSelected = function() {
@@ -255,7 +261,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './SuggestionsList', '.
 		/**
 		 * Setter for the selected item index.
 		 *
-		 * @param {integer} index Index of the item to select or -1 to remove selection
+		 * @param {int} index Index of the item to select or -1 to remove selection
 		 * @private
 		 */
 		this.setSelected = function(index, bRelative) {

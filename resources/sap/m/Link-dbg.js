@@ -23,7 +23,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @implements sap.ui.core.IShrinkable
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -359,6 +359,20 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				$oLink.removeAttr("aria-describedby"); //  Remove the aria-describedby attribute, as it`s not needed
 			}
 		}
+	};
+
+	/**
+	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @protected
+	 */
+	Link.prototype.getAccessibilityInfo = function() {
+		return {
+			role: "link",
+			type: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("ACC_CTR_TYPE_LINK"),
+			description: this.getText() || this.getHref() || "",
+			focusable: this.getEnabled(),
+			enabled: this.getEnabled()
+		};
 	};
 
 	return Link;

@@ -5,8 +5,14 @@
  */
 
 // Provides control sap.m.CheckBox.
-sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control', 'sap/ui/core/EnabledPropagator'],
-	function(jQuery, Label, library, Control, EnabledPropagator) {
+sap.ui.define(['jquery.sap.global',
+	'./Label',
+	'./library',
+	'sap/ui/Device',
+	'sap/ui/core/Control',
+	"sap/ui/core/IconPool",
+	'sap/ui/core/EnabledPropagator'],
+	function(jQuery, Label, library, Device, Control, IconPool, EnabledPropagator) {
 	"use strict";
 
 	/**
@@ -20,7 +26,7 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -76,7 +82,13 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 			 * Specifies whether the user shall be allowed to edit the state of the checkbox
 			 * @since 1.25
 			 */
-			editable : {type : "boolean", group : "Behavior", defaultValue : true}
+			editable : {type : "boolean", group : "Behavior", defaultValue : true},
+
+			/**
+			 * Accepts the core enumeration ValueState.type that supports 'None', 'Error', 'Warning' and 'Success'.
+			 * @since 1.38
+			 */
+			valueState : {type : "sap.ui.core.ValueState", group : "Data", defaultValue : sap.ui.core.ValueState.None}
 		},
 		aggregations: {
 			/**
@@ -115,16 +127,12 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 
 	EnabledPropagator.call(CheckBox.prototype);
 
+	/**
+	 * Lifecycle Methods
+	 */
 	CheckBox.prototype.init = function() {
 		this.addActiveState(this);
-		jQuery.sap.require("sap.ui.core.IconPool");
-		sap.ui.core.IconPool.insertFontFaceStyle();
-
-		var oLabel = new Label(this.getId() + "-label", {
-			labelFor: this.getId()
-		}).addStyleClass("sapMCbLabel");
-
-		this.setAggregation("_label", oLabel, true);
+		IconPool.insertFontFaceStyle();
 	};
 
 	CheckBox.prototype.onAfterRendering = function() {
@@ -133,15 +141,14 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 		}
 	};
 
-	/**
-	 * Called when the control is touched.
-	 *
-	 * @private
-	 */
-	CheckBox.prototype.ontouchstart = function(oEvent) {
-		//for control who need to know if they should handle events from the CheckBox control
-		oEvent.originalEvent._sapui_handledByControl = true;
+	CheckBox.prototype.exit = function() {
+		this._oLabel = null;
+		delete this._iTabIndex;
 	};
+
+	/**
+	 * Public Methods
+	 */
 
 	CheckBox.prototype.setSelected = function(bSelected) {
 		bSelected = !!bSelected;
@@ -155,20 +162,46 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 			bSelected ? oCheckBox.setAttribute('checked', 'checked') : oCheckBox.removeAttribute('checked');
 		}
 		this.setProperty("selected", bSelected, true);
+
 		return this;
 	};
 
-	/**
-	 * Function is called when CheckBox is tapped.
-	 *
-	 * @private
-	 */
-	CheckBox.prototype.ontap = function(oEvent) {
-		if (this.getEnabled() && this.getEditable()) {
-			var bSelected = !this.getSelected();
-			this.setSelected(bSelected);
-			this.fireSelect({selected:bSelected});
-		}
+	CheckBox.prototype.setText = function(sText) {
+		var oLabel = this._getLabel(),
+			bHasText = !!sText;
+
+		this.setProperty("text", sText, true);
+		oLabel.setText(sText);
+		this.$().toggleClass("sapMCbHasLabel", bHasText);
+
+		return this;
+	};
+
+	CheckBox.prototype.setWidth = function (sWidth){
+		var oLabel = this._getLabel();
+
+		this.setProperty("width", sWidth, true);
+		oLabel.setWidth(sWidth);
+
+		return this;
+	};
+
+	CheckBox.prototype.setTextDirection = function(sDirection) {
+		var oLabel = this._getLabel();
+
+		this.setProperty("textDirection", sDirection, true);
+		oLabel.setTextDirection(sDirection);
+
+		return this;
+	};
+
+	CheckBox.prototype.setTextAlign = function(sAlign) {
+		var oLabel = this._getLabel();
+
+		this.setProperty("textAlign", sAlign, true);
+		oLabel.setTextAlign(sAlign);
+
+		return this;
 	};
 
 	/**
@@ -176,7 +209,7 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 	 * @private
 	 */
 	CheckBox.prototype.addActiveState = function(oControl) {
-		if (sap.ui.Device.os.blackberry) {
+		if (Device.os.blackberry) {
 			oControl.addDelegate({
 				ontouchstart: function(oEvent){
 					jQuery(oControl.getDomRef()).addClass("sapMActive");
@@ -189,72 +222,36 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 	};
 
 	/**
-	 * Setter for the text property
-	 * @param sText
-	 * @returns {sap.m.CheckBox}
-	 */
-	CheckBox.prototype.setText = function(sText) {
-		var oLabel = this.getAggregation("_label"),
-			bHasText = !!sText;
-
-		this.setProperty("text", sText, true);
-		oLabel.setText(sText);
-		this.$().toggleClass("sapMCbHasLabel", bHasText);
-
-		return this;
-	};
-
-	/**
-	 * Setter for the width property
-	 * @param sWidth
-	 * @returns {sap.m.CheckBox}
-	 */
-	CheckBox.prototype.setWidth = function (sWidth){
-		var oLabel = this.getAggregation("_label");
-
-		this.setProperty("width", sWidth, true);
-		oLabel.setWidth(sWidth);
-
-		return this;
-	};
-
-	/**
-	 * Setter for the textDirection property
-	 * @param sDirection
-	 * @returns {sap.m.CheckBox}
-	 */
-	CheckBox.prototype.setTextDirection = function(sDirection) {
-		var oLabel = this.getAggregation("_label");
-
-		this.setProperty("textDirection", sDirection, true);
-		oLabel.setTextDirection(sDirection);
-
-		return this;
-	};
-
-	/**
-	 * Setter for the textAlign property
-	 * @param sAlign
-	 * @returns {sap.m.CheckBox}
-	 */
-	CheckBox.prototype.setTextAlign = function(sAlign) {
-		var oLabel = this.getAggregation("_label");
-
-		this.setProperty("textAlign", sAlign, true);
-		oLabel.setTextAlign(sAlign);
-
-		return this;
-	};
-
-	CheckBox.prototype.exit = function() {
-		delete this._iTabIndex;
-	};
-
-	/**
-	 * Event handler called when the space key is pressed.
+	 * Event handler called when the CheckBox is touched.
 	 *
 	 * @param {jQuery.Event} oEvent
-	 * @private
+	 */
+	CheckBox.prototype.ontouchstart = function(oEvent) {
+		//for control who need to know if they should handle events from the CheckBox control
+		oEvent.originalEvent._sapui_handledByControl = true;
+	};
+
+	/**
+	 * Event handler called when the CheckBox is tapped.
+	 *
+	 * @param {jQuery.Event} oEvent
+	 */
+	CheckBox.prototype.ontap = function(oEvent) {
+		if (this.getEnabled() && this.getEditable()) {
+			this.$().focus(); // In IE taping on the input doesn`t focus the wrapper div.
+			var bSelected = !this.getSelected();
+			this.setSelected(bSelected);
+			this.fireSelect({selected:bSelected});
+
+			// mark the event that it is handled by the control
+			oEvent && oEvent.setMarked();
+		}
+	};
+
+	/**
+	 * Event handler called when the space key is pressed onto the Checkbox.
+	 *
+	 * @param {jQuery.Event} oEvent
 	 */
 	CheckBox.prototype.onsapspace = function(oEvent) {
 		this.ontap(oEvent);
@@ -266,10 +263,9 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 	};
 
 	/**
-	 * Event handler called when the enter key is pressed.
+	 * Event handler called when the enter key is pressed onto the Checkbox.
 	 *
 	 * @param {jQuery.Event} oEvent
-	 * @private
 	 */
 	CheckBox.prototype.onsapenter = function(oEvent) {
 		this.ontap(oEvent);
@@ -290,9 +286,9 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 	};
 
 	/**
-	 * Gets the tab index of the control
+	 * Returns the CheckBox`s tab index.
 	 *
-	 * @return {integer} iTabIndex for Checkbox
+	 * @return {int} iTabIndex for Checkbox
 	 * @since 1.22
 	 * @protected
 	 */
@@ -301,6 +297,40 @@ sap.ui.define(['jquery.sap.global', './Label', './library', 'sap/ui/core/Control
 			return this._iTabIndex;
 		}
 		return this.getEnabled() ? 0 : -1 ;
+	};
+
+	/**
+	 * Lazy loads the CheckBox`s label
+	 *
+	 * @return {sap.m.Label}
+	 * @private
+	 */
+	CheckBox.prototype._getLabel = function() {
+		if (!this._oLabel) {
+			this._oLabel = new Label(this.getId() + "-label", {
+				labelFor: this.getId()
+			}).addStyleClass("sapMCbLabel");
+
+			this.setAggregation("_label", this._oLabel, true);
+		}
+
+		return this.getAggregation("_label");
+	};
+
+	/**
+	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @protected
+	 */
+	CheckBox.prototype.getAccessibilityInfo = function() {
+		var oBundle = sap.ui.getCore().getLibraryResourceBundle("sap.m");
+		return {
+			role: "checkbox",
+			type: oBundle.getText("ACC_CTR_TYPE_CHECKBOX"),
+			description: (this.getText() || "") + (this.getSelected() ? (" " + oBundle.getText("ACC_CTR_STATE_CHECKED")) : ""),
+			focusable: this.getEnabled(),
+			enabled: this.getEnabled(),
+			editable: this.getEditable()
+		};
 	};
 
 	return CheckBox;

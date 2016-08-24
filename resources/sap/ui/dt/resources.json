@@ -89,8 +89,7 @@
       "isDebug": true,
       "required": [
         "jquery.sap.global.js",
-        "sap/ui/dt/ManagedObjectObserver.js",
-        "sap/ui/dt/DOMUtil.js"
+        "sap/ui/dt/ManagedObjectObserver.js"
       ]
     },
     {
@@ -98,8 +97,7 @@
       "module": "sap/ui/dt/ControlObserver.js",
       "required": [
         "jquery.sap.global.js",
-        "sap/ui/dt/ManagedObjectObserver.js",
-        "sap/ui/dt/DOMUtil.js"
+        "sap/ui/dt/ManagedObjectObserver.js"
       ]
     },
     {
@@ -261,12 +259,34 @@
       ]
     },
     {
+      "name": "MutationObserver-dbg.js",
+      "module": "sap/ui/dt/MutationObserver.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/dt/OverlayUtil.js",
+        "sap/ui/dt/ElementUtil.js",
+        "sap/ui/base/ManagedObject.js"
+      ]
+    },
+    {
+      "name": "MutationObserver.js",
+      "module": "sap/ui/dt/MutationObserver.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/dt/OverlayUtil.js",
+        "sap/ui/dt/ElementUtil.js",
+        "sap/ui/base/ManagedObject.js"
+      ]
+    },
+    {
       "name": "Overlay-dbg.js",
       "module": "sap/ui/dt/Overlay.js",
       "isDebug": true,
       "required": [
         "jquery.sap.global.js",
         "sap/ui/core/Control.js",
+        "sap/ui/dt/MutationObserver.js",
         "sap/ui/dt/ElementUtil.js",
         "sap/ui/dt/OverlayUtil.js",
         "sap/ui/dt/DOMUtil.js",
@@ -279,6 +299,7 @@
       "required": [
         "jquery.sap.global.js",
         "sap/ui/core/Control.js",
+        "sap/ui/dt/MutationObserver.js",
         "sap/ui/dt/ElementUtil.js",
         "sap/ui/dt/OverlayUtil.js",
         "sap/ui/dt/DOMUtil.js",
@@ -337,21 +358,6 @@
       ]
     },
     {
-      "name": "Preloader-dbg.js",
-      "module": "sap/ui/dt/Preloader.js",
-      "isDebug": true,
-      "required": [
-        "sap/ui/core/Element.js"
-      ]
-    },
-    {
-      "name": "Preloader.js",
-      "module": "sap/ui/dt/Preloader.js",
-      "required": [
-        "sap/ui/core/Element.js"
-      ]
-    },
-    {
       "name": "RenderingUtil-dbg.js",
       "module": "sap/ui/dt/RenderingUtil.js",
       "isDebug": true,
@@ -384,10 +390,6 @@
       ]
     },
     {
-      "name": "SelectionMode.type",
-      "designtime": true
-    },
-    {
       "name": "library-all-dbg.js",
       "isDebug": true,
       "merged": true
@@ -404,6 +406,13 @@
         "jquery.sap.global.js",
         "sap/ui/core/library.js"
       ]
+    },
+    {
+      "name": "library-preload.js",
+      "merged": true
+    },
+    {
+      "name": "library-preload.js.map"
     },
     {
       "name": "library-preload.json",
@@ -515,7 +524,8 @@
       "required": [
         "sap/ui/base/ManagedObject.js",
         "sap/ui/dt/ElementUtil.js",
-        "sap/ui/dt/OverlayUtil.js"
+        "sap/ui/dt/OverlayUtil.js",
+        "sap/ui/dt/OverlayRegistry.js"
       ]
     },
     {
@@ -524,7 +534,8 @@
       "required": [
         "sap/ui/base/ManagedObject.js",
         "sap/ui/dt/ElementUtil.js",
-        "sap/ui/dt/OverlayUtil.js"
+        "sap/ui/dt/OverlayUtil.js",
+        "sap/ui/dt/OverlayRegistry.js"
       ]
     },
     {
@@ -543,20 +554,22 @@
       ]
     },
     {
-      "name": "plugin/Rename-dbg.js",
-      "module": "sap/ui/dt/plugin/Rename.js",
+      "name": "plugin/TabHandling-dbg.js",
+      "module": "sap/ui/dt/plugin/TabHandling.js",
       "isDebug": true,
       "required": [
+        "jquery.sap.global.js",
         "sap/ui/dt/Plugin.js",
-        "sap/ui/dt/ElementUtil.js"
+        "sap/ui/dt/Overlay.js"
       ]
     },
     {
-      "name": "plugin/Rename.js",
-      "module": "sap/ui/dt/plugin/Rename.js",
+      "name": "plugin/TabHandling.js",
+      "module": "sap/ui/dt/plugin/TabHandling.js",
       "required": [
+        "jquery.sap.global.js",
         "sap/ui/dt/Plugin.js",
-        "sap/ui/dt/ElementUtil.js"
+        "sap/ui/dt/Overlay.js"
       ]
     },
     {

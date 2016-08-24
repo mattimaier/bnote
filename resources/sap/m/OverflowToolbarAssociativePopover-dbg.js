@@ -22,7 +22,7 @@ sap.ui.define(['./Popover', './PopoverRenderer', './OverflowToolbarAssociativePo
 	 * @extends sap.ui.core.Popover
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @private
@@ -88,7 +88,7 @@ sap.ui.define(['./Popover', './PopoverRenderer', './OverflowToolbarAssociativePo
 	 * @private
 	 */
 	OverflowToolbarAssociativePopover.prototype._preProcessControl = function(oControl){
-		var sCtrlClass = oControl.getMetadata().getName(),
+		var sCtrlClass = OverflowToolbarAssociativePopoverControls.getControlClass(oControl),
 			oCtrlConfig = OverflowToolbarAssociativePopoverControls.getControlConfig(oControl),
 			sAttachFnName, sPreProcessFnName;
 
@@ -120,7 +120,7 @@ sap.ui.define(['./Popover', './PopoverRenderer', './OverflowToolbarAssociativePo
 	 * @private
 	 */
 	OverflowToolbarAssociativePopover.prototype._postProcessControl = function(oControl) {
-		var sCtrlClass = oControl.getMetadata().getName(),
+		var sCtrlClass = OverflowToolbarAssociativePopoverControls.getControlClass(oControl),
 			oCtrlConfig = OverflowToolbarAssociativePopoverControls.getControlConfig(oControl),
 			sDetachFnName, sPostProcessFnName;
 

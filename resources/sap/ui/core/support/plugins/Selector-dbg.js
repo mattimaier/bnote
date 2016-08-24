@@ -5,8 +5,8 @@
  */
 
 // Provides class sap.ui.core.support.plugins.Selector (Selector support plugin)
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Popup', 'sap/ui/core/support/Plugin'],
-	function(jQuery, Popup, Plugin) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Popup', '../Plugin', '../Support'],
+	function(jQuery, Popup, Plugin, Support) {
 	"use strict";
 
 
@@ -19,7 +19,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Popup', 'sap/ui/core/support/Pl
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 * @constructor
 		 * @private
 		 * @alias sap.ui.core.support.plugins.Selector
@@ -116,7 +116,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Popup', 'sap/ui/core/support/Pl
 						jPopupRef.height(jRef.outerHeight());
 						oPlugin._oPopup.open(0, "BeginTop", "BeginTop", jRef[0], "0 0", "none");
 						if (bSend) {
-							sap.ui.core.support.Support.getStub().sendEvent(oPlugin.getId() + "Select", getElementDetailsForEvent(oElem, oPlugin));
+							Support.getStub().sendEvent(oPlugin.getId() + "Select", getElementDetailsForEvent(oElem, oPlugin));
 						}
 						setTimeout(function(){
 							oPlugin._oPopup.close(0);

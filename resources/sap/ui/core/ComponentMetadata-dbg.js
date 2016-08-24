@@ -18,7 +18,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata', 'sap/ui
 	 * @public
 	 * @class
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @since 1.9.2
 	 * @alias sap.ui.core.ComponentMetadata
 	 */
@@ -199,8 +199,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata', 'sap/ui
 		var oUI5Manifest = this.getManifestEntry("sap.ui5", true),
 			mExtensions = oUI5Manifest && oUI5Manifest["extends"] && oUI5Manifest["extends"].extensions;
 		if (this._iInstanceCount === 0 && !jQuery.isEmptyObject(mExtensions)) {
-			jQuery.sap.require("sap.ui.core.CustomizingConfiguration");
-			var CustomizingConfiguration = sap.ui.require('sap/ui/core/CustomizingConfiguration');
+			var CustomizingConfiguration = sap.ui.requireSync('sap/ui/core/CustomizingConfiguration');
 			CustomizingConfiguration.activateForComponent(this._sComponentName);
 		}
 		this._iInstanceCount++;

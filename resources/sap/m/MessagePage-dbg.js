@@ -23,7 +23,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		 *		- The application is loading
 		 *	The layout is unchanged but the text varies depending on the use case.
 		 * @extends sap.ui.core.Control
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -59,7 +59,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				/**
 				 * Determines the icon displayed on the MessagePage.
 				 */
-				icon : {type : "sap.ui.core.URI", group : "Misc", defaultValue : IconPool.getIconURI("documents") },
+				icon : {type : "sap.ui.core.URI", group : "Misc", defaultValue : "sap-icon://documents" },
 				/**
 				 * Determines the element's text directionality with enumerated options. By default, the control inherits text direction from the DOM.
 				 */

@@ -24,7 +24,7 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 	 * @extends sap.m.ListBase
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -117,12 +117,12 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 
 	Table.prototype.destroyItems = function() {
 		this._notifyColumns("ItemsRemoved");
-		return ListBase.prototype.destroyItems.call(this);
+		return ListBase.prototype.destroyItems.apply(this, arguments);
 	};
 
 	Table.prototype.removeAllItems = function() {
 		this._notifyColumns("ItemsRemoved");
-		return ListBase.prototype.removeAllItems.call(this);
+		return ListBase.prototype.removeAllItems.apply(this, arguments);
 	};
 
 	Table.prototype.removeSelections = function() {
@@ -438,11 +438,12 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 		return !!jQuery(oEvent.target).closest($Footer, this.getTableDomRef()).length;
 	};
 
-	/*
-	 * This gets called after navigation items are focused
-	 * Overwrites the ListItemBase default handling
-	 */
-	Table.prototype.onNavigationItemFocus = function() {
+	// this gets called after navigation items are focused
+	Table.prototype.onNavigationItemFocus = function(oEvent) {
+		var aItemDomRefs = this._oItemNavigation.getItemDomRefs(),
+			oItemDomRef = aItemDomRefs[oEvent.getParameter("index")];
+
+		this.getNavigationRoot().setAttribute("aria-activedescendant", oItemDomRef.id);
 	};
 
 	// keyboard handling
@@ -452,7 +453,7 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 		}
 
 		// toggle select all header checkbox and fire its event
-		if (oEvent.target === this.getDomRef("tblHeader") && this._selectAllCheckBox) {
+		if (this._selectAllCheckBox && oEvent.target === this.getDomRef("tblHeader")) {
 			this._selectAllCheckBox.setSelected(!this._selectAllCheckBox.getSelected()).fireSelect();
 			oEvent.preventDefault();
 			oEvent.setMarked();
@@ -461,14 +462,14 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 
 	// Handle tab key
 	Table.prototype.onsaptabnext = function(oEvent) {
-		if (oEvent.isMarked()) {
+		if (oEvent.isMarked() || this.getKeyboardMode() == sap.m.ListKeyboardMode.Edit) {
 			return;
 		}
 
 		var $Row = jQuery();
 		if (oEvent.target.id == this.getId("nodata")) {
 			$Row = this.$("nodata");
-		} if (this.isHeaderRowEvent(oEvent)) {
+		} else if (this.isHeaderRowEvent(oEvent)) {
 			$Row = this.$("tblHeader");
 		} else if (this.isFooterRowEvent(oEvent)) {
 			$Row = this.$("tblFooter");
@@ -483,7 +484,7 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 
 	// Handle shift-tab key
 	Table.prototype.onsaptabprevious = function(oEvent) {
-		if (oEvent.isMarked()) {
+		if (oEvent.isMarked() || this.getKeyboardMode() == sap.m.ListKeyboardMode.Edit) {
 			return;
 		}
 

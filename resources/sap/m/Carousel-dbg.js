@@ -24,7 +24,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -366,6 +366,29 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 			return false;
 		});
+
+
+		// Fixes displaying correct page after carousel become visible in an IconTabBar
+		// BCP: 1680019792
+		var sClassName = 'sap.m.IconTabBar';
+		var oParent = this.getParent();
+		while (oParent) {
+			if (oParent.getMetadata().getName() == sClassName) {
+				var that = this;
+
+				/*eslint-disable no-loop-func */
+				oParent.attachExpand(function (oEvt) {
+					var bExpand = oEvt.getParameter('expand');
+					if (bExpand && iIndex > 0) {
+						that._oMobifyCarousel.move(iIndex + 1);
+						that._changePage(iIndex + 1);
+					}
+				});
+				break;
+			}
+
+			oParent = oParent.getParent();
+		}
 	};
 
 	/**

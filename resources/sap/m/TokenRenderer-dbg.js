@@ -29,7 +29,6 @@ sap.ui.define(['jquery.sap.global'],
 		oRm.write("<div tabindex=\"-1\"");
 		oRm.writeControlData(oControl);
 		oRm.addClass("sapMToken");
-		oRm.writeClasses();
 
 		oRm.writeAttribute("role", "listitem");
 		oRm.writeAttribute("aria-readonly", !oControl.getEditable());
@@ -38,6 +37,8 @@ sap.ui.define(['jquery.sap.global'],
 		if (oControl.getSelected()) {
 			oRm.addClass("sapMTokenSelected");
 		}
+
+		oRm.writeClasses();
 
 		// add tooltip if available
 		var sTooltip = oControl.getTooltip_AsString();

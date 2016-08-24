@@ -12,7 +12,7 @@ sap.ui.define([],
 	return {
 		aggregations : {
 			masterPages : {
-				domRef : ":sap-domref > .sapMSplitContainerMaster"
+				domRef : ":sap-domref > .sapMSplitContainerMaster, :sap-domref > .sapMSplitContainerMobile"
 			},
 			detailPages : {
 				domRef : ":sap-domref > .sapMSplitContainerDetail"

@@ -67,7 +67,7 @@ sap.ui.define(['jquery.sap.global', './Core', './Component'],
 		 * gets removed again.
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 * @constructor
 		 * @private
 		 * @since 1.15.1
@@ -123,8 +123,8 @@ sap.ui.define(['jquery.sap.global', './Core', './Component'],
 			activateForComponentInstance: function(oComponent) {
 				jQuery.sap.log.info("CustomizingConfiguration: activateForComponentInstance('" + oComponent.getId() + "')");
 				var sComponentName = oComponent.getMetadata().getComponentName(),
-				    sKey = sComponentName + "::" + oComponent.getId(),
-				    oCustomizingConfig = oComponent.getManifest()["sap.ui5"] && oComponent.getManifest()["sap.ui5"]["extends"] && oComponent.getManifest()["sap.ui5"]["extends"]["extensions"];
+					sKey = sComponentName + "::" + oComponent.getId(),
+					oCustomizingConfig = oComponent.getManifest()["sap.ui5"] && oComponent.getManifest()["sap.ui5"]["extends"] && oComponent.getManifest()["sap.ui5"]["extends"]["extensions"];
 				mComponentConfigs[sKey] = oCustomizingConfig;
 
 				jQuery.sap.log.debug("CustomizingConfiguration: customizing configuration for component '" + sKey + "' loaded: " + JSON.stringify(oCustomizingConfig));

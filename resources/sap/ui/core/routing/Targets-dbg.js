@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './async/Targets', './sync/Targets'],
-	function($, EventProvider, Target, asyncTargets, syncTargets) {
+	function(jQuery, EventProvider, Target, asyncTargets, syncTargets) {
 		"use strict";
 
 		/**
@@ -335,6 +335,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 			 * @public
 			 * @returns {sap.ui.core.routing.Targets} this pointer for chaining
 			 * @name sap.ui.core.routing.Targets#display
+			 * @function
 			 */
 
 			/**
@@ -358,14 +359,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 				var that = this,
 					aResult = [];
 
-				if ($.isArray(vName)) {
-					$.each(vName, function (i, sName) {
+				if (jQuery.isArray(vName)) {
+					jQuery.each(vName, function (i, sName) {
 						var oTarget = that._mTargets[sName];
 
 						if (oTarget) {
 							aResult.push(oTarget);
 						} else {
-							$.sap.log.error("The target you tried to get \"" + sName + "\" does not exist!", that);
+							jQuery.sap.log.error("The target you tried to get \"" + sName + "\" does not exist!", that);
 						}
 					});
 					return aResult;
@@ -388,7 +389,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 					oTarget;
 
 				if (oOldTarget) {
-					$.sap.log.error("Target with name " + sName + " already exists", this);
+					jQuery.sap.log.error("Target with name " + sName + " already exists", this);
 				} else {
 					oTarget = this._createTarget(sName, oTargetOptions);
 					this._addParentTo(oTarget);
@@ -402,14 +403,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 			 *
 			 * Could be triggered by calling the display function or by the {@link sap.ui.core.routing.Router} when a target is referenced in a matching route.
 			 *
+			 * @name sap.ui.core.routing.Targets#display
+			 * @event
 			 * @param {object} oEvent
+			 * @param {sap.ui.base.EventProvider} oEvent.getSource
 			 * @param {object} oEvent.getParameters
 			 * @param {object} oEvent.getParameters.view The view that got displayed.
 			 * @param {object} oEvent.getParameters.control The control that now contains the view in the controlAggregation
 			 * @param {object} oEvent.getParameters.config The options object passed to the constructor {@link sap.ui.core.routing.Targets#constuctor}
 			 * @param {object} oEvent.getParameters.name The name of the target firing the event
 			 * @param {object} oEvent.getParameters.data The data passed into the {@link sap.ui.core.routing.Targets#display} function
-			 * @event
 			 * @public
 			 */
 
@@ -468,7 +471,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 				var oTarget,
 					oOptions;
 
-				oOptions = $.extend(true, { name: sName }, this._oConfig, oTargetOptions);
+				oOptions = jQuery.extend(true, { name: sName }, this._oConfig, oTargetOptions);
 				oTarget = this._constructTarget(oOptions);
 				oTarget.attachDisplay(function (oEvent) {
 					var oParameters = oEvent.getParameters();
@@ -500,7 +503,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 				oParentTarget = this._mTargets[sParent];
 
 				if (!oParentTarget) {
-					$.sap.log.error("The target '" + oTarget._oOptions.name + " has a parent '" + sParent + "' defined, but it was not found in the other targets", this);
+					jQuery.sap.log.error("The target '" + oTarget._oOptions.name + " has a parent '" + sParent + "' defined, but it was not found in the other targets", this);
 					return;
 				}
 

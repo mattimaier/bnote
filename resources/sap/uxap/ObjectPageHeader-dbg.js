@@ -9,6 +9,7 @@ sap.ui.define([
 	"sap/ui/core/Control",
 	"sap/ui/core/IconPool",
 	"sap/ui/core/CustomData",
+	"sap/ui/core/Icon",
 	"sap/ui/Device",
 	"sap/m/Breadcrumbs",
 	"./ObjectPageHeaderActionButton",
@@ -17,10 +18,9 @@ sap.ui.define([
 	"sap/m/Button",
 	"sap/m/ActionSheet",
 	"sap/m/Image",
-	"sap/ui/core/Icon",
 	"./library"
-], function (Control, IconPool, CustomData, Device, Breadcrumbs, ObjectPageHeaderActionButton,
-			 ResizeHandler, Text, Button, ActionSheet, Image, Icon, library) {
+], function (Control, IconPool, CustomData, Icon, Device, Breadcrumbs, ObjectPageHeaderActionButton,
+			 ResizeHandler, Text, Button, ActionSheet, Image, library) {
 	"use strict";
 
 	/**
@@ -188,6 +188,7 @@ sap.ui.define([
 				_overflowActionSheet: {type: "sap.m.ActionSheet", multiple: false, visibility: "hidden"},
 				_changesIconCont: {type: "sap.m.Button", multiple: false, visibility: "hidden"},
 				_changesIcon: {type: "sap.m.Button", multiple: false, visibility: "hidden"},
+				_sideContentBtn: {type: "sap.m.Button", multiple: false, visibility: "hidden"},
 
 				/**
 				 *
@@ -201,7 +202,14 @@ sap.ui.define([
 				 * You can use ObjectPageHeaderActionButton controls to achieve a different visual representation of the action buttons in the action bar and the action sheet (overflow menu).
 				 * You can use ObjectPageHeaderLayoutData to display a visual separator.
 				 */
-				actions: {type: "sap.ui.core.Control", multiple: true, singularName: "action"}
+				actions: {type: "sap.ui.core.Control", multiple: true, singularName: "action"},
+
+				/**
+				 *
+				 * A button that is used for opening the side content of the page or some additional content.
+				 * @since 1.38.0
+				 */
+				sideContentButton: {type: "sap.m.Button", multiple: false}
 			},
 			events: {
 
@@ -306,16 +314,19 @@ sap.ui.define([
 
 			if (sObjectImageURI.indexOf("sap-icon://") == 0) {
 				oObjectImage = new Icon();
+				oObjectImage.addStyleClass("sapUxAPObjectPageHeaderObjectImageIcon");
 			} else {
 				oObjectImage = new Image({
 					densityAware: oParent.getObjectImageDensityAware(),
 					alt: oParent.getObjectImageAlt(),
 					decorative: false
 				});
+
+				oObjectImage.addStyleClass("sapUxAPObjectPageHeaderObjectImage");
 			}
 
 			oObjectImage.setSrc(sObjectImageURI);
-			oObjectImage.addStyleClass("sapUxAPObjectPageHeaderObjectImage");
+
 			if (oParent.getObjectImageAlt()) {
 				oObjectImage.setTooltip(oParent.getObjectImageAlt());
 			}
@@ -414,8 +425,10 @@ sap.ui.define([
 	};
 
 	ObjectPageHeader.prototype._proxyMethodToBreadCrumbControl = function (sFuncName, aArguments) {
-		var oBreadCrumbs = this._getInternalAggregation("_breadCrumbs");
-		return oBreadCrumbs[sFuncName].apply(oBreadCrumbs, aArguments);
+		var oBreadCrumbs = this._getInternalAggregation("_breadCrumbs"),
+			vResult = oBreadCrumbs[sFuncName].apply(oBreadCrumbs, aArguments);
+		this.invalidate();
+		return vResult;
 	};
 
 	ObjectPageHeader.prototype.setHeaderDesign = function (sHeaderDesign) {
@@ -458,8 +471,23 @@ sap.ui.define([
 	 * @param {string} sTitle title string
 	 * @return {*} this
 	 */
-	ObjectPageHeader.prototype.setObjectTitle = function (sTitle) {
-		return this._applyActionProperty("objectTitle", Array.prototype.slice.call(arguments));
+	ObjectPageHeader.prototype.setObjectTitle = function (sNewTitle) {
+
+		var sOldTitle = this.getProperty("objectTitle"),
+			bChanged = sOldTitle !== sNewTitle;
+
+		this._applyActionProperty("objectTitle", Array.prototype.slice.call(arguments));
+
+		if (bChanged && this.mEventRegistry["_titleChange"] ) {
+			this.fireEvent("_titleChange", {
+				"id": this.getId(),
+				"name": "objectTitle",
+				"oldValue": sOldTitle,
+				"newValue": sNewTitle
+			});
+		}
+
+		return this;
 	};
 
 	var aPropertiesToOverride = ["objectSubtitle", "showTitleSelector", "markLocked", "markFavorite", "markFlagged",
@@ -533,6 +561,11 @@ sap.ui.define([
 			});
 		}
 
+		var oSideBtn = this.getSideContentButton();
+		if (oSideBtn && !oSideBtn.getTooltip()) {
+			oSideBtn.setTooltip(this.oLibraryResourceBundleOP.getText("TOOLTIP_OP_SHOW_SIDE_CONTENT"));
+		}
+
 		var aActions = this.getActions() || [];
 		this._oOverflowActionSheet.removeAllButtons();
 		this._oActionSheetButtonMap = {};
@@ -541,6 +574,27 @@ sap.ui.define([
 		if (aActions.length > 1 || this._hasOneButtonShowText(aActions)) {
 			//create responsive equivalents of the provided controls
 			jQuery.each(aActions, jQuery.proxy(function (iIndex, oAction) {
+				// Set internal visibility for normal buttons like for ObjectPageHeaderActionButton
+				if (oAction instanceof Button && !(oAction instanceof ObjectPageHeaderActionButton)) {
+					oAction._getInternalVisible = function () {
+						return this._bInternalVisible;
+					};
+					oAction._setInternalVisible = function (bValue, bInvalidate) {
+						this.$().toggle(bValue);
+						if (bValue != this._bInternalVisible) {
+							this._bInternalVisible = bValue;
+							if (bInvalidate) {
+								this.invalidate();
+							}
+						}
+					};
+					oAction.onAfterRendering = function () {
+						if (!this._getInternalVisible()) {
+							this.$().hide();
+						}
+					};
+				}
+
 				// Force the design of the button to transparent
 				if (oAction instanceof Button && oAction.getVisible()) {
 					if (oAction instanceof Button && (oAction.getType() === "Default" || oAction.getType() === "Unstyled")) {
@@ -658,11 +712,18 @@ sap.ui.define([
 			return;
 		}
 		aActions.forEach(function (oAction) {
-			if (oAction instanceof ObjectPageHeaderActionButton) {
+			if (oAction instanceof Button) {
+				var oActionSheetButton = this._oActionSheetButtonMap[oAction.getId()];
 				if (bAttach) {
 					oAction.attachEvent("_change", this._adaptLayout, this);
+					if (oActionSheetButton) {
+						oActionSheetButton.attachEvent("_change", this._adaptOverflow, this);
+					}
 				} else {
 					oAction.detachEvent("_change", this._adaptLayout, this);
+					if (oActionSheetButton) {
+						oActionSheetButton.detachEvent("_change", this._adaptOverflow, this);
+					}
 				}
 			}
 		}, this);
@@ -728,7 +789,7 @@ sap.ui.define([
 	 * Adapt title/subtitle container and action buttons and overflow button
 	 * @private
 	 */
-	ObjectPageHeader.prototype._adaptLayout = function () {
+	ObjectPageHeader.prototype._adaptLayout = function (oEvent) {
 		var iIdentifierContWidth = this.$("identifierLine").width(),
 			iActionsWidth = this._getActionsWidth(), // the width off all actions without hidden one
 			iActionsContProportion = iActionsWidth / iIdentifierContWidth, // the percentage(proportion) that action buttons take from the available space
@@ -738,6 +799,8 @@ sap.ui.define([
 
 		if (iActionsContProportion > this._iAvailablePercentageForActions) {
 			this._adaptActions(iAvailableSpaceForActions);
+		} else if (oEvent && oEvent.getSource() instanceof ObjectPageHeaderActionButton) {
+			oEvent.getSource()._setInternalVisible(true);
 		}
 
 		$actionButtons.css("visibility", "visible");
@@ -801,14 +864,27 @@ sap.ui.define([
 			//separators and non sap.m.Button or not visible buttons have no equivalent in the overflow
 			if (oActionSheetButton) {
 				iVisibleActionsWidth += oAction.$().width();
-
 				if (iAvailableSpaceForActions > iVisibleActionsWidth && !bMobileScenario) {
-					oActionSheetButton.setVisible(false);
+					this._setActionButtonVisibility(oAction, true);
 				} else {
 					this._setActionButtonVisibility(oAction, false);
 				}
 			}
 		}, this);
+	};
+
+	/**
+	 * Show or hide the overflow button and action sheet according to visible buttons inside
+	 * @private
+	 */
+	ObjectPageHeader.prototype._adaptOverflow = function () {
+		var aActionSheetButtons = this._oOverflowActionSheet.getButtons();
+
+		var bHasVisible = aActionSheetButtons.some(function(oActionSheetButton) {
+			 return oActionSheetButton.getVisible();
+		});
+
+		this._oOverflowButton.$().toggle(bHasVisible);
 	};
 
 	/**
@@ -820,12 +896,12 @@ sap.ui.define([
 
 		//separators and non sap.m.Button or not visible buttons have no equivalent in the overflow
 		if (oActionSheetButton) {
-			if (bVisible) {
-				oAction.$().show();
+			if (oAction.getVisible()) {
+				oAction._setInternalVisible(bVisible);
+				oActionSheetButton.setVisible(!bVisible);
 			} else {
-				oAction.$().hide();
+				oActionSheetButton.setVisible(false);
 			}
-			oActionSheetButton.setVisible(!bVisible);
 		}
 	};
 
@@ -879,6 +955,29 @@ sap.ui.define([
 			ResizeHandler.deregister(this._iResizeId);
 		}
 	};
+
+
+	/**
+	 * Fiori 2.0 adaptation
+	 */
+	ObjectPageHeader.prototype.setNavigationBar = function(oBar) {
+
+		this.setAggregation("navigationBar", oBar);
+
+		if (oBar && this.mEventRegistry["_adaptableContentChange"] ) {
+			this.fireEvent("_adaptableContentChange", {
+				"parent": this,
+				"adaptableContent": oBar
+			});
+		}
+
+		return this;
+	};
+
+	ObjectPageHeader.prototype._getAdaptableContent = function() {
+		return this.getNavigationBar();
+	};
+
 
 	return ObjectPageHeader;
 });

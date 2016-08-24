@@ -9,11 +9,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 		'sap/ui/core/support/controls/InteractionSlider',
 		'sap/ui/core/support/controls/InteractionTree',
 		'sap/ui/core/support/controls/TimelineOverview',
+		'sap/ui/Device',
 		'sap/m/MessageToast',
 		'sap/ui/thirdparty/jszip',
 		'sap/ui/core/util/File'
 	],
-	function(jQuery, Plugin, InteractionSlider, InteractionTree, TimelineOverview, MessageToast, JSZip, File) {
+	function(jQuery, Plugin, InteractionSlider, InteractionTree, TimelineOverview, Device, MessageToast, JSZip, File) {
 		"use strict";
 
 
@@ -28,7 +29,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 * @constructor
 		 * @private
 		 * @alias sap.ui.core.support.plugins.Interaction
@@ -366,7 +367,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 
 			var aMeasurements = this.measurements || [];
 			if (aMeasurements.length > 0) {
-				if (sap.ui.Device.browser.internet_explorer && sap.ui.Device.browser.version < 10) {
+				if (Device.browser.msie && Device.browser.version < 10) {
 					MessageToast.show('Download action is not supported in Internet Explorer 9', {
 						autoClose: true,
 						duration: 3000
@@ -434,7 +435,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 		};
 
 		Interaction.prototype._openGeneratedFile = function(oContent) {
-			sap.ui.core.util.File.save(oContent, "InteractionSteps", "zip", "application/zip");
+			File.save(oContent, "InteractionSteps", "zip", "application/zip");
 		};
 
 		Interaction.prototype._setMeasurementsData = function(aMeasurements) {

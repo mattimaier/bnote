@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -877,7 +877,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 		var oXhr = aXhr[iIndex];
 		var sFilename = oXhr.file.name ? oXhr.file.name : "MultipartFile";
 
-		if (sap.ui.Device.browser.internet_explorer && oXhr.file.type && oXhr.xhr.readyState == 1) {
+		if ((sap.ui.Device.browser.edge || sap.ui.Device.browser.internet_explorer) && oXhr.file.type && oXhr.xhr.readyState == 1) {
 			var sContentType = oXhr.file.type;
 			oXhr.xhr.setRequestHeader("Content-Type", sContentType);
 			oXhr.requestHeaders.push({name: "Content-Type", value: sContentType});
@@ -1439,8 +1439,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 			// create the upload iframe
 			var oIFrameRef = document.createElement("iframe");
 			oIFrameRef.style.display = "none";
-			/*eslint-disable no-script-url */
-			oIFrameRef.src = "javascript:''";
 			/*eslint-enable no-script-url */
 			oIFrameRef.id = this.sId + "-frame";
 			sap.ui.getCore().getStaticAreaRef().appendChild(oIFrameRef);

@@ -28,7 +28,7 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './ToolbarLayoutData',
 	 * @implements sap.ui.core.Toolbar,sap.m.IBar
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -105,7 +105,8 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './ToolbarLayoutData',
 					srcControl : {type : "sap.ui.core.Control"}
 				}
 			}
-		}
+		},
+		designtime : true
 	}});
 
 	EnabledPropagator.call(Toolbar.prototype);
@@ -688,7 +689,7 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './ToolbarLayoutData',
 	///////////////////////////
 	/**
 	 * Returns if the bar is sensitive to the container context. Implementation of the IBar interface
-	 * @returns {bool} isContextSensitive
+	 * @returns {boolean} isContextSensitive
 	 * @protected
 	 */
 	Toolbar.prototype.isContextSensitive = BarInPageEnabler.prototype.isContextSensitive;

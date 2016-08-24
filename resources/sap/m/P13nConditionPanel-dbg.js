@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @param {object} [mSettings] initial settings for the new control
 	 * @class The ConditionPanel Control will be used to implement the Sorting, Filtering and Grouping panel of the new Personalization dialog.
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @public
 	 * @experimental since version 1.26 !!! THIS CONTROL IS ONLY FOR INTERNAL USE !!!
@@ -257,7 +257,7 @@ sap.ui.define([
 	 *
 	 * @param {object} oCondition the new condition of type { "key": "007", "operation": sap.m.P13nConditionOperation.Ascending, "keyField":
 	 *        "keyFieldKey", "value1": "", "value2": ""};
-	 * @param {integer} index of the new condition
+	 * @param {int} index of the new condition
 	 * @public
 	 * @since 1.26.0
 	 */
@@ -624,7 +624,13 @@ sap.ui.define([
 		this._iFirstConditionIndex = 0;
 		this._iConditionPageSize = 10;
 
+		this._oInvisibleTextField = new sap.ui.core.InvisibleText({ text: this._oRb.getText("CONDITIONPANEL_FIELD_LABEL")});
+		this._oInvisibleTextOperator = new sap.ui.core.InvisibleText({ text: this._oRb.getText("CONDITIONPANEL_OPERATOR_LABEL")});
+		this.addAggregation("content", this._oInvisibleTextField);
+		this.addAggregation("content", this._oInvisibleTextOperator);
+
 		this.addAggregation("content", this._oConditionsGrid);
+
 
 		this._registerResizeHandler();
 
@@ -906,7 +912,6 @@ sap.ui.define([
 	 * @private
 	 */
 	P13nConditionPanel.prototype.exit = function() {
-
 		this._unregisterResizeHandler();
 
 		this._aConditionsFields = null;
@@ -1063,7 +1068,7 @@ sap.ui.define([
 	 * @param {grid} oTargetGrid the main grid in which the new condition grid will be added
 	 * @param {object} oConditionGridData the condition data for the new added condition grid controls
 	 * @param {string} sKey the key for the new added condition grid
-	 * @param {integer} iPos the index of the new condition in the targetGrid
+	 * @param {int} iPos the index of the new condition in the targetGrid
 	 */
 	P13nConditionPanel.prototype._createConditionRow = function(oTargetGrid, oConditionGridData, sKey, iPos) {
 		var oButtonContainer = null;
@@ -1106,18 +1111,7 @@ sap.ui.define([
 							that._changeField(oConditionGrid);
 						});
 
-						if (oConditionGridData) {
-							oControl.setSelected(oConditionGridData.showIfGrouped);
-						} else {
-							if (this.getUsePrevConditionSetting()) {
-								// select the value from the condition above
-								if (iPos > 0) {
-									oGrid = oTargetGrid.getContent()[iPos - 1];
-									oControl.setSelected(oGrid.showIfGrouped.getSelected());
-								}
-							}
-						}
-
+						oControl.setSelected(oConditionGridData ? oConditionGridData.showIfGrouped : true);
 					} else {
 						if (oConditionGridData) {
 							oControl.setSelected(true);
@@ -1129,7 +1123,8 @@ sap.ui.define([
 				case "ComboBox":
 					if (field["ID"] === "keyField") {
 						oControl = new sap.m.ComboBox({ // before we used the new sap.m.Select control
-							width: "100%"
+							width: "100%",
+							ariaLabelledBy: this._oInvisibleTextField
 						});
 
 						var fOriginalKey = jQuery.proxy(oControl.setSelectedKey, oControl);
@@ -1217,6 +1212,7 @@ sap.ui.define([
 					if (field["ID"] === "operation") {
 						oControl = new sap.m.Select({
 							width: "100%",
+							ariaLabelledBy: this._oInvisibleTextOperator,
 							layoutData: new sap.ui.layout.GridData({
 								span: field["Span" + this._sConditionType]
 							})
@@ -1582,6 +1578,16 @@ sap.ui.define([
 				oConditionGrid.oFormatter = null;
 				oControl = new sap.m.Input(params);
 
+				if (this._fSuggestCallback) {
+					var oCurrentKeyField = this._getCurrentKeyFieldItem(oConditionGrid.keyField);
+					if (oCurrentKeyField && oCurrentKeyField.key) {
+						var oSuggestProvider = this._fSuggestCallback(oControl, oCurrentKeyField.key);
+						if (oSuggestProvider) {
+							oControl._oSuggestProvider = oSuggestProvider;
+						}
+					}
+				}
+
 		}
 
 		if (sCtrlType !== "boolean" && sCtrlType !== "enum") {
@@ -1649,7 +1655,7 @@ sap.ui.define([
 			if (typeof oCurrentKeyField.maxLength === "number") {
 				l = oCurrentKeyField.maxLength;
 			}
-			if (l > 0) {
+			if (l > 0 && (!oControl.getShowSuggestion || !oControl.getShowSuggestion())) {
 				oControl.setMaxLength(l);
 			}
 		}
@@ -1783,6 +1789,10 @@ sap.ui.define([
 
 			var ctrlIndex = oConditionGrid.indexOfContent(oCtrl);
 			oConditionGrid.removeContent(oCtrl);
+			if (oCtrl._oSuggestProvider) {
+				oCtrl._oSuggestProvider.destroy();
+				oCtrl._oSuggestProvider = null;
+			}
 			oCtrl.destroy();
 			var fieldInfo = this._aConditionsFields[index];
 			oCtrl = this._createValueField(oCurrentKeyField, fieldInfo, oConditionGrid);

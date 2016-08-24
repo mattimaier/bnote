@@ -3,14 +3,13 @@
  * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
-sap.ui.define(['jquery.sap.global', 'sap/ui/Device'], function (jQuery, Device) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/Device'], function ($, Device) {
 	"use strict";
 
 	///////////////////////////////
 	/// Privates
 	///////////////////////////////
-	var $ = jQuery,
-		queue = [],
+	var queue = [],
 		context = {};
 
 	function internalWait (fnCallback, oOptions, oDeferred) {
@@ -162,13 +161,81 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'], function (jQuery, Device) 
 	Opa.config = {};
 
 	/**
-	 * Extends and overwrites default values of the Opa.config
+	 * Extends and overwrites default values of the {@link sap.ui.test.Opa#.config}.
+	 * Sample usage:
+	 * <pre>
+	 *     <code>
+	 *         var oOpa = new Opa();
+	 *
+	 *         // this statement will  will time out after 15 seconds and poll every 400ms.
+	 *         // those two values come from the defaults of {@link sap.ui.test.Opa#.config}.
+	 *         oOpa.waitFor({
+	 *         });
+	 *
+	 *         // All wait for statements added after this will take other defaults
+	 *         Opa.extendConfig({
+	 *             timeout: 10,
+	 *             pollingInterval: 100
+	 *         });
+	 *
+	 *         // this statement will time out after 10 seconds and poll every 100 ms
+	 *         oOpa.waitFor({
+	 *         });
+	 *
+	 *         // this statement will time out after 20 seconds and poll every 100 ms
+	 *         oOpa.waitFor({
+	 *             timeout: 20;
+	 *         });
+	 *     </code>
+	 * </pre>
+	 *
+	 * @since 1.40 The own properties of 'arrangements, actions and assertions' will be kept.
+	 * Here is an example:
+	 * <pre>
+	 *     <code>
+	 *         // An opa action with an own property 'clickMyButton'
+	 *         var myOpaAction = new Opa();
+	 *         myOpaAction.clickMyButton = // function that clicks MyButton
+	 *         Opa.config.actions = myOpaAction;
+	 *
+	 *         var myExtension = new Opa();
+	 *         Opa.extendConfig({
+	 *             actions: myExtension
+	 *         });
+	 *
+	 *         // The clickMyButton function is still available - the function is logged out
+	 *         console.log(Opa.config.actions.clickMyButton);
+	 *
+	 *         // If
+	 *         var mySecondExtension = new Opa();
+	 *         mySecondExtension.clickMyButton = // a different function than the initial one
+	 *         Opa.extendConfig({
+	 *             actions: mySecondExtension
+	 *         });
+	 *
+	 *         // Now clickMyButton function is the function of the second extension not the first one.
+	 *         console.log(Opa.config.actions.clickMyButton);
+	 *     </code>
+	 * </pre>
 	 *
 	 * @param {object} options The values to be added to the existing config
 	 * @public
 	 */
 	Opa.extendConfig = function (options) {
-		Opa.config = jQuery.extend(Opa.config, options);
+		// Opa extend to preserver properties on these three parameters
+		["actions", "assertions", "arrangements"].forEach(function (sArrangeActAssert) {
+			if (!options[sArrangeActAssert]) {
+				return;
+			}
+
+			Object.keys(Opa.config[sArrangeActAssert]).forEach(function (sKey) {
+				if (!options[sArrangeActAssert][sKey]) {
+					options[sArrangeActAssert][sKey] = Opa.config[sArrangeActAssert][sKey];
+				}
+			});
+		});
+
+		Opa.config = $.extend(Opa.config, options);
 	};
 
 	/**
@@ -240,7 +307,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'], function (jQuery, Device) 
 			queue = [];
 			oOptions.errorMessage = oOptions.errorMessage || "Failed to wait for check";
 			oOptions.errorMessage += addStacks(oOptions);
-			jQuery.sap.log.error(oOptions.errorMessage);
+			$.sap.log.error(oOptions.errorMessage);
 		});
 	};
 
@@ -273,8 +340,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'], function (jQuery, Device) 
 		 *
 		 * @public
 		 * @param {object} options These contain check, success and error functions
-		 * @param {integer} [oOptions.timeout] default: 15 - (seconds) Specifies how long the waitFor function polls before it fails.
-		 * @param {integer} [oOptions.pollingInterval] default: 400 - (milliseconds) Specifies how often the waitFor function polls.
+		 * @param {int} [oOptions.timeout] default: 15 - (seconds) Specifies how long the waitFor function polls before it fails.
+		 * @param {int} [oOptions.pollingInterval] default: 400 - (milliseconds) Specifies how often the waitFor function polls.
 		 * @param {function} [oOptions.check] Will get invoked in every polling interval. If it returns true, the check is successful and the polling will stop.
 		 * The first parameter passed into the function is the same value that gets passed to the success function.
 		 * Returning something other than boolean in the check will not change the first parameter of success.
@@ -305,6 +372,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'], function (jQuery, Device) 
 						try {
 							bResult = options.check.apply(this, arguments);
 						} catch (err) {
+							$.sap.log.error(err.stack, "OPA encountered an error");
 							deferred.reject(options);
 							throw err;
 						}
@@ -316,6 +384,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'], function (jQuery, Device) 
 								var iCurrentQueueLength = queue.length;
 								options.success.apply(this, arguments);
 							} catch (err) {
+								$.sap.log.error(err.stack, "OPA encountered an error");
 								deferred.reject(options);
 								throw err;
 							} finally {

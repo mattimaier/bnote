@@ -19,7 +19,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/NumberFormat', 'sap/ui/m
 	 * @extends sap.ui.model.SimpleType
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -40,9 +40,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/NumberFormat', 'sap/ui/m
 
 	});
 
-	/**
-	 * @see sap.ui.model.SimpleType.prototype.formatValue
-	 */
 	Integer.prototype.formatValue = function(vValue, sInternalType) {
 		var iValue = vValue;
 		if (vValue == undefined || vValue == null) {
@@ -66,9 +63,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/NumberFormat', 'sap/ui/m
 		}
 	};
 
-	/**
-	 * @see sap.ui.model.SimpleType.prototype.parseValue
-	 */
 	Integer.prototype.parseValue = function(vValue, sInternalType) {
 		var iResult, oBundle;
 		switch (this.getPrimitiveType(sInternalType)) {
@@ -98,9 +92,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/NumberFormat', 'sap/ui/m
 		return iResult;
 	};
 
-	/**
-	 * @see sap.ui.model.SimpleType.prototype.validateValue
-	 */
 	Integer.prototype.validateValue = function(vValue) {
 		if (this.oConstraints) {
 			var oBundle = sap.ui.getCore().getLibraryResourceBundle(),
@@ -131,9 +122,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/NumberFormat', 'sap/ui/m
 		}
 	};
 
-	/**
-	 * @see sap.ui.model.SimpleType.prototype.setFormatOptions
-	 */
 	Integer.prototype.setFormatOptions = function(oFormatOptions) {
 		this.oFormatOptions = oFormatOptions;
 		this._createFormats();

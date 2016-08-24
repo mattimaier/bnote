@@ -5,8 +5,8 @@
  */
 
 // Provides class sap.ui.core.support.plugins.MessageTest (Test  plugin for support tool communication)
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
-	function(jQuery, Plugin) {
+sap.ui.define(['jquery.sap.global', '../Plugin', '../Support'],
+	function(jQuery, Plugin, Support) {
 	"use strict";
 
 
@@ -21,7 +21,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 * @constructor
 		 * @private
 		 * @alias sap.ui.core.support.plugins.MessageTest
@@ -30,7 +30,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 			constructor : function(oSupportStub) {
 				Plugin.apply(this, ["sapUiSupportMessageTest", "Support Tool Communication Test", oSupportStub]);
 
-				this._aEventIds = [this.getId() + "Msg", sap.ui.core.support.Support.EventType.SETUP, sap.ui.core.support.Support.EventType.TEAR_DOWN];
+				this._aEventIds = [this.getId() + "Msg", Support.EventType.SETUP, Support.EventType.TEAR_DOWN];
 				this._bFirstTime = true;
 			}
 		});
@@ -72,12 +72,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 			};
 
 			this.$("send").bind("click", this._fSendHandler);
-			report(this, sap.ui.core.support.Support.EventType.SETUP, "", true);
+			report(this, Support.EventType.SETUP, "", true);
 		};
 
 
 		MessageTest.prototype.exit = function(oSupportStub){
-			report(this, sap.ui.core.support.Support.EventType.TEAR_DOWN, "", true);
+			report(this, Support.EventType.TEAR_DOWN, "", true);
 			if (this._fSendHandler) {
 				this.$("send").unbind("click", this._fSendHandler);
 				this._fSendHandler = null;

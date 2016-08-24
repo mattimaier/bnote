@@ -3,4 +3,4 @@
  * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
-sap.ui.define(['jquery.sap.global','sap/ui/core/Renderer','./InputBaseRenderer'],function(q,R,I){"use strict";var D=R.extend(I);D.addOuterClasses=function(r,c){r.addClass("sapMDTI");};D.addCursorClass=function(r,c){if(c.getEnabled()&&c.getEditable()){r.addClass("sapMPointer");}};D.addOuterStyles=function(r,c){r.addStyle("width",c.getWidth());};return D;},true);
+sap.ui.define(['jquery.sap.global','sap/ui/core/Renderer'],function(q,R){"use strict";var D={};D.render=function(r,c){r.write("<div");r.writeControlData(c);r.addClass("sapMDTI");var w=c.getWidth();if(w){r.addStyle("width",w);}r.writeStyles();r.writeClasses();r.write(">");var p=c.getAggregation("_picker");if(p){r.renderControl(p);}r.write("</div>");};return D;},true);

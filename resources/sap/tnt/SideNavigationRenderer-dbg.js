@@ -52,6 +52,7 @@ sap.ui.define([],
 
             if (!isExpanded) {
                 rm.addClass('sapTntSideNavigationNotExpanded');
+                rm.addClass('sapTntSideNavigationNotExpandedWidth');
             }
 
             if (!isExpanded && itemAggregation) {

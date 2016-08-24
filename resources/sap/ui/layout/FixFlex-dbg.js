@@ -26,7 +26,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledP
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -103,10 +103,18 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledP
 			$FlexChild.removeAttr("style");
 
 			if (this.getVertical()) {
+				if (this.getFixContentSize() !== 'auto') {
+					$FixChild.height(this.getFixContentSize());
+				}
 				$FlexChild.height(Math.floor($Control.height() - $FixChild.height()));
 			} else {
-				$FlexChild.width(Math.floor($Control.width() - $FixChild.width()));
-				$FixChild.width(Math.floor($FixChild.width()));
+				if (this.getFixContentSize() !== 'auto') {
+					$FixChild.width(this.getFixContentSize());
+					$FlexChild.width(Math.floor($Control.width() - $FixChild.width()));
+				} else {
+					$FlexChild.width(Math.floor($Control.width() - $FixChild.width()));
+					$FixChild.width(Math.floor($FixChild.width()));
+				}
 			}
 		};
 

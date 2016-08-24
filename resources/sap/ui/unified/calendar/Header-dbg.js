@@ -23,7 +23,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 	 *
 	 * <b>Note:</b> This is used inside the calendar. Not for standalone usage
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public

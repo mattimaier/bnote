@@ -19,7 +19,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @private
@@ -79,19 +79,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 			this._sPM = aPeriods[1];
 		};
 
-		/**
-		 * Called from parent if the control is destroyed.
-		 *
-		 * @private
-		 */
 		TimePickerSliders.prototype.exit = function () {
 			this.$().off(!!sap.ui.Device.browser.firefox ? "DOMMouseScroll" : "mousewheel", this._onmousewheel);
 			sap.ui.Device.resize.detachHandler(this._fnOrientationChanged);
 		};
 
-		/**
-		 * Called after the control is rendered.
-		 */
 		TimePickerSliders.prototype.onAfterRendering = function() {
 			this.$().off(!!sap.ui.Device.browser.firefox ? "DOMMouseScroll" : "mousewheel", this._onmousewheel);
 			this.$().on(!!sap.ui.Device.browser.firefox ? "DOMMouseScroll" : "mousewheel", jQuery.proxy(this._onmousewheel, this));

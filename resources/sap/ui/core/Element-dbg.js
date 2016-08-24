@@ -54,7 +54,7 @@ sap.ui.define(['jquery.sap.global', '../base/Object', '../base/ManagedObject', '
 	 * @class Base Class for Elements.
 	 * @extends sap.ui.base.ManagedObject
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @public
 	 * @alias sap.ui.core.Element
 	 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
@@ -554,8 +554,11 @@ sap.ui.define(['jquery.sap.global', '../base/Object', '../base/ManagedObject', '
 
 		ManagedObject.prototype.destroy.call(this, bSuppressInvalidate);
 
-		// remove this control from DOM, e.g. if there is no parent (e.g. Dialog or already removed control) or this.sParentAggregationName is not properly set
-		if (bSuppressInvalidate !== "KeepDom") {
+		// determine whether to remove the control from the DOM or not
+		// controls that implement marker interface sap.ui.core.PopupInterface are by contract
+		// not rendered by their parent so we cannot keep the DOM of these controls
+		if (bSuppressInvalidate !== "KeepDom" ||
+			this.getMetadata().isInstanceOf("sap.ui.core.PopupInterface")) {
 			this.$().remove();
 		} else {
 			jQuery.sap.log.debug("DOM is not removed on destroy of " + this);
@@ -751,15 +754,18 @@ sap.ui.define(['jquery.sap.global', '../base/Object', '../base/ManagedObject', '
 	 * @private
 	 */
 	Element.prototype._refreshTooltipBaseDelegate = function (oTooltip) {
-		var oOldTooltip = this.getTooltip();
-		// if the old tooltip was a Tooltip object, remove it as a delegate
-		if (oOldTooltip instanceof sap.ui.core.TooltipBase) {
-			this.removeDelegate(oOldTooltip);
-		}
-		// if the new tooltip is a Tooltip object, add it as a delegate
-		if (oTooltip instanceof sap.ui.core.TooltipBase) {
-			oTooltip._currentControl = this;
-			this.addDelegate(oTooltip);
+		var TooltipBase = sap.ui.require('sap/ui/core/TooltipBase');
+		if ( TooltipBase ) {
+			var oOldTooltip = this.getTooltip();
+			// if the old tooltip was a Tooltip object, remove it as a delegate
+			if (oOldTooltip instanceof TooltipBase) {
+				this.removeDelegate(oOldTooltip);
+			}
+			// if the new tooltip is a Tooltip object, add it as a delegate
+			if (oTooltip instanceof TooltipBase) {
+				oTooltip._currentControl = this;
+				this.addDelegate(oTooltip);
+			}
 		}
 	};
 
@@ -897,12 +903,13 @@ sap.ui.define(['jquery.sap.global', '../base/Object', '../base/ManagedObject', '
 
 				// ADD or CHANGE
 			} else {
+				var CustomData = sap.ui.requireSync('sap/ui/core/CustomData');
 				var dataObject = getDataObject(element, key);
 				if (dataObject) {
 					dataObject.setValue(value);
 					dataObject.setWriteToDom(writeToDom);
 				} else {
-					var dataObject = new sap.ui.core.CustomData({key:key,value:value, writeToDom:writeToDom});
+					var dataObject = new CustomData({key:key,value:value, writeToDom:writeToDom});
 					element.addAggregation("customData", dataObject, true);
 				}
 			}
@@ -1005,6 +1012,10 @@ sap.ui.define(['jquery.sap.global', '../base/Object', '../base/ManagedObject', '
 			}
 		}
 
+		if (this._sapui_declarativeSourceInfo) {
+			oClone._sapui_declarativeSourceInfo = this._sapui_declarativeSourceInfo;
+		}
+
 		return oClone;
 	};
 
@@ -1067,7 +1078,7 @@ sap.ui.define(['jquery.sap.global', '../base/Object', '../base/ManagedObject', '
 	 * @param {object} [vPath.parameters] map of additional parameters for this binding
 	 * @param {string} [vPath.model] name of the model
 	 * @param {object} [vPath.events] map of event listeners for the binding events
-	 * @param {object} [mParameters] map of additional parameters for this binding (only taken into account when vPath is a string)
+	 * @param {object} [mParameters] map of additional parameters for this binding (only taken into account when vPath is a string in that case the properties described for vPath above are valid here).
 	 *
 	 * @return {sap.ui.base.ManagedObject} reference to the instance itself
 	 * @public

@@ -21,7 +21,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 	 * @implements sap.ui.core.IShrinkable
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -414,6 +414,14 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 
 		// return the found position
 		return iEllipsisPos;
+	};
+
+	/**
+	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @protected
+	 */
+	Text.prototype.getAccessibilityInfo = function() {
+		return {description: this.getText()};
 	};
 
 	return Text;

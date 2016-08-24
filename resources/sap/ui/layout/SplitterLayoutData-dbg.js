@@ -24,7 +24,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', './library'],
 	 * (The CSS value "auto" is used internally to recalculate the size of the content
 	 * dynamically and is not directly set as style property.)
 	 * @extends sap.ui.core.LayoutData
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public

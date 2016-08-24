@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', './Button', './library', 'sap/ui/core/Enable
 	 * @extends sap.m.Button
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -88,6 +88,20 @@ sap.ui.define(['jquery.sap.global', './Button', './library', 'sap/ui/core/Enable
 			oEvent.setMarked();
 		}
 	};
+
+	/**
+	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @protected
+	 */
+	ToggleButton.prototype.getAccessibilityInfo = function() {
+		var oInfo = Button.prototype.getAccessibilityInfo.apply(this, arguments);
+		if (this.getPressed()) {
+			oInfo.description = ((oInfo.description || "") + " " +
+				sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("ACC_CTR_STATE_PRESSED")).trim();
+		}
+		return oInfo;
+	};
+
 
 	return ToggleButton;
 

@@ -15,7 +15,7 @@ sap.ui.define([
 	 *
 	 * @class Utility functionality to work with overlays
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @private
 	 * @static
 	 * @since 1.30
@@ -65,11 +65,11 @@ sap.ui.define([
 	 *
 	 */
 	OverlayUtil.getClosestOverlayFor = function(oElement) {
-		if (!oElement || !oElement.getParent) {
+		if (!oElement) {
 			return null;
 		}
 
-		var oParent = oElement.getParent();
+		var oParent = oElement;
 		var oParentOverlay = OverlayRegistry.getOverlay(oParent);
 		while (oParent && !oParentOverlay) {
 			oParent = oParent.getParent();
@@ -340,6 +340,24 @@ sap.ui.define([
 		oOverlay.getChildren().forEach(function(oChildOverlay) {
 			that.iterateOverlayTree(oChildOverlay, fnCallback);
 		});
+	};
+
+
+	/**
+	 *
+	 */
+	OverlayUtil.isInOverlayContainer = function(oNode) {
+		if (oNode && jQuery(oNode).closest(".sapUiDtOverlay, #overlay-container").length) {
+			return true;
+		}
+	};
+
+	/**
+	 *
+	 */
+	OverlayUtil.getClosestOverlayForNode = function(oNode) {
+		var oElement = ElementUtil.getClosestElementForNode(oNode);
+		return OverlayUtil.getClosestOverlayFor(oElement);
 	};
 
 	return OverlayUtil;

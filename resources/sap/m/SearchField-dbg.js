@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -100,8 +100,10 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			/**
 			 * Normally, search text is selected for copy when the SearchField is focused by keyboard navigation. If an application re-renders the SearchField during the liveChange event, set this property to false to disable text selection by focus.
 			 * @since 1.20
+			 * @deprecated Since version 1.38.
+			 * This parameter is deprecated and has no effect in run time. The cursor position of a focused search field is restored after re-rendering automatically.
 			 */
-			selectOnFocus : {type : "boolean", group : "Behavior", defaultValue : true}
+			selectOnFocus : {type : "boolean", group : "Behavior", defaultValue : true, deprecated: true}
 		},
 		associations : {
 
@@ -217,6 +219,26 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 	SearchField.prototype.getFocusDomRef = function() {
 		return this._inputElement;
+	};
+
+	SearchField.prototype.getFocusInfo = function() {
+		var oFocusInfo = Control.prototype.getFocusInfo.call(this),
+			oInput = this.getDomRef("I");
+		if (oInput) {
+			// remember the current cursor position
+			jQuery.extend(oFocusInfo, {
+				cursorPos: jQuery(oInput).cursorPos()
+			});
+		}
+		return oFocusInfo;
+	};
+
+	SearchField.prototype.applyFocusInfo = function(oFocusInfo) {
+		Control.prototype.applyFocusInfo.call(this, oFocusInfo);
+		if ("cursorPos" in oFocusInfo) {
+			this.$("I").cursorPos(oFocusInfo.cursorPos);
+		}
+		return this;
 	};
 
 	// returns correct the width that applied by design
@@ -536,15 +558,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		// Remember the original value for the case when the user presses ESC
 		this._sOriginalValue = this.getValue();
 
-		// Some applications do re-render during the liveSearch event.
-		// The input is focused and most browsers select the input text for copy.
-		// Any following key press deletes the whole selection.
-		// Disable selection by focus:
-		var input = this._inputElement;
-		if (input && input.value && !this.getSelectOnFocus()) {
-			input.setSelectionRange(input.value.length,input.value.length);
-		}
-
 		if (this.getEnableSuggestions()) {
 			// suggest event must be fired by first focus too
 			if (!this._bSuggestionSuppressed) {
@@ -564,6 +577,10 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		var tooltip;
 
 		this.$().toggleClass("sapMFocus", false);
+
+		if (this._bSuggestionSuppressed) {
+			this._bSuggestionSuppressed = false; // void the reset button handling
+		}
 
 		// restore toltip of the refresh button
 		if (this.getShowRefreshButton()) {

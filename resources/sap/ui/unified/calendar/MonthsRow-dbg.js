@@ -32,7 +32,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 	 * The MontsRow works with JavaScript Date objects, but only the month and the year are used to display and interact.
 	 * As representation for a month, the 1st of the month will always be returned in the API.
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -102,7 +102,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			/**
 			 * Association to controls / IDs which label this control (see WAI-ARIA attribute aria-labelledby).
 			 */
-			ariaLabelledBy: { type: "sap.ui.core.Control", multiple: true, singularName: "ariaLabelledBy" }
+			ariaLabelledBy: { type: "sap.ui.core.Control", multiple: true, singularName: "ariaLabelledBy" },
+
+
+			/**
+			 * Association to the <code>CalendarLegend</code> explaining the colors of the <code>specialDates</code>.
+			 *
+			 * <b>Note</b> The legend does not have to be rendered but must exist, and all required types must be assigned.
+			 * @since 1.38.5
+			 */
+			legend: { type: "sap.ui.unified.CalendarLegend", multiple: false}
 		},
 		events : {
 
@@ -468,6 +477,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 	};
 
 	/*
+	 * if used inside CalendarMonthInterval get the value from the parent
+	 * To don't have sync issues...
+	 */
+	MonthsRow.prototype.getLegend = function(){
+
+		var oParent = this.getParent();
+
+		if (oParent && oParent.getLegend) {
+			return oParent.getLegend();
+		} else {
+			return this.getAssociation("ariaLabelledBy", []);
+		}
+
+	};
+
+	/*
 	 * Checks if a date is selected and what kind of selected
 	 * @return {int} iSelected 0: not selected; 1: single day selected, 2: interval start, 3: interval end, 4: interval between, 5: one day interval (start = end)
 	 * @private
@@ -578,6 +603,31 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 
 	};
 
+	/*
+	 * Checks if a Month is enabled
+	 * the min. and max. date of the CalendarMonthInterval are used
+	 * @return {boolean} Flag if enabled
+	 * @private
+	 */
+	MonthsRow.prototype._checkMonthEnabled = function(oDate){
+
+		if (!(oDate instanceof UniversalDate)) {
+			throw new Error("Date must be a UniversalDate object " + this);
+		}
+
+		var oTimeStamp = oDate.getTime();
+		var oParent = this.getParent();
+
+		if (oParent && oParent._oMinDate && oParent._oMaxDate) {
+			if (oTimeStamp < oParent._oMinDate.getTime() || oTimeStamp > oParent._oMaxDate.getTime()) {
+				return false;
+			}
+		}
+
+		return true;
+
+	};
+
 	MonthsRow.prototype._handleMouseMove = function(oEvent){
 
 		if (!this.$().is(":visible")) {
@@ -652,8 +702,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 	MonthsRow.prototype.onsapselect = function(oEvent){
 
 		// focused item must be selected
-		_selectMonth.call(this, this._getDate());
-		_fireSelect.call(this);
+		var bSelected = _selectMonth.call(this, this._getDate());
+		if (bSelected) {
+			_fireSelect.call(this);
+		}
 
 		//to prevent bubbling into input field if in DatePicker
 		oEvent.stopPropagation();
@@ -908,14 +960,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 			return;
 		}
 
-		_selectMonth.call(this, oFocusedDate);
-		this._bMousedownChange = true;
+		var bSelected = _selectMonth.call(this, oFocusedDate);
+		if (bSelected) {
+			this._bMousedownChange = true;
+		}
 
 		if (this._bMouseMove) {
 			// a mouseup must be happened outside of control -> just end move
 			_unbindMousemove.call(this, true);
 			this._bMoveChange = false;
-		}else if (this.getIntervalSelection() && this.$().is(":visible")) {
+		}else if (bSelected && this.getIntervalSelection() && this.$().is(":visible")) {
 			// if closed in select event, do not add mousemove handler
 			_bindMousemove.call(this, true);
 		}
@@ -1022,6 +1076,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 
 	function _selectMonth(oDate, bMove){
 
+		if (!this._checkMonthEnabled(oDate)) {
+			// date is disabled -> do not select it
+			return false;
+		}
+
 		var aSelectedDates = this.getSelectedDates();
 		var oDateRange;
 		var aDomRefs = this._oItemNavigation.getItemDomRefs();
@@ -1118,6 +1177,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 				}
 			}
 		}
+
+		return true;
 
 	}
 

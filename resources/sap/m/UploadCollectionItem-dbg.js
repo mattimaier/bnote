@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/m/O
 	 * @extends sap.ui.core.Element
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -104,6 +104,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/m/O
 
 				/**
 				 * Specifies the URL where the file is located.
+				 * If the application doesn't provide a value for this property, the icon and the file name of the UploadCollectionItem are not clickable.
 				 */
 				url : {
 					type : "string",
@@ -188,7 +189,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/m/O
 				 */
 				attributes : {
 					type : "sap.m.ObjectAttribute",
-					multiple : true
+					multiple : true,
+					bindable : "bindable"
 				},
 				/**
 				 * Hidden aggregation for the attributes created from the deprecated properties uploadedDate, contributor and fileSize
@@ -206,7 +208,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/m/O
 				 */
 				statuses : {
 					type : "sap.m.ObjectStatus",
-					multiple : true
+					multiple : true,
+					bindable : "bindable"
 				}
 			},
 
@@ -266,12 +269,14 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/m/O
 	 * @param {boolean} selected value to set on Selected property
 	 * @since 1.34
 	 * @public
+	 * @returns {sap.m.UploadCollectionItem} The current UploadCollectionItem
 	 */
 	UploadCollectionItem.prototype.setSelected = function(selected) {
 		if (selected !== this.getSelected()) {
 			this.setProperty("selected", selected, true);
 			this.fireEvent("selected");
 		}
+		return this;
 	};
 
 	/**

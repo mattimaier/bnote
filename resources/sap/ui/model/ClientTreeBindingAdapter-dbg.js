@@ -21,7 +21,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Cl
 		var ClientTreeBindingAdapter = function() {
 
 			// ensure only TreeBindings are enhanced which have not been enhanced yet
-			if (!(this instanceof TreeBinding && this.getContexts === undefined)) {
+			if (!(this instanceof TreeBinding) || this._bIsAdapted) {
 				return;
 			}
 
@@ -130,6 +130,28 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Cl
 			}
 
 			return sGroupId;
+		};
+
+		/**
+		 * Expand function.
+		 * Due to the tree invalidation mechanism the tree has to be rebuilt before an expand operation.
+		 * Calling buildTree is performance-safe, as the tree is invalid anyway.
+		 * @override
+		 */
+		ClientTreeBindingAdapter.prototype.expand = function() {
+			this._buildTree();
+			TreeBindingAdapter.prototype.expand.apply(this, arguments);
+		};
+
+		/**
+		 * Collapse function.
+		 * Due to the tree invalidation mechanism the tree has to be rebuilt before a collapse operation.
+		 * Calling buildTree is performance-safe, as the tree is invalid anyway.
+		 * @override
+		 */
+		ClientTreeBindingAdapter.prototype.collapse = function() {
+			this._buildTree();
+			TreeBindingAdapter.prototype.collapse.apply(this, arguments);
 		};
 
 		/**

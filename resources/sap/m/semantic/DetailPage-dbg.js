@@ -42,7 +42,7 @@ sap.ui.define(["sap/m/semantic/ShareMenuPage", "sap/m/semantic/SemanticConfigura
 	 * @extends sap.m.semantic.ShareMenuPage
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -201,7 +201,8 @@ sap.ui.define(["sap/m/semantic/ShareMenuPage", "sap/m/semantic/SemanticConfigura
 					type: "sap.m.DraftIndicator",
 					multiple: false
 				}
-			}
+			},
+			designTime : true
 		},
 		renderer: SemanticPageRenderer.render
 	});

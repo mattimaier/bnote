@@ -5,8 +5,8 @@
  */
 
 // Provides control sap.ui.core.tmpl.DOMElement.
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/library'],
-	function(jQuery, Control, library) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/library', './DOMAttribute'],
+	function(jQuery, Control, library, DOMAttribute) {
 	"use strict";
 
 
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/library'
 	 * @class
 	 * Represents a DOM element. It allows to use databinding for the properties and nested DOM attributes.
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -78,7 +78,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/library'
 				jQuery.each(mSettings, function(sKey, oValue) {
 					if (sKey !== "id" && !mJSONKeys[sKey] && typeof oValue === "string") {
 						// add custom settings as DOM attributes
-						aAttributes.push(new sap.ui.core.tmpl.DOMAttribute({
+						aAttributes.push(new DOMAttribute({
 							name: sKey,
 							value: oValue
 						}));
@@ -189,7 +189,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/library'
 				// in case of a no attribute has been found we create and add
 				// a new DOM attribute for the given key and value
 				if (sValue !== null) {
-					this.addAttribute(new sap.ui.core.tmpl.DOMAttribute({
+					this.addAttribute(new DOMAttribute({
 						name: sKey,
 						value: sValue
 					}));

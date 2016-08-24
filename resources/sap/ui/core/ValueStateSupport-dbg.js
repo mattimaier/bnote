@@ -5,16 +5,18 @@
  */
 
 // Provides helper class ValueStateSupport
-sap.ui.define(['jquery.sap.global', './Element'],
-	function(jQuery, Element) {
+sap.ui.define(['jquery.sap.global', './Element', './library'],
+	function(jQuery, Element, library) {
 	"use strict";
 
+	// shortcut for enum(s)
+	var ValueState = library.ValueState;
 
 		/**
 		 * Helper functionality for value state support.
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 * @public
 		 * @namespace sap.ui.core.ValueStateSupport
 		 */
@@ -26,9 +28,9 @@ sap.ui.define(['jquery.sap.global', './Element'],
 			if (!mTexts) { // initialize texts if required
 				mTexts = {};
 				var rb = sap.ui.getCore().getLibraryResourceBundle("sap.ui.core");
-				mTexts[sap.ui.core.ValueState.Error] = rb.getText("VALUE_STATE_ERROR");
-				mTexts[sap.ui.core.ValueState.Warning] = rb.getText("VALUE_STATE_WARNING");
-				mTexts[sap.ui.core.ValueState.Success] = rb.getText("VALUE_STATE_SUCCESS");
+				mTexts[ValueState.Error] = rb.getText("VALUE_STATE_ERROR");
+				mTexts[ValueState.Warning] = rb.getText("VALUE_STATE_WARNING");
+				mTexts[ValueState.Success] = rb.getText("VALUE_STATE_SUCCESS");
 			}
 		};
 
@@ -52,7 +54,7 @@ sap.ui.define(['jquery.sap.global', './Element'],
 				return undefined; // this means there is no tooltip text configured, but a tooltip object like a RichTooltip
 			}
 
-			var sText = sap.ui.core.ValueStateSupport.getAdditionalText(oElement);
+			var sText = ValueStateSupport.getAdditionalText(oElement);
 			if (sText) {
 				return (sTooltipText ? sTooltipText + " - " : "") + sText;
 			}
@@ -76,13 +78,13 @@ sap.ui.define(['jquery.sap.global', './Element'],
 		ValueStateSupport.getAdditionalText = function(vValue) {
 			var sState = null;
 
-			if (vValue.getValueState) {
+			if (vValue && vValue.getValueState) {
 				sState = vValue.getValueState();
-			} else if (sap.ui.core.ValueState[vValue]) {
+			} else if (ValueState[vValue]) {
 				sState = vValue;
 			}
 
-			if (sState && (sState != sap.ui.core.ValueState.None)) { // only for one of the three interesting state, not for the default
+			if (sState && (sState != ValueState.None)) { // only for one of the three interesting state, not for the default
 				ensureTexts();
 				return mTexts[sState];
 			}
@@ -109,13 +111,13 @@ sap.ui.define(['jquery.sap.global', './Element'],
 		ValueStateSupport.formatValueState = function(iState) {
 			switch (iState) {
 				case 1:
-					return sap.ui.core.ValueState.Warning;
+					return ValueState.Warning;
 				case 2:
-					return sap.ui.core.ValueState.Success;
+					return ValueState.Success;
 				case 3:
-					return sap.ui.core.ValueState.Error;
+					return ValueState.Error;
 				default:
-					return sap.ui.core.ValueState.None;
+					return ValueState.None;
 			}
 		};
 

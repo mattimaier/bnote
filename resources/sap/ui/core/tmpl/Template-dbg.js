@@ -5,8 +5,8 @@
  */
 
 // Provides base class sap.ui.core.tmpl.Template for all templates
-sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject', 'sap/ui/core/Control'],
-	function(jQuery, ManagedObject, Control) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject', 'sap/ui/base/BindingParser', 'sap/ui/core/Control', 'sap/ui/core/RenderManager'],
+	function(jQuery, ManagedObject, BindingParser, Control, RenderManager) {
 	"use strict";
 
 
@@ -30,7 +30,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject', 'sap/ui/core/Co
 	 * @extends sap.ui.base.ManagedObject
 	 * @abstract
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @alias sap.ui.core.tmpl.Template
 	 * @experimental Since 1.15.0. The Template concept is still under construction, so some implementation details can be changed in future.
 	 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
@@ -181,7 +181,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject', 'sap/ui/core/Co
 			throw new Error("The class 'sap.ui.core.tmpl.Template' is abstract and must not be instantiated!");
 		}
 		// check for complex binding syntax
-		if (ManagedObject.bindingParser === sap.ui.base.BindingParser.complexParser) {
+		if (ManagedObject.bindingParser === BindingParser.complexParser) {
 			/*
 			 * we disable the complex binding parser for Templates
 			 * TODO: reconsider a better solution later
@@ -189,9 +189,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject', 'sap/ui/core/Co
 			 * @function
 			 */
 			Template.prototype.extractBindingInfo = function(oValue, bIgnoreObjects, oScope) {
-				ManagedObject.bindingParser = sap.ui.base.BindingParser.simpleParser;
+				ManagedObject.bindingParser = BindingParser.simpleParser;
 				var oReturnValue = Control.prototype.extractBindingInfo.apply(this, arguments);
-				ManagedObject.bindingParser = sap.ui.base.BindingParser.complexParser;
+				ManagedObject.bindingParser = BindingParser.complexParser;
 				return oReturnValue;
 			};
 		}
@@ -218,15 +218,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject', 'sap/ui/core/Co
 			var oMetadata = this.createMetadata(),
 				fnRenderer = this.createRenderer(),
 				that = this;
-			jQuery.sap.require("sap.ui.core.tmpl.TemplateControl");
-			sap.ui.core.tmpl.TemplateControl.extend(sControl, {
+			var TemplateControl = sap.ui.requireSync('sap/ui/core/tmpl/TemplateControl');
+			TemplateControl.extend(sControl, {
 
 				// the new control metadata
 				metadata: oMetadata,
 
 				// set the reference to the template
 				init: function() {
-					sap.ui.core.tmpl.TemplateControl.prototype.init.apply(this, arguments);
+					TemplateControl.prototype.init.apply(this, arguments);
 					// link to the template
 					this.setTemplate(that);
 				},
@@ -259,11 +259,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject', 'sap/ui/core/Co
 	Template.prototype.createControl = function(sId, oContext, oView) {
 
 		// create the anonymous control instance
-		jQuery.sap.require("sap.ui.core.tmpl.TemplateControl");
-		var oControl = new sap.ui.core.tmpl.TemplateControl({
-		  id: sId,
-		  template: this,
-		  context: oContext
+		var TemplateControl = sap.ui.requireSync('sap/ui/core/tmpl/TemplateControl');
+		var oControl = new TemplateControl({
+			id: sId,
+			template: this,
+			context: oContext
 		});
 
 		// for anonymous controls the renderer functions is added to the control instance
@@ -318,7 +318,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject', 'sap/ui/core/Co
 
 				// mark the template as inline template (to avoid extra DOM for the TemplateControl)
 				// for inline templates the UIArea and the TemplateControl are the same DOM element
-				sap.ui.core.RenderManager.markInlineTemplate($this);
+				RenderManager.markInlineTemplate($this);
 
 			}
 

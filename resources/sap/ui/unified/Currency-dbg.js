@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -39,7 +39,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 				value : {type : "float", group : "Appearance", defaultValue : 0},
 
 				/**
-				 * The ISO 4217 currency code
+				 * Determines the displayed currency code (ISO 4217).
+				 * <b>Note: </b>If a * character is set instead of currency code,
+				 * only the character itself will be rendered, ignoring the <code>value</code> property.
 				 */
 				currency : {type : "string", group : "Appearance", defaultValue : null},
 
@@ -77,6 +79,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		 */
 		Currency.prototype.exit = function () {
 			this._oFormat = null;
+			this._$Value = null;
+			this._$Currency = null;
+			this._sLastCurrency = null;
+			this._iLastCurrencyDigits = null;
+			this._bRenderNoValClass = null;
+		};
+
+		/**
+		 * Called after the control is rendered
+		 * @override
+		 */
+		Currency.prototype.onAfterRendering = function () {
+			if (this.$()) {
+				this._$Value = this.$().find(".sapUiUfdCurrencyValue");
+				this._$Currency = this.$().find(".sapUiUfdCurrencyCurrency");
+			}
 		};
 
 		/**
@@ -87,15 +105,111 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		 * @returns {sap.ui.unified.Currency} <code>this</code> pointer for chaining
 		 */
 		Currency.prototype.setValue = function(sValue) {
-			// force the invalidation if the value should be displayed
-			// to re-render the control finally
-			var bHasValue = this._hasValue(),
-				bHasNoValueClass = this.$().hasClass("sapUiUfdCurrencyNoVal");
-			if (bHasValue === bHasNoValueClass) {
-				this.invalidate();
+			// Check if the value is bound and is undefined. In case of
+			// undefined value the Currency control will not display any value! This workaround
+			// is necessary because of the default value 0 suppresses to set a undefined or null value
+			// instead and this cannot be changed due to compatibility.
+			if (this.isBound("value")) {
+				this._bRenderNoValClass = sValue == null;
+				// Toggle class if control is rendered
+				if (this.$()) {
+					this.$().toggleClass("sapUiUfdCurrencyNoVal", this._bRenderNoValClass);
+				}
 			}
-			this.setProperty("value", sValue);
+
+			this.setProperty("value", sValue, true);
+			this._renderValue();
 			return this;
+		};
+
+		/**
+		 * Currency property setter
+		 * @param sValue {String} The ISO 4217 currency code
+		 * @return {object} this to enable chaining
+		 */
+		Currency.prototype.setCurrency = function (sValue) {
+			var iCurrencyDigits,
+				bRenderValue;
+
+			this.setProperty("currency", sValue, true);
+			this._renderCurrency();
+
+			// Take into account currencies that do not have decimal values or the decimal value differs. Example: JPY.
+			// If we switch from a currency which differs we should update the value too.
+			iCurrencyDigits = this._oFormat.oLocaleData.getCurrencyDigits(sValue);
+			if (jQuery.isNumeric(this._iLastCurrencyDigits) && this._iLastCurrencyDigits !== iCurrencyDigits) {
+				bRenderValue = true;
+			}
+			this._iLastCurrencyDigits = iCurrencyDigits;
+
+			// We need to update the value if the last currency value was * or the new value is *
+			if (this._sLastCurrency === "*" || sValue === "*") {
+				bRenderValue = true;
+			}
+			this._sLastCurrency = sValue;
+
+			if (bRenderValue) {
+				this._renderValue();
+				// In the special case where the currency is set to "*" we need to remove the CSS class
+				// "sapUiUfdCurrencyNoVal" which hides the control.
+				if (sValue === "*" && this.$()) {
+					this._bRenderNoValClass = false;
+					this.$().toggleClass("sapUiUfdCurrencyNoVal", false);
+				}
+			}
+
+			return this;
+		};
+
+		/**
+		 * UseSymbol property setter
+		 * @param bValue {boolean}
+		 * @return {object} this to enable chaining
+		 */
+		Currency.prototype.setUseSymbol = function (bValue) {
+			this.setProperty("useSymbol", bValue, true);
+			this._renderCurrency();
+			return this;
+		};
+
+		/**
+		 * MaxPrecision property setter
+		 * @param iValue {int}
+		 * @return {object} this to enable chaining
+		 */
+		Currency.prototype.setMaxPrecision = function (iValue) {
+			this.setProperty("maxPrecision", iValue, true);
+			this._renderValue();
+			return this;
+		};
+
+		/**
+		 * Updates the value directly in the control dom
+		 * @private
+		 */
+		Currency.prototype._renderValue = function () {
+			if (this._$Value) {
+				this._$Value.text(this.getFormattedValue());
+			}
+		};
+
+		/**
+		 * Updates the currency directly in the control dom
+		 * @private
+		 */
+		Currency.prototype._renderCurrency = function () {
+			if (this._$Currency) {
+				this._$Currency.text(this._getCurrency());
+			}
+		};
+
+		/**
+		 * Used to get proper currency text to be rendered depending on the useSymbol property of the control.
+		 * @returns {string} Currency symbol or ISO 4217 code
+		 * @private
+		 */
+		Currency.prototype._getCurrency = function () {
+			return this.getUseSymbol() ? this.getCurrencySymbol() : this.getCurrency();
 		};
 
 		/**
@@ -150,19 +264,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/LocaleDa
 		};
 
 		/**
-		 * Checks if the binding has a proper value or the value is undefined. In case of
-		 * undefined value the Currency control will not display any value! This workaround
-		 * is necessary because of the default value 0 suppresses to set a undefined or null value
-		 * instead and this cannot be changed due to compatibility.
-		 * @private
+		 * @see {sap.ui.core.Control#getAccessibilityInfo}
+		 * @protected
 		 */
-		Currency.prototype._hasValue = function() {
-			var oValueBinding = this.getBinding("value"),
-				bHasBinding = oValueBinding !== undefined;
-
-			return bHasBinding ? oValueBinding.getValue() !== undefined : true /* no databinding => always true */;
+		Currency.prototype.getAccessibilityInfo = function() {
+			if (this._bRenderNoValClass) {
+				return {};
+			}
+			return {description: (this.getFormattedValue() || "") + " " + (this.getCurrency() || "").trim()};
 		};
-
 
 		return Currency;
 

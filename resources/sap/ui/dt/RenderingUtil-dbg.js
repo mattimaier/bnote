@@ -18,7 +18,7 @@ function(jQuery) {
 	 * Utility functionality to work with élements, e.g. iterate through aggregations, find parents, ...
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @private
 	 * @static
@@ -59,10 +59,16 @@ function(jQuery) {
 			oRm.writeStyles();
 			oRm.write(">");
 
+			oRm.write("<div");
+			oRm.addClass("sapUiDtOverlayChildren");
+			oRm.writeClasses();
+			oRm.write(">");
 			this._renderChildren(oRm, oOverlay);
 
 			oRm.write("</div>");
+			oRm.write("</div>");
 		}
+
 	};
 
 	/**

@@ -38,7 +38,7 @@ sap.ui.define([
 	 *
 	 * @extends sap.ui.base.Object
 	 * @author Jens Pflueger
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @alias sap.ui.core.RenderManager
 	 * @public
@@ -187,13 +187,14 @@ sap.ui.define([
 	 * If the given control is undefined or null, then nothing is rendered.
 	 *
 	 * @param {sap.ui.core.Control} oControl the control that should be rendered
+	 * @returns {sap.ui.core.RenderManager} this render manager instance to allow chaining
 	 * @public
 	 */
 	RenderManager.prototype.renderControl = function(oControl) {
 		jQuery.sap.assert(!oControl || oControl instanceof sap.ui.core.Control, "oControl must be a sap.ui.core.Control or empty");
 		// don't render a NOTHING
 		if (!oControl) {
-			return;
+			return this;
 		}
 
 		// create stack to determine rendered parent
@@ -301,6 +302,7 @@ sap.ui.define([
 		} else if (oControl.getParent() && oControl.getParent().getMetadata().getName() == "sap.ui.core.UIArea") {
 			jQuery.sap.measure.resume(oControl.getParent().getId() + "---rerender");
 		}
+		return this;
 	};
 
 	/**
@@ -1162,12 +1164,12 @@ sap.ui.define([
 				if (oAssoc && oAssoc.multiple) {
 					var aIds = oElement[oAssoc._sGetter]();
 					if (sElemAssoc == "ariaLabelledBy") {
-						var aLabelIds = sap.ui.core.LabelEnablement.getReferencingLabels(oElement);
+						var aLabelIds = LabelEnablement.getReferencingLabels(oElement);
 						var iLen = aLabelIds.length;
 						if (iLen) {
 							var aFilteredLabelIds = [];
 							for (var i = 0; i < iLen; i++) {
-								if (jQuery.inArray(aLabelIds[i], aIds) < 0) {
+								if ( aIds.indexOf(aLabelIds[i]) < 0) {
 									aFilteredLabelIds.push(aLabelIds[i]);
 								}
 							}
@@ -1184,7 +1186,7 @@ sap.ui.define([
 			addACCForProp("editable", "readonly", false);
 			addACCForProp("enabled", "disabled", false);
 			addACCForProp("visible", "hidden", false);
-			if (sap.ui.core.LabelEnablement.isRequired(oElement)) {
+			if (LabelEnablement.isRequired(oElement)) {
 				mAriaProps["required"] = "true";
 			}
 			addACCForProp("selected", "selected", true);
@@ -1250,18 +1252,19 @@ sap.ui.define([
 	 * @returns {sap.ui.core.RenderManager} this render manager instance to allow chaining
 	 */
 	RenderManager.prototype.writeIcon = function(sURI, aClasses, mAttributes){
-		jQuery.sap.require("sap.ui.core.IconPool");
+		var IconPool = sap.ui.requireSync("sap/ui/core/IconPool");
 
-		var bIconURI = sap.ui.core.IconPool.isIconURI(sURI),
+		var bIconURI = IconPool.isIconURI(sURI),
 			sStartTag = bIconURI ? "<span " : "<img ",
-			sClasses, sProp, oIconInfo, mDefaultAttributes;
+			bAriaLabelledBy = false,
+			sClasses, sProp, oIconInfo, mDefaultAttributes, sLabel, sInvTextId;
 
 		if (typeof aClasses === "string") {
 			aClasses = [aClasses];
 		}
 
 		if (bIconURI) {
-			oIconInfo = sap.ui.core.IconPool.getIconInfo(sURI);
+			oIconInfo = IconPool.getIconInfo(sURI);
 
 			if (!oIconInfo) {
 				jQuery.sap.log.error("An unregistered icon: " + sURI + " is used in sap.ui.core.RenderManager's writeIcon method.");
@@ -1279,7 +1282,7 @@ sap.ui.define([
 
 		this.write(sStartTag);
 
-		if (jQuery.isArray(aClasses) && aClasses.length) {
+		if (Array.isArray(aClasses) && aClasses.length) {
 			sClasses = aClasses.join(" ");
 			this.write("class=\"" + sClasses + "\" ");
 		}
@@ -1288,8 +1291,7 @@ sap.ui.define([
 			mDefaultAttributes = {
 				"data-sap-ui-icon-content": oIconInfo.content,
 				"role": "presentation",
-				"aria-label": oIconInfo.text || oIconInfo.name,
-				"title": oIconInfo.text || oIconInfo.name
+				"title": oIconInfo.text || null
 			};
 
 			this.write("style=\"font-family: " + oIconInfo.fontFamily + ";\" ");
@@ -1303,6 +1305,25 @@ sap.ui.define([
 
 		mAttributes = jQuery.extend(mDefaultAttributes, mAttributes);
 
+		if (!mAttributes.id) {
+			mAttributes.id = jQuery.sap.uid();
+		}
+
+		if (bIconURI) {
+			sLabel = mAttributes.alt || mAttributes.title || oIconInfo.text || oIconInfo.name;
+			sInvTextId = mAttributes.id + "-label";
+
+			// When aria-labelledby is given, the icon's text is output in a hidden span
+			// whose id is appended to the aria-labelledby attribute
+			// Otherwise the icon's text is output to aria-label attribute
+			if (mAttributes["aria-labelledby"]) {
+				bAriaLabelledBy = true;
+				mAttributes["aria-labelledby"] += (" " + sInvTextId);
+			} else if (!mAttributes.hasOwnProperty("aria-label")) { // when "aria-label" isn't set in the attributes object
+				mAttributes["aria-label"] = sLabel;
+			}
+		}
+
 		if (typeof mAttributes === "object") {
 			for (sProp in mAttributes) {
 				if (mAttributes.hasOwnProperty(sProp) && mAttributes[sProp] !== null) {
@@ -1311,7 +1332,16 @@ sap.ui.define([
 			}
 		}
 
-		this.write(bIconURI ? "></span>" : "/>");
+		if (bIconURI) {
+			this.write(">");
+			if (bAriaLabelledBy) {
+				// output the invisible text for aria-labelledby
+				this.write("<span style=\"display:none;\" id=\"" + sInvTextId + "\">" + sLabel + "</span>");
+			}
+			this.write("</span>");
+		} else {
+			this.write("/>");
+		}
 
 		return this;
 	};

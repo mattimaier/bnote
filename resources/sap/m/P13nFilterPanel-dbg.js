@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @param {object} [mSettings] initial settings for the new control
 	 * @class The P13nFilterPanel control is used to define filter-specific settings for table personalization.
 	 * @extends sap.m.P13nPanel
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @public
 	 * @alias sap.m.P13nFilterPanel
@@ -405,7 +405,7 @@ sap.ui.define([
 
 		if (!this._aIncludeOperations["default"]) {
 			this.setIncludeOperations([
-				sap.m.P13nConditionOperation.Contains, sap.m.P13nConditionOperation.EQ, sap.m.P13nConditionOperation.BT, sap.m.P13nConditionOperation.StartsWith, sap.m.P13nConditionOperation.EndsWith, sap.m.P13nConditionOperation.LT, sap.m.P13nConditionOperation.LE, sap.m.P13nConditionOperation.GT, sap.m.P13nConditionOperation.GE
+				sap.m.P13nConditionOperation.EQ, sap.m.P13nConditionOperation.BT, sap.m.P13nConditionOperation.LT, sap.m.P13nConditionOperation.LE, sap.m.P13nConditionOperation.GT, sap.m.P13nConditionOperation.GE
 			]);
 		}
 
@@ -701,6 +701,7 @@ sap.ui.define([
 					index: iIndex,
 					filterItemData: oFilterItem
 				});
+				that._notifyChange();
 			}
 			if (sOperation === "add") {
 				if (iConditionIndex >= 0) {
@@ -722,6 +723,7 @@ sap.ui.define([
 					filterItemData: oFilterItem
 				});
 				that._bIgnoreBindCalls = false;
+				that._notifyChange();
 			}
 			if (sOperation === "remove") {
 				that._bIgnoreBindCalls = true;
@@ -730,6 +732,7 @@ sap.ui.define([
 					index: iIndex
 				});
 				that._bIgnoreBindCalls = false;
+				that._notifyChange();
 			}
 
 // that.getFilterItems().forEach(function(oItem, i) {
@@ -742,6 +745,13 @@ sap.ui.define([
 // });
 
 		};
+	};
+
+	P13nFilterPanel.prototype._notifyChange = function() {
+		var fListener = this.getChangeNotifier();
+		if (fListener) {
+			fListener(this);
+		}
 	};
 
 	return P13nFilterPanel;

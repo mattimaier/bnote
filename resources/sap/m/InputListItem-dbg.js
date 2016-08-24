@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 	 * @extends sap.m.ListItemBase
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -52,7 +52,8 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 			 * Content controls can be added
 			 */
 			content : {type : "sap.ui.core.Control", multiple : true, singularName : "content", bindable : "bindable"}
-		}
+		},
+		designtime : true
 	}});
 
 

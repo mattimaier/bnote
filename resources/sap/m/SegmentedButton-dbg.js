@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -138,7 +138,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	SegmentedButton.prototype.onBeforeRendering = function () {
-		var aButtons = this.getButtons();
+		var aButtons = this._getVisibleButtons();
 
 		this._bCustomButtonWidth = aButtons.some(function(oButton) {
 			return oButton.getWidth();
@@ -158,7 +158,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	SegmentedButton.prototype.onAfterRendering = function () {
-		var aButtons = this.getButtons(),
+		var aButtons = this._getVisibleButtons(),
 			oParentDom;
 
 		//register resize listener on parent
@@ -183,7 +183,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @private
 	 */
 	SegmentedButton.prototype._handleContainerResize = function () {
-		var aButtons = this.getButtons();
+		var aButtons = this._getVisibleButtons();
 
 		// Needed to provide correct width recalculation
 		this._clearAutoWidthAppliedToControl();
@@ -198,7 +198,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @private
 	 */
 	SegmentedButton.prototype._clearAutoWidthAppliedToControl = function () {
-		var aButtons = this.getButtons(),
+		var aButtons = this._getVisibleButtons(),
 			iButtonsLength = aButtons.length,
 			oButton,
 			i = 0;
@@ -298,7 +298,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		}
 
 		var sControlWidth = this.getWidth(),
-			aButtons = this.getButtons(),
+			aButtons = this._getVisibleButtons(),
 			iButtonsCount = aButtons.length,
 			iMaxWidth = (this._aWidths.length > 0) ? Math.max.apply(Math, this._aWidths) : 0,
 			iButtonWidthPercent = (100 / iButtonsCount),
@@ -409,13 +409,14 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @since 1.28
 	 */
 	SegmentedButton.prototype._createButtonFromItem = function (oItem) {
-		var oButton = new sap.m.Button({
+		var oButton = new sap.m.Button(oItem.getId() + "-button", {
 			text: oItem.getText(),
 			icon: oItem.getIcon(),
 			enabled: oItem.getEnabled(),
 			textDirection: oItem.getTextDirection(),
 			width: oItem.getWidth(),
 			tooltip: oItem.getTooltip(),
+			visible: oItem.getVisible(),
 			press: function () {
 				oItem.firePress();
 			}
@@ -449,6 +450,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			});
 
 			oButton.attachEvent("_change", oParent._syncSelect, oParent);
+			oButton.attachEvent("_change", oParent._forwardChangeEvent, oParent);
 
 			var fnOriginalSetEnabled = sap.m.Button.prototype.setEnabled;
 			oButton.setEnabled = function (bEnabled) {
@@ -456,6 +458,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 					.toggleClass("sapMFocusable", bEnabled);
 
 				fnOriginalSetEnabled.apply(oButton, arguments);
+			};
+
+			oButton.setVisible = function (bVisible) {
+				sap.m.Button.prototype.setVisible.apply(this, arguments);
+				oParent.invalidate();
 			};
 		}
 
@@ -498,11 +505,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			bUpdate = true;
 		}
 
-		aItems = aItems || [];
-		/* Create buttons */
-		for (i = 0; i < aItems.length; i++) {
-			this._createButtonFromItem(aItems[i]);
-		}
+			aItems = aItems || [];
+			/* Create buttons */
+			for (i = 0; i < aItems.length; i++) {
+				this._createButtonFromItem(aItems[i]);
+			}
 
 		// on update: recalculate width
 		if (bUpdate) {
@@ -573,6 +580,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		if (oRemovedButton) {
 			delete oRemovedButton.setEnabled;
 			oRemovedButton.detachEvent("_change", this._syncSelect, this);
+			oRemovedButton.detachEvent("_change", this._forwardChangeEvent, this);
 			this._syncSelect();
 		}
 	};
@@ -586,6 +594,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 					delete oButton.setEnabled;
 					this.removeAggregation("buttons", oButton);
 					oButton.detachEvent("_change", this._syncSelect, this);
+					oButton.detachEvent("_change", this._forwardChangeEvent, this);
 				}
 
 			}
@@ -623,7 +632,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @private
 	 */
 	SegmentedButton.prototype._selectDefaultButton = function () {
-		var aButtons = this.getButtons();
+		var aButtons = this._getVisibleButtons();
 
 		// CSN# 0001429454/2014: when the id evaluates to false (null, undefined, "") the first button should be selected
 		if (aButtons.length > 0) {
@@ -732,6 +741,10 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		});
 	};
 
+	SegmentedButton.prototype._forwardChangeEvent = function () {
+		this.fireEvent("_change");
+	};
+
 	/**
 	 * Builds/rebuilds the select from the buttons in the SegmentedButton.
 	 * @private
@@ -742,12 +755,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			sButtonText,
 			oSelect = this.getAggregation("_select");
 
+
 		if (!oSelect) {
 			return;
 		}
 
 		oSelect.destroyItems();
-		this.getButtons().forEach(function (oButton) {
+		this._getVisibleButtons().forEach(function (oButton) {
 			sButtonText = oButton.getText();
 			oSelect.addItem(new sap.ui.core.Item({
 				key: iKey.toString(),
@@ -818,6 +832,17 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			sResult = oIconInfo.name;
 		}
 		return sResult;
+	};
+
+	/**
+	 * Gets the visible buttons.
+	 * @returns {*} Array of the visible buttons
+	 * @private
+	 */
+	SegmentedButton.prototype._getVisibleButtons = function() {
+		return this.getButtons().filter(function(oButton) {
+			return oButton.getVisible();
+		});
 	};
 
 	return SegmentedButton;

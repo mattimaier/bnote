@@ -25,7 +25,7 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -76,7 +76,12 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 					/**
 					 * A list with message items
 					 */
-					items: {type: "sap.m.MessagePopoverItem", multiple: true, singularName: "item"}
+					items: {type: "sap.m.MessagePopoverItem", multiple: true, singularName: "item"},
+
+					/**
+					 * A custom header button
+					 */
+					headerButton: {type: "sap.m.Button", multiple: false}
 				},
 				events: {
 					/**
@@ -315,8 +320,13 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 		 */
 		MessagePopover.prototype.onBeforeRenderingPopover = function () {
 
+			var headerButton = this.getHeaderButton();
+			if (headerButton) {
+				this._oListHeader.insertContent(headerButton, 2);
+			}
+
 			// Bind automatically to the MessageModel if no items are bound
-			if (!this.getBindingInfo("items")) {
+			if (!this.getBindingInfo("items") && !this.getItems().length) {
 				this._makeAutomaticBinding();
 			}
 
@@ -344,7 +354,7 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 						path: "message>/",
 						template: new MessagePopoverItem({
 							type: "{message>type}",
-							title: "{message>title}",
+							title: "{message>message}",
 							description: "{message>description}",
 							longtextUrl: "{message>longtextUrl}"
 						})
@@ -1059,8 +1069,10 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 		 * @private
 		 */
 		MessagePopover.prototype._expandMsgPopover = function () {
+			var sHeight = this._oPopover.$("cont").css("height") || this._oPopover.getContentWidth();
+
 			this._oPopover
-				.setContentHeight(this._oPopover.getContentWidth())
+				.setContentHeight(sHeight)
 				.removeStyleClass(CSS_CLASS + "-init");
 		};
 
@@ -1097,6 +1109,7 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 			if (oResponsivePopoverControl instanceof Popover) {
 				if ((oParent instanceof Toolbar || oParent instanceof Bar || oParent instanceof SemanticPage)) {
 					oResponsivePopoverControl.setShowArrow(false);
+					oResponsivePopoverControl.setResizable(true);
 				} else {
 					oResponsivePopoverControl.setShowArrow(true);
 				}

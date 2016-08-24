@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(["./ObjectPageLayout"], function (ObjectPageLayout) {
+sap.ui.define(["./ObjectPageLayout", "sap/ui/core/Icon"], function (ObjectPageLayout, Icon) {
 	"use strict";
 
 	/**
@@ -19,10 +19,11 @@ sap.ui.define(["./ObjectPageLayout"], function (ObjectPageLayout) {
 			bTitleVisible = (oControl.getIsObjectIconAlwaysVisible() || oControl.getIsObjectTitleAlwaysVisible() || oControl.getIsObjectSubtitleAlwaysVisible() || oControl.getIsActionAreaAlwaysVisible()),
 			oParent = oControl.getParent(),
 			oExpandButton = oControl.getAggregation("_expandButton"),
+			oObjectImage = oControl._getInternalAggregation("_objectImage"),
 			bIsDesktop = sap.ui.Device.system.desktop,
-			bIsHeaderContentVisible = oParent && oParent instanceof ObjectPageLayout
-					&& ((oParent.getHeaderContent() && oParent.getHeaderContent().length > 0 && oParent.getShowHeaderContent())
-					|| (oParent.getShowHeaderContent() && oParent.getShowTitleInHeaderContent()));
+			bIsHeaderContentVisible = oParent && oParent instanceof ObjectPageLayout && ((oParent.getHeaderContent()
+				&& oParent.getHeaderContent().length > 0 && oParent.getShowHeaderContent()) ||
+			(oParent.getShowHeaderContent() && oParent.getShowTitleInHeaderContent()));
 
 		oRm.write("<div");
 		oRm.writeControlData(oControl);
@@ -69,14 +70,11 @@ sap.ui.define(["./ObjectPageLayout"], function (ObjectPageLayout) {
 			oRm.writeClasses();
 			oRm.write(">");
 			oRm.write("<span class='sapUxAPObjectPageHeaderObjectImageContainerSub'>");
-			if (oControl.getObjectImageURI()) {
-				oRm.renderControl(oControl._getInternalAggregation("_objectImage"));
-				if (oControl.getShowPlaceholder()) {
-					this._renderPlaceholder(oRm, oControl, false);
-				}
-			} else {
-				this._renderPlaceholder(oRm, oControl, true);
-			}
+
+			ObjectPageHeaderRenderer._renderInProperContainer(function () {
+				oRm.renderControl(oObjectImage);
+				ObjectPageHeaderRenderer._renderPlaceholder(oRm, oControl, !(oControl.getObjectImageShape() || oControl.getShowPlaceholder()));
+			}, oObjectImage, oRm);
 
 			oRm.write("</span>");
 			oRm.write("</span>");
@@ -116,11 +114,28 @@ sap.ui.define(["./ObjectPageLayout"], function (ObjectPageLayout) {
 		}
 		var oOverflowButton = oControl.getAggregation("_overflowButton");
 		oRm.renderControl(oOverflowButton);
+
+		this._renderSideContentBtn(oRm, oControl);
+
 		oRm.write("</span>");
 
 		oRm.write("</div>");
 
 		oRm.write("</div>");
+	};
+
+	ObjectPageHeaderRenderer._renderInProperContainer = function (fnRender, oObjectImage, oRm) {
+		if (oObjectImage instanceof Icon) {
+			oRm.write("<div");
+			oRm.addClass("sapUxAPObjectPageHeaderObjectImage");
+			oRm.addClass("sapUxAPObjectPageHeaderPlaceholder");
+			oRm.writeClasses();
+			oRm.write(">");
+			fnRender();
+			oRm.write("</div>");
+		} else {
+			fnRender();
+		}
 	};
 
 
@@ -248,7 +263,7 @@ sap.ui.define(["./ObjectPageLayout"], function (ObjectPageLayout) {
 	 * @param {sap.ui.core.RenderManager}
 	 *            oRm the RenderManager that can be used for writing to the render output buffer
 	 *
-	 * @param {sap.m.ObjectHeader}
+	 * @param {sap.uxap.ObjectPageHeader}
 	 *            oControl the ObjectPageHeader
 	 * @param {boolean}
 	 *      bTitleInContent - if the arrow will be rendered in content or in title
@@ -268,6 +283,34 @@ sap.ui.define(["./ObjectPageLayout"], function (ObjectPageLayout) {
 			oRm.write("</span>"); // end title arrow container
 		}
 	};
+
+	/**
+	 * Renders the sideContentButton button.
+	 *
+	 * @param {sap.ui.core.RenderManager}
+	 *            oRm the RenderManager that can be used for writing to the render output buffer
+	 *
+	 * @param {sap.uxap.ObjectPageHeader}
+	 *            oControl the ObjectPageHeader
+	 * @private
+	 */
+	ObjectPageHeaderRenderer._renderSideContentBtn = function (oRm, oControl) {
+		var oSideBtn = oControl.getSideContentButton();
+
+		if (oSideBtn) { // render sideContent button and separator
+			oRm.write("<span"); // Start button and separator container
+			oRm.addClass("sapUxAPObjectPageHeaderSideContentBtn");
+			oRm.writeClasses();
+			oRm.write(">");
+			oRm.write("<span");
+			oRm.addClass("sapUxAPObjectPageHeaderSeparator");
+			oRm.writeClasses();
+			oRm.write("></span>");
+			oRm.renderControl(oSideBtn);
+			oRm.write("</span>"); // end container
+		}
+	};
+
 
 	/**
 	 * Renders the Unsaved Changes icon.

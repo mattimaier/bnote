@@ -5,8 +5,8 @@
  */
 
 // Provides control sap.m.ObjectStatus.
-sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/core/IconPool'],
-	function(jQuery, library, Control, IconPool) {
+sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/core/IconPool', 'sap/ui/core/ValueStateSupport'],
+	function(jQuery, library, Control, IconPool, ValueStateSupport) {
 	"use strict";
 
 
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @class
 	 * Status information that can be either text with a value state, or an icon.
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -152,6 +152,18 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	ObjectStatus.prototype._isEmpty = function() {
 
 		return !(this.getText().trim() || this.getIcon().trim() || this.getTitle().trim());
+	};
+
+	/**
+	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @protected
+	 */
+	ObjectStatus.prototype.getAccessibilityInfo = function() {
+		var sState = this.getState() != sap.ui.core.ValueState.None ? ValueStateSupport.getAdditionalText(this.getState()) : "";
+
+		return {
+			description: ((this.getTitle() || "") + " " + (this.getText() || "") + " " + sState).trim()
+		};
 	};
 
 	return ObjectStatus;

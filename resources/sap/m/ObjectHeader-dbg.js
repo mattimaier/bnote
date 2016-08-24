@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @class
 	 * ObjectHeader is a display control that enables the user to easily identify a specific object. The object header title is the key identifier of the object and additional text and icons can be used to further distinguish it from other objects.
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -147,11 +147,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			 *
 			 * If set to <code>true</code>, the following situations apply:
 			 * <ul>
-			 *			<li>On desktop, 1-3 attributes/statuses - positioned as a third block on the right side of the Title/Number group</li>
-			 *			<li>On desktop, 4+ attributes/statuses - 4 columns below the Title/Number</li>
-			 *			<li>On tablet (portrait mode), always in 2 columns below the Title/Number</li>
-			 *			<li>On tablet (landscape mode), 1-2 attributes/statuses - 2 columns below the Title/Number</li>
-			 *			<li>On tablet (landscape mode), 3+ attributes/statuses - 3 columns below the Title/Number</li>
+			 *                 <li>On desktop, 1-3 attributes/statuses - positioned as a third block on the right side of the Title/Number group</li>
+			 *                 <li>On desktop, 4+ attributes/statuses - 4 columns below the Title/Number</li>
+			 *                 <li>On tablet (portrait mode), always in 2 columns below the Title/Number</li>
+			 *                 <li>On tablet (landscape mode), 1-2 attributes/statuses - 2 columns below the Title/Number</li>
+			 *                 <li>On tablet (landscape mode), 3+ attributes/statuses - 3 columns below the Title/Number</li>
 			 *</ul>
 			 * On phone, the attributes and statuses are always positioned in 1 column below the Title/Number of the <code>ObjectHeader</code>.<br>
 			 *
@@ -256,6 +256,15 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			 * The object number and unit are managed in this aggregation
 			 */
 			_objectNumber : {type : "sap.m.ObjectNumber", multiple : false, visibility : "hidden"},
+
+			/**
+			 * NOTE: Only applied if you set "responsive=false".
+			 * Additional object numbers and units are managed in this aggregation.
+			 * The numbers are hidden on tablet and phone size screens.
+			 * When only one number is provided, it is rendered with additional separator from the main ObjectHeader number.
+			 * @since 1.38.0
+			 */
+			additionalNumbers : {type : "sap.m.ObjectNumber", multiple : true, singularName : "additionalNumber"},
 
 			/**
 			 * This aggregation takes only effect when you set "responsive" to true.
@@ -612,6 +621,9 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	ObjectHeader.prototype._handleSpaceOrEnter = function(oEvent) {
 		var sSourceId = oEvent.target.id;
 
+		// mark the event that it is handled by the control
+		oEvent.setMarked();
+
 		if (!this.getResponsive() && this.getTitleActive() && ( sSourceId === this.getId() + "-title" ||
 				jQuery(oEvent.target).parent().attr('id') === this.getId() + "-title" || // check if the parent of the "h" tag is the "title"
 				sSourceId === this.getId() + "-titleText-inner" )) {
@@ -893,8 +905,12 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				sap.ui.Device.media.attachHandler(this._rerenderOHR, this, sap.ui.Device.media.RANGESETS.SAP_STANDARD);
 			}
 		} else {
+			var sTextAlign = bPageRTL ? sap.ui.core.TextAlign.Left : sap.ui.core.TextAlign.Right;
 			if (oObjectNumber && oObjectNumber.getNumber()) { // adjust alignment according the design specification
-				oObjectNumber.setTextAlign(bPageRTL ? sap.ui.core.TextAlign.Left : sap.ui.core.TextAlign.Right);
+				oObjectNumber.setTextAlign(sTextAlign);
+			}
+			if (this.getAdditionalNumbers()) { // do the same for the additional numbers
+				this._setTextAlignANum(sTextAlign);
 			}
 		}
 	};
@@ -1059,6 +1075,18 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			return this.getBackgroundDesign();
 		}
 
+	};
+
+	/**
+	 * Sets the text alignment for all additional numbers inside the AdditionalNumbers aggregation
+	 *
+	 * @private
+	 */
+	ObjectHeader.prototype._setTextAlignANum = function(sTextAlign) {
+		var numbers = this.getAdditionalNumbers();
+		for (var i = 0; i < numbers.length; i++) {
+			numbers[i].setTextAlign(sTextAlign);
+		}
 	};
 
 	return ObjectHeader;

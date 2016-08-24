@@ -120,4 +120,4 @@ sap.ui.define(['jquery.sap.global'],
 
 	return sap.ui.extensionpoint;
 
-}, /* bExport= */ false);
+});

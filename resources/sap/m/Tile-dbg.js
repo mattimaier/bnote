@@ -5,8 +5,8 @@
  */
 
 // Provides control sap.m.Tile.
-sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
-	function(jQuery, library, Control) {
+sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/InvisibleText', 'sap/ui/core/Control'],
+	function(jQuery, library, InvisibleText, Control) {
 	"use strict";
 
 
@@ -28,7 +28,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -55,6 +55,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 		}
 	}});
 
+	//Keeps a reference to the static aria text for deletable items.
+	var oAriaDescribedByDeleteLabel;
 	/**
 	 * Initializes the control.
 	 * @private
@@ -139,8 +141,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 	 * @private
 	 */
 	Tile.prototype.isEditable = function(bIsEditable) {
+		var bOldValue = this._bIsEditable;
 		if (bIsEditable === true || bIsEditable === false) {
 			this._bIsEditable = bIsEditable;
+		}
+		if (bOldValue != bIsEditable && this.$()) {
+			//update the ARIA hint for DEL
+			this.$().attr("aria-describedBy", bIsEditable ? this._getAriaDescribedByDeleteLabel().getId() : null);
 		}
 
 		return this._bIsEditable;
@@ -280,6 +287,19 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 		return this;
 	};
 
+	/**
+	 * Retrieves the label responsible for ARIA attribute for deletable tiles.
+	 * @returns {Object}
+	 * @private
+	 */
+	Tile.prototype._getAriaDescribedByDeleteLabel = function() {
+		if (!oAriaDescribedByDeleteLabel) {
+			oAriaDescribedByDeleteLabel = new InvisibleText({
+				text: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("TILE_REMOVE_BY_DEL_KEY")
+			}).toStatic();
+		}
+		return oAriaDescribedByDeleteLabel;
+	};
 	return Tile;
 
 }, /* bExport= */ true);

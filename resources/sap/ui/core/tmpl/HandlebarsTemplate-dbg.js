@@ -4,8 +4,8 @@
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Core', './Template', 'sap/ui/thirdparty/handlebars', 'sap/ui/base/ManagedObject'],
-	function(jQuery, Core, Template, Handlebars, ManagedObject) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Core', './Template', './TemplateControl', 'sap/ui/thirdparty/handlebars', 'sap/ui/base/ManagedObject'],
+	function(jQuery, Core, Template, TemplateControl, Handlebars, ManagedObject) {
 	"use strict";
 
 
@@ -29,7 +29,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Core', './Template', 'sap/ui/th
 	 * @extends sap.ui.core.tmpl.Template
 	 * @abstract
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @alias sap.ui.core.tmpl.HandlebarsTemplate
 	 * @experimental Since 1.15.0. The Template concept is still under construction, so some implementation details can be changed in future.
 	 */
@@ -521,8 +521,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Core', './Template', 'sap/ui/th
 		// identify the control metadata: properties, aggregations, ...
 		// the template will be executed with specific options
 		var oMetadata = {},
-			mJSONKeys = sap.ui.core.tmpl.TemplateControl.getMetadata().getAllSettings(),
-			mPrivateAggregations = sap.ui.core.tmpl.TemplateControl.getMetadata().getAllPrivateAggregations();
+			mJSONKeys = TemplateControl.getMetadata().getAllSettings(),
+			mPrivateAggregations = TemplateControl.getMetadata().getAllPrivateAggregations();
 
 		// the options to identify the properties, aggregations, events, ...
 		var oHelpers = {

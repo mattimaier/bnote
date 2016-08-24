@@ -18,7 +18,7 @@ sap.ui.define([
 	 * @class The P13nColumnsPanel control is used to define column-specific settings for table personalization.
 	 * @extends sap.m.P13nPanel
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @public
 	 * @since 1.26.0
@@ -31,7 +31,18 @@ sap.ui.define([
 			library: "sap.m",
 			properties: {
 				/**
-				 * Specifies a threshold of visible items.
+				 * Specifies a threshold of visible items. If the end user makes a lot of columns visible, this might cause performance to slow down.
+				 * When this happens, the user can receive a corresponding warning triggered by the <code>visibleItemsThreshold</code> property. The
+				 * property needs to be activated and set to the required value by the consuming application to ensure that the warning message is
+				 * shown when the threshold has been exceeded. In the following example the message will be shown if more than 100 visible columns are
+				 * selected:
+				 *
+				 * <pre>
+				 * customData&gt;
+				 * core:CustomData key=&quot;p13nDialogSettings&quot;
+				 * value='\{&quot;columns&quot;:\{&quot;visible&quot;: true, &quot;payload&quot;: \{&quot;visibleItemsThreshold&quot;: 3\}\}\}' /&gt;
+				 * /customData&gt;
+				 * </pre>
 				 *
 				 * @since 1.26.7
 				 */
@@ -485,7 +496,7 @@ sap.ui.define([
 	 *
 	 * @private
 	 * @param {inteter} iStartIndex is the table index from where the search start
-	 * @returns {integer} is the index of a previous items; if no item is found it will be returned -1
+	 * @returns {int} is the index of a previous items; if no item is found it will be returned -1
 	 */
 	P13nColumnsPanel.prototype._getPreviousItemIndex = function(iStartIndex) {
 		var iResult = -1, i = 0;
@@ -516,7 +527,7 @@ sap.ui.define([
 	 *
 	 * @private
 	 * @param {inteter} iStartIndex is the table index from where the search start
-	 * @returns {integer} is the index of the next item; if no item is found it will be returned -1
+	 * @returns {int} is the index of the next item; if no item is found it will be returned -1
 	 */
 	P13nColumnsPanel.prototype._getNextItemIndex = function(iStartIndex) {
 		var iResult = -1, i = 0, iLength = null;
@@ -719,7 +730,7 @@ sap.ui.define([
 	 * @private
 	 * @param {string} sItemKey is the key for that item for that the index shall be found in the array
 	 * @param {array} aItems is the array in that the item will be searched
-	 * @returns {integer} is the index of the identified item
+	 * @returns {int} is the index of the identified item
 	 */
 	P13nColumnsPanel.prototype._getArrayIndexByItemKey = function(sItemKey, aItems) {
 		var iResult = -1;
@@ -865,6 +876,7 @@ sap.ui.define([
 				this.fireAddColumnsItem({
 					newItem: oColumnsItem
 				});
+				this._notifyChange();
 			} else {
 				oColumnsItem.setIndex(iNewIndex);
 				aExistingColumnsItems.push(oColumnsItem);
@@ -877,6 +889,7 @@ sap.ui.define([
 					newItems: aNewColumnsItems,
 					existingItems: aExistingColumnsItems
 				});
+				this._notifyChange();
 			}
 
 			// fire event for setting of changed data into model
@@ -928,6 +941,7 @@ sap.ui.define([
 					that.fireAddColumnsItem({
 						newItem: oColumnsItem
 					});
+					that._notifyChange();
 				} else {
 					oColumnsItem.setVisible(oItem.visible);
 					// in case a column will be made invisible -> remove the index property
@@ -946,6 +960,7 @@ sap.ui.define([
 					newItems: aNewColumnsItems,
 					existingItems: aExistingColumnsItems
 				});
+				this._notifyChange();
 			}
 
 			// fire event for setting of changed data into model
@@ -1488,7 +1503,6 @@ sap.ui.define([
 		this._oToolbarSpacer = new sap.m.ToolbarSpacer();
 
 		this._oToolbar = new sap.m.OverflowToolbar({
-			active: true,
 			design: sap.m.ToolbarDesign.Solid, // Transparent,
 			content: [
 				this._oToolbarSpacer, this._oSearchField, this._oShowSelectedButton, this._oMoveToTopButton, this._oMoveUpButton, this._oMoveDownButton, this._oMoveToBottomButton
@@ -1907,6 +1921,13 @@ sap.ui.define([
 		}
 
 		return bResult;
+	};
+
+	P13nColumnsPanel.prototype._notifyChange = function() {
+		var fListener = this.getChangeNotifier();
+		if (fListener) {
+			fListener(this);
+		}
 	};
 
 	return P13nColumnsPanel;

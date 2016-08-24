@@ -18,7 +18,7 @@ function(jQuery) {
 	 * Utility functionality for DOM
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @private
 	 * @static
@@ -33,9 +33,10 @@ function(jQuery) {
 	 *
 	 */
 	DOMUtil.getSize = function(oDomRef) {
+		var oClientRec = oDomRef.getBoundingClientRect();
 		return {
-			width : oDomRef.offsetWidth,
-			height : oDomRef.offsetHeight
+			width: oClientRec.width,
+			height: oClientRec.height
 		};
 	};
 
@@ -99,12 +100,18 @@ function(jQuery) {
 	/**
 	 *
 	 */
-	DOMUtil.getGeometry = function(oDomRef) {
+	DOMUtil.getGeometry = function(oDomRef, bUseWindowOffset) {
 		if (oDomRef) {
+			var oOffset = jQuery(oDomRef).offset();
+			if (bUseWindowOffset) {
+				oOffset.left = oOffset.left - jQuery(window).scrollLeft();
+				oOffset.top = oOffset.top - jQuery(window).scrollTop();
+			}
+
 			return {
 				domRef : oDomRef,
 				size : this.getSize(oDomRef),
-				position :  jQuery(oDomRef).offset(),
+				position :  oOffset,
 				visible : this.isVisible(oDomRef)
 			};
 		}
@@ -131,30 +138,38 @@ function(jQuery) {
 	};
 
 	/**
-	 *
+	 * returns jQuery object found in oDomRef for sCSSSelector
+	 * @param  {Element|jQuery} oDomRef to search in
+	 * @param  {string} sCSSSelector jQuery (CSS-like) selector to look for
+	 * @return {jQuery} found domRef
 	 */
 	DOMUtil.getDomRefForCSSSelector = function(oDomRef, sCSSSelector) {
-		if (!sCSSSelector) {
-			return false;
-		}
+		if (sCSSSelector && oDomRef) {
+			var $domRef = jQuery(oDomRef);
 
-		if (sCSSSelector === ":sap-domref") {
-			return oDomRef;
+			if (sCSSSelector === ":sap-domref") {
+				return $domRef;
+			}
+
+			// ":sap-domref > sapMPage" scenario
+			if (sCSSSelector.indexOf(":sap-domref") > -1) {
+				return $domRef.find(sCSSSelector.replace(/:sap-domref/g, ""));
+			}
+
+			// normal selector
+			return $domRef.find(sCSSSelector);
+		} else {
+			// empty jQuery object for typing
+			return jQuery();
 		}
-		// ":sap-domref > sapMPage" scenario
-		if (sCSSSelector.indexOf(":sap-domref") > -1) {
-			return document.querySelector(sCSSSelector.replace(":sap-domref", "#" + this.getEscapedString(oDomRef.id)));
-		}
-		return oDomRef ? oDomRef.querySelector(sCSSSelector) : undefined;
 	};
 
 	/**
 	 *
 	 */
 	DOMUtil.isVisible = function(oDomRef) {
-		oDomRef = jQuery(oDomRef);
-
-		return oDomRef.is(":visible");
+		// mimic the jQuery 1.11.1 impl of the ':visible' selector as the jQuery 2.2.0 selector no longer reports empty SPANs etc. as 'hidden'
+		return oDomRef ? oDomRef.offsetWidth > 0 || oDomRef.offsetHeight > 0 : false;
 	};
 
 	/**

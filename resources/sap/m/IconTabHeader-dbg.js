@@ -5,8 +5,10 @@
  */
 
 // Provides control sap.m.IconTabHeader.
-sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/core/EnabledPropagator', 'sap/ui/core/delegate/ItemNavigation', 'sap/ui/core/IconPool'],
-	function(jQuery, library, Control, EnabledPropagator, ItemNavigation, IconPool) {
+sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/core/EnabledPropagator',
+		'sap/ui/core/delegate/ItemNavigation', 'sap/ui/core/IconPool', 'sap/ui/core/delegate/ScrollEnablement'],
+	function(jQuery, library, Control, EnabledPropagator,
+	         ItemNavigation, IconPool, ScrollEnablement) {
 	"use strict";
 
 	/**
@@ -21,7 +23,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -90,9 +92,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 	IconTabHeader.SCROLL_STEP = 264; // how many pixels to scroll with every overflow arrow click
 
-	// When to create a scroll delegate:
-	IconTabHeader.prototype._bDoScroll = !sap.ui.Device.system.desktop || (sap.ui.Device.os.windows && sap.ui.Device.os.version >= 8);
-
 	IconTabHeader.prototype.init = function() {
 		this._bPreviousScrollForward = false; // remember the item overflow state
 		this._bPreviousScrollBack = false;
@@ -111,15 +110,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		this._oItemNavigation.attachEvent(ItemNavigation.Events.AfterFocus, this._onItemNavigationAfterFocus, this);
 		this.addDelegate(this._oItemNavigation);
 
-		if (this._bDoScroll) {
-			jQuery.sap.require("sap.ui.core.delegate.ScrollEnablement");
-			this._oScroller = new sap.ui.core.delegate.ScrollEnablement(this, this.getId() + "-head", {
-				horizontal: true,
-				vertical: false,
-				nonTouchScrolling: true
-			});
-		}
-
+		this._oScroller = new ScrollEnablement(this, this.getId() + "-head", {
+			horizontal: true,
+			vertical: false,
+			nonTouchScrolling: true
+		});
 	};
 
 	IconTabHeader.prototype._onItemNavigationFocusLeave = function() {
@@ -461,16 +456,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 					.attr({ 'aria-selected': true });
 		}
 
-		if (this._bDoScroll) {
-			jQuery.sap.delayedCall(350, this, "_checkOverflow");
-		} else {
-			this._checkOverflow();
-		}
-
-		// reset scroll state after re-rendering for non-touch devices (iScroll will handle this internally)
-		if (this._iCurrentScrollLeft !== 0 && !this._bDoScroll) {
-			oHeadDomRef.scrollLeft = this._iCurrentScrollLeft;
-		}
+		jQuery.sap.delayedCall(350, this, "_checkOverflow");
 
 		// scroll to selected item if it is out of screen and we render the control the first time
 		if (this.oSelectedItem) {
@@ -658,6 +644,32 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	/**
+	 * Checks if all tabs are in line version.
+	 * @private
+	 * @returns True if all tabs are in line version, otherwise false
+	 */
+	IconTabHeader.prototype._checkInLine = function(aItems) {
+		var oItem;
+
+		if (aItems.length > 0) {
+			for (var i = 0; i < aItems.length; i++) {
+
+				oItem = aItems[i];
+
+				if (!(oItem instanceof sap.m.IconTabSeparator)) {
+					if (oItem.getIcon() || oItem.getCount()) {
+						this._bInLine = false;
+						return false;
+					}
+				}
+			}
+		}
+
+		this._bInLine = true;
+		return true;
+	};
+
+	/**
 	 * Checks if scrolling is needed.
 	 * @private
 	 * @returns True if scrolling is needed, otherwise false
@@ -667,23 +679,12 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		var $bar = this.$();
 
 		var bScrolling = false;
+		var domScrollCont = this.getDomRef("scrollContainer");
+		var domHead = this.getDomRef("head");
 
-		if (this._bDoScroll) { //iScroll is used, therefore we need other calculation then in desktop mode
-			var domScrollCont = this.getDomRef("scrollContainer");
-			var domHead = this.getDomRef("head");
-
-			if (domHead && domScrollCont) {
-				if (domHead.offsetWidth > domScrollCont.offsetWidth) {
-					bScrolling = true;
-				}
-			}
-		} else { //desktop mode
-			//check if there are more tabs as displayed
-			if (oHead) {
-				if (oHead.scrollWidth > oHead.clientWidth) {
-					//scrolling possible
-					bScrolling = true;
-				}
+		if (domHead && domScrollCont) {
+			if (domHead.offsetWidth > domScrollCont.offsetWidth) {
+				bScrolling = true;
 			}
 		}
 
@@ -703,15 +704,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @returns Icon of the requested arrow
 	 */
 	IconTabHeader.prototype._getScrollingArrow = function(sName) {
-		var src;
-
-		if (sap.ui.Device.system.desktop) {
-			// use navigation arrows on desktop and win8/win10 combi devices
-			src = IconPool.getIconURI("navigation-" + sName + "-arrow");
-		} else {
-			// use slim arrows on mobile devices
-			src = IconPool.getIconURI("slim-arrow-" + sName);
-		}
+		var src = IconPool.getIconURI("slim-arrow-" + sName);
 
 		var mProperties = {
 			src : src,
@@ -724,6 +717,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 		var aCssClassesToAddLeft = ["sapMITBArrowScroll", sLeftArrowClass];
 		var aCssClassesToAddRight = ["sapMITBArrowScroll", sRightArrowClass];
+
+		if (this._bInLine) {
+			aCssClassesToAddLeft.push('sapMITBArrowScrollLeftInLine');
+			aCssClassesToAddRight.push('sapMITBArrowScrollRightInLine');
+		}
 
 		if (sName === "left") {
 			if (!this._oArrowLeft) {
@@ -753,41 +751,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			var bScrollBack = false;
 			var bScrollForward = false;
 
-			if (this._bDoScroll) { //ScrollEnablement is used, therefore we need other calculation then in desktop mode
-				var domScrollCont = this.getDomRef("scrollContainer");
-				var domHead = this.getDomRef("head");
-				if (this._oScroller.getScrollLeft() > 0) {
-					bScrollBack = true;
-				}
-				if ((this._oScroller.getScrollLeft() + domScrollCont.offsetWidth) < domHead.offsetWidth) {
-					bScrollForward = true;
-				}
-
-			} else { //desktop mode
-				var iScrollLeft = this._iCurrentScrollLeft;
-				var realWidth = oBarHead.scrollWidth;
-				var availableWidth = oBarHead.clientWidth;
-
-				if (Math.abs(realWidth - availableWidth) == 1) { // Avoid rounding issues see CSN 1316630 2013
-					realWidth = availableWidth;
-				}
-
-				if (!this._bRtl) {   // normal LTR mode
-					if (iScrollLeft > 0) {
-						bScrollBack = true;
-					}
-					if ((realWidth > availableWidth) && (iScrollLeft + availableWidth < realWidth)) {
-						bScrollForward = true;
-					}
-				} else {  // RTL mode
-					var $List = jQuery(oBarHead);
-					if ($List.scrollLeftRTL() > 0) {
-						bScrollForward = true;
-					}
-					if ($List.scrollRightRTL() > 0) {
-						bScrollBack = true;
-					}
-				}
+			var domScrollCont = this.getDomRef("scrollContainer");
+			var domHead = this.getDomRef("head");
+			if (this._oScroller.getScrollLeft() > 0) {
+				bScrollBack = true;
+			}
+			if ((this._oScroller.getScrollLeft() + domScrollCont.offsetWidth) < domHead.offsetWidth) {
+				bScrollForward = true;
 			}
 
 			// only do DOM changes if the state changed to avoid periodic application of identical values
@@ -830,41 +800,26 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 				//on mobile devices click on arrows has no effect
 				if (sTargetId == sId + "-arrowScrollLeft" && sap.ui.Device.system.desktop) {
-					if (sap.ui.Device.os.windows && sap.ui.Device.os.version >= 8) {
-						//combi devices with win8/win10 should also scroll on click on arrows
-						//need to use iscroll
-						var iScrollLeft = this._oScroller.getScrollLeft() - IconTabHeader.SCROLL_STEP;
-						if (iScrollLeft < 0) {
-							iScrollLeft = 0;
-						}
-						// execute manual scrolling with iScroll's scrollTo method (delayedCall 0 is needed for positioning glitch)
-						this._scrollPreparation();
-						jQuery.sap.delayedCall(0, this._oScroller, "scrollTo", [iScrollLeft, 0, 500]);
-						jQuery.sap.delayedCall(500, this, "_afterIscroll");
-					} else {
-						// scroll back/left button
-						this._scroll(-IconTabHeader.SCROLL_STEP, 500);
+					var iScrollLeft = this._oScroller.getScrollLeft() - IconTabHeader.SCROLL_STEP;
+					if (iScrollLeft < 0) {
+						iScrollLeft = 0;
 					}
+					// execute manual scrolling with iScroll's scrollTo method (delayedCall 0 is needed for positioning glitch)
+					this._scrollPreparation();
+					jQuery.sap.delayedCall(0, this._oScroller, "scrollTo", [iScrollLeft, 0, 500]);
+					jQuery.sap.delayedCall(500, this, "_afterIscroll");
 
 				} else if (sTargetId == sId + "-arrowScrollRight" && sap.ui.Device.system.desktop) {
-					if (sap.ui.Device.os.windows && sap.ui.Device.os.version >= 8) {
-						//combi devices with win8/win10 should also scroll on click on arrows
-						//need to use iscroll
-						var iScrollLeft = this._oScroller.getScrollLeft() + IconTabHeader.SCROLL_STEP;
-						var iContainerWidth = this.$("scrollContainer").width();
-						var iHeadWidth = this.$("head").width();
-						if (iScrollLeft > (iHeadWidth - iContainerWidth)) {
-							iScrollLeft = iHeadWidth - iContainerWidth;
-						}
-						// execute manual scrolling with iScroll's scrollTo method (delayedCall 0 is needed for positioning glitch)
-						this._scrollPreparation();
-						jQuery.sap.delayedCall(0, this._oScroller, "scrollTo", [iScrollLeft, 0, 500]);
-						jQuery.sap.delayedCall(500, this, "_afterIscroll");
-					} else {
-						// scroll forward/right button
-						this._scroll(IconTabHeader.SCROLL_STEP, 500);
+					var iScrollLeft = this._oScroller.getScrollLeft() + IconTabHeader.SCROLL_STEP;
+					var iContainerWidth = this.$("scrollContainer").width();
+					var iHeadWidth = this.$("head").width();
+					if (iScrollLeft > (iHeadWidth - iContainerWidth)) {
+						iScrollLeft = iHeadWidth - iContainerWidth;
 					}
-
+					// execute manual scrolling with iScroll's scrollTo method (delayedCall 0 is needed for positioning glitch)
+					this._scrollPreparation();
+					jQuery.sap.delayedCall(0, this._oScroller, "scrollTo", [iScrollLeft, 0, 500]);
+					jQuery.sap.delayedCall(500, this, "_afterIscroll");
 				} else {
 
 					// should be one of the items - select it
@@ -901,7 +856,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 */
 	IconTabHeader.prototype._scrollIntoView = function(oItem, iDuration) {
 		var $item = oItem.$(),
-		oHeadDomRef,
 		iScrollLeft,
 		iNewScrollLeft,
 		iContainerWidth;
@@ -912,47 +866,24 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			var iItemWidth = $item.outerWidth(true);
 			var iItemPosLeft = $item.position().left - iHeadPaddingWidth / 2;
 
-			// switch based on scrolling mode
-			if (this._bDoScroll) { // ScrollEnablement
-				iScrollLeft = this._oScroller.getScrollLeft();
-				iContainerWidth = this.$("scrollContainer").width();
-				iNewScrollLeft = 0;
+			iScrollLeft = this._oScroller.getScrollLeft();
+			iContainerWidth = this.$("scrollContainer").width();
+			iNewScrollLeft = 0;
 
-				// check if item is outside of viewport
-				if (iItemPosLeft - iScrollLeft < 0 || iItemPosLeft - iScrollLeft > iContainerWidth - iItemWidth) {
-					if (iItemPosLeft - iScrollLeft < 0) { // left side: make this the first item
-						iNewScrollLeft += iItemPosLeft;
-					} else { // right side: make this the last item
-						iNewScrollLeft += iItemPosLeft + iItemWidth - iContainerWidth;
-					}
-
-					// execute manual scrolling with scrollTo method (delayedCall 0 is needed for positioning glitch)
-					this._scrollPreparation();
-					// store current scroll state to set it after rerendering
-					this._iCurrentScrollLeft = iNewScrollLeft;
-					jQuery.sap.delayedCall(0, this._oScroller, "scrollTo", [iNewScrollLeft, 0, iDuration]);
-					jQuery.sap.delayedCall(iDuration, this, "_afterIscroll");
+			// check if item is outside of viewport
+			if (iItemPosLeft - iScrollLeft < 0 || iItemPosLeft - iScrollLeft > iContainerWidth - iItemWidth) {
+				if (iItemPosLeft - iScrollLeft < 0) { // left side: make this the first item
+					iNewScrollLeft += iItemPosLeft;
+				} else { // right side: make this the last item
+					iNewScrollLeft += iItemPosLeft + iItemWidth - iContainerWidth;
 				}
-			} else { // desktop scrolling with jQuery
-				oHeadDomRef = this.getDomRef("head");
-				iScrollLeft = oHeadDomRef.scrollLeft;
-				iContainerWidth = $item.parent().width();
-				iNewScrollLeft = iScrollLeft;
 
-				// check if item is outside of viewport
-				if (iItemPosLeft < 0 || iItemPosLeft > iContainerWidth - iItemWidth) {
-					if (iItemPosLeft < 0) { // left side: make this the first item
-						iNewScrollLeft += iItemPosLeft;
-					} else { // right side: make this the last item
-						iNewScrollLeft += iItemPosLeft + iItemWidth - iContainerWidth;
-					}
-
-					// execute scrolling
-					this._scrollPreparation();
-					// store current scroll state to set it after rerendering
-					this._iCurrentScrollLeft = iNewScrollLeft;
-					jQuery(oHeadDomRef).stop(true, true).animate({scrollLeft: iNewScrollLeft}, iDuration, jQuery.proxy(this._adjustAndShowArrow, this));
-				}
+				// execute manual scrolling with scrollTo method (delayedCall 0 is needed for positioning glitch)
+				this._scrollPreparation();
+				// store current scroll state to set it after rerendering
+				this._iCurrentScrollLeft = iNewScrollLeft;
+				jQuery.sap.delayedCall(0, this._oScroller, "scrollTo", [iNewScrollLeft, 0, iDuration]);
+				jQuery.sap.delayedCall(iDuration, this, "_afterIscroll");
 			}
 		}
 

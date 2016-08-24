@@ -6,8 +6,8 @@
 
 // Provides class sap.ui.dt.plugin.ElementMover.
 sap.ui.define([
-	'sap/ui/base/ManagedObject', 'sap/ui/dt/ElementUtil', 'sap/ui/dt/OverlayUtil'
-], function(ManagedObject, ElementUtil, OverlayUtil) {
+	'sap/ui/base/ManagedObject', 'sap/ui/dt/ElementUtil', 'sap/ui/dt/OverlayUtil', 'sap/ui/dt/OverlayRegistry'
+], function(ManagedObject, ElementUtil, OverlayUtil, OverlayRegistry) {
 	"use strict";
 
 	/**
@@ -18,7 +18,7 @@ sap.ui.define([
 	 * @class The ElementMover enables movement of UI5 elements based on aggregation types, which can be used by drag and drop or cut and paste
 	 *        behavior.
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @private
 	 * @since 1.34
@@ -41,7 +41,9 @@ sap.ui.define([
 				}
 			},
 			associations: {},
-			events: {}
+			events: {
+				'elementMoved': {}
+			}
 		}
 	});
 
@@ -216,17 +218,56 @@ sap.ui.define([
 		}
 	};
 
+	ElementMover.prototype.buildMoveEvent = function() {
+
+		var oMovedOverlay = this.getMovedOverlay();
+		var oMovedElement = oMovedOverlay.getElementInstance();
+		var oSource = this._getSource();
+		var oTarget = OverlayUtil.getParentInformation(oMovedOverlay);
+
+		var aActions = [];
+		var oHookDescription = this._findAfterHook('afterMove', oSource, oTarget);
+		if (oHookDescription) {
+			var oParentElement = oHookDescription.parentOverlay.getElementInstance();
+			aActions = oHookDescription.afterHook.call(oParentElement, oMovedElement, oSource, oTarget);
+		} else {
+			aActions.push({
+					element: oMovedElement,
+					source: oSource,
+					target: oTarget
+				});
+		}
+
+		if (aActions && aActions.length > 0) {
+			ElementUtil.executeActions(aActions);
+		}
+
+		this.fireElementMoved({
+			data: aActions
+		});
+
+	};
+
 	/**
 	 * @private
 	 */
-	ElementMover.prototype.buildMoveEvent = function() {
-		var oMovedOverlay = this.getMovedOverlay();
-		var oMovedElement = oMovedOverlay.getElementInstance();
-		return {
-			element: oMovedElement,
-			source: this._getSource(),
-			target: OverlayUtil.getParentInformation(oMovedOverlay)
-		};
+	ElementMover.prototype._findAfterHook = function(sHookName, oSource, oTarget) {
+		try {
+			var oParentOverlay = OverlayRegistry.getOverlay(oSource.parent);
+			var oAggregationOverlay = oParentOverlay.getAggregationOverlay(oSource.aggregation);
+			var oAggregationDesignTimeMetadata = oAggregationOverlay.getDesignTimeMetadata();
+			var oData = oAggregationDesignTimeMetadata.getData();
+			var oAfterHook = oData[sHookName];
+			if (oAfterHook) {
+				return {
+					afterHook : oAfterHook,
+					parentOverlay : oParentOverlay
+				};
+			}
+		} catch (ex) {
+			// Intensionally left blank
+		}
+		return null;
 	};
 
 	return ElementMover;

@@ -14,7 +14,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', 'sap/ui/base/Managed
 	 * @class Static class for enabling declarative UI support.
 	 *
 	 * @author Peter Muessig, Tino Butz
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @since 1.7.0
 	 * @public
 	 * @alias sap.ui.core.DeclarativeSupport

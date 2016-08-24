@@ -396,8 +396,8 @@ sap.ui.define([
 		 * @returns {sap.ui.core.mvc.View} view
 		 * @protected
 		 */
-		BlockBase.prototype.createView = function (mParameter) {
-			return sap.ui.xmlview(mParameter);
+		BlockBase.prototype.createView = function (mParameter, sMode) {
+			return sap.ui.xmlview(this.getId() + "-" + sMode, mParameter);
 		};
 
 		/**
@@ -447,7 +447,7 @@ sap.ui.define([
 
 			//check if the new view is not the current one (we may want to have the same view for several modes)
 			if (!oView || mParameter.viewName != oView.getViewName()) {
-				oView = this.createView(mParameter);
+				oView = this.createView(mParameter, sMode);
 
 				//link to the controller defined in the Block
 				if (oView) {
@@ -685,6 +685,15 @@ sap.ui.define([
 
 				this.invalidate();
 			}
+		};
+
+		BlockBase.prototype._allowPropagationToLoadedViews = function (bAllow) {
+
+			if (!this._bConnected) {
+				return; /* only loaded views should be affected */
+			}
+
+			this.mSkipPropagation._views = !bAllow; /* skip if now allowed */
 		};
 
 		/**

@@ -18,7 +18,7 @@ sap.ui.define([
 	 * @class The ContextMenu registers event handler to open the context menu. Menu entries can dynamically be added
 	 * @extends sap.ui.core.ManagedObject
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @private
 	 * @since 1.34
@@ -123,7 +123,9 @@ sap.ui.define([
 		var sId = oEvent.getParameter("item").data("id");
 		this._aMenuItems.some(function(oItem) {
 			if (sId === oItem.id) {
-				oItem.handler(that._oElement);
+				var oDesignTime = that.getDesignTime();
+				var aSelection = oDesignTime.getSelection();
+				oItem.handler(aSelection);
 				return true;
 			}
 		});

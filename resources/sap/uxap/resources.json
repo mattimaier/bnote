@@ -286,6 +286,7 @@
         "sap/ui/core/Control.js",
         "sap/ui/core/IconPool.js",
         "sap/ui/core/CustomData.js",
+        "sap/ui/core/Icon.js",
         "sap/ui/Device.js",
         "sap/m/Breadcrumbs.js",
         "sap/uxap/ObjectPageHeaderActionButton.js",
@@ -294,7 +295,6 @@
         "sap/m/Button.js",
         "sap/m/ActionSheet.js",
         "sap/m/Image.js",
-        "sap/ui/core/Icon.js",
         "sap/uxap/library.js"
       ]
     },
@@ -309,6 +309,7 @@
         "sap/ui/core/Control.js",
         "sap/ui/core/IconPool.js",
         "sap/ui/core/CustomData.js",
+        "sap/ui/core/Icon.js",
         "sap/ui/Device.js",
         "sap/m/Breadcrumbs.js",
         "sap/uxap/ObjectPageHeaderActionButton.js",
@@ -317,7 +318,6 @@
         "sap/m/Button.js",
         "sap/m/ActionSheet.js",
         "sap/m/Image.js",
-        "sap/ui/core/Icon.js",
         "sap/uxap/library.js"
       ]
     },
@@ -388,7 +388,8 @@
       "isDebug": true,
       "required": [
         "sap/uxap/ObjectPageHeaderRenderer.js",
-        "sap/uxap/ObjectPageLayout.js"
+        "sap/uxap/ObjectPageLayout.js",
+        "sap/ui/core/Icon.js"
       ]
     },
     {
@@ -396,7 +397,8 @@
       "module": "sap/uxap/ObjectPageHeaderContentRenderer.js",
       "required": [
         "sap/uxap/ObjectPageHeaderRenderer.js",
-        "sap/uxap/ObjectPageLayout.js"
+        "sap/uxap/ObjectPageLayout.js",
+        "sap/ui/core/Icon.js"
       ]
     },
     {
@@ -433,14 +435,16 @@
       "module": "sap/uxap/ObjectPageHeaderRenderer.js",
       "isDebug": true,
       "required": [
-        "sap/uxap/ObjectPageLayout.js"
+        "sap/uxap/ObjectPageLayout.js",
+        "sap/ui/core/Icon.js"
       ]
     },
     {
       "name": "ObjectPageHeaderRenderer.js",
       "module": "sap/uxap/ObjectPageHeaderRenderer.js",
       "required": [
-        "sap/uxap/ObjectPageLayout.js"
+        "sap/uxap/ObjectPageLayout.js",
+        "sap/ui/core/Icon.js"
       ]
     },
     {
@@ -535,6 +539,29 @@
       ]
     },
     {
+      "name": "ObjectPageLazyLoader-dbg.js",
+      "module": "sap/uxap/ObjectPageLazyLoader.js",
+      "isDebug": true,
+      "required": [
+        "sap/uxap/library.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/core/StashedControlSupport.js"
+      ]
+    },
+    {
+      "name": "ObjectPageLazyLoader.control",
+      "designtime": true
+    },
+    {
+      "name": "ObjectPageLazyLoader.js",
+      "module": "sap/uxap/ObjectPageLazyLoader.js",
+      "required": [
+        "sap/uxap/library.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/core/StashedControlSupport.js"
+      ]
+    },
+    {
       "name": "ObjectPageSection-dbg.js",
       "module": "sap/uxap/ObjectPageSection.js",
       "isDebug": true,
@@ -544,6 +571,7 @@
         "sap/uxap/ObjectPageSectionBase.js",
         "sap/ui/Device.js",
         "sap/m/Button.js",
+        "sap/ui/core/StashedControlSupport.js",
         "sap/uxap/library.js"
       ]
     },
@@ -560,6 +588,7 @@
         "sap/uxap/ObjectPageSectionBase.js",
         "sap/ui/Device.js",
         "sap/m/Button.js",
+        "sap/ui/core/StashedControlSupport.js",
         "sap/uxap/library.js"
       ]
     },
@@ -609,6 +638,8 @@
         "sap/ui/layout/GridData.js",
         "sap/m/Button.js",
         "sap/ui/Device.js",
+        "sap/uxap/ObjectPageLazyLoader.js",
+        "sap/ui/core/StashedControlSupport.js",
         "sap/uxap/library.js"
       ]
     },
@@ -629,6 +660,8 @@
         "sap/ui/layout/GridData.js",
         "sap/m/Button.js",
         "sap/ui/Device.js",
+        "sap/uxap/ObjectPageLazyLoader.js",
+        "sap/ui/core/StashedControlSupport.js",
         "sap/uxap/library.js"
       ]
     },
@@ -999,6 +1032,13 @@
         "sap/m/library.js",
         "sap/ui/layout/library.js"
       ]
+    },
+    {
+      "name": "library-preload.js",
+      "merged": true
+    },
+    {
+      "name": "library-preload.js.map"
     },
     {
       "name": "library-preload.json",

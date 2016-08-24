@@ -27,7 +27,7 @@ sap.ui.define([
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -1614,6 +1614,7 @@ sap.ui.define([
 		if (iPreviousPageCount === 0 && /* get the NEW pages count */ this.getPages().length === 1 && this.getDomRef()) { // the added page is the first and only page and has been newly added
 			this._ensurePageStackInitialized();
 			this.rerender();
+			this._fireAdaptableContentChange(oPage);
 		}
 
 		return this;
@@ -1630,11 +1631,28 @@ sap.ui.define([
 		if (iPreviousPageCount === 0 && this.getPages().length === 1 && this.getDomRef()) { // the added page is the first and only page and has been newly added
 			this._ensurePageStackInitialized();
 			this.rerender();
+			this._fireAdaptableContentChange(oPage);
 		}
 
 		return this;
 	};
 
+
+	/**
+	 * Fiori 2.0 Adaptation
+	 */
+	NavContainer.prototype._getAdaptableContent = function() {
+		return this.getCurrentPage();
+	};
+
+	NavContainer.prototype._fireAdaptableContentChange = function(oPage) {
+		if (oPage && this.mEventRegistry["_adaptableContentChange"] ) { //workaround for accessing the first page displayed in the navContainer, since "navigate" event is not thrown for it
+			this.fireEvent("_adaptableContentChange", {
+				"parent": this,
+				"adaptableContent": oPage
+			});
+		}
+	};
 
 	// documentation of the pseudo events (beforeShow, afterShow, beforeHide etc.)
 

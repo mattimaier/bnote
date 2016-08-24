@@ -21,7 +21,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -122,7 +122,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 					expand: {type : "boolean"}
 				}
 			}
-		}
+		},
+		designtime : true
 	}});
 
 	Panel.prototype.init = function () {
@@ -158,6 +159,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		var oDomRef = this.getDomRef();
 		if (oDomRef) {
 			oDomRef.style.height = sHeight;
+			oDomRef.querySelector(".sapMPanelContent").style.height = sHeight;
 			this._setContentHeight();
 		}
 

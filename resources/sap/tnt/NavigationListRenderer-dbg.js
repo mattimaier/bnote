@@ -33,7 +33,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 			rm.writeControlData(control);
 
 			var width = control.getWidth();
-			if (width) {
+			if (width && expanded) {
 				rm.addStyle("width", width);
 			}
 			rm.writeStyles();

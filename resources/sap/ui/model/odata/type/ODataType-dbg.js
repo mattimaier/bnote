@@ -6,22 +6,24 @@
 
 /**
  * The types in this namespace are {@link sap.ui.model.SimpleType simple types} corresponding
- * to the
- * <a href="http://www.odata.org/documentation/odata-version-2-0/overview#AbstractTypeSystem">
- * OData primitive types</a>.
+ * to OData primitive types for both
+ * {@link http://www.odata.org/documentation/odata-version-2-0/overview#AbstractTypeSystem OData V2}
+ * and
+ * {@link http://docs.oasis-open.org/odata/odata/v4.0/odata-v4.0-part3-csdl.html OData V4} (see
+ * "4.4 Primitive Types").
  *
  * They can be used in any place where simple types are allowed (and the model representation
- * matches), but they are of course most valuable in bindings to an {@link
- * sap.ui.model.odata.v2.ODataModel ODataModel}.
+ * matches), but they are of course most valuable when used in bindings to a
+ * {@link sap.ui.model.odata.v2.ODataModel} or {@link sap.ui.model.odata.v4.ODataModel}.
  *
  * <b>Example:</b>
  * <pre>
  *   &lt;Label text="ID"/&gt;
- *   &lt;Input value="{path: 'id', type: 'sap.ui.model.odata.type.String',
- *       constraints: {nullable: false, maxLength: 10}}"/&gt;
+ *   &lt;Input value="{path : 'id', type : 'sap.ui.model.odata.type.String',
+ *       constraints : {nullable : false, maxLength : 10}}"/&gt;
  *   &lt;Label text="valid through"/&gt;
- *   &lt;Input value="{path: 'validThrough', type: 'sap.ui.model.odata.type.DateTime',
- *       constraints: {displayFormat: 'Date'}}"/&gt;
+ *   &lt;Input value="{path : 'validThrough', type : 'sap.ui.model.odata.type.DateTime',
+ *       constraints : {displayFormat : 'Date'}}"/&gt;
  * </pre>
  *
  * All types support formatting from the representation used in ODataModel ("model format") to
@@ -44,9 +46,9 @@
  * supported by <code>format</code>, not by <code>parse</code>. Supported by all types.</td></tr>
  * </table>
  *
- * All constraints may be given as strings besides their natural types (e.g.
- * <code>nullable: "false"</code> or <code>maxLength: "10"</code>). This makes the life of
- * template processors easier.
+ * All constraints relevant for OData V2 may be given as strings besides their natural types (e.g.
+ * <code>nullable : "false"</code> or <code>maxLength : "10"</code>). This makes the life of
+ * template processors easier, but is not needed for OData V4.
  *
  * <b>Handling of <code>null</code></b>:
  *
@@ -74,9 +76,11 @@ sap.ui.define(['sap/ui/model/SimpleType'],
 	/**
 	 * Constructor for a new <code>ODataType</code>.
 	 *
-	 * @class This class is an abstract base class for all OData primitive types (see <a
-	 * href="http://www.odata.org/documentation/odata-version-2-0/overview#AbstractTypeSystem">
-	 * Edm Types</a>). All sub-types implement the interface of
+	 * @class This class is an abstract base class for all OData primitive types (see {@link
+	 * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_The_edm:Documentation_Element
+	 * OData V4 Edm Types} and
+	 * {@link http://www.odata.org/documentation/odata-version-2-0/overview#AbstractTypeSystem
+	 * OData V2 Edm Types}). All subtypes implement the interface of
 	 * {@link sap.ui.model.SimpleType}. That means they implement next to the constructor:
 	 * <ul>
 	 * <li>{@link sap.ui.model.SimpleType#getName getName}</li>
@@ -97,13 +101,13 @@ sap.ui.define(['sap/ui/model/SimpleType'],
 	 * @extends sap.ui.model.SimpleType
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @alias sap.ui.model.odata.type.ODataType
 	 * @param {object} [oFormatOptions]
-	 *   type-specific format options; see sub-types
+	 *   type-specific format options; see subtypes
 	 * @param {object} [oConstraints]
-	 *   type-specific constraints (e.g. <code>oConstraints.nullable</code>), see sub-types
+	 *   type-specific constraints (e.g. <code>oConstraints.nullable</code>), see subtypes
 	 * @public
 	 * @since 1.27.0
 	 */

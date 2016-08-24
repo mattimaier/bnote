@@ -25,7 +25,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 		 * @implements sap.ui.core.PopupInterface
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -204,7 +204,12 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 					/**
 					 * Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).
 					 */
-					ariaDescribedBy: {type: "sap.ui.core.Control", multiple: true, singularName: "ariaDescribedBy"}
+					ariaDescribedBy: {type: "sap.ui.core.Control", multiple: true, singularName: "ariaDescribedBy"},
+
+					/**
+					 * Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).
+					 */
+					ariaLabelledBy : {type : "sap.ui.core.Control", multiple : true, singularName : "ariaLabelledBy"}
 				},
 				events: {
 
@@ -277,6 +282,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 
 			this.oPopup = new Popup();
 			this.oPopup.setShadow(true);
+			this.oPopup.setNavigationMode("SCOPE");
 			if (jQuery.device.is.iphone && !this._bMessageType) {
 				this.oPopup.setModal(true, "sapMDialogTransparentBlk");
 			} else {
@@ -622,7 +628,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 
 			$this.css(oStyles);
 
-			if (!bStretch && !this._oManuallySetSize) {
+			if (!bStretch && !this._oManuallySetSize && !this._bDisableRepositioning) {
 				this._applyCustomTranslate();
 			}
 
@@ -672,7 +678,10 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 		 */
 		Dialog.prototype._onResize = function () {
 			var $dialog = this.$(),
-				$dialogContent = this.$('cont');
+				$dialogContent = this.$('cont'),
+				iDialogHeight,
+				iDialogTopBorderHeight,
+				iDialogBottomBorderHeight;
 
 			//if height is set by manually resizing return;
 			if (this._oManuallySetSize) {
@@ -686,14 +695,15 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 				});
 
 				//set the newly calculated size by getting it from the browser rendered layout - by the max-height
-				$dialogContent.height(parseInt($dialog.height(), 10));
+				iDialogHeight = parseFloat($dialog.height());
+				iDialogTopBorderHeight = parseFloat($dialog.css("border-top-width"));
+				iDialogBottomBorderHeight = parseFloat($dialog.css("border-bottom-width"));
+				$dialogContent.height(Math.round( iDialogHeight + iDialogTopBorderHeight + iDialogBottomBorderHeight));
 			}
 
-			if (this.getStretch() || this._bDisableRepositioning) {
-				return;
+			if (!this.getStretch() && !this._oManuallySetSize && !this._bDisableRepositioning) {
+				this._applyCustomTranslate();
 			}
-
-			this._applyCustomTranslate();
 		};
 
 		/**
@@ -707,7 +717,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 				iDialogWidth = $dialog.innerWidth(),
 				iDialogHeight = $dialog.innerHeight();
 
-			if (iDialogWidth % 2 !== 0 || iDialogHeight % 2 !== 0) {
+			if (sap.ui.Device.system.desktop && (iDialogWidth % 2 !== 0 || iDialogHeight % 2 !== 0)) {
 				if (!this._bRTL) {
 					sTranslateX = '-' + Math.floor(iDialogWidth / 2) + "px";
 				} else {
@@ -1225,6 +1235,24 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 			return originalResponse;
 		};
 
+		Dialog.prototype.getAriaLabelledBy = function() {
+			var header = this._getAnyHeader(),
+				// Due to a bug in getAssociation in ManagedObject slice the Array
+				// Remove slice when the bug is fixed.
+				labels = this.getAssociation("ariaLabelledBy", []).slice();
+
+			var subHeader = this.getSubHeader();
+			if (subHeader) {
+				labels.unshift(subHeader.getId());
+			}
+
+			if (header) {
+				labels.unshift(header.getId());
+			}
+
+			return labels;
+		};
+
 		Dialog.prototype.setTitle = function (sTitle) {
 			this.setProperty("title", sTitle, true);
 
@@ -1475,7 +1503,8 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 					//set the new position of the dialog on mouse down when the transform is disabled by the class
 					that._$dialog.css({
 						left: Math.min(Math.max(0, that._oManuallySetPosition.x), windowWidth - DIALOG_MIN_VISIBLE_SIZE),
-						top: Math.min(Math.max(0, that._oManuallySetPosition.y), windowHeight - DIALOG_MIN_VISIBLE_SIZE)
+						top: Math.min(Math.max(0, that._oManuallySetPosition.y), windowHeight - DIALOG_MIN_VISIBLE_SIZE),
+						transform: ""
 					});
 				}
 
@@ -1492,7 +1521,8 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 							//move the dialog
 							that._$dialog.css({
 								left: Math.min(Math.max(0, that._oManuallySetPosition.x), windowWidth - DIALOG_MIN_VISIBLE_SIZE),
-								top: Math.min(Math.max(0, that._oManuallySetPosition.y), windowHeight - DIALOG_MIN_VISIBLE_SIZE)
+								top: Math.min(Math.max(0, that._oManuallySetPosition.y), windowHeight - DIALOG_MIN_VISIBLE_SIZE),
+								transform: ""
 							});
 						});
 					});
@@ -1503,6 +1533,9 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 					var styles = {};
 					var minWidth = parseInt(that._$dialog.css('min-width'), 10);
 					var maxLeftOffset = initial.x + initial.width - minWidth;
+
+					// BCP: 1680048166 remove inline set height so that the content resizes together with the mouse pointer
+					that.$('cont').height('');
 
 					$w.on("mousemove.sapMDialog", function (e) {
 						fnMouseMoveHandler(function () {
@@ -1515,7 +1548,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './InstanceManager', './Associative
 
 							if (that._bRTL) {
 								styles.left = Math.min(Math.max(e.pageX, 0), maxLeftOffset);
-								styles.transform = "initial";
+								styles.transform = "";
 								that._oManuallySetSize.width = initial.width + initial.x - Math.max(e.pageX, 0);
 							}
 

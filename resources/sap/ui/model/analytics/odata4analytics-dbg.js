@@ -971,8 +971,9 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 
 			this._aDimensionNames = [];
 
-			for ( var sName in this._oDimensionSet)
+			for ( var sName in this._oDimensionSet) {
 				this._aDimensionNames.push(this._oDimensionSet[sName].getName());
+			}
 
 			return this._aDimensionNames;
 		},
@@ -1008,8 +1009,9 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 
 			this._aMeasureNames = [];
 
-			for ( var sName in this._oMeasureSet)
+			for ( var sName in this._oMeasureSet) {
 				this._aMeasureNames.push(this._oMeasureSet[sName].getName());
+			}
 
 			return this._aMeasureNames;
 		},
@@ -1297,8 +1299,9 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 
 			this._aParameterNames = [];
 
-			for ( var sName in this._oParameterSet)
+			for ( var sName in this._oParameterSet) {
 				this._aParameterNames.push(this._oParameterSet[sName].getName());
+			}
 
 			return this._aParameterNames;
 		},
@@ -1804,8 +1807,9 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 
 			this._aAttributeNames = [];
 
-			for ( var sName in this._oAttributeSet)
+			for ( var sName in this._oAttributeSet) {
 				this._aAttributeNames.push(this._oAttributeSet[sName].getName());
+			}
 
 			return this._aAttributeNames;
 		},
@@ -2779,8 +2783,9 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 
 			this._aHierarchyPropertyNames = [];
 
-			for ( var sName in this._oRecursiveHierarchySet)
+			for ( var sName in this._oRecursiveHierarchySet) {
 				this._aHierarchyPropertyNames.push(this._oRecursiveHierarchySet[sName].getNodeValueProperty().name);
+			}
 
 			return this._aHierarchyPropertyNames;
 		},

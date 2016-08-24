@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -93,7 +93,15 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 			/**
 			 * Determines if a close button should be inserted into the dialog's header dynamically to close the dialog. This property only takes effect on phone.
 			 */
-			showCloseButton : {type : "boolean", group : "Misc", defaultValue : true}
+			showCloseButton : {type : "boolean", group : "Misc", defaultValue : true},
+
+			/**
+			 * Whether resize option is enabled.
+			 * @experimental since 1.36.4 Do not use directly on ResponsivePopover while in experimental mode!
+			 * @since 1.36.4
+			 * @private
+			 */
+			resizable: {type: "boolean", group: "Dimension", defaultValue: false}
 		},
 		aggregations : {
 
@@ -240,6 +248,7 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 		this._bAppendedToUIArea = false;
 
 		var settings = {
+			resizable: that.getResizable(),
 			beforeOpen: function(oEvent){
 				that.fireBeforeOpen({openBy: oEvent.getParameter('openBy')});
 			},
@@ -585,7 +594,7 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 			return this[sPrivateName];
 		} else {
 			var sGetterName = "get" + this._firstLetterUpperCase(sPos) + "Button";
-			return this._oControl[sGetterName]();
+			return this[sGetterName]();
 		}
 	};
 
@@ -676,7 +685,7 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 
 	// forward the other necessary methods to the inner instance, but do not check the existence of generated methods like (addItem)
 	["invalidate", "close", "isOpen", "addStyleClass", "removeStyleClass", "toggleStyleClass", "hasStyleClass",
-		"setBindingContext", "getBindingContext", "getBinding", "getBindingInfo", "getBindingPath", "getDomRef", "setBusy", "getBusy", "setBusyIndicatorDelay", "getBusyIndicatorDelay"].forEach(function(sName){
+		"getDomRef", "setBusy", "getBusy", "setBusyIndicatorDelay", "getBusyIndicatorDelay"].forEach(function(sName){
 			ResponsivePopover.prototype[sName] = function() {
 				if (this._oControl && this._oControl[sName]) {
 					var res = this._oControl[sName].apply(this._oControl ,arguments);

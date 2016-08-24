@@ -13,8 +13,6 @@ sap.ui.define([
 ], function(jQuery, BindingParser, Basics, Expression) {
 		'use strict';
 
-		var AnnotationHelper;
-
 		/**
 		 * Returns a function representing the composition <code>fnAfter</code> after
 		 * <code>fnBefore</code>.
@@ -41,11 +39,12 @@ sap.ui.define([
 		 * @classdesc
 		 * A collection of methods which help to consume
 		 * <a href="http://docs.oasis-open.org/odata/odata/v4.0/odata-v4.0-part3-csdl.html">
-		 * OData v4 annotations</a> in XML template views.
+		 * OData V4 annotations</a> in XML template views. Every context argument must belong to a
+		 * <code>sap.ui.model.odata.ODataMetaModel</code> instance.
 		 *
 		 * Formatter functions like {@link #.format format} and {@link #.simplePath simplePath} can
-		 * be used in complex bindings to turn OData v4 annotations into texts or data bindings,
-		 * e.g. <code>&lt;sfi:SmartField value="{path: 'meta>Value', formatter:
+		 * be used in complex bindings to turn OData V4 annotations into texts or data bindings,
+		 * e.g. <code>&lt;sfi:SmartField value="{path : 'meta>Value', formatter :
 		 * 'sap.ui.model.odata.AnnotationHelper.simplePath'}"/></code>.
 		 *
 		 * Helper functions like {@link #.resolvePath resolvePath} can be used by template
@@ -56,9 +55,10 @@ sap.ui.define([
 		 *
 		 * @public
 		 * @since 1.27.0
-		 * @namespace sap.ui.model.odata.AnnotationHelper
+		 * @namespace
+		 * @alias sap.ui.model.odata.AnnotationHelper
 		 */
-		AnnotationHelper = /** @lends sap.ui.model.odata.AnnotationHelper */ {
+		var AnnotationHelper = {
 			/**
 			 * Creates a property setting (which is either a constant value or a binding info
 			 * object) from the given parts and from the optional root formatter function.
@@ -103,7 +103,7 @@ sap.ui.define([
 			 *
 			 * vPropertySetting =  sap.ui.model.odata.AnnotationHelper.createPropertySetting([
 			 *     sap.ui.model.odata.AnnotationHelper.format(oValueContext),
-			 *     "{path: 'meta>Value', formatter: 'sap.ui.model.odata.AnnotationHelper.simplePath'}",
+			 *     "{path : 'meta>Value', formatter : 'sap.ui.model.odata.AnnotationHelper.simplePath'}",
 			 *     "{:= 'Mr. ' + ${/FirstName} + ' ' + ${/LastName}}",
 			 *     "hello, world!",
 			 *     42
@@ -196,7 +196,7 @@ sap.ui.define([
 
 			/**
 			 * A formatter function to be used in a complex binding inside an XML template view
-			 * in order to interpret OData v4 annotations. It knows about
+			 * in order to interpret OData V4 annotations. It knows about
 			 * <ul>
 			 *   <li> the "14.4 Constant Expressions" for "edm:Bool", "edm:Date",
 			 *   "edm:DateTimeOffset", "edm:Decimal", "edm:Float", "edm:Guid", "edm:Int",
@@ -206,7 +206,7 @@ sap.ui.define([
 			 *   "{/##/dataServices/schema/0/entityType/1/com.sap.vocabularies.UI.v1.FieldGroup#Dimensions/Data/0/Label/String}"
 			 *   </code>). Data binding expressions are used in case XML template processing has
 			 *   been started with the setting <code>bindTexts : true</code>. The purpose is to
-			 *   reference translatable texts from OData v4 annotations, especially for XML
+			 *   reference translatable texts from OData V4 annotations, especially for XML
 			 *   template processing at design time. Since 1.31.0, string constants that contain a
 			 *   simple binding <code>"{@i18n>...}"</code> to the hard-coded model name "@i18n"
 			 *   with arbitrary path are not turned into a fixed text, but kept as a data binding
@@ -282,7 +282,7 @@ sap.ui.define([
 
 			/**
 			 * A formatter function to be used in a complex binding inside an XML template view
-			 * in order to interpret OData v4 annotations. It knows about the following dynamic
+			 * in order to interpret OData V4 annotations. It knows about the following dynamic
 			 * expressions:
 			 * <ul>
 			 * <li>"14.5.2 Expression edm:AnnotationPath"</li>
@@ -436,7 +436,7 @@ sap.ui.define([
 
 			/**
 			 * A formatter function to be used in a complex binding inside an XML template view
-			 * in order to interpret OData v4 annotations. It knows about the following dynamic
+			 * in order to interpret OData V4 annotations. It knows about the following dynamic
 			 * expressions:
 			 * <ul>
 			 * <li>"14.5.2 Expression edm:AnnotationPath"</li>
@@ -530,7 +530,7 @@ sap.ui.define([
 
 			/**
 			 * Formatter function that is used in a complex binding inside an XML template view.
-			 * The function is used to interpret OData v4 annotations, supporting the same
+			 * The function is used to interpret OData V4 annotations, supporting the same
 			 * annotations as {@link #.format format} but with a simplified output aimed at
 			 * design-time templating with smart controls.
 			 *

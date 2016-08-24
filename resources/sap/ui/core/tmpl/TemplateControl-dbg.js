@@ -5,8 +5,8 @@
  */
 
 // Provides control sap.ui.core.tmpl.TemplateControl.
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/UIArea', 'sap/ui/core/DeclarativeSupport', 'sap/ui/core/library', './DOMElement'],
-	function(jQuery, Control, UIArea, DeclarativeSupport, library, DOMElement) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/DeclarativeSupport', 'sap/ui/core/library', 'sap/ui/core/UIArea', './DOMElement', './Template'],
+	function(jQuery, Control, DeclarativeSupport, library, UIArea, DOMElement, Template) {
 	"use strict";
 
 
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/UIArea',
 	 * @class
 	 * This is the base class for all template controls. Template controls are declared based on templates.
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -236,7 +236,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/UIArea',
 	TemplateControl.prototype.bind = function(sPath, sType) {
 
 		// parse the path and create the binding
-		var oPathInfo = sap.ui.core.tmpl.Template.parsePath(sPath),
+		var oPathInfo = Template.parsePath(sPath),
 			oModel = this.getModel(oPathInfo.model),
 			sPath = oPathInfo.path,
 			sModelFunc = sType ? "bind" + jQuery.sap.charToUpperCase(sType) : "bindProperty",

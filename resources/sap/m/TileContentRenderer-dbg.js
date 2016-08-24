@@ -28,7 +28,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 		oRm.writeControlData(oControl);
 		oRm.addClass("sapMTileCnt");
 		oRm.addClass(oControl._getContentType());
-		oRm.addClass(oControl.getSize());
 		oRm.addClass("ft-" + oControl.getFrameType());
 		if (sTooltip.trim()) { // trim check needed since IE11 renders white spaces
 			oRm.writeAttributeEscaped("title", sTooltip);
@@ -53,7 +52,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 		if (oCnt) {
 			oRm.write("<div");
 			oRm.addClass("sapMTileCntContent");
-			oRm.addClass(oControl.getSize());
 			oRm.writeClasses();
 			oRm.writeAttribute("id", oControl.getId() + "-content");
 			oRm.write(">");
@@ -74,12 +72,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 	 */
 
 	TileContentRenderer._renderFooter = function(oRm, oControl) {
+		if (!oControl._bRenderFooter) {
+			return;
+		}
 		var sTooltip = oControl.getTooltip_AsString();
 		var sFooterTxt = oControl._getFooterText(oRm, oControl);
 		// footer text div
 		oRm.write("<div");
 		oRm.addClass("sapMTileCntFtrTxt");
-		oRm.addClass(oControl.getSize());
 		oRm.writeClasses();
 		oRm.writeAttribute("id", oControl.getId() + "-footer-text");
 		if (sTooltip.trim()) { // check for white space(s) needed since the IE11 renders it

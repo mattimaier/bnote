@@ -180,7 +180,22 @@ sap.ui.define([
 				/**
 				 * The event is fired when the Edit Header button is pressed
 				 */
-				editHeaderButtonPress: {}
+				editHeaderButtonPress: {},
+
+				/**
+				 * The event is fired when the selected tab changes.
+				 * <b>Note:</b> Event is fired only when IconTabBar is used for navigation.
+				 */
+				tabSelect: {
+					parameters: {
+
+						/**
+						 * The selected section object.
+						 */
+						section: {type: "sap.uxap.ObjectPageSection"}
+					}
+				}
+
 			},
 			designTime: true
 		}
@@ -432,6 +447,7 @@ sap.ui.define([
 		this._$headerContent = jQuery.sap.byId(this.getId() + "-headerContent");
 		this._$stickyHeaderContent = jQuery.sap.byId(this.getId() + "-stickyHeaderContent");
 		this._$contentContainer = jQuery.sap.byId(this.getId() + "-scroll");
+		this._bDomElementsCached = true;
 	};
 
 	/**
@@ -473,6 +489,12 @@ sap.ui.define([
 			this._$headerContent.css("height", "auto").append(this._$stickyHeaderContent.children());
 			this._$stickyHeaderContent.children().remove();
 			this._toggleStickyHeader(bExpand);
+		}
+	};
+
+	ObjectPageLayout.prototype._updateNavigation = function () {
+		if (this.getShowAnchorBar()) {
+			this._oABHelper._buildAnchorBar();
 		}
 	};
 
@@ -609,7 +631,7 @@ sap.ui.define([
 	 * @param oSection
 	 * @private
 	 */
-	ObjectPageLayout.prototype._setCurrentTabSection = function (oSection) {
+	ObjectPageLayout.prototype._setCurrentTabSection = function (oSection, bIsTabClicked) {
 		if (!oSection) {
 			return;
 		}
@@ -624,6 +646,9 @@ sap.ui.define([
 		}
 
 		if (this._oCurrentTabSection !== oSection) {
+			if (bIsTabClicked) {
+				this.fireTabSelect({section: oSection});
+			}
 			this._renderSection(oSection);
 			this._oCurrentTabSection = oSection;
 		}
@@ -641,13 +666,11 @@ sap.ui.define([
 			oRm;
 
 		if (oSection && $objectPageContainer.length) {
-
 			oRm = sap.ui.getCore().createRenderManager();
 			oRm.renderControl(oSection);
-			oRm.flush($objectPageContainer[0]);// place the section in the ObjectPageContainer
+			oRm.flush($objectPageContainer[0]); // place the section in the ObjectPageContainer
+			oRm.destroy();
 		}
-
-		oRm.destroy();
 	};
 
 	/*************************************************************************************
@@ -674,7 +697,6 @@ sap.ui.define([
 	};
 
 	ObjectPageLayout.prototype._adjustLayout = function (oEvent, bImmediate, bNeedLazyLoading) {
-
 		//adjust the layout only if the object page is full ready
 		if (!this._bDomReady) {
 			return;
@@ -738,7 +760,10 @@ sap.ui.define([
 		 in that case we have to select the first visible section instead */
 		oSelectedSection = this._oFirstVisibleSection;
 		if (oSelectedSection) {
-			this.scrollToSection(oSelectedSection.getId());
+			// fixes BCP:1680125278, new sections positionTop was not ready when calling scroll
+			jQuery.sap.delayedCall(0, this, function () {
+				this.scrollToSection(oSelectedSection.getId());
+			});
 		}
 	};
 
@@ -779,10 +804,10 @@ sap.ui.define([
 	 * @private
 	 */
 	ObjectPageLayout.prototype._cleanMemory = function () {
-
 		var oAnchorBar = this.getAggregation("_anchorBar");
+
 		if (oAnchorBar) {
-			oAnchorBar.destroyContent();
+			oAnchorBar._resetControl();
 		}
 
 		this._oSectionInfo = {};
@@ -818,18 +843,22 @@ sap.ui.define([
 	 * @public
 	 * @ui5-metamodel This method also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	ObjectPageLayout.prototype.scrollToSection = function (sId, iDuration, iOffset) {
-
+	ObjectPageLayout.prototype.scrollToSection = function (sId, iDuration, iOffset, bIsTabClicked) {
 		var oSection = sap.ui.getCore().byId(sId);
 
 		if (this.getUseIconTabBar()) {
-
-			this._setCurrentTabSection(oSection);
-
 			var oToSelect = oSection;
 			if (oToSelect instanceof sap.uxap.ObjectPageSubSection) {
 				oToSelect = oToSelect.getParent();
 			}
+
+			/* exclude the previously selected tab from propagation chain for performance reasons */
+			if (this._oCurrentTabSection) {
+				this._oCurrentTabSection._allowPropagationToLoadedViews(false);
+			}
+			oToSelect._allowPropagationToLoadedViews(true); /* include the newly selected tab back to the propagation chain */
+
+			this._setCurrentTabSection(oSection, bIsTabClicked);
 			this.getAggregation("_anchorBar").setSelectedButton(this._oSectionInfo[oToSelect.getId()].buttonId);
 		}
 
@@ -853,13 +882,17 @@ sap.ui.define([
 
 			if (this._iCurrentScrollTimeout) {
 				clearTimeout(this._iCurrentScrollTimeout);
-				this._$contentContainer.parent().stop(true, false);
+				if (this._$contentContainer){
+					this._$contentContainer.parent().stop(true, false);
+				}
 			}
 
-			this._iCurrentScrollTimeout = jQuery.sap.delayedCall(iDuration, this, function () {
-				this._sCurrentScrollId = undefined;
-				this._iCurrentScrollTimeout = undefined;
-			});
+			if (this._bDomElementsCached) {
+				this._iCurrentScrollTimeout = jQuery.sap.delayedCall(iDuration, this, function () {
+					this._sCurrentScrollId = undefined;
+					this._iCurrentScrollTimeout = undefined;
+				});
+			}
 
 			this._preloadSectionsOnScroll(oSection);
 
@@ -1017,7 +1050,7 @@ sap.ui.define([
 			//performance improvements possible here as .position() is costly
 			oInfo.realTop = $this.position().top; //first get the dom position = scrollTop to get the section at the window top
 			var bHasTitle = (oSectionBase._getInternalTitleVisible() && (oSectionBase.getTitle().trim() !== ""));
-			var bHasButtons = !oInfo.isSection && oSectionBase.getAggregation("actions").length > 0;
+			var bHasButtons = !oInfo.isSection && oSectionBase.getAggregation("actions", []).length > 0;
 			if (!oInfo.isSection && !bHasTitle && !bHasButtons) {
 				oInfo.realTop = $this.find(".sapUiResponsiveMargin.sapUxAPBlockContainer").position().top;
 			}
@@ -1097,13 +1130,13 @@ sap.ui.define([
 					//therefore we need to create enough space below the last subsection to get it displayed on top = the spacer
 					//the "top" is just below the sticky header + anchorBar, therefore we just need enough space to get the last subsection below these elements
 
+					iSpacerHeight = this.iScreenHeight - iLastVisibleHeight - this.iAnchorBarHeight - this.iHeaderTitleHeight;
+
 					//the latest position is below the last subsection title in case of a mobile scroll to the last subsection
 					if (this.iHeaderContentHeight || this._bHContentAlwaysExpanded) {
 						// Not always when we scroll the HeaderTitle is in Sticky position so instead of taking out its StickyHeight we have to take out its height and the HeaderGap,
 						// which will be zero when the HeaderTitle is in normal mode
-						iSpacerHeight = this.iScreenHeight - iLastVisibleHeight - this.iHeaderTitleHeight - iHeaderGap - this.iAnchorBarHeight;
-					} else {
-						iSpacerHeight = this.iScreenHeight - iLastVisibleHeight - this.iAnchorBarHeight;
+						iSpacerHeight -= iHeaderGap;
 					}
 
 					//take into account that we may need to scroll down to the positionMobile, thus we need to make sure we have enough space at the bottom
@@ -1125,7 +1158,8 @@ sap.ui.define([
 	 * The main reason for spacer to exist is to have enogth space for scrolling to the last section.
 	 */
 	ObjectPageLayout.prototype._isSpacerRequired = function (oLastVisibleSubSection, iLastVisibleHeight) {
-		var oSelectedSection = this.getAggregation("_anchorBar").getSelectedSection(),
+		var oAnchorBar = this.getAggregation("_anchorBar"),
+			oSelectedSection = oAnchorBar && oAnchorBar.getSelectedSection(),
 			bIconTabBarWithOneSectionAndOneSubsection = this.getUseIconTabBar() && oSelectedSection
 				&& oSelectedSection.getSubSections().length === 1,
 			bOneSectionOneSubsection = this.getSections().length === 1 && this.getSections()[0].getSubSections().length === 1;
@@ -1700,6 +1734,7 @@ sap.ui.define([
 
 		var oRm = sap.ui.getCore().createRenderManager();
 		this.getRenderer()._rerenderHeaderContentArea(oRm, this);
+		this._getHeaderContent().invalidate();
 		oRm.destroy();
 	};
 
@@ -1809,11 +1844,39 @@ sap.ui.define([
 	ObjectPageLayout.prototype._storeScrollLocation = function () {
 		this._iStoredScrollPosition = this._oScroller.getScrollTop();
 		this._oStoredSection = this._oCurrentTabSubSection || this._oCurrentTabSection;
+
+		if (this.getSections().indexOf(this._oStoredSection) === -1) {
+			this._oStoredSection = null;
+		}
+
 		this._oCurrentTabSection = null;
 	};
 
 	ObjectPageLayout.HEADER_CALC_DELAY = 350;   //ms. The higher the safer and the uglier...
 	ObjectPageLayout.DOM_CALC_DELAY = 200;      //ms.
+
+	ObjectPageLayout.prototype.onkeyup = function (oEvent) {
+		var oFocusedControlId,
+			oFocusedControl,
+			oFocusedControlPosition,
+			iHeaderHeight;
+
+		if (oEvent.which === jQuery.sap.KeyCodes.TAB) {
+			oFocusedControlId = sap.ui.getCore().getCurrentFocusedControlId();
+			oFocusedControl = oFocusedControlId && sap.ui.getCore().byId(oFocusedControlId);
+
+			if (oFocusedControl && oFocusedControl.$().length) {
+				oFocusedControlPosition = oFocusedControl.$().position().top;
+				iHeaderHeight = this.iHeaderTitleHeight + this.iHeaderContentHeight + this.iAnchorBarHeight;
+
+				if (this._isFirstSection(oFocusedControl)) {
+					this._scrollTo(0, 0);
+				} else if (oFocusedControlPosition > iHeaderHeight) {
+					this._scrollTo(oFocusedControlPosition - this.iHeaderTitleHeight - this.iAnchorBarHeight, 0);
+				}
+			}
+		}
+	};
 
 	return ObjectPageLayout;
 

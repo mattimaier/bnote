@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @class
 	 * Tokenizer displays multiple tokens
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -301,6 +301,10 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * 	the complete tokens' width
 	 */
 	Tokenizer.prototype.getScrollWidth = function(){
+		if (!this.getDomRef()) {
+			return 0;
+		}
+
 		//if the last token is truncated, the scrollWidth will be incorrect
 		this._removeLastTokensTruncation();
 
@@ -504,6 +508,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 		this._deactivateScrollToEnd();
 
+		// mark the event that it is handled by the control
 		oEvent.setMarked();
 
 	};
@@ -556,6 +561,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 		this._deactivateScrollToEnd();
 
+		// mark the event that it is handled by the control
+		oEvent.setMarked();
 	};
 
 	/**
@@ -660,7 +667,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * Function returns a callback function which is used for executing validators after an asynchronous validator was triggered
 	 * @param {array} aValidators
 	 * 					the validators
-	 * @param {integer} iValidatorIndex
+	 * @param {int} iValidatorIndex
 	 * 						current validator index
 	 * @param {string} sInitialText
 	 * 					initial text used for validation

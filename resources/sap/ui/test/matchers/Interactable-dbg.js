@@ -12,22 +12,25 @@ sap.ui.define(['jquery.sap.global', './Matcher', './Visible'], function ($, Matc
 	 * @class
 	 * Interactable - check if a control is currently able to take user interactions.
 	 * OPA5 will automatically apply this matcher if you specify actions in {@link sap.ui.test.Opa5#waitFor}.
-	 * This matcher will match if none of the following conditions apply to the control:
+	 * A control will be filtered out by this matcher when:
 	 * <ul>
 	 *     <li>
-	 *         If the control is invisible (using the visible matcher)
+	 *         The control is invisible (using the visible matcher)
 	 *     </li>
 	 *     <li>
-	 *         If the control is hidden behind a dialog
+	 *         The control is hidden behind a dialog
 	 *     </li>
 	 *     <li>
-	 *         If the control is in a navigating nav container
+	 *         The control is in a navigating nav container
 	 *     </li>
 	 *     <li>
-	 *         If the control or its parents are busy
+	 *         The control or its parents are busy
 	 *     </li>
 	 *     <li>
-	 *         If the UIArea of the control needs new rendering
+	 *         The control or its parents are not enabled
+	 *     </li>
+	 *     <li>
+	 *         The UIArea of the control needs new rendering
 	 *     </li>
 	 * </ul>
 	 * @public
@@ -51,11 +54,21 @@ sap.ui.define(['jquery.sap.global', './Matcher', './Visible'], function ($, Matc
 				return false;
 			}
 
+			if (oControl.getEnabled && !oControl.getEnabled()) {
+				$.sap.log.debug("The control '" + oControl + "' is not enabled", this._sLogPrefix);
+				return false;
+			}
+
 			var oParent = oControl.getParent();
 			while (oParent) {
 				// Check busy of parents
 				if (oParent.getBusy && oParent.getBusy()) {
 					$.sap.log.debug("The control " + oControl + " has a parent that is busy " + oParent, this._sLogPrefix);
+					return false;
+				}
+
+				if (oParent.getEnabled && !oParent.getEnabled()) {
+					$.sap.log.debug("The control '" + oControl + "' has a parent '" + oParent + "' that is not enabled", this._sLogPrefix);
 					return false;
 				}
 
@@ -83,7 +96,7 @@ sap.ui.define(['jquery.sap.global', './Matcher', './Visible'], function ($, Matc
 					return false;
 				}
 
-				// When a Dialog was opened and is in the closing phase the blocklayer is gone already therefore ask the instance manager
+				// Whan a Dialog was opened and is in the closing phase the blocklayer is gone already therefore ask the instance manager
 				var oInstanceManager = $.sap.getObject("sap.m.InstanceManager");
 				if (oInstanceManager && oInstanceManager.getOpenDialogs().length) {
 					$.sap.log.debug("The control " + oControl + " is hidden behind an Open dialog", this._sLogPrefix);

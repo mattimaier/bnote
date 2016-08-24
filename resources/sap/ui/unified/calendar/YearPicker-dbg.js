@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 	 * renders a YearPicker with ItemNavigation
 	 * This is used inside the calendar. Not for stand alone usage
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -72,10 +72,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 			/**
 			 * Month selection changed
 			 */
-			select : {}
+			select : {},
 
+			/**
+			 * The <code>pageChange</code> event is fired if the displayed years are changed by user navigation.
+			 * @since 1.38.0
+			 */
+			pageChange : {}
 		}
 	}});
+
+	/* eslint-disable no-lonely-if */
 
 	YearPicker.prototype.init = function(){
 
@@ -220,13 +227,19 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 
 	};
 
+	YearPicker.prototype.onsapspace = function(oEvent) {
+		oEvent.preventDefault();
+	};
+
 	YearPicker.prototype.onsapselect = function(oEvent){
 
 		// focused item must be selected
 		var iIndex = this._oItemNavigation.getFocusedIndex();
 
-		_selectYear.call(this, iIndex);
-		this.fireSelect();
+		var bSelected = _selectYear.call(this, iIndex);
+		if (bSelected) {
+			this.fireSelect();
+		}
 
 	};
 
@@ -238,6 +251,59 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 			this._bMousedownChange = false;
 			this.fireSelect();
 		}
+
+	};
+
+	/**
+	 * return the first date of the first rendered year
+	 * <b>Note:</b> If the YearPicker is not rendered no date is returned
+	 *
+	 * @returns {object} JavaScript Date Object
+	 * @public
+	 * @ui5-metamodel This method also will be described in the UI5 (legacy) designtime metamodel
+	 * @since 1.38.0
+	 */
+	YearPicker.prototype.getFirstRenderedDate = function(){
+
+		var oFirstDate;
+
+		if (this.getDomRef()) {
+			var aDomRefs = this._oItemNavigation.getItemDomRefs();
+			oFirstDate =  this._oFormatYyyymmdd.parse(jQuery(aDomRefs[0]).attr("data-sap-year-start"), true);
+		}
+
+		return oFirstDate;
+
+	};
+
+	YearPicker.prototype._checkFirstDate = function(oDate){
+
+		// check if first date is outside of min and max date
+		var iYears = this.getYears();
+		var oMaxStartYear = this._newUniversalDate(this._oMaxDate);
+		oMaxStartYear.setUTCFullYear(oMaxStartYear.getUTCFullYear() - iYears + 1);
+		if (oDate.getTime() > oMaxStartYear.getTime() && oDate.getFullYear() != oMaxStartYear.getUTCFullYear()) {
+			oDate = this._newUniversalDate(oMaxStartYear);
+			oDate.setUTCMonth(0,1);
+		} else if (oDate.getTime() < this._oMinDate.getTime() && oDate.getFullYear() != this._oMinDate.getUTCFullYear()) {
+			oDate = this._newUniversalDate(this._oMinDate);
+			oDate.setUTCMonth(0,1);
+		}
+
+		return oDate;
+
+	};
+
+	YearPicker.prototype._checkDateEnabled = function(oDate){
+
+		var bEnabled = true;
+
+		if ((oDate.getTime() > this._oMaxDate.getTime() && oDate.getFullYear() != this._oMaxDate.getUTCFullYear()) ||
+				(oDate.getTime() < this._oMinDate.getTime() && oDate.getFullYear() != this._oMinDate.getUTCFullYear())) {
+			bEnabled = false;
+		}
+
+		return bEnabled;
 
 	};
 
@@ -319,8 +385,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 			return;
 		}
 
-		_selectYear.call(this, iIndex);
-		this._bMousedownChange = true;
+		var bSelected = _selectYear.call(this, iIndex);
+		if (bSelected) {
+			this._bMousedownChange = true;
+		}
 
 		oEvent.preventDefault(); // to prevent focus set outside of DatePicker
 		oEvent.setMark("cancelAutoClose");
@@ -343,10 +411,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 			case "sapnextmodifiers":
 				if (oEvent.keyCode == jQuery.sap.KeyCodes.ARROW_DOWN && iColumns < iYears) {
 					//same column in first row of next group (only if more than one row)
-					_updatePage.call(this, true, this._oItemNavigation.getFocusedIndex() - iYears + iColumns);
+					_updatePage.call(this, true, this._oItemNavigation.getFocusedIndex() - iYears + iColumns, true);
 				} else {
 					// first year in next group
-					_updatePage.call(this, true, 0);
+					_updatePage.call(this, true, 0, true);
 				}
 				break;
 
@@ -354,21 +422,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 			case "sappreviousmodifiers":
 				if (oEvent.keyCode == jQuery.sap.KeyCodes.ARROW_UP && iColumns < iYears) {
 					//same column in last row of previous group (only if more than one row)
-					_updatePage.call(this, false, iYears - iColumns + this._oItemNavigation.getFocusedIndex());
+					_updatePage.call(this, false, iYears - iColumns + this._oItemNavigation.getFocusedIndex(), true);
 				} else {
 					// last year in previous group
-					_updatePage.call(this, false, iYears - 1);
+					_updatePage.call(this, false, iYears - 1, true);
 				}
 				break;
 
 			case "sappagedown":
 				// same index in next group
-				_updatePage.call(this, true, this._oItemNavigation.getFocusedIndex());
+				_updatePage.call(this, true, this._oItemNavigation.getFocusedIndex(), true);
 				break;
 
 			case "sappageup":
 				// same index in previous group
-				_updatePage.call(this, false, this._oItemNavigation.getFocusedIndex());
+				_updatePage.call(this, false, this._oItemNavigation.getFocusedIndex(), true);
 				break;
 
 			default:
@@ -381,9 +449,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 	function _selectYear(iIndex){
 
 		var aDomRefs = this._oItemNavigation.getItemDomRefs();
-		var sYyyymmdd = jQuery(aDomRefs[iIndex]).attr("data-sap-year-start");
+		var $DomRef = jQuery(aDomRefs[iIndex]);
+
+		if ($DomRef.hasClass("sapUiCalItemDsbl")) {
+			return false; // don't select disabled items
+		}
+
+		var sYyyymmdd = $DomRef.attr("data-sap-year-start");
 		var oDate =  this._newUniversalDate(this._oFormatYyyymmdd.parse(sYyyymmdd, true));
-		var $DomRef;
 		var sId = this.getId() + "-y" + sYyyymmdd;
 		for ( var i = 0; i < aDomRefs.length; i++) {
 			$DomRef = jQuery(aDomRefs[i]);
@@ -400,39 +473,66 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 		this.setProperty("date", oLocalDate, true);
 		this.setProperty("year", oDate.getUTCFullYear(), true);
 
+		return true;
+
 	}
 
-	function _updatePage(bForward, iSelectedIndex){
+	function _updatePage(bForward, iSelectedIndex, bFireEvent){
 
 		var aDomRefs = this._oItemNavigation.getItemDomRefs();
 		var oFirstDate =  this._newUniversalDate(this._oFormatYyyymmdd.parse(jQuery(aDomRefs[0]).attr("data-sap-year-start"), true));
+		var iYears = this.getYears();
 
 		if (bForward) {
-			oFirstDate.setUTCFullYear(oFirstDate.getUTCFullYear() + this.getYears());
+			var oMaxDate = this._newUniversalDate(this._oMaxDate);
+			oMaxDate.setUTCFullYear(oMaxDate.getUTCFullYear() - iYears + 1);
+			if (oFirstDate.getTime() < oMaxDate.getTime()){
+				oFirstDate.setUTCFullYear(oFirstDate.getUTCFullYear() + iYears);
+				if (oFirstDate.getTime() > oMaxDate.getTime()){
+					iSelectedIndex = iSelectedIndex + (oFirstDate.getUTCFullYear() - oMaxDate.getUTCFullYear());
+					if (iSelectedIndex > iYears - 1) {
+						iSelectedIndex = iYears - 1;
+					}
+					oFirstDate = this._oMaxDate;
+					oFirstDate.setUTCMonth(0, 1);
+				}
+			} else {
+				return;
+			}
 		} else {
-			oFirstDate.setUTCFullYear(oFirstDate.getUTCFullYear() - this.getYears());
+			if (oFirstDate.getTime() > this._oMinDate.getTime()) {
+				oFirstDate.setUTCFullYear(oFirstDate.getUTCFullYear() - iYears);
+				if (oFirstDate.getTime() < this._oMinDate.getTime()) {
+					iSelectedIndex = iSelectedIndex - (this._oMinDate.getUTCFullYear() - oFirstDate.getUTCFullYear());
+					if (iSelectedIndex < 0) {
+						iSelectedIndex = 0;
+					}
+					oFirstDate = this._newUniversalDate(this._oMinDate);
+				}
+			} else {
+				return;
+			}
 		}
 
 		_updateYears.call(this, oFirstDate, iSelectedIndex);
+
+		if (bFireEvent) {
+			this.firePageChange();
+		}
 
 	}
 
 	function _updateYears(oFirstDate, iSelectedIndex){
 
 		var sCurrentYyyymmdd = this._oFormatYyyymmdd.format(this._getDate().getJSDate(), true);
-		var iYears = this.getYears();
-		var iFirstYear = oFirstDate.getUTCFullYear();
-		var iMinYear = this._oMinDate.getUTCFullYear();
-		var iMaxYear = this._oMaxDate.getUTCFullYear();
-
-		if (iFirstYear >= iMaxYear - iYears) {
-			iSelectedIndex = iSelectedIndex + iFirstYear - iMaxYear + iYears;
-			iFirstYear = iMaxYear - iYears + 1;
-			oFirstDate.setUTCFullYear(iFirstYear);
-		}else if (iFirstYear < iMinYear) {
-			iSelectedIndex = iSelectedIndex + iFirstYear - iMinYear;
-			iFirstYear = iMinYear;
-			oFirstDate.setUTCFullYear(iFirstYear);
+		var bEnabledCheck = false; // check for disabled years only needed if borders touched
+		var oFirstDate2 = this._checkFirstDate(oFirstDate);
+		var oSelectedDate;
+		if (oFirstDate2.getTime() != oFirstDate.getTime()) {
+			oSelectedDate = this._newUniversalDate(oFirstDate);
+			oSelectedDate.setUTCFullYear(oSelectedDate.getUTCFullYear() + iSelectedIndex);
+			oFirstDate = oFirstDate2;
+			bEnabledCheck = true;
 		}
 
 		var aDomRefs = this._oItemNavigation.getItemDomRefs();
@@ -450,6 +550,23 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/delegate
 				$DomRef.addClass("sapUiCalItemSel");
 				$DomRef.attr("aria-selected", "true");
 			}
+
+			var bEnabled = true;
+			if (bEnabledCheck) {
+				bEnabled = this._checkDateEnabled(oDate);
+				if (oDate.getTime() == oSelectedDate.getTime()) {
+					iSelectedIndex = i;
+				}
+			}
+
+			if (bEnabled) {
+				$DomRef.removeClass("sapUiCalItemDsbl");
+				$DomRef.removeAttr("aria-disabled");
+			} else {
+				$DomRef.addClass("sapUiCalItemDsbl");
+				$DomRef.attr("aria-disabled", true);
+			}
+
 			oDate.setUTCFullYear(oDate.getUTCFullYear() + 1);
 		}
 

@@ -9,6 +9,8 @@ sap.ui.define(['jquery.sap.global', './Element', './library'],
 	function(jQuery, Element, library) {
 	"use strict";
 
+	// shortcut for sap.ui.core.ID
+	var ID = library.ID;
 
 
 	/**
@@ -20,7 +22,7 @@ sap.ui.define(['jquery.sap.global', './Element', './library'],
 	 * @class
 	 * Contains a single key/value pair of custom data attached to an Element. See method data().
 	 * @extends sap.ui.core.Element
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -55,7 +57,8 @@ sap.ui.define(['jquery.sap.global', './Element', './library'],
 			 * @since 1.9.0
 			 */
 			writeToDom : {type : "boolean", group : "Data", defaultValue : false}
-		}
+		},
+		designtime : true
 	}});
 
 	CustomData.prototype.setValue = function(oValue) {
@@ -85,7 +88,7 @@ sap.ui.define(['jquery.sap.global', './Element', './library'],
 			return null;
 		}
 
-		if (!(sap.ui.core.ID.isValid(key)) || (key.indexOf(":") != -1)) {
+		if (!(ID.isValid(key)) || (key.indexOf(":") != -1)) {
 			jQuery.sap.log.error("CustomData with key " + key + " should be written to HTML of " + oRelated + " but the key is not valid (must be a valid sap.ui.core.ID without any colon).");
 			return null;
 		}

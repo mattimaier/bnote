@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -47,10 +47,27 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 			 * The controls inside this layout
 			 */
 			content : {type : "sap.ui.core.Control", multiple : true, singularName : "content"}
-		}
+		},
+		designtime : true
 	}});
 
-
+	/**
+	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @protected
+	 */
+	HorizontalLayout.prototype.getAccessibilityInfo = function() {
+		var aContent = this.getContent();
+		var aChildren = [];
+		for (var i = 0; i < aContent.length; i++) {
+			if (aContent[i].getAccessibilityInfo) {
+				var oInfo = aContent[i].getAccessibilityInfo();
+				if (oInfo) {
+					aChildren.push(oInfo);
+				}
+			}
+		}
+		return {children: aChildren};
+	};
 
 	return HorizontalLayout;
 

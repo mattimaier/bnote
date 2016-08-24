@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './List', './library'],
 	 * @class
 	 * FacetFilterList represents a list of values for the FacetFilter control.
 	 * @extends sap.m.List
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -168,7 +168,7 @@ sap.ui.define(['jquery.sap.global', './List', './library'],
 		var searchVal = this._getSearchValue();
 		if (searchVal != null) {
 			this._search(searchVal, true);
-
+			this._updateSelectAllCheckBox();
 		}
 	};
 
@@ -617,6 +617,15 @@ sap.ui.define(['jquery.sap.global', './List', './library'],
 	};
 
 	/**
+	 * Sets the search value to a given string.
+	 * @param {string} sValue The value to be set
+	 * @private
+	 */
+	FacetFilterList.prototype._setSearchValue = function(sValue) {
+		this._searchValue = sValue;
+	};
+
+	/**
 	 * Determines the selected state of the given item.
 	 * The item's text value will be used as the lookup key if the item does not have a key set.
 	 * This is done for convenience to allow applications to only set the item text and have it used also as the key.
@@ -638,6 +647,25 @@ sap.ui.define(['jquery.sap.global', './List', './library'],
 		this.getItems().forEach(function (oItem){
 			oItem.setSelected(this._isItemSelected(oItem));
 		}, this);
+	};
+
+	/**
+	 * Handles the selection of all items at once.
+	 * @param {boolean} bSelected All selected or not
+	 * @private
+	 */
+	FacetFilterList.prototype._handleSelectAll = function(bSelected) {
+		this.getItems().forEach(function (oItem) {
+			if (bSelected) {
+				this._addSelectedKey(oItem.getKey(), oItem.getText());
+			} else {
+				this._removeSelectedKey(oItem.getKey(), oItem.getText());
+			}
+			oItem.setSelected(bSelected, true);
+		}, this);
+
+		this.setActive(this.getActive() || bSelected);
+		jQuery.sap.delayedCall(0, this, this._updateSelectAllCheckBox);
 	};
 
 	/**

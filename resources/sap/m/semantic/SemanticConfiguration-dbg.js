@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Metadata', "sap/m/OverflowToolb
 	 * Constructor for a sap.m.semantic.SemanticConfiguration.
 	 *
 	 * @class Defines the visual properties and positioning for each supported semantic type
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @private
 	 * @since 1.30.0
 	 * @alias sap.m.semantic.SemanticConfiguration
@@ -445,7 +445,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Metadata', "sap/m/OverflowToolb
 				return {
 					icon: IconPool.getIconURI("discussion-2"),
 					text: oBundle.getText("SEMANTIC_CONTROL_DISCUSS_IN_JAM"),
-					tooltip: oBundle.getText("SEMANTIC_CONTROL_DISCUSS_IN_JAM"),
 					ariaLabelledBy: _ensureInvisibleText("DiscussInJamAction", oBundle.getText("SEMANTIC_CONTROL_DISCUSS_IN_JAM"))
 				};
 			},
@@ -459,7 +458,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Metadata', "sap/m/OverflowToolb
 				return {
 					icon: IconPool.getIconURI("share-2"),
 					text: oBundle.getText("SEMANTIC_CONTROL_SHARE_IN_JAM"),
-					tooltip: oBundle.getText("SEMANTIC_CONTROL_SHARE_IN_JAM"),
 					ariaLabelledBy: _ensureInvisibleText("ShareInJamAction", oBundle.getText("SEMANTIC_CONTROL_SHARE_IN_JAM"))
 				};
 			},
@@ -473,7 +471,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Metadata', "sap/m/OverflowToolb
 				return {
 					icon: IconPool.getIconURI("discussion"),
 					text: oBundle.getText("SEMANTIC_CONTROL_SEND_MESSAGE"),
-					tooltip: oBundle.getText("SEMANTIC_CONTROL_SEND_MESSAGE"),
 					ariaLabelledBy: _ensureInvisibleText("SendMessageAction", oBundle.getText("SEMANTIC_CONTROL_SEND_MESSAGE"))
 				};
 			},
@@ -487,7 +484,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Metadata', "sap/m/OverflowToolb
 				return {
 					icon: IconPool.getIconURI("email"),
 					text: oBundle.getText("SEMANTIC_CONTROL_SEND_EMAIL"),
-					tooltip: oBundle.getText("SEMANTIC_CONTROL_SEND_EMAIL"),
 					ariaLabelledBy: _ensureInvisibleText("SendEmailAction", oBundle.getText("SEMANTIC_CONTROL_SEND_EMAIL"))
 				};
 			},
@@ -501,7 +497,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Metadata', "sap/m/OverflowToolb
 				return {
 					icon: IconPool.getIconURI("print"),
 					text: oBundle.getText("SEMANTIC_CONTROL_PRINT"),
-					tooltip: oBundle.getText("SEMANTIC_CONTROL_PRINT"),
 					ariaLabelledBy: _ensureInvisibleText("PrintAction", oBundle.getText("SEMANTIC_CONTROL_PRINT"))
 				};
 			},

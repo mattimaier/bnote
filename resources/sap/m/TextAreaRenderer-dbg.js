@@ -66,6 +66,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer', './InputBaseRenderer
 	// Add extra classes for TextArea element
 	TextAreaRenderer.addInnerClasses = function(oRm, oControl) {
 		oRm.addClass("sapMTextAreaInner");
+		if (oControl.getGrowing()) {
+			oRm.addClass("sapMTextAreaGrow");
+		}
 	};
 
 	// role=textbox or aria-multiline should not be explicitly defined

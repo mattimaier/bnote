@@ -25,7 +25,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './ListItemBase', './
 	 * @extends sap.m.ListItemBase
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -131,7 +131,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './ListItemBase', './
 				ontouchend: this.ontouchend,
 				ontouchcancel: this.ontouchcancel,
 				onsaptabnext: this.onsaptabnext,
-				onsaptabprevious: this.onsaptabprevious
+				onsaptabprevious: this.onsaptabprevious,
+				onsapup: this.onsapup,
+				onsapdown: this.onsapdown
 			}, this).setParent(this, null, true);
 		}
 

@@ -11,8 +11,9 @@ sap.ui.define([
 	"./ObjectPageSectionBase",
 	"sap/ui/Device",
 	"sap/m/Button",
+	"sap/ui/core/StashedControlSupport",
 	"./library"
-], function (jQuery, InvisibleText, ObjectPageSectionBase, Device, Button, library) {
+], function (jQuery, InvisibleText, ObjectPageSectionBase, Device, Button, StashedControlSupport, library) {
 	"use strict";
 
 	/**
@@ -91,18 +92,6 @@ sap.ui.define([
 		Device.media.detachHandler(this._updateImportance, this, ObjectPageSection.MEDIA_RANGE);
 	};
 
-	/**
-	 * Handler for key up - handle
-	 * @param oEvent - The event object
-	 */
-
-	ObjectPageSection.prototype.onkeyup = function (oEvent) {
-		var eventTarget = sap.ui.getCore().byId(jQuery(oEvent.target).attr("id"));
-		if (oEvent.keyCode === jQuery.sap.KeyCodes.TAB && eventTarget instanceof sap.uxap.ObjectPageSection && this._getObjectPageLayout()._isFirstSection(this)) {
-			this._getObjectPageLayout().$("opwrapper").scrollTop(0);
-		}
-	};
-
 	ObjectPageSection.prototype._getImportanceLevelToHide = function (oCurrentMedia) {
 		var oObjectPage = this._getObjectPageLayout(),
 			oMedia = oCurrentMedia || Device.media.getCurrentRange(ObjectPageSection.MEDIA_RANGE),
@@ -141,6 +130,12 @@ sap.ui.define([
 	ObjectPageSection.prototype.connectToModels = function () {
 		this.getSubSections().forEach(function (oSubSection) {
 			oSubSection.connectToModels();
+		});
+	};
+
+	ObjectPageSection.prototype._allowPropagationToLoadedViews = function (bAllow) {
+		this.getSubSections().forEach(function (oSubSection) {
+			oSubSection._allowPropagationToLoadedViews(bAllow);
 		});
 	};
 
@@ -294,6 +289,8 @@ sap.ui.define([
 
 		return this.getAggregation("_showHideButton");
 	};
+
+	StashedControlSupport.mixInto(ObjectPageSection);
 
 	return ObjectPageSection;
 });

@@ -5,9 +5,12 @@
  */
 
 // Provides base class sap.ui.core.Component for all components
-sap.ui.define(['jquery.sap.global', '../base/ManagedObject', './Component', './UIComponentMetadata', './mvc/View'],
-	function(jQuery, ManagedObject, Component, UIComponentMetadata, View) {
+sap.ui.define(['jquery.sap.global', '../base/ManagedObject', './Component', './library', './UIComponentMetadata', './mvc/Controller', './mvc/View'],
+	function(jQuery, ManagedObject, Component, library, UIComponentMetadata, Controller, View) {
 	"use strict";
+
+	// shortcut for enum(s)
+	var ViewType = library.mvc.ViewType;
 
 
 	/**
@@ -35,7 +38,7 @@ sap.ui.define(['jquery.sap.global', '../base/ManagedObject', './Component', './U
 	 * @extends sap.ui.core.Component
 	 * @abstract
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @alias sap.ui.core.UIComponent
 	 * @since 1.9.2
 	 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
@@ -183,6 +186,44 @@ sap.ui.define(['jquery.sap.global', '../base/ManagedObject', './Component', './U
 	 */
 
 	/**
+	 * Callback handler which will be executed once a new Component instance is
+	 * initialized.
+	 * <p>
+	 * Example usage:
+	 * <pre>
+	 * sap.ui.core.UIComponent._fnOnInstanceInitialized = function(oComponent) {
+	 *   // do some logic with the Component
+	 * }
+	 * </pre>
+	 * <p>
+	 * <b>ATTENTION:</b> This hook must only be used by Fiori 2.0 adapter.
+	 *
+	 * @sap-restricted sap.ushell
+	 * @private
+	 * @since 1.37.0
+	 */
+	UIComponent._fnOnInstanceInitialized = null;
+
+	/**
+	 * Callback handler which will be executed when a Component instance is
+	 * destroyed.
+	 * <p>
+	 * Example usage:
+	 * <pre>
+	 * sap.ui.core.UIComponent._fnOnInstanceDestroy = function(oComponent) {
+	 *   // do some logic with the Component
+	 * }
+	 * </pre>
+	 * <p>
+	 * <b>ATTENTION:</b> This hook must only be used by Fiori 2.0 adapter.
+	 *
+	 * @sap-restricted sap.ushell
+	 * @private
+	 * @since 1.40
+	 */
+	UIComponent._fnOnInstanceDestroy = null;
+
+	/**
 	 * Initializes the Component instance after creation.
 	 *
 	 * Applications must not call this hook method directly, it is called by the
@@ -214,18 +255,18 @@ sap.ui.define(['jquery.sap.global', '../base/ManagedObject', './Component', './U
 
 		// create the router for the component instance
 		if (vRoutes) {
-			jQuery.sap.require("sap.ui.core.routing.Router");
-			var fnRouterConstructor = getConstructorFunctionFor(oRoutingConfig.routerClass || sap.ui.core.routing.Router);
+			var Router = sap.ui.requireSync("sap/ui/core/routing/Router");
+			var fnRouterConstructor = getConstructorFunctionFor(oRoutingConfig.routerClass || Router);
 			this._oRouter = new fnRouterConstructor(vRoutes, oRoutingConfig, this, oRoutingManifestEntry.targets);
 			this._oTargets = this._oRouter.getTargets();
 			this._oViews = this._oRouter.getViews();
 		} else if (oRoutingManifestEntry.targets) {
-			jQuery.sap.require("sap.ui.core.routing.Targets");
-			jQuery.sap.require("sap.ui.core.routing.Views");
-			this._oViews = new sap.ui.core.routing.Views({
+			var Targets = sap.ui.requireSync("sap/ui/core/routing/Targets");
+			var Views = sap.ui.requireSync("sap/ui/core/routing/Views");
+			this._oViews = new Views({
 				component: this
 			});
-			var fnTargetsConstructor = getConstructorFunctionFor(oRoutingConfig.targetsClass || sap.ui.core.routing.Targets);
+			var fnTargetsConstructor = getConstructorFunctionFor(oRoutingConfig.targetsClass || Targets);
 			this._oTargets = new fnTargetsConstructor({
 				targets: oRoutingManifestEntry.targets,
 				config: oRoutingConfig,
@@ -250,6 +291,12 @@ sap.ui.define(['jquery.sap.global', '../base/ManagedObject', './Component', './U
 				this._oTargets._setRootViewId(oRootControl.getId());
 			}
 		}
+
+		// notify Component initialization callback handler
+		if (typeof UIComponent._fnOnInstanceInitialized === "function") {
+			UIComponent._fnOnInstanceInitialized(this);
+		}
+
 	};
 
 	function getConstructorFunctionFor (vRoutingObjectConstructor) {
@@ -270,6 +317,11 @@ sap.ui.define(['jquery.sap.global', '../base/ManagedObject', './Component', './U
 	 * Destruction of the UIComponent
 	 */
 	UIComponent.prototype.destroy = function() {
+
+		// notify Component destruction callback handler
+		if (typeof UIComponent._fnOnInstanceDestroy === "function") {
+			UIComponent._fnOnInstanceDestroy(this);
+		}
 		// destroy the router
 		this._destroyCreatedInstances();
 		// make sure that the component is destroyed properly
@@ -313,11 +365,11 @@ sap.ui.define(['jquery.sap.global', '../base/ManagedObject', './Component', './U
 	 */
 	UIComponent.getRouterFor = function(oControllerOrView) {
 		var oView = oControllerOrView;
-		if (oView instanceof sap.ui.core.mvc.Controller) {
+		if (oView instanceof Controller) {
 			oView = oView.getView();
 		}
 		if (oView instanceof View) {
-			var oComponent = sap.ui.core.Component.getOwnerComponentFor(oView);
+			var oComponent = Component.getOwnerComponentFor(oView);
 
 			if (oComponent) {
 				return oComponent.getRouter();
@@ -421,7 +473,7 @@ sap.ui.define(['jquery.sap.global', '../base/ManagedObject', './Component', './U
 			// !This should be kept in sync with the UIComponentMetadata functionality!
 			return sap.ui.view({
 				viewName: oRootView,
-				type: sap.ui.core.mvc.ViewType.XML
+				type: ViewType.XML
 			});
 		} else if (oRootView && typeof oRootView === "object") {
 			// make sure to prefix the ID of the rootView

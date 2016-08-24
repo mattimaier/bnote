@@ -15,11 +15,6 @@
       "theme": "sap_bluecrystal"
     },
     {
-      "name": "BusyIndicator.less",
-      "designtime": true,
-      "theme": "sap_bluecrystal"
-    },
-    {
       "name": "DatePicker.less",
       "designtime": true,
       "theme": "sap_bluecrystal"

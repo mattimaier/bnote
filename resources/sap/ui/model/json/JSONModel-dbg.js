@@ -27,7 +27,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 	 * @extends sap.ui.model.ClientModel
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @constructor
@@ -37,6 +37,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 	var JSONModel = ClientModel.extend("sap.ui.model.json.JSONModel", /** @lends sap.ui.model.json.JSONModel.prototype */ {
 
 		constructor : function(oData) {
+			this.pSequentialImportCompleted = Promise.resolve();
 			ClientModel.apply(this, arguments);
 
 			if (oData && typeof oData == "object") {
@@ -92,7 +93,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 	 * Serializes the current JSON data of the model into a string.
 	 * Note: May not work in Internet Explorer 8 because of lacking JSON support (works only if IE 8 mode is enabled)
 	 *
-	 * @return the JSON data serialized as string
+	 * @return {string} sJSON the JSON data serialized as string
 	 * @public
 	 */
 	JSONModel.prototype.getJSON = function(){
@@ -123,7 +124,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 	 * @public
 	 */
 	JSONModel.prototype.loadData = function(sURL, oParameters, bAsync, sType, bMerge, bCache, mHeaders){
-		var that = this;
+		var pImportCompleted;
 
 		bAsync = (bAsync !== false);
 		sType = sType || "GET";
@@ -131,32 +132,55 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 
 		this.fireRequestSent({url : sURL, type : sType, async : bAsync, headers: mHeaders,
 			info : "cache=" + bCache + ";bMerge=" + bMerge, infoObject: {cache : bCache, merge : bMerge}});
-		this._ajax({
-		  url: sURL,
-		  async: bAsync,
-		  dataType: 'json',
-		  cache: bCache,
-		  data: oParameters,
-		  headers: mHeaders,
-		  type: sType,
-		  success: function(oData) {
+
+		var fnSuccess = function(oData) {
 			if (!oData) {
 				jQuery.sap.log.fatal("The following problem occurred: No data was retrieved by service: " + sURL);
 			}
-			that.setData(oData, bMerge);
-			that.fireRequestCompleted({url : sURL, type : sType, async : bAsync, headers: mHeaders,
+			this.setData(oData, bMerge);
+			this.fireRequestCompleted({url : sURL, type : sType, async : bAsync, headers: mHeaders,
 				info : "cache=" + bCache + ";bMerge=" + bMerge, infoObject: {cache : bCache, merge : bMerge}, success: true});
-		  },
-		  error: function(XMLHttpRequest, textStatus, errorThrown){
-			var oError = { message : textStatus, statusCode : XMLHttpRequest.status, statusText : XMLHttpRequest.statusText, responseText : XMLHttpRequest.responseText};
-			jQuery.sap.log.fatal("The following problem occurred: " + textStatus, XMLHttpRequest.responseText + ","
-						+ XMLHttpRequest.status + "," + XMLHttpRequest.statusText);
+		}.bind(this);
 
-			that.fireRequestCompleted({url : sURL, type : sType, async : bAsync, headers: mHeaders,
+		var fnError = function(oParams){
+			var oError = { message : oParams.textStatus, statusCode : oParams.request.status, statusText : oParams.request.statusText, responseText : oParams.request.responseText};
+			jQuery.sap.log.fatal("The following problem occurred: " + oParams.textStatus, oParams.request.responseText + ","
+						+ oParams.request.status + "," + oParams.request.statusText);
+
+			this.fireRequestCompleted({url : sURL, type : sType, async : bAsync, headers: mHeaders,
 				info : "cache=" + bCache + ";bMerge=" + bMerge, infoObject: {cache : bCache, merge : bMerge}, success: false, errorobject: oError});
-			that.fireRequestFailed(oError);
-		  }
-		});
+			this.fireRequestFailed(oError);
+		}.bind(this);
+
+		var _loadData = function(fnSuccess, fnError) {
+			this._ajax({
+				url: sURL,
+				async: bAsync,
+				dataType: 'json',
+				cache: bCache,
+				data: oParameters,
+				headers: mHeaders,
+				type: sType,
+				success: fnSuccess,
+				error: fnError
+			});
+		}.bind(this);
+
+		if (bAsync) {
+			pImportCompleted = new Promise(function(resolve, reject) {
+				var fnReject =  function(oXMLHttpRequest, sTextStatus, oError) {
+					reject({request: oXMLHttpRequest, textStatus: sTextStatus, error: oError});
+				};
+				_loadData(resolve, fnReject);
+			});
+
+			this.pSequentialImportCompleted = this.pSequentialImportCompleted.then(function() {
+				//must always resolve
+				return pImportCompleted.then(fnSuccess, fnError).catch(function() {});
+			});
+		} else {
+			_loadData(fnSuccess, fnError);
+		}
 	};
 
 	/**

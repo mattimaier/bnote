@@ -25,7 +25,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -147,11 +147,14 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 *
 	 * @private
 	 */
-	RadioButton.prototype.ontap = function() {
+	RadioButton.prototype.ontap = function(oEvent) {
 
 		if (!this.getEnabled() || !this.getEditable()) {
 			return;
 		}
+
+		// mark the event that it is handled by the control
+		oEvent && oEvent.setMarked();
 
 		this.applyFocusInfo();
 
@@ -186,11 +189,19 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 	RadioButton.prototype.onsapnext = function(oEvent) {
 		this._arrowsHandler("next");
+
+		// mark the event that it is handled by the control
+		oEvent.setMarked();
+
 		return this;
 	};
 
 	RadioButton.prototype.onsapprevious = function(oEvent) {
 		this._arrowsHandler();
+
+		// mark the event that it is handled by the control
+		oEvent.setMarked();
+
 		return this;
 	};
 

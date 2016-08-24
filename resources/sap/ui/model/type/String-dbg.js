@@ -19,7 +19,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/SimpleType', 'sap/ui/model/For
 	 * @extends sap.ui.model.SimpleType
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -48,9 +48,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/SimpleType', 'sap/ui/model/For
 
 	});
 
-	/**
-	 * @see sap.ui.model.SimpleType.prototype.formatValue
-	 */
 	StringType.prototype.formatValue = function(sValue, sInternalType) {
 		if (sValue == undefined || sValue == null) {
 			return null;
@@ -84,9 +81,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/SimpleType', 'sap/ui/model/For
 		}
 	};
 
-	/**
-	 * @see sap.ui.model.SimpleType.prototype.parseValue
-	 */
 	StringType.prototype.parseValue = function(oValue, sInternalType) {
 		switch (this.getPrimitiveType(sInternalType)) {
 			case "string":
@@ -100,9 +94,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/SimpleType', 'sap/ui/model/For
 		}
 	};
 
-	/**
-	 * @see sap.ui.model.SimpleType.prototype.validateValue
-	 */
 	StringType.prototype.validateValue = function(sValue) {
 		if (this.oConstraints) {
 			var oBundle = sap.ui.getCore().getLibraryResourceBundle(),

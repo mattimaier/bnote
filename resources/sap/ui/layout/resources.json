@@ -8,6 +8,23 @@
       "name": ".theming"
     },
     {
+      "name": "AssociativeSplitter-dbg.js",
+      "module": "sap/ui/layout/AssociativeSplitter.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/layout/Splitter.js",
+        "sap/ui/layout/SplitterRenderer.js"
+      ]
+    },
+    {
+      "name": "AssociativeSplitter.js",
+      "module": "sap/ui/layout/AssociativeSplitter.js",
+      "required": [
+        "sap/ui/layout/Splitter.js",
+        "sap/ui/layout/SplitterRenderer.js"
+      ]
+    },
+    {
       "name": "BackgroundDesign.type",
       "designtime": true
     },
@@ -277,6 +294,16 @@
       "designtime": true
     },
     {
+      "name": "HorizontalLayout.designtime-dbg.js",
+      "module": "sap/ui/layout/HorizontalLayout.designtime.js",
+      "isDebug": true
+    },
+    {
+      "name": "HorizontalLayout.designtime.js",
+      "module": "sap/ui/layout/HorizontalLayout.designtime.js",
+      "designtime": true
+    },
+    {
       "name": "HorizontalLayout.js",
       "module": "sap/ui/layout/HorizontalLayout.js",
       "required": [
@@ -298,6 +325,29 @@
       "module": "sap/ui/layout/HorizontalLayoutRenderer.js",
       "required": [
         "jquery.sap.global.js"
+      ]
+    },
+    {
+      "name": "PaneContainer-dbg.js",
+      "module": "sap/ui/layout/PaneContainer.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/layout/library.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/layout/Splitter.js",
+        "sap/ui/layout/AssociativeSplitter.js"
+      ]
+    },
+    {
+      "name": "PaneContainer.js",
+      "module": "sap/ui/layout/PaneContainer.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/layout/library.js",
+        "sap/ui/core/Element.js",
+        "sap/ui/layout/Splitter.js",
+        "sap/ui/layout/AssociativeSplitter.js"
       ]
     },
     {
@@ -368,6 +418,86 @@
       ]
     },
     {
+      "name": "ResponsiveSplitter-dbg.js",
+      "module": "sap/ui/layout/ResponsiveSplitter.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/layout/library.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/layout/ResponsiveSplitterUtilities.js",
+        "sap/ui/layout/ResponsiveSplitterPage.js",
+        "sap/ui/layout/PaneContainer.js",
+        "sap/ui/layout/SplitPane.js",
+        "sap/ui/core/delegate/ItemNavigation.js"
+      ]
+    },
+    {
+      "name": "ResponsiveSplitter.js",
+      "module": "sap/ui/layout/ResponsiveSplitter.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/layout/library.js",
+        "sap/ui/core/Control.js",
+        "sap/ui/layout/ResponsiveSplitterUtilities.js",
+        "sap/ui/layout/ResponsiveSplitterPage.js",
+        "sap/ui/layout/PaneContainer.js",
+        "sap/ui/layout/SplitPane.js",
+        "sap/ui/core/delegate/ItemNavigation.js"
+      ]
+    },
+    {
+      "name": "ResponsiveSplitterPage-dbg.js",
+      "module": "sap/ui/layout/ResponsiveSplitterPage.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/layout/library.js",
+        "sap/ui/core/Control.js"
+      ]
+    },
+    {
+      "name": "ResponsiveSplitterPage.js",
+      "module": "sap/ui/layout/ResponsiveSplitterPage.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/layout/library.js",
+        "sap/ui/core/Control.js"
+      ]
+    },
+    {
+      "name": "ResponsiveSplitterRenderer-dbg.js",
+      "module": "sap/ui/layout/ResponsiveSplitterRenderer.js",
+      "isDebug": true,
+      "required": [
+        "sap/ui/core/IconPool.js"
+      ]
+    },
+    {
+      "name": "ResponsiveSplitterRenderer.js",
+      "module": "sap/ui/layout/ResponsiveSplitterRenderer.js",
+      "required": [
+        "sap/ui/core/IconPool.js"
+      ]
+    },
+    {
+      "name": "ResponsiveSplitterUtilities-dbg.js",
+      "module": "sap/ui/layout/ResponsiveSplitterUtilities.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js"
+      ]
+    },
+    {
+      "name": "ResponsiveSplitterUtilities.js",
+      "module": "sap/ui/layout/ResponsiveSplitterUtilities.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/core/Control.js"
+      ]
+    },
+    {
       "name": "SideContentFallDown.type",
       "designtime": true
     },
@@ -378,6 +508,25 @@
     {
       "name": "SideContentVisibility.type",
       "designtime": true
+    },
+    {
+      "name": "SplitPane-dbg.js",
+      "module": "sap/ui/layout/SplitPane.js",
+      "isDebug": true,
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/layout/library.js",
+        "sap/ui/core/Element.js"
+      ]
+    },
+    {
+      "name": "SplitPane.js",
+      "module": "sap/ui/layout/SplitPane.js",
+      "required": [
+        "jquery.sap.global.js",
+        "sap/ui/layout/library.js",
+        "sap/ui/core/Element.js"
+      ]
     },
     {
       "name": "Splitter-dbg.js",
@@ -856,6 +1005,16 @@
       "designtime": true
     },
     {
+      "name": "form/SimpleForm.designtime-dbg.js",
+      "module": "sap/ui/layout/form/SimpleForm.designtime.js",
+      "isDebug": true
+    },
+    {
+      "name": "form/SimpleForm.designtime.js",
+      "module": "sap/ui/layout/form/SimpleForm.designtime.js",
+      "designtime": true
+    },
+    {
       "name": "form/SimpleForm.js",
       "module": "sap/ui/layout/form/SimpleForm.js",
       "required": [
@@ -914,6 +1073,13 @@
         "sap/ui/base/DataType.js",
         "sap/ui/core/library.js"
       ]
+    },
+    {
+      "name": "library-preload.js",
+      "merged": true
+    },
+    {
+      "name": "library-preload.js.map"
     },
     {
       "name": "library-preload.json",
@@ -1260,6 +1426,11 @@
       "theme": "base"
     },
     {
+      "name": "themes/base/ResponsiveSplitter.less",
+      "designtime": true,
+      "theme": "base"
+    },
+    {
       "name": "themes/base/SimpleForm.less",
       "designtime": true,
       "theme": "base"
@@ -1341,6 +1512,11 @@
     },
     {
       "name": "themes/sap_hcb/ResponsiveLayout.less",
+      "designtime": true,
+      "theme": "sap_hcb"
+    },
+    {
+      "name": "themes/sap_hcb/ResponsiveSplitter.less",
       "designtime": true,
       "theme": "sap_hcb"
     },

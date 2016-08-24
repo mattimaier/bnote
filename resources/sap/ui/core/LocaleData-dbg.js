@@ -18,7 +18,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', './Configuration', './
 	 *
 	 * @extends sap.ui.base.Object
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @public
 	 * @alias sap.ui.core.LocaleData
@@ -120,7 +120,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', './Configuration', './
 		 * @public
 		 */
 		getDays : function(sWidth, sCalendarType) {
-			jQuery.sap.assert(sWidth == "narrow" || sWidth == "abbreviated" || sWidth == "wide", "sWidth must be narrow, abbreviated or wide");
+			jQuery.sap.assert(sWidth == "narrow" || sWidth == "abbreviated" || sWidth == "wide" || sWidth == "short", "sWidth must be narrow, abbreviate, wide or short");
 			return this._get(getCLDRCalendarName(sCalendarType), "days", "format",  sWidth);
 		},
 
@@ -133,7 +133,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', './Configuration', './
 		 * @public
 		 */
 		getDaysStandAlone : function(sWidth, sCalendarType) {
-			jQuery.sap.assert(sWidth == "narrow" || sWidth == "abbreviated" || sWidth == "wide", "sWidth must be narrow, abbreviated or wide");
+			jQuery.sap.assert(sWidth == "narrow" || sWidth == "abbreviated" || sWidth == "wide" || sWidth == "short", "sWidth must be narrow, abbreviated, wide or short");
 			return this._get(getCLDRCalendarName(sCalendarType), "days", "stand-alone",  sWidth);
 		},
 
@@ -226,6 +226,24 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', './Configuration', './
 		getDateTimePattern : function(sStyle, sCalendarType) {
 			jQuery.sap.assert(sStyle == "short" || sStyle == "medium" || sStyle == "long" || sStyle == "full", "sStyle must be short, medium, long or full");
 			return this._get(getCLDRCalendarName(sCalendarType), "dateTimeFormats", sStyle);
+		},
+
+		/**
+		 * Get combined datetime pattern with given date and and time style
+		 *
+		 * @param {string} sDateStyle the required style for the date part
+		 * @param {string} sTimeStyle the required style for the time part
+		 * @param {sap.ui.core.CalendarType} [sCalendarType] the type of calendar. If it's not set, it falls back to the calendar type either set in configuration or calculated from locale.
+		 * @returns {string} the combined datetime pattern
+		 * @public
+		 */
+		getCombinedDateTimePattern : function(sDateStyle, sTimeStyle, sCalendarType) {
+			jQuery.sap.assert(sDateStyle == "short" || sDateStyle == "medium" || sDateStyle == "long" || sDateStyle == "full", "sStyle must be short, medium, long or full");
+			jQuery.sap.assert(sTimeStyle == "short" || sTimeStyle == "medium" || sTimeStyle == "long" || sTimeStyle == "full", "sStyle must be short, medium, long or full");
+			var sDateTimePattern = this.getDateTimePattern(sDateStyle),
+				sDatePattern = this.getDatePattern(sDateStyle),
+				sTimePattern = this.getTimePattern(sTimeStyle);
+			return sDateTimePattern.replace("{0}", sTimePattern).replace("{1}", sDatePattern);
 		},
 
 		/**
@@ -452,7 +470,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', './Configuration', './
 				} else {
 					oSymbol = mCLDRSymbols[sChar];
 					// If symbol is a CLDR symbol and is contained in the group, expand length
-					if (oSymbol && mGroups[oSymbol.group] && mPatternGroups[oSymbol.group]) {
+				if (oSymbol && mGroups[oSymbol.group] && mPatternGroups[oSymbol.group]) {
 						oSkeletonToken = mGroups[oSymbol.group];
 						oBestToken = mPatternGroups[oSymbol.group];
 						oSkeletonSymbol = mCLDRSymbols[oSkeletonToken.symbol];
@@ -686,11 +704,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', './Configuration', './
 				} else {
 					iDigits = oCurrencyDigits["DEFAULT"];
 				}
-			}
-			// Temporary workaround for HUF digit mismatch between CLDR data and backend systems
-			// TODO: Remove when customizing of currency digits is possible in format settings
-			if (sCurrency === "HUF") {
-				iDigits = 0;
 			}
 			return iDigits;
 		},
@@ -1086,16 +1099,20 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', './Configuration', './
 				aCalendars = sCalendarPreference ? sCalendarPreference.split(" ") : [],
 				sCalendarName, sType, i;
 
+			// lazy load of sap.ui.core library to avoid cyclic dependencies
+			sap.ui.getCore().loadLibrary('sap.ui.core');
+			var CalendarType = sap.ui.require("sap/ui/core/library").CalendarType;
+
 			for ( i = 0 ; i < aCalendars.length ; i++ ) {
 				sCalendarName = aCalendars[i];
-				for (sType in sap.ui.core.CalendarType) {
+				for (sType in CalendarType) {
 					if (sCalendarName === getCLDRCalendarName(sType).substring(3)) {
 						return sType;
 					}
 				}
 			}
 
-			return sap.ui.core.CalendarType.Gregorian;
+			return CalendarType.Gregorian;
 		},
 
 		/**
@@ -1596,7 +1613,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', './Configuration', './
 	 * @alias sap.ui.core.CustomLocaleData
 	 * @private
 	 */
-	LocaleData.extend("sap.ui.core.CustomLocaleData", {
+	var CustomLocaleData = LocaleData.extend("sap.ui.core.CustomLocaleData", {
 		constructor : function(oLocale) {
 			LocaleData.apply(this, arguments);
 			this.mCustomData = sap.ui.getCore().getConfiguration().getFormatSettings().getCustomLocaleData();
@@ -1620,7 +1637,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', './Configuration', './
 	 *
 	 */
 	LocaleData.getInstance = function(oLocale) {
-		return oLocale.hasPrivateUseSubtag("sapufmt") ? new sap.ui.core.CustomLocaleData(oLocale) : new LocaleData(oLocale);
+		return oLocale.hasPrivateUseSubtag("sapufmt") ? new CustomLocaleData(oLocale) : new LocaleData(oLocale);
 	};
 
 	return LocaleData;

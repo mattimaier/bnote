@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @param {object} [mSettings] initial settings for the new control
 	 * @class Type for <code>columnsItems</code> aggregation in P13nColumnsPanel control.
 	 * @extends sap.ui.core.Item
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @author SAP SE
 	 * @public
@@ -70,7 +70,16 @@ sap.ui.define([
 				width: {
 					type: "string",
 					group: "Misc"
-				} // don't set a default value
+				}, // don't set a default value
+
+				/**
+				 * This property contains the total flag of a table column.
+				 *
+				 * @since 1.26.0
+				 */
+				total: {
+					type: "boolean"
+				}
 			}
 		}
 	});

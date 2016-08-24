@@ -136,7 +136,7 @@ sap.ui.define([
 		if (oButton) {
 
 			if (oButton.getId() === this.getSelectedButton()) {
-				return;
+				return this;
 			}
 
 			var oSelectedSectionId = oButton.data("sectionId");
@@ -311,6 +311,7 @@ sap.ui.define([
 				jQuery.sap.log.error("sapUxApAnchorBar :: missing parent first level for item " + oButton.getText());
 			} else {
 				this.removeContent(oButton);
+				oButton.destroy();
 			}
 		} else {
 			oPopoverState.oLastFirstLevelButton = oButton;
@@ -423,7 +424,7 @@ sap.ui.define([
 			// we set *direct* scrolling by which we instruct the page to *skip* processing of intermediate sections (sections between current and requested)
 			this.getParent().setDirectScrollingToSection(sNextSelectedSection);
 			// finally request the page to scroll to the requested section
-			this.getParent().scrollToSection(oRequestedSection.getId());
+			this.getParent().scrollToSection(oRequestedSection.getId(), null, 0, true);
 		}
 
 		if (oRequestedSection instanceof library.ObjectPageSubSection &&
@@ -1034,8 +1035,22 @@ sap.ui.define([
 			 // Reverse all positions as the scroll 0 is at the far end (first item = maxPosition, last item = 0)
 			oSectionInfo.scrollLeft = this._iMaxPosition - oSectionInfo.scrollLeft - oSectionInfo.width;
 		}
+	};
 
+	AnchorBar.prototype._destroyPopoverContent = function () {
+		var aPopovers = this.getAggregation("_popovers");
+		if (Array.isArray(aPopovers)) {
+			aPopovers.forEach(function (popover) {
+				popover.destroyContent();
+			});
+		}
+	};
 
+	AnchorBar.prototype._resetControl = function () {
+		this._destroyPopoverContent();
+		this.getContent().forEach(this._detachPopoverHandler, this);
+		this.destroyContent();
+		return this;
 	};
 
 	/**
@@ -1054,7 +1069,5 @@ sap.ui.define([
 		}
 	};
 
-
 	return AnchorBar;
-
 });

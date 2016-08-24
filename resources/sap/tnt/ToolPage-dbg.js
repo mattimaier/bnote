@@ -20,7 +20,7 @@ sap.ui.define(['./library', 'sap/ui/core/Control', 'sap/ui/Device', 'sap/ui/core
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -72,13 +72,13 @@ sap.ui.define(['./library', 'sap/ui/core/Control', 'sap/ui/Device', 'sap/ui/core
 		 */
 		ToolPage.prototype.setSideExpanded = function(isSideExpanded) {
 			var sideContentAggregation = this.getAggregation('sideContent');
-			var isMediaQueryForPhone = Device.system.phone;
 			var domRef = this.getDomRef();
 
 			this.setProperty('sideExpanded', isSideExpanded, true);
 
-			if (sideContentAggregation && !isMediaQueryForPhone) {
-				sideContentAggregation.setExpanded(isSideExpanded);
+			if (sideContentAggregation) {
+				var newState = Device.system.phone ? true :  isSideExpanded;
+				sideContentAggregation.setExpanded(newState);
 			}
 
 			if (!domRef) {

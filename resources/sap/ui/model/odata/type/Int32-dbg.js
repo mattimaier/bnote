@@ -8,7 +8,7 @@ sap.ui.define(['sap/ui/model/odata/type/Int'],
 	function(Int) {
 	"use strict";
 
-	var oRange = {minimum: -2147483648, maximum: 2147483647};
+	var oRange = {minimum : -2147483648, maximum : 2147483647};
 
 	/**
 	 * Constructor for a primitive type <code>Edm.Int32</code>.
@@ -17,13 +17,13 @@ sap.ui.define(['sap/ui/model/odata/type/Int'],
 	 * href="http://www.odata.org/documentation/odata-version-2-0/overview#AbstractTypeSystem">
 	 * <code>Edm.Int32</code></a>.
 	 *
-	 * In {@link sap.ui.model.odata.v2.ODataModel ODataModel} this type is represented as a
-	 * <code>number</code>.
+	 * In both {@link sap.ui.model.odata.v2.ODataModel} and {@link sap.ui.model.odata.v4.ODataModel}
+	 * this type is represented as a <code>number</code>.
 	 *
 	 * @extends sap.ui.model.odata.type.Int
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @alias sap.ui.model.odata.type.Int32

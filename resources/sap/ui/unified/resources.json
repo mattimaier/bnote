@@ -587,6 +587,7 @@
       "required": [
         "jquery.sap.global.js",
         "sap/ui/core/Control.js",
+        "sap/ui/Device.js",
         "sap/ui/core/Popup.js",
         "sap/ui/unified/MenuItemBase.js",
         "sap/ui/unified/library.js",
@@ -603,6 +604,7 @@
       "required": [
         "jquery.sap.global.js",
         "sap/ui/core/Control.js",
+        "sap/ui/Device.js",
         "sap/ui/core/Popup.js",
         "sap/ui/unified/MenuItemBase.js",
         "sap/ui/unified/library.js",
@@ -1328,6 +1330,13 @@
         "jquery.sap.global.js",
         "sap/ui/core/library.js"
       ]
+    },
+    {
+      "name": "library-preload.js",
+      "merged": true
+    },
+    {
+      "name": "library-preload.js.map"
     },
     {
       "name": "library-preload.json",

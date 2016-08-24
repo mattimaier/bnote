@@ -350,7 +350,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @name sap.ui.model.analytics.AnalyticalBinding.prototype.hasAvailableNodeContexts
 	 * @param {sap.ui.model.Context}
 	 *            oContext the parent context identifying the aggregation level.
-	 * @param {integer}
+	 * @param {int}
 	 *            iLevel the level number of oContext (because the context might occur at multiple levels).
 	 * @return {boolean}
 	 *            property of sap.ui.model.analytics.AnalyticalBinding.ContextsAvailabilityStatus,
@@ -384,9 +384,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @name sap.ui.model.analytics.AnalyticalBinding.prototype.getGroupSize
 	 * @param {sap.ui.model.Context}
 	 *            oContext the parent context identifying the requested group of child contexts.
-	 * @param {integer}
+	 * @param {int}
 	 *            iLevel the level number of oContext (because the context might occur at multiple levels)
-	 * @return {integer}
+	 * @return {int}
 	 *            The currently known group size, or -1, if not yet determined
 	 * @public
 	 */
@@ -408,7 +408,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 *
 	 * @function
 	 * @name sap.ui.model.analytics.AnalyticalBinding.prototype.getTotalSize
-	 * @return {integer}
+	 * @return {int}
 	 *            the total number of addressed entities in the OData entity set
 	 *
 	 * @public
@@ -744,7 +744,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @name sap.ui.model.analytics.AnalyticalBinding.prototype.getGroupName
 	 * @param {sap.ui.model.Context}
 	 *            oContext the parent context identifying the requested group.
-	 * @param {integer}
+	 * @param {int}
 	 *            iLevel the level number of oContext (because the context might occur at multiple levels)
 	 * @return {string} a printable name for the group.
 	 * @public
@@ -811,13 +811,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * Invoking this function resets the state of the binding and subsequent data requests such as calls to getNodeContexts() will
 	 * need to trigger OData requests in order to fetch the data that are in line with this analytical information.
 	 *
+	 * Please be aware that a call of this function might lead to additional back-end requests, as well as a control re-rendering later on.
+	 * Whenever possible use the API of the analytical control, instead of relying on the binding.
+	 *
 	 * @function
 	 * @name sap.ui.model.analytics.AnalyticalBinding.prototype.updateAnalyticalInfo
 	 * @param {array}
 	 *            aColumns an array with objects holding the analytical information for every column, from left to right.
-	 * @public
+	 * @protected
 	 */
-	AnalyticalBinding.prototype.updateAnalyticalInfo = function(aColumns) {
+	AnalyticalBinding.prototype.updateAnalyticalInfo = function(aColumns, bForceChange) {
 		if (!this.oModel.oMetadata || !this.oModel.oMetadata.isLoaded() || this.bInitial) {
 			this.aInitialAnalyticalInfo = aColumns;
 			return;
@@ -825,7 +828,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 
 		// check if something has changed --> deep equal on the column info objects, only 1 level "deep"
 		if (jQuery.sap.equal(this._aLastChangedAnalyticalInfo, aColumns)) {
-			this._fireChange({reason: ChangeReason.Change});
+			if (bForceChange) {
+				this._fireChange({reason: ChangeReason.Change});
+			}
 			return;
 		}
 
@@ -924,8 +929,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 		// check if any dimension has been added or removed. If so, invalidate the total size
 		var compileDimensionNames = function (oDimensionDetailsSet) {
 			var aName = [];
-			for (var oDimDetails in oDimensionDetailsSet)
+			for (var oDimDetails in oDimensionDetailsSet) {
 				aName.push(oDimDetails.name);
+			}
 			return aName.sort().join(";");
 		};
 		if (compileDimensionNames(oPreviousDimensionDetailsSet) != compileDimensionNames(this.oDimensionDetailsSet)) {
@@ -939,6 +945,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 		this.resetData();
 
 		this.bNeedsUpdate = false;
+
+		if (bForceChange) {
+			this._fireChange({reason: ChangeReason.Change});
+		}
+
 	};
 
 	/**
@@ -2211,12 +2222,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 					success: bOverallSuccess,
 					errorobject: bOverallSuccess ? {} : oV1Errors
 				});
-			}
-			// notify all bindings of the model that the data has been changed!
-			// e.g. controls in the rows need to be updated as well
-			// fire only the change event is not sufficient for other bindings
-			if (bOverallSuccess) {
-				that.oModel.checkUpdate();
+				// notify all bindings of the model that the data has been changed!
+				// e.g. controls in the rows need to be updated as well
+				// fire only the change event is not sufficient for other bindings
+				if (bOverallSuccess) {
+					that.oModel.checkUpdate();
+				}
 			}
 		}
 
@@ -3308,7 +3319,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	};
 
 	/**
-	 * @param {integer} iNumLevels anchestors starting at the root if greater than 0, or starting at the parent of sGroupId if less than 0.
+	 * @param {int} iNumLevels anchestors starting at the root if greater than 0, or starting at the parent of sGroupId if less than 0.
 	 * @private
 	 */
 	AnalyticalBinding.prototype._getGroupIdAncestors = function(sGroupId, iNumLevels) {
@@ -4183,8 +4194,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 		// add current list of dimensions
 		var aSelectedDimension = [];
 		var aSelectedMeasure = [];
-		for (var oDimensionName in this.oDimensionDetailsSet)
+		for (var oDimensionName in this.oDimensionDetailsSet) {
 			aSelectedDimension.push(oDimensionName);
+		}
 		oAnalyticalQueryRequest.setAggregationLevel(aSelectedDimension);
 		for (var oDimensionName2 in this.oDimensionDetailsSet) {
 			var oDimensionDetails = this.oDimensionDetailsSet[oDimensionName2];
@@ -4194,8 +4206,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 		}
 
 		// add current list of measures
-		for (var sMeasureName in this.oMeasureDetailsSet)
+		for (var sMeasureName in this.oMeasureDetailsSet) {
 			aSelectedMeasure.push(sMeasureName);
+		}
 		oAnalyticalQueryRequest.setMeasures(aSelectedMeasure);
 		for ( var sMeasureName2 in this.oMeasureDetailsSet) {
 			var oMeasureDetails = this.oMeasureDetailsSet[sMeasureName2];

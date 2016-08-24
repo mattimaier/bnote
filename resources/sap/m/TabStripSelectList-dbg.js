@@ -17,10 +17,10 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/m/S
 		 *
 		 * @class
 		 * The <code>sap.m.TabStripSelectList</code> displays a list of items that allows the user to select an item.
-		 * @extends sap.ui.core.SelectList
+		 * @extends sap.m.SelectList
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public

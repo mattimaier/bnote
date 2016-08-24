@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './DateRange', './library'],
 	 * @class
 	 * Date range with calendar day type information. Used to visualize special days in the Calendar.
 	 * @extends sap.ui.unified.DateRange
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public

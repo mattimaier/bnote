@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/core/UIComponent', 'sap/ui/core/mvc/View', 'sap/ui/core/routing/async/Views', 'sap/ui/core/routing/sync/Views'],
-	function($, EventProvider, UIComponent, View, asyncViews, syncViews) {
+	function(jQuery, EventProvider, UIComponent, View, asyncViews, syncViews) {
 		"use strict";
 
 		/**
@@ -34,7 +34,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/core/UI
 
 				this._oComponent = oOptions.component;
 				if (this._oComponent) {
-					$.sap.assert(this._oComponent instanceof UIComponent, this + ' - the component passed to the constructor needs to be an instance of UIComponent');
+					jQuery.sap.assert(this._oComponent instanceof UIComponent, this + ' - the component passed to the constructor needs to be an instance of UIComponent');
 				}
 
 				EventProvider.apply(this, arguments);
@@ -123,11 +123,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/core/UI
 			 *
 			 * @name sap.ui.core.routing.Views#created
 			 * @event
-			 * @param {sap.ui.base.Event} oEvent have a look at the @link {sap.ui.base.EventProvider} for details about getSource and getParameters
+			 * @param {sap.ui.base.Event} oEvent refer to {@link sap.ui.base.EventProvider} for details about getSource and getParameters
 			 * @param {sap.ui.base.EventProvider} oEvent.getSource
 			 * @param {object} oEvent.getParameters
 			 * @param {sap.ui.core.mvc.View} oEvent.getParameters.view the instance of the created view.
 			 * @param {object} oEvent.getParameters.viewOptions The view options passed to {@link sap.ui.view}
+			 * @public
 			 */
 
 			/**
@@ -181,7 +182,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/core/UI
 			 */
 			_getView: function (oOptions) {
 				if (this._oComponent && oOptions.id) {
-					oOptions = $.extend({}, oOptions, { id : this._oComponent.createId(oOptions.id) });
+					oOptions = jQuery.extend({}, oOptions, { id : this._oComponent.createId(oOptions.id) });
 				}
 
 				return this._getViewWithGlobalId(oOptions);
@@ -202,7 +203,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/core/UI
 			_checkViewName : function (sViewName) {
 
 				if (!sViewName) {
-					$.sap.log.error("A name for the view has to be defined", this);
+					jQuery.sap.log.error("A name for the view has to be defined", this);
 				}
 
 			}

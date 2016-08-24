@@ -50,7 +50,7 @@ sap.ui.define(['jquery.sap.global'],
 	 * should be deleted the method {@link #removeAll} should be used.
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @since 0.11.0
 	 * @public
 	 * @name jQuery.sap.storage.Storage
@@ -307,7 +307,7 @@ sap.ui.define(['jquery.sap.global'],
 	 * @param {string} [sIdPrefix] Prefix used for the Ids. If not set a default prefix is used.
 	 * @returns {jQuery.sap.storage.Storage}
 	 *
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @since 0.11.0
 	 * @namespace
 	 * @type Function
@@ -346,7 +346,7 @@ sap.ui.define(['jquery.sap.global'],
 	 * @class
 	 * @static
 	 * @public
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @since 0.11.0
 	 */
 	jQuery.sap.storage.Type = {

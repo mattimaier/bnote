@@ -5,9 +5,12 @@
  */
 
 // Provides class sap.ui.core.ComponentMetadata
-sap.ui.define(['jquery.sap.global', './ComponentMetadata'],
-	function(jQuery, ComponentMetadata) {
+sap.ui.define(['jquery.sap.global', './ComponentMetadata', './library'],
+	function(jQuery, ComponentMetadata, library) {
 	"use strict";
+
+	// shortcut for enum(s)
+	var ViewType = library.mvc.ViewType;
 
 
 	/**
@@ -19,7 +22,7 @@ sap.ui.define(['jquery.sap.global', './ComponentMetadata'],
 	 * @experimental Since 1.15.1. The Component concept is still under construction, so some implementation details can be changed in future.
 	 * @class
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @since 1.15.1
 	 * @alias sap.ui.core.UIComponentMetadata
 	 */
@@ -130,7 +133,7 @@ sap.ui.define(['jquery.sap.global', './ComponentMetadata'],
 		if (oUI5Manifest["rootView"] && typeof oUI5Manifest["rootView"] === "string") {
 			oUI5Manifest["rootView"] = {
 				viewName: oUI5Manifest["rootView"],
-				type: sap.ui.core.mvc.ViewType.XML
+				type: ViewType.XML
 			};
 		}
 

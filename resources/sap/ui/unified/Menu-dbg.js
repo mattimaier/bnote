@@ -5,8 +5,8 @@
  */
 
 // Provides control sap.ui.unified.Menu.
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/Popup', './MenuItemBase', './library', 'jquery.sap.script'],
-	function(jQuery, Control, Popup, MenuItemBase, library/* , jQuerySap */) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/Device', 'sap/ui/core/Popup', './MenuItemBase', './library', 'jquery.sap.script'],
+	function(jQuery, Control, Device, Popup, MenuItemBase, library/* , jQuerySap */) {
 	"use strict";
 
 
@@ -23,7 +23,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/Popup', 
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @since 1.21.0
 	 *
 	 * @constructor
@@ -108,6 +108,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/Popup', 
 	(function(window) {
 
 	Menu.prototype.bCozySupported = true;
+	Menu._DELAY_SUBMENU_TIMER = 300;
+	Menu._DELAY_SUBMENU_TIMER_EXT = 400;
 
 	Menu.prototype.init = function(){
 		var that = this;
@@ -252,6 +254,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/Popup', 
 			return;
 		}
 		this._resetDelayedRerenderItems();
+		this._discardOpenSubMenuDelayed();
 
 		this._itemRerenderTimer = jQuery.sap.delayedCall(0, this, function(){
 			var oDomRef = this.getDomRef();
@@ -341,6 +344,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/Popup', 
 		if (!this.bOpen || Menu._dbg /*Avoid closing for debugging purposes*/) {
 			return;
 		}
+
+		this._discardOpenSubMenuDelayed();
 
 		setItemToggleState(this, false);
 
@@ -552,14 +557,38 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/Popup', 
 
 		this.setHoveredItem(oItem);
 
-		this.closeSubmenu(true);
-
 		if (jQuery.sap.checkMouseEnterOrLeave(oEvent, this.getDomRef())) {
-			this.getDomRef().focus();
+			if (!Device.browser.msie && !Device.browser.edge) { //for IE & Edge skip it, otherwise it will move the focus out of the hovered item set before
+				this.getDomRef().focus();
+			}
 		}
 
-		if (this.checkEnabled(oItem)) {
-			this.openSubmenu(oItem, false, true);
+		this._openSubMenuDelayed(oItem);
+
+	};
+
+	Menu.prototype._openSubMenuDelayed = function(oItem){
+		if (!oItem) {
+			return;
+		}
+		this._discardOpenSubMenuDelayed();
+		this._delayedSubMenuTimer = jQuery.sap.delayedCall(
+			oItem.getSubmenu() && this.checkEnabled(oItem) ? Menu._DELAY_SUBMENU_TIMER : Menu._DELAY_SUBMENU_TIMER_EXT,
+			this,
+			function(){
+				this.closeSubmenu();
+				if (!oItem.getSubmenu() || !this.checkEnabled(oItem)) {
+					return;
+				}
+				this.setHoveredItem(oItem);
+				this.openSubmenu(oItem, false, true);
+		});
+	};
+
+	Menu.prototype._discardOpenSubMenuDelayed = function(oItem){
+		if (this._delayedSubMenuTimer) {
+			jQuery.sap.clearDelayedCall(this._delayedSubMenuTimer);
+			this._delayedSubMenuTimer = null;
 		}
 	};
 
@@ -569,9 +598,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/Popup', 
 		}
 
 		if (jQuery.sap.checkMouseEnterOrLeave(oEvent, this.getDomRef())) {
-			if (!this.oOpenedSubMenu || !this.oOpenedSubMenu.getParent() === this.oHoveredItem) {
+			if (!this.oOpenedSubMenu || !(this.oOpenedSubMenu.getParent() === this.oHoveredItem)) {
 				this.setHoveredItem(null);
 			}
+			this._discardOpenSubMenuDelayed();
 		}
 	};
 

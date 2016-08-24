@@ -135,7 +135,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/thirdparty/URI
 	 * @class The Manifest class.
 	 * @extends sap.ui.base.Object
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @alias sap.ui.core.Manifest
 	 * @since 1.33.0
 	 */
@@ -345,8 +345,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/thirdparty/URI
 							//var sJsUrl = this.resolveUri(new URI(sFile.slice(0, m.index))).toString();
 							var sJsUrl = sComponentName.replace(/\./g, '/') + (sFile.slice(0, 1) === '/' ? '' : '/') + sFile.slice(0, m.index);
 							jQuery.sap.log.info("Component \"" + sComponentName + "\" is loading JS: \"" + sJsUrl + "\"");
-							// call internal require variant that accepts a requireJS path
-							jQuery.sap._requirePath(sJsUrl);
+							// call internal sap.ui.require variant that accepts a requireJS path and loads the module synchronously
+							sap.ui.requireSync(sJsUrl);
 						}
 					}
 				}

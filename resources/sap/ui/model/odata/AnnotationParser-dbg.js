@@ -59,7 +59,6 @@ var mMultipleArgumentDynamicExpressions = {
 var AnnotationsParser =  {
 
 	parse: function(oMetadata, oXMLDoc) {
-
 		var mappingList = {}, schemaNodes, schemaNode,
 		termNodes, oTerms, termNode, sTermType, annotationNodes, annotationNode,
 		annotationTarget, annotationNamespace, annotation, propertyAnnotation, propertyAnnotationNodes,
@@ -69,8 +68,8 @@ var AnnotationsParser =  {
 		this._parserData = {};
 
 		this._oXPath = this.getXPath();
-		this._parserData.metadataInstance = oMetadata.metadata;
-		this._parserData.serviceMetadata = oMetadata.metadata.getServiceMetadata();
+		this._parserData.metadataInstance = oMetadata;
+		this._parserData.serviceMetadata = oMetadata.getServiceMetadata();
 		this._parserData.xmlDocument = this._oXPath.setNameSpace(oXMLDoc);
 		this._parserData.schema = {};
 		this._parserData.aliases = {};

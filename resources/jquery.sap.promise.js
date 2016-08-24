@@ -3,4 +3,4 @@
  * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
-if(sap.ui.Device.browser.edge){window.Promise=undefined;}if(!window.Promise){jQuery.sap.require("sap.ui.thirdparty.es6-promise");ES6Promise.polyfill();}
+sap.ui.define(['jquery.sap.global','sap/ui/Device'],function(q,D){"use strict";if(D.browser.edge){window.Promise=undefined;}if(!window.Promise){q.sap.require("sap.ui.thirdparty.es6-promise");ES6Promise.polyfill();}});

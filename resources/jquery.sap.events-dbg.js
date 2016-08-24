@@ -926,9 +926,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 				if (oEvent.type === "mouseout") {
 					oNewEvent.setMarked("fromMouseout");
 				}
-				oConfig.eventHandle.handler.call(oConfig.domRef, oNewEvent);
-				// here the fromMouseout flag is checked, terminate the touch progress only when touchend event is not marked with fromMouseout.
-				if (oConfig.eventName === "touchend" && !oNewEvent.isMarked("fromMouseout")) {
+
+				// dragstart event is only used to determine when to stop the touch process and shouldn't trigger any event
+				if (oEvent.type !== "dragstart") {
+					oConfig.eventHandle.handler.call(oConfig.domRef, oNewEvent);
+				}
+
+				// here the fromMouseout flag is checked, terminate the touch progress when the native event is dragstart or touchend event
+				// is not marked with fromMouseout.
+				if ((oConfig.eventName === "touchend" || oEvent.type === "dragstart") && !oNewEvent.isMarked("fromMouseout")) {
 					$DomRef.removeData("__touch_in_progress");
 					$DomRef.removeData("__touchstart_control");
 				}
@@ -937,7 +943,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 		if (!(Device.support.pointer && Device.support.touch)) {
 			createSimulatedEvent("touchstart", ["mousedown"], fnMouseToTouchHandler);
 			createSimulatedEvent("touchend", ["mouseup", "mouseout"], fnMouseToTouchHandler);
-			createSimulatedEvent("touchmove", ["mousemove"], fnMouseToTouchHandler);
+			// Browser doesn't fire any mouse event after dragstart, so we need to listen to dragstart to cancel the current touch process in order
+			// to correctly stop firing the touchmove event
+			createSimulatedEvent("touchmove", ["mousemove", "dragstart"], fnMouseToTouchHandler);
 		}
 
 		// Simulate mouse events on touch devices
@@ -1045,7 +1053,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 						oConfig.eventHandle.handler.call(oConfig.domRef, oNewStartEvent);
 					});
 				} else if (oEvent.type === "touchend") {
-
 					oNewEndEvent = createNewEvent();
 					bSimulateClick = !bFingerIsMoved;
 
@@ -1476,6 +1483,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 	};
 
 	/**
+	 * Get the real native browser event from a jQuery event object
+	 */
+	var fnGetNativeEvent = function(oEvent) {
+		while (oEvent && oEvent.originalEvent) {
+			oEvent = oEvent.originalEvent;
+		}
+
+		return oEvent;
+	};
+
+	/**
 	 * Mark the event object for components that needs to know if the event was handled by a child component.
 	 * PRIVATE EXTENSION
 	 *
@@ -1485,7 +1503,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 	jQuery.Event.prototype.setMark = function(sKey, vValue) {
 		sKey = sKey || "handledByControl";
 		vValue = arguments.length < 2 ? true : vValue;
-		(this.originalEvent || this)["_sapui_" + sKey] = vValue;
+
+		var oNativeEvent = fnGetNativeEvent(this);
+		oNativeEvent["_sapui_" + sKey] = vValue;
 	};
 
 	/**
@@ -1505,8 +1525,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 	 * @returns {boolean}
 	 */
 	jQuery.Event.prototype.isMarked = function(sKey) {
+		return !!this.getMark(sKey);
+	};
+
+	/**
+	 * Return the marked value of a given key
+	 * PRIVATE EXTENSION
+	 *
+	 * @param {string} [sKey="handledByControl"]
+	 * @returns {any} the marked value or undefined
+	 */
+	jQuery.Event.prototype.getMark = function(sKey) {
 		sKey = sKey || "handledByControl";
-		return !!(this.originalEvent || this)["_sapui_" + sKey];
+
+		var oNativeEvent = fnGetNativeEvent(this);
+		return oNativeEvent["_sapui_" + sKey];
 	};
 
 

@@ -26,7 +26,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/layout/Respon
 	 * Use <code>LayoutData</code> to influence the layout for special cases in the Input/Display controls.
 	 * <b>Note:</b> If a more complex form is needed, use <code>Form</code> instead.
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -287,7 +287,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/layout/Respon
 			 * @since 1.32.0
 			 */
 			ariaLabelledBy: { type: "sap.ui.core.Control", multiple: true, singularName: "ariaLabelledBy" }
-		}
+		},
+		designTime: true
 	}});
 
 	SimpleForm.prototype.init = function() {
@@ -611,7 +612,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/layout/Respon
 			}
 			this._changedFormContainers.push(oFormContainer);
 		} else if (oElement.getMetadata().isInstanceOf("sap.ui.core.Label")) {
-			if (oOldElement instanceof sap.ui.core.Title || oElement.getMetadata().isInstanceOf("sap.ui.core.Toolbar")) {
+			if (oOldElement instanceof sap.ui.core.Title || oOldElement.getMetadata().isInstanceOf("sap.ui.core.Toolbar")) {
 				// add new FormElement to previous container
 				oOldFormContainer = oOldElement.getParent();
 				iContainerIndex = oForm.indexOfFormContainer(oOldFormContainer);
@@ -656,7 +657,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/layout/Respon
 			}
 			this._changedFormElements.push(oFormElement);
 		} else { // new field
-			if (oOldElement instanceof sap.ui.core.Title || oElement.getMetadata().isInstanceOf("sap.ui.core.Toolbar")) {
+			if (oOldElement instanceof sap.ui.core.Title || oOldElement.getMetadata().isInstanceOf("sap.ui.core.Toolbar")) {
 				// add new Field to last FormElement of previous FormContainer
 				oOldFormContainer = oOldElement.getParent();
 				iContainerIndex = oForm.indexOfFormContainer(oOldFormContainer);
@@ -904,7 +905,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/layout/Respon
 		if (!this._aElements) {
 			this._aElements = this.getAggregation("content", []);
 		}
-		return this._aElements;
+		return this._aElements.slice();
 
 	};
 
@@ -1470,6 +1471,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/layout/Respon
 			var oTitle = oFormContainer.getTitle();
 			if (oTitle) {
 				aElements.push(oTitle);
+			} else {
+				var oToolbar = oFormContainer.getToolbar();
+				if (oToolbar) {
+					aElements.push(oToolbar);
+				}
 			}
 
 			var aFormElements = oFormContainer.getFormElements();

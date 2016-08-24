@@ -5,8 +5,8 @@
  */
 
 //Provides an abstraction for list bindings
-sap.ui.define(['sap/ui/model/ContextBinding'],
-		function(ContextBinding) {
+sap.ui.define(['sap/ui/model/ContextBinding', 'sap/ui/model/ChangeReason'],
+		function(ContextBinding, ChangeReason) {
 	"use strict";
 
 
@@ -51,7 +51,7 @@ sap.ui.define(['sap/ui/model/ContextBinding'],
 			}
 			this.oModel.createBindingContext(this.sPath, this.oContext, this.mParameters, function(oContext) {
 				that.oElementContext = oContext;
-				that._fireChange();
+				that._fireChange({ reason: ChangeReason.Context });
 				if (sResolvedPath && bReloadNeeded) {
 					that.fireDataReceived();
 				}
@@ -91,11 +91,11 @@ sap.ui.define(['sap/ui/model/ContextBinding'],
 			this.oModel.createBindingContext(this.sPath, this.oContext, this.mParameters, function(oContext) {
 				if (that.oElementContext === oContext) {
 					if (bForceUpdate) {
-						that._fireChange();
+						that._fireChange({ reason: ChangeReason.Context });
 					}
 				} else {
 					that.oElementContext = oContext;
-					that._fireChange();
+					that._fireChange({ reason: ChangeReason.Context });
 				}
 				if (sResolvedPath) {
 					that.fireDataReceived();
@@ -127,7 +127,7 @@ sap.ui.define(['sap/ui/model/ContextBinding'],
 			}
 			this.oModel.createBindingContext(this.sPath, this.oContext, this.mParameters, function(oContext) {
 				that.oElementContext = oContext;
-				that._fireChange();
+				that._fireChange({ reason: ChangeReason.Context });
 				if (sResolvedPath && bReloadNeeded) {
 					that.fireDataReceived();
 				}

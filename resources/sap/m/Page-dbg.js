@@ -21,7 +21,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "sap/ui/
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -516,6 +516,27 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "sap/ui/
 			return this._getInternalHeader().destroyContentRight();
 		};
 
+
+		/**
+		 * Fiori 2.0 adaptation
+		 */
+		Page.prototype.setCustomHeader = function(oHeader) {
+
+			this.setAggregation("customHeader", oHeader);
+
+			if (oHeader && this.mEventRegistry["_adaptableContentChange"] ) {
+				this.fireEvent("_adaptableContentChange", {
+					"parent": this,
+					"adaptableContent": oHeader
+				});
+			}
+
+			return this;
+		};
+
+		Page.prototype._getAdaptableContent = function () {
+			return this._getAnyHeader();
+		};
 
 		return Page;
 

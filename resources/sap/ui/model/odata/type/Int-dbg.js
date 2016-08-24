@@ -21,7 +21,7 @@ sap.ui.define(['sap/ui/core/format/NumberFormat', 'sap/ui/model/FormatException'
 		var oFormatOptions;
 
 		if (!oType.oFormat) {
-			oFormatOptions = jQuery.extend({groupingEnabled: true}, oType.oFormatOptions);
+			oFormatOptions = jQuery.extend({groupingEnabled : true}, oType.oFormatOptions);
 			oType.oFormat = NumberFormat.getIntegerInstance(oFormatOptions);
 		}
 		return oType.oFormat;
@@ -56,7 +56,7 @@ sap.ui.define(['sap/ui/core/format/NumberFormat', 'sap/ui/model/FormatException'
 		switch (vNullable) {
 		case false:
 		case "false":
-			oType.oConstraints = {nullable: false};
+			oType.oConstraints = {nullable : false};
 			break;
 		case true:
 		case "true":
@@ -78,12 +78,12 @@ sap.ui.define(['sap/ui/core/format/NumberFormat', 'sap/ui/model/FormatException'
 	 * @extends sap.ui.model.odata.type.ODataType
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @alias sap.ui.model.odata.type.Int
 	 * @param {object} [oFormatOptions]
-	 *   type-specific format options; see sub-types
+	 *   type-specific format options; see subtypes
 	 * @param {object} [oConstraints]
 	 *   constraints; {@link #validateValue validateValue} throws an error if any constraint is
 	 *   violated

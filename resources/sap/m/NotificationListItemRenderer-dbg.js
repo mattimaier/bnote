@@ -14,17 +14,21 @@ sap.ui.define([], function () {
 	var NotificationListItemRenderer = {};
 
 	var classNameItem = 'sapMNLI';
+	var classNameBase = 'sapMNLB';
 	var classNameTextWrapper = 'sapMNLI-TextWrapper';
 	var classNameListBaseItem = 'sapMLIB';
-	var classNameAuthor = 'sapMNLI-AuthorPicture';
-	var classNamePriority = 'sapMNLI-Priority';
+	var classNameAuthor = 'sapMNLB-AuthorPicture';
+	var classNamePriority = 'sapMNLB-Priority';
+	var classNameBaseHeader = 'sapMNLB-Header';
 	var classNameHeader = 'sapMNLI-Header';
 	var classNameBody = 'sapMNLI-Body';
 	var classNameDescription = 'sapMNLI-Description';
 	var classNameDetails = 'sapMNLI-Details';
-	var classNameBullet = 'sapMNLI-Bullet';
+	var classNameBullet = 'sapMNLB-Bullet';
+	var classNameBaseFooter = 'sapMNLB-Footer';
 	var classNameFooter = 'sapMNLI-Footer';
-	var classNameCloseButton = 'sapMNLI-CloseButton';
+	var classNameNoFooter = 'sapMNLI-No-Footer';
+	var classNameCloseButton = 'sapMNLB-CloseButton';
 	var classNameCollapseButton = 'sapMNLI-CollapseButton';
 	var classNameInitialOverwriteTitle = 'sapMNLI-TitleWrapper--initial-overwrite';
 	var classNameInitialOverwriteText = 'sapMNLI-TextWrapper--initial-overwrite';
@@ -40,6 +44,7 @@ sap.ui.define([], function () {
 
 		oRm.write('<li');
 		oRm.addClass(classNameItem);
+		oRm.addClass(classNameBase);
 		oRm.addClass(classNameListBaseItem);
 		oRm.writeControlData(oControl);
 		oRm.writeAttribute('tabindex', '0');
@@ -58,7 +63,6 @@ sap.ui.define([], function () {
 		this.renderHeader(oRm, oControl);
 		this.renderBody(oRm, oControl);
 		this.renderFooter(oRm, oControl);
-		this.renderCloseButton(oRm, oControl);
 
 		oRm.write('</li>');
 	};
@@ -80,16 +84,16 @@ sap.ui.define([], function () {
 
 		switch (oControl.getPriority()) {
 			case (sap.ui.core.Priority.Low):
-				classPriority = 'sapMNLI-Low';
+				classPriority = 'sapMNLB-Low';
 				break;
 			case (sap.ui.core.Priority.Medium):
-				classPriority = 'sapMNLI-Medium';
+				classPriority = 'sapMNLB-Medium';
 				break;
 			case (sap.ui.core.Priority.High):
-				classPriority = 'sapMNLI-High';
+				classPriority = 'sapMNLB-High';
 				break;
 			default:
-				classPriority = 'sapMNLI-None';
+				classPriority = 'sapMNLB-None';
 				break;
 		}
 
@@ -128,7 +132,7 @@ sap.ui.define([], function () {
 	 */
 	NotificationListItemRenderer.renderCloseButton = function (oRm, oControl) {
 		if (oControl.getShowCloseButton()) {
-			oRm.renderControl(oControl._closeButton.addStyleClass(classNameCloseButton));
+			oRm.renderControl(oControl.getAggregation('_closeButton').addStyleClass(classNameCloseButton));
 		}
 	};
 
@@ -139,7 +143,7 @@ sap.ui.define([], function () {
 	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
 	 */
 	NotificationListItemRenderer.renderCollapseButton = function (oRm, oControl) {
-		oRm.renderControl(oControl._collapseButton.addStyleClass(classNameCollapseButton));
+		oRm.renderControl(oControl.getAggregation('_collapseButton').addStyleClass(classNameCollapseButton));
 	};
 
 	//================================================================================
@@ -154,15 +158,18 @@ sap.ui.define([], function () {
 	 */
 	NotificationListItemRenderer.renderHeader = function (oRm, oControl) {
 		oRm.write('<div');
+		oRm.addClass(classNameBaseHeader);
 		oRm.addClass(classNameHeader);
 		oRm.addClass(classNameInitialOverwriteTitle);
 
-		if (!oControl.getTruncate()) {
-			//oRm.addClass(classNameTitleExpanded);
+		if (buttonsShouldBeRendered(oControl)) {
+		    oRm.addClass(classNameNoFooter);
 		}
 
 		oRm.writeClasses();
 		oRm.write('>');
+
+		this.renderCloseButton(oRm, oControl);
 		this.renderTitle(oRm, oControl);
 		oRm.write('</div>');
 	};
@@ -188,7 +195,16 @@ sap.ui.define([], function () {
 	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
 	 */
 	NotificationListItemRenderer.renderBody = function (oRm, oControl) {
-		oRm.write('<div class=' + classNameBody + '>');
+
+		oRm.write('<div');
+		oRm.addClass(classNameBody);
+
+		if (buttonsShouldBeRendered(oControl)) {
+		    oRm.addClass(classNameNoFooter);
+		}
+
+		oRm.writeClasses();
+		oRm.write('>');
 
 		this.renderAuthorPicture(oRm, oControl);
 		oRm.write('<div class=' + classNameDescription + '>');
@@ -211,10 +227,6 @@ sap.ui.define([], function () {
 		oRm.addClass(classNameTextWrapper);
 		oRm.addClass(classNameInitialOverwriteText);
 
-		if (!oControl.getTruncate()) {
-			//oRm.addClass(classNameTextExpanded);
-		}
-
 		oRm.writeClasses();
 		oRm.write('>');
 
@@ -229,14 +241,20 @@ sap.ui.define([], function () {
 	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
 	 */
 	NotificationListItemRenderer.renderDetails = function(oRm, oControl) {
+		if (!oControl.getAuthorName() && !oControl.getDatetime()) {
+			return;
+		}
+
 		oRm.write('<div class="' + classNameDetails + '">');
 		this.renderAuthorName(oRm, oControl);
 
 		if (oControl.getAuthorName()) {
 			oRm.write('<span class="' + classNameBullet + '">&#x00B7</span>');
 		}
+
 		this.renderDatetime(oRm, oControl);
 		oRm.write('</div>');
+
 	};
 
 	/**
@@ -282,7 +300,13 @@ sap.ui.define([], function () {
 	NotificationListItemRenderer.renderFooter = function (oRm, oControl) {
 		var aButtons = oControl.getButtons();
 
-		oRm.write('<div class=' + classNameFooter + '>');
+		oRm.write('<div');
+		oRm.addClass(classNameFooter);
+		oRm.addClass(classNameBaseFooter);
+
+		oRm.writeClasses();
+		oRm.write('>');
+
 		this.renderCollapseButton(oRm, oControl);
 
 		if (aButtons && aButtons.length && oControl.getShowButtons()) {
@@ -290,6 +314,15 @@ sap.ui.define([], function () {
 		}
 		oRm.write('</div>');
 	};
+
+	/**
+	 * Checks if the body width should be 100%
+	 * @param {sap.m.NotificationListItem} oControl The NotificationListItem to be checked
+	 * @returns {boolean} If all the buttons are hidden
+     */
+	function buttonsShouldBeRendered(oControl) {
+		return oControl.getHideShowMoreButton() && (!oControl.getShowButtons() || !oControl.getButtons());
+	}
 
 	return NotificationListItemRenderer;
 

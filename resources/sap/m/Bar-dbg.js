@@ -24,7 +24,7 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 	 * @implements sap.m.IBar
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -77,7 +77,8 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 			 *  Represents the right content area. Controls such as action buttons or search field can be placed here.
 			 */
 			contentRight : {type : "sap.ui.core.Control", multiple : true, singularName : "contentRight"}
-		}
+		},
+		designtime : true
 	}});
 
 	Bar.prototype.onBeforeRendering = function() {
@@ -248,8 +249,12 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 			// hence we make sure the rightContent always has enough space and reduce the left content area width accordingly
 			iLeftBarWidth = iBarWidth - iRightBarWidth;
 
-			this._$LeftBar.width(iLeftBarWidth);
-			this._$MidBarPlaceHolder.width(0);
+			// using .css("width",...) sets the width of the element including the borders
+			// and using only .width sets the width without the borders
+			// in our case we have style box-sizing: border-box, so we need the borders
+			this._$LeftBar.css({ width : iLeftBarWidth + "px" });
+
+			this._$MidBarPlaceHolder.css({ width : "0px" });
 			return;
 
 		}
@@ -263,9 +268,9 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 	 * Returns the CSS for the contentMiddle aggregation.
 	 * It is centered if there is enough space for it to fit between the left and the right content, otherwise it is centered between them.
 	 * If not it will be centered between those two.
-	 * @param {integer} iRightBarWidth The width in px
-	 * @param {integer} iBarWidth The width in px
-	 * @param {integer} iLeftBarWidth The width in px
+	 * @param {int} iRightBarWidth The width in px
+	 * @param {int} iBarWidth The width in px
+	 * @param {int} iLeftBarWidth The width in px
 	 * @returns {object} The new _$MidBarPlaceHolder CSS value
 	 * @private
 	 */

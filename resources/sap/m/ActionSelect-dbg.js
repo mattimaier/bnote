@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './Select', './library'],
 		 * @extends sap.m.Select
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -84,12 +84,6 @@ sap.ui.define(['jquery.sap.global', './Select', './library'],
 		/* Lifecycle methods                                           */
 		/* =========================================================== */
 
-		/**
-		 * Called after the ActionSelect picker pop-up is render.
-		 *
-		 * @override
-		 * @protected
-		 */
 		ActionSelect.prototype.onAfterRenderingPicker = function() {
 			Select.prototype.onAfterRenderingPicker.call(this);
 			var oPicker = this.getPicker(),
@@ -158,6 +152,9 @@ sap.ui.define(['jquery.sap.global', './Select', './library'],
 		 *
 		 */
 		ActionSelect.prototype.onsaptabprevious = function(oEvent) {
+			var aButtons = this.getButtons(),
+				oPicker = this.getPicker(),
+				i;
 
 			// check whether event is marked or not
 			if ( oEvent.isMarked() || !this.getEnabled()) {
@@ -166,12 +163,15 @@ sap.ui.define(['jquery.sap.global', './Select', './library'],
 
 			// mark the event for components that needs to know if the event was handled
 			oEvent.setMarked();
-			var aButtons = this.getButtons();
-			var oPicker = this.getPicker();
 
 			if (oPicker && oPicker.isOpen() && aButtons.length > 0) {
-				sap.ui.getCore().byId(aButtons[aButtons.length - 1]).focus();
-				oEvent.preventDefault();
+				for (i = aButtons.length - 1; i >= 0; i--) {
+					if (sap.ui.getCore().byId(aButtons[i]).getEnabled()) {
+						sap.ui.getCore().byId(aButtons[i]).focus();
+						oEvent.preventDefault();
+						break;
+					}
+				}
 			}
 		};
 
@@ -183,6 +183,9 @@ sap.ui.define(['jquery.sap.global', './Select', './library'],
 		 *
 		 */
 		ActionSelect.prototype.onsaptabnext = function(oEvent) {
+			var aButtons = this.getButtons(),
+				oPicker = this.getPicker(),
+				i;
 
 			// check whether event is marked or not
 			if ( oEvent.isMarked() || !this.getEnabled()) {
@@ -192,12 +195,14 @@ sap.ui.define(['jquery.sap.global', './Select', './library'],
 			// mark the event for components that needs to know if the event was handled
 			oEvent.setMarked();
 
-			var aButtons = this.getButtons();
-			var oPicker = this.getPicker();
-
 			if (oPicker && oPicker.isOpen() && aButtons.length > 0) {
-				sap.ui.getCore().byId(aButtons[0]).focus();
-				oEvent.preventDefault();
+				for (i = 0; i < aButtons.length; i++) {
+					if (sap.ui.getCore().byId(aButtons[i]).getEnabled()) {
+						sap.ui.getCore().byId(aButtons[i]).focus();
+						oEvent.preventDefault();
+						break;
+					}
+				}
 			}
 		};
 

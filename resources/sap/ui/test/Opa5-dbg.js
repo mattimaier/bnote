@@ -21,7 +21,7 @@ sap.ui.define([
 		'./pipelines/MatcherPipeline',
 		'./pipelines/ActionPipeline'
 	],
-	function($,
+	function(jQuery,
 			 Opa,
 			 OpaPlugin,
 			 PageObjectFactory,
@@ -38,11 +38,11 @@ sap.ui.define([
 			 ActionPipeline) {
 		"use strict";
 
-		var oPlugin = new OpaPlugin(),
+		var $ = jQuery,
+			oPlugin = new OpaPlugin(iFrameLauncher._sLogPrefix),
 			oMatcherPipeline = new MatcherPipeline(),
 			oActionPipeline = new ActionPipeline(),
-			sFrameId = "OpaFrame",
-			bComponentLoaded = false;
+			sFrameId = "OpaFrame";
 
 		/**
 		 * Helps you when writing tests for UI5 applications.
@@ -79,16 +79,13 @@ sap.ui.define([
 				}
 			});
 
-			return this.waitFor({
-				// make sure no controls are searched by the defaults
-				viewName: null,
-				controlType: null,
-				id: null,
-				searchOpenDialogs: false,
-				check : iFrameLauncher.hasLaunched,
-				timeout : iTimeout || 80,
-				errorMessage : "unable to load the iframe with the url: " + sSource
-			});
+			var oOptions = createWaitForObjectWithoutDefaults();
+
+			oOptions.check = iFrameLauncher.hasLaunched;
+			oOptions.timeout = iTimeout || 80;
+			oOptions.errorMessage = "unable to load the IFrame with the url: " + sSource;
+
+			return this.waitFor(oOptions);
 		}
 
 		/**
@@ -103,6 +100,7 @@ sap.ui.define([
 		 * @function
 		 */
 		Opa5.prototype.iStartMyUIComponent = function iStartMyUIComponent (oOptions){
+			var bComponentLoaded = false;
 			oOptions = oOptions || {};
 
 			// wait for starting of component launcher
@@ -124,16 +122,10 @@ sap.ui.define([
 				}
 			});
 
-			var oPropertiesForWaitFor = {
-				// make sure no controls are searched by the defaults
-				viewName: null,
-				controlType: null,
-				id: null,
-				searchOpenDialogs: false,
-				check: function () {
-					return bComponentLoaded;
-				},
-				errorMessage: "Unable to load the component with the name: " + oOptions.name
+			var oPropertiesForWaitFor = createWaitForObjectWithoutDefaults();
+			oPropertiesForWaitFor.errorMessage = "Unable to load the component with the name: " + oOptions.name;
+			oPropertiesForWaitFor.check = function () {
+				return bComponentLoaded;
 			};
 
 			// add timeout to object for waitFor when timeout is specified
@@ -156,10 +148,34 @@ sap.ui.define([
 			return this.waitFor({
 				success : function () {
 					componentLauncher.teardown();
-					bComponentLoaded = false;
 				}
 			});
 
+		};
+
+		/**
+		 * Tears down an IFrame or a component, launched by
+		 * @link{sap.ui.test.Opa5#iStartMyAppInAFrame} or @link{sap.ui.test.Opa5#iStartMyUIComponent}.
+		 * This function desinged for making your test's teardown independent of the startup.
+		 * If nothing has been started, this function will throw an error.
+		 * @returns {jQuery.promise|*|{result, arguments}}
+		 */
+		Opa5.prototype.iTeardownMyApp = function () {
+			var oOptions = createWaitForObjectWithoutDefaults();
+			oOptions.success = function () {
+				if (iFrameLauncher.hasLaunched()) {
+					this.iTeardownMyAppFrame();
+				} else if (componentLauncher.hasLaunched()) {
+					this.iTeardownMyUIComponent();
+				} else {
+					var sErrorMessage = "A teardown was called but there was nothing to tear down use iStartMyComponent or iStartMyAppInAFrame";
+					$.sap.log.error(sErrorMessage, "Opa");
+					throw new Error(sErrorMessage);
+				}
+			}.bind(this);
+
+
+			return this.waitFor(oOptions);
 		};
 
 		/**
@@ -175,7 +191,7 @@ sap.ui.define([
 		/**
 		 * Starts an app in an IFrame. Only works reliably if running on the same server.
 		 * @param {string} sSource The source of the IFrame
-		 * @param {integer} [iTimeout=80] The timeout for loading the IFrame in seconds - default is 80
+		 * @param {int} [iTimeout=80] The timeout for loading the IFrame in seconds - default is 80
 		 * @returns {jQuery.promise} A promise that gets resolved on success
 		 * @public
 		 * @function
@@ -250,9 +266,9 @@ sap.ui.define([
 		 * @param {string} [oOptions.controlType] For example <code>"sap.m.Button"</code> will search for all buttons inside of a container. If an id ID given, this is ignored.
 		 * @param {boolean} [oOptions.searchOpenDialogs=false] If set to true, Opa5 will only look in open dialogs. All the other values except control type will be ignored
 		 * @param {boolean} [oOptions.visible=true] If set to false, Opa5 will also look for unrendered and invisible controls.
-		 * @param {integer} [oOptions.timeout=15] (seconds) Specifies how long the waitFor function polls before it fails.
+		 * @param {int} [oOptions.timeout=15] (seconds) Specifies how long the waitFor function polls before it fails.
 		 * Timeout will increased to 5 minutes if running in debug mode e.g. with URL parameter sap-ui-debug=true.
-		 * @param {integer} [oOptions.pollingInterval=400] (milliseconds) Specifies how often the waitFor function polls.
+		 * @param {int} [oOptions.pollingInterval=400] (milliseconds) Specifies how often the waitFor function polls.
 		 * @param {function} [oOptions.check] Will get invoked in every polling interval. If it returns true, the check is successful and the polling will stop.
 		 * The first parameter passed into the function is the same value that gets passed to the success function.
 		 * Returning something other than boolean in check will not change the first parameter of success.
@@ -301,7 +317,7 @@ sap.ui.define([
 		 * The actions will be invoked directly before success is called.
 		 * In the documentation of the success parameter there is a list of conditions that have to be fulfilled.
 		 * They also apply for the actions.
-		 * There are some predefined actions in the @{link sap.ui.test.actions} namespace.
+		 * There are some predefined actions in the {@link sap.ui.test.actions} namespace.
 		 * @returns {jQuery.promise} A promise that gets resolved on success
 		 * @public
 		 */
@@ -314,25 +330,26 @@ sap.ui.define([
 			var fnOriginalCheck = oOptions.check,
 				vControl = null,
 				fnOriginalSuccess = oOptions.success,
-				vResult;
+				vResult,
+				bPluginLooksForControls;
 
 			oOptions.check = function () {
 				//retrieve the constructor instance
 				if (!this._modifyControlType(oOptions)) {
-
 					// skip - control type resulted in undefined or lazy stub
 					return false;
-
 				}
-
 
 				// Create a new options object for the plugin to keep the original one as is
 				var oPluginOptions = $.extend({}, oOptions, {
-					// only pass interactable if there are actions for backwards compatibility
-					interactable: !!vActions
-				});
+						// only pass interactable if there are actions for backwards compatibility
+						interactable: !!vActions
+					}),
+					oPlugin = Opa5.getPlugin();
 
-				vControl = Opa5.getPlugin().getMatchingControls(oPluginOptions);
+				bPluginLooksForControls = oPlugin._isLookingForAControl(oPluginOptions);
+
+				vControl = oPlugin.getMatchingControls(oPluginOptions);
 
 				//Search for a controlType in a view or open dialog
 				if ((oOptions.viewName || oOptions.searchOpenDialogs) && !oOptions.id && !vControl || (vControl && vControl.length === 0)) {
@@ -365,12 +382,13 @@ sap.ui.define([
 					return false;
 				}
 
-				if (oOptions.sOriginalControlType && !vControl.length) {
+				if (oOptions.sOriginalControlType && $.isArray(vControl) && !vControl.length) {
 					jQuery.sap.log.debug("found no controls with the type  " + oOptions.sOriginalControlType, "", "Opa");
 					return false;
 				}
 
-				if (vControl && oOptions.matchers) {
+				// If the plugin does not look for controls execute matchers even if vControl is falsy
+				if ((vControl || !bPluginLooksForControls) && oOptions.matchers) {
 					vResult = oMatcherPipeline.process({
 						matchers: oOptions.matchers,
 						control: vControl
@@ -393,7 +411,8 @@ sap.ui.define([
 			};
 
 			oOptions.success = function () {
-				if (vActions && vResult) {
+				// If the plugin does not look for controls execute actions even if vControl is falsy
+				if (vActions && (vResult || !bPluginLooksForControls)) {
 					oActionPipeline.process({
 						actions: vActions,
 						control: vResult
@@ -455,8 +474,89 @@ sap.ui.define([
 
 
 		/**
-		 * Extends the default config of Opa
-		 * See {@link sap.ui.test.Opa5#extendConfig}
+		 *
+		 * Extends and overwrites default values of the {@link sap.ui.test.Opa#.config}.
+		 * Most frequent usecase:
+		 * <pre>
+		 *     <code>
+		 *         // Every waitFor will append this namespace in front of your viewName
+		 *         Opa5.extendConfig({
+		 *            viewNamespace: "namespace.of.my.views."
+		 *         });
+		 *
+		 *         var oOpa = new Opa5();
+		 *
+		 *         // Looks for a control with the id "myButton" in a View with the name "namespace.of.my.views.Detail"
+		 *         oOpa.waitFor({
+		 *              id: "myButton",
+		 *              viewName: "Detail"
+		 *         });
+		 *
+		 *         // Looks for a control with the id "myList" in a View with the name "namespace.of.my.views.Master"
+		 *         oOpa.waitFor({
+		 *              id: "myList",
+		 *              viewName: "Master"
+		 *         });
+		 *     </code>
+		 * </pre>
+		 *
+		 * Sample usage:
+		 * <pre>
+		 *     <code>
+		 *         var oOpa = new Opa5();
+		 *
+		 *         // this statement will  will time out after 15 seconds and poll every 400ms.
+		 *         // those two values come from the defaults of {@link sap.ui.test.Opa#.config}.
+		 *         oOpa.waitFor({
+		 *         });
+		 *
+		 *         // All wait for statements added after this will take other defaults
+		 *         Opa5.extendConfig({
+		 *             timeout: 10,
+		 *             pollingInterval: 100
+		 *         });
+		 *
+		 *         // this statement will time out after 10 seconds and poll every 100 ms
+		 *         oOpa.waitFor({
+		 *         });
+		 *
+		 *         // this statement will time out after 20 seconds and poll every 100 ms
+		 *         oOpa.waitFor({
+		 *             timeout: 20;
+		*         });
+		 *     </code>
+		 * </pre>
+		 *
+		 * @since 1.40 The own properties of 'arrangements, actions and assertions' will be kept.
+		 * Here is an example:
+		 * <pre>
+		 *     <code>
+		 *         // An opa action with an own property 'clickMyButton'
+		 *         var myOpaAction = new Opa5();
+		 *         myOpaAction.clickMyButton = // function that clicks MyButton
+		 *         Opa.config.actions = myOpaAction;
+		 *
+		 *         var myExtension = new Opa5();
+		 *         Opa5.extendConfig({
+		 *             actions: myExtension
+		 *         });
+		 *
+		 *         // The clickMyButton function is still available - the function is logged out
+		 *         console.log(Opa.config.actions.clickMyButton);
+		 *
+		 *         // If
+		 *         var mySecondExtension = new Opa5();
+		 *         mySecondExtension.clickMyButton = // a different function than the initial one
+		 *         Opa.extendConfig({
+		 *             actions: mySecondExtension
+		 *         });
+		 *
+		 *         // Now clickMyButton function is the function of the second extension not the first one.
+		 *         console.log(Opa.config.actions.clickMyButton);
+		 *     </code>
+		 * </pre>
+		 *
+		 * @param {object} options The values to be added to the existing config
 		 * @public
 		 * @function
 		 */
@@ -561,28 +661,13 @@ sap.ui.define([
 				return true;
 			}
 
-			oOptions.sOriginalControlType = vControlType;
-			var oWindow = iFrameLauncher.getWindow() || window;
+			var oControlConstructor = Opa5.getPlugin().getControlConstructor(vControlType);
 
-			// if the new _isStub is available, check for a stub first before accessing the object via its global name
-			if (oWindow.sap.ui.lazyRequire && oWindow.sap.ui.lazyRequire._isStub && oWindow.sap.ui.lazyRequire._isStub(vControlType)) {
-				jQuery.sap.log.debug("The control type " + vControlType + " is currently a lazy stub. Skipped check and will wait until it is invoked", this);
+			if (!oControlConstructor) {
 				return false;
 			}
 
-			var fnControlType = oWindow.jQuery.sap.getObject(vControlType);
-
-			// no control type
-			if (!fnControlType) {
-				jQuery.sap.log.debug("The control type " + vControlType + " is undefined. Skipped check and will wait until it is required", this);
-				return false;
-			}
-			if (fnControlType._sapUiLazyLoader) {
-				jQuery.sap.log.debug("The control type " + vControlType + " is currently a lazy stub. Skipped check and will wait until it is invoked", this);
-				return false;
-			}
-
-			oOptions.controlType = fnControlType;
+			oOptions.controlType = oControlConstructor;
 			return true;
 		};
 
@@ -614,6 +699,16 @@ sap.ui.define([
 				source: sSource
 			});
 
+		}
+
+		function createWaitForObjectWithoutDefaults () {
+			return {
+				// make sure no controls are searched by the defaults
+				viewName: null,
+				controlType: null,
+				id: null,
+				searchOpenDialogs: false
+			};
 		}
 
 		$(function () {

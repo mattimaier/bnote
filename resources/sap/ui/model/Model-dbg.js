@@ -18,6 +18,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 	 * A model implementation should specify its supported binding modes and set the default binding mode accordingly
 	 * (e.g. if the model supports only one way binding the default binding mode should also be set to one way).
 	 *
+	 * The default size limit for models is 100. The size limit determines the number of entries used for the list bindings.
+	 *
 	 *
 	 * @namespace
 	 * @name sap.ui.model
@@ -36,7 +38,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 	 * @extends sap.ui.core.message.MessageProcessor
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public

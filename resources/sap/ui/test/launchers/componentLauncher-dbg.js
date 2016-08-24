@@ -39,9 +39,7 @@ sap.ui.define([
 
 				// create and add div to html
 				_$Component = $('<div id="' + sId + '" class="sapUiOpaComponent"></div>');
-				$("body").append(_$Component);
-				$("body").addClass("sapUiOpaBodyComponent");
-
+				$("body").append(_$Component).addClass("sapUiOpaBodyComponent");
 
 				// create and place the component into html
 				_oComponentContainer = new ComponentContainer({component: oComponent});
@@ -49,6 +47,10 @@ sap.ui.define([
 				_oComponentContainer.placeAt(sId);
 			});
 
+		},
+
+		hasLaunched : function () {
+			return _loadingStarted;
 		},
 
 		teardown: function () {

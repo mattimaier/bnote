@@ -12,6 +12,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.act', 'jqu
 	// local logger, by default only logging errors
 	var log = jQuery.sap.log.getLogger("sap.ui.core.ResizeHandler", jQuery.sap.log.Level.ERROR);
 
+	function lazyInstanceof(o, sModule) {
+		var FNClass = sap.ui.require(sModule);
+		return typeof FNClass === 'function' && (o instanceof FNClass);
+	}
+
 	/**
 	 * Reference to the Core (implementation view, not facade)
 	 * @type {sap.ui.core.Core}
@@ -26,7 +31,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.act', 'jqu
 	 * @alias sap.ui.core.ResizeHandler
 	 * @extends sap.ui.base.Object
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @public
 	 */
 
@@ -89,7 +94,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.act', 'jqu
 	 * @private
 	 */
 	ResizeHandler.prototype.attachListener = function(oRef, fHandler){
-		var bIsControl = oRef instanceof sap.ui.core.Control,
+		var bIsControl = lazyInstanceof(oRef, 'sap/ui/core/Control'),
 			oDom = bIsControl ? oRef.getDomRef() : oRef,
 			iWidth = oDom ? oDom.offsetWidth : 0,
 			iHeight = oDom ? oDom.offsetHeight : 0,

@@ -5,7 +5,7 @@
  */
 
 sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger', './Route', './Views', './Targets', 'sap/ui/thirdparty/crossroads'],
-	function($, EventProvider, HashChanger, Route, Views, Targets, crossroads) {
+	function(jQuery, EventProvider, HashChanger, Route, Views, Targets, crossroads) {
 	"use strict";
 
 		var oRouters = {};
@@ -207,23 +207,23 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 					oRoutes = {};
 				}
 
-				if ($.isArray(oRoutes)) {
+				if (jQuery.isArray(oRoutes)) {
 					//Convert route object
 					aRoutes = oRoutes;
 					oRoutes = {};
-					$.each(aRoutes, function(iRouteIndex, oRouteConfig) {
+					jQuery.each(aRoutes, function(iRouteIndex, oRouteConfig) {
 						oRoutes[oRouteConfig.name] = oRouteConfig;
 					});
 				}
 
-				$.each(oRoutes, function(sRouteName, oRouteConfig) {
+				jQuery.each(oRoutes, function(sRouteName, oRouteConfig) {
 					if (oRouteConfig.name === undefined) {
 						oRouteConfig.name = sRouteName;
 					}
 					that.addRoute(oRouteConfig);
 				});
 
-				this._oRouter.bypassed.add($.proxy(this._onBypassed, this));
+				this._oRouter.bypassed.add(jQuery.proxy(this._onBypassed, this));
 			},
 
 			/**
@@ -235,11 +235,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 */
 			addRoute : function (oConfig, oParent) {
 				if (!oConfig.name) {
-					$.sap.log.error("A name has to be specified for every route", this);
+					jQuery.sap.log.error("A name has to be specified for every route", this);
 				}
 
 				if (this._oRoutes[oConfig.name]) {
-					$.sap.log.error("Route with name " + oConfig.name + " already exists", this);
+					jQuery.sap.log.error("Route with name " + oConfig.name + " already exists", this);
 				}
 				this._oRoutes[oConfig.name] = new Route(this, oConfig, oParent);
 			},
@@ -254,7 +254,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 				if (this._oRouter) {
 					this._oRouter.parse(sNewHash);
 				} else {
-					$.sap.log.warning("This router has been destroyed while the hash changed. No routing events where fired by the destroyed instance.", this);
+					jQuery.sap.log.warning("This router has been destroyed while the hash changed. No routing events where fired by the destroyed instance.", this);
 				}
 			},
 
@@ -269,7 +269,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 					oHashChanger = this.oHashChanger = HashChanger.getInstance();
 
 				if (this._bIsInitialized) {
-					$.sap.log.warning("Router is already initialized.", this);
+					jQuery.sap.log.warning("Router is already initialized.", this);
 					return this;
 				}
 
@@ -280,7 +280,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 				};
 
 				if (!oHashChanger) {
-					$.sap.log.error("navTo of the router is called before the router is initialized. If you want to replace the current hash before you initialize the router you may use getUrl and use replaceHash of the Hashchanger.", this);
+					jQuery.sap.log.error("navTo of the router is called before the router is initialized. If you want to replace the current hash before you initialize the router you may use getUrl and use replaceHash of the Hashchanger.", this);
 					return;
 				}
 
@@ -303,7 +303,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			stop : function () {
 
 				if (!this._bIsInitialized) {
-					$.sap.log.warning("Router is not initialized. But it got stopped", this);
+					jQuery.sap.log.warning("Router is not initialized. But it got stopped", this);
 				}
 
 				if (this.fnHashChanged) {
@@ -327,7 +327,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 				EventProvider.prototype.destroy.apply(this);
 
 				if (!this._bIsInitialized) {
-					$.sap.log.info("Router is not initialized, but got destroyed.", this);
+					jQuery.sap.log.info("Router is not initialized, but got destroyed.", this);
 				}
 
 				if (this.fnHashChanged) {
@@ -338,7 +338,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 				this._oRouter.removeAllRoutes();
 				this._oRouter = null;
 
-				$.each(this._oRoutes, function(iRouteIndex, oRoute) {
+				jQuery.each(this._oRoutes, function(iRouteIndex, oRoute) {
 					oRoute.destroy();
 				});
 				this._oRoutes = null;
@@ -370,7 +370,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 
 				var oRoute = this.getRoute(sName);
 				if (!oRoute) {
-					$.sap.log.warning("Route with name " + sName + " does not exist", this);
+					jQuery.sap.log.warning("Route with name " + sName + " does not exist", this);
 					return;
 				}
 				return oRoute.getURL(oParameters);
@@ -498,6 +498,32 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			},
 
 			/**
+			 * The 'routeMatched' event is fired, when the current URL hash matches:
+			 * <pre>
+			 *  a. the pattern of a route in this router.
+			 *  b. the pattern of its sub-route.
+			 *  c. the pattern of its nested route. When this occurs, the 'nestedRoute' parameter is set with the instance of nested route.
+			 * </pre>
+			 *
+			 * Please refer to event {@link sap.ui.core.routing.Router#event:routePatternMatched|routePatternMatched} for getting notified only when a route's own pattern is matched with the URL hash not its sub-routes.
+			 *
+			 * @name sap.ui.core.routing.Router#routeMatched
+			 * @event
+			 * @param {sap.ui.base.Event} oEvent
+			 * @param {sap.ui.base.EventProvider} oEvent.getSource
+			 * @param {object} oEvent.getParameters
+			 * @param {string} oEvent.getParameters.name The name of the route
+			 * @param {object} oEvent.getParameters.arguments An key-value pair object which contains the arguments defined in the route
+			 *  resolved with the corresponding information from the current URL hash
+			 * @param {object} oEvent.getParameters.config The configuration object of the route
+			 * @param {sap.ui.core.routing.Route} [oEvent.getParameters.nestedRoute] The nested route instance of this route. The event
+			 *  is fired on this route because the pattern in the nested route is matched with the current URL hash. This parameter can be
+			 *  used to decide whether the current route is matched because of its nested child route. For more information about nested
+			 *  child route please refer to the documentation of oConfig.parent in {@link sap.ui.core.routing.Route#constructor}
+			 * @public
+			 */
+
+			/**
 			 * Attach event-handler <code>fnFunction</code> to the 'routeMatched' event of this <code>sap.ui.core.routing.Router</code>.<br/>
 			 *
 			 *
@@ -589,6 +615,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			},
 
 			/**
+			 * The 'routePatternMatched' event is fired, only when the current URL hash matches the pattern of a route in this router.
+			 *
+			 * @name sap.ui.core.routing.Router#routePatternMatched
+			 * @event
+			 * @param {sap.ui.base.Event} oEvent
+			 * @param {sap.ui.base.EventProvider} oEvent.getSource
+			 * @param {object} oEvent.getParameters
+			 * @param {string} oEvent.getParameters.name The name of the route
+			 * @param {object} oEvent.getParameters.arguments An key-value pair object which contains the arguments defined in the route
+			 *  resolved with the corresponding information from the current URL hash
+			 * @param {object} oEvent.getParameters.config The configuration object of the route
+			 * @public
+			 */
+
+			/**
 			 * Attach event-handler <code>fnFunction</code> to the 'routePatternMatched' event of this <code>sap.ui.core.routing.Router</code>.<br/>
 			 * This event is similar to route matched. But it will only fire for the route that has a matching pattern, not for its parent Routes <br/>
 			 *
@@ -636,14 +677,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			},
 
 			/**
-			 * If no route of the router matches, the bypassed event will be fired.
+			 * The 'bypassed' event is fired, when no route of the router matches the changed URL hash
 			 *
 			 * @name sap.ui.core.routing.Router#bypassed
 			 * @event
-			 * @param {sap.ui.base.Event} oEvent have a look at the @link {sap.ui.base.EventProvider} for details about getSource and getParameters
+			 * @param {sap.ui.base.Event} oEvent
 			 * @param {sap.ui.base.EventProvider} oEvent.getSource
 			 * @param {object} oEvent.getParameters
-			 * @param {string} oEvent.getParameters.hash the hash that did not match any route.
+			 * @param {string} oEvent.getParameters.hash the current URL hash which did not match any route
+			 * @public
 			 */
 
 			/**

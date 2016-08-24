@@ -16,7 +16,7 @@ sap.ui.define('sap/ui/debug/DebugEnv', ['jquery.sap.global', 'sap/ui/base/Interf
 	 * @class Central Class for the Debug Environment
 	 *
 	 * @author Martin Schaus, Frank Weigel
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @private
 	 * @alias sap.ui.debug.DebugEnv
 	 */

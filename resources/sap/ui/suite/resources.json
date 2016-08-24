@@ -128,6 +128,13 @@
       ]
     },
     {
+      "name": "library-preload.js",
+      "merged": true
+    },
+    {
+      "name": "library-preload.js.map"
+    },
+    {
       "name": "library-preload.json",
       "merged": true
     },

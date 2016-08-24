@@ -11,7 +11,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		/**
 		 * Constructor for a new <code>sap.m.Slider</code>.
 		 *
-		 * @param {string} [sId] Id for the new control, generated automatically if no ID is given.
+		 * @param {string} [sId] ID for the new control, generated automatically if no ID is given.
 		 * @param {object} [mSettings] Initial settings for the new control.
 		 *
 		 * @class
@@ -19,7 +19,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @public
@@ -83,7 +83,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				 * @since 1.31
 				 *
 				 */
-				showHandleTooltip: { type: "boolean", group: "Appearance", defaultValue: true }
+				showHandleTooltip: { type: "boolean", group: "Appearance", defaultValue: true}
 			},
 			associations: {
 
@@ -181,10 +181,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			// if the step is negative or 0, set to 1 and log a warning
 			if (fStep <= 0) {
 				jQuery.sap.log.warning("Warning: " + "The step could not be negative on ", this);
-				fStep = 1;
-
-				// update the step to 1 and suppress re-rendering
-				this.setProperty("step", fStep, true);
 			}
 
 			// the step can't be bigger than slider range, log a warning
@@ -245,14 +241,19 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				iIndexOfDot = sValue.indexOf("."),
 				iIndexOfENotation = sValue.indexOf("e-"),
 				bIndexOfENotationFound = iIndexOfENotation !== -1, // the "e-" is found in the value
-				bIndexOfDotFound = iIndexOfDot !== -1;	// the "." is found in the value
+				bIndexOfDotFound = iIndexOfDot !== -1; // the "." is found in the value
 
 			// note: numbers such as 0.0000005 are represented using the e-notation
 			// (for example, 0.0000005 becomes 5e-7)
 			if (bIndexOfENotationFound) {
 
+				// get the e-notation exponent e.g.: in the number 5e-7, the exponent is 7
 				var iENotationExponent = +sValue.slice(iIndexOfENotation + 2);
 
+				// If both, the e-notation and the dot character are found in the string representation of the number,
+				// it means that the number has a format similar to e.g.: 1.15e-7.
+				// In this case, the precision is calculated by adding the number of digits between the dot character
+				// and the e character, e.g.: the number 1.15e-7 has a precision of 9
 				if (bIndexOfDotFound) {
 					return iENotationExponent + sValue.slice(iIndexOfDot + 1, iIndexOfENotation).length;
 				}
@@ -404,10 +405,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		/* Lifecycle methods                                           */
 		/* =========================================================== */
 
-		/**
-		 * Initialization hook.
-		 *
-		 */
 		Slider.prototype.init = function() {
 
 			// used to track the id of touch points
@@ -416,9 +413,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			this._bSetValueFirstCall = true;
 		};
 
-		/**
-		 * This event handler is called before the rendering of the control is started.
-		 */
 		Slider.prototype.onBeforeRendering = function() {
 
 			var bError = this._validateProperties();

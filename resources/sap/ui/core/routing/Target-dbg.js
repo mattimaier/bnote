@@ -6,7 +6,7 @@
 
 
 sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/core/routing/async/Target', 'sap/ui/core/routing/sync/Target'],
-	function($, EventProvider, asyncTarget, syncTarget) {
+	function(jQuery, EventProvider, asyncTarget, syncTarget) {
 		"use strict";
 
 		/**
@@ -69,9 +69,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/core/ro
 			},
 
 			/**
-			 * Creates a view and puts it in an aggregation of a control that has been defined in the {@link #constructor}.
+			 * Creates a view and puts it in an aggregation of a control that has been defined in the {@link sap.ui.core.routing.Target#constructor}.
 			 *
 			 * @name sap.ui.core.routing.Target#display
+			 * @function
 			 * @param {*} [vData] an object that will be passed to the display event in the data property. If the target has parents, the data will also be passed to them.
 			 * @return {Promise} resolves with {name: *, view: *, control: *} if the target can be successfully displayed otherwise it resolves with {name: *, error: *}
 			 * @public
@@ -82,13 +83,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/core/ro
 			 *
 			 * Could be triggered by calling the display function or by the @link sap.ui.core.routing.Router when a target is referenced in a matching route.
 			 *
+			 * @name sap.ui.core.routing.Target#display
+			 * @event
 			 * @param {object} oEvent
+			 * @param {sap.ui.base.EventProvider} oEvent.getSource
 			 * @param {object} oEvent.getParameters
 			 * @param {object} oEvent.getParameters.view The view that got displayed.
 			 * @param {object} oEvent.getParameters.control The control that now contains the view in the controlAggregation
 			 * @param {object} oEvent.getParameters.config The options object passed to the constructor {@link sap.ui.core.routing.Target#constuctor}
 			 * @param {object} oEvent.getParameters.data The data passed into the {@link sap.ui.core.routing.Target#display} function
-			 * @event
 			 * @public
 			 */
 

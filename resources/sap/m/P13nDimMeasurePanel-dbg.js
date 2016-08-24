@@ -19,7 +19,7 @@ sap.ui.define([
 	 *        dimensions and measures for table personalization.
 	 * @extends sap.m.P13nPanel
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @public
 	 * @since 1.34.0
@@ -706,6 +706,8 @@ sap.ui.define([
 		// Re-Index only the persistentIndex after user interaction
 		this._reindexModelItemsByPersistentIndex(oData);
 		oModel.refresh();
+
+		this._notifyChange();
 	};
 
 	/**
@@ -1220,7 +1222,6 @@ sap.ui.define([
 		oChartTypeComboBox.setModel(oModel);
 
 		var oToolbar = new sap.m.OverflowToolbar(this.getId() + "-toolbar", {
-			active: true,
 			design: sap.m.ToolbarDesign.Solid, // Transparent,
 			content: [
 				oChartTypeComboBox, new sap.m.ToolbarSpacer(), oSearchField, oShowSelectedButton, oMoveToTopButton, oMoveUpButton, oMoveDownButton, oMoveToBottomButton
@@ -1275,6 +1276,13 @@ sap.ui.define([
 		}
 
 		oModel.refresh();
+	};
+
+	P13nDimMeasurePanel.prototype._notifyChange = function() {
+		var fListener = this.getChangeNotifier();
+		if (fListener) {
+			fListener(this);
+		}
 	};
 
 	/**

@@ -9,14 +9,13 @@ sap.ui.define([
 	"sap/ui/core/Control",
 	"sap/m/Text",
 	"sap/m/Link",
-	"sap/m/ActionSelect",
-	"sap/m/Button",
+	"sap/m/Select",
 	"sap/ui/core/Item",
 	"sap/ui/core/delegate/ItemNavigation",
 	"sap/ui/core/ResizeHandler",
 	"sap/ui/core/IconPool",
 	"sap/ui/Device"
-], function (Control, Text, Link, Select, Button, Item, ItemNavigation, ResizeHandler, IconPool, Device) {
+], function (Control, Text, Link, Select, Item, ItemNavigation, ResizeHandler, IconPool, Device) {
 	"use strict";
 
 	/**
@@ -32,7 +31,7 @@ sap.ui.define([
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -113,19 +112,6 @@ sap.ui.define([
 		return this.getId() + "-" + sSuffix;
 	};
 
-	Breadcrumbs.prototype._getSelectButton = function () {
-		if (!this._closeButton) {
-			this._closeButton = new Button({
-				id: this._getAugmentedId("closeButton"),
-				text: Breadcrumbs._getResourceBundle().getText("BREADCRUMB_CLOSE"),
-				press: this._selectCancelButtonHandler.bind(this),
-				visible: Device.system.phone
-			});
-		}
-
-		return this._closeButton;
-	};
-
 	Breadcrumbs.prototype._getSelect = function () {
 		if (!this.getAggregation("_select")) {
 			this.setAggregation("_select", this._decorateSelect(new Select({
@@ -134,8 +120,7 @@ sap.ui.define([
 				forceSelection: false,
 				autoAdjustWidth: true,
 				icon: IconPool.getIconURI("slim-arrow-down"),
-				type: sap.m.SelectType.IconOnly,
-				buttons: [this._getSelectButton()]
+				type: sap.m.SelectType.IconOnly
 			})));
 		}
 		return this.getAggregation("_select");
@@ -297,10 +282,6 @@ sap.ui.define([
 				window.location.href = sLinkHref;
 			}
 		}
-	};
-
-	Breadcrumbs.prototype._selectCancelButtonHandler = function () {
-		this._getSelect().close();
 	};
 
 	Breadcrumbs.prototype._getItemsForMobile = function () {

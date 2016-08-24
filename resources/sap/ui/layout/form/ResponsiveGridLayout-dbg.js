@@ -30,7 +30,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/Grid', 'sap/ui/layout/GridDat
 	 *
 	 * This control cannot be used standalone, it only renders a <code>Form</code>, so it must be assigned to a <code>Form</code>.
 	 * @extends sap.ui.layout.form.FormLayout
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public

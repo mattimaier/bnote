@@ -1,0 +1,6 @@
+/*!
+ * UI development toolkit for HTML5 (OpenUI5)
+ * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
+ */
+sap.ui.define(["sap/ui/model/Context"],function(C){"use strict";var _=C.extend("sap.ui.model.odata.v4._Context",{constructor:function(m,b,p,i){C.call(this,m,p);this.oBinding=b;this.iIndex=i;}});_.prototype.getObject=function(){throw new Error("No synchronous access to data");};_.prototype.getProperty=function(){throw new Error("No synchronous access to data");};_.prototype.requestValue=function(p){return this.oBinding.requestValue(p,this.iIndex);};_.prototype.updateValue=function(g,p,v,e,P){var t=this;if(this.iIndex!==undefined){P=this.iIndex+(P?"/"+P:"");}if(e){return this.oBinding.updateValue(g,p,v,e,P);}return this.oModel.requestCanonicalPath(this).then(function(e){return t.oBinding.updateValue(g,p,v,e.slice(1),P);});};_.prototype.toString=function(){return this.iIndex===undefined?this.sPath:this.sPath+"["+this.iIndex+"]";};return{create:function(m,b,p,i){if(p[0]!=="/"){throw new Error("Not an absolute path: "+p);}if(p.slice(-1)==="/"){throw new Error("Unsupported trailing slash: "+p);}return new _(m,b,p,i);}};},false);

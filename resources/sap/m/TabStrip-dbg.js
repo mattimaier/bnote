@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/IconPool
 		 * space is exceeded, a horizontal scrollbar appears.
 		 *
 		 * @extends sap.ui.core.Control
-		 * @version 1.36.11
+		 * @version 1.38.7
 		 *
 		 * @constructor
 		 * @private
@@ -383,10 +383,18 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/IconPool
 				}
 
 				if (iScrollLeft > 0) {
-					bScrollBack = true;
+					if (this._bRtl && Device.browser.webkit) {
+						bScrollForward = true;
+					} else {
+						bScrollBack = true;
+					}
 				}
 				if ((realWidth > availableWidth) && (iScrollLeft + availableWidth < realWidth)) {
-					bScrollForward = true;
+					if (this._bRtl && Device.browser.webkit) {
+						bScrollBack = true;
+					} else {
+						bScrollForward = true;
+					}
 				}
 
 				this.$().toggleClass("sapMTSScrollBack", bScrollBack)
@@ -461,17 +469,20 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/IconPool
 		 */
 		TabStrip.prototype._scroll = function(iDelta, iDuration) {
 			var iScrollLeft = this.getDomRef("tabsContainer").scrollLeft,
+				bIE_Edge = Device.browser.internet_explorer || Device.browser.edge,
 				iScrollTarget;
 
-			if (this._bRtl && Device.browser.firefox) {
+			if (this._bRtl && !bIE_Edge) {
 				iScrollTarget = iScrollLeft - iDelta;
 
-				// Avoid out ofRange situation
-				if (iScrollTarget < -this._iMaxOffsetLeft) {
-					iScrollTarget = -this._iMaxOffsetLeft;
-				}
-				if (iScrollTarget > 0) {
-					iScrollTarget = 0;
+				if (Device.browser.firefox) {
+					// Avoid out ofRange situation
+					if (iScrollTarget < -this._iMaxOffsetLeft) {
+						iScrollTarget = -this._iMaxOffsetLeft;
+					}
+					if (iScrollTarget > 0) {
+						iScrollTarget = 0;
+					}
 				}
 			} else {
 				iScrollTarget = iScrollLeft + iDelta;
@@ -780,13 +791,20 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/IconPool
 		 */
 		TabStrip.prototype._attachItemEventListeners = function (oObject) {
 			if (oObject instanceof TabStripItem) {
-				// make sure we always have one listener at a time only
-				oObject.detachItemClosePressed(this._handleItemClosePressed);
-				oObject.detachItemPropertyChanged(this._handleTabStripItemPropertyChanged.bind(this));
+				var aEvents = [
+						'itemClosePressed',
+						'itemPropertyChanged'
+				    ];
+				aEvents.forEach(function (sEventName) {
+					sEventName = sEventName.charAt(0).toUpperCase() + sEventName.slice(1); // Capitalize
 
+					// detach any listeners - make sure we always have one listener at a time only
+					oObject['detach' + sEventName](this['_handle' + sEventName]);
+					//e.g. oObject['detachItemClosePressed'](this.['_handleItemClosePressed'])
 
-				oObject.attachItemClosePressed(this._handleItemClosePressed);
-				oObject.attachItemPropertyChanged(this._handleTabStripItemPropertyChanged.bind(this));
+					// attach the listeners
+					oObject['attach' + sEventName](this['_handle' + sEventName].bind(this));
+				}, this);
 			}
 		};
 
@@ -818,7 +836,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/IconPool
 		 * @param oEvent {jQuery.Event} Event object
 		 * @private
 		 */
-		TabStrip.prototype._handleTabStripItemPropertyChanged = function (oEvent) {
+		TabStrip.prototype._handleItemPropertyChanged = function (oEvent) {
 			var oSelectItem = this._findSelectItemFromTabStripItem(oEvent.getSource());
 			oSelectItem.setProperty(oEvent['mParameters'].propertyKey, oEvent['mParameters'].propertyValue);
 		};

@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 	 * @class
 	 * Represents a value for the FacetFilterList control.
 	 * @extends sap.m.ListItemBase
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -52,7 +52,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 
 	/**
 	 * Sets count for the FacetFilterList.
-	 * @param {integer} iCount The counter to be set to
+	 * @param {int} iCount The counter to be set to
 	 */
 	FacetFilterItem.prototype.setCount = function(iCount) {
 
@@ -63,7 +63,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 
 	/**
 	 * Sets counter for the FacetFilter list.
-	 * @param {integer} iCount The counter to be set to
+	 * @param {int} iCount The counter to be set to
 	 */
 	FacetFilterItem.prototype.setCounter = function(iCount) {
 

@@ -23,7 +23,7 @@ function(ManagedObject) {
 	 * @extends sap.ui.core.ManagedObject
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @private
@@ -122,13 +122,13 @@ function(ManagedObject) {
 			oOldDesignTime.detachEvent("elementOverlayCreated", this._onElementOverlayCreated, this);
 		}
 
+		this.setProperty("designTime", oDesignTime);
+
 		if (oDesignTime) {
 			this._registerOverlays(oDesignTime);
 
 			oDesignTime.attachEvent("elementOverlayCreated", this._onElementOverlayCreated, this);
 		}
-
-		this.setProperty("designTime", oDesignTime);
 
 		return this;
 	};

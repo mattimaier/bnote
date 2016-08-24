@@ -9,6 +9,8 @@ sap.ui.define(['./Element', './library'],
 	function(Element, library) {
 	"use strict";
 
+	// shortcut for enum(s)
+	var TextDirection = library.TextDirection;
 
 
 	/**
@@ -22,7 +24,7 @@ sap.ui.define(['./Element', './library'],
 	 * @extends sap.ui.core.Element
 	 *
 	 * @author SAP SE
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 *
 	 * @constructor
 	 * @public
@@ -47,7 +49,7 @@ sap.ui.define(['./Element', './library'],
 			/**
 			 * Options are RTL and LTR. Alternatively, an item can inherit its text direction from its parent control.
 			 */
-			textDirection : {type : "sap.ui.core.TextDirection", group : "Misc", defaultValue : sap.ui.core.TextDirection.Inherit},
+			textDirection : {type : "sap.ui.core.TextDirection", group : "Misc", defaultValue : TextDirection.Inherit},
 
 			/**
 			 * Can be used as input for subsequent actions.

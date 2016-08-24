@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @param {object} [mSettings] initial settings for the new control
 	 * @class Base type for <code>panels</code> aggregation in P13nDialog control.
 	 * @extends sap.ui.core.Control
-	 * @version 1.36.11
+	 * @version 1.38.7
 	 * @constructor
 	 * @public
 	 * @since 1.26.0
@@ -52,8 +52,8 @@ sap.ui.define([
 				},
 
 				/**
-				 * Panel type for generic use. Due to extensibility reason the type of <code>type</code> property should be <code>string</code>. So it is feasible to add a
-				 * custom panel without expanding the type.
+				 * Panel type for generic use. Due to extensibility reason the type of <code>type</code> property should be <code>string</code>.
+				 * So it is feasible to add a custom panel without expanding the type.
 				 *
 				 * @since 1.26.0
 				 */
@@ -85,6 +85,14 @@ sap.ui.define([
 				 * Callback method which is called in order to register for validation result.
 				 */
 				validationListener: {
+					type: "object",
+					group: "Misc",
+					defaultValue: null
+				},
+				/**
+				 * Callback which notifies a change on this panel.
+				 */
+				changeNotifier: {
 					type: "object",
 					group: "Misc",
 					defaultValue: null

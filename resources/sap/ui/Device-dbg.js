@@ -11,7 +11,7 @@
  * This API is independent from any other part of the UI5 framework. This allows it to be loaded beforehand, if it is needed, to create the UI5 bootstrap
  * dynamically depending on the capabilities of the browser or device.
  *
- * @version 1.36.11
+ * @version 1.38.7
  * @namespace
  * @name sap.ui.Device
  * @public
@@ -37,7 +37,7 @@ if (typeof window.sap.ui !== "object") {
 
 	//Skip initialization if API is already available
 	if (typeof window.sap.ui.Device === "object" || typeof window.sap.ui.Device === "function" ) {
-		var apiVersion = "1.36.11";
+		var apiVersion = "1.38.7";
 		window.sap.ui.Device._checkAPIVersion(apiVersion);
 		return;
 	}
@@ -95,7 +95,7 @@ if (typeof window.sap.ui !== "object") {
 
 	//Only used internal to make clear when Device API is loaded in wrong version
 	device._checkAPIVersion = function(sVersion){
-		var v = "1.36.11";
+		var v = "1.38.7";
 		if (v != sVersion) {
 			logger.log(WARNING, "Device API version differs: " + v + " <-> " + sVersion);
 		}
@@ -280,7 +280,7 @@ if (typeof window.sap.ui !== "object") {
 	 * Windows Phone operating system name.
 	 *
 	 * @see sap.ui.Device.os#name
-	 * @alias sap.ui.Device.os.OS#WINDOWS_PHONE
+	 * @name sap.ui.Device.os.OS#WINDOWS_PHONE
 	 * @public
 	 */
 
@@ -593,7 +593,7 @@ if (typeof window.sap.ui !== "object") {
 	 * Android stock browser name.
 	 *
 	 * @see sap.ui.Device.browser#name
-	 * @alias sap.ui.Device.browser.BROWSER#ANDROID
+	 * @name sap.ui.Device.browser.BROWSER#ANDROID
 	 * @public
 	 */
 
@@ -1499,7 +1499,7 @@ if (typeof window.sap.ui !== "object") {
 	 * <b>Note:</b> This property is mainly for Microsoft Windows 8 (and following) devices where the mouse and touch event may be supported
 	 * natively by the browser being used. This property is set to <code>true</code> only when both mouse and touch event are natively supported.
 	 *
-	 * @alias sap.ui.Device.system#combi
+	 * @name sap.ui.Device.system#combi
 	 * @type boolean
 	 * @public
 	 */
