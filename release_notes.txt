@@ -1,0 +1,10 @@
+##
+## Release Notes
+##
+
+#205/#207 Save amount in equipment and finance failed
+#206 Required fields in equipment are marked and empty name possible
+#208 Nickname field added to installation
+#209 Appcache activated and minified version of UI5 library used
+#210 Bug in form generation of multi-date votes resolved
+#211 UI5 libraries fully loaded
