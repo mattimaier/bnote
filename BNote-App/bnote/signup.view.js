@@ -18,8 +18,13 @@ sap.ui.jsview("bnote.signup", {
 		
 		this.instrumentitems = new sap.m.Select({
 			 change: oController.setdirtyflag,
-	      	  items: []
+	      	 items: []
 	    });
+        
+		var signupButton = new sap.m.Button({
+			text: "Registrieren",	
+			press: oController.signup
+		});
 		
 		this.signupForm = new sap.ui.layout.form.SimpleForm({
 			   layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
@@ -102,14 +107,10 @@ sap.ui.jsview("bnote.signup", {
 					     new sap.m.CheckBox({
 					    	 text: "Nutzerbedingungen zustimmen",
 					    	 selected: "{/terms}"
-					     })					      
+					     }),		      
+                         signupButton
 			    ]
 		 });
-		
-		var signupButton = new sap.m.Button({
-			icon: sap.ui.core.IconPool.getIconURI("save"),	
-			press: oController.signup
-		});
 		
 		var page = new sap.m.Page("SignupPage", {
 	        title: "Registrierung",
@@ -117,7 +118,6 @@ sap.ui.jsview("bnote.signup", {
 	        navButtonPress: function() {
 	            app.back();	           
 	        },
-	        headerContent : [ signupButton ],
 			content: [ this.signupForm  ]
 		});
 		
