@@ -216,6 +216,8 @@ class LoginController extends DefaultController {
 		}
 		else {
 			$mailMessage = 'Bitte wende dich an deinen Bandleader und warte bis dein Konto freigeschalten ist.<br/>';
+			$mailOk = false;
+			$outMsg = $mailMessage;
 		}
 		if($mailMessage != null && $writeOutput) {
 			echo $mailMessage;

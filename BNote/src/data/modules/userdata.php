@@ -216,7 +216,7 @@ class UserData extends AbstractData {
 	function changeUserStatus($id) {
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
-				&& $this->getSysdata()->isUserSuperUser($uid)) {
+				&& $this->getSysdata()->isUserSuperUser($id)) {
 			new Error("Zugriff verweigert.");
 		}
 		
