@@ -3,3 +3,5 @@
 ##
 
 #217: Duplicate songs in program, changed print of program to browser output
+#219: Removed notes from repertoire overview
+#220: Improved the registration email with proper http/https prefixes

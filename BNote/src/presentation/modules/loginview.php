@@ -104,7 +104,7 @@ class LoginView extends AbstractView {
 		Writing::h1("Registrierung");
 		
 		?>
-<form method="POST" action="<? echo $this->modePrefix(); ?>register">
+<form method="POST" action="<?php echo $this->modePrefix(); ?>register">
 		
 <script>
 	  <?php echo $this->getData()->getJSValidationFunctions(); ?>

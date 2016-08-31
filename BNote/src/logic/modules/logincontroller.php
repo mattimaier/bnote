@@ -187,9 +187,17 @@ class LoginController extends DefaultController {
 		if($system_data->autoUserActivation()) {
 			// create link for activation
 			$linkurl = $system_data->getSystemURL() . "/src/export/useractivation.php?uid=$uid&email=" . $_POST["email"];
+			if(substr($linkurl, 0, 4) != "http") {
+				if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+					$linkurl = "https://$linkurl";
+				}
+				else {
+					$linkurl = "http://$linkurl";
+				}
+			}
 			$subject = "BNote Aktivierung";
-			$message = "Bitte klicke auf folgenden Link zur Aktivierung deines Benutzerkontos:\n$linkurl";
-						
+			$message = "Bitte klicke auf folgenden Link zur Aktivierung deines Benutzerkontos:\n <a href=\"$linkurl\">Aktivierung</a>";
+			
 			// send email to activate account and write message
 			$dir_prefix = "";
 			if(isset($GLOBALS['dir_prefix'])) {
