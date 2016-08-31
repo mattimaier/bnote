@@ -110,6 +110,7 @@ class RepertoireView extends CrudRefView {
 		$table->renameHeader("composername", "Komponist/Arrangeur");
 		$table->renameHeader("statusname", "Status");
 		$table->removeColumn("id");
+		$table->removeColumn("notes");
 		$table->write();
 		
 		// Length
