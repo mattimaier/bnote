@@ -477,6 +477,10 @@ td.DataTable_Header.sorting_desc {
 	background-size: 16px 16px;
 }
 
+td.DataTable_Sum { 
+	border-top: 2px solid #e0e0e0;
+}
+
 div#contact_table_filter.dataTables_filter {
 	padding: 10px;
 }

@@ -58,7 +58,7 @@ class ProgramData extends AbstractData {
 	}
 	
 	function getSongsForProgram($pid) {
-		$query = "SELECT ps.rank, ps.song, s.title, c.name as composer, s.length,";
+		$query = "SELECT ps.id as psid, ps.rank, ps.song, s.title, c.name as composer, s.length,";
 		$query .= " g.name as genre, s.notes, st.name as status ";
 		$query .= "FROM song s, program_song ps, composer c, genre g, status st ";
 		$query .= "WHERE ps.program = $pid AND ps.song = s.id AND s.composer = c.id";
@@ -68,9 +68,9 @@ class ProgramData extends AbstractData {
 	}
 	
 	function getSongsForProgramPrint($pid) {
-		$query = "SELECT s.title, c.name as composer, s.notes, s.length ";
-		$query .= "FROM song s, program_song ps, composer c ";
-		$query .= "WHERE ps.program = $pid AND ps.song = s.id AND s.composer = c.id ";
+		$query = "SELECT s.title, s.notes, s.length ";
+		$query .= "FROM program_song ps JOIN song s ON ps.song = s.id ";
+		$query .= "WHERE ps.program = $pid ";
 		$query .= "ORDER BY ps.rank ASC";
 		return $this->database->getSelection($query);
 	}
@@ -97,8 +97,8 @@ class ProgramData extends AbstractData {
 		$this->database->execute($query);
 	}
 	
-	function updateRank($pid, $sid, $r) {
-		$query = "UPDATE program_song SET rank = $r WHERE program = $pid AND song = $sid";
+	function updateRank($pid, $psid, $r) {
+		$query = "UPDATE program_song SET rank = $r WHERE id = $psid";
 		$this->database->execute($query);
 	}
 	

@@ -3,7 +3,7 @@
 /*************************
  * UPGRADES THE DATABASE *
  * @author Matti Maier   *
- * Update 3.1.0 to 3.1.1 *
+ * Update 3.1.1 to 3.1.2 *
  *************************/
 
 // path to src/ folder
@@ -170,10 +170,22 @@ class UpdateDb {
 		$this->db->execute($query);
 		$this->message($this->mods[$module_id] . " privileges for all users added.");
 	}
+	
+	function removePrimaryKey($table) {
+		$key_query = "SHOW KEYS FROM $table WHERE key_name = 'PRIMARY'";
+		$selection = $this->db->getSelection($key_query);
+		if(count($selection) > 1) {
+			$query = "ALTER TABLE $table DROP PRIMARY KEY";
+			$this->db->execute($query);
+			$this->message("Primary key was removed from $table.");
+		}
+		else {
+			$this->message("Primary key not existent in $table.");
+		}
+	}
 }
 
 $update = new UpdateDb();
-
 ?>
 
 
@@ -183,7 +195,11 @@ $update = new UpdateDb();
 <p>
 <?php 
 
-// Task X
+// Task 1a: remove primary key from program_song (#217)
+$update->removePrimaryKey("program_song");
+
+// Task 1b: add ID as the primary key
+$update->addColumnToTable("program_song", "id", "int(11)", "PRIMARY KEY AUTO_INCREMENT");
 
 ?>
 

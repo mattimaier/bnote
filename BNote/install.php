@@ -399,10 +399,10 @@ class Installation {
 
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `program_song` (
+					`id` int(11) PRIMARY KEY AUTO_INCREMENT,
 					`program` int(10) unsigned NOT NULL,
 					`song` int(10) unsigned NOT NULL,
-					`rank` int(11) DEFAULT NULL,
-					PRIMARY KEY (`program`,`song`)
+					`rank` int(11) DEFAULT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
 			array_push($queries,

@@ -4,7 +4,7 @@ require_once $GLOBALS["DIR_PRINT"] . "print.php";
 /**
  * Class for project timesheets.
  * @author matti
- *
+ * @deprecated as of v3.1.2 -> use print style in browser instead!
  */
 class ProgramPDF {
 	
@@ -52,13 +52,7 @@ class ProgramPDF {
 		$this->pdf->Write($this->pdf->lineHeight, $this->dao->getProgramName($this->pid));
 		$this->pdf->setFontStandard();
 		$this->pdf->Ln($this->pdf->lineHeight * 2); //space
-		
-		// date
-		global $system_data;
-		$comp = $system_data->getCompanyInformation();
-		$this->pdf->writeDate(date('d.m.Y'), $comp["City"]);
-		$this->pdf->Ln($this->pdf->lineHeight*2); //space
-		
+				
 		// table
 		$this->writeTable();
 	}
@@ -77,13 +71,13 @@ class ProgramPDF {
 		$sum = $this->dao->totalProgramLength();
 		
 		// set columns
-		$table->setColumnWidth(0, 30);
-		$table->setColumnWidth(1, 30);
+		$table->setColumnWidth(0, 60);
+		// $table->setColumnWidth(1, 30);
 		$table->setColumnWidth(2, 81);
 		$table->setColumnWidth(3, 19);
 		
 		$table->changeColumnLabel(0, "Titel");
-		$table->changeColumnLabel(1, "Arrangeuer");
+		// $table->changeColumnLabel(1, "Arrangeur");
 		$table->changeColumnLabel(2, "Anmerkungen");
 		$table->changeColumnLabel(3, "Länge");
 		

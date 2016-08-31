@@ -142,7 +142,7 @@ class ProgramView extends CrudView {
 		echo "<ul id=\"sortable\">\n";
 		for($i = 1; $i < count($tracks); $i++) {
 			$text = $tracks[$i]["length"] . "&nbsp;" . $tracks[$i]["title"] . " (" . $tracks[$i]["composer"] . ")";
-			$text .= "<input type=\"hidden\" name=\"tracks[]\" value=\"" . $tracks[$i]["song"] . "\" />\n";
+			$text .= "<input type=\"hidden\" name=\"tracks[]\" value=\"" . $tracks[$i]["psid"] . "\" />\n";
 			echo "<li class=\"ui-state-default\">" . '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>';
 			echo $text . "</li>\n";
 		}
@@ -194,12 +194,14 @@ class ProgramView extends CrudView {
 	}
 	
 	protected function editListOptions() {
-		$this->backToViewButton($_GET["id"]);
+		$back = new Link($this->modePrefix() . "view&id=" . $_GET["id"], Lang::txt("back"));
+		$back->addIcon("arrow_left");
+		$back->write();
 	}
 	
 	function saveList() {
-		foreach ($_POST["tracks"] as $i => $sid) {
-			$this->getData()->updateRank($_GET["id"], $sid, $i+1);
+		foreach ($_POST["tracks"] as $i => $psid) {
+			$this->getData()->updateRank($_GET["id"], $psid, $i+1);
 			$i++;
 		}
 		$this->editList();
@@ -223,22 +225,30 @@ class ProgramView extends CrudView {
 	}
 	
 	function printList() {
-		Writing::h2("Programm drucken");
+		// heading
+		$program = $this->getData()->findByIdNoRef($_GET["id"]);
+		Writing::h2($program['name']);
+		if($program['notes'] != "") {
+			Writing::p($program['notes']);
+		}
 		
-		// determine filename
-		$filename = $GLOBALS["DATA_PATHS"]["programs"];
-		$filename .= "Programm-" . $_GET["id"]. ".pdf";
-		
-		// create report
-		require_once $GLOBALS["DIR_PRINT"] . "program.php";
-		new ProgramPDF($filename, $this->getData(), $_GET["id"]);
-		
-		// show report
-		echo "<embed src=\"$filename\" width=\"90%\" height=\"700px\" />\n";
+		// print table
+		$songs = $this->getData()->getSongsForProgramPrint($_GET["id"]);
+		$tab = new Table($songs);
+		$tab->renameHeader("title", "Stück");
+		$tab->renameHeader("notes", Lang::txt("notes"));
+		$tab->renameHeader("length", Lang::txt("length"));
+		$tab->addSumLine("Programmlänge", $this->getData()->totalProgramLength());  // automatically uses $_GET["id"]
+		$tab->write();
 	}
 	
 	protected function printListOptions() {
 		$this->backToViewButton($_GET["id"]);
+		$this->buttonSpace();
+		
+		$print = new Link("javascript:print()", Lang::txt("print"));
+		$print->addIcon("printer");
+		$print->write();
 	}
 	
 	private function writeIcon($name) {
