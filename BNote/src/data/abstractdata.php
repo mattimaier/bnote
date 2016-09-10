@@ -213,6 +213,17 @@ abstract class AbstractData {
 	}
 	
 	/**
+	 * Optional handling of fields.
+	 * @param boolean $field True if the field has a third parameter set to true/optional, otherwise false.
+	 */
+	public function isFieldOptional($field) {
+		if(!key_exists($field, $this->fields) || count($this->fields[$field]) < 3) {
+			return false;
+		}
+		return $this->fields[$field][2];
+	}
+	
+	/**
 	 * Returns the table references by the given column.
 	 * @param String $column Name of the referencing column.
 	 * @return Name of the table the column references to.
@@ -491,6 +502,10 @@ abstract class AbstractData {
 	}
 	
 	protected function validate_pair($k, $value) {
+		// check if a field has a third parameter -> optional
+		if($this->isFieldOptional($k)) {
+			if($value == "") return;
+		}
 		switch($this->getTypeOfField($k)) {
 			case 1: $this->regex->isPositiveAmount($value); break;
 			case 2: $this->regex->isMoney($value); break;

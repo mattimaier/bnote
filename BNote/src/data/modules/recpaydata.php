@@ -15,7 +15,7 @@ class RecpayData extends AbstractData {
 			"btype" => array(Lang::txt("finance_booking_btype"), FieldType::ENUM),
 			"otype" => array(Lang::txt("recpay_otype"), FieldType::ENUM),
 			"oid" => array(Lang::txt("recpay_oid"), FieldType::CHAR),
-			"notes" => array(Lang::txt("finance_booking_notes"), FieldType::CHAR)
+			"notes" => array(Lang::txt("finance_booking_notes"), FieldType::CHAR, true)
 		);
 	
 		$this->references = array(

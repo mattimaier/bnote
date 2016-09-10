@@ -2,8 +2,3 @@
 ## Release Notes
 ##
 
-#217: Duplicate songs in program, changed print of program to browser output
-#219: Removed notes from repertoire overview
-#220: Improved the registration email with proper http/https prefixes
-#221: Deactivated e-mail was not reported, small error in userdata on variable use
-#222: Signup button on bottom of form

@@ -195,11 +195,7 @@ $update = new UpdateDb();
 <p>
 <?php 
 
-// Task 1a: remove primary key from program_song (#217)
-$update->removePrimaryKey("program_song");
-
-// Task 1b: add ID as the primary key
-$update->addColumnToTable("program_song", "id", "int(11)", "PRIMARY KEY AUTO_INCREMENT");
+// Task X
 
 ?>
 
