@@ -58,7 +58,7 @@ abstract class CrudRefView extends CrudView {
 		$details->write();
 	}
 	
-	protected function editEntityForm() {
+	protected function editEntityForm($write=true) {
 		$entityId = $_GET[$this->idParameter];
 		$form = new Form(Lang::txt("edit", array($this->getEntityName())),
 				$this->modePrefix() . "edit_process&" . $this->idParameter . "=" . $entityId);
@@ -77,9 +77,14 @@ abstract class CrudRefView extends CrudView {
 			$form->removeElement($field);
 			$form->addHidden($field, $value);
 		}
-		// remoe id field
+		// remove id field
 		$form->removeElement($this->idField);
-		$form->write();
+		
+		// allow subclasses to modify form
+		if($write) {
+			$form->write();
+		}
+		return $form;
 	}
 	
 	/**

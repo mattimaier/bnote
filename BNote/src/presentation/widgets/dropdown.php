@@ -38,6 +38,10 @@ class Dropdown implements iWriteable {
 		$this->jsChange = $js;
 	}
 	
+	/**
+	 * @deprecated Won't work according to HTML5 specs.
+	 * @param String $js Function name or inline coding.
+	 */
 	public function setOnLoad($js) {
 		$this->jsLoad = $js;
 	}

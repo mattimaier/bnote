@@ -107,11 +107,7 @@ class RecpayData extends AbstractData {
 	
 	function create($values) {
 		// validate
-		$this->regex->isPositiveAmount($values["account"]);
-		$this->regex->isText($values["subject"]);
-		$this->regex->isMoney($values["amount_net"]);
-		$this->regex->isMoney($values["amount_tax"]);
-		$this->regex->isText($values["notes"]);
+		$this->validateRecpay($values);
 		
 		// translate type
 		if($values["otype"] == "0") {
@@ -127,6 +123,34 @@ class RecpayData extends AbstractData {
 		}
 		
 		parent::create($values);
+	}
+	
+	protected function validateRecpay($values) {
+		$this->regex->isPositiveAmount($values["account"]);
+		$this->regex->isText($values["subject"]);
+		$this->regex->isMoney($values["amount_net"]);
+		$this->regex->isMoney($values["amount_tax"]);
+		$this->regex->isText($values["notes"]);
+	}
+	
+	function update($id, $values) {
+		// validate
+		$this->validateRecpay($values);
+		
+		// translate type
+		if($values["otype"] == "0") {
+			$values["otype"] = null;
+			$values["oid"] = null;
+		}
+		
+		if($values["btype"] == "0") {
+			$values["btype"] = 0;
+		}
+		else {
+			$values["btype"] = 1;
+		}
+		
+		parent::update($id, $values);
 	}
 	
 	function book() {

@@ -91,12 +91,15 @@ class RecpayView extends CrudRefView {
 			else {
 				hide = true;
 			}
+
+			var numOptions = 0;
 			for(var k in dict) {
 				var sel = "";
 				if(k == preset_oid) {
 					sel = " selected";
 				}
 				options += "<option value=\"" + k + "\"" + sel + ">" + dict[k] + "</option>\n";
+				numOptions++;
 			}
 
 			if($('#oref_id').length > 0) {
@@ -108,11 +111,19 @@ class RecpayView extends CrudRefView {
 				}
 				$('#oref_id').html(options);
 			}
-			else {
+			else if(numOptions > 0) {
 				var oref_parent = $('#oref').parent();
 				oref_parent.append("<select id=\"oref_id\" name=\"oid\">" + options + "</select>");
 			}
 		}
+
+		// preset object reference value if set
+		$(document).ready(function() {
+			var val = $('#oref').val();
+			if(val != null && val != "" && typeof changeReference == "function") {
+				changeReference(document.getElementById("oref"));
+			}
+		});
 		</script>
 		<?php
 		$objdd = new Dropdown("otype");
@@ -125,6 +136,9 @@ class RecpayView extends CrudRefView {
 		$objdd->addOption(Lang::txt("equipment"), "E");
 		$objdd->setOnChange("changeReference(this)");
 		$objdd->setId("oref");
+		if($otype != null) {
+			$objdd->setSelected($otype);
+		}
 		
 		return $objdd;
 	}
@@ -170,6 +184,29 @@ class RecpayView extends CrudRefView {
 	
 	function addOptions() {
 		$this->backToStart();
+	}
+	
+	function editEntityForm() {
+		$form = parent::editEntityForm(false);
+		$record = $this->getData()->findByIdNoRef($_GET["id"]);
+		
+		// adapt form
+		$form->removeElement("btype");
+		$dd = new Dropdown("btype");
+		$btypes = FinanceData::getBookingTypes();
+		foreach($btypes as $val => $capt) {
+			$dd->addOption($capt, $val);
+		}
+		$dd->setSelected($record["btype"]);
+		$form->addElement(Lang::txt("finance_booking_btype"), $dd);
+		
+		$form->removeElement("otype");
+		$form->removeElement("oid");
+		
+		$objdd = $this->objectReferenceForm($record["otype"], $record["oid"]);
+		$form->addElement(Lang::txt("recpay_otype"), $objdd);
+		
+		$form->write();
 	}
 	
 	function book() {
@@ -222,12 +259,69 @@ class RecpayView extends CrudRefView {
 		$this->backToStart();
 	}
 	
+	function edit_processOptions() {
+		$this->backToViewButton($_GET["id"]);
+	}
+
+	function viewDetailTable() {
+		// get data
+		$entity = $this->getData()->findByIdJoined($_GET[$this->idParameter], $this->getJoinedAttributes());
+		
+		// edit values to make them more readible
+		$entity["btype"] = $entity["btype"] == 1 ? "Ausgabe" : "Einnahme";
+		$otype = $entity["otype"];
+		$entity["otype"] = $this->objectReferenceTypeToText($otype);
+		if($entity["oid"] > 0) {
+			$entity["oid"] = $this->resolveObjectReference($otype, $entity["oid"]);
+		}
+		else {
+			$entity["oid"] = "-";
+		}
+		
+		// show view
+		$details = new Dataview();
+		$details->autoAddElements($entity);
+		$details->autoRename($this->getData()->getFields());
+		$details->renameElement("accountname", "Konto");
+		$details->write();
+	}
+	
+	protected function objectReferenceTypeToText($otype) {
+		switch($otype) {
+			case "H": return Lang::txt("contact");
+			case "C": return Lang::txt("concert");
+			case "P": return Lang::txt("rehearsalphase");
+			case "L": return Lang::txt("location");
+			case "T": return Lang::txt("tour");
+			case "E": return Lang::txt("equipment");
+		}
+		return $otype;
+	}
+	
+	protected function resolveObjectReference($otype, $oid) {
+		switch($otype) {
+			case "H": return $this->getData()->getContactName($oid);
+			case "C": return $this->getData()->getConcertName($oid);
+			case "P": return $this->getData()->getPhaseName($oid);
+			case "L": return $this->getData()->getLocationName($oid);
+			case "T": return $this->getData()->getTourName($oid);
+			case "E": return $this->getData()->getEquipmentName($oid);
+		}
+		return $oid;
+	}
+	
 	function viewOptions() {
 		// back button
 		$this->backToStart();
 		$this->buttonSpace();
 		
 		// show buttons to edit and delete
+		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
+				Lang::txt("edit_entity", array($this->getEntityName())));
+		$edit->addIcon("edit");
+		$edit->write();
+		$this->buttonSpace();
+		
 		$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
 				Lang::txt("delete_entity", array($this->getEntityName())));
 		$del->addIcon("remove");
