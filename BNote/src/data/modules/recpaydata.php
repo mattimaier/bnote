@@ -138,6 +138,9 @@ class RecpayData extends AbstractData {
 			// create booking
 			$recpay = $this->database->getRow("SELECT * FROM " . $this->table . " WHERE id = $id");
 			$recpay["bdate"] = $_POST["bdate"];
+			// convert to local decimal as if it was sent from the form
+			$recpay["amount_net"] = Data::convertFromDb($recpay["amount_net"]);
+			$recpay["amount_tax"] = Data::convertFromDb($recpay["amount_tax"]);
 			$finData->addBooking($recpay);
 		}
 	}

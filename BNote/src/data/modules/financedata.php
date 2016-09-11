@@ -39,7 +39,7 @@ class FinanceData extends AbstractData {
 						 btype, otype, oid, notes 
 				FROM booking 
 				WHERE bdate >= \"$from\" AND bdate <=\"$to\" AND account = $accountId $otype_oid
-				ORDER BY bdate ASC";
+				ORDER BY bdate DESC";
 		
 		// get the booking types in reverse
 		$btypes = $this->getBookingTypes();
