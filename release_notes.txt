@@ -2,3 +2,5 @@
 ## Release Notes
 ##
 
+#227: fixed a decimal error in recurring payments booking
+#226: display and edit recurring payments properly
