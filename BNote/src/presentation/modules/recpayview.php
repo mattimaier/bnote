@@ -217,6 +217,7 @@ class RecpayView extends CrudRefView {
 		echo "<label style=\"padding-right: 10px;\">" . Lang::txt("finance_booking_bdate") . "</label>";
 		$f = new Field("bdate", "", FieldType::DATE);
 		echo $f->write();
+		$this->verticalSpace();
 		
 		$recpay = $this->getData()->getRecurringPayments($this->getJoinedAttributes());
 		// add column with checkbox
@@ -235,6 +236,7 @@ class RecpayView extends CrudRefView {
 		}
 		$tab = $this->showAllTableGenerator($displayData);
 		$tab->removeColumn("id");
+		$tab->setOptionColumnNames(array("book"));
 		$tab->write();
 		?>
 		<input type="submit" value="<?php echo Lang::txt("recpay_book"); ?>" />

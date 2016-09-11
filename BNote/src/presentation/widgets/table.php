@@ -158,7 +158,7 @@ class Table implements iWriteable {
 	}
 
 	/**
-	 * The these columns as option columns so they can be ignored for print.
+	 * Mark these columns as option columns so they can be ignored for print and won't be linked.
 	 * @param Array $cols Column names in an array.
 	 */
 	function setOptionColumnNames($cols) {
@@ -247,7 +247,7 @@ class Table implements iWriteable {
 					echo '>';
 
 					// Check for primary keys
-					if($this->edit) { # && $id == $this->primkey
+					if($this->edit && !in_array($id, $this->optColumns)) {
 						$href = '?mod=' . $this->modid . '&mode=' . $this->mode . '&' . $this->edit_id_field . '=' . $row[$this->primkey];
 						echo '<a class="silent" href="' . $href . '">';
 					}
@@ -292,7 +292,9 @@ class Table implements iWriteable {
 
 					echo $value;
 
-					if($this->edit) echo '</a>'; # && $id == $this->primkey
+					if($this->edit && !in_array($id, $this->optColumns)) {
+						echo '</a>';
+					}
 					echo '</td>' . "\n";
 					$firstVisibleColumn = false;
 				}
@@ -333,15 +335,13 @@ class Table implements iWriteable {
 				 "paging": false, 
 				 "info": false,  
 				 "oLanguage": {
-					 		 "sEmptyTable":  "<?php echo Lang::txt("table_no_entries"); ?>",
-							  "sInfoEmpty":  "<?php echo Lang::txt("table_no_entries"); ?>",
-							  "sZeroRecords":  "<?php echo Lang::txt("table_no_entries"); ?>",
-        					 "sSearch": "<?php echo Lang::txt("table_search"); ?>"
-		 
-		
-       }
+			 		 "sEmptyTable":  "<?php echo Lang::txt("table_no_entries"); ?>",
+					 "sInfoEmpty":  "<?php echo Lang::txt("table_no_entries"); ?>",
+					 "sZeroRecords":  "<?php echo Lang::txt("table_no_entries"); ?>",
+        			 "sSearch": "<?php echo Lang::txt("table_search"); ?>"
+		 		 }
 			});
-	});
+		});
 		</script>
 		<?php
 	}
