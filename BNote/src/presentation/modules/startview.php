@@ -49,7 +49,7 @@ class StartView extends AbstractView {
 		// Calendar Exports
 		$userExt = "?user=" . urlencode($this->getData()->adp()->getLogin());
 		
-		$ical = new Link("BNote/" . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("start_calendarExport"));
+		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("start_calendarExport"));
 		$ical->addIcon("save");
 		$ical->write();
 		$this->buttonSpace();
