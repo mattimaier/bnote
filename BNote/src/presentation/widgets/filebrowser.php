@@ -516,7 +516,7 @@ class Filebrowser implements iWriteable {
 		// get filename of zip-archive in temp
 		/*
 		 * Only one temporary zip -> not multiuser access to this function!
-		 * Temporary file access via tmpnam or alike is not possible, since the
+		 * Temporary file access via tmpname or alike is not possible, since the
 		 * filehandler only supports the share-directory for security reasons.
 		 * In case e.g. date('U') would be used as zip-Filename it would be sufficient
 		 * for multi-user access, but there is no or a very complicated cleanup -
