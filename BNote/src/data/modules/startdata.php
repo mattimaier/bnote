@@ -358,7 +358,12 @@ class StartData extends AbstractData {
 				if($i == 0) continue;
 				if($where != "") $where .= " OR ";
 				$contact = $this->adp()->getUserContact($user["id"]);
-				$where .= " id = " . $contact["id"];
+				if($contact != null && isset($contact["id"])) {
+					$where .= "id = " . $contact["id"];
+				}
+				else {
+					$where .= "false"; // don't break the statement creation process
+				}
 			}
 			$query = "SELECT * FROM contact WHERE $where";
 			return $this->database->getSelection($query);
