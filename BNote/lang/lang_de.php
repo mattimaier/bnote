@@ -447,7 +447,8 @@ class Translation extends BNoteTranslation {
 	}
 	
 	public function formatDecimal($dbDecimal) {
-		return number_format($dbDecimal, 2, ',', '.');
+		if($dbDecimal == null) return "";
+		return number_format(doubleval($dbDecimal), 2, ',', '.');
 	}
 }
 

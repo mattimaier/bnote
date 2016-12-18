@@ -310,15 +310,14 @@ class KontakteView extends CrudRefView {
 	}
 	
 	function printMembers() {
-		Writing::h2("Mitspielerliste");
-		
 		// convert $_POST groups into a flat groups array
 		$allGroups = $this->getData()->getGroups();
 		$groups = array();
 		for($i = 1; $i < count($allGroups); $i++) {
 			$gid = $allGroups[$i]["id"];
 			if(isset($_POST["group_" . $gid])) {
-				array_push($groups, $gid);
+				$name = $allGroups[$i]["name"];
+				$groups[$gid] = $name;
 			}
 		}
 		if(count($groups) == 0) {
@@ -327,21 +326,76 @@ class KontakteView extends CrudRefView {
 			return;
 		}
 		
-		// determine filename
-		$filename = $GLOBALS["DATA_PATHS"]["members"];
-		$filename .= "Mitspielerliste-" . date('Y-m-d') . ".pdf";
+		// print styles
+		?>
+		<style>
+			@media print {
+				.dataTables_filter {
+					display: none;
+				}
+				
+				thead > tr {
+					border-color: #61b3ff;
+				}
+				
+				td.DataTable_Header {
+					color: #61b3ff;
+				}
+			}
+		</style>
+		<?php
+		// show a printable list of members for each group
+		foreach($groups as $gid => $name) {
+			Writing::h3($name);
+			
+			$members = $this->getData()->getGroupContacts($gid);
+			$tab = new Table($this->formatMemberPrintTable($members));
+			$tab->write();
+			
+			$this->verticalSpace();
+		}
+	}
+	
+	private function formatMemberPrintTable($members) {
+		$formatted = array();
+		// header
+		array_push($formatted, array(
+				"Name",
+				"Spitzname",
+				"Instrument",
+				"Telefon",
+				"Mobil",
+				"Business",
+				"Email",
+				"Adresse")
+		);
 		
-		// create report
-		require_once $GLOBALS["DIR_PRINT"] . "memberlist.php";
-		new MembersPDF($filename, $this->getData(), $groups);
+		// body
+		for($i = 1; $i < count($members); $i++) {
+			$row = $members[$i];
+			$fRow = array(
+				"Name" => $row["name"] . " " . $row["surname"],
+				"Spitzname" => $row["nickname"],
+				"Instrument" => $row["instrumentname"],
+				"Telefon" => $row["phone"],
+				"Mobil" => $row["mobile"],
+				"Business" => $row["business"],
+				"Email" => $row["email"],
+				"Adresse" => $row["street"] . ", " . $row["zip"] . " " . $row["city"]
+			);
+			array_push($formatted, $fRow);
+		}
 		
-		// show report
-		echo "<embed src=\"src/data/filehandler.php?mode=module&file=$filename\" width=\"90%\" height=\"700px\" />\n";
-		echo "<br /><br />\n";
-		
-		// back button
+		return $formatted;
+	}
+	
+	function printMembersOptions() {
 		$this->backToStart();
-		$this->verticalSpace();
+		$this->buttonSpace();
+		
+		$prt = new Link("javascript:window.print();", Lang::txt("print"));
+		$prt->addIcon("printer");
+		$prt->write();
 	}
 	
 	function userCreatedAndMailed($username, $email) {

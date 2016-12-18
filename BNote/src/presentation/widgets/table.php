@@ -168,9 +168,9 @@ class Table implements iWriteable {
 	function write() {
 		// generate id for each table to apply the javascript DataTable function later
 		$identifier = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 10);
-		echo '<table id=';
+		echo '<table id="';
 		echo $identifier;
-		echo ' cellpadding="0" cellspacing="0" class="BNoteTable">' . "\n";
+		echo '" cellpadding="0" cellspacing="0" class="BNoteTable">' . "\n";
 
 		$head = true;
 		$empty = false;
@@ -330,7 +330,7 @@ class Table implements iWriteable {
 		
 		// convert table to javasript DataTable
 		$(document).ready(function() {
-			var identifier = "#<?php echo $identifier?>"
+			var identifier = "#<?php echo $identifier; ?>"
     		$(identifier).DataTable({
 				 "paging": false, 
 				 "info": false,  
@@ -344,6 +344,7 @@ class Table implements iWriteable {
 		});
 		</script>
 		<?php
+		return $identifier;
 	}
 
 }
