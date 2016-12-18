@@ -112,7 +112,7 @@ class Notifier {
 		$rehearsal = $dao->findByIdNoRef($rehearsalId);
 		$reh_begin = Data::convertDateFromDb($rehearsal['begin']);
 		$subject = "Probe am $reh_begin - Erinnerung";
-		$body = "Bitte gebe deine Teilnahme an der Probe am $reh_begin an.<br/>";
+		$body = "Bitte gib deine Teilnahme an der Probe am $reh_begin an.<br/>";
 		$bnote_url = $dao->getSysdata()->getSystemURL();
 		$body .= "<a href=\"$bnote_url\">BNote aufrufen</a><br/>";
 		$body .= "Danke!";
@@ -134,7 +134,7 @@ class Notifier {
 		// message
 		$concert = $dao->findByIdNoRef($concertId);
 		$subject = $concert['title'] . " - Erinnerung";
-		$body = "Bitte gebe deine Teilnahme für " . $concert['title'] . " an:<br/>";
+		$body = "Bitte gib deine Teilnahme für " . $concert['title'] . " an:<br/>";
 		$bnote_url = $dao->getSysdata()->getSystemURL();
 		$body .= "<a href=\"$bnote_url\">BNote aufrufen</a><br/>";
 		$body .= "Danke!";
