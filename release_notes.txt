@@ -2,5 +2,5 @@
 ## Release Notes
 ##
 
-#238: Link for calendar subscription and export fixed
-#240: Sending mail for vote had problems with users wo/ contacts
+#242: print member lists with browser
+#249: spelling mistake correction
