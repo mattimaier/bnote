@@ -2,5 +2,4 @@
 ## Release Notes
 ##
 
-#242: print member lists with browser
-#249: spelling mistake correction
+
