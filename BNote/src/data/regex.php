@@ -90,7 +90,7 @@ class Regex {
  		return true;
  	}
  	else if($match == 0) {
- 		new Error("Betrag nicht erkannt.");
+ 		new BNoteError("Betrag nicht erkannt.");
  	}
  	else {
  		$this->fail($d, "Betrag");
@@ -192,7 +192,7 @@ class Regex {
   * @param unknown_type $type The fieldtype which is wrong
   */
  private function fail($d, $type) {
- 	new Error("Ein oder mehrere Felder enthalten ungültige Werte. ($type / $d)");
+ 	new BNoteError("Ein oder mehrere Felder enthalten ungültige Werte. ($type / $d)");
  }
  
  /**

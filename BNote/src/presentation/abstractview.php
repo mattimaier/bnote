@@ -87,7 +87,7 @@ abstract class AbstractView {
 	 */
 	public function checkID() {
 		if(!isset($_GET[$this->idParameter])) {
-			new Error(Lang::txt("noUserId"));
+			new BNoteError(Lang::txt("noUserId"));
 		}
 	}
 	

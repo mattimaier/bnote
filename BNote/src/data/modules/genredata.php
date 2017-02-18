@@ -22,7 +22,7 @@ class GenreData extends AbstractData {
 	function delete($id) {
 		// only delete when no song with gerne present
 		if($this->isGenreUsed($id)) {
-			new Error("Die Genre wird in einem oder mehreren Songs verwendet und kann daher nicht gelöscht werden.");
+			new BNoteError("Die Genre wird in einem oder mehreren Songs verwendet und kann daher nicht gelöscht werden.");
 		}
 		else {
 			parent::delete($id);

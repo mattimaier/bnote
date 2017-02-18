@@ -123,7 +123,7 @@ class ProgramData extends AbstractData {
 		
 		// failure check
 		if($pid == null || $pid == "") {
-			new Error("Das Programm konnte nicht erstellt werden.");
+			new BNoteError("Das Programm konnte nicht erstellt werden.");
 		}
 		
 		// copy songs with rank to new program

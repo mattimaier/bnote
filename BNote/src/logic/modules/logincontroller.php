@@ -90,7 +90,7 @@ class LoginController extends DefaultController {
 				return false;
 			}
 			else {
-				new Error("Bitte überprüfe deine Anmeldedaten.<br />
+				new BNoteError("Bitte überprüfe deine Anmeldedaten.<br />
 						Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Bandleiter.<br />
 						<a href=\"?mod=login\">Zurück</a><br />");
 			}
@@ -104,7 +104,7 @@ class LoginController extends DefaultController {
 		// get user's id for email address
 		$uid = $this->getData()->getUserIdForEMail($_POST["email"]);
 		if($uid < 1) {
-			new Error("Deine E-Mail-Adresse ist dem System nicht bekannt oder existiert mehrfach. Bitte wende dich an deinen Bandleiter.");
+			new BNoteError("Deine E-Mail-Adresse ist dem System nicht bekannt oder existiert mehrfach. Bitte wende dich an deinen Bandleiter.");
 		}
 		$username = $this->getData()->getUsernameForId($uid);
 		
@@ -122,7 +122,7 @@ class LoginController extends DefaultController {
 		
 		if(!$mail->sendMail()) {
 			// talk to leader
-			new Error("Leider konnte die E-Mail an dich nicht versandt werden.<br />
+			new BNoteError("Leider konnte die E-Mail an dich nicht versandt werden.<br />
 					Bitte wende dich an deinen Bandleiter.");
 		}
 		else {					
@@ -152,7 +152,7 @@ class LoginController extends DefaultController {
 	public function register($writeOutput=true) {
 		// check agreement to terms
 		if(!isset($_POST["terms"])) {
-			new Error("Bitte stimme den Nutzungsbedingungen zu.");
+			new BNoteError("Bitte stimme den Nutzungsbedingungen zu.");
 		}
 		
 		// validate data
@@ -160,12 +160,12 @@ class LoginController extends DefaultController {
 		
 		// check for duplicate login
 		if($this->getData()->duplicateLoginCheck()) {
-			new Error("Der Benutzername wird bereits verwendet.");
+			new BNoteError("Der Benutzername wird bereits verwendet.");
 		}
 		
 		// check passwords and encrypt it
 		if($_POST["pw1"] != $_POST["pw2"]) {
-			new Error("Bitte überprüfe dein Kennwort.");
+			new BNoteError("Bitte überprüfe dein Kennwort.");
 		}
 		$password = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
 		

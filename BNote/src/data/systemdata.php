@@ -50,7 +50,7 @@ class Systemdata {
  }
 
  /**
-  * @param name Name of a module, e.g. "Konzerte".
+  * @param name Name of a module, e.g. "Proben".
   * @return The current module's id.
   */
  public function getModuleId($name = null) {
@@ -119,8 +119,8 @@ class Systemdata {
  	
  	$query = "SELECT module FROM privilege WHERE user = $uid";
  	$res = mysql_query($query);
- 	if(!$res) new Error("The database query to retrieve the privileges failed.");
- 	if(mysql_num_rows($res) == 0) new Error("You don't have sufficient privileges to access this system. Please contact your system administrator.");
+ 	if(!$res) new BNoteError("The database query to retrieve the privileges failed.");
+ 	if(mysql_num_rows($res) == 0) new BNoteError("You don't have sufficient privileges to access this system. Please contact your system administrator.");
  	
  	while($row = mysql_fetch_array($res)) {
  		array_push($ret, $row["module"]);

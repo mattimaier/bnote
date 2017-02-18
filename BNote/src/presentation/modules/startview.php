@@ -536,7 +536,7 @@ class StartView extends AbstractView {
 	public function voteOptions() {
 		$this->checkID();
 		if(!$this->getData()->canUserVote($_GET["id"])) {
-			new Error(Lang::txt("start_youCannotParticipateVote"));
+			new BNoteError(Lang::txt("start_youCannotParticipateVote"));
 		}
 		$vote = $this->getData()->getVote($_GET["id"]);
 		Writing::h2($vote["name"]);
@@ -703,10 +703,10 @@ class StartView extends AbstractView {
 	
 	public function discussion() {
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") != 1) {
-			new Error(Lang::txt("start_discussionsDeactivated"));
+			new BNoteError(Lang::txt("start_discussionsDeactivated"));
 		}
 		if(!isset($_GET["otype"]) || !isset($_GET["oid"])) {
-			new Error(Lang::txt("start_giveDiscussionReason"));
+			new BNoteError(Lang::txt("start_giveDiscussionReason"));
 		}
 		
 		Writing::h2(Lang::txt("discussion") . ": " . $this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]));

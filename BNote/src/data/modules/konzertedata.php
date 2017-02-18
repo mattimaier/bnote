@@ -12,7 +12,7 @@ class KonzerteData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array("Konzert ID", FieldType::INTEGER),
+			"id" => array("Auftritt ID", FieldType::INTEGER),
 			"title" => array("Titel", FieldType::CHAR),
 			"begin" => array("Beginn", FieldType::DATETIME),
 			"end" => array("Ende", FieldType::DATETIME),
@@ -197,7 +197,7 @@ class KonzerteData extends AbstractData {
 			
 			// 2) create location
 			$begin = substr($values["begin"], 0, strlen("XX.XX.XXXX"));
-			$notes = "Konzert am " . $begin;
+			$notes = "Auftritt am " . $begin;
 			$query = "INSERT INTO location (name, notes, address) VALUES (";
 			$query .= "\"" . $values["location_name"] . "\", \"" . $notes . "\", $aid";
 			$query .= ")";

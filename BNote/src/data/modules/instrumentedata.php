@@ -74,7 +74,7 @@ class InstrumenteData extends AbstractData {
 			parent::delete($id);
 		}
 		else {
-			new Error("Das Instrument kann nicht gelöscht werden, da es mindestens einem Kontakt zugeordnet ist.");
+			new BNoteError("Das Instrument kann nicht gelöscht werden, da es mindestens einem Kontakt zugeordnet ist.");
 		}
 	}
 }

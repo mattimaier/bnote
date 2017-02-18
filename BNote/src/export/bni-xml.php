@@ -68,7 +68,7 @@ function displayInfoPageLinks() {
 function getImagePath() {
 	// check for id
 	if(!isset($_GET["id"])) {
-		new Error("ID not set.");
+		new BNoteError("ID not set.");
 	}
 	
 	// get data
@@ -90,7 +90,7 @@ function getImagePath() {
 function getThumbPath() {
 	// check for id
 	if(!isset($_GET["id"])) {
-		new Error("ID not set.");
+		new BNoteError("ID not set.");
 	}
 	
 	// get data
@@ -121,7 +121,7 @@ function getGalleries() {
 function getGallery() {
 	// check for id
 	if(!isset($_GET["id"])) {
-		new Error("ID not set.");
+		new BNoteError("ID not set.");
 	}
 	
 	$query = "SELECT * FROM gallery WHERE id = " . $_GET["id"];
@@ -134,7 +134,7 @@ function getGallery() {
 function getImagesForGallery() {
 	// check for id
 	if(!isset($_GET["id"])) {
-		new Error("ID not set.");
+		new BNoteError("ID not set.");
 	}
 	
 	$query = "SELECT * FROM galleryimage WHERE gallery = " . $_GET["id"];
@@ -147,7 +147,7 @@ function getImagesForGallery() {
 function getImage() {
 	// check for id
 	if(!isset($_GET["id"])) {
-		new Error("ID not set.");
+		new BNoteError("ID not set.");
 	}
 	
 	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];

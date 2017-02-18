@@ -85,7 +85,7 @@ class Translation extends BNoteTranslation {
 			"mod_Start" => "Start",
 			"mod_User" => "Users",
 			"mod_Kontakte" => "Contacts",
-			"mod_Konzerte" => "Concerts",
+			"mod_Konzerte" => "Gigs",
 			"mod_Proben" => "Rehearsals",
 			"mod_Repertoire" => "Repertoire",
 			"mod_Kommunikation" => "Communication",

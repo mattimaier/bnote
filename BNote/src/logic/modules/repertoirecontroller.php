@@ -58,7 +58,7 @@ class RepertoireController extends DefaultController {
 	private function xlsMapping() {		
 		// validate upload
 		if(!isset($_FILES["xlsfile"])) {
-			new Error(Lang::txt("errorWithFile"));
+			new BNoteError(Lang::txt("errorWithFile"));
 		}
 		if($_FILES["xlsfile"]["error"] > 0) {
 			switch($_FILES["xlsfile"]["error"]) {
@@ -68,10 +68,10 @@ class RepertoireController extends DefaultController {
 				case 4: $msg = Lang::txt("errorNoFile"); break;
 				default: $msg = Lang::txt("errorSavingFile"); break;
 			}
-			new Error($msg);
+			new BNoteError($msg);
 		}
 		if(!is_uploaded_file($_FILES["xlsfile"]["tmp_name"])) {
-			new Error(Lang::txt("errorUploadingFile"));
+			new BNoteError(Lang::txt("errorUploadingFile"));
 		}
 		
 		// read file
@@ -111,7 +111,7 @@ class RepertoireController extends DefaultController {
 	function xlsImport() {
 		// check if title is mapped
 		if($_POST["col_title"] < 0) {
-			new Error("Wähle eine Spalte für den Titel deiner Stücke.");
+			new BNoteError("Wähle eine Spalte für den Titel deiner Stücke.");
 		}
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
 		

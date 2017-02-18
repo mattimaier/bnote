@@ -34,7 +34,7 @@ class KommunikationView extends AbstractView {
 		$rh->write();
 		$this->buttonSpace();
 		
-		$cm = new Link($this->modePrefix() . "concertMail", "Konzertbenachrichtigung");
+		$cm = new Link($this->modePrefix() . "concertMail", "Auftrittsbenachrichtigung");
 		$cm->addIcon("arrow_right");
 		$cm->write();
 		$this->buttonSpace();
@@ -83,7 +83,7 @@ class KommunikationView extends AbstractView {
 	}
 	
 	function concertMail() {
-		Writing::h2("Konzertbenachrichtigung");
+		Writing::h2("Auftrittsbenachrichtigung");
 		
 		$dd = new Dropdown("concert");
 		$concerts = $this->getData()->getConcerts();
@@ -102,11 +102,11 @@ class KommunikationView extends AbstractView {
 			$label = Data::getWeekdayFromDbDate($concert["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($concert["begin"]);
 			$label .= " Uhr";
-			$form->addElement("Konzert", new Field("concert_view", $label, Field::FIELDTYPE_UNEDITABLE));
+			$form->addElement("Auftritt", new Field("concert_view", $label, Field::FIELDTYPE_UNEDITABLE));
 			$form->addHidden("concert", $_GET["preselect"]);
 		}
 		else {
-			$form->addElement("Konzert", $dd);
+			$form->addElement("Auftritt", $dd);
 		}
 		$form->removeElement("Betreff");
 		$form->write();

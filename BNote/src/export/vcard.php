@@ -24,12 +24,12 @@ $db = new Database();
 // check whether a user is registered and has contact (mod=3) permission
 $deniedMsg = "Du hast keine Berechtigung die Kontakte zu exportieren!";
 if(!isset($_SESSION["user"])) {
-	new Error($deniedMsg);
+	new BNoteError($deniedMsg);
 }
 else {
 	$userCt = $db->getCell("privilege", "count(*)", "module = 3 AND user = " . $_SESSION["user"]);
 	if($userCt < 1) {
-		new Error($deniedMsg);
+		new BNoteError($deniedMsg);
 	}
 }
 

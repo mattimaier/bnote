@@ -62,12 +62,12 @@ class GruppenData extends AbstractData {
 		$res = $this->database->getSelection($query);
 		$numContactsWithNoOtherGroup = count($res) -1;
 		if($numContactsWithNoOtherGroup > 0) {
-			new Error("In dieser Gruppe sind $numContactsWithNoOtherGroup Kontakte die keiner anderen Gruppe zugeordnet sind.
+			new BNoteError("In dieser Gruppe sind $numContactsWithNoOtherGroup Kontakte die keiner anderen Gruppe zugeordnet sind.
 					   Bitte ändere deren Gruppenzugehörigkeit bevor du die Gruppe löschen kannst.");
 		}
 		// check if there are files in the folder -> cancel removal
 		if(!$this->isDirEmpty($this->getSysdata()->getGroupHomeDir($id))) {
-			new Error("Das Verzeichnis der Gruppe enthält noch Dateien. Bitte entfernen Sie diese aus dem Verzeichnis
+			new BNoteError("Das Verzeichnis der Gruppe enthält noch Dateien. Bitte entfernen Sie diese aus dem Verzeichnis
 					   damit es gelöscht werden kann.");
 		}
 		

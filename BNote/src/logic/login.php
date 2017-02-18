@@ -18,7 +18,7 @@ $username = "";
 $password = "";
 
 if(!isset($_POST["login"]) || !isset($_POST["password"])) {	
-	new Error('Ungültige Eingabe. Deine Anmeldedaten sind nicht korrekt.<br /> <a href="' . $dir_prefix . '">Zurück</a>');
+	new BNoteError('Ungültige Eingabe. Deine Anmeldedaten sind nicht korrekt.<br /> <a href="' . $dir_prefix . '">Zurück</a>');
 }
 else {
 	$regex = new Regex();
@@ -55,7 +55,7 @@ if($db_pw == $password) {
 	header("Location: ../../main.php?mod=" . $sysconfig->getParameter("StartModule"));
 }
 else {
-	new Error("Bitte überprüfe deine Anmeldedaten.<br />
+	new BNoteError("Bitte überprüfe deine Anmeldedaten.<br />
 		Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Bandleiter.<br />
 		<a href=\"" . $dir_prefix . "\">Zurück</a><br />
 		");

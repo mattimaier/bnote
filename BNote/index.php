@@ -1,7 +1,7 @@
 <?php
 /**
  * BNote - Ensemble Management Software
- * by Matti Maier & Stefan Kreminski BNote Software GbR
+ * by Matti Maier und Stefan Kreminski BNote Software GbR
  * @author Matti Maier
  * @author Stefan Kreminski
  * 

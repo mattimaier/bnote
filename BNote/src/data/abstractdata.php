@@ -494,7 +494,7 @@ abstract class AbstractData {
 	 */
 	public function validate($input) {
 		if(count($input) == 0) {
-			new Error("Bitte gebe ausreichend Informationen an.");
+			new BNoteError("Bitte gebe ausreichend Informationen an.");
 		}
 		foreach($input as $id => $value) {
 			$this->validate_pair($id, $value);

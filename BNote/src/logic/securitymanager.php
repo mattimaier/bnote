@@ -176,7 +176,7 @@ class SecurityManager {
 				return $this->sysdata->userHasPermission($contactModId);
 			}
 			else if(strpos($path, "programs") !== false) {
-				$concertModId = 4; // Konzerte
+				$concertModId = 4; // Auftritte
 				return $this->sysdata->userHasPermission($concertModId);
 			}
 		}

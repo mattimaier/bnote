@@ -16,6 +16,7 @@ require_once($GLOBALS["DIR_WIDGETS"] . "field.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "dropdown.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "form.php");
 
+
 class Installation {
 	
 	function __construct() {
@@ -99,7 +100,7 @@ class Installation {
 		
 		$res = file_put_contents("config/company.xml", $fileContent);
 		if(!$res) {
-			new Error("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
+			new BNoteError("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
 		}
 	}
 	
@@ -163,7 +164,7 @@ class Installation {
 				
 			$res = file_put_contents("config/config.xml", $fileContent);
 			if(!$res) {
-			new Error("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
+			new BNoteError("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
 			}
 		}
 	}
@@ -212,7 +213,7 @@ class Installation {
 		
 		$res = file_put_contents("config/database.xml", $fileContent);
 		if(!$res) {
-			new Error("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
+			new BNoteError("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
 		}
 		else {
 			// run database initialization
@@ -837,7 +838,7 @@ class Installation {
 					(1, 'Start'),
 					(2, 'User'),
 					(3, 'Kontakte'),
-					(4, 'Konzerte'),
+					(4, 'Auftritte'),
 					(5, 'Proben'),
 					(6, 'Repertoire'),
 					(7, 'Kommunikation'),
@@ -859,7 +860,7 @@ class Installation {
 
 			array_push($queries,
 					"INSERT INTO `status` (`id`, `name`) VALUES
-					(1, 'Konzertreif'),
+					(1, 'Auftrittsreif'),
 					(2, 'Kernrepertoire'),
 					(3, 'Noten vorhanden'),
 					(4, 'benötigt weitere Proben'),
@@ -910,7 +911,7 @@ class Installation {
 	function process_adminUser() {
 		// validate password
 		if(!isset($_POST["password"]) || !isset($_POST["login"]) || $_POST["password"] == "" || strlen($_POST["password"]) < 6) {
-			new Error("Ungültiges Passwort. Bitte vergewissere dich, dass das Passwort mindestens 6 Zeichen hat und nicht leer ist.");
+			new BNoteError("Ungültiges Passwort. Bitte vergewissere dich, dass das Passwort mindestens 6 Zeichen hat und nicht leer ist.");
 		}
 		
 		// get database connection
@@ -1027,7 +1028,8 @@ class Installation {
 					<?php
 					// routing
 					if(isset($_GET["step"])) {
-						$this->$_GET["step"]();
+						$func = $_GET["step"];
+						$this->$func();
 					}
 					else {
 						$this->welcome();

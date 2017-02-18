@@ -12,7 +12,7 @@ class KonzerteView extends CrudRefView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Konzert");
+		$this->setEntityName("Auftritt");
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
 			"program" => array("name"),
@@ -35,23 +35,23 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	function start() {
-		Writing::h1("Konzerte");
-		Writing::p("Um ein Konzert anzuzeigen oder zu bearbeiten, bitte auf das entsprechende Konzert klicken.");
+		Writing::h1("Auftritte");
+		Writing::p("Um einen Auftritt anzuzeigen oder zu bearbeiten, bitte auf den entsprechenden Auftritt klicken.");
 		
 		// Next Concert
 		$concerts = $this->getData()->getFutureConcerts();
-		Writing::h2("Nächstes Konzert");
+		Writing::h2("Nächster Auftritt");
 		if(count($concerts) > 1) {
 			$this->writeConcert($concerts[1]);
 		}
 		
 		// More Concerts
-		Writing::h2("Geplante Konzerte");
+		Writing::h2("Geplante Auftritte");
 		$this->writeConcerts($concerts);
 	}
 	
 	protected function startOptions() {
-		$lnk = new Link($this->modePrefix() . "wizzard", "Konzert hinzufügen");
+		$lnk = new Link($this->modePrefix() . "wizzard", "Auftritt hinzufügen");
 		$lnk->addIcon("plus");
 		$lnk->write();
 		
@@ -61,7 +61,7 @@ class KonzerteView extends CrudRefView {
 		$lnk->write();
 		
 		$this->buttonSpace();
-		$lnk = new Link($this->modePrefix() . "history", "Konzertchronik");
+		$lnk = new Link($this->modePrefix() . "history", "Chronik");
 		$lnk->addIcon("timer");
 		$lnk->write();
 	}
@@ -124,7 +124,7 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	function history() {
-		Writing::h2("Konzertchronik");
+		Writing::h2("Chronik");
 		
 		$table = new Table($this->getData()->getPastConcerts());
 		$table->renameAndAlign($this->getData()->getFields());
@@ -227,7 +227,7 @@ class KonzerteView extends CrudRefView {
 		$groups = GroupSelector::getPostSelection($this->getData()->adp()->getGroups(), "group");
 		$this->getData()->addConcertContactGroup($_GET["id"], $groups);
 		
-		new Message("Kontakte hinzugefügt", "Der oder die Kontakte wurden dem Konzert hinzugefügt.");
+		new Message("Kontakte hinzugefügt", "Der oder die Kontakte wurden dem Auftritt hinzugefügt.");
 	}
 	
 	function process_addConcertContactOptions() {
@@ -245,7 +245,7 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	function editEntityForm() {
-		$form = new Form("Konzert bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"] . "&manualValid=true");
+		$form = new Form("Auftritt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"] . "&manualValid=true");
 		$c = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), "concert", $_GET["id"]);
 		$form->removeElement("id");
@@ -298,7 +298,7 @@ class KonzerteView extends CrudRefView {
 		$this->checkID();
 		$parts = $this->getData()->getParticipants($_GET["id"]);
 		
-		Writing::h2("Konzertteilnehmer");
+		Writing::h2("Teilnehmer");
 		$table = new Table($parts);
 		$table->renameHeader("participate", "Nimmt teil");
 		$table->renameHeader("reason", "Grund");
@@ -325,7 +325,7 @@ class KonzerteView extends CrudRefView {
 	/***** CONCERT CREATION PROCESS ***********/
 	
 	function showAddTitle() {
-		Writing::h2("Konzert hinzufügen");
+		Writing::h2("Auftritt hinzufügen");
 	}
 	
 	/**
@@ -458,7 +458,7 @@ class KonzerteView extends CrudRefView {
 		$this->addCollectedData($form2);
 		$form2->write();
 		
-		Writing::p("Wird ein neuer Kontakt erstellt, wird er diesem Konzert zugeordnet. Er kann jedoch unter Kontakte/Sonstige Kontakte bearbeitet werden.");
+		Writing::p("Wird ein neuer Kontakt erstellt, wird er diesem Auftritt zugeordnet. Er kann jedoch unter Kontakte/Sonstige Kontakte bearbeitet werden.");
 	}
 	
 	/**
@@ -468,7 +468,7 @@ class KonzerteView extends CrudRefView {
 	function step4($action) {
 		$msg = "Bitte wähle eine Programmvorlage aus ";
 		$msg .= "oder fuege ein Programm später hinzu.<br />";
-		$msg .= "Das Programm kann unter Konzerte/Programme später ";
+		$msg .= "Das Programm kann unter Auftritte/Programme später ";
 		$msg .= "bearbeitet werden.";
 		Writing::p($msg);
 		
@@ -497,7 +497,7 @@ class KonzerteView extends CrudRefView {
 	 */
 	function step5($action) {
 		// select the groups (or all) the concert will be for
-		Writing::p("Bitte wähle die Mitspieler für dieses Konzert aus.");
+		Writing::p("Bitte wähle die Mitspieler für diesen Auftritt aus.");
 		
 		$form = new Form("Mitspieler auswählen", $this->modePrefix() . $action);
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
@@ -512,8 +512,8 @@ class KonzerteView extends CrudRefView {
 	 * @param String $action Is not used.
 	 */
 	function step6($action) {
-		$m = "Das Konzert wurde erfolgreich erstellt.";
-		$msg = new Message("Konzert erstellt", $m);
+		$m = "Der Auftritt wurde erfolgreich erstellt.";
+		$msg = new Message("Auftritt erstellt", $m);
 		$this->backToStart();
 	}
 	

@@ -49,14 +49,14 @@ class KommunikationController extends DefaultController {
 			$concert = $this->getData()->getConcert($_POST["concert"]);
 			
 			// subject
-			$subj = "Konzert am " . Data::getWeekdayFromDbDate($concert["begin"]);
+			$subj = "Auftritt am " . Data::getWeekdayFromDbDate($concert["begin"]);
 			$text .= ", " . Data::convertDateFromDb($concert["begin"]) . " Uhr";
 			$_POST["subject"] = $subj;
 			
 			// body
 			if($_POST["message"] == "") {
 				$body = "Am " . Data::getWeekdayFromDbDate($concert["begin"]) . " den ";
-				$body .= Data::convertDateFromDb($concert["begin"]) . " Uhr findet ein Konzert ";
+				$body .= Data::convertDateFromDb($concert["begin"]) . " Uhr findet ein Auftritt ";
 				$body .= "von " . $this->getData()->getSysdata()->getCompany() . " statt.\n";
 				$body .= "Weitere Details findest du in BNote.";
 				$_POST["message"] = $body;
@@ -104,7 +104,7 @@ class KommunikationController extends DefaultController {
 		}
 		
 		if($addresses == null || count($addresses) == 0) {
-			new Error("Es wurden keine Empfänger gefunden.");
+			new BNoteError("Es wurden keine Empfänger gefunden.");
 		}
 		
 		// Receipient Setup

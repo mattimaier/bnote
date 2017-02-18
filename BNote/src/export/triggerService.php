@@ -40,7 +40,7 @@ class TriggerServiceClient {
 			$this->sendRequest($this->service_url, json_encode($post_data));
 			return true;
 		} catch(Exception $e) {
-			new Error("Benachrichtigungen können nicht angelegt werden.");
+			new BNoteError("Benachrichtigungen können nicht angelegt werden.");
 			return false;
 		}
 	}

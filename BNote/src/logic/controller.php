@@ -14,13 +14,13 @@ class Controller {
 
 		# Check for Permission
 		if(!$system_data->userHasPermission($system_data->getModuleId())) {
-			new Error("<b>Keine Berechtigung</b><br>Sie haben keine Berechtigung dieses Modul zu benutzen.");
+			new BNoteError("<b>Keine Berechtigung</b><br>Sie haben keine Berechtigung dieses Modul zu benutzen.");
 		}
 
 		# Check all $_GET attributes for attack
 		foreach($_GET as $key => $value) {
 			if(!preg_match("/^[[:alnum:]\.\_\-\%\ \/\'\(\)]{1,255}$/", $value)) {
-				new Error("Es wurde ein vermeintlicher Angriff festgestellt.<br>
+				new BNoteError("Es wurde ein vermeintlicher Angriff festgestellt.<br>
 						Sollte diese Meldung weiterhin auftreten, wenden Sie sich bitten an Ihren Systemadministrator.");
 			}
 		}

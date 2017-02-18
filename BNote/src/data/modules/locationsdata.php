@@ -27,7 +27,7 @@ class LocationsData extends AbstractData {
 	
 	function create($values) {
 		if(!isset($_POST["city"]) || $_POST["city"] == "") {
-			new Error("Bitte gebe eine Stadt für diese Location an.");
+			new BNoteError("Bitte gebe eine Stadt für diese Location an.");
 		}
 		
 		$_POST["address"] = $this->adp()->manageAddress(-1, $_POST);
@@ -36,7 +36,7 @@ class LocationsData extends AbstractData {
 	
 	function update($id, $values) {
 		if(!isset($values["city"]) || $values["city"] == "") {
-			new Error("Bitte gebe eine Stadt für diese Location an.");
+			new BNoteError("Bitte gebe eine Stadt für diese Location an.");
 		}
 		
 		// update address

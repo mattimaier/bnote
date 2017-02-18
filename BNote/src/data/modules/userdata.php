@@ -49,13 +49,13 @@ class UserData extends AbstractData {
 	
 	function create($values) { // values and $_POST is the same
 		// Do a manual validation
-		if(!$this->regex->isLogin($values["login"])) new Error("Der angegebene Benutzername ist ungültig.");
-		if(!$this->regex->isPassword($values["password"])) new Error("Das angegebene Passwort ist ungültig (mindestens 6 Zeichen notwendig).");
-		if(!isset($values["contact"]) || $values["contact"] == "") new Error("Bitte wähle einen Kontakt aus.");
+		if(!$this->regex->isLogin($values["login"])) new BNoteError("Der angegebene Benutzername ist ungültig.");
+		if(!$this->regex->isPassword($values["password"])) new BNoteError("Das angegebene Passwort ist ungültig (mindestens 6 Zeichen notwendig).");
+		if(!isset($values["contact"]) || $values["contact"] == "") new BNoteError("Bitte wähle einen Kontakt aus.");
 		
 		// check that the login is not taken
 		if($this->adp()->doesLoginExist($values["login"])) {
-			new Error("Der Benutzername wird bereits verwendet!");
+			new BNoteError("Der Benutzername wird bereits verwendet!");
 		}
 		
 		$newUsr = array();
@@ -64,7 +64,7 @@ class UserData extends AbstractData {
 			if($id == "id" || $id == "lastlogin") continue;
 			if($id == "password") {
 				// specially validate password for empty passwords
-				if($values[$id] == "") new Error("Das angegebene Password ist nicht ausreichend.");
+				if($values[$id] == "") new BNoteError("Das angegebene Password ist nicht ausreichend.");
 				$newUsr[$id] = crypt($values[$id], LoginController::ENCRYPTION_HASH);
 			}
 			else if($id != "isActive") {
@@ -95,7 +95,7 @@ class UserData extends AbstractData {
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($_GET["id"])) {
-			new Error("Zugriff verweigert.");
+					new BNoteError("Zugriff verweigert.");
 		}
 		
 		$usr = array();
@@ -122,7 +122,7 @@ class UserData extends AbstractData {
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($id)) {
-			new Error("Zugriff verweigert.");
+					new BNoteError("Zugriff verweigert.");
 		}
 		else {
 			parent::delete($id);
@@ -180,7 +180,7 @@ class UserData extends AbstractData {
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($uid)) {
-			new Error("Zugriff verweigert.");
+					new BNoteError("Zugriff verweigert.");
 		}
 		
 		// clear privileges
@@ -217,7 +217,7 @@ class UserData extends AbstractData {
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($id)) {
-			new Error("Zugriff verweigert.");
+					new BNoteError("Zugriff verweigert.");
 		}
 		
 		$query = "UPDATE " . $this->table . " SET isActive =";

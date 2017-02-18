@@ -100,7 +100,7 @@ class Filebrowser implements iWriteable {
 		
 		// check permission for folder to prevent URL hacks within the system
 		if(!$this->adp->getSecurityManager()->canUserAccessFile($this->path)) {
-			new Error("Zugriff verweigert.");
+			new BNoteError("Zugriff verweigert.");
 		}
 		
 		// execute functions
@@ -284,12 +284,12 @@ class Filebrowser implements iWriteable {
 	private function addFile() {
 		// check permission
 		if($this->viewmode) {
-			new Error(Lang::txt("noFileAddPermission"));
+			new BNoteError(Lang::txt("noFileAddPermission"));
 		}
 		
 		// validate upload
 		if(!isset($_FILES["file"])) {
-			new Error(Lang::txt("errorWithFile"));
+			new BNoteError(Lang::txt("errorWithFile"));
 		}
 		if($_FILES["file"]["error"] > 0) {
 			switch($_FILES["file"]["error"]) {
@@ -299,20 +299,20 @@ class Filebrowser implements iWriteable {
 				case 4: $msg = Lang::txt("errorNoFile"); break;
 				default: $msg = Lang::txt("errorSavingFile"); break;
 			}
-			new Error($msg);
+			new BNoteError($msg);
 		}
 		if(!is_uploaded_file($_FILES["file"]["tmp_name"])) {
-			new Error(Lang::txt("errorUploadingFile"));
+			new BNoteError(Lang::txt("errorUploadingFile"));
 		}
 		
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_WRITE, $this->root . $this->path)) {
-			new Error(Lang::txt("noFileAddPermission"));
+			new BNoteError(Lang::txt("noFileAddPermission"));
 		}
 		
 		// copy file to target directory
 		$target = $this->root . $this->path;
 		if(!copy($_FILES["file"]["tmp_name"], $target . "/" . $_FILES["file"]["name"])) {
-			new Error(Lang::txt("errorSavingFile"));
+			new BNoteError(Lang::txt("errorSavingFile"));
 		}
 		
 		$this->mainView();
@@ -324,19 +324,19 @@ class Filebrowser implements iWriteable {
 	private function deleteFile() {
 		// check permission
 		if($this->viewmode) {
-			new Error(Lang::txt("errorDeletingFile"));
+			new BNoteError(Lang::txt("errorDeletingFile"));
 		}
 		
 		// decode filename
 		if(!isset($_GET["file"])) {
-			new Error(Lang::txt("errorFileNotFound"));
+			new BNoteError(Lang::txt("errorFileNotFound"));
 		}
 		$fn = urldecode($_GET["file"]);
 		$fullpath = $this->root . $this->path . "/" . $fn; 
 		
 		// check permission to delete
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $this->path . "/" . $fn)) {
-			new Error(Lang::txt("errorDeletingFile"));
+			new BNoteError(Lang::txt("errorDeletingFile"));
 		}
 		
 		if(is_dir($fullpath)) {
@@ -355,7 +355,7 @@ class Filebrowser implements iWriteable {
 	private function addFolder() {		
 		// check permission
 		if($this->viewmode) {
-			new Error(Lang::txt("noFolderAddPermission"));
+			new BNoteError(Lang::txt("noFolderAddPermission"));
 		}
 		
 		// validate name
@@ -364,7 +364,7 @@ class Filebrowser implements iWriteable {
 		
 		// prevent user from adding reserved directories to root folder
 		if($_POST["folder"] == "users" || $_POST["folder"] == "groups") {
-			new Error(Lang::txt("errorReservedFolderNames"));
+			new BNoteError(Lang::txt("errorReservedFolderNames"));
 		}
 		
 		// create folder in root

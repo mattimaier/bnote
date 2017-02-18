@@ -148,7 +148,7 @@ class ProbenView extends CrudRefView {
 			$this->backToStart();
 		}
 		else {
-			new Error("Die Probenserie konnte nicht verarbeitet werden.");
+			new BNoteError("Die Probenserie konnte nicht verarbeitet werden.");
 		}
 	}
 	

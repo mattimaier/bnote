@@ -428,7 +428,7 @@ class AbstimmungData extends AbstractData {
 		if($groupRequired) {
 			$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 			if(count($grps) == 0) {
-				new Error("Bitte wähle eine Gruppe für die Abstimmung.");
+				new BNoteError("Bitte wähle eine Gruppe für die Abstimmung.");
 			}
 		}
 	}

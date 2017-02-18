@@ -68,7 +68,7 @@ class UserView extends CrudRefView {
 		// restrict access to super user for non-super-users
 		if(!$this->getData()->getSysdata()->isUserSuperUser()
 				&& $this->getData()->getSysdata()->isUserSuperUser($_GET["id"])) {
-			new Error("Zugriff verweigert.");
+					new BNoteError("Zugriff verweigert.");
 		}
 		
 		// get current user

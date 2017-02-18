@@ -126,7 +126,7 @@ class Mailing {
 	public function sendMail() {
 		// abort if in demo mode
 		if($this->sysdata->inDemoMode()) {
-			new Error("Das System ist im demonstrationsmodus und versendet daher keine E-Mails.");
+			new BNoteError("Das System ist im demonstrationsmodus und versendet daher keine E-Mails.");
 			return false;
 		}
 		
@@ -149,13 +149,13 @@ class Mailing {
 		
 		// validation
 		if($this->bcc == null && $this->to == null) {
-			new Error("Bitte geben Sie BCC or AN or beide Felder an.");
+			new BNoteError("Bitte geben Sie BCC or AN or beide Felder an.");
 		}
 		if($this->body == null) {
-			new Error("Es ist keine Nachricht angegeben.");
+			new BNoteError("Es ist keine Nachricht angegeben.");
 		}
 		if($this->subject == null) {
-			new Error("Es ist kein Betreff angegeben.");
+			new BNoteError("Es ist kein Betreff angegeben.");
 		}
 		
 		// handle encoding
@@ -202,7 +202,7 @@ class Mailing {
 	 */
 	public function sendMailWithFailError() {
 		if($this->sendMail() === false) {
-			new Error("Die E-Mail konnte nicht gesendet werden.");
+			new BNoteError("Die E-Mail konnte nicht gesendet werden.");
 		}
 	}
 }

@@ -95,12 +95,12 @@ class WebsiteView extends AbstractView {
 	
 	function save() {
 		if(!isset($_GET["page"])) {
-			new Error("Bitte wähle eine Seite zum bearbeiten aus!");
+			new BNoteError("Bitte wähle eine Seite zum bearbeiten aus!");
 		}
 		if(isset($_POST["html"])) {
 			$filename = $this->getController()->getFilenameFromPage($_GET["page"]);
 			if(!file_put_contents($filename, $_POST["html"])) {
-				new Error("Die Seite konnte nicht gespeichert werden.");
+				new BNoteError("Die Seite konnte nicht gespeichert werden.");
 			}
 		}
 		$this->start();
@@ -148,7 +148,7 @@ class WebsiteView extends AbstractView {
 	
 	function processAddInfo() {
 		if(!$this->getData()->addInfo()) {
-			new Error("Die Informationsseite konnte nicht gespeichert werden.");
+			new BNoteError("Die Informationsseite konnte nicht gespeichert werden.");
 		}
 		else {
 			new Message("Seite gespeichert", "Die Seite wurde erfolgreich gespeichert.");
@@ -198,7 +198,7 @@ class WebsiteView extends AbstractView {
 	
 	function processEditInfo() {
 		if(!$this->getData()->editInfo($_GET["id"])) {
-			new Error("Die Informationsseite konnte nicht gespeichert werden.");
+			new BNoteError("Die Informationsseite konnte nicht gespeichert werden.");
 		}
 		else {
 			echo '<p>Die Seite wurde erfolgreich gespeichert.</p>';

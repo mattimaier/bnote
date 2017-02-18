@@ -157,7 +157,7 @@ class ProbenData extends AbstractData {
 		$dateFirstSession = strtotime(Data::convertDateToDb($_POST["first_session"]));
 		$dateLastSession = strtotime(Data::convertDateToDb($_POST["last_session"]));
 		if($dateLastSession - $dateFirstSession < 0) {
-			new Error("Die letzte Probe ist zeitlich vor der ersten Probe.");
+			new BNoteError("Die letzte Probe ist zeitlich vor der ersten Probe.");
 		}
 		
 		// process accoding to cycle

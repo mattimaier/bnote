@@ -3,7 +3,7 @@
  * Class to display errors
 **/
 
-class Error {
+class BNoteError {
 
  function __construct($message) {
  	/*

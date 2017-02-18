@@ -114,7 +114,7 @@ class Form implements iWriteable {
   */
  public function setForeign($field, $table, $idcolumn, $namecolumns, $selectedid) {
  	// check whether key even exists
- 	if(!array_key_exists($field, $this->elements)) new Error("Der Verweis konnte nicht gefunden werden.");
+ 	if(!array_key_exists($field, $this->elements)) new BNoteError("Der Verweis konnte nicht gefunden werden.");
  	
  	// create new dropdown list
  	$dropdown = new Dropdown($field);

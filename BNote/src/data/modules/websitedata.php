@@ -182,13 +182,13 @@ class WebsiteData extends AbstractData {
 		
 		// validate upload
 		if($_FILES["file"]["error"] > 0) {
-			new Error("Es trat ein Fehler während des Uploads auf. Bitte versuche es noch einmal.");
+			new BNoteError("Es trat ein Fehler während des Uploads auf. Bitte versuche es noch einmal.");
 		}
 		if(!is_uploaded_file($_FILES["file"]["tmp_name"])) {
-			new Error("Die Datei konnte nicht hochgeladen werden.");
+			new BNoteError("Die Datei konnte nicht hochgeladen werden.");
 		}
 		if(!getimagesize($_FILES["file"]["tmp_name"])) {
-			new Error("Die hochgeladene Datei ist kein Bild.");
+			new BNoteError("Die hochgeladene Datei ist kein Bild.");
 		}
 		
 		// create database entry

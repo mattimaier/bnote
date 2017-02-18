@@ -23,18 +23,18 @@ $db = new Database();
 // check whether a user is registered and has program (mod=4) permission
 $deniedMsg = "Du hast keine Berechtigung die Kontakte zu exportieren!";
 if(!isset($_SESSION["user"])) {
-	new Error($deniedMsg);
+	new BNoteError($deniedMsg);
 }
 else {
 	$userCt = $db->getCell("privilege", "count(*)", "module = 4 AND user = " . $_SESSION["user"]);
 	if($userCt < 1) {
-		new Error($deniedMsg);
+		new BNoteError($deniedMsg);
 	}
 }
 
 // check if ID is set
 if(!isset($_GET["id"]) || $_GET["id"] == "") {
-	new Error("Bitte geben die Nummer des Programms an, das du exportieren möchtest.");
+	new BNoteError("Bitte geben die Nummer des Programms an, das du exportieren möchtest.");
 }
 // fetch data
 $query = "SELECT s.title, c.name as composer, s.length, s.bpm, s.music_key, g.name as genre, status.name as status, s.notes

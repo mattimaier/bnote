@@ -290,7 +290,7 @@ class KontakteView extends CrudRefView {
 		}
 		
 		if(!$isAGroupSelected) {
-			new Error("Bitte weise dem Kontakt mindestens eine Gruppe zu.");
+			new BNoteError("Bitte weise dem Kontakt mindestens eine Gruppe zu.");
 		}
 	}
 	
@@ -456,7 +456,7 @@ class KontakteView extends CrudRefView {
 					</div>
 				</div>
 				<div class="start_box">
-					<div class="start_box_heading">Konzerte</div>
+					<div class="start_box_heading">Auftritte</div>
 					<div class="start_box_content">
 						<?php
 						$concerts = $this->getData()->adp()->getFutureConcerts();

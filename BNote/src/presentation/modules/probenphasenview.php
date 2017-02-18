@@ -102,7 +102,7 @@ class ProbenphasenView extends CrudView {
 				"details" => "Details",
 				"rehearsals" => "Proben",
 				"contacts" => "Teilnehmer",
-				"concerts" => "Konzerte"
+				"concerts" => "Auftritte"
 		);
 		echo "<div class=\"view_tabs\">\n";
 		foreach($tabs as $tabid => $label) {
@@ -154,7 +154,7 @@ class ProbenphasenView extends CrudView {
 					$addGroupContacts->write();
 					break;
 				case "concerts":
-					$addConcert = new Link($this->modePrefix() . "addConcert&id=" . $_GET["id"], "Konzert hinzufügen");
+					$addConcert = new Link($this->modePrefix() . "addConcert&id=" . $_GET["id"], "Auftritt hinzufügen");
 					$addConcert->addIcon("plus");
 					$addConcert->write();
 					break;
@@ -195,15 +195,15 @@ class ProbenphasenView extends CrudView {
 	}
 
 	function addConcert() {
-		$form = new Form("Konzert hinzufügen", $this->modePrefix() . "process_addConcert&id=" . $_GET["id"]);
+		$form = new Form("Auftritt hinzufügen", $this->modePrefix() . "process_addConcert&id=" . $_GET["id"]);
 
-		Writing::p("Füge durch anklicken eines oder mehrerer Konzerte diese der Probenphase hinzu.");
+		Writing::p("Füge durch anklicken eines oder mehrerer Auftritte diese der Probenphase hinzu.");
 
 		$futConcerts = $this->getData()->getFutureConcerts();
 		$gs = new GroupSelector($futConcerts, array(), "concert");
 		$gs->setNameColumn("title");
 		$gs->setCaptionType(FieldType::CHAR);
-		$form->addElement("kommende Konzerte", $gs);
+		$form->addElement("kommende Auftritte", $gs);
 		$form->write();
 	}
 	
@@ -213,7 +213,7 @@ class ProbenphasenView extends CrudView {
 
 	function process_addConcert() {
 		$this->getData()->addConcerts($_GET["id"]);
-		new Message("Konzerte hinzugefügt", "Die ausgewählten Konzerte wurden der Probenphase hinzugefügt.");
+		new Message("Auftritte hinzugefügt", "Die ausgewählten Auftritte wurden der Probenphase hinzugefügt.");
 	}
 	
 	function process_addConcertOptions() {
