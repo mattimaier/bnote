@@ -131,6 +131,7 @@ background-color: #fff;
 #optionsbar {
 	height: 40px;
 	border-bottom: 1px solid #dcdcdc;
+	background-color: #eee;
 	padding-top: 10px;
 }
 
@@ -145,4 +146,5 @@ background-color: #fff;
 	padding-left: 10px;
 	font-size: 14pt;
 	color: #61b3ff;
+	font-weight: 600;
 }
