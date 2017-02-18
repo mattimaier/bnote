@@ -84,7 +84,7 @@ class LocationsView extends CrudRefView {
 		}
 	}
 	
-	protected function editEntityForm() {
+	protected function editEntityForm($write=true) {
 		$loc = $this->getData()->findByIdNoRef($_GET["id"]);
 		$address = $this->getData()->adp()->getEntityForId("address", $loc["address"]);
 		$form = new Form($this->getEntityName() . " bearbeiten",

@@ -186,7 +186,7 @@ class RecpayView extends CrudRefView {
 		$this->backToStart();
 	}
 	
-	function editEntityForm() {
+	function editEntityForm($write=true) {
 		$form = parent::editEntityForm(false);
 		$record = $this->getData()->findByIdNoRef($_GET["id"]);
 		

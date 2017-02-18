@@ -80,7 +80,7 @@ class Database extends Data {
 	public function getCell($table, $col, $where) {
 		$query = "SELECT $col FROM $table WHERE $where";
 		$res = $this->exe ( $query );
-		$row = mysqli_fetch_assoc ( $this->db, $res );
+		$row = mysqli_fetch_assoc ( $res );
 		return $row [$col];
 	}
 	

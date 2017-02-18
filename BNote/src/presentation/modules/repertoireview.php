@@ -229,7 +229,7 @@ class RepertoireView extends CrudRefView {
 		$addSol->write();
 	}
 	
-	protected function editEntityForm() {
+	protected function editEntityForm($write=true) {
 		$song = $this->getData()->findByIdNoRef($_GET["id"]);
 		
 		$form = new Form("Song bearbeiten", $this->modePrefix() . "edit_process&manualValid=true&id=" . $_GET["id"]);

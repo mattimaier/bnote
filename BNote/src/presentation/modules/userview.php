@@ -119,7 +119,7 @@ class UserView extends CrudRefView {
 		$active->write();
 	}
 	
-	function editEntityForm() {
+	function editEntityForm($write=true) {
 		$user = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form = new Form($this->getData()->getUsername($_GET["id"]) . " bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->addElement("Login", new Field("login", $user["login"], 99));
@@ -168,7 +168,7 @@ class UserView extends CrudRefView {
 		$usrView->write();
 	}
 	
-	function deleteConfirmationMessage($label, $linkDelete, $linkBack) {
+	function deleteConfirmationMessage($label, $linkDelete, $linkBack = null) {
 		new Message("Löschen?", "Wollen sie diesen Benutzer mit allen seinen Dateien wirklich löschen?");
 		$yes = new Link($linkDelete, strtoupper($label) . " LÖSCHEN");
 		$yes->addIcon("remove");

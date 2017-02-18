@@ -246,7 +246,7 @@ class KontakteView extends CrudRefView {
 		}
 	}
 	
-	function editEntityForm() {
+	function editEntityForm($write=true) {
 		$contact = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form = new Form("Kontakt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);

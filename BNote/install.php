@@ -838,7 +838,7 @@ class Installation {
 					(1, 'Start'),
 					(2, 'User'),
 					(3, 'Kontakte'),
-					(4, 'Auftritte'),
+					(4, 'Konzerte'),
 					(5, 'Proben'),
 					(6, 'Repertoire'),
 					(7, 'Kommunikation'),

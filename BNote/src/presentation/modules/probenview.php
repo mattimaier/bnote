@@ -210,7 +210,7 @@ class ProbenView extends CrudRefView {
 		echo "</a>\n";
 	}
 	
-	protected function editEntityForm() {
+	protected function editEntityForm($write=true) {
 		$r = $this->getData()->findByIdNoRef($_GET["id"]);
 		
 		$form = new Form($this->getEntityName() . " bearbeiten",

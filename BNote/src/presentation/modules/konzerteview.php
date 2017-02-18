@@ -244,7 +244,7 @@ class KonzerteView extends CrudRefView {
 		$this->viewOptions();
 	}
 	
-	function editEntityForm() {
+	function editEntityForm($write=true) {
 		$form = new Form("Auftritt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"] . "&manualValid=true");
 		$c = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), "concert", $_GET["id"]);

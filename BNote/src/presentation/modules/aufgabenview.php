@@ -143,7 +143,7 @@ class AufgabenView extends CrudRefView {
 		}
 	}
 	
-	protected function editEntityForm() {
+	protected function editEntityForm($write=true) {
 		$task = $this->getData()->findByIdNoRef($_GET["id"]);
 		
 		$form = new Form($this->getEntityName() ." bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
