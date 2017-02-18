@@ -212,6 +212,12 @@ div.linkbox {
 	border: 1px solid #dcdcdc;
 }
 
+#optionsContainer div.linkbox {
+	background: rgba(97, 179, 255, 0.5);
+	color: #212121;
+	border-width: 0px;
+}
+
 span.linkbox:hover {
 	
 }
