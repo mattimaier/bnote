@@ -278,9 +278,10 @@ class ProbenView extends CrudRefView {
 		$gs->setNameColumn("fullname");
 		$form->addElement("Einladung für", $gs);
 		$form->write();
-		
-		$this->verticalSpace();
-		$this->backToViewButton($_GET["id"]);
+	}
+	
+	public function addContactOptions() {
+		$this->backToViewButton($_GET["id"] . "&tab=invitations");
 	}
 	
 	public function process_addContact() {
