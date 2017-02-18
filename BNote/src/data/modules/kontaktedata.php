@@ -100,15 +100,15 @@ class KontakteData extends AbstractData {
 		$query .= "WHERE c2.id = $id";
 		$contact = $this->database->getRow($query);
 		
-		// add user groups
+		/* add user groups
 		$query = "SELECT g.id, g.name ";
 		$query .= "FROM `group` g, contact_group cg ";
 		$query .= "WHERE g.id = cg.group AND cg.contact = $id";
 		$groups = $this->database->getSelection($query);
 		for($i = 1; $i < count($groups); $i++) {
-			$contact["group_" + $groups[$i]["id"]] = $groups[$i]["name"];
+			$contact["group_" . $groups[$i]["id"]] = $groups[$i]["name"];
 		}
-		
+		*/
 		return $contact;
 	}
 	

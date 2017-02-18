@@ -401,7 +401,6 @@ class KontakteView extends CrudRefView {
 	function userCreatedAndMailed($username, $email) {
 		$m = "Die Zugangsdaten wurden an $email geschickt.";
 		new Message("Benutzer $username erstellt", $m);
-		$this->backToViewButton($_GET["id"]);
 	}
 	
 	function userCredentials($username, $password) {
@@ -412,7 +411,6 @@ class KontakteView extends CrudRefView {
 		$m .= "Benutzername <strong>$username</strong><br />";
 		$m .= "Passwort <strong>$password</strong>";
 		new Message("Benutzer $username erstellt", $m);
-		$this->backToViewButton($_GET["id"]);
 	}
 	
 	function integration() {
