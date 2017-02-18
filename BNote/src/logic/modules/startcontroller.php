@@ -17,7 +17,8 @@ class StartController extends DefaultController {
 				$this->notifyContactsOnComment();
 			}
 			else {
-				$this->getView()->$_GET['mode']();
+				$mode = $_GET['mode'];
+				$this->getView()->$mode();
 			}
 		}
 		else {

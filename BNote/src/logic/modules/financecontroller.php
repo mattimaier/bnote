@@ -36,7 +36,8 @@ class FinanceController extends DefaultController {
 					$ctrl->start();
 				}
 				else {
-					$this->getView()->$_GET['mode']();
+					$mode = $_GET['mode'];
+					$this->getView()->$mode();
 				}
 			}
 			else {

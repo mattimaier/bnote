@@ -33,7 +33,8 @@ class KontakteController extends DefaultController {
 				$this->integrate();
 			}
 			else {
-				$this->getView()->$_GET['mode']();
+				$mode = $_GET['mode'];
+				$this->getView()->$mode();
 			}
 		}
 		else {

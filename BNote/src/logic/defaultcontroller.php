@@ -29,7 +29,8 @@ class DefaultController {
 		}
 		else {
 			if(isset($_GET['mode'])) {
-				$this->view->$_GET['mode']();
+				$mode = $_GET['mode'];
+				$this->view->$mode();
 			}
 			else {
 				$this->view->start();

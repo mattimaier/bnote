@@ -14,7 +14,8 @@ class KommunikationController extends DefaultController {
 				$this->sendMail();
 			}
 			else {
-				$this->getView()->$_GET['mode']();
+				$mode = $_GET['mode'];
+				$this->getView()->$mode();
 			}
 		}
 		else {

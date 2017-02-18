@@ -48,7 +48,8 @@ class RepertoireController extends DefaultController {
 	private function genre() {
 		$this->initGenre();
 		if(isset($_GET["func"])) {
-			$this->genreView->$_GET["func"]();
+			$func = $_GET["func"];
+			$this->genreView->$func();
 		}
 		else {
 			$this->genreView->start();
