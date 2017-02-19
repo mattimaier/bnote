@@ -42,7 +42,7 @@ class KonzerteController extends DefaultController {
 			"Aufführungsort",
 			"Kontaktperson",
 			"Programm",
-			"Mitspieler",
+			"Mitglieder",
 			"Fertig"
 	);
 	

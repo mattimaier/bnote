@@ -770,8 +770,8 @@ class Installation {
 			array_push($queries,
 					"INSERT INTO `group` (`id`, `name`, `is_active`) VALUES
 					(1, 'Administratoren', 1),
-					(2, 'Mitspieler', 1),
-					(3, 'Externe Mitspieler', 1),
+					(2, 'Mitglieder', 1),
+					(3, 'Externe', 1),
 					(4, 'Bewerber', 1),
 					(5, 'Sonstige', 1);");
 			

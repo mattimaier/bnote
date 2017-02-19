@@ -93,7 +93,7 @@ class Translation extends BNoteTranslation {
 			"mod_Hilfe" => "Hilfe",
 			"mod_Website" => "Website",
 			"mod_Share" => "Share",
-			"mod_Mitspieler" => "Mitspieler",
+			"mod_Mitspieler" => "Mitglieder",
 			"mod_Abstimmung" => "Abstimmungen",
 			"mod_Konfiguration" => "Konfiguration",
 			"mod_Aufgaben" => "Aufgaben",

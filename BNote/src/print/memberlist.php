@@ -47,7 +47,7 @@ class MembersPDF {
 		$this->dao = $dao;
 		$this->groups = $groups;
 		
-		$this->title = "Mitspielerliste";
+		$this->title = "Mitgliederliste";
 		
 		// do it		
 		$this->outline();

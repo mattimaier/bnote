@@ -108,7 +108,7 @@ class ProbenView extends CrudRefView {
 				"Die Probe wurde erfolgreich gespeichert.");
 		
 		// Show link to create a rehearsal information
-		$lnk = new Link("?mod=7&mode=rehearsalMail&preselect=$rid", "Probenbenachrichtigung an Mitspieler senden");
+		$lnk = new Link("?mod=7&mode=rehearsalMail&preselect=$rid", "Probenbenachrichtigung an Mitglieder senden");
 		$lnk->write();
 	}
 	

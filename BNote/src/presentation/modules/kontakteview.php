@@ -49,7 +49,7 @@ class KontakteView extends CrudRefView {
 		$groups->write();
 		$this->buttonSpace();
 		
-		$print = new Link($this->modePrefix() . "selectPrintGroups", "Mitspielerliste drucken");
+		$print = new Link($this->modePrefix() . "selectPrintGroups", "Mitgliederliste drucken");
 		$print->addIcon("printer");
 		$print->write();
 		$this->buttonSpace();
@@ -295,8 +295,8 @@ class KontakteView extends CrudRefView {
 	}
 	
 	function selectPrintGroups() {
-		Writing::h2("Mitspielerliste drucken");
-		Writing::p("Alle Mitspieler sind in Gruppen sortiert. Bitte wähle die Gruppen deren Mitglieder du drucken möchtest.");
+		Writing::h2("Mitgliederliste drucken");
+		Writing::p("Alle Mitglieder sind in Gruppen sortiert. Bitte wähle die Gruppen deren Mitglieder du drucken möchtest.");
 		
 		$form = new Form("Gruppenauswahl", $this->modePrefix() . "printMembers");
 		
@@ -414,16 +414,16 @@ class KontakteView extends CrudRefView {
 	}
 	
 	function integration() {
-		Writing::h2("Einphasung neuer Mitspieler");
-		Writing::p("Wähle zunächst die Mitspieler aus, die du einphasen möchtest.
-				Dann klickst du alle Einträge an, die du diesen Mitspielern zuweisen möchtest.
+		Writing::h2("Einphasung neuer Mitglieder");
+		Writing::p("Wähle zunächst die Mitglieder aus, die du einphasen möchtest.
+				Dann klickst du alle Einträge an, die du diesen Mitgliedern zuweisen möchtest.
 				Schließlich klickst du auf den Speichern Button um die Zuweisungen zu speichern.");
 		?>
 		<form method="POST" action="<?php echo $this->modePrefix(); ?>integration_process">
 		<div class="start_box_table">
 			<div class="start_box_row">
 				<div class="start_box">
-					<div class="start_box_heading">Mitspieler</div>
+					<div class="start_box_heading">Mitglieder</div>
 					<div class="start_box_content">
 						<?php 
 						$members = $this->getData()->getMembers();

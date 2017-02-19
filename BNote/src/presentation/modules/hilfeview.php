@@ -25,7 +25,7 @@ class HilfeView extends AbstractView {
 			"konfiguration" => "Modul Konfiguration",
 			"calendar" => "Modul Kalender (Reservierungen)",
 			"kontakte" => "Modul Kontakte",
-			"mitspieler" => "Modul Mitspieler",
+			"mitspieler" => "Modul Mitglieder",
 			"nachrichten" => "Modul Nachrichten",
 			"proben" => "Modul Proben",
 			"probenphase" => "Modul Probenphase",

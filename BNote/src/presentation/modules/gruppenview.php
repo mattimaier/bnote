@@ -20,7 +20,7 @@ class GruppenView extends CrudView {
 	function start() {
 		Writing::h1("Gruppen");
 		$explanation = "Auf dieser Seite verwaltest du die Gruppen deiner Band.
-		                Die Gruppen \"Administratoren\" und \"Mitspieler\" können nicht gelöscht werden.
+		                Die Gruppen \"Administratoren\" und \"Mitglieder\" können nicht gelöscht werden.
 						Möglich weitere Gruppen sind, z.B. Rhythmusgruppe, Combo, etc.";
 		Writing::p($explanation);
 		

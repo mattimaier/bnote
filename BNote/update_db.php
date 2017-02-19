@@ -3,7 +3,7 @@
 /*************************
  * UPGRADES THE DATABASE *
  * @author Matti Maier   *
- * Update 3.1.1 to 3.1.2 *
+ * Update 3.1.5 to 3.2.0 *
  *************************/
 
 // path to src/ folder
@@ -183,11 +183,16 @@ class UpdateDb {
 			$this->message("Primary key not existent in $table.");
 		}
 	}
+	
+	function updateValue($table, $column, $strValue, $where) {
+		$query = "UPDATE `$table` SET $column = '$strValue' WHERE $where";
+		$res = $this->db->execute($query);
+		$this->message("Updated 'Mitlgieder' and 'Externe' Group.");
+	}
 }
 
 $update = new UpdateDb();
 ?>
-
 
 <p><b>This script updates BNote's database structure. Please make sure it is only executed once!</b></p>
 
@@ -195,7 +200,10 @@ $update = new UpdateDb();
 <p>
 <?php 
 
-// Task X
+// task 1: rename Mitspieler to Mitglieder
+$update->updateValue("group", "name", "Mitglieder", "id = 2");
+$update->updateValue("group", "name", "Externe", "id = 3");
+
 
 ?>
 

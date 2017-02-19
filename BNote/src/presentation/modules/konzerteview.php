@@ -497,9 +497,9 @@ class KonzerteView extends CrudRefView {
 	 */
 	function step5($action) {
 		// select the groups (or all) the concert will be for
-		Writing::p("Bitte wähle die Mitspieler für diesen Auftritt aus.");
+		Writing::p("Bitte wähle die Mitglieder für diesen Auftritt aus.");
 		
-		$form = new Form("Mitspieler auswählen", $this->modePrefix() . $action);
+		$form = new Form("Mitglieder auswählen", $this->modePrefix() . $action);
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
 		$form->addElement("Gruppen", $gs);
 		$this->addCollectedData($form);
