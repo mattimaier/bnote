@@ -20,3 +20,4 @@
 <a href="https://icons8.com/web-app/6225/help">help_orange</a>
 <a href="https://icons8.com/web-app/15478/checked">checked</a>
 <a href="https://icons8.com/web-app/3062/cancel">cancel_gray</a>
+<a href="https://icons8.com/web-app/398/Play">Play icon credits</a>
