@@ -232,6 +232,9 @@ $update->addColumnToTable("location", "location_type", "INT(11)", "DEFAULT 1");
 // Task 3: old fix
 $update->addColumnToTable("concert", "title", "VARCHAR(150)");
 
+// Task 4: add repository field for setting
+$update->addColumnToTable("song", "setting", "VARCHAR(300)");
+
 ?>
 
 <br/><br/>

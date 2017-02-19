@@ -19,6 +19,7 @@ class RepertoireData extends AbstractData {
 			"music_key" => array("Tonart", FieldType::CHAR),
 			"composer" => array("Komponist / Arrangeur", FieldType::CHAR),
 			"status" => array("Status", FieldType::REFERENCE),
+			"setting" => array("Besetzung", FieldType::CHAR),
 			"notes" => array("Anmerkungen", FieldType::TEXT)
 		);
 		
