@@ -20,13 +20,15 @@ class KonzerteData extends AbstractData {
 			"location" => array("Ort", FieldType::REFERENCE),
 			"program" => array("Programm", FieldType::REFERENCE),
 			"contact" => array("Kontakt", FieldType::REFERENCE),
+			"outfit" => array("Outfit", FieldType::REFERENCE),
 			"notes" => array("Anmerkungen", FieldType::TEXT)
 		);
 		
 		$this->references = array(
 			"location" => "location",
 			"program" => "program",
-			"contact" => "contact"
+			"contact" => "contact",
+			"outfit" => "outfit"
 		);
 		
 		$this->table = "concert";

@@ -168,6 +168,8 @@ class KonzerteView extends CrudRefView {
 		}
 		$dv->addElement("Kontakt", $cv);
 		
+		$dv->resolveForeignElement("Outfit", "outfit");
+		
 		$dv->write();
 		
 		// manage members who will play in this concert
@@ -269,6 +271,13 @@ class KonzerteView extends CrudRefView {
 		}
 		$dd->setSelected($c["contact"]);
 		$form->addElement("Kontakt", $dd);
+		
+		$outfit = $c['outfit'];
+		if($outfit == "") {
+			$outfit = 0;
+		}
+		$form->setForeign("outfit", "outfit", "id", array("name"), $outfit);
+		$form->addForeignOption("outfit", "Kein Outfit", 0);
 		
 		$form->write();
 	}

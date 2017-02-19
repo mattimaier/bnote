@@ -225,7 +225,8 @@ class ApplicationDataProvider {
 			"location_name", "location_notes", // 6,7
 			"location_street", "location_city", "location_zip", // 8-10
 			"contact_name", "contact_phone", "contact_email", "contact_web", // 11-14
-			"program_name", "program_notes" // 15,16
+			"program_name", "program_notes", // 15,16
+			"outfit" // 17
 		));
 		
 		// get all future concerts
@@ -338,7 +339,8 @@ class ApplicationDataProvider {
 				"contact_web" => $contact["web"],
 				"program_id" => $concerts[$i]["program"],
 				"program_name" => $program["name"],
-				"program_notes" => $program["notes"]
+				"program_notes" => $program["notes"],
+				"outfit" => $concerts[$i]['outfit']
 			));
 		}
 		return $result;

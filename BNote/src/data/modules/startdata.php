@@ -440,4 +440,8 @@ class StartData extends AbstractData {
 	function getReservation($id) {
 		return $this->database->getRow("SELECT * FROM reservation WHERE id = $id");
 	}
+	
+	function getOutfit($id) {
+		return $this->database->getRow("SELECT * FROM outfit WHERE id = $id");
+	}
 }

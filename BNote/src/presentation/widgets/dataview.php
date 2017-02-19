@@ -32,7 +32,10 @@ class Dataview {
   * @return string value
   */
  function getElement($label) {
- 	return $this->elements[$label];
+ 	if(key_exists($label, $this->elements)) {
+		return $this->elements[$label];
+ 	}
+ 	return null;
  }
  
  /**
@@ -43,9 +46,14 @@ class Dataview {
   * @param array $nameArray Name array, by default just "name"
   */
  function resolveForeignElement($label, $table, $idField="id", $nameArray=array("name")) {
+ 	$refId = $this->getElement($label);
+ 	if($refId == null || $refId == "" || $refId < 1) {
+ 		$this->elements[$label] = "";
+ 		return;
+ 	}
  	global $system_data;
  	$row = $system_data->dbcon->getRow("SELECT " . join(",", $nameArray) . 
- 			" FROM $table WHERE $idField = " . $this->getElement($label));
+ 			" FROM $table WHERE $idField = " . $refId);
  	$values = array();
  	foreach($nameArray as $i => $nameField) {
  		array_push($values, $row[$nameField]);

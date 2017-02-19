@@ -293,6 +293,16 @@ class StartView extends AbstractView {
 				$dataview->addElement(Lang::txt("title"), $row["title"]);
 				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($row["begin"]));
 				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($row["end"]));
+				
+				if($row['outfit'] > 0) {
+					$outfitRow = $this->getData()->getOutfit($row['outfit']);
+					$outfit = $outfitRow['name'];
+					if($outfitRow['description'] != "") {
+						$outfit .= "<br/>" . $outfitRow['description'];
+					}
+					$dataview->addElement(Lang::txt("outfit"), $outfit);
+				}
+				
 				$loc = $this->buildAddress($row);
 				$addy = $loc;
 				if($loc != "") $loc = $row["location_name"] . " - " . $loc;

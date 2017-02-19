@@ -1,5 +1,4 @@
 <?php
-
 require_once 'lang_base.php';
 
 /**
