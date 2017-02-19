@@ -14,11 +14,13 @@ class LocationsData extends AbstractData {
 			"id" => array("ID", FieldType::INTEGER),
 			"name" => array("Name", FieldType::CHAR),
 			"notes" => array("Notizen", FieldType::TEXT),
-			"address" => array("Adresse", FieldType::REFERENCE)
+			"address" => array("Adresse", FieldType::REFERENCE),
+			"location_type" => array("Location Typ", FieldType::REFERENCE)
 		);
 		
 		$this->references = array(
 			"address" => "address", 
+			"location_type" => "location_type"
 		);
 		
 		$this->table = "location";
@@ -56,6 +58,10 @@ class LocationsData extends AbstractData {
 	private function getAddressFromId($id) {
 		$oldEntity = $this->findByIdNoRef($id);
 		return $oldEntity["address"];
+	}
+	
+	public function getLocationTypes() {
+		return $this->database->getSelection("SELECT * FROM location_type");
 	}
 }
 ?>

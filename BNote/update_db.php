@@ -189,6 +189,14 @@ class UpdateDb {
 		$res = $this->db->execute($query);
 		$this->message("Updated 'Mitlgieder' and 'Externe' Group.");
 	}
+	
+	function getNumberRows($table) {
+		return $this->db->getNumberRows($table);
+	}
+	
+	function executeQuery($query) {
+		return $this->db->execute($query);
+	}
 }
 
 $update = new UpdateDb();
@@ -200,10 +208,26 @@ $update = new UpdateDb();
 <p>
 <?php 
 
-// task 1: rename Mitspieler to Mitglieder
+// Task 1: rename Mitspieler to Mitglieder
 $update->updateValue("group", "name", "Mitglieder", "id = 2");
 $update->updateValue("group", "name", "Externe", "id = 3");
 
+// Task 2a: location types
+$update->addTable("location_type", "CREATE TABLE location_type (
+			id INT(11) PRIMARY KEY AUTO_INCREMENT,
+			name VARCHAR(50) NOT NULL
+			)");
+
+// Task 2b: add default location types
+if($update->getNumberRows("location_type") == 0) {
+	$query = "INSERT INTO location_type (name) 
+		VALUES ('Probenräume'), ('Veranstaltungsorte'), ('Übernachtungsmöglichkeiten'), ('Studios'), ('Sonstige')";
+	$update->executeQuery($query);
+	$update->message("Create location type values in database.");
+}
+
+// Task 2c: add reference column to location
+$update->addColumnToTable("location", "location_type", "INT(11)", "DEFAULT 1");
 
 ?>
 

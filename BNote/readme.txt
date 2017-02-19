@@ -9,8 +9,8 @@ Requirements
 	- an accessible host configuration
 	- modrewrite
 	- htaccess activated
-	- at least PHP 5.3 module	
-- MySQL 5.2+ Database Server
+	- at least PHP 5.6 module	
+- MySQL or MariaDB Server supporting MySQLi driver
 - preferrably Linux OS
 
 

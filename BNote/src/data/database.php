@@ -235,6 +235,15 @@ class Database extends Data {
 	}
 	
 	/**
+	 * Computes the total number of rows of a table.
+	 * @param string $table Table name
+	 * @return int Number of rows
+	 */
+	public function getNumberRows($table) {
+		return $this->getCell($table, "count(*)", "true");
+	}
+	
+	/**
 	 * Takes a selection and makes a flat array with the contents of the given column.
 	 * 
 	 * @param array $selection
@@ -250,6 +259,7 @@ class Database extends Data {
 		}
 		return $flat;
 	}
+
 }
 
 ?>

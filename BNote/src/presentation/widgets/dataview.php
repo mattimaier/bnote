@@ -5,17 +5,52 @@
 
 class Dataview {
 
- /* ATTRIBUTES */
+ /**
+  * Key-Value pairs that are going to be displayed.
+  * @var array
+  */
  private $elements;
+ 
+ /**
+  * If numeric labels should be displayed (true) or not (false).
+  * @var boolean
+  */
  private $allowNumericLabels = false;
  
  /**
-  * Adds an element to the view
+  * Sets an element / value with the given lable.
   * @param String $label Name of the attribute
   * @param String $value Value of the attribute
   */
  function addElement($label, $value) {
   $this->elements[$label] = $value;
+ }
+ 
+ /**
+  * Gets the value of the given element.
+  * @param string $label Label / key of the element.
+  * @return string value
+  */
+ function getElement($label) {
+ 	return $this->elements[$label];
+ }
+ 
+ /**
+  * Resolves the given foreign field to its named value.
+  * @param string $label Element key.
+  * @param string $table Foreign table that is referenced by the foreign key.
+  * @param string $idField ID field in that table, by default "id"
+  * @param array $nameArray Name array, by default just "name"
+  */
+ function resolveForeignElement($label, $table, $idField="id", $nameArray=array("name")) {
+ 	global $system_data;
+ 	$row = $system_data->dbcon->getRow("SELECT " . join(",", $nameArray) . 
+ 			" FROM $table WHERE $idField = " . $this->getElement($label));
+ 	$values = array();
+ 	foreach($nameArray as $i => $nameField) {
+ 		array_push($values, $row[$nameField]);
+ 	}
+ 	$this->addElement($label, join(" ", $values));
  }
  
  /**

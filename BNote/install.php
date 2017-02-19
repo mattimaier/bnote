@@ -371,6 +371,7 @@ class Installation {
 					`name` varchar(60) NOT NULL,
 					`notes` text,
 					`address` int(10) unsigned NOT NULL,
+					`location_type` int(11) DEFAULT 1,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -705,6 +706,12 @@ class Installation {
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
+			array_push($queries,
+					"CREATE TABLE location_type (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					name VARCHAR(50) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
 			foreach($queries as $i => $query) {
 				$db->execute($query);
 			}
@@ -867,6 +874,9 @@ class Installation {
 					(5, 'nicht im Notenbestand'),
 					(6, 'Idee');");
 
+			array_push($queries, "INSERT INTO location_type (name) VALUES 
+					('Probenräume'), ('Veranstaltungsorte'), ('Übernachtungsmöglichkeiten'), ('Studios'), ('Sonstige');");
+			
 			foreach($queries as $i => $query) {
 				$db->execute($query);
 			}

@@ -26,24 +26,53 @@ class LocationsView extends CrudRefView {
 		$form->addElement("Stra&szlig;e", new Field("street", "", FieldType::CHAR));
 		$form->addElement("Stadt", new Field("city", "", FieldType::CHAR));
 		$form->addElement("PLZ", new Field("zip", "", FieldType::CHAR));
+		$form->setForeign("location_type", "location_type", "id", array("name"), 1);
+		
+		$form->write();
+	}
+	
+	protected function editEntityForm($write=true) {
+		$loc = $this->getData()->findByIdNoRef($_GET["id"]);
+		$address = $this->getData()->adp()->getEntityForId("address", $loc["address"]);
+		$form = new Form($this->getEntityName() . " bearbeiten",
+				$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
+		$form->autoAddElements($this->getData()->getFields(),
+				$this->getData()->getTable(), $_GET["id"]);
+		$form->removeElement("id");
+		$form->removeElement("address");
+		$form->addElement("Stra&szlig;e", new Field("street", $address["street"], FieldType::CHAR));
+		$form->addElement("PLZ", new Field("zip", $address["zip"], FieldType::CHAR));
+		$form->addElement("Stadt", new Field("city", $address["city"], FieldType::CHAR));
+		$form->setForeign("location_type", "location_type", "id", array("name"), $loc['location_type']);
+		
 		$form->write();
 	}
 	
 	protected function showAllTable() {
-		// show table rows
-		$table = new Table($this->getData()->findAllJoined($this->getJoinedAttributes()));
-		$table->setEdit("id");
-		$table->renameAndAlign($this->getData()->getFields());
-		$table->renameHeader("addressstreet", "Stra&szlig;e");
-		$table->renameHeader("addresscity", "Stadt");
-		$table->renameHeader("addresszip", "PLZ");
-		$table->write();
+		// get all types and display the locations per type
+		$locTypes = $this->getData()->getLocationTypes();
+		for($i = 1; $i < count($locTypes); $i++) {
+			$locType = $locTypes[$i]['id'];
+			$locTypeName = $locTypes[$i]['name'];
+			Writing::h3($locTypeName);
+			
+			// show table rows
+			$table = new Table($this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "location_type = $locType"));
+			$table->setEdit("id");
+			$table->renameAndAlign($this->getData()->getFields());
+			$table->renameHeader("addressstreet", "Stra&szlig;e");
+			$table->renameHeader("addresscity", "Stadt");
+			$table->renameHeader("addresszip", "PLZ");
+			$table->removeColumn("location_type");
+			$table->write();
+		}
 	}
 	
 	protected function viewDetailTable() {
 		$entity = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
 		$details = new Dataview();
 		$details->autoAddElements($entity);
+		$details->resolveForeignElement("location_type", "location_type");		
 		$details->autoRename($this->getData()->getFields());
 		$details->renameElement("addressstreet", "Stra&szlig;e");
 		$details->renameElement("addresszip", "PLZ");
@@ -83,22 +112,7 @@ class LocationsView extends CrudRefView {
 			<?php
 		}
 	}
-	
-	protected function editEntityForm($write=true) {
-		$loc = $this->getData()->findByIdNoRef($_GET["id"]);
-		$address = $this->getData()->adp()->getEntityForId("address", $loc["address"]);
-		$form = new Form($this->getEntityName() . " bearbeiten",
-							$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
-		$form->autoAddElements($this->getData()->getFields(),
-									$this->getData()->getTable(), $_GET["id"]);
-		$form->removeElement("id");
-		$form->removeElement("address");
-		$form->addElement("Stra&szlig;e", new Field("street", $address["street"], FieldType::CHAR));
-		$form->addElement("PLZ", new Field("zip", $address["zip"], FieldType::CHAR));
-		$form->addElement("Stadt", new Field("city", $address["city"], FieldType::CHAR));
-		
-		$form->write();
-	}
+
 }
 
 ?>
