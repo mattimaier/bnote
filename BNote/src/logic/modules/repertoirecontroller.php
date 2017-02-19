@@ -148,7 +148,7 @@ class RepertoireController extends DefaultController {
 	function xlsProcess() {		
 		// go through data: ignore empties and handle duplicates
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
-		$empties = split(",", $_POST["empties"]);
+		$empties = explode(",", $_POST["empties"]);
 		
 		// process duplicates
 		$duplicates = array();
@@ -186,6 +186,9 @@ class RepertoireController extends DefaultController {
 		$bpm = "";
 		if($_POST["col_tempo"] >= 0) {
 			$bpm = $row[$_POST["col_tempo"]];
+			if($bpm == "-") {
+				$bpm = 0;
+			}
 		}
 		$music_key = "";
 		if($_POST["col_key"] >= 0) {
