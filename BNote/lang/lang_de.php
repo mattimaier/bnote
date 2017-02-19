@@ -78,6 +78,7 @@ class Translation extends BNoteTranslation {
 			"nickname" => "Spitzname",
 			"fullname" => "Name",
 			"length" => "Länge",
+			"show_all" => "Alle anzeigen",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",

@@ -64,6 +64,8 @@ class Filterbox implements iWriteable {
 			if($infos["type"] == FieldType::SET) {
 				// create a dropdown
 				$element = new Dropdown($column);
+				$element->addOption(Lang::txt("show_all"), -1);
+				
 				foreach($infos["values"] as $i => $val) {
 					// build name
 					$name = "";
@@ -83,6 +85,9 @@ class Filterbox implements iWriteable {
 				
 				if(isset($_POST[$column])) {
 					$element->setSelected($_POST[$column]);
+				}
+				else {
+					$element->setSelected(-1);
 				}
 			}
 			else {

@@ -234,7 +234,7 @@ class RepertoireData extends AbstractData {
 		// remove empty values from filters
 		$cleanFilters = array();
 		foreach($filters as $field => $value) {
-			if($value != "") {
+			if($value != "" && $value != "-1" && $value != -1) {
 				if($field == "composer") {
 					$value = $this->database->getCell("composer", "name", "id = $value");
 				}
