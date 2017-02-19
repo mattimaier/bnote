@@ -80,6 +80,7 @@ class Translation extends BNoteTranslation {
 			"fullname" => "Name",
 			"length" => "Length",
 			"show_all" => "Show all",
+			"outfit" => "Outfit",
 			
 			// navigation
 			"mod_Login" => "Login",
@@ -110,6 +111,7 @@ class Translation extends BNoteTranslation {
 			"mod_Impressum" => "Impressum",
 			"mod_Equipment" => "Equipment",
 			"mod_Tour" => "Tour",
+			"mod_Outfits" => "Outfits",
 			
 			// widgets
 			"addFolder" => "Add Folder",

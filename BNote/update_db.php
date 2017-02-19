@@ -235,6 +235,17 @@ $update->addColumnToTable("concert", "title", "VARCHAR(150)");
 // Task 4: add repository field for setting
 $update->addColumnToTable("song", "setting", "VARCHAR(300)");
 
+// Task 5a: Outfit module
+$update->addModule("Outfits");
+
+// Task 5b: Outfit table
+$update->addTable("outfit", "CREATE TABLE outfit (
+				id INT(11) PRIMARY KEY AUTO_INCREMENT,
+				name VARCHAR(50) NOT NULL,
+				description TEXT
+				)");
+$update->addColumnToTable("concert", "outfit", "int(11)");
+
 ?>
 
 <br/><br/>

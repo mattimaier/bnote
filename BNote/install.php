@@ -266,7 +266,8 @@ class Installation {
 					`location` int(10) unsigned NOT NULL,
 					`program` int(10) unsigned DEFAULT NULL,
 					`notes` text,
-					`contact` int(11) DEFAULT NULL,
+					`contact` int(11),
+					`outfit` int(11),
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -713,6 +714,13 @@ class Installation {
 					name VARCHAR(50) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
+			array_push($queries,
+					"CREATE TABLE outfit (
+					id INT(11) PRIMARY KEY AUTO_INCREMENT,
+					name VARCHAR(50) NOT NULL,
+					description TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
 			foreach($queries as $i => $query) {
 				$db->execute($query);
 			}
@@ -864,7 +872,8 @@ class Installation {
 					(19, 'Finance'),
 					(20, 'Calendar'),
 					(21, 'Equipment'),
-					(22, 'Tour');");
+					(22, 'Tour'),
+					(23, 'Outfits');");
 
 			array_push($queries,
 					"INSERT INTO `status` (`id`, `name`) VALUES
