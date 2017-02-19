@@ -150,6 +150,10 @@ class Form implements iWriteable {
  	$dp->setSelected($id);
  }
  
+ public function getForeignElement($field) {
+ 	return $this->foreign[$field];
+ }
+ 
  /**
   * Prepare dropdownlists to be written
   */

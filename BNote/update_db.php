@@ -229,6 +229,9 @@ if($update->getNumberRows("location_type") == 0) {
 // Task 2c: add reference column to location
 $update->addColumnToTable("location", "location_type", "INT(11)", "DEFAULT 1");
 
+// Task 3: old fix
+$update->addColumnToTable("concert", "title", "VARCHAR(150)");
+
 ?>
 
 <br/><br/>

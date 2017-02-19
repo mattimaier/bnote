@@ -72,5 +72,15 @@ class AccommodationView extends CrudRefView {
 		$details->renameElement("tourname", Lang::txt("accommodation_tourname"));
 		$details->write();
 	}
+	
+	function changeDefaultAddEntityForm($form) {
+		// only let the user set a location from the accommodation group
+		$locations = $this->getData()->adp()->getLocations(array(3));
+		$elem = $form->getForeignElement("location");
+		$elem->cleanOptions();
+		for($i = 1; $i < count($locations); $i++) {
+			$elem->addOption($locations[$i]['name'], $locations[$i]["id"]);
+		}
+	}
 }
 ?>

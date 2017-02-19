@@ -153,7 +153,7 @@ class KonzerteData extends AbstractData {
 	}
 	
 	function getLocations() {
-		return $this->adp()->getLocations();
+		return $this->adp()->getLocations(array(2, 3, 4, 5));
 	}
 	
 	function getContacts() {
@@ -198,8 +198,8 @@ class KonzerteData extends AbstractData {
 			// 2) create location
 			$begin = substr($values["begin"], 0, strlen("XX.XX.XXXX"));
 			$notes = "Auftritt am " . $begin;
-			$query = "INSERT INTO location (name, notes, address) VALUES (";
-			$query .= "\"" . $values["location_name"] . "\", \"" . $notes . "\", $aid";
+			$query = "INSERT INTO location (name, notes, address, location_type) VALUES (";
+			$query .= "\"" . $values["location_name"] . "\", \"" . $notes . "\", $aid, 2";
 			$query .= ")";
 			$lid = $this->database->execute($query);
 			

@@ -437,12 +437,23 @@ class ApplicationDataProvider {
 	}
 	
 	/**
+	 * Retrives all locations for any group by default. 
+	 * If groups is set, then only locations of these groups are returned.
+	 * @param array $groups Optionally an array of location_type IDs.
 	 * @return All locations with joined address.
 	 */
-	public function getLocations() {
+	public function getLocations($groups=null) {
 		$query = "SELECT l.id, name, notes, street, city, zip, country ";
 		$query .= "FROM location l, address a ";
 		$query .= "WHERE l.address = a.id ";
+		if($groups != null && count($groups) > 0) {
+			$query .= "AND (";
+			foreach($groups as $i => $locationType) {
+				if($i > 0) $query .= " OR ";
+				$query .= "location_type = $locationType";
+			}
+			$query .= ") ";
+		}
 		$query .= "ORDER BY name";
 		return $this->database->getSelection($query);
 	}

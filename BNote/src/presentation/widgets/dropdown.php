@@ -21,6 +21,10 @@ class Dropdown implements iWriteable {
 	public function addOption($label, $value) {
 		$this->options[$label] = $value;
 	}
+	
+	public function cleanOptions() {
+		$this->options = array();
+	}
 
 	public function setSelected($value) {
 		$this->selected = $value;

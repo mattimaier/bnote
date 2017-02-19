@@ -261,6 +261,7 @@ class Installation {
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					`begin` datetime NOT NULL,
 					`end` datetime DEFAULT NULL,
+					`title` VARCHAR(150),
 					`approve_until` datetime,
 					`location` int(10) unsigned NOT NULL,
 					`program` int(10) unsigned DEFAULT NULL,
