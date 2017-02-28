@@ -369,6 +369,12 @@ interface iBNA {
 	 * @return Integer User ID.
 	 */
 	public function signup();
+	
+	/**
+	 * Retrieves the given program with its songs in order.
+	 * @param integer $id Program ID.
+	 */
+	public function getProgram($id);
 }
 
 // Abstract Implementation of BNote Application Interface

@@ -229,6 +229,12 @@ concertView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS	
 });
 
+programView = sap.ui.view({
+    id: "program",
+	viewName: "bnote.program",
+	type: sap.ui.core.mvc.ViewType.JS	
+});
+
 taskView = sap.ui.view({
 	id: "task",
 	viewName: "bnote.task",
@@ -338,6 +344,7 @@ app.addPage(memberView);
 app.addPage(communicationView);
 app.addPage(memberdetailView);
 app.addPage(concertView);
+app.addPage(programView);
 app.addPage(taskView);
 app.addPage(voteView);
 app.addPage(newsView);

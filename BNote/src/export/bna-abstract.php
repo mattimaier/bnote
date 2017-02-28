@@ -28,6 +28,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "calendardata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "aufgabendata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "instrumentedata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "kontaktedata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "programdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php";
 require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
@@ -602,6 +603,13 @@ abstract class AbstractBNA implements iBNA {
 				exit();
 			}
 			$this->getContacts();
+		}
+		else if($function == "getProgram") {
+			if(!isset($_GET["id"])) {
+				header("HTTP/1.0 412 Insufficient Parameters.");
+				exit();
+			}
+			$this->getProgram($_GET["id"]);
 		}
 		else {
 			$this->$function();
@@ -1680,6 +1688,15 @@ abstract class AbstractBNA implements iBNA {
 		$loginCtrl->setData(new LoginData($GLOBALS["dir_prefix"]));
 		$res = $loginCtrl->register(false);
 		echo json_encode($res);
+	}
+	
+	public function getProgram($id) {
+		$programData = new ProgramData($GLOBALS["dir_prefix"]);
+		$program = $programData->findByIdNoRef($id);
+		$songs = $programData->getSongsForProgram($id);
+		unset($songs[0]);
+		$program["songs"] = $songs;
+		echo json_encode($program);
 	}
 	
 	private function flattenAddresses($selection) {

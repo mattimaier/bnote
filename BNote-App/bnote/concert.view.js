@@ -4,7 +4,7 @@ sap.ui.jsview("bnote.concert", {
 		return "bnote.concert";
 	},
 	
-	prepareModel: function(location){
+	prepareModel: function(location, program){
 		var model = this.getModel();
 		var oBindingContext = this.getBindingContext();
 		var path = oBindingContext.getPath();
@@ -17,6 +17,14 @@ sap.ui.jsview("bnote.concert", {
 		model.setProperty(path + "/location/preparedlocation", preparedlocation);
 		model.setProperty(path + "/location/link", location_link);
 		
+        // check if there is a program
+        if(program == null || program.id == "0") {
+            this.programButton.setVisible(false);
+        }
+        else {
+            this.programButton.setVisible(true);
+        }
+        
 		return model;
 	},
 	
@@ -34,8 +42,18 @@ sap.ui.jsview("bnote.concert", {
 	
     createContent: function(oController) {
     	var view = this;    
-    	
-		var concertForm = new sap.ui.layout.form.SimpleForm({ 
+    	this.programButton = new sap.m.Button({
+            text: "{program/name}",
+            press: function() {
+                var oBindingContext = concertView.getBindingContext();
+                var path = oBindingContext.getPath();
+                var concert = concertView.getModel().getObject(path);
+                if(concert != null && concert.program != null) {
+                    oController.onProgramPress(concert.program);
+                }
+            }
+        });
+		this.concertForm = new sap.ui.layout.form.SimpleForm({ 
 			layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
             content: [
                 // title     
@@ -61,11 +79,10 @@ sap.ui.jsview("bnote.concert", {
                 new sap.m.Text({text: "{notes}"}),
                 
                 new sap.m.Label({text: "Programm"}),
-                new sap.m.Text({text: "{program/name}"}),
-                
+                this.programButton
             ]
         });
-		
+        
 		var participationlayout = new sap.m.FlexBox({
 			items: [
 			        new sap.m.Label({text: "Nimmst du am Auftritt teil?"})
@@ -98,12 +115,10 @@ sap.ui.jsview("bnote.concert", {
         	  }
     	});
 
-	    this.buttonBar = new sap.m.SegmentedButton({             width: "100%", 
+	    this.buttonBar = new sap.m.SegmentedButton({             
+            width: "100%", 
             buttons: [concertOkBtn, concertMaybeBtn, concertNoBtn]
 	    });
-		              
-		      
-	
 	  
 	  
 	  this.submitButton = new sap.m.Button({
@@ -142,7 +157,7 @@ sap.ui.jsview("bnote.concert", {
             	startView.getController().reloadList(view.getModel().oData);
                 app.back();
             },
-			content: [ concertForm, 
+			content: [ this.concertForm, 
 			           participationlayout,
 			           this.buttonBar 
 			         ],

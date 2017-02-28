@@ -29,7 +29,8 @@ sap.ui.jsview("bnote.start", {
 					concertView.setBindingContext(oBindingContext);
 					var participate = model.getProperty(path + "/participate");
 					var location = model.getProperty(path + "/location");
-					concertView.prepareModel(location);
+                    var program = model.getProperty(path + "/program");
+					concertView.prepareModel(location, program);
 					concertView.setButtons(participate);
 					app.to("concert","slide");
 				}

@@ -8,7 +8,7 @@
  */
 class ProgramData extends AbstractData {
 	
-	function __construct() {
+	function __construct($dir_prefix="") {
 		$this->fields = array(
 			"id" => array("Programm ID", FieldType::INTEGER),
 			"name" => array("Name", FieldType::CHAR),
@@ -21,7 +21,7 @@ class ProgramData extends AbstractData {
 		
 		$this->table = "program";
 		
-		$this->init();
+		$this->init($dir_prefix);
 	}
 	
 	function getProgramme() {
