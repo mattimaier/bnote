@@ -42,10 +42,10 @@ sap.ui.jsview("bnote.concert", {
 				new sap.m.Label({text: "Titel"}),
 				new sap.m.Text({text: "{title}"}),
                 // begin
-                new sap.m.Label({text: "Konzertbeginn"}),
+                new sap.m.Label({text: "Auftrittsbeginn"}),
                 new sap.m.Text({text: "{begin}"}),
                 // end
-                new sap.m.Label({text: "Konzertende"}),
+                new sap.m.Label({text: "Auftrittsende"}),
                 new sap.m.Text({text: "{end}"}),
                 // location
                 new sap.m.Label({text: "Ort"}),
@@ -68,7 +68,7 @@ sap.ui.jsview("bnote.concert", {
 		
 		var participationlayout = new sap.m.FlexBox({
 			items: [
-			        new sap.m.Label({text: "Nimmst du an dem Konzert teil?"})
+			        new sap.m.Label({text: "Nimmst du am Auftritt teil?"})
 			]
 		});
 		participationlayout.addStyleClass("bn-participation-q");
@@ -136,7 +136,7 @@ sap.ui.jsview("bnote.concert", {
 	  });  
 	
 		var page = new sap.m.Page("ConcertPage", {			
-            title: "Konzertdetails",
+            title: "Auftritt",
             showNavButton: true,
             navButtonPress: function() {
             	startView.getController().reloadList(view.getModel().oData);
