@@ -39,7 +39,7 @@ sap.ui.controller("bnote.concert", {
         });
     },
     
-    onProgramPress: function(program) {
+    onProgramPress: function(program, doneAction) {
         // request the program and set the data on the program view
         jQuery.ajax({	
              type: "GET",
@@ -49,7 +49,7 @@ sap.ui.controller("bnote.concert", {
              },
              success: function(programData) {
                  sap.ui.core.BusyIndicator.hide();
-                 //TODO continue
+                 doneAction(programData);
              },
              error: function(jqXHR, textStatus, errorThrown) {
                  sap.ui.core.BusyIndicator.hide();

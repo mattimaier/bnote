@@ -5,7 +5,18 @@ sap.ui.jsview("bnote.program", {
 	},
     
     createContent: function() {
-        var songList = new sap.m.Label("Hello");
+        var songList = new sap.m.List();
+        
+        var itemTemplate = new sap.m.StandardListItem({
+			title : "{name}",
+			description : "{composer}"
+        });
+        
+        songList.bindItems({
+			growingScrollToLoad : "true",
+			path : "/songs",
+			template : itemTemplate 
+		});
         
         var page = new sap.m.Page("ProgramPage", {			
             title: "Programm",

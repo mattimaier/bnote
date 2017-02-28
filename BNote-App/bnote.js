@@ -223,15 +223,15 @@ memberdetailView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS	
 });
 
-concertView = sap.ui.view({
-	id: "concert",
-	viewName: "bnote.concert",
-	type: sap.ui.core.mvc.ViewType.JS	
-});
-
 programView = sap.ui.view({
     id: "program",
 	viewName: "bnote.program",
+	type: sap.ui.core.mvc.ViewType.JS	
+});
+
+concertView = sap.ui.view({
+	id: "concert",
+	viewName: "bnote.concert",
 	type: sap.ui.core.mvc.ViewType.JS	
 });
 
@@ -343,8 +343,8 @@ app.addPage(rehearsalView);
 app.addPage(memberView);
 app.addPage(communicationView);
 app.addPage(memberdetailView);
-app.addPage(concertView);
 app.addPage(programView);
+app.addPage(concertView);
 app.addPage(taskView);
 app.addPage(voteView);
 app.addPage(newsView);
