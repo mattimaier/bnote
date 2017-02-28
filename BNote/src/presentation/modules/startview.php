@@ -426,7 +426,7 @@ class StartView extends AbstractView {
 				$dataview->addElement(Lang::txt("start_endOfVote"), Data::convertDateFromDb($row["end"]));
 				
 				$link = $this->modePrefix() . "voteOptions&id=" . $row["id"];
-				$this->writeBoxListItem("V", $row["id"], "v" + $row["id"], $liCaption, $dataview, "", Lang::txt("vote"), $link);
+				$this->writeBoxListItem("V", $row["id"], "v" . $row["id"], $liCaption, $dataview, "", Lang::txt("vote"), $link);
 			}
 		}
 		echo "</ul>\n";

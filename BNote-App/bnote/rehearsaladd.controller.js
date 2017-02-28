@@ -20,10 +20,11 @@ sap.ui.controller("bnote.rehearsaladd",{
 	
 	prepareModelFromVoteresult: function(title) {
 		this.dirty = false;		
+        var titledate = backend.parsedate(title);
 		var oRehearsaladd = {
-				begin: "",
-				end: "",
-				approve_until: "",
+				begin: titledate,
+				end: new Date(titledate.getTime() + 120*60000),
+				approve_until: titledate,
 				notes: "",
 				location: "",
 				groupboxes: {},
@@ -61,18 +62,15 @@ sap.ui.controller("bnote.rehearsaladd",{
         	error: function(a,b,c){
         		console.log(a,b,c);
         	}
-        });	  	
-		var titledate = backend.parsedate(title);
-		sap.ui.getCore().byId("rehearsaladd_begin").setDateValue(backend.parsedate(title));
-		sap.ui.getCore().byId("rehearsaladd_end").setDateValue(new Date(backend.parsedate(title).getTime() + 120*60000));
+        });
 	},
 	
 	prepareModel: function(){
 		this.dirty = false;		
 		var oRehearsaladd = {
-				begin: "",
-				end: "",
-				approve_until: "",
+				begin: null,
+				end: null,
+				approve_until: null,
 				notes: "",
 				location: "",
 				groupboxes: {},
@@ -110,10 +108,7 @@ sap.ui.controller("bnote.rehearsaladd",{
         	error: function(a,b,c){
         		console.log(a,b,c);
         	}
-        });	  
-		sap.ui.getCore().byId("rehearsaladd_begin").setValue(null);
-		sap.ui.getCore().byId("rehearsaladd_end").setValue(null);
-		sap.ui.getCore().byId("rehearsaladd_approve_until").setValue(null);	
+        });
 	},
 	
 	addlocation: function(){
@@ -169,9 +164,9 @@ sap.ui.controller("bnote.rehearsaladd",{
 			
 			model.oData.begin = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(oldbegin);
 			model.oData.end = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(oldend);
-			model.oData.approve_until = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(oldapprove_until );
-			
-			 jQuery.ajax({	
+			model.oData.approve_until = sap.ui.core.format.DateFormat.getDateTimeInstance({pattern: "yyyy-MM-dd HH:mm:00"}).format(oldapprove_until);
+            
+			jQuery.ajax({	
 				 type: "POST",
 				 data: model.oData,
 				 url: backend.get_url("addRehearsal"),
@@ -183,9 +178,17 @@ sap.ui.controller("bnote.rehearsaladd",{
 					 startView.getController().loadAllData();
 					 app.to("start");
 	             },
-		         error: function() { 
-		        	 sap.ui.core.BusyIndicator.hide();
-		        	 sap.m.MessageToast.show("Probe konnte nicht gespeichert werden.");
+		         error: function(jqXHR, textStatus, errorThrown) {
+                     // sometimes happens when there is a warning
+                     if(jqXHR.status == 200) {
+                         sap.m.MessageToast.show("Probe wurde erfolgreich gespeichert.");
+                         startView.getController().loadAllData();
+                         app.to("start");
+                     }
+                     else {
+                         sap.ui.core.BusyIndicator.hide();
+                         sap.m.MessageToast.show("Probe konnte nicht gespeichert werden.");
+                     }
 		         }
 		    });		
 		}
