@@ -1,11 +1,9 @@
 CACHE MANIFEST
-# 2016-08-31:v3.1.1
+# 2017-03-01:v3.2.0
 img/BNote_Logo_blue_on_white_192px.png
 favicon.png
 
 validate.js
-bnote.js
-bnote.css
 
 ../resources/sap-ui-core.js  
 ../resources/sap/m/themes/bnote/library.css  

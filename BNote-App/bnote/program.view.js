@@ -8,7 +8,7 @@ sap.ui.jsview("bnote.program", {
         var songList = new sap.m.List();
         
         var itemTemplate = new sap.m.StandardListItem({
-			title : "{name}",
+			title : "{title}",
 			description : "{composer}"
         });
         

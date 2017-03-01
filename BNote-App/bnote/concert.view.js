@@ -50,9 +50,8 @@ sap.ui.jsview("bnote.concert", {
                 var concert = concertView.getModel().getObject(path);
                 if(concert != null && concert.program != null) {
                     oController.onProgramPress(concert.program, function(programData) {
-                        //FIXME bug here -> programView is not defined
                         programView.setModel(new sap.ui.model.json.JSONModel(programData));
-                        app.to("program");
+                        app.to("program", "slide");
                     });
                 }
             }
