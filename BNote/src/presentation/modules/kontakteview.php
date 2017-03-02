@@ -58,6 +58,12 @@ class KontakteView extends CrudRefView {
 		$vc->addIcon("save");
 		$vc->setTarget("_blank");
 		$vc->write();
+		$this->buttonSpace();
+		
+		$vc = new Link($this->modePrefix() . "contactImport", "Kontakte Import (vCard)");
+		$vc->addIcon("arrow_down");
+		$vc->write();
+		
 		$this->verticalSpace();
 	}
 	
@@ -479,6 +485,17 @@ class KontakteView extends CrudRefView {
 		<input type="submit" value="speichern" />
 		</form>
 		<?php
+	}
+	
+	function contactImport() {
+		$form = new Form("Kontaktdaten Import", $this->modePrefix() . "contactImportProcess");
+		$form->setMultipart();
+		$form->addElement("VCard Datei", new Field("vcdfile", "", FieldType::FILE));
+		$form->write();
+	}
+	
+	function importVCardSuccess($message) {
+		new Message("VCard Import", $message);
 	}
 }
 

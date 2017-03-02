@@ -32,6 +32,9 @@ class KontakteController extends DefaultController {
 			else if($_GET["mode"] == "integration_process") {
 				$this->integrate();
 			}
+			else if($_GET["mode"] == "contactImportProcess") {
+				$this->importVCard();
+			}
 			else {
 				$mode = $_GET['mode'];
 				$this->getView()->$mode();
@@ -182,5 +185,52 @@ class KontakteController extends DefaultController {
 		}
 		
 		new Message("Zuordnungen gespeichert", "Die Zuordnungen wurden gespeichert.");
+	}
+	
+	private function importVCard() {
+		$vcd = file_get_contents($_FILES['vcdfile']['tmp_name']);
+		$cards = $this->parseVCard($vcd);
+		//TODO show overview + group assignment option
+		Data::viewArray($cards);
+		
+		// show success
+		$message = count($cards) . " Einträge wurden importiert.";
+		$this->getView()->importVCardSuccess($message);
+	}
+	
+	private function parseVCard($vcd) {
+		$lines = explode("\n", $vcd);
+		$cards = array();
+		$card = null;
+		foreach($lines as $lineIdx => $line) {
+			$sepPos = strpos($line, ":");
+			if($sepPos <= 0) continue;
+			$field = substr($line, 0, $sepPos);
+			$val = substr($line, $sepPos+1);
+			if($field == "BEGIN" && $val == "VCARD") {
+				$card = array();
+			}
+			if($field == "VERSION" || $field == "REV") continue;
+			if(Data::startsWith($field, "EMAIL")) {
+				if(!isset($card['email']) || strpos($field, "PREF") !== false) {
+					$card["email"] = $val;
+				}
+			}
+			if(Data::startsWith($field, "TEL") && strpos($field, "HOME") !== false) {
+				$card["tel"] = $val;
+			}
+			if(Data::startsWith($field, "TEL") && strpos($field, "MOB") !== false) {
+				$card["mobile"] = $val;
+			}
+			if($field == "N") {
+				$names = explode(";", $val);
+				$card['firstname'] = $names[1];
+				$card['lastname'] = $names[0];
+			}
+			if($field == "END" && $val == "VCARD") {
+				array_push($cards, $card);
+			}
+		}
+		return $cards;
 	}
 }
