@@ -56,7 +56,7 @@ if($db_pw == $password) {
 }
 else {
 	new BNoteError("Bitte überprüfe deine Anmeldedaten.<br />
-		Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Bandleiter.<br />
+		Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Leiter.<br />
 		<a href=\"" . $dir_prefix . "\">Zurück</a><br />
 		");
 }

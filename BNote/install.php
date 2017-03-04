@@ -802,7 +802,7 @@ class Installation {
 
 			array_push($queries,
 					"INSERT INTO `instrument` (`id`, `name`, `category`) VALUES
-					(1, 'Musikalischer Leiter', 6),
+					(1, 'Leiter', 6),
 					(2, 'Sologesang', 5),
 					(3, 'Organisator', 7),
 					(4, 'Klavier / ePiano', 4),

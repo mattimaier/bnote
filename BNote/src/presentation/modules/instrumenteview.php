@@ -119,7 +119,7 @@ class InstrumenteView extends CrudRefView {
 		$dv->write();
 	}
 	
-	function editEntityForm() {
+	function editEntityForm($write=true) {
 		$instrument = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form = new Form("Instrument bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(),

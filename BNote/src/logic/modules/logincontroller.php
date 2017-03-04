@@ -91,7 +91,7 @@ class LoginController extends DefaultController {
 			}
 			else {
 				new BNoteError("Bitte überprüfe deine Anmeldedaten.<br />
-						Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Bandleiter.<br />
+						Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Leiter.<br />
 						<a href=\"?mod=login\">Zurück</a><br />");
 			}
 		}
@@ -104,7 +104,7 @@ class LoginController extends DefaultController {
 		// get user's id for email address
 		$uid = $this->getData()->getUserIdForEMail($_POST["email"]);
 		if($uid < 1) {
-			new BNoteError("Deine E-Mail-Adresse ist dem System nicht bekannt oder existiert mehrfach. Bitte wende dich an deinen Bandleiter.");
+			new BNoteError("Deine E-Mail-Adresse ist dem System nicht bekannt oder existiert mehrfach. Bitte wende dich an deinen Leiter.");
 		}
 		$username = $this->getData()->getUsernameForId($uid);
 		
@@ -123,7 +123,7 @@ class LoginController extends DefaultController {
 		if(!$mail->sendMail()) {
 			// talk to leader
 			new BNoteError("Leider konnte die E-Mail an dich nicht versandt werden.<br />
-					Bitte wende dich an deinen Bandleiter.");
+					Bitte wende dich an deinen Leiter.");
 		}
 		else {					
 			// Change password in system only if mail has been sent.

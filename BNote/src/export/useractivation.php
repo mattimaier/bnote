@@ -37,7 +37,7 @@ echo "<p><b>Benutzerkonto aktiviert!</b><br/>Dein Benutzerkonto wurde erfolgreic
 
 // error function
 function printError($err) {
-	echo "<p><b>Fehler!</b><br/>Die Aktivierung war nicht erfolgreich. Bitte wende dich an deinen Bandleiter.<br/>";
+	echo "<p><b>Fehler!</b><br/>Die Aktivierung war nicht erfolgreich. Bitte wende dich an deinen Leiter.<br/>";
 	echo "<i>Fehlermeldung: $err</i></p>";
 	exit();
 }
