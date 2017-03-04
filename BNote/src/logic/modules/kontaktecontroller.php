@@ -190,8 +190,9 @@ class KontakteController extends DefaultController {
 	private function importVCard() {
 		$vcd = file_get_contents($_FILES['vcdfile']['tmp_name']);
 		$cards = $this->parseVCard($vcd);
-		//TODO show overview + group assignment option
-		Data::viewArray($cards);
+		$selectedGroups = GroupSelector::getPostSelection($this->getData()->getGroups(), "group");
+		
+		$this->getData()->saveVCards($cards, $selectedGroups);
 		
 		// show success
 		$message = count($cards) . " Einträge wurden importiert.";
@@ -205,8 +206,8 @@ class KontakteController extends DefaultController {
 		foreach($lines as $lineIdx => $line) {
 			$sepPos = strpos($line, ":");
 			if($sepPos <= 0) continue;
-			$field = substr($line, 0, $sepPos);
-			$val = substr($line, $sepPos+1);
+			$field = strtoupper(substr($line, 0, $sepPos));
+			$val = trim(substr($line, $sepPos+1));
 			if($field == "BEGIN" && $val == "VCARD") {
 				$card = array();
 			}
@@ -217,15 +218,26 @@ class KontakteController extends DefaultController {
 				}
 			}
 			if(Data::startsWith($field, "TEL") && strpos($field, "HOME") !== false) {
-				$card["tel"] = $val;
+				$card["phone"] = $val;
 			}
-			if(Data::startsWith($field, "TEL") && strpos($field, "MOB") !== false) {
+			if(Data::startsWith($field, "TEL") && strpos($field, "CELL") !== false) {
 				$card["mobile"] = $val;
 			}
 			if($field == "N") {
 				$names = explode(";", $val);
-				$card['firstname'] = $names[1];
-				$card['lastname'] = $names[0];
+				$card['name'] = $names[1];
+				$card['surname'] = $names[0];
+			}
+			if($field == "BDAY") {
+				$card['birthday'] = Data::convertDateFromDb($val);
+			}
+			if(Data::startsWith($field, "ADR")) {
+				if(strpos($field, "HOME") !== false || !isset($card['street'])) {
+					$addy = explode(";", $val);
+					$card['street'] = $addy[count($addy)-5];
+					$card['city'] = $addy[count($addy)-4];
+					$card['zip'] = $addy[count($addy)-2];
+				}
 			}
 			if($field == "END" && $val == "VCARD") {
 				array_push($cards, $card);
@@ -233,4 +245,5 @@ class KontakteController extends DefaultController {
 		}
 		return $cards;
 	}
+	
 }

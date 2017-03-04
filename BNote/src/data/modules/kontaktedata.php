@@ -158,13 +158,13 @@ class KontakteData extends AbstractData {
 	}
 	
 	function create($values) {
-		$addy["street"] = $values["street"];
-		$addy["city"] = $values["city"];
-		$addy["zip"] = $values["zip"];
+		$addy["street"] = isset($values['street']) ? $values["street"] : "";
+		$addy["city"] = isset($values['city']) ? $values["city"] : "";
+		$addy["zip"] = isset($values['zip']) ? $values["zip"] : "";
 		
 		// simply create one address per contact
 		$query = "INSERT INTO address (street, city, zip) VALUES (";
-		$query .= " \"" . $values["street"] . "\", \"" . $values["city"] . "\", \"" . $values["zip"] . "\")";
+		$query .= " \"" . $addy["street"] . "\", \"" . $addy["city"] . "\", \"" . $addy["zip"] . "\")";
 		$values["address"] = $this->database->execute($query);
 		
 		$cid = parent::create($values);
@@ -335,5 +335,11 @@ class KontakteData extends AbstractData {
 			return 0;
 		}
 		return -1;
+	}
+	
+	function saveVCards($cards, $selectedGroups) {
+		foreach($cards as $i => $card) {
+			$this->create($card);
+		}
 	}
 }

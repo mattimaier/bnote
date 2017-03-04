@@ -490,6 +490,8 @@ class KontakteView extends CrudRefView {
 	function contactImport() {
 		$form = new Form("Kontaktdaten Import", $this->modePrefix() . "contactImportProcess");
 		$form->setMultipart();
+		$groups = $this->getData()->adp()->getGroups();
+		$form->addElement("Importieren in Gruppe", new GroupSelector($groups, array(), "group"));
 		$form->addElement("VCard Datei", new Field("vcdfile", "", FieldType::FILE));
 		$form->write();
 	}
