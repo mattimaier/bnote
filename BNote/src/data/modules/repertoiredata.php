@@ -12,12 +12,12 @@ class RepertoireData extends AbstractData {
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("Titel ID", FieldType::INTEGER),
-			"title" => array("Titel", FieldType::CHAR),
+			"title" => array("Titel", FieldType::CHAR, true),
 			"length" => array("Länge", FieldType::CHAR), // not TIME, because of second precision
 			"genre" => array("Genre", FieldType::REFERENCE),
 			"bpm" => array("Tempo (bpm)", FieldType::INTEGER),
 			"music_key" => array("Tonart", FieldType::CHAR),
-			"composer" => array("Komponist / Arrangeur", FieldType::CHAR),
+			"composer" => array("Komponist / Arrangeur", FieldType::CHAR, true),
 			"status" => array("Status", FieldType::REFERENCE),
 			"setting" => array("Besetzung", FieldType::CHAR),
 			"notes" => array("Anmerkungen", FieldType::TEXT)
