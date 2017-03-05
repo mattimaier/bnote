@@ -539,3 +539,26 @@ div.flash_message.error {
 .songfiles_preview {
 	padding: 3px;
 }
+
+div.rehearsal_overview_box {
+	width: 100%;
+	padding: 5px;
+}
+
+div.rehearsal_overview_header {
+	background-color: #e0e0e0;
+	padding: 5px;
+	font-weight: 600;
+	color: #8a8a8a;
+}
+
+div.rehearsal_overview_box > .instrument_box {
+	display: inline-block;
+	width: 200px;
+	padding-left: 5px;
+	padding-top: 3px;
+}
+
+div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
+	font-weight: 600;
+}

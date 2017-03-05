@@ -110,6 +110,40 @@ class ProbenData extends AbstractData {
 		return $attInstruments;
 	}
 	
+	/**
+	 * Checks for the given instrument and rehearsal what the status of participation is.
+	 * @param Integer $rid Rehearsal ID.
+	 * @param Integer $instrumentId Instrument ID.
+	 */
+	function getParticipantOverview($rid, $instrumentId) {
+		$partSummary = array();
+		
+		// yes/no/maybe
+		$query = "SELECT CONCAT(c.name, ' ', c.surname) as contactname, ru.participate 
+				FROM rehearsal_user ru
+					JOIN user u ON ru.user = u.id
+					JOIN contact c ON u.contact = c.id
+				WHERE c.instrument = $instrumentId AND ru.rehearsal = $rid";
+		$participants = $this->database->getSelection($query);
+		for($p = 1; $p < count($participants); $p++) {
+			$participant = $participants[$p];
+			array_push($partSummary, $participant);
+		}
+		
+		// unknown: all those that have not said if they come or not
+		$openParticipants = $this->getOpenParticipation($rid);
+		for($o = 1; $o < count($openParticipants); $o++) {
+			$participant = $openParticipants[$o];
+			if($participant['instrumentid'] == $instrumentId) {
+				array_push($partSummary, array(
+						"contactname" => $participant['name'],
+						"participate" => -1
+				));
+			}
+		}
+		return $partSummary;
+	}
+	
 	function getRehearsalBegin($rid) {
 		$d = $this->database->getCell($this->getTable(), "begin", "id = $rid");
 		return Data::convertDateFromDb($d);
@@ -295,7 +329,7 @@ class ProbenData extends AbstractData {
 	}
 	
 	public function getRehearsalContacts($rid) {
-		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, c.nickname, i.name as instrument, c.mobile, c.email ";
+		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, c.nickname, i.name as instrument, i.id as instrumentid, c.mobile, c.email ";
 		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";
 		$query .= " LEFT JOIN instrument i ON c.instrument = i.id ";
 		$query .= "WHERE rc.rehearsal = $rid ORDER BY name";
@@ -361,6 +395,11 @@ class ProbenData extends AbstractData {
 		$query .= "FROM rehearsal JOIN location ON rehearsal.location = location.id ";
 		$query .= "LEFT JOIN address ON location.address = address.id ";
 		$query .= "WHERE YEAR(begin) = $year ORDER BY begin DESC";
+		return $this->database->getSelection($query);
+	}
+	
+	public function getUsedInstruments() {
+		$query = "SELECT i.* FROM instrument i JOIN contact c ON c.instrument = i.id";
 		return $this->database->getSelection($query);
 	}
 }

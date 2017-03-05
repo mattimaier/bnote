@@ -44,6 +44,11 @@ class ProbenView extends CrudRefView {
 		$series->write();
 		
 		$this->buttonSpace();
+		$overview = new Link($this->modePrefix() . "overview", "Teilnehmerübersicht");
+		$overview->addIcon("mitspieler");
+		$overview->write();
+		
+		$this->buttonSpace();
 		$history = new Link($this->modePrefix() . "history", "Verganene Proben anzeigen");
 		$history->addIcon("timer");
 		$history->write();
@@ -237,6 +242,7 @@ class ProbenView extends CrudRefView {
 			
 		$table = new Table($contacts);
 		$table->removeColumn("id");
+		$table->removeColumn("instrumentid");
 		$table->renameHeader("mobile", "Handynummer");
 		$table->write();
 	}
@@ -311,6 +317,7 @@ class ProbenView extends CrudRefView {
 		Writing::h3("Teilnahme");
 		$table = new Table($this->getData()->getParticipants($_GET["id"]));
 		$table->removeColumn("id");
+		$table->removeColumn("instrumentid");
 		$table->renameHeader("nickname", Lang::txt("nickname"));
 		$table->renameHeader("participate", "Nimmt teil");
 		$table->renameHeader("reason", "Grund");
@@ -321,6 +328,7 @@ class ProbenView extends CrudRefView {
 		Writing::h3("Ausstehende Zu-/Absagen");
 		$openTab = new Table($this->getData()->getOpenParticipation($_GET["id"]));
 		$openTab->removeColumn("id");
+		$openTab->removeColumn("instrumentid");
 		$openTab->renameHeader("nickname", Lang::txt("nickname"));
 		$openTab->renameHeader("mobile", "Handy");
 		$openTab->write();
@@ -553,6 +561,59 @@ class ProbenView extends CrudRefView {
 		}
 		else {
 			$this->backToStart();
+		}
+	}
+	
+	function overview() {
+		$futureRehearsals = $this->getData()->adp()->getFutureRehearsals();
+		$usedInstruments = $this->getData()->getUsedInstruments();
+		
+		for($reh = 1; $reh < count($futureRehearsals); $reh++) {
+			$rehearsal = $futureRehearsals[$reh];
+			?>
+			<div class="rehearsal_overview_box">
+				<div class="rehearsal_overview_header">Probe am <?php echo Data::convertDateFromDb($rehearsal['begin']); ?> Uhr</div>
+				<?php 
+				for($i = 1; $i < count($usedInstruments); $i++) {
+					$instrument = $usedInstruments[$i];
+					?>
+					<div class="instrument_box">
+						<div class="instrument_box_header"><?php echo $instrument['name'];?></div>
+						<?php 
+						$parts = $this->getData()->getParticipantOverview($rehearsal['id'], $instrument['id']);
+						foreach($parts as $j => $participant) {
+							switch($participant['participate']) {
+								case -1: 
+									$alt = "Keine Angabe";
+									$icon = "unspecified";
+									break;
+								case 0: 
+									$alt = "Nimmt nicht teil";
+									$icon = "cancel";
+									break;
+								case 2: 
+									$alt = "Nimmt vielleicht teil";
+									$icon = "yield";
+									break;
+								default:
+									$alt = "Nimmt teil";
+									$icon = "checked";
+									break;
+							}
+							?>
+							<div class="player_participation_line">
+								<img src="style/icons/<?php echo $icon; ?>.png" alt="<?php echo $alt; ?>" style="height: 14px" />
+								<span><?php echo $participant['contactname']; ?></span>
+							</div>
+						<?php 
+						}
+						?>
+					</div>
+					<?php
+				}
+				?>
+			</div>
+			<?php
 		}
 	}
 	
