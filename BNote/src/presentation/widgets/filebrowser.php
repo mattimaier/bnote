@@ -20,6 +20,11 @@ class Filebrowser implements iWriteable {
 	 * MVC structure.
 	 */
 	
+	/**
+	 * These characters are removed when files are added so they don't mess up anything.
+	 * @var array Characters to be removed from filenames.
+	 */
+	private $replace_chars = array("&", "+", "/", "\\");
 	
 	/**
 	 * Root directory on the server.
@@ -105,7 +110,8 @@ class Filebrowser implements iWriteable {
 		
 		// execute functions
 		if(isset($_GET["fbfunc"]) && $_GET["fbfunc"] != "view") {
-			$this->$_GET["fbfunc"]();
+			$fbfunc = $_GET["fbfunc"];
+			$this->$fbfunc();
 		}
 		else {
 			$this->mainView();
@@ -311,7 +317,13 @@ class Filebrowser implements iWriteable {
 		
 		// copy file to target directory
 		$target = $this->root . $this->path;
-		if(!copy($_FILES["file"]["tmp_name"], $target . "/" . $_FILES["file"]["name"])) {
+		$targetFilename = $_FILES["file"]["name"];
+		
+		foreach($this->replace_chars as $i => $char) {
+			$targetFilename = str_replace($char, "", $targetFilename);
+		}
+		
+		if(!copy($_FILES["file"]["tmp_name"], $target . "/" . $targetFilename)) {
 			new BNoteError(Lang::txt("errorSavingFile"));
 		}
 		
@@ -525,16 +537,26 @@ class Filebrowser implements iWriteable {
 		$zip_suffix = "_temp/download.zip";
 		$zip_fname = $this->root . $zip_suffix;
 		
+		// check that _temp folder exists
+		if(!is_dir($this->root . "_temp")) {
+			mkdir($this->root . "_temp");
+		}
+		
 		// initialize zip-archive
 		$zip = new ZipArchive();
 		$zip->open($zip_fname, ZipArchive::CREATE);
+		$dir_basepath = $this->root . $this->path;
+		$dir_basepath = str_replace("\\", "/", $dir_basepath);
 		
 		$files = new RecursiveIteratorIterator(
-				new RecursiveDirectoryIterator($this->root . $this->path),
+				new RecursiveDirectoryIterator($dir_basepath),
 				RecursiveIteratorIterator::LEAVES_ONLY);
 		
 		foreach($files as $name => $file) {
-			$zip->addFile($file->getPathname());
+			$filename = str_replace("\\", "/", $file->getPathname());
+			if(!Data::endsWith($filename, "/.") && !Data::endsWith($filename, "/..")) {
+				$zip->addFile($filename);
+			}
 		}
 		
 		// create zip file by closing this archive
@@ -546,7 +568,7 @@ class Filebrowser implements iWriteable {
 		$link->setTarget("_blank");
 		$link->addIcon("arrow_down");
 		$link->write();
-		AbstractView::verticalSpace();
+		AbstractView::buttonSpace();
 		
 		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)), Lang::txt("back"));
 		$back->addIcon("arrow_left");
