@@ -183,6 +183,7 @@ class FinanceView extends CrudView {
 		$from = $fromToArr[0];
 		$to = $fromToArr[1];
 		$form = new Form(Lang::txt("finance_add_booking"), $this->modePrefix() . "addBookingProcess&id=" . $_GET["id"] . "&from=$from&to=$to");
+		
 		$dd = new Dropdown("btype");
 		$btypes = FinanceData::getBookingTypes();
 		foreach($btypes as $val => $capt) {
@@ -190,15 +191,18 @@ class FinanceView extends CrudView {
 		}
 		$dd->setSelected(1);
 		$form->addElement(Lang::txt("finance_booking_btype"), $dd);
+		$form->setFieldRequired(Lang::txt("finance_booking_btype"));
+		
 		$objdd = $this->getController()->getRecpayCtrl()->getView()->objectReferenceForm();
 		$form->addElement(Lang::txt("recpay_otype"), $objdd);
 		$form->autoAddElementsNew(array(
-			"bdate" => array(Lang::txt("finance_booking_bdate"), FieldType::DATE),
-			"subject" => array(Lang::txt("finance_booking_subject"), FieldType::CHAR),
-			"amount_net" => array(Lang::txt("finance_booking_amount_net"), FieldType::DECIMAL),
-			"amount_tax" => array(Lang::txt("finance_booking_amount_tax"), FieldType::DECIMAL),
+			"bdate" => array(Lang::txt("finance_booking_bdate"), FieldType::DATE, true),
+			"subject" => array(Lang::txt("finance_booking_subject"), FieldType::CHAR, true),
+			"amount_net" => array(Lang::txt("finance_booking_amount_net"), FieldType::DECIMAL, true),
+			"amount_tax" => array(Lang::txt("finance_booking_amount_tax"), FieldType::DECIMAL, true),
 			"notes" => array(Lang::txt("finance_booking_notes"), FieldType::CHAR)
 		));
+		$form->setFieldValue("amount_tax", "0,00");
 		
 		$form->write();
 	}

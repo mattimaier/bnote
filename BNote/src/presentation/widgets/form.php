@@ -265,7 +265,7 @@ class Form implements iWriteable {
   foreach($this->elements as $label => $element) {
    echo " <tr>\n";
    $required = "";
-   if(isset($this->requiredFields[$label])) $required = "*";
+   if(isset($this->requiredFields[$label]) && $this->requiredFields[$label]) $required = "*";
    if(isset($this->rename[$label])) $label = $this->rename[$label];
    echo "  <td>$label$required</td>\n";
    echo "  <td>" . $element->write() . "</td>\n";
