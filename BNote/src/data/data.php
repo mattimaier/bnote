@@ -196,7 +196,15 @@ abstract class Data {
 		return $dict;
 	}
 	
-	// END OF CLASS
+	/**
+	 * Determines if the given string representing a date(time) is in the future.
+	 * @param string $dbDate Date in standard format (DB format).
+	 * @return bool True when the given date is in the future.
+	 */
+	public static function isDateInFuture($dbDate) {
+		$now = Data::getDateNow();
+		return $now < strtotime($dbDate);
+	}
  }
 
 ?>

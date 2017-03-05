@@ -229,7 +229,7 @@ class ProbenView extends CrudRefView {
 		// add a link to the data to remove the contact from the list
 		$contacts[0]["delete"] = "Löschen";
 		for($i = 1; $i < count($contacts); $i++) {
-			$delLink = $this->modePrefix() . "delContact&id=" . $_GET["id"] . "&cid=" . $contacts[$i]["id"];
+			$delLink = $this->modePrefix() . "delContact&id=" . $_GET["id"] . "&cid=" . $contacts[$i]["id"] . "&tab=invitations";
 			$btn = new Link($delLink, "");
 			$btn->addIcon("remove");
 			$contacts[$i]["delete"] = $btn->toString();
@@ -288,6 +288,9 @@ class ProbenView extends CrudRefView {
 		$this->checkID();
 		$this->getData()->addRehearsalContact($_GET["id"]);
 		new Message("Kontakt hinzugefügt", "Der Kontakt wurde zu dieser Probe hinzugefügt.");
+	}
+	
+	public function process_addContactOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
 	
@@ -362,7 +365,7 @@ class ProbenView extends CrudRefView {
 				echo ' <input type="text" name="notes" size="30" value="' . $s["notes"] . '" />';
 				echo ' <input type="submit" value="speichern" />&nbsp;&nbsp;';
 				$del = new Link($this->modePrefix() .
-					"practiseDelete&id=" . $_GET["id"] . "&song=" . $s["id"], "löschen");
+					"practiseDelete&id=" . $_GET["id"] . "&song=" . $s["id"] . "&tab=practise", "löschen");
 				$del->write();
 				echo '</form>';
 			}
@@ -521,7 +524,7 @@ class ProbenView extends CrudRefView {
 	
 	function viewOptions() {
 		if($this->isReadOnlyView()) {
-			$back = new Link($this->modePrefix() . "history&year=" . $_GET["year"], "Zurück");
+			$back = new Link($this->modePrefix() . "history&year=" . $_GET["year"], Lang::txt("back"));
 			$back->addIcon("arrow_left");
 			$back->write();
 		}
@@ -535,7 +538,7 @@ class ProbenView extends CrudRefView {
 			$reminder->addIcon("email");
 			$reminder->write();
 		}
-		else if(isset($_GET["tab"]) && $_GET["tab"] == "invitations") {
+		else if(isset($_GET["tab"]) && ($_GET["tab"] == "invitations" || $_GET["tab"] == "participants")) {
 			$this->backToStart();
 			$this->buttonSpace();
 			
