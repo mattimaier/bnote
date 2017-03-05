@@ -37,6 +37,11 @@ class RepertoireView extends CrudRefView {
 		$filterbox->write();
 		
 		$this->buttonSpace();
+		$massChange = new Link($this->modePrefix() . "massUpdate", "Mehrere Songs ändern");
+		$massChange->addIcon("edit");
+		$massChange->write();
+		
+		$this->buttonSpace();
 		$genre_mod = new Link($this->modePrefix() . "genre&func=start", "Genres verwalten");
 		$genre_mod->addIcon("music_folder");
 		$genre_mod->write();
@@ -241,7 +246,11 @@ class RepertoireView extends CrudRefView {
 		$form->removeElement("composer");
 		$form->addElement("Komponist/Arrangeur", new Field("composer",
 					$this->getData()->getComposerName($song["composer"]), FieldType::CHAR));
-		$form->write();
+		
+		if($write) {
+			$form->write();
+		}
+		return $form;
 	}
 	
 	function addSolist() {
@@ -355,6 +364,38 @@ class RepertoireView extends CrudRefView {
 	
 	function xlsProcessSuccess() {
 		new Message("Import erfolgreich", "Die Stücke wurden erfolgreich importiert.");
+	}
+	
+	function massUpdate() {
+		// setup form
+		$form = new Form("Songs bearbeiten", $this->modePrefix() . "process_massUpdate&manualValid=true");
+		
+		// select what to change
+		$form->autoAddElementsNew($this->getData()->getFields());
+		$toRemove = array("id", "notes", "title", "length", "composer");
+		foreach($toRemove as $i => $field) {
+			$form->removeElement($field);
+		}
+		
+		$form->setForeign("genre", "genre", "id", array("name"), 0);
+		$form->addForeignOption("genre", "[Nicht ändern]", 0);
+		
+		$form->setForeign("status", "status", "id", array("name"), 0);
+		$form->addForeignOption("status", "[Nicht ändern]", 0);
+		
+		// select the song
+		$songs = $this->getData()->findAllJoined($this->getJoinedAttributes());
+		$songSelector = new GroupSelector($songs, array(), "songs");
+		$songSelector->setNameColumns(array("title"));
+		$form->addElement("Songs", $songSelector);
+		
+		// show form
+		$form->write();
+	}
+	
+	function process_massUpdate() {
+		$this->getData()->massUpdate();
+		new Message("Songs speichert", "Die Songs wurden erfolgreich aktualisiert.");
 	}
 }
 

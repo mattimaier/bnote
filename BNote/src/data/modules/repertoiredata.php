@@ -329,6 +329,43 @@ class RepertoireData extends AbstractData {
 		}
 		return $content;
 	}
+	
+	function massUpdate() {
+		// build update set
+		$keyValues = array();
+		if($_POST['genre'] > 0) {
+			$this->regex->isPositiveAmount($_POST["genre"]);
+			array_push($keyValues, "genre = " . $_POST['genre']);
+		}
+		if($_POST['status'] > 0) {
+			$this->regex->isPositiveAmount($_POST["status"]);
+			array_push($keyValues, "status = " . $_POST["status"]);
+		}
+		if($_POST['bpm'] != "") {
+			$this->regex->isPositiveAmount($_POST['bpm']);
+			array_push($keyValues, "bpm = " . $_POST['bpm']);
+		}
+		if($_POST['music_key'] != "") {
+			$this->regex->isSubject($_POST['music_key']);
+			array_push($keyValues, "music_key = \"" . $_POST['music_key'] . "\"");
+		}
+		if($_POST['setting'] != "") {
+			$this->regex->isText($_POST['setting']);
+			array_push($keyValues, "setting = \"" . $_POST['setting'] . "\"");
+		}
+		$keyValues = join(",", $keyValues);
+		
+		// build ID query -> selected songs
+		$songIds = GroupSelector::getPostSelection($this->findAllNoRef(), "songs");
+		if(count($songIds) == 0) {
+			new BNoteError("Bitte wähle mindestens einen Song zum Update aus.");
+		}
+		$idQuery = join(" OR id=", $songIds);
+		
+		// execute query
+		$query = "UPDATE " . $this->getTable() . " SET " . $keyValues . " WHERE id=" . $idQuery;
+		$this->database->execute($query);
+	}
 }
 
 ?>
