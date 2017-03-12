@@ -178,6 +178,40 @@ class FinanceData extends AbstractData {
 		$query = "UPDATE booking SET amount_net = 0, amount_tax = 0, notes = \"$notes\" WHERE id = $booking_id";
 		$this->database->execute($query);
 	}
+	
+	function transfer($booking) {
+		// validate
+		$this->regex->isPositiveAmount($booking["account_from"]);
+		$this->regex->isPositiveAmount($booking["account_to"]);
+		if($booking["account_from"] == $booking["account_to"]) {
+			new Error(Lang::txt("finance_transfer_same_account"));
+		}
+		$this->regex->isDate($booking["bdate"]);
+		$this->regex->isSubject($booking["subject"]);
+		$this->regex->isMoney($booking["amount_net"]);
+		$this->regex->isMoney($booking["amount_tax"]);
+		if($booking["amount_tax"] == "") {
+			$booking["amount_tax"] = 0;
+		}
+		
+		// read account names
+		$name_from = $this->database->getCell($this->table, "name", "id=" . $booking['account_from']);
+		$name_to = $this->database->getCell($this->table, "name", "id=" . $booking['account_to']);
+		
+		// prepare bookings
+		$booking['notes'] = Lang::txt("finance_transfer_note", array($name_from)) . " " . $name_to;
+		$booking['otype'] = 0;
+		$booking_from = $booking;
+		$booking_from["btype"] = 1;  // withdraw
+		$booking_from['account'] = $booking['account_from'];
+		$booking_to = $booking;
+		$booking_to["btype"] = 0;  // payment
+		$booking_to['account'] = $booking['account_to'];
+		
+		// do the booking: not transaction save!!!
+		$this->addBooking($booking_from);
+		$this->addBooking($booking_to);
+	}
 }
 
 ?>

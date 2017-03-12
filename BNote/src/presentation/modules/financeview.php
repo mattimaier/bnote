@@ -69,6 +69,11 @@ class FinanceView extends CrudView {
 		$btn = new Link($this->modePrefix() . "recpay", Lang::txt("finance_recpay"));
 		$btn->addIcon("recurring");
 		$btn->write();
+		$this->buttonSpace();
+		
+		$transfer = new Link($this->modePrefix() . "transfer", Lang::txt("finance_transfer"));
+		$transfer->addIcon("signpost");
+		$transfer->write();
 	}
 	
 	function view() {
@@ -84,8 +89,7 @@ class FinanceView extends CrudView {
 		<?php
 		$accId = $_GET["id"];
 		$accDetails = $this->getData()->findByIdNoRef($accId);
-		Writing::h2($accDetails["name"]);
-		Writing::p(Lang::txt("finance_account_id") . ": " . $accId);
+		Writing::h2($accDetails["name"] . " (" . $accId . ")");
 		
 		// Show filter
 		$fromToArr = $this->getFilterSettings();
@@ -230,6 +234,33 @@ class FinanceView extends CrudView {
 	
 	function cancelBookingOptions() {
 		$this->viewOptions();
+	}
+	
+	function transfer() {
+		$form = new Form(Lang::txt("finance_transfer_form_title"), $this->modePrefix() . "processTransfer");
+		
+		$accounts = $this->getData()->findAllNoRef();
+		$accountBoxFrom = new Dropdown("account_from");
+		$accountBoxTo = new Dropdown("account_to");
+		for($i = 1; $i < count($accounts); $i++) {
+			$accountBoxFrom->addOption($accounts[$i]["name"], $accounts[$i]["id"]);
+			$accountBoxTo->addOption($accounts[$i]["name"], $accounts[$i]["id"]);
+		}
+		
+		$form->addElement(Lang::txt("finance_transfer_from"), $accountBoxFrom);
+		$form->addElement(Lang::txt("finance_transfer_to"), $accountBoxTo);
+		
+		$form->addElement(Lang::txt("finance_booking_bdate"), new Field("bdate", "", FieldType::DATE));
+		$form->addElement(Lang::txt("finance_booking_subject"), new Field("subject", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("finance_booking_amount_net"), new Field("amount_net", "0,00", FieldType::DECIMAL));
+		$form->addElement(Lang::txt("finance_booking_amount_tax"), new Field("amount_tax", "0,00", FieldType::DECIMAL));
+		
+		$form->write();
+	}
+	
+	function processTransfer() {
+		$this->getData()->transfer($_POST);
+		new Message(Lang::txt("finance_transfer_success_title"), Lang::txt("finance_transfer_success_message"));
 	}
 }
 

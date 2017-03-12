@@ -244,7 +244,7 @@ class Translation extends BNoteTranslation {
 			
 			// module: finance
 			"finance_account" => "Konto",
-			"finance_account_id" => "Kontonummer",
+			"finance_account_id" => "Konto ID",
 			"finance_account_name" => "Kontobezeichnung",
 			"finance_filter_items" => "Buchungen filtern",
 			"finance_date_from" => "Datum von",
@@ -270,6 +270,14 @@ class Translation extends BNoteTranslation {
 			"finance_metrics_total" => "Saldo",
 			"finance_metrics_margin" => "Marge",
 			"finance_metrics_sum" => "Summe",
+			"finance_transfer" => "Umbuchung",
+			"finance_transfer_form_title" => "Umbuchung",
+			"finance_transfer_from" => "Von Konto",
+			"finance_transfer_to" => "Nach Konto",
+			"finance_transfer_success_title" => "Übertrag erfolgreich",
+			"finance_transfer_success_message" => "Der Übertrag wurde erfolgreich verbucht.",
+			"finance_transfer_same_account" => "Die Konten müssen sich unterscheiden.",
+			"finance_transfer_note" => "Übertrag %p an",
 			
 			"finance_recpay" => "Laufende Zahlungen",
 			"recurringpayment" => "Laufende Zahlung",
