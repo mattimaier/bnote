@@ -356,23 +356,43 @@ table.contact_view {
 
 div.concert {
 	padding: 10px;
-	background-color: #eee;
+	background-color: #fff;
 	border: 1px solid #e0e0e0;
+	border-bottom-width: 2px;
 	margin-bottom: 5px;
 	vertical-align: text-top;
+	color: #000;
 }
 
 p.concert_title {
 	font-weight: 600;
-	color: #000;
+	color: #8A8A8A;
+}
+
+span.concert_title_name {
+	color: #61b3ff;
+	font-weight: normal;
+}
+
+span.concert_location {
+    float: right;
+    margin-top: -30px;
+}
+
+span.concert_contact {
+    float: right;
+    margin-top: -10px;
+    font-size: 80%;
+}
+
+span.concert_notes {
+    color: #8A8A8A;
+    font-style: italic;
+    display: block;
 }
 
 span.start_concert_title {
 	font-weight: 600;
-}
-
-p.concert_details {
-	color: #000;
 }
 
 div.rehearsal {

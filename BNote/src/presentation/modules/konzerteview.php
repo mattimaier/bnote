@@ -74,21 +74,22 @@ class KonzerteView extends CrudRefView {
 	
 	private function writeConcert($concert) {
 		// when? where? who to talk to? notes + program
-		$text = "<p class=\"concert_title\">" . $concert["title"] . " am " . Data::convertDateFromDb($concert["begin"]);
-		$text .= " bis " . substr($concert["end"], strlen($concert["end"])-8, 5);
-		$text .= " Uhr</p>";
-		$text .= "<p class=\"concert_details\">Location: ";
+		$text = "<p class=\"concert_title\">" . Data::convertDateFromDb($concert["begin"]);
+		$text .= " Uhr / <span class=\"concert_title_name\">" . $concert["title"] . "</span></p>";
+		
+		// location
+		$text .= "<span class=\"concert_location\">";
 		$text .= $concert["location_name"];
 		
 		if($concert["location_city"] != "") {
 			$text .= ", " . $concert["location_street"] . ", " . $concert["location_zip"];
 			$text .= " " . $concert["location_city"];
 		}
-		$text .= "&nbsp;&nbsp;";
+		$text .= "</span>";
 		
+		// contact
 		if($concert["contact_name"] != "") {
-			$text .= "<br/>";
-			$text .= "Kontaktperson: " . $concert["contact_name"] . " (";
+			$text .= "<span class=\"concert_contact\">" . $concert["contact_name"] . " (";
 
 			$ct = 0;
 			if($concert["contact_phone"] != "") {
@@ -106,21 +107,17 @@ class KonzerteView extends CrudRefView {
 			else {
 				$text = substr($text, 0, strlen($text)-2) . ")";
 			}
+			$text .= "</span>";
 		}
 		
-		if($concert["program_name"] != "") {
-			if($concert["contact_name"] != "") $text .= " - ";
-			$text .= "Programm: " . $concert["program_name"];
-		}
-		$text .= "</p>";
+		// notes
+		$text .= "<span class=\"concert_notes\">" . $concert["notes"] . "</span>\n";
 		
 		// actually write concert
-		echo '<a class="concert" href="' . $this->modePrefix();
-		echo "view&id=" . $concert["id"] . '"><div class="concert">';
-		Writing::p($text);
-		echo "<pre class='concert'>" . $concert["notes"] . "</pre>\n";
+		echo '<a class="concert" href="' . $this->modePrefix() . "view&id=" . $concert["id"] . '">';
+		echo '<div class="concert">';
+		echo $text;
 		echo "</div></a>";
-		$this->verticalSpace();
 	}
 	
 	function history() {
