@@ -184,10 +184,13 @@ class ProbenView extends CrudRefView {
 		$weekday = Data::convertEnglishWeekday(date("D", $date_begin));
 		$finish = date('H:i', $date_end);
 
-		$when = Data::convertDateFromDb($row["begin"]) . " bis " . $finish . " Uhr";
+		$when = Data::convertDateFromDb($row["begin"]) . " - " . $finish . " Uhr";
 
 		// put output together
-		$out = "<p class=\"rehearsal_title\">$weekday, $when</p>";
+		$out = "<p class=\"rehearsal_title\">";
+		$out .= "<span class=\"rehearsal_weekday\">$weekday</span>";
+		$out .= "<span class=\"rehearsal_when\">$when</span>";
+		$out .= "</p>";
 		$out .= "<p class=\"rehearsal_details\">" . $row["name"];
 		
 		$out .= " (";
