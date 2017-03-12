@@ -4,8 +4,6 @@
 	height: 60px;
 	width: 100%;
 	background-color:#61b3ff;
-	border-bottom:1px solid;
-	border-bottom-color:#e0e0e0;
 	line-height: 44px;
 }
 
@@ -131,7 +129,7 @@ background-color: #fff;
 #optionsbar {
 	height: 40px;
 	border-bottom: 1px solid #dcdcdc;
-	background-color: #e6e6e6;
+	background-color: #444444;
 	padding-top: 10px;
 }
 
@@ -145,6 +143,5 @@ background-color: #fff;
 #moduleTitle {
 	padding-left: 10px;
 	font-size: 14pt;
-	color: #8A8A8A;
-	font-weight: 600;
+	color: #fff;
 }
