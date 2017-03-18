@@ -27,7 +27,12 @@ class Database extends Data {
 	function __construct() {
 		// build mysql connection with login-data from the xmlfile
 		$this->readConfig();
-		$this->db = mysqli_connect( $this->connectionData ["server"], $this->connectionData ["user"], $this->connectionData ["password"], $this->connectionData ["dbname"] );
+		$this->db = mysqli_connect( 
+				$this->connectionData["server"], 
+				$this->connectionData["user"], 
+				$this->connectionData["password"], 
+				$this->connectionData["dbname"],
+				$this->connectionData["port"] );
 		if ($this->db->connect_errno) {
 			new BNoteError ( "Unable to connect to database: " . $this->db->connect_error );
 		}
@@ -44,10 +49,11 @@ class Database extends Data {
 			$config = new XmlData ( "../../" . $cfgfile, "Database" );
 		}
 		$this->connectionData = array (
-				"server" => $config->getParameter ( "Server" ) . ":" . $config->getParameter ( "Port" ),
+				"server" => $config->getParameter ( "Server" ),
 				"user" => $config->getParameter ( "User" ),
 				"password" => $config->getParameter ( "Password" ),
-				"dbname" => $config->getParameter ( "Name" ) 
+				"dbname" => $config->getParameter ( "Name" ) ,
+				"port" => intval($config->getParameter ( "Port" ))
 		);
 		$this->userTable = $config->getParameter ( "UserTable" );
 	}
