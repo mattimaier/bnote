@@ -44,6 +44,12 @@ class GroupSelector implements iWriteable {
 	private $captionType;
 	
 	/**
+	 * Optional css classes to be added to selection group.
+	 * @var String
+	 */
+	private $cssClass;
+	
+	/**
 	 * Builds a new group selector.
 	 * @param array $groups DB Selection of groups.
 	 * @param array $selectedGroups Simple array with all groups that are marked selected.
@@ -55,6 +61,7 @@ class GroupSelector implements iWriteable {
 		$this->fieldName = $fieldName;
 		$this->remove = array();
 		$this->nameColumn = array("name");
+		$this->cssClass = null;
 	}
 	
 	function removeGroup($groupId) {
@@ -82,8 +89,16 @@ class GroupSelector implements iWriteable {
 		$this->captionType = $captionType;
 	}
 	
+	function additionalCssClasses($cssClass) {
+		$this->cssClass = $cssClass;
+	}
+	
 	function toString() {
-		$out = "<ul class=\"groupSelector\">\n";
+		$cssClass = "";
+		if($this->cssClass != null) {
+			$cssClass = " " . $this->cssClass;
+		}
+		$out = "<ul class=\"groupSelector$cssClass\">\n";
 		
 		for($i = 1; $i < count($this->groups); $i++) {
 			$groupId = $this->groups[$i]["id"];

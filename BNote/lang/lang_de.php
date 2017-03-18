@@ -152,6 +152,7 @@ class Translation extends BNoteTranslation {
 			"equipment" => "Equipment",
 			"tour" => "Tour",
 			"map" => "Karte",
+			"accounts" => "Konten",
 			
 			// module: start
 			"start_calendarExport" => "Kalender Export",
@@ -278,6 +279,18 @@ class Translation extends BNoteTranslation {
 			"finance_transfer_success_message" => "Der Übertrag wurde erfolgreich verbucht.",
 			"finance_transfer_same_account" => "Die Konten müssen sich unterscheiden.",
 			"finance_transfer_note" => "Übertrag %p an",
+			"finance_multireporting" => "Reporting",
+			"finance_multireport_result_button" => "Bericht erstellen",
+			"finance_multireport_report_title" => "Zusammenfassung",
+			"finance_in_total_net" => "Einnahmen Netto",
+			"finance_in_total_tax" => "Umsatzsteuer",
+			"finance_in_total" => "Einnamen Brutto",
+			"finance_out_total_net" => "Ausgaben Netto",
+			"finance_out_total_tax" => "Vorsteuer",
+			"finance_out_total" => "Ausgaben Brutto",
+			"finance_net" => "∑ Einnahmen",
+			"finance_tax" => "∑ Steuern",
+			"finance_gross" => "∑ Brutto",
 			
 			"finance_recpay" => "Laufende Zahlungen",
 			"recurringpayment" => "Laufende Zahlung",

@@ -152,6 +152,8 @@ class Translation extends BNoteTranslation {
 			"sum" => "Sum",
 			"equipment" => "Equipment",
 			"tour" => "Tour",
+			"map" => "Map",
+			"accounts" => "Accounts",
 
 			// module: start
 			"start_calendarExport" => "Export Calendar",
@@ -278,6 +280,18 @@ class Translation extends BNoteTranslation {
 			"finance_transfer_success_message" => "The transfer was booked successfully.",
 			"finance_transfer_same_account" => "Please select different accounts.",
 			"finance_transfer_note" => "Transfer %p to",
+			"finance_multireporting" => "Reporting",
+			"finance_multireport_result_button" => "Create Report",
+			"finance_multireport_report_title" => "Summary",
+			"finance_in_total_net" => "Revenue Net",
+			"finance_in_total_tax" => "Revenue Tax",
+			"finance_in_total" => "Revenue Gross",
+			"finance_out_total_net" => "Spent Net",
+			"finance_out_total_tax" => "Spent Tax",
+			"finance_out_total" => "Spent Gross",
+			"finance_net" => "Sum Revenue",
+			"finance_tax" => "Sum Spent",
+			"finance_gross" => "Sum Gross",
 			
 			"finance_recpay" => "Recurring Payments",
 			"recurringpayment" => "Recurring Payment",

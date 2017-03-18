@@ -266,6 +266,7 @@ class Table implements iWriteable {
 					if(isset($this->formats[$id])) {
 						if($this->formats[$id] == "DECIMAL") {
 							$value = Data::convertFromDb($value);
+							if($value == "") $value = "0,00";
 						}
 						if($this->formats[$id] == "DATE") {
 							$value = Data::convertDateFromDb($value);

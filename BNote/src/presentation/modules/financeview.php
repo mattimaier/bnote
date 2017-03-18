@@ -74,6 +74,11 @@ class FinanceView extends CrudView {
 		$transfer = new Link($this->modePrefix() . "transfer", Lang::txt("finance_transfer"));
 		$transfer->addIcon("signpost");
 		$transfer->write();
+		$this->buttonSpace();
+		
+		$multi_reporting = new Link($this->modePrefix() . "multireport", Lang::txt("finance_multireporting"));
+		$multi_reporting->addIcon("abstimmung");
+		$multi_reporting->write();
 	}
 	
 	function view() {
@@ -261,6 +266,163 @@ class FinanceView extends CrudView {
 	function processTransfer() {
 		$this->getData()->transfer($_POST);
 		new Message(Lang::txt("finance_transfer_success_title"), Lang::txt("finance_transfer_success_message"));
+	}
+	
+	function multireport() {
+		/* Filters
+		 * -------
+		 * - Time
+		 * - Accounts
+		 * - Objects
+		 */
+		// Show filter
+		$fromToArr = $this->getFilterSettings();
+		$default_from = $fromToArr[0];
+		$default_to = $fromToArr[1];
+		$default_otype = $fromToArr[2];
+		$default_oid = $fromToArr[3];
+		
+		?>
+		<div class="finance_filter_box">
+			<span class="finance_filter_title"><?php echo Lang::txt("finance_filter_items"); ?></span>
+			<form action="<?php echo $this->modePrefix() . "multireportResult"; ?>" method="POST">
+				<div class="finance_filter_row">
+					<label for="from"><?php echo Lang::txt("finance_date_from"); ?></label>
+					<div style="display: inline-block; margin-left: 15px;">
+						<input type="date" name="from" value="<?php echo $default_from; ?>" />
+						<label for="to" style="width: 30px;"><?php echo Lang::txt("finance_date_to"); ?></label>
+						<input type="date" name="to" value="<?php echo $default_to; ?>" />
+					</div>
+				</div>
+				<div class="finance_filter_row">
+					<label for="otype"><?php echo Lang::txt("recpay_oid"); ?></label>
+					<?php 
+					$objdd = $this->getController()->getRecpayCtrl()->getView()->objectReferenceForm($default_otype, $default_oid);
+					if($default_otype != NULL) {
+						$objdd->setSelected($default_otype);
+					}
+					echo $objdd->write();
+					if($default_otype != NULL) {
+						?>
+						<script>changeReference(document.getElementById("oref"));</script>
+						<?php
+					}
+					?>
+				</div>
+				<div class="finance_filter_row">
+					<label for="accounts"><?php echo Lang::txt("accounts"); ?></label>
+					<?php 
+					$accounts = $this->getData()->findAllNoRef();
+					$objdd = new GroupSelector($accounts, array(), "accounts");
+					$objdd->additionalCssClasses("finance_multireport_account_selection");
+					echo $objdd->write();
+					?>
+				</div>
+			<input type="submit" style="margin-left: 0px;" value="<?php echo Lang::txt("finance_multireport_result_button"); ?>" />
+			</form>
+		</div>
+		<?php
+	}
+	
+	function multireportResult() {
+		// show results according to filters
+		Writing::h1(Lang::txt("finance_multireport_report_title"));
+		?>
+		<style>
+		@media print {
+			@page {size: landscape}
+			
+			.dataTables_filter {
+			    display: none;
+			}
+			
+			td.DataTable_Header {
+				color: #444444;
+				border-bottom-width: 2px;
+			}
+		}
+		</style>
+		<div id="finance_multireport_report">
+		<?php
+		
+		$accounts = $this->getData()->findAllNoRef();
+		$accountIds = GroupSelector::getPostSelection($accounts, "accounts");
+		
+		// show metrics per account in one table
+		$sumMetrics = array(array(
+			"account", "in_total_net", "in_total_tax", "in_total", "out_total_net", "out_total_tax", "out_total", "sum_net", "sum_tax", "sum_gross"
+		));
+		$sumMetricsTotals = array();
+		foreach($accountIds as $i => $accId) {			
+			$default_otype = null;
+			if($_POST['otype'] > 0) {
+				$default_otype = $_POST['otype'];
+			}
+			$default_oid = null;
+			if(isset($_POST['oid'])) {
+				$default_oid = $_POST['oid'];
+			}
+			
+			$accName = $this->getData()->findByIdNoRef($accId)['name'];
+			$metrics = $this->getData()->findBookingsMetrics($_POST["from"], $_POST['to'], $accId, $default_otype, $default_oid);
+			$accRow = array(
+				"account" => $accName,
+				"in_total_net" => $metrics[1]['total_net'],
+				"in_total_tax" => $metrics[1]['total_tax'],
+				"in_total" => $metrics[1]['total'],
+				"out_total_net" => $metrics[2]['total_net'],
+				"out_total_tax" => $metrics[2]['total_tax'],
+				"out_total" => $metrics[2]['total'],
+				"sum_net" => $metrics[1]['total_net'] - $metrics[2]['total_net'],
+				"sum_tax" => $metrics[1]['total_tax'] - $metrics[2]['total_tax'],
+				"sum_gross" => $metrics[1]['total'] - $metrics[2]['total']
+			);
+			array_push($sumMetrics, $accRow);
+			foreach($accRow as $k => $v) {
+				if(!isset($sumMetricsTotals[$k])) {
+					$sumMetricsTotals[$k] = $v;
+				}
+				else if($k != "account") {
+					$sumMetricsTotals[$k] += $v;
+				}
+			}
+		}
+		$sumMetricsTotals['account'] = Lang::txt("sum");
+		array_push($sumMetrics, $sumMetricsTotals);
+		
+		// show total
+		$mtab = new Table($sumMetrics);
+		$mtab->renameHeader("account", Lang::txt("finance_account"));
+		$mtab->renameHeader("in_total_net", Lang::txt("finance_in_total_net"));
+		$mtab->setColumnFormat("in_total_net", "DECIMAL");
+		$mtab->renameHeader("in_total_tax", Lang::txt("finance_in_total_tax"));
+		$mtab->setColumnFormat("in_total_tax", "DECIMAL");
+		$mtab->renameHeader("in_total", Lang::txt("finance_in_total"));
+		$mtab->setColumnFormat("in_total", "DECIMAL");
+		$mtab->renameHeader("out_total_net", Lang::txt("finance_out_total_net"));
+		$mtab->setColumnFormat("out_total_net", "DECIMAL");
+		$mtab->renameHeader("out_total_tax", Lang::txt("finance_out_total_tax"));
+		$mtab->setColumnFormat("out_total_tax", "DECIMAL");
+		$mtab->renameHeader("out_total", Lang::txt("finance_out_total"));
+		$mtab->setColumnFormat("out_total", "DECIMAL");
+		$mtab->renameHeader("sum_net", Lang::txt("finance_net"));
+		$mtab->setColumnFormat("sum_net", "DECIMAL");
+		$mtab->renameHeader("sum_tax", Lang::txt("finance_tax"));
+		$mtab->setColumnFormat("sum_tax", "DECIMAL");
+		$mtab->renameHeader("sum_gross", Lang::txt("finance_gross"));
+		$mtab->write();
+		?></div><?php
+	}
+	
+	function multireportResultOptions() {
+		$multi_reporting = new Link($this->modePrefix() . "multireport", Lang::txt("back"));
+		$multi_reporting->addIcon("arrow_left");
+		$multi_reporting->write();
+		$this->buttonSpace();
+		
+		$print = new Link("javascript:print()", Lang::txt("print"));
+		$print->addIcon("printer");
+		$print->write();
 	}
 }
 

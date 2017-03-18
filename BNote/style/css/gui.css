@@ -581,3 +581,22 @@ div.rehearsal_overview_box > .instrument_box {
 div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
 	font-weight: 600;
 }
+
+ul.finance_multireport_account_selection {
+	line-height: normal;
+	margin-left: 100px;
+    margin-top: -18px;
+}
+
+#finance_multireport_report td.DataTable:nth-child(4), #finance_multireport_report td.DataTable:nth-child(7) {
+	border-right: 2px solid #eee;
+}
+
+#finance_multireport_report tbody tr:last-child {
+	border-top: 2px solid #444444;
+	font-weight: 600;
+}
+
+#finance_multireport_report td.DataTable_Header {
+	padding-right: 10px;
+}

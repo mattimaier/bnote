@@ -24,4 +24,8 @@
 	.bn-table-option-column {
 		display: none;
 	}
+	
+	.dataTables_filter {
+		display: none;
+	}
 }
