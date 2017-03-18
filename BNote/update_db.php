@@ -208,6 +208,11 @@ $update = new UpdateDb();
 <p>
 <?php 
 
+/*
+ * 3.2.0 UPDATES
+ * -------------
+ */
+
 // Task 1: rename Mitspieler to Mitglieder
 $update->updateValue("group", "name", "Mitglieder", "id = 2");
 $update->updateValue("group", "name", "Externe", "id = 3");
@@ -245,6 +250,41 @@ $update->addTable("outfit", "CREATE TABLE outfit (
 				description TEXT
 				)");
 $update->addColumnToTable("concert", "outfit", "int(11)");
+
+
+/*
+ * All updates from 3.1.0 onwards
+ * ------------------------------
+ */
+// Task 1: Add title to concert table
+$update->addColumnToTable("concert", "title", "VARCHAR(255)", "NOT NULL");
+// Task 2: Add Google API Key
+$update->addDynConfigParam("google_api_key", "");
+// Task 3: Add trigger Key
+require_once $PATH_TO_SRC . "logic/defaultcontroller.php";
+require_once $PATH_TO_SRC . "logic/modules/logincontroller.php";
+$random_key = LoginController::generatePassword(12);
+$update->addDynConfigParam("trigger_key", $random_key);
+$update->addDynConfigParam("enable_trigger_service", "1");
+// Task 4: Reminder Configuration
+$update->addDynConfigParam("trigger_cycle_days", "3");
+$update->addDynConfigParam("trigger_repeat_count", "3");
+// Task 5: Associate Songs and Files
+$update->addTable("song_files", "CREATE TABLE IF NOT EXISTS song_files (
+	id INT(11) PRIMARY KEY AUTO_INCREMENT,
+	song INT(11) NOT NULL,
+	filepath VARCHAR(255) NOT NULL,
+	notes TEXT
+)");
+// Task 6: Add nickname to contact
+$update->addColumnToTable("contact", "nickname", "VARCHAR(20)");
+
+/* --------- */
+
+// Task 1a: remove primary key from program_song (#217)
+$update->removePrimaryKey("program_song");
+// Task 1b: add ID as the primary key
+$update->addColumnToTable("program_song", "id", "int(11)", "PRIMARY KEY AUTO_INCREMENT");
 
 ?>
 
