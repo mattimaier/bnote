@@ -239,6 +239,9 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	}
 	
 	
+	$notes = str_replace("\n","\\n", $notes);
+	$notes =	str_replace("\r","", $notes);
+	echo "DESCRIPTION:$notes\r\n";
 	echo "END:VEVENT\r\n";
 }
 
@@ -356,8 +359,13 @@ for($i = 1; $i < count($concerts); $i++) {
 		$line = "ATTENDEE;EROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
  		echo $line;
 	}
+	
 	echo "LOCATION:" . $location . "\r\n";
-	echo "COMMENT:" . $concerts[$i]["notes"] . "\r\n";
+	$comment = $concerts[$i]["notes"];
+		$comment = str_replace("\n","\\n", $comment);
+		$comment =	str_replace("\r","", $comment);
+				
+		echo "DESCRIPTION:" . $comment	 . "\r\n";
 	echo "END:VEVENT\r\n";
 }
 
