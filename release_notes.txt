@@ -1,5 +1,9 @@
-##
-## Release Notes
-##
+---------------
+ Release Notes
+---------------
 
+# Update BNote
+Update is possible from verion 3.1.0 onwards.
+Please make sure to copy ALL files onto your web server.
 
+# Changes to BNote in comparison with 3.1.5
