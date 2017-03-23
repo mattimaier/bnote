@@ -156,7 +156,89 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		$notes .= "keine";
 	}
 	
-	echo "COMMENT:$notes\r\n";
+	// participants
+	$query = "SELECT c.id, c.surname, c.name, c.email, ru.participate, ru.reason";
+	$query .= " FROM rehearsal_user ru, user u, contact c";
+	$query .= " WHERE ru.rehearsal = " . $rehearsals[$i]["id"] . " AND ru.user = u.id AND u.contact = c.id" ;
+
+	$contacts = $db->getSelection($query);
+	
+	unset($contacts[0]);//
+	// ids for filterting contacts without response
+	$contactIDs = array();
+	$participantsNo = array();
+	$participantsYes = array();
+	$participantsMaybe = array();
+
+	foreach($contacts as $j => $contact)
+	{
+		foreach($contact as $ck => $cv) {
+			if(is_numeric($ck)) {
+				unset($contact[$ck]);
+			}
+		}
+		array_push($contactIDs, $contact["id"]);
+
+		if ($contact["participate"] == 0)
+		{
+			array_push($participantsNo, $contact);
+		}
+		else if ($contact["participate"] == 1)
+		{
+			array_push($participantsYes, $contact);
+		}
+		else if ($contact["participate"] == 2)
+		{
+			array_push($participantsMaybe, $contact);
+		}
+	}
+
+
+	// get contacts without response (filter other contacts)
+	array_push($contactIDs, PHP_INT_MAX);
+	$contactIDsString = join(',',$contactIDs);
+
+	$query = "SELECT c.id, c.surname, c.name, c.email";
+	$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
+	$query .= " WHERE rc.rehearsal = " . $rehearsals[$i]["id"] . " AND rc.contact NOT IN (" . $contactIDsString .")";
+	$participantsNoResponse = $db->getSelection($query);
+	unset($participantsNoResponse[0]);
+
+	foreach($participantsNoResponse as $j => $contact)
+	{
+
+		foreach($contact as $ck => $cv) {
+			if(is_numeric($ck)) {
+				unset($participantsNoResponse[$j][$ck]);
+			}
+
+		}
+
+
+	}
+	
+	foreach($participantsYes as $j => $contact)
+	{
+		$line = "ATTENDEE;PARTSTAT=ACCEPTED;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	foreach($participantsNo as $j => $contact)
+	{
+		$line = "ATTENDEE;PARTSTAT=DECLINED;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	foreach($participantsMaybe as $j => $contact)
+	{
+		$line = "ATTENDEE;PARTSTAT:TENTATIVE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	foreach($participantsNoResponse as $j => $contact)
+	{
+		$line = "ATTENDEE;EROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	
+	
 	echo "END:VEVENT\r\n";
 }
 
