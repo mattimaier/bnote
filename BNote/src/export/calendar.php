@@ -361,10 +361,29 @@ for($i = 1; $i < count($concerts); $i++) {
 	}
 	
 	echo "LOCATION:" . $location . "\r\n";
+	 
 	$comment = $concerts[$i]["notes"];
-		$comment = str_replace("\n","\\n", $comment);
-		$comment =	str_replace("\r","", $comment);
-				
+
+	$program = $concerts[$i]["program_id"];
+	if (!empty($program)) 
+	{
+	$query = "SELECT s.title FROM program_song ps ";
+	$query .= "JOIN song s ON ps.song = s.id WHERE ps.program = $program ORDER BY ps.rank ASC";
+	
+	$songs = $db->getSelection($query);
+	unset($songs[0]);
+
+	$setlist = "\r\n\r\nProgramm: \r\n";
+	
+	foreach($songs as $j => $song) {
+		$setlist .= $song["title"] . "\r\n";
+	}
+	
+	$comment .= $setlist;
+	}
+
+	$comment = str_replace("\n","\\n", $comment);
+	$comment =	str_replace("\r","", $comment);
 		echo "DESCRIPTION:" . $comment	 . "\r\n";
 	echo "END:VEVENT\r\n";
 }
