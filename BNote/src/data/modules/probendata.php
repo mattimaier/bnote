@@ -37,7 +37,7 @@ class ProbenData extends AbstractData {
 	}
 	
 	function getNextRehearsal() {
-		$query = $this->defaultQuery() . " AND begin > NOW()";
+		$query = $this->defaultQuery() . " AND end > NOW()";
 		$query .= " ORDER BY begin ASC LIMIT 0,1";
 		return $this->database->getRow($query);
 	}

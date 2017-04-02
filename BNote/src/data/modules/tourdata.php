@@ -47,7 +47,7 @@ class TourData extends AbstractData {
 				JOIN tour_rehearsal t ON r.id = t.rehearsal 
 				LEFT OUTER JOIN location l ON r.location = l.id
 				LEFT OUTER JOIN address a ON l.address = a.id
-				WHERE begin > now() and t.tour = $tour_id
+				WHERE end > now() and t.tour = $tour_id
 				ORDER BY begin";
 		return $this->database->getSelection($query);
 	}
