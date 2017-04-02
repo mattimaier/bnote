@@ -171,6 +171,12 @@ class UpdateDb {
 		$this->message($this->mods[$module_id] . " privileges for all users added.");
 	}
 	
+	function getPrimaryKeys($table) {
+		$key_query = "SHOW KEYS FROM $table WHERE key_name = 'PRIMARY'";
+		$selection = $this->db->getSelection($key_query);
+		return Database::flattenSelection($selection, "Column_name");
+	}
+	
 	function removePrimaryKey($table) {
 		$key_query = "SHOW KEYS FROM $table WHERE key_name = 'PRIMARY'";
 		$selection = $this->db->getSelection($key_query);
@@ -187,7 +193,7 @@ class UpdateDb {
 	function updateValue($table, $column, $strValue, $where) {
 		$query = "UPDATE `$table` SET $column = '$strValue' WHERE $where";
 		$res = $this->db->execute($query);
-		$this->message("Updated 'Mitlgieder' and 'Externe' Group.");
+		$this->message("Updated 'Mitglieder' and 'Externe' Group.");
 	}
 	
 	function getNumberRows($table) {
@@ -256,8 +262,6 @@ $update->addColumnToTable("concert", "outfit", "int(11)");
  * All updates from 3.1.0 onwards
  * ------------------------------
  */
-// Task 1: Add title to concert table
-$update->addColumnToTable("concert", "title", "VARCHAR(255)", "NOT NULL");
 // Task 2: Add Google API Key
 $update->addDynConfigParam("google_api_key", "");
 // Task 3: Add trigger Key
@@ -279,12 +283,17 @@ $update->addTable("song_files", "CREATE TABLE IF NOT EXISTS song_files (
 // Task 6: Add nickname to contact
 $update->addColumnToTable("contact", "nickname", "VARCHAR(20)");
 
-/* --------- */
-
-// Task 1a: remove primary key from program_song (#217)
-$update->removePrimaryKey("program_song");
-// Task 1b: add ID as the primary key
-$update->addColumnToTable("program_song", "id", "int(11)", "PRIMARY KEY AUTO_INCREMENT");
+// Task 7: manage primary keys of table program_song
+$program_song_pkeys = $update->getPrimaryKeys("program_song");
+if(count($program_song_pkeys) > 1) {
+	// Task 1a: remove primary key from program_song (#217)
+	$update->removePrimaryKey("program_song");
+	// Task 1b: add ID as the primary key
+	$update->addColumnToTable("program_song", "id", "int(11)", "PRIMARY KEY AUTO_INCREMENT");
+}
+else {
+	$update->message("Primary keys in program_song ok.");
+}
 
 ?>
 
