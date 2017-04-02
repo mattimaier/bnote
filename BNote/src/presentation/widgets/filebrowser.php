@@ -24,7 +24,7 @@ class Filebrowser implements iWriteable {
 	 * These characters are removed when files are added so they don't mess up anything.
 	 * @var array Characters to be removed from filenames.
 	 */
-	private $replace_chars = array("&", "+", "/", "\\");
+	private $replace_chars = array("&", "+", "/", "\\", "#");
 	
 	/**
 	 * Root directory on the server.
