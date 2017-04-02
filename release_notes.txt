@@ -2,8 +2,29 @@
  Release Notes
 ---------------
 
-# Update BNote
+> Update BNote
 Update is possible from verion 3.1.0 onwards.
 Please make sure to copy ALL files onto your web server.
 
-# Changes to BNote in comparison with 3.1.5
+> Changes to BNote in comparison with 3.1.5
+#146: Locations can be grouped now, location group support added to other modules
+#213: Required fields for bookings improved
+#214: Multi account reporting
+#215: Transfer between accounts
+#216: Renaming of "Mitspieler" to "Mitglieder"
+#218: Massupdate of repertoire pieces
+#228: Better overview of rehearsals and participation by voicings
+#230: Show program in app
+#233: Mark required fields in important modules
+#235: restyle option bar
+#236: organizer can jump to voting quicker
+#239: Special characters in file names are handled better
+#243: Contacts can be imported from a vcard file now
+#247: Stage outfits added
+#250: Create rehearsals from vote results in app
+#251: Voicings for pieces
+#252: Filters fixed in repertoire
+#253: PHP7 and MySQLi support
+#254: Computation of sums revised
+#255: Bugfix for vote receipients
+#263: Bugfix for missing web page files
