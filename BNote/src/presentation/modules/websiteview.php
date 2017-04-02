@@ -79,6 +79,9 @@ class WebsiteView extends AbstractView {
 	function editPage($page) {
 		// setup
 		$filename = $this->getController()->getFilenameFromPage($page);
+		if(!file_exists($filename)) {
+			new BNoteError("Die HTML-Datei " . $filename . " existiert nicht.");
+		}
 		$html = file_get_contents($filename);
 		$title = ucfirst($page) . " bearbeiten";
 		$saveHref = $this->modePrefix() . "save&page=" . $page;
