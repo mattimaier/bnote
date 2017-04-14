@@ -156,7 +156,92 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		$notes .= "keine";
 	}
 	
-	echo "COMMENT:$notes\r\n";
+	// participants
+	$query = "SELECT c.id, c.surname, c.name, c.email, ru.participate, ru.reason";
+	$query .= " FROM rehearsal_user ru, user u, contact c";
+	$query .= " WHERE ru.rehearsal = " . $rehearsals[$i]["id"] . " AND ru.user = u.id AND u.contact = c.id" ;
+
+	$contacts = $db->getSelection($query);
+	
+	unset($contacts[0]);//
+	// ids for filterting contacts without response
+	$contactIDs = array();
+	$participantsNo = array();
+	$participantsYes = array();
+	$participantsMaybe = array();
+
+	foreach($contacts as $j => $contact)
+	{
+		foreach($contact as $ck => $cv) {
+			if(is_numeric($ck)) {
+				unset($contact[$ck]);
+			}
+		}
+		array_push($contactIDs, $contact["id"]);
+
+		if ($contact["participate"] == 0)
+		{
+			array_push($participantsNo, $contact);
+		}
+		else if ($contact["participate"] == 1)
+		{
+			array_push($participantsYes, $contact);
+		}
+		else if ($contact["participate"] == 2)
+		{
+			array_push($participantsMaybe, $contact);
+		}
+	}
+
+
+	// get contacts without response (filter other contacts)
+	array_push($contactIDs, PHP_INT_MAX);
+	$contactIDsString = join(',',$contactIDs);
+
+	$query = "SELECT c.id, c.surname, c.name, c.email";
+	$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
+	$query .= " WHERE rc.rehearsal = " . $rehearsals[$i]["id"] . " AND rc.contact NOT IN (" . $contactIDsString .")";
+	$participantsNoResponse = $db->getSelection($query);
+	unset($participantsNoResponse[0]);
+
+	foreach($participantsNoResponse as $j => $contact)
+	{
+
+		foreach($contact as $ck => $cv) {
+			if(is_numeric($ck)) {
+				unset($participantsNoResponse[$j][$ck]);
+			}
+
+		}
+
+
+	}
+	
+	foreach($participantsYes as $j => $contact)
+	{
+		$line = "ATTENDEE;PARTSTAT=ACCEPTED;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	foreach($participantsNo as $j => $contact)
+	{
+		$line = "ATTENDEE;PARTSTAT=DECLINED;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	foreach($participantsMaybe as $j => $contact)
+	{
+		$line = "ATTENDEE;PARTSTAT=TENTATIVE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	foreach($participantsNoResponse as $j => $contact)
+	{
+		$line = "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	
+	
+	$notes = str_replace("\n","\\n", $notes);
+	$notes =	str_replace("\r","", $notes);
+	echo "DESCRIPTION:$notes\r\n";
 	echo "END:VEVENT\r\n";
 }
 
@@ -198,8 +283,108 @@ for($i = 1; $i < count($concerts); $i++) {
 		$location = $concerts[$i]["location_name"] . " (" . $concerts[$i]["location_street"] . "\\, ";
 		$location .= $concerts[$i]["location_city"] . ")";
 	}
+	
+	
+	$query = "SELECT c.id, c.surname, c.name, c.email, cu.participate, cu.reason";
+	$query .= " FROM concert_user cu, user u, contact c";
+	$query .= " WHERE cu.concert = " . $concerts[$i]["id"] . " AND cu.user = u.id AND u.contact = c.id" ;
+	$contacts = $db->getSelection($query);
+	unset($contacts[0]);
+
+	// ids for filterting contacts without response
+	$contactIDs = array();
+	$participantsNo = array();
+	$participantsYes = array();
+	$participantsMaybe = array();
+				
+	foreach($contacts as $j => $contact) 
+	{
+		foreach($contact as $ck => $cv) {
+			if(is_numeric($ck)) {
+				unset($contact[$ck]);
+			}
+		}
+		array_push($contactIDs, $contact["id"]);
+		
+		if ($contact["participate"] == 0)
+		{
+			array_push($participantsNo, $contact);
+		}
+		else if ($contact["participate"] == 1)
+		{
+			array_push($participantsYes, $contact);
+		}
+		else if ($contact["participate"] == 2)
+		{
+			array_push($participantsMaybe, $contact);
+		}
+	}
+
+	// get contacts without response (filter other contacts)
+	array_push($contactIDs, PHP_INT_MAX);
+	$contactIDsString = join(',',$contactIDs);  
+	
+	$query = "SELECT c.id, c.surname, c.name";
+	$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
+	$query .= " WHERE cc.concert = " . $concerts[$i]["id"] . " AND cc.contact NOT IN (" . $contactIDsString .")";
+	$participantsNoResponse = $db->getSelection($query);
+	unset($participantsNoResponse[0]);
+	
+	foreach($participantsNoResponse as $j => $contact) 
+	{
+		foreach($contact as $ck => $cv) {
+			if(is_numeric($ck)) {
+				unset($participantsNoResponse[$j][$ck]);
+			}
+		}
+	}
+	
+	foreach($participantsYes as $j => $contact)
+	{
+		$line = "ATTENDEE;PARTSTAT=ACCEPTED;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	foreach($participantsNo as $j => $contact)
+	{
+		$line = "ATTENDEE;PARTSTAT=DECLINED;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	foreach($participantsMaybe as $j => $contact)
+	{
+		$line = "ATTENDEE;PARTSTAT=TENTATIVE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	foreach($participantsNoResponse as $j => $contact)
+	{
+		$line = "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+ 		echo $line;
+	}
+	
 	echo "LOCATION:" . $location . "\r\n";
-	echo "COMMENT:" . $concerts[$i]["notes"] . "\r\n";
+	 
+	$comment = $concerts[$i]["notes"];
+
+	$program = $concerts[$i]["program_id"];
+	if (!empty($program)) 
+	{
+	$query = "SELECT s.title FROM program_song ps ";
+	$query .= "JOIN song s ON ps.song = s.id WHERE ps.program = $program ORDER BY ps.rank ASC";
+	
+	$songs = $db->getSelection($query);
+	unset($songs[0]);
+
+	$setlist = "\r\n\r\nProgramm: \r\n";
+	
+	foreach($songs as $j => $song) {
+		$setlist .= $song["title"] . "\r\n";
+	}
+	
+	$comment .= $setlist;
+	}
+
+	$comment = str_replace("\n","\\n", $comment);
+	$comment =	str_replace("\r","", $comment);
+		echo "DESCRIPTION:" . $comment	 . "\r\n";
 	echo "END:VEVENT\r\n";
 }
 
