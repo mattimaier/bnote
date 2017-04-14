@@ -200,7 +200,7 @@ class ApplicationDataProvider {
 		$query = "SELECT r.id as id, begin, end, approve_until, r.notes as notes, name, street, city, zip, l.id as location";
 		$query .= " FROM rehearsal r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
-		$query .= " AND begin > NOW() ORDER BY begin ASC";		
+		$query .= " AND end > NOW() ORDER BY begin ASC";		
 		return $this->database->getSelection($query);
 	}
 	
@@ -232,7 +232,7 @@ class ApplicationDataProvider {
 		// get all future concerts
 		// super users will see it all
 		if($this->sysdata->isUserSuperUser($uid)) {
-			$query = "SELECT * FROM concert WHERE begin > NOW() ORDER BY begin, end";
+			$query = "SELECT * FROM concert WHERE end > NOW() ORDER BY begin, end";
 			$concerts = $this->database->getSelection($query);
 		}
 		else {

@@ -93,7 +93,7 @@ class ProbenphasenData extends AbstractData {
 	}
 	
 	function getFutureConcerts() {
-		$query = "SELECT * FROM concert WHERE begin > NOW() ORDER BY begin, end";
+		$query = "SELECT * FROM concert WHERE end > NOW() ORDER BY begin, end";
 		return $this->database->getSelection($query);
 	}
 	

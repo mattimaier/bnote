@@ -1608,7 +1608,7 @@ abstract class AbstractBNA implements iBNA {
 	
 	public function getReservations() {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
-		$entities = $calData->findAllNoRefWhere("begin >= NOW()");
+		$entities = $calData->findAllNoRefWhere("end >= NOW()");
 		unset($entities[0]);
 		$reservations = array();
 		foreach($entities as $i => $entity) {
