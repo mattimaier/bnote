@@ -229,12 +229,12 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	}
 	foreach($participantsMaybe as $j => $contact)
 	{
-		$line = "ATTENDEE;PARTSTAT:TENTATIVE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+		$line = "ATTENDEE;PARTSTAT=TENTATIVE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
  		echo $line;
 	}
 	foreach($participantsNoResponse as $j => $contact)
 	{
-		$line = "ATTENDEE;EROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+		$line = "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
  		echo $line;
 	}
 	
@@ -351,12 +351,12 @@ for($i = 1; $i < count($concerts); $i++) {
 	}
 	foreach($participantsMaybe as $j => $contact)
 	{
-		$line = "ATTENDEE;PARTSTAT:TENTATIVE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+		$line = "ATTENDEE;PARTSTAT=TENTATIVE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
  		echo $line;
 	}
 	foreach($participantsNoResponse as $j => $contact)
 	{
-		$line = "ATTENDEE;EROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
+		$line = "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
  		echo $line;
 	}
 	
