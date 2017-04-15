@@ -11,10 +11,12 @@ class WebsiteController extends DefaultController {
 	private $gallery_dir; //directory including path
 	private $default_image_width; // integer in pixel
 	private $default_thumbnail_height; // integer in pixel
+	private $webpages_dir;
 	
 	function __construct() {
 		$this->thumb_dir = $GLOBALS["DATA_PATHS"]["gallery"] . "thumbs/";
 		$this->gallery_dir = $GLOBALS["DATA_PATHS"]["gallery"];
+		$this->webpages_dir = $GLOBALS["DATA_PATHS"]["webpages"];
 		
 		$this->default_image_width = 800;
 		$this->default_thumbnail_height = 50;
@@ -45,7 +47,12 @@ class WebsiteController extends DefaultController {
 	}
 	
 	function getFilenameFromPage($page) {
-		return $GLOBALS["DATA_PATHS"]["webpages"] . $page . ".html";
+		$this->createDirIfNotExists($this->webpages_dir);
+		$page_file = $this->webpages_dir . $page . ".html";
+		if(!file_exists($page_file)) {
+			file_put_contents($page_file, "");
+		}
+		return $page_file;
 	}
 	
 	function getFilenameForInfo($id) {
@@ -55,11 +62,20 @@ class WebsiteController extends DefaultController {
 	}
 	
 	function getThumbnailDir() {
+		$this->createDirIfNotExists($this->gallery_dir);
+		$this->createDirIfNotExists($this->thumb_dir);
 		return $this->thumb_dir;
 	}
 	
 	function getGalleryDir() {
+		$this->createDirIfNotExists($this->gallery_dir);
 		return $this->gallery_dir;
+	}
+	
+	private function createDirIfNotExists($dir) {
+		if(!file_exists($dir)) {
+			mkdir($dir);
+		}
 	}
 	
 	/**
