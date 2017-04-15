@@ -27,4 +27,8 @@ Please make sure to copy ALL files onto your web server.
 #253: PHP7 and MySQLi support
 #254: Computation of sums revised
 #255: Bugfix for vote receipients
+#258: Calendar export/subscription with notes and participants
+#260: Show current event until end
+#261: update_db.php refreshed for upgrades from 3.1.x to 3.2.0
 #263: Bugfix for missing web page files
+#267: Website module upgraded to PHP7 and file/dir handling improved
