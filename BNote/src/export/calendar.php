@@ -75,7 +75,7 @@ echo "PRODID:" . $system_data->getSystemURL() . "\r\n";
 
 // add timezone definition
 echo "BEGIN:VTIMEZONE\r\n";
-echo "TZID:GMT +0000 (Standard) / GMT +0000 (Daylight)\r\n";
+echo "TZID:Europe/Berlin\r\n";
 echo "TZURL:http://tzurl.org/zoneinfo-outlook/Europe/Berlin\r\n";
 echo "X-LIC-LOCATION:Europe/Berlin\r\n";
 echo "BEGIN:DAYLIGHT\r\n";
