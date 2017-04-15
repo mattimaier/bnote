@@ -38,7 +38,8 @@ class WebsiteController extends DefaultController {
 				$this->getView()->start();
 			}
 			else {
-				$this->getView()->$_GET['mode']();
+				$mode = $_GET['mode'];
+				$this->getView()->$mode();
 			}
 		}
 		else {
