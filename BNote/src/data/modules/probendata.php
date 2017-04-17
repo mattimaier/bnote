@@ -394,7 +394,7 @@ class ProbenData extends AbstractData {
 		$query = "SELECT rehearsal.id, begin, end, location.name as Location, address.street, address.zip, address.city ";
 		$query .= "FROM rehearsal JOIN location ON rehearsal.location = location.id ";
 		$query .= "LEFT JOIN address ON location.address = address.id ";
-		$query .= "WHERE YEAR(begin) = $year ORDER BY begin DESC";
+		$query .= "WHERE end < now() ORDER BY begin DESC";
 		return $this->database->getSelection($query);
 	}
 	

@@ -9,7 +9,7 @@ Requirements
 	- an accessible host configuration
 	- modrewrite
 	- htaccess activated
-	- at least PHP 5.6 module	
+	- at least PHP 5.6 module (PHP7 ready)
 - MySQL or MariaDB Server supporting MySQLi driver
 - preferrably Linux OS
 
