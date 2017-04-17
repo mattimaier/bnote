@@ -293,6 +293,11 @@ class StartView extends AbstractView {
 				$dataview->addElement(Lang::txt("title"), $row["title"]);
 				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($row["begin"]));
 				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($row["end"]));
+				$dataview->addElement(Lang::txt("tour_concert_approve_until"), Data::convertDateFromDb($row["approve_until"]));
+				
+				// add button to show participants
+				$participantsButton = new Link($this->modePrefix() . "concertParticipants&id=" . $row["id"], "Teilnehmer anzeigen");
+				$dataview->addElement(Lang::txt("participants"), $participantsButton->toString());
 				
 				if($row['outfit'] > 0) {
 					$outfitRow = $this->getData()->getOutfit($row['outfit']);
@@ -319,6 +324,9 @@ class StartView extends AbstractView {
 					$viewProg = new Link($this->modePrefix() . "viewProgram&id=" . $row["program_id"], Lang::txt("start_viewProgram"));
 					$program .= "<br/><br/>" . $viewProg->toString();
 					$dataview->addElement(Lang::txt("program"), $program);
+				}
+				if($row["notes"] != "") {
+					$dataview->addElement(Lang::txt("notes"), $row["notes"]);
 				}
 				
 				// show static map if Google key is set
@@ -672,6 +680,22 @@ class StartView extends AbstractView {
 	}
 	
 	public function rehearsalParticipantsOptions() {
+		$this->backToStart();
+	}
+	
+	public function concertParticipants() {
+		$rehearsal = $this->getData()->getRehearsal($_GET["id"]);
+		Writing::h2(Lang::txt("start_participantsOfConcert", array(Data::convertDateFromDb($rehearsal["begin"]))));
+		
+		$parts = $this->getData()->getConcertParticipants($_GET["id"]);
+		$table = new Table($parts);
+		$table->renameHeader("name", Lang::txt("firstname"));
+		$table->renameHeader("surname", Lang::txt("surname"));
+		$table->renameHeader("nickname", Lang::txt("nickname"));
+		$table->write();
+	}
+	
+	public function concertParticipantsOptions() {
 		$this->backToStart();
 	}
 	

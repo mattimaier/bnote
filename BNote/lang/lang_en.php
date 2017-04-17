@@ -199,6 +199,7 @@ class Translation extends BNoteTranslation {
 			"start_composer" => "Composer",
 			"start_notes" => "Notes",
 			"start_participantsOfRehearsal" => "Participants of the rehearsal on %p",
+			"start_participantsOfConcert" => "Participants of gig on %p",
 			"start_noNews" => "No news",
 			"start_discussionsDeactivated" => "Discussions are deactivated.",
 			"start_giveDiscussionReason" => "Please enter a discussion matter.",

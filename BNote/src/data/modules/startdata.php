@@ -105,6 +105,15 @@ class StartData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
+	function getConcertParticipants($cid) {
+		$query = "SELECT c.name, c.surname, c.nickname, i.name as instrument ";
+		$query .= "FROM concert_user r, user u, contact c, instrument i ";
+		$query .= "WHERE r.participate = 1 AND ";
+		$query .= "r.concert = $cid AND r.user = u.id AND u.contact = c.id AND c.instrument = i.id ";
+		$query .= "ORDER BY name, surname, instrument";
+		return $this->database->getSelection($query);
+	}
+	
 	function getVotesForUser($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
 		
