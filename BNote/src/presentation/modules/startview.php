@@ -213,7 +213,7 @@ class StartView extends AbstractView {
 						$strSongs .= $songs[$j]["title"];
 						if($songs[$j]["notes"] != "") $strSongs .= " (" . $songs[$j]["notes"] . ")";
 					}
-					$dataview->addElement("start_songsToPractise", $strSongs);
+					$dataview->addElement(Lang::txt("start_songsToPractise"), $strSongs);
 				}
 				
 				// add button to show participants
