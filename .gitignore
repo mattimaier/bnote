@@ -10,3 +10,5 @@ TriggerServer/.project
 TriggerServer/.buildpath
 TriggerServer/db.xml
 BNote-Releases/tmp/
+.idea
+.metadata
