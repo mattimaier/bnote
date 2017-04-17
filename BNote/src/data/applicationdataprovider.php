@@ -319,6 +319,19 @@ class ApplicationDataProvider {
 				);
 			}
 			
+			// resolve outfit
+			if($concerts[$i]["outfit"] != "") {
+				$q5 = "SELECT name, description FROM outfit WHERE id = " . $concerts[$i]["outfit"];
+				$outfit = $this->database->getRow($q5);
+				$outfit_out = $outfit["name"];
+				if($outfit["description"] != "") {
+					$outfit_out .= ": " . $outfit["description"];
+				}
+			}
+			else {
+				$outfit_out = "-";
+			}
+			
 			// build result for by row
 			array_push($result, array(
 				"id" => $concerts[$i]["id"],
@@ -340,7 +353,7 @@ class ApplicationDataProvider {
 				"program_id" => $concerts[$i]["program"],
 				"program_name" => $program["name"],
 				"program_notes" => $program["notes"],
-				"outfit" => $concerts[$i]['outfit']
+				"outfit" => $outfit_out
 			));
 		}
 		return $result;

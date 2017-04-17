@@ -62,12 +62,14 @@ sap.ui.jsview("bnote.concert", {
                 // title     
 				new sap.m.Label({text: "Titel"}),
 				new sap.m.Text({text: "{title}"}),
+                
                 // begin
                 new sap.m.Label({text: "Auftrittsbeginn"}),
                 new sap.m.Text({text: "{begin}"}),
                 // end
                 new sap.m.Label({text: "Auftrittsende"}),
                 new sap.m.Text({text: "{end}"}),
+                
                 // location
                 new sap.m.Label({text: "Ort"}),
                 new sap.m.Text({text: "{location/name}"}),               
@@ -77,6 +79,11 @@ sap.ui.jsview("bnote.concert", {
                 	href: "{location/link}", 
                 	target: "_blank"
                 }),
+                
+                // outfit
+                new sap.m.Label({text: "Outfit"}),
+                new sap.m.Text({text: "{outfit}"}),
+                
                 // notes
                 new sap.m.Label({text: "Anmerkungen"}),
                 new sap.m.Text({text: "{notes}"}),
