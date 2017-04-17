@@ -26,7 +26,7 @@ class UserView extends CrudRefView {
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->renameHeader("contactsurname", "Nachname");
 		$table->renameHeader("contactname", "Vorname");
-		$table->renameHeader("isactive", "Akiver Benutzer");
+		$table->renameHeader("isactive", "Aktiver Benutzer");
 		$table->setColumnFormat("lastlogin", "DATE");
 		$table->write();
 	}
