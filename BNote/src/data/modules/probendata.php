@@ -399,7 +399,7 @@ class ProbenData extends AbstractData {
 	}
 	
 	public function getUsedInstruments() {
-		$query = "SELECT i.* FROM instrument i JOIN contact c ON c.instrument = i.id";
+		$query = "SELECT DISTINCT i.* FROM instrument i JOIN contact c ON c.instrument = i.id";
 		return $this->database->getSelection($query);
 	}
 }
