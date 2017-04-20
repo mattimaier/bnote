@@ -145,3 +145,10 @@ background-color: #fff;
 	font-size: 14pt;
 	color: #fff;
 }
+
+#calendar_eventdetail {
+	border: 0px solid #e0e0e0;
+    border-top-width: 1px;
+    margin-top: 0px;
+    padding: 10px;
+}

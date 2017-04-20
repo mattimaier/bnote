@@ -67,11 +67,25 @@ $(document).ready(function() {
 		height: "auto",
 		lang: "de",
 		eventClick: function(calEvent, jsEvent, view) {
-			if(calEvent.bnoteType) {
-				window.location.href = "main.php" + calEvent.link;
+			if(calEvent.bnoteType) {				
+				$('#calendar_eventdetail_title').text(calEvent.title);
+				
+				// show details object
+				$('#calendar_eventdetail_block').text("");
+				
+				for(var k in calEvent.details) {
+					if(k == "id") continue;
+					$('#calendar_eventdetail_block').append('<div class="calendar_eventdetail_keyvalue">'
+							+ '<label class="calendar_eventdetail_key">' + k + '</label>' 
+							+ '<span class="calendar_eventdetail_value">'+ calEvent.details[k] + '</span></div>');
+				}
+				
+				$('#calendar_eventdetail').show();
+				//window.location.href = "main.php" + calEvent.link;
 			}
 		}
     });
+	$('#calendar_eventdetail').hide();
 	
 	$(".copyDateOrigin").on('change', function(event) {
 		// get all origin values and build target values

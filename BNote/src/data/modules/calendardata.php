@@ -44,6 +44,8 @@ class CalendarData extends AbstractData {
 		for($i = 1; $i < count($dbsel); $i++) {
 			$row = $dbsel[$i];
 			$res_row = array();
+			$res_row["details"] = array();
+			
 			foreach($fields as $field) {
 				if(isset($key_replace[$field])) {
 					$res_row[$key_replace[$field]] = $row[$field];
@@ -53,9 +55,17 @@ class CalendarData extends AbstractData {
 				}
 				
 				// special replacements for dates
-				if(($field == "start" || $field == "end") && isset($res_row[$field])) {
+				if(($field == "begin" || $field == "end") && isset($res_row[$field])) {
 					$res_row[$field] = str_replace(" ", "T", $res_row[$field]);
 				}
+				
+				// details
+				if($field == "id") continue;
+				$detailValue = $row[$field];
+				if($field == "begin" || $field == "end" || $field == "approve_until" || $field == "birthday") {
+					$detailValue = Data::convertDateFromDb($detailValue);
+				}
+				$res_row["details"][Lang::txt("calendar_" . $field)] = $detailValue;
 			}
 			
 			if(isset($res_row["title"])) {

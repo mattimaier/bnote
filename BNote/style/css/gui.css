@@ -600,3 +600,9 @@ ul.finance_multireport_account_selection {
 #finance_multireport_report td.DataTable_Header {
 	padding-right: 10px;
 }
+
+label.calendar_eventdetail_key {
+    width: 100px;
+    display: inline-block;
+    color: #436f98;
+}

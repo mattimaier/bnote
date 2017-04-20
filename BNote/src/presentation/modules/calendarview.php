@@ -25,6 +25,12 @@ class CalendarView extends CrudRefView {
 		
 		<div id='calendar'></div>
 		
+		<div id="calendar_eventdetail">
+			<h3 id="calendar_eventdetail_title"></h3>
+			<div id="calendar_eventdetail_block">
+			</div>
+		</div>
+		
 		<script>
 		$(function() {
 			$("#calendar").fullCalendar( 'addEventSource', {
