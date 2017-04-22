@@ -7,3 +7,11 @@ Update is possible from verion 3.2.0 onwards.
 Please make sure to copy ALL files onto your web server.
 
 > Changes to BNote in comparison with 3.2.0
+#268: Filter members by preselected group when integrating them into the ensemble
+#270: remove duplicates from rehearsal overview
+#271: do not show future rehearsals in past rehearsals
+#272: typo fix for active users
+#273: calendar with details view
+#274: outfit display in web app
+#275: improve concert details on start page
+#276: start rehearsal details pieces to practise wo/ technical label
