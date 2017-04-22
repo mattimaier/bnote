@@ -39,7 +39,15 @@ class KontakteView extends CrudRefView {
 		parent::startOptions();
 		$this->buttonSpace();
 		
-		$eps = new Link($this->modePrefix() . "integration", "Einphasung");
+		// set group filter if group is selected
+		$groupFilter = "&group=";
+		if(isset($_GET["group"])) {
+			$groupFilter .= $_GET["group"];
+		}
+		else {
+			$groupFilter .= KontakteData::$GROUP_MEMBER; // members by default
+		}
+		$eps = new Link($this->modePrefix() . "integration" . $groupFilter, "Einphasung");
 		$eps->addIcon("integration");
 		$eps->write();
 		$this->buttonSpace();
@@ -420,10 +428,8 @@ class KontakteView extends CrudRefView {
 	}
 	
 	function integration() {
-		Writing::h2("Einphasung neuer Mitglieder");
-		Writing::p("Wähle zunächst die Mitglieder aus, die du einphasen möchtest.
-				Dann klickst du alle Einträge an, die du diesen Mitgliedern zuweisen möchtest.
-				Schließlich klickst du auf den Speichern Button um die Zuweisungen zu speichern.");
+		Writing::h2(Lang::txt("contacts_integration_header"));
+		Writing::p(Lang::txt("contacts_integration_text"));
 		?>
 		<form method="POST" action="<?php echo $this->modePrefix(); ?>integration_process">
 		<div class="start_box_table">
@@ -431,8 +437,9 @@ class KontakteView extends CrudRefView {
 				<div class="start_box">
 					<div class="start_box_heading">Mitglieder</div>
 					<div class="start_box_content">
-						<?php 
-						$members = $this->getData()->getMembers();
+						<?php
+						$grpFilter = isset($_GET["group"]) ? $_GET["group"] : null;
+						$members = $this->getData()->getMembers($grpFilter);
 						$group = new GroupSelector($members, array(), "member");
 						$group->setNameColumns(array("name", "surname"));
 						echo $group->write();

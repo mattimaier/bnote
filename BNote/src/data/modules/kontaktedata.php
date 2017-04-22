@@ -52,10 +52,18 @@ class KontakteData extends AbstractData {
 	}
 	
 	/**
-	 * Returns all members and admins.
+	 * @return array Members of a group, if "null" then by default just members and admins, if "all" then all contacts.
 	 */
-	function getMembers() {
-		return $this->getGroupContacts(KontakteData::$GROUP_MEMBER);
+	function getMembers($groupFilter=NULL) {
+		if($groupFilter == null) {
+			return $this->getGroupContacts(KontakteData::$GROUP_MEMBER);
+		}
+		else if($groupFilter == "all") {
+			return $this->getAllContacts();
+		}
+		else {
+			return $this->getGroupContacts($groupFilter);
+		}
 	}
 	
 	function getAdmins() {

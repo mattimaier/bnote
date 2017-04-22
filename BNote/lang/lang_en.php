@@ -375,6 +375,13 @@ class Translation extends BNoteTranslation {
 			"tour_equipment_saved" => "Equipment Saved",
 			"tour_equipment_saved_msg" => "The list of equipment for this tour has been saved.",
 			
+			// module: contacts
+			"contacts_integration_header" => "Integration of New Members",
+			"contacts_integration_text" => "Select the members your want to integrate first.
+				If you do not see all members, make sure to select the correcr group on the screen
+				before this. Select all entries where you want to add these new members. Finally
+				hit save to add the associations.",
+			
 			"reservation" => "Reservation",
 			"reservations" => "Reservations",
 			"reservation_id" => "Reservation No."

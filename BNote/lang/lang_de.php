@@ -293,6 +293,7 @@ class Translation extends BNoteTranslation {
 			"finance_tax" => "∑ Steuern",
 			"finance_gross" => "∑ Brutto",
 			
+			// module: finance
 			"finance_recpay" => "Laufende Zahlungen",
 			"recurringpayment" => "Laufende Zahlung",
 			"recpay_account" => "Konto",
@@ -306,6 +307,7 @@ class Translation extends BNoteTranslation {
 			"recpay_book_success_title" => "Buchung erfolgreich",
 			"recpay_book_success_msg" => "Alle Buchungen wurden erfolgreich eingefügt.",
 			
+			// module: calendar
 			"calendar_rehearsal" => "Probe",
 			"calendar_concert" => "Auftritt",
 			"calendar_end_vote" => "Abst.-Ende:",
@@ -321,12 +323,14 @@ class Translation extends BNoteTranslation {
 			"calendar_title" => "Name",
 			"calendar_birthday" => "Geburtstag",
 			
+			// module: equipment
 			"equipment_model" => "Modell",
 			"equipment_make" => "Marke",
 			"equipment_purchase_price" => "Einkaufspreis",
 			"equipment_current_value" => "Aktueller Wert",
 			"equipment_quantity" => "Menge",
 			
+			// module: tour
 			"tour_details" => "Details",
 			"tour_heading" => "Tourplanung",
 			"tour_summarysheet" => "Toursheet",
@@ -374,6 +378,15 @@ class Translation extends BNoteTranslation {
 			"tour_equipment_saved" => "Equipment gespeichert",
 			"tour_equipment_saved_msg" => "Die Equipmentliste für die Tour wurde gespeichert.",
 			
+			// module: contacts
+			"contacts_integration_header" => "Einphasung neuer Mitglieder",
+			"contacts_integration_text" => "Wähle zunächst die Mitglieder aus, die du einphasen möchtest.
+				Werden dir nicht alle Kontakte angezeigt, wähle in der Hauptübersicht (vorheriger Bildschirm),
+				zunächst die <i>richtige</i> Gruppe aus und wähle dann <i>Einphasung</i>.
+				Klicke alle Einträge an, die du diesen Mitgliedern zuweisen möchtest.
+				Schließlich klickst du auf den Speichern Button um die Zuweisungen zu speichern.",
+			
+			// misc
 			"reservation" => "Reservierung",
 			"reservations" => "Reservierungen",
 			"reservation_id" => "Reservierungsnr."
