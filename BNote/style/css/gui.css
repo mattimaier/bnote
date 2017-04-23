@@ -573,13 +573,18 @@ div.rehearsal_overview_header {
 
 div.rehearsal_overview_box > .instrument_box {
 	display: inline-block;
-	width: 200px;
-	padding-left: 5px;
-	padding-top: 3px;
+    width: 200px;
+    padding-top: 3px;
+    vertical-align: top;
+    margin-bottom: 10px;
 }
 
 div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
 	font-weight: 600;
+}
+
+.player_participation_line {
+    padding-top: 2px;
 }
 
 ul.finance_multireport_account_selection {
