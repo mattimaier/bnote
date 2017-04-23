@@ -206,7 +206,7 @@ class StartView extends AbstractView {
 				}
 				
 				$songs = $this->getData()->getSongsForRehearsal($data[$i]["id"]);
-				if(count($songs) > 2) {
+				if(count($songs) > 1) {
 					$strSongs = "";
 					for($j = 1; $j < count($songs); $j++) {
 						if($j > 1) $strSongs .= ", ";
