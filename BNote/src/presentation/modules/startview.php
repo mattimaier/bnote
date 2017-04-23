@@ -684,8 +684,8 @@ class StartView extends AbstractView {
 	}
 	
 	public function concertParticipants() {
-		$rehearsal = $this->getData()->getRehearsal($_GET["id"]);
-		Writing::h2(Lang::txt("start_participantsOfConcert", array(Data::convertDateFromDb($rehearsal["begin"]))));
+		$concert = $this->getData()->getConcert($_GET["id"]);
+		Writing::h2(Lang::txt("start_participantsOfConcert", array(Data::convertDateFromDb($concert["begin"]))));
 		
 		$parts = $this->getData()->getConcertParticipants($_GET["id"]);
 		$table = new Table($parts);
