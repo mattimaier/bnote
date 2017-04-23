@@ -489,6 +489,7 @@ class KontakteView extends CrudRefView {
 			</div>
 		</div>
 		
+		<input type="hidden" name="group" value="<?php echo isset($_GET["group"]) ? $_GET["group"] : ""; ?>" />
 		<input type="submit" value="speichern" />
 		</form>
 		<?php

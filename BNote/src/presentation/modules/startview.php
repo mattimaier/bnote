@@ -407,7 +407,7 @@ class StartView extends AbstractView {
 				$dataview->addElement(Lang::txt("description"), $row["description"]);
 				$dataview->addElement(Lang::txt("dueAt"), Data::convertDateFromDb($row["due_at"]));
 				$lnk = $this->modePrefix() . "taskComplete&id=" . $row["id"];
-				$this->writeBoxListItem("T", $row["id"],"t" + $row["id"], $liCaption, $dataview, "", Lang::txt("start_markAsCompleted"), $lnk);
+				$this->writeBoxListItem("T", $row["id"],"t" . $row["id"], $liCaption, $dataview, "", Lang::txt("start_markAsCompleted"), $lnk);
 			}
 		}
 		echo "</ul>\n";
@@ -456,7 +456,7 @@ class StartView extends AbstractView {
 			$dataview->addElement(Lang::txt("name"), $row["name"]);
 
 			$link = $this->modePrefix() . "voteOptions&id=" . $row["id"];
-			$this->writeBoxListItem("B", $row["id"], "b" + $row["id"], $liCaption, $dataview, "", Lang::txt("vote"));
+			$this->writeBoxListItem("B", $row["id"], "b" . $row["id"], $liCaption, $dataview, "", Lang::txt("vote"));
 		}
 		echo "</ul>\n";
 	}
