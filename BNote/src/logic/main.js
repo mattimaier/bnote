@@ -80,6 +80,12 @@ $(document).ready(function() {
 							+ '<span class="calendar_eventdetail_value">'+ calEvent.details[k] + '</span></div>');
 				}
 				
+				if(calEvent.access) {
+					$('#calendar_eventdetail_block').append(
+							'<a class="linkbox" href="' + calEvent.link + '">' +
+							'<div class="linkbox" style="margin-top: 10px;">Details</div></a>');
+				}
+				
 				$('#calendar_eventdetail').show();
 				//window.location.href = "main.php" + calEvent.link;
 			}

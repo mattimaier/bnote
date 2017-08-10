@@ -10,3 +10,4 @@ Please make sure to copy ALL files onto your web server.
 #277: fixing a missing column in the installer script for the repertoire
 #281: case-sensitive webservers can handle the start icon better now
 #282: add another contact button
+#279: detail link for events the user has access to

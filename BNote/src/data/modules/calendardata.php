@@ -41,6 +41,23 @@ class CalendarData extends AbstractData {
 	
 	private function reduce_data($entityType, $dbsel, $fields, $key_replace=array(), $title_prefix="", $link="#") {
 		$result = array();
+		
+		// check if the user has access to the module associated with the entity type to provide an edit button for the event
+		$modName = null;
+		switch($entityType) {
+			case "rehearsal": $modName = "Proben"; break;
+			case "phase": $modName = "Probenphasen"; break;
+			case "concert": $modName = "Konzerte"; break;
+			case "vote": $modName = "Abstimmung"; break;
+			case "contact": $modName = "Kontakte"; break;
+			case "reservation": $modName = "Calendar"; break;
+		}
+		$modAccess = false;
+		if($modName != null) {
+			$modAccess = $this->getSysdata()->userHasPermission($this->getSysdata()->getModuleId($modName));
+		}
+		
+		// compile result
 		for($i = 1; $i < count($dbsel); $i++) {
 			$row = $dbsel[$i];
 			$res_row = array();
@@ -76,6 +93,7 @@ class CalendarData extends AbstractData {
 			}
 			$res_row["bnoteType"] = $entityType;
 			$res_row["link"] = $link . $res_row["id"];
+			$res_row["access"] = $modAccess;
 			array_push($result, $res_row);
 		}
 		
