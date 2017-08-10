@@ -215,85 +215,11 @@ $update = new UpdateDb();
 <?php 
 
 /*
- * 3.2.0 UPDATES
+ * 3.x.x UPDATES
  * -------------
  */
 
-// Task 1: rename Mitspieler to Mitglieder
-$update->updateValue("group", "name", "Mitglieder", "id = 2");
-$update->updateValue("group", "name", "Externe", "id = 3");
-
-// Task 2a: location types
-$update->addTable("location_type", "CREATE TABLE location_type (
-			id INT(11) PRIMARY KEY AUTO_INCREMENT,
-			name VARCHAR(50) NOT NULL
-			)");
-
-// Task 2b: add default location types
-if($update->getNumberRows("location_type") == 0) {
-	$query = "INSERT INTO location_type (name) 
-		VALUES ('Probenräume'), ('Veranstaltungsorte'), ('Übernachtungsmöglichkeiten'), ('Studios'), ('Sonstige')";
-	$update->executeQuery($query);
-	$update->message("Create location type values in database.");
-}
-
-// Task 2c: add reference column to location
-$update->addColumnToTable("location", "location_type", "INT(11)", "DEFAULT 1");
-
-// Task 3: old fix
-$update->addColumnToTable("concert", "title", "VARCHAR(150)");
-
-// Task 4: add repository field for setting
-$update->addColumnToTable("song", "setting", "VARCHAR(300)");
-
-// Task 5a: Outfit module
-$update->addModule("Outfits");
-
-// Task 5b: Outfit table
-$update->addTable("outfit", "CREATE TABLE outfit (
-				id INT(11) PRIMARY KEY AUTO_INCREMENT,
-				name VARCHAR(50) NOT NULL,
-				description TEXT
-				)");
-$update->addColumnToTable("concert", "outfit", "int(11)");
-
-
-/*
- * All updates from 3.1.0 onwards
- * ------------------------------
- */
-// Task 2: Add Google API Key
-$update->addDynConfigParam("google_api_key", "");
-// Task 3: Add trigger Key
-require_once $PATH_TO_SRC . "logic/defaultcontroller.php";
-require_once $PATH_TO_SRC . "logic/modules/logincontroller.php";
-$random_key = LoginController::generatePassword(12);
-$update->addDynConfigParam("trigger_key", $random_key);
-$update->addDynConfigParam("enable_trigger_service", "1");
-// Task 4: Reminder Configuration
-$update->addDynConfigParam("trigger_cycle_days", "3");
-$update->addDynConfigParam("trigger_repeat_count", "3");
-// Task 5: Associate Songs and Files
-$update->addTable("song_files", "CREATE TABLE IF NOT EXISTS song_files (
-	id INT(11) PRIMARY KEY AUTO_INCREMENT,
-	song INT(11) NOT NULL,
-	filepath VARCHAR(255) NOT NULL,
-	notes TEXT
-)");
-// Task 6: Add nickname to contact
-$update->addColumnToTable("contact", "nickname", "VARCHAR(20)");
-
-// Task 7: manage primary keys of table program_song
-$program_song_pkeys = $update->getPrimaryKeys("program_song");
-if(count($program_song_pkeys) > 1) {
-	// Task 1a: remove primary key from program_song (#217)
-	$update->removePrimaryKey("program_song");
-	// Task 1b: add ID as the primary key
-	$update->addColumnToTable("program_song", "id", "int(11)", "PRIMARY KEY AUTO_INCREMENT");
-}
-else {
-	$update->message("Primary keys in program_song ok.");
-}
+// Task X: desc
 
 ?>
 

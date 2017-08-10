@@ -7,3 +7,6 @@ Update is possible from verion 3.2.1 onwards.
 Please make sure to copy ALL files onto your web server.
 
 > Changes to BNote in comparison with 3.2.1
+#277: fixing a missing column in the installer script for the repertoire
+#281: case-sensitive webservers can handle the start icon better now
+#282: add another contact button

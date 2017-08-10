@@ -206,6 +206,9 @@ class Translation extends BNoteTranslation {
 			"start_noCommentsInDiscussion" => "Keine Kommentare vorhanden.",
 			"start_addComment" => "Kommentar hinzufügen",
 			"start_sendComment" => "Kommentar senden",
+
+			// module: kontakte
+			"kontakte_addMoreBtn" => "Weiteren Kontakt hinzufügen",
 			
 			// module: vote
 			"vote_yourVotes" => "Deine Abstimmungen",

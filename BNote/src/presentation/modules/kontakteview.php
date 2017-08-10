@@ -228,6 +228,15 @@ class KontakteView extends CrudRefView {
 		parent::add();
 	}
 	
+	function addOptions() {
+		$this->backToStart();
+		$this->buttonSpace();
+		
+		$addMore = new Link($this->modePrefix() . "addEntity", Lang::txt("kontakte_addMoreBtn"));
+		$addMore->addIcon("plus");
+		$addMore->write();
+	}
+	
 	function viewDetailTable() {
 		// user details
 		$entity = $this->getData()->getContact($_GET["id"]);
