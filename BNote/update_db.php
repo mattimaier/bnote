@@ -215,11 +215,12 @@ $update = new UpdateDb();
 <?php 
 
 /*
- * 3.x.x UPDATES
+ * 3.3.0 UPDATES
  * -------------
  */
 
-// Task X: desc
+// Task 1: Stats Module
+$statsModId = $update->addModule("Stats");
 
 ?>
 

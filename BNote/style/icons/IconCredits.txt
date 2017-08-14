@@ -23,3 +23,4 @@
 <a href="https://icons8.com/web-app/398/Play">Play icon credits</a>
 <a href="https://icons8.com/web-app/22712/shirt">Shirt icon</a>
 <a href="https://icons8.com/web-app/2856/Signpost">Signpost icon credits</a>
+<a href="https://icons8.com/icon/89/line-chart">stats</a>

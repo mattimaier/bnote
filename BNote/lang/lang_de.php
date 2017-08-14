@@ -79,6 +79,8 @@ class Translation extends BNoteTranslation {
 			"length" => "Länge",
 			"show_all" => "Alle anzeigen",
 			"outfit" => "Outfit",
+			"member" => "Mitglied",
+			"members" => "Mitglieder",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",
@@ -110,6 +112,7 @@ class Translation extends BNoteTranslation {
 			"mod_Equipment" => "Equipment",
 			"mod_Tour" => "Tour",
 			"mod_Outfits" => "Outfits",
+			"mod_Stats" => "Auswertungen",
 			
 			// widgets
 			"addFolder" => "Ordner hinzufügen",
@@ -389,10 +392,20 @@ class Translation extends BNoteTranslation {
 				Klicke alle Einträge an, die du diesen Mitgliedern zuweisen möchtest.
 				Schließlich klickst du auf den Speichern Button um die Zuweisungen zu speichern.",
 			
+			// module: stats
+			"stats_rehearsalstat_title" => "Anzahl Proben in den letzten 6 Monaten",
+			"stats_concertstat_title" => "Anzahl Konzerte in den letzten 6 Monaten",
+			"stats_memberstat_title" => "Anzahl Mitglieder je Gruppe",
+			"stats_memberrehearsalperformancestat_title" => "Top Probenteilnehmer (1-Jahr)",
+			"stats_membervoteperformancestat_title" => "Top Abstimmungsteilnehmer (1-Jahr)",
+			"stats_memberoptionperformancestat_title" => "Top Engagement (1-Jahr)",
+			
 			// misc
 			"reservation" => "Reservierung",
 			"reservations" => "Reservierungen",
-			"reservation_id" => "Reservierungsnr."
+			"reservation_id" => "Reservierungsnr.",
+			"score" => "Wert",
+			"rank" => "Platz"
 	);
 	
 	protected $regex = array(

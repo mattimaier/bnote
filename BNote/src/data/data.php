@@ -100,6 +100,30 @@ abstract class Data {
 	}
 	
 	/**
+	 * Subtracts $numMonths months from $date
+	 * @param Date $date Format dd.mm.yyyy
+	 * @param integer $numDays Number of months to subtract
+	 * @return New date in format dd.mm.yyyy
+	 */
+	public static function subtractMonthsFromDate($date, $numMonths) {
+		$date = Data::convertDateToDb($date);
+		$newdate = strtotime("-$numMonths month", strtotime($date));
+		return date(Lang::getDateFormatPattern(), $newdate);
+	}
+	
+	/**
+	 * Adds $numMonths months from $date
+	 * @param Date $date Format dd.mm.yyyy
+	 * @param integer $numDays Number of months to add
+	 * @return New date in format dd.mm.yyyy
+	 */
+	public static function addMonthsToDate($date, $numMonths) {
+		$date = Data::convertDateToDb($date);
+		$newdate = strtotime("+$numMonths month", strtotime($date));
+		return date(Lang::getDateFormatPattern(), $newdate);
+	}
+	
+	/**
 	 * @return array All months in format [number] => [name], e.g. 6 => Juni.
 	 */
 	public static function getMonths() {

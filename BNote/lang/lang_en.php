@@ -80,6 +80,8 @@ class Translation extends BNoteTranslation {
 			"length" => "Length",
 			"show_all" => "Show all",
 			"outfit" => "Outfit",
+			"member" => "Member",
+			"members" => "Members",
 			
 			// navigation
 			"mod_Login" => "Login",
@@ -111,6 +113,7 @@ class Translation extends BNoteTranslation {
 			"mod_Equipment" => "Equipment",
 			"mod_Tour" => "Tour",
 			"mod_Outfits" => "Outfits",
+			"mod_Stats" => "Statistics",
 			
 			// widgets
 			"addFolder" => "Add Folder",
@@ -385,9 +388,20 @@ class Translation extends BNoteTranslation {
 				before this. Select all entries where you want to add these new members. Finally
 				hit save to add the associations.",
 			
+			// module: stats
+			"stats_rehearsalstat_title" => "Number of Rehearsals in the Last 6 Months",
+			"stats_concertstat_title" => "Number of Concerts in the Last 6 Months",
+			"stats_memberstat_title" => "Members per Group",
+			"stats_memberrehearsalperformancestat_title" => "Top Rehearsal Participants (1-year)",
+			"stats_membervoteperformancestat_title" => "Top Vote Participants (1-year)",
+			"stats_memberoptionperformancestat_title" => "Top Engagement (1-year)",
+			
+			// misc
 			"reservation" => "Reservation",
 			"reservations" => "Reservations",
-			"reservation_id" => "Reservation No."
+			"reservation_id" => "Reservation No.",
+			"score" => "Score",
+			"rank" => "Rank"
 	);
 	
 	protected $regex = array(

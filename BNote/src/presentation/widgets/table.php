@@ -19,6 +19,7 @@ class Table implements iWriteable {
 
 	private $dataRowSpan = 0;
 	private $allowContentWrap = true;
+	private $showFilter = true;
 	
 	/**
 	 * Creates a new table
@@ -163,6 +164,14 @@ class Table implements iWriteable {
 	 */
 	function setOptionColumnNames($cols) {
 		$this->optColumns = $cols;
+	}
+	
+	/**
+	 * Show the filter line and enable the table as a JS data table.
+	 * @param string $show True or False (hides the filter and marks it not as a data table).
+	 */
+	function showFilter($show=true) {
+		$this->showFilter = $show;
 	}
 	
 	function write() {
@@ -312,7 +321,7 @@ class Table implements iWriteable {
 				echo ' <TR><TD colspan="' . count($row) . '">[' . Lang::txt("table_no_entries") . ']</TD></TR>' . "\n";
 			}
 		}
-		 
+		
 		// write last lines
 		foreach($this->lastlines as $label => $value) {
 			echo " <tr>\n";
@@ -326,25 +335,26 @@ class Table implements iWriteable {
 		echo "</tbody>\n";
 		echo "</table>\n";
 
-		?>
-		<script>
-		
-		// convert table to javasript DataTable
-		$(document).ready(function() {
-			var identifier = "#<?php echo $identifier; ?>"
-    		$(identifier).DataTable({
-				 "paging": false, 
-				 "info": false,  
-				 "oLanguage": {
-			 		 "sEmptyTable":  "<?php echo Lang::txt("table_no_entries"); ?>",
-					 "sInfoEmpty":  "<?php echo Lang::txt("table_no_entries"); ?>",
-					 "sZeroRecords":  "<?php echo Lang::txt("table_no_entries"); ?>",
-        			 "sSearch": "<?php echo Lang::txt("table_search"); ?>"
-		 		 }
+		if($this->showFilter) {
+			?>
+			<script>
+			// convert table to javasript DataTable
+			$(document).ready(function() {
+				var identifier = "#<?php echo $identifier; ?>"
+	    		$(identifier).DataTable({
+					 "paging": false, 
+					 "info": false,  
+					 "oLanguage": {
+				 		 "sEmptyTable":  "<?php echo Lang::txt("table_no_entries"); ?>",
+						 "sInfoEmpty":  "<?php echo Lang::txt("table_no_entries"); ?>",
+						 "sZeroRecords":  "<?php echo Lang::txt("table_no_entries"); ?>",
+	        			 "sSearch": "<?php echo Lang::txt("table_search"); ?>"
+			 		 }
+				});
 			});
-		});
-		</script>
-		<?php
+			</script>
+			<?php
+		}
 		return $identifier;
 	}
 
