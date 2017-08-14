@@ -35,7 +35,6 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	function start() {
-		Writing::h1("Auftritte");
 		Writing::p("Um einen Auftritt anzuzeigen oder zu bearbeiten, bitte auf den entsprechenden Auftritt klicken.");
 		
 		// Next Concert

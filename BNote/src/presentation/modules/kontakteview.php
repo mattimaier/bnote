@@ -19,9 +19,7 @@ class KontakteView extends CrudRefView {
 		));
 	}
 	
-	function start() {
-		Writing::h1("Kontakte");
-		
+	function start() {		
 		// show band members
 		$this->showContacts();
 	}
@@ -71,8 +69,6 @@ class KontakteView extends CrudRefView {
 		$vc = new Link($this->modePrefix() . "contactImport", "Kontakte Import (vCard)");
 		$vc->addIcon("arrow_down");
 		$vc->write();
-		
-		$this->verticalSpace();
 	}
 	
 	function showContacts() {		

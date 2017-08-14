@@ -56,6 +56,22 @@ a.navi {
 	color: #000;
 }
 
+a.linkbox {
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+#navigation.naviCollapsed {
+	width: 38px;
+}
+#optionsContainer.optionsContainerLeft {
+	margin-left: 64px;
+}
+#content_insets.insetLeft {
+	margin-left: 32px;
+}
+
 a.navi:visited {
 	
 }
@@ -83,6 +99,8 @@ div.navi_item_selected {
 	color: #000;
 	border-bottom: 1px solid;
 	border-bottom-color: #e0e0e0;
+	
+	text-transform: uppercase;
 }
 
 div.navi_item_selected:hover {

@@ -1,7 +1,5 @@
 <div id="optionsbar">
-	<span id="moduleTitle"><?php
-	echo Lang::txt("mod_" . $GLOBALS["system_data"]->getModuleTitle()); 
-	?></span>
+	<span id="navbarOptions"><img src="style/icons/menu2.png" id="navbarCollapseIcon" height="16px" alt="menu" /></span>
 	<div id="optionsContainer">
 	<?php 
 	$GLOBALS["mainController"]->getView()->showOptions();

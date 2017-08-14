@@ -28,7 +28,6 @@ class ShareView extends AbstractView {
 	}
 	
 	function start() {
-		Writing::h1("Dateiverwaltung");
 		$this->initFilebrowser();
 		$viewMode = $this->getData()->getSysdata()->getDynamicConfigParameter("share_nonadmin_viewmode");
 		if($viewMode == "1" && !$this->getData()->getSysdata()->isUserSuperUser()

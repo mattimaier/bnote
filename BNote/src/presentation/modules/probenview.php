@@ -19,7 +19,6 @@ class ProbenView extends CrudRefView {
 	}
 	
 	function start() {
-		Writing::h1("Proben");
 		Writing::p("Bitte auf eine Probe klicken um diese zu bearbeiten.");
 		
 		Writing::h2("Nächste Probe");

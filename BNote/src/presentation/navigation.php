@@ -28,7 +28,7 @@ if(isset($_GET["mod"]) && is_numeric($_GET["mod"])) {
 		
 		echo "<a class=\"navi\" href=\"?mod=$id\"><div class=\"navi_item$selected\">";
 		echo "<img src=\"" . $GLOBALS["DIR_ICONS"] . $tecName . ".png\" alt=\"$tecName\" height=\"16px\" class=\"navi_item_icon\" />";
-		echo $caption;
+		echo "<span class=\"navi_item_caption\">$caption</span>";
 		echo "</div></a>\n";
 	}
 
