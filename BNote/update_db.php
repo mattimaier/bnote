@@ -3,7 +3,7 @@
 /*************************
  * UPGRADES THE DATABASE *
  * @author Matti Maier   *
- * Update 3.1.5 to 3.2.0 *
+ * Update 3.2.2 to 3.3.0 *
  *************************/
 
 // path to src/ folder
@@ -221,6 +221,9 @@ $update = new UpdateDb();
 
 // Task 1: Stats Module
 $statsModId = $update->addModule("Stats");
+
+//TODO Task 2: User-defined fields
+
 
 ?>
 

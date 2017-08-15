@@ -49,9 +49,7 @@ class HilfeView extends AbstractView {
 		// none
 	}
 	
-	function start() {
-		Writing::h1("Hilfe");
-		
+	function start() {		
 		// Help Navigation
 		?>
 		<style>

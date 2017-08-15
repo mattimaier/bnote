@@ -27,6 +27,9 @@ tinyMCE.init({
 	tools: "inserttable"
 });
 
+// global settings
+fullNavi = true;
+
 $(document).ready(function() {
 	$(".dateChooser").datepicker({
 		autoSize: true,
@@ -125,5 +128,22 @@ $(document).ready(function() {
 	
 	$("#fb-fileupload").dropzone({
 		url: $('#fb-fileupload-form').attr('action')
+	});
+	
+	$('#navbarCollapseIcon').click(function() {
+		if(fullNavi) {
+			$('.navi_item_caption').hide();
+			$('#navigation').addClass("naviCollapsed");
+			$('#optionsContainer').addClass("optionsContainerLeft");
+			$('#content_insets').addClass("insetLeft");
+			fullNavi = false;
+		}
+		else {
+			$('.navi_item_caption').show();
+			$('#navigation').removeClass("naviCollapsed");
+			$('#optionsContainer').removeClass("optionsContainerLeft");
+			$('#content_insets').removeClass("insetLeft");
+			fullNavi = true;
+		}
 	});
 });

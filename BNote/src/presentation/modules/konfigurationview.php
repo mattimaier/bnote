@@ -24,7 +24,6 @@ class KonfigurationView extends CrudView {
 	}
 	
 	function start() {
-		Writing::h1("Konfiguration");
 		$this->showWarnings();
 		
 		Writing::p("Bitte klicke auf eine Zeile um deren Wert zu ändern.");

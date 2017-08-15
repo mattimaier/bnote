@@ -127,23 +127,22 @@ background-color: #fff;
 }
 
 #optionsbar {
-	height: 40px;
+	min-height: 30px;
 	border-bottom: 1px solid #dcdcdc;
 	background-color: #436f98;
 	padding-top: 10px;
 }
 
 #optionsContainer {
-	position: absolute;
-	left: 184px;
-	top: 70px;
-	display: inline-block;
+	min-height: 44px;
+	margin-left: 184px;
 }
 
-#moduleTitle {
+#navbarOptions {
 	padding-left: 10px;
 	font-size: 14pt;
 	color: #fff;
+	float: left;
 }
 
 #calendar_eventdetail {

@@ -205,7 +205,7 @@ abstract class AbstractView {
 	 * Prints the string which contrains the space inbetween buttons.
 	 */
 	static function buttonSpace() {
-		echo "&nbsp;&nbsp;";
+		//none
 	}
 	
 	protected function setController($ctrl) {
