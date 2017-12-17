@@ -22,31 +22,29 @@
 
 .filebrowser_folderitem {
 	padding: 5px;
-	border: 1px solid #d0d0d0;
+	border: 1px solid #D0D0D0;
 	border-top-width: 0px;
 }
 
 .filebrowser_folderitem:hover {
-	background-color: #fff;
+	background-color: #FFFFFF;
 }
 
 .filebrowser_folderitem_active {
 	padding: 5px;
 	margin-bottom: 5px;
 	color: #61b3ff;
-	background-color: #fff;
+	background-color: #FFFFFF;
 }
 
 .filebrowser_folderitem_active:hover {
-	background-color: #fff;
-	color: #000;
+	background-color: #FFFFFF;
+	color: #000000;
 }
 
 #filebrowser_files {
-	background-color: #fff;
+	background-color: #FFFFFF;
 	padding-top: 0px;
-	/* border-top: 1px solid #d0d0d0;
-    border-right: 1px solid #d0d0d0; */
 }
 
 .filebrowser_folder_header {

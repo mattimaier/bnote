@@ -5,7 +5,7 @@
 
 .help_navigator_menu {
 	width: 250px;
-	background: #eee;
+	background: #E6E6E6;
 	padding: 0px;
 }
 
@@ -35,14 +35,14 @@
 }
 
 .help_navigator_menu_page_active:hover {
-	color: #000000;
+	color: #000000000;
 }
 
 .help_navigator_content {
 	width: 750px;
 	padding-left: 10px;
 	padding-right: 10px;
-	background-color: #fff;
+	background-color: #FFFFFF;
 }
 
 a.help_navigator_menu_page_link {

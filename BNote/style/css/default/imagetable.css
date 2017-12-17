@@ -1,4 +1,4 @@
-@CHARSET "ISO-8859-1";
+@CHARSET "UTF-8";
 
 a.imagetable {
 	
@@ -6,7 +6,7 @@ a.imagetable {
 
 div.imagetable {
 	display: inline-block;
-	border: 1px solid #e0e0e0;
+	border: 1px solid #E6E6E6;
 	text-align: center;
 	padding: 5px;
 	

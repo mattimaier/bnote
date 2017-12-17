@@ -1,7 +1,9 @@
+@CHARSET "UTF-8";
+
 .statsTile {
 	width: 400px;
 	height: 300px;
-	border: 1px solid #dfdfdf;
+	border: 1px solid #D0D0D0;
 	display: inline-block;
 	margin-bottom: 5px;
 }

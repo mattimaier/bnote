@@ -400,6 +400,10 @@ class Translation extends BNoteTranslation {
 			"stats_membervoteperformancestat_title" => "Top Abstimmungsteilnehmer (1-Jahr)",
 			"stats_memberoptionperformancestat_title" => "Top Engagement (1-Jahr)",
 			
+			// submodule: custom fields
+			"customfield" => "benutzerdefiniertes Feld",
+			"customfields" => "benutzerdefinierte Felder",
+			
 			// misc
 			"reservation" => "Reservierung",
 			"reservations" => "Reservierungen",

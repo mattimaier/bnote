@@ -15,8 +15,13 @@ class KonfigurationView extends CrudView {
 	}
 	
 	function showOptions() {
-		if(isset($_GET["mode"]) && $_GET["mode"] == "instruments") {
-			$this->getController()->getInstrumentsView()->showOptions();
+		if(isset($_GET["mode"])) {
+			if($_GET["mode"] == "instruments") {
+				$this->getController()->getInstrumentsView()->showOptions();
+			}
+			else if($_GET["mode"] == "customfields") {
+				$this->getController()->getCustomFieldsView()->showOptions();
+			}
 		}
 		else {
 			parent::showOptions();
@@ -44,6 +49,11 @@ class KonfigurationView extends CrudView {
 		$istr = new Link($this->modePrefix() . "instruments", "Instrumente");
 		$istr->addIcon("instrument");
 		$istr->write();
+		
+		// fields configuration
+		$cuf = new Link($this->modePrefix() . "customfields", Lang::txt("customfields"));
+		$cuf->addIcon("copy_link");
+		$cuf->write();
 	}
 	
 	protected function showWarnings() {

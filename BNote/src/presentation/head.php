@@ -12,7 +12,7 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
   
  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
   
- <link href="style/css/!reset.css" rel="StyleSheet" type="text/css" />
+ <link href="style/css/reset.css" rel="StyleSheet" type="text/css" />
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery-ui.min.css" rel="stylesheet" />
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery-ui.theme.min.css" rel="stylesheet" />
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery.datetimepicker.css" rel="stylesheet" />
@@ -21,12 +21,14 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
  <link type="text/css" href='<?php echo $jQuery_dir; ?>fullcalendar.css' rel='stylesheet' />
  <link type="text/css" href="lib/dropzone.css" rel="stylesheet" />
 <?php
+# Theme
+$theme = "default";
 
 # Link all CSS Files in style/css
-if($handle = opendir('style/css')) {
+if($handle = opendir('style/css' . "/" . $theme)) {
 	while(false !== ($file = readdir($handle))) {
 		if($file != "." && $file != ".." && $file != "!reset.css" && $file != "reset.css") {
-			echo ' <LINK href="style/css/' . $file . '" rel="StyleSheet" type="text/css">'. "\n";
+			echo ' <LINK href="style/css/' . $theme . "/" . $file . '" rel="StyleSheet" type="text/css">'. "\n";
 		}
 	}
 	closedir($handle);

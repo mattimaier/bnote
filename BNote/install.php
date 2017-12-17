@@ -701,25 +701,41 @@ class Installation {
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
-			array_push($queries,
-					"CREATE TABLE IF NOT EXISTS song_files (
+			array_push($queries, "CREATE TABLE IF NOT EXISTS song_files (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
 					song INT(11) NOT NULL,
 					filepath VARCHAR(255) NOT NULL,
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
-			array_push($queries,
-					"CREATE TABLE location_type (
+			array_push($queries, "CREATE TABLE location_type (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
 					name VARCHAR(50) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
-			array_push($queries,
-					"CREATE TABLE outfit (
+			array_push($queries, "CREATE TABLE outfit (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
 					name VARCHAR(50) NOT NULL,
 					description TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries, "CREATE TABLE customfield (
+				id int(11) PRIMARY KEY AUTO_INCREMENT,
+				techname VARCHAR(50) NOT NULL,
+				txtdefsingle VARCHAR(50) NOT NULL,
+				txtdefplural VARCHAR(50) NOT NULL,
+				fieldtype VARCHAR(20) NOT NULL,
+				otype CHAR(1) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries, "CREATE TABLE customfield_value (
+				id int(11) PRIMARY KEY AUTO_INCREMENT,
+				customfield int(11) NOT NULL,
+				otype CHAR(1) NOT NULL,
+				oid int(11) NOT NULL,
+				intval INT,
+				dblval DECIMAL(12,2),
+				strval VARCHAR(255)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
 			foreach($queries as $i => $query) {
@@ -874,7 +890,8 @@ class Installation {
 					(20, 'Calendar'),
 					(21, 'Equipment'),
 					(22, 'Tour'),
-					(23, 'Outfits');");
+					(23, 'Outfits'),
+					(24, 'Stats');");
 
 			array_push($queries,
 					"INSERT INTO `status` (`id`, `name`) VALUES

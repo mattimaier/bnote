@@ -222,8 +222,25 @@ $update = new UpdateDb();
 // Task 1: Stats Module
 $statsModId = $update->addModule("Stats");
 
-//TODO Task 2: User-defined fields
+// Task 2: User-defined fields
+$update->addTable("customfield", "CREATE TABLE IF NOT EXISTS customfield (
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	techname VARCHAR(50) NOT NULL,
+	txtdefsingle VARCHAR(50) NOT NULL,
+	txtdefplural VARCHAR(50) NOT NULL,
+	fieldtype VARCHAR(20) NOT NULL,
+	otype CHAR(1) NOT NULL
+)");
 
+$update->addTable("customfield_value", "CREATE TABLE IF NOT EXISTS customfield_value (
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	customfield int(11) NOT NULL,
+	otype CHAR(1) NOT NULL,
+	oid int(11) NOT NULL,
+	intval INT,
+	dblval DECIMAL(12,2),
+	strval VARCHAR(255)
+)");
 
 ?>
 

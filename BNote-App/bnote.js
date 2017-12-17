@@ -149,7 +149,7 @@ function getNaviBar(){
 	   	
 	var equipmentButton = new sap.m.Button({
 		visible: false,
-		icon: sap.ui.core.IconPool.getIconURI("projector"),
+		icon: sap.ui.core.IconPool.getIconURI("fridge"),
 		press: function() {
 			equipmentView.getController().onEquipmentClick();
 		}
@@ -180,7 +180,7 @@ function getNaviBar(){
 				    	app.to("news")
 				    }
 			    }),
-			   repertoireButton,			   
+			   repertoireButton,		   
 			   equipmentButton
 			]		
 		});	
@@ -333,7 +333,7 @@ signupView = sap.ui.view({
 
 // Build the app together
 app = new sap.m.App("bnoteApp", {
-	defaultTransitionName: "flip",
+	defaultTransitionName: "fade",
     initialPage: "login"
 });
 
@@ -363,7 +363,7 @@ app.addPage(voteresultView);
 app.addPage(signupView);
 
 var shell = new sap.m.Shell("bnoteShell", {
-    title: "BNote WebApp",
+    title: "BNote App",
     app: app
 });
 

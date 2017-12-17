@@ -130,3 +130,5 @@ class InstrumenteView extends CrudRefView {
 	}
 	
 }
+
+?>
