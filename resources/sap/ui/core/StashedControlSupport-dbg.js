@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -15,7 +15,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/Control'
 		 * Two new SpecialSettings and belonging methods are added to the controls prototype. <code>stashed</code> Controls are not
 		 * created and added to the Control tree, but remain uncreated. Although they are not instances of their actual
 		 * class, a surrogate is created which serves as id holder. That means it is availyble with <code>sap.ui.getCore().byId</code>
-		 * and unstashable. Currently this is a one-time operation. A once unstashed control cannot be re-stashed again.
+		 * and unstashable. Currently this is a one-time operation. Once unstashed, a control cannot be re-stashed again.
 		 *
 		 * Parts of the code here are commented out, as the SpecialSetting <code>stashed</code> may change to be Property lateron.
 		 *
@@ -89,7 +89,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/Control'
 		 */
 		StashedControl.prototype.clone = function() {
 			var c = Element.prototype.clone.apply(this, arguments);
-			c.stashedAlias = this.stashedAlias;
 			stashedControls[c.getId()] = c;
 			return c;
 		};
@@ -117,7 +116,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/Control'
 		 * @private
 		 */
 		StashedControlSupport.mixInto = function(fnClass, bDefaultValue /*=true*/) {
-			jQuery.sap.assert(!fnClass.getMetadata().hasProperty("stashed"), "StashedControlSupport: fnClass already has property 'active', sideeffects possible", fnClass.getMetadata().getName());
+			jQuery.sap.assert(!fnClass.getMetadata().hasProperty("stashed"), "StashedControlSupport: fnClass already has property 'stashed', sideeffects possible", fnClass.getMetadata().getName());
 			jQuery.sap.assert(!fnClass.prototype.setStashed, "StashedControlSupport: fnClass already has method 'setStashed', sideeffects possible", fnClass.getMetadata().getName());
 			mixInto(fnClass, bDefaultValue);
 		};
@@ -215,7 +214,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/Control'
 		 *
 		 * @name sap.ui.core.StashedControlSupport.getStashedControlIds
 		 * @param {string} [sParentId] if set only StashedControls for a specific parent are returned
-		 * @return {Control[]} array with the the StashedControls
+		 * @return {Control[]} array with the StashedControls
 		 *
 		 * @private
 		 */

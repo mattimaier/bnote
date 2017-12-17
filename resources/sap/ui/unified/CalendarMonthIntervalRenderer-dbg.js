@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -71,7 +71,6 @@ sap.ui.define(['jquery.sap.global'],
 		oRm.write("<div id=\"" + sId + "-content\" class=\"sapUiCalContent\">");
 		oRm.renderControl(oMonthsRow);
 
-		oRm.write("<div id=\"" + sId + "-contentOver\" class=\"sapUiCalContentOver\" style=\"display:none;\"></div>");
 		oRm.write("</div>");
 
 		oRm.write("<button id=\"" + sId + "-cancel\" class=\"sapUiCalCancel\" tabindex=\"-1\">");
@@ -81,6 +80,9 @@ sap.ui.define(['jquery.sap.global'],
 		// dummy element to catch tabbing in from next element
 		oRm.write("<div id=\"" + sId + "-end\" tabindex=\"0\" style=\"width:0;height:0;position:absolute;right:0;bottom:0;\"></div>");
 
+		if (oCal.getPickerPopup()) {
+			oRm.write("<div id=\"" + sId + "-contentOver\" class=\"sapUiCalContentOver\" style=\"display:none;\"></div>");
+		}
 		oRm.write("</div>");
 
 	};

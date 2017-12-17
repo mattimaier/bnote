@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,7 +18,7 @@ function(jQuery) {
 	 * Utility functionality to work with élements, e.g. iterate through aggregations, find parents, ...
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @private
 	 * @static
@@ -75,6 +75,34 @@ function(jQuery) {
 	 */
 	RenderingUtil._renderChildren = function(oRm, oOverlay) {
 		var aChildrenOverlays = oOverlay.getChildren();
+		if (oOverlay._aScrollContainers) {
+			oOverlay._aScrollContainers.forEach(function(oScrollContainer, iIndex) {
+				oRm.write("<div");
+				oRm.addClass("sapUiDtOverlayScrollContainer");
+				oRm.writeClasses();
+				oRm.write("data-sap-ui-dt-scrollContainerIndex='" + iIndex + "'");
+				oRm.write(">");
+
+				if (oScrollContainer.aggregations) {
+					oScrollContainer.aggregations.forEach(function(sAggregationName) {
+						var oAggregationOverlay = oOverlay.getAggregationOverlay(sAggregationName);
+						oRm.renderControl(oAggregationOverlay);
+						aChildrenOverlays.splice(aChildrenOverlays.indexOf(oAggregationOverlay), 1);
+					});
+				}
+				oRm.write("</div>");
+			});
+		}
+
+		aChildrenOverlays.forEach(function(oChildOverlay) {
+			oRm.renderControl(oChildOverlay);
+		});
+	};
+
+	/**
+	 */
+	RenderingUtil._rerenderControls = function(oRm, oOverlay) {
+		var aChildrenOverlays = oOverlay.getChildren();
 		aChildrenOverlays.forEach(function(oChildOverlay) {
 			oRm.renderControl(oChildOverlay);
 		});
@@ -83,9 +111,9 @@ function(jQuery) {
 	/**
 	 */
 	RenderingUtil._triggerOnAfterRenderingWithoutRendering = function(oRm, oOverlay) {
-		// to trigger after rendering without renfering we need to write something in a renderManager buffer
+		// to trigger after rendering without rendering we need to write something in a renderManager buffer
 		oRm.write("");
-		this._renderChildren(oRm, oOverlay);
+		this._rerenderControls(oRm, oOverlay);
 	};
 
 	return RenderingUtil;

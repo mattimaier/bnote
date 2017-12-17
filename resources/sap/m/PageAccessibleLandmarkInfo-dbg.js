@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -22,7 +22,7 @@ sap.ui.define(['sap/ui/core/Element', './library'],
 	 * @extends sap.ui.core.Element
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -109,66 +109,6 @@ sap.ui.define(['sap/ui/core/Element', './library'],
 			footerLabel : {type : "string", defaultValue : null}
 		}
 	}});
-
-	/**
-	 * Returns the landmark information of the given <code>sap.m.PageAccessibleLandmarkInfo</code> instance
-	 * of the given area (e.g. <code>"root"</code>).
-	 *
-	 * Must only be used with the <code>sap.m.Page</code> control!
-	 *
-	 * @private
-	 */
-	PageAccessibleLandmarkInfo._getLandmarkInfo = function(oInstance, sArea) {
-		if (!oInstance) {
-			return null;
-		}
-
-		var sRole = null;
-		var sText = null;
-
-		var oPropertyInfo = oInstance.getMetadata().getProperty(sArea + "Role");
-		if (oPropertyInfo) {
-			sRole = oInstance[oPropertyInfo._sGetter]();
-		}
-
-		if (!sRole) {
-			return null;
-		}
-
-		oPropertyInfo = oInstance.getMetadata().getProperty(sArea + "Label");
-		if (oPropertyInfo) {
-			sText = oInstance[oPropertyInfo._sGetter]();
-		}
-
-		return [sRole.toLowerCase(), sText];
-	};
-
-	/**
-	 * Writes the landmark information of the given page and area (e.g. <code>"root"</code>).
-	 *
-	 * Must only be used with the <code>sap.m.Page</code> control!
-	 *
-	 * @private
-	 */
-	PageAccessibleLandmarkInfo._writeLandmarkInfo = function(oRm, oPage, sArea) {
-		if (!sap.ui.getCore().getConfiguration().getAccessibility()) {
-			return;
-		}
-		var oInfo = PageAccessibleLandmarkInfo._getLandmarkInfo(oPage.getLandmarkInfo(), sArea);
-		if (!oInfo) {
-			return;
-		}
-
-		var oLandMarks = {
-			role: oInfo[0]
-		};
-
-		if (oInfo[1]) {
-			oLandMarks["label"] =  oInfo[1];
-		}
-
-		oRm.writeAccessibilityState(oPage, oLandMarks);
-	};
 
 	return PageAccessibleLandmarkInfo;
 });

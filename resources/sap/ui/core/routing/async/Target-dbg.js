@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global'], function(jQuery) {
@@ -63,6 +63,7 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 			}
 
 			var oOptions = this._oOptions,
+				that = this,
 				oView, oControl, oViewContainingTheControl, sViewName, oViewOptions, vValid, sErrorMessage;
 
 			if (oOptions.viewName) {
@@ -85,17 +86,23 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 
 				oSequencePromise = oSequencePromise.then(function(oParentInfo) {
 					// waiting to be loaded
-					return oView.loaded().then(function(oView) {
-						return {
-							view: oView,
-							parentInfo: oParentInfo || {}
-						};
-					}, function(sErrorMessage) {
-						return Promise.reject({
-							name: oOptions.name,
-							error: sErrorMessage
-						});
-					});
+					return oView
+							.loaded()
+							.then(function(oView) {
+								that._bindTitleInTitleProvider(oView);
+
+								that._addTitleProviderAsDependent(oView);
+
+								return {
+									view: oView,
+									parentInfo: oParentInfo || {}
+								};
+							}, function(sErrorMessage) {
+								return Promise.reject({
+									name: oOptions.name,
+									error: sErrorMessage
+								});
+							});
 				}).then(function(oViewInfo) {
 					// loaded and do placement
 					vValid = this._isValid(oViewInfo.parentInfo);
@@ -138,6 +145,14 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 						}
 
 					}
+
+					// adapt the container before placing the view into it to make the rendering occur together with the next
+					// aggregation modification.
+					this._beforePlacingViewIntoContainer({
+						container: oControl,
+						view: oView,
+						data: vData
+					});
 
 					var oAggregationInfo = oControl.getMetadata().getJSONKeys()[oOptions.controlAggregation];
 

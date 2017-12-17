@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -77,17 +77,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ChangeReason', 'sap/ui/model/C
 	};
 
 	/**
-	 * Returns the context data as required for change detection/diff. This may not contain
-	 * all of the data, but just the key property
+	 * Returns the entry data as required for change detection/diff. For the XMLModel this is the node
+	 * referenced by the context, serialized as XML.
 	 *
 	 * @private
 	 */
-	XMLListBinding.prototype.getContextData = function(oContext) {
-		if (this.fnGetEntryKey && !this.bDetectUpdates) {
-			return this.fnGetEntryKey(oContext);
-		} else {
-			return jQuery.sap.serializeXML(oContext.getObject());
-		}
+	XMLListBinding.prototype.getEntryData = function(oContext) {
+		return jQuery.sap.serializeXML(oContext.getObject());
 	};
 
 	/**

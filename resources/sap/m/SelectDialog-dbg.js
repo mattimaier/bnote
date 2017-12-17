@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -16,21 +16,56 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 	 *
 	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] Initial settings for the new control
-	 *
+	 * A dialog that enables users to select one or more items from a comprehensive list.
 	 * @class
-	 * A SelectDialog is a dialog containing a list, search functionality to filter it and a confirmation/cancel button. The control can be used when the user should select one or multiple items out of many.
-	 *
-	 * The list used in the SelectDialog is a growing list and can be filled with a any kind of list item. The search field triggers the events "search" and "liveChange" where a filter function can be applied to the list binding.
-	 *
-	 * After selecting an item in single selection mode or after confirming in multi selection mode, the dialog will be closed and the event "confirm" is fired with the items that have been selected. By default, the selection will also be reset to allow for a new selection when opening the dialog again.
-	 *
-	 * When cancelling the selection, the event "change" will be fired and the selection is restored to the state when the dialog was opened.
-	 *
-	 * NOTE: The growing functionality of the list does not support two-way Binding, so if you use this control with a JSON model make sure the binding mode is set to "OneWay" and that you update the selection model manually with the items passed in the "confirm" event.
+	 * <h3>Overview</h3>
+	 * A SelectDialog is a dialog containing a list, search functionality to filter it and a confirmation/cancel button.
+	 * The list used in the dialog is a growing list and can be filled with any kind of list item.
+	 * <h3>Structure</h3>
+	 * <h4>Dialog structure</h4>
+	 * The select dialog has the following components:
+	 * <ul>
+	 * <li>Header - title of the dialog</li>
+	 * <li>Search field - input field to enter search terms</li>
+	 * <li>Info toolbar (only in multi-select) - displays the number of currently selected items</li>
+	 * <li>Content - {@link sap.m.StandardListItem  standard list items}, {@link sap.m.DisplayListItem
+	 * display list items} or {@link sap.m.FeedListItem feed list items}</li>
+	 * <li>Button toolbar - for confirmation/cancellation buttons </li>
+	 * </ul>
+	 * <h4>List structure & selection</h4>
+	 * <ul>
+	 * <li> The search field triggers the events <code>search</code> and <code>liveChange</code>
+	 * where a filter function can be applied to the list binding. </li>
+	 * <li> The growing functionality of the list does not support two-way Binding, so if you use this control with a JSON model
+	 * make sure the binding mode is set to <code>OneWay</code> and that you update the selection model manually with
+	 * the items passed in the <code>confirm</code> event. </li>
+	 * <li> In the multi-select mode of the select dialog, checkboxes are provided for choosing multiple entries. </li>
+	 * <li> You can set <code>rememberSelections</code> to true to store the current selection and load this state
+	 * when the dialog is opened again. </li>
+	 * <li> When cancelling the selection, the event <code>change</code> will be fired and the selection is restored
+	 * to the state when the dialog was opened. </li>
+	 * </ul>
+	 * <h3>Usage</h3>
+	 * <h4>When to use:</h4>
+	 * <ul>
+	 * <li>You  need to select one or more entries from a comprehensive list that contains multiple attributes or values. </li>
+	 * </ul>
+	 * <h4>When not to use:</h4>
+	 * <ul>
+	 * <li> You need to pick one item from a predefined set of options. Use {@link sap.m.Select select}
+	 * or {@link sap.m.ComboBox combobox} instead. </li>
+	 * <li> You need to select a range of item. Use {@link sap.ui.comp.valuehelpdialog.ValueHelpDialog value help dialog instead. </li>
+	 * <li> You need to be able to add your own values to an existing list. Use a {@link sap.m.Dialog dialog} instead. </li>
+	 * </ul>
+	 * <h3>Responsive Behavior</h3>
+	 * <ul>
+	 * <li> On phones, the select dialog takes up the whole screen. </li>
+	 * <li> On desktop and tablet devices, the select dialog appears as a popover. </li>
+	 * </ul>
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -70,6 +105,8 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 
 			/**
 			 * This flag controls whether the dialog clears the selection after the confirm event has been fired. If the dialog needs to be opened multiple times in the same context to allow for corrections of previous user inputs, set this flag to "true".
+			 *
+			 * <b>Note:</b> The sap.m.SelectDialog uses {@link sap.m.ListBase#rememberSelections this} property of the ListBase and therefore its limitations also apply here.
 			 * @since 1.18
 			 */
 			rememberSelections : {type : "boolean", group : "Behavior", defaultValue : false},
@@ -653,7 +690,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 	 * @private
 	 * @param {string} sFunctionName The name of the function to be called
 	 * @param {string} sAggregationName The name of the aggregation asociated
-	 * @returns {mixed} The return type of the called function
+	 * @returns {any} The return type of the called function
 	 */
 	SelectDialog.prototype._callMethodInManagedObject = function (sFunctionName, sAggregationName) {
 		var aArgs = Array.prototype.slice.call(arguments);
@@ -842,12 +879,12 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 	 * Event function that is called when the model sent a request to update the data.
 	 * It shows a busy indicator and hides searchField and list in the dialog.
 	 * @private
-	 * @param {jQuery.EventObject} oEvent The event object
+	 * @param {jQuery.Event} oEvent The event object
 	 */
 	SelectDialog.prototype._updateStarted = function (oEvent) {
 		if (this.getModel() && this.getModel() instanceof sap.ui.model.odata.ODataModel) {
 			if (this._oDialog.isOpen() && this._iListUpdateRequested) {
-				// only set busy mode when we have an oData model
+				// only set busy mode when we have an OData model
 				this._setBusy(true);
 			} else {
 				this._bInitBusy = true;
@@ -859,10 +896,10 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 	 * Event function that is called when the model request is finished.
 	 * It hides the busy indicator and shows searchField and list in the dialog.
 	 * @private
-	 * @param {jQuery.EventObject} oEvent The event object
+	 * @param {jQuery.Event} oEvent The event object
 	 */
 	SelectDialog.prototype._updateFinished = function (oEvent) {
-	// only reset busy mode when we have an oData model
+	// only reset busy mode when we have an OData model
 	this._updateSelectionIndicator();
 	if (this.getModel() && this.getModel() instanceof sap.ui.model.odata.ODataModel) {
 		this._setBusy(false);
@@ -979,7 +1016,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 	 * @private
 	 */
 	SelectDialog.prototype._updateSelectionIndicator = function () {
-		var iSelectedContexts = this._oList.getSelectedContexts(true).length,
+		var iSelectedContexts = this._oList.getSelectedContextPaths(true).length,
 			oInfoBar = this._oList.getInfoToolbar();
 
 		// update the selection label
@@ -994,11 +1031,16 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './List', './SearchF
 	 */
 	SelectDialog.prototype._fireConfirmAndUpdateSelection = function () {
 		// fire confirm event with current selection
-		this.fireConfirm({
+		var mParams = {
 			selectedItem: this._oSelectedItem,
-			selectedItems: this._aSelectedItems,
-			selectedContexts: this._oList.getSelectedContexts(true)
+			selectedItems: this._aSelectedItems
+		};
+		// retrieve the value for 'selectedContexts' only lazily as it might fail for some models
+		Object.defineProperty(mParams, "selectedContexts", {
+			get: this._oList.getSelectedContexts.bind(this._oList, true)
 		});
+
+		this.fireConfirm(mParams);
 		this._updateSelection();
 	};
 

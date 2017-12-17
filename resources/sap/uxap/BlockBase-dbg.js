@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -13,8 +13,9 @@ sap.ui.define([
 	"sap/ui/model/Context",
 	"sap/ui/Device",
 	"sap/ui/layout/form/ResponsiveGridLayout",
-	"./library"
-], function (Control, CustomData, BlockBaseMetadata, ModelMapping, Context, Device, ResponsiveGridLayout, library) {
+	"./library",
+	"sap/ui/core/Component"
+], function (Control, CustomData, BlockBaseMetadata, ModelMapping, Context, Device, ResponsiveGridLayout, library, Component) {
 		"use strict";
 
 		/**
@@ -28,7 +29,7 @@ sap.ui.define([
 		 * A block is the main element that will be displayed, mainly in an object page, but not necessarily
 		 * only there.
 		 *
-		 * A block is a control that use a XML view for storing its internal control tree.
+		 * A block is a control that use an XML view for storing its internal control tree.
 		 * A block is a control that has modes and a view associated to each modes.
 		 * At rendering time, the view associated to the mode is rendered.
 		 *
@@ -48,6 +49,7 @@ sap.ui.define([
 
 		var BlockBase = Control.extend("sap.uxap.BlockBase", {
 			metadata: {
+				designTime: true,
 				library: "sap.uxap",
 				properties: {
 					/**
@@ -83,6 +85,9 @@ sap.ui.define([
 
 					/**
 					 * Determines whether the show more button should be shown.
+					 *
+					 * <b>Note:</b> The property will take effect if the <code>BlockBase</code> is inside <ObjectPageSubSection</code>
+					 * and would be ignored in case the <code>BlockBase</code> is nested inside another <code>BlockBase</code>.
 					 */
 					"showSubSectionMore": {type: "boolean", group: "Behavior", defaultValue: false}
 				},
@@ -165,7 +170,7 @@ sap.ui.define([
 
 		BlockBase.prototype.onAfterRendering = function () {
 			if (this._getObjectPageLayout()) {
-				this._getObjectPageLayout()._adjustLayout();
+				this._getObjectPageLayout()._requestAdjustLayout();
 			}
 		};
 
@@ -211,6 +216,7 @@ sap.ui.define([
 			} else {
 				this.getMappings().forEach(function (oMapping, iIndex) {
 					var oModel,
+						oBindingContext,
 						sInternalModelName = oMapping.getInternalModelName(),
 						sExternalPath = oMapping.getExternalPath(),
 						sExternalModelName = oMapping.getExternalModelName(),
@@ -221,20 +227,24 @@ sap.ui.define([
 							throw new Error("BlockBase :: incorrect mapping, one of the modelMapping property is empty");
 						}
 
+						oModel = this.getModel(sExternalModelName);
+						if (!oModel) { // model N/A yet
+							return;
+						}
+
+						//get absolute path (including the external binding context)
+						sPath = oModel.resolve(sExternalPath, this.getBindingContext(sExternalModelName));
+						oBindingContext = this.getBindingContext(sInternalModelName);
+
 						if (!this._isMappingApplied(sInternalModelName) /* check if mapping is set already */
-							|| (this.getModel(sInternalModelName) != this.getModel(sExternalModelName)) /* model changed, then we have to update internal model mapping */) {
+							|| (this.getModel(sInternalModelName) !== this.getModel(sExternalModelName)) /* model changed, then we have to update internal model mapping */
+							|| (oBindingContext && (oBindingContext.getPath() !== sPath)) /* sExternalPath changed, then we have to update internal model mapping */) {
 
 							jQuery.sap.log.info("BlockBase :: mapping external model " + sExternalModelName + " to " + sInternalModelName);
 
-							oModel = this.getModel(sExternalModelName);
-
-							if (oModel) {
-								sPath = oModel.resolve(sExternalPath, this.getBindingContext(sExternalModelName));
-
-								this._oMappingApplied[sInternalModelName] = true;
-								Control.prototype.setModel.call(this, oModel, sInternalModelName);
-								this.setBindingContext(new Context(oModel, sPath), sInternalModelName);
-							}
+							this._oMappingApplied[sInternalModelName] = true;
+							Control.prototype.setModel.call(this, oModel, sInternalModelName);
+							this.setBindingContext(new Context(oModel, sPath), sInternalModelName);
 						}
 					}
 				}, this);
@@ -397,7 +407,19 @@ sap.ui.define([
 		 * @protected
 		 */
 		BlockBase.prototype.createView = function (mParameter, sMode) {
-			return sap.ui.xmlview(this.getId() + "-" + sMode, mParameter);
+			var oOwnerComponent,
+				fnCreateView;
+
+			fnCreateView = function () {
+				return sap.ui.xmlview(this.getId() + "-" + sMode, mParameter);
+			}.bind(this);
+
+			oOwnerComponent = Component.getOwnerComponentFor(this);
+			if (oOwnerComponent) {
+				return oOwnerComponent.runAsOwner(fnCreateView);
+			} else {
+				return fnCreateView();
+			}
 		};
 
 		/**
@@ -628,11 +650,7 @@ sap.ui.define([
 		 * @private
 		 */
 		BlockBase.prototype._getObjectPageLayout = function () {
-			if (!this._oParentObjectPageLayout) {
-				this._oParentObjectPageLayout = library.Utilities.getClosestOPL(this);
-			}
-
-			return this._oParentObjectPageLayout;
+			return library.Utilities.getClosestOPL(this);
 		};
 
 		/**
@@ -649,8 +667,8 @@ sap.ui.define([
 		/**
 		 * Set the showSubSectionMore property.
 		 * Ask the parent ObjectPageSubSection to refresh its see more visibility state if present.
-		 * @param bValue
-		 * @param bInvalidate
+		 * @param {boolean} bValue
+		 * @param {boolean} bInvalidate
 		 * @returns {*}
 		 */
 		BlockBase.prototype.setShowSubSectionMore = function (bValue, bInvalidate) {
@@ -699,10 +717,10 @@ sap.ui.define([
 		/**
 		 * Override of the default model lifecycle method to disable the automatic binding resolution for lazyloading.
 		 * @override
-		 * @param bSkipLocal
-		 * @param bSkipChildren
-		 * @param sModelName
-		 * @param bUpdateAll
+		 * @param {boolean} bSkipLocal
+		 * @param {boolean} bSkipChildren
+		 * @param {string} sModelName
+		 * @param {boolean} bUpdateAll
 		 * @returns {*}
 		 */
 		BlockBase.prototype.updateBindingContext = function (bSkipLocal, bSkipChildren, sModelName, bUpdateAll) {
@@ -716,8 +734,8 @@ sap.ui.define([
 		/**
 		 * Override of the default model lifecycle method to disable the automatic binding resolution for lazyloading.
 		 * @override
-		 * @param bUpdateAll
-		 * @param sModelName
+		 * @param {boolean} bUpdateAll
+		 * @param {string} sModelName
 		 * @returns {*}
 		 */
 		BlockBase.prototype.updateBindings = function (bUpdateAll, sModelName) {

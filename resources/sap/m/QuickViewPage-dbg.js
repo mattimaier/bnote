@@ -1,6 +1,6 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -9,20 +9,30 @@ sap.ui.define([
 			'jquery.sap.global', './library', 'sap/ui/core/Control',
 				'sap/ui/core/IconPool', 'sap/ui/layout/form/SimpleForm',
 				'sap/ui/layout/VerticalLayout', 'sap/ui/layout/HorizontalLayout',
-				'./Page', './Button', './ButtonType', './Bar',
+				'./Page', './Button', './Bar',
 				'./Title', './Image', './Link', './Text',
-				'./QuickViewGroupElementType',
-				'./Label', './HBox', 'sap/ui/core/Icon', 'sap/ui/core/Title', 'sap/ui/core/TitleLevel',
-				'sap/ui/core/CustomData', 'sap/ui/layout/form/SimpleFormLayout'],
+				'./Label', './HBox', 'sap/ui/core/Icon', 'sap/ui/core/Title',
+				'sap/ui/core/CustomData', 'sap/ui/core/library', 'sap/ui/layout/library'],
 		function(jQuery, library, Control,
 					IconPool, SimpleForm,
 					VerticalLayout, HorizontalLayout,
-					Page, Button, ButtonType, Bar,
+					Page, Button, Bar,
 					Title, Image, Link, Text,
-					QuickViewGroupElementType,
-					Label, HBox, Icon, CoreTitle, CoreTitleLevel,
-					CustomData, SimpleFormLayout) {
+					Label, HBox, Icon, CoreTitle,
+					CustomData, coreLibrary, layoutLibrary) {
 			"use strict";
+
+			// shortcut for sap.ui.layout.form.SimpleFormLayout
+			var SimpleFormLayout = layoutLibrary.form.SimpleFormLayout;
+
+			// shortcut for sap.ui.core.TitleLevel
+			var CoreTitleLevel = coreLibrary.TitleLevel;
+
+			// shortcut for sap.m.QuickViewGroupElementType
+			var QuickViewGroupElementType = library.QuickViewGroupElementType;
+
+			// shortcut for sap.m.ButtonType
+			var ButtonType = library.ButtonType;
 
 			/**
 			* Constructor for a new QuickViewPage.
@@ -37,7 +47,7 @@ sap.ui.define([
 			* @extends sap.ui.core.Control
 			*
 			* @author SAP SE
-			* @version 1.38.7
+			* @version 1.50.7
 			*
 			* @constructor
 			* @public
@@ -138,7 +148,24 @@ sap.ui.define([
 				if (fGetService) {
 					this.oCrossAppNavigator = fGetService("CrossApplicationNavigation");
 				}
+			};
 
+			/**
+			 * Called before the control is rendered.
+			 * @private
+			 */
+			QuickViewPage.prototype.onBeforeRendering =  function() {
+				this._destroyPageContent();
+				this._createPageContent();
+			};
+
+			/**
+			 * Returns page content containing the header and the form.
+			 * @private
+			 * @returns {Object} Object containing the header and the form
+			 */
+			QuickViewPage.prototype.getPageContent =  function() {
+				return this._mPageContent;
 			};
 
 			/**
@@ -224,6 +251,7 @@ sap.ui.define([
 							tooltip : this._oResourceBundle.getText("PAGE_NAVBUTTON_TEXT"),
 							press : function() {
 								if (mNavContext.navContainer) {
+									mNavContext.quickView._setNavOrigin(null);
 									mNavContext.navContainer.back();
 								}
 							}
@@ -275,10 +303,12 @@ sap.ui.define([
 					oForm.addAriaLabelledBy(oPageTitleControl);
 				}
 
-				return {
-					form : oForm,
-					header : oHeader
+				this._mPageContent = {
+					form: oForm,
+					header: oHeader
 				};
+
+				return this._mPageContent;
 			};
 
 			/**
@@ -313,11 +343,11 @@ sap.ui.define([
 			QuickViewPage.prototype._getPageHeaderContent = function() {
 				var oIcon,
 					oVLayout = new VerticalLayout(),
-					oHLayout = new HorizontalLayout();
-
-				var sIcon = this.getIcon();
-				var sTitle = this.getTitle();
-				var sDescription = this.getDescription();
+					oHLayout = new HorizontalLayout(),
+					sIcon = this.getIcon(),
+					sTitle = this.getTitle(),
+					sDescription = this.getDescription(),
+					sTitleUrl = this.getTitleUrl();
 
 				if (!sIcon && !sTitle && !sDescription) {
 					return null;
@@ -327,20 +357,21 @@ sap.ui.define([
 					if (this.getIcon().indexOf("sap-icon") == 0) {
 						oIcon = new Icon({
 							src: sIcon,
-							useIconTooltip : false,
-							tooltip : sTitle
+							decorative: !sTitleUrl,
+							useIconTooltip: false,
+							tooltip: sTitle
 						});
 					} else {
 						oIcon = new Image({
 							src: sIcon,
-							decorative : false,
-							tooltip : sTitle
+							decorative: false,
+							tooltip: sTitle
 						}).addStyleClass("sapUiIcon");
 					}
 
 					oIcon.addStyleClass("sapMQuickViewThumbnail");
 
-					if (this.getTitleUrl()) {
+					if (sTitleUrl) {
 						oIcon.attachPress(this._crossApplicationNavigation(this));
 					}
 
@@ -349,10 +380,10 @@ sap.ui.define([
 
 				var oTitle;
 
-				if (this.getTitleUrl()) {
+				if (sTitleUrl) {
 					oTitle = new Link({
 						text	: sTitle,
-						href	: this.getTitleUrl(),
+						href	: sTitleUrl,
 						target	: "_blank"
 					});
 				} else if (this.getCrossAppNavCallback()) {
@@ -432,10 +463,6 @@ sap.ui.define([
 						continue;
 					}
 
-					if (oCurrentGroupElementValue instanceof Link) {
-						oCurrentGroupElementValue.addAriaLabelledBy(oCurrentGroupElementValue);
-					}
-
 					oLabel.setLabelFor(oCurrentGroupElementValue.getId());
 
 					if (oCurrentGroupElement.getType() == QuickViewGroupElementType.pageLink) {
@@ -469,7 +496,7 @@ sap.ui.define([
 			 * Helper function used to navigate to another Fiori application (intent based navigation) or
 			 * to an external link.
 			 * This will be applicable only for the header link.
-			 * @param {sap.m.QuickViewPage} The page from which the navigation starts
+			 * @param {sap.m.QuickViewPage} that - The page from which the navigation starts
 			 * @returns {Function} A function that executes the navigation
 			 * @private
 			 */
@@ -497,9 +524,33 @@ sap.ui.define([
 				};
 			};
 
+			QuickViewPage.prototype._destroyPageContent = function() {
+				if (!this._mPageContent) {
+					return;
+				}
+
+				if (this._mPageContent.form) {
+					this._mPageContent.form.destroy();
+				}
+
+				if (this._mPageContent.header) {
+					this._mPageContent.header.destroy();
+				}
+
+				this._mPageContent = null;
+
+			};
+
 			QuickViewPage.prototype.exit = function() {
 				this._oResourceBundle = null;
-				this._oPage = null;
+
+				if (this._oPage) {
+					this._oPage.destroy();
+					this._oPage = null;
+				} else {
+					this._destroyPageContent();
+				}
+
 				this._mNavContext = null;
 			};
 
@@ -518,6 +569,7 @@ sap.ui.define([
 					e.preventDefault();
 					var sPageId = this.getCustomData()[0].getValue();
 					if (mNavContext.navContainer && sPageId) {
+						mNavContext.quickView._setNavOrigin(this);
 						mNavContext.navContainer.to(sPageId);
 					}
 				};
@@ -545,9 +597,16 @@ sap.ui.define([
 
 					mNavContext.popover.focus();
 
-					mNavContext.quickView._clearContainerHeight();
+					if (mNavContext.quickView.indexOfPage(this) == 0) {
+						mNavContext.quickView._clearContainerHeight();
+					}
 
 					this._createPage();
+
+					// in some cases the popover has display:none style here,
+					// which delays the simple form re-arranging and an unwanted scrollbar might appear.
+					mNavContext.popover.$().css('display', 'block');
+
 					mNavContext.quickView._restoreFocus();
 				}
 			};

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -121,6 +121,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Metadata', './OverflowToolbarBu
 		OverflowToolbarAssociativePopoverControls.prototype._postProcessSapMSelect = function(oControl) {
 			var oPrevState = this._mControlsCache[oControl.getId()];
 
+
 			if (oControl.getType() !== oPrevState.selectType) {
 				oControl.setProperty("type", oPrevState.selectType, true);
 			}
@@ -140,6 +141,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Metadata', './OverflowToolbarBu
 				canOverflow: true,
 				listenForEvents: ["press"],
 				noInvalidationProps: ["enabled", "type"]
+			},
+			"sap.m.MenuButton": {
+				canOverflow: true,
+				listenForEvents: ["defaultAction", "_menuItemSelected"],
+				noInvalidationProps: ["enabled", "text", "icon"]
 			},
 			"sap.m.OverflowToolbarButton": {
 				canOverflow: true,
@@ -210,6 +216,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Metadata', './OverflowToolbarBu
 				canOverflow: false,
 				listenForEvents: [],
 				noInvalidationProps: ["enabled", "value"]
+			},
+			"sap.m.IconTabHeader": {
+				canOverflow: false,
+				listenForEvents: [],
+				noInvalidationProps: ["selectedKey"]
+			},
+			"sap.ui.comp.smartfield.SmartField": {
+				canOverflow: true,
+				listenForEvents: ["change"],
+				noInvalidationProps: ["enabled", "value", "valueState", "showValueHelp", "contextEditable",
+					"clientSideMandatoryCheck", "mandatory", "name", "placeholder", "showSuggestion", "tooltipLabel"]
+			},
+			"sap.ui.comp.smartfield.SmartLabel": {
+				canOverflow: true,
+				listenForEvents: [],
+				noInvalidationProps: ["enabled"]
 			}
 		};
 

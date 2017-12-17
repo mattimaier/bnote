@@ -1,6 +1,6 @@
 /*
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,13 +18,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HTMLViewSeri
 	 * @param {object} [oWindow=window] the window object. Default is the window object the instance of the serializer is running in.
 	 * @param {string} [sDefaultXmlNamespace] defines the default xml namespace
 	 *
-	 * @public
 	 * @class ViewSerializer class.
 	 * @extends sap.ui.base.EventProvider
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @alias sap.ui.core.util.serializer.ViewSerializer
-	 * @experimental Since 1.15.1. The ViewSerializer is still under construction, so some implementation details can be changed in future.
+	 * @private
+	 * @sap-restricted sap.watt com.sap.webide
 	 */
 	var ViewSerializer = EventProvider.extend("sap.ui.core.util.serializer.ViewSerializer", /** @lends sap.ui.core.util.serializer.ViewSerializer.prototype */
 	{
@@ -107,7 +107,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HTMLViewSeri
 				this._serializeRecursive(aContent[i]);
 			}
 		} else if (oControl.getMetadata().getClass() === this._oWindow.sap.ui.core.ComponentContainer) {
-			this._serializeRecursive(oControl.getComponentInstance().getAggregation("rootControl"));
+			this._serializeRecursive(oControl.getComponentInstance().getRootControl());
 		} else {
 			var mAggregations = oControl.getMetadata().getAllAggregations();
 			if (mAggregations) {

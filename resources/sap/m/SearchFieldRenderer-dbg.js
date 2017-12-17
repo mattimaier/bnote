@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -51,16 +51,11 @@ sap.ui.define(['jquery.sap.global'],
 		}
 
 		rm.writeClasses();
-		var sTooltip = oSF.getTooltip_AsString();
-		if (sTooltip) {
-			rm.writeAttributeEscaped("title", sTooltip);
-		}
 		rm.write(">");
 
 			// 1. Input type="search".
 			//    Enclose input into a <form> to show a correct keyboard
-			//    method="post" to prevent unneeded "?" at the end of URL
-			rm.write('<form method="post" action="javascript:void(0);"');
+			rm.write('<form');
 			rm.writeAttribute("id", sId + "-F");
 			rm.addClass('sapMSFF');
 			if (!bShowSearchBtn) {
@@ -84,8 +79,20 @@ sap.ui.define(['jquery.sap.global'],
 				rm.write("</label>");
 			}
 
-			rm.write('<input type="search" autocorrect="off" autocomplete="off"');
+			rm.write('<input');
+			rm.writeAttribute("type", "search");
+			rm.writeAttribute("autocomplete", "off");
+
+			if (sap.ui.Device.browser.safari) {
+				rm.writeAttribute("autocorrect", "off");
+			}
+
 			rm.writeAttribute("id", oSF.getId() + "-I");
+
+			var sTooltip = oSF.getTooltip_AsString();
+			if (sTooltip) {
+				rm.writeAttributeEscaped("title", sTooltip);
+			}
 
 			rm.addClass("sapMSFI");
 
@@ -106,7 +113,7 @@ sap.ui.define(['jquery.sap.global'],
 			if (sValue) { rm.writeAttributeEscaped("value", sValue); }
 
 			//ARIA attributes
-			if (oSF.getEnabled() && bShowRefreshButton) {
+			if (oSF.getEnabled() && bShowRefreshButton && oSF._sAriaF5LabelId) {
 				oAccAttributes.describedby = {
 					value: oSF._sAriaF5LabelId,
 					append: true

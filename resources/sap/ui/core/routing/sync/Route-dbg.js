@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global'], function(jQuery) {
@@ -25,7 +25,8 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 				oConfig,
 				oEventData,
 				oView = null,
-				oTargetControl = null;
+				oTargetControl = null,
+				oTargetData;
 
 			// Recursively fire matched event and display views of this routes parents
 			if (this._oParent) {
@@ -37,6 +38,10 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 
 			oConfig =  jQuery.extend({}, oRouter._oConfig, this._oConfig);
 
+			// make a copy of arguments and forward route config to target
+			oTargetData = jQuery.extend({}, oArguments);
+			oTargetData.routeConfig = oConfig;
+
 			oEventData = {
 				name: oConfig.name,
 				arguments: oArguments,
@@ -47,6 +52,10 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 				// setting the event parameter of nesting child
 				oEventData.nestedRoute = oNestingChild;
 			}
+
+			// fire the beforeMatched and beforeRouteMathced events
+			this.fireBeforeMatched(oEventData);
+			oRouter.fireBeforeRouteMatched(oEventData);
 
 			// Route is defined without target in the config - use the internally created target to place the view
 			if (this._oTarget) {
@@ -69,7 +78,7 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 				oEventData.targetControl = oTargetControl;
 			} else {
 				// let targets do the placement + the events
-				oRouter._oTargets._display(this._oConfig.target, oArguments);
+				oRouter._oTargets._display(this._oConfig.target, oTargetData, this._oConfig.titleTarget);
 			}
 
 			if (oConfig.callback) {

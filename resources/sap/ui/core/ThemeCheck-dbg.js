@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides class sap.ui.core.ThemeCheck
-sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'sap/ui/base/Object', 'sap/ui/thirdparty/URI', 'jquery.sap.script'],
-	function(jQuery, Device, BaseObject, URI/* , jQuerySap */) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'sap/ui/Global', 'sap/ui/base/Object', 'sap/ui/thirdparty/URI', 'jquery.sap.script'],
+	function(jQuery, Device, Global, BaseObject, URI/* , jQuerySap */) {
 	"use strict";
 
 
@@ -36,7 +36,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'sap/ui/base/Object', 'sap/
 			this._CUSTOMID = "sap-ui-core-customcss";
 			this._customCSSAdded = false;
 			this._themeCheckedForCustom = null;
-			this._mAdditionalLibCss = {};
 		},
 
 		getInterface : function() {
@@ -58,29 +57,52 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'sap/ui/base/Object', 'sap/
 
 	ThemeCheck.themeLoaded = false;
 
-	ThemeCheck.checkStyle = function(oStyle, bLog){
-		if (typeof (oStyle) === "string") {
-			oStyle = jQuery.sap.domById(oStyle);
-		}
-		var $Style = jQuery(oStyle);
+	ThemeCheck.checkStyle = function(sId, bLog) {
+		var oStyle = document.getElementById(sId);
 
 		try {
-			var res = !oStyle || !!((oStyle.sheet && oStyle.sheet.href === oStyle.href && oStyle.sheet.cssRules && oStyle.sheet.cssRules.length > 0) ||
-							!!(oStyle.styleSheet && oStyle.styleSheet.href === oStyle.href && oStyle.styleSheet.cssText && oStyle.styleSheet.cssText.length > 0) ||
-							!!(oStyle.innerHTML && oStyle.innerHTML.length > 0));
-			var res2 = $Style.attr("data-sap-ui-ready");
-			res2 = !!(res2 === "true" || res2 === "false");
-			if (bLog) {
-				jQuery.sap.log.debug("ThemeCheck: Check styles '" + $Style.attr("id") + "': " + res + "/" + res2 + "/" + !!oStyle);
+
+			var bNoLinkElement = false,
+			    bLinkElementFinishedLoading = false,
+			    bSheet = false,
+			    bInnerHtml = false;
+
+			// Check if <link> element is missing (e.g. misconfigured library)
+			bNoLinkElement = !oStyle;
+
+			// Check if <link> element has finished loading (see jQuery.sap.includeStyleSheet)
+			bLinkElementFinishedLoading = !!(oStyle && (oStyle.getAttribute("data-sap-ui-ready") === "true" || oStyle.getAttribute("data-sap-ui-ready") === "false"));
+
+			// Check for "sheet" object and if rules are available
+			try {
+				bSheet = !!(oStyle && oStyle.sheet && oStyle.sheet.href === oStyle.href && oStyle.sheet.cssRules && oStyle.sheet.cssRules.length > 0);
+			} catch (e) {
+				// Firefox throws a SecurityError or InvalidAccessError if "oStyle.sheet.cssRules"
+				// is accessed on a stylesheet with 404 response code or from a different origin (CORS).
+				// Only rethrow if the error is different
+				if (e.name !== 'SecurityError' && e.name !== 'InvalidAccessError') {
+					throw e;
+				}
 			}
-			return res || res2;
+
+			// Check for "innerHTML" content
+			bInnerHtml = !!(oStyle && oStyle.innerHTML && oStyle.innerHTML.length > 0);
+
+			// One of the previous four checks need to be successful
+			var bResult = bNoLinkElement || bSheet || bInnerHtml || bLinkElementFinishedLoading;
+
+			if (bLog) {
+				jQuery.sap.log.debug("ThemeCheck: " + sId + ": " + bResult + " (noLinkElement: " + bNoLinkElement + ", sheet: " + bSheet + ", innerHtml: " + bInnerHtml + ", linkElementFinishedLoading: " + bLinkElementFinishedLoading + ")");
+			}
+
+			return bResult;
+
 		} catch (e) {
-			//escape eslint check for empty block
+			if (bLog) {
+				jQuery.sap.log.error("ThemeCheck: " + sId + ": Error during check styles '" + sId + "'", e);
+			}
 		}
 
-		if (bLog) {
-			jQuery.sap.log.debug("ThemeCheck: Error during check styles '" + $Style.attr("id") + "': false/false/" + !!oStyle);
-		}
 		return false;
 	};
 
@@ -90,7 +112,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'sap/ui/base/Object', 'sap/
 			jQuery.sap.clearDelayedCall(oThemeCheck._sThemeCheckId);
 			oThemeCheck._sThemeCheckId = null;
 			oThemeCheck._iCount = 0;
-			oThemeCheck._mAdditionalLibCss = {};
 		}
 	}
 
@@ -108,69 +129,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'sap/ui/base/Object', 'sap/
 
 		function checkLib(lib) {
 			res = res && ThemeCheck.checkStyle("sap-ui-theme-" + lib, true);
-			if (!!res) {
-
-			// check for css rule count
-				if (Device.browser.msie && Device.browser.version <= 9) {
-					var oStyle = jQuery.sap.domById("sap-ui-theme-" + lib);
-					var iRules = oStyle && oStyle.sheet && oStyle.sheet.rules &&
-									oStyle.sheet.rules.length ? oStyle.sheet.rules.length : 0;
-
-					// IE9 and below can only handle up to 4095 rules and therefore additional
-					// css files have to be included
-					if (iRules === 4095) {
-						var iNumber = parseInt(jQuery(oStyle).attr("data-sap-ui-css-count"), 10);
-						if (isNaN(iNumber)) {
-							iNumber = 1; // first additional stylesheet
-						} else {
-							iNumber += 1;
-						}
-						var sAdditionalLibSuffix = "ie9_" + iNumber;
-						var sAdditionalLibName = this.name + "-" + sAdditionalLibSuffix;
-						var sLinkId = "sap-ui-theme-" + sAdditionalLibName;
-						if (!oThemeCheck._mAdditionalLibCss[sAdditionalLibName] && !jQuery.sap.domById(sLinkId)) {
-							oThemeCheck._mAdditionalLibCss[sAdditionalLibName] = {
-								name: this.name // remember original libName
-							};
-							var oBaseStyleSheet;
-							if (lib !== this.name) {
-								// use first stylesheet element of theme
-								oBaseStyleSheet = jQuery.sap.domById("sap-ui-theme-" + this.name);
-							} else {
-								oBaseStyleSheet = oStyle;
-							}
-							// parse original href
-							var oHref = new URI(oBaseStyleSheet.getAttribute("href"));
-							var sSuffix = oHref.suffix();
-							// get filename without suffix
-							var sFileName = oHref.filename();
-							if (sSuffix.length > 0) {
-								sSuffix = "." + sSuffix;
-								sFileName = sFileName.slice(0, -sSuffix.length);
-							}
-							// change filename only (to keep URI parameters)
-							oHref.filename(sFileName + "_" + sAdditionalLibSuffix + sSuffix);
-							// build final href
-							var sHref = oHref.toString();
-							// create the new link element
-							var oLink = document.createElement("link");
-							oLink.type = "text/css";
-							oLink.rel = "stylesheet";
-							oLink.href = sHref;
-							oLink.id = sLinkId;
-
-							jQuery(oLink)
-							.attr("data-sap-ui-css-count", iNumber)
-							.load(function() {
-								jQuery(oLink).attr("data-sap-ui-ready", "true");
-							}).error(function() {
-								jQuery(oLink).attr("data-sap-ui-ready", "false");
-							});
-
-							oStyle.parentNode.insertBefore(oLink, oStyle.nextSibling);
-						}
-					}
-				}
+			if (res) {
 
 				/* as soon as css has been loaded, look if there is a flag for custom css inclusion inside, but only
 				 * if this has not been checked successfully before for the same theme
@@ -207,7 +166,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'sap/ui/base/Object', 'sap/
 		}
 
 		jQuery.each(mLibs, checkLib);
-		jQuery.each(oThemeCheck._mAdditionalLibCss, checkLib);
 
 		if (!res) {
 			jQuery.sap.log.warning("ThemeCheck: Theme not yet applied.");
@@ -217,32 +175,96 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'sap/ui/base/Object', 'sap/
 		return res;
 	}
 
-	/* checks if a particular class is available at the beginning of the core styles
+	/* checks if a particular class is available
 	 */
 	function checkCustom (oThemeCheck, lib){
-		var iRulesToCheck = 2,
-			bSuccess = false,
-			aRules = [];
-		if (jQuery.sap.domById("sap-ui-theme-" + lib)) {
-			var cssFile = jQuery.sap.domById("sap-ui-theme-" + lib);
-			if (cssFile.sheet && cssFile.sheet.cssRules) {
-				aRules = cssFile.sheet.cssRules;
-			} else if (cssFile.styleSheet && cssFile.styleSheet.rules) {
-				// we're in an old IE version
-				aRules = cssFile.styleSheet.rules;
+
+		var cssFile = jQuery.sap.domById("sap-ui-theme-" + lib);
+
+		if (!cssFile) {
+			return false;
+		}
+
+		/*
+		Check if custom.css indication rule is applied to <link> element
+		The rule looks like this:
+
+			link[id^="sap-ui-theme-"]::after,
+			.sapUiThemeDesignerCustomCss {
+			  content: '{"customcss" : true}';
+			}
+
+		First selector is to apply it to the <link> elements,
+		the second one for the Safari workaround (see below).
+		*/
+		var style = window.getComputedStyle(cssFile, ':after');
+		var content = style ? style.getPropertyValue('content') : null;
+
+		if (!content && Device.browser.safari) {
+
+			// Safari has a bug which prevents reading properties of hidden pseudo elements
+			// As a workaround: Add "sapUiThemeDesignerCustomCss" class on html element
+			// in order to get the computed "content" value and remove it again.
+			var html = document.documentElement;
+
+			html.classList.add("sapUiThemeDesignerCustomCss");
+			content = window.getComputedStyle(html, ":after").getPropertyValue("content");
+			html.classList.remove("sapUiThemeDesignerCustomCss");
+		}
+
+		if (content && content !== "none") {
+			try {
+
+				// Strip surrounding quotes (single or double depending on browser)
+				if (content[0] === "'" || content[0] === '"') {
+					content = content.substring(1, content.length - 1);
+				}
+
+				// Cast to boolean (returns true if string equals "true", otherwise false)
+				return content === "true";
+
+			} catch (e) {
+				// parsing error
+				jQuery.sap.log.error("Custom check: Error parsing JSON string for custom.css indication.", e);
 			}
 		}
-		if (aRules.length == 0) {
+
+		//***********************************
+		// Fallback legacy customcss check
+		//***********************************
+
+		/*
+		 * checks if a particular class is available at the beginning of the stylesheet
+		*/
+
+		var aRules;
+
+		try {
+			if (cssFile.sheet && cssFile.sheet.cssRules) {
+				aRules = cssFile.sheet.cssRules;
+			}
+		} catch (e) {
+			// Firefox throws a SecurityError or InvalidAccessError if "cssFile.sheet.cssRules"
+			// is accessed on a stylesheet with 404 response code or from a different origin (CORS).
+			// Only rethrow if the error is different
+			if (e.name !== 'SecurityError' && e.name !== 'InvalidAccessError') {
+				throw e;
+			}
+		}
+
+		if (!aRules || aRules.length == 0) {
 			jQuery.sap.log.warning("Custom check: Failed retrieving a CSS rule from stylesheet " + lib);
 			return false;
 		}
+
 		// we should now have some rule name ==> try to match against custom check
-		for (var i = 0; (i < iRulesToCheck && i < aRules.length) ; i++) {
+		for (var i = 0; (i < 2 && i < aRules.length) ; i++) {
 			if (oThemeCheck._CUSTOMCSSCHECK.test(aRules[i].selectorText)) {
-				bSuccess = true;
+				return true;
 			}
 		}
-		return bSuccess;
+
+		return false;
 	}
 
 	function delayedCheckTheme(bFirst) {

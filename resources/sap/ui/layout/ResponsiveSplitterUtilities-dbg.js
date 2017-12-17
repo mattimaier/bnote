@@ -1,6 +1,6 @@
 /*!
 * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
 */
 sap.ui.define(["jquery.sap.global", "sap/ui/core/Control"], function (jQuery, Control) {
@@ -31,9 +31,9 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control"], function (jQuery, Co
 	/**
 	 * Helper structure used to represent an interval inside the ResponsiveSplitter.
 	 * The intervals are defined by the requiredParentWidth properties of the splitPanes
-	 * @param iFrom - Staring point for the interval
-	 * @param iTo - End point of the interval
-	 * @param oPaneContainer - The content of the RSLayout
+	 * @param {int} iFrom Staring point for the interval
+	 * @param {int} iTo End point of the interval
+	 * @param {sap.ui.LayoutPaneContainer} oPaneContainer The content of the RSLayout
 	 */
 	RSUtil.splitterInterval = function (iFrom, iTo, oPaneContainer) {
 		this.iFrom = iFrom;

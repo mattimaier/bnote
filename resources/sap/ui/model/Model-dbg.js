@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides the base implementation for all model implementations
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './BindingMode', './Context'],
-	function(jQuery, MessageProcessor, BindingMode, Context) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './BindingMode', './Context', './Filter', './FilterOperator'],
+	function(jQuery, MessageProcessor, BindingMode, Context, Filter, FilterOperator) {
 	"use strict";
 
 
@@ -38,7 +38,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 	 * @extends sap.ui.core.message.MessageProcessor
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -56,6 +56,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 			this.iSizeLimit = 100;
 			this.sDefaultBindingMode = BindingMode.TwoWay;
 			this.mSupportedBindingModes = {"OneWay": true, "TwoWay": true, "OneTime": true};
+			this.mUnsupportedFilterOperators = {};
 			this.bLegacySyntax = false;
 			this.sUpdateTimer = null;
 		},
@@ -68,7 +69,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 				"bindProperty", "bindList", "bindTree", "bindContext", "createBindingContext", "destroyBindingContext", "getProperty",
 				"getDefaultBindingMode", "setDefaultBindingMode", "isBindingModeSupported", "attachParseError", "detachParseError",
 				"attachRequestCompleted", "detachRequestCompleted", "attachRequestFailed", "detachRequestFailed", "attachRequestSent",
-				"detachRequestSent", "setSizeLimit", "refresh", "isList", "getObject"
+				"detachRequestSent", "attachPropertyChange", "detachPropertyChange", "setSizeLimit", "refresh", "isList", "getObject"
 		  ]
 
 		  /* the following would save code, but requires the new ManagedObject (1.9.1)
@@ -116,7 +117,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 		 * Contains Parameters: url, type, async, info (<strong>deprecated</strong>), infoObject, success, errorobject
 		 *
 		 */
-		RequestCompleted : "requestCompleted"
+		RequestCompleted : "requestCompleted",
+
+		/**
+		 * Event is fired when changes occur to a property value in the model. The event contains a reason parameter which describes the cause of the property value change.
+		 * Currently the event is only fired with reason <code>sap.ui.model.ChangeReason.Binding</code> which is fired when two way changes occur to a value of a property binding.
+		 * Contains the parameters:
+		 * reason, path, context, value
+		 *
+		 */
+		PropertyChange : "propertyChange"
 	};
 
 	/**
@@ -426,6 +436,80 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 		return this;
 	};
 
+	/**
+	 * Fire event propertyChange to attached listeners.
+	 *
+	 * @param {object} [mArguments] the arguments to pass along with the event.
+	 * @param {sap.ui.model.ChangeReason} [mArguments.reason] The reason of the property change
+	 * @param {string} [mArguments.path] The path of the property
+	 * @param {object} [mArguments.context] the context of the property
+	 * @param {object} [mArguments.value] the value of the property
+	 *
+	 * @return {sap.ui.model.Model} <code>this</code> to allow method chaining
+	 * @protected
+	 */
+	Model.prototype.firePropertyChange = function(mArguments) {
+		this.fireEvent("propertyChange", mArguments);
+		return this;
+	};
+
+	/**
+	 *
+	 *
+	 * The 'propertyChange' event is fired when changes occur to a property value in the model. The event contains a reason parameter which describes the cause of the property value change.
+	 * Currently the event is only fired with reason <code>sap.ui.model.ChangeReason.Binding</code> which is fired when two way changes occur to a value of a property binding.
+	 *
+	 * Note: Subclasses might add additional parameters to the event object. Optional parameters can be omitted.
+	 *
+	 * @name sap.ui.model.Model#propertyChange
+	 * @event
+	 * @param {sap.ui.base.Event} oEvent
+	 * @param {sap.ui.base.EventProvider} oEvent.getSource
+	 * @param {object} oEvent.getParameters
+	 * @param {sap.ui.model.ChangeReason} oEvent.getParameters.reason The cause of the property value change
+	 * @param {string} oEvent.getParameters.path The path of the property
+	 * @param {sap.ui.model.Context} [oEvent.getParameters.context] The binding context (if available)
+	 * @param {object} oEvent.getParameters.value The current value of the property
+	 * @public
+	 */
+
+	/**
+	 * Attach event-handler <code>fnFunction</code> to the 'propertyChange' event of this <code>sap.ui.model.Model</code>.
+	 *
+	 *
+	 * @param {object}
+	 *            [oData] The object, that should be passed along with the event-object when firing the event.
+	 * @param {function}
+	 *            fnFunction The function to call, when the event occurs. This function will be called on the
+	 *            oListener-instance (if present) or in a 'static way'.
+	 * @param {object}
+	 *            [oListener] Object on which to call the given function. If empty, the global context (window) is used.
+	 *
+	 * @return {sap.ui.model.Model} <code>this</code> to allow method chaining
+	 * @public
+	 */
+	Model.prototype.attachPropertyChange = function(oData, fnFunction, oListener) {
+		this.attachEvent("propertyChange", oData, fnFunction, oListener);
+		return this;
+	};
+
+	/**
+	 * Detach event-handler <code>fnFunction</code> from the 'propertyChange' event of this <code>sap.ui.model.Model</code>.
+	 *
+	 * The passed function and listener object must match the ones previously used for event registration.
+	 *
+	 * @param {function}
+	 *            fnFunction The function to call, when the event occurs.
+	 * @param {object}
+	 *            oListener Object on which the given function had to be called.
+	 * @return {sap.ui.model.Model} <code>this</code> to allow method chaining
+	 * @public
+	 */
+	Model.prototype.detachPropertyChange = function(fnFunction, oListener) {
+		this.detachEvent("propertyChange", fnFunction, oListener);
+		return this;
+	};
+
 	// the 'abstract methods' to be implemented by child classes
 
 	/**
@@ -542,10 +626,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 	 *         sPath the path to where to read the object
 	 * @param {object}
 	 *		   [oContext=null] the context with which the path should be resolved
+	 * @param {object}
+	 *         [mParameters] additional model specific parameters
+	 *
 	 * @public
 	 */
-	Model.prototype.getObject = function(sPath, oContext) {
-		return this.getProperty(sPath, oContext);
+	Model.prototype.getObject = function(sPath, oContext, mParameters) {
+		return this.getProperty(sPath, oContext, mParameters);
 	};
 
 
@@ -775,10 +862,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 	 * @public
 	 */
 	Model.prototype.setMessages = function(mMessages) {
-		//jQuery.sap.assert(!jQuery.isEmptyObject(mMessages), this + ": mMessages passed as emptyObject( {} ). Use null instead!");
-
-		this.mMessages = mMessages || {};
-		if (mMessages !== null || !jQuery.sap.equal(this.mMessages, mMessages)) {
+		mMessages = mMessages || {};
+		if (!jQuery.sap.equal(this.mMessages, mMessages)) {
+			this.mMessages = mMessages;
 			this.checkMessages();
 		}
 	};
@@ -864,6 +950,58 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/message/MessageProcessor', './B
 	Model.prototype.isLaundering = function(sPath, oContext) {
 		return false;
 	};
+
+	/**
+	 * Checks whether the given filters contain an unsupported operator.
+	 *
+	 * OData v1, v2 and Client Bindings cannot be filtered with <code>sap.ui.model.FilterOperator</code> <code>"Any"</code> and <code>"All"</code>.
+	 * The model property <code>mUnsupportedFilterOperators</code> can be configured in each model subclass
+	 * to describe the unsupported operators.
+	 *
+	 * If any of the given filters contains nested filters, those are checked recursively.
+	 *
+	 * @param {sap.ui.model.Filter|sap.ui.model.Filter[]} vFilters Single filter or an array of filter instances
+	 * @throws {Error} if at least one filter uses an <code>sap.ui.model.FilterOperator</code>
+	 *               that is not supported by the related model instance
+	 * @sap-restricted sap.ui.model
+	 * @protected
+	 */
+	Model.prototype.checkFilterOperation = function(vFilters) {
+		_traverseFilter(vFilters, function (oFilter) {
+			if (this.mUnsupportedFilterOperators[oFilter.sOperator]) {
+				throw new Error("Filter instances contain an unsupported FilterOperator: " + oFilter.sOperator);
+			}
+		}.bind(this));
+	};
+
+	/**
+	 * Traverses the given filter tree.
+	 *
+	 * @param {sap.ui.model.Filter[]|sap.ui.model.Filter} vFilters Array of filters or a single filter instance, which will be checked for unsupported filter operators
+	 * @param {function} fnCheck Check function which is called for each filter instance in the tree
+	 * @private
+	 */
+	function _traverseFilter (vFilters, fnCheck) {
+		vFilters = vFilters || [];
+
+		if (vFilters instanceof Filter) {
+			vFilters = [vFilters];
+		}
+
+		// filter has more sub-filter instances (we ignore the subfilters below the any/all operators)
+		for (var i = 0; i < vFilters.length; i++) {
+			// check single Filter
+			var oFilter = vFilters[i];
+			fnCheck(oFilter);
+
+			// check subfilter for lambda expressions (e.g. Any, All, ...)
+			_traverseFilter(oFilter.oCondition, fnCheck);
+
+			// check multi filter if necessary
+			_traverseFilter(oFilter.aFilters, fnCheck);
+		}
+	}
+
 	return Model;
 
 });

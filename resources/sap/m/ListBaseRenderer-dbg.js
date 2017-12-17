@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -47,8 +47,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/theming/Parameters', './ListIte
 		rm.write("<div");
 		rm.addClass("sapMList");
 		rm.writeControlData(oControl);
-		rm.writeAttribute("tabindex", "-1");
-		rm.writeAttribute("role", "presentation");
 
 		if (oControl.getInset()) {
 			rm.addClass("sapMListInsetBG");
@@ -99,10 +97,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/theming/Parameters', './ListIte
 		}
 
 		// determine items rendering
-		var aItems = oControl.getItems(true),
+		var aItems = oControl.getItems(),
 			bShowNoData = oControl.getShowNoData(),
 			bRenderItems = oControl.shouldRenderItems() && aItems.length,
-			iTabIndex = oControl.getKeyboardMode() == sap.m.ListKeyboardMode.Edit ? -1 : 0;
+			iTabIndex = oControl.getKeyboardMode() == sap.m.ListKeyboardMode.Edit ? -1 : 0,
+			bUpwardGrowing = oControl.getGrowingDirection() == sap.m.ListGrowingDirection.Upwards && oControl.getGrowing();
+
+		// render top growing
+		if (bUpwardGrowing) {
+			this.renderGrowing(rm, oControl);
+		}
 
 		// dummy keyboard handling area
 		if (bRenderItems || bShowNoData) {
@@ -117,6 +121,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/theming/Parameters', './ListIte
 
 		// list attributes
 		rm.addClass("sapMListUl");
+		if (oControl._iItemNeedsHighlight) {
+			rm.addClass("sapMListHighlight");
+		}
+
 		rm.writeAttribute("id", oControl.getId("listUl"));
 		if (bRenderItems || bShowNoData) {
 			rm.writeAttribute("tabindex", iTabIndex);
@@ -141,6 +149,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/theming/Parameters', './ListIte
 
 		// render child controls
 		if (bRenderItems) {
+			if (bUpwardGrowing) {
+				aItems.reverse();
+			}
+
 			for (var i = 0; i < aItems.length; i++) {
 				rm.renderControl(aItems[i]);
 			}
@@ -159,8 +171,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/theming/Parameters', './ListIte
 			this.renderDummyArea(rm, oControl, "after", iTabIndex);
 		}
 
-		// render growing
-		this.renderGrowing(rm, oControl);
+		// render bottom growing
+		if (!bUpwardGrowing) {
+			this.renderGrowing(rm, oControl);
+		}
 
 		// footer
 		if (oControl.getFooterText()) {
@@ -248,20 +262,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/theming/Parameters', './ListIte
 	 * @param {sap.ui.core.Control} oControl an object representation of the control
 	 */
 	ListBaseRenderer.getAccessibilityState = function(oControl) {
-
-		var mMode = sap.m.ListMode,
-			sMode = oControl.getMode(),
-			bMultiSelectable;
-
-		if (sMode == mMode.MultiSelect) {
-			bMultiSelectable = true;
-		} else if (sMode != mMode.None && sMode != mMode.Delete) {
-			bMultiSelectable = false;
-		}
-
 		return {
 			role : this.getAriaRole(oControl),
-			multiselectable : bMultiSelectable,
 			labelledby : {
 				value : this.getAriaLabelledBy(oControl),
 				append : true
@@ -315,7 +317,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/theming/Parameters', './ListIte
 		rm.writeAttribute("id", oControl.getId(sAreaId));
 		rm.writeAttribute("tabindex", iTabIndex);
 
-		if (sap.ui.Device.browser.msie) {
+		if (sap.ui.Device.system.desktop) {
 			rm.addClass("sapMListDummyArea").writeClasses();
 		}
 

@@ -1,25 +1,25 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersRenderer', './TimePickerSlider'],
-	function (jQuery, Control, SlidersRenderer, TimePickerSlider) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersRenderer', './TimePickerSlider', './VisibleItem'],
+	function (jQuery, Control, SlidersRenderer, TimePickerSlider, VisibleItem) {
 		"use strict";
 
 		/**
-		 * Constructor for a new TimePickerSliders.
+		 * Constructor for a new <code>TimePickerSliders</code>.
 		 *
 		 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 		 * @param {object} [mSettings] Initial settings for the new control
 		 *
 		 * @class
-		 * A picker list container control used inside the {@link sap.m.TimePicker} to hold all the sliders
+		 * A picker list container control used inside the {@link sap.m.TimePicker} to hold all the sliders.
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @private
@@ -43,7 +43,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 					 *
 					 * It is read by screen readers. It is visible only on phone.
 					 */
-					labelText: {name: "labelText", type: "string"}
+					labelText: {name: "labelText", type: "string"},
+
+					/**
+					 * Sets the minutes slider step.
+					 * The minutes slider is populated only by multiples of the step.
+					 * @since 1.40
+					 */
+					minutesStep: {type: "int", group: "Misc", defaultValue: 1},
+
+					/**
+					 * Sets the seconds slider step.
+					 * The seconds slider is populated only by multiples of the step.
+					 * @since 1.40
+					 */
+					secondsStep: {type: "int", group: "Misc", defaultValue: 1}
 				},
 				aggregations: {
 
@@ -101,6 +115,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 		 * gives the display format.
 		 *
 		 * @param {string} sId The ID of the TimePicker control that owns this sliders
+		 * @returns {sap.m.TimePickerSliders} this instance, used for chaining
+		 * @public
 		 */
 		TimePickerSliders.prototype.setInvokedBy = function(sId) {
 			var oLocale,
@@ -124,12 +140,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 
 				this._setupLists(this.getFormat());
 			}
+
+			return this;
 		};
 
 		/**
 		 * Sets the text for the picker label.
 		 *
 		 * @param {string} sLabelText A text for the label
+		 * @returns {sap.m.TimePickerSliders} this instance, used for chaining
 		 * @public
 		 */
 		TimePickerSliders.prototype.setLabelText = function(sLabelText) {
@@ -143,12 +162,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 					$ContainerLabel.html(sLabelText);
 				}
 			}
+
+			return this;
 		};
 
 		/**
 		 * Sets the time format.
 		 *
-		 * @param sFormat {string} New display format
+		 * @param {string} sFormat New display format
+		 * @returns {sap.m.TimePickerSliders} this instance, used for chaining
 		 * @public
 		 */
 		TimePickerSliders.prototype.setFormat = function (sFormat) {
@@ -161,6 +183,46 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 			}
 
 			this._setupLists(sFormat);
+
+			return this;
+		};
+
+		/**
+		 * Sets the minutes slider step.
+		 * @param {int} value The step used to generate values for the minutes slider
+		 * @returns {sap.m.TimePickerSliders} <code>this</code> to allow method chaining
+		 * @public
+		 */
+		TimePickerSliders.prototype.setMinutesStep = function(value) {
+			this.setProperty("minutesStep", value, true);
+			var aColumns = this.getAggregation("_columns");
+
+			if (aColumns) {
+				this.destroyAggregation("_columns");
+			}
+
+			this._setupLists(this.getFormat());
+
+			return this;
+		};
+
+		/**
+		 * Sets the seconds slider step.
+		 * @param {int} value The step used to generate values for the seconds slider
+		 * @returns {sap.m.TimePickerSliders} <code>this</code> to allow method chaining
+		 * @public
+		 */
+		TimePickerSliders.prototype.setSecondsStep = function(value) {
+			this.setProperty("secondsStep", value, true);
+			var aColumns = this.getAggregation("_columns");
+
+			if (aColumns) {
+				this.destroyAggregation("_columns");
+			}
+
+			this._setupLists(this.getFormat());
+
+			return this;
 		};
 
 		/**
@@ -211,7 +273,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 		/**
 		 * Sets the values of the slider controls, given a JavaScript date object.
 		 *
-		 * @param oDate {Object} The date to use as a setting, if not provided the current date will be used
+		 * @param {Object} oDate The date to use as a setting, if not provided the current date will be used
 		 * @public
 		 */
 		TimePickerSliders.prototype.setTimeValues = function (oDate) {
@@ -221,21 +283,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 				oListSeconds = oCore.byId(this.getId() + "-listSecs"),
 				oListAmPm = oCore.byId(this.getId() + "-listFormat"),
 				iHours,
-				sAmpm = null;
+				sAmPm = null;
 
 			oDate = oDate || new Date();
 			iHours = oDate.getHours();
 
 			if (oListAmPm) {
-				sAmpm = iHours >= 12 ? "pm" : "am";
+				//ToDo: Replace this hardcoded values with their translated text in order to have UI API value consistency
+				sAmPm = iHours >= 12 ? "pm" : "am";
 				iHours = (iHours > 12) ? iHours - 12 : iHours;
 				iHours = (iHours === 0 ? 12 : iHours);
 			}
 
 			oListHours && oListHours.setSelectedValue(iHours.toString());
-			oListMinutes && oListMinutes.setSelectedValue(oDate.getMinutes().toString());
-			oListSeconds && oListSeconds.setSelectedValue(oDate.getSeconds().toString());
-			oListAmPm && oListAmPm.setSelectedValue(sAmpm);
+			oListMinutes && oListMinutes._updateStepAndValue(oDate.getMinutes(), this.getMinutesStep());
+			oListSeconds && oListSeconds._updateStepAndValue(oDate.getSeconds(), this.getSecondsStep());
+			oListAmPm && oListAmPm.setSelectedValue(sAmPm);
 		};
 
 		/**
@@ -391,22 +454,32 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 		 *
 		 * @param {number} iFrom Starting number
 		 * @param {number} iTo Ending number
+		 * @param {int} iStep The step used for the slider
 		 * @param {number} bLeadingZeroes Whether to add leading zeroes to number values
 		 * @returns {array} Array of key/value pairs
 		 * @private
 		 */
-		TimePickerSliders.prototype._generatePickerListValues = function (iFrom, iTo, bLeadingZeroes) {
+		TimePickerSliders.prototype._generatePickerListValues = function (iFrom, iTo, iStep, bLeadingZeroes) {
 			var aValues = [],
 				sText;
 
-			for (var iIndex = iFrom; iIndex <= iTo; iIndex++) {
+			for (var iIndex = iFrom; iIndex <= iTo; iIndex += 1) {
 				if (iIndex < 10 && bLeadingZeroes) {
 					sText = "0" + iIndex.toString();
 				} else {
 					sText = iIndex.toString();
 				}
 
-				aValues.push({key: iIndex.toString(), text: sText});
+				var oItem = new VisibleItem({
+					key: iIndex.toString(),
+					text: sText
+				});
+
+				if (iIndex % iStep !== 0) {
+					oItem.setVisible(false);
+				}
+
+				aValues.push(oItem);
 			}
 
 			return aValues;
@@ -423,7 +496,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 				sLabelHours = oRb.getText("TIMEPICKER_LBL_HOURS"),
 				sLabelMinutes = oRb.getText("TIMEPICKER_LBL_MINUTES"),
 				sLabelSeconds = oRb.getText("TIMEPICKER_LBL_SECONDS"),
-				sLabelAMPM = oRb.getText("TIMEPICKER_LBL_AMPM");
+				//ToDo This value will be always "AM/PM" due to bad translation string. Consider replacing it with something like this._sAM + / + this._sPM
+				sLabelAMPM = oRb.getText("TIMEPICKER_LBL_AMPM"),
+				iMinutesStep = this.getMinutesStep(),
+				iSecondsStep = this.getSecondsStep();
+
+			if (sFormat === undefined) {
+				return;
+			}
 
 			var bHours = false, bHoursTrailingZero = false, iFrom, iTo;
 
@@ -449,23 +529,26 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 
 			if (bHours) {
 				this.addAggregation("_columns", new TimePickerSlider(this.getId() + "-listHours", {
-					items: this._generatePickerListValues(iFrom, iTo, bHoursTrailingZero),
+					items: this._generatePickerListValues(iFrom, iTo, 1, bHoursTrailingZero),
 					expanded: jQuery.proxy(onSliderExpanded, this),
 					label: sLabelHours
 				}));
 			}
 
 			if (sFormat.indexOf("m") !== -1) {
+				var aValues = this._generatePickerListValues(0, 59, iMinutesStep, true);
+
 				this.addAggregation("_columns", new TimePickerSlider(this.getId() + "-listMins", {
-					items: this._generatePickerListValues(0, 59, true),
+					items: aValues,
 					expanded: jQuery.proxy(onSliderExpanded, this),
 					label: sLabelMinutes
 				}));
 			}
 
 			if (sFormat.indexOf("s") !== -1) {
+				var aValues = this._generatePickerListValues(0, 59, iSecondsStep, true);
 				this.addAggregation("_columns", new TimePickerSlider(this.getId() + "-listSecs", {
-					items: this._generatePickerListValues(0, 59, true),
+					items: aValues,
 					expanded: jQuery.proxy(onSliderExpanded, this),
 					label: sLabelSeconds
 				}));
@@ -487,7 +570,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './TimePickerSlidersR
 
 			/**
 			 * Default expanded handler
-			 * @param oEvent {jQuery.Event} Event object
+			 * @param {jQuery.Event} oEvent  Event object
 			 */
 			function onSliderExpanded(oEvent) {
 				var aSliders = this.getAggregation("_columns");

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -8,9 +8,8 @@
 sap.ui.define([
 	'jquery.sap.global',
 	'./library',
-	'sap/ui/core/Control',
-	'sap/ui/core/PopupSupport'
-], function (jQuery, library, Control, PopupSupport) {
+	'sap/ui/core/Control'
+], function (jQuery, library, Control) {
 	"use strict";
 
 
@@ -27,7 +26,7 @@ sap.ui.define([
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -44,6 +43,16 @@ sap.ui.define([
 				 * Determines whether the initial focus is set automatically on first rendering and after navigating to a new page.
 				 * This is useful when on touch devices the keyboard pops out due to the focus being automatically set on an input field.
 				 * If necessary the "afterShow" event can be used to focus another element.
+				 *
+				 * <b>Note:</b>  The following scenarios are possible, depending on where the focus
+				 * was before navigation to a new page:
+				 * <ul><li>If <code>autoFocus</code> is set to <code>true</code> and the focus was
+				 * inside the current page, the focus will be moved automatically on the new page.</li>
+				 * <li>If <code>autoFocus</code> is set to <code>false</code> and the focus was inside
+				 * the current page, the focus will disappear.
+				 * <li>If the focus was outside the current page, after the navigation it will remain
+				 * unchanged regardless of what is set to the <code>autoFocus</code> property.</li></ul>
+				 *
 				 * @since 1.30
 				 */
 				autoFocus: {type: "boolean", group: "Behavior", defaultValue: true},
@@ -221,6 +230,11 @@ sap.ui.define([
 			return bUseAnimations ? iDelay : 0;
 		};
 
+	var fnIsPageParentActive = function(oPage) {
+		var oParent = oPage && oPage.getParent();
+		return oParent && oParent.isActive();
+	};
+
 	NavContainer.prototype.init = function () {
 		this._pageStack = [];
 		this._aQueue = [];
@@ -229,6 +243,7 @@ sap.ui.define([
 		this._iTransitionsCompleted = 0; // to track proper callback at the end of transitions
 		this._bNeverRendered = true;
 		this._bNavigating = false;
+		this._bRenderingInProgress = false;
 	};
 
 
@@ -365,7 +380,7 @@ sap.ui.define([
 		if (this._pageStack.length === 0) {
 			var page = this._getActualInitialPage(); // TODO: with bookmarking / deep linking this is the initial, but not the "home"/root page
 			if (page) {
-				this._pageStack.push({id: page.getId(), mode: "initial", data: data || {}});
+				this._pageStack.push({id: page.getId(), isInitial: true, data: data || {}});
 			}
 		}
 		return this._pageStack;
@@ -373,7 +388,7 @@ sap.ui.define([
 
 
 	/**
-	 * Returns the currently displayed page-level control. Note: it is not necessarily an instance of sap.m.Page, but it could also be a sap.ui.core.View, sap.m.Carousel, or whatever is aggregated.
+	 * Returns the currently displayed page-level control. Note: it is not necessarily an instance of sap.m.Page, but it could also be an sap.ui.core.View, sap.m.Carousel, or whatever is aggregated.
 	 *
 	 * Returns undefined if no page has been added yet.
 	 *
@@ -454,10 +469,10 @@ sap.ui.define([
 		var stack = this._ensurePageStackInitialized();
 		if (this._pageStack.length > 0) {
 			var index = stack.length - 1;
-			var pageInfo = {id: pageId, mode: transitionName, data: data};
+			var pageInfo = {id: pageId, transition: transitionName, data: data};
 			if (index === 0) {
-				pageInfo.mode = "initial";
-				delete stack[stack.length - 1].mode;
+				pageInfo.isInitial = true;
+				delete stack[stack.length - 1].isInitial;
 			}
 			stack.splice(index, 0, pageInfo);
 		} else {
@@ -482,11 +497,16 @@ sap.ui.define([
 			bAutoFocus = this.getAutoFocus(),
 			bNavigatingBackToPreviousLocation = oNavInfo.isBack || oNavInfo.isBackToPage || oNavInfo.isBackToTop;
 
+		// BCP: 1780071998 - If focus is not inside the From page we don't do any focus manipulation
+		if (!oNavInfo.bFocusInsideFromPage) {
+			return;
+		}
+
 		// check navigation type (backward or forward)
 		if (bNavigatingBackToPreviousLocation) {
 			// set focus to the remembered focus object if available
 			// if no focus was set set focus to first focusable object in "to page"
-			domRefRememberedFocusSubject = this._mFocusObject[sPageId];
+			domRefRememberedFocusSubject = this._mFocusObject != null ? this._mFocusObject[sPageId] : null;
 			if (domRefRememberedFocusSubject) {
 				jQuery.sap.focus(domRefRememberedFocusSubject);
 			} else if (bAutoFocus) {
@@ -522,12 +542,61 @@ sap.ui.define([
 			oNavInfo.to.removeStyleClass("sapMNavItemHidden");
 		}
 
-		if (this._aQueue.length > 0) {
-			var fnNavigate = this._aQueue.shift();
+		this._dequeueNavigation();
+	};
+
+	NavContainer.prototype._dequeueNavigation = function () {
+		var fnNavigate = this._aQueue.shift();
+
+		if (typeof fnNavigate === "function") {
 			fnNavigate();
 		}
 	};
 
+	/**
+	 * Checks whether a page is in the history stack or not
+	 * @param pageId
+	 * @returns {boolean}
+	 * @private
+	 */
+	NavContainer.prototype._isInPageStack = function (pageId) {
+		return this._pageStack.some(function (oPage) {
+			return oPage.id === pageId;
+		});
+	};
+
+	/**
+	 * Navigates back to a page, if the page is in the history stack. Otherwise, navigates to it.
+	 *
+	 * This method can be used to navigate to previously visited pages which are however not in the stack any more.
+	 * Such a situation can be observed when navigating back to a page several levels back.
+	 * @param pageId
+	 * @param transitionName
+	 * @param data
+	 * @param oTransitionParameters
+	 * @private
+	 */
+	NavContainer.prototype._safeBackToPage = function (pageId, transitionName, data, oTransitionParameters) {
+		if (!this.getPage(pageId)) {
+			return this;
+		}
+
+		if (this._isInPageStack(pageId)) {
+			return this.backToPage(pageId, data, oTransitionParameters);
+		} else {
+			return this.to(pageId, transitionName, data, oTransitionParameters);
+		}
+	};
+
+	/**
+	 * Check if the current focused element is a HTML child element of the control passed.
+	 * @param {sap.ui.core.Control} oControl instance of control
+	 * @returns {boolean} If the focus is in one of the control's child HTML elements
+	 * @private
+	 */
+	NavContainer.prototype._isFocusInControl = function (oControl) {
+		return jQuery(document.activeElement).closest(oControl.$()).length > 0;
+	};
 
 	/**
 	 * Navigates to the next page (with drill-down semantic) with the given (or default) animation. This creates a new history item inside the NavContainer and allows going back.
@@ -562,7 +631,7 @@ sap.ui.define([
 	 * @public
 	 * @ui5-metamodel This method also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	NavContainer.prototype.to = function (pageId, transitionName, data, oTransitionParameters) {
+	NavContainer.prototype.to = function (pageId, transitionName, data, oTransitionParameters, bFromQueue) {
 		if (pageId instanceof Control) {
 			pageId = pageId.getId();
 		}
@@ -576,6 +645,7 @@ sap.ui.define([
 		transitionName = transitionName || this.getDefaultTransitionName();
 		oTransitionParameters = oTransitionParameters || {};
 		data = data || {};
+		var oFromPageInfo = {id: pageId, transition: transitionName, data: data};
 
 		// make sure the initial page is on the stack
 		this._ensurePageStackInitialized(data);
@@ -585,7 +655,7 @@ sap.ui.define([
 			jQuery.sap.log.info(this.toString() + ": Cannot navigate to page " + pageId + " because another navigation is already in progress. - navigation will be executed after the previous one");
 
 			this._aQueue.push(jQuery.proxy(function () {
-				this.to(pageId, transitionName, data, oTransitionParameters);
+				this.to(pageId, transitionName, data, oTransitionParameters, true);
 			}, this));
 
 			return this;
@@ -599,6 +669,15 @@ sap.ui.define([
 		var oFromPage = this.getCurrentPage();
 		if (oFromPage && (oFromPage.getId() === pageId)) { // cannot navigate to the page that is already current
 			jQuery.sap.log.warning(this.toString() + ": Cannot navigate to page " + pageId + " because this is the current page.");
+			if (bFromQueue) {
+				this._dequeueNavigation();
+			}
+
+			// In an application when the first page is loaded its transition is not set and we set it here.
+			if (this._pageStack.length === 1) {
+				this._pageStack[0].transition = oFromPageInfo.transition;
+			}
+
 			return this;
 		}
 
@@ -610,9 +689,6 @@ sap.ui.define([
 				return this;
 			}
 
-			// remember the focused object in "from page"
-			this._mFocusObject[oFromPage.getId()] = document.activeElement;
-
 			var oNavInfo = {
 				from: oFromPage,
 				fromId: oFromPage.getId(),
@@ -623,8 +699,15 @@ sap.ui.define([
 				isBack: false,
 				isBackToTop: false,
 				isBackToPage: false,
-				direction: "to"
+				direction: "to",
+				bFocusInsideFromPage: this._isFocusInControl(oFromPage)
 			};
+
+			if (oNavInfo.bFocusInsideFromPage) {
+				// remember the focused object in "from page"
+				this._mFocusObject[oFromPage.getId()] = document.activeElement;
+			}
+
 			var bContinue = this.fireNavigate(oNavInfo);
 			if (bContinue) { // ok, let's do the navigation
 
@@ -651,12 +734,18 @@ sap.ui.define([
 				oToPage._handleEvent(oEvent);
 
 
-				this._pageStack.push({id: pageId, mode: transitionName, data: data}); // this actually causes/is the navigation
+				this._pageStack.push(oFromPageInfo); // this actually causes/is the navigation
 				jQuery.sap.log.info(this.toString() + ": navigating to page '" + pageId + "': " + oToPage.toString());
 				this._mVisitedPages[pageId] = true;
 
 				if (!this.getDomRef()) { // the wanted animation has been recorded, but when the NavContainer is not rendered, we cannot animate, so just return
 					jQuery.sap.log.info("'Hidden' 'to' navigation in not-rendered NavContainer " + this.toString());
+
+					// BCP: 1680140633 - Firefox issue
+					if (this._bRenderingInProgress) {
+						jQuery.sap.delayedCall(0, this, this.invalidate);
+					}
+
 					return this;
 				}
 
@@ -802,7 +891,7 @@ sap.ui.define([
 			// there is no place to go back
 
 			// but then the assumption is that the only page on the stack is the initial one and has not been navigated to. Check this:
-			if (this._pageStack.length === 1 && this._pageStack[0].mode != "initial") {
+			if (this._pageStack.length === 1 && !this._pageStack[0].isInitial) {
 				throw new Error("Initial page not found on the stack. How did this happen?");
 			}
 			return this;
@@ -814,7 +903,7 @@ sap.ui.define([
 			}
 
 			var oFromPageInfo = this._pageStack[this._pageStack.length - 1];
-			var mode = oFromPageInfo.mode;
+			var transition = oFromPageInfo.transition;
 			var oFromPage = this.getPage(oFromPageInfo.id);
 			var oToPage;
 			var oToPageData;
@@ -860,7 +949,8 @@ sap.ui.define([
 				isBack: (sType === "back"),
 				isBackToPage: (sType === "backToPage"),
 				isBackToTop: (sType === "backToTop"),
-				direction: sType
+				direction: sType,
+				bFocusInsideFromPage: this._isFocusInControl(oFromPage)
 			};
 			var bContinue = this.fireNavigate(oNavInfo);
 			if (bContinue) { // ok, let's do the navigation
@@ -910,14 +1000,14 @@ sap.ui.define([
 					return this;
 				}
 
-				var oTransition = NavContainer.transitions[mode] || NavContainer.transitions["slide"];
+				var oTransition = NavContainer.transitions[transition] || NavContainer.transitions["slide"];
 
 				// Track proper invocation of the callback  TODO: only do this during development?
 				var iCompleted = this._iTransitionsCompleted;
 				var that = this;
 				window.setTimeout(function () {
 					if (that && (that._iTransitionsCompleted < iCompleted + 1)) {
-						jQuery.sap.log.warning("Transition '" + mode + "' 'back' was triggered five seconds ago, but has not yet invoked the end-of-transition callback.");
+						jQuery.sap.log.warning("Transition '" + transition + "' 'back' was triggered five seconds ago, but has not yet invoked the end-of-transition callback.");
 					}
 				}, fnGetDelay(5000));
 
@@ -1011,8 +1101,15 @@ sap.ui.define([
 							} else {
 								// the second transition now also finished => clean up the style classes
 								bTransitionEndPending = false;
-								oToPage.removeStyleClass("sapMNavItemSliding").removeStyleClass("sapMNavItemCenter");
-								oFromPage.removeStyleClass("sapMNavItemSliding").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemLeft");
+
+								// update classes only of the active pages
+								if (fnIsPageParentActive(oToPage)) {
+									oToPage.removeStyleClass("sapMNavItemSliding").removeStyleClass("sapMNavItemCenter");
+								}
+
+								if (fnIsPageParentActive(oFromPage)) {
+									oFromPage.removeStyleClass("sapMNavItemSliding").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemLeft");
+								}
 
 								// notify the NavContainer that the animation is complete
 								fCallback();
@@ -1058,8 +1155,15 @@ sap.ui.define([
 						} else {
 							// the second transition now also finished => clean up the style classes
 							bTransitionEndPending = false;
-							oToPage.removeStyleClass("sapMNavItemSliding").removeStyleClass("sapMNavItemCenter");
-							oFromPage.removeStyleClass("sapMNavItemSliding").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemRight");
+
+							// update classes only of the active pages
+							if (fnIsPageParentActive(oToPage)) {
+								oToPage.removeStyleClass("sapMNavItemSliding").removeStyleClass("sapMNavItemCenter");
+							}
+
+							if (fnIsPageParentActive(oFromPage)) {
+								oFromPage.removeStyleClass("sapMNavItemSliding").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemRight");
+							}
 
 							// notify the NavContainer that the animation is complete
 							fCallback();
@@ -1079,6 +1183,7 @@ sap.ui.define([
 							}, fnGetDelay(50));
 						}, 0);
 					}
+
 
 					// set the new style classes that represent the end state (and thus start the transition)
 					oToPage.addStyleClass("sapMNavItemSliding").addStyleClass("sapMNavItemCenter").removeStyleClass("sapMNavItemLeft"); // transition from left position to normal/center position starts now
@@ -1148,8 +1253,15 @@ sap.ui.define([
 						jQuery(this).unbind("webkitTransitionEnd transitionend");
 						// clean up the style classes
 						bTransitionEndPending = false;
-						oFromPage.addStyleClass("sapMNavItemHidden");
-						oToPage.removeStyleClass("sapMNavItemFading").removeStyleClass("sapMNavItemOpaque");
+
+						// update classes only of the active pages
+						if (fnIsPageParentActive(oFromPage)) {
+							oFromPage.addStyleClass("sapMNavItemHidden");
+						}
+
+						if (fnIsPageParentActive(oToPage)) {
+							oToPage.removeStyleClass("sapMNavItemFading").removeStyleClass("sapMNavItemOpaque");
+						}
 
 						// notify the NavContainer that the animation is complete
 						fCallback();
@@ -1184,8 +1296,12 @@ sap.ui.define([
 						jQuery(this).unbind("webkitTransitionEnd transitionend");
 						// clean up the style classes
 						bTransitionEndPending = false;
-						oFromPage.removeStyleClass("sapMNavItemFading").addStyleClass("sapMNavItemHidden"); // TODO: destroy HTML?
-						oFromPage.removeStyleClass("sapMNavItemTransparent");
+
+						// update classes only of the active pages
+						if (fnIsPageParentActive(oFromPage)) {
+							oFromPage.removeStyleClass("sapMNavItemFading").addStyleClass("sapMNavItemHidden"); // TODO: destroy HTML?
+							oFromPage.removeStyleClass("sapMNavItemTransparent");
+						}
 
 						// notify the NavContainer that the animation is complete
 						fCallback();
@@ -1263,8 +1379,16 @@ sap.ui.define([
 							} else {
 								// the second transition now also finished => clean up the style classes
 								bTransitionEndPending = false;
-								oToPage.removeStyleClass("sapMNavItemFlipping");
-								oFromPage.removeStyleClass("sapMNavItemFlipping").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemFlipPrevious");
+
+								// update classes only of the active pages
+								if (fnIsPageParentActive(oToPage)) {
+									oToPage.removeStyleClass("sapMNavItemFlipping");
+								}
+
+								if (fnIsPageParentActive(oFromPage)) {
+									oFromPage.removeStyleClass("sapMNavItemFlipping").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemFlipPrevious");
+								}
+
 								that.$().removeClass("sapMNavFlip");
 
 								// notify the NavContainer that the animation is complete
@@ -1313,8 +1437,16 @@ sap.ui.define([
 						} else {
 							// the second transition now also finished => clean up the style classes
 							bTransitionEndPending = false;
-							oToPage.removeStyleClass("sapMNavItemFlipping");
-							oFromPage.removeStyleClass("sapMNavItemFlipping").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemFlipNext");
+
+							// update classes only of the active pages
+							if (fnIsPageParentActive(oToPage)) {
+								oToPage.removeStyleClass("sapMNavItemFlipping");
+							}
+
+							if (fnIsPageParentActive(oFromPage)) {
+								oFromPage.removeStyleClass("sapMNavItemFlipping").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemFlipNext");
+							}
+
 							that.$().removeClass("sapMNavFlip");
 
 							// notify the NavContainer that the animation is complete
@@ -1374,8 +1506,16 @@ sap.ui.define([
 							} else {
 								// the second transition now also finished => clean up the style classes
 								bTransitionEndPending = false;
-								oToPage.removeStyleClass("sapMNavItemDooring").removeStyleClass("sapMNavItemDoorInNext");
-								oFromPage.removeStyleClass("sapMNavItemDooring").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemDoorInPrevious");
+
+								// update classes only of the active pages
+								if (fnIsPageParentActive(oToPage)) {
+									oToPage.removeStyleClass("sapMNavItemDooring").removeStyleClass("sapMNavItemDoorInNext");
+								}
+
+								if (fnIsPageParentActive(oFromPage)) {
+									oFromPage.removeStyleClass("sapMNavItemDooring").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemDoorInPrevious");
+								}
+
 								that.$().removeClass("sapMNavDoor");
 
 								// notify the NavContainer that the animation is complete
@@ -1424,8 +1564,16 @@ sap.ui.define([
 						} else {
 							// the second transition now also finished =>  clean up the style classes
 							bTransitionEndPending = false;
-							oToPage.removeStyleClass("sapMNavItemDooring").removeStyleClass("sapMNavItemDoorOutNext");
-							oFromPage.removeStyleClass("sapMNavItemDooring").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemDoorOutPrevious");
+
+							// update classes only of the active pages
+							if (fnIsPageParentActive(oToPage)) {
+								oToPage.removeStyleClass("sapMNavItemDooring").removeStyleClass("sapMNavItemDoorOutNext");
+							}
+
+							if (fnIsPageParentActive(oFromPage)) {
+								oFromPage.removeStyleClass("sapMNavItemDooring").addStyleClass("sapMNavItemHidden").removeStyleClass("sapMNavItemDoorOutPrevious");
+							}
+
 							that.$().removeClass("sapMNavDoor");
 
 							// notify the NavContainer that the animation is complete
@@ -1551,7 +1699,21 @@ sap.ui.define([
 	};
 
 	NavContainer.prototype._isInsideAPopup = function () {
-		return this.getParent() instanceof sap.m.Popover;
+		var fnScanForPopup;
+
+		fnScanForPopup = function (oControl) {
+			if (!oControl) {
+				return false;
+			}
+
+			if (oControl.getMetadata().isInstanceOf("sap.ui.core.PopupInterface")) {
+				return true;
+			}
+
+			return fnScanForPopup(oControl.getParent());
+		};
+
+		return fnScanForPopup(this);
 	};
 
 	NavContainer.prototype.removePage = function (oPage) {
@@ -1621,12 +1783,13 @@ sap.ui.define([
 	};
 
 	NavContainer.prototype.insertPage = function (oPage, iIndex) {
+		var iPreviousPageCount = this.getPages().length;
+
 		this.insertAggregation("pages", oPage, iIndex, true);
 
 		// sapMNavItem must be added after addAggregation is called because addAggregation can lead
 		// to a removePage-call where the class is removed again.
 		oPage.addStyleClass("sapMNavItem");
-		var iPreviousPageCount = this.getPages().length;
 
 		if (iPreviousPageCount === 0 && this.getPages().length === 1 && this.getDomRef()) { // the added page is the first and only page and has been newly added
 			this._ensurePageStackInitialized();

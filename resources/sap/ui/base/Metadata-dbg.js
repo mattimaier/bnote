@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -21,7 +21,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.script'],
 	 *
 	 * @class Metadata for a class.
 	 * @author Frank Weigel
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @since 0.8.6
 	 * @public
 	 * @alias sap.ui.base.Metadata
@@ -67,7 +67,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.script'],
 	Metadata.prototype.applySettings = function(oClassInfo) {
 
 		var that = this,
-		  oStaticInfo = oClassInfo.metadata,
+			oStaticInfo = oClassInfo.metadata,
 			oPrototype;
 
 		if ( oStaticInfo.baseType ) {
@@ -104,15 +104,15 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.script'],
 
 		// enrich prototype
 		oPrototype = this._oClass.prototype;
-		jQuery.sap.forIn(oClassInfo, function(n, v) {
+		for ( var n in oClassInfo ) {
 			if ( n !== "metadata" && n !== "constructor" ) {
-				oPrototype[n] = v;
+				oPrototype[n] = oClassInfo[n];
 				if ( !n.match(/^_|^on|^init$|^exit$/) ) {
 					// TODO hard coded knowledge about event handlers ("on") and about init/exit hooks is not nice....
 					that._aPublicMethods.push(n);
 				}
 			}
-		});
+		}
 
 	};
 
@@ -348,7 +348,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.script'],
 				}
 			}
 			// create prototype chain
-			fnClass.prototype = jQuery.sap.newObject(fnBaseClass.prototype);
+			fnClass.prototype = Object.create(fnBaseClass.prototype);
 			fnClass.prototype.constructor = fnClass;
 			// enforce correct baseType
 			oClassInfo.metadata.baseType = fnBaseClass.getMetadata().getName();

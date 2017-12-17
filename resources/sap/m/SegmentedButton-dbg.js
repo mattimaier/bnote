@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,9 +20,10 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @class
 	 * SegmentedButton is a horizontal control made of multiple buttons, which can display a title or an image. It automatically resizes the buttons to fit proportionally within the control. When no width is set, the control uses the available width.
 	 * @extends sap.ui.core.Control
+	 * @implements sap.ui.core.IFormContent
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -31,7 +32,9 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 */
 	var SegmentedButton = Control.extend("sap.m.SegmentedButton", /** @lends sap.m.SegmentedButton.prototype */ { metadata : {
 
+		interfaces : ["sap.ui.core.IFormContent"],
 		library : "sap.m",
+		publicMethods : ["createButton"],
 		properties : {
 
 			/**
@@ -128,6 +131,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		// Delegate keyboard processing to ItemNavigation, see commons.SegmentedButton
 		this._oItemNavigation = new ItemNavigation();
 		this._oItemNavigation.setCycling(false);
+		//this way we do not hijack the browser back/forward navigation
+		this._oItemNavigation.setDisabledModifiers({
+			sapnext: ["alt"],
+			sapprevious: ["alt"]
+		});
 		this.addDelegate(this._oItemNavigation);
 
 		//Make sure when a button gets removed to reset the selected button
@@ -218,7 +226,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	/**
 	 * Returns a new array with all rendered button widths.
 	 * @param {array} aButtons with buttons
-	 * @returns {array}
+	 * @returns {array} The array of the widths
 	 * @private
 	 */
 	SegmentedButton.prototype._getRenderedButtonWidths = function (aButtons) {
@@ -362,7 +370,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	/**
-	 * Adds a Button with a text as title, an URI for an icon, enabled and textDirection.
+	 * Adds a Button with a text as title, a URI for an icon, enabled and textDirection.
 	 * Only one is allowed.
 	 *
 	 * @param {string} sText
@@ -399,30 +407,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		this.addButton(oButton);
 
 		return oButton;
-	};
-
-	/**
-	 * Private method to create a Button from an item.
-	 *
-	 * @param {sap.m.SegmentedButtonItem} oItem Item from the items aggregation
-	 * @private
-	 * @since 1.28
-	 */
-	SegmentedButton.prototype._createButtonFromItem = function (oItem) {
-		var oButton = new sap.m.Button(oItem.getId() + "-button", {
-			text: oItem.getText(),
-			icon: oItem.getIcon(),
-			enabled: oItem.getEnabled(),
-			textDirection: oItem.getTextDirection(),
-			width: oItem.getWidth(),
-			tooltip: oItem.getTooltip(),
-			visible: oItem.getVisible(),
-			press: function () {
-				oItem.firePress();
-			}
-		});
-		oItem.oButton = oButton;
-		this.addButton(oButton);
 	};
 
 	(function (){
@@ -469,61 +453,12 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	})();
 
 	/**
-	 * Creates all the buttons from the items aggregation or
-	 * replaces the current ones if the binding changes.
-	 *
-	 * Called whenever the binding of the items aggregation is changed.
-	 *
-	 * @param {sap.ui.model.ChangeReason} sReason Enumeration reason for the model update
-	 * @private
-	 * @override
-	 * @since 1.28.0
-	 */
-	SegmentedButton.prototype.updateItems = function(sReason) {
-
-		var aButtons = this.getButtons(),
-			aItems,
-			bUpdate,
-			i;
-
-		/* Update aggregation only if an update reason is available */
-		if (sReason !== undefined) {
-			this.updateAggregation("items");
-		}
-
-		aItems = this.getAggregation("items");
-
-		/* If the buttons are already rendered and items are initiated remove all created buttons */
-		if (aItems && aButtons.length !== 0) {
-
-			for (i = 0;i < aButtons.length;i++) {
-				this.removeButton(aButtons[i]);
-				aButtons[i].destroy();
-				aButtons[i] = null;
-			}
-
-			bUpdate = true;
-		}
-
-			aItems = aItems || [];
-			/* Create buttons */
-			for (i = 0; i < aItems.length; i++) {
-				this._createButtonFromItem(aItems[i]);
-			}
-
-		// on update: recalculate width
-		if (bUpdate) {
-			this._updateWidth();
-		}
-
-	};
-
-	/**
-	 * Gets the selectedKey and is usable only when the control is initiated with the items aggregation.
+	 * Gets the <code>selectedKey</code> and is usable only when the control is initiated with the <code>items</code> aggregation.
 	 *
 	 * @return {string} Current selected key
+	 * @public
 	 * @override
-	 * @since 1.28.0
+	 * @since 1.28
 	 */
 	SegmentedButton.prototype.getSelectedKey = function() {
 		var aButtons = this.getButtons(),
@@ -543,23 +478,23 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	/**
-	 * Sets the selectedKey and is usable only when the control is initiated with the items aggregation.
+	 * Sets the <code>selectedKey</code> and is usable only when the control is initiated with the <code>items</code> aggregation.
 	 *
 	 * @param {string} sKey The key of the button to be selected
-	 * @returns {sap.m.SegmentedButton} <code>this</code> this pointer for chaining
+	 * @returns {sap.m.SegmentedButton} <code>this</code> pointer for chaining
+	 * @public
 	 * @override
-	 * @since 1.28.0
+	 * @since 1.28
 	 */
 	SegmentedButton.prototype.setSelectedKey = function(sKey) {
 		var aButtons = this.getButtons(),
 			aItems = this.getItems(),
 			i = 0;
 
-		if (aButtons.length === 0 && aItems.length > 0) {
-			this.updateItems();
-
-			//Keep buttons in sync
-			aButtons = this.getButtons();
+		// If sKey is empty, undefined or falsy we don't select nothing
+		if (!sKey) {
+			this.setProperty("selectedKey", sKey, true);
+			return this;
 		}
 
 		if (aItems.length > 0 && aButtons.length > 0) {
@@ -602,7 +537,66 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		}
 	};
 
+	/**
+	 * Adds item to <code>items</code> aggregation.
+	 * @param {sap.m.SegmentedButtonItem} oItem The item to be added
+	 * @param {boolean} [bSuppressInvalidate=false] If <code>true</code> the control invalidation will be suppressed
+	 * @public
+	 * @override
+	 */
+	SegmentedButton.prototype.addItem = function (oItem, bSuppressInvalidate) {
+		this.addAggregation("items", oItem, bSuppressInvalidate);
+		this.addButton(oItem.oButton);
+	};
+
+	/**
+	 * Removes an item from <code>items</code> aggregation.
+	 * @param {sap.m.SegmentedButtonItem} oItem The item to be removed
+	 * @param {boolean} [bSuppressInvalidate=false] If <code>true</code> the control invalidation will be suppressed
+	 * @public
+	 * @override
+	 */
+	SegmentedButton.prototype.removeItem = function (oItem, bSuppressInvalidate) {
+		this.removeAggregation("buttons", oItem.oButton, true);
+		this.removeAggregation("items", oItem, bSuppressInvalidate);
+		// Reset selected button if the removed button is the currently selected one
+		if (oItem && oItem instanceof sap.m.SegmentedButtonItem &&
+			this.getSelectedButton() === oItem.oButton.getId()) {
+			this.setSelectedKey("");
+			this.setSelectedButton("");
+		}
+	};
+
+	/**
+	 * Inserts item into <code>items</code> aggregation.
+	 * @param {sap.m.SegmentedButtonItem} oItem The item to be inserted
+	 * @param {int} iIndex index the item should be inserted at
+	 * @param {boolean} [bSuppressInvalidate=false] If <code>true</code> the control invalidation will be suppressed
+	 * @public
+	 * @override
+	 */
+	SegmentedButton.prototype.insertItem = function (oItem, iIndex, bSuppressInvalidate) {
+		this.insertAggregation("items", oItem, iIndex, bSuppressInvalidate);
+		this.insertButton(oItem.oButton, iIndex);
+	};
+
+	/**
+	 * Removes all items from <code>items</code> aggregation
+	 * @param {boolean} [bSuppressInvalidate=false] If <code>true</code> the control invalidation will be suppressed
+	 * @public
+	 * @override
+	 */
+	SegmentedButton.prototype.removeAllItems = function (bSuppressInvalidate) {
+		this.removeAllAggregation("items", bSuppressInvalidate);
+		this.removeAllButtons();
+
+		// Reset selectedKey and selectedButton
+		this.setSelectedKey("");
+		this.setSelectedButton("");
+	};
+
 	/** Event handler for the internal button press events.
+	 * @param {Object} oEvent The event to be fired
 	 * @private
 	 */
 	SegmentedButton.prototype._buttonPressed = function (oEvent) {
@@ -644,15 +638,16 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * Setter for association <code>selectedButton</code>.
 	 *
 	 * @param {string | sap.m.Button | null | undefined} vButton New value for association <code>setSelectedButton</code>
-	 *    A sap.m.Button instance which becomes the new target of this <code>selectedButton</code> association.
-	 *    Alternatively, the ID of a sap.m.Button instance may be given as a string.
+	 *    An sap.m.Button instance which becomes the new target of this <code>selectedButton</code> association.
+	 *    Alternatively, the ID of an sap.m.Button instance may be given as a string.
 	 *    If the value of null, undefined, or an empty string is provided the first item will be selected.
 	 * @returns {sap.m.SegmentedButton} <code>this</code> this pointer for chaining
 	 * @public
 	 */
 	SegmentedButton.prototype.setSelectedButton = function (vButton) {
 		var sSelectedButtonBefore = this.getSelectedButton(),
-			oSelectedButton;
+			oSelectedButton,
+			aButtons = this.getButtons();
 
 		// set the new value
 		this.setAssociation("selectedButton", vButton, true);
@@ -661,11 +656,12 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		if (sSelectedButtonBefore !== this.getSelectedButton()) {
 			// CSN# 0001429454/2014: only update DOM when control is already rendered (otherwise it will be done in onBeforeRendering)
 			if (this.$().length) {
-				if (!this.getSelectedButton()) {
+				// Select default button if there is no selected button and if there is more than one button available
+				if (!this.getSelectedButton() && aButtons.length > 1) {
 					this._selectDefaultButton();
 				}
 				oSelectedButton = sap.ui.getCore().byId(this.getSelectedButton());
-				this.getButtons().forEach(function (oButton) {
+				aButtons.forEach(function (oButton) {
 					oButton.$().removeClass("sapMSegBBtnSel");
 					oButton.$().attr("aria-checked", false);
 				});
@@ -724,7 +720,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 	/**
 	 * Called when the select is changed so that the SegmentedButton internals stay in sync.
-	 * @param oEvent
+	 * @param {Object} oEvent The event fired
 	 * @private
 	 */
 	SegmentedButton.prototype._selectChangeHandler = function(oEvent) {
@@ -733,12 +729,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			oButton = this.getButtons()[sNewKey],
 			sButtonId = oButton.getId();
 
+		oButton.firePress();
 		this.setSelectedButton(sButtonId);
-		this.fireSelect({
-			button: oButton,
-			id: sButtonId,
-			key: sNewKey
-		});
 	};
 
 	SegmentedButton.prototype._forwardChangeEvent = function () {
@@ -843,6 +835,26 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		return this.getButtons().filter(function(oButton) {
 			return oButton.getVisible();
 		});
+	};
+
+	SegmentedButton.prototype.clone = function () {
+		var sSelectedButtonId = this.getSelectedButton(),
+			aButtons = this.removeAllAggregation("buttons"),
+			oClone = Control.prototype.clone.apply(this, arguments),
+			iSelectedButtonIndex = aButtons.map(function(b) {
+				return b.getId();
+			}).indexOf(sSelectedButtonId),
+			i;
+
+		if (iSelectedButtonIndex > -1) {
+			oClone.setSelectedButton(oClone.getButtons()[iSelectedButtonIndex]);
+		}
+
+		for (i = 0; i < aButtons.length; i++) {
+			this.addAggregation("buttons", aButtons[i]);
+		}
+
+		return oClone;
 	};
 
 	return SegmentedButton;

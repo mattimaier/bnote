@@ -1,6 +1,6 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -13,11 +13,11 @@ sap.ui.define([
 	/**
 	 * Constructor for a new P13nColumnsItem.
 	 *
-	 * @param {string} [sId] id for the new control, generated automatically if no id is given
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] initial settings for the new control
-	 * @class Type for <code>columnsItems</code> aggregation in P13nColumnsPanel control.
+	 * @class Type for <code>columnsItems</code> aggregation in <code>P13nColumnsPanel</code> control.
 	 * @extends sap.ui.core.Item
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @author SAP SE
 	 * @public
@@ -53,7 +53,7 @@ sap.ui.define([
 				}, // don't set a default value
 
 				/**
-				 * This property decides whether a P13nColumnsItem is visible
+				 * This property decides whether a <code>P13nColumnsItem</code> is visible
 				 *
 				 * @since 1.26.0
 				 */

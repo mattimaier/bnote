@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -12,11 +12,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/ResponsiveFlowLayout', 'sap/u
 	/**
 	 * Constructor for a new sap.ui.layout.form.ResponsiveLayout.
 	 *
-	 * @param {string} [sId] Id for the new control, generated automatically if no id is given
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] initial settings for the new control
 	 *
 	 * @class
-	 * Renders a <code>Form</code> with a responsive layout. Internally the <code>ResponsiveFlowLayout</code> is used.
+	 * The <code>ResponsiveLayout</code> renders a <code>Form</code> with a responsive layout. Internally the <code>ResponsiveFlowLayout</code> is used.
 	 * The responsiveness of this layout tries to best use the available space. This means that the order of the <code>FormContainers</code>, labels and fields depends on the available space.
 	 *
 	 * On the <code>FormContainers</code>, <code>FormElements</code>, labels and content fields, <code>ResponsiveFlowLayoutData</code> can be used to change the default rendering.
@@ -26,11 +26,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/ResponsiveFlowLayout', 'sap/u
 	 * <b>Note:</b> If <code>ResponsiveFlowLayoutData</code> are used this may result in a much more complex layout than the default one. This means that in some cases, the calculation for the other content may not bring the expected result.
 	 * In such cases, <code>ResponsiveFlowLayoutData</code> should be used for all content controls to disable the default behavior.
 	 *
-	 * This control cannot be used stand alone, it only renders a <code>Form</code>, so it must be assigned to a <code>Form</code>.
+	 * This control cannot be used stand-alone, it just renders a <code>Form</code>, so it must be assigned to a <code>Form</code> using the <code>layout</code> aggregation.
 	 * @extends sap.ui.layout.form.FormLayout
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -59,7 +59,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/ResponsiveFlowLayout', 'sap/u
 	 * - For each FormContainer there is an entry inside the object. (this.mContainers[FormContainerId])
 	 * - For each FormContainer there is an array with 3 entries:
 	 *   - [0]: The Panel that renders the Container (undefined if no panel is used)
-	 *          - It's not the standard Panel, is an special panel defined for the ResponsiveLayout
+	 *          - It's not the standard Panel, is a special panel defined for the ResponsiveLayout
 	 *   - [1]: The ResponsiveFlowLayout that holds the Containers content
 	 *          - the getLayoutData function of this ResponsiveFlowLayouts is overwritten to get the LayoutData of the FormContainer
 	 *            (If no panel is used)
@@ -77,7 +77,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/ResponsiveFlowLayout', 'sap/u
 	 */
 
 	/*
-	 * as the panel can not be used in mobile environment a own internal control is needed to render the containers
+	 * as the panel can not be used in mobile environment an own internal control is needed to render the containers
 	 * use FormContainer as association to have access to it's content directly. So no mapping of properties and aggregations needed
 	 */
 	sap.ui.core.Control.extend("sap.ui.layout.form.ResponsiveLayoutPanel", {
@@ -237,7 +237,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/ResponsiveFlowLayout', 'sap/u
 
 		FormLayout.prototype.contentOnAfterRendering.apply(this, arguments);
 
-		if (oControl.getWidth && ( !oControl.getWidth() || oControl.getWidth() == "auto" ) && oControl.getMetadata().getName() != "sap.ui.commons.Image") {
+		if (oControl.getWidth && ( !oControl.getWidth() || oControl.getWidth() == "auto" ) &&
+				(!oControl.getFormDoNotAdjustWidth || !oControl.getFormDoNotAdjustWidth())) {
 			oControl.$().css("width", "100%");
 		}
 
@@ -481,7 +482,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/ResponsiveFlowLayout', 'sap/u
 						// order has changed -> move it
 						oContainerLayout.removeContent(oRFLayout);
 						oContainerLayout.insertContent(oRFLayout, iVisibleElements);
-						iLastIndex == iVisibleElements;
+						iLastIndex = iVisibleElements;
 					}
 				} else {
 					oRFLayout = _createResponsiveFlowLayout(oLayout, oContainer, oElement);
@@ -632,10 +633,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/ResponsiveFlowLayout', 'sap/u
 
 				var oContainer = sap.ui.getCore().byId(this.__myParentContainerId);
 				var oLayout = this.__myParentLayout;
-				if (oLayout._mainRFLayout && !oContainer.getToolbar() && !oContainer.getTitle() && !oContainer.getExpandable()) {
+				if (oLayout._mainRFLayout && !oContainer.getToolbar() && !oContainer.getTitle() &&
+						!oContainer.getExpandable() && oContainer.getAriaLabelledBy().length > 0) {
+					// set role only if Title or ariaLabelledBy is set as JAWS 18 has some issues without.
 					return "form";
 				}
 
+			};
+
+			oRFLayout.getAriaLabelledBy = function(){
+				var oContainer = sap.ui.getCore().byId(this.__myParentContainerId);
+				if (oContainer && !oContainer.getToolbar() && !oContainer.getTitle() && !oContainer.getExpandable()) {
+					return oContainer.getAriaLabelledBy();
+				}
+
+				return [];
 			};
 		}
 
@@ -686,7 +698,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/ResponsiveFlowLayout', 'sap/u
 	}
 
 	/*
-	 * If a ResponsiveFlowLayout for the fields of an FormElement is used it must get the weight
+	 * If a ResponsiveFlowLayout for the fields of a FormElement is used it must get the weight
 	 * of all fields to have the right weight relative to the label.
 	 */
 	function _updateLayoutDataOfContentResponsiveFlowLayout( oLayout, oRFLayout, aFields ) {
@@ -769,7 +781,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/layout/ResponsiveFlowLayout', 'sap/u
 
 	function _checkElementMoved(oLayout, oContainer, oElement, mRFLayouts, oContainerLayout, iIndex){
 
-		// if a Element is just moved from one Container to an other this is not recognized
+		// if an Element is just moved from one Container to another this is not recognized
 		// so the ResponsiveFlowLayouts must be updated and the control object must be adjusted
 		var sElementId = oElement.getId();
 		var sId = sElementId + "--RFLayout";

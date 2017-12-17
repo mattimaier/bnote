@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,16 +18,18 @@ sap.ui.define([], function() {
 	 *        only the defined functions will be visible, no internals of the class can be accessed.
 	 *
 	 * @author Malte Wedel, Daniel Brinkmann
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @param {sap.ui.base.Object}
 	 *            oObject the instance that needs an interface created
 	 * @param {string[]}
 	 *            aMethods the names of the methods, that should be available on this interface
+	 *
 	 * @constructor
 	 * @public
 	 * @alias sap.ui.base.Interface
 	 */
-	var Interface = function(oObject, aMethods) {
+	// bFacade: If true, the return value of a function call is this created Interface instance instead of the BaseObject interface
+	var Interface = function(oObject, aMethods, bFacade) {
 
 		// if object is null or undefined, return itself
 		if (!oObject) {
@@ -39,11 +41,15 @@ sap.ui.define([], function() {
 
 		function fCreateDelegator(oObject, sMethodName) {
 			return function() {
-	//				return oObject[sMethodName].apply(oObject, arguments);
+					// return oObject[sMethodName].apply(oObject, arguments);
 					var tmp = oObject[sMethodName].apply(oObject, arguments);
 					// to avoid to hide the implementation behind the interface you need
-					// to override the getInterface function in the object
-					return (tmp instanceof BaseObject) ? tmp.getInterface() : tmp;
+					// to override the getInterface function in the object or create the interface with bFacade = true
+					if (bFacade) {
+						return this;
+					} else {
+						return (tmp instanceof BaseObject) ? tmp.getInterface() : tmp;
+					}
 				};
 		}
 

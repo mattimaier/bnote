@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -145,13 +145,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'],
 		};
 
 		// IE
-		if (!!Device.browser.internet_explorer && oDocument && oDocument.parseError
+		if (Device.browser.msie && oDocument && oDocument.parseError
 				&& oDocument.parseError.errorCode != 0) {
 			return oDocument.parseError;
 		}
 
 		// Firefox or Edge
-		if ((!!Device.browser.firefox  || !!Device.browser.edge) && oDocument && oDocument.documentElement
+		if ((Device.browser.firefox  || Device.browser.edge) && oDocument && oDocument.documentElement
 				&& oDocument.documentElement.tagName == "parsererror") {
 
 			var sErrorText = oDocument.documentElement.firstChild.nodeValue, rParserError = /XML Parsing Error: (.*)\nLocation: (.*)\nLine Number (\d+), Column (\d+):(.*)/;
@@ -167,19 +167,19 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'],
 			return oParseError;
 		}
 
-		// Safari
-		if (!!Device.browser.webkit && oDocument && oDocument.documentElement
-				&& oDocument.documentElement.tagName == "html"
+		// Safari or Chrome
+		if (Device.browser.webkit && oDocument && oDocument.documentElement
 				&& oDocument.getElementsByTagName("parsererror").length > 0) {
 
-			var sErrorText = jQuery.sap.serializeXML(oDocument), rParserError = /error on line (\d+) at column (\d+): ([^<]*)/;
+			var sErrorText = jQuery.sap.serializeXML(oDocument), rParserError = /(error|warning) on line (\d+) at column (\d+): ([^<]*)\n/;
 
 			if (rParserError.test(sErrorText)) {
-				oParseError.reason = RegExp.$3;
+				oParseError.reason = RegExp.$4;
 				oParseError.url = "";
-				oParseError.line = parseInt(RegExp.$1, 10);
-				oParseError.linepos = parseInt(RegExp.$2, 10);
+				oParseError.line = parseInt(RegExp.$2, 10);
+				oParseError.linepos = parseInt(RegExp.$3, 10);
 				oParseError.srcText = "";
+				oParseError.type = RegExp.$1;
 
 			}
 			return oParseError;

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -10,49 +10,35 @@ sap.ui.define([
 	"sap/ui/model/BindingMode",
 	"sap/ui/model/ChangeReason",
 	"sap/ui/model/PropertyBinding",
-	"./_ODataHelper",
-	"./lib/_Cache"
-], function (jQuery, BindingMode, ChangeReason, PropertyBinding, _ODataHelper, _Cache) {
+	"./lib/_Cache",
+	"./lib/_SyncPromise",
+	"./ODataBinding"
+], function (jQuery, BindingMode, ChangeReason, PropertyBinding, _Cache, _SyncPromise,
+		asODataBinding) {
 	"use strict";
 
 	var sClassName = "sap.ui.model.odata.v4.ODataPropertyBinding",
+		oDoFetchQueryOptionsPromise = _SyncPromise.resolve({}),
 		mSupportedEvents = {
 			AggregatedDataStateChange : true,
 			change : true,
 			dataReceived : true,
-			dataRequested : true
+			dataRequested : true,
+			DataStateChange : true
 		};
 
 	/**
-	 * DO NOT CALL this private constructor for a new <code>ODataPropertyBinding</code>,
-	 * but rather use {@link sap.ui.model.odata.v4.ODataModel#bindProperty bindProperty} instead!
+	 * Do <strong>NOT</strong> call this private constructor, but rather use
+	 * {@link sap.ui.model.odata.v4.ODataModel#bindProperty} instead!
 	 *
 	 * @param {sap.ui.model.odata.v4.ODataModel} oModel
 	 *   The OData V4 model
 	 * @param {string} sPath
-	 *   The binding path in the model; must not be empty or end with a slash
+	 *   The binding path in the model; must not end with a slash
 	 * @param {sap.ui.model.Context} [oContext]
 	 *   The context which is required as base for a relative path
 	 * @param {object} [mParameters]
-	 *   Map of binding parameters which can be OData query options as specified in
-	 *   "OData Version 4.0 Part 2: URL Conventions" or the binding-specific parameters "$$groupId"
-	 *   and "$$updateGroupId".
-	 *   Note: Binding parameters may only be provided for absolute binding paths as only those
-	 *   lead to a data service request.
-	 *   All "5.2 Custom Query Options" are allowed except for those with a name starting with
-	 *   "sap-". All other query options lead to an error.
-	 *   Query options specified for the binding overwrite model query options.
-	 * @param {string} [mParameters.$$groupId]
-	 *   The group ID to be used for <b>read</b> requests triggered by this binding; if not
-	 *   specified, the model's group ID is used, see
-	 *   {@link sap.ui.model.odata.v4.ODataModel#constructor}.
-	 *   Valid values are <code>undefined</code>, <code>'$auto'</code>, <code>'$direct'</code> or
-	 *   application group IDs as specified in {@link sap.ui.model.odata.v4.ODataModel#submitBatch}.
-	 * @param {string} [mParameters.$$updateGroupId]
-	 *   The group ID to be used for <b>update</b> requests triggered by this binding;
-	 *   if not specified, the model's update group ID is used,
-	 *   see {@link sap.ui.model.odata.v4.ODataModel#constructor}.
-	 *   For valid values, see parameter "$$groupId".
+	 *   Map of binding parameters
 	 * @throws {Error}
 	 *   If disallowed binding parameters are provided
 	 *
@@ -61,42 +47,48 @@ sap.ui.define([
 	 * @class Property binding for an OData V4 model.
 	 *   An event handler can only be attached to this binding for the following events: 'change',
 	 *   'dataReceived', and 'dataRequested'.
-	 *   For other events, an error is thrown.
+	 *   For unsupported events, an error is thrown.
 	 * @extends sap.ui.model.PropertyBinding
+	 * @mixes sap.ui.model.odata.v4.ODataBinding
 	 * @public
-	 * @version 1.38.7
+	 * @since 1.37.0
+	 * @version 1.50.7
+	 * @borrows sap.ui.model.odata.v4.ODataBinding#hasPendingChanges as #hasPendingChanges
+	 * @borrows sap.ui.model.odata.v4.ODataBinding#isInitial as #isInitial
+	 * @borrows sap.ui.model.odata.v4.ODataBinding#refresh as #refresh
+	 * @borrows sap.ui.model.odata.v4.ODataBinding#resetChanges as #resetChanges
+	 * @borrows sap.ui.model.odata.v4.ODataBinding#resume as #resume
+	 * @borrows sap.ui.model.odata.v4.ODataBinding#suspend as #suspend
 	 */
-	var ODataPropertyBinding = PropertyBinding.extend(sClassName, {
+	var ODataPropertyBinding
+		= PropertyBinding.extend("sap.ui.model.odata.v4.ODataPropertyBinding", {
 			constructor : function (oModel, sPath, oContext, mParameters) {
 				var oBindingParameters;
 
-				PropertyBinding.call(this, oModel, sPath, oContext);
+				PropertyBinding.call(this, oModel, sPath);
 
-				if (!sPath || sPath.slice(-1) === "/") {
+				if (sPath.slice(-1) === "/") {
 					throw new Error("Invalid path: " + sPath);
 				}
-				this.oCache = undefined;
-				this.sGroupId = undefined;
-				this.sRefreshGroupId = undefined;
-				this.sUpdateGroupId = undefined;
-				if (!this.bRelative) {
-					this.oCache = _Cache.createSingle(oModel.oRequestor, sPath.slice(1),
-						_ODataHelper.buildQueryOptions(oModel.mUriParameters, mParameters), true);
-					oBindingParameters = _ODataHelper.buildBindingParameters(mParameters);
-					this.sGroupId = oBindingParameters.$$groupId;
-					this.sUpdateGroupId = oBindingParameters.$$updateGroupId;
-				} else if (mParameters) {
-					throw new Error("Bindings with a relative path do not support parameters");
-				}
-
+				oBindingParameters = this.oModel.buildBindingParameters(mParameters, ["$$groupId"]);
+				this.sGroupId = oBindingParameters.$$groupId;
+				// Note: no system query options supported at property binding
+				this.mQueryOptions = this.oModel.buildQueryOptions(mParameters,
+					/*bSystemQueryOptionsAllowed*/false);
+				this.oCachePromise = _SyncPromise.resolve();
+				this.fetchCache(oContext);
+				this.oContext = oContext;
 				this.bInitial = true;
 				this.bRequestTypeFailed = false;
 				this.vValue = undefined;
+				oModel.bindingCreated(this);
 			},
 			metadata : {
 				publicMethods : []
 			}
 		});
+
+	asODataBinding(ODataPropertyBinding.prototype);
 
 	/**
 	 * The 'change' event is fired when the binding is initialized or refreshed or its type is
@@ -107,14 +99,13 @@ sap.ui.define([
 	 * @param {sap.ui.base.Event} oEvent
 	 * @param {object} oEvent.getParameters
 	 * @param {sap.ui.model.ChangeReason} oEvent.getParameters.reason
-	 *   The reason for the 'change' event: {@link sap.ui.model.ChangeReason.Change Change}
-	 *   when the binding is initialized, {@link sap.ui.model.ChangeReason.Refresh Refresh} when
-	 *   the binding is refreshed, and {@link sap.ui.model.ChangeReason.Context Context} when the
-	 *   parent context is changed
+	 *   The reason for the 'change' event: {@link sap.ui.model.ChangeReason.Change} when the
+	 *   binding is initialized, {@link sap.ui.model.ChangeReason.Refresh} when the binding is
+	 *   refreshed, and {@link sap.ui.model.ChangeReason.Context} when the parent context is changed
 	 *
 	 * @event
 	 * @name sap.ui.model.odata.v4.ODataPropertyBinding#change
-	 * @protected
+	 * @public
 	 * @see sap.ui.base.Event
 	 * @since 1.37.0
 	 */
@@ -134,21 +125,22 @@ sap.ui.define([
 	 */
 
 	/**
-	 * The 'dataReceived' event is fired after the back end data has been processed and the
+	 * The 'dataReceived' event is fired after the back-end data has been processed and the
 	 * registered 'change' event listeners have been notified. It is to be used by applications for
 	 * example to switch off a busy indicator or to process an error.
 	 *
-	 * If back end requests are successful, the event has no parameters. The response data is
-	 * available in the model. Note that controls bound to this data may not yet have been updated;
-	 * it is thus not safe for registered event handlers to access data via control APIs.
+	 * If back-end requests are successful, the event has no parameters. Use
+	 * {@link #getValue() oEvent.getSource().getValue()} to access the response data. Note that
+	 * controls bound to this data may not yet have been updated, meaning it is not safe for
+	 * registered event handlers to access data via control APIs.
 	 *
-	 * If a back end request fails, the 'dataReceived' event provides an <code>Error</code> in the
+	 * If a back-end request fails, the 'dataReceived' event provides an <code>Error</code> in the
 	 * 'error' event parameter.
 	 *
 	 * @param {sap.ui.base.Event} oEvent
 	 * @param {object} oEvent.getParameters
-	 * @param {Error} [oEvent.getParameters.error] The error object if a back end request failed.
-	 *   If there are multiple failed back end requests, the error of the first one is provided.
+	 * @param {Error} [oEvent.getParameters.error] The error object if a back-end request failed.
+	 *   If there are multiple failed back-end requests, the error of the first one is provided.
 	 *
 	 * @event
 	 * @name sap.ui.model.odata.v4.ODataPropertyBinding#dataReceived
@@ -173,7 +165,8 @@ sap.ui.define([
 	/**
 	 * Updates the binding's value and sends a change event if necessary. A change event is sent
 	 * if the <code>bForceUpdate</code> parameter is set to <code>true</code> or if the value
-	 * has changed. If a relative binding has no context the <code>bForceUpdate</code> parameter
+	 * has changed unless the request to read the new value has been cancelled by a later request.
+	 * If a relative binding has no context the <code>bForceUpdate</code> parameter
 	 * is ignored and the change event is only fired if the old value was not
 	 * <code>undefined</code>.
 	 * If the binding has no type, the property's type is requested from the meta model and set.
@@ -189,6 +182,8 @@ sap.ui.define([
 	 *   relative binding and the value is <code>undefined</code>.
 	 * @param {sap.ui.model.ChangeReason} [sChangeReason=ChangeReason.Change]
 	 *   The change reason for the change event
+	 * @param {string} [sGroupId=getGroupId()]
+	 *   The group ID to be used for the read.
 	 * @returns {Promise}
 	 *   A Promise to be resolved when the check is finished
 	 *
@@ -196,11 +191,10 @@ sap.ui.define([
 	 * @see sap.ui.model.Binding#checkUpdate
 	 */
 	// @override
-	ODataPropertyBinding.prototype.checkUpdate = function (bForceUpdate, sChangeReason) {
+	ODataPropertyBinding.prototype.checkUpdate = function (bForceUpdate, sChangeReason, sGroupId) {
 		var oChangeReason = {reason : sChangeReason || ChangeReason.Change},
 			bDataRequested = false,
 			bFire = false,
-			sGroupId,
 			mParametersForDataReceived,
 			oPromise,
 			aPromises = [],
@@ -218,8 +212,9 @@ sap.ui.define([
 			that.vValue = undefined; // ensure value is reset
 			return oPromise;
 		}
-		if (!this.bRequestTypeFailed && !this.oType) { // request type only once
-			aPromises.push(this.oModel.getMetaModel().requestUI5Type(sResolvedPath)
+		if (!this.bRequestTypeFailed && !this.oType && this.sInternalType !== "any") {
+			// request type only once
+			aPromises.push(this.oModel.getMetaModel().fetchUI5Type(sResolvedPath)
 				.then(function (oType) {
 					that.setType(oType, that.sInternalType);
 				})["catch"](function (oError) {
@@ -228,16 +223,22 @@ sap.ui.define([
 				})
 			);
 		}
-		if (this.isRelative()) {
-			oReadPromise = this.oContext.requestValue(this.sPath);
-		} else {
-			sGroupId = this.sRefreshGroupId || this.getGroupId();
-			this.sRefreshGroupId = undefined;
-			oReadPromise = this.oCache.read(sGroupId, /*sPath*/undefined, function () {
-				bDataRequested = true;
-				that.oModel.addedRequestToGroup(sGroupId, that.fireDataRequested.bind(that));
-			});
-		}
+		oReadPromise = this.oCachePromise.then(function (oCache) {
+			if (oCache) {
+				sGroupId = sGroupId || that.getGroupId();
+				return oCache.fetchValue(sGroupId, /*sPath*/undefined, function () {
+					bDataRequested = true;
+					that.fireDataRequested();
+				}, that);
+			}
+			if (!that.oContext) { // context may have been reset by another call to checkUpdate
+				return undefined;
+			}
+			if (that.oContext.getIndex() === -2) {
+				bForceUpdate = false; // no "change" event for virtual parent context
+			}
+			return that.oContext.fetchValue(that.sPath, that);
+		});
 		aPromises.push(oReadPromise.then(function (vValue) {
 			if (vValue && typeof vValue === "object") {
 				jQuery.sap.log.error("Accessed value is not primitive", sResolvedPath, sClassName);
@@ -248,23 +249,25 @@ sap.ui.define([
 		})["catch"](function (oError) {
 			// do not rethrow, ManagedObject doesn't react on this either
 			// throwing an exception would cause "Uncaught (in promise)" in Chrome
+			that.oModel.reportError("Failed to read path " + sResolvedPath, sClassName, oError);
 			if (!oError.canceled) {
-				if (bDataRequested) {
-					that.oModel.reportError("Failed to read path " + sResolvedPath,
-						sClassName, oError);
-				}
 				// fire change event only if error was not caused by refresh
 				// and value was not undefined
 				bFire = that.vValue !== undefined;
 				mParametersForDataReceived = {error : oError};
+				that.vValue = undefined;
 			}
-			that.vValue = undefined;
+			return oError.canceled;
 		}));
 
-		return Promise.all(aPromises).then(function () {
-			that.bInitial = false;
-			if (bForceUpdate || bFire) {
-				that._fireChange(oChangeReason);
+		return Promise.all(aPromises).then(function (aResults) {
+			var bCanceled = aResults[aPromises.length - 1];
+
+			if (!bCanceled) {
+				that.bInitial = false;
+				if (bForceUpdate || bFire) {
+					that._fireChange(oChangeReason);
+				}
 			}
 			if (bDataRequested) {
 				that.fireDataReceived(mParametersForDataReceived);
@@ -273,27 +276,55 @@ sap.ui.define([
 	};
 
 	/**
-	 * Returns the group ID of the binding that is used for read requests.
+	 * Destroys the object. The object must not be used anymore after this function was called.
 	 *
-	 * @returns {string}
-	 *   The group ID
-	 *
-	 * @private
+	 * @public
+	 * @since 1.39.0
 	 */
-	ODataPropertyBinding.prototype.getGroupId = function() {
-		return this.sGroupId || this.oModel.getGroupId();
+	// @override
+	ODataPropertyBinding.prototype.destroy = function () {
+		var that = this;
+
+		this.oCachePromise.then(function (oCache) {
+			if (oCache) {
+				oCache.deregisterChange(undefined, that);
+			} else if (that.oContext) {
+				that.oContext.deregisterChange(that.sPath, that);
+			}
+		});
+		this.oModel.bindingDestroyed(this);
+		this.oCachePromise = undefined;
+		PropertyBinding.prototype.destroy.apply(this, arguments);
 	};
 
 	/**
-	 * Returns the group ID of the binding that is used for update requests.
+	 * Hook method for {@link ODataBinding#fetchCache} to create a cache for this binding with the
+	 * given resource path and query options.
 	 *
-	 * @returns {string}
-	 *   The update group ID
+	 * @param {string} sResourcePath
+	 *   The resource path, for example "EMPLOYEES('1')/Name"
+	 * @param {object} mQueryOptions
+	 *   The query options
+	 * @returns {sap.ui.model.odata.v4.lib._Cache}
+	 *   The new cache instance
 	 *
 	 * @private
 	 */
-	ODataPropertyBinding.prototype.getUpdateGroupId = function() {
-		return this.sUpdateGroupId || this.oModel.getUpdateGroupId();
+	ODataPropertyBinding.prototype.doCreateCache = function (sResourcePath, mQueryOptions) {
+		return _Cache.createProperty(this.oModel.oRequestor, sResourcePath, mQueryOptions);
+	};
+
+	/**
+	 * Hook method for {@link ODataBinding#fetchUseOwnCache} to determine the query options for
+	 * this binding.
+	 *
+	 * @returns {SyncPromise}
+	 *   A promise resolving with an empty map as a property binding has no query options
+	 *
+	 * @private
+	 */
+	ODataPropertyBinding.prototype.doFetchQueryOptions = function () {
+		return oDoFetchQueryOptionsPromise;
 	};
 
 	/**
@@ -311,72 +342,131 @@ sap.ui.define([
 	};
 
 	/**
-	 * Method not supported
+	 * Determines which type of value list exists for this property.
 	 *
+	 * @returns {sap.ui.model.odata.v4.ValueListType}
+	 *   The value list type
 	 * @throws {Error}
+	 *   If the binding is relative and has no context, if the metadata is not loaded yet or if the
+	 *   property cannot be found in the metadata
 	 *
 	 * @public
-	 * @see sap.ui.model.Binding#isInitial
-	 * @since 1.37.0
+	 * @since 1.45.0
 	 */
-	// @override
-	ODataPropertyBinding.prototype.isInitial = function () {
-		throw new Error("Unsupported operation: v4.ODataPropertyBinding#isInitial");
-	};
+	ODataPropertyBinding.prototype.getValueListType = function () {
+		var sResolvedPath = this.getModel().resolve(this.sPath, this.oContext);
 
-	/**
-	 * Refreshes this binding; refresh is supported for absolute bindings only.
-	 * A refresh retrieves data from the server using the given group ID and fires a change event
-	 * when new data is available.
-	 *
-	 * Note: When calling refresh multiple times, the result of the request triggered by the last
-	 * call determines the binding's data; it is <b>independent</b>
-	 * of the order of calls to {@link sap.ui.model.odata.v4.ODataModel#submitBatch} with the given
-	 * group ID.
-	 *
-	 * @param {string} [sGroupId]
-	 *   The group ID to be used for refresh; if not specified, the group ID for this binding is
-	 *   used, see {@link sap.ui.model.odata.v4.ODataPropertyBinding#constructor}.
-	 *   Valid values are <code>undefined</code>, <code>'$auto'</code>, <code>'$direct'</code> or
-	 *   application group IDs as specified in {@link sap.ui.model.odata.v4.ODataModel#submitBatch}.
-	 * @throws {Error}
-	 *   If the given group ID is invalid or refresh on this binding is not supported.
-	 *
-	 * @public
-	 * @see sap.ui.model.Binding#refresh
-	 * @since 1.37.0
-	 */
-	// @override
-	ODataPropertyBinding.prototype.refresh = function (sGroupId) {
-		if (!this.oCache) {
-			throw new Error("Refresh on this binding is not supported");
+		if (!sResolvedPath) {
+			throw new Error(this + " is not resolved yet");
 		}
-
-		_ODataHelper.checkGroupId(sGroupId);
-
-		this.sRefreshGroupId = sGroupId;
-		this.oCache.refresh();
-		this.checkUpdate(true, ChangeReason.Refresh);
+		return this.getModel().getMetaModel().getValueListType(sResolvedPath);
 	};
 
 	/**
-	 * Method not supported
+	 * Change handler for the cache. The cache calls this method when the value is changed.
 	 *
+	 * @param {any} vValue
+	 *   The new value
+	 *
+	 * @private
+	 */
+	ODataPropertyBinding.prototype.onChange = function (vValue) {
+		this.vValue = vValue;
+		this._fireChange({reason : ChangeReason.Change});
+	};
+
+	/**
+	 * @override
+	 * @see sap.ui.model.odata.v4.ODataBinding#refreshInternal
+	 */
+	ODataPropertyBinding.prototype.refreshInternal = function (sGroupId, bCheckUpdate) {
+		this.fetchCache(this.oContext);
+		if (bCheckUpdate) {
+			this.checkUpdate(true, ChangeReason.Refresh, sGroupId);
+		}
+	};
+
+	/**
+	 * Requests information to retrieve a value list for this property.
+	 *
+	 * @returns {Promise}
+	 *   A promise which is resolved with a map of qualifier to value list mapping objects
+	 *   structured as defined by <code>com.sap.vocabularies.Common.v1.ValueListMappingType</code>;
+	 *   the map entry with key "" represents the mapping without qualifier. Each entry has an
+	 *   additional property "$model" which is the {@link sap.ui.model.odata.v4.ODataModel} instance
+	 *   to read value list data via this mapping.
+	 *
+	 *   For fixed values, only one mapping is expected and the qualifier is ignored. The mapping
+	 *   is available with key "".
+	 *
+	 *   The promise is rejected with an error if there is no value list information available
+	 *   for this property. Use {@link #getValueListType} to determine if value list information
+	 *   exists. It is also rejected with an error if the value list metadata is inconsistent.
+	 *
+	 *   An inconsistency can result from one of the following reasons:
+	 *   <ul>
+	 *    <li> There is a reference, but the referenced service does not contain mappings for the
+	 *     property.
+	 *    <li> The referenced service contains annotation targets in the namespace of the data
+	 *     service that are not mappings for the property.
+	 *    <li> Two different referenced services contain a mapping using the same qualifier.
+	 *    <li> A service is referenced twice.
+	 *    <li> No mappings have been found.
+	 *   </ul>
 	 * @throws {Error}
+	 *   If the binding is relative and has no context
 	 *
 	 * @public
-	 * @see sap.ui.model.Binding#resume
-	 * @since 1.37.0
+	 * @since 1.45.0
 	 */
-	// @override
-	ODataPropertyBinding.prototype.resume = function () {
-		throw new Error("Unsupported operation: v4.ODataPropertyBinding#resume");
+	ODataPropertyBinding.prototype.requestValueListInfo = function () {
+		var sResolvedPath = this.getModel().resolve(this.sPath, this.oContext);
+
+		if (!sResolvedPath) {
+			throw new Error(this + " is not resolved yet");
+		}
+		return this.getModel().getMetaModel().requestValueListInfo(sResolvedPath);
 	};
 
 	/**
-	 * Sets the (base) context if the binding path is relative and triggers a
-	 * {@link #checkUpdate} to check for the current value if the context has changed.
-	 * In case of absolute bindings nothing is done.
+	 * Determines which type of value list exists for this property.
+	 *
+	 * @returns {Promise}
+	 *   A promise that is resolved with the type of the value list. It is rejected if the property
+	 *   cannot be found in the metadata.
+	 * @throws {Error}
+	 *   If the binding is relative and has no context
+	 *
+	 * @public
+	 * @since 1.47.0
+	 */
+	ODataPropertyBinding.prototype.requestValueListType = function () {
+		var sResolvedPath = this.getModel().resolve(this.sPath, this.oContext);
+
+		if (!sResolvedPath) {
+			throw new Error(this + " is not resolved yet");
+		}
+		return this.getModel().getMetaModel().requestValueListType(sResolvedPath);
+	};
+
+	/**
+	 * A method to reset invalid data state, to be called by
+	 * {@link sap.ui.model.odata.v4.ODataBinding#resetChanges}.
+	 * Fires a change event if the data state is invalid to ensure that invalid user input, having
+	 * not passed the validation, is also reset.
+	 *
+	 * @private
+	 */
+	ODataPropertyBinding.prototype.resetInvalidDataState = function () {
+		if (this.getDataState().isControlDirty()) {
+			this._fireChange({reason : ChangeReason.Change});
+		}
+	};
+
+	/**
+	 * Sets the (base) context if the binding path is relative. Triggers (@link #fetchCache) to
+	 * create a cache and {@link #checkUpdate} to check for the current value if the
+	 * context has changed. In case of absolute bindings nothing is done.
 	 *
 	 * @param {sap.ui.model.Context} [oContext]
 	 *   The context which is required as base for a relative path
@@ -387,8 +477,12 @@ sap.ui.define([
 	// @override
 	ODataPropertyBinding.prototype.setContext = function (oContext) {
 		if (this.oContext !== oContext) {
+			if (this.bRelative && this.oContext && this.oContext.deregisterChange) {
+				this.oContext.deregisterChange(this.sPath, this);
+			}
 			this.oContext = oContext;
-			if (this.isRelative()) {
+			if (this.bRelative) {
+				this.fetchCache(this.oContext);
 				this.checkUpdate(false, ChangeReason.Context);
 			}
 		}
@@ -406,6 +500,7 @@ sap.ui.define([
 	 *   information
 	 *
 	 * @public
+	 * @since 1.43.0
 	 * @see sap.ui.model.PropertyBinding#setType
 	 */
 	// @override
@@ -430,8 +525,8 @@ sap.ui.define([
 	 *   The group ID to be used for this update call; if not specified, the update group ID for
 	 *   this binding (or its relevant parent binding) is used, see
 	 *   {@link sap.ui.model.odata.v4.ODataPropertyBinding#constructor}.
-	 *   Valid values are <code>undefined</code>, <code>'$auto'</code>, <code>'$direct'</code> or
-	 *   application group IDs as specified in {@link sap.ui.model.odata.v4.ODataModel#submitBatch}.
+	 *   Valid values are <code>undefined</code>, '$auto', '$direct' or application group IDs as
+	 *   specified in {@link sap.ui.model.odata.v4.ODataModel#submitBatch}.
 	 * @throws {Error}
 	 *   If the new value is not primitive or the binding is not relative
 	 *
@@ -442,48 +537,42 @@ sap.ui.define([
 	ODataPropertyBinding.prototype.setValue = function (vValue, sGroupId) {
 		var that = this;
 
-		if (typeof vValue === "function" || typeof vValue === "object") {
+		function reportError(oError) {
+			that.oModel.reportError("Failed to update path "
+				+ that.oModel.resolve(that.sPath, that.oContext),
+				sClassName, oError);
+		}
+
+		if (typeof vValue === "function" || (vValue && typeof vValue === "object")) {
 			throw new Error("Not a primitive value");
 		}
-		_ODataHelper.checkGroupId(sGroupId);
+		this.oModel.checkGroupId(sGroupId);
 
 		if (this.vValue !== vValue) {
-			if (this.bRelative) {
-				if (this.oContext) {
-					this.oContext.updateValue(sGroupId, this.sPath, vValue)
+			this.oCachePromise.then(function (oCache) {
+				if (oCache) {
+					jQuery.sap.log.error("Cannot set value on this binding",
+						that.oModel.resolve(that.sPath, that.oContext), sClassName);
+					// do not update that.vValue!
+				} else if (that.oContext) {
+					that.oModel.getMetaModel().fetchUpdateData(that.sPath, that.oContext)
+						.then(function (oResult) {
+							return that.oContext.getBinding().updateValue(sGroupId,
+								oResult.propertyPath, vValue, reportError, oResult.editUrl,
+								oResult.entityPath);
+						})
 						["catch"](function (oError) {
-							that.oModel.reportError("Failed to update path "
-									+ that.oModel.resolve(that.sPath, that.oContext),
-								sClassName, oError);
+							if (!oError.canceled) {
+								reportError(oError);
+							}
 						});
 				} else {
 					jQuery.sap.log.warning("Cannot set value on relative binding without context",
-						this.sPath, sClassName);
-					return; // do not update this.vValue!
+						that.sPath, sClassName);
+					// do not update that.vValue!
 				}
-			} else {
-				jQuery.sap.log.error("Cannot set value on absolute binding", this.sPath,
-					sClassName);
-				return; // do not update this.vValue!
-			}
-
-			this.vValue = vValue;
-			this._fireChange({reason : ChangeReason.Change});
+			});
 		}
-	};
-
-	/**
-	 * Method not supported
-	 *
-	 * @throws {Error}
-	 *
-	 * @public
-	 * @see sap.ui.model.Binding#suspend
-	 * @since 1.37.0
-	 */
-	// @override
-	ODataPropertyBinding.prototype.suspend = function () {
-		throw new Error("Unsupported operation: v4.ODataPropertyBinding#suspend");
 	};
 
 	/**
@@ -495,7 +584,7 @@ sap.ui.define([
 	 * @since 1.37.0
 	 */
 	ODataPropertyBinding.prototype.toString = function () {
-		return sClassName + ": " + (this.bRelative  ? this.oContext + "|" : "") + this.sPath;
+		return sClassName + ": " + (this.bRelative ? this.oContext + "|" : "") + this.sPath;
 	};
 
 	return ODataPropertyBinding;

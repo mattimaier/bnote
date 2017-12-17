@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.ui.unified.FileUploader.
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
-	function(jQuery, Control, library) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library', 'sap/ui/core/LabelEnablement'],
+	function(jQuery, Control, library, LabelEnablement) {
 	"use strict";
 
 
@@ -20,9 +20,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	 * @class
 	 * The framework generates an input field and a button with text "Browse ...". The API supports features such as on change uploads (the upload starts immediately after a file has been selected), file uploads with explicit calls, adjustable control sizes, text display after uploads, or tooltips containing complete file paths.
 	 * @extends sap.ui.core.Control
+	 * @implements sap.ui.core.IFormContent
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -31,6 +32,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	 */
 	var FileUploader = Control.extend("sap.ui.unified.FileUploader", /** @lends sap.ui.unified.FileUploader.prototype */ { metadata : {
 
+		interfaces : ["sap.ui.core.IFormContent"],
 		library : "sap.ui.unified",
 		properties : {
 
@@ -140,21 +142,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 
 			/**
 			 * Icon to be displayed as graphical element within the button.
-			 * This can be an URI to an image or an icon font URI.
+			 * This can be a URI to an image or an icon font URI.
 			 * @since 1.26.0
 			 */
 			icon : {type : "sap.ui.core.URI", group : "Appearance", defaultValue : ''},
 
 			/**
 			 * Icon to be displayed as graphical element within the button when it is hovered (only if also a base icon was specified). If not specified the base icon is used.
-			 * If a icon font icon is used, this property is ignored.
+			 * If an icon font icon is used, this property is ignored.
 			 * @since 1.26.0
 			 */
 			iconHovered : {type : "sap.ui.core.URI", group : "Appearance", defaultValue : ''},
 
 			/**
 			 * Icon to be displayed as graphical element within the button when it is selected (only if also a base icon was specified). If not specified the base or hovered icon is used.
-			 * If a icon font icon is used, this property is ignored.
+			 * If an icon font icon is used, this property is ignored.
 			 * @since 1.26.0
 			 */
 			iconSelected : {type : "sap.ui.core.URI", group : "Appearance", defaultValue : ''},
@@ -507,6 +509,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 		if (this.oFileUpload) {
 			if (typeof oTooltip  === "string") {
 				jQuery(this.oFileUpload).attr("title", jQuery.sap.encodeHTML(oTooltip));
+				this.$().find(".sapUiFupInputMask").attr("title", jQuery.sap.encodeHTML(oTooltip));
 			}
 		}
 		return this;
@@ -568,9 +571,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	 * @private
 	 */
 	FileUploader.prototype.onAfterRendering = function() {
-
 		// prepare the file upload control and the upload iframe
 		this.prepareFileUploadAndIFrame();
+
+		this._cacheDOMEls();
+		this._addLabelFeaturesToBrowse();
 
 		// event listener registration for change event
 		jQuery(this.oFileUpload).change(jQuery.proxy(this.handlechange, this));
@@ -585,6 +590,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 		if ((!!sap.ui.Device.browser.internet_explorer && sap.ui.Device.browser.version == 9)) {
 			this.oBrowse.$().attr("tabindex", "-1");
 		}
+
+		if (LabelEnablement.isRequired(this)) {
+			this.oBrowse.$().attr("aria-required", "true");
+		}
+
 		jQuery.sap.delayedCall(0, this, this._recalculateWidth);
 
 		this.oFilePath.$().find('input').removeAttr("role").attr("aria-live", "polite");
@@ -595,9 +605,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 
 	};
 
+
+	FileUploader.prototype._cacheDOMEls = function() {
+		this.FUEl = this.getDomRef("fu");
+		this.FUDataEl = this.getDomRef("fu_data");
+	};
+
 	FileUploader.prototype.onfocusin = function(oEvent) {
 
-		this.openValueStateMessage();
+		if (!this.oFilePath.shouldValueStateMessageBeOpened || this.oFilePath.shouldValueStateMessageBeOpened()) {
+			this.openValueStateMessage();
+		}
 
 	};
 
@@ -676,21 +694,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	};
 
 	FileUploader.prototype.setEnabled = function(bEnabled){
+		var $oFileUpload = jQuery(this.oFileUpload);
+
 		this.setProperty("enabled", bEnabled, true);
 		this.oFilePath.setEnabled(bEnabled);
 		this.oBrowse.setEnabled(bEnabled);
-		if (bEnabled) {
-			jQuery(this.oFileUpload).removeAttr('disabled');
-		} else {
-			jQuery(this.oFileUpload).attr('disabled', 'disabled');
-		}
+		bEnabled ? $oFileUpload.removeAttr('disabled') : $oFileUpload.attr('disabled', 'disabled');
+		this.$().toggleClass("sapUiFupDisabled", !bEnabled);
+
 		return this;
 	};
 
 	FileUploader.prototype.setValueState = function(sValueState) {
 
 		this.setProperty("valueState", sValueState, true);
-		//as of 1.23.1 oFilePath can be a sap.ui.commons.TextField or a sap.m.Input, which both have a valueState
+		//as of 1.23.1 oFilePath can be an sap.ui.commons.TextField or an sap.m.Input, which both have a valueState
 		if (this.oFilePath.setValueState) {
 			this.oFilePath.setValueState(sValueState);
 		}
@@ -734,20 +752,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 
 	FileUploader.prototype.setStyle = function(sStyle) {
 		this.setProperty("style", sStyle, true);
-		if (sStyle == "Transparent") {
-			if (this.oBrowse.setLite) {
-				this.oBrowse.setLite(true);
-			} else {
-				this.oBrowse.setType("Transparent");
-			}
-		} else {
-			if (this.oBrowse.setType) {
-				this.oBrowse.setType(sStyle);
-			} else {
-				if (sStyle == "Emphasized") {
-					sStyle = "Emph";
+		if (sStyle) {
+			if (sStyle == "Transparent") {
+				if (this.oBrowse.setLite) {
+					this.oBrowse.setLite(true);
+				} else {
+					this.oBrowse.setType("Transparent");
 				}
-				this.oBrowse.setStyle(sStyle);
+			} else {
+				if (this.oBrowse.setType) {
+					this.oBrowse.setType(sStyle);
+				} else {
+					if (sStyle == "Emphasized") {
+						sStyle = "Emph";
+					}
+					this.oBrowse.setStyle(sStyle);
+				}
 			}
 		}
 		return this;
@@ -783,12 +803,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 					sapMInnerInput.value = "";
 				}
 				//keep the additional data on the form
-				this.$("fu_data").val(this.getAdditionalData());
+				jQuery(this.FUDataEl).val(this.getAdditionalData());
 			}
 			// only fire event when triggered by user interaction
 			if (bFireEvent) {
 				if (window.File) {
-					oFiles = jQuery.sap.domById(this.getId() + "-fu").files;
+					oFiles = this.FUEl.files;
 				}
 				if (!this.getSameFilenameAllowed() || sValue) {
 					this.fireChange({id:this.getId(), newValue:sValue, files:oFiles});
@@ -815,7 +835,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 		if (uploadForm) {
 			uploadForm.reset();
 		}
-		//clear the value, don't fire change event, and supress the refocusing of the file input field
+		//clear the value, don't fire change event, and suppress the refocusing of the file input field
 		return this.setValue("", false, true);
 	};
 
@@ -848,7 +868,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	FileUploader.prototype.setAdditionalData = function(sAdditionalData) {
 		// set the additional data in the hidden input
 		this.setProperty("additionalData", sAdditionalData, true);
-		var oAdditionalData = this.getDomRef("fu_data");
+		var oAdditionalData = this.FUDataEl;
 		if (oAdditionalData) {
 			sAdditionalData = this.getAdditionalData() || "";
 			oAdditionalData.value = sAdditionalData;
@@ -970,96 +990,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 			return;
 		}
 		var uploadForm = this.getDomRef("fu_form");
-		var iFiles, sHeader, sValue, oXhrEntry;
 		try {
-			if (uploadForm) {
-				this._bUploading = true;
-				if (this.getSendXHR() && window.File) {
-					var aFiles = jQuery.sap.domById(this.getId() + "-fu").files;
-					if (aFiles.length > 0) {
-						if (this.getUseMultipart()) {
-							//one xhr request for all files
-							iFiles = 1;
-						} else {
-							//several xhr requests for every file
-							iFiles = aFiles.length;
-						}
-						// Save references to already uploading files if a new upload comes between upload and complete or abort
-						this._aXhr = this._aXhr || [];
-						for (var j = 0; j < iFiles; j++) {
-							//keep a reference on the current upload xhr
-							this._uploadXHR = new window.XMLHttpRequest();
-							oXhrEntry = {
-								xhr: this._uploadXHR,
-								requestHeaders: []
-							};
-							this._aXhr.push(oXhrEntry);
-							oXhrEntry.xhr.open("POST", this.getUploadUrl(), true);
-							if (this.getHeaderParameters()) {
-								var aHeaderParams = this.getHeaderParameters();
-								for (var i = 0; i < aHeaderParams.length; i++) {
-									sHeader = aHeaderParams[i].getName();
-									sValue = aHeaderParams[i].getValue();
-									oXhrEntry.requestHeaders.push({
-										name: sHeader,
-										value: sValue
-									});
-								}
-							}
-							var sFilename = aFiles[j].name;
-							var aRequestHeaders = oXhrEntry.requestHeaders;
-							oXhrEntry.fileName = sFilename;
-							oXhrEntry.file = aFiles[j];
-							this.fireUploadStart({
-								"fileName": sFilename,
-								"requestHeaders": aRequestHeaders
-							});
-							for (var k = 0; k < aRequestHeaders.length; k++) {
-								// Check if request is still open in case abort() was called.
-								if (oXhrEntry.xhr.readyState === 0) {
-									break;
-								}
-								sHeader = aRequestHeaders[k].name;
-								sValue = aRequestHeaders[k].value;
-								oXhrEntry.xhr.setRequestHeader(sHeader, sValue);
-							}
-						}
-						if (this.getUseMultipart()) {
-							var formData = new window.FormData();
-							var name = jQuery.sap.domById(this.getId() + "-fu").name;
-							for (var l = 0; l < aFiles.length; l++) {
-								formData.append(name, aFiles[l]);
-							}
-							formData.append("_charset_", "UTF-8");
-							var data = jQuery.sap.domById(this.getId() + "-fu_data").name;
-							if (this.getAdditionalData()) {
-								var sData = this.getAdditionalData();
-								formData.append(data, sData);
-							} else {
-								formData.append(data, "");
-							}
-							if (this.getParameters()) {
-								var oParams = this.getParameters();
-								for (var m = 0; m < oParams.length; m++) {
-									var sName = oParams[m].getName();
-									sValue = oParams[m].getValue();
-									formData.append(sName, sValue);
-								}
-							}
-							oXhrEntry.file = formData;
-							this.sendFiles(this._aXhr, 0);
-						} else {
-							this.sendFiles(this._aXhr, 0);
-						}
-						this._bUploading = false;
-					}
-				} else {
-					uploadForm.submit();
-				}
-				jQuery.sap.log.info("File uploading to " + this.getUploadUrl());
-				if (this.getSameFilenameAllowed() && this.getUploadOnChange() && this.getUseMultipart()) {
-					this.setValue("", true);
-				}
+			this._bUploading = true;
+			if (this.getSendXHR() && window.File) {
+				var aFiles = this.FUEl.files;
+
+				this._sendFilesWithXHR(aFiles);
+			} else if (uploadForm) {
+				uploadForm.submit();
+				this._resetValueAfterUploadStart();
 			}
 		} catch (oException) {
 			jQuery.sap.log.error("File upload failed:\n" + oException.message);
@@ -1076,7 +1015,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	 */
 	FileUploader.prototype.abort = function(sHeaderCheck, sValueCheck) {
 		if (!this.getUseMultipart()) {
-			for (var i = 0; i < this._aXhr.length; i++) {
+			var iStart = this._aXhr.length - 1;
+			for (var i = iStart; i > -1 ; i--) {
 				if (sHeaderCheck && sValueCheck) {
 					for (var j = 0; j < this._aXhr[i].requestHeaders.length; j++) {
 						var sHeader = this._aXhr[i].requestHeaders[j].name;
@@ -1120,7 +1060,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	};
 
 	FileUploader.prototype.onclick = function(oEvent) {
-		if (this.getSameFilenameAllowed()) {
+		if (this.getSameFilenameAllowed() && this.getEnabled()) {
 			this.setValue("", true);
 		}
 		//refocus the Button, except bSupressFocus is set
@@ -1189,11 +1129,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 
 	FileUploader.prototype.handlechange = function(oEvent) {
 		if (this.oFileUpload && this.getEnabled()) {
-
-			var fMaxSize = this.getMaximumFileSize();
-
 			var aFileTypes = this.getFileType();
-			var aMimeTypes = this.getMimeType();
 
 			var sFileString = '';
 			var bWrongType, sName, iIdx, sFileEnding;
@@ -1202,76 +1138,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 			if (window.File) {
 				var aFiles = oEvent.target.files;
 
-				for (var i = 0; i < aFiles.length; i++) {
-					sName = aFiles[i].name;
-					var sType = aFiles[i].type;
-					if (!sType) {
-						sType = "unknown";
-					}
-					var fSize = ((aFiles[i].size / 1024) / 1024);
-					if (fMaxSize && (fSize > fMaxSize)) {
-						jQuery.sap.log.info("File: " + sName + " is of size " + fSize + " MB which exceeds the file size limit of " + fMaxSize + " MB.");
-						this.fireFileSizeExceed({
-							fileName:sName,
-							fileSize:fSize
-						});
-						uploadForm.reset();
-						this.setValue("", true, true);
-						return;
-					}
-					//check if the filename is too long and fire the corresponding event if necessary
-					if (this._isFilenameTooLong(sName)) {
-						this.fireFilenameLengthExceed({
-							fileName: sName
-						});
-						uploadForm.reset();
-						this.setValue("", true, true);
-						return;
-					}
-					//check allowed mime-types for potential mismatches
-					if (aMimeTypes && aMimeTypes.length > 0) {
-						var bWrongMime = true;
-						for (var j = 0; j < aMimeTypes.length; j++) {
-							if (sType == aMimeTypes[j] || aMimeTypes[j] == "*/*" || sType.match(aMimeTypes[j])) {
-								bWrongMime = false;
-							}
-						}
-						if (bWrongMime) {
-							jQuery.sap.log.info("File: " + sName + " is of type " + sType + ". Allowed types are: "  + aMimeTypes + ".");
-							this.fireTypeMissmatch({
-								fileName:sName,
-								mimeType:sType
-							});
-							uploadForm.reset();
-							this.setValue("", true, true);
-							return;
-						}
-					}
-					//check allowed file-types for potential mismatches
-					if (aFileTypes && aFileTypes.length > 0) {
-						bWrongType = true;
-						iIdx = sName.lastIndexOf(".");
-						sFileEnding = sName.substring(iIdx + 1);
-						for (var k = 0; k < aFileTypes.length; k++) {
-							if (sFileEnding.toLowerCase() == aFileTypes[k].toLowerCase()) {
-								bWrongType = false;
-							}
-						}
-						if (bWrongType) {
-							jQuery.sap.log.info("File: " + sName + " is of type " + sFileEnding + ". Allowed types are: "  + aFileTypes + ".");
-							this.fireTypeMissmatch({
-								fileName:sName,
-								fileType:sFileEnding
-							});
-							uploadForm.reset();
-							this.setValue("", true, true);
-							return;
-						}
-					}
-					sFileString = sFileString + '"' + aFiles[i].name + '" ';
-				}
-				if (sFileString) {
+				if (this._areFilesAllowed(aFiles)) {
 					this.fireFileAllowed();
+					sFileString = this._generateInputValue(aFiles);
+				} else {
+					uploadForm.reset();
+					this.setValue("", true, true);
+					return;
 				}
 			} else if (aFileTypes && aFileTypes.length > 0) {
 				// This else case is executed if the File-API is not supported by the browser (especially IE9).
@@ -1334,6 +1207,208 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	//
 	// Private
 	//
+
+	/*
+	* Send passed files as argument trough XHR request.
+	* @param {array} [aFiles] list of files from type window.File, this array is returned from input type="file" or from Drag and Drop
+	* @returns this
+	* @private
+	*/
+	FileUploader.prototype._sendFilesWithXHR = function (aFiles) {
+		var iFiles, sHeader, sValue, oXhrEntry;
+
+		if (aFiles.length > 0) {
+			if (this.getUseMultipart()) {
+				//one xhr request for all files
+				iFiles = 1;
+			} else {
+				//several xhr requests for every file
+				iFiles = aFiles.length;
+			}
+			// Save references to already uploading files if a new upload comes between upload and complete or abort
+			this._aXhr = this._aXhr || [];
+			for (var j = 0; j < iFiles; j++) {
+				//keep a reference on the current upload xhr
+				this._uploadXHR = new window.XMLHttpRequest();
+				oXhrEntry = {
+					xhr: this._uploadXHR,
+					requestHeaders: []
+				};
+				this._aXhr.push(oXhrEntry);
+				oXhrEntry.xhr.open("POST", this.getUploadUrl(), true);
+				if (this.getHeaderParameters()) {
+					var aHeaderParams = this.getHeaderParameters();
+					for (var i = 0; i < aHeaderParams.length; i++) {
+						sHeader = aHeaderParams[i].getName();
+						sValue = aHeaderParams[i].getValue();
+						oXhrEntry.requestHeaders.push({
+							name: sHeader,
+							value: sValue
+						});
+					}
+				}
+				var sFilename = aFiles[j].name;
+				var aRequestHeaders = oXhrEntry.requestHeaders;
+				oXhrEntry.fileName = sFilename;
+				oXhrEntry.file = aFiles[j];
+				this.fireUploadStart({
+					"fileName": sFilename,
+					"requestHeaders": aRequestHeaders
+				});
+				for (var k = 0; k < aRequestHeaders.length; k++) {
+					// Check if request is still open in case abort() was called.
+					if (oXhrEntry.xhr.readyState === 0) {
+						break;
+					}
+					sHeader = aRequestHeaders[k].name;
+					sValue = aRequestHeaders[k].value;
+					oXhrEntry.xhr.setRequestHeader(sHeader, sValue);
+				}
+			}
+			if (this.getUseMultipart()) {
+				var formData = new window.FormData();
+				var name = this.FUEl.name;
+				for (var l = 0; l < aFiles.length; l++) {
+					formData.append(name, aFiles[l]);
+				}
+				formData.append("_charset_", "UTF-8");
+				var data = this.FUDataEl.name;
+				if (this.getAdditionalData()) {
+					var sData = this.getAdditionalData();
+					formData.append(data, sData);
+				} else {
+					formData.append(data, "");
+				}
+				if (this.getParameters()) {
+					var oParams = this.getParameters();
+					for (var m = 0; m < oParams.length; m++) {
+						var sName = oParams[m].getName();
+						sValue = oParams[m].getValue();
+						formData.append(sName, sValue);
+					}
+				}
+				oXhrEntry.file = formData;
+				this.sendFiles(this._aXhr, 0);
+			} else {
+				this.sendFiles(this._aXhr, 0);
+			}
+			this._bUploading = false;
+			this._resetValueAfterUploadStart();
+		}
+
+		return this;
+	};
+
+	/*
+	* Check if passed files complies with the provided file restrictions.
+	* These restrictions are the values of properties like "fileType", "maximumFileSize", "mimeType", "maximumFilenameLength"
+	* @param {array} [aFiles] list of files from type window.File, this array is returned from input type="file" or from Drag and Drop
+	* @returns {boolean}
+	* @private
+	*/
+	FileUploader.prototype._areFilesAllowed = function (aFiles) {
+		var sName, bWrongType, iIdx, sFileEnding, sType,
+			fMaxSize = this.getMaximumFileSize(),
+			aMimeTypes = this.getMimeType(),
+			aFileTypes = this.getFileType();
+
+		for (var i = 0; i < aFiles.length; i++) {
+			sName = aFiles[i].name;
+			sType = aFiles[i].type;
+			if (!sType) {
+				sType = "unknown";
+			}
+			var fSize = ((aFiles[i].size / 1024) / 1024);
+			if (fMaxSize && (fSize > fMaxSize)) {
+				jQuery.sap.log.info("File: " + sName + " is of size " + fSize + " MB which exceeds the file size limit of " + fMaxSize + " MB.");
+				this.fireFileSizeExceed({
+					fileName:sName,
+					fileSize:fSize
+				});
+
+				return false;
+			}
+			//check if the filename is too long and fire the corresponding event if necessary
+			if (this._isFilenameTooLong(sName)) {
+				this.fireFilenameLengthExceed({
+					fileName: sName
+				});
+
+				return false;
+			}
+			//check allowed mime-types for potential mismatches
+			if (aMimeTypes && aMimeTypes.length > 0) {
+				var bWrongMime = true;
+				for (var j = 0; j < aMimeTypes.length; j++) {
+					if (sType == aMimeTypes[j] || aMimeTypes[j] == "*/*" || sType.match(aMimeTypes[j])) {
+						bWrongMime = false;
+					}
+				}
+				if (bWrongMime) {
+					jQuery.sap.log.info("File: " + sName + " is of type " + sType + ". Allowed types are: "  + aMimeTypes + ".");
+					this.fireTypeMissmatch({
+						fileName:sName,
+						mimeType:sType
+					});
+
+					return false;
+				}
+			}
+			//check allowed file-types for potential mismatches
+			if (aFileTypes && aFileTypes.length > 0) {
+				bWrongType = true;
+				iIdx = sName.lastIndexOf(".");
+				sFileEnding = sName.substring(iIdx + 1);
+				for (var k = 0; k < aFileTypes.length; k++) {
+					if (sFileEnding.toLowerCase() == aFileTypes[k].toLowerCase()) {
+						bWrongType = false;
+					}
+				}
+				if (bWrongType) {
+					jQuery.sap.log.info("File: " + sName + " is of type " + sFileEnding + ". Allowed types are: "  + aFileTypes + ".");
+					this.fireTypeMissmatch({
+						fileName:sName,
+						fileType:sFileEnding
+					});
+
+					return false;
+				}
+			}
+		}
+
+		return true;
+	};
+
+	/*
+	* Validate provided files from drag and drop event and send them trough XHR
+	* Be aware that this method is private and is created only for drag and drop enablement inside sap.m.UploadCollection
+	* @param {array} [aFiles] list of files from type window.File, this array is returned from input type="file" or from Drag and Drop
+	* @returns {this}
+	* @private
+	*/
+	FileUploader.prototype._sendFilesFromDragAndDrop = function (aFiles) {
+		if (this._areFilesAllowed(aFiles)) {
+			this._sendFilesWithXHR(aFiles);
+		}
+
+		return this;
+	};
+
+	/*
+	* The value in the FileUplader input is generated from this method.
+	* It contains the names of the files in quotes divided by space.
+	* @param {array} [aFiles] list with files from type window.File, this array is returned from input type="file" or from Drag and Drop
+	* returns {string} The value of the input
+	*/
+	FileUploader.prototype._generateInputValue = function (aFiles) {
+		var sFileString = "";
+
+		for (var i = 0; i < aFiles.length; i++) {
+			sFileString = sFileString + '"' + aFiles[i].name + '" ';
+		}
+
+		return sFileString;
+	};
 
 	/**
 	 * Helper to retrieve the I18N texts for a button
@@ -1485,6 +1560,29 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 		}
 
 	};
+
+	FileUploader.prototype._resetValueAfterUploadStart = function () {
+		jQuery.sap.log.info("File uploading to " + this.getUploadUrl());
+		if (this.getSameFilenameAllowed() && this.getUploadOnChange() && this.getUseMultipart()) {
+			this.setValue("", true);
+		}
+	};
+	/*
+	* Add default input type=file and label behaviour to file uploader.
+	*/
+	FileUploader.prototype._addLabelFeaturesToBrowse = function () {
+		var $browse;
+
+		if (this.oBrowse &&  this.oBrowse.$().length) {
+			$browse = this.oBrowse.$();
+			$browse.attr("type', 'button"); // The default type of button is submit that's why on click of label there are submit of the form. This way we are avoiding the submit of form.
+			$browse.click(function(e) {
+				e.preventDefault();
+				this.ontap(); // The default behaviour on click on label is to open "open file" dialog. The only way to attach click event that is transferred from the label to the button is this way. AttachPress and attachTap don't work in this case.
+			}.bind(this));
+		}
+	};
+
 
 	return FileUploader;
 

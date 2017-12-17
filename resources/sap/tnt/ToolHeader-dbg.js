@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,15 +20,18 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control',
 		 * @class
 		 *
 		 * The ToolHeader control is a horizontal container that is most
-		 * commonly used to display buttons, labels, selects and other various input controls.
-		 *
-		 * The ToolHeader control is based on sap.m.OverflowToolbar. In addition to the OverflowToolbar,
-		 * the user can specify where the overflow button is placed.
-		 *
+		 * commonly used to display buttons, labels, and other various input controls.
+		 * <h4>Overview</h4>
+		 * The ToolHeader control is based on {@link sap.m.OverflowToolbar}. It contains clearly structured menus of commands that are available across the various apps within the same tool layout.
+		 * <h4>Usage</h4>
+		 * <ul>
+		 * <li>If an app implements side navigation in addition to the tool header menu, the menu icon must be the first item on the left-hand side of the tool header.</li>
+		 * <li>The app menu and the side navigation must not have any dependencies and must work independently.</li>
+		 * </ul>
 		 * @extends sap.m.OverflowToolbar
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
@@ -56,7 +59,9 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control',
 
 			OverflowToolbar.prototype.init.apply(this, arguments);
 
-			this.addStyleClass('sapTntToolHeader');
+			this.addStyleClass('sapTntToolHeader sapContrast sapContrastPlus');
+
+			this.setHTMLTag(sap.m.IBarHTMLTag.Header);
 		};
 
 		/**
@@ -76,12 +81,12 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control',
 					modal: false,
 					horizontalScrolling: sap.ui.Device.system.phone ? false : true,
 					contentWidth: sap.ui.Device.system.phone ? "100%" : "auto"
-				}).addStyleClass('sapTntToolHeaderPopover');
+				}).addStyleClass('sapTntToolHeaderPopover sapContrast sapContrastPlus');
 
 				popover.oControlsManager._preProcessSapMButton = this._preProcessPopoverControlsSapMButton.bind(popover.oControlsManager);
 
 				if (sap.ui.Device.system.phone) {
-					// This will trigger when the toolbar is in the header/footer, because the the position is known in advance (strictly top/bottom)
+					// This will trigger when the toolbar is in the header/footer, because the position is known in advance (strictly top/bottom)
 					popover.attachBeforeOpen(this._shiftPopupShadow, this);
 
 					// This will trigger when the toolbar is not in the header/footer, when the actual calculation is ready (see the overridden _calcPlacement)

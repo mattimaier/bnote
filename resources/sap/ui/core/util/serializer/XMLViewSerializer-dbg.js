@@ -1,6 +1,6 @@
 /*
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -17,13 +17,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Serializer',
 	 * @param {function} fnGetControlId delegate function which returns the control id
 	 * @param {function} fnGetEventHandlerName delegate function which returns the event handler name
 	 *
-	 * @public
 	 * @class XMLViewSerializer class.
 	 * @extends sap.ui.base.EventProvider
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @alias sap.ui.core.util.serializer.XMLViewSerializer
-	 * @experimental Since 1.15.1. The XMLViewSerializer is still under construction, so some implementation details can be changed in future.
+	 * @private
+	 * @sap-restricted sap.watt com.sap.webide
 	 */
 	var XMLViewSerializer = EventProvider.extend("sap.ui.core.util.serializer.XMLViewSerializer", /** @lends sap.ui.core.util.serializer.XMLViewSerializer.prototype */
 	{
@@ -47,14 +47,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Serializer',
 	XMLViewSerializer.prototype.serialize = function () {
 
 		// a function to memorize the control packages
-		var mPackages = [];
+		var aPackages = [];
 		var fnMemorizePackage = function (oControl, sPackage) {
 			if (!sPackage) {
 				var sType = (oControl) ? oControl.constructor : "?";
 				throw Error("Controls with empty package are currently not supported by the XML serializer: " + sType);
 			}
-			if (jQuery.inArray(sPackage, mPackages) === -1) {
-				mPackages.push(sPackage);
+			if (aPackages.indexOf(sPackage) === -1) {
+				aPackages.push(sPackage);
 			}
 		};
 		var that = this;
@@ -86,14 +86,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Serializer',
 		}
 
 		// write view namespaces ... after running serializer
-		if (jQuery.inArray('sap.ui.core.mvc', mPackages) === -1) {
-			mPackages.push('sap.ui.core.mvc');
+		if (aPackages.indexOf('sap.ui.core.mvc') === -1) {
+			aPackages.push('sap.ui.core.mvc');
 		}
-		for (var i = 0 ; i < mPackages.length ; i++) {
-			if (this._sDefaultNamespace && this._sDefaultNamespace === mPackages[i]) {
-				sView.push(' xmlns="' + mPackages[i] + '"');
+		for (var i = 0 ; i < aPackages.length ; i++) {
+			if (this._sDefaultNamespace && this._sDefaultNamespace === aPackages[i]) {
+				sView.push(' xmlns="' + aPackages[i] + '"');
 			} else {
-				sView.push(' xmlns:' + mPackages[i] + '="' + mPackages[i] + '"');
+				sView.push(' xmlns:' + aPackages[i] + '="' + aPackages[i] + '"');
 			}
 		}
 

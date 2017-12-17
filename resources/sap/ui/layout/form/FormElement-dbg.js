@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -12,7 +12,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 	/**
 	 * Constructor for a new sap.ui.layout.form.FormElement.
 	 *
-	 * @param {string} [sId] Id for the new control, generated automatically if no id is given
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] initial settings for the new control
 	 *
 	 * @class
@@ -21,7 +21,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 	 * @extends sap.ui.core.Element
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -43,12 +43,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 		aggregations : {
 
 			/**
-			 * Label of the fields. Can either be a <code>Label</code> object, or a string.
-			 * If a <code>Label</code> object is used, the properties of the <code>Label</code> can be set.
-			 * If no assignment between <code>Label</code> and the fields is set, it will be done automatically by the
+			 * Label of the fields. Can either be a <code>Label</code> control or a string.
+			 * If a <code>Label</code> control is used, the properties of the <code>Label</code> can be set.
+			 * If no assignment between <code>Label</code> and the fields is set via (<code>labelFor</code> property of the <code>Label</code>), it will be done automatically by the
 			 * <code>FormElement</code>. In this case the <code>Label</code> is assigned to the fields of the <code>FormElement</code>.
 			 */
 			label : {type : "sap.ui.core.Label", altTypes : ["string"], multiple : false},
+
+			/*
+			 * Internal Label if Label is provided as string.
+			 */
+			_label : {type : "sap.ui.core.Label", multiple : false, visibility: "hidden"},
 
 			/**
 			 * Formular controls that belong together to be displayed in one row of a <code>Form</code>.
@@ -57,7 +62,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 			 * keyboard support and screen-reader support.
 			 */
 			fields : {type : "sap.ui.core.Control", multiple : true, singularName : "field"}
-		}
+		},
+		designTime : true
 	}});
 
 	FormElement.prototype.init = function(){
@@ -69,7 +75,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 	FormElement.prototype.exit = function(){
 
 		if (this._oLabel) {
-			this._oLabel.destroy();
 			delete this._oLabel;
 		}
 
@@ -85,9 +90,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 
 		if (!this._oLabel) {
 			var oOldLabel = this.getLabel();
-			if (oOldLabel && oOldLabel.isRequired) {
-				oOldLabel.isRequired = oOldLabel._sapuiIsRequired;
-				oOldLabel._sapuiIsRequired = undefined;
+			if (oOldLabel) {
+				if (oOldLabel.setAlternativeLabelFor) {
+					oOldLabel.setAlternativeLabelFor(null);
+				}
+				if (oOldLabel.isRequired) {
+					oOldLabel.isRequired = oOldLabel._sapuiIsRequired;
+					oOldLabel._sapuiIsRequired = undefined;
+					oOldLabel.disableRequiredChangeCheck(false);
+				}
 			}
 		}
 
@@ -96,8 +107,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 		if (typeof oLabel === "string") {
 			if (!this._oLabel) {
 				this._oLabel = sap.ui.layout.form.FormHelper.createLabel(oLabel);
-				this._oLabel.setParent(this);
-				if (oLabel.isRequired) {
+				this.setAggregation("_label", this._oLabel, true); // use Aggregation to allow model inheritance
+				this._oLabel.disableRequiredChangeCheck(true);
+				if (this._oLabel.isRequired) {
 					this._oLabel.isRequired = _labelIsRequired;
 				}
 			} else {
@@ -111,10 +123,24 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 			if (oLabel && oLabel.isRequired) {
 				oLabel._sapuiIsRequired = oLabel.isRequired;
 				oLabel.isRequired = _labelIsRequired;
+				oLabel.disableRequiredChangeCheck(true);
 			}
 		}
 
 		_updateLabelFor(this);
+
+		return this;
+
+	};
+
+	FormElement.prototype.destroyLabel = function() {
+
+		this.destroyAggregation("label");
+
+		if (this._oLabel) {
+			this._oLabel.destroy();
+			delete this._oLabel;
+		}
 
 		return this;
 
@@ -141,8 +167,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 	FormElement.prototype.addField = function(oField) {
 
 		this.addAggregation("fields", oField);
-		oField.addDelegate(this._oFieldDelegate);
-		_updateLabelFor(this);
+
+		if (oField) {
+			if (!oField.getMetadata().isInstanceOf("sap.ui.core.IFormContent")) {
+				jQuery.sap.log.warning(oField + " is not valid Form content", this);
+			}
+			_attachDelegate.call(this, oField);
+			_updateLabelFor(this);
+		}
 
 		return this;
 
@@ -151,8 +183,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 	FormElement.prototype.insertField = function(oField, iIndex) {
 
 		this.insertAggregation("fields", oField, iIndex);
-		oField.addDelegate(this._oFieldDelegate);
-		_updateLabelFor(this);
+
+		if (oField) {
+			if (!oField.getMetadata().isInstanceOf("sap.ui.core.IFormContent")) {
+				jQuery.sap.log.warning(oField + " is not valid Form content", this);
+			}
+			_attachDelegate.call(this, oField);
+			_updateLabelFor(this);
+		}
 
 		return this;
 
@@ -161,7 +199,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 	FormElement.prototype.removeField = function(oField) {
 
 		var oRemovedField = this.removeAggregation("fields", oField);
-		oRemovedField.removeDelegate(this._oFieldDelegate);
+		_detachDelegate.call(this, oRemovedField);
 		_updateLabelFor(this);
 
 		return oRemovedField;
@@ -174,7 +212,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 
 		for ( var i = 0; i < aRemovedFields.length; i++) {
 			var oRemovedField = aRemovedFields[i];
-			oRemovedField.removeDelegate(this._oFieldDelegate);
+			_detachDelegate.call(this, oRemovedField);
 		}
 		_updateLabelFor(this);
 
@@ -188,7 +226,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 
 		for ( var i = 0; i < aFields.length; i++) {
 			var oField = aFields[i];
-			oField.removeDelegate(this._oFieldDelegate);
+			_detachDelegate.call(this, oField);
 		}
 
 		this.destroyAggregation("fields");
@@ -207,7 +245,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 
 		for (i = 0; i < aFields.length; i++) {
 			oField = aFields[i];
-			oField.removeDelegate(this._oFieldDelegate);
+			_detachDelegate.call(this, oField);
 		}
 
 		this.updateAggregation("fields");
@@ -216,7 +254,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 
 		for (i = 0; i < aFields.length; i++) {
 			oField = aFields[i];
-			oField.addDelegate(this._oFieldDelegate);
+			_attachDelegate.call(this, oField);
 		}
 
 		_updateLabelFor(this);
@@ -294,12 +332,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 	 */
 	function _labelIsRequired(){
 
+		if (this.getRequired && this.getRequired()) {
+			return true;
+		}
+
 		var oFormElement = this.getParent();
 		var aFields = oFormElement.getFields();
 
 		for ( var i = 0; i < aFields.length; i++) {
 			var oField = aFields[i];
-			if (oField.getRequired && oField.getRequired() === true) {
+			if (oField.getRequired && oField.getRequired() === true &&
+					(!oField.getEditable || oField.getEditable())) {
 				return true;
 			}
 		}
@@ -317,12 +360,31 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 
 		var oLabel = oFormElement._oLabel;
 		if (oLabel) {
-			oLabel.setAlternativeLabelFor(oField);
+			oLabel.setLabelFor(oField); // as Label is internal of FormElement, we can use original labelFor
+		} else {
+			oLabel = oFormElement.getLabel();
+			if (oLabel instanceof sap.ui.core.Control /*might also be a string*/) {
+				oLabel.setAlternativeLabelFor(oField);
+			}
 		}
-		oLabel = oFormElement.getLabel();
-		if (oLabel instanceof sap.ui.core.Control /*might also be a string*/) {
-			oLabel.setAlternativeLabelFor(oField);
+	}
+
+	function _attachDelegate(oField){
+
+		oField.addDelegate(this._oFieldDelegate);
+		if (oField.getMetadata().getProperty("required")) {
+			oField.attachEvent("_change", _handleControlChange, this);
 		}
+
+	}
+
+	function _detachDelegate(oField){
+
+		oField.removeDelegate(this._oFieldDelegate);
+		if (oField.getMetadata().getProperty("required")) {
+			oField.detachEvent("_change", _handleControlChange, this);
+		}
+
 	}
 
 	/*
@@ -334,6 +396,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', 'sap/ui/core/EnabledP
 		var oParent = this.oElement.getParent();
 		if (oParent && oParent.contentOnAfterRendering) {
 			oParent.contentOnAfterRendering( this.oElement, oEvent.srcControl);
+		}
+
+	}
+
+	function _handleControlChange(oEvent) {
+
+		if (oEvent.getParameter("name") == "required") {
+			var oLabel = this.getLabelControl();
+			if (oLabel) {
+				oLabel.invalidate();
+			}
 		}
 
 	}

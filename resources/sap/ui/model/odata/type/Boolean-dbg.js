@@ -1,13 +1,13 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['sap/ui/core/Core', 'sap/ui/model/FormatException',
-		'sap/ui/model/odata/type/ODataType', 'sap/ui/model/ParseException',
-		'sap/ui/model/ValidateException'],
-	function(Core, FormatException, ODataType, ParseException, ValidateException) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Core',
+		'sap/ui/model/FormatException', 'sap/ui/model/odata/type/ODataType',
+		'sap/ui/model/ParseException', 'sap/ui/model/ValidateException'],
+	function(jQuery, Core, FormatException, ODataType, ParseException, ValidateException) {
 	"use strict";
 
 	/**
@@ -80,7 +80,7 @@ sap.ui.define(['sap/ui/core/Core', 'sap/ui/model/FormatException',
 	 * @extends sap.ui.model.odata.type.ODataType
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @alias sap.ui.model.odata.type.Boolean
 	 * @param {object} [oFormatOptions]
@@ -108,8 +108,10 @@ sap.ui.define(['sap/ui/core/Core', 'sap/ui/model/FormatException',
 	 * @param {boolean} bValue
 	 *   the value to be formatted
 	 * @param {string} sTargetType
-	 *   the target type; may be "any", "boolean" or "string". If it is "string", the result is
-	 *   "Yes" or "No" in the current {@link sap.ui.core.Configuration#getLanguage language}.
+	 *   the target type; may be "any", "boolean", "string", or a type with one of these types as
+	 *   its {@link sap.ui.base.DataType#getPrimitiveType primitive type}.
+	 *   If the target type (or its primitive type) is "string", the result is "Yes" or "No" in the
+	 *   current {@link sap.ui.core.Configuration#getLanguage language}.
 	 *   See {@link sap.ui.model.odata.type} for more information.
 	 * @returns {boolean|string}
 	 *   the formatted output value in the target type; <code>undefined</code> or <code>null</code>
@@ -122,7 +124,7 @@ sap.ui.define(['sap/ui/core/Core', 'sap/ui/model/FormatException',
 		if (bValue === null || bValue === undefined) {
 			return null;
 		}
-		switch (sTargetType) {
+		switch (this.getPrimitiveType(sTargetType)) {
 		case "any":
 		case "boolean":
 			return bValue;
@@ -141,7 +143,9 @@ sap.ui.define(['sap/ui/core/Core', 'sap/ui/model/FormatException',
 	 *   the value to be parsed; the empty string and <code>null</code> are parsed to
 	 *   <code>null</code>
 	 * @param {string} sSourceType
-	 * 	 the source type (the expected type of <code>vValue</code>); may be "boolean" or "string".
+	 *   the source type (the expected type of <code>vValue</code>); may be "boolean", "string", or
+	 *   a type with one of these types as its
+	 *   {@link sap.ui.base.DataType#getPrimitiveType primitive type}.
 	 *   See {@link sap.ui.model.odata.type} for more information.
 	 * @returns {boolean}
 	 *   the parsed value
@@ -156,7 +160,7 @@ sap.ui.define(['sap/ui/core/Core', 'sap/ui/model/FormatException',
 		if (vValue === null || vValue === "") {
 			return null;
 		}
-		switch (sSourceType) {
+		switch (this.getPrimitiveType(sSourceType)) {
 			case "boolean":
 				return vValue;
 			case "string":

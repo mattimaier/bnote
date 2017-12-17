@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -61,7 +61,7 @@ sap.ui.define([
 	 * but rather use {@link sap.ui.model.odata.ODataModel#getMetaModel getMetaModel} instead!
 	 *
 	 * @param {sap.ui.model.odata.ODataMetadata} oMetadata
-	 *   the OData model's meta data object
+	 *   the OData model's metadata object
 	 * @param {sap.ui.model.odata.ODataAnnotations} [oAnnotations]
 	 *   the OData model's annotations object
 	 * @param {object} [oODataModelInterface]
@@ -71,11 +71,11 @@ sap.ui.define([
 	 *   the {@link sap.ui.model.odata.v2.ODataModel#addAnnotationUrl addAnnotationUrl} method
 	 *   of the OData model, in case this feature is supported
 	 * @param {Promise} [oODataModelInterface.annotationsLoadedPromise]
-	 *   a promise which is resolved by the OData model once meta data and annotations have been
+	 *   a promise which is resolved by the OData model once metadata and annotations have been
 	 *   fully loaded
 	 *
 	 * @class Implementation of an OData meta model which offers a unified access to both OData V2
-	 * meta data and V4 annotations. It uses the existing {@link sap.ui.model.odata.ODataMetadata}
+	 * metadata and V4 annotations. It uses the existing {@link sap.ui.model.odata.ODataMetadata}
 	 * as a foundation and merges V4 annotations from the existing
 	 * {@link sap.ui.model.odata.ODataAnnotations} directly into the corresponding model element.
 	 *
@@ -105,7 +105,10 @@ sap.ui.define([
 	 * <code>pageable</code>, <code>requires-filter</code>, <code>searchable</code>,
 	 * <code>topable</code>, <code>updatable</code> and <code>updatable-path</code> on entity sets;
 	 * </li>
-	 * <li><code>creatable</code>, <code>display-format</code> ("UpperCase" and "NonNegative"),
+	 * <li><code>creatable</code> (since 1.41.0), <code>creatable-path</code> (since 1.41.0) and
+	 * <code>filterable</code> (since 1.39.0) on navigation properties;</li>
+	 * <li><code>aggregation-role</code> ("dimension" and "measure", both since 1.45.0),
+	 * <code>creatable</code>, <code>display-format</code> ("UpperCase" and "NonNegative"),
 	 * <code>field-control</code>, <code>filterable</code>, <code>filter-restriction</code>,
 	 * <code>heading</code>, <code>precision</code>, <code>quickinfo</code>,
 	 * <code>required-in-filter</code>, <code>sortable</code>, <code>text</code>, <code>unit</code>,
@@ -124,7 +127,9 @@ sap.ui.define([
 	 * <li>"body", "from", "received", "sender" and "subject" (mapped to V4 annotation
 	 * <code>com.sap.vocabularies.Communication.v1.Message</code>);</li>
 	 * <li>"completed", "due", "percent-complete" and "priority" (mapped to V4 annotation
-	 * <code>com.sap.vocabularies.Communication.v1.Task</code>).</li>
+	 * <code>com.sap.vocabularies.Communication.v1.Task</code>);</li>
+	 * <li>"year", "yearmonth", "yearmonthday" (mapped to the corresponding V4 annotation
+	 * <code>com.sap.vocabularies.Common.v1.IsCalendar(Year|YearMonth|Date)</code>).</li>
 	 * </ul>
 	 * </ul>
 	 * For example:
@@ -169,7 +174,7 @@ sap.ui.define([
 	 * {@link #loaded loaded} has been resolved!
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @alias sap.ui.model.odata.ODataMetaModel
 	 * @extends sap.ui.model.MetaModel
 	 * @public
@@ -182,11 +187,14 @@ sap.ui.define([
 				function load() {
 					var oData;
 
+					if (that.bDestroyed) {
+						throw new Error("Meta model already destroyed");
+					}
 					jQuery.sap.measure.average(sPerformanceLoad, "", aPerformanceCategories);
 					oData = JSON.parse(JSON.stringify(oMetadata.getServiceMetadata()));
-					Utils.merge(oAnnotations ? oAnnotations.getAnnotationsData() : {}, oData);
 					that.oModel = new JSONModel(oData);
 					that.oModel.setDefaultBindingMode(that.sDefaultBindingMode);
+					Utils.merge(oAnnotations ? oAnnotations.getAnnotationsData() : {}, oData, that);
 					jQuery.sap.measure.end(sPerformanceLoad);
 				}
 
@@ -288,7 +296,7 @@ sap.ui.define([
 				}
 			}
 			if (!oNode) {
-				if (jQuery.sap.log.isLoggable(jQuery.sap.log.Level.WARNING)) {
+				if (jQuery.sap.log.isLoggable(jQuery.sap.log.Level.WARNING, sODataMetaModel)) {
 					jQuery.sap.log.warning("Invalid part: " + vPart,
 						"path: " + sPath + ", context: "
 							+ (oContext instanceof Context ? oContext.getPath() : oContext),
@@ -351,7 +359,7 @@ sap.ui.define([
 			aSchemas = this.oModel.getObject("/dataServices/schema"),
 			that = this;
 
-		// merge meta data for entity sets/types
+		// merge metadata for entity sets/types
 		oResponse.entitySets.forEach(function (oEntitySet) {
 			var oEntityType,
 				oSchema,
@@ -446,7 +454,7 @@ sap.ui.define([
 
 	ODataMetaModel.prototype.destroy = function () {
 		MetaModel.prototype.destroy.apply(this, arguments);
-		return this.oModel.destroy.apply(this.oModel, arguments);
+		return this.oModel && this.oModel.destroy.apply(this.oModel, arguments);
 	};
 
 	/**
@@ -458,7 +466,7 @@ sap.ui.define([
 	 *   <a href="http://www.odata.org/documentation/odata-version-2-0/uri-conventions#ResourcePath">
 	 *   resource path</a> component of a URI according to OData V2 URI conventions
 	 * @returns {sap.ui.model.Context}
-	 *   the context for the corresponding meta data object, i.e. an entity type or its property,
+	 *   the context for the corresponding metadata object, i.e. an entity type or its property,
 	 *   or <code>null</code> in case no path is given
 	 * @throws {Error} in case no context can be determined
 	 * @public
@@ -606,7 +614,8 @@ sap.ui.define([
 	};
 
 	/**
-	 * Returns the OData default entity container.
+	 * Returns the OData default entity container. If there is only a single schema with a single
+	 * entity container, the entity container does not need to be marked as default explicitly.
 	 *
 	 * @param {boolean} [bAsPath=false]
 	 *   determines whether the entity container is returned as a path or as an object
@@ -631,6 +640,13 @@ sap.ui.define([
 					return false; //break
 				}
 			});
+
+			if (!vResult && aSchemas.length === 1 && aSchemas[0].entityContainer
+					&& aSchemas[0].entityContainer.length === 1) {
+				vResult = bAsPath
+					? "/dataServices/schema/0/entityContainer/0"
+					: aSchemas[0].entityContainer[0];
+			}
 		}
 
 		return vResult;
@@ -817,9 +833,9 @@ sap.ui.define([
 				sQualifiedTypeName,
 				mValueLists = Utils.getValueLists(oProperty);
 
-			if (jQuery.isEmptyObject(mValueLists) && oProperty["sap:value-list"]
+			if (!("" in mValueLists) && oProperty["sap:value-list"]
 				&& that.oODataModelInterface.addAnnotationUrl) {
-				// property with value list which is not yet loaded
+				// property with value list which is not yet (fully) loaded
 				bCachePromise = true;
 				sQualifiedTypeName = that.oModel.getObject(aMatches[2]).namespace
 					+ "." + that.oModel.getObject(aMatches[1]).name;

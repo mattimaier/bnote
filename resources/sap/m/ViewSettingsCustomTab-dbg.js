@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Item', 'sap/ui/cor
 			 * @extends sap.ui.core.Item
 			 *
 			 * @author SAP SE
-			 * @version 1.38.7
+			 * @version 1.50.7
 			 *
 			 * @constructor
 			 * @public
@@ -75,8 +75,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Item', 'sap/ui/cor
 			/**
 			 * Gets or creates the sap.m.Button instance for the custom tab.
 			 * @public
-			 * @param   {object} oOptions
-			 * @returns {sap.m.Button}
+			 * @param {Object} oOptions The options to be assigned to the button
+			 * @returns {sap.m.Button} The created button
 			 */
 			ViewSettingsCustomTab.prototype.getTabButton = function (oOptions) {
 				if (this._oTabButton === null) {

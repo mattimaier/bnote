@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -16,14 +16,19 @@ sap.ui.define(["./library", "sap/ui/core/Control"],
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * The WizardStep is a container control which should be used mainly to aggregate user input controls.
-	 * It gives the developer the ability to validate, invalidate the step and define subsequent steps.
-	 * Note: The WizardStep control control is supposed to be used only as an aggregation of the Wizard control,
+	 * A container control used to aggregate user input controls as part of an sap.m.Wizard.
+	 * <h3>Overview</h3>
+	 * WizardStep gives the developer the ability to validate, invalidate the step and define subsequent steps.
+	 * The WizardStep control control is supposed to be used only as an aggregation of the {@link sap.m.Wizard Wizard} control,
 	 * and should not be used as a standalone one.
+	 * <h3>Structure</h3>
+	 * <ul>
+	 * <li>Each wizard step has a title. Additionally it can have an icon.</li>
+	 * <li>Each wizard step can be validated by setting the <code>validated</code> property. This action will trigger the rendering of the Next step button.</li>
+	 * <li>If the execution needs to branch after a given step, you should set all possible next steps in the <code>subsequentSteps</code> aggregation.
 	 * @extends sap.ui.core.Control
-	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -107,6 +112,30 @@ sap.ui.define(["./library", "sap/ui/core/Control"],
 		return this;
 	};
 
+	WizardStep.prototype.setNextStep = function (value) {
+		this.setAssociation("nextStep", value, true);
+
+		var parent = this._getWizardParent();
+
+		if (parent !== null) {
+			parent._checkCircularReference(this._getNextStepReference());
+			parent._updateProgressNavigator();
+		}
+
+		return this;
+	};
+
+	/**
+	 * setVisible shouldn't be used on wizard steps.
+	 * If you need to show/hide steps based on some condition - use the branching property instead
+	 * @returns {WizardStep}
+	 */
+	WizardStep.prototype.setVisible = function (visible) {
+		this.setProperty("visible", visible, true);
+		jQuery.sap.log.warning("Don't use the set visible method for wizard steps. If you need to show/hide steps based on some condition - use the branching property of the Wizard instead.");
+		return this;
+	};
+
 	WizardStep.prototype._isLeaf = function () {
 		if ( this.getNextStep() === null && this.getSubsequentSteps().length === 0 ) {
 			return true;
@@ -125,7 +154,7 @@ sap.ui.define(["./library", "sap/ui/core/Control"],
 		}
 
 		if (this.getSubsequentSteps().length === 1) {
-			return sap.ui.getCore().byId(this.getSubsequentSteps[0]);
+			return sap.ui.getCore().byId(this.getSubsequentSteps()[0]);
 		}
 
 		return null;

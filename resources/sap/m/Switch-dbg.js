@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
@@ -41,7 +41,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				 * Custom text for the "ON" state.
 				 *
 				 * "ON" translated to the current language is the default value.
-				 * Beware that the given text will be cut off after three characters.
+				 * Beware that the given text will be cut off if available space is exceeded.
 				 */
 				customTextOn: { type: "string", group: "Misc", defaultValue: "" },
 
@@ -49,7 +49,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				 * Custom text for the "OFF" state.
 				 *
 				 * "OFF" translated to the current language is the default value.
-				 * Beware that the given text will be cut off after three characters.
+				 * Beware that the given text will be cut off if available space is exceeded.
 				 */
 				customTextOff: { type: "string", group: "Misc", defaultValue: "" },
 
@@ -160,6 +160,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				oDomRef.setAttribute("aria-checked", "false");
 			}
 
+			this._getInvisibleElement().text(this.getInvisibleElementText(bState));
+
 			if (sap.ui.getCore().getConfiguration().getAnimation()) {
 				$Switch.addClass(CSS_CLASS + "Trans");
 			}
@@ -168,20 +170,25 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			oSwitchInnerDomRef.style.cssText = "";
 		};
 
+		Switch.prototype._getInvisibleElement = function(){
+			return this.$("invisible");
+		};
+
 		Switch.prototype.getInvisibleElementId = function() {
 			return this.getId() + "-invisible";
 		};
 
-		Switch.prototype.getInvisibleElementText = function() {
+		Switch.prototype.getInvisibleElementText = function(bState) {
+			var oBundle = sap.ui.getCore().getLibraryResourceBundle("sap.m");
 			var sText = "";
 
 			switch (this.getType()) {
 				case sap.m.SwitchType.Default:
-					sText = this.getCustomTextOn() || "SWITCH_ON";
+					sText = this.getCustomTextOn() || (bState ? oBundle.getText("SWITCH_ON") : oBundle.getText("SWITCH_OFF"));
 					break;
 
 				case sap.m.SwitchType.AcceptReject:
-					sText = "SWITCH_ARIA_ACCEPT";
+					sText = oBundle.getText("SWITCH_ARIA_ACCEPT");
 					break;
 
 				// no default
@@ -191,29 +198,25 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		};
 
 		// the milliseconds takes the transition from one state to another
-		Switch._TRANSITIONTIME = Number(Parameters.get("sapMSwitch-TRANSITIONTIME")) || 0;
+		Switch._TRANSITIONTIME = Number(Parameters.get("_sap_m_Switch_TransitionTime")) || 0;
 
 		// the position of the inner HTML element whether the switch is "ON"
-		Switch._ONPOSITION = Number(Parameters.get("sapMSwitch-ONPOSITION"));
+		Switch._ONPOSITION = Number(Parameters.get("_sap_m_Switch_OnPosition"));
 
 		// the position of the inner HTML element whether the switch is "OFF"
-		Switch._OFFPOSITION = Number(Parameters.get("sapMSwitch-OFFPOSITION"));
+		Switch._OFFPOSITION = Number(Parameters.get("_sap_m_Switch_OffPosition"));
 
 		// swap point
 		Switch._SWAPPOINT = Math.abs((Switch._ONPOSITION - Switch._OFFPOSITION) / 2);
-
-		// resource bundle
-		Switch._oRb = sap.ui.getCore().getLibraryResourceBundle("sap.m");
 
 		/* =========================================================== */
 		/* Lifecycle methods                                           */
 		/* =========================================================== */
 
 		Switch.prototype.onBeforeRendering = function() {
-			var Swt = Switch;
-
-			this._sOn = this.getCustomTextOn() || Swt._oRb.getText("SWITCH_ON");
-			this._sOff = this.getCustomTextOff() || Swt._oRb.getText("SWITCH_OFF");
+			var oRb = sap.ui.getCore().getLibraryResourceBundle("sap.m");
+			this._sOn = this.getCustomTextOn() || oRb.getText("SWITCH_ON");
+			this._sOff = this.getCustomTextOff() || oRb.getText("SWITCH_OFF");
 		};
 
 		/* =========================================================== */
@@ -305,8 +308,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				// note: do not rely on a specific granularity of the touchmove event.
 				// On windows 8 surfaces, the touchmove events are dispatched even if
 				// the user doesn’t move the touch point along the surface.
-				oTouch.pageX === this._iStartPressPosX) {
-
+				// BCP:1770100948 - A threshold of 5px is added for accidental movement of the finger.
+				Math.abs(oTouch.pageX - this._iStartPressPosX) < 6) {
 				return;
 			}
 
@@ -433,16 +436,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			return this;
 		};
 
-		/**
-		 * @see {sap.ui.core.Control#getAccessibilityInfo}
-		 * @protected
-		 */
-		Switch.prototype.getAccessibilityInfo = function() {
+		Switch.prototype.getAccessibilityInfo = function(bState) {
 			var oBundle = sap.ui.getCore().getLibraryResourceBundle("sap.m");
 
 			var sDesc = "";
+
 			if (this.getState()) {
-				sDesc = oBundle.getText("ACC_CTR_STATE_CHECKED") + " " + oBundle.getText(this.getInvisibleElementText());
+				sDesc = oBundle.getText("ACC_CTR_STATE_CHECKED") + " " + this.getInvisibleElementText(bState);
 			}
 
 			return {

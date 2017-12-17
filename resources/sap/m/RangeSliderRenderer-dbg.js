@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -152,7 +152,7 @@ sap.ui.define(["sap/ui/core/Renderer", "./SliderRenderer"], function (Renderer, 
      */
     RangeSliderRenderer.renderStartLabel = function (oRM, oControl) {
         oRM.write("<div");
-        oRM.addClass(SliderRenderer.CSS_CLASS + "Label");
+        oRM.addClass(SliderRenderer.CSS_CLASS + "RangeLabel");
         oRM.writeClasses();
         oRM.write(">");
 
@@ -169,7 +169,7 @@ sap.ui.define(["sap/ui/core/Renderer", "./SliderRenderer"], function (Renderer, 
      */
     RangeSliderRenderer.renderEndLabel = function (oRM, oControl) {
         oRM.write("<div");
-        oRM.addClass(SliderRenderer.CSS_CLASS + "Label");
+        oRM.addClass(SliderRenderer.CSS_CLASS + "RangeLabel");
         oRM.writeClasses();
         oRM.write(">");
 

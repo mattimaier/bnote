@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -93,10 +93,10 @@ sap.ui.define(['jquery.sap.global'],
 		oRm.writeClasses();
 		oRm.write(">");
 		oRm.renderControl(oOI._getTitleControl());
-		//Render WAI ARIA hidden label for title if it's active
-		if (oOI.getProperty("titleActive")) {
-			oRm.renderControl(oOI._oAriaInfoTextControl);
-		}
+
+		//Render WAI ARIA hidden label for title
+		oRm.renderControl(oOI._oAriaCustomRole);
+
 		oRm.write("</div>"); // Title ends
 
 		oRm.write("</div>"); // Top row ends

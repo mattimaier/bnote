@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,7 +18,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 	 *
 	 * @extends sap.ui.base.Object
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @public
 	 * @since 1.8.0
@@ -202,7 +202,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 
 		//see sap.ui.base.EventProvider.prototype.fireEvent
 		var aEventListeners = EventProvider.getEventList(oChannel)[sEventId];
-		if (aEventListeners && jQuery.isArray(aEventListeners)) {
+		if (Array.isArray(aEventListeners)) {
 			// this ensures no 'concurrent modification exception' occurs (e.g. an event listener deregisters itself).
 			aEventListeners = aEventListeners.slice();
 			var oInfo;

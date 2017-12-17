@@ -1,14 +1,15 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 sap.ui.define([
+	"jquery.sap.global",
 	"sap/ui/core/format/DateFormat",
 	"sap/ui/model/FormatException",
 	"sap/ui/model/odata/type/DateTimeBase"
-], function (DateFormat, FormatException, DateTimeBase) {
+], function (jQuery, DateFormat, FormatException, DateTimeBase) {
 	"use strict";
 
 	/**
@@ -26,7 +27,7 @@ sap.ui.define([
 	 * @extends sap.ui.model.odata.type.DateTimeBase
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @alias sap.ui.model.odata.type.DateTimeOffset
 	 * @param {object} [oFormatOptions]
@@ -66,24 +67,33 @@ sap.ui.define([
 					}
 				}
 			}
-		}),
-		oModelFormat;
+		});
 
 	/*
-	 * Returns a date format instance for the OData V4 model format "yyyy-MM-dd'T'HH:mm:ssX".
+	 * Returns a date format instance for the OData V4 model format.
 	 * Creates it lazily.
 	 *
+	 * @param {sap.ui.model.odata.type.DateTimeOffset} oType
+	 *   The type
 	 * @returns {sap.ui.core.format.DateFormat}
 	 *   The date format
 	 */
-	function getModelFormat() {
-		if (!oModelFormat) {
-			oModelFormat = DateFormat.getDateInstance({
-				pattern : "yyyy-MM-dd'T'HH:mm:ssX",
-				strictParsing : true
+	function getModelFormat(oType) {
+		var sPattern = "yyyy-MM-dd'T'HH:mm:ss",
+			iPrecision;
+
+		if (!oType.oModelFormat) {
+			iPrecision = oType.oConstraints && oType.oConstraints.precision;
+			if (iPrecision) {
+				sPattern += "." + jQuery.sap.padRight("", "S", iPrecision);
+			}
+			oType.oModelFormat = DateFormat.getDateInstance({
+				pattern : sPattern + "X",
+				strictParsing : true,
+				UTC : oType.oFormatOptions && oType.oFormatOptions.UTC
 			});
 		}
-		return oModelFormat;
+		return oType.oModelFormat;
 	}
 
 	/**
@@ -94,8 +104,9 @@ sap.ui.define([
 	 *   instance (OData V2) or as a string like "2014-11-27T13:47:26Z" (OData V4); both
 	 *   representations are accepted independent of the model's OData version
 	 * @param {string} sTargetType
-	 *   The target type, may be "any" or "string"; see {@link sap.ui.model.odata.type} for more
-	 *   information
+	 *   The target type, may be "any", "string", or a type with one of these types as its
+	 *   {@link sap.ui.base.DataType#getPrimitiveType primitive type}.
+	 *   See {@link sap.ui.model.odata.type} for more information.
 	 * @returns {Date|string}
 	 *   The formatted output value in the target type; <code>undefined</code> or <code>null</code>
 	 *   are formatted to <code>null</code>
@@ -108,14 +119,36 @@ sap.ui.define([
 	DateTimeOffset.prototype.formatValue = function (vValue, sTargetType) {
 		var oDateValue;
 
-		if (sTargetType === "string" && typeof vValue === "string") {
-			oDateValue = getModelFormat().parse(vValue);
+		if (typeof vValue === "string" && this.getPrimitiveType(sTargetType) === "string") {
+			oDateValue = getModelFormat(this).parse(vValue);
 			if (!oDateValue) {
 				throw new FormatException("Illegal " + this.getName() + " value: " + vValue);
 			}
 			vValue = oDateValue;
 		}
 		return DateTimeBase.prototype.formatValue.call(this, vValue, sTargetType);
+	};
+
+	/**
+	 * Returns a formatter that converts between the model format and a Javascript Date. It has two
+	 * methods: <code>format</code> and <code>parse</code>.
+	 *
+	 * If the type is in V4 semantics, <code>format</code> takes a Date and returns a date as a
+	 * String in the format expected by the model, <code>parse</code> converts from the String to a
+	 * Date. Otherwise the methods simply pass through, since the model already contains a Date in
+	 * V2.
+	 *
+	 * @returns {sap.ui.core.format.DateFormat}
+	 *   The formatter
+	 *
+	 * @override
+	 * @protected
+	 */
+	DateTimeOffset.prototype.getModelFormat = function() {
+		if (this.bV4) {
+			return getModelFormat(this);
+		}
+		return DateTimeBase.prototype.getModelFormat.call(this);
 	};
 
 	/**
@@ -137,8 +170,9 @@ sap.ui.define([
 	 *   The value to be parsed; the empty string and <code>null</code> are parsed to
 	 *   <code>null</code>
 	 * @param {string} sSourceType
-	 *   The source type (the expected type of <code>sValue</code>), must be "string"; see
-	 *   {@link sap.ui.model.odata.type} for more information
+	 *   The source type (the expected type of <code>sValue</code>), must be "string", or a type
+	 *   with "string" as its {@link sap.ui.base.DataType#getPrimitiveType primitive type}.
+	 *   See {@link sap.ui.model.odata.type} for more information.
 	 * @returns {Date|string}
 	 *   The parsed value
 	 * @throws {sap.ui.model.ParseException}
@@ -152,7 +186,7 @@ sap.ui.define([
 		var oResult = DateTimeBase.prototype.parseValue.call(this, sValue, sSourceType);
 
 		return this.bV4 && oResult !== null
-			? getModelFormat().format(oResult)
+			? getModelFormat(this).format(oResult)
 			: oResult;
 	};
 

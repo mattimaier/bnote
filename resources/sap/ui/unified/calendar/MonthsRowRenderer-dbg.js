@@ -1,11 +1,11 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sap/ui/core/date/UniversalDate'],
-	function(jQuery, CalendarUtils, UniversalDate) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sap/ui/unified/calendar/CalendarDate'],
+	function(jQuery, CalendarUtils, CalendarDate) {
 	"use strict";
 
 
@@ -65,6 +65,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 
 	};
 
+	/**
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.unified.calendar.MonthsRow} oMonthsRow An object representation of the control that should be rendered
+	 * @param {sap.ui.unified.calendar.CalendarDate} oDate The first date of the month
+	 */
 	MonthsRowRenderer.renderRow = function(oRm, oMonthsRow, oDate){
 
 		var sId = oMonthsRow.getId();
@@ -79,7 +84,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 
 	};
 
+	/**
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.unified.calendar.MonthsRow} oMonthsRow An object representation of the control that should be rendered
+	 * @param {sap.ui.unified.calendar.CalendarDate} oDate The first date of the month
+	 */
 	MonthsRowRenderer.renderHeader = function(oRm, oMonthsRow, oDate){
+		CalendarUtils._checkCalendarDate(oDate);
 
 		// header
 		if (oMonthsRow._getShowHeader()) {
@@ -93,24 +104,31 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 
 	};
 
+	/**
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.unified.calendar.MonthsRow} oMonthsRow An object representation of the control that should be rendered
+	 * @param {sap.ui.core.LocaleData} oLocalDate
+	 * @param {sap.ui.unified.calendar.CalendarDate} oDate The first date of the month
+	 */
 	MonthsRowRenderer.renderHeaderLine = function(oRm, oMonthsRow, oLocaleData, oDate){
+		CalendarUtils._checkCalendarDate(oDate);
 
 		var sId = oMonthsRow.getId();
 		var iMonths = oMonthsRow.getMonths();
-		var oMonthDate = new UniversalDate(oDate.getTime());
+		var oMonthDate = new CalendarDate(oDate);
 		var sWidth = "";
 		var iYear = 0;
 		var aYearMonths = [];
 		var i = 0;
 
 		for (i = 0; i < iMonths; i++) {
-			iYear = oMonthDate.getUTCFullYear();
+			iYear = oMonthDate.getYear();
 			if (aYearMonths.length > 0 && aYearMonths[aYearMonths.length - 1].iYear == iYear) {
 				aYearMonths[aYearMonths.length - 1].iMonths++;
 			}else {
 				aYearMonths.push({iYear: iYear, iMonths: 1});
 			}
-			oMonthDate.setUTCMonth(oMonthDate.getUTCMonth() + 1);
+			oMonthDate.setMonth(oMonthDate.getMonth() + 1);
 		}
 
 		for (i = 0; i < aYearMonths.length; i++) {
@@ -123,28 +141,39 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 
 	};
 
+	/**
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.unified.calendar.MonthsRow} oMonthsRow An object representation of the control that should be rendered
+	 * @param {sap.ui.unified.calendar.CalendarDate} oDate The first date of the month
+	 */
 	MonthsRowRenderer.renderMonths = function(oRm, oMonthsRow, oDate){
 
 		var oHelper = this.getHelper(oMonthsRow, oDate);
 		var iMonths = oMonthsRow.getMonths();
 		var sWidth = ( 100 / iMonths ) + "%";
-		var oMonthDate = new UniversalDate(oDate.getTime());
-		oMonthDate.setUTCDate(1);
+		var oMonthDate = new CalendarDate(oDate);
+		oMonthDate.setDate(1);
 
 		for (var i = 0; i < iMonths; i++) {
 			this.renderMonth(oRm, oMonthsRow, oMonthDate, oHelper, sWidth);
-			oMonthDate.setUTCMonth(oMonthDate.getUTCMonth() + 1);
+			oMonthDate.setMonth(oMonthDate.getMonth() + 1);
 		}
 
 	};
 
+	/**
+	 * @param {sap.ui.unified.calendar.MonthsRow} oMonthsRow An object representation of the control that should be rendered
+	 * @param {sap.ui.unified.calendar.CalendarDate} oDate The first date of the month
+	 * @returns {Object} A helper object, containing months props
+	 */
 	MonthsRowRenderer.getHelper = function(oMonthsRow, oDate){
+		CalendarUtils._checkCalendarDate(oDate);
 
 		var oHelper = {};
 
 		oHelper.sLocale = oMonthsRow._getLocale();
 		oHelper.oLocaleData = oMonthsRow._getLocaleData();
-		oHelper.oToday = CalendarUtils._createUniversalUTCDate(new Date());
+		oHelper.oToday = new CalendarDate();
 		oHelper.sCurrentMonth = oMonthsRow._rb.getText("CALENDAR_CURRENT_MONTH");
 		oHelper.sId = oMonthsRow.getId();
 		oHelper.oFormatLong = oMonthsRow._getFormatLong();
@@ -161,7 +190,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 			var oLegend = sap.ui.getCore().byId(sLegendId);
 			if (oLegend) {
 				if (!(oLegend instanceof sap.ui.unified.CalendarLegend)) {
-					throw new Error(oLegend + " is not a sap.ui.unified.CalendarLegend. " + oMonthsRow);
+					throw new Error(oLegend + " is not an sap.ui.unified.CalendarLegend. " + oMonthsRow);
 				}
 				oHelper.aTypes = oLegend.getItems();
 			} else {
@@ -175,7 +204,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 
 	};
 
+	/**
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.unified.calendar.MonthsRow} oMonthsRow An object representation of the control that should be rendered
+	 * @param {sap.ui.unified.calendar.CalendarDate} oDate The first date of the month
+	 * @param {Object} oHelper A helper object, containing months props
+	 * @param {string} sWidth The width of the month
+	 */
 	MonthsRowRenderer.renderMonth = function(oRm, oMonthsRow, oDate, oHelper, sWidth){
+		CalendarUtils._checkCalendarDate(oDate);
 
 		var mAccProps = {
 				role: "gridcell",
@@ -185,10 +222,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 			};
 
 		if (!oMonthsRow._bLongMonth && oMonthsRow._bNamesLengthChecked) {
-			mAccProps["label"] = oHelper.aMonthNamesWide[oDate.getUTCMonth()];
+			mAccProps["label"] = oHelper.aMonthNamesWide[oDate.getMonth()];
 		}
 
-		var sYyyymm = oMonthsRow._oFormatYyyymm.format(oDate.getJSDate(), true);
+		var sYyyymm = oMonthsRow._oFormatYyyymm.format(oDate.toUTCJSDate(), true);
 		var iSelected = oMonthsRow._checkDateSelected(oDate);
 		var oType = oMonthsRow._getDateType(oDate);
 		var bEnabled = oMonthsRow._checkMonthEnabled(oDate);
@@ -200,7 +237,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 			oRm.addStyle("width", sWidth);
 		}
 
-		if (oDate.getUTCMonth() == oHelper.oToday.getMonth() && oDate.getUTCFullYear() == oHelper.oToday.getFullYear()) {
+		if (CalendarUtils._isSameMonthAndYear(oDate, oHelper.oToday)) {
 			oRm.addClass("sapUiCalItemNow");
 			mAccProps["label"] = oHelper.sCurrentMonth + " ";
 		}
@@ -238,7 +275,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 
 		oRm.writeAttribute("tabindex", "-1");
 		oRm.writeAttribute("data-sap-month", sYyyymm);
-		mAccProps["label"] = mAccProps["label"] + oHelper.oFormatLong.format(oDate, true);
+		mAccProps["label"] = mAccProps["label"] + oHelper.oFormatLong.format(oDate.toUTCJSDate(), true);
 
 		if (oType && oType.type != sap.ui.unified.CalendarDayType.None) {
 			// as legend must not be rendered add text of type
@@ -260,7 +297,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 		oRm.addClass("sapUiCalItemText");
 		oRm.writeClasses();
 		oRm.write(">"); // span
-		oRm.write(oHelper.aMonthNames[oDate.getUTCMonth()]);
+		oRm.write(oHelper.aMonthNames[oDate.getMonth()]);
 		oRm.write("</span>");
 
 		oRm.write("</div>");

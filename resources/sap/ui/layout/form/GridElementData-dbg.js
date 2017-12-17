@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -12,7 +12,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', 'sap/ui/layout/lib
 	/**
 	 * Constructor for a new sap.ui.layout.form.GridElementData.
 	 *
-	 * @param {string} [sId] Id for the new control, generated automatically if no id is given
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] initial settings for the new control
 	 *
 	 * @class
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', 'sap/ui/layout/lib
 	 * @extends sap.ui.core.LayoutData
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -35,14 +35,19 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', 'sap/ui/layout/lib
 
 			/**
 			 * Number of cells in horizontal direction.
-			 * If set to "auto" the size is determined by the number of fields and the available cells. For labels the auto size is 3 cells.
-			 * If set to "full" only one field is allowed within the <code>FormElement</code>. It gets the full width of the row and the label is displayed above. <b>Note:</b> For labels full size has no effect.
+			 *
+			 * If set to <code>auto</code>, the size is determined by the number of fields and the available cells. For labels the auto size is 3 cells.
+			 *
+			 * If set to <code>full</code>, only one field is allowed within the <code>FormElement</code>. It gets the full width of the row and the label is displayed above.
+			 *
+			 * <b>Note:</b> For labels, the full size setting has no effect.
 			 */
 			hCells : {type : "sap.ui.layout.form.GridElementCells", group : "Appearance", defaultValue : 'auto'},
 
 			/**
 			 * Number of cells in vertical direction.
-			 * <b>Note:</b> This property has no effect for labels.
+			 *
+			 * <b>Note:</b> This property has no effect on labels.
 			 */
 			vCells : {type : "int", group : "Appearance", defaultValue : 1}
 		}

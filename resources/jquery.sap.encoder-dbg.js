@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -166,7 +166,7 @@ sap.ui.define(['jquery.sap.global'],
 	};
 
 	/**
-	 * Encode the string for inclusion into an URL parameter
+	 * Encode the string for inclusion into a URL parameter
 	 *
 	 * @param {string} sString The string to be escaped
 	 * @return The escaped string
@@ -296,11 +296,40 @@ sap.ui.define(['jquery.sap.global'],
 	};
 
 	/**
-	 * Validates an URL. Check if it's not a script or other security issue.
+	 * Validates a URL. Check if it's not a script or other security issue.
 	 *
-	 * Split URL into components and check for allowed characters according to RFC3986:
+	 * Split URL into components and check for allowed characters according to RFC 3986:
 	 *
 	 * <pre>
+	 * authority     = [ userinfo "@" ] host [ ":" port ]
+	 * userinfo      = *( unreserved / pct-encoded / sub-delims / ":" )
+	 * host          = IP-literal / IPv4address / reg-name
+	 *
+	 * IP-literal    = "[" ( IPv6address / IPvFuture  ) "]"
+	 * IPvFuture     = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+	 * IPv6address   =                            6( h16 ":" ) ls32
+	 *               /                       "::" 5( h16 ":" ) ls32
+	 *               / [               h16 ] "::" 4( h16 ":" ) ls32
+	 *               / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+	 *               / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+	 *               / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+	 *               / [ *4( h16 ":" ) h16 ] "::"              ls32
+	 *               / [ *5( h16 ":" ) h16 ] "::"              h16
+	 *               / [ *6( h16 ":" ) h16 ] "::"
+	 * ls32          = ( h16 ":" h16 ) / IPv4address
+	 *               ; least-significant 32 bits of address
+	 * h16           = 1*4HEXDIG
+ 	 *               ; 16 bits of address represented in hexadecimal
+ 	 *
+	 * IPv4address   = dec-octet "." dec-octet "." dec-octet "." dec-octet
+	 * dec-octet     = DIGIT                 ; 0-9
+	 *               / %x31-39 DIGIT         ; 10-99
+	 *               / "1" 2DIGIT            ; 100-199
+	 *               / "2" %x30-34 DIGIT     ; 200-249
+	 *               / "25" %x30-35          ; 250-255
+	 *
+	 * reg-name      = *( unreserved / pct-encoded / sub-delims )
+	 *
 	 * pct-encoded   = "%" HEXDIG HEXDIG
 	 * reserved      = gen-delims / sub-delims
 	 * gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
@@ -325,33 +354,41 @@ sap.ui.define(['jquery.sap.global'],
 	 * segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
 	 *               ; non-zero-length segment without any colon ":"
 	 *
-	 * query       = *( pchar / "/" / "?" )
+	 * query         = *( pchar / "/" / "?" )
 	 *
-	 * fragment    = *( pchar / "/" / "?" )
+	 * fragment      = *( pchar / "/" / "?" )
 	 * </pre>
+	 *
+	 * For the hostname component, we are checking for valid DNS hostnames according to RFC 952 / RFC 1123:
+	 *
+	 * <pre>
+	 * hname         = name *("." name)
+	 * name          = let-or-digit ( *( let-or-digit-or-hyphen ) let-or-digit )
+	 * </pre>
+	 *
 	 *
 	 * When the URI uses the protocol 'mailto:', the address part is additionally checked
 	 * against the most commonly used parts of RFC 6068:
 	 *
 	 * <pre>
-	 * mailtoURI    = "mailto:" [ to ] [ hfields ]
-	 * to           = addr-spec *("," addr-spec )
-	 * hfields      = "?" hfield *( "&" hfield )
-	 * hfield       = hfname "=" hfvalue
-	 * hfname       = *qchar
-	 * hfvalue      = *qchar
-	 * addr-spec    = local-part "@" domain
-	 * local-part   = dot-atom-text              // not accepted: quoted-string
-	 * domain       = dot-atom-text              // not accepted: "[" *dtext-no-obs "]"
-	 * dtext-no-obs = %d33-90 / ; Printable US-ASCII
-	 *                %d94-126  ; characters not including
-	 *                          ; "[", "]", or "\"
-	 * qchar        = unreserved / pct-encoded / some-delims
-	 * some-delims  = "!" / "$" / "'" / "(" / ")" / "*"
-	 *              / "+" / "," / ";" / ":" / "@"
+	 * mailtoURI     = "mailto:" [ to ] [ hfields ]
+	 * to            = addr-spec *("," addr-spec )
+	 * hfields       = "?" hfield *( "&" hfield )
+	 * hfield        = hfname "=" hfvalue
+	 * hfname        = *qchar
+	 * hfvalue       = *qchar
+	 * addr-spec     = local-part "@" domain
+	 * local-part    = dot-atom-text              // not accepted: quoted-string
+	 * domain        = dot-atom-text              // not accepted: "[" *dtext-no-obs "]"
+	 * dtext-no-obs  = %d33-90 / ; Printable US-ASCII
+	 *                 %d94-126  ; characters not including
+	 *                           ; "[", "]", or "\"
+	 * qchar         = unreserved / pct-encoded / some-delims
+	 * some-delims   = "!" / "$" / "'" / "(" / ")" / "*"
+	 *               / "+" / "," / ";" / ":" / "@"
 	 *
 	 * Note:
-	 * A number of characters that can appear in <addr-spec> MUST be
+	 * A number of characters that can appear in &lt;addr-spec> MUST be
 	 * percent-encoded.  These are the characters that cannot appear in
 	 * a URI according to [STD66] as well as "%" (because it is used for
 	 * percent-encoding) and all the characters in gen-delims except "@"
@@ -363,7 +400,7 @@ sap.ui.define(['jquery.sap.global'],
 	 *
 	 * </pre>
 	 *
-	 * When a whitelist has been configured using {@link .addUrlWhitelist addUrlWhitelist},
+	 * When a whitelist has been configured using {@link #.addUrlWhitelist addUrlWhitelist},
 	 * any URL that passes the syntactic checks above, additionally will be tested against
 	 * the content of the whitelist.
 	 *
@@ -373,7 +410,7 @@ sap.ui.define(['jquery.sap.global'],
 	 */
 	jQuery.sap.validateUrl = function(sUrl) {
 
-		var result = /^(?:([^:\/?#]+):)?((?:\/\/([^\/?#:]*)(?::([0-9]+))?)?([^?#]*))(?:\?([^#]*))?(?:#(.*))?$/.exec(sUrl);
+		var result = /^(?:([^:\/?#]+):)?((?:\/\/((?:\[[^\]]+\]|[^\/?#:]+))(?::([0-9]+))?)?([^?#]*))(?:\?([^#]*))?(?:#(.*))?$/.exec(sUrl);
 		if (!result) {
 			return false;
 		}
@@ -390,6 +427,11 @@ sap.ui.define(['jquery.sap.global'],
 		var rCheckQuery = /^([a-z0-9-._~!$&'()*+,;=:@\/?]|%[0-9a-f]{2})*$/i;
 		var rCheckFragment = rCheckQuery;
 		var rCheckMail = /^([a-z0-9!$'*+:^_`{|}~-]|%[0-9a-f]{2})+(?:\.([a-z0-9!$'*+:^_`{|}~-]|%[0-9a-f]{2})+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
+		var rCheckIPv4 = /^([0-9]{1,3}\.){3}[0-9]{1,3}$/;
+		var rCheckValidIPv4 = /^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$/;
+		var rCheckIPv6 = /^\[[^\]]+\]$/;
+		var rCheckValidIPv6 = /^\[(((([0-9a-f]{1,4}:){6}|(::([0-9a-f]{1,4}:){5})|(([0-9a-f]{1,4})?::([0-9a-f]{1,4}:){4})|((([0-9a-f]{1,4}:){0,1}[0-9a-f]{1,4})?::([0-9a-f]{1,4}:){3})|((([0-9a-f]{1,4}:){0,2}[0-9a-f]{1,4})?::([0-9a-f]{1,4}:){2})|((([0-9a-f]{1,4}:){0,3}[0-9a-f]{1,4})?::[0-9a-f]{1,4}:)|((([0-9a-f]{1,4}:){0,4}[0-9a-f]{1,4})?::))(([0-9a-f]{1,4}:[0-9a-f]{1,4})|(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])))|((([0-9a-f]{1,4}:){0,5}[0-9a-f]{1,4})?::[0-9a-f]{1,4})|((([0-9a-f]{1,4}:){0,6}[0-9a-f]{1,4})?::))\]$/i;
+		var rCheckHostName = /^([a-z0-9]([a-z0-9\-]*[a-z0-9])?\.)*[a-z0-9]([a-z0-9\-]*[a-z0-9])?$/i;
 
 		// protocol
 		if (sProtocol) {
@@ -402,8 +444,22 @@ sap.ui.define(['jquery.sap.global'],
 			}
 		}
 
-		// Host -> whitelist + character check (TBD)
+		// Host -> validity check for IP address or hostname
 		if (sHost) {
+			if (rCheckIPv4.test(sHost)) {
+				if (!rCheckValidIPv4.test(sHost)) {
+					//invalid ipv4 address
+					return false;
+				}
+			} else if (rCheckIPv6.test(sHost)) {
+				if (!rCheckValidIPv6.test(sHost)) {
+					//invalid ipv6 address
+					return false;
+				}
+			} else if (!rCheckHostName.test(sHost)) {
+				// invalid host name
+				return false;
+			}
 			sHost = sHost.toUpperCase();
 		}
 

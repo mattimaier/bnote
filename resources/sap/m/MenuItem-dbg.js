@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -23,7 +23,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Item'],
 		 * @extends sap.ui.core.Item
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
@@ -38,7 +38,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Item'],
 
 				/**
 				 * Defines the icon, which belongs to the item.
-				 * This can be an URI to an image or an icon font URI.
+				 * This can be a URI to an image or an icon font URI.
 				 */
 				icon : {type : "string", group : "Appearance", defaultValue : null},
 
@@ -79,7 +79,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Item'],
 						/**
 						 * The new property value.
 						 */
-						propertyValue:  {type: "mixed"}
+						propertyValue:  {type: "any"}
 					}
 				},
 

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global'],
@@ -38,20 +38,14 @@ sap.ui.define(['jquery.sap.global'],
 			}
 
 			rm.writeAttribute("tabindex", "-1");
-			rm.writeAccessibilityState(oControl, {
-				role: "dialog"
-			});
 
-			if (oControl.getShowHeader() && oControl._getAnyHeader()) {
-				rm.writeAccessibilityState(oControl, {
-					labelledby: oControl._getAnyHeader().getId()
-				});
-			}
+			// ARIA
+			rm.writeAccessibilityState(oControl, oControl._getAccessibilityOptions());
 
 			rm.write(">");
 
 			if (oControl.getResizable()) {
-				rm.write('<div class="sapMPopoverResizeHandle"></div>');
+				rm.writeIcon("sap-icon://resize-corner", ["sapMPopoverResizeHandle"], { "title" : ""});
 			}
 
 			this.renderContent(rm, oControl);

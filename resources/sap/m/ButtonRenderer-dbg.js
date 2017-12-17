@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -31,10 +31,12 @@ sap.ui.define(['jquery.sap.global'],
 		var sType = oButton.getType();
 		var bEnabled = oButton.getEnabled();
 		var sWidth = oButton.getWidth();
-		var sTooltip = oButton.getTooltip_AsString();
+		var sTooltip = oButton._getTooltip();
 		var sText = oButton._getText();
 		var sTextDir = oButton.getTextDirection();
 		var bIE_Edge = sap.ui.Device.browser.internet_explorer || sap.ui.Device.browser.edge;
+		// render bdi tag only if the browser is different from IE and Edge since it is not supported there
+		var bRenderBDI = (sTextDir === sap.ui.core.TextDirection.Inherit) && !bIE_Edge;
 
 		// get icon from icon pool
 		var sBackURI = sap.ui.core.IconPool.getIconURI("nav-back");
@@ -75,6 +77,10 @@ sap.ui.define(['jquery.sap.global'],
 			mAccProps["describedby"] = {value: sTextId, append: true};
 		}
 
+		if (oButton.getAriaLabelledBy() && oButton.getAriaLabelledBy().length > 0) {
+			mAccProps["labelledby"] = {value: oButton.getId(), append: true };
+		}
+
 		//descendants (e.g. ToggleButton) callback
 		if (this.renderAccessibilityAttributes) {
 			this.renderAccessibilityAttributes(oRm, oButton, mAccProps);
@@ -99,12 +105,9 @@ sap.ui.define(['jquery.sap.global'],
 			}
 		}
 
-		// get icon-font info. will return null if the icon is a image
-		var oIconInfo = sap.ui.core.IconPool.getIconInfo(oButton.getIcon());
-
 		// add tooltip if available
-		if (sTooltip || (oIconInfo && oIconInfo.text && !oButton.getText())) {
-			oRm.writeAttributeEscaped("title", sTooltip || oIconInfo.text);
+		if (sTooltip) {
+			oRm.writeAttributeEscaped("title", sTooltip);
 		}
 
 		oRm.writeClasses();
@@ -114,12 +117,13 @@ sap.ui.define(['jquery.sap.global'],
 			oRm.addStyle("width", sWidth);
 			oRm.writeStyles();
 		}
+		renderTabIndex(oButton, oRm);
 
 		// close button tag
 		oRm.write(">");
 
 		// start inner button tag
-		oRm.write("<div");
+		oRm.write("<span");
 		oRm.writeAttribute("id", oButton.getId() + "-inner");
 
 		// button style class
@@ -171,6 +175,9 @@ sap.ui.define(['jquery.sap.global'],
 		// add all classes to inner button tag
 		oRm.writeClasses();
 
+		//apply on the inner level as well as not applying it will allow for focusing the button after a mouse click
+		renderTabIndex(oButton, oRm);
+
 		// close inner button tag
 		oRm.write(">");
 
@@ -195,17 +202,24 @@ sap.ui.define(['jquery.sap.global'],
 			oRm.writeClasses();
 			oRm.writeAttribute("id", oButton.getId() + "-content");
 			oRm.write(">");
+
+			if (bRenderBDI) {
+				oRm.write("<bdi>");
+			}
 			oRm.writeEscaped(sText);
+			if (bRenderBDI) {
+				oRm.write("</bdi>");
+			}
 			oRm.write("</span>");
 		}
 
 		// special handling for IE focus outline
 		if (bIE_Edge && bEnabled) {
-			oRm.write('<div class="sapMBtnFocusDiv"></div>');
+			oRm.write('<span class="sapMBtnFocusDiv"></span>');
 		}
 
 		// end inner button tag
-		oRm.write("</div>");
+		oRm.write("</span>");
 
 		// end button tag
 		oRm.write("</button>");
@@ -238,6 +252,17 @@ sap.ui.define(['jquery.sap.global'],
 	ButtonRenderer.writeInternalIconPoolHtml = function(oRm, oButton, sURI) {
 		oRm.renderControl(oButton._getInternalIconBtn((oButton.getId() + "-iconBtn"), sURI));
 	};
+
+	/**
+	 * Renders tabindex with value of "-1" if required by  <code>_bExcludeFromTabChain</code> property.
+	 * @param {sap.m.Button} oButton The sap.m.Button to be rendered
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the Render-Output-Buffer
+	 */
+	function renderTabIndex(oButton, oRm){
+		if (oButton._bExcludeFromTabChain) {
+			oRm.writeAttribute("tabindex", -1);
+		}
+	}
 
 	return ButtonRenderer;
 

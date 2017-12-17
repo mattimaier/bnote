@@ -1,15 +1,15 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides object sap.ui.dt.OverlayRegistry.
 sap.ui.define([
-	"sap/ui/core/Element",
+	"sap/ui/base/ManagedObject",
 	"sap/ui/dt/ElementUtil"
 ],
-function(Element, ElementUtil) {
+function(ManagedObject, ElementUtil) {
 	"use strict";
 
 	/**
@@ -19,7 +19,7 @@ function(Element, ElementUtil) {
 	 * Static registry for Overlays
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @private
 	 * @static
@@ -41,12 +41,8 @@ function(Element, ElementUtil) {
 	OverlayRegistry.getOverlay = function(vElementOrId) {
 		var oElement = ElementUtil.getElementInstance(vElementOrId);
 		if (oElement) {
-			oElement = ElementUtil.fixComponentContainerElement(oElement);
-			oElement = ElementUtil.fixComponentParent(oElement);
-			if (oElement) {
-				var sId = oElement.getId();
-				return mOverlays[sId];
-			}
+			var sId = oElement.getId();
+			return mOverlays[sId];
 		}
 	};
 
@@ -81,7 +77,7 @@ function(Element, ElementUtil) {
 	};
 
 	function getElementId (vElementOrId) {
-		return (vElementOrId instanceof Element) ? vElementOrId.getId() : vElementOrId;
+		return (vElementOrId instanceof ManagedObject) ? vElementOrId.getId() : vElementOrId;
 	}
 
 	return OverlayRegistry;

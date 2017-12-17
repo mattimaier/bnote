@@ -1,6 +1,6 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -17,9 +17,10 @@ sap.ui.define([
 	 * @param {object} [mSettings] initial settings for the new control
 	 * @class The ConditionPanel Control will be used to implement the Sorting, Filtering and Grouping panel of the new Personalization dialog.
 	 * @extends sap.ui.core.Control
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @public
+	 * @since 1.26.0
 	 * @experimental since version 1.26 !!! THIS CONTROL IS ONLY FOR INTERNAL USE !!!
 	 * @alias sap.m.P13nConditionPanel
 	 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
@@ -50,8 +51,8 @@ sap.ui.define([
 				},
 
 				/**
-				 * defines if the mediaQuery or a ContainerResize will be used for layout update. When the P13nConditionPanel is used on a dialog the
-				 * property should be set to true!
+				 * defines if the mediaQuery or a ContainerResize will be used for layout update.
+				 * When the <code>P13nConditionPanel</code> is used on a dialog the property should be set to <code>true</code>!
 				 */
 				containerQuery: {
 					type: "boolean",
@@ -97,7 +98,7 @@ sap.ui.define([
 				},
 
 				/**
-				 * KeyField value can only be selected once. When you set the property to true the ConditionPanel will automatically offers on the
+				 * KeyField value can only be selected once. When you set the property to <code>true</code> the ConditionPanel will automatically offers on the
 				 * KeyField drop down only the keyFields which are not used. The default behavior is that in each keyField dropdown all keyfields are
 				 * listed.
 				 */
@@ -109,7 +110,7 @@ sap.ui.define([
 
 				/**
 				 * can be used to control the layout behavior. Default is "" which will automatically change the layout. With "Desktop", "Table"
-				 * or"Phone" you can set a fixed layout.
+				 * or "Phone" you can set a fixed layout.
 				 */
 				layoutMode: {
 					type: "string",
@@ -147,7 +148,7 @@ sap.ui.define([
 			aggregations: {
 
 				/**
-				 * Content for the ConditionPanel. This property is not public!
+				 * Content for the ConditionPanel. This aggregation is not public!
 				 */
 				content: {
 					type: "sap.ui.core.Control",
@@ -197,7 +198,6 @@ sap.ui.define([
 	 *
 	 * @param {object[]} aConditions array of Conditions.
 	 * @public
-	 * @since 1.26.0
 	 */
 	P13nConditionPanel.prototype.setConditions = function(aConditions) {
 		if (!aConditions) {
@@ -223,7 +223,6 @@ sap.ui.define([
 	 * remove all conditions.
 	 *
 	 * @public
-	 * @since 1.26.0
 	 */
 	P13nConditionPanel.prototype.removeAllConditions = function() {
 		this._oConditionsMap = {};
@@ -237,10 +236,9 @@ sap.ui.define([
 	/**
 	 * add a single condition.
 	 *
-	 * @param {object} oCondition the new condition of type { "key": "007", "operation": sap.m.P13nConditionOperation.Ascending, "keyField":
-	 *        "keyFieldKey", "value1": "", "value2": ""};
+	 * @param {object} oCondition the new condition of type <code>{ "key": "007", "operation": sap.m.P13nConditionOperation.Ascending, "keyField":
+	 *        "keyFieldKey", "value1": "", "value2": ""};</code>
 	 * @public
-	 * @since 1.26.0
 	 */
 	P13nConditionPanel.prototype.addCondition = function(oCondition) {
 		if (this._bIgnoreSetConditions) {
@@ -255,11 +253,10 @@ sap.ui.define([
 	/**
 	 * insert a single condition.
 	 *
-	 * @param {object} oCondition the new condition of type { "key": "007", "operation": sap.m.P13nConditionOperation.Ascending, "keyField":
-	 *        "keyFieldKey", "value1": "", "value2": ""};
+	 * @param {object} oCondition the new condition of type <code>{ "key": "007", "operation": sap.m.P13nConditionOperation.Ascending, "keyField":
+	 *        "keyFieldKey", "value1": "", "value2": ""};</code>
 	 * @param {int} index of the new condition
 	 * @public
-	 * @since 1.26.0
 	 */
 	P13nConditionPanel.prototype.insertCondition = function(oCondition, index) {
 		if (this._bIgnoreSetConditions) {
@@ -278,16 +275,15 @@ sap.ui.define([
 	 * @param {object} vCondition is the condition which should be removed. can be either a string with the key of the condition of the condition
 	 *        object itself.
 	 * @public
-	 * @since 1.26.0
 	 */
 	P13nConditionPanel.prototype.removeCondition = function(vCondition) {
 		this._clearConditions();
 
-		if (typeof (vCondition) == "string") {
+		if (typeof vCondition == "string") {
 			this._removeConditionFromMap(vCondition);
 		}
 
-		if (typeof (vCondition) == "object") {
+		if (typeof vCondition == "object") {
 			this._removeConditionFromMap(vCondition.key);
 		}
 
@@ -298,8 +294,8 @@ sap.ui.define([
 	 * add a single condition into the _oConditionMap.
 	 *
 	 * @private
-	 * @param {object} oCondition the new condition of type { "key": "007", "operation": sap.m.P13nConditionOperation.Ascending, "keyField":
-	 *        "keyFieldKey", "value1": "", "value2": ""};
+	 * @param {object} oCondition the new condition of type <code>{ "key": "007", "operation": sap.m.P13nConditionOperation.Ascending, "keyField":
+	 *        "keyFieldKey", "value1": "", "value2": ""};</code>
 	 */
 	P13nConditionPanel.prototype._addCondition2Map = function(oCondition) {
 		if (!oCondition.key) {
@@ -328,7 +324,6 @@ sap.ui.define([
 	 *
 	 * @public
 	 * @returns {object[]} array of Conditions
-	 * @since 1.26.0
 	 */
 	P13nConditionPanel.prototype.getConditions = function() {
 		var oCondition;
@@ -366,14 +361,13 @@ sap.ui.define([
 	 * on the keyfield itself some specific operations and a keyfield is of not of type date or numeric.
 	 *
 	 * @public
-	 * @since 1.26.0
-	 * @param {sap.m.P13nConditionOperation[]} aOperations array of operations [sap.m.P13nConditionOperation.BT, sap.m.P13nConditionOperation.EQ]
-	 * @param {string} sType defines the type for which this operations will be used. is sType is not defined the operations will be used as default
+	 * @param {sap.m.P13nConditionOperation[]} aOperations array of operations <code>[sap.m.P13nConditionOperation.BT, sap.m.P13nConditionOperation.EQ]</code>
+	 * @param {string} sType defines the type for which this operations will be used. is <code>sType</code> is not defined the operations will be used as default
 	 *        operations.
 	 */
-	P13nConditionPanel.prototype.setOperations = function(aOperation, sType) {
+	P13nConditionPanel.prototype.setOperations = function(aOperations, sType) {
 		sType = sType || "default";
-		this._oTypeOperations[sType] = aOperation;
+		this._oTypeOperations[sType] = aOperations;
 
 		this._updateAllOperations();
 	};
@@ -389,7 +383,6 @@ sap.ui.define([
 	 * add a single operation
 	 *
 	 * @public
-	 * @since 1.26.0
 	 * @param {sap.m.P13nConditionOperation} oOperation
 	 * @param {string} sType defines the type for which this operations will be used.
 	 */
@@ -404,7 +397,6 @@ sap.ui.define([
 	 * remove all operations
 	 *
 	 * @public
-	 * @since 1.26.0
 	 * @param {string} sType defines the type for which all operations should be removed
 	 */
 	P13nConditionPanel.prototype.removeAllOperations = function(sType) {
@@ -418,7 +410,6 @@ sap.ui.define([
 	 * returns the default array of operations
 	 *
 	 * @public
-	 * @since 1.26.0
 	 * @param {string} sType defines the type for which the operations should be returned.
 	 * @returns {sap.m.P13nConditionOperation[]} array of operations
 	 */
@@ -432,8 +423,7 @@ sap.ui.define([
 	 * keyfields.
 	 *
 	 * @public
-	 * @since 1.26.0
-	 * @param {array} aKeyFields array of KeyFields [{key: "CompanyCode", text: "ID"}, {key:"CompanyName", text : "Name"}]
+	 * @param {array} aKeyFields array of KeyFields <code>[{key: "CompanyCode", text: "ID"}, {key:"CompanyName", text : "Name"}]</code>
 	 */
 	P13nConditionPanel.prototype.setKeyFields = function(aKeyFields) {
 		this._aKeyFields = aKeyFields;
@@ -448,7 +438,6 @@ sap.ui.define([
 	 * add a single KeyField
 	 *
 	 * @public
-	 * @since 1.26.0
 	 * @param {object} oKeyField {key: "CompanyCode", text: "ID"}
 	 */
 	P13nConditionPanel.prototype.addKeyField = function(oKeyField) {
@@ -464,7 +453,6 @@ sap.ui.define([
 	 * removes all KeyFields
 	 *
 	 * @public
-	 * @since 1.26.0
 	 */
 	P13nConditionPanel.prototype.removeAllKeyFields = function() {
 		this._aKeyFields = [];
@@ -476,8 +464,7 @@ sap.ui.define([
 	 * getter for KeyFields array
 	 *
 	 * @public
-	 * @since 1.26.0
-	 * @returns {object[]} array of KeyFields [{key: "CompanyCode", text: "ID"}, {key:"CompanyName", text : "Name"}]
+	 * @returns {object[]} array of KeyFields <code>[{key: "CompanyCode", text: "ID"}, {key:"CompanyName", text : "Name"}]</code>
 	 */
 	P13nConditionPanel.prototype.getKeyFields = function() {
 		return this._aKeyFields;
@@ -487,7 +474,6 @@ sap.ui.define([
 	 * sets the AlwaysShowAddIcon.
 	 *
 	 * @private
-	 * @since 1.26.0
 	 * @param {boolean} bEnabled makes the Add icon visible for each condition row.
 	 */
 	P13nConditionPanel.prototype.setAlwaysShowAddIcon = function(bEnabled) {
@@ -504,8 +490,8 @@ sap.ui.define([
 	 * sets the LayoutMode. If not set the layout depends on the size of the browser or the container. see ContainerQuery
 	 *
 	 * @private
-	 * @since 1.26.0
 	 * @param {string} sLayoutMode define the layout mode for the condition row. The value can be Desktop, Tablet or Phone.
+	 * @returns {sap.m.P13nConditionPanel} <code>this</code> to allow method chaining
 	 */
 	P13nConditionPanel.prototype.setLayoutMode = function(sLayoutMode) {
 		this.setProperty("layoutMode", sLayoutMode);
@@ -525,10 +511,12 @@ sap.ui.define([
 
 	/**
 	 * sets the ContainerQuery. defines if the mediaQuery or a ContainerResize will be used for layout update. When the P13nConditionPanel is used on
-	 * a dialog the property should be set to true!
+	 * a dialog the property should be set to <code>true</code>!
 	 *
 	 * @private
 	 * @since 1.30.0
+	 * @param {boolean} bEnabled enables or disables the <code>ContainerQuery</code>
+	 * @returns {sap.m.P13nConditionPanel} <code>this</code> to allow method chaining
 	 */
 	P13nConditionPanel.prototype.setContainerQuery = function(bEnabled) {
 		this._unregisterResizeHandler();
@@ -620,17 +608,19 @@ sap.ui.define([
 			vSpacing: 0
 		}).toggleStyleClass("conditionRootGrid", this.getLayoutMode() !== "Desktop"); // && !this.getAlwaysShowAddIcon());
 
-
 		this._iFirstConditionIndex = 0;
 		this._iConditionPageSize = 10;
 
-		this._oInvisibleTextField = new sap.ui.core.InvisibleText({ text: this._oRb.getText("CONDITIONPANEL_FIELD_LABEL")});
-		this._oInvisibleTextOperator = new sap.ui.core.InvisibleText({ text: this._oRb.getText("CONDITIONPANEL_OPERATOR_LABEL")});
+		this._oInvisibleTextField = new sap.ui.core.InvisibleText({
+			text: this._oRb.getText("CONDITIONPANEL_FIELD_LABEL")
+		});
+		this._oInvisibleTextOperator = new sap.ui.core.InvisibleText({
+			text: this._oRb.getText("CONDITIONPANEL_OPERATOR_LABEL")
+		});
 		this.addAggregation("content", this._oInvisibleTextField);
 		this.addAggregation("content", this._oInvisibleTextOperator);
 
 		this.addAggregation("content", this._oConditionsGrid);
-
 
 		this._registerResizeHandler();
 
@@ -668,7 +658,7 @@ sap.ui.define([
 				"ID": "operation",
 				"Label": "",
 				"SpanFilter": "L2 M5 S10",
-				"SpanSort": sap.ui.Device.system.phone ? "L5 M5 S8" : "L5 M5 S9" ,
+				"SpanSort": sap.ui.Device.system.phone ? "L5 M5 S8" : "L5 M5 S9",
 				"SpanGroup": "L2 M5 S10",
 				"Control": "ComboBox"
 			}, {
@@ -708,7 +698,6 @@ sap.ui.define([
 		this._fillConditions();
 	};
 
-
 	/*
 	 * create the paginator toolbar
 	 * @private
@@ -728,7 +717,9 @@ sap.ui.define([
 				that._clearConditions();
 				that._fillConditions();
 			},
-			layoutData: new sap.m.OverflowToolbarLayoutData( { priority: sap.m.OverflowToolbarPriority.NeverOverflow } )
+			layoutData: new sap.m.OverflowToolbarLayoutData({
+				priority: sap.m.OverflowToolbarPriority.NeverOverflow
+			})
 		});
 
 		this._oNextButton = new sap.m.Button({
@@ -741,7 +732,9 @@ sap.ui.define([
 				that._clearConditions();
 				that._fillConditions();
 			},
-			layoutData: new sap.m.OverflowToolbarLayoutData( { priority: sap.m.OverflowToolbarPriority.NeverOverflow } )
+			layoutData: new sap.m.OverflowToolbarLayoutData({
+				priority: sap.m.OverflowToolbarPriority.NeverOverflow
+			})
 		});
 
 		this._oRemoveAllButton = new sap.m.Button({
@@ -751,7 +744,7 @@ sap.ui.define([
 			visible: true,
 			press: function(oEvent) {
 
-				that._aConditionKeys.forEach( function(sKey, iIndex) {
+				that._aConditionKeys.forEach(function(sKey, iIndex) {
 					if (iIndex >= 0) {
 						this.fireDataChange({
 							key: sKey,
@@ -765,13 +758,14 @@ sap.ui.define([
 				this._iFirstConditionIndex = 0;
 				that.removeAllConditions();
 			},
-			layoutData: new sap.m.OverflowToolbarLayoutData( { priority: sap.m.OverflowToolbarPriority.Low } )
+			layoutData: new sap.m.OverflowToolbarLayoutData({
+				priority: sap.m.OverflowToolbarPriority.Low
+			})
 		});
 
-		var sResourceKey = "CONDITIONPANEL_ADD" + (this._sAddRemoveIconTooltipKey ? "_" + this._sAddRemoveIconTooltipKey : "") + "_TOOLTIP";
 		this._oAddButton = new sap.m.Button({
 			icon: sap.ui.core.IconPool.getIconURI("add"),
-			tooltip: this._oRb.getText(this._oRb.hasText(sResourceKey) ? sResourceKey : "CONDITIONPANEL_ADD_TOOLTIP"),
+			tooltip: this._oRb.getText("CONDITIONPANEL_ADD" + (this._sAddRemoveIconTooltipKey ? "_" + this._sAddRemoveIconTooltipKey : "") + "_TOOLTIP"),
 			visible: true,
 			press: function(oEvent) {
 				var oConditionGrid = that._createConditionRow(that._oConditionsGrid, undefined, null, 0);
@@ -784,29 +778,39 @@ sap.ui.define([
 
 				that._updatePaginatorToolbar();
 			},
-			layoutData: new sap.m.OverflowToolbarLayoutData( { priority: sap.m.OverflowToolbarPriority.Low } )
+			layoutData: new sap.m.OverflowToolbarLayoutData({
+				priority: sap.m.OverflowToolbarPriority.Low
+			})
 		});
 
 		this._oHeaderText = new sap.m.Text({
 			wrapping: false,
-			layoutData: new sap.m.OverflowToolbarLayoutData( { priority: sap.m.OverflowToolbarPriority.NeverOverflow } )
+			layoutData: new sap.m.OverflowToolbarLayoutData({
+				priority: sap.m.OverflowToolbarPriority.NeverOverflow
+			})
 		});
 
 		this._oPageText = new sap.m.Text({
 			wrapping: false,
 			textAlign: sap.ui.core.TextAlign.Center,
-			layoutData: new sap.m.OverflowToolbarLayoutData( { priority: sap.m.OverflowToolbarPriority.NeverOverflow } )
+			layoutData: new sap.m.OverflowToolbarLayoutData({
+				priority: sap.m.OverflowToolbarPriority.NeverOverflow
+			})
 		});
 
 		this._oFilterField = new sap.m.SearchField({
 			width: "12rem",
-			layoutData: new sap.m.OverflowToolbarLayoutData( { priority: sap.m.OverflowToolbarPriority.High } )
+			layoutData: new sap.m.OverflowToolbarLayoutData({
+				priority: sap.m.OverflowToolbarPriority.High
+			})
 		});
 
 		this._oPaginatorToolbar = new sap.m.OverflowToolbar({
 			height: "3rem",
 			design: sap.m.ToolbarDesign.Transparent,
-			content: [this._oHeaderText, new sap.m.ToolbarSpacer(), this._oFilterField, this._oPrevButton, this._oPageText, this._oNextButton, this._oRemoveAllButton, this._oAddButton]
+			content: [
+				this._oHeaderText, new sap.m.ToolbarSpacer(), this._oFilterField, this._oPrevButton, this._oPageText, this._oNextButton, this._oRemoveAllButton, this._oAddButton
+			]
 		});
 	};
 
@@ -815,13 +819,13 @@ sap.ui.define([
 	 * @private
 	 */
 	P13nConditionPanel.prototype._updatePaginatorToolbar = function() {
-		if (this._sConditionType !== "Filter" || this.getMaxConditions() !== "-1")  {
+		if (this._sConditionType !== "Filter" || this.getMaxConditions() !== "-1") {
 			return;
 		}
 
 		var iItems = this._aConditionKeys.length;
-		var iPages = 1 + Math.floor( Math.max(0, iItems - 1) / this._iConditionPageSize);
-		var iPage = 1 + Math.floor( this._iFirstConditionIndex / this._iConditionPageSize);
+		var iPages = 1 + Math.floor(Math.max(0, iItems - 1) / this._iConditionPageSize);
+		var iPage = 1 + Math.floor(this._iFirstConditionIndex / this._iConditionPageSize);
 
 		var oParent = this.getParent();
 
@@ -850,7 +854,7 @@ sap.ui.define([
 				this.removeAggregation("content", this._oPaginatorToolbar);
 				oParent.setHeaderToolbar(this._oPaginatorToolbar);
 
-				oParent.attachExpand(function (oEvent){
+				oParent.attachExpand(function(oEvent) {
 					this._setToolbarElementVisibility(oEvent.getSource().getExpanded() && this._bPaginatorButtonsVisible);
 				}.bind(this));
 			}
@@ -912,6 +916,8 @@ sap.ui.define([
 	 * @private
 	 */
 	P13nConditionPanel.prototype.exit = function() {
+		this._clearConditions();
+
 		this._unregisterResizeHandler();
 
 		this._aConditionsFields = null;
@@ -935,7 +941,20 @@ sap.ui.define([
 	 * removes all condition rows from the main ConditionGrid. @private
 	 */
 	P13nConditionPanel.prototype._clearConditions = function() {
-		this._oConditionsGrid.removeAllContent();
+		var aGrid = this._oConditionsGrid.getContent();
+		aGrid.forEach(function(oGrid) {
+			for ( var iField in this._aConditionsFields) {
+				var field = this._aConditionsFields[iField];
+				if (oGrid[field["ID"]] && oGrid.getContent().indexOf(oGrid[field["ID"]]) === -1) {
+					// TODO: notice that since these fields could have been removed from
+					// the inner aggregation, and thus would not be destroyed otherwise,
+					// we destroy them separately here
+					oGrid[field["ID"]].destroy();
+				}
+			}
+		}, this);
+
+		this._oConditionsGrid.destroyContent();
 	};
 
 	/*
@@ -943,9 +962,7 @@ sap.ui.define([
 	 */
 	P13nConditionPanel.prototype._fillConditions = function() {
 		var oCondition, sConditionKey;
-		var i = 0,
-			iMaxConditions = this._getMaxConditionsAsNumber(),
-			n = this._aConditionKeys.length;
+		var i = 0, iMaxConditions = this._getMaxConditionsAsNumber(), n = this._aConditionKeys.length;
 
 		// fill existing conditions
 		if (this._oConditionsMap) {
@@ -1000,9 +1017,9 @@ sap.ui.define([
 	P13nConditionPanel.prototype._handleMediaChange = function(p) {
 		this._sLayoutMode = p.name;
 
-//		if (window.console) {
-//		 window.console.log(" ---> MediaChange " + p.name);
-//		}
+		//		if (window.console) {
+		//		 window.console.log(" ---> MediaChange " + p.name);
+		//		}
 
 		this._updateLayout(p);
 	};
@@ -1023,8 +1040,6 @@ sap.ui.define([
 			sap.ui.Device.media.attachHandler(this._handleMediaChange, this, sap.ui.Device.media.RANGESETS.SAP_STANDARD);
 		}
 	};
-
-
 
 	/**
 	 * returns the key of the condition grid or creates a new key
@@ -1071,6 +1086,7 @@ sap.ui.define([
 	 * @param {int} iPos the index of the new condition in the targetGrid
 	 */
 	P13nConditionPanel.prototype._createConditionRow = function(oTargetGrid, oConditionGridData, sKey, iPos) {
+
 		var oButtonContainer = null;
 		var oGrid;
 		var that = this;
@@ -1186,7 +1202,14 @@ sap.ui.define([
 									// select the key from the condition above
 									if (iPos > 0 && !sKey) {
 										oGrid = oTargetGrid.getContent()[iPos - 1];
-										oControl.setSelectedKey(oGrid.keyField.getSelectedKey());
+										if (oGrid.keyField.getSelectedKey()) {
+											oControl.setSelectedKey(oGrid.keyField.getSelectedKey());
+										} else {
+											// if no item is selected, we have to select at least the first keyFieldItem
+											if (!oControl.getSelectedItem() && oControl.getItems().length > 0) {
+												oControl.setSelectedItem(oControl.getItems()[0]);
+											}
+										}
 									} else {
 										this._aKeyFields.some(function(oKeyField, index) {
 											if (oKeyField.isDefault) {
@@ -1197,6 +1220,11 @@ sap.ui.define([
 												oControl.setSelectedItem(oControl.getItems()[index]);
 											}
 										}, this);
+
+										// if no item is selected, we have to select at least the first keyFieldItem
+										if (!oControl.getSelectedItem() && oControl.getItems().length > 0) {
+											oControl.setSelectedItem(oControl.getItems()[0]);
+										}
 									}
 								} else {
 									this._aKeyFields.forEach(function(oKeyField, index) {
@@ -1298,7 +1326,6 @@ sap.ui.define([
 								oValue = sValue;
 							}
 
-
 							if (!isNaN(oValue) && oValue !== null && oConditionGrid.oFormatter) {
 								sValue = oConditionGrid.oFormatter.format(oValue);
 								oControl.setValue(sValue);
@@ -1344,11 +1371,10 @@ sap.ui.define([
 		oConditionGrid["ButtonContainer"] = oButtonContainer;
 
 		// create "Remove button"
-		var sResourceKey = "CONDITIONPANEL_REMOVE" + (this._sAddRemoveIconTooltipKey ? "_" + this._sAddRemoveIconTooltipKey : "") + "_TOOLTIP";
 		var oRemoveControl = new sap.m.Button({
 			type: sap.m.ButtonType.Transparent,
 			icon: sap.ui.core.IconPool.getIconURI("sys-cancel"),
-			tooltip: this._oRb.getText(this._oRb.hasText(sResourceKey) ? sResourceKey : "CONDITIONPANEL_REMOVE_TOOLTIP"),
+			tooltip: this._oRb.getText("CONDITIONPANEL_REMOVE" + (this._sAddRemoveIconTooltipKey ? "_" + this._sAddRemoveIconTooltipKey : "") + "_TOOLTIP"),
 			press: function() {
 				that._handleRemoveCondition(this.oTargetGrid, oConditionGrid);
 			},
@@ -1363,11 +1389,10 @@ sap.ui.define([
 		oConditionGrid["remove"] = oRemoveControl;
 
 		// create "Add button"
-		sResourceKey = "CONDITIONPANEL_ADD" + (this._sAddRemoveIconTooltipKey ? "_" + this._sAddRemoveIconTooltipKey : "") + "_TOOLTIP";
 		var oAddControl = new sap.m.Button({
 			type: sap.m.ButtonType.Transparent,
 			icon: sap.ui.core.IconPool.getIconURI("add"),
-			tooltip: this._oRb.getText(this._oRb.hasText(sResourceKey) ? sResourceKey : "CONDITIONPANEL_ADD_TOOLTIP"),
+			tooltip: this._oRb.getText("CONDITIONPANEL_ADD" + (this._sAddRemoveIconTooltipKey ? "_" + this._sAddRemoveIconTooltipKey : "") + "_TOOLTIP"),
 			press: function() {
 				that._handleAddCondition(this.oTargetGrid, oConditionGrid);
 			},
@@ -1494,7 +1519,7 @@ sap.ui.define([
 	 *        a maxLength information
 	 * @param {object} oFieldInfo
 	 * @param {grid} oConditionGrid which should contain the new created field
-	 * @returns {Control} the created control instance either Input or DatePicker
+	 * @returns {sap.ui.core.Control} the created control instance either Input or DatePicker
 	 */
 	P13nConditionPanel.prototype._createValueField = function(oCurrentKeyField, oFieldInfo, oConditionGrid) {
 		var oControl;
@@ -1519,13 +1544,15 @@ sap.ui.define([
 			case "enum":
 				var aItems = [];
 
-//				if (sCtrlType === "boolean") {
-//					aItems.push(new sap.ui.core.Item({
-//						key: "",
-//						text: ""
-//					}));
-//				}
-				var aValues = oCurrentKeyField.values || this._oTypeValues[sCtrlType] || ["", false, true];
+				//				if (sCtrlType === "boolean") {
+				//					aItems.push(new sap.ui.core.Item({
+				//						key: "",
+				//						text: ""
+				//					}));
+				//				}
+				var aValues = oCurrentKeyField.values || this._oTypeValues[sCtrlType] || [
+					"", false, true
+				];
 				aValues.forEach(function(oValue, index) {
 					aItems.push(new sap.ui.core.Item({
 						key: sCtrlType === "boolean" ? (index === aValues.length - 1).toString() : oValue.toString(),
@@ -1562,17 +1589,12 @@ sap.ui.define([
 				oControl = new sap.m.Input(params);
 				break;
 			case "date":
-				oConditionGrid.oFormatter = DateFormat.getDateInstance();
+				oConditionGrid.oFormatter = DateFormat.getDateInstance({strictParsing : true});
 				oControl = new sap.m.DatePicker(params);
 				break;
 			case "time":
-				oConditionGrid.oFormatter = DateFormat.getTimeInstance();
+				oConditionGrid.oFormatter = DateFormat.getTimeInstance({strictParsing : true});
 				oControl = new sap.m.TimePicker(params);
-
-//				var oLocale = sap.ui.getCore().getConfiguration().getFormatSettings().getFormatLocale();
-//				var oLocaleData = sap.ui.core.LocaleData.getInstance(oLocale);
-//				oControl.setDisplayFormat( oLocaleData.getTimePattern("short"));
-
 				break;
 			default:
 				oConditionGrid.oFormatter = null;
@@ -1591,7 +1613,7 @@ sap.ui.define([
 		}
 
 		if (sCtrlType !== "boolean" && sCtrlType !== "enum") {
-			oControl.onpaste = function (oEvent) {
+			oControl.onpaste = function(oEvent) {
 
 				var sOriginalText;
 				// for the purpose to copy from column in excel and paste in MultiInput/MultiComboBox
@@ -1600,7 +1622,7 @@ sap.ui.define([
 					sOriginalText = window.clipboardData.getData("Text");
 				} else {
 					// Chrome, Firefox, Safari
-					sOriginalText =  oEvent.originalEvent.clipboardData.getData('text/plain');
+					sOriginalText = oEvent.originalEvent.clipboardData.getData('text/plain');
 				}
 
 				var oConditionGrid = oEvent.srcControl.getParent();
@@ -1621,7 +1643,7 @@ sap.ui.define([
 
 								if (aSeparatedText[i]) {
 									var oCondition = {
-									    "key" : that._createConditionKey(),
+										"key": that._createConditionKey(),
 										"exclude": that.getExclude(),
 										"operation": oOperation.getSelectedKey(),
 										"keyField": oKeyField.key,
@@ -1788,7 +1810,13 @@ sap.ui.define([
 			var sOldValue = oCtrl.getValue ? oCtrl.getValue() : "";
 
 			var ctrlIndex = oConditionGrid.indexOfContent(oCtrl);
+
+			// we have to remove the control into the content with rerendering (bSuppressInvalidate=false) the UI,
+			// otherwise in some use cases the "between" value fields will not be rendered.
+			// This additional rerender might trigger some problems for screenreader.
 			oConditionGrid.removeContent(oCtrl);
+			//oConditionGrid.removeAggregation("content", oCtrl, true);
+
 			if (oCtrl._oSuggestProvider) {
 				oCtrl._oSuggestProvider.destroy();
 				oCtrl._oSuggestProvider = null;
@@ -1797,7 +1825,12 @@ sap.ui.define([
 			var fieldInfo = this._aConditionsFields[index];
 			oCtrl = this._createValueField(oCurrentKeyField, fieldInfo, oConditionGrid);
 			oConditionGrid[fieldInfo["ID"]] = oCtrl;
-			oConditionGrid.insertContent(oCtrl, ctrlIndex);
+
+			// we have to insert the control into the content with rerendering (bSuppressInvalidate=false) the UI,
+			// otherwise in some use cases the "between" value fields will not be rendered.
+			// This additional rerender might trigger some problems for screenreader.
+			oConditionGrid.insertContent(oCtrl, ctrlIndex === -1 ? 0 : ctrlIndex);
+			//oConditionGrid.insertAggregation("content", oCtrl, ctrlIndex, true);
 
 			var oValue, sValue;
 			if (oConditionGrid.oFormatter && sOldValue) {
@@ -1975,7 +2008,7 @@ sap.ui.define([
 
 		if (sOperation === sap.m.P13nConditionOperation.BT) {
 			// for the "between" operation we enable both fields
-			if (oValue1.setPlaceholder) {
+			if (oValue1.setPlaceholder && oValue1.getPlaceholder() !== this._sFromLabelText) {
 				oValue1.setPlaceholder(this._sFromLabelText);
 			}
 			if (!oValue1.getVisible()) {
@@ -1984,7 +2017,7 @@ sap.ui.define([
 				oConditionGrid.insertContent(oValue1, oConditionGrid.getContent().length - 1);
 			}
 
-			if (oValue2.setPlaceholder) {
+			if (oValue2.setPlaceholder && oValue2.getPlaceholder() !== this._sToLabelText) {
 				oValue2.setPlaceholder(this._sToLabelText);
 			}
 			if (!oValue2.getVisible()) {
@@ -2028,7 +2061,7 @@ sap.ui.define([
 					oConditionGrid.removeContent(oShowIfGroupedvalue);
 				} else {
 					// for all other operations we enable only the Value1 fields
-					if (oValue1.setPlaceholder) {
+					if (oValue1.setPlaceholder && oValue1.getPlaceholder() !== this._sValueLabelText) {
 						oValue1.setPlaceholder(this._sValueLabelText);
 					}
 					if (!oValue1.getVisible()) {
@@ -2047,7 +2080,7 @@ sap.ui.define([
 		this._adjustValue1Span(oConditionGrid);
 	};
 
-	/**
+	/*
 	 * toggle the value1 field span between L5 and L3 depending on the selected operation
 	 */
 	P13nConditionPanel.prototype._adjustValue1Span = function(oConditionGrid) {
@@ -2066,13 +2099,13 @@ sap.ui.define([
 		}
 	};
 
-	/**
+	/*
 	 * return the index of the oConditionGrid, the none valid condition will be ignored.
 	 */
 	P13nConditionPanel.prototype._getIndexOfCondition = function(oConditionGrid) {
 		var iIndex = -1;
 
-		oConditionGrid.getParent().getContent().some(function(oGrid){
+		oConditionGrid.getParent().getContent().some(function(oGrid) {
 			if (oGrid.select.getSelected()) {
 				iIndex++;
 			}
@@ -2082,8 +2115,7 @@ sap.ui.define([
 		return iIndex + this._iFirstConditionIndex;
 	};
 
-
-	/**
+	/*
 	 * makes a control valid or invalid, means it gets a warning state and shows a warning message attached to the field.
 	 *
 	 */
@@ -2097,7 +2129,7 @@ sap.ui.define([
 		}
 	};
 
-	/**
+	/*
 	 * change event handler for a value1 and value2 field control
 	 */
 	P13nConditionPanel.prototype._validateFormatFieldValue = function(oEvent) {
@@ -2131,6 +2163,8 @@ sap.ui.define([
 				sValue = oConditionGrid.oFormatter.format(oValue);
 				oCtrl.setValue(sValue);
 			}
+		} else {
+			this._makeFieldValid(oCtrl, true);
 		}
 	};
 
@@ -2165,6 +2199,13 @@ sap.ui.define([
 			}
 		}
 
+		// in case of a BT and a Date type try to set the minDate for the To value datepicker
+		if (sOperation === "BT" && oConditionGrid.value1.setMinDate) {
+			if (oConditionGrid.value2 && oConditionGrid.value2.setMinDate) {
+				oConditionGrid.value2.setMinDate(oValue1 instanceof Date ? oValue1 : null);
+			}
+		}
+
 		// update Value2 field control
 		var sValue2 = this._getValueTextFromField(oConditionGrid.value2, oConditionGrid.oFormatter);
 		var oValue2 = sValue2;
@@ -2178,7 +2219,9 @@ sap.ui.define([
 		var oCurrentKeyField = this._getCurrentKeyFieldItem(oConditionGrid.keyField);
 		var sCtrlType = oCurrentKeyField ? oCurrentKeyField.type : "";
 		if (sCtrlType === "boolean") {
-			var aValues = oCurrentKeyField.values || this._oTypeValues[sCtrlType] || ["", false, true ];
+			var aValues = oCurrentKeyField.values || this._oTypeValues[sCtrlType] || [
+				"", false, true
+			];
 			var sTrueValue = aValues[aValues.length - 1].toString();
 			oValue1 = sValue1 === sTrueValue;
 			oValue2 = null; // for boolean we only support EQ and value2 can be null
@@ -2276,7 +2319,7 @@ sap.ui.define([
 		this._updatePaginatorToolbar();
 	};
 
-	/**
+	/*
 	 * returns the value as text from a Value field.
 	 */
 	P13nConditionPanel.prototype._getValueTextFromField = function(oControl, oFormatter) {
@@ -2389,12 +2432,12 @@ sap.ui.define([
 	};
 
 	/**
-	 * check if the entered/modified conditions are correct, marks invalid fields yellow (Warning state) and opens a popup message dialog to give the
+	 * check if the entered/modified conditions are correct, marks invalid fields yellow (Warning state) and can be used to show error message dialog and give the
 	 * user the feedback that some values are wrong or missing.
 	 *
 	 * @private
-	 * @param {function} fnCallback which we call when all conditions are valid or the user ignores the wrong/missing fields by pressing Yes on a
-	 *        message dialog.
+	 * @returns {boolean} <code>True</code> if all conditions are valid, <code>false</code> otherwise.
+	 *
 	 */
 	P13nConditionPanel.prototype.validateConditions = function() {
 		var that = this;
@@ -2470,7 +2513,9 @@ sap.ui.define([
 		var value2 = oConditionGrid.value2;
 
 		var bValue1Empty = value1 && (value1.getVisible() && !this._getValueTextFromField(value1, oConditionGrid.oFormatter));
+		var bValue1State = value1 && value1.getVisible() && value1.getValueState ? value1.getValueState() : sap.ui.core.ValueState.None;
 		var bValue2Empty = value2 && (value2.getVisible() && !this._getValueTextFromField(value2, oConditionGrid.oFormatter));
+		var bValue2State = value2 && value2.getVisible() && value2.getValueState ? value2.getValueState() : sap.ui.core.ValueState.None;
 
 		var sOperation = oConditionGrid.operation.getSelectedKey();
 
@@ -2487,6 +2532,8 @@ sap.ui.define([
 				}
 
 				bValid = false;
+			} else if (bValue1State !== sap.ui.core.ValueState.None || bValue2State !== sap.ui.core.ValueState.None) {
+				bValid = false;
 			} else {
 				value1.setValueState(sap.ui.core.ValueState.None);
 				value1.setValueStateText("");
@@ -2495,35 +2542,34 @@ sap.ui.define([
 			}
 		}
 
-//		var fnFormatFieldValue = function(oCtrl) {
-//			var oConditionGrid = oCtrl.getParent();
-//			if (!oConditionGrid) {
-//				return;
-//			}
-//			var sValue = this._getValueTextFromField(oCtrl, oConditionGrid.oFormatter);
-//
-//			if (this.getDisplayFormat() === "UpperCase" && sValue) {
-//				sValue = sValue.toUpperCase();
-//				oCtrl.setValue(sValue);
-//			}
-//
-//			if (oConditionGrid.oFormatter && sValue) {
-//				var oValue = oConditionGrid.oFormatter.parse(sValue);
-//				var bValid = !isNaN(oValue) && oValue !== null;
-//				this._makeFieldValid(oCtrl, bValid);
-//
-//				if (bValid) {
-//					sValue = oConditionGrid.oFormatter.format(oValue);
-//					oCtrl.setValue(sValue);
-//				}
-//			}
-//		};
-//
-//		jQuery.proxy(fnFormatFieldValue, this)(value1);
-//		jQuery.proxy(fnFormatFieldValue, this)(value2);
+		//		var fnFormatFieldValue = function(oCtrl) {
+		//			var oConditionGrid = oCtrl.getParent();
+		//			if (!oConditionGrid) {
+		//				return;
+		//			}
+		//			var sValue = this._getValueTextFromField(oCtrl, oConditionGrid.oFormatter);
+		//
+		//			if (this.getDisplayFormat() === "UpperCase" && sValue) {
+		//				sValue = sValue.toUpperCase();
+		//				oCtrl.setValue(sValue);
+		//			}
+		//
+		//			if (oConditionGrid.oFormatter && sValue) {
+		//				var oValue = oConditionGrid.oFormatter.parse(sValue);
+		//				var bValid = !isNaN(oValue) && oValue !== null;
+		//				this._makeFieldValid(oCtrl, bValid);
+		//
+		//				if (bValid) {
+		//					sValue = oConditionGrid.oFormatter.format(oValue);
+		//					oCtrl.setValue(sValue);
+		//				}
+		//			}
+		//		};
+		//
+		//		jQuery.proxy(fnFormatFieldValue, this)(value1);
+		//		jQuery.proxy(fnFormatFieldValue, this)(value2);
 
-		if ((value1.getVisible() && value1.getValueState && value1.getValueState() !== sap.ui.core.ValueState.None) ||
-			(value2.getVisible() && value2.getValueState && value2.getValueState() !== sap.ui.core.ValueState.None)) {
+		if ((value1.getVisible() && value1.getValueState && value1.getValueState() !== sap.ui.core.ValueState.None) || (value2.getVisible() && value2.getValueState && value2.getValueState() !== sap.ui.core.ValueState.None)) {
 			bValid = false;
 		}
 
@@ -2537,7 +2583,7 @@ sap.ui.define([
 	 * @param {string} sOperation the operation type sap.m.P13nConditionOperation
 	 * @param {string} sValue1 text of the first condition field
 	 * @param {string} sValue2 text of the seoncd condition field
-	 * @param {boolean} bExclude indicates if the condition is a Exclude condition
+	 * @param {boolean} bExclude indicates if the condition is an Exclude condition
 	 * @param {string} sKeyField id
 	 * @returns {string} the condition text
 	 */
@@ -2673,9 +2719,9 @@ sap.ui.define([
 			return;
 		}
 
-// if (window.console) {
-// window.console.log(" ---> " + oRangeInfo.name);
-// }
+		// if (window.console) {
+		// window.console.log(" ---> " + oRangeInfo.name);
+		// }
 
 		var aGrids = this._oConditionsGrid.getContent();
 		var n = this._aConditionsFields.length;
@@ -2716,11 +2762,10 @@ sap.ui.define([
 				if (this._oPaginatorToolbar.getParent() && this._oPaginatorToolbar.getParent().getExpandable && this._oPaginatorToolbar.getParent().getExpandable()) {
 					w = 48 - 4;
 				}
-				var iToolbarWidth = oGrid.remove.$().position().left - w + oGrid.remove.$().width();  //TODO - Panel expand button width + remove icon width
+				var iToolbarWidth = oGrid.remove.$().position().left - w + oGrid.remove.$().width(); //TODO - Panel expand button width + remove icon width
 				this._oPaginatorToolbar.setWidth(iToolbarWidth + "px");
 			}
 		}
-
 
 		var domElement = this._oConditionsGrid.getDomRef();
 		if (!domElement) {
@@ -2740,9 +2785,9 @@ sap.ui.define([
 			oRangeInfo.name = "Desktop";
 		}
 
- //if (window.console) {
- //window.console.log(w + " resize ---> " + oRangeInfo.name);
- //}
+		//if (window.console) {
+		//window.console.log(w + " resize ---> " + oRangeInfo.name);
+		//}
 
 		if (oRangeInfo.name === "Phone" && this._sLayoutMode !== oRangeInfo.name) {
 			this._updateLayout(oRangeInfo);
@@ -2758,6 +2803,11 @@ sap.ui.define([
 		}
 	};
 
+	/**
+	 * @enum {string}
+	 * @public
+	 * @experimental since version 1.26 !!! THIS TYPE IS ONLY FOR INTERNAL USE !!!
+	 */
 	sap.m.P13nConditionOperation = {
 		// filter operations
 		BT: "BT",

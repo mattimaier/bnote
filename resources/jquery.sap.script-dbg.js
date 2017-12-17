@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -11,7 +11,7 @@ sap.ui.define(['jquery.sap.global'],
 
 	/**
 	 * Some private variable used for creation of (pseudo-)unique ids.
-	 * @type integer
+	 * @type int
 	 * @private
 	 */
 	var iIdCounter = 0;
@@ -26,6 +26,24 @@ sap.ui.define(['jquery.sap.global'],
 	 */
 	jQuery.sap.uid = function uid() {
 		return "id-" + new Date().valueOf() + "-" + iIdCounter++;
+	};
+
+	/**
+	 * This function generates a hash-code from a string
+	 * @param {string} sString The string to generate the hash-code from
+	 * @return {int} The generated hash-code
+	 * @since 1.39
+	 * @private
+	 */
+	jQuery.sap.hashCode = function(sString) {
+		var i = sString.length, iHash = 0;
+
+		while (i--) {
+			iHash = (iHash << 5) - iHash + sString.charCodeAt(i);
+			iHash = iHash & iHash; // convert to 32 bit
+		}
+
+		return iHash;
 	};
 
 	/**
@@ -99,7 +117,7 @@ sap.ui.define(['jquery.sap.global'],
 	 * Use {@link jQuery.sap.getUriParameters} to create an instance of jQuery.sap.util.UriParameters.
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @since 0.9.0
 	 * @name jQuery.sap.util.UriParameters
 	 * @public
@@ -251,15 +269,12 @@ sap.ui.define(['jquery.sap.global'],
 		if (a === b) {
 			return true;
 		}
-		if (jQuery.isArray(a) && jQuery.isArray(b)) {
-			if (!contains) {
-				if (a.length != b.length) {
-					return false;
-				}
-			} else {
-				if (a.length > b.length) {
-					return false;
-				}
+		if (Array.isArray(a) && Array.isArray(b)) {
+			if (!contains && a.length !== b.length) {
+				return false;
+			}
+			if (a.length > b.length) {
+				return false;
 			}
 			for (var i = 0; i < a.length; i++) {
 				if (!jQuery.sap.equal(a[i], b[i], maxDepth, contains, depth + 1)) {
@@ -272,25 +287,21 @@ sap.ui.define(['jquery.sap.global'],
 			if (!a || !b) {
 				return false;
 			}
-			if (a.constructor != b.constructor) {
+			if (a.constructor !== b.constructor) {
+				return false;
+			}
+			if (!contains && Object.keys(a).length !== Object.keys(b).length) {
 				return false;
 			}
 			if (a.nodeName && b.nodeName && a.namespaceURI && b.namespaceURI) {
 				return jQuery.sap.isEqualNode(a,b);
 			}
 			if (a instanceof Date) {
-				return a.valueOf() == b.valueOf();
+				return a.valueOf() === b.valueOf();
 			}
 			for (var i in a) {
 				if (!jQuery.sap.equal(a[i], b[i], maxDepth, contains, depth + 1)) {
 					return false;
-				}
-			}
-			if (!contains) {
-				for (var i in b) {
-					if (a[i] === undefined) {
-						return false;
-					}
 				}
 			}
 			return true;
@@ -314,7 +325,7 @@ sap.ui.define(['jquery.sap.global'],
 	 * @since 1.11
 	 */
 	jQuery.sap.each = function(oObject, fnCallback) {
-		var isArray = jQuery.isArray(oObject),
+		var isArray = Array.isArray(oObject),
 			length, i;
 
 		if ( isArray ) {
@@ -335,7 +346,8 @@ sap.ui.define(['jquery.sap.global'],
 	};
 
 	/**
-	 * Substitute for <code>for(n in o)</code> loops which fixes the 'Don'tEnum' bug of IE8.
+	 * Substitute for <code>for(n in o)</code> loops which used to fix the 'Don'tEnum' bug of IE8.
+	 * As IE8 is not supported anymore this function is just a wrapper around the native for-in loop.
 	 *
 	 * Iterates over all enumerable properties of the given object and calls the
 	 * given callback function for each of them. The assumed signature of the
@@ -345,94 +357,83 @@ sap.ui.define(['jquery.sap.global'],
 	 *
 	 * where name is the name of the property and value is its value.
 	 *
-	 * When an object in IE8 overrides a property of Object.prototype
-	 * that has been marked as 'don't enum', then IE8 by mistake also
-	 * doesn't enumerate the overriding property.
-	 *
-	 * A 100% complete substitute is hard to achieve. The current implementation
-	 * enumerates an overridden property when it either is an 'own' property
-	 * (hasOwnProperty(name) is true) or when the property value is different
-	 * from the value in the Object.prototype object.
-	 *
 	 * @param {object} oObject object to enumerate the properties of
 	 * @param {function} fnCallback function to call for each property name
 	 * @function
+	 * @deprecated Since version 1.48.0. IE8 is not supported anymore, thus no special handling is required. Use native for-in loop instead.
 	 * @since 1.7.1
 	 */
-	jQuery.sap.forIn = {toString:null}.propertyIsEnumerable("toString") ?
-		// for browsers without the bug we use the straight forward implementation of a for in loop
-		function(oObject, fnCallback) {
-			for (var n in oObject) {
-				if ( fnCallback(n, oObject[n]) === false ) {
-					return;
-				}
+	jQuery.sap.forIn = function(oObject, fnCallback) {
+		for (var n in oObject) {
+			if ( fnCallback(n, oObject[n]) === false ) {
+				return;
 			}
-		} :
-		// use a special implementation for IE8
-		(function() {
-			var DONT_ENUM_KEYS = ["toString","valueOf","toLocaleString", "hasOwnProperty","isPrototypeOf","propertyIsEnumerable","constructor"],
-					DONT_ENUM_KEYS_LENGTH = DONT_ENUM_KEYS.length,
-					oObjectPrototype = Object.prototype,
-					fnHasOwnProperty = oObjectPrototype.hasOwnProperty;
-
-			return function(oObject, fnCallback) {
-				var n,i;
-
-				// standard for(in) loop
-				for (n in oObject) {
-					if ( fnCallback(n, oObject[n]) === false ) {
-						return;
-					}
-				}
-				// additionally check the known 'don't enum' names
-				for (var i = 0; i < DONT_ENUM_KEYS_LENGTH; i++) {
-					n = DONT_ENUM_KEYS[i];
-					// assume an enumerable property if it is either an own property
-					// or if its value differes fro mthe value in the Object.prototype
-					if ( fnHasOwnProperty.call(oObject,n) || oObject[n] !== oObjectPrototype[n] ) {
-						if ( fnCallback(n, oObject[n]) === false ) {
-							return;
-						}
-					}
-				}
-				// Note: this substitute implementation still fails in several regards
-				// - it fails when oObject is identical to Object.prototype (iterates non-enumerable properties)
-				// - it fails when one of the don't enum properties by intention has been overridden in the
-				//	 prototype chain with a value identical to the value in Object.prototype
-				// - the don't enum properties are handled out of order. This is okay with the ECMAScript
-				//	 spec but might be unexpected for some callers
-			};
-		}());
-
-	/**
-	 * This function generates a hash-code from a string
-	 * @param {string} sString The string to generate the hash-code from
-	 * @return {integer} The generated hash-code
-	 * @since 1.39
-	 * @private
-	 */
-	jQuery.sap.hashCode = function(sString) {
-		var iHash, iLength, iCharCode, i;
-		iHash = 0;
-		iLength = sString.length;
-
-		for (i = 0; i < iLength; i++) {
-			iCharCode = sString.charCodeAt(i);
-			iHash = (iHash << 5) - iHash + iCharCode;
-			iHash = iHash & iHash;
 		}
-		return iHash;
 	};
 
 	/**
-	 * Calculate delta of old list and new list
-	 * This implements the algorithm described in "A Technique for Isolating Differences Between Files"
-	 * (Commun. ACM, April 1978, Volume 21, Number 4, Pages 264-268)
-	 * @public
+	 * Calculate delta of old list and new list.
+	 *
+	 * This function implements the algorithm described in "A Technique for Isolating Differences Between Files"
+	 * (Commun. ACM, April 1978, Volume 21, Number 4, Pages 264-268).
+	 *
+	 * Items in the arrays are not compared directly. Instead, a substitute symbol is determined for each item
+	 * by applying the provided function <code>fnSymbol</code> to it. Items with strictly equal symbols are
+	 * assumed to represent the same logical item:
+	 * <pre>
+	 *   fnSymbol(a) === fnSymbol(b)   <=>   a 'is logically the same as' b
+	 * </pre>
+	 * As an additional constraint, casting the symbols to string should not modify the comparison result.
+	 * If this second constraint is not met, this method might report more diffs than necessary.
+	 *
+	 * If no symbol function is provided, a default implementation is used which applies <code>JSON.stringify</code>
+	 * to non-string items and reduces the strings to a hash code. It is not guaranteed that this default
+	 * implementation fulfills the above constraint in all cases, but it is a compromise between implementation
+	 * effort, generality and performance. If items are known to be non-stringifiable (e.g. because they may
+	 * contain cyclic references) or when hash collisions are likely, an own <code>fnSymbol</code> function
+	 * must be provided.
+	 *
+	 * The result of the diff is a sequence of update operations, each consisting of a <code>type</code>
+	 * (either <code>"insert"</code> or <code>"delete"</code>) and an <code>index</code>.
+	 * By applying the operations one after the other to the old array, it can be transformed to an
+	 * array whose items are equal to the new array.
+	 *
+	 * Sample implementation of the update
+	 * <pre>
+	 *
+	 *  function update(aOldArray, aNewArray) {
+	 *
+	 *    // calculate the diff
+	 *    var aDiff = jQuery.sap.arraySymbolDiff(aOldArray, aNewArray, __provide_your_symbol_function_here__);
+	 *
+	 *    // apply update operations
+	 *    aDiff.forEach( function(op) {
+	 *
+	 *      // invariant: aOldArray and aNewArray now are equal up to (excluding) op.index
+	 *
+	 *      switch ( op.type ) {
+	 *      case 'insert':
+	 *        // new array contains a new (or otherwise unmapped) item, add it here
+	 *        aOldArray.splice(op.index, 0, aNewArray[op.index]);
+	 *        break;
+	 *      case 'delete':
+	 *        // an item is no longer part of the array (or has been moved to another position), remove it
+	 *        aOldArray.splice(op.index, 1);
+	 *        break;
+	 *      default:
+	 *        throw new Error('unexpected diff operation type');
+	 *      }
+	 *
+	 *    });
+	 *  }
+	 *
+	 * </pre>
+	 *
 	 * @param {Array} aOld Old Array
 	 * @param {Array} aNew New Array
-	 * @param {function} [fnSymbol] Function to get entry symbol
-	 * @return {Array} List of changes
+	 * @param {function} [fnSymbol] Function to calculate substitute symbols for array items
+	 * @return {Array.<{type:string,index:int}>} List of update operations
+	 * @public
 	 */
 	jQuery.sap.arraySymbolDiff = function(aOld, aNew, fnSymbol){
 		var mSymbols = {},
@@ -567,12 +568,13 @@ sap.ui.define(['jquery.sap.global'],
 	};
 
 	/**
-	 * Calculate delta of old list and new list
+	 * Calculate delta of old list and new list.
+	 *
 	 * This partly implements the algorithm described in "A Technique for Isolating Differences Between Files"
 	 * but instead of working with hashes, it does compare each entry of the old list with each entry of the new
 	 * list, which causes terrible performane on large datasets.
 	 *
-	 * @deprecated
+	 * @deprecated As of 1.38, use {@link jQuery.sap.arraySymbolDiff} instead if applicable
 	 * @public
 	 * @param {Array} aOld Old Array
 	 * @param {Array} aNew New Array
@@ -1123,10 +1125,10 @@ sap.ui.define(['jquery.sap.global'],
 				}
 
 				// Recurse if we're merging plain objects or arrays
-				if ( deep && copy && ( jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)) ) ) {
+				if ( deep && copy && ( jQuery.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)) ) ) {
 					if ( copyIsArray ) {
 						copyIsArray = false;
-						clone = src && jQuery.isArray(src) ? src : [];
+						clone = Array.isArray(src) ? src : [];
 
 					} else {
 						clone = src && jQuery.isPlainObject(src) ? src : {};

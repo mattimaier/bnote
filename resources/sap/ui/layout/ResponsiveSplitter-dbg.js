@@ -1,6 +1,6 @@
 /*!
 * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
 */
 
@@ -15,13 +15,34 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "./Respo
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * ResponsiveSplitter is a control that enables responsiveness of normal Splitter.
-	 * ResponsiveSplitter consists of PaneContainers that further  agregate other PaneContainers and SplitPanes.
-	 * SplitPanes can be moved to the pagination when a minimum width of their parent is reached.
+	 * A responsive splitter which divides the application into several areas.
+	 * <h3>Overview</h3>
+	 * The responsive splitter layout structures complex applications into defined areas.
+	 * These areas may be resizable and are either distributed across one or multiple screen areas, some of which may also be off-canvas.
+	 *
+	 * The control is intended for developing administrative tools and applications.
+	 * <h3>Structure</h3>
+	 * The responsive splitter holds the following hierarchy of containers and controls:
+	 * <ul>
+	 * <li>{@link sap.ui.layout.PaneContainer Pane Container} - holds one or more Split Panes and determines the pane orientation. The pane which is stored in <code>rootPaneContainer</code> holds all other pane containers and split panes.</li>
+	 * <li>{@link sap.ui.layout.SplitPane Split Pane} - independent containers that may interact with one another. Each pane can hold only one control.</li>
+	 * </ul>
+	 * <h3>Usage</h3>
+	 * <h4>When to use</h4>
+	 * <ul>
+	 * <li>The application has to display several areas side by side that must be resizable.</li>
+	 * <li>The application must work on a range of different devices in a responsive manner.</li>
+	 * </ul>
+	 * <h3>Responsive Behavior</h3>
+	 * <ul>
+	 * <li>As soon as views are in the off-canvas mode, the pagination bar at the bottom of the application allows the user to switch between them.</li>
+	 * <li>On touch-enabled devices, the splitters show explicit handles with larger touch areas.</li>
+	 * <li>Double-clicking on a splitter will collapse or expand it back to its original position.</li>
+	 * </ul>
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -392,7 +413,6 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "./Respo
 
 	/**
 	 * Sets the visibility of the paginator buttons
-	 * @param width
 	 * @private
 	 */
 	ResponsiveSplitter.prototype._setPaginatorVisibility = function () {
@@ -449,7 +469,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "./Respo
 
 	/**
 	 * Sets the indexed page to visible and changes the selected button in the paginator
-	 * @param iPageIndex
+	 * @param {int} iPageIndex
 	 * @private
 	 */
 	ResponsiveSplitter.prototype._activatePage = function (iPageIndex) {
@@ -462,6 +482,8 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "./Respo
 		aPages[iPageIndex] && aPages[iPageIndex].setVisible(true);
 		$OldSelectedButton.removeClass("sapUiResponsiveSplitterPaginatorSelectedButton");
 		$PaginatorButtons.eq(iPageIndex).addClass("sapUiResponsiveSplitterPaginatorSelectedButton");
+		$OldSelectedButton.attr("aria-checked", false);
+		$PaginatorButtons.eq(iPageIndex).attr("aria-checked", true);
 	};
 
 	/**
@@ -497,14 +519,15 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "./Respo
 			iHiddenPanesCount = aHiddenPanes.length;
 			iMaxPageCount = this._getMaxPageCount();
 
+			var i;
 			if (oSplitterElement._isInInterval(this._currentInterval.iFrom)) {
 				oSplitterElementParent._oSplitter.addAssociatedContentArea(oSplitterElement.getContent());
 			} else if (bDemandPane && (iHiddenPanesCount < iMaxPageCount)) {
-				for (var i = 0; i < iHiddenPanesCount; i++) {
+				for (i = 0; i < iHiddenPanesCount; i++) {
 					aPages[i + 1].setContent(aHiddenPanes[i].getContent());
 				}
 			} else if (bDemandPane && iHiddenPanesCount === iMaxPageCount) {
-				for (var i = 0; i < iHiddenPanesCount; i++) {
+				for (i = 0; i < iHiddenPanesCount; i++) {
 					aPages[i].setContent(aHiddenPanes[i].getContent());
 				}
 			} else if (this._isDefault(oSplitterElement)) {
@@ -524,7 +547,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "./Respo
 
 	/**
 	 * Returns an array of all nested panes which are suitable for the current interval
-	 * @returns {array}
+	 * @returns {array} An array of all nested panes
 	 * @private
 	 */
 	ResponsiveSplitter.prototype._getAllPanesInInterval = function (oPaneContainer, iFrom) {
@@ -545,7 +568,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "./Respo
 
 	/**
 	 * Returns an array of all hidden panes which are with demand set to true
-	 * @returns {array}
+	 * @returns {array} An array of all hidden panes
 	 * @private
 	 */
 	ResponsiveSplitter.prototype._getHiddenPanes = function () {
@@ -569,7 +592,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Control", "./Respo
 
 	/**
 	 * Returns an array of all visible buttons from the Paginator
-	 * @returns {object}
+	 * @returns {object} An array of all visible buttons
 	 * @private
 	 */
 	ResponsiveSplitter.prototype._getVisibleButtons = function () {

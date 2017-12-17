@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global'],
@@ -26,13 +26,21 @@ sap.ui.define(['jquery.sap.global'],
 		 * Renders the HTML for the given control, using the provided {@link sap.ui.core.RenderManager}.
 		 *
 		 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer.
-		 * @param {sap.ui.core.Control} oSelectList An object representation of the control that should be rendered.
+		 * @param {sap.ui.core.Control} oList An object representation of the control that should be rendered.
 		 */
 		SelectListRenderer.render = function(oRm, oList) {
+			this.writeOpenListTag(oRm, oList, { elementData: true });
+			this.renderItems(oRm, oList);
+			this.writeCloseListTag(oRm, oList);
+		};
+
+		SelectListRenderer.writeOpenListTag = function(oRm, oList, mStates) {
 			var CSS_CLASS = SelectListRenderer.CSS_CLASS;
 
 			oRm.write("<ul");
-			oRm.writeControlData(oList);
+			if (mStates.elementData) {
+				oRm.writeControlData(oList);
+			}
 			oRm.addClass(CSS_CLASS);
 
 			if (oList.getShowSecondaryValues()) {
@@ -49,7 +57,9 @@ sap.ui.define(['jquery.sap.global'],
 			oRm.writeClasses();
 			this.writeAccessibilityState(oRm, oList);
 			oRm.write(">");
-			this.renderItems(oRm, oList);
+		};
+
+		SelectListRenderer.writeCloseListTag = function(oRm, oList) {
 			oRm.write("</ul>");
 		};
 
@@ -67,7 +77,8 @@ sap.ui.define(['jquery.sap.global'],
 				this.renderItem(oRm, oList, aItems[i], {
 					selected: oSelectedItem === aItems[i],
 					setsize: iSize,
-					posinset: i + 1
+					posinset: i + 1,
+					elementData: true
 				});
 			}
 		};
@@ -93,7 +104,10 @@ sap.ui.define(['jquery.sap.global'],
 				bShowSecondaryValues = oList.getShowSecondaryValues();
 
 			oRm.write("<li");
-			oRm.writeElementData(oItem);
+
+			if (mStates.elementData) {
+				oRm.writeElementData(oItem);
+			}
 
 			if (oItem instanceof sap.ui.core.SeparatorItem) {
 				oRm.addClass(CSS_CLASS + "SeparatorItem");
@@ -178,7 +192,7 @@ sap.ui.define(['jquery.sap.global'],
 		 * @param {sap.ui.core.Control} oList An object representation of the control that should be rendered.
 		 */
 		SelectListRenderer.writeAccessibilityState = function(oRm, oList) {
-			oRm.writeAccessibilityState({
+			oRm.writeAccessibilityState(oList, {
 				role: "listbox"
 			});
 		};

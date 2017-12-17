@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
@@ -34,7 +34,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 				 * Defines the text of the <code>MenuButton</code>.
 				 * <br/><b>Note:</b> In <code>Split</code> <code>buttonMode</code> with <code>useDefaultActionOnly</code>
 				 * set to <code>false</code>, the text is changed to display the last selected item's text,
-				 * while in <code>Regular</code> <code>buttonMode<code> the text stays unchanged.
+				 * while in <code>Regular</code> <code>buttonMode</code> the text stays unchanged.
 				 */
 				text : {type : "string", group : "Misc", defaultValue : null},
 
@@ -45,6 +45,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 
 				/**
 				 * Defines the width of the <code>MenuButton</code>.
+				 * <br/><b>Note:</b>As per visual design this width can be maximum of 12rem (192px).
 				 */
 				width : {type : "sap.ui.core.CSSSize", group : "Misc", defaultValue : null},
 
@@ -90,13 +91,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 				 * Controls whether the default action handler is invoked always or it is invoked only until a menu item is selected.
 				 * Usable only if <code>buttonMode</code> is set to <code>Split</code>.
 				 */
-				useDefaultActionOnly : { type : "Boolean", group : "Behavior", defaultValue: false }
+				useDefaultActionOnly : { type : "boolean", group : "Behavior", defaultValue: false }
 			},
 			aggregations: {
 				/**
 				 * Defines the menu that opens for this button.
 				 */
-				menu: { type: "sap.m.Menu", multiple: false, singularName: "menu", bindable: "bindable" },
+				menu: { type: "sap.m.Menu", multiple: false, singularName: "menu" },
 
 				/**
 				 * Internal aggregation that contains the button part.
@@ -110,7 +111,9 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 				 * from the menu has been selected previously.
 				 */
 				defaultAction: {}
-			}
+			},
+			defaultAggregation : "menu",
+			designTime: true
 		}});
 
 		EnabledPropagator.call(MenuButton.prototype);
@@ -173,8 +176,12 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 		 * @private
 		 */
 		MenuButton.prototype._setInitialBtnWidth = function() {
+			var iInitialWidth;
 			if (this._isSplitButton() && !this._iInitialWidth) {
-				this._iInitialWidth = this.$().outerWidth() + 1; //for IE
+				iInitialWidth = this.$().outerWidth();
+				if (iInitialWidth) {
+					this._iInitialWidth = iInitialWidth + 1; //for IE
+				}
 			}
 		};
 
@@ -187,9 +194,9 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 		};
 
 		/**
-		 * Sets the <code>buttonМode</code> of the control.
+		 * Sets the <code>buttonMode</code> of the control.
 		 * @param {sap.m.MenuButtonMode} sMode The new button mode
-		 * @returns {MenuButton} This instance
+		 * @returns {sap.m.MenuButton} This instance
 		 * @public
 		 */
 		MenuButton.prototype.setButtonMode = function(sMode) {
@@ -235,6 +242,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 
 		/**
 		 * Creates the button part of a <code>MenuButton</code> in regular mode.
+		 * @returns {object} The created <code>Button</code>
 		 * @private
 		 */
 		MenuButton.prototype._initButton = function() {
@@ -247,6 +255,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 
 		/**
 		 * Creates the button part of a <code>MenuButton</code> in split mode.
+		 * @returns {object} The created <code>SplitButton</code>
 		 * @private
 		 */
 		MenuButton.prototype._initSplitButton = function() {
@@ -288,6 +297,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 
 		/**
 		 * Handles the <code>buttonPress</code> event and opens the menu.
+		 * @param {boolean} bWithKeyboard If keyboard is used
 		 * @private
 		 */
 		MenuButton.prototype._handleButtonPress = function(bWithKeyboard) {
@@ -328,6 +338,9 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 
 		MenuButton.prototype._menuItemSelected = function(oEvent) {
 			var oMenuItem = oEvent.getParameter("item");
+
+			this.fireEvent("_menuItemSelected", { item: oMenuItem }); // needed for controls that listen to interaction events from within the control (e.g. for sap.m.OverflowToolbar)
+
 			if (
 				!this._isSplitButton() ||
 				this.getUseDefaultActionOnly() ||
@@ -344,6 +357,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 		/**
 		 * Gets the last selected menu item, which can be used
 		 * to trigger the same default action on <code>MenuItem</code> press.
+		 * @returns {string} The last selected item's ID
 		 * @private
 		 */
 		MenuButton.prototype._getLastSelectedItem = function() {
@@ -408,10 +422,10 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 			return Control.prototype.setTooltip.apply(this, arguments);
 		};
 
-		/**
+		/*
 		 * Override setter because the parent control has placed custom logic in it and all changes need to be propagated
 		 * to the internal button aggregation.
-		 * @param {string} sValue
+		 * @param {string} sValue The text of the sap.m.MenuButton
 		 * @return {sap.m.MenuButton} This instance for chaining
 		 */
 		MenuButton.prototype.setText = function (sValue) {
@@ -420,7 +434,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 			return this;
 		};
 
-		/**
+		/*
 		 * Override setter because the parent control has placed custom logic in it and all changes need to be propagated
 		 * to the internal button aggregation.
 		 * @param {string} sValue`
@@ -429,9 +443,10 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 		MenuButton.prototype.setType = function (sValue) {
 			Button.prototype.setProperty.call(this, 'type', sValue);
 			this._getButtonControl().setType(sValue);
+			return this;
 		};
 
-		/**
+		/*
 		 * Override setter because the parent control has placed custom logic in it and all changes need to be propagated
 		 * to the internal button aggregation.
 		 * @param {string} vValue
@@ -440,6 +455,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './Butto
 		MenuButton.prototype.setIcon = function (vValue) {
 			Button.prototype.setProperty.call(this, 'icon', vValue);
 			this._getButtonControl().setIcon(vValue);
+			return this;
 		};
 
 		MenuButton.prototype.getFocusDomRef = function() {

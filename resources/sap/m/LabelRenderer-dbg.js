@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -25,38 +25,50 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 	 */
 	LabelRenderer.render = function(rm, oLabel){
 		// convenience variable
-		var r = LabelRenderer;
+		var r = LabelRenderer,
+			sTextDir = oLabel.getTextDirection(),
+			sTextAlign = oLabel.getTextAlign(),
+			sWidth = oLabel.getWidth(),
+			sLabelText = oLabel.getText(),
+			sTooltip = oLabel.getTooltip_AsString(),
+			labelForRendering = oLabel.getLabelForRendering(),
+			htmlTagToRender = labelForRendering ? "label" : "span",
+			bDisplayOnly = oLabel.getDisplayOnly();
 
 		// write the HTML into the render manager
-		rm.write("<label");
+		// for accessibility reasons when a label doesn't have a "for" attribute, pointing at a HTML element it is rendered as span
+		rm.write("<" + htmlTagToRender);
 		rm.writeControlData(oLabel);
 
 		// styles
 		rm.addClass("sapMLabel");
 		rm.addClass("sapUiSelectable");
+
+		// label wrapping
+		if (oLabel.getWrapping()) {
+			rm.addClass("sapMLabelWrapped");
+		}
 		// set design to bold
 		if (oLabel.getDesign() == sap.m.LabelDesign.Bold) {
 			rm.addStyle("font-weight", "bold");
 		}
 
-		if (oLabel.getRequired()) {
+		if (oLabel.isRequired()) {
 			rm.addClass("sapMLabelRequired");
 		}
 
-		if (oLabel.getLabelForRendering()) {
+		if (labelForRendering) {
 			sap.ui.core.LabelEnablement.writeLabelForAttribute(rm, oLabel);
 		} else if (oLabel.getParent() instanceof sap.m.Toolbar) {
 			rm.addClass("sapMLabelTBHeader");
 		}
 
 		// text direction
-		var sTextDir = oLabel.getTextDirection();
 		if (sTextDir !== sap.ui.core.TextDirection.Inherit){
 			rm.writeAttribute("dir", sTextDir.toLowerCase());
 		}
 
 		// style for width
-		var sWidth = oLabel.getWidth();
 		if (sWidth) {
 			rm.addStyle("width", sWidth);
 		} else {
@@ -64,23 +76,24 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 		}
 
 		// style for text alignment
-		var sTextAlign = oLabel.getTextAlign();
 		if (sTextAlign) {
-			var sTextAlign = r.getTextAlign(sTextAlign, sTextDir);
+			sTextAlign = r.getTextAlign(sTextAlign, sTextDir);
 			if (sTextAlign) {
 				rm.addStyle("text-align", sTextAlign);
 			}
 		}
 
-		var sLabelText = oLabel.getText();
 		if (sLabelText == "") {
 			rm.addClass("sapMLabelNoText");
+		}
+
+		if (bDisplayOnly) {
+			rm.addClass("sapMLabelDisplayOnly");
 		}
 
 		rm.writeStyles();
 		rm.writeClasses();
 
-		var sTooltip = oLabel.getTooltip_AsString();
 		if (sTooltip) {
 			rm.writeAttributeEscaped("title", sTooltip);
 		}
@@ -88,11 +101,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 		rm.write(">");
 
 		// write the label text
-
+		rm.write("<bdi id=\"" + oLabel.getId() + "-bdi\" >");
 		if (sLabelText) {
 			rm.writeEscaped(sLabelText);
 		}
-		rm.write("</label>");
+		rm.write("</bdi>");
+
+		rm.write("</" + htmlTagToRender + ">");
 	};
 
 	/**

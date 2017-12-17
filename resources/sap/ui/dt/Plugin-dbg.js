@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,10 +20,10 @@ function(ManagedObject) {
 	 * @class
 	 * The Plugin allows to handle the overlays and aggregation overlays from the DesignTime
 	 * The Plugin should be overriden by the real plugin implementations, which define some actions through events attached to an overlays
-	 * @extends sap.ui.core.ManagedObject
+	 * @extends sap.ui.base.ManagedObject
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @private
@@ -44,13 +44,9 @@ function(ManagedObject) {
 				 * DesignTime where this plugin will be used
 				 */
 				designTime : { // its defined as a property because spa.ui.dt.designTime is a managed object and UI5 only allows associations for elements
-					type : "sap.ui.dt.DesignTime",
+					type : "object",
 					multiple : false
 				}
-			},
-			associations : {
-			},
-			events : {
 			}
 		}
 	});
@@ -119,15 +115,12 @@ function(ManagedObject) {
 		var oOldDesignTime = this.getDesignTime();
 		if (oOldDesignTime) {
 			this._deregisterOverlays(oOldDesignTime);
-			oOldDesignTime.detachEvent("elementOverlayCreated", this._onElementOverlayCreated, this);
 		}
 
 		this.setProperty("designTime", oDesignTime);
 
 		if (oDesignTime) {
 			this._registerOverlays(oDesignTime);
-
-			oDesignTime.attachEvent("elementOverlayCreated", this._onElementOverlayCreated, this);
 		}
 
 		return this;
@@ -140,7 +133,7 @@ function(ManagedObject) {
 	Plugin.prototype._registerOverlays = function(oDesignTime) {
 		if (this.registerElementOverlay || this.registerAggregationOverlay) {
 			var aElementOverlays = oDesignTime.getElementOverlays();
-			aElementOverlays.forEach(this._callElementOverlayRegistrationMethods.bind(this));
+			aElementOverlays.forEach(this.callElementOverlayRegistrationMethods.bind(this));
 		}
 	};
 
@@ -156,9 +149,10 @@ function(ManagedObject) {
 	};
 
 	/**
-	 * @private
+	 * @param {sap.ui.dt.Overlay} oElementOverlay to call registration methods for
+	 * @protected
 	 */
-	Plugin.prototype._callAggregationOverlayRegistrationMehods = function(oElementOverlay) {
+	Plugin.prototype.callAggregationOverlayRegistrationMethods = function(oElementOverlay) {
 		if (this.registerAggregationOverlay) {
 			var aAggregationOverlays = oElementOverlay.getAggregationOverlays();
 			aAggregationOverlays.forEach(this.registerAggregationOverlay.bind(this));
@@ -167,14 +161,14 @@ function(ManagedObject) {
 
 	/**
 	 * @param {sap.ui.dt.Overlay} oElementOverlay to call registration methods for
-	 * @private
+	 * @protected
 	 */
-	Plugin.prototype._callElementOverlayRegistrationMethods = function(oElementOverlay) {
+	Plugin.prototype.callElementOverlayRegistrationMethods = function(oElementOverlay) {
 		if (this.registerElementOverlay) {
 			this.registerElementOverlay(oElementOverlay);
 		}
 
-		this._callAggregationOverlayRegistrationMehods(oElementOverlay);
+		this.callAggregationOverlayRegistrationMethods(oElementOverlay);
 	};
 
 	/**
@@ -199,7 +193,7 @@ function(ManagedObject) {
 	Plugin.prototype._onElementOverlayCreated = function(oEvent) {
 		var oOverlay = oEvent.getParameter("elementOverlay");
 
-		this._callElementOverlayRegistrationMethods(oOverlay);
+		this.callElementOverlayRegistrationMethods(oOverlay);
 	};
 
 	return Plugin;

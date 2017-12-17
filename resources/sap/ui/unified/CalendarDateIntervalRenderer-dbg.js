@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -15,13 +15,25 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer', './CalendarRenderer'
 	 */
 	var CalendarDateIntervalRenderer = Renderer.extend(CalendarRenderer);
 
-	CalendarDateIntervalRenderer.addAttributes = function(oRm, oCal){
+	CalendarDateIntervalRenderer.renderCalContentOverlay = function() {
+	// we don't need the ContentOverlay in CalendarDateInterval case
+	};
+
+	CalendarDateIntervalRenderer.renderCalContentAndArrowsOverlay = function(oRm, oCal, sId) {
+
+		if (oCal.getPickerPopup()) {
+			oRm.write("<div id=\"" + sId + "-contentOver\" class=\"sapUiCalContentOver\" style=\"display:none;\"></div>");
+		}
+
+	};
+
+	CalendarDateIntervalRenderer.addAttributes = function(oRm, oCal) {
 
 		oRm.addClass("sapUiCalInt");
 		oRm.addClass("sapUiCalDateInt");
 		var iDays = oCal._getDays();
 
-		if (iDays > oCal._iDaysLarge) {
+		if (iDays > oCal._getDaysLarge()) {
 			oRm.addClass("sapUiCalIntLarge");
 		}
 

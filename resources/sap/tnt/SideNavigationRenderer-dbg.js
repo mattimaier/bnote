@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,7 +20,7 @@ sap.ui.define([],
          * @param {sap.ui.core.RenderManager}
          *          rm the RenderManager that can be used for writing to the render output buffer
          * @param {sap.ui.core.Control}
-         *          Control an object representation of the control that should be rendered
+         *          control an object representation of the control that should be rendered
          */
         SideNavigationRenderer.render = function (rm, control) {
             this.startSideNavigation(rm, control);
@@ -49,6 +49,7 @@ sap.ui.define([],
             rm.writeAttribute("role", 'navigation');
 
             rm.addClass('sapTntSideNavigation');
+            rm.addClass("sapContrast sapContrastPlus");
 
             if (!isExpanded) {
                 rm.addClass('sapTntSideNavigationNotExpanded');

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,7 +18,7 @@ sap.ui.define(['sap/ui/core/Renderer', './InputBaseRenderer'], function(Renderer
 	 *
 	 * @override
 	 * @param {sap.ui.core.Control} oControl an object representation of the control.
-	 * @returns {String}
+	 * @returns {String} The inner aria labelledby announcement texts
 	 */
 	MaskInputRenderer.getLabelledByAnnouncement = function(oControl) {
 		var sMask = oControl.getMask(),
@@ -50,7 +50,7 @@ sap.ui.define(['sap/ui/core/Renderer', './InputBaseRenderer'], function(Renderer
 	 * Hook for the subclasses.
 	 *
 	 * @param {sap.ui.core.Control} oControl an object representation of the control.
-	 * @returns {String}
+	 * @returns {String} The inner aria describedby announcement texts
 	 */
 	MaskInputRenderer.getDescribedByAnnouncement = function(oControl) {
 		var sMask = oControl.getMask(),

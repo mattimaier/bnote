@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides an abstract property binding.
-sap.ui.define(['jquery.sap.global', './BindingMode', './ChangeReason', './PropertyBinding', './CompositeType', './CompositeDataState'],
-	function(jQuery, BindingMode, ChangeReason, PropertyBinding, CompositeType, CompositeDataState) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './BindingMode', './ChangeReason', './PropertyBinding', './CompositeType', './CompositeDataState'],
+	function(jQuery, DataType, BindingMode, ChangeReason, PropertyBinding, CompositeType, CompositeDataState) {
 	"use strict";
 
 
@@ -24,12 +24,13 @@ sap.ui.define(['jquery.sap.global', './BindingMode', './ChangeReason', './Proper
 
 	var CompositeBinding = PropertyBinding.extend("sap.ui.model.CompositeBinding", /** @lends sap.ui.model.CompositeBinding.prototype */ {
 
-		constructor : function (aBindings, bRawValues) {
+		constructor : function (aBindings, bRawValues, bInternalValues) {
 			PropertyBinding.apply(this, [null,""]);
 			this.aBindings = aBindings;
 			this.aValues = null;
 			this.bRawValues = bRawValues;
 			this.bPreventUpdate = false;
+			this.bInternalValues = bInternalValues;
 		},
 		metadata : {
 
@@ -84,6 +85,11 @@ sap.ui.define(['jquery.sap.global', './BindingMode', './ChangeReason', './Proper
 		// If a composite type is used, the type decides whether to use raw values or not
 		if (this.oType) {
 			this.bRawValues = this.oType.getUseRawValues();
+			this.bInternalValues = this.oType.getUseInternalValues();
+
+			if (this.bRawValues && this.bInternalValues) {
+				throw new Error(this.oType + " has both 'bUseRawValues' & 'bUseInternalValues' set to true. Only one of them is allowed to be true");
+			}
 		}
 	};
 
@@ -164,7 +170,9 @@ sap.ui.define(['jquery.sap.global', './BindingMode', './ChangeReason', './Proper
 	 * @public
 	 */
 	CompositeBinding.prototype.setExternalValue = function(oValue) {
-		var aValues, aCurrentValues;
+		var aValues, aCurrentValues,
+			oInternalType = this.sInternalType && DataType.getType(this.sInternalType),
+			that = this;
 
 		// No twoway binding when using formatters
 		if (this.fnFormatter) {
@@ -193,13 +201,13 @@ sap.ui.define(['jquery.sap.global', './BindingMode', './ChangeReason', './Proper
 				this.checkDataState(); //data ui state is dirty inform the control
 				throw oException;
 			}
-		} else {
+		} else if (Array.isArray(oValue) && oInternalType instanceof DataType && oInternalType.isArrayType()) {
+			aValues = oValue;
+		} else if (typeof oValue == "string") {
 			// default: multiple values are split by space character together if no formatter or type specified
-			if (typeof oValue == "string") {
-				aValues = oValue.split(" ");
-			} else {
-				aValues = [oValue];
-			}
+			aValues = oValue.split(" ");
+		} else {
+			aValues = [oValue];
 		}
 
 		if (this.bRawValues) {
@@ -208,13 +216,17 @@ sap.ui.define(['jquery.sap.global', './BindingMode', './ChangeReason', './Proper
 			jQuery.each(this.aBindings, function(i, oBinding) {
 				oValue = aValues[i];
 				if (oValue !== undefined) {
-					oBinding.setExternalValue(oValue);
+					if (that.bInternalValues) {
+						oBinding.setInternalValue(oValue);
+					} else {
+						oBinding.setExternalValue(oValue);
+					}
 				}
 			});
 		}
 
 		oDataState.setValue(this.getValue());
-		oDataState.setInvalidValue(null);
+		oDataState.setInvalidValue(undefined);
 	};
 
 	/**
@@ -232,9 +244,9 @@ sap.ui.define(['jquery.sap.global', './BindingMode', './ChangeReason', './Proper
 		if (this.bRawValues) {
 			aValues = this.getValue();
 		} else {
-			jQuery.each(this.aBindings, function(i, oBinding) {
-				aValues.push(oBinding.getExternalValue());
-			});
+			this.aBindings.forEach(function(oBinding) {
+				aValues.push(this.bInternalValues ? oBinding.getInternalValue() : oBinding.getExternalValue());
+			}.bind(this));
 		}
 		return this._toExternalValue(aValues);
 	};
@@ -248,11 +260,14 @@ sap.ui.define(['jquery.sap.global', './BindingMode', './ChangeReason', './Proper
 	 * @private
 	 */
 	CompositeBinding.prototype._toExternalValue = function(aValues) {
-		var oValue;
+		var oValue,
+			oInternalType = this.sInternalType && DataType.getType(this.sInternalType);
 		if (this.fnFormatter) {
 			oValue = this.fnFormatter.apply(this, aValues);
 		} else if (this.oType) {
 			oValue = this.oType.formatValue(aValues, this.sInternalType);
+		} else if (oInternalType instanceof DataType && oInternalType.isArrayType()) {
+			oValue = aValues;
 		} else if (aValues.length > 1) {
 			// default: multiple values are joined together as space separated list if no formatter or type specified
 			oValue = aValues.join(" ");
@@ -316,8 +331,8 @@ sap.ui.define(['jquery.sap.global', './BindingMode', './ChangeReason', './Proper
 			if (oBinding.getBindingMode() == BindingMode.OneTime) {
 				oBinding.detachChange(that.fChangeHandler);
 			}
-			/*bForceUpdate true gets lost (e.g. checkupdate(true) on model); But if a embedded binding fires a change we could
-			 * call checkupdate(true) so we handle both cases: a value change of the binding and a checkupdate(true)
+			/*bForceUpdate true gets lost (e.g. checkUpdate(true) on model); But if an embedded binding fires a change we could
+			 * call checkUpdate(true) so we handle both cases: a value change of the binding and a checkUpdate(true)
 			 */
 			that.checkUpdate(true);
 		};

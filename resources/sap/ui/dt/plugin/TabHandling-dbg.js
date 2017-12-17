@@ -1,6 +1,6 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @class The TabHandling plugin adjusts the tabindex for the elements.
 	 * @extends sap.ui.dt.Plugin
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @private
 	 * @since 1.38
@@ -40,7 +40,7 @@ sap.ui.define([
 
 	TabHandling.prototype.registerElementOverlay = function(oOverlay) {
 		if (oOverlay.isRoot()) {
-			this._removeTabIndex();
+			this.removeTabIndex();
 		}
 	};
 
@@ -52,7 +52,7 @@ sap.ui.define([
 	 */
 	TabHandling.prototype.deregisterElementOverlay = function(oOverlay) {
 		if (oOverlay.isRoot()) {
-			this._restoreTabIndex();
+			this.restoreTabIndex();
 		}
 	};
 
@@ -66,30 +66,29 @@ sap.ui.define([
 		} else {
 			this._oMutationObserver.detachDomChanged(this._onDomChanged, this);
 			delete this._oMutationObserver;
-			this._restoreTabIndex();
+			this.restoreTabIndex();
 		}
 	};
 
 	/**
 	 * Traverse the whole DOM tree and set tab indices to -1 for all elements
-	 *
-	 * @param {sap.ui.core.Element} oRootDom object of the root DOM element
-	 * @private
 	 */
-	TabHandling.prototype._removeTabIndex = function() {
-		//exclude our top and bottom bar buttons and all overlays
-		jQuery(document).find(":focusable:not([tabIndex=-1], #overlay-container *, .sapUiRTAToolBarTop Button, .sapUiRTAToolBarBottom Button)").each(function(iIndex, oNode) {
-			oNode.setAttribute("data-sap-ui-dt-tabindex", oNode.tabIndex);
-			oNode.setAttribute("tabIndex", -1);
+	TabHandling.prototype.removeTabIndex = function() {
+		var oDesignTime = this.getDesignTime();
+		var aRootElements = oDesignTime.getRootElements();
+		aRootElements.forEach(function(sRootElement) {
+			var oRootDom = sap.ui.getCore().byId(sRootElement).getDomRef();
+			jQuery(oRootDom).find(":focusable:not([tabIndex=-1], #overlay-container *)").each(function(iIndex, oNode) {
+				oNode.setAttribute("data-sap-ui-dt-tabindex", oNode.tabIndex);
+				oNode.setAttribute("tabIndex", -1);
+			});
 		});
 	};
 
 	/**
 	 * Restore the tab indices of all elements of the DOM tree
-	 *
-	 * @private
 	 */
-	TabHandling.prototype._restoreTabIndex = function() {
+	TabHandling.prototype.restoreTabIndex = function() {
 		jQuery("[data-sap-ui-dt-tabindex]").each(function(iIndex, oNode) {
 			oNode.setAttribute("tabIndex", oNode.getAttribute("data-sap-ui-dt-tabindex"));
 			oNode.removeAttribute("data-sap-ui-dt-tabindex");
@@ -100,7 +99,9 @@ sap.ui.define([
 	 * @private
 	 */
 	TabHandling.prototype._onDomChanged = function() {
-		this._removeTabIndex();
+		if (this.getDesignTime().getEnabled()) {
+			this.removeTabIndex();
+		}
 	};
 
 	return TabHandling;

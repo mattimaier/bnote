@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library', 'sap/ui/core/
 		 * @extends sap.m.ListItemBase
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @private
@@ -84,6 +84,11 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library', 'sap/ui/core/
 
 		/**
 		 * @private
+		 * @param {string} sImgId The ID of the image
+		 * @param {string} sImgStyle The style of the image
+		 * @param {string} sSrc The source of the image
+		 * @param {boolean} bIconDensityAware If the icon is density aware
+		 * @returns {object} The image
 		 */
 		MenuListItem.prototype._getImage = function(sImgId, sImgStyle, sSrc, bIconDensityAware) {
 			var oImage = this._image;

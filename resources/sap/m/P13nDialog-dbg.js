@@ -1,14 +1,20 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.P13nDialog.
 sap.ui.define([
-	'jquery.sap.global', './Dialog', './IconTabBar', './IconTabFilter', './library', 'sap/ui/core/EnabledPropagator', 'sap/m/ButtonType', 'sap/m/DialogRenderer'
-], function(jQuery, Dialog, IconTabBar, IconTabFilter, library, EnabledPropagator, ButtonType, DialogRenderer) {
+	'jquery.sap.global', './Dialog', './IconTabBar', './IconTabFilter', './library', 'sap/ui/core/EnabledPropagator', 'sap/m/DialogRenderer', 'sap/ui/core/library'
+], function(jQuery, Dialog, IconTabBar, IconTabFilter, library, EnabledPropagator, DialogRenderer, coreLibrary) {
 	"use strict";
+
+	// shortcut for sap.ui.core.MessageType
+	var MessageType = coreLibrary.MessageType;
+
+	// shortcut for sap.m.ButtonType
+	var ButtonType = library.ButtonType;
 
 	/**
 	 * Constructor for a new P13nDialog.
@@ -20,7 +26,7 @@ sap.ui.define([
 	 *        tables.
 	 * @extends sap.m.Dialog
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @public
 	 * @since 1.26.0
@@ -36,8 +42,6 @@ sap.ui.define([
 				/**
 				 * This property determines which panel is initially shown when dialog is opened. Due to extensibility reason the type should be
 				 * <code>string</code>. So it is feasible to add a custom panel without expanding the type.
-				 *
-				 * @since 1.26.0
 				 */
 				initialVisiblePanelType: {
 					type: "string",
@@ -48,8 +52,6 @@ sap.ui.define([
 				/**
 				 * This property determines whether the 'Restore' button is shown inside the dialog. If this property is set to true, clicking the
 				 * 'Reset' button will trigger the <code>reset</code> event sending a notification that model data must be reset.
-				 *
-				 * @since 1.26.0
 				 */
 				showReset: {
 					type: "boolean",
@@ -83,8 +85,6 @@ sap.ui.define([
 
 				/**
 				 * The dialog panels displayed in the dialog.
-				 *
-				 * @since 1.26.0
 				 */
 				panels: {
 					type: "sap.m.P13nPanel",
@@ -96,21 +96,15 @@ sap.ui.define([
 			events: {
 
 				/**
-				 * Event fired if the 'ok' button in P13nDialog is clicked.
-				 *
-				 * @since 1.26.0
+				 * Event fired if the 'ok' button in <code>P13nDialog</code> is clicked.
 				 */
 				ok: {},
 				/**
-				 * Event fired if the 'cancel' button in P13nDialog is clicked.
-				 *
-				 * @since 1.26.0
+				 * Event fired if the 'cancel' button in <code>P13nDialog</code> is clicked.
 				 */
 				cancel: {},
 				/**
-				 * Event fired if the 'reset' button in P13nDialog is clicked.
-				 *
-				 * @since 1.26.0
+				 * Event fired if the 'reset' button in <code>P13nDialog</code> is clicked.
 				 */
 				reset: {}
 			}
@@ -148,6 +142,7 @@ sap.ui.define([
 		if (this.getButtons() && this.getButtons()[2]) {
 			this.getButtons()[2].setVisible(bShow);
 		}
+		return this;
 	};
 
 	P13nDialog.prototype.setShowResetEnabled = function(bEnabled) {
@@ -155,6 +150,7 @@ sap.ui.define([
 		if (this.getButtons() && this.getButtons()[2]) {
 			this.getButtons()[2].setEnabled(bEnabled);
 		}
+		return this;
 	};
 
 	P13nDialog.prototype.addPanel = function(oPanel) {
@@ -316,54 +312,108 @@ sap.ui.define([
 	 *
 	 * @private
 	 */
-	P13nDialog.prototype.showValidationDialog = function(fCallbackIgnore, aFailedPanelTypes, aValidationResult) {
+	P13nDialog.prototype._showValidationDialog = function(fCallbackIgnore, aFailedPanelTypes, aValidationResult) {
+		var aWarningMessages = [];
+		var aErrorMessages = [];
+		this._prepareMessages(aFailedPanelTypes, aValidationResult, aWarningMessages, aErrorMessages);
+
+		jQuery.sap.require("sap.m.MessageBox");
+		var sMessageText = "";
+		if (aErrorMessages.length) {
+			aErrorMessages.forEach(function(oMessage, iIndex, aMessages) {
+				sMessageText = (aMessages.length > 1 ? "• " : "") + oMessage.messageText + "\n" + sMessageText;
+			});
+			sap.m.MessageBox.show(sMessageText, {
+				icon: sap.m.MessageBox.Icon.ERROR,
+				title: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VALIDATION_TITLE_ERROR"),
+				actions: [
+					sap.m.MessageBox.Action.CLOSE
+				],
+				styleClass: !!this.$().closest(".sapUiSizeCompact").length ? "sapUiSizeCompact" : ""
+			});
+		} else if (aWarningMessages.length) {
+			aWarningMessages.forEach(function(oMessage, iIndex, aMessages) {
+				sMessageText = (aMessages.length > 1 ? "• " : "") + oMessage.messageText + "\n" + sMessageText;
+			});
+			sMessageText = sMessageText + sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VALIDATION_MESSAGE_QUESTION");
+
+			sap.m.MessageBox.show(sMessageText, {
+				icon: sap.m.MessageBox.Icon.WARNING,
+				title: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VALIDATION_TITLE"),
+				actions: [
+					sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VALIDATION_FIX"), sap.m.MessageBox.Action.IGNORE
+				],
+				onClose: function(oAction) {
+					// Fix: Stay on the current panel. There is incorrect entry and user decided to correct this.
+					// Ignore: Go to the chosen panel. Though the current panel has incorrect entry the user decided to
+					// leave the current panel. Delete incorrect condition set.
+					if (oAction === sap.m.MessageBox.Action.IGNORE) {
+						fCallbackIgnore();
+					}
+				},
+				styleClass: !!this.$().closest(".sapUiSizeCompact").length ? "sapUiSizeCompact" : ""
+			});
+		}
+	};
+
+	/**
+	 * When more messages have the same 'messageText', the last one will be take over.
+	 *
+	 * @private
+	 */
+	P13nDialog.prototype._prepareMessages = function(aFailedPanelTypes, aValidationResult, aWarningMessages, aErrorMessages) {
 		if (!aFailedPanelTypes.length && !aValidationResult.length) {
 			return;
 		}
-		var aMessagedReduced = [];
-		aValidationResult.forEach(function(oResult) {
-			if (oResult.messageText && aMessagedReduced.indexOf(oResult.messageText) < 0) {
-				aMessagedReduced.push(oResult.messageText);
-			}
-		});
-		var bWithBulletPoint = (aFailedPanelTypes.length + aMessagedReduced.length) > 1;
-		var sMessageText = "";
+
+		// Transfer messages coming from panels into messages coming from controller
 		aFailedPanelTypes.forEach(function(sPanelType) {
 			switch (sPanelType) {
 				case sap.m.P13nPanelType.filter:
-					sMessageText = (bWithBulletPoint ? "• " : "") + sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VALIDATION_MESSAGE") + "\n" + sMessageText;
+					aValidationResult.push({
+						messageType: MessageType.Warning,
+						messageText: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VALIDATION_MESSAGE")
+					});
 					break;
 				case sap.m.P13nPanelType.columns:
-					sMessageText = (bWithBulletPoint ? "• " : "") + sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VISIBLE_ITEMS_THRESHOLD_MESSAGE") + "\n" + sMessageText;
+					aValidationResult.push({
+						messageType: MessageType.Warning,
+						messageText: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VISIBLE_ITEMS_THRESHOLD_MESSAGE")
+					});
+					break;
+				case sap.m.P13nPanelType.dimeasure:
+					aValidationResult.push({
+						messageType: MessageType.Error,
+						messageText: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VALIDATION_CHARTTYPE")
+					});
 					break;
 			}
 		});
-		for ( var sType in aMessagedReduced) {
-			sMessageText = (bWithBulletPoint ? "• " : "") + aMessagedReduced[sType] + "\n" + sMessageText;
-		}
-		jQuery.sap.require("sap.m.MessageBox");
-		sap.m.MessageBox.show(sMessageText, {
-			icon: sap.m.MessageBox.Icon.WARNING,
-			title: sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VALIDATION_TITLE"),
-			actions: [
-				sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("P13NDIALOG_VALIDATION_FIX"), sap.m.MessageBox.Action.IGNORE
-			],
-			onClose: function(oAction) {
-				// Fix: Stay on the current panel. There is incorrect entry and user decided to correct this.
-				// Ignore: Go to the chosen panel. Though the current panel has incorrect entry the user decided to
-				// leave the current panel. Delete incorrect condition set.
-				if (oAction === sap.m.MessageBox.Action.IGNORE) {
-					fCallbackIgnore();
+
+		// Reduce messages removing duplicated
+		var aUniqueMessages = aValidationResult.filter(function(oMessage, iIndex, aMessages) {
+			for (var i = ++iIndex; i < aMessages.length; i++) {
+				if (oMessage.messageText === aMessages[i].messageText) {
+					return false;
 				}
-			},
-			styleClass: !!this.$().closest(".sapUiSizeCompact").length ? "sapUiSizeCompact" : ""
+			}
+			return true;
+		});
+
+		// Divide messages into warning and error messages
+		aUniqueMessages.forEach(function(oMessage) {
+			if (oMessage.messageType === MessageType.Warning) {
+				aWarningMessages.push(oMessage);
+			} else if (oMessage.messageType === MessageType.Error) {
+				aErrorMessages.push(oMessage);
+			}
 		});
 	};
 
 	/**
-	 * Map an item of type sap.m.P13nPanel to an item of type sap.m.IconTabBarFilter
+	 * Map an item of type <code>sap.m.P13nPanel</code> to an item of type <code>sap.m.IconTabBarFilter</code>
 	 *
-	 * @param {sap.m.P13nPanel} oItem
+	 * @param {sap.m.P13nPanel} oPanel
 	 * @returns {sap.m.Button | sap.m.StandardListItem | null}
 	 * @private
 	 * @name P13nDialog#_mapPanelToNavigationItem
@@ -411,7 +461,7 @@ sap.ui.define([
 		oPanel.setValidationExecutor(jQuery.proxy(this._callValidationExecutor, this));
 		oPanel.setValidationListener(jQuery.proxy(this._registerValidationListener, this));
 		oPanel.setChangeNotifier(jQuery.proxy(this._callChangeNotifier, this));
-// oNavigationItem.setModel(oPanel.getModel("$sapmP13nPanel")); ---> is not yet needed as P13nDialog sets the model coming from controller
+		// oNavigationItem.setModel(oPanel.getModel("$sapmP13nPanel")); ---> is not yet needed as P13nDialog sets the model coming from controller
 		return oNavigationItem;
 	};
 
@@ -465,9 +515,8 @@ sap.ui.define([
 	/**
 	 * Returns visible panel.
 	 *
-	 * @returns {sap.m.P13nPanel | null}
+	 * @returns {sap.m.P13nPanel | null} panel
 	 * @public
-	 * @since 1.26.0
 	 */
 	P13nDialog.prototype.getVisiblePanel = function() {
 		var oPanel = null;
@@ -641,13 +690,15 @@ sap.ui.define([
 	P13nDialog.prototype._callValidationExecutor = function() {
 		var fValidate = this.getValidationExecutor();
 		if (fValidate && !jQuery.isEmptyObject(this._mValidationListener)) {
-			var oResultRaw = fValidate(this._getPayloadOfPanels());
-			var oResult = this._distributeValidationResult(oResultRaw);
-			// Publish the result to registered listeners
-			for ( var sType in this._mValidationListener) {
-				var fCallback = this._mValidationListener[sType];
-				fCallback(oResult[sType] || []);
-			}
+			var that = this;
+			fValidate(this._getPayloadOfPanels()).then(function(aValidationResult) {
+				var oResult = that._distributeValidationResult(aValidationResult);
+				// Publish the result to registered listeners
+				for ( var sType in that._mValidationListener) {
+					var fCallback = that._mValidationListener[sType];
+					fCallback(oResult[sType] || []);
+				}
+			});
 		}
 	};
 
@@ -696,12 +747,15 @@ sap.ui.define([
 				priority: sap.m.OverflowToolbarPriority.NeverOverflow
 			}),
 			press: function() {
+				that.setBusy(true);
 				var oPayload = that._getPayloadOfPanels();
 				var fFireOK = function() {
+					that.setBusy(false);
 					that.fireOk({
 						payload: oPayload
 					});
 				};
+				var aFailedPanelTypes = [];
 				var fCallbackIgnore = function() {
 					that.getPanels().forEach(function(oPanel) {
 						if (aFailedPanelTypes.indexOf(oPanel.getType()) > -1) {
@@ -710,24 +764,33 @@ sap.ui.define([
 					});
 					fFireOK();
 				};
-				var aFailedPanelTypes = [];
-				var aValidationResult = [];
-				// Execute validation of controller
-				var fValidate = that.getValidationExecutor();
-				if (fValidate) {
-					aValidationResult = fValidate(oPayload);
-				}
 				// Execute validation of panels
 				that.getPanels().forEach(function(oPanel) {
 					if (!oPanel.onBeforeNavigationFrom()) {
 						aFailedPanelTypes.push(oPanel.getType());
 					}
 				});
-				// In case of invalid panels show the dialog
-				if (aFailedPanelTypes.length || aValidationResult.length) {
-					that.showValidationDialog(fCallbackIgnore, aFailedPanelTypes, aValidationResult);
+				var aValidationResult = [];
+				// Execute validation of controller
+				var fValidate = that.getValidationExecutor();
+				if (fValidate) {
+					fValidate(oPayload).then(function(aValidationResult) {
+						// In case of invalid panels show the dialog
+						if (aFailedPanelTypes.length || aValidationResult.length) {
+							that.setBusy(false);
+							that._showValidationDialog(fCallbackIgnore, aFailedPanelTypes, aValidationResult);
+						} else {
+							fFireOK();
+						}
+					});
 				} else {
-					fFireOK();
+					// In case of invalid panels show the dialog
+					if (aFailedPanelTypes.length || aValidationResult.length) {
+						that.setBusy(false);
+						that._showValidationDialog(fCallbackIgnore, aFailedPanelTypes, aValidationResult);
+					} else {
+						fFireOK();
+					}
 				}
 			}
 		});

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -77,7 +77,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 			 * Controls that are placed into Grid layout.
 			 */
 			content : {type : "sap.ui.core.Control", multiple : true, singularName : "content"}
-		}
+		},
+		associations: {
+
+			/**
+			 * Association to controls / IDs that label this control (see WAI-ARIA attribute <code>aria-labelledby</code>).
+			 * @since 1.48.7
+			 */
+			ariaLabelledBy: { type: "sap.ui.core.Control", multiple: true, singularName: "ariaLabelledBy" }
+		},
+		designTime: true
 	}});
 
 	/**
@@ -105,7 +114,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 				this._sContainerResizeListener = sap.ui.core.ResizeHandler.register(this, jQuery.proxy(this._onParentResize, this));
 				this._onParentResize();
 			} else {
-				sap.ui.Device.media.attachHandler(this._handleMediaChange, this, sap.ui.Device.media.RANGESETS.SAP_STANDARD_EXTENDED);
+				this._attachMediaContainerWidthChange(this._handleMediaChange, this, sap.ui.Device.media.RANGESETS.SAP_STANDARD_EXTENDED);
 			}
 		};
 
@@ -132,7 +141,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 			}
 
 			// Device Media Change handler
-			sap.ui.Device.media.detachHandler(this._handleMediaChange, this, sap.ui.Device.media.RANGESETS.SAP_STANDARD_EXTENDED);
+			this._detachMediaContainerWidthChange(this._handleMediaChange, this, sap.ui.Device.media.RANGESETS.SAP_STANDARD_EXTENDED);
 		};
 
 		Grid.prototype._handleMediaChange  = function(oParams) {
@@ -155,7 +164,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 			if (/XL/gi.test(sDefaultIndent)) {
 				this._setIndentXLChanged(true);
 			}
-			this.setProperty("defaultIndent", sDefaultIndent);
+			return this.setProperty("defaultIndent", sDefaultIndent);
 		};
 
 		Grid.prototype._setIndentXLChanged = function( bChanged) {
@@ -171,7 +180,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 			if (/XL/gi.test(sDefaultSpan)) {
 				this._setSpanXLChanged(true);
 			}
-			this.setProperty("defaultSpan", sDefaultSpan);
+			return this.setProperty("defaultSpan", sDefaultSpan);
 		};
 
 		Grid.prototype._setSpanXLChanged = function( bChanged) {
@@ -282,21 +291,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library'],
 		};
 
 		/**
-		 * @see {sap.ui.core.Control#getAccessibilityInfo}
+		 * @see sap.ui.core.Control#getAccessibilityInfo
 		 * @protected
 		 */
 		Grid.prototype.getAccessibilityInfo = function() {
-			var aContent = this.getContent();
-			var aChildren = [];
-			for (var i = 0; i < aContent.length; i++) {
-				if (aContent[i].getAccessibilityInfo) {
-					var oInfo = aContent[i].getAccessibilityInfo();
-					if (oInfo) {
-						aChildren.push(oInfo);
-					}
-				}
-			}
-			return {children: aChildren};
+			return {children: this.getContent()};
 		};
 
 	}());

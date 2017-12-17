@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -15,29 +15,79 @@ sap.ui.define([
 	"sap/m/OverflowToolbarLayoutData",
 	"sap/m/OverflowToolbarAssociativePopover",
 	"sap/m/OverflowToolbarAssociativePopoverControls",
-	"sap/m/OverflowToolbarPriority",
 	"sap/ui/core/IconPool",
 	"sap/m/SearchField"
 ], function (jQuery, library, ToggleButton, InvisibleText, Toolbar, ToolbarSpacer, OverflowToolbarLayoutData,
-			 OverflowToolbarAssociativePopover, OverflowToolbarAssociativePopoverControls, OverflowToolbarPriority,
+			 OverflowToolbarAssociativePopover, OverflowToolbarAssociativePopoverControls,
 			 IconPool, SearchField) {
 	"use strict";
 
 
+	// shortcut for sap.m.OverflowToolbarPriority
+	var OverflowToolbarPriority = library.OverflowToolbarPriority;
+
+
 	/**
-	 * Constructor for a new Overflow Toolbar
+	 * Constructor for a new <code>OverflowToolbar</code>.
 	 *
-	 * @param {string} [sId] ID for the new control, generated automatically if no id is given
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * The OverflowToolbar control is a container based on sap.m.Toolbar, that provides overflow when its content does not fit in the visible area.
+	 * A container control based on {@link sap.m.Toolbar}, that provides overflow when
+	 * its content does not fit in the visible area.
 	 *
-	 * Note: It is recommended that you use OverflowToolbar over {@link sap.m.Toolbar}, unless you want to avoid overflow in favor of shrinking.
-	 * @extends sap.ui.core.Toolbar
+	 * <h3>Overview</h3>
+	 *
+	 * The content of the <code>OverflowToolbar</code> moves into the overflow area from
+	 * right to left when the available space is not enough in the visible area of
+	 * the container. It can be accessed by the user through the overflow button that
+	 * opens it in a popover.
+	 *
+	 * <b>Note:</b> It is recommended that you use <code>OverflowToolbar</code> over
+	 * {@link sap.m.Toolbar}, unless you want to avoid overflow in favor of shrinking.
+	 *
+	 * <h3>Usage</h3>
+	 *
+	 * Different behavior and priorities can be set for each control inside the
+	 * <code>OverflowToolbar</code>, such as certain actions to appear only in the
+	 * overflow area or to never move there. For more information, see
+	 * {@link sap.m.OverflowToolbarLayoutData} and {@link sap.m.OverflowToolbarPriority}.
+	 *
+	 * Only the following controls can be moved in the overflow area:
+	 *
+	 * <ul><li>{@link sap.m.Button}</li>
+	 * <li>{@link sap.m.CheckBox}</li>
+	 * <li>{@link sap.m.ComboBox}</li>
+	 * <li>{@link sap.m.DatePicker}</li>
+	 * <li>{@link sap.m.DateTimeInput}</li>
+	 * <li>{@link sap.m.DateTimePicker}</li>
+	 * <li>{@link sap.m.Input}</li>
+	 * <li>{@link sap.m.OverflowToolbarButton}</li>
+	 * <li>{@link sap.m.SearchField}</li>
+	 * <li>{@link sap.m.SegmentedButton}</li>
+	 * <li>{@link sap.m.Select}</li>
+	 * <li>{@link sap.m.TimePicker}</li>
+	 * <li>{@link sap.m.ToggleButton}</li>
+	 * <li>{@link sap.ui.comp.smartfield.SmartField}</li>
+	 * <li>{@link sap.ui.comp.smartfield.SmartLabel}</li></ul>
+	 *
+	 * <b>Note:</b> The <code>OverflowToolbar</code> is an adaptive container that checks the available
+	 * width and hides the part of its content that doesn't fit. It is intended that simple controls,
+	 * such as {@link sap.m.Button} and {@link sap.m.Label} are used as content. Embedding other
+	 * adaptive container controls, such as {@link sap.m.Breadcrumbs}, results in competition for the available
+	 * space - both controls calculate the available space based on the other one's size and both change their
+	 * width at the same time, leading to incorrectly distributed space.
+	 *
+	 * <h3>Responsive behavior</h3>
+	 *
+	 * The height of the toolbar changes on desktop, tablet, and smartphones.
+	 *
+	 * @extends sap.m.Toolbar
+	 * @implements sap.ui.core.Toolbar,sap.m.IBar
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -57,7 +107,7 @@ sap.ui.define([
 
 	/**
 	 * A shorthand for calling Toolbar.prototype methods
-	 * @param sFuncName - the name of the method
+	 * @param {string} sFuncName - the name of the method
 	 * @param aArguments - the arguments to pass in the form of array
 	 * @returns {*}
 	 * @private
@@ -79,6 +129,9 @@ sap.ui.define([
 
 		// When set to true, the overflow button will be rendered
 		this._bOverflowButtonNeeded = false;
+
+		// When set to true, means that the overflow toolbar is in a popup
+		this._bNestedInAPopover = null;
 
 		// When set to true, changes to the controls in the toolbar will trigger a recalculation
 		this._bListenForControlPropertyChanges = false;
@@ -147,6 +200,14 @@ sap.ui.define([
 
 
 	OverflowToolbar.prototype._doLayout = function () {
+		var oCore = sap.ui.getCore();
+
+		// If the theme is not applied, control widths should not be measured and cached
+		if (!oCore.isThemeApplied()) {
+			jQuery.sap.log.debug("OverflowToolbar: theme not applied yet, skipping calculations", this);
+			return;
+		}
+
 		var iWidth = this.$().width();
 
 		// Stop listening for control changes while calculating the layout to avoid an infinite loop scenario
@@ -169,6 +230,7 @@ sap.ui.define([
 			if (this._iPreviousToolbarWidth !== iWidth) {
 				this._iPreviousToolbarWidth = iWidth;
 				this._setControlsOverflowAndShrinking(iWidth);
+				this.fireEvent("_controlWidthChanged");
 			}
 
 		}
@@ -191,17 +253,11 @@ sap.ui.define([
 			return;
 		}
 
-		// Old flexbox polyfill
-		if (Toolbar.hasFlexBoxSupport) {
-			var $This = this.$();
-			var oDomRef = $This[0] || {};
-			$This.removeClass("sapMTBOverflow");
-			var bOverflow = oDomRef.scrollWidth > oDomRef.clientWidth;
-			bOverflow && $This.addClass("sapMTBOverflow");
-			// IE - run the polyfill
-		} else {
-			Toolbar.flexie(this.$());
-		}
+		var $This = this.$();
+		var oDomRef = $This[0] || {};
+		$This.removeClass("sapMTBOverflow");
+		var bOverflow = oDomRef.scrollWidth > oDomRef.clientWidth;
+		bOverflow && $This.addClass("sapMTBOverflow");
 	};
 
 
@@ -235,7 +291,7 @@ sap.ui.define([
 				// Only add up the size of controls that can be shown in the toolbar, hence this addition is here
 				this._iContentSize += iControlSize;
 
-				if (OverflowToolbarAssociativePopoverControls.supportsControl(oControl) && bCanMoveToOverflow) {
+				if (OverflowToolbarAssociativePopoverControls.supportsControl(oControl) && bCanMoveToOverflow && oControl.getVisible()) {
 					this._aMovableControls.push(oControl);
 				} else {
 					this._aToolbarOnlyControls.push(oControl);
@@ -244,7 +300,7 @@ sap.ui.define([
 		}, this);
 
 		// If the system is a phone sometimes due to specificity in the flex the content can be rendered 1px larger that it should be.
-		// This causes a overflow of the last element/button
+		// This causes an overflow of the last element/button
 		if (sap.ui.Device.system.phone) {
 			this._iContentSize -= 1;
 		}
@@ -381,7 +437,7 @@ sap.ui.define([
 		// If there are any action sheet only controls and they are visible, move them to the action sheet first
 		if (this._aActionSheetOnlyControls.length) {
 			for (i = this._aActionSheetOnlyControls.length - 1; i >= 0; i--) {
-				if (this._aActionSheetOnlyControls[i].getVisible()){
+				if (this._aActionSheetOnlyControls[i].getVisible()) {
 					aButtonsToMoveToActionSheet.unshift(this._aActionSheetOnlyControls[i]);
 				}
 			}
@@ -473,20 +529,26 @@ sap.ui.define([
 
 	/**
 	 * Closes the action sheet, resets the toolbar, and re-initializes variables to force a full layout recalc
-	 * @param bHardReset - skip the optimization, described in _setControlsOverflowAndShrinking
+	 * @param {boolean} bHardReset - skip the optimization, described in _setControlsOverflowAndShrinking
 	 * @private
 	 */
 	OverflowToolbar.prototype._resetAndInvalidateToolbar = function (bHardReset) {
+		if (this._bIsBeingDestroyed) {
+			return;
+		}
 
 		this._resetToolbar();
 
 		this._bControlsInfoCached = false;
+		this._bNestedInAPopover = null;
 		this._iPreviousToolbarWidth = null;
 		if (bHardReset) {
 			this._bSkipOptimization = true;
 		}
 
-		this.invalidate();
+		if (this.$().length) {
+			this.invalidate();
+		}
 	};
 
 
@@ -503,6 +565,19 @@ sap.ui.define([
 
 		return aToolbarContent.filter(function (oControl) {
 			return aActionSheetContent.indexOf(oControl) === -1;
+		});
+	};
+
+	/**
+	* Returns all the controls from the <code>sap.m.OverflowToolbar</code>,
+	* that are not in the overflow area and their <code>visible</code> property is <code>true</code>.
+	* @private
+	* @sap-restricted
+	* @returns {*|Array.<T>}
+	*/
+	OverflowToolbar.prototype._getVisibleAndNonOverflowContent = function () {
+		return this._getVisibleContent().filter(function (oControl) {
+			return oControl.getVisible();
 		});
 	};
 
@@ -618,8 +693,14 @@ sap.ui.define([
 	 * @private
 	 */
 	OverflowToolbar.prototype._popOverClosedHandler = function () {
+		var bWindowsPhone = sap.ui.Device.os.windows_phone || sap.ui.Device.browser.edge && sap.ui.Device.browser.mobile;
+
 		this._getOverflowButton().setPressed(false); // Turn off the toggle button
 		this._getOverflowButton().$().focus(); // Focus the toggle button so that keyboard handling will work
+
+		if (this._isNestedInsideAPopup() || bWindowsPhone) {
+			return;
+		}
 
 		// On IE/sometimes other browsers, if you click the toggle button again to close the popover, onAfterClose is triggered first, which closes the popup, and then the click event on the toggle button reopens it
 		// To prevent this behaviour, disable the overflow button till the end of the current javascript engine's "tick"
@@ -635,6 +716,35 @@ sap.ui.define([
 	};
 
 	/**
+	 * Checks if the overflowToolbar is nested in a popup
+	 * @returns {boolean}
+	 * @private
+	 */
+	OverflowToolbar.prototype._isNestedInsideAPopup = function () {
+		var fnScanForPopup;
+
+		if (this._bNestedInAPopover !== null) {
+			return this._bNestedInAPopover;
+		}
+
+		fnScanForPopup = function (oControl) {
+			if (!oControl) {
+				return false;
+			}
+
+			if (oControl.getMetadata().isInstanceOf("sap.ui.core.PopupInterface")) {
+				return true;
+			}
+
+			return fnScanForPopup(oControl.getParent());
+		};
+
+		this._bNestedInAPopover = fnScanForPopup(this);
+
+		return this._bNestedInAPopover;
+	};
+
+	/**
 	 * @returns {boolean|*}
 	 * @private
 	 */
@@ -644,7 +754,7 @@ sap.ui.define([
 
 	/**
 	 *
-	 * @param bValue
+	 * @param {boolean} bValue
 	 * @returns {OverflowToolbar}
 	 * @private
 	 */
@@ -680,6 +790,9 @@ sap.ui.define([
 
 	OverflowToolbar.prototype.removeContent = function (oControl) {
 		var vContent = this._callToolbarMethod("removeContent", arguments);
+		if (vContent) {
+			this._getPopover().removeAssociatedContent(vContent.getId());
+		}
 		this._resetAndInvalidateToolbar(false);
 
 		this._postProcessControl(vContent);
@@ -850,7 +963,6 @@ sap.ui.define([
 
 	/************************************************** STATIC ***************************************************/
 
-
 	/**
 	 * Returns the optimal width of an element for the purpose of calculating the content width of the OverflowToolbar
 	 * so that spacers f.e. don't expand too aggressively and take up the whole space
@@ -899,7 +1011,17 @@ sap.ui.define([
 				return OverflowToolbarPriority.AlwaysOverflow;
 			}
 
-			return oLayoutData.getPriority();
+			var sPriority = oLayoutData.getPriority();
+
+			if (sPriority === OverflowToolbarPriority.Never) {
+				return OverflowToolbarPriority.NeverOverflow;
+			}
+
+			if (sPriority === OverflowToolbarPriority.Always) {
+				return OverflowToolbarPriority.AlwaysOverflow;
+			}
+
+			return sPriority;
 		}
 
 		return OverflowToolbarPriority.High;
@@ -938,8 +1060,19 @@ sap.ui.define([
 		return this.$().parents().hasClass('sapUiSizeCompact') ? 2 : 3;
 	};
 
-	OverflowToolbar.prototype.onThemeChanged = function() {
+	OverflowToolbar.prototype.onThemeChanged = function () {
 		this._resetAndInvalidateToolbar();
+	};
+
+	/**
+	 * Closes the overflow area.
+	 * Useful to manually close the overflow after having suppressed automatic closing with "closeOverflowOnInteraction=false".
+	 *
+	 * @public
+	 * @since 1.40
+	 */
+	OverflowToolbar.prototype.closeOverflow = function () {
+		this._getPopover().close();
 	};
 
 	return OverflowToolbar;

@@ -1,11 +1,11 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
- sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
-	function(jQuery, Renderer) {
+ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer', 'sap/ui/core/LabelEnablement'],
+	function(jQuery, Renderer, LabelEnablement) {
 	"use strict";
 
 
@@ -26,8 +26,13 @@
 	LinkRenderer.render = function(oRm, oControl) {
 		var sTextDir = oControl.getTextDirection(),
 			sTextAlign = Renderer.getTextAlign(oControl.getTextAlign(), sTextDir),
+			bShouldHaveOwnLabelledBy = oControl.getAriaLabelledBy().indexOf(oControl.getId()) === -1 &&
+							(oControl.getAriaLabelledBy().length > 0 ||
+							LabelEnablement.getReferencingLabels(oControl).length > 0 ||
+							(oControl.getParent() && oControl.getParent().enhanceAccessibilityState)),
 			oAccAttributes =  {
-				role: 'link'
+				role: 'link',
+				labelledby: bShouldHaveOwnLabelledBy ? {value: oControl.getId(), append: true } : undefined
 			};
 
 		// Link is rendered as a "<a>" element
@@ -61,8 +66,10 @@
 			oRm.addClass("sapMLnkDsbl");
 			oRm.writeAttribute("disabled", "true");
 			oRm.writeAttribute("tabIndex", "-1"); // still focusable by mouse click, but not in the tab chain
-		} else {
+		} else if (oControl.getText()) {
 			oRm.writeAttribute("tabIndex", "0");
+		} else {
+			oRm.writeAttribute("tabIndex", "-1");
 		}
 		if (oControl.getWrapping()) {
 			oRm.addClass("sapMLnkWrapping");
@@ -75,10 +82,6 @@
 		/* set href only if link is enabled - BCP incident 1570020625 */
 		if (oControl.getHref() && oControl.getEnabled()) {
 			oRm.writeAttributeEscaped("href", oControl.getHref());
-		} else {
-			/*eslint-disable no-script-url */
-			oRm.writeAttribute("href", "javascript:void(0);");
-			/*eslint-enable no-script-url */
 		}
 
 		if (oControl.getTarget()) {
@@ -105,7 +108,11 @@
 		oRm.writeStyles();
 		oRm.write(">"); // opening <a> tag
 
-		this.renderText(oRm, oControl);
+		if (this.writeText) {
+			this.writeText(oRm, oControl);
+		} else {
+			this.renderText(oRm, oControl);
+		}
 
 		oRm.write("</a>");
 	};

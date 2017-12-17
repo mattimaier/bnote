@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -13,13 +13,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider'],
 
 
 	/**
-	 * Constructs an instance of a sap.ui.model.SelectionModel.
+	 * Constructs an instance of an sap.ui.model.SelectionModel.
 	 *
 	 * @class
 	 * @extends sap.ui.base.EventProvider
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @param {int} iSelectionMode <code>sap.ui.model.SelectionModel.SINGLE_SELECTION</code> or <code>sap.ui.model.SelectionModel.MULTI_SELECTION</code>
 	 *
@@ -97,7 +97,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider'],
 	 * @public
 	 */
 	SelectionModel.prototype.isSelectedIndex = function(iIndex) {
-		return jQuery.inArray(iIndex, this.aSelectedIndices) !== -1;
+		return this.aSelectedIndices.indexOf(iIndex) !== -1;
 	};
 
 	/**
@@ -252,7 +252,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider'],
 		var aSelectedIndices = this.aSelectedIndices;
 
 		for (var iIndex = iFrom; iIndex <= iTo; iIndex++) {
-			if (jQuery.inArray(iIndex, aSelectedIndices) === -1) {
+			if (aSelectedIndices.indexOf(iIndex) === -1) {
 				aSelectedIndices.push(iIndex);
 				aChangedRowIndices.push(iIndex);
 			}
@@ -329,7 +329,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider'],
 		var aSelectedIndices = this.aSelectedIndices;
 		var iLeadIndex = this.iLeadIndex;
 		for (var iIndex = iFrom; iIndex <= iTo; iIndex++) {
-			var iIndexToRemove = jQuery.inArray(iIndex, aSelectedIndices);
+			var iIndexToRemove = aSelectedIndices.indexOf(iIndex);
 			if (iIndexToRemove > -1) {
 				aSelectedIndices.splice(iIndexToRemove, 1);
 				aChangedRowIndices.push(iIndex);
@@ -373,7 +373,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider'],
 
 		//Check for each item in the range if is selected, if this is the case remove it from the list
 		for (var iIndex = iTo; iIndex >= iFrom; iIndex--) {
-			var iIndexToRemove = jQuery.inArray(iIndex, aSelectedIndices);
+			var iIndexToRemove = aSelectedIndices.indexOf(iIndex);
 			if (iIndexToRemove > -1) {
 				aSelectedIndices.splice(iIndexToRemove, 1);
 				//Store removed indices to calculate changed indices later
@@ -394,7 +394,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider'],
 					iLeadIndex = iNewIndex;
 				}
 				aSelectedIndices[iIndex] = iNewIndex;
-				if (jQuery.inArray(iNewIndex, aOldSelectedIndices) === -1) {
+				if (aOldSelectedIndices.indexOf(iNewIndex) === -1) {
 					aChangedRowIndices.push(iNewIndex);
 				}
 			}
@@ -403,12 +403,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider'],
 		//Get the last x indices from the old list and remove them, because this amount of indices was sliced
 		for (var i = 0; i < aRemovedIndices.length; i++) {
 			var iIndex = aOldSelectedIndices[aOldSelectedIndices.length - 1 - i];
-			if (jQuery.inArray(iIndex, aChangedRowIndices) === -1) {
+			if (aChangedRowIndices.indexOf(iIndex) === -1) {
 				aChangedRowIndices.push(iIndex);
 			}
 		}
 		for (var i = 0; i < aRemovedIndices.length; i++) {
-			if (jQuery.inArray(aRemovedIndices[i], aSelectedIndices) === -1 && jQuery.inArray(aRemovedIndices[i], aChangedRowIndices) === -1) {
+			if (aSelectedIndices.indexOf(aRemovedIndices[i]) === -1 && aChangedRowIndices.indexOf(aRemovedIndices[i]) === -1) {
 				aChangedRowIndices.push(aRemovedIndices[i]);
 			}
 		}

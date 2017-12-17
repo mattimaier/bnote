@@ -1,52 +1,49 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides class sap.ui.dt.plugin.ControlDragDrop.
-sap.ui.define([
-	'sap/ui/dt/plugin/DragDrop', 'sap/ui/dt/plugin/ElementMover', 'sap/ui/dt/ElementUtil'
-], function(DragDrop, ElementMover, ElementUtil) {
+sap.ui.define(['sap/ui/dt/plugin/DragDrop', 'sap/ui/dt/plugin/ElementMover', 'sap/ui/dt/ElementUtil'], function(
+		DragDrop, ElementMover, ElementUtil) {
 	"use strict";
 
 	/**
 	 * Constructor for a new ControlDragDrop.
 	 *
-	 * @param {string} [sId] id for the new object, generated automatically if no id is given
-	 * @param {object} [mSettings] initial settings for the new object
+	 * @param {string}
+	 *          [sId] id for the new object, generated automatically if no id is given
+	 * @param {object}
+	 *          [mSettings] initial settings for the new object
 	 * @class The ControlDragDrop enables D&D functionality for the overlays based on aggregation types
 	 * @extends sap.ui.dt.plugin.DragDrop"
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @private
 	 * @since 1.30
 	 * @alias sap.ui.dt.plugin.ControlDragDrop
-	 * @experimental Since 1.30. This class is experimental and provides only limited functionality. Also the API might be changed in future.
+	 * @experimental Since 1.30. This class is experimental and provides only limited functionality. Also the API might be
+	 *               changed in future.
 	 */
 	var ControlDragDrop = DragDrop.extend("sap.ui.dt.plugin.ControlDragDrop", /** @lends sap.ui.dt.plugin.ControlDragDrop.prototype */
 	{
-		metadata: {
+		metadata : {
 			// ---- object ----
 
 			// ---- control specific ----
-			library: "sap.ui.dt",
-			properties: {
-				draggableTypes: {
-					type: "string[]",
-					defaultValue: [
-						"sap.ui.core.Element"
-					]
+			library : "sap.ui.dt",
+			properties : {
+				draggableTypes : {
+					type : "string[]",
+					defaultValue : ["sap.ui.core.Element"]
 				},
-				elementMover: {
-					type: "sap.ui.dt.plugin.ElementMover"
+				elementMover : {
+					type : "any" // "sap.ui.dt.plugin.ElementMover"
 				}
 			},
-			associations: {},
-			events: {
-				elementMoved: {}
-			}
+			associations : {}
 		}
 	});
 
@@ -118,7 +115,7 @@ sap.ui.define([
 	/**
 	 * @override
 	 */
-	ControlDragDrop.prototype.onDragStart = function(oOverlay, oEvent) {
+	ControlDragDrop.prototype.onDragStart = function(oOverlay) {
 		this._oDraggedOverlay = oOverlay;
 		this.getElementMover().setMovedOverlay(oOverlay);
 
@@ -129,11 +126,8 @@ sap.ui.define([
 	 * @override
 	 */
 	ControlDragDrop.prototype.onDragEnd = function(oOverlay) {
-		this.getElementMover().buildMoveEvent();
 		delete this._oPreviousTarget;
-
 		this.getElementMover().deactivateAllTargetZones(this.getDesignTime(), sDROP_ZONE_STYLE);
-
 		delete this._oDraggedOverlay;
 		this.getElementMover().setMovedOverlay(null);
 	};
@@ -141,9 +135,10 @@ sap.ui.define([
 	/**
 	 * @override
 	 */
-	ControlDragDrop.prototype.onDragEnter = function(oTargetOverlay, oEvent) {
+	ControlDragDrop.prototype.onDragEnter = function(oTargetOverlay) {
 		var oDraggedOverlay = this.getDraggedOverlay();
-		if (oTargetOverlay.getElementInstance() !== oDraggedOverlay.getElementInstance() && oTargetOverlay !== this._oPreviousTarget) {
+		if (oTargetOverlay.getElementInstance() !== oDraggedOverlay.getElementInstance()
+				&& oTargetOverlay !== this._oPreviousTarget) {
 			this.getElementMover().repositionOn(oDraggedOverlay, oTargetOverlay);
 		}
 		this._oPreviousTarget = oTargetOverlay;

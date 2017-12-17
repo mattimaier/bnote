@@ -1,34 +1,66 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.Popover.
-sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', './library', 'sap/ui/core/Control', 'sap/ui/core/Popup', 'sap/ui/core/delegate/ScrollEnablement', 'sap/ui/core/theming/Parameters'],
-	function (jQuery, Bar, Button, InstanceManager, library, Control, Popup, ScrollEnablement, Parameters) {
+sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', './library', 'sap/ui/core/Control',
+		'sap/ui/core/Popup', 'sap/ui/core/delegate/ScrollEnablement', 'sap/ui/core/theming/Parameters', 'sap/ui/Device', 'sap/ui/base/ManagedObject'],
+	function (jQuery, Bar, Button, InstanceManager, library, Control, Popup, ScrollEnablement, Parameters, Device, ManagedObject) {
 		"use strict";
 
-
 		/**
-		 * Constructor for a new Popover.
-		 *
-		 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
-		 * @param {object} [mSettings] Initial settings for the new control
-		 *
-		 * @class
-		 * Popover is used to present information temporarily but in a way that does not take over the entire screen. The popover content is layered on top of your existing content and it remains visible until the user taps outside of the popover (when modal is set to false) or you explicitly dismiss it (when modal is set to true). The switching between modal and non-modal can also be done when the popover is already opened.
-		 * @extends sap.ui.core.Control
-		 * @implements sap.ui.core.PopupInterface
-		 *
-		 * @author SAP SE
-		 * @version 1.38.7
-		 *
-		 * @constructor
-		 * @public
-		 * @alias sap.m.Popover
-		 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
-		 */
+		* Constructor for a new Popover.
+		*
+		* @param {string} [sId] ID for the new control, generated automatically if no ID is given
+		* @param {object} [mSettings] Initial settings for the new control
+		*
+		* @class
+		* Displays additional information for an object in a compact way.
+		*
+		* <h3>Overview</h3>
+		* The popover displays additional information for an object in a compact way and without leaving the page. The popover can contain various UI elements such as fields, tables, images, and charts. It can also include actions in the footer.
+		* <h3>Structure</h3>
+		* The popover has three main areas:
+		* <ul>
+		* <li>Header (optional) - with a back button and a title</li>
+		* <li>Content - holds all the controls</li>
+		* <li>Footer (optional) - with additional action buttons</li>
+		* </ul>
+		* <h4>Guidelines</h4>
+		* <ul>
+		* <li>Do not overlap popovers.</li>
+		* <li>You can determine the {@link sap.m.PlacementType placement} of the popover relative to the control that opens it.</li>
+		* <li>Ensure that the content has a basic design and shows only the most important information.</li>
+		* </ul>
+		* <h3>Usage</h3>
+		* <h4>When to use:</h4>
+		* <ul>
+		* <li>You need to define your own structure of controls within the popover.</li>
+		* </ul>
+		* <h4>When not to use:</h4>
+		* <ul>
+		* <li>The {@link sap.m.QuickView QuickView} is more appropriate for your use case.</li>
+		* </ul>
+		* <h3>Responsive Behavior</h3>
+		* The popover is closed when the user clicks or taps outside the popover or selects an action within the popover. You can prevent this with the <code>modal</code> property.
+		* The popover can be resized when the <code>resizable</code> property is enabled.
+		*
+		* <ul>
+		* <li>{@link sap.m.Popover} is <u>not</u> responsive on mobile devices - it will always be rendered as a popover and you have to take care of its size and position.</li>
+		* <li>{@link sap.m.ResponsivePopover} is adaptive and responsive. It renders as a dialog with a close button in the header on phones, and as a popover on tablets.</li>
+		* </ul>
+		*
+		* @extends sap.ui.core.Control
+		* @implements sap.ui.core.PopupInterface
+		* @author SAP SE
+		* @version 1.50.7
+		*
+		* @public
+		* @alias sap.m.Popover
+		* @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
+		*/
 		var Popover = Control.extend("sap.m.Popover", /** @lends sap.m.Popover.prototype */ {
 			metadata: {
 
@@ -120,6 +152,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 					/**
 					 * Whether bouncing is enabled.
 					 * @since 1.16.5
+					 * @deprecated since 1.42. This parameter is obsolete and has no effect.
 					 */
 					bounce: {type: "boolean", group: "Behavior", defaultValue: null},
 
@@ -197,6 +230,11 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 					initialFocus: {type: "sap.ui.core.Control", multiple: false},
 
 					/**
+					 * Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).
+					 */
+					ariaLabelledBy : {type : "sap.ui.core.Control", multiple : true, singularName : "ariaLabelledBy"},
+
+					/**
 					 * Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).
 					 */
 					ariaDescribedBy: {type: "sap.ui.core.Control", multiple: true, singularName: "ariaDescribedBy"}
@@ -262,8 +300,8 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		/* =========================================================== */
 		/*                   begin: lifecycle methods                  */
 		/* =========================================================== */
-		Popover._bIE9 = (sap.ui.Device.browser.internet_explorer && sap.ui.Device.browser.version < 10);
-		Popover._bIOS7 = sap.ui.Device.os.ios && sap.ui.Device.os.version >= 7 && sap.ui.Device.os.version < 8 && sap.ui.Device.browser.name === "sf";
+		Popover._bIE9 = (Device.browser.internet_explorer && Device.browser.version < 10);
+		Popover._bIOS7 = Device.os.ios && Device.os.version >= 7 && Device.os.version < 8 && Device.browser.name === "sf";
 
 		/**
 		 * Initializes the popover control.
@@ -283,10 +321,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			this._marginBottom = 10;
 
 			this._$window = jQuery(window);
-			this._initialWindowDimensions = {
-				width: this._$window.width(),
-				height: this._$window.height()
-			};
+			this._initialWindowDimensions = {};
 
 			this.oPopup = new Popup();
 			this.oPopup.setShadow(true);
@@ -327,7 +362,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 
 				// When runs on mobile device, Popover always follows the open by control.
 				// When runs on the other platforms, Popover is repositioned if the position change of openBy is smaller than the tolerance, otherwise popover is closed.
-				if (!sap.ui.Device.system.desktop
+				if (!Device.system.desktop
 					|| (Math.abs(oLastRect.top - oRect.top) <= this._followOfTolerance && Math.abs(oLastRect.left - oRect.left) <= this._followOfTolerance)
 					|| (Math.abs(oLastRect.top + oLastRect.height - oRect.top - oRect.height) <= this._followOfTolerance && Math.abs(oLastRect.left + oLastRect.width - oRect.left - oRect.width) <= this._followOfTolerance)) {
 					this.oPopup._applyPosition(this.oPopup._oLastPosition, true);
@@ -415,7 +450,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 
 				// some mobile browser changes the scrollLeft of window after firing resize event
 				// which caused the popover to be positioned at the wrong place.
-				if (!sap.ui.Device.system.desktop) {
+				if (!Device.system.desktop) {
 					jQuery(window).scrollLeft(0);
 				}
 
@@ -439,17 +474,14 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				// Because it's already fired in the sap.m.Popover.prototype.close function.
 				// The event also should not be fired if the focus is still inside the Popup. This could occur when the
 				// autoclose mechanism is fired by the child Popup and is called throught the EventBus
-				if (bBeforeCloseFired !== true && (this.touchEnabled || !this._isFocusInsidePopup())) {
+				// Also when the Popup is being destroyed, its close method is called. We should not fire beforeClose event in that case.
+				if (bBeforeCloseFired !== true && (this.touchEnabled || !this._isFocusInsidePopup()) && this.isOpen()) {
 					that.fireBeforeClose({openBy: that._oOpenBy});
 				}
 
 				that._deregisterContentResizeHandler();
 				Popup.prototype.close.apply(this, bBooleanParam ? [] : arguments);
 				that.removeDelegate(that._oRestoreFocusDelegate);
-
-				if (document.activeElement && !this.restoreFocus && !this._bModal) {
-					 document.activeElement.blur();
-				}
 			};
 		};
 
@@ -461,8 +493,19 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		Popover.prototype.onBeforeRendering = function () {
 			var oNavContent, oPageContent;
 
-			// When scrolling isn't set manually and content has scrolling, disable scrolling automatically
-			if (!this._bVScrollingEnabled && !this._bHScrollingEnabled && this._hasSingleScrollableContent()) {
+			if (!this._initialWindowDimensions.width || !this._initialWindowDimensions.height) {
+				this._initialWindowDimensions = {
+					width: this._$window.width(),
+					height: this._$window.height()
+				};
+			}
+
+			// TODO: Nice to refactor scrolling related code - ambiguous
+			if (!this.getHorizontalScrolling() && !this.getVerticalScrolling()) {
+				//  If both properties are false - we do not need scroll enablement for sure
+				this._forceDisableScrolling = true;
+			} else if (!this._bVScrollingEnabled && !this._bHScrollingEnabled && this._hasSingleScrollableContent()) {
+				// When scrolling isn't set manually and content has scrolling, disable scrolling automatically
 				this._forceDisableScrolling = true;
 				jQuery.sap.log.info("VerticalScrolling and horizontalScrolling in sap.m.Popover with ID " + this.getId() + " has been disabled because there's scrollable content inside");
 			} else {
@@ -473,14 +516,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				if (!this._oScroller) {
 					this._oScroller = new ScrollEnablement(this, this.getId() + "-scroll", {
 						horizontal: this.getHorizontalScrolling(),
-						vertical: this.getVerticalScrolling(),
-						zynga: false,
-						preventDefault: false,
-						nonTouchScrolling: "scrollbar",
-						bounce: this.getBounce() === "" ? undefined : this.getBounce(),
-						// In android stock browser, iScroll has to be used
-						// The scrolling layer using native scrolling is transparent for the browser to dispatch events
-						iscroll: sap.ui.Device.browser.name === "an" ? "force" : undefined
+						vertical: this.getVerticalScrolling()
 					});
 				}
 			}
@@ -489,7 +525,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				this._bContentChanged = false;
 				oNavContent = this._getSingleNavContent();
 				oPageContent = this._getSinglePageContent();
-				if (oNavContent && !this.getModal() && !sap.ui.Device.support.touch && !jQuery.sap.simulateMobileOnDesktop) {
+				if (oNavContent && !this.getModal() && !Device.support.touch && !jQuery.sap.simulateMobileOnDesktop) {
 					//gain the focus back to popover in order to prevent the autoclose of the popover
 					oNavContent.attachEvent("afterNavigate", function (oEvent) {
 						jQuery.sap.focus(this.getDomRef());
@@ -550,7 +586,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		Popover.prototype.exit = function () {
 			this._deregisterContentResizeHandler();
 
-			sap.ui.Device.resize.detachHandler(this._fnOrientationChange);
+			Device.resize.detachHandler(this._fnOrientationChange);
 
 			InstanceManager.removePopoverInstance(this);
 
@@ -603,10 +639,18 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			// initialFocus, beginButton, endButton, and popover itself.
 			// focus has to be inside/on popover otherwise autoclose() will not work
 				sFocusId = this._getInitialFocusId(),
-				oParentDomRef, iPlacePos;
+				oParentDomRef, iPlacePos, bForceCompactArrowOffset, aCompactParents;
+
+			oParentDomRef = (oControl.getDomRef && oControl.getDomRef()) || oControl;
+			aCompactParents = jQuery(oParentDomRef).closest(".sapUiSizeCompact");
+
+			// A theme can force the usage of compact arrow offset in all content density modes, by setting sapMPopoverForceCompactArrowOffset variable.
+			// This is needed when a theme defines only a compact arrow for all modes.
+			bForceCompactArrowOffset = Parameters.get("_sap_m_Popover_ForceCompactArrowOffset") === "true";
 
 			// Determines if the Popover will be rendered in a compact mode
-			this._bSizeCompact = sap.m._bSizeCompact || !!document.querySelector('body.sapUiSizeCompact') || this.hasStyleClass("sapUiSizeCompact");
+			this._bSizeCompact = sap.m._bSizeCompact || !!aCompactParents.length || this.hasStyleClass("sapUiSizeCompact");
+			this._bUseCompactArrow = this._bSizeCompact || bForceCompactArrowOffset;
 
 			this._adaptPositionParams();
 
@@ -634,8 +678,8 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			//CSN 2012 4216945
 			//binding should be registered here (very early) because when keyboard in android closes at the same time, resize event needs to be reacted in order to
 			//reposition the popover after the keyboard fully closes.
-			if (sap.ui.Device.support.touch) {
-				sap.ui.Device.resize.attachHandler(this._fnOrientationChange);
+			if (Device.support.touch) {
+				Device.resize.attachHandler(this._fnOrientationChange);
 			}
 
 			if (!this._oOpenBy || oControl !== this._oOpenBy) {
@@ -656,8 +700,13 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 					return this;
 				}
 
-				oPopup.setAutoCloseAreas([oParentDomRef]);
+				// Set the oControl as autoclosearea regardless what the
+				// oParentDomRef is because clicking on the openBy control again
+				// should keep the popover open.
+				oPopup.setAutoCloseAreas([oControl]);
+
 				oPopup.setContent(this);
+
 				//if position has to be calculated wait until it is calculated with setting the position
 				if (iPlacePos <= 3) {
 					oPopup.setPosition(this._myPositions[iPlacePos], this._atPositions[iPlacePos], oParentDomRef, this._calcOffset(this._offsets[iPlacePos]), "fit");
@@ -702,7 +751,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		 */
 		Popover.prototype.close = function () {
 			var eOpenState = this.oPopup.getOpenState(),
-				bSameFocusElement;
+				bSameFocusElement, oActiveElement;
 
 			if (eOpenState === sap.ui.core.OpenState.CLOSED || eOpenState === sap.ui.core.OpenState.CLOSING) {
 				return this;
@@ -714,12 +763,13 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			this.oPopup.close(true);
 
 			if (this._oPreviousFocus) {
+				oActiveElement = document.activeElement || {};
 				// if the current focused control/element is the same as the focused control/element before popover is open, no need to restore focus.
 				bSameFocusElement = (this._oPreviousFocus.sFocusId === sap.ui.getCore().getCurrentFocusedControlId()) ||
-					(this._oPreviousFocus.sFocusId === document.activeElement.id);
+					(this._oPreviousFocus.sFocusId === oActiveElement.id);
 
 				// restore previous focus, if the current control isn't the same control as
-				if (!bSameFocusElement && this.oPopup.restoreFocus) {
+				if (!bSameFocusElement) {
 					Popup.applyFocusInfo(this._oPreviousFocus);
 					this._oPreviousFocus = null;
 				}
@@ -818,7 +868,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			oScrollAreaStyle.display = "";
 
 			// clear arrow styles
-			$arrow.removeClass("sapMPopoverArrRight sapMPopoverArrLeft sapMPopoverArrDown sapMPopoverArrUp sapMPopoverCrossArr sapMPopoverFooterAlignArr sapMPopoverHeaderAlignArr");
+			$arrow.removeClass("sapMPopoverArrRight sapMPopoverArrLeft sapMPopoverArrDown sapMPopoverArrUp sapMPopoverCrossArr sapMPopoverFooterAlignArr sapMPopoverHeaderAlignArr sapContrast sapContrastPlus");
 			$arrow.css({
 				left: "",
 				top: ""
@@ -844,9 +894,9 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			this.oPopup.detachOpened(this._handleOpened, this);
 
 			//	recalculate the arrow position when the size of the popover changes.
-			if (!sap.ui.Device.support.touch) {
+			if (!Device.support.touch) {
 				setTimeout(function () {
-					sap.ui.Device.resize.attachHandler(that._fnOrientationChange);
+					Device.resize.attachHandler(that._fnOrientationChange);
 				}, 0);
 			}
 
@@ -861,9 +911,16 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		Popover.prototype._handleClosed = function () {
 			this.oPopup.detachClosed(this._handleClosed, this);
 
-			sap.ui.Device.resize.detachHandler(this._fnOrientationChange);
+			Device.resize.detachHandler(this._fnOrientationChange);
 
 			InstanceManager.removePopoverInstance(this);
+
+			// If the popover is closed, the focused element has to be blurred on mobile device to close the on
+			// screen keyboard when the element isn't visible
+			if (!this.oPopup._bModal && !Device.system.desktop && document.activeElement && !jQuery(document.activeElement).is(":visible")) {
+				 document.activeElement.blur();
+			}
+
 			this.fireAfterClose({openBy: this._oOpenBy});
 		};
 
@@ -871,7 +928,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		 * Event handler for the focusin event.
 		 * If it occurs on the focus handler elements at the beginning of the dialog, the focus is set to the end, and vice versa.
 		 *
-		 * @param {jQuery.EventObject} oEvent The event object
+		 * @param {jQuery.Event} oEvent The event object
 		 * @private
 		 */
 		Popover.prototype.onfocusin = function (oEvent) {
@@ -893,7 +950,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		/**
 		 * Event handler for the keydown event.
 		 *
-		 * @param {jQuery.EventObject} oEvent The event object
+		 * @param {jQuery.Event} oEvent The event object
 		 * @private
 		 */
 		Popover.prototype.onkeydown = function (oEvent) {
@@ -926,8 +983,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			};
 
 			var bRTL = sap.ui.getCore().getConfiguration().getRTL();
-
-			if (oEvent.target.className !== "sapMPopoverResizeHandle") {
+			if (!oEvent.target.classList.contains("sapMPopoverResizeHandle")) {
 				return;
 			}
 
@@ -977,7 +1033,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		/*                      begin: internal methods                  */
 		/* =========================================================== */
 		/**
-		 * This method detects if there's a sap.m.NavContainer instance added as a single child into Popover's content aggregation or through one or more sap.ui.mvc.View controls.
+		 * This method detects if there's an sap.m.NavContainer instance added as a single child into Popover's content aggregation or through one or more sap.ui.mvc.View controls.
 		 * If there is, sapMPopoverNav style class will be added to the root node of the control in order to apply some special css styles to the inner dom nodes.
 		 * @returns {boolean}
 		 */
@@ -1014,7 +1070,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		};
 
 		/**
-		 * This method detects if there's a sap.m.Page instance added as a single child into popover's content aggregation or through one or more sap.ui.mvc.View controls.
+		 * This method detects if there's an sap.m.Page instance added as a single child into popover's content aggregation or through one or more sap.ui.mvc.View controls.
 		 * If there is, sapMPopoverPage style class will be added to the root node of the control in order to apply some special css styles to the inner dom nodes.
 		 *
 		 * @returns {boolean}
@@ -1074,11 +1130,12 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				var oParent = this._getOpenByDomRef();
 				var bHasParent = oParent !== undefined;
 				var iParentWidth = bHasParent ? oParent.getBoundingClientRect().width : 0;
-				iFlipOffset = oFlipPlacement === "PreferredRightOrFlip" ? Math.abs(iParentWidth) : -Math.abs(iParentWidth);
+				iFlipOffset = oFlipPlacement === sap.m.PlacementType.PreferredRightOrFlip ? Math.abs(iParentWidth) : -Math.abs(iParentWidth);
 			}
 
 			var bRtl = sap.ui.getCore().getConfiguration().getRTL();
-			return iFlipOffset * (bRtl ? -1 : 1) + this.getOffsetX() * (bRtl ? -1 : 1);
+			var iOffsetX = iFlipOffset * (bRtl ? -1 : 1) + this.getOffsetX() * (bRtl ? -1 : 1);
+			return iOffsetX;
 		};
 
 		/**
@@ -1105,7 +1162,8 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				iOffsetY = this._getOffsetY();
 
 			var aParts = sOffset.split(" ");
-			return (parseInt(aParts[0], 10) + iOffsetX) + " " + (parseInt(aParts[1], 10) + iOffsetY);
+			var sOffset = (parseInt(aParts[0], 10) + iOffsetX) + " " + (parseInt(aParts[1], 10) + iOffsetY);
+			return sOffset;
 		};
 
 		Popover.prototype._calcPlacement = function () {
@@ -1144,6 +1202,13 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			this.oPopup.setPosition(this._myPositions[iPlacePos], this._atPositions[iPlacePos], oParentDomRef, this._calcOffset(this._offsets[iPlacePos]), "fit");
 		};
 
+		Popover.prototype._getDocHeight = function () {
+			var body = document.body,
+				html = document.documentElement;
+
+			return Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.offsetHeight);
+		};
+
 		Popover.prototype._calcVertical = function () {
 			var $parent = jQuery(this._getOpenByDomRef());
 			var bHasParent = $parent[0] !== undefined;
@@ -1155,9 +1220,8 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			var iParentHeight = bHasParent ? $parent[0].getBoundingClientRect().height : 0;
 			var iOffsetY = this._getOffsetY();
 			var iTopSpace = iParentTop - this._marginTop + iOffsetY;
-			var iParentBottom = iParentTop + iParentHeight;
-			var iBottomSpace = this._$window.height() - iParentBottom - this._marginBottom - iOffsetY;
 			var iPopoverHeight = this.$().outerHeight();
+			var iBottomSpace = this._getDocHeight() - ($parent.offset().top + iParentHeight + this._marginBottom + iOffsetY);
 
 			if (bPreferredPlacementTop && iTopSpace > iPopoverHeight + this._arrowOffset) {
 					this._bVerticalFlip = false;
@@ -1283,8 +1347,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			var iParentHeight = bHasParent ? $parent[0].getBoundingClientRect().height : 0;
 			var iOffsetY = this._getOffsetY();
 			var iTopSpace = iParentTop - this._marginTop + iOffsetY;
-			var iParentBottom = iParentTop + iParentHeight;
-			var iBottomSpace = this._$window.height() - iParentBottom - this._marginBottom - iOffsetY;
+			var iBottomSpace = this._getDocHeight() - $parent.offset().top - iParentHeight - this._marginBottom - iOffsetY;
 
 			var $this = this.$();
 			var iHeight = $this.outerHeight() + this._arrowOffset;
@@ -1310,8 +1373,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			var iOffsetX = this._getOffsetX();
 			var iOffsetY = this._getOffsetY();
 			var iTopSpace = iParentTop - this._marginTop + iOffsetY;
-			var iParentBottom = iParentTop + iParentHeight;
-			var iBottomSpace = this._$window.height() - iParentBottom - this._marginBottom - iOffsetY;
+			var iBottomSpace = this._getDocHeight() - $parent.offset().top - iParentHeight - this._marginBottom - iOffsetY;
 			var iLeftSpace = iParentLeft - this._marginLeft + iOffsetX;
 			var iParentRight = iParentLeft + iParentWidth;
 			var iRightSpace = this._$window.width() - iParentRight - this._marginRight - iOffsetX;
@@ -1375,7 +1437,8 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 
 		/**
 		 * Calculate outerWidth of the element; used as hook for SVG elements
-		 *
+		 * @param {HTMLElement} oElement An Element for which outerWidth will be calculated.
+		 * @param {boolean} bIncludeMargin Determines if the margins should be included in the calculated outerWidth. Default value is false.
 		 * @protected
 		 */
 		Popover.outerWidth = function (oElement, bIncludeMargin) {
@@ -1383,20 +1446,20 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				return oElement.getBoundingClientRect().width;
 			}
 
-			return jQuery(oElement).outerWidth(bIncludeMargin);
+			return jQuery(oElement).outerWidth(!!bIncludeMargin);
 		};
 
 		/**
 		 * Calculate outerHeight of the element; used as hook for SVG elements
-		 *
+		 * @param {HTMLElement} oElement An Element for which outerHeight will be calculated.
+		 * @param {boolean} bIncludeMargin Determines if the margins should be included in the calculated outerHeight. Default value is false.
 		 * @protected
 		 */
 		Popover.outerHeight = function (oElement, bIncludeMargin) {
 			if (typeof window.SVGElement !== "undefined" && oElement instanceof window.SVGElement) {
 				return oElement.getBoundingClientRect().height;
 			}
-
-			return jQuery(oElement).outerHeight(bIncludeMargin);
+			return jQuery(oElement).outerHeight(!!bIncludeMargin);
 		};
 
 		Popover.prototype._getPositionParams = function ($popover, $arrow, $content, $scrollArea) {
@@ -1417,7 +1480,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 
 			oPosParams._fWindowTop = this._$window.scrollTop();
 			oPosParams._fWindowRight = this._$window.width();
-			oPosParams._fWindowBottom = (Popover._bIOS7 && sap.ui.Device.orientation.landscape && window.innerHeight) ? window.innerHeight : this._$window.height();
+			oPosParams._fWindowBottom = (Popover._bIOS7 && Device.orientation.landscape && window.innerHeight) ? window.innerHeight : this._$window.height();
 			oPosParams._fWindowLeft = this._$window.scrollLeft();
 
 			oPosParams._fDocumentWidth = oPosParams._fWindowLeft + oPosParams._fWindowRight;
@@ -1425,7 +1488,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 
 			oPosParams._fArrowHeight = $arrow.outerHeight(true);
 			oPosParams._fWidth = Popover.outerWidth($popover[0]);
-			oPosParams._fHeight = $popover.outerHeight();
+			oPosParams._fHeight = Popover.outerHeight($popover[0]);
 			oPosParams._fHeaderHeight = oPosParams._$header.length > 0 ? oPosParams._$header.outerHeight(true) : 0;
 			oPosParams._fSubHeaderHeight = oPosParams._$subHeader.length > 0 ? oPosParams._$subHeader.outerHeight(true) : 0;
 			oPosParams._fFooterHeight = oPosParams._$footer.length > 0 ? oPosParams._$footer.outerHeight(true) : 0;
@@ -1471,7 +1534,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 					break;
 				case sap.m.PlacementType.Right:
 					if (bRtl) {
-						oPosParams._fMarginRight = oPosParams._fDocumentWidth - oPosParams._$parent.offset().left + this._arrowOffset - oPosParams._fOffsetX;
+						oPosParams._fMarginRight = oPosParams._fDocumentWidth - Popover.outerWidth(oPosParams._$parent[0], false) - oPosParams._$parent.offset().left + this._arrowOffset;
 					} else {
 						oPosParams._fMarginLeft = oPosParams._$parent.offset().left + Popover.outerWidth(oPosParams._$parent[0], false) + this._arrowOffset + oPosParams._fOffsetX;
 					}
@@ -1480,7 +1543,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 					oPosParams._fMarginBottom = oPosParams._fDocumentHeight - oPosParams._$parent.offset().top + this._arrowOffset - oPosParams._fOffsetY;
 					break;
 				case sap.m.PlacementType.Bottom:
-					oPosParams._fMarginTop = oPosParams._$parent.offset().top + oPosParams._$parent.outerHeight() + this._arrowOffset + oPosParams._fOffsetY;
+					oPosParams._fMarginTop = oPosParams._$parent.offset().top + Popover.outerHeight(oPosParams._$parent[0], false) + this._arrowOffset + oPosParams._fOffsetY;
 					break;
 			}
 		};
@@ -1502,7 +1565,9 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				bExceedHorizontal = (oPosParams._fDocumentWidth - oPosParams._fMarginRight - oPosParams._fMarginLeft) < oPosParams._fWidth,
 				bExceedVertical = (oPosParams._fDocumentHeight - oPosParams._fMarginTop - oPosParams._fMarginBottom) < oPosParams._fHeight,
 				bOverLeft = oPosParams._fOffset.left < oPosParams._fMarginLeft,
-				bOverRight = iPosToRightBorder < oPosParams._fMarginRight,
+				//Include Scrollbar's width in these calculations
+				fScrollbarSize = (this.getVerticalScrolling() ? jQuery.sap.scrollbarSize().width : 0),
+				bOverRight = iPosToRightBorder < oPosParams._fMarginRight + fScrollbarSize,
 				bOverTop = oPosParams._fOffset.top < oPosParams._fMarginTop,
 				bOverBottom = iPosToBottomBorder < oPosParams._fMarginBottom,
 				bRtl = sap.ui.getCore().getConfiguration().getRTL();
@@ -1543,12 +1608,14 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				}
 			}
 
-			return {
+			var mPosition = {
 				top: iTop,
-				bottom: Math.max(iBottom - oPosParams._fWindowTop, iBottom),
+				bottom: iBottom - oPosParams._fWindowTop,
 				left: iLeft,
 				right: typeof iRight === "number" ? iRight - oPosParams._fWindowLeft : iRight
 			};
+
+			return mPosition;
 		};
 
 		/**
@@ -1760,7 +1827,8 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 			if (this.getShowArrow()) {
 				// Set the arrow next to the opener
 				var iArrowOffset = this._getArrowOffsetCss(sCalculatedPlacement, oPosParams),
-					sArrowPositionClass = this._getArrowPositionCssClass(sCalculatedPlacement);
+					sArrowPositionClass = this._getArrowPositionCssClass(sCalculatedPlacement),
+					sArrowStyleClass, bUseContrastContainer;
 
 				// Remove old position of the arrow and add the new one
 				$arrow.removeAttr("style");
@@ -1769,13 +1837,28 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				// Add position class to the arrow
 				$arrow.addClass(sArrowPositionClass);
 
+				// Use contrast container if the arrow is placed down and the footer exists.
+				if (sCalculatedPlacement === sap.m.PlacementType.Top && oPosParams._$footer && oPosParams._$footer.size()) {
+					bUseContrastContainer = true;
+				}
+
 				// Style the arrow according to the header/footer/content if it is to the left or right
 				if (sCalculatedPlacement === sap.m.PlacementType.Left || sCalculatedPlacement === sap.m.PlacementType.Right) {
-					var sArrowStyleClass = this._getArrowStyleCssClass(oPosParams);
+					sArrowStyleClass = this._getArrowStyleCssClass(oPosParams);
 
 					if (sArrowStyleClass) {
 						$arrow.addClass(sArrowStyleClass);
+
+						// Use contrast container if there is a footer and the arrow is around it.
+						if (sArrowStyleClass === "sapMPopoverFooterAlignArr") {
+							bUseContrastContainer = true;
+						}
 					}
+				}
+
+				// Add the contrast container classes when a contrast container should be used.
+				if (bUseContrastContainer) {
+					$arrow.addClass("sapContrast sapContrastPlus");
 				}
 
 				// Prevent the popover from hiding the arrow
@@ -1799,7 +1882,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 				this._arrowOffset = 18;
 				this._offsets = ["0 -18", "18 0", "0 18", "-18 0"];
 
-				if (this._bSizeCompact) {
+				if (this._bUseCompactArrow) {
 					this._arrowOffset = 9;
 					this._offsets = ["0 -9", "9 0", "0 9", "-9 0"];
 				}
@@ -1897,7 +1980,7 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 						setTimeout(function () {
 							fnTransitionEnd();
 						}, 300);
-					}, sap.ui.Device.browser.firefox ? 50 : 0);
+					}, Device.browser.firefox ? 50 : 0);
 				}, 0);
 			}
 		};
@@ -2048,6 +2131,24 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		};
 
 		/**
+		 * Provides the accessibility options of the control.
+		 *
+		 * @private
+		 */
+		Popover.prototype._getAccessibilityOptions = function() {
+			var aAriaLabels, mAccOptions = {};
+
+			mAccOptions.role = "dialog";
+			if (this.getShowHeader() && this._getAnyHeader()) {
+				// If we have a header/title, we add a reference to it in the beginning of the aria-labelledby attribute
+				aAriaLabels = Array.prototype.concat(this._getAnyHeader().getId(), this.getAssociation("ariaLabelledBy", []));
+				mAccOptions.labelledby = aAriaLabels.join(' ');
+			}
+
+			return mAccOptions;
+		};
+
+		/**
 		 * Getter for property <code>bounce</code>.
 		 *
 		 * Default value is empty
@@ -2095,19 +2196,17 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		 * @public
 		 */
 		Popover.prototype.setTitle = function (sTitle) {
-			if (sTitle) {
-				this.setProperty("title", sTitle, true);
-				if (this._headerTitle) {
-					this._headerTitle.setText(sTitle);
-				} else {
-					this._headerTitle = new sap.m.Title(this.getId() + "-title", {
-						text: this.getTitle(),
-						level: "H1"
-					});
+			this.setProperty("title", sTitle, true);
+			if (this._headerTitle) {
+				this._headerTitle.setText(sTitle);
+			} else {
+				this._headerTitle = new sap.m.Title(this.getId() + "-title", {
+					text: this.getTitle(),
+					level: "H1"
+				});
 
-					this._createInternalHeader();
-					this._internalHeader.addContentMiddle(this._headerTitle);
-				}
+				this._createInternalHeader();
+				this._internalHeader.addContentMiddle(this._headerTitle);
 			}
 
 			return this;
@@ -2297,11 +2396,11 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		};
 
 		Popover.prototype.setResizable = function (bValue) {
-			if (!sap.ui.Device.system.desktop) {
+			if (!Device.system.desktop) {
 				bValue = false;
 			}
 
-			this.setProperty("resizable", bValue, true);
+			return this.setProperty("resizable", bValue, true);
 		};
 
 
@@ -2375,6 +2474,14 @@ sap.ui.define(['jquery.sap.global', './Bar', './Button', './InstanceManager', '.
 		 */
 		Popover.prototype._getAllContent = function () {
 			return this.getContent();
+		};
+
+		/**
+		 * Popup controls should not propagate contextual width
+		 * @private
+		 */
+		Popover.prototype._applyContextualSettings = function () {
+			ManagedObject.prototype._applyContextualSettings.call(this, ManagedObject._defaultContextualSettings);
 		};
 
 		return Popover;

@@ -1,13 +1,13 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['sap/ui/core/format/DateFormat', 'sap/ui/model/FormatException',
-		'sap/ui/model/odata/type/ODataType', 'sap/ui/model/ParseException',
-		'sap/ui/model/ValidateException'],
-	function(DateFormat, FormatException, ODataType, ParseException, ValidateException) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/DateFormat',
+		'sap/ui/model/FormatException', 'sap/ui/model/odata/type/ODataType',
+		'sap/ui/model/ParseException', 'sap/ui/model/ValidateException'],
+	function(jQuery, DateFormat, FormatException, ODataType, ParseException, ValidateException) {
 	"use strict";
 
 	var rDate = /\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])/,
@@ -92,7 +92,7 @@ sap.ui.define(['sap/ui/core/format/DateFormat', 'sap/ui/model/FormatException',
 	 * @extends sap.ui.model.odata.type.ODataType
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @alias sap.ui.model.odata.type.Date
 	 * @param {object} [oFormatOptions]
@@ -131,7 +131,8 @@ sap.ui.define(['sap/ui/core/format/DateFormat', 'sap/ui/model/FormatException',
 	 * @param {string} sValue
 	 *   the value to be formatted
 	 * @param {string} sTargetType
-	 *   the target type; may be "any" or "string".
+	 *   the target type; may be "any", "string", or a type with one of these types as its
+	 *   {@link sap.ui.base.DataType#getPrimitiveType primitive type}.
 	 *   See {@link sap.ui.model.odata.type} for more information.
 	 * @returns {string}
 	 *   the formatted output value in the target type; <code>undefined</code> or <code>null</code>
@@ -146,15 +147,31 @@ sap.ui.define(['sap/ui/core/format/DateFormat', 'sap/ui/model/FormatException',
 		if (sValue === undefined || sValue === null) {
 			return null;
 		}
-		if (sTargetType === "any") {
+		switch (this.getPrimitiveType(sTargetType)) {
+		case "any":
 			return sValue;
-		}
-		if (sTargetType === "string") {
+		case "string":
 			oDate = getModelFormatter().parse(sValue);
 			return oDate ? getFormatter(this).format(oDate) : sValue;
+		default:
+			throw new FormatException("Don't know how to format " + this.getName() + " to "
+				+ sTargetType);
 		}
-		throw new FormatException("Don't know how to format " + this.getName() + " to "
-			+ sTargetType);
+	};
+
+	/**
+	 * Returns a formatter that converts between the model format and a Javascript Date. It has two
+	 * methods: <code>format</code> takes a Date and returns a date as a String in the format
+	 * expected by the model, <code>parse</code> converts from the String to a Date.
+	 *
+	 * @returns {sap.ui.core.format.DateFormat}
+	 *   The formatter
+	 *
+	 * @override
+	 * @protected
+	 */
+	EdmDate.prototype.getModelFormat = function() {
+		return getModelFormatter();
 	};
 
 	/**
@@ -174,7 +191,8 @@ sap.ui.define(['sap/ui/core/format/DateFormat', 'sap/ui/model/FormatException',
 	 * @param {string} sValue
 	 *   the value to be parsed, maps <code>""</code> to <code>null</code>
 	 * @param {string} sSourceType
-	 *   the source type (the expected type of <code>sValue</code>); must be "string"
+	 *   the source type (the expected type of <code>sValue</code>); must be "string", or a type
+	 *   with "string" as its {@link sap.ui.base.DataType#getPrimitiveType primitive type}.
 	 *   See {@link sap.ui.model.odata.type} for more information.
 	 * @returns {string}
 	 *   the parsed value
@@ -187,7 +205,7 @@ sap.ui.define(['sap/ui/core/format/DateFormat', 'sap/ui/model/FormatException',
 		if (sValue === "" || sValue === null) {
 			return null;
 		}
-		switch (sSourceType) {
+		switch (this.getPrimitiveType(sSourceType)) {
 		case "string":
 			oResult = getFormatter(this).parse(sValue);
 			if (!oResult) {

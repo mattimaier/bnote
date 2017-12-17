@@ -1,11 +1,11 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['jquery.sap.global'],
-	function(jQuery) {
+sap.ui.define(['./Filter', 'jquery.sap.global', "jquery.sap.unicode"],
+	function(Filter, jQuery) {
 	"use strict";
 
 	/**
@@ -59,11 +59,13 @@ sap.ui.define(['jquery.sap.global'],
 			bFiltered = true;
 			jQuery.each(oFilterGroups, function(sPath, aFilterGroup) {
 				if (sPath !== "__multiFilter") {
-					var oValue = fnGetValue(vRef, sPath);
-					oValue = that.normalizeFilterValue(oValue);
 					bGroupFiltered = false;
 					jQuery.each(aFilterGroup, function(j, oFilter) {
-						var fnTest = that.getFilterFunction(oFilter);
+						var oValue = fnGetValue(vRef, sPath),
+							fnTest = that.getFilterFunction(oFilter);
+						if (!oFilter.fnCompare) {
+							oValue = that.normalizeFilterValue(oValue);
+						}
 						if (oValue !== undefined && fnTest(oValue)) {
 							bGroupFiltered = true;
 							return false;
@@ -97,12 +99,17 @@ sap.ui.define(['jquery.sap.global'],
 	 */
 	FilterProcessor.normalizeFilterValue = function(oValue){
 		if (typeof oValue == "string") {
+			// Internet Explorer and Edge cannot uppercase properly on composed characters
+			if (String.prototype.normalize && (sap.ui.Device.browser.msie || sap.ui.Device.browser.edge)) {
+				oValue = oValue.normalize("NFD");
+			}
+			oValue = oValue.toUpperCase();
 			// use canonical composition as recommended by W3C
 			// http://www.w3.org/TR/2012/WD-charmod-norm-20120501/#sec-ChoiceNFC
 			if (String.prototype.normalize) {
 				oValue = oValue.normalize("NFC");
 			}
-			return oValue.toUpperCase();
+			return oValue;
 		}
 		if (oValue instanceof Date) {
 			return oValue.getTime();
@@ -117,7 +124,7 @@ sap.ui.define(['jquery.sap.global'],
 	 */
 	FilterProcessor._resolveMultiFilter = function(oMultiFilter, vRef, fnGetValue){
 		var that = this,
-			bMatched = false,
+			bMatched = !!oMultiFilter.bAnd,
 			aFilters = oMultiFilter.aFilters;
 
 		if (aFilters) {
@@ -126,24 +133,27 @@ sap.ui.define(['jquery.sap.global'],
 				if (oFilter._bMultiFilter) {
 					bLocalMatch = that._resolveMultiFilter(oFilter, vRef, fnGetValue);
 				} else if (oFilter.sPath !== undefined) {
-					var oValue = fnGetValue(vRef, oFilter.sPath);
-					oValue = that.normalizeFilterValue(oValue);
-					var fnTest = that.getFilterFunction(oFilter);
+					var oValue = fnGetValue(vRef, oFilter.sPath),
+						fnTest = that.getFilterFunction(oFilter);
+					if (!oFilter.fnCompare) {
+						oValue = that.normalizeFilterValue(oValue);
+					}
 					if (oValue !== undefined && fnTest(oValue)) {
 						bLocalMatch = true;
 					}
 				}
-				if (bLocalMatch && oMultiFilter.bAnd) {
-					bMatched = true;
-				} else if (!bLocalMatch && oMultiFilter.bAnd) {
-					bMatched = false;
-					return false;
-				} else if (bLocalMatch) {
-					bMatched = true;
+
+				if ( bLocalMatch !== bMatched ) {
+					// (invariant: bMatched is still the same as oMultiFilter.bAnd)
+					// local match is false and mode is AND -> result is false
+					// local match is true and mode is OR -> result is true
+					bMatched = bLocalMatch;
 					return false;
 				}
 			});
 		}
+		// mode is AND and no local match was false -> result is true
+		// mode is OR and no local match was true -> result is false
 
 		return bMatched;
 	};
@@ -155,24 +165,30 @@ sap.ui.define(['jquery.sap.global'],
 		if (oFilter.fnTest) {
 			return oFilter.fnTest;
 		}
-		var oValue1 = this.normalizeFilterValue(oFilter.oValue1),
-			oValue2 = this.normalizeFilterValue(oFilter.oValue2);
+		var oValue1 = oFilter.oValue1,
+			oValue2 = oFilter.oValue2,
+			fnCompare = oFilter.fnCompare || Filter.defaultComparator;
+
+		if (!oFilter.fnCompare) {
+			oValue1 = this.normalizeFilterValue(oValue1);
+			oValue2 = this.normalizeFilterValue(oValue2);
+		}
 
 		switch (oFilter.sOperator) {
 			case "EQ":
-				oFilter.fnTest = function(value) { return value == oValue1; }; break;
+				oFilter.fnTest = function(value) { return fnCompare(value, oValue1) === 0; }; break;
 			case "NE":
-				oFilter.fnTest = function(value) { return value != oValue1; }; break;
+				oFilter.fnTest = function(value) { return fnCompare(value, oValue1) !== 0; }; break;
 			case "LT":
-				oFilter.fnTest = function(value) { return value < oValue1; }; break;
+				oFilter.fnTest = function(value) { return fnCompare(value, oValue1) < 0; }; break;
 			case "LE":
-				oFilter.fnTest = function(value) { return value <= oValue1; }; break;
+				oFilter.fnTest = function(value) { return fnCompare(value, oValue1) <= 0; }; break;
 			case "GT":
-				oFilter.fnTest = function(value) { return value > oValue1; }; break;
+				oFilter.fnTest = function(value) { return fnCompare(value, oValue1) > 0; }; break;
 			case "GE":
-				oFilter.fnTest = function(value) { return value >= oValue1; }; break;
+				oFilter.fnTest = function(value) { return fnCompare(value, oValue1) >= 0; }; break;
 			case "BT":
-				oFilter.fnTest = function(value) { return (value >= oValue1) && (value <= oValue2); }; break;
+				oFilter.fnTest = function(value) { return (fnCompare(value, oValue1) >= 0) && (fnCompare(value, oValue2) <= 0); }; break;
 			case "Contains":
 				oFilter.fnTest = function(value) {
 					if (value == null) {
@@ -211,6 +227,7 @@ sap.ui.define(['jquery.sap.global'],
 				};
 				break;
 			default:
+				jQuery.sap.log.error("The filter operator \"" + oFilter.sOperator + "\" is unknown, filter will be ignored.");
 				oFilter.fnTest = function(value) { return true; };
 		}
 		return oFilter.fnTest;

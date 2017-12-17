@@ -1,12 +1,13 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.DateTimeInput.
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library', 'sap/ui/model/type/Date'],
-	function(jQuery, Control, library, Date1) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library', 'sap/ui/model/type/Date', 'sap/ui/model/type/Time',
+	'sap/ui/model/type/DateTime', 'sap/ui/model/odata/type/ODataType'],
+	function(jQuery, Control, library, Date1, Time, DateTime, ODataType) {
 	"use strict";
 
 	/**
@@ -22,7 +23,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library', 'sap/ui/
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -228,36 +229,36 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library', 'sap/ui/
 
 	};
 
-	DateTimeInput.prototype.setType = function(sType){
-
-		if (sType == this.getType() && _getPicker.call(this)) {
-			return this;
-		}
-
-		this.destroyAggregation("_picker");
+	/**
+	 * Creates an instance of picker depending of the given property type
+	 * @param {sap.m.DateTimeInputType} type the type
+	 * @returns {sap.ui.core.Control} picker implementation, that may be one of <code>sap.m.DatePicker</code>,
+	 * <code>sap.m.TimePicker</code> or <code>sap.m.DateTimePicker</code>.
+	 */
+	function buildPickerByType(type){
 		var oPicker;
 
-		switch (sType) {
-		case sap.m.DateTimeInputType.DateTime:
-			jQuery.sap.require("sap.m.DateTimePicker");
-			oPicker = new sap.m.DateTimePicker(this.getId() + "-Picker");
-			break;
+		switch (type) {
+			case sap.m.DateTimeInputType.DateTime:
+				jQuery.sap.require("sap.m.DateTimePicker");
+				oPicker = new sap.m.DateTimePicker(this.getId() + "-Picker");
+				break;
 
-		case sap.m.DateTimeInputType.Time:
-			jQuery.sap.require("sap.m.TimePicker");
-			oPicker = new sap.m.TimePicker(this.getId() + "-Picker",
+			case sap.m.DateTimeInputType.Time:
+				jQuery.sap.require("sap.m.TimePicker");
+				oPicker = new sap.m.TimePicker(this.getId() + "-Picker",
 					{localeId: sap.ui.getCore().getConfiguration().getFormatSettings().getFormatLocale().toString()});
-			break;
+				break;
 
-		default: // default is date
-			jQuery.sap.require("sap.m.DatePicker");
-			oPicker = new sap.m.DatePicker(this.getId() + "-Picker");
-			break;
+			default: // default is date
+				jQuery.sap.require("sap.m.DatePicker");
+				oPicker = new sap.m.DatePicker(this.getId() + "-Picker");
+				break;
 		}
 
 		// forward properties (also set default, may be different)
-		oPicker.setDisplayFormat(this.getDisplayFormat() || this._types[sType].displayFormat);
-		oPicker.setValueFormat(this.getValueFormat() || this._types[sType].valueFormat);
+		oPicker.setDisplayFormat(this.getDisplayFormat() || this._types[type].displayFormat);
+		oPicker.setValueFormat(this.getValueFormat() || this._types[type].valueFormat);
 		if (this.getDateValue()) {
 			oPicker.setDateValue(this.getDateValue()); // don't set Value -> as by switching type information can be lost
 		}
@@ -277,6 +278,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library', 'sap/ui/
 		for (var i = 0; i < aAriaLabelledBy.length; i++) {
 			oPicker.addAriaLabelledBy(aAriaLabelledBy[i]);
 		}
+		return oPicker;
+	}
+
+	DateTimeInput.prototype.setType = function(sType){
+
+		if (sType == this.getType() && _getPicker.call(this)) {
+			return this;
+		}
+
+		this.destroyAggregation("_picker");
+		var oPicker = buildPickerByType.call(this, sType);
 
 		this.setAggregation("_picker", oPicker);
 		this.setProperty("type", sType); // re-render because picker control changes
@@ -498,12 +510,81 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library', 'sap/ui/
 	};
 
 	/**
-	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @see sap.ui.core.Control#getAccessibilityInfo
+	 * @returns {Object} Current accessibility state of the control
 	 * @protected
 	 */
 	DateTimeInput.prototype.getAccessibilityInfo = function() {
 		var oPicker = _getPicker.call(this);
 		return oPicker && oPicker.getAccessibilityInfo ? oPicker.getAccessibilityInfo() : null;
+	};
+
+	/**
+	 * Checks if the given <code>DateTimeInput</code>'s type mismatches the pattern and if so,
+	 * instantiate the picker that corresponds to the pattern.
+	 *
+	 * @param {sap.m.DateTimeInputType} type the <code>DateTimeInput</code>'s type
+	 * @param {sap.ui.core.Control} picker the current picker implementation, that may be one of <code>sap.m.DatePicker</code>,
+	 * <code>sap.m.TimePicker</code>, <code>sap.m.DateTimePicker</code>
+	 * @returns {sap.ui.core.Control} picker implementation, that may be one of <code>sap.m.DatePicker</code>,
+	 * <code>sap.m.TimePicker</code> or <code>sap.m.DateTimePicker</code>. Example type=DateTime and pattern "DD MM YYY".
+	 * In this case the method will return an instance of sap.m.DatePicker if <picker> is empty or is currently not of this type.
+	 */
+	DateTimeInput.prototype._getPickerByTypeAndPattern = function(type, picker, pattern) {
+		var sRegexDates = /[DdYyMLWwGQUur]/,
+			sRegexTime = /[HhKkmsa]/,
+			bTimePattern = sRegexTime.test(pattern),
+			bDatePattern = sRegexDates.test(pattern),
+			bTimeOnlyPattern = bTimePattern && !bDatePattern,
+			bDateOnlyPattern = bDatePattern && !bTimePattern,
+			bDateTimePattern = bDatePattern && bTimePattern,
+			sNewPickerType,
+			oNewPicker;
+
+		switch  (type) {
+			case sap.m.DateTimeInputType.Time:
+			case sap.m.DateTimeInputType.Date:
+			case sap.m.DateTimeInputType.DateTime:
+				if (bTimeOnlyPattern && picker.getMetadata().getName() !== "sap.m.TimePicker") {
+					sNewPickerType = sap.m.DateTimeInputType.Time;
+				} else if (bDateOnlyPattern && picker.getMetadata().getName() !== "sap.m.DatePicker") {
+					sNewPickerType = sap.m.DateTimeInputType.Date;
+				} else if (bDateTimePattern && picker.getMetadata().getName() !== "sap.m.DateTimePicker") {
+					sNewPickerType = sap.m.DateTimeInputType.DateTime;
+				}
+				break;
+			default: {
+				throw "Invalid type: " + type + ". Expected is one of the sap.m.DateTimeInputType";
+			}
+		}
+		if (sNewPickerType) {
+			this.destroyAggregation("_picker");
+			oNewPicker = buildPickerByType.call(this, sNewPickerType);
+			this.setAggregation("_picker", oNewPicker);
+		}
+
+		return oNewPicker || picker;
+	};
+
+
+	/**
+	 * Returns the binding type pattern of 'value' property if such.
+	 * @return {*}
+	 * @private
+	 **/
+	DateTimeInput.prototype._getBoundValueTypePattern = function() {
+		var oBinding = this.getBinding("value"),
+			oBindingType = oBinding && oBinding.getType() && oBinding.getType();
+
+		if (oBindingType instanceof Date1 || oBindingType instanceof  Time || oBindingType  instanceof DateTime) {
+			return oBindingType.getOutputPattern();
+		}
+
+		if (oBindingType instanceof ODataType && oBindingType.oFormat) {
+			return oBindingType.oFormat.oFormatOptions.pattern;
+		}
+
+		return undefined;
 	};
 
 	function _getPicker(){
@@ -514,11 +595,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library', 'sap/ui/
 
 	function _updateFormatFromBinding(){
 
-		var oBinding = this.getBinding("value");
-
-		if (oBinding && oBinding.oType && (oBinding.oType instanceof Date1)) {
-			var sPattern = oBinding.oType.getOutputPattern();
+		if (this._getBoundValueTypePattern()) {
+			var sPattern = this._getBoundValueTypePattern();
 			var oPicker = _getPicker.call(this);
+			oPicker = this._getPickerByTypeAndPattern(this.getType(), oPicker, sPattern);
+
 			if (oPicker.getValueFormat() != sPattern) {
 				oPicker.setValueFormat(sPattern);
 			}

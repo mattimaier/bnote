@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -25,7 +25,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/thirdpa
 	 * Implementation to access oData metadata
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -65,7 +65,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/thirdpa
 			this._loadMetadata()
 				.catch(function() {
 					// Ignored for initial metadata loading. Error handling is done inside _loadMetadata
-					jQuery.sap.assert(false, "[ODataMetadata] initial loading of metadata failed");
+					jQuery.sap.log.error("[ODataMetadata] initial loading of metadata failed");
 				});
 		},
 
@@ -114,6 +114,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/thirdpa
 					metadataString: that.sMetadataBody,
 					entitySets: aEntitySets
 				};
+
+				var sLastModified = oResponse.headers["Last-Modified"];
+				if (sLastModified) {
+					mParams.lastModified = sLastModified;
+				}
+
 				// resolve global promise
 				that.fnResolve(mParams);
 				// resolve this promise
@@ -485,7 +491,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/thirdpa
 			// first part must be the entityType
 			oEntityType = this._getEntityTypeByName(aMetaParts[0]);
 
-			jQuery.sap.assert(oEntityType, aMetaParts[0] + " is not a valid EnityType");
+			jQuery.sap.assert(oEntityType, aMetaParts[0] + " is not a valid EntityType");
 
 			if (!oEntityType) {
 				return;
@@ -701,7 +707,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/thirdpa
 	};
 
 	/**
-	 * Get the the use-batch extension value if any
+	 * Get the use-batch extension value if any
 	 * @return {boolean} true/false
 	 * @public
 	 */
@@ -830,7 +836,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/thirdpa
 	};
 
 	/**
-	*  extract the property metadata of a specified property of a entity type out of the metadata document
+	*  extract the property metadata of a specified property of an entity type out of the metadata document
 	*/
 	ODataMetadata.prototype._getPropertyMetadata = function(oEntityType, sProperty) {
 		var oPropertyMetadata, that = this;
@@ -952,17 +958,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', 'sap/ui/thirdpa
 	/**
 	 * Add metadata url: The response will be merged with the existing metadata object
 	 *
-	 * @param string | array vUrl Either one URL as string or an array or Uri strings
+	 * @param {string | string[]} vUrl Either one URL as string or an array of Uri strings
 	 * @returns Promise The Promise for metadata loading
 	 * @private
 	 */
 	ODataMetadata.prototype._addUrl = function(vUrl) {
-		var aUrls = [].concat(vUrl),
-			that = this;
+		var aUrls = [].concat(vUrl);
 
-		return Promise.all(jQuery.map(aUrls, function(sUrl) {
-			return that._loadMetadata(sUrl, true);
-		}));
+		return Promise.all(aUrls.map(function(sUrl) {
+			return this._loadMetadata(sUrl, true);
+		}, this));
 	};
 
 	/**

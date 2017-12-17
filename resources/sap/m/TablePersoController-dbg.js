@@ -1,6 +1,6 @@
 /*
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -28,7 +28,7 @@ sap.ui.define(['jquery.sap.global', './TablePersoDialog', 'sap/ui/base/ManagedOb
 	 * @class Table Personalization Controller
 	 * @extends sap.ui.base.ManagedObject
 	 * @author SAP
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @alias sap.m.TablePersoController
 	 */
 	var TablePersoController = ManagedObject.extend("sap.m.TablePersoController", /** @lends sap.m.TablePersoController */
@@ -160,7 +160,7 @@ sap.ui.define(['jquery.sap.global', './TablePersoDialog', 'sap/ui/base/ManagedOb
 	 *
 	 *
 	 * @public
-	 * @return {TablePersoController} the TablePersoController instance.
+	 * @return {sap.m.TablePersoController} the TablePersoController instance.
 	 */
 	TablePersoController.prototype.activate = function() {
 
@@ -182,7 +182,7 @@ sap.ui.define(['jquery.sap.global', './TablePersoDialog', 'sap/ui/base/ManagedOb
 	 * directly, which is now not necessary any longer.
 	 *
 	 * @public
-	 * @return {TablePersoDialog} the TablePersoDialog instance.
+	 * @return {sap.m.TablePersoDialog} the TablePersoDialog instance.
 	 */
 	TablePersoController.prototype.getTablePersoDialog = function() {
 		return this.getAggregation("_tablePersoDialog");
@@ -445,7 +445,7 @@ sap.ui.define(['jquery.sap.global', './TablePersoDialog', 'sap/ui/base/ManagedOb
 	/**
 	 * Reflector for the controller's 'contentWidth' property.
 	 * @param {sap.ui.core.CSSSize} sWidth the new width of the tablePersoDialog
-	 * @return {TablePersoController} the TablePersoController instance.
+	 * @return {sap.m.TablePersoController} the TablePersoController instance.
 	 * @public
 	 */
 	TablePersoController.prototype.setContentWidth = function(sWidth) {
@@ -460,7 +460,7 @@ sap.ui.define(['jquery.sap.global', './TablePersoDialog', 'sap/ui/base/ManagedOb
 	/**
 	 * Reflector for the controller's 'contentHeight' property.
 	 * @param {sap.ui.core.CSSSize} sHeight the new height of the TablePersoDialog.
-	 * @return {TablePersoController} the TablePersoController instance.
+	 * @return {sap.m.TablePersoController} the TablePersoController instance.
 	 * @public
 	 */
 	TablePersoController.prototype.setContentHeight = function(sHeight) {
@@ -475,7 +475,7 @@ sap.ui.define(['jquery.sap.global', './TablePersoDialog', 'sap/ui/base/ManagedOb
 	/**
 	 * Reflector for the controller's 'hasGrouping' property.
 	 * @param {boolean} bHasGrouping is the tablePersoDialog displayed in grouping mode or not.
-	 * @return {TablePersoController} the TablePersoController instance.
+	 * @return {sap.m.TablePersoController} the TablePersoController instance.
 	 * @public
 	 */
 	TablePersoController.prototype.setHasGrouping = function(bHasGrouping) {
@@ -490,7 +490,7 @@ sap.ui.define(['jquery.sap.global', './TablePersoDialog', 'sap/ui/base/ManagedOb
 	/**
 	 * Reflector for the controller's 'showSelectAll' property.
 	 * @param {boolean} bShowSelectAll is the tablePersoDialog's 'Display All' checkbox displayed or not.
-	 * @return {TablePersoController} the TablePersoController instance.
+	 * @return {sap.m.TablePersoController} the TablePersoController instance.
 	 * @public
 	 */
 	TablePersoController.prototype.setShowSelectAll = function(bShowSelectAll) {
@@ -505,7 +505,7 @@ sap.ui.define(['jquery.sap.global', './TablePersoDialog', 'sap/ui/base/ManagedOb
 	/**
 	 * Reflector for the controller's 'showResetAll' property.
 	 * @param {boolean} bShowResetAll is the tablePersoDialog's 'UndoPersonalization' button displayed or not.
-	 * @return {TablePersoController} the TablePersoController instance.
+	 * @return {sap.m.TablePersoController} the TablePersoController instance.
 	 * @public
 	 */
 	TablePersoController.prototype.setShowResetAll = function(bShowResetAll) {
@@ -525,7 +525,7 @@ sap.ui.define(['jquery.sap.global', './TablePersoDialog', 'sap/ui/base/ManagedOb
 	 * whether the table's app has a different component name or not.
 	 *
 	 * @param {string} sCompName the new component name.
-	 * @return {TablePersoController} the TablePersoController instance.
+	 * @return {sap.m.TablePersoController} the TablePersoController instance.
 	 * @public
 	 */
 	TablePersoController.prototype.setComponentName = function(sCompName) {

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -32,7 +32,7 @@
 			 *        feature - DO NOT USE IN PRODUCTIVE SCENARIOS!!
 			 *
 			 * @author Peter Muessig
-			 * @version 1.38.7
+			 * @version 1.50.7
 			 * @private
 			 * @alias sap.ui.core.plugin.LessSupport
 			 */
@@ -96,15 +96,6 @@
 				this.oCore = oCore;
 				this.bActive = true;
 
-				// overwrite the toCSS method of the Color function to return "transparent" instead of rgba(0,0,0,0)
-				var fnToCSS = window.less.tree.Color.prototype.toCSS;
-				window.less.tree.Color.prototype.toCSS = function(){
-					if (this.alpha == 0 && this.rgb[0] == 0 && this.rgb[1] == 0 && this.rgb[2] == 0){
-						return "transparent";
-					}
-					return fnToCSS.apply(this, arguments);
-				};
-
 				// overwrite the includeLibraryTheme/applyTheme function to inject LESS
 				this.oCore.includeLibraryTheme = jQuery.proxy(this.includeLibraryTheme, this);
 				this.oCore.applyTheme = jQuery.proxy(this.applyTheme, this);
@@ -160,7 +151,6 @@
 
 			/**
 			 * Will be invoked by <code>sap.ui.core.Core</code> to notify the plugin to start
-			 * @param {sap.ui.core.Core} oCore reference to the Core
 			 * @public
 			 */
 			LessSupport.prototype.stopPlugin = function() {
@@ -349,7 +339,7 @@
 			 */
 			LessSupport.prototype.registerLink = function(oLink) {
 				if (window.less && window.less.sheets) {
-					var iIndex = jQuery.inArray(oLink, window.less.sheets);
+					var iIndex = window.less.sheets.indexOf(oLink);
 					if (iIndex === -1) {
 						window.less.sheets.push(oLink);
 					}
@@ -364,7 +354,7 @@
 			LessSupport.prototype.unregisterLink = function(oLink) {
 				if (window.less && window.less.sheets) {
 					var sLibName = oLink.id.substr(13);
-					var iIndex = jQuery.inArray(oLink, window.less.sheets);
+					var iIndex = window.less.sheets.indexOf(oLink);
 					if (iIndex >= 0) {
 						window.less.sheets.splice(iIndex, 1);
 						// clear the content of the LESS style element
@@ -491,7 +481,7 @@
 					// Run less build
 					window.less.refresh();
 
-					// Update Theming Parameters without triggering an library-parameters.json request
+					// Update Theming Parameters without triggering a library-parameters.json request
 					var Parameters = sap.ui.requireSync('sap/ui/core/theming/Parameters');
 					Parameters._setOrLoadParameters(mLibVariables);
 
@@ -530,20 +520,11 @@
 	//  - when available immediately define the LessSupport
 	//  - if not we delay the definition till the body is loaded
 	if (!(window.sap && window.sap.ui && window.sap.ui.define)) {
-		var fnHandler;
-		if (document.addEventListener) {
-			fnHandler = function() {
-				document.removeEventListener("DOMContentLoaded", fnHandler, false);
-				defineLessSupport();
-			};
-			document.addEventListener("DOMContentLoaded", fnHandler, false);
-		} else if (document.attachEvent) {
-			fnHandler = function() {
-				document.detachEvent("onreadystatechange", fnHandler);
-				defineLessSupport();
-			};
-			document.attachEvent("onreadystatechange", fnHandler);
-		}
+		var fnHandler = function() {
+			document.removeEventListener("DOMContentLoaded", fnHandler, false);
+			defineLessSupport();
+		};
+		document.addEventListener("DOMContentLoaded", fnHandler, false);
 	} else {
 		defineLessSupport();
 	}

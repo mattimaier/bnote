@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -152,7 +152,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './ChangeReason
 
 	/**
 	 * Getter for model
-	 * @return {sap.ui.core.Model} the model
+	 * @return {sap.ui.model.Model} the model
 	 */
 	Binding.prototype.getModel = function() {
 		return this.oModel;
@@ -415,7 +415,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './ChangeReason
 	/**
 	 * Attach multiple events.
 	 *
-	 * @param {object} oEvents
+	 * @param {Object.<string, function>} oEvents
 	 * @protected
 	 */
 	Binding.prototype.attachEvents = function(oEvents) {
@@ -435,9 +435,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './ChangeReason
 	};
 
 	/**
-	 * Detach multiple events-
+	 * Detach multiple events.
 	 *
-	 * @param {object} oEvents
+	 * @param {Object.<string, function>} oEvents
 	 * @protected
 	 */
 	Binding.prototype.detachEvents = function(oEvents) {
@@ -526,9 +526,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './ChangeReason
 	 *
 	 * @public
 	 */
-	sap.ui.model.Binding.prototype.destroy = function() {
+	Binding.prototype.destroy = function() {
+		this.bIsBeingDestroyed = true;
 		sap.ui.getCore().getMessageManager().removeMessages(this.getDataState().getControlMessages(), true);
-		sap.ui.base.EventProvider.prototype.destroy.apply(this, arguments);
+		EventProvider.prototype.destroy.apply(this, arguments);
+		this.bIsBeingDestroyed = false;
 	};
 
 	return Binding;

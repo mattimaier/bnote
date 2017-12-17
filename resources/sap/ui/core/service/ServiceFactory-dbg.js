@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -83,7 +83,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/core/service/S
 	 *
 	 * @extends sap.ui.base.Object
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @alias sap.ui.core.service.ServiceFactory
 	 * @private
 	 * @sap-restricted sap.ushell
@@ -130,6 +130,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/core/service/S
 	 * @param {object} oServiceContext Context for which the service is created
 	 * @param {object} oServiceContext.scopeObject Object that is in scope (e.g. component instance)
 	 * @param {string} oServiceContext.scopeType Type of object that is in scope (e.g. component, ...)
+	 * @param {string} oServiceContext.settings The service settings
 	 * @return {Promise} Promise which resolves with the new Service instance.
 	 * @protected
 	 */

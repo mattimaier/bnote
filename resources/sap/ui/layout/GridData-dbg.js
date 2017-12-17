@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', './library'],
 	 * @extends sap.ui.core.LayoutData
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -340,6 +340,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', './library'],
 			//set property XL
 			this.setProperty("linebreakXL", bLinebreak);
 			this._bLinebreakXLChanged = true;
+			return this;
 		};
 
 		// Internal function. Informs the Grid Renderer if the line break property for XL size was changed explicitly
@@ -352,46 +353,47 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', './library'],
 		GridData.prototype.setSpanLarge = function(iSpan) {
 			this.setSpanL(iSpan);
 			jQuery.sap.log.warning("Deprecated property spanLarge is used, please use spanL instead.");
+			return this;
 		};
 
 		GridData.prototype.setSpanMedium = function(iSpan) {
-			this.setSpanM(iSpan);
 			jQuery.sap.log.warning("Deprecated property spanMedium is used, please use spanM instead.");
+			return this.setSpanM(iSpan);
 		};
 
 		GridData.prototype.setSpanSmall = function(iSpan) {
-			this.setSpanS(iSpan);
 			jQuery.sap.log.warning("Deprecated property spanSmall is used, please use spanS instead.");
+			return this.setSpanS(iSpan);
 		};
 
 		GridData.prototype.setIndentLarge = function(iIndent) {
-			this.setIndentL(iIndent);
 			jQuery.sap.log.warning("Deprecated property indentLarge is used, please use indentL instead.");
+			return this.setIndentL(iIndent);
 		};
 
 		GridData.prototype.setIndentMedium = function(iIndent) {
-			this.setIndentM(iIndent);
 			jQuery.sap.log.warning("Deprecated property indentMedium is used, please use indentM instead.");
+			return this.setIndentM(iIndent);
 		};
 
 		GridData.prototype.setIndentSmall = function(iIndent) {
-			this.setIndentS(iIndent);
 			jQuery.sap.log.warning("Deprecated property indentSmall is used, please use indentS instead.");
+			return this.setIndentS(iIndent);
 		};
 
 		GridData.prototype.setVisibleOnLarge = function(bVisible) {
-			this.setVisibleL(bVisible);
 			jQuery.sap.log.warning("Deprecated property visibleOnLarge is used, please use visibleL instead.");
+			return this.setVisibleL(bVisible);
 		};
 
 		GridData.prototype.setVisibleOnMedium = function(bVisible) {
-			this.setVisibleM(bVisible);
 			jQuery.sap.log.warning("Deprecated property visibleOnMedium is used, please use visibleM instead.");
+			return this.setVisibleM(bVisible);
 		};
 
 		GridData.prototype.setVisibleOnSmall = function(bVisible) {
-			this.setVisibleS(bVisible);
 			jQuery.sap.log.warning("Deprecated property visibleOnSmall is used, please use visibleS instead.");
+			return this.setVisibleS(bVisible);
 		};
 
 

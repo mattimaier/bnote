@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,7 +18,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata', 'sap/ui
 	 * @public
 	 * @class
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @since 1.9.2
 	 * @alias sap.ui.core.ComponentMetadata
 	 */
@@ -30,7 +30,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata', 'sap/ui
 	};
 
 	//chain the prototypes
-	ComponentMetadata.prototype = jQuery.sap.newObject(ManagedObjectMetadata.prototype);
+	ComponentMetadata.prototype = Object.create(ManagedObjectMetadata.prototype);
 
 	ComponentMetadata.preprocessClassInfo = function(oClassInfo) {
 		// if the component is a string we convert this into a "_src" metadata entry
@@ -94,6 +94,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata', 'sap/ui
 			// load the manifest if defined as string
 			if (typeof oManifest === "string" && oManifest === "json") {
 
+				// In contrast to sap.ui.core.Manifest#load the sap-language parameter
+				// won't be added here as the resource is expected to be served from the
+				// preload module cache which does not contain any URL parameters
 				var sResource = sPackage.replace(/\./g, "/") + "/manifest.json";
 				jQuery.sap.log.info("The manifest of the component " + sName + " is loaded from file " + sResource + ".");
 				try {
@@ -151,72 +154,67 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata', 'sap/ui
 	};
 
 	/**
-	 * Static initialization of components. This function will be called by the
+	 * Static initialization of Components. This function will be called by the
 	 * Component and the metadata decides whether to execute the static init code
-	 * or not. It will be called the first time a Component is initialized.
+	 * or not. It will be called by each Component instance init.
 	 * @private
 	 */
 	ComponentMetadata.prototype.init = function() {
-		if (!this._bInitialized) {
+		if (this._iInstanceCount === 0) {
 			// first we load the dependencies of the parent
 			var oParent = this.getParent();
 			if (oParent instanceof ComponentMetadata) {
 				oParent.init();
 			}
-			// init the manifest and save initialize state
+			// init the manifest
 			this._oManifest.init();
 			this._bInitialized = true;
 		}
+		this._iInstanceCount++;
 	};
 
 	/**
-	 * Static termination of components.
-	 *
-	 * TODO: Right now it is unclear when this function should be called. Just to
-	 *       make sure that we do not forget this in future.
-	 *
+	 * Static termination of Components. This function will be called by the
+	 * Component and the metadata decides whether to execute the static exit code
+	 * or not. It will be called by each Component instance exit.
 	 * @private
 	 */
 	ComponentMetadata.prototype.exit = function() {
-		if (this._bInitialized) {
+		// ensure that the instance count is never negative
+		var iInstanceCount = Math.max(this._iInstanceCount - 1, 0);
+		if (iInstanceCount === 0) {
+			// exit the manifest
+			this._oManifest.exit();
+			// unload the includes of parent components
 			var oParent = this.getParent();
 			if (oParent instanceof ComponentMetadata) {
 				oParent.exit();
 			}
-			// exit the manifest and save initialize state
-			this._oManifest.exit();
 			this._bInitialized = false;
 		}
+		this._iInstanceCount = iInstanceCount;
 	};
 
 	/**
 	 * Component instances need to register themselves in this method to enable
 	 * the customizing for this component. This will only be done for the first
 	 * instance and only if a customizing configuration is available.
+	 * @param {sap.ui.core.Component} oInstance reference to the Component instance
 	 * @private
 	 */
-	ComponentMetadata.prototype.onInitComponent = function() {
-		var oUI5Manifest = this.getManifestEntry("sap.ui5", true),
-			mExtensions = oUI5Manifest && oUI5Manifest["extends"] && oUI5Manifest["extends"].extensions;
-		if (this._iInstanceCount === 0 && !jQuery.isEmptyObject(mExtensions)) {
-			var CustomizingConfiguration = sap.ui.requireSync('sap/ui/core/CustomizingConfiguration');
-			CustomizingConfiguration.activateForComponent(this._sComponentName);
-		}
-		this._iInstanceCount++;
+	ComponentMetadata.prototype.onInitComponent = function(oInstance) {
+		jQuery.sap.log.error("The function ComponentMetadata#onInitComponent will be removed soon!");
 	};
 
 	/**
 	 * Component instances need to unregister themselves in this method to disable
 	 * the customizing for this component. This will only be done for the last
 	 * instance and only if a customizing configuration is available.
+	 * @param {sap.ui.core.Component} oInstance reference to the Component instance
 	 * @private
 	 */
-	ComponentMetadata.prototype.onExitComponent = function() {
-		this._iInstanceCount = Math.max(this._iInstanceCount - 1, 0);
-		var CustomizingConfiguration = sap.ui.require('sap/ui/core/CustomizingConfiguration');
-		if (this._iInstanceCount === 0 && CustomizingConfiguration) {
-			CustomizingConfiguration.deactivateForComponent(this._sComponentName);
-		}
+	ComponentMetadata.prototype.onExitComponent = function(oInstance) {
+		jQuery.sap.log.error("The function ComponentMetadata#onExitComponent will be removed soon!");
 	};
 
 	/**
@@ -819,7 +817,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata', 'sap/ui
 		}
 
 	};
-
 
 	return ComponentMetadata;
 

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -21,7 +21,7 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @private
@@ -68,29 +68,10 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 			 */
 			stepChanged: {
 				parameters: {
-
-					/**
-					* The number of the previous step. One-based.
-					*/
-					previous: {type: "int"},
-
 					/**
 					* The number of the current step. One-based.
 					*/
 					current: {type: "int"}
-				}
-			},
-
-			/**
-			 * This event is fired when a new step is activated.
-			 */
-			stepActivated: {
-				parameters: {
-
-					/**
-					* The number of the activated step. One-based.
-					*/
-					index: {type: "int"}
 				}
 			}
 		}
@@ -133,12 +114,14 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 		STEP: "WIZARD_PROG_NAV_STEP_TITLE"
 	};
 
+	/**************************************** LICECYCLE METHODS ***************************************/
+
 	WizardProgressNavigator.prototype.init = function () {
 		this._currentStep = 1;
 		this._activeStep = 1;
 		this._cachedSteps = [];
 		this._resourceBundle = sap.ui.getCore().getLibraryResourceBundle("sap.m");
-		this._actionSheet = new sap.m.ActionSheet().addStyleClass("sapUiSizeCompact");
+		this._actionSheet = new sap.m.ActionSheet();
 		this._createAnchorNavigation();
 	};
 
@@ -153,7 +136,6 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 			this.setStepTitles([]);
 		}
 	};
-
 
 	WizardProgressNavigator.prototype.onAfterRendering = function () {
 		var $ProgressNavStep,
@@ -182,6 +164,51 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 		}
 	};
 
+	WizardProgressNavigator.prototype.ontap = function (event) {
+		if (this._isGroupAtStart(event.target)) {
+			return this._showActionSheet(event.target, true);
+		}
+
+		if (this._isGroupAtEnd(event.target)) {
+			return this._showActionSheet(event.target, false);
+		}
+
+		if (!this._isAnchor(event.target) ||
+			!this._isOpenStep(event.target) ||
+			!this._isActiveStep(this._getStepNumber(event.target))) {
+			return;
+		}
+
+		this._updateCurrentStep(this._getStepNumber(event.target));
+		this.fireStepChanged({	current: this._getStepNumber(event.target) });
+	};
+
+	WizardProgressNavigator.prototype.onsapspace = function (event) {
+		if (this._onEnter) {
+			this._onEnter(event, this._anchorNavigation.getFocusedIndex());
+		}
+		this.ontap(event);
+	};
+
+	WizardProgressNavigator.prototype.onsapenter = WizardProgressNavigator.prototype.onsapspace;
+
+	WizardProgressNavigator.prototype.exit = function () {
+		ResizeHandler.deregisterAllForControl(this.getId());
+
+		this.removeDelegate(this._anchorNavigation);
+		this._anchorNavigation.destroy();
+		this._anchorNavigation = null;
+
+		this._actionSheet.destroy();
+		this._actionSheet = null;
+
+		this._currentStep = null;
+		this._activeStep = null;
+		this._cachedSteps = null;
+	};
+
+	/**************************************** PUBLIC METHODS ***************************************/
+
 	/**
 	 * Returns the number of the currently selected step. One-based.
 	 * @returns {number} The currently selected step.
@@ -189,6 +216,15 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 	 */
 	WizardProgressNavigator.prototype.getCurrentStep = function () {
 		return this._currentStep;
+	};
+
+	/**
+	 * Returns the number of the last step that still requires input.
+	 * @returns {number} The last step that still requires input.
+	 * @public
+	 */
+	WizardProgressNavigator.prototype.getProgress = function () {
+		return this._activeStep;
 	};
 
 	/**
@@ -225,17 +261,9 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 	};
 
 	/**
-	 * Returns the number of the last step that still requires input.
-	 * @returns {number} The last step that still requires input.
-	 * @public
-	 */
-	WizardProgressNavigator.prototype.getProgress = function () {
-		return this._activeStep;
-	};
-
-	/**
 	 * Discards all input done after the step which is being edited.
 	 * @param {number} index - The index after which all input will be discarded. One-based.
+	 * @param {boolean} suppressEvent - Suppress the stepChanged event.
 	 * @returns {void}
 	 * @public
 	 */
@@ -254,51 +282,12 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 		this._activeStep = index;
 	};
 
+	/**************************************** PRIVATE METHODS ***************************************/
+
 	WizardProgressNavigator.prototype._setOnEnter = function (fnCallback) {
 		this._onEnter = fnCallback;
 	};
 
-	WizardProgressNavigator.prototype.ontap = function (event) {
-		if (this._isGroupAtStart(event.target)) {
-			return this._showActionSheet(event.target, true);
-		}
-
-		if (this._isGroupAtEnd(event.target)) {
-			return this._showActionSheet(event.target, false);
-		}
-
-		if (!this._isAnchor(event.target) ||
-			!this._isOpenStep(event.target) ||
-			!this._isActiveStep(this._getStepNumber(event.target))) {
-			return;
-		}
-
-		this._updateCurrentStep(this._getStepNumber(event.target));
-	};
-
-	WizardProgressNavigator.prototype.onsapspace = function (event) {
-		if (this._onEnter) {
-			this._onEnter(event, this._anchorNavigation.getFocusedIndex());
-		}
-		this.ontap(event);
-	};
-
-	WizardProgressNavigator.prototype.onsapenter = WizardProgressNavigator.prototype.onsapspace;
-
-	WizardProgressNavigator.prototype.exit = function () {
-		ResizeHandler.deregisterAllForControl(this.getId());
-
-		this.removeDelegate(this._anchorNavigation);
-		this._anchorNavigation.destroy();
-		this._anchorNavigation = null;
-
-		this._actionSheet.destroy();
-		this._actionSheet = null;
-
-		this._currentStep = null;
-		this._activeStep = null;
-		this._cachedSteps = null;
-	};
 
 	/**
 	 * Creates an ItemNavigation delegate for navigating between active anchors.
@@ -308,6 +297,10 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 		var that = this;
 		this._anchorNavigation = new ItemNavigation();
 		this._anchorNavigation.setCycling(false);
+		this._anchorNavigation.setDisabledModifiers({
+			sapnext: ["alt"],
+			sapprevious: ["alt"]
+		});
 		this._anchorNavigation.attachEvent("AfterFocus", function (params) {
 			var event = params.mParameters.event;
 			if (!event || !event.relatedTarget || jQuery(event.relatedTarget).hasClass(WizardProgressNavigator.CLASSES.ANCHOR)) {
@@ -363,7 +356,9 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 			focusableAnchors = [];
 
 		for (var i = 0; i <= index; i++) {
-			focusableAnchors.push(this._cachedSteps[i].children[0]);
+			if (this._cachedSteps[i]) {
+				focusableAnchors.push(this._cachedSteps[i].children[0]);
+			}
 		}
 
 		this._anchorNavigation.setRootDomRef(navDomRef);
@@ -380,13 +375,16 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 	 * @private
 	 */
 	WizardProgressNavigator.prototype._updateStepActiveAttribute = function (newIndex, oldIndex) {
-		if (oldIndex !== undefined) {
+		if (oldIndex !== undefined && this._cachedSteps[oldIndex]) {
 			this._cachedSteps[oldIndex]
 				.removeAttribute(WizardProgressNavigator.ATTRIBUTES.ACTIVE_STEP);
 		}
 
-		this._cachedSteps[newIndex]
-			.setAttribute(WizardProgressNavigator.ATTRIBUTES.ACTIVE_STEP, true);
+		if (this._cachedSteps[newIndex]) {
+			this._cachedSteps[newIndex]
+				.setAttribute(WizardProgressNavigator.ATTRIBUTES.ACTIVE_STEP, true);
+		}
+
 	};
 
 	/**
@@ -397,13 +395,15 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 	 * @private
 	 */
 	WizardProgressNavigator.prototype._updateStepCurrentAttribute = function (newIndex, oldIndex) {
-		if (oldIndex !== undefined) {
+		if (oldIndex !== undefined && this._cachedSteps[oldIndex]) {
 			this._cachedSteps[oldIndex]
 				.removeAttribute(WizardProgressNavigator.ATTRIBUTES.CURRENT_STEP);
 		}
 
-		this._cachedSteps[newIndex]
-			.setAttribute(WizardProgressNavigator.ATTRIBUTES.CURRENT_STEP, true);
+		if (this._cachedSteps[newIndex]) {
+			this._cachedSteps[newIndex]
+				.setAttribute(WizardProgressNavigator.ATTRIBUTES.CURRENT_STEP, true);
+		}
 	};
 
 	/**
@@ -431,8 +431,10 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 	 * @private
 	 */
 	WizardProgressNavigator.prototype._removeAnchorAriaDisabledAttribute = function (index) {
-		this._cachedSteps[index].children[0]
-			.removeAttribute(WizardProgressNavigator.ATTRIBUTES.ARIA_DISABLED);
+		if (this._cachedSteps[index]) {
+			this._cachedSteps[index].children[0]
+				.removeAttribute(WizardProgressNavigator.ATTRIBUTES.ARIA_DISABLED);
+		}
 	};
 
 	/**
@@ -443,22 +445,26 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 	 * @private
 	 */
 	WizardProgressNavigator.prototype._updateAnchorAriaLabelAttribute = function (newIndex, oldIndex) {
-		if (oldIndex !== undefined) {
+		if (oldIndex !== undefined && this._cachedSteps[oldIndex]) {
 			this._cachedSteps[oldIndex].children[0]
 				.setAttribute(
 					WizardProgressNavigator.ATTRIBUTES.ARIA_LABEL,
 					this._resourceBundle.getText(WizardProgressNavigator.TEXT.PROCESSED));
 		}
 
-		this._cachedSteps[newIndex].children[0]
-			.setAttribute(
-				WizardProgressNavigator.ATTRIBUTES.ARIA_LABEL,
-				this._resourceBundle.getText(WizardProgressNavigator.TEXT.SELECTED));
+		if (this._cachedSteps[newIndex]) {
+			this._cachedSteps[newIndex].children[0]
+				.setAttribute(
+					WizardProgressNavigator.ATTRIBUTES.ARIA_LABEL,
+					this._resourceBundle.getText(WizardProgressNavigator.TEXT.SELECTED));
+		}
+
 	};
 
 	/**
 	 * Move to the specified step while updating the current step and active step.
 	 * @param {number} newStep The step number to which current step will be set. Non zero-based.
+	 * @param {boolean} suppressEvent - Suppress the stepChanged event.
 	 * @returns {sap.m.WizardProgressNavigator} Pointer to the control instance for chaining.
 	 * @private
 	 */
@@ -492,14 +498,13 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 		this._updateAnchorNavigation(zeroBasedNewStep);
 		this._removeAnchorAriaDisabledAttribute(zeroBasedNewStep);
 		this._updateStepActiveAttribute(zeroBasedNewStep, zeroBasedOldStep);
-
-		return this.fireStepActivated({index: newStep});
 	};
 
 	/**
 	 * Updates the current step in the control instance as well as the DOM structure.
 	 * @param {number} newStep The step number to which current step will be set. Non zero-based.
 	 * @param {number} oldStep The step number to which current step was set. Non zero-based.
+	 * @param {boolean} suppressEvent - Suppress the stepChanged event.
 	 * @returns {sap.m.WizardProgressNavigator} Pointer to the control instance for chaining.
 	 * @private
 	 */
@@ -513,10 +518,7 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 		this._updateStepCurrentAttribute(zeroBasedNewStep, zeroBasedOldStep);
 		this._updateAnchorAriaLabelAttribute(zeroBasedNewStep, zeroBasedOldStep);
 
-		return this.fireStepChanged({
-			previous: oldStep,
-			current: newStep
-		});
+		return this;
 	};
 
 	/**
@@ -545,7 +547,9 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 			step.setAttribute(WizardProgressNavigator.ATTRIBUTES.OPEN_STEP_NEXT, false);
 		});
 
-		this._cachedSteps[currStep].setAttribute(WizardProgressNavigator.ATTRIBUTES.OPEN_STEP, true);
+		if (this._cachedSteps[currStep]) {
+			this._cachedSteps[currStep].setAttribute(WizardProgressNavigator.ATTRIBUTES.OPEN_STEP, true);
+		}
 
 		for (var i = 1; i < stepsToShow; i++) {
 			if (isForward) {
@@ -637,9 +641,6 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 			icon = this.getStepIcons()[i];
 			title = this._cachedSteps[i].childNodes[0].getAttribute("title");
 
-			// show the step number if there is no icon
-			title = icon ? title : (i + 1) + ". " + title;
-
 			this._actionSheet.addButton(new sap.m.Button({
 				width: "200px",
 				text: title,
@@ -647,6 +648,7 @@ function (library, Control, ResizeHandler, ItemNavigation, Device, jQuery) {
 				enabled: this._activeStep >= (i + 1),
 				press: function (stepNumber) {
 					this._moveToStep(stepNumber);
+					this.fireStepChanged({	current: stepNumber});
 				}.bind(this, i + 1)
 			}));
 		}

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -16,13 +16,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.dom', 'jquery.s
 		$.sap.simulateMobileOnDesktop = false;
 
 		// OS overriding mechanism
-		if ((Device.browser.webkit || (Device.browser.msie && Device.browser.version >= 10)) && !jQuery.support.touch) { // on non-touch webkit browsers and IE10 we are interested in overriding
+		if ((Device.browser.webkit || Device.browser.msie) && !jQuery.support.touch) { // on non-touch webkit browsers and IE we are interested in overriding
 
 			var result = document.location.search.match(FAKE_OS_PATTERN);
 			var resultUA = result && result[1] || jQuery.sap.byId("sap-ui-bootstrap").attr("data-sap-ui-xx-fakeOS");
 
 			if (resultUA) {
-
+				jQuery.sap.log.error("The experimental parameter 'sap-ui-xx-fakeOS' must NOT be used. The results are unreliable. The parameter will be removed in one of the next versions of UI5!");
 				$.sap.simulateMobileOnDesktop = true;
 
 				var ua = { // for "ios"/"android"/"blackberry" we have defined fake user-agents; these will affect all other browser/platform detection mechanisms
@@ -385,7 +385,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.dom', 'jquery.s
 					//<link rel="apple-touch-startup-image" href="/startup.png">
 				}
 
-				if (options.preventScroll && !Device.os.blackberry) {
+				if (options.preventScroll && Device.os.ios) {
 					$(window).bind("touchmove", function sapInitMobileTouchMoveHandle(oEvent) {
 						if (!oEvent.isMarked()) {
 							oEvent.preventDefault(); // prevent the rubber-band effect

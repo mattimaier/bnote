@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -16,7 +16,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.script'],
 	 *
 	 * @extends sap.ui.base.Object
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @private
 	 * @alias sap.ui.core.util.LibraryInfo
@@ -170,6 +170,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.script'],
 				return;
 			}
 
+			var bIsNeoAppJsonPresent = (sVersion.split(".").length === 3) && !(/-SNAPSHOT/.test(sVersion));
+
 			var oVersion = jQuery.sap.Version(sVersion);
 
 			var iMajor = oVersion.getMajor();
@@ -195,16 +197,24 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.script'],
 				sVersion = iMajor + "." + iMinor + "." + iPatch;
 			}
 
-			// replace the placeholders for major, minor and patch
-			sUrl = sUrl.replace("{major}", iMajor);
-			sUrl = sUrl.replace("{minor}", iMinor);
-			sUrl = sUrl.replace("{patch}", iPatch);
-
 			// if the URL should be resolved against the library the URL
 			// is relative to the library root path
+
+			var sBaseUrl = window.location.href,
+				regexBaseUrl = /\/\d.\d{1,2}.\d{1,2}\//;
+
 			if ($Doc.attr("resolve") == "lib") {
-				sUrl = oData.url + sUrl;
+				if (regexBaseUrl.test(sBaseUrl) || bIsNeoAppJsonPresent === false) {
+					sUrl = oData.url + sUrl;
+				} else {
+					sUrl = "{major}.{minor}.{patch}/" + oData.url + sUrl;
+				}
 			}
+
+			// replace the placeholders for major, minor and patch
+			sUrl = sUrl.replace(/\{major\}/g, iMajor);
+			sUrl = sUrl.replace(/\{minor\}/g, iMinor);
+			sUrl = sUrl.replace(/\{patch\}/g, iPatch);
 
 			// load the changelog/releasenotes
 			jQuery.ajax({
@@ -229,10 +239,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.script'],
 	};
 
 	/**
-	*Collect components from .library file
-	*@param {object} oData xml formatted object of .library file
-	*@return {array.<Object>} library component info or empty string
-	*/
+	 *Collect components from .library file
+	 *@param {object} oData xml formatted object of .library file
+	 *@return {Array.<Object>} library component info or empty string
+	 */
 
 	LibraryInfo.prototype._getLibraryComponentInfo = function(oData) {
 		var oAllLibComponents = {};
@@ -248,18 +258,19 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.script'],
 					vCurrentComponentName = vCurrentComponentName[0].textContent;
 					var vCurrentModules = oCurrentComponent.getElementsByTagName("module");
 					if (vCurrentComponentName && vCurrentModules && vCurrentModules.length > 0) {
-						var sConcatenatedModules = "";
+						var aModules = [];
 						for (var i = 0; i < vCurrentModules.length; i++) {
 							var sModule = vCurrentModules[i].textContent.replace(/\//g, ".");
 							if (sModule) {
-								sConcatenatedModules = sConcatenatedModules + "," + sModule;
+								aModules.push(sModule);
 							}
 						}
 
-						if (sConcatenatedModules) {
-							sConcatenatedModules = sConcatenatedModules.replace(/^,/, ''); // remove first comma
-							var oTemp = { "component" : vCurrentComponentName, "modules" : sConcatenatedModules };
-							aComponentModules.push(oTemp);
+						if (aModules.length > 0) {
+							aComponentModules.push({
+								"component": vCurrentComponentName,
+								"modules" : aModules
+							});
 						}
 					}
 				}
@@ -275,59 +286,70 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.script'],
 	};
 
 	/**
-	* Return the control's component for Ownership app (TeamApp) & Explored app (Demokit)
-	*
-	* @param {array.<Object>} oComponentInfos object for each library with the default component and special cases
-	* @param {string} sModuleName control name, e.g. sap.m.Button
-	* @return {string} component
-	* @private
-	*/
+	 * Return the control's component for Ownership app (TeamApp) & Explored app (Demokit)
+	 *
+	 * @param {Array.<Object>} oComponentInfos object for each library with the default component and special cases
+	 * @param {string} sModuleName control name, e.g. sap.m.Button
+	 * @return {string} component
+	 * @private
+	 */
 	LibraryInfo.prototype._getActualComponent = function(oComponentInfos, sModuleName) {
+
+		function match(sModuleName, sPattern) {
+			sModuleName = sModuleName.toLowerCase();
+			sPattern = sPattern.toLowerCase();
+			return (
+				sModuleName === sPattern
+				|| sPattern.match(/\*$/) && sModuleName.indexOf(sPattern.slice(0,-1)) === 0 // simple prefix match
+				|| sPattern.match(/\.*$/) && sModuleName === sPattern.slice(0,-2) // directory pattern also matches directory itself
+			);
+		}
+
 		if (sModuleName) {
 			for (var key in oComponentInfos) {
 				if (!oComponentInfos[key]) {
-					// If no data wasn't found for the current component.
+					// check whether no data was found for the current component.
 					// This might be the case if the corresponding library info isn't deployed on the current server.
 					jQuery.sap.log.error("No library information deployed for " + key);
+					continue;
 				}
 
-				if (sModuleName.indexOf(key) === 0 && oComponentInfos[key]) {
-					//check for special modules
-					var bSpecialModule = false;
-					var oSpecCases = oComponentInfos[key].specialCases;
-					var sSpecComponent = "";
-					var aSpecModules = [];
+				var sComponent;
 
-					if (oSpecCases) {
-						for (var i = 0; i < oSpecCases.length; i++) {
-							aSpecModules = oSpecCases[i].modules.split(",");
+				// when the module name starts with the library name, then the default component applies
+				if ( sModuleName.indexOf(key) === 0 ) {
+					sComponent = oComponentInfos[key].defaultComponent;
+				}
 
-							for (var j = 0; j < aSpecModules.length; j++) {
-								if (sModuleName === aSpecModules[j]) {
-									sSpecComponent = oSpecCases[i].component;
-									bSpecialModule = true;
-									break;
-								}
+				// always check the special rules
+				var oSpecCases = oComponentInfos[key].specialCases;
+				if (oSpecCases) {
+					for (var i = 0; i < oSpecCases.length; i++) {
+
+						var aSpecModules = oSpecCases[i].modules;
+						for (var j = 0; j < aSpecModules.length; j++) {
+							if ( match(sModuleName, aSpecModules[j]) ) {
+								sComponent = oSpecCases[i].component;
 							}
 						}
-					}
 
-					if (bSpecialModule) {
-						return sSpecComponent;
-					} else {
-						return oComponentInfos[key].defaultComponent;
 					}
 				}
+
+				if ( sComponent ) {
+					// if any component (default or special) was found, return it
+					return sComponent;
+				}
+
 			}
 		}
 	};
 
 	/**
-	*Return the default library's component for Version Info (Demokit)
-	*@param {array.<Object>} oLibraryInfo array with all library information, e.g componentInfo, releasenotes and etc
-	*@return {string} component
-	*/
-
+	 * Return the default library's component for Version Info (Demokit)
+	 * @param {Array.<Object>} oLibraryInfo array with all library information, e.g componentInfo, releasenotes and etc
+	 * @return {string} component
+	 */
 	LibraryInfo.prototype._getDefaultComponent = function(oLibraryInfo) {
 		return oLibraryInfo && oLibraryInfo.componentInfo && oLibraryInfo.componentInfo.defaultComponent;
 	};

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global', './FlexBoxCssPropertyMap'],
@@ -22,9 +22,9 @@ sap.ui.define(['jquery.sap.global', './FlexBoxCssPropertyMap'],
 	FlexBoxStylingHelper.setFlexItemStyles = function(oRm, oLayoutData) {
 		oRm = oRm || null;
 
-		var iOrder = oLayoutData.getOrder(),
-			iGrowFactor = oLayoutData.getGrowFactor(),
-			iShrinkFactor = oLayoutData.getShrinkFactor(),
+		var sOrder = '' + oLayoutData.getOrder(),
+			sGrowFactor = '' + oLayoutData.getGrowFactor(),
+			sShrinkFactor = '' + oLayoutData.getShrinkFactor(),
 			sBaseSize = oLayoutData.getBaseSize().toLowerCase(),
 			sMinHeight = oLayoutData.getMinHeight(),
 			sMaxHeight = oLayoutData.getMaxHeight(),
@@ -32,34 +32,34 @@ sap.ui.define(['jquery.sap.global', './FlexBoxCssPropertyMap'],
 			sMaxWidth = oLayoutData.getMaxWidth();
 
 		// Set values if different from default
-		if (iOrder) {
-			FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "order", iOrder);
+		if (typeof sOrder !== 'undefined') {
+			FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "order", sOrder);
 		}
 
-		if (iGrowFactor != undefined) {
-			FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "flex-grow", iGrowFactor);
+		if (typeof sGrowFactor !== 'undefined') {
+			FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "flex-grow", sGrowFactor);
 		}
 
 		if (jQuery.support.newFlexBoxLayout || jQuery.support.ie10FlexBoxLayout) {
-			if (iShrinkFactor !== 1) {
-				FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "flex-shrink", iShrinkFactor);
+			if (typeof sShrinkFactor !== 'undefined') {
+				FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "flex-shrink", sShrinkFactor);
 			}
 
-			if (sBaseSize != undefined) {
+			if (typeof sBaseSize !== 'undefined') {
 				FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "flex-basis", sBaseSize);
 			}
 		}
 
-		if (sMinHeight != undefined) {
+		if (typeof sMinHeight !== 'undefined') {
 			FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "min-height", sMinHeight);
 		}
-		if (sMaxHeight != undefined) {
+		if (typeof sMaxHeight !== 'undefined') {
 			FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "max-height", sMaxHeight);
 		}
-		if (sMinWidth != undefined) {
+		if (typeof sMinWidth !== 'undefined') {
 			FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "min-width", sMinWidth);
 		}
-		if (sMaxWidth != undefined) {
+		if (typeof sMaxWidth !== 'undefined') {
 			FlexBoxStylingHelper.setStyle(oRm, oLayoutData, "max-width", sMaxWidth);
 		}
 	};
@@ -69,8 +69,8 @@ sap.ui.define(['jquery.sap.global', './FlexBoxCssPropertyMap'],
 	 *
 	 * @param {sap.ui.core.RenderManager} oRm the RenderManager that can be used for writing to the render output buffer
 	 * @param {sap.m.FlexItemData} oLayoutData an object representation of the layout data
-	 * @param sProperty name of the property
-	 * @param sValue value of the property
+	 * @param {string} sProperty name of the property
+	 * @param {string} sValue value of the property
 	 */
 	FlexBoxStylingHelper.setStyle = function(oRm, oLayoutData, sProperty, sValue) {
 		if (typeof (sValue) === "string") {
@@ -105,8 +105,8 @@ sap.ui.define(['jquery.sap.global', './FlexBoxCssPropertyMap'],
 	 *
 	 * @param {sap.ui.core.RenderManager} oRm the RenderManager that can be used for writing to the render output buffer
 	 * @param {sap.m.FlexItemData} oLayoutData an object representation of the layout data
-	 * @param sProperty name of the property
-	 * @param sValue value of the property
+	 * @param {string} sProperty name of the property
+	 * @param {string} sValue value of the property
 	 */
 	FlexBoxStylingHelper.setOldSpecStyle = function(oRm, oLayoutData, sProperty, sValue) {
 		// Choose specification
@@ -157,8 +157,8 @@ sap.ui.define(['jquery.sap.global', './FlexBoxCssPropertyMap'],
 	 *
 	 * @param {sap.ui.core.RenderManager} oRm the RenderManager that can be used for writing to the render output buffer
 	 * @param {sap.m.FlexItemData} oLayoutData an object representation of the layout data
-	 * @param sProperty name of the property
-	 * @param sValue value of the property
+	 * @param {string} sProperty name of the property
+	 * @param {string} sValue value of the property
 	 */
 	FlexBoxStylingHelper.writeStyle = function(oRm, oLayoutData, sProperty, sValue) {
 		var sPropertyPrefix = "";
@@ -186,11 +186,31 @@ sap.ui.define(['jquery.sap.global', './FlexBoxCssPropertyMap'],
 			}
 		}
 
-		// Finally, write property value to control using either the renderer or element directly
+		// Finally, write property value to control using either the render manager or the element directly
 		if (oRm) {
-			oRm.addStyle(sPropertyPrefix + sProperty, sValuePrefix + sValue);
+			if (sValue === "0" || sValue) {
+				oRm.addStyle(sPropertyPrefix + sProperty, sValuePrefix + sValue);
+			}
 		} else {
-			oLayoutData.$().css(sPropertyPrefix + sProperty, sValuePrefix + sValue);
+			// Set the property on the wrapper or the control root itself
+			if (oLayoutData.$().length) {	// Does the layout data have a DOM representation?
+				// jQuery removes 'null' styles
+				if (sValue !== "0" && !sValue) {
+					oLayoutData.$().css(sPropertyPrefix + sProperty, null);
+				} else {
+					oLayoutData.$().css(sPropertyPrefix + sProperty, sValuePrefix + sValue);
+				}
+			} else {
+				// Get control root for bare item
+				if (oLayoutData.getParent()) {
+					// jQuery removes 'null' styles
+					if (sValue !== "0" && !sValue) {
+						oLayoutData.getParent().$().css(sPropertyPrefix + sProperty, null);
+					} else {
+						oLayoutData.getParent().$().css(sPropertyPrefix + sProperty, sValuePrefix + sValue);
+					}
+				}
+			}
 		}
 	};
 

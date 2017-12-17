@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -12,16 +12,45 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	/**
 	 * Constructor for a new Panel.
 	 *
-	 * @param {string} [sId] id for the new control, generated automatically if no id is given
-	 * @param {object} [mSettings] initial settings for the new control
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
+	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * The Panel control is a container for controls which has a header and content.
-	 * The header is always visible while the content can be collapsed if the Panel is expandable.
+	 * A container control which has a header and content.
+	 * <h3>Overview</h3>
+	 * The panel is a container for grouping and displaying information. It can be collapsed to save space on the screen.
+	 * <h4>Guidelines:</h4>
+	 * <ul>
+	 * <li>Nesting two or more panels is not recommended.</li>
+	 * <li>Do not stack too many panels on one page.</li>
+	 * </ul>
+	 * <h3>Structure</h3>
+	 * A panel consists of a title bar with a header text or header toolbar, an info toolbar (optional), and a content area.
+	 * Using the <code>headerToolbar</code> aggregation, you can add a toolbar with any toolbar content (i.e. custom buttons, spacers, titles) inside the title bar.
+	 *
+	 * There are two types of panels: fixed and expandable. Expendable panels are enabled by the <code>expandable</code> property.
+	 * Furthermore you can define an expand animation with the property <code>expandAnimation</code>.
+	 * <h3>Usage</h3>
+	 * <h4>When to use:</h4>
+	 * <ul>
+	 * <li>You need to group or display information and want to give users the option of hiding this information.</li>
+	 * <li>You want to show additional information on demand (for example, a panel could show optional input fields for an advanced search).</li>
+	 * <li>You want to create a panel with controls that do not require user interaction and are not part of a form. Depending on the usage, change the <code>accessibleRole</code> property from the default <code>{@link sap.m.PanelAccessibleRole Form}</code> to <code>{@link sap.m.PanelAccessibleRole Region}</code> or <code>{@link sap.m.PanelAccessibleRole Complementary}</code>.</li>
+	 * </ul>
+	 * <h3>Responsive Behavior</h3>
+	 * <ul>
+	 * <li>If the width of the panel is set to 100% (default), the panel and its children are resized responsively, depending on its parent container.</li>
+	 * <li>If the panel has a fixed defined height, it will take up the space, even if the panel is collapsed.</li>
+	 * <li>When the panel is expandable, an arrow icon (pointing to the right) appears in front of the header.</li>
+	 * <li>When the animation is activated, expand/collapse uses a smooth animation to open or close the content area.</li>
+	 * <li>When the panel expands/collapses, the arrow icon rotates 90 degrees clockwise/counter-clockwise.</li>
+	 * <li>When the height uses the default property <code>auto</code>, the height of the content area is automatically adjusted to match the height of its content.</li>
+	 * <li>When the height of the panel is set to a fixed size, the content area can be scrolled through.</li>
+	 * </ul>
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -78,7 +107,15 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			 * Depending on the theme you can change the state of the background from "Solid" over "Translucent" to "Transparent".
 			 * @since 1.30
 			 */
-			backgroundDesign: {type: "sap.m.BackgroundDesign", group: "Appearance", defaultValue: sap.m.BackgroundDesign.Translucent}
+			backgroundDesign: {type: "sap.m.BackgroundDesign", group: "Appearance", defaultValue: sap.m.BackgroundDesign.Translucent},
+
+			/**
+			 * This property is used to set the accessible aria role of the Panel.
+			 * Depending on the usage you can change the role from the default <code>Form</code> to <code>Region</code> or <code>Complementary</code>.
+			 * @since 1.46
+			 */
+			accessibleRole: {type: "sap.m.PanelAccessibleRole", group: "Accessibility", defaultValue: sap.m.PanelAccessibleRole.Form}
+
 		},
 		defaultAggregation: "content",
 		aggregations: {
@@ -109,7 +146,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		events: {
 
 			/**
-			 * Indicates that the panel will expand or collapse
+			 * Indicates that the panel will expand or collapse.
 			 * @since 1.22
 			 */
 			expand: {
@@ -119,14 +156,23 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 					 * If the panel will expand, this is true.
 					 * If the panel will collapse, this is false.
 					 */
-					expand: {type : "boolean"}
+					expand: {type : "boolean"},
+
+					/**
+					 * Identifies whether the event is triggered by an user interaction or by calling setExpanded.
+					 * @since 1.50
+					 */
+					triggeredByInteraction: {type: "boolean"}
 				}
 			}
 		},
-		designtime : true
+		designTime: true
 	}});
 
 	Panel.prototype.init = function () {
+
+		// identifies whether the last expand action is triggered by a user interaction or by calling setExpanded setter
+		this._bInteractiveExpand = false;
 		this.data("sap-ui-fastnavgroup", "true", true); // Define group for F6 handling
 	};
 
@@ -159,11 +205,17 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		var oDomRef = this.getDomRef();
 		if (oDomRef) {
 			oDomRef.style.height = sHeight;
-			oDomRef.querySelector(".sapMPanelContent").style.height = sHeight;
+			if (parseFloat(sHeight) != 0) {
+				oDomRef.querySelector(".sapMPanelContent").style.height = sHeight;
+			}
 			this._setContentHeight();
 		}
 
 		return this;
+	};
+
+	Panel.prototype.onThemeChanged = function () {
+		this._setContentHeight();
 	};
 
 	/**
@@ -189,6 +241,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @public
 	 */
 	Panel.prototype.setExpanded = function (bExpanded) {
+
 		if (bExpanded === this.getExpanded()) {
 			return this;
 		}
@@ -204,7 +257,28 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 		this._toggleExpandCollapse();
 		this._toggleCssClasses();
-		this.fireExpand({ expand : bExpanded });
+		this.fireExpand({ expand: bExpanded, triggeredByInteraction: this._bInteractiveExpand });
+		this._bInteractiveExpand = false;
+
+		return this;
+	};
+
+	/**
+	 * Sets the accessibleRole property of the control.
+	 * @param {sap.m.PanelAccessibleRole} sRole Defines the aria role of the control.
+	 * @returns {sap.m.Panel} Pointer to the control instance to allow method chaining.
+	 * @public
+	 */
+	Panel.prototype.setAccessibleRole = function (sRole) {
+		if (sRole === this.getAccessibleRole()) {
+			return this;
+		}
+
+		this.setProperty("accessibleRole", sRole, true);
+
+		if (sap.ui.getCore().getConfiguration().getAccessibility()) {
+			this.$().attr("role", this.getAccessibleRole().toLowerCase());
+		}
 
 		return this;
 	};
@@ -250,6 +324,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			decorative: false,
 			useIconTooltip: false,
 			press: function () {
+				that._bInteractiveExpand = true;
 				that.setExpanded(!that.getExpanded());
 			}
 		}).addStyleClass("sapMPanelExpandableIcon");
@@ -260,19 +335,18 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	Panel.prototype._setContentHeight = function () {
-		if (this.getHeight() === "auto") {
+		var sAdjustedContentHeight,
+		thisDomRef = this.getDomRef(),
+		oPanelContent = thisDomRef && thisDomRef.querySelector(".sapMPanelContent");
+
+		if (this.getHeight() === "auto" || !oPanelContent) {
 			return;
 		}
 
-		var thisDomRef = this.getDomRef();
-
 		// 'offsetTop' measures the vertical space occupied by siblings before this one
 		// Earlier each previous sibling's height was calculated separately and then all height values were summed up
-		var iOffsetTop = thisDomRef.querySelector(".sapMPanelContent").offsetTop;
-		var iAdjustedContentHeight = thisDomRef.clientHeight - iOffsetTop;
-
-		thisDomRef.querySelector(".sapMPanelContent")
-			.style.height = iAdjustedContentHeight + 'px';
+		sAdjustedContentHeight =  'calc(' + this.getHeight() + ' - ' + oPanelContent.offsetTop + 'px)';
+		oPanelContent.style.height = sAdjustedContentHeight;
 	};
 
 	Panel.prototype._toggleExpandCollapse = function () {

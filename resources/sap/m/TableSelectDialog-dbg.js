@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,12 +18,39 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * TableSelectDialog provides you with an easier way to create a dialog that contains a list with grouping and search functionalities.
-	 * The Table used in a SelectDialog is a Table with Columns. After selecting an item, the dialog is closed and a callback function returns the item being selected.
-	 * @extends sap.ui.core.Control
+	 * A dialog to select items in a table containing multiple values and attributes.
+	 * <h3>Overview</h3>
+	 * The table select dialog helps users select items in a table-like structure with several attributes and values per item. A search fields helps narrow down the results.
+	 * <h3>Structure</h3>
+	 * The table select dialog consists of the following elements:
+	 * <ul>
+	 * <li> Search field - used to search enter search terms for a specific item.</li>
+	 * <li> Infobar (optional) - shows additional information for the current selection (i.e. total number of selected items).</li>
+	 * <li> Content - the table with the items.</li>
+	 * <li> Footer (optional) - a toolbar for actions.</li>
+	 * </ul>
+	 * Table select dialog supports multi-selection when the <code>multiSelect</code> property is set.
 	 *
+	 * The selected items can be stored for later editing when the <code>rememberSelections</code> property is set.
+	 * <b>Note:</b> This property has to be set before the dialog is opened.
+	 * <h3>Usage</h3>
+	 * <h4>When to use:</h4>
+	 * <ul>
+	 * <li>You need to select one or more items from a comprehensive list that contains multiple attributes or values.</li>
+	 * </ul>
+	 * <h4>When not to use:</h4>
+	 * <ul>
+	 * <li>You need to select one item from a predefined set of options that contains only one value. Use a {@link sap.m.Select switch} control instead.</li>
+	 * <li>You need to select items within a query-based range. Use a {@link sap.ui.comp.valuehelpdialog.ValueHelpDialog value help} control instead.</li>
+	 * <li>You need to only filter a set of items. Use a {@link sap.ui.comp.filterbar.FilterBar filter bar} control instead.</li>
+	 * </ul>
+	 * <h3>Responsive Behavior</h3>
+	 * <ul>
+	 * <li>On smaller screens, the columns of the table wrap and build a list that shows all the information.</li>
+	 * </ul>
+	 * @extends sap.ui.core.Control
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -194,6 +221,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 			growing: true,
 			growingScrollToLoad: true,
 			mode: sap.m.ListMode.SingleSelectMaster,
+			modeAnimationOn: false,
 			infoToolbar: new sap.m.Toolbar({
 				visible: false,
 				active: false,
@@ -391,6 +419,8 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 		// reset internal variables
 		this._bFirstRequest = true;
 
+		this._sSearchFieldValue = "";
+
 		// set search field value
 		this._oSearchField.setValue(sSearchValue);
 
@@ -426,6 +456,33 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 
 		return this;
 	};
+	/**
+	 * Enables/Disables busy state.
+	 * @overwrite
+	 * @public
+	 * @param {boolean} flag for enabling busy indicator
+	 * @returns {sap.m.TableSelectDialog} this pointer for chaining
+	 */
+	TableSelectDialog.prototype.setBusy = function (bBusy) {
+		this._oSearchField.setEnabled(!bBusy);
+
+		// Overwrite setBusy as it should be handled in the "real" dialog
+		this._oDialog.setBusy.apply(this._oDialog, arguments);
+
+		// Should return "this"
+		return this;
+	};
+
+	/**
+	 * Gets current busy state.
+	 * @overwrite
+	 * @public
+	 * @returns {boolean} value of currtent busy state.
+	 */
+	TableSelectDialog.prototype.getBusy = function () {
+		// Overwrite getBusy as it should be handled in the "real" dialog
+		return this._oDialog.getBusy.apply(this._oDialog, arguments);
+	};
 
 	/**
 	 * Sets the busyIndicatorDelay value to the internal table
@@ -435,6 +492,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 	 */
 	TableSelectDialog.prototype.setBusyIndicatorDelay = function (iValue) {
 		this._oTable.setBusyIndicatorDelay(iValue);
+		this._oDialog.setBusyIndicatorDelay(iValue);
 		this.setProperty("busyIndicatorDelay", iValue, true);
 
 		return this;
@@ -644,7 +702,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 	 * @private
 	 * @param {string} sFunctionName The name of the function to be called
 	 * @param {string} sAggregationName The name of the aggregation associated
-	 * @returns {mixed} The return type of the called function
+	 * @returns {any} The return type of the called function
 	 */
 	TableSelectDialog.prototype._callMethodInManagedObject = function (sFunctionName, sAggregationName) {
 		var aArgs = Array.prototype.slice.call(arguments);
@@ -809,22 +867,18 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 	};
 
 	/**
-	 * Shows/hides a local busy indicator and hides/shows the list based on the parameter flag. For the first request, the search field is also hidden.
+	 * Shows/hides a local busy indicator, hides/shows the list based on the parameter flag and enables/disables the search field.
 	 * @private
 	 * @param {boolean} bBusy flag (true = show, false = hide)
 	 */
 	TableSelectDialog.prototype._setBusy = function (bBusy) {
 		if (this._iTableUpdateRequested) { // check if the event was caused by our control
 			if (bBusy) {
-				if (this._bFirstRequest) { // also hide the header bar for the first request
-					this._oSubHeader.$().css('display', 'none');
-				}
+				this._oSearchField.setEnabled(false);
 				this._oTable.addStyleClass('sapMSelectDialogListHide');
 				this._oBusyIndicator.$().css('display', 'inline-block');
 			} else {
-				if (this._bFirstRequest) { // also show the header bar again for the first request
-					this._oSubHeader.$().css('display', 'block');
-				}
+				this._oSearchField.setEnabled(true);
 				this._oTable.removeStyleClass('sapMSelectDialogListHide');
 				this._oBusyIndicator.$().css('display', 'none');
 			}
@@ -835,12 +889,12 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 	 * Shows a busy indicator and hides searchField and list in the dialog.
 	 * Event function that is called when the model sends a request to update the data.
 	 * @private
-	 * @param {jQuery.EventObject} oEvent The event object
+	 * @param {jQuery.Event} oEvent The event object
 	 */
 	TableSelectDialog.prototype._updateStarted = function (oEvent) {
 		if (this.getModel() && this.getModel() instanceof sap.ui.model.odata.ODataModel) {
 			if (this._oDialog.isOpen() && this._iTableUpdateRequested) {
-				// only set busy mode when we have an oData model
+				// only set busy mode when we have an OData model
 				this._setBusy(true);
 			} else {
 				this._bInitBusy = true;
@@ -852,11 +906,11 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 	 * Hides the busy indicator and shows searchField and list in the dialog.
 	 * Event function that is called when the model request is finished.
 	 * @private
-	 * @param {jQuery.EventObject} oEvent The event object
+	 * @param {jQuery.Event} oEvent The event object
 	 */
 	TableSelectDialog.prototype._updateFinished = function (oEvent) {
 		this._updateSelectionIndicator();
-		// only reset busy mode when we have an oData model
+		// only reset busy mode when we have an OData model
 		if (this.getModel() && this.getModel() instanceof sap.ui.model.odata.ODataModel) {
 			this._setBusy(false);
 			this._bInitBusy = false;
@@ -957,10 +1011,12 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 
 			// fire cancel event
 			that.fireCancel();
-
-			// reset selection
-			that._resetSelection();
 		};
+
+		// reset selection
+		// before was part of the fnAfterClose callback but apparently actions were executed on
+		// a table that does not exist so moving here as fix
+		that._resetSelection();
 
 		// attach the reset function to afterClose to hide the dialog changes from the end user
 		this._oDialog.attachAfterClose(fnAfterClose);
@@ -972,7 +1028,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 	 * @private
 	 */
 	TableSelectDialog.prototype._updateSelectionIndicator = function () {
-		var iSelectedContexts = this._oTable.getSelectedContexts(true).length,
+		var iSelectedContexts = this._oTable.getSelectedContextPaths(true).length,
 			oInfoBar = this._oTable.getInfoToolbar();
 
 		// update the selection label
@@ -987,11 +1043,16 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 	 */
 	TableSelectDialog.prototype._fireConfirmAndUpdateSelection = function () {
 		// fire confirm event with current selection
-		this.fireConfirm({
+		var mParams = {
 			selectedItem: this._oSelectedItem,
-			selectedItems: this._aSelectedItems,
-			selectedContexts: this._oTable.getSelectedContexts(true)
+			selectedItems: this._aSelectedItems
+		};
+		// retrieve the value for 'selectedContexts' only lazily as it might fail for some models
+		Object.defineProperty(mParams, "selectedContexts", {
+			get: this._oTable.getSelectedContexts.bind(this._oTable, true)
 		});
+
+		this.fireConfirm(mParams);
 		this._updateSelection();
 	};
 
@@ -1018,6 +1079,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './SearchField', './
 
 		// due to the delayed call (dialog onAfterClose) the control could be already destroyed
 		if (!this.bIsDestroyed) {
+			this._executeSearch("", "search");
 			this._oTable.removeSelections();
 			for (; i < this._aInitiallySelectedItems.length; i++) {
 				this._oTable.setSelectedItem(this._aInitiallySelectedItems[i]);

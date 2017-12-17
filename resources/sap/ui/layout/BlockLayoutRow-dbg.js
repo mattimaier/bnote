@@ -1,11 +1,15 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control'],
-	function(jQuery, Control) {
+ /**
+  * @typedef {Object} sap.ui.layout.BlockRowColorSets
+  * @typedef {Object} sap.ui.layout.BlockLayoutRow
+  */
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', './library', 'sap/ui/layout/BlockLayoutCellData'],
+	function(jQuery, Control, library, BlockLayoutCellData) {
 		"use strict";
 
 		/**
@@ -20,7 +24,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control'],
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
@@ -28,179 +32,408 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control'],
 		 * @alias sap.ui.layout.BlockLayoutRow
 		 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
 		 */
-		var BlockLayoutRow = Control.extend("sap.ui.layout.BlockLayoutRow", { metadata : {
+		var BlockLayoutRow = Control.extend("sap.ui.layout.BlockLayoutRow", {
+			metadata: {
 
-			library : "sap.ui.layout",
+				library: "sap.ui.layout",
 
-			properties : {
+				properties: {
 
-				/**
-				 * Sets the rendering mode of the BlockLayoutRow to scrollable. In scrollable mode, the cells get
-				 * aligned side by side, with horizontal scroll bar for the row.
-				 */
-				scrollable: {type: "boolean", group: "Appearance", defaultValue: false}
-			},
-			defaultAggregation : "content",
-			aggregations: {
-				/**
-				 * The content cells to be included in the row.
-				 */
-				content: {type : "sap.ui.layout.BlockLayoutCell", multiple : true, singularName : "content"}
+					/**
+					 * Sets the rendering mode of the BlockLayoutRow to scrollable. In scrollable mode, the cells get
+					 * aligned side by side, with horizontal scroll bar for the row.
+					 */
+					scrollable: {type: "boolean", group: "Appearance", defaultValue: false},
 
+					/**
+					 * Defines background type for that row.
+					 * There might be several rows with the same type
+					 * @since 1.42
+					 */
+					rowColorSet: {type: "sap.ui.layout.BlockRowColorSets", group: "Appearance"}
+				},
+				defaultAggregation: "content",
+				aggregations: {
+					/**
+					 * The content cells to be included in the row.
+					 */
+					content: {type: "sap.ui.layout.BlockLayoutCell", multiple: true, singularName: "content"}
+				},
+				associations: {
+					/**
+					 * Cells that would be accented.
+					 * *Note:* This association has visual impact only for BlockLayouts with background types "Mixed" and "Accent".
+					 *
+					 * Mixed: In this type, areas of 25% (on desktop) can have a dark background color. Per section one area can be dark.
+					 * Accent: Every section can contain multiple gray blocks, which are used alternately, beginning with the bright one
+					 *
+					 * @since 1.42
+					 */
+					accentCells: {type: "sap.ui.layout.BlockLayoutCell", multiple: true, singularName: "accentCell"}
+				}
 			}
-		}});
+		});
 
-		BlockLayoutRow.CONSTANTS = {
-			maxScrollableCellsPerRow : 10,
-			minScrollableCellsPerRow: 3,
-			guidelineRatios: [0.25, 0.5, 0.75, 1.0]
+		BlockLayoutRow.prototype.init = function () {
+			this._applyLayoutData = {};
+		};
+
+		BlockLayoutRow.prototype.addContent = function (oContent) {
+			this._ensureLayoutData(oContent);
+			return this.addAggregation("content", oContent);
+		};
+
+		BlockLayoutRow.prototype.insertContent = function(oContent, index) {
+			this._ensureLayoutData(oContent);
+			return this.insertAggregation("content", oContent, index);
 		};
 
 		/**
 		 * Performs guidelines check
 		 */
 		BlockLayoutRow.prototype.onBeforeRendering = function () {
-			this._checkGuidelinesAndUpdateCells();
+			var aCells = this.getContent(),
+				that = this;
+
+			aCells.forEach(function (oCell, index) {
+				oCell._setParentRowScrollable(that.getScrollable());
+			});
+
+			this._calculateBreakpointRendering();
 		};
 
-		BlockLayoutRow.prototype._checkGuidelinesAndUpdateCells = function () {
-			var that = this,
-				cells = this.getContent(),
-				cellRatios = this._calcCellRatios(),
-				differentSBreakpoint = this._checkDifferentSBreakpointCase(),
-				guidelinesFollowed = this._guidelinesCheck();
+		/**
+		 * Changes dynamically row's color set
+		 * Note: this might invalidate cells inside and also change color sets of the other BlockLayoutRow-s below it.
+		 * @public
+		 * @method
+		 * @param {sap.ui.layout.BlockRowColorSets} sType
+		 * @since 1.42
+		 * @returns {sap.ui.layout.BlockLayoutRow}
+		 */
+		BlockLayoutRow.prototype.setRowColorSet = function (sType) {
+			// Apply here so if there's an exception the code bellow won't be executed
+			var aArgs = Array.prototype.slice.call(arguments),
+				oObject = Control.prototype.setProperty.apply(this, ["rowColorSet"].concat(aArgs)),
+				sClassName = "sapUiBlockLayoutBackground" + sType,
+				oBlockLayout = this.getParent(),
+				sBackground = oBlockLayout && oBlockLayout.getBackground(),
+				iThisIndexInParent = oBlockLayout && oBlockLayout.indexOfAggregation("content", this),
+				aParentContent = oBlockLayout && oBlockLayout.getContent(),
+				oPrevBlockRow = (iThisIndexInParent && aParentContent[iThisIndexInParent - 1]) || null,
+				oNextBlockRow = (aParentContent && aParentContent[iThisIndexInParent + 1]) || null,
+				oBlockRowColorSets = sap.ui.layout.BlockRowColorSets,
+				aColorSets = Object.keys(oBlockRowColorSets).map(function (sKey) {
+					return oBlockRowColorSets[sKey];
+				}),
+				bInvertedColorSet = false;
 
-			cells.forEach(function (cell, index) {
-				cell._clearState();
-				if (that.getScrollable()) {
-					cell._setParentRowScrollable(true);
-				} else if (differentSBreakpoint && guidelinesFollowed) {
-					cell._setDifferentSBreakpointSize(true, cellRatios[index]);
+			if (oPrevBlockRow && oPrevBlockRow._hasStyleClass(sClassName, sBackground, bInvertedColorSet, sType)) {
+				sClassName += "Inverted";
+				bInvertedColorSet = true;
+			}
+
+			aColorSets.forEach(function (sCurType) {
+				var sColorSetStyle = "sapUiBlockLayoutBackground" + sCurType,
+					sInvertedColorSetStyle = sColorSetStyle + "Inverted";
+
+				if (this._hasStyleClass(sColorSetStyle, sBackground, false, sCurType)) {
+					this.removeStyleClass(sColorSetStyle, true);
+				} else if (this._hasStyleClass(sInvertedColorSetStyle, sBackground, true, sCurType)) {
+					this.removeStyleClass(sInvertedColorSetStyle, true);
+				}
+			}, this);
+			this.addStyleClass(sClassName, true);
+
+			// If the next row is of the same type and has the same CSS class, recalculate it and cascade
+			if (oNextBlockRow && oNextBlockRow._hasStyleClass(sClassName, sBackground, bInvertedColorSet, sType)) {
+				oNextBlockRow.setRowColorSet.apply(oNextBlockRow, aArgs);
+			}
+
+			// Invalidate the whole row as the background dependencies, row color sets and accent cells should be resolved properly
+			this.invalidate();
+
+			return oObject;
+		};
+
+		BlockLayoutRow.prototype.addAccentCell = function (vId) {
+			var oObject,
+				sId = vId && vId.getId ? vId.getId() : vId,
+				args = Array.prototype.slice.call(arguments),
+				oBackgrounds = sap.ui.layout.BlockBackgroundType,
+				oBlockLayout = this.getParent(),
+				sLayoutBackground = oBlockLayout && (oBlockLayout.getBackground() || "");
+
+			oObject = this.addAssociation.apply(this, ["accentCells"].concat(args));
+
+			if (!oBlockLayout) {
+				return this;
+			}
+
+			if ([oBackgrounds.Accent, oBackgrounds.Mixed].indexOf(sLayoutBackground) === -1) {
+				jQuery.sap.log.warning(sId + " was not se as accent cell. Accent cells could be set only for 'Accent' and 'Mixed' layout backgrounds.");
+				return this;
+			}
+
+			if (oBackgrounds.Mixed === sLayoutBackground) {
+				this._processMixedCellStyles(sId, this.getContent());
+			} else if (oBackgrounds.Accent === sLayoutBackground) {
+				this._processAccentCellStyles(this.getAccentCells(), this.getContent());
+			}
+
+			return oObject;
+		};
+
+		BlockLayoutRow.prototype._ensureLayoutData = function (oContent) {
+			var oOldData = oContent.getLayoutData();
+			if (!oOldData || !(oOldData instanceof BlockLayoutCellData)) {
+				oContent.setLayoutData(new BlockLayoutCellData());
+			}
+		};
+
+		BlockLayoutRow.prototype._onParentSizeChange = function (currentSize) {
+			this._currentSize = currentSize;
+			this._calculateBreakpointRendering();
+			this.invalidate();
+		};
+
+		BlockLayoutRow.prototype._getCellArangementForCurrentSize = function () {
+			if (!this._arrangements || !this._currentSize) {
+				return null;
+			}
+
+			return this._arrangements[this._currentSize];
+		};
+
+		BlockLayoutRow.prototype._calculateBreakpointRendering = function () {
+			if (!this._currentSize) {
+				return;
+			}
+
+			this._arrangements = {
+				//For S we take the data from the LayoutData of the cells
+				"S": this._calcArrangementForSize("S"),
+				//For M we take the data from the LayoutData of the cells
+				"M": this._calcArrangementForSize("M"),
+				//For L we take the data from the LayoutData of the cells
+				"L": this._calcArrangementForSize("L"),
+				//For Xl we take the data from the LayoutData of the cells
+				"XL": this._calcArrangementForSize("Xl")
+			};
+		};
+
+		/**
+		 * Calculates each row for the corresponding arrangement size.
+		 * @private
+		 * @method
+		 * @param {string} sSizeName The size that needs to be calculated
+		 * @returns {[*]}
+		 */
+		BlockLayoutRow.prototype._calcArrangementForSize = function (sSizeName) {
+			var aContent = this.getContent();
+			if (aContent.length >= 3 && sSizeName === "M" && aContent.length < 5) {
+				return this._generateArrangementForMCase();
+			} else {
+				return this._generateArrangement(sSizeName);
+			}
+		};
+
+		BlockLayoutRow.prototype._generateArrangement = function (sSizeName) {
+			var oLayoutData,
+				iIndex = 0,
+				aFlatData = [],
+				aBreakOn = [],
+				aArrangement = [[]],
+				aContent = this.getContent();
+
+			aContent.forEach(function (oCell) {
+				oLayoutData = oCell.getLayoutData();
+				aBreakOn.push(oLayoutData["breakRowOn" + sSizeName + "Size"]);
+				aFlatData.push(oLayoutData["get" + sSizeName + "Size"]());
+			});
+
+			aFlatData.forEach(function (iData, i) {
+				aArrangement[iIndex].push(iData);
+
+				if (aBreakOn[i + 1]) {
+					iIndex++;
+					aArrangement[iIndex] = [];
 				}
 			});
 
-			if (!this.getScrollable() && differentSBreakpoint && guidelinesFollowed) {
-				this._rowSCase = true;
-				this.addStyleClass("sapUiBlockRowSCase", true);
-			} else {
-				this._rowSCase = false;
-				this.removeStyleClass("sapUiBlockRowSCase", true);
+			return aArrangement;
+		};
+
+		BlockLayoutRow.prototype._generateArrangementForMCase = function () {
+			var aContent = this.getContent();
+
+			if (aContent.length === 3 && this._isAllCellsHasSameWidth("M")) {
+				return [[1, 1, 1]];
+			} else if (aContent.length === 3) {
+				return [[1, 1], [1]]; // This is the case where we have for example 25% 25% 50%
+			} else if (aContent.length === 4) {
+				return [[1, 1], [1, 1]];
 			}
 		};
 
-		/**
-		 * Depending on the scrolling mode, chooses which guidelines check to execute
-		 * @private
-		 */
-		BlockLayoutRow.prototype._guidelinesCheck = function () {
-			if (this.getScrollable()) {
-				return this._checkScrollableCellsCount();
-			} else {
-				return this._checkNonScrollableGuidelines();
-			}
-		};
+		BlockLayoutRow.prototype._isAllCellsHasSameWidth = function (sSizeName) {
+			var iCurrentRowSize,
+				aContent = this.getContent(),
+				iFirstRowSize = aContent[0].getLayoutData()["get" + sSizeName + "Size"]();
 
-		/**
-		 * Calculates the cell ratio of each cell compared to the total width of the Row
-		 * @returns {Array}
-		 * @private
-		 */
-		BlockLayoutRow.prototype._calcCellRatios = function () {
-			var cellRatios = [],
-				totalRowWidth = 0,
-				content = this.getContent();
+			for (var i = 1; i < aContent.length; i++) {
+				iCurrentRowSize = aContent[i].getLayoutData()["get" + sSizeName + "Size"]();
 
-			content.forEach(function (cell) {
-				var cellWidth = (cell.getWidth() == 0 ) ? 1 : cell.getWidth();
-				totalRowWidth += cellWidth;
-			});
-
-			content.forEach(function (cell) {
-				var cellWidth = (cell.getWidth() == 0 ) ? 1 : cell.getWidth(),
-					cellRatio = cellWidth / totalRowWidth;
-
-				cellRatios.push(cellRatio);
-			});
-
-			return cellRatios;
-		};
-
-		/**
-		 * For the non scrollable Row - 4 types of cells are allowed - cells with 25% 50% 75% and 100% width
-		 * @private
-		 */
-		BlockLayoutRow.prototype._checkNonScrollableGuidelines = function () {
-			var that = this,
-				cellRatios = this._calcCellRatios(),
-				guidelinesFollowed = true;
-
-			cellRatios.forEach(function (cellRatio) {
-				if (!that._isCellRatioIncluded(cellRatio)) {
-					guidelinesFollowed = false;
+				if (iCurrentRowSize !== iFirstRowSize) {
+					return false;
 				}
-			});
-
-			if (!guidelinesFollowed) {
-				jQuery.sap.log.error("In your BlockLayoutRow " + this.getId() + " you are using cell ratios that are " +
-				"not recommended in the guidelines. Cells can be with width of 25% 50% 75% or 100% according to the guidelines.");
 			}
-
-			return guidelinesFollowed;
+			return true;
 		};
 
 		/**
-		 * If the row contains (25% 25% 50%) (50% 25% 25%) or (25% 25% 25% 25%) cells
-		 * there is special behavior for the S Breakpoint defined, that transforms the row
-		 * into two rows: (50% 50% 100%) (100% 50% 50%) or (50% 50% 50% 50%)
+		 * Adjusts accents cells for Mixed background layout
 		 * @private
+		 * @method
+		 * @param {string} sId The ID of the row that will be processed
+		 * @param {Array} aCells Cells in the current row
+		 * @returns {sap.ui.layout.BlockLayoutRow}
 		 */
-		BlockLayoutRow.prototype._checkDifferentSBreakpointCase = function () {
-			var cellRatios = this._calcCellRatios(),
-				cells = this.getContent();
+		BlockLayoutRow.prototype._processMixedCellStyles = function (sId, aCells) {
+			var oBlockLayout, bProcessAccentCells;
 
-			if (cells.length == 4 || (cells.length == 3 && cellRatios[1] != 0.5)) {
+			if (!aCells || !aCells.length) {
+				jQuery.sap.log.warning("No accent cells were set");
+				return this;
+			}
+
+			oBlockLayout = this.getParent();
+			bProcessAccentCells = oBlockLayout && (oBlockLayout.hasStyleClass("sapUiBlockLayoutSizeL") || oBlockLayout.hasStyleClass("sapUiBlockLayoutSizeXL"));
+
+			aCells.forEach(function (oCell) {
+				var oColorSets, bUseContrast2;
+
+				// Accent only on a cell with 25% width and L, XL sizes
+				if (bProcessAccentCells && oCell.getId() === sId && oCell.getWidth() === 1) {
+					oCell.addStyleClass("sapContrast").addStyleClass("sapContrastPlus");
+
+					oColorSets = sap.ui.layout.BlockRowColorSets;
+					bUseContrast2 = this._hasStyleClass("sapUiBlockLayoutBackground" + oColorSets.ColorSet1, sap.ui.layout.BlockBackgroundType.Mixed, false, oColorSets.ColorSet1) ||
+						this._hasStyleClass("sapUiBlockLayoutBackground" + oColorSets.ColorSet1, sap.ui.layout.BlockBackgroundType.Mixed, true, oColorSets.ColorSet1);
+
+					if (bUseContrast2) {
+						oCell.addStyleClass("sapUiBlockLayoutBackgroundContrast2");
+					}
+				} else if ((!bProcessAccentCells || oCell.getId() !== sId) && (oCell.hasStyleClass("sapContrast") || oCell.hasStyleClass("sapContrastPlus"))) {
+					oCell.removeStyleClass("sapContrast").removeStyleClass("sapContrastPlus").removeStyleClass("sapUiBlockLayoutBackgroundContrast2");
+
+					this.removeAssociation("accentCells", oCell);
+
+					jQuery.sap.log.warning(sId + " was removed as accent cell. Only one cell at a time could be accented for Mixed layout background");
+				}
+			}, this);
+
+			return this;
+		};
+
+		/**
+		 * Adjusts accents cells for Accent background layout.
+		 * @private
+		 * @method
+		 * @param {Array} aAccentCells Cells with accent contrast
+		 * @param {Array} aRowCells All cells in the row
+		 * @returns {sap.ui.layout.BlockLayoutRow}
+		 */
+		BlockLayoutRow.prototype._processAccentCellStyles = function (aAccentCells, aRowCells) {
+			var oCell, sCellId, sCalculatedStyleClass,
+				iIndex = 0,
+				iInvertCellColorsModulo = 0,
+				aAccentCellsCopy = Array.prototype.slice.call(aAccentCells);
+
+			if (!aAccentCells || !aAccentCells.length) {
+				jQuery.sap.log.warning("No accent cells were set");
+				return this;
+			}
+
+			// Find the index of current accented cell and check if it should be of Accent type 1 OR 2
+			for (iIndex = 0; iIndex < aRowCells.length; iIndex++) {
+				oCell = aRowCells[iIndex];
+				sCellId = oCell.getId();
+
+				if (!aAccentCellsCopy.length) {
+					break;
+				}
+
+				if (aAccentCellsCopy.indexOf(sCellId) > -1) {
+					iInvertCellColorsModulo++;
+
+					sCalculatedStyleClass = "sapUiBlockLayoutBackgroundColorSetGray" + ((iInvertCellColorsModulo % 2) + 1);
+
+					// If the cell already has the expected class, shouldn't loop further as everything below is already adjusted
+					if (oCell.hasStyleClass(sCalculatedStyleClass)) {
+						continue;
+					}
+
+					// Optimise a bit the next loop iteration
+					aAccentCellsCopy.splice(aAccentCellsCopy.indexOf(sCellId), 1);
+
+					oCell
+						.removeStyleClass("sapUiBlockLayoutBackgroundColorSetGray1")
+						.removeStyleClass("sapUiBlockLayoutBackgroundColorSetGray2")
+						.addStyleClass(sCalculatedStyleClass);
+				}
+			}
+
+			return this;
+		};
+
+		/**
+		 * Checks for specific cases when two row color sets share the same colors e.g. Light and Mixed backgrounds.
+		 * @private
+		 * @method
+		 * @param {string} sStyleClass
+		 * @param {sap.ui.layout.BlockBackgroundType} sLayoutBackground Background type of the <code>BlockLayout</code>
+		 * @param {boolean} bIsColorInverted Determines if the color inverted
+		 * @param {sap.ui.layout.BlockRowColorSets} sType The current color set of the given row
+		 * @returns {boolean} Determines if the row contains the class
+		 */
+		BlockLayoutRow.prototype._hasStyleClass = function (sStyleClass, sLayoutBackground, bIsColorInverted, sType) {
+			var oBackgrounds = sap.ui.layout.BlockBackgroundType,
+				oColorSets = sap.ui.layout.BlockRowColorSets,
+				i, aStyleClasses, aEqualSets;
+
+			// Check if this is NOT Mixed or Light background and just do the normal check
+			if ([oBackgrounds.Light, oBackgrounds.Mixed].indexOf(sLayoutBackground) === -1) {
+				return this.hasStyleClass(sStyleClass);
+			} else if (this.hasStyleClass(sStyleClass)) { // Check if this class is there and don't continue further
 				return true;
 			}
 
-			return false;
-		};
+			// Define array with equal sets
+			aEqualSets = [
+				[oColorSets.ColorSet1, oColorSets.ColorSet3],
+				[oColorSets.ColorSet2, oColorSets.ColorSet4]
+			];
 
-		/**
-		 * Checks whether a given cell ratio is included in the guidelines ratios
-		 * @param ratio
-		 * @returns {boolean}
-		 * @private
-		 */
-		BlockLayoutRow.prototype._isCellRatioIncluded = function (ratio) {
-			var guidelineRatios = BlockLayoutRow.CONSTANTS.guidelineRatios;
-			for (var i = 0 ; i < guidelineRatios.length; i++) {
-				if (guidelineRatios[i] === ratio) {
-					return true;
+			// Find on which index is sType
+			for (i = 0; i <= aEqualSets.length; i++) {
+				if (aEqualSets[i] && aEqualSets[i].indexOf(sType) > -1) {
+					break;
 				}
 			}
 
-			return false;
-		};
-
-		/**
-		 * Checks the total cell count of the row when in scrollable mode.
-		 * The row should contain between 3 and 10 cells.
-		 * @private
-		 */
-		BlockLayoutRow.prototype._checkScrollableCellsCount = function () {
-			if (this.getContent().length > BlockLayoutRow.CONSTANTS.maxScrollableCellsPerRow) {
-				jQuery.sap.log.error("You are using too much cells in your scrollable row: " + this.getId() + "." +
-				"This is violating the BlockLayout guidelines, please consider changing your implementation. Max cells allowed: 10.");
+			// If it's not found there, then return false, as if the class was inside, it would fulfill the first hasStyleClass above
+			if (!aEqualSets[i]) {
 				return false;
 			}
 
-			if (this.getContent().length < BlockLayoutRow.CONSTANTS.minScrollableCellsPerRow) {
-				jQuery.sap.log.error("You are using not enough cells in your scrollable row: " + this.getId() + "." +
-				"This is violating the BlockLayout guidelines, please consider changing your implementation. Min cells allowed: 3.");
-				return false;
-			}
+			// Build class strings to check against
+			aStyleClasses = aEqualSets[i].map(function (sColorSet) {
+				return "sapUiBlockLayoutBackground" + sColorSet + (bIsColorInverted ? "Inverted" : "");
+			});
 
-			return true;
+			// Check if any of the classes is inside
+			return aStyleClasses.some(this.hasStyleClass, this);
 		};
 
 		return BlockLayoutRow;

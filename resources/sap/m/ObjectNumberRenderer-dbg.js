@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -85,12 +85,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 	ObjectNumberRenderer.renderUnit = function(oRm, oON) {
 		var sUnit = oON.getUnit() || oON.getNumberUnit();
 
-		oRm.write("<span");
-		oRm.addClass("sapMObjectNumberUnit");
-		oRm.writeClasses();
-		oRm.write(">");
-		oRm.writeEscaped(sUnit);
-		oRm.write("</span>");
+		if (sUnit !== "") {
+			oRm.write("<span");
+			oRm.addClass("sapMObjectNumberUnit");
+			oRm.writeClasses();
+			oRm.write(">");
+			oRm.writeEscaped(sUnit);
+			oRm.write("</span>");
+		}
 	};
 
 	ObjectNumberRenderer.renderHiddenARIAElement = function(oRm, oON) {

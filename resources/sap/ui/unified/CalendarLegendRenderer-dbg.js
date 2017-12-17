@@ -1,6 +1,6 @@
 /*
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -22,63 +22,50 @@ sap.ui.define(['jquery.sap.global'],
 	 */
 	CalendarLegendRenderer.render = function(oRm, oLeg) {
 
-		var aStandardItems = oLeg.getAggregation("standardItems");
-		var aCustomItems = oLeg.getItems();
-		var i = 0;
+		var aStandardItems = oLeg.getAggregation("_standardItems"),
+			aCustomItems = oLeg.getItems(),
+			i,
+			iIdLength,
+			sColumnWidth;
 
 		oRm.write("<div");
 		oRm.writeControlData(oLeg);
 		oRm.addClass("sapUiUnifiedLegend");
 		oRm.writeClasses();
-		var sColumnWidth = oLeg.getColumnWidth();
-		oRm.writeAttribute("style", "column-width:" + sColumnWidth + ";-moz-column-width:" + sColumnWidth + ";-webkit-column-width:" + sColumnWidth + ";");
-		oRm.writeStyles();
 		oRm.write(">");
 
-		// rendering standard days and colors
-		var iIdLength = oLeg.getId().length + 1;
-		for (i = 0; i < aStandardItems.length; i++) {
-			var sClass = "sapUiUnifiedLegend" + aStandardItems[i].getId().slice(iIdLength);
-			this.renderLegendItem(oRm, sClass, aStandardItems[i]);
-		}
-		// rendering special day and colors
-		if (aCustomItems && aCustomItems.length > 0) {
-			var oFreeTypes = jQuery.extend({}, sap.ui.unified.CalendarDayType);
-			delete oFreeTypes[sap.ui.unified.CalendarDayType.None];
-			var sType = "";
-			var iTypes = 0;
+		this.renderItemsHeader(oRm, oLeg);
 
-			for (sType in oFreeTypes) {
-				iTypes++;
-			}
+		if (aStandardItems || aCustomItems) {
+			oRm.write("<div");
+			oRm.addClass("sapUiUnifiedLegendItems");
+			oRm.writeClasses();
+			sColumnWidth = oLeg.getColumnWidth();
+			oRm.writeAttribute("style", "column-width:" + sColumnWidth + ";-moz-column-width:" + sColumnWidth + ";-webkit-column-width:" + sColumnWidth + ";");
+			oRm.writeStyles();
+			oRm.write(">");
 
-			for (i = 0; i < aCustomItems.length; i++) {
-				sType = aCustomItems[i].getType();
-				if (sType && sType != sap.ui.unified.CalendarDayType.None && oFreeTypes[sType]) {
-					delete oFreeTypes[sType];
+			if (aStandardItems) {
+				// rendering standard days and colors
+				iIdLength = oLeg.getId().length + 1; //+1, because of the dash in "CalLeg1-Today"?
+				for (i = 0; i < aStandardItems.length; ++i) {
+					var sClass = "sapUiUnifiedLegend" + aStandardItems[i].getId().slice(iIdLength);
+					this.renderLegendItem(oRm, sClass, aStandardItems[i], ["sapUiUnifiedLegendSquareColor"]);
 				}
 			}
 
-			var aFreeTypes = [];
-			for (sType in oFreeTypes) {
-				aFreeTypes.push(sType);
-			}
-
-			for (i = 0; i < aCustomItems.length; i++) {
-				sType = aCustomItems[i].getType();
-				if (!sType || sType == sap.ui.unified.CalendarDayType.None) {
-					if (aFreeTypes[0]) {
-						sType = aFreeTypes[0];
-						aFreeTypes.splice(0, 1);
-					} else {
-						iTypes++;
-						sType = "Type" + iTypes; // event type is not defined, maybe application styled it
-					}
+			if (aCustomItems) {
+				// rendering special day and colors
+				for (i = 0; i < aCustomItems.length; i++) {
+					this.renderLegendItem(oRm, "sapUiCalLegDayType" + oLeg._getItemType(aCustomItems[i], aCustomItems).slice(4), aCustomItems[i], ["sapUiUnifiedLegendSquareColor"]);
 				}
-
-				this.renderLegendItem(oRm, "sapUiCalLegDayType" + sType.slice(4), aCustomItems[i]);
 			}
+
+			oRm.write("</div>");
 		}
+
+		this.renderAdditionalContent(oRm, oLeg); //like more sections with items
+
 		oRm.write("</div>");
 	};
 
@@ -88,8 +75,9 @@ sap.ui.define(['jquery.sap.global'],
 	 * @param {sap.ui.core.RenderManager} oRm the RenderManager that can be used for writing to the render output buffer
 	 * @param {string} sClass name of the CSS class used for this item
 	 * @param {sap.ui.unified.CalenderLegendItem} oItem item element
+	 * @param {string[]} aColorClasses Css classes to be added to the color bullet item in front of the legend item
 	 */
-	CalendarLegendRenderer.renderLegendItem = function(oRm, sClass, oItem) {
+	CalendarLegendRenderer.renderLegendItem = function(oRm, sClass, oItem, aColorClasses) {
 
 		var sText = oItem.getText();
 		var sTooltip = oItem.getTooltip_AsString();
@@ -112,17 +100,57 @@ sap.ui.define(['jquery.sap.global'],
 		oRm.writeClasses();
 		oRm.write(">");
 		// draw the square color
-		oRm.write("<div");
-		oRm.addClass("sapUiUnifiedLegendSquareColor");
-		oRm.writeClasses();
-		oRm.write("></div></div>"); // close color, background
+		this.renderColor(oRm, oItem.getColor(), aColorClasses);
+		oRm.write("</div>"); //close background
 		// write description
 		oRm.write("<div");
+		oRm.writeAttribute("id", oItem.getId() + "-Text");
 		oRm.addClass("sapUiUnifiedLegendDescription");
 		oRm.writeClasses();
 		oRm.write(">");
 		oRm.writeEscaped(sText);
 		oRm.write("</div></div>"); // close description, LegendItem
+	};
+
+	/**
+	 * Renders a header for the items list.
+	 * @param {sap.ui.core.RenderManager} oRm the RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.unified.CalendarLegend} oLeg an object representation of the legend that should be rendered
+	 * @since 1.50
+	 */
+	CalendarLegendRenderer.renderItemsHeader = function(oRm, oLeg) {
+		//to be used if descendant classes want to render a header for the items list
+	};
+
+	/**
+	 * Renders additional content after the items list.
+	 * @param {sap.ui.core.RenderManager} oRm the RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.unified.CalendarLegend} oLeg an object representation of the legend that should be rendered
+	 * @since 1.50
+	 */
+	CalendarLegendRenderer.renderAdditionalContent = function(oRm, oLeg) {
+		//to be used to render additional content after the items section
+		//for example more sections with items
+	};
+
+	/**
+	 * Renders a color bullet in front of a legend item.
+	 * @param {sap.ui.core.RenderManager} oRm the RenderManager that can be used for writing to the render output buffer
+	 * @param {string} sColor Item bullet color
+	 * @param {string[]} aColorClasses Css classes to be added to the color bullet item in front of the legend item
+	 * @since 1.50
+	 */
+	CalendarLegendRenderer.renderColor = function(oRm, sColor, aColorClasses) {
+		oRm.write("<div");
+		for (var i = 0; i < aColorClasses.length; i++) {
+			oRm.addClass(aColorClasses[i]);
+		}
+		if (sColor) {
+			oRm.addStyle("background-color", sColor);
+			oRm.writeStyles();
+		}
+		oRm.writeClasses();
+		oRm.write("></div>"); // close color
 	};
 
 	return CalendarLegendRenderer;

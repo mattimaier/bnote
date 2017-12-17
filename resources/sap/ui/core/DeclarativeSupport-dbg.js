@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -14,7 +14,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', 'sap/ui/base/Managed
 	 * @class Static class for enabling declarative UI support.
 	 *
 	 * @author Peter Muessig, Tino Butz
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @since 1.7.0
 	 * @public
 	 * @alias sap.ui.core.DeclarativeSupport
@@ -130,7 +130,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', 'sap/ui/base/Managed
 		}
 
 		// add the controls
-		jQuery.each(aControls, function(vKey, oControl) {
+		aControls.forEach(function(oControl) {
 			if (oControl instanceof Control) {
 				if (oView && !isRecursive) {
 					oView.addContent(oControl);
@@ -195,7 +195,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', 'sap/ui/base/Managed
 
 
 	/**
-	 * Parses a given DOM ref and converts it into a HTMLControl.
+	 * Parses a given DOM ref and converts it into an HTMLControl.
 	 * @param {Element} oElement reference to a DOM element
 	 * @param {sap.ui.core.mvc.HTMLView} [oView] The view instance to use.
 	 * @return {sap.ui.core.HTML} reference to a Control
@@ -252,11 +252,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', 'sap/ui/base/Managed
 						if (oAssociation.multiple) {
 							// we support "," and " " to split between IDs
 							sValue = sValue.replace(/\s*,\s*|\s+/g, ","); // normalize strings: "id1  ,    id2    id3" to "id1,id2,id3"
-							var aId = sValue.split(","); // split array for all ","
-							jQuery.each(aId, function(iIndex, sId) {
-								aId[iIndex] = oView ? oView.createId(sId) : sId;
+							// split array for all ","
+							mSettings[sName] = sValue.split(",").map(function(sId) {
+								return oView ? oView.createId(sId) : sId;
 							});
-							mSettings[sName] = aId;
 						} else {
 							mSettings[sName] = oView ? oView.createId(sValue) : sValue; // use the value as ID
 						}
@@ -341,8 +340,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', 'sap/ui/base/Managed
 		var oAggregations = fnClass.getMetadata().getAllAggregations();
 
 		$element.children().each(function() {
-			// check for an aggregation tag of in case of a sepcifiying the
-			// aggregration on the parent control this will be used in case
+			// check for an aggregation tag of in case of a specifying the
+			// aggregation on the parent control this will be used in case
 			// of no meta tag was found
 			var $child = jQuery(this);
 			var sAggregation = $child.attr("data-sap-ui-aggregation");

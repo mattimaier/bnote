@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -14,14 +14,19 @@ sap.ui.define([
 
 	/**
 	 * @class
-	 * List binding implementation for oData format
+	 * List binding implementation for oData format.
 	 *
-	 * @param {sap.ui.model.Model} oModel
-	 * @param {string} sPath
-	 * @param {sap.ui.model.Context} oContext
-	 * @param {array} [aSorters] initial sort order (can be either a sorter or an array of sorters)
-	 * @param {array} [aFilters] predefined filter/s (can be either a filter or an array of filters)
-	 * @param {object} [mParameters]
+	 * @param {sap.ui.model.odata.ODataModel} oModel Model that this list binding belongs to
+	 * @param {string} sPath Path into the model data, relative to the given <code>oContext</code>
+	 * @param {sap.ui.model.Context} oContext Context that the <code>sPath</code> is based on
+	 * @param {array} [aSorters] Initial sort order (can be either a sorter or an array of sorters)
+	 * @param {array} [aFilters] Predefined filter/s (can be either a filter or an array of filters)
+	 * @param {object} [mParameters] A map which contains additional parameters for the binding
+	 * @param {string} [mParameters.expand] Value for the OData <code>$expand</code> query parameter which should be included in the request
+	 * @param {string} [mParameters.select] Value for the OData <code>$select</code> query parameter which should be included in the request
+	 * @param {map} [mParameters.custom] An optional map of custom query parameters. Custom parameters must not start with <code>$</code>
+	 * @param {sap.ui.model.odata.CountMode} [mParameters.countMode] Defines the count mode of this binding;
+	 *           if not specified, the default count mode of the <code>oModel</code> is applied
 	 *
 	 * @public
 	 * @alias sap.ui.model.odata.ODataListBinding
@@ -45,6 +50,9 @@ sap.ui.define([
 			this.bDataAvailable = false;
 			this.bIgnoreSuspend = false;
 
+			// check filter integrity
+			this.oModel.checkFilterOperation(this.aApplicationFilters);
+
 			// load the entity type for the collection only once and not e.g. every time when filtering
 			if (!this.oModel.getServiceMetadata()) {
 				var that = this,
@@ -64,7 +72,7 @@ sap.ui.define([
 			// TODO: what if nested list is not complete, because it was too large?
 			var oRef = this.oModel._getObject(this.sPath, this.oContext);
 			this.aExpandRefs = oRef;
-			if (jQuery.isArray(oRef) && !aSorters && !aFilters) {
+			if (Array.isArray(oRef) && !aSorters && !aFilters) {
 				this.aKeys = oRef;
 				this.iLength = oRef.length;
 				this.bLengthFinal = true;
@@ -76,7 +84,7 @@ sap.ui.define([
 				this.bDataAvailable = true;
 			}	else {
 				// call getLength when metadata is already loaded or don't do anything
-				// if the the metadata gets loaded it will call a refresh on all bindings
+				// if the metadata gets loaded it will call a refresh on all bindings
 				if (this.oModel.getServiceMetadata()) {
 					this.resetData();
 				}
@@ -313,7 +321,7 @@ sap.ui.define([
 					// TODO: what if nested list is not complete, because it was too large?
 					var oRef = this.oModel._getObject(this.sPath, this.oContext);
 					this.aExpandRefs = oRef;
-					if (jQuery.isArray(oRef) && !this.aSorters.length > 0 && !this.aFilters.length > 0) {
+					if (Array.isArray(oRef) && !this.aSorters.length > 0 && !this.aFilters.length > 0) {
 						this.aKeys = oRef;
 						this.iLength = oRef.length;
 						this.bLengthFinal = true;
@@ -656,7 +664,7 @@ sap.ui.define([
 			// - set the new keys if there are no sortes/filters set
 			// - trigger a refresh if there are sorters/filters set
 			oRef = this.oModel._getObject(this.sPath, this.oContext);
-			bRefChanged = jQuery.isArray(oRef) && !jQuery.sap.equal(oRef,this.aExpandRefs);
+			bRefChanged = Array.isArray(oRef) && !jQuery.sap.equal(oRef,this.aExpandRefs);
 			this.aExpandRefs = oRef;
 			if (bRefChanged) {
 				if (this.aSorters.length > 0 || this.aFilters.length > 0) {
@@ -813,17 +821,20 @@ sap.ui.define([
 			aFilters = [aFilters];
 		}
 
+		// check filter integrity
+		this.oModel.checkFilterOperation(aFilters);
+
 		if (sFilterType == FilterType.Application) {
 			this.aApplicationFilters = aFilters;
 		} else {
 			this.aFilters = aFilters;
 		}
 
-		if (!aFilters || !jQuery.isArray(aFilters) || aFilters.length == 0) {
+		if (!aFilters || !Array.isArray(aFilters) || aFilters.length == 0) {
 			this.aFilters = [];
 		}
 		//if no application-filters are present, or they are not in array form/empty array, init the filters with []
-		if (!this.aApplicationFilters || !jQuery.isArray(this.aApplicationFilters) || this.aApplicationFilters.length === 0) {
+		if (!this.aApplicationFilters || !Array.isArray(this.aApplicationFilters) || this.aApplicationFilters.length === 0) {
 			this.aApplicationFilters = [];
 		}
 

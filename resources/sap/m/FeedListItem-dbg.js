@@ -1,15 +1,13 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.FeedListItem.
-sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
-	function(jQuery, ListItemBase, library) {
+sap.ui.define(['jquery.sap.global', './ListItemBase', './library', './FormattedText'],
+	function(jQuery, ListItemBase, library, FormattedText) {
 	"use strict";
-
-
 
 	/**
 	 * Constructor for a new FeedListItem.
@@ -20,10 +18,11 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 	 * @class
 	 * The control provides a set of properties for text, sender information, time stamp.
 	 * Beginning with release 1.23 the new feature expand / collapse was introduced, which uses the property maxCharacters.
+	 * Beginning with release 1.44, sap.m.FormattedText was introduced which allows html formatted text to be displayed
 	 * @extends sap.m.ListItemBase
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -53,7 +52,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 			sender : {type : "string", group : "Data", defaultValue : null},
 
 			/**
-			 * The FeedListItem text.
+			 * The FeedListItem text. It supports html formatted tags as described in the documentation of sap.m.FormattedText
 			 */
 			text : {type : "string", group : "Data", defaultValue : null},
 
@@ -68,12 +67,12 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 			timestamp : {type : "string", group : "Data", defaultValue : null},
 
 			/**
-			 * If true, sender string is an link, which will fire 'senderPress' events. If false, sender is normal text.
+			 * If true, sender string is a link, which will fire 'senderPress' events. If false, sender is normal text.
 			 */
 			senderActive : {type : "boolean", group : "Behavior", defaultValue : true},
 
 			/**
-			 * If true, icon is an link, which will fire 'iconPress' events. If false, icon is normal image
+			 * If true, icon is a link, which will fire 'iconPress' events. If false, icon is normal image
 			 */
 			iconActive : {type : "boolean", group : "Behavior", defaultValue : true},
 
@@ -90,9 +89,28 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 			showIcon : {type : "boolean", group : "Behavior", defaultValue : true},
 
 			/**
+			 * Determines whether strings that appear to be links will be converted to HTML anchor tags, and what are the criteria for recognizing them.
+			 * @since 1.46.1
+			 */
+			convertLinksToAnchorTags : {type : "sap.m.LinkConversion", group : "Behavior", defaultValue : sap.m.LinkConversion.None},
+
+			/**
+			 * Determines the target attribute of the generated HTML anchor tags. Note: Applicable only if ConvertLinksToAnchorTags property is used with a value other than sap.m.LinkConversion.None. Options are the standard values for the target attribute of the HTML anchor tag: _self, _top, _blank, _parent, _search.
+			 * @since 1.46.1
+			 */
+			convertedLinksDefaultTarget : {type : "string", group : "Behavior", defaultValue : "_blank"},
+
+			/**
 			 * The expand and collapse feature is set by default and uses 300 characters on mobile devices and 500 characters on desktops as limits. Based on these values, the text of the FeedListItem is collapsed once text reaches these limits. In this case, only the specified number of characters is displayed. By clicking on the text link More, the entire text can be displayed. The text link Less collapses the text. The application is able to set the value to its needs.
 			 */
 			maxCharacters : {type : "int", group : "Behavior", defaultValue : null}
+		},
+		defaultAggregation : "_text",
+		aggregations : {
+			/**
+			 * Hidden aggregation which contains the text value
+			 */
+			"_text" : {type : "sap.m.FormattedText", multiple : false, visibility : "hidden"}
 		},
 		events : {
 
@@ -150,16 +168,49 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 	/**
 	 * Default texts are fetched from the sap.m resource bundle
 	 */
-
 	FeedListItem._sTextShowMore = FeedListItem._oRb.getText("TEXT_SHOW_MORE");
 	FeedListItem._sTextShowLess = FeedListItem._oRb.getText("TEXT_SHOW_LESS");
 
-	/**
-	 * Function is called when exiting the control.
-	 *
-	 * @private
-	 */
+	FeedListItem.prototype.init = function () {
+		ListItemBase.prototype.init.apply(this);
+		this.setAggregation("_text", new FormattedText(this.getId() + "-formattedText"), true);
+	};
+
+	FeedListItem.prototype.onBeforeRendering = function() {
+		this.$("realtext").find('a[target="_blank"]').off("click");
+
+		var oFormattedText = this.getAggregation("_text");
+		oFormattedText.setProperty("convertLinksToAnchorTags", this.getConvertLinksToAnchorTags(), true);
+		oFormattedText.setProperty("convertedLinksDefaultTarget", this.getConvertedLinksDefaultTarget(), true);
+		if (this.getConvertLinksToAnchorTags() === library.LinkConversion.None) {
+			oFormattedText.setHtmlText(this.getText());
+		} else {
+			oFormattedText.setProperty("htmlText", this.getText(), true);
+		}
+		this._sFullText = oFormattedText._getDisplayHtml().replace(/\n/g, "<br>");
+		this._sShortText = this._getCollapsedText();
+		this._bEmptyTagsInShortTextCleared = false;
+	};
+
+	FeedListItem.prototype.onAfterRendering = function() {
+		if (this._checkTextIsExpandable() && !this._bTextExpanded) {
+			this._clearEmptyTagsInCollapsedText();
+		}
+		// Additional processing of the links takes place in the onAfterRendering function of sap.m.FormattedText, e.g. registration of the click event handlers.
+		// FeedListItem does not render sap.m.FormattedText control as part of its own DOM structure, therefore the onAfterRendering function of the FormattedText
+		// must be called manually with the correct context, providing access to the DOM elements that must be processed.
+		var $RealText = this.$("realtext");
+		FormattedText.prototype.onAfterRendering.apply({
+			$ : function () {
+				return $RealText;
+			}
+		});
+	};
+
 	FeedListItem.prototype.exit = function() {
+		// Should be done always, since the registration occurs independently of the properties that determine auto link recognition.
+		this.$("realtext").find('a[target="_blank"]').off("click");
+
 		// destroy link control if initialized
 		if (this._oLinkControl) {
 			this._oLinkControl.destroy();
@@ -194,6 +245,26 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 	};
 
 	/**
+	 * The implementation of this method is a workaround for an issue in Jaws screenreader: when the alt text for the image is set, the other content of the list item is not read out.
+	 * Therefore the alt text is removed when the list item is focused.
+	 * When one of the inner elements (image or links) is focused, the alt text is set to space; otherwise the alt text would be read again with the link text.
+	 * The aria-label for the image holds the information for the image.
+	 *
+	 * @private
+	 * @param {jQuery.Event} oEvent - The focus event.
+	 */
+	FeedListItem.prototype.onfocusin = function(oEvent) {
+		if (this._oImageControl) {
+			var $icon = this.$("icon");
+			if (oEvent.target.id === this.getId()) {
+				$icon.removeAttr("alt");
+			} else {
+				$icon.attr("alt"," ");
+			}
+		}
+	};
+
+	/**
 	 * Lazy load feed icon image.
 	 *
 	 * @private
@@ -205,7 +276,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 		var sImgId = this.getId() + '-icon';
 		var mProperties = {
 			src : sIconSrc,
-			alt : this.getSender(),
+			alt : encodeURI(this.getSender()),
 			densityAware : this.getIconDensityAware(),
 			decorative : false,
 			useIconTooltip : false };
@@ -219,7 +290,6 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 
 		var that = this;
 		this._oImageControl = sap.m.ImageHelper.getImageControl(sImgId, this._oImageControl, this, mProperties, aCssClasses);
-
 		if (this.getIconActive()) {
 			this._oImageControl.attachPress(function() {
 				that.fireIconPress({
@@ -268,6 +338,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 
 	/**
 	 * Overwrite base method to hook into list item's active handling
+	 *
 	 * @private
 	 */
 	FeedListItem.prototype._activeHandlingInheritor = function() {
@@ -279,6 +350,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 
 	/**
 	 * Overwrite base method to hook into list item's inactive handling
+	 *
 	 * @private
 	 */
 	FeedListItem.prototype._inactiveHandlingInheritor = function() {
@@ -291,36 +363,75 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 	/**
 	 * The first this._nMaxCollapsedLength characters of the text are shown in the collapsed form, the text string ends up
 	 * with a complete word, the text string contains at least one word
+	 * If maxCharacters is empty, the default values are used which are 300 characters (on mobile devices)
+	 * and 500 characters ( on tablet and desktop). Otherwise maxCharacters is used as a limit. Based on
+	 * this value, the text of the FeedListItem is collapsed once the text reaches this limit.
+	 *
 	 * @private
-	 * @returns {String} Collapsed string based on the "maxCaharater" property
+	 * @returns {String} Collapsed string based on the "maxCharacter" property. If the size of the string before collapsing
+	 * is smaller than the provided threshold, it returns null.
 	 */
 	FeedListItem.prototype._getCollapsedText = function() {
-		var sShortText = this._sFullText.substring(0, this._nMaxCollapsedLength);
-		var nLastSpace = sShortText.lastIndexOf(" ");
-		if (nLastSpace > 0) {
-			this._sShortText = sShortText.substr(0, nLastSpace);
-		} else {
-			this._sShortText = sShortText;
+		this._nMaxCollapsedLength = this.getMaxCharacters();
+		if (this._nMaxCollapsedLength === 0) {
+			if (sap.ui.Device.system.phone) {
+				this._nMaxCollapsedLength = FeedListItem._nMaxCharactersMobile;
+			} else {
+				this._nMaxCollapsedLength = FeedListItem._nMaxCharactersDesktop;
+			}
 		}
-		return this._sShortText;
+		var sPlainText = this._convertHtmlToPlainText(this._sFullText);
+		var sText = null;
+		if (sPlainText && sPlainText.length > this._nMaxCollapsedLength) {
+			var sCollapsedPlainText = sPlainText.substring(0, this._nMaxCollapsedLength);
+			var nLastSpace = sCollapsedPlainText.lastIndexOf(" ");
+			if (nLastSpace > 0) {
+				sCollapsedPlainText = sCollapsedPlainText.substr(0, nLastSpace);
+			}
+			if (sPlainText.length === this._sFullText.length) {//no HTML tags detected
+				sText = sCollapsedPlainText;
+			} else {
+				sText = this._convertPlainToHtmlText(sCollapsedPlainText);
+			}
+		}
+
+		return sText;
+	};
+
+	/**
+	 * Removes the remaining empty tags for collapsed text
+	 *
+	 * @private
+	 */
+	FeedListItem.prototype._clearEmptyTagsInCollapsedText = function() {
+		var aRemoved;
+		if (this._bEmptyTagsInShortTextCleared) {
+			return;
+		}
+		this._bEmptyTagsInShortTextCleared = true;
+		do {
+			aRemoved = this.$("realtext").find(":empty").remove();
+		} while (aRemoved.length > 0);
+		this._sShortText = this.$("realtext").html();
 	};
 
 	/**
 	 * Expands or collapses the text of the FeedListItem expanded state: this._sFullText + ' ' + 'LESS' collapsed state:
 	 * this._sShortText + '...' + 'MORE'
+	 *
 	 * @private
 	 */
 	FeedListItem.prototype._toggleTextExpanded = function() {
 		var $text = this.$("realtext");
 		var $threeDots = this.$("threeDots");
 		if (this._bTextExpanded) {
-			this._getCollapsedText();
-			$text.html(jQuery.sap.encodeHTML(this._sShortText).replace(/&#xa;/g, "<br>"));
+			$text.html(this._sShortText.replace(/&#xa;/g, "<br>"));
 			$threeDots.text(" ... ");
 			this._oLinkExpandCollapse.setText(FeedListItem._sTextShowMore);
 			this._bTextExpanded = false;
+			this._clearEmptyTagsInCollapsedText();
 		} else {
-			$text.html(jQuery.sap.encodeHTML(this._sFullText).replace(/&#xa;/g, "<br>"));
+			$text.html(this._sFullText.replace(/&#xa;/g, "<br>"));
 			$threeDots.text("  ");
 			this._oLinkExpandCollapse.setText(FeedListItem._sTextShowLess);
 			this._bTextExpanded = true;
@@ -350,38 +461,75 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library'],
 	};
 
 	/**
-	 * Checks if the text is expandable: If maxCharacters is empty the default values are used, which are 300 characters (
-	 * on mobile devices) and 500 characters ( on tablet and desktop). Otherwise maxCharacters is used as a limit. Based on
-	 * this value, the text of the FeedListItem is collapsed once the text reaches this limit.
+	 * Converts an HTML text to plain text by removing all the HTML tags
 	 *
 	 * @private
-	 * @returns {boolean} true if the text is already expanded. Otherwise returns false.
+	 * @param {String} htmlText The HtmlText to be converted
+	 * @returns {String} plain text
+	 */
+	FeedListItem.prototype._convertHtmlToPlainText = function(htmlText) {
+		var oRegex = /(<([^>]+)>)/ig;
+		return htmlText.replace(oRegex, "");
+	};
+
+	/**
+	 * Converts the plain text to HTML text by adding the corresponding HTML tags
+	 *
+	 * @private
+	 * @param {String} inputText The input plain text
+	 * @returns {String} the HTML text
+	 */
+	FeedListItem.prototype._convertPlainToHtmlText = function(inputText) {
+		var sFullText = this._sFullText;
+		var oRegex = /(<([^>]+)>)/ig;
+		var aElements = sFullText.split(oRegex);
+		var sText = "";
+		//remove duplicated tag
+		for (var i = 0; i < aElements.length; i++) {
+			if (aElements[i].length === 0) {
+				continue;
+			}
+			if (inputText.length > 0 && aElements[i].indexOf(inputText.trim()) !== -1) {
+				aElements[i] = inputText;
+			}
+			if (/^<.+>$/.test(aElements[i])) {//tag
+				sText = sText + aElements[i];
+				//tag content duplicate to be removed
+				aElements[i + 1] = "";
+				continue;
+			}
+			if (inputText.indexOf(aElements[i].trim()) === -1) {
+				continue;
+			} else {
+				inputText = inputText.replace(aElements[i], "");
+			}
+			sText = sText + aElements[i];
+		}
+
+		return sText;
+	};
+
+	/**
+	 * The text can be expanded if it is longer than the threshold. Then, the control can have two states:
+	 * a state where the text is expanded and a state where the text is collapsed.
+	 * The text cannot be expanded if the text is shorter than the threshold and the complete text is always visible.
+	 *
+	 * @private
+	 * @returns {boolean} true if the text can be expanded. Otherwise returns false.
 	 */
 	FeedListItem.prototype._checkTextIsExpandable = function() {
-		this._nMaxCollapsedLength = this.getMaxCharacters();
-		if (this._nMaxCollapsedLength === 0) {
-			if (sap.ui.Device.system.phone) {
-				this._nMaxCollapsedLength = FeedListItem._nMaxCharactersMobile;
-			} else {
-				this._nMaxCollapsedLength = FeedListItem._nMaxCharactersDesktop;
-			}
-		}
-		this._sFullText = this.getText();
-		var bTextIsExpandable = false;
-		if (this._sFullText.length > this._nMaxCollapsedLength) {
-			bTextIsExpandable = true;
-		}
-		return bTextIsExpandable;
+		return this._sShortText !== null;
 	};
 
 	/**
 	 * Redefinition of sap.m.ListItemBase.setType: type = "sap.m.ListType.Navigation" behaves like type = "sap.m.ListType.Active" for a FeedListItem
+	 *
 	 * @public
 	 * @param {sap.m.ListType} type new value for property type
 	 * @returns {sap.m.FeedListItem} this allows method chaining
 	 */
-	sap.m.FeedListItem.prototype.setType = function(type) {
-		if (type == sap.m.ListType.Navigation) {
+	FeedListItem.prototype.setType = function(type) {
+		if (type === sap.m.ListType.Navigation) {
 			this.setProperty("type", sap.m.ListType.Active);
 		} else {
 			this.setProperty("type", type);

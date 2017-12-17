@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -48,21 +48,28 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Core", "sap/ui/core/library", "
 			"sap.uxap.ModelMapping",
 			"sap.uxap.ObjectPageHeaderLayoutData"
 		],
-		version: "1.38.7",
+		version: "1.50.7",
 		extensions: {
 			flChangeHandlers: {
+				"sap.uxap.ObjectPageHeader" : "sap/uxap/flexibility/ObjectPageHeader",
 				"sap.uxap.ObjectPageLayout": {
-					"moveElements": "default"
+					"moveControls": {
+						"changeHandler": "default",
+						"layers": {
+							"USER": true
+						}
+					}
 				},
-				"sap.uxap.ObjectPageSection": {
-					"hideControl": "default",
-					"unhideControl": "default",
-					"stashControl": "default",
-					"unstashControl": "default"
-				},
-	             "sap.ui.core._StashedControl" : {
-                     "unstashControl": "default"
-	            }
+				"sap.uxap.ObjectPageSection": "sap/uxap/flexibility/ObjectPageSection",
+				"sap.uxap.ObjectPageSubSection" : "sap/uxap/flexibility/ObjectPageSubSection",
+				"sap.ui.core._StashedControl" : {
+					"unstashControl": {
+						"changeHandler": "default",
+						"layers": {
+							"USER": true
+						}
+					}
+				}
 			}
 		}
 	});
@@ -280,39 +287,27 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Core", "sap/ui/core/library", "
 		 */
 		getClosestOPL: function (oControl) {
 
-			while (oControl && oControl.getMetadata().getName() !== "sap.uxap.ObjectPageLayout") {
+			while (oControl && !(oControl instanceof sap.uxap.ObjectPageLayout)) {
 				oControl = oControl.getParent();
 			}
 
 			return oControl;
 		},
-		isPhoneScenario: function () {
+		isPhoneScenario: function (oRange) {
 			if (sap.ui.Device.system.phone) {
 				return true;
 			}
 
-			return sap.uxap.Utilities._isCurrentMediaSize("Phone");
+			return sap.uxap.Utilities._isCurrentMediaSize("Phone", oRange);
 		},
-		isTabletScenario: function () {
-
-			if (sap.ui.Device.system.tablet) {
-				return true;
-			}
-
-			return sap.uxap.Utilities._isCurrentMediaSize("Tablet");
+		isTabletScenario: function (oRange) {
+			return sap.uxap.Utilities._isCurrentMediaSize("Tablet", oRange);
 		},
-		_isCurrentMediaSize: function (sMedia) {
-			if (sap.ui.Device.media.hasRangeSet(sap.ui.Device.media.RANGESETS.SAP_STANDARD_EXTENDED)) {
-				var oRange = sap.ui.Device.media.getCurrentRange(sap.ui.Device.media.RANGESETS.SAP_STANDARD_EXTENDED);
-				if (oRange && oRange.name === sMedia) {
-					return true;
-				}
-			}
-
-			return jQuery("html").hasClass("sapUiMedia-Std-" + sMedia);
+		_isCurrentMediaSize: function (sMedia, oRange) {
+			return oRange && oRange.name === sMedia;
 		}
 	};
 
 	return sap.uxap;
 
-}, /* bExport= */ true);
+});

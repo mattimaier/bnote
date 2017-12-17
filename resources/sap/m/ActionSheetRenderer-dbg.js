@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global'],
@@ -27,8 +27,14 @@ sap.ui.define(['jquery.sap.global'],
 			aInvisibleTexts = oControl.getAggregation("_invisibleAriaTexts"),
 			oResourceBundle = sap.ui.getCore().getLibraryResourceBundle('sap.m'),
 			iButtonsCount = aActionButtons.length,
+			bAccessibilityOn = sap.ui.getCore().getConfiguration().getAccessibility(),
 			iVisibleButtonCount = aActionButtons.filter(function (oButton) { return oButton.getVisible(); }).length,
-			i, bMixedButtons, oButton, iVisibleButtonTempCount = 1;
+			oCurInvisibleText, i, bMixedButtons, oButton, iVisibleButtonTempCount = 1,
+			fnGetRelatedInvisibleText = function (oBtn) {
+				return aInvisibleTexts.filter(function (oInvisibleText) {
+					return oInvisibleText.getId().indexOf(oBtn.getId()) > -1;
+				})[0];
+			};
 
 		for (i = 0 ; i < iButtonsCount ; i++) {
 			oButton = aActionButtons[i];
@@ -54,17 +60,26 @@ sap.ui.define(['jquery.sap.global'],
 			oRm.writeAttributeEscaped("title", sTooltip);
 		}
 
+		// This is needed in order to prevent JAWS from announcing the ActionSheet content multiple times
+		bAccessibilityOn && oRm.writeAttributeEscaped("role", "presentation");
+
 		oRm.write(">");
 
 		for (i = 0 ; i < iButtonsCount ; i++) {
 			oButton = aActionButtons[i];
 			oRm.renderControl(aActionButtons[i].addStyleClass("sapMActionSheetButton"));
-			if (oButton.getVisible() && sap.ui.getCore().getConfiguration().getAccessibility()) {
-				aInvisibleTexts[i].setText(oResourceBundle.getText('ACTIONSHEET_BUTTON_INDEX', [iVisibleButtonTempCount, iVisibleButtonCount]));
+
+			if (bAccessibilityOn && oButton.getVisible()) {
+
+				// It's not guaranteed that Button aggregation order is the same as InvisibleTexts aggregation order.
+				// So, just find the proper matching between Button & Text
+				oCurInvisibleText = fnGetRelatedInvisibleText(oButton);
+
+				if (oCurInvisibleText) {
+					oCurInvisibleText.setText(oResourceBundle.getText('ACTIONSHEET_BUTTON_INDEX', [iVisibleButtonTempCount, iVisibleButtonCount]));
+					oRm.renderControl(oCurInvisibleText);
+				}
 				iVisibleButtonTempCount++;
-				oRm.renderControl(aInvisibleTexts[i]);
-			} else {
-				aInvisibleTexts[i].setText("");
 			}
 		}
 

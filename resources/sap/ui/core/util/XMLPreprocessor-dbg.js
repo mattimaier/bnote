@@ -1,14 +1,14 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides object sap.ui.core.util.XMLPreprocessor
 sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/ManagedObject',
-	'sap/ui/core/XMLTemplateProcessor', 'sap/ui/Device', 'sap/ui/model/BindingMode',
+	'sap/ui/core/XMLTemplateProcessor', 'sap/ui/model/BindingMode',
 	'sap/ui/model/CompositeBinding', 'sap/ui/model/Context'],
-	function (jQuery, BindingParser, ManagedObject, XMLTemplateProcessor, Device, BindingMode,
+	function (jQuery, BindingParser, ManagedObject, XMLTemplateProcessor, BindingMode,
 		CompositeBinding, Context) {
 		'use strict';
 
@@ -20,6 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 			sPerformanceInsertFragment = sXMLPreprocessor + "/insertFragment",
 			sPerformanceGetResolvedBinding = sXMLPreprocessor + "/getResolvedBinding",
 			sPerformanceProcess = sXMLPreprocessor + ".process",
+			mVisitors = {}, // maps "<namespace URI> <local name>" to visitor function
 			/**
 			 * <template:with> control holding the models and the bindings. Also used as substitute
 			 * for any control during template processing in order to resolve property bindings.
@@ -53,7 +54,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 			});
 
 		/**
-		 * Creates the callback interface for a call to the given control's formatter of the
+		 * Creates the context interface for a call to the given control's formatter of the
 		 * binding part with given index.
 		 *
 		 * @param {sap.ui.core.util._with} oWithControl
@@ -66,10 +67,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 		 *   [vBindingOrContext]
 		 *   single binding or model context or array of parts; if this parameter is given,
 		 *   "oWithControl" and "i" are ignored, else it is lazily computed from those two
-		 * @returns {object}
+		 * @returns {sap.ui.core.util.XMLPreprocessor.IContext}
 		 *   the callback interface
 		 */
-		function createInterface(oWithControl, mSettings, i, vBindingOrContext) {
+		function createContextInterface(oWithControl, mSettings, i, vBindingOrContext) {
 			/*
 			 * Returns the single binding or model context related to the current formatter call.
 			 *
@@ -81,7 +82,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 			function getBindingOrContext(iPart) {
 				if (!vBindingOrContext) {
 					// lazy initialization
-					// BEWARE: this is not yet defined when createInterface() is called!
+					// BEWARE: this is not yet defined when createContextInterface() is called!
 					vBindingOrContext = oWithControl.getBinding("any");
 
 					if (vBindingOrContext instanceof CompositeBinding) {
@@ -162,6 +163,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 			 * The function <code>foo</code> is called with arguments such that <code>
 			 * oInterface.getModel(i).getObject(oInterface.getPath(i)) === arguments[i + 1]</code>
 			 * holds.
+			 * This use is not supported within an expression binding, that is, <code>&lt;Text
+			 * text="{= ${parts: [{path: 'Label'}, {path: 'Value'}], formatter: 'foo'} }"/></code>
+			 * does not work as expected because the property <code>requiresIContext = true</code>
+			 * is ignored.
 			 *
 			 * To distinguish those two use cases, just check whether
 			 * <code>oInterface.getModel() === undefined</code>, in which case the formatter is
@@ -253,7 +258,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 						}
 					}
 
-					return createInterface(null, mSettings, undefined, oBindingOrContext);
+					return createContextInterface(null, mSettings, undefined, oBindingOrContext);
 				},
 
 				/**
@@ -320,12 +325,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 		 *   the binding info
 		 * @param {object} mSettings
 		 *   map/JSON-object with initial property values, etc.
+		 * @param {object} oScope
+		 *   map of currently known aliases
 		 * @returns {any}
 		 *   the property value or <code>oUNBOUND</code> in case the binding is not ready (because
 		 *   it refers to a model which is not available)
-		 * @throws Error
+		 * @throws {Error}
 		 */
-		function getAny(oWithControl, oBindingInfo, mSettings) {
+		function getAny(oWithControl, oBindingInfo, mSettings, oScope) {
 			/*
 			 * Prepares the given binding info or part of it; makes it "one time" and binds its
 			 * formatter function (if opted in) to an interface object.
@@ -341,8 +348,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				oInfo.mode = BindingMode.OneTime;
 				if (fnFormatter && fnFormatter.requiresIContext === true) {
 					oInfo.formatter
-					= fnFormatter.bind(null, createInterface(oWithControl, mSettings, i));
+					= fnFormatter.bind(null, createContextInterface(oWithControl, mSettings, i));
 				}
+				oInfo.parameters = oInfo.parameters || {};
+				oInfo.parameters.scope = oScope;
 			}
 
 			try {
@@ -361,10 +370,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 		}
 
 		/**
-		 * Returns <code>true</code> if the given element has the template namespace and the
+		 * Returns <code>true</code> if the given XML DOM element has the template namespace and the
 		 * given local name.
 		 *
-		 * @param {Element} oElement the DOM element
+		 * @param {Element} oElement the XML DOM element
 		 * @param {string} sLocalName the local name
 		 * @returns {boolean} if the element has the given name
 		 */
@@ -374,13 +383,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 		}
 
 		/**
-		 * Returns the local name of the given DOM node, taking care of IE8.
+		 * Returns the local name of the given XML DOM element, taking care of IE8.
 		 *
-		 * @param {Node} oNode any DOM node
+		 * @param {Element} oElement any XML DOM element
 		 * @returns {string} the local name
 		 */
-		function localName(oNode) {
-			return oNode.localName || oNode.baseName; // IE8
+		function localName(oElement) {
+			return oElement.localName || oElement.baseName; // IE8
 		}
 
 		/**
@@ -388,7 +397,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 		 * "template:require" attribute which may contain a space separated list.
 		 *
 		 * @param {Element} oElement
-		 *   a DOM element
+		 *   any XML DOM element
 		 */
 		function requireFor(oElement) {
 			var sModuleNames = oElement.getAttribute("template:require");
@@ -402,7 +411,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 		 * <p>
 		 * BEWARE: makes no attempt at encoding, DO NOT use in a security critical manner!
 		 *
-		 * @param {Element} oElement a DOM element
+		 * @param {Element} oElement any XML DOM element
 		 * @returns {string} the serialization
 		 */
 		function serializeSingleElement(oElement) {
@@ -419,6 +428,23 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 		}
 
 		/**
+		 * Wrapper for the "visitNode" function which is sometimes returned by
+		 * {@link sap.ui.core.util.XMLPreprocessor.plugIn}. Delegates to the appropriate
+		 * "visitNode" function from the callback interface (which is not yet available at plug-in
+		 * time) and makes sure no extra arguments are passed.
+		 *
+		 * @param {Element} oElement
+		 *   The XML DOM Element
+		 * @param {sap.ui.core.util.XMLPreprocessor.ICallback} oInterface
+		 *   The callback interface
+		 *
+		 * @see sap.ui.core.util.XMLPreprocessor.visitNodeWrapper
+		 */
+		function visitNodeWrapper(oElement, oInterface) {
+			oInterface.visitNode(oElement);
+		}
+
+		/**
 		 * @classdesc
 		 * The XML pre-processor for template instructions in XML views.
 		 *
@@ -426,12 +452,63 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 		 * @public
 		 * @since 1.27.1
 		 */
-		return {
+		return /** @lends sap.ui.core.util.XMLPreprocessor */ {
+			/**
+			 * Plug-in the given visitor which is called for each matching XML element.
+			 *
+			 * @param {function} [fnVisitor]
+			 *   Visitor function, will be called with the matching XML DOM element and a
+			 *   {@link sap.ui.core.util.XMLPreprocessor.ICallback callback interface} which uses
+			 *   a map of currently known variables; must return <code>undefined</code>.
+			 *   Must be either a function or <code>null</code>, nothing else.
+			 * @param {string} sNamespace
+			 *   The expected namespace URI; must not contain spaces;
+			 *   "http://schemas.sap.com/sapui5/extension/sap.ui.core.template/1" and "sap.ui.core"
+			 *   are reserved
+			 * @param {string} [sLocalName]
+			 *   The expected local name; if it is missing, the local name is ignored for a match.
+			 * @returns {function}
+			 *   The visitor function which previously matched elements with the given namespace
+			 *   and local name, or a function which calls "visitNode" but never <code>null</code>
+			 *   so that you can safely delegate to it.
+			 *   In general, you cannot restore the previous state by calling <code>plugIn</code>
+			 *   again with this function.
+			 * @throws {Error}
+			 *   If visitor or namespace is invalid
+			 *
+			 * @private
+			 */
+			plugIn : function (fnVisitor, sNamespace, sLocalName) {
+				var fnOldVisitor = mVisitors[sNamespace];
+
+				if (fnVisitor !== null && typeof fnVisitor !== "function"
+						|| fnVisitor === visitNodeWrapper) {
+					throw new Error("Invalid visitor: " + fnVisitor);
+				}
+				if (!sNamespace || sNamespace === sNAMESPACE || sNamespace === "sap.ui.core"
+						|| sNamespace.indexOf(" ") >= 0) {
+					throw new Error("Invalid namespace: " + sNamespace);
+				}
+				jQuery.sap.log.debug("Plug-in visitor for namespace '" + sNamespace
+					+ "', local name '" + sLocalName + "'", fnVisitor, sXMLPreprocessor);
+				if (sLocalName) {
+					sNamespace = sNamespace + " " + sLocalName;
+					fnOldVisitor = mVisitors[sNamespace] || fnOldVisitor;
+				}
+				mVisitors[sNamespace] = fnVisitor;
+				return fnOldVisitor || visitNodeWrapper;
+			},
+
+			/**
+			 * @private
+			 */
+			visitNodeWrapper : visitNodeWrapper,
+
 			/**
 			 * Performs template pre-processing on the given XML DOM element.
 			 *
 			 * @param {Element} oRootElement
-			 *   the DOM element to process
+			 *   the XML DOM element to process
 			 * @param {object} oViewInfo
 			 *   info object of the calling instance
 			 * @param {string} oViewInfo.caller
@@ -454,21 +531,288 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 			 */
 			process : function (oRootElement, oViewInfo, mSettings) {
 				var sCaller = oViewInfo.caller,
-					bDebug = jQuery.sap.log.isLoggable(jQuery.sap.log.Level.DEBUG),
+					bDebug
+						= jQuery.sap.log.isLoggable(jQuery.sap.log.Level.DEBUG, sXMLPreprocessor),
 					bCallerLoggedForWarnings = bDebug, // debug output already contains caller
 					sCurrentName = oViewInfo.name, // current view or fragment name
 					mFragmentCache = {},
-					iNestingLevel = 0,
 					sName,
+					iNestingLevel = 0,
 					oScope = {}, // for BindingParser.complexParser()
-					bWarning = jQuery.sap.log.isLoggable(jQuery.sap.log.Level.WARNING);
+					fnSupportInfo = oViewInfo._supportInfo,
+					bWarning
+						= jQuery.sap.log.isLoggable(jQuery.sap.log.Level.WARNING, sXMLPreprocessor);
+
+				/**
+				 * Returns a callback interface for visitor functions which provides access to
+				 * private {@link sap.ui.core.util.XMLPreprocessor} functionality using the given
+				 * "with" control.
+				 *
+				 * @param {sap.ui.core.util._with} oWithControl
+				 *   The "with" control
+				 * @returns {sap.ui.core.util.XMLPreprocessor.ICallback}
+				 *  A callback interface
+				 */
+				function createCallbackInterface(oWithControl) {
+					/**
+					 * Callback interface for visitor functions which provides access to
+					 * private {@link sap.ui.core.util.XMLPreprocessor} functionality using a map
+					 * of currently known variables. Initially, these are the variables known to the
+					 * XML pre-processor when it reaches the visitor's matching element (see
+					 * {@link sap.ui.core.util.XMLPreprocessor.plugIn}). They can be overridden or
+					 * replaced via {@link sap.ui.core.util.XMLPreprocessor.ICallback.with}.
+					 *
+					 * @interface
+					 * @name sap.ui.core.util.XMLPreprocessor.ICallback
+					 * @private
+					 * @see sap.ui.core.util.XMLPreprocessor.plugIn
+					 */
+					return /** @lends sap.ui.core.util.XMLPreprocessor.ICallback */ {
+						/**
+						 * Returns the model's context which corresponds to the given simple binding
+						 * path. Uses the map of currently known variables.
+						 *
+						 * @param {string} [sPath=""]
+						 *   A simple binding path which may include a model name ("a variable"),
+						 *   for example "var>some/relative/path", but not a binding ("{...}")
+						 * @returns {sap.ui.model.Context}
+						 *   The corresponding context which holds the model and the resolved,
+						 *   absolute path
+						 * @throws {Error}
+						 *   If a binding is given, if the path refers to an unknown model, or if
+						 *   the path cannot be resolved (typically because a relative path was
+						 *   given for a model without a binding context)
+						 */
+						getContext : function (sPath) {
+							var oBindingInfo,
+								oModel,
+								sResolvedPath;
+
+							sPath = sPath || "";
+							if (sPath[0] === "{") {
+								throw new Error("Must be a simple path, not a binding: " + sPath);
+							}
+							oBindingInfo = BindingParser.simpleParser("{" + sPath + "}");
+							oModel = oWithControl.getModel(oBindingInfo.model);
+							if (!oModel) {
+								throw new Error("Unknown model '" + oBindingInfo.model + "': "
+									+ sPath);
+							}
+							sResolvedPath = oModel.resolve(oBindingInfo.path,
+								oWithControl.getBindingContext(oBindingInfo.model));
+							if (!sResolvedPath) {
+								throw new Error("Cannot resolve path: " + sPath);
+							}
+							return oModel.createBindingContext(sResolvedPath);
+						},
+
+						/**
+						 * Interprets the given XML DOM attribute value as a binding and returns
+						 * the resulting value. Takes care of unescaping and thus also of constant
+						 * expressions; warnings are logged for (formatter) functions which are not
+						 * found. Uses the map of currently known variables.
+						 *
+						 * @param {string} sValue
+						 *   An XML DOM attribute value
+						 * @param {Element} [oElement]
+						 *   The XML DOM element the attribute value belongs to (needed only for
+						 *   warnings which are logged to the console)
+						 * @returns {any}
+						 *   The resulting value
+						 * @throws {Error}
+						 *   If the binding is not ready (because it refers to a model which is not
+						 *   available) or for other reasons (for example, an error thrown by a
+						 *   formatter)
+						 *
+						 * @function
+						 * @public
+						 * @since 1.39.0
+						 */
+						getResult : function (sValue, oElement) {
+							var vResult
+								= getResolvedBinding(sValue, oElement, oWithControl, true);
+
+							if (vResult === oUNBOUND) {
+								throw new Error("Binding not ready: " + sValue);
+							}
+							return vResult;
+						},
+
+						/**
+						 * Returns the settings object for XML template processing.
+						 *
+						 * @returns {object}
+						 *   settings for the XML preprocessor; might contain the properties
+						 *   "bindingContexts" and "models" and maybe others
+						 *
+						 * @function
+						 * @public
+						 * @since 1.41.0
+						 */
+						getSettings : function () {
+							return mSettings;
+						},
+
+						/**
+						 * Returns the view info object for XML template processing.
+						 *
+						 * @returns {object}
+						 *   info object of the XML preprocessor's calling instance; might contain
+						 *   the string properties "caller", "componentId", "name" and maybe others
+						 *
+						 * @function
+						 * @public
+						 * @since 1.41.0
+						 */
+						getViewInfo : function () {
+							return jQuery.extend(true, {}, oViewInfo);
+						},
+
+						/**
+						 * Inserts the fragment with the given name in place of the given element.
+						 * Loads the fragment, takes care of caching (for the current pre-processor
+						 * run) and visits the fragment's content once it has been imported into the
+						 * element's owner document and put into place.
+						 *
+						 * @param {string} sFragmentName
+						 *   The fragment's resolved name
+						 * @param {Element} oElement
+						 *   The XML DOM element to be replaced
+						 * @throws {Error}
+						 *   If a cycle is detected (same <code>sFragmentName</code> and
+						 *   <code>oControl</code>)
+						 *
+						 * @function
+						 * @public
+						 * @since 1.39.0
+						 */
+						insertFragment : function (sFragmentName, oElement) {
+							insertFragment(sFragmentName, oElement, oWithControl);
+						},
+
+						/**
+						 * Visits all attributes of the given element. If an attribute value
+						 * represents a binding expression that can be resolved, it is replaced with
+						 * the resulting value.
+						 *
+						 * @param {Element} oElement
+						 *   The XML DOM element
+						 *
+						 * @function
+						 * @public
+						 * @see sap.ui.core.util.XMLPreprocessor.ICallback.getResult
+						 * @since 1.39.0
+						 */
+						visitAttributes : function (oElement) {
+							visitAttributes(oElement, oWithControl);
+						},
+
+						/**
+						 * Visits all child nodes of the given node via {@link
+						 * sap.ui.core.util.XMLPreprocessor.ICallback.visitNode visitNode}.
+						 *
+						 * @param {Node} oNode
+						 *   The XML DOM node
+						 *
+						 * @function
+						 * @public
+						 * @since 1.39.0
+						 */
+						visitChildNodes : function (oNode) {
+							visitChildNodes(oNode, oWithControl);
+						},
+
+						/**
+						 * Visits the given node and either processes a template instruction, calls
+						 * a visitor, or simply calls both {@link
+						 * sap.ui.core.util.XMLPreprocessor.ICallback.visitAttributes
+						 * visitAttributes} and {@link
+						 * sap.ui.core.util.XMLPreprocessor.ICallback.visitChildNodes
+						 * visitChildNodes}.
+						 *
+						 * @param {Node} oNode
+						 *   The XML DOM node
+						 *
+						 * @function
+						 * @public
+						 * @since 1.39.0
+						 */
+						visitNode : function (oNode) {
+							visitNode(oNode, oWithControl);
+						},
+
+						/**
+						 * Returns a callback interface instance for the given map of variables
+						 * which override currently known variables of the same name in
+						 * <code>this</code> parent interface or replace them altogether. Each
+						 * variable name becomes a named model with a corresponding object binding
+						 * and can be used inside the XML template in the usual way, that is, with a
+						 * binding expression like <code>"{var>some/relative/path}"</code> (see
+						 * example).
+						 *
+						 * <b>Example:</b> Suppose the XML pre-processor knows a variable named
+						 * "old" and a visitor defines a new variable relative to it as follows.
+						 * Then {@link sap.ui.core.util.XMLPreprocessor.ICallback.getResult
+						 * getResult} for a binding which refers to the new variable using a
+						 * relative path ("{new>relative}") has the same result as for a binding to
+						 * the old variable with a compound path ("{old>prefix/relative}").
+						 *
+						 * <pre>
+						 * oInterface.with({"new" : oInterface.getContext("old>prefix")})
+						 *     .getResult("{new>relative}")
+						 *     === oInterface.getResult("{old>prefix/relative}"); // true
+						 * </pre>
+						 *
+						 * BEWARE: Previous callback interface instances derived from the same
+						 * parent (<code>this</code>) become invalid (that is, they forget about
+						 * inherited variables) once a new instance is derived.
+						 *
+						 * @param {object} [mVariables={}]
+						 *   Map from variable name (string) to value ({@link sap.ui.model.Context})
+						 * @param {boolean} [bReplace=false]
+						 *   Whether only the given variables are known in the new callback
+						 *   interface instance, no inherited ones
+						 * @returns {sap.ui.core.util.XMLPreprocessor.ICallback}
+						 *   A callback interface instance
+						 *
+						 * @function
+						 * @public
+						 * @see sap.ui.core.util.XMLPreprocessor.ICallback.getResult
+						 * @since 1.39.0
+						 */
+						"with" : function (mVariables, bReplace) {
+							var oContext,
+								bHasVariables = false,
+								sName,
+								oNewWithControl = new With();
+
+							if (!bReplace) {
+								oWithControl.setChild(oNewWithControl);
+							}
+
+							for (sName in mVariables) {
+								oContext = mVariables[sName];
+								bHasVariables = true;
+								oNewWithControl.setModel(oContext.getModel(), sName);
+								oNewWithControl.bindObject({
+									model : sName,
+									path : oContext.getPath()
+								});
+							}
+
+							return bHasVariables || bReplace
+								? createCallbackInterface(oNewWithControl)
+								: this;
+						}
+					};
+				}
 
 				/*
 				 * Outputs a debug message with the current nesting level; takes care not to
 				 * construct the message or serialize XML in vain.
 				 *
 				 * @param {Element} [oElement]
-				 *   a DOM element which is serialized to the details
+				 *   any XML DOM element which is serialized to the details
 				 * @param {...string} aTexts
 				 *   the main text of the message is constructed from the rest of the arguments by
 				 *   joining them separated by single spaces
@@ -486,7 +830,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * to serialize XML in vain.
 				 *
 				 * @param {Element} oElement
-				 *   a DOM element which is serialized to the details
+				 *   any XML DOM element which is serialized to the details
 				 */
 				function debugFinished(oElement) {
 					if (bDebug) {
@@ -498,14 +842,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				/**
 				 * Throws an error with the given message, prefixing it with the caller
 				 * identification (separated by a colon) and appending the serialization of the
-				 * given DOM element. Additionally logs the message and serialization as error with
-				 * caller identification as details.
+				 * given XML DOM element. Additionally logs the message and serialization as error
+				 * with caller identification as details.
 				 *
 				 * @param {string} sMessage
-				 *   some error message which must end with a space (and take into account, that
+				 *   an error message which must end with a space (and take into account that
 				 *   the serialized XML is appended)
 				 * @param {Element} oElement
-				 *   the DOM element
+				 *   the XML DOM element
 				 */
 				function error(sMessage, oElement) {
 					sMessage = sMessage + serializeSingleElement(oElement);
@@ -517,11 +861,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * Determines the relevant children for the <template:if> element.
 				 *
 				 * @param {Element} oIfElement
-				 *   the <template:if> element
+				 *   the <template:if> XML DOM element
 				 * @returns {Element[]}
-				 *   the children (a <then>, zero or more <elseif> and poss. an <else>) or null if
-				 *   there is no <then>
-				 * @throws Error
+				 *   the XML DOM element children (a <then>, zero or more <elseif> and possibly an
+				 *   <else>) or null if there is no <then>
+				 * @throws {Error}
 				 *   if there is an unexpected child element
 				 */
 				function getIfChildren(oIfElement) {
@@ -589,9 +933,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * care of unescaping and thus also of constant expressions.
 				 *
 				 * @param {string} sValue
-				 *   an XML attribute value
+				 *   an XML DOM attribute value
 				 * @param {Element} oElement
-				 *   the element
+				 *   the XML DOM element
 				 * @param {sap.ui.core.util._with} oWithControl
 				 *   the "with" control
 				 * @param {boolean} bMandatory
@@ -602,10 +946,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * @param {function} [fnCallIfConstant]
 				 *   optional function to be called in case the return value is obviously a
 				 *   constant, not influenced by any binding
-				 * @returns {string|object}
+				 * @returns {any}
 				 *   the resulting value or <code>oUNBOUND</code> in case the binding is not ready
 				 *   (because it refers to a model which is not available)
-				 * @throws Error
+				 * @throws {Error}
 				 */
 				function getResolvedBinding(sValue, oElement, oWithControl, bMandatory,
 					fnCallIfConstant) {
@@ -627,7 +971,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 					}
 
 					if (typeof vBindingInfo === "object") {
-						vBindingInfo = getAny(oWithControl, vBindingInfo, mSettings);
+						vBindingInfo = getAny(oWithControl, vBindingInfo, mSettings, oScope);
 						if (bMandatory && vBindingInfo === oUNBOUND) {
 							warn(oElement, 'Binding not ready');
 						}
@@ -639,15 +983,20 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				}
 
 				/**
-				 * Inserts the fragment with the given name in place of the given <core:Fragment>
-				 * or <core:ExtensionPoint> element.
+				 * Inserts the fragment with the given name in place of the given element. Loads
+				 * the fragment, takes care of caching (for the current pre-processor run) and
+				 * visits the fragment's content once it has been imported into the element's
+				 * owner document and put into place.
 				 *
 				 * @param {string} sFragmentName
 				 *   the fragment's resolved name
 				 * @param {Element} oElement
-				 *   the <sap.ui.core:Fragment> or <core:ExtensionPoint> element
+				 *   the XML DOM element, e.g. <sap.ui.core:Fragment> or <core:ExtensionPoint>
 				 * @param {sap.ui.core.util._with} oWithControl
 				 *   the parent's "with" control
+				 * @throws {Error}
+				 *   If a cycle is detected (same <code>sFragmentName</code> and
+				 *   <code>oWithControl</code>)
 				 */
 				function insertFragment(sFragmentName, oElement, oWithControl) {
 					var oFragmentElement,
@@ -698,7 +1047,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * Visits the child nodes of the given parent element. Lifts them up by inserting
 				 * them before the target element.
 				 *
-				 * @param {Element} oParent the DOM element
+				 * @param {Element} oParent the XML DOM DOM element
 				 * @param {sap.ui.core.util._with} oWithControl the "with" control
 				 * @param {Element} [oTarget=oParent] the target DOM element
 				 */
@@ -716,7 +1065,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * Performs the test in the given element.
 				 *
 				 * @param {Element} oElement
-				 *   the test element (either <if> or <elseif>)
+				 *   the (<if> or <elseif>) XML DOM element
 				 * @param {sap.ui.core.util._with} oWithControl
 				 *   the "with" control
 				 * @returns {boolean}
@@ -755,14 +1104,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				}
 
 				/**
-				 * Visit the given DOM attribute which represents any attribute of any control
+				 * Visit the given XML DOM attribute which represents any attribute of any element
 				 * (other than template instructions). If the attribute value represents a binding
 				 * expression, we try to resolve it using the "with" control instance.
 				 *
 				 * @param {Element} oElement
-				 *   the owning element
+				 *   the owning XML DOM element
 				 * @param {Attribute} oAttribute
-				 *   any attribute of any control (a DOM Attribute)
+				 *   any XML DOM Attribute
 				 * @param {sap.ui.core.util._with} oWithControl the "with" control
 				 */
 				function resolveAttributeBinding(oElement, oAttribute, oWithControl) {
@@ -794,7 +1143,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * Processes a <template:alias> instruction.
 				 *
 				 * @param {Element} oElement
-				 *   the <template:alias> element
+				 *   the <template:alias> XML DOM element
 				 * @param {sap.ui.core.util._with} oWithControl
 				 *   the "with" control
 				 */
@@ -825,12 +1174,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 
 				/**
 				 * Replaces a <sap.ui.core:ExtensionPoint> element with the content of an XML
-				 * fragment configured as a replacement (via component meta data, "customizing" and
+				 * fragment configured as a replacement (via component metadata, "customizing" and
 				 * "sap.ui.viewExtensions"), or leaves it untouched in case no such replacement is
 				 * currently configured.
 				 *
 				 * @param {Element} oElement
-				 *   the <sap.ui.core:ExtensionPoint> element
+				 *   the <sap.ui.core:ExtensionPoint> XML DOM element
 				 * @param {sap.ui.core.util._with} oWithControl
 				 *   the parent's "with" control
 				 * @returns {boolean}
@@ -852,8 +1201,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 						warn(oElement, 'Error in formatter:', ex);
 					}
 
-					if (vName !== oUNBOUND && sap.ui.core.CustomizingConfiguration) {
-						oViewExtension = sap.ui.core.CustomizingConfiguration.getViewExtension(
+					var CustomizingConfiguration = sap.ui.require("sap/ui/core/CustomizingConfiguration");
+					if (vName !== oUNBOUND && CustomizingConfiguration) {
+						oViewExtension = CustomizingConfiguration.getViewExtension(
 							sCurrentName, vName, oViewInfo.componentId);
 						if (oViewExtension && oViewExtension.className === "sap.ui.core.Fragment"
 								&& oViewExtension.type === "XML") {
@@ -868,7 +1218,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * Loads and inlines the content of a <sap.ui.core:Fragment> element.
 				 *
 				 * @param {Element} oElement
-				 *   the <sap.ui.core:Fragment> element
+				 *   the <sap.ui.core:Fragment> XML DOM element
 				 * @param {sap.ui.core.util._with} oWithControl
 				 *   the parent's "with" control
 				 */
@@ -893,7 +1243,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * Processes a <template:if> instruction.
 				 *
 				 * @param {Element} oIfElement
-				 *   the <template:if> element
+				 *   the <template:if> XML DOM element
 				 * @param {sap.ui.core.util._with} oWithControl
 				 *   the "with" control
 				 */
@@ -932,7 +1282,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * Processes a <template:repeat> instruction.
 				 *
 				 * @param {Element} oElement
-				 *   the <template:repeat> element
+				 *   the <template:repeat> XML DOM element
 				 * @param {sap.ui.core.template._with} oWithControl
 				 *   the parent's "with" control
 				 */
@@ -1000,7 +1350,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * Processes a <template:with> instruction.
 				 *
 				 * @param {Element} oElement
-				 *   the <template:with> element
+				 *   the <template:with> XML DOM element
 				 * @param {sap.ui.core.util._with} oWithControl
 				 *   the parent's "with" control
 				 */
@@ -1034,22 +1384,23 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 						if (!sResolvedPath) {
 							error("Cannot resolve path for ", oElement);
 						}
+						vHelperResult = oModel.createBindingContext(sResolvedPath);
 						if (sHelper) {
 							fnHelper = getObject(sHelper);
 							if (typeof fnHelper !== "function") {
 								error("Cannot resolve helper for ", oElement);
 							}
-							vHelperResult = fnHelper(oModel.createBindingContext(sResolvedPath));
-							if (vHelperResult instanceof Context) {
-								oModel = vHelperResult.getModel();
-								sResolvedPath = vHelperResult.getPath();
-							} else if (vHelperResult !== undefined) {
-								if (typeof vHelperResult !== "string" || vHelperResult === "") {
-									error("Illegal helper result '" + vHelperResult + "' in ",
-										oElement);
-								}
-								sResolvedPath = vHelperResult;
+							vHelperResult = fnHelper(vHelperResult);
+						}
+						if (vHelperResult instanceof Context) {
+							oModel = vHelperResult.getModel();
+							sResolvedPath = vHelperResult.getPath();
+						} else if (vHelperResult !== undefined) {
+							if (typeof vHelperResult !== "string" || vHelperResult === "") {
+								error("Illegal helper result '" + vHelperResult + "' in ",
+									oElement);
 							}
+							sResolvedPath = vHelperResult;
 						}
 						oNewWithControl.setModel(oModel, sVar);
 						oNewWithControl.bindObject({
@@ -1078,25 +1429,34 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				}
 
 				/**
-				 * Visits the attributes of the given node.
+				 * Visits all attributes of the given element. If an attribute value represents a
+				 * binding expression that can be resolved, it is replaced with the resulting value.
 				 *
-				 * @param {Node} oNode the DOM Node
+				 * @param {Element} oElement the XML DOM element
 				 * @param {sap.ui.core.template._with} oWithControl the "with" control
 				 */
-				function visitAttributes(oNode, oWithControl) {
+				function visitAttributes(oElement, oWithControl) {
 					var i,
-						oAttributesList = oNode.attributes;
+						oAttribute,
+						oAttributesList = oElement.attributes;
 
 					// Note: iterate backwards to account for removal of attributes!
 					for (i = oAttributesList.length - 1; i >= 0; i -= 1) {
-						resolveAttributeBinding(oNode, oAttributesList.item(i), oWithControl);
+						oAttribute = oAttributesList.item(i);
+						if (fnSupportInfo) {
+							fnSupportInfo({context:undefined /*context from node clone*/, env:{caller:"visitAttributes", before: {name: oAttribute.name, value: oAttribute.value}}});
+						}
+						resolveAttributeBinding(oElement, oAttribute, oWithControl);
+						if (fnSupportInfo) {
+							fnSupportInfo({context:undefined /*context from node clone*/, env:{caller:"visitAttributes", after: {name: oAttribute.name, value: oAttribute.value}}});
+						}
 					}
 				}
 
 				/**
-				 * Visits the child nodes of the given node.
+				 * Visits all child nodes of the given node.
 				 *
-				 * @param {Node} oNode the DOM Node
+				 * @param {Node} oNode the XML DOM node
 				 * @param {sap.ui.core.util._with} oWithControl the "with" control
 				 */
 				function visitChildNodes(oNode, oWithControl) {
@@ -1118,13 +1478,19 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				/**
 				 * Visits the given node.
 				 *
-				 * @param {Node} oNode the DOM Node
+				 * @param {Node} oNode the XML DOM node
 				 * @param {sap.ui.core.template._with} oWithControl the "with" control
 				 */
 				function visitNode(oNode, oWithControl) {
+					var fnVisitor,
+						vVisitorResult;
+
 					// process only ELEMENT_NODEs
 					if (oNode.nodeType !== 1 /* Node.ELEMENT_NODE */) {
 						return;
+					}
+					if (fnSupportInfo) {
+						fnSupportInfo({context:oNode, env:{caller:"visitNode", before: {name: oNode.tagName}}});
 					}
 					if (oNode.namespaceURI === sNAMESPACE) {
 						switch (localName(oNode)) {
@@ -1164,10 +1530,30 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 
 						// no default
 						}
+					} else {
+						fnVisitor = mVisitors[oNode.namespaceURI + " " + localName(oNode)]
+							|| mVisitors[oNode.namespaceURI];
+
+						if (fnVisitor) {
+							iNestingLevel++;
+							debug(oNode, "Calling visitor");
+							vVisitorResult
+								= fnVisitor(oNode, createCallbackInterface(oWithControl));
+							if (vVisitorResult !== undefined) {
+								// prepare for later enhancements using return value
+								error("Unexpected return value from visitor for ", oNode);
+							}
+							debugFinished(oNode);
+							iNestingLevel--;
+							return;
+						}
 					}
 
 					visitAttributes(oNode, oWithControl);
 					visitChildNodes(oNode, oWithControl);
+					if (fnSupportInfo) {
+						fnSupportInfo({context:oNode, env:{caller:"visitNode", after: {name: oNode.tagName}}});
+					}
 				}
 
 				/*
@@ -1175,7 +1561,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 				 * construct the message or serialize XML in vain.
 				 *
 				 * @param {Element} [oElement]
-				 *   a DOM element which is serialized to the details
+				 *   any XML DOM element which is serialized to the details
 				 * @param {...string} aTexts
 				 *   the main text of the message is constructed from the rest of the arguments by
 				 *   joining them separated by single spaces
@@ -1205,6 +1591,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/BindingParser', 'sap/ui/base/Ma
 							debug(undefined, sName, "=", mSettings.bindingContexts[sName]);
 						}
 					}
+				}
+				if (fnSupportInfo) {
+					 fnSupportInfo({
+							context: oRootElement,
+							env: {
+								caller:"view",
+								viewinfo: jQuery.extend(true, {}, oViewInfo),
+								settings: jQuery.extend(true, {}, mSettings),
+								clone: oRootElement.cloneNode(true),
+								type: "template"}
+						});
 				}
 				requireFor(oRootElement);
 				visitNode(oRootElement, new With({

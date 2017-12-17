@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,7 +20,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * The ObjectNumber control displays number and number unit properties for an object. The number can be displayed using semantic
 	 * colors to provide additional meaning about the object to the user.
 	 * @extends sap.ui.core.Control
-	 * @version 1.38.7
+	 * @implements sap.ui.core.IFormContent
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -30,6 +31,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 */
 	var ObjectNumber = Control.extend("sap.m.ObjectNumber", /** @lends sap.m.ObjectNumber.prototype */ { metadata : {
 
+		interfaces : ["sap.ui.core.IFormContent"],
 		library : "sap.m",
 		properties : {
 
@@ -95,7 +97,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @override
 	 * @public
 	 * @param {sap.ui.core.ValueState} sState The state to be set to
-	 * @returns {ObjectNumber} this pointer for chaining
+	 * @returns {sap.m.ObjectNumber} this pointer for chaining
 	 */
 	ObjectNumber.prototype.setState = function(sState) {
 		//remove the current value state css class
@@ -116,6 +118,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @override
 	 * @public
 	 * @param {sap.ui.core.TextAlign} sAlign The new value
+	 * @returns {sap.m.ObjectNumber} <code>this</code> pointer for chaining
 	 */
 	ObjectNumber.prototype.setTextAlign = function(sAlign) {
 		var sAlignVal = Renderer.getTextAlign(sAlign, this.getTextDirection());
@@ -125,6 +128,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 		sAlignVal = sAlignVal || sAlign;
 		this.$().css("text-align", sAlign);
+		return this;
 	};
 
 	return ObjectNumber;

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,14 +20,17 @@ sap.ui.define([], function () {
 	var classNameBaseHeader = 'sapMNLB-Header';
 	var classNameHeader = 'sapMNLG-Header';
 	var classNameBody = 'sapMNLG-Body';
-	var classNameBaseFooter = 'sapMNLB-Footer';
-	var classNameFooter = 'sapMNLG-Footer';
+	var classNameBaseSubHeader = 'sapMNLB-SubHeader';
+	var classNameSubHeader = 'sapMNLG-SubHeader';
 	var classNameCloseButton = 'sapMNLB-CloseButton';
 	var classNamePriority = 'sapMNLB-Priority';
 	var classNameDetails = 'sapMNLG-Details';
 	var classNameBullet = 'sapMNLB-Bullet';
 	var classNameDescription = 'sapMNLG-Description';
 	var classNameCollapsed = 'sapMNLG-Collapsed';
+	var classNameSingleItemGroup = 'sapMNLGNoHdrFooter';
+	var classMaxNotificationsReached = 'sapMNLG-MaxNotifications';
+	var classNoNotifications = 'sapMNLG-NoNotifications';
 
 	/**
 	 * Renders the HTML for the given control, using the provided {@link sap.ui.core.RenderManager}.
@@ -36,26 +39,46 @@ sap.ui.define([], function () {
 	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
 	 */
 	NotificationListGroupRenderer.render = function (oRm, oControl) {
-		oRm.write('<li');
-		oRm.addClass(classNameItem);
-		oRm.addClass(classNameBase);
-		oRm.addClass(classNameListBaseItem);
+		if (oControl.getVisible()) {
+			var visibleItemsCount = oControl._getVisibleItemsCount();
+			var _bShowGroupHdrFooter = oControl.getShowEmptyGroup() || (visibleItemsCount > 0);
 
-		if (oControl.getCollapsed()) {
-			oRm.addClass(classNameCollapsed);
+			oRm.write('<li');
+			oRm.addClass(classNameItem);
+			oRm.addClass(classNameBase);
+			oRm.addClass(classNameListBaseItem);
+
+			if (!_bShowGroupHdrFooter) {
+				oRm.addClass(classNameSingleItemGroup);
+			}
+
+			if (oControl.getCollapsed()) {
+				oRm.addClass(classNameCollapsed);
+			}
+
+			if (visibleItemsCount == 0) {
+			    oRm.addClass(classNoNotifications);
+			}
+
+			oRm.writeClasses();
+			oRm.writeControlData(oControl);
+			oRm.writeAttribute('tabindex', '0');
+			oRm.writeAccessibilityState(oControl, {
+				labelledby : oControl._ariaLabbeledByIds
+			});
+			oRm.write('>');
+
+			if (_bShowGroupHdrFooter) {
+				this.renderHeader(oRm, oControl);
+				this.renderSubHeader(oRm, oControl);
+				this.renderBody(oRm, oControl);
+			}
+
+			oRm.write('</li>');
+		} else {
+			this.renderInvisibleItem(oRm, oControl);
 		}
 
-		oRm.writeClasses();
-		oRm.writeControlData(oControl);
-		oRm.writeAttribute('tabindex', '0');
-		oRm.writeAccessibilityState(oControl, {
-			labelledby : oControl._getHeaderTitle().getId()
-		});
-		oRm.write('>');
-			this.renderHeader(oRm, oControl);
-			this.renderBody(oRm, oControl);
-			this.renderFooter(oRm, oControl);
-		oRm.write('</li>');
 	};
 
 	//================================================================================
@@ -76,6 +99,7 @@ sap.ui.define([], function () {
 		oRm.writeClasses();
 		oRm.write('>');
 
+		this.renderInvisibleInfoText(oRm, oControl);
 		this.renderPriorityArea(oRm, oControl);
 		this.renderCloseButton(oRm, oControl);
 		this.renderTitle(oRm, oControl);
@@ -144,6 +168,10 @@ sap.ui.define([], function () {
 		oRm.write('</div></div>');
 	};
 
+	NotificationListGroupRenderer.renderInvisibleInfoText = function (oRm, oControl) {
+		oRm.renderControl(oControl.getAggregation('_ariaDetailsText'));
+	};
+
 	/**
 	 * Renders the name of the author of the notification group.
 	 *
@@ -154,70 +182,24 @@ sap.ui.define([], function () {
 		oRm.renderControl(oControl._getAuthorName());
 	};
 
+
 	//================================================================================
-	// Body rendering methods
+	// SubHeader rendering methods
 	//================================================================================
 
 	/**
-	 * Renders the body of the NotificationListGroup.
+	 * Renders the SubHeader content of the NotificationListGroup.
 	 *
 	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
 	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
 	 */
-	NotificationListGroupRenderer.renderBody = function (oRm, oControl) {
-		oRm.write('<ul class=' + classNameBody + '>');
-
-		this.renderNotifications(oRm, oControl);
-
-		oRm.write('</ul>');
-	};
-
-	/**
-	 * Renders the timestamp of the NotificationListGroup.
-	 *
-	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
-	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
-	 */
-	NotificationListGroupRenderer.renderDatetime = function (oRm, oControl) {
-		oRm.renderControl(oControl._getDateTimeText());
-	};
-
-	/**
-	 * Renders the notifications inside the NotificationListGroup.
-	 *
-	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
-	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
-	 */
-	NotificationListGroupRenderer.renderNotifications = function (oRm, oControl) {
-		/** @type {sap.m.NotificationListItem[]} */
-		var notifications = oControl.getAggregation('items');
-
-		if (notifications) {
-			notifications.forEach(function (notification) {
-				oRm.renderControl(notification);
-			});
-		}
-	};
-
-	//================================================================================
-	// Footer rendering methods
-	//================================================================================
-
-	/**
-	 * Renders the footer content of the NotificationListGroup.
-	 *
-	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
-	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
-	 */
-	NotificationListGroupRenderer.renderFooter = function (oRm, oControl) {
+	NotificationListGroupRenderer.renderSubHeader = function (oRm, oControl) {
 		/** @type {sap.m.Button[]} */
 		var buttons = oControl.getButtons();
 
-		//oRm.write('<div class=' + classNameFooter + '>');
-
 		oRm.write('<div');
-		oRm.addClass(classNameFooter);
-		oRm.addClass(classNameBaseFooter);
+		oRm.addClass(classNameSubHeader);
+		oRm.addClass(classNameBaseSubHeader);
 
 		oRm.writeClasses();
 		oRm.write('>');
@@ -277,6 +259,81 @@ sap.ui.define([], function () {
 		oRm.renderControl(oControl.getAggregation('_collapseButton'));
 	};
 
-	return NotificationListGroupRenderer;
+	/**
+	 * Renders the invisible item when the visible property is false.
+	 *
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
+	 */
+	NotificationListGroupRenderer.renderInvisibleItem = function(oRm, oControl) {
+		oRm.write("<li");
+		oRm.writeInvisiblePlaceholderData(oControl);
+		oRm.write(">");
+		oRm.write("</li>");
+	};
 
+	//================================================================================
+	// Body rendering methods
+	//================================================================================
+
+	/**
+	 * Renders the body of the NotificationListGroup.
+	 *
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
+	 */
+	NotificationListGroupRenderer.renderBody = function (oRm, oControl) {
+		oRm.write('<ul class=' + classNameBody + '>');
+
+		this.renderNotifications(oRm, oControl);
+		if (oControl._maxNumberReached) {
+		    this.renderMaxNumberReachedMessage(oRm, oControl);
+		}
+
+		oRm.write('</ul>');
+	};
+
+	/**
+	 * Renders the timestamp of the NotificationListGroup.
+	 *
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
+	 */
+	NotificationListGroupRenderer.renderDatetime = function (oRm, oControl) {
+		oRm.renderControl(oControl._getDateTimeText());
+	};
+
+	/**
+	 * Renders the notifications inside the NotificationListGroup.
+	 *
+	 * @param {sap.ui.core.RenderManager} oRm The RenderManager that can be used for writing to the render output buffer
+	 * @param {sap.ui.core.Control} oControl An object representation of the control that should be rendered
+	 */
+	NotificationListGroupRenderer.renderNotifications = function (oRm, oControl) {
+		/** @type {sap.m.NotificationListItem[]} */
+		var notifications = oControl.getItems();
+		var notificationsCount = notifications.length;
+
+		//Notifications render
+		if (notificationsCount) {
+			for (var index = 0; index < oControl._maxNumberOfNotifications; index++) {
+				oRm.renderControl(notifications[index]);
+			}
+		}
+	};
+
+	NotificationListGroupRenderer.renderMaxNumberReachedMessage = function(oRm, oControl) {
+		//notificationsLeft
+		var message = '<span>' + oControl._maxNumberOfNotificationsTitle + '</span> <br>' + oControl._maxNumberOfNotificationsBody;
+		oRm.write('<div');
+		oRm.addClass(classMaxNotificationsReached);
+		oRm.writeClasses();
+		oRm.write('>');
+
+		oRm.write(message);
+
+		oRm.write('</div>');
+	};
+
+	return NotificationListGroupRenderer;
 }, /* bExport= */ true);

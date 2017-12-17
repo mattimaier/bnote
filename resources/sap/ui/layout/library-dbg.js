@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -19,14 +19,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType',
 	 * @namespace
 	 * @name sap.ui.layout
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @public
 	 */
 
 	// delegate further initialization of this library to the Core
 	sap.ui.getCore().initLibrary({
 		name : "sap.ui.layout",
-		version: "1.38.7",
+		version: "1.50.7",
 		dependencies : ["sap.ui.core"],
 		types: [
 			"sap.ui.layout.BackgroundDesign",
@@ -39,6 +39,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType',
 		],
 		interfaces: [],
 		controls: [
+			"sap.ui.layout.AlignedFlowLayout",
 			"sap.ui.layout.DynamicSideContent",
 			"sap.ui.layout.FixFlex",
 			"sap.ui.layout.Grid",
@@ -68,7 +69,30 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType',
 			"sap.ui.layout.PaneContainer",
 			"sap.ui.layout.SplitPane",
 			"sap.ui.layout.form.GridElementData"
-		]
+		],
+		extensions: {
+			flChangeHandlers: {
+				"sap.ui.layout.form.SimpleForm": "sap/ui/layout/flexibility/SimpleForm",
+				"sap.ui.layout.Grid": {
+					"moveControls": "default",
+					"hideControl": "default",
+					"unhideControl": "default"
+				},
+				"sap.ui.layout.form.Form": "sap/ui/layout/flexibility/Form",
+				"sap.ui.layout.form.FormContainer": "sap/ui/layout/flexibility/FormContainer",
+				"sap.ui.layout.form.FormElement": "sap/ui/layout/flexibility/FormElement",
+				"sap.ui.layout.HorizontalLayout": {
+					"moveControls": "default",
+					"hideControl": "default",
+					"unhideControl": "default"
+				},
+				"sap.ui.layout.VerticalLayout": {
+					"moveControls": "default",
+					"hideControl": "default",
+					"unhideControl": "default"
+				}
+			}
+		}
 	});
 
 	/**
@@ -168,10 +192,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType',
 		/**
 		 * A string type that is used inside the BlockLayout to set predefined background color to the cells inside
 		 * the control.
-		 * @namespace
+		 * @enum {string}
 		 * @public
 		 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
-		 * @type {{Default: string, Light: string}}
 		 */
 	sap.ui.layout.BlockBackgroundType = {
 		/**
@@ -183,8 +206,185 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType',
 		 * Background is with predefined light colors
 		 * @public
 		 */
-		Light: "Light"
+		Light: "Light",
+		/**
+		 * Background with bright and dark background colors
+		 * @public
+		 */
+		Mixed: "Mixed",
+		/**
+		 * Background with pre-defined accent colors
+		 * @public
+		 */
+		Accent: "Accent",
+		/**
+		 * For applications that want to make use of e.g. charts in the Blocks, this layout type has spacings around the Blocks
+		 * @public
+		 */
+		Dashboard: "Dashboard"
 	};
+
+	/**
+	 * A string type that is used inside the BlockLayoutRow to set predefined set of colors the cells inside
+	 * the control. Color sets depend on sap.ui.layout.BlockBackgroundType
+	 *
+	 * @enum {string}
+	 * @public
+	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
+	 */
+	sap.ui.layout.BlockRowColorSets = {
+		/**
+		 * sap.ui.layout.BlockBackgroundType.Default: N/A
+		 * sap.ui.layout.BlockBackgroundType.Light: Color Set 1
+		 * sap.ui.layout.BlockBackgroundType.Mixed: Color Set 1
+		 * sap.ui.layout.BlockBackgroundType.Accent: Color Set 1
+		 * sap.ui.layout.BlockBackgroundType.Dashboard: N/A
+		 * @public
+		 */
+		ColorSet1: "ColorSet1",
+		/**
+		 * sap.ui.layout.BlockBackgroundType.Default: N/A
+		 * sap.ui.layout.BlockBackgroundType.Light: Color Set 2
+		 * sap.ui.layout.BlockBackgroundType.Mixed: Color Set 2
+		 * sap.ui.layout.BlockBackgroundType.Accent: Color Set 2
+		 * sap.ui.layout.BlockBackgroundType.Dashboard: N/A
+		 * @public
+		 */
+		ColorSet2: "ColorSet2",
+		/**
+		 * sap.ui.layout.BlockBackgroundType.Default: N/A
+		 * sap.ui.layout.BlockBackgroundType.Light: Color Set 1
+		 * sap.ui.layout.BlockBackgroundType.Mixed: Color Set 1
+		 * sap.ui.layout.BlockBackgroundType.Accent: Color Set 3
+		 * sap.ui.layout.BlockBackgroundType.Dashboard: N/A
+		 * @public
+		 */
+		ColorSet3: "ColorSet3",
+		/**
+		 * sap.ui.layout.BlockBackgroundType.Default: N/A
+		 * sap.ui.layout.BlockBackgroundType.Light: Color Set 2
+		 * sap.ui.layout.BlockBackgroundType.Mixed: Color Set 2
+		 * sap.ui.layout.BlockBackgroundType.Accent: Color Set 4
+		 * sap.ui.layout.BlockBackgroundType.Dashboard: N/A
+		 * @public
+		 */
+		ColorSet4: "ColorSet4"
+	};
+
+
+	/**
+	 * A string type that is used inside the BlockLayoutCell to set a predefined set of colors for the cells.
+	 *
+	 * @enum {string}
+	 * @public
+	 * @since 1.48
+	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
+	 */
+	sap.ui.layout.BlockLayoutCellColorSet = {
+		/**
+		 * Color Set 1
+		 *
+		 * @public
+		 */
+		ColorSet1: "ColorSet1",
+		/**
+		 * Color Set 2
+		 *
+		 * @public
+		 */
+		ColorSet2: "ColorSet2",
+		/**
+		 * Color Set 3
+		 *
+		 * @public
+		 */
+		ColorSet3: "ColorSet3",
+		/**
+		 * Color Set 4
+		 *
+		 * @public
+		 */
+		ColorSet4: "ColorSet4",
+		/**
+		 * Color Set 5
+		 *
+		 * @public
+		 */
+		ColorSet5: "ColorSet5",
+		/**
+		 * Color Set 6
+		 *
+		 * @public
+		 */
+		ColorSet6: "ColorSet6",
+		/**
+		 * Color Set 7
+		 *
+		 * @public
+		 */
+		ColorSet7: "ColorSet7",
+		/**
+		 * Color Set 8
+		 *
+		 * @public
+		 */
+		ColorSet8: "ColorSet8",
+		/**
+		 * Color Set 9
+		 *
+		 * @public
+		 */
+		ColorSet9: "ColorSet9",
+		/**
+		 * Color Set 10
+		 *
+		 * @public
+		 */
+		ColorSet10: "ColorSet10",
+		/**
+		 * Color Set 11
+		 *
+		 * @public
+		 */
+		ColorSet11: "ColorSet11"
+	};
+
+		/**
+		 * A string type that is used inside the BlockLayoutCell to set a predefined set of color shades for the cells.
+		 * The colors are defined with sap.ui.layout.BlockLayoutCellColorSet. And this is for the shades only.
+		 *
+		 * @enum {string}
+		 * @public
+		 * @since 1.48
+		 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
+		 */
+		sap.ui.layout.BlockLayoutCellColorShade = {
+			/**
+			 * Shade A
+			 *
+			 * @public
+			 */
+			ShadeA: "ShadeA",
+			/**
+			 * Shade B
+			 *
+			 * @public
+			 */
+			ShadeB: "ShadeB",
+			/**
+			 * Shade C
+			 *
+			 * @public
+			 */
+			ShadeC: "ShadeC",
+			/**
+			 * Shade D
+			 *
+			 * @public
+			 */
+			ShadeD: "ShadeD"
+		};
+
 
 	sap.ui.layout.form = sap.ui.layout.form || {};
 
@@ -326,11 +526,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType',
 		Begin : "Begin"
 	};
 
-	// factory for Form to create labels an buttons to be overwritten by commons and mobile library
+	// factory for Form to create labels and buttons to be overwritten by commons and mobile library
 	if (!sap.ui.layout.form.FormHelper) {
 		sap.ui.layout.form.FormHelper = {
 			createLabel: function(sText){ throw new Error("no Label control available!"); }, /* must return a Label control */
-			createButton: function(sId, fPressFunction){ throw new Error("no Button control available!"); }, /* must return a button control */
+			createButton: function(sId, fPressFunction, fnCallback){ throw new Error("no Button control available!"); }, /* must return a button control */
 			setButtonContent: function(oButton, sText, sTooltip, sIcon, sIconHovered){ throw new Error("no Button control available!"); },
 			addFormClass: function(){ return null; },
 			setToolbar: function(oToolbar){ return oToolbar; }, /* allow to overwrite toolbar settings */

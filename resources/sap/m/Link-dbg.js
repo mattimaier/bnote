@@ -1,29 +1,51 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.Link.
-sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/core/InvisibleText', 'sap/ui/core/EnabledPropagator', 'sap/ui/core/LabelEnablement'],
-	function(jQuery, library, Control, InvisibleText, EnabledPropagator, LabelEnablement) {
+sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/core/InvisibleText', 'sap/ui/core/EnabledPropagator'],
+	function(jQuery, library, Control, InvisibleText, EnabledPropagator) {
 	"use strict";
 
 
 
 	/**
-	 * Constructor for a new Link.
+	 * Constructor for a new <code>Link</code>.
 	 *
-	 * @param {string} [sId] id for the new control, generated automatically if no id is given
-	 * @param {object} [mSettings] initial settings for the new control
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
+	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * A hyperlink control which can be used to trigger actions or to navigate to other applications or web pages.
+	 * A hyperlink control used to navigate to other apps and web pages or to trigger actions.
+	 *
+	 * <h3>Overview</h3>
+	 *
+	 * The <code>Link</code> control is a clickable text element visualized in such a way that it stands out
+	 * from the standard text. On hover, it changes its style to underlined text to provide
+	 * additional feedback to the user.
+	 *
+	 * <h3>Usage</h3>
+	 *
+	 * You can set the <code>Link</code> to be enabled or disabled.
+	 *
+	 * To create a visual hierarchy in large lists of links, you can set the less important links as
+	 * <code>subtle</code> or the more important ones as <code>emphasized</code>.
+	 *
+	 * To specify where the linked content is opened, you can use the <code>target</code> property.
+	 *
+	 * <h3>Responsive behavior</h3>
+	 *
+	 * If there is not enough space, the text of the <code>Link</code> becomes truncated.
+	 * If the <code>wrapping</code> property is set to <code>true</code>, the text will be
+	 * displayed on several lines, instead of being truncated.
+	 *
 	 * @extends sap.ui.core.Control
-	 * @implements sap.ui.core.IShrinkable
+	 * @implements sap.ui.core.IShrinkable, sap.ui.core.IFormContent
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -34,13 +56,14 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	var Link = Control.extend("sap.m.Link", /** @lends sap.m.Link.prototype */ { metadata : {
 
 		interfaces : [
-			"sap.ui.core.IShrinkable"
+			"sap.ui.core.IShrinkable",
+			"sap.ui.core.IFormContent"
 		],
 		library : "sap.m",
 		properties : {
 
 			/**
-			 * Link text to be displayed.
+			 * Defines the displayed link text.
 			 */
 			text : {type : "string", group : "Data", defaultValue : ''},
 
@@ -50,27 +73,33 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			enabled : {type : "boolean", group : "Behavior", defaultValue : true},
 
 			/**
-			 * Options are the standard values for window.open() supported by browsers: _self, _top, _blank, _parent, _search. Alternatively, a frame name can be entered. This property is only used when the href property is set.
+			 * Specifies a target where the linked content will open.
+			 *
+			 * Options are the standard values for window.open() supported by browsers:
+			 * <code>_self</code>, <code>_top</code>, <code>_blank</code>, <code>_parent</code>, <code>_search</code>.
+			 * Alternatively, a frame name can be entered. This property is only used when the <code>href</code> property is set.
 			 */
 			target : {type : "string", group : "Behavior", defaultValue : null},
 
 			/**
-			 * Width of the link (CSS-size such as % or px). When it is set, this is the exact size. When left blank, the text defines the size.
+			 * Determines the width of the link (CSS-size such as % or px). When it is set, this is the exact size.
+			 * When left blank, the text defines the size.
 			 */
 			width : {type : "sap.ui.core.CSSSize", group : "Dimension", defaultValue : null},
 
 			/**
-			 * The link target URI. Supports standard hyperlink behavior. If a JavaScript action should be triggered, this should not be set, but instead an event handler for the "press" event should be registered.
+			 * Defines the link target URI. Supports standard hyperlink behavior. If a JavaScript action should be triggered,
+			 * this should not be set, but instead an event handler for the <code>press</code> event should be registered.
 			 */
 			href : {type : "sap.ui.core.URI", group : "Data", defaultValue : null},
 
 			/**
-			 * Determines whether the link text is allowed to wrap when there is not sufficient space.
+			 * Determines whether the link text is allowed to wrap when there is no sufficient space.
 			 */
 			wrapping : {type : "boolean", group : "Appearance", defaultValue : false},
 
 			/**
-			 * Sets the horizontal alignment of the text.
+			 * Determines the horizontal alignment of the text.
 			 * @since 1.28.0
 			 */
 			textAlign : {type : "sap.ui.core.TextAlign", group : "Appearance", defaultValue : sap.ui.core.TextAlign.Initial},
@@ -111,7 +140,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			 * Event is fired when the user triggers the link control.
 			 */
 			press : {allowPreventDefault : true}
-		}
+		},
+		designTime: true
 	}});
 
 
@@ -123,13 +153,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 *
 	 * @private
 	 */
-	Link.prototype.onBeforeRendering = function() {
-		// add/remove self reference for aria-labelledby  to fix reading issues
-		this.removeAssociation("ariaLabelledBy", this.getId(), true);
-		if (this.getAriaLabelledBy().length > 0 || LabelEnablement.getReferencingLabels(this).length > 0) {
-			this.addAssociation("ariaLabelledBy", this.getId(), true);
-		}
-	};
+	Link.prototype.onBeforeRendering = function() {};
 
 	/**
 	 * Triggers link activation when space key is pressed on the focused control.
@@ -162,6 +186,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @private
 	 */
 	Link.prototype._handlePress = function(oEvent) {
+
 		if (this.getEnabled()) {
 			// mark the event for components that needs to know if the event was handled by the link
 			oEvent.setMarked();
@@ -196,9 +221,19 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	/* override standard setters with direct DOM manipulation */
 
 	Link.prototype.setText = function(sText){
+		var $this = this.$();
 		this.setProperty("text", sText, true);
 		sText = this.getProperty("text");
-		this.$().text(sText);
+		if (this.writeText) {
+			this.writeText(sText);
+		} else {
+			$this.text(sText);
+		}
+		if (sText) {
+			$this.attr("tabindex", "0");
+		} else {
+			$this.attr("tabindex", "-1");
+		}
 		return this;
 	};
 
@@ -206,7 +241,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		this.setProperty("href", sUri, true);
 		if (this.getEnabled()) {
 			sUri = this.getProperty("href");
-			this.$().attr("href", sUri);
+			if (!sUri) {
+				this.$().removeAttr("href");
+			} else {
+				this.$().attr("href", sUri);
+			}
 		}
 		return this;
 	};
@@ -266,7 +305,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			$this.toggleClass("sapMLnkDsbl", !bEnabled);
 			if (bEnabled) {
 				$this.attr("disabled", false);
-				$this.attr("tabindex", "0");
+				if (this.getText()) {
+					$this.attr("tabindex", "0");
+				} else {
+					$this.attr("tabindex", "-1");
+				}
 				$this.removeAttr("aria-disabled");
 				if (this.getHref()) {
 					$this.attr("href", this.getHref());
@@ -275,9 +318,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				$this.attr("disabled", true);
 				$this.attr("tabindex", "-1");
 				$this.attr("aria-disabled", true);
-				/*eslint-disable no-script-url */
-				$this.attr("href", "javascript:void(0);");
-				/*eslint-disable no-script-url */
+				$this.removeAttr("href");
 			}
 		}
 		return this;
@@ -362,7 +403,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	/**
-	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @see sap.ui.core.Control#getAccessibilityInfo
 	 * @protected
 	 */
 	Link.prototype.getAccessibilityInfo = function() {
@@ -373,6 +414,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			focusable: this.getEnabled(),
 			enabled: this.getEnabled()
 		};
+	};
+
+	/*
+	 * Link must not be stretched in Form because this would stretch the size of the focus outline
+	 */
+	Link.prototype.getFormDoNotAdjustWidth = function() {
+		return true;
 	};
 
 	return Link;

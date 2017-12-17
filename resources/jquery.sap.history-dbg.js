@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global', 'jquery.sap.strings'],
@@ -109,7 +109,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.strings'],
 		 *
 		 */
 		$.sap.history = function(mSettings){
-			//if mSetting is not a object map, return
+			//if mSetting is not an object map, return
 			if (!jQuery.isPlainObject(mSettings)) {
 				return;
 			}
@@ -336,50 +336,43 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.strings'],
 		};
 
 		/**
+		 * @enum {string}
 		 * @public
-		 * @name jQuery.sap.history.NavType
-		 * @namespace
-		 * @static
+		 * @alias jQuery.sap.history.NavType
 		 */
-		$.sap.history.NavType = {};
+		$.sap.history.NavType = {
 
-		/**
-		 * This indicates that the new hash is achieved by pressing the back button.
-		 * @type {string}
-		 * @public
-		 * @constant
-		 * @name jQuery.sap.history.NavType.Back
-		 */
-		$.sap.history.NavType.Back = "_back";
+			/**
+			 * This indicates that the new hash is achieved by pressing the back button.
+			 * @public
+			 * @constant
+			 */
+			Back: "_back",
 
-		/**
-		 * This indicates that the new hash is achieved by pressing the forward button.
-		 * @type {string}
-		 * @public
-		 * @constant
-		 * @name jQuery.sap.history.NavType.Forward
-		 */
-		$.sap.history.NavType.Forward = "_forward";
+			/**
+			 * This indicates that the new hash is achieved by pressing the forward button.
+			 * @public
+			 * @constant
+			 */
+			Forward: "_forward",
 
-		/**
-		 * This indicates that the new hash is restored from the bookmark.
-		 * @type {string}
-		 * @public
-		 * @constant
-		 * @name jQuery.sap.history.NavType.Bookmark
-		 */
-		$.sap.history.NavType.Bookmark = "_bookmark";
+			/**
+			 * This indicates that the new hash is restored from the bookmark.
+			 * @public
+			 * @constant
+			 */
+			Bookmark: "_bookmark",
 
-		/**
-		 * This indicates that the new hash is achieved by some unknown direction.
-		 * This happens when the user navigates out of the application and then click on the forward button
-		 * in the browser to navigate back to the application.
-		 * @type {string}
-		 * @public
-		 * @constant
-		 * @name jQuery.sap.history.NavType.Unknown
-		 */
-		$.sap.history.NavType.Unknown = "_unknown";
+			/**
+			 * This indicates that the new hash is achieved by some unknown direction.
+			 * This happens when the user navigates out of the application and then click on the forward button
+			 * in the browser to navigate back to the application.
+			 * @public
+			 * @constant
+			 */
+			Unknown: "_unknown"
+
+		};
 
 		/**
 		 * This function calculates the number of steps from the sCurrentHash to sToHash. If the sCurrentHash or the sToHash is not in the history stack, it returns 0.
@@ -475,7 +468,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.strings'],
 
 		/**
 		 * This function returns a hash with suffix added to the end based on the sHash parameter. It handles as well when the current
-		 * hash is already with suffix. It returns a new suffix with an unique number in the end.
+		 * hash is already with suffix. It returns a new suffix with a unique number in the end.
 		 *
 		 * @private
 		 */
@@ -503,7 +496,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.strings'],
 
 		/**
 		 * This function checks if the combination of the identifier and data is unique in the current history stack.
-		 * If yes, it returns an empty string. Otherwise it returns an unique id.
+		 * If yes, it returns an empty string. Otherwise it returns a unique id.
 		 *
 		 * @private
 		 */
@@ -601,7 +594,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.strings'],
 			} else {
 				//application restored from bookmark with non-empty hash, and later navigates back to the first hash token
 				//the defaultHandler should be triggered
-				iNewHashIndex = jQuery.inArray(sHash, hashHistory);
+				iNewHashIndex = hashHistory.indexOf(sHash);
 				if (iNewHashIndex === 0) {
 					oParsedHash = parseHashToObject(sHash);
 					if (!oParsedHash || !oParsedHash.bBookmarkable) {
@@ -649,7 +642,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.strings'],
 						sNavType = $.sap.history.NavType.Unknown;
 						hashHistory.push(sHash);
 					} else {
-						if (jQuery.inArray(currentHash, hashHistory, iNewHashIndex + 1) === -1) {
+						if (hashHistory.indexOf(currentHash, iNewHashIndex + 1) === -1) {
 							sNavType = $.sap.history.NavType.Forward;
 						} else {
 							sNavType = $.sap.history.NavType.Back;

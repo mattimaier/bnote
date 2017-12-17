@@ -1,12 +1,14 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 //Provides control sap.ui.unified.PlanningCalendarRow.
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem', './StandardListItemRenderer', 'sap/ui/core/Renderer', './library', 'sap/ui/unified/library'],
-		function(jQuery, Element, StandardListItem, StandardListItemRenderer, Renderer, library, unifiedLibrary) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem', './StandardListItemRenderer',
+		'sap/ui/core/Renderer', './library', 'sap/ui/unified/library', 'sap/ui/unified/DateRange', 'sap/ui/unified/CalendarRow'],
+	function (jQuery, Element, StandardListItem, StandardListItemRenderer, Renderer, library, unifiedLibrary, DateRange,
+			  CalendarRow) {
 	"use strict";
 
 	/**
@@ -16,12 +18,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem',
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * Row in the <code>PlanningCalendar</code>.
+	 * Row in the {@link sap.m.PlanningCalendar}.
 	 *
-	 * This element holds the data of one row in the <code>PlanningCalendar</code>. Once the header information (e.g. person information)
+	 * This element holds the data of one row in the @link sap.m.PlanningCalendar}. Once the header information (e.g. person information)
 	 * is assigned, the appointments are assigned.
 	 * @extends sap.ui.core.Element
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -35,48 +37,49 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem',
 		properties : {
 
 			/**
-			 * Title of the header (e.g. name of the person)
+			 * Defines the title of the header (for example, the name of the person).
 			 */
 			title : {type : "string", group : "Data"},
 
 			/**
-			 * Text of the header (e.g. department of the person)
+			 * Defines the text of the header (for example, the department of the person).
 			 */
 			text : {type : "string", group : "Data"},
 
 			/**
-			 * Icon of the header (e.g. picture of the person)
-			 *
-			 * URI of an image or an icon registered in sap.ui.core.IconPool.
+			 * Specifies the URI of an image or an icon registered in <code>sap.ui.core.IconPool</code>.
 			 */
 			icon : {type : "sap.ui.core.URI", group : "Data", defaultValue : null},
 
 			/**
-			 * If set, the provided weekdays are displayed as non-working days.
-			 * Valid values inside the array are 0 to 6. (other values will just be ignored.)
-			 *
+			 * Determines whether the provided weekdays are displayed as non-working days.
+			 * Valid values inside the array are from 0 to 6 (other values are ignored).
 			 * If not set, the weekend defined in the locale settings is displayed as non-working days.
 			 *
-			 * <b>Note:</b> The non-working days are only visualized if <code>intervalType</code> is set to day.
+			 * <b>Note:</b> The non-working days are visualized if the <code>intervalType</code>
+			 * property of the {@link sap.m.PlanningCalendarView} is set to <code>Day</code>.
 			 */
 			nonWorkingDays : {type : "int[]", group : "Misc", defaultValue : null},
 
 			/**
-			 * If set, the provided hours are displayed as non-working hours.
-			 * Valid values inside the array are 0 to 23. (other values will just be ignored.)
+			 * Determines whether the provided hours are displayed as non-working hours.
+			 * Valid values inside the array are from 0 to 23 (other values are ignored).
 			 *
-			 * <b>Note:</b> The non-working hours are only visualized if <code>intervalType</code> is set to hour.
+			 * <b>Note:</b> The non-working hours are visualized if <code>intervalType</code>
+			 * property of the {@link sap.m.PlanningCalendarView} is set to <code>Hour</code>.
 			 */
 			nonWorkingHours : {type : "int[]", group : "Misc", defaultValue : null},
 
 			/**
 			 * Defines the selected state of the <code>PlanningCalendarRow</code>.
-			 * <b>Note:</b> Binding the <code>selected</code> property in single selection modes may cause unwanted results if you have more than one selected row in your binding.
+			 *
+			 * <b>Note:</b> Binding the <code>selected</code> property in single selection modes may
+			 * cause unwanted results if you have more than one selected row in your binding.
 			 */
 			selected : {type : "boolean", group : "Data", defaultValue : false},
 
 			/**
-			 * Can be used as an identifier of the row
+			 * Defines the identifier of the row.
 			 */
 			key : {type : "string", group : "Data", defaultValue : null}
 
@@ -84,26 +87,39 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem',
 		aggregations : {
 
 			/**
-			 * Appointments to be displayed in the row. Appointments outside the visible time frame are not rendered.
+			 * The appointments to be displayed in the row. Appointments that outside the visible time frame are not rendered.
 			 *
-			 * <b>Note:</b> For performance reasons only appointments in the visible time range or nearby should be assigned.
+			 * <b>Note:</b> For performance reasons, only appointments in the visible time range or nearby should be assigned.
 			 */
 			appointments : {type : "sap.ui.unified.CalendarAppointment", multiple : true, singularName : "appointment"},
 
 			/**
-			 * Appointments to be displayed in the top of the intervals. The <code>intervalHeaders</code> are used to visualize
-			 * public holidays and similar things.
-			 *
+			 * The appointments to be displayed at the top of the intervals (for example, for public holidays).
 			 * Appointments outside the visible time frame are not rendered.
 			 *
-			 * The <code>intervalHeaders</code> always fill whole intervals. If they are shorter than one interval they are not displayed.
+			 * Keep in mind that the <code>intervalHeaders</code> should always fill whole intervals. If they are shorter or longer
+			 * than one interval, they are not displayed.
 			 *
-			 * <b>Note:</b> For performance reasons only appointments in the visible time range or nearby should be assigned.
+			 * <b>Note:</b> For performance reasons, only appointments in the visible time range or nearby should be assigned.
 			 */
-			intervalHeaders : {type : "sap.ui.unified.CalendarAppointment", multiple : true, singularName : "intervalHeader"}
+			intervalHeaders : {type : "sap.ui.unified.CalendarAppointment", multiple : true, singularName : "intervalHeader"},
+
+			_nonWorkingDates : {type : "sap.ui.unified.DateRange", multiple : true, visibility : "hidden"}
 
 		}
 	}});
+
+	/**
+	 * Used to link the items (DateRange) in aggregation _nonWorkingDates to any PlanningCalendar specialDates of type NonWorking
+	 * @private
+	 */
+	PlanningCalendarRow.PC_FOREIGN_KEY_NAME = "relatedToPCDateRange";
+
+	/**
+	 * Holds the name of the aggregation corresponding to non working dates
+	 * @private
+	 */
+	PlanningCalendarRow.AGGR_NONWORKING_DATES_NAME = "_nonWorkingDates";
 
 	var CalenderRowHeader = StandardListItem.extend("CalenderRowHeader", {
 
@@ -149,10 +165,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem',
 
 	PlanningCalendarRow.prototype.init = function(){
 
-		var oCalendarRowHeader = new CalenderRowHeader(this.getId() + "-Head", {parentRow: this});
-		var oCalendarRow = new sap.ui.unified.CalendarRow(this.getId() + "-CalRow", {
+		var sId = this.getId();
+		var oCalendarRowHeader = new CalenderRowHeader(sId + "-Head", {parentRow: this});
+		var oCalendarRow = new CalendarRow(sId + "-CalRow", {
 			checkResize: false,
-			updateCurrentTime: false
+			updateCurrentTime: false,
+			ariaLabelledBy: sId + "-Head"
 		});
 		oCalendarRow._oPlanningCalendarRow = this;
 
@@ -178,13 +196,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem',
 
 		this._oColumnListItem = new sap.m.ColumnListItem(this.getId() + "-CLI", {
 			cells: [ oCalendarRowHeader,
-			         oCalendarRow]
+					 oCalendarRow]
 		});
 
 	};
 
 	PlanningCalendarRow.prototype.exit = function(){
 
+		if (this._oColumnListItem.getCells()[1]) {//destroy associated CalendarRow
+			this._oColumnListItem.getCells()[1].destroy();
+		}
 		this._oColumnListItem.destroy();
 		this._oColumnListItem = undefined;
 
@@ -320,7 +341,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem',
 	};
 
 	/**
-	 * A <code>PlanningCalendarRow</code> is rendered inside a <code>sap.m.Table</code> as <code>sap.m.ColumnListItem</code>.
+	 * A <code>PlanningCalendarRow</code> is rendered inside a <code>sap.m.Table</code> as a <code>sap.m.ColumnListItem</code>.
 	 *
 	 * @returns {sap.m.ColumnListItem} <code>sap.m.ColumnListItem</code> that represents <code>PlanningCalendarRow</code> in the table.
 	 * @private
@@ -338,7 +359,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem',
 	 * @private
 	 */
 	PlanningCalendarRow.prototype.getCalendarRow = function(){
-
+		if (!this._oColumnListItem) {
+			return null;
+		}
 		return this._oColumnListItem.getCells()[1];
 
 	};
@@ -350,6 +373,82 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element', './StandardListItem',
 
 		return this;
 
+	};
+
+
+	PlanningCalendarRow.prototype.addAggregation = function (sAggregationName, oObject, bSuppressInvalidate) {
+		if (CalendarRow.AGGR_NONWORKING_DATES_NAME === sAggregationName) {
+			// forward to CalendarRow
+			this.getCalendarRow().addAggregation(CalendarRow.AGGR_NONWORKING_DATES_NAME, this._buildCalendarRowDateRange(oObject),
+				bSuppressInvalidate);
+		}
+		return Element.prototype.addAggregation.apply(this, arguments);
+	};
+
+	PlanningCalendarRow.prototype.insertAggregation = function(sAggregationName, oObject, iIndex, bSuppressInvalidate) {
+		if (PlanningCalendarRow.AGGR_NONWORKING_DATES_NAME === sAggregationName) {
+			// forward to CalendarRow
+			this.getCalendarRow().insertAggregation(CalendarRow.AGGR_NONWORKING_DATES_NAME, this._buildCalendarRowDateRange(oObject),
+				iIndex, bSuppressInvalidate);
+		 }
+
+		return Element.prototype.insertAggregation.apply(this, arguments);
+	 };
+
+	PlanningCalendarRow.prototype.removeAggregation = function(sAggregationName, oObject, bSuppressInvalidate) {
+		var aRemovableNonWorkingDate;
+
+		if (PlanningCalendarRow.AGGR_NONWORKING_DATES_NAME === sAggregationName && this.getAggregation(PlanningCalendarRow.AGGR_NONWORKING_DATES_NAME)) {
+			aRemovableNonWorkingDate = this.getCalendarRow().getAggregation(CalendarRow.AGGR_NONWORKING_DATES_NAME).filter(function(oNonWorkingDate) {
+				return oNonWorkingDate.data(CalendarRow.PCROW_FOREIGN_KEY_NAME) === oObject.getId();
+			});
+			if (aRemovableNonWorkingDate.length) {
+				jQuery.sap.assert(aRemovableNonWorkingDate.length == 1, "Inconsistency between PlanningCalendarRow " +
+					"_nonWorkingDate instance and CalendarRow _nonWorkingDates instance. For PCRow instance " +
+					"there are more than one(" + aRemovableNonWorkingDate.length + ") nonWorkingDates in CalendarRow ");
+				this.getCalendarRow().removeAggregation("_nonWorkingDates", aRemovableNonWorkingDate[0]);
+			}
+		}
+		return Element.prototype.removeAggregation.apply(this, arguments);
+	};
+
+	PlanningCalendarRow.prototype.removeAllAggregation = function(sAggregationName, bSuppressInvalidate) {
+		if (PlanningCalendarRow.AGGR_NONWORKING_DATES_NAME === sAggregationName) {
+			// forward to CalendarRow
+			this.getCalendarRow().removeAllAggregation(CalendarRow.AGGR_NONWORKING_DATES_NAME, bSuppressInvalidate);
+		}
+
+		return Element.prototype.removeAllAggregation.apply(this, arguments);
+	};
+
+	PlanningCalendarRow.prototype.destroyAggregation = function(sAggregationName, bSuppressInvalidate) {
+		if (PlanningCalendarRow.AGGR_NONWORKING_DATES_NAME === sAggregationName) {
+			// forward to CalendarRow
+			if (this.getCalendarRow()) {
+				this.getCalendarRow().destroyAggregation(CalendarRow.AGGR_NONWORKING_DATES_NAME, bSuppressInvalidate);
+			}
+		}
+		return Element.prototype.destroyAggregation.apply(this, arguments);
+	};
+
+	/**
+	 * Clone from the passed DateRange and sets the foreign key to the source DateRange, that is used for cloning
+	 * @param {sap.ui.unified.DateRange} oSource The date range to be copied
+	 * @returns {sap.ui.unified.DateRange} The copied date range
+	 * @private
+	 */
+	PlanningCalendarRow.prototype._buildCalendarRowDateRange = function (oSource) {
+		var oRangeCopy = new DateRange();
+
+		if (oSource.getStartDate()) {
+			oRangeCopy.setStartDate(new Date(oSource.getStartDate().getTime()));
+		}
+		if (oSource.getEndDate()) {
+			oRangeCopy.setEndDate(new Date(oSource.getEndDate().getTime()));
+		}
+		oRangeCopy.data(CalendarRow.PCROW_FOREIGN_KEY_NAME, oSource.getId());
+
+		return oRangeCopy;
 	};
 
 	return PlanningCalendarRow;

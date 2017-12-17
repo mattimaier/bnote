@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -11,24 +11,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	function(jQuery, DataType) {
 	"use strict";
 
-	/**
-	 * The SAPUI5 Core Runtime.
-	 *
-	 * Contains the UI5 jQuery plugins (jQuery.sap.*), the Core and all its components,
-	 * base classes for Controls, Components and the Model View Controller classes.
-	 *
-	 * @namespace
-	 * @name sap.ui.core
-	 * @author SAP SE
-	 * @version 1.38.7
-	 * @public
-	 */
-
-
 	// delegate further initialization of this library to the Core
 	sap.ui.getCore().initLibrary({
 		name : "sap.ui.core",
-		version: "1.38.7",
+		version: "1.50.7",
 		types: [
 
 			// builtin types
@@ -41,6 +27,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 			"void",
 
 			// simple types and enums
+			"sap.ui.core.AbsoluteCSSSize",
 			"sap.ui.core.AccessibleRole",
 			"sap.ui.core.AccessibleLandmarkRole",
 			"sap.ui.core.BarColor",
@@ -49,6 +36,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 			"sap.ui.core.CSSSize",
 			"sap.ui.core.CSSSizeShortHand",
 			"sap.ui.core.Collision",
+			"sap.ui.core.ComponentLifecycle",
 			"sap.ui.core.Design",
 			"sap.ui.core.Dock",
 			"sap.ui.core.HorizontalAlign",
@@ -76,11 +64,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 			"sap.ui.core.IShrinkable",
 			"sap.ui.core.Label",
 			"sap.ui.core.PopupInterface",
-			"sap.ui.core.Toolbar"
+			"sap.ui.core.Toolbar",
+			"sap.ui.core.IContextMenu",
+			"sap.ui.core.IFormContent"
 		],
 		controls: [
 			"sap.ui.core.ComponentContainer",
 			"sap.ui.core.Control",
+			"sap.ui.core.FragmentControl",
 			"sap.ui.core.HTML",
 			"sap.ui.core.Icon",
 			"sap.ui.core.InvisibleText",
@@ -88,6 +79,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 			"sap.ui.core.ScrollBar",
 			"sap.ui.core.TooltipBase",
 			"sap.ui.core.UIComponent",
+			"sap.ui.core.XMLComposite",
 			"sap.ui.core.mvc.HTMLView",
 			"sap.ui.core.mvc.JSONView",
 			"sap.ui.core.mvc.JSView",
@@ -111,9 +103,96 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 			"sap.ui.core.search.OpenSearchProvider",
 			"sap.ui.core.search.SearchProvider",
 			"sap.ui.core.tmpl.DOMAttribute"
-		]
+		],
+		extensions: {
+			"sap.ui.support" : {
+				diagnosticPlugins: [
+					"sap/ui/core/support/plugins/TechInfo",
+					"sap/ui/core/support/plugins/ControlTree",
+					"sap/ui/core/support/plugins/Debugging",
+					"sap/ui/core/support/plugins/Trace",
+					"sap/ui/core/support/plugins/Selector",
+					"sap/ui/core/support/plugins/Breakpoint",
+					"sap/ui/core/support/plugins/ViewInfo",
+					"sap/ui/core/support/plugins/LocalStorage",
+					"sap/ui/core/support/plugins/Interaction",
+					"sap/ui/core/support/plugins/Performance"
+				]
+			}
+		}
 	});
 
+	/* eslint-disable no-undef */
+	/**
+	 * The SAPUI5 Core Runtime.
+	 *
+	 * Contains the UI5 jQuery plugins (jQuery.sap.*), the Core and all its components,
+	 * base classes for Controls, Components and the Model View Controller classes.
+	 *
+	 * @namespace
+	 * @alias sap.ui.core
+	 * @author SAP SE
+	 * @version 1.50.7
+	 * @public
+	 */
+	var thisLib = sap.ui.core;
+	/* eslint-enable no-undef */
+
+	/**
+	 * @classdesc A string type that represents non-relative CSS size values.
+	 *
+	 * This is a subtype of the <code>'&lt;length&gt; type'</code> defined in the CSS specifications.
+	 * Allowed values are only absolute CSS sizes like &quot;1px&quot; or &quot;2em&quot;. Percentage
+	 * sizes like &quot;50%&quot; and the special values &quot;auto&quot; and &quot;inherit&quot; are
+	 * NOT allowed. Mathematical expressions using the CSS3 <code>calc(<i>expression</i>)</code> operator
+	 * are allowed as long as they do not use percentage sizes.
+	 *
+	 * Note that CSS might not allow all these values for every CSS property representing a size.
+	 * So even if a value is accepted by <code>sap.ui.core.AbsoluteCSSSize</code>, it still might have no effect
+	 * in a specific context. In other words: UI5 controls usually don't extend the range of allowed
+	 * values in CSS.
+	 *
+	 *
+	 * <b>Units</b>
+	 *
+	 * Valid font-relative units are <code>em, ex</code> and <code>rem</code>. Supported absolute units
+	 * are <code>cm, mm, in, pc, pt</code> and <code>px</code>. Other units are not supported.
+	 *
+	 *
+	 * <b>Mathematical Expressions</b>
+	 *
+	 * Expressions inside the <code>calc()</code> operator are only roughly checked for validity.
+	 * Not every value that this type accepts is a valid expression in the sense of the CSS spec.
+	 * But vice versa, any expression that is valid according to the spec should be accepted by this type.
+	 * The current implementation is based on the
+	 * {@link http://dev.w3.org/csswg/css-values-3/#calc-syntax CSS3 Draft specification from 22 April 2015}.
+	 *
+	 * Noteworthy details:
+	 * <ul>
+	 * <li>whitespace is mandatory around a '-' or '+' operator and optional otherwise</li>
+	 * <li>parentheses are accepted but not checked for being balanced (a limitation of regexp based checks)</li>
+	 * <li>semantic constraints like type restrictions are not checked</li>
+	 * </ul>
+	 *
+	 * Future versions of UI5 might check <code>calc()</code> expressions in more detail, so applications should
+	 * not assume that a value, that is invalid according to the CSS spec but currently accepted by this type
+	 * still will be accepted by future versions of this type.
+	 *
+	 * @final
+	 * @namespace
+	 * @public
+	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
+	 */
+	thisLib.AbsoluteCSSSize = DataType.createType('sap.ui.core.AbsoluteCSSSize', {
+			isValid : function(vValue) {
+				// Note: the following regexp by intention is a single regexp literal.
+				// It could be made much more readable by constructing it out of (reused) sub-expressions (strings)
+				// but this would not be parseable by the metamodel recovery tooling that is used inside SAP
+				return /^([-+]?(0*|([0-9]+|[0-9]*\.[0-9]+)([rR][eE][mM]|[eE][mM]|[eE][xX]|[pP][xX]|[cC][mM]|[mM][mM]|[iI][nN]|[pP][tT]|[pP][cC]))|calc\(\s*(\(\s*)*[-+]?(([0-9]+|[0-9]*\.[0-9]+)([rR][eE][mM]|[eE][mM]|[eE][xX]|[pP][xX]|[cC][mM]|[mM][mM]|[iI][nN]|[pP][tT]|[pP][cC])?)(\s*(\)\s*)*(\s[-+]\s|[*\/])\s*(\(\s*)*([-+]?(([0-9]+|[0-9]*\.[0-9]+)([rR][eE][mM]|[eE][mM]|[eE][xX]|[pP][xX]|[cC][mM]|[mM][mM]|[iI][nN]|[pP][tT]|[pP][cC])?)))*\s*(\)\s*)*\))$/.test(vValue);
+			}
+		},
+		DataType.getType('string')
+	);
 
 	/**
 	 * Defines the accessible roles for ARIA support. This enumeration is used with the AccessibleRole control property.
@@ -123,7 +202,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.AccessibleRole = {
+	thisLib.AccessibleRole = {
 
 		/**
 		 * A message with an alert or error information.
@@ -513,7 +592,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.AccessibleLandmarkRole = {
+	thisLib.AccessibleLandmarkRole = {
 
 		/**
 		 * No explicit role is applicable.
@@ -588,7 +667,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.BarColor = {
+	thisLib.BarColor = {
 
 		/**
 		 * Color: blue (#b8d0e8)
@@ -623,7 +702,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.CalendarType = {
+	thisLib.CalendarType = {
 
 		/**
 		 * The Gregorian calendar
@@ -641,7 +720,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 		 * The Japanese emperor calendar
 		 * @public
 		 */
-		Japanese: "Japanese"
+		Japanese: "Japanese",
+
+		/**
+		 * The Persian Jalali calendar
+		 * @public
+		 */
+		Persian: "Persian"
 	};
 
 	/**
@@ -658,12 +743,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.CSSColor = DataType.createType('sap.ui.core.CSSColor', {
+	thisLib.CSSColor = DataType.createType('sap.ui.core.CSSColor', {
 			isValid : function(vValue) {
 				// Note: the following regexp by intention is a single regexp literal.
 				// It could be made much more readable by constructing it out of (reused) sub-expressions (strings)
 				// but this would not be parseable by the metamodel recovery tooling that is used inside SAP
-				return /^(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|rgb\(\s*((1?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))|([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*(,\s*((1?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))|([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*){2}\)|rgba\((\s*((1?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))|([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*,){3}\s*(0(\.[0-9]+)?|1(\.0+)?)\s*\)|hsl\(\s*([0-2]?[0-9]?[0-9]|3([0-5][0-9]|60))\s*(,\s*(([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*){2}\)|hsla\(\s*([0-2]?[0-9]?[0-9]|3([0-5][0-9]|60))\s*,(\s*(([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*,){2}\s*(0(\.[0-9]+)?|1(\.0+)?)\s*\)|aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coralcornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silverskyblue|slateblue|slategray|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen|transparent|inherit|)$/.test(vValue);
+				return /^(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|rgb\(\s*((1?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))|([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*(,\s*((1?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))|([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*){2}\)|rgba\((\s*((1?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))|([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*,){3}\s*(0(\.[0-9]+)?|1(\.0+)?)\s*\)|hsl\(\s*([0-2]?[0-9]?[0-9]|3([0-5][0-9]|60))\s*(,\s*(([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*){2}\)|hsla\(\s*([0-2]?[0-9]?[0-9]|3([0-5][0-9]|60))\s*,(\s*(([0-9]?[0-9](\.[0-9]+)?|100(\.0+)?)%)\s*,){2}\s*(0(\.[0-9]+)?|1(\.0+)?)\s*\)|aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coralcornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgrey|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|grey|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgrey|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silverskyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen|transparent|inherit|)$/.test(vValue);
 			}
 		},
 		DataType.getType('string')
@@ -714,7 +799,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.CSSSize = DataType.createType('sap.ui.core.CSSSize', {
+	thisLib.CSSSize = DataType.createType('sap.ui.core.CSSSize', {
 			isValid : function(vValue) {
 				// Note: the following regexp by intention is a single regexp literal.
 				// It could be made much more readable by constructing it out of (reused) sub-expressions (strings)
@@ -738,7 +823,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.CSSSizeShortHand = DataType.createType('sap.ui.core.CSSSizeShortHand', {
+	thisLib.CSSSizeShortHand = DataType.createType('sap.ui.core.CSSSizeShortHand', {
 			isValid : function(vValue) {
 				// Note: the following regexp by intention is a single regexp literal.
 				// It could be made much more readable by constructing it out of (reused) sub-expressions (strings)
@@ -762,7 +847,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.Collision = DataType.createType('sap.ui.core.Collision', {
+	thisLib.Collision = DataType.createType('sap.ui.core.Collision', {
 			isValid : function(vValue) {
 				return /^((flip|fit|none)( (flip|fit|none))?)$/.test(vValue);
 			}
@@ -778,7 +863,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.Design = {
+	thisLib.Design = {
 
 		/**
 		 * Standard font
@@ -809,7 +894,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.Dock = DataType.createType('sap.ui.core.Dock', {
+	thisLib.Dock = DataType.createType('sap.ui.core.Dock', {
 			isValid : function(vValue) {
 				return /^((begin|left|center|right|end) (top|center|bottom))$/.test(vValue);
 			}
@@ -825,7 +910,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.HorizontalAlign = {
+	thisLib.HorizontalAlign = {
 
 		/**
 		 * Locale-specific positioning at the beginning of the line
@@ -863,12 +948,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	/**
 	 * @classdesc A string type representing an Id or a name.
 	 *
+	 * Allowed is a sequence of characters (capital/lowercase), digits, underscores, dashes, points and/or colons.
+	 * It may start with a character or underscore only.
+	 *
 	 * @final
 	 * @namespace
 	 * @public
 	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.ID = DataType.createType('sap.ui.core.ID', {
+	thisLib.ID = DataType.createType('sap.ui.core.ID', {
 			isValid : function(vValue) {
 				return /^([A-Za-z_][-A-Za-z0-9_.:]*)$/.test(vValue);
 			}
@@ -902,7 +990,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.IconColor = {
+	thisLib.IconColor = {
 
 		/**
 		 * Default color (brand color)
@@ -946,7 +1034,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.ImeMode = {
+	thisLib.ImeMode = {
 
 		/**
 		 * The value is automatically computed by the user agent.
@@ -990,7 +1078,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.MessageType = {
+	thisLib.MessageType = {
 
 		/**
 		 * Message should be just an information
@@ -1017,7 +1105,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 		None : "None",
 
 		/**
-		 * Message is an success message
+		 * Message is a success message
 		 * @public
 		 */
 		Success : "Success"
@@ -1033,7 +1121,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.OpenState = {
+	thisLib.OpenState = {
 
 		/**
 		 * Open and currently not changing states.
@@ -1063,14 +1151,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 
 
 	/**
-	 * Orientation of an UI element
+	 * Orientation of a UI element
 	 *
 	 * @enum {string}
 	 * @public
 	 * @since 1.22
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.Orientation = {
+	thisLib.Orientation = {
 
 		/**
 		 * Arrange Horizontally
@@ -1094,7 +1182,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.Percentage = DataType.createType('sap.ui.core.Percentage', {
+	thisLib.Percentage = DataType.createType('sap.ui.core.Percentage', {
 			isValid : function(vValue) {
 				return /^([0-9][0-9]*(\.[0-9]+)?%)$/.test(vValue);
 			}
@@ -1110,7 +1198,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.Priority = {
+	thisLib.Priority = {
 
 		/**
 		 * Default, none priority
@@ -1158,7 +1246,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.ScrollBarAction = {
+	thisLib.ScrollBarAction = {
 
 		/**
 		 * Single step scrolling caused by clicking an arrow button or arrow key.
@@ -1194,7 +1282,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.Scrolling = {
+	thisLib.Scrolling = {
 
 		/**
 		 * No scroll bar provided even if the content is larger than the available space.
@@ -1230,7 +1318,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.TextAlign = {
+	thisLib.TextAlign = {
 
 		/**
 		 * Locale-specific positioning at the beginning of the line.
@@ -1279,7 +1367,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.TextDirection = {
+	thisLib.TextDirection = {
 
 		/**
 		 * Specifies left-to-right text direction.
@@ -1310,7 +1398,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @since 1.9.1
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.TitleLevel = {
+	thisLib.TitleLevel = {
 
 		/**
 		 * The level of the title is choosen by the control rendering the title.
@@ -1368,6 +1456,50 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @ui5-metamodel This interface also will be described in the UI5 (legacy) designtime metamodel
 	 */
 
+	/**
+	 * Marker interface for controls that can serve as a context menu.
+	 * Implementation of this interface should implement <li><code>openAsContextMenu</code></li> method.
+	 *
+	 * @name sap.ui.core.IContextMenu
+	 * @interface
+	 * @public
+	 * @ui5-metamodel This interface also will be described in the UI5 (legacy) designtime metamodel
+	 */
+
+	/**
+	 * Opens the control by given opener ref.
+	 * @param {string} oEvent oncontextmenu event
+	 * @param {sap.ui.core.Element|DOMRef} oOpenerRef The element which will get the focus back again after the menu was closed.
+	 *
+	 * @function
+	 * @name sap.ui.core.IContextMenu.openAsContextMenu
+	 */
+
+	/**
+	 * Marker interface for controls that can be used as content of <code>sap.ui.layout.form.Form</code>
+	 * or <code>sap.ui.layout.form.SimpleForm</code>.
+	 *
+	 * If the control's width must not be adjusted by the <code>Form</code> control to meet the cell's width, the
+	 * control must implement the <code>getFormDoNotAdjustWidth</code> function and return <code>true</code>.
+	 *
+	 * @since 1.48.0
+	 * @name sap.ui.core.IFormContent
+	 * @interface
+	 * @public
+	 * @ui5-metamodel This interface also will be described in the UI5 (legacy) designtime metamodel
+	 */
+
+	/**
+	 * In the <code>Form</code> control all content controls are positioned on a grid cell base. By default
+	 * the controls use the full width of the used grid cell. But for some controls (like image controls),
+	 * this is not the desired behavior. In this case the control must keep its original width.
+	 *
+	 * @return {boolean} true if the <code>Form</code> is not allowed to adjust the width of the control to use the cell's width
+	 * @since 1.48.0
+	 * @public
+	 * @function
+	 * @name sap.ui.core.IFormContent.getFormDoNotAdjustWidth
+	 */
 
 	/**
 	 * @classdesc A string type that represents an RFC 3986 conformant URI.
@@ -1377,7 +1509,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This simple type also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.URI = DataType.createType('sap.ui.core.URI', {
+	thisLib.URI = DataType.createType('sap.ui.core.URI', {
 			isValid : function(vValue) {
 				return /^((([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?)$/.test(vValue);
 			}
@@ -1393,7 +1525,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.ValueState = {
+	thisLib.ValueState = {
 
 		/**
 		 * State is not valid.
@@ -1429,7 +1561,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.VerticalAlign = {
+	thisLib.VerticalAlign = {
 
 		/**
 		 *
@@ -1473,7 +1605,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.Wrapping = {
+	thisLib.Wrapping = {
 
 		/**
 		 * The standard browser behavior is considered for wrapping.
@@ -1502,7 +1634,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	};
 
 
-	sap.ui.core.mvc = sap.ui.core.mvc || {};
+	thisLib.mvc = thisLib.mvc || {};
 
 	/**
 	 * Specifies possible view types
@@ -1511,7 +1643,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.mvc.ViewType = {
+	thisLib.mvc.ViewType = {
 
 		/**
 		 * JSON View
@@ -1546,7 +1678,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	};
 
 
-	sap.ui.core.routing = sap.ui.core.routing || {};
+	thisLib.routing = thisLib.routing || {};
 
 	/**
 	 * Enumaration for different HistoryDirections
@@ -1555,7 +1687,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.routing.HistoryDirection = {
+	thisLib.routing.HistoryDirection = {
 
 		/**
 		 * The page has already been navigated to and it was the successor of the previous page
@@ -1584,26 +1716,39 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 	};
 
 	/**
-	 * Prefixes to be used for rendering "unusual" DOM-Elements, like dummy elements, placeholders
-	 * for invisible controls, etc.
+	 * Enumeration for different lifecycle behaviors of Components created by the
+	 * ComponentContainer.
 	 *
 	 * @enum {string}
-	 * @private
+	 * @public
+	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	sap.ui.core.RenderPrefixes =  {
+	sap.ui.core.ComponentLifecycle =  {
 
 		/**
-		 * The control has not been rendered because it is invisible, the element rendered with this
-		 * prefix can be found by the RenderManager to avoid rerendering the parents
-		 * @private
+		 * Legacy lifecycle means that the ComponentContainer takes care
+		 * to destroy the Component which is associated with the
+		 * ComponentContainer once the ComponentContainer is destroyed but
+		 * not when a new Component is associated.
+		 * @public
 		 */
-		Invisible : "sap-ui-invisible-",
+		Legacy : "Legacy",
 
 		/**
-		 * A dummy element is rendered with the intention of replacing it with the real content
-		 * @private
+		 * Application managed lifecycle means that the Application takes care
+		 * to destroy the Components associated with the ComponentContainer.
+		 * @public
 		 */
-		Dummy : "sap-ui-dummy-"
+		Application : "Application",
+
+		/**
+		 * Container managed lifecycle means that the ComponentContainer takes
+		 * care to destroy the Components associated with the ComponentContainer
+		 * once the ComponentContainer is destroyed or a new Component is associated.
+		 * @public
+		 */
+		Container : "Container"
+
 	};
 
 	var lazy = sap.ui.lazyRequire;
@@ -1626,18 +1771,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/DataType', './Core'],
 
 	lazy("sap.ui.model.odata.AnnotationHelper", "createPropertySetting format getNavigationPath"
 		+ " gotoEntitySet gotoEntityType gotoFunctionImport isMultiple resolvePath simplePath");
-	if ( sap.ui.model && sap.ui.model.odata && sap.ui.model.odata.AnnotationHelper ) { // ensure that lazy stub exists before enriching it
-		sap.ui.model.odata.AnnotationHelper.format.requiresIContext = true;
-		sap.ui.model.odata.AnnotationHelper.getNavigationPath.requiresIContext = true;
-		sap.ui.model.odata.AnnotationHelper.isMultiple.requiresIContext = true;
-		sap.ui.model.odata.AnnotationHelper.simplePath.requiresIContext = true;
+	/* eslint-disable no-undef */
+	var AnnotationHelper = sap.ui.model && sap.ui.model.odata && sap.ui.model.odata.AnnotationHelper;
+	/* eslint-enable no-undef */
+	if ( AnnotationHelper ) { // ensure that lazy stub exists before enriching it
+		AnnotationHelper.format.requiresIContext = true;
+		AnnotationHelper.getNavigationPath.requiresIContext = true;
+		AnnotationHelper.isMultiple.requiresIContext = true;
+		AnnotationHelper.simplePath.requiresIContext = true;
 	}
 	lazy("sap.ui", "xmlfragment", "sap.ui.core.Fragment"); // cannot use "each" as it assumes a module to exist for each function name
 	lazy("sap.ui", "jsfragment", "sap.ui.core.Fragment");
 	lazy("sap.ui", "htmlfragment", "sap.ui.core.Fragment");
 
 	each("sap.ui.model.", ["Filter","Sorter","json.JSONModel","resource.ResourceModel","odata.ODataModel","odata.v2.ODataModel","odata.v4.ODataModel","xml.XMLModel"]);
-	each("sap.ui.model.type.", ["Boolean","Integer","Float","String","Date","Time","DateTime","FileSize", "Currency"]);
+	each("sap.ui.model.type.", ["Boolean","Integer","Float","String","Date","Time","DateTime","FileSize","Currency","DateInterval", "DateTimeInterval", "TimeInterval"]);
 	each("sap.ui.model.odata.type.", ["Boolean","Byte","Date","DateTime","DateTimeOffset","Double","Decimal","Guid","Int16","Int32","Int64","Raw","SByte","Single","String","Time","TimeOfDay"]);
 	each("sap.ui.core.", ["Locale","LocaleData","mvc.Controller"]);
 	each("sap.ui.core.mvc.", ["Controller", "View", "JSView", "JSONView", "XMLView", "HTMLView", "TemplateView"], "sap.ui");

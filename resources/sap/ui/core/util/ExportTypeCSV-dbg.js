@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -9,9 +9,13 @@ sap.ui.define(['./ExportType'],
 	function(ExportType) {
 	'use strict';
 
-	// Matches CR, LF or double quote
+	// Matches CR, LF, double quote and common separator chars
 	// Used to detect whether content needs to be escaped (see #escapeContent)
-	var rNewLineOrDoubleQuote = /[\r\n"]/;
+	var rContentNeedsEscaping = /[\r\n"\t;,]/;
+
+	// Matches a formula (for usage see #escapeContent):
+	// Starts with one of = + - @ but excludes "number only" formulas like -123,45 or =1.234e+5 as they are save to be used
+	var rFormula = /^[=\+\-@](?![\d.,]+(?:e[\+-]?\d+)?$)/i;
 
 	/**
 	 * Constructor for a new ExportTypeCSV.
@@ -20,16 +24,19 @@ sap.ui.define(['./ExportType'],
 	 * @param {object} [mSettings] initial settings for the new control
 	 *
 	 * @class
-	 * CSV export type. Can be used for {@link sap.ui.core.util.Export Export}.<br>
-	 * <br>
-	 * Please note that there could issues with the separator char depending on the user's system language in some programs such as Microsoft Excel.<br>
-	 * To prevent those issues use the data-import functionality which enables the possibility to explicitly set the separator char that should be used.<br>
+	 * CSV export type. Can be used for {@link sap.ui.core.util.Export Export}.
+	 *
+	 * Please note that there could be an issue with the separator char depending on the user's system language in some programs such as Microsoft Excel.
+	 * To prevent those issues use the data-import functionality which enables the possibility to explicitly set the separator char that should be used.
 	 * This way the content will be displayed correctly.
+	 *
+	 * Potential formulas (cell data starts with one of = + - @) will be escaped by prepending a single quote.
+	 * As the export functionality is intended to be used with actual (user) data there is no reason to allow formulas.
 	 *
 	 * @extends sap.ui.core.util.ExportType
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @since 1.22.0
 	 *
 	 * @constructor
@@ -100,13 +107,21 @@ sap.ui.define(['./ExportType'],
 			return sVal;
 		}
 
+		// Prepend single quote in case cell content is a formula.
+		// This will prevent it from beeing evaluated by other programs.
+		// As the export functionality is intended to be used with actual (user) data
+		// there is no reason to allow formulas in here.
+		if (rFormula.test(sVal)) {
+			sVal = "'" + sVal;
+		}
+
 		// Use indexOf instead of RegExp to be on the save side in case the separator
 		// would need to be escaped (such as \ ^ $ * + ? . ( ) | { } [ ])
 		var bContainsSeparatorChar = sVal.indexOf(this.getSeparatorChar()) > -1;
 
 		// Only wrap content with double quotes if it contains the separator char,
-		// a new line (CR / LF) or a double quote
-		if (bContainsSeparatorChar || rNewLineOrDoubleQuote.test(sVal)) {
+		// a new line (CR / LF), a double quote or a common separator char
+		if (bContainsSeparatorChar || rContentNeedsEscaping.test(sVal)) {
 
 			// Escape double quotes by preceding them with another one
 			sVal = sVal.replace(/"/g, '""');

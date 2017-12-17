@@ -1,13 +1,13 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['sap/ui/model/FormatException', 'sap/ui/model/odata/type/ODataType',
-		'sap/ui/model/ParseException', 'sap/ui/model/ValidateException',
-		'sap/ui/model/type/String'],
-	function(FormatException, ODataType, ParseException, ValidateException, StringType) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/model/FormatException',
+		'sap/ui/model/odata/type/ODataType', 'sap/ui/model/ParseException',
+		'sap/ui/model/ValidateException', 'sap/ui/model/type/String'],
+	function(jQuery, FormatException, ODataType, ParseException, ValidateException, StringType) {
 	"use strict";
 
 	var rDigitsOnly = /^\d+$/,
@@ -107,7 +107,7 @@ sap.ui.define(['sap/ui/model/FormatException', 'sap/ui/model/odata/type/ODataTyp
 	 * @extends sap.ui.model.odata.type.ODataType
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @alias sap.ui.model.odata.type.String
 	 * @param {object} [oFormatOptions]
@@ -127,7 +127,9 @@ sap.ui.define(['sap/ui/model/FormatException', 'sap/ui/model/odata/type/ODataTyp
 	 * @param {int|string} [oConstraints.maxLength]
 	 *   the maximal allowed length of the string; unlimited if not defined
 	 * @param {boolean|string} [oConstraints.nullable=true]
-	 *   if <code>true</code>, the value <code>null</code> is accepted
+	 *   if <code>true</code>, the value <code>null</code> is accepted. The constraint
+	 *   <code>nullable=false</code> is interpreted as "input is mandatory"; empty user input is
+	 *   rejected then.
 	 * @public
 	 * @since 1.27.0
 	 */
@@ -151,19 +153,22 @@ sap.ui.define(['sap/ui/model/FormatException', 'sap/ui/model/odata/type/ODataTyp
 	 *   the target type; may be "any", "boolean", "float", "int" or "string".
 	 *   See {@link sap.ui.model.odata.type} for more information.
 	 * @returns {string|number|boolean}
-	 *   the formatted output value in the target type; <code>undefined</code> or <code>null</code>
-	 *   are formatted to <code>null</code>
+	 *   the formatted output value in the target type; <code>undefined</code> is always formatted
+	 *   to <code>null</code>; <code>null</code> is formatted to "" if the target type is "string".
 	 * @throws {sap.ui.model.FormatException}
 	 *   if <code>sTargetType</code> is unsupported or the string cannot be formatted to the target
 	 *   type
 	 * @function
 	 * @public
 	 */
-	EdmString.prototype.formatValue = function(sValue, sTargetType) {
+	EdmString.prototype.formatValue = function (sValue, sTargetType) {
+		if (sValue === null && this.getPrimitiveType(sTargetType) === "string") {
+			return "";
+		}
 		if (isDigitSequence(sValue, this.oConstraints)) {
 			sValue = sValue.replace(rLeadingZeros, "");
 		}
-		return StringType.prototype.formatValue(sValue, sTargetType);
+		return StringType.prototype.formatValue.call(this, sValue, sTargetType);
 	};
 
 	/**
@@ -173,13 +178,17 @@ sap.ui.define(['sap/ui/model/FormatException', 'sap/ui/model/odata/type/ODataTyp
 	 * leading zeros, if <code>maxLength</code> constraint is given, or leading zeros are removed
 	 * from parsed string.
 	 *
+	 * Note: An empty input string (<code>""</code>) is parsed to <code>null</code>. This value will
+	 * be rejected with a {@link sap.ui.model.ValidateException ValidateException} by
+	 * {@link #validateValue} if the constraint <code>nullable</code> is <code>false</code>.
+	 *
 	 * @param {string|number|boolean} vValue
-	 *   the value to be parsed, maps <code>""</code> to <code>null</code>
+	 *   the value to be parsed
 	 * @param {string} sSourceType
 	 *   the source type (the expected type of <code>vValue</code>).
 	 *   See {@link sap.ui.model.odata.type} for more information.
 	 * @returns {string}
-	 *   the parsed value
+	 *   the parsed value or <code>null</code> if <code>vValue</code> is <code>""</code>
 	 * @throws {sap.ui.model.ParseException}
 	 *   if <code>sSourceType</code> is unsupported
 	 * @public

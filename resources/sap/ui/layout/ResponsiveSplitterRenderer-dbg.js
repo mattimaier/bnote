@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -36,11 +36,15 @@ sap.ui.define(['sap/ui/core/IconPool'],
 	};
 
 	ResponsiveSplitterRenderer.renderPaginator = function (oRm, oControl) {
+		var bpCount = oControl._getMaxPageCount(),
+			aPages = oControl.getAggregation("_pages") || [],
+			oBundle = sap.ui.getCore().getLibraryResourceBundle('sap.ui.layout');
+
 		oRm.write("<div ");
+		oRm.writeAttribute("role", "navigation");
 		oRm.addClass("sapUiResponsiveSplitterPaginator");
 		oRm.writeClasses();
 		oRm.write(">");
-		var bpCount = oControl._getMaxPageCount();
 
 		oRm.write("<div ");
 		oRm.addClass("sapUiResponsiveSplitterPaginatorNavButton");
@@ -52,6 +56,11 @@ sap.ui.define(['sap/ui/core/IconPool'],
 		oRm.write("<div ");
 		oRm.addClass("sapUiResponsiveSplitterPaginatorButtons");
 		oRm.writeClasses();
+		oRm.writeAttribute("role", "radiogroup");
+		oRm.writeAttributeEscaped("aria-label", oBundle.getText("RESPONSIVE_SPLITTER_ARIA_PAGINATOR_LABEL"));
+		if (aPages.length > 0) {
+			oRm.writeAttribute("aria-controls", aPages[0].getParent().getId());
+		}
 		oRm.write(">");
 
 		for (var i = 0; i < bpCount; i++) {
@@ -63,6 +72,8 @@ sap.ui.define(['sap/ui/core/IconPool'],
 			oRm.addClass("sapUiResponsiveSplitterHiddenElement");
 			oRm.addClass("sapUiResponsiveSplitterPaginatorButton");
 			oRm.writeClasses();
+			oRm.writeAttribute("role", "radio");
+			oRm.writeAttribute("aria-checked", false);
 			oRm.write("></div>");
 		}
 

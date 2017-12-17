@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -13,20 +13,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Core',
 
 	"use strict";
 
-	/**
-	 * Suite controls library.
-	 *
-	 * @namespace
-	 * @name sap.ui.suite
-	 * @author SAP SE
-	 * @version 1.38.7
-	 * @public
-	 */
 
 	// delegate further initialization of this library to the Core
 	sap.ui.getCore().initLibrary({
 		name : "sap.ui.suite",
-		version: "1.38.7",
+		version: "1.50.7",
 		dependencies : ["sap.ui.core"],
 		types: [
 			"sap.ui.suite.TaskCircleColor"
@@ -40,13 +31,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Core',
 	});
 
 	/* eslint-disable no-undef */
+	/**
+	 * Suite controls library.
+	 *
+	 * @namespace
+	 * @alias sap.ui.suite
+	 * @author SAP SE
+	 * @version 1.50.7
+	 * @public
+	 */
 	var thisLibrary = sap.ui.suite;
 	/* eslint-enable no-undef */
 
 	/**
 	 * Defined color values for the Task Circle Control
 	 *
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @enum {string}
 	 * @public
 	 * @ui5-metamodel This enumeration also will be described in the UI5 (legacy) designtime metamodel

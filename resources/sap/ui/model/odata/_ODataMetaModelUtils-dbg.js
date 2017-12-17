@@ -1,22 +1,32 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(["jquery.sap.global"], function (jQuery) {
+sap.ui.define([
+	"jquery.sap.global", "./_AnnotationHelperBasics"
+], function (jQuery, _AnnotationHelperBasics) {
 	"use strict";
 
 	/*global Promise */
 
 	var oBoolFalse = { "Bool" : "false" },
 		oBoolTrue = { "Bool" : "true" },
+		// maps V2 sap:semantics value for a date part to corresponding V4 term relative to
+		// com.sap.vocabularies.Common.v1.
+		mDatePartSemantics2CommonTerm = {
+			"year" : "IsCalendarYear",
+			"yearmonth" : "IsCalendarYearMonth",
+			"yearmonthday" : "IsCalendarDate"
+		},
 		// maps V2 filter-restriction value to corresponding V4 FilterExpressionType enum value
 		mFilterRestrictions = {
 			"interval" : "SingleInterval",
 			"multi-value" : "MultiValue",
 			"single-value" : "SingleValue"
 		},
+		sLoggingModule = "sap.ui.model.odata.ODataMetaModel",
 		// maps V2 sap semantics annotations to a V4 annotations relative to
 		// com.sap.vocabularies.Communication.v1.
 		mSemanticsToV4AnnotationPath = {
@@ -95,9 +105,9 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 			creatable : {
 				"Org.OData.Capabilities.V1.InsertRestrictions" : { "Insertable" : oBoolFalse }
 			},
-			deletable : {
-				"Org.OData.Capabilities.V1.DeleteRestrictions" : { "Deletable" : oBoolFalse }
-			},
+//			deletable : {
+//				"Org.OData.Capabilities.V1.DeleteRestrictions" : { "Deletable" : oBoolFalse }
+//			}, // see handleXableAndXablePath()
 			pageable : {
 				"Org.OData.Capabilities.V1.SkipSupported" : oBoolFalse,
 				"Org.OData.Capabilities.V1.TopSupported" : oBoolFalse
@@ -107,10 +117,10 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 			},
 			topable : {
 				"Org.OData.Capabilities.V1.TopSupported" : oBoolFalse
-			},
-			updatable : {
-				"Org.OData.Capabilities.V1.UpdateRestrictions" : { "Updatable" : oBoolFalse }
 			}
+//			updatable : {
+//				"Org.OData.Capabilities.V1.UpdateRestrictions" : { "Updatable" : oBoolFalse }
+//			} // see handleXableAndXablePath()
 		},
 		// only if V4 name is different from V2 name
 		mV2ToV4Attribute = {
@@ -137,6 +147,8 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 			"sap:sortable" : [ "Org.OData.Capabilities.V1.SortRestrictions",
 				"NonSortableProperties" ]
 		},
+		rValueList = /^com\.sap\.vocabularies\.Common\.v1\.ValueList(#.*)?$/,
+		iWARNING = jQuery.sap.log.Level.WARNING,
 		Utils;
 
 
@@ -190,11 +202,10 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 				sFilterRestrictionValue = mFilterRestrictions[oProperty["sap:filter-restriction"]];
 
 			if (!sFilterRestrictionValue) {
-				if (jQuery.sap.log.isLoggable(jQuery.sap.log.Level.WARNING)) {
+				if (jQuery.sap.log.isLoggable(iWARNING, sLoggingModule)) {
 					jQuery.sap.log.warning("Unsupported sap:filter-restriction: "
 							+ oProperty["sap:filter-restriction"],
-						oEntitySet.entityType + "." + oProperty.name,
-						"sap.ui.model.odata._ODataMetaModelUtils");
+						oEntitySet.entityType + "." + oProperty.name, sLoggingModule);
 				}
 				return;
 			}
@@ -259,12 +270,17 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 					if (!sV2Semantics) {
 						return;
 					}
+					if (sV2Semantics in mDatePartSemantics2CommonTerm) {
+						sV4Annotation = "com.sap.vocabularies.Common.v1."
+							+ mDatePartSemantics2CommonTerm[sV2Semantics];
+						oProperty[sV4Annotation] = oBoolTrue;
+						return;
+					}
 					aMatches = rSemanticsWithTypes.exec(sV2Semantics);
 					if (!aMatches) {
-						if (jQuery.sap.log.isLoggable(jQuery.sap.log.Level.WARNING)) {
+						if (jQuery.sap.log.isLoggable(iWARNING, sLoggingModule)) {
 							jQuery.sap.log.warning("Unsupported sap:semantics: " + sV2Semantics,
-								oType.name + "." + oProperty.name,
-								"sap.ui.model.odata._ODataMetaModelUtils");
+								oType.name + "." + oProperty.name, sLoggingModule);
 						}
 						return;
 					}
@@ -314,30 +330,75 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 		},
 
 		/**
-		 * Adds corresponding unit annotation (Org.OData.Measures.V1.Unit or
-		 * Org.OData.Measures.V1.ISOCurrency)  to the given property based on the
-		 * sap:semantics V2 annotation of the referenced unit property.
+		 * Adds unit annotations to properties that have a <code>sap:unit</code> OData V2
+		 * annotation.
 		 *
-		 * @param {object} oValueProperty
-		 *   the value property for which the unit annotation needs to be determined
-		 * @param {object[]} aProperties
-		 *   the array of properties containing the unit
+		 * Iterates over the given schemas and searches in their complex and entity types for
+		 * properties with a <code>sap:unit</code> OData V2 annotation. Creates a corresponding
+		 * OData V4 annotation <code>Org.OData.Measures.V1.Unit</code> or
+		 * <code>Org.OData.Measures.V1.ISOCurrency</code> based on the
+		 * <code>sap:semantics</code> V2 annotation of the referenced unit property, unless such an
+		 * annotation already exists.
+		 *
+		 * @param {object[]} aSchemas
+		 *   the array of schemas
+		 * @param {sap.ui.model.odata.ODataMetaModel} oMetaModel
+		 *   the OData meta model
 		 */
-		addUnitAnnotation : function (oValueProperty, aProperties) {
-			var sUnitProperty = oValueProperty["sap:unit"],
-				i = Utils.findIndex(aProperties, sUnitProperty),
-				oUnit;
+		addUnitAnnotations : function (aSchemas, oMetaModel) {
+			/**
+			 * Process all types in the given array.
+			 * @param {object[]} [aTypes] A list of complex types or entity types.
+			 */
+			function processTypes(aTypes) {
+				(aTypes || []).forEach(function (oType) {
+					(oType.property || []).forEach(function (oProperty) {
+						var sAnnotationName,
+							sSemantics,
+							oTarget,
+							oUnitPath,
+							sUnitPath = oProperty["sap:unit"],
+							oUnitProperty;
 
-			if (i >= 0) {
-				oUnit = aProperties[i];
-				if (oUnit["sap:semantics"] === "unit-of-measure") {
-					oValueProperty["Org.OData.Measures.V1.Unit"] =
-						{ "Path" : oUnit.name };
-				} else if (oUnit["sap:semantics"] === "currency-code") {
-					oValueProperty["Org.OData.Measures.V1.ISOCurrency"] =
-						{ "Path" : oUnit.name };
-				}
+						if (sUnitPath) {
+							oUnitPath = {"Path" : sUnitPath};
+							oTarget = _AnnotationHelperBasics.followPath({
+								getModel : function () { return oMetaModel; },
+								getPath : function () { return oType.$path; }
+							}, oUnitPath);
+							if (oTarget && oTarget.resolvedPath) {
+								oUnitProperty = oMetaModel.getProperty(oTarget.resolvedPath);
+								sSemantics = oUnitProperty["sap:semantics"];
+								if (sSemantics === "unit-of-measure") {
+									sAnnotationName = "Org.OData.Measures.V1.Unit";
+								} else if (sSemantics === "currency-code") {
+									sAnnotationName = "Org.OData.Measures.V1.ISOCurrency";
+								} else if (jQuery.sap.log.isLoggable(iWARNING, sLoggingModule)) {
+									jQuery.sap.log.warning("Unsupported sap:semantics='"
+											+ sSemantics + "' at sap:unit='" + sUnitPath + "'; "
+											+ "expected 'currency-code' or 'unit-of-measure'",
+										oType.namespace + "." + oType.name + "/" + oProperty.name,
+										sLoggingModule);
+								}
+								// Do not overwrite an existing annotation
+								if (sAnnotationName && !(sAnnotationName in oProperty)) {
+									oProperty[sAnnotationName] = oUnitPath;
+								}
+							} else if (jQuery.sap.log.isLoggable(iWARNING, sLoggingModule)) {
+								jQuery.sap.log.warning("Path '" + sUnitPath
+										+ "' for sap:unit cannot be resolved",
+									oType.namespace + "." + oType.name + "/" + oProperty.name,
+									sLoggingModule);
+							}
+						}
+					});
+				});
 			}
+
+			aSchemas.forEach(function (oSchema) {
+				processTypes(oSchema.complexType);
+				processTypes(oSchema.entityType);
+			});
 		},
 
 		/**
@@ -353,8 +414,14 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 		 *   "EntitySet"
 		 */
 		addV4Annotation : function (o, oExtension, sTypeClass) {
-			var sTerm;
 			switch (oExtension.name) {
+				case "aggregation-role":
+					if (oExtension.value === "dimension") {
+						o["com.sap.vocabularies.Analytics.v1.Dimension"] = oBoolTrue;
+					} else if (oExtension.value === "measure") {
+						o["com.sap.vocabularies.Analytics.v1.Measure"] = oBoolTrue;
+					}
+					break;
 				case "display-format":
 					if (oExtension.value === "NonNegative") {
 						o["com.sap.vocabularies.Common.v1.IsDigitSequence"] = oBoolTrue;
@@ -364,27 +431,22 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 					break;
 				case "pageable":
 				case "topable":
-					// true is the default in V4 so add annotation only in case of false
 					Utils.addEntitySetAnnotation(o, oExtension, sTypeClass, "false", false);
 					break;
 				case "creatable":
-				case "deletable":
-				case "updatable":
-					// true is the default in V4 so add annotation only in case of false
 					Utils.addEntitySetAnnotation(o, oExtension, sTypeClass, "false", true);
 					break;
+				case "deletable":
 				case "deletable-path":
-					sTerm = "Org.OData.Capabilities.V1.DeleteRestrictions";
-					o[sTerm] = o[sTerm] || {};
-					o[sTerm].Deletable = { "Path" : oExtension.value };
+					Utils.handleXableAndXablePath(o, oExtension, sTypeClass,
+						"Org.OData.Capabilities.V1.DeleteRestrictions", "Deletable");
 					break;
+				case "updatable":
 				case "updatable-path":
-					sTerm = "Org.OData.Capabilities.V1.UpdateRestrictions";
-					o[sTerm] = o[sTerm] || {};
-					o[sTerm].Updatable = { "Path" : oExtension.value };
+					Utils.handleXableAndXablePath(o, oExtension, sTypeClass,
+						"Org.OData.Capabilities.V1.UpdateRestrictions", "Updatable");
 					break;
 				case "requires-filter":
-					// false is the default in V4 so add annotation only in case of true
 					Utils.addEntitySetAnnotation(o, oExtension, sTypeClass, "true", true);
 					break;
 				case "field-control":
@@ -412,6 +474,7 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 						o["com.sap.vocabularies.Common.v1.FieldControl"] = {
 							"EnumMember" : "com.sap.vocabularies.Common.v1.FieldControlType/Hidden"
 						};
+						o["com.sap.vocabularies.UI.v1.Hidden"] = oBoolTrue;
 					}
 					break;
 				default:
@@ -447,6 +510,15 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 					if (oProperty["sap:filter-restriction"]) {
 						Utils.addFilterRestriction(oProperty, oEntitySet);
 					}
+				});
+			}
+			if (oEntityType.navigationProperty) {
+				oEntityType.navigationProperty.forEach(function (oNavigationProperty) {
+					if (oNavigationProperty["sap:filterable"] === "false") {
+						Utils.addPropertyToAnnotation("sap:filterable", oEntitySet,
+							oNavigationProperty);
+					}
+					Utils.handleCreatableNavigationProperty(oEntitySet, oNavigationProperty);
 				});
 			}
 		},
@@ -650,10 +722,9 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 					var sTargetType = oV4TypeInfo.typeMapping[sType];
 					if (sTargetType) {
 						aResult.push(oV4TypeInfo.v4EnumType + "/" + sTargetType);
-					} else if (jQuery.sap.log.isLoggable(jQuery.sap.log.Level.WARNING)) {
+					} else if (jQuery.sap.log.isLoggable(iWARNING, sLoggingModule)) {
 						jQuery.sap.log.warning("Unsupported type for sap:semantics: " + sType,
-							oType.name + "." + oProperty.name,
-							"sap.ui.model.odata._ODataMetaModelUtils");
+							oType.name + "." + oProperty.name, sLoggingModule);
 					}
 				});
 			}
@@ -668,18 +739,117 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 		 * @returns {object} map of ValueList annotations contained in oProperty
 		 */
 		getValueLists : function (oProperty) {
-			var sName,
+			var aMatches,
+				sName,
 				sQualifier,
 				mValueLists = {};
 
 			for (sName in oProperty) {
-				if (jQuery.sap.startsWith(sName, "com.sap.vocabularies.Common.v1.ValueList")) {
-					sQualifier = sName.split("#")[1] || "";
+				aMatches = rValueList.exec(sName);
+				if (aMatches){
+					sQualifier = (aMatches[1] || "").slice(1); // remove leading #
 					mValueLists[sQualifier] = oProperty[sName];
 				}
 			}
 
 			return mValueLists;
+		},
+
+		/**
+		 * Convert sap:creatable and sap:creatable-path at navigation property to V4 annotation
+		 * 'Org.OData.Capabilities.V1.InsertRestrictions/NonInsertableNavigationProperties' at
+		 * the given entity set.
+		 * If both V2 annotations 'sap:creatable' and 'sap:creatable-path' are given the service is
+		 * broken and the navigation property is added as non-insertable navigation property.
+		 * If neither 'sap:creatable' nor 'sap:creatable-path' are given this function does
+		 * nothing.
+		 *
+		 * @param {object} oEntitySet
+		 *   The entity set
+		 * @param {object} oNavigationProperty
+		 *   The navigation property
+		 */
+		handleCreatableNavigationProperty : function (oEntitySet, oNavigationProperty) {
+			var sCreatable = oNavigationProperty["sap:creatable"],
+				sCreatablePath = oNavigationProperty["sap:creatable-path"],
+				oInsertRestrictions,
+				oNonInsertable = {"NavigationPropertyPath" : oNavigationProperty.name},
+				aNonInsertableNavigationProperties;
+
+			if (sCreatable && sCreatablePath) {
+				// inconsistent service if both v2 annotations are set
+				jQuery.sap.log.warning("Inconsistent service",
+					"Use either 'sap:creatable' or 'sap:creatable-path' at navigation property "
+						+ "'" + oEntitySet.entityType + "/" + oNavigationProperty.name + "'",
+					sLoggingModule);
+				sCreatable = "false";
+				sCreatablePath = undefined;
+			}
+			if (sCreatable === "false" || sCreatablePath) {
+				oInsertRestrictions
+					= oEntitySet["Org.OData.Capabilities.V1.InsertRestrictions"]
+					= oEntitySet["Org.OData.Capabilities.V1.InsertRestrictions"] || {};
+				aNonInsertableNavigationProperties
+					= oInsertRestrictions["NonInsertableNavigationProperties"]
+					= oInsertRestrictions["NonInsertableNavigationProperties"] || [];
+				if (sCreatablePath) {
+					oNonInsertable = {
+						"If" : [{
+							"Not" : {
+								"Path" : sCreatablePath
+							}
+						}, oNonInsertable]
+					};
+				}
+				aNonInsertableNavigationProperties.push(oNonInsertable);
+			}
+		},
+
+		/**
+		 * Converts deletable/updatable and delatable-path/updatable-path into corresponding V4
+		 * annotation.
+		 * If both deletable/updatable and delatable-path/updatable-path are defined the service is
+		 * broken and the object is marked as non-deletable/non-updatable.
+		 *
+		 * @param {object} o
+		 *   any object
+		 * @param {object} oExtension
+		 *   the SAP Annotation (OData Version 2.0) for which a V4 annotation needs to be added
+		 * @param {string} sTypeClass
+		 *   the type class of the given object; supported type is "EntitySet"
+		 * @param {string} sTerm
+		 *   the V4 annotation term to use
+		 * @param {string} sProperty
+		 *   the V4 annotation property to use
+		 */
+		handleXableAndXablePath : function (o, oExtension, sTypeClass, sTerm, sProperty) {
+			var sV2Annotation = sProperty.toLowerCase(),
+				oValue;
+
+			if (sTypeClass !== "EntitySet") {
+				return; // "Property" not supported here, see liftSAPData()
+			}
+
+			if (o["sap:" + sV2Annotation] && o["sap:" + sV2Annotation + "-path"]) {
+				// the first extension (sap:xable or sap:xable-path) is processed as usual;
+				// only if a second extension (sap:xable-path or sap:xable) is processed,
+				// the warning is logged and the entity set is marked as non-deletable or
+				// non-updatable
+				jQuery.sap.log.warning("Inconsistent service",
+					"Use either 'sap:" + sV2Annotation + "' or 'sap:" + sV2Annotation + "-path'"
+						+ " at entity set '" + o.name + "'", sLoggingModule);
+				oValue = oBoolFalse;
+			} else if (sV2Annotation !== oExtension.name) {
+				// delatable-path/updatable-path
+				oValue = { "Path" : oExtension.value };
+			} else if (oExtension.value === "false") {
+				oValue = oBoolFalse;
+			}
+
+			if (oValue) {
+				o[sTerm] = o[sTerm] || {};
+				o[sTerm][sProperty] = oValue;
+			}
 		},
 
 		/**
@@ -727,15 +897,16 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 		},
 
 		/**
-		 * Merges the given annotation data into the given meta data and lifts SAPData
-		 * extensions.
+		 * Merges the given annotation data into the given metadata and lifts SAPData extensions.
 		 *
 		 * @param {object} oAnnotations
 		 *   annotations "JSON"
 		 * @param {object} oData
-		 *   meta data "JSON"
+		 *   metadata "JSON"
+		 * @param {sap.ui.model.odata.ODataMetaModel} oMetaModel
+		 *   the metamodel
 		 */
-		merge : function (oAnnotations, oData) {
+		merge : function (oAnnotations, oData, oMetaModel) {
 			var aSchemas = oData.dataServices.schema;
 
 			if (!aSchemas) {
@@ -775,6 +946,7 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 								oAnnotations, oSchema, oEntityContainer));
 					});
 			});
+			Utils.addUnitAnnotations(aSchemas, oMetaModel);
 		},
 
 		/**
@@ -810,9 +982,7 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 			aChildren.forEach(function (oChild) {
 				var oEntityType;
 
-				if (sTypeClass === "Property" && oChild["sap:unit"]) {
-					Utils.addUnitAnnotation(oChild, aChildren);
-				} else if (sTypeClass === "EntitySet") {
+				if (sTypeClass === "EntitySet") {
 					// calculated entity set annotations need to be added before V4
 					// annotations are merged
 					oEntityType = Utils.getObject(aSchemas, "entityType", oChild.entityType);
@@ -851,7 +1021,7 @@ sap.ui.define(["jquery.sap.global"], function (jQuery) {
 		 * @param {object} oEntityContainer
 		 *   the entity container
 		 * @param {object} oFunctionImport
-		 *   a function import's V2 meta data object
+		 *   a function import's V2 metadata object
 		 */
 		visitParameters : function (oAnnotations, oSchema, oEntityContainer, oFunctionImport) {
 			var mAnnotations;

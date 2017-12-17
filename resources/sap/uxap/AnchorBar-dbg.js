@@ -1,13 +1,13 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.uxap.AnchorBar.
 sap.ui.define([
 	"sap/m/Button",
-	"sap/m/PlacementType",
+	"sap/m/library",
 	"sap/m/Popover",
 	"sap/m/Toolbar",
 	"sap/ui/core/IconPool",
@@ -19,9 +19,12 @@ sap.ui.define([
 	"sap/ui/core/CustomData",
 	"./HierarchicalSelect",
 	"./library"
-], function (Button, PlacementType, Popover, Toolbar, IconPool, Item, ResizeHandler,
+], function (Button, mobileLibrary, Popover, Toolbar, IconPool, Item, ResizeHandler,
 			 ScrollEnablement, HorizontalLayout, Device, CustomData, HierarchicalSelect, library) {
 	"use strict";
+
+	// shortcut for sap.m.PlacementType
+	var PlacementType = mobileLibrary.PlacementType;
 
 	/**
 	 * Constructor for a new AnchorBar.
@@ -85,16 +88,18 @@ sap.ui.define([
 		this._oPressHandlers = {};  //keep references on the press handlers we set on first level items (in case of behavior change)
 		this._oSectionInfo = {};    //keep scrolling info on sections
 		this._oScroller = null;
+		this._sSelectedKey = null; // keep track of sap.uxap.HierarchicalSelect selected key
+		this._bRtl = sap.ui.getCore().getConfiguration().getRTL();
 
-		//are we on a rtl scenario?
+		//are we on an rtl scenario?
 		//IE handles rtl in a transparent way (positions positives, scroll starts at the end)
 		//while firefox, safari and chrome have a special management (scroll at the beginning and negative positioning)
 		//therefore we will apply some specific actions only if are in rtl and not in IE.
-		this._bRtlScenario = sap.ui.getCore().getConfiguration().getRTL() && !Device.browser.msie;
+		this._bRtlScenario = this._bRtl && !Device.browser.msie;
 
 		//there are 2 different uses cases:
 		//case 1: on a real phone we don't need the scrolling anchorBar, just the hierarchicalSelect
-		//case 2: on a a real ipad or a desktop we need both as the size may change
+		//case 2: on a real tablet or a desktop we need both as the size may change
 		this._bHasButtonsBar = Device.system.tablet || Device.system.desktop;
 
 		this._oSelect = this._getHierarchicalSelect();
@@ -128,6 +133,8 @@ sap.ui.define([
 	AnchorBar.DOM_CALC_DELAY = 200; // ms
 
 	AnchorBar.prototype.setSelectedButton = function (oButton) {
+		var aSelectItems = this._oSelect.getItems(),
+			bHasSelectItems = aSelectItems.length > 0;
 
 		if (typeof oButton === "string") {
 			oButton = sap.ui.getCore().byId(oButton);
@@ -140,9 +147,10 @@ sap.ui.define([
 			}
 
 			var oSelectedSectionId = oButton.data("sectionId");
+			this._sSelectedKey = oSelectedSectionId;
 
-			if (oSelectedSectionId) {
-				this._oSelect.setSelectedKey(oButton.getId());
+			if (oSelectedSectionId && bHasSelectItems) {
+				this._oSelect.setSelectedKey(oSelectedSectionId);
 			}
 
 			if (this._bHasButtonsBar) {
@@ -231,18 +239,20 @@ sap.ui.define([
 		this._oSelect.setUpperCase(bUpperCase);
 		this.toggleStyleClass("sapUxAPAnchorBarUpperCase", bUpperCase);
 
-
 		//create responsive equivalents of the provided controls
 		aContent.forEach(function (oButton) {
-
 			this._createSelectItem(oButton);
 
-			//desktop scenario logic: builds the scrolling anchorBar
+			// desktop scenario logic: builds the scrolling anchorBar
 			if (this._bHasButtonsBar) {
 				this._createPopoverSubMenu(oButton, oPopoverState);
 			}
 
 		}, this);
+
+		if (aContent.length > 0 && this._sSelectedKey) {
+			this._oSelect.setSelectedKey(this._sSelectedKey);
+		}
 	};
 
 	AnchorBar.prototype.addContent = function (oButton, bInvalidate) {
@@ -264,7 +274,7 @@ sap.ui.define([
 		//create the phone equivalent item if the button has some visible text (UX rule)
 		if (oButton.getText().trim() != "" && (!bIsSecondLevel || oButton.data("bTitleVisible") === true)) {
 			var oPhoneItem = new Item({
-				key: oButton.getId(),
+				key: oButton.data("sectionId"),
 				text: oButton.getText(),
 				customData: [
 					new CustomData({
@@ -416,7 +426,7 @@ sap.ui.define([
 			// determine the next section that will appear selected in the anchorBar after the scroll
 			var sNextSelectedSection = sRequestedSectionId;
 
-			// if the requestedSection is a subsection, the the nextSelectedSection will be its parent (since anchorBar contains only first-level sections)
+			// if the requestedSection is a subsection, the nextSelectedSection will be its parent (since anchorBar contains only first-level sections)
 			if (oRequestedSection instanceof library.ObjectPageSubSection &&
 				oRequestedSectionParent instanceof library.ObjectPageSection) {
 				sNextSelectedSection = oRequestedSectionParent.getId();
@@ -440,15 +450,15 @@ sap.ui.define([
 	 * @private
 	 */
 	AnchorBar.prototype._onSelectChange = function (oEvent) {
-		var oSelectedItem = oEvent.getParameter("selectedItem"), oOriginalControl;
+		var oSelectedItem = oEvent.getParameter("selectedItem"), oSelectedSection;
 
-		oOriginalControl = sap.ui.getCore().byId(oSelectedItem.getKey());
+		oSelectedSection = sap.ui.getCore().byId(oSelectedItem.getKey());
 
-		if (oOriginalControl) {
+		if (oSelectedSection) {
 
-			this._requestScrollToSection(oOriginalControl.data("sectionId"));
+			this._requestScrollToSection(oSelectedSection.getId());
 		} else {
-			jQuery.sap.log.error("AnchorBar :: cannot find corresponding button", oSelectedItem.getKey());
+			jQuery.sap.log.error("AnchorBar :: cannot find corresponding section", oSelectedItem.getKey());
 		}
 	};
 
@@ -458,7 +468,7 @@ sap.ui.define([
 
 			this.setAggregation('_select', new HierarchicalSelect({
 				width: "100%",
-				icon: "sap-icon://slim-arrow-down",
+				icon: "sap-icon://overflow",
 				change: jQuery.proxy(this._onSelectChange, this)
 			}));
 		}
@@ -595,7 +605,7 @@ sap.ui.define([
 	AnchorBar.prototype._adjustSize = function () {
 
 		//size changed => check if switch in display-mode (phone-view vs. desktop-view) needed
-		var sNewMode = library.Utilities.isPhoneScenario() ?
+		var sNewMode = library.Utilities.isPhoneScenario(this._getCurrentMediaContainerRange()) ?
 			AnchorBar._hierarchicalSelectModes.Text :
 			AnchorBar._hierarchicalSelectModes.Icon;
 
@@ -679,7 +689,7 @@ sap.ui.define([
 			var iDuration = duration || AnchorBar.SCROLL_DURATION,
 				iScrollTo;
 
-			if ((this._sHierarchicalSelectMode === AnchorBar._hierarchicalSelectModes.Icon)
+			if (!library.Utilities.isPhoneScenario(this._getCurrentMediaContainerRange())
 				&& this._oSectionInfo[sId]) {
 
 				if (this._bRtlScenario && Device.browser.firefox) {
@@ -719,7 +729,7 @@ sap.ui.define([
 
 	// use type 'object' because Metamodel doesn't know ScrollEnablement
 	/**
-	 * Returns a sap.ui.core.delegate.ScrollEnablement object used to handle scrolling.
+	 * Returns an sap.ui.core.delegate.ScrollEnablement object used to handle scrolling.
 	 *
 	 * @type object
 	 * @public
@@ -754,7 +764,8 @@ sap.ui.define([
 	 * @private
 	 */
 	AnchorBar.prototype.onsapright = function (oEvent) {
-		this.onsapdown(oEvent);
+		var sMethodName = this._bRtl ? "onsapup" : "onsapdown";
+		this[sMethodName](oEvent);
 	};
 
 	/**
@@ -777,7 +788,8 @@ sap.ui.define([
 	 * @private
 	 */
 	AnchorBar.prototype.onsapleft = function (oEvent) {
-		this.onsapup(oEvent);
+		var sMethodName = this._bRtl ? "onsapdown" : "onsapup";
+		this[sMethodName](oEvent);
 	};
 
 	/**
@@ -910,25 +922,33 @@ sap.ui.define([
 	/**
 	 * Handler for F6 and Shift + F6 group navigation
 	 *
-	 * @param oEvent {jQuery.EventObject}
-	 * @param bShiftKey serving as a reference if shift is used
+	 * @param {jQuery.Event} oEvent
+	 * @param {boolean} bShiftKey serving as a reference if shift is used
 	 * @private
 	 */
 	AnchorBar.prototype._handleGroupNavigation = function (oEvent, bShiftKey) {
 		var oEventF6 = jQuery.Event("keydown"),
 			oSettings = {},
-			aSections = this.getParent().getSections(),
+			oObjectPageLayout = this.getParent(),
+			bUseIconTabBar = oObjectPageLayout.getUseIconTabBar(),
+			sCurrentSectionId = oObjectPageLayout.getSelectedSection(),
+			aSections = oObjectPageLayout.getSections(),
 			aSubSections = [this.getDomRef()],
-			aCurruntSubSections;
+			aCurrentSubSections;
 
-		//this is needed in order to be sure that next F6 group will be found in sub sections
-		aSections.forEach(function (oSection) {
-			aCurruntSubSections = oSection.getSubSections().map(function (oSubSection) {
+		if (bUseIconTabBar) {
+			aCurrentSubSections = sap.ui.getCore().byId(sCurrentSectionId).getSubSections().map(function (oSubSection) {
 				return oSubSection.$().attr("tabindex", -1)[0];
 			});
-
-			aSubSections = aSubSections.concat(aCurruntSubSections);
-		});
+		} else {
+			//this is needed in order to be sure that next F6 group will be found in sub sections
+			aSections.forEach(function (oSection) {
+				aCurrentSubSections = oSection.getSubSections().map(function (oSubSection) {
+					return oSubSection.$().attr("tabindex", -1)[0];
+				});
+			});
+		}
+		aSubSections = aSubSections.concat(aCurrentSubSections);
 		oSettings.scope = aSubSections;
 
 		oEvent.preventDefault();
@@ -945,13 +965,14 @@ sap.ui.define([
 	 * called for figuring out responsive scenarios
 	 */
 	AnchorBar.prototype.onAfterRendering = function () {
+		var oSelectedButton;
 		if (Toolbar.prototype.onAfterRendering) {
 			Toolbar.prototype.onAfterRendering.call(this);
 		}
 
-		this._sHierarchicalSelectMode = AnchorBar._hierarchicalSelectModes.Text;
+		oSelectedButton = sap.ui.getCore().byId(this.getSelectedButton());
 
-		//save max for arrow show/hide management, the max position is the required scroll for the the item to be fully visible
+		//save max for arrow show/hide management, the max position is the required scroll for the item to be fully visible
 		this._iMaxPosition = -1;
 
 		//show/hide scrolling arrows
@@ -960,13 +981,17 @@ sap.ui.define([
 		this.$().find(".sapUxAPAnchorBarScrollContainer").scroll(jQuery.proxy(this._onScroll, this));
 
 		//restore state from previous rendering
-		if (this.getSelectedButton()) {
-			this.setSelectedButton(this.getSelectedButton());
+		if (oSelectedButton) {
+			this.setSelectedButton(oSelectedButton);
+			this._setAnchorButtonsTabFocusValues(oSelectedButton);
 		}
 
 		//initial state
 		if (this._bHasButtonsBar) {
 			jQuery.sap.delayedCall(AnchorBar.DOM_CALC_DELAY, this, function () {
+				if (this._sHierarchicalSelectMode === AnchorBar._hierarchicalSelectModes.Icon) {
+					this._computeBarSectionsInfo();
+				}
 				this._adjustSize();
 			});
 		}
@@ -1049,7 +1074,7 @@ sap.ui.define([
 	AnchorBar.prototype._resetControl = function () {
 		this._destroyPopoverContent();
 		this.getContent().forEach(this._detachPopoverHandler, this);
-		this.destroyContent();
+		this.destroyAggregation('content', true);
 		return this;
 	};
 

@@ -1,6 +1,6 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -12,11 +12,11 @@ sap.ui.define([
 	/**
 	 * Constructor for a new P13nDimMeasureItem.
 	 *
-	 * @param {string} [sId] id for the new control, generated automatically if no id is given
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] initial settings for the new control
-	 * @class Type for <code>columnsItems</code> aggregation in P13nDimMeasurePanel control.
+	 * @class Type for <code>columnsItems</code> aggregation in <code>P13nDimMeasurePanel</code> control.
 	 * @extends sap.ui.core.Item
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @author SAP SE
 	 * @public
@@ -33,8 +33,6 @@ sap.ui.define([
 
 				/**
 				 * Specifies the unique chart column key. In this context a column refers to dimensions or measures of a chart.
-				 *
-				 * @since 1.34.0
 				 */
 				columnKey: {
 					type: "string"
@@ -42,8 +40,6 @@ sap.ui.define([
 
 				/**
 				 * Specifies the order of visible dimensions or measures of a chart.
-				 *
-				 * @since 1.34.0
 				 */
 				index: {
 					type: "int",
@@ -52,8 +48,6 @@ sap.ui.define([
 
 				/**
 				 * Specifies the visibility of dimensions or measures.
-				 *
-				 * @since 1.34.0
 				 */
 				visible: {
 					type: "boolean"
@@ -61,8 +55,6 @@ sap.ui.define([
 
 				/**
 				 * Specifies the role of dimensions or measures. The role determines how dimensions and measures influence the chart.
-				 *
-				 * @since 1.34.0
 				 */
 				role: {
 					type: "string"

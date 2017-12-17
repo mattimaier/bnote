@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides class sap.ui.core.util.File
-sap.ui.define(['jquery.sap.global', 'sap/ui/Device'],
-	function(jQuery, Device) {
+sap.ui.define(['jquery.sap.global'],
+	function(jQuery) {
 	'use strict';
 
 	/**
@@ -14,7 +14,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'],
 	 *
 	 * @class Utility class to handle files
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @static
 	 *
 	 * @public
@@ -28,16 +28,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'],
 		 *
 		 * <p>There are limitations for this feature in some browsers:<p>
 		 *
-		 * <p><b>Internet Explorer 8 / 9</b><br>
-		 * Some file extensions on some operating systems are not working due to a bug in IE.
-		 * Therefore 'txt' will be used as file extension if the problem is occurring.</p>
-		 *
-		 * <p><b>Safari (OS X / iOS)</b><br>
-		 * A new window/tab will be opened. In OS X the user has to manually save the file (CMD + S), choose "page source" and specify a filename.
-		 * In iOS the content can be opened in another app (Mail, Notes, ...) or copied to the clipboard.
-		 * In case the popup blocker prevents this action, an error will be thrown which can be used to notify the user to disable it.</p>
+		 * <p><b>macOS Safari < 10.1 / iOS Safari</b><br>
+		 * A new window or tab is opened.
+		 * In macOS, the user has to save the file manually (by using key combination "CMD + S", choosing the page source format, and specifying a file name).
+		 * In iOS, the content can be opened in another app (Mail, Notes, ...) or can be copied to the clipboard.
+		 * If a pop-up blocker prevents this action, an error will be thrown which can be used to notify the user that the pop-up blocker needs to be disabled.</p>
 		 *
 		 * <p><b>Android Browser</b><br>
+		 * Not supported</p>
+		 *
+		 * <p><b>Windows Phone 10 Edge</b><br>
 		 * Not supported</p>
 		 *
 		 * @param {string} sData file content
@@ -45,14 +45,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'],
 		 * @param {string} sFileExtension file extension
 		 * @param {string} sMimeType file mime-type
 		 * @param {string} sCharset file charset
+		 * @param {boolean} [bByteOrderMark] Whether to prepend a unicode byte order mark (only applies for utf-8 charset).
+		 *                                   Default is <code>false</code> except when <code>sFileExtension</code> = <code>csv</code> it is <code>true</code> (compatibility reasons).
 		 *
 		 * @public
 		 */
-		save: function(sData, sFileName, sFileExtension, sMimeType, sCharset) {
+		save: function(sData, sFileName, sFileExtension, sMimeType, sCharset, bByteOrderMark) {
 			var sFullFileName = sFileName + '.' + sFileExtension;
 
-			// prepend utf-8 byte-order-mark (BOM) to prevent encoding issues in .csv files
-			if (sCharset === 'utf-8' && sFileExtension === 'csv') {
+			// Compatibility handling:
+			// Add Byte Order Mark by default for utf-8 / csv to not break existing scenarios
+			if (typeof bByteOrderMark === 'undefined' && sCharset === 'utf-8' && sFileExtension === 'csv') {
+				bByteOrderMark = true;
+			}
+
+			// Prepend UTF-8 Byte Order Mark (BOM)
+			if (bByteOrderMark === true && sCharset === 'utf-8') {
 				sData = '\ufeff' + sData;
 			}
 
@@ -87,48 +95,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device'],
 						// Make sure to encode the data to be used in data-uri
 						sData = encodeURI(sData);
 
-						// Safari (user has to save the file manually)
+						// macOS Safari < 10.1 / iOS Safari
+						// (user has to save the file manually)
 						var oWindow = window.open(sType + "," + sData);
 						if (!oWindow) {
-							throw new Error("Could not download file. A popup blocker might be active.");
+							throw new Error("Could not download the file, please deactivate your pop-up blocker.");
 						}
 					}
 				}
-			} else if (Device.browser.internet_explorer && Device.browser.version === 9) {
-				// iframe fallback for IE9
-				var $body = jQuery(document.body);
-				var $iframe = jQuery('<iframe/>', {
-					style: 'display:none'
-				});
-				$body.append($iframe);
-				var oDocument = $iframe.get(0).contentWindow.document;
-				// open the document to be able to modify it
-				oDocument.open(sMimeType, 'replace');
-				// set charset (e.g. utf-8) if given
-				if (sCharset) {
-					oDocument.charset = sCharset;
-				}
-				// write content to iframe
-				oDocument.write(sData);
-				oDocument.close();
-
-				// open the file-save dialog
-				// measure the time that the execCommand takes to detect an
-				// IE bug with some file extensions on some OS (e.g. Windows Server 2008 E2 Enterprise SP1) in all IE versions:
-				// http://stackoverflow.com/questions/2515791/execcommandsaveas-null-file-csv-is-not-working-in-ie8
-				var oTime = new Date();
-				var bSuccess = oDocument.execCommand('SaveAs', false, sFullFileName);
-				if (!bSuccess && new Date() - oTime < 10) {
-					// execCommand returns false either when the user clicks on cancel or
-					// when the bug mentioned above is occurring, so the time is measured
-					// to detect the cancel action
-
-					// .txt as file extension will work on all systems
-					oDocument.execCommand('SaveAs', false, sFullFileName + '.txt');
-				}
-
-				// cleanup
-				$iframe.remove();
 			}
 		}
 	};

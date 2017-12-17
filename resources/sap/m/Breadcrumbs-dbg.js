@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -31,7 +31,7 @@ sap.ui.define([
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -75,18 +75,31 @@ sap.ui.define([
 	/*************************************** Framework lifecycle events ******************************************/
 
 	Breadcrumbs.prototype.onBeforeRendering = function () {
+		this.bRenderingPhase = true;
+
+		if (this._sResizeListenerId) {
+			ResizeHandler.deregister(this._sResizeListenerId);
+			this._sResizeListenerId = null;
+		}
+
 		if (this._bControlsInfoCached) {
 			this._updateSelect(true);
 		}
 	};
 
 	Breadcrumbs.prototype.onAfterRendering = function () {
+		if (!this._sResizeListenerId) {
+			this._sResizeListenerId = ResizeHandler.register(this, this._handleScreenResize.bind(this));
+		}
+
 		if (!this._bControlsInfoCached) {
 			this._updateSelect(true);
 			return;
 		}
 
 		this._configureKeyboardHandling();
+
+		this.bRenderingPhase = false;
 	};
 
 	Breadcrumbs.prototype.onThemeChanged = function () {
@@ -120,7 +133,8 @@ sap.ui.define([
 				forceSelection: false,
 				autoAdjustWidth: true,
 				icon: IconPool.getIconURI("slim-arrow-down"),
-				type: sap.m.SelectType.IconOnly
+				type: sap.m.SelectType.IconOnly,
+				tooltip: Breadcrumbs._getResourceBundle().getText("BREADCRUMB_SELECT_TOOLTIP")
 			})));
 		}
 		return this.getAggregation("_select");
@@ -165,7 +179,7 @@ sap.ui.define([
 	};
 
 	Breadcrumbs.prototype.removeAllLinks = function () {
-		var aLinks = this.getAggregation("links");
+		var aLinks = this.getAggregation("links", []);
 		var vResult = this.removeAllAggregation.apply(this, fnConvertArguments("links", arguments));
 		aLinks.forEach(this._deregisterControlListener, this);
 		this._resetControl();
@@ -173,7 +187,7 @@ sap.ui.define([
 	};
 
 	Breadcrumbs.prototype.destroyLinks = function () {
-		var aLinks = this.getAggregation("links");
+		var aLinks = this.getAggregation("links", []);
 		var vResult = this.destroyAggregation.apply(this, fnConvertArguments("links", arguments));
 		aLinks.forEach(this._deregisterControlListener, this);
 		this._resetControl();
@@ -205,8 +219,6 @@ sap.ui.define([
 			oSelect.setSelectedIndex(0);
 		} else {
 			oSelect.setSelectedItem(null);
-			/* this is a fix for a bug in the select, this line should be romeved after it has been fixed in the select */
-			oSelect.getPicker().getCustomHeader().getContentLeft()[0].setValue(null);
 		}
 
 		Select.prototype._onBeforeOpenDialog.call(oSelect);
@@ -306,7 +318,7 @@ sap.ui.define([
 			oControlsDistribution = this._getControlDistribution();
 
 		if (!this._bControlDistributionCached || bInvalidateDistribution) {
-			oSelect.removeAllItems();
+			oSelect.destroyItems();
 			aControlsForSelect = Device.system.phone ? this._getItemsForMobile() : oControlsDistribution.aControlsForSelect;
 			aControlsForSelect.map(this._createSelectItem).reverse().forEach(oSelect.insertItem, oSelect);
 			this._bControlDistributionCached = true;
@@ -315,19 +327,24 @@ sap.ui.define([
 
 		oSelect.setVisible(!!oControlsDistribution.aControlsForSelect.length);
 
-		if (!this._sResizeListenerId) {
+		if (!this._sResizeListenerId && !this.bRenderingPhase) {
 			this._sResizeListenerId = ResizeHandler.register(this, this._handleScreenResize.bind(this));
 		}
 	};
 
 	Breadcrumbs.prototype._getControlsForBreadcrumbTrail = function () {
+		var aVisibleControls;
+
 		if (this._bControlDistributionCached && this._oDistributedControls) {
 			return this._oDistributedControls.aControlsForBreadcrumbTrail;
 		}
+
+		aVisibleControls = this.getLinks().filter(function (oLink) { return oLink.getVisible(); });
+
 		if (this.getCurrentLocationText()) {
-			return this.getLinks().concat([this._getCurrentLocation()]);
+			return aVisibleControls.concat([this._getCurrentLocation()]);
 		}
-		return this.getLinks();
+		return aVisibleControls;
 	};
 
 	Breadcrumbs.prototype._getControlInfo = function (oControl) {
@@ -467,6 +484,10 @@ sap.ui.define([
 			aItemsToNavigate = this._getItemsToNavigate(),
 			aNavigationDomRefs = [];
 
+		if (aItemsToNavigate.length === 0) {
+			return;
+		}
+
 		aItemsToNavigate.forEach(function (oItem, iIndex) {
 			if (iIndex === 0) {
 				oItem.$().attr("tabIndex", "0");
@@ -476,6 +497,12 @@ sap.ui.define([
 		});
 
 		this.addDelegate(oItemNavigation);
+		oItemNavigation.setDisabledModifiers({
+			sapnext : ["alt"],
+			sapprevious : ["alt"],
+			saphome : ["alt"],
+			sapend : ["alt"]
+		});
 		oItemNavigation.setCycling(false);
 		oItemNavigation.setPageSize(Breadcrumbs.PAGEUP_AND_PAGEDOWN_JUMP_SIZE);
 		oItemNavigation.setRootDomRef(this.getDomRef());

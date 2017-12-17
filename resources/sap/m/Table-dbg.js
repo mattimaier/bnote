@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.Table.
-sap.ui.define(['jquery.sap.global', './ListBase', './library'],
-	function(jQuery, ListBase, library) {
+sap.ui.define(['jquery.sap.global', './ListBase', './ListItemBase', './library'],
+	function(jQuery, ListBase, ListItemBase, library) {
 	"use strict";
 
 
@@ -24,7 +24,7 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 	 * @extends sap.m.ListBase
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -65,22 +65,33 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 			 * Defines the columns of the table.
 			 */
 			columns : {type : "sap.m.Column", multiple : true, singularName : "column"}
-		}
+		},
+		designTime: true
 	}});
 
 	// class name for the navigation items
 	Table.prototype.sNavItemClass = "sapMListTblRow";
 
+	// announce all details at the initial focus
+	Table.prototype.iAnnounceDetails = 2;
+
 	Table.prototype.init = function() {
-		this._hasPopin = false;
 		this._iItemNeedsColumn = 0;
-		this._selectAllCheckBox = null;
 		ListBase.prototype.init.call(this);
 	};
 
 	Table.prototype.onBeforeRendering = function() {
 		ListBase.prototype.onBeforeRendering.call(this);
+		this._ensureColumnsMedia();
 		this._notifyColumns("ItemsRemoved");
+	};
+
+	Table.prototype._ensureColumnsMedia = function() {
+		this.getColumns().forEach(function (oColumn) {
+			if (oColumn._bShouldAddMedia) {
+				oColumn._addMedia();
+			}
+		});
 	};
 
 	Table.prototype.onAfterRendering = function() {
@@ -230,7 +241,11 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 		// header and footer are in the item navigation but
 		// initial focus should be at the first item row
 		if (oItemNavigation.getFocusedIndex() == -1) {
-			oItemNavigation.setFocusedIndex($Header[0] ? 1 : 0);
+			if (this.getGrowing() && this.getGrowingDirection() == sap.m.ListGrowingDirection.Upwards) {
+				oItemNavigation.setFocusedIndex(aItemDomRefs.length - 1);
+			} else {
+				oItemNavigation.setFocusedIndex($Header[0] ? 1 : 0);
+			}
 		}
 	};
 
@@ -272,9 +287,9 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 			}
 		}
 
-		this._dirty = window.innerWidth;
+		this._dirty = this._getMediaContainerWidth() || window.innerWidth;
 		if (!this._mutex) {
-			var clean = window.innerWidth;
+			var clean = this._getMediaContainerWidth() || window.innerWidth;
 			this._mutex = true;
 			this.rerender();
 
@@ -302,10 +317,9 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 		}
 
 		// find first visible column
-		var $table = jQuery(this.getTableDomRef()),
-			$headRow = $table.find("thead > tr"),
+		var $headRow = this.$("tblHeader"),
 			bHeaderVisible = !$headRow.hasClass("sapMListTblHeaderNone"),
-			aVisibleColumns = $headRow.find(".sapMListTblCell").filter(":visible"),
+			aVisibleColumns = $headRow.find(".sapMListTblCell:visible"),
 			$firstVisibleCol = aVisibleColumns.eq(0);
 
 		// check if only one column is visible
@@ -318,8 +332,16 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 			});
 		}
 
-		// update GroupHeader colspan according to visible column count and additional selection column
-		$table.find(".sapMGHLICell").attr("colspan", aVisibleColumns.length + !!sap.m.ListBaseRenderer.ModeOrder[this.getMode()]);
+		// update the visible column count and colspan
+		// highlight and navigation columns are getting rendered always
+		this._colCount = aVisibleColumns.length + 2 + !!sap.m.ListBaseRenderer.ModeOrder[this.getMode()];
+		this.$("tblBody").find(".sapMGHLICell").attr("colspan", this.getColSpan());
+		this.$("nodata-text").attr("colspan", this.getColCount());
+
+		// force IE to repaint in fixed layout mode
+		if (this.getFixedLayout()) {
+			this._forceStyleChange();
+		}
 
 		// remove or show column header row(thead) according to column visibility value
 		if (!bColVisible && bHeaderVisible) {
@@ -331,16 +353,18 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 		}
 	};
 
+	// force IE to repaint
+	Table.prototype._forceStyleChange = function() {
+		if (sap.ui.Device.browser.msie) {
+			var oTableStyle = this.getTableDomRef().style;
+			oTableStyle.listStyleType = "circle";
+			window.setTimeout(function() { oTableStyle.listStyleType = "none"; }, 0);
+		}
+	};
+
 	// updates the type column visibility and sets the aria flag
 	Table.prototype._setTypeColumnVisibility = function(bVisible) {
-		var $Table = jQuery(this.getTableDomRef()),
-			$TypeColumnHeader = this.$("tblHeadNav"),
-			iTypeColumnIndex = $TypeColumnHeader.index() + 1,
-			$TypeColumnCells = $Table.find("tr > td:nth-child(" + iTypeColumnIndex + ")");
-
-		$Table.toggleClass("sapMListTblHasNav", bVisible);
-		$TypeColumnHeader.attr("aria-hidden", !bVisible);
-		$TypeColumnCells.attr("aria-hidden", !bVisible);
+		jQuery(this.getTableDomRef()).toggleClass("sapMListTblHasNav", bVisible);
 	};
 
 	// notify all columns with given action and param
@@ -361,18 +385,13 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 		return this._selectAllCheckBox || (this._selectAllCheckBox = new sap.m.CheckBox({
 			id: this.getId("sa"),
 			activeHandling: false
-		}).setParent(this, null, true).attachSelect(function () {
+		}).addStyleClass('sapMLIBSelectM').setParent(this, null, true).attachSelect(function () {
 			if (this._selectAllCheckBox.getSelected()) {
 				this.selectAll(true);
 			} else {
 				this.removeSelections(false, true);
 			}
-		}, this).setTabIndex(-1).addEventDelegate({
-			onAfterRendering: function() {
-				// hide this from the screen readers
-				this._selectAllCheckBox.getFocusDomRef().setAttribute("aria-hidden", "true");
-			}
-		}, this));
+		}, this).setTabIndex(-1));
 	};
 
 	/*
@@ -438,12 +457,45 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 		return !!jQuery(oEvent.target).closest($Footer, this.getTableDomRef()).length;
 	};
 
-	// this gets called after navigation items are focused
-	Table.prototype.onNavigationItemFocus = function(oEvent) {
-		var aItemDomRefs = this._oItemNavigation.getItemDomRefs(),
-			oItemDomRef = aItemDomRefs[oEvent.getParameter("index")];
+	// returns accessibility role
+	Table.prototype.getAccessibilityType = function() {
+		return sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("ACC_CTR_TYPE_TABLE");
+	};
 
-		this.getNavigationRoot().setAttribute("aria-activedescendant", oItemDomRef.id);
+	Table.prototype._setHeaderAnnouncement = function() {
+		var oBundle = sap.ui.getCore().getLibraryResourceBundle("sap.m"),
+			sAnnouncement = oBundle.getText("ACC_CTR_TYPE_HEADER_ROW") + " ";
+
+		if (this.isAllSelectableSelected()) {
+			sAnnouncement += oBundle.getText("LIST_ALL_SELECTED");
+		}
+
+		this.getColumns(true).forEach(function(oColumn, i) {
+			var oHeader = oColumn.getHeader();
+			if (oHeader && oHeader.getVisible()) {
+				sAnnouncement += ListItemBase.getAccessibilityText(oHeader) + " ";
+			}
+		});
+
+		this.updateInvisibleText(sAnnouncement);
+	};
+
+	Table.prototype._setFooterAnnouncement = function() {
+		var sAnnouncement = sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("ACC_CTR_TYPE_FOOTER_ROW") + " ";
+		this.getColumns(true).forEach(function(oColumn, i) {
+			var oFooter = oColumn.getFooter();
+			if (oFooter && oFooter.getVisible()) {
+				// announce header as well
+				var oHeader = oColumn.getHeader();
+				if (oHeader && oHeader.getVisible()) {
+					sAnnouncement += ListItemBase.getAccessibilityText(oHeader) + " ";
+				}
+
+				sAnnouncement += ListItemBase.getAccessibilityText(oFooter) + " ";
+			}
+		});
+
+		this.updateInvisibleText(sAnnouncement);
 	};
 
 	// keyboard handling
@@ -497,6 +549,37 @@ sap.ui.define(['jquery.sap.global', './ListBase', './library'],
 			this.focusPrevious();
 			oEvent.preventDefault();
 		}
+	};
+
+	Table.prototype.onfocusin = function(oEvent) {
+		var oTarget = oEvent.target;
+		if (oTarget.id === this.getId("tblHeader")) {
+			this._setHeaderAnnouncement();
+		} else if (oTarget.id === this.getId("tblFooter")) {
+			this._setFooterAnnouncement();
+		} else if (oTarget.id == this.getId("nodata")) {
+			this.updateInvisibleText(this.getNoDataText(), oTarget);
+		}
+
+		if (this._bThemeChanged) {
+			// force IE to repaint if theme changed
+			this._bThemeChanged = false;
+			this._forceStyleChange();
+		}
+
+		ListBase.prototype.onfocusin.call(this, oEvent);
+	};
+
+	// event listener for theme changed
+	Table.prototype.onsapfocusleave = function(oEvent) {
+		ListBase.prototype.onsapfocusleave.call(this, oEvent);
+		if (this.iAnnounceDetails) {
+			this.iAnnounceDetails = 2;
+		}
+	};
+
+	Table.prototype.onThemeChanged = function() {
+		this._bThemeChanged = true;
 	};
 
 	return Table;

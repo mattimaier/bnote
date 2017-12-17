@@ -1,12 +1,15 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.uxap.ObjectPageSectionBase.
-sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], function (jQuery, Control, library) {
+sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/library", "./library"], function (jQuery, Control, coreLibrary, library) {
 	"use strict";
+
+	// shortcut for sap.ui.core.TitleLevel
+	var TitleLevel = coreLibrary.TitleLevel;
 
 	/**
 	 * Constructor for a new ObjectPageSectionBase.
@@ -37,6 +40,18 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 				title: {type: "string", group: "Appearance", defaultValue: null},
 
 				/**
+				 * Determines the ARIA level of the <code>ObjectPageSectionBase</code> title.
+				 * The ARIA level is used by assisting technologies, such as screen readers, to create a hierarchical site map for faster navigation.
+				 *
+				 * <br><b>Note:</b> Defining a <code>titleLevel</code> will add <code>aria-level</code> attribute from 1 to 6,
+				 * instead of changing the <code>ObjectPageSectionBase</code> title HTML tag from H1 to H6.
+				 * <br>For example: if <code>titleLevel</code> is <code>TitleLevel.H1</code>,
+				 * it will result as aria-level of 1 added to the <code>ObjectPageSectionBase</code> title.
+				 * @since 1.44.0
+				 */
+				titleLevel : {type : "sap.ui.core.TitleLevel", group : "Appearance", defaultValue : sap.ui.core.TitleLevel.Auto},
+
+				/**
 				 * Invisible ObjectPageSectionBase are not rendered
 				 */
 				visible: {type: "boolean", group: "Appearance", defaultValue: true},
@@ -64,7 +79,6 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 		}
 	});
 
-
 	/**
 	 * Explicitly ask to connect to the UI5 model tree
 	 *
@@ -81,16 +95,18 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 		this._bInternalVisible = true;
 		this._bInternalTitleVisible = true;
 		this._sInternalTitle = "";
-
+		this._sInternalTitleLevel = TitleLevel.Auto;
 		//hidden status
 		this._isHidden = false;
 
-		this._oParentObjectPageLayout = undefined; //store the parent objectPageLayout
+		this._bRtl = sap.ui.getCore().getConfiguration().getRTL();
 	};
 
 	ObjectPageSectionBase.prototype.onAfterRendering = function () {
 		if (this._getObjectPageLayout()) {
-			this._getObjectPageLayout()._adjustLayout();
+			this._getObjectPageLayout()._requestAdjustLayout().catch(function () {
+				jQuery.sap.log.debug("ObjectPageSectionBase :: cannot adjustLayout", this);
+			});
 			this._getObjectPageLayout()._setSectionsFocusValues();
 		}
 	};
@@ -107,8 +123,8 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 
 	/**
 	 * set the internal visibility of the sectionBase. This is set by the ux rules (for example don't display a section that has no subSections)
-	 * @param bValue
-	 * @param bInvalidate if set to true, the sectionBase should be rerendered in order to be added or removed to the dom (similar to what a "real" internalVisibility property would trigger
+	 * @param {boolean} bValue
+	 * @param {boolean} bInvalidate if set to true, the sectionBase should be rerendered in order to be added or removed to the dom (similar to what a "real" internalVisibility property would trigger
 	 * @private
 	 */
 	ObjectPageSectionBase.prototype._setInternalVisible = function (bValue, bInvalidate) {
@@ -126,8 +142,8 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 
 	/**
 	 * set the internal visibility of the sectionBase title. This is set by the ux rules (for example don't display a subSection title if there are only 1 in the section)
-	 * @param bValue
-	 * @param bInvalidate if set to true, the sectionBase should be rerendered in order to be added or removed to the dom (similar to what a "real" internalVisibility property would trigger
+	 * @param {boolean} bValue
+	 * @param {boolean} bInvalidate if set to true, the sectionBase should be rerendered in order to be added or removed to the dom (similar to what a "real" internalVisibility property would trigger
 	 * @private
 	 */
 	ObjectPageSectionBase.prototype._setInternalTitleVisible = function (bValue, bInvalidate) {
@@ -145,8 +161,8 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 
 	/**
 	 * set the internal title of the sectionBase. This is set by the ux rules (for example the subSection title becomes the section title if there are only 1 subSection in the section)
-	 * @param sValue
-	 * @param bInvalidate if set to true, the sectionBase should be rerendered in order to be added or removed to the dom (similar to what a "real" internalVisibility property would trigger
+	 * @param {string} sValue
+	 * @param {boolean} bInvalidate if set to true, the sectionBase should be rerendered in order to be added or removed to the dom (similar to what a "real" internalVisibility property would trigger
 	 * @private
 	 */
 
@@ -164,17 +180,61 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 	};
 
 	/**
+	 * Returns the <code>aria-level</code>, matching to the <code>ObjectPageSectionBase</code> <code>titleLevel</code> or internal <code>titleLevel</code>.
+	 * If the <code>titleLevel</code> is <code>TitleLevel.H1</code>, the result would be "1".
+	 * If the <code>titleLevel</code> is <code>TitleLevel.Auto</code>,
+	 * the result would be "3" for <code>ObjectPageSection</code> and "4" for <code>ObjectPageSubSection</code>.
+	 * The method is used by <code>ObjectPageSectionRenderer</code> and <code>ObjectPageSubSectionRenderer</code>.
+	 * @returns {String} the <code>aria-level</code>
+	 * @since 1.44
+	 * @private
+	 */
+	ObjectPageSectionBase.prototype._getARIALevel = function () {
+		return this._getTitleLevel().slice(-1);
+	};
+
+	/**
+	 * Returns the <code>ObjectPageSectionBase</code> <code>titleLevel</code>
+	 * if explicitly defined and different from <code>sap.ui.core.TitleLevel.Auto</code>.
+	 * Otherwise, the <code>ObjectPageSectionBase</code> internal <code>titleLevel</code> is returned.
+	 * @returns {String}
+	 * @since 1.44
+	 * @private
+	 */
+	ObjectPageSectionBase.prototype._getTitleLevel = function () {
+		var sTitleLevel = this.getTitleLevel();
+		return (sTitleLevel === TitleLevel.Auto) ? this._getInternalTitleLevel() : sTitleLevel;
+	};
+
+	/**
+	 * Sets the <code>ObjectPageSectionBase</code> internal <code>titleLevel</code>.
+	 * The method is used by the <code>ObjectPageLayout</code> to apply the <code>sectionTitleLevel</code> property.
+	 * @param {String} sTitleLevel
+	 * @since 1.44
+	 * @private
+	 */
+	ObjectPageSectionBase.prototype._setInternalTitleLevel = function (sTitleLevel) {
+		this._sInternalTitleLevel = sTitleLevel;
+	};
+
+	/**
+	 * Returns the <code>ObjectPageSectionBase</code> internal <code>titleLevel</code>.
+	 * The internal <code>titleLevel</code> is set by the <code>ObjectPageLayout</code>.
+	 * @returns {String}
+	 * @since 1.44
+	 * @private
+	 */
+	ObjectPageSectionBase.prototype._getInternalTitleLevel = function () {
+		return this._sInternalTitleLevel;
+	};
+
+	/**
 	 * getter for the parent object page layout
 	 * @returns {*}
 	 * @private
 	 */
 	ObjectPageSectionBase.prototype._getObjectPageLayout = function () {
-
-		if (!this._oParentObjectPageLayout) {
-			this._oParentObjectPageLayout = library.Utilities.getClosestOPL(this);
-		}
-
-		return this._oParentObjectPageLayout;
+		return library.Utilities.getClosestOPL(this);
 	};
 
 	/**
@@ -182,14 +242,21 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 	 * @private
 	 */
 	ObjectPageSectionBase.prototype._notifyObjectPageLayout = function () {
-		if (this.$().length && this._getObjectPageLayout()) {
+		if (this._getObjectPageLayout() && this._getObjectPageLayout().$().length){
 			this._getObjectPageLayout()._adjustLayoutAndUxRules();
 		}
 	};
 
 	// Generate proxies for aggregation mutators
 	["addAggregation", "insertAggregation", "removeAllAggregation", "removeAggregation", "destroyAggregation"].forEach(function (sMethod) {
-		ObjectPageSectionBase.prototype[sMethod] = function (sAggregationName, oObject, bSuppressInvalidate) {
+		ObjectPageSectionBase.prototype[sMethod] = function (sAggregationName, oObject, iIndex, bSuppressInvalidate) {
+
+			if (["addAggregation", "removeAggregation"].indexOf(sMethod) > -1) {
+				bSuppressInvalidate = iIndex; //shift argument
+			}
+			if (["removeAllAggregation", "destroyAggregation"].indexOf(sMethod) > -1) {
+				bSuppressInvalidate = oObject; //shift argument
+			}
 			var vResult = Control.prototype[sMethod].apply(this, arguments);
 
 			if (bSuppressInvalidate !== true){
@@ -235,7 +302,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 		this._isHidden = bHide;
 		this.$().children(this._sContainerSelector).toggle(!bHide);
 		if (oObjectPage) {
-			oObjectPage._adjustLayout();
+			oObjectPage._requestAdjustLayout();
 		}
 		return this;
 	};
@@ -254,7 +321,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 
 	/**
 	 * Called to set the visibility of the section / subsection
-	 * @params oSection, sCurrentLowestImportanceLevelToShow
+	 * @param {string} sCurrentLowestImportanceLevelToShow
 	 *
 	 * @private
 	 */
@@ -324,7 +391,10 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 	/**
 	 * Handler for arrow right
 	 */
-	ObjectPageSectionBase.prototype.onsapright = ObjectPageSectionBase.prototype.onsapdown;
+	ObjectPageSectionBase.prototype.onsapright = function (oEvent) {
+		var sMethodName = this._bRtl ? "onsapup" : "onsapdown";
+		this[sMethodName](oEvent);
+	};
 
 	/**
 	 * Handler for arrow up
@@ -337,7 +407,10 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 	/**
 	 * Handler for arrow left
 	 */
-	ObjectPageSectionBase.prototype.onsapleft = ObjectPageSectionBase.prototype.onsapup;
+	ObjectPageSectionBase.prototype.onsapleft = function (oEvent) {
+		var sMethodName = this._bRtl ? "onsapdown" : "onsapup";
+		this[sMethodName](oEvent);
+	};
 
 	/**
 	 * Handler for HOME key
@@ -427,7 +500,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "./library"], functio
 
 	/**
 	 * Tells the ObjectPageLayout instance to scroll itself to a given section (by Id)
-	 * @param sId
+	 * @param {string} sId
 	 * @private
 	 */
 	ObjectPageSectionBase.prototype._scrollParent = function (sId) {

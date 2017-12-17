@@ -1,11 +1,11 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides class sap.ui.model.odata.ODataAnnotations
-sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBinding', 'sap/ui/table/TreeAutoExpandMode', 'sap/ui/model/ChangeReason', 'sap/ui/model/odata/ODataTreeBindingAdapter', 'sap/ui/model/TreeBindingAdapter', 'sap/ui/model/TreeBindingUtils'],
+sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBinding', 'sap/ui/model/TreeAutoExpandMode', 'sap/ui/model/ChangeReason', 'sap/ui/model/odata/ODataTreeBindingAdapter', 'sap/ui/model/TreeBindingAdapter', 'sap/ui/model/TreeBindingUtils'],
 	function(jQuery, TreeBinding, AnalyticalBinding, TreeAutoExpandMode, ChangeReason, ODataTreeBindingAdapter, TreeBindingAdapter, TreeBindingUtils) {
 	"use strict";
 
@@ -372,6 +372,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 				oNode.children[iMaxGroupSize - 1] = undefined;
 			}
 
+			if (oNode.level === this.aAggregationLevel.length) {
+				// One level above leafs
+				oNodeState.leafCount = iMaxGroupSize;
+			}
+
 			oNode.sumNode = this._createSumNode(oNode);
 		}
 
@@ -394,7 +399,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 				iRequestedLength = Math.min(oCurrentSection.length, iMaxGroupSize - oCurrentSection.startIndex);
 			}
 
-			//if we are in the autoexpand mode "bundled", supress additional requests during the tree traversal
+			//if we are in the autoexpand mode "bundled", suppress additional requests during the tree traversal
 			//paging is handled differently
 			var bSupressRequest = false;
 			if (oNode.autoExpand >= 0 && this._isRunningInAutoExpand(TreeAutoExpandMode.Bundled)) {
@@ -441,6 +446,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 					oChildNode.positionInParent = oUpdatedNodeData.positionInParent;
 					oChildNode.magnitude = 0;
 					oChildNode.numberOfTotals = 0;
+					oChildNode.totalNumberOfLeafs = 0;
 					oChildNode.autoExpand = oUpdatedNodeData.autoExpand;
 					oChildNode.absoluteNodeIndex = oUpdatedNodeData.absoluteNodeIndex;
 					//calculate the group id for the given context
@@ -464,6 +470,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 					});
 				}
 
+				oChildNode.nodeState.parentGroupID = oNode.groupID;
+
 				oChildNode.isLeaf = !this.nodeHasChildren(oChildNode);
 
 				oNode.children[iChildIndex] = oChildNode;
@@ -483,7 +491,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 				if ((oChildNode.autoExpand >= 0 || oChildNode.nodeState.expanded) && this.isGrouped()) {
 					if (!this._mTreeState.collapsed[oChildNode.groupID]) {
 
-						// propagate teh selectAllMode to the childNode, but only if the parent node is flagged and we are still autoexpanding
+						// propagate the selectAllMode to the childNode, but only if the parent node is flagged and we are still autoexpanding
 						if (oChildNode.autoExpand >= 0 && oChildNode.parent.nodeState.selectAllMode && !this._mTreeState.deselected[oChildNode.groupID]) {
 							if (oChildNode.nodeState.selectAllMode === undefined) {
 								oChildNode.nodeState.selectAllMode = true;
@@ -497,6 +505,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 					oNode.magnitude += oChildNode.magnitude;
 					oNode.numberOfTotals += oChildNode.numberOfTotals;
 					oNode.numberOfLeafs += oChildNode.numberOfLeafs;
+
+				}
+
+				if (oChildNode && oChildNode.isLeaf) {
+					oNode.totalNumberOfLeafs = iMaxGroupSize;
+				} else {
+					oNode.totalNumberOfLeafs += oChildNode.totalNumberOfLeafs;
 				}
 			}
 		}
@@ -547,14 +562,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 
 		// in case we have no grouping at all, the "groupID" for each node is based on its position as the roots child
 		if (!this.isGrouped() && oNode && oNode.positionInParent) {
-			sGroupID = "/" + oNode.positionInParent;
+			sGroupID = "/" + oNode.positionInParent + "/";
 		} else {
 			// if the level of the node exceeds the maximum level (in the analytical case, this is the aggregation level),
 			// the group id is also appended with the relative parent position
 			if (oNode.level > iMaxLevel) {
 				sGroupID = this._getGroupIdFromContext(oNode.context, iMaxLevel);
 				jQuery.sap.assert(oNode.positionInParent != undefined, "If the node level is greater than the number of grouped columns, the position of the node to its parent must be defined!");
-				sGroupID +=  oNode.positionInParent;
+				sGroupID +=  oNode.positionInParent + "/";
 			} else {
 				//this is the best case, the node sits on a higher level than the aggregation level
 				sGroupID = this._getGroupIdFromContext(oNode.context, oNode.level);
@@ -624,13 +639,38 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 				}
 			});
 
+			var aDeselectedNodeIds = [];
 			// also remove selections from child nodes of the collapsed node
 			jQuery.each(this._mTreeState.selected, function (sGroupID, oNodeState) {
 				if (jQuery.sap.startsWith(sGroupID, sGroupIDforCollapsingNode)) {
 					oNodeState.selectAllMode = false;
 					that.setNodeSelection(oNodeState, false);
+					aDeselectedNodeIds.push(sGroupID);
 				}
 			});
+			if (aDeselectedNodeIds.length) {
+				var selectionChangeParams = {
+					rowIndices: []
+				};
+				// Collect the changed indices
+				var iNodeCounter = 0;
+				this._map(this._oRootNode, function (oNode) {
+					if (!oNode || !oNode.isArtificial) {
+						iNodeCounter++;
+					}
+
+					if (oNode && aDeselectedNodeIds.indexOf(oNode.groupID) !== -1) {
+						if (oNode.groupID === this._sLeadSelectionGroupID) {
+							// Lead selection got deselected
+							selectionChangeParams.oldIndex = iNodeCounter;
+							selectionChangeParams.leadIndex = -1;
+						}
+						selectionChangeParams.rowIndices.push(iNodeCounter);
+					}
+				});
+
+				this._publishSelectionChanges(selectionChangeParams);
+			}
 		}
 
 		// only fire change if no autoexpand request is triggered:
@@ -741,12 +781,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 	 * This is NOT the same as AnalyticalTreeBindingAdapter#collapse or AnalyticalTreeBindingAdapter#expand.
 	 * Setting the number of expanded levels leads to different requests.
 	 * This function is used by the AnalyticalTable for the ungroup/ungroup-all feature.
-	 * @see sap.ui.table.AnalyticalTable#_getGroupHeaderMenu
 	 * @param {int} iLevels the number of levels which should be expanded, minimum is 0
 	 * @protected
 	 * @name sap.ui.model.analytics.AnalyticalTreeBindingAdapter#setNumberOfExpandedLevels
 	 * @function
 	 */
+	// @see sap.ui.table.AnalyticalTable#_getGroupHeaderMenu
 	AnalyticalTreeBindingAdapter.prototype.setNumberOfExpandedLevels = function(iLevels, bSupressResetData) {
 		iLevels = iLevels || 0;
 		if (iLevels < 0) {
@@ -772,6 +812,19 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', './AnalyticalBin
 	 */
 	AnalyticalTreeBindingAdapter.prototype.getNumberOfExpandedLevels = function() {
 		return this.mParameters.numberOfExpandedLevels;
+	};
+
+	/**
+	 * Overrides the default from the TBA.
+	 * Returns the maximum number of currently selectable nodes, in this case the total number of leaves.
+	 * @returns
+	 */
+	AnalyticalTreeBindingAdapter.prototype._getSelectableNodesCount = function (oNode) {
+		if (oNode) {
+			return oNode.totalNumberOfLeafs;
+		} else {
+			return 0;
+		}
 	};
 
 	return AnalyticalTreeBindingAdapter;

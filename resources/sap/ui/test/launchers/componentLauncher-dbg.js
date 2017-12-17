@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define([
@@ -26,7 +26,7 @@ sap.ui.define([
 
 		start: function (mComponentConfig) {
 			if (_loadingStarted) {
-				throw "sap.ui.test.launchers.componentLauncher: Start was called twice without teardown";
+				throw new Error("sap.ui.test.launchers.componentLauncher: Start was called twice without teardown");
 			}
 
 			mComponentConfig.async = true;
@@ -56,7 +56,7 @@ sap.ui.define([
 		teardown: function () {
 			// Opa prevent the case if teardown was called after the start but before the promise was fulfilled
 			if (!_loadingStarted){
-				throw "sap.ui.test.launchers.componentLauncher: Teardown has been called but there was no start";
+				throw new Error("sap.ui.test.launchers.componentLauncher: Teardown has been called but there was no start");
 			}
 			_oComponentContainer.destroy();
 			_$Component.remove();

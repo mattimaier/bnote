@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -19,20 +19,20 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/DateFormat', 'sap/ui/mod
 	 * @extends sap.ui.model.SimpleType
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
-	 * @param {object} [oFormatOptions] options used to create a DateFormat for formatting / parsing. Supports the same options as {@link sap.ui.core.format.DateFormat.getDateInstance DateFormat.getDateInstance}
-	 * @param {object} [oFormatOptions.source] additional set of options used to create a second DateFormat object for conversions between
-	 *           string values in the data source (e.g. model) and Date. This second format object is used to convert from a model string to Date before
-	 *           converting the Date to string with the primary format object. Vice versa, this 'source' format is also used to format an already parsed
-	 *           external value (e.g. user input) into the string format expected by the data source.
-	 *           Supports the same set of options as {@link sap.ui.core.format.DateFormat.getDateInstance DateFormat.getDateInstance}.
-	 *           In case an empty object is given, the default is ISO date notation (yyyy-MM-dd).
-	 * @param {object} [oConstraints] value constraints.
-	 * @param {Date|string} [oConstraints.minimum] smallest value allowed for this type. Values for constraints must use the same type as configured via <code>oFormatOptions.source</code>
-	 * @param {Date|string} [oConstraints.maximum] largest value allowed for this type. Values for constraints must use the same type as configured via <code>oFormatOptions.source</code>
+	 * @param {object} [oFormatOptions] Formatting options. For a list of all available options, see {@link sap.ui.core.format.DateFormat.getDateInstance DateFormat}.
+	 * @param {object} [oFormatOptions.source] Additional set of options used to create a second <code>DateFormat</code> object for conversions between
+	 *           string values in the data source (e.g. model) and <code>Date</code>. This second format object is used to convert from a model <code>string</code> to <code>Date</code> before
+	 *           converting the <code>Date</code> to <code>string</code> with the primary format object. Vice versa, this 'source' format is also used to format an already parsed
+	 *           external value (e.g. user input) into the string format that is expected by the data source.
+	 *           For a list of all available options, see {@link sap.ui.core.format.DateFormat.getDateInstance DateFormat}.
+	 *           In case an empty object is given, the default is the ISO date notation (yyyy-MM-dd).
+	 * @param {object} [oConstraints] Value constraints
+	 * @param {Date|string} [oConstraints.minimum] Smallest value allowed for this type. Values for constraints must use the same type as configured via <code>oFormatOptions.source</code>.
+	 * @param {Date|string} [oConstraints.maximum] Largest value allowed for this type. Values for constraints must use the same type as configured via <code>oFormatOptions.source</code>.
 	 * @alias sap.ui.model.type.Date
 	 */
 	var Date1 = SimpleType.extend("sap.ui.model.type.Date", /** @lends sap.ui.model.type.Date.prototype */ {
@@ -45,32 +45,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/DateFormat', 'sap/ui/mod
 	});
 
 	Date1.prototype.formatValue = function(oValue, sInternalType) {
+		var oFormat;
+
 		switch (this.getPrimitiveType(sInternalType)) {
 			case "string":
 			case "any":
 				if (oValue == null) {
 					return "";
 				}
-				if (this.oInputFormat) {
-					if (this.oFormatOptions.source.pattern == "timestamp") {
-						if (typeof (oValue) != "number") {
-							if (isNaN(oValue)) {
-								throw new FormatException("Cannot format date: " + oValue + " is not a valid Timestamp");
-							} else {
-								oValue = parseInt(oValue, 10);
-							}
-						}
-						oValue = new Date(oValue);
-					} else {
-						if (oValue == "") {
-							return "";
-						}
-						oValue = this.oInputFormat.parse(oValue);
-						if (oValue == null) {
-							throw new FormatException("Cannot format date: " + oValue + " has the wrong format");
-						}
-					}
+
+				if (this.oFormatOptions.source && this.oFormatOptions.source.pattern !== "timestamp" && oValue === "") {
+					return "";
 				}
+
+				oFormat = this.getModelFormat();
+				oValue = oFormat.parse(oValue);
+
 				return this.oOutputFormat.format(oValue);
 			default:
 				throw new FormatException("Don't know how to format Date to " + sInternalType);
@@ -139,6 +129,37 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/DateFormat', 'sap/ui/mod
 		}
 	};
 
+	var oTimestampInputFormat = {
+		format: function(oValue) {
+			if (oValue instanceof Date) {
+				return oValue.getTime();
+			}
+			return null;
+		},
+		parse: function(oValue) {
+			if (typeof (oValue) != "number") {
+				if (isNaN(oValue)) {
+					throw new FormatException("Cannot format date: " + oValue + " is not a valid Timestamp");
+				} else {
+					oValue = parseInt(oValue, 10);
+				}
+			}
+			oValue = new Date(oValue);
+			return oValue;
+		}
+	};
+
+	Date1.prototype.getModelFormat = function() {
+		if (this.oInputFormat) {
+			if (this.oFormatOptions.source.pattern == "timestamp") {
+				return oTimestampInputFormat;
+			} else {
+				return this.oInputFormat;
+			}
+		} else {
+			return SimpleType.prototype.getModelFormat.call(this);
+		}
+	};
 	Date1.prototype.setFormatOptions = function(oFormatOptions) {
 		this.oFormatOptions = oFormatOptions;
 		this._createFormats();

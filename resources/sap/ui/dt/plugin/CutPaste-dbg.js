@@ -1,13 +1,16 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides class sap.ui.dt.plugin.CutPaste.
 sap.ui.define([
-	'sap/ui/dt/Plugin', 'sap/ui/dt/plugin/ElementMover', 'sap/ui/dt/OverlayUtil'
-], function(Plugin, ElementMover, OverlayUtil) {
+	'sap/ui/dt/Plugin',
+	'sap/ui/dt/plugin/ElementMover',
+	'sap/ui/dt/OverlayUtil',
+	'sap/ui/dt/OverlayRegistry'
+], function(Plugin, ElementMover, OverlayUtil, OverlayRegistry) {
 	"use strict";
 
 	/**
@@ -18,7 +21,7 @@ sap.ui.define([
 	 * @class The CutPaste enables Cut & Paste functionality for the overlays based on aggregation types
 	 * @extends sap.ui.dt.Plugin"
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @private
 	 * @since 1.34
@@ -40,13 +43,10 @@ sap.ui.define([
 					]
 				},
 				elementMover: {
-					type: "sap.ui.dt.plugin.ElementMover"
+					type: "any" // "sap.ui.dt.plugin.ElementMover"
 				}
 			},
-			associations: {},
-			events: {
-				elementMoved: {}
-			}
+			associations: {}
 		}
 	});
 
@@ -108,13 +108,18 @@ sap.ui.define([
 	CutPaste.prototype._onKeyDown = function(oEvent) {
 		var oOverlay = sap.ui.getCore().byId(oEvent.currentTarget.id);
 
-		if ((oEvent.keyCode === jQuery.sap.KeyCodes.X) && (oEvent.shiftKey === false) && (oEvent.altKey === false) && (oEvent.ctrlKey === true)) {
+		// on macintosh os cmd-key is used instead of ctrl-key
+		var bCtrlKey = sap.ui.Device.os.macintosh ? oEvent.metaKey : oEvent.ctrlKey;
+
+		if ((oEvent.keyCode === jQuery.sap.KeyCodes.X) && (oEvent.shiftKey === false) && (oEvent.altKey === false) && (bCtrlKey === true)) {
 			// CTRL+X
 			this.cut(oOverlay);
 			oEvent.stopPropagation();
-		} else if ((oEvent.keyCode === jQuery.sap.KeyCodes.V) && (oEvent.shiftKey === false) && (oEvent.altKey === false) && (oEvent.ctrlKey === true)) {
+		} else if ((oEvent.keyCode === jQuery.sap.KeyCodes.V) && (oEvent.shiftKey === false) && (oEvent.altKey === false) && (bCtrlKey === true)) {
 			// CTRL+V
-			this.paste(oOverlay);
+			if (this.getElementMover().getMovedOverlay()) {
+				this.paste(oOverlay);
+			}
 			oEvent.stopPropagation();
 		} else if (oEvent.keyCode === jQuery.sap.KeyCodes.ESCAPE) {
 			// ESC
@@ -134,33 +139,57 @@ sap.ui.define([
 		}
 	};
 
-	CutPaste.prototype.paste = function(oTargetOverlay) {
+	/**
+	 * The actual execution of paste. This method is additionally defined because
+	 * there might be steps between the execution and finalization (stopCutAndPaste) of
+	 * paste (for example in the RTA plugin that extends this one).
+	 * @param  {sap.ui.dt.Overlay} oTargetOverlay The Overlay where the element will be pasted
+	 * @return {boolean} Return true if paste was successfully executed
+	 */
+	CutPaste.prototype._executePaste = function(oTargetOverlay) {
 		var oCutOverlay = this.getElementMover().getMovedOverlay();
 		if (!oCutOverlay) {
-			return;
+			return false;
 		}
-		if (!this._isForSameElement(oCutOverlay, oTargetOverlay)) {
 
+		var bResult = false;
+		if (!this._isForSameElement(oCutOverlay, oTargetOverlay)) {
 			var oTargetZoneAggregation = this._getTargetZoneAggregation(oTargetOverlay);
 			if (oTargetZoneAggregation) {
 				this.getElementMover().insertInto(oCutOverlay, oTargetZoneAggregation);
+				bResult = true;
 			} else if (OverlayUtil.isInTargetZoneAggregation(oTargetOverlay)) {
-					this.getElementMover().repositionOn(oCutOverlay, oTargetOverlay);
-			} else {
-				return;
+				this.getElementMover().repositionOn(oCutOverlay, oTargetOverlay);
+				bResult = true;
 			}
-
-			this.getElementMover().buildMoveEvent();
 		}
 
-		// focus get invalidated, see https://support.wdf.sap.corp/sap/support/message/1580061207
-		setTimeout(function(){
-			oCutOverlay.focus();
-		},0);
+		// focus get invalidated, see BCP 1580061207
+		if (bResult) {
+			oCutOverlay.setSelected(true);
+			setTimeout(function () {
+				oCutOverlay.focus();
+			}, 0);
+		}
 
-		this.stopCutAndPaste();
+		return bResult;
 	};
 
+	/**
+	 * Paste the element into the target overlay
+	 * @param  {sap.ui.dt.Overlay} oTargetOverlay The Overlay where the element will be pasted
+	 */
+	CutPaste.prototype.paste = function(oTargetOverlay) {
+		var bPasteExecuted = this._executePaste(oTargetOverlay);
+
+		if (bPasteExecuted === true){
+			this.stopCutAndPaste();
+		}
+	};
+
+	/**
+	 * Finalize cut&paste operation + cleanup
+	 */
 	CutPaste.prototype.stopCutAndPaste = function() {
 		var oCutOverlay = this.getElementMover().getMovedOverlay();
 		if (oCutOverlay) {

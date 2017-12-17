@@ -1,64 +1,97 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['jquery.sap.global'],
-	function (jQuery) {
+sap.ui.define(['jquery.sap.global', './library'],
+	function (jQuery, library) {
 		"use strict";
 
 		var BlockLayoutRowRenderer = {};
 
-		BlockLayoutRowRenderer.render = function (rm, blockLayoutRow){
-			this.startRow(rm, blockLayoutRow);
-			this.renderContent(rm, blockLayoutRow);
-			this.endRow(rm, blockLayoutRow);
+		BlockLayoutRowRenderer.render = function (oRm, oBlockLayoutRow){
+			this.startRow(oRm, oBlockLayoutRow);
+			this.renderContent(oRm, oBlockLayoutRow);
+			this.endRow(oRm, oBlockLayoutRow);
 		};
 
-		BlockLayoutRowRenderer.startRow = function (rm, blockLayoutRow) {
-			rm.write("<div");
-			rm.writeControlData(blockLayoutRow);
-			rm.addClass("sapUiBlockLayoutRow");
-			this.addRowRenderingClass(rm, blockLayoutRow);
-			rm.writeStyles();
-			rm.writeClasses();
-			rm.write(">");
+		BlockLayoutRowRenderer.startRow = function (oRm, oBlockLayoutRow) {
+			oRm.write("<div");
+			oRm.writeControlData(oBlockLayoutRow);
+			oRm.addClass("sapUiBlockLayoutRow");
+			this.addRowRenderingClass(oRm, oBlockLayoutRow);
+			oRm.writeStyles();
+			oRm.writeClasses();
+			oRm.write(">");
 		};
 
-		BlockLayoutRowRenderer.addRowRenderingClass = function (rm, blockLayoutRow) {
-			if (blockLayoutRow.getScrollable()) {
-				rm.addClass("sapUiBlockScrollingRow");
-				if (blockLayoutRow.getContent().length >= 6) {
-					rm.addClass("sapUiBlockScrollingNarrowCells");
+		BlockLayoutRowRenderer.addRowRenderingClass = function (oRm, oBlockLayoutRow) {
+			if (oBlockLayoutRow.getScrollable()) {
+				oRm.addClass("sapUiBlockScrollingRow");
+				if (oBlockLayoutRow.getContent().length >= 6) {
+					oRm.addClass("sapUiBlockScrollingNarrowCells");
 				}
 			} else {
-				rm.addClass("sapUiBlockHorizontalCellsRow");
-			}
-
-			if (blockLayoutRow._rowSCase) {
-				rm.addClass("sapUiBlockRowSCase");
+				oRm.addClass("sapUiBlockHorizontalCellsRow");
 			}
 		};
 
-		BlockLayoutRowRenderer.renderContent = function (rm, blockLayoutRow) {
-			var cell,
-				content = blockLayoutRow.getContent(),
-				scrollable = blockLayoutRow.getScrollable();
+		BlockLayoutRowRenderer.renderContent = function (oRm, oBlockLayoutRow) {
+			var aContent = oBlockLayoutRow.getContent(),
+				bScrollable = oBlockLayoutRow.getScrollable(),
+				oBackgrounds = sap.ui.layout.BlockBackgroundType,
+				sLayoutBackground = oBlockLayoutRow.getParent().getBackground(),
+				aAccentedCells = oBlockLayoutRow.getAccentCells(),
+				iContentCounter = 0,
+				flexWidth;
 
-			for (var i = 0 ; i < content.length; i++) {
-				cell = content[i];
-				if (scrollable) {
-					cell.addStyleClass("sapUiBlockScrollableCell");
+			aContent.forEach(function (oCell, index) {
+				(index % 2) == 0 ? oCell.addStyleClass("sapUiBlockLayoutOddCell") : oCell.addStyleClass("sapUiBlockLayoutEvenCell");
+				if (bScrollable) {
+					oCell.addStyleClass("sapUiBlockScrollableCell");
 				} else {
-					cell.addStyleClass("sapUiBlockHorizontalCell");
+					oCell.addStyleClass("sapUiBlockHorizontalCell");
 				}
-				rm.renderControl(cell);
+			});
+
+			switch (sLayoutBackground) {
+				case oBackgrounds.Mixed:
+					oBlockLayoutRow._processMixedCellStyles(aAccentedCells[0], aContent);
+					break;
+				case oBackgrounds.Accent :
+					oBlockLayoutRow._processAccentCellStyles(aAccentedCells, aContent);
+					break;
+			}
+
+			var arrangement = oBlockLayoutRow._getCellArangementForCurrentSize();
+			if (bScrollable || !arrangement) {
+				/**
+				 * The arrangement is passed from the BlockLayout to the BlockLayoutRow after the BlockLayout is rendered.
+				 * This means that we need to rerender the BlockLayoutRow after its initial rendering, because the size was previously unknown
+				 */
+				aContent.forEach(oRm.renderControl);
+			} else {
+				for (var i = 0; i < arrangement.length; i++) {
+					var aSubRow = arrangement[i];
+					oRm.write("<div ");
+					oRm.addStyle("display", "flex");
+					oRm.writeStyles();
+					oRm.write(">");
+
+					for (var j = 0; j < aSubRow.length; j++) {
+						flexWidth = aSubRow[j];
+						aContent[iContentCounter]._setFlexWidth(flexWidth);
+						oRm.renderControl(aContent[iContentCounter]);
+						iContentCounter++;
+					}
+					oRm.write("</div>");
+				}
 			}
 		};
 
-		BlockLayoutRowRenderer.endRow = function (rm) {
-			rm.write("</div>");
+		BlockLayoutRowRenderer.endRow = function (oRm) {
+			oRm.write("</div>");
 		};
 
 		return BlockLayoutRowRenderer;

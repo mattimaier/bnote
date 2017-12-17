@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,12 +20,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/library'
 	 * @class
 	 * Represents a DOM element. It allows to use databinding for the properties and nested DOM attributes.
 	 * @extends sap.ui.core.Control
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
-	 * @experimental Since version 1.15.
-	 * The templating might be changed in future versions.
+	 * @since 1.15
 	 * @alias sap.ui.core.tmpl.DOMElement
 	 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
 	 */
@@ -125,7 +124,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/library'
 		var sTag = this.getTag().toLowerCase();
 		if (sTag === "input") {
 			var sValue = this.$().val();
-			jQuery.each(this.getAttributes(), function(iIndex, oAttribute) {
+			this.getAttributes().forEach(function(oAttribute) {
 				if (oAttribute.getName().toLowerCase() === "value") {
 					oAttribute.setValue(sValue);
 				}
@@ -162,7 +161,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Control', 'sap/ui/core/library'
 		// lookup the attribute (required for the setter and the getter)
 		var aAttributes = this.getAttributes(),
 			oAttribute;
-		jQuery.each(aAttributes, function(iIndex, oValue) {
+		aAttributes.forEach(function(oValue) {
 			var sName = oValue.getName();
 			if (sName.toLowerCase() === sKey) {
 				oAttribute = oValue;

@@ -1,16 +1,19 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.QuickViewGroupElement
 sap.ui.define([
-		'jquery.sap.global', './library', 'sap/ui/core/Element', './QuickViewGroupElementType',
+		'jquery.sap.global', './library', 'sap/ui/core/Element',
 		'./Link', './Text', 'sap/ui/core/CustomData'],
-	function(jQuery, library, Element, GroupElementType,
+	function(jQuery, library, Element,
 				Link, Text, CustomData) {
 		"use strict";
+
+		// shortcut for sap.m.QuickViewGroupElementType
+		var GroupElementType = library.QuickViewGroupElementType;
 
 		/**
 		* Constructor for a new QuickViewGroupElement.
@@ -23,7 +26,7 @@ sap.ui.define([
 		* @extends sap.ui.core.Element
 		*
 		* @author SAP SE
-		* @version 1.38.7
+		* @version 1.50.7
 		*
 		* @constructor
 		* @public
@@ -74,7 +77,7 @@ sap.ui.define([
 						},
 
 						/**
-						 * Specifies the target of the link – it works like the target property of the HTML <a> tag. Works only with QuickViewGroupElement of type link.
+						 * Specifies the target of the link - it works like the target property of the HTML <a> tag. Works only with QuickViewGroupElement of type link.
 						 */
 						target: {
 							type: "string",
@@ -83,7 +86,7 @@ sap.ui.define([
 						},
 
 						/**
-						 * Specifies the type of the displayed information – phone number, mobile number, e-mail, link, text or a link to another QuickViewPage. Default value is ‘text’.
+						 * Specifies the type of the displayed information - phone number, mobile number, e-mail, link, text or a link to another QuickViewPage. Default value is 'text'.
 						 */
 						type: {
 							type: "sap.m.QuickViewGroupElementType",
@@ -135,7 +138,8 @@ sap.ui.define([
 
 					return new Link({
 						href : href,
-						text : this.getValue()
+						text : this.getValue(),
+						wrapping : true
 					});
 				case GroupElementType.phone:
 				case GroupElementType.mobile:

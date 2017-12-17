@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -52,7 +52,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 * @constructor
 		 * @private
 		 * @alias sap.ui.core.support.plugins.Performance
@@ -65,7 +65,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 
 				this._oStub = oSupportStub;
 
-				if (this.isToolPlugin()) {
+				if (this.runsAsToolPlugin()) {
 					this._aEventIds = [
 						this.getId() + "SetMeasurements",
 						this.getId() + "SetActive"
@@ -84,7 +84,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 
 		Performance.prototype.init = function (oSupportStub) {
 			Plugin.prototype.init.apply(this, arguments);
-			if (this.isToolPlugin()) {
+			if (this.runsAsToolPlugin()) {
 				initInTools.call(this, oSupportStub);
 			} else {
 				initInApps.call(this, oSupportStub);
@@ -279,41 +279,36 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 		function _getPerformanceToolHTML() {
 			return '' +
 				'<section id="sapUiSupportPerf">' +
-				'<section id="sapUiSupportNoDataOverlay"></section>' +
-				'<section id="sapUiSupportPerfHeader">' +
-				'<section class="sapUiSupportPerfHeaderFilters">' +
-				'<div>' +
-				'Order: ' +
-				'<select id="sapUiSupportPerfHeaderFilterSort" name="orderBy">' +
-				'<option value="chronologically">Chronologically</option>' +
-				'<option value="time">By Time</option>' +
-				'<option value="duration">By Duration</option>' +
-				'</select>' +
-				'</div>' +
-				'<div>' +
-				'<label>' +
-				'Min. Duration: ' +
-				'<input id="sapUiSupportPerfHeaderFilterMinDuration" type="number" min="0" value="0" /> ms.' +
-				'</label>' +
-				'</div>' +
-				'<div class="flex-spacer"></div>' +
-				'<div id="categories"></div>' +
-				'</section>' +
-				'<section id="sapUiSupportPerfHeaderTimelineOverview">' +
-				'<div class="timeline"></div>' +
-				'<button id="sapUiSupportPerfToggleRecordingBtn"></button>' +
-				'<div id="slider">' +
-				'<div id="slideHandle">' +
-				'<span id="leftHandle"></span>' +
-				'<span id="rightHandle"></span>' +
-				'</div>' +
-				'</div>' +
-				'</section>' +
-				'</section>' +
-				'<section id="sapUiSupportPerfHeaderTimeline">' +
-				'<div id="sapUiSupportPerfHeaderTimelineBarInfoWrapper"></div>' +
-				'<div id="sapUiSupportPerfHeaderTimelineBarWrapper"></div>' +
-				'</section>' +
+					'<section id="sapUiSupportNoDataOverlay"></section>' +
+					'<section id="sapUiSupportPerfHeader">' +
+						'<div class="sapUiSupportToolbar">' +
+							'<label class="sapUiSupportLabel">Order:</label>' +
+							'<select id="sapUiSupportPerfHeaderFilterSort" class="sapUiSupportTxtFld sapUiSupportSelect" name="orderBy">' +
+								'<option value="chronologically">Chronologically</option>' +
+								'<option value="time">By Time</option>' +
+								'<option value="duration">By Duration</option>' +
+							'</select>' +
+							'<label class="sapUiSupportLabel">Min. Duration:</label>' +
+							'<input id="sapUiSupportPerfHeaderFilterMinDuration" type="number" min="0" value="0" />' +
+							'<label class="sapUiSupportLabel"> ms.</label>' +
+							'<div class="flex-spacer"></div>' +
+							'<div id="categories"></div>' +
+						'</div>' +
+						'<section id="sapUiSupportPerfHeaderTimelineOverview">' +
+							'<div class="timeline"></div>' +
+							'<button id="sapUiSupportPerfToggleRecordingBtn"></button>' +
+							'<div id="slider">' +
+								'<div id="slideHandle">' +
+									'<span id="leftHandle"></span>' +
+									'<span id="rightHandle"></span>' +
+								'</div>' +
+							'</div>' +
+						'</section>' +
+					'</section>' +
+					'<section id="sapUiSupportPerfHeaderTimeline">' +
+						'<div id="sapUiSupportPerfHeaderTimelineBarInfoWrapper"></div>' +
+						'<div id="sapUiSupportPerfHeaderTimelineBarWrapper"></div>' +
+					'</section>' +
 				'</section>';
 		}
 

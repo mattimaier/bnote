@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -617,7 +617,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 		/**
 		 * Pseudo event for pressing the '-' (minus) sign.
 		 * @since 1.25.0
-		 * @experimental Since 1.25.0 Implementation details can be changed in future.
 		 * @public
 		 */
 		sapminus: {sName: "sapminus", aTypes: ["keypress"], fnCheck: function(oEvent) {
@@ -648,7 +647,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 		/**
 		 * Pseudo event for pressing the '+' (plus) sign.
 		 * @since 1.25.0
-		 * @experimental Since 1.25.0 Implementation details can be changed in future.
 		 * @public
 		 */
 		sapplus: {sName: "sapplus", aTypes: ["keypress"], fnCheck: function(oEvent) {
@@ -940,7 +938,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 				}
 			}
 		};
-		if (!(Device.support.pointer && Device.support.touch)) {
+
+		// Windows Phone (<10) doesn't need event emulation because IE supports
+		// touch events but fires mouse events based on pointer events without
+		// delay.
+		// In Edge on Windows Phone 10 the mouse events are delayed like in
+		// other browsers
+		var bEmulationNeeded = !(Device.os.windows_phone && Device.os.version < 10);
+
+		// Simulate touch events on NOT delayed mouse events (delayed mouse
+		// events are filtered out in fnMouseToTouchHandler)
+		if (bEmulationNeeded) {
 			createSimulatedEvent("touchstart", ["mousedown"], fnMouseToTouchHandler);
 			createSimulatedEvent("touchend", ["mouseup", "mouseout"], fnMouseToTouchHandler);
 			// Browser doesn't fire any mouse event after dragstart, so we need to listen to dragstart to cancel the current touch process in order
@@ -949,9 +957,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 		}
 
 		// Simulate mouse events on touch devices
-		// Except for Windows Phone (<10): IE supports touch events but fires mouse events based on pointer events without delay.
-		// In Edge on Windows Phone 10 the mouse events are delayed like in other browsers
-		if (Device.support.touch && !(Device.os.windows_phone && Device.os.version < 10)) {
+		if (Device.support.touch && bEmulationNeeded) {
 			var bFingerIsMoved = false,
 				iMoveThreshold = jQuery.vmouse.moveDistanceThreshold,
 				iStartX, iStartY,
@@ -1129,7 +1135,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 			if (mEvents[sName].aTypes) {
 				for (var j = 0, js = mEvents[sName].aTypes.length; j < js; j++) {
 					var sType = mEvents[sName].aTypes[j];
-					if (jQuery.inArray(sType, aResult) == -1) {
+					if (aResult.indexOf(sType) == -1) {
 						aResult.push(sType);
 					}
 				}
@@ -1181,7 +1187,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 	jQuery.Event.prototype.getPseudoTypes = function() {
 		var aPseudoTypes = [];
 
-		if (jQuery.inArray(this.type, PSEUDO_EVENTS_BASIC_TYPES) != -1) {
+		if (PSEUDO_EVENTS_BASIC_TYPES.indexOf(this.type) != -1) {
 			var aPseudoEvents = PSEUDO_EVENTS;
 			var ilength = aPseudoEvents.length;
 			var oPseudo = null;
@@ -1189,7 +1195,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 			for (var i = 0; i < ilength; i++) {
 				oPseudo = jQuery.sap.PseudoEvents[aPseudoEvents[i]];
 				if (oPseudo.aTypes
-						&& jQuery.inArray(this.type, oPseudo.aTypes) > -1
+						&& oPseudo.aTypes.indexOf(this.type) > -1
 						&& oPseudo.fnCheck
 						&& oPseudo.fnCheck(this)) {
 					aPseudoTypes.push(oPseudo.sName);
@@ -1215,7 +1221,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 		var aPseudoTypes = this.getPseudoTypes();
 
 		if (sType) {
-			return jQuery.inArray(sType, aPseudoTypes) > -1;
+			return aPseudoTypes.indexOf(sType) > -1;
 		} else {
 			return aPseudoTypes.length > 0;
 		}
@@ -1250,7 +1256,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 	 * equivalent to a mouseenter or mousleave event regarding the given DOM reference.
 	 *
 	 * @param {jQuery.Event} oEvent
-	 * @param {element} oDomRef
+	 * @param {Element} oDomRef
 	 * @public
 	 */
 	jQuery.sap.checkMouseEnterOrLeave = function checkMouseEnterOrLeave(oEvent, oDomRef) {
@@ -1325,7 +1331,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 
 				// note: in Firefox, almost all noncharacter keys that fire the keypress event have a key code of 0,
 				// with the exception of BACKSPACE (key code of 8).
-				// note: in IE the ESCAPE key is also fired for the the keypress event
+				// note: in IE the ESCAPE key is also fired for the keypress event
 				return (iKeyCode === 0 ||	// in Firefox, almost all noncharacter keys that fire the keypress event have a key code of 0, with the exception of BACKSPACE (key code of 8)
 						iKeyCode === mKeyCodes.BACKSPACE ||
 						iKeyCode === mKeyCodes.ESCAPE ||
@@ -1396,7 +1402,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 
 	/**
 	 * Constructor for a jQuery.Event object.<br/>
-	 * @see "http://www.jquery.com" and "http://api.jquery.com/category/events/event-object/".
+	 * See "http://www.jquery.com" and "http://api.jquery.com/category/events/event-object/".
 	 *
 	 * @class Check the jQuery.Event class documentation available under "http://www.jquery.com"<br/>
 	 * and "http://api.jquery.com/category/events/event-object/" for details.
@@ -1460,7 +1466,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 	 * propagation of the event to other delegates or the element and so on.
 	 *
 	 * @see sap.ui.core.Element.prototype._callEventHandles
-	 * @param {boolean} bStopDelegate
+	 * @param {boolean} bStopHandlers
 	 */
 	jQuery.Event.prototype.stopImmediatePropagation = function(bStopHandlers) {
 
@@ -1486,7 +1492,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 	 * Get the real native browser event from a jQuery event object
 	 */
 	var fnGetNativeEvent = function(oEvent) {
-		while (oEvent && oEvent.originalEvent) {
+		while (oEvent && oEvent.originalEvent && oEvent !== oEvent.originalEvent) {
 			oEvent = oEvent.originalEvent;
 		}
 
@@ -1759,7 +1765,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 			aScopes = null;
 
 		if (oSettings && oSettings.scope) {
-			aScopes = jQuery.isArray(oSettings.scope) ? oSettings.scope : [oSettings.scope];
+			aScopes = Array.isArray(oSettings.scope) ? oSettings.scope : [oSettings.scope];
 		}
 
 		navigate(oTarget, aScopes, !oEvent.shiftKey);
@@ -1779,23 +1785,25 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/Device', 'jquery.sap.keycodes', "sap
 	 *  1. iOS Safari in iOS 8 (except UIWebView / WKWebView).
 	 *  2. Chrome on Android from version 32 (exclude the Samsung stock browser which also uses Chrome kernel)
 	 *
+	 * @param {Navigator} oNavigator the window navigator object.
 	 * @private
 	 * @name jQuery.sap.isMouseEventDelayed
 	 * @since 1.30.0
 	 */
 
 	// expose the function for unit test to refresh the jQuery.sap.isMouseEventDelayed
-	jQuery.sap._refreshMouseEventDelayedFlag = function() {
+	jQuery.sap._refreshMouseEventDelayedFlag = function(oNavigator) {
+		oNavigator = oNavigator || navigator;
 		jQuery.sap.isMouseEventDelayed =
 			!!(Device.browser.mobile
 				&& !(
 					(Device.os.ios && Device.os.version >= 8 && Device.browser.safari && !Device.browser.webview)
-					|| (Device.browser.chrome && !/SAMSUNG/.test(navigator.userAgent) && Device.browser.version >= 32)
+					|| (Device.browser.chrome && !/SAMSUNG/.test(oNavigator.userAgent) && Device.browser.version >= 32)
 				)
 			);
 	};
 
-	jQuery.sap._refreshMouseEventDelayedFlag();
+	jQuery.sap._refreshMouseEventDelayedFlag(navigator);
 
 	/* ************************************************ */
 

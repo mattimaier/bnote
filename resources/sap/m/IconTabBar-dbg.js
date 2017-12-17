@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,17 +18,61 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * The IconTabBar control represents a collection of tabs with associated content.
+	 * The IconTabBar represents a collection of tabs with associated content.
+	 * <h3>Overview</h3>
+	 * The IconTabBar can be used for navigation within an object, or as a filter. Different types of IconTabBar are used based on the contents.
+	 * <ul>
+	 * <li>Filter - There is only one main content for all tabs. The main content can be filtered, based on the selected tab.</li>
+	 * <li>Normal tab bar - The contents of each tab are independent from each other.</li>
+	 * <li>Combination of the above - There can be both filtered and independent contents.</li>
+	 * </ul>
+	 * <h3>Structure</h3>
+	 * The IconTabBar can hold two types of entities {@link sap.m.IconTabFilter sap.m.IconTabFilter} and {@link sap.m.IconTabSeparator sap.m.IconTabSeparator}
 	 *
-	 * IconTabBar covers the following use cases:
-	 * - Filter – There is only one main content for all tabs. The main content can be filtered, based on the selected tab.
-	 * - Normal tab bar - The contents of each tab are independent from each other.
-	 * - Combination of the above - There can be both filtered and independent contents.
+	 * The IconTabBarFilter holds all information on an item - text, icon and count.
+	 *
+	 * The IconTabBarSeparator holds an icon that can be used to show a process that runs from item to item.
+	 *<h3>Usage</h3>
+	 *<h4>Text only</h4>
+	 *Uses text labels as tabs with optional counter
+	 *<ul>
+	 *<li>Used when there are no suitable icons for all items.</li>
+	 *<li>Used when longer labels are needed.</li>
+	 *<li>If <code>headerMode</code> property is set to <code>Inline</code> the text and the count are displayed in one line.</li>
+	 *<li><code>UpperCase</code> is disabled.</li>
+	 *<li>Use title case.</li>
+	 *</ul>
+	 *<h4>Icon Tabs</h4>
+	 *Round tabs with optional counter and label
+	 *<ul>
+	 *<li>Used when there are unique icons for all items.</li>
+	 *<li>Only shorter labels are possible.</li>
+	 *<li>Provide labels for all icons or for none. Do not mix these.</li>
+	 *</ul>
+	 *<h4>Tabs as filters</h4>
+	 *Tabs with filtered content from the same set of items
+	 *<ul>
+	 *<li>Provide an <i>"All"</i> tab to show all items without filtering.</li>
+	 *<li>Use counters to show the number of items in each filter.</li>
+	 *</ul>
+	 *<h4>Tabs as process steps</h4>
+	 *Tabs show a single step in a process
+	 *<ul>
+	 *<li>Use an arrow (e.g. triple-chevron) as a separator to connect the steps.</li>
+	 *<li>Use counters to show the number of items in each filter.</li>
+	 *</ul>
+	 *<h3>Responsive Behavior</h3>
+	 *<ul>
+	 *<li>Text-only tabs are never truncated.</li>
+	 *<li>Use the <code>expandable</code> property to specify whether users can collapse the tab container (default = true).</li>
+	 *<li>On desktop, tabs can be dragged and dropped (property <code>enableTabReordering</code>).</li>
+	 *<li>If you have a large number of tabs, you can scroll through them with the arrows. Additionally all tabs are available in an overflow button (property <code>showOverflowSelectList</code>).</li>
+	 *</ul>
 	 * @extends sap.ui.core.Control
 	 * @implements sap.m.ObjectHeaderContainer
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -99,10 +143,43 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 			 *
 			 * Depending on the theme, you can change the state of
 			 * the background color to "Solid", "Translucent", or "Transparent".
-			 *
+			 * Default is "Solid".
 			 * @since 1.26
 			 */
-			backgroundDesign : {type : "sap.m.BackgroundDesign", group : "Appearance", defaultValue : sap.m.BackgroundDesign.Solid}
+			backgroundDesign : {type : "sap.m.BackgroundDesign", group : "Appearance", defaultValue : sap.m.BackgroundDesign.Solid},
+
+			/**
+			 * Specifies the header mode.
+			 * <b>Note:</b> The Inline mode works only if no icons are set.
+			 *
+			 * @since 1.40
+			 */
+			headerMode : {type : "sap.m.IconTabHeaderMode", group : "Appearance", defaultValue : sap.m.IconTabHeaderMode.Standard},
+
+			/**
+			 * Specifies if the overflow select list is displayed.
+			 *
+			 * The overflow select list represents a list, where all tab filters are displayed,
+			 * so the user can select specific tab filter easier.
+			 * @since 1.42
+			 */
+			showOverflowSelectList : {type : "boolean", group : "Appearance", defaultValue : false},
+
+			/**
+			 * Specifies the background color of the header.
+			 *
+			 * Depending on the theme, you can change the state of
+			 * the background color to "Solid", "Translucent", or "Transparent".
+			 * Default is "Solid".
+			 * @since 1.44
+			 */
+			headerBackgroundDesign : {type : "sap.m.BackgroundDesign", group : "Appearance", defaultValue : sap.m.BackgroundDesign.Solid},
+
+			/**
+			 * Specifies whether tab reordering is enabled. Relevant only for desktop devices.
+			 * @since 1.46
+			 */
+			enableTabReordering : {type : "boolean", group : "Behavior", defaultValue : false}
 		},
 		aggregations : {
 
@@ -218,6 +295,71 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 	IconTabBar.prototype.setExpandable = function (bExpandable) {
 		// set internal property
 		this.setProperty("expandable", bExpandable, true);
+		return this;
+	};
+
+	/**
+	 * Sets the header mode.
+	 * @overwrite
+	 * @public
+	 * @param {sap.m.IconTabHeaderMode} mode new parameter value
+	 * @return {sap.m.IconTabBar} this pointer for chaining
+	 */
+	IconTabBar.prototype.setHeaderMode = function (mode) {
+		// set internal property
+		this.setProperty("headerMode", mode, true);
+
+		this._getIconTabHeader().setMode(mode);
+
+		return this;
+	};
+
+
+	/**
+	 * Sets the header background design.
+	 * @overwrite
+	 * @public
+	 * @param {sap.m.BackgroundDesign} headerBackgroundDesign New parameter value
+	 * @return {sap.m.IconTabBar} this pointer for chaining
+	 */
+	IconTabBar.prototype.setHeaderBackgroundDesign = function (headerBackgroundDesign) {
+		// set internal property
+		this.setProperty("headerBackgroundDesign", headerBackgroundDesign, true);
+
+		this._getIconTabHeader().setBackgroundDesign(headerBackgroundDesign);
+
+		return this;
+	};
+
+	/**
+	 * Sets the showOverflowSelectList property.
+	 * @overwrite
+	 * @public
+	 * @param {boolean} value New value for showOverflowSelectList
+	 * @return {sap.m.IconTabBar} this pointer for chaining
+	 */
+	IconTabBar.prototype.setShowOverflowSelectList = function (value) {
+		// set internal property
+		this.setProperty("showOverflowSelectList", value, true);
+
+		this._getIconTabHeader().setShowOverflowSelectList(value);
+
+		return this;
+	};
+
+	/**
+	 * Sets the enableTabReordering property.
+	 * @overwrite
+	 * @public
+	 * @param {boolean} value New value for enableTabReordering
+	 * @return {sap.m.IconTabBar} this pointer for chaining
+	 */
+	IconTabBar.prototype.setEnableTabReordering = function (value) {
+		// set internal property
+		this.setProperty("enableTabReordering", value, true);
+
+		this._getIconTabHeader().setEnableTabReordering(value);
+
 		return this;
 	};
 
@@ -426,7 +568,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 	 * @private
 	 * @param {string} sFunctionName The name of the function to be called
 	 * @param {string} sAggregationName The name of the aggregation asociated
-	 * @returns {mixed} The return type of the called function
+	 * @returns {any} The return type of the called function
 	 */
 	IconTabBar.prototype._callMethodInManagedObject = function (sFunctionName, sAggregationName) {
 		var aArgs = Array.prototype.slice.call(arguments),

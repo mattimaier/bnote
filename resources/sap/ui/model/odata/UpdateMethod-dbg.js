@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -10,25 +10,25 @@ sap.ui.define(function() {
 
 
 	/**
-	* @class
-	* Different methods for update operations
-	*
-	* @static
-	* @public
-	* @alias sap.ui.model.odata.UpdateMethod
-	*/
+	 * Different methods for update operations.
+	 *
+	 * @enum {string}
+	 * @public
+	 * @alias sap.ui.model.odata.UpdateMethod
+	 */
 	var UpdateMethod = {
-			/**
-			 * MERGE method will send update requests in a MERGE request
-			 * @public
-			 */
-			Merge: "MERGE",
+		/**
+		 * Update requests will be send with HTTP method <code>MERGE</code>.
+		 *
+		 * @public
+		 */
+		Merge: "MERGE",
 
-			/**
-			 * PUT method will send update requests in a PUT request
-			 * @public
-			 */
-			Put: "PUT"
+		/**
+		 * Update requests will be send with HTTP method <code>PUT</code>.
+		 * @public
+		 */
+		Put: "PUT"
 	};
 
 	return UpdateMethod;

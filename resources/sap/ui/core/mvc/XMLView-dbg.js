@@ -1,16 +1,16 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.ui.core.mvc.XMLView.
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/core/library', './View', 'sap/ui/model/resource/ResourceModel', 'sap/ui/base/ManagedObject', 'sap/ui/core/Control', 'jquery.sap.xml'],
-	function(jQuery, XMLTemplateProcessor, library, View, ResourceModel, ManagedObject, Control/* , jQuerySap */) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/core/library', './View', 'sap/ui/model/resource/ResourceModel', 'sap/ui/base/ManagedObject', 'sap/ui/core/Control', 'sap/ui/core/RenderManager', 'sap/ui/core/cache/CacheManager', 'jquery.sap.xml', 'jquery.sap.script'],
+	function(jQuery, XMLTemplateProcessor, library, View, ResourceModel, ManagedObject, Control, RenderManager, Cache/* , jQuerySap */) {
 	"use strict";
 
 	// shortcut for enum(s)
-	var RenderPrefixes = library.RenderPrefixes,
+	var RenderPrefixes = RenderManager.RenderPrefixes,
 		ViewType = library.mvc.ViewType;
 
 
@@ -22,8 +22,20 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/
 	 *
 	 * @class
 	 * A View defined using (P)XML and HTML markup.
+	 *
+	 * <strong>Note:</strong><br>
+	 * Be aware that modifications of the content aggregation of this control are not supported due to technical reasons.
+	 * This includes calls to all content modifying methods like <code>addContent></code> etc., but also the implicit
+	 * removal of controls contained by the content aggregation. For example the destruction of a Control via the <code>
+	 * destroy</code> method. All functions can be called but may not work properly or lead to unexpected side effects.
+	 *
+	 * <strong>Note:</strong><br>
+	 * On root level, you can only define content for the default aggregation, e.g. without adding the <code>&lt;content&gt;</code> tag. If
+	 * you want to specify content for another aggregation of a view like <code>dependents</code>, place it in a child
+	 * control's dependents aggregation or add it by using {@link sap.ui.core.mvc.XMLView#addDependent}.
+	 *
 	 * @extends sap.ui.core.mvc.View
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -37,44 +49,65 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/
 		specialSettings : {
 
 			/**
-			 * If an XMLView instance is used to represent a HTML subtree of another XMLView,
+			 * If an XMLView instance is used to represent an HTML subtree of another XMLView,
 			 * then that other XMLView is provided with this setting to be able to delegate
 			 * View functionality (createId, getController) to that 'real' view.
 			 */
 			containingView : { type: 'sap.ui.core.mvc.XMLView', visibility: 'hidden' },
 
 			/**
-			 * If an XMLView instance is used to represent a HTML subtree of another XMLView,
+			 * If an XMLView instance is used to represent an HTML subtree of another XMLView,
 			 * that subtree is provided with this setting.
 			 */
-			xmlNode : { type: 'Element', visibility: 'hidden' }
+			xmlNode : { type: 'Element', visibility: 'hidden' },
+
+			/**
+			 * Configuration for the XMLView caching.
+			 */
+			cache : 'Object'
 		},
 
 		designTime: true
 	}});
 
 		/**
-		 * Instantiates an XMLView of the given name and with the given id.
+		 * Instantiates an XMLView of the given name and with the given ID.
 		 *
 		 * The <code>viewName</code> must either correspond to an XML module that can be loaded
-		 * via the module system (viewName + suffix ".view.xml") and which defines the view or it must
+		 * via the module system (viewName + suffix ".view.xml") and which defines the view, or it must
 		 * be a configuration object for a view.
-		 * The configuration object can have a viewName, viewContent and a controller property. The viewName
-		 * behaves as described above. ViewContent is optional and can hold a view description as XML string or as
-		 * already parsed XML Document. If not given, the view content definition is loaded by the module system.
+		 * The configuration object can have a <code>viewName</code>, <code>viewContent</code> and a <code>controller
+		 * </code> property. The <code>viewName</code> behaves as described above. <code>viewContent</code> is optional
+		 * and can hold a view description as XML string or as already parsed XML Document. If not given, the view content
+		 *  definition is loaded by the module system.
 		 *
-		 * <strong>Note</strong>: if a Document is given, it might be modified during view construction.
+		 * <strong>Note</strong>: if a <code>Document</code> is given, it might be modified during view construction.
 		 *
-		 * The controller property can hold an controller instance. If a controller instance is given,
+		 * <strong>Note:</strong><br>
+		 * On root level, you can only define content for the default aggregation, e.g. without adding the <code>&lt;content&gt;</code> tag. If
+		 * you want to specify content for another aggregation of a view like <code>dependents</code>, place it in a child
+		 * control's dependents aggregation or add it by using {@link sap.ui.core.mvc.XMLView#addDependent}.
+		 *
+		 * <strong>Note</strong>: if you enable caching, you need to take care of the invalidation via keys. Automatic
+		 * invalidation takes only place if the UI5 version or the component descriptor (manifest.json) change. This is
+		 * still an experimental feature and may experience slight changes of the invalidation parameters or the cache
+		 * key format.
+		 *
+		 * The controller property can hold a controller instance. If a controller instance is given,
 		 * it overrides the controller defined in the view.
 		 *
-		 * Like with any other control, id is optional and one will be created automatically.
+		 * Like with any other control, ID is optional and one will be created automatically.
 		 *
-		 * @param {string} [sId] id of the newly created view
-		 * @param {string | object} vView name of the view or a view configuration object as described above.
-		 * @param {string} [vView.viewName] name of the view resource in module name notation (without suffix)
-		 * @param {string|Document} [vView.viewContent] XML string or XML document that defines the view.
-		 * @param {boolean} [vView.async] defines how the view source is loaded and rendered later on
+		 * @param {string} [sId] ID of the newly created view
+		 * @param {string | object} vView Name of the view or a view configuration object as described above
+		 * @param {string} [vView.viewName] Name of the view resource in module name notation (without suffix)
+		 * @param {string|Document} [vView.viewContent] XML string or XML document that defines the view
+		 * @param {boolean} [vView.async] Defines how the view source is loaded and rendered later on
+		 * @param {object} [vView.cache] Cache configuration, only for <code>async</code> views; caching gets active
+		 * when this object is provided with vView.cache.keys array; keys are used to store data in the cache and for
+		 * invalidation of the cache
+		 * @param {Array.<(string|Promise)>} [vView.cache.keys] Array with strings or Promises resolving with strings
+		 * @param {object} [vView.preprocessors] Preprocessors configuration, see {@link sap.ui.core.mvc.View}
 		 * @param {sap.ui.core.mvc.Controller} [vView.controller] Controller instance to be used for this view
 		 * @public
 		 * @static
@@ -99,6 +132,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/
 		 */
 		XMLView.asyncSupport = true;
 
+		/**
+		 * Flag indicating whether to use the cache
+		 * @private
+		 * @experimental
+		 * @since 1.44
+		 */
+		XMLView._bUseCache = sap.ui.getCore().getConfiguration().getViewCache();
+
 		function validatexContent(xContent) {
 			if (xContent.parseError.errorCode !== 0) {
 				var oParseError = xContent.parseError;
@@ -114,7 +155,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/
 			}
 		}
 
-		function validateViewSettings(mSettings) {
+		function validateViewSettings(oView, mSettings) {
 			if (!mSettings) {
 				throw new Error("mSettings must be given");
 			} else if (mSettings.viewName && mSettings.viewContent) {
@@ -123,6 +164,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/
 				throw new Error("View name/content AND an XML node are given. There is no point in doing this, so please decide.");
 			} else if (!(mSettings.viewName || mSettings.viewContent) && !mSettings.xmlNode) {
 				throw new Error("Neither view name/content nor an XML node is given. One of them is required.");
+			} else if (mSettings.cache && !(mSettings.cache.keys && mSettings.cache.keys.length)) {
+				throw new Error("No cache keys provided. At least one is required.");
 			}
 		}
 
@@ -135,6 +178,136 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/
 			return xContent.documentElement;
 		}
 
+		function setResourceModel(oView, mSettings) {
+			if ((oView._resourceBundleName || oView._resourceBundleUrl) && (!mSettings.models || !mSettings.models[oView._resourceBundleAlias])) {
+				var model = new ResourceModel({
+					bundleName: oView._resourceBundleName,
+					bundleUrl: oView._resourceBundleUrl,
+					bundleLocale: oView._resourceBundleLocale
+				});
+				oView.setModel(model, oView._resourceBundleAlias);
+			}
+		}
+
+		function setAfterRenderingNotifier(oView) {
+			// Delegate for after rendering notification before onAfterRendering of child controls
+			oView.oAfterRenderingNotifier = new XMLAfterRenderingNotifier();
+			oView.oAfterRenderingNotifier.addDelegate({
+				onAfterRendering: function() {
+					oView.onAfterRenderingBeforeChildren();
+				}
+			});
+		}
+
+		function getRootComponent(oSrcElement) {
+			var Component = sap.ui.require("sap/ui/core/Component"),
+				oComponent;
+
+			while (oSrcElement && Component) {
+				var oCandidateComponent = Component.getOwnerComponentFor(oSrcElement);
+				if (oCandidateComponent) {
+					oSrcElement = oComponent = oCandidateComponent;
+				} else {
+					if (oSrcElement instanceof Component) {
+						oComponent = oSrcElement;
+					}
+					oSrcElement = oSrcElement.getParent && oSrcElement.getParent();
+				}
+			}
+			return oComponent;
+		}
+
+		function getCacheInput(oView, mCacheSettings) {
+			var oRootComponent = getRootComponent(oView),
+				sManifest = oRootComponent ? JSON.stringify(oRootComponent.getManifest()) : null,
+				aFutureKeyParts = getCacheKeyPrefixes(oView, oRootComponent);
+
+			aFutureKeyParts = aFutureKeyParts.concat(getVersionInfo(), getCacheKeyProviders(oView), mCacheSettings.keys);
+
+			return validateCacheKey(oView, aFutureKeyParts).then(function(sKey) {
+				return {
+					key: sKey +  "(" + jQuery.sap.hashCode(sManifest || "") + ")",
+					componentManifest: sManifest,
+					additionalData: mCacheSettings.additionalData
+				};
+			});
+		}
+
+		function isValidKey(sKey) {
+			return sKey;
+		}
+
+		function validateCacheKey(oView, aFutureKeyParts) {
+			return Promise.all(aFutureKeyParts).then(function(aKeys) {
+				if (aKeys.every(isValidKey)) {
+					return aKeys.join('_');
+				} else {
+					var e = new Error("Provided cache keys may not be empty or undefined.");
+					return Promise.reject(e);
+				}
+			});
+		}
+
+		function getCacheKeyPrefixes(oView, oRootComponent) {
+				var sComponentName = oRootComponent && oRootComponent.getMetadata().getName();
+				return [
+					sComponentName || window.location.host + window.location.pathname,
+					oView.getId(),
+					sap.ui.getCore().getConfiguration().getLanguageTag()
+				];
+		}
+
+		function getCacheKeyProviders(oView) {
+			var mPreprocessors = View._mPreprocessors["XML"],
+				oPreprocessorInfo = oView.getPreprocessorInfo(/*bSync =*/false),
+				aFutureCacheKeys = [];
+			function pushFutureKey(o) {
+				if (o.preprocessor.getCacheKey) {
+					aFutureCacheKeys.push(o.preprocessor.getCacheKey(oPreprocessorInfo));
+				}
+			}
+			for (var sType in mPreprocessors) {
+				mPreprocessors[sType].forEach(pushFutureKey);
+			}
+			return aFutureCacheKeys;
+		}
+
+		function getVersionInfo() {
+			return sap.ui.getVersionInfo({async:true}).then(function(oInfo) {
+				var sTimestamp = "";
+				if (!oInfo.libraries) {
+					sTimestamp = sap.ui.buildinfo.buildtime;
+				} else {
+					oInfo.libraries.forEach(function(oLibrary) {
+						sTimestamp += oLibrary.buildTimestamp;
+					});
+				}
+				return sTimestamp;
+			});
+		}
+
+		function writeCache(mCacheInput, xContent) {
+			// we don't want to write the key into the cache
+			var sKey = mCacheInput.key;
+			delete mCacheInput.key;
+			mCacheInput.xml = jQuery.sap.serializeXML(xContent);
+			return Cache.set(sKey, mCacheInput);
+		}
+
+		function readCache(mCacheInput) {
+			return Cache.get(mCacheInput.key).then(function(mCacheOutput) {
+				// double check manifest to eliminate issues with hash collisions
+				if (mCacheOutput && mCacheOutput.componentManifest == mCacheInput.componentManifest) {
+					mCacheOutput.xml = jQuery.sap.parseXML(mCacheOutput.xml, "application/xml").documentElement;
+					if (mCacheOutput.additionalData) {
+						// extend the additionalData which was passed into cache configuration dynamically
+						jQuery.extend(true, mCacheInput.additionalData, mCacheOutput.additionalData);
+					}
+					return mCacheOutput;
+				}
+			});
+		}
+
 		/**
  		* This function initialized the view settings.
  		*
@@ -142,91 +315,119 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/
  		* @return {Promise|null} [oMyPromise] will be returned if running in async mode
  		*/
 		XMLView.prototype.initViewSettings = function(mSettings) {
-			var that = this;
+			var that = this, _xContent;
 
-			function processView() {
+			function processView(xContent) {
+				that._xContent = xContent;
+
+				if (View._supportInfo) {
+					View._supportInfo({context: that._xContent, env: {caller:"view", viewinfo: jQuery.extend(true, {}, that), settings: jQuery.extend(true, {}, mSettings || {}), type: "xmlview"}});
+				}
+
 				// extract the properties of the view from the XML element
 				if ( !that.isSubView() ) {
 					// for a real XMLView, we need to parse the attributes of the root node
-					XMLTemplateProcessor.parseViewAttributes(that._xContent, that, mSettings);
+					var mSettingsFromXML = {};
+					// enrich mSettingsFromXML
+					XMLTemplateProcessor.parseViewAttributes(xContent, that, mSettingsFromXML);
+					if (!mSettings.async) {
+						// extend mSettings which get applied implicitly during view constructor
+						jQuery.sap.extend(mSettings, mSettingsFromXML);
+					} else {
+						// apply the settings from the loaded view source via an explicit call
+						that.applySettings(mSettingsFromXML);
+					}
 				} else {
 					// when used as fragment: prevent connection to controller, only top level XMLView must connect
 					delete mSettings.controller;
 				}
-
-				if ((that._resourceBundleName || that._resourceBundleUrl) && (!mSettings.models || !mSettings.models[that._resourceBundleAlias])) {
-					var model = new ResourceModel({
-						bundleName: that._resourceBundleName,
-						bundleUrl: that._resourceBundleUrl,
-						bundleLocale: that._resourceBundleLocale
-					});
-					that.setModel(model, that._resourceBundleAlias);
-				}
-
-				// Delegate for after rendering notification before onAfterRendering of child controls
-				that.oAfterRenderingNotifier = new XMLAfterRenderingNotifier();
-				that.oAfterRenderingNotifier.addDelegate({
-					onAfterRendering: function() {
-						that.onAfterRenderingBeforeChildren();
-					}
-				});
+				setResourceModel(that, mSettings);
+				setAfterRenderingNotifier(that);
 			}
 
-			function setxContent(xContent) {
-				that._xContent = xContent;
-			}
-
-			function runViewxmlPreprocessor(bAsync) {
+			function runViewxmlPreprocessor(xContent, bAsync) {
 				if (that.hasPreprocessor("viewxml")) {
 					// for the viewxml preprocessor fully qualified ids are provided on the xml source
-					XMLTemplateProcessor.enrichTemplateIds(that._xContent, that);
-					return that.runPreprocessor("viewxml", that._xContent, !bAsync);
+					XMLTemplateProcessor.enrichTemplateIds(xContent, that);
+					return that.runPreprocessor("viewxml", xContent, !bAsync);
 				}
-				return that._xContent;
+				return xContent;
 			}
 
-			function runPreprocessorsAsync() {
-				return that.runPreprocessor("xml", that._xContent).then(setxContent)
-					.then(runViewxmlPreprocessor.bind(that, true)).then(setxContent);
+			function runPreprocessorsAsync(xContent) {
+				return that.runPreprocessor("xml", xContent).then(function(xContent) {
+					return runViewxmlPreprocessor(xContent, /*bAsync=*/true);
+				});
 			}
 
 			function loadResourceAsync(sResourceName) {
 				return jQuery.sap.loadResource(sResourceName, {async: true}).then(function(oData) {
-					setxContent(oData.documentElement); // result is the document node
-					return that._xContent;
+					return oData.documentElement; // result is the document node
+				});
+			}
+
+			function processResource(sResourceName, mCacheInput) {
+				return loadResourceAsync(sResourceName).then(runPreprocessorsAsync).then(function(xContent) {
+					if (mCacheInput) {
+						writeCache(mCacheInput, xContent);
+					}
+					return xContent;
+				});
+			}
+
+			function processCache(sResourceName, mCacheSettings) {
+				return getCacheInput(that, mCacheSettings).then(function(mCacheInput) {
+					return readCache(mCacheInput).then(function(mCacheOutput) {
+						if (!mCacheOutput) {
+							return processResource(sResourceName, mCacheInput);
+						} else {
+							return mCacheOutput.xml;
+						}
+					});
+				}).catch(function(e) {
+					jQuery.sap.log.error(e);
+					return processResource(sResourceName);
 				});
 			}
 
 			this._oContainingView = mSettings.containingView || this;
 
-			if (this._oAsyncState) {
+			if (this.oAsyncState) {
 				// suppress rendering of preserve content
-				this._oAsyncState.suppressPreserve = true;
+				this.oAsyncState.suppressPreserve = true;
 			}
 
-			validateViewSettings(mSettings);
+			validateViewSettings(this, mSettings);
 
 			// either template name or XML node is given
 			if (mSettings.viewName) {
 				var sResourceName = jQuery.sap.getResourceName(mSettings.viewName, ".view.xml");
 				if (mSettings.async) {
-					// return here, as the left processing is taking place inside the promise chain
-					return loadResourceAsync(sResourceName).then(runPreprocessorsAsync).then(processView);
+					// in async mode we need to return here as processing takes place in Promise callbacks
+					if (mSettings.cache && XMLView._bUseCache) {
+						return processCache(sResourceName, mSettings.cache).then(processView);
+					} else {
+						return loadResourceAsync(sResourceName).then(runPreprocessorsAsync).then(processView);
+					}
 				} else {
-					setxContent(jQuery.sap.loadResource(sResourceName).documentElement);
+					_xContent = jQuery.sap.loadResource(sResourceName).documentElement;
 				}
 			} else if (mSettings.viewContent) {
-				setxContent(getxContent(this, mSettings));
+				if (mSettings.viewContent.nodeType === window.Node.DOCUMENT_NODE) { // Check for XML Document
+					_xContent = mSettings.viewContent.documentElement;
+				} else {
+					_xContent = getxContent(this, mSettings);
+				}
 			} else if (mSettings.xmlNode) {
-				setxContent(mSettings.xmlNode);
+				_xContent = mSettings.xmlNode;
 			}
 
 			if (mSettings.async) {
-				return runPreprocessorsAsync(this._xContent).then(processView);
+				return runPreprocessorsAsync(_xContent).then(processView);
 			} else {
-				setxContent(this.runPreprocessor("xml", this._xContent, true));
-				setxContent(runViewxmlPreprocessor());
-				processView();
+				_xContent = this.runPreprocessor("xml", _xContent, true);
+				_xContent = runViewxmlPreprocessor(_xContent);
+				processView(_xContent);
 			}
 		};
 
@@ -244,8 +445,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/
 				// parse the XML tree
 				that._aParsedContent = XMLTemplateProcessor.parseTemplate(that._xContent, that);
 				// allow rendering of preserve content
-				if (that._oAsyncState) {
-					delete that._oAsyncState.suppressPreserve;
+				if (that.oAsyncState) {
+					delete that.oAsyncState.suppressPreserve;
 				}
 			}, {
 				settings: this._fnSettingsPreprocessor
@@ -297,6 +498,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/XMLTemplateProcessor', 'sap/ui/
 			// when the render manager notifies us about an empty child rendering, we replace the old DOM with a dummy
 			jQuery(oElement).replaceWith('<div id="' + RenderPrefixes.Dummy + oControl.getId() + '" class="sapUiHidden"/>');
 			return true; // indicates that we have taken care
+		};
+
+		XMLView.prototype.destroy = function(bSuppressInvalidate) {
+			var $preservedContent = RenderManager.findPreservedContent(this.getId());
+			if ($preservedContent) {
+				// Cleanup any preserved content
+				$preservedContent.remove();
+			}
+			if (bSuppressInvalidate == "KeepDom" && this.getDomRef()) {
+				// Make sure that the view's DOM won't get preserved if the view is destroyed
+				// Otherwise it could get adopted by another view instance which just has
+				//	the same ID as the old view
+				// Also, if a destroyed view's DOM gets preserved, it probably won't ever get removed
+				this.getDomRef().removeAttribute("data-sap-ui-preserve");
+			}
+			View.prototype.destroy.call(this, bSuppressInvalidate);
 		};
 
 		/**

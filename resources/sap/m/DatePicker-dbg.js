@@ -1,54 +1,90 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.DatePicker.
-sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sap/ui/core/date/UniversalDate', './library'],
-	function(jQuery, InputBase, Date1, UniversalDate, library) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/Device', './InputBase', './DateTimeField', 'sap/ui/model/type/Date', 'sap/ui/model/odata/type/ODataType', 'sap/ui/core/date/UniversalDate', './library'],
+	function(jQuery, Device, InputBase, DateTimeField, Date1, ODataType, UniversalDate, library) {
 	"use strict";
 
 
 	/**
-	 * Constructor for a new DatePicker.
+	 * Constructor for a new <code>DatePicker</code>.
 	 *
 	 * @param {string} [sId] Id for the new control, generated automatically if no id is given
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * This is a date input control with a calendar as date picker.
+	 * Enables the users to select a localized date.
 	 *
-	 * A date can be entered using a calendar that opens in a popup. Alternatively a value can be entered directly in the input field by typing it in.
-	 * (This is only possible on desktop devices, on mobile devices keyboard input is not possible.)
-	 * If a date is entered by typing it into the input field, it must fit to the used date format and locale. (See <code>sap.ui.core.format.DateFormat</code>)
+	 * <h3>Overview</h3>
 	 *
-	 * There are two options to provide a date for the <code>DatePicker</code>.
-	 * You can put a date as a string to the property <code>value</code> or you can put a JavaScript Date object to the property <code>dateValue</code>.
-	 * Only one of the properties should be used at one time, but they are synchronized internally.
-	 * What property you should use depends on the use case of the application:
-	 * <ul>
-	 * <li>Use the <code>value</code> property if you want to bind the <code>DatePicker</code> to a model using the <code>sap.ui.model.type.Date</code>.</li>
-	 * <li>Use the <code>value</code> property if the date is provided as a string from the backend or inside the application (e.g. as ABAP type DATS field).</li>
-	 * <li>Use the <code>dateValue</code> property if the date is already provided as a JavaScript Date object or you want to work with a JavaScript Date object.</li>
-	 * </ul>
+	 * The <code>DatePicker</code> lets the users select a localized date using touch,
+	 * mouse, or keyboard input. It consists of two parts: the date input field and the
+	 * date picker.
 	 *
-	 * All formatting and parsing of dates from and to strings is done using the {@link sap.ui.core.format.DateFormat}, so read the corresponding documentation if you need some information about this.
+	 * <b>Note:</b> The {@link sap.ui.unified.Calendar} is used internally only if the
+	 * <code>DatePicker</code> is opened (not used for the initial rendering). If the
+	 * <code>sap.ui.unified</code> library is not loaded before the
+	 * <code>DatePicker</code> is opened, it will be loaded upon opening. This could
+	 * lead to a waiting time when the <code>DatePicker</code> is opened for the
+	 * first time. To prevent this, apps using the <code>DatePicker</code> should also
+	 * load the <code>sap.ui.unified</code> library.
 	 *
-	 * Supported format options are pattern-based on Unicode LDML Date Format notation. {@link http://unicode.org/reports/tr35/#Date_Field_Symbol_Table}
+	 * <h3>Usage</h3>
 	 *
-	 * For example, if the <code>valueFormat</code> is "yyyy-MM-dd", <code>displayFormat</code> is "MMM d, y" and the used locale is English,
-	 * a valid <code>value</code> string is "2015-07-30", which leads to an output of "Jul 30, 2015".
+	 * The user can enter a date by:
+	 * <ul><li>Using the calendar that opens in a popup</li>
+	 * <li>Typing it in directly in the input field (not available for mobile devices)</li></ul>
 	 *
-	 * If no <code>placeholder</code> is set to the <code>DatePicker</code> the used <code>displayFormat</code> is shown as placeholder.
-	 * If another placeholder is needed, it must be set.
+	 * On app level, there are two options to provide a date for the
+	 * <code>DatePicker</code> - as a string to the <code>value</code> property or as
+	 * a JavaScript Date object to the <code>dateValue</code> property (only one of
+	 * these properties should be used at a time):
 	 *
-	 * Internally the <code>sap.ui.unified.Calendar</code> is used, but it is only needed if the <code>DatePicker</code> is opened. This means that it is not needed for the initial rendering.
-	 * If the <code>sap.ui.unified</code> library is not loaded before the <code>DatePicker</code> is opened, it will be loaded upon opening.
-	 * This could lead to a waiting time before a <code>DatePicker</code> is opened the first time. To prevent this, applications using the <code>DatePicker</code> should also load
-	 * the <code>sap.ui.unified</code> library.
-	 * @extends sap.m.InputBase
-	 * @version 1.38.7
+	 * <ul><li>Use the <code>value</code> property if you want to bind the
+	 * <code>DatePicker</code> to a model using the <code>sap.ui.model.type.Date</code></li>
+	 * <li>Use the <code>value</code> property if the date is provided as a string from
+	 * the backend or inside the app (for example, as ABAP type DATS field)</li>
+	 * <li>Use the <code>dateValue</code> property if the date is already provided as a
+	 * JavaScript Date object or you want to work with a JavaScript Date object</li></ul>
+	 *
+	 * <h3>Formatting</h3>
+	 *
+	 * All formatting and parsing of dates from and to strings is done using the
+	 * {@link sap.ui.core.format.DateFormat}. If a date is entered by typing it into
+	 * the input field, it must fit to the used date format and locale.
+	 *
+	 * Supported format options are pattern-based on Unicode LDML Date Format notation.
+	 * See {@link http://unicode.org/reports/tr35/#Date_Field_Symbol_Table}
+	 *
+	 * For example, if the <code>valueFormat</code> is "yyyy-MM-dd",
+	 * the <code>displayFormat</code> is "MMM d, y", and the used locale is English, a
+	 * valid value string is "2015-07-30", which leads to an output of "Jul 30, 2015".
+	 *
+	 * If no placeholder is set to the <code>DatePicker</code>, the used
+	 * <code>displayFormat</code> is displayed as a placeholder. If another placeholder
+	 * is needed, it must be set.
+	 *
+	 * <b>Note:</b> If the string does NOT match the <code>displayFormat</code>
+	 * (from user input) or the <code>valueFormat</code> (on app level), the
+	 * {@link sap.ui.core.format.DateFormat} makes an attempt to parse it based on the
+	 * locale settings. For more information, see the respective documentation in the
+	 * API Reference.
+	 *
+	 * <h3>Responsive behavior</h3>
+	 *
+	 * The <code>DatePicker</code> is smaller in compact mode and provides a
+	 * touch-friendly size in cozy mode.
+	 *
+	 * On mobile devices, one tap on the input field opens the <code>DatePicker</code>
+	 * in full screen. To close the window, the user can select a date (which triggers
+	 * the close event), or select Cancel.
+	 *
+	 * @extends sap.m.DateTimeField
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -56,39 +92,10 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 	 * @alias sap.m.DatePicker
 	 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
 	 */
-	var DatePicker = InputBase.extend("sap.m.DatePicker", /** @lends sap.m.DatePicker.prototype */ { metadata : {
+	var DatePicker = DateTimeField.extend("sap.m.DatePicker", /** @lends sap.m.DatePicker.prototype */ { metadata : {
 
 		library : "sap.m",
 		properties : {
-
-			/**
-			 * The date is displayed in the input field using this format. By default, the medium format of the used locale is used.
-			 *
-			 * Supported format options are pattern-based on Unicode LDML Date Format notation. {@link http://unicode.org/reports/tr35/#Date_Field_Symbol_Table}
-			 * <b>Note:</b> If you use data binding on the <code>value</code> property with type <code>sap.ui.model.type.Date</code> this property will be ignored.
-			 * The format defined in the binding will be used.
-			 */
-			displayFormat : {type : "string", group : "Appearance", defaultValue : null},
-
-			/**
-			 * The date string expected and returned in the <code>value</code> property uses this format. By default the short format of the used locale is used.
-			 *
-			 *
-			 * Supported format options are pattern-based on Unicode LDML Date Format notation. {@link http://unicode.org/reports/tr35/#Date_Field_Symbol_Table}
-			 *
-			 * For example, if the date string represents an ABAP DATS type, the format should be "yyyyMMdd".
-			 *
-			 * <b>Note:</b> If data binding on <code>value</code> property with type <code>sap.ui.model.type.Date</code> is used, this property will be ignored.
-			 * The format defined in the binding will be used.
-			 */
-			valueFormat : {type : "string", group : "Data", defaultValue : null},
-
-			/**
-			 * The date as JavaScript Date object. This is independent from any formatter.
-			 *
-			 * <b>Note:</b> If this property is used, the <code>value</code> property should not be changed from the caller.
-			 */
-			dateValue : {type : "object", group : "Data", defaultValue : null},
 
 			/**
 			 * Displays date in this given type in input field. Default value is taken from locale settings.
@@ -131,6 +138,12 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 			/**
 			 * Date Range with type to visualize special days in the Calendar.
 			 * If one day is assigned to more than one Type, only the first one will be used.
+			 *
+			 * To set a single date (instead of a range), set only the startDate property of the sap.ui.unified.DateRange class.
+			 *
+			 * <b>Note:</b> Since 1.48 you could set a non-working day via the sap.ui.unified.CalendarDayType.NonWorking
+			 * enum type just as any other special date type using sap.ui.unified.DateRangeType.
+			 *
 			 * @since 1.38.5
 			 */
 			specialDates : {type : "sap.ui.core.Element", multiple : true, singularName : "specialDate"}
@@ -145,8 +158,68 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 			 * @since 1.38.5
 			 */
 			legend: { type: "sap.ui.core.Control", multiple: false}
-		}
+		},
+		events : {
+
+			/**
+			 * Fired when navigating in <code>Calendar</code> popup.
+			 * @since 1.46.0
+			 */
+			navigate : {
+				parameters : {
+
+					/**
+					 * Date range containing the start and end date displayed in the <code>Calendar</code> popup.
+					 */
+					dateRange : {type : "sap.ui.unified.DateRange"}
+
+				}
+			}
+		},
+		designTime : true
 	}});
+
+
+	/**
+	 * The date is displayed in the input field using this format. By default, the medium format of the used locale is used.
+	 *
+	 * Supported format options are pattern-based on Unicode LDML Date Format notation. {@link http://unicode.org/reports/tr35/#Date_Field_Symbol_Table}
+	 * <b>Note:</b> If you use data binding on the <code>value</code> property with type <code>sap.ui.model.type.Date</code> this property will be ignored.
+	 * The format defined in the binding will be used.
+	 *
+	 * @returns {string} the value of property <code>displayFormat</code>
+	 * @public
+	 * @name sap.m.DatePicker#getDisplayFormat
+	 * @function
+	 */
+
+	/**
+	 * The date string expected and returned in the <code>value</code> property uses this format. By default the short format of the used locale is used.
+	 *
+	 *
+	 * Supported format options are pattern-based on Unicode LDML Date Format notation. {@link http://unicode.org/reports/tr35/#Date_Field_Symbol_Table}
+	 *
+	 * For example, if the date string represents an ABAP DATS type, the format should be "yyyyMMdd".
+	 *
+	 * <b>Note:</b> If data binding on <code>value</code> property with type <code>sap.ui.model.type.Date</code> is used, this property will be ignored.
+	 * The format defined in the binding will be used.
+	 *
+	 * @returns {string} the value of property <code>valueFormat</code>
+	 * @public
+	 * @name sap.m.DatePicker#getValueFormat
+	 * @function
+	 */
+
+	/**
+	 * The date as JavaScript Date object. This is independent from any formatter.
+	 *
+	 * <b>Note:</b> If this property is used, the <code>value</code> property should not be changed from the caller.
+	 *
+	 * @returns {object} the value of property <code>dateValue</code>
+	 * @public
+	 * @name sap.m.DatePicker#getDateValue
+	 * @function
+	 */
 
 	DatePicker.prototype.init = function() {
 
@@ -154,12 +227,14 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 
 		this._bIntervalSelection = false;
 		this._bOnlyCalendar = true;
+		//We need to know is the current instance subclass of the DatePicker(DateTimePicker) or not.
+		this._bDatePickerInstance = this.getMetadata().getName() === "sap.m.DatePicker";
 
 		this._bValid = true;
 
 		this._oMinDate = new Date(1, 0, 1);
 		this._oMinDate.setFullYear(1); // otherwise year 1 will be converted to year 1901
-		this._oMaxDate = new Date(9999, 11, 31, 23, 59, 59, 99);
+		this._oMaxDate = this._bDatePickerInstance ? new Date(9999, 11, 31) : new Date(9999, 11, 31, 23, 59, 59, 99);
 
 	};
 
@@ -179,12 +254,17 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 			delete this._oCalendar;
 		}
 
+		if (this._iInvalidateCalendar) {
+			jQuery.sap.clearDelayedCall(this._iInvalidateCalendar);
+		}
+
 		this._sUsedDisplayPattern = undefined;
 		this._sUsedDisplayCalendarType = undefined;
 		this._oDisplayFormat = undefined;
 		this._sUsedValuePattern = undefined;
 		this._sUsedValueCalendarType = undefined;
 		this._oValueFormat = undefined;
+		this._bDatePickerInstance = undefined;
 
 	};
 
@@ -193,6 +273,8 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 		if (!oOrigin || oOrigin != this._oCalendar) {
 			// Calendar is only invalidated by DatePicker itself -> so don't invalidate DatePicker
 			sap.ui.core.Control.prototype.invalidate.apply(this, arguments);
+			// Invalidate calendar with a delayed call so it could have updated specialDates aggregation from DatePicker
+			this._iInvalidateCalendar = jQuery.sap.delayedCall(0, this, _invalidateCalendar);
 		}
 
 	};
@@ -306,7 +388,7 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 			return;
 		}
 
-		var oFormatter = _getFormatter.call(this, true);
+		var oFormatter = this._getFormatter(true);
 		var sChar = String.fromCharCode(oEvent.charCode);
 
 		if (sChar && oFormatter.sAllowedCharacters && oFormatter.sAllowedCharacters.indexOf(sChar) < 0) {
@@ -333,7 +415,7 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 	 *
 	 * @returns {string} the value of property <code>value</code>
 	 * @public
-	 * @name sap.m.DateRangeSelection#getValue
+	 * @name sap.m.DatePicker#getValue
 	 * @function
 	 */
 
@@ -352,70 +434,12 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 	 * @param {string} sValue The new value of the input.
 	 * @return {sap.m.DatePicker} <code>this</code> to allow method chaining
 	 * @public
-	 * @name sap.m.DateRangeSelection#setValue
+	 * @name sap.m.DatePicker#setValue
 	 * @function
 	 */
-	DatePicker.prototype.setValue = function(sValue) {
 
-		sValue = this.validateProperty("value", sValue); // to convert null and undefined to ""
 
-		var sOldValue = this.getValue();
-		if (sValue == sOldValue) {
-			return this;
-		} else {
-			this._lastValue = sValue;
-		}
-
-		// set the property in any case but check validity on output
-		this.setProperty("value", sValue, true); // no rerendering
-		this._bValid = true;
-
-		// convert to date object
-		var oDate;
-		if (sValue) {
-			oDate = this._parseValue(sValue);
-			if (!oDate || oDate.getTime() < this._oMinDate.getTime() || oDate.getTime() > this._oMaxDate.getTime()) {
-				this._bValid = false;
-				jQuery.sap.log.warning("Value can not be converted to a valid date", this);
-				this._oWantedDate = oDate;
-			}
-		}
-		if (this._bValid) {
-			this.setProperty("dateValue", oDate, true); // no rerendering
-			this._oWantedDate = undefined;
-		}
-
-		// do not call InputBase.setValue because the displayed value and the output value might have different pattern
-		if (this.getDomRef()) {
-			// convert to output
-			var sOutputValue;
-			if (oDate) {
-				sOutputValue = this._formatValue(oDate);
-			} else {
-				sOutputValue = sValue;
-			}
-
-			if (this._$input.val() !== sOutputValue) {
-				this._$input.val(sOutputValue);
-				this._setLabelVisibility();
-				this._curpos = this._$input.cursorPos();
-			}
-		}
-
-		return this;
-
-	};
-
-	DatePicker.prototype.setDateValue = function(oDate) {
-
-		if (oDate && !(oDate instanceof Date)) {
-			throw new Error("Date must be a JavaScript date object; " + this);
-		}
-
-		if (jQuery.sap.equal(this.getDateValue(), oDate)) {
-			return this;
-		}
-
+	DatePicker.prototype._dateValidation = function (oDate) {
 		if (oDate && (oDate.getTime() < this._oMinDate.getTime() || oDate.getTime() > this._oMaxDate.getTime())) {
 			this._bValid = false;
 			jQuery.sap.assert(this._bValid, "Date must be in valid range");
@@ -427,28 +451,7 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 			this._oWantedDate = undefined;
 		}
 
-		// convert date object to value
-		var sValue = this._formatValue(oDate, true);
-
-		if (sValue !== this.getValue()) {
-			this._lastValue = sValue;
-		}
-		// set the property in any case but check validity on output
-		this.setProperty("value", sValue, true); // no rerendering
-
-		if (this.getDomRef()) {
-			// convert to output
-			var sOutputValue = this._formatValue(oDate);
-
-			if (this._$input.val() !== sOutputValue) {
-				this._$input.val(sOutputValue);
-				this._setLabelVisibility();
-				this._curpos = this._$input.cursorPos();
-			}
-		}
-
-		return this;
-
+		return oDate;
 	};
 
 	DatePicker.prototype.setMinDate = function(oDate) {
@@ -483,6 +486,10 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 
 		if (this._oCalendar) {
 			this._oCalendar.setMinDate(oDate);
+		}
+
+		if (this._bDatePickerInstance) {
+			this._oMinDate.setHours(0, 0, 0, 0);//clear the time part
 		}
 
 		return this;
@@ -522,6 +529,10 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 			this._oCalendar.setMaxDate(oDate);
 		}
 
+		if (this._bDatePickerInstance) {
+			this._oMaxDate.setHours(0, 0, 0, 0);//clear the time part
+		}
+
 		return this;
 
 	};
@@ -548,43 +559,22 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 		}
 	};
 
-	DatePicker.prototype.setValueFormat = function(sValueFormat) {
 
-		// if valueFormat changes the value must be parsed again
-
-		this.setProperty("valueFormat", sValueFormat, true); // no rerendering
-		var sValue = this.getValue();
-
-		if (sValue) {
-			var oDate = this._parseValue(sValue);
-			if (!oDate || oDate.getTime() < this._oMinDate.getTime() || oDate.getTime() > this._oMaxDate.getTime()) {
-				this._bValid = false;
-				jQuery.sap.log.warning("Value can not be converted to a valid date", this);
-			}else {
-				this._bValid = true;
-				this.setProperty("dateValue", oDate, true); // no rerendering
-			}
-		}
-
-		return this;
-
+	DatePicker.prototype.getDisplayFormatType = function () {
+		return this.getProperty("displayFormatType");
 	};
 
-	DatePicker.prototype.setDisplayFormat = function(sDisplayFormat) {
+	DatePicker.prototype._handleDateValidation = function (oDate) {
 
-		// if displayFormat changes the value must be formatted again
-
-		this.setProperty("displayFormat", sDisplayFormat, true); // no rerendering
-		var sOutputValue = this._formatValue(this.getDateValue());
-
-		if (this.getDomRef() && (this._$input.val() !== sOutputValue)) {
-			this._$input.val(sOutputValue);
-			this._curpos = this._$input.cursorPos();
+		if (!oDate || oDate.getTime() < this._oMinDate.getTime() || oDate.getTime() > this._oMaxDate.getTime()) {
+			this._bValid = false;
+			jQuery.sap.log.warning("Value can not be converted to a valid date", this);
+		}else {
+			this._bValid = true;
+			this.setProperty("dateValue", oDate, true); // no rerendering
 		}
-
-		return this;
-
 	};
+
 
 	DatePicker.prototype.setDisplayFormatType = function(sDisplayFormatType) {
 
@@ -725,7 +715,7 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 			}
 			oLegend = sap.ui.getCore().byId(sId);
 			if (oLegend && !(oLegend instanceof sap.ui.unified.CalendarLegend)) {
-				throw new Error(oLegend + " is not a sap.ui.unified.CalendarLegend. " + this);
+				throw new Error(oLegend + " is not an sap.ui.unified.CalendarLegend. " + this);
 			}
 		}
 
@@ -771,10 +761,6 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 		if (this.getDomRef() && (this._$input.val() !== sValue)) {
 			this._$input.val(sValue);
 			this._curpos = this._$input.cursorPos();
-			if (this.bShowLabelAsPlaceholder) {
-				// because value property might not be updated between typing
-				this.$("placeholder").css("display", sValue ? "none" : "inline");
-			}
 		}
 
 		if (oDate) {
@@ -783,7 +769,8 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 		}
 
 		// compare with the old known value
-		if (sValue !== this._lastValue) {
+		if (this._lastValue !== sValue
+			|| (oDate && this.getDateValue() && oDate.getFullYear() !== this.getDateValue().getFullYear())) {
 			// remember the last value on change
 			this._lastValue = sValue;
 
@@ -829,86 +816,27 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 	// overwrite _getInputValue to do the output conversion
 	DatePicker.prototype.updateDomValue = function(sValue) {
 
-		// dom value updated other than value property
-		this._bCheckDomValue = true;
-
-		sValue = (typeof sValue == "undefined") ? this._$input.val() : sValue.toString();
-		this._curpos = this._$input.cursorPos();
-
-		var oDate = this._parseValue(sValue, true);
-		sValue = this._formatValue(oDate);
-
-		// update the DOM value when necessary
-		// otherwise cursor can goto end of text unnecessarily
 		if (this.isActive() && (this._$input.val() !== sValue)) {
+			// dom value updated other than value property
+			this._bCheckDomValue = true;
+
+			sValue = (typeof sValue == "undefined") ? this._$input.val() : sValue.toString();
+			this._curpos = this._$input.cursorPos();
+
+			var oDate = this._parseValue(sValue, true);
+			sValue = this._formatValue(oDate);
+
+			// update the DOM value when necessary
+			// otherwise cursor can goto end of text unnecessarily
 			this._$input.val(sValue);
 			this._$input.cursorPos(this._curpos);
 		}
 
-		// update synthetic placeholder visibility
-		this._setLabelVisibility();
-
 		return this;
 	};
 
-	DatePicker.prototype._parseValue = function(sValue, bDisplayFormat) {
 
-		var oFormat = _getFormatter.call(this, bDisplayFormat);
 
-		// convert to date object
-		var oDate = oFormat.parse(sValue);
-		return oDate;
-
-	};
-
-	// converts the date to the output format, but if bValueFormat set it converts it to the input format
-	DatePicker.prototype._formatValue = function(oDate, bValueFormat) {
-
-		var sValue = "";
-
-		if (oDate) {
-			var oFormat = _getFormatter.call(this, !bValueFormat);
-			// convert to date object
-			sValue = oFormat.format(oDate);
-		}
-
-		return sValue;
-
-	};
-
-	DatePicker.prototype._getPlaceholder = function() {
-
-		var sPlaceholder = this.getPlaceholder();
-
-		if (!sPlaceholder) {
-			var oBinding = this.getBinding("value");
-
-			if (oBinding && oBinding.oType && (oBinding.oType instanceof Date1)) {
-				sPlaceholder = oBinding.oType.getOutputPattern();
-			} else {
-				sPlaceholder = this.getDisplayFormat();
-			}
-
-			if (!sPlaceholder) {
-				sPlaceholder = "medium";
-			}
-
-			if (this._checkStyle(sPlaceholder)) {
-				var oLocale = sap.ui.getCore().getConfiguration().getFormatSettings().getFormatLocale();
-				var oLocaleData = sap.ui.core.LocaleData.getInstance(oLocale);
-				sPlaceholder = this._getPlaceholderPattern(oLocaleData, sPlaceholder);
-			}
-		}
-
-		return sPlaceholder;
-
-	};
-
-	DatePicker.prototype._getPlaceholderPattern = function(oLocaleData, sPlaceholder) {
-
-		return oLocaleData.getDatePattern(sPlaceholder);
-
-	};
 
 	function _open(){
 
@@ -921,8 +849,10 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 		var sCalendarType;
 		var oBinding = this.getBinding("value");
 
-		if (oBinding && oBinding.oType && (oBinding.oType instanceof Date1)) {
+		if (oBinding && oBinding.oType && oBinding.oType.oOutputFormat) {
 			sCalendarType = oBinding.oType.oOutputFormat.oFormatOptions.calendarType;
+		} else if (oBinding && oBinding.oType && oBinding.oType.oFormat) {
+			sCalendarType = oBinding.oType.oFormat.oFormatOptions.calendarType;
 		}
 
 		if (!sCalendarType) {
@@ -942,6 +872,11 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 
 		this._openPopup();
 
+		// Fire navigate event when the calendar popup opens
+		this.fireNavigate({
+			dateRange: this._getVisibleDatesRange(this._oCalendar)
+		});
+
 	}
 
 	// to be overwritten by DateTimePicker
@@ -953,7 +888,7 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 			this._oPopup.setAutoClose(true);
 			this._oPopup.setDurations(0, 0); // no animations
 			this._oPopup.attachOpened(_handleOpened, this);
-			//			this._oPopup.attachClosed(_handleClosed, this);
+			this._oPopup.attachClosed(_handleClosed, this);
 		}
 
 	};
@@ -979,6 +914,22 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 
 	};
 
+	/**
+	 * Creates a DateRange with the first and the last visible days in the calendar popup.
+	 * @param {sap.ui.unified.Calendar} oCalendar the calendar whose DatesRange is wanted
+	 * @returns {sap.ui.unified.DateRange} the DateRange of the visible dates
+	 * @private
+	 */
+	DatePicker.prototype._getVisibleDatesRange = function (oCalendar) {
+		var aVisibleDays = oCalendar._getVisibleDays();
+
+		// Convert to local JavaScript Date
+		return new sap.ui.unified.DateRange({
+			startDate: aVisibleDays[0].toLocalJSDate(), // First visible date
+			endDate: aVisibleDays[aVisibleDays.length - 1].toLocalJSDate() // Last visible date
+		});
+	};
+
 	// to be overwritten by DateTimePicker
 	DatePicker.prototype._createPopupContent = function(){
 
@@ -989,7 +940,12 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 				intervalSelection: this._bIntervalSelection,
 				minDate: this.getMinDate(),
 				maxDate: this.getMaxDate(),
-				legend: this.getLegend()
+				legend: this.getLegend(),
+				startDateChange: function () {
+						this.fireNavigate({
+							dateRange: this._getVisibleDatesRange(this._oCalendar)
+						});
+					}.bind(this)
 				});
 			this._oDateRange = new sap.ui.unified.DateRange();
 			this._oCalendar.addSelectedDate(this._oDateRange);
@@ -1036,24 +992,9 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 
 	};
 
-	DatePicker.prototype._getFormatInstance = function(oArguments, bDisplayFormat){
-
-		return sap.ui.core.format.DateFormat.getInstance(oArguments);
-
-	};
-
-	DatePicker.prototype._checkStyle = function(sPattern){
-
-		if (sPattern == "short" || sPattern == "medium" || sPattern == "long" || sPattern == "full") {
-			return true;
-		} else {
-			return false;
-		}
-
-	};
-
 	/**
-	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @see sap.ui.core.Control#getAccessibilityInfo
+	 * @returns {Object} Current accessibility state of the control.
 	 * @protected
 	 */
 	DatePicker.prototype.getAccessibilityInfo = function() {
@@ -1095,7 +1036,7 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 			// compare Dates because value can be the same if only 2 digits for year
 			sValue = this.getValue();
 			this.fireChangeEvent(sValue, {valid: true});
-			if (this.getDomRef()) { // as control could be destroyed during update binding
+			if (this.getDomRef() && (Device.system.desktop || !Device.support.touch) && !jQuery.sap.simulateMobileOnDesktop) { // as control could be destroyed during update binding
 				this._curpos = this._$input.val().length;
 				this._$input.cursorPos(this._curpos);
 			}
@@ -1106,16 +1047,17 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 				this._bValid = true;
 				if (this.getDomRef()) { // as control could be destroyed during update binding
 					this._$input.val(sValue);
+					this._lastValue = sValue;
 				}
 				this.setProperty("value", sValue, true); // no rerendering
 				this.fireChangeEvent(sValue, {valid: true});
 			}
+		} else if ((Device.system.desktop || !Device.support.touch) && !jQuery.sap.simulateMobileOnDesktop) {
+			this.focus();
 		}
 
 		// close popup and focus input after change event to allow application to reset value state or similar things
 		this._oPopup.close();
-		this._bFocusNoPopup = true;
-		this.focus();
 
 	};
 
@@ -1132,21 +1074,18 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 
 	};
 
+
 	function _cancel(oEvent) {
 
 		if (this._oPopup && this._oPopup.isOpen()) {
 			this._oPopup.close();
-			this._bFocusNoPopup = true;
-			this.focus();
+			if ((Device.system.desktop || !Device.support.touch) && !jQuery.sap.simulateMobileOnDesktop) {
+				this.focus();
+			}
 		}
 
 	}
-/*
-	function _handleClosed(oEvent) {
 
-
-	};
-*/
 	function _increaseDate(iNumber, sUnit) {
 
 		var oOldDate = this.getDateValue();
@@ -1154,8 +1093,21 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 
 		if (oOldDate && this.getEditable() && this.getEnabled()) {
 			// use UniversalDate to calculate new date based on used calendar
-			var oDate = new UniversalDate(oOldDate.getTime());
-			oOldDate = new UniversalDate(oOldDate.getTime());
+			var sCalendarType;
+			var oBinding = this.getBinding("value");
+
+			if (oBinding && oBinding.oType && oBinding.oType.oOutputFormat) {
+				sCalendarType = oBinding.oType.oOutputFormat.oFormatOptions.calendarType;
+			} else if (oBinding && oBinding.oType && oBinding.oType.oFormat) {
+				sCalendarType = oBinding.oType.oFormat.oFormatOptions.calendarType;
+			}
+
+			if (!sCalendarType) {
+				sCalendarType = this.getDisplayFormatType();
+			}
+
+			var oDate = UniversalDate.getInstance(new Date(oOldDate.getTime()), sCalendarType);
+			oOldDate = UniversalDate.getInstance(new Date(oOldDate.getTime()), sCalendarType);
 
 			switch (sUnit) {
 			case "day":
@@ -1207,6 +1159,13 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 
 		this._renderedDays = this._oCalendar.$("-Month0-days").find(".sapUiCalItem").length;
 
+		this.$("inner").attr("aria-owns", this.getId() + "-cal");
+		this.$("inner").attr("aria-expanded", true);
+
+	}
+
+	function _handleClosed(oEvent) {
+		this.$("inner").attr("aria-expanded", false);
 	}
 
 	function _resizeCalendar(oEvent){
@@ -1221,66 +1180,7 @@ sap.ui.define(['jquery.sap.global', './InputBase', 'sap/ui/model/type/Date', 'sa
 
 	}
 
-	function _getFormatter(bDisplayFormat) {
 
-		var sPattern = "";
-		var bRelative = false; // if true strings like "Tomorrow" are parsed fine
-		var oFormat;
-		var oBinding = this.getBinding("value");
-		var sCalendarType;
-
-		if (oBinding && oBinding.oType && (oBinding.oType instanceof Date1)) {
-			sPattern = oBinding.oType.getOutputPattern();
-			bRelative = !!oBinding.oType.oOutputFormat.oFormatOptions.relative;
-			sCalendarType = oBinding.oType.oOutputFormat.oFormatOptions.calendarType;
-		}
-
-		/* eslint-disable no-lonely-if */
-		if (!sPattern) {
-			// not databinding is used -> use given format
-			if (bDisplayFormat) {
-				sPattern = ( this.getDisplayFormat() || "medium" );
-				sCalendarType = this.getDisplayFormatType();
-			} else {
-				sPattern = ( this.getValueFormat() || "short" );
-				sCalendarType = sap.ui.core.CalendarType.Gregorian;
-			}
-		}
-
-		if (!sCalendarType) {
-			sCalendarType = sap.ui.getCore().getConfiguration().getCalendarType();
-		}
-
-		if (bDisplayFormat) {
-			if (sPattern == this._sUsedDisplayPattern && sCalendarType == this._sUsedDisplayCalendarType) {
-				oFormat = this._oDisplayFormat;
-			}
-		} else {
-			if (sPattern == this._sUsedValuePattern && sCalendarType == this._sUsedValueCalendarType) {
-				oFormat = this._oValueFormat;
-			}
-		}
-
-		if (!oFormat) {
-			if (this._checkStyle(sPattern)) {
-				oFormat = this._getFormatInstance({style: sPattern, strictParsing: true, relative: bRelative, calendarType: sCalendarType}, bDisplayFormat);
-			} else {
-				oFormat = this._getFormatInstance({pattern: sPattern, strictParsing: true, relative: bRelative, calendarType: sCalendarType}, bDisplayFormat);
-			}
-			if (bDisplayFormat) {
-				this._sUsedDisplayPattern = sPattern;
-				this._sUsedDisplayCalendarType = sCalendarType;
-				this._oDisplayFormat = oFormat;
-			} else {
-				this._sUsedValuePattern = sPattern;
-				this._sUsedValueCalendarType = sCalendarType;
-				this._oValueFormat = oFormat;
-			}
-		}
-
-		return oFormat;
-
-	}
 
 	function _checkSpecialDate(oSpecialDate) {
 

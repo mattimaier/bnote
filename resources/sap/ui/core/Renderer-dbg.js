@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -17,7 +17,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/library'],
 	 * @classdesc Base Class for a Renderer.
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @namespace
 	 * @public
 	 * @alias sap.ui.core.Renderer
@@ -37,7 +37,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/library'],
 			jQuery.sap.assert(typeof sName === 'string' && sName, 'Renderer.extend must be called with a non-empty name for the new renderer');
 			jQuery.sap.assert(oRendererInfo == null || typeof oRendererInfo === 'object', 'oRendererInfo must be an object or can be omitted');
 
-			var oChildRenderer = jQuery.sap.newObject(oBaseRenderer);
+			var oChildRenderer = Object.create(oBaseRenderer);
 			oChildRenderer.extend = createExtendFunction(oChildRenderer);
 			if ( oRendererInfo ) {
 				jQuery.extend(oChildRenderer, oRendererInfo);
@@ -82,13 +82,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/library'],
 	 *     "use strict";
 	 *
 	 *     var LabelRenderer = Renderer.extend('sap.m.LabelRenderer', {
-	 *         renderer: function(oRM, oControl) {
+	 *         render: function(oRM, oControl) {
 	 *
 	 *             renderPreamble(oRM, oControl);
 	 *
 	 *             // implementation core renderer logic here
 	 *
-	 *             renderPreamble(oRM, oControl);
+	 *             renderPostamble(oRM, oControl);
 	 *
 	 *         },
 	 *
@@ -115,7 +115,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/library'],
 	 *     "use strict";
 	 *
 	 *     var FancyLabelRenderer = LabelRenderer.extend('sap.mylib.FancyLabelRenderer', {
-	 *         renderer: function(oRM, oControl) {
+	 *         render: function(oRM, oControl) {
 	 *
 	 *             // call base renderer
 	 *             LabelRenderer.renderPreamble(oRM, oControl);
@@ -132,8 +132,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/library'],
 	 * </pre>
 	 *
 	 * <b>Note:</b> the new signature no longer requires the <code>bExport</code> flag to be set for
-	 * the enclosing {@link sap.ui.define} call. The Renderer base classes takes care of the necessary
-	 * global export of the render. This allows Non-SAP developers to write a renderer that complies with
+	 * the enclosing {@link sap.ui.define} call. The Renderer base class takes care of the necessary
+	 * global export of the renderer. This allows Non-SAP developers to write a renderer that complies with
 	 * the documented restriction for <code>sap.ui.define</code> (no use of bExport = true outside
 	 * sap.ui.core projects).
 	 *
@@ -163,7 +163,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/library'],
 			return extend(vName, oRendererInfo);
 		} else {
 			// old variant without name: create static 'subclass' of Renderer itself
-			var oChildRenderer = jQuery.sap.newObject(vName);
+			var oChildRenderer = Object.create(vName || null);
 			oChildRenderer._super = vName;
 			oChildRenderer.extend = createExtendFunction(oChildRenderer);
 			return oChildRenderer;

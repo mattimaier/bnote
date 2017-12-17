@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides class sap.m.MessageBox
-sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextArea', './Link', './VBox', 'sap/ui/core/IconPool'],
-		function (jQuery, Button, Dialog, Text, TextArea, Link, VBox, IconPool) {
+sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './FormattedText', './Link', './VBox', 'sap/ui/core/IconPool'],
+		function (jQuery, Button, Dialog, Text, FormattedText, Link, VBox, IconPool) {
 			"use strict";
 
 			/**
@@ -39,8 +39,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 			 *
 			 * Each action is represented as a button in the message box. The values of this enumeration are used for both,
 			 * specifying the set of allowed actions as well as reporting back the user choice.
-
-			 * @namespace
+			 * @enum {string}
 			 * @public
 			 */
 			MessageBox.Action = {
@@ -102,8 +101,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 
 			/**
 			 * Enumeration of the pre-defined icons that can be used in a MessageBox.
-
-			 * @namespace
+			 * @enum {string}
 			 * @public
 			 */
 			MessageBox.Icon = {
@@ -113,6 +111,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 				 * @public
 				 */
 				NONE: undefined,
+
 				/**
 				 * Shows the information icon in the message box.
 				 * @public
@@ -152,7 +151,8 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 							"WARNING": "sapMMessageBoxWarning",
 							"ERROR": "sapMMessageBoxError",
 							"SUCCESS": "sapMMessageBoxSuccess",
-							"QUESTION": "sapMMessageBoxQuestion"
+							"QUESTION": "sapMMessageBoxQuestion",
+							"STANDARD":  "sapMMessageBoxStandard"
 						},
 						mIcons = {
 							"INFORMATION": IconPool.getIconURI("message-information"),
@@ -163,13 +163,13 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 						};
 
 				var _verifyBundle = function () {
-					if (sap.m.MessageBox._rb !== sap.ui.getCore().getLibraryResourceBundle("sap.m")) {
-						sap.m.MessageBox._rb = sap.ui.getCore().getLibraryResourceBundle("sap.m");
+					if (MessageBox._rb !== sap.ui.getCore().getLibraryResourceBundle("sap.m")) {
+						MessageBox._rb = sap.ui.getCore().getLibraryResourceBundle("sap.m");
 					}
 				};
 
 				/**
-				 * Creates and displays a sap.m.Dialog with type sap.m.DialogType.Message with the given text and buttons, and optionally other parts.
+				 * Creates and displays an sap.m.Dialog with type sap.m.DialogType.Message with the given text and buttons, and optionally other parts.
 				 * After the user has tapped a button, the <code>onClose</code> function is invoked when given.
 				 *
 				 * The only mandatory parameter is <code>vMessage</code>. Either a string with the corresponding text or even
@@ -198,9 +198,9 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 				 *   function (oAction);
 				 *
 				 * where <code>oAction</code> is the button that the user has tapped. For example, when the user has pressed the close button,
-				 * a sap.m.MessageBox.Action.Close is returned.
+				 * an sap.m.MessageBox.Action.Close is returned.
 				 *
-				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMassage is deprecated since version 1.30.4.
+				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMessage is deprecated since version 1.30.4.
 				 * @param {object} [mOptions] Other options (optional)
 				 * @param {sap.m.MessageBox.Icon} [mOptions.icon] The icon to be displayed.
 				 * @param {string} [mOptions.title] The title of the message box.
@@ -217,6 +217,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 				 * @param {boolean} [deprecated mOptions.verticalScrolling] verticalScrolling is deprecated since version 1.30.4. VerticalScrolling, this option indicates if the user can scroll vertically inside the MessageBox when the content is larger than the content area.
 				 * @param {boolean} [deprecated mOptions.horizontalScrolling] horizontalScrolling is deprecated since version 1.30.4. HorizontalScrolling, this option indicates if the user can scroll horizontally inside the MessageBox when the content is larger than the content area.
 				 * @param {string} [mOptions.details] Added since version 1.28.0. If 'details' is set in the MessageBox, a 'Show detail' link is added. When you click the link, it is set to visible = false and the text area containing 'details' information is then displayed.
+				 * @param {sap.ui.core.CSSSize} [mOptions.contentWidth] The width of the MessageBox
 				 * @public
 				 * @static
 				 */
@@ -229,7 +230,8 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 								textDirection: sap.ui.core.TextDirection.Inherit,
 								verticalScrolling: true,
 								horizontalScrolling: true,
-								details: ""
+								details: "",
+								contentWidth: null
 							};
 
 					_verifyBundle();
@@ -257,10 +259,6 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 						mDefaults.icon = sap.m.MessageBox.Icon.INFORMATION;
 						mDefaults.actions = [Action.OK, Action.CANCEL];
 						mOptions = jQuery.extend({}, mDefaults, mOptions);
-						if (typeof mOptions.details == 'object') {//covers JSON case
-							//Using stringify() with "tab" as space argument
-							mOptions.details = JSON.stringify(mOptions.details, null, '\t');
-						}
 					}
 
 					mOptions = jQuery.extend({}, mDefaults, mOptions);
@@ -299,29 +297,32 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 
 					function getInformationLayout(mOptions, oMessageText) {
 						//Generate MessageBox Layout
+						if (typeof mOptions.details == 'object') {
+							//covers JSON case
+							//Using stringify() with "tab" as space argument and escaping the JSON to prevent binding
+							mOptions.details = "<pre>" + JSON.stringify(mOptions.details, null, '\t')
+								.replace(/{/gi, "\\{") + "</pre>";
+						}
+						// html text is set by purpose with setter. If is set in the constructor there are issues with binding
+						var oFT = new FormattedText().setVisible(false).setHtmlText(mOptions.details);
 
-						var oTextArea = new TextArea({
-							editable: false,
-							visible: false,
-							rows: 3
-						}).setValue(mOptions.details);
-
-						var oLink = new Link({
+						var oShowLink = new Link({
 							text: that._rb.getText("MSGBOX_LINK_TITLE"),
 							press: function () {
-								oTextArea.setVisible(true);
+								oFT.setVisible(true);
 								this.setVisible(false);
 								oDialog._setInitialFocus();
 							}
 						});
-						oLink.addStyleClass("sapMMessageBoxLinkText");
-						oTextArea.addStyleClass("sapMMessageBoxDetails");
+
+						oShowLink.addStyleClass("sapMMessageBoxLinkText");
+						oFT.addStyleClass("sapMMessageBoxDetails");
 
 						return new VBox({
 							items: [
 								oMessageText,
-								oLink,
-								oTextArea
+								oShowLink,
+								oFT
 							]
 						});
 					}
@@ -396,11 +397,14 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 						afterOpen: onOpen,
 						afterClose: onclose,
 						buttons: aButtons,
-						ariaLabelledBy: oMessageText ? oMessageText.getId() : undefined
+						ariaLabelledBy: oMessageText ? oMessageText.getId() : undefined,
+						contentWidth: mOptions.contentWidth
 					});
 
 					if (mClasses[mOptions.icon]) {
 						oDialog.addStyleClass(mClasses[mOptions.icon]);
+					} else {
+						oDialog.addStyleClass(mClasses.STANDARD);
 					}
 
 					if (mOptions.styleClass) {
@@ -437,7 +441,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 				 * Applications have to use <code>fnCallback</code> to continue work after the
 				 * user closed the alert dialog.
 				 *
-				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMassage is deprecated since version 1.30.4.
+				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMessage is deprecated since version 1.30.4.
 				 * @param {object} [mOptions] Other options (optional)
 				 * @param {function} [mOptions.onClose] callback function to be called when the user closes the dialog
 				 * @param {string} [mOptions.title='Alert'] Title to be displayed in the alert dialog
@@ -512,7 +516,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 				 * Applications have to use <code>fnCallback</code> to continue work after the
 				 * user closed the confirmation dialog
 				 *
-				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMassage is deprecated since version 1.30.4.
+				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMessage is deprecated since version 1.30.4.
 				 * @param {object} [mOptions] Other options (optional)
 				 * @param {function} [mOptions.onClose] Callback to be called when the user closes the dialog
 				 * @param {string} [mOptions.title='Confirmation'] Title to display in the confirmation dialog
@@ -583,7 +587,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 				 * Applications have to use <code>fnCallback</code> to continue work after the
 				 * user closed the error dialog.
 				 *
-				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMassage is deprecated since version 1.30.4.
+				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMessage is deprecated since version 1.30.4.
 				 * @param {object} [mOptions] Other options (optional)
 				 * @param {function} [mOptions.onClose] Callback when the user closes the dialog
 				 * @param {string} [mOptions.title='Error'] Title of the error dialog
@@ -639,7 +643,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 				 * Applications have to use <code>fnCallback</code> to continue work after the
 				 * user closed the information dialog
 				 *
-				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMassage is deprecated since version 1.30.4.
+				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMessage is deprecated since version 1.30.4.
 				 * @param {object} [mOptions] Other options (optional)
 				 * @param {function} [mOptions.onClose] Callback when the user closes the dialog
 				 * @param {string} [mOptions.title='Information'] Title of the information dialog
@@ -695,7 +699,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 				 * Applications have to use <code>fnCallback</code> to continue work after the
 				 * user closed the warning dialog
 				 *
-				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMassage is deprecated since version 1.30.4.
+				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMessage is deprecated since version 1.30.4.
 				 * @param {object} [mOptions] Other options (optional)
 				 * @param {function} [mOptions.onClose] Callback when the user closes the dialog
 				 * @param {string} [mOptions.title='Warning'] Title of the warning dialog
@@ -751,7 +755,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './Text', './TextAre
 				 * Applications have to use <code>fnCallback</code> to continue work after the
 				 * user closed the success dialog
 				 *
-				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMassage is deprecated since version 1.30.4.
+				 * @param {string} vMessage Message to be displayed in the alert dialog. The usage of sap.core.Control as vMessage is deprecated since version 1.30.4.
 				 * @param {object} [mOptions] Other options (optional)
 				 * @param {function} [mOptions.onClose] Callback when the user closes the dialog
 				 * @param {string} [mOptions.title='Success'] Title of the success dialog

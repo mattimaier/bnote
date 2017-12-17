@@ -1,32 +1,49 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.ui.layout.FixFlex.
-sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledPropagator", "sap/ui/core/ResizeHandler", "./library"],
-	function (jQuery, Control, EnabledPropagator, ResizeHandler, library) {
+sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledPropagator", "sap/ui/core/ResizeHandler",
+				"./library", 'sap/ui/core/delegate/ScrollEnablement'],
+	function (jQuery, Control, EnabledPropagator,
+				ResizeHandler, library, ScrollEnablement) {
 		"use strict";
 
 		/**
 		 * Constructor for a new FixFlex.
 		 *
-		 * @param {string} [sId] id for the new control, generated automatically if no id is given
-		 * @param {object} [mSettings] initial settings for the new control
+		 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
+		 * @param {object} [mSettings] Initial settings for the new control
 		 *
 		 * @class
-		 * The FixFlex control builds the container for a layout with a fixed and a flexible part. The flexible container adapts its size to the fix container. The fix container can hold any number of controls, while the flexible container can hold only one.
-		 *
-		 * In order for the FixFlex to stretch properly, the parent element, in which the control is placed, needs to have a specified height or needs to have an absolute position.
-		 *
-		 * Warning: Avoid nesting FixFlex in other flexbox based layout controls (FixFlex, FlexBox, Hbox, Vbox). Otherwise contents may be not accessible or multiple scrollbars can appear.
-		 *
-		 * Note: If the child control of the flex or the fix container has width/height bigger than the container itself, the child control will be cropped in the view. If minFlexSize is set, then a scrollbar is shown in the flexible part, depending on the vertical property.
+		 * A layout container with a fixed and a flexible part.
+		 * <h3>Overview</h3>
+		 * The FixFlex control builds the container for a layout with a fixed and a flexible part. The flexible container adapts its size to the fix container.
+		 * <h4>Guidelines:</h4>
+		 * <ul>
+		 * <li>The fix container can hold any number of controls, while the flexible container can hold only one</li>
+		 * <li>In order for the FixFlex to stretch properly, the parent element, in which the control is placed, needs to have a specified height or needs to have an absolute position.</li>
+		 * <li>Avoid nesting FixFlex in other flexbox-based layout controls ({@link sap.ui.layout.FixFlex FixFlex}, {@link sap.m.FlexBox FlexBox}, Hbox, Vbox). Otherwise, contents may be not accessible or multiple scrollbars can appear.</li>
+		 * </ul>
+		 * <h3>Structure</h3>
+		 * The behavior of the FixFlex is controlled by the following properties:
+		 * <ul>
+		 * <li><code>fixContentSize</code> - The width/height of the fix part of the control</li>
+		 * <li><code>fixFirst</code> - The ordering of the fix and flex part</li>
+		 * <li><code>minFlexSize</code> - Scrolling inside the flex part, if its contents are large</li>
+		 * <li><code>vertical</code> - Alignment of the FixFlex control</li>
+		 * </ul>
+		 * <h3>Responsive Behavior</h3>
+		 * <ul>
+		 * <li>If the child control of the flex or the fix container has width/height bigger than the container itself, the child control will be cropped in the view.</li>
+		 * <li>If minFlexSize is set, then a scrollbar is shown in the flexible part, depending on the <code>vertical</code> property.</li>
+		 * </ul>
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
@@ -46,7 +63,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledP
 					vertical: {type: "boolean", group: "Appearance", defaultValue: true},
 
 					/**
-					 * Determines whether the fixed-size area should be on the beginning/top ( if the value is "true") or beginning/bottom ( if the value is "false").
+					 * Determines whether the fixed-size area should be on the beginning/top ( if the value is "true") or end/bottom ( if the value is "false").
 					 */
 					fixFirst: {type: "boolean", group: "Misc", defaultValue: true},
 
@@ -56,7 +73,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledP
 					fixContentSize: {type: "sap.ui.core.CSSSize", group: "Dimension", defaultValue: "auto"},
 
 					/**
-					 * Enables scrolling inside the flexible part. The given size is calculated in "px". If the child control in the flexible part is larger then the available flexible size on the screen and if the available size for the flexible part is smaller or equal to the minFlexSize value, the scroll will be for the entire FixFlex control.
+					 * Enables scrolling inside the flexible part. The given size is calculated in "px". If the child control in the flexible part is larger than the available flexible size on the screen and if the available size for the flexible part is smaller or equal to the minFlexSize value, the scroll will be for the entire FixFlex control.
 					 *
 					 * @since 1.29
 					 */
@@ -79,6 +96,29 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledP
 
 
 		EnabledPropagator.call(FixFlex.prototype);
+
+		/**
+		 * Initializes the control.
+		 * @private
+		 */
+		FixFlex.prototype.init = function () {
+			this._scroller = new ScrollEnablement(this, null, {
+				scrollContainerId : this.getId()
+			});
+
+			this._innerScroller = new ScrollEnablement(this, this.getId() + "-FlexibleContainer", {
+				scrollContainerId: this.getId() + "-Flexible"
+			});
+		};
+
+		/**
+		 * Returns the sap.ui.core.ScrollEnablement delegate which is used with this control.
+		 * @returns {sap.ui.core.ScrollEnablement}
+		 * @private
+		 */
+		FixFlex.prototype.getScrollDelegate = function () {
+			return this._innerScroller;
+		};
 
 		/**
 		 * Calculate height/width on the flex part when flexbox is not supported
@@ -147,6 +187,12 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledP
 				ResizeHandler.deregister(this.sResizeListenerFixFlexScrollFlexPart);
 				this.sResizeListenerFixFlexScrollFlexPart = null;
 			}
+
+			// Deregister resize event for FixFlex flexible container scrolling
+			if (this.sResizeListenerFixFlexContainerScroll) {
+				ResizeHandler.deregister(this.sResizeListenerFixFlexContainerScroll);
+				this.sResizeListenerFixFlexContainerScroll = null;
+			}
 		};
 
 		/**
@@ -157,9 +203,10 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledP
 			var nFlexSize,
 				sDirection,
 				$this = this.$(),
-				nMinFlexSize = this.getMinFlexSize();
+				nMinFlexSize = this.getMinFlexSize(),
+				bIsVertical = this.getVertical();
 
-			if (this.getVertical() === true) {
+			if (bIsVertical) {
 				nFlexSize = this.$().height() - this.$("Fixed").height();
 				sDirection = "height";
 			} else {
@@ -167,42 +214,106 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledP
 				sDirection = "width";
 			}
 
-			// Add scrolling inside Flexible container
-			if (nFlexSize < parseInt(this.getMinFlexSize(), 10)) {
+			// Add scrolling for entire FixFlex
+			if (nFlexSize <= parseInt(this.getMinFlexSize(), 10)) {
 				$this.addClass("sapUiFixFlexScrolling");
 				$this.removeClass("sapUiFixFlexInnerScrolling");
+
+				if (bIsVertical) {
+					this._scroller.setVertical(true);
+					this._innerScroller.setVertical(false);
+				} else {
+					this._scroller.setHorizontal(true);
+					this._innerScroller.setHorizontal(false);
+				}
 
 				// BCP Incident-ID: 1570246771
 				if (this.$("FlexibleContainer").children().height() > nMinFlexSize) {
 					this.$("Flexible").attr("style", "min-" + sDirection + ":" + nMinFlexSize + "px");
 				} else {
-					// If the child control is smaller then the content,
+					// If the child control is smaller than the content,
 					// the flexible part need to have set height/width, else the child control can"t resize to max
 					this.$("Flexible").attr("style", sDirection + ":" + nMinFlexSize + "px");
 				}
 
-			} else { // Add scrolling for entire FixFlex
+			} else { // Add scrolling inside Flexible container
+
 				$this.addClass("sapUiFixFlexInnerScrolling");
 				$this.removeClass("sapUiFixFlexScrolling");
+				if (bIsVertical) {
+					this._scroller.setVertical(false);
+					this._innerScroller.setVertical(true);
+
+				} else {
+					this._scroller.setHorizontal(false);
+					this._innerScroller.setHorizontal(true);
+				}
+
+				this._changeFlexibleContainerScroll();
+
 				this.$("Flexible").removeAttr("style");
 			}
 		};
 
 		/**
+		 * Change flexible container scroll
+		 * @private
+		 */
+		FixFlex.prototype._changeFlexibleContainerScroll = function () {
+
+			var $flexibleContainer = this.$("FlexibleContainer"),
+				containerHeight = $flexibleContainer.height(),
+				childrenHeight = $flexibleContainer.children().height();
+
+			if (containerHeight == childrenHeight){
+				return;
+			}
+
+			if (containerHeight > childrenHeight) {
+				$flexibleContainer.removeClass('sapUiFixFlexFlexibleContainerGrowing');
+			} else {
+				$flexibleContainer.addClass('sapUiFixFlexFlexibleContainerGrowing');
+			}
+		};
+
+		/**
+		 * Clears the control dependencies.
 		 * @private
 		 */
 		FixFlex.prototype.exit = function () {
 			this._deregisterControl();
+
+			if (this._scroller) {
+				this._scroller.destroy();
+				this._scroller = null;
+			}
+
+			if (this._innerScroller) {
+				this._innerScroller.destroy();
+				this._innerScroller = null;
+			}
 		};
 
 		/**
+		 * Called before the control is rendered.
 		 * @private
 		 */
 		FixFlex.prototype.onBeforeRendering = function () {
+			var oScroller = this._scroller,
+				oInnerScroller = this._innerScroller,
+				bScrolling = this.getMinFlexSize() != 0;
+
 			this._deregisterControl();
+
+			oScroller.setVertical(false);
+			oScroller.setHorizontal(false);
+
+			oInnerScroller.setVertical(bScrolling);
+			oInnerScroller.setHorizontal(bScrolling);
 		};
 
 		/**
+		 * Called after the control is rendered.
 		 * @private
 		 */
 		FixFlex.prototype.onAfterRendering = function () {
@@ -218,22 +329,13 @@ sap.ui.define(["jquery.sap.global", "sap/ui/core/Control", "sap/ui/core/EnabledP
 				this.sResizeListenerFixFlexScroll = ResizeHandler.register(this.getDomRef(), jQuery.proxy(this._changeScrolling, this));
 				this.sResizeListenerFixFlexScrollFlexPart = ResizeHandler.register(this.getDomRef("Fixed"), jQuery.proxy(this._changeScrolling, this));
 
-				if (sap.ui.Device.browser.edge === true) {
-					// In some cases the resize handlers are not triggered in "Edge" browser on initial render and
-					// a manual trigger is needed
-					// BCP: 1570807842
-					this._changeScrolling();
+				var flexibleContainerChildDomRef = this.$("FlexibleContainer").children()[0];
+				if (flexibleContainerChildDomRef) {
+					this.sResizeListenerFixFlexContainerScroll = ResizeHandler.register(flexibleContainerChildDomRef, jQuery.proxy(this._changeFlexibleContainerScroll, this));
 				}
-			}
-		};
 
-		/**
-		 * @private
-		 * @param {Object} oEvent
-		 */
-		FixFlex.prototype.ontouchmove = function (oEvent) {
-			// mark the event for components that needs to know if the event was handled
-			oEvent.setMarked();
+				this._changeScrolling();
+			}
 		};
 
 		return FixFlex;

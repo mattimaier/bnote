@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global', '../base/Object', './EventBus'],
@@ -23,7 +23,7 @@ sap.ui.define(['jquery.sap.global', '../base/Object', './EventBus'],
 		 *
 		 * @extends sap.ui.base.Object
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 * @constructor
 		 * @public
 		 * @since 1.11.0

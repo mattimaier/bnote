@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -28,7 +28,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/BindingMode', 'sap/ui/model/Mo
 	 * @extends sap.ui.model.Model
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @param {object} oData parameters used to initialize the ResourceModel; at least either bundleUrl or bundleName must be set on this object; if both are set, bundleName wins
 	 * @param {string} [oData.bundleUrl] the URL to the base .properties file of a bundle (.properties file without any locale information, e.g. "mybundle.properties")
@@ -43,6 +43,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/BindingMode', 'sap/ui/model/Mo
 
 		constructor : function(oData) {
 			Model.apply(this, arguments);
+
+			this.aCustomBundles = [];
+
+			this.bReenhance = false;
 
 			this.bAsync = !!(oData && oData.async);
 
@@ -100,7 +104,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/BindingMode', 'sap/ui/model/Mo
 	 * @param {string} [oData.bundleUrl] the URL to the base .properties file of a bundle (.properties file without any locale information, e.g. "mybundle.properties")
 	 * @param {string} [oData.bundleName] the UI5 module name of the .properties file; this name will be resolved to a path like the paths of normal UI5 modules and ".properties" will then be appended (e.g. a name like "myBundle" can be given)
 	 * @param {string} [oData.bundleLocale] an optional locale; when not given, the default is the active locale from the UI5 configuration
-	 * @returns {Promise} Promise in async case (async ResourceModel) which is resolved when the the enhancement is finished
+	 * @returns {Promise} Promise in async case (async ResourceModel) which is resolved when the enhancement is finished
 	 * @since 1.16.1
 	 * @public
 	 */
@@ -140,6 +144,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/BindingMode', 'sap/ui/model/Mo
 			Promise.resolve(this._oPromise).then(doEnhance);
 		} else {
 			doEnhance();
+		}
+		if (!this.bReenhance) {
+			this.aCustomBundles.push(oData);
 		}
 		return oPromise;
 	};
@@ -192,6 +199,17 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/BindingMode', 'sap/ui/model/Mo
 		_load(this, false);
 	};
 
+	/**
+	 * reapplies all enhancements after localization changes
+	 * @private
+	 */
+	ResourceModel.prototype._reenhance = function() {
+		this.bReenhance = true;
+		this.aCustomBundles.forEach(function(oData) {
+			this.enhance(oData);
+		}.bind(this));
+		this.bReenhance = false;
+	};
 
 	function _load(oModel, bThrowError){
 		var oData = oModel.oData;
@@ -204,12 +222,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/BindingMode', 'sap/ui/model/Mo
 				oModel._oPromise = res;
 				oModel._oPromise.then(function(oBundle){
 					oModel._oResourceBundle = oBundle;
+					oModel._reenhance();
 					delete oModel._oPromise;
 					oModel.checkUpdate(true);
 					oModel.fireRequestCompleted(oEventParam);
 				});
 			} else {
 				oModel._oResourceBundle = res;
+				oModel._reenhance();
 				oModel.checkUpdate(true);
 			}
 		} else if (bThrowError) {

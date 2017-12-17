@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -10,11 +10,40 @@ sap.ui.define([],
 	"use strict";
 
 	return {
-		aggregations : {
-			sections : {
-				domRef : ":sap-domref > .sapUxAPObjectPageWrapper"
+		name : {
+			singular : function(){
+				return sap.uxap.i18nModel.getResourceBundle().getText("LAYOUT_CONTROL_NAME");
+			},
+			plural : function(){
+				return sap.uxap.i18nModel.getResourceBundle().getText("LAYOUT_CONTROL__PLURAL");
 			}
 		},
+		aggregations : {
+			sections : {
+				domRef : function(oElement) {
+					return oElement.$("sectionsContainer").get(0);
+				},
+				childNames : {
+					singular : function(){
+						return sap.uxap.i18nModel.getResourceBundle().getText("SECTION_CONTROL_NAME");
+					},
+					plural : function(){
+						return sap.uxap.i18nModel.getResourceBundle().getText("SECTION_CONTROL_NAME_PLURAL");
+					}
+				},
+				actions : {
+					move : "moveControls"
+				}
+			}
+		},
+		scrollContainers : [{
+			domRef : "> .sapUxAPObjectPageWrapper",
+			aggregations : ["sections", "headerContent"]
+		}, {
+			domRef : function(oElement) {
+				return oElement.$("vertSB-sb").get(0);
+			}
+		}],
 
 		cloneDomRef : ":sap-domref > header"
 	};

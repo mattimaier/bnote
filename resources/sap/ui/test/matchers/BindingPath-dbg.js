@@ -1,10 +1,10 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['jquery.sap.global', './Matcher'], function (jQuery, Matcher) {
+sap.ui.define(['jquery.sap.global', './Matcher'], function ($, Matcher) {
 	"use strict";
 
 	/**
@@ -51,8 +51,7 @@ sap.ui.define(['jquery.sap.global', './Matcher'], function (jQuery, Matcher) {
 
 			// check if there is a binding path
 			if (!this.getPath()) {
-				jQuery.sap.log.error(this,"matchers.BindingPath: the path needs to be a not empty string", this._sLogPrefix);
-				return false;
+				throw new Error(this + " the path needs to be a not empty string");
 			}
 
 			// check if there is a model name
@@ -64,7 +63,7 @@ sap.ui.define(['jquery.sap.global', './Matcher'], function (jQuery, Matcher) {
 
 			// check if there is a binding context
 			if (!oBindingContext) {
-				jQuery.sap.log.debug("The control " + oControl + " has no binding context for the model " + this.getModelName(), this._sLogPrefix);
+				this._oLogger.debug("The control " + oControl + " has no binding context for the model " + this.getModelName());
 				return false;
 			}
 
@@ -72,9 +71,9 @@ sap.ui.define(['jquery.sap.global', './Matcher'], function (jQuery, Matcher) {
 			var bResult = this.getPath() === oBindingContext.getPath();
 
 			if (!bResult) {
-				jQuery.sap.log.debug("The control " + oControl + " does not " +
+				this._oLogger.debug("The control " + oControl + " does not " +
 					"have a matching binding context expected " + this.getPath() + " but got " +
-				oBindingContext.getPath(), this._sLogPrefix);
+				oBindingContext.getPath());
 			}
 
 			return bResult;

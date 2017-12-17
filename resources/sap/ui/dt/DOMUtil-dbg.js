@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -8,7 +8,9 @@
 sap.ui.define([
 	'jquery.sap.global'
 ],
-function(jQuery) {
+function(
+	jQuery
+) {
 	"use strict";
 
 	/**
@@ -18,7 +20,7 @@ function(jQuery) {
 	 * Utility functionality for DOM
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @private
 	 * @static
@@ -69,19 +71,73 @@ function(jQuery) {
 	};
 
 	/**
-	 *
+	 * Checks whether DOM Element has vertical scrollbar
+	 * @param oDomRef {HTMLElement} - DOM Element
+	 * @return {boolean}
 	 */
-	DOMUtil.hasScrollBar = function(oDomRef) {
+	DOMUtil.hasVerticalScrollBar = function(oDomRef) {
 		var $DomRef = jQuery(oDomRef);
-
 		var bOverflowYScroll = $DomRef.css("overflow-y") === "auto" || $DomRef.css("overflow-y") === "scroll";
+
+		return bOverflowYScroll && $DomRef.get(0).scrollHeight > $DomRef.height();
+	};
+
+	/**
+	 * Checks whether DOM Element has horizontal scrollbar
+	 * @param oDomRef {HTMLElement} - DOM Element
+	 * @return {boolean}
+	 */
+	DOMUtil.hasHorizontalScrollBar = function (oDomRef) {
+		var $DomRef = jQuery(oDomRef);
 		var bOverflowXScroll = $DomRef.css("overflow-x") === "auto" || $DomRef.css("overflow-x") === "scroll";
 
-		var bHasYScroll = bOverflowYScroll && $DomRef.get(0).scrollHeight > $DomRef.height();
-		var bHasXScroll = bOverflowXScroll && $DomRef.get(0).scrollWidth > $DomRef.width();
-
-		return bHasYScroll || bHasXScroll;
+		return bOverflowXScroll && $DomRef.get(0).scrollWidth > $DomRef.width();
 	};
+
+	/**
+	 * Checks whether DOM Element has vertical or horizontal scrollbar
+	 * @param oDomRef {HTMLElement} - DOM Element
+	 * @return {boolean}
+	 */
+	DOMUtil.hasScrollBar = function(oDomRef) {
+		return DOMUtil.hasVerticalScrollBar(oDomRef) || DOMUtil.hasHorizontalScrollBar(oDomRef);
+	};
+
+	/**
+	 * Gets scrollbar width in the running browser
+	 * @return {number} - returns width in pixels
+	 */
+	DOMUtil.getScrollbarWidth = function() {
+		if (typeof DOMUtil.getScrollbarWidth._cache === 'undefined') {
+			// add outer div
+			var oOuter = jQuery('<div/>')
+				.css({
+					position: 'absolute',
+					top: '-9999px',
+					left: '-9999px',
+					width: '100px'
+				})
+				.appendTo('body');
+
+			var iWidthNoScroll = oOuter.width();
+			oOuter.css('overflow', 'scroll');
+
+			// add inner div
+			var oInner = jQuery('<div/>')
+				.css('width', '100%')
+				.appendTo(oOuter);
+
+			var iWidthWithScroll = oInner.width();
+
+			// clean up
+			oOuter.remove();
+
+			DOMUtil.getScrollbarWidth._cache = iWidthNoScroll - iWidthWithScroll;
+		}
+
+		return DOMUtil.getScrollbarWidth._cache;
+	};
+
 
 	/**
 	 *
@@ -221,17 +277,24 @@ function(jQuery) {
 				sContent = oSrc.getAttribute(sContent);
 			}
 
-			// pseudo elements can't be inserted via js, so we should create a real elements, which copy pseudo styling
-			var oAfterElement = jQuery("<span></span>");
-			if (sPseudoElement === ":after") {
-				oAfterElement.appendTo(oDest);
-			} else {
-				oAfterElement.prependTo(oDest);
+			// due to a firefox bug sContent can be null after oSrc.getAttribute
+			// sContent is requried for copy pseudo styling
+			if (sContent === null || sContent === undefined) {
+				sContent = "";
 			}
 
-			oAfterElement.text(sContent.replace(/\"/g, ""));
-			DOMUtil._copyStylesTo(mStyles, oAfterElement.get(0));
-			oAfterElement.css("display", "inline");
+			// pseudo elements can't be inserted via js, so we should create a real elements,
+			// which copy pseudo styling
+			var oPseudoElement = jQuery("<span></span>");
+			if (sPseudoElement === ":after") {
+				oPseudoElement.appendTo(oDest);
+			} else {
+				oPseudoElement.prependTo(oDest);
+			}
+
+			oPseudoElement.text(sContent.replace(/(^['"])|(['"]$)/g, ""));
+			DOMUtil._copyStylesTo(mStyles, oPseudoElement.get(0));
+			oPseudoElement.css("display", "inline");
 		}
 	};
 
@@ -249,21 +312,6 @@ function(jQuery) {
 		}
 
 		DOMUtil._copyStylesTo(mStyles, oDest);
-
-
-		mStyles = window.getComputedStyle(oSrc, ":after");
-		var sContent = mStyles.getPropertyValue("content");
-		if (sContent && sContent !== "none") {
-			if (sContent.indexOf("attr(") === 0) {
-				sContent = sContent.replace("attr(", "");
-				sContent = sContent.replace(")", "");
-				sContent = oSrc.getAttribute(sContent);
-			}
-			var oAfterElement = jQuery("<span></span>").appendTo(oDest);
-			oAfterElement.text(sContent.replace(/\"/g, ""));
-			DOMUtil._copyStylesTo(mStyles, oAfterElement.get(0));
-			oAfterElement.css("display", "inline");
-		}
 
 		this._copyPseudoElement(":after", oSrc, oDest);
 		this._copyPseudoElement(":before", oSrc, oDest);
@@ -297,14 +345,29 @@ function(jQuery) {
 	 */
 	DOMUtil.cloneDOMAndStyles = function(oNode, oTarget) {
 		oNode = jQuery(oNode).get(0);
-		oTarget = jQuery(oTarget).get(0);
 
 		var oCopy = oNode.cloneNode(true);
 		this.copyComputedStyles(oNode, oCopy);
 
-		var $copy = jQuery(oCopy);
+		jQuery(oTarget).append(oCopy);
+	};
 
-		jQuery(oTarget).append($copy);
+	/**
+	 * Inserts <style/> tag width specified styles into #overlay-container
+	 * @param {string} sStyles - string with plain CSS to be rendered into the page
+	 */
+	DOMUtil.insertStyles = function (sStyles) {
+		var oStyle = document.createElement('style');
+		oStyle.type = 'text/css';
+
+		if (oStyle.styleSheet) {
+			oStyle.styleSheet.cssText = sStyles;
+		} else {
+			oStyle.appendChild(document.createTextNode(sStyles));
+		}
+
+		// FIXME: we can't use Overlay module because of the cycled dependency
+		jQuery('#overlay-container').prepend(oStyle);
 	};
 
 	return DOMUtil;

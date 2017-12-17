@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -24,7 +24,7 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 	 * @implements sap.m.IBar
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -78,7 +78,14 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 			 */
 			contentRight : {type : "sap.ui.core.Control", multiple : true, singularName : "contentRight"}
 		},
-		designtime : true
+		associations : {
+
+			/**
+			 * Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).
+			 */
+			ariaLabelledBy : {type : "sap.ui.core.Control", multiple : true, singularName : "ariaLabelledBy"}
+		},
+		designTime: true
 	}});
 
 	Bar.prototype.onBeforeRendering = function() {
@@ -346,7 +353,7 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 
 		} else {
 
-			// IE has a rounding issue with JQuery.outerWidth
+			// IE has a rounding issue with jQuery.outerWidth
 			var oContainerChildrenStyle;
 
 			for (i = 0; i < aContainerChildren.length; i++) {
@@ -391,6 +398,48 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 	/////////////////
 	//Bar in page delegation
 	/////////////////
+
+	// Provides helper sap.m.BarInAnyContentEnabler
+	/**
+	 * @class Helper Class for implementing additional contexts of the Bar.
+	 * e.g. in sap.m.Dialog
+	 *
+	 * @version 1.40
+	 * @protected
+	 */
+	var BarInAnyContentEnabler = BarInPageEnabler.extend("sap.m.BarInAnyContentEnabler", /** @lends sap.m.BarInAnyContentEnabler.prototype */ {});
+
+	BarInAnyContentEnabler.mContexts = {
+		dialogFooter : {
+			contextClass : "sapMFooter-CTX",
+			tag : "Footer",
+			internalAriaLabel: "BAR_ARIA_DESCRIPTION_FOOTER"
+		}
+	};
+
+	/**
+	 * Gets the available Bar contexts from the BarInPageEnabler and adds the additional contexts from BarInAnyContentEnabler.
+	 *
+	 * @returns {Object} with all available contexts
+	 */
+	BarInAnyContentEnabler.prototype.getContext = function() {
+		var oParentContexts = BarInPageEnabler.prototype.getContext.call();
+
+		for (var key in BarInAnyContentEnabler.mContexts) {
+			oParentContexts[key] = BarInAnyContentEnabler.mContexts[key];
+		}
+
+		return oParentContexts;
+	};
+
+	/**
+	 * Gets the available Bar contexts.
+	 *
+	 * @returns {Object} with all available contexts
+	 * @protected
+	 */
+	Bar.prototype.getContext = BarInAnyContentEnabler.prototype.getContext;
+
 	/**
 	 * Determines whether the Bar is sensitive to the container context.
 	 *
@@ -398,7 +447,7 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 	 * @returns {boolean} isContextSensitive
 	 * @protected
 	 */
-	Bar.prototype.isContextSensitive = BarInPageEnabler.prototype.isContextSensitive;
+	Bar.prototype.isContextSensitive = BarInAnyContentEnabler.prototype.isContextSensitive;
 
 	/**
 	 * Sets the HTML tag of the root element.
@@ -406,36 +455,62 @@ sap.ui.define(['jquery.sap.global', './BarInPageEnabler', './library', 'sap/ui/c
 	 * @returns {sap.m.IBar} this for chaining
 	 * @protected
 	 */
-	Bar.prototype.setHTMLTag = BarInPageEnabler.prototype.setHTMLTag;
+	Bar.prototype.setHTMLTag = BarInAnyContentEnabler.prototype.setHTMLTag;
 	/**
 	 * Gets the HTML tag of the root element.
 	 * @returns {sap.m.IBarHTMLTag} The HTML-tag
 	 * @protected
 	 */
-	Bar.prototype.getHTMLTag  = BarInPageEnabler.prototype.getHTMLTag;
+	Bar.prototype.getHTMLTag  = BarInAnyContentEnabler.prototype.getHTMLTag;
 
 	/**
-	 * Sets classes and tag according to the context of the page. Possible contexts are header, footer and sub-header.
-	 * @returns {sap.m.IBar} this for chaining
+	 * Sets classes and HTML tag according to the context of the page. Possible contexts are header, footer and subheader.
+	 * @returns {sap.m.IBar} <code>this</code> for chaining
 	 * @protected
 	 */
-	Bar.prototype.applyTagAndContextClassFor  = BarInPageEnabler.prototype.applyTagAndContextClassFor;
+	Bar.prototype.applyTagAndContextClassFor  = BarInAnyContentEnabler.prototype.applyTagAndContextClassFor;
 
 	/**
-	 * Sets landmarks members to the bar instance
-	 *
-	 * @param bHasLandmarkInfo {boolean} indicates that bar has landmarkinfo
-	 * @param sContext {string} context of the bar
-	 * @private
+	 * Sets classes according to the context of the page. Possible contexts are header, footer and subheader.
+	 * @returns {sap.m.IBar} <code>this</code> for chaining
+	 * @protected
 	 */
-	Bar.prototype._setLandmarkInfo  = BarInPageEnabler.prototype._setLandmarkInfo;
+	Bar.prototype._applyContextClassFor  = BarInAnyContentEnabler.prototype._applyContextClassFor;
 
 	/**
-	 * Writes landmarks info to the bar
+	 * Sets HTML tag according to the context of the page. Possible contexts are header, footer and subheader.
+	 * @returns {sap.m.IBar} <code>this</code> for chaining
+	 * @protected
+	 */
+	Bar.prototype._applyTag  = BarInAnyContentEnabler.prototype._applyTag;
+
+	/**
+	 * Get context options of the Page.
 	 *
+	 * Possible contexts are header, footer, subheader.
+	 * @param {string} sContext allowed values are header, footer, subheader.
+	 * @returns {object|null}
 	 * @private
 	 */
-	Bar.prototype._writeLandmarkInfo  = BarInPageEnabler.prototype._writeLandmarkInfo;
+	Bar.prototype._getContextOptions  = BarInAnyContentEnabler.prototype._getContextOptions;
+
+	/**
+	 * Sets accessibility role of the Root HTML element.
+	 *
+	 * @param {string} sRole AccessibilityRole of the root Element
+	 * @returns {sap.m.IBar} <code>this</code> to allow method chaining
+	 * @private
+	 */
+	Bar.prototype._setRootAccessibilityRole = BarInAnyContentEnabler.prototype._setRootAccessibilityRole;
+
+	/**
+	 * Gets accessibility role of the Root HTML element.
+	 *
+	 * @returns {string} Accessibility role
+	 * @private
+	 */
+	Bar.prototype._getRootAccessibilityRole = BarInAnyContentEnabler.prototype._getRootAccessibilityRole;
+
 
 	return Bar;
 

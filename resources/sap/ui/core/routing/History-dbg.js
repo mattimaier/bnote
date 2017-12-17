@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global', 'sap/ui/core/library', './HashChanger'],
@@ -13,7 +13,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/library', './HashChanger'],
 
 
 	/**
-	 * Used to determine the {@link sap.ui.core.HistoryDirection} of the current or a future navigation,
+	 * Used to determine the {@link sap.ui.core.routing.HistoryDirection} of the current or a future navigation,
 	 * done with a {@link sap.ui.core.routing.Router} or {@link sap.ui.core.routing.HashChanger}.
 	 *
 	 * <strong>ATTENTION:</strong> this class will not be accurate if someone does hash-replacement without the named classes above
@@ -116,8 +116,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/library', './HashChanger'],
 		/**
 		 * Determines what the navigation direction for a newly given hash would be
 		 * @param {string} sNewHash the new hash
-		 * @param bHistoryLengthIncreased if the history length has increased compared with the last check
-		 * @param bCheckHashChangerEvents Checks if the hash was set or replaced by the hashchanger. When getDirection is called by an app this has to be false.
+		 * @param {boolean} bHistoryLengthIncreased if the history length has increased compared with the last check
+		 * @param {boolean} bCheckHashChangerEvents Checks if the hash was set or replaced by the hashchanger. When getDirection is called by an app this has to be false.
 		 * @returns {sap.ui.core.routing.HistoryDirection}
 		 * @private
 		 */

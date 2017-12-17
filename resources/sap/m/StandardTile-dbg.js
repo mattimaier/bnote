@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -22,11 +22,12 @@ sap.ui.define(['jquery.sap.global', './Tile', './library', 'sap/ui/core/IconPool
 	 * @extends sap.m.Tile
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
 	 * @since 1.12
+	 * @deprecated As of version 1.50, use {@link sap.m.GenericTile} instead
 	 * @alias sap.m.StandardTile
 	 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
 	 */
@@ -104,8 +105,8 @@ sap.ui.define(['jquery.sap.global', './Tile', './library', 'sap/ui/core/IconPool
 	};
 
 	/**
-	 * Gets the icon of the StandardTile control.
-	 *
+	 * Gets the icon of the <code>StandardTile</code> control.
+	 * @returns {Object} The icon of the control
 	 * @public
 	 */
 	StandardTile.prototype.getIcon = function() {
@@ -119,7 +120,7 @@ sap.ui.define(['jquery.sap.global', './Tile', './library', 'sap/ui/core/IconPool
 
 	/**
 	 * Lazy loads StandardTile icon image.
-	 *
+	 * @returns {Object} The icon image
 	 * @private
 	 */
 	StandardTile.prototype._getImage = function() {

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -127,7 +127,69 @@ sap.ui.define(['jquery.sap.global', './Binding', './SimpleType','./DataState'],
 			throw oException;
 		}
 		// if no type specified set value directly
-		oDataState.setInvalidValue(null);
+		oDataState.setInvalidValue(undefined);
+		this.setValue(oValue);
+	};
+
+	/**
+	 * Returns the related JavaScript primitive value of the bound target which is parsed by the {@link sap.ui.model.SimpleType#getModelFormat model format} of this binding's type.
+	 * If this binding doesn't have a type, the original value which is stored in the model is returned.
+	 *
+	 * This method will be used when it's included in a {@link sap.ui.model.CompositeBinding CompositeBinding} and the CompositeBinding needs to have the related
+	 * JavaScript primitive values for its type or formatter.
+	 *
+	 * @return {object} the value which is parsed by the model format of the bound target or the original value in case of no type.
+	 *
+	 * @public
+	 */
+	PropertyBinding.prototype.getInternalValue = function() {
+		var oValue = this.getValue();
+		var oFormat;
+
+		if (this.oType && oValue !== null && oValue !== undefined) {
+			oFormat = this.oType.getModelFormat();
+
+			jQuery.sap.assert(oFormat && typeof oFormat.parse === "function", "The input format of " + this.oType + " should be an object with the 'parse' method");
+			return oFormat.parse(oValue);
+		}
+
+		return oValue;
+	};
+
+	/**
+	 * Sets the value for this binding with the related JavaScript primitive type. The value is formatted with the {@link sap.ui.model.SimpleType#getModelFormat model format} and validated against its type and then set to the model.
+	 *
+	 * @param {object} oValue the value to set for this binding
+	 *
+	 * @throws sap.ui.model.ValidateException
+	 *
+	 * @public
+	 */
+	PropertyBinding.prototype.setInternalValue = function(oValue) {
+		var oFormat;
+		// formatter doesn't support two way binding
+		if (this.fnFormatter) {
+			jQuery.sap.log.warning("Tried to use twoway binding, but a formatter function is used");
+			return;
+		}
+
+		var oDataState = this.getDataState();
+		try {
+			if (this.oType && oValue !== null && oValue !== undefined) {
+				oFormat = this.oType.getModelFormat();
+
+				jQuery.sap.assert(oFormat && typeof oFormat.format === "function", "The model format of " + this.oType + " should be an object with the 'format' method");
+				oValue = oFormat.format(oValue);
+
+				this.oType.validateValue(oValue);
+			}
+		} catch (oException) {
+			oDataState.setInvalidValue(oValue);
+			this.checkDataState(); //data ui state is dirty inform the control
+			throw oException;
+		}
+		// if no type specified set value directly
+		oDataState.setInvalidValue(undefined);
 		this.setValue(oValue);
 	};
 
@@ -211,10 +273,17 @@ sap.ui.define(['jquery.sap.global', './Binding', './SimpleType','./DataState'],
 	 * @private
 	 */
 	PropertyBinding.prototype.checkDataState = function(mPaths) {
-		var sResolvedPath = this.oModel ? this.oModel.resolve(this.sPath, this.oContext) : null;
-		var that = this;
+		var sResolvedPath = this.oModel ? this.oModel.resolve(this.sPath, this.oContext) : null,
+			oDataState = this.getDataState(),
+			that = this;
+
+		function fireChange() {
+			that.fireEvent("AggregatedDataStateChange", { dataState: oDataState });
+			oDataState.changed(false);
+			that._sDataStateTimout = null;
+		}
+
 		if (!mPaths || sResolvedPath && sResolvedPath in mPaths) {
-			var oDataState = this.getDataState();
 			if (sResolvedPath) {
 				oDataState.setModelMessages(this.oModel.getMessagesByPath(sResolvedPath));
 			}
@@ -222,13 +291,11 @@ sap.ui.define(['jquery.sap.global', './Binding', './SimpleType','./DataState'],
 				if (this.mEventRegistry["DataStateChange"]) {
 					this.fireEvent("DataStateChange", { dataState: oDataState });
 				}
-				if (this.mEventRegistry["AggregatedDataStateChange"]) {
+				if (this.bIsBeingDestroyed) {
+					fireChange();
+				} else if (this.mEventRegistry["AggregatedDataStateChange"]) {
 					if (!this._sDataStateTimout) {
-						this._sDataStateTimout = setTimeout(function() {
-							that.fireEvent("AggregatedDataStateChange", { dataState: oDataState });
-							oDataState.changed(false);
-							that._sDataStateTimout = null;
-						}, 0);
+						this._sDataStateTimout = setTimeout(fireChange, 0);
 					}
 				}
 			}

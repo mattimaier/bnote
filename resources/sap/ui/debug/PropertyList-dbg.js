@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,7 +18,7 @@ sap.ui.define('sap/ui/debug/PropertyList', ['jquery.sap.global', 'sap/ui/base/Da
 	 *
 	 * @extends sap.ui.base.EventProvider
 	 * @author Martin Schaus
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @param {sap.ui.core.Core}
 	 *            oCore the core instance to use for analysis
@@ -191,7 +191,7 @@ sap.ui.define('sap/ui/debug/PropertyList', ['jquery.sap.global', 'sap/ui/base/Da
 					oValue = '(null)';
 				} else if ( oValue  instanceof Element ) {
 					sColor = 'color:#a5a5a5;';
-					if (jQuery.isArray(oValue)) {
+					if (Array.isArray(oValue)) {
 						// array type (copied from primitive values above and modified the value to string / comma separated)
 						oValue = oValue.join(", ");
 					} else {
@@ -339,7 +339,6 @@ sap.ui.define('sap/ui/debug/PropertyList', ['jquery.sap.global', 'sap/ui/base/Da
 				var sUrl = this.oWindow.jQuery.sap.getModulePath(this.sCurrentHelpDoc, ".control");
 				var that = this;
 				jQuery.ajax({
-					async: true,
 					url : sUrl,
 					dataType : 'xml',
 					error : function(xhr,status) {
@@ -362,7 +361,6 @@ sap.ui.define('sap/ui/debug/PropertyList', ['jquery.sap.global', 'sap/ui/base/Da
 		if ( oDocument ) {
 			var oControlNode = oDocument.getElementsByTagName("control")[0];
 			if ( oControlNode ) {
-				// debugger;
 				var get = function(oXMLNode, sName) {
 					var result = [];
 					var oCandidate = oXMLNode.firstChild;

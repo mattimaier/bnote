@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,7 +18,7 @@
  * sap.ui.lazyRequire("sap.ui.core.Control");
  * sap.ui.lazyRequire("sap.ui.commons.Button");
  *
- * @version 1.38.7
+ * @version 1.50.7
  * @author  Martin Schaus, Daniel Brinkmann
  * @public
  */
@@ -40,7 +40,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.dom'],
 	 * The <code>sap</code> namespace is automatically registered with the
 	 * OpenAjax hub if it exists.
 	 *
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @namespace
 	 * @public
 	 * @name sap
@@ -53,7 +53,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.dom'],
 	 * The <code>sap.ui</code> namespace is the central OpenAjax compliant entry
 	 * point for UI related JavaScript functionality provided by SAP.
 	 *
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @namespace
 	 * @name sap.ui
 	 * @public
@@ -67,8 +67,8 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.dom'],
 		 * The version of the SAP UI Library
 		 * @type string
 		 */
-		version: "1.38.7",
-		buildinfo : { lastchange : "", buildtime : "20160816-1141" }
+		version: "1.50.7",
+		buildinfo : { lastchange : "", buildtime : "20171204-1453" }
 	});
 
 	var oCfgData = window["sap-ui-config"] || {};
@@ -96,7 +96,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.dom'],
 	 * In case of the version info file is not available an error will occur when
 	 * calling this function.
 	 *
-	 * @param {string|object} [mOptions] name of the library (e.g. "sap.ui.core") or a object map (see below)
+	 * @param {string|object} [mOptions] name of the library (e.g. "sap.ui.core") or an object map (see below)
 	 * @param {boolean} [mOptions.library] name of the library (e.g. "sap.ui.core")
 	 * @param {boolean} [mOptions.async=false] whether "sap-ui-version.json" should be loaded asynchronously
 	 * @param {boolean} [mOptions.failOnError=true] whether to propagate load errors or not (not relevant for async loading)
@@ -290,7 +290,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.dom'],
 					}
 
 					// create a new instance and invoke the constructor
-					var oInstance = jQuery.sap.newObject(oRealClass.prototype);
+					var oInstance = Object.create(oRealClass.prototype);
 					var oResult = oRealClass.apply(oInstance, arguments);
 					if (oResult && (typeof oResult === "function" || typeof oResult === "object")) {
 						oInstance = oResult;
@@ -316,7 +316,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.dom'],
 
 
 		// add stub methods to it
-		jQuery.each(aMethods, function (i,sMethod) {
+		aMethods.forEach( function(sMethod) {
 			// check whether method is already available
 			if (!oClass[sMethod]) {
 				oClass[sMethod] = function() {
@@ -399,7 +399,7 @@ sap.ui.define(['jquery.sap.global', 'jquery.sap.dom'],
 	 * equally named subfolder of the <b>application root folder</b>.
 	 * If the resource name consists of multiple segments (separated by a dot), each segment
 	 * is assumed to represent an individual folder. In other words: when a resource name is
-	 * converted to an URL, any dots ('.') are converted to slashes ('/').
+	 * converted to a URL, any dots ('.') are converted to slashes ('/').
 	 *
 	 * <b>Limitation:</b> For the time being, the <b>application root folder</b> is assumed to be
 	 * the same as the folder where the current page resides in.

@@ -1,9 +1,9 @@
 /*
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
-sap.ui.define(["jquery.sap.global", "sap/ui/Device", "sap/ui/core/util/MockServer"], function(jQuery, Device, MockServer) {
+sap.ui.define(["jquery.sap.global", "sap/ui/Device", "sap/ui/core/util/MockServer", "jquery.sap.sjax"], function(jQuery, Device, MockServer/*, jQuerySapSjax*/) {
 	"use strict";
 	return {
 
@@ -74,9 +74,11 @@ sap.ui.define(["jquery.sap.global", "sap/ui/Device", "sap/ui/core/util/MockServe
 						this._oDraftMetadata.draftRootName = sEntityset;
 						this._oDraftMetadata.annotations = oAnnotations;
 						this._oDraftMetadata.mockServerRootUri = oMockServer.getRootUri();
-						this._oDraftMetadata.draftRootActivationName = oEntitySetAnnotations[this._oConstants.COM_SAP_VOCABULARIES_COMMON_V1_DRAFTROOT][this
-							._oConstants.ACTIVATION_ACTION
-						].String;
+						if (oEntitySetAnnotations[this._oConstants.COM_SAP_VOCABULARIES_COMMON_V1_DRAFTROOT][this._oConstants.ACTIVATION_ACTION]){
+                            this._oDraftMetadata.draftRootActivationName = oEntitySetAnnotations[this._oConstants.COM_SAP_VOCABULARIES_COMMON_V1_DRAFTROOT][this
+                                ._oConstants.ACTIVATION_ACTION
+                                ].String;
+						}
 						if (this._oDraftMetadata.draftRootActivationName) {
 							this._oDraftMetadata.draftRootActivationName = this._oDraftMetadata.draftRootActivationName.substring(this._oDraftMetadata.draftRootActivationName
 								.lastIndexOf("/") + 1);
@@ -133,7 +135,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/Device", "sap/ui/core/util/MockServe
 			var aSemanticKey = [];
 			for (var annotationsProperty in this._oDraftMetadata.annotations) {
 				if (annotationsProperty.lastIndexOf(mEntitySets[sEntityset].type) > -1) {
-					aSemanticKey = this._oDraftMetadata.annotations[annotationsProperty][this._oConstants.COM_SAP_VOCABULARIES_COMMON_V1_SEMANTICKEY];
+					aSemanticKey = this._oDraftMetadata.annotations[annotationsProperty][this._oConstants.COM_SAP_VOCABULARIES_COMMON_V1_SEMANTICKEY] || [];
 					break;
 				}
 			}
@@ -155,7 +157,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/Device", "sap/ui/core/util/MockServe
 		_prepareDraftMetadata: function(mEntitySets) {
 			var that = this;
 			this._oDraftMetadata.draftNodes = [];
-			this._oDraftMetadata.draftRootKey = jQuery.grep(mEntitySets[this._oDraftMetadata.draftRootName].keys, function(x) {
+			this._oDraftMetadata.draftRootKey = mEntitySets[this._oDraftMetadata.draftRootName].keys.filter(function(x) {
 				return jQuery.inArray(x, that._calcSemanticKeys(that._oDraftMetadata.draftRootName, mEntitySets)) < 0;
 			})[0];
 			var oAnnotations = that._oDraftMetadata.annotations;
@@ -210,7 +212,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/Device", "sap/ui/core/util/MockServe
 			var oMockdata = this._oMockdata;
 			var aDraftRoot = oMockdata[this._oDraftMetadata.draftRootName];
 			var fnGrep = function(aContains, aContained) {
-				return jQuery.grep(aContains, function(x) {
+				return aContains.filter(function(x) {
 					return jQuery.inArray(x, aContained) < 0;
 				})[0];
 			};
@@ -343,7 +345,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/Device", "sap/ui/core/util/MockServe
 		_activate: function(oEntry) {
 			var oResponse;
 			var fnGrep = function(aContains, aContained) {
-				return jQuery.grep(aContains, function(x) {
+				return aContains.filter(function(x) {
 					return jQuery.inArray(x, aContained) < 0;
 				})[0];
 			};

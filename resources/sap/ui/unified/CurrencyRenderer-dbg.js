@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -14,7 +14,7 @@ sap.ui.define(['jquery.sap.global'],
 	/**
 	 * Currency renderer.
 	 *
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @namespace
 	 */
 	var CurrencyRenderer = {
@@ -25,9 +25,9 @@ sap.ui.define(['jquery.sap.global'],
 	 * {@link sap.ui.core.RenderManager}.
 	 *
 	 * @param {sap.ui.core.RenderManager}
-	 *            oRenderManager The RenderManager that can be used for writing to the render-output-buffer.
+	 *            oRm The RenderManager that can be used for writing to the render-output-buffer.
 	 * @param {sap.ui.core.Control}
-	 *            oMenu An object representation of the control that should be rendered
+	 *            oCurrency An object representation of the control that should be rendered
 	 */
 	CurrencyRenderer.render = function(oRm,oCurrency) {
 		var sTooltip = oCurrency.getTooltip_AsString();
@@ -50,6 +50,8 @@ sap.ui.define(['jquery.sap.global'],
 		oRm.writeClasses();
 		oRm.write(">");
 		oRm.write("<span");
+		// The currency value should always be displayed in ltr direction
+		oRm.writeAttribute("dir", "ltr");
 		oRm.addClass("sapUiUfdCurrencyValue");
 		oRm.writeClasses();
 		oRm.write(">");

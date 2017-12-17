@@ -1,24 +1,17 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-/**
- * Fiori20Adapter
- *
- * @namespace
- * @name sap.m
- */
-
 // Provides class sap.m.Fiori20Adapter
-sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProvider'],
-	function(jQuery,  Object, EventProvider) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProvider', 'sap/ui/base/ManagedObjectObserver', 'sap/ui/Device'],
+	function(jQuery,  Object, EventProvider, ManagedObjectObserver, Device) {
 	"use strict";
 
 	var oEventProvider = new EventProvider(),
-		oAdaptationResult,
-		aCurrentViewPath;
+		oInfoToMerge,
+		sCurrentlyAdaptedTopNavigableViewId;
 
 
 	/**
@@ -26,7 +19,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 	 *
 	 *
 	 * @class text
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @private
 	 * @since 1.38
 	 * @alias HeaderAdapter
@@ -44,7 +37,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			this._oStyledPage = null;
 			this._oTitleInfo = null;
 			this._oSubTitleInfo = null;
-			this._oBackButton = null;
+			this._oBackButtonInfo = null;
 			this._oAdaptOptions = oAdaptOptions;
 		}
 	});
@@ -55,7 +48,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			bCollapseHeader = this._oAdaptOptions.bCollapseHeader;
 
 		if (bStylePage) {
-			this._adaptStyle("sapF2Adapted");
+			this._toggleStyle("sapF2Adapted", true, true /* suppress invalidate */);
 		}
 
 		this._adaptTitle();
@@ -74,7 +67,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 		return {
 			oTitleInfo: this._oTitleInfo,
 			oSubTitleInfo: this._oSubTitleInfo,
-			oBackButton: this._oBackButton,
+			oBackButtonInfo: this._oBackButtonInfo,
 			oStyledPage: this._oStyledPage
 		};
 	};
@@ -90,7 +83,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 		var bSuccess = !!this._oTitleInfo || !!this._oSubTitleInfo;
 
 		if (this._oTitleInfo) {
-			this._oTitleInfo.oControl.addStyleClass("sapF2AdaptedTitle");
+			this._oTitleInfo.oControl.toggleStyleClass("sapF2AdaptedTitle", true);
 		}
 
 		return bSuccess;
@@ -102,22 +95,31 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			return false;
 		}
 
-		var bBackButtonHidden = false;
+		var bHideBackButton, bBackButtonHidden = false;
 
-		this._oBackButton = this._detectBackButton();
+		this._oBackButtonInfo = this._detectBackButton();
 
-		if (this._oBackButton) {
-			this._oBackButton.addStyleClass("sapF2AdaptedNavigation");
+		if (this._oBackButtonInfo) {
+			bHideBackButton = this._oBackButtonInfo.oControl.getVisible();
+			this._oBackButtonInfo.oControl.toggleStyleClass("sapF2AdaptedNavigation", bHideBackButton);
 			bBackButtonHidden = true;
 		}
 		return bBackButtonHidden;
 	};
 
-	HeaderAdapter.prototype._adaptStyle = function(sClass) {
+	HeaderAdapter.prototype._toggleStyle = function(sStyleClass, bAdd, bSuppressInvalidate) {
 		var oPage = this._oHeader.getParent();
-		if (oPage) {
-			oPage.addStyleClass(sClass, true);
-			this._oStyledPage = oPage;
+		if (!oPage) {
+			return;
+		}
+		this._oStyledPage = oPage;
+
+		if (bAdd === true) {
+			oPage.addStyleClass(sStyleClass, bSuppressInvalidate);
+		} else if (bAdd === false) {
+			oPage.removeStyleClass(sStyleClass, bSuppressInvalidate);
+		} else if (bAdd === undefined) {
+			oPage.hasStyleClass(sStyleClass) ? oPage.removeStyleClass(sStyleClass, bSuppressInvalidate) : oPage.addStyleClass(sStyleClass, bSuppressInvalidate);
 		}
 	};
 
@@ -164,12 +166,18 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 	};
 
 	HeaderAdapter.prototype._detectBackButton = function() {
+		var aBeginContent, oBackButton;
 
 		if (HeaderAdapter._isAdaptableHeader(this._oHeader)) {
-			var aBeginContent = this._oHeader.getContentLeft();
+			aBeginContent = this._oHeader.getContentLeft();
 			if (aBeginContent.length > 0 && isInstanceOf(aBeginContent[0], "sap/m/Button") &&
 				(aBeginContent[0].getType() === "Back" || aBeginContent[0].getType() === "Up" || aBeginContent[0].getIcon() === "sap-icon://nav-back")) {
-				return aBeginContent[0];
+				oBackButton = aBeginContent[0];
+				return {
+					id: oBackButton.getId(),
+					oControl: oBackButton,
+					sChangeEventId: "_change"
+				};
 			}
 		}
 	};
@@ -177,26 +185,38 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 	HeaderAdapter.prototype._collapseHeader = function() {
 
 		var bTitleHidden = this._oTitleInfo,
-			bBackButtonHidden = this._oBackButton;
+			bBackButtonHidden = this._oBackButtonInfo,
+			aBeginContent,
+			aMiddleContent,
+			aEndContent,
+			bBeginContentHidden,
+			bMiddleContentHidden,
+			bEndContentHidden,
+			bAllContentHidden;
 
 		if (HeaderAdapter._isAdaptableHeader(this._oHeader)) {
-			var aBeginContent = this._oHeader.getContentLeft();
-			var aMiddleContent = this._oHeader.getContentMiddle();
-			var aEndContent = this._oHeader.getContentRight();
-			if ((aBeginContent.length === 0 || (aBeginContent.length === 1 && bBackButtonHidden)) &&
-				(aMiddleContent.length === 0 || (aMiddleContent.length === 1 && bTitleHidden)) &&
-				(aEndContent.length === 0)) {
-				this._adaptStyle("sapF2CollapsedHeader");
-			}
+			aBeginContent = this._oHeader.getContentLeft();
+			aMiddleContent = this._oHeader.getContentMiddle();
+			aEndContent = this._oHeader.getContentRight();
+
+			bBeginContentHidden = (aBeginContent.length === 1) && (isHiddenFromAPI(aBeginContent[0]) || bBackButtonHidden);
+			bMiddleContentHidden = (aMiddleContent.length === 1) && (isHiddenFromAPI(aMiddleContent[0]) || bTitleHidden);
+			bEndContentHidden = (aEndContent.length === 1) && isHiddenFromAPI(aEndContent[0]);
+
+			bAllContentHidden = (aBeginContent.length === 0 || bBeginContentHidden) &&
+				(aMiddleContent.length === 0 || bMiddleContentHidden) &&
+				((aEndContent.length === 0) || bEndContentHidden);
+
+			this._toggleStyle("sapF2CollapsedHeader", bAllContentHidden, true);
 		}
 	};
 
 
 	/**
-	 * Constructor for a sap.m.Fiori20Adapter.
+	 * Constructor for an sap.m.Fiori20Adapter.
 	 *
 	 * @class text
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @private
 	 * @since 1.38
 	 * @alias sap.m.Fiori20Adapter
@@ -216,18 +236,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 		/* cache of intermediate adaptation results
 		 of the current component
 		 used in case user re-visits an already adapted view */
-		oAdaptationResult = {
+		oInfoToMerge = {
 			aViewTitles: {},
 			aViewSubTitles: {},
 			aViewBackButtons: {},
 			aChangeListeners: {}
 		};
-		aCurrentViewPath = [];
+		sCurrentlyAdaptedTopNavigableViewId = null;
 
 		this._doBFS([{
 			oNode: oComponentRoot,
 			oAdaptOptions: oAdaptOptions
 		}]);
+
+		if (this._getCurrentTopViewId()) {
+			this._fireViewChange(this._getCurrentTopViewId(), oAdaptOptions);
+		}
 	};
 
 	/**
@@ -246,13 +270,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 
 		oAdaptOptions = this._applyRules(oAdaptOptions, oNode); //apply semantic rules specific to controls
 
-		if (!oNode || !this._isAdaptationRequired(oAdaptOptions) || (iSearchDepth <= 0)) {
+		if (!this._isAdaptationRequired(oNode, oAdaptOptions) || (iSearchDepth <= 0)) {
 			return;
 		}
 
-		var bIsNavigableView = oNode.getParent() && isInstanceOf(oNode.getParent(), "sap/m/NavContainer");
-		if (bIsNavigableView) {
-			aCurrentViewPath.push(oNode.getId());
+		var bIsTopNavigableView = this._isTopNavigableView(oNode);
+		if (bIsTopNavigableView) {
+			this._setAsCurrentTopViewId(oNode.getId());
 		}
 
 		var oNodeAdaptationResult = this._processNode(oNode, oAdaptOptions);
@@ -261,9 +285,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			childAdaptOptions = jQuery.extend({}, oAdaptOptions, {iSearchDepth: this._updateSearchDepth(iSearchDepth, oNode)});
 
 		if (oNodeAdaptationResult) {
-			var bTitleHidden = !!oAdaptationResult.oTitleInfo,
-			bBackButtonHidden = !!oAdaptationResult.oBackButton,
-			bPageStyled = !!oAdaptationResult.oStyledPage;
+			var bTitleHidden = !!oNodeAdaptationResult.oTitleInfo,
+			bBackButtonHidden = !!oNodeAdaptationResult.oBackButton,
+			bPageStyled = !!oNodeAdaptationResult.oStyledPage;
 
 			childAdaptOptions = jQuery.extend(childAdaptOptions, {
 				bMoveTitle: oAdaptOptions.bMoveTitle && !bTitleHidden,
@@ -281,14 +305,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			}
 		});
 
-		this._doBFS(aQueue);
-
-		if (bIsNavigableView) {
-			aCurrentViewPath.pop();
-			if (aCurrentViewPath.length === 0) {
-				this._fireViewChange(oNode.getId());
-			}
-		}
+		this._doBFS(aQueue); // synchronous
 	};
 
 	Fiori20Adapter._processNode = function(oControl, oAdaptOptions) {
@@ -300,7 +317,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			return this._adaptHeader(oControl, oAdaptOptions);
 		}
 		if (oControl.getParent() && isInstanceOf(oControl.getParent(), "sap/m/NavContainer")) {
-			return this._getCachedAdaptationResult(oControl.getId()); //if already adapted in earlier navigation
+			return this._getCachedViewInfoToMerge(oControl.getId()); //if already adapted in earlier navigation
 		}
 	};
 
@@ -333,6 +350,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 							oNode: oControl.getComponentInstance(),
 							oAdaptOptions: oAdaptOptions
 						}]);
+						if (that._getCurrentTopViewId()) {
+							that._fireViewChange(that._getCurrentTopViewId(), oAdaptOptions);
+						}
 					}
 				};
 				oControl.addEventDelegate(oDelegate, this);
@@ -341,11 +361,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 	};
 
 	Fiori20Adapter._checkHasListener = function(sKey) {
-		return oAdaptationResult.aChangeListeners[sKey];
+		return oInfoToMerge.aChangeListeners[sKey];
 	};
 
 	Fiori20Adapter._setHasListener = function(sKey, oValue) {
-		oAdaptationResult.aChangeListeners[sKey] = oValue;
+		oInfoToMerge.aChangeListeners[sKey] = oValue;
 	};
 
 	// attaches listener for changes in the adaptable content
@@ -363,21 +383,19 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 		var oOwnerViewId = this._getCurrentTopViewId();
 		var fnOnAdaptableContentChange = function(oEvent) {
 			var oChangedContent = oEvent.getParameter("adaptableContent");
-			var bIsPostAdaptation = (this._getCurrentTopViewId() === undefined);
-			if (bIsPostAdaptation) {
-				aCurrentViewPath.push(oOwnerViewId);
-				this._doBFS([{ // scan [for adaptable content] the newly added subtree
-					oNode: oChangedContent,
-					oAdaptOptions: oAdaptOptions
-				}]);
-				aCurrentViewPath.pop();
-				this._fireViewChange(oOwnerViewId);
+			this._setAsCurrentTopViewId(oOwnerViewId); // restore the view context (so that any findings are saved as belonging to that view)
+			this._doBFS([{ // scan [for adaptable content] the newly added subtree
+				oNode: oChangedContent,
+				oAdaptOptions: oAdaptOptions
+			}]);
+			if (this._getCurrentTopViewId()) {
+				this._fireViewChange(this._getCurrentTopViewId(), oAdaptOptions);
 			}
 		}.bind(this);
 
 		oControl.attachEvent("_adaptableContentChange", fnOnAdaptableContentChange);
 
-		this._setHasListener(sKey);
+		this._setHasListener(sKey, fnOnAdaptableContentChange);
 	};
 
 	// attaches listener for changes in the nav container current page
@@ -392,21 +410,25 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			return;
 		}
 
-		oControl.attachNavigate(function(oEvent){
+		var fnOnNavigate = function(oEvent){
+			var oNode = oEvent.getParameter("to");
+			oAdaptOptions = this._applyRules(oAdaptOptions, oNode); //update the context-specific options
+
 			this._doBFS([{ // scan [for adaptable content] the newly added subtree
-				oNode: oEvent.getParameter("to"),
+				oNode: oNode,
 				oAdaptOptions: oAdaptOptions
 			}]);
-		}.bind(this));
+			if (this._getCurrentTopViewId()) {
+				this._fireViewChange(this._getCurrentTopViewId(), oAdaptOptions);
+			}
+		}.bind(this);
 
-		this._setHasListener(sKey);
+		oControl.attachNavigate(fnOnNavigate);
+
+		this._setHasListener(sKey, fnOnNavigate);
 	};
 
 	Fiori20Adapter._attachModifyAggregation = function(oControl, sAggregationName, oAdaptOptions, oControlToRescan) {
-
-		if (!oControl._attachModifyAggregation || !jQuery.isFunction(oControl._attachModifyAggregation)) {
-			return;
-		}
 
 		var sKey = oControl.getId() + sAggregationName;
 
@@ -414,29 +436,30 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			return;
 		}
 
-		var oOwnerViewId = this._getCurrentTopViewId();
-		var fnOnModifyAggregation = function(oEvent) {
-			var sType = oEvent.getParameter("type"),
-				oObject = oEvent.getParameter("object");
+		var oOwnerViewId = this._getCurrentTopViewId(),
+			fnOnModifyAggregation = function(oChanges) {
+				var sMutation = oChanges.mutation,
+					oChild = oChanges.object;
 
-			if ((sType === "add") || (sType === "insert")) {
+				if ((sMutation === "add") || (sMutation === "insert")) {
 
-				var bIsPostAdaptation = (this._getCurrentTopViewId() === undefined);
-				if (bIsPostAdaptation) {
-					aCurrentViewPath.push(oOwnerViewId);
-					this._doBFS([{ // scan [for adaptable content] the newly added subtree
-						oNode: oControlToRescan ? oControlToRescan : oObject,
-						oAdaptOptions: oAdaptOptions
-					}]);
-					aCurrentViewPath.pop();
-					this._fireViewChange(oOwnerViewId);
+						this._setAsCurrentTopViewId(oOwnerViewId); // restore the view context (so that any findings are saved as belonging to that view)
+						this._doBFS([{ // scan [for adaptable content] the newly added subtree
+							oNode: oControlToRescan ? oControlToRescan : oChild,
+							oAdaptOptions: oAdaptOptions
+						}]);
+						if (this._getCurrentTopViewId()) {
+							this._fireViewChange(oOwnerViewId, oAdaptOptions);
+						}
 				}
-			}
-		}.bind(this);
+			}.bind(this),
+			oObserver = new ManagedObjectObserver(fnOnModifyAggregation);
 
-		oControl._attachModifyAggregation(sAggregationName, oAdaptOptions, fnOnModifyAggregation);
+		oObserver.observe(oControl, {
+			aggregations: [sAggregationName]
+		});
 
-		this._setHasListener(sKey, fnOnModifyAggregation);
+		this._setHasListener(sKey, oObserver);
 	};
 
 	Fiori20Adapter._getNodeChildren = function(oControl) {
@@ -461,11 +484,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			return [oControl.getComponentInstance()];
 		}
 
-		if (isInstanceOf(oControl, "sap/ui/core/Component")) {
+		if (isInstanceOf(oControl, "sap/ui/core/UIComponent")) {
 			return [oControl.getAggregation("rootControl")];
 		}
 
-		return oControl.findAggregatedObjects(false);
+		return oControl.findAggregatedObjects(false, isNonDependentObject); /* skip objects added via Element.prototype.addDependent e.g. dialogs, since this is not nested content */
 	};
 
 	Fiori20Adapter._updateSearchDepth = function(iSearchDepth, oControl) {
@@ -478,12 +501,72 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 		return iSearchDepth - 1;
 	};
 
+	Fiori20Adapter._getTotalCachedInfoToMerge = function(sViewId) {
+		var oView = sap.ui.getCore().byId(sViewId),
+			oCachedViewInfo = this._getCachedViewInfoToMerge(sViewId),
+			isMasterView,
+			isDetailView,
+			sSiblingView,
+			sSiblingViewId,
+			oSplitContainer,
+			oParentNavContainer,
+			oCachedSiblingViewInfo;
 
-	Fiori20Adapter._getCachedAdaptationResult = function(sViewId) {
+		// if this view is part of top-level split-view => merge with info for the sibling view
+		if (!Device.system.phone && this._isTopSplitContainerSubView(oView)) {
+			oParentNavContainer = oView.getParent();
+			oSplitContainer = oParentNavContainer && oParentNavContainer.getParent();
+
+			if (oSplitContainer) {
+				// find which part (master or detail) the view belongs to:
+				// => check if its a child of the master or detail navContainer
+				// (we cannot determine it by checking if it is part of the <code>masterPages</code> or <code>detailPages</code> aggregations of the <code>splitContainer</code>,
+				// because at this [early] stage the view may not be internally registered there yet, but only in its immediate parent aggregation)
+				isMasterView = oSplitContainer._oMasterNav && (oSplitContainer._oMasterNav.getId() === oParentNavContainer.getId());
+				isDetailView = oSplitContainer._oDetailNav && (oSplitContainer._oDetailNav.getId() === oParentNavContainer.getId());
+			}
+		}
+
+		if (isMasterView) { // merge with detail-part info
+			sSiblingView = oSplitContainer.getCurrentDetailPage();
+			sSiblingViewId = sSiblingView && sSiblingView.getId();
+			oCachedSiblingViewInfo = this._getCachedViewInfoToMerge(sSiblingViewId);
+			oCachedViewInfo = this._mergeSplitViewInfos(oCachedViewInfo, oCachedSiblingViewInfo);
+		}
+		if (isDetailView) { // merge with master-part info
+			sSiblingView = oSplitContainer.getCurrentMasterPage();
+			sSiblingViewId = sSiblingView && sSiblingView.getId();
+			oCachedSiblingViewInfo = this._getCachedViewInfoToMerge(sSiblingViewId);
+			oCachedViewInfo = this._mergeSplitViewInfos(oCachedSiblingViewInfo, oCachedViewInfo);
+		}
+
+		oCachedViewInfo.sViewId = (isMasterView || isDetailView) ? oSplitContainer.getId() : sViewId;
+
+		return oCachedViewInfo;
+	};
+
+	Fiori20Adapter._isTopSplitContainerSubView = function(oControl) {
+		var oParent = oControl && oControl.getParent();
+
+		return this._isTopmostNavContainer(oParent) && isInstanceOf(oParent.getParent(), "sap/m/SplitContainer");
+	};
+
+	Fiori20Adapter._mergeSplitViewInfos = function(oMasterViewInfo, oDetailViewInfo) {
+		jQuery.each(oMasterViewInfo, function(sKey, sValue) {
+			oMasterViewInfo[sKey] = sValue || oDetailViewInfo[sKey]; // detail info complements master info where master info is absent
+		});
+		return oMasterViewInfo;
+	};
+
+	Fiori20Adapter._getCachedViewInfoToMerge = function(sViewId) {
+
+		var oBackButton = (oInfoToMerge.aViewBackButtons[sViewId]) //skip currently invisible buttons as the app has currently excluded them from the app logic
+			? oInfoToMerge.aViewBackButtons[sViewId].oControl
+			: undefined;
 		return {
-			oTitleInfo: oAdaptationResult.aViewTitles[sViewId],
-			oSubTitleInfo: oAdaptationResult.aViewSubTitles[sViewId],
-			oBackButton: oAdaptationResult.aViewBackButtons[sViewId]
+			oTitleInfo: oInfoToMerge.aViewTitles[sViewId],
+			oSubTitleInfo: oInfoToMerge.aViewSubTitles[sViewId],
+			oBackButton: oBackButton
 		};
 	};
 
@@ -500,7 +583,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 
 			var bIsPhone = sap.ui.Device.system.phone,
 				bMoveTitle = oAdaptOptions.bMoveTitle,
-				bAdaptChildBackButton;
+				bAdaptChildBackButton = oAdaptOptions.bHideBackButton;
 			/**
 			 * Rule1: In split-screen, adapt title only on phone
 			 */
@@ -512,7 +595,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 			 * 2.1. - on phone
 			 * 2.2. - on the desktop initial page of either master/detail part
 			 */
-			var bAdaptChildBackButton = oAdaptOptions.bHideBackButton;
 			if (bAdaptChildBackButton && !sap.ui.Device.system.phone) {
 				bAdaptChildBackButton = 'initialPage';
 			}
@@ -545,10 +627,31 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 	};
 
 	Fiori20Adapter._getCurrentTopViewId = function() {
+		return sCurrentlyAdaptedTopNavigableViewId;
+	};
 
-		if (aCurrentViewPath && (aCurrentViewPath.length > 0)) {
-			return aCurrentViewPath[0];
+	Fiori20Adapter._setAsCurrentTopViewId = function(sViewId) {
+		sCurrentlyAdaptedTopNavigableViewId = sViewId;
+	};
+
+	Fiori20Adapter._isTopNavigableView = function(oNode) {
+		var oParent = oNode.getParent();
+		return oParent && this._isTopmostNavContainer(oParent);
+	};
+
+	Fiori20Adapter._isTopmostNavContainer = function(oControl) {
+
+		var oCurrentTopNavContainer,
+			oNext = oControl;
+
+		while (oNext) {
+			if (isInstanceOf(oNext, "sap/m/NavContainer")) {
+				oCurrentTopNavContainer = oNext;
+			}
+			oNext = oNext.getParent();
 		}
+
+		return oCurrentTopNavContainer && (oCurrentTopNavContainer.getId() === oControl.getId());
 	};
 
 	Fiori20Adapter._adaptHeader = function(oHeader, oAdaptOptions) {
@@ -563,49 +666,85 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 
 		/* cache the identified title */
 		if (oAdaptedContent.oTitleInfo) {
-			oAdaptationResult.aViewTitles[sTopViewId] = oAdaptedContent.oTitleInfo;
-			this._registerChangeListener(oAdaptationResult.aViewTitles, sTopViewId);
+			oInfoToMerge.aViewTitles[sTopViewId] = oAdaptedContent.oTitleInfo;
+			this._registerTextChangeListener(oInfoToMerge.aViewTitles, sTopViewId, oAdaptOptions);
 		}
 
 		/* cache the identified subTitle */
 		if (oAdaptedContent.oSubTitleInfo) {
-			oAdaptationResult.aViewSubTitles[sTopViewId] = oAdaptedContent.oSubTitleInfo;
-			this._registerChangeListener(oAdaptationResult.aViewSubTitles, sTopViewId);
+			oInfoToMerge.aViewSubTitles[sTopViewId] = oAdaptedContent.oSubTitleInfo;
+			this._registerTextChangeListener(oInfoToMerge.aViewSubTitles, sTopViewId, oAdaptOptions);
 		}
 
 		/* cache the identified backButton */
-		if (oAdaptedContent.oBackButton) {
-			oAdaptationResult.aViewBackButtons[sTopViewId] = oAdaptedContent.oBackButton;
+		if (oAdaptedContent.oBackButtonInfo) {
+			if (oAdaptedContent.oBackButtonInfo.oControl.getVisible()) {
+				oInfoToMerge.aViewBackButtons[sTopViewId] = oAdaptedContent.oBackButtonInfo;
+			}
+			this._registerVisibilityChangeListener(oAdaptedContent.oBackButtonInfo, oInfoToMerge.aViewBackButtons, sTopViewId, oAdaptOptions);
 		}
 
 		return oAdaptedContent;
 	};
 
-	Fiori20Adapter._registerChangeListener = function(aTitleInfoCache, sViewId) {
+	Fiori20Adapter._registerTextChangeListener = function(aTitleInfoCache, sViewId, oAdaptOptions) {
 
 		var oTitleInfo = aTitleInfoCache[sViewId]; //get the cached titleInfo for the given view
 
-		if (oTitleInfo && oTitleInfo.oControl && oTitleInfo.sChangeEventId && !oAdaptationResult.aChangeListeners[oTitleInfo.id]) {
+		if (oTitleInfo && oTitleInfo.oControl && oTitleInfo.sChangeEventId && !oInfoToMerge.aChangeListeners[oTitleInfo.id]) {
 
 			var fnChangeListener = function (oEvent) {
 				var oTitleInfo = aTitleInfoCache[sViewId];
 				oTitleInfo.text = oEvent.getParameter("newValue");
-				this._fireViewChange(sViewId);
+				this._fireViewChange(sViewId, oAdaptOptions);
 			}.bind(this);
 
 			oTitleInfo.oControl.attachEvent(oTitleInfo.sChangeEventId, fnChangeListener);
-			oAdaptationResult.aChangeListeners[oTitleInfo.id] = fnChangeListener;
+			oInfoToMerge.aChangeListeners[oTitleInfo.id] = fnChangeListener;
 		}
 	};
 
-	Fiori20Adapter._fireViewChange = function(sViewId) {
-		var oAdaptationResult = this._getCachedAdaptationResult(sViewId);
-		oAdaptationResult.sViewId = sViewId;
-		oEventProvider.fireEvent("adaptedViewChange", oAdaptationResult);
+	Fiori20Adapter._registerVisibilityChangeListener = function(oControlInfo, aControlInfoCache, sViewId, oAdaptOptions) {
+
+		var bVisible;
+
+		if (oControlInfo && oControlInfo.oControl && oControlInfo.sChangeEventId && !oInfoToMerge.aChangeListeners[oControlInfo.id]) {
+
+			var fnChangeListener = function (oEvent) {
+
+				bVisible = oEvent.getParameter("newValue"); //actualize the value
+				if (!bVisible) {
+					jQuery.each(aControlInfoCache, function(iIndex, oCachedControlInfo) {
+						if (oCachedControlInfo.oControl.getId() === oControlInfo.oControl.getId()) {
+							delete aControlInfoCache[iIndex];
+						}
+					});
+				}
+
+				var oParentControl = oControlInfo.oControl.getParent();
+				if (HeaderAdapter._isAdaptableHeader(oParentControl)) { // the parent is still an adaptable header
+					Fiori20Adapter._adaptHeader(oParentControl, oAdaptOptions); // re-adapt as visibility of inner content changed
+					this._fireViewChange(sViewId, oAdaptOptions);
+				}
+			}.bind(this);
+
+			oControlInfo.oControl.attachEvent(oControlInfo.sChangeEventId, fnChangeListener);
+			oInfoToMerge.aChangeListeners[oControlInfo.id] = fnChangeListener;
+		}
+	};
+
+	Fiori20Adapter._fireViewChange = function(sViewId, oAdaptOptions) {
+		var oToMerge = this._getTotalCachedInfoToMerge(sViewId);
+		oToMerge.oAdaptOptions = oAdaptOptions;
+		oEventProvider.fireEvent("adaptedViewChange", oToMerge);
 	};
 
 
-	Fiori20Adapter._isAdaptationRequired = function(oAdaptOptions) {
+	Fiori20Adapter._isAdaptationRequired = function(oNode, oAdaptOptions) {
+		if (!oNode || this._isNonAdaptableControl(oNode)) {
+			return false;
+		}
+
 		for (var sOption in oAdaptOptions) {
 			if (oAdaptOptions.hasOwnProperty(sOption)
 			&& ((oAdaptOptions[sOption] === true) || (oAdaptOptions[sOption] === "initialPage"))) {
@@ -615,21 +754,40 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/base/EventProv
 		return false;
 	};
 
+	Fiori20Adapter._isNonAdaptableControl = function(oControl) {
+		return isListBasedControl(oControl);
+	};
 
 	// utility function
 	function isTextualControl (oControl) {
-		if (!oControl) {
-			return false;
+		return isInstanceOfGroup(oControl, ["sap/m/Label", "sap/m/Text", "sap/m/Title"]);
+	}
+
+	function isListBasedControl (oControl) {
+		return isInstanceOfGroup(oControl, ["sap/m/List", "sap/m/Table", "sap/ui/table/Table", "sap/ui/table/TreeTable"]);
+	}
+
+	function isInstanceOfGroup(oControl, aTypes) {
+		if (!oControl || !aTypes) {
+			return;
 		}
 
-		return isInstanceOf(oControl, "sap/m/Label") ||
-				isInstanceOf(oControl, "sap/m/Text") ||
-				isInstanceOf(oControl, "sap/m/Title");
+		return aTypes.some(function(sType) {
+			return isInstanceOf(oControl, sType);
+		});
 	}
 
 	function isInstanceOf (oControl, sType) {
 		var oType = sap.ui.require(sType);
 		return oType && (oControl instanceof oType);
+	}
+
+	function isNonDependentObject(oObject) {
+		return oObject && (oObject.sParentAggregationName !== "dependents");
+	}
+
+	function isHiddenFromAPI(oObject) {
+		return oObject && (typeof oObject.getVisible === "function") && (oObject.getVisible() === false);
 	}
 
 	return Fiori20Adapter;

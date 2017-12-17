@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.FormattedText.
-sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
-	function (jQuery, library, Control) {
+sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './FormattedTextAnchorGenerator'],
+	function (jQuery, library, Control, FormattedTextAnchorGenerator) {
 		"use strict";
 
 
@@ -19,7 +19,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 		 * @class
 		 * The FormattedText control allows the usage of a limited set of tags for inline display of formatted text in HTML format.
 		 * @extends sap.ui.core.Control
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
@@ -64,6 +64,9 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 					 * <p><code>class, style,</code> and <code>target</code> attributes are allowed.
 					 * If <code>target</code> is not set, links open in a new window by default.
 					 * <p>Only safe <code>href</code> attributes can be used. See {@link jQuery.sap.validateUrl}.
+					 *
+					 * <b>Note:</b> Keep in mind that not supported HTML tags and
+					 * the content nested inside them are both not rendered by the control.
 					 */
 					htmlText: {type: "string", group: "Misc", defaultValue: ""},
 
@@ -71,6 +74,23 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 					 * Optional width of the control in CSS units.
 					 */
 					width : {type : "sap.ui.core.CSSSize", group : "Appearance", defaultValue : null},
+
+					/**
+					 * Determines whether strings that appear to be links will be converted to HTML anchor tags,
+					 * and what are the criteria for recognizing them.
+					 * @since 1.45.5
+					 */
+					convertLinksToAnchorTags: {type: "sap.m.LinkConversion", group: "Behavior", defaultValue: sap.m.LinkConversion.None},
+
+					/**
+					 * Determines the <code>target</code> attribute of the generated HTML anchor tags.
+					 *
+					 * <b>Note:</b> Applicable only if <code>ConvertLinksToAnchorTags</code> property is used with a value other than <code>sap.m.LinkConversion.None</code>.
+					 * Options are the standard values for the <code>target</code> attribute of the HTML anchor tag:
+					 * <code>_self</code>, <code>_top</code>, <code>_blank</code>, <code>_parent</code>, <code>_search</code>.
+					 * @since 1.45.5
+					 */
+					convertedLinksDefaultTarget: {type: "string", group: "Behavior", defaultValue: "_blank"},
 
 					/**
 					 *  Optional height of the control in CSS units.
@@ -81,48 +101,60 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 		});
 
 		/*
-		 * these are the rules for the FormattedText
+		 * These are the rules for the FormattedText
 		 */
-		var _renderingRules = {};
+		var _defaultRenderingRules = {
+			// rules for the allowed attributes
+			ATTRIBS: {
+				'style' : 1,
+				'class' : 1,
+				'a::href' : 1,
+				'a::target' : 1
+			},
+			// rules for the allowed tags
+			ELEMENTS: {
+				// Text Module Tags
+				'a' : {cssClass: 'sapMLnk'},
+				'abbr': 1,
+				'blockquote': 1,
+				'br': 1,
+				'cite': 1,
+				'code': 1,
+				'em': 1,
+				'h1': {cssClass: 'sapMTitle sapMTitleStyleH1'},
+				'h2': {cssClass: 'sapMTitle sapMTitleStyleH2'},
+				'h3': {cssClass: 'sapMTitle sapMTitleStyleH3'},
+				'h4': {cssClass: 'sapMTitle sapMTitleStyleH4'},
+				'h5': {cssClass: 'sapMTitle sapMTitleStyleH5'},
+				'h6': {cssClass: 'sapMTitle sapMTitleStyleH6'},
+				'p': 1,
+				'pre': 1,
+				'strong': 1,
+				'span': 1,
+				'u' : 1,
 
-		// rules for the allowed attributes
-		_renderingRules.ATTRIBS = {
-			'style' : 1,
-			'class' : 1,
-			'a::href' : 1,
-			'a::target' : 1
-		};
-
-		// rules for the allowed tags
-		_renderingRules.ELEMENTS = {
-			// Text Module Tags
-			'a' : {cssClass: 'sapMLink'},
-			'abbr': 1,
-			'blockquote': 1,
-			'br': 1,
-			'cite': 1,
-			'code': 1,
-			'em': 1,
-			'h1': {cssClass: 'sapMTitle sapMTitleStyleH1'},
-			'h2': {cssClass: 'sapMTitle sapMTitleStyleH2'},
-			'h3': {cssClass: 'sapMTitle sapMTitleStyleH3'},
-			'h4': {cssClass: 'sapMTitle sapMTitleStyleH4'},
-			'h5': {cssClass: 'sapMTitle sapMTitleStyleH5'},
-			'h6': {cssClass: 'sapMTitle sapMTitleStyleH6'},
-			'p': 1,
-			'pre': 1,
-			'strong': 1,
-			'span': 1,
-			'u' : 1,
-
-			// List Module Tags
-			'dl': 1,
-			'dt': 1,
-			'dd': 1,
-			'ol': 1,
-			'ul': 1,
-			'li': 1
-		};
+				// List Module Tags
+				'dl': 1,
+				'dt': 1,
+				'dd': 1,
+				'ol': 1,
+				'ul': 1,
+				'li': 1
+			}
+		},
+		_limitedRenderingRules = {
+			ATTRIBS: {
+				'a::href' : 1,
+				'a::target' : 1
+			},
+			ELEMENTS: {
+				'a' : {cssClass: 'sapMLnk'},
+				'em': 1,
+				'strong': 1,
+				'u': 1
+			}
+		},
+		_renderingRules = _defaultRenderingRules;
 
 		/**
 		 * Initialization hook for the FormattedText, which creates a list of rules with allowed tags and attributes.
@@ -195,16 +227,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 			return attribs;
 		}
 
-		/**
-		 * Sanitizes HTML tags and attributes according to a given policy.
-		 *
-		 * @param {string} inputHtml The HTML to sanitize
-		 * @param {function(string,string[])} tagPolicy Determines which
-		 *            tags to accept and sanitizes their attributes (see
-		 *            makeHtmlSanitizer above for details)
-		 * @return {string} The sanitized HTML
-		 * @private
-		 */
 		function fnPolicy (tagName, attribs) {
 			if (_renderingRules.ELEMENTS[tagName]) {
 				return fnSanitizeAttribs(tagName, attribs);
@@ -212,6 +234,25 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 				var sWarning = '<' + tagName + '> is not allowed';
 				jQuery.sap.log.warning(sWarning, this);
 			}
+		}
+
+		/**
+		 * Sanitizes HTML tags and attributes according to a given policy.
+		 *
+		 * @param {string} sText The HTML to sanitize
+		 * @return {string} The sanitized HTML
+		 * @private
+		 */
+		function sanitizeHTML(sText) {
+			return jQuery.sap._sanitizeHTML(sText, {
+				tagPolicy: fnPolicy,
+				uriRewriter: function (sUrl) {
+					// by default we use the URL whitelist to check the URLs
+					if (jQuery.sap.validateUrl(sUrl)) {
+						return sUrl;
+					}
+				}
+			});
 		}
 
 		// prohibit a new window from accessing window.opener.location
@@ -226,29 +267,40 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 			this.$().find('a[target="_blank"]').on("click", openExternalLink);
 		};
 
+		FormattedText.prototype._getDisplayHtml = function (){
+			var sText = this.getHtmlText(),
+				sAutoGenerateLinkTags = this.getConvertLinksToAnchorTags();
+
+			if (sAutoGenerateLinkTags === library.LinkConversion.None) {
+				return sText;
+			}
+
+			sText = FormattedTextAnchorGenerator.generateAnchors(sText, sAutoGenerateLinkTags, this.getConvertedLinksDefaultTarget());
+
+			return sanitizeHTML(sText);
+		};
+
 		/**
 		 * Defines the HTML text to be displayed.
 		 * @param {string} sText HTML text as a string
+		 * @return {sap.m.FormattedText} this for chaining
 		 * @public
 		 */
 		FormattedText.prototype.setHtmlText = function (sText) {
-			var sSanitizedText = "";
-
-			function uriRewriter (sUrl) {
-				// by default we use the URL whitelist to check the URL's
-				if (jQuery.sap.validateUrl(sUrl)) {
-					return sUrl;
-				}
-			}
-
-			// using the sanitizer that is already set to the encoder
-			sSanitizedText = jQuery.sap._sanitizeHTML(sText, {
-				tagPolicy: fnPolicy,
-				uriRewriter: uriRewriter
-			});
-
-			this.setProperty("htmlText", sSanitizedText);
+			return this.setProperty("htmlText", sanitizeHTML(sText));
 		};
+
+		/**
+		 * Sets should a limited list of rendering rules be used instead of the default one. This limited list
+		 * will evaluate only a small subset of the default HTML elements and attributes.
+		 * @param {boolean} bLimit Should the control use the limited list
+		 * @sap-restricted sap.m.MessageStrip
+		 * @private
+		 */
+		FormattedText.prototype._setUseLimitedRenderingRules = function (bLimit) {
+			_renderingRules = bLimit ? _limitedRenderingRules : _defaultRenderingRules;
+		};
+
 
 		return FormattedText;
 

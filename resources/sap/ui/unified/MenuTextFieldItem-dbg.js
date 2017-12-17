@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -23,7 +23,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/ValueStateSupport', './MenuItem
 	 * @extends sap.ui.unified.MenuItemBase
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @since 1.21.0
 	 *
 	 * @constructor
@@ -123,7 +123,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/ValueStateSupport', './MenuItem
 				labelledby: {value: /*oMenu.getId() + "-label " + */itemId + "-lbl", append: true}
 			});
 		}
-		rm.write("></input></div></div>");
+		rm.write("/></div></div>");
 
 		// Right border
 		rm.write("<div class=\"sapUiMnuItmR\"></div>");
@@ -210,7 +210,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/ValueStateSupport', './MenuItem
 	};
 
 
-	MenuTextFieldItem.prototype.onsapenter = function(oEvent){
+	MenuTextFieldItem.prototype.onkeyup = function(oEvent){
+		//like sapenter but on keyup -> see Menu.prototype.onkeyup
+		if (!jQuery.sap.PseudoEvents.sapenter.fnCheck(oEvent)) {
+			return;
+		}
 		var sValue = this.$("tf").val();
 		this.setValue(sValue);
 		this.getParent().selectItem(this);
@@ -244,7 +248,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/ValueStateSupport', './MenuItem
 	/**
 	 * The aggregation <code>submenu</code> (inherited from parent class) is not supported for this type of menu item.
 	 *
-	 * @param {sap.ui.unified.Menu} oSubmenu
+	 * @param {sap.ui.unified.Menu} oMenu The menu to which the sap.ui.unified.Submenu should be set
 	 * @return {sap.ui.unified.MenuTextFieldItem} <code>this</code> to allow method chaining
 	 * @public
 	 * @deprecated The aggregation <code>submenu</code> (inherited from parent class) is not supported for this type of menu item.

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -32,7 +32,7 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @private
@@ -47,6 +47,16 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 
 			// ---- control specific ----
 			library : "sap.ui.dt",
+			associations: {
+				/**
+				 * Array of plugins, that set editable to true
+				 */
+				editableByPlugins : {
+					type : "any[]",
+					multiple : true,
+					singularName: "editableByPlugin"
+				}
+			},
 			properties : {
 				/**
 				 * Whether the ElementOverlay is selected
@@ -189,6 +199,100 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	/**
 	 * @override
 	 */
+	ElementOverlay.prototype.applyStyles = function() {
+		var oGeometry = this.getGeometry();
+		if (oGeometry && oGeometry.visible) {
+			this._sortAggregationOverlaysInDomOrder();
+		}
+
+		Overlay.prototype.applyStyles.apply(this, arguments);
+	};
+
+	/**
+	 * Sorts aggregation overlays in there UI order
+	 * @private
+	 */
+	ElementOverlay.prototype._sortAggregationOverlaysInDomOrder = function() {
+		// compares two aggregations domRefs and returns 1, if first aggregation should be bellow in dom order
+		var fnCompareAggregations = function(oAggregationOverlay1, oAggregationOverlay2) {
+			var oGeometry1 = oAggregationOverlay1.getGeometry();
+			var oGeometry2 = oAggregationOverlay2.getGeometry();
+			var oPosition1 = oGeometry1 && oGeometry1.position;
+			var oPosition2 = oGeometry2 && oGeometry2.position;
+
+			if (oPosition1 && oPosition2) {
+				var iBottom1 = oPosition1.top + oGeometry1.size.height;
+				var iBottom2 = oPosition2.top + oGeometry2.size.height;
+
+				if (oPosition1.top < oPosition2.top) {
+					if (iBottom1 >= iBottom2 && oPosition2.left < oPosition1.left) {
+						/*  Example:
+							            +--------------+
+							+------+    |              |
+							|  2   |    |       1      |
+							+------+    |              |
+							            +--------------+
+							Despites 1st overlay's top is above 2nd element,
+							the order should be switched, since 2nd element
+							is shorter and is more to the left
+						 */
+						return 1;
+					} else {
+						return -1; // do not switch order
+					}
+				} else
+
+				if (oPosition1.top === oPosition2.top) {
+					if (oPosition1.left === oPosition2.left) {
+						return 0;
+					} else if (oPosition1.left < oPosition2.left) {
+						return -1; // order is correct
+					} else {
+						return 1; // switch order
+					}
+				} else
+
+				// if (oPosition1.top > oPosition2.top)
+				 if (iBottom1 <= iBottom2 && oPosition2.left > oPosition1.left) {
+					/* see picture above, but switch 1 and 2 - order is correct */
+					return -1;
+				} else {
+					/*  Example:
+						            +--------------+
+						+------+    |       2      |
+						|  1   |    +--------------+
+						|      |
+						+------+
+
+						Since 1st overlay's both top and bottom coordinates are
+						bellow in dom, then top and bottom of 2nd, they should be switched
+					 */
+					return 1;
+				}
+			}
+		};
+
+		var aSortedAggregationOverlays = this.getAggregationOverlays().sort(fnCompareAggregations);
+
+		var bOrderSwitched = this.getAggregationOverlays().some(function(oOverlay, index) {
+			if (oOverlay.getId() !== aSortedAggregationOverlays[index].getId()) {
+				return true;
+			}
+		});
+
+		if (bOrderSwitched) {
+			// insert in sorted order & suppress invalidate to prevent rerendering
+			this.removeAllAggregation("aggregationOverlays", true);
+			aSortedAggregationOverlays.forEach(function(oAggregationOverlay) {
+				// suppress invalidate to prevent rerendering
+				this.addAggregation("aggregationOverlays", oAggregationOverlay, true);
+			}.bind(this));
+		}
+	};
+
+	/**
+	 * @override
+	 */
 	ElementOverlay.prototype.setLazyRendering = function(bLazyRendering) {
 		Overlay.prototype.setLazyRendering.apply(this, arguments);
 
@@ -241,22 +345,76 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 		return this;
 	};
 
+	ElementOverlay.prototype._addPropagationInfos = function(oDesignTimeMetadata) {
+		var oParentOverlay = this.getParentAggregationOverlay(),
+			oParentElementOverlay;
+
+		var oElement = this.getElementInstance();
+
+		if (!oParentOverlay && oElement) {
+			oParentElementOverlay = OverlayRegistry.getOverlay(oElement.getParent());
+			if (oParentElementOverlay && oElement.sParentAggregationName) {
+				oParentOverlay = oParentElementOverlay.getAggregationOverlay(oElement.sParentAggregationName);
+			}
+		}
+		if (!oParentOverlay){
+			return false;
+		}
+
+		var oParentDesignTimeMetadata = oParentOverlay.getDesignTimeMetadata();
+		var vRelevantContainerElement = oParentDesignTimeMetadata.getRelevantContainerForPropagation(oElement);
+		var vReturnMetadata = oParentDesignTimeMetadata.getMetadataForPropagation(oElement);
+		if (!vRelevantContainerElement && !vReturnMetadata) {
+			return false;
+		}
+
+		if (vRelevantContainerElement) {
+			oDesignTimeMetadata.getData().relevantContainer = vRelevantContainerElement;
+		}
+
+		if (vReturnMetadata){
+			var oData = oDesignTimeMetadata.getData();
+			if (vReturnMetadata.actions === null) {
+				var mAggregations = oElement.getMetadata().getAllAggregations();
+				var aAggregationNames = Object.keys(mAggregations);
+				aAggregationNames = aAggregationNames.concat(
+					Object.keys(oData.aggregations).filter(function (sAggregationName) {
+				    return aAggregationNames.indexOf(sAggregationName) < 0;
+				}));
+
+				aAggregationNames.forEach(function(sAggregationName) {
+					if (oData.aggregations[sAggregationName] && oData.aggregations[sAggregationName].actions) {
+						oData.aggregations[sAggregationName].actions = null;
+					}
+				});
+			}
+			jQuery.extend(true, oData, vReturnMetadata);
+		}
+
+		return true;
+	};
+
 	/**
 	 * @override
 	 */
-	ElementOverlay.prototype.setDesignTimeMetadata = function(vDesignTimeMetada) {
-		var oDesignTimeMetada;
-		if (vDesignTimeMetada instanceof ElementDesignTimeMetadata) {
-			oDesignTimeMetada = vDesignTimeMetada;
+	ElementOverlay.prototype.setDesignTimeMetadata = function(vDesignTimeMetadata) {
+		var oDesignTimeMetadata;
+		if (vDesignTimeMetadata instanceof ElementDesignTimeMetadata) {
+			oDesignTimeMetadata = vDesignTimeMetadata;
 		} else {
-			oDesignTimeMetada = new ElementDesignTimeMetadata({
-				data : vDesignTimeMetada
+			oDesignTimeMetadata = new ElementDesignTimeMetadata({
+				libraryName : this.getElementInstance().getMetadata().getLibraryName(),
+				data : vDesignTimeMetadata
 			});
 		}
-
-		var oReturn = this.setAggregation("designTimeMetadata", oDesignTimeMetada);
+		if (!this._oOriginalDesignTimeMetadata){
+			this._oOriginalDesignTimeMetadata = oDesignTimeMetadata;
+		}
+		this._addPropagationInfos(oDesignTimeMetadata);
+		var oReturn = this.setAggregation("designTimeMetadata", oDesignTimeMetadata);
 
 		if (this.getElementInstance()) {
+			this._aScrollContainers = this.getDesignTimeMetadata().getScrollContainers();
 			this._renderAndCreateAggregation();
 		}
 
@@ -284,12 +442,27 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	};
 
 	/**
-	 * Returns a DOM reference for the associated Element or null, if it can't be found
-	 * @return {Element} DOM element or null
+	 * Returns a jQuery Object reference for the associated Element or undefined, if it can't be found
+	 * @return {jQuery} jQuery object or undefined
 	 * @public
 	 */
 	ElementOverlay.prototype.getAssociatedDomRef = function() {
-		return ElementUtil.getDomRef(this.getElementInstance());
+		var oDomRef = ElementUtil.getDomRef(this.getElementInstance());
+		if (!oDomRef) {
+			var oDesignTimeMetadata = this.getDesignTimeMetadata();
+			if (!oDesignTimeMetadata) {
+				return undefined;
+			}
+			var fnGetDomRef = oDesignTimeMetadata.getDomRef();
+			if (typeof fnGetDomRef === "function") {
+				oDomRef = fnGetDomRef(this.getElementInstance());
+			}
+		}
+
+		if (oDomRef) {
+			return jQuery(oDomRef);
+		}
+		return undefined;
 	};
 
 	/**
@@ -299,6 +472,7 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	 * @public
 	 */
 	ElementOverlay.prototype.setSelectable = function(bSelectable) {
+		bSelectable = !!bSelectable;
 		if (bSelectable !== this.isSelectable()) {
 
 			if (!bSelectable) {
@@ -316,11 +490,12 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	/**
 	 * Sets whether the ElementOverlay is selected and toggles corresponding css class
 	 * @param {boolean} bSelected if the ElementOverlay is selected
-	 * @param {boolean} bSuppressEvent (internal use only) supress firing "selectionChange" event
+	 * @param {boolean} bSuppressEvent (internal use only) suppress firing "selectionChange" event
 	 * @returns {sap.ui.dt.ElementOverlay} returns this
 	 * @public
 	 */
 	ElementOverlay.prototype.setSelected = function(bSelected, bSuppressEvent) {
+		bSelected = !!bSelected;
 		if (this.isSelectable() && bSelected !== this.isSelected()) {
 			this.setProperty("selected", bSelected);
 			this.toggleStyleClass("sapUiDtOverlaySelected", bSelected);
@@ -342,6 +517,7 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	 * @public
 	 */
 	ElementOverlay.prototype.setMovable = function(bMovable) {
+		bMovable = !!bMovable;
 		if (this.getMovable() !== bMovable) {
 			this.toggleStyleClass("sapUiDtOverlayMovable", bMovable);
 
@@ -359,6 +535,7 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	 * @public
 	 */
 	ElementOverlay.prototype.setEditable = function(bEditable) {
+		bEditable = !!bEditable;
 		if (this.getEditable() !== bEditable) {
 			this.toggleStyleClass("sapUiDtOverlayEditable", bEditable);
 
@@ -373,29 +550,123 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	 * @public
 	 */
 	ElementOverlay.prototype.sync = function() {
-		var that = this;
+		var aAggregationOverlays = this.getAggregationOverlays();
+		aAggregationOverlays.forEach(function(oAggregationOverlay) {
+			this._syncAggregationOverlay(oAggregationOverlay);
+		}, this);
+	};
 
-		if (this.isVisible()) {
-			var aAggregationOverlays = this.getAggregationOverlays();
-			aAggregationOverlays.forEach(function(oAggregationOverlay) {
-				that._syncAggregationOverlay(oAggregationOverlay);
-			});
+	ElementOverlay.prototype._getParentRelevantContainerPropagation = function() {
+		var oParentAggregationOverlay = this.getParent();
+		var oCopyOfParentPropagation = [];
+
+		if (oParentAggregationOverlay &&
+			oParentAggregationOverlay.getAggregation("designTimeMetadata")) {
+			jQuery.extend(oCopyOfParentPropagation, oParentAggregationOverlay.getDesignTimeMetadata().getData()["propagationInfos"]);
+			return oCopyOfParentPropagation;
+		}
+		return false;
+	};
+
+	ElementOverlay.prototype._getCurrentRelevantContainerPropagation = function(oElementDtMetadataForAggregation, oNewPropagationInfo) {
+		if (!oElementDtMetadataForAggregation.propagateRelevantContainer) {
+			return false;
+		} else if (typeof oElementDtMetadataForAggregation.propagateRelevantContainer === "function") {
+			oNewPropagationInfo.relevantContainerFunction = oElementDtMetadataForAggregation.propagateRelevantContainer;
+			oNewPropagationInfo.relevantContainerElement = this.getElementInstance();
+		} else if (typeof oElementDtMetadataForAggregation.propagateRelevantContainer === "boolean" &&
+			oElementDtMetadataForAggregation.propagateRelevantContainer) {
+			oNewPropagationInfo.relevantContainerFunction = function() { return true; };
+			oNewPropagationInfo.relevantContainerElement = this.getElementInstance();
+		} else {
+			throw new Error("wrong type: it should be either a function or a boolean value and it is:" +
+				typeof oElementDtMetadataForAggregation.propagateRelevantContainer);
+		}
+		return true;
+	};
+
+	ElementOverlay.prototype._getCurrentDesigntimePropagation = function(oElementDtMetadataForAggregation, oNewPropagationInfo) {
+		if (!oElementDtMetadataForAggregation.propagateMetadata) {
+			return false;
+		} else if (typeof oElementDtMetadataForAggregation.propagateMetadata === "function") {
+			oNewPropagationInfo.relevantContainerElement = this.getElementInstance();
+			oNewPropagationInfo.metadataFunction = oElementDtMetadataForAggregation.propagateMetadata;
+		} else {
+			throw new Error("wrong type: it should be a function and it is:",
+				typeof oElementDtMetadataForAggregation.propagateMetadata);
+		}
+		return true;
+	};
+
+	ElementOverlay.prototype._propagateDesigntimeObj = function(oAggregationDtMetadata, oNewRelevantContainerPropagation, aPropagatedRelevantContainersFromParent) {
+		var oAggregationData;
+
+		if (!aPropagatedRelevantContainersFromParent &&
+			!oNewRelevantContainerPropagation) {
+			return false;
+		}
+
+		if (oNewRelevantContainerPropagation) {
+			aPropagatedRelevantContainersFromParent = aPropagatedRelevantContainersFromParent ? aPropagatedRelevantContainersFromParent : [];
+			aPropagatedRelevantContainersFromParent.push(oNewRelevantContainerPropagation);
+		}
+
+		// get designtime metadata data-object from current aggregation
+		oAggregationData = oAggregationDtMetadata.getData();
+
+		// add propagation array to current aggregation designtime-metadata
+		oAggregationData.propagationInfos = aPropagatedRelevantContainersFromParent;
+
+		// propagate relevant container
+		oAggregationDtMetadata.setData(oAggregationData);
+
+		return true;
+	};
+
+	ElementOverlay.prototype._handleDesigntimePropagation = function(oAggregationDtMetadata) {
+		var oNewPropagationInfo = {
+			relevantContainerFunction : null,
+			relevantContainerElement : null,
+			metadataFunction: null
+		};
+		var bNewContentAdded = false;
+
+		var aPropagatedRelevantContainersFromParent = this._getParentRelevantContainerPropagation();
+
+		var oDtMetadataForAggregation = oAggregationDtMetadata.getData();
+		if (oDtMetadataForAggregation &&
+			oDtMetadataForAggregation !== {}) {
+			bNewContentAdded = (this._getCurrentRelevantContainerPropagation(oDtMetadataForAggregation, oNewPropagationInfo)
+				|| bNewContentAdded);
+			bNewContentAdded = (this._getCurrentDesigntimePropagation(oDtMetadataForAggregation, oNewPropagationInfo)
+				|| bNewContentAdded);
+		}
+
+		if (bNewContentAdded === false) {
+			oNewPropagationInfo = null;
+		}
+
+		if (aPropagatedRelevantContainersFromParent || oNewPropagationInfo) {
+			return this._propagateDesigntimeObj(oAggregationDtMetadata, oNewPropagationInfo, aPropagatedRelevantContainersFromParent);
+		} else {
+			return false;
 		}
 	};
 
 	/**
+	 * @param {string} sAggregationName name of aggregation to be created
+	 * @returns {object} aggregation overlay
 	 * @private
 	 */
-	ElementOverlay.prototype._createAggregationOverlay = function(sAggregationName, bInHiddenTree) {
-		var oData =  this.getDesignTimeMetadata().getAggregation(sAggregationName);
+	ElementOverlay.prototype._createAggregationOverlay = function(sAggregationName) {
+		var oAggregationDesignTimeMetadata = this.getDesignTimeMetadata().createAggregationDesignTimeMetadata(sAggregationName);
 
-		var oAggregationDesignTimeMetadata = new AggregationDesignTimeMetadata({data : oData});
+		this._handleDesigntimePropagation(oAggregationDesignTimeMetadata);
 
 		var oAggregationOverlay = new AggregationOverlay({
 			aggregationName : sAggregationName,
 			element : this.getElementInstance(),
-			designTimeMetadata : oAggregationDesignTimeMetadata,
-			inHiddenTree : bInHiddenTree
+			designTimeMetadata : oAggregationDesignTimeMetadata
 		});
 		this._mAggregationOverlays[sAggregationName] = oAggregationOverlay;
 		this.addAggregation("aggregationOverlays", oAggregationOverlay);
@@ -411,7 +682,6 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	 * @private
 	 */
 	ElementOverlay.prototype._createAggregationOverlays = function() {
-		var that = this;
 		this._mAggregationOverlays = {};
 
 		var oElement = this.getElementInstance();
@@ -419,21 +689,32 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 
 		var mAggregationsWithOverlay = {};
 
-		ElementUtil.iterateOverAllPublicAggregations(oElement, function(oAggregation, aAggregationElements) {
-			var sAggregationName = oAggregation.name;
-			mAggregationsWithOverlay[sAggregationName] = true;
-			that._createAggregationOverlay(sAggregationName, that.isInHiddenTree());
-		});
+		var mElementAggregations = oElement.getMetadata().getAllAggregations();
+		var aElementAggregationNames = Object.keys(mElementAggregations);
 
-		// create aggregation overlays also for a hidden aggregations which are not ignored in the DT Metadata
-		var mAggregationsMetadata = oDesignTimeMetadata.getAggregations();
-		var aAggregationNames = Object.keys(mAggregationsMetadata);
-		aAggregationNames.forEach(function (sAggregationName) {
-			var oAggregationMetadata = mAggregationsMetadata[sAggregationName];
-			if (oAggregationMetadata.ignore === false && !mAggregationsWithOverlay[sAggregationName]) {
-				that._createAggregationOverlay(sAggregationName, true);
+		var bIgnored;
+		aElementAggregationNames.forEach(function(sAggregationName) {
+			bIgnored = oDesignTimeMetadata.isAggregationIgnored(oElement, sAggregationName);
+			mAggregationsWithOverlay[sAggregationName] = !bIgnored;
+			// create aggregation overlays which are not ignored in the DT Metadata
+			if (!bIgnored) {
+				this._createAggregationOverlay(sAggregationName);
 			}
-		});
+		}.bind(this));
+
+		// create aggregation overlays also for a hidden aggregations and aggregation-like associations which are not ignored in the DT Metadata
+		var mAggregationsMetadata = oDesignTimeMetadata.getAggregations();
+		if (mAggregationsMetadata) {
+			var aAggregationNames = Object.keys(mAggregationsMetadata);
+			aAggregationNames.forEach(function (sAggregationName) {
+				if (mAggregationsWithOverlay[sAggregationName] === undefined) {
+					bIgnored = oDesignTimeMetadata.isAggregationIgnored(oElement, sAggregationName);
+					if (!bIgnored) {
+						this._createAggregationOverlay(sAggregationName);
+					}
+				}
+			}, this);
+		}
 
 		this.sync();
 	};
@@ -467,6 +748,7 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	};
 
 	/**
+	 * @param {sap.ui.baseEvent} oEvent event object
 	 * @private
 	 */
 	ElementOverlay.prototype._onAggregationVisibleChanged = function(oEvent) {
@@ -479,8 +761,6 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	 * @private
 	 */
 	ElementOverlay.prototype._syncAggregationOverlay = function(oAggregationOverlay) {
-		var that = this;
-
 		if (oAggregationOverlay.isVisible()) {
 			var sAggregationName = oAggregationOverlay.getAggregationName();
 
@@ -494,26 +774,19 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 				}
 			}
 
-			var aAggregationElements = ElementUtil.getAggregation(this.getElementInstance(), sAggregationName);
-			aAggregationElements.forEach(function(oAggregationElement) {
+			OverlayUtil.iterateOverAggregationLikeChildren(this, sAggregationName, function(oAggregationElement) {
 				var oChildElementOverlay = OverlayRegistry.getOverlay(oAggregationElement);
-				if (oChildElementOverlay  && oChildElementOverlay.getParent() !== that) {
+				if (oChildElementOverlay  && oChildElementOverlay.getParent() !== this) {
 					oAggregationOverlay.addChild(oChildElementOverlay);
 				}
-			});
+			}.bind(this));
 		}
 	};
 
-	/**
-	 * @protected
-	 */
-	ElementOverlay.prototype.setVisible = function(bVisible) {
-		Overlay.prototype.setVisible.apply(this, arguments);
-
-		this.sync();
-	};
 
 	/**
+	 * @param {string} sAggregationName name of the aggregation
+	 * @param {boolean} bSuppressInvalidate suppress invalidate
 	 * @protected
 	 */
 	ElementOverlay.prototype.destroyAggregation = function(sAggregationName, bSuppressInvalidate) {
@@ -530,34 +803,33 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 	 */
 	ElementOverlay.prototype._onElementModified = function(oEvent) {
 		var oParams = oEvent.getParameters();
-
 		var sAggregationName = oEvent.getParameters().name;
 		if (sAggregationName) {
-			this.sync();
 			var oAggregationOverlay = this.getAggregationOverlay(sAggregationName);
 			// private aggregations are also skipped
-			var bAggregationOverlayVisible = oAggregationOverlay && oAggregationOverlay.isVisible();
-			if (bAggregationOverlayVisible) {
+			if (oAggregationOverlay) {
 				this.fireElementModified(oParams);
 			}
 		} else if (oEvent.getParameters().type === "setParent") {
 			this.fireElementModified(oParams);
 		}
-
 		this.invalidate();
 	};
 
 	/**
+	 * @param {sap.ui.baseEvent} oEvent event object
 	 * @private
 	 */
 	ElementOverlay.prototype._onDomChanged = function(oEvent) {
 		var aIds = oEvent.getParameters().elementIds || [];
 		var oElement = this.getElementInstance();
-		if (aIds.indexOf(oElement.getId()) !== -1) {
+		if (oElement && aIds.indexOf(oElement.getId()) !== -1) {
 			// if element's DOM turns visible (via DOM mutations, classes and so on)
 			if (this._mGeometry && !this._mGeometry.visible) {
 				delete this._mGeometry;
 				this.invalidate();
+			} else if (!this._mGeometry) {
+				this.sync();
 			}
 		}
 
@@ -686,6 +958,25 @@ function(Overlay, ControlObserver, ManagedObjectObserver, ElementDesignTimeMetad
 			return false;
 		}
 
+	};
+
+	/**
+	 * Returns the relevant container element for this overlay. As default the overlay parent element is returned
+	 * @param {boolean} bForParent if true, the relevant container overlay is the overlay itself, if no relevant container is propagated in the designtime
+	 * @return {sap.ui.core.Element} Relevant container element
+	 * @public
+	 */
+	ElementOverlay.prototype.getRelevantContainer = function(bForParent) {
+		var oDesignTimeMetadata = this.getDesignTimeMetadata();
+		if (oDesignTimeMetadata &&
+			oDesignTimeMetadata.getData().relevantContainer) {
+			return oDesignTimeMetadata.getData().relevantContainer;
+		} else if (bForParent) {
+			return this.getElementInstance();
+		}
+		// setting the default value to direct parent
+		var oParentOverlay = this.getParentElementOverlay();
+		return oParentOverlay ? oParentOverlay.getElementInstance() : undefined;
 	};
 
 	return ElementOverlay;

@@ -1,26 +1,27 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-// Provides control sap.m.InputBase.
-sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/core/EnabledPropagator', 'sap/ui/core/IconPool', 'sap/ui/core/Popup'],
-	function(jQuery, library, Control, EnabledPropagator, IconPool, Popup) {
+sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/core/EnabledPropagator', 'sap/ui/core/IconPool', 'sap/ui/core/Popup', './delegate/ValueStateMessage', 'sap/ui/core/message/MessageMixin'],
+	function(jQuery, library, Control, EnabledPropagator, IconPool, Popup, ValueStateMessage, MessageMixin) {
 	"use strict";
 
 	/**
-	 * Constructor for a new InputBase.
+	 * Constructor for a new <code>sap.m.InputBase</code>.
 	 *
 	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * The <code>sap.m.InputBase</code> control provides a base functionality of the Input controls, e.g. <code>sap.m.Input</code>, <code>sap.m.DatePicker</code>, <code>sap.m.TextArea</code>, <code>sap.m.ComboBox</code>.
+	 * The <code>sap.m.InputBase</code> control provides a basic functionality for input controls.
+	 *
 	 * @extends sap.ui.core.Control
+	 * @implements sap.ui.core.IFormContent
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -30,6 +31,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 */
 	var InputBase = Control.extend("sap.m.InputBase", /** @lends sap.m.InputBase.prototype */ { metadata: {
 
+		interfaces : ["sap.ui.core.IFormContent"],
 		library: "sap.m",
 		properties: {
 
@@ -125,11 +127,15 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 					value: { type: "string" }
 				}
 			}
-		}
+		},
+		designTime : true
 	}});
 
 	EnabledPropagator.call(InputBase.prototype);
 	IconPool.insertFontFaceStyle();
+	// apply the message mixin so all message on the input will get the associated label-texts injected
+	MessageMixin.call(InputBase.prototype);
+
 
 	/* =========================================================== */
 	/* Private methods and properties                              */
@@ -194,23 +200,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	/**
-	 * Triggers input event from the input field delayed
-	 * This event is marked as synthetic since it is not a native input event
-	 * Event properties can be specified with first parameter when necessary
-	 */
-	InputBase.prototype._triggerInputEvent = function(mProperties) {
-		mProperties = mProperties || {};
-		var oEvent = new jQuery.Event("input", mProperties);
-		oEvent.originalEvent = mProperties;
-		oEvent.setMark("synthetic", true);
-
-		// not to break real event order fire the event delayed
-		jQuery.sap.delayedCall(0, this, function() {
-			this.$("inner").trigger(oEvent);
-		});
-	};
-
-	/**
 	 * Returns the name of the tag element used for the input.
 	 */
 	InputBase.prototype._getInputElementTagName = function() {
@@ -225,13 +214,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	/* Lifecycle methods                                           */
 	/* =========================================================== */
 
-	/**
+	/*
 	 * Initialization hook.
 	 *
 	 * TODO: respect hungarian notation for variables
-	 * @private
 	 */
 	InputBase.prototype.init = function() {
+
 		// last changed value
 		this._lastValue = "";
 
@@ -246,13 +235,16 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		 * Indicates whether the <code>focusout</code> event is triggered due a rendering.
 		 */
 		this.bFocusoutDueRendering = false;
+
+		/**
+		 * Internal variable used to handle html input firing input events when value contains accented characters in IE10+
+         * @private
+         */
+		this._bIgnoreNextInputEventNonASCII = false;
+
+		this._oValueStateMessage = new ValueStateMessage(this);
 	};
 
-	/**
-	 * Required adaptations before rendering.
-	 *
-	 * @private
-	 */
 	InputBase.prototype.onBeforeRendering = function() {
 
 		if (this._bCheckDomValue && !this.bRenderingPhase) {
@@ -266,11 +258,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		this.bRenderingPhase = true;
 	};
 
-	/**
-	 * Required adaptations after rendering.
-	 *
-	 * @private
-	 */
 	InputBase.prototype.onAfterRendering = function() {
 
 		// maybe control is invalidated on keystrokes and
@@ -293,16 +280,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		this.bRenderingPhase = false;
 	};
 
-	/**
-	 * Cleans up before destruction.
-	 *
-	 * @private
-	 */
 	InputBase.prototype.exit = function() {
-		if (this._popup) {
-			this._popup.destroy();
-			this._popup = null;
+
+		if (this._oValueStateMessage) {
+			this._oValueStateMessage.destroy();
 		}
+
+		this._oValueStateMessage = null;
 	};
 
 	/* =========================================================== */
@@ -329,15 +313,18 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	InputBase.prototype.onfocusin = function(oEvent) {
 		// iE10+ fires the input event when an input field with a native placeholder is focused
 		this._bIgnoreNextInput = !this.bShowLabelAsPlaceholder &&
-									sap.ui.Device.browser.msie &&
-									sap.ui.Device.browser.version > 9 &&
-									!!this.getPlaceholder() &&
-									!this._getInputValue() &&
-									this._getInputElementTagName() === "INPUT"; // Make sure that we are applying this fix only for input html elements
+			sap.ui.Device.browser.msie &&
+			sap.ui.Device.browser.version > 9 &&
+			!!this.getPlaceholder() &&
+			!this._getInputValue() &&
+			this._getInputElementTagName() === "INPUT"; // Make sure that we are applying this fix only for input html elements
 		this.$().toggleClass("sapMFocus", true);
 
-		// open value state message popup when focus is in the input
-		this.openValueStateMessage();
+		if (this.shouldValueStateMessageBeOpened()) {
+
+			// open value state message popup when focus is in the input
+			this.openValueStateMessage();
+		}
 	};
 
 	/**
@@ -365,15 +352,35 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * Handles the <code>sapfocusleave</code> event of the input.
 	 *
 	 * @param {jQuery.Event} oEvent The event object.
-	 * @private
 	 */
 	InputBase.prototype.onsapfocusleave = function(oEvent) {
 
-		if (this.bFocusoutDueRendering) {
-			return;
+		if (!this.preventChangeOnFocusLeave(oEvent)) {
+			this.onChange(oEvent);
 		}
+	};
 
-		this.onChange(oEvent);
+	/**
+	 * Hook method to prevent the change event from being fired when the text input field loses focus.
+	 *
+	 * @param {jQuery.Event} [oEvent] The event object.
+	 * @returns {boolean} Whether or not the change event should be prevented.
+	 * @protected
+	 * @since 1.46
+	 */
+	InputBase.prototype.preventChangeOnFocusLeave = function(oEvent) {
+		return this.bFocusoutDueRendering;
+	};
+
+	/*
+	 * Gets the change event additional parameters.
+	 *
+	 * @returns {object} A map object with the parameters
+	 * @protected
+	 * @since 1.48
+	 */
+	InputBase.prototype.getChangeEventParams = function() {
+		return {};
 	};
 
 	/**
@@ -398,23 +405,34 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 *
 	 * @protected
 	 * @param {object} oEvent
+	 * @param {object} [mParameters] Additional event parameters to be passed in to the change event handler if the
+	 * value has changed
+	 * @param {string} sNewValue Passed value on change
 	 * @returns {true|undefined} true when change event is fired
 	 */
-	InputBase.prototype.onChange = function(oEvent) {
+	InputBase.prototype.onChange = function(oEvent, mParameters, sNewValue) {
+
+		mParameters = mParameters || this.getChangeEventParams();
 
 		// check the control is editable or not
 		if (!this.getEditable() || !this.getEnabled()) {
 			return;
 		}
 
-		// get the dom value respect to max length
-		var sValue = this._getInputValue();
+		// get the dom value respect to max length if there is no passed value onChange
+		var sValue = this._getInputValue(sNewValue);
 
 		// compare with the old known value
 		if (sValue !== this._lastValue) {
 
 			// save the value on change
 			this.setValue(sValue);
+
+			if (oEvent) {
+			//IE10+ fires Input event when Non-ASCII characters are used. As this is a real change
+			// event shouldn't be ignored.
+				this._bIgnoreNextInputEventNonASCII = false;
+			}
 
 			// get the value back maybe formatted
 			sValue = this.getValue();
@@ -423,10 +441,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			this._lastValue = sValue;
 
 			// fire change event
-			this.fireChangeEvent(sValue);
+			this.fireChangeEvent(sValue, mParameters);
 
 			// inform change detection
 			return true;
+		} else {
+			// same value as before --> ignore Dom update
+			this._bCheckDomValue = false;
 		}
 	};
 
@@ -459,10 +480,17 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @param {String} sValue Reverted value of the input.
 	 * @since 1.26
 	 */
-	InputBase.prototype.onValueRevertedByEscape = function(sValue) {
+	InputBase.prototype.onValueRevertedByEscape = function(sValue, sPreviousValue) {
+
 		// fire private live change event
 		this.fireEvent("liveChange", {
 			value: sValue,
+
+			//indicate that ESC key is trigger
+			escPressed: true,
+
+			//the value that was before pressing ESC key
+			previousValue: sPreviousValue,
 
 			// backwards compatibility
 			newValue: sValue
@@ -507,14 +535,14 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			this.updateDomValue(this._lastValue);
 
 			// value is reverted, now call the hook to inform
-			this.onValueRevertedByEscape(this._lastValue);
+			this.onValueRevertedByEscape(this._lastValue, sValue);
 		}
 	};
 
 	/**
 	 * Handle DOM input event.
 	 *
-	 * This event is fired synchronously when the value of an <input> or <textarea> element is changed.
+	 * This event is fired synchronously when the value of an <code><input></code> or <code><textarea></code> element is changed.
 	 * IE9 does not fire an input event when the user removes characters via BACKSPACE / DEL / CUT
 	 * InputBase normalize this behaviour for IE9 and calls oninput for the subclasses
 	 *
@@ -527,6 +555,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @param {jQuery.Event} oEvent The event object.
 	 */
 	InputBase.prototype.oninput = function(oEvent) {
+
 		// ie 10+ fires the input event when an input field with a native placeholder is focused
 		if (this._bIgnoreNextInput) {
 			this._bIgnoreNextInput = false;
@@ -540,9 +569,16 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			return;
 		}
 
+		//IE10+ fires the input event when attribute "value" is set with Non-ASCII characters
+		if (this._bIgnoreNextInputEventNonASCII && this.getValue() === this._lastValue) {
+			this._bIgnoreNextInputEventNonASCII = false;
+			oEvent.setMarked("invalid");
+			return;
+		}
+
 		// ie11 fires input event after rendering when value contains an accented character
 		// ie11 fires input event whenever placeholder attribute is changed
-		if (document.activeElement !== oEvent.target) {
+		if (document.activeElement !== oEvent.target && sap.ui.Device.browser.msie && this.getValue() === this._lastValue) {
 			oEvent.setMarked("invalid");
 			return;
 		}
@@ -562,15 +598,9 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 */
 	InputBase.prototype.onkeydown = function(oEvent) {
 
-		// IE9 does not fire input event on BACKSPACE & DEL
-		var mKC = jQuery.sap.KeyCodes;
-		var mBrowser = sap.ui.Device.browser;
-
-		if ((mBrowser.msie && mBrowser.version < 10) &&
-			(oEvent.which === mKC.DELETE || oEvent.which === mKC.BACKSPACE)) {
-
-			// trigger synthetic input event
-			this._triggerInputEvent();
+		// Prevents browser back to previous page in IE
+		if (this.getDomRef("inner").getAttribute("readonly") && oEvent.keyCode == jQuery.sap.KeyCodes.BACKSPACE) {
+			oEvent.preventDefault();
 		}
 	};
 
@@ -580,16 +610,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @param {jQuery.Event} oEvent The event object.
 	 * @private
 	 */
-	InputBase.prototype.oncut = function(oEvent) {
-
-		// IE9 does not fire input event on cut
-		var mBrowser = sap.ui.Device.browser;
-		if (mBrowser.msie && mBrowser.version < 10) {
-
-			// trigger synthetic input event
-			this._triggerInputEvent();
-		}
-	};
+	InputBase.prototype.oncut = function(oEvent) {};
 
 	/* =========================================================== */
 	/* API methods                                                 */
@@ -727,6 +748,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		// respect to max length
 		sValue = this._getInputValue(sValue);
 
+		//Ignore the input event which is raised by MS Internet Explorer when non-ASCII characters are typed in
+		if (sap.ui.Device.browser.msie && sap.ui.Device.browser.version > 9 && !/^[\x00-\x7F]*$/.test(sValue)){
+			this._bIgnoreNextInput = true;
+		}
+
 		// update the DOM value when necessary
 		// otherwise cursor can goto end of text unnecessarily
 		if (this._getInputValue() !== sValue) {
@@ -743,31 +769,63 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	/**
-	 * Close value state message.
+	 * Close value state message popup.
 	 *
 	 * @since 1.26
 	 * @protected
 	 */
-	InputBase.prototype.closeValueStateMessage = function (){
-		if (this._popup) {
-			this._popup.close(0);
+	InputBase.prototype.closeValueStateMessage = function() {
+		if (this._oValueStateMessage) {
+			this._oValueStateMessage.close();
 		}
-
-		this.$("inner").removeAriaDescribedBy(this.getId() + "-message");
 	};
 
 	/**
-	 * Get the reference element which the message popup should dock to.
+	 * Gets the DOM element reference where the message popup is attached.
 	 *
-	 * @return {object} DOM element which the message popup should dock to
+	 * @returns {object} The DOM element reference where the message popup is attached
 	 * @since 1.26
 	 * @protected
 	 */
-	InputBase.prototype.getDomRefForValueStateMessage = function(){
+	InputBase.prototype.getDomRefForValueStateMessage = function() {
 		return this.getFocusDomRef();
 	};
 
 	InputBase.prototype.iOpenMessagePopupDuration = 0;
+
+	/**
+	 * Gets the ID of the value state message.
+	 *
+	 * @returns {string} The ID of the value state message
+	 * @since 1.42
+	 */
+	InputBase.prototype.getValueStateMessageId = function() {
+		return this.getId() + "-message";
+	};
+
+	/**
+	 * Gets the labels referencing this control.
+	 *
+	 * @returns {sap.m.Label[]} Array of objects which are the current targets of the <code>ariaLabelledBy</code>
+	 * association and the labels referencing this control.
+	 * @since 1.48
+	 * @protected
+	 */
+	InputBase.prototype.getLabels = function() {
+		var aLabelIDs = this.getAriaLabelledBy().map(function(sLabelID) {
+			return sap.ui.getCore().byId(sLabelID);
+		});
+
+		var oLabelEnablement = sap.ui.require("sap/ui/core/LabelEnablement");
+
+		if (oLabelEnablement) {
+			aLabelIDs = aLabelIDs.concat(oLabelEnablement.getReferencingLabels(this).map(function(sLabelID) {
+				return sap.ui.getCore().byId(sLabelID);
+			}));
+		}
+
+		return aLabelIDs;
+	};
 
 	/**
 	 * Open value state message popup.
@@ -775,78 +833,10 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 * @since 1.26
 	 * @protected
 	 */
-	InputBase.prototype.openValueStateMessage = function (){
-
-		var sState = this.getValueState();
-		if (sState == sap.ui.core.ValueState.None ||
-			!this.getShowValueStateMessage() ||
-			!this.getEditable() ||
-			!this.getEnabled()) {
-			return;
+	InputBase.prototype.openValueStateMessage = function() {
+		if (this._oValueStateMessage) {
+			this._oValueStateMessage.open();
 		}
-
-		//get value state text
-		var sText = this.getValueStateText() || sap.ui.core.ValueStateSupport.getAdditionalText(this);
-
-		//create message popup
-		var sMessageId = this.getId() + "-message";
-		if (!this._popup) {
-			this._popup = new Popup(jQuery("<span></span>")[0] /* Just some dummy */, false, false, false);
-			this._popup.attachClosed(function () {
-				jQuery.sap.byId(sMessageId).remove();
-			});
-		}
-
-		var mDock = Popup.Dock;
-		var $Input = this.$("inner");
-		var sClass = "sapMInputBaseMessage sapMInputBaseMessage" + sState;
-		var sTextClass = "sapMInputBaseMessageText";
-		var oRB = sap.ui.getCore().getLibraryResourceBundle("sap.m");
-		if (sState === sap.ui.core.ValueState.Success) {
-			sClass = "sapUiInvisibleText";
-			sText = "";
-		}
-
-		var $Content = jQuery("<div>", {
-			"id": sMessageId,
-			"class": sClass,
-			"role": "tooltip",
-			"aria-live": "assertive"
-		}).append(
-			jQuery("<span>", {
-				"aria-hidden": true,
-				"class": "sapUiHidden",
-				"text": oRB.getText("INPUTBASE_VALUE_STATE_" + sState.toUpperCase())
-			})
-		).append(
-			jQuery("<span>", {
-				"id": sMessageId + "-text",
-				"class": sTextClass,
-				"text": sText
-			})
-		);
-
-		this._popup.setContent($Content[0]);
-		this._popup.close(0);
-		this._popup.open(
-			this.iOpenMessagePopupDuration,
-			mDock.BeginTop,
-			mDock.BeginBottom,
-			this.getDomRefForValueStateMessage(),
-			null,
-			null,
-			sap.ui.Device.system.phone ? true : Popup.CLOSE_ON_SCROLL
-		);
-
-		// Check whether popup is below or above the input
-		if ($Input.offset().top < $Content.offset().top) {
-			$Content.addClass("sapMInputBaseMessageBottom");
-		} else {
-			$Content.addClass("sapMInputBaseMessageTop");
-		}
-
-		$Input.addAriaDescribedBy(sMessageId);
-
 	};
 
 	InputBase.prototype.updateValueStateClasses = function(sValueState, sOldValueState) {
@@ -863,6 +853,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			$This.addClass("sapMInputBaseState sapMInputBase" + sValueState);
 			$Input.addClass("sapMInputBaseStateInner sapMInputBase" + sValueState + "Inner");
 		}
+	};
+
+	InputBase.prototype.shouldValueStateMessageBeOpened = function() {
+		return ((this.getValueState() !== sap.ui.core.ValueState.None) &&
+				this.getEditable() &&
+				this.getEnabled() &&
+				this.getShowValueStateMessage());
 	};
 
 	/* ----------------------------------------------------------- */
@@ -889,6 +886,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		}
 
 		var oDomRef = this.getDomRef();
+
 		if (!oDomRef) {
 			return this;
 		}
@@ -905,7 +903,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		this.updateValueStateClasses(sValueState, sOldValueState);
 
 		if ($Input[0] === document.activeElement) {
-			(sValueState == mValueState.None) ? this.closeValueStateMessage() : this.openValueStateMessage();
+			if (sValueState === mValueState.None) {
+				this.closeValueStateMessage();
+			} else if (this.shouldValueStateMessageBeOpened()) {
+				this.openValueStateMessage();
+			}
 		}
 
 		return this;
@@ -916,14 +918,14 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	 *
 	 * Default value is empty/<code>undefined</code>.
 	 *
-	 * @param {string} sValueStateText  new value for property <code>valueStateText</code>
-	 * @return {sap.m.InputBase} <code>this</code> to allow method chaining
+	 * @param {string} sText New value for property <code>valueStateText</code>.
+	 * @returns {sap.m.InputBase} <code>this</code> to allow method chaining
 	 * @since 1.26
 	 * @public
 	 */
-	InputBase.prototype.setValueStateText = function (sText) {
+	InputBase.prototype.setValueStateText = function(sText) {
 		this.setProperty("valueStateText", sText, true);
-		this.$("message-text").text( this.getValueStateText() );
+		this.$("message").text(this.getValueStateText());
 		return this;
 	};
 
@@ -947,6 +949,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		// update the dom value when necessary
 		this.updateDomValue(sValue);
 
+		//Ignore the input event which is raised by MS Internet Explorer when non-ASCII characters are typed in
+		if (sap.ui.Device.browser.msie && sap.ui.Device.browser.version > 9 && !/^[\x00-\x7F]*$/.test(sValue)){
+			this._bIgnoreNextInputEventNonASCII = true;
+		}
+
 		// check if we need to update the last value because
 		// when setProperty("value") called setValue is called again via binding
 		if (sValue !== this.getProperty("value")) {
@@ -965,21 +972,6 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 	InputBase.prototype.getIdForLabel = function() {
 		return this.getId() + "-inner";
-	};
-
-	/**
-	 * Message handling
-	 * @param {string} sName The Property Name
-	 * @param {array} aMessages Array of Messages
-	 */
-	InputBase.prototype.propagateMessages = function(sName, aMessages) {
-		if (aMessages && aMessages.length > 0) {
-			this.setValueState(aMessages[0].type);
-			this.setValueStateText(aMessages[0].message);
-		} else {
-			this.setValueState(sap.ui.core.ValueState.None);
-			this.setValueStateText('');
-		}
 	};
 
 	InputBase.prototype.setTooltip = function(vTooltip) {
@@ -1040,16 +1032,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 	};
 
 	/**
-	 * This method is called in case an AggregatedDataStateChange happens.
-	 */
-	InputBase.prototype.refreshDataState = function(sName, oDataState) {
-		if (oDataState.getChanges().messages) {
-			this.propagateMessages(sName, oDataState.getMessages());
-		}
-	};
-
-	/**
-	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @see sap.ui.core.Control#getAccessibilityInfo
 	 * @protected
 	 */
 	InputBase.prototype.getAccessibilityInfo = function() {

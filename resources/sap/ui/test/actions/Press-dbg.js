@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -18,6 +18,7 @@ sap.ui.define(['jquery.sap.global', './Action'], function ($, Action) {
 	 *     <li>sap.m.Link</li>
 	 *     <li>sap.m.StandardListItem</li>
 	 *     <li>sap.m.IconTabFilter</li>
+	 *     <li>sap.m.Input - Value help</li>
 	 *     <li>sap.m.SearchField - Search Button</li>
 	 *     <li>sap.m.Page - Back Button</li>
 	 *     <li>sap.m.semantic.FullscreenPage - Back Button</li>
@@ -25,6 +26,9 @@ sap.ui.define(['jquery.sap.global', './Action'], function ($, Action) {
 	 *     <li>sap.m.List - More Button</li>
 	 *     <li>sap.m.Table - More Button</li>
 	 *     <li>sap.m.StandardTile</li>
+	 *     <li>sap.m.ComboBox</li>
+	 *     <li>sap.m.ObjectIdentifier</li>
+	 *     <li>sap.ui.comp.smartfilterbar.SmartFilterBar - Go Button</li>
 	 * </ul>
 	 *
 	 * @class
@@ -42,7 +46,7 @@ sap.ui.define(['jquery.sap.global', './Action'], function ($, Action) {
 
 		init: function () {
 			Action.prototype.init.apply(this, arguments);
-			this.controlAdapters = jQuery.extend(this.controlAdapters, Press.controlAdapters);
+			this.controlAdapters = $.extend(this.controlAdapters, Press.controlAdapters);
 		},
 
 		/**
@@ -54,53 +58,21 @@ sap.ui.define(['jquery.sap.global', './Action'], function ($, Action) {
 		 * @public
 		 */
 		executeOn : function (oControl) {
-			var $ActionDomRef = this.$(oControl);
+			var $ActionDomRef = this.$(oControl),
+				oActionDomRef = $ActionDomRef[0];
 
 			if ($ActionDomRef.length) {
-				$ActionDomRef.focus();
 				$.sap.log.debug("Pressed the control " + oControl, this._sLogPrefix);
+				this._tryOrSimulateFocusin($ActionDomRef, oControl);
 
 				// the missing events like saptouchstart and tap will be fired by the event simulation
-				this._triggerEvent("mousedown", $ActionDomRef);
-				this.getUtils().triggerEvent("selectstart", $ActionDomRef);
-				this._triggerEvent("mouseup", $ActionDomRef);
-				this._triggerEvent("click", $ActionDomRef);
+				this._createAndDispatchMouseEvent("mousedown", oActionDomRef);
+				this.getUtils().triggerEvent("selectstart", oActionDomRef);
+				this._createAndDispatchMouseEvent("mouseup", oActionDomRef);
+				this._createAndDispatchMouseEvent("click", oActionDomRef);
+				//Focusout simulation removed in order to fix Press action behavior
+				//since in real scenario manual press action does not fire focusout event
 			}
-		},
-
-		/**
-		 * Create the correct event object for a mouse event
-		 * @param sName the mouse event name
-		 * @param $ActionDomRef the domref on that the event is going to be triggered
-		 * @private
-		 */
-		_triggerEvent : function (sName,$ActionDomRef) {
-			var oFocusDomRef = $ActionDomRef[0],
-				x = $ActionDomRef.offset().x,
-				y = $ActionDomRef.offset().y;
-
-			// See file jquery.sap.events.js for some insights to the magic
-			var oMouseEventObject = {
-				identifier: 1,
-				// Well offset should be fine here
-				pageX: x,
-				pageY: y,
-				// ignore scrolled down stuff in OPA
-				clientX: x,
-				clientY: y,
-				// Assume stuff is over the whole screen
-				screenX: x,
-				screenY: y,
-				target: $ActionDomRef[0],
-				radiusX: 1,
-				radiusY: 1,
-				rotationAngle: 0,
-				// left mouse button
-				button: 0,
-				// include the type so jQuery.event.fixHooks can copy properties properly
-				type: sName
-			};
-			this.getUtils().triggerEvent(sName, oFocusDomRef, oMouseEventObject);
 		}
 	});
 
@@ -122,10 +94,10 @@ sap.ui.define(['jquery.sap.global', './Action'], function ($, Action) {
 	 *
 	 * <pre>
 	 * <code>
-	 *     <div id="myId">
-	 *         <button id="myId-firstButton"/>
-	 *         <button id="myId-secondButton"/>
-	 *     </div>
+	 *     &lt;div id="myId"&gt;
+	 *         &lt;button id="myId-firstButton"/&gt;
+	 *         &lt;button id="myId-secondButton"/&gt;
+	 *     &lt;/div&gt;
 	 * </code>
 	 * </pre>
 	 *
@@ -133,7 +105,7 @@ sap.ui.define(['jquery.sap.global', './Action'], function ($, Action) {
 	 *
 	 * <pre>
 	 * <code>
-	 *     Press.controlAdapters["my.control"] = "secondButton" //This can be used by setting the Target Property of an action
+	 *     Press.controlAdapters["my.control"] = "secondButton"; //This can be used by setting the Target Property of an action
 	 *
 	 *     // Example usage
 	 *     new Press(); // executes on second Button since it is set as default
@@ -144,15 +116,22 @@ sap.ui.define(['jquery.sap.global', './Action'], function ($, Action) {
 	 *
 	 * @public
 	 * @static
-	 * @name sap.ui.test.actions.Press#.controlAdapters
+	 * @name sap.ui.test.actions.Press.controlAdapters
+	 * You can specify an Id suffix for specific controls in this map.
+	 * The press action will be triggered on the DOM element with the specified suffix
 	 * @type map
 	 */
 	Press.controlAdapters = {};
+	Press.controlAdapters["sap.m.Input"] = "vhi";
 	Press.controlAdapters["sap.m.SearchField"] = "search";
 	Press.controlAdapters["sap.m.ListBase"] = "trigger";
 	Press.controlAdapters["sap.m.Page"] = "navButton";
 	Press.controlAdapters["sap.m.semantic.FullscreenPage"] = "navButton";
 	Press.controlAdapters["sap.m.semantic.DetailPage"] = "navButton";
+	Press.controlAdapters["sap.m.ComboBox"] = "arrow";
+	Press.controlAdapters["sap.ui.comp.smartfilterbar.SmartFilterBar"] = "btnGo";
+	Press.controlAdapters["sap.m.ObjectAttribute"] = "text";
+	Press.controlAdapters["sap.m.ObjectIdentifier"] = "link";
 
 	return Press;
 

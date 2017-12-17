@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -16,7 +16,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 * @constructor
 		 * @private
 		 * @alias sap.ui.core.support.plugins.LocalStorage
@@ -25,15 +25,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 			constructor : function(oSupportStub) {
 				Plugin.apply(this, ["sapUiSupportLocalStorage", "", oSupportStub]);
 
-				if (this.isToolPlugin()) {
-					throw Error(); // only for application side
-				}
-
 				this._oStub = oSupportStub;
 				this._aEventIds = [this.getId() + "GetItem", this.getId() + "SetItem"];
 			}
 		});
 
+		LocalStorage.prototype.isToolPlugin = function(){
+			return false;
+		};
 
 		/**
 		 * Handler for sapUiSupportLocalStorageGetItem event

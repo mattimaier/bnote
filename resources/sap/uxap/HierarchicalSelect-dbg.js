@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -45,8 +45,6 @@ sap.ui.define(["jquery.sap.global", "sap/m/Select", "sap/ui/Device", "./library"
 
 	HierarchicalSelect.prototype.onAfterRendering = function (){
 		Select.prototype.onAfterRendering.apply(this, arguments);
-			/*  incident 1680116122. Redundant tab comes from the select, and it's undesired */
-			this.$().attr("tabindex", "-1");
 	};
 
 	HierarchicalSelect.prototype.onAfterRenderingPicker = function () {
@@ -95,10 +93,12 @@ sap.ui.define(["jquery.sap.global", "sap/m/Select", "sap/ui/Device", "./library"
 	});
 
 	HierarchicalSelect.prototype._createDialog = function () {
+		var oDialog = Select.prototype._createDialog.call(this),
+			oCustomHeader = oDialog.getCustomHeader();
 
-		var oDialog = Select.prototype._createDialog.call(this);
-
-		oDialog.getCustomHeader().addStyleClass("sapUxAPHierarchicalSelect");
+		if (oCustomHeader){
+			oCustomHeader.addStyleClass("sapUxAPHierarchicalSelect");
+		}
 
 		return oDialog;
 

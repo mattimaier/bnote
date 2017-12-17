@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -16,12 +16,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', './Split
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * PaneContainer is an abstraction of Splitter
+	 * PaneContainer is an abstraction of Splitter.
+	 *
 	 * Could be used as an aggregation of ResponsiveSplitter or other PaneContainers.
 	 * @extends sap.ui.core.Element
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -81,6 +82,61 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', './Split
 	 */
 	PaneContainer.prototype.setLayoutData = function(oLayoutData) {
 		return this._oSplitter.setLayoutData(oLayoutData);
+	};
+
+	/**
+	 * Pane insertion
+	 *
+	 * @public
+	 * @param oObject
+	 * @param iIndex
+	 * @returns {sap.ui.base.ManagedObject}
+	 */
+	PaneContainer.prototype.insertPane = function (oObject, iIndex) {
+		var vResult =  this.insertAggregation("panes", oObject, iIndex),
+			oEventDelegate = {
+				onAfterRendering: function () {
+					this.triggerResize();
+					this.removeEventDelegate(oEventDelegate);
+				}
+			};
+
+		// When nesting Panes there should be resize event everytime a new pane is inserted.
+		// However for the newly inserted pane is too early and it has not been subscribed yet to the resize handler.
+		// Therefore the resize event should be triggered manually.
+		if (oObject instanceof PaneContainer && oObject._oSplitter) {
+			oObject._oSplitter.addEventDelegate(oEventDelegate, oObject._oSplitter);
+		}
+
+		return vResult;
+	};
+
+	/**
+	 * Pane removal
+	 *
+	 * @public
+	 * @param oObject
+	 * @returns {sap.ui.base.ManagedObject}
+	 */
+	PaneContainer.prototype.removePane = function (oObject) {
+		var vResult =  this.removeAggregation("panes", oObject),
+			oEventDelegate = {
+				onAfterRendering: function () {
+					this.triggerResize();
+					this.removeEventDelegate(oEventDelegate);
+				}
+			};
+
+		// When nesting Panes there should be resize event everytime a new pane is removed.
+		// However it is too early and it has not been subscribed yet to the resize handler.
+		// Therefore the resize event should be triggered manually.
+		this.getPanes().forEach(function (pane) {
+			if (pane instanceof PaneContainer && pane._oSplitter) {
+				pane._oSplitter.addEventDelegate(oEventDelegate, pane._oSplitter);
+			}
+		});
+
+		return vResult;
 	};
 
 	return PaneContainer;

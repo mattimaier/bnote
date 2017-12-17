@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -15,7 +15,7 @@ sap.ui.define(['jquery.sap.global'],
 	 * Menu renderer.
 	 * @author SAP - TD Core UI&AM UI Infra
 	 *
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @namespace
 	 */
 	var MenuRenderer = {
@@ -26,7 +26,7 @@ sap.ui.define(['jquery.sap.global'],
 	 * {@link sap.ui.core.RenderManager}.
 	 *
 	 * @param {sap.ui.core.RenderManager}
-	 *            oRenderManager The RenderManager that can be used for writing to the render-output-buffer.
+	 *            rm The RenderManager that can be used for writing to the render-output-buffer.
 	 * @param {sap.ui.core.Control}
 	 *            oMenu An object representation of the control that should be rendered
 	 */
@@ -48,7 +48,6 @@ sap.ui.define(['jquery.sap.global'],
 			rm.writeAccessibilityState(oMenu, {
 				role: "menu",
 				disabled: null,
-				level: oMenu.getMenuLevel(),
 				labelledby: {value: oMenu.getId() + "-label", append: true}
 			});
 			if (oMenu.oHoveredItem) {

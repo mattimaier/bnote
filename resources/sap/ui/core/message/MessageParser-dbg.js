@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -24,7 +24,7 @@ sap.ui.define(["jquery.sap.global", "sap/ui/base/Object"],
  * @extends sap.ui.base.Object
  *
  * @author SAP SE
- * @version 1.38.7
+ * @version 1.50.7
  * @public
  * @abstract
  * @alias sap.ui.core.message.MessageParser
@@ -44,8 +44,8 @@ var MessageParser = Object.extend("sap.ui.core.message.MessageParser", {
 /**
  * This method is used by the model to register itself as MessageProcessor for this parser
  *
- * @param {sap.ui.message.MessageProcessor} oProcessor - The MessageProcessor that can be used to fire events
- * @return {sap.ui.message.MessagePaser} Instance reference for method chaining
+ * @param {sap.ui.core.message.MessageProcessor} oProcessor - The MessageProcessor that can be used to fire events
+ * @return {sap.ui.core.message.MessageParser} Instance reference for method chaining
  * @protected
  */
 MessageParser.prototype.setProcessor = function(oProcessor) {
@@ -56,7 +56,7 @@ MessageParser.prototype.setProcessor = function(oProcessor) {
 /**
  * Returns the registered processor on which the events for message handling can be fired
  *
- * @return {sap.ui.message.MessageProcessor} The currently set MessageProcessor or null if none is set
+ * @return {sap.ui.core.message.MessageProcessor} The currently set MessageProcessor or null if none is set
  * @protected
  */
 MessageParser.prototype.getProcessor = function() {

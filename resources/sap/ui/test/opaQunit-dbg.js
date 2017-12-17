@@ -1,13 +1,24 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 /*global QUnit */
-
-sap.ui.define(['./Opa', './Opa5'], function (Opa, Opa5) {
+sap.ui.define([
+	'jquery.sap.global',
+	'./Opa',
+	'./Opa5'
+], function ($, Opa, Opa5) {
 	"use strict";
 
+	QUnit.testDone(function( details ) {
+		var bTimedOut = details.assertions.some(function (oAssertion) {
+			return !oAssertion.result && oAssertion.message === "Test timed out";
+		});
+		if (bTimedOut) {
+			Opa._stopQueue(false);
+		}
+	});
 	/**
 	 * QUnit test adapter for opa.js has the same signature as a test of QUnit.
 	 * Suggested usage:
@@ -42,17 +53,17 @@ sap.ui.define(['./Opa', './Opa5'], function (Opa, Opa5) {
 	 * @function
 	 * @static
 	 * @param {string} testName The name of the created QUnit test.
-	 * @param {integer|function} expected Integer showing how many QUnit assertions are expected by the test. If a function is passed, it is interpreted as callback and the expected is skipped.
+	 * @param {int|function} expected Integer showing how many QUnit assertions are expected by the test. If a function is passed, it is interpreted as callback and the expected is skipped.
 	 * @param {function} callback The test function. It will get 3 arguments passed to it.
 	 * <ol>
 	 *     <li>
-	 *         Will be {@link sap.ui.test.Opa#.config} .arrangements.
+	 *         Will be {@link sap.ui.test.Opa.config} .arrangements.
 	 *     </li>
 	 *     <li>
-	 *        Will be {@link sap.ui.test.Opa#.config} .actions.
+	 *        Will be {@link sap.ui.test.Opa.config} .actions.
 	 *     </li>
 	 *     <li>
-	 *         Will be {@link sap.ui.test.Opa#.config} .assertions.
+	 *         Will be {@link sap.ui.test.Opa.config} .assertions.
 	 *     </li>
 	 * </ol>
 	 * @returns {QUnit.test} A function to register opaTests
@@ -65,10 +76,16 @@ sap.ui.define(['./Opa', './Opa5'], function (Opa, Opa5) {
 			QUnit.config.testTimeout  = 90000;
 		}
 		QUnit.config.reorder = false;
+		// better chance that screenshots will capture the current failure
+		QUnit.config.scrolltop = false;
 
 		if (arguments.length === 2) {
 			callback = expected;
 			expected = null;
+		}
+
+		if ( QUnit.test.length === 2 && async === true ) {
+			throw new Error("Qunit >=2.0 is used, which no longer supports the 'async' parameter for tests.");
 		}
 
 		var testBody = function(assert) {
@@ -78,6 +95,10 @@ sap.ui.define(['./Opa', './Opa5'], function (Opa, Opa5) {
 			// provide current "assert" object to the tests
 			Opa.assert = assert;
 			Opa5.assert = assert;
+
+			if ( QUnit.test.length === 2 && expected !== null ) {
+				assert.expect(expected);
+			}
 
 			callback.call(this, config.arrangements, config.actions, config.assertions);
 
@@ -89,17 +110,64 @@ sap.ui.define(['./Opa', './Opa5'], function (Opa, Opa5) {
 			});
 
 			promise.fail(function (oOptions) {
-				QUnit.ok(false, oOptions.errorMessage);
+				assert.ok(false, oOptions.errorMessage);
 				Opa.assert = undefined;
 				Opa5.assert = undefined;
-				fnStart();
+				// let OPA finish before QUnit starts executing the next test
+				// call fnStart only when QUnit did not timeout.
+				if ( oOptions.stoppedManually !== false ) {
+					setTimeout(fnStart, 0);
+				}
 			});
 		};
 
-		return QUnit.test(testName, expected, testBody, async);
+		if ( QUnit.test.length === 2 ) {
+			return QUnit.test(testName, testBody);
+		} else {
+			return QUnit.test(testName, expected, testBody, async);
+		}
+
 	};
 	// Export to global namespace to be backwards compatible
 	window.opaTest = opaTest;
+
+	QUnit.config.urlConfig.push({
+		id: "opaExecutionDelay",
+		value: {
+			400: "fast",
+			700: "medium",
+			1000: "slow"
+		},
+		label: "Opa speed",
+		tooltip: "Each waitFor will be delayed by a number of milliseconds. If it is not set Opa will execute the tests as fast as possible"
+	});
+
+	// synchronously hook QUnit custom async assertions from extension
+	Opa5._getEventProvider().attachEvent('onExtensionAfterInit',function(oEvent) {
+		var oParams = oEvent.getParameters();
+		if (oParams.extension.getAssertions) {
+			var oAssertions = oParams.extension.getAssertions();
+			$.each(oAssertions,function(sName,fnAssertion) {
+				QUnit.assert[sName] = function() {
+					var qunitThis = this;
+					// call the assertion in the app window
+					// assertion is async, push results when ready
+					var oAssertionPromise = fnAssertion.bind(oParams.appWindow)(arguments)
+						.always(function (oResult) {
+							qunitThis.push(
+								oResult.result,
+								oResult.actual,
+								oResult.expected,
+								oResult.message
+							);
+						});
+
+					// schedule async assertion promise on waitFor flow so test waits till assertion is ready
+					Opa.config.assertions._schedulePromiseOnFlow(oAssertionPromise);
+				};
+			});
+		}
+	});
 
 	return opaTest;
 });

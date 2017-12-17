@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -135,30 +135,6 @@ sap.ui.define(['jquery.sap.global', './ListItemBaseRenderer', 'sap/ui/core/Rende
 		}
 
 	};
-
-	// Returns the inner aria describedby ids for the accessibility
-	StandardListItemRenderer.getAriaDescribedBy = function(oLI) {
-		var sBaseDescribedBy = ListItemBaseRenderer.getAriaDescribedBy.call(this, oLI) || "",
-			sInfoState = oLI.getInfoState();
-
-		if (sInfoState == sap.ui.core.ValueState.None || !oLI.getInfo()) {
-			return sBaseDescribedBy;
-		}
-
-		var sDescribedBy = this.getAriaAnnouncement("STATE_" + sInfoState.toUpperCase());
-		return sDescribedBy + " " + sBaseDescribedBy;
-	};
-
-	// Returns the accessibility state of the control
-	StandardListItemRenderer.getAccessibilityState = function(oLI) {
-		var mAccessibilityState = ListItemBaseRenderer.getAccessibilityState.call(this, oLI);
-		if (oLI.getInfoState() == sap.ui.core.ValueState.Error && oLI.getInfo()) {
-			mAccessibilityState.invalid = true;
-		}
-
-		return mAccessibilityState;
-	};
-
 
 	return StandardListItemRenderer;
 

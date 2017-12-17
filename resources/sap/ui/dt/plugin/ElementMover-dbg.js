@@ -1,49 +1,47 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides class sap.ui.dt.plugin.ElementMover.
-sap.ui.define([
-	'sap/ui/base/ManagedObject', 'sap/ui/dt/ElementUtil', 'sap/ui/dt/OverlayUtil', 'sap/ui/dt/OverlayRegistry'
-], function(ManagedObject, ElementUtil, OverlayUtil, OverlayRegistry) {
+sap.ui.define(['sap/ui/base/ManagedObject', 'sap/ui/dt/ElementUtil', 'sap/ui/dt/OverlayUtil',
+		'sap/ui/dt/OverlayRegistry'], function(ManagedObject, ElementUtil, OverlayUtil,
+		OverlayRegistry) {
 	"use strict";
 
 	/**
 	 * Constructor for a new ElementMover.
 	 *
-	 * @param {string} [sId] id for the new object, generated automatically if no id is given
-	 * @param {object} [mSettings] initial settings for the new object
-	 * @class The ElementMover enables movement of UI5 elements based on aggregation types, which can be used by drag and drop or cut and paste
-	 *        behavior.
+	 * @param {string}
+	 *          [sId] id for the new object, generated automatically if no id is given
+	 * @param {object}
+	 *          [mSettings] initial settings for the new object
+	 * @class The ElementMover enables movement of UI5 elements based on aggregation types, which can be used by drag and
+	 *        drop or cut and paste behavior.
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @private
 	 * @since 1.34
 	 * @alias sap.ui.dt.plugin.ElementMover
-	 * @experimental Since 1.34. This class is experimental and provides only limited functionality. Also the API might be changed in future.
+	 * @experimental Since 1.34. This class is experimental and provides only limited functionality. Also the API might be
+	 *               changed in future.
 	 */
 	var ElementMover = ManagedObject.extend("sap.ui.dt.plugin.ElementMover", /** @lends sap.ui.dt.plugin.ElementMover.prototype */
 	{
-		metadata: {
+		metadata : {
 			// ---- object ----
 
 			// ---- control specific ----
-			library: "sap.ui.dt",
-			properties: {
-				movableTypes: {
-					type: "string[]",
-					defaultValue: [
-						"sap.ui.core.Element"
-					]
+			library : "sap.ui.dt",
+			properties : {
+				movableTypes : {
+					type : "string[]",
+					defaultValue : ["sap.ui.core.Element"]
 				}
 			},
-			associations: {},
-			events: {
-				'elementMoved': {}
-			}
+			associations : {}
 		}
 	});
 
@@ -55,7 +53,9 @@ sap.ui.define([
 	};
 
 	/**
+	 * Predicate to compute movability of a type
 	 * @public
+	 * @return true if type is movable, false otherwise
 	 */
 	ElementMover.prototype.isMovableType = function(oElement) {
 		var aMovableTypes = this._getMovableTypes();
@@ -85,8 +85,8 @@ sap.ui.define([
 	/**
 	 * set the moved overlay (only during movements)
 	 *
-	 * @param {sap.ui.dt.Overlay} [oMovedOverlay] overlay which is moved
-	 * @public
+	 * @param {sap.ui.dt.Overlay}
+	 *          [oMovedOverlay] overlay which is moved
 	 */
 	ElementMover.prototype.setMovedOverlay = function(oMovedOverlay) {
 		if (oMovedOverlay) {
@@ -171,12 +171,10 @@ sap.ui.define([
 	 * @private
 	 */
 	ElementMover.prototype._iterateAllAggregations = function(oDesignTime, fnStep, sAdditionalStyleClass) {
-		var that = this;
-
 		var aOverlays = oDesignTime.getElementOverlays();
 		aOverlays.forEach(function(oOverlay) {
-			that._iterateOverlayAggregations(oOverlay, fnStep, sAdditionalStyleClass);
-		});
+			this._iterateOverlayAggregations(oOverlay, fnStep, sAdditionalStyleClass);
+		}, this);
 	};
 
 	/**
@@ -189,85 +187,90 @@ sap.ui.define([
 		});
 	};
 
-
 	/**
-	 * @private
+	 * Move an element inside the same container (reposition).
+	 * In case of special handling required (e.g. SimpleForm), the methods "beforeMove" and "afterMove"
+	 * are called before and after the reposition. They should be implemented on the control design time
+	 * metadata for the relevant aggregation.
+	 * @param  {sap.ui.dt.Overlay} oMovedOverlay The overlay of the element being moved
+	 * @param  {sap.ui.dt.Overlay} oTargetElementOverlay The overlay of the target element for the move
 	 */
 	ElementMover.prototype.repositionOn = function(oMovedOverlay, oTargetElementOverlay) {
 		var oMovedElement = oMovedOverlay.getElementInstance();
+		var oTargetParentInformation = OverlayUtil.getParentInformation(oTargetElementOverlay);
+		var oAggregationDesignTimeMetadata;
 
-		var oTargetParent = OverlayUtil.getParentInformation(oTargetElementOverlay);
+		var oParentAggregationOverlay = oMovedOverlay.getParentAggregationOverlay();
+		var oRelevantContainerElement = oMovedOverlay.getRelevantContainer();
+		var oParentElementOverlay = oMovedOverlay.getParentElementOverlay();
 
-		if (oTargetParent.index !== -1) {
-			ElementUtil.insertAggregation(oTargetParent.parent, oTargetParent.aggregation, oMovedElement, oTargetParent.index);
+		if (oParentAggregationOverlay && oParentElementOverlay) {
+			var sAggregationName = oParentAggregationOverlay.getAggregationName();
+			oAggregationDesignTimeMetadata = oParentElementOverlay.getDesignTimeMetadata().getAggregation(sAggregationName);
+		}
+
+		if (oTargetParentInformation.index !== -1) {
+			if (oAggregationDesignTimeMetadata && oAggregationDesignTimeMetadata.beforeMove){
+				oAggregationDesignTimeMetadata.beforeMove(oRelevantContainerElement, oMovedElement);
+			}
+			ElementUtil.insertAggregation(oTargetParentInformation.parent, oTargetParentInformation.aggregation,
+				oMovedElement, oTargetParentInformation.index);
+			if (oAggregationDesignTimeMetadata && oAggregationDesignTimeMetadata.afterMove){
+				oAggregationDesignTimeMetadata.afterMove(oRelevantContainerElement, oMovedElement);
+			}
 		}
 	};
 
-
 	/**
-	 * @private
+	 * Insert an element inside another container.
+	 * In case of special handling required (e.g. SimpleForm), the methods "beforeMove" and "afterMove"
+	 * are called before and after the insertion. They should be implemented on the control design time
+	 * metadata for the relevant aggregation.
+	 * @param  {sap.ui.dt.Overlay} oMovedOverlay The overlay of the element being moved
+	 * @param  {sap.ui.dt.Overlay} oTargetAggregationOverlay The overlay of the target aggregation for the move
 	 */
 	ElementMover.prototype.insertInto = function(oMovedOverlay, oTargetAggregationOverlay) {
 		var oMovedElement = oMovedOverlay.getElementInstance();
 		var oTargetParentElement = oTargetAggregationOverlay.getElementInstance();
+		var oAggregationDesignTimeMetadata;
 
-		var oSourceAggregationOverlay = oMovedOverlay.getParent();
-		if (oTargetAggregationOverlay !== oSourceAggregationOverlay) {
+		var oParentAggregationOverlay = oMovedOverlay.getParentAggregationOverlay();
+		var oRelevantContainerElement = oMovedOverlay.getRelevantContainer();
+		var oParentElementOverlay = oMovedOverlay.getParentElementOverlay();
+
+		if (oParentAggregationOverlay && oParentElementOverlay) {
+			var sAggregationName = oParentAggregationOverlay.getAggregationName();
+			oAggregationDesignTimeMetadata = oParentElementOverlay.getDesignTimeMetadata().getAggregation(sAggregationName);
+		}
+
+		var aTargetAggregationItems = ElementUtil.getAggregation(oTargetAggregationOverlay.getElementInstance(), oTargetAggregationOverlay.getAggregationName());
+		var iIndex = aTargetAggregationItems.indexOf(oMovedElement);
+		// Don't do anything when the element is already in the aggregation and is the last element
+		if (!(iIndex > -1 && iIndex === aTargetAggregationItems.length - 1)) {
+			if (oAggregationDesignTimeMetadata && oAggregationDesignTimeMetadata.beforeMove){
+				oAggregationDesignTimeMetadata.beforeMove(oRelevantContainerElement, oMovedElement);
+			}
 			var sTargetAggregationName = oTargetAggregationOverlay.getAggregationName();
 			ElementUtil.addAggregation(oTargetParentElement, sTargetAggregationName, oMovedElement);
-		}
-	};
-
-	ElementMover.prototype.buildMoveEvent = function() {
-
-		var oMovedOverlay = this.getMovedOverlay();
-		var oMovedElement = oMovedOverlay.getElementInstance();
-		var oSource = this._getSource();
-		var oTarget = OverlayUtil.getParentInformation(oMovedOverlay);
-
-		var aActions = [];
-		var oHookDescription = this._findAfterHook('afterMove', oSource, oTarget);
-		if (oHookDescription) {
-			var oParentElement = oHookDescription.parentOverlay.getElementInstance();
-			aActions = oHookDescription.afterHook.call(oParentElement, oMovedElement, oSource, oTarget);
-		} else {
-			aActions.push({
-					element: oMovedElement,
-					source: oSource,
-					target: oTarget
-				});
-		}
-
-		if (aActions && aActions.length > 0) {
-			ElementUtil.executeActions(aActions);
-		}
-
-		this.fireElementMoved({
-			data: aActions
-		});
-
-	};
-
-	/**
-	 * @private
-	 */
-	ElementMover.prototype._findAfterHook = function(sHookName, oSource, oTarget) {
-		try {
-			var oParentOverlay = OverlayRegistry.getOverlay(oSource.parent);
-			var oAggregationOverlay = oParentOverlay.getAggregationOverlay(oSource.aggregation);
-			var oAggregationDesignTimeMetadata = oAggregationOverlay.getDesignTimeMetadata();
-			var oData = oAggregationDesignTimeMetadata.getData();
-			var oAfterHook = oData[sHookName];
-			if (oAfterHook) {
-				return {
-					afterHook : oAfterHook,
-					parentOverlay : oParentOverlay
-				};
+			if (oAggregationDesignTimeMetadata && oAggregationDesignTimeMetadata.afterMove){
+				oAggregationDesignTimeMetadata.afterMove(oRelevantContainerElement, oMovedElement);
 			}
-		} catch (ex) {
-			// Intensionally left blank
 		}
-		return null;
+	};
+
+	ElementMover.prototype._compareSourceAndTarget = function(oSource, oTarget) {
+		var vProperty;
+		for (vProperty in oSource) {
+			switch (typeof (oSource[vProperty])) {
+				case 'object':
+					if (oSource[vProperty].getId() !== oTarget[vProperty].getId()) {return false;}
+					break;
+				default:
+					if (oSource[vProperty] !== oTarget[vProperty]) {return false;}
+			}
+		}
+
+		return true;
 	};
 
 	return ElementMover;

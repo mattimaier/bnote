@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -19,16 +19,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/NumberFormat', 'sap/ui/m
 	 * @extends sap.ui.model.CompositeType
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
-	 * @param {object} [oFormatOptions] formatting options. Supports the same options as {@link sap.ui.core.format.NumberFormat.getCurrencyInstance NumberFormat.getCurrencyInstance}
-	 * @param {object} [oFormatOptions.source] additional set of format options to be used if the property in the model is not of type string and needs formatting as well.
-	 * 										   In case an empty object is given, the default is disabled grouping and a dot as decimal separator.
-	 * @param {object} [oConstraints] value constraints.
-	 * @param {float} [oConstraints.minimum] smallest value allowed for this type
-	 * @param {float} [oConstraints.maximum] largest value allowed for this type
+	 * @param {object} [oFormatOptions] Formatting options. For a list of all available options, see {@link sap.ui.core.format.NumberFormat#constructor NumberFormat}.
+	 * @param {object} [oFormatOptions.source] Additional set of format options to be used if the property in the model is not of type <code>string</code> and needs formatting as well.
+	 * 										   If an empty object is given, the grouping is disabled and a dot is used as decimal separator.
+	 * @param {object} [oConstraints] Value constraints
+	 * @param {float} [oConstraints.minimum] Smallest value allowed for this type
+	 * @param {float} [oConstraints.maximum] Largest value allowed for this type
 	 * @alias sap.ui.model.type.Currency
 	 */
 	var Currency = CompositeType.extend("sap.ui.model.type.Currency", /** @lends sap.ui.model.type.Currency.prototype  */ {
@@ -44,7 +44,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/NumberFormat', 'sap/ui/m
 	/**
 	 * Format the given array containing amount and currency code to an output value of type string.
 	 * Other internal types than 'string' are not supported by the Currency type.
-	 * If an source format is has been defined for this type, the formatValue does also accept
+	 * If a source format has been defined for this type, the formatValue does also accept
 	 * a string value as input, which will be parsed into an array using the source format.
 	 * If aValues is not defined or null, null will be returned.
 	 *
@@ -64,7 +64,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/NumberFormat', 'sap/ui/m
 		if (this.oInputFormat) {
 			aValues = this.oInputFormat.parse(vValue);
 		}
-		if (!jQuery.isArray(aValues)) {
+		if (!Array.isArray(aValues)) {
 			throw new FormatException("Cannot format currency: " + vValue + " has the wrong format");
 		}
 		if (aValues[0] == undefined || aValues[0] == null) {
@@ -101,7 +101,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/format/NumberFormat', 'sap/ui/m
 		switch (this.getPrimitiveType(sInternalType)) {
 			case "string":
 				vResult = this.oOutputFormat.parse(vValue);
-				if (!jQuery.isArray(vResult)) {
+				if (!Array.isArray(vResult)) {
 					oBundle = sap.ui.getCore().getLibraryResourceBundle();
 					throw new ParseException(oBundle.getText("Currency.Invalid", [vValue]));
 				}

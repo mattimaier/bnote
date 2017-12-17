@@ -1,37 +1,62 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.MessagePopover.
-sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolbar", "./ToolbarSpacer", "./Bar", "./List",
-		"./StandardListItem", "./library", "sap/ui/core/Control", "./PlacementType", "sap/ui/core/IconPool",
+sap.ui.define([ "jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolbar", "./ToolbarSpacer", "./Bar", "./List",
+		"./StandardListItem", "sap/ui/core/Control", "sap/ui/core/IconPool",
 		"sap/ui/core/HTML", "./Text", "sap/ui/core/Icon", "./SegmentedButton", "./Page", "./NavContainer",
-		"./semantic/SemanticPage", "./Popover", "./MessagePopoverItem", "jquery.sap.dom"],
+		"./semantic/SemanticPage", "./Link" ,"./Popover", "./MessagePopoverItem", "./MessageView"],
 	function (jQuery, ResponsivePopover, Button, Toolbar, ToolbarSpacer, Bar, List,
-			  StandardListItem, library, Control, PlacementType, IconPool,
-			  HTML, Text, Icon, SegmentedButton, Page, NavContainer, SemanticPage, Popover, MessagePopoverItem) {
+			  StandardListItem, Control, IconPool,
+			  HTML, Text, Icon, SegmentedButton, Page, NavContainer, SemanticPage, Link, Popover, MessagePopoverItem,
+			  MessageView) {
 		"use strict";
 
 		/**
-		 * Constructor for a new MessagePopover
+		 * Constructor for a new MessagePopover.
 		 *
-		 * @param {string} [sId] ID for the new control, generated automatically if no id is given
+		 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 		 * @param {object} [mSettings] Initial settings for the new control
 		 *
 		 * @class
-		 * A MessagePopover is a Popover containing a summarized list with messages.
+		 * A summarized list of different types of messages.
+		 * <h3>Overview</h3>
+		 * A message popover is used to display a summarized list of different types of messages (errors, warnings, success and information).
+		 * It provides a handy and systemized way to navigate and explore details for every message.
+		 * <h4>Notes:</h4>
+		 * <ul>
+		 * <li> Messages can have descriptions pre-formatted with HTML markup. In this case, the <code>markupDescription</code> has to be set to <code>true</code>.</li>
+		 * <li> If the message cannot be fully displayed or includes a long description, the message popover provides navigation to the detailed description.</li>
+		 * </ul>
+		 * <h3>Structure</h3>
+		 * The message popover stores all messages in an association of type {@link sap.m.MessageItem} named <code>items</code>.
+		 *
+		 * A set of properties determines how the items are rendered:
+		 * <ul>
+		 * <li> counter - An integer that is used to indicate the number of errors for each type </li>
+		 * <li> type - The type of message </li>
+		 * <li> title/subtitle - The title and subtitle of the message</li>
+		 * <li> description - The long text description of the message</li>
+		 * </ul>
+		 * <h3>Usage</h3>
+		 * With the message concept, MessagePopover provides a way to centrally manage messages and show them to the user without additional work for the developer.
+		 * The message popover is triggered from a messaging button in the footer toolbar. If an error has occurred at any validation point,
+		 * the total number of messages should be incremented, but the user's work shouldn't be interrupted.
+		 * <h3>Responsive Behavior</h3>
+		 * On mobile phones, the message popover is automatically shown in full screen mode.
 		 * @extends sap.ui.core.Control
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
 		 * @since 1.28
 		 * @alias sap.m.MessagePopover
-		 * @ui5-metamodel This control also will be described in the legacy UI5 design-time metamodel
+		 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
 		 */
 		var MessagePopover = Control.extend("sap.m.MessagePopover", /** @lends sap.m.MessagePopover.prototype */ {
 			metadata: {
@@ -76,7 +101,7 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 					/**
 					 * A list with message items
 					 */
-					items: {type: "sap.m.MessagePopoverItem", multiple: true, singularName: "item"},
+					items: {type: "sap.m.MessageItem", altTypes: ["sap.m.MessagePopoverItem"], multiple: true, singularName: "item"},
 
 					/**
 					 * A custom header button
@@ -176,7 +201,14 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 			}
 		});
 
+
+		function capitalize(sName) {
+			return sName.charAt(0).toUpperCase() + sName.slice(1);
+		}
+
 		var CSS_CLASS = "sapMMsgPopover",
+			DEFAULT_CONTENT_HEIGHT = "320px",
+			DEFAULT_CONTENT_WIDTH = "440px",
 			ICONS = {
 				back: IconPool.getIconURI("nav-back"),
 				close: IconPool.getIconURI("decline"),
@@ -185,7 +217,6 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 				error: IconPool.getIconURI("message-error"),
 				success: IconPool.getIconURI("message-success")
 			},
-			LIST_TYPES = ["all", "error", "warning", "success", "information"],
 			// Property names array
 			ASYNC_HANDLER_NAMES = ["asyncDescriptionHandler", "asyncURLHandler"],
 			// Private class variable used for static method below that sets default async handlers
@@ -226,6 +257,12 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 			});
 		};
 
+		/*
+		 * =========================================
+		 * Lifecycle methods
+		 * =========================================
+		 */
+
 		/**
 		 * Initializes the control
 		 *
@@ -238,17 +275,28 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 
 			this._oResourceBundle = sap.ui.getCore().getLibraryResourceBundle("sap.m");
 
+			this._oMessageView = this._initMessageView();
+			// insert the close buttons in both list and details pages as the MessageView
+			// doesn't know it is being created in Popover
+			this._insertCloseBtn(this._oMessageView._oListHeader);
+			this._insertCloseBtn(this._oMessageView._oDetailsHeader);
+
+			this._oMessageView._oSegmentedButton.attachEvent("select", this._onSegButtonSelect, this);
+
 			this._oPopover = new ResponsivePopover(this.getId() + "-messagePopover", {
 				showHeader: false,
-				contentWidth: "440px",
+				contentWidth: DEFAULT_CONTENT_WIDTH,
+				contentHeight: DEFAULT_CONTENT_HEIGHT,
 				placement: this.getPlacement(),
 				showCloseButton: false,
+				verticalScrolling: false,
+				horizontalScrolling: false,
 				modal: false,
 				afterOpen: function (oEvent) {
 					that.fireAfterOpen({openBy: oEvent.getParameter("openBy")});
 				},
 				afterClose: function (oEvent) {
-					that._navContainer.backToTop();
+					that._oMessageView._navContainer.backToTop();
 					that.fireAfterClose({openBy: oEvent.getParameter("openBy")});
 				},
 				beforeOpen: function (oEvent) {
@@ -259,14 +307,14 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 				}
 			}).addStyleClass(CSS_CLASS);
 
-			this._createNavigationPages();
-			this._createLists();
+			this._oPopover.addContent(this._oMessageView);
+			this._oPopover.addAssociation("ariaLabelledBy", this.getId() + "-messageView-HeadingDescr", true);
 
 			oPopupControl = this._oPopover.getAggregation("_popup");
 			oPopupControl.oPopup.setAutoClose(false);
 			oPopupControl.addEventDelegate({
 				onBeforeRendering: this.onBeforeRenderingPopover,
-				onkeypress: this._onkeypress
+				onAfterRendering: this.onAfterRenderingPopover
 			}, this);
 
 			if (sap.ui.Device.system.phone) {
@@ -279,37 +327,14 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 			// Check for default async handlers and set them appropriately
 			ASYNC_HANDLER_NAMES.forEach(function (sFuncName) {
 				if (DEFAULT_ASYNC_HANDLERS.hasOwnProperty(sFuncName)) {
-					that.setProperty(sFuncName, DEFAULT_ASYNC_HANDLERS[sFuncName]);
+					this['set' + capitalize(sFuncName)](DEFAULT_ASYNC_HANDLERS[sFuncName]);
 				}
-			});
+			}, this);
 		};
 
-		/**
-		 * Called when the control is destroyed
-		 *
-		 * @private
-		 */
-		MessagePopover.prototype.exit = function () {
-			this._oResourceBundle = null;
-			this._oListHeader = null;
-			this._oDetailsHeader = null;
-			this._oSegmentedButton = null;
-			this._oBackButton = null;
-			this._navContainer = null;
-			this._listPage = null;
-			this._detailsPage = null;
-			this._sCurrentList = null;
-
-			if (this._oLists) {
-				this._destroyLists();
-			}
-
-			// Destroys ResponsivePopover control that is used by MessagePopover
-			// This will walk through all aggregations in the Popover and destroy them (in our case this is NavContainer)
-			// Next this will walk through all aggregations in the NavContainer, etc.
-			if (this._oPopover) {
-				this._oPopover.destroy();
-				this._oPopover = null;
+		MessagePopover.prototype.onBeforeRendering = function () {
+			if (this.getDependents().indexOf(this._oPopover) === -1) {
+				this.addDependent(this._oPopover);
 			}
 		};
 
@@ -319,23 +344,34 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 		 * @private
 		 */
 		MessagePopover.prototype.onBeforeRenderingPopover = function () {
+			// If there is no item's binding given - it should happen automatically in the MessageView
+			// However for backwards compatibility we need to have the same binding on the MessagePopover
+			// TODO: Decide what to do in this case
+			/*if (!this.getBinding("items") && this._oMessageView.getBinding("items")) {
+				this.bindAggregation("items", this._oMessageView.getBindingInfo("items"));
+			}*/
 
-			var headerButton = this.getHeaderButton();
-			if (headerButton) {
-				this._oListHeader.insertContent(headerButton, 2);
-			}
-
-			// Bind automatically to the MessageModel if no items are bound
-			if (!this.getBindingInfo("items") && !this.getItems().length) {
-				this._makeAutomaticBinding();
-			}
-
-			// Update lists only if 'items' aggregation is changed
+			// Update MV only if 'items' aggregation is changed
 			if (this._bItemsChanged) {
-				this._clearLists();
-				this._fillLists(this.getItems());
-				this._clearSegmentedButton();
-				this._fillSegmentedButton();
+				var items = this.getItems();
+				var that = this;
+
+				this._oMessageView.destroyItems();
+
+				items.forEach(function (item) {
+					// we need to know if the MessagePopover's item was changed so to
+					// update the MessageView's items as well
+					item._updateProperties(function () {
+						that._bItemsChanged = true;
+					});
+
+					// we need to clone the item along with its bindings and aggregations
+					this._oMessageView.addItem(item.clone("", "", {
+						cloneChildren: true,
+						cloneBinding: true
+					}));
+				}, this);
+
 				this._bItemsChanged = false;
 			}
 
@@ -343,754 +379,41 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 		};
 
 		/**
-		 * Makes automatic binding to the Message Model with default template
+		 * Required adaptations after rendering MessagePopover
 		 *
 		 * @private
 		 */
-		MessagePopover.prototype._makeAutomaticBinding = function () {
-			this.setModel(sap.ui.getCore().getMessageManager().getMessageModel(), "message");
-			this.bindAggregation("items",
-					{
-						path: "message>/",
-						template: new MessagePopoverItem({
-							type: "{message>type}",
-							title: "{message>message}",
-							description: "{message>description}",
-							longtextUrl: "{message>longtextUrl}"
-						})
-					}
-			);
-		};
-
-		/**
-		 * Handles keyup event
-		 *
-		 * @param {jQuery.Event} oEvent - keyup event object
-		 * @private
-		 */
-		MessagePopover.prototype._onkeypress = function (oEvent) {
-			if (oEvent.shiftKey && oEvent.keyCode == jQuery.sap.KeyCodes.ENTER) {
-				this._fnHandleBackPress();
+		MessagePopover.prototype.onAfterRenderingPopover = function () {
+			// Because we remove the items from the MessageView and fill it in with new items
+			// every time something is changed - we need to update the id of the element which
+			// will receive the focus given by the Popover control.
+			// First we need to check if such id is stored in the MessagePopover -> ResponsivePopover -> Popover control
+			if (this._oPopover._oControl._sFocusControlId) {
+				// then we remove any stored item id because it no longer exists after the re-rendering.
+				this._oPopover._oControl._sFocusControlId = null;
 			}
 		};
 
 		/**
-		 * Returns header of the MessagePopover's ListPage
-		 *
-		 * @returns {sap.m.Toolbar} ListPage header
-		 * @private
-		 */
-		MessagePopover.prototype._getListHeader = function () {
-			return this._oListHeader || this._createListHeader();
-		};
-
-		/**
-		 * Returns header of the MessagePopover's ListPage
-		 *
-		 * @returns {sap.m.Toolbar} DetailsPage header
-		 * @private
-		 */
-		MessagePopover.prototype._getDetailsHeader = function () {
-			return this._oDetailsHeader || this._createDetailsHeader();
-		};
-
-		/**
-		 * Creates header of MessagePopover's ListPage
-		 *
-		 * @returns {sap.m.Toolbar} ListPage header
-		 * @private
-		 */
-		MessagePopover.prototype._createListHeader = function () {
-			var sCloseBtnDescr = this._oResourceBundle.getText("MESSAGEPOPOVER_CLOSE");
-			var sCloseBtnDescrId = this.getId() + "-CloseBtnDescr";
-			var oCloseBtnARIAHiddenDescr = new HTML(sCloseBtnDescrId, {
-				content: "<span id=\"" + sCloseBtnDescrId + "\" style=\"display: none;\">" + sCloseBtnDescr + "</span>"
-			});
-
-			var sHeadingDescr = this._oResourceBundle.getText("MESSAGEPOPOVER_ARIA_HEADING");
-			var sHeadingDescrId = this.getId() + "-HeadingDescr";
-			var oHeadingARIAHiddenDescr = new HTML(sHeadingDescrId, {
-				content: "<span id=\"" + sHeadingDescrId + "\" style=\"display: none;\" role=\"heading\">" + sHeadingDescr + "</span>"
-			});
-
-			this._oPopover.addAssociation("ariaDescribedBy", sHeadingDescrId, true);
-
-			var oCloseBtn = new Button({
-				icon: ICONS["close"],
-				visible: !sap.ui.Device.system.phone,
-				ariaLabelledBy: oCloseBtnARIAHiddenDescr,
-				tooltip: sCloseBtnDescr,
-				press: this.close.bind(this)
-			}).addStyleClass(CSS_CLASS + "CloseBtn");
-
-			this._oSegmentedButton = new SegmentedButton(this.getId() + "-segmented", {}).addStyleClass("sapMSegmentedButtonNoAutoWidth");
-
-			this._oListHeader = new Toolbar({
-				content: [this._oSegmentedButton, new ToolbarSpacer(), oCloseBtn, oCloseBtnARIAHiddenDescr, oHeadingARIAHiddenDescr]
-			});
-
-			return this._oListHeader;
-		};
-
-		/**
-		 * Creates header of MessagePopover's ListPage
-		 *
-		 * @returns {sap.m.Toolbar} DetailsPage header
-		 * @private
-		 */
-		MessagePopover.prototype._createDetailsHeader = function () {
-			var sCloseBtnDescr = this._oResourceBundle.getText("MESSAGEPOPOVER_CLOSE");
-			var sCloseBtnDescrId = this.getId() + "-CloseBtnDetDescr";
-			var oCloseBtnARIAHiddenDescr = new HTML(sCloseBtnDescrId, {
-				content: "<span id=\"" + sCloseBtnDescrId + "\" style=\"display: none;\">" + sCloseBtnDescr + "</span>"
-			});
-
-			var sBackBtnDescr = this._oResourceBundle.getText("MESSAGEPOPOVER_ARIA_BACK_BUTTON");
-			var sBackBtnDescrId = this.getId() + "-BackBtnDetDescr";
-			var oBackBtnARIAHiddenDescr = new HTML(sBackBtnDescrId, {
-				content: "<span id=\"" + sBackBtnDescrId + "\" style=\"display: none;\">" + sBackBtnDescr + "</span>"
-			});
-
-			var oCloseBtn = new Button({
-				icon: ICONS["close"],
-				visible: !sap.ui.Device.system.phone,
-				ariaLabelledBy: oCloseBtnARIAHiddenDescr,
-				tooltip: sCloseBtnDescr,
-				press: this.close.bind(this)
-			}).addStyleClass(CSS_CLASS + "CloseBtn");
-
-			this._oBackButton = new Button({
-				icon: ICONS["back"],
-				press: this._fnHandleBackPress.bind(this),
-				ariaLabelledBy: oBackBtnARIAHiddenDescr,
-				tooltip: sBackBtnDescr
-			});
-
-			this._oDetailsHeader = new Toolbar({
-				content: [this._oBackButton, new ToolbarSpacer(), oCloseBtn, oCloseBtnARIAHiddenDescr, oBackBtnARIAHiddenDescr]
-			});
-
-			return this._oDetailsHeader;
-		};
-
-		/**
-		 * Creates navigation pages
-		 *
-		 * @returns {sap.m.MessagePopover} Reference to the 'this' for chaining purposes
-		 * @private
-		 */
-		MessagePopover.prototype._createNavigationPages = function () {
-			// Create two main pages
-			this._listPage = new Page(this.getId() + "listPage", {
-				customHeader: this._getListHeader()
-			});
-
-			this._detailsPage = new Page(this.getId() + "-detailsPage", {
-				customHeader: this._getDetailsHeader()
-			});
-
-			// TODO: check if this is the best location for this
-			// Disable clicks on disabled and/or pending links
-			this._detailsPage.addEventDelegate({
-				onclick: function(oEvent) {
-					var target = oEvent.target;
-					if (target.nodeName.toUpperCase() === 'A' &&
-						(target.className.indexOf('sapMMsgPopoverItemDisabledLink') !== -1 ||
-						target.className.indexOf('sapMMsgPopoverItemPendingLink') !== -1)) {
-
-						oEvent.preventDefault();
-					}
-				}
-			});
-
-			// Initialize nav container with two main pages
-			this._navContainer = new NavContainer(this.getId() + "-navContainer", {
-				initialPage: this.getId() + "listPage",
-				pages: [this._listPage, this._detailsPage],
-				navigate: this._navigate.bind(this),
-				afterNavigate: this._afterNavigate.bind(this)
-			});
-
-			// Assign nav container to content of _oPopover
-			this._oPopover.addContent(this._navContainer);
-
-			return this;
-		};
-
-		/**
-		 * Creates Lists of the MessagePopover
-		 *
-		 * @returns {sap.m.MessagePopover} Reference to the 'this' for chaining purposes
-		 * @private
-		 */
-		MessagePopover.prototype._createLists = function () {
-			this._oLists = {};
-
-			LIST_TYPES.forEach(function (sListName) {
-				this._oLists[sListName] = new List({
-					itemPress: this._fnHandleItemPress.bind(this),
-					visible: false
-				});
-
-				// no re-rendering
-				this._listPage.addAggregation("content", this._oLists[sListName], true);
-			}, this);
-
-			return this;
-		};
-
-		/**
-		 * Destroy items in the MessagePopover's Lists
-		 *
-		 * @returns {sap.m.MessagePopover} Reference to the 'this' for chaining purposes
-		 * @private
-		 */
-		MessagePopover.prototype._clearLists = function () {
-			LIST_TYPES.forEach(function (sListName) {
-				if (this._oLists[sListName]) {
-					this._oLists[sListName].destroyAggregation("items", true);
-				}
-			}, this);
-
-			return this;
-		};
-
-		/**
-		 * Destroys internal Lists of the MessagePopover
+		 * Called when the control is destroyed
 		 *
 		 * @private
 		 */
-		MessagePopover.prototype._destroyLists = function () {
-			LIST_TYPES.forEach(function (sListName) {
-				this._oLists[sListName] = null;
-			}, this);
+		MessagePopover.prototype.exit = function () {
+			this._oResourceBundle = null;
 
-			this._oLists = null;
-		};
-
-		/**
-		 * Fill the list with items
-		 *
-		 * @param {array} aItems An array with items type of sap.ui.core.Item.
-		 * @private
-		 */
-		MessagePopover.prototype._fillLists = function (aItems) {
-			aItems.forEach(function (oMessagePopoverItem) {
-				var oListItem = this._mapItemToListItem(oMessagePopoverItem),
-					oCloneListItem = this._mapItemToListItem(oMessagePopoverItem);
-
-				// add the mapped item to the List
-				this._oLists["all"].addAggregation("items", oListItem, true);
-				this._oLists[oMessagePopoverItem.getType().toLowerCase()].addAggregation("items", oCloneListItem, true);
-			}, this);
-		};
-
-		/**
-		 * Map a MessagePopoverItem to StandardListItem
-		 *
-		 * @param {sap.m.MessagePopoverItem} oMessagePopoverItem Base information to generate the list items
-		 * @returns {sap.m.StandardListItem | null} oListItem List item which will be displayed
-		 * @private
-		 */
-		MessagePopover.prototype._mapItemToListItem = function (oMessagePopoverItem) {
-			if (!oMessagePopoverItem) {
-				return null;
+			if (this._oMessageView) {
+				this._oMessageView.destroy();
+				this._oMessageView = null;
 			}
 
-			var sType = oMessagePopoverItem.getType(),
-				oListItem = new StandardListItem({
-					title: oMessagePopoverItem.getTitle(),
-					icon: this._mapIcon(sType),
-					type: sap.m.ListType.Navigation
-				}).addStyleClass(CSS_CLASS + "Item").addStyleClass(CSS_CLASS + "Item" + sType);
-
-			oListItem._oMessagePopoverItem = oMessagePopoverItem;
-
-			return oListItem;
-		};
-
-		/**
-		 * Map an MessageType to the Icon URL.
-		 *
-		 * @param {sap.ui.core.ValueState} sIcon Type of Error
-		 * @returns {string | null} Icon string
-		 * @private
-		 */
-		MessagePopover.prototype._mapIcon = function (sIcon) {
-			if (!sIcon) {
-				return null;
+			// Destroys ResponsivePopover control that is used by MessagePopover
+			// This will walk through all aggregations in the Popover and destroy them (in our case this is NavContainer)
+			// Next this will walk through all aggregations in the NavContainer, etc.
+			if (this._oPopover) {
+				this._oPopover.destroy();
+				this._oPopover = null;
 			}
-
-			return ICONS[sIcon.toLowerCase()];
-		};
-
-		/**
-		 * Destroy the buttons in the SegmentedButton
-		 *
-		 * @returns {sap.m.MessagePopover} Reference to the 'this' for chaining purposes
-		 * @private
-		 */
-		MessagePopover.prototype._clearSegmentedButton = function () {
-			if (this._oSegmentedButton) {
-				this._oSegmentedButton.destroyAggregation("buttons", true);
-			}
-
-			return this;
-		};
-
-		/**
-		 * Fill SegmentedButton with needed Buttons for filtering
-		 *
-		 * @returns {sap.m.MessagePopover} Reference to the 'this' for chaining purposes
-		 * @private
-		 */
-		MessagePopover.prototype._fillSegmentedButton = function () {
-			var that = this;
-			var pressClosure = function (sListName) {
-				return function () {
-					that._fnFilterList(sListName);
-				};
-			};
-
-			LIST_TYPES.forEach(function (sListName) {
-				var oList = this._oLists[sListName],
-					iCount = oList.getItems().length,
-					oButton;
-
-				if (iCount > 0) {
-					oButton =  new Button(this.getId() + "-" + sListName, {
-						text: sListName == "all" ? this._oResourceBundle.getText("MESSAGEPOPOVER_ALL") : iCount,
-						icon: ICONS[sListName],
-						press: pressClosure(sListName)
-					}).addStyleClass(CSS_CLASS + "Btn" + sListName.charAt(0).toUpperCase() + sListName.slice(1));
-
-					this._oSegmentedButton.addButton(oButton, true);
-				}
-			}, this);
-
-			return this;
-		};
-
-		/**
-		 * Sets icon in details page
-		 * @param {sap.m.MessagePopoverItem} oMessagePopoverItem
-		 * @param {sap.m.StandardListItem} oListItem
-		 * @private
-		 */
-		MessagePopover.prototype._setIcon = function (oMessagePopoverItem, oListItem) {
-			this._previousIconTypeClass = CSS_CLASS + "DescIcon" + oMessagePopoverItem.getType();
-			this._oMessageIcon = new Icon({
-				src: oListItem.getIcon()
-			})
-				.addStyleClass(CSS_CLASS + "DescIcon")
-				.addStyleClass(this._previousIconTypeClass);
-
-			this._detailsPage.addContent(this._oMessageIcon);
-		};
-
-		/**
-		 * Sets title part of details page
-		 * @param {sap.m.MessagePopoverItem} oMessagePopoverItem
-		 * @private
-		 */
-		MessagePopover.prototype._setTitle = function (oMessagePopoverItem) {
-			this._oMessageTitleText = new Text(this.getId() + 'MessageTitleText', {
-				text: oMessagePopoverItem.getTitle()
-			}).addStyleClass('sapMMsgPopoverTitleText');
-			this._detailsPage.addAggregation("content", this._oMessageTitleText);
-		};
-
-		/**
-		 * Sets description text part of details page
-		 * When markup description is used it is sanitized within it's container's setter method (MessagePopoverItem)
-		 * @param {sap.m.MessagePopoverItem} oMessagePopoverItem
-		 * @private
-		 */
-		MessagePopover.prototype._setDescription = function (oMessagePopoverItem) {
-			if (oMessagePopoverItem.getMarkupDescription()) {
-				// description is sanitized in MessagePopoverItem.setDescription()
-				this._oMessageDescriptionText = new HTML(this.getId() + 'MarkupDescription', {
-					content: "<div class='markupDescription'>" + oMessagePopoverItem.getDescription() + "</div>"
-				});
-			} else {
-				this._oMessageDescriptionText = new Text(this.getId() + 'MessageDescriptionText', {
-					text: oMessagePopoverItem.getDescription()
-				}).addStyleClass('sapMMsgPopoverDescriptionText');
-			}
-
-			this._detailsPage.addContent(this._oMessageDescriptionText);
-		};
-
-		MessagePopover.prototype._iNextValidationTaskId = 0;
-
-		MessagePopover.prototype._validateURL = function (sUrl) {
-			if (jQuery.sap.validateUrl(sUrl)) {
-				return sUrl;
-			}
-
-			jQuery.sap.log.warning("You have entered invalid URL");
-
-			return '';
-		};
-
-		MessagePopover.prototype._queueValidation = function (href) {
-			var fnAsyncURLHandler = this.getAsyncURLHandler();
-			var iValidationTaskId = ++this._iNextValidationTaskId;
-			var oPromiseArgument = {};
-
-			var oPromise = new window.Promise(function(resolve, reject) {
-
-				oPromiseArgument.resolve = resolve;
-				oPromiseArgument.reject = reject;
-
-				var config = {
-					url: href,
-					id: iValidationTaskId,
-					promise: oPromiseArgument
-				};
-
-				fnAsyncURLHandler(config);
-			});
-
-			oPromise.id = iValidationTaskId;
-
-			return oPromise;
-		};
-
-		MessagePopover.prototype._getTagPolicy = function () {
-			var that = this,
-				i;
-
-			/*global html*/
-			var defaultTagPolicy = html.makeTagPolicy(this._validateURL());
-
-			return function customTagPolicy(tagName, attrs) {
-				var href,
-					validateLink = false;
-
-				if (tagName.toUpperCase() === "A") {
-
-					for (i = 0; i < attrs.length;) {
-						// if there is href the link should be validated, href's value is on position(i+1)
-						if (attrs[i] === "href") {
-							validateLink = true;
-							href = attrs[i + 1];
-							attrs.splice(0, 2);
-							continue;
-						}
-
-						i += 2;
-					}
-
-				}
-
-				// let the default sanitizer do its work
-				// it won't see the href attribute
-				attrs = defaultTagPolicy(tagName, attrs);
-
-				// if we detected a link before, we modify the <A> tag
-				// and keep the link in a dataset attribute
-				if (validateLink && typeof that.getAsyncURLHandler() === "function") {
-
-					attrs = attrs || [];
-
-					var done = false;
-					// first check if there is a class attribute and enrich it with 'sapMMsgPopoverItemDisabledLink'
-					for (i = 0; i < attrs.length; i += 2) {
-						if (attrs[i] === "class") {
-							attrs[i + 1] += "sapMMsgPopoverItemDisabledLink sapMMsgPopoverItemPendingLink";
-							done = true;
-							break;
-						}
-					}
-
-					// check for existing id
-					var indexOfId = attrs.indexOf("id");
-					if (indexOfId > -1) {
-						// we start backwards
-						attrs.splice(indexOfId + 1, 1);
-						attrs.splice(indexOfId, 1);
-					}
-
-					// if no class attribute was found, add one
-					if (!done) {
-						attrs.unshift("sapMMsgPopoverItemDisabledLink sapMMsgPopoverItemPendingLink");
-						attrs.unshift("class");
-					}
-
-					var oValidation = that._queueValidation(href);
-
-					// add other attributes
-					attrs.push("href");
-					// the link is deactivated via class names later read by event delegate on the description page
-					attrs.push(href);
-
-					// let the page open in another window, so state is preserved
-					attrs.push("target");
-					attrs.push("_blank");
-
-					// use id here as data attributes are not passing through caja
-					attrs.push("id");
-					attrs.push("sap-ui-" + that.getId() + "-link-under-validation-" + oValidation.id);
-
-					oValidation
-						.then(function (result) {
-							// Update link in output
-							var $link = jQuery.sap.byId("sap-ui-" + that.getId() + "-link-under-validation-" + result.id);
-
-							if (result.allowed) {
-								jQuery.sap.log.info("Allow link " + href);
-							} else {
-								jQuery.sap.log.info("Disallow link " + href);
-							}
-
-							// Adapt the link style
-							$link.removeClass('sapMMsgPopoverItemPendingLink');
-							$link.toggleClass('sapMMsgPopoverItemDisabledLink', !result.allowed);
-
-							that.fireUrlValidated();
-						})
-						.catch(function () {
-							jQuery.sap.log.warning("Async URL validation could not be performed.");
-						});
-				}
-
-				return attrs;
-			};
-		};
-
-		/**
-		 * Perform description sanitization based on Caja HTML sanitizer
-		 * @param {sap.m.MessagePopoverItem} oMessagePopoverItem
-		 * @private
-		 */
-		MessagePopover.prototype._sanitizeDescription = function (oMessagePopoverItem) {
-			jQuery.sap.require("jquery.sap.encoder");
-			jQuery.sap.require("sap.ui.thirdparty.caja-html-sanitizer");
-
-			var tagPolicy = this._getTagPolicy();
-			/*global html*/
-			var sanitized = html.sanitizeWithPolicy(oMessagePopoverItem.getDescription(), tagPolicy);
-
-			oMessagePopoverItem.setDescription(sanitized);
-			this._setDescription(oMessagePopoverItem);
-		};
-
-		/**
-		 * Handles click of the ListItems
-		 *
-		 * @param {jQuery.Event} oEvent ListItem click event object
-		 * @private
-		 */
-		MessagePopover.prototype._fnHandleItemPress = function (oEvent) {
-			var oListItem = oEvent.getParameter("listItem"),
-				oMessagePopoverItem = oListItem._oMessagePopoverItem;
-
-			var asyncDescHandler = this.getAsyncDescriptionHandler();
-
-			var loadAndNavigateToDetailsPage = function (suppressNavigate) {
-				this._setTitle(oMessagePopoverItem);
-				this._sanitizeDescription(oMessagePopoverItem);
-				this._setIcon(oMessagePopoverItem, oListItem);
-				this.fireLongtextLoaded();
-
-				if (!suppressNavigate) {
-					this._navContainer.to(this._detailsPage);
-				}
-			}.bind(this);
-
-			this._previousIconTypeClass = this._previousIconTypeClass || '';
-
-			this.fireItemSelect({
-				item: oMessagePopoverItem,
-				messageTypeFilter: this._getCurrentMessageTypeFilter()
-			});
-
-			this._detailsPage.destroyContent();
-
-			if (typeof asyncDescHandler === "function" && !!oMessagePopoverItem.getLongtextUrl()) {
-				// Set markupDescription to true as markup description should be processed as markup
-				oMessagePopoverItem.setMarkupDescription(true);
-
-				var oPromiseArgument = {};
-
-				var oPromise = new window.Promise(function (resolve, reject) {
-					oPromiseArgument.resolve = resolve;
-					oPromiseArgument.reject = reject;
-				});
-
-				var proceed = function () {
-					this._detailsPage.setBusy(false);
-					loadAndNavigateToDetailsPage(true);
-				}.bind(this);
-
-				oPromise
-					.then(function () {
-						proceed();
-					})
-					.catch(function () {
-						jQuery.sap.log.warning("Async description loading could not be performed.");
-						proceed();
-					});
-
-				this._navContainer.to(this._detailsPage);
-
-				this._detailsPage.setBusy(true);
-
-				asyncDescHandler({
-					promise: oPromiseArgument,
-					item: oMessagePopoverItem
-				});
-			} else {
-				loadAndNavigateToDetailsPage();
-			}
-
-			this._listPage.$().attr("aria-hidden", "true");
-		};
-
-		/**
-		 * Handles click of the BackButton
-		 *
-		 * @private
-		 */
-		MessagePopover.prototype._fnHandleBackPress = function () {
-			this._listPage.$().removeAttr("aria-hidden");
-			this._navContainer.back();
-		};
-
-		/**
-		 * Handles click of the SegmentedButton
-		 *
-		 * @param {string} sCurrentListName ListName to be shown
-		 * @private
-		 */
-		MessagePopover.prototype._fnFilterList = function (sCurrentListName) {
-			LIST_TYPES.forEach(function (sListIterName) {
-				if (sListIterName != sCurrentListName && this._oLists[sListIterName].getVisible()) {
-					// Hide Lists if they are visible and their name is not the same as current list name
-					this._oLists[sListIterName].setVisible(false);
-				}
-			}, this);
-
-			this._sCurrentList = sCurrentListName;
-			this._oLists[sCurrentListName].setVisible(true);
-
-			this._expandMsgPopover();
-
-			this.fireListSelect({messageTypeFilter: this._getCurrentMessageTypeFilter()});
-		};
-
-		/**
-		 * Returns current selected List name
-		 *
-		 * @returns {string} Current list name
-		 * @private
-		 */
-		MessagePopover.prototype._getCurrentMessageTypeFilter = function () {
-			return this._sCurrentList == "all" ? "" : this._sCurrentList;
-		};
-
-		/**
-		 * Handles navigate event of the NavContainer
-		 *
-		 * @private
-		 */
-		MessagePopover.prototype._navigate = function () {
-			if (this._isListPage()) {
-				this._oRestoreFocus = jQuery(document.activeElement);
-			}
-		};
-
-		/**
-		 * Handles navigate event of the NavContainer
-		 *
-		 * @private
-		 */
-		MessagePopover.prototype._afterNavigate = function () {
-			// Just wait for the next tick to apply the focus
-			jQuery.sap.delayedCall(0, this, this._restoreFocus);
-		};
-
-		/**
-		 * Checks whether the current page is ListPage
-		 *
-		 * @returns {boolean} Whether the current page is ListPage
-		 * @private
-		 */
-		MessagePopover.prototype._isListPage = function () {
-			return (this._navContainer.getCurrentPage() == this._listPage);
-		};
-
-		/**
-		 * Sets initial focus of the control
-		 *
-		 * @private
-		 */
-		MessagePopover.prototype._setInitialFocus = function () {
-			if (this._isListPage()) {
-				// if current page is the list page - set initial focus to the list.
-				// otherwise use default functionality built-in the popover
-				this._oPopover.setInitialFocus(this._oLists[this._sCurrentList]);
-			}
-		};
-
-		/**
-		 * Restores the focus after navigation
-		 *
-		 * @private
-		 */
-		MessagePopover.prototype._restoreFocus = function () {
-			if (this._isListPage()) {
-				var oRestoreFocus = this._oRestoreFocus && this._oRestoreFocus.control(0);
-
-				if (oRestoreFocus) {
-					oRestoreFocus.focus();
-				}
-			} else {
-				this._oBackButton.focus();
-			}
-		};
-
-		/**
-		 * Restores the state defined by the initiallyExpanded property of the MessagePopover
-		 * @private
-		 */
-		MessagePopover.prototype._restoreExpansionDefaults = function () {
-			if (this.getInitiallyExpanded()) {
-				this._fnFilterList("all");
-				this._oSegmentedButton.setSelectedButton(null);
-			} else {
-				this._collapseMsgPopover();
-			}
-		};
-
-		/**
-		 * Expands the MessagePopover so that the width and height are equal
-		 * @private
-		 */
-		MessagePopover.prototype._expandMsgPopover = function () {
-			var sHeight = this._oPopover.$("cont").css("height") || this._oPopover.getContentWidth();
-
-			this._oPopover
-				.setContentHeight(sHeight)
-				.removeStyleClass(CSS_CLASS + "-init");
-		};
-
-		/**
-		 * Sets the height of the MessagePopover to auto so that only the header with
-		 * the SegmentedButton is visible
-		 * @private
-		 */
-		MessagePopover.prototype._collapseMsgPopover = function () {
-			LIST_TYPES.forEach(function (sListName) {
-				this._oLists[sListName].setVisible(false);
-			}, this);
-
-			this._oPopover
-				.addStyleClass(CSS_CLASS + "-init")
-				.setContentHeight("auto");
-
-			this._oSegmentedButton.setSelectedButton("none");
 		};
 
 		/**
@@ -1184,16 +507,208 @@ sap.ui.define(["jquery.sap.global", "./ResponsivePopover", "./Button", "./Toolba
 			return this._oPopover && this._oPopover.getAggregation("_popup").getDomRef(sSuffix);
 		};
 
-		["addStyleClass", "removeStyleClass", "toggleStyleClass", "hasStyleClass", "getBusyIndicatorDelay",
-			"setBusyIndicatorDelay", "getVisible", "setVisible", "getBusy", "setBusy"].forEach(function(sName){
-				MessagePopover.prototype[sName] = function() {
-					if (this._oPopover && this._oPopover[sName]) {
-						var oPopover = this._oPopover;
-						var res = oPopover[sName].apply(oPopover, arguments);
-						return res === oPopover ? this : res;
-					}
-				};
+		/*
+		 * =========================================
+		 * Internal methods
+		 * =========================================
+		 */
+
+		/**
+		 * Creates new internal MessageView control
+		 *
+		 * @returns {sap.m.MessageView} The newly instantiated message view control
+		 * @private
+		 */
+		MessagePopover.prototype._initMessageView = function () {
+			var that = this,
+				oMessageView;
+
+			oMessageView = new MessageView(this.getId() + "-messageView", {
+				listSelect: function(oEvent) {
+					that.fireListSelect({messageTypeFilter: oEvent.getParameter('messageTypeFilter')});
+				},
+				itemSelect: function(oEvent) {
+					that.fireItemSelect({
+						messageTypeFilter: oEvent.getParameter('messageTypeFilter'),
+						item: oEvent.getParameter('item')
+					});
+				},
+				longtextLoaded: function() {
+					that.fireLongtextLoaded();
+				},
+				urlValidated: function() {
+					that.fireUrlValidated();
+				}
 			});
+
+			return oMessageView;
+		};
+
+		MessagePopover.prototype._onSegButtonSelect = function () {
+			// expanding the message popover if it is still collapsed
+			if (this.isOpen() && !this.getInitiallyExpanded() && this._oPopover.hasStyleClass(CSS_CLASS + "-init")) {
+				this._expandMsgPopover();
+			}
+		};
+
+		/**
+		 * Restores the state defined by the initiallyExpanded property of the MessagePopover
+		 * @private
+		 */
+		MessagePopover.prototype._restoreExpansionDefaults = function () {
+			if (!this.getInitiallyExpanded()) {
+				this._collapseMsgPopover();
+				this._oMessageView._oSegmentedButton.setSelectedButton("none");
+			} else {
+				this._expandMsgPopover();
+			}
+		};
+
+		/**
+		 * Expands the MessagePopover so that the width and height are with their default values
+		 * @private
+		 */
+		MessagePopover.prototype._expandMsgPopover = function () {
+			var sDomHeight,
+				sHeight = DEFAULT_CONTENT_HEIGHT,
+				sDomHeight = this._oPopover.$("cont").css("height");
+
+			if (this.getInitiallyExpanded() && sDomHeight !== "0px") {
+				sHeight = parseFloat(sDomHeight) ? sDomHeight : sHeight;
+			}
+
+			this._oPopover
+				.setContentHeight(sHeight)
+				.removeStyleClass(CSS_CLASS + "-init");
+		};
+
+		/**
+		 * Sets the height of the MessagePopover to auto so that only the header with
+		 * the SegmentedButton is visible
+		 * @private
+		 */
+		MessagePopover.prototype._collapseMsgPopover = function () {
+			this._oPopover
+				.addStyleClass(CSS_CLASS + "-init")
+				.setContentHeight("auto");
+		};
+
+		/**
+		 * Inserts close button in the in the provided location
+		 *
+		 * @param {sap.ui.core.Control} oInsertCloseBtnHere The object in which we want to insert the control
+		 * @private
+		 */
+		MessagePopover.prototype._insertCloseBtn = function (oInsertCloseBtnHere) {
+			var sCloseBtnDescr = this._oResourceBundle.getText("MESSAGEPOPOVER_CLOSE"),
+				oCloseBtn = new Button({
+				icon: ICONS["close"],
+				visible: !sap.ui.Device.system.phone,
+				tooltip: sCloseBtnDescr,
+				press: this.close.bind(this)
+			}).addStyleClass(CSS_CLASS + "CloseBtn");
+
+			oInsertCloseBtnHere.insertContent(oCloseBtn, 3, true);
+		};
+
+		/**
+		 * Sets initial focus of the control
+		 *
+		 * @private
+		 */
+		MessagePopover.prototype._setInitialFocus = function () {
+			if (this._oMessageView._isListPage() && this.getInitiallyExpanded()) {
+				// if the controls state is "InitiallyExpanded: true" and
+				// if current page is the list page - set initial focus to the list.
+				// otherwise use default functionality built-in the popover
+				this._oPopover.setInitialFocus(this._oMessageView._oLists[this._sCurrentList || 'all']);
+			}
+		};
+
+		/**
+		 * Handles navigate event of the NavContainer
+		 *
+		 * @private
+		 */
+		MessagePopover.prototype._afterNavigate = function () {
+			// Just wait for the next tick to apply the focus
+			jQuery.sap.delayedCall(0, this, "_restoreFocus");
+		};
+
+		/**
+		 * Restores the focus after navigation
+		 *
+		 * @private
+		 */
+		MessagePopover.prototype._restoreFocus = function () {
+			if (this._oMessageView._isListPage()) {
+				var oRestoreFocus = this._oRestoreFocus && this._oRestoreFocus.control(0);
+
+				oRestoreFocus && oRestoreFocus.focus();
+			} else {
+				this._oMessageView._oBackButton.focus();
+			}
+		};
+
+		/*
+		 * =========================================
+		 * MessagePopover async handlers
+		 * proxy methods
+		 * =========================================
+		 */
+
+		MessagePopover.prototype.setAsyncDescriptionHandler = function (asyncDescriptionHandler) {
+			// MessagePopover is just a proxy to the MessageView
+			this.setProperty('asyncDescriptionHandler', asyncDescriptionHandler, true);
+			this._oMessageView.setProperty('asyncDescriptionHandler', asyncDescriptionHandler, true);
+
+			return this;
+		};
+
+		MessagePopover.prototype.setAsyncURLHandler = function (asyncURLHandler) {
+			// MessagePopover is just a proxy to the MessageView
+			this.setProperty('asyncURLHandler', asyncURLHandler, true);
+			this._oMessageView.setProperty('asyncURLHandler', asyncURLHandler, true);
+
+			return this;
+		};
+
+		/*
+		 * =========================================
+		 * MessagePopover HeaderButton
+		 * proxy methods
+		 * =========================================
+		 */
+
+		MessagePopover.prototype.setHeaderButton = function (oBtn) {
+			this._oMessageView.setHeaderButton(oBtn);
+			return this;
+		};
+
+		MessagePopover.prototype.getHeaderButton = function () {
+			return this._oMessageView.getHeaderButton();
+		};
+
+		MessagePopover.prototype.setModel = function(oModel, sName) {
+			/* When a model is set to the MessagePopover it is propagated to all its aggregation
+				Unfortunately the MessageView is not an aggregation of the MessagePopover (due to some rendering issues)
+				Furthermore the MessageView is actually child of a ResponsivePopover
+				Therefore once the developer set a model to the MessagePopover we need to forward it to the internal MessageView */
+			this._oMessageView.setModel(oModel, sName);
+
+			return Control.prototype.setModel.apply(this, arguments);
+		};
+
+		["invalidate", "addStyleClass", "removeStyleClass", "toggleStyleClass", "hasStyleClass", "getBusyIndicatorDelay",
+			"setBusyIndicatorDelay", "getVisible", "setVisible", "getBusy", "setBusy"].forEach(function(sName){
+			MessagePopover.prototype[sName] = function() {
+				if (this._oPopover && this._oPopover[sName]) {
+					var oPopover = this._oPopover;
+					var res = oPopover[sName].apply(oPopover, arguments);
+					return res === oPopover ? this : res;
+				}
+			};
+		});
 
 		// The following inherited methods of this control are extended because this control uses ResponsivePopover for rendering
 		["setModel", "bindAggregation", "setAggregation", "insertAggregation", "addAggregation",

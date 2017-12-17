@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -26,7 +26,7 @@ sap.ui.define('sap/ui/debug/ControlTree', ['jquery.sap.global', 'sap/ui/base/Eve
 	 * @class Control Tree used for the Debug Environment
 	 * @extends sap.ui.base.EventProvider
 	 * @author Martin Schaus, Frank Weigel
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @alias sap.ui.debug.ControlTree
 	 * @private
 	 */
@@ -189,7 +189,7 @@ sap.ui.define('sap/ui/debug/ControlTree', ['jquery.sap.global', 'sap/ui/base/Eve
 			for (var n in oControl.mAssociations) {
 				bRequiresExpanding = true;
 				var oAssociation = oControl.mAssociations[n];
-				if (jQuery.isArray(oAssociation)) {
+				if (Array.isArray(oAssociation)) {
 					for (var i = 0;i < oAssociation.length;i++) {
 						var o = oAssociation[i];
 						if (typeof o === "string") {
@@ -264,7 +264,7 @@ sap.ui.define('sap/ui/debug/ControlTree', ['jquery.sap.global', 'sap/ui/base/Eve
 				oElement = this.oCore.byId(sId),
 				sNodeId = oParent.getAttribute("sap-type") === "Link" ? "sap-debug-controltree-" + sId : oParent.id;
 			this.oSelectionHighlighter.hide();
-			if (oElement && oElement instanceof Element) {
+			if (oElement instanceof Element) {
 				this.oSelectionHighlighter.highlight(oElement.getDomRef());
 				this.oHoverHighlighter.hide();
 			}
@@ -351,7 +351,7 @@ sap.ui.define('sap/ui/debug/ControlTree', ['jquery.sap.global', 'sap/ui/base/Eve
 			sId = oTreeNodeDomRef.getAttribute("sap-id"),
 			oSomething = sType === "UIArea" ? this.oCore.getUIArea(sId) : this.oCore.byId(sId);
 
-		while (oSomething && oSomething instanceof Element) {
+		while (oSomething instanceof Element) {
 			var oDomRef = oSomething.getDomRef();
 			if ( oDomRef ) {
 				return oDomRef;

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -44,7 +44,7 @@ sap.ui.define([
 				showPopover: this.getObjectPageLayout().getShowAnchorBarPopover()
 			});
 
-			this.getObjectPageLayout().setAggregation("_anchorBar", oAnchorBar);
+			this.getObjectPageLayout().setAggregation("_anchorBar", oAnchorBar, true);
 		}
 
 		return oAnchorBar;
@@ -109,10 +109,10 @@ sap.ui.define([
 	};
 
 	/**
-	 * build a sap.m.button equivalent to a section or sub section for insertion in the anchorBar
+	 * build an sap.m.button equivalent to a section or sub section for insertion in the anchorBar
 	 * also registers the section info for further dom position updates
 	 * @param oSectionBase
-	 * @param bIsSection
+	 * @param {boolean} bIsSection
 	 * @returns {null}
 	 * @private
 	 */
@@ -142,7 +142,6 @@ sap.ui.define([
 				});
 
 				oButtonClone.addEventDelegate(oEventDelegatesForkeyBoardHandler);
-
 				//has a ux rule been applied that we need to reflect here?
 				var sTitle = (oSectionBase._getInternalTitle() != "") ? oSectionBase._getInternalTitle() : oSectionBase.getTitle();
 				oButtonClone.setText(sTitle);

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', './library'],
 	 * @extends sap.ui.core.LayoutData
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -36,7 +36,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', './library'],
 		properties : {
 
 			/**
-			 * Defines the minimal size in px of an ResponsiveFlowLayout element. The element will be shrunk down to this value.
+			 * Defines the minimal size in px of a ResponsiveFlowLayout element. The element will be shrunk down to this value.
 			 */
 			minWidth : {type : "int", group : "Misc", defaultValue : 100},
 
@@ -87,6 +87,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', './library'],
 		} else {
 			this.setProperty("linebreak", bLinebreak);
 		}
+		return this;
 	};
 
 	ResponsiveFlowLayoutData.prototype.setLinebreakable = function(bLinebreakable) {
@@ -98,6 +99,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/LayoutData', './library'],
 			this.setProperty("linebreakable", bLinebreakable);
 			// this.setMinWidth(0);
 		}
+		return this;
 	};
 
 	return ResponsiveFlowLayoutData;

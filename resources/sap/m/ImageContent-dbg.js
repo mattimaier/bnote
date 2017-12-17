@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -11,19 +11,19 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/m/I
 	/**
 	 * Constructor for a new sap.m.ImageContent control.
 	 *
-	 * @param {string} [sId] id for the new control, generated automatically if no id is given
-	 * @param {object} [mSettings] initial settings for the new control
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
+	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class This control can be displayed as image content in a tile.
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @since 1.38
 	 *
 	 * @public
 	 * @alias sap.m.ImageContent
-	 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
+	 * @ui5-metamodel This control will also be described in the UI5 (legacy) designtime metamodel
 	 */
 	var ImageContent = Control.extend("sap.m.ImageContent", /** @lends sap.m.ImageContent.prototype */ {
 		metadata : {
@@ -39,6 +39,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/m/I
 				 */
 				"description" : {type : "string", group : "Accessibility", defaultValue : null}
 			},
+			defaultAggregation : "_content",
 			aggregations : {
 				/**
 				 * The hidden aggregation for the image content.
@@ -47,7 +48,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/m/I
 			},
 			events : {
 				/**
-				 * The event is fired when the user chooses the image content.
+				 * The event is triggered when the image content is pressed.
 				 */
 				"press" : {}
 			}
@@ -75,6 +76,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/m/I
 				decorative : false
 			}, Image);
 			this.setAggregation("_content", oImage, true);
+			this._setPointerOnImage();
 		}
 
 		if (sDescription) {
@@ -82,15 +84,27 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/m/I
 		}
 	};
 
-	/* --- Event Handling --- */
-
 	/**
-	 * Handler for tap event
+	 * Sets CSS class 'sapMPointer' for the internal Icon if needed.
+	 * @private
+	 */
+	ImageContent.prototype._setPointerOnImage = function() {
+		var oImage = this.getAggregation("_content");
+		if (oImage && this.hasListeners("press")) {
+			oImage.addStyleClass("sapMPointer");
+		} else if (oImage && oImage.hasStyleClass("sapMPointer")) {
+			oImage.removeStyleClass("sapMPointer");
+		}
+	};
+
+	/* --- Event Handling --- */
+	/**
+	 * Handler for user tap (click on desktop, tap on touch devices) event
 	 *
-	 * @param {sap.ui.base.Event} oEvent which was fired
+	 * @param {sap.ui.base.Event} oEvent which was triggered
 	 */
 	ImageContent.prototype.ontap = function(oEvent) {
-		if (sap.ui.Device.browser.internet_explorer) {
+		if (sap.ui.Device.browser.msie) {
 			this.$().focus();
 		}
 		this.firePress();
@@ -99,7 +113,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/m/I
 	/**
 	 * Handler for keydown event
 	 *
-	 * @param {sap.ui.base.Event} oEvent which was fired
+	 * @param {sap.ui.base.Event} oEvent which was triggered
 	 */
 	ImageContent.prototype.onkeydown = function(oEvent) {
 		if (oEvent.which === jQuery.sap.KeyCodes.ENTER || oEvent.which === jQuery.sap.KeyCodes.SPACE) {
@@ -108,11 +122,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/m/I
 		}
 	};
 
-
 	ImageContent.prototype.attachEvent = function(eventId, data, functionToCall, listener) {
 		sap.ui.core.Control.prototype.attachEvent.call(this, eventId, data, functionToCall, listener);
 		if (this.hasListeners("press")) {
 			this.$().attr("tabindex", 0).addClass("sapMPointer");
+			this._setPointerOnImage();
 		}
 		return this;
 	};
@@ -121,6 +135,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/m/I
 		sap.ui.core.Control.prototype.detachEvent.call(this, eventId, functionToCall, listener);
 		if (!this.hasListeners("press")) {
 			this.$().removeAttr("tabindex").removeClass("sapMPointer");
+			this._setPointerOnImage();
 		}
 		return this;
 	};

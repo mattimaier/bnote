@@ -1,12 +1,15 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(["jquery.sap.global", "sap/ui/Device", "sap/ui/core/library", "sap/ui/thirdparty/URI", "sap/ui/core/message/MessageParser", "sap/ui/core/message/Message"],
-	function(jQuery, Device, coreLibrary, URI, MessageParser, Message) {
+sap.ui.define(["jquery.sap.global", "sap/ui/model/odata/ODataUtils", "sap/ui/Device", "sap/ui/core/library", "sap/ui/thirdparty/URI", "sap/ui/core/message/MessageParser", "sap/ui/core/message/Message"],
+	function(jQuery, ODataUtils, Device, coreLibrary, URI, MessageParser, Message) {
 	"use strict";
+
+// shortcuts for enums
+var MessageType = coreLibrary.MessageType;
 
 /**
  * This map is used to translate back-end response severity values to the values defined in the
@@ -14,10 +17,10 @@ sap.ui.define(["jquery.sap.global", "sap/ui/Device", "sap/ui/core/library", "sap
  * @see sap.ui.core.ValueState
  */
 var mSeverityMap = {
-	"error":   sap.ui.core.MessageType.Error,
-	"warning": sap.ui.core.MessageType.Warning,
-	"success": sap.ui.core.MessageType.Success,
-	"info":    sap.ui.core.MessageType.Information
+	"error":   MessageType.Error,
+	"warning": MessageType.Warning,
+	"success": MessageType.Success,
+	"info":    MessageType.Information
 };
 
 /**
@@ -67,7 +70,7 @@ var mSeverityMap = {
  * @extends sap.ui.core.message.MessageParser
  *
  * @author SAP SE
- * @version 1.38.7
+ * @version 1.50.7
  * @public
  * @abstract
  * @alias sap.ui.model.odata.ODataMessageParser
@@ -152,7 +155,7 @@ ODataMessageParser.prototype.parse = function(oResponse, oRequest, mGetEntities,
 		this._propagateMessages(aMessages, mRequestInfo, mGetEntities, mChangeEntities);
 	} else {
 		// In case no message processor is attached, at least log to console.
-		// TODO: Maybe we should just output an error an do nothing, since this is not how messages are meant to be used like?
+		// TODO: Maybe we should just output an error and do nothing, since this is not how messages are meant to be used like?
 		this._outputMesages(aMessages);
 	}
 };
@@ -169,7 +172,7 @@ ODataMessageParser.prototype.parse = function(oResponse, oRequest, mGetEntities,
  *
  * @param {string} sParentEntity - The path of the parent entity in which to search for the NavigationProperty
  * @param {string} sPropertyName - The name of the property which should be checked whether it is a NavigationProperty
- * @returns {boolean} Returns true if the given property is an NavigationProperty
+ * @returns {boolean} Returns true if the given property is a NavigationProperty
  * @private
  */
 ODataMessageParser.prototype._isNavigationProperty = function(sParentEntity, sPropertyName) {
@@ -276,7 +279,7 @@ ODataMessageParser.prototype._propagateMessages = function(aMessages, mRequestIn
 			sTarget = sTarget.substr(0, iPropertyPos + 1);
 		}
 
-		if (mAffectedTargets[sTarget]) {
+		if (mAffectedTargets[sTarget] && !this._lastMessages[i].getPersistent()) {
 			// Message belongs to targets handled/requested by this request
 			aRemovedMessages.push(this._lastMessages[i]);
 		} else {
@@ -294,7 +297,7 @@ ODataMessageParser.prototype._propagateMessages = function(aMessages, mRequestIn
 };
 
 /**
- * Creates a sap.ui.core.message.Message from the given JavaScript object
+ * Creates an sap.ui.core.message.Message from the given JavaScript object
  *
  * @param {ODataMessageParser~ServerError} oMessageObject - The object containing the message data
  * @param {ODataMessageParser~RequestInfo} mRequestInfo - Info object about the request URL
@@ -316,6 +319,22 @@ ODataMessageParser.prototype._createMessage = function(oMessageObject, mRequestI
 
 	var sDescriptionUrl = oMessageObject.longtext_url ? oMessageObject.longtext_url : "";
 
+	var bPersistent = false;
+	if (!oMessageObject.target && oMessageObject.propertyref) {
+		oMessageObject.target = oMessageObject.propertyref;
+	}
+	// propertyRef is deprecated and should not be used if a target is specified
+	if (typeof oMessageObject.target === "undefined") {
+		oMessageObject.target = "";
+	}
+
+	if (oMessageObject.target.indexOf("/#TRANSIENT#") === 0) {
+		bPersistent = true;
+		oMessageObject.target = oMessageObject.target.substr(12);
+	} else if (oMessageObject.transient) {
+		bPersistent = true;
+	}
+
 	var sTarget = this._createTarget(oMessageObject, mRequestInfo);
 
 	return new Message({
@@ -323,9 +342,10 @@ ODataMessageParser.prototype._createMessage = function(oMessageObject, mRequestI
 		code:      sCode,
 		message:   sText,
 		descriptionUrl: sDescriptionUrl,
-		target:    sTarget,
+		target:    ODataUtils._normalizeKey(sTarget),
 		processor: this._processor,
-		technical: bIsTechnical
+		technical: bIsTechnical,
+		persistent: bPersistent
 	});
 };
 
@@ -346,7 +366,7 @@ ODataMessageParser.prototype._getFunctionTarget = function(mFunctionInfo, mReque
 
 	var i;
 
-	// In case of a function import the location header may point to the corrrect entry in the service.
+	// In case of a function import the location header may point to the correct entry in the service.
 	// This should be the case for writing/changing operations using POST
 	if (mRequestInfo.response && mRequestInfo.response.headers && mRequestInfo.response.headers["location"]) {
 		sTarget = mRequestInfo.response.headers["location"];
@@ -425,18 +445,32 @@ ODataMessageParser.prototype._getFunctionTarget = function(mFunctionInfo, mReque
  * @private
  */
 ODataMessageParser.prototype._createTarget = function(oMessageObject, mRequestInfo) {
-	var sTarget = "";
-
-	if (oMessageObject.target) {
-		sTarget = oMessageObject.target;
-	} else if (oMessageObject.propertyref) {
-		sTarget = oMessageObject.propertyref;
-	}
+	var sTarget = oMessageObject.target;
 
 	if (sTarget.substr(0, 1) !== "/") {
 		var sRequestTarget = "";
 
-		var mUrlData = this._parseUrl(mRequestInfo.url);
+		// special case for 201 POST requests which create a resource
+		// The target is a relative resource path segment that can be appended to the Location response header (for POST requests that create a new entity)
+		var sMethod = (mRequestInfo.request && mRequestInfo.request.method) ? mRequestInfo.request.method : "GET";
+		var bRequestCreatePost = (sMethod === "POST"
+			&& mRequestInfo.response
+			&& (mRequestInfo.response.statusCode === "201" || mRequestInfo.response.statusCode === 201)
+			&& mRequestInfo.response.headers
+			&& mRequestInfo.response.headers["location"]);
+
+		var sUrlForTargetCalculation;
+		if (bRequestCreatePost) {
+			sUrlForTargetCalculation = mRequestInfo.response.headers["location"];
+		} else if (mRequestInfo.request && mRequestInfo.request.created && mRequestInfo.response && mRequestInfo.response.statusCode >= 400) {
+			// If a create request returns an error the target should be set to the internal entity key
+			sUrlForTargetCalculation = mRequestInfo.request.key;
+		} else {
+			sUrlForTargetCalculation = mRequestInfo.url;
+		}
+
+		//parsing
+		var mUrlData = this._parseUrl(sUrlForTargetCalculation);
 		var sUrl = mUrlData.url;
 
 		var iPos = sUrl.lastIndexOf(this._serviceUrl);
@@ -446,33 +480,35 @@ ODataMessageParser.prototype._createTarget = function(oMessageObject, mRequestIn
 			sRequestTarget = sUrl;
 		}
 
-		var sMethod = (mRequestInfo.request && mRequestInfo.request.method) ? mRequestInfo.request.method : "GET";
-		var mFunctionInfo = this._metadata._getFunctionImportMetadata(sRequestTarget, sMethod);
+		// function import case
+		if (!bRequestCreatePost) {
+			var mFunctionInfo = this._metadata._getFunctionImportMetadata(sRequestTarget, sMethod);
 
-		if (mFunctionInfo) {
-			sRequestTarget = this._getFunctionTarget(mFunctionInfo, mRequestInfo, mUrlData);
+			if (mFunctionInfo) {
+				sRequestTarget = this._getFunctionTarget(mFunctionInfo, mRequestInfo, mUrlData);
 
-			if (sTarget) {
-				sTarget = sRequestTarget + "/" + sTarget;
-			} else {
-				sTarget = sRequestTarget;
+				if (sTarget) {
+					sTarget = sRequestTarget + "/" + sTarget;
+				} else {
+					sTarget = sRequestTarget;
+				}
+				return sTarget;
 			}
+		}
 
+		sRequestTarget = "/" + sRequestTarget;
+
+		// If sRequestTarget is a collection, we have to add the target without a "/". In this case
+		// a target would start with the specific product (like "(23)"), but the request itself
+		// would not have the brackets
+		var iSlashPos = sRequestTarget.lastIndexOf("/");
+		var sRequestTargetName = iSlashPos > -1 ? sRequestTarget.substr(iSlashPos) : sRequestTarget;
+		if (sRequestTargetName.indexOf("(") > -1) {
+			// It is an entity
+			sTarget = sRequestTarget + "/" + sTarget;
 		} else {
-			sRequestTarget = "/" + sRequestTarget;
-
-			// If sRequestTarget is a collection, we have to add the target without a "/". In this case
-			// a target would start with the specific product (like "(23)"), but the request itself
-			// would not have the brackets
-			var iSlashPos = sRequestTarget.lastIndexOf("/");
-			var sRequestTargetName = iSlashPos > -1 ? sRequestTarget.substr(iSlashPos) : sRequestTarget;
-			if (sRequestTargetName.indexOf("(") > -1) {
-				// It is an entity
-				sTarget = sRequestTarget + "/" + sTarget;
-			} else {
-				// It's a collection
-				sTarget = sRequestTarget + sTarget;
-			}
+			// It's a collection
+			sTarget = sRequestTarget + sTarget;
 		}
 
 
@@ -517,7 +553,7 @@ ODataMessageParser.prototype._parseHeader = function(/* ref: */ aMessages, oResp
 
 		aMessages.push(this._createMessage(oServerMessage, mRequestInfo));
 
-		if (oServerMessage.details && jQuery.isArray(oServerMessage.details)) {
+		if (Array.isArray(oServerMessage.details)) {
 			for (var i = 0; i < oServerMessage.details.length; ++i) {
 				aMessages.push(this._createMessage(oServerMessage.details[i], mRequestInfo));
 			}
@@ -550,13 +586,12 @@ ODataMessageParser.prototype._parseBody = function(/* ref: */ aMessages, oRespon
 
 	// Messages from an error response should contain duplicate messages - the main error should be the
 	// same as the first errordetail error. If this is the case, remove the first one.
-	// TODO: Check if this is actually correct, and if so, check if the below check can be improved
 	if (aMessages.length > 1) {
-		if (
-			aMessages[0].getCode()    == aMessages[1].getCode()    &&
-			aMessages[0].getMessage() == aMessages[1].getMessage()
-		) {
-			aMessages.shift();
+		for (var iIndex = 1; iIndex < aMessages.length; iIndex++) {
+			if (aMessages[0].getCode() == aMessages[iIndex].getCode() && aMessages[0].getMessage() == aMessages[iIndex].getMessage()) {
+				aMessages.shift(); // Remove outer error, since inner error is more detailed
+				break;
+			}
 		}
 	}
 };
@@ -582,7 +617,7 @@ ODataMessageParser.prototype._parseBodyXML = function(/* ref: */ aMessages, oRes
 
 			var oError = {};
 			// Manually set severity in case we get an error response
-			oError["severity"] = sap.ui.core.MessageType.Error;
+			oError["severity"] = MessageType.Error;
 
 			for (var n = 0; n < oNode.childNodes.length; ++n) {
 				var oChildNode = oNode.childNodes[n];
@@ -639,16 +674,16 @@ ODataMessageParser.prototype._parseBodyJSON = function(/* ref: */ aMessages, oRe
 		}
 
 		// Manually set severity in case we get an error response
-		oError["severity"] = sap.ui.core.MessageType.Error;
+		oError["severity"] = MessageType.Error;
 
 		aMessages.push(this._createMessage(oError, mRequestInfo, true));
 
 		// Check if more than one error has been returned from the back-end
 		var aFurtherErrors = null;
-		if (jQuery.isArray(oError.details)) {
+		if (Array.isArray(oError.details)) {
 			// V4 errors
 			aFurtherErrors = oError.details;
-		} else if (oError.innererror && jQuery.isArray(oError.innererror.errordetails)) {
+		} else if (oError.innererror && Array.isArray(oError.innererror.errordetails)) {
 			// V2 errors
 			aFurtherErrors = oError.innererror.errordetails;
 		} else {
@@ -710,20 +745,20 @@ ODataMessageParser.prototype._outputMesages = function(aMessages) {
 		var oMessage = aMessages[i];
 		var sOutput = "[OData Message] " + oMessage.getMessage() + " - " + oMessage.getDescription() + " (" + oMessage.getTarget() + ")";
 		switch (aMessages[i].getType()) {
-			case sap.ui.core.MessageType.Error:
+			case MessageType.Error:
 				jQuery.sap.log.error(sOutput);
 				break;
 
-			case sap.ui.core.MessageType.Warning:
+			case MessageType.Warning:
 				jQuery.sap.log.warning(sOutput);
 				break;
 
-			case sap.ui.core.MessageType.Success:
+			case MessageType.Success:
 				jQuery.sap.log.debug(sOutput);
 				break;
 
-			case sap.ui.core.MessageType.Information:
-			case sap.ui.core.MessageType.None:
+			case MessageType.Information:
+			case MessageType.None:
 			default:
 				jQuery.sap.log.info(sOutput);
 				break;

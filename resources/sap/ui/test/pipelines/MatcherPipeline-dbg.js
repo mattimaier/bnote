@@ -1,20 +1,22 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 sap.ui.define([
-		'jquery.sap.global',
-		'sap/ui/base/Object',
-		'./PipelineFactory'
+		"jquery.sap.global",
+		"sap/ui/base/Object",
+		"./PipelineFactory",
+		"sap/ui/test/_LogCollector"
 	],
-	function($, UI5Object, PipelineFactory) {
+	function($, UI5Object, PipelineFactory, _LogCollector) {
 		"use strict";
 		var oPipelineFactory = new PipelineFactory({
-			name: "Matcher",
-			functionName: "isMatching"
-		});
+				name: "Matcher",
+				functionName: "isMatching"
+			}),
+			oLogger = $.sap.log.getLogger("sap.ui.test.pipelines.MatcherPipeline", _LogCollector.DEFAULT_LEVEL_FOR_OPA_LOGGERS);
 
 		/*
 		 * Internals
@@ -27,7 +29,13 @@ sap.ui.define([
 		function doesValueMatch (aMatchers, vValue) {
 			var vOriginalValue = vValue;
 			var bIsMatching = aMatchers.every(function (oMatcher) {
-				var vMatch = oMatcher.isMatching(vValue);
+				var vMatch;
+				if (vValue) {
+					vMatch = oMatcher.isMatching(vValue);
+				} else {
+					vMatch = oMatcher.isMatching();
+				}
+
 				if (vMatch) {
 					if (vMatch !== true) {
 						// Save truthy values, they will be the input for the next matcher
@@ -102,7 +110,7 @@ sap.ui.define([
 				}, this);
 
 				if (!aMatchedValues.length) {
-					$.sap.log.debug("all results were filtered out by the matchers - skipping the check", this);
+					oLogger.debug("all results were filtered out by the matchers - skipping the check");
 					return false;
 				}
 

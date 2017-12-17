@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -8,7 +8,6 @@
 sap.ui.define(['jquery.sap.global', './Element'],
 	function(jQuery, Element) {
 	"use strict";
-
 
 	/**
 	 * Applies the support for custom style classes on the prototype of a <code>sap.ui.core.Element</code>.
@@ -84,10 +83,12 @@ sap.ui.define(['jquery.sap.global', './Element'],
 		var rNonWhiteSpace = /\S+/g;
 
 		this.addStyleClass = function(sStyleClass, bSuppressRerendering) { // bSuppressRerendering is experimental and hence undocumented
-			jQuery.sap.assert(sStyleClass && typeof sStyleClass === "string", "sStyleClass must be a string");
+			jQuery.sap.assert(typeof sStyleClass === "string", "sStyleClass must be a string");
 
 			var aClasses,
 				bModified = false;
+
+			var aChangedScopes = [], aScopes = getScopes();
 
 			if (!this.aCustomStyleClasses) {
 				this.aCustomStyleClasses = [];
@@ -111,6 +112,11 @@ sap.ui.define(['jquery.sap.global', './Element'],
 					if (!this.mCustomStyleClassMap[sClass]) {
 						this.mCustomStyleClassMap[sClass] = true;
 						this.aCustomStyleClasses.push(sClass);
+
+						if (aScopes && aScopes.indexOf(sClass) > -1){
+							aChangedScopes.push(sClass);
+						}
+
 						bModified = true;
 					}
 				}.bind(this));
@@ -126,18 +132,23 @@ sap.ui.define(['jquery.sap.global', './Element'],
 				} else if (bSuppressRerendering === false) {
 					this.invalidate();
 				}
+				if (aChangedScopes.length > 0) {
+					// scope has been added
+					fireThemeScopingChangedEvent(this, aChangedScopes, true);
+				}
 			}
-
 			return this;
 		};
 
 
 		this.removeStyleClass = function(sStyleClass, bSuppressRerendering) { // bSuppressRerendering is experimental and hence undocumented
-			jQuery.sap.assert(sStyleClass && typeof sStyleClass === "string", "sStyleClass must be a string");
+			jQuery.sap.assert(typeof sStyleClass === "string", "sStyleClass must be a string");
 
 			var aClasses,
 				bExist = false,
 				nIndex;
+
+			var aChangedScopes = [], aScopes = getScopes();
 
 			if (sStyleClass && typeof sStyleClass === "string" && this.aCustomStyleClasses && this.mCustomStyleClassMap) {
 				aClasses = sStyleClass.match(rNonWhiteSpace) || [];
@@ -148,6 +159,10 @@ sap.ui.define(['jquery.sap.global', './Element'],
 						if (nIndex !== -1) {
 							this.aCustomStyleClasses.splice(nIndex, 1);
 							delete this.mCustomStyleClassMap[sClass];
+
+							if (aScopes && aScopes.indexOf(sClass) > -1) {
+								aChangedScopes.push(sClass);
+							}
 						}
 					}
 				}.bind(this));
@@ -160,6 +175,10 @@ sap.ui.define(['jquery.sap.global', './Element'],
 				} else if (bSuppressRerendering === false) {
 					this.invalidate();
 				}
+				if (aChangedScopes.length > 0) {
+					// scope has been removed
+					fireThemeScopingChangedEvent(this, aChangedScopes, false);
+				}
 			}
 
 			return this;
@@ -167,7 +186,7 @@ sap.ui.define(['jquery.sap.global', './Element'],
 
 
 		this.toggleStyleClass = function(sStyleClass, bAdd) {
-			jQuery.sap.assert(sStyleClass && typeof sStyleClass === "string", "sStyleClass must be a string");
+			jQuery.sap.assert(typeof sStyleClass === "string", "sStyleClass must be a string");
 
 			if (sStyleClass && typeof sStyleClass === "string") {
 				if (bAdd === true) {
@@ -184,9 +203,8 @@ sap.ui.define(['jquery.sap.global', './Element'],
 			return this; // we could (depending on bAdd) return either this or the boolean result of removeStyleClass, but at least in the bAdd===undefined case the caller wouldn't even know which return type to expect...
 		};
 
-
 		this.hasStyleClass = function(sStyleClass) {
-			jQuery.sap.assert(sStyleClass && typeof sStyleClass === "string", "sStyleClass must be a string");
+			jQuery.sap.assert(typeof sStyleClass === "string", "sStyleClass must be a string");
 
 			var aClasses;
 			if (sStyleClass && typeof sStyleClass === "string" && this.mCustomStyleClassMap) {
@@ -202,8 +220,25 @@ sap.ui.define(['jquery.sap.global', './Element'],
 
 	};
 
-	// moved here to fix the cyclic dependency CustomStyleClassSupport, Element, Core, Control
+	var Parameters;
 
+	function getScopes() {
+		if (!Parameters) {
+			Parameters = sap.ui.require("sap/ui/core/theming/Parameters");
+		}
+
+		if (Parameters) {
+			return Parameters._getScopes(/* avoidLoading= */ true);
+		}
+	}
+
+	function fireThemeScopingChangedEvent(oElement, aScopeClasses, bIsAdded) {
+		sap.ui.getCore().fireThemeScopingChanged({
+			scopes: aScopeClasses,
+			added: bIsAdded,
+			element: oElement
+		});
+	}
 
 	return CustomStyleClassSupport;
 

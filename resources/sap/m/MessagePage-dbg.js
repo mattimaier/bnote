@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -21,9 +21,12 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		 *		- The app contains no items
 		 *		- There are too many items
 		 *		- The application is loading
-		 *	The layout is unchanged but the text varies depending on the use case.
+		 * The layout is unchanged but the text varies depending on the use case.
+		 * <br><b>Note:</b> The <code>MessagePage</code> is not intended to be used as a top-level control,
+		 * but rather used within controls such as <code>NavContainer</code>, <code>App</code>, <code>Shell</code> or other container controls.
+		 *
 		 * @extends sap.ui.core.Control
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
@@ -68,13 +71,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			aggregations : {
 				/**
 				 * The (optional) custom Text control of this page.
-				 * Use this aggregation when the "text" (sap.m.Text) control needs to be replaced with a sap.m.Link control.
+				 * Use this aggregation when the "text" (sap.m.Text) control needs to be replaced with an sap.m.Link control.
 				 * "text" and "textDirection" setters can be used for this aggregation.
 				 */
 				customText : {type : "sap.m.Link", multiple : false},
 				/**
 				 * The (optional) custom description control of this page.
-				 * Use this aggregation when the "description" (sap.m.Text) control needs to be replaced with a sap.m.Link control.
+				 * Use this aggregation when the "description" (sap.m.Text) control needs to be replaced with an sap.m.Link control.
 				 * "description" and "textDirection" setters can be used for this aggregation.
 				 */
 				customDescription : {type : "sap.m.Link", multiple : false},
@@ -108,6 +111,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			var oBundle = sap.ui.getCore().getLibraryResourceBundle("sap.m");
 
 			this.setAggregation("_page", new sap.m.Page({
+				id: this.getId() + "-page",
 				showHeader : this.getShowHeader(),
 				navButtonPress : jQuery.proxy(function() {
 					this.fireNavButtonPress();
@@ -148,32 +152,38 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		MessagePage.prototype.setTitle = function(sTitle) {
 			this.setProperty("title", sTitle, true); // no re-rendering
 			this.getAggregation("_page").setTitle(sTitle);
+			return this;
 		};
 
 		MessagePage.prototype.setText = function(sText) {
 			this.setProperty("text", sText, true); // no re-rendering
 			this._oText && this._oText.setText(sText);
+			return this;
 		};
 
 		MessagePage.prototype.setDescription = function(sDescription) {
 			this.setProperty("description", sDescription, true); // no re-rendering
 			this._oDescription && this._oDescription.setText(sDescription);
+			return this;
 		};
 
 		MessagePage.prototype.setShowHeader = function(bShowHeader) {
 			this.setProperty("showHeader", bShowHeader, true); // no re-rendering
 			this.getAggregation("_page").setShowHeader(bShowHeader);
+			return this;
 		};
 
 		MessagePage.prototype.setShowNavButton = function(bShowNavButton) {
 			this.setProperty("showNavButton", bShowNavButton, true); // no re-rendering
 			this.getAggregation("_page").setShowNavButton(bShowNavButton);
+			return this;
 		};
 
 		MessagePage.prototype.setTextDirection = function(sTextDirection) {
 			this.setProperty("textDirection", sTextDirection, true); // no re-rendering
 			this._oText && this._oText.setTextDirection(sTextDirection);
 			this._oDescription && this._oDescription.setTextDirection(sTextDirection);
+			return this;
 		};
 
 		MessagePage.prototype.setIcon = function(sIconUri) {
@@ -192,6 +202,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 					this._oIconControl.setSrc(sIconUri);
 				}
 			}
+			return this;
 		};
 
 		MessagePage.prototype._addPageContent = function() {
@@ -201,6 +212,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				this._oText = this.getAggregation("customText");
 			} else {
 				this._oText = new sap.m.Text({
+					id: this.getId() + "-customText",
 					text: this.getText(),
 					textAlign: sap.ui.core.TextAlign.Center,
 					textDirection: this.getTextDirection()
@@ -211,6 +223,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 				this._oDescription = this.getAggregation("customDescription");
 			} else {
 				this._oDescription = new sap.m.Text({
+					id: this.getId() + "-customDescription",
 					text: this.getDescription(),
 					textAlign: sap.ui.core.TextAlign.Center,
 					textDirection: this.getTextDirection()

@@ -17,7 +17,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 		 * @extends sap.ui.core.Item
 		 *
 		 * @author SAP SE
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 *
 		 * @constructor
 		 * @public
@@ -188,8 +188,6 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 				]
 			}).addStyleClass('sapTntNavLIPopup');
 
-			navList.setHasListBoxRole(true);
-
 			if (selectedItem == this) {
 				popupSelectedItem = newGroup;
 				navList.isGroupSelected = true;
@@ -278,7 +276,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 			}
 
 			this.setProperty('expanded', true, true);
-			this.$().find('.sapTntNavLIGroup').attr('aria-expanded', true);
+			this.$().attr('aria-expanded', true);
 
 			var expandIconControl = this._getExpandIconControl();
 			expandIconControl.setSrc(NavigationListItem.collapseIcon);
@@ -304,7 +302,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 			}
 
 			this.setProperty('expanded', false, true);
-			this.$().find('.sapTntNavLIGroup').attr('aria-expanded', false);
+			this.$().attr('aria-expanded', false);
 
 			var expandIconControl = this._getExpandIconControl();
 			expandIconControl.setSrc(NavigationListItem.expandIcon);
@@ -375,12 +373,12 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 		 * Renders the item.
 		 * @private
 		 */
-		NavigationListItem.prototype.render = function (rm, control) {
+		NavigationListItem.prototype.render = function (rm, control, index, length) {
 
 			if (this.getLevel() == 0) {
-				this.renderFirstLevelNavItem(rm, control);
+				this.renderFirstLevelNavItem(rm, control, index, length);
 			} else {
-				this.renderSecondLevelNavItem(rm, control);
+				this.renderSecondLevelNavItem(rm, control, index, length);
 			}
 		};
 
@@ -388,7 +386,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 		 * Renders the group item.
 		 * @private
 		 */
-		NavigationListItem.prototype.renderGroupItem = function (rm, control) {
+		NavigationListItem.prototype.renderGroupItem = function (rm, control, index, length) {
 
 			rm.write('<div');
 
@@ -402,17 +400,6 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 			}
 
 			if (control.getExpanded()) {
-				// ARIA
-				if (control.getHasListBoxRole()) {
-					rm.writeAttribute("role", 'option');
-				} else {
-					rm.writeAttribute("role", 'treeitem');
-					if (this.getItems().length > 0) {
-						rm.writeAttribute("aria-expanded", this.getExpanded());
-					}
-					rm.writeAttribute("aria-level", 1);
-				}
-
 				var text = this.getText();
 
 				var sTooltip = this.getTooltip_AsString() || text;
@@ -447,37 +434,46 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 		 * Renders the first-level navigation item.
 		 * @private
 		 */
-		NavigationListItem.prototype.renderFirstLevelNavItem = function (rm, control) {
+		NavigationListItem.prototype.renderFirstLevelNavItem = function (rm, control, index, length) {
 			var item,
 				items = this.getItems(),
+				childrenLength = items.length,
 				expanded = this.getExpanded(),
-				isListExpanded = control.getExpanded();
+				isListExpanded = control.getExpanded(),
+				text = this.getText();
 
 			rm.write('<li');
 			rm.writeElementData(this);
+
 
 			if (this.getEnabled() && !isListExpanded) {
 				rm.write(' tabindex="-1"');
 			}
 
-			var text = this.getText();
-
 			// ARIA
-			if (!isListExpanded) {
-				var text = this.getText();
+			var ariaProps = {
+				level: '1',
+				expanded: this.getExpanded(),
+				posinset: index + 1,
+				setsize: length
+			};
 
+			if (!isListExpanded) {
 				var sTooltip = this.getTooltip_AsString() || text;
 				if (sTooltip) {
 					rm.writeAttributeEscaped("title", sTooltip);
 				}
 
-				rm.writeAttributeEscaped("aria-label", text);
-
-				rm.writeAttribute("role", 'button');
-				rm.writeAttribute("aria-haspopup", true);
+				ariaProps.label = text;
+				ariaProps.role = 'button';
+				ariaProps.haspopup = true;
 			} else {
-				rm.write(' role="presentation" ');
+				ariaProps.role = 'treeitem';
 			}
+
+			rm.writeAccessibilityState(ariaProps);
+
+			rm.writeAttribute("tabindex", "0");
 
 			rm.write(">");
 
@@ -487,6 +483,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 
 				rm.write("<ul");
 
+				rm.writeAttribute("role", "group");
 				rm.addClass("sapTntNavLIGroupItems");
 
 				if (!expanded) {
@@ -498,7 +495,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 
 				for (var i = 0; i < items.length; i++) {
 					item = items[i];
-					item.render(rm, control, this);
+					item.render(rm, control, i, childrenLength);
 				}
 
 				rm.write("</ul>");
@@ -511,7 +508,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 		 * Renders the second-level navigation item.
 		 * @private
 		 */
-		NavigationListItem.prototype.renderSecondLevelNavItem = function (rm, control) {
+		NavigationListItem.prototype.renderSecondLevelNavItem = function (rm, control, index, length) {
 
 			var group = this.getParent();
 
@@ -536,12 +533,12 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 			}
 
 			// ARIA
-			if (control.getHasListBoxRole()) {
-				rm.writeAttribute("role", 'option');
-			} else {
-				rm.writeAttribute("role", 'treeitem');
-				rm.writeAttribute("aria-level", 2);
-			}
+			rm.writeAccessibilityState({
+				role: 'treeitem',
+				level: '2',
+				posinset: index + 1,
+				setsize: length
+			});
 
 			rm.writeClasses();
 
@@ -669,6 +666,8 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 				$this.attr('aria-selected', true);
 			} else {
 				$this.attr('aria-pressed', true);
+
+				navList._closePopover();
 			}
 		};
 
@@ -685,11 +684,7 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 
 			var $this = this.$();
 
-			if (this.getParent().getExpanded()) {
-				domRefs.push($this.find('.sapTntNavLIGroup')[0]);
-			} else {
-				domRefs.push($this[0]);
-			}
+			domRefs.push($this.find('.sapTntNavLIGroup')[0]);
 
 			if (this.getExpanded()) {
 				var subItems = $this.find('.sapTntNavLIGroupItem');
@@ -708,6 +703,6 @@ sap.ui.define(["jquery.sap.global", "./library", "sap/ui/core/Item",
 
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */

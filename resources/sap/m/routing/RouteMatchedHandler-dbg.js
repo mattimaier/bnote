@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/core/routing/History', 'sap/ui/core/routing/Router', './TargetHandler', './Router'],
@@ -46,7 +46,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'sap/ui/core/routing/H
 	var RouteMatchedHandler = BaseObject.extend("sap.m.routing.RouteMatchedHandler", {
 		constructor : function (oRouter, bCloseDialogs) {
 			if (oRouter instanceof MobileRouter) {
-				jQuery.sap.log.warning("A sap.m.routing.Router is used together with a sap.m.routing.RouteMatchedHandler (deprecated)." +
+				jQuery.sap.log.warning("A sap.m.routing.Router is used together with an sap.m.routing.RouteMatchedHandler (deprecated)." +
 					"The RoutematchedHandler is not taking over triggering the navigations, the Router will do it.", this);
 				return;
 			}

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,10 +20,16 @@ sap.ui.define(["./WizardProgressNavigator"], function (WizardProgressNavigator) 
 	};
 
 	WizardProgressNavigatorRenderer.startNavigator = function (oRm, oControl) {
+		var sWizardLabelText = sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("WIZARD_LABEL");
+
 		oRm.write("<nav");
 		oRm.writeControlData(oControl);
-		oRm.writeAttribute("class", CLASSES.NAVIGATION);
+		oRm.writeAttribute("class", CLASSES.NAVIGATION + " sapContrastPlus");
 		oRm.writeAttribute(ATTRIBUTES.STEP_COUNT, oControl.getStepCount());
+		oRm.writeAccessibilityState({
+			"role": "navigation",
+			"label": sWizardLabelText
+		});
 		oRm.write(">");
 	};
 
@@ -48,6 +54,10 @@ sap.ui.define(["./WizardProgressNavigator"], function (WizardProgressNavigator) 
 			oRm.addClass(CLASSES.LIST_NO_TITLES);
 		}
 
+		oRm.writeAccessibilityState({
+			"role": "list"
+		});
+
 		oRm.writeClasses();
 		oRm.write(">");
 	};
@@ -68,12 +78,18 @@ sap.ui.define(["./WizardProgressNavigator"], function (WizardProgressNavigator) 
 		oRm.write("<li");
 		oRm.writeAttribute("class", CLASSES.STEP);
 		oRm.writeAttribute(ATTRIBUTES.STEP, iStepNumber);
+
+		oRm.writeAccessibilityState({
+			"role": "listitem"
+		});
+
 		oRm.write(">");
 	};
 
 	WizardProgressNavigatorRenderer.renderAnchor = function (oRm, oControl, iStepNumber, sStepTitle, sIconUri) {
 		var aSteps = oControl._cachedSteps,
-			oCurrentStep = aSteps[iStepNumber];
+			oCurrentStep = aSteps[iStepNumber],
+			sStepText = sap.ui.getCore().getLibraryResourceBundle("sap.m").getText("WIZARD_PROG_NAV_STEP_TITLE");
 
 		oRm.write("<a tabindex='-1' ");
 		if (!oCurrentStep || !!parseInt(oCurrentStep.style.zIndex, 10)) {
@@ -83,9 +99,9 @@ sap.ui.define(["./WizardProgressNavigator"], function (WizardProgressNavigator) 
 		oRm.writeAttribute("class", CLASSES.ANCHOR);
 
 		if (sStepTitle) {
-			oRm.writeAttributeEscaped("title", sStepTitle);
+			oRm.writeAttributeEscaped("title", iStepNumber + ". " + sStepTitle);
 		} else {
-			oRm.writeAttributeEscaped("title", "Step " + iStepNumber);
+			oRm.writeAttributeEscaped("title", sStepText + " " + iStepNumber);
 		}
 
 		oRm.write(">");

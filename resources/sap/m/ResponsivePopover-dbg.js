@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.ResponsivePopover.
-sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/ui/core/Control', 'sap/ui/core/IconPool'],
-	function(jQuery, Dialog, Popover, library, Control, IconPool) {
+sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/ui/core/Control', 'sap/ui/core/IconPool', 'sap/ui/base/ManagedObject'],
+	function(jQuery, Dialog, Popover, library, Control, IconPool, ManagedObject) {
 	"use strict";
 
 
@@ -16,13 +16,22 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 	 *
 	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] Initial settings for the new control
-	 *
+	 * A popover-based control that behaves differently according to the device it is on.
 	 * @class
-	 * This control acts responsively to the type of device. It acts as a sap.m.Popover on desktop and tablet, while on phone it acts as a sap.m.Dialog with stretch set to true.
+	 * The responsive popover acts as a {@link sap.m.Popover popover} on desktop and tablet,
+	 * while on phone it acts as a {@link sap.m.Dialog dialog} with <code>stretch</code> set to true.
+	 *
+	 * <b>Note:</b> It is recommended that <code>ResponsivePopover</code> is used in fragments otherwise there might
+	 * be some implications on the user experience. For example, on desktop, open or close functions
+	 * of the <code>Popover</code> might not be called.
+	 *
+	 * <h3>Usage</h3>
+	 * When you want to make sure that all content is visible on any device.
+	 *
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -69,6 +78,11 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 			 * This property only takes effect on desktop or tablet. Please see the documentation sap.m.Popover#offsetY.
 			 */
 			offsetY : {type : "int", group : "Misc", defaultValue : null},
+
+			/**
+			 * This property only takes effect on desktop or tablet. Please see the documentation sap.m.Popover#showArrow.
+			 */
+			showArrow: {type: "boolean", group: "Appearance", defaultValue: true},
 
 			/**
 			 * This property is supported by both variants. Please see the documentation on sap.m.Popover#contentWidth and sap.m.Dialog#contentWidth
@@ -141,6 +155,11 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 			 * InitialFocus is supported by both variants. Please see the documentation on sap.m.Popover#initialFocus and sap.m.Dialog#initialFocus
 			 */
 			initialFocus : {type : "sap.ui.core.Control", multiple : false},
+
+			/**
+			 * Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).
+			 */
+			ariaLabelledBy : {type : "sap.ui.core.Control", multiple : true, singularName : "ariaLabelledBy"},
 
 			/**
 			 * Association to controls / IDs which describe this control (see WAI-ARIA attribute aria-describedby).
@@ -520,8 +539,10 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 	ResponsivePopover.prototype._oldSetProperty = ResponsivePopover.prototype.setProperty;
 	ResponsivePopover.prototype.setProperty = function(sPropertyName, oValue, bSuppressInvalidate){
 		this._oldSetProperty(sPropertyName, oValue, true);
-		if (jQuery.inArray(sPropertyName, this._aNotSupportedProperties) === -1) {
-			this._oControl["set" + this._firstLetterUpperCase(sPropertyName)](oValue);
+		var sSetterName = "set" + this._firstLetterUpperCase(sPropertyName);
+		if (jQuery.inArray(sPropertyName, this._aNotSupportedProperties) === -1 &&
+			sSetterName in this._oControl) {
+			this._oControl[sSetterName](oValue);
 		}
 		return this;
 	};
@@ -533,7 +554,7 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 	};
 
 	/**
-	 * Creates a sap.m.Toolbar for a footer of the ResponsivePopover
+	 * Creates an sap.m.Toolbar for a footer of the ResponsivePopover
 	 * @returns {sap.m.Toolbar} Toolbar with ToolbarSpacer in the content aggregation
 	 * @private
 	 */
@@ -594,7 +615,7 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 			return this[sPrivateName];
 		} else {
 			var sGetterName = "get" + this._firstLetterUpperCase(sPos) + "Button";
-			return this[sGetterName]();
+			return this._oControl[sGetterName]();
 		}
 	};
 
@@ -605,7 +626,10 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 	 * @public
 	 */
 	ResponsivePopover.prototype.setBeginButton = function(oButton){
-		oButton.setType(sap.m.ButtonType.Transparent);
+		if (oButton) {
+			oButton.setType(sap.m.ButtonType.Transparent);
+		}
+
 		this._oControl.setBeginButton(oButton);
 		return this._setButton("begin", oButton);
 	};
@@ -617,7 +641,10 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 	 * @public
 	 */
 	ResponsivePopover.prototype.setEndButton = function(oButton){
-		oButton.setType(sap.m.ButtonType.Transparent);
+		if (oButton) {
+			oButton.setType(sap.m.ButtonType.Transparent);
+		}
+
 		this._oControl.setEndButton(oButton);
 		return this._setButton("end", oButton);
 	};
@@ -652,7 +679,7 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 
 	/**
 	 * Getter for endButton aggregation
-	 * @returns {sap.m.Button} The button that is set as a endButton aggregation
+	 * @returns {sap.m.Button} The button that is set as an endButton aggregation
 	 * @public
 	 */
 	ResponsivePopover.prototype.getEndButton = function(){
@@ -685,7 +712,7 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 
 	// forward the other necessary methods to the inner instance, but do not check the existence of generated methods like (addItem)
 	["invalidate", "close", "isOpen", "addStyleClass", "removeStyleClass", "toggleStyleClass", "hasStyleClass",
-		"getDomRef", "setBusy", "getBusy", "setBusyIndicatorDelay", "getBusyIndicatorDelay"].forEach(function(sName){
+		"getDomRef", "setBusy", "getBusy", "setBusyIndicatorDelay", "getBusyIndicatorDelay", "addEventDelegate"].forEach(function(sName){
 			ResponsivePopover.prototype[sName] = function() {
 				if (this._oControl && this._oControl[sName]) {
 					var res = this._oControl[sName].apply(this._oControl ,arguments);
@@ -693,6 +720,14 @@ sap.ui.define(['jquery.sap.global', './Dialog', './Popover', './library', 'sap/u
 				}
 			};
 	});
+
+	/**
+	 * Popup controls should not propagate contextual width
+	 * @private
+	 */
+	ResponsivePopover.prototype._applyContextualSettings = function () {
+		ManagedObject.prototype._applyContextualSettings.call(this, ManagedObject._defaultContextualSettings);
+	};
 
 	return ResponsivePopover;
 

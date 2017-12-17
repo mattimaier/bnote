@@ -24,7 +24,7 @@
 		"ang": "Oudengels",
 		"anp": "Angika",
 		"ar": "Arabisch",
-		"ar_001": "modern standaard Arabisch",
+		"ar_001": "Arabisch (wereld)",
 		"arc": "Aramees",
 		"arn": "Mapudungun",
 		"aro": "Araona",
@@ -107,6 +107,7 @@
 		"cps": "Capiznon",
 		"cr": "Cree",
 		"crh": "Krim-Tataars",
+		"crs": "Seychellencreools",
 		"cs": "Tsjechisch",
 		"csb": "Kasjoebisch",
 		"cu": "Kerkslavisch",
@@ -117,8 +118,8 @@
 		"dar": "Dargwa",
 		"dav": "Taita",
 		"de": "Duits",
-		"de_AT": "Oostenrijks Duits",
-		"de_CH": "Zwitsers Hoogduits",
+		"de_AT": "Duits (Oostenrijk)",
+		"de_CH": "Duits (Zwitserland)",
 		"del": "Delaware",
 		"den": "Slavey",
 		"dgr": "Dogrib",
@@ -143,18 +144,18 @@
 		"el": "Grieks",
 		"elx": "Elamitisch",
 		"en": "Engels",
-		"en_AU": "Australisch Engels",
-		"en_CA": "Canadees Engels",
-		"en_GB": "Brits Engels",
+		"en_AU": "Engels (Australië)",
+		"en_CA": "Engels (Canada)",
+		"en_GB": "Engels (Verenigd Koninkrijk)",
 		"en_GB-alt-short": "Engels (VK)",
-		"en_US": "Amerikaans Engels",
+		"en_US": "Engels (Verenigde Staten)",
 		"en_US-alt-short": "Engels (VS)",
 		"enm": "Middelengels",
 		"eo": "Esperanto",
 		"es": "Spaans",
-		"es_419": "Latijns-Amerikaans Spaans",
-		"es_ES": "Europees Spaans",
-		"es_MX": "Mexicaans Spaans",
+		"es_419": "Spaans (Latijns-Amerika)",
+		"es_ES": "Spaans (Spanje)",
+		"es_MX": "Spaans (Mexico)",
 		"esu": "Yupik",
 		"et": "Estisch",
 		"eu": "Baskisch",
@@ -171,8 +172,8 @@
 		"fo": "Faeröers",
 		"fon": "Fon",
 		"fr": "Frans",
-		"fr_CA": "Canadees Frans",
-		"fr_CH": "Zwitsers Frans",
+		"fr_CA": "Frans (Canada)",
+		"fr_CH": "Frans (Zwitserland)",
 		"frc": "Cajun-Frans",
 		"frm": "Middelfrans",
 		"fro": "Oudfrans",
@@ -343,7 +344,6 @@
 		"mas": "Maa",
 		"mde": "Maba",
 		"mdf": "Moksja",
-		"mdh": "mdh",
 		"mdr": "Mandar",
 		"men": "Mende",
 		"mer": "Meru",
@@ -356,7 +356,6 @@
 		"mi": "Maori",
 		"mic": "Mi’kmaq",
 		"min": "Minangkabau",
-		"mis": "mis",
 		"mk": "Macedonisch",
 		"ml": "Malayalam",
 		"mn": "Mongools",
@@ -393,7 +392,7 @@
 		"niu": "Niueaans",
 		"njo": "Ao Naga",
 		"nl": "Nederlands",
-		"nl_BE": "Vlaams",
+		"nl_BE": "Nederlands (België)",
 		"nmg": "Ngumba",
 		"nn": "Noors - Nynorsk",
 		"nnh": "Ngiemboon",
@@ -426,6 +425,7 @@
 		"pap": "Papiaments",
 		"pau": "Palaus",
 		"pcd": "Picardisch",
+		"pcm": "Nigeriaans Pidgin",
 		"pdc": "Pennsylvania-Duits",
 		"pdt": "Plautdietsch",
 		"peo": "Oudperzisch",
@@ -441,8 +441,8 @@
 		"ps": "Pasjtoe",
 		"ps_alt-variant": "Pashto",
 		"pt": "Portugees",
-		"pt_BR": "Braziliaans Portugees",
-		"pt_PT": "Europees Portugees",
+		"pt_BR": "Portugees (Brazilië)",
+		"pt_PT": "Portugees (Portugal)",
 		"qu": "Quechua",
 		"quc": "K’iche’",
 		"qug": "Kichwa",
@@ -523,7 +523,7 @@
 		"sux": "Soemerisch",
 		"sv": "Zweeds",
 		"sw": "Swahili",
-		"sw_CD": "Congo Swahili",
+		"sw_CD": "Swahili (Congo-Kinshasa)",
 		"swb": "Shimaore",
 		"syc": "Klassiek Syrisch",
 		"syr": "Syrisch",
@@ -613,15 +613,15 @@
 		"zen": "Zenaga",
 		"zgh": "Standaard Marokkaanse Tamazight",
 		"zh": "Chinees",
-		"zh_Hans": "vereenvoudigd Chinees",
-		"zh_Hant": "traditioneel Chinees",
+		"zh_Hans": "Chinees (vereenvoudigd)",
+		"zh_Hant": "Chinees (traditioneel)",
 		"zu": "Zoeloe",
 		"zun": "Zuni",
 		"zxx": "geen linguïstische inhoud",
 		"zza": "Zaza"
 	},
 	"scripts": {
-		"Adlm": "Adlm",
+		"Adlm": "Adlam",
 		"Afak": "Defaka",
 		"Aghb": "Kaukasisch Albanees",
 		"Ahom": "Ahom",
@@ -635,7 +635,7 @@
 		"Bass": "Bassa Vah",
 		"Batk": "Batak",
 		"Beng": "Bengaals",
-		"Bhks": "Bhks",
+		"Bhks": "Bhaiksuki",
 		"Blis": "Blissymbolen",
 		"Bopo": "Bopomofo",
 		"Brah": "Brahmi",
@@ -714,7 +714,7 @@
 		"Mahj": "Mahajani",
 		"Mand": "Mandaeans",
 		"Mani": "Manicheaans",
-		"Marc": "Marc",
+		"Marc": "Marchen",
 		"Maya": "Mayahiërogliefen",
 		"Mend": "Mende",
 		"Merc": "Meroitisch cursief",
@@ -729,7 +729,7 @@
 		"Mymr": "Birmaans",
 		"Narb": "Oud Noord-Arabisch",
 		"Nbat": "Nabateaans",
-		"Newa": "Newa",
+		"Newa": "Newari",
 		"Nkgb": "Naxi Geba",
 		"Nkoo": "N’Ko",
 		"Nshu": "Nüshu",
@@ -737,7 +737,7 @@
 		"Olck": "Ol Chiki",
 		"Orkh": "Orkhon",
 		"Orya": "Odia",
-		"Osge": "Osge",
+		"Osge": "Osage",
 		"Osma": "Osmanya",
 		"Palm": "Palmyreens",
 		"Pauc": "Pau Cin Hau",
@@ -757,7 +757,6 @@
 		"Qaaf": "Qaaf",
 		"Qaag": "Qaag",
 		"Qaah": "Qaah",
-		"Qaaj": "Qaaj",
 		"Qaak": "Qaak",
 		"Qaal": "Qaal",
 		"Qaam": "Qaam",
@@ -843,7 +842,7 @@
 		"Yiii": "Yi",
 		"Zinh": "Overgeërfd",
 		"Zmth": "Wiskundige notatie",
-		"Zsye": "Zsye",
+		"Zsye": "emoji",
 		"Zsym": "Symbolen",
 		"Zxxx": "ongeschreven",
 		"Zyyy": "algemeen",
@@ -940,7 +939,8 @@
 		"CW": "Curaçao",
 		"CX": "Christmaseiland",
 		"CY": "Cyprus",
-		"CZ": "Tsjechië",
+		"CZ": "Tsjechische Republiek",
+		"CZ-alt-variant": "Tsjechië",
 		"DE": "Duitsland",
 		"DG": "Diego Garcia",
 		"DJ": "Djibouti",
@@ -957,6 +957,7 @@
 		"ES": "Spanje",
 		"ET": "Ethiopië",
 		"EU": "Europese Unie",
+		"EZ": "EZ",
 		"FI": "Finland",
 		"FJ": "Fiji",
 		"FK": "Falklandeilanden",
@@ -1130,6 +1131,8 @@
 		"UA": "Oekraïne",
 		"UG": "Oeganda",
 		"UM": "Kleine afgelegen eilanden van de Verenigde Staten",
+		"UN": "verenigde naties",
+		"UN-alt-short": "vn",
 		"US": "Verenigde Staten",
 		"US-alt-short": "VS",
 		"UY": "Uruguay",
@@ -1166,8 +1169,8 @@
 			"short": "HH:mm"
 		},
 		"dateTimeFormats": {
-			"full": "{1} {0}",
-			"long": "{1} {0}",
+			"full": "{1} 'om' {0}",
+			"long": "{1} 'om' {0}",
 			"medium": "{1} {0}",
 			"short": "{1} {0}",
 			"availableFormats": {
@@ -1209,7 +1212,9 @@
 				"yMMMEd": "E d MMM y",
 				"yMMMM": "MMMM y",
 				"yQQQ": "QQQ y",
-				"yQQQQ": "QQQQ y"
+				"yQQQQ": "QQQQ y",
+				"MMMMW": "'week' W 'van' MMM",
+				"yw": "'week' w 'in' y"
 			},
 			"appendItems": {
 				"Day": "{0} ({2}: {1})",
@@ -1590,8 +1595,8 @@
 			"short": "HH:mm"
 		},
 		"dateTimeFormats": {
-			"full": "{1} {0}",
-			"long": "{1} {0}",
+			"full": "{1} 'om' {0}",
+			"long": "{1} 'om' {0}",
 			"medium": "{1} {0}",
 			"short": "{1} {0}",
 			"availableFormats": {
@@ -2421,6 +2426,424 @@
 			"235": "H"
 		}
 	},
+	"ca-persian": {
+		"dateFormats": {
+			"full": "EEEE d MMMM y G",
+			"long": "d MMMM y G",
+			"medium": "d MMM y G",
+			"short": "dd-MM-yy GGGGG"
+		},
+		"timeFormats": {
+			"full": "HH:mm:ss zzzz",
+			"long": "HH:mm:ss z",
+			"medium": "HH:mm:ss",
+			"short": "HH:mm"
+		},
+		"dateTimeFormats": {
+			"full": "{1} 'om' {0}",
+			"long": "{1} 'om' {0}",
+			"medium": "{1} {0}",
+			"short": "{1} {0}",
+			"availableFormats": {
+				"d": "d",
+				"E": "ccc",
+				"Ed": "E d",
+				"Ehm": "E h:mm a",
+				"EHm": "E HH:mm",
+				"Ehms": "E h:mm:ss a",
+				"EHms": "E HH:mm:ss",
+				"Gy": "y G",
+				"GyMMM": "MMM y G",
+				"GyMMMd": "d MMM y G",
+				"GyMMMEd": "E d MMM y G",
+				"h": "h a",
+				"H": "HH",
+				"hm": "h:mm a",
+				"Hm": "HH:mm",
+				"hms": "h:mm:ss a",
+				"Hms": "HH:mm:ss",
+				"M": "L",
+				"Md": "d-M",
+				"MEd": "E d-M",
+				"MMM": "LLL",
+				"MMMd": "d MMM",
+				"MMMEd": "E d MMM",
+				"MMMMd": "d MMMM",
+				"ms": "mm:ss",
+				"y": "y G",
+				"yyyy": "y G",
+				"yyyyM": "M-y GGGGG",
+				"yyyyMd": "d-M-y GGGGG",
+				"yyyyMEd": "E d-M-y GGGGG",
+				"yyyyMMM": "MMM y G",
+				"yyyyMMMd": "d MMM y G",
+				"yyyyMMMEd": "E d MMM y G",
+				"yyyyMMMM": "MMMM y G",
+				"yyyyQQQ": "QQQ y G",
+				"yyyyQQQQ": "QQQQ y G"
+			},
+			"appendItems": {
+				"Day": "{0} ({2}: {1})",
+				"Day-Of-Week": "{0} {1}",
+				"Era": "{1} {0}",
+				"Hour": "{0} ({2}: {1})",
+				"Minute": "{0} ({2}: {1})",
+				"Month": "{0} ({2}: {1})",
+				"Quarter": "{0} ({2}: {1})",
+				"Second": "{0} ({2}: {1})",
+				"Timezone": "{0} {1}",
+				"Week": "{0} ({2}: {1})",
+				"Year": "{1} {0}"
+			},
+			"intervalFormats": {
+				"intervalFormatFallback": "{0} - {1}",
+				"d": {
+					"d": "d–d"
+				},
+				"h": {
+					"a": "h a – h a",
+					"h": "h–h a"
+				},
+				"H": {
+					"H": "HH–HH"
+				},
+				"hm": {
+					"a": "h:mm a – h:mm a",
+					"h": "h:mm–h:mm a",
+					"m": "h:mm–h:mm a"
+				},
+				"Hm": {
+					"H": "HH:mm–HH:mm",
+					"m": "HH:mm–HH:mm"
+				},
+				"hmv": {
+					"a": "h:mm a – h:mm a v",
+					"h": "h:mm–h:mm a v",
+					"m": "h:mm–h:mm a v"
+				},
+				"Hmv": {
+					"H": "HH:mm–HH:mm v",
+					"m": "HH:mm–HH:mm v"
+				},
+				"hv": {
+					"a": "h a – h a v",
+					"h": "h–h a v"
+				},
+				"Hv": {
+					"H": "HH–HH v"
+				},
+				"M": {
+					"M": "M–M"
+				},
+				"Md": {
+					"d": "dd-MM – dd-MM",
+					"M": "dd-MM – dd-MM"
+				},
+				"MEd": {
+					"d": "E dd-MM – E dd-MM",
+					"M": "E dd-MM – E dd-MM"
+				},
+				"MMM": {
+					"M": "MMM–MMM"
+				},
+				"MMMd": {
+					"d": "d–d MMM",
+					"M": "d MMM – d MMM"
+				},
+				"MMMEd": {
+					"d": "E d – E d MMM",
+					"M": "E d MMM – E d MMM"
+				},
+				"MMMM": {
+					"M": "MMMM–MMMM"
+				},
+				"y": {
+					"y": "y–y G"
+				},
+				"yM": {
+					"M": "MM-y – MM-y G",
+					"y": "MM-y – MM-y G"
+				},
+				"yMd": {
+					"d": "dd-MM-y – dd-MM-y G",
+					"M": "dd-MM-y – dd-MM-y G",
+					"y": "dd-MM-y – dd-MM-y G"
+				},
+				"yMEd": {
+					"d": "E dd-MM-y – E dd-MM-y G",
+					"M": "E dd-MM-y – E dd-MM-y G",
+					"y": "E dd-MM-y – E dd-MM-y G"
+				},
+				"yMMM": {
+					"M": "MMM–MMM y G",
+					"y": "MMM y – MMM y G"
+				},
+				"yMMMd": {
+					"d": "d–d MMM y G",
+					"M": "d MMM – d MMM y G",
+					"y": "d MMM y – d MMM y G"
+				},
+				"yMMMEd": {
+					"d": "E d – E d MMM y G",
+					"M": "E d MMM – E d MMM y G",
+					"y": "E d MMM y – E d MMM y G"
+				},
+				"yMMMM": {
+					"M": "MMMM–MMMM y G",
+					"y": "MMMM y – MMMM y G"
+				}
+			}
+		},
+		"months": {
+			"format": {
+				"abbreviated": [
+					"Farvardin",
+					"Ordibehesht",
+					"Khordad",
+					"Tir",
+					"Mordad",
+					"Shahrivar",
+					"Mehr",
+					"Aban",
+					"Azar",
+					"Dey",
+					"Bahman",
+					"Esfand"
+				],
+				"narrow": [
+					"1",
+					"2",
+					"3",
+					"4",
+					"5",
+					"6",
+					"7",
+					"8",
+					"9",
+					"10",
+					"11",
+					"12"
+				],
+				"wide": [
+					"Farvardin",
+					"Ordibehesht",
+					"Khordad",
+					"Tir",
+					"Mordad",
+					"Shahrivar",
+					"Mehr",
+					"Aban",
+					"Azar",
+					"Dey",
+					"Bahman",
+					"Esfand"
+				]
+			},
+			"stand-alone": {
+				"abbreviated": [
+					"Farvardin",
+					"Ordibehesht",
+					"Khordad",
+					"Tir",
+					"Mordad",
+					"Shahrivar",
+					"Mehr",
+					"Aban",
+					"Azar",
+					"Dey",
+					"Bahman",
+					"Esfand"
+				],
+				"narrow": [
+					"1",
+					"2",
+					"3",
+					"4",
+					"5",
+					"6",
+					"7",
+					"8",
+					"9",
+					"10",
+					"11",
+					"12"
+				],
+				"wide": [
+					"Farvardin",
+					"Ordibehesht",
+					"Khordad",
+					"Tir",
+					"Mordad",
+					"Shahrivar",
+					"Mehr",
+					"Aban",
+					"Azar",
+					"Dey",
+					"Bahman",
+					"Esfand"
+				]
+			}
+		},
+		"days": {
+			"format": {
+				"abbreviated": [
+					"zo",
+					"ma",
+					"di",
+					"wo",
+					"do",
+					"vr",
+					"za"
+				],
+				"narrow": [
+					"Z",
+					"M",
+					"D",
+					"W",
+					"D",
+					"V",
+					"Z"
+				],
+				"short": [
+					"zo",
+					"ma",
+					"di",
+					"wo",
+					"do",
+					"vr",
+					"za"
+				],
+				"wide": [
+					"zondag",
+					"maandag",
+					"dinsdag",
+					"woensdag",
+					"donderdag",
+					"vrijdag",
+					"zaterdag"
+				]
+			},
+			"stand-alone": {
+				"abbreviated": [
+					"zo",
+					"ma",
+					"di",
+					"wo",
+					"do",
+					"vr",
+					"za"
+				],
+				"narrow": [
+					"Z",
+					"M",
+					"D",
+					"W",
+					"D",
+					"V",
+					"Z"
+				],
+				"short": [
+					"zo",
+					"ma",
+					"di",
+					"wo",
+					"do",
+					"vr",
+					"za"
+				],
+				"wide": [
+					"zondag",
+					"maandag",
+					"dinsdag",
+					"woensdag",
+					"donderdag",
+					"vrijdag",
+					"zaterdag"
+				]
+			}
+		},
+		"quarters": {
+			"format": {
+				"abbreviated": [
+					"K1",
+					"K2",
+					"K3",
+					"K4"
+				],
+				"narrow": [
+					"1",
+					"2",
+					"3",
+					"4"
+				],
+				"wide": [
+					"1e kwartaal",
+					"2e kwartaal",
+					"3e kwartaal",
+					"4e kwartaal"
+				]
+			},
+			"stand-alone": {
+				"abbreviated": [
+					"K1",
+					"K2",
+					"K3",
+					"K4"
+				],
+				"narrow": [
+					"1",
+					"2",
+					"3",
+					"4"
+				],
+				"wide": [
+					"1e kwartaal",
+					"2e kwartaal",
+					"3e kwartaal",
+					"4e kwartaal"
+				]
+			}
+		},
+		"dayPeriods": {
+			"format": {
+				"abbreviated": [
+					"a.m.",
+					"p.m."
+				],
+				"narrow": [
+					"a.m.",
+					"p.m."
+				],
+				"wide": [
+					"a.m.",
+					"p.m."
+				]
+			},
+			"stand-alone": {
+				"abbreviated": [
+					"a.m.",
+					"p.m."
+				],
+				"narrow": [
+					"a.m.",
+					"p.m."
+				],
+				"wide": [
+					"a.m.",
+					"p.m."
+				]
+			}
+		},
+		"era-wide": {
+			"0": "AP"
+		},
+		"era-abbreviated": {
+			"0": "AP"
+		},
+		"era-narrow": {
+			"0": "AP"
+		}
+	},
 	"dateFields": {
 		"era": {
 			"displayName": "tijdperk"
@@ -2440,7 +2863,7 @@
 			}
 		},
 		"year-short": {
-			"displayName": "jr.",
+			"displayName": "jr",
 			"relative-type--1": "vorig jaar",
 			"relative-type-0": "dit jaar",
 			"relative-type-1": "volgend jaar",
@@ -2454,7 +2877,7 @@
 			}
 		},
 		"year-narrow": {
-			"displayName": "jr.",
+			"displayName": "jr",
 			"relative-type--1": "vorig jaar",
 			"relative-type-0": "dit jaar",
 			"relative-type-1": "volgend jaar",
@@ -2563,7 +2986,8 @@
 			"relativeTime-type-past": {
 				"relativeTimePattern-count-one": "{0} week geleden",
 				"relativeTimePattern-count-other": "{0} weken geleden"
-			}
+			},
+			"relativePeriod": "de week van {0}"
 		},
 		"week-short": {
 			"displayName": "wk",
@@ -2577,7 +3001,8 @@
 			"relativeTime-type-past": {
 				"relativeTimePattern-count-one": "{0} week geleden",
 				"relativeTimePattern-count-other": "{0} weken geleden"
-			}
+			},
+			"relativePeriod": "de week van {0}"
 		},
 		"week-narrow": {
 			"displayName": "wk",
@@ -2591,7 +3016,8 @@
 			"relativeTime-type-past": {
 				"relativeTimePattern-count-one": "{0} week geleden",
 				"relativeTimePattern-count-other": "{0} weken geleden"
-			}
+			},
+			"relativePeriod": "de week van {0}"
 		},
 		"day-wide": {
 			"displayName": "dag",
@@ -2645,7 +3071,8 @@
 			"displayName": "dag van de week"
 		},
 		"hour-wide": {
-			"displayName": "Uur",
+			"displayName": "uur",
+			"relative-type-0": "binnen een uur",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "over {0} uur",
 				"relativeTimePattern-count-other": "over {0} uur"
@@ -2657,6 +3084,7 @@
 		},
 		"hour-short": {
 			"displayName": "uur",
+			"relative-type-0": "binnen een uur",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "over {0} uur",
 				"relativeTimePattern-count-other": "over {0} uur"
@@ -2667,7 +3095,8 @@
 			}
 		},
 		"hour-narrow": {
-			"displayName": "u",
+			"displayName": "uur",
+			"relative-type-0": "binnen een uur",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "over {0} uur",
 				"relativeTimePattern-count-other": "over {0} uur"
@@ -2679,6 +3108,7 @@
 		},
 		"minute-wide": {
 			"displayName": "minuut",
+			"relative-type-0": "binnen een minuut",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "over {0} minuut",
 				"relativeTimePattern-count-other": "over {0} minuten"
@@ -2689,7 +3119,8 @@
 			}
 		},
 		"minute-short": {
-			"displayName": "min.",
+			"displayName": "min",
+			"relative-type-0": "binnen een minuut",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "over {0} min.",
 				"relativeTimePattern-count-other": "over {0} min."
@@ -2700,7 +3131,8 @@
 			}
 		},
 		"minute-narrow": {
-			"displayName": "m",
+			"displayName": "min",
+			"relative-type-0": "binnen een minuut",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "over {0} min.",
 				"relativeTimePattern-count-other": "over {0} min."
@@ -2723,7 +3155,7 @@
 			}
 		},
 		"second-short": {
-			"displayName": "sec.",
+			"displayName": "sec",
 			"relative-type-0": "nu",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "over {0} sec.",
@@ -2827,6 +3259,32 @@
 			}
 		}
 	},
+	"currencyFormat-short": {
+		"1000-one": "¤ 0K",
+		"1000-other": "¤ 0K",
+		"10000-one": "¤ 00K",
+		"10000-other": "¤ 00K",
+		"100000-one": "¤ 000K",
+		"100000-other": "¤ 000K",
+		"1000000-one": "¤ 0 mln'.'",
+		"1000000-other": "¤ 0 mln'.'",
+		"10000000-one": "¤ 00 mln'.'",
+		"10000000-other": "¤ 00 mln'.'",
+		"100000000-one": "¤ 000 mln'.'",
+		"100000000-other": "¤ 000 mln'.'",
+		"1000000000-one": "¤ 0 mld'.'",
+		"1000000000-other": "¤ 0 mld'.'",
+		"10000000000-one": "¤ 00 mld'.'",
+		"10000000000-other": "¤ 00 mld'.'",
+		"100000000000-one": "¤ 000 mld'.'",
+		"100000000000-other": "¤ 000 mld'.'",
+		"1000000000000-one": "¤ 0 bln'.'",
+		"1000000000000-other": "¤ 0 bln'.'",
+		"10000000000000-one": "¤ 00 bln'.'",
+		"10000000000000-other": "¤ 00 bln'.'",
+		"100000000000000-one": "¤ 000 bln'.'",
+		"100000000000000-other": "¤ 000 bln'.'"
+	},
 	"symbols-latn-decimal": ",",
 	"symbols-latn-group": ".",
 	"symbols-latn-list": ";",
@@ -2863,6 +3321,7 @@
 		"XCD": "EC$",
 		"XOF": "CFA"
 	},
+	"rtl": false,
 	"currencyDigits": {
 		"ADP": 0,
 		"AFN": 0,
@@ -2870,6 +3329,7 @@
 		"AMD": 0,
 		"BHD": 3,
 		"BIF": 0,
+		"BYN": 2,
 		"BYR": 0,
 		"CAD": 2,
 		"CHF": 2,
@@ -2931,6 +3391,9 @@
 		"ZMK": 0,
 		"ZWD": 0
 	},
+	"plurals": {
+		"one": "i = 1 and v = 0"
+	},
 	"weekData-minDays": 4,
 	"weekData-firstDay": 1,
 	"weekData-weekendStart": 6,
@@ -2950,6 +3413,11 @@
 	"eras-islamic": {
 		"0": {
 			"_start": "622-7-15"
+		}
+	},
+	"eras-persian": {
+		"0": {
+			"_start": "622-01-01"
 		}
 	},
 	"eras-japanese": {

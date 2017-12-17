@@ -1,6 +1,6 @@
 /*
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -30,7 +30,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './InputListItem', '
 	 * @class Table Personalization Dialog
 	 * @extends sap.ui.base.ManagedObject
 	 * @author SAP
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @alias sap.m.TablePersoDialog
 	 */
 	var TablePersoDialog = ManagedObject.extend("sap.m.TablePersoDialog", /** @lends sap.m.TablePersoDialog */
@@ -181,7 +181,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './InputListItem', '
 			}
 		};
 
-		this._fnUpdateArrowButtons = function() {
+		this._fnUpdateArrowButtons = function(bUpdateFocus) {
 			// Initialisation of the enabled property
 			var bButtonDownEnabled = true,
 				bButtonUpEnabled = true,
@@ -196,12 +196,16 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './InputListItem', '
 				if (that._oList.getItems()[0].getSelected()) {
 					// First item selected: disable button "arrow top" and focus button "arrow bottom"
 					bButtonUpEnabled = false;
-					jQuery.sap.focus(that._oButtonDown.getDomRef());
+					if (bUpdateFocus) {
+						jQuery.sap.focus(that._oButtonDown.getDomRef());
+					}
 				}
 				if (that._oList.getItems()[iItemCount - 1].getSelected()) {
 					// Last item selected: disable button "arrow bottom" and focus button "arrow top"
 					bButtonDownEnabled = false;
-					jQuery.sap.focus(that._oButtonUp.getDomRef());
+					if (bUpdateFocus) {
+						jQuery.sap.focus(that._oButtonUp.getDomRef());
+					}
 				}
 			}
 
@@ -269,7 +273,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './InputListItem', '
 			includeItemInSelection: true,
 			noDataText: this._oRb.getText('PERSODIALOG_NO_DATA'),
 			mode: sap.m.ListMode.SingleSelectMaster,
-			selectionChange: this._fnUpdateArrowButtons,
+			selectionChange: function(){ this._fnUpdateArrowButtons.call(this); }.bind(this),
 			updateFinished: this._fnListUpdateFinished
 		});
 
@@ -618,7 +622,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './InputListItem', '
 			// Otherwise, element is within the scroll container's viewport, so no action is necessary
 		}
 
-		this._fnUpdateArrowButtons.call(this);
+		this._fnUpdateArrowButtons.call(this, true);
 
 	};
 
@@ -663,7 +667,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './InputListItem', '
 
 	/**
 	 * Filters the columns list with the given value
-	 * @return {TablePersoDialog} the tablePersoDialog instance.
+	 * @return {sap.m.TablePersoDialog} the tablePersoDialog instance.
 	 * @private
 	 */
 	TablePersoDialog.prototype._executeSearch = function () {
@@ -680,7 +684,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './InputListItem', '
 	/**
 	 * Setter to turn on/ switch off TablePersoDialog's grouping mode.
 	 * @param {boolean} bHasGrouping groping mode on or off.
-	 * @return {TablePersoDialog} the TablePersoDialog instance.
+	 * @return {sap.m.TablePersoDialog} the TablePersoDialog instance.
 	 * @public
 	 */
 	TablePersoDialog.prototype.setHasGrouping = function (bHasGrouping) {
@@ -703,7 +707,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './InputListItem', '
 	/**
 	 * Setter to show/hide TablePersoDialog's 'selectAll' checkbox.
 	 * @param {boolean} bShowSelectAll selectAll checkbox visible or not.
-	 * @return {TablePersoDialog} the TablePersoDialog instance.
+	 * @return {sap.m.TablePersoDialog} the TablePersoDialog instance.
 	 * @public
 	 */
 	TablePersoDialog.prototype.setShowSelectAll = function (bShowSelectAll) {
@@ -717,7 +721,7 @@ sap.ui.define(['jquery.sap.global', './Button', './Dialog', './InputListItem', '
 	/**
 	 * Setter to show/hide TablePersoDialog's 'Undo Personalization' button.
 	 * @param {boolean} bShowResetAll 'undo Personalization' button visible or not.
-	 * @return {TablePersoDialog} the TablePersoDialog instance.
+	 * @return {sap.m.TablePersoDialog} the TablePersoDialog instance.
 	 * @public
 	 */
 	TablePersoDialog.prototype.setShowResetAll = function (bShowResetAll) {

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -237,8 +237,7 @@ sap.ui.define([
 	 * @returns {object}
 	 *   The $batch request object with the following structure
 	 *   <ul>
-	 *     <li><code>body</code>: {object[]} Array of strings representing batch request
-	 *      body
+	 *     <li><code>body</code>: {string[]} Array of strings representing batch request body
 	 *     <li><code>batchBoundary</code>: {string} Batch boundary value
 	 *   </ul>
 	 */
@@ -253,8 +252,9 @@ sap.ui.define([
 				sBatchBoundary, "\r\n\r\n");
 		}
 
-		aRequests.forEach(function(oRequest, iRequestIndex) {
-			var sContentIdHeader = "";
+		aRequests.forEach(function (oRequest, iRequestIndex) {
+			var sContentIdHeader = "",
+				sUrl = oRequest.url;
 
 			if (bIsChangeSet) {
 				sContentIdHeader = "Content-ID:" + iRequestIndex + "." + iChangeSetIndex + "\r\n";
@@ -274,17 +274,17 @@ sap.ui.define([
 				}
 
 				// adjust URL if it contains Content-ID reference by adding the change set index
-				oRequest.url = oRequest.url.replace(rContentIdReference, "$&." + iChangeSetIndex);
+				sUrl = sUrl.replace(rContentIdReference, "$&." + iChangeSetIndex);
 
 				aRequestBody = aRequestBody.concat(
 					"Content-Type:application/http\r\n",
 					"Content-Transfer-Encoding:binary\r\n",
 					sContentIdHeader,
 					"\r\n",
-					oRequest.method, " ", oRequest.url, " HTTP/1.1\r\n",
+					oRequest.method, " ", sUrl, " HTTP/1.1\r\n",
 					serializeHeaders(oRequest.headers),
 					"\r\n",
-					oRequest.body || "", "\r\n");
+					JSON.stringify(oRequest.body) || "", "\r\n");
 			}
 		});
 		aRequestBody = aRequestBody.concat("--", sBatchBoundary, "--\r\n");
@@ -341,7 +341,7 @@ sap.ui.define([
 		 * @param {object} oRequest.headers
 		 *   Map of request headers. RFC-2047 encoding rules are not supported. Nevertheless non
 		 *   US-ASCII values can be used.
-		 * @param {string} oRequest.body
+		 * @param {object} oRequest.body
 		 *   Request body. If specified, oRequest.headers map must contain "Content-Type" header
 		 *   either without "charset" parameter or with "charset" parameter having value "UTF-8".
 		 * @returns {object} Object containing the following properties:
@@ -364,18 +364,18 @@ sap.ui.define([
 		 *       },
 		 *       [{
 		 *           method : "POST",
-		 *           url : "/sap/opu/odata4/IWBEP/TEA/default/IWBEP/TEA_BUSI/0001/TEAMS",
+		 *           url : "TEAMS",
 		 *           headers : {
 		 *               "Content-Type" : "application/json"
 		 *           },
-		 *           body : '{"TEAM_ID" : "TEAM_03"}'
+		 *           body : {"TEAM_ID" : "TEAM_03"}
 		 *       }, {
 		 *           method : "POST",
 		 *           url : "$0/TEAM_2_Employees",
 		 *           headers : {
 		 *               "Content-Type" : "application/json"
 		 *           },
-		 *           body : '{"Name" : "John Smith"}'
+		 *           body : {"Name" : "John Smith"}
 		 *       }],
 		 *       {
 		 *           method : "PATCH",
@@ -383,7 +383,7 @@ sap.ui.define([
 		 *           headers : {
 		 *               "Content-Type" : "application/json"
 		 *           },
-		 *           body : '{"TEAM_ID" : "TEAM_01"}'
+		 *           body : {"TEAM_ID" : "TEAM_01"}
 		 *       }
 		 *   ]);
 		 */

@@ -13,7 +13,7 @@
 	color: sap.ui.suite.TaskCircleColor.Gray, // sap.ui.suite.TaskCircleColor
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	ariaLabelledBy: [], // sap.ui.core.Control
 	ariaDescribedBy: [], // sap.ui.core.Control
 	validateFieldGroup: [function (oEvent) {
@@ -39,7 +39,7 @@
 	validateFieldGroup=""
 	press="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </TaskCircle>
 ]]></xmlTemplate>
 </Template>
@@ -53,7 +53,7 @@
 	percentage: undefined, // int
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	ariaLabelledBy: [], // sap.ui.core.Control
 	ariaDescribedBy: [], // sap.ui.core.Control
 	validateFieldGroup: [function (oEvent) {
@@ -76,7 +76,7 @@
 	validateFieldGroup=""
 	press="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </VerticalProgressIndicator>
 ]]></xmlTemplate>
 </Template>

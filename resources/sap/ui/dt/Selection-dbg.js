@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -24,7 +24,7 @@ function(ManagedObject) {
 	 * @extends sap.ui.dt.ManagedObject
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @private
@@ -95,7 +95,7 @@ function(ManagedObject) {
 	Selection.prototype.add = function(oOverlay) {
 		this._syncSelectionWithMode();
 
-		this._aSelection.push(oOverlay);
+		this._aSelection = this._aSelection.concat(oOverlay);
 		this.fireChange({
 			selection : this.getSelection()
 		});
@@ -107,9 +107,10 @@ function(ManagedObject) {
 	Selection.prototype.remove = function(oOverlay) {
 		this._syncSelectionWithMode();
 
-		var iIndex = this._aSelection.indexOf(oOverlay);
-		if (iIndex !== -1) {
-			this._aSelection.splice(iIndex, 1);
+		if (this._aSelection.indexOf(oOverlay) !== -1) {
+			this._aSelection = this._aSelection.filter(function (oItem) {
+				return oOverlay !== oItem;
+			});
 		}
 		this.fireChange({
 			selection : this.getSelection()

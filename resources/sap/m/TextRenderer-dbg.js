@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -88,12 +88,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 		oRm.write("<span");
 		oRm.writeAttribute("id", oText.getId() + "-inner");
 		oRm.addClass("sapMTextMaxLine");
-
-		// check native line clamp support
-		if (oText.canUseNativeLineClamp()) {
-			oRm.addClass("sapMTextLineClamp");
-			oRm.addStyle("-webkit-line-clamp", oText.getMaxLines());
-		}
 
 		oRm.writeClasses();
 		oRm.writeStyles();

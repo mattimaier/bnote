@@ -1,17 +1,13 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides class sap.ui.core.support.plugins.Trace (Trace support plugin)
-sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
-	function(jQuery, Plugin) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin', "sap/ui/core/format/DateFormat"],
+	function(jQuery, Plugin, DateFormat) {
 	"use strict";
-
-
-
-
 
 		/**
 		 * Creates an instance of sap.ui.core.support.plugins.Trace.
@@ -19,7 +15,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 * @constructor
 		 * @private
 		 * @alias sap.ui.core.support.plugins.Trace
@@ -28,12 +24,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 			constructor : function(oSupportStub) {
 				Plugin.apply(this, ["sapUiSupportTrace", "JavaScript Trace", oSupportStub]);
 
-				this._aEventIds = this.isToolPlugin() ? [this.getId() + "Entry"] : [];
+				this._aEventIds = this.runsAsToolPlugin() ? [this.getId() + "Entry"] : [];
 
-				if (this.isToolPlugin()) {
+				if (this.runsAsToolPlugin()) {
 					this._aLogEntries = [];
 					this._iLogLevel = jQuery.sap.log.Level.ALL;
-					this._oDateFormat = sap.ui.requireSync('sap/ui/core/format/DateFormat').getDateTimeInstance();
+					this._oDateFormat = DateFormat.getDateTimeInstance();
 				} else {
 					var that = this;
 					this._oldLogLevel = jQuery.sap.log.getLevel();
@@ -49,7 +45,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 			}
 		});
 
-
 		/**
 		 * Handler for sapUiSupportTraceEntry event
 		 *
@@ -63,7 +58,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 
 		Trace.prototype.init = function(oSupportStub){
 			Plugin.prototype.init.apply(this, arguments);
-			if (!this.isToolPlugin()) {
+			if (!this.runsAsToolPlugin()) {
 				return;
 			}
 
@@ -71,9 +66,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 
 			var rm = sap.ui.getCore().createRenderManager();
 			rm.write("<div class='sapUiSupportToolbar'>");
-			rm.write("<button id='" + this.getId() + "-clear' class='sapUiSupportBtn'>Clear</button>");
-			rm.write("<label class='sapUiSupportLabel'>Filter:</label><input type='text' id='" + this.getId() + "-filter' class='sapUiSupportTxtFld'></input>");
-			rm.write("<label class='sapUiSupportLabel'>Log Level:</label><select id='" + this.getId() + "-loglevel' class='sapUiSupportTxtFld'>");
+			rm.write("<button id='" + this.getId() + "-clear' class='sapUiSupportRoundedButton'>Clear</button>");
+			rm.write("<label class='sapUiSupportLabel'>Filter:</label><input type='text' id='" + this.getId() + "-filter' class='sapUiSupportTxtFld'/>");
+			rm.write("<label class='sapUiSupportLabel'>Log Level:</label><select id='" + this.getId() + "-loglevel' class='sapUiSupportTxtFld sapUiSupportSelect'>");
 			rm.write("<option value='0'>FATAL</option>");
 			rm.write("<option value='1'>ERROR</option>");
 			rm.write("<option value='2'>WARNING</option>");
@@ -120,7 +115,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 
 
 		Trace.prototype.exit = function(oSupportStub){
-			if (this.isToolPlugin()) {
+			if (this.runsAsToolPlugin()) {
 				if (this._fClearHandler) {
 					this.$("clear").unbind("click", this._fClearHandler);
 					this._fClearHandler = null;
@@ -147,7 +142,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin'],
 				jContentRef.html("");
 				oPlugin._aLogEntries = [];
 			} else if (typeof (oEntry) === "string") {
-				jContentRef.html(oEntry);
+				jContentRef.html(jQuery.sap.encodeHTML(oEntry));
 				jContentRef[0].scrollTop = jContentRef[0].scrollHeight;
 			} else {
 				oEntry._levelInfo = getLevel(oEntry.level);

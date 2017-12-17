@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -17,10 +17,10 @@ sap.ui.define(['jquery.sap.global', 'sap/m/semantic/Segment', 'sap/ui/base/Metad
 
 
 	/**
-	 * Constructor for a sap.m.semantic.SegmentedContainer.
+	 * Constructor for an sap.m.semantic.SegmentedContainer.
 	 *
 	 * @class text
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @private
 	 * @since 1.30.0
 	 * @alias sap.m.semantic.SegmentedContainer
@@ -94,6 +94,10 @@ sap.ui.define(['jquery.sap.global', 'sap/m/semantic/Segment', 'sap/ui/base/Metad
 	SegmentedContainer.prototype.destroy = function (bSuppressInvalidate) {
 		this._oContainer.destroy(bSuppressInvalidate);
 		this.aSegments = null;
+	};
+
+	SegmentedContainer.prototype.getContainer = function () {
+		return this._oContainer;
 	};
 
 	return SegmentedContainer;

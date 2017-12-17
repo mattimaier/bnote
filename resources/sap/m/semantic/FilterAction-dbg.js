@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -13,13 +13,19 @@ sap.ui.define(['sap/m/semantic/SemanticButton'], function(SemanticButton) {
 	 * @param {object} [mSettings] Custom initial settings for the new control
 	 *
 	 * @class
-	 * A FilterAction button has default semantic-specific properties and is
-	 * eligible for aggregation content of a {@link sap.m.semantic.SemanticPage}.
+	 * A FilterAction is a {@link sap.m.Button} control enhanced with styling according to the semantics of a common "Filter" action.
+	 *
+	 * A FilterAction cannot be used independently but only as aggregation content of a {@link sap.m.semantic.SemanticPage}.
+	 *
+	 * Your app should listen to the <code>press</code> event of {@link sap.m.semantic.FilterAction} in order to trigger the display of the filtering options.
+	 *
+	 * If your filtering options are a simple list of items and require single choice only, then you can consider using a {@link sap.m.semantic.FilterSelect} instead.
 	 *
 	 * @extends sap.m.semantic.SemanticButton
+	 * @implements sap.m.semantic.IFilter
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public

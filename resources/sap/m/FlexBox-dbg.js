@@ -1,13 +1,21 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.FlexBox.
-sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/ui/core/Control'],
-	function(jQuery, FlexBoxStylingHelper, library, Control) {
-	"use strict";
+sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './FlexItemData', './library', 'sap/ui/core/Control'],
+	function(jQuery, FlexBoxStylingHelper, FlexItemData, library, Control) {
+	    "use strict";
+
+
+
+	// shortcut for sap.m.FlexRendertype
+	var FlexRendertype = library.FlexRendertype;
+
+	// shortcut for sap.m.FlexDirection
+	var FlexDirection = library.FlexDirection;
 
 
 
@@ -18,14 +26,14 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 	 * @param {object} [mSettings] initial settings for the new control
 	 *
 	 * @class
-	 * The <code>sap.m.FlexBox</code> control builds the container for a flexible box layout.
+	 * The <code>sap.m.FlexBox</code> control builds the container for a flexible box layout.<br>
+	 * <br>
+	 * <b>Note:</b> Be sure to check the <code>renderType</code> setting to avoid issues due to browser inconsistencies.
 	 *
-	 * Browser support:
-	 * This control is not supported in Internet Explorer 9!
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -69,7 +77,9 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 			fitContainer : {type : "boolean", group : "Appearance", defaultValue : false},
 
 			/**
-			 * Determines whether the layout is rendered as a series of divs or as an unordered list (ul)
+			 * Determines whether the layout is rendered as a series of divs or as an unordered list (ul).<br>
+			 * <br>
+			 * We recommend to use <code>Bare</code> in most cases to avoid layout issues due to browser inconsistencies.
 			 */
 			renderType : {type : "sap.m.FlexRendertype", group : "Misc", defaultValue : sap.m.FlexRendertype.Div},
 
@@ -119,51 +129,43 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 			 * Flex items within the flexible box layout
 			 */
 			items : {type : "sap.ui.core.Control", multiple : true, singularName : "item"}
-		}
+		},
+		designTime : true
 	}});
 
 
 	FlexBox.prototype.init = function() {
 		// Make sure that HBox and VBox have a valid direction
-		if (this instanceof sap.m.HBox && (this.getDirection() !== sap.m.FlexDirection.Row || this.getDirection() !== sap.m.FlexDirection.RowReverse)) {
+		if (this instanceof sap.m.HBox && (this.getDirection() !== sap.m.FlexDirection.Row || this.getDirection() !== FlexDirection.RowReverse)) {
 			this.setDirection('Row');
 		}
-		if (this instanceof sap.m.VBox && (this.getDirection() !== sap.m.FlexDirection.Column || this.getDirection() !== sap.m.FlexDirection.ColumnReverse)) {
+		if (this instanceof sap.m.VBox && (this.getDirection() !== sap.m.FlexDirection.Column || this.getDirection() !== FlexDirection.ColumnReverse)) {
 			this.setDirection('Column');
 		}
+
+		this._oItemDelegate = {
+			onAfterRendering: this._onAfterItemRendering
+		};
 	};
 
 	FlexBox.prototype.addItem = function(oItem) {
 		this.addAggregation("items", oItem);
-
-		if (oItem && !(oItem instanceof sap.m.FlexBox)) {
-			oItem.attachEvent("_change", this.onItemChange, this);
-		}
+		this._onItemInserted(oItem);
 
 		return this;
 	};
 
 	FlexBox.prototype.insertItem = function(oItem, iIndex) {
 		this.insertAggregation("items", oItem, iIndex);
-
-		if (oItem && !(oItem instanceof sap.m.FlexBox)) {
-			oItem.attachEvent("_change", this.onItemChange, this);
-		}
+		this._onItemInserted(oItem);
 
 		return this;
 	};
 
 	FlexBox.prototype.removeItem = function(vItem) {
-		var oItem = this.removeAggregation("items", vItem, true);
+		var oItem = this.removeAggregation("items", vItem);
 
-		if (oItem && !(oItem instanceof sap.m.FlexBox)) {
-			oItem.detachEvent("_change", this.onItemChange, this);
-			if (oItem instanceof sap.m.FlexBox) {
-				oItem.$().remove();
-			} else {
-				oItem.$().parent().remove();
-			}
-		}
+		this._onItemRemoved(oItem);
 
 		return oItem;
 	};
@@ -172,16 +174,36 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 		var aItems = this.getItems();
 
 		for (var i = 0; i < aItems.length; i++) {
-			aItems[i].detachEvent("_change", this.onItemChange, this);
+			this._onItemRemoved(aItems[i]);
 		}
 
 		return this.removeAllAggregation("items");
 	};
 
-	FlexBox.prototype.onItemChange = function(oControlEvent) {
+	// gets called when new an item is inserted into items aggregation
+	FlexBox.prototype._onItemInserted = function(oItem) {
+		if (oItem && !(oItem instanceof sap.m.FlexBox)) {
+			oItem.attachEvent("_change", this._onItemChange, this);
+			if (this.getRenderType() === FlexRendertype.Bare) {
+				oItem.addEventDelegate(this._oItemDelegate, oItem);
+			}
+		}
+	};
+
+	// gets called when an item is removed from items aggregation
+	FlexBox.prototype._onItemRemoved = function(oItem) {
+		if (oItem && !(oItem instanceof sap.m.FlexBox)) {
+			oItem.detachEvent("_change", this._onItemChange, this);
+			if (this.getRenderType() === FlexRendertype.Bare) {
+				oItem.removeEventDelegate(this._oItemDelegate, oItem);
+			}
+		}
+	};
+
+	FlexBox.prototype._onItemChange = function(oControlEvent) {
 		// Early return conditions
 		if (oControlEvent.getParameter("name") !== "visible"
-			|| (this.getRenderType() !== sap.m.FlexRendertype.List && this.getRenderType() !== sap.m.FlexRendertype.Div)) {
+			|| (this.getRenderType() !== FlexRendertype.List && this.getRenderType() !== FlexRendertype.Div)) {
 			return;
 		}
 
@@ -192,7 +214,7 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 		if (oItem.getLayoutData()) {
 			oWrapper = jQuery.sap.byId(oItem.getLayoutData().getId());
 		} else {
-			oWrapper = jQuery.sap.byId(sap.ui.core.RenderPrefixes.Invisible + oItem.getId()).parent();
+			oWrapper = jQuery.sap.byId(sap.ui.core.RenderManager.createInvisiblePlaceholderId(oItem)).parent();
 		}
 
 		if (oControlEvent.getParameter("newValue")) {
@@ -200,6 +222,36 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 		} else {
 			oWrapper.addClass("sapUiHiddenPlaceholder").attr("aria-hidden", "true");
 		}
+	};
+
+	// gets called after an item is (re)rendered
+	// here "this" points to the control not to the FlexBox
+	FlexBox.prototype._onAfterItemRendering = function() {
+		var oLayoutData = this.getLayoutData();
+		if (oLayoutData instanceof FlexItemData) {
+			FlexBoxStylingHelper.setFlexItemStyles(null, oLayoutData);
+		}
+	};
+
+	FlexBox.prototype.setRenderType = function(sValue) {
+		var sOldValue = this.getRenderType(),
+			aItems = this.getItems();
+
+		if (sValue === sOldValue) {
+			return this;
+		}
+
+		this.setProperty("renderType", sValue);
+
+		if (sOldValue === "Bare") {
+			aItems.forEach(this._onItemRemoved, this);
+		}
+
+		if (sValue === "Bare") {
+			aItems.forEach(this._onItemInserted, this);
+		}
+
+		return this;
 	};
 
 	FlexBox.prototype.setDisplayInline = function(bInline) {
@@ -211,13 +263,13 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 
 	FlexBox.prototype.setDirection = function(sValue) {
 		this.setProperty("direction", sValue, true);
-		if (this.getDirection() === sap.m.FlexDirection.Column || this.getDirection() === sap.m.FlexDirection.ColumnReverse) {
+		if (this.getDirection() === FlexDirection.Column || this.getDirection() === FlexDirection.ColumnReverse) {
 			this.$().removeClass("sapMHBox").addClass("sapMVBox");
 		} else {
 			this.$().removeClass("sapMVBox").addClass("sapMHBox");
 		}
 
-		if (this.getDirection() === sap.m.FlexDirection.RowReverse || this.getDirection() === sap.m.FlexDirection.ColumnReverse) {
+		if (this.getDirection() === FlexDirection.RowReverse || this.getDirection() === FlexDirection.ColumnReverse) {
 			this.$().addClass("sapMFlexBoxReverse");
 		} else {
 			this.$().removeClass("sapMFlexBoxReverse");
@@ -288,21 +340,11 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 	};
 
 	/**
-	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @see sap.ui.core.Control#getAccessibilityInfo
 	 * @protected
 	 */
 	FlexBox.prototype.getAccessibilityInfo = function() {
-		var aContent = this.getItems();
-		var aChildren = [];
-		for (var i = 0; i < aContent.length; i++) {
-			if (aContent[i].getAccessibilityInfo) {
-				var oInfo = aContent[i].getAccessibilityInfo();
-				if (oInfo) {
-					aChildren.push(oInfo);
-				}
-			}
-		}
-		return {children: aChildren};
+		return {children: this.getItems()};
 	};
 
 	return FlexBox;

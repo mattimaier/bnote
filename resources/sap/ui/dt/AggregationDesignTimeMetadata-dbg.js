@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -9,7 +9,7 @@ sap.ui.define([
 	'jquery.sap.global',
 	'sap/ui/dt/DesignTimeMetadata'
 ],
-function(jQuery, DesignTimeMetadata) {
+function (jQuery, DesignTimeMetadata) {
 	"use strict";
 
 
@@ -24,7 +24,7 @@ function(jQuery, DesignTimeMetadata) {
 	 * @extends sap.ui.core.DesignTimeMetadata
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @private
@@ -40,6 +40,46 @@ function(jQuery, DesignTimeMetadata) {
 			library : "sap.ui.dt"
 		}
 	});
+
+	AggregationDesignTimeMetadata.prototype.getPropagation = function(oElement, callback) {
+		var mData = this.getData();
+		if (!mData.propagationInfos) {
+			return false;
+		}
+		mData.propagationInfos.some(function(oPropagatedInfo){
+			return callback(oPropagatedInfo);
+		});
+	};
+
+	AggregationDesignTimeMetadata.prototype.getRelevantContainerForPropagation = function(oElement) {
+		var mData = this.getData();
+		var vRelevantContainerElement = false;
+		if (!mData.propagationInfos) {
+			return false;
+		}
+
+		this.getPropagation(oElement, function(oPropagatedInfo){
+			if (oPropagatedInfo.relevantContainerFunction &&
+				oPropagatedInfo.relevantContainerFunction(oElement)) {
+				vRelevantContainerElement = oPropagatedInfo.relevantContainerElement;
+				return true;
+			}
+		});
+
+		return vRelevantContainerElement ? vRelevantContainerElement : false;
+	};
+
+	AggregationDesignTimeMetadata.prototype.getMetadataForPropagation = function(oElement) {
+		var vReturnMetadata = false;
+
+		this.getPropagation(oElement, function(oPropagatedInfo) {
+			if (oPropagatedInfo.metadataFunction) {
+				vReturnMetadata = oPropagatedInfo.metadataFunction(oElement, oPropagatedInfo.relevantContainerElement);
+				return vReturnMetadata ? true : false;
+			}
+		});
+		return vReturnMetadata ? vReturnMetadata : false;
+	};
 
 	return AggregationDesignTimeMetadata;
 }, /* bExport= */ true);

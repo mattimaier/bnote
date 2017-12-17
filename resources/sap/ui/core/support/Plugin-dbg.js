@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -17,9 +17,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.dom', 'jqu
 	 *
 	 * @abstract
 	 * @extends sap.ui.base.Object
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @constructor
 	 * @private
+	 * @sap-restricted
 	 * @alias sap.ui.core.support.Plugin
 	 */
 	var Plugin = BaseObject.extend("sap.ui.core.support.Plugin", {
@@ -29,17 +30,20 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.dom', 'jqu
 			this._title = sTitle ? sTitle : "";
 			this._bActive = false;
 			this._aEventIds = [];
-			this._bIsToolPlugin = oStub.getType() === sap.ui.core.support.Support.StubType.TOOL;
+			this._bIsToolPlugin = oStub.isToolStub();
 		}
 	});
 
 
 	/**
 	 * Initialization function called each time the support mode is started
-	 * (support popup is opened).
+	 * (diagnostics popup is opened).
+	 * For Plugins that are for diagnostics tool window and application window,
+	 * the init method is called twice, with the <code>oSupportStub</code>
 	 *
 	 * @param {sap.ui.core.support.Support} oSupportStub the support stub
 	 * @private
+	 * @sap-restricted
 	 */
 	Plugin.prototype.init = function(oSupportStub){
 		for (var i = 0; i < this._aEventIds.length; i++) {
@@ -58,6 +62,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.dom', 'jqu
 	 *
 	 * @param {sap.ui.core.support.Support} oSupportStub the support stub
 	 * @private
+	 * @sap-restricted
 	 */
 	Plugin.prototype.exit = function(oSupportStub){
 		for (var i = 0; i < this._aEventIds.length; i++) {
@@ -75,6 +80,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.dom', 'jqu
 	 *
 	 * @return {string} the id
 	 * @private
+	 * @sap-restricted
 	 */
 	Plugin.prototype.getId = function(){
 		return this._id;
@@ -86,20 +92,62 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.dom', 'jqu
 	 *
 	 * @return {string} the title
 	 * @private
+	 * @sap-restricted
 	 */
 	Plugin.prototype.getTitle = function(){
 		return this._title;
 	};
 
-
 	/**
-	 * Returns <code>true</code> when this plugin instance runs in the support tool, <code>false</code> otherwise.
+	 * Returns whether a plugin instance can run in the diagnostics tool window, default is <code>true</code>.
+	 * Plugins that are <b>only</b> available on the application window should return <code>false</code> and overwrite
+	 * the method for this matter.
+	 *
+	 * The method is also used in a static manner (called on the prototype) and therefore must not rely on
+	 * any instance specific members.
 	 *
 	 * @see sap.ui.core.support.Support.StubType.TOOL
-	 * @return {boolean} whether this plugin instance runs in the support tool
+	 * @see sap.ui.core.support.Plugin.prototype.init
+	 *
+	 * @return {boolean} whether this plugin instance can run in the tool window
 	 * @private
+	 * @sap-restricted
 	 */
 	Plugin.prototype.isToolPlugin = function(){
+		return true;
+	};
+
+	/**
+	 * Returns whether this plugin instance can run in the application window, default is <code>true</code>.
+	 * Plugins that are <b>only</b> available on the diagnostics tool window should return <code>false</code> and overwrite
+	 * the method for this matter.
+	 *
+	 * The method is also used in a static manner (called on the prototype) and therefore must not rely on
+	 * any instance specific members.
+	 *
+	 * @see sap.ui.core.support.Support.StubType.APP
+	 * @see sap.ui.core.support.Plugin.prototype.init
+	 *
+	 * @return {boolean} whether this plugin instance can run in the application window
+	 * @private
+	 * @sap-restricted
+	 */
+	Plugin.prototype.isAppPlugin = function(){
+		return true;
+	};
+
+	/**
+	 * Returns true if the plugin instance currently runs in tool window, otherwise false
+	 *
+	 * @see sap.ui.core.support.Plugin.prototype.isToolPlugin
+	 * @see sap.ui.core.support.Plugin.prototype.isAppPlugin
+	 *
+	 *
+	 * @return {boolean} true if the plugin instance runs in the tool window, otherwise false
+	 * @private
+	 * @sap-restricted
+	 */
+	Plugin.prototype.runsAsToolPlugin = function(){
 		return this._bIsToolPlugin;
 	};
 
@@ -117,22 +165,52 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Object', 'jquery.sap.dom', 'jqu
 	 * @param {string} [sSuffix] ID suffix to get a jQuery object for
 	 * @return {jQuery} The jQuery wrapped plugin's DOM reference
 	 * @private
+	 * @sap-restricted
 	 */
 	Plugin.prototype.$ = function(sSuffix){
-		var jRef = jQuery.sap.byId(sSuffix ? this.getId() + "-" + sSuffix : this.getId());
-		if (jRef.length == 0 && !sSuffix) {
-			jRef = jQuery("<DIV/>", {id:this.getId()});
-			jRef.appendTo(jQuery(".sapUiSupportCntnt"));
+		if (this.isToolPlugin()) {
+			var jRef = jQuery.sap.byId(sSuffix ? this.getId() + "-" + sSuffix : this.getId());
+			if (jRef.length == 0 && !sSuffix) {
+				jRef = jQuery("<DIV/>", {id:this.getId()});
+				jRef.appendTo(jQuery(".sapUiSupportCntnt"));
+			}
+			return jRef;
 		}
-		return jRef;
+		return new jQuery();
 	};
 
+	/**
+	 * Adds the given stylesheet to the Support Tool's HTML page.
+	 *
+	 * A &lt;link&gt; tag will be added to the head of the HTML page, referring to the given
+	 * CSS resource. The URL of the resource is determined from the given resource name
+	 * by calling {@link jQuery.sap.getResourcePath}.
+	 *
+	 * A plugin should call this method only when it is {@link #runsAsToolPlugin running inside the tool window}.
+	 *
+	 * @param {string} sCssResourcePath Resource name of a CSS file, but without the '.css' extension
+	 * @private
+	 * @sap-restricted
+	 */
+	Plugin.prototype.addStylesheet = function(sCssResourcePath) {
+		if (!sCssResourcePath) {
+			return;
+		}
+		var sPath = jQuery.sap.getResourcePath(sCssResourcePath + ".css"),
+			oCssDomLink = document.createElement("link");
+		oCssDomLink.setAttribute("rel", "stylesheet");
+		oCssDomLink.setAttribute("type", "text/css");
+		oCssDomLink.setAttribute("href", sPath);
+		var oHead = document.getElementsByTagName('head')[0];
+		oHead.appendChild(oCssDomLink);
+	};
 
 	/**
 	 * Returns whether the plugin is currently active or not.
 	 *
 	 * @return {boolean} whether the plugin is currently active or not
 	 * @private
+	 * @sap-restricted
 	 */
 	Plugin.prototype.isActive = function(){
 		return this._bActive;

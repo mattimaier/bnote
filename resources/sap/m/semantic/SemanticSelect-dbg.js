@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -19,7 +19,7 @@ sap.ui.define(['sap/m/semantic/SemanticControl', 'sap/m/Select'], function (Sema
 	 * @abstract
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -32,10 +32,10 @@ sap.ui.define(['sap/m/semantic/SemanticControl', 'sap/m/Select'], function (Sema
 		metadata: {
 
 			library: "sap.m",
-
+			"abstract" : true,
 			properties: {
 				/**
-				 * See {@link sap.m.Select#enabled}
+				 * See {@link sap.m.Select#getEnabled}
 				 */
 				enabled: {
 					type: "boolean",
@@ -44,7 +44,7 @@ sap.ui.define(['sap/m/semantic/SemanticControl', 'sap/m/Select'], function (Sema
 				},
 
 				/**
-				 * See {@link sap.m.Select#selectedKey}
+				 * See {@link sap.m.Select#getSelectedKey}
 				 */
 				selectedKey: {
 					type: "string",
@@ -55,20 +55,20 @@ sap.ui.define(['sap/m/semantic/SemanticControl', 'sap/m/Select'], function (Sema
 			defaultAggregation: "items",
 			aggregations: {
 				/**
-				 * See {@link sap.m.Select#items}
+				 * See {@link sap.m.Select#getItems}
 				 */
 				items: {type: "sap.ui.core.Item", multiple: true, singularName: "item", bindable: "bindable"}
 			},
 			associations: {
 				/**
-				 * See {@link sap.m.Select#selectedItem}
+				 * See {@link sap.m.Select#getSelectedItem}
 				 */
 				selectedItem: {type: "sap.ui.core.Item", multiple: false}
 			},
 			events: {
 
 				/**
-				 * See {@link sap.m.Select#change}
+				 * See {@link sap.m.Select#event:change}
 				 */
 				change: {
 					parameters: {

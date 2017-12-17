@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -24,7 +24,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 	 * The ScrollBar control can be used for virtual scrolling of a certain area.
 	 * This means: to simulate a very large scrollable area when technically the area is small and the control takes care of displaying the respective part only. E.g. a Table control can take care of only rendering the currently visible rows and use this ScrollBar control to make the user think he actually scrolls through a long list.
 	 * @extends sap.ui.core.Control
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -104,7 +104,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 	 */
 	ScrollBar.prototype.init = function(){
 
-		// JQuery Object - Dom reference of the scroll bar
+		// jQuery Object - Dom reference of the scroll bar
 		this._$ScrollDomRef = null;
 
 		// In pixels - exact position
@@ -119,7 +119,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 		// RTL mode
 		this._bRTL = sap.ui.getCore().getConfiguration().getRTL();
 
-		// Supress scroll event
+		// suppress scroll event
 		this._bSuppressScroll = false;
 
 		this._iMaxContentDivSize = 1000000;  // small value that all browsers still can render without any problems
@@ -177,7 +177,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 		var stepSize = null;
 
 		var $ffsize = this.$("ffsize");
-		if (!!Device.browser.firefox) {
+		if (Device.browser.firefox) {
 			stepSize = $ffsize.outerHeight();
 			if ( stepSize === 0) {
 				// the following code is used if a container of the scrollbar is rendered invisible and afterwards is set to visible
@@ -190,7 +190,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 		}
 		$ffsize.remove();
 
-		if (!!Device.browser.webkit) {
+		if (Device.browser.webkit) {
 			// document.width - was not supported by Chrome 17 anymore, but works again with Chrome from 18 to 30, and does not work in chrom 31.
 			if  (!document.width) {
 				stepSize = Math.round(40 / (window.outerWidth / jQuery(document).width()));
@@ -201,19 +201,19 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 		}
 
 		if (this.getVertical()) {
-			if (!!Device.browser.firefox) {
+			if (Device.browser.firefox) {
 				this._iFactor = stepSize;
-			} else if (!!Device.browser.webkit) {
+			} else if (Device.browser.webkit) {
 				this._iFactor = stepSize;
 			} else {
 				this._iFactor = Math.floor(iScrollBarSize  * 0.125);
 			}
-			this._iFactorPage = !!Device.browser.firefox ? iScrollBarSize - stepSize : Math.floor(iScrollBarSize * 0.875);
+			this._iFactorPage = Device.browser.firefox ? iScrollBarSize - stepSize : Math.floor(iScrollBarSize * 0.875);
 		} else {
-			if (!!Device.browser.firefox) {
+			if (Device.browser.firefox) {
 				this._iFactor = 10;
 				this._iFactorPage = Math.floor(iScrollBarSize * 0.8);
-			} else if (!!Device.browser.webkit) {
+			} else if (Device.browser.webkit) {
 				this._iFactor = stepSize;
 				this._iFactorPage = Math.floor(iScrollBarSize  * 0.875);
 			} else {
@@ -379,7 +379,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 	* @private
 	*/
 	ScrollBar.prototype.onscroll = function(oEvent) {
-		//jQuery.sap.log.debug("*****************************onScroll************************ SUPRESS SCROLL:  " + this._bSuppressScroll );
+		//jQuery.sap.log.debug("*****************************onScroll************************ suppress SCROLL:  " + this._bSuppressScroll );
 		if (this._bSuppressScroll) {
 			this._bSuppressScroll = false;
 			oEvent.preventDefault();
@@ -394,9 +394,9 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 				iScrollPos = Math.round(this._$ScrollDomRef.scrollTop());
 			} else {
 				iScrollPos = Math.round(this._$ScrollDomRef.scrollLeft());
-				if ( !!Device.browser.firefox && this._bRTL ) {
+				if ( Device.browser.firefox && this._bRTL ) {
 					iScrollPos = Math.abs(iScrollPos);
-				} else if ( !!Device.browser.webkit && this._bRTL ) {
+				} else if ( Device.browser.webkit && this._bRTL ) {
 					var oScrollDomRef = this._$ScrollDomRef.get(0);
 					iScrollPos = oScrollDomRef.scrollWidth - oScrollDomRef.clientWidth - oScrollDomRef.scrollLeft;
 				}
@@ -508,7 +508,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 		if (oOwnerDomRef) {
 			this._$OwnerDomRef = jQuery(oOwnerDomRef);
 			if (this.getVertical()) {
-				this._$OwnerDomRef.unbind(!!Device.browser.firefox ? "DOMMouseScroll" : "mousewheel", this.onmousewheel);
+				this._$OwnerDomRef.unbind(Device.browser.firefox ? "DOMMouseScroll" : "mousewheel", this.onmousewheel);
 			}
 
 			if (jQuery.sap.touchEventMode === "ON") {
@@ -532,7 +532,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 		if (oOwnerDomRef) {
 			this._$OwnerDomRef = jQuery(oOwnerDomRef);
 			if (this.getVertical()) {
-				this._$OwnerDomRef.bind(!!Device.browser.firefox ? "DOMMouseScroll" : "mousewheel", jQuery.proxy(this.onmousewheel, this));
+				this._$OwnerDomRef.bind(Device.browser.firefox ? "DOMMouseScroll" : "mousewheel", jQuery.proxy(this.onmousewheel, this));
 			}
 
 			if (jQuery.sap.touchEventMode === "ON") {
@@ -622,9 +622,9 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 		if ( this.getVertical()) {
 				this._$ScrollDomRef.scrollTop(iScrollPos);
 			} else {
-			if ( !!Device.browser.firefox && this._bRTL ) {
+			if ( Device.browser.firefox && this._bRTL ) {
 				this._$ScrollDomRef.scrollLeft(-iScrollPos);
-			} else if ( !!Device.browser.webkit && this._bRTL ) {
+			} else if ( Device.browser.webkit && this._bRTL ) {
 				var oScrollDomRef = this._$ScrollDomRef.get(0);
 				this._$ScrollDomRef.scrollLeft(oScrollDomRef.scrollWidth - oScrollDomRef.clientWidth - iScrollPos);
 			} else {
@@ -649,7 +649,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 	ScrollBar.prototype.setContentSize = function (sContentSize) {
 
 		// Trigger the rerendering when switching the from step mode.
-		this.setProperty("contentSize", sContentSize);
+		this.setProperty("contentSize", sContentSize, true);
 		this._bStepMode = false;
 		var $SbCnt = this.$("sbcnt");
 		if ($SbCnt) {
@@ -668,11 +668,11 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 
 	/**
 	 * Process scroll events and fire scroll event
-	 * @param eAction Action type that can be mouse wheel, Drag, Step or Page.
-	 * @param bForward Scroll Direction - forward or back
+	 * @param {sap.ui.core.ScrollBarAction} sAction Action type that can be mouse wheel, Drag, Step or Page.
+	 * @param {boolean} bForward Scroll Direction - forward or back
 	 * @private
 	 */
-	ScrollBar.prototype._doScroll = function(eAction, bForward) {
+	ScrollBar.prototype._doScroll = function(sAction, bForward) {
 
 		// Get new scroll position
 		var iScrollPos = null;
@@ -681,9 +681,9 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 				iScrollPos = Math.round(this._$ScrollDomRef.scrollTop());
 			} else {
 				iScrollPos = Math.round(this._$ScrollDomRef.scrollLeft());
-				if (!!Device.browser.firefox && this._bRTL ) {
+				if (Device.browser.firefox && this._bRTL ) {
 					iScrollPos = Math.abs(iScrollPos);
-				} else if ( !!Device.browser.webkit && this._bRTL ) {
+				} else if ( Device.browser.webkit && this._bRTL ) {
 					var oScrollDomRef = this._$ScrollDomRef.get(0);
 					iScrollPos = oScrollDomRef.scrollWidth - oScrollDomRef.clientWidth - oScrollDomRef.scrollLeft;
 				}
@@ -701,8 +701,8 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 				// Set new scrollposition without the rerendering
 				this.setCheckedScrollPosition(iStep, false);
 
-				jQuery.sap.log.debug("-----STEPMODE-----: New Step: " + iStep + " --- Old Step: " +  iOldStep  + " --- Scroll Pos in px: " + iScrollPos + " --- Action: " + eAction + " --- Direction is forward: " + bForward);
-				this.fireScroll({ action: eAction, forward: bForward, newScrollPos: iStep, oldScrollPos: iOldStep});
+				jQuery.sap.log.debug("-----STEPMODE-----: New Step: " + iStep + " --- Old Step: " +  iOldStep  + " --- Scroll Pos in px: " + iScrollPos + " --- Action: " + sAction + " --- Direction is forward: " + bForward);
+				this.fireScroll({ action: sAction, forward: bForward, newScrollPos: iStep, oldScrollPos: iOldStep});
 				this._iOldStep = iStep;
 
 			}
@@ -712,8 +712,8 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 			iScrollPos = Math.round(iScrollPos);
 			this.setProperty("scrollPosition", iScrollPos, true);
 
-			jQuery.sap.log.debug("-----PIXELMODE-----: New ScrollPos: " + iScrollPos + " --- Old ScrollPos: " +  this._iOldScrollPos + " --- Action: " + eAction + " --- Direction is forward: " + bForward);
-			this.fireScroll({ action: eAction, forward: bForward, newScrollPos: iScrollPos, oldScrollPos: this._iOldScrollPos});
+			jQuery.sap.log.debug("-----PIXELMODE-----: New ScrollPos: " + iScrollPos + " --- Old ScrollPos: " +  this._iOldScrollPos + " --- Action: " + sAction + " --- Direction is forward: " + bForward);
+			this.fireScroll({ action: sAction, forward: bForward, newScrollPos: iScrollPos, oldScrollPos: this._iOldScrollPos});
 		}
 		// rounding errors in IE lead to infinite scrolling
 		if (Math.round(this._iFactor) == this._iFactor || !Device.browser.msie) {
@@ -723,7 +723,7 @@ sap.ui.define(['jquery.sap.global','sap/ui/Device', './Control', './library', 'j
 		this._bMouseWheel = false;
 
 		// notify for a scroll event
-		jQuery.sap.interaction.notifyScrollEvent({type: eAction});
+		jQuery.sap.interaction.notifyScrollEvent({type: sAction});
 	};
 
 	ScrollBar.prototype.onThemeChanged = function() {

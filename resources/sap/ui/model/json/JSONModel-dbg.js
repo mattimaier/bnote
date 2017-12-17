@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -24,22 +24,28 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 	 * @class
 	 * Model implementation for JSON format
 	 *
+	 * The observation feature is experimental! When observation is activated, the application can directly change the
+	 * JS objects without the need to call setData, setProperty or refresh. Observation does only work for existing
+	 * properties in the JSON, it can not detect new properties or new array entries.
+	 *
 	 * @extends sap.ui.model.ClientModel
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
+	 * @param {boolean} bObserve whether to observe the JSON data for property changes (experimental)
 	 * @constructor
 	 * @public
 	 * @alias sap.ui.model.json.JSONModel
 	 */
 	var JSONModel = ClientModel.extend("sap.ui.model.json.JSONModel", /** @lends sap.ui.model.json.JSONModel.prototype */ {
 
-		constructor : function(oData) {
+		constructor : function(oData, bObserve) {
 			this.pSequentialImportCompleted = Promise.resolve();
 			ClientModel.apply(this, arguments);
 
+			this.bObserve = bObserve;
 			if (oData && typeof oData == "object") {
 				this.setData(oData);
 			}
@@ -62,11 +68,61 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 	JSONModel.prototype.setData = function(oData, bMerge){
 		if (bMerge) {
 			// do a deep copy
-			this.oData = jQuery.extend(true, jQuery.isArray(this.oData) ? [] : {}, this.oData, oData);
+			this.oData = jQuery.extend(true, Array.isArray(this.oData) ? [] : {}, this.oData, oData);
 		} else {
 			this.oData = oData;
 		}
+		if (this.bObserve) {
+			this.observeData();
+		}
 		this.checkUpdate();
+	};
+
+	/**
+	 * Recursively iterates the JSON data and adds setter functions for the properties
+	 *
+	 * @private
+	 */
+	JSONModel.prototype.observeData = function(){
+		var that = this;
+		function createGetter(vValue) {
+			return function() {
+				return vValue;
+			};
+		}
+		function createSetter(oObject, sName) {
+			return function(vValue) {
+				// Newly added data needs to be observed to be included
+				observeRecursive(vValue, oObject, sName);
+				that.checkUpdate();
+			};
+		}
+		function createProperty(oObject, sName, vValue) {
+			// Do not create getter/setter for function references
+			if (typeof vValue == "function"){
+				oObject[sName] = vValue;
+			} else {
+				Object.defineProperty(oObject, sName, {
+					get: createGetter(vValue),
+					set: createSetter(oObject, sName)
+				});
+			}
+		}
+		function observeRecursive(oObject, oParentObject, sName) {
+			if (Array.isArray(oObject)) {
+				for (var i = 0; i < oObject.length; i++) {
+					observeRecursive(oObject[i], oObject, i);
+				}
+			} else if (jQuery.isPlainObject(oObject)) {
+				for (var i in oObject) {
+					observeRecursive(oObject[i], oObject, i);
+				}
+			}
+			if (oParentObject) {
+				createProperty(oParentObject, sName, oObject);
+			}
+		}
+		observeRecursive(this.oData);
 	};
 
 	/**
@@ -93,7 +149,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 	 * Serializes the current JSON data of the model into a string.
 	 * Note: May not work in Internet Explorer 8 because of lacking JSON support (works only if IE 8 mode is enabled)
 	 *
-	 * @return {string} sJSON the JSON data serialized as string
+	 * @return {string} the JSON data serialized as string
 	 * @public
 	 */
 	JSONModel.prototype.getJSON = function(){
@@ -261,9 +317,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 	* Returns the value for the property with the given <code>sPropertyName</code>
 	*
 	* @param {string} sPath the path to the property
-	* @param {object} [oContext=null] the context which will be used to retrieve the property
-	* @type any
-	* @return the value of the property
+	* @param {sap.ui.model.Context} [oContext=null] the context which will be used to retrieve the property
+	* @return {any} the value of the property
 	* @public
 	*/
 	JSONModel.prototype.getProperty = function(sPath, oContext) {
@@ -273,7 +328,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 
 	/**
 	 * @param {string} sPath
-	 * @param {object} [oContext]
+	 * @param {object|sap.ui.model.Context} [oContext]
 	 * @returns {any} the node of the specified path/context
 	 */
 	JSONModel.prototype._getObject = function (sPath, oContext) {
@@ -302,9 +357,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Co
 
 	JSONModel.prototype.isList = function(sPath, oContext) {
 		var sAbsolutePath = this.resolve(sPath, oContext);
-		return jQuery.isArray(this._getObject(sAbsolutePath));
+		return Array.isArray(this._getObject(sAbsolutePath));
 	};
 
+	/**
+	 * Sets the meta model associated with this model
+	 *
+	 * @private
+	 * @param {sap.ui.model.MetaModel} oMetaModel the meta model associated with this model
+	 */
+	JSONModel.prototype._setMetaModel = function(oMetaModel) {
+		this._oMetaModel = oMetaModel;
+	};
+
+	JSONModel.prototype.getMetaModel = function() {
+		return this._oMetaModel;
+	};
 
 	return JSONModel;
 

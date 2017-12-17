@@ -1,10 +1,10 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
-sap.ui.define(['jquery.sap.global', '../Device', './Core', 'sap/ui/thirdparty/URI'],
-	function(jQuery, Device, core, URI) {
+sap.ui.define(['jquery.sap.global', './Core', 'sap/ui/thirdparty/URI'],
+	function(jQuery, core, URI) {
 	"use strict";
 
 		/**
@@ -147,7 +147,7 @@ sap.ui.define(['jquery.sap.global', '../Device', './Core', 'sap/ui/thirdparty/UR
 				'sys-monitor': 0xe1cc, 'sys-prev-page': 0xe1cd, 'sys-first-page': 0xe1ce, 'sys-next-page': 0xe1cf,
 				'sys-last-page': 0xe1d0, 'generate-shortcut': 0xe1d1, 'create-session': 0xe1d2, 'display-more': 0xe1d3,
 				'enter-more': 0xe1d4, 'zoom-in': 0xe1d5, 'zoom-out': 0xe1d6, 'header': 0xe1d7,
-				'detail-view': 0xe1d8, 'collapse': 0xe1d9, 'expand': 0xe1da, 'positive': 0xe1db,
+				'detail-view': 0xe1d8, 'show-edit': 0xe1d8, 'collapse': 0xe1d9, 'expand': 0xe1da, 'positive': 0xe1db,
 				'negative': 0xe1dc, 'display': 0xe1dd, 'menu2': 0xe1de, 'redo': 0xe1df,
 				'undo': 0xe1e0, 'navigation-up-arrow': 0xe1e1, 'navigation-down-arrow': 0xe1e2, 'down': 0xe1e3,
 				'up': 0xe1e4, 'shelf': 0xe1e5, 'background': 0xe1e6, 'resize': 0xe1e7,
@@ -181,13 +181,21 @@ sap.ui.define(['jquery.sap.global', '../Device', './Core', 'sap/ui/thirdparty/UR
 				'circle-task': 0xe254, 'circle-task-2': 0xe255, 'project-definition-triangle': 0xe256, 'project-definition-triangle-2': 0xe257,
 				'master-task-triangle': 0xe258, 'master-task-triangle-2': 0xe259, 'program-triangles': 0xe25a, 'program-triangles-2': 0xe25b,
 				'mirrored-task-circle': 0xe25c, 'mirrored-task-circle-2': 0xe25d, 'checklist-item': 0xe25e, 'checklist-item-2': 0xe25f,
-				'checklist': 0xe260, 'checklist-2': 0xe261, 'chart-table-view': 0xe262
+				'checklist': 0xe260, 'checklist-2': 0xe261, 'chart-table-view': 0xe262, 'filter-analytics': 0xe263, 'filter-facets': 0xe264,
+				'filter-fields': 0xe265, 'indent': 0xe266, 'outdent': 0xe267, 'heading1': 0x1e268, 'heading2': 0x1e269, 'heading3': 0x1e26a,
+				'decrease-line-height': 0xe26b, 'increase-line-height': 0xe26c, 'fx': 0x1e26d, 'add-folder': 0xe26e, 'away': 0xe26f,
+				'busy': 0xe270, 'appear-offline': 0xe271, 'blur': 0xe272, 'pixelate': 0xe273,
+				'horizontal-combination-chart': 0xe274, 'add-employee': 0xe275, 'text-color': 0x1e276,
+				'browse-folder': 0xe277, 'primary-key': 0xe278, 'two-keys': 0xe279,
+				'strikethrough': 0xe27a, 'text': 0xe27b, 'responsive': 0xe27c, 'desktop-mobile': 0xe27d,
+				'table-row': 0xe27e, 'table-column': 0xe27f, 'validate': 0x1e280, 'keyboard-and-mouse': 0xe281,
+				'touch': 0xe282
 			}
 		};
 
 		var bFontFaceInserted = false;
 
-		var oCoreResourceBundle = core.getLibraryResourceBundle("sap.ui.core");
+		var oCoreResourceBundle = sap.ui.getCore().getLibraryResourceBundle("sap.ui.core");
 
 		// lazy dependency, to avoid cycle
 		var Icon;
@@ -274,6 +282,15 @@ sap.ui.define(['jquery.sap.global', '../Device', './Core', 'sap/ui/thirdparty/UR
 				};
 			}
 
+			if (typeof collectionName !== "string") {
+				// if collectionName isn't a string, convert it to string
+				collectionName = String(collectionName);
+			}
+
+			// normalize "undefined" back to undefined because the default
+			// icon collection should have name undefined
+			collectionName = collectionName === 'undefined' ? undefined : collectionName;
+
 			if (!mRegistry[collectionName]) {
 				mRegistry[collectionName] = {};
 			}
@@ -282,9 +299,14 @@ sap.ui.define(['jquery.sap.global', '../Device', './Core', 'sap/ui/thirdparty/UR
 				icon = collection[iconName],
 				parts, sContent, sText, sKey;
 
-			if (icon && (collectionName === undefined || !iconInfo.overWrite)) {
-				jQuery.sap.log.warning("icon with the same iconName in the collection already exists, specify the last parameter to true in order to overwrite");
-				return;
+			if (icon) {
+				if (collectionName === undefined) {
+					jQuery.sap.log.warning("Icon with name '" + iconName + "' in built-in collection already exists and can not be overwritten.", "sap.ui.core.IconPool");
+					return;
+				} else if (!iconInfo.overWrite) {
+					jQuery.sap.log.warning("Icon with name '" + iconName + "' in collection '" + collectionName + "' already exists. Specify 'iconInfo.overWrite' in order to overwrite.", "sap.ui.core.IconPool");
+					return;
+				}
 			}
 
 			parts = {
@@ -399,7 +421,7 @@ sap.ui.define(['jquery.sap.global', '../Device', './Core', 'sap/ui/thirdparty/UR
 		/**
 		 * Returns whether the given <code>uri</code> is an icon URI.
 		 *
-		 * A string is an icon URI when it can be parsed as an URI and when it has one of the two forms
+		 * A string is an icon URI when it can be parsed as a URI and when it has one of the two forms
 		 * <ul>
 		 * <li>sap-icon://collectionName/iconName</li>
 		 * <li>sap-icon://iconName</li>
@@ -432,7 +454,7 @@ sap.ui.define(['jquery.sap.global', '../Device', './Core', 'sap/ui/thirdparty/UR
 		};
 
 		/**
-		 * Returns all name of icons that are registerd under the given collection.
+		 * Returns all name of icons that are registered under the given collection.
 		 * @param {string} collectionName the name of collection where icon names are retrieved.
 		 * @return {array} An array contains all of the registered icon names under the given collection.
 		 * @static
@@ -449,22 +471,15 @@ sap.ui.define(['jquery.sap.global', '../Device', './Core', 'sap/ui/thirdparty/UR
 				return;
 			}
 
-			var sFontPath = jQuery.sap.getModulePath("sap.ui.core", '/') + "themes/base/fonts/", sFontFace;
-
-			//In IE9 the relative paths in dynamically inserted styles in iframe are relative to the html page
-			//which contains the iframe, not the iframe itself.
-			//http://support.microsoft.com/kb/937266
-			//A conversion from relative path to absolute path is needed.
-			if (Device.browser.msie && Device.browser.version < 10 && /*check if it's in a iFrame*/window.self !== window.top) {
-				sFontPath = IconPool._calcAbsPath(sFontPath, window.location.href);
-			}
+			var sFontPath = jQuery.sap.getModulePath("sap.ui.core.themes.base", "/fonts/"), sFontFace;
 
 			/* This is the font used in sap.ui.core.Icon */
 			sFontFace = "@font-face {" +
 							"font-family: 'SAP-icons';" +
-							"src: url('" + sFontPath + "SAP-icons.eot');" +
-							"src: url('" + sFontPath + "SAP-icons.eot?#iefix') format('embedded-opentype')," +
-							"url('" + sFontPath + "SAP-icons.ttf') format('truetype');" +
+							"src: url('" + sFontPath + "SAP-icons.woff2') format('woff2')," + /* Chrome 36+, Firefox 39+, Safari 10+, Edge 14+, Chrome 51+ for Android, PhantomJS 2.1.1+ */
+							"url('" + sFontPath + "SAP-icons.woff') format('woff')," + /* IE9+, Safari 5.1+, iOS 5.1+, Android Browser 4.4+, IE Mobile 11+ */
+							"url('" + sFontPath + "SAP-icons.ttf') format('truetype')," + /* Fallback for any older browser (except IE8 and below which are not supported anyway) */
+							"local('SAP-icons');" + /* fallback to local installed font in case it can't be loaded (e.g. font download is disabled due to browser security settings) */
 							"font-weight: normal;" +
 							"font-style: normal;" +
 						"}";
@@ -474,16 +489,13 @@ sap.ui.define(['jquery.sap.global', '../Device', './Core', 'sap/ui/thirdparty/UR
 			bFontFaceInserted = true;
 		};
 
-		IconPool._calcAbsPath = function(sRelative, sBase){
-			return URI(sRelative, URI(sBase).search("")).toString();
-		};
-
 		var mIconForMimeType = {
 			"application/msword": "sap-icon://doc-attachment",
 			"application/vnd.openxmlformats-officedocument.wordprocessingml.document": "sap-icon://doc-attachment",
 			"application/rtf": "sap-icon://doc-attachment",
 			"application/pdf": "sap-icon://pdf-attachment",
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "sap-icon://excel-attachment",
+			"application/vnd.ms-excel": "sap-icon://excel-attachment",
 			"application/msexcel": "sap-icon://excel-attachment",
 			"application/vnd.ms-powerpoint": "sap-icon://ppt-attachment",
 			"application/vnd.openxmlformats-officedocument.presentationml.presentation": "sap-icon://ppt-attachment",

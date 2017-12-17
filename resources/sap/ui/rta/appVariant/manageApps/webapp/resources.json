@@ -1,0 +1,53 @@
+{
+	"_version": "1.1.0",
+	"resources": [
+		{
+			"name": "Component-dbg.js",
+			"isDebug": true
+		},
+		{
+			"name": "Component.js"
+		},
+		{
+			"name": "controller/ManageApps-dbg.controller.js",
+			"isDebug": true
+		},
+		{
+			"name": "controller/ManageApps.controller.js"
+		},
+		{
+			"name": "css/style.css"
+		},
+		{
+			"name": "i18n/i18n.properties",
+			"locale": "",
+			"raw": "i18n/i18n.properties"
+		},
+		{
+			"name": "i18n/i18n_en_US_sappsd.properties",
+			"locale": "en_US_sappsd",
+			"raw": "i18n/i18n.properties"
+		},
+		{
+			"name": "i18n/i18n_en_US_saptrc.properties",
+			"locale": "en_US_saptrc",
+			"raw": "i18n/i18n.properties"
+		},
+		{
+			"name": "index.html"
+		},
+		{
+			"name": "manifest.json"
+		},
+		{
+			"name": "model/models-dbg.js",
+			"isDebug": true
+		},
+		{
+			"name": "model/models.js"
+		},
+		{
+			"name": "view/ManageApps.view.xml"
+		}
+	]
+}

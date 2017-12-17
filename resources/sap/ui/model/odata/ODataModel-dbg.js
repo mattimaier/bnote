@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -13,8 +13,8 @@
  */
 
 // Provides class sap.ui.model.odata.ODataModel
-sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './CountMode', './ODataContextBinding', './ODataListBinding', './ODataMetadata', './ODataPropertyBinding', './ODataTreeBinding', 'sap/ui/model/odata/ODataMetaModel', 'sap/ui/thirdparty/URI', 'sap/ui/thirdparty/datajs'],
-	function(jQuery, Model, ODataUtils, CountMode, ODataContextBinding, ODataListBinding, ODataMetadata, ODataPropertyBinding, ODataTreeBinding, ODataMetaModel, URI, OData) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/model/BindingMode', 'sap/ui/model/Context', 'sap/ui/model/Model', './ODataUtils', './CountMode', './ODataContextBinding', './ODataListBinding', './ODataMetadata', './ODataPropertyBinding', './ODataTreeBinding', 'sap/ui/model/odata/ODataMetaModel', 'sap/ui/thirdparty/URI', 'sap/ui/thirdparty/datajs'],
+	function(jQuery, BindingMode, Context, Model, ODataUtils, CountMode, ODataContextBinding, ODataListBinding, ODataMetadata, ODataPropertyBinding, ODataTreeBinding, ODataMetaModel, URI, OData) {
 	"use strict";
 
 
@@ -45,14 +45,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	 *
 	 * @class
 	 * Model implementation for oData format
-	 * Binding to V4 metadata annotations is experimental!
 	 *
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
+	 * @deprecated Please use {@link sap.ui.model.odata.v2.ODataModel} instead.
 	 * @alias sap.ui.model.odata.ODataModel
 	 * @extends sap.ui.model.Model
 	 */
@@ -99,8 +99,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 			}
 
 			this.oServiceData = {};
-			this.sDefaultBindingMode = sap.ui.model.BindingMode.OneWay;
+			this.sDefaultBindingMode = BindingMode.OneWay;
 			this.mSupportedBindingModes = {"OneWay": true, "OneTime": true, "TwoWay":true};
+			this.mUnsupportedFilterOperators = {"Any": true, "All": true};
 			this.bCountSupported = true;
 			this.bJSON = bJSON;
 			this.bCache = true;
@@ -120,7 +121,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 			this.oMetadataLoadEvent = null;
 			this.oMetadataFailedEvent = null;
 			this.bSkipMetadataAnnotationParsing = bSkipMetadataAnnotationParsing;
-
 
 			// prepare variables for request headers, data and metadata
 			this.oHeaders = {};
@@ -170,7 +170,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 
 			if (!this.oServiceData.oMetadata) {
 				//create Metadata object
-				this.oServiceData.oMetadata = new sap.ui.model.odata.ODataMetadata(sMetadataUrl, {
+				this.oServiceData.oMetadata = new ODataMetadata(sMetadataUrl, {
 					async: this.bLoadMetadataAsync,
 					user: this.sUser,
 					password: this.sPassword,
@@ -377,7 +377,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 
 	/**
 	 * Attach event-handler <code>fnFunction</code> to the 'annotationsLoaded' event of this <code>sap.ui.model.odata.ODataModel</code>.
-	 * @experimental The API is NOT stable yet. Use at your own risk.
 	 *
 	 * @param {object}
 	 *            [oData] The object, that should be passed along with the event-object when firing the event.
@@ -397,7 +396,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 
 	/**
 	 * Detach event-handler <code>fnFunction</code> from the 'annotationsLoaded' event of this <code>sap.ui.model.odata.ODataModel</code>.
-	 * @experimental The API is NOT stable yet. Use at your own risk.
 	 *
 	 * @param {function}
 	 *            fnFunction The function to call, when the event occurs.
@@ -717,7 +715,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 				// all data is read so merge all data
 				jQuery.sap.extend(oResultData.results, aResults);
 				// broken implementations need this
-				if (oResultData.results && !jQuery.isArray(oResultData.results)) {
+				if (oResultData.results && !Array.isArray(oResultData.results)) {
 					oResultData = oResultData.results;
 				}
 				// adding the result data to the data object
@@ -840,7 +838,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 			jQuery.each(oData, function(sName, oProperty) {
 				if (oProperty && (oProperty.__metadata && oProperty.__metadata.uri || oProperty.results) && !oProperty.__deferred) {
 					oResult = that._importData(oProperty, mKeys);
-					if (jQuery.isArray(oResult)) {
+					if (Array.isArray(oResult)) {
 						oEntry[sName] = { __list: oResult };
 					} else {
 						oEntry[sName] = { __ref: oResult };
@@ -1008,7 +1006,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	};
 
 	/**
+	 * Creates a new list binding for this model.
+	 *
+	 * @param {string} sPath Binding path, either absolute or relative to a given <code>oContext</code>
+	 * @param {sap.ui.model.Context} [oContext=null] Binding context referring to this model
+	 * @param {sap.ui.model.Sorter|sap.ui.model.Sorter[]} [aSorters=null] Initial sort order, can be either a sorter or an array of sorters
+	 * @param {sap.ui.model.Filter|sap.ui.model.Filter[]} [aFilters=null] Predefined filter/s, can be either a filter or an array of filters
+	 * @param {map} [mParameters] Map which contains additional parameters for the binding
+	 * @param {string} [mParameters.expand] Value for the OData <code>$expand</code> query parameter which should be included in the request
+	 * @param {string} [mParameters.select] Value for the OData <code>$select</code> query parameter which should be included in the request
+	 * @param {map} [mParameters.custom] Optional map of custom query parameters (name/value pairs); names of custom parameters must not start with <code>$</code>
+	 * @param {sap.ui.model.odata.CountMode} [mParameters.countMode] Defines the count mode of the new binding;
+	 *           if not specified, the default count mode of this model will be applied
+	 * @returns {sap.ui.model.ListBinding} oBinding new list binding object
 	 * @see sap.ui.model.Model.prototype.bindList
+	 * @public
 	 */
 	ODataModel.prototype.bindList = function(sPath, oContext, aSorters, aFilters, mParameters) {
 		var oBinding = new ODataListBinding(this, sPath, oContext, aSorters, aFilters, mParameters);
@@ -1146,7 +1158,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 			var navProp = aNavProps[i];
 
 			//check if the navProp was split into multiple parts (meaning it's an array), e.g. ["Orders", "Products/Suppliers"]
-			if (jQuery.isArray(navProp)) {
+			if (Array.isArray(navProp)) {
 
 				var oFirstNavProp = oData[navProp[0]];
 				var sNavPropRest = navProp[1];
@@ -1289,11 +1301,24 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	};
 
 	/**
-	 * Sets the default way to retrieve the count of collections in this model.
-	 * Count can be determined either by sending a separate $count request, including
-	 * $inlinecount=allpages in data requests, both of them or not at all.
+	 * Sets the default mode how to retrieve the item count for a collection in this model.
 	 *
-	 * @param {sap.ui.model.odata.CountMode} sCountMode
+	 * The count can be determined in the following ways
+	 * <ul>
+	 * <li>by sending a separate <code>$count</code> request</li>
+	 * <li>by adding parameter <code>$inlinecount=allpages</code> to one or all data requests</li>
+	 * <li>a combination of the previous two</li>
+	 * <li>not at all (questions about the size of the collection can't be answered then)</li>
+	 * </ul>
+	 * See {@link sap.ui.model.odata.CountMode} for all enumeration values and more details.
+	 *
+	 * Note that a call to this method does not modify the count mode for existing list bindings,
+	 * only bindings that are created afterwards will use the new mode when no mode is defined at their creation.
+	 *
+	 * If no default count mode is set for an <code>ODataModel</code> (v1), the mode <code>Both</code>
+	 * will be used for compatibility reasons.
+	 *
+	 * @param {sap.ui.model.odata.CountMode} sCountMode The new default count mode for this model
 	 * @since 1.20
 	 * @public
 	 */
@@ -1322,7 +1347,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	 */
 	ODataModel.prototype._getKey = function(oObject, bDecode) {
 		var sKey, sURI;
-		if (oObject instanceof sap.ui.model.Context) {
+		if (oObject instanceof Context) {
 			sKey = oObject.getPath().substr(1);
 		} else if (oObject && oObject.__metadata && oObject.__metadata.uri) {
 			sURI = oObject.__metadata.uri;
@@ -1969,7 +1994,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	};
 
 	/**
-	 * Checks if a model refresh is needed, either because the the data provided by the sPath and oContext is stored
+	 * Checks if a model refresh is needed, either because the data provided by the sPath and oContext is stored
 	 * in the model or new data is added (POST). For batch requests all embedded requests are checked separately.
 	 *
 	 * @return {boolean}
@@ -1986,7 +2011,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 		}
 		// if this is a batch request, loop through the batch operations, find change requests
 		// and check every change request individually
-		if (oRequest.data && jQuery.isArray(oRequest.data.__batchRequests)) {
+		if (oRequest.data && Array.isArray(oRequest.data.__batchRequests)) {
 			if (oResponse) {
 				aErrorResponses = that._getBatchErrors(oResponse.data);
 				jQuery.each(aErrorResponses, function(iIndex, oErrorResponse){
@@ -2000,7 +2025,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 				}
 			}
 			jQuery.each(oRequest.data.__batchRequests, function(iIndex, oBatchRequest) {
-				if (jQuery.isArray(oBatchRequest.__changeRequests)) {
+				if (Array.isArray(oBatchRequest.__changeRequests)) {
 					jQuery.each(oBatchRequest.__changeRequests, function(iIndex, oChangeRequest) {
 						bRefreshNeeded = bRefreshNeeded || that._isRefreshNeeded(oChangeRequest);
 						return !bRefreshNeeded; //break
@@ -2055,7 +2080,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 			bAsync = false;
 
 	//ensure compatibility, check for old or new declaration of parameters
-		if (mParameters instanceof sap.ui.model.Context || arguments.length > 3) {
+		if (mParameters instanceof Context || arguments.length > 3) {
 			oContext  = mParameters;
 			fnSuccess = arguments[3];
 			fnError = arguments[4];
@@ -2129,7 +2154,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 		var oRequest, oBatchRequest, sUrl, oRequestHandle, oEntityMetadata,
 			oContext, fnSuccess, fnError, bAsync = false, mUrlParams;
 
-		if (mParameters && typeof (mParameters) == "object" && !(mParameters instanceof sap.ui.model.Context)) {
+		if (mParameters && typeof (mParameters) == "object" && !(mParameters instanceof Context)) {
 			// The object parameter syntax has been used.
 			oContext	= mParameters.context;
 			fnSuccess	= mParameters.success;
@@ -2170,7 +2195,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	 * @param {object} [mParameters] Optional, can contain the following attributes: oContext, fnSuccess, fnError, sETag:
 	 * @param {object} [mParameters.context] If specified the sPath has to be relative to the path given with the context.
 	 * @param {function} [mParameters.success]  a callback function which is called when the data has been successfully retrieved.
-	 *		The handler can have the following parameters: <code>oData<code> and <code>response</code>.
+	 *		The handler can have the following parameters: <code>oData</code> and <code>response</code>.
 	 * @param {function} [mParameters.error] a callback function which is called when the request failed.
 	 *		The handler can have the parameter: <code>oError</code> which contains additional error information.
 	 * @param {string} [mParameters.eTag] If specified, the If-Match-Header will be set to this Etag.
@@ -2194,7 +2219,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 			that = this;
 
 		// maintain compatibility, check if the old or new function parameters are used and set values accordingly:
-		if ((mParameters && mParameters instanceof sap.ui.model.Context) || arguments[2]) {
+		if ((mParameters instanceof Context) || arguments[2]) {
 			oContext  = mParameters;
 			fnSuccess = arguments[2];
 			fnError   = arguments[3];
@@ -2255,7 +2280,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	 * @param {map} [mParameters.urlParameters] A map containing the parameters that will be passed as query strings
 	 * @param {object} [mParameters.context] If specified the sPath has to be relative to the path given with the context.
 	 * @param {function} [mParameters.success] a callback function which is called when the data has been successfully retrieved.
-	 *		The handler can have the following parameters: <code>oData<code> and <code>response</code>.
+	 *		The handler can have the following parameters: <code>oData</code> and <code>response</code>.
 	 * @param {function} [mParameters.error] a callback function which is called when the request failed.
 	 *		The handler can have the parameter: <code>oError</code> which contains additional error information.
 	 * @param {boolean} [mParameters.async=false] Whether or not to send the request asynchronously. Default: false
@@ -2302,10 +2327,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 			var sUrlURI = URI(sUrl);
 			if (oFunctionMetadata.parameter != null) {
 				jQuery.each(oParameters, function (sParameterName, oParameterValue) {
-					var matchingParameters = jQuery.grep(oFunctionMetadata.parameter, function (oParameter) {
+					var matchingParameters = oFunctionMetadata.parameter.filter(function (oParameter) {
 						return oParameter.name == sParameterName && oParameter.mode == "In";
 					});
-					if (matchingParameters != null && matchingParameters.length > 0) {
+					if (matchingParameters.length > 0) {
 						var matchingParameter = matchingParameters[0];
 						oUrlParams[sParameterName] = ODataUtils.formatValue(oParameterValue, matchingParameter.type);
 					} else {
@@ -2366,7 +2391,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 			oEntityType, sResolvedPath,
 			aUrlParams;
 
-		if (mParameters && typeof (mParameters) == "object" && !(mParameters instanceof sap.ui.model.Context)) {
+		if (mParameters && typeof (mParameters) == "object" && !(mParameters instanceof Context)) {
 			// The object parameter syntax has been used.
 			oContext   = mParameters.context;
 			mUrlParams = mParameters.urlParameters;
@@ -2501,7 +2526,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	 * @public
 	 */
 	ODataModel.prototype.addBatchReadOperations = function(aReadOperations) {
-		if (!jQuery.isArray(aReadOperations) || aReadOperations.length <= 0) {
+		if (!Array.isArray(aReadOperations) || aReadOperations.length <= 0) {
 			jQuery.sap.log.warning("No array with batch operations provided!");
 			return false;
 		}
@@ -2525,7 +2550,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	 * @public
 	 */
 	ODataModel.prototype.addBatchChangeOperations = function(aChangeOperations) {
-		if (!jQuery.isArray(aChangeOperations) || aChangeOperations.length <= 0) {
+		if (!Array.isArray(aChangeOperations) || aChangeOperations.length <= 0) {
 			return false;
 		}
 		jQuery.each(aChangeOperations, function(iIndex, oChangeOperation) {
@@ -2617,7 +2642,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	 *
 	 * @return {Object} metdata object
 	 * @public
-	 * @experimental This feature has not been tested due to the lack of OData testing infrastructure. The API is NOT stable yet. Use at your own risk.
 	 */
 	ODataModel.prototype.getServiceAnnotations = function() {
 		if (this.oAnnotations && this.oAnnotations.getAnnotationsData) {
@@ -3096,7 +3120,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 			jQuery.sap.assert(oEntityMetadata, "No Metadata for collection " + sPath + " found");
 			return undefined;
 		}
-		if (typeof vProperties === "object" && !jQuery.isArray(vProperties)) {
+		if (typeof vProperties === "object" && !Array.isArray(vProperties)) {
 			oEntity = vProperties;
 		} else {
 			for (var i = 0; i < oEntityMetadata.property.length; i++) {
@@ -3317,8 +3341,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	 */
 	ODataModel.prototype._getAnnotationParser = function(mAnnotationData) {
 		if (!this.oAnnotations) {
-			jQuery.sap.require("sap.ui.model.odata.ODataAnnotations");
-			this.oAnnotations = new sap.ui.model.odata.ODataAnnotations({
+			var ODataAnnotations = sap.ui.requireSync("sap/ui/model/odata/ODataAnnotations");
+			this.oAnnotations = new ODataAnnotations({
 				annotationData: mAnnotationData,
 				url: null,
 				metadata: this.oMetadata,
@@ -3345,7 +3369,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 	 * which can be retrieved by calling the getServiceAnnotations()-method. If a $metadata url is passed the data will
 	 * also be merged into the metadata object, which can be reached by calling the getServiceMetadata() method.
 	 *
-	 * @param {string|sting[]} vUrl - Either one URL as string or an array or URL strings
+	 * @param {string|string[]} vUrl - Either one URL as string or an array or URL strings
 	 * @return {Promise} The Promise to load the given URL(s), resolved if all URLs have been loaded, rejected if at least one fails to load.
 	 * 					 If this promise resolves it returns the following parameters:
 	 * 					 annotations: The annotation object
@@ -3412,7 +3436,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/Model', './ODataUtils', './Cou
 
 	/**
 	 * Returns an instance of an OData meta model which offers a unified access to both OData V2
-	 * meta data and V4 annotations. It uses the existing {@link sap.ui.model.odata.ODataMetadata}
+	 * metadata and V4 annotations. It uses the existing {@link sap.ui.model.odata.ODataMetadata}
 	 * as a foundation and merges V4 annotations from the existing
 	 * {@link sap.ui.model.odata.ODataAnnotations} directly into the corresponding model element.
 	 *

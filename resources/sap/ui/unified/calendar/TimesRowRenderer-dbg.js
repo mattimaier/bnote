@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -168,7 +168,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/unified/calendar/CalendarUtils', 'sa
 			var oLegend = sap.ui.getCore().byId(sLegendId);
 			if (oLegend) {
 				if (!(oLegend instanceof sap.ui.unified.CalendarLegend)) {
-					throw new Error(oLegend + " is not a sap.ui.unified.CalendarLegend. " + oTimesRow);
+					throw new Error(oLegend + " is not an sap.ui.unified.CalendarLegend. " + oTimesRow);
 				}
 				oHelper.aTypes = oLegend.getItems();
 			} else {

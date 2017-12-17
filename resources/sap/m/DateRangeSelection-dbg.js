@@ -1,53 +1,100 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides control sap.m.DateRangeSelection.
-sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
-	function(jQuery, DatePicker, library) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/Device', './DatePicker', './library'],
+	function(jQuery, Device, DatePicker, library) {
 	"use strict";
 
 	/**
-	 * Constructor for a new DateRangeSelection.
+	 * Constructor for a new <code>DateRangeSelection</code>.
 	 *
-	 * @param {string} [sId] Id for the new control, generated automatically if no id is given
+	 * @param {string} [sId] ID for the new control, generated automatically if no ID is given
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * This is a date range input control with a calendar as date picker.
+	 * A single-field input control that enables the users to enter a localized date range.
 	 *
-	 * A date range can be entered using a calendar that opens in a popup. Alternatively a value can be entered directly in the input field by typing it in.
-	 * (This is only possible on desktop devices, on mobile devices keyboard input is not possible.)
-	 * If a date range is entered by typing it into the input field, it must fit to the used date format and locale. (See <code>sap.ui.core.format.DateFormat</code>)
+	 * <h3>Overview</h3>
 	 *
-	 * There are two options to provide a date for the <code>DateRangeSelection</code>.
-	 * You can put a date range as a string to the property <code>value</code> or you can put JavaScript Date objects to the properties <code>dateValue</code> and <code>secondDateValue</code>.
-	 * Only one of the properties should be used at one time, but they are synchronized internally.
-	 * What property to use depends on the use case of the application.
-	 * <ul>
-	 * <li>Use the <code>value</code> property if the date range is already provided as a formatted string.</li>
-	 * <li>Use the <code>dateValue</code> and <code>secondDateValue</code> properties if the date range is already provided as JavaScript Date objects or you want to work with JavaScript Date objects.</li>
-	 * </ul>
+	 * The <code>DateRangeSelection</code> enables the users to enter a localized
+	 * date range using touch, mouse, keyboard input, or by selecting a date range in
+	 * the calendar. They can also navigate directly from one month or year to another.
 	 *
-	 * All formatting and parsing of dates from and to strings is done using the {@link sap.ui.core.format.DateFormat}, so read the corresponding documentation if you need some information about this.
+	 * <b>Note:</b> The {@link sap.ui.unified.Calendar} is used internally only if the
+	 * <code>DateRangeSelection</code> is opened (not used for the initial rendering).
+	 * If the <code>sap.ui.unified</code> library is not loaded before the
+	 * <code>DateRangeSelection</code> is opened, it will be loaded upon opening.
+	 * This could lead to a waiting time when the <code>DateRangeSelection</code> is
+	 * opened for the first time. To prevent this, apps using the
+	 * <code>DateRangeSelection</code> should also load the <code>sap.ui.unified</code>
+	 * library.
 	 *
-	 * Supported format options are pattern-based on Unicode LDML Date Format notation. {@link http://unicode.org/reports/tr35/#Date_Field_Symbol_Table}
+	 * <h3>Usage</h3>
 	 *
-	 * For example, if the <code>displayFormat</code> is "MMM d, y", <code>delimiter</code> is "-" and the used locale is English,
-	 * a valid <code>value</code> string is "Jul 29, 2015 - Jul 31, 2015" and it will be displayed in the same way in the input field.
+	 * <i>When to use?</i>
 	 *
-	 * If no <code>placeholder</code> is set to the <code>DatePicker</code> the used <code>displayFormat</code> is shown as placeholder.
-	 * If another placeholder is needed, it must be set.
+	 * If you need a time range and know that your user is a power user who has to
+	 * input lots of data. If the keyboard is the primary device used for navigating
+	 * the app, use two input fields. This allows the user to quickly jump from field
+	 * to field. By selecting a date in one of the fields, the other field should
+	 * recognize the information and jump to the same selection.
 	 *
-	 * Internally the <code>sap.ui.unified.Calendar</code> is used, but it is only needed if the <code>DateRangeSelection</code> is opened. This means that it is not needed for the initial rendering.
-	 * If the <code>sap.ui.unified</code> library is not loaded before the <code>DateRangeSelection</code> is opened, it will be loaded upon opening.
-	 * This could lead to a waiting time before a <code>DateRangeSelection</code> is opened the first time. To prevent this, applications using the <code>DateRangeSelection</code> should also load
-	 * the <code>sap.ui.unified</code> library.
+	 * <i>When not to use?</i>
+	 *
+	 * If the user's primary goal is not to select ranges or if you just want to enter
+	 * a date and a time. For such cases, use the {@link sap.m.DatePicker} or
+	 * {@link sap.m.TimePicker}.
+	 *
+	 * The user can enter a date by:
+	 * <ul><li>Using the calendar that opens in a popup</li>
+	 * <li>Typing it in directly in the input field (not available for mobile devices)</li></ul>
+	 *
+	 * On app level, there are two options to provide a date for the
+	 * <code>DateRangeSelection</code> - date range as a string to the
+	 * <code>value</code> property or JavaScript Date objects to the
+	 * <code>dateValue</code> and <code>secondDateValue</code> properties (only one of
+	 * these options should be used at a time):
+	 *
+	 * <ul><li>Use the <code>value</code> property if the date range is already provided as
+	 * a formatted string</li>
+	 * <li>Use the <code>dateValue</code> and <code>secondDateValue</code> properties
+	 * if the date range is already provided as JavaScript Date objects or you want to
+	 * work with JavaScript Date objects</li></ul>
+	 *
+	 * <h3>Formatting</h3>
+	 *
+	 * All formatting and parsing of dates from and to strings is done using the
+	 * {@link sap.ui.core.format.DateFormat}. If a date is entered by typing it into
+	 * the input field, it must fit to the used date format and locale.
+	 *
+	 * Supported format options are pattern-based on Unicode LDML Date Format notation.
+	 * See {@link http://unicode.org/reports/tr35/#Date_Field_Symbol_Table}
+	 *
+	 * For example, if the <code>displayFormat</code> is "MMM d, y", delimiter is "-",
+	 * and the used locale is English, a valid value string is "Jul 29, 2015 - Jul 31,
+	 * 2015" and it is displayed in the same way in the input field.
+	 *
+	 * If no placeholder is set to the <code>DateRangeSelection</code>, the used
+	 * <code>displayFormat</code> is displayed as a placeholder. If another placeholder
+	 * is needed, it must be set.
+	 *
+	 * <b>Note:</b> If the string does NOT match the <code>displayFormat</code>
+	 * (from user input) or the <code>valueFormat</code> (on app level), the
+	 * {@link sap.ui.core.format.DateFormat} makes an attempt to parse it based on the
+	 * locale settings. For more information, see the respective documentation in the
+	 * API Reference.
+	 *
+	 * <h3>Responsive behavior</h3>
+	 *
+	 * The <code>DateRangeSelection</code> is fully responsive. It is smaller in
+	 * compact mode and provides a touch-friendly size in cozy mode.
 	 *
 	 * @extends sap.m.DatePicker
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -173,7 +220,7 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 	 * If this property is used, the <code>dateValue</code> property should not be changed from the caller.
 	 *
 	 * @param {string} sValue The new value of the input.
-	 * @return {sap.m.DatePicker} <code>this</code> to allow method chaining.
+	 * @return {sap.m.DateRangeSelection} <code>this</code> to allow method chaining.
 	 * @public
 	 * @name sap.m.DateRangeSelection#setValue
 	 * @function
@@ -282,6 +329,7 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 	//that consisted of original primary sap.m.DateRangeSelection
 	DateRangeSelection.prototype.setFrom = function(oFrom) {
 		this.setDateValue(oFrom);
+		return this;
 	};
 
 	DateRangeSelection.prototype.getFrom = function() {
@@ -290,6 +338,7 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 
 	DateRangeSelection.prototype.setTo = function(oTo) {
 		this.setSecondDateValue(oTo);
+		return this;
 	};
 
 	DateRangeSelection.prototype.getTo = function() {
@@ -319,7 +368,7 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 	 * <b>Note:</b> If this property is used, the <code>value</code> property should not be changed from the caller.
 	 *
 	 * @param {object} oDateValue New value for property <code>dateValue</code>
-	 * @return {sap.m.DatePicker} <code>this</code> to allow method chaining.
+	 * @return {sap.m.DateRangeSelection} <code>this</code> to allow method chaining.
 	 * @public
 	 * @name sap.m.DateRangeSelection#setDateValue
 	 * @function
@@ -469,7 +518,10 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 		//If we have version of control with delimiter, then sValue should consist of two dates delimited with delimiter,
 		//hence we have to split the value to these dates
 		var sDelimiter = _getDelimiter.call(this);
-		if ((sDelimiter && sDelimiter !== "") && sValue) {
+		sValue = sValue.trim();
+		if (sDelimiter && sValue) {
+			sValue = _trim(sValue, [sDelimiter, " "]);
+
 			aDates = sValue.split(sDelimiter);
 			if (aDates.length === 2) {
 				// if delimiter only appears once in value (not part of date pattern) remove " " to be more flexible for input
@@ -482,7 +534,8 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 			} else {
 				aDates = sValue.split(" " + sDelimiter + " ");// Delimiter appears more than once -> try with separators
 			}
-			if (aDates.length < 2) {
+
+			if (sValue.indexOf(sDelimiter) === -1) {
 				// no delimiter found -> maybe only " " is used
 				var aDates2 = sValue.split(" ");
 				if (aDates2.length === 2) {
@@ -679,10 +732,6 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 				var oDate1Old = this.getDateValue();
 				var oDate2Old = this.getSecondDateValue();
 
-				this._oPopup.close();
-				this._bFocusNoPopup = true;
-				this.focus();
-
 				var sValue;
 				if (!jQuery.sap.equal(oDate1, oDate1Old) || !jQuery.sap.equal(oDate2, oDate2Old)) {
 					// compare Dates because value can be the same if only 2 digits for year
@@ -695,8 +744,10 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 
 					sValue = this.getValue();
 					_fireChange.call(this, true);
-					this._curpos = sValue.length;
-					this._$input.cursorPos(this._curpos);
+					if ((Device.system.desktop || !Device.support.touch) && !jQuery.sap.simulateMobileOnDesktop) {
+						this._curpos = sValue.length;
+						this._$input.cursorPos(this._curpos);
+					}
 				}else if (!this._bValid){
 					// wrong input before open calendar
 					sValue = this._formatValue( oDate1, oDate2 );
@@ -709,16 +760,15 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 					}
 				}
 
-				//To prevent opening keyboard on mobile device after dates are selected
-				if (sap.ui.Device.browser.mobile) {
-					window.document.activeElement.blur();
-				}
+				// close popup and focus input after change event to allow application to reset value state or similar things
+				this._oPopup.close();
 			}
 		}
 	};
 
 	/**
-	 * @see {sap.ui.core.Control#getAccessibilityInfo}
+	 * @see sap.ui.core.Control#getAccessibilityInfo
+	 * @returns {Object} Current accessibility state of the control
 	 * @protected
 	 */
 	DateRangeSelection.prototype.getAccessibilityInfo = function() {
@@ -814,6 +864,51 @@ sap.ui.define(['jquery.sap.global', './DatePicker', './library'],
 
 		return oFormat;
 
+	}
+
+	function _endsWith(sValue, sEndStr) {
+		return sValue && sEndStr && sValue.lastIndexOf(sEndStr) === sValue.length - sEndStr.length;
+	}
+
+	function _startsWith(sValue, sStartStr) {
+		return sValue && sStartStr && sValue.indexOf(sStartStr) === 0;
+	}
+
+	/**
+	 * Trims all occurrences of the given string values from both ends of the specified string.
+	 * @param {string} sValue The value to be trimmed
+	 * @param {string[]} aParams All values to be removed
+	 * @returns {string} The trimmed value
+	 * @private
+	 */
+	function _trim(sValue, aParams) {
+		var i = 0,
+			aTrims = aParams;
+
+		if (!aTrims) {
+			aTrims = [" "];
+		}
+
+		while (i < aTrims.length) {
+			if (_endsWith(sValue, aTrims[i])) {
+				sValue = sValue.substring(0, sValue.length - aTrims[i].length);
+				i = 0;
+				continue;
+			}
+			i++;
+		}
+
+		i = 0;
+		while (i < aTrims.length) {
+			if (_startsWith(sValue, aTrims[i])) {
+				sValue = sValue.substring(aTrims[i].length);
+				i = 0;
+				continue;
+			}
+			i++;
+		}
+
+		return sValue;
 	}
 
 	//	to overwrite JS doc

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -21,7 +21,7 @@ sap.ui.define(['jquery.sap.global', './WebSocket'],
 	 * @class WebSocket class implementing the pcp-protocol
 	 * @extends sap.ui.core.ws.WebSocket
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @alias sap.ui.core.ws.SapPcpWebSocket
 	 */
 	var SapPcpWebSocket = WebSocket.extend("sap.ui.core.ws.SapPcpWebSocket", /** @lends sap.ui.core.ws.SapPcpWebSocket.prototype */ {
@@ -59,7 +59,7 @@ sap.ui.define(['jquery.sap.global', './WebSocket'],
 
 	/**
 	 * @class Protocol versions.<br>
-	 * One (or more) of these have to be selected to create a SapPcpWebSocket connection
+	 * One (or more) of these have to be selected to create an SapPcpWebSocket connection
 	 * (or no protocol at all).
 	 *
 	 * @public
@@ -244,7 +244,7 @@ sap.ui.define(['jquery.sap.global', './WebSocket'],
 	 * If the connection is not yet opened, the message will be queued and sent
 	 * when the connection is established.
 	 *
-	 * @param {string|blob|arraybuffer} message message to send
+	 * @param {string|Blob|ArrayBuffer} message message to send
 	 * @param {object} [oPcpFields] additional pcp-fields as key-value map
 	 * @return {sap.ui.core.ws.SapPcpWebSocket} <code>this</code> to allow method chaining
 	 * @public

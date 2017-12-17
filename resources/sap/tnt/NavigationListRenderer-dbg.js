@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -27,6 +27,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 			var group,
 				role,
 				groups = control.getItems(),
+				length = groups.length,
 				expanded = control.getExpanded();
 
 			rm.write("<ul");
@@ -47,19 +48,15 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Renderer'],
 			rm.writeClasses();
 
 			// ARIA
-			if (control.getHasListBoxRole()) {
-				role = 'listbox';
-			} else {
-				role = expanded ? 'tree' : 'toolbar';
-			}
+			role = expanded ? 'tree' : 'toolbar';
 
 			rm.writeAttribute("role", role);
 
 			rm.write(">");
 
-			for (var i = 0; i < groups.length; i++) {
+			for (var i = 0; i < length; i++) {
 				group = groups[i];
-				group.render(rm, control);
+				group.render(rm, control, i, length);
 			}
 
 			rm.write("</ul>");

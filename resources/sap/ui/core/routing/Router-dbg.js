@@ -1,11 +1,11 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger', './Route', './Views', './Targets', 'sap/ui/thirdparty/crossroads'],
-	function(jQuery, EventProvider, HashChanger, Route, Views, Targets, crossroads) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/core/library', 'sap/ui/base/EventProvider', './HashChanger', './Route', './Views', './Targets', './History', 'sap/ui/thirdparty/crossroads'],
+	function(jQuery, library, EventProvider, HashChanger, Route, Views, Targets, History, crossroads) {
 	"use strict";
 
 		var oRouters = {};
@@ -105,7 +105,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 		 *             target: "notFound"
 		 *         }
 		 *     },
-		 *     // You should only use this constructor when you are not using a router with a component. Please use the metadata of a component to define your routes and targets. The documentation can be found here: {@link sap.ui.core.UIComponent#.extend}.
+		 *     // You should only use this constructor when you are not using a router with a component. Please use the metadata of a component to define your routes and targets. The documentation can be found here: {@link sap.ui.core.UIComponent.extend}.
 		 *     null,
 		 *     // Target config
 		 *     {
@@ -120,10 +120,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 		 * </pre>
 		 * @param {boolean} [oConfig.async=false] @since 1.34. Whether the views which are loaded within this router instance asyncly. The default value is set to false.
 		 * @param {sap.ui.core.UIComponent} [oOwner] the Component of all the views that will be created by this Router,<br/>
-		 * will get forwarded to the {@link sap.ui.core.routing.Views#contructor}.<br/>
+		 * will get forwarded to the {@link sap.ui.core.routing.Views#constructor}.<br/>
 		 * If you are using the componentMetadata to define your routes you should skip this parameter.
 		 * @param {object} [oTargetsConfig]
-		 * available @since 1.28 the target configuration, see {@link sap.ui.core.Targets#constructor} documentation (the options object).<br/>
+		 * available @since 1.28 the target configuration, see {@link sap.ui.core.routing.Targets#constructor} documentation (the options object).<br/>
 		 * You should use Targets to create and display views. Since 1.28 the route should only contain routing relevant properties.<br/>
 		 * <b>Example:</b>
 		 * <pre>
@@ -147,7 +147,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 		 *     },
 		 *     // You should only use this constructor when you are not using a router with a component.
 		 *     // Please use the metadata of a component to define your routes and targets.
-		 *     // The documentation can be found here: {@link sap.ui.core.UIComponent#.extend}.
+		 *     // The documentation can be found here: {@link sap.ui.core.UIComponent.extend}.
 		 *     null,
 		 *     // Target config
 		 *     {
@@ -207,11 +207,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 					oRoutes = {};
 				}
 
-				if (jQuery.isArray(oRoutes)) {
+				if (Array.isArray(oRoutes)) {
 					//Convert route object
 					aRoutes = oRoutes;
 					oRoutes = {};
-					jQuery.each(aRoutes, function(iRouteIndex, oRouteConfig) {
+					aRoutes.forEach(function(oRouteConfig) {
 						oRoutes[oRouteConfig.name] = oRouteConfig;
 					});
 				}
@@ -241,7 +241,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 				if (this._oRoutes[oConfig.name]) {
 					jQuery.sap.log.error("Route with name " + oConfig.name + " already exists", this);
 				}
-				this._oRoutes[oConfig.name] = new Route(this, oConfig, oParent);
+				this._oRoutes[oConfig.name] = this._createRoute(this, oConfig, oParent);
 			},
 
 			/**
@@ -261,10 +261,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			/**
 			 * Attaches the router to the hash changer @see sap.ui.core.routing.HashChanger
 			 *
+			 * @param {boolean} [bIgnoreInitialHash=false] @since 1.48.0 whether the current url hash shouldn't be parsed after the router is initialized
 			 * @public
 			 * @returns {sap.ui.core.routing.Router} this for chaining.
 			 */
-			initialize : function () {
+			initialize : function (bIgnoreInitialHash) {
 				var that = this,
 					oHashChanger = this.oHashChanger = HashChanger.getInstance();
 
@@ -275,8 +276,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 
 				this._bIsInitialized = true;
 
+				this._bLastHashReplaced = false;
+				this._bHashChangedAfterTitleChange = false;
+
 				this.fnHashChanged = function(oEvent) {
-					that.parse(oEvent.getParameter("newHash"), oEvent.getParameter("oldHash"));
+					that.parse(oEvent.getParameter("newHash"));
+					that._bHashChangedAfterTitleChange = true;
 				};
 
 				if (!oHashChanger) {
@@ -284,9 +289,46 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 					return;
 				}
 
+				if (this._oTargets) {
+					var oHomeRoute = this._oRoutes[this._oConfig.homeRoute];
+
+					this._oTargets.attachTitleChanged(function(oEvent) {
+
+						var oEventParameters = oEvent.getParameters();
+
+						if (oHomeRoute && isHomeRouteTarget(oEventParameters.name, oHomeRoute._oConfig.name)) {
+							oEventParameters.isHome = true;
+						}
+
+						this.fireTitleChanged(oEventParameters);
+
+					}, this);
+
+					this.fnHashReplaced = function() {
+						this._bLastHashReplaced = true;
+					};
+
+					this.oHashChanger.attachEvent("hashReplaced", this.fnHashReplaced, this);
+
+					this._aHistory = [];
+
+					// Add the initial home route entry to history
+					var oHomeRouteEntry = oHomeRoute && getHomeEntry(this._oOwner, oHomeRoute);
+					if (oHomeRouteEntry) {
+						this._aHistory.push(oHomeRouteEntry);
+					}
+				}
+
+				oHashChanger.init();
+
+				// The event handler needs to be attached after hash changer is
+				// initialized because whether the current hash is parsed is
+				// controlled by the 'bSuppressHashParsing' parameter and the
+				// 'hashchanged' event which may be fired from hashChanger.init()
+				// shouldn't be processed.
 				oHashChanger.attachEvent("hashChanged", this.fnHashChanged);
 
-				if (!oHashChanger.init()) {
+				if (!bIgnoreInitialHash) {
 					this.parse(oHashChanger.getHash());
 				}
 
@@ -301,13 +343,16 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 * @public
 			 */
 			stop : function () {
-
 				if (!this._bIsInitialized) {
 					jQuery.sap.log.warning("Router is not initialized. But it got stopped", this);
 				}
 
 				if (this.fnHashChanged) {
 					this.oHashChanger.detachEvent("hashChanged", this.fnHashChanged);
+				}
+
+				if (this.fnHashReplaced) {
+					this.oHashChanger.detachEvent("hashReplaced", this.fnHashReplaced);
 				}
 
 				this._bIsInitialized = false;
@@ -332,6 +377,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 
 				if (this.fnHashChanged) {
 					this.oHashChanger.detachEvent("hashChanged", this.fnHashChanged);
+				}
+
+				if (this.fnHashReplaced) {
+					this.oHashChanger.detachEvent("hashReplaced", this.fnHashReplaced);
 				}
 
 				//will remove all the signals attached to the routes - all the routes will not be useable anymore
@@ -407,6 +456,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 				});
 			},
 
+			_createRoute : function (oRouter, oConfig, oParent) {
+				return new Route(oRouter, oConfig, oParent);
+			},
+
 			/**
 			 * Returns a cached view for a given name or creates it if it does not yet exists
 			 *
@@ -456,7 +509,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 *
 			 * @param {string} sName Name of the route
 			 * @param {object} [oParameters] Parameters for the route
-			 * @param {boolean} [bReplace=false] Defines if the hash should be replaced (no browser history entry) or set (browser history entry)
+			 * @param {boolean} [bReplace=false] If set to <code>true</code>, the hash is replaced, and there will be no entry in the browser history, if set to <code>false</code>, the hash is set and the entry is stored in the browser history.
 			 * @public
 			 * @returns {sap.ui.core.routing.Router} this for chaining.
 			 */
@@ -488,10 +541,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 
 			/**
 			 * Returns a target by its name (if you pass myTarget: { view: "myView" }) in the config myTarget is the name.
-			 * See {@link sap.ui.core.Targets#getTarget}
+			 * See {@link sap.ui.core.routing.Targets#getTarget}
 			 *
 			 * @param {string|string[]} vName the name of a single target or the name of multiple targets
-			 * @return {sap.ui.core.routing.Target|undefined|sap.ui.core.routing.Target[]} The target with the coresponding name or undefined. If an array way passed as name this will return an array with all found targets. Non existing targets will not be returned but will log an error.
+			 * @return {sap.ui.core.routing.Target|undefined|sap.ui.core.routing.Target[]} The target with the corresponding name or undefined. If an array way passed as name this will return an array with all found targets. Non existing targets will not be returned but will log an error.
 			 */
 			getTarget :  function(vName) {
 				return this._oTargets.getTarget(vName);
@@ -513,7 +566,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 * @param {sap.ui.base.EventProvider} oEvent.getSource
 			 * @param {object} oEvent.getParameters
 			 * @param {string} oEvent.getParameters.name The name of the route
-			 * @param {object} oEvent.getParameters.arguments An key-value pair object which contains the arguments defined in the route
+			 * @param {object} oEvent.getParameters.arguments A key-value pair object which contains the arguments defined in the route
 			 *  resolved with the corresponding information from the current URL hash
 			 * @param {object} oEvent.getParameters.config The configuration object of the route
 			 * @param {sap.ui.core.routing.Route} [oEvent.getParameters.nestedRoute] The nested route instance of this route. The event
@@ -530,7 +583,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 * @param {object} [oData] The object, that should be passed along with the event-object when firing the event.
 			 * @param {function} fnFunction The function to call, when the event occurs. This function will be called on the
 			 *            oListener-instance (if present) or in a 'static way'.
-			 * @param {object} [oListener] Object on which to call the given function. If empty, this Model is used.
+			 * @param {object} [oListener] Object on which to call the given function. If empty, this router is used.
 			 *
 			 * @return {sap.ui.core.routing.Router} <code>this</code> to allow method chaining
 			 * @public
@@ -569,11 +622,82 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			},
 
 			/**
+			 * The 'beforeRouteMatched' event is fired before the corresponding target is loaded and placed, when the current URL hash matches:
+			 * <pre>
+			 *  a. the pattern of a route in this router.
+			 *  b. the pattern of its sub-route.
+			 *  c. the pattern of its nested route. When this occurs, the 'nestedRoute' parameter is set with the instance of nested route.
+			 * </pre>
+			 *
+			 *
+			 * @name sap.ui.core.routing.Router#beforeRouteMatched
+			 * @event
+			 * @param {sap.ui.base.Event} oEvent
+			 * @param {sap.ui.base.EventProvider} oEvent.getSource
+			 * @param {object} oEvent.getParameters
+			 * @param {string} oEvent.getParameters.name The name of the route
+			 * @param {object} oEvent.getParameters.arguments A key-value pair object which contains the arguments defined in the route
+			 *  resolved with the corresponding information from the current URL hash
+			 * @param {object} oEvent.getParameters.config The configuration object of the route
+			 * @param {sap.ui.core.routing.Route} [oEvent.getParameters.nestedRoute] The nested route instance of this route. The event
+			 *  is fired on this route because the pattern in the nested route is matched with the current URL hash. This parameter can be
+			 *  used to decide whether the current route is matched because of its nested child route. For more information about nested
+			 *  child route please refer to the documentation of oConfig.parent in {@link sap.ui.core.routing.Route#constructor}
+			 * @public
+			 * @since 1.46.1
+			 */
+
+			/**
+			 * Attach event-handler <code>fnFunction</code> to the 'beforeRouteMatched' event of this <code>sap.ui.core.routing.Router</code>.<br/>
+			 *
+			 *
+			 * @param {object} [oData] The object, that should be passed along with the event-object when firing the event.
+			 * @param {function} fnFunction The function to call, when the event occurs. This function will be called on the
+			 *            oListener-instance (if present) or in a 'static way'.
+			 * @param {object} [oListener] Object on which to call the given function. If empty, this router is used.
+			 *
+			 * @return {sap.ui.core.routing.Router} <code>this</code> to allow method chaining
+			 * @public
+			 */
+			attachBeforeRouteMatched : function(oData, fnFunction, oListener) {
+				this.attachEvent("beforeRouteMatched", oData, fnFunction, oListener);
+				return this;
+			},
+
+			/**
+			 * Detach event-handler <code>fnFunction</code> from the 'beforeRouteMatched' event of this <code>sap.ui.core.routing.Router</code>.<br/>
+			 *
+			 * The passed function and listener object must match the ones previously used for event registration.
+			 *
+			 * @param {function} fnFunction The function to call, when the event occurs.
+			 * @param {object} oListener Object on which the given function had to be called.
+			 * @return {sap.ui.core.routing.Router} <code>this</code> to allow method chaining
+			 * @public
+			 */
+			detachBeforeRouteMatched : function(fnFunction, oListener) {
+				this.detachEvent("beforeRouteMatched", fnFunction, oListener);
+				return this;
+			},
+
+			/**
+			 * Fire event beforeRouteMatched to attached listeners.
+			 *
+			 * @param {object} [mArguments] the arguments to pass along with the event.
+			 *
+			 * @return {sap.ui.core.routing.Router} <code>this</code> to allow method chaining
+			 * @protected
+			 */
+			fireBeforeRouteMatched : function(mArguments) {
+				this.fireEvent("beforeRouteMatched", mArguments);
+				return this;
+			},
+
+			/**
 			 * Attach event-handler <code>fnFunction</code> to the 'viewCreated' event of this <code>sap.ui.core.routing.Router</code>.<br/>
 			 * @param {object} [oData] The object, that should be passed along with the event-object when firing the event.
 			 * @param {function} fnFunction The function to call, when the event occurs. This function will be called on the
 			 * oListener-instance (if present) or in a 'static way'.
-			 * @param {object} [oListener] Object on which to call the given function. If empty, this Model is used.
+			 * @param {object} [oListener] Object on which to call the given function. If empty, this router is used.
 			 *
 			 * @deprecated Since 1.28 use {@link #getViews} instead.
 			 * @return {sap.ui.core.routing.Router} <code>this</code> to allow method chaining
@@ -623,7 +747,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 * @param {sap.ui.base.EventProvider} oEvent.getSource
 			 * @param {object} oEvent.getParameters
 			 * @param {string} oEvent.getParameters.name The name of the route
-			 * @param {object} oEvent.getParameters.arguments An key-value pair object which contains the arguments defined in the route
+			 * @param {object} oEvent.getParameters.arguments A key-value pair object which contains the arguments defined in the route
 			 *  resolved with the corresponding information from the current URL hash
 			 * @param {object} oEvent.getParameters.config The configuration object of the route
 			 * @public
@@ -636,7 +760,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 * @param {object} [oData] The object, that should be passed along with the event-object when firing the event.
 			 * @param {function} fnFunction The function to call, when the event occurs. This function will be called on the
 			 *            oListener-instance (if present) or in a 'static way'.
-			 * @param {object} [oListener] Object on which to call the given function. If empty, this Model is used.
+			 * @param {object} [oListener] Object on which to call the given function. If empty, this router is used.
 			 *
 			 * @return {sap.ui.core.routing.Router} <code>this</code> to allow method chaining
 			 * @public
@@ -695,13 +819,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 * @param {object} [oData] The object, that should be passed along with the event-object when firing the event.
 			 * @param {function} fnFunction The function to call, when the event occurs. This function will be called on the
 			 *            oListener-instance (if present) or in a 'static way'.
-			 * @param {object} [oListener] Object on which to call the given function. If empty, this Model is used.
+			 * @param {object} [oListener] Object on which to call the given function. If empty, this router is used.
 			 *
 			 * @return {sap.ui.core.routing.Router} <code>this</code> to allow method chaining
 			 * @public
 			 */
 			attachBypassed : function(oData, fnFunction, oListener) {
-				return this.attachEvent(Router.M_EVENTS.Bypassed, oData, fnFunction, oListener);
+				return this.attachEvent(Router.M_EVENTS.BYPASSED, oData, fnFunction, oListener);
 			},
 
 			/**
@@ -716,7 +840,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 * @public
 			 */
 			detachBypassed : function(fnFunction, oListener) {
-				return this.detachEvent(Router.M_EVENTS.Bypassed, fnFunction, oListener);
+				return this.detachEvent(Router.M_EVENTS.BYPASSED, fnFunction, oListener);
 			},
 
 			/**
@@ -729,7 +853,133 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 			 * @protected
 			 */
 			fireBypassed : function(mArguments) {
-				return this.fireEvent(Router.M_EVENTS.Bypassed, mArguments);
+				return this.fireEvent(Router.M_EVENTS.BYPASSED, mArguments);
+			},
+
+			/**
+			 * Will be fired when the title of the "TitleTarget" in the currently matching Route has been changed.
+			 *
+			 * <pre>
+			 * A "TitleTarget" is resolved as the following:
+			 *  1. When the Route only has one target configured, the "TitleTarget" is resolved with this target when its {@link sap.ui.core.routing.Targets#constructor|title} options is set.
+			 *  2. When the Route has more than one target configured, the "TitleTarget" is resolved by default with the first target which has a {@link sap.ui.core.routing.Targets#constructor|title} option.
+			 *  3. When the {@link sap.ui.core.routing.Route#constructor|titleTarget} option on the Route is configured, this specific target is then used as the "TitleTarget".
+			 * </pre>
+			 *
+			 * @name sap.ui.core.routing.Router#titleChanged
+			 * @event
+			 * @param {object} oEvent
+			 * @param {sap.ui.base.EventProvider} oEvent.getSource
+			 * @param {object} oEvent.getParameters
+			 * @param {string} oEvent.getParameters.title The current displayed title
+			 * @param {array} oEvent.getParameters.history An array which contains the history of previous titles
+			 * @param {string} oEvent.getParameters.history[].title The title
+			 * @param {string} oEvent.getParameters.history[].hash The hash
+			 * @param {boolean} oEvent.getParameters.history[].isHome The app home indicator
+			 * @public
+			 */
+
+			/**
+ 			 * Attach event-handler <code>fnFunction</code> to the 'titleChanged' event of this <code>sap.ui.core.routing.Router</code>.<br/>
+ 			 * @param {object} [oData] The object, that should be passed along with the event-object when firing the event.
+ 			 * @param {function} fnFunction The function to call, when the event occurs. This function will be called on the
+ 			 * oListener-instance (if present) or in a 'static way'.
+ 			 * @param {object} [oListener] Object on which to call the given function.
+ 			 *
+ 			 * @return {sap.ui.core.routing.Router} <code>this</code> to allow method chaining
+ 			 * @public
+ 			 */
+			attachTitleChanged : function(oData, fnFunction, oListener) {
+				this.attachEvent(Router.M_EVENTS.TITLE_CHANGED, oData, fnFunction, oListener);
+				return this;
+			},
+
+			/**
+			 * Detach event-handler <code>fnFunction</code> from the 'titleChanged' event of this <code>sap.ui.core.routing.Router</code>.<br/>
+			 *
+			 * The passed function and listener object must match the ones previously used for event registration.
+			 *
+			 * @param {function} fnFunction The function to call, when the event occurs.
+			 * @param {object} oListener Object on which the given function had to be called.
+			 * @return {sap.ui.core.routing.Router} <code>this</code> to allow method chaining
+			 * @public
+			 */
+			detachTitleChanged : function(fnFunction, oListener) {
+				return this.detachEvent(Router.M_EVENTS.TITLE_CHANGED, fnFunction, oListener);
+			},
+
+			// private
+			fireTitleChanged : function(mArguments) {
+				var sDirection = History.getInstance().getDirection(),
+					sHash = this.oHashChanger.getHash(),
+					HistoryDirection = library.routing.HistoryDirection,
+					oLastHistoryEntry = this._aHistory[this._aHistory.length - 1],
+					oNewHistoryEntry;
+
+				// when back navigation, the last history state should be removed - except home route
+				if (sDirection === HistoryDirection.Backwards && oLastHistoryEntry && !oLastHistoryEntry.isHome) {
+					// but only if the last history entrie´s title is not the same as the current one
+					if (oLastHistoryEntry && oLastHistoryEntry.title !== mArguments.title) {
+						this._aHistory.pop();
+					}
+				} else if (oLastHistoryEntry && oLastHistoryEntry.hash == sHash) {
+					// if no actual navigation took place, we only need to update the title
+					oLastHistoryEntry.title = mArguments.title;
+
+					// check whether there's a duplicate history entry with the last history entry and remove it if there is
+					this._aHistory.some(function(oEntry, i, aHistory) {
+						if (i < aHistory.length - 1 && jQuery.sap.equal(oEntry, oLastHistoryEntry)) {
+							return aHistory.splice(i, 1);
+						}
+					});
+				} else {
+					if (this._bLastHashReplaced) {
+						// if the current hash change is done via replacement, the last history entry should be removed
+						this._aHistory.pop();
+					}
+
+					oNewHistoryEntry = {
+						hash: sHash,
+						title: mArguments.title
+					};
+
+					// Array.some is sufficient here, as we ensure there is only one occurence
+					this._aHistory.some(function(oEntry, i, aHistory) {
+						if (jQuery.sap.equal(oEntry, oNewHistoryEntry)) {
+							return aHistory.splice(i, 1);
+						}
+					});
+
+					// push new history state into the stack
+					this._aHistory.push(oNewHistoryEntry);
+				}
+
+				mArguments.history = this._aHistory.slice(0, -1);
+
+				this.fireEvent(Router.M_EVENTS.TITLE_CHANGED, mArguments);
+
+				this._bLastHashReplaced = false;
+
+				return this;
+			},
+
+			/**
+			 * Returns the title history.
+			 *
+			 * History entry example:
+			 * <code>
+			 *	{
+			 *		title: "TITLE", // The displayed title
+			 *		hash: "HASH" // The url hash
+			 *		isHome: "true/false" // The app home indicator
+			 *	}
+			 * </code>
+			 *
+			 * @return {array} An array which contains the history entries.
+			 * @public
+			 */
+			getTitleHistory: function() {
+				return this._aHistory || [];
 			},
 
 			/**
@@ -775,11 +1025,34 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './HashChanger'
 
 		});
 
+		function isHomeRouteTarget(sRouteTarget, sHomeRoute) {
+			return sHomeRoute && sHomeRoute.indexOf(sRouteTarget) > -1;
+		}
+
+		function getHomeEntry(oOwnerComponent, oHomeRoute) {
+			var sHomeRoutePattern = oHomeRoute.getPattern(),
+				sAppTitle = oOwnerComponent && oOwnerComponent.getManifestEntry("sap.app/title");
+
+			// check for placeholders - they are not allowed
+			if (sHomeRoutePattern === "" || (sHomeRoutePattern !== undefined && !/({.*})+/.test(sHomeRoutePattern))) {
+
+				return {
+					hash: sHomeRoutePattern,
+					isHome: true,
+					title: sAppTitle
+				};
+			} else {
+				jQuery.sap.log.error("Routes with dynamic parts cannot be resolved as home route.");
+			}
+		}
+
 		Router.M_EVENTS = {
-			RouteMatched : "routeMatched",
-			RoutePatternMatched : "routePatternMatched",
-			ViewCreated : "viewCreated",
-			Bypassed: "bypassed"
+			BEFORE_ROUTE_MATCHED: "beforeRouteMatched",
+			ROUTE_MATCHED: "routeMatched",
+			ROUTE_PATTERN_MATCHED: "routePatternMatched",
+			VIEW_CREATED: "viewCreated",
+			BYPASSED: "bypassed",
+			TITLE_CHANGED: "titleChanged"
 		};
 
 		/**

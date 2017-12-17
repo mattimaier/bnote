@@ -30,6 +30,7 @@
 		"aro": "Araona",
 		"arp": "Arapaho",
 		"arq": "Algerian Arabic",
+		"ars": "Najdi Arabic",
 		"arw": "Arawak",
 		"ary": "Moroccan Arabic",
 		"arz": "Egyptian Arabic",
@@ -68,7 +69,7 @@
 		"bkm": "Kom",
 		"bla": "Siksika",
 		"bm": "Bambara",
-		"bn": "Bengali",
+		"bn": "Bangla",
 		"bo": "Tibetan",
 		"bpy": "Bishnupriya",
 		"bqi": "Bakhtiari",
@@ -107,6 +108,7 @@
 		"cps": "Capiznon",
 		"cr": "Cree",
 		"crh": "Crimean Turkish",
+		"crs": "Seselwa Creole French",
 		"cs": "Czech",
 		"csb": "Kashubian",
 		"cu": "Church Slavic",
@@ -345,7 +347,6 @@
 		"mas": "Masai",
 		"mde": "Maba",
 		"mdf": "Moksha",
-		"mdh": "mdh",
 		"mdr": "Mandar",
 		"men": "Mende",
 		"mer": "Meru",
@@ -356,9 +357,8 @@
 		"mgo": "Metaʼ",
 		"mh": "Marshallese",
 		"mi": "Maori",
-		"mic": "Micmac",
+		"mic": "Mi'kmaq",
 		"min": "Minangkabau",
-		"mis": "mis",
 		"mk": "Macedonian",
 		"ml": "Malayalam",
 		"mn": "Mongolian",
@@ -371,7 +371,7 @@
 		"ms": "Malay",
 		"mt": "Maltese",
 		"mua": "Mundang",
-		"mul": "Multiple Languages",
+		"mul": "Multiple languages",
 		"mus": "Creek",
 		"mwl": "Mirandese",
 		"mwr": "Marwari",
@@ -418,7 +418,7 @@
 		"oc": "Occitan",
 		"oj": "Ojibwa",
 		"om": "Oromo",
-		"or": "Oriya",
+		"or": "Odia",
 		"os": "Ossetic",
 		"osa": "Osage",
 		"ota": "Ottoman Turkish",
@@ -429,6 +429,7 @@
 		"pap": "Papiamento",
 		"pau": "Palauan",
 		"pcd": "Picard",
+		"pcm": "Nigerian Pidgin",
 		"pdc": "Pennsylvania German",
 		"pdt": "Plautdietsch",
 		"peo": "Old Persian",
@@ -576,7 +577,7 @@
 		"uga": "Ugaritic",
 		"uk": "Ukrainian",
 		"umb": "Umbundu",
-		"und": "Unknown Language",
+		"und": "Unknown language",
 		"ur": "Urdu",
 		"uz": "Uzbek",
 		"vai": "Vai",
@@ -617,6 +618,7 @@
 		"zen": "Zenaga",
 		"zgh": "Standard Moroccan Tamazight",
 		"zh": "Chinese",
+		"zh_alt-long": "Mandarin Chinese",
 		"zh_Hans": "Simplified Chinese",
 		"zh_Hant": "Traditional Chinese",
 		"zu": "Zulu",
@@ -625,7 +627,7 @@
 		"zza": "Zaza"
 	},
 	"scripts": {
-		"Adlm": "Adlm",
+		"Adlm": "Adlam",
 		"Afak": "Afaka",
 		"Aghb": "Caucasian Albanian",
 		"Ahom": "Ahom",
@@ -638,8 +640,8 @@
 		"Bamu": "Bamum",
 		"Bass": "Bassa Vah",
 		"Batk": "Batak",
-		"Beng": "Bengali",
-		"Bhks": "Bhks",
+		"Beng": "Bangla",
+		"Bhks": "Bhaiksuki",
 		"Blis": "Blissymbols",
 		"Bopo": "Bopomofo",
 		"Brah": "Brahmi",
@@ -673,7 +675,7 @@
 		"Grek": "Greek",
 		"Gujr": "Gujarati",
 		"Guru": "Gurmukhi",
-		"Hanb": "Hanb",
+		"Hanb": "Han with Bopomofo",
 		"Hang": "Hangul",
 		"Hani": "Han",
 		"Hano": "Hanunoo",
@@ -719,7 +721,7 @@
 		"Mahj": "Mahajani",
 		"Mand": "Mandaean",
 		"Mani": "Manichaean",
-		"Marc": "Marc",
+		"Marc": "Marchen",
 		"Maya": "Mayan hieroglyphs",
 		"Mend": "Mende",
 		"Merc": "Meroitic Cursive",
@@ -741,8 +743,8 @@
 		"Ogam": "Ogham",
 		"Olck": "Ol Chiki",
 		"Orkh": "Orkhon",
-		"Orya": "Oriya",
-		"Osge": "Osge",
+		"Orya": "Odia",
+		"Osge": "Osage",
 		"Osma": "Osmanya",
 		"Palm": "Palmyrene",
 		"Pauc": "Pau Cin Hau",
@@ -754,55 +756,6 @@
 		"Phnx": "Phoenician",
 		"Plrd": "Pollard Phonetic",
 		"Prti": "Inscriptional Parthian",
-		"Qaaa": "Qaaa",
-		"Qaab": "Qaab",
-		"Qaac": "Qaac",
-		"Qaad": "Qaad",
-		"Qaae": "Qaae",
-		"Qaaf": "Qaaf",
-		"Qaag": "Qaag",
-		"Qaah": "Qaah",
-		"Qaaj": "Qaaj",
-		"Qaak": "Qaak",
-		"Qaal": "Qaal",
-		"Qaam": "Qaam",
-		"Qaan": "Qaan",
-		"Qaao": "Qaao",
-		"Qaap": "Qaap",
-		"Qaaq": "Qaaq",
-		"Qaar": "Qaar",
-		"Qaas": "Qaas",
-		"Qaat": "Qaat",
-		"Qaau": "Qaau",
-		"Qaav": "Qaav",
-		"Qaaw": "Qaaw",
-		"Qaax": "Qaax",
-		"Qaay": "Qaay",
-		"Qaaz": "Qaaz",
-		"Qaba": "Qaba",
-		"Qabb": "Qabb",
-		"Qabc": "Qabc",
-		"Qabd": "Qabd",
-		"Qabe": "Qabe",
-		"Qabf": "Qabf",
-		"Qabg": "Qabg",
-		"Qabh": "Qabh",
-		"Qabi": "Qabi",
-		"Qabj": "Qabj",
-		"Qabk": "Qabk",
-		"Qabl": "Qabl",
-		"Qabm": "Qabm",
-		"Qabn": "Qabn",
-		"Qabo": "Qabo",
-		"Qabp": "Qabp",
-		"Qabq": "Qabq",
-		"Qabr": "Qabr",
-		"Qabs": "Qabs",
-		"Qabt": "Qabt",
-		"Qabu": "Qabu",
-		"Qabv": "Qabv",
-		"Qabw": "Qabw",
-		"Qabx": "Qabx",
 		"Rjng": "Rejang",
 		"Roro": "Rongorongo",
 		"Runr": "Runic",
@@ -947,7 +900,8 @@
 		"CW": "Curaçao",
 		"CX": "Christmas Island",
 		"CY": "Cyprus",
-		"CZ": "Czech Republic",
+		"CZ": "Czechia",
+		"CZ-alt-variant": "Czech Republic",
 		"DE": "Germany",
 		"DG": "Diego Garcia",
 		"DJ": "Djibouti",
@@ -964,6 +918,7 @@
 		"ES": "Spain",
 		"ET": "Ethiopia",
 		"EU": "European Union",
+		"EZ": "Eurozone",
 		"FI": "Finland",
 		"FJ": "Fiji",
 		"FK": "Falkland Islands",
@@ -1138,6 +1093,8 @@
 		"UA": "Ukraine",
 		"UG": "Uganda",
 		"UM": "U.S. Outlying Islands",
+		"UN": "United Nations",
+		"UN-alt-short": "UN",
 		"US": "United States",
 		"US-alt-short": "US",
 		"UY": "Uruguay",
@@ -1217,7 +1174,9 @@
 				"yMMMEd": "E, MMM d, y",
 				"yMMMM": "MMMM y",
 				"yQQQ": "QQQ y",
-				"yQQQQ": "QQQQ y"
+				"yQQQQ": "QQQQ y",
+				"MMMMW": "'week' W 'of' MMMM",
+				"yw": "'week' w 'of' y"
 			},
 			"appendItems": {
 				"Day": "{0} ({2}: {1})",
@@ -2420,6 +2379,421 @@
 			"235": "H"
 		}
 	},
+	"ca-persian": {
+		"dateFormats": {
+			"full": "EEEE, MMMM d, y G",
+			"long": "MMMM d, y G",
+			"medium": "MMM d, y G",
+			"short": "M/d/y GGGGG"
+		},
+		"timeFormats": {
+			"full": "h:mm:ss a zzzz",
+			"long": "h:mm:ss a z",
+			"medium": "h:mm:ss a",
+			"short": "h:mm a"
+		},
+		"dateTimeFormats": {
+			"full": "{1} 'at' {0}",
+			"long": "{1} 'at' {0}",
+			"medium": "{1}, {0}",
+			"short": "{1}, {0}",
+			"availableFormats": {
+				"d": "d",
+				"E": "ccc",
+				"Ed": "d E",
+				"Ehm": "E h:mm a",
+				"EHm": "E HH:mm",
+				"Ehms": "E h:mm:ss a",
+				"EHms": "E HH:mm:ss",
+				"Gy": "y G",
+				"GyMMM": "MMM y G",
+				"GyMMMd": "MMM d, y G",
+				"GyMMMEd": "E, MMM d, y G",
+				"h": "h a",
+				"H": "HH",
+				"hm": "h:mm a",
+				"Hm": "HH:mm",
+				"hms": "h:mm:ss a",
+				"Hms": "HH:mm:ss",
+				"M": "L",
+				"Md": "M/d",
+				"MEd": "E, M/d",
+				"MMM": "LLL",
+				"MMMd": "MMM d",
+				"MMMEd": "E, MMM d",
+				"MMMMd": "MMMM d",
+				"ms": "mm:ss",
+				"y": "y G",
+				"yyyy": "y G",
+				"yyyyM": "M/y GGGGG",
+				"yyyyMd": "M/d/y GGGGG",
+				"yyyyMEd": "E, M/d/y GGGGG",
+				"yyyyMMM": "MMM y G",
+				"yyyyMMMd": "MMM d, y G",
+				"yyyyMMMEd": "E, MMM d, y G",
+				"yyyyMMMM": "MMMM y G",
+				"yyyyQQQ": "QQQ y G",
+				"yyyyQQQQ": "QQQQ y G"
+			},
+			"appendItems": {
+				"Day": "{0} ({2}: {1})",
+				"Day-Of-Week": "{0} {1}",
+				"Era": "{0} {1}",
+				"Hour": "{0} ({2}: {1})",
+				"Minute": "{0} ({2}: {1})",
+				"Month": "{0} ({2}: {1})",
+				"Quarter": "{0} ({2}: {1})",
+				"Second": "{0} ({2}: {1})",
+				"Timezone": "{0} {1}",
+				"Week": "{0} ({2}: {1})",
+				"Year": "{0} {1}"
+			},
+			"intervalFormats": {
+				"intervalFormatFallback": "{0} – {1}",
+				"d": {
+					"d": "d – d"
+				},
+				"h": {
+					"a": "h a – h a",
+					"h": "h – h a"
+				},
+				"H": {
+					"H": "HH – HH"
+				},
+				"hm": {
+					"a": "h:mm a – h:mm a",
+					"h": "h:mm – h:mm a",
+					"m": "h:mm – h:mm a"
+				},
+				"Hm": {
+					"H": "HH:mm – HH:mm",
+					"m": "HH:mm – HH:mm"
+				},
+				"hmv": {
+					"a": "h:mm a – h:mm a v",
+					"h": "h:mm – h:mm a v",
+					"m": "h:mm – h:mm a v"
+				},
+				"Hmv": {
+					"H": "HH:mm – HH:mm v",
+					"m": "HH:mm – HH:mm v"
+				},
+				"hv": {
+					"a": "h a – h a v",
+					"h": "h – h a v"
+				},
+				"Hv": {
+					"H": "HH – HH v"
+				},
+				"M": {
+					"M": "M – M"
+				},
+				"Md": {
+					"d": "M/d – M/d",
+					"M": "M/d – M/d"
+				},
+				"MEd": {
+					"d": "E, M/d – E, M/d",
+					"M": "E, M/d – E, M/d"
+				},
+				"MMM": {
+					"M": "MMM – MMM"
+				},
+				"MMMd": {
+					"d": "MMM d – d",
+					"M": "MMM d – MMM d"
+				},
+				"MMMEd": {
+					"d": "E, MMM d – E, MMM d",
+					"M": "E, MMM d – E, MMM d"
+				},
+				"y": {
+					"y": "y – y G"
+				},
+				"yM": {
+					"M": "M/y – M/y GGGGG",
+					"y": "M/y – M/y GGGGG"
+				},
+				"yMd": {
+					"d": "M/d/y – M/d/y GGGGG",
+					"M": "M/d/y – M/d/y GGGGG",
+					"y": "M/d/y – M/d/y GGGGG"
+				},
+				"yMEd": {
+					"d": "E, M/d/y – E, M/d/y GGGGG",
+					"M": "E, M/d/y – E, M/d/y GGGGG",
+					"y": "E, M/d/y – E, M/d/y GGGGG"
+				},
+				"yMMM": {
+					"M": "MMM – MMM y G",
+					"y": "MMM y – MMM y G"
+				},
+				"yMMMd": {
+					"d": "MMM d – d, y G",
+					"M": "MMM d – MMM d, y G",
+					"y": "MMM d, y – MMM d, y G"
+				},
+				"yMMMEd": {
+					"d": "E, MMM d – E, MMM d, y G",
+					"M": "E, MMM d – E, MMM d, y G",
+					"y": "E, MMM d, y – E, MMM d, y G"
+				},
+				"yMMMM": {
+					"M": "MMMM – MMMM y G",
+					"y": "MMMM y – MMMM y G"
+				}
+			}
+		},
+		"months": {
+			"format": {
+				"abbreviated": [
+					"Farvardin",
+					"Ordibehesht",
+					"Khordad",
+					"Tir",
+					"Mordad",
+					"Shahrivar",
+					"Mehr",
+					"Aban",
+					"Azar",
+					"Dey",
+					"Bahman",
+					"Esfand"
+				],
+				"narrow": [
+					"1",
+					"2",
+					"3",
+					"4",
+					"5",
+					"6",
+					"7",
+					"8",
+					"9",
+					"10",
+					"11",
+					"12"
+				],
+				"wide": [
+					"Farvardin",
+					"Ordibehesht",
+					"Khordad",
+					"Tir",
+					"Mordad",
+					"Shahrivar",
+					"Mehr",
+					"Aban",
+					"Azar",
+					"Dey",
+					"Bahman",
+					"Esfand"
+				]
+			},
+			"stand-alone": {
+				"abbreviated": [
+					"Farvardin",
+					"Ordibehesht",
+					"Khordad",
+					"Tir",
+					"Mordad",
+					"Shahrivar",
+					"Mehr",
+					"Aban",
+					"Azar",
+					"Dey",
+					"Bahman",
+					"Esfand"
+				],
+				"narrow": [
+					"1",
+					"2",
+					"3",
+					"4",
+					"5",
+					"6",
+					"7",
+					"8",
+					"9",
+					"10",
+					"11",
+					"12"
+				],
+				"wide": [
+					"Farvardin",
+					"Ordibehesht",
+					"Khordad",
+					"Tir",
+					"Mordad",
+					"Shahrivar",
+					"Mehr",
+					"Aban",
+					"Azar",
+					"Dey",
+					"Bahman",
+					"Esfand"
+				]
+			}
+		},
+		"days": {
+			"format": {
+				"abbreviated": [
+					"Sun",
+					"Mon",
+					"Tue",
+					"Wed",
+					"Thu",
+					"Fri",
+					"Sat"
+				],
+				"narrow": [
+					"S",
+					"M",
+					"T",
+					"W",
+					"T",
+					"F",
+					"S"
+				],
+				"short": [
+					"Su",
+					"Mo",
+					"Tu",
+					"We",
+					"Th",
+					"Fr",
+					"Sa"
+				],
+				"wide": [
+					"Sunday",
+					"Monday",
+					"Tuesday",
+					"Wednesday",
+					"Thursday",
+					"Friday",
+					"Saturday"
+				]
+			},
+			"stand-alone": {
+				"abbreviated": [
+					"Sun",
+					"Mon",
+					"Tue",
+					"Wed",
+					"Thu",
+					"Fri",
+					"Sat"
+				],
+				"narrow": [
+					"S",
+					"M",
+					"T",
+					"W",
+					"T",
+					"F",
+					"S"
+				],
+				"short": [
+					"Su",
+					"Mo",
+					"Tu",
+					"We",
+					"Th",
+					"Fr",
+					"Sa"
+				],
+				"wide": [
+					"Sunday",
+					"Monday",
+					"Tuesday",
+					"Wednesday",
+					"Thursday",
+					"Friday",
+					"Saturday"
+				]
+			}
+		},
+		"quarters": {
+			"format": {
+				"abbreviated": [
+					"Q1",
+					"Q2",
+					"Q3",
+					"Q4"
+				],
+				"narrow": [
+					"1",
+					"2",
+					"3",
+					"4"
+				],
+				"wide": [
+					"1st quarter",
+					"2nd quarter",
+					"3rd quarter",
+					"4th quarter"
+				]
+			},
+			"stand-alone": {
+				"abbreviated": [
+					"Q1",
+					"Q2",
+					"Q3",
+					"Q4"
+				],
+				"narrow": [
+					"1",
+					"2",
+					"3",
+					"4"
+				],
+				"wide": [
+					"1st quarter",
+					"2nd quarter",
+					"3rd quarter",
+					"4th quarter"
+				]
+			}
+		},
+		"dayPeriods": {
+			"format": {
+				"abbreviated": [
+					"AM",
+					"PM"
+				],
+				"narrow": [
+					"a",
+					"p"
+				],
+				"wide": [
+					"AM",
+					"PM"
+				]
+			},
+			"stand-alone": {
+				"abbreviated": [
+					"AM",
+					"PM"
+				],
+				"narrow": [
+					"AM",
+					"PM"
+				],
+				"wide": [
+					"AM",
+					"PM"
+				]
+			}
+		},
+		"era-wide": {
+			"0": "AP"
+		},
+		"era-abbreviated": {
+			"0": "AP"
+		},
+		"era-narrow": {
+			"0": "AP"
+		}
+	},
 	"dateFields": {
 		"era": {
 			"displayName": "era"
@@ -2500,11 +2874,11 @@
 			"relative-type-0": "this qtr.",
 			"relative-type-1": "next qtr.",
 			"relativeTime-type-future": {
-				"relativeTimePattern-count-one": "in {0} qtrs.",
+				"relativeTimePattern-count-one": "in {0} qtr.",
 				"relativeTimePattern-count-other": "in {0} qtrs."
 			},
 			"relativeTime-type-past": {
-				"relativeTimePattern-count-one": "{0} qtrs. ago",
+				"relativeTimePattern-count-one": "{0} qtr. ago",
 				"relativeTimePattern-count-other": "{0} qtrs. ago"
 			}
 		},
@@ -2562,7 +2936,8 @@
 			"relativeTime-type-past": {
 				"relativeTimePattern-count-one": "{0} week ago",
 				"relativeTimePattern-count-other": "{0} weeks ago"
-			}
+			},
+			"relativePeriod": "the week of {0}"
 		},
 		"week-short": {
 			"displayName": "wk.",
@@ -2576,7 +2951,8 @@
 			"relativeTime-type-past": {
 				"relativeTimePattern-count-one": "{0} wk. ago",
 				"relativeTimePattern-count-other": "{0} wk. ago"
-			}
+			},
+			"relativePeriod": "the week of {0}"
 		},
 		"week-narrow": {
 			"displayName": "wk.",
@@ -2590,7 +2966,8 @@
 			"relativeTime-type-past": {
 				"relativeTimePattern-count-one": "{0} wk. ago",
 				"relativeTimePattern-count-other": "{0} wk. ago"
-			}
+			},
+			"relativePeriod": "the week of {0}"
 		},
 		"day-wide": {
 			"displayName": "day",
@@ -2626,11 +3003,11 @@
 			"relative-type-0": "today",
 			"relative-type-1": "tomorrow",
 			"relativeTime-type-future": {
-				"relativeTimePattern-count-one": "in {0} days",
+				"relativeTimePattern-count-one": "in {0} day",
 				"relativeTimePattern-count-other": "in {0} days"
 			},
 			"relativeTime-type-past": {
-				"relativeTimePattern-count-one": "{0} days ago",
+				"relativeTimePattern-count-one": "{0} day ago",
 				"relativeTimePattern-count-other": "{0} days ago"
 			}
 		},
@@ -2639,6 +3016,7 @@
 		},
 		"hour-wide": {
 			"displayName": "hour",
+			"relative-type-0": "this hour",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "in {0} hour",
 				"relativeTimePattern-count-other": "in {0} hours"
@@ -2650,6 +3028,7 @@
 		},
 		"hour-short": {
 			"displayName": "hr.",
+			"relative-type-0": "this hour",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "in {0} hr.",
 				"relativeTimePattern-count-other": "in {0} hr."
@@ -2661,6 +3040,7 @@
 		},
 		"hour-narrow": {
 			"displayName": "hr.",
+			"relative-type-0": "this hour",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "in {0} hr.",
 				"relativeTimePattern-count-other": "in {0} hr."
@@ -2672,6 +3052,7 @@
 		},
 		"minute-wide": {
 			"displayName": "minute",
+			"relative-type-0": "this minute",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "in {0} minute",
 				"relativeTimePattern-count-other": "in {0} minutes"
@@ -2683,6 +3064,7 @@
 		},
 		"minute-short": {
 			"displayName": "min.",
+			"relative-type-0": "this minute",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "in {0} min.",
 				"relativeTimePattern-count-other": "in {0} min."
@@ -2694,6 +3076,7 @@
 		},
 		"minute-narrow": {
 			"displayName": "min.",
+			"relative-type-0": "this minute",
 			"relativeTime-type-future": {
 				"relativeTimePattern-count-one": "in {0} min.",
 				"relativeTimePattern-count-other": "in {0} min."
@@ -2820,6 +3203,32 @@
 			}
 		}
 	},
+	"currencyFormat-short": {
+		"1000-one": "¤0K",
+		"1000-other": "¤0K",
+		"10000-one": "¤00K",
+		"10000-other": "¤00K",
+		"100000-one": "¤000K",
+		"100000-other": "¤000K",
+		"1000000-one": "¤0M",
+		"1000000-other": "¤0M",
+		"10000000-one": "¤00M",
+		"10000000-other": "¤00M",
+		"100000000-one": "¤000M",
+		"100000000-other": "¤000M",
+		"1000000000-one": "¤0B",
+		"1000000000-other": "¤0B",
+		"10000000000-one": "¤00B",
+		"10000000000-other": "¤00B",
+		"100000000000-one": "¤000B",
+		"100000000000-other": "¤000B",
+		"1000000000000-one": "¤0T",
+		"1000000000000-other": "¤0T",
+		"10000000000000-one": "¤00T",
+		"10000000000000-other": "¤00T",
+		"100000000000000-one": "¤000T",
+		"100000000000000-other": "¤000T"
+	},
 	"symbols-latn-decimal": ".",
 	"symbols-latn-group": ",",
 	"symbols-latn-list": ";",
@@ -2854,6 +3263,7 @@
 		"XOF": "CFA",
 		"XPF": "CFPF"
 	},
+	"rtl": false,
 	"currencyDigits": {
 		"ADP": 0,
 		"AFN": 0,
@@ -2861,6 +3271,7 @@
 		"AMD": 0,
 		"BHD": 3,
 		"BIF": 0,
+		"BYN": 2,
 		"BYR": 0,
 		"CAD": 2,
 		"CHF": 2,
@@ -2922,6 +3333,9 @@
 		"ZMK": 0,
 		"ZWD": 0
 	},
+	"plurals": {
+		"one": "i = 1 and v = 0"
+	},
 	"weekData-minDays": 1,
 	"weekData-firstDay": 0,
 	"weekData-weekendStart": 6,
@@ -2941,6 +3355,11 @@
 	"eras-islamic": {
 		"0": {
 			"_start": "622-7-15"
+		}
+	},
+	"eras-persian": {
+		"0": {
+			"_start": "622-01-01"
 		}
 	},
 	"eras-japanese": {

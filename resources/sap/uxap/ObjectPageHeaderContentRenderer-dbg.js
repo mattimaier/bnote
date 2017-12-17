@@ -1,13 +1,13 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 sap.ui.define([
 	"./ObjectPageHeaderRenderer",
 	"./ObjectPageLayout",
-	"sap/ui/core/Icon"], function (ObjectPageHeaderRenderer, ObjectPageLayout, Icon) {
+	"./ObjectImageHelper"], function (ObjectPageHeaderRenderer, ObjectPageLayout, ObjectImageHelper) {
 	"use strict";
 
 	/**
@@ -19,13 +19,14 @@ sap.ui.define([
 	ObjectPageHeaderContentRenderer.render = function (oRm, oControl) {
 		var oParent = oControl.getParent(),
 			bParentLayout = (oParent instanceof ObjectPageLayout),
-			oHeader = (oParent && bParentLayout) ? oParent.getHeaderTitle() : false,
+			oHeader = (oParent && bParentLayout) ? oParent.getHeaderTitle() : undefined,
 			bRenderTitle = (oParent && bParentLayout) ? ((oParent instanceof ObjectPageLayout)
-			&& oParent.getShowTitleInHeaderContent()) : false,
+				&& oParent.getShowTitleInHeaderContent()) : false,
 			bRenderEditBtn = bParentLayout && oParent.getShowEditHeaderButton() && oControl.getContent() && oControl.getContent().length > 0;
 
 		if (bRenderEditBtn) {
 			oRm.write("<div ");
+			oRm.writeControlData(oControl);
 			oRm.addClass("sapUxAPObjectPageHeaderContentFlexBox");
 			oRm.addClass("sapUxAPObjectPageHeaderContentDesign-" + oControl.getContentDesign());
 			if (oHeader) {
@@ -35,10 +36,10 @@ sap.ui.define([
 			oRm.write(">");
 		}
 		oRm.write("<div ");
-		oRm.writeControlData(oControl);
 		if (bRenderEditBtn) {
 			oRm.addClass("sapUxAPObjectPageHeaderContentCellLeft");
 		} else {
+			oRm.writeControlData(oControl);
 			oRm.addClass("sapUxAPObjectPageHeaderContentDesign-" + oControl.getContentDesign());
 			if (oHeader) {
 				oRm.addClass('sapUxAPObjectPageContentObjectImage-' + oHeader.getObjectImageShape());
@@ -61,7 +62,7 @@ sap.ui.define([
 		}
 
 		if (bRenderTitle) {
-			this._renderTitleImage(oRm, oHeader);
+			this._renderTitleImage(oRm, oControl, oHeader);
 
 			if (oControl.getContent().length == 0) {
 				oRm.write("<span class=\"sapUxAPObjectPageHeaderContentItem\">");
@@ -71,7 +72,7 @@ sap.ui.define([
 		}
 
 		oControl.getContent().forEach(function (oItem, iIndex) {
-			this._renderHeaderContent(oItem, iIndex, oRm, bRenderTitle, oHeader, oControl);
+			this._renderHeaderContentItem(oItem, iIndex, oRm, bRenderTitle, oHeader, oControl);
 		}, this);
 
 		oRm.write("</div>");
@@ -85,19 +86,18 @@ sap.ui.define([
 
 	/**
 	 * This method is called to render the content
-	 * @param {*} oHeaderContent header content
-	 * @param {*} iIndex index
-	 * @param {*} oRm oRm
-	 * @param {*} bRenderTitle render title
-	 * @param {*} oHeader header
-	 * @param {*} oControl control
+	 * @param {sap.ui.core.Control} oHeaderContentItem header content item
+	 * @param {int} iIndex index
+	 * @param {sap.ui.core.RenderManager} oRm oRm
+	 * @param {boolean} bRenderTitle render title
+	 * @param {sap.uxap.ObjectPageHeader} oTitle header title
+	 * @param {sap.ui.core.Control} oControl control
 	 */
-	ObjectPageHeaderContentRenderer._renderHeaderContent = function (oHeaderContent, iIndex, oRm, bRenderTitle, oHeader, oControl) {
+	ObjectPageHeaderContentRenderer._renderHeaderContentItem = function (oHeaderContentItem, iIndex, oRm, bRenderTitle, oTitle, oControl) {
 		var bHasSeparatorBefore = false,
 			bHasSeparatorAfter = false,
-			oLayoutData = oControl._getLayoutDataForControl(oHeaderContent),
-			bIsFirstControl = iIndex === 0,
-			bIsLastControl = iIndex === (oControl.getContent().length - 1);
+			oLayoutData = oControl._getLayoutDataForControl(oHeaderContentItem),
+			bIsFirstControl = iIndex === 0;
 
 		if (oLayoutData) {
 			bHasSeparatorBefore = oLayoutData.getShowSeparatorBefore();
@@ -131,24 +131,24 @@ sap.ui.define([
 			}
 
 			if (bIsFirstControl && bRenderTitle) { // render title inside the first contentItem
-				this._renderTitle(oRm, oHeader);
+				this._renderTitle(oRm, oTitle);
 			}
 		} else {
 			if (bIsFirstControl && bRenderTitle) { // render title inside the first contentItem
 				oRm.write("<span class=\"sapUxAPObjectPageHeaderContentItem\">");
-				this._renderTitle(oRm, oHeader);
+				this._renderTitle(oRm, oTitle);
 			} else {
-				oHeaderContent.addStyleClass("sapUxAPObjectPageHeaderContentItem");
+				oHeaderContentItem.addStyleClass("sapUxAPObjectPageHeaderContentItem");
 			}
 		}
 
-		oRm.renderControl(oHeaderContent);
+		oRm.renderControl(oHeaderContentItem);
 
 		if (bHasSeparatorAfter) {
 			oRm.write("<span class=\"sapUxAPObjectPageHeaderSeparatorAfter\"/>");
 		}
 
-		if (oLayoutData || (bIsFirstControl && bRenderTitle) || bIsLastControl) {
+		if (oLayoutData || (bIsFirstControl && bRenderTitle)) {
 			oRm.write("</span>");
 		}
 	};
@@ -160,22 +160,16 @@ sap.ui.define([
 	 * @param {sap.ui.core.Control} oControl an object representation of the control that should be rendered
 	 * @param {sap.ui.core.Control} oHeader an object representation of the titleHeader that should be rendered
 	 */
-	ObjectPageHeaderContentRenderer._renderTitleImage = function (oRm, oHeader) {
-		var oObjectImage = oHeader._getInternalAggregation("_objectImage");
+	ObjectPageHeaderContentRenderer._renderTitleImage = function (oRm, oControl, oHeader) {
 
-		if (oHeader.getObjectImageURI() || oHeader.getShowPlaceholder()) {
-			oRm.write("<span");
-			oRm.addClass("sapUxAPObjectPageHeaderContentImageContainer");
-			oRm.addClass("sapUxAPObjectPageHeaderObjectImage-" + oHeader.getObjectImageShape());
-			oRm.writeClasses();
-			oRm.write(">");
-
-			ObjectPageHeaderRenderer._renderInProperContainer(function (){
-				oRm.renderControl(oObjectImage);
-				ObjectPageHeaderRenderer._renderPlaceholder(oRm, oHeader, !(oHeader.getObjectImageShape() || oHeader.getShowPlaceholder()));
-			}, oObjectImage, oRm);
-			oRm.write("</span>");
-		}
+		ObjectImageHelper._renderImageAndPlaceholder(oRm, {
+			oHeader: oHeader,
+			oObjectImage: oControl._getObjectImage(),
+			oPlaceholder: oControl._getPlaceholder(),
+			bIsObjectIconAlwaysVisible: false,
+			bAddSubContainer: false,
+			sBaseClass: 'sapUxAPObjectPageHeaderContentImageContainer'
+		});
 	};
 
 	/**

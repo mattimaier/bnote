@@ -17,9 +17,10 @@
 	width: undefined, // sap.ui.core.CSSSize, since 1.38.0
 	minDate: undefined, // object, since 1.38.0
 	maxDate: undefined, // object, since 1.38.0
+	showWeekNumbers: true, // boolean, since 1.48
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	selectedDates: [], // sap.ui.unified.DateRange
 	specialDates: [], // sap.ui.unified.DateTypeRange, since 1.24.0
 	disabledDates: [], // sap.ui.unified.DateRange, since 1.38.0
@@ -55,6 +56,7 @@
 	width=""
 	minDate=""
 	maxDate=""
+	showWeekNumbers="true"
 	ariaLabelledBy=""
 	legend=""
 	validateFieldGroup=""
@@ -62,7 +64,7 @@
 	cancel=""
 	startDateChange="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<selectedDates></selectedDates> <!-- sap.ui.unified.DateRange -->
 		<specialDates></specialDates> <!-- sap.ui.unified.DateTypeRange, since 1.24.0 -->
 		<disabledDates></disabledDates> <!-- sap.ui.unified.DateRange, since 1.38.0 -->
@@ -81,9 +83,10 @@
 	tentative: false, // boolean
 	selected: false, // boolean
 	key: undefined, // string
+	color: undefined, // sap.ui.core.CSSColor, since 1.46.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [] // sap.ui.core.Control, since 1.19
+	dependents: [] // sap.ui.core.Element, since 1.19
 })
 ]]></jsTemplate>
 	<xmlTemplate><![CDATA[<CalendarAppointment xmlns="sap.ui.unified"
@@ -96,9 +99,10 @@
 	icon=""
 	tentative="false"
 	selected="false"
-	key="">
+	key=""
+	color="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </CalendarAppointment>
 ]]></xmlTemplate>
 </Template>
@@ -119,13 +123,14 @@
 	width: undefined, // sap.ui.core.CSSSize, since 1.38.0
 	minDate: undefined, // object, since 1.38.0
 	maxDate: undefined, // object, since 1.38.0
+	showWeekNumbers: true, // boolean, since 1.48
 	startDate: undefined, // object
 	days: 7, // int
 	showDayNamesLine: true, // boolean, since 1.34.0
 	pickerPopup: false, // boolean, since 1.34.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	selectedDates: [], // sap.ui.unified.DateRange
 	specialDates: [], // sap.ui.unified.DateTypeRange, since 1.24.0
 	disabledDates: [], // sap.ui.unified.DateRange, since 1.38.0
@@ -161,6 +166,7 @@
 	width=""
 	minDate=""
 	maxDate=""
+	showWeekNumbers="true"
 	startDate=""
 	days="7"
 	showDayNamesLine="true"
@@ -172,7 +178,7 @@
 	cancel=""
 	startDateChange="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<selectedDates></selectedDates> <!-- sap.ui.unified.DateRange -->
 		<specialDates></specialDates> <!-- sap.ui.unified.DateTypeRange, since 1.24.0 -->
 		<disabledDates></disabledDates> <!-- sap.ui.unified.DateRange, since 1.38.0 -->
@@ -189,7 +195,7 @@
 	columnWidth: "120px", // sap.ui.core.CSSSize
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	items: [], // sap.ui.unified.CalendarLegendItem
 	validateFieldGroup: [function (oEvent) {
 		var ${control} = oEvent.getSource();
@@ -205,7 +211,7 @@
 	columnWidth="120px"
 	validateFieldGroup="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<items></items> <!-- sap.ui.unified.CalendarLegendItem -->
 </CalendarLegend>
 ]]></xmlTemplate>
@@ -215,17 +221,19 @@
 	id: "${id}", // sap.ui.core.ID
 	text: undefined, // string
 	type: sap.ui.unified.CalendarDayType.None, // sap.ui.unified.CalendarDayType, since 1.28.9
+	color: undefined, // sap.ui.core.CSSColor, since 1.46.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [] // sap.ui.core.Control, since 1.19
+	dependents: [] // sap.ui.core.Element, since 1.19
 })
 ]]></jsTemplate>
 	<xmlTemplate><![CDATA[<CalendarLegendItem xmlns="sap.ui.unified"
 	id="${id}"
 	text=""
-	type="None">
+	type="None"
+	color="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </CalendarLegendItem>
 ]]></xmlTemplate>
 </Template>
@@ -246,7 +254,7 @@
 	maxDate: undefined, // object, since 1.38.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	selectedDates: [], // sap.ui.unified.DateRange
 	specialDates: [], // sap.ui.unified.DateTypeRange
 	ariaLabelledBy: [], // sap.ui.core.Control
@@ -286,7 +294,7 @@
 	cancel=""
 	startDateChange="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<selectedDates></selectedDates> <!-- sap.ui.unified.DateRange -->
 		<specialDates></specialDates> <!-- sap.ui.unified.DateTypeRange -->
 </CalendarMonthInterval>
@@ -311,13 +319,16 @@
 	height: undefined, // sap.ui.core.CSSSize
 	checkResize: true, // boolean
 	updateCurrentTime: true, // boolean
+	groupAppointmentsMode: sap.ui.unified.GroupAppointmentsMode.Collapsed, // sap.ui.unified.GroupAppointmentsMode
 	appointmentsReducedHeight: false, // boolean, since 1.38.0
+	appointmentsVisualization: sap.ui.unified.CalendarAppointmentVisualization.Standard, // sap.ui.unified.CalendarAppointmentVisualization, since 1.40.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	appointments: [], // sap.ui.unified.CalendarAppointment
 	intervalHeaders: [], // sap.ui.unified.CalendarAppointment
 	ariaLabelledBy: [], // sap.ui.core.Control
+	legend: undefined, // sap.ui.unified.CalendarLegend, since 1.40.0
 	validateFieldGroup: [function (oEvent) {
 		var ${control} = oEvent.getSource();
 	}, this],
@@ -353,15 +364,18 @@
 	height=""
 	checkResize="true"
 	updateCurrentTime="true"
+	groupAppointmentsMode="Collapsed"
 	appointmentsReducedHeight="false"
+	appointmentsVisualization="Standard"
 	ariaLabelledBy=""
+	legend=""
 	validateFieldGroup=""
 	select=""
 	startDateChange=""
 	leaveRow=""
 	intervalSelect="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<appointments></appointments> <!-- sap.ui.unified.CalendarAppointment -->
 		<intervalHeaders></intervalHeaders> <!-- sap.ui.unified.CalendarAppointment -->
 </CalendarRow>
@@ -385,7 +399,7 @@
 	maxDate: undefined, // object, since 1.38.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	selectedDates: [], // sap.ui.unified.DateRange
 	specialDates: [], // sap.ui.unified.DateTypeRange
 	ariaLabelledBy: [], // sap.ui.core.Control
@@ -426,10 +440,49 @@
 	cancel=""
 	startDateChange="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<selectedDates></selectedDates> <!-- sap.ui.unified.DateRange -->
 		<specialDates></specialDates> <!-- sap.ui.unified.DateTypeRange -->
 </CalendarTimeInterval>
+]]></xmlTemplate>
+</Template>
+<Template name="sap.ui.unified.ColorPicker" alias="ColorPicker,Picker">
+	<jsTemplate><![CDATA[new sap.ui.unified.ColorPicker({
+	id: "${id}", // sap.ui.core.ID
+	busy: false, // boolean
+	busyIndicatorDelay: 1000, // int
+	visible: true, // boolean
+	fieldGroupIds: [], // string[], since 1.31
+	colorString: undefined, // string, since 1.48.0
+	mode: sap.ui.unified.ColorPickerMode.HSV, // sap.ui.unified.ColorPickerMode, since 1.48.0
+	tooltip: undefined, // sap.ui.core.TooltipBase
+	customData: [], // sap.ui.core.CustomData
+	dependents: [], // sap.ui.core.Element, since 1.19
+	validateFieldGroup: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this],
+	change: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this], // since 1.48.0
+	liveChange: [function (oEvent) {
+		var ${control} = oEvent.getSource();
+	}, this] // since 1.48.0
+})
+]]></jsTemplate>
+	<xmlTemplate><![CDATA[<ColorPicker xmlns="sap.ui.unified"
+	id="${id}"
+	busy="false"
+	busyIndicatorDelay="1000"
+	visible="true"
+	fieldGroupIds=""
+	colorString=""
+	mode="HSV"
+	validateFieldGroup=""
+	change=""
+	liveChange="">
+		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
+</ColorPicker>
 ]]></xmlTemplate>
 </Template>
 <Template name="sap.ui.unified.ContentSwitcher" alias="ContentSwitcher,Switcher">
@@ -443,7 +496,7 @@
 	activeContent: 1, // int
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	content1: [], // sap.ui.core.Control
 	content2: [], // sap.ui.core.Control
 	validateFieldGroup: [function (oEvent) {
@@ -461,7 +514,7 @@
 	activeContent="1"
 	validateFieldGroup="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<content1></content1> <!-- sap.ui.core.Control -->
 		<content2></content2> <!-- sap.ui.core.Control -->
 </ContentSwitcher>
@@ -480,7 +533,7 @@
 	useSymbol: true, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	validateFieldGroup: [function (oEvent) {
 		var ${control} = oEvent.getSource();
 	}, this]
@@ -498,7 +551,7 @@
 	useSymbol="true"
 	validateFieldGroup="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </Currency>
 ]]></xmlTemplate>
 </Template>
@@ -509,7 +562,7 @@
 	endDate: undefined, // object
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [] // sap.ui.core.Control, since 1.19
+	dependents: [] // sap.ui.core.Element, since 1.19
 })
 ]]></jsTemplate>
 	<xmlTemplate><![CDATA[<DateRange xmlns="sap.ui.unified"
@@ -517,7 +570,7 @@
 	startDate=""
 	endDate="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </DateRange>
 ]]></xmlTemplate>
 </Template>
@@ -529,7 +582,7 @@
 	type: sap.ui.unified.CalendarDayType.Type01, // sap.ui.unified.CalendarDayType
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [] // sap.ui.core.Control, since 1.19
+	dependents: [] // sap.ui.core.Element, since 1.19
 })
 ]]></jsTemplate>
 	<xmlTemplate><![CDATA[<DateTypeRange xmlns="sap.ui.unified"
@@ -538,7 +591,7 @@
 	endDate=""
 	type="Type01">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </DateTypeRange>
 ]]></xmlTemplate>
 </Template>
@@ -576,7 +629,7 @@
 	iconOnly: false, // boolean, since 1.26.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	parameters: [], // sap.ui.unified.FileUploaderParameter, since 1.12.2
 	headerParameters: [], // sap.ui.unified.FileUploaderParameter
 	validateFieldGroup: [function (oEvent) {
@@ -653,7 +706,7 @@
 	filenameLengthExceed=""
 	uploadStart="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<parameters></parameters> <!-- sap.ui.unified.FileUploaderParameter, since 1.12.2 -->
 		<headerParameters></headerParameters> <!-- sap.ui.unified.FileUploaderParameter -->
 </FileUploader>
@@ -666,7 +719,7 @@
 	value: undefined, // string, since 1.12.2
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [] // sap.ui.core.Control, since 1.19
+	dependents: [] // sap.ui.core.Element, since 1.19
 })
 ]]></jsTemplate>
 	<xmlTemplate><![CDATA[<FileUploaderParameter xmlns="sap.ui.unified"
@@ -674,7 +727,7 @@
 	name=""
 	value="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </FileUploaderParameter>
 ]]></xmlTemplate>
 </Template>
@@ -691,7 +744,7 @@
 	pageSize: 5, // int, since 1.25.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	items: [], // sap.ui.unified.MenuItemBase
 	ariaLabelledBy: [], // sap.ui.core.Control, since 1.26.3
 	validateFieldGroup: [function (oEvent) {
@@ -716,7 +769,7 @@
 	validateFieldGroup=""
 	itemSelect="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<items></items> <!-- sap.ui.unified.MenuItemBase -->
 </Menu>
 ]]></xmlTemplate>
@@ -731,7 +784,7 @@
 	icon: "", // sap.ui.core.URI
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	submenu: undefined, // sap.ui.unified.Menu
 	select: [function (oEvent) {
 		var ${control} = oEvent.getSource();
@@ -747,7 +800,7 @@
 	icon=""
 	select="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<submenu></submenu> <!-- sap.ui.unified.Menu -->
 </MenuItem>
 ]]></xmlTemplate>
@@ -760,7 +813,7 @@
 	startsSection: false, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	submenu: undefined, // sap.ui.unified.Menu
 	select: [function (oEvent) {
 		var ${control} = oEvent.getSource();
@@ -774,7 +827,7 @@
 	startsSection="false"
 	select="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<submenu></submenu> <!-- sap.ui.unified.Menu -->
 </MenuItemBase>
 ]]></xmlTemplate>
@@ -791,7 +844,7 @@
 	valueState: sap.ui.core.ValueState.None, // sap.ui.core.ValueState
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	submenu: undefined, // sap.ui.unified.Menu
 	select: [function (oEvent) {
 		var ${control} = oEvent.getSource();
@@ -809,7 +862,7 @@
 	valueState="None"
 	select="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<submenu></submenu> <!-- sap.ui.unified.Menu -->
 </MenuTextFieldItem>
 ]]></xmlTemplate>
@@ -830,7 +883,7 @@
 	searchVisible: true, // boolean, since 1.18
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	content: [], // sap.ui.core.Control
 	paneContent: [], // sap.ui.core.Control
 	header: undefined, // sap.ui.core.Control
@@ -860,7 +913,7 @@
 	searchVisible="true"
 	validateFieldGroup="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<content></content> <!-- sap.ui.core.Control -->
 		<paneContent></paneContent> <!-- sap.ui.core.Control -->
 		<header></header> <!-- sap.ui.core.Control -->
@@ -885,7 +938,7 @@
 	visible: true, // boolean, since 1.18
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	ariaLabelledBy: [], // sap.ui.core.Control
 	press: [function (oEvent) {
 		var ${control} = oEvent.getSource();
@@ -904,7 +957,7 @@
 	ariaLabelledBy=""
 	press="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </ShellHeadItem>
 ]]></xmlTemplate>
 </Template>
@@ -916,7 +969,7 @@
 	image: undefined, // sap.ui.core.URI
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	ariaLabelledBy: [], // sap.ui.core.Control
 	press: [function (oEvent) {
 		var ${control} = oEvent.getSource();
@@ -931,7 +984,7 @@
 	ariaLabelledBy=""
 	press="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </ShellHeadUserItem>
 ]]></xmlTemplate>
 </Template>
@@ -947,7 +1000,7 @@
 	headerVisible: true, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	content: [], // sap.ui.core.Control
 	paneContent: [], // sap.ui.core.Control
 	header: undefined, // sap.ui.core.Control
@@ -967,7 +1020,7 @@
 	headerVisible="true"
 	validateFieldGroup="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<content></content> <!-- sap.ui.core.Control -->
 		<paneContent></paneContent> <!-- sap.ui.core.Control -->
 		<header></header> <!-- sap.ui.core.Control -->
@@ -983,7 +1036,7 @@
 	fieldGroupIds: [], // string[], since 1.31
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	content: [], // sap.ui.core.Control
 	search: undefined, // sap.ui.core.Control
 	shell: undefined, // sap.ui.unified.ShellLayout
@@ -1007,7 +1060,7 @@
 	validateFieldGroup=""
 	closed="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<content></content> <!-- sap.ui.core.Control -->
 		<search></search> <!-- sap.ui.core.Control -->
 </ShellOverlay>
@@ -1026,7 +1079,7 @@
 	orientation: sap.ui.core.Orientation.Horizontal, // sap.ui.core.Orientation, since 1.22.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	content: [], // sap.ui.core.Control
 	secondaryContent: [], // sap.ui.core.Control
 	validateFieldGroup: [function (oEvent) {
@@ -1046,7 +1099,7 @@
 	orientation="Horizontal"
 	validateFieldGroup="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<content></content> <!-- sap.ui.core.Control -->
 		<secondaryContent></secondaryContent> <!-- sap.ui.core.Control -->
 </SplitContainer>
@@ -1068,12 +1121,13 @@
 	primaryCalendarType: undefined, // sap.ui.core.CalendarType, since 1.34.0
 	secondaryCalendarType: undefined, // sap.ui.core.CalendarType, since 1.34.0
 	width: undefined, // sap.ui.core.CSSSize, since 1.38.0
+	showWeekNumbers: true, // boolean, since 1.48
 	startDate: undefined, // object
 	days: 7, // int
 	showDayNamesLine: true, // boolean, since 1.34.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	selectedDates: [], // sap.ui.unified.DateRange
 	specialDates: [], // sap.ui.unified.DateTypeRange
 	disabledDates: [], // sap.ui.unified.DateRange, since 1.38.0
@@ -1105,6 +1159,7 @@
 	primaryCalendarType=""
 	secondaryCalendarType=""
 	width=""
+	showWeekNumbers="true"
 	startDate=""
 	days="7"
 	showDayNamesLine="true"
@@ -1114,7 +1169,7 @@
 	select=""
 	focus="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<selectedDates></selectedDates> <!-- sap.ui.unified.DateRange -->
 		<specialDates></specialDates> <!-- sap.ui.unified.DateTypeRange -->
 		<disabledDates></disabledDates> <!-- sap.ui.unified.DateRange, since 1.38.0 -->
@@ -1144,7 +1199,7 @@
 	enabledNext: true, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	validateFieldGroup: [function (oEvent) {
 		var ${control} = oEvent.getSource();
 	}, this],
@@ -1192,7 +1247,7 @@
 	pressButton1=""
 	pressButton2="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </calendar/Header>
 ]]></xmlTemplate>
 </Template>
@@ -1212,9 +1267,10 @@
 	primaryCalendarType: undefined, // sap.ui.core.CalendarType, since 1.34.0
 	secondaryCalendarType: undefined, // sap.ui.core.CalendarType, since 1.34.0
 	width: undefined, // sap.ui.core.CSSSize, since 1.38.0
+	showWeekNumbers: true, // boolean, since 1.48
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	selectedDates: [], // sap.ui.unified.DateRange
 	specialDates: [], // sap.ui.unified.DateTypeRange
 	disabledDates: [], // sap.ui.unified.DateRange, since 1.38.0
@@ -1246,13 +1302,14 @@
 	primaryCalendarType=""
 	secondaryCalendarType=""
 	width=""
+	showWeekNumbers="true"
 	ariaLabelledBy=""
 	legend=""
 	validateFieldGroup=""
 	select=""
 	focus="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<selectedDates></selectedDates> <!-- sap.ui.unified.DateRange -->
 		<specialDates></specialDates> <!-- sap.ui.unified.DateTypeRange -->
 		<disabledDates></disabledDates> <!-- sap.ui.unified.DateRange, since 1.38.0 -->
@@ -1272,7 +1329,7 @@
 	primaryCalendarType: undefined, // sap.ui.core.CalendarType, since 1.34.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	validateFieldGroup: [function (oEvent) {
 		var ${control} = oEvent.getSource();
 	}, this],
@@ -1298,7 +1355,7 @@
 	select=""
 	pageChange="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </calendar/MonthPicker>
 ]]></xmlTemplate>
 </Template>
@@ -1317,7 +1374,7 @@
 	showHeader: false, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	selectedDates: [], // sap.ui.unified.DateRange
 	specialDates: [], // sap.ui.unified.DateTypeRange
 	ariaLabelledBy: [], // sap.ui.core.Control
@@ -1351,7 +1408,7 @@
 	select=""
 	focus="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<selectedDates></selectedDates> <!-- sap.ui.unified.DateRange -->
 		<specialDates></specialDates> <!-- sap.ui.unified.DateTypeRange -->
 </calendar/MonthsRow>
@@ -1373,7 +1430,7 @@
 	showHeader: false, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	selectedDates: [], // sap.ui.unified.DateRange
 	specialDates: [], // sap.ui.unified.DateTypeRange
 	ariaLabelledBy: [], // sap.ui.core.Control
@@ -1408,7 +1465,7 @@
 	select=""
 	focus="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<selectedDates></selectedDates> <!-- sap.ui.unified.DateRange -->
 		<specialDates></specialDates> <!-- sap.ui.unified.DateTypeRange -->
 </calendar/TimesRow>
@@ -1428,7 +1485,7 @@
 	primaryCalendarType: undefined, // sap.ui.core.CalendarType, since 1.34.0
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	validateFieldGroup: [function (oEvent) {
 		var ${control} = oEvent.getSource();
 	}, this],
@@ -1455,7 +1512,7 @@
 	select=""
 	pageChange="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </calendar/YearPicker>
 ]]></xmlTemplate>
 </Template>

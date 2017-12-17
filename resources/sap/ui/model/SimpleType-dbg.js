@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -9,7 +9,14 @@ sap.ui.define(['sap/ui/base/DataType', './FormatException', './ParseException', 
 	function(DataType, FormatException, ParseException, Type, ValidateException) {
 	"use strict";
 
-
+	var oModelFormat = {
+		format: function(oValue) {
+			return oValue;
+		},
+		parse: function(oValue) {
+			return oValue;
+		}
+	};
 
 	/**
 	 * Constructor for a new SimpleType.
@@ -21,7 +28,7 @@ sap.ui.define(['sap/ui/base/DataType', './FormatException', './ParseException', 
 	 * @extends sap.ui.model.Type
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @param {object} [oFormatOptions] options as provided by concrete subclasses
@@ -38,12 +45,12 @@ sap.ui.define(['sap/ui/base/DataType', './FormatException', './ParseException', 
 			this.sName = "SimpleType";
 		},
 
-	  metadata : {
+		metadata : {
 			"abstract" : true,
 			publicMethods : [
-			"setConstraints", "setFormatOptions", "formatValue", "parseValue", "validateValue"
-		  ]
-	  }
+				"setConstraints", "setFormatOptions", "formatValue", "parseValue", "validateValue"
+			]
+		}
 
 	});
 
@@ -83,6 +90,32 @@ sap.ui.define(['sap/ui/base/DataType', './FormatException', './ParseException', 
 	 *
 	 * @public
 	 */
+
+	/**
+	 * Returns an object which has <code>format</code> and <code>parse</code> method.
+	 * These two methods are used for converting between the raw value which is stored in the model and
+	 * the related primitive type in JavaScript.
+	 *
+	 * If a instance of {@link sap.ui.core.format.DateFormat#constructor DateFormat} or
+	 * {@link sap.ui.core.format.NumberFormat#constructor NumberFormat} fits the needs, they could also be used as return value.
+	 *
+	 * The default implementation of the <code>format</code> and <code>parse</code> method simply returns
+	 * the given parameter. The subclass of {@link sap.ui.model.SimpleType#constructor SimpleType} should override this method if the raw value
+	 * isn't already a JavaScript primitive type. The overwritten method must return an object which has the
+	 * <code>format</code> and <code>parse</code> method implemented.
+	 *
+	 * For example<br>
+	 * If the type is related to a JavaScript Date object, but the raw value isn't, this method
+	 * should return an instance of {@link sap.ui.core.format.DateFormat#constructor DateFormat}, which is able to convert between the raw value
+	 * and a JavaScript Date object.
+	 *
+	 * @return {object} The format which converts between the raw value from the model and the related JavaScript primitive type
+	 *
+	 * @protected
+	 */
+	SimpleType.prototype.getModelFormat = function() {
+		return oModelFormat;
+	};
 
 	/**
 	 * Sets constraints for this type. This is meta information used when validating the

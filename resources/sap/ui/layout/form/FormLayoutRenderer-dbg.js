@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -57,7 +57,7 @@ sap.ui.define(['jquery.sap.global'],
 		if (oToolbar) {
 			rm.renderControl(oToolbar);
 		} else {
-			var sSize = sap.ui.core.theming.Parameters.get('sap.ui.layout.FormLayout:sapUiFormTitleSize');
+			var sSize = sap.ui.core.theming.Parameters.get('sap.ui.layout.FormLayout:_sap_ui_layout_FormLayout_FormTitleSize');
 			this.renderTitle(rm, oForm.getTitle(), undefined, false, sSize, oForm.getId());
 		}
 
@@ -184,7 +184,7 @@ sap.ui.define(['jquery.sap.global'],
 
 		if (oTitle) {
 			//determine title level -> if not set use H4 as default
-			var sLevel = sap.ui.core.theming.Parameters.get('sap.ui.layout.FormLayout:sapUiFormSubTitleSize');
+			var sLevel = sap.ui.core.theming.Parameters.get('sap.ui.layout.FormLayout:_sap_ui_layout_FormLayout_FormSubTitleSize');
 			if (sLevelDefault) {
 				sLevel = sLevelDefault;
 			}
@@ -243,13 +243,13 @@ sap.ui.define(['jquery.sap.global'],
 	 */
 	FormLayoutRenderer.writeAccessibilityStateContainer = function(rm, oContainer){
 
-		var mAriaProps = {role: "form"};
+		var mAriaProps = {};
 		var oTitle = oContainer.getTitle();
 		var oToolbar = oContainer.getToolbar();
 		if (oToolbar) {
 			if (!oContainer.getAriaLabelledBy() || oContainer.getAriaLabelledBy().length == 0) {
 				// no aria-label -> use complete Toolbar as fallback
-				mAriaProps["labelledby"] = oToolbar.getId();
+				mAriaProps["labelledby"] = {value: oToolbar.getId(), append: true};
 			}
 		} else if (oTitle) {
 			var sId = "";
@@ -258,7 +258,12 @@ sap.ui.define(['jquery.sap.global'],
 			} else {
 				sId = oTitle.getId();
 			}
-			mAriaProps["labelledby"] = sId;
+			mAriaProps["labelledby"] = {value: sId, append: true};
+		}
+
+		if (mAriaProps["labelledby"] || oContainer.getAriaLabelledBy().length > 0) {
+			// if no title or label do not set role because of JAWS 18 issues
+			mAriaProps["role"] = "form";
 		}
 
 		rm.writeAccessibilityState(oContainer, mAriaProps);

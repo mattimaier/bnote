@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -12,8 +12,9 @@ sap.ui.define([
 	"sap/ui/Device",
 	"sap/m/Button",
 	"sap/ui/core/StashedControlSupport",
+	"./ObjectPageSubSection",
 	"./library"
-], function (jQuery, InvisibleText, ObjectPageSectionBase, Device, Button, StashedControlSupport, library) {
+], function (jQuery, InvisibleText, ObjectPageSectionBase, Device, Button, StashedControlSupport, ObjectPageSubSection, library) {
 	"use strict";
 
 	/**
@@ -71,11 +72,22 @@ sap.ui.define([
 				 * The most recently selected Subsection by the user.
 				 */
 				selectedSubSection: {type: "sap.uxap.ObjectPageSubSection", multiple: false}
-			}
+			},
+			designTime: true
 		}
 	});
 
 	ObjectPageSection.MEDIA_RANGE = Device.media.RANGESETS.SAP_STANDARD;
+
+	/**
+	 * Returns the closest ObjectPageSection
+	 * @param  {sap.uxap.ObjectPageSectionBase} oSectionBase
+	 * @returns {sap.uxap.ObjectPageSection}
+	 * @private
+	 */
+	ObjectPageSection._getClosestSection = function (oSectionBase) {
+		return (oSectionBase instanceof ObjectPageSubSection) ? oSectionBase.getParent() : oSectionBase;
+	};
 
 	ObjectPageSection.prototype._expandSection = function () {
 		ObjectPageSectionBase.prototype._expandSection.call(this)
@@ -85,16 +97,15 @@ sap.ui.define([
 	ObjectPageSection.prototype.init = function () {
 		ObjectPageSectionBase.prototype.init.call(this);
 		this._sContainerSelector = ".sapUxAPObjectPageSectionContainer";
-		Device.media.attachHandler(this._updateImportance, this, ObjectPageSection.MEDIA_RANGE);
 	};
 
 	ObjectPageSection.prototype.exit = function () {
-		Device.media.detachHandler(this._updateImportance, this, ObjectPageSection.MEDIA_RANGE);
+		this._detachMediaContainerWidthChange(this._updateImportance, this);
 	};
 
 	ObjectPageSection.prototype._getImportanceLevelToHide = function (oCurrentMedia) {
 		var oObjectPage = this._getObjectPageLayout(),
-			oMedia = oCurrentMedia || Device.media.getCurrentRange(ObjectPageSection.MEDIA_RANGE),
+			oMedia = oCurrentMedia || this._getCurrentMediaContainerRange(),
 			bShowOnlyHighImportance = oObjectPage && oObjectPage.getShowOnlyHighImportance();
 
 		return this._determineTheLowestLevelOfImportanceToShow(oMedia.name, bShowOnlyHighImportance);
@@ -112,7 +123,7 @@ sap.ui.define([
 		this._updateShowHideAllButton(false);
 
 		if (oObjectPage && this.getDomRef()) {
-			oObjectPage._adjustLayout();
+			oObjectPage._requestAdjustLayout();
 		}
 	};
 
@@ -143,10 +154,16 @@ sap.ui.define([
 		var sAriaLabeledBy = "ariaLabelledBy";
 
 		if (!this.getAggregation(sAriaLabeledBy)) {
-			this.setAggregation(sAriaLabeledBy, this._getAriaLabelledBy());
+			this.setAggregation(sAriaLabeledBy, this._getAriaLabelledBy(), true); // this is called onBeforeRendering, so suppress invalidate
 		}
 
+		this._detachMediaContainerWidthChange(this._updateImportance, this);
+
 		this._updateImportance();
+	};
+
+	ObjectPageSection.prototype.onAfterRendering = function () {
+		this._attachMediaContainerWidthChange(this._updateImportance, this);
 	};
 
 	/**
@@ -257,7 +274,7 @@ sap.ui.define([
 				text: this._getShowHideAllButtonText(!this._thereAreHiddenSubSections()),
 				press: this._showHideContentAllContent.bind(this),
 				type: sap.m.ButtonType.Transparent
-			}).addStyleClass("sapUxAPSectionShowHideButton"));
+			}).addStyleClass("sapUxAPSectionShowHideButton"), true); // this is called from the renderer, so suppress invalidate
 		}
 
 		return this.getAggregation("_showHideAllButton");
@@ -284,7 +301,7 @@ sap.ui.define([
 				text: this._getShowHideButtonText(!this._getIsHidden()),
 				press: this._showHideContent.bind(this),
 				type: sap.m.ButtonType.Transparent
-			}).addStyleClass("sapUxAPSectionShowHideButton"));
+			}).addStyleClass("sapUxAPSectionShowHideButton"), true); // this is called from the renderer, so suppress invalidate
 		}
 
 		return this.getAggregation("_showHideButton");

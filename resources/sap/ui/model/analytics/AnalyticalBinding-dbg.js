@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -9,8 +9,8 @@
 /*eslint camelcase:0, valid-jsdoc:0, no-warning-comments:0 */
 
 // Provides class sap.ui.model.odata.ODataListBinding
-sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/ChangeReason', 'sap/ui/model/Sorter', 'sap/ui/model/FilterOperator', './odata4analytics', './BatchResponseCollector', './AnalyticalVersionInfo'],
-	function(jQuery, TreeBinding, ChangeReason, Sorter, FilterOperator, odata4analytics, BatchResponseCollector, AnalyticalVersionInfo) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/ChangeReason', 'sap/ui/model/Filter', 'sap/ui/model/FilterOperator', 'sap/ui/model/FilterType', 'sap/ui/model/Sorter', 'sap/ui/model/odata/CountMode', './odata4analytics', './BatchResponseCollector', './AnalyticalVersionInfo'],
+	function(jQuery, TreeBinding, ChangeReason, Filter, FilterOperator, FilterType, Sorter, CountMode, odata4analytics, BatchResponseCollector, AnalyticalVersionInfo) {
 	"use strict";
 
 	/**
@@ -112,13 +112,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 			this.aBatchRequestQueue = [];
 
 			// considering different count mode settings
-			if (mParameters && mParameters.countMode == sap.ui.model.odata.CountMode.None) {
+			if (mParameters && mParameters.countMode == CountMode.None) {
 				jQuery.sap.log.fatal("requested count mode is ignored; OData requests will include $inlinecout options");
 			} else if (mParameters
-					&& (mParameters.countMode == sap.ui.model.odata.CountMode.Request
-						|| mParameters.countMode == sap.ui.model.odata.CountMode.Both)) {
+					&& (mParameters.countMode == CountMode.Request
+						|| mParameters.countMode == CountMode.Both)) {
 				jQuery.sap.log.warning("default count mode is ignored; OData requests will include $inlinecout options");
-			} else if (this.oModel.sDefaultCountMode == sap.ui.model.odata.CountMode.Request) {
+			} else if (this.oModel.sDefaultCountMode == CountMode.Request) {
 				jQuery.sap.log.warning("default count mode is ignored; OData requests will include $inlinecout options");
 			}
 
@@ -144,6 +144,22 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 
 	});
 
+
+	// Creates Information for SupportTool (see e.g. library.support.js of sap.ui.table library)
+	function createSupportInfo(oAnalyticalBinding, sErrorId) {
+		return function() {
+			if (!oAnalyticalBinding.__supportUID) {
+				oAnalyticalBinding.__supportUID = jQuery.sap.uid();
+			}
+			return {
+				type: "sap.ui.model.analytics.AnalyticalBinding",
+				analyticalError: sErrorId,
+				analyticalBindingId: oAnalyticalBinding.__supportUID
+			};
+		};
+	}
+
+
 	/**
 	 * Setter for context
 	 * @param {Object} oContext the new context object
@@ -153,10 +169,18 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 			this.oContext = oContext;
 			this.oDataState = null;
 
-			if (this.isRelative()) {
-				if (!this.bInitial) {
-					this.refresh();
-				}
+			// If binding is not a relative binding, nothing to do here
+			if (!this.isRelative()) {
+				return;
+			}
+
+			// resolving the path makes sure that we can safely analyze the metadata,
+			// as we have a resourcepath for the QueryResult
+			var sResolvedPath = this.oModel.resolve(this.sPath, this.oContext);
+			if (sResolvedPath) {
+				this.resetData();
+				this._initialize(); // triggers metadata/annotation check
+				this._fireChange({ reason: ChangeReason.Context });
 			}
 		}
 	};
@@ -173,7 +197,26 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @function
 	 */
 	AnalyticalBinding.prototype.initialize = function() {
-		if (this.oModel.oMetadata && this.oModel.oMetadata.isLoaded() && this.bInitial) {
+		if (this.oModel.oMetadata && this.oModel.oMetadata.isLoaded() && this.isInitial()) {
+
+			// relative bindings will be properly initialized once the context is set
+			var bIsRelative = this.isRelative();
+			if (!bIsRelative || (bIsRelative && this.oContext)) {
+				this._initialize();
+			}
+
+			this._fireRefresh({reason: ChangeReason.Refresh});
+		}
+		return this;
+	};
+
+	/**
+	 * Performs the actual initialization.
+	 * Called either by sap.ui.model.analytics.v2.AnalyticalBinding#initialize or
+	 * sap.ui.model.analytics.v2.AnalyticalBinding#setContext.
+	 */
+	AnalyticalBinding.prototype._initialize = function() {
+		if (this.oModel.oMetadata && this.oModel.oMetadata.isLoaded()) {
 			this.bInitial = false;
 			//first fetch the analyticalQueryResult object from the adapted Model (see ODataModelAdapter.js)
 			this.oAnalyticalQueryResult = this.oModel.getAnalyticalExtensions().findQueryResultByName(this._getEntitySet());
@@ -191,7 +234,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 
 			this._fireRefresh({reason: ChangeReason.Refresh});
 		}
-		return this;
 	};
 
 	/* *******************************
@@ -226,7 +268,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 */
 	AnalyticalBinding.prototype.getRootContexts = function(mParameters) {
 
-		if (this.bInitial) {
+		if (this.isInitial()) {
 			return [];
 		}
 
@@ -314,7 +356,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 */
 	AnalyticalBinding.prototype.getNodeContexts = function(oContext, mParameters) {
 
-		if (this.bInitial) {
+		if (this.isInitial()) {
 			return [];
 		}
 
@@ -537,7 +579,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @public
 	 */
 	AnalyticalBinding.prototype.getProperty = function(sPropertyName) {
-		if (this.bInitial) {
+		if (this.isInitial()) {
 			return {};
 		}
 		return this.oAnalyticalQueryResult.getEntityType().findPropertyByName(sPropertyName);
@@ -554,7 +596,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @public
 	 */
 	AnalyticalBinding.prototype.getFilterablePropertyNames = function() {
-		if (this.bInitial) {
+		if (this.isInitial()) {
 			return [];
 		}
 		return this.oAnalyticalQueryResult.getEntityType().getFilterablePropertyNames();
@@ -571,7 +613,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @public
 	 */
 	AnalyticalBinding.prototype.getSortablePropertyNames = function() {
-		if (this.bInitial) {
+		if (this.isInitial()) {
 			return [];
 		}
 		return this.oAnalyticalQueryResult.getEntityType().getSortablePropertyNames();
@@ -590,7 +632,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @public
 	 */
 	AnalyticalBinding.prototype.getPropertyLabel = function(sPropertyName) {
-		if (this.bInitial) {
+		if (this.isInitial()) {
 			return "";
 		}
 		return this.oAnalyticalQueryResult.getEntityType().getLabelOfProperty(sPropertyName);
@@ -609,7 +651,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @public
 	 */
 	AnalyticalBinding.prototype.getPropertyHeading = function(sPropertyName) {
-		if (this.bInitial) {
+		if (this.isInitial()) {
 			return "";
 		}
 		return this.oAnalyticalQueryResult.getEntityType().getHeadingOfProperty(sPropertyName);
@@ -628,7 +670,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @public
 	 */
 	AnalyticalBinding.prototype.getPropertyQuickInfo = function(sPropertyName) {
-		if (this.bInitial) {
+		if (this.isInitial()) {
 			return "";
 		}
 		return this.oAnalyticalQueryResult.getEntityType().getQuickInfoOfProperty(sPropertyName);
@@ -673,13 +715,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 			aFilter = [];
 		}
 		// wrap filter argument in an array if it's a single instance
-		if (aFilter instanceof sap.ui.model.Filter) {
+		if (aFilter instanceof Filter) {
 			aFilter = [aFilter];
 		}
 
 		aFilter = this._convertDeprecatedFilterObjects(aFilter);
 
-		if (sFilterType == sap.ui.model.FilterType.Application) {
+		if (sFilterType == FilterType.Application) {
 			this.aApplicationFilter = aFilter;
 		} else {
 			this.aControlFilter = aFilter;
@@ -706,7 +748,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @function
 	 * @name sap.ui.model.analytics.AnalyticalBinding.prototype.sort
 	 * @param {sap.ui.model.Sorter|array}
-	 *            aSorter an sorter object or an array of sorter objects which define the sort order.
+	 *            aSorter a sorter object or an array of sorter objects which define the sort order.
 	 * @return {sap.ui.model.analytics.AnalyticalBinding}
 	 *            returns <code>this</code> to facilitate method chaining.
 	 *
@@ -756,7 +798,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 
 		var sGroupProperty = this.aAggregationLevel[iLevel - 1],
 			oDimension = this.oAnalyticalQueryResult.findDimensionByPropertyName(sGroupProperty),
-			fValueFormatter = this.mAnalyticalInfoByProperty[sGroupProperty].formatter,
+			// it might happen that grouped property is not contained in the UI (e.g. if grouping is
+			// done with a dimension's text property)
+			fValueFormatter = this.mAnalyticalInfoByProperty[sGroupProperty]
+				&& this.mAnalyticalInfoByProperty[sGroupProperty].formatter,
 			sPropertyValue = oContext.getProperty(sGroupProperty),
 			oTextProperty, sFormattedPropertyValue, sGroupName;
 
@@ -767,7 +812,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 		var sTextProperty, sTextPropertyValue, fTextValueFormatter;
 		if (oTextProperty) {
 			sTextProperty = oDimension.getTextProperty().name;
-			fTextValueFormatter = this.mAnalyticalInfoByProperty[sTextProperty].formatter;
+			// it might happen that text property is not contained in the UI
+			fTextValueFormatter = this.mAnalyticalInfoByProperty[sTextProperty]
+				&& this.mAnalyticalInfoByProperty[sTextProperty].formatter;
 			sTextPropertyValue = oContext.getProperty(sTextProperty);
 		}
 
@@ -821,7 +868,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 * @protected
 	 */
 	AnalyticalBinding.prototype.updateAnalyticalInfo = function(aColumns, bForceChange) {
-		if (!this.oModel.oMetadata || !this.oModel.oMetadata.isLoaded() || this.bInitial) {
+		if (!this.oModel.oMetadata || !this.oModel.oMetadata.isLoaded() || this.isInitial()) {
 			this.aInitialAnalyticalInfo = aColumns;
 			return;
 		}
@@ -829,7 +876,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 		// check if something has changed --> deep equal on the column info objects, only 1 level "deep"
 		if (jQuery.sap.equal(this._aLastChangedAnalyticalInfo, aColumns)) {
 			if (bForceChange) {
-				this._fireChange({reason: ChangeReason.Change});
+				setTimeout(function () {
+					this._fireChange({reason: ChangeReason.Change});
+				}.bind(this), 0);
 			}
 			return;
 		}
@@ -957,7 +1006,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 	 *
 	 * @function
 	 * @name sap.ui.model.analytics.AnalyticalBinding.prototype.getAnalyticalInfoForColumn
-	 * @param sColumnName the column name.
+	 * @param {string} sColumnName the column name.
 	 * @return {object}
 	 *            analytical information for the column; see {@link #updateAnalyticalInfo}
 	 *            for an explanation of the object structure
@@ -1537,7 +1586,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 				var sGroupProperty = that.aAggregationLevel[i];
 				var sValue = aGroupIdComponents_Missing[i];
 				var sFilterOperator = that._getFilterOperatorMatchingPropertySortOrder(sGroupProperty);
-				aTemplateFilter[i] = new sap.ui.model.Filter(sGroupProperty, sFilterOperator, sValue);
+				aTemplateFilter[i] = new Filter(sGroupProperty, sFilterOperator, sValue);
 			}
 
 			// if first missing member start within a partially loaded group, an extra condition will be needed below
@@ -1549,7 +1598,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 				var sFirstMissingMemberStartIndexAggregationLevel = that.aAggregationLevel[iGroupIdLevel_Missing];
 				var sFirstMissingMemberStartIndexLastKnownValue = oFirstMissingMemberStartIndexLastKnownObject
 					[sFirstMissingMemberStartIndexAggregationLevel];
-				oFirstMissingMemberStartIndexLastKnownFilterCondition = new sap.ui.model.Filter(sFirstMissingMemberStartIndexAggregationLevel,
+				oFirstMissingMemberStartIndexLastKnownFilterCondition = new Filter(sFirstMissingMemberStartIndexAggregationLevel,
 						that._getFilterOperatorMatchingPropertySortOrder(sFirstMissingMemberStartIndexAggregationLevel, false),
 						sFirstMissingMemberStartIndexLastKnownValue);
 			}
@@ -1566,26 +1615,26 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 						oGroupExpansionFirstMissingMember.startIndex_Missing > 0;
 					for (var iLevelCondition = 0; iLevelCondition < iNumberOfLevelConditions; iLevelCondition++) {
 						// create filter condition from template
-						var oFilterCondition = new sap.ui.model.Filter("x", sap.ui.model.FilterOperator.EQ, "x");
+						var oFilterCondition = new Filter("x", FilterOperator.EQ, "x");
 						oFilterCondition = jQuery.extend(true, oFilterCondition, aTemplateFilter[iLevelCondition]);
 
 						if (iNumberOfLevelConditions > 1 && iLevelCondition < iNumberOfLevelConditions - 1) {
-							oFilterCondition.sOperator = sap.ui.model.FilterOperator.EQ;
+							oFilterCondition.sOperator = FilterOperator.EQ;
 						}
 						if (iLevelCondition == iGroupIdLevel_Missing - 1
 							&& iLevel > iGroupIdLevel_Missing - 1
 							&& !bAddExtraConditionForFirstMissingMemberStartIndexLastKnown) { // rule (R1)
-							if (oFilterCondition.sOperator == sap.ui.model.FilterOperator.GT) {
-								oFilterCondition.sOperator = sap.ui.model.FilterOperator.GE;
+							if (oFilterCondition.sOperator == FilterOperator.GT) {
+								oFilterCondition.sOperator = FilterOperator.GE;
 							} else { // it must be LT
-								oFilterCondition.sOperator = sap.ui.model.FilterOperator.LE;
+								oFilterCondition.sOperator = FilterOperator.LE;
 							}
 						}
 						aIntermediateLevelFilterCondition.push(oFilterCondition);
 					}
 					// create the instance for ( P_1 = A and P_2 = B and .. P_(l-1) > W )
 					if (aIntermediateLevelFilterCondition.length > 0) {
-						aLevelFilterCondition.push(new sap.ui.model.Filter(aIntermediateLevelFilterCondition, true));
+						aLevelFilterCondition.push(new Filter(aIntermediateLevelFilterCondition, true));
 						// add an extra intermediate filter condition to reflect start position at oGroupExpansionFirstMissingMember.startIndex_Missing
 						if (iLevel > iGroupIdLevel_Missing - 1
 							&& iIntermediateLevel == iGroupIdLevel_Missing - 1
@@ -1593,21 +1642,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 							// create a copy of the constructed intermediate filter condition
 							var aStartIndexFilterCondition = [];
 							for (var j = 0; j < aIntermediateLevelFilterCondition.length; j++) {
-								var oConditionCopy = new sap.ui.model.Filter("x", sap.ui.model.FilterOperator.EQ, "x");
+								var oConditionCopy = new Filter("x", FilterOperator.EQ, "x");
 								oConditionCopy = jQuery.extend(true, oConditionCopy, aIntermediateLevelFilterCondition[j]);
 								aStartIndexFilterCondition.push(oConditionCopy);
 							}
-							aStartIndexFilterCondition[iGroupIdLevel_Missing - 1].sOperator = sap.ui.model.FilterOperator.EQ; // (R2.1)
+							aStartIndexFilterCondition[iGroupIdLevel_Missing - 1].sOperator = FilterOperator.EQ; // (R2.1)
 							aStartIndexFilterCondition.push(oFirstMissingMemberStartIndexLastKnownFilterCondition); // (R2.2)
 
-							aLevelFilterCondition.push(new sap.ui.model.Filter(aStartIndexFilterCondition, true));
+							aLevelFilterCondition.push(new Filter(aStartIndexFilterCondition, true));
 							break;
 						}
 					}
 				}
 				// create the entire filter expression
 				if (aLevelFilterCondition.length > 0) {
-					aFilterArray[iLevel] = new sap.ui.model.Filter(aLevelFilterCondition, false);
+					aFilterArray[iLevel] = new Filter(aLevelFilterCondition, false);
 				} else {
 					aFilterArray[iLevel] = null;
 				}
@@ -1883,7 +1932,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 			// add conditions for aggregated dimension key
 		var aAggregationDimensionKeyFilter = [];
 		for (var i = 0; i < aAggregationLevel.length; i++) {
-			var oFilter = new sap.ui.model.Filter(aAggregationLevel[i], sap.ui.model.FilterOperator.EQ, oMultiUnitRepresentative.oEntry[aAggregationLevel[i]]);
+			var oFilter = new Filter(aAggregationLevel[i], FilterOperator.EQ, oMultiUnitRepresentative.oEntry[aAggregationLevel[i]]);
 			aAggregationDimensionKeyFilter.push(oFilter);
 		}
 		oFilterExpression.addUI5FilterConditions(aAggregationDimensionKeyFilter);
@@ -2036,6 +2085,25 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 			oResponseCollector.error(oResponse || oData);
 		}
 
+		// BCP: 1770008178
+
+		// Legacy Support:
+		// We set the bNeedsUpdate flag to "true" if ALL request details are empty.
+		// This happens when the initial analyticalInfo is empty and is not set correctly
+		// before the control calls getRootContexts etc.
+		// If at a later point the analyticalInfo is correctly set AND the bNeedsUpdate flag is still true
+		// we falsly force a change event in checkUpdate --> this might lead to an unnecessary re-rendering of the control.
+
+		// In case we have at least 1 valid request (including measures and/or dimensions)
+		// we set the bNeedsUpdate flag to false, because the update flag is set to true ANYWAY during the response-processing.
+		this.bNeedsUpdate = true;
+		for (var iDetail = 0; iDetail < aRequestDetails.length; iDetail++) {
+			var oDetail = aRequestDetails[iDetail];
+			if (oDetail.aAggregationLevel && oDetail.aAggregationLevel.length > 0) {
+				this.bNeedsUpdate = false;
+			}
+		}
+
 		//create sub-requests for all defined requestDetails
 		for (var i = -1, oRequestDetails; (oRequestDetails = aRequestDetails[++i]) !== undefined;) {
 			var oAnalyticalQueryRequest = oRequestDetails.oAnalyticalQueryRequest, sGroupId = oRequestDetails.sGroupId;
@@ -2049,7 +2117,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 				this.mServiceLength[sGroupId] = this.mLength[sGroupId] = 1;
 				this.mServiceFinalLength[sGroupId] = true;
 				this._setServiceKey(this._getKeyIndexMapping(sGroupId, 0), AnalyticalBinding._artificialRootContextGroupId);
-				this.bNeedsUpdate = true;
+				// BCP: 1770008178, see comment above
+				// this.bNeedsUpdate = true;
 				// simulate the async behavior, dataRequested and dataReceived have to be fired in pairs
 				setTimeout(triggerDataReceived);
 
@@ -2488,7 +2557,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 					}
 					if (iDeviatingUnitPropertyNameIndex == -1) {
 // 						this._trace_debug_if(true, "assertion failed: no deviating units found for result entries " + (h - 1) + " and " + h);
-						jQuery.sap.log.fatal("assertion failed: no deviating units found for result entries " + (h - 1) + " and " + h);
+						jQuery.sap.log.fatal("assertion failed: no deviating units found for result entries " + (h - 1) + " and " + h, null, null, createSupportInfo(this, "NO_DEVIATING_UNITS"));
 					}
 				}
 				if ((sPreviousEntryDimensionKeyString != sDimensionKeyString || h == iODataResultsLength - 1)
@@ -3221,21 +3290,21 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 		switch (this._getEffectiveSortOrder(sPropertyName)) {
 			case odata4analytics.SortOrder.Ascending:
 				if (bWithEqual) {
-					sFilterOperator = sap.ui.model.FilterOperator.GE;
+					sFilterOperator = FilterOperator.GE;
 				} else {
-					sFilterOperator = sap.ui.model.FilterOperator.GT;
+					sFilterOperator = FilterOperator.GT;
 				}
 				break;
 			case odata4analytics.SortOrder.Descending:
 				if (bWithEqual) {
-					sFilterOperator = sap.ui.model.FilterOperator.LE;
+					sFilterOperator = FilterOperator.LE;
 				} else {
-					sFilterOperator = sap.ui.model.FilterOperator.LT;
+					sFilterOperator = FilterOperator.LT;
 				}
 				break;
 			default: // null
 				 // default if no sort order applied - matches the default ascending order set for grouped dimensions in prepare...QueryRequest()
-				sFilterOperator = sap.ui.model.FilterOperator.GT;
+				sFilterOperator = FilterOperator.GT;
 		}
 		return sFilterOperator;
 	};
@@ -3250,10 +3319,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 
 		// check if some filter object use the deprecated class sap.ui.model.odata.Filter;
 		// if so, convert them to sap.ui.model.Filter
-		for (var i = 0, l = aFilter.length; i < l; i++) {
-			if (sap.ui.model.odata && typeof sap.ui.model.odata.Filter === "function"
-				&& aFilter[i] instanceof sap.ui.model.odata.Filter) {
-				aFilter[i] = aFilter[i].convert();
+		var ODataFilter = sap.ui.require("sap/ui/model/odata/Filter");
+		if ( typeof ODataFilter === 'function' ) {
+			for (var i = 0, l = aFilter.length; i < l; i++) {
+				if (aFilter[i] instanceof ODataFilter) {
+					aFilter[i] = aFilter[i].convert();
+				}
 			}
 		}
 		return aFilter;
@@ -4016,7 +4087,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 
 		for (var l = 0; l < this.aAllDimensionSortedByName.length; l++) {
 			var sDimVal = oMultiUnitEntry[this.aAllDimensionSortedByName[l]];
-			sMultiUnitEntryKey += (sDimVal === undefined ? "" : sDimVal) + ",";
+			// if the value is an empty string, it should be treated as such in the generated key
+			var sSaveDimVal = sDimVal === "" ? '""' : sDimVal;
+			sSaveDimVal = sSaveDimVal === undefined ? "" : sSaveDimVal;
+			sMultiUnitEntryKey += (sSaveDimVal + ",");
 		}
 		sMultiUnitEntryKey += "-multiple-units-not-dereferencable";
 
@@ -4031,7 +4105,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 		delete oMultiUnitEntry.__metadata["self"];
 		delete oMultiUnitEntry.__metadata["self_link_extensions"];
 		oMultiUnitEntry["^~volatile"] = true; // mark entry to distinguish it from others contained in the regular OData result
-		this.oModel._importData(oMultiUnitEntry, {});
+
+		// 3rd argument: empty response, needed by the ODataModel, but we do not have a response, as we did not perform any requests.
+		this.oModel._importData(oMultiUnitEntry, {}, {});
+
 		// mark the context for this entry as volatile to facilitate special treatment by consumers
 		var sMultiUnitEntryModelKey = this.oModel._getKey(oMultiUnitEntry);
 		this.oModel.getContext('/' + sMultiUnitEntryModelKey)["_volatile"] = true;
@@ -4251,7 +4328,9 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/TreeBinding', 'sap/ui/model/Ch
 		var aExportCols = [];
 		for (var k = 0, m = this.aAnalyticalInfo.length; k < m; k++) {
 			var oCol = this.aAnalyticalInfo[k];
-			if ((oCol.visible || oCol.inResult) && oCol.name !== "") {
+			if ((oCol.visible || oCol.inResult)
+					&& oCol.name !== ""
+					&& oCol.name !== aExportCols[aExportCols.length - 1]) {
 				aExportCols.push(oCol.name);
 
 				// add belonging currency column implicitly if present

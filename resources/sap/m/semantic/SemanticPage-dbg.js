@@ -1,11 +1,11 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
-sap.ui.define(['jquery.sap.global', 'sap/m/semantic/SegmentedContainer', 'sap/m/semantic/SemanticConfiguration','sap/m/Button', 'sap/m/Title', 'sap/m/ActionSheet', 'sap/m/Page', 'sap/m/OverflowToolbar', 'sap/m/OverflowToolbarButton', 'sap/m/OverflowToolbarLayoutData', 'sap/m/ToolbarSpacer', 'sap/m/Bar', 'sap/ui/core/CustomData', 'sap/ui/base/ManagedObject', 'sap/ui/core/AccessibleLandmarkRole', 'sap/m/PageAccessibleLandmarkInfo'],
-function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, ActionSheet, Page, OverflowToolbar, OverflowToolbarButton, OverflowToolbarLayoutData, ToolbarSpacer, Bar, CustomData, ManagedObject, AccessibleLandmarkRole, PageAccessibleLandmarkInfo) {
+sap.ui.define(['jquery.sap.global', 'sap/m/semantic/SegmentedContainer', 'sap/m/semantic/SemanticConfiguration', 'sap/m/Button', 'sap/m/Title', 'sap/m/ActionSheet', 'sap/m/Page', 'sap/m/OverflowToolbar', 'sap/m/OverflowToolbarButton', 'sap/m/OverflowToolbarLayoutData', 'sap/m/ToolbarSpacer', 'sap/m/Bar', 'sap/ui/core/CustomData', 'sap/ui/base/ManagedObject', 'sap/m/PageAccessibleLandmarkInfo','sap/ui/base/ManagedObjectObserver'],
+function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, ActionSheet, Page, OverflowToolbar, OverflowToolbarButton, OverflowToolbarLayoutData, ToolbarSpacer, Bar, CustomData, ManagedObject, PageAccessibleLandmarkInfo, ManagedObjectObserver) {
 	"use strict";
 
 	/**
@@ -14,7 +14,9 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 	 * @param {object} [mSettings] Initial settings for the new control
 	 *
 	 * @class
-	 * A semantic page is an enhanced {@link sap.m.Page}, that can contain controls with semantic meaning @see sap.m.semantic.SemanticControl.<br>
+	 * A semantic page is an enhanced {@link sap.m.Page}, that can contain controls with semantic meaning, see {@link sap.m.semantic.SemanticControl}.
+	 *
+	 * <b>Note:</b> This control implements the SAP Fiori 1.0 design guidelines. For SAP Fiori 2.0, see the {@link sap.f.semantic.SemanticPage}.
 	 *
 	 * Content specified in the {@link sap.m.semantic.SemanticPage#semanticControls} aggregations will be automatically positioned in dedicated sections of the footer or the header of the page, depending on the control's semantics.<br>
 	 * For example, a semantic button of type {@link sap.m.semantic.PositiveAction} will be positioned in the right side of the footer, and in logically correct sequence order with respect to any other included semantic controls.<br>
@@ -35,7 +37,7 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 	 * @abstract
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -102,6 +104,38 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 					type: "boolean",
 					group: "Appearance",
 					defaultValue: true
+				},
+
+				/**
+				 * Determines whether the floating footer behavior is enabled.
+				 * If set to <code>true</code>, the content is visible when it's underneath the footer.
+				 * @since 1.40.1
+				 */
+				floatingFooter: {
+					type: "boolean",
+					group:"Appearance",
+					defaultValue: false
+				},
+
+				/**
+				 * Declares the type of semantic ruleset that will govern the styling and positioning of semantic content.
+				 * @since 1.44
+				 */
+				semanticRuleSet: {
+					type: "sap.m.semantic.SemanticRuleSetType",
+					group: "Misc",
+					defaultValue: sap.m.semantic.SemanticRuleSetType.Classic
+				},
+
+				/**
+				 * Determines the backgound color of the page. For more
+				 * information, see {@link sap.m.Page#backgroundDesign}.
+				 * @since 1.52
+				 */
+				backgroundDesign: {
+					type: "sap.m.PageBackgroundDesign",
+					group: "Appearance",
+					defaultValue: sap.m.PageBackgroundDesign.Standard
 				}
 			},
 			defaultAggregation: "content",
@@ -170,12 +204,15 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 	});
 
 	SemanticPage.prototype.init = function () {
+		this._oHeaderObserver = new ManagedObjectObserver(SemanticPage.prototype._updateHeaderVisibility.bind(this));
 
 		this._currentMode = SemanticConfiguration._PageMode.display;
 		this._getPage().setCustomHeader(this._getInternalHeader());
 		this._getPage().setFooter(new OverflowToolbar(this.getId() + "-footer"));
 		this._getPage().setLandmarkInfo(new PageAccessibleLandmarkInfo());
+		this._getPage().setShowHeader(false);
 	};
+
 
 	/**
 	 * Function is called when exiting the control.
@@ -192,6 +229,21 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 		if (this._oWrappedFooter) {
 			this._oWrappedFooter.destroy();
 			this._oWrappedFooter = null;
+		}
+
+		if (this._oTitle) {
+			this._oTitle.destroy();
+			this._oTitle = null;
+		}
+
+		if (this._oNavButton) {
+			this._oNavButton.destroy();
+			this._oNavButton = null;
+		}
+
+		if ( this._oHeaderObserver ) {
+			this._oHeaderObserver.disconnect();
+			this._oHeaderObserver = null;
 		}
 
 		this._oPositionsMap = null;
@@ -228,6 +280,12 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 	SemanticPage.prototype.setShowFooter = function (bShowFooter, bSuppressInvalidate) {
 		this._getPage().setShowFooter(bShowFooter, bSuppressInvalidate);
 		this.setProperty("showFooter", bShowFooter, true);
+		return this;
+	};
+
+	SemanticPage.prototype.setFloatingFooter = function (bFloatingFooter, bSuppressInvalidate) {
+		this._getPage().setFloatingFooter(bFloatingFooter, bSuppressInvalidate);
+		this.setProperty("floatingFooter", bFloatingFooter, true);
 		return this;
 	};
 
@@ -317,6 +375,12 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 
 	SemanticPage.prototype.destroyLandmarkInfo = function () {
 		return this._getPage().destroyLandmarkInfo();
+	};
+
+	SemanticPage.prototype.setBackgroundDesign = function (sBgDesign) {
+		this.setProperty("backgroundDesign", sBgDesign, true);
+		this._getPage().setBackgroundDesign(sBgDesign);
+		return this;
 	};
 
 	/*
@@ -459,6 +523,7 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 						SemanticConfiguration.getSequenceOrderIndex(sType),
 						bSuppressInvalidate);
 			}
+			return ManagedObject.prototype.setAggregation.call(this, sAggregationName, oObject, true);// no need to invalidate entire page since the change only affects custom footer/header of page
 		}
 
 		return ManagedObject.prototype.setAggregation.call(this, sAggregationName, oObject, bSuppressInvalidate);
@@ -479,6 +544,14 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 		}
 
 		return ManagedObject.prototype.destroyAggregation.call(this, sAggregationName, oObject, bSuppressInvalidate);
+	};
+
+	SemanticPage.prototype._updateHeaderVisibility = function () {
+		var oHeader = this._getInternalHeader();
+		var bEmpty = (oHeader.getContentLeft().length === 0)
+			&& (oHeader.getContentMiddle().length === 0)
+			&& (oHeader.getContentRight().length === 0);
+		this._getPage().setShowHeader(!bEmpty);
 	};
 
 	SemanticPage.prototype._getTitle = function () {
@@ -651,6 +724,14 @@ function (jQuery, SegmentedContainer, SemanticConfiguration, Button, Title, Acti
 
 		if (!this._oInternalHeader) {
 			this._oInternalHeader = new Bar(this.getId() + "-intHeader");
+
+			if (this._oHeaderObserver) {
+				this._oHeaderObserver.observe(this._oInternalHeader, {
+					aggregations: [
+						"contentLeft", "contentMiddle", "contentRight"
+					]
+				});
+			}
 		}
 
 		return this._oInternalHeader;

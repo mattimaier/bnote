@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './async/Targets', './sync/Targets'],
@@ -182,7 +182,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 		 * It's a perfect candidate to lazy load something inside of it.
 		 * <br/>
 		 * <b>Example app structure:</b><br/>
-		 * We have a rootView that is returned by the createContent function of our UIComponent. This view contains a sap.m.App control with the id 'myApp'
+		 * We have a rootView that is returned by the createContent function of our UIComponent. This view contains an sap.m.App control with the id 'myApp'
 		 * <pre>
 		 * <code>
 		 * &lt;View xmlns="sap.m"&gt;
@@ -331,9 +331,10 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 			 * Creates a view and puts it in an aggregation of the specified control.
 			 *
 			 * @param {string|string[]} vTargets the key of the target as specified in the {@link #constructor}. To display multiple targets you may also pass an array of keys.
-			 * @param {any} [vData] an object that will be passed to the display event in the data property. If the target has parents, the data will also be passed to them.
+			 * @param {object} [oData] an object that will be passed to the display event in the data property. If the target has parents, the data will also be passed to them.
+			 * @param {string} [sTitleTarget] the name of the target from which the title option is taken for firing the {@link sap.ui.core.routing.Targets#event:titleChanged|titleChanged} event
 			 * @public
-			 * @returns {sap.ui.core.routing.Targets} this pointer for chaining
+			 * @returns {sap.ui.core.routing.Targets|Promise} this pointer for chaining or a Promise
 			 * @name sap.ui.core.routing.Targets#display
 			 * @function
 			 */
@@ -359,8 +360,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 				var that = this,
 					aResult = [];
 
-				if (jQuery.isArray(vName)) {
-					jQuery.each(vName, function (i, sName) {
+				if (Array.isArray(vName)) {
+					vName.forEach(function (sName) {
 						var oTarget = that._mTargets[sName];
 
 						if (oTarget) {
@@ -379,7 +380,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 			 * Creates a target by using the given name and options. If there's already a target with the same name exists, the existing target is kept from being overwritten and an error log will be written to the development console.
 			 *
 			 * @param {string} sName the name of a target
-			 * @param {object} oTarget the options of a target. The option names are the same as the ones in "oOptions.targets.anyName" of {@link constructor}.
+			 * @param {object} oTarget the options of a target. The option names are the same as the ones in "oOptions.targets.anyName" of {@link #constructor}.
 			 * @returns {sap.ui.core.routing.Targets} Targets itself for method chaining
 			 * @public
 			 *
@@ -410,7 +411,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 			 * @param {object} oEvent.getParameters
 			 * @param {object} oEvent.getParameters.view The view that got displayed.
 			 * @param {object} oEvent.getParameters.control The control that now contains the view in the controlAggregation
-			 * @param {object} oEvent.getParameters.config The options object passed to the constructor {@link sap.ui.core.routing.Targets#constuctor}
+			 * @param {object} oEvent.getParameters.config The options object passed to the constructor {@link sap.ui.core.routing.Targets#constructor}
 			 * @param {object} oEvent.getParameters.name The name of the target firing the event
 			 * @param {object} oEvent.getParameters.data The data passed into the {@link sap.ui.core.routing.Targets#display} function
 			 * @public
@@ -455,8 +456,62 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 				return this.fireEvent(this.M_EVENTS.DISPLAY, mArguments);
 			},
 
+			/**
+			 * Will be fired when the title of the "TitleTarget" has been changed.
+			 *
+			 * <pre>
+			 * A "TitleTarget" is resolved as the following:
+			 *  1. When the {@link sap.ui.core.routing.Targets#display|display} is called with only one target, the "TitleTarget" is resolved with this target when its {@link sap.ui.core.routing.Targets#constructor|title} options is set.
+			 *  2. When the {@link sap.ui.core.routing.Targets#display|display} is called with more than one target, the "TitleTarget" is resolved by default with the first target which has a {@link sap.ui.core.routing.Targets#constructor|title} option.
+			 *  3. When the 'sTitleTarget' parameter of {@link sap.ui.core.routing.Targets#display|display} is given, this specific target is then used as the "TitleTarget".
+			 * </pre>
+			 *
+			 * @name sap.ui.core.routing.Targets#titleChanged
+			 * @event
+			 * @param {object} oEvent
+			 * @param {sap.ui.base.EventProvider} oEvent.getSource
+			 * @param {object} oEvent.getParameters
+			 * @param {string} oEvent.getParameters.title The current displayed title
+			 * @param {string} oEvent.getParameters.name The name of the displayed target
+			 * @public
+			 */
+
+			/**
+ 			 * Attach event-handler <code>fnFunction</code> to the 'titleChanged' event of this <code>sap.ui.core.routing.Targets</code>.<br/>
+ 			 * @param {object} [oData] The object, that should be passed along with the event-object when firing the event.
+ 			 * @param {function} fnFunction The function to call, when the event occurs. This function will be called on the
+ 			 * oListener-instance (if present) or in a 'static way'.
+ 			 * @param {object} [oListener] Object on which to call the given function.
+ 			 *
+ 			 * @return {sap.ui.core.routing.Targets} <code>this</code> to allow method chaining
+ 			 * @public
+ 			 */
+			attachTitleChanged : function(oData, fnFunction, oListener) {
+				this.attachEvent(this.M_EVENTS.TITLE_CHANGED, oData, fnFunction, oListener);
+				return this;
+			},
+
+			/**
+			 * Detach event-handler <code>fnFunction</code> from the 'titleChanged' event of this <code>sap.ui.core.routing.Targets</code>.<br/>
+			 *
+			 * The passed function and listener object must match the ones previously used for event registration.
+			 *
+			 * @param {function} fnFunction The function to call, when the event occurs.
+			 * @param {object} oListener Object on which the given function had to be called.
+			 * @return {sap.ui.core.routing.Targets} <code>this</code> to allow method chaining
+			 * @public
+			 */
+			detachTitleChanged : function(fnFunction, oListener) {
+				return this.detachEvent(this.M_EVENTS.TITLE_CHANGED, fnFunction, oListener);
+			},
+
+			fireTitleChanged : function(mArguments) {
+				return this.fireEvent(this.M_EVENTS.TITLE_CHANGED, mArguments);
+			},
+
 			M_EVENTS : {
-				DISPLAY : "display"
+				DISPLAY : "display",
+				TITLE_CHANGED : "titleChanged"
 			},
 
 			/**
@@ -521,13 +576,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 			/**
 			 * hook to distinguish between the router and an application calling this
 			 * @private
+			 * @param {any} [vData] an object that will be passed to the display event in the data property.
 			 * @name sap.ui.core.routing.Targets#_display
 			 */
 
 			/**
 			 *
-			 * @param sName name of the single target
-			 * @param vData event data
+			 * @param {string} sName name of the single target
+			 * @param {any} [vData] an object that will be passed to the display event in the data property.
 			 * @private
 			 * @name sap.ui.core.routing.Targets.#_displaySingleTarget
 			 */
@@ -535,7 +591,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 			/**
 			 * Called by the UIComponent since the rootView id is not known in the constructor
 			 *
-			 * @param sId
+			 * @param {string} sId
 			 * @private
 			 */
 			_setRootViewId: function (sId) {
@@ -549,6 +605,66 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/EventProvider', './Target', './
 							oTargetOptions.rootView = sId;
 						}
 					}
+				}
+			},
+
+			/*
+			 * Calculate the name of TitleTarget based on the given parameters
+			 */
+			_getTitleTargetName: function(vTargetNames, sProvidedTitleTargetName) {
+				var oTarget, sTitleTargetName;
+
+				sTitleTargetName = sProvidedTitleTargetName || (typeof vTargetNames === "string" && vTargetNames);
+
+				if (!sTitleTargetName) {
+					vTargetNames.some(function(sTargetName) {
+						oTarget = this.getTarget(sTargetName);
+
+						// search the TitleTarget depth first
+						while (oTarget && oTarget._oParent && oTarget._oParent._oOptions.title) {
+							oTarget = oTarget._oParent;
+						}
+
+						if (oTarget && oTarget._oOptions.title) {
+							// we found the TitleTarget
+							sTitleTargetName = oTarget._oOptions.name;
+							return true;
+						}
+					}.bind(this));
+				}
+
+				return sTitleTargetName;
+			},
+
+			/*
+			 * Forward the titleChange event from a Target to this Targets
+			 */
+			_forwardTitleChanged: function(oEvent) {
+				this.fireTitleChanged({
+					name: oEvent.getParameter("name"),
+					title: oEvent.getParameter("title")
+				});
+			},
+
+			/*
+			 * Calculate the 'TitleTarget' based on the given parameters and register to the titleChanged event on the 'TitleTarget'
+			 */
+			_attachTitleChanged: function(vTargets, sTitleTarget) {
+				var oTitleTarget;
+
+				sTitleTarget = this._getTitleTargetName(vTargets, sTitleTarget);
+				oTitleTarget = this.getTarget(sTitleTarget);
+
+				if (this._oLastTitleTarget) {
+					this._oLastTitleTarget.detachTitleChanged(this._forwardTitleChanged, this);
+					this._oLastTitleTarget._bIsDisplayed = false;
+				}
+
+				if (oTitleTarget) {
+					oTitleTarget.attachTitleChanged({name:oTitleTarget._oOptions.name}, this._forwardTitleChanged, this);
+					this._oLastTitleTarget = oTitleTarget;
+				} else if (sTitleTarget) {
+					jQuery.sap.log.error("The target with the name \"" + sTitleTarget + "\" where the titleChanged event should be fired does not exist!", this);
 				}
 			}
 

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -48,6 +48,8 @@ sap.ui.define(['jquery.sap.global', './Filter', 'sap/ui/model/Sorter', 'sap/ui/m
 				sSortParam += oSorter.sPath;
 				sSortParam += oSorter.bDescending ? "%20desc" : "%20asc";
 				sSortParam += ",";
+			} else {
+				jQuery.sap.log.error("Trying to use " + oSorter + " as a Sorter, but it is a " + typeof oSorter);
 			}
 		}
 		//remove trailing comma
@@ -214,6 +216,9 @@ sap.ui.define(['jquery.sap.global', './Filter', 'sap/ui/model/Sorter', 'sap/ui/m
 	 * setOrigin("/backend/service/url;o=OTHERSYS8?myUrlParam=true&x=4", {alias: "DEMO_123", force: true});
 	 * - result /backend/service/url;o=DEMO_123?myUrlParam=true&x=4
 	 *
+	 * setOrigin("/backend/service;o=NOT_TOUCHED/url;v=2;o=OTHERSYS8;srv=XVC", {alias: "DEMO_123", force: true});
+	 * - result /backend/service;o=NOT_TOUCHED/url;v=2;o=DEMO_123;srv=XVC
+	 *
 	 * setOrigin("/backend/service/url/", {system: "DEMO", client: 134});
 	 * - result /backend/service/url;o=sid(DEMO.134)/
 	 *
@@ -262,7 +267,7 @@ sap.ui.define(['jquery.sap.global', './Filter', 'sap/ui/model/Sorter', 'sap/ui/m
 
 		//trim trailing "/" from url if present
 		var sTrailingSlash = "";
-		if (jQuery.sap.endsWith(sBaseURL, "/")) {
+		if (sBaseURL[sBaseURL.length - 1] === "/") {
 			sBaseURL = sBaseURL.substring(0, sBaseURL.length - 1);
 			sTrailingSlash = "/"; // append the trailing slash later if necessary
 		}
@@ -270,12 +275,21 @@ sap.ui.define(['jquery.sap.global', './Filter', 'sap/ui/model/Sorter', 'sap/ui/m
 		// origin already included
 		// regex will only match ";o=" occurrences which do not end in a slash "/" at the end of the string.
 		// The last ";o=" occurrence at the end of the baseURL is the only origin that can match.
-		var rOriginCheck = /(;o=[^/]+)$/;
-		if (sBaseURL.match(rOriginCheck) != null) {
+		var rSegmentCheck = /(\/[^\/]+)$/g;
+		var rOriginCheck = /(;o=[^\/;]+)/g;
+
+		var sLastSegment = sBaseURL.match(rSegmentCheck)[0];
+		var aLastOrigin = sLastSegment.match(rOriginCheck);
+		var sFoundOrigin = aLastOrigin ? aLastOrigin[0] : null;
+
+		if (sFoundOrigin) {
 			// enforce new origin
 			if (vParameters.force) {
 				// same regex as above
-				sBaseURL = sBaseURL.replace(rOriginCheck, ";o=" + sOrigin);
+
+				var sChangedLastSegment = sLastSegment.replace(sFoundOrigin, ";o=" + sOrigin);
+				sBaseURL = sBaseURL.replace(sLastSegment, sChangedLastSegment);
+
 				return sBaseURL + sTrailingSlash + sURLParams;
 			}
 			//return the URL as it was
@@ -286,6 +300,50 @@ sap.ui.define(['jquery.sap.global', './Filter', 'sap/ui/model/Sorter', 'sap/ui/m
 		sBaseURL = sBaseURL + ";o=" + sOrigin + sTrailingSlash;
 		return sBaseURL + sURLParams;
 	};
+
+
+	/**
+	 * Adds an origin to annotation urls.
+	 * Checks if the annotation is based on a catalog service or it's a generic annotation url, which might be adapted based on the service url.
+	 * The actual url modification is done with the setOrigin function.
+	 *
+	 * @param {string} sAnnotationURL the URL which will be enriched with an origin
+	 * @param {object|string} vParameters explanation see setOrigin function
+	 * @param {string} vParameters.preOriginBaseUri Legacy: Service url base path before adding an origin
+	 * @param {string} vParameters.postOriginBaseUri Legacy: Service url base path after adding an origin
+	 * @private
+	 * @since 1.44.0
+	 * @returns {string} the annotation service URL with the added origin.
+	 */
+	ODataUtils.setAnnotationOrigin = function(sAnnotationURL, vParameters){
+
+		var sFinalAnnotationURL;
+		var iAnnotationIndex = sAnnotationURL.indexOf("/Annotations(");
+
+		if (iAnnotationIndex === -1){ // URL might be encoded, "(" becomes %28
+			iAnnotationIndex = sAnnotationURL.indexOf("/Annotations%28");
+		}
+
+		if (iAnnotationIndex >= 0) { // annotation path is there
+			if (sAnnotationURL.indexOf("/$value", iAnnotationIndex) === -1) { // $value missing
+				jQuery.sap.log.warning("ODataUtils.setAnnotationOrigin: Annotation url is missing $value segment.");
+				sFinalAnnotationURL = sAnnotationURL;
+			} else {
+				// if the annotation URL is an SAP specific annotation url, we add the origin path segment...
+				var sAnnotationUrlBase =  sAnnotationURL.substring(0, iAnnotationIndex);
+				var sAnnotationUrlRest =  sAnnotationURL.substring(iAnnotationIndex, sAnnotationURL.length);
+				var sAnnotationWithOrigin = ODataUtils.setOrigin(sAnnotationUrlBase, vParameters);
+				sFinalAnnotationURL = sAnnotationWithOrigin + sAnnotationUrlRest;
+			}
+		} else {
+			// Legacy Code for compatibility reasons:
+			// ... if not, we check if the annotation url is on the same service-url base-path
+			sFinalAnnotationURL = sAnnotationURL.replace(vParameters.preOriginBaseUri, vParameters.postOriginBaseUri);
+		}
+
+		return sFinalAnnotationURL;
+	};
+
 
 	/**
 	 * convert multi filter to filter string
@@ -428,10 +486,10 @@ sap.ui.define(['jquery.sap.global', './Filter', 'sap/ui/model/Sorter', 'sap/ui/m
 				sValue = "guid'" + vValue + "'";
 				break;
 			case "Edm.Decimal":
-				sValue = vValue + "M";
+				sValue = vValue + "m";
 				break;
 			case "Edm.Int64":
-				sValue = vValue + "L";
+				sValue = vValue + "l";
 				break;
 			case "Edm.Double":
 				sValue = vValue + "d";
@@ -534,14 +592,21 @@ sap.ui.define(['jquery.sap.global', './Filter', 'sap/ui/model/Sorter', 'sap/ui/m
 		return oDecimal1.sign * iResult;
 	}
 
+	var rTime = /^PT(\d\d)H(\d\d)M(\d\d)S$/;
+
 	/**
-	 * Extracts the milliseconds if the value is a date/time instance.
+	 * Extracts the milliseconds if the value is a date/time instance or formatted string.
 	 * @param {any} vValue
 	 *   the value (may be <code>undefined</code> or <code>null</code>)
 	 * @returns {any}
 	 *   the number of milliseconds or the value itself
 	 */
 	function extractMilliseconds(vValue) {
+		if (typeof vValue === "string" && rTime.test(vValue)) {
+			vValue = parseInt(RegExp.$1, 10) * 3600000 +
+				parseInt(RegExp.$2, 10) * 60000 +
+				parseInt(RegExp.$3, 10) * 1000;
+		}
 		if (vValue instanceof Date) {
 			return vValue.getTime();
 		}
@@ -602,6 +667,35 @@ sap.ui.define(['jquery.sap.global', './Filter', 'sap/ui/model/Sorter', 'sap/ui/m
 			default:
 				return simpleCompare;
 		}
+	};
+
+	/**
+	 * Normalizes the given canonical key.
+	 *
+	 * Although keys contained in OData response must be canonical, there are
+	 * minor differences (like capitalization of suffixes for Decimal, Double,
+	 * Float) which can differ and cause equality checks to fail.
+	 *
+	 * @param {string} sKey The canonical key of an entity
+	 * @returns {string} Normalized key of the entry
+	 * @protected
+	 */
+	// Define regular expression and function outside function to avoid instatiation on every call
+	var rNormalizeString = /([(=,])('.*?')([,)])/g,
+		rNormalizeCase = /[MLDF](?=[,)](?:[^']*'[^']*')*[^']*$)/g,
+		rNormalizeBinary = /([(=,])(X')/g,
+		fnNormalizeString = function(value, p1, p2, p3) {
+			return p1 + encodeURIComponent(decodeURIComponent(p2)) + p3;
+		},
+		fnNormalizeCase = function(value) {
+			return value.toLowerCase();
+		},
+		fnNormalizeBinary = function(value, p1) {
+			return p1 + "binary'";
+		};
+
+	ODataUtils._normalizeKey = function(sKey) {
+		return sKey.replace(rNormalizeString, fnNormalizeString).replace(rNormalizeCase, fnNormalizeCase).replace(rNormalizeBinary, fnNormalizeBinary);
 	};
 
 	return ODataUtils;

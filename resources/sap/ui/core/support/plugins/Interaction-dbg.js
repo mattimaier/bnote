@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -9,17 +9,12 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 		'sap/ui/core/support/controls/InteractionSlider',
 		'sap/ui/core/support/controls/InteractionTree',
 		'sap/ui/core/support/controls/TimelineOverview',
-		'sap/ui/Device',
 		'sap/m/MessageToast',
 		'sap/ui/thirdparty/jszip',
 		'sap/ui/core/util/File'
 	],
-	function(jQuery, Plugin, InteractionSlider, InteractionTree, TimelineOverview, Device, MessageToast, JSZip, File) {
+	function(jQuery, Plugin, InteractionSlider, InteractionTree, TimelineOverview, MessageToast, JSZip, File) {
 		"use strict";
-
-
-
-
 
 		/**
 		 * Creates an instance of sap.ui.core.support.plugins.Interaction.
@@ -29,7 +24,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 * @constructor
 		 * @private
 		 * @alias sap.ui.core.support.plugins.Interaction
@@ -40,7 +35,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 
 				this._oStub = oSupportStub;
 
-				if (this.isToolPlugin()) {
+				if (this.runsAsToolPlugin()) {
 
 					this._aEventIds = [this.getId() + "SetMeasurements",
 						this.getId() + "SetActive",
@@ -48,7 +43,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 						this.getId() + "Import",
 						this.getId() + "SetQueryString"
 					];
-					jQuery.sap.require("sap.ui.core.format.DateFormat");
 					var pad0 = function(i, w) {
 						return ("000" + String(i)).slice(-w);
 					};
@@ -57,7 +51,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 							iMicroSeconds = Math.floor((fNow - Math.floor(fNow)) * 1000);
 						return pad0(oNow.getHours(),2) + ":" + pad0(oNow.getMinutes(),2) + ":" + pad0(oNow.getSeconds(),2) + "." + pad0(oNow.getMilliseconds(),3) + pad0(iMicroSeconds,3);
 					};
-
 
 					this._oInteractionSlider = new InteractionSlider();
 					this._oInteractionTree = new InteractionTree({});
@@ -83,7 +76,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 		Interaction.prototype.init = function(oSupportStub){
 			Plugin.prototype.init.apply(this, arguments);
 
-			if (this.isToolPlugin()) {
+			if (this.runsAsToolPlugin()) {
 				initInTools.call(this, oSupportStub);
 			} else {
 				initInApps.call(this, oSupportStub);
@@ -104,12 +97,11 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 			rm.write("<div class='sapUiSupportIntFupInputMask'>");
 			rm.write("<input id=\"" + this.getId() + "-fileImport\" tabindex='-1' size='1' accept='application/zip' type='file'/>");
 			rm.write("</div>");
-			rm.write("<button id=\"" + this.getId() + "-import\" class=\"sapUiSupportBtn sapUiSupportIntImportExportBtn sapUiSupportIntImportBtn \">Import</button>");
-			rm.write("<button id=\"" + this.getId() + "-export\" class=\"sapUiSupportBtn sapUiSupportIntImportExportBtn sapUiSupportIntExportBtn sapUiSupportIntHidden\">Export</button>");
+			rm.write("<button id=\"" + this.getId() + "-import\" class=\"sapUiSupportIntImportExportBtn sapUiSupportIntImportBtn sapUiSupportRoundedButton \">Import</button>");
+			rm.write("<button id=\"" + this.getId() + "-export\" class=\"sapUiSupportIntImportExportBtn sapUiSupportIntExportBtn sapUiSupportRoundedButton sapUiSupportIntHidden \">Export</button>");
 			rm.write("<span id=\"" + this.getId() + "-info\" class=\"sapUiSupportIntRecordingInfo\"></span>");
 			rm.write("</div><div class=\"sapUiSupportInteractionCntnt\">");
 			rm.write("</div>");
-
 
 			rm.write('<div class="sapUiPerformanceStatsDiv sapUiSupportIntHidden">');
 			rm.write('<div class="sapUiPerformanceTimeline" style="height: 50px;"></div>');
@@ -367,13 +359,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/support/Plugin',
 
 			var aMeasurements = this.measurements || [];
 			if (aMeasurements.length > 0) {
-				if (Device.browser.msie && Device.browser.version < 10) {
-					MessageToast.show('Download action is not supported in Internet Explorer 9', {
-						autoClose: true,
-						duration: 3000
-					});
-					return;
-				}
 
 				var oZipFile = new JSZip();
 

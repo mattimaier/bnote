@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -55,7 +55,7 @@
  * All types handle <code>null</code> in the same way. When formatting to <code>string</code>, it
  * is simply passed through (and <code>undefined</code> becomes <code>null</code>, too). When
  * parsing from <code>string</code>, it is also passed through.  Additionally,
- * {@link sap.ui.model.type.odata.String String} and {@link sap.ui.model.type.odata.Guid Guid}
+ * {@link sap.ui.model.odata.type.String String} and {@link sap.ui.model.odata.type.Guid Guid}
  * convert the empty string to <code>null</code> when parsing. <code>validate</code> decides based
  * on the constraint <code>nullable</code>: If <code>false</code>, <code>null</code> is not
  * accepted and leads to a (locale-dependent) <code>ParseException</code>.
@@ -101,7 +101,7 @@ sap.ui.define(['sap/ui/model/SimpleType'],
 	 * @extends sap.ui.model.SimpleType
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @alias sap.ui.model.odata.type.ODataType
 	 * @param {object} [oFormatOptions]

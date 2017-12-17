@@ -2,8 +2,8 @@
  * @copyright@
  */
 
-sap.ui.define([],
-	function() {
+sap.ui.define([ './library' ],
+	function(library) {
 	"use strict";
 
 	/**
@@ -23,7 +23,7 @@ sap.ui.define([],
 		var sIndicator = oControl.getIndicator();
 		var sScale = oControl.getScale();
 		var sState = oControl.getState();
-		var bIndicator = sap.m.DeviationIndicator.None !== sIndicator && sValue !== "";
+		var bIndicator = library.DeviationIndicator.None !== sIndicator && sValue !== "";
 		var bWithMargin = oControl.getWithMargin();
 		var sWithoutMargin;
 		if (bWithMargin) {
@@ -43,14 +43,11 @@ sap.ui.define([],
 		if (typeof sTooltip !== "string") {
 			sTooltip = "";
 		}
-		oRm.writeAttributeEscaped("title", sTooltip);
-		oRm.writeAttribute("role", "presentation");
-		if (sap.ui.Device.browser.firefox) {
-			oRm.writeAttributeEscaped("aria-label", oControl.getAltText().replace(/\s/g, " ") + "" + sTooltip);
-		} else {
-			oRm.writeAttributeEscaped("aria-label", oControl.getAltText().replace(/\s/g, " ") + " " + sTooltip);
-		}
-		if (sState == sap.m.LoadState.Failed || sState == sap.m.LoadState.Loading) {
+
+		oRm.writeAttributeEscaped("aria-label", sTooltip);
+		oRm.writeAttribute("role", "img");
+
+		if (sState == library.LoadState.Failed || sState == library.LoadState.Loading) {
 			oRm.writeAttribute("aria-disabled", "true");
 		}
 		if (oControl.getAnimateTextChange()) {
@@ -68,6 +65,7 @@ sap.ui.define([],
 		}
 		oRm.writeClasses();
 		oRm.write(">");
+
 		oRm.write("<div");
 		oRm.addClass("sapMNCInner");
 		oRm.addClass(sWithoutMargin);
@@ -81,6 +79,7 @@ sap.ui.define([],
 			this._renderScaleAndIndicator(oRm, oControl, bIndicator, bScale, sWithoutMargin, sIndicator, sScale);
 		}
 		oRm.write("</div>");
+
 		oRm.write("</div>");
 	};
 
@@ -96,7 +95,7 @@ sap.ui.define([],
 	NumericContentRenderer._prepareAndRenderIcon = function(oRm, oControl, oIcon) {
 		if (oIcon) {
 			var sState,
-			oLoadState = sap.m.LoadState,
+			oLoadState = library.LoadState,
 			sCurrentState = oControl.getState();
 
 			//remove state classes from icon and only add the current state's class
@@ -135,6 +134,7 @@ sap.ui.define([],
 			oRm.addClass(sState);
 			oRm.writeClasses();
 			oRm.write(">");
+
 			oRm.write("<div");
 			oRm.writeAttribute("id", oControl.getId() + "-indicator");
 			oRm.addClass("sapMNCIndicator");
@@ -142,7 +142,8 @@ sap.ui.define([],
 			oRm.addClass(sState);
 			oRm.addClass(sColor);
 			oRm.writeClasses();
-			oRm.write("></div>");
+			oRm.write("/>");
+
 			if (isScale) {
 				oRm.write("<div");
 				oRm.writeAttribute("id", oControl.getId() + "-scale");
@@ -154,6 +155,7 @@ sap.ui.define([],
 				oRm.writeEscaped(textScale.substring(0, 3));
 				oRm.write("</div>");
 			}
+
 			oRm.write("</div>");
 		}
 	};
@@ -203,6 +205,7 @@ sap.ui.define([],
 				oRm.writeEscaped(sEmptyValue);
 			}
 		}
+
 		oRm.write("</div>");
 		oRm.write("</div>");
 	};

@@ -1,10 +1,10 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 // Provides sap.m.UploadCollectionToolbarPlaceholder.
-sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
+sap.ui.define([ 'jquery.sap.global', './library', 'sap/ui/core/Control' ],
 	function(jQuery, library, Control) {
 	"use strict";
 
@@ -15,12 +15,12 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 	 * @param {object} [mSettings] initial settings for the new control
 	 *
 	 * @class
-	 * This control needs to be used when you would like to create a customizable toolbar for the UploadCollection. Always a FileUploader instance is
-	 * required in the toolbar, the FileUploader will be placed in the position defined by the application.
+	 * Used to create a customizable toolbar for the UploadCollection.
+	 * A FileUploader instance is required in the toolbar and will be placed by the application.
 	 * @extends sap.ui.core.Control
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -36,4 +36,4 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control'],
 
 	return UploadCollectionToolbarPlaceholder;
 
-}, /* bExport= */ true);
+});

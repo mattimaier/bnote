@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library', 'sap/ui/core/
 	 * @extends sap.m.ListItemBase
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -57,7 +57,7 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library', 'sap/ui/core/
 
 			/**
 			 * By default, one or more requests are sent to get the density perfect version of the icon if the given version of the icon doesn't exist on the server.
-			 * <b>Note:<b> If bandwidth is a key factor for the application, set this value to <code>false</code>.
+			 * <b>Note:</b> If bandwidth is a key factor for the application, set this value to <code>false</code>.
 			 */
 			iconDensityAware : {type : "boolean", group : "Misc", defaultValue : true},
 
@@ -93,7 +93,8 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library', 'sap/ui/core/
 			 * @since 1.28.0
 			 */
 			infoTextDirection : {type : "sap.ui.core.TextDirection", group : "Appearance", defaultValue : sap.ui.core.TextDirection.Inherit}
-		}
+		},
+		designTime : true
 	}});
 
 	StandardListItem.prototype.exit = function() {
@@ -157,6 +158,21 @@ sap.ui.define(['jquery.sap.global', './ListItemBase', './library', 'sap/ui/core/
 		if (this._oImage) {
 			this._oImage.setSrc(this.getIcon());
 		}
+	};
+
+	StandardListItem.prototype.getContentAnnouncement = function(oBundle) {
+		var sAnnouncement = "",
+			sInfoState = this.getInfoState(),
+			oIconInfo = IconPool.getIconInfo(this.getIcon()) || {};
+
+		sAnnouncement += (oIconInfo.text || oIconInfo.name || "") + " ";
+		sAnnouncement += this.getTitle() + " " + this.getDescription() + " " + this.getInfo() + " ";
+
+		if (sInfoState != "None" && sInfoState != this.getHighlight()) {
+			sAnnouncement += oBundle.getText("LIST_ITEM_STATE_" + sInfoState.toUpperCase());
+		}
+
+		return sAnnouncement;
 	};
 
 	return StandardListItem;

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -221,7 +221,7 @@ sap.ui.define(['jquery.sap.global', 'sap/m/InstanceManager', 'sap/m/NavContainer
 		 * @param {object} oParams the navigation parameters
 		 * @param {boolean} bBack forces the nav container to show a backwards transition
 		 * @private
-		 * @returns {boolean} if an navigation occured - if the page is already displayed false is returned
+		 * @returns {boolean} if a navigation occured - if the page is already displayed false is returned
 		 */
 		TargetHandler.prototype._applyNavigationResult = function(oParams, bBack) {
 			var oTargetControl = oParams.targetControl,
@@ -288,6 +288,11 @@ sap.ui.define(['jquery.sap.global', 'sap/m/InstanceManager', 'sap/m/NavContainer
 			// close open dialogs
 			if (InstanceManager.hasOpenDialog()) {
 				InstanceManager.closeAllDialogs();
+			}
+
+			// close open LightBoxes
+			if (InstanceManager.hasOpenLightBox()) {
+				InstanceManager.closeAllLightBoxes();
 			}
 		};
 

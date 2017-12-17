@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides an abstraction for list bindings
-sap.ui.define(['./Binding'],
-	function(Binding) {
+sap.ui.define(['jquery.sap.global', './Binding', './Filter', './Sorter'],
+	function(jQuery, Binding, Filter, Sorter) {
 	"use strict";
 
 
@@ -38,19 +38,8 @@ sap.ui.define(['./Binding'],
 			Binding.call(this, oModel, sPath, oContext, mParameters);
 			this.aFilters = [];
 
-			this.aSorters = aSorters;
-			if (!jQuery.isArray(this.aSorters) && this.aSorters instanceof sap.ui.model.Sorter) {
-				this.aSorters = [this.aSorters];
-			} else if (!jQuery.isArray(this.aSorters)) {
-				this.aSorters = [];
-			}
-
-			this.aApplicationFilters = aFilters;
-			if (!jQuery.isArray(aFilters) && aFilters instanceof sap.ui.model.Filter) {
-				this.aApplicationFilters = [aFilters];
-			} else if (!jQuery.isArray(aFilters)) {
-				this.aApplicationFilters = [];
-			}
+			this.aSorters = makeArray(aSorters, Sorter);
+			this.aApplicationFilters = makeArray(aFilters, Filter);
 
 			this.bDisplayRootNode = mParameters && mParameters.displayRootNode === true;
 		},
@@ -64,6 +53,12 @@ sap.ui.define(['./Binding'],
 
 	});
 
+	function makeArray(a, FNClass) {
+		if ( Array.isArray(a) ) {
+			return a;
+		}
+		return a instanceof FNClass ? [a] : [];
+	}
 
 	// the 'abstract methods' to be implemented by child classes
 	/**

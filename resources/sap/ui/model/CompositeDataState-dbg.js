@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -12,7 +12,7 @@ sap.ui.define([ 'jquery.sap.global', './DataState' ], function(jQuery, DataState
 	 * Provides and update the status data of a binding.
 	 * Depending on the models state and controls state changes, the data state is used to propagated changes to a control.
 	 * The control can react on these changes by implementing the <code>refreshDataState</code> method for the control.
-	 * Here the the data state object is passed as a parameter.
+	 * Here the data state object is passed as a parameter.
 	 *
 	 * Using the {@link #getChanges getChanges} method the control can determine the changed properties and their old and new value.
 	 * <pre>
@@ -52,7 +52,7 @@ sap.ui.define([ 'jquery.sap.global', './DataState' ], function(jQuery, DataState
 	 * @extends sap.ui.model.DataState
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -65,10 +65,10 @@ sap.ui.define([ 'jquery.sap.global', './DataState' ], function(jQuery, DataState
 			this.mProperties.originalValue = [];
 			this.mProperties.originalInternalValue = [];
 			this.mProperties.value = [];
-			this.mProperties.invalidValue = null;
+			this.mProperties.invalidValue = undefined;
 			this.mProperties.internalValue = [];
 
-			this.mChangedProperties = jQuery.extend({},this.mProperties);
+			this.mChangedProperties = jQuery.sap.extend({},this.mProperties);
 
 			this.aDataStates = aDataStates;
 		}
@@ -81,7 +81,7 @@ sap.ui.define([ 'jquery.sap.global', './DataState' ], function(jQuery, DataState
 	 */
 	CompositeDataState.prototype._hasInnerInvalidValues = function() {
 		return this.aDataStates.reduce(function(bIsInvalid, oDataState) {
-			if (oDataState.getInvalidValue() !== null) {
+			if (oDataState.getInvalidValue() !== undefined) {
 				return true;
 			} else {
 				return bIsInvalid;
@@ -151,7 +151,6 @@ sap.ui.define([ 'jquery.sap.global', './DataState' ], function(jQuery, DataState
 	/**
 	 * Sets an array of control state messages.
 	 *
-	 * @param {sap.ui.core.Message[]} the control messages
 	 * @return {sap.ui.model.DataState} <code>this</code> to allow method chaining
 	 * @protected
 	 */
@@ -182,7 +181,7 @@ sap.ui.define([ 'jquery.sap.global', './DataState' ], function(jQuery, DataState
 	CompositeDataState.prototype.containsValues = function(vValue) {
 		if (Array.isArray(vValue)) {
 			for (var i = 0; i < vValue.length; i++) {
-				if (vValue[i] !== null && vValue[i] !== undefined) {
+				if (vValue[i] !== undefined) {
 					return true;
 				}
 			}
@@ -275,7 +274,7 @@ sap.ui.define([ 'jquery.sap.global', './DataState' ], function(jQuery, DataState
 	CompositeDataState.prototype.changed = function(bNewState) {
 		if (bNewState === false) {
 			//clear the changed properties as changed was reset;
-			this.mProperties = jQuery.extend({},this.mChangedProperties);
+			this.mProperties = jQuery.sap.extend({},this.mChangedProperties);
 
 			this.aDataStates.forEach(function(oDataState) {
 				oDataState.changed(false);

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global'], function(jQuery) {
@@ -17,18 +17,20 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 		/**
 		 * @private
 		 */
-		display: function(vTargets, vData) {
-			this._display(vTargets, vData);
+		display: function(vTargets, vData, sTitleTarget) {
+			this._display(vTargets, vData, sTitleTarget);
 		},
 
 		/**
 		 * @private
 		 */
-		_display: function(vTargets, vData) {
+		_display: function(vTargets, vData, sTitleTarget) {
 			var that = this;
 
-			if (jQuery.isArray(vTargets)) {
-				jQuery.each(vTargets, function(i, sTarget) {
+			this._attachTitleChanged(vTargets, sTitleTarget);
+
+			if (Array.isArray(vTargets)) {
+				vTargets.forEach(function(sTarget) {
 					that._displaySingleTarget(sTarget, vData);
 				});
 			} else {

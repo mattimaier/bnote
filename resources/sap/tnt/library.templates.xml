@@ -11,7 +11,7 @@
 	expanded: true, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	items: [], // sap.tnt.NavigationListItem
 	ariaDescribedBy: [], // sap.ui.core.Control
 	ariaLabelledBy: [], // sap.ui.core.Control
@@ -36,7 +36,7 @@
 	validateFieldGroup=""
 	itemSelect="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<items></items> <!-- sap.tnt.NavigationListItem -->
 </NavigationList>
 ]]></xmlTemplate>
@@ -53,7 +53,7 @@
 	hasExpander: true, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	items: [], // sap.tnt.NavigationListItem
 	select: [function (oEvent) {
 		var ${control} = oEvent.getSource();
@@ -71,7 +71,7 @@
 	hasExpander="true"
 	select="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<items></items> <!-- sap.tnt.NavigationListItem -->
 </NavigationListItem>
 ]]></xmlTemplate>
@@ -86,7 +86,7 @@
 	expanded: true, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	item: undefined, // sap.tnt.NavigationList
 	fixedItem: undefined, // sap.tnt.NavigationList
 	footer: undefined, // sap.tnt.NavigationList
@@ -108,7 +108,7 @@
 	validateFieldGroup=""
 	itemSelect="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<item></item> <!-- sap.tnt.NavigationList -->
 		<fixedItem></fixedItem> <!-- sap.tnt.NavigationList -->
 		<footer></footer> <!-- sap.tnt.NavigationList -->
@@ -129,7 +129,7 @@
 	design: sap.m.ToolbarDesign.Auto, // sap.m.ToolbarDesign, since 1.16.8
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	content: [], // sap.ui.core.Control
 	ariaLabelledBy: [], // sap.ui.core.Control
 	validateFieldGroup: [function (oEvent) {
@@ -155,7 +155,7 @@
 	validateFieldGroup=""
 	press="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<content></content> <!-- sap.ui.core.Control -->
 </ToolHeader>
 ]]></xmlTemplate>
@@ -169,7 +169,7 @@
 	fieldGroupIds: [], // string[], since 1.31
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	validateFieldGroup: [function (oEvent) {
 		var ${control} = oEvent.getSource();
 	}, this]
@@ -183,7 +183,7 @@
 	fieldGroupIds=""
 	validateFieldGroup="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 </ToolHeaderUtilitySeparator>
 ]]></xmlTemplate>
 </Template>
@@ -197,7 +197,7 @@
 	sideExpanded: true, // boolean
 	tooltip: undefined, // sap.ui.core.TooltipBase
 	customData: [], // sap.ui.core.CustomData
-	dependents: [], // sap.ui.core.Control, since 1.19
+	dependents: [], // sap.ui.core.Element, since 1.19
 	header: undefined, // sap.tnt.ToolHeader
 	sideContent: undefined, // sap.tnt.SideNavigation
 	mainContents: [], // sap.ui.core.Control
@@ -215,7 +215,7 @@
 	sideExpanded="true"
 	validateFieldGroup="">
 		<tooltip></tooltip> <!-- sap.ui.core.TooltipBase -->
-		<dependents></dependents> <!-- sap.ui.core.Control, since 1.19 -->
+		<dependents></dependents> <!-- sap.ui.core.Element, since 1.19 -->
 		<header></header> <!-- sap.tnt.ToolHeader -->
 		<sideContent></sideContent> <!-- sap.tnt.SideNavigation -->
 		<mainContents></mainContents> <!-- sap.ui.core.Control -->

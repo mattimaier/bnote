@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -12,25 +12,49 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 
 	/**
-	 * Constructor for a new SearchField.
-	 *
-	 * @param {string} [sId] id for the new control, generated automatically if no id is given
-	 * @param {object} [mSettings] initial settings for the new control
-	 *
-	 * @class
-	 * Enables users to input a search string.
-	 * @extends sap.ui.core.Control
-	 *
-	 * @author SAP SE
-	 * @version 1.38.7
-	 *
-	 * @constructor
-	 * @public
-	 * @alias sap.m.SearchField
-	 * @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
-	 */
+	* Constructor for a new SearchField.
+	*
+	* @param {string} [sId] ID for the new control, generated automatically if no ID is given
+	* @param {object} [mSettings] Initial settings for the new control
+	*
+	* @class
+	* An input field to search for a specific item.
+	* <h3>Overview</h3>
+	* A search field is needed when the user needs to find specific information in large amounts of data.
+	* The search field is also the control of choice for filtering down
+	* a given amount of information.
+	* <h3>Structure</h3>
+	* The search input field can be used in two ways:
+	* <ul>
+	* <li>Manual search - The search is triggered after the user presses the search button.
+	* Manual search uses a “starts with” approach.</li>
+	* <li>Live search (search-as-you-type) - The search is triggered after each button press.
+	* A suggestion list is shown below the search field.  Live search uses a “contains” approach.</li>
+	* </ul>
+	* <h3>Usage</h3>
+	* <h4>When to use:</h4>
+	* <ul>
+	* <li> Use live search whenever possible. </li>
+	* <li> Use a manual search only if the amount of data is too large and if your app would otherwise run
+	* into performance issues. </li>
+	* </ul>
+	* <h3>Responsive Behavior</h3>
+	* On mobile devices, there is no refresh button in the search field. "Pull Down to Refresh" is used instead.
+	* The "Pull Down to Refresh" arrow icon is animated and spins to signal that the user should release it.
+	*
+	* @extends sap.ui.core.Control
+	* @implements sap.ui.core.IFormContent
+	* @author SAP SE
+	* @version 1.50.7
+	*
+	* @constructor
+	* @public
+	* @alias sap.m.SearchField
+	* @ui5-metamodel This control/element also will be described in the UI5 (legacy) designtime metamodel
+	*/
 	var SearchField = Control.extend("sap.m.SearchField", /** @lends sap.m.SearchField.prototype */ { metadata : {
 
+		interfaces : ["sap.ui.core.IFormContent"],
 		library : "sap.m",
 		properties : {
 
@@ -201,20 +225,24 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 
 	IconPool.insertFontFaceStyle();
 
-	var oRb = sap.ui.getCore().getLibraryResourceBundle("sap.m");
 
-	// create an F5 ARIA announcement and remember its ID for later use in the renderer:
-	SearchField.prototype._sAriaF5LabelId = new sap.ui.core.InvisibleText({
-		text: oRb.getText("SEARCHFIELD_ARIA_F5")
-	}).toStatic().getId();
 
 	SearchField.prototype.init = function() {
 
 		// IE9 does not fire input event when characters are deleted in an input field, use keyup instead
 		this._inputEvent = sap.ui.Device.browser.internet_explorer && sap.ui.Device.browser.version < 10 ? "keyup" : "input";
 
+		var oRb = sap.ui.getCore().getLibraryResourceBundle("sap.m");
+
 		// Default placeholder: "Search"
 		this.setProperty("placeholder", oRb.getText("FACETFILTER_SEARCH"),true);
+
+		// create an F5 ARIA announcement and remember its ID for later use in the renderer:
+		if (!SearchField.prototype._sAriaF5LabelId && sap.ui.getCore().getConfiguration().getAccessibility()) {
+			SearchField.prototype._sAriaF5LabelId = new InvisibleText({
+				text: oRb.getText("SEARCHFIELD_ARIA_F5")
+			}).toStatic().getId();
+		}
 	};
 
 	SearchField.prototype.getFocusDomRef = function() {
@@ -312,6 +340,15 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 			clearButtonPressed: !!(oOptions && oOptions.clearButton)
 		});
 	};
+	/**
+	 *  Destroys suggestion object if exists
+	 */
+	SearchField.prototype.exit = function () {
+		if (this._oSuggest) {
+			this._oSuggest.destroy(true);
+			this._oSuggest = null;
+		}
+	};
 
 	SearchField.prototype.onButtonPress = function(oEvent) {
 
@@ -385,6 +422,15 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', 'sap/ui/
 		// focus if mouse-clicked on the form outside of the input
 		if (this.getEnabled() && oEvent.target.tagName == "FORM") {
 			this._inputElement.focus();
+		}
+
+		// on phone if the input is on focus and user taps again on it
+		if (sap.ui.Device.system.phone &&
+			this.getEnabled() &&
+			oEvent.target.tagName == "INPUT" &&
+			document.activeElement === oEvent.target &&
+			!suggestionsOn(this)) {
+			this.onFocus(oEvent);
 		}
 	};
 

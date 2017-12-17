@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -17,11 +17,29 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './ListI
          * @param {object} [mSettings] Initial settings for the new control
          *
          * @class
-         * The NotificationListBase is the base class for NotificationListItem and NotificationListGroup.
+         * The NotificationListBase is the abstract base class for {@link sap.m.NotificationListItem} and {@link sap.m.NotificationListGroup}.
+         *
+         * The NotificationList controls are designed for the SAP Fiori notification center.
+         * <h4>Overview</h4>
+         * NotificationListBase defines the general structure of a notification item. Most of the behavioral logic is defined for the single items or groups.
+         * <h4>Structure</h4>
+         * The base holds properties for the following elements:
+         * <ul>
+         * <li>Author name</li>
+         * <li>Author picture</li>
+         * <li>Time stamp</li>
+         * <li>Priority</li>
+         * <li>Title</li>
+         * </ul>
+         * Additionally, by setting these properties you can determine if buttons are shown:
+         * <ul>
+         * <li><code>showButtons</code> - action buttons visibility</li>
+         * <li><code>showCloseButton</code> - close button visibility</li>
+         * </ul>
          * @extends sap.m.ListItemBase
          *
          * @author SAP SE
-         * @version 1.38.7
+         * @version 1.50.7
          *
          * @constructor
          * @public
@@ -124,7 +142,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './ListI
                 },
                 events: {
                     /**
-                     * Fired when the notification is closed.
+                     * Fired when the close button of the notification is pressed.<br><b>Note:</b> Pressing the close button doesn't destroy the notification automatically.
                      */
                     close: {}
 
@@ -239,8 +257,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './ListI
 
         NotificationListBase.prototype.indexOfAggregation = function (aggregationName, object) {
             if (aggregationName == 'buttons') {
-                this.getAggregation('_overflowToolbar').indexOfAggregation('content', object);
-                return this;
+                return this.getAggregation('_overflowToolbar').indexOfAggregation('content', object);
             } else {
                 return sap.ui.core.Control.prototype.indexOfAggregation.call(this, aggregationName, object);
             }
@@ -432,7 +449,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Control', './ListI
         //================================================================================
 
         /**
-         * Checks is a sap.ui.core.URI parameter is a icon src or not.
+         * Checks is an sap.ui.core.URI parameter is an icon src or not.
          * @param {string} source The source to be checked.
          * @returns {boolean} The result of the check
          * @protected

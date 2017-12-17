@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define(['jquery.sap.global'], function(jQuery) {
@@ -100,6 +100,18 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 				oView = this._oViews._getView(oViewOptions);
 			}
 
+			// adapt the container before placing the view into it to make the rendering occur together with the next
+			// aggregation modification.
+			this._beforePlacingViewIntoContainer({
+				container: oControl,
+				view: oView,
+				data: vData
+			});
+
+			this._bindTitleInTitleProvider(oView);
+
+			this._addTitleProviderAsDependent(oView);
+
 			if (oOptions.clearControlAggregation === true) {
 				oControl[oAggregationInfo._sRemoveAllMutator]();
 			}
@@ -124,7 +136,7 @@ sap.ui.define(['jquery.sap.global'], function(jQuery) {
 		 * Validates the target options, will also be called from the route but route will not log errors
 		 *
 		 * @param oParentInfo
-		 * @param bLog
+		 * @param {boolean} bLog
 		 * @returns {boolean}
 		 * @private
 		 */

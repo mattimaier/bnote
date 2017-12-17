@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -28,6 +28,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/IconPool'],
 		var bShowIcon = oControl.getShowIcon();
 		var sCustomIcon = oControl.getCustomIcon();
 		var sTooltip = oControl.getTooltip_AsString();
+		var oResourceBundle = oControl._getRB();
 
 		oRm.write("<div");
 		oRm.writeControlData(oControl);
@@ -67,8 +68,8 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/IconPool'],
 		oRm.write("</span>");
 
 		// Text - Pull down to refresh
-		oRm.write("<span id=" + oControl.getId() + "-T class=\"sapMPullDownText\">");
-		oRm.writeEscaped(oControl.oRb.getText(oControl._bTouchMode ? "PULL2REFRESH_PULLDOWN" : "PULL2REFRESH_REFRESH"));
+		oRm.write("<span id=" + oControl.getId() + "-T class=\"sapMPullDownText\" aria-live=\"assertive\">");
+		oRm.writeEscaped(oResourceBundle.getText(oControl._bTouchMode ? "PULL2REFRESH_PULLDOWN" : "PULL2REFRESH_REFRESH"));
 		oRm.write("</span>");
 
 		// Info - last updated at xx:xx:xx

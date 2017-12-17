@@ -1,6 +1,6 @@
 /*
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -21,7 +21,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject'],
 	 * @extends sap.ui.base.ManagedObject
 	 * @abstract
 	 * @author SAP
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @alias sap.m.TablePersoProvider
 	 */
 	var TablePersoProvider = ManagedObject.extend("sap.m.TablePersoProvider", /** @lends sap.m.TablePersoProvider */
@@ -92,7 +92,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObject'],
 	 * Callback function which can be used to determine the title of a given column
 	 * within the TablePersoDialog. As a default, the column header controls are
 	 * asked for their 'text' or 'title' property. This works in most cases, for example
-	 * if the header control is a sap.m.Label (has 'text' property) or a sap.m.ObjectListItem
+	 * if the header control is an sap.m.Label (has 'text' property) or an sap.m.ObjectListItem
 	 * (has 'title' property).
 	 *
 	 * If the header control used in a column has neither 'text' nor 'title' property, or if you would like to

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata'],
 	 *
 	 * @class
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @since 0.8.6
 	 * @alias sap.ui.core.ElementMetadata
 	 */
@@ -31,7 +31,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata'],
 	};
 
 	//chain the prototypes
-	ElementMetadata.prototype = jQuery.sap.newObject(ManagedObjectMetadata.prototype);
+	ElementMetadata.prototype = Object.create(ManagedObjectMetadata.prototype);
 
 	/**
 	 * Calculates a new id based on a prefix.
@@ -93,13 +93,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata'],
 
 		ManagedObjectMetadata.prototype.applySettings.call(this, oClassInfo);
 
-		if (typeof oStaticInfo["designTime"] === "boolean") {
-			this._bHasDesignTime = oStaticInfo["designTime"];
-		} else if (oStaticInfo["designTime"]) {
-			this._bHasDesignTime = true;
-			this._oDesignTime = oStaticInfo["designTime"];
-		}
-
 		this._sRendererName = this.getName() + "Renderer";
 
 		if ( typeof vRenderer !== "undefined" ) {
@@ -114,13 +107,13 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata'],
 
 			var oParent = this.getParent();
 			var oBaseRenderer;
-			if ( oParent && oParent instanceof ElementMetadata ) {
+			if ( oParent instanceof ElementMetadata ) {
 				oBaseRenderer = oParent.getRenderer();
 			}
 			if ( !oBaseRenderer ) {
 				oBaseRenderer = sap.ui.requireSync('sap/ui/core/Renderer');
 			}
-			var oRenderer = jQuery.sap.newObject(oBaseRenderer);
+			var oRenderer = Object.create(oBaseRenderer);
 			jQuery.extend(oRenderer, vRenderer);
 			jQuery.sap.setObject(this.getRendererName(), oRenderer);
 		}
@@ -133,49 +126,6 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/ManagedObjectMetadata'],
 
 	ElementMetadata.prototype.isHidden = function() {
 		return this._sVisibility === "hidden";
-	};
-
-	/**
-	 * Returns the design time metadata. The design time metadata contains all relevant information to support the control
-	 * in the UI5 design time.
-	 *
-	 * @return {map} The design time metadata
-	 * @since 1.30.0
-	 */
-	ElementMetadata.prototype.getDesignTime = function() {
-		if (!this._oDesignTime && this._bHasDesignTime) {
-			// the synchronous loading would be only relevant during the
-			// development time - for productive usage the design time metadata should
-			// provide in a preload packaging which includes the control design time metadata
-			// - so the sync request penalty
-			// should be ignorable for now (async implementation will
-			// change the complete behavior of the constructor function)
-			jQuery.sap.require({modName: this.getElementName(), type: "designtime"});
-			this._oDesignTime = jQuery.sap.getObject(this.getElementName() + ".designtime");
-		}
-		return this._oDesignTime;
-	};
-
-	/**
-	 * Load and returns the design time metadata asynchronously. The design time metadata contains all relevant information to support the control
-	 * in the UI5 design time.
-	 *
-	 * @return {Promise} A promise which will return the loaded design time metadata
-	 * @since 1.28.0
-	 */
-	ElementMetadata.prototype.loadDesignTime = function() {
-		var that = this;
-		return new Promise(function(fnResolve, fnReject) {
-			if (!that._oDesignTime && that._bHasDesignTime) {
-				var sModule = jQuery.sap.getResourceName(that.getElementName(), ".designtime");
-				sap.ui.require([sModule], function(oDesignTime) {
-					that._oDesignTime = oDesignTime;
-					fnResolve(oDesignTime);
-				});
-			} else {
-				fnResolve(that._oDesignTime);
-			}
-		});
 	};
 
 	return ElementMetadata;

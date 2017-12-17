@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -9,8 +9,8 @@
 /*eslint-disable camelcase, valid-jsdoc, no-warning-comments */
 
 // Provides API for analytical extensions in OData service metadata
-sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
-	function(jQuery, AnalyticalVersionInfo) {
+sap.ui.define(['jquery.sap.global', 'sap/ui/model/Filter', 'sap/ui/model/FilterOperator', 'sap/ui/model/Sorter', './AnalyticalVersionInfo'],
+	function(jQuery, Filter, FilterOperator, Sorter, AnalyticalVersionInfo) {
 	"use strict";
 
 	/**
@@ -26,7 +26,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * @author SAP SE
 	 * @experimental This module is only for experimental use!
 	 * @namespace
-	 * @name sap.ui.model.analytics.odata4analytics
+	 * @alias sap.ui.model.analytics.odata4analytics
 	 * @protected
 	 */
 	var odata4analytics = odata4analytics || {};
@@ -141,13 +141,13 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 
 	/**
 	 * Create a reference to an OData model already loaded elsewhere with the help
-	 * of SAP UI5.
+	 * of SAPUI5.
 	 *
 	 * @param {object}
 	 *            oModel holding the OData model.
 	 * @constructor
 	 *
-	 * @class Handle to an already instantiated SAP UI5 OData model.
+	 * @class Handle to an already instantiated SAPUI5 OData model.
 	 * @name sap.ui.model.analytics.odata4analytics.Model.ReferenceByModel
 	 * @public
 	 */
@@ -162,7 +162,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * workaround is an implementation that changes the standard behavior of the API
 	 * to overcome some gap or limitation in the OData provider. The workaround
 	 * implementation can be conditionally activated by passing the identifier in
-	 * the contructor.
+	 * the constructor.
 	 *
 	 * Known workaround identifiers are:
 	 *
@@ -182,7 +182,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 *            aWorkaroundID listing all workarounds to be applied.
 	 * @constructor
 	 *
-	 * @class Handle to an already instantiated SAP UI5 OData model.
+	 * @class Handle to an already instantiated SAPUI5 OData model.
 	 * @name sap.ui.model.analytics.odata4analytics.Model.ReferenceWithWorkaround
 	 * @public
 	 */
@@ -234,12 +234,14 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 			} else {
 				// Check if the user wants a V2 model
 				if (mParameter && mParameter.modelVersion === AnalyticalVersionInfo.V2) {
-					this._oModel = new sap.ui.model.odata.v2.ODataModel(oModelReference.sServiceURI);
+					var V2ODataModel = sap.ui.requireSync("sap/ui/model/odata/v2/ODataModel");
+					this._oModel = new V2ODataModel(oModelReference.sServiceURI);
 					this._iVersion = AnalyticalVersionInfo.V2;
 					checkForMetadata();
 				} else {
 					//default is V1 Model
-					this._oModel = new sap.ui.model.odata.ODataModel(oModelReference.sServiceURI);
+					var ODataModel = sap.ui.requireSync("sap/ui/model/odata/ODataModel");
+					this._oModel = new ODataModel(oModelReference.sServiceURI);
 					this._iVersion = AnalyticalVersionInfo.V1;
 					checkForMetadata();
 				}
@@ -714,7 +716,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the names of all query results (entity sets) offered by the model
 		 *
-		 * @returns {array(string)} List of all query result names
+		 * @returns {string[]} List of all query result names
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.Model#getAllQueryResultNames
@@ -750,9 +752,9 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		},
 
 		/**
-		 * Get underlying OData model provided by SAP UI5
+		 * Get underlying OData model provided by SAPUI5
 		 *
-		 * @returns {object} The SAP UI5 representation of the model.
+		 * @returns {object} The SAPUI5 representation of the model.
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.Model#getODataModel
@@ -959,7 +961,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the names of all dimensions included in the query result
 		 *
-		 * @returns {array(string)} List of all dimension names
+		 * @returns {string[]} List of all dimension names
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.QueryResult#getAllDimensionNames
@@ -997,7 +999,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the names of all measures included in the query result
 		 *
-		 * @returns {array(string)} List of all measure names
+		 * @returns {string[]} List of all measure names
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.QueryResult#getAllMeasureNames
@@ -1081,7 +1083,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get property holding the totaled property list
 		 *
-		 * @returns {object} The DataJS object representing this property
+		 * @returns {object} The datajs object representing this property
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.QueryResult#getTotaledPropertiesListProperty
@@ -1287,7 +1289,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the names of all parameters part of the parameterization
 		 *
-		 * @returns {array(string)} List of all parameter names
+		 * @returns {string[]} List of all parameter names
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.Parameterization#getAllParameterNames
@@ -1396,7 +1398,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * @param {sap.ui.model.analytics.odata4analytics.Parameterization}
 	 *            oParameterization The parameterization containing this parameter
 	 * @param {object}
-	 *            oProperty The DataJS object object representing the text property
+	 *            oProperty The datajs object object representing the text property
 	 *
 	 * @constructor
 	 *
@@ -1470,7 +1472,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get text property related to this parameter
 		 *
-		 * @returns {object} The DataJS object representing the text property or
+		 * @returns {object} The datajs object representing the text property or
 		 *          null if it does not exist
 		 * @public
 		 * @function
@@ -1591,7 +1593,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get property
 		 *
-		 * @returns {object} The DataJS object representing the property of this
+		 * @returns {object} The datajs object representing the property of this
 		 *          parameter
 		 * @public
 		 * @function
@@ -1658,7 +1660,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * @param {sap.ui.model.analytics.odata4analytics.QueryResult}
 	 *            oQueryResult The query result containing this dimension
 	 * @param {object}
-	 *            oProperty The DataJS object object representing the dimension
+	 *            oProperty The datajs object object representing the dimension
 	 *
 	 * @constructor
 	 *
@@ -1700,7 +1702,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the key property
 		 *
-		 * @returns {object} The DataJS object representing the property for the
+		 * @returns {object} The datajs object representing the property for the
 		 *          dimension key
 		 * @public
 		 * @function
@@ -1713,7 +1715,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get text property related to this dimension
 		 *
-		 * @returns {object} The DataJS object representing the text property or
+		 * @returns {object} The datajs object representing the text property or
 		 *          null if it does not exist
 		 * @public
 		 * @function
@@ -1795,7 +1797,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the names of all attributes included in this dimension
 		 *
-		 * @returns {array(string)} List of all attribute names
+		 * @returns {string[]} List of all attribute names
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.Dimension#getAllAttributeNames
@@ -1913,7 +1915,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * @param {sap.ui.model.analytics.odata4analytics.QueryResult}
 	 *            oQueryResult The query result containing this dimension attribute
 	 * @param {object}
-	 *            oProperty The DataJS object object representing the dimension
+	 *            oProperty The datajs object object representing the dimension
 	 *            attribute
 	 *
 	 * @constructor
@@ -1975,7 +1977,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the key property
 		 *
-		 * @returns {object} The DataJS object representing the property for the key
+		 * @returns {object} The datajs object representing the property for the key
 		 *          of this dimension attribute
 		 * @public
 		 * @function
@@ -1988,7 +1990,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get text property related to this dimension attribute
 		 *
-		 * @returns {object} The DataJS object representing the text property or
+		 * @returns {object} The datajs object representing the text property or
 		 *          null if it does not exist
 		 * @public
 		 * @function
@@ -2046,7 +2048,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * @param {sap.ui.model.analytics.odata4analytics.QueryResult}
 	 *            oQueryResult The query result containing this measure
 	 * @param {object}
-	 *            oProperty The DataJS object object representing the measure
+	 *            oProperty The datajs object object representing the measure
 	 *
 	 * @constructor
 	 *
@@ -2110,7 +2112,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the raw value property
 		 *
-		 * @returns {object} The DataJS object representing the property holding the
+		 * @returns {object} The datajs object representing the property holding the
 		 *          raw value of this measure
 		 * @public
 		 * @function
@@ -2124,7 +2126,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * Get the text property associated to the raw value property holding the
 		 * formatted value related to this measure
 		 *
-		 * @returns {object} The DataJS object representing the property holding the
+		 * @returns {object} The datajs object representing the property holding the
 		 *          formatted value text of this measure or null if this measure
 		 *          does not have a unit
 		 * @public
@@ -2138,7 +2140,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the unit property related to this measure
 		 *
-		 * @returns {object} The DataJS object representing the unit property or
+		 * @returns {object} The datajs object representing the unit property or
 		 *          null if this measure does not have a unit
 		 * @public
 		 * @function
@@ -2201,21 +2203,21 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * query. Do not create your own instances.
 	 *
 	 * @param {object}
-	 *            oModel DataJS object for the OData model containing this entity
+	 *            oModel datajs object for the OData model containing this entity
 	 *            set
 	 * @param {object}
-	 *            oSchema DataJS object for the schema surrounding the container of
+	 *            oSchema datajs object for the schema surrounding the container of
 	 *            this entity set
 	 * @param {object}
-	 *            oContainer DataJS object for the container holding this entity set
+	 *            oContainer datajs object for the container holding this entity set
 	 * @param {object}
-	 *            oEntitySet DataJS object for the entity set
+	 *            oEntitySet datajs object for the entity set
 	 * @param {object}
-	 *            oEntityType DataJS object for the entity type
+	 *            oEntityType datajs object for the entity type
 	 *
 	 * @constructor
 	 *
-	 * @class Representation of a OData entity set.
+	 * @class Representation of an OData entity set.
 	 * @name sap.ui.model.analytics.odata4analytics.EntitySet
 	 * @public
 	 */
@@ -2257,7 +2259,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get full description for this entity set
 		 *
-		 * @returns {object} The DataJS object representing the entity set
+		 * @returns {object} The datajs object representing the entity set
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.EntitySet#getSetDescription
@@ -2269,7 +2271,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get entity type used for this entity set
 		 *
-		 * @returns {object} The DataJS object representing the entity type
+		 * @returns {object} The datajs object representing the entity type
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.EntitySet#getEntityType
@@ -2365,16 +2367,16 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * query. Do not create your own instances.
 	 *
 	 * @param {object}
-	 *            oModel DataJS object for the OData model containing this entity
+	 *            oModel datajs object for the OData model containing this entity
 	 *            type
 	 * @param {object}
-	 *            oSchema DataJS object for the schema containing this entity type
+	 *            oSchema datajs object for the schema containing this entity type
 	 * @param {object}
-	 *            oEntityType DataJS object for the entity type
+	 *            oEntityType datajs object for the entity type
 	 *
 	 * @constructor
 	 *
-	 * @class Representation of a OData entity type.
+	 * @class Representation of an OData entity type.
 	 * @name sap.ui.model.analytics.odata4analytics.EntityType
 	 * @public
 	 */
@@ -2519,7 +2521,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 *
 		 * @return {object} Object with (JavaScript) properties, one for each (OData
 		 *         entity type) property. These (JavaScript) properties hold the
-		 *         DataJS object representing the property
+		 *         datajs object representing the property
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.EntityType#getProperties
@@ -2533,7 +2535,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 *
 		 * @param {string}
 		 *            sPropertyName Property name
-		 * @returns {object} The DataJS object representing the property or null if
+		 * @returns {object} The datajs object representing the property or null if
 		 *          it does not exist
 		 * @public
 		 * @function
@@ -2546,7 +2548,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get key properties of this type
 		 *
-		 * @returns {array(string)} The list of key property names
+		 * @returns {string[]} The list of key property names
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.EntityType#getKeyProperties
@@ -2661,7 +2663,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 *
 		 * @param {string}
 		 *            sPropertyName Property name
-		 * @returns {object} The DataJS object representing the text property or
+		 * @returns {object} The datajs object representing the text property or
 		 *          null if it does not exist
 		 * @public
 		 * @function
@@ -2689,7 +2691,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 *
 		 * @param {string}
 		 *            sPropertyName Property name
-		 * @returns {object} The DataJS object representing the super-ordinate
+		 * @returns {object} The datajs object representing the super-ordinate
 		 *          property or null if it does not exist
 		 * @public
 		 * @function
@@ -2715,7 +2717,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * Get names of properties that can be filtered, that is they can be used in
 		 * $filter expressions
 		 *
-		 * @returns {array(string)} Array with names of properties that can be
+		 * @returns {string[]} Array with names of properties that can be
 		 *          filtered.
 		 * @public
 		 * @function
@@ -2729,7 +2731,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * Get names of properties that can be sorted, that is they can be used in
 		 * $orderby expressions
 		 *
-		 * @returns {array(string)} Array with names of properties that can be
+		 * @returns {string[]} Array with names of properties that can be
 		 *          sorted.
 		 * @public
 		 * @function
@@ -2743,7 +2745,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * Get names of properties that must be filtered, that is they must appear
 		 * in every $filter expression
 		 *
-		 * @returns {array(string)} Array with names of properties that must be
+		 * @returns {string[]} Array with names of properties that must be
 		 *          filtered.
 		 * @public
 		 * @function
@@ -2771,7 +2773,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the names of all properties with an associated hierarchy
 		 *
-		 * @returns {array(string)} List of all property names
+		 * @returns {string[]} List of all property names
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.EntityType#getAllHierarchyPropertyNames
@@ -2825,7 +2827,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get full description for this entity type
 		 *
-		 * @returns {object} The DataJS object representing the entity type
+		 * @returns {object} The datajs object representing the entity type
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.EntityType#getTypeDescription
@@ -2868,22 +2870,22 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * Create a representation of a recursive hierarchy defined on one multiple
 	 * properties in an OData entity type query. Do not create your own instances.
 	 *
-	 * @param {EntityType}
+	 * @param {sap.ui.model.analytics.odata4analytics.EntityType}
 	 *            oEntityType object for the entity type
 	 * @param {object}
-	 *            oNodeIDProperty DataJS object for the property holding the
+	 *            oNodeIDProperty datajs object for the property holding the
 	 *            hierarchy node ID identifying the hierarchy node to which the
 	 *            OData entry belongs
 	 * @param {object}
-	 *            oParentNodeIDProperty DataJS object for the property holding the
+	 *            oParentNodeIDProperty datajs object for the property holding the
 	 *            node ID of the parent of the hierarchy node pointed to by the
 	 *            value of oNodeIDProperty
 	 * @param {object}
-	 *            oNodeLevelProperty DataJS object for the property holding the
+	 *            oNodeLevelProperty datajs object for the property holding the
 	 *            level number for the of the hierarchy node pointed to by the value
 	 *            of oNodeIDProperty
 	 * @param {object}
-	 *            oNodeValueProperty DataJS object for the property holding the data
+	 *            oNodeValueProperty datajs object for the property holding the data
 	 *            value for the of the hierarchy node pointed to by the value of
 	 *            oNodeIDProperty
 	 *
@@ -2939,7 +2941,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the property holding the node ID of the hierarchy node
 		 *
-		 * @returns {object} The DataJS object representing this property
+		 * @returns {object} The datajs object representing this property
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.RecursiveHierarchy#getNodeIDProperty
@@ -2951,7 +2953,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the property holding the parent node ID of the hierarchy node
 		 *
-		 * @returns {object} The DataJS object representing this property
+		 * @returns {object} The datajs object representing this property
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.RecursiveHierarchy#getParentNodeIDProperty
@@ -2963,7 +2965,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get the property holding the level of the hierarchy node
 		 *
-		 * @returns {object} The DataJS object representing this property
+		 * @returns {object} The datajs object representing this property
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.RecursiveHierarchy#getNodeLevelProperty
@@ -2976,7 +2978,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * Get the property holding the value that is structurally organized by the
 		 * hierarchy
 		 *
-		 * @returns {object} The DataJS object representing this property
+		 * @returns {object} The datajs object representing this property
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.RecursiveHierarchy#getNodeValueProperty
@@ -3003,9 +3005,9 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * query option.
 	 *
 	 * @param {object}
-	 *            oModel DataJS object for the OData model containing this entity type
+	 *            oModel datajs object for the OData model containing this entity type
 	 * @param {object}
-	 *            oSchema DataJS object for the schema containing this entity type
+	 *            oSchema datajs object for the schema containing this entity type
 	 * @param {sap.ui.model.analytics.odata4analytics.EntityType}
 	 *            oEntityType object for the entity type
 	 *
@@ -3065,7 +3067,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 					return;
 				}
 			}
-			this._aConditionUI5Filter.push(new sap.ui.model.Filter(sProperty, sOperator, oValue1, oValue2));
+			this._aConditionUI5Filter.push(new Filter(sProperty, sOperator, oValue1, oValue2));
 		},
 
 		/**
@@ -3164,7 +3166,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 				throw "Cannot add filter condition for not filterable property name " + sPropertyName; // TODO
 			}
 			for ( var i = -1, oValue; (oValue = aValues[++i]) !== undefined;) {
-				this._addCondition(sPropertyName, sap.ui.model.FilterOperator.EQ, oValue);
+				this._addCondition(sPropertyName, FilterOperator.EQ, oValue);
 			}
 			return this;
 		},
@@ -3175,7 +3177,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * The UI5 filter condition is combined with the other given conditions using a logical AND. This method
 		 * is particularly useful for passing forward already created UI5 filter arrays.
 		 *
-		 * @param {array(sap.ui.model.Filter)}
+		 * @param {sap.ui.model.Filter[]}
 		 *            aUI5Filter Array of UI5 filter objects
 		 * @returns {sap.ui.model.analytics.odata4analytics.FilterExpression} This object for method chaining
 		 * @public
@@ -3183,7 +3185,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * @name sap.ui.model.analytics.odata4analytics.FilterExpression#addUI5FilterConditions
 		 */
 		addUI5FilterConditions : function(aUI5Filter) {
-			if (!jQuery.isArray(aUI5Filter)) {
+			if (!Array.isArray(aUI5Filter)) {
 				throw "Argument is not an array";
 			}
 			if (aUI5Filter.length == 0) {
@@ -3212,7 +3214,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get an array of SAPUI5 Filter objects corresponding to this expression.
 		 *
-		 * @returns {array(sap.ui.model.Filter)} List of filter objects representing this expression
+		 * @returns {sap.ui.model.Filter[]} List of filter objects representing this expression
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.FilterExpression#getExpressionAsUI5FilterArray
@@ -3284,20 +3286,20 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 
 			var sFilterExpression = null;
 			switch (oUI5Filter.sOperator) {
-			case sap.ui.model.FilterOperator.BT:
+			case FilterOperator.BT:
 				sFilterExpression = "(" + oUI5Filter.sPath + " "
-						+ sap.ui.model.FilterOperator.GE.toLowerCase() + " "
+						+ FilterOperator.GE.toLowerCase() + " "
 						+ this._renderPropertyFilterValue(oUI5Filter.oValue1, oProperty.type)
-						+ " and " + oUI5Filter.sPath + " " + sap.ui.model.FilterOperator.LE.toLowerCase() + " "
+						+ " and " + oUI5Filter.sPath + " " + FilterOperator.LE.toLowerCase() + " "
 						+ this._renderPropertyFilterValue(oUI5Filter.oValue2, oProperty.type)
 						+ ")";
 				break;
-			case sap.ui.model.FilterOperator.Contains:
+			case FilterOperator.Contains:
 				sFilterExpression = "substringof("
 								+ this._renderPropertyFilterValue(oUI5Filter.oValue1, "Edm.String") + "," +  oUI5Filter.sPath + ")";
 				break;
-			case sap.ui.model.FilterOperator.StartsWith:
-			case sap.ui.model.FilterOperator.EndsWith:
+			case FilterOperator.StartsWith:
+			case FilterOperator.EndsWith:
 				sFilterExpression = oUI5Filter.sOperator.toLowerCase() + "("
 						+ oUI5Filter.sPath + ","
 						+ this._renderPropertyFilterValue(oUI5Filter.oValue1, "Edm.String") + ")";
@@ -3380,7 +3382,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 					sPropertyName = oUI5Filter.sPath;
 					aNEFilter = [];
 				}
-				if (oUI5Filter.sOperator == sap.ui.model.FilterOperator.NE) {
+				if (oUI5Filter.sOperator == FilterOperator.NE) {
 					aNEFilter.push(oUI5Filter);
 					continue;
 				}
@@ -3457,7 +3459,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 							for (var j = 0; j < oPropertiesInFilterExpression[sPropertyName2].length; j++) {
 								// check if we have a value change, this means we got another value in one of the filters
 								if (oPropertiesInFilterExpression[sPropertyName2][j].oValue1 != vTheOnlyValue
-									|| oPropertiesInFilterExpression[sPropertyName2][j].sOperator != sap.ui.model.FilterOperator.EQ) {
+									|| oPropertiesInFilterExpression[sPropertyName2][j].sOperator != FilterOperator.EQ) {
 									throw "filter expression may use " + sPropertyName2 + " only with a single EQ condition";
 								}
 							}
@@ -3502,10 +3504,9 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	/** ******************************************************************** */
 
 	/**
-	 * @class Sort order of a property
-	 * @name sap.ui.model.analytics.odata4analytics.SortOrder
+	 * Sort order of a property.
 	 *
-	 * @static
+	 * @enum {string}
 	 * @public
 	 */
 	odata4analytics.SortOrder = {
@@ -3533,10 +3534,10 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 	 * can be rendered as value for the $orderby system query option.
 	 *
 	 * @param {object}
-	 *            oModel DataJS object for the OData model containing this entity
+	 *            oModel datajs object for the OData model containing this entity
 	 *            type
 	 * @param {object}
-	 *            oSchema DataJS object for the schema containing this entity type
+	 *            oSchema datajs object for the schema containing this entity type
 	 * @param {sap.ui.model.analytics.odata4analytics.EntityType}
 	 *            oEntityType object for the entity type
 	 *
@@ -3671,7 +3672,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Get an array of SAPUI5 Sorter objects corresponding to this expression.
 		 *
-		 * @returns {array(sap.ui.model.Sorter)} List of sorter objects representing
+		 * @returns {sap.ui.model.Sorter[]} List of sorter objects representing
 		 *          this expression
 		 * @public
 		 * @function
@@ -3681,7 +3682,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 			var aSorterObjects = [];
 
 			for (var i = -1, oCondition; (oCondition = this._aSortCondition[++i]) !== undefined;) {
-				aSorterObjects.push(new sap.ui.model.Sorter(oCondition.property.name,
+				aSorterObjects.push(new Sorter(oCondition.property.name,
 						oCondition.order == odata4analytics.SortOrder.Descending));
 			}
 
@@ -4007,7 +4008,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * path comprising a parameterization. If a path is provided, it overwrites
 		 * any parameterization object that might have been specified separately.
 		 *
-		 * @param sResourcePath
+		 * @param {string} sResourcePath
 		 *            Resource path pointing to the entity set of the query result.
 		 *            Must include a valid parameterization if query contains
 		 *            parameters.
@@ -4035,7 +4036,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		/**
 		 * Retrieves the current parametrization request
 		 *
-		 * @returns {sap.ui.model.analytics.odata4analytics.ParametrizationRequest}
+		 * @returns {sap.ui.model.analytics.odata4analytics.ParameterizationRequest}
 		 * @public
 		 * @function
 		 * @name sap.ui.model.analytics.odata4analytics.QueryResultRequest#getParameterizationRequest
@@ -4234,14 +4235,14 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * Specify which dimension components shall be included in the query result.
 		 * The settings get applied to the currently defined aggregation level.
 		 *
-		 * @param sDimensionName
+		 * @param {string} sDimensionName
 		 *            Name of the dimension for which the settings get applied.
 		 *            Specify null to apply the settings to all dimensions in the
 		 *            aggregation level.
-		 * @param bIncludeKey
+		 * @param {boolean} bIncludeKey
 		 *            Indicator whether or not to include the dimension key in the
 		 *            query result. Pass null to keep current setting.
-		 * @param bIncludeText
+		 * @param {boolean} bIncludeText
 		 *            Indicator whether or not to include the dimension text (if
 		 *            available) in the query result. Pass null to keep current
 		 *            setting.
@@ -4285,18 +4286,18 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * Specify which measure components shall be included in the query result.
 		 * The settings get applied to the currently set measures.
 		 *
-		 * @param sMeasureName
+		 * @param {string} sMeasureName
 		 *            Name of the measure for which the settings get applied.
 		 *            Specify null to apply the settings to all currently set
 		 *            measures.
-		 * @param bIncludeRawValue
+		 * @param {boolean} bIncludeRawValue
 		 *            Indicator whether or not to include the raw value in the query
 		 *            result. Pass null to keep current setting.
-		 * @param bIncludeFormattedValue
+		 * @param {boolean} bIncludeFormattedValue
 		 *            Indicator whether or not to include the formatted value (if
 		 *            available) in the query result. Pass null to keep current
 		 *            setting.
-		 * @param bIncludeUnit
+		 * @param {boolean} bIncludeUnit
 		 *            Indicator whether or not to include the unit (if available) in
 		 *            the query result. Pass null to keep current setting.
 		 * @public
@@ -4534,7 +4535,42 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		},
 
 		/**
-		 * Get the value of an query option for the OData request URI corresponding
+		 * Get the value for the OData system query option $orderby corresponding to
+		 * the sort expression.
+		 *
+		 * @returns {string} The $orderby value for the sort expression or <code>null</code>
+		 */
+		getURIOrderByOptionValue : function () {
+			var aAllMeasureNames,
+				oCondition,
+				sOrderByOptionString = null,
+				aSortConditions = this._oSortExpression
+					? this._oSortExpression._aSortCondition
+					: [],
+				i,
+				n = aSortConditions.length;
+
+			if (n) {
+				aAllMeasureNames = this._oQueryResult.getAllMeasureNames();
+
+				for (i = 0; i < n; i += 1) {
+					oCondition = aSortConditions[i];
+					if (!this._oSelectedPropertyNames[oCondition.property.name]
+						&& aAllMeasureNames.indexOf(oCondition.property.name) < 0) {
+						// sorting of aggregated entities is meaningful only if the sorted property
+						// is also selected or is a measure
+						continue;
+					}
+					sOrderByOptionString = (sOrderByOptionString ? sOrderByOptionString + "," : "")
+						+ oCondition.property.name + " " + oCondition.order;
+				}
+			}
+
+			return sOrderByOptionString;
+		},
+
+		/**
+		 * Get the value of a query option for the OData request URI corresponding
 		 * to this request.
 		 *
 		 * @param {String}
@@ -4628,11 +4664,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 				break;
 			}
 			case "$orderby": {
-				var sSortOption = null;
-				if (this._oSortExpression) {
-					sSortOption = this._oSortExpression.getURIOrderByOptionValue(this._oSelectedPropertyNames);
-				}
-				sQueryOptionValue = (sSortOption ? sSortOption : null);
+				sQueryOptionValue = this.getURIOrderByOptionValue();
 				break;
 			}
 			case "$top": {
@@ -4804,7 +4836,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * Specify which components of the parameter shall be included in the value
 		 * set.
 		 *
-		 * @param bIncludeText
+		 * @param {boolean} bIncludeText
 		 *            Indicator whether or not to include the parameter text (if
 		 *            available) in the value set. Pass null to keep current
 		 *            setting.
@@ -4894,7 +4926,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		},
 
 		/**
-		 * Get the value of an query option for the OData request URI corresponding
+		 * Get the value of a query option for the OData request URI corresponding
 		 * to this request.
 		 *
 		 * @param {String}
@@ -5086,10 +5118,10 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		 * Specify which components of the dimension shall be included in the value
 		 * set.
 		 *
-		 * @param bIncludeText
+		 * @param {boolean} bIncludeText
 		 *            Indicator whether or not to include the dimension text (if
 		 *            available) in the value set.
-		 * @param bIncludeAttributes
+		 * @param {boolean} bIncludeAttributes
 		 *            Indicator whether or not to include all dimension attributes
 		 *            (if available) in the value set.
 		 * @public
@@ -5263,7 +5295,7 @@ sap.ui.define(['jquery.sap.global', './AnalyticalVersionInfo'],
 		},
 
 		/**
-		 * Get the value of an query option for the OData request URI corresponding
+		 * Get the value of a query option for the OData request URI corresponding
 		 * to this request.
 		 *
 		 * @param {String}

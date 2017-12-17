@@ -1,18 +1,15 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides class sap.ui.dt.AggregationOverlay.
 sap.ui.define([
 	'jquery.sap.global',
-	'sap/ui/dt/Overlay',
-	'sap/ui/dt/DOMUtil',
-	'sap/ui/dt/ElementUtil',
-	'sap/ui/dt/OverlayUtil'
+	'sap/ui/dt/Overlay'
 ],
-function(jQuery, Overlay, DOMUtil, ElementUtil, OverlayUtil) {
+function(jQuery, Overlay) {
 	"use strict";
 
 
@@ -28,7 +25,7 @@ function(jQuery, Overlay, DOMUtil, ElementUtil, OverlayUtil) {
 	 * @extends sap.ui.core.Overlay
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @private
@@ -90,23 +87,19 @@ function(jQuery, Overlay, DOMUtil, ElementUtil, OverlayUtil) {
 	/**
 	 * Returns a DOM representation for an aggregation, associated with this AggregationOverlay, if it can be found or undefined
 	 * Representation is searched in DOM based on DesignTimeMetadata defined for the parent Overlay
-	 * @return {Element} Associated with this AggregationOverlay DOM Element or null, if it can't be found
+	 * @return {jQuery} Associated with this AggregationOverlay DOM Element or null, if it can't be found
 	 * @public
 	 */
 	AggregationOverlay.prototype.getAssociatedDomRef = function() {
 		var oElement = this.getElementInstance();
 		var sAggregationName = this.getAggregationName();
+		var oDesignTimeMetadata = this.getDesignTimeMetadata();
 
-		var oElementDomRef = ElementUtil.getDomRef(oElement);
-		if (oElementDomRef) {
-			var oDesignTimeMetadata = this.getDesignTimeMetadata();
-			var vAggregationDomRef = oDesignTimeMetadata.getDomRef();
-			if (typeof vAggregationDomRef === "function") {
-				return vAggregationDomRef.call(oElement, sAggregationName);
-			} else if (typeof vAggregationDomRef === "string") {
-				return DOMUtil.getDomRefForCSSSelector(oElementDomRef, vAggregationDomRef).get(0);
-			}
-		}
+		return oDesignTimeMetadata.getAssociatedDomRef(
+			oElement,
+			oDesignTimeMetadata.getDomRef(),
+			sAggregationName
+		);
 	};
 
 	/**
@@ -136,12 +129,43 @@ function(jQuery, Overlay, DOMUtil, ElementUtil, OverlayUtil) {
 	};
 
 	/**
+	 * Returns if the AggregationOverlay is an association
+	 * @public
+	 * @return {boolean} if the AggregationOverlay is an association
+	 */
+	AggregationOverlay.prototype.isAssociation = function() {
+		return !!this.getDesignTimeMetadata().getData().aggregationLike;
+	};
+
+	/**
 	 * Returns an array with Overlays for the public children of the aggregation, associated with this AggregationOverlay
 	 * @return {sap.ui.dt.Overlay[]} children Overlays
 	 * @public
 	 */
 	AggregationOverlay.prototype.getChildren = function() {
 		return this.getAggregation("children") || [];
+	};
+
+	/**
+	 * @inheritDoc
+	 */
+	AggregationOverlay.prototype._getScrollContainerIndex = function(oOverlayParent, oOverlay) {
+		var iScrollContainerIndex;
+		oOverlay = oOverlay || this;
+		if (oOverlayParent._aScrollContainers) {
+			iScrollContainerIndex = -1;
+			oOverlayParent._aScrollContainers.some(function(oScrollContainer, iIndex) {
+				if (oScrollContainer.aggregations) {
+					return oScrollContainer.aggregations.some(function(sAggregationName) {
+						if (oOverlay.getAggregationName() === sAggregationName) {
+							iScrollContainerIndex = iIndex;
+							return true;
+						}
+					});
+				}
+			});
+		}
+		return iScrollContainerIndex;
 	};
 
 	return AggregationOverlay;

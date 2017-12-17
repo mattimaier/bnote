@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -13,6 +13,7 @@ sap.ui.define(['jquery.sap.global'],
 	/**
 	 * ShellOverlay renderer.
 	 * @namespace
+	 * @deprecated Since version 1.44.0.
 	 */
 	var ShellOverlayRenderer = {};
 
@@ -52,7 +53,7 @@ sap.ui.define(['jquery.sap.global'],
 		rm.write("</div>");
 		var rb = sap.ui.getCore().getLibraryResourceBundle("sap.ui.unified"),
 			sCloseTxt = rb.getText("SHELL_OVERLAY_CLOSE");
-		rm.write("<a tabindex='0' href='javascript:void(0);' id='" + oControl.getId() + "-close' class='sapUiUfdShellOvrlyHeadClose'");
+		rm.write("<a tabindex='0' href='#' id='" + oControl.getId() + "-close' class='sapUiUfdShellOvrlyHeadClose'");
 		rm.writeAttributeEscaped("title", sCloseTxt);
 		if (sap.ui.getCore().getConfiguration().getAccessibility()) {
 			rm.writeAttribute("role", "button");

@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -19,7 +19,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Popup', '../Plugin', '../Suppor
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.38.7
+		 * @version 1.50.7
 		 * @constructor
 		 * @private
 		 * @alias sap.ui.core.support.plugins.Selector
@@ -27,16 +27,14 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Popup', '../Plugin', '../Suppor
 		var Selector = Plugin.extend("sap.ui.core.support.plugins.Selector", {
 			constructor : function(oSupportStub) {
 				Plugin.apply(this, ["sapUiSupportSelector", "", oSupportStub]);
-
-				if (this.isToolPlugin()) {
-					throw Error();
-				}
-
 				this._aEventIds = [this.getId() + "Highlight"];
 				this._oPopup = new Popup();
 			}
 		});
 
+		Selector.prototype.isToolPlugin = function(){
+			return false;
+		};
 
 		/**
 		 * Handler for sapUiSupportSelectorHighlight event

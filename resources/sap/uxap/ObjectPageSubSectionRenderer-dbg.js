@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -14,7 +14,7 @@ sap.ui.define(function () {
 	var ObjectPageSubSectionRenderer = {};
 
 	ObjectPageSubSectionRenderer.render = function (oRm, oControl) {
-		var aActions, bHasTitle, bHasTitleLine, bHasActions, bUseTitleOnTheLeft;
+		var aActions, bHasTitle, bHasTitleLine, bHasActions, bUseTitleOnTheLeft, bHasVisibleActions;
 
 		if (!oControl.getVisible() || !oControl._getInternalVisible()) {
 			return;
@@ -24,11 +24,13 @@ sap.ui.define(function () {
 		bHasActions = aActions.length > 0;
 		bHasTitle = (oControl._getInternalTitleVisible() && (oControl.getTitle().trim() !== ""));
 		bHasTitleLine = bHasTitle || bHasActions;
+		bHasVisibleActions = oControl._hasVisibleActions();
 
 		oRm.write("<div ");
 		oRm.writeAttribute("role", "region");
 		oRm.writeControlData(oControl);
 		oRm.addClass("sapUxAPObjectPageSubSection");
+		oRm.addClass("ui-helper-clearfix");
 		oRm.writeClasses(oControl);
 		oRm.writeClasses();
 		oRm.write(">");
@@ -36,6 +38,10 @@ sap.ui.define(function () {
 		if (bHasTitleLine) {
 			oRm.write("<div");
 			oRm.addClass("sapUxAPObjectPageSubSectionHeader");
+
+			if (!bHasTitle && !bHasVisibleActions) {
+				oRm.addClass("sapUiHidden");
+			}
 
 			bUseTitleOnTheLeft = oControl._getUseTitleOnTheLeft();
 			if (bUseTitleOnTheLeft && oControl._onDesktopMediaRange()) {
@@ -48,7 +54,7 @@ sap.ui.define(function () {
 			oRm.write("<div");
 			if (bHasTitle) {
 				oRm.writeAttribute("role", "heading");
-				oRm.writeAttribute("aria-level", "4");
+				oRm.writeAttribute("aria-level",  oControl._getARIALevel());
 			}
 			oRm.addClass('sapUxAPObjectPageSubSectionHeaderTitle');
 			if (oControl.getTitleUppercase()) {
@@ -57,9 +63,6 @@ sap.ui.define(function () {
 			oRm.writeAttributeEscaped("id", oControl.getId() + "-headerTitle");
 			oRm.writeClasses();
 			oRm.writeAttribute("data-sap-ui-customfastnavgroup", true);
-			if (bHasTitle) {
-				oRm.writeAttribute("tabindex", 0);
-			}
 			oRm.write(">");
 			if (bHasTitle) {
 				oRm.writeEscaped(oControl.getTitle());
@@ -82,7 +85,6 @@ sap.ui.define(function () {
 		oRm.write("<div");
 		oRm.addClass("ui-helper-clearfix");
 		oRm.addClass("sapUxAPBlockContainer");
-		oRm.addClass("sapUiResponsiveMargin");
 		oRm.writeClasses();
 		if (oControl._isHidden){
 			oRm.addStyle("display", "none");

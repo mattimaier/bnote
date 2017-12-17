@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,7 +20,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element'], function(jQuery, Ele
 	 *
 	 * @author SAP SE
 	 * @extends sap.ui.core.Element
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 * @public
 	 * @constructor
 	 * @since 1.34.0
@@ -45,7 +45,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element'], function(jQuery, Ele
 		}
 	});
 
-	/**
+	/*
 	 * Sets <code>maskFormatSymbol</code> property.
 	 * @override
 	 * @param {String} sNewMaskFormatSymbol The new format symbol
@@ -60,7 +60,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/core/Element'], function(jQuery, Ele
 		return this;
 	};
 
-	/**
+	/*
 	 * Sets <code>regex</code> property.
 	 * @override
 	 * @param {String} sNewRegex The new regular expression

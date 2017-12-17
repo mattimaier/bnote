@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/ui/
 	 * @extends sap.ui.core.Element
 	 *
 	 * @author SAP SE
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -144,18 +144,19 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/ui/
 
 	Column.prototype._clearMedia = function() {
 		if (this._media && this._minWidth) {
+			this._detachMediaContainerWidthChange(this._notifyResize, this, this.getId());
 			sap.ui.Device.media.removeRangeSet(this.getId());
 			this._media = null;
 		}
 	};
 
 	Column.prototype._addMedia = function() {
+		delete this._bShouldAddMedia;
 		if (this._minWidth) {
 			sap.ui.Device.media.initRangeSet(this.getId(), [parseFloat(this._minWidth)]);
-			sap.ui.Device.media.attachHandler(this._notifyResize, this, this.getId());
-			this._media = sap.ui.Device.media.getCurrentRange(this.getId());
+			this._attachMediaContainerWidthChange(this._notifyResize, this, this.getId());
+			this._media = this._getCurrentMediaContainerRange(this.getId());
 			if (this._media) {
-				this._media.triggered = false;
 				this._media.matches = !!this._media.from;
 			}
 		}
@@ -168,15 +169,13 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/ui/
 	 * @private
 	 */
 	Column.prototype._notifyResize = function(oMedia) {
-		// ignore the first call
-		if (!this._media.triggered) {
-			this._media.triggered = true;
+		// do nothing if media did not change
+		if (this._media.from === oMedia.from) {
 			return;
 		}
 
 		// keep media info
 		this._media = oMedia;
-		this._media.triggered = true;
 		this._media.matches = !!oMedia.from;
 
 		// inform parent delayed
@@ -445,6 +444,8 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/ui/
 	 * Checks the given width is known screen size
 	 */
 	Column.prototype.setMinScreenWidth = function(sWidth) {
+		var parent = this.getParent();
+
 		// check if setting the old value
 		if (sWidth == this.getMinScreenWidth()) {
 			return this;
@@ -469,7 +470,11 @@ sap.ui.define(['jquery.sap.global', './library', 'sap/ui/core/Element', 'sap/ui/
 				this._isWidthPredefined(sWidth);
 			}
 
-			this._addMedia();
+			if (parent && parent.isActive()) {
+				this._addMedia();
+			} else {
+				this._bShouldAddMedia = true;
+			}
 		}
 
 		return this.setProperty("minScreenWidth", sWidth);

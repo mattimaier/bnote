@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -403,7 +403,7 @@ sap.ui.define([
 		 * @param {object} oPathValue
 		 *   path and value information pointing to the parameters array (for a possible error
 		 *   message, see above)
-		 * @param {int} iIndex
+		 * @param {number} iIndex
 		 *   the parameter index (for a possible error message)
 		 * @param {object} oResult
 	 	 *   a result object with category
@@ -613,7 +613,7 @@ sap.ui.define([
 		 *   the callback interface related to the current formatter call
 		 * @param {object} oPathValue
 		 *   path and value information pointing to the parameter array (see Expression object)
-		 * @param {int} iIndex
+		 * @param {number} iIndex
 		 *   the parameter index
 		 * @param {string} [sEdmType]
 		 *   the expected EDM type or <code>undefined</code> if any type is allowed
@@ -706,7 +706,9 @@ sap.ui.define([
 		path : function (oInterface, oPathValue) {
 			var sBindingPath = oPathValue.value,
 				oConstraints = {},
+				oExclusiveAnnotation,
 				oIsDigitSequence,
+				oMinMaxAnnotation,
 				oModel = oInterface.getModel(),
 				oPathValueInterface = {
 					getModel : function () { return oModel; },
@@ -731,18 +733,36 @@ sap.ui.define([
 				case "Edm.Decimal":
 					oConstraints.precision = oProperty.precision;
 					oConstraints.scale = oProperty.scale;
+					oMinMaxAnnotation = oProperty["Org.OData.Validation.V1.Minimum"];
+					if (oMinMaxAnnotation && oMinMaxAnnotation.String) {
+						oConstraints.minimum = oMinMaxAnnotation.String;
+						oExclusiveAnnotation =
+							oMinMaxAnnotation["Org.OData.Validation.V1.Exclusive"];
+						if (oExclusiveAnnotation) {
+							oConstraints.minimumExclusive = oExclusiveAnnotation.Bool || "true";
+						}
+					}
+					oMinMaxAnnotation = oProperty["Org.OData.Validation.V1.Maximum"];
+					if (oMinMaxAnnotation && oMinMaxAnnotation.String) {
+						oConstraints.maximum = oMinMaxAnnotation.String;
+						oExclusiveAnnotation =
+							oMinMaxAnnotation["Org.OData.Validation.V1.Exclusive"];
+						if (oExclusiveAnnotation) {
+							oConstraints.maximumExclusive = oExclusiveAnnotation.Bool || "true";
+						}
+					}
 					break;
 				case "Edm.String":
 					oConstraints.maxLength = oProperty.maxLength;
 					oIsDigitSequence = oProperty["com.sap.vocabularies.Common.v1.IsDigitSequence"];
 					if (oIsDigitSequence) {
-						oConstraints.isDigitSequence = oIsDigitSequence.Bool;
+						oConstraints.isDigitSequence = oIsDigitSequence.Bool || "true";
 					}
 					break;
 				// no default
 				}
 				if (oProperty.nullable === "false") {
-					oConstraints.nullable = oProperty.nullable;
+					oConstraints.nullable = "false";
 				}
 				oResult.constraints = oConstraints;
 			} else {

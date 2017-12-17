@@ -1,12 +1,12 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 // Provides a filter for list bindings
-sap.ui.define(['jquery.sap.global', 'sap/ui/base/Exception'],
-	function(jQuery, Exception) {
+sap.ui.define(['sap/ui/base/Exception'],
+	function(Exception) {
 	"use strict";
 
 
@@ -22,7 +22,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/base/Exception'],
 		this.name = "ParseException";
 		this.message = message;
 	};
-	ParseException.prototype = jQuery.sap.newObject(Exception.prototype);
+	ParseException.prototype = Object.create(Exception.prototype);
 
 	return ParseException;
 

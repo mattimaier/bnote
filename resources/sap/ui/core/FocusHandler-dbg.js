@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -13,7 +13,7 @@ sap.ui.define(['jquery.sap.global', '../Device', '../base/Object', 'jquery.sap.s
 
 
 		/**
-		 * Constructs an instance of a sap.ui.core.FocusHandler.
+		 * Constructs an instance of an sap.ui.core.FocusHandler.
 		 * Keeps track of the focused element.
 		 *
 		 * @class Keeps track of the focused element.
@@ -41,7 +41,7 @@ sap.ui.define(['jquery.sap.global', '../Device', '../base/Object', 'jquery.sap.s
 				this.fEventHandler = jQuery.proxy(this.onEvent, this);
 
 				// initialize event handling
-				if (oRootRef.addEventListener && !Device.browser.internet_explorer) { //FF, Safari
+				if (oRootRef.addEventListener && !Device.browser.msie) { //FF, Safari
 					oRootRef.addEventListener("focus", this.fEventHandler, true);
 					oRootRef.addEventListener("blur", this.fEventHandler, true);
 				} else { //IE
@@ -153,7 +153,7 @@ sap.ui.define(['jquery.sap.global', '../Device', '../base/Object', 'jquery.sap.s
 		FocusHandler.prototype.destroy = function(event) {
 			var oRootRef = event.data.oRootRef;
 			if (oRootRef) {
-				if (oRootRef.removeEventListener && !Device.browser.internet_explorer) { //FF, Safari
+				if (oRootRef.removeEventListener && !Device.browser.msie) { //FF, Safari
 					oRootRef.removeEventListener("focus", this.fEventHandler, true);
 					oRootRef.removeEventListener("blur", this.fEventHandler, true);
 				} else { //IE
@@ -209,7 +209,7 @@ sap.ui.define(['jquery.sap.global', '../Device', '../base/Object', 'jquery.sap.s
 		/**
 		 * Processes the focus event taken from the event queue.
 		 *
-		 * @param sControlId Id of the event related control
+		 * @param {string} sControlId Id of the event related control
 		 * @private
 		 */
 		FocusHandler.prototype.onfocusEvent = function(sControlId){
@@ -236,7 +236,7 @@ sap.ui.define(['jquery.sap.global', '../Device', '../base/Object', 'jquery.sap.s
 		/**
 		 * Processes the blur event taken from the event queue.
 		 *
-		 * @param sControlId Id of the event related control
+		 * @param {string} sControlId Id of the event related control
 		 * @private
 		 */
 		FocusHandler.prototype.onblurEvent = function(sControlId){

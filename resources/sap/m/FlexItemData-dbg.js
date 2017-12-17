@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -16,9 +16,9 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 	 * @param {object} [mSettings] initial settings for the new element
 	 *
 	 * @class
-	 * Holds layout data for a FlexBox|HBox|VBox
+	 * Holds layout data for a FlexBox / HBox / VBox.
 	 * @extends sap.ui.core.LayoutData
-	 * @version 1.38.7
+	 * @version 1.50.7
 	 *
 	 * @constructor
 	 * @public
@@ -176,6 +176,14 @@ sap.ui.define(['jquery.sap.global', './FlexBoxStylingHelper', './library', 'sap/
 		var sOldValue = this.getBackgroundDesign();
 		this.setProperty("backgroundDesign", sValue, true);
 		this.$().removeClass("sapMFlexBoxBG" + sOldValue).addClass("sapMFlexBoxBG" + this.getBackgroundDesign());
+
+		return this;
+	};
+
+	FlexItemData.prototype.setStyleClass = function(sValue) {
+		var sOldValue = this.getStyleClass();
+		this.setProperty("styleClass", sValue, true);
+		this.$().removeClass(sOldValue).addClass(this.getStyleClass());
 
 		return this;
 	};

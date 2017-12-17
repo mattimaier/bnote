@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -35,17 +35,17 @@ sap.ui.define(["sap/ui/core/Element", "./library"],
 			properties: {
 
 				/**
-				 * Determines the the external model name.
+				 * Determines the external model name.
 				 */
 				externalModelName: {type: "string", group: "Misc", defaultValue: null},
 
 				/**
-				 * Determines the the internal model name.
+				 * Determines the internal model name.
 				 */
 				internalModelName: {type: "string", group: "Misc", defaultValue: "Model"},
 
 				/**
-				 * Determines the the external path.
+				 * Determines the external path.
 				 */
 				externalPath: {type: "string", group: "Misc", defaultValue: null}
 			}
