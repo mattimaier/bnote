@@ -21,6 +21,8 @@ class Systemdata {
  
  private $version;
  private $dir_prefix;
+ 
+ private $theme;
 
  /**
   * Creates a new system data object.
@@ -511,6 +513,16 @@ class Systemdata {
  
  public function getLang() {
  	return $this->getDynamicConfigParameter("language");
+ }
+ 
+ public function getTheme() {
+ 	if($this->theme == null) {
+ 		$this->theme = $this->cfg_system->getParameter("Theme");
+ 		if($this->theme == null) {
+ 			$this->theme = "default";
+ 		}
+ 	}
+ 	return $this->theme;
  }
 }
 

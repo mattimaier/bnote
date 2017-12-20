@@ -1,0 +1,41 @@
+@CHARSET "UTF-8";
+
+#website_editor {
+	width: 100%;
+}
+
+#website_pages {
+	width: 200px;
+	padding: 0px;
+}
+
+.website_webpage_item {
+	padding: 5px;
+	margin-bottom: 5px;
+}
+
+.website_webpage_item:hover {
+	background-color: #FFFFFF;
+}
+
+.website_webpage_item_active {
+	padding: 5px;
+	margin-bottom: 5px;
+	color: #132332;
+	background-color: #FFFFFF;
+}
+
+.website_webpage_item_active:hover {
+	color: #000000;
+}
+
+.website_webpage_topic {
+	padding: 5px;
+	background-color: #132332;
+	color: #FFFFFF;
+	font-weight: bold;
+}
+
+#website_page_editor {
+	background-color: #FFFFFF;
+}

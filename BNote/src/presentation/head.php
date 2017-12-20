@@ -22,7 +22,7 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
  <link type="text/css" href="lib/dropzone.css" rel="stylesheet" />
 <?php
 # Theme
-$theme = "default";
+$theme = $system_data->getTheme();
 
 # Link all CSS Files in style/css
 if($handle = opendir('style/css' . "/" . $theme)) {
