@@ -236,6 +236,7 @@ class KontakteView extends CrudRefView {
 	function viewDetailTable() {
 		// user details
 		$entity = $this->getData()->getContact($_GET["id"]);
+		
 		$details = new Dataview();
 		$details->autoAddElements($entity);
 		$details->autoRename($this->getData()->getFields());
@@ -266,7 +267,8 @@ class KontakteView extends CrudRefView {
 	}
 	
 	function editEntityForm($write=true) {
-		$contact = $this->getData()->findByIdNoRef($_GET["id"]);
+		$contact = $this->getData()->getContact($_GET["id"]);
+		
 		$form = new Form("Kontakt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);
 		$form->removeElement("id");
@@ -279,6 +281,16 @@ class KontakteView extends CrudRefView {
 		$form->addElement("PLZ", new Field("zip", $address["zip"], FieldType::CHAR));
 		
 		$form->removeElement("status");
+		
+		// custom fields
+		$fields = $this->getData()->getCustomFields('c');
+		for($i = 1; $i < count($fields); $i++) {
+			$field = $fields[$i];
+			$techname = $field["techname"];
+			$form->addElement($field['txtdefsingle'], new Field($techname, $contact[$techname], 
+					$this->getData()->fieldTypeFromCustom($field['fieldtype'])));
+		}
+		
 		// group selection
 		$groups = $this->getData()->getGroups();
 		$userGroups = $this->getData()->getContactGroupsArray($_GET["id"]);

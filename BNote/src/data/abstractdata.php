@@ -528,7 +528,7 @@ abstract class AbstractData {
 	 * @param String $objectType Character referring to CustomFieldsData::objectReferenceTypes
 	 * @return Selection of custom fields
 	 */
-	protected function getCustomFields($objectType) {
+	public function getCustomFields($objectType) {
 		$query = "SELECT * FROM customfield WHERE otype = '$objectType'";
 		return $this->database->getSelection($query);
 	}
@@ -538,7 +538,7 @@ abstract class AbstractData {
 	 * @param String $customType Custom field type string.
 	 * @return FieldType
 	 */
-	protected function fieldTypeFromCustom($customType) {
+	public function fieldTypeFromCustom($customType) {
 		switch($customType) {
 			case "BOOLEAN": return FieldType::BOOLEAN;
 			case "INT": return FieldType::INTEGER;
@@ -547,20 +547,185 @@ abstract class AbstractData {
 		}
 	}
 	
+	protected function compileCustomFieldInfo($selection) {
+		$info = array();
+		for($i = 1; $i < count($selection); $i++) {
+			$info[$selection[$i]['techname']] = array(
+					$selection[$i]['txtdefsingle'],
+					$selection[$i]['fieldtype'],
+					$selection[$i]['id'],
+			);
+		}
+		return $info;
+	}
+	
 	protected function createCustomFieldData($otype, $oid, $values) {
+		$valueSet = array();
 		
+		// get custom fields for otype
+		$customFieldSelection = $this->getCustomFields($otype);
+		$fields = $this->compileCustomFieldInfo($customFieldSelection);
+		
+		foreach($fields as $techname => $info) {
+			$vtype = $info[1];
+			$fieldid = $info[2];
+		
+			$intval = 0;
+			$dblval = 0.0;
+			$strval = "";
+				
+			if(isset($values[$techname])) {
+				$val = $values[$techname];
+		
+				if($vtype == "BOOLEAN") {
+					$intval = $val ? 1 : 0;
+				}
+				else if($vtype == "INT") {
+					$intval = $val;
+				}
+				else if($vtype == "DOUBLE") {
+					$dblval = $val;
+				}
+				else {
+					$strval = $val;
+				}
+			}
+			array_push($valueSet, "($fieldid, '$otype', $oid, $intval, $dblval, '$strval')");
+		}
+		$query = "INSERT INTO customfield_value (customfield, otype, oid, intval, dblval, strval) VALUES ";
+		$query .= join(",", $valueSet);
+		$this->database->execute($query);
 	}
 	
 	protected function updateCustomFieldData($otype, $oid, $values) {
-		
+		// get custom fields for otype
+		$customFieldSelection = $this->getCustomFields($otype);
+		$fields = $this->compileCustomFieldInfo($customFieldSelection);
+				
+		foreach($fields as $techname => $info) {
+			$vtype = $info[1];
+			$fieldid = $info[2];
+	
+			$intval = 0;
+			$dblval = 0.0;
+			$strval = "";
+			
+			if(isset($values[$techname])) {
+				$val = $values[$techname];
+				
+				if($vtype == "BOOLEAN") {
+					$intval = $val ? 1 : 0;
+				}
+				else if($vtype == "INT") {
+					$intval = $val;
+				}
+				else if($vtype == "DOUBLE") {
+					$dblval = $val;
+				}
+				else {
+					$strval = $val;
+				}
+			}
+				
+			// execute update
+			$query = "UPDATE customfield_value SET intval = $intval, dblval = $dblval, strval = '$strval'";
+			$query .= " WHERE otype = '$otype' AND oid = $oid AND customfield = $fieldid";
+			$this->database->execute($query);
+		}
 	}
 	
 	protected function deleteCustomFieldData($otype, $oid) {
-	
+		$query = "DELETE FROM customfield_value WHERE otype = '$otype' AND oid = $oid";
+		$this->database->execute($query);
 	}
 	
-	protected function getCustomFieldData($otype, $oid, $values) {
+	/**
+	 * Compiles a flat array of custom field data for the given entity.
+	 * @param Character $otype Object Type, e.g. 'c' for a contact.
+	 * @param int $oid Object ID
+	 * @return flat array in format: techname => value
+	 */
+	protected function getCustomFieldData($otype, $oid) {
+		// get data
+		$query = "SELECT f.techname, v.intval, v.dblval, v.strval ";
+		$query .= "FROM customfield_value v JOIN customfield f ON v.customfield = f.id ";
+		$query .= "WHERE f.otype = '$otype' AND oid = $oid";
+		$select = $this->database->getSelection($query);
 		
+		// get custom fields for otype
+		$customFieldSelection = $this->getCustomFields($otype);
+		$fields = $this->compileCustomFieldInfo($customFieldSelection);
+		
+		// process and flatten data
+		$out = array();
+		for($i = 1; $i < count($select); $i++) {
+			$techname = $select[$i]['techname'];
+			$out[$techname] = $this->customFieldValueMapper($select[$i], $fields);
+		}
+		
+		// in case there is no custom data for this object yet
+		if(count($out) < count($fields)) {
+			foreach($fields as $techname => $info) {
+				if(!isset($out[$techname])) {
+					$out[$techname] = "";
+				}
+			}
+		}
+		return $out;
 	}
 	
+	protected function customFieldValueMapper($customValueRow, $fields) {
+		$techname = $customValueRow['techname'];
+		$vtype = $fields[$techname][1];
+		switch($vtype) {
+			case "BOOLEAN": $val = ($customValueRow['intval'] == 1); break;
+			case "INT": $val = $customValueRow['intval']; break;
+			case "DOUBLE": $val = $customValueRow['dblval']; break;
+			default: $val = $customValueRow['strval'];
+		}
+		return $val;
+	}
+	
+	protected function appendCustomDataToSelection($otype, $selection) {
+		// get all OIDs from selection
+		$oids = Database::flattenSelection($selection, "id");
+		$query = "SELECT techname, intval, dblval, strval FROM customfield_value WHERE otype = '$otype' AND (oid = ";
+		$query .= join(" OR oid = ", $oids);
+		$query .= ")";
+		$fieldValueSelect = $this->database->getSelection($query);
+		
+		// get custom fields for otype
+		$customFieldSelection = $this->getCustomFields($otype);
+		$fields = $this->compileCustomFieldInfo($customFieldSelection);
+		
+		// iterate over data and append to each row
+		for($i = 0; $i < count($selection); $i++) {
+			$row = $selection[$i];
+			$row_oid = $row["id"];
+			
+			if($i == 0) {
+				// header: add tech names
+				foreach($fields as $techname => $info) {
+					array_push($row, $techname);
+				}
+			}
+			else {
+				// body: match ID and OID, then add custom data
+				$customValueRows = $this->filterCustomValueRows($fieldValueSelect, $row_oid);
+				for($y = 0; $y < count($customValueRows); $y++) {
+					$row[$techname] = $this->customFieldValueMapper($customValueRows[$y], $fields);
+				}
+			}
+		}
+	}
+	
+	protected function filterCustomValueRows($fieldValueSelect, $oid) {
+		$result_rows = array();
+		for($i = 1; $i < count($fieldValueSelect); $i++) {
+			if($fieldValueSelect[$i]['oid'] == $oid) {
+				array_push($result_rows, $fieldValueSelect[$i]);
+			}
+		}
+		return $result_rows;
+	}
 }

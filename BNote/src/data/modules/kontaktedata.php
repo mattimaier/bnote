@@ -118,7 +118,9 @@ class KontakteData extends AbstractData {
 		$query .= "WHERE c2.id = $id";
 		$contact = $this->database->getRow($query);
 		
-		return $contact;
+		// add custom data
+		$custom = $this->getCustomFieldData('c', $id);
+		return array_merge($contact, $custom);
 	}
 	
 	private function createQuery() {
@@ -179,7 +181,7 @@ class KontakteData extends AbstractData {
 		$cid = parent::create($values);
 		
 		// save custom fields
-		
+		$this->createCustomFieldData('c', $cid, $values);
 		
 		// create group entries
 		$this->createContactGroupEntries($cid);
@@ -215,6 +217,9 @@ class KontakteData extends AbstractData {
 		$this->database->execute($query);
 		$this->createContactGroupEntries($id);
 		
+		// update custom data
+		$this->updateCustomFieldData('c', $id, $values);
+		
 		parent::update($id, $values);
 	}
 	
@@ -234,6 +239,9 @@ class KontakteData extends AbstractData {
 		// remove group memberships
 		$query = "DELETE FROM contact_group WHERE contact = $id";
 		$this->database->execute($query);
+		
+		// delete custom data
+		$this->deleteCustomFieldData('c', $id);
 		
 		// remove contact
 		parent::delete($id);

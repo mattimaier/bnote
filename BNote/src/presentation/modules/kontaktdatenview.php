@@ -47,7 +47,7 @@ class KontaktdatenView extends AbstractView {
 	}
 	
 	function savePD() {
-		$this->getData()->update($_SESSION["user"], $_POST);
+		$this->getData()->update($_SESSION["user"], $_POST);		
 		new Message("Daten gespeichert", "Die Änderungen wurden gespeichert.");
 	}
 	

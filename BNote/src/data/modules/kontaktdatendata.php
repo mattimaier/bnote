@@ -35,18 +35,22 @@ class KontaktdatenData extends KontakteData {
 	
 	
 	function update($id, $values) {		
-		$current = $this->getContactForUser($id);
+		$current = $this->getContactForUser($id);		
 		// modify array
 		foreach($current as $col => $v) {
 			if(!isset($_POST[$col])) {
 				$_POST[$col] = $v;
 			}
 		}
+		$contact_id = $current["id"];
 		
-		$values = $this->update_address($current["id"], $values);
+		$values = $this->update_address($contact_id, $values);
+		
+		// update custom data
+		$this->updateCustomFieldData('c', $contact_id, $values);
 		
 		// update info
-		AbstractData::update($current["id"], $values); // includes validation
+		AbstractData::update($contact_id, $values); // includes validation
 	}
 	
 	function getPIN($uid) {

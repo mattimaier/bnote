@@ -18,7 +18,7 @@
 	 	if(!$system_data->loginMode()) {
 	 	?> 
 		<div id="Logout">
-		 	<?php echo Lang::txt("welcome"); ?> <a id="UserInfo"><?php echo $system_data->getUsername(); ?></a>,
+		 	<?php echo Lang::txt("welcome"); ?> <a href="?mod=<?php echo $system_data->getModuleId("Kontaktdaten"); ?>" id="UserInfo"><?php echo $system_data->getUsername(); ?></a>,
 		 	<a id="Logout_link" href="main.php?mod=logout">Logout</a>
 		</div>
 		<?php

@@ -600,6 +600,7 @@ div.flash_message.error {
 }
 #UserInfo {
   color: #FFFFFF;
+  text-decoration: underline;
 }
 @media print {
   #banner {
