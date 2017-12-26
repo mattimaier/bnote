@@ -33,6 +33,9 @@ class KonfigurationController extends DefaultController {
 			else if($_GET["mode"] == "customfields") {
 				$this->customFields();
 			}
+			else {
+				parent::start();
+			}
 		}
 		else {
 			parent::start();

@@ -63,5 +63,5 @@ if __name__ == '__main__':
 
     # replace colors in files
     for filename in os.listdir(theme_name):
-        if filename.endswith(".css"):
+        if filename.endswith(".less"):
             replace_all_colors(theme_name + "/" + filename, theme_colors, default_colors)

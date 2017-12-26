@@ -51,6 +51,16 @@ class KontakteData extends AbstractData {
 		$this->init($dir_prefix);
 	}
 	
+	public function getFields() {
+		$allFields = $this->fields;
+		$customFields = $this->getCustomFields('c');
+		for($i = 1; $i < count($customFields); $i++) {
+			$field = $customFields[$i];
+			$allFields[$field['techname']] = array($field['txtdefsingle'], $this->fieldTypeFromCustom($field['fieldtype']));
+		}
+		return $allFields;
+	}
+	
 	/**
 	 * @return array Members of a group, if "null" then by default just members and admins, if "all" then all contacts.
 	 */
@@ -108,15 +118,6 @@ class KontakteData extends AbstractData {
 		$query .= "WHERE c2.id = $id";
 		$contact = $this->database->getRow($query);
 		
-		/* add user groups
-		$query = "SELECT g.id, g.name ";
-		$query .= "FROM `group` g, contact_group cg ";
-		$query .= "WHERE g.id = cg.group AND cg.contact = $id";
-		$groups = $this->database->getSelection($query);
-		for($i = 1; $i < count($groups); $i++) {
-			$contact["group_" . $groups[$i]["id"]] = $groups[$i]["name"];
-		}
-		*/
 		return $contact;
 	}
 	
@@ -176,6 +177,9 @@ class KontakteData extends AbstractData {
 		$values["address"] = $this->database->execute($query);
 		
 		$cid = parent::create($values);
+		
+		// save custom fields
+		
 		
 		// create group entries
 		$this->createContactGroupEntries($cid);

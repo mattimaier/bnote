@@ -1,0 +1,74 @@
+@CHARSET: "UTF-8";
+
+@import "colors";
+
+div.rehearsalDate {
+	font-weight: 600;
+}
+
+div.rehearsalDescription {
+	color: @black;
+}
+
+p.start_rehearsal_title {
+	font-size: 12pt;
+	font-weight: 600;
+}
+
+pre.start_rehearsal {
+	padding-bottom: 10px;
+	font-style: italic;
+}
+
+div.rehearsal {
+	display: block;
+	padding: 5px 10px;
+	border: 1px solid @bnote-lightgray;
+	border-bottom-width: 2px;
+	margin-bottom: 5px;
+	vertical-align: text-top;
+}
+
+p.rehearsal_title {
+	color: @bnote-darkgray;
+	float: left;
+}
+
+span.rehearsal_when {
+	position: absolute;
+	color: @black;
+	left: 280px;
+}
+
+p.rehearsal_details {
+	color: @black;
+	text-align: right;
+}
+
+div.rehearsal_overview_box {
+	width: 100%;
+	padding: 5px;
+}
+
+div.rehearsal_overview_header {
+	background-color: @bnote-lightgray;
+	padding: 5px;
+	font-weight: 600;
+	color: @bnote-darkgray;
+}
+
+div.rehearsal_overview_box > .instrument_box {
+	display: inline-block;
+    width: 200px;
+    padding-top: 3px;
+    vertical-align: top;
+    margin-bottom: 10px;
+}
+
+div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
+	font-weight: 600;
+}
+
+.player_participation_line {
+    padding-top: 2px;
+}

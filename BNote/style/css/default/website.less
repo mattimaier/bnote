@@ -1,4 +1,6 @@
-@CHARSET "UTF-8";
+@CHARSET: "UTF-8";
+
+@import "colors";
 
 #website_editor {
 	width: 100%;
@@ -12,30 +14,30 @@
 .website_webpage_item {
 	padding: 5px;
 	margin-bottom: 5px;
-}
-
-.website_webpage_item:hover {
-	background-color: #FFFFFF;
+	
+	&:hover {
+		background-color: @white;
+	}
 }
 
 .website_webpage_item_active {
 	padding: 5px;
 	margin-bottom: 5px;
-	color: #61b3ff;
-	background-color: #FFFFFF;
-}
-
-.website_webpage_item_active:hover {
-	color: #000000;
+	color: @bnote-color;
+	background-color: @white;
+	
+	&:hover {
+		color: @black;
+	}
 }
 
 .website_webpage_topic {
 	padding: 5px;
-	background-color: #61b3ff;
-	color: #FFFFFF;
+	background-color: @bnote-color;
+	color: @white;
 	font-weight: bold;
 }
 
 #website_page_editor {
-	background-color: #FFFFFF;
+	background-color: @white;
 }

@@ -22,6 +22,9 @@ class KonfigurationView extends CrudView {
 			else if($_GET["mode"] == "customfields") {
 				$this->getController()->getCustomFieldsView()->showOptions();
 			}
+			else {
+				parent::showOptions();
+			}
 		}
 		else {
 			parent::showOptions();

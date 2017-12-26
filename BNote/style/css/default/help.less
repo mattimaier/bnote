@@ -1,18 +1,20 @@
-@CHARSET "UTF-8";
+@CHARSET: "UTF-8";
+
+@import "colors";
 
 .help_navigator {
 }
 
 .help_navigator_menu {
 	width: 250px;
-	background: #E6E6E6;
+	background: @bnote-lightgray;
 	padding: 0px;
 }
 
 .help_navigator_menu_topic {
 	padding: 5px;
-	background-color: #61b3ff;
-	color: #FFFFFF;
+	background-color: @bnote-color;
+	color: @white;
 	font-weight: bold;
 }
 
@@ -20,29 +22,29 @@
 	padding: 5px;
 	padding-left: 15px;
 	padding-right: 20px;
-}
-
-.help_navigator_menu_page:hover {
-	background-color: #FFFFFF;
+	
+	&:hover {
+		background-color: @white;
+	}
 }
 
 .help_navigator_menu_page_active {
 	padding: 5px;
 	padding-left: 15px;
 	padding-right: 20px;
-	background-color: #FFFFFF;
-	color: #61b3ff;
-}
-
-.help_navigator_menu_page_active:hover {
-	color: #000000000;
+	background-color: @white;
+	color: @bnote-color;
+	
+	&::hover {
+		color: @black;
+	}
 }
 
 .help_navigator_content {
 	width: 750px;
 	padding-left: 10px;
 	padding-right: 10px;
-	background-color: #FFFFFF;
+	background-color: @white;
 }
 
 a.help_navigator_menu_page_link {
@@ -52,5 +54,5 @@ a.help_navigator_menu_page_link {
 .help_page_title {
 	font-size: 20px;
 	font-weight: bold;
-	color: #61b3ff;
+	color: @bnote-color;
 }

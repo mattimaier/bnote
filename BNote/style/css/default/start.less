@@ -1,0 +1,131 @@
+@CHARSET: "UTF-8";
+
+@import "colors";
+
+div.start_box_news {
+	background-color: @white;
+	color: @black;
+}
+
+.start_box_participation_before (@img) {
+	content: '';
+	background-image: url(@img);
+	height: 20px;
+	width: 20px;
+	margin-bottom: -4px;
+	margin-right: 5px;
+	text-decoration: none;
+	display: inline-block;
+}
+
+.start_box_opacity (@opa) {
+	opacity: @opa;
+    transition: opacity .55s ease-in-out;
+    -moz-transition: opacity .55s ease-in-out;
+    -webkit-transition: opacity .55s ease-in-out;
+}
+
+div.start_box {
+	display: table-cell;
+	background-color: @white;
+	color: @black;
+	
+	a {
+		color: @black;
+		line-height: 1.8;
+		
+		&:hover { text-decoration: underline; }
+	}
+	
+	a.participation {
+		color: @bnote-darkgray;
+	}
+		
+	div.participate_0 {
+	    .start_box_opacity(0.5);
+	    
+	    &:hover { .start_box_opacity(1.0); }
+	}
+	
+	a.participation.participate_0 {
+		color: #ff6161;
+		
+		&::before { .start_box_participation_before("../icons/no.png"); }
+	}
+	
+	a.participation.participate_1 {
+		color: @bnote-green;
+		
+		&::before { .start_box_participation_before("../icons/selected.png"); }
+	}
+	
+	a.participation.participate_2 {
+		color: #ff821e;
+		
+		&::before { .start_box_participation_before("../icons/maybe.png"); }
+	}
+	
+	a.participation.participate_-1 {
+		/*padding: 0.5em;
+	    background: #fafafa;
+	    margin-bottom: 1em;*/
+	    border: 1px solid #ff6161;
+	    
+		&::before { .start_box_participation_before("../icons/unspecified.png"); }
+	}
+}
+
+div.start_box_content div {
+	border: 0px solid @bnote-lightgray;
+	border-bottom-width: 1px;
+	margin-bottom: 10px;
+	padding: 0.75em;
+}
+
+div.start_box_heading {	
+	display: block;
+	background-color: @bnote-lightgray;
+	color: @bnote-darkgray;
+	padding: 14px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	text-transform: uppercase;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+}
+
+div.start_box_content {
+	padding: 14px;
+	background-color: white;
+}
+
+div.start_box_table {
+	display: table;
+	width: 100%;
+	margin-top: 10px;
+}
+
+div.start_box_row {
+	display: table-row;
+}
+
+div.start_update_box {
+	border: 0px solid @bnote-lightgray;
+	border-bottom-width: 1px;
+	margin-bottom: 10px;
+}
+
+span.start_update_box_author {
+	font-size: 9pt;
+	color: @bnote-darkgray;
+}
+
+.start_rehearsal_title {
+	font-weight: 600;
+}
+
+.warning {
+	color: #ff821e;
+	font-weight: bold;
+}
+

@@ -20,21 +20,9 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
  <link type="text/css" href='<?php echo $jQuery_dir; ?>fullcalendar.css' rel='stylesheet' />
  <link type="text/css" href='<?php echo $jQuery_dir; ?>fullcalendar.css' rel='stylesheet' />
  <link type="text/css" href="lib/dropzone.css" rel="stylesheet" />
-<?php
-# Theme
-$theme = $system_data->getTheme();
-
-# Link all CSS Files in style/css
-if($handle = opendir('style/css' . "/" . $theme)) {
-	while(false !== ($file = readdir($handle))) {
-		if($file != "." && $file != ".." && $file != "!reset.css" && $file != "reset.css") {
-			echo ' <LINK href="style/css/' . $theme . "/" . $file . '" rel="StyleSheet" type="text/css">'. "\n";
-		}
-	}
-	closedir($handle);
-}
-?>
  
+ <link type="text/css" href="<?php echo "style/css/" . $system_data->getTheme() . "/bnote.css"?>" rel="stylesheet" />
+
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery-2.1.1.min.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery-ui.min.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.datetimepicker.js"></script>

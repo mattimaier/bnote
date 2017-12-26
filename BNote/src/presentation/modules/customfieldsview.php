@@ -59,6 +59,7 @@ class CustomFieldsView extends CrudView {
 		$table = new Table($customFields);
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->changeMode("customfields&sub=view");
+		$table->setEdit($this->idField);
 		$table->write();
 	}
 
@@ -79,7 +80,53 @@ class CustomFieldsView extends CrudView {
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement($this->idField);
 		
+		// field type
+		$form->removeElement("fieldtype");
+		$ddFieldType = new Dropdown("fieldtype");
+		foreach($this->getData()->getFieldTypes() as $techType => $name) {
+			$ddFieldType->addOption($name, $techType);
+		}
+		$form->addElement(Lang::txt("fieldtype"), $ddFieldType);
 		
+		// object type
+		$form->removeElement("otype");
+		$ddObjectType = new Dropdown("otype");
+		foreach($this->getData()->getObjectTypes() as $techType => $name) {
+			$ddObjectType->addOption($name, $techType);
+		}
+		$form->addElement(Lang::txt("objecttype"), $ddObjectType);
+		
+		$form->write();
+	}
+	
+	function editEntityForm() {
+		// entry
+		$entry = $this->getData()->findByIdNoRef($_GET[$this->idParameter]);
+		
+		// form
+		$form = new Form(Lang::txt("edit", array($this->getEntityName())),
+				$this->modePrefix() . "edit_process&" . $this->idParameter . "=" . $_GET[$this->idParameter]);
+		$form->autoAddElements($this->getData()->getFields(),
+				$this->getData()->getTable(), $_GET[$this->idParameter]);
+		$form->removeElement($this->idField);
+		
+		// field type
+		$form->removeElement("fieldtype");
+		$ddFieldType = new Dropdown("fieldtype");
+		foreach($this->getData()->getFieldTypes() as $techType => $name) {
+			$ddFieldType->addOption($name, $techType);
+		}
+		$ddFieldType->setSelected($entry["fieldtype"]);
+		$form->addElement(Lang::txt("fieldtype"), $ddFieldType);
+		
+		// object type
+		$form->removeElement("otype");
+		$ddObjectType = new Dropdown("otype");
+		foreach($this->getData()->getObjectTypes() as $techType => $name) {
+			$ddObjectType->addOption($name, $techType);
+		}
+		$ddObjectType->setSelected($entry["otype"]);
+		$form->addElement(Lang::txt("objecttype"), $ddObjectType);
 		
 		$form->write();
 	}

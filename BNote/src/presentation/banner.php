@@ -2,9 +2,7 @@
 <div id="banner">
 	<div id="bannerContent">
 		<div id="logoBanner">
-			<a href="/">
-	 			<img src="style/images/BNote_Logo_white_on_blue_44px.png" />	
-	 		</a>	
+ 			<img height="44px" src="style/images/BNote_Logo_white_on_blue_44px.png" />
 		 </div>
 		
 		<div id="CompanyName"><?php echo $system_data->getCompany(); ?></div>
@@ -20,7 +18,7 @@
 	 	if(!$system_data->loginMode()) {
 	 	?> 
 		<div id="Logout">
-		 	<?php echo Lang::txt("welcome"); ?> <span id="UserInfo"><?php echo $system_data->getUsername(); ?></span>,
+		 	<?php echo Lang::txt("welcome"); ?> <a id="UserInfo"><?php echo $system_data->getUsername(); ?></a>,
 		 	<a id="Logout_link" href="main.php?mod=logout">Logout</a>
 		</div>
 		<?php

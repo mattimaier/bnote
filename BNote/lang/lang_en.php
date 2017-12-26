@@ -396,6 +396,17 @@ class Translation extends BNoteTranslation {
 			"stats_membervoteperformancestat_title" => "Top Vote Participants (1-year)",
 			"stats_memberoptionperformancestat_title" => "Top Engagement (1-year)",
 			
+			// submodule: custom fields
+			"customfield" => "Custom Field",
+			"customfields" => "Custom Fields",
+			"fieldtype" => "Value Type",
+			"customfield_bool" => "Yes/No",
+			"customfield_int" => "Integer",
+			"customfield_double" => "Decimal",
+			"customfield_string" => "String",
+			"objecttype" => "Object Reference",
+			"customfield_notunique_error" => "This technical name exists. Please choose another one.",
+			
 			// misc
 			"reservation" => "Reservation",
 			"reservations" => "Reservations",

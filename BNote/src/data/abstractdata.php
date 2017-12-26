@@ -522,4 +522,45 @@ abstract class AbstractData {
 			default: $this->regex->isText($value); break;
 		}
 	}
+	
+	/**
+	 * Retrieves the custom fields for this object type.
+	 * @param String $objectType Character referring to CustomFieldsData::objectReferenceTypes
+	 * @return Selection of custom fields
+	 */
+	protected function getCustomFields($objectType) {
+		$query = "SELECT * FROM customfield WHERE otype = '$objectType'";
+		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Converts the custom field type into a FieldType ENUM value.
+	 * @param String $customType Custom field type string.
+	 * @return FieldType
+	 */
+	protected function fieldTypeFromCustom($customType) {
+		switch($customType) {
+			case "BOOLEAN": return FieldType::BOOLEAN;
+			case "INT": return FieldType::INTEGER;
+			case "DOUBLE": return FieldType::DECIMAL;
+			default: return FieldType::CHAR;
+		}
+	}
+	
+	protected function createCustomFieldData($otype, $oid, $values) {
+		
+	}
+	
+	protected function updateCustomFieldData($otype, $oid, $values) {
+		
+	}
+	
+	protected function deleteCustomFieldData($otype, $oid) {
+	
+	}
+	
+	protected function getCustomFieldData($otype, $oid, $values) {
+		
+	}
+	
 }

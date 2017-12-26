@@ -401,8 +401,15 @@ class Translation extends BNoteTranslation {
 			"stats_memberoptionperformancestat_title" => "Top Engagement (1-Jahr)",
 			
 			// submodule: custom fields
-			"customfield" => "benutzerdefiniertes Feld",
-			"customfields" => "benutzerdefinierte Felder",
+			"customfield" => "Benutzerdefiniertes Feld",
+			"customfields" => "Benutzerdefinierte Felder",
+			"fieldtype" => "Wertebereich",
+			"customfield_bool" => "Ja/Nein",
+			"customfield_int" => "Ganzzahl",
+			"customfield_double" => "Dezimalzahl",
+			"customfield_string" => "Zeichenkette",
+			"objecttype" => "Objektbezug",
+			"customfield_notunique_error" => "Der technische Name existiert bereits. Bitte wähle einen anderen technischen Namen.",
 			
 			// misc
 			"reservation" => "Reservierung",

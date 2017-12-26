@@ -1,12 +1,14 @@
-@CHARSET "UTF-8";
+@CHARSET: "UTF-8";
+
+@import "colors";
 
 #filebrowser_content {
 	width: 100%;
-}
-
-#filebrowser_content tr {
-	border-width: 0px;
-}
+	
+	tr {
+		border-width: 0px;
+	}
+} 
 
 #filebrowser_folders {
 	padding: 0px;
@@ -15,35 +17,35 @@
 
 .filebrowser_foldertopic {
 	padding: 5px;
-	background-color: #132332;
-	color: #FFFFFF;
+	background-color: @bnote-color;
+	color: @white;
 	font-weight: bold;
 }
 
 .filebrowser_folderitem {
 	padding: 5px;
-	border: 1px solid #535353;
+	border: 1px solid @bnote-middlegray;
 	border-top-width: 0px;
-}
-
-.filebrowser_folderitem:hover {
-	background-color: #FFFFFF;
+	
+	&:hover {
+		background-color: @white;
+	}
 }
 
 .filebrowser_folderitem_active {
 	padding: 5px;
 	margin-bottom: 5px;
-	color: #132332;
-	background-color: #FFFFFF;
-}
-
-.filebrowser_folderitem_active:hover {
-	background-color: #FFFFFF;
-	color: #000000;
+	color: @bnote-color;
+	background-color: @white;
+	
+	&:hover {
+		background-color: @white;
+		color: @black;
+	}
 }
 
 #filebrowser_files {
-	background-color: #FFFFFF;
+	background-color: @white;
 	padding-top: 0px;
 }
 

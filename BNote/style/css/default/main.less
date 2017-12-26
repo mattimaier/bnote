@@ -1,0 +1,495 @@
+@import "colors";
+
+body {
+	color: @black;
+	background-color: @white;
+	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
+	font-size: 11pt;
+	line-height: 1.5;
+}
+
+a {
+	text-decoration: none;
+	color: @bnote-color;
+}
+
+p {
+	margin-bottom: 8px;
+	margin-top: 5px;
+}
+
+h1 {
+	font-size: 18pt;
+	font-weight: 600;
+	margin-bottom: 6pt;
+	color: @bnote-color;
+}
+
+h2 {
+	font-size: 16pt;
+	font-weight: 600;
+	margin-bottom: 6pt;
+	margin-top: 12pt;
+}
+
+h3 {
+	font-size: 13pt;
+	font-weight: 600;
+	margin-bottom: 4pt;
+	margin-top: 6pt;
+}
+
+.clearing {
+	height: 0;
+	clear: both;
+}
+
+a.Logout {
+	color: @white;
+}
+
+div.optionsContainer {
+	display: inline-block;
+	margin-left: 90px;
+}
+
+a.navi {
+	color: @black;
+}
+
+a.linkbox {
+	display: inline-block;
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+
+#navigation.naviCollapsed {
+	width: 38px;
+}
+
+#optionsContainer.optionsContainerLeft {
+	margin-left: 64px;
+}
+
+#content_insets.insetLeft {
+	margin-left: 32px;
+}
+
+div.navi_item {
+	padding: 10px;
+	border-right: 1px solid;
+	border-right-color: @bnote-lightgray;
+	border-bottom: 1px solid;
+	border-bottom-color: @bnote-lightgray;
+	background-color: @white;
+	text-transform: uppercase;
+	font-size: 10pt;
+}
+
+div.navi_item:hover {
+	background-color: @bnote-color;
+	color: @white;
+}
+
+div.navi_item_selected {
+	padding: 10px;
+	background-color: @bnote-lightgray;
+	color: @black;
+	border-bottom: 1px solid;
+	border-bottom-color: @bnote-lightgray;
+	text-transform: uppercase;
+}
+
+img.navi_item_icon {
+	margin-right: 8px;
+}
+
+input[type="submit"] {
+	color: @black;
+	background-color: @bnote-lightgray;
+	font-size: 11pt;
+	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
+	padding: 6px 20px;
+	border: 1px solid;
+	border-color: @bnote-lightgray;
+}
+
+input[type="submit"]:hover, a.linkbox:hover {
+	background-color: @bnote-color;
+	color: @white;
+}
+
+input[type="text"], input[type="password"], input[type="search"],
+	textArea, select {
+	color: @black;
+	background-color: @white;
+	font-size: 11pt;
+	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
+	padding: 2px 6px;
+	border: 1px solid;
+	border-color: @bnote-color;
+	margin-left: 1em;
+}
+
+table {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	background-color: @white;
+	table-layout: fixed;
+}
+
+td {
+	padding: 10px;
+	vertical-align: top;
+}
+
+form {
+	margin-top: 25px;
+}
+
+form td {
+	padding: 0px;
+	padding-top: 5px;
+	padding-bottom: 2px;
+	padding-right: 15px;
+}
+
+form tr {
+	border-bottom-width: 0px;
+}
+
+td.DataTable_Header {
+	background-color: @bnote-color;
+	color: @white;
+	text-transform: uppercase;
+	font-size: 10pt;
+}
+
+tr {
+	border-bottom: 1px solid;
+	border-color: @bnote-lightgray;
+}
+
+td a {
+	color: black;
+}
+
+div.FormBox {
+	padding: 24px;
+	background-color: @white;
+	border: 1px solid;
+	border-color: @bnote-lightgray;
+	display: inline-block;
+	margin-top: 10px;
+}
+
+legend.FormBox {
+	text-transform: uppercase;
+	color: @bnote-color;
+	font-weight: 600;
+	font-size: 12pt;
+	padding-bottom: 0px;
+}
+
+div.FormBox.table {
+	border-color: red;
+}
+
+div.linkbox {
+	display: inline-block;
+	white-space: nowrap;
+	background: @bnote-lightgray;
+	padding: 5px 10px;
+	border: 1px solid @bnote-middlegray;
+}
+
+#optionsContainer div.linkbox {
+	background: @white;
+	color: #212121;
+}
+
+font.messageHeader {
+	font-size: 12pt;
+	font-weight: 600;
+}
+
+div.view_tabs {
+	width: 100%;
+	padding: 8px;
+}
+
+span.view_tab {
+	display: inline-block;
+	border: solid 0px @bnote-lightgray;
+	padding: 5px 10px;
+	color: @black;
+	background-color: @bnote-lightgray;
+}
+
+span.view_tab_active {
+	display: inline-block;
+	border: solid 0px @bnote-lightgray;
+	padding: 5px 10px;
+	color: @white;
+	background-color: @bnote-color;
+	font-size: 14pt;
+}
+
+span.view_tab:hover {
+	background-color: @bnote-color;
+	color: @white;
+}
+
+.view_tab_content {
+	padding-top: 0px;
+}
+
+.progressbar_step {
+	float: left;
+	padding: 10px;
+	background-color: @bnote-lightgray;
+}
+
+.passed {
+	background-color: @bnote-color;
+	color: @white;
+}
+
+.arrow_right {
+	float: left;
+	margin-right: 3px;
+	border-top: 20px solid transparent;
+	border-bottom: 20px solid transparent;
+	border-left: 20px solid @bnote-lightgray;
+}
+
+.passed_arrow {
+	border-left: 20px solid @bnote-color;
+}
+
+#autoActivation {
+	color: @bnote-dark-alt;
+	font-weight: bold;
+	margin-left: 20px;
+	letter-spacing: 0.1em;
+}
+
+.logout {
+	margin: 2%;
+	display: inline-block;
+	padding: 10px;
+	background: @white;
+}
+
+fieldset table {
+	border: none;
+}
+
+fieldset tr {
+	border: none;
+}
+
+.login {
+	border: none;
+}
+
+.linkbox {
+	color: @black;
+}
+
+.linkbox:hover {
+	color: @bnote-color;
+}
+
+.linkIcon {
+	margin: -2px;
+	margin-right: 3px;
+	margin-left: 0px;
+}
+
+ul.groupSelector {
+	line-height: 40%;
+}
+
+.fc-toolbar {
+	height: 20px;
+}
+
+input[type="search"] {
+	-webkit-appearance: textfield;
+}
+
+input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-search-cancel-button,
+	input[type="search"]::-webkit-search-results-button, input[type="search"]::-webkit-search-results-decoration
+	{
+	-webkit-appearance: none;
+}
+
+td.DataTable_Header {
+	padding-right: 24px;
+}
+
+td.DataTable_Header.sorting_asc {
+	background-image: url("../icons/SortAsc.png");
+	background-repeat: no-repeat;
+	background-position: right 4px center;
+	background-size: 16px 16px;
+}
+
+td.DataTable_Header.sorting_desc {
+	background-image: url("../icons/SortDesc.png");
+	background-repeat: no-repeat;
+	background-position: right 4px center;
+	background-size: 16px 16px;
+}
+
+td.DataTable_Sum {
+	border-top: 2px solid @bnote-lightgray;
+}
+
+div.flash_message {
+	border-radius: 2px;
+	border: 1px solid @bnote-middlegray;
+	background-color: @bnote-lightgray;
+	color: @bnote-blackish;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+
+div.flash_message.warn {
+	border: 1px solid @bnote-dark-alt;
+	background-color: @bnote-dark-alt;
+	color: @bnote-blackish;
+}
+
+div.flash_message.error {
+	border: 1px solid #ED9393;
+	background-color: @bnote-yellow;
+	color: @bnote-blackish;
+}
+
+#banner {
+	height: 60px;
+	width: 100%;
+	background-color: @bnote-color;
+	line-height: 44px;
+}
+
+#bannerContent {
+	color: @white;
+	padding: 8px 24px;
+}
+
+#footer {
+	height: 22px;
+	width: 100%;
+	background-color: @white;
+	border-top: 1px solid;
+	border-top-color: @bnote-lightgray;
+	line-height: 22px;
+	padding: 0px 24px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	font-size: 10pt;
+}
+
+#footerContent {
+	color: @black;
+	padding: 0px 24px;
+}
+
+#logoBanner {
+	float: left;
+	padding: 0px 24px 0px 0px;
+	line-height: 0;
+}
+
+#logoLoginContainer {
+	width: 100%;
+	text-align: center;
+}
+
+#logoLogin {
+	display: inline-block;
+	font-weight: 600;
+	font-size: 28pt;
+	color: @bnote-color;
+	padding-bottom: 48px;
+}
+
+#SystemName {
+	float: left;
+}
+
+#CompanyName {
+	float: left;
+	font-size: 18pt;
+	font-weight: 500;
+	display: inline-block;
+}
+
+#Logout {
+	float: right;
+}
+
+#Logout_link {
+	color: @white;
+	height: 44px;
+	display: inline-block;
+	padding: 0px 4px;
+}
+
+#Logout_link:hover {
+	color: @black;
+	background-color: @white;
+}
+
+#content_container {
+	width: 100%;
+	float: left;
+}
+
+#navigation {
+	float: left;
+	width: 160px;
+	background-color: @white;
+	padding-bottom: 20px;
+}
+
+#content_insets {
+	padding: 24px;
+	margin-left: 160px;
+	margin-bottom: 30px;
+}
+
+#content {
+	min-width: 822px;
+	padding: 0px;
+	background-color: @white;
+	border-color: @bnote-lightgray;
+}
+
+#optionsbar {
+	min-height: 30px;
+	border-bottom: 1px solid @bnote-middlegray;
+	background-color: @bnote-dark-alt;
+	padding-top: 10px;
+}
+
+#optionsContainer {
+	min-height: 44px;
+	margin-left: 184px;
+}
+
+#navbarOptions {
+	padding-left: 10px;
+	font-size: 14pt;
+	color: @white;
+	float: left;
+}
+
+#UserInfo {
+	color: @white;
+}
