@@ -191,7 +191,7 @@ class Table implements iWriteable {
 		$regex = new Regex();
 
 		$rowSpanCount = 0;
-		foreach($this->data as $id => $row) {
+		foreach($this->data as $i => $row) {
 			if($head) {
 				echo "<thead>\n";
 			}

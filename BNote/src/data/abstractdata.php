@@ -547,7 +547,12 @@ abstract class AbstractData {
 		}
 	}
 	
-	protected function compileCustomFieldInfo($selection) {
+	/**
+	 * Convenience method for custom field type info access.
+	 * @param Selection $selection Usually from getCustomFields($objectype)
+	 * @return Array Format: techname => [txtdefsingle, fieldtype, id]
+	 */
+	public function compileCustomFieldInfo($selection) {
 		$info = array();
 		for($i = 1; $i < count($selection); $i++) {
 			$info[$selection[$i]['techname']] = array(
@@ -686,12 +691,14 @@ abstract class AbstractData {
 		return $val;
 	}
 	
-	protected function appendCustomDataToSelection($otype, $selection) {
+	protected function appendCustomDataToSelection($otype, $selection, $idcol="id") {
 		// get all OIDs from selection
 		$oids = Database::flattenSelection($selection, "id");
-		$query = "SELECT techname, intval, dblval, strval FROM customfield_value WHERE otype = '$otype' AND (oid = ";
-		$query .= join(" OR oid = ", $oids);
-		$query .= ")";
+		$query = "SELECT oid, techname, intval, dblval, strval "
+				. "FROM customfield_value v JOIN customfield f ON v.customfield = f.id " 
+				. "WHERE f.otype = '$otype' AND (oid = "
+				. join(" OR v.oid = ", $oids)
+				. ")";
 		$fieldValueSelect = $this->database->getSelection($query);
 		
 		// get custom fields for otype
@@ -699,10 +706,9 @@ abstract class AbstractData {
 		$fields = $this->compileCustomFieldInfo($customFieldSelection);
 		
 		// iterate over data and append to each row
+		$result = array();
 		for($i = 0; $i < count($selection); $i++) {
-			$row = $selection[$i];
-			$row_oid = $row["id"];
-			
+			$row = $selection[$i];			
 			if($i == 0) {
 				// header: add tech names
 				foreach($fields as $techname => $info) {
@@ -711,12 +717,16 @@ abstract class AbstractData {
 			}
 			else {
 				// body: match ID and OID, then add custom data
+				$row_oid = $row[$idcol];
 				$customValueRows = $this->filterCustomValueRows($fieldValueSelect, $row_oid);
 				for($y = 0; $y < count($customValueRows); $y++) {
-					$row[$techname] = $this->customFieldValueMapper($customValueRows[$y], $fields);
+					$valRow = $customValueRows[$y];
+					$row[$valRow["techname"]] = $this->customFieldValueMapper($valRow, $fields);
 				}
 			}
+			array_push($result, $row);
 		}
+		return $result;
 	}
 	
 	protected function filterCustomValueRows($fieldValueSelect, $oid) {

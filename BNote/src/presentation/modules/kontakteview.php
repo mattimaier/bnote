@@ -329,12 +329,18 @@ class KontakteView extends CrudRefView {
 		Writing::h2("Mitgliederliste drucken");
 		Writing::p("Alle Mitglieder sind in Gruppen sortiert. Bitte wähle die Gruppen deren Mitglieder du drucken möchtest.");
 		
-		$form = new Form("Gruppenauswahl", $this->modePrefix() . "printMembers");
+		$form = new Form("Druckauswahl", $this->modePrefix() . "printMembers");
 		
-		// group selection
+		// custom field selection
+		$fields = $this->getData()->getCustomFields('c');
+		$fieldSelector = new GroupSelector($fields, array(), "custom");
+		$fieldSelector->setNameColumn("txtdefsingle");
+		$form->addElement("Zeige Feld", $fieldSelector);
+				
+		// group filter
 		$groups = $this->getData()->getGroups();
 		$gs = new GroupSelector($groups, array(), "group");
-		$form->addElement("Gruppen", $gs);
+		$form->addElement("Filter: Gruppe", $gs);
 		
 		$form->changeSubmitButton("Druckvorschau anzeigen");
 		$form->write();
@@ -390,7 +396,7 @@ class KontakteView extends CrudRefView {
 	private function formatMemberPrintTable($members) {
 		$formatted = array();
 		// header
-		array_push($formatted, array(
+		$header = array (
 				"Name",
 				"Spitzname",
 				"Instrument",
@@ -398,8 +404,20 @@ class KontakteView extends CrudRefView {
 				"Mobil",
 				"Business",
 				"Email",
-				"Adresse")
+				"Adresse" 
 		);
+		// add selected custom fields
+		$fields = $this->getData()->getCustomFields('c');
+		$fieldInfo = $this->getData()->compileCustomFieldInfo($fields);
+		$customFields = GroupSelector::getPostSelection($fields, "custom");		
+		$selectedCustomFields = array();
+		foreach($fieldInfo as $techname => $info) {
+			if(in_array($info[2], $customFields)) {
+				array_push($header, $info[0]);
+				$selectedCustomFields[$techname] = $info;
+			}
+		}
+		array_push($formatted, $header);
 		
 		// body
 		for($i = 1; $i < count($members); $i++) {
@@ -414,6 +432,14 @@ class KontakteView extends CrudRefView {
 				"Email" => $row["email"],
 				"Adresse" => $row["street"] . ", " . $row["zip"] . " " . $row["city"]
 			);
+			foreach($selectedCustomFields as $techname => $info) {
+				if(isset($row[$techname])) {
+					$fRow[$info[0]] = $row[$techname];
+				}
+				else {
+					$fRow[$info[0]] = '-';
+				}
+			}
 			array_push($formatted, $fRow);
 		}
 		

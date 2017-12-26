@@ -94,7 +94,9 @@ class KontakteData extends AbstractData {
 		$query .= "LEFT JOIN instrument i ";
 		$query .= "ON c2.instrument = i.id ";
 		$query .= "ORDER BY c2.name ASC";
-		return $this->filterSuperUsers($this->database->getSelection($query));
+		
+		$contacts = $this->filterSuperUsers($this->database->getSelection($query));
+		return $this->appendCustomDataToSelection('c', $contacts);
 	}
 	
 	function getAllContacts() {
