@@ -23,6 +23,7 @@ class Systemdata {
  private $dir_prefix;
  
  private $theme;
+ private $logoFilename;
 
  /**
   * Creates a new system data object.
@@ -511,10 +512,16 @@ class Systemdata {
  	return $this->version;
  }
  
+ /**
+  * @return String Language Code to use from the settings.
+  */
  public function getLang() {
  	return $this->getDynamicConfigParameter("language");
  }
  
+ /**
+  * @return string Name of the theme to use.
+  */
  public function getTheme() {
  	if($this->theme == null) {
  		$this->theme = $this->cfg_system->getParameter("Theme");
@@ -523,6 +530,19 @@ class Systemdata {
  		}
  	}
  	return $this->theme;
+ }
+ 
+ /**
+  * @return string Filename of the logo in style/images
+  */
+ public function getLogoFilename() {
+ 	if($this->logoFilename == null) {
+ 		$this->logoFilename = $this->cfg_system->getParameter("Logo");
+ 		if($this->logoFilename == null) {
+ 			return "BNote_Logo_white_transparent_44px.png";
+ 		}
+ 	}
+ 	return $this->logoFilename;
  }
 }
 

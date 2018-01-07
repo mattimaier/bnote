@@ -3,7 +3,7 @@
 ---------------
 
 > Update BNote
-Update is possible from verion 3.2.2 onwards.
+Update is possible from version 3.2.2 onwards.
 Please make sure to copy ALL files onto your web server.
 
 ! IMPORTANT !
@@ -12,8 +12,12 @@ File:  BNote/config/config.xml
 <Software>
 	[...]
 	<Theme>default</Theme>
+	<Logo>BNote_Logo_white_transparent_44px.png</Logo>
 	[...]
 </Software>
 
 > Changes to BNote in comparison with 3.2.2
 //TODO
+
+> Theming BNote
+Please refer to our wiki page: https://github.com/mattimaier/bnote/wiki/Theming,-Logo

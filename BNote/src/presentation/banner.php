@@ -2,7 +2,7 @@
 <div id="banner">
 	<div id="bannerContent">
 		<div id="logoBanner">
- 			<img height="44px" src="style/images/BNote_Logo_white_on_blue_44px.png" />
+ 			<img height="44px" src="style/images/<?php echo $system_data->getLogoFilename(); ?>" />
 		 </div>
 		
 		<div id="CompanyName"><?php echo $system_data->getCompany(); ?></div>

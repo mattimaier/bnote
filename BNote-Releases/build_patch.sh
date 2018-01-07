@@ -10,6 +10,11 @@ fi
 # Change to root dir of BNote Repo
 cd ..
 
+# Compile Themes
+cd BNote/style/css
+./compile_themes.sh
+cd -
+
 # Check if the tmp folder exists -> if so, clean it otherwise create it
 if [ -d "$tmp_dir" ]; then
  rm -r $tmp_dir/*

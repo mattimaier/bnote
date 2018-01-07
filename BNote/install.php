@@ -142,6 +142,12 @@ class Installation {
 			and should be displayed and functional, otherwise false. -->
 			<UseInfoPages>True</UseInfoPages>
 		
+			<!-- Theme Name -->
+			<Theme>default</Theme>
+			
+			<!-- Logo, BNote's Logo by default. Please put your logo in BNote/style/images -->
+			<Logo>BNote_Logo_white_transparent_44px.png</Logo>
+					
 			<!-- The webpages available in the website module.
 			A page tag contains an attribute \"file\" specifying the filename without the html-extension
 			in the data/webpages folder and the body containing the displayed name of the page. -->

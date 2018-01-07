@@ -211,9 +211,8 @@ $update = new UpdateDb();
 <p><b>This script updates BNote's database structure. Please make sure it is only executed once!</b></p>
 
 <h3>Log</h3>
-<p>
-<?php 
 
+<?php 
 /*
  * 3.3.0 UPDATES
  * -------------
@@ -242,11 +241,17 @@ $update->addTable("customfield_value", "CREATE TABLE IF NOT EXISTS customfield_v
 	strval VARCHAR(255)
 )");
 
+// Task 3: Config parameters
 ?>
-
-<br/><br/>
-<b><i>COMPLETE.</i></b>
+<p>
+	<span style="font-weight: bold; color: red;">Please add two config parameters to your config/config.xml</span>:<br/>
+	<ul>
+		<li><span style="font-family: 'Courier'">Theme</span>: with value "default", "green", "red", "orange", "dark"</li>
+		<li><span style="font-family: 'Courier'">Logo</span>: with value "BNote_Logo_white_transparent_44px.png"</li>
+	</ul>
 </p>
+
+<div style="font-weight: bold; font-style: italic;">COMPLETE.</div>
 
 </body>
 </html>
