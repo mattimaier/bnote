@@ -61,7 +61,7 @@ class Installation {
 		
 		if(file_exists("config/company.xml")) {
 			new Message("Band Konfiguration bereits vorhanden", "Es wurde erkannt, dass du bereits eine Band Konfiguration angelegt hast.
-					Daher kannst du diesen Schritt überspringen.");
+					Daher kannst du diesen Schritt überspringen. Zum Ändern der Grunddaten passe bitte die Datei BNote/config/company.xml an.");
 			$this->next("databaseConfig");
 		}
 		else {
