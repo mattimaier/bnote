@@ -101,6 +101,26 @@ class KommunikationData extends KontakteData {
 		}
 		return $addresses;
 	}
+	
+	public function getRehearsalSeries() {
+		$query = "SELECT DISTINCT s.* FROM rehearsalserie s JOIN rehearsal r ON r.serie = s.id " 
+				. "WHERE r.end >= NOW() ORDER BY s.id";
+		return $this->database->getSelection($query);
+	}
+	
+	public function getRehearsalSerie($id) {
+		$this->regex->isPositiveAmount($id);
+		return $this->database->getRow("SELECT * FROM rehearsalserie WHERE id = $id");
+	}
+	
+	public function getRehearsalSerieContactMail($serieId) {
+		$query = "SELECT DISTINCT c.email ";
+		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";
+		$query .= "JOIN rehearsal r ON rc.rehearsal = r.id ";
+		$query .= "WHERE r.serie = $serieId";
+		$mailaddies = $this->database->getSelection($query);
+		return $this->flattenAddresses($mailaddies);
+	}
 }
 
 ?>

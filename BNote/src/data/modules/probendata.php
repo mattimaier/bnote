@@ -412,7 +412,8 @@ class ProbenData extends AbstractData {
 	}
 	
 	public function getCurrentSeries() {
-		$query = "SELECT DISTINCT s.* FROM rehearsalserie s JOIN rehearsal r ON r.serie = s.id WHERE r.end >= NOW()";
+		$query = "SELECT DISTINCT s.* FROM rehearsalserie s JOIN rehearsal r ON r.serie = s.id " 
+				. "WHERE r.end >= NOW() ORDER BY s.id";
 		return $this->database->getSelection($query);
 	}
 	

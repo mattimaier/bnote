@@ -46,6 +46,10 @@ class KommunikationController extends DefaultController {
 				$_POST["message"] .= "\n$ext";
 			}
 		}
+		else if(isset($_POST["rehearsalSerie"])) {
+			$rs = $this->getData()->getRehearsalSerie($_POST["rehearsalSerie"]);
+			$_POST["subject"] = "Probenstrecke: " . $rs["name"];
+		}
 		else if(isset($_POST["concert"])) {
 			$concert = $this->getData()->getConcert($_POST["concert"]);
 			
@@ -92,6 +96,9 @@ class KommunikationController extends DefaultController {
 		if(isset($_POST["rehearsal"])) {
 			// get mail addresses for a rehearsal
 			$addresses = $this->getData()->getRehearsalContactMail($_POST["rehearsal"]);
+		}
+		else if(isset($_POST["rehearsalSerie"])) {
+			$addresses = $this->getData()->getRehearsalSerieContactMail($_POST["rehearsalSerie"]);
 		}
 		else if(isset($_POST["concert"])) {
 			$addresses = $this->getData()->getConcertContactMail($_POST["concert"]);

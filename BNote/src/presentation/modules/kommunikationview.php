@@ -29,17 +29,19 @@ class KommunikationView extends AbstractView {
 	}
 	
 	function startOptions() {
-		$rh = new Link($this->modePrefix() . "rehearsalMail", "Probenbenachrichtigung");
+		$rh = new Link($this->modePrefix() . "rehearsalMail", "Probennachricht");
 		$rh->addIcon("arrow_right");
 		$rh->write();
-		$this->buttonSpace();
 		
-		$cm = new Link($this->modePrefix() . "concertMail", "Auftrittsbenachrichtigung");
+		$rs = new Link($this->modePrefix() . "rehearsalSerieMail", "Probenstrecke");
+		$rs->addIcon("arrow_right");
+		$rs->write();
+		
+		$cm = new Link($this->modePrefix() . "concertMail", "Auftrittsnachricht");
 		$cm->addIcon("arrow_right");
 		$cm->write();
-		$this->buttonSpace();
 		
-		$vm = new Link($this->modePrefix() . "voteMail", "Abstimmungsbenachrichtigung");
+		$vm = new Link($this->modePrefix() . "voteMail", "Abstimmungsnachricht");
 		$vm->addIcon("arrow_right");
 		$vm->write();
 	}
@@ -80,6 +82,21 @@ class KommunikationView extends AbstractView {
 		if(!isset($_GET["preselect"])) {
 			$this->backToStart();
 		}
+	}
+	
+	function rehearsalSerieMail() {
+		Writing::h2("Benachrichtigung zur Probenstrecke");
+		
+		$dd = new Dropdown("rehearsalSerie");
+		$rs = $this->getData()->getRehearsalSeries();
+		for($i = 1; $i < count($rs); $i++) {
+			$dd->addOption($rs[$i]["name"], $rs[$i]["id"]);
+		}
+		
+		$form = $this->createMailForm($this->modePrefix() . "rehearsalSerie", "", false);
+		$form->addElement("Probenstrecke", $dd);
+		$form->removeElement("Betreff");
+		$form->write();
 	}
 	
 	function concertMail() {
