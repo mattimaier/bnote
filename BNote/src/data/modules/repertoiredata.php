@@ -366,6 +366,30 @@ class RepertoireData extends AbstractData {
 		$query = "UPDATE " . $this->getTable() . " SET " . $keyValues . " WHERE id=" . $idQuery;
 		$this->database->execute($query);
 	}
+	
+	function findReferences($songId) {
+		// validation
+		$this->regex->isPositiveAmount($songId);
+		
+		// init
+		$result = array();
+		
+		// find rehearsals
+		$q1 = "SELECT r.* FROM rehearsal_song rs JOIN rehearsal r ON rs.rehearsal = r.id " 
+				. "WHERE song = $songId ORDER BY r.begin";
+		$rehearsals = $this->database->getSelection($q1);
+		$result["rehearsals"] = $rehearsals;
+		
+		// find concerts
+		$q1 = "SELECT c.* " 
+				. "FROM program_song ps JOIN program p ON ps.program = p.id "
+				. " JOIN concert c ON c.program = p.id "
+				. "WHERE song = $songId ORDER BY c.begin";
+		$concerts = $this->database->getSelection($q1);
+		$result["concerts"] = $concerts;
+		
+		return $result;
+	}
 }
 
 ?>

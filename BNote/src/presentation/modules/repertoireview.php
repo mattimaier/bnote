@@ -123,40 +123,111 @@ class RepertoireView extends CrudRefView {
 		Writing::p("Das Repertoire hat eine Gesamtlänge von <strong>" . $tt . "</strong> Stunden.");
 	}
 	
-	protected function viewDetailTable() {
-		// Files
-		if($this->getData()->getSysdata()->userHasPermission(12)) {
-			$this->songFiles();
-		}
+	public function view() {
+		$song = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
+		?>
+		<h1><?php echo $song["title"]; ?> <span class="repertoire_song_composer_title"> <?php echo $song["composername"]; ?></span></h1>
 		
-		// Details
-		$dv = new Dataview();
-		$dv->autoAddElements($this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes()));
-		$dv->autoRename($this->getData()->getFields());
-		$dv->renameElement("genrename", "Genre");
-		$dv->renameElement("composername", "Komponist / Arrangeur");
-		$dv->renameElement("statusname", "Status");
-		$dv->write();
+		<div class="repertoire_song_detailbox">
+			<div class="songbox_col">
+				<div class="songbox_entry">
+					<div class="songbox_label">Tonart</div>
+					<div class="songbox_value"><?php echo $song["music_key"]; ?></div>
+				</div>
+				
+				<div class="songbox_entry">
+					<div class="songbox_label">Länge</div>
+					<div class="songbox_value"><?php echo $song["length"]; ?></div>
+				</div>
+				
+				<div class="songbox_entry">
+					<div class="songbox_label">Tempo</div>
+					<div class="songbox_value"><?php echo $song["bpm"]; ?></div>
+				</div>
+			</div>
+			<div class="songbox_col">
+				<div class="songbox_entry">
+					<div class="songbox_label">Status</div>
+					<div class="songbox_value"><?php echo $song["statusname"]; ?></div>
+				</div>
+				
+				<div class="songbox_entry">
+					<div class="songbox_label">Genre</div>
+					<div class="songbox_value"><?php echo $song["genrename"]; ?></div>
+				</div>
+				
+				<div class="songbox_entry">
+					<div class="songbox_label">Besetzung</div>
+					<div class="songbox_value"><?php echo $song["setting"]; ?></div>
+				</div>
+			</div>
+			<div class="songbox_col">
+				<div class="songbox_entry">
+					<div class="songbox_label">Anmerkungen</div>
+				</div>
+				<div class="songbox_areavalue"><?php echo $song["notes"]; ?></div>
+			</div>
+		</div>
 		
-		// Solists
-		Writing::h3("Solisten");		
-		$solists = $this->getData()->getSolists($_GET["id"]);
-		// add a link to the data to remove the solist from the list
-		$solists[0]["delete"] = "Löschen";
-		for($i = 1; $i < count($solists); $i++) {
-			$delLink = $this->modePrefix() . "delSolist&id=" . $_GET["id"] . "&solistId=" . $solists[$i]["id"];
-			$btn = new Link($delLink, "");
-			$btn->addIcon("remove");
-			$solists[$i]["delete"] = $btn->toString();
-		}
-		
-		$solTab = new Table($solists);
-		$solTab->removeColumn("id");
-		$solTab->renameHeader("surname", "Nachname");
-		$solTab->renameHeader("name", "Vorname");
-		$solTab->write();
-		
-		$this->verticalSpace();
+		<div class="repertoire_song_extra">
+			<div class="songextra_col">
+				<h2>Referenzen</h2>
+				
+				<h3>Stück in Proben</h3>
+				<ul>
+					<?php 
+					// References
+					$references = $this->getData()->findReferences($_GET["id"]);
+					for($i = 1; $i < count($references["rehearsals"]); $i++) {
+						$reh = $references["rehearsals"][$i];
+						echo "<li>" . Data::convertDateFromDb($reh["begin"]) . "</li>";
+					}
+					?>
+				</ul>
+				
+				<h3>Stück in Konzerten</h3>
+				<ul>
+					<?php
+					for($i = 1; $i < count($references["concerts"]); $i++) {
+						$con = $references["concerts"][$i];
+						$title = $con["title"];
+						echo "<li>" . Data::convertDateFromDb($con["begin"]) . " / $title</li>";
+					}
+					?>
+				</ul>
+			</div>
+			<div class="songextra_col">
+				<?php 
+				// Files
+				if($this->getData()->getSysdata()->userHasPermission(12)) {
+					$this->songFiles();
+				}
+				?>
+			</div>
+			<div class="songextra_col">
+				<h2>Solisten</h2>
+				<ul>
+					<?php 
+					// Solists
+					$solists = $this->getData()->getSolists($_GET["id"]);
+					// add a link to the data to remove the solist from the list
+					for($i = 1; $i < count($solists); $i++) {
+						$sol = $solists[$i];
+						$delLink = $this->modePrefix() . "delSolist&id=" . $_GET["id"] . "&solistId=" . $solists[$i]["id"];
+						$btn = new Link($delLink, "");
+						$btn->addIcon("remove");
+						echo "<li>" . $sol["name"] . " " . $sol["surname"] . " (" . $sol["instrument"] . ") " . $btn->toString() . "</li>";
+					}
+					if(count($solists) == 1) {
+						?>
+						<li>Keine Solisten angegeben.</li>
+						<?php
+					}
+					?>
+				</ul>
+			</div>
+		</div>
+		<?php
 	}
 	
 	private function songFiles() {
@@ -193,6 +264,7 @@ class RepertoireView extends CrudRefView {
 			}
 			?>
 			</ul>
+			
 			<?php
 			// add files form
 			$form = new Form("Datei hinzufügen", $this->modePrefix() . "addSongFile&id=" . $_GET["id"]);
@@ -201,7 +273,7 @@ class RepertoireView extends CrudRefView {
 			foreach($possibleFiles as $i => $fileinfo) {
 				$dd->addOption($fileinfo["filename"], $fileinfo["fullpath"]);
 			}
-			$form->addElement("Datei aus Tauschordner", $dd);
+			$form->addElement("", $dd);
 			$form->write();
 			?>
 		</div>

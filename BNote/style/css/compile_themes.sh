@@ -1,4 +1,7 @@
-cd dark
+cd default
+lessc bnote.less > bnote.css
+
+cd ../dark
 lessc bnote.less > bnote.css
 
 cd ../green

@@ -688,10 +688,6 @@ div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
 }
 .songfiles_box {
   display: block;
-  min-width: 400px;
-  min-height: 400px;
-  float: right;
-  padding: 10px;
 }
 .songfiles_filebox {
   height: 50px;
@@ -708,6 +704,44 @@ div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
 }
 .songfiles_preview {
   padding: 3px;
+}
+.repertoire_song_composer_title {
+  color: #509843;
+  font-size: 80%;
+}
+.repertoire_song_detailbox {
+  display: block;
+}
+.songbox_col {
+  display: inline-block;
+  vertical-align: top;
+}
+.songbox_label {
+  display: inline-block;
+  width: 120px;
+  font-weight: 600;
+}
+.songbox_value {
+  display: inline-block;
+  max-width: 300px;
+}
+.songbox_areavalue {
+  max-width: 420px;
+}
+.songbox_entry {
+  display: block;
+  margin-right: 20px;
+  border-bottom: 1px solid #B8C2B6;
+  margin-top: 6px;
+}
+.repertoire_song_extra {
+  width: 100%;
+  margin-top: 2%;
+}
+.songextra_col {
+  display: inline-block;
+  width: 33%;
+  vertical-align: top;
 }
 #sortable {
   list-style-type: none;
