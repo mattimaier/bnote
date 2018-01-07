@@ -394,7 +394,7 @@ class Translation extends BNoteTranslation {
 			
 			// module: stats
 			"stats_rehearsalstat_title" => "Anzahl Proben in den letzten 6 Monaten",
-			"stats_concertstat_title" => "Anzahl Konzerte in den letzten 6 Monaten",
+			"stats_concertstat_title" => "Anzahl Auftritte in den letzten 6 Monaten",
 			"stats_memberstat_title" => "Anzahl Mitglieder je Gruppe",
 			"stats_memberrehearsalperformancestat_title" => "Top Probenteilnehmer (1-Jahr)",
 			"stats_membervoteperformancestat_title" => "Top Abstimmungsteilnehmer (1-Jahr)",

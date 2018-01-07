@@ -251,7 +251,8 @@ class ProbenphasenView extends CrudView {
 		
 		Writing::p("Fügen durch anklicken einer oder mehrerer Gruppen alle deren Kontakte der Probenphase hinzu.");
 		
-		$gs = new GroupSelector($this->getData()->adp()->getGroups(true), array(), "group");
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
+		$gs->setNameColumn("name_member");
 		$form->addElement("Gruppen", $gs);
 		$form->write();
 	}

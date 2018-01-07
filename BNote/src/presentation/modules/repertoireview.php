@@ -185,7 +185,7 @@ class RepertoireView extends CrudRefView {
 					?>
 				</ul>
 				
-				<h3>Stück in Konzerten</h3>
+				<h3>Stück in Auftritten</h3>
 				<ul>
 					<?php
 					for($i = 1; $i < count($references["concerts"]); $i++) {

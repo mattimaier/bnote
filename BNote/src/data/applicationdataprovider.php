@@ -521,17 +521,27 @@ class ApplicationDataProvider {
 	
 	/**
 	 * All available groups.
-	 * @param boolean optional: true, false or null accepted.
+	 * @param boolean active optional: show only active (true), false or null accepted.
+	 * @param boolean showNumberMembers optional: add number of members to result (true), default false.
 	 * @return array DB Selection of all groups.
 	 */
-	function getGroups($active = null) {
+	function getGroups($active = null, $showNumberMembers=false) {
 		$query = "SELECT * FROM `group`";
+		if($showNumberMembers) {
+			$memberCaption = Lang::txt("members");
+			$query = "SELECT g.*, CONCAT(g.name, ' (', count(cg.contact), ' " . $memberCaption . ")') as name_member " 
+					. "FROM `group` g JOIN contact_group cg ON cg.group = g.id";
+		}
 		$query .= " WHERE is_active = ";
 		if($active != null && $active == false) {
 			$query .= "0";
 		} else {
 			$query .= "1";
 		}
+		if($showNumberMembers) {
+			$query .= " GROUP BY g.id";
+		}
+		
 		return $this->database->getSelection($query);
 	}
 	

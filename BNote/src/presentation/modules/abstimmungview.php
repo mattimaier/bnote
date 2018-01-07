@@ -51,8 +51,9 @@ class AbstimmungView extends CrudView {
 		$form->removeElement("author");
 		$form->removeElement("is_finished");
 		
-		$groups = $this->getData()->adp()->getGroups();
+		$groups = $this->getData()->adp()->getGroups(true, true);
 		$gs = new GroupSelector($groups, array(), "group");
+		$gs->setNameColumn("name_member");
 		$form->addElement(Lang::txt("vote_voters"), $gs);
 		
 		$form->write();

@@ -204,7 +204,8 @@ class KonzerteView extends CrudRefView {
 		$form->addElement("Einzeln", $gs);
 		
 		// contact groups
-		$grp = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
+		$grp = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
+		$grp->setNameColumn("name_member");
 		$form->addElement("Gruppe", $grp);
 		
 		$form->write();

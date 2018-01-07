@@ -93,7 +93,8 @@ class ProbenView extends CrudRefView {
 		
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
-		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
+		$gs->setNameColumn("name_member");
 		$form->addElement("Probe für", $gs);
 		
 		if($tour != null) {
@@ -140,7 +141,8 @@ class ProbenView extends CrudRefView {
 		
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
-		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
+		$gs->setNameColumn("name_member");
 		$form->addElement("Proben für", $gs);
 		
 		$form->write();
