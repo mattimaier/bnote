@@ -241,7 +241,15 @@ $update->addTable("customfield_value", "CREATE TABLE IF NOT EXISTS customfield_v
 	strval VARCHAR(255)
 )");
 
-// Task 3: Config parameters
+// Task 3: Rehearsal Series
+$update->addTable("rehearsalserie", "CREATE TABLE IF NOT EXISTS rehearsalserie (
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(200) NOT NULL
+)");
+
+$update->addColumnToTable("rehearsal", "serie", "INT(11)");
+
+// Task 4: Config parameters
 ?>
 <p>
 	<span style="font-weight: bold; color: red;">Please add two config parameters to your config/config.xml</span>:<br/>

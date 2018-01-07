@@ -16,11 +16,13 @@ class ProbenData extends AbstractData {
 			"end" => array("Ende", FieldType::DATETIME),
 			"approve_until" => array("Zusagen bis", FieldType::DATETIME),
 			"location" => array("Ort", FieldType::REFERENCE),
+			"serie" => array("Probenstrecke", FieldType::REFERENCE),
 			"notes" => array("Notizen", FieldType::TEXT)
 		);
 		
 		$this->references = array(
 			"location" => "location", 
+			"serie" => "rehearsalserie"
 		);
 		
 		$this->table = "rehearsal";
@@ -182,6 +184,7 @@ class ProbenData extends AbstractData {
 	
 	function saveSerie() {		
 		// validate data
+		$this->regex->isName($_POST["name"]);
 		if($_POST["notes"] != "") $this->regex->isText($_POST["notes"]);
 		$this->regex->isPositiveAmount($_POST["duration"]);
 		$this->regex->isPositiveAmount($_POST["default_time_hour"]);
@@ -194,9 +197,13 @@ class ProbenData extends AbstractData {
 			new BNoteError("Die letzte Probe ist zeitlich vor der ersten Probe.");
 		}
 		
+		// create serie
+		$query = "INSERT INTO rehearsalserie (name) VALUES ('" . $_POST["name"] . "')";
+		$serieId = $this->database->execute($query);
+		
 		// process accoding to cycle
 		if($_POST["cycle"] > 0) {
-			$rehearsalDates = $this->getRehearsalDates($_POST["first_session"], $_POST["last_session"], intval($_POST["cycle"]));
+			$rehearsalDates = $this->getRehearsalDates($_POST["first_session"], $_POST["last_session"], intval($_POST["cycle"]));			
 			foreach($rehearsalDates as $rehDate) {
 				$beginDate = $rehDate . " " . $_POST["default_time_hour"] . ":" . $_POST["default_time_minute"];
 				$endDate = Data::addMinutesToDate($beginDate, $_POST["duration"]);
@@ -206,7 +213,8 @@ class ProbenData extends AbstractData {
 					"end" => $endDate,
 					"approve_until" => $beginDate,
 					"notes" => $_POST["notes"],
-					"location" => $_POST["Ort"]
+					"location" => $_POST["Ort"],
+					"serie" => $serieId
 				);
 				$this->create($values);
 			}
@@ -401,6 +409,45 @@ class ProbenData extends AbstractData {
 	public function getUsedInstruments() {
 		$query = "SELECT DISTINCT i.* FROM instrument i JOIN contact c ON c.instrument = i.id";
 		return $this->database->getSelection($query);
+	}
+	
+	public function getCurrentSeries() {
+		$query = "SELECT DISTINCT s.* FROM rehearsalserie s JOIN rehearsal r ON r.serie = s.id WHERE r.end >= NOW()";
+		return $this->database->getSelection($query);
+	}
+	
+	public function updateSerie() {
+		// get the serie
+		$serieId = $_POST["id"];
+		$this->regex->isPositiveAmount($serieId);
+		
+		// check if the series should be deleted completely
+		if(isset($_POST["delete"]) && $_POST["delete"] == "on") {
+			$q1 = "DELETE FROM " . $this->table . " WHERE serie = $serieId";
+			$this->database->execute($q1);
+			$q2 = "DELETE FROM rehearsalserie WHERE id = $serieId";
+			$this->database->execute($q2);
+		}
+		else if(isset($_POST["update_begin"]) || isset($_POST["update_location"])) {
+			if(isset($_POST["update_begin"])) {
+				$begin = $_POST["begin_hour"] . ":" . $_POST["begin_minute"];
+				$this->regex->isTime($begin);
+				$q3 = "UPDATE rehearsal SET begin = CONCAT(date(begin), ' $begin:00') WHERE serie = $serieId";
+				$this->database->execute($q3);
+			}
+			if(isset($_POST["update_location"])) {
+				$locationId = $_POST["location"];
+				$this->regex->isPositiveAmount($locationId);
+				$q4 = "UPDATE rehearsal SET location = $locationId WHERE serie = $serieId";
+				$this->database->execute($q4);
+			}
+		}
+	}
+	
+	public function getRehearsalSerie($rehearsalId) {
+		$this->regex->isPositiveAmount($rehearsalId);
+		$query = "SELECT s.* FROM rehearsal r JOIN rehearsalserie s ON r.serie = s.id WHERE r.id = $rehearsalId";
+		return $this->database->getRow($query);
 	}
 }
 

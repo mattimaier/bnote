@@ -423,6 +423,7 @@ class Installation {
 					`approve_until` datetime,
 					`notes` text,
 					`location` int(10) unsigned NOT NULL,
+					`serie` int(11),
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -742,6 +743,11 @@ class Installation {
 				intval INT,
 				dblval DECIMAL(12,2),
 				strval VARCHAR(255)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries, "CREATE TABLE rehearsalserie (
+				id int(11) PRIMARY KEY AUTO_INCREMENT,
+				name VARCHAR(200) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
 			foreach($queries as $i => $query) {

@@ -14,7 +14,8 @@ class ProbenView extends CrudRefView {
 		$this->setController($ctrl);
 		$this->setEntityName("Probe");
 		$this->setJoinedAttributes(array(
-			"location" => array("name")
+			"location" => array("name"),
+			"serie" => array("name")
 		));
 	}
 	
@@ -37,17 +38,18 @@ class ProbenView extends CrudRefView {
 	function startOptions() {
 		parent::startOptions();
 		
-		$this->buttonSpace();
 		$series = new Link($this->modePrefix() . "addSerie", "Probenstrecke hinzufügen");
 		$series->addIcon("overtime");
 		$series->write();
 		
-		$this->buttonSpace();
+		$seriesEdit = new Link($this->modePrefix() . "editSerie", "Probenstrecke bearbeiten");
+		$seriesEdit->addIcon("edit");
+		$seriesEdit->write();
+		
 		$overview = new Link($this->modePrefix() . "overview", "Teilnehmerübersicht");
 		$overview->addIcon("mitspieler");
 		$overview->write();
 		
-		$this->buttonSpace();
 		$history = new Link($this->modePrefix() . "history", "Verganene Proben anzeigen");
 		$history->addIcon("timer");
 		$history->write();
@@ -120,13 +122,18 @@ class ProbenView extends CrudRefView {
 	function addSerie() {		
 		$form = new Form("Probenserie hinzufügen", $this->modePrefix() . "processSerie");
 		
+		$form->addElement("Probenstrecke", new Field("name", "", FieldType::CHAR));
+		$form->setFieldRequired("Serienname");
+		
 		$first_session = new Field("first_session", "", FieldType::DATE);
 		$first_session->setCssClass("copyDateOrigin");
 		$form->addElement("Erste Probe am", $first_session);
+		$form->setFieldRequired("Erste Probe am");
 		
 		$last_session = new Field("last_session", "", FieldType::DATE);
 		$last_session->setCssClass("copyDateTarget");
 		$form->addElement("Letzte Probe am", $last_session);
+		$form->setFieldRequired("Letzte Probe am");
 		
 		$cycle = new Dropdown("cycle");
 		$cycle->addOption("wöchentlich", "1");
@@ -144,6 +151,7 @@ class ProbenView extends CrudRefView {
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
 		$gs->setNameColumn("name_member");
 		$form->addElement("Proben für", $gs);
+		$form->setFieldRequired("Proben für");
 		
 		$form->write();
 	}
@@ -156,6 +164,43 @@ class ProbenView extends CrudRefView {
 		else {
 			new BNoteError("Die Probenserie konnte nicht verarbeitet werden.");
 		}
+	}
+	
+	function editSerie() {
+		$form = new Form("Probenstrecke bearbeiten", $this->modePrefix() . "processEditSerie");
+		
+		// select series
+		$series = $this->getData()->getCurrentSeries();
+		$serieSelector = new Dropdown("id");
+		for($i = 1; $i < count($series); $i++) {
+			$s = $series[$i];
+			$serieSelector->addOption($s["name"], $s["id"]);
+		}
+		$form->addElement("Serie", $serieSelector);
+		
+		// Change rehearsal beginning
+		$form->addElement("Beginn aktualisieren", new Field("update_begin", false, FieldType::BOOLEAN));
+		$form->addElement("Beginn", new Field("begin", $this->getData()->getDefaultTime(), 96));
+		
+		// Change location
+		$form->addElement("Location aktualisieren", new Field("update_location", false, FieldType::BOOLEAN));
+		$locations = $this->getData()->adp()->getLocations(array(1,2,5));  // band rooms, gig venues, others
+		$locationSelector = new Dropdown("location");
+		for($i = 1; $i < count($locations); $i++) {
+			$l = $locations[$i];
+			$locationSelector->addOption($l["name"], $l["id"]);
+		}
+		$form->addElement("Location", $locationSelector);
+		
+		// Delete all rehearsals in series
+		$form->addElement("Strecke und Proben <u>löschen</u>", new Field("delete", false, FieldType::BOOLEAN));
+		
+		$form->write();
+	}
+	
+	function processEditSerie() {
+		$this->getData()->updateSerie();
+		new Message("Probenstrecke aktualisiert", "Die Probenstrecke wurde erfolgreich aktualisiert.");
 	}
 	
 	/**
@@ -227,6 +272,8 @@ class ProbenView extends CrudRefView {
 		$form->autoAddElements($this->getData()->getFields(),
 									$this->getData()->getTable(), $_GET["id"]);
 		$form->removeElement("id");
+		$form->removeElement("serie");
+		$form->addHidden("serie", $r["serie"]);
 		$form->setForeign("location", "location", "id", "name", $r["location"]);
 		
 		$form->write();
@@ -260,6 +307,11 @@ class ProbenView extends CrudRefView {
 		$details->renameElement("street", "Stra&szlig;e");
 		$details->renameElement("zip", "Postleitzahl");
 		$details->renameElement("city", "Stadt");
+		
+		$serie = $this->getData()->getRehearsalSerie($_GET["id"]);
+		if($serie != null && count($serie) > 0) {
+			$details->addElement("Probenstrecke", $serie["name"]);
+		}
 		$details->write();
 		
 		if(!$this->isReadOnlyView()) {
