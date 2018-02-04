@@ -1,7 +1,5 @@
 sap.ui.jsview("bnote.communication", {
-	
-	
-	
+
 	getControllerName: function() {
 		return "bnote.communication";
 	},	
@@ -24,7 +22,7 @@ sap.ui.jsview("bnote.communication", {
 							     }),
 							     new sap.m.Label({text: "An"}),
 			         ]
-		})
+		});
 		
 		var page = new sap.m.Page("CommunicationPage", {
 	        title: "Kommunikation",

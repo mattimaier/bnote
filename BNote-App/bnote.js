@@ -167,7 +167,7 @@ function getNaviBar(){
 					}
 				}),
 				new sap.m.Button({
-					icon : sap.ui.core.IconPool.getIconURI("person-placeholder"),
+					icon : sap.ui.core.IconPool.getIconURI("contacts"),
 					press : function() {
 						memberView.getController().onMemberClick();
 						app.to("member")
@@ -175,13 +175,19 @@ function getNaviBar(){
 				}), 
 				emailButton,
 				new sap.m.Button({
-				    icon: sap.ui.core.IconPool.getIconURI( "marketing-campaign" ),
+				    icon: sap.ui.core.IconPool.getIconURI("marketing-campaign"),
 				    press: function() {
 				    	app.to("news")
 				    }
 			    }),
-			   repertoireButton,		   
-			   equipmentButton
+                repertoireButton,		   
+                equipmentButton,
+                new sap.m.Button({
+				    icon: sap.ui.core.IconPool.getIconURI("business-card"),
+				    press: function() {
+				    	app.to("mydata")
+				    }
+			    }),
 			]		
 		});	
 	}
@@ -331,6 +337,12 @@ signupView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
+mydataView = sap.ui.view({
+	id: "mydata",
+	viewName: "bnote.mydata",
+	type: sap.ui.core.mvc.ViewType.JS
+});
+
 // Build the app together
 app = new sap.m.App("bnoteApp", {
 	defaultTransitionName: "fade",
@@ -361,6 +373,7 @@ app.addPage(rehearsaladdView);
 app.addPage(taskaddView);
 app.addPage(voteresultView);
 app.addPage(signupView);
+app.addPage(mydataView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote App",

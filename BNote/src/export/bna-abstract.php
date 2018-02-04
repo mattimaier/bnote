@@ -611,6 +611,14 @@ abstract class AbstractBNA implements iBNA {
 			}
 			$this->getProgram($_GET["id"]);
 		}
+		else if($function == "updateContact") {
+			// check for permission to update his own contact
+			if(!$this->sysdata->userHasPermission(9, $this->uid)) { // 9=Contact Data
+				header("HTTP/1.0 403 Permission denied.");
+				exit();
+			}			
+			$this->updateContact();
+		}
 		else {
 			$this->$function();
 		}
@@ -975,6 +983,16 @@ abstract class AbstractBNA implements iBNA {
 			array_push($allContacts, $entity);
 		}
 		$this->printEntities($allContacts, "contacts");
+	}
+	
+	function getContact() {
+		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
+		$contact = $contactData->getSysdata()->getUsersContact($this->uid);
+		$contact["address_object"] = $contactData->getAddress($contact["address"]);
+		$iid = $contact["instrument"];
+		$contact["instrument_object"] = $this->db->getRow("SELECT * FROM instrument WHERE id = $iid");
+		$this->writeEntity($contact, "contact");
+		return $contact;
 	}
 	
 	function getMembers() {
@@ -1663,6 +1681,27 @@ abstract class AbstractBNA implements iBNA {
 		}
 		$cid = $contactData->create($values);
 		echo $cid;
+	}
+	
+	public function updateContact() {
+		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
+		$_SESSION["user"] = $this->uid;
+		$userContact = $this->sysdata->getUsersContact();
+		$cid = $userContact["id"];
+		
+		// data and corrections
+		$values = $_POST;
+		if(isset($values["birthday"])) {
+			$bd = Data::convertDateFromDb($values["birthday"]);
+			$values["birthday"] = $bd;
+		}
+		
+		// don't touch groups or custom fields
+		$contactData->update_address($cid, $_POST["address_object"]);
+		$contactData->update($cid, $values, true);
+		unset($_SESSION["user"]);
+		
+		$this->writeEntity(array("success" => true), "Result");
 	}
 	
 	public function addLocation() {
