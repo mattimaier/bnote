@@ -811,6 +811,10 @@ div.start_box div.participate_0:hover {
   -moz-transition: opacity 0.55s ease-in-out;
   -webkit-transition: opacity 0.55s ease-in-out;
 }
+div.start_box div.participate_-1 {
+  border-color: #ED6D6D;
+  border-bottom-width: 2px;
+}
 div.start_box a.participation.participate_0 {
   color: #ff6161;
 }
@@ -851,14 +855,11 @@ div.start_box a.participation.participate_2::before {
   display: inline-block;
 }
 div.start_box a.participation.participate_-1 {
-  /*padding: 0.5em;
-	    background: #fafafa;
-	    margin-bottom: 1em;*/
-  border: 1px solid #ff6161;
+  font-weight: bold;
 }
 div.start_box a.participation.participate_-1::before {
   content: '';
-  background-image: url("../icons/unspecified.png");
+  background-image: url("../../icons/unspecified.png");
   height: 20px;
   width: 20px;
   margin-bottom: -4px;

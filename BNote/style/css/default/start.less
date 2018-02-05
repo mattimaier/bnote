@@ -45,6 +45,11 @@ div.start_box {
 	    &:hover { .start_box_opacity(1.0); }
 	}
 	
+	div.participate_-1 {
+		border-color: @bnote-redish;
+	    border-bottom-width: 2px;
+	}
+	
 	a.participation.participate_0 {
 		color: #ff6161;
 		
@@ -64,12 +69,9 @@ div.start_box {
 	}
 	
 	a.participation.participate_-1 {
-		/*padding: 0.5em;
-	    background: #fafafa;
-	    margin-bottom: 1em;*/
-	    border: 1px solid #ff6161;
-	    
-		&::before { .start_box_participation_before("../icons/unspecified.png"); }
+		font-weight: bold;
+			    
+		&::before { .start_box_participation_before("../../icons/unspecified.png"); }
 	}
 }
 
