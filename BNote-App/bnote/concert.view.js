@@ -1,5 +1,7 @@
 sap.ui.jsview("bnote.concert", {
 
+    concertMaybeBtn: null,
+    
 	getControllerName: function() {
 		return "bnote.concert";
 	},
@@ -39,6 +41,12 @@ sap.ui.jsview("bnote.concert", {
 			this.buttonBar.setSelectedButton(bid);			
 		}
 	},
+    
+    disableMaybeButtons: function() {
+        if(this.concertMaybeBtn != null) {
+            this.concertMaybeBtn.setEnabled(false);
+        }
+    },
 	
     createContent: function(oController) {
     	var view = this;    
@@ -109,12 +117,12 @@ sap.ui.jsview("bnote.concert", {
     	      }           	  
     	 });
 		                
-	    var concertMaybeBtn = new sap.m.Button({
+	    this.concertMaybeBtn = new sap.m.Button({
     	      text: "vielleicht",
     	      press: function(){
     	    	  var concertSetParticipation = 2;
     	    	  oController.onParticipationPress(concertSetParticipation);  
-    	   	  }, 
+    	   	  }
     	});
 	    
 	   	var concertNoBtn = new sap.m.Button({
@@ -127,7 +135,7 @@ sap.ui.jsview("bnote.concert", {
 
 	    this.buttonBar = new sap.m.SegmentedButton({             
             width: "100%", 
-            buttons: [concertOkBtn, concertMaybeBtn, concertNoBtn]
+            buttons: [concertOkBtn, this.concertMaybeBtn, concertNoBtn]
 	    });
 	  
 	  

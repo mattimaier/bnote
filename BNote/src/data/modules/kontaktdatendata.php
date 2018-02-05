@@ -34,8 +34,8 @@ class KontaktdatenData extends KontakteData {
 	}
 	
 	
-	function update($id, $values) {		
-		$current = $this->getContactForUser($id);		
+	function update($id, $values, $plainUpdate=false) {		
+		$current = $this->getContactForUser($id);	
 		// modify array
 		foreach($current as $col => $v) {
 			if(!isset($_POST[$col])) {

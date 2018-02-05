@@ -131,40 +131,69 @@ class Filebrowser implements iWriteable {
 			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($path)), Lang::txt("addFolder"));
 			$lnk->addIcon("plus");
 			$lnk->write();
-				
-			if($this->path != "") {
-				AbstractView::buttonSpace();
-				$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($path)), Lang::txt("addFile"));
-				$lnk->addIcon("plus");
-				$lnk->write();
-			}
-				
+			
+			AbstractView::buttonSpace();
+			$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($path)), Lang::txt("addFile"));
+			$lnk->addIcon("plus");
+			$lnk->write();
 		}
+		
+		// display zip-download button		
+		if($this->sysdata->getDynamicConfigParameter("allow_zip_download") == "1") {
+			// only allow downloads of subfolders, not the root-folders to prevent heavy load on server
+			AbstractView::buttonSpace();
+			$dl = new Link($this->linkprefix("download&path=" . urlencode($this->path)), Lang::txt("folderAsZip"));
+			$dl->addIcon("arrow_down");
+			$dl->write();
+		}
+	}
+	
+	protected function isCurrentPathMainFolder() {
+		$mainpathlen = strlen("data/share/");
+		if(Data::startsWith($this->path, "data/share/")) { 
+			$subpath = substr($this->path, $mainpathlen);
+		}
+		else {
+			$subpath = $this->path;
+		}
+		
+		$userfolder = substr($this->sysdata->getUsersHomeDir(), $mainpathlen);
+		if(Data::endsWith($subpath, "/") && !Data::endsWith($userfolder, "/")) {
+			$userfolder .= "/";
+		}
+		$groupfolders = array();
+		$groups = $this->adp->getUsersGroups();
+		foreach($groups as $i => $groupId) {
+			$dir = $this->sysdata->getGroupHomeDir($groupId);
+			$dir = substr($dir, $mainpathlen) . "/";
+			array_push($groupfolders, $dir);
+		}
+		if($subpath == "" || $subpath == "/" || $subpath == "users/" || $subpath == $userfolder || in_array($subpath, $groupfolders)) {
+			return True;
+		}
+		return False;
 	}
 	
 	private function mainView() {		
 		// show the folders and their contents
 		?>
-		<table id="filebrowser_content">
-			<tr>
-				<td id="filebrowser_folders">
-				<div class="filebrowser_foldertopic"><?php echo Lang::txt("favorites"); ?></div>
-				<?php $this->writeFavs(); ?>
-				</td>
-				<td id="filebrowser_files">
-					<?php $this->writeFolderContent(); ?>
-					
-					<div id="fb-fileupload">
-						<form id="fb-fileupload-form" action="<?php echo $this->linkprefix("addFile&path=" . $this->path); ?>" class="dropzone">
-						  <div class="fallback">
-						    <input name="file" type="file" multiple />
-						  </div>
-						  <div class="dz-message" data-dz-message><span>Dateien auf diesen Bereich ziehen um Sie dem Ordner hinzuzufügen</span></div>
-						</form>
-					</div>
-				</td>
-			</tr>
-		</table>
+		<div class="filebrowser_favs_container">
+			<div class="filebrowser_favs_title"><?php echo Lang::txt("favorites"); ?></div>
+			<?php $this->writeFavs(); ?>
+		</div>
+		
+		<div style="margin-top: 10px;">
+			<?php $this->writeFolderContent(); ?>
+		</div>
+		
+		<div id="fb-fileupload">
+			<form id="fb-fileupload-form" action="<?php echo $this->linkprefix("addFile&path=" . $this->path); ?>" class="dropzone">
+			  <div class="fallback">
+			    <input name="file" type="file" multiple />
+			  </div>
+			  <div class="dz-message" data-dz-message><span>Dateien auf diesen Bereich ziehen um Sie dem Ordner hinzuzufügen</span></div>
+			</form>
+		</div>
 		<?php
 	}
 	
@@ -191,7 +220,6 @@ class Filebrowser implements iWriteable {
 		if($groups != null && count($groups) > 0) { 
 			foreach($groups as $i => $gid) {
 				$name = $this->sysdata->dbcon->getCell("`group`", "name", "id = $gid");
-				$name = "<span style=\"font-style: italic;\">" . Lang::txt("groupFolder") . "</span>:<br/>" . $name;
 				$favs[$name] = $this->root . "groups/group_" . $gid . "/";
 			}
 		}
@@ -242,29 +270,58 @@ class Filebrowser implements iWriteable {
 		}
 		else {
 			$caption = $this->getFolderCaption();
-			Writing::h3($caption, "filebrowser_folder_header");
-			
-			// level up
-			if(strpos($caption, "/") !== false) {
-				$up = new Link($this->linkprefix("view&path=" . urlencode($this->levelUp())), Lang::txt("folderUp"));
-				$up->addIcon("arrow_up");
-				$up->write();
-				
-				if($this->sysdata->getDynamicConfigParameter("allow_zip_download") == "1") {
-					// only allow downloads of subfolders, not the root-folders to prevent heavy load on server
-					AbstractView::buttonSpace();
-					$dl = new Link($this->linkprefix("download&path=" . urlencode($this->path)), Lang::txt("folderAsZip"));
-					$dl->addIcon("arrow_down");
-					$dl->write();
-				}
+			$dirname = $caption;
+			if(Data::startsWith($dirname, "/")) {
+				$dirname = substr($dirname, 1);
 			}
+			if(Data::endsWith($dirname, "/")) {
+				$dirname = substr($dirname, 0, strlen($dirname)-1);
+			}
+			$dirname = str_replace("/", " > ", $dirname);
+			Writing::h3($dirname, "filebrowser_folder_header");
 			
 			// show table with files
-			$table = new Table($this->getFilesFromFolder($this->root . $this->path));
-			$table->renameHeader("name", Lang::txt("filename"));
-			$table->renameHeader("size", Lang::txt("filesize"));
-			$table->renameHeader("options", Lang::txt("fileoptions"));
-			$table->write();
+			$content = $this->getFilesFromFolder($this->root . $this->path);
+			?>
+			<div class="filebrowser_filepanel">
+				<?php
+				$this->writeFolderContentItem($content, "folder");
+				$this->writeFolderContentItem($content, "file");
+				?>
+			</div>
+			<?php
+		}
+	}
+	
+	private function writeFolderContentItem($content, $type) {
+		for($i = 1; $i < count($content); $i++) {
+			$item = $content[$i];
+			
+			if($type == "folder" && $item["directory"] === false) continue;
+			else if($type == "file" && $item["directory"] === true) continue;
+			
+			$link = $item["show"];
+			?>
+				<div class="filebrowser_item">
+					<img src="style/icons/<?php echo $item["icon"]; ?>.png" height="20px" class="filebrowser_icon">
+					<a href="./<?php echo $link; ?>" class="filebrowser_item"><?php echo $item["name"]; ?></a>
+					<span class="filebrowser_item_size"><?php echo $item["size"]; ?></span>
+					<?php 
+					if($item["icon"] == "music") {
+						$mime = strtolower(substr($link, strrpos($link, ".")+1));
+						if($mime == "mp3") {
+							$audioType = "mpeg";
+						}
+						else {
+							$audioType = $mime;
+						}
+						echo '<audio controls style="display: block;">';
+						echo ' <source src="' . $link . '" type="audio/' . $audioType . '">';
+						echo 'Unsupported media type</audio>';
+					}
+					?>
+				</div>
+			<?php
 		}
 	}
 	
@@ -398,7 +455,11 @@ class Filebrowser implements iWriteable {
 		else {
 			$mode = "";
 		}
-		return "?mod=" . $system_data->getModuleId() . "$mode&fbfunc=$ext";
+		$script = "main.php";
+		if(Data::endsWith($_SERVER["PHP_SELF"], "embed.php")) {
+			$script = "embed.php";
+		}
+		return $script . "?mod=" . $system_data->getModuleId() . "$mode&fbfunc=$ext";
 	}
 	
 	/**
@@ -410,7 +471,7 @@ class Filebrowser implements iWriteable {
 		
 		// header
 		$result[0] = array(
-			"name", "size", "options"
+			"name", "size", "options", "show", "delete"
 		);
 
 		// create directory if not present
@@ -430,21 +491,49 @@ class Filebrowser implements iWriteable {
 					$size = number_format($size, 0) . " kb";
 					
 					// create options
+					$showLink = "";
+					$delLink = "";
+					$iconName = "folder";
+					$isDir = false;
 					if(is_dir($fullpath)) {
-						$openLink = new Link($this->linkprefix("view&path=" . urlencode($fullpath . "/")), Lang::txt("open"));
-						$openLink->addIcon("arrow_right");
-						$show = $openLink->toString();
+						# folder
+						$isDir = true;
+						
+						if($file == "..") {
+							if($this->levelUp() != null) {
+								$showLink = $this->linkprefix("view&path=" . urlencode($this->levelUp()));
+								$iconName = "arrow_up";
+								$openLink = new Link($showLink, Lang::txt("open"));
+								$openLink->addIcon($iconName);
+								$show = $openLink->toString();
+							}
+							else {
+								continue;
+							}
+						}
+						else {
+							$showLink = $this->linkprefix("view&path=" . urlencode($fullpath . "/"));
+							$openLink = new Link($showLink, Lang::txt("open"));
+							$openLink->addIcon($iconName);
+							$show = $openLink->toString();
+						}
 					}
 					else {
+						# file
 						$sharePath = substr($fullpath, strlen($this->root)-1);
-						$showLnk = new Link($this->sysdata->getFileHandler() . "?file=" . $sharePath, Lang::txt("download"));
+						$showLink = $this->sysdata->getFileHandler() . "?file=" . $sharePath;
+						$showLnk = new Link($showLink, Lang::txt("download"));
 						$showLnk->setTarget("_blank");
 						$showLnk->addIcon("arrow_down");
 						$show = $showLnk->toString();
+						
+						$filetype = $this->getFiletype($file);
+						$iconName = $filetype;
 					}
 					
 					if(!$this->viewmode) { 
-						$delLnk = new Link($this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file)), Lang::txt("delete"));
+						$delLink = $this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file));
+						$delLnk = new Link($delLink, Lang::txt("delete"));
 						$delLnk->addIcon("remove");
 						$delete = $delLnk->toString();
 					}
@@ -457,7 +546,11 @@ class Filebrowser implements iWriteable {
 					$row = array(
 						"name" => $file,
 						"size" => $size,
-						"options" => $options
+						"options" => $options,
+						"show" => $showLink,
+						"delete" => $delLink,
+						"icon" => $iconName,
+						"directory" => $isDir
 					);
 					array_push($result, $row);
 				}
@@ -466,6 +559,20 @@ class Filebrowser implements iWriteable {
 		}
 					
 		return $result;
+	}
+	
+	private function getFiletype($file) {
+		if(strpos($file, ".") !== false) {
+			$end = strtolower(substr($file, strpos($file, ".")+1));
+			$music = array("mp3", "ogg", "acc", "wav");
+			if(in_array($end, $music)) {
+				return "music";
+			}
+			if($end == "pdf") {
+				return "pdf";
+			}			
+		}
+		return "doc";
 	}
 	
 	private function createFolder($folder) {
@@ -487,7 +594,7 @@ class Filebrowser implements iWriteable {
 			$gid = $this->getGroupIdFromPath();
 			if($gid == null || $gid == "") $groupName = "";
 			else $groupName = $this->adp->getGroupName($gid);
-			return Lang::txt("groupFolder") . ": " . $groupName;
+			return $groupName;
 		}
 		else if($this->path == "users/") {
 			return Lang::txt("userFolder");
@@ -512,7 +619,6 @@ class Filebrowser implements iWriteable {
 		
 		if($file == ".htaccess") return false;
 		else if($file == ".") return false;
-		else if($file == "..") return false;
 		else if($fullpath . "/" == $GLOBALS["DATA_PATHS"]["userhome"]) return false;
 		else if($fullpath . "/" == $GLOBALS["DATA_PATHS"]["grouphome"]) return false;
 		else if($file == "_temp") return false;
@@ -520,8 +626,11 @@ class Filebrowser implements iWriteable {
 	}
 	
 	private function levelUp() {
-		$lastSlash = strrpos($this->path, "/", -2);
-		return substr($this->path, 0, $lastSlash+1);
+		if(!$this->isCurrentPathMainFolder()) {
+			$lastSlash = strrpos($this->path, "/", -2);
+			return substr($this->path, 0, $lastSlash+1);
+		}
+		return null;
 	}
 	
 	public function download() {

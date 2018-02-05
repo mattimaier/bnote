@@ -1,6 +1,7 @@
 sap.ui.jsview("bnote.rehearsal", {
 	
 	buttonBar: null,
+    rehearsalMaybeBtn: null,
 	
 	getControllerName: function() {
 		return "bnote.rehearsal";
@@ -17,6 +18,12 @@ sap.ui.jsview("bnote.rehearsal", {
 			this.buttonBar.setSelectedButton(bid);		
 		}
 	},
+    
+    disableMaybeButtons: function() {
+        if(this.rehearsalMaybeBtn != null) { 
+            this.rehearsalMaybeBtn.setEnabled(false);
+        }
+    },
 	
     createContent: function(oController) {
     	
@@ -58,7 +65,7 @@ sap.ui.jsview("bnote.rehearsal", {
 		   	 },            	  
 	    });
         
-   	    var rehearsalMaybeBtn = new sap.m.Button({    	    	
+   	    this.rehearsalMaybeBtn = new sap.m.Button({    	    	
 		    text: "vielleicht",
 		    press: function(){
 		    	var rehearsalSetParticipation = 2;
@@ -77,7 +84,7 @@ sap.ui.jsview("bnote.rehearsal", {
 		             
 	   this.buttonBar = new sap.m.SegmentedButton({
           width: "100%", 
-          buttons: [rehearsalOkBtn, rehearsalMaybeBtn, rehearsalNoBtn]
+          buttons: [rehearsalOkBtn, this.rehearsalMaybeBtn, rehearsalNoBtn]
 	   });  	  
 	  
 	   this.submitButton = new sap.m.Button({

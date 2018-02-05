@@ -72,8 +72,7 @@ div#contact_table_filter.dataTables_filter {
 }
 .filebrowser_folderitem {
   padding: 5px;
-  border: 1px solid #D0D0D0;
-  border-top-width: 0px;
+  display: inline-block;
 }
 .filebrowser_folderitem:hover {
   background-color: #FFFFFF;
@@ -94,6 +93,28 @@ div#contact_table_filter.dataTables_filter {
 }
 .filebrowser_folder_header {
   margin-top: 0px;
+}
+div.filebrowser_item {
+  padding: 5px;
+  padding-left: 0px;
+  border-bottom: 1px solid #E6E6E6;
+}
+a.filebrowser_item {
+  color: #000000;
+}
+span.filebrowser_item_size {
+  display: inline-block;
+  float: right;
+}
+div.filebrowser_favs_container {
+  background-color: #E6E6E6;
+}
+div.filebrowser_favs_title {
+  font-weight: 600;
+  display: inline-block;
+  margin-left: 10px;
+  margin-right: 10px;
+  color: #000000;
 }
 .finance_filter_box {
   border: 1px solid #E6E6E6;

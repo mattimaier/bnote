@@ -11,7 +11,7 @@ core_bnote_path = "../BNote/";
 desktop_path = core_bnote_path + "main.php?mod=login&device=desktop";
 
 backend = {
-		
+    
 	comparedates: function(startDatePath, stopDatePath, model){
 		var startdate = model.getProperty(startDatePath); // Already Date Object
 		var stopdate = backend.parsedate(model.getProperty(stopDatePath));
@@ -128,31 +128,34 @@ jQuery.sap.require("sap.ui.core.IconPool");
 	
 function getNaviBar(){
 	
-	var emailButton = new sap.m.Button({
+	var emailButton = new sap.m.OverflowToolbarButton({
 		visible: false,
 		icon : sap.ui.core.IconPool.getIconURI("email"),
 		press : function() {
 			communicationView.getController().getData();
 			app.to("communication");
-		}
+		},
+        text: "Kommunikation"
 	});	
 	accessControls[7].push(emailButton);
 
-	var repertoireButton = new sap.m.Button({
+	var repertoireButton = new sap.m.OverflowToolbarButton({
 		visible: false,
 		icon: sap.ui.core.IconPool.getIconURI( "documents" ),
 		press: function() {
 			repertoireView.getController().onRepertoireClick();
-		}
+		},
+        text: "Repertoire"
 	});
 	accessControls[6].push(repertoireButton);
 	   	
-	var equipmentButton = new sap.m.Button({
+	var equipmentButton = new sap.m.OverflowToolbarButton({
 		visible: false,
 		icon: sap.ui.core.IconPool.getIconURI("fridge"),
 		press: function() {
 			equipmentView.getController().onEquipmentClick();
-		}
+		},
+        text: "Equipment"
 	});
 	accessControls[21].push(equipmentButton);
 	
@@ -160,34 +163,45 @@ function getNaviBar(){
 			active : true,
 			design : sap.m.ToolbarDesign.Solid,
 			content : [
-				new sap.m.Button({
+				new sap.m.OverflowToolbarButton({
 					icon : sap.ui.core.IconPool.getIconURI("home"),
 					press : function() {
 						app.to("start")
-					}
+					},
+                    text: "Start"
 				}),
-				new sap.m.Button({
+				new sap.m.OverflowToolbarButton({
 					icon : sap.ui.core.IconPool.getIconURI("contacts"),
 					press : function() {
 						memberView.getController().onMemberClick();
 						app.to("member")
-					}
+					},
+                    text: "Mitglieder"
 				}), 
 				emailButton,
-				new sap.m.Button({
+				new sap.m.OverflowToolbarButton({
 				    icon: sap.ui.core.IconPool.getIconURI("marketing-campaign"),
 				    press: function() {
 				    	app.to("news")
-				    }
+				    },
+                    text: "Nachrichten"
 			    }),
                 repertoireButton,		   
                 equipmentButton,
-                new sap.m.Button({
+                new sap.m.OverflowToolbarButton({
 				    icon: sap.ui.core.IconPool.getIconURI("business-card"),
+                    text: "Profil",
 				    press: function() {
 				    	app.to("mydata")
 				    }
 			    }),
+                new sap.m.OverflowToolbarButton({
+				    icon: sap.ui.core.IconPool.getIconURI("sap-box"),
+                    text: "Share",
+				    press: function() {
+				    	app.to("share")
+				    }
+			    })
 			]		
 		});	
 	}
@@ -343,6 +357,12 @@ mydataView = sap.ui.view({
 	type: sap.ui.core.mvc.ViewType.JS
 });
 
+shareView = sap.ui.view({
+    id: "share",
+    viewName: "bnote.share",
+    type: sap.ui.core.mvc.ViewType.JS
+});
+
 // Build the app together
 app = new sap.m.App("bnoteApp", {
 	defaultTransitionName: "fade",
@@ -374,6 +394,7 @@ app.addPage(taskaddView);
 app.addPage(voteresultView);
 app.addPage(signupView);
 app.addPage(mydataView);
+app.addPage(shareView);
 
 var shell = new sap.m.Shell("bnoteShell", {
     title: "BNote App",

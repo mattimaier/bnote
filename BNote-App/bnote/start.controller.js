@@ -75,7 +75,21 @@ sap.ui.controller("bnote.start", {
         	startView.startaddButton.setVisible(true);
         } else {
         	startView.reservationaddButton.setVisible(false);
-        }              
+        }
+        
+        // check if "maybe" is disabled -> set maybe buttons as disabled
+        jQuery.ajax({
+            url: backend.get_url("isMaybeEnabled"),
+            success: function(data) {
+                if(!data.isMaybeEnabled) {
+                    concertView.disableMaybeButtons();
+                    rehearsalView.disableMaybeButtons();
+                }
+            },
+            error: function(a,b,c) {
+                console.log(b + ": " + c);
+            }
+        });
 	},	
 	
 	generateModel: function(model){

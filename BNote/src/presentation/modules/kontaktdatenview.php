@@ -43,7 +43,6 @@ class KontaktdatenView extends AbstractView {
 		$settings = new Link($this->modePrefix() . "settings", "Meine Einstellungen");
 		$settings->addIcon("settings");
 		$settings->write();
-		$this->verticalSpace();
 	}
 	
 	function savePD() {

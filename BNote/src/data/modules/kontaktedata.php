@@ -210,22 +210,23 @@ class KontakteData extends AbstractData {
 		}
 	}
 	
-	function update($id, $values) {	
-		// update address
-		$values = $this->update_address($id, $values);
+	function update($id, $values, $plainUpdate=false) {
+		if(!$plainUpdate) {
+			// update address
+			$values = $this->update_address($id, $values);
+				
+			// update groups
+			$query = "DELETE FROM contact_group WHERE contact = $id";
+			$this->database->execute($query);
+			$this->createContactGroupEntries($id);
 			
-		// update groups
-		$query = "DELETE FROM contact_group WHERE contact = $id";
-		$this->database->execute($query);
-		$this->createContactGroupEntries($id);
-		
-		// update custom data
-		$this->updateCustomFieldData('c', $id, $values);
-		
+			// update custom data
+			$this->updateCustomFieldData('c', $id, $values);
+		}
 		parent::update($id, $values);
 	}
 	
-	protected function update_address($id, $values) {
+	public function update_address($id, $values) {
 		$addressId = $this->database->getCell("contact", "address", "id = $id");
 		$query = "UPDATE address SET ";
 		$query .= "street = \"" . $values["street"] . "\", ";

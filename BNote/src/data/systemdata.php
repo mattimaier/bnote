@@ -41,15 +41,19 @@ class Systemdata {
   $this->version = "";
   $this->dir_prefix = $dir_prefix;
   
-  if(isset($_SESSION["user"]) && $_SESSION["user"] > 0) {
-   $this->user_module_permission = $this->getUserModulePermissions();
-  }
+  $this->initUserPermissions();
   
   // make sure dynamic configuration exists already
   $tabs = Database::flattenSelection($this->dbcon->getSelection("SHOW TABLES"), 0);
   if(in_array("configuration", $tabs)) {
   	$this->cfg_dynamic = $this->getDynamicConfiguration();
   }
+ }
+ 
+ public function initUserPermissions() {
+ 	if(isset($_SESSION["user"]) && $_SESSION["user"] > 0) {
+ 		$this->user_module_permission = $this->getUserModulePermissions();
+ 	}
  }
 
  /**

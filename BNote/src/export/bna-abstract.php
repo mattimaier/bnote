@@ -1772,6 +1772,11 @@ abstract class AbstractBNA implements iBNA {
 		}
 		return $array;
 	}
+	
+	function isMaybeEnabled() {
+		$on = $this->sysdata->getDynamicConfigParameter("allow_participation_maybe") == 1;
+		$this->writeEntity(array("isMaybeEnabled" => $on), "Result");
+	}
 }
 
 

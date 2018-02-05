@@ -5,9 +5,6 @@ sap.ui.jsview("bnote.mydata", {
 	},
 	
 	createContent: function() {
-        // dropdown for instruments
-        
-        
         // main form
 		this.mydataForm = new sap.ui.layout.form.SimpleForm("myDataForm", {
             content: [

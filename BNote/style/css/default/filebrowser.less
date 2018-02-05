@@ -23,8 +23,7 @@
 
 .filebrowser_folderitem {
 	padding: 5px;
-	border: 1px solid @bnote-middlegray;
-	border-top-width: 0px;
+	display: inline-block;
 	
 	&:hover {
 		background-color: @white;
@@ -51,3 +50,30 @@
 .filebrowser_folder_header {
 	margin-top: 0px;
 } 
+
+div.filebrowser_item {
+	padding: 5px;
+	padding-left: 0px;
+	border-bottom: 1px solid @bnote-lightgray;
+}
+
+a.filebrowser_item {
+	color: @black;
+}
+
+span.filebrowser_item_size {
+	display: inline-block;
+	float: right;
+}
+
+div.filebrowser_favs_container {
+	background-color: @bnote-lightgray;
+}
+
+div.filebrowser_favs_title {
+	font-weight: 600;
+	display: inline-block;
+	margin-left: 10px;
+    margin-right: 10px;
+    color: @black;
+}

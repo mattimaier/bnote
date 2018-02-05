@@ -77,8 +77,8 @@ class StartData extends AbstractData {
 		$this->database->execute($query);
 		
 		// insert
-		if($reason != null) {
-			// save not participating in concert with reason
+		if($reason != null && isset($_POST["explanation"])) {
+			// save non-participation with reason
 			$this->regex->isText($_POST["explanation"]);
 		}
 		else {
