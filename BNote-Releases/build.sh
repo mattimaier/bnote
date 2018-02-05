@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ## BUILD FILE FOR BNote Releases
 
 # Check that the release name is given
@@ -40,8 +40,14 @@ rm "$tmp_dir/BNote-App/.DS_Store"
 
 ## DESKTOP
 echo "Preparing desktop application..."
-# copy main application
 
+# Compile Themes
+echo "Compiing themes..."
+cd $main_dir/style/css
+./compile_themes.sh
+cd -
+
+# copy main application
 cp -rv $main_dir $tmp_dir
 
 # clean up the main application
