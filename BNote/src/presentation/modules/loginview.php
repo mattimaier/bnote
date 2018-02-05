@@ -48,7 +48,7 @@ class LoginView extends AbstractView {
 		// Terms
 		$mod = "terms";
 		if($_GET["mod"] != $mod) {
-			$terms = new Link("?mod=$mod", "Nutzungsbedingungen");
+			$terms = new Link("?mod=$mod", "Datenschutz");
 			$terms->write();
 			$this->buttonSpace();
 		}
