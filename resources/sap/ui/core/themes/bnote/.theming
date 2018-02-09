@@ -1,6 +1,0 @@
-{
-  "sEntity" : "Theme",
-  "sId" : "bnote",
-  "oExtends" : "UI5.sap/ui/core.base",
-  "sVendor" : "BNote Software GbR"
-}

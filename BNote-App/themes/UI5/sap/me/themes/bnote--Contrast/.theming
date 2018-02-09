@@ -1,0 +1,17 @@
+{
+	"mVersionDependency": {
+		"UI5.sap/me.sap_belize_plus": "1.52.4",
+		"UI5.sap/me": "1.52.4",
+		"UI5": "1.52.4"
+	},
+	"sEntity": "Theme",
+	"sId": "bnote--Contrast",
+	"sVendor": "Matti Maier",
+	"oExtends": "UI5.sap/me.sap_belize_plus",
+	"aBundled": [
+		"bnote"
+	],
+	"sBuildOptions": "SKIP",
+	"sType": "ABSTRACT",
+	"sThemability": "PRIVATE"
+}

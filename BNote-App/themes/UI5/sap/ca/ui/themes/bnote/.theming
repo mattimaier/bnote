@@ -1,0 +1,38 @@
+{
+	"mVersionDependency": {
+		"UI5.sap/ca/ui.sap_belize": "1.52.0",
+		"UI5.sap/ca/ui": "1.52.0",
+		"UI5": "1.52.4"
+	},
+	"sEntity": "Theme",
+	"sId": "bnote",
+	"sLabel": "BNote Theme",
+	"sVendor": "Matti Maier",
+	"oExtends": "UI5.sap/ca/ui.sap_belize",
+	"aBundled": [
+		"bnote--Contrast"
+	],
+	"sTextDirections": "LTR",
+	"sType": "STANDARD",
+	"sThemability": "PUBLIC",
+	"mCssScopes": {
+		"library": {
+			"sEmbeddingMethod": "APPEND",
+			"aScopes": [
+				{
+					"sLabel": "Contrast",
+					"sSelector": "sapContrast",
+					"sThemeIdSuffix": "Contrast",
+					"sThemability": "PUBLIC",
+					"aThemabilityFilter": [
+						"Color"
+					],
+					"rExcludeSelector": "\\.sapContrastPlus\\W",
+					"sEmbeddedFile": "bnote--Contrast.library",
+					"sEmbeddedCompareFile": "library"
+				}
+			],
+			"sBaseFile": "library"
+		}
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"mVersionDependency": {
+		"UI5.sap/f.sap_belize_plus": "1.52.4",
+		"UI5.sap/f": "1.52.4",
+		"UI5": "1.52.4"
+	},
+	"sEntity": "Theme",
+	"sId": "bnote--Contrast",
+	"oExtends": "UI5.sap/f.sap_belize_plus",
+	"aBundled": [
+		"bnote"
+	],
+	"sType": "ABSTRACT",
+	"sThemability": "PRIVATE"
+}

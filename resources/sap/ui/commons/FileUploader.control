@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<control xmlns="http://www.sap.com/sap.ui.library.xsd">
-    <name>FileUploader</name>
-    <derived/>
-    <author>SAP SE</author>
-    <documentation>The framework generates an input field and a button with text &quot;Browse ...&quot;. The API supports features such as on change uploads (the upload starts immediately after a file has been selected), file uploads with explicit calls, adjustable control sizes, text display after uploads, or tooltips containing complete file paths.</documentation>
-    <deprecation since="1.21.0">Please use the control sap.ui.unified.FileUploader of the library sap.ui.unified instead.</deprecation>
-    <baseType>sap.ui.unified/FileUploader</baseType>
-</control>

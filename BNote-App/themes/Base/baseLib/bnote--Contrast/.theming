@@ -1,0 +1,46 @@
+{
+	"mVersionDependency": {
+		"Base.baseLib.sap_belize_plus": "11.0.4",
+		"Base.baseLib": "11.0.4",
+		"Base": "11.0.4"
+	},
+	"sEntity": "Theme",
+	"sId": "bnote--Contrast",
+	"oExtends": "Base.baseLib.sap_belize_plus",
+	"aFiles": [
+		"base",
+		"preview",
+		"custom"
+	],
+	"aBundled": [
+		"bnote"
+	],
+	"sBuildOptions": "SKIP",
+	"sType": "ABSTRACT",
+	"sThemability": "PRIVATE",
+	"mData": {
+		"mThemeMasterState": {
+			"mSourceInfo": {
+				"sCreated": "2018-02-08T19:39:30.091Z",
+				"sLastModified": "2018-02-08T19:39:49.136Z",
+				"aVersionHistory": [
+					{
+						"sDate": "2018-02-08T19:39:49.136Z",
+						"mVersion": {
+							"UI5": "1.52.4",
+							"Base": "11.0.4",
+							"UR": "10.30.7.292941.0"
+						}
+					},
+					{
+						"sDate": "2018-02-08T19:39:30.091Z",
+						"mVersion": {
+							"UI5": "1.52.4",
+							"Base": "11.0.4"
+						}
+					}
+				]
+			}
+		}
+	}
+}

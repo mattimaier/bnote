@@ -1,0 +1,49 @@
+{
+	"mVersionDependency": {
+		"Base.baseLib.sap_belize": "11.0.4",
+		"Base.baseLib": "11.0.4",
+		"Base": "11.0.4"
+	},
+	"sEntity": "Theme",
+	"sId": "bnote",
+	"sLabel": "BNote Theme",
+	"sVendor": "Matti Maier",
+	"oExtends": "Base.baseLib.sap_belize",
+	"aFiles": [
+		"base",
+		"preview",
+		"custom"
+	],
+	"aBundled": [
+		"bnote--Contrast"
+	],
+	"sTextDirections": "LTR",
+	"sType": "STANDARD",
+	"sThemability": "PUBLIC",
+	"mData": {
+		"mThemeMasterState": {
+			"mSourceInfo": {
+				"sCreated": "2018-02-08T19:39:30.090Z",
+				"sLastModified": "2018-02-08T19:39:49.136Z",
+				"aVersionHistory": [
+					{
+						"sDate": "2018-02-08T19:39:30.090Z",
+						"mVersion": {
+							"UI5": "1.52.4",
+							"Base": "11.0.4",
+							"UR": "10.30.7.292941.0"
+						}
+					}
+				]
+			},
+			"mBuildInfo": {
+				"sLastBuilt": "2018-02-08T19:39:58.467Z",
+				"mVersion": {
+					"UI5": "1.52.4",
+					"Base": "11.0.4",
+					"UR": "10.30.7.292941.0"
+				}
+			}
+		}
+	}
+}

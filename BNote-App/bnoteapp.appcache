@@ -1,34 +1,9 @@
 CACHE MANIFEST
-# 2017-03-01:v3.2.0
+# 2018-02-09:v3.3.0
 img/BNote_Logo_blue_on_white_192px.png
 favicon.png
 
 validate.js
-
-../resources/sap-ui-core.js  
-../resources/sap/m/themes/bnote/library.css  
-../resources/sap/m/library-preload.json  
-../resources/sap/m/messagebundle_de.properties  
-../resources/sap/m/themes/bnote/library-parameters.json  
-../resources/sap/ui/core/library-preload.json  
-../resources/sap/ui/core/themes/bnote/library.css  
-../resources/sap/ui/layout/library-preload.json 
-../resources/sap/ui/layout/themes/bnote/library.css 
-../resources/sap/ui/core/messagebundle_de.properties
-../resources/sap/ui/core/themes/base/fonts/SAP-icons.ttf  
-../resources/sap/ui/core/themes/bnote/library-parameters.json  
-../resources/sap/ui/core/cldr/de.json
-../resources/sap/ui/commons/library-preload.json 
-../resources/sap/ui/commons/themes/bnote/library.css
-../resources/sap/ui/unified/library-preload.json 
-../resources/sap/ui/unified/themes/bnote/library.css
-../resources/jquery.sap.storage.js  
-../resources/sap/ui/unified/themes/bnote/library-parameters.json
-../resources/sap/ui/layout/themes/bnote/library-parameters.json
-../resources/sap/ui/commons/themes/bnote/library-parameters.json
-../resources/sap/ui/thirdparty/mobiscroll/js/mobiscroll-scroller.js
-../resources/sap/ui/thirdparty/mobiscroll/js/mobiscroll-datetime.js
-../resources/sap/ui/thirdparty/mobiscroll/css/mobiscroll-core.css
 
 NETWORK:  
 *
