@@ -1,12 +1,11 @@
----------------
- Release Notes
----------------
+################
+# Update BNote #
+################
 
-> Update BNote
 Update is possible from version 3.2.2 onwards.
 Please make sure to copy ALL files onto your web server.
 
-! IMPORTANT !
+!!! IMPORTANT !!!
 Please add the following configuration to your BNote main config.
 File:  BNote/config/config.xml
 <Software>
@@ -16,8 +15,30 @@ File:  BNote/config/config.xml
 	[...]
 </Software>
 
-> Changes to BNote in comparison with 3.2.2
-//TODO
 
-> Theming BNote
+!!! IMPORTANT !!!
+Please also remove the resources/ folder in the bnote root folder from your webserver. This will improve BNote's performance and it will free space on your server.
+
+#############################################
+# Changes to BNote in comparison with 3.2.2 #
+#############################################
+
+# 23: Dashboard for band leader
+#223: Probenstrecke: Benachrichtigung über gesamte Probenstrecken
+#224: Probenstrecke: Massupdate / Massdelete
+#231: App: Files anzeigen und ggf. abspielen
+#232: App: eigene Kontaktdaten pflegen
+#244: Benutzerdefinierte Felder für Kontakte
+#269: Logo / Branding
+#280: Installation Note for Band Config
+#283: Anzahl gewählter Mitglieder anzeigen
+#287: App: Vielleicht-Teilnahme
+#288: Verwendungsnachweis Stücke
+#289: DSGVO auf Login-Seite + in Wiki
+#291: DatePicker Fix + Treff(zeit)punkt vor Gig
+
+
+#################
+# Theming BNote #
+#################
 Please refer to our wiki page: https://github.com/mattimaier/bnote/wiki/Theming,-Logo
