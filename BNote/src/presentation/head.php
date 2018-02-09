@@ -15,7 +15,7 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
  <link href="style/css/reset.css" rel="StyleSheet" type="text/css" />
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery-ui.min.css" rel="stylesheet" />
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery-ui.theme.min.css" rel="stylesheet" />
- <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery.datetimepicker.css" rel="stylesheet" />
+ <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery.datetimepicker.min.css" rel="stylesheet" />
  <link type="text/css" href="<?php echo $jQuery_dir; ?>jquery.jqplot.min.css" rel="stylesheet" />
  <link type="text/css" href='<?php echo $jQuery_dir; ?>fullcalendar.css' rel='stylesheet' />
  <link type="text/css" href='<?php echo $jQuery_dir; ?>fullcalendar.css' rel='stylesheet' />
@@ -25,7 +25,7 @@ $jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
 
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery-2.1.1.min.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery-ui.min.js"></script>
- <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.datetimepicker.js"></script>
+ <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.datetimepicker.full.min.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.jqplot.min.js"></script>
   <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.dataTables.min.js"></script>
 

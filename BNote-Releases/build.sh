@@ -24,9 +24,9 @@ fi
 
 ## ROOT RESOURCES
 echo "Preparing root resources..."
-# copy level 1 resources
 cp "$root_dir/index.php" $tmp_dir
-cp -r "$root_dir/resources" $tmp_dir
+cp "$root_dir/release_notes.txt" $tmp_dir
+
 
 ## APP
 echo "Preparing app..."
@@ -69,6 +69,9 @@ rm "$tmp_main_dir/data/programs/*.pdf"
 rm -r "$tmp_main_dir/data/share/groups/*"  # create on installation
 rm -r "$tmp_main_dir/data/share/members/*"  # create on installation
 rm -r "$tmp_main_dir/data/webpages/*"  # no webpages are shipped
+
+echo "Clean BNote/data/share!"
+echo "Clean BNote/data/gallery!"
 
 
 ## Finalize
