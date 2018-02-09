@@ -48,3 +48,11 @@
 .sapMSegBBtnSel {
 	background-color: #175A97 !important;
 }
+
+.sapMBtnInner {
+    text-shadow: none !important;
+}
+
+.sapMTitle {
+    text-shadow: none !important;
+}
