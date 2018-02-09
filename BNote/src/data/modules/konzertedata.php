@@ -17,6 +17,7 @@ class KonzerteData extends AbstractData {
 			"begin" => array("Beginn", FieldType::DATETIME),
 			"end" => array("Ende", FieldType::DATETIME),
 			"approve_until" => array("Zusagen bis", FieldType::DATETIME),
+			"meetingtime" => array("Treffpunkt (Zeit)", FieldType::DATETIME),
 			"location" => array("Ort", FieldType::REFERENCE),
 			"program" => array("Programm", FieldType::REFERENCE),
 			"contact" => array("Kontakt", FieldType::REFERENCE),

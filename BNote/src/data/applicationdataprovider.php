@@ -270,7 +270,7 @@ class ApplicationDataProvider {
 				END";
 			$concerts = $this->database->getSelection($query);
 		}
-
+		
 		// iterate over concerts and replace foreign keys with data
 		for($i = 1; $i < count($concerts); $i++) {
 			// resolve location -> mandatory!
@@ -338,6 +338,7 @@ class ApplicationDataProvider {
 				"title" => $concerts[$i]["title"],
 				"begin" => $concerts[$i]["begin"],
 				"end" => $concerts[$i]["end"],
+				"meetingtime" => $concerts[$i]["meetingtime"],
 				"approve_until" => $concerts[$i]["approve_until"],
 				"notes" => $concerts[$i]["notes"],
 				"location_name" => $location["name"],

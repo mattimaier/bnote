@@ -274,6 +274,7 @@ class Installation {
 					`notes` text,
 					`contact` int(11),
 					`outfit` int(11),
+					`meetingtime` datetime,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 

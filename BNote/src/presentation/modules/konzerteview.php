@@ -250,11 +250,13 @@ class KonzerteView extends CrudRefView {
 		$form->removeElement("id");
 		
 		$form->setForeign("location", "location", "id", "name", $c["location"]);
+		
+		if(!isset($c["program"]) || $c["program"] == "" || $c["program"] == null) {
+			$c["program"] = "0";
+			$form->addElement("program", new Field("program", $c["program"], FieldType::REFERENCE));
+		}
 		$form->setForeign("program", "program", "id", "name", $c["program"]);
 		$form->addForeignOption("program", "Kein Programm", "0");
-		if($c["program"] == "") {
-			$c["program"] = "0";
-		}
 		$form->setForeignOptionSelected("program", $c["program"]);
 		
 		$form->removeElement("contact");
@@ -270,8 +272,9 @@ class KonzerteView extends CrudRefView {
 		$form->addElement("Kontakt", $dd);
 		
 		$outfit = $c['outfit'];
-		if($outfit == "") {
+		if($outfit == "" || !isset($c["outfit"])) {
 			$outfit = 0;
+			$form->addElement("outfit", new Field("outfit", $c["outfit"], FieldType::REFERENCE));
 		}
 		$form->setForeign("outfit", "outfit", "id", array("name"), $outfit);
 		$form->addForeignOption("outfit", "Kein Outfit", 0);
@@ -394,6 +397,9 @@ class KonzerteView extends CrudRefView {
 		$form->addElement("Ende", $end_field);
 		$approve_field = new Field("approve_until", "", FieldType::DATETIME);
 		$approve_field->setCssClass("copyDateTarget");
+		$meetingtime = new Field("meetingtime", "", FieldType::DATETIME);
+		$meetingtime->setCssClass("copyDateTarget");
+		$form->addElement("Treffpunkt (Zeit)", $meetingtime);
 		$form->addElement("Zusagen bis", $approve_field);
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));		
 		

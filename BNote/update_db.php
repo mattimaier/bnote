@@ -249,7 +249,10 @@ $update->addTable("rehearsalserie", "CREATE TABLE IF NOT EXISTS rehearsalserie (
 
 $update->addColumnToTable("rehearsal", "serie", "INT(11)");
 
-// Task 4: Config parameters
+// Task 4: Gig meeting time
+$update->addColumnToTable("concert", "meetingtime", "DATETIME");
+
+// Task 5: Config parameters
 ?>
 <p>
 	<span style="font-weight: bold; color: red;">Please add two config parameters to your config/config.xml</span>:<br/>
