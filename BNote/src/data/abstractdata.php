@@ -600,44 +600,15 @@ abstract class AbstractData {
 		$query = "INSERT INTO customfield_value (customfield, otype, oid, intval, dblval, strval) VALUES ";
 		$query .= join(",", $valueSet);
 		$this->database->execute($query);
-		echo $query;
 	}
 	
 	protected function updateCustomFieldData($otype, $oid, $values) {
-		// get custom fields for otype
-		$customFieldSelection = $this->getCustomFields($otype);
-		$fields = $this->compileCustomFieldInfo($customFieldSelection);
-				
-		foreach($fields as $techname => $info) {
-			$vtype = $info[1];
-			$fieldid = $info[2];
-	
-			$intval = 0;
-			$dblval = 0.0;
-			$strval = "";
-			
-			if(isset($values[$techname])) {
-				$val = $values[$techname];
-				
-				if($vtype == "BOOLEAN") {
-					$intval = $val ? 1 : 0;
-				}
-				else if($vtype == "INT") {
-					$intval = $val;
-				}
-				else if($vtype == "DOUBLE") {
-					$dblval = Data::convertToDb($val);
-				}
-				else {
-					$strval = $val;
-				}
-			}
-				
-			// execute update
-			$query = "UPDATE customfield_value SET intval = $intval, dblval = $dblval, strval = '$strval'";
-			$query .= " WHERE otype = '$otype' AND oid = $oid AND customfield = $fieldid";
-			$this->database->execute($query);
-		}
+		// for update compatibility of custom fields, remove all custom data before inserting new ones
+		$delQuery = "DELETE FROM customfield_value WHERE otype = '$otype' AND oid = $oid";
+		$this->database->execute($delQuery);
+		
+		// create data again
+		$this->createCustomFieldData($otype, $oid, $values);
 	}
 	
 	protected function deleteCustomFieldData($otype, $oid) {

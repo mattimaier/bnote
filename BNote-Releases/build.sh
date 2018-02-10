@@ -12,7 +12,7 @@ echo "Building Release $1 ..."
 root_dir=".."
 main_dir="../BNote"
 app_dir="../BNote-App"
-tmp_dir="tmp/"
+tmp_dir="tmp"
 
 # Create temporary directory
 if [ ! -d "$tmp_dir" ]; then
@@ -64,14 +64,17 @@ rm "$tmp_main_dir/config/company.xml"
 rm "$tmp_main_dir/config/config.xml"
 rm "$tmp_main_dir/config/database.xml"
 
+# data/ handling
+rm -r "$tmp_main_dir/data/gallery/*"
+mkdir "$tmp_main_dir/data/gallery/thumbs"
 rm "$tmp_main_dir/data/members/*.pdf"
 rm "$tmp_main_dir/data/programs/*.pdf"
 rm -r "$tmp_main_dir/data/share/groups/*"  # create on installation
 rm -r "$tmp_main_dir/data/share/members/*"  # create on installation
+rm -r "$tmp_main_dir/data/share/_temp/*"
 rm -r "$tmp_main_dir/data/webpages/*"  # no webpages are shipped
 
-echo "Clean BNote/data/share!"
-echo "Clean BNote/data/gallery!"
+echo "!! Clean BNote/data/share !!"
 
 
 ## Finalize
