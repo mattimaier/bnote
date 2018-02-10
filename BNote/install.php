@@ -1043,10 +1043,10 @@ class Installation {
 		<HEAD>
 			<title>BNote | Installation</title>
  			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-			
-			<LINK href="style/css/!reset.css" rel="StyleSheet" type="text/css">
-			<LINK href="style/css/gui.css" rel="StyleSheet" type="text/css">
-			<LINK href="style/css/ids.css" rel="StyleSheet" type="text/css">
+			<style type="text/css">
+			body {padding: 0px; margin: 0px;}
+			</style>
+			<LINK href="style/css/default/bnote.css" rel="StyleSheet" type="text/css">
 		</HEAD>
 		<BODY>	
 				
@@ -1065,15 +1065,6 @@ class Installation {
 		</div>
 		<!-- Content Area -->
 		<div id="content_container">
-			<!-- Navigation -->
-		<div id="navigation">
-		
-			<a class="navi" href="?step=welcome"><div class="navi_item_selected">Installation</div></a>
-			<a class="navi" href="main.php?mod=login"><div class="navi_item">Login</div></a>
-			<a class="navi" href="main.php?mod=whyBNote"><div class="navi_item">Warum BNote?</div></a>
-			<a class="navi" href="main.php?mod=terms"><div class="navi_item">Nutzungs-bedingungen</div></a>
-			<a class="navi" href="main.php?mod=impressum"><div class="navi_item">Impressum</div></a>
-		</div>
 			<div id="content_insets">
 				<div id="content">
 					<?php
