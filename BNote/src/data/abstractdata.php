@@ -597,6 +597,9 @@ abstract class AbstractData {
 			}
 			array_push($valueSet, "($fieldid, '$otype', $oid, $intval, $dblval, '$strval')");
 		}
+		if(count($valueSet) == 0) {
+			return;
+		}
 		$query = "INSERT INTO customfield_value (customfield, otype, oid, intval, dblval, strval) VALUES ";
 		$query .= join(",", $valueSet);
 		$this->database->execute($query);
@@ -666,6 +669,10 @@ abstract class AbstractData {
 	protected function appendCustomDataToSelection($otype, $selection, $idcol="id") {
 		// get all OIDs from selection
 		$oids = Database::flattenSelection($selection, "id");
+		if(count($oids) == 0) {
+			// no data to append to
+			return $selection;
+		}
 		$query = "SELECT oid, techname, intval, dblval, strval "
 				. "FROM customfield_value v JOIN customfield f ON v.customfield = f.id " 
 				. "WHERE f.otype = '$otype' AND (oid = "
