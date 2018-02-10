@@ -600,6 +600,7 @@ abstract class AbstractData {
 		$query = "INSERT INTO customfield_value (customfield, otype, oid, intval, dblval, strval) VALUES ";
 		$query .= join(",", $valueSet);
 		$this->database->execute($query);
+		echo $query;
 	}
 	
 	protected function updateCustomFieldData($otype, $oid, $values) {
@@ -625,7 +626,7 @@ abstract class AbstractData {
 					$intval = $val;
 				}
 				else if($vtype == "DOUBLE") {
-					$dblval = $val;
+					$dblval = Data::convertToDb($val);
 				}
 				else {
 					$strval = $val;
