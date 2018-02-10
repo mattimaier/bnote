@@ -589,7 +589,7 @@ abstract class AbstractData {
 					$intval = $val;
 				}
 				else if($vtype == "DOUBLE") {
-					$dblval = $val;
+					$dblval = Data::convertToDb($val);
 				}
 				else {
 					$strval = $val;

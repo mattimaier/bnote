@@ -293,6 +293,7 @@ class StartView extends AbstractView {
 				$dataview->addElement(Lang::txt("title"), $row["title"]);
 				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($row["begin"]));
 				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($row["end"]));
+				$dataview->addElement(Lang::txt("meetingtime"), Data::convertDateFromDb($row["meetingtime"]));
 				$dataview->addElement(Lang::txt("tour_concert_approve_until"), Data::convertDateFromDb($row["approve_until"]));
 				
 				// add button to show participants

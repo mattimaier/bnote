@@ -81,6 +81,7 @@ class Translation extends BNoteTranslation {
 			"outfit" => "Outfit",
 			"member" => "Mitglied",
 			"members" => "Mitglieder",
+			"meetingtime" => "Treffpunkt (Zeit)",
 			
 			// navigation
 			"mod_Login" => "Anmeldung",

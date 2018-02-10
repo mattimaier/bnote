@@ -29,8 +29,7 @@ class StatsData extends AbstractData {
 				FROM `$table` 
 				WHERE begin < NOW() 
 				GROUP BY year(begin), month(begin) 
-				ORDER BY year(begin), month(begin) DESC 
-				LIMIT 0,6";
+				ORDER BY year(begin), month(begin) DESC";
 		$res = $this->database->getSelection($query);
 		
 		// compute year-month series for the last 6 months
