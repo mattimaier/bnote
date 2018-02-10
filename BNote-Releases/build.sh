@@ -73,6 +73,8 @@ rm -r "$tmp_main_dir/data/share/groups/*"  # create on installation
 rm -r "$tmp_main_dir/data/share/members/*"  # create on installation
 rm -r "$tmp_main_dir/data/share/_temp/*"
 rm -r "$tmp_main_dir/data/webpages/*"  # no webpages are shipped
+rm "$tmp_main_dir/data/nachrichten.html"
+touch "$tmp_main_dir/data/nachrichten.html"
 
 echo "!! Clean BNote/data/share !!"
 
