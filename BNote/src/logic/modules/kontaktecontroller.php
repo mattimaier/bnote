@@ -132,7 +132,8 @@ class KontakteController extends DefaultController {
 			$this->groupView->start();
 		}
 		else {
-			$this->groupView->$_GET["func"]();
+			$func = $_GET["func"];
+			$this->groupView->$func();
 		}
 	}
 	
