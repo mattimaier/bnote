@@ -312,7 +312,7 @@ class RepertoireData extends AbstractData {
 		if($handle = opendir($folder)) {
 			while(false !== ($file = readdir($handle))) {
 				$fullpath = $folder . $file;
-				if(Filebrowser::fileValid($fullpath, $file)) {
+				if(Filebrowser::fileValid($fullpath, $file) && $file != "..") {
 					if(is_dir($fullpath)) {
 						$subdir_content = $this->recursiveFiles($fullpath . "/");
 						$content = array_merge($content, $subdir_content);
