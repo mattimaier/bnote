@@ -300,13 +300,8 @@ class StartView extends AbstractView {
 				$participantsButton = new Link($this->modePrefix() . "concertParticipants&id=" . $row["id"], "Teilnehmer anzeigen");
 				$dataview->addElement(Lang::txt("participants"), $participantsButton->toString());
 				
-				if($row['outfit'] > 0) {
-					$outfitRow = $this->getData()->getOutfit($row['outfit']);
-					$outfit = $outfitRow['name'];
-					if($outfitRow['description'] != "") {
-						$outfit .= "<br/>" . $outfitRow['description'];
-					}
-					$dataview->addElement(Lang::txt("outfit"), $outfit);
+				if($row['outfit'] != "") {
+					$dataview->addElement(Lang::txt("outfit"), $row['outfit']);
 				}
 				
 				$loc = $this->buildAddress($row);
