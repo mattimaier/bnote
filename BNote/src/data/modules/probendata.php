@@ -450,6 +450,25 @@ class ProbenData extends AbstractData {
 		$query = "SELECT s.* FROM rehearsal r JOIN rehearsalserie s ON r.serie = s.id WHERE r.id = $rehearsalId";
 		return $this->database->getRow($query);
 	}
+	
+	public function update($id, $values) {
+		if(isset($values["serie"]) && $values["serie"] == "") {
+			unset($values["serie"]);
+		}
+		parent::update($id, $values);
+	}
+	
+	public function validate($input) {
+		// custom validation
+		$this->regex->isDateTime($input["begin"]);
+		$this->regex->isDateTime($input["end"]);
+		$this->regex->isDateTime($input["approve_until"]);
+		$this->regex->isDatabaseId($input["location"]);
+		if(isset($input["serie"]) && $input["serie"] != "") {
+			$this->regex->isDatabaseId($input["serie"]);
+		}
+		$this->regex->isText($input["notes"]);
+	}
 }
 
 ?>

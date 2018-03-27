@@ -52,6 +52,8 @@ class Regex {
    
    $this->regex["login"] = '/^[[:alnum:]\.\-\_]{3,45}$/';
    $this->regex_js["login"] = '^[\\\w\\\.\\\-\\\_]{3,45}$';
+   
+   $this->regex["dbid"] = '/^[0-9]{1,11}$/';
  }
 
  private function isCorrect($d, $type) {
@@ -109,6 +111,7 @@ class Regex {
  public function isKdnr($d) { return $this->isCorrect($d, "kdnr"); }
  public function isPassword($d) { return $this->isCorrect($d, "password"); }
  public function isLogin($d) { return $this->isCorrect($d, "login"); }
+ public function isDatabaseId($d) { return $this->isCorrect($d, "dbid"); }
  
  // Methods for special testing
  /**
