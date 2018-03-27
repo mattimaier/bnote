@@ -328,6 +328,7 @@ class Translation extends BNoteTranslation {
 			"calendar_location_name" => "Location",
 			"calendar_title" => "Name",
 			"calendar_birthday" => "Birthday",
+			"calendar_outfit" => "Outfit",
 			
 			"equipment_model" => "Model",
 			"equipment_make" => "Make",
