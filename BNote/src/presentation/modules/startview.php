@@ -54,6 +54,7 @@ class StartView extends AbstractView {
 		$ical->write();
 		$this->buttonSpace();
 		
+		// WebCal URL creation
 		$systemUrl = $this->getData()->getSysdata()->getSystemURL();
 		if($systemUrl != "") {
 			if(!Data::endsWith($systemUrl, "/")) $systemUrl .= "/";
@@ -63,7 +64,12 @@ class StartView extends AbstractView {
 		else {
 			$systemUrl = $_SERVER["HTTP_HOST"] . str_replace("main.php", "", $_SERVER["SCRIPT_NAME"]);
 		}
-		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("start_calendarSubscribe"));
+		$webcal_link = "webcal://" . $systemUrl . "BNote/" .  $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt";
+		if(strpos($webcal_link, "BNote/BNote") !== False) {
+			$webcal_link = str_replace("BNote/BNote/", "BNote/", $webcal_link);
+		}
+		
+		$calSubsc = new Link($webcal_link, Lang::txt("start_calendarSubscribe"));
 		$calSubsc->addIcon("calendar");
 		$calSubsc->write();
 	}
