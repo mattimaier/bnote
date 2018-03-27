@@ -82,6 +82,9 @@ class CalendarData extends AbstractData {
 				if($field == "begin" || $field == "end" || $field == "approve_until" || $field == "birthday") {
 					$detailValue = Data::convertDateFromDb($detailValue);
 				}
+				if($detailValue == null) {
+					$detailValue = "";
+				}
 				$res_row["details"][Lang::txt("calendar_" . $field)] = $detailValue;
 			}
 			
