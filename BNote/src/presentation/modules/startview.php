@@ -63,7 +63,7 @@ class StartView extends AbstractView {
 		else {
 			$systemUrl = $_SERVER["HTTP_HOST"] . str_replace("main.php", "", $_SERVER["SCRIPT_NAME"]);
 		}
-		$calSubsc = new Link("webcal://" . $systemUrl . "BNote/" . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("start_calendarSubscribe"));
+		$calSubsc = new Link("webcal://" . $systemUrl . $GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("start_calendarSubscribe"));
 		$calSubsc->addIcon("calendar");
 		$calSubsc->write();
 	}

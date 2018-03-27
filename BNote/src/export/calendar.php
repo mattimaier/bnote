@@ -324,7 +324,7 @@ for($i = 1; $i < count($concerts); $i++) {
 	array_push($contactIDs, PHP_INT_MAX);
 	$contactIDsString = join(',',$contactIDs);  
 	
-	$query = "SELECT c.id, c.surname, c.name";
+	$query = "SELECT c.id, c.surname, c.name, c.email";
 	$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
 	$query .= " WHERE cc.concert = " . $concerts[$i]["id"] . " AND cc.contact NOT IN (" . $contactIDsString .")";
 	$participantsNoResponse = $db->getSelection($query);
@@ -361,8 +361,13 @@ for($i = 1; $i < count($concerts); $i++) {
 	}
 	
 	echo "LOCATION:" . $location . "\r\n";
-	 
-	$comment = $concerts[$i]["notes"];
+	
+	// compile description
+	$comment = "";
+	if(isset($concerts[$i]["outfit"]) && $concerts[$i]["outfit"] != "") {
+		$comment = "Outfit: " . $concerts[$i]["outfit"] . "\r\n\r\n";
+	}
+	$comment .= $concerts[$i]["notes"];
 
 	$program = $concerts[$i]["program_id"];
 	if (!empty($program)) 
