@@ -1,44 +1,10 @@
-################
-# Update BNote #
-################
-
-Update is possible from version 3.2.2 onwards.
-Please make sure to copy ALL files onto your web server.
-
-!!! IMPORTANT !!!
-Please add the following configuration to your BNote main config.
-File:  BNote/config/config.xml
-<Software>
-	[...]
-	<Theme>default</Theme>
-	<Logo>BNote_Logo_white_transparent_44px.png</Logo>
-	[...]
-</Software>
-
-
-!!! IMPORTANT !!!
-Please also remove the resources/ folder in the bnote root folder from your webserver. This will improve BNote's performance and it will free space on your server.
-
 #############################################
-# Changes to BNote in comparison with 3.2.2 #
+# Changes to BNote in comparison with 3.3.0 #
 #############################################
 
-# 23: Dashboard for band leader
-#223: Probenstrecke: Benachrichtigung über gesamte Probenstrecken
-#224: Probenstrecke: Massupdate / Massdelete
-#231: App: Files anzeigen und ggf. abspielen
-#232: App: eigene Kontaktdaten pflegen
-#244: Benutzerdefinierte Felder für Kontakte
-#269: Logo / Branding
-#280: Installation Note for Band Config
-#283: Anzahl gewählter Mitglieder anzeigen
-#287: App: Vielleicht-Teilnahme
-#288: Verwendungsnachweis Stücke
-#289: DSGVO auf Login-Seite + in Wiki
-#291: DatePicker Fix + Treff(zeit)punkt vor Gig
+#295 Missing information about a gig is in calendar, ics export and start now
+#296 Recursive memory overflow bug for files in songs solved
+#301 Removing files is added again
+#302 Changing a rehearsal bug fixed
 
-
-#################
-# Theming BNote #
-#################
-Please refer to our wiki page: https://github.com/mattimaier/bnote/wiki/Theming,-Logo
+In addition the support for PHP 7.2.1 is improved.
