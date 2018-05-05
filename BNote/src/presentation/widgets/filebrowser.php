@@ -485,82 +485,81 @@ class Filebrowser implements iWriteable {
 		}
 		
 		// data body
-		if($handle = opendir($folder)) {
-			while(false !== ($file = readdir($handle))) {
-				$fullpath = $folder . $file;
+		$files = scandir($folder, SCANDIR_SORT_ASCENDING);
+		foreach($files as $i => $file) {
+			$fullpath = $folder . $file;
+			
+			if(!$this->fileValid($fullpath, $file)) {
+				continue;
+			}
+			// calculate size
+			$size = filesize($fullpath);
+			$size = ceil($size / 1000);
+			$size = number_format($size, 0) . " kb";
+			
+			// create options
+			$showLink = "";
+			$delLink = "";
+			$iconName = "folder";
+			$isDir = false;
+			if(is_dir($fullpath)) {
+				# folder
+				$isDir = true;
 				
-				if($this->fileValid($fullpath, $file)) {					
-					// calculate size
-					$size = filesize($fullpath);
-					$size = ceil($size / 1000);
-					$size = number_format($size, 0) . " kb";
-					
-					// create options
-					$showLink = "";
-					$delLink = "";
-					$iconName = "folder";
-					$isDir = false;
-					if(is_dir($fullpath)) {
-						# folder
-						$isDir = true;
-						
-						if($file == "..") {
-							if($this->levelUp() != null) {
-								$showLink = $this->linkprefix("view&path=" . urlencode($this->levelUp()));
-								$iconName = "arrow_up";
-								$openLink = new Link($showLink, Lang::txt("open"));
-								$openLink->addIcon($iconName);
-								$show = $openLink->toString();
-							}
-							else {
-								continue;
-							}
-						}
-						else {
-							$showLink = $this->linkprefix("view&path=" . urlencode($fullpath . "/"));
-							$openLink = new Link($showLink, Lang::txt("open"));
-							$openLink->addIcon($iconName);
-							$show = $openLink->toString();
-						}
+				if($file == "..") {
+					if($this->levelUp() != null) {
+						$showLink = $this->linkprefix("view&path=" . urlencode($this->levelUp()));
+						$iconName = "arrow_up";
+						$openLink = new Link($showLink, Lang::txt("open"));
+						$openLink->addIcon($iconName);
+						$show = $openLink->toString();
 					}
 					else {
-						# file
-						$sharePath = substr($fullpath, strlen($this->root)-1);
-						$showLink = $this->sysdata->getFileHandler() . "?file=" . $sharePath;
-						$showLnk = new Link($showLink, Lang::txt("download"));
-						$showLnk->setTarget("_blank");
-						$showLnk->addIcon("arrow_down");
-						$show = $showLnk->toString();
-						
-						$filetype = $this->getFiletype($file);
-						$iconName = $filetype;
+						continue;
 					}
-					
-					if(!$this->viewmode) { 
-						$delLink = $this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file));
-						$delLnk = new Link($delLink, Lang::txt("delete"));
-						$delLnk->addIcon("remove");
-						$delete = $delLnk->toString();
-					}
-					else {
-						$delete = "";
-					}
-					$options = $show . "&nbsp;&nbsp;" . $delete;
-					
-					// add to result array
-					$row = array(
-						"name" => $file,
-						"size" => $size,
-						"options" => $options,
-						"show" => $showLink,
-						"delete" => $delLink,
-						"icon" => $iconName,
-						"directory" => $isDir
-					);
-					array_push($result, $row);
+				}
+				else {
+					$showLink = $this->linkprefix("view&path=" . urlencode($fullpath . "/"));
+					$openLink = new Link($showLink, Lang::txt("open"));
+					$openLink->addIcon($iconName);
+					$show = $openLink->toString();
 				}
 			}
-			closedir($handle);
+			else {
+				# file
+				$sharePath = substr($fullpath, strlen($this->root)-1);
+				$showLink = $this->sysdata->getFileHandler() . "?file=" . $sharePath;
+				$showLnk = new Link($showLink, Lang::txt("download"));
+				$showLnk->setTarget("_blank");
+				$showLnk->addIcon("arrow_down");
+				$show = $showLnk->toString();
+				
+				$filetype = $this->getFiletype($file);
+				$iconName = $filetype;
+			}
+			
+			if(!$this->viewmode) { 
+				$delLink = $this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file));
+				$delLnk = new Link($delLink, Lang::txt("delete"));
+				$delLnk->addIcon("remove");
+				$delete = $delLnk->toString();
+			}
+			else {
+				$delete = "";
+			}
+			$options = $show . "&nbsp;&nbsp;" . $delete;
+			
+			// add to result array
+			$row = array(
+				"name" => $file,
+				"size" => $size,
+				"options" => $options,
+				"show" => $showLink,
+				"delete" => $delLink,
+				"icon" => $iconName,
+				"directory" => $isDir
+			);
+			array_push($result, $row);
 		}
 					
 		return $result;
