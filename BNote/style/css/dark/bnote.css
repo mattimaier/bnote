@@ -489,13 +489,13 @@ td.DataTable_Header {
   padding-right: 24px;
 }
 td.DataTable_Header.sorting_asc {
-  background-image: url("../icons/SortAsc.png");
+  background-image: url("../../icons/SortAsc.png");
   background-repeat: no-repeat;
   background-position: right 4px center;
   background-size: 16px 16px;
 }
 td.DataTable_Header.sorting_desc {
-  background-image: url("../icons/SortDesc.png");
+  background-image: url("../../icons/SortDesc.png");
   background-repeat: no-repeat;
   background-position: right 4px center;
   background-size: 16px 16px;

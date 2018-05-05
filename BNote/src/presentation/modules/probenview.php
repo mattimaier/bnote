@@ -378,17 +378,16 @@ class ProbenView extends CrudRefView {
 		$table->renameHeader("participate", "Nimmt teil");
 		$table->renameHeader("reason", "Grund");
 		$table->write();
-		echo "<br/>\n";
 		
 		// remaining calls
 		Writing::h3("Ausstehende Zu-/Absagen");
 		$openTab = new Table($this->getData()->getOpenParticipation($_GET["id"]));
+		$openTab->showFilter();
 		$openTab->removeColumn("id");
 		$openTab->removeColumn("instrumentid");
 		$openTab->renameHeader("nickname", Lang::txt("nickname"));
 		$openTab->renameHeader("mobile", "Handy");
 		$openTab->write();
-		echo "<br/>\n";
 		
 		Writing::h3("Zusammenfassung");
 		$dv = new Dataview();

@@ -183,6 +183,7 @@ class Table implements iWriteable {
 
 		$head = true;
 		$empty = false;
+		$colcount = 0;
 
 		# Check for empty Table
 		if(count($this->data) == 1) $empty = true;
@@ -220,6 +221,7 @@ class Table implements iWriteable {
 					}
 					
 					echo '  <td class="DataTable_Header' . $cssClasses . '">' . $headerLabel . '</td>' . "\n";
+					$colcount++;
 				}
 				else if(!is_numeric($id)) {
 					// skip removed columns
@@ -318,7 +320,7 @@ class Table implements iWriteable {
 
 			# Write empty message
 			if($empty) {
-				echo ' <TR><TD colspan="' . count($row) . '">[' . Lang::txt("table_no_entries") . ']</TD></TR>' . "\n";
+				echo ' <TR><TD colspan="' . $colcount . '">[' . Lang::txt("table_no_entries") . ']</TD></TR>' . "\n";
 			}
 		}
 		
@@ -335,7 +337,7 @@ class Table implements iWriteable {
 		echo "</tbody>\n";
 		echo "</table>\n";
 
-		if($this->showFilter) {
+		if($this->showFilter && !$empty) {
 			?>
 			<script>
 			// convert table to javasript DataTable
