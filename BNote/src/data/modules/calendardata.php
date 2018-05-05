@@ -175,7 +175,7 @@ class CalendarData extends AbstractData {
 		$reservations = $this->reduce_data(
 				"reservation",
 				$reservations_db,
-				array("id", "begin", "name"),
+				array("id", "begin", "end", "name"),
 				array("begin" => "start", "name" => "title"),
 				Lang::txt("calendar_reservation"),
 				"?mod=" . $this->getSysdata()->getModuleId("Calendar") . "&mode=view&id="
