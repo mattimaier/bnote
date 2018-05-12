@@ -74,9 +74,14 @@ sap.ui.jsview("bnote.concert", {
                 // begin
                 new sap.m.Label({text: "Auftrittsbeginn"}),
                 new sap.m.Text({text: "{begin}"}),
+                
                 // end
                 new sap.m.Label({text: "Auftrittsende"}),
                 new sap.m.Text({text: "{end}"}),
+                
+                // meeting time
+                new sap.m.Label({text: "Treffpunkt"}),
+                new sap.m.Text({text: "{meetingtime}"}),
                 
                 // location
                 new sap.m.Label({text: "Ort"}),
