@@ -1,10 +1,12 @@
 #############################################
-# Changes to BNote in comparison with 3.3.0 #
+# Changes to BNote in comparison with 3.3.1 #
 #############################################
 
-#295 Missing information about a gig is in calendar, ics export and start now
-#296 Recursive memory overflow bug for files in songs solved
-#301 Removing files is added again
-#302 Changing a rehearsal bug fixed
-
-In addition the support for PHP 7.2.1 is improved.
+#303 Folders are sorted alphanumerically
+#306 Sorting reheasal invites by instruments possible again
+#307 Multiday reservations are displayed as such
+#308 Navigating upwards is not shown with a trash option
+#309 Meeting times for gigs are displayed in mobile app
+#310 Sorting in reporting was shown wrong
+#311 Votes are displayed properly now in main view and archive
+#312 Trigger server is fixed
