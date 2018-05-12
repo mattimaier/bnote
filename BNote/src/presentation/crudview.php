@@ -125,6 +125,7 @@ abstract class CrudView extends AbstractView {
 		$edit->addIcon("edit");
 		$edit->write();
 		$this->buttonSpace();
+		
 		$del = new Link($this->modePrefix() . "delete_confirm&" . $this->idParameter . "=" . $_GET[$this->idParameter],
 				Lang::txt("delete_entity", array($this->entityName)));
 		$del->addIcon("remove");
