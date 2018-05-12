@@ -91,7 +91,7 @@ class StatsData extends AbstractData {
 	function memberRehearsalPerformance() {
 		// select the top members who participate the most often in rehearsals in the last year
 		$dateOneYearAgo = Data::subtractMonthsFromDate(Data::convertDateFromDb(Data::getDateNow()), 12);
-		$query = "SELECT @curRow := @curRow + 1 AS rank, c.name, c.surname, i.name as instrument, count(*) as score 
+		$query = "SELECT c.name, c.surname, i.name as instrument, count(*) as score 
 				FROM `rehearsal_user` ru 
 				 JOIN `rehearsal` r ON ru.rehearsal = r.id 
 				 JOIN `user` u ON ru.user = u.id 
@@ -102,13 +102,13 @@ class StatsData extends AbstractData {
 				GROUP BY ru.`user` 
 				ORDER BY score DESC
 				LIMIT 0,5";
-		return $this->database->getSelection($query);
+		return $this->rankResults($this->database->getSelection($query));
 	}
 	
 	function memberVotePerformance() {
 		// select the top members who participated in the most number of votes in the last year
 		$dateOneYearAgo = Data::subtractMonthsFromDate(Data::convertDateFromDb(Data::getDateNow()), 12);
-		$query = "SELECT @curRow := @curRow + 1 AS rank, c.name, c.surname, i.name as instrument, count(*) as score 
+		$query = "SELECT c.name, c.surname, i.name as instrument, count(*) as score 
 				FROM `vote_option_user` vou 
 				 JOIN `vote_option` vo ON vou.vote_option = vo.id 
 				 JOIN `vote` v ON vo.vote = v.id 
@@ -120,13 +120,13 @@ class StatsData extends AbstractData {
 				GROUP BY vou.`user` 
 				ORDER BY score DESC 
 				LIMIT 0,5";
-		return $this->database->getSelection($query);
+		return $this->rankResults($this->database->getSelection($query));
 	}
 	
 	function memberOptionPerformance() {
-		//TODO: select the top members who voted the most often with yes in the last year
+		// select the top members who voted the most often with yes in the last year
 		$dateOneYearAgo = Data::subtractMonthsFromDate(Data::convertDateFromDb(Data::getDateNow()), 12);
-		$query = "SELECT @curRow := @curRow + 1 AS rank, c.name, c.surname, i.name as instrument, count(*) as score
+		$query = "SELECT c.name, c.surname, i.name as instrument, count(*) as score
 		FROM `vote_option_user` vou
 		JOIN `vote_option` vo ON vou.vote_option = vo.id
 		JOIN `vote` v ON vo.vote = v.id
@@ -138,6 +138,15 @@ class StatsData extends AbstractData {
 		GROUP BY vou.`user`
 		ORDER BY score DESC
 		LIMIT 0,5";
-		return $this->database->getSelection($query);
+		return $this->rankResults($this->database->getSelection($query));
+	}
+	
+	private function rankResults($selection) {
+		// rank manually since the implementation is not always fitting on the db systems
+		array_push($selection[0], "rank");
+		for($i = 1; $i < count($selection); $i++) {
+			$selection[$i]["rank"] = $i;
+		}
+		return $selection;
 	}
 }
