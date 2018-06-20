@@ -41,6 +41,7 @@ sap.ui.controller("bnote.start", {
 	              backend.formatdate("/items", "/start", model);
 	              backend.formatdate("/items", "/begin", model);
 	              backend.formatdate("/items", "/end", model);
+                  backend.formatdate("/items", "/meetingtime", model);
                 
 	              oCtrl.generateModel(model);
             },

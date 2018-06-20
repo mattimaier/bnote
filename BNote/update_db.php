@@ -218,49 +218,9 @@ $update = new UpdateDb();
  * -------------
  */
 
-// Task 1: Stats Module
-$statsModId = $update->addModule("Stats");
+// Task 1: x
 
-// Task 2: User-defined fields
-$update->addTable("customfield", "CREATE TABLE IF NOT EXISTS customfield (
-	id int(11) PRIMARY KEY AUTO_INCREMENT,
-	techname VARCHAR(50) NOT NULL,
-	txtdefsingle VARCHAR(50) NOT NULL,
-	txtdefplural VARCHAR(50) NOT NULL,
-	fieldtype VARCHAR(20) NOT NULL,
-	otype CHAR(1) NOT NULL
-)");
-
-$update->addTable("customfield_value", "CREATE TABLE IF NOT EXISTS customfield_value (
-	id int(11) PRIMARY KEY AUTO_INCREMENT,
-	customfield int(11) NOT NULL,
-	otype CHAR(1) NOT NULL,
-	oid int(11) NOT NULL,
-	intval INT,
-	dblval DECIMAL(12,2),
-	strval VARCHAR(255)
-)");
-
-// Task 3: Rehearsal Series
-$update->addTable("rehearsalserie", "CREATE TABLE IF NOT EXISTS rehearsalserie (
-	id int(11) PRIMARY KEY AUTO_INCREMENT,
-	name VARCHAR(200) NOT NULL
-)");
-
-$update->addColumnToTable("rehearsal", "serie", "INT(11)");
-
-// Task 4: Gig meeting time
-$update->addColumnToTable("concert", "meetingtime", "DATETIME");
-
-// Task 5: Config parameters
 ?>
-<p>
-	<span style="font-weight: bold; color: red;">Please add two config parameters to your config/config.xml</span>:<br/>
-	<ul>
-		<li><span style="font-family: 'Courier'">Theme</span>: with value "default", "green", "red", "orange", "dark"</li>
-		<li><span style="font-family: 'Courier'">Logo</span>: with value "BNote_Logo_white_transparent_44px.png"</li>
-	</ul>
-</p>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>
 

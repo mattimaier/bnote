@@ -305,7 +305,7 @@ class Filebrowser implements iWriteable {
 				<div class="filebrowser_item">
 					<img src="style/icons/<?php echo $item["icon"]; ?>.png" height="20px" class="filebrowser_icon">
 					<a href="./<?php echo $link; ?>" class="filebrowser_item"><?php echo $item["name"]; ?></a>
-					<?php if(!$this->viewmode) { ?>
+					<?php if(!$this->viewmode && $item["name"] != "..") { ?>
 					<a href="./<?php echo $item["delete"] ?>">
 						<img src="style/icons/remove.png" height="20px" class="filebrowser_trash">
 					</a>

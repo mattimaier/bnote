@@ -118,7 +118,7 @@ class AbstimmungView extends CrudView {
 			$edit->write();
 			$this->buttonSpace();
 				
-			$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"], Lang::txt("vote_finish"));
+			$del = new Link($this->modePrefix() . "finish&id=" . $_GET["id"], Lang::txt("vote_finish"));
 			$del->addIcon("stop");
 			$del->write();
 			$this->buttonSpace();
@@ -485,6 +485,13 @@ class AbstimmungView extends CrudView {
 		$table->changeMode("result&from=history");
 		$table->write();
 	}
+	
+	function finish() {
+		$this->checkID();
+		$this->getData()->finish($_GET["id"]);
+		$this->archive();
+	}
+	
 }
 
 ?>

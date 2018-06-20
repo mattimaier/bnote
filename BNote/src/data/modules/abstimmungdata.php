@@ -93,7 +93,7 @@ class AbstimmungData extends AbstractData {
 	function getVotesForUser($active = true, $uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
 		
-		// in case the system admin look at the votes, show all of them
+		// in case the system admin looks at the votes, show all of them
 		if($this->getSysdata()->isUserSuperUser() || $this->getSysdata()->isUserMemberGroup(1)) {
 			$query = "SELECT id, name, end, is_multi, is_date, is_finished ";
 			$query .= "FROM " . $this->table;
@@ -108,7 +108,7 @@ class AbstimmungData extends AbstractData {
 		else {
 			$query = "SELECT v.id, v.name, v.end, v.is_multi, v.is_date ";
 			$query .= " FROM vote v JOIN vote_group vg ON vg.vote = v.id";
-			$query .= " WHERE vg.user = $uid AND v.is_finished = 0 AND YEAR(v.end) >= (YEAR(NOW())-1)";
+			$query .= " WHERE vg.user = $uid";
 			if(!$active) {
 				$query .= " AND is_finished = 1";
 			}
@@ -209,7 +209,7 @@ class AbstimmungData extends AbstractData {
 		$this->database->execute($query);
 	}
 	
-	function delete($id) {
+	function finish($id) {
 		// do not delete a vote, just set is_finished
 		$query = "UPDATE " . $this->table . " SET is_finished = 1 WHERE id = $id";
 		$this->database->execute($query);
