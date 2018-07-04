@@ -50,7 +50,7 @@ class ProbenView extends CrudRefView {
 		$overview->addIcon("mitspieler");
 		$overview->write();
 		
-		$history = new Link($this->modePrefix() . "history", "Verganene Proben anzeigen");
+		$history = new Link($this->modePrefix() . "history", "Frühere Proben anzeigen");
 		$history->addIcon("timer");
 		$history->write();
 	}
