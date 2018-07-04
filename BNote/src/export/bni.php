@@ -25,7 +25,9 @@ global $db;
 
 // "route" requst
 if(isset($_GET["func"])) {
-	$_GET["func"]();
+	header('Access-Control-Allow-Origin: *');
+	$func = $_GET["func"];
+	$func();
 }
 
 /**
@@ -33,22 +35,22 @@ if(isset($_GET["func"])) {
  */
 function getPage() {
 	if(isset($_GET["id"])) {
-		include $GLOBALS["dir_prefix"] . $GLOBALS["DATA_PATHS"]["webpages"]
-					 . $_GET["id"] . ".html";
+		include $GLOBALS["dir_prefix"] . $GLOBALS["DATA_PATHS"]["webpages"] . $_GET["id"] . ".html";
 	}
 }
 
 /**
  * Calculates the image path and shows it.
  */
-function getImagePath() {
+function getImagePath($id=0, $directOut=True) {
 	// check for id
-	if(!isset($_GET["id"])) {
+	if(!isset($_GET["id"]) && $id < 1) {
 		new BNoteError("ID not set.");
 	}
+	$imageId = ($id > 0) ? $id : $_GET["id"];
 	
 	// get data
-	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];
+	$query = "SELECT * FROM galleryimage WHERE id = $imageId";
 	$img = $GLOBALS["db"]->getRow($query);
 	
 	// build path
@@ -57,20 +59,24 @@ function getImagePath() {
 	$res .= $img["gallery"] . "/" . $img["id"] . $imgtype;
 	
 	// output
-	echo $res;
+	if($directOut) {
+		echo $res;
+	}
+	return $res;
 }
 
 /**
  * Calculates the path to the thumbnail.
  */
-function getThumbPath() {
+function getThumbPath($id=0, $directOut=True) {
 	// check for id
-	if(!isset($_GET["id"])) {
+	if(!isset($_GET["id"]) && $id < 1) {
 		new BNoteError("ID not set.");
 	}
+	$imageId = ($id > 0) ? $id : $_GET["id"];
 	
 	// get data
-	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];
+	$query = "SELECT * FROM galleryimage WHERE id = $imageId";
 	$img = $GLOBALS["db"]->getRow($query);
 	
 	// build path
@@ -80,7 +86,10 @@ function getThumbPath() {
 	$res .= $img["gallery"] . "/" . $img["id"] . $imgtype;
 	
 	// output
-	echo $res;
+	if($directOut) {
+		echo $res;
+	}
+	return $res;
 }
 
 /**
@@ -88,6 +97,7 @@ function getThumbPath() {
  */
 function getGalleries() {
 	$query = "SELECT * FROM gallery";
+	header('Content-Type: application/json');
 	echo json_encode($GLOBALS["db"]->getSelection($query));
 }
 
@@ -101,6 +111,7 @@ function getGallery() {
 	}
 	
 	$query = "SELECT * FROM gallery WHERE id = " . $_GET["id"];
+	header('Content-Type: application/json');
 	echo json_encode($GLOBALS["db"]->getRow($query));
 }
 
@@ -114,7 +125,22 @@ function getImagesForGallery() {
 	}
 	
 	$query = "SELECT * FROM galleryimage WHERE gallery = " . $_GET["id"];
-	echo json_encode($GLOBALS["db"]->getSelection($query));
+	header('Content-Type: application/json');
+	$images = $GLOBALS["db"]->getSelection($query);
+	$extendedImages = array();
+	for($i = 1; $i < count($images); $i++) {
+		$pic = $images[$i];
+		$imgId = $pic["id"];
+		$img = array(
+			"id" => $imgId,
+			"name" => $pic["name"],
+			"description" => $pic["description"],
+			"thumb" => getThumbPath($imgId, False),
+			"image" => getImagePath($imgId, False)
+		);
+		array_push($extendedImages, $img);
+	}
+	echo json_encode($extendedImages);
 }
 
 /**
@@ -127,6 +153,7 @@ function getImage() {
 	}
 	
 	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];
+	header('Content-Type: application/json');
 	echo json_encode($GLOBALS["db"]->getRow($query));
 }
 
