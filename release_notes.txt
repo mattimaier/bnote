@@ -1,12 +1,7 @@
 #############################################
-# Changes to BNote in comparison with 3.3.1 #
+# Changes to BNote in comparison with 3.3.2 #
 #############################################
 
-#303 Folders are sorted alphanumerically
-#306 Sorting reheasal invites by instruments possible again
-#307 Multiday reservations are displayed as such
-#308 Navigating upwards is not shown with a trash option
-#309 Meeting times for gigs are displayed in mobile app
-#310 Sorting in reporting was shown wrong
-#311 Votes are displayed properly now in main view and archive
-#312 Trigger server is fixed
+#321 Improved gallery interface
+#320 App bugfix for null value meeting times
+#319 typo in rehearsals fixed
