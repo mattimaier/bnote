@@ -214,11 +214,12 @@ $update = new UpdateDb();
 
 <?php 
 /*
- * 3.3.0 UPDATES
+ * 3.4.0 UPDATES
  * -------------
  */
 
-// Task 1: x
+// Task 1: Archive flag for songs
+$update->addColumnToTable("song", "is_active", "INT(1) DEFAULT 1");
 
 ?>
 

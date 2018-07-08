@@ -104,7 +104,7 @@ class RepertoireView extends CrudRefView {
 			$data = $this->getData()->getFilteredRepertoire($_POST);
 		}
 		else {
-			$data = $this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "length >= 0 ORDER BY title");
+			$data = $this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "length >= 0 AND is_active = 1 ORDER BY title");
 		}
 		
 		// Table
@@ -162,6 +162,10 @@ class RepertoireView extends CrudRefView {
 				</div>
 			</div>
 			<div class="songbox_col">
+				<div class="songbox_entry">
+					<div class="songbox_label">Aktuell</div>
+					<div class="songbox_value"><?php echo $song["is_active"] == 1 ? "ja" : "archiviert"; ?></div>
+				</div>
 				<div class="songbox_entry">
 					<div class="songbox_label">Anmerkungen</div>
 				</div>

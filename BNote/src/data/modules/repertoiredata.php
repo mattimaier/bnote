@@ -20,7 +20,8 @@ class RepertoireData extends AbstractData {
 			"composer" => array("Komponist / Arrangeur", FieldType::CHAR, true),
 			"status" => array("Status", FieldType::REFERENCE),
 			"setting" => array("Besetzung", FieldType::CHAR),
-			"notes" => array("Anmerkungen", FieldType::TEXT)
+			"notes" => array("Anmerkungen", FieldType::TEXT),
+			"is_active" => array("Aktuell", FieldType::BOOLEAN)
 		);
 		
 		$this->references = array(
@@ -119,6 +120,11 @@ class RepertoireData extends AbstractData {
 		
 		// modify bpm
 		if($values["bpm"] == "") $values["bpm"] = 0;
+		
+		// active flag handling
+		if(!isset($values["is_active"])) {
+			$values["is_active"] = 0;
+		}
 		
 		parent::update($id, $values);
 	}

@@ -488,6 +488,7 @@ class Installation {
 					`composer` int(10) unsigned NOT NULL,
 					`status` int(10) unsigned NOT NULL,
 					`setting` varchar(300),
+					`is_active` int(1) default 1,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
