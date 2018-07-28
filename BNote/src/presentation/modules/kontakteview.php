@@ -233,26 +233,98 @@ class KontakteView extends CrudRefView {
 		$addMore->write();
 	}
 	
-	function viewDetailTable() {
-		// user details
-		$entity = $this->getData()->getContact($_GET["id"]);
-		
-		$details = new Dataview();
-		$details->autoAddElements($entity);
-		$details->autoRename($this->getData()->getFields());
-		$details->removeElement("Status");
-		$details->removeElement("Instrument");
-		$details->renameElement("instrumentname", "Instrument");
-		$details->removeElement("Adresse");
-		$details->renameElement("street", "Stra&szlig;e");
-		$details->renameElement("zip", "PLZ");
-		$details->renameElement("city", "Stadt");
+	function view() {
+		// fetch contact and user details
+		$contact = $this->getData()->getContact($_GET["id"]);
 		
 		// the contact is a member of these groups
 		$groups = $this->getData()->getContactGroups($_GET["id"]);
-		$details->addElement("Gruppen", $groups);
 		
-		$details->write();
+		// custom field handling
+		$customFields = $this->getData()->getCustomFields("c");
+		
+		// build output
+		Writing::h1($contact["name"] . " " . $contact["surname"]);
+		?>
+		<div class="contactdetail_section">
+			<div class="contactdetail_section_header">Stammdaten</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Kontakt ID</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["id"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Status</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["status"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Vor- und Nachname</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["name"] . " " . $contact["surname"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Spitzname</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["nickname"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Geburtstag</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["birthday"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Adresse</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["street"] . ", " . $contact["zip"] . " " . $contact["city"]; ?></div>
+			</div>
+		</div>
+		
+		<div class="contactdetail_section">
+			<div class="contactdetail_section_header">Kommunikation</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Telefon privat</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["phone"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Telefon geschäftlich</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["business"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Mobil</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["mobile"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Fax</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["fax"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">E-Mail-Adresse</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["email"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Website</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["web"]; ?></div>
+			</div>
+		</div>
+		
+		<div class="contactdetail_section">
+			<div class="contactdetail_section_header">Musikalische Daten</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Instrument</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["instrumentname"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Gruppen</label>
+				<div class="contactdetail_entry_value"><?php echo $groups; ?></div>
+			</div>
+			<?php
+			for($i = 1; $i < count($customFields); $i++) {
+				$field = $customFields[$i];
+			?>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label"><?php echo $field['txtdefsingle'] ?></label>
+				<div class="contactdetail_entry_value"><?php echo $contact[$field["techname"]]; ?></div>
+			</div>
+			<?php
+			} 
+			?>
+		</div>
+		<?php
 	}
 	
 	function additionalViewButtons() {

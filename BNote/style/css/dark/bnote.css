@@ -54,6 +54,26 @@ table.contact_view {
 div#contact_table_filter.dataTables_filter {
   padding: 10px;
 }
+.contactdetail_section {
+  margin-top: 10px;
+  margin-right: 2%;
+  float: left;
+}
+.contactdetail_section_header {
+  font-weight: bold;
+  font-size: 120%;
+}
+.contactdetail_entry {
+  display: block;
+  border-bottom: 1px solid #BFCEDB;
+}
+label.contactdetail_entry_label {
+  display: inline-block;
+  width: 200px;
+}
+.contactdetail_entry_value {
+  display: inline-block;
+}
 #filebrowser_content {
   width: 100%;
 }
