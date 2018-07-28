@@ -367,24 +367,26 @@ for($i = 1; $i < count($concerts); $i++) {
 	if(isset($concerts[$i]["outfit"]) && $concerts[$i]["outfit"] != "") {
 		$comment = "Outfit: " . $concerts[$i]["outfit"] . "\r\n\r\n";
 	}
+	if(isset($concerts[$i]["meetingtime"]) && $concerts[$i]["meetingtime"] != "") {
+		$comment .= "Treffpunkt: " . $concerts[$i]["meetingtime"] . "\r\n\r\n";
+	}
 	$comment .= $concerts[$i]["notes"];
 
 	$program = $concerts[$i]["program_id"];
-	if (!empty($program)) 
-	{
-	$query = "SELECT s.title FROM program_song ps ";
-	$query .= "JOIN song s ON ps.song = s.id WHERE ps.program = $program ORDER BY ps.rank ASC";
+	if (!empty($program)) {
+		$query = "SELECT s.title FROM program_song ps ";
+		$query .= "JOIN song s ON ps.song = s.id WHERE ps.program = $program ORDER BY ps.rank ASC";
+		
+		$songs = $db->getSelection($query);
+		unset($songs[0]);
 	
-	$songs = $db->getSelection($query);
-	unset($songs[0]);
-
-	$setlist = "\r\n\r\nProgramm: \r\n";
-	
-	foreach($songs as $j => $song) {
-		$setlist .= $song["title"] . "\r\n";
-	}
-	
-	$comment .= $setlist;
+		$setlist = "\r\n\r\nProgramm: \r\n";
+		
+		foreach($songs as $j => $song) {
+			$setlist .= $song["title"] . "\r\n";
+		}
+		
+		$comment .= $setlist;
 	}
 
 	$comment = str_replace("\n","\\n", $comment);
