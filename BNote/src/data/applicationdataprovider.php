@@ -430,6 +430,16 @@ class ApplicationDataProvider {
 	}
 	
 	/**
+	 * Retrieves all votes the user has ever participated in.
+	 * @param Integer $uid Optional: User ID, by default current user.
+	 * @return array of votes as a selection
+	 */
+	public function getUsersVotesAll($uid = -1) {
+		$query = "SELECT v.* FROM vote v JOIN vote_group g ON v.id = g.vote WHERE g.user = $uid";
+		return $this->database->getSelection($query);
+	}
+	
+	/**
 	 * Retrieves the name of the user.
 	 * @param int $id ID of the user.
 	 * @return First and last name concatenated.
@@ -518,6 +528,19 @@ class ApplicationDataProvider {
 	function getUserContact($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
 		return $this->database->getCell($this->database->getUserTable(), "contact", "id = $uid");
+	}
+	
+	/**
+	 * Tries to find a user for the given contact.
+	 * @param Integer $cid Contact ID.
+	 * @return array Null or array or user information.
+	 */
+	function getUserForContact($cid) {
+		$uid = $this->database->getCell($this->database->getUserTable(), "id", "contact = $cid");
+		if($uid == null) {
+			return null;
+		}
+		return $this->database->getRow("SELECT * FROM user WHERE id = $uid");
 	}
 	
 	/**

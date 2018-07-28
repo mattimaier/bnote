@@ -336,6 +336,11 @@ class KontakteView extends CrudRefView {
 			$btn->write();
 			$this->buttonSpace();
 		}
+		
+		// GDPR report
+		$gdpr = new Link($this->modePrefix() . "gdprReport&id=" . $_GET["id"], "Datenauszug");
+		$gdpr->addIcon("question");
+		$gdpr->write();
 	}
 	
 	function editEntityForm($write=true) {
@@ -621,6 +626,60 @@ class KontakteView extends CrudRefView {
 	
 	function importVCardSuccess($message) {
 		new Message("VCard Import", $message);
+	}
+	
+	function gdprReport() {
+		Writing::h1("Datenauszug");
+		
+		// fetch contact and user details
+		$contact = $this->getData()->getContact($_GET["id"]);
+		$user = $this->getData()->adp()->getUserForContact($contact["id"]);
+		
+		// the contact is a member of these groups
+		$groups = $this->getData()->getContactGroups($_GET["id"]);
+		
+		// report creation line
+		Writing::p("Erstellt am: " . date("d.m.Y H:i:s") . " für " . $contact["surname"] . ", " . $contact["name"]);
+		
+		// personal information
+		Writing::h2("Personendaten");
+		$dv = new Dataview();
+		$dv->autoAddElements($contact);
+		$dv->autoRename($this->getData()->getFields());
+		$dv->removeElement("Adresse");
+		$dv->removeElement("instrument");
+		$dv->renameElement("instrumentname", "Instrument");
+		$dv->renameElement("street", "Straße");
+		$dv->renameElement("city", "Ort");
+		$dv->renameElement("zip", "PLZ");
+		$dv->write();
+		
+		// Votes: participation
+		Writing::h2("Abstimmungen");
+		Writing::p("Die Person hat an folgenden Abstimmungen teilgenommen:");
+		
+		$votes = $this->getData()->adp()->getUsersVotesAll($user["id"]);
+		?>
+		<ul>
+			<?php 
+			for($i = 1; $i < count($votes); $i++) {
+				echo "<li>" . $votes[$i]["name"] . "</li>";
+			}
+			?>
+		</ul>
+		<?php
+		Writing::p("Zum Zwecke der Auswertung des Abstimmungsergebnisses wurden Daten erfasst und verarbeitet.");
+		
+		// Tasks
+		
+		// Concerts: participation
+		
+		// Rehearsals: participation
+		
+		// Rehearsalphases: participation
+		
+		// Tours: participation
+		
 	}
 }
 
