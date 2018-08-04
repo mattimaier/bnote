@@ -633,10 +633,12 @@ class KontakteView extends CrudRefView {
 		
 		// fetch contact and user details
 		$contact = $this->getData()->getContact($_GET["id"]);
-		$user = $this->getData()->adp()->getUserForContact($contact["id"]);
+		$cid = $contact["id"];
+		$user = $this->getData()->adp()->getUserForContact($cid);
+		$uid = $user["id"];
 		
 		// the contact is a member of these groups
-		$groups = $this->getData()->getContactGroups($_GET["id"]);
+		$groups = $this->getData()->getContactGroups($cid);
 		
 		// report creation line
 		Writing::p("Erstellt am: " . date("d.m.Y H:i:s") . " für " . $contact["surname"] . ", " . $contact["name"]);
@@ -658,21 +660,27 @@ class KontakteView extends CrudRefView {
 		Writing::h2("Abstimmungen");
 		Writing::p("Die Person hat an folgenden Abstimmungen teilgenommen:");
 		
-		$votes = $this->getData()->adp()->getUsersVotesAll($user["id"]);
-		?>
-		<ul>
-			<?php 
-			for($i = 1; $i < count($votes); $i++) {
-				echo "<li>" . $votes[$i]["name"] . "</li>";
-			}
-			?>
-		</ul>
-		<?php
+		$votes = $this->getData()->adp()->getUsersVotesAll($uid);
+		$voteList = new Plainlist($votes);
+		$voteList->showEmptyRemark();
+		$voteList->write();
 		Writing::p("Zum Zwecke der Auswertung des Abstimmungsergebnisses wurden Daten erfasst und verarbeitet.");
 		
 		// Tasks
+		Writing::h2("Aufgaben");
+		Writing::p("Die Person war für folgenden Aufgaben zuständig:");
+		$tasks = $this->getData()->adp()->getUserTasks($uid);
+		$taskList = new Plainlist($tasks);
+		$taskList->setNameField("title");
+		$taskList->showEmptyRemark();
+		$taskList->write();
+		Writing::p("Zum Zwecke der Zuordnung von Aufgaben zu Mitgliedern wurden die Daten erfasst und verarbeitet.");
 		
 		// Concerts: participation
+		/*
+		 * concert_user: participation
+		 * concert_contact: invitation
+		 */
 		
 		// Rehearsals: participation
 		
