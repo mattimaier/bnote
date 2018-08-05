@@ -365,4 +365,64 @@ class KontakteData extends AbstractData {
 			$this->create($card);
 		}
 	}
+	
+	/**
+	 * Concert invitations (all time).
+	 * @param integer $cid Contact ID.
+	 */
+	function getConcertInvitations($cid) {
+		$this->regex->isPositiveAmount($cid);
+		$query = "SELECT c.* FROM concert_contact cc JOIN concert c ON cc.concert = c.id WHERE cc.contact = $cid";
+		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Concert participation (all time).
+	 * @param integer $uid User ID.
+	 */
+	function getConcertParticipation($uid) {
+		$this->regex->isPositiveAmount($uid);
+		$query = "SELECT c.* FROM concert_user cu JOIN concert c ON cu.concert = c.id WHERE cu.user = $uid";
+		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Rehearsal invitations (all time).
+	 * @param integer $cid Contact ID.
+	 */
+	function getRehearsalInvitations($cid) {
+		$this->regex->isPositiveAmount($cid);
+		$query = "SELECT r.* FROM rehearsal_contact rc JOIN rehearsal r ON rc.rehearsal = r.id WHERE rc.contact = $cid";
+		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Rehearsal participation (all time).
+	 * @param integer $uid User ID.
+	 */
+	function getRehearsalParticipation($uid) {
+		$this->regex->isPositiveAmount($uid);
+		$query = "SELECT r.* FROM rehearsal_user ru JOIN rehearsal r ON ru.rehearsal = r.id WHERE ru.user = $uid";
+		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Rehearsalphase invitations (all time).
+	 * @param integer $cid Contact ID.
+	 */
+	function getRehearsalphaseInvitations($cid) {
+		$this->regex->isPositiveAmount($cid);
+		$query = "SELECT p.* FROM rehearsalphase_contact rc JOIN rehearsalphase p ON rc.rehearsalphase = p.id WHERE rc.contact = $cid";
+		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Tour invitations (all time).
+	 * @param integer $cid Contact ID.
+	 */
+	function getTourInvitations($cid) {
+		$this->regex->isPositiveAmount($cid);
+		$query = "SELECT t.* FROM tour_contact tc JOIN tour t ON tc.tour = t.id WHERE tc.contact = $cid";
+		return $this->database->getSelection($query);
+	}
 }

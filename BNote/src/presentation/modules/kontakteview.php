@@ -662,7 +662,6 @@ class KontakteView extends CrudRefView {
 		
 		$votes = $this->getData()->adp()->getUsersVotesAll($uid);
 		$voteList = new Plainlist($votes);
-		$voteList->showEmptyRemark();
 		$voteList->write();
 		Writing::p("Zum Zwecke der Auswertung des Abstimmungsergebnisses wurden Daten erfasst und verarbeitet.");
 		
@@ -672,22 +671,68 @@ class KontakteView extends CrudRefView {
 		$tasks = $this->getData()->adp()->getUserTasks($uid);
 		$taskList = new Plainlist($tasks);
 		$taskList->setNameField("title");
-		$taskList->showEmptyRemark();
 		$taskList->write();
 		Writing::p("Zum Zwecke der Zuordnung von Aufgaben zu Mitgliedern wurden die Daten erfasst und verarbeitet.");
 		
 		// Concerts: participation
+		Writing::h2("Auftritte");
 		/*
 		 * concert_user: participation
 		 * concert_contact: invitation
 		 */
+		Writing::p("Die Person war für folgende Auftritte eingeladen:");
+		$concertInvitations = $this->getData()->getConcertInvitations($cid);
+		$concertInvitationList = new Plainlist($concertInvitations);
+		$concertInvitationList->setNameField("title");
+		$concertInvitationList->write();
+		
+		Writing::p("Die Person hat für folgende Auftritte ihre Anwesenheit eingetragen:");
+		$concertParticipation = $this->getData()->getConcertParticipation($uid);
+		$concertParticipationList = new Plainlist($concertParticipation);
+		$concertParticipationList->setNameField("title");
+		$concertParticipationList->write();
+		
+		Writing::p("Zum Zwecke der Auftrittsorganisation wurde die Anwesenheitsabfrage sowie die Einladung zu Auftritten erfasst und verarbeitet.");
 		
 		// Rehearsals: participation
+		Writing::h2("Proben");
+		/*
+		 * rehearsal_contact: invitation
+		 * rehearsal_user: participation
+		 * rehearsalphase_contact: invitation
+		 */
+		Writing::p("Die Person war zu folgenden Proben eingeladen:");
+		$rehearsalInvitations = $this->getData()->getRehearsalInvitations($cid);
+		$rehearsalInvitationsList = new Plainlist($rehearsalInvitations);
+		$rehearsalInvitationsList->setNameField("begin");
+		$rehearsalInvitationsList->write();
 		
-		// Rehearsalphases: participation
+		Writing::p("Die Person hat ihre Teilnahme zu folgenden Proben angegeben:");
+		$rehearsalParticipation = $this->getData()->getRehearsalParticipation($uid);
+		$rehearsalParticipationList = new Plainlist($rehearsalParticipation);
+		$rehearsalParticipationList->setNameField("begin");
+		$rehearsalParticipationList->write();
+		
+		Writing::p("Die Person war zu folgenden Probenphasen eingeladen:");
+		$phaseInvitations = $this->getData()->getRehearsalphaseInvitations($cid);
+		$phaseInvitationsList = new Plainlist($phaseInvitations);
+		$phaseInvitationsList->write();
 		
 		// Tours: participation
+		Writing::h2("Touren");
+		Writing::p("Die Person war zur Teilnahme an folgenden Touren eingeladen:");
+		$tourInvitations = $this->getData()->getTourInvitations($cid);
+		$tourInvitationsList = new Plainlist($tourInvitations);
+		$tourInvitationsList->write();
+	}
+	
+	function gdprReportOptions() {
+		$this->backToViewButton($_GET["id"]);
+		$this->buttonSpace();
 		
+		$prt = new Link("javascript:window.print();", Lang::txt("print"));
+		$prt->addIcon("printer");
+		$prt->write();
 	}
 }
 

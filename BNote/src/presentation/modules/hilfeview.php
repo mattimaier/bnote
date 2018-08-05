@@ -31,7 +31,7 @@ class HilfeView extends AbstractView {
 			"probenphase" => "Modul Probenphase",
 			"repertoire" => "Modul Repertoire",
 			"share" => "Modul Share",
-			"tour" => "Modul Tour"  //TODO write help
+			"tour" => "Modul Tour"
 	);
 	
 	// format: code => description

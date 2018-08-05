@@ -8,9 +8,9 @@ class Plainlist implements iWriteable {
 	
 	private $data;
 	private $nameField = "name";
-	private $ulCssClass;
+	private $ulCssClass = "plainlist";
 	private $liCssClass;
-	private $showEmptyRemark = false;
+	private $showEmptyRemark = true;
 	
 	/**
 	 * Creates a new plain list.
@@ -45,24 +45,24 @@ class Plainlist implements iWriteable {
 	}
 	
 	/**
-	 * Set if a message should be shown when the list is empty. By default this is not the case.
-	 * @param string $show True as default parameter value.
+	 * Set if a message should be shown when the list is empty.
+	 * @param boolean $show True to show, false to hide.
 	 */
-	function showEmptyRemark($show = true) {
+	function showEmptyRemark($show) {
 		$this->showEmptyRemark = $show;
 	}
 	
 	public function write() {
 		// css handling
 		if($this->ulCssClass != null) {
-			echo '<ul class="' + $this->ulCssClass + '">'; 
+			echo '<ul class="' . $this->ulCssClass . '">'; 
 		}
 		else {
 			echo '<ul>';
 		}
 		$attrib = "";
 		if($this->liCssClass != null) {
-			$attrib = ' class="' + $this->liCssClass + '">';
+			$attrib = ' class="' . $this->liCssClass . '">';
 		}
 		
 		// data processing

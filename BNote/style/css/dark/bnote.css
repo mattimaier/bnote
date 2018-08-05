@@ -648,6 +648,9 @@ div.flash_message.error {
   color: #FFFFFF;
   text-decoration: underline;
 }
+.plainlist li {
+  margin-left: 10px;
+}
 @media print {
   #banner {
     display: none;
