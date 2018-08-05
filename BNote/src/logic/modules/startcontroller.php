@@ -16,6 +16,18 @@ class StartController extends DefaultController {
 				$this->getView()->addComment();
 				$this->notifyContactsOnComment();
 			}
+			else if($_GET["mode"] == "gdprOk") {
+				$accept = $_GET["accept"];
+				// save in DB
+				$this->getData()->getSysdata()->gdprAccept($accept);
+				if($accept == 0) {
+					//logout
+					header("location: ?mod=logout");
+				}
+				else {
+					header("location: ?mod=1");
+				}
+			}
 			else {
 				$mode = $_GET['mode'];
 				$this->getView()->$mode();

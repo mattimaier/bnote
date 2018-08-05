@@ -155,6 +155,9 @@ class Systemdata {
  	if($permissions == null) {
  		return false;
  	}
+ 	if($this->gdprOk($uid) == 0 && $modulId != 1) {
+ 		return false;
+ 	}
  	return in_array($modulId, $permissions);
  }
 
@@ -439,6 +442,19 @@ class Systemdata {
  	$cid = $this->dbcon->getCell($this->dbcon->getUserTable(), "contact", "id = $uid");
  	if($cid == "") return null;
  	else return $this->dbcon->getRow("SELECT * FROM contact WHERE id = $cid");
+ }
+ 
+ public function gdprOk($uid = -1) {
+ 	if($uid == -1) $uid = $_SESSION["user"];
+ 	$cid = $this->dbcon->getCell($this->dbcon->getUserTable(), "contact", "id = $uid");
+ 	$gdprOk = $this->dbcon->getCell("contact", "gdpr_ok", "id = $cid");
+ 	return $gdprOk;
+ }
+ 
+ public function gdprAccept($accept) {
+ 	$contact = $this->getUsersContact();
+ 	$query = "UPDATE contact SET gdpr_ok = $accept WHERE id = " . $contact["id"];
+ 	$this->dbcon->execute($query);
  }
  
  /**

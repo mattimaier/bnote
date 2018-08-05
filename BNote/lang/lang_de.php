@@ -83,6 +83,13 @@ class Translation extends BNoteTranslation {
 			"members" => "Mitglieder",
 			"meetingtime" => "Treffpunkt (Zeit)",
 			
+			// GDPR
+			"gdprStartHeading" => "Einverständniserklärung zum Datenschutz",
+			"gdprOkMessage" => "Bist du damit einverstanden, dass personenbezogene Daten von dir verarbeitet werden?",
+			"gdprLink" => "Zur Datenschutzerklärung",
+			"gdprOkYes" => "Einverstanden",
+			"gdprOkNo" => "Nicht Einverstanden",
+			
 			// navigation
 			"mod_Login" => "Anmeldung",
 			"mod_Start" => "Start",

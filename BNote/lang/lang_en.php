@@ -84,6 +84,13 @@ class Translation extends BNoteTranslation {
 			"members" => "Members",
 			"meetingtime" => "Meeting time",
 			
+			// GDPR
+			"gdprStartHeading" => "Privacy Policy",
+			"gdprOkMessage" => "Do you agree to our privacy policy?",
+			"gdprLink" => "Show privacy policy",
+			"gdprOkYes" => "Accept policy",
+			"gdprOkNo" => "Do not accept policy",
+			
 			// navigation
 			"mod_Login" => "Login",
 			"mod_Start" => "Start",

@@ -46,6 +46,11 @@ class StartView extends AbstractView {
 	}
 	
 	private function startOptions() {
+		// don't show any options when the user has to select GDPR
+		if($this->getData()->getSysdata()->gdprOk() == 0) {
+			return;
+		}
+		
 		// Calendar Exports
 		$userExt = "?user=" . urlencode($this->getData()->adp()->getLogin());
 		
@@ -79,6 +84,32 @@ class StartView extends AbstractView {
 		if($news != "") {
 			?>
 			<div class="start_box_news">
+				<?php 
+				// GDPR
+				if($this->getData()->getSysdata()->gdprOk() == 0) {
+					?>
+					<div class="start_box_heading"><?php echo Lang::txt("gdprStartHeading"); ?></div>
+					<div class="start_box_content">
+						<span class="warning">
+							<?php echo Lang::txt("gdprOkMessage"); ?>
+						</span>
+						<a href="?mod=terms" target="_blank"><?php echo Lang::txt("gdprLink"); ?></a>
+						<br/>
+						<?php 
+						$yes = new Link($this->modePrefix() . "gdprOk&accept=1", Lang::txt("gdprOkYes"));
+						$yes->addIcon("checkmark");
+						$yes->write();
+						$no = new Link($this->modePrefix() . "gdprOk&accept=0", Lang::txt("gdprOkNo"));
+						$no->addIcon("cancel");
+						$no->write();
+						?>
+					</div>
+					<?php
+					// do not show anything on the start page unless the user has selected (ok)
+					exit(1);
+				}
+				
+				?>
 				<div class="start_box_heading"><?php echo Lang::txt("news"); ?></div>
 				<div class="start_box_content">
 					<?php

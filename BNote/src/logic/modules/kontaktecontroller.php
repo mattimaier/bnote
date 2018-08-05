@@ -260,7 +260,11 @@ class KontakteController extends DefaultController {
 	}
 	
 	private function getGdprOk() {
-		//TODO implement
+		/*
+		 * Users get an email to login and accept - otherwise not usable
+		 * External contacts get an email with a link to accept showing a nice "thanks" page 
+		 */
+		
 	}
 	
 	private function gdprNOK() {
