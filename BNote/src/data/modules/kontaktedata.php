@@ -425,4 +425,16 @@ class KontakteData extends AbstractData {
 		$query = "SELECT t.* FROM tour_contact tc JOIN tour t ON tc.tour = t.id WHERE tc.contact = $cid";
 		return $this->database->getSelection($query);
 	}
+	
+	function getContactGdprStatus($ok = 2) {
+		$query = "SELECT c.id as contact_id, u.id as user_id, c.surname, c.name, c.nickname, c.email, c.gdpr_ok, u.login 
+				FROM contact c LEFT OUTER JOIN user u ON u.contact = c.id";
+		if($ok != 2) {
+			$query .= " WHERE c.gdpr_ok = $ok";
+		}
+		$query .= "	ORDER BY surname, name";
+		return $this->database->getSelection($query);
+	}
+	
+	
 }

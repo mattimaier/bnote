@@ -1,6 +1,7 @@
 <?php
 require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "gruppenview.php";
 require_once $GLOBALS["DIR_DATA_MODULES"] . "gruppendata.php";
+require_once $GLOBALS["DIR_DATA_MODULES"] . "userdata.php";
 
 /**
  * Special controller for contact module.
@@ -34,6 +35,12 @@ class KontakteController extends DefaultController {
 			}
 			else if($_GET["mode"] == "contactImportProcess") {
 				$this->importVCard();
+			}
+			else if($_GET["mode"] == "getGdprOk") {
+				$this->getGdprOk();
+			}
+			else if($_GET["mode"] == "gdprNOK") {
+				$this->gdprNOK();
 			}
 			else {
 				$mode = $_GET['mode'];
@@ -252,4 +259,29 @@ class KontakteController extends DefaultController {
 		return $cards;
 	}
 	
+	private function getGdprOk() {
+		//TODO implement
+	}
+	
+	private function gdprNOK() {
+		$contacts = $this->getData()->getContactGdprStatus(0);
+		
+		// check for each if it has a user and eventually remove the user completely
+		// otherwise remove the contact details
+		$userFullRemoval = array(array("id", "contact"));
+		for($i = 1; $i < count($contacts); $i++) {
+			$contact = $contacts[$i];
+			if($contact["login"] != null && $contact["login"] != "") {
+				array_push($userFullRemoval, array("id" => $contact["user_id"], "contact" => $contact["contact_id"]));
+			}
+			else {
+				$this->getData()->delete($contact["contact_id"]);
+			}
+		}
+		
+		$userData = new UserData();
+		$userData->deleteUsersFull($userFullRemoval);
+		
+		$this->getView()->gdprNOK();
+	}
 }

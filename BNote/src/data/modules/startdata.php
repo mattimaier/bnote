@@ -395,8 +395,8 @@ class StartData extends AbstractData {
 			$objTitle = Lang::txt("vote") . ": " . $vote["name"];
 		}
 		else if($otype == "T") {
-			//FIXME: In case tasks can be commented as well, fix this
-			$objTitle = Lang::txt("task") . " " + $oid;
+			//TODO: In case tasks can be commented as well, fix this
+			$objTitle = Lang::txt("task") . " " . $oid;
 		}
 		else if($otype == "B") {
 			$rv = $this->getReservation($oid);

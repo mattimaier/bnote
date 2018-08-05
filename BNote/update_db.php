@@ -221,6 +221,9 @@ $update = new UpdateDb();
 // Task 1: Archive flag for songs
 $update->addColumnToTable("song", "is_active", "INT(1) DEFAULT 1");
 
+// Task 2: GDPR OK flag on contacts
+$update->addColumnToTable("contact", "gdpr_ok", "INT(1) DEFAULT 0");
+
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>

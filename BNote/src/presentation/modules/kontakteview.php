@@ -69,6 +69,11 @@ class KontakteView extends CrudRefView {
 		$vc = new Link($this->modePrefix() . "contactImport", "Kontakte Import (vCard)");
 		$vc->addIcon("arrow_down");
 		$vc->write();
+		$this->buttonSpace();
+	
+		$gdprOk = new Link($this->modePrefix() . "gdprOk", "Datenschutz");
+		$gdprOk->addIcon("question");
+		$gdprOk->write();
 	}
 	
 	function showContacts() {		
@@ -733,6 +738,36 @@ class KontakteView extends CrudRefView {
 		$prt = new Link("javascript:window.print();", Lang::txt("print"));
 		$prt->addIcon("printer");
 		$prt->write();
+	}
+	
+	function gdprOk() {
+		Writing::h1("Einverständniserklärung der Kontakte");
+		Writing::p("In der folgenden Tabelle sind die Kontakte und deren Einverständniserklärungsstatus gezeigt:");
+		
+		$contacts = $this->getData()->getContactGdprStatus();
+		$table = new Table($contacts);
+		$table->renameAndAlign($this->getData()->getFields());
+		$table->renameHeader("gdpr_ok", "Einverständnis");
+		$table->setColumnFormat("gdpr_ok", "BOOLEAN");
+		$table->removeColumn("contact_id");
+		$table->removeColumn("user_id");
+		$table->write();
+	}
+	
+	function gdprOkOptions() {
+		$this->backToStart();
+		
+		$get = new Link($this->modePrefix() . "getGdprOk", "Einverständnis anfordern");
+		$get->addIcon("question");
+		$get->write();
+		
+		$del = new Link($this->modePrefix() . "gdprNOK", "Kontakte ohne Einverständnis löschen");
+		$del->addIcon("cancel");
+		$del->write();
+	}
+	
+	function gdprNOK() {
+		Writing::p("Die Daten der Benutzer ohne Einverständnis wurden gelöscht.");
 	}
 }
 

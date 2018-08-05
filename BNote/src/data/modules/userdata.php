@@ -298,6 +298,7 @@ class UserData extends AbstractData {
 			$this->database->execute($query);
 			
 			// remove contact information
+			$this->deleteCustomFieldData('c', $cid);
 			$query = "DELETE FROM contact WHERE id = $cid";
 			$this->database->execute($query);
 			
