@@ -18,7 +18,7 @@ class UserView extends CrudRefView {
 	}
 
 	function start() {
-		Writing::p("Hier können Benutzer verwaltet werden. Benutzer können sich am System anmelden.");
+		Writing::p("Hier werden Benutzer, die sich am System anmelden können, verwaltet.");
 		
 		// show all users
 		$table = new Table($this->getData()->getUsers());
@@ -29,6 +29,15 @@ class UserView extends CrudRefView {
 		$table->renameHeader("isactive", "Aktiver Benutzer");
 		$table->setColumnFormat("lastlogin", "DATE");
 		$table->write();
+	}
+	
+	function startOptions() {
+		parent::startOptions();
+		$this->buttonSpace();
+		
+		$gdpr = new Link($this->modePrefix() . "gdpr", "Datenschutzprüfung");
+		$gdpr->addIcon("question");
+		$gdpr->write();
 	}
 	
 	function addEntity() {
@@ -178,6 +187,39 @@ class UserView extends CrudRefView {
 		$no = new Link($linkBack, Lang::txt("back"));
 		$no->addIcon("arrow_left");
 		$no->write();
+	}
+	
+	function gdpr() {
+		// Check if a user has not logged in for 24 months. In this case, show the list and let the current user decide.
+		Writing::h1("Datenschutzprüfung");
+		Writing::p("Die folgenden Benutzer haben dieses System innerhalb der letzten 24 Monate nicht genutzt:");
+		$inactiveUsers = $this->getData()->getLongInactiveUsers();
+		$inactiveUsersList = new Plainlist($inactiveUsers);
+		$inactiveUsersList->setNameField("login");
+		$inactiveUsersList->write();
+		
+		Writing::p("Gemäß EU Datenschutzgrundverordnung (EU DSGVO) sind Sie verpflichtet, die Daten der Benutzer zu löschen. Dies beinhaltet folgende Datensätze:");
+		$delData = array("Benutzerkonto", "Kontaktinformationen", "Teilnahmen", "Einladungen zu Auftritten, Proben und Touren");
+		$delDataList = new Plainlist(Plainlist::simpleListToSelection($delData));
+		$delDataList->write();
+		
+		$this->verticalSpace();
+		
+		$del = new Link($this->modePrefix() . "gdprDelete", "DATEN LÖSCHEN");
+		$del->addIcon("cancel");
+		$del->write();
+	}
+	
+	function gdprDelete() {
+		Writing::h1("Daten löschen");
+		$inactiveUsers = $this->getData()->getLongInactiveUsers();
+		
+		$this->getData()->deleteUsersFull($inactiveUsers);
+		
+		Writing::p("Die Daten der folgenden Benutzer wurden gelöscht:");
+		$inactiveUsersList = new Plainlist($inactiveUsers);
+		$inactiveUsersList->setNameField("login");
+		$inactiveUsersList->write();
 	}
 }
 

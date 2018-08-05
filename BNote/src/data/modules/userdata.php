@@ -237,6 +237,74 @@ class UserData extends AbstractData {
 	function getContacts() {
 		return $this->adp()->getContacts();
 	}
+	
+	/**
+	 * Retrieves users not having used BNote within the last 24 months.
+	 */
+	function getLongInactiveUsers() {
+		$loginTresholdFormatted = Data::subtractMonthsFromDate(date("d.m.Y"), 24);
+		$loginTreshold = Data::convertDateToDb($loginTresholdFormatted);
+		$query = "SELECT * FROM " . $this->getTable() . " WHERE lastlogin <= '$loginTreshold'";
+		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Deletes the users and their data.
+	 * @param array $inactiveUsers DB selection of inactive users, e.g. from method getLongInactiveUsers()
+	 */
+	function deleteUsersFull($inactiveUsers) {
+		for($i = 1; $i < count($inactiveUsers); $i++) {
+			// get user ID and contact ID
+			$user = $inactiveUsers[$i];
+			$uid = $user["id"];
+			$cid = $user["contact"];
+			
+			// remove all vote data
+			$query = "DELETE FROM vote_option_user WHERE user = $uid";
+			$this->database->execute($query);
+			$query = "DELETE FROM vote_group WHERE user = $uid";
+			$this->database->execute($query);
+			
+			// remove all task data
+			$query = "DELETE FROM task WHERE created_by = $cid or assigned_to = $cid";
+			$this->database->execute($query);
+			
+			// remove all concert data
+			$query = "DELETE FROM concert_user WHERE user = $uid";
+			$this->database->execute($query);
+			$query = "DELETE FROM concert_contact WHERE contact = $cid";
+			$this->database->execute($query);
+			
+			// remove all rehearsal data
+			$query = "DELETE FROM rehearsal_user WHERE user = $uid";
+			$this->database->execute($query);
+			$query = "DELETE FROM rehearsal_contact WHERE contact = $cid";
+			$this->database->execute($query);
+			
+			// remove all rehearsalphase data
+			$query = "DELETE FROM rehearsalphase_contact WHERE contact = $cid";
+			$this->database->execute($query);
+			
+			// remove all tour data
+			$query = "DELETE FROM tour_contact WHERE contact = $cid";
+			$this->database->execute($query);
+			
+			// remove all comments from this user
+			$query = "DELETE FROM comment WHERE author = $uid";
+			$this->database->execute($query);
+			
+			// remove all group associations of this contact
+			$query = "DELETE FROM contact_group WHERE contact = $cid";
+			$this->database->execute($query);
+			
+			// remove contact information
+			$query = "DELETE FROM contact WHERE id = $cid";
+			$this->database->execute($query);
+			
+			// remove user
+			$this->delete($uid);
+		}
+	}
 }
 
 ?>

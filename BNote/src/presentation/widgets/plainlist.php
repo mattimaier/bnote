@@ -76,6 +76,14 @@ class Plainlist implements iWriteable {
 			Writing::p("[keine Einträge]");
 		}
 	}
+	
+	public static function simpleListToSelection($simpleList) {
+		$selection = array(array("name"));
+		for($i = 0; $i < count($simpleList); $i++) {
+			array_push($selection, array("name" => $simpleList[$i]));
+		}
+		return $selection;
+	}
 }
 
 ?>
