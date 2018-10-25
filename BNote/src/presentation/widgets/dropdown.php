@@ -22,6 +22,10 @@ class Dropdown implements iWriteable {
 		$this->options[$label] = $value;
 	}
 	
+	public function sortOptions() {
+		ksort($this->options);
+	}
+
 	public function cleanOptions() {
 		$this->options = array();
 	}
