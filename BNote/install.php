@@ -313,6 +313,7 @@ class Installation {
 					`instrument` int(11) DEFAULT NULL,
 					`birthday` DATE,
 					`gdpr_ok` int(1) default 0,
+					`gdpr_code` varchar(255) DEFAULT NULL,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 

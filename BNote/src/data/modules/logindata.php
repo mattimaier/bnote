@@ -181,6 +181,16 @@ class LoginData extends AbstractData {
 		$privQuery = substr($privQuery, 0, strlen($privQuery)-2);
 		$this->database->execute($privQuery);
 	}
+	
+	function findContactByCode($code) {
+		$this->regex->isSubject($code);
+		return $this->database->getRow("SELECT *, a.* FROM contact c RIGHT OUTER JOIN address a ON c.address = a.id WHERE gdpr_code = '$code'");
+	}
+	
+	function gdprOk($code) {
+		$this->regex->isSubject($code);
+		$this->database->execute("UPDATE contact SET gdpr_ok = 1 WHERE gdpr_code = '$code'");
+	}
 }
 
 ?>

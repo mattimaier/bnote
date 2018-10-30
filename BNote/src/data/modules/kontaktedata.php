@@ -436,5 +436,38 @@ class KontakteData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
+	function generateGdprCodes() {
+		// get contacts without codes
+		$contacts = $this->getContactGdprStatus("0 AND c.gdpr_code IS NULL");
+		foreach($contacts as $i => $contact) {
+			if($i == 0) continue;
+			$cid = $contact["contact_id"];
+			
+			// generate code
+			$code = uniqid('BN', true);
+			
+			// update table
+			$query = "UPDATE contact SET gdpr_code = '$code' WHERE id = $cid";
+			$this->database->execute($query);
+		}
+	}
+	
+	function getContactmail($id) {
+		return $this->database->getCell("contact", "email", "id = $id");
+	}
+	
+	function getUsermail() {
+		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = " . $_SESSION["user"]);
+		return $this->getContactmail($cid);
+	}
+	
+	/**
+	 * Be careful with duplicate email usages.
+	 * @param string $email E-Mail-Address
+	 * @return GDPR Code.
+	 */
+	function getGdprCode($email) {
+		return $this->database->getCell("contact", "gdpr_code", "email = '$email'");
+	}
 	
 }

@@ -2,6 +2,7 @@
 require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "gruppenview.php";
 require_once $GLOBALS["DIR_DATA_MODULES"] . "gruppendata.php";
 require_once $GLOBALS["DIR_DATA_MODULES"] . "userdata.php";
+require_once $GLOBALS["DIR_LOGIC_MODULES"] . "kommunikationcontroller.php";
 
 /**
  * Special controller for contact module.
@@ -37,7 +38,11 @@ class KontakteController extends DefaultController {
 				$this->importVCard();
 			}
 			else if($_GET["mode"] == "getGdprOk") {
-				$this->getGdprOk();
+				$this->getData()->generateGdprCodes();
+				$this->getView()->getGdprOk();
+			}
+			else if($_GET["mode"] == "gdprSendMail") {
+				$this->gdprSendMail();
 			}
 			else if($_GET["mode"] == "gdprNOK") {
 				$this->gdprNOK();
@@ -259,12 +264,38 @@ class KontakteController extends DefaultController {
 		return $cards;
 	}
 	
-	private function getGdprOk() {
-		/*
-		 * Users get an email to login and accept - otherwise not usable
-		 * External contacts get an email with a link to accept showing a nice "thanks" page 
-		 */
+	private function gdprSendMail() {
+		// compile addresses
+		$contacts = $this->getData()->getContactGdprStatus(0);
+		$addresses = Database::flattenSelection($contacts, "email");
+		$addresses = array_unique($addresses);
 		
+		// compile mail
+		$_POST["subject"] = "Einverständniserklärung DSGVO";
+		$templateContent = file_get_contents("data/gdpr_mail.php");
+		$templateContent .= $this->getData()->getSysdata()->getCompany() . "<br><br>";
+		$approveUrl = $this->getData()->getSysdata()->getSystemURL() . "main.php?mod=extGdpr&code=";
+		
+		$successful = 0;
+		foreach($addresses as $address) {
+			$approveUrl .= $this->getData()->getGdprCode($address);
+			$templateContent .= '<a href="' . $approveUrl . '">Überprüfen und zustimmen</a>';
+			$_POST["message"] = $templateContent;
+			
+			// send mail with template
+			$commCtrl = new KommunikationController();
+			$commCtrl->setData($this->getData());
+			$res = $commCtrl->sendMail($addresses, true);
+			if($res) {
+				$successful++;
+			}
+		}
+		
+		// processing
+		if($successful == 0) {
+			new BNoteError("Die Nachricht(en) konnte(n) nicht versandt werden. Bitte kontaktiere den Administrator.");
+		}
+		new Message("Mails versandt", "$successful Nachrichten wurden den Kontakten zugestellt.");
 	}
 	
 	private function gdprNOK() {

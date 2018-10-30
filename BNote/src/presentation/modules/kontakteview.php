@@ -756,14 +756,43 @@ class KontakteView extends CrudRefView {
 	
 	function gdprOkOptions() {
 		$this->backToStart();
-		
+	
 		$get = new Link($this->modePrefix() . "getGdprOk", "Einverständnis anfordern");
 		$get->addIcon("question");
 		$get->write();
-		
+	
 		$del = new Link($this->modePrefix() . "gdprNOK", "Kontakte ohne Einverständnis löschen");
 		$del->addIcon("cancel");
 		$del->write();
+	}
+	
+	function getGdprOk() {
+		/*
+		 * Users should login and accept - otherwise not usable
+		 * External contacts get an email with a link to accept showing a nice "thanks" page
+		 */
+		Writing::h1("Einverständnis der Kontakte");
+		?>
+		<p>Alle Benutzer, die sich am System anmelden können, sollten in einer internen E-Mail zur Anmeldung aufgefordert werden.
+		Nach der Anmeldung müssen die Benutzer der Datenschutzerklärung zustimmen. Externe Kontakte werden mit folgender Nachricht
+		um ihre Zustimmung zur Verarbeitung personenbezogener Daten gebeten. Die Nachricht lautet:</p>
+		
+		<div style="margin: 10px 20px;">
+		<?php
+		require_once "data/gdpr_mail.php";
+		
+		echo $this->getData()->getSysdata()->getCompany();
+		?>
+		</div>
+		<?php
+	}
+	
+	function getGdprOkOptions() {
+		$this->backToStart();
+		
+		$send = new Link($this->modePrefix() . "gdprSendMail", "Mails an externe Kontakte senden");
+		$send->addIcon("kommunikation");
+		$send->write();
 	}
 	
 	function gdprNOK() {

@@ -86,9 +86,10 @@ class KommunikationController extends DefaultController {
 	
 	/**
 	 * Please make sure that the $_POST array has a subject and message attribute.
+	 * @param array $addresses Optionally provide the addresses to send the mail to.
+	 * @param bool $silent If set to true does not call the view. Default false. 
 	 */
-	public function sendMail() {
-		$addresses = array();
+	public function sendMail($addresses = array(), $silent = false) {
 		$subject = $_POST["subject"];
 		$body = $_POST["message"];
 		
@@ -106,7 +107,7 @@ class KommunikationController extends DefaultController {
 		else if(isset($_POST["vote"])) {
 			$addresses = $this->getData()->getVoteContactMail($_POST["vote"]);
 		}
-		else {
+		else if(count($addresses) == 0) {
 			// get all mail addresses from selected groups
 			$addresses = $this->getData()->getMailaddressesFromGroup("group");
 		}
@@ -130,10 +131,14 @@ class KommunikationController extends DefaultController {
 		$mail->setBcc($bcc_addresses);
 			
 		if(!$mail->sendMail()) {
-			$this->getView()->reportMailError($bcc_addresses);
+			if(!$silent) {
+				$this->getView()->reportMailError($bcc_addresses);
+			}
+			return false;
 		}
-		else {
+		else if(!$silent) {
 			$this->getView()->messageSent();
 		}
+		return true;
 	}
 }

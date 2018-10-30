@@ -587,9 +587,15 @@ abstract class AbstractData {
 				}
 				else if($vtype == "INT") {
 					$intval = $val;
+					if($intval == "") {
+						$intval = 0;
+					}
 				}
 				else if($vtype == "DOUBLE") {
 					$dblval = Data::convertToDb($val);
+					if($dblval == "") {
+						$dblval = 0;
+					}
 				}
 				else {
 					$strval = $val;

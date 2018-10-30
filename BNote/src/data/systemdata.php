@@ -174,7 +174,9 @@ class Systemdata {
  				"registration" => "Registrierung",
  				"whyBNote" => "Warum BNote?",
  				"terms" => "Bedingungen",
- 				"impressum" => "Impressum"
+ 				"impressum" => "Impressum",
+ 				"gdpr" => "DSGVO Einverständnis",
+ 				"extGdpr" => "DSGVO Einverständnis"
  		);
  	}
 

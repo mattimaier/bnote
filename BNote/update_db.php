@@ -223,6 +223,7 @@ $update->addColumnToTable("song", "is_active", "INT(1) DEFAULT 1");
 
 // Task 2: GDPR OK flag on contacts
 $update->addColumnToTable("contact", "gdpr_ok", "INT(1) DEFAULT 0");
+$update->addColumnToTable("contact", "gdpr_code", "VARCHAR(255)");
 
 ?>
 

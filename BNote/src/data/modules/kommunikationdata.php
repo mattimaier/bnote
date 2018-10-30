@@ -15,15 +15,6 @@ class KommunikationData extends KontakteData {
 		return $this->database->getRow($query);
 	}
 	
-	function getUsermail() {
-		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = " . $_SESSION["user"]);
-		return $this->getContactmail($cid);
-	}
-	
-	function getContactmail($id) {
-		return $this->database->getCell("contact", "email", "id = $id");
-	}
-	
 	function getMailaddressesFromGroup($prefix) {
 		$selectedGroups = GroupSelector::getPostSelection($this->adp()->getGroups(), $prefix);
 		

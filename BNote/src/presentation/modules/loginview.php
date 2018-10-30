@@ -212,6 +212,53 @@ class LoginView extends AbstractView {
 	function terms() {
 		include "data/terms.html";
 	}
+	
+	public function gdpr() {
+		include "data/gdpr.php";
+	}
+	
+	public function extGdpr() {
+		?>
+		<style> #content_insets { margin-left: 1%; } </style>
+		<?php
+		Writing::h2("Datenschutzgrundverordnung (DSGVO): Einverständnis");
+		
+		// validate code
+		if(!isset($_GET["code"])) {
+			new BNoteError("Bitte stellen Sie sicher, dass Sie auf den richtigen Link geklickt haben.");
+		}
+		$code = $_GET["code"];
+		
+		// process approval
+		if(isset($_GET["sub"]) && $_GET["sub"] == "ok") {
+			$this->getData()->gdprOk($code);
+			new Message("Danke", "Schon erledigt. Danke für Ihr Einverständis!");
+			return;
+		}
+		
+		// show acceptance
+		$contact = $this->getData()->findContactByCode($code);
+		if($contact == null) {
+			new BNoteError("Unbekannter Code.");
+		}
+		
+		Writing::p("Wir bitten um Ihr Einverständnis die folgenden Daten von Ihnen gemäß <a href=\"?mod=terms\">unserer Datenschutzvereinbarung</a> zu verarbeiten:");
+		$dv = new Dataview();
+		$dv->addElement("Name", $contact["name"] . " " . $contact["surname"]);
+		$dv->addElement("Spitzname", $contact["nickname"]);
+		$dv->addElement("Telefon", $contact["phone"]);
+		$dv->addElement("Fax", $contact["fax"]);
+		$dv->addElement("Mobil", $contact["mobile"]);
+		$dv->addElement("Geschäftlich", $contact["business"]);
+		$dv->addElement("E-Mail", $contact["email"]);
+		$dv->addElement("Website", $contact["web"]);
+		$dv->addElement("Addresse", $contact["street"] . ", " . $contact["zip"] . " " . $contact["city"]);
+		$dv->addElement("Geburtstag", $contact["birthday"]);
+		$dv->write();
+		
+		$ok = new Link("?mod=extGdpr&sub=ok&code=$code", "Einverstanden");
+		$ok->write();
+	}
 }
 
 ?>

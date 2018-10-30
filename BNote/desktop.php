@@ -7,7 +7,9 @@ include $GLOBALS["DIR_PRESENTATION"] . "banner.php";
 <!-- Content Area -->
 <div id="content_container">
 	<?php
-	include $GLOBALS["DIR_PRESENTATION"] . "optionsbar.php"; 
+	if(isset($_GET["mod"]) && $_GET["mod"] != "extGdpr") {
+		include $GLOBALS["DIR_PRESENTATION"] . "optionsbar.php";
+	}
 	?>
 	<?php
 	# Display Navigation
