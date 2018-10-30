@@ -277,6 +277,7 @@ class RepertoireView extends CrudRefView {
 			foreach($possibleFiles as $i => $fileinfo) {
 				$dd->addOption($fileinfo["filename"], $fileinfo["fullpath"]);
 			}
+			$dd->sortOptions();
 			$form->addElement("", $dd);
 			$form->write();
 			?>
