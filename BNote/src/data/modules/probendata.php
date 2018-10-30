@@ -16,13 +16,15 @@ class ProbenData extends AbstractData {
 			"end" => array("Ende", FieldType::DATETIME),
 			"approve_until" => array("Zusagen bis", FieldType::DATETIME),
 			"location" => array("Ort", FieldType::REFERENCE),
+			"conductor" => array("Dirigent", FieldType::REFERENCE),
 			"serie" => array("Probenstrecke", FieldType::REFERENCE),
 			"notes" => array("Notizen", FieldType::TEXT)
 		);
 		
 		$this->references = array(
 			"location" => "location", 
-			"serie" => "rehearsalserie"
+			"serie" => "rehearsalserie",
+			"conductor" => "contact"
 		);
 		
 		$this->table = "rehearsal";

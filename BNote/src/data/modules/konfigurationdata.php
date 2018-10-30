@@ -44,7 +44,8 @@ class KonfigurationData extends AbstractData {
 				"trigger_key" => array("Notification Interface Key", FieldType::CHAR),
 				"trigger_cycle_days" => array("Erinnerungszyklus (jede X Tage)", FieldType::INTEGER),
 				"trigger_repeat_count" => array("Anzahl der Erinnerungen", FieldType::INTEGER),
-				"enable_trigger_service" => array("Benachrichtigungen aktiv", FieldType::BOOLEAN)
+				"enable_trigger_service" => array("Benachrichtigungen aktiv", FieldType::BOOLEAN),
+				"default_conductor" => array("Standarddirigent", FieldType::REFERENCE)
 		);
 		
 		$this->parameterExclude = array(
@@ -82,6 +83,9 @@ class KonfigurationData extends AbstractData {
 	private function replaceParameterValue($param, $value) {
 		if($param == "default_contact_group") {
 			return $this->adp()->getGroupName($value);
+		}
+		else if($param == "default_conductor") {
+			return $this->database->getCell("contact", "CONCAT(name, ' ', surname)", "id = $value");
 		}
 		else if($this->getParameterType($param) == FieldType::BOOLEAN) {
 			return ($value == 1) ? "ja" : "nein";

@@ -36,6 +36,7 @@ class KontakteData extends AbstractData {
 			"notes" => array("Anmerkungen", FieldType::TEXT),
 			"address" => array("Adresse", FieldType::REFERENCE),
 			"instrument" => array("Instrument", FieldType::REFERENCE),
+			"is_conductor" => array("Ist Dirigent", FieldType::BOOLEAN),
 			"birthday" => array("Geburtstag", FieldType::DATE),
 			"status" => array("Status", FieldType::ENUM)
 		);

@@ -314,6 +314,7 @@ class Installation {
 					`birthday` DATE,
 					`gdpr_ok` int(1) default 0,
 					`gdpr_code` varchar(255) DEFAULT NULL,
+					`is_conductor` int(1) default 0,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -427,6 +428,7 @@ class Installation {
 					`notes` text,
 					`location` int(10) unsigned NOT NULL,
 					`serie` int(11),
+					`conductor` int(11),
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -794,7 +796,8 @@ class Installation {
 					('trigger_key', '" . $trigger_key . "', 1),
 					('trigger_cycle_days', '3', 1),
 					('trigger_repeat_count', '3', 1),
-					('enable_trigger_service', '1', 1);");
+					('enable_trigger_service', '1', 1),
+					('default_conductor', '', 1);");
 			
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES

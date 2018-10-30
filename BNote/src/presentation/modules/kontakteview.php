@@ -244,6 +244,7 @@ class KontakteView extends CrudRefView {
 		
 		// the contact is a member of these groups
 		$groups = $this->getData()->getContactGroups($_GET["id"]);
+		$groups = str_replace(",", ", ", $groups);
 		
 		// custom field handling
 		$customFields = $this->getData()->getCustomFields("c");
@@ -271,7 +272,7 @@ class KontakteView extends CrudRefView {
 			</div>
 			<div class="contactdetail_entry">
 				<label class="contactdetail_entry_label">Geburtstag</label>
-				<div class="contactdetail_entry_value"><?php echo $contact["birthday"]; ?></div>
+				<div class="contactdetail_entry_value"><?php echo Data::convertDateFromDb($contact["birthday"]); ?></div>
 			</div>
 			<div class="contactdetail_entry">
 				<label class="contactdetail_entry_label">Adresse</label>
@@ -312,6 +313,10 @@ class KontakteView extends CrudRefView {
 			<div class="contactdetail_entry">
 				<label class="contactdetail_entry_label">Instrument</label>
 				<div class="contactdetail_entry_value"><?php echo $contact["instrumentname"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Ist Dirigent</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["is_conductor"] == 0 ? "nein" : "ja"; ?></div>
 			</div>
 			<div class="contactdetail_entry">
 				<label class="contactdetail_entry_label">Gruppen</label>

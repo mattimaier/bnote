@@ -3,7 +3,6 @@
 /*************************
  * UPGRADES THE DATABASE *
  * @author Matti Maier   *
- * Update 3.2.2 to 3.3.0 *
  *************************/
 
 // path to src/ folder
@@ -221,9 +220,14 @@ $update = new UpdateDb();
 // Task 1: Archive flag for songs
 $update->addColumnToTable("song", "is_active", "INT(1) DEFAULT 1");
 
-// Task 2: GDPR OK flag on contacts
+// Task 2: GDPR OK flag and code on contacts
 $update->addColumnToTable("contact", "gdpr_ok", "INT(1) DEFAULT 0");
 $update->addColumnToTable("contact", "gdpr_code", "VARCHAR(255)");
+
+// Task 3: Rehearsal conductor
+$update->addColumnToTable("rehearsal", "conductor", "INT(11)");  # contact
+$update->addColumnToTable("contact", "is_conductor", "INT(1) DEFAULT 0");
+$update->addDynConfigParam("default_conductor", "");
 
 ?>
 
