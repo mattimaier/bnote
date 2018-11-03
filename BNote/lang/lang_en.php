@@ -83,6 +83,7 @@ class Translation extends BNoteTranslation {
 			"member" => "Member",
 			"members" => "Members",
 			"meetingtime" => "Meeting time",
+			"conductor" => "Conductor",
 			
 			// GDPR
 			"gdprStartHeading" => "Privacy Policy",

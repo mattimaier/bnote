@@ -237,6 +237,9 @@ class StartView extends AbstractView {
 				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($data[$i]["end"]));
 				$loc = $data[$i]["name"];
 				$dataview->addElement(Lang::txt("location"), $this->buildAddress($data[$i]));
+				if(isset($data[$i]["conductor"]) && $data[$i]["conductor"] != null) {
+					$dataview->addElement(Lang::txt("conductor"), $this->getData()->adp()->getConductorname($data[$i]["conductor"]));
+				}
 				
 				if($data[$i]["notes"] != "") {
 					$dataview->addElement(Lang::txt("comment"), $data[$i]["notes"]);

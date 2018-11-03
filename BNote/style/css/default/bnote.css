@@ -703,6 +703,11 @@ p.rehearsal_title {
   color: #8A8A8A;
   float: left;
 }
+span.rehearsal_conductor {
+  color: #8A8A8A;
+  position: absolute;
+  left: 500px;
+}
 span.rehearsal_when {
   position: absolute;
   color: #000000;

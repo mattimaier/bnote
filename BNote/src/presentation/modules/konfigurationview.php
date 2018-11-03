@@ -98,11 +98,12 @@ class KonfigurationView extends CrudView {
 		}
 		else if($_GET["id"] == "default_conductor") {
 			$dd = new Dropdown("value");
-			$contacts = $this->getData()->adp()->getContacts();
+			$contacts = $this->getData()->adp()->getConductors();
 			foreach($contacts as $i => $contact) {
 				if($i == 0) continue;
 				$dd->addOption($contact["name"] . " " . $contact["surname"], $contact["id"]);
 			}
+			$dd->addOption("-", 0);
 			$dd->setSelected($default);
 			$form->addElement("Wert", $dd);
 		}

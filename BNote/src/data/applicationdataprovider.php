@@ -197,7 +197,7 @@ class ApplicationDataProvider {
 	 * @return All rehearsals joined with location and address.
 	 */
 	public function getFutureRehearsals() {
-		$query = "SELECT r.id as id, begin, end, approve_until, r.notes as notes, name, street, city, zip, l.id as location";
+		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes as notes, name, street, city, zip, l.id as location";
 		$query .= " FROM rehearsal r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
 		$query .= " AND end > NOW() ORDER BY begin ASC";		
@@ -596,6 +596,17 @@ class ApplicationDataProvider {
 	
 	function getEquipment() {
 		return $this->database->getSelection("SELECT * FROM equipment ORDER BY name");
+	}
+	
+	function getConductors() {
+		$query = "SELECT * FROM contact WHERE is_conductor = 1";
+		return $this->database->getSelection($query);
+	}
+	
+	function getConductorname($cid) {
+		$query = "SELECT CONCAT(name, ' ', surname) as name FROM contact WHERE id = $cid";
+		$row = $this->database->getRow($query);
+		return $row["name"];
 	}
 	
 }

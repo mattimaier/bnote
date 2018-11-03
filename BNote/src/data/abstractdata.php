@@ -456,23 +456,35 @@ abstract class AbstractData {
 				$query .= $field . " = ";
 				$t = $this->getTypeOfField($field);
 				
-			if($t == FieldType::DATE || $t == FieldType::DATETIME) {
-					$val = Data::convertDateToDb($val);
+				if($t == FieldType::DATE || $t == FieldType::DATETIME) {
+						$val = Data::convertDateToDb($val);
 				}
 				else if($t == FieldType::DECIMAL) {
 					$val = Data::convertToDb($val);
 				}
-				
+				else if($t == FieldType::BOOLEAN) {
+					$val = 1;
+				}
+					
 				if($t == FieldType::TEXT || $t == FieldType::CHAR || $t == FieldType::PASSWORD
 					|| $t == FieldType::DATETIME || $t == FieldType::TIME || $t == FieldType::ENUM
 					|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN) {
 						$query .= '"' . $val . '", ';
-					}
-				else {
+				}
+					else {
 					$query .= $val . ", ";
 				}
 			}
 		}
+		
+		// update unset boolean values
+		foreach($this->fields as $fieldName => $field) {
+			$fieldType = $field[1];
+			if($fieldType == FieldType::BOOLEAN && !array_key_exists($fieldName, $values)) {
+				$query .= $fieldName . " = 0, ";
+			}
+		}
+		
 		$query = substr($query, 0, strlen($query)-2);
 		$query .= " WHERE id = $id";
 		$this->database->execute($query);

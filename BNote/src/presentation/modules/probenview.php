@@ -15,7 +15,8 @@ class ProbenView extends CrudRefView {
 		$this->setEntityName("Probe");
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
-			"serie" => array("name")
+			"serie" => array("name"),
+			"conductor" => array("name", "surname")
 		));
 	}
 	
@@ -93,8 +94,13 @@ class ProbenView extends CrudRefView {
 		$approve_until_field->setCssClass("copyDateTarget");
 		$form->addElement("Zusagen bis", $approve_until_field);
 		
+		// conductor
+		$form->addElement("Dirigent", $this->buildConductorDropdown());
+		
+		// notes
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
+		// groups
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
 		$gs->setNameColumn("name_member");
 		$form->addElement("Probe für", $gs);
@@ -104,6 +110,29 @@ class ProbenView extends CrudRefView {
 		}
 		
 		$form->write();
+	}
+	
+	private function buildConductorDropdown($selected = null) {
+		// data
+		$conductors = $this->getData()->adp()->getConductors();
+		
+		// dropdown
+		$conductorsDd = new Dropdown("conductor");
+		for($i = 1; $i < count($conductors); $i++) {
+			$conductor = $conductors[$i];
+			$conductorsDd->addOption($conductor["name"] . " " . $conductor["surname"], $conductor["id"]);
+		}
+		$conductorsDd->addOption("-", 0);
+		
+		// selection
+		if($selected == null) {
+			$defaultConductor = $this->getData()->getSysdata()->getDynamicConfigParameter("default_conductor");
+			$conductorsDd->setSelected($defaultConductor);
+		}
+		else {
+			$conductorsDd->setSelected($selected);
+		}
+		return $conductorsDd;
 	}
 	
 	function add() {		
@@ -145,6 +174,8 @@ class ProbenView extends CrudRefView {
 		
 		$form->addElement("Ort", new Field("location", "", FieldType::REFERENCE));
 		$form->setForeign("Ort", "location", "id", "name", -1);
+		
+		$form->addElement("Dirigent", $this->buildConductorDropdown());
 		
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
@@ -231,11 +262,17 @@ class ProbenView extends CrudRefView {
 		$finish = date('H:i', $date_end);
 
 		$when = Data::convertDateFromDb($row["begin"]) . " - " . $finish . " Uhr";
+		$conductor = "";
+		if(isset($row["conductor"]) && $row["conductor"] != null) {
+			$conductor .= "Dirigent: ";
+			$conductor .= $this->getData()->adp()->getConductorname($row["conductor"]);
+		}
 
 		// put output together
 		$out = "<p class=\"rehearsal_title\">";
 		$out .= "<span class=\"rehearsal_weekday\">$weekday</span>";
 		$out .= "<span class=\"rehearsal_when\">$when</span>";
+		$out .= "<span class=\"rehearsal_conductor\">$conductor</span>";
 		$out .= "</p>";
 		$out .= "<p class=\"rehearsal_details\">" . $row["name"];
 		
@@ -256,7 +293,6 @@ class ProbenView extends CrudRefView {
 			$out .= $row["street"] . ", " . $row["zip"] . " " . $row["city"];
 		}
 		$out .= ")</p>";
-		
 		$out .= "<pre class=\"rehearsal\">" . $row["notes"] . "</pre>\n";
 		
 		echo "<a class=\"rehearsal\" href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">";
@@ -275,6 +311,9 @@ class ProbenView extends CrudRefView {
 		$form->removeElement("serie");
 		$form->addHidden("serie", $r["serie"]);
 		$form->setForeign("location", "location", "id", "name", $r["location"]);
+		
+		// conductor
+		$form->addElement("conductor", $this->buildConductorDropdown($r["conductor"]));
 		
 		$form->write();
 	}
@@ -300,8 +339,10 @@ class ProbenView extends CrudRefView {
 	
 	protected function viewDetailTable() {
 		$entity = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
+		
 		$details = new Dataview();
 		$details->autoAddElements($entity);
+		$details->resolveForeignElement("conductor", "contact", "id", $this->getJoinedAttributes()["conductor"]);
 		$details->autoRename($this->getData()->getFields());
 		$details->renameElement("name", "Ort");
 		$details->renameElement("street", "Stra&szlig;e");

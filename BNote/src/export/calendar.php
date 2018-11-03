@@ -144,8 +144,14 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	$query .= "ORDER BY title";
 	$songs = $db->getSelection($query);
 	
+	// conductor
+	$notes = "";
+	if(isset($rehearsals[$i]["conductor"]) && $rehearsals["conductor"] != null) {
+		$notes = "Dirigent: " . $adp->getConductorname($rehearsals[$i]["conductor"]) . "\r\n";
+	}
+	
 	// write songs to practise in notes
-	$notes = "Bitte folgende Stücke üben: ";
+	$notes .= "Bitte folgende Stücke üben: ";
 	for($j = 1; $j < count($songs); $j++) {
 		$notes .= $songs[$j]["title"] . "\\, ";
 	}
