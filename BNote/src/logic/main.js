@@ -90,7 +90,6 @@ $(document).ready(function() {
 				}
 				
 				$('#calendar_eventdetail').show();
-				//window.location.href = "main.php" + calEvent.link;
 			}
 		},
 		timeFormat: 'H:mm'

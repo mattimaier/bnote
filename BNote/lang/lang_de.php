@@ -84,6 +84,8 @@ class Translation extends BNoteTranslation {
 			"meetingtime" => "Treffpunkt (Zeit)",
 			"conductor" => "Dirigent",
 			"song" => "Stück",
+			"appointment" => "Termin",
+			"appointments" => "Termine",
 			
 			// GDPR
 			"gdprStartHeading" => "Einverständniserklärung zum Datenschutz",
@@ -339,6 +341,7 @@ class Translation extends BNoteTranslation {
 			"calendar_title" => "Name",
 			"calendar_birthday" => "Geburtstag",
 			"calendar_outfit" => "Outfit",
+			"calendar_appointment" => "Termin",
 			
 			// module: equipment
 			"equipment_model" => "Modell",

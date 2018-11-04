@@ -759,6 +759,21 @@ class Installation {
 				name VARCHAR(200) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
+			array_push($queries, "CREATE TABLE IF NOT EXISTS `appointment` (
+				id int(11) PRIMARY KEY AUTO_INCREMENT,
+				begin DATETIME NOT NULL,
+				end DATETIME NOT NULL,
+				name VARCHAR(100) NOT NULL,
+				location INT(11),
+				contact INT(11),
+				notes TEXT
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries, "CREATE TABLE IF NOT EXISTS `appointment_group` (
+				`appointment` int(11) NOT NULL,
+				`group` int(11) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
 			foreach($queries as $i => $query) {
 				$db->execute($query);
 			}

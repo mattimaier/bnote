@@ -233,6 +233,23 @@ $update->addDynConfigParam("default_conductor", "");
 $update->addColumnToTable("customfield", "public_field", "INT(1) DEFAULT 0");
 $update->addColumnToTable("customfield_value", "dateval", "DATE");
 $update->addColumnToTable("customfield_value", "datetimeval", "DATETIME");
+
+// Task 5: Appointment submodule
+$update->addTable("appointment", "CREATE TABLE IF NOT EXISTS `appointment` (
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	begin DATETIME NOT NULL,
+	end DATETIME NOT NULL,
+	name VARCHAR(100) NOT NULL,
+	location INT(11),
+	contact INT(11),
+	notes TEXT
+)");
+
+$update->addTable("appointment_group", "CREATE TABLE IF NOT EXISTS `appointment_group` (
+	`appointment` int(11) NOT NULL,
+	`group` int(11) NOT NULL
+)");
+
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>

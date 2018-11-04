@@ -85,6 +85,8 @@ class Translation extends BNoteTranslation {
 			"meetingtime" => "Meeting time",
 			"conductor" => "Conductor",
 			"song" => "Song",
+			"appointment" => "Appointment",
+			"appointments" => "Appointments",
 			
 			// GDPR
 			"gdprStartHeading" => "Privacy Policy",
@@ -338,6 +340,7 @@ class Translation extends BNoteTranslation {
 			"calendar_title" => "Name",
 			"calendar_birthday" => "Birthday",
 			"calendar_outfit" => "Outfit",
+			"calendar_appointment" => "Appointment",
 			
 			"equipment_model" => "Model",
 			"equipment_make" => "Make",

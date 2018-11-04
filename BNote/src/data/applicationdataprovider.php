@@ -485,6 +485,15 @@ class ApplicationDataProvider {
 	}
 	
 	/**
+	 * Returns simple name of location from database.
+	 * @param int $locId Location ID.
+	 * @return String Name of the location.
+	 */
+	public function getLocationName($locId) {
+		return $this->database->getCell("location", "name", "id = $locId");
+	}
+	
+	/**
 	 * @return All templated programs.
 	 */
 	function getTemplatePrograms() {

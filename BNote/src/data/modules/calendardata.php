@@ -5,6 +5,12 @@ class CalendarData extends AbstractData {
 	private $startdata;
 	private $mitspielerdata;
 	
+	/**
+	 * Submodule dao.
+	 * @var AppointmentData
+	 */
+	private $appointmentdata;
+	
 	public static $colExchange = array(
 		"contact" => array("name", "surname"),
 		"location" => array("name")
@@ -39,6 +45,10 @@ class CalendarData extends AbstractData {
 		return $this->colExchange;
 	}
 	
+	public function setAppointmentData($appointmentData) {
+		$this->appointmentdata = $appointmentData;
+	}
+	
 	private function reduce_data($entityType, $dbsel, $fields, $key_replace=array(), $title_prefix="", $link="#") {
 		$result = array();
 		
@@ -51,6 +61,7 @@ class CalendarData extends AbstractData {
 			case "vote": $modName = "Abstimmung"; break;
 			case "contact": $modName = "Kontakte"; break;
 			case "reservation": $modName = "Calendar"; break;
+			case "appointment": $modName = "Calendar"; break;
 		}
 		$modAccess = false;
 		if($modName != null) {
@@ -110,6 +121,7 @@ class CalendarData extends AbstractData {
 		$votes_db = $this->startdata->getVotesForUser();
 		$contacts_db = $this->mitspielerdata->getMembers();
 		$reservations_db = $this->findAllNoRef();
+		$appointments_db = $this->appointmentdata->findAllJoined(AppointmentData::$colExchange);
 		
 		// birthday: replace year with the current year
 		$contacts_db_edit = array();
@@ -180,6 +192,13 @@ class CalendarData extends AbstractData {
 				Lang::txt("calendar_reservation"),
 				"?mod=" . $this->getSysdata()->getModuleId("Calendar") . "&mode=view&id="
 		);
+		$appointments = $this->reduce_data(
+				"appointment",
+				$appointments_db,
+				array("id", "begin", "end", "name"),
+				array("begin" => "start", "name" => "title"),
+				Lang::txt("calendar_appointment"),
+				"?mod=" . $this->getSysdata()->getModuleId("Calendar") . "&mode=appointments&func=view&id=");
 		
 		return array(
 			"rehearsals" => $rehs,
@@ -187,7 +206,8 @@ class CalendarData extends AbstractData {
 			"concerts" => $concerts,
 			"votes" => $votes,
 			"contacts" => $contacts,
-			"reservations" => $reservations
+			"reservations" => $reservations,
+			"appointments" => $appointments
 		);
 	}
 	

@@ -57,6 +57,10 @@ class CalendarView extends CrudRefView {
 				events: calendar_events["reservations"],
 				color: '#A0A0A0'  // gray
 			});
+			$("#calendar").fullCalendar( 'addEventSource', {
+				events: calendar_events["appointments"],
+				color: '#DF61FF'  // pink
+			});
 		});
 		</script>
 		<?php
@@ -105,6 +109,16 @@ class CalendarView extends CrudRefView {
 		}
 		
 		$dv->write();
+	}
+	
+	function startOptions() {
+		$reservation = new Link($this->modePrefix() . "addEntity", "Reservierung hinzufügen");
+		$reservation->addIcon("plus");
+		$reservation->write();
+		
+		$appointment = new Link($this->modePrefix() . "appointments&func=addEntity", "Termin hinzufügen");
+		$appointment->addIcon("plus");
+		$appointment->write();
 	}
 }
 
