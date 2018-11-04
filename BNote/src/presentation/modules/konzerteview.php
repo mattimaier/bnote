@@ -133,41 +133,134 @@ class KonzerteView extends CrudRefView {
 		$table->write();
 	}
 	
-	function viewDetailTable() {
+	function view() {
+		// get data
 		$c = $this->getData()->findByIdNoRef($_GET["id"]);
-		$dv = new Dataview();
-		$dv->autoAddElements($c);
-		$dv->autoRename($this->getData()->getFields());
-		
-		$dv->removeElement("Ort");
+		$custom = $this->getData()->getCustomData($_GET["id"]);
 		$loc = $this->getData()->getLocation($c["location"]);
-		$lv = (count($loc) > 0) ? $loc["name"] : ""; 
-		$dv->addElement("Ort", $lv);		
 		
-		$dv->removeElement("Programm");
-		if($c["program"] != "") {
-			$prg = $this->getData()->getProgram($c["program"]);
-			$pv = $prg["name"];
-		}
-		else {
-			$pv = "-";
-		}
-		$dv->addElement("Programm", $pv);
+		// concert details
+		Writing::h1($c["title"]);
+		?>
 		
-		$dv->removeElement("Kontakt");
-		if($c["contact"]) {
-			$cnt = $this->getData()->getContact($c["contact"]);
-			$cv = $cnt["name"];
-		}
-		else {
-			$cv = "-";
-		}
-		$dv->addElement("Kontakt", $cv);
+		<div class="concertdetail_box">
+			<div class="concertdetail_heading">Veranstaltung</div>
+			<div class="concertdetail_data">
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Ort</span>
+					<span class="concertdetail_value"><?php 
+					echo $loc["name"] . "<br/>";
+					echo $this->buildAddress($this->getData()->getAddress($loc["address"]));
+					?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Kontakt</span>
+					<span class="concertdetail_value"><?php 
+					if($c["contact"]) {
+						$cnt = $this->getData()->getContact($c["contact"]);
+						$cv = $cnt["name"];
+						$details = array();
+						if($cnt["phone"] != "") {
+							array_push($details, $cnt["phone"]);
+						}
+						if($cnt["email"] != "") {
+							array_push($details, $cnt["email"]);
+						}
+						if($cnt["web"] != "") {
+							array_push($details, $cnt["web"]);
+						}
+						if(count($details) > 0) {
+							$cv .= "<br/>" . join(", ", $details);
+						}
+					}
+					else {
+						$cv = "-";
+					}
+					echo $cv;
+					?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Programm</span>
+					<span class="concertdetail_value"><?php 
+					if($c["program"]) {
+						$prg = $this->getData()->getProgram($c["program"]);
+						$pv = $prg["name"];
+					}
+					else {
+						$pv = "-";
+					}
+					echo $pv;
+					?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Outfit</span>
+					<span class="concertdetail_value"><?php 
+					if($c["outfit"]) {
+						$outfit = $this->getData()->getOutfit($c["outfit"]);
+						echo $outfit["name"];
+					}
+					else {
+						echo "-";
+					}
+					?></span>
+				</div>
+			</div>
+		</div>
 		
-		$dv->resolveForeignElement("Outfit", "outfit");
+		<div class="concertdetail_box">
+			<div class="concertdetail_heading">Zeiten</div>
+			<div class="concertdetail_data">
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Datum/Zeit</span>
+					<span class="concertdetail_value"><?php 
+					echo Data::convertDateFromDb($c["begin"]) . " - ";
+					echo Data::convertDateFromDb($c["end"]);
+					?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Treffpunkt</span>
+					<span class="concertdetail_value"><?php echo Data::convertDateFromDb($c["meetingtime"]); ?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Zusage bis</span>
+					<span class="concertdetail_value"><?php echo Data::convertDateFromDb($c["approve_until"]); ?></span>
+				</div>
+			</div>
+		</div>
 		
-		$dv->write();
+		<div class="concertdetail_box">
+			<div class="concertdetail_heading">Details</div>
+			<div class="concertdetail_data">
+			<?php 
+			$customFields = $this->getData()->getCustomFields('g');
+			for($i = 1; $i < count($customFields); $i++) {
+				$field = $customFields[$i];
+				?>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key"><?php echo $field["txtdefsingle"]; ?></span>
+					<span class="concertdetail_value"><?php echo $custom[$field["techname"]]; ?></span>
+				</div>
+				<?php 
+			}
+			?>
+			</div>
+		</div>
 		
+		<div class="concertdetail_box">
+			<div class="concertdetail_heading">Notizen</div>
+			<div class="concertdetail_notes"><?php echo $c["notes"]; ?></div>
+		</div>
+		<?php
+		
+		// invitations
+		$this->viewInvitations();
+		$this->verticalSpace();
+		
+		// phases
+		$this->viewPhases();
+	}
+	
+	private function viewInvitations() {
 		// manage members who will play in this concert
 		Writing::h2("Eingeladene Kontakte");
 		
@@ -180,8 +273,9 @@ class KonzerteView extends CrudRefView {
 		$tab->renameHeader("phone", "Telefon");
 		$tab->renameHeader("mobile", "Handy");
 		$tab->write();
-		$this->verticalSpace();
-		
+	}
+	
+	private function viewPhases() {
 		// show the rehearsal phases this concert is related to
 		Writing::h2("Probenphasen");
 		$phases = $this->getData()->getRehearsalphases($_GET["id"]);
@@ -244,13 +338,18 @@ class KonzerteView extends CrudRefView {
 	}
 	
 	function editEntityForm($write=true) {
+		// data
+		$c = $this->getData()->getConcert($_GET["id"]);
+		
+		// form init
 		$form = new Form("Auftritt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"] . "&manualValid=true");
-		$c = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), "concert", $_GET["id"]);
 		$form->removeElement("id");
 		
+		// location
 		$form->setForeign("location", "location", "id", "name", $c["location"]);
 		
+		// program
 		if(!isset($c["program"]) || $c["program"] == "" || $c["program"] == null) {
 			$c["program"] = "0";
 			$form->addElement("program", new Field("program", $c["program"], FieldType::REFERENCE));
@@ -259,6 +358,7 @@ class KonzerteView extends CrudRefView {
 		$form->addForeignOption("program", "Kein Programm", "0");
 		$form->setForeignOptionSelected("program", $c["program"]);
 		
+		// contact
 		$form->removeElement("contact");
 		$dd = new Dropdown("contact");
 		$contacts = $this->getData()->getContacts();
@@ -271,6 +371,7 @@ class KonzerteView extends CrudRefView {
 		$dd->setSelected($c["contact"]);
 		$form->addElement("Kontakt", $dd);
 		
+		// outfit
 		$outfit = $c['outfit'];
 		if($outfit == "" || !isset($c["outfit"])) {
 			$outfit = 0;
@@ -278,6 +379,9 @@ class KonzerteView extends CrudRefView {
 		}
 		$form->setForeign("outfit", "outfit", "id", array("name"), $outfit);
 		$form->addForeignOption("outfit", "Kein Outfit", 0);
+		
+		// custom data
+		$this->appendCustomFieldsToForm($form, 'g', $c);
 		
 		$form->write();
 	}
@@ -401,6 +505,10 @@ class KonzerteView extends CrudRefView {
 		$meetingtime->setCssClass("copyDateTarget");
 		$form->addElement("Treffpunkt (Zeit)", $meetingtime);
 		$form->addElement("Zusagen bis", $approve_field);
+		
+		// custom fields
+		$this->appendCustomFieldsToForm($form, 'g');
+		
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));		
 		
 		$this->addCollectedData($form);

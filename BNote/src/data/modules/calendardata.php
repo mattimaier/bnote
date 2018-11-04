@@ -201,6 +201,25 @@ class CalendarData extends AbstractData {
 			WHERE l.id = $id";
 		return $this->database->getRow($query);
 	}
+	
+	function getCustomData($id) {
+		return $this->getCustomFieldData('v', $id);
+	}
+	
+	function create($values) {
+		$id = parent::create($values);
+		$this->createCustomFieldData('v', $id, $values);
+	}
+	
+	function update($id, $values) {
+		parent::update($id, $values);
+		$this->updateCustomFieldData('v', $id, $values);
+	}
+	
+	function delete($id) {
+		$this->deleteCustomFieldData('v', $id);
+		parent::delete($id);
+	}
 }
 
 ?>

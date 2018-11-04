@@ -230,6 +230,47 @@ abstract class AbstractView {
 	}
 	
 	/**
+	 * Appends custom fields to a form.
+	 * @param Form $form Form to append to.
+	 * @param String $otype Object type, e.g. 'c' for Contact.
+	 * @param array $entity Optional entity to read custom data from.
+	 * @param boolean $public_only If only public fields should be added (default true).
+	 */
+	protected function appendCustomFieldsToForm($form, $otype, $entity = null, $public_only = true) {
+		$customFields = $this->getData()->getCustomFields($otype, $public_only);
+		for($i = 1; $i < count($customFields); $i++) {
+			$field = $customFields[$i];
+			$techName = $field["techname"];
+			
+			// set the value of the element in case the entity is given
+			$default = "";
+			if($entity != null) {
+				$default = $entity[$techName];
+			}
+			
+			// generate the element based on the type
+			$element = new Field($techName, $default, $this->getData()->fieldTypeFromCustom($field["fieldtype"]));
+			
+			$form->addElement($field["txtdefsingle"], $element);
+		}
+	}
+	
+	/**
+	 * Creates a formatted from-to date string
+	 * @param String $fromDbDate From date in YYYY-MM-DD H:i:s
+	 * @param String $toDbDate To date in YYYY-MM-DD H:i:s
+	 * @return String formatted date and time from - to
+	 */
+	protected function formatFromToDateShort($fromDbDate, $toDbDate) {
+		$dayPartFrom = substr($fromDbDate, 0, 10);
+		$dayPartTo = substr($toDbDate, 0, 10);
+		if($dayPartFrom == $dayPartTo) {
+			return Data::convertDateFromDb($dayPartFrom) . " " . substr($fromDbDate, 11, 5) . " - " . substr($toDbDate, 11, 5);
+		}
+		return $fromDbDate . " - " . $toDbDate;
+	}
+	
+	/**
 	 * Prints two br-tags.
 	 */
 	public static function verticalSpace() {
@@ -250,6 +291,7 @@ abstract class AbstractView {
 		<div class="flash_message <?php echo $level; ?>"><?php echo $message; ?></div>
 		<?php
 	}
+	
 }
 
 ?>

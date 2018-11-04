@@ -97,6 +97,9 @@ class ProbenView extends CrudRefView {
 		// conductor
 		$form->addElement("Dirigent", $this->buildConductorDropdown());
 		
+		// custom fields
+		$this->appendCustomFieldsToForm($form, 'r');
+		
 		// notes
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
@@ -176,6 +179,8 @@ class ProbenView extends CrudRefView {
 		$form->setForeign("Ort", "location", "id", "name", -1);
 		
 		$form->addElement("Dirigent", $this->buildConductorDropdown());
+		
+		$this->appendCustomFieldsToForm($form, 'r');
 		
 		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
@@ -263,7 +268,7 @@ class ProbenView extends CrudRefView {
 
 		$when = Data::convertDateFromDb($row["begin"]) . " - " . $finish . " Uhr";
 		$conductor = "";
-		if(isset($row["conductor"]) && $row["conductor"] != null) {
+		if(isset($row["conductor"]) && $row["conductor"] != 0) {
 			$conductor .= "Dirigent: ";
 			$conductor .= $this->getData()->adp()->getConductorname($row["conductor"]);
 		}
@@ -301,7 +306,7 @@ class ProbenView extends CrudRefView {
 	}
 	
 	protected function editEntityForm($write=true) {
-		$r = $this->getData()->findByIdNoRef($_GET["id"]);
+		$r = $this->getData()->getRehearsal($_GET["id"]);
 		
 		$form = new Form($this->getEntityName() . " bearbeiten",
 							$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
@@ -314,6 +319,9 @@ class ProbenView extends CrudRefView {
 		
 		// conductor
 		$form->addElement("conductor", $this->buildConductorDropdown($r["conductor"]));
+		
+		// custom fields
+		$this->appendCustomFieldsToForm($form, 'r', $r);
 		
 		$form->write();
 	}
@@ -338,23 +346,90 @@ class ProbenView extends CrudRefView {
 	}
 	
 	protected function viewDetailTable() {
-		$entity = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
-		
-		$details = new Dataview();
-		$details->autoAddElements($entity);
-		$details->resolveForeignElement("conductor", "contact", "id", $this->getJoinedAttributes()["conductor"]);
-		$details->autoRename($this->getData()->getFields());
-		$details->renameElement("name", "Ort");
-		$details->renameElement("street", "Stra&szlig;e");
-		$details->renameElement("zip", "Postleitzahl");
-		$details->renameElement("city", "Stadt");
-		
+		// data
+		$entity = $this->getData()->getRehearsal($_GET["id"]);
 		$serie = $this->getData()->getRehearsalSerie($_GET["id"]);
-		if($serie != null && count($serie) > 0) {
-			$details->addElement("Probenstrecke", $serie["name"]);
-		}
-		$details->write();
 		
+		?>
+		<div class="probendetail_block">
+			<div class="probendetail_set">
+				<div class="probendetail_heading">Zeit</div>
+				<div class="probendetail_value"><?php 
+				echo $this->formatFromToDateShort($entity["begin"], $entity["end"]);
+				?></div>
+				<div class="probendetail_value">Zusagen bis: <?php 
+				echo Data::convertDateFromDb($entity["approve_until"]);
+				?></div>
+			</div>
+			
+			<div class="probendetail_set">
+				<div class="probendetail_heading">Ort</div>
+				<div class="probendetail_value"><?php
+				echo $entity["name"]; 
+				?></div>
+				<div class="probendetail_value"><?php
+				echo $this->buildAddress($entity); 
+				?></div>
+			</div>
+		</div>
+		
+		<div class="probendetail_block">
+			<?php 
+			if($entity["conductor"]) {
+				?>
+				<div class="probendetail_set">
+						<div class="probendetail_heading">Dirigent</div>
+						<div class="probendetail_value"><?php
+						echo $this->getData()->adp()->getConductorname($entity["conductor"]); 
+						?></div>
+					</div>
+				<?php 
+			}
+			
+			if($serie != null && count($serie) > 0) {
+				?>
+				<div class="probendetail_set">
+					<div class="probendetail_heading">Probenstrecke</div>
+					<div class="probendetail_value"><?php
+					echo $serie["name"]; 
+					?></div>
+				</div>
+				<?php 
+			}
+			?>
+			<div class="probendetail_set">
+				<div class="probendetail_heading">Notizen</div>
+				<div class="probendetail_value"><?php
+				echo $entity["notes"]; 
+				?></div>
+			</div>
+		</div>
+		
+		<div class="probendetail_block">
+		<?php 
+		$customFields = $this->getData()->getCustomFields('r');
+		for($i = 1; $i < count($customFields); $i++) {
+			$field = $customFields[$i];
+			$techName = $field["techname"];
+			$caption = $field["txtdefsingle"];
+			?>
+			<div class="probendetail_set">
+				<div class="probendetail_heading"><?php echo $caption; ?></div>
+				<div class="probendetail_value"><?php
+				if($field["fieldtype"] == "BOOLEAN") {
+					echo $entity[$techName] == 1 ? "ja" : "nein";
+				}
+				else {
+					echo $entity[$techName];
+				}
+				?></div>
+			</div>
+			<?php
+		}
+		?>
+		</div>
+		
+		<?php
 		if(!$this->isReadOnlyView()) {
 			// contacts who should participate in rehearsal			
 			$phases = $this->getData()->getRehearsalsPhases($_GET["id"]);

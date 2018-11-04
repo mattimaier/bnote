@@ -282,6 +282,11 @@ class Systemdata {
  	return in_array($uid, $this->getSuperUsers());
  }
  
+ /**
+  * Checks if the contact's user is a super user.
+  * @param int $cid Contact ID, default current.
+  * @return If super user.
+  */
  public function isContactSuperUser($cid = -1) {
  	if($cid == -1) return $this->isUserSuperUser();
  	$uid = $this->dbcon->getCell($this->dbcon->getUserTable(), "id", "contact = $cid");
@@ -335,6 +340,15 @@ class Systemdata {
  		array_push($contacts, $su[$i]["contact"]);
  	}
  	return $contacts;
+ }
+ 
+ /**
+  * Checks if the user is part of the admin group.<br/>
+  * <i>Utility method only</i>
+  * @param int $uid Optional user ID, default current user.
+  */
+ public function isUserAdmin($uid = -1) {
+ 	return $this->isUserMemberGroup(1, $uid);
  }
  
  /**

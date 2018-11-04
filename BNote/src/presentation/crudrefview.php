@@ -35,7 +35,7 @@ abstract class CrudRefView extends CrudView {
 	}
 	
 	/**
-	 * Change the default entity form rather than completely reimplementing it.
+	 * Change the default add entity form rather than completely reimplementing it.
 	 * @param Form $form Form to change.
 	 */
 	protected function changeDefaultAddEntityForm($form) {
@@ -80,11 +80,22 @@ abstract class CrudRefView extends CrudView {
 		// remove id field
 		$form->removeElement($this->idField);
 		
+		$this->changeDefaultEditEntityForm($form, $record);
+		
 		// allow subclasses to modify form
 		if($write) {
 			$form->write();
 		}
 		return $form;
+	}
+	
+	/**
+	 * Change the default edit entity form rather than completely reimplementing it.
+	 * @param Form $form Form to change.
+	 * @param array $record Record that's edited.
+	 */
+	protected function changeDefaultEditEntityForm($form, $record) {
+		// leave blank by default
 	}
 	
 	/**

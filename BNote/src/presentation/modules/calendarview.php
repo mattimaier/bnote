@@ -67,10 +67,24 @@ class CalendarView extends CrudRefView {
 		$beginField->setCssClass("copyDateOrigin");
 		$endField = $form->getElement("end");
 		$endField->setCssClass("copyDateTarget");
+		
+		// custom data
+		$this->appendCustomFieldsToForm($form, 'v', null, false);
+	}
+	
+	function changeDefaultEditEntityForm($form, $record) {
+		// custom data
+		$customData = $this->getData()->getCustomData($record["id"]);
+		$reservation = array_merge($record, $customData);
+		$this->appendCustomFieldsToForm($form, 'v', $reservation, false);
 	}
 	
 	function viewDetailTable() {
+		// data
 		$reservation = $this->getData()->findByIdJoined($_GET["id"], CalendarData::$colExchange);
+		$customData = $this->getData()->getCustomData($reservation["id"]);
+		
+		// display
 		$dv = new Dataview();
 		$dv->autoAddElements($reservation);
 		$dv->autoRename($this->getData()->getFields());
@@ -79,6 +93,17 @@ class CalendarView extends CrudRefView {
 		$dv->removeElement("contactsurname");
 		$dv->renameElement("locationname", Lang::txt("location"));
 		$dv->addElement(Lang::txt("contact"), $reservation["contactname"] . " " . $reservation["contactsurname"]);
+		
+		// custom data
+		$customFields = $this->getData()->getCustomFields('v');
+		for($i = 1; $i < count($customFields); $i++) {
+			$field = $customFields[$i];
+			$techName = $field["techname"];
+			if(isset($customData[$techName])) {
+				$dv->addElement($field["txtdefsingle"], $customData[$techName]);
+			}
+		}
+		
 		$dv->write();
 	}
 }

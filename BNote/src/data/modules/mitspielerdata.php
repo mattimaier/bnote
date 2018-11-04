@@ -93,7 +93,7 @@ class MitspielerData extends AbstractData {
 			}
 		}
 		
-		return $this->filterSuperUsers($contacts);
+		return $this->appendCustomDataToSelection('c', $this->filterSuperUsers($contacts));
 	}
 	
 	private function isContactInArray($contact, $contacts) {

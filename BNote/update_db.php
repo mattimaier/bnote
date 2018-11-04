@@ -229,6 +229,10 @@ $update->addColumnToTable("rehearsal", "conductor", "INT(11)");  # contact
 $update->addColumnToTable("contact", "is_conductor", "INT(1) DEFAULT 0");
 $update->addDynConfigParam("default_conductor", "");
 
+// Task 4: Custom field extensions
+$update->addColumnToTable("customfield", "public_field", "INT(1) DEFAULT 0");
+$update->addColumnToTable("customfield_value", "dateval", "DATE");
+$update->addColumnToTable("customfield_value", "datetimeval", "DATETIME");
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>

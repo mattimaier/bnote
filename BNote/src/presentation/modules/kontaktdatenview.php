@@ -18,18 +18,24 @@ class KontaktdatenView extends AbstractView {
 			Writing::p("Ihrem Benutzer wurde kein Kontakt zugeordnet.");
 			return;
 		}
+		$cid = $contact["id"];
+		
 		$form1 = new Form("Persönliche Daten ändern", $this->modePrefix() . "savePD");
-		$form1->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $contact["id"]);
+		$form1->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $cid);
 		$form1->removeElement("id");
 		$form1->removeElement("notes");
 		$form1->removeElement("address");
 		$form1->removeElement("status");
+		$form1->removeElement("is_conductor");
 		$form1->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
 		
 		$address = $this->getData()->getAddress($contact["address"]);
 		$form1->addElement("Stra&szlig;e", new Field("street", $address["street"], FieldType::CHAR));
 		$form1->addElement("Stadt", new Field("city", $address["city"], FieldType::CHAR));
 		$form1->addElement("PLZ", new Field("zip", $address["zip"], FieldType::CHAR));
+		
+		// custom data
+		$this->appendCustomFieldsToForm($form1, 'c', $contact, true);
 		
 		$form1->write();
 	}

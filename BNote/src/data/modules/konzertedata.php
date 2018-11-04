@@ -48,6 +48,12 @@ class KonzerteData extends AbstractData {
 		parent::delete($id);
 	}
 	
+	function getConcert($id) {
+		$c = $this->findByIdNoRef($id);
+		$custom = $this->getCustomFieldData('g', $id);
+		return array_merge($c, $custom);
+	}
+	
 	function getFutureConcerts() {
 		return $this->adp()->getFutureConcerts();
 	}
@@ -155,6 +161,15 @@ class KonzerteData extends AbstractData {
 		return $this->database->getRow($q4);
 	}
 	
+	function getOutfit($id) {
+		$q5 = "SELECT name FROM outfit WHERE id = $id";
+		return $this->database->getRow($query);
+	}
+	
+	function getCustomData($cid) {
+		return $this->getCustomFieldData('g', $cid);
+	}
+	
 	function getLocations() {
 		return $this->adp()->getLocations(array(2, 3, 4, 5));
 	}
@@ -249,6 +264,9 @@ class KonzerteData extends AbstractData {
 		// adds members of the selected group(s)
 		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 		$this->addMembersToConcert($groups, $concertId);	
+		
+		// add custom data
+		$this->createCustomFieldData('g', $concertId, $values);
 		
 		// create trigger if configured
 		if($this->triggerServiceEnabled) {
@@ -365,8 +383,8 @@ class KonzerteData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
-	// add manual validation to default update method
 	function update($id, $values) {
+		// add manual validation to default update method
 		if(isset($values["begin"])) {
 			$this->regex->isDateTime($values["begin"]);
 		}
@@ -389,7 +407,11 @@ class KonzerteData extends AbstractData {
 			$this->regex->isPositiveAmount($values["contact"]);
 		}
 		
+		// default update
 		parent::update($id, $values);
+		
+		// update custom data
+		$this->updateCustomFieldData('g', $id, $values);
 	}
 }
 

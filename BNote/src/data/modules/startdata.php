@@ -453,4 +453,18 @@ class StartData extends AbstractData {
 	function getOutfit($id) {
 		return $this->database->getRow("SELECT * FROM outfit WHERE id = $id");
 	}
+	
+	function getCustomData($otype, $oid) {
+		// show only public fields
+		$pubFields = $this->getCustomFields($otype, true);
+		$pubTechNames = Database::flattenSelection($pubFields, "techname");
+		$data = $this->getCustomFieldData($otype, $oid);
+		$cleaned = array();
+		foreach($data as $k => $v) {
+			if(in_array($k, $pubTechNames)) {
+				$cleaned[$k] = $v;
+			}
+		}
+		return $cleaned;
+	}
 }

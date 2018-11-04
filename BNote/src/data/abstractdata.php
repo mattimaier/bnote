@@ -538,10 +538,14 @@ abstract class AbstractData {
 	/**
 	 * Retrieves the custom fields for this object type.
 	 * @param String $objectType Character referring to CustomFieldsData::objectReferenceTypes
+	 * @param boolean $publicOnly If only public fields should be exported, false by default.
 	 * @return Selection of custom fields
 	 */
-	public function getCustomFields($objectType) {
+	public function getCustomFields($objectType, $publicOnly = false) {
 		$query = "SELECT * FROM customfield WHERE otype = '$objectType'";
+		if($publicOnly) {
+			$query .= " AND public_field = 1";
+		}
 		return $this->database->getSelection($query);
 	}
 	
@@ -555,6 +559,8 @@ abstract class AbstractData {
 			case "BOOLEAN": return FieldType::BOOLEAN;
 			case "INT": return FieldType::INTEGER;
 			case "DOUBLE": return FieldType::DECIMAL;
+			case "DATE": return FieldType::DATE;
+			case "DATETIME": return FieldType::DATETIME;
 			default: return FieldType::CHAR;
 		}
 	}
@@ -590,40 +596,63 @@ abstract class AbstractData {
 			$intval = 0;
 			$dblval = 0.0;
 			$strval = "";
+			$dateval = "";
+			$datetimeval = "";
 				
 			if(isset($values[$techname])) {
 				$val = $values[$techname];
 		
-				if($vtype == "BOOLEAN") {
-					$intval = $val ? 1 : 0;
-				}
-				else if($vtype == "INT") {
-					$intval = $val;
-					if($intval == "") {
-						$intval = 0;
-					}
-				}
-				else if($vtype == "DOUBLE") {
-					$dblval = Data::convertToDb($val);
-					if($dblval == "") {
-						$dblval = 0;
-					}
-				}
-				else {
-					$strval = $val;
+				switch($vtype) {
+					case "BOOLEAN":
+						$intval = $val ? 1 : 0;
+						break;
+					case "INT":
+						$intval = $val;
+						if($intval == "") {
+							$intval = 0;
+						}
+						break;
+					case "DOUBLE":
+						$dblval = Data::convertToDb($val);
+						if($dblval == "") {
+							$dblval = 0;
+						}
+						break;
+					case "DATE":
+						$dateval = Data::convertDateToDb($val);
+						break;
+					case "DATETIME":
+						$datetimeval = Data::convertDateToDb($val);
+						break;
+					default:
+						$strval = $val;
 				}
 			}
-			array_push($valueSet, "($fieldid, '$otype', $oid, $intval, $dblval, '$strval')");
+			array_push($valueSet, "($fieldid, '$otype', $oid, $intval, $dblval, '$strval', '$dateval', '$datetimeval')");
 		}
 		if(count($valueSet) == 0) {
 			return;
 		}
-		$query = "INSERT INTO customfield_value (customfield, otype, oid, intval, dblval, strval) VALUES ";
+		$query = "INSERT INTO customfield_value (customfield, otype, oid, intval, dblval, strval, dateval, datetimeval) VALUES ";
 		$query .= join(",", $valueSet);
 		$this->database->execute($query);
 	}
 	
-	protected function updateCustomFieldData($otype, $oid, $values) {
+	protected function updateCustomFieldData($otype, $oid, $values, $public_mode = false) {
+		// in case the public_mode is on, add the non-public field values to the value set
+		if($public_mode) {
+			$currentData = $this->getCustomFieldData($otype, $oid);
+			
+			$customFields = $this->getCustomFields($otype);
+			for($i = 1; $i < count($customFields); $i++) {
+				$field = $customFields[$i];
+				$techName = $field["techname"];
+				if($field["public_field"] == 0) {
+					$values[$techName] = $currentData[$techName];
+				}
+			}
+		}
+		
 		// for update compatibility of custom fields, remove all custom data before inserting new ones
 		$delQuery = "DELETE FROM customfield_value WHERE otype = '$otype' AND oid = $oid";
 		$this->database->execute($delQuery);
@@ -645,7 +674,7 @@ abstract class AbstractData {
 	 */
 	protected function getCustomFieldData($otype, $oid) {
 		// get data
-		$query = "SELECT f.techname, v.intval, v.dblval, v.strval ";
+		$query = "SELECT f.techname, v.intval, v.dblval, v.strval, v.dateval, v.datetimeval ";
 		$query .= "FROM customfield_value v JOIN customfield f ON v.customfield = f.id ";
 		$query .= "WHERE f.otype = '$otype' AND oid = $oid";
 		$select = $this->database->getSelection($query);
@@ -676,9 +705,22 @@ abstract class AbstractData {
 		$techname = $customValueRow['techname'];
 		$vtype = $fields[$techname][1];
 		switch($vtype) {
-			case "BOOLEAN": $val = ($customValueRow['intval'] == 1); break;
+			case "BOOLEAN": 
+				$val = ($customValueRow['intval'] == 1); 
+				break;
 			case "INT": $val = $customValueRow['intval']; break;
-			case "DOUBLE": $val = $customValueRow['dblval']; break;
+			case "DOUBLE": 
+				$val = $customValueRow['dblval'];
+				$val = Data::convertFromDb($val);
+				break;
+			case "DATE": 
+				$val = $customValueRow['dateval'];
+				$val = Data::convertDateFromDb($val);
+				break;
+			case "DATETIME": 
+				$val = $customValueRow["datetimeval"];
+				$val = Data::convertDateFromDb($val);
+				break;
 			default: $val = $customValueRow['strval'];
 		}
 		return $val;
@@ -691,7 +733,7 @@ abstract class AbstractData {
 			// no data to append to
 			return $selection;
 		}
-		$query = "SELECT oid, techname, intval, dblval, strval "
+		$query = "SELECT oid, techname, intval, dblval, strval, dateval, datetimeval "
 				. "FROM customfield_value v JOIN customfield f ON v.customfield = f.id " 
 				. "WHERE f.otype = '$otype' AND (oid = "
 				. join(" OR v.oid = ", $oids)

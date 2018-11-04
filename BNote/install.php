@@ -738,7 +738,8 @@ class Installation {
 				txtdefsingle VARCHAR(50) NOT NULL,
 				txtdefplural VARCHAR(50) NOT NULL,
 				fieldtype VARCHAR(20) NOT NULL,
-				otype CHAR(1) NOT NULL
+				otype CHAR(1) NOT NULL,
+				public_field INT(1) DEFAULT 0
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
 			array_push($queries, "CREATE TABLE customfield_value (
@@ -748,7 +749,9 @@ class Installation {
 				oid int(11) NOT NULL,
 				intval INT,
 				dblval DECIMAL(12,2),
-				strval VARCHAR(255)
+				strval VARCHAR(255),
+				dateval DATE,
+				datetimeval DATETIME
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
 			array_push($queries, "CREATE TABLE rehearsalserie (

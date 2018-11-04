@@ -125,7 +125,7 @@ class KontakteView extends CrudRefView {
 				// header
 				echo "<thead>";
 				echo "   <td class=\"DataTable_Header\">Name, Vorname</td>";
-				echo "   <td class=\"DataTable_Header\">Instrument</td>";
+				echo "   <td class=\"DataTable_Header\">Musik</td>";
 				echo "   <td class=\"DataTable_Header\">Adresse</td>";
 				echo "   <td class=\"DataTable_Header\">Telefone</td>";
 				echo "   <td class=\"DataTable_Header\">Online</td>";
@@ -140,7 +140,15 @@ class KontakteView extends CrudRefView {
 					$contact_name .= "<br/>(" . $row['nickname'] . ")";
 				}
 				echo "   <td class=\"DataTable\"><a href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">$contact_name</a></td>";
-				echo "   <td class=\"DataTable\">" . $row["instrumentname"] . "</td>";
+				
+				// instrument, conductor
+				echo "   <td class=\"DataTable\">Instrument: " . $row["instrumentname"];
+				if(isset($row["is_conductor"])) {
+					echo "<br>Dirigent: ";
+					echo $row["is_conductor"] == "1" ? "ja" : "nein";
+				}
+				echo "</td>";
+				
 				echo "   <td class=\"DataTable\" style=\"width: 150px;\">" . $row["street"] . "<br/>" . $row["zip"] . " " . $row["city"] . "</td>";
 				
 				// phones
@@ -189,8 +197,8 @@ class KontakteView extends CrudRefView {
 				 "info": false,  
 				 "oLanguage": {
 					 		 "sEmptyTable":  "<?php echo Lang::txt("table_no_entries"); ?>",
-							  "sInfoEmpty":  "<?php echo Lang::txt("table_no_entries"); ?>",
-							  "sZeroRecords":  "<?php echo Lang::txt("table_no_entries"); ?>",
+							 "sInfoEmpty":  "<?php echo Lang::txt("table_no_entries"); ?>",
+							 "sZeroRecords":  "<?php echo Lang::txt("table_no_entries"); ?>",
         					 "sSearch": "<?php echo Lang::txt("table_search"); ?>"
 		       }
 			});
@@ -202,19 +210,22 @@ class KontakteView extends CrudRefView {
 	function addEntity() {
 		$form = new Form("Kontakt hinzufügen", $this->modePrefix() . "add");
 		
+		// just add all custom and regular fields
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
+		$form->removeElement("status");
+		
+		// instrument
 		$form->setForeign("instrument", "instrument", "id", "name", -1);
 		$form->addForeignOption("instrument", "[keine Angabe]", 0);
 		
+		// address
 		$form->removeElement("address");
 		$form->addElement("Stra&szlig;e", new Field("street", "", FieldType::CHAR));
 		$form->addElement("Stadt", new Field("city", "", FieldType::CHAR));
 		$form->addElement("PLZ", new Field("zip", "", FieldType::CHAR));
 		
-		$form->removeElement("status");
-		
-		// group selection
+		// contact group selection
 		$groups = $this->getData()->getGroups();
 		$gs = new GroupSelector($groups, array(), "group");
 		$form->addElement("Gruppen", $gs);
@@ -328,7 +339,15 @@ class KontakteView extends CrudRefView {
 			?>
 			<div class="contactdetail_entry">
 				<label class="contactdetail_entry_label"><?php echo $field['txtdefsingle'] ?></label>
-				<div class="contactdetail_entry_value"><?php echo $contact[$field["techname"]]; ?></div>
+				<div class="contactdetail_entry_value"><?php
+				$val = $contact[$field["techname"]];
+				if($field["fieldtype"] == "BOOLEAN") {
+					echo $val == 1 ? "ja" : "nein";
+				}
+				else {
+					echo $val;
+				}
+				?></div>
 			</div>
 			<?php
 			} 

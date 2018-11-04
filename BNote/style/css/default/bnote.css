@@ -47,6 +47,27 @@ span.concert_notes {
 span.start_concert_title {
   font-weight: 600;
 }
+.concertdetail_box {
+  display: inline-block;
+  vertical-align: top;
+  padding-right: 10px;
+  padding-bottom: 10px;
+}
+.concertdetail_heading {
+  font-size: large;
+  font-weight: 600;
+  border-bottom: 1px solid #8A8A8A;
+}
+span.concertdetail_key {
+  width: 90px;
+  display: inline-block;
+  color: #8A8A8A;
+  vertical-align: top;
+}
+span.concertdetail_value {
+  display: inline-block;
+  vertical-align: top;
+}
 table.contact_view {
   margin-top: 0px;
   width: 100%;
@@ -73,6 +94,23 @@ label.contactdetail_entry_label {
 }
 .contactdetail_entry_value {
   display: inline-block;
+}
+.membercard {
+  border: 1px solid #D0D0D0;
+  display: inline-block;
+  padding: 10px;
+  width: 300px;
+}
+.membercard_name {
+  font-size: large;
+  font-weight: 600;
+}
+.membercard_instrument {
+  color: #8A8A8A;
+}
+.membercard_customfields .customfield_entry {
+  display: block;
+  color: #8A8A8A;
 }
 #filebrowser_content {
   width: 100%;
@@ -676,6 +714,9 @@ div.flash_message.error {
   .dataTables_filter {
     display: none;
   }
+  .membercard_hint {
+    display: none;
+  }
 }
 div.rehearsalDate {
   font-weight: 600;
@@ -739,6 +780,15 @@ div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
 }
 .player_participation_line {
   padding-top: 2px;
+}
+.probendetail_set {
+  display: inline-block;
+  margin: 10px;
+  vertical-align: top;
+}
+.probendetail_heading {
+  font-weight: 600;
+  color: #61b3ff;
 }
 .songfiles_box {
   display: block;

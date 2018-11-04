@@ -84,6 +84,7 @@ class Translation extends BNoteTranslation {
 			"members" => "Members",
 			"meetingtime" => "Meeting time",
 			"conductor" => "Conductor",
+			"song" => "Song",
 			
 			// GDPR
 			"gdprStartHeading" => "Privacy Policy",
@@ -414,6 +415,8 @@ class Translation extends BNoteTranslation {
 			"customfield_int" => "Integer",
 			"customfield_double" => "Decimal",
 			"customfield_string" => "String",
+			"customfield_date" => "Date",
+			"customfield_datetime" => "Date and Time",
 			"objecttype" => "Object Reference",
 			"customfield_notunique_error" => "This technical name exists. Please choose another one.",
 			

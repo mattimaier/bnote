@@ -241,6 +241,21 @@ class StartView extends AbstractView {
 					$dataview->addElement(Lang::txt("conductor"), $this->getData()->adp()->getConductorname($data[$i]["conductor"]));
 				}
 				
+				// custom data
+				$customFields = $this->getData()->getCustomFields('r', true);
+				$customData = $this->getData()->getCustomData('r', $data[$i]["id"]);
+				for($j = 1; $j < count($customFields); $j++) {
+					$field = $customFields[$j];
+					$label = $field["txtdefsingle"];
+					if(isset($customData[$field["techname"]])) {
+						$value = $customData[$field["techname"]];
+						if($field["fieldtype"] == "BOOLEAN") {
+							$value = $value == 1 ? Lang::txt("yes") : Lang::txt("no");
+						}
+						$dataview->addElement($label, $value);
+					}
+				}
+				
 				if($data[$i]["notes"] != "") {
 					$dataview->addElement(Lang::txt("comment"), $data[$i]["notes"]);
 				}
@@ -322,7 +337,7 @@ class StartView extends AbstractView {
 				if($i == 0) continue;
 				
 				// add every item to the discussion
-				array_push($this->objectListing["C"], $data[$i]["id"]);
+				array_push($this->objectListing["C"], $row["id"]);
 				
 				$liCaption = Data::convertDateFromDb($row["begin"]);
 				$liCaption = Data::getWeekdayFromDbDate($row["begin"]) . ", " . $liCaption;
@@ -346,7 +361,7 @@ class StartView extends AbstractView {
 				
 				$loc = $this->buildAddress($row);
 				$addy = $loc;
-				if($loc != "") $loc = $row["location_name"] . " - " . $loc;
+				if($loc != "") $loc = $row["location_name"] . "<br/>" . $loc;
 				else $loc = $row["location_name"];
 				$dataview->addElement(Lang::txt("location"), $loc);
 				$contact = $row["contact_name"];
@@ -361,6 +376,20 @@ class StartView extends AbstractView {
 					$program .= "<br/><br/>" . $viewProg->toString();
 					$dataview->addElement(Lang::txt("program"), $program);
 				}
+				
+				// custom data
+				$customFields = $this->getData()->getCustomFields('g');
+				$customData = $this->getData()->getCustomData('g', $row["id"]);
+				for($j = 1; $j < count($customFields); $j++) {
+					$field = $customFields[$j];
+					$label = $field["txtdefsingle"];
+					$value = $customData[$field["techname"]];
+					if($field["fieldtype"] == "BOOLEAN") {
+						$value = $value == 1 ? Lang::txt("yes") : Lang::txt("no");
+					}
+					$dataview->addElement($label, $value);
+				}
+				
 				if($row["notes"] != "") {
 					$dataview->addElement(Lang::txt("notes"), $row["notes"]);
 				}
@@ -490,6 +519,21 @@ class StartView extends AbstractView {
 			$liCaption =  Data::convertDateFromDb($row["begin"]) . " (" . $row["name"] . ")";
 			$dataview = new Dataview();
 			$dataview->addElement(Lang::txt("name"), $row["name"]);
+			
+			// custom data
+			$customFields = $this->getData()->getCustomFields('v', true);
+			$customData = $this->getData()->getCustomData('v', $row["id"]);
+			for($j = 1; $j < count($customFields); $j++) {
+				$field = $customFields[$j];
+				$label = $field["txtdefsingle"];
+				if(isset($customData[$field["techname"]])) {
+					$value = $customData[$field["techname"]];
+					if($field["fieldtype"] == "BOOLEAN") {
+						$value = $value == 1 ? Lang::txt("yes") : Lang::txt("no");
+					}
+					$dataview->addElement($label, $value);
+				}
+			}
 
 			$link = $this->modePrefix() . "voteOptions&id=" . $row["id"];
 			$this->writeBoxListItem("B", $row["id"], "b" . $row["id"], $liCaption, $dataview, "", Lang::txt("vote"));

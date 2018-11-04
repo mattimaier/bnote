@@ -83,6 +83,8 @@ class RepertoireView extends CrudRefView {
 		$length = "<input type=\"text\" name=\"length\" size=\"6\" />&nbsp;min";
 		$form->addElement("Länge", new TextWriteable($length));
 		
+		$this->appendCustomFieldsToForm($form, 's', null, false);
+		
 		$form->write();
 	}
 	
@@ -124,7 +126,7 @@ class RepertoireView extends CrudRefView {
 	}
 	
 	public function view() {
-		$song = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
+		$song = $this->getData()->getSong($_GET["id"]);
 		?>
 		<h1><?php echo $song["title"]; ?> <span class="repertoire_song_composer_title"> <?php echo $song["composername"]; ?></span></h1>
 		
@@ -170,6 +172,29 @@ class RepertoireView extends CrudRefView {
 					<div class="songbox_label">Anmerkungen</div>
 				</div>
 				<div class="songbox_areavalue"><?php echo $song["notes"]; ?></div>
+			</div>
+			<div class="songbox_col">
+			<?php 
+			$customFields = $this->getData()->getCustomFields('s');
+			for($i = 1; $i < count($customFields); $i++) {
+				$field = $customFields[$i];
+				$techName = $field["techname"];
+				$caption = $field["txtdefsingle"];
+				?>
+				<div class="songbox_entry">
+					<div class="songbox_label"><?php echo $caption; ?></div>
+					<div class="songbox_value"><?php
+					if($field["fieldtype"] == "BOOLEAN") {
+						echo $song[$techName] == 1 ? "ja" : "nein";
+					}
+					else {
+						echo $song[$techName];
+					}
+					?></div>
+				</div>
+				<?php
+			}
+			?>
 			</div>
 		</div>
 		
@@ -312,7 +337,7 @@ class RepertoireView extends CrudRefView {
 	}
 	
 	protected function editEntityForm($write=true) {
-		$song = $this->getData()->findByIdNoRef($_GET["id"]);
+		$song = $this->getData()->getSong($_GET["id"]);
 		
 		$form = new Form("Song bearbeiten", $this->modePrefix() . "edit_process&manualValid=true&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);
@@ -323,6 +348,8 @@ class RepertoireView extends CrudRefView {
 		$form->removeElement("composer");
 		$form->addElement("Komponist/Arrangeur", new Field("composer",
 					$this->getData()->getComposerName($song["composer"]), FieldType::CHAR));
+		
+		$this->appendCustomFieldsToForm($form, 's', $song, false);
 		
 		if($write) {
 			$form->write();

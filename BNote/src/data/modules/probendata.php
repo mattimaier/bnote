@@ -34,10 +34,16 @@ class ProbenData extends AbstractData {
 	}
 	
 	private function defaultQuery() {
-		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes as notes, name, street, city, zip";
+		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes, r.serie, r.location, name, street, city, zip";
 		$query .= " FROM " . $this->table . " r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
 		return $query;
+	}
+	
+	function getRehearsal($id) {
+		$r = $this->findByIdJoined($id, null);
+		$c = $this->getCustomFieldData('r', $id);
+		return array_merge($r, $c);
 	}
 	
 	function getNextRehearsal() {
@@ -314,6 +320,9 @@ class ProbenData extends AbstractData {
 			$this->database->execute($query);
 		}
 		
+		// custom data
+		$this->createCustomFieldData('r', $rid, $values);
+		
 		// create notification
 		if($this->triggerServiceEnabled) {
 			$begin_dt = Data::convertDateToDb($values["begin"]);
@@ -335,6 +344,8 @@ class ProbenData extends AbstractData {
 		
 		$query = "DELETE FROM rehearsal_user WHERE rehearsal = $id";
 		$this->database->execute($query);
+		
+		$this->deleteCustomFieldData('r', $id);
 		
 		parent::delete($id);
 	}
@@ -459,6 +470,9 @@ class ProbenData extends AbstractData {
 			unset($values["serie"]);
 		}
 		parent::update($id, $values);
+		
+		// process custom data
+		$this->updateCustomFieldData('r', $id, $values);
 	}
 	
 	public function validate($input) {

@@ -11,11 +11,17 @@ class CustomFieldsData extends AbstractData {
 		"BOOLEAN" => "customfield_bool",
 		"INT" => "customfield_int",
 		"DOUBLE" => "customfield_double",
+		"DATE" => "customfield_date",
+		"DATETIME" => "customfield_datetime",
 		"STRING" => "customfield_string"
 	);
 	
 	private $objectReferenceTypes = array(
-		"c" => "contact"
+		"c" => "contact",
+		"r" => "rehearsal",
+		"g" => "concert",
+		"s" => "song",
+		"v" => "reservation"
 	);
 	
 	/**
@@ -28,7 +34,8 @@ class CustomFieldsData extends AbstractData {
 				"txtdefsingle" => array("Name Singular", FieldType::CHAR),
 				"txtdefplural" => array("Name Plural", FieldType::CHAR),
 				"fieldtype" => array("Wertebereich", FieldType::ENUM),
-				"otype" => array("Objektbezug", FieldType::ENUM)
+				"otype" => array("Objektbezug", FieldType::ENUM),
+				"public_field" => array("Freigegeben", FieldType::BOOLEAN)
 		);
 
 		$this->references = array(
@@ -36,6 +43,25 @@ class CustomFieldsData extends AbstractData {
 
 		$this->table = "customfield";
 		$this->init($dir_prefix);
+	}
+	
+	function getAllCustomFields() {
+		$fields = $this->findAllNoRef();
+		
+		// replace enum reference values
+		$selection = array();
+		for($i = 0; $i < count($fields); $i++) {
+			if($i == 0) {
+				array_push($selection, $fields[$i]);
+			}
+			else {
+				$row = $fields[$i];
+				$row["fieldtype"] = Lang::txt($this->fieldTypes[$row["fieldtype"]]);
+				$row["otype"] = Lang::txt($this->objectReferenceTypes[$row["otype"]]);
+				array_push($selection, $row);
+			}
+		}
+		return $selection;
 	}
 	
 	function getFieldTypes() {
@@ -56,10 +82,12 @@ class CustomFieldsData extends AbstractData {
 	
 	function validate($input) {
 		// check uniqueness of techname
-		$techname = $input["techname"];
-		$cnt = $this->database->getCell($this->table, "count(techname)", "techname = '$techname'");
-		if($cnt > 0) {
-			new BNoteError(Lang::txt("customfield_notunique_error"));
+		if($_GET["sub"] == "add_process") {
+			$techname = $input["techname"];
+			$cnt = $this->database->getCell($this->table, "count(techname)", "techname = '$techname'");
+			if($cnt > 0) {
+				new BNoteError(Lang::txt("customfield_notunique_error"));
+			}
 		}
 		// do usual security checks
 		parent::validate($input);

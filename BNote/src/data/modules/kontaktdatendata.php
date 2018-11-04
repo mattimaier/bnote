@@ -43,11 +43,12 @@ class KontaktdatenData extends KontakteData {
 			}
 		}
 		$contact_id = $current["id"];
+		$values["is_conductor"] = $this->database->getCell("contact", "is_conductor", "id = $contact_id");
 		
 		$values = $this->update_address($contact_id, $values);
 		
 		// update custom data
-		$this->updateCustomFieldData('c', $contact_id, $values);
+		$this->updateCustomFieldData('c', $contact_id, $values, true);
 		
 		// update info
 		AbstractData::update($contact_id, $values); // includes validation

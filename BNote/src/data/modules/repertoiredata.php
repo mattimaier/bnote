@@ -89,7 +89,12 @@ class RepertoireData extends AbstractData {
 			$values["composer"] = $this->database->execute($query);
 		}
 		
-		return parent::create($values);
+		$id = parent::create($values);
+		
+		// custom data
+		$this->createCustomFieldData('s', $id, $values);
+		
+		return $id;
 	}
 	
 	function update($id, $values) {
@@ -126,10 +131,17 @@ class RepertoireData extends AbstractData {
 			$values["is_active"] = 0;
 		}
 		
+		// core entity
 		parent::update($id, $values);
+		
+		// custom data
+		$this->updateCustomFieldData('s', $id, $values);
 	}
 	
 	function delete($id) {
+		// custom data
+		$this->deleteCustomFieldData('s', $id);
+		
 		// don't remove composer
 		parent::delete($id);
 	}
@@ -395,6 +407,13 @@ class RepertoireData extends AbstractData {
 		$result["concerts"] = $concerts;
 		
 		return $result;
+	}
+	
+	function getSong($id) {
+		$row = $this->findByIdNoRef($id);
+		$song = $this->findByIdJoined($id, RepertoireData::getJoinedAttributes());
+		$customData = $this->getCustomFieldData('s', $id);
+		return array_merge($row, $song, $customData);
 	}
 }
 

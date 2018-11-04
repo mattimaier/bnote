@@ -54,8 +54,8 @@ class CustomFieldsView extends CrudView {
 	function start() {
 		Writing::h2(Lang::txt("customfields"));
 
-		// show instruments
-		$customFields = $this->getData()->findAllNoRef();
+		// show custom fields
+		$customFields = $this->getData()->getAllCustomFields();
 		$table = new Table($customFields);
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->changeMode("customfields&sub=view");

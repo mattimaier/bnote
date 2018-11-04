@@ -83,6 +83,7 @@ class Translation extends BNoteTranslation {
 			"members" => "Mitglieder",
 			"meetingtime" => "Treffpunkt (Zeit)",
 			"conductor" => "Dirigent",
+			"song" => "Stück",
 			
 			// GDPR
 			"gdprStartHeading" => "Einverständniserklärung zum Datenschutz",
@@ -418,6 +419,8 @@ class Translation extends BNoteTranslation {
 			"customfield_int" => "Ganzzahl",
 			"customfield_double" => "Dezimalzahl",
 			"customfield_string" => "Zeichenkette",
+			"customfield_date" => "Datum",
+			"customfield_datetime" => "Datum und Zeit",
 			"objecttype" => "Objektbezug",
 			"customfield_notunique_error" => "Der technische Name existiert bereits. Bitte wähle einen anderen technischen Namen.",
 			

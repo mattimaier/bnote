@@ -57,7 +57,10 @@ class KontakteData extends AbstractData {
 		$customFields = $this->getCustomFields('c');
 		for($i = 1; $i < count($customFields); $i++) {
 			$field = $customFields[$i];
-			$allFields[$field['techname']] = array($field['txtdefsingle'], $this->fieldTypeFromCustom($field['fieldtype']));
+			$allFields[$field['techname']] = array(
+					$field['txtdefsingle'],
+					$this->fieldTypeFromCustom($field['fieldtype'])
+			);
 		}
 		return $allFields;
 	}
