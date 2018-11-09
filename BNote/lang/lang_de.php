@@ -168,6 +168,10 @@ class Translation extends BNoteTranslation {
 			"tour" => "Tour",
 			"map" => "Karte",
 			"accounts" => "Konten",
+			"groups" => "Gruppen",
+			"group" => "Gruppe",
+			"invitations" => "Einladungen",
+			"invitation" => "Einladung",
 			
 			// module: start
 			"start_calendarExport" => "Kalender Export",

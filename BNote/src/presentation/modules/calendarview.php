@@ -12,6 +12,15 @@ class CalendarView extends CrudRefView {
 		$this->setJoinedAttributes(CalendarData::$colExchange);
 	}
 	
+	protected function isSubModule($mode) {
+		if($mode == "appointments") return true;
+		return false;
+	}
+	
+	protected function subModuleOptions() {
+		$this->getController()->appointmentOptions();
+	}
+	
 	function start() {
 		?>
 		<script>

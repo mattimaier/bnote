@@ -54,8 +54,7 @@ abstract class AbstractView {
 	 * module's home screen.
 	 */
 	public function backToStart() {
-		global $system_data;
-		$link = new Link("?mod=" . $system_data->getModuleId(), Lang::txt("back"));
+		$link = new Link("?mod=" . $this->getData()->getSysdata()->getModuleId(), Lang::txt("back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
