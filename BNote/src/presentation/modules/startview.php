@@ -163,6 +163,17 @@ class StartView extends AbstractView {
 					}
 					?>
 					
+					<?php
+					if($this->getData()->hasAppointments()) {
+					?>
+					<div class="start_box_heading"><?php echo Lang::txt("appointments"); ?></div>
+					<div class="start_box_content">
+						<?php $this->writeAppointmentList(); ?>
+					</div>	
+					<?php
+					}
+					?>
+					
 					<div class="start_box_heading"><?php echo Lang::txt("votes"); ?></div>
 					<div class="start_box_content">
 						<?php $this->writeVoteList(); ?>
@@ -540,6 +551,39 @@ class StartView extends AbstractView {
 		}
 		echo "</ul>\n";
 	}
+
+	private function writeAppointmentList() {
+		$data = $this->getData()->getAppointments();
+		echo "<ul>\n";
+		// iterate over votes
+		foreach($data as $i => $row) {
+			if($i < 1) continue;
+			
+			$liCaption =  Data::convertDateFromDb($row["begin"]) . " (" . $row["name"] . ")";
+			
+			$dataview = new Dataview();
+			$dataview->addElement(Lang::txt("name"), $row["name"]);
+			$dataview->addElement(Lang::txt("location"), $row["locationname"]);
+			
+			// custom data
+			$customFields = $this->getData()->getCustomFields('a', true);
+			$customData = $this->getData()->getCustomData('a', $row["id"]);
+			for($j = 1; $j < count($customFields); $j++) {
+				$field = $customFields[$j];
+				$label = $field["txtdefsingle"];
+				if(isset($customData[$field["techname"]])) {
+					$value = $customData[$field["techname"]];
+					if($field["fieldtype"] == "BOOLEAN") {
+						$value = $value == 1 ? Lang::txt("yes") : Lang::txt("no");
+					}
+					$dataview->addElement($label, $value);
+				}
+			}
+			
+			$this->writeBoxListItem('A', $row["id"], "a" . $row["id"], $liCaption, $dataview);
+		}
+		echo "</ul>\n";
+	}
 	
 	/**
 	 * Writes one item to the start page.
@@ -870,6 +914,7 @@ class StartView extends AbstractView {
 	function saveParticipationOptions() {
 		$this->backToStart();
 	}
+	
 }
 
 ?>

@@ -169,7 +169,8 @@ for($i = 1; $i < count($rehearsals); $i++) {
 
 	$contacts = $db->getSelection($query);
 	
-	unset($contacts[0]);//
+	unset($contacts[0]);
+	
 	// ids for filterting contacts without response
 	$contactIDs = array();
 	$participantsNo = array();
@@ -210,17 +211,12 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	$participantsNoResponse = $db->getSelection($query);
 	unset($participantsNoResponse[0]);
 
-	foreach($participantsNoResponse as $j => $contact)
-	{
-
+	foreach($participantsNoResponse as $j => $contact) {
 		foreach($contact as $ck => $cv) {
 			if(is_numeric($ck)) {
 				unset($participantsNoResponse[$j][$ck]);
 			}
-
 		}
-
-
 	}
 	
 	foreach($participantsYes as $j => $contact)
@@ -243,7 +239,6 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		$line = "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
  		echo $line;
 	}
-	
 	
 	$notes = str_replace("\n","\\n", $notes);
 	$notes =	str_replace("\r","", $notes);
@@ -422,6 +417,31 @@ for($i = 1; $i < count($reservations); $i++) {
 	
 	echo "LOCATION:" . $reservations[$i]["locationname"] . "\r\n";
 	echo "COMMENT:" . $reservations[$i]["notes"] . "\r\n";
+	echo "END:VEVENT\r\n";
+}
+
+/*
+ * RESERVATIONS
+ */
+$appointments = $startdata->getAppointments();
+
+// write them
+for($i = 1; $i < count($appointments); $i++) {
+	$appointment = $appointments[$i];
+	echo "BEGIN:VEVENT\r\n";
+	echo "SUMMARY:" . $appointments[$i]["name"] . "\r\n";
+	echo "ORGANIZER:$organizer\r\n";
+
+	if($timezone_on) {
+		echo "DTSTART;TZID=$timezone:" . convertTime($appointment["begin"]) . "\r\n";
+		echo "DTEND;TZID=$timezone:" . convertTime($appointment["end"]) . "\r\n";
+	} else {
+		echo "DTSTART:" . convertTime($appointment["begin"]) . "\r\n";
+		echo "DTEND:" . convertTime($appointment["end"]) . "\r\n";
+	}
+
+	echo "LOCATION:" . $appointment["locationname"] . ", " . $appointment["street"] . ", " . $appointment["zip"] . " " . $appointment["city"] . "\r\n";
+	echo "COMMENT:" . $appointment["notes"] . "\r\n";
 	echo "END:VEVENT\r\n";
 }
 

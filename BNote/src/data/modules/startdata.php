@@ -467,4 +467,26 @@ class StartData extends AbstractData {
 		}
 		return $cleaned;
 	}
+	
+	function getAppointments($withCustomData = true) {
+		// find all appointments where the user is in the group
+		$cid = $this->adp()->getUserContact();
+		$query = "SELECT a.*, l.name as locationname, addy.street, addy.zip, addy.city FROM appointment a ";
+		$query .= "JOIN location l ON a.location = l.id ";
+		$query .= "JOIN address addy ON l.address = addy.id ";
+		$query .= "JOIN appointment_group ag ON a.id = ag.appointment ";
+		$query .= "JOIN contact_group cg ON ag.group = cg.group ";
+		$query .= "WHERE cg.contact = $cid";
+		
+		// add custom data
+		$appointments = $this->database->getSelection($query);
+		$this->appendCustomDataToSelection('a', $appointments);
+		
+		return $appointments;
+	}
+	
+	function hasAppointments() {
+		// to make sure we have the permission included just load 'em
+		return count($this->getAppointments(false)) > 0;
+	}
 }
