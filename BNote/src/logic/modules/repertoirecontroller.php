@@ -131,7 +131,7 @@ class RepertoireController extends DefaultController {
 		$empties = array();  # indices of empty rows
 		foreach($xlsData as $rowIdx => $row) {
 			$title = strtolower($row[$title_idx]);
-			if(in_array($title, $songs_dict)) {
+			if(in_array($title, $songs_dict) && isset($songs_dict[$title])) {
 				$row["duplicate_id"] = $songs_dict[$title];
 				array_push($duplicates, $row);
 			}
@@ -207,15 +207,21 @@ class RepertoireController extends DefaultController {
 		}
 		
 		return array(
-			"title" => $row[$_POST["col_title"]],
+			"title" => $this->cleanSubject($row[$_POST["col_title"]]),
 			"genre" => $_POST["genre"],
 			"bpm" => $bpm,
 			"music_key" => $music_key,
 			"status" => $_POST["status"],
 			"notes" => $notes,
-			"composer" => $composer,
+			"composer" => $this->cleanSubject($composer),
 			"length" => ""
 		);
+	}
+	
+	private function cleanSubject($subject) {
+		$s = str_replace('"', "", $subject);
+		$s = str_replace("'", "", $s);
+		return $s;
 	}
 }
 

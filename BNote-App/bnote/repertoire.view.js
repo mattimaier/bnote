@@ -15,6 +15,7 @@ sap.ui.jsview("bnote.repertoire", {
 			repertoireList.bindItems({
 				layout: sap.ui.layout.form.SimpleFormLayout.ResponsiveGridLayout,
 	        	growingScrollToLoad : "true",
+                growing: true,
 	            path : "/songs",
 	            sorter : new sap.ui.model.Sorter("title"),
 	            template : new sap.m.StandardListItem({
