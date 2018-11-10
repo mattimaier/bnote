@@ -398,6 +398,14 @@ class ProbenView extends CrudRefView {
 			}
 			?>
 			<div class="probendetail_set">
+				<div class="probendetail_heading">Eingeladene Gruppen</div>
+				<div class="probendetail_value"><?php
+				$groupNames = Database::flattenSelection($entity["groups"], "name");
+				echo join(", ", $groupNames);
+				?></div>
+			</div>
+			
+			<div class="probendetail_set">
 				<div class="probendetail_heading">Notizen</div>
 				<div class="probendetail_value"><?php
 				echo $entity["notes"]; 

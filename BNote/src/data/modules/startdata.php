@@ -213,7 +213,7 @@ class StartData extends AbstractData {
 	}
 	
 	function getUsersRehearsals($uid = -1) {
-		$data = $this->adp()->getFutureRehearsals();
+		$data = $this->adp()->getFutureRehearsals(true);
 		
 		// super users should see it all
 		if($this->getSysdata()->isUserSuperUser($uid)) {

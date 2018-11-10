@@ -251,6 +251,10 @@ class StartView extends AbstractView {
 				if(isset($data[$i]["conductor"]) && $data[$i]["conductor"] != null) {
 					$dataview->addElement(Lang::txt("conductor"), $this->getData()->adp()->getConductorname($data[$i]["conductor"]));
 				}
+				if(isset($data[$i]["groups"])) {
+					$groupNames = array_column($data[$i]["groups"], "name");
+					$dataview->addElement(Lang::txt("groups"), join(", ", $groupNames));
+				}
 				
 				// custom data
 				$customFields = $this->getData()->getCustomFields('r', true);

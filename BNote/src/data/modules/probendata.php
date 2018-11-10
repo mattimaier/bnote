@@ -43,6 +43,7 @@ class ProbenData extends AbstractData {
 	function getRehearsal($id) {
 		$r = $this->findByIdJoined($id, null);
 		$c = $this->getCustomFieldData('r', $id);
+		$r["groups"] = $this->getRehearsalGroups($id);
 		return array_merge($r, $c);
 	}
 	
@@ -55,6 +56,11 @@ class ProbenData extends AbstractData {
 	function findByIdJoined($id, $colExchange) {
 		$query = $this->defaultQuery() . " AND r.id = $id";
 		return $this->database->getRow($query);
+	}
+	
+	function getRehearsalGroups($id) {
+		$query = "SELECT g.* FROM `rehearsal_group` ag JOIN `group` g ON ag.`group` = g.id WHERE ag.rehearsal = $id";
+		return $this->database->getSelection($query);
 	}
 	
 	function getParticipants($rid) {
@@ -315,10 +321,10 @@ class ProbenData extends AbstractData {
 			if($i > 0) $query .= ", ";
 			$query .= "($rid, $contact)";
 		}
-		
 		if(count($contacts) > 0) {
 			$this->database->execute($query);
 		}
+		$this->updateGroups($rid, $groups);
 		
 		// custom data
 		$this->createCustomFieldData('r', $rid, $values);
@@ -343,6 +349,9 @@ class ProbenData extends AbstractData {
 		$this->database->execute($query);
 		
 		$query = "DELETE FROM rehearsal_user WHERE rehearsal = $id";
+		$this->database->execute($query);
+		
+		$query = "DELETE FROM rehearsal_group WHERE rehearsal = $id";
 		$this->database->execute($query);
 		
 		$this->deleteCustomFieldData('r', $id);
@@ -473,6 +482,20 @@ class ProbenData extends AbstractData {
 		
 		// process custom data
 		$this->updateCustomFieldData('r', $id, $values);
+	}
+	
+	/**
+	 * Overwrite groups
+	 * @param int $id Rehearsal ID.
+	 * @param array $groups Group IDs to set.
+	 */
+	private function updateGroups($id, $groups) {
+		$delQuery = "DELETE FROM rehearsal_group WHERE rehearsal = $id";
+		$this->database->execute($delQuery);
+	
+		$insQuery = "INSERT INTO rehearsal_group (rehearsal, `group`) VALUES ($id,";
+		$insQuery .= join("), ($id,", $groups) . ")";
+		$this->database->execute($insQuery);
 	}
 	
 	public function validate($input) {

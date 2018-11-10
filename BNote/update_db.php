@@ -250,6 +250,17 @@ $update->addTable("appointment_group", "CREATE TABLE IF NOT EXISTS `appointment_
 	`group` int(11) NOT NULL
 )");
 
+// Task 6: Save rehearsal/concert groups
+$update->addTable("rehearsal_group", "CREATE TABLE IF NOT EXISTS `rehearsal_group` (
+	`rehearsal` int(11) NOT NULL,
+	`group` int(11) NOT NULL
+)");
+
+$update->addTable("concert_group", "CREATE TABLE IF NOT EXISTS `concert_group` (
+	`concert` int(11) NOT NULL,
+	`group` int(11) NOT NULL
+)");
+
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>

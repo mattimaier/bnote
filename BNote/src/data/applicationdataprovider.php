@@ -194,14 +194,39 @@ class ApplicationDataProvider {
 	
 	/**
 	 * Retrieves all future rehearsals without participation in ascending order.
+	 * @param boolean $withGroups Add "groups" field with the associated groups to the rehearsal objects (by default: false).
 	 * @return All rehearsals joined with location and address.
 	 */
-	public function getFutureRehearsals() {
+	public function getFutureRehearsals($withGroups=false) {
 		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes as notes, name, street, city, zip, l.id as location";
 		$query .= " FROM rehearsal r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
-		$query .= " AND end > NOW() ORDER BY begin ASC";		
-		return $this->database->getSelection($query);
+		$query .= " AND end > NOW() ORDER BY begin ASC";
+		$rehearsals = $this->database->getSelection($query);
+		
+		// find groups for all future rehearsals
+		if($withGroups) {
+			$groupQuery = "SELECT r.id as rehearsal, g.id as `group`, g.name 
+					FROM `group` g 
+					JOIN rehearsal_group rg ON rg.`group` = g.id
+					JOIN rehearsal r ON rg.rehearsal = r.id
+					WHERE r.end > NOW()";
+			$groupSelection = $this->database->getSelection($groupQuery);
+			$rehearsalGroups = array();
+			for($i = 1; $i < count($groupSelection); $i++) {
+				$rid = $groupSelection[$i]["rehearsal"];
+				if(!isset($rehearsalGroups[$rid])) {
+					$rehearsalGroups[$rid] = array();
+				}
+				array_push($rehearsalGroups[$rid], $groupSelection[$i]);
+			}
+			for($i = 1; $i < count($rehearsals); $i++) {
+				if(isset($rehearsalGroups[$rehearsals[$i]["id"]])) {
+					$rehearsals[$i]["groups"] = $rehearsalGroups[$rehearsals[$i]["id"]];
+				}
+			}
+		}
+		return $rehearsals;
 	}
 	
 	/**
