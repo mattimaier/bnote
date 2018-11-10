@@ -223,6 +223,7 @@ class RepertoireController extends DefaultController {
 		$s = str_replace("'", "", $s);
 		return $s;
 	}
+	
 }
 
 ?>

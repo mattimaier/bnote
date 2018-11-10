@@ -26,7 +26,7 @@ class RepertoireView extends CrudRefView {
 	
 	protected function startOptions() {
 		parent::startOptions();
-		$this->buttonSpace();
+
 		if(isset($_GET["showFilters"]) && $_GET["showFilters"] == "true") {
 			$filterbox = new Link($this->modePrefix() . "start", "Filter ausblenden");
 		}
@@ -39,21 +39,22 @@ class RepertoireView extends CrudRefView {
 		$prt = new Link("javascript:print()", Lang::txt("print"));
 		$prt->addIcon("printer");
 		$prt->write();
-		
-		$this->buttonSpace();
+
 		$massChange = new Link($this->modePrefix() . "massUpdate", "Mehrere Songs ändern");
 		$massChange->addIcon("edit");
 		$massChange->write();
 		
-		$this->buttonSpace();
 		$genre_mod = new Link($this->modePrefix() . "genre&func=start", "Genres verwalten");
 		$genre_mod->addIcon("music_folder");
 		$genre_mod->write();
 		
-		$this->buttonSpace();
 		$xlsImport = new Link($this->modePrefix() . "xlsUpload", "Excel Import");
 		$xlsImport->addIcon("arrow_down");
 		$xlsImport->write();
+		
+		$xlsExport = new Link($GLOBALS["DIR_EXPORT"] . "repertoire.csv", "CSV Export");
+		$xlsExport->addIcon("save");
+		$xlsExport->write();
 	}
 	
 	protected function addEntityForm() {
