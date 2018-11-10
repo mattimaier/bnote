@@ -714,7 +714,15 @@ div.flash_message.error {
   .dataTables_filter {
     display: none;
   }
+  td.DataTable_Header {
+    color: #436f98;
+    background-color: #E6E6E6;
+    font-weight: bold;
+  }
   .membercard_hint {
+    display: none;
+  }
+  .ignore_for_print {
     display: none;
   }
 }

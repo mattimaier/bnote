@@ -31,6 +31,12 @@ class Filterbox implements iWriteable {
 	 */
 	private $nameCols;
 	
+	/**
+	 * Css classes to add to main filterbox.
+	 * @var String
+	 */
+	private $cssClass;
+	
 	function __construct($link) {
 		$this->filters = array();
 		$this->nameCols = array();
@@ -46,6 +52,10 @@ class Filterbox implements iWriteable {
 	
 	function setHeading($heading) {
 		$this->formname = $heading;
+	}
+	
+	function setCssClass($cssClass) {
+		$this->cssClass = $cssClass;
 	}
 	
 	/**
@@ -98,7 +108,15 @@ class Filterbox implements iWriteable {
 		}
 		
 		$form->changeSubmitButton("Filtern");
-		$form->write();
+		
+		if($this->cssClass != null) {
+			echo '<div class="' . $this->cssClass . '">';
+			$form->write();
+			echo '</div>';
+		}
+		else {
+			$form->write();
+		}
 	}
 	
 }

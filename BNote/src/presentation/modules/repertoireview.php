@@ -36,6 +36,10 @@ class RepertoireView extends CrudRefView {
 		$filterbox->addIcon("filter");
 		$filterbox->write();
 		
+		$prt = new Link("javascript:print()", Lang::txt("print"));
+		$prt->addIcon("printer");
+		$prt->write();
+		
 		$this->buttonSpace();
 		$massChange = new Link($this->modePrefix() . "massUpdate", "Mehrere Songs ändern");
 		$massChange->addIcon("edit");
@@ -88,7 +92,8 @@ class RepertoireView extends CrudRefView {
 		$form->write();
 	}
 	
-	protected function showAllTable() {
+	public function start() {
+		Writing::h1(Lang::txt("Repertoire"), "ignore_for_print");
 		// Filters
 		if(isset($_GET["showFilters"])) {
 			$filter = new Filterbox($this->modePrefix() . "start&showFilters=true&filters=true");
@@ -98,8 +103,9 @@ class RepertoireView extends CrudRefView {
 			$filter->setNameCols("solist", array("name", "surname"));
 			$filter->addFilter("status", "Status", FieldType::SET, $this->getData()->getStatuses());
 			$filter->addFilter("composer", "Komponist", FieldType::SET, $this->getData()->getComposers());
+			
+			$filter->setCssClass("ignore_for_print");
 			$filter->write();
-			$this->verticalSpace();
 		}
 		
 		if(isset($_GET["filters"]) && $_GET["filters"] == "true") {
