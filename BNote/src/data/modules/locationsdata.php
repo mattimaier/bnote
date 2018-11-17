@@ -44,23 +44,13 @@ class LocationsData extends AbstractLocationData {
 	}
 	
 	function create($values) {
-		if(!isset($_POST["city"]) || $_POST["city"] == "") {
-			new BNoteError("Bitte gebe eine Stadt für diese Location an.");
-		}
-		
 		$_POST["address"] = $this->createAddress($values);
 		$lid = parent::create($_POST);
-		
 		$this->createCustomFieldData(LocationsData::$CUSTOM_DATA_OTYPE, $lid, $values);
-		
 		return $lid;
 	}
 	
 	function update($id, $values) {
-		if(!isset($values["city"]) || $values["city"] == "") {
-			new BNoteError("Bitte gebe eine Stadt für diese Location an.");
-		}
-		
 		// update address
 		$addressId = $this->getAddressFromId($id);
 		$this->updateAddress($addressId, $values);

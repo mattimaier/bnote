@@ -48,12 +48,22 @@ abstract class AbstractLocationData extends AbstractData {
 	 */
 	protected function validateAddress($values) {
 		$fields = $this->getAddressFields();
-		$this->regex->isStreet($values[$fields["street"]]);
+		
+		if(isset($values[$fields["street"]]) && $values[$fields["street"]] != "") {
+			$this->regex->isStreet($values[$fields["street"]]);
+		}
+		
+		// city is a required field
 		$this->regex->isCity($values[$fields["city"]]);
-		$this->regex->isZip($values[$fields["zip"]]);
+		
+		if(isset($values[$fields["zip"]]) && $values[$fields["zip"]] != "") {
+			$this->regex->isZip($values[$fields["zip"]]);
+		}
+		
 		if(isset($values[$fields["state"]]) && $values[$fields["state"]] != "") {
 			$this->regex->isSubject($values[$fields["state"]]);
 		}
+		
 		if($values[$fields["country"]] && $values[$fields["country"]] != "") {
 			$this->regex->isSubject($values[$fields["country"]]);
 		}
@@ -69,7 +79,8 @@ abstract class AbstractLocationData extends AbstractData {
 		$fields = $this->getAddressFields();
 		
 		// build query
-		$query = "INSERT INTO " . AbstractLocationData::$ADDRESS_TABLE . " (street, city, zip, state, country) VALUES (?, ?, ?, ?, ?)";
+		$query = "INSERT INTO " . AbstractLocationData::$ADDRESS_TABLE;
+		$query .= " (street, city, zip, state, country) VALUES (?, ?, ?, ?, ?)";
 		$params = $this->getPrepStatementValueArray($values);
 		
 		// run
