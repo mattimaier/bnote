@@ -22,7 +22,8 @@ class CustomFieldsData extends AbstractData {
 		"g" => "concert",
 		"s" => "song",
 		"v" => "reservation",
-		"a" => "appointment"
+		"a" => "appointment",
+		"l" => "location"
 	);
 	
 	/**

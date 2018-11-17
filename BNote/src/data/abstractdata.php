@@ -582,6 +582,22 @@ abstract class AbstractData {
 		return $info;
 	}
 	
+	/**
+	 * Adds custom field information to the result of getFields() and returns the full package.
+	 * @param String $otype Object type for custom data.
+	 */
+	public function getFieldsWithCustomFields($otype) {
+		$customFields = $this->getCustomFields($otype);
+		for($i = 1; $i < count($customFields); $i++) {
+			$techName = $customFields[$i]['techname'];
+			$fieldName = $customFields[$i]['txtdefsingle'];
+			$customFieldType = $customFields[$i]['fieldtype'];
+			
+			$this->fields[$techName] = array($fieldName, $this->fieldTypeFromCustom($customFieldType));
+		}
+		return $this->fields;
+	}
+	
 	protected function createCustomFieldData($otype, $oid, $values) {
 		$valueSet = array();
 		

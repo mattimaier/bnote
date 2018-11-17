@@ -115,11 +115,11 @@ class Form implements iWriteable {
 	 *        	with format fieldid => [fieldname, fieldtype]
 	 */
 	public function autoAddElementsNew($array) {
-		foreach ( $array as $field => $info ) {
-			$this->addElement ( $field, new Field ( $field, "", $info [1] ) );
-			$this->renameElement ( $field, $info [0] );
-			if (count ( $info ) > 2 && $info [2] == true) {
-				$this->setFieldRequired ( $field );
+		foreach($array as $field => $info) {
+			$this->addElement($field, new Field($field, "", $info [1]));
+			$this->renameElement($field, $info[0]);
+			if (count($info) > 2 && $info[2] == true) {
+				$this->setFieldRequired($field);
 			}
 		}
 	}

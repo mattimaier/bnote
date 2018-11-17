@@ -6,6 +6,8 @@
  */
 class LocationsData extends AbstractData {
 	
+	public static $CUSTOM_DATA_OTYPE = 'l';
+	
 	/**
 	 * Build data provider.
 	 */
@@ -27,13 +29,29 @@ class LocationsData extends AbstractData {
 		$this->init($dir_prefix);
 	}
 	
+	function findByIdNoRef($id) {
+		$entity = parent::findByIdNoRef($id);
+		$customData = $this->getCustomFieldData(LocationsData::$CUSTOM_DATA_OTYPE, $id);
+		return array_merge($entity, $customData);
+	}
+	
+	function findByIdJoined($id, $colExchange) {
+		$entity = parent::findByIdJoined($id, $colExchange);
+		$customData = $this->getCustomFieldData(LocationsData::$CUSTOM_DATA_OTYPE, $id);
+		return array_merge($entity, $customData);
+	}
+	
 	function create($values) {
 		if(!isset($_POST["city"]) || $_POST["city"] == "") {
 			new BNoteError("Bitte gebe eine Stadt für diese Location an.");
 		}
 		
 		$_POST["address"] = $this->adp()->manageAddress(-1, $_POST);
-		return parent::create($_POST);
+		$lid = parent::create($_POST);
+		
+		$this->createCustomFieldData(LocationsData::$CUSTOM_DATA_OTYPE, $lid, $values);
+		
+		return $lid;
 	}
 	
 	function update($id, $values) {
@@ -46,12 +64,16 @@ class LocationsData extends AbstractData {
 		$this->adp()->manageAddress($addressId, $_POST);
 		$_POST["address"] = $addressId;
 		
+		// update custom data
+		$this->updateCustomFieldData(LocationsData::$CUSTOM_DATA_OTYPE, $id, $values);
+		
 		// update location
 		parent::update($id, $values);
 	}
 	
 	function delete($id) {
 		$this->adp()->manageAddress($this->getAddressFromId($id), null);
+		$this->deleteCustomFieldData(LocationsData::$CUSTOM_DATA_OTYPE, $id);
 		parent::delete($id);
 	}
 	

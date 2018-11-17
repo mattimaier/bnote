@@ -19,7 +19,7 @@ class LocationsView extends CrudRefView {
 	
 	function addEntityForm() {
 		$form = new Form("Location hinzufügen", $this->modePrefix() . "add");
-		$form->autoAddElementsNew($this->getData()->getFields());
+		$form->autoAddElementsNew($this->getData()->getFieldsWithCustomFields(LocationsData::$CUSTOM_DATA_OTYPE));
 		$form->removeElement("id");
 		$form->removeElement("address");
 		$form->renameElement("Notes", "Notizen");
@@ -28,16 +28,21 @@ class LocationsView extends CrudRefView {
 		$form->addElement("PLZ", new Field("zip", "", FieldType::CHAR));
 		$form->setForeign("location_type", "location_type", "id", array("name"), 1);
 		
+		$this->appendCustomFieldsToForm($form, LocationsData::$CUSTOM_DATA_OTYPE);
+		
 		$form->write();
 	}
 	
 	protected function editEntityForm($write=true) {
 		$loc = $this->getData()->findByIdNoRef($_GET["id"]);
 		$address = $this->getData()->adp()->getEntityForId("address", $loc["address"]);
+		
 		$form = new Form($this->getEntityName() . " bearbeiten",
 				$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
-		$form->autoAddElements($this->getData()->getFields(),
+		
+		$form->autoAddElements($this->getData()->getFieldsWithCustomFields(LocationsData::$CUSTOM_DATA_OTYPE),
 				$this->getData()->getTable(), $_GET["id"]);
+		
 		$form->removeElement("id");
 		$form->removeElement("address");
 		$form->addElement("Stra&szlig;e", new Field("street", $address["street"], FieldType::CHAR));
@@ -45,27 +50,72 @@ class LocationsView extends CrudRefView {
 		$form->addElement("Stadt", new Field("city", $address["city"], FieldType::CHAR));
 		$form->setForeign("location_type", "location_type", "id", array("name"), $loc['location_type']);
 		
+		$this->appendCustomFieldsToForm($form, LocationsData::$CUSTOM_DATA_OTYPE, $loc, false);
+		
 		$form->write();
 	}
 	
 	protected function showAllTable() {
 		// get all types and display the locations per type
 		$locTypes = $this->getData()->getLocationTypes();
+		?>
+		<div id="jqui-tabs">
+		<ul>
+			<li><a href="#jqui-tabs-all">Alle</a></li>
+			<?php
+			for($i = 1; $i < count($locTypes); $i++) {
+				$locType = $locTypes[$i]['id'];
+				$locTypeName = $locTypes[$i]['name'];
+				echo '<li><a href="#jqui-tabs-' . $locType . '">' . $locTypeName . '</a></li>';
+			}
+			?>
+		</ul>
+		
+		<div id="jqui-tabs-all">
+			<?php 
+			$table = new Table($this->getData()->findAllJoined($this->getJoinedAttributes()));
+			$table->setEdit("id");
+			$table->renameAndAlign($this->getData()->getFields());
+			$table->removeColumn("id");
+			$table->renameHeader("addressstreet", "Stra&szlig;e");
+			$table->renameHeader("addresscity", "Stadt");
+			$table->renameHeader("addresszip", "PLZ");
+			$table->removeColumn("location_type");
+			$table->write();
+			?>
+		</div>
+		
+		<?php
 		for($i = 1; $i < count($locTypes); $i++) {
 			$locType = $locTypes[$i]['id'];
 			$locTypeName = $locTypes[$i]['name'];
-			Writing::h3($locTypeName);
+			#Writing::h3($locTypeName);
 			
 			// show table rows
+			?>
+			<div id="jqui-tabs-<?php echo $locType; ?>">
+			<?php
 			$table = new Table($this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "location_type = $locType"));
 			$table->setEdit("id");
+			$table->removeColumn("id");
 			$table->renameAndAlign($this->getData()->getFields());
 			$table->renameHeader("addressstreet", "Stra&szlig;e");
 			$table->renameHeader("addresscity", "Stadt");
 			$table->renameHeader("addresszip", "PLZ");
 			$table->removeColumn("location_type");
 			$table->write();
+			?>
+			</div>
+			<?php
 		}
+		?>
+		</div>
+		<script>
+		$( function() {
+			$( "#jqui-tabs" ).tabs();
+		} );
+		</script>
+		<?php
 	}
 	
 	protected function viewDetailTable() {
@@ -73,10 +123,11 @@ class LocationsView extends CrudRefView {
 		$details = new Dataview();
 		$details->autoAddElements($entity);
 		$details->resolveForeignElement("location_type", "location_type");		
-		$details->autoRename($this->getData()->getFields());
+		$details->autoRename($this->getData()->getFieldsWithCustomFields(LocationsData::$CUSTOM_DATA_OTYPE));
 		$details->renameElement("addressstreet", "Stra&szlig;e");
 		$details->renameElement("addresszip", "PLZ");
 		$details->renameElement("addresscity", "Stadt");
+		
 		$details->write();
 		
 		// show map
