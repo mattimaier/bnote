@@ -31,7 +31,7 @@ abstract class AbstractLocationData extends AbstractData {
 	 * Returns the field array for an address. You can merge this to the getFields() result.
 	 * @return Array field information.
 	 */
-	public function getAddressFields() {
+	public function getAddressViewFields() {
 		$fields = $this->getAddressFields();
 		return array(
 			$fields["street"] => array(Lang::txt("street"), FieldType::CHAR),
@@ -64,7 +64,7 @@ abstract class AbstractLocationData extends AbstractData {
 			$this->regex->isSubject($values[$fields["state"]]);
 		}
 		
-		if($values[$fields["country"]] && $values[$fields["country"]] != "") {
+		if(isset($values[$fields["country"]]) && $values[$fields["country"]] != "") {
 			$this->regex->isSubject($values[$fields["country"]]);
 		}
 	}
@@ -89,13 +89,27 @@ abstract class AbstractLocationData extends AbstractData {
 	}
 	
 	private function getPrepStatementValueArray($values) {
-		return array(
+		$fields = $this->getAddressFields();
+		$params = array(
 				array("s", $values[$fields["street"]]),
 				array("s", $values[$fields["city"]]),
-				array("s", $values[$fields["zip"]]),
-				array("s", $values[$fields["state"]]),
-				array("s", $values[$fields["country"]])
+				array("s", $values[$fields["zip"]])
 		);
+		
+		// add optional values
+		$state = "";
+		if(isset($values[$fields["state"]])) {
+			$state = $values[$fields["state"]];
+		}
+		array_push($params, array("s", $state));
+		
+		$country = "";
+		if(isset($values[$fields["country"]])) {
+			$country = $values[$fields["country"]];
+		}
+		array_push($params, array("s", $country));
+		
+		return $params;
 	}
 	
 	/**
