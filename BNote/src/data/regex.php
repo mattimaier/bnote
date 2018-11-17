@@ -12,7 +12,7 @@ class Regex {
    $this->regex["street"] = '/^[[:alpha:]' . $specialchars . '0-9\ \.\,\-\/\(\)]{1,100}$/';
    $this->regex_js["street"] = '^[\\\w' . $specialchars . '\\\s\\\.\\\,\\\-\\\/\\\(\\\)]{1,100}$';
 
-   $this->regex["zip"] = '/^\d{4,6}$/';
+   $this->regex["zip"] = '/^[[:alpha:]0-9\s]{4,7}$/';
    $this->regex_js["zip"] = '^\\\d{4,6}$';
    
    $this->regex["city"] = '/^[[:alpha:]' . $specialchars . '0-9\ \.\,\-]{1,100}$/';

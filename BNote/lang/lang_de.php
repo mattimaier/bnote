@@ -9,6 +9,8 @@ require_once 'lang_base.php';
 class Translation extends BNoteTranslation {
 	
 	protected $texts = array(
+			
+			// general
 			"welcome" => "Willkommen",
 			"autoActivation" => "Die automatische Registrierung ist aktiviert. Bitte Sicherheitshinweise beachten.",
 			"back" => "Zurück",
@@ -86,6 +88,12 @@ class Translation extends BNoteTranslation {
 			"song" => "Stück",
 			"appointment" => "Termin",
 			"appointments" => "Termine",
+			"groups" => "Gruppen",
+			"group" => "Gruppe",
+			"invitations" => "Einladungen",
+			"invitation" => "Einladung",
+			"country" => "Land",
+			"state" => "Bundesland",
 			
 			// GDPR
 			"gdprStartHeading" => "Einverständniserklärung zum Datenschutz",
@@ -168,10 +176,6 @@ class Translation extends BNoteTranslation {
 			"tour" => "Tour",
 			"map" => "Karte",
 			"accounts" => "Konten",
-			"groups" => "Gruppen",
-			"group" => "Gruppe",
-			"invitations" => "Einladungen",
-			"invitation" => "Einladung",
 			
 			// module: start
 			"start_calendarExport" => "Kalender Export",

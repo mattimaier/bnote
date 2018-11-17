@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
 /**
  * Data Access Class for member data.
  * @author matti
  *
  */
-class MitspielerData extends AbstractData {
+class MitspielerData extends AbstractLocationData {
 	
 	function __construct($dir_prefix = "") {
 		$this->fields = array(

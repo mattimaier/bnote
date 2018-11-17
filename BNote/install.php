@@ -232,6 +232,7 @@ class Installation {
 					  `street` varchar(45) NOT NULL,
 					  `city` varchar(45) NOT NULL,
 					  `zip` varchar(45) DEFAULT NULL,
+					  `state` varchar(50) DEFAULT NULL,
 					  `country` varchar(45) NOT NULL,
 					  PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");

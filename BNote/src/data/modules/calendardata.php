@@ -1,6 +1,7 @@
 <?php
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
-class CalendarData extends AbstractData {
+class CalendarData extends AbstractLocationData {
 
 	private $startdata;
 	private $mitspielerdata;
@@ -213,13 +214,6 @@ class CalendarData extends AbstractData {
 	
 	function getContact($id) {
 		return $this->database->getRow("SELECT * FROM contact WHERE id = $id");
-	}
-	
-	function getLocation($id) {
-		$query = "SELECT l.*, address.street, address.city, address.zip 
-			FROM location l JOIN address ON l.address = address.id 
-			WHERE l.id = $id";
-		return $this->database->getRow($query);
 	}
 	
 	function getCustomData($id) {

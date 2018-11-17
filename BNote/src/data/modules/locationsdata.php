@@ -1,10 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
+
 /**
  * Data Access Class for rehearsal data.
  * @author matti
  *
  */
-class LocationsData extends AbstractData {
+class LocationsData extends AbstractLocationData {
 	
 	public static $CUSTOM_DATA_OTYPE = 'l';
 	
@@ -46,7 +48,7 @@ class LocationsData extends AbstractData {
 			new BNoteError("Bitte gebe eine Stadt für diese Location an.");
 		}
 		
-		$_POST["address"] = $this->adp()->manageAddress(-1, $_POST);
+		$_POST["address"] = $this->createAddress($values);
 		$lid = parent::create($_POST);
 		
 		$this->createCustomFieldData(LocationsData::$CUSTOM_DATA_OTYPE, $lid, $values);
@@ -61,7 +63,7 @@ class LocationsData extends AbstractData {
 		
 		// update address
 		$addressId = $this->getAddressFromId($id);
-		$this->adp()->manageAddress($addressId, $_POST);
+		$this->updateAddress($addressId, $values);
 		$_POST["address"] = $addressId;
 		
 		// update custom data
@@ -72,18 +74,10 @@ class LocationsData extends AbstractData {
 	}
 	
 	function delete($id) {
-		$this->adp()->manageAddress($this->getAddressFromId($id), null);
+		$this->deleteAddress($this->getAddressFromId($id));
 		$this->deleteCustomFieldData(LocationsData::$CUSTOM_DATA_OTYPE, $id);
 		parent::delete($id);
 	}
 	
-	private function getAddressFromId($id) {
-		$oldEntity = $this->findByIdNoRef($id);
-		return $oldEntity["address"];
-	}
-	
-	public function getLocationTypes() {
-		return $this->database->getSelection("SELECT * FROM location_type");
-	}
 }
 ?>

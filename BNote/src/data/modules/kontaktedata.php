@@ -1,10 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
+
 /**
  * Data Access Class for contact data.
  * @author matti
  *
  */
-class KontakteData extends AbstractData {
+class KontakteData extends AbstractLocationData {
 	
 	/**
 	 * Group ID for administrator group.

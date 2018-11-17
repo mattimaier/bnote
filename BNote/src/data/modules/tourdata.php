@@ -1,6 +1,7 @@
 <?php
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
-class TourData extends AbstractData {
+class TourData extends AbstractLocationData {
 	
 	/*
 	 * Data Model

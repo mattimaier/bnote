@@ -91,6 +91,8 @@ class Translation extends BNoteTranslation {
 			"group" => "Group",
 			"invitations" => "Invitations",
 			"invitation" => "Invitation",
+			"country" => "Country",
+			"state" => "State",
 			
 			// GDPR
 			"gdprStartHeading" => "Privacy Policy",

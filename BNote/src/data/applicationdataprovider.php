@@ -117,9 +117,8 @@ class ApplicationDataProvider {
 		return ($this->database->getCell($table, "count(id)", "id = $id") > 0);
 	}
 	
-	
-	// APPLICATION SPECIFIC METHODS
 	/**
+	 * @deprecated
 	 * Manages address entities.
 	 * @param int $id ID of the address entity to be updated or removed.
 	 * 				If a new address should be added or referenced,

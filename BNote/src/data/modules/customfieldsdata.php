@@ -19,9 +19,9 @@ class CustomFieldsData extends AbstractData {
 	private $objectReferenceTypes = array(
 		"c" => "contact",
 		"r" => "rehearsal",
-		"g" => "concert",
+		"g" => "concert",  # g = gig
 		"s" => "song",
-		"v" => "reservation",
+		"v" => "reservation",  # v = vacancy
 		"a" => "appointment",
 		"l" => "location"
 	);

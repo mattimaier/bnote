@@ -1,10 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
+
 /**
- * Data Access Class for rehearsal data.
+ * Data access for rehearsal data.
  * @author matti
  *
  */
-class ProbenData extends AbstractData {
+class ProbenData extends AbstractLocationData {
 	
 	/**
 	 * Build data provider.

@@ -66,11 +66,37 @@ class Database extends Data {
 	protected function exe($query) {
 		$res = $this->db->query( $query );
 		if (!$res) {
-			require_once ($GLOBALS ['DIR_WIDGETS'] . "error.php");
-			new BNoteError ( "The database query has failed:<br />" . $this->db->error . ".<br>Debug:" . $query );
+			$this->mysql_error_display($query);
 		} else {
 			return $res;
 		}
+	}
+	
+	private function mysql_error_display($query) {
+		require_once ($GLOBALS['DIR_WIDGETS'] . "error.php");
+		new BNoteError("The database query has failed:<br />" . $this->db->error . ".<br>Debug:" . $query);
+	}
+	
+	/**
+	 * Manipulates a row in the database with the prepared statement.
+	 * @param String $query Prepared statement to execute. Use "?" as a placeholder.
+	 * @param Array $params Parameter array in the form i => array(type, value).
+	 * @return integer Optional insert ID in case it was an insert.
+	 */
+	public function prepStatement($query, $params) {
+		if (!($stmt = $this->db->prepare($query))) {
+			$this->mysql_error_display($query);
+		}
+		foreach($params as $i => $val_def) {
+			if (!$stmt->bind_param($val_def[0], $val_def[1])) {
+				$this->mysql_error_display($query);
+			}
+		}
+		if (!$stmt->execute()) {
+			$this->mysql_error_display($query);
+		}
+		$stmt->close();
+		return $this->db->insert_id;
 	}
 	
 	/**

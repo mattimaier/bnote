@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
 /**
  * Data Access Class for concert data.
  * @author matti
  *
  */
-class KonzerteData extends AbstractData {
+class KonzerteData extends AbstractLocationData {
 	
 	/**
 	 * Build data provider.
@@ -206,12 +207,7 @@ class KonzerteData extends AbstractData {
 		if(!isset($values["location"]) || $values["location"] == "") {
 			// Create Location
 			// 1) create address
-			$addy = array(
-				"street" => $values["street"],
-				"city" => $values["city"],
-				"zip" => $values["zip"]
-			);
-			$aid = $this->adp()->manageAddress(-1, $addy);
+			$aid = $this->createAddress($values);
 			
 			// 2) create location
 			$begin = substr($values["begin"], 0, strlen("XX.XX.XXXX"));
@@ -222,10 +218,6 @@ class KonzerteData extends AbstractData {
 			$lid = $this->database->execute($query);
 			
 			// 3) save location id in values
-			unset($values["location_name"]);
-			unset($values["street"]);
-			unset($values["city"]);
-			unset($values["zip"]);
 			$values["location"] = $lid;
 		}
 		
@@ -244,11 +236,6 @@ class KonzerteData extends AbstractData {
 			$cid = $this->database->execute($query);
 			
 			// save a contact in values
-			unset($values["contact_name"]);
-			unset($values["contact_surname"]);
-			unset($values["contact_phone"]);
-			unset($values["contact_email"]);
-			unset($values["contact_web"]);
 			$values["contact"] = $cid; 
 		}
 		

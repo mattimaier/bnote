@@ -261,6 +261,9 @@ $update->addTable("concert_group", "CREATE TABLE IF NOT EXISTS `concert_group` (
 	`group` int(11) NOT NULL
 )");
 
+// Task 7: Add state field to address
+$update->addColumnToTable("address", "state", "VARCHAR(50)");
+
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>
