@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * View for concert module.
  * @author matti
  *
  */
-class KonzerteView extends CrudRefView {
+class KonzerteView extends CrudRefLocationView {
 	
 	/**
 	 * Create the contact view.
@@ -150,7 +151,7 @@ class KonzerteView extends CrudRefView {
 					<span class="concertdetail_key">Ort</span>
 					<span class="concertdetail_value"><?php 
 					echo $loc["name"] . "<br/>";
-					echo $this->buildAddress($this->getData()->getAddress($loc["address"]));
+					echo $this->formatAddress($this->getData()->getAddress($loc["address"]));
 					?></span>
 				</div>
 				<div class="concertdetail_entry">

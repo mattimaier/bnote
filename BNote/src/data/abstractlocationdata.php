@@ -55,6 +55,21 @@ abstract class AbstractLocationData extends AbstractData {
 	}
 	
 	/**
+	 * Find the address with the given address ID.
+	 * @param int $id Address ID.
+	 * @return Array Row object of the address.
+	 */
+	function getAddress($id) {
+		if($id < 1) return null;
+		$this->regex->isPositiveAmount($id);
+		
+		$q = "SELECT street, city, zip, state, country FROM address ";
+		$q .= "WHERE id = $id";
+		
+		return $this->database->getRow($q);
+	}
+	
+	/**
 	 * Validation for the address fields.
 	 * @param Array $values Make sure the fields match to getAddressFields().
 	 */

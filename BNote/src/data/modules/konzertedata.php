@@ -143,13 +143,6 @@ class KonzerteData extends AbstractLocationData {
 		return $this->database->getRow($q1);
 	}
 	
-	function getAddress($id) {
-		if($id < 1) return null;
-		$q2 = "SELECT street, city, zip FROM address ";
-		$q2 .= "WHERE id = $id";
-		return $this->database->getRow($q2);
-	}
-	
 	function getContact($id) {
 		$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, email, web ";
 		$q3 .= "FROM contact WHERE id = " . $id;

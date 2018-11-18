@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * View for rehearsal module.
  * @author matti
  *
  */
-class ProbenView extends CrudRefView {
+class ProbenView extends CrudRefLocationView {
 	
 	/**
 	 * Create the contact view.
@@ -368,7 +369,7 @@ class ProbenView extends CrudRefView {
 				echo $entity["name"]; 
 				?></div>
 				<div class="probendetail_value"><?php
-				echo $this->buildAddress($entity); 
+				echo $this->formatAddress($entity); 
 				?></div>
 			</div>
 		</div>

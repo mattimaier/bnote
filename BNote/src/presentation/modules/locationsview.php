@@ -15,7 +15,7 @@ class LocationsView extends CrudRefLocationView {
 		$this->setController($ctrl);
 		$this->setEntityName("Location");
 		$this->setJoinedAttributes(array(
-			"address" => array("street", "zip", "city")
+			"address" => array("street", "zip", "city", "state", "country")
 		));
 	}
 	
@@ -35,7 +35,7 @@ class LocationsView extends CrudRefLocationView {
 	
 	protected function editEntityForm($write=true) {
 		$loc = $this->getData()->findByIdNoRef($_GET["id"]);
-		$address = $this->getData()->adp()->getEntityForId("address", $loc["address"]);
+		$address = $this->getData()->getAddress($loc["address"]);
 		
 		$form = new Form($this->getEntityName() . " bearbeiten",
 				$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
@@ -45,11 +45,9 @@ class LocationsView extends CrudRefLocationView {
 		
 		$form->removeElement("id");
 		$form->removeElement("address");
-		$form->addElement("Stra&szlig;e", new Field("street", $address["street"], FieldType::CHAR));
-		$form->addElement("PLZ", new Field("zip", $address["zip"], FieldType::CHAR));
-		$form->addElement("Stadt", new Field("city", $address["city"], FieldType::CHAR));
-		$form->setForeign("location_type", "location_type", "id", array("name"), $loc['location_type']);
 		
+		$form->setForeign("location_type", "location_type", "id", array("name"), $loc['location_type']);
+		$this->addAddressFieldsToForm($form, $address);
 		$this->appendCustomFieldsToForm($form, LocationsData::$CUSTOM_DATA_OTYPE, $loc, false);
 		
 		$form->write();
@@ -77,9 +75,7 @@ class LocationsView extends CrudRefLocationView {
 			$table->setEdit("id");
 			$table->renameAndAlign($this->getData()->getFields());
 			$table->removeColumn("id");
-			$table->renameHeader("addressstreet", "Stra&szlig;e");
-			$table->renameHeader("addresscity", "Stadt");
-			$table->renameHeader("addresszip", "PLZ");
+			$this->renameTableAddressColumns($table, "address");
 			$table->removeColumn("location_type");
 			$table->write();
 			?>
@@ -99,9 +95,7 @@ class LocationsView extends CrudRefLocationView {
 			$table->setEdit("id");
 			$table->removeColumn("id");
 			$table->renameAndAlign($this->getData()->getFields());
-			$table->renameHeader("addressstreet", "Stra&szlig;e");
-			$table->renameHeader("addresscity", "Stadt");
-			$table->renameHeader("addresszip", "PLZ");
+			$this->renameTableAddressColumns($table, "address");
 			$table->removeColumn("location_type");
 			$table->write();
 			?>
@@ -122,12 +116,10 @@ class LocationsView extends CrudRefLocationView {
 		$entity = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
 		$details = new Dataview();
 		$details->autoAddElements($entity);
+		$details->removeElement("id");
 		$details->resolveForeignElement("location_type", "location_type");		
 		$details->autoRename($this->getData()->getFieldsWithCustomFields(LocationsData::$CUSTOM_DATA_OTYPE));
-		$details->renameElement("addressstreet", "Stra&szlig;e");
-		$details->renameElement("addresszip", "PLZ");
-		$details->renameElement("addresscity", "Stadt");
-		
+		$this->replaceDataViewFieldWithAddress($details, "address");
 		$details->write();
 		
 		// show map

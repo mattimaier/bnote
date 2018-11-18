@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * View for start module.
  * @author matti
  *
  */
-class StartView extends AbstractView {
+class StartView extends CrudRefLocationView {
 	
 	/**
 	 * During the creation of all rehearsal, concert, vote and task items on the start page
@@ -45,7 +46,7 @@ class StartView extends AbstractView {
 		}
 	}
 	
-	private function startOptions() {
+	protected function startOptions() {
 		// don't show any options when the user has to select GDPR
 		if($this->getData()->getSysdata()->gdprOk() == 0) {
 			return;
@@ -247,7 +248,7 @@ class StartView extends AbstractView {
 				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($data[$i]["begin"]));
 				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($data[$i]["end"]));
 				$loc = $data[$i]["name"];
-				$dataview->addElement(Lang::txt("location"), $this->buildAddress($data[$i]));
+				$dataview->addElement(Lang::txt("location"), $this->formatAddress($data[$i]));
 				if(isset($data[$i]["conductor"]) && $data[$i]["conductor"] != null) {
 					$dataview->addElement(Lang::txt("conductor"), $this->getData()->adp()->getConductorname($data[$i]["conductor"]));
 				}
@@ -374,7 +375,7 @@ class StartView extends AbstractView {
 					$dataview->addElement(Lang::txt("outfit"), $row['outfit']);
 				}
 				
-				$loc = $this->buildAddress($row);
+				$loc = $this->formatAddress($row);
 				$addy = $loc;
 				if($loc != "") $loc = $row["location_name"] . "<br/>" . $loc;
 				else $loc = $row["location_name"];

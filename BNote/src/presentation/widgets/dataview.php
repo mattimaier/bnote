@@ -39,6 +39,13 @@ class Dataview {
  }
  
  /**
+  * Returns the data within this data view.
+  */
+ function getElements() {
+ 	return $this->elements;
+ }
+ 
+ /**
   * Resolves the given foreign field to its named value.
   * @param string $label Element key.
   * @param string $table Foreign table that is referenced by the foreign key.
