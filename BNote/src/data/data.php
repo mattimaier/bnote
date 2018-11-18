@@ -229,6 +229,21 @@ abstract class Data {
 		$now = Data::getDateNow();
 		return $now < strtotime($dbDate);
 	}
+	
+	/**
+	 * Adds an array to another array, but with the keys having a prefix.
+	 * @param Array $array Original array. 
+	 * @param Array $addition Array to add.
+	 * @param Array $prefix Prefix to add in front of keys of additional array.
+	 * @return Array completely merged array.
+	 */
+	public static function arrayMergeWithPrefix($array, $addition, $prefix) {
+		$add = array();
+		foreach($addition as $k => $v) {
+			$add[$prefix . $k] = $v;
+		}
+		return array_merge($array, $add);
+	}
  }
 
 ?>

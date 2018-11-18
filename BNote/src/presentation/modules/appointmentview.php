@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * Submodule main view.
  * @author matti
  *
  */
-class AppointmentView extends CrudRefView {
+class AppointmentView extends CrudRefLocationView {
 	
 	function __construct($ctrl) {
 		$this->setController($ctrl);
@@ -63,6 +64,7 @@ class AppointmentView extends CrudRefView {
 		
 		Writing::h3("Ort");
 		Writing::p($appointment["locationname"]);
+		Writing::p($this->formatAddress($appointment, FALSE, "location", TRUE));
 		
 		Writing::h3("Ansprechpartner");
 		Writing::p($appointment["contactname"] . " " . $appointment["contactsurname"]);

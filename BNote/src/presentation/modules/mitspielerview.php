@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * View for members module.
  * @author matti
  *
  */
-class MitspielerView extends AbstractView {
+class MitspielerView extends CrudRefLocationView {
 
 	/**
 	 * Create the start view.
@@ -69,7 +70,7 @@ class MitspielerView extends AbstractView {
 				?></div>
 				
 				<div class="membercard_address"><?php
-				echo $member["street"] . ", " . $member["zip"] . " " . $member["city"]; 
+				echo $this->formatAddress($member, FALSE); 
 				?></div>
 				
 				<div class="membercard_customfields"><?php 

@@ -252,7 +252,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 if($userid == null || $userid < 1) {
 	// get all concerts
 	$query = "SELECT title, begin, end, ";
-	$query .= " concert.notes, name, street, city ";
+	$query .= " concert.notes, name, street, city, state, country ";
 	$query .= " FROM concert, location, address";
 	$query .= " WHERE location = location.id AND address = address.id";
 	$concerts = $db->getSelection($query);

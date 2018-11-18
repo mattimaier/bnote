@@ -233,13 +233,8 @@ class KontakteData extends AbstractLocationData {
 	}
 	
 	public function update_address($id, $values) {
-		$addressId = $this->database->getCell("contact", "address", "id = $id");
-		$query = "UPDATE address SET ";
-		$query .= "street = \"" . $values["street"] . "\", ";
-		$query .= "city = \"" . $values["city"] . "\", ";
-		$query .= "zip = \"" . $values["zip"] . "\" ";
-		$query .= "WHERE id = " . $addressId;
-		$this->database->execute($query);
+		$addressId = $this->getAddressFromId($id);
+		$this->updateAddress($addressId, $values);
 		$values["address"] = $addressId;
 		return $values;
 	}
@@ -254,10 +249,6 @@ class KontakteData extends AbstractLocationData {
 		
 		// remove contact
 		parent::delete($id);
-	}
-	
-	function getAddress($id) {
-		return $this->adp()->getEntityForId("address", $id);
 	}
 	
 	/**

@@ -280,25 +280,8 @@ class ProbenView extends CrudRefLocationView {
 		$out .= "<span class=\"rehearsal_when\">$when</span>";
 		$out .= "<span class=\"rehearsal_conductor\">$conductor</span>";
 		$out .= "</p>";
-		$out .= "<p class=\"rehearsal_details\">" . $row["name"];
-		
-		$out .= " (";
-		if($row["street"] == "" && $row["zip"] == "") {
-			$out .= $row["city"];
-		}
-		else if ($row["street"] == "") {
-			$out .= $row["zip"] . " " . $row["city"];
-		}
-		else if($row["city"] == "" && $row["zip"] == "") {
-			$out .= $row["street"];
-		}
-		else if($row["city"] == "") {
-			$out .= $row["zip"] . " - " . $row["street"];
-		}
-		else {		
-			$out .= $row["street"] . ", " . $row["zip"] . " " . $row["city"];
-		}
-		$out .= ")</p>";
+		$out .= "<p class=\"rehearsal_details\">" . $row["name"];		
+		$out .= " (" . $this->formatAddress($row) . ")</p>";
 		$out .= "<pre class=\"rehearsal\">" . $row["notes"] . "</pre>\n";
 		
 		echo "<a class=\"rehearsal\" href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">";

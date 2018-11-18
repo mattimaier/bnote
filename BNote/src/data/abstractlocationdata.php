@@ -235,6 +235,16 @@ abstract class AbstractLocationData extends AbstractData {
 		}
 		return $this->isoCountries;
 	}
+	
+	/**
+	 * Finds the address with its fields by the location ID.
+	 * @param int $locationId Location ID.
+	 * @return Array Address as from getAddress($id)
+	 */
+	public function getAddressFromLocation($locationId) {
+		$addressId = $this->database->getCell("location", "address", "id = $locationId");
+		return $this->getAddress($addressId);
+	}
 }
 
 ?>

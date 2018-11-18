@@ -79,12 +79,7 @@ class KonzerteView extends CrudRefLocationView {
 		
 		// location
 		$text .= "<span class=\"concert_location\">";
-		$text .= $concert["location_name"];
-		
-		if($concert["location_city"] != "") {
-			$text .= ", " . $concert["location_street"] . ", " . $concert["location_zip"];
-			$text .= " " . $concert["location_city"];
-		}
+		$text .= $concert["location_name"] . ", " . $this->formatAddress($concert, FALSE, "location_");
 		$text .= "</span>";
 		
 		// contact

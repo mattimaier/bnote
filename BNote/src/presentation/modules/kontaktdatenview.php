@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * View to manage the user's personal data.
  * @author matti
  *
  */
-class KontaktdatenView extends AbstractView {
+class KontaktdatenView extends CrudRefLocationView {
 	
 	function __construct($ctrl) {
 		$this->setController($ctrl);
@@ -20,24 +21,22 @@ class KontaktdatenView extends AbstractView {
 		}
 		$cid = $contact["id"];
 		
-		$form1 = new Form("Persönliche Daten ändern", $this->modePrefix() . "savePD");
-		$form1->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $cid);
-		$form1->removeElement("id");
-		$form1->removeElement("notes");
-		$form1->removeElement("address");
-		$form1->removeElement("status");
-		$form1->removeElement("is_conductor");
-		$form1->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
+		$form = new Form("Persönliche Daten ändern", $this->modePrefix() . "savePD");
+		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $cid);
+		$form->removeElement("id");
+		$form->removeElement("notes");
+		$form->removeElement("address");
+		$form->removeElement("status");
+		$form->removeElement("is_conductor");
+		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
 		
 		$address = $this->getData()->getAddress($contact["address"]);
-		$form1->addElement("Stra&szlig;e", new Field("street", $address["street"], FieldType::CHAR));
-		$form1->addElement("Stadt", new Field("city", $address["city"], FieldType::CHAR));
-		$form1->addElement("PLZ", new Field("zip", $address["zip"], FieldType::CHAR));
+		$this->addAddressFieldsToForm($form, $address);
 		
 		// custom data
-		$this->appendCustomFieldsToForm($form1, 'c', $contact, true);
+		$this->appendCustomFieldsToForm($form, 'c', $contact, true);
 		
-		$form1->write();
+		$form->write();
 	}
 	
 	function startOptions() {

@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * View for contact module.
  * @author matti
  *
  */
-class KontakteView extends CrudRefView {
+class KontakteView extends CrudRefLocationView {
 	
 	/**
 	 * Create the contact view.
@@ -14,7 +15,7 @@ class KontakteView extends CrudRefView {
 		$this->setController($ctrl);
 		$this->setEntityName("Kontakt");
 		$this->setJoinedAttributes(array(
-			"address" => array("street", "city", "zip"),
+			"address" => array("street", "city", "zip", "state", "country"),
 			"instrument" => array("name")
 		));
 	}
@@ -149,7 +150,7 @@ class KontakteView extends CrudRefView {
 				}
 				echo "</td>";
 				
-				echo "   <td class=\"DataTable\" style=\"width: 150px;\">" . $row["street"] . "<br/>" . $row["zip"] . " " . $row["city"] . "</td>";
+				echo "   <td class=\"DataTable\" style=\"width: 150px;\">" . $this->formatAddress($row, TRUE, "", TRUE) . "</td>";
 				
 				// phones
 				$phones = "";
@@ -221,9 +222,7 @@ class KontakteView extends CrudRefView {
 		
 		// address
 		$form->removeElement("address");
-		$form->addElement("Stra&szlig;e", new Field("street", "", FieldType::CHAR));
-		$form->addElement("Stadt", new Field("city", "", FieldType::CHAR));
-		$form->addElement("PLZ", new Field("zip", "", FieldType::CHAR));
+		$this->addAddressFieldsToForm($form);
 		
 		// contact group selection
 		$groups = $this->getData()->getGroups();
@@ -287,7 +286,7 @@ class KontakteView extends CrudRefView {
 			</div>
 			<div class="contactdetail_entry">
 				<label class="contactdetail_entry_label">Adresse</label>
-				<div class="contactdetail_entry_value"><?php echo $contact["street"] . ", " . $contact["zip"] . " " . $contact["city"]; ?></div>
+				<div class="contactdetail_entry_value"><?php echo $this->formatAddress($contact, TRUE, "", TRUE); ?></div>
 			</div>
 		</div>
 		
@@ -380,11 +379,8 @@ class KontakteView extends CrudRefView {
 		$form->removeElement("id");
 		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
 		
-		$address = $this->getData()->getAddress($contact["address"]);
 		$form->removeElement("address");
-		$form->addElement("Stra&szlig;e", new Field("street", $address["street"], FieldType::CHAR));
-		$form->addElement("Stadt", new Field("city", $address["city"], FieldType::CHAR));
-		$form->addElement("PLZ", new Field("zip", $address["zip"], FieldType::CHAR));
+		$this->addAddressFieldsToForm($form, $this->getData()->getAddress($contact["address"]));
 		
 		$form->removeElement("status");
 		

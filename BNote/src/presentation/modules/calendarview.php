@@ -1,6 +1,7 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
-class CalendarView extends CrudRefView {
+class CalendarView extends CrudRefLocationView {
 	
 	/**
 	 * Create the start view.
