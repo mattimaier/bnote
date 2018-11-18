@@ -1,11 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
 /**
  * Data Access Class for configuration data.
  * @author matti
  *
  */
-class KonfigurationData extends AbstractData {
+class KonfigurationData extends AbstractLocationData {
 	
 	private $parameterConfig = array();
 	
@@ -40,6 +41,7 @@ class KonfigurationData extends AbstractData {
 				"discussion_on" => array("Diskussionen erlauben", FieldType::BOOLEAN),
 				"updates_show_max" => array("Anzahl Updates auf Startseite", FieldType::INTEGER),
 				"language" => array("Sprache", FieldType::CHAR),
+				"default_country" => array("Land", FieldType::CHAR),
 				"google_api_key" => array("Google Maps API Key", FieldType::CHAR),
 				"trigger_key" => array("Notification Interface Key", FieldType::CHAR),
 				"trigger_cycle_days" => array("Erinnerungszyklus (jede X Tage)", FieldType::INTEGER),

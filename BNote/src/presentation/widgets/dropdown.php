@@ -18,6 +18,10 @@ class Dropdown implements iWriteable {
 		$this->name = $name;
 	}
 
+	public function setName($name) {
+		$this->name = $name;
+	}
+	
 	public function addOption($label, $value) {
 		$this->options[$label] = $value;
 	}

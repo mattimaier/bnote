@@ -93,6 +93,7 @@ class Translation extends BNoteTranslation {
 			"invitation" => "Invitation",
 			"country" => "Country",
 			"state" => "State",
+			"zip" => "Postal Code",
 			
 			// GDPR
 			"gdprStartHeading" => "Privacy Policy",

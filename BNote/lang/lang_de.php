@@ -94,6 +94,7 @@ class Translation extends BNoteTranslation {
 			"invitation" => "Einladung",
 			"country" => "Land",
 			"state" => "Bundesland",
+			"zip" => "PLZ",
 			
 			// GDPR
 			"gdprStartHeading" => "Einverständniserklärung zum Datenschutz",

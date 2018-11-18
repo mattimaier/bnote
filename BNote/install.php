@@ -816,7 +816,8 @@ class Installation {
 					('trigger_cycle_days', '3', 1),
 					('trigger_repeat_count', '3', 1),
 					('enable_trigger_service', '1', 1),
-					('default_conductor', '', 1);");
+					('default_conductor', '', 1),
+					('default_country', 'DEU', 1);");
 			
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES

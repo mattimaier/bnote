@@ -1,10 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
+
 /**
  * View for location module.
  * @author matti
  *
  */
-class LocationsView extends CrudRefView {
+class LocationsView extends CrudRefLocationView {
 	
 	/**
 	 * Create the locations view.
@@ -23,11 +25,9 @@ class LocationsView extends CrudRefView {
 		$form->removeElement("id");
 		$form->removeElement("address");
 		$form->renameElement("Notes", "Notizen");
-		$form->addElement("Stra&szlig;e", new Field("street", "", FieldType::CHAR));
-		$form->addElement("Stadt", new Field("city", "", FieldType::CHAR));
-		$form->addElement("PLZ", new Field("zip", "", FieldType::CHAR));
 		$form->setForeign("location_type", "location_type", "id", array("name"), 1);
 		
+		$this->addAddressFieldsToForm($form);
 		$this->appendCustomFieldsToForm($form, LocationsData::$CUSTOM_DATA_OTYPE);
 		
 		$form->write();

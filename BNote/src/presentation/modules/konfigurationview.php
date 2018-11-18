@@ -1,10 +1,12 @@
 <?php
+require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
+
 /**
  * View for configuration module.
  * @author matti
  *
  */
-class KonfigurationView extends CrudView {
+class KonfigurationView extends CrudRefLocationView {
 
 	/**
 	 * Create the start view.
@@ -79,7 +81,7 @@ class KonfigurationView extends CrudView {
 		$this->backToStart();
 	}
 	
-	function editEntityForm() {
+	function editEntityForm($write = true) {
 		$param = $this->getData()->findByIdNoRef($_GET["id"]);
 		$default = $param["value"];
 		$form = new Form($this->getData()->getParameterCaption($_GET["id"]),
@@ -106,6 +108,11 @@ class KonfigurationView extends CrudView {
 			$dd->addOption("-", 0);
 			$dd->setSelected($default);
 			$form->addElement("Wert", $dd);
+		}
+		else if($_GET["id"] == "default_country") {
+			$dd = $this->buildCountryDropdown($default);
+			$dd->setName("value");
+			$form->addElement(Lang::txt("country"), $dd);
 		}
 		else {
 			// default case

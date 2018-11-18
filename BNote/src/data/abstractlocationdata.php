@@ -14,6 +14,18 @@ abstract class AbstractLocationData extends AbstractData {
 	public static $ADDRESS_TABLE = "address";
 	
 	/**
+	 * Filename where to find the ISO countries CSV.
+	 * @var string Filename.
+	 */
+	private static $ISO_COUNTRIES_FILENAME = 'iso3166-code3.csv';
+	
+	/**
+	 * Content of the file data/iso3166-code3.csv
+	 * @var array Country list.
+	 */
+	private $isoCountries = NULL;
+	
+	/**
 	 * Method to return field array.
 	 * @return Array (default fieldname) => (fieldname)
 	 */
@@ -173,6 +185,40 @@ abstract class AbstractLocationData extends AbstractData {
 	 */
 	public function getLocationTypes() {
 		return $this->database->getSelection("SELECT * FROM location_type");
+	}
+	
+	protected function readCountries() {
+		$countryFilename = "data/" . AbstractLocationData::$ISO_COUNTRIES_FILENAME;
+		if(($countryFileHandle = fopen($countryFilename, "r")) !== FALSE) {
+			$this->isoCountries = array();
+			$rowIdx = 0;
+			while (($data = fgetcsv($countryFileHandle, 0, ";")) !== FALSE) {
+				if($rowIdx == 0) {
+					$rowIdx++;
+					continue;
+				}
+				array_push($this->isoCountries, array(
+					"code" => $data[1],
+					"de" => $data[0],
+					"en" => $data[2]
+				));
+				$rowIdx++;
+			}
+			fclose($countryFileHandle);
+		}
+		else {
+			new BNoteError("Unable to read $countryFilename");
+		}
+	}
+	
+	/**
+	 * Returns the list of countries from the ISO file as a simple array (no selection!).
+	 */
+	public function getCountries() {
+		if($this->isoCountries == NULL) {
+			$this->readCountries();
+		}
+		return $this->isoCountries;
 	}
 }
 
