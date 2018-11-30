@@ -27,15 +27,6 @@ class RepertoireView extends CrudRefView {
 	protected function startOptions() {
 		parent::startOptions();
 
-		if(isset($_GET["showFilters"]) && $_GET["showFilters"] == "true") {
-			$filterbox = new Link($this->modePrefix() . "start", "Filter ausblenden");
-		}
-		else {
-			$filterbox = new Link($this->modePrefix() . "start&showFilters=true", "Filter anzeigen");
-		}
-		$filterbox->addIcon("filter");
-		$filterbox->write();
-		
 		$prt = new Link("javascript:print()", Lang::txt("print"));
 		$prt->addIcon("printer");
 		$prt->write();
@@ -94,30 +85,40 @@ class RepertoireView extends CrudRefView {
 	}
 	
 	public function start() {
-		Writing::h1(Lang::txt("Repertoire"), "ignore_for_print");
 		// Filters
-		if(isset($_GET["showFilters"])) {
-			$filter = new Filterbox($this->modePrefix() . "start&showFilters=true&filters=true");
-			$filter->addFilter("genre", "Genre", FieldType::SET, $this->getData()->getGenres());
-			$filter->addFilter("music_key", "Tonart", FieldType::CHAR, "");
-			$filter->addFilter("solist", "Solist", FieldType::SET, $this->getData()->getAllSolists());
-			$filter->setNameCols("solist", array("name", "surname"));
-			$filter->addFilter("status", "Status", FieldType::SET, $this->getData()->getStatuses());
-			$filter->addFilter("composer", "Komponist", FieldType::SET, $this->getData()->getComposers());
-			
-			$filter->setCssClass("ignore_for_print");
-			$filter->write();
+		$filter = new Filterbox($this->modePrefix() . "start");
+		$filterList = array(
+			"title" => array("Titel", FieldType::CHAR, ""),
+			"genre" => array("Genre", FieldType::SET, $this->getData()->getGenres()),
+			"music_key" => array("Tonart", FieldType::CHAR, ""),
+			"solist" => array("Solist", FieldType::SET, $this->getData()->getAllSolists()),
+			"status" => array("Status", FieldType::SET, $this->getData()->getStatuses()),
+			"composer" => array("Komponist", FieldType::SET, $this->getData()->getComposers())
+		);
+		foreach($filterList as $field => $info) {
+			$filter->addFilter($field, $info[0], $info[1], $info[2]);
+			if($field == "solist") {
+				$filter->setNameCols("solist", array("name", "surname"));
+			}
 		}
-		
-		if(isset($_GET["filters"]) && $_GET["filters"] == "true") {
-			$data = $this->getData()->getFilteredRepertoire($_POST);
+		$filter->setCssClass("ignore_for_print");
+		$filter->write();
+
+		// pagination
+		$offset = 0;
+		$limit = 100;
+		if(isset($_GET["offset"])) {
+			$offset = $_GET["offset"];
+			$this->getData()->getSysdata()->regex->isNumber($offset);
 		}
-		else {
-			$data = $this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "length >= 0 AND is_active = 1 ORDER BY title");
+		$filters = array();
+		if(isset($_POST) && count($_POST) > 0) {
+			$filters = $_POST;
 		}
+		$result = $this->getData()->getFilteredRepertoire($filters, $offset, $limit);
 		
 		// Table
-		$table = new Table($data);
+		$table = new Table($result["data"]);
 		$table->setEdit("id");
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->renameHeader("genrename", "Genre");
@@ -125,11 +126,12 @@ class RepertoireView extends CrudRefView {
 		$table->renameHeader("statusname", "Status");
 		$table->removeColumn("id");
 		$table->removeColumn("notes");
+		if($result["numFilters"] == 0 || $offset > 0) {
+			$table->setPagination($offset, $limit, $this->modePrefix() . "start&offset=");
+		}
+		$table->showFilter(false);
 		$table->write();
 		
-		// Length
-		$tt = $this->getData()->totalRepertoireLength();
-		Writing::p("Das Repertoire hat eine Gesamtlänge von <strong>" . $tt . "</strong> Stunden.");
 	}
 	
 	public function view() {

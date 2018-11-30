@@ -68,8 +68,10 @@ class Filterbox implements iWriteable {
 	}
 	
 	function write() {
-		$form = new Form($this->formname, $this->link);
-		
+		?>
+		<div class="<?php echo $this->cssClass; ?>">
+		<form action="<?php echo $this->link; ?>" method="POST" class="filterbox_form">
+		<?php
 		foreach($this->filters as $column => $infos) {
 			if($infos["type"] == FieldType::SET) {
 				// create a dropdown
@@ -101,22 +103,24 @@ class Filterbox implements iWriteable {
 				}
 			}
 			else {
-				$element = new Field($column, "", $infos["type"]);
+				$val = "";
+				if(isset($_POST[$column])) {
+					$val = $_POST[$column];
+				}
+				$element = new Field($column, $val, $infos["type"]);
 			}
-			
-			$form->addElement($infos["caption"], $element);
+			?>
+			<div class="filterbox_filter">
+				<div class="filterbox_filter_caption"><?php echo $infos["caption"]; ?></div>
+				<div class="filterbox_filter_element"><?php echo $element->write(); ?></div>
+			</div>
+			<?php
 		}
-		
-		$form->changeSubmitButton("Filtern");
-		
-		if($this->cssClass != null) {
-			echo '<div class="' . $this->cssClass . '">';
-			$form->write();
-			echo '</div>';
-		}
-		else {
-			$form->write();
-		}
+		?>
+			<input type="submit" value="Suchen" class="filterbox_submit" />
+		</form>
+		</div>
+		<?php
 	}
 	
 }

@@ -20,6 +20,11 @@ class Table implements iWriteable {
 	private $dataRowSpan = 0;
 	private $allowContentWrap = true;
 	private $showFilter = true;
+	private $isPaginated = false;
+	private $offset = 0;
+	private $limit;
+	private $paginationLinkPrev;
+	private $paginationLinkNext;
 	
 	/**
 	 * Creates a new table
@@ -172,6 +177,14 @@ class Table implements iWriteable {
 	 */
 	function showFilter($show=true) {
 		$this->showFilter = $show;
+	}
+	
+	function setPagination($offset, $limit, $link) {
+		$this->isPaginated = true;
+		$this->offset = $offset;
+		$this->limit = $limit;
+		$this->paginationLinkPrev = $link . ($offset-$limit >= 0 ? $offset-$limit : 0);
+		$this->paginationLinkNext = $link . ($offset+$limit);
 	}
 	
 	function write() {
@@ -336,6 +349,12 @@ class Table implements iWriteable {
 
 		echo "</tbody>\n";
 		echo "</table>\n";
+		if($this->isPaginated) {
+			?>
+			<a href="<?php echo $this->paginationLinkPrev; ?>"><div class="DataTable_prevpage"><?php echo Lang::txt("table_prev"); ?></div></a>
+			<a href="<?php echo $this->paginationLinkNext; ?>"><div class="DataTable_nextpage"><?php echo Lang::txt("table_next"); ?></div></a>
+			<?php
+		}
 
 		if($this->showFilter && !$empty) {
 			?>

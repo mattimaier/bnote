@@ -96,6 +96,8 @@ class Translation extends BNoteTranslation {
 			"state" => "Bundesland",
 			"zip" => "PLZ",
 			"address" => "Adresse",
+			"table_prev" => "Vorherige Einträge",
+			"table_next" => "Nächste Einträge",
 			
 			// GDPR
 			"gdprStartHeading" => "Einverständniserklärung zum Datenschutz",
