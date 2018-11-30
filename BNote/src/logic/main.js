@@ -132,6 +132,7 @@ $(document).ready(function() {
 	$('#navbarCollapseIcon').click(function() {
 		if(fullNavi) {
 			$('.navi_item_caption').hide();
+			$('.navi_item_caption_selected').hide();
 			$('#navigation').addClass("naviCollapsed");
 			$('#optionsContainer').addClass("optionsContainerLeft");
 			$('#content_insets').addClass("insetLeft");
@@ -139,6 +140,7 @@ $(document).ready(function() {
 		}
 		else {
 			$('.navi_item_caption').show();
+			$('.navi_item_caption_selected').show();
 			$('#navigation').removeClass("naviCollapsed");
 			$('#optionsContainer').removeClass("optionsContainerLeft");
 			$('#content_insets').removeClass("insetLeft");

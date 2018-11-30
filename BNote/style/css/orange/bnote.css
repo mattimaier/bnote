@@ -331,10 +331,9 @@ a.linkbox {
   margin-left: 32px;
 }
 div.navi_item {
-  padding: 10px;
+  padding: 8px;
   border-right: 1px solid;
   border-right-color: #E6DDBA;
-  border-bottom: 1px solid;
   border-bottom-color: #E6DDBA;
   background-color: #FFFFFF;
   text-transform: uppercase;
@@ -345,7 +344,7 @@ div.navi_item:hover {
   color: #FFFFFF;
 }
 div.navi_item_selected {
-  padding: 10px;
+  padding: 8px;
   background-color: #E6DDBA;
   color: #000000;
   border-bottom: 1px solid;
@@ -353,7 +352,16 @@ div.navi_item_selected {
   text-transform: uppercase;
 }
 img.navi_item_icon {
-  margin-right: 8px;
+  position: relative;
+  left: 0px;
+  top: 2px;
+}
+span.navi_item_caption {
+  padding-left: 5px;
+}
+span.navi_item_caption_selected {
+  padding-left: 5px;
+  color: #E0B400;
 }
 input[type="submit"] {
   color: #000000;
@@ -441,7 +449,6 @@ div.linkbox {
   white-space: nowrap;
   background: #E6DDBA;
   padding: 5px 10px;
-  border: 1px solid #BDB597;
 }
 #optionsContainer div.linkbox {
   background: #FFFFFF;
@@ -597,6 +604,7 @@ div.flash_message.error {
 #bannerContent {
   color: #FFFFFF;
   padding: 8px 24px;
+  min-width: 600px;
 }
 #footer {
   height: 22px;
@@ -642,7 +650,9 @@ div.flash_message.error {
   display: inline-block;
 }
 #Logout {
-  float: right;
+  display: block;
+  position: absolute;
+  right: 10px;
 }
 #Logout_link {
   color: #FFFFFF;
@@ -670,19 +680,17 @@ div.flash_message.error {
   margin-bottom: 30px;
 }
 #content {
-  min-width: 822px;
   padding: 0px;
   background-color: #FFFFFF;
   border-color: #E6DDBA;
 }
 #optionsbar {
   min-height: 30px;
-  border-bottom: 1px solid #BDB597;
   background-color: #E0B400;
   padding-top: 10px;
 }
 #optionsContainer {
-  min-height: 44px;
+  min-height: 40px;
   margin-left: 184px;
 }
 #navbarOptions {
@@ -764,7 +772,7 @@ p.rehearsal_title {
 span.rehearsal_conductor {
   color: #69624A;
   position: absolute;
-  left: 500px;
+  left: 475px;
 }
 span.rehearsal_when {
   position: absolute;

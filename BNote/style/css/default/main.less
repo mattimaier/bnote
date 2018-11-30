@@ -74,10 +74,9 @@ a.linkbox {
 }
 
 div.navi_item {
-	padding: 10px;
+	padding: 8px;
 	border-right: 1px solid;
 	border-right-color: @bnote-lightgray;
-	border-bottom: 1px solid;
 	border-bottom-color: @bnote-lightgray;
 	background-color: @white;
 	text-transform: uppercase;
@@ -90,7 +89,7 @@ div.navi_item:hover {
 }
 
 div.navi_item_selected {
-	padding: 10px;
+	padding: 8px;
 	background-color: @bnote-lightgray;
 	color: @black;
 	border-bottom: 1px solid;
@@ -99,7 +98,18 @@ div.navi_item_selected {
 }
 
 img.navi_item_icon {
-	margin-right: 8px;
+	position: relative;
+    left: 0px;
+    top: 2px;
+}
+
+span.navi_item_caption {
+    padding-left: 5px;
+}
+
+span.navi_item_caption_selected {
+    padding-left: 5px;
+    color: @bnote-dark-alt;
 }
 
 input[type="submit"] {
@@ -198,7 +208,6 @@ div.linkbox {
 	white-space: nowrap;
 	background: @bnote-lightgray;
 	padding: 5px 10px;
-	border: 1px solid @bnote-middlegray;
 }
 
 #optionsContainer div.linkbox {
@@ -387,6 +396,7 @@ div.flash_message.error {
 #bannerContent {
 	color: @white;
 	padding: 8px 24px;
+	min-width: 600px;
 }
 
 #footer {
@@ -440,7 +450,9 @@ div.flash_message.error {
 }
 
 #Logout {
-	float: right;
+	display: block;
+    position: absolute;
+    right: 10px;
 }
 
 #Logout_link {
@@ -474,21 +486,19 @@ div.flash_message.error {
 }
 
 #content {
-	min-width: 822px;
 	padding: 0px;
 	background-color: @white;
 	border-color: @bnote-lightgray;
 }
 
 #optionsbar {
-	min-height: 30px;
-	border-bottom: 1px solid @bnote-middlegray;
+	min-height: 30px;	
 	background-color: @bnote-dark-alt;
 	padding-top: 10px;
 }
 
 #optionsContainer {
-	min-height: 44px;
+	min-height: 40px;
 	margin-left: 184px;
 }
 

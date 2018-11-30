@@ -36,7 +36,6 @@ class KontakteView extends CrudRefLocationView {
 	
 	protected function startOptions() {
 		parent::startOptions();
-		$this->buttonSpace();
 		
 		// set group filter if group is selected
 		$groupFilter = "&group=";
@@ -49,28 +48,23 @@ class KontakteView extends CrudRefLocationView {
 		$eps = new Link($this->modePrefix() . "integration" . $groupFilter, "Einphasung");
 		$eps->addIcon("integration");
 		$eps->write();
-		$this->buttonSpace();
 		
-		$groups = new Link($this->modePrefix() . "groups&func=start", "Gruppen verwalten");
+		$groups = new Link($this->modePrefix() . "groups&func=start", "Gruppen");
 		$groups->addIcon("mitspieler");
 		$groups->write();
-		$this->buttonSpace();
 		
-		$print = new Link($this->modePrefix() . "selectPrintGroups", "Mitgliederliste drucken");
+		$print = new Link($this->modePrefix() . "selectPrintGroups", "Liste drucken");
 		$print->addIcon("printer");
 		$print->write();
-		$this->buttonSpace();
 		
-		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", "Kontakte Export (vCard)");
-		$vc->addIcon("save");
-		$vc->setTarget("_blank");
-		$vc->write();
-		$this->buttonSpace();
-		
-		$vc = new Link($this->modePrefix() . "contactImport", "Kontakte Import (vCard)");
+		$vc = new Link($this->modePrefix() . "contactImport", "Import (vCard)");
 		$vc->addIcon("arrow_down");
 		$vc->write();
-		$this->buttonSpace();
+		
+		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", "Export (vCard)");
+		$vc->addIcon("arrow_up");
+		$vc->setTarget("_blank");
+		$vc->write();
 	
 		$gdprOk = new Link($this->modePrefix() . "gdprOk", "Datenschutz");
 		$gdprOk->addIcon("question");
