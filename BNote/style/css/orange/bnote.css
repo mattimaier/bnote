@@ -334,6 +334,7 @@ div.navi_item {
   padding: 8px;
   text-transform: uppercase;
   font-size: 10pt;
+  background-color: #E0B400;
 }
 div.navi_item:hover {
   background-color: #F2C922;
@@ -346,6 +347,7 @@ div.navi_item_selected {
   border-bottom: 1px solid;
   border-bottom-color: #E6DDBA;
   text-transform: uppercase;
+  font-size: 10pt;
 }
 img.navi_item_icon {
   position: relative;
@@ -608,7 +610,7 @@ div.flash_message.error {
   color: #FFFFFF;
   padding: 8px 24px;
   min-width: 600px;
-  margin-left: 160px;
+  margin-left: 134px;
 }
 #footer {
   display: none;
@@ -631,9 +633,10 @@ div.flash_message.error {
 }
 #logoBanner {
   text-align: center;
-  margin-top: 10px;
-  margin-bottom: 1px;
+  padding-top: 10px;
   height: 49px;
+  background-color: #61b3ff;
+  padding-bottom: 1px;
 }
 div#bannerContent.insetLeft {
   margin-left: 30px;
@@ -679,7 +682,7 @@ div#logoBanner.naviCollapsed > img {
 }
 #content_container {
   width: 100%;
-  float: left;
+  background-color: #E0B400;
 }
 #navigation {
   position: absolute;
@@ -691,7 +694,7 @@ div#logoBanner.naviCollapsed > img {
 #content_insets {
   padding: 24px;
   margin-left: 160px;
-  margin-bottom: 30px;
+  background: #FFFFFF;
 }
 #content {
   padding: 0px;
@@ -741,6 +744,19 @@ div#logoBanner.naviCollapsed > img {
 .DataTable_nextpage {
   display: inline-block;
   margin-left: 20px;
+}
+#sectionform > h3 {
+  border-bottom: 1px solid #BDB597;
+}
+.ui-accordion-header {
+  border-radius: 0px;
+}
+.ui-state-hover {
+  background: inherit;
+}
+.ui-state-default {
+  background-color: #E6DDBA;
+  color: #E0B400;
 }
 @media print {
   #banner {

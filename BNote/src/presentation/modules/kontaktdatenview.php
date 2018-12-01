@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * View to manage the user's personal data.
@@ -22,7 +21,7 @@ class KontaktdatenView extends CrudRefLocationView {
 		$cid = $contact["id"];
 		
 		$form = new Form("Persönliche Daten ändern", $this->modePrefix() . "savePD");
-		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $cid);
+		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $cid, array("company"));
 		$form->removeElement("id");
 		$form->removeElement("notes");
 		$form->removeElement("address");

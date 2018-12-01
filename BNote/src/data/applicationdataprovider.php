@@ -316,7 +316,7 @@ class ApplicationDataProvider {
 	public function getContacts() {
 		$query = "SELECT c2.*, i.name as instrumentname ";
 		$query .= "FROM ";
-		$query .= " (SELECT c.*, a.street, a.city, a.zip ";
+		$query .= " (SELECT c.*, a.street, a.city, a.zip, a.state, a.country ";
 		$query .= "  FROM contact c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";
@@ -342,7 +342,7 @@ class ApplicationDataProvider {
 	public function getGroupContacts($groupId) {
 		$query = "SELECT c2.*, i.name as instrumentname ";
 		$query .= "FROM ";
-		$query .= " (SELECT c.*, a.street, a.city, a.zip ";
+		$query .= " (SELECT c.*, a.street, a.city, a.zip, a.state, a.country ";
 		$query .= "  FROM contact c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";
@@ -571,6 +571,10 @@ class ApplicationDataProvider {
 	function getDocumentTypes() {
 		$query = "SELECT * FROM `doctype`";
 		return $this->database->getSelection($query);
+	}
+	
+	function getInstrumentName($id) {
+		return $this->database->getCell("instrument", "name", "id = $id");
 	}
 	
 }

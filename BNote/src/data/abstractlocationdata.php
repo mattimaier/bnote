@@ -178,7 +178,7 @@ abstract class AbstractLocationData extends AbstractData {
 		$this->regex->isPositiveAmount($id);
 		
 		$query = "SELECT l.*, a.street, a.city, a.zip, a.state, a.country
-			FROM location l JOIN address a ON l.address = address.id 
+			FROM location l JOIN address a ON l.address = a.id 
 			WHERE l.id = $id";
 		
 		return $this->database->getRow($query);

@@ -257,6 +257,9 @@ class KontakteController extends DefaultController {
 					$card['zip'] = $addy[count($addy)-2];
 				}
 			}
+			if(Data::startsWith($field, "ORG")) {
+				$card["company"] = $val;
+			}
 			if($field == "END" && $val == "VCARD") {
 				array_push($cards, $card);
 			}

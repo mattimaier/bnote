@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
 /**
  * Data Access Class for member data.
@@ -14,6 +13,7 @@ class MitspielerData extends AbstractLocationData {
 				"surname" => array("Name", FieldType::CHAR),
 				"name" => array("Vorname", FieldType::CHAR),
 				"nickname" => array("Spitzname", FieldType::CHAR),
+				"company" => array("Organisation", FieldType::CHAR),
 				"phone" => array("Telefon", FieldType::CHAR),
 				"fax" => array("Fax", FieldType::CHAR),
 				"mobile" => array("Mobil", FieldType::CHAR),

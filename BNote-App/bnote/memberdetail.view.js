@@ -22,6 +22,9 @@ sap.ui.jsview("bnote.memberdetail", {
                 new sap.m.Label({text: "Spitzname"}),
                 new sap.m.Text({text: "{nickname}"}),  
                 
+                new sap.m.Label({text: "Organisation"}),
+                new sap.m.Text({text: "{company}"}),  
+                
                 new sap.m.Label({text: "Instrument"}),
                 new sap.m.Text({text: "{instrumentname}"}),
                 

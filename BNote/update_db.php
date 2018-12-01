@@ -277,6 +277,22 @@ if($numRowsDocType == 0) {
 	$update->executeQuery("INSERT INTO `doctype` (name, is_action) VALUES ('Noten', 1), ('Text', 1), ('Aufnahme', 1), ('Sonstiges', 1)");
 	$update->message("Default doctypes added");
 }
+
+// Task 9: Contact updates
+$update->addColumnToTable("contact", "company", "VARCHAR(100)");
+
+// Task 10: Concert updates
+$update->addColumnToTable("concert", "organizer", "VARCHAR(200)");
+$update->addColumnToTable("concert", "accommodation", "INT(11)");
+$update->addColumnToTable("concert", "payment", "DECIMAL(12,2)");
+$update->addColumnToTable("concert", "conditions", "TEXT");
+$update->addTable("concert_equipment", "CREATE TABLE IF NOT EXISTS `concert_equipment` (
+	`concert` int(11) NOT NULL,
+	`equipment` int(11) NOT NULL,
+	`amount` int(10) NOT NULL DEFAULT 1,
+	`notes` VARCHAR(255)
+)");
+
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>

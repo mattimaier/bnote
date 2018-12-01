@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
 /**
  * Data Access Class for concert data.
@@ -19,18 +18,23 @@ class KonzerteData extends AbstractLocationData {
 			"end" => array("Ende", FieldType::DATETIME),
 			"approve_until" => array("Zusagen bis", FieldType::DATETIME),
 			"meetingtime" => array("Treffpunkt (Zeit)", FieldType::DATETIME),
+			"organizer" => array("Veranstalter", FieldType::CHAR),
 			"location" => array("Ort", FieldType::REFERENCE),
+			"accommodation" => array("Unterkunft", FieldType::REFERENCE),
 			"program" => array("Programm", FieldType::REFERENCE),
 			"contact" => array("Kontakt", FieldType::REFERENCE),
 			"outfit" => array("Outfit", FieldType::REFERENCE),
-			"notes" => array("Anmerkungen", FieldType::TEXT)
+			"notes" => array("Anmerkungen", FieldType::TEXT), 
+			"payment" => array("Gage", FieldType::DECIMAL),
+			"conditions" => array("Konditionen", FieldType::TEXT)
 		);
 		
 		$this->references = array(
 			"location" => "location",
 			"program" => "program",
 			"contact" => "contact",
-			"outfit" => "outfit"
+			"outfit" => "outfit",
+			"accommodation" => "location"
 		);
 		
 		$this->table = "concert";
@@ -184,66 +188,21 @@ class KonzerteData extends AbstractLocationData {
 		return $this->adp()->getTemplatePrograms();
 	}
 	
-	// NOT TRANSACTION SAFE!
-	function saveConcert() {
-		$values = $_POST;
-		
-		// edit program if not set
-		if(isset($values["program"]) && $values["program"] == 0) {
-			unset($values["program"]);
-		}
-		
+	function create($values) {
 		// Validation
 		$this->validate($values);
-		
-		// check for location
-		if(!isset($values["location"]) || $values["location"] == "") {
-			// Create Location
-			// 1) create address
-			$aid = $this->createAddress($values);
-			
-			// 2) create location
-			$begin = substr($values["begin"], 0, strlen("XX.XX.XXXX"));
-			$notes = "Auftritt am " . $begin;
-			$query = "INSERT INTO location (name, notes, address, location_type) VALUES (";
-			$query .= "\"" . $values["location_name"] . "\", \"" . $notes . "\", $aid, 2";
-			$query .= ")";
-			$lid = $this->database->execute($query);
-			
-			// 3) save location id in values
-			$values["location"] = $lid;
-		}
-		
-		// check for contact
-		if(!isset($values["contact"]) || $values["contact"] == "") {
-			// create contact, but don't set a few options
-			$query = "INSERT INTO contact (surname, name, phone, email, web, status)";
-			$query .= " VALUES (";
-			$query .= '"' . $values["contact_surname"] . '", ';
-			$query .= '"' . $values["contact_name"] . '", ';
-			$query .= '"' . $values["contact_phone"] . '", ';
-			$query .= '"' . $values["contact_email"] . '", ';
-			$query .= '"' . $values["contact_web"] . '", ';
-			$query .= '"OTHER"'; //automatically group "OTHER"
-			$query .= ")";
-			$cid = $this->database->execute($query);
-			
-			// save a contact in values
-			$values["contact"] = $cid; 
-		}
-		
-		// check for program
-		if(isset($values["program"]) && $values["program"] < 1) {
-			// remove if none was chosen
-			unset($values["program"]);
-		}
 		
 		// create concert
 		$concertId = parent::create($values);
 		
-		// adds members of the selected group(s)
+		// adds members of the selected group(s), add groups themselves
 		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
-		$this->addMembersToConcert($groups, $concertId);	
+		$this->addMembersToConcert($groups, $concertId);
+		$this->addGroupsToConcert($groups, $concertId);
+		
+		// add equipment
+		$equipmentSelection = GroupSelector::getPostSelection($this->adp()->getEquipment(), "equipment");
+		$this->addEquipmentToConcert($equipmentSelection, $concertId);
 		
 		// add custom data
 		$this->createCustomFieldData('g', $concertId, $values);
@@ -276,6 +235,14 @@ class KonzerteData extends AbstractLocationData {
 				$this->database->execute($query);
 			}
 		}
+	}
+	
+	function addGroupsToConcert($groups, $concertId) {
+		//TODO
+	}
+	
+	function addEquipmentToConcert($equipmentSelection, $concertId) {
+		//TODO
 	}
 	
 	function getParticipants($cid) {

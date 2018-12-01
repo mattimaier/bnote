@@ -61,6 +61,9 @@ for($i = 1; $i < count($data); $i++) {
 	if($c['nickname'] != "") {
 		echo 'NICKNAME:' . $c['nickname'] . "\n";
 	}
+	if(isset($c["company"]) && $c["company"] != "") {
+		echo 'ORG:' . $c["company"] . "\n";
+	}
 	echo 'TEL;TYPE=HOME,VOICE:' . $c["phone"] . "\n";
 	echo 'ADR;TYPE=HOME:;;' . $c["street"] . ';' . $c["city"] . ";;" . $c["zip"] . ";\n";
 	echo 'EMAIL;PREF;INTERNET:' . $c["email"] . "\n";

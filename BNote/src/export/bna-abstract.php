@@ -14,6 +14,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "regex.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "systemdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "abstractdata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "applicationdataprovider.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "startdata.php";
 require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "mitspielerdata.php";

@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * Submodule main view.

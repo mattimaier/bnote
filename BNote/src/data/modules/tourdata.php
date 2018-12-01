@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
 class TourData extends AbstractLocationData {
 	

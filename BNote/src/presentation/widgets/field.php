@@ -12,6 +12,8 @@ class Field implements iWriteable {
 	private $default_value;
 	private $type;
 	private $cssClass = null;
+	private $cols = 70;
+	private $rows = 10;
 	
 	/**
 	 * Uneditable textfield.
@@ -63,11 +65,18 @@ class Field implements iWriteable {
 	public function getValue() {
 		return $this->default_value;
 	}
+	
 	public function setValue($value) {
 		$this->default_value = $value;
 	}
+	
 	public function setCssClass($cssClass) {
 		$this->cssClass = $cssClass;
+	}
+	
+	public function setColsAndRows($rows, $cols) {
+		$this->rows = $rows;
+		$this->cols = $cols;
 	}
  
 	/**
@@ -111,10 +120,11 @@ class Field implements iWriteable {
 		if($this->cssClass != null) {
 			$css = ' class="' . $this->cssClass . '"';
 		}
-		return '<textarea name="' . $this->name . '" cols="70" rows="10"' . $css . '>' . $this->default_value . '</textarea>' . "\n";
+		return '<textarea name="' . $this->name . '" cols="' . $this->cols . '" rows="' . $this->rows . '"' . $css . '>' . $this->default_value . '</textarea>' . "\n";
 	}
+	
 	private function tinyMCE() {
-		$ret = '<textarea id="tinymce" name="' . $this->name . '" cols="70" rows="10">';
+		$ret = '<textarea id="tinymce" name="' . $this->name . '" cols="' . $this->cols . '" rows="' . $this->rows . '">';
 		$ret .= $this->default_value . '</textarea>' . "\n";
 		return $ret;
 	}

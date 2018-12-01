@@ -276,7 +276,18 @@ class Installation {
 					`contact` int(11),
 					`outfit` int(11),
 					`meetingtime` datetime,
+					`organizer` VARCHAR(200),
+					`accommodation` INT(11),
+					`payment` DECIMAL(12,2),
+					`conditions` TEXT,
 					PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries, "CREATE TABLE IF NOT EXISTS `concert_equipment` (
+					`concert` int(11) NOT NULL,
+					`equipment` int(11) NOT NULL,
+					`amount` int(10) NOT NULL DEFAULT 1,
+					`notes` VARCHAR(255)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
 			array_push($queries,
@@ -316,6 +327,7 @@ class Installation {
 					`gdpr_ok` int(1) default 0,
 					`gdpr_code` varchar(255) DEFAULT NULL,
 					`is_conductor` int(1) default 0,
+					`company` VARCHAR(100),
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 

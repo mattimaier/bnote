@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * View for contact module.
@@ -275,6 +274,10 @@ class KontakteView extends CrudRefLocationView {
 				<div class="contactdetail_entry_value"><?php echo $contact["nickname"]; ?></div>
 			</div>
 			<div class="contactdetail_entry">
+				<label class="contactdetail_entry_label">Organisation</label>
+				<div class="contactdetail_entry_value"><?php echo $contact["company"]; ?></div>
+			</div>
+			<div class="contactdetail_entry">
 				<label class="contactdetail_entry_label">Geburtstag</label>
 				<div class="contactdetail_entry_value"><?php echo Data::convertDateFromDb($contact["birthday"]); ?></div>
 			</div>
@@ -369,7 +372,7 @@ class KontakteView extends CrudRefLocationView {
 		$contact = $this->getData()->getContact($_GET["id"]);
 		
 		$form = new Form("Kontakt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
-		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);
+		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"], array("company"));
 		$form->removeElement("id");
 		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
 		
@@ -675,23 +678,25 @@ class KontakteView extends CrudRefLocationView {
 		$dv->renameElement("zip", "PLZ");
 		$dv->write();
 		
-		// Votes: participation
-		Writing::h2("Abstimmungen");
-		Writing::p("Die Person hat an folgenden Abstimmungen teilgenommen:");
-		
-		$votes = $this->getData()->adp()->getUsersVotesAll($uid);
-		$voteList = new Plainlist($votes);
-		$voteList->write();
-		Writing::p("Zum Zwecke der Auswertung des Abstimmungsergebnisses wurden Daten erfasst und verarbeitet.");
-		
-		// Tasks
-		Writing::h2("Aufgaben");
-		Writing::p("Die Person war für folgenden Aufgaben zuständig:");
-		$tasks = $this->getData()->adp()->getUserTasks($uid);
-		$taskList = new Plainlist($tasks);
-		$taskList->setNameField("title");
-		$taskList->write();
-		Writing::p("Zum Zwecke der Zuordnung von Aufgaben zu Mitgliedern wurden die Daten erfasst und verarbeitet.");
+		if($uid != NULL && $uid > 0) {
+			// Votes: participation
+			Writing::h2("Abstimmungen");
+			Writing::p("Die Person hat an folgenden Abstimmungen teilgenommen:");
+			
+			$votes = $this->getData()->adp()->getUsersVotesAll($uid);
+			$voteList = new Plainlist($votes);
+			$voteList->write();
+			Writing::p("Zum Zwecke der Auswertung des Abstimmungsergebnisses wurden Daten erfasst und verarbeitet.");
+			
+			// Tasks
+			Writing::h2("Aufgaben");
+			Writing::p("Die Person war für folgenden Aufgaben zuständig:");
+			$tasks = $this->getData()->adp()->getUserTasks($uid);
+			$taskList = new Plainlist($tasks);
+			$taskList->setNameField("title");
+			$taskList->write();
+			Writing::p("Zum Zwecke der Zuordnung von Aufgaben zu Mitgliedern wurden die Daten erfasst und verarbeitet.");
+		}
 		
 		// Concerts: participation
 		Writing::h2("Auftritte");
@@ -705,11 +710,13 @@ class KontakteView extends CrudRefLocationView {
 		$concertInvitationList->setNameField("title");
 		$concertInvitationList->write();
 		
-		Writing::p("Die Person hat für folgende Auftritte ihre Anwesenheit eingetragen:");
-		$concertParticipation = $this->getData()->getConcertParticipation($uid);
-		$concertParticipationList = new Plainlist($concertParticipation);
-		$concertParticipationList->setNameField("title");
-		$concertParticipationList->write();
+		if($uid != NULL && $uid > 0) {
+			Writing::p("Die Person hat für folgende Auftritte ihre Anwesenheit eingetragen:");
+			$concertParticipation = $this->getData()->getConcertParticipation($uid);
+			$concertParticipationList = new Plainlist($concertParticipation);
+			$concertParticipationList->setNameField("title");
+			$concertParticipationList->write();
+		}
 		
 		Writing::p("Zum Zwecke der Auftrittsorganisation wurde die Anwesenheitsabfrage sowie die Einladung zu Auftritten erfasst und verarbeitet.");
 		
@@ -726,11 +733,13 @@ class KontakteView extends CrudRefLocationView {
 		$rehearsalInvitationsList->setNameField("begin");
 		$rehearsalInvitationsList->write();
 		
-		Writing::p("Die Person hat ihre Teilnahme zu folgenden Proben angegeben:");
-		$rehearsalParticipation = $this->getData()->getRehearsalParticipation($uid);
-		$rehearsalParticipationList = new Plainlist($rehearsalParticipation);
-		$rehearsalParticipationList->setNameField("begin");
-		$rehearsalParticipationList->write();
+		if($uid != NULL && $uid > 0) {
+			Writing::p("Die Person hat ihre Teilnahme zu folgenden Proben angegeben:");
+			$rehearsalParticipation = $this->getData()->getRehearsalParticipation($uid);
+			$rehearsalParticipationList = new Plainlist($rehearsalParticipation);
+			$rehearsalParticipationList->setNameField("begin");
+			$rehearsalParticipationList->write();
+		}
 		
 		Writing::p("Die Person war zu folgenden Probenphasen eingeladen:");
 		$phaseInvitations = $this->getData()->getRehearsalphaseInvitations($cid);

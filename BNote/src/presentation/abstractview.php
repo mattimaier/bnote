@@ -198,6 +198,77 @@ abstract class AbstractView {
 	}
 	
 	/**
+	 * Creates a formatted representation of the contact, depending on the available information.
+	 * @param Array $contact Contact row.
+	 * @param String $profile 'DEFAULT': Name only, 'NAME_COMM': Name, Comp, Email/Phone, 'NAME_INST': Name, Instrument
+	 * @param String $fieldPrefix In case all phone/email/... fields have a prefix
+	 */
+	protected function formatContact($contact, $profile="DEFAULT", $fieldPrefix = "") {
+		/*
+		 * Names:
+		 * - surname only
+		 * - name only
+		 * - nickname only
+		 * - surname + name
+		 */
+		if(isset($contact[$fieldPrefix . "surname"]) && $contact[$fieldPrefix . "surname"] != "" && $contact[$fieldPrefix . "name"] != "") {
+			$name = $contact[$fieldPrefix . "name"] . " " . $contact[$fieldPrefix . "surname"];
+		}
+		else if($contact[$fieldPrefix . "name"] == "" && $contact[$fieldPrefix . "surname"] == "") {
+			$name = $contact[$fieldPrefix . "nickname"];
+		}
+		else if(isset($contact[$fieldPrefix . "surname"]) && $contact[$fieldPrefix . "surname"] != "" && $contact[$fieldPrefix . "nickname"] != "") {
+			$name = $contact[$fieldPrefix . "nickname"] . " " . $contact[$fieldPrefix . "surname"];
+		}
+		else {
+			$name = $contact[$fieldPrefix . "name"];
+		}
+		
+		// company
+		$comp = isset($contact[$fieldPrefix . "company"]) ? $contact[$fieldPrefix . "company"] : "";
+		
+		// instrument, instrumentname
+		if(isset($contact[$fieldPrefix . "instrumentname"])) {
+			$inst = $contact[$fieldPrefix . "instrumentname"];
+		}
+		else if(isset($contact[$fieldPrefix . "instrument"])) {
+			$inst = $contact[$fieldPrefix . "instrument"];
+			if(is_numeric($inst)) {
+				$inst = $this->getData()->adp()->getInstrumentName($inst);
+			}
+		}
+		else {
+			$inst = "";
+		}
+		
+		// communication
+		$comm = array();
+		if($comp != "") array_push($comm, $comp);
+		$email = isset($contact[$fieldPrefix . "email"]) ? $contact[$fieldPrefix . "email"] : "";
+		if($email != "") array_push($comm, "E-Mail $email");
+		$phone = isset($contact[$fieldPrefix . "phone"]) ? $contact[$fieldPrefix . "phone"] : "";
+		if($phone == "" && isset($contact[$fieldPrefix . "mobile"])) $phone = $contact[$fieldPrefix . "mobile"];
+		if($phone == "" && isset($contact[$fieldPrefix . "business"])) $phone = $contact[$fieldPrefix . "business"];
+		if($phone != "") array_push($comm, "Tel. $phone");
+		
+		// output according to profile
+		switch($profile) {
+			case "NAME_COMM":
+				if(count($comm) == 0) {
+					return $name;
+				}
+				return $name  . " (" . join(", ", $comm) . ")";
+			case "NAME_INST":
+				if($inst == "") {
+					return $name;
+				}
+				return "$name ($inst)";
+			default:
+				return $name;
+		}
+	}
+	
+	/**
 	 * Prints two br-tags.
 	 */
 	public static function verticalSpace() {

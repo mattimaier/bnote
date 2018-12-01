@@ -80,26 +80,30 @@ class Form implements iWriteable {
 	 *        	associated with the array
 	 * @param $id id
 	 *        	to fill the form with the data of the row with this id
+	 * @param $forceFields Array
+	 * 			list of fields which are forced to be added
 	 */
-	public function autoAddElements($array, $table, $id) {
+	public function autoAddElements($array, $table, $id, $forceFields=array()) {
 		global $system_data;
 		$entity = $system_data->dbcon->getRow ( "SELECT * FROM $table WHERE id = $id" );
 		foreach ( $array as $field => $info ) {
 			// ignore custom fields
-			if(!isset($entity[$field])) continue;
+			if(!isset($entity[$field]) && !in_array($field, $forceFields)) {
+				continue;
+			}
 			
 			// process regular fields
-			$value = $entity [$field];
-			if (($info [1] == FieldType::DATE || $info [1] == FieldType::DATETIME) && ! empty ( $value )) {
+			$value = isset($entity[$field]) ? $entity[$field] : "";
+			if (($info[1] == FieldType::DATE || $info[1] == FieldType::DATETIME) && !empty($value)) {
 				$value = Data::convertDateFromDb ( $value );
-			} else if ($info [1] == FieldType::DECIMAL) {
+			} else if ($info[1] == FieldType::DECIMAL) {
 				$value = Data::convertFromDb ( $value );
-			} else if ($info [1] == FieldType::PASSWORD) {
+			} else if ($info[1] == FieldType::PASSWORD) {
 				$value = "";
 			}
 			
 			// create element
-			$this->addElement ( $field, new Field ( $field, $value, $info [1] ) );
+			$this->addElement($field, new Field($field, $value, $info[1]));
 			
 			// configure element
 			$this->renameElement ( $field, $info [0] );

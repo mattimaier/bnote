@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 require_once $GLOBALS["DIR_WIDGETS"] . "sectionform.php";
 
 /**
@@ -18,7 +17,8 @@ class KonzerteView extends CrudRefLocationView {
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
 			"program" => array("name"),
-			"contact" => array("name", "surname")
+			"contact" => array("name", "surname"),
+			"accommodation" => array("name")
 		));
 	}
 	
@@ -83,25 +83,7 @@ class KonzerteView extends CrudRefLocationView {
 		
 		// contact
 		if($concert["contact_name"] != "") {
-			$text .= "<span class=\"concert_contact\">" . $concert["contact_name"] . " (";
-
-			$ct = 0;
-			if($concert["contact_phone"] != "") {
-				$text .= "Tel. " . $concert["contact_phone"] . ", ";
-				$ct++;
-			}
-			if($concert["contact_email"] != "") {
-				$text .= "E-Mail " . $concert["contact_email"] . ", ";
-				$ct++;
-			}
-			
-			if($ct == 0) {
-				$text = substr($text, 0, strlen($text)-2);
-			}
-			else {
-				$text = substr($text, 0, strlen($text)-2) . ")";
-			}
-			$text .= "</span>";
+			$text .= "<span class=\"concert_contact\">" . $this->formatContact($concert, "NAME_COMM", "contact_") . "</span>";
 		}
 		
 		// notes
@@ -453,7 +435,9 @@ class KonzerteView extends CrudRefLocationView {
 		$meetingtime->setCssClass("copyDateTarget");
 		$form->addElement("Treffpunkt (Zeit)", $meetingtime);
 		$form->addElement("Zusagen bis", $approve_field);
-		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
+		$notesField = new Field("notes", "", FieldType::TEXT);
+		$notesField->setColsAndRows(5, 40);
+		$form->addElement("Notizen", $notesField);
 		
 		$form->setSection("Auftritt", array("title", "begin", "end", "approve_until", "meetingtime", "notes"));
 		
@@ -473,12 +457,7 @@ class KonzerteView extends CrudRefLocationView {
 		$dd2 = new Dropdown("contact");
 		$contacts = $this->getData()->getContacts();
 		for($i = 1; $i < count($contacts); $i++) {
-			$label = $contacts[$i]["name"] . " " . $contacts[$i]["surname"];
-			
-			//TODO add optional company / address and just for internal members the instrument name or group
-			$instr = isset($contacts[$i]["instrumentname"]) ? $contacts[$i]["instrumentname"] : '';
-			if($instr != "") $label .= " (" . $contacts[$i]["instrumentname"] . ")";
-			
+			$label = $this->formatContact($contacts[$i], "NAME_COMM");
 			$dd2->addOption($label, $contacts[$i]["id"]);
 		}
 		$form->addElement("Kontakt", $dd2);
@@ -503,7 +482,7 @@ class KonzerteView extends CrudRefLocationView {
 		// chosse program
 		$dd4 = new Dropdown("program");
 		$templates = $this->getData()->getTemplates();
-		$dd4->addOption("Keine Auswahl", -1);
+		$dd4->addOption("Keine Auswahl", 0);
 		for($i = 1; $i < count($templates); $i++) {
 			$dd4->addOption($templates[$i]["name"], $templates[$i]["id"]);
 		}
@@ -517,7 +496,7 @@ class KonzerteView extends CrudRefLocationView {
 		$form->setSection("Organisation", array("group", "program", "equipment"));
 		
 		// ************* DETAILS *************
-		$form->addElement("Gage", new Field("payment", "0", FieldType::DECIMAL));
+		$form->addElement("Gage", new Field("payment", "", FieldType::DECIMAL));
 		$form->addElement("Konditionen", new Field("conditions", "", FieldType::TEXT));
 		
 		// custom fields

@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
 
 /**
  * View for rehearsal module.

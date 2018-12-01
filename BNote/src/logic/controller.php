@@ -37,9 +37,11 @@ class Controller {
 
 		// include abstract classes
 		require($GLOBALS['DIR_DATA'] . "abstractdata.php");
+		require($GLOBALS["DIR_DATA"] . "abstractlocationdata.php");
 		require($GLOBALS['DIR_PRESENTATION'] . "abstractview.php");
 		require($GLOBALS['DIR_PRESENTATION'] . "crudview.php");
 		require($GLOBALS['DIR_PRESENTATION'] . "crudrefview.php");
+		require($GLOBALS['DIR_PRESENTATION'] . "crudreflocationview.php");
 
 		// check whether there is an individual controller, if not go by default
 		require($GLOBALS['DIR_LOGIC'] . "defaultcontroller.php");

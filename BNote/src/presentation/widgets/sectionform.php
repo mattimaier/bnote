@@ -67,12 +67,6 @@ class SectionForm extends Form {
 		}
 		?>
 		</form>
-		
-		<script>
-		  $( function() {
-		    $("#sectionform").accordion({collapsible: true});
-		  } );
-		</script>
 		<?php
 	}
 	
