@@ -265,6 +265,18 @@ $update->addTable("concert_group", "CREATE TABLE IF NOT EXISTS `concert_group` (
 $update->addColumnToTable("address", "state", "VARCHAR(50)");
 $update->addDynConfigParam("default_country", "DEU");
 
+// Task 8: Document types
+$update->addTable("doctype", "CREATE TABLE IF NOT EXISTS `doctype` (
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(100) NOT NULL,
+	is_active INT(1) NOT NULL DEFAULT 1
+)");
+$update->addColumnToTable("song_files", "doctype", "INT(11)");
+$numRowsDocType = $update->getNumberRows("doctype");
+if($numRowsDocType == 0) {
+	$update->executeQuery("INSERT INTO `doctype` (name, is_action) VALUES ('Noten', 1), ('Text', 1), ('Aufnahme', 1), ('Sonstiges', 1)");
+	$update->message("Default doctypes added");
+}
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>

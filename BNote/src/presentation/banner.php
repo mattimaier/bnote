@@ -8,14 +8,7 @@
 		<div id="CompanyName"><?php echo $system_data->getCompany(); ?></div>
  	   
 		<?php
-		// check whether autologin is active and user is admin
-		if($system_data->isUserMemberGroup(1) && $system_data->isAutologinActive()) {
-			?>
-			<span id="autoActivation"><?php echo Lang::txt("autoActivation"); ?></span>
-			<?php
-		}
-		
-	 	if(!$system_data->loginMode()) {
+		if(!$system_data->loginMode()) {
 	 	?> 
 		<div id="Logout">
 		 	<?php echo Lang::txt("welcome"); ?>

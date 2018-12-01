@@ -311,18 +311,16 @@ class RepertoireData extends AbstractData {
 	
 	function getFiles($songId) {
 		$this->regex->isPositiveAmount($songId);
-		$dbResult = $this->database->getSelection("SELECT * FROM song_files WHERE song = $songId");
-		$songfiles = array($dbResult[0]);
-		for($i = 1; $i < count($dbResult); $i++) {
-			$songfile = $dbResult[$i];
-			$songfile['filepath'] = substr($songfile['filepath'], strlen("data/share/"));
-			array_push($songfiles, $songfile);
-		}
-		return $songfiles;
+		$query = "SELECT sf.*, dt.name as doctype_name
+			FROM song_files sf JOIN doctype dt ON sf.doctype = dt.id 
+			WHERE song = $songId";
+		return $this->database->getSelection($query);
 	}
 	
-	function addFile($songId, $filename) {
-		$q = "INSERT INTO song_files (song, filepath) VALUES ($songId, \"$filename\")";
+	function addFile($songId, $filename, $doctype) {
+		$this->regex->isNumber($songId);
+		$this->regex->isNumber($doctype);
+		$q = "INSERT INTO song_files (song, filepath, doctype) VALUES ($songId, '$filename', '$doctype')";
 		$this->database->execute($q);
 	}
 	

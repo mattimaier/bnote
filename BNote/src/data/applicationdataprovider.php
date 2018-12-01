@@ -568,4 +568,9 @@ class ApplicationDataProvider {
 		return $row["name"];
 	}
 	
+	function getDocumentTypes() {
+		$query = "SELECT * FROM `doctype`";
+		return $this->database->getSelection($query);
+	}
+	
 }

@@ -304,8 +304,11 @@ class Systemdata {
  	if($this->loginMode()) return false;
  	if($uid == -1) $uid = $_SESSION["user"];
  	if($this->isUserSuperUser($uid) && $groupId == 1) return true;
- 	$ct = $this->dbcon->getCell("contact_group", "count(*)", "contact = $uid AND `group` = $groupId");
- 	return false;
+ 	$query = "SELECT count(*) as n FROM contact_group cg
+ 		JOIN user u ON u.contact = cg.contact
+ 		WHERE u.id = $uid AND cg.`group` = $groupId";
+ 	$row = $this->dbcon->getRow($query);
+ 	return $row["n"] > 0;
  }
  
  /**

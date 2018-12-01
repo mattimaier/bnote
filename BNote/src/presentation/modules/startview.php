@@ -118,12 +118,16 @@ class StartView extends CrudRefLocationView {
 					echo $news;
 					
 					// warning
-					if(($this->getData()->getSysdata()->isUserSuperUser() || $this->getData()->getSysdata()->isUserMemberGroup(1))
+					if(($this->getData()->getSysdata()->isUserSuperUser() || $this->getData()->getSysdata()->isUserAdmin())
 							&& $this->getController()->usersToIntegrate()) {
 						$this->verticalSpace();
-						echo '<span class="warning">';
-						echo Lang::txt("nonIntegratedUsers");
-						echo '</span>';
+						echo '<span class="warning">' . Lang::txt("nonIntegratedUsers") . '</span>';
+					}
+					
+					// check whether autologin is active and user is admin
+					if($this->getData()->getSysdata()->isUserAdmin() && $this->getData()->getSysdata()->isAutologinActive()) {
+						$this->verticalSpace();
+						echo '<span class="warning">' . Lang::txt("autoActivation") . '</span>';
 					}
 					?>
 				</div>

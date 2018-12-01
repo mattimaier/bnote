@@ -5,7 +5,7 @@
  * @author matti
  *
  */
-class ShareView extends AbstractView {
+class ShareView extends CrudView {
 	
 	/**
 	 * Main widget to manage files and folders.
@@ -14,11 +14,11 @@ class ShareView extends AbstractView {
 	private $filebrowser;
 	
 	/**
-	 * Create a new share module view.
-	 * @param DefaultController $ctrl Controller of the module.
+	 * Create the repertoire view.
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
+		$this->setEntityName("Dokumentenart");
 	}
 	
 	private function initFilebrowser() {
@@ -41,6 +41,26 @@ class ShareView extends AbstractView {
 	function startOptions() {
 		$this->initFilebrowser();
 		$this->filebrowser->showOptions();
+		
+		if($this->getData()->getSysdata()->isUserAdmin()) {
+			$docType = new Link($this->modePrefix() . "docType", "Dokumentenarten");
+			$docType->addIcon("documenttype");
+			$docType->write();
+		}
+	}
+	
+	function docType() {
+		if(!$this->getData()->getSysdata()->isUserAdmin()) {
+			new BNoteError("Permission denied.");
+		}
+		parent::start();
+	}
+	
+	function docTypeOptions() {
+		$this->backToStart();
+		$add = new Link($this->modePrefix() . "addEntity", "Dokumentenart hinzufügen");
+		$add->addIcon("plus");
+		$add->write();
 	}
 	
 }

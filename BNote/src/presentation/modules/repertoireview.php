@@ -278,7 +278,7 @@ class RepertoireView extends CrudRefView {
 			// show files
 			for($i = 1; $i < count($songs); $i++) {
 				$file = $songs[$i]["filepath"];
-				$href = "src/data/filehandler.php?file=/" . $file;
+				$href = "src/data/filehandler.php?file=/" . urlencode($file);
 				$preview = $href;
 				$delHref = $this->modePrefix() . "removeSongFile&id=" . $_GET["id"] . "&songfile=" . $songs[$i]["id"];
 				$imgWidth = "50px";
@@ -295,6 +295,7 @@ class RepertoireView extends CrudRefView {
 					</a>
 					<div class="songfiles_textbox">
 						<a class="songfiles_filelink" href="<?php echo $href; ?>" target="_blank"><?php echo $file; ?></a><br/>
+						<a class="songfiles_doctype"><?php echo $songs[$i]["doctype_name"]; ?></a>
 						<a href="<?php echo $delHref; ?>">Verknüpfung löschen</a>
 					</div>
 				</li>
@@ -303,18 +304,29 @@ class RepertoireView extends CrudRefView {
 			?>
 			</ul>
 			
-			<?php
-			// add files form
-			$form = new Form("Datei hinzufügen", $this->modePrefix() . "addSongFile&id=" . $_GET["id"]);
-			$dd = new Dropdown("file");
-			$possibleFiles = $this->getData()->getShareFiles();
-			foreach($possibleFiles as $i => $fileinfo) {
-				$dd->addOption($fileinfo["filename"], $fileinfo["fullpath"]);
-			}
-			$dd->sortOptions();
-			$form->addElement("", $dd);
-			$form->write();
-			?>
+			<form action="<?php echo $this->modePrefix() . "addSongFile&id=" . $_GET["id"] ?>" method="POST">
+				<h3>Datei hinzufügen</h3>
+				<p>Gebe mindestens 3 Zeichen eines Dateinamen aus "Share" an um die Datei hinzuzufügen.</p>
+				<input type="text" id="repertoire_filesearch" name="file" />
+				<select name="doctype">
+				<?php 
+				$doctypes = $this->getData()->adp()->getDocumentTypes();
+				for($j = 1; $j < count($doctypes); $j++) {
+					echo '<option value="' . $doctypes[$j]["id"] . '">' . $doctypes[$j]["name"] . '</option>';
+				}
+				?>
+				</select>
+				<input type="submit" value="hinzufügen" />
+			</form>
+			
+			<script>
+			$(document).ready(function() {
+				$( "#repertoire_filesearch" ).autocomplete({
+			      source: "src/export/repertoire-files.php",
+			      minLength: 3
+			    });
+			});
+			</script>
 		</div>
 		<?php
 	}
@@ -322,7 +334,7 @@ class RepertoireView extends CrudRefView {
 	public function addSongFile() {
 		$songId = $_GET["id"];
 		$fullpath = $_POST["file"];
-		$this->getData()->addFile($songId, $fullpath);
+		$this->getData()->addFile($songId, $fullpath, $_POST["doctype"]);
 		$this->view();
 	}
 	

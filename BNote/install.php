@@ -673,6 +673,13 @@ class Installation {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
 			array_push($queries,
+					"CREATE TABLE IF NOT EXISTS `doctype` (
+					id int(11) PRIMARY KEY AUTO_INCREMENT,
+					name VARCHAR(100) NOT NULL,
+					is_active INT(1) NOT NULL DEFAULT 1
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `tour_rehearsal` (
 					tour INT(11) NOT NULL,
 					rehearsal INT(11) NOT NULL
@@ -719,7 +726,8 @@ class Installation {
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
 					song INT(11) NOT NULL,
 					filepath VARCHAR(255) NOT NULL,
-					notes TEXT
+					notes TEXT,
+					doctype INT(11)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
 			array_push($queries, "CREATE TABLE location_type (
@@ -943,6 +951,9 @@ class Installation {
 
 			array_push($queries, "INSERT INTO location_type (name) VALUES 
 					('Probenräume'), ('Veranstaltungsorte'), ('Übernachtungsmöglichkeiten'), ('Studios'), ('Sonstige');");
+			
+			array_push($queries, "INSERT INTO `doctype` (name, is_action) VALUES 
+					('Noten', 1), ('Text', 1), ('Aufnahme', 1), ('Sonstiges', 1);");
 			
 			foreach($queries as $i => $query) {
 				$db->execute($query);

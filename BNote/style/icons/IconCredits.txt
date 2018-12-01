@@ -26,6 +26,6 @@
 <a href="https://icons8.com/icon/89/line-chart">stats</a>
 <a href="https://icons8.com/icon/3163/folder">folder</a>
 <a href="https://icons8.com/icon/7428/music-note-outline">music</a>
-
 <a href="https://icons8.com/icon/299/pdf">pdf</a>
 <a href="https://icons8.com/icon/1395/document">doc</a>
+<a href="https://img.icons8.com/dotty/80/000000/document.png">documenttype</a>

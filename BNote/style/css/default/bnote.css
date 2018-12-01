@@ -650,9 +650,8 @@ div.flash_message.error {
   display: inline-block;
 }
 #Logout {
-  display: block;
-  position: absolute;
-  right: 10px;
+  display: inline-block;
+  float: right;
 }
 #Logout_link {
   color: #FFFFFF;
@@ -854,6 +853,9 @@ div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
 }
 .songfiles_preview {
   padding: 3px;
+}
+.songfiles_doctype {
+  color: #436f98;
 }
 .repertoire_song_composer_title {
   color: #436f98;
