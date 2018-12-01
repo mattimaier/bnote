@@ -93,6 +93,10 @@ class GroupSelector implements iWriteable {
 		$this->cssClass = $cssClass;
 	}
 	
+	function getName() {
+		return $this->fieldName;
+	}
+	
 	function toString() {
 		$cssClass = "";
 		if($this->cssClass != null) {

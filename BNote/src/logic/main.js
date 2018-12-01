@@ -136,6 +136,8 @@ $(document).ready(function() {
 			$('#navigation').addClass("naviCollapsed");
 			$('#optionsContainer').addClass("optionsContainerLeft");
 			$('#content_insets').addClass("insetLeft");
+			$('#bannerContent').addClass("insetLeft");
+			$('#logoBanner').addClass("naviCollapsed");
 			fullNavi = false;
 		}
 		else {
@@ -144,6 +146,8 @@ $(document).ready(function() {
 			$('#navigation').removeClass("naviCollapsed");
 			$('#optionsContainer').removeClass("optionsContainerLeft");
 			$('#content_insets').removeClass("insetLeft");
+			$('#bannerContent').removeClass("insetLeft");
+			$('#logoBanner').removeClass("naviCollapsed");
 			fullNavi = true;
 		}
 	});

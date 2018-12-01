@@ -4,17 +4,18 @@
  * Prints a form in a formbox
  **/
 class Form implements iWriteable {
+	
 	protected $formname;
 	protected $method;
 	protected $action;
 	protected $multipart;
-	protected $elements = array ();
-	protected $foreign = array ();
-	protected $hidden = array ();
-	protected $rename = array ();
+	protected $elements = array();
+	protected $foreign = array();
+	protected $hidden = array();
+	protected $rename = array();
 	protected $submitValue;
 	protected $removeSubmitButton = false;
-	protected $requiredFields = array ();
+	protected $requiredFields = array();
 	
 	/**
 	 * Constructor

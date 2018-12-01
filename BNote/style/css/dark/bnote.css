@@ -325,17 +325,13 @@ a.linkbox {
   width: 38px;
 }
 #optionsContainer.optionsContainerLeft {
-  margin-left: 64px;
+  margin-left: 38px;
 }
 #content_insets.insetLeft {
   margin-left: 32px;
 }
 div.navi_item {
   padding: 8px;
-  border-right: 1px solid;
-  border-right-color: #BFCEDB;
-  border-bottom-color: #BFCEDB;
-  background-color: #FFFFFF;
   text-transform: uppercase;
   font-size: 10pt;
 }
@@ -355,9 +351,16 @@ img.navi_item_icon {
   position: relative;
   left: 0px;
   top: 2px;
+  filter: invert(100%);
+}
+img.navi_item_icon_selected {
+  position: relative;
+  left: 0px;
+  top: 2px;
 }
 span.navi_item_caption {
   padding-left: 5px;
+  color: #FFFFFF;
 }
 span.navi_item_caption_selected {
   padding-left: 5px;
@@ -605,8 +608,10 @@ div.flash_message.error {
   color: #FFFFFF;
   padding: 8px 24px;
   min-width: 600px;
+  margin-left: 160px;
 }
 #footer {
+  display: none;
   height: 22px;
   width: 100%;
   background-color: #FFFFFF;
@@ -625,9 +630,16 @@ div.flash_message.error {
   padding: 0px 24px;
 }
 #logoBanner {
-  float: left;
-  padding: 0px 24px 0px 0px;
-  line-height: 0;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 1px;
+  height: 49px;
+}
+div#bannerContent.insetLeft {
+  margin-left: 30px;
+}
+div#logoBanner.naviCollapsed > img {
+  width: 30px;
 }
 #logoLoginContainer {
   width: 100%;
@@ -641,10 +653,12 @@ div.flash_message.error {
   padding-bottom: 48px;
 }
 #SystemName {
-  float: left;
+  font-size: 8pt;
+  margin-left: 7px;
+  margin-top: 20px;
+  color: #E6E6E6;
 }
 #CompanyName {
-  float: left;
   font-size: 18pt;
   font-weight: 500;
   display: inline-block;
@@ -668,10 +682,11 @@ div.flash_message.error {
   float: left;
 }
 #navigation {
-  float: left;
+  position: absolute;
   width: 160px;
-  background-color: #FFFFFF;
-  padding-bottom: 20px;
+  height: 100%;
+  background-color: #143452;
+  z-index: 10;
 }
 #content_insets {
   padding: 24px;
@@ -690,13 +705,14 @@ div.flash_message.error {
 }
 #optionsContainer {
   min-height: 40px;
-  margin-left: 184px;
+  margin-left: 160px;
 }
 #navbarOptions {
-  padding-left: 10px;
+  padding-left: 7px;
   font-size: 14pt;
   color: #FFFFFF;
-  float: left;
+  height: 36px;
+  padding-top: 14px;
 }
 #UserInfo {
   color: #FFFFFF;

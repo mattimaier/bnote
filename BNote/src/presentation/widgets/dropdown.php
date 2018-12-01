@@ -61,6 +61,10 @@ class Dropdown implements iWriteable {
 	public function setId($id) {
 		$this->id = $id;
 	}
+	
+	public function getName() {
+		return $this->name;
+	}
 
 	public function write() {
 		$style = "";

@@ -1,5 +1,6 @@
 <?php
 require_once $GLOBALS["DIR_PRESENTATION"] . "crudreflocationview.php";
+require_once $GLOBALS["DIR_WIDGETS"] . "sectionform.php";
 
 /**
  * View for concert module.
@@ -51,9 +52,7 @@ class KonzerteView extends CrudRefLocationView {
 	}
 	
 	protected function startOptions() {
-		$lnk = new Link($this->modePrefix() . "wizzard", "Auftritt hinzufügen");
-		$lnk->addIcon("plus");
-		$lnk->write();
+		parent::startOptions();
 		
 		$this->buttonSpace();
 		$lnk = new Link($this->modePrefix() . "programs", "Programme verwalten");
@@ -431,62 +430,15 @@ class KonzerteView extends CrudRefLocationView {
 		$this->backToViewButton($_GET["id"]);
 	}
 	
-	/***** CONCERT CREATION PROCESS ***********/
-	
-	function showAddTitle() {
-		Writing::h2("Auftritt hinzufügen");
+	function add() {
+		Data::viewArray($_POST);
 	}
 	
-	/**
-	 * Displays a progress bar on top of the module.
-	 * @param int $progress Current step number (1 to 5)
-	 */
-	function showProgressBar($progress) {
-		echo '<div class="progressbar">' . "\n";
+	protected function addEntityForm() {
+		$form = new SectionForm("Neuer Auftritt", $this->modePrefix() . "add");
+		Writing::p("Bevor ein neuer Auftritt angelegt werden kann, bitte alle Kontaktdaten (Kontakte) und Orte (Locations) anlegen.");
 		
-		foreach($this->getController()->getSteps() as $i => $caption) {
-			if($i < $progress) $passed = " passed";
-			else $passed = "";
-			
-			echo '<div class="progressbar_step' . $passed . '">' . $caption . '</div>' . "\n";
-			if($passed != "") $passed .= '_arrow';
-			echo '<div class="arrow_right' . $passed . '"></div>' . "\n";
-		}
-		echo '</div>' . "\n";
-		
-		$this->verticalSpace();
-		$this->verticalSpace();
-	}
-	
-	function abortButton() {
-		// don't show abort button below
-	}
-	
-	/**
-	 * Adds all values from $_POST to the form as hidden fields.
-	 * @param Form $form Form to add the data to.
-	 */
-	private function addCollectedData($form) {
-		foreach($_POST as $k => $v) {
-			$form->addHidden($k, $v);
-		}
-	}
-	
-	protected function wizzardOptions() {
-		if(!isset($_GET["progress"]) || $_GET["progress"] < 6) {
-			$abort = new Link("?mod=" . $this->getModId() . "&mode=start", "Abbrechen");
-			$abort->addIcon("cancel");
-			$abort->write();
-		}
-	}
-	
-	/**
-	 * Ask for basic data.
-	 * @param String $action Method to call after modePrefix.
-	 */
-	function step1($action) {
-		$form = new Form("Stammdaten", $this->modePrefix() . $action);
-		
+		// ************* MASTER DATA *************
 		$title_field = new Field("title", "", FieldType::CHAR);
 		$form->addElement("Titel", $title_field);
 		$begin_field = new Field("begin", "", FieldType::DATETIME);
@@ -501,136 +453,81 @@ class KonzerteView extends CrudRefLocationView {
 		$meetingtime->setCssClass("copyDateTarget");
 		$form->addElement("Treffpunkt (Zeit)", $meetingtime);
 		$form->addElement("Zusagen bis", $approve_field);
+		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
 		
-		// custom fields
-		$this->appendCustomFieldsToForm($form, 'g');
+		$form->setSection("Auftritt", array("title", "begin", "end", "approve_until", "meetingtime", "notes"));
 		
-		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));		
-		
-		$this->addCollectedData($form);
-		$form->write();
-	}
-	
-	/**
-	 * Ask for location.
-	 * @param String $action Method to call after modePrefix.
-	 */
-	function step2($action) {
-		Writing::p("Bitte wähle einen Ort aus oder erstelle einen neuen Ort.");
-		
-		// form 1: choose location
-		$form1 = new Form("Ort auswählen", $this->modePrefix() . $action);
+		// ************* LOCATION AND CONTACT *************
+		// choose location
 		$dd1 = new Dropdown("location");
-		$locs = $this->getData()->getLocations();		
+		$locs = $this->getData()->getLocations();
 		for($i = 1; $i < count($locs); $i++) {
 			$loc = $locs[$i];
-			$l = $loc["name"] . " (" . $loc["city"] . ")";
+			$l = $loc["name"] . ": " . $this->formatAddress($loc);
 			$dd1->addOption($l, $loc["id"]);
 		}
-		$form1->addElement("Location", $dd1);
-		$this->addCollectedData($form1);
-		$form1->write();
+		$form->addElement("Location", $dd1);
 		
-		// form 2: add new location
-		$form2 = new Form("Ort erstellen", $this->modePrefix() . $action);
-		$form2->addElement("Name", new Field("location_name", "", FieldType::CHAR));
-		$form2->addElement("Stra&szlig;e", new Field("street", "", FieldType::CHAR));
-		$form2->addElement("Stadt", new Field("city", "", FieldType::CHAR));
-		$form2->addElement("PLZ", new Field("zip", "", FieldType::CHAR));
-		$this->addCollectedData($form2);
-		$form2->write();
-		
-		Writing::p("Wird ein neuer Ort erstellt, so wird er automatisch als Aufführungsort gespeichert.");
-	}
-	
-	/**
-	 * Ask for contact.
-	 * @param String $action Method to call after modePrefix.
-	 */
-	function step3($action) {
-		Writing::p("Bitte wähle eine Kontaktperson oder erstelle einen neuen Kontakt.");
-		
-		// form 1: choose contact
-		$form1 = new Form("Kontakt auswählen", $this->modePrefix() . $action);
-		$dd = new Dropdown("contact");
+		// choose contact
+		$form->addElement("Veranstalter", new Field("organizer", "", FieldType::CHAR));
+		$dd2 = new Dropdown("contact");
 		$contacts = $this->getData()->getContacts();
 		for($i = 1; $i < count($contacts); $i++) {
 			$label = $contacts[$i]["name"] . " " . $contacts[$i]["surname"];
+			
+			//TODO add optional company / address and just for internal members the instrument name or group
 			$instr = isset($contacts[$i]["instrumentname"]) ? $contacts[$i]["instrumentname"] : '';
 			if($instr != "") $label .= " (" . $contacts[$i]["instrumentname"] . ")";
-			$dd->addOption($label, $contacts[$i]["id"]);
+			
+			$dd2->addOption($label, $contacts[$i]["id"]);
 		}
-		$form1->addElement("Kontakt", $dd);
-		$this->addCollectedData($form1);
-		$form1->write();
+		$form->addElement("Kontakt", $dd2);
 		
-		// form 2: add contact
-		$form2 = new Form("Kontaktperson hinzufügen", $this->modePrefix() . $action);
-		$form2->addElement("Vorname", new Field("contact_name", "", FieldType::CHAR));
-		$form2->addElement("Nachname", new Field("contact_surname", "", FieldType::CHAR));
-		$form2->addElement("Telefon", new Field("contact_phone", "", FieldType::CHAR));
-		$form2->addElement("E-Mail", new Field("contact_email", "", FieldType::CHAR));
-		$form2->addElement("Web", new Field("contact_web", "", FieldType::CHAR));	
-		$this->addCollectedData($form2);
-		$form2->write();
-		
-		Writing::p("Wird ein neuer Kontakt erstellt, wird er diesem Auftritt zugeordnet. Er kann jedoch unter Kontakte/Sonstige Kontakte bearbeitet werden.");
-	}
-	
-	/**
-	 * Ask for program.
-	 * @param String $action Method to call after modePrefix.
-	 */
-	function step4($action) {
-		$msg = "Bitte wähle eine Programmvorlage aus ";
-		$msg .= "oder fuege ein Programm später hinzu.<br />";
-		$msg .= "Das Programm kann unter Auftritte/Programme später ";
-		$msg .= "bearbeitet werden.";
-		Writing::p($msg);
-		
-		// form 1: choose program template
-		$form1 = new Form("Programmvorlage auswählen", $this->modePrefix() . $action);
-		$dd = new Dropdown("program");
-		$templates = $this->getData()->getTemplates();
-		for($i = 1; $i < count($templates); $i++) {
-			$dd->addOption($templates[$i]["name"], $templates[$i]["id"]);
+		// choose accommodation
+		$dd3 = new Dropdown("accommodation");
+		$accommodations = $this->getData()->adp()->getLocations(array(3));
+		for($a = 1; $a < count($accommodations); $a++) {
+			$acc = $accommodations[$a];
+			$caption = $acc["name"] . ": " . $this->formatAddress($acc);
+			$dd3->addOption($caption, $acc["id"]);
 		}
-		$form1->addElement("Vorlage", $dd);
-		$this->addCollectedData($form1);
-		$form1->write();
+		$form->addElement("Unterkunft", $dd3);
 		
-		// form 2: don't add program
-		$form2 = new Form("Direkt weiter", $this->modePrefix() . $action);
-		$form2->addElement("Weiter", new TextWriteable("ohne Programm"));
-		$form2->addHidden("program", 0);
-		$this->addCollectedData($form2);
-		$form2->write();
-	}
-	
-	/**
-	 * Ask for members participating in this concert.
-	 * @param String $action Method to call after modePrefix.
-	 */
-	function step5($action) {
-		// select the groups (or all) the concert will be for
-		Writing::p("Bitte wähle die Mitglieder für diesen Auftritt aus.");
+		$form->setSection("Ort und Veranstalter", array("location", "organizer", "contact", "accommodation"));
 		
-		$form = new Form("Mitglieder auswählen", $this->modePrefix() . $action);
+		// ************* ORGANISATION *************
+		// choose members
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
-		$form->addElement("Gruppen", $gs);
-		$this->addCollectedData($form);
-		$form->changeSubmitButton("weiter");
-		$form->write(); 
-	}
-	
-	/**
-	 * Show saving message.
-	 * @param String $action Is not used.
-	 */
-	function step6($action) {
-		$m = "Der Auftritt wurde erfolgreich erstellt.";
-		$msg = new Message("Auftritt erstellt", $m);
-		$this->backToStart();
+		$form->addElement("Besetzung", $gs);
+		
+		// chosse program
+		$dd4 = new Dropdown("program");
+		$templates = $this->getData()->getTemplates();
+		$dd4->addOption("Keine Auswahl", -1);
+		for($i = 1; $i < count($templates); $i++) {
+			$dd4->addOption($templates[$i]["name"], $templates[$i]["id"]);
+		}
+		$form->addElement("Programm aus Vorlage", $dd4);
+		
+		// choose equipment
+		$equipment = $this->getData()->adp()->getEquipment();
+		$equipmentSelector = new GroupSelector($equipment, array(), "equipment");
+		$form->addElement("Equipment", $equipmentSelector);
+		
+		$form->setSection("Organisation", array("group", "program", "equipment"));
+		
+		// ************* DETAILS *************
+		$form->addElement("Gage", new Field("payment", "0", FieldType::DECIMAL));
+		$form->addElement("Konditionen", new Field("conditions", "", FieldType::TEXT));
+		
+		// custom fields
+		$customFields = $this->getData()->getCustomFields('g');
+		$customFieldNames = Database::flattenSelection($customFields, "techname");
+		$this->appendCustomFieldsToForm($form, 'g');
+		
+		$form->setSection("Details", array_merge(array("payment", "conditions"), $customFieldNames));
+		
+		$form->write();
 	}
 	
 }
