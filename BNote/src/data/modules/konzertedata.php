@@ -7,17 +7,19 @@
  */
 class KonzerteData extends AbstractLocationData {
 	
+	public static $CUSTOM_DATA_OTYPE = 'g';
+	
 	/**
 	 * Build data provider.
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array("Auftritt ID", FieldType::INTEGER),
-			"title" => array("Titel", FieldType::CHAR),
-			"begin" => array("Beginn", FieldType::DATETIME),
-			"end" => array("Ende", FieldType::DATETIME),
-			"approve_until" => array("Zusagen bis", FieldType::DATETIME),
-			"meetingtime" => array("Treffpunkt (Zeit)", FieldType::DATETIME),
+			"title" => array("Titel", FieldType::CHAR, true),
+			"begin" => array("Beginn", FieldType::DATETIME, true),
+			"end" => array("Ende", FieldType::DATETIME, true),
+			"approve_until" => array("Zusagen bis", FieldType::DATETIME, true),
+			"meetingtime" => array("Treffpunkt (Zeit)", FieldType::DATETIME, true),
 			"organizer" => array("Veranstalter", FieldType::CHAR),
 			"location" => array("Ort", FieldType::REFERENCE),
 			"accommodation" => array("Unterkunft", FieldType::REFERENCE),
@@ -55,7 +57,7 @@ class KonzerteData extends AbstractLocationData {
 	
 	function getConcert($id) {
 		$c = $this->findByIdNoRef($id);
-		$custom = $this->getCustomFieldData('g', $id);
+		$custom = $this->getCustomFieldData(KonzerteData::$CUSTOM_DATA_OTYPE, $id);
 		return array_merge($c, $custom);
 	}
 	
@@ -160,12 +162,12 @@ class KonzerteData extends AbstractLocationData {
 	}
 	
 	function getOutfit($id) {
-		$q5 = "SELECT name FROM outfit WHERE id = $id";
+		$query = "SELECT name FROM outfit WHERE id = $id";
 		return $this->database->getRow($query);
 	}
 	
 	function getCustomData($cid) {
-		return $this->getCustomFieldData('g', $cid);
+		return $this->getCustomFieldData(KonzerteData::$CUSTOM_DATA_OTYPE, $cid);
 	}
 	
 	function getLocations() {
@@ -188,24 +190,59 @@ class KonzerteData extends AbstractLocationData {
 		return $this->adp()->getTemplatePrograms();
 	}
 	
+	function validate($values) {
+		// Manual Validation
+		$this->regex->isSubject($values["title"]);
+		$this->regex->isDateTime($values["begin"]);
+		$this->regex->isDateTime($values["end"]);
+		$this->regex->isDateTime($values["approve_until"]);
+		$this->regex->isDateTime($values["meetingtime"]);
+		if(isset($values["notes"]) && $values["notes"] != "") {
+			$this->regex->isText($values["notes"]);
+		}
+		$this->regex->isPositiveAmount($values["location"]);  // location ID
+		if(isset($values["organizer"]) && $values["organizer"] != "") {
+			$this->regex->isSubject($values["organizer"]);
+		}
+		$this->regex->isPositiveAmount($values["contact"]);  // contact ID
+		if(isset($values["accommodation"]) && $values["accommodation"] > 0) {
+			$this->regex->isPositiveAmount($values["accommodation"]);
+		}
+		if(isset($values["program"]) && $values["program"] > 0) {
+			$this->regex->isPositiveAmount($values["program"]);
+		}
+		if(isset($values["outfit"]) && $values["outfit"] > 0) {
+			$this->regex->isPositiveAmount($values["outfit"]);
+		}
+		if(isset($values["payment"]) && $values["payment"] != "") {
+			$this->regex->isMoney($values["payment"]);
+		}
+		if(isset($values["conditions"]) && $values["conditions"] != "") {
+			$this->regex->isText($values["conditions"]);
+		}
+		$this->validateCustomData($values, $this->getCustomFields(KonzerteData::$CUSTOM_DATA_OTYPE));
+	}
+	
 	function create($values) {
-		// Validation
-		$this->validate($values);
-		
+		// at least one group must be selected
+		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
+		if(count($groups) == 0) {
+			new BNoteError("Mindestens eine Gruppe (Besetzung) muss ausgewählt werden.");
+		}
+				
 		// create concert
 		$concertId = parent::create($values);
 		
 		// adds members of the selected group(s), add groups themselves
-		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 		$this->addMembersToConcert($groups, $concertId);
 		$this->addGroupsToConcert($groups, $concertId);
 		
 		// add equipment
-		$equipmentSelection = GroupSelector::getPostSelection($this->adp()->getEquipment(), "equipment");
+		$equipmentSelection = GroupSelector::getPostSelection($this->adp()->getEquipment(), "equipment");		
 		$this->addEquipmentToConcert($equipmentSelection, $concertId);
 		
 		// add custom data
-		$this->createCustomFieldData('g', $concertId, $values);
+		$this->createCustomFieldData(KonzerteData::$CUSTOM_DATA_OTYPE, $concertId, $values);
 		
 		// create trigger if configured
 		if($this->triggerServiceEnabled) {
@@ -214,6 +251,14 @@ class KonzerteData extends AbstractLocationData {
 		}
 		
 		return $concertId;
+	}
+	
+	function update($id, $values) {
+		// default update
+		parent::update($id, $values);
+	
+		// update custom data
+		$this->updateCustomFieldData(KonzerteData::$CUSTOM_DATA_OTYPE, $id, $values);
 	}
 	
 	public function addMembersToConcert($groups, $concertId) {
@@ -238,11 +283,15 @@ class KonzerteData extends AbstractLocationData {
 	}
 	
 	function addGroupsToConcert($groups, $concertId) {
-		//TODO
+		$query = "INSERT INTO concert_group (concert, `group`) VALUES ($concertId,";
+		$query .= join("), ($concertId,", $groups) . ")";
+		$this->database->execute($query);
 	}
 	
 	function addEquipmentToConcert($equipmentSelection, $concertId) {
-		//TODO
+		$query = "INSERT INTO concert_equipment (concert, `equipment`) VALUES ($concertId,";
+		$query .= join("), ($concertId,", $equipmentSelection) . ")";
+		$this->database->execute($query);
 	}
 	
 	function getParticipants($cid) {
@@ -290,6 +339,16 @@ class KonzerteData extends AbstractLocationData {
 		return $this->database->getSelection($query);
 	}
 	
+	function getConcertGroups($cid) {
+		$query = "SELECT g.* FROM concert_group cg JOIN `group` g ON cg.`group` = g.id WHERE cg.concert = $cid";
+		return $this->database->getSelection($query);
+	}
+	
+	function getConcertEquipment($cid) {
+		$query = "SELECT e.* FROM concert_equipment ce JOIN equipment e ON ce.equipment = e.id WHERE ce.concert = $cid";
+		return $this->database->getSelection($query);
+	}
+	
 	function deleteConcertContact($concertid, $contactid) {
 		$query = "DELETE FROM concert_contact WHERE concert = $concertid AND contact = $contactid";
 		$this->database->execute($query);
@@ -328,37 +387,6 @@ class KonzerteData extends AbstractLocationData {
 		$query .= "WHERE concert = $concertid ";
 		$query .= "ORDER BY p.begin, p.end";
 		return $this->database->getSelection($query);
-	}
-	
-	function update($id, $values) {
-		// add manual validation to default update method
-		if(isset($values["begin"])) {
-			$this->regex->isDateTime($values["begin"]);
-		}
-		if(isset($values["end"])) {
-			$this->regex->isDateTime($values["end"]);
-		}
-		if(isset($values["approve_until"])) {
-			$this->regex->isDateTime($values["approve_until"]);
-		}
-		if(isset($values["location"])) {
-			$this->regex->isPositiveAmount($values["location"]);
-		}
-		if(isset($values["program"]) && $values["program"] > 0) {
-			$this->regex->isPositiveAmount($values["program"]);
-		}
-		if(isset($values["notes"])) {
-			$this->regex->isText($values["notes"]);
-		}
-		if(isset($values["contact"])) {
-			$this->regex->isPositiveAmount($values["contact"]);
-		}
-		
-		// default update
-		parent::update($id, $values);
-		
-		// update custom data
-		$this->updateCustomFieldData('g', $id, $values);
 	}
 }
 

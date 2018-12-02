@@ -62,11 +62,11 @@ class Form implements iWriteable {
 	 *        	Reference to an iWriteable implementing object
 	 */
 	public function addElement($name, $element) {
-		$this->elements [$name] = $element;
+		$this->elements[$name] = $element;
 	}
 	public function getElement($name) {
-		if (isset ( $this->elements [$name] )) {
-			return $this->elements [$name];
+		if(isset($this->elements[$name])) {
+			return $this->elements[$name];
 		}
 		return null;
 	}

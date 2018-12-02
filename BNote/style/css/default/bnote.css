@@ -752,7 +752,8 @@ div#logoBanner.naviCollapsed > img {
   border-radius: 0px;
 }
 .ui-state-hover {
-  background: inherit;
+  background: #E6E6E6;
+  color: #436f98;
 }
 .ui-state-default {
   background-color: #E6E6E6;

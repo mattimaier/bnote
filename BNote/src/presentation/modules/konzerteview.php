@@ -118,11 +118,21 @@ class KonzerteView extends CrudRefLocationView {
 		
 		// concert details
 		Writing::h1($c["title"]);
+		
+		Writing::p($c["notes"]);
 		?>
 		
 		<div class="concertdetail_box">
 			<div class="concertdetail_heading">Veranstaltung</div>
 			<div class="concertdetail_data">
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Veranstalter</span>
+					<span class="concertdetail_value"><?php 
+					if($c["organizer"]) {
+						echo $c["organizer"];
+					}
+					?></span>
+				</div>
 				<div class="concertdetail_entry">
 					<span class="concertdetail_key">Ort</span>
 					<span class="concertdetail_value"><?php 
@@ -135,50 +145,12 @@ class KonzerteView extends CrudRefLocationView {
 					<span class="concertdetail_value"><?php 
 					if($c["contact"]) {
 						$cnt = $this->getData()->getContact($c["contact"]);
-						$cv = $cnt["name"];
-						$details = array();
-						if($cnt["phone"] != "") {
-							array_push($details, $cnt["phone"]);
-						}
-						if($cnt["email"] != "") {
-							array_push($details, $cnt["email"]);
-						}
-						if($cnt["web"] != "") {
-							array_push($details, $cnt["web"]);
-						}
-						if(count($details) > 0) {
-							$cv .= "<br/>" . join(", ", $details);
-						}
+						$cv = $this->formatContact($cnt, 'NAME_COMM_LB');
 					}
 					else {
 						$cv = "-";
 					}
 					echo $cv;
-					?></span>
-				</div>
-				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Programm</span>
-					<span class="concertdetail_value"><?php 
-					if($c["program"]) {
-						$prg = $this->getData()->getProgram($c["program"]);
-						$pv = $prg["name"];
-					}
-					else {
-						$pv = "-";
-					}
-					echo $pv;
-					?></span>
-				</div>
-				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Outfit</span>
-					<span class="concertdetail_value"><?php 
-					if($c["outfit"]) {
-						$outfit = $this->getData()->getOutfit($c["outfit"]);
-						echo $outfit["name"];
-					}
-					else {
-						echo "-";
-					}
 					?></span>
 				</div>
 			</div>
@@ -206,10 +178,77 @@ class KonzerteView extends CrudRefLocationView {
 		</div>
 		
 		<div class="concertdetail_box">
+			<div class="concertdetail_heading">Organisation</div>
+			<div class="concertdetail_data">
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Besetzung</span>
+					<span class="concertdetail_value"><?php 
+					$groups = $this->getData()->getConcertGroups($c["id"]);
+					$groupNames = Database::flattenSelection($groups, "name");
+					echo join(", ", $groupNames);
+					?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Programm</span>
+					<span class="concertdetail_value"><?php 
+					if($c["program"]) {
+						$prg = $this->getData()->getProgram($c["program"]);
+						echo $prg["name"];
+					}
+					?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Outfit</span>
+					<span class="concertdetail_value"><?php 
+					if($c["outfit"]) {
+						$outfit = $this->getData()->getOutfit($c["outfit"]);
+						echo $outfit["name"];
+					}
+					?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Equipment</span>
+					<span class="concertdetail_value">
+						<?php 
+						$equipment = $this->getData()->getConcertEquipment($c["id"]);
+						if(count($equipment) == 0) {
+							echo '-';		
+						}
+						else {
+							echo '<ul>';
+							for($e = 1; $e < count($equipment); $e++) {
+								echo '<li>' . $equipment[$e]["name"] . '</li>';
+							}
+							echo '</ul>';
+						}
+						?>						
+					</span>
+				</div>
+			</div>
+		</div>
+		
+		<div class="concertdetail_box">
 			<div class="concertdetail_heading">Details</div>
 			<div class="concertdetail_data">
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Unterkunft</span>
+					<span class="concertdetail_value"><?php 
+					if($c["accommodation"] > 0) {
+						$acc = $this->getData()->adp()->getAccommodationLocation($c["accommodation"]);
+						echo $acc["name"] . "<br>" . $this->formatAddress($acc);
+					}
+					?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Gage</span>
+					<span class="concertdetail_value"><?php echo Data::convertFromDb($c["payment"]); ?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key">Konditionen</span>
+					<span class="concertdetail_value"><?php echo $c["conditions"]; ?></span>
+				</div>
 			<?php 
-			$customFields = $this->getData()->getCustomFields('g');
+			$customFields = $this->getData()->getCustomFields(KonzerteData::$CUSTOM_DATA_OTYPE);
 			for($i = 1; $i < count($customFields); $i++) {
 				$field = $customFields[$i];
 				?>
@@ -223,10 +262,6 @@ class KonzerteView extends CrudRefLocationView {
 			</div>
 		</div>
 		
-		<div class="concertdetail_box">
-			<div class="concertdetail_heading">Notizen</div>
-			<div class="concertdetail_notes"><?php echo $c["notes"]; ?></div>
-		</div>
 		<?php
 		
 		// invitations
@@ -319,8 +354,9 @@ class KonzerteView extends CrudRefLocationView {
 		$c = $this->getData()->getConcert($_GET["id"]);
 		
 		// form init
-		$form = new Form("Auftritt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"] . "&manualValid=true");
+		$form = new Form("Auftritt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), "concert", $_GET["id"]);
+		$form->removeElement("accommodation");
 		$form->removeElement("id");
 		
 		// location
@@ -348,6 +384,18 @@ class KonzerteView extends CrudRefLocationView {
 		$dd->setSelected($c["contact"]);
 		$form->addElement("Kontakt", $dd);
 		
+		// accommodation
+		$dd3 = new Dropdown("accommodation");
+		$accommodations = $this->getData()->adp()->getLocations(array(3));
+		$dd3->addOption("Keine Unterkunft", 0);
+		for($a = 1; $a < count($accommodations); $a++) {
+			$acc = $accommodations[$a];
+			$caption = $acc["name"] . ": " . $this->formatAddress($acc);
+			$dd3->addOption($caption, $acc["id"]);
+		}
+		$dd3->setSelected($c["accommodation"]);
+		$form->addElement("Unterkunft", $dd3);
+		
 		// outfit
 		$outfit = $c['outfit'];
 		if($outfit == "" || !isset($c["outfit"])) {
@@ -358,7 +406,7 @@ class KonzerteView extends CrudRefLocationView {
 		$form->addForeignOption("outfit", "Kein Outfit", 0);
 		
 		// custom data
-		$this->appendCustomFieldsToForm($form, 'g', $c);
+		$this->appendCustomFieldsToForm($form, KonzerteData::$CUSTOM_DATA_OTYPE, $c);
 		
 		$form->write();
 	}
@@ -412,10 +460,6 @@ class KonzerteView extends CrudRefLocationView {
 		$this->backToViewButton($_GET["id"]);
 	}
 	
-	function add() {
-		Data::viewArray($_POST);
-	}
-	
 	protected function addEntityForm() {
 		$form = new SectionForm("Neuer Auftritt", $this->modePrefix() . "add");
 		Writing::p("Bevor ein neuer Auftritt angelegt werden kann, bitte alle Kontaktdaten (Kontakte) und Orte (Locations) anlegen.");
@@ -465,6 +509,7 @@ class KonzerteView extends CrudRefLocationView {
 		// choose accommodation
 		$dd3 = new Dropdown("accommodation");
 		$accommodations = $this->getData()->adp()->getLocations(array(3));
+		$dd3->addOption("Keine Unterkunft", 0);
 		for($a = 1; $a < count($accommodations); $a++) {
 			$acc = $accommodations[$a];
 			$caption = $acc["name"] . ": " . $this->formatAddress($acc);
@@ -493,16 +538,22 @@ class KonzerteView extends CrudRefLocationView {
 		$equipmentSelector = new GroupSelector($equipment, array(), "equipment");
 		$form->addElement("Equipment", $equipmentSelector);
 		
-		$form->setSection("Organisation", array("group", "program", "equipment"));
+		// outfit
+		$form->addElement("outfit", new Field("outfit", 0, FieldType::REFERENCE));
+		$form->setForeign("outfit", "outfit", "id", array("name"), -1);
+		$form->addForeignOption("outfit", "Kein Outfit", 0);
+		
+		$form->setSection("Organisation", array("group", "program", "equipment", "outfit"));
+		$form->renameElement("outfit", "Outfit");
 		
 		// ************* DETAILS *************
 		$form->addElement("Gage", new Field("payment", "", FieldType::DECIMAL));
 		$form->addElement("Konditionen", new Field("conditions", "", FieldType::TEXT));
 		
 		// custom fields
-		$customFields = $this->getData()->getCustomFields('g');
+		$customFields = $this->getData()->getCustomFields(KonzerteData::$CUSTOM_DATA_OTYPE);
 		$customFieldNames = Database::flattenSelection($customFields, "techname");
-		$this->appendCustomFieldsToForm($form, 'g');
+		$this->appendCustomFieldsToForm($form, KonzerteData::$CUSTOM_DATA_OTYPE);
 		
 		$form->setSection("Details", array_merge(array("payment", "conditions"), $customFieldNames));
 		

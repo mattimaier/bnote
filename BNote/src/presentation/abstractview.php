@@ -200,7 +200,7 @@ abstract class AbstractView {
 	/**
 	 * Creates a formatted representation of the contact, depending on the available information.
 	 * @param Array $contact Contact row.
-	 * @param String $profile 'DEFAULT': Name only, 'NAME_COMM': Name, Comp, Email/Phone, 'NAME_INST': Name, Instrument
+	 * @param String $profile 'DEFAULT': Name only, 'NAME_COMM[_LB]': Name, Comp, Email/Phone, 'NAME_INST': Name, Instrument
 	 * @param String $fieldPrefix In case all phone/email/... fields have a prefix
 	 */
 	protected function formatContact($contact, $profile="DEFAULT", $fieldPrefix = "") {
@@ -258,6 +258,11 @@ abstract class AbstractView {
 					return $name;
 				}
 				return $name  . " (" . join(", ", $comm) . ")";
+			case "NAME_COMM_LB":
+				if(count($comm) == 0) {
+					return $name;
+				}
+				return $name  . "<br>" . join(", ", $comm);
 			case "NAME_INST":
 				if($inst == "") {
 					return $name;

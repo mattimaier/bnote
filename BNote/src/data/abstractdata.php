@@ -509,28 +509,28 @@ abstract class AbstractData {
 			new BNoteError("Bitte gebe ausreichend Informationen an.");
 		}
 		foreach($input as $id => $value) {
-			$this->validate_pair($id, $value);
+			$this->validatePair($id, $value, $this->getTypeOfField($id));
 		}
 	}
 	
-	protected function validate_pair($k, $value) {
+	protected function validatePair($k, $value, $type) {
 		// check if a field has a third parameter -> optional
 		if($this->isFieldOptional($k)) {
 			if($value == "") return;
 		}
-		switch($this->getTypeOfField($k)) {
-			case 1: $this->regex->isPositiveAmount($value); break;
-			case 2: $this->regex->isMoney($value); break;
-			case 3: $this->regex->isName($value); break;
-			case 4: $this->regex->isDate(trim($value)); break;
-			case 5: $this->regex->isTime(trim($value)); break;
-			case 6: $this->regex->isDateTime(trim($value)); break;
-			case 7: if($value != "null") $this->regex->isPositiveAmount($value); break;
-			case 8: $this->regex->isEmail($value); break;
-			case 9: // only check if password is not empty.
+		switch($type) {
+			case FieldType::INTEGER: $this->regex->isPositiveAmount($value); break;
+			case FieldType::DECIMAL: $this->regex->isMoney($value); break;
+			case FieldType::CHAR: $this->regex->isName($value); break;
+			case FieldType::DATE: $this->regex->isDate(trim($value)); break;
+			case FieldType::TIME: $this->regex->isTime(trim($value)); break;
+			case FieldType::DATETIME: $this->regex->isDateTime(trim($value)); break;
+			case FieldType::REFERENCE: if($value != "null") $this->regex->isPositiveAmount($value); break;
+			case FieldType::EMAIL: $this->regex->isEmail($value); break;
+			case FieldType::PASSWORD: // only check if password is not empty.
 				if(isset($value) && $value != "") $this->regex->isPassword($value);
 				break;
-			case 13: $this->regex->isLogin($value); break;
+			case FieldType::LOGIN: $this->regex->isLogin($value); break;
 			default: $this->regex->isText($value); break;
 		}
 	}
@@ -792,5 +792,16 @@ abstract class AbstractData {
 			}
 		}
 		return $result_rows;
+	}
+	
+	protected function validateCustomData($values, $fields) {
+		for($i = 1; $i < count($fields); $i++) {
+			$field = $fields[$i];
+			$type = $this->fieldTypeFromCustom($field["fieldtype"]);
+			if(isset($values[$field["techname"]])) {
+				// validate according to type
+				$this->validatePair($field["techname"], $values[$field["techname"]], $type);
+			}
+		}
 	}
 }

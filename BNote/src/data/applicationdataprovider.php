@@ -577,4 +577,11 @@ class ApplicationDataProvider {
 		return $this->database->getCell("instrument", "name", "id = $id");
 	}
 	
+	function getAccommodationLocation($id) {
+		$query = "SELECT l.*, a.street, a.city, a.zip, a.state, a.country FROM location l
+			JOIN address a ON l.address = a.id 
+			WHERE l.id = $id";
+		return $this->database->getRow($query);
+	}
+	
 }
