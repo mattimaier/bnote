@@ -67,6 +67,33 @@ class Writing {
 	public static function img($src, $alt) {
 		echo '<img src="' . $src . '" alt="' . $alt . '" />' . "\n";
 	}
+	
+	/**
+	 * Shows a full-width message with a green background.
+	 * @param String $message Message to display.
+	 */
+	public static function info($message) {
+		$this->message($message, 'info');
+	}
+	
+	/**
+	 * Shows a full-width warning with a yellow/orange background.
+	 * @param String $message Message to display.
+	 */
+	public static function warning($message) {
+		$this->message($message, 'warning');
+	}
+	
+	/**
+	 * Shows a full-width message.
+	 * @param String $message Message to show.
+	 * @param Enum $type info, warn
+	 */
+	public static function message($message, $type) {
+		?>
+		<div class="flash_message <?php echo $type; ?>"><?php echo $message; ?></div>
+		<?php
+	}
 }
 
 ?>

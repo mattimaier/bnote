@@ -684,6 +684,9 @@ div#logoBanner.naviCollapsed > img {
   width: 100%;
   background-color: #8C2B2B;
 }
+div.login#content_container {
+  background-color: #fff;
+}
 #navigation {
   position: absolute;
   width: 160px;

@@ -229,6 +229,11 @@ class KonzerteData extends AbstractLocationData {
 		if(count($groups) == 0) {
 			new BNoteError("Mindestens eine Gruppe (Besetzung) muss ausgewählt werden.");
 		}
+		
+		// default values
+		if(!isset($values["payment"]) || $values["payment"] == "") {
+			$values["payment"] = 0;
+		}
 				
 		// create concert
 		$concertId = parent::create($values);
@@ -238,8 +243,10 @@ class KonzerteData extends AbstractLocationData {
 		$this->addGroupsToConcert($groups, $concertId);
 		
 		// add equipment
-		$equipmentSelection = GroupSelector::getPostSelection($this->adp()->getEquipment(), "equipment");		
-		$this->addEquipmentToConcert($equipmentSelection, $concertId);
+		$equipmentSelection = GroupSelector::getPostSelection($this->adp()->getEquipment(), "equipment");
+		if(count($equipmentSelection) > 0) {
+			$this->addEquipmentToConcert($equipmentSelection, $concertId);
+		}
 		
 		// add custom data
 		$this->createCustomFieldData(KonzerteData::$CUSTOM_DATA_OTYPE, $concertId, $values);

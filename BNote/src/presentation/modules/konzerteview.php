@@ -1,5 +1,4 @@
 <?php
-require_once $GLOBALS["DIR_WIDGETS"] . "sectionform.php";
 
 /**
  * View for concert module.
@@ -415,13 +414,16 @@ class KonzerteView extends CrudRefLocationView {
 		$partLink = new Link($this->modePrefix() . "showParticipants&id=" . $_GET["id"], "Teilnehmer anzeigen");
 		$partLink->addIcon("user");
 		$partLink->write();
-		$this->buttonSpace();
 		
 		// concert contact
 		$addContact = new Link($this->modePrefix() . "addConcertContact&id=" . $_GET["id"], "Kontakt hinzufügen");
 		$addContact->addIcon("plus");
 		$addContact->write();
-		$this->buttonSpace();
+		
+		// gig card (Word export)
+		$word = new Link("src/export/gigcard.doc?id=" . $_GET["id"], "Word Export");
+		$word->addIcon("save");
+		$word->write();
 		
 		// notifications
 		$emLink = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation");
@@ -429,7 +431,6 @@ class KonzerteView extends CrudRefLocationView {
 		$em = new Link($emLink, "Benachrichtigung senden");
 		$em->addIcon("email");
 		$em->write();
-		$this->buttonSpace();
 	}
 	
 	function showParticipants() {
@@ -461,8 +462,10 @@ class KonzerteView extends CrudRefLocationView {
 	}
 	
 	protected function addEntityForm() {
+		require_once $GLOBALS["DIR_WIDGETS"] . "sectionform.php";
+		
 		$form = new SectionForm("Neuer Auftritt", $this->modePrefix() . "add");
-		Writing::p("Bevor ein neuer Auftritt angelegt werden kann, bitte alle Kontaktdaten (Kontakte) und Orte (Locations) anlegen.");
+		$this->flash("Bevor ein neuer Auftritt angelegt werden kann, bitte alle Kontaktdaten (Kontakte) und Orte (Locations) anlegen.", "info");
 		
 		// ************* MASTER DATA *************
 		$title_field = new Field("title", "", FieldType::CHAR);
@@ -560,6 +563,13 @@ class KonzerteView extends CrudRefLocationView {
 		$form->write();
 	}
 	
+	function exportFormatAddress($address) {
+		$this->formatAddress($address);
+	}
+	
+	function exportFormatContact($contact, $profile) {
+		$this->formatContact($contact, $profile);
+	}
 }
 
 ?>

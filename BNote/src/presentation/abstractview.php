@@ -290,9 +290,7 @@ abstract class AbstractView {
 	 * @param string $level Level: info, warn, error
 	 */
 	public static function flash($message, $level="warn") {
-		?>
-		<div class="flash_message <?php echo $level; ?>"><?php echo $message; ?></div>
-		<?php
+		Writing::message($message, $level);
 	}
 	
 }

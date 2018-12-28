@@ -203,7 +203,7 @@ abstract class AbstractLocationData extends AbstractData {
 	}
 	
 	protected function readCountries() {
-		$countryFilename = "data/" . AbstractLocationData::$ISO_COUNTRIES_FILENAME;
+		$countryFilename = $this->dirPrefix . "data/" . AbstractLocationData::$ISO_COUNTRIES_FILENAME;
 		if(($countryFileHandle = fopen($countryFilename, "r")) !== FALSE) {
 			$this->isoCountries = array();
 			$rowIdx = 0;

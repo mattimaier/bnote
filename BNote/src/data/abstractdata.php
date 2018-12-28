@@ -67,10 +67,18 @@ abstract class AbstractData {
 	protected $triggerServiceClient = null;
 	
 	/**
+	 * Prefix for includion in exports
+	 * @var string
+	 */
+	protected $dirPrefix = "";
+	
+	/**
 	 * Initialize data provider.
 	 * @param string $dir_prefix Optional parameter for include(s) prefix.
 	 */
 	protected function init($dir_prefix = "") {
+		$this->dirPrefix = $dir_prefix;
+		
 		global $system_data;
 		$this->sysdata = $system_data;
 		$this->database = $system_data->dbcon;
