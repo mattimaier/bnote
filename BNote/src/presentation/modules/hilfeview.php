@@ -23,8 +23,8 @@ class HilfeView extends AbstractView {
 			"equipment" => "Modul Equipment",
 			"finance" => "Modul Finanzen",
 			"konfiguration" => "Modul Konfiguration",
-			"calendar" => "Modul Kalender (Reservierungen)",
-			"kontakte" => "Modul Kontakte",
+			"calendar" => "Modul Kalender",
+			"kontakte" => "Modul Kontakte (und Datenschutz)",
 			"mitspieler" => "Modul Mitglieder",
 			"nachrichten" => "Modul Nachrichten",
 			"proben" => "Modul Proben",
@@ -97,7 +97,7 @@ class HilfeView extends AbstractView {
 				foreach($this->helpPages as $helpPageId => $helpPageTitle) {
 					if(isset($_GET["page"]) && $_GET["page"] == $helpPageId) $active = true;
 					$this->writePageLink($helpPageTitle, $this->modePrefix() . "start&page=" . $helpPageId, $active);
-					$active = false;
+					$active = false; 
 				}
 				?>
 				
@@ -107,6 +107,16 @@ class HilfeView extends AbstractView {
 				if(isset($_GET["vid"])) {
 					Writing::h2("Video Tutorial");
 					echo '<iframe width="560" height="315" src="http://www.youtube.com/embed/' . $_GET["vid"] . '" frameborder="0" allowfullscreen></iframe>';
+					
+					// add a link to the bnote website for admin stuff
+					if($_GET["vid"] == "kOWQjX8kSaQ") {
+						?>
+						<p>Aktuelle Informationen zur Installation und zum Betrieb von BNote findest du auch auf unserer Website:</p>
+						<a href="https://github.com/mattimaier/bnote/wiki">BNote Wiki</a><br>
+						<a href="http://bnote.info/provider.php">Providerauswahl</a><br>
+						<a href="http://bnote.info/install-tutorial.php">Installation und Update</a>
+						<?php
+					}
 				}
 				else if(isset($_GET["page"])) {
 					if(isset($this->helpPages[$_GET["page"]])) $title = $this->helpPages[$_GET["page"]];
