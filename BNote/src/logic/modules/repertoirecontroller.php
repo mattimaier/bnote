@@ -8,6 +8,14 @@
 class RepertoireController extends DefaultController {
 	
 	private $genreView;
+	private $genreData;
+	
+	/**
+	 * internal map for faster processing<br/>
+	 * name_of_genre => id
+	 * @var array
+	 */
+	private $genres = NULL;
 	
 	function start() {
 		if(isset($_GET["mode"]) && $_GET["mode"] == "genre") {
@@ -33,9 +41,9 @@ class RepertoireController extends DefaultController {
 			require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "genreview.php";
 			
 			$ctrl = new DefaultController();
-			$data = new GenreData();
+			$this->genreData = new GenreData();
 			$this->genreView = new GenreView($ctrl);
-			$ctrl->setData($data);
+			$ctrl->setData($this->genreData);
 			$ctrl->setView($this->genreView);
 		}
 	}
@@ -148,7 +156,10 @@ class RepertoireController extends DefaultController {
 	function xlsProcess() {		
 		// go through data: ignore empties and handle duplicates
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
-		$empties = explode(",", $_POST["empties"]);
+		$empties = array();
+		if($_POST["empties"] != "") {
+			$empties = explode(",", $_POST["empties"]);
+		}
 		
 		// process duplicates
 		$duplicates = array();
@@ -163,6 +174,11 @@ class RepertoireController extends DefaultController {
 		}
 		
 		// do the real data processing
+		$updated = 0;
+		$created = 0;
+		Data::viewArray($xlsData);
+		Data::viewArray($_POST["empties"]);
+		Data::viewArray($empties);
 		foreach($xlsData as $rowIdx => $row) {
 			if(in_array($rowIdx, $empties)) {
 				// empty -> continue
@@ -172,13 +188,15 @@ class RepertoireController extends DefaultController {
 				// duplicate -> map and update
 				$id = $duplicate_ids[$rowIdx];
 				$this->getData()->update($id, $this->xlsMap($row));
+				$updated++;
 			}
 			else {
 				// map and insert
 				$this->getData()->create($this->xlsMap($row));
+				$created++;
 			}
 		}
-		$this->getView()->xlsProcessSuccess();
+		$this->getView()->xlsProcessSuccess($updated, $created);
 	}
 	
 	protected function xlsMap($row) {
@@ -205,10 +223,14 @@ class RepertoireController extends DefaultController {
 				$composer = "nicht angegeben";
 			}
 		}
+		$genre = "";
+		if($_POST["col_genre"] >= 0) {
+			$genre = $row[$_POST["col_genre"]];
+		}
 		
 		return array(
 			"title" => $this->cleanSubject($row[$_POST["col_title"]]),
-			"genre" => $_POST["genre"],
+			"genre" => $this->mapGenre($genre),
 			"bpm" => $bpm,
 			"music_key" => $music_key,
 			"status" => $_POST["status"],
@@ -216,6 +238,25 @@ class RepertoireController extends DefaultController {
 			"composer" => $this->cleanSubject($composer),
 			"length" => ""
 		);
+	}
+	
+	protected function mapGenre($name) {
+		// preload all genres for faster mapping
+		if($this->genres == null) {
+			$this->genres = array();
+			$this->initGenre();
+			$genres = $this->genreData->findAllNoRef();
+			for($i = 1; $i < count($genres); $i++) {
+				$this->genres[strtolower($genres[$i]["name"])] = $genres[$i]["id"];
+			}
+		}
+		
+		// check if name exists in genres
+		$k = strtolower($name);
+		if(array_key_exists($k, $this->genres)) {
+			return $this->genres[$k];
+		}
+		return 0;
 	}
 	
 	private function cleanSubject($subject) {

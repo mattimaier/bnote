@@ -419,6 +419,7 @@ class RepertoireView extends CrudRefView {
 		$form->addElement("Tonart", $this->columnSelector("col_key", $header));
 		$form->addElement("Tempo (BPM)", $this->columnSelector("col_tempo", $header));
 		$form->addElement("Notizen", $this->columnSelector("col_notes", $header));
+		$form->addElement("Genre", $this->columnSelector("col_genre", $header));
 		
 		// Status
 		$dd_status = new Dropdown("status");
@@ -427,14 +428,6 @@ class RepertoireView extends CrudRefView {
 			$dd_status->addOption($stati[$i]["name"], $stati[$i]["id"]);
 		}
 		$form->addElement("Status", $dd_status);
-		
-		// Genre
-		$genres = $this->getData()->getGenres();
-		$dd_genre = new Dropdown("genre");
-		for($i = 1; $i < count($genres); $i++) {
-			$dd_genre->addOption($genres[$i]["name"], $genres[$i]["id"]);
-		}
-		$form->addElement("Gerne", $dd_genre);
 		
 		// finalize form
 		$form->changeSubmitButton("Weiter");
@@ -487,8 +480,8 @@ class RepertoireView extends CrudRefView {
 		$form->write();
 	}
 	
-	function xlsProcessSuccess() {
-		new Message("Import erfolgreich", "Die Stücke wurden erfolgreich importiert.");
+	function xlsProcessSuccess($updated, $created) {
+		new Message("Import erfolgreich", "$created Stücke wurden erfolgreich erstellt. $updated Stücke wurden aktualisiert.");
 	}
 	
 	function massUpdate() {
