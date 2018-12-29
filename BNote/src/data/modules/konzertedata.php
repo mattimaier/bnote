@@ -66,9 +66,9 @@ class KonzerteData extends AbstractLocationData {
 	}
 	
 	function getPastConcerts($from, $to) {
-		if(!$this->regex->isDatabaseDateQuiet($from) || !$this->regex->isDatabaseDateQuiet($to)) {
-			new Error("Incorrect dates for filtering: $from, $to");
-		}
+		$this->regex->isDate($from);
+		$this->regex->isDate($to);
+		
 		$query = "SELECT c.id, c.begin, c.title, c.organizer, l.name as location_name, a.city as location_city, 
 				CONCAT(k.name, ' ', k.surname) as contact_name, p.name as program_name
 				FROM concert c

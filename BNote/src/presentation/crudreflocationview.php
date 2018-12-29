@@ -39,7 +39,7 @@ class CrudRefLocationView extends CrudRefView {
 			$caption = $country["code"] . " - " . $country[$this->getData()->getSysdata()->getLang()];
 			$dd->addOption($caption, $country["code"]);
 		}
-		if($obj == NULL) {
+		if($obj == NULL || $defaultVal == "") {
 			$defaultVal = $this->getData()->getSysdata()->getDynamicConfigParameter("default_country");
 		}
 		$dd->setSelected($defaultVal);

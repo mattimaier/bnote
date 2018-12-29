@@ -730,6 +730,10 @@ class ProbenView extends CrudRefLocationView {
 		$futureRehearsals = $this->getData()->adp()->getFutureRehearsals();
 		$usedInstruments = $this->getData()->getUsedInstruments();
 		
+		if(count($futureRehearsals) <= 1) {
+			Writing::p("Es sind derzeit keine Proben geplant.");
+		}
+		
 		for($reh = 1; $reh < count($futureRehearsals); $reh++) {
 			$rehearsal = $futureRehearsals[$reh];
 			?>

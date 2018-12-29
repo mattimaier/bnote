@@ -86,6 +86,9 @@ class KonfigurationData extends AbstractLocationData {
 			return $this->adp()->getGroupName($value);
 		}
 		else if($param == "default_conductor") {
+			if($value == "") {
+				return "";
+			}
 			return $this->database->getCell("contact", "CONCAT(name, ' ', surname)", "id = $value");
 		}
 		else if($this->getParameterType($param) == FieldType::BOOLEAN) {
