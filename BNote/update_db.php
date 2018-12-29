@@ -274,7 +274,7 @@ $update->addTable("doctype", "CREATE TABLE IF NOT EXISTS `doctype` (
 $update->addColumnToTable("song_files", "doctype", "INT(11)");
 $numRowsDocType = $update->getNumberRows("doctype");
 if($numRowsDocType == 0) {
-	$update->executeQuery("INSERT INTO `doctype` (name, is_action) VALUES ('Noten', 1), ('Text', 1), ('Aufnahme', 1), ('Sonstiges', 1)");
+	$update->executeQuery("INSERT INTO `doctype` (name, is_active) VALUES ('Noten', 1), ('Text', 1), ('Aufnahme', 1), ('Sonstiges', 1)");
 	$update->message("Default doctypes added");
 }
 
