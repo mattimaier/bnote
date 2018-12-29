@@ -65,82 +65,21 @@ class KonzerteData extends AbstractLocationData {
 		return $this->adp()->getFutureConcerts();
 	}
 	
-	function getPastConcerts() {
-		/* 
-		 * For complexity reasons is this data filtering
-		 * done in PHP instead of SQL. Since there are only
-		 * very few concerts usually, this shouldn't be a
-		 * problem!
-		 */
-		$result = array();
-		
-		// add header
-		array_push($result, array(
-			"id", "title", "begin", "end", "notes", 
-			"location_name", "location_city",
-			"contact_name", "program_name"
-		));
-		
-		// get all future concerts
-		$query = "SELECT * FROM concert WHERE end < NOW() ORDER BY begin ASC";
-		$concerts = $this->database->getSelection($query);
-		
-		// iterate over concerts and replace foreign keys with data
-		for($i = 1; $i < count($concerts); $i++) {
-			// resolve location -> mandatory!
-			$loc_id = $concerts[$i]["location"];
-			if($loc_id > 0) {
-				$location = $this->getLocation($loc_id);
-			}
-			else {
-				$location = array(
-					"name" => "-",
-					"address" => "0"
-				);
-			}
-			
-			// resolve address -> address id present, because location is mandatory
-			$address = $this->getAddress($location["address"]);
-			if($address == null || $address == "") {
-				$address = array(
-					"city" => "-"
-				);
-			}
-			
-			// resolve contact
-			if($concerts[$i]["contact"] != "") {
-				$contact = $this->getContact($concerts[$i]["contact"]);
-			}
-			else {
-				$contact = array(
-					"name" => "", "phone" => "", "email" => "", "web" => ""
-				);
-			}
-			
-			// resolve program
-			if($concerts[$i]["program"] != "") {
-				$program = $this->getProgram($concerts[$i]["program"]);
-			}
-			else {
-				$program = array(
-					"name" => "", "notes" => ""
-				);
-			}
-			
-			// build result for by row
-			array_push($result, array(
-				"id" => $concerts[$i]["id"],
-				"title" => $concerts[$i]["title"],
-				"begin" => $concerts[$i]["begin"],
-				"end" => $concerts[$i]["end"], 
-				"notes" => $concerts[$i]["notes"],
-				"location_name" => $location["name"],
-				"location_city" => $address["city"],
-				"contact_name" => $contact["name"],
-				"program_name" => $program["name"],
-			));
+	function getPastConcerts($from, $to) {
+		if(!$this->regex->isDatabaseDateQuiet($from) || !$this->regex->isDatabaseDateQuiet($to)) {
+			new Error("Incorrect dates for filtering: $from, $to");
 		}
-		return $result;
+		$query = "SELECT c.id, c.begin, c.title, c.organizer, l.name as location_name, a.city as location_city, 
+				CONCAT(k.name, ' ', k.surname) as contact_name, p.name as program_name
+				FROM concert c
+				LEFT OUTER JOIN location l ON c.location = l.id
+				LEFT OUTER JOIN address a ON l.address = a.id
+				LEFT OUTER JOIN contact k ON c.contact = k.id
+				LEFT OUTER JOIN program p ON c.program = p.id
+				WHERE begin >= '" . Data::convertDateToDb($from) . "' AND end <= '" . Data::convertDateToDb($to) . "'
+				ORDER BY begin ASC";
+		$concerts = $this->database->getSelection($query);
+		return $concerts;
 	}
 	
 	function getLocation($id) {

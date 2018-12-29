@@ -107,6 +107,9 @@ class Filterbox implements iWriteable {
 				if(isset($_POST[$column])) {
 					$val = $_POST[$column];
 				}
+				else if($infos["values"] != null) {
+					$val = $infos["values"];
+				}
 				$element = new Field($column, $val, $infos["type"]);
 			}
 			?>

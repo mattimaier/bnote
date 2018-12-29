@@ -96,16 +96,38 @@ class KonzerteView extends CrudRefLocationView {
 	}
 	
 	function history() {
-		Writing::h2("Chronik");
+		// defaults
+		$to = date("d.m.Y");
+		$from = Data::subtractMonthsFromDate($to, 12);
+		if(isset($_POST["from"])) {
+			$from = $_POST["from"];
+		}
+		if(isset($_POST["to"])) {
+			$to = $_POST["to"];
+		}
 		
-		$table = new Table($this->getData()->getPastConcerts());
+		// filters
+		$filter = new Filterbox($this->modePrefix() . "history");
+		$filter->addFilter("from", "Zeitraum von", FieldType::DATE, $from);
+		$filter->addFilter("to", "Zeitraum bis", FieldType::DATE, $to);
+		$filter->write();
+		
+		// data
+		$concerts = $this->getData()->getPastConcerts($from, $to);
+		
+		// table
+		$table = new Table($concerts);
 		$table->renameAndAlign($this->getData()->getFields());
+		$table->removeColumn("notes");
+		$table->renameHeader("id", "Nr");
 		$table->renameHeader("location_name", "Aufführungsort");
 		$table->renameHeader("location_city", "Stadt");
 		$table->renameHeader("contact_name", "Kontaktperson");
 		$table->renameHeader("program_name", "Programm");
 		$table->setColumnFormat("begin", "DATE");
 		$table->setColumnFormat("end", "DATE");
+		$table->setEdit("id");
+		$table->showFilter(false);
 		$table->write();
 	}
 	
