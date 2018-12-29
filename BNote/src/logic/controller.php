@@ -19,7 +19,7 @@ class Controller {
 
 		# Check all $_GET attributes for attack
 		foreach($_GET as $key => $value) {
-			if(!preg_match("/^[[:alnum:]\.\_\-\%\ \/\'\(\)]{1,255}$/", $value)) {
+			if(!preg_match("/^[[:alnum:]" . Regex::$SPECIALCHARACTERS . "\.\_\-\%\ \/\'\(\)]{1,255}$/", $value)) {
 				new BNoteError("Es wurde ein vermeintlicher Angriff festgestellt.<br>
 						Sollte diese Meldung weiterhin auftreten, wenden Sie sich bitten an Ihren Systemadministrator.");
 			}

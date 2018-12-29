@@ -33,6 +33,7 @@ global $system_data;
 $db = $system_data->dbcon;
 require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "abstractdata.php");
 require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php");
+require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "abstractlocationdata.php");
 require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "startdata.php");
 $startdata = new StartData($dir_prefix);
 $adp = $startdata->adp();
