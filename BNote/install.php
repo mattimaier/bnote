@@ -986,12 +986,15 @@ class Installation {
 		
 		$form->addElement("Vorname", new Field("name", "", FieldType::CHAR));
 		$form->addElement("Nachname", new Field("surname", "", FieldType::CHAR));
+		$form->addElement("Organisation", new Field("company", "", FieldType::CHAR));
 		$form->addElement("Telefon", new Field("phone", "", FieldType::CHAR));
 		$form->addElement("Handy", new Field("mobile", "", FieldType::CHAR));
 		$form->addElement("E-Mail-Adresse", new Field("email", "", FieldType::CHAR));
 		$form->addElement("Straße", new Field("street", "", FieldType::CHAR));
 		$form->addElement("PLZ", new Field("zip", "", FieldType::INTEGER));
 		$form->addElement("Ort", new Field("city", "", FieldType::CHAR));
+		$form->addElement("Bundesland", new Field("state", "", FieldType::CHAR));
+		$form->addElement("Land", new Field("country", "DEU", FieldType::CHAR));
 		
 		$db = $this->getDbConnection();
 		$instruments = $db->getSelection("SELECT i.id, i.name, c.name as category
@@ -1018,16 +1021,28 @@ class Installation {
 		$db = $this->getDbConnection();
 		
 		// create contact address
-		$query = "INSERT INTO address (street, city, zip) VALUES (";
-		$query .= '"' . $_POST["street"] . '", "' . $_POST["city"] . '", "' . $_POST["zip"] . '")';
-		$aid = $db->execute($query);
+		$query = "INSERT INTO address (street, city, zip, state, country) VALUES (?,?,?,?,?)";
+		$aid = $db->prepStatement($query, array(
+				array("s", $_POST["street"]), 
+				array("s", $_POST["city"]), 
+				array("s", $_POST["zip"]),
+				array("s", $_POST["state"]),
+				array("s", $_POST["country"])));
 		
 		// create contact
-		$query = "INSERT INTO contact (surname, name, phone, mobile, email, address, instrument) VALUES (";
-		$query .= '"' . $_POST["surname"] . '", "' . $_POST["name"] . '", ';
-		$query .= '"' . $_POST["phone"] . '", "' . $_POST["mobile"] . '", ';
-		$query .= '"' . $_POST["email"] . '", ' . $aid . ', ' . $_POST["instrument"] . ')';
-		$cid = $db->execute($query);
+		$query = "INSERT INTO contact (surname, name, company, phone, mobile, email, address, instrument, gdpr_ok, is_conductor)
+				VALUES (?,?,?,?,?,?,?,?,?,?)";
+		$cid = $db->prepStatement($query, array(
+				array("s", $_POST["surname"]),
+				array("s", $_POST["name"]), 
+				array("s", $_POST["company"]),
+				array("s", $_POST["phone"]),
+				array("s", $_POST["mobile"]),
+				array("s", $_POST["email"]),
+				array("i", $aid), 
+				array("i", $_POST["instrument"]), 
+				array("i", 1), 
+				array("i", 1)));
 		
 		// create user
 		$password = crypt($_POST["password"], 'BNot3pW3ncryp71oN');

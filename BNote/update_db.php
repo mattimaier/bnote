@@ -202,6 +202,18 @@ class UpdateDb {
 	function executeQuery($query) {
 		return $this->db->execute($query);
 	}
+	
+	function processGdprOk() {
+		$query = "SELECT id FROM contact WHERE gdpr_ok = 1";
+		$gdprOkContacts = $this->db->getSelection($query);
+		if(count($gdprOkContacts) > 1) {
+			$this->message("There is at least one contact with GDPR flag set - ignoring GDPR presetting.");
+			return;
+		}
+		$updateQuery = "UPDATE contact c, user u SET gdpr_ok = 1 WHERE u.contact = c.id";
+		$this->db->execute($updateQuery);
+		$this->message("<b>All contacts with an active user have approved the GDPR requirements so the login is not blocked.</b>");
+	}
 }
 
 $update = new UpdateDb();
@@ -223,6 +235,8 @@ $update->addColumnToTable("song", "is_active", "INT(1) DEFAULT 1");
 // Task 2: GDPR OK flag and code on contacts
 $update->addColumnToTable("contact", "gdpr_ok", "INT(1) DEFAULT 0");
 $update->addColumnToTable("contact", "gdpr_code", "VARCHAR(255)");
+// set all current users with their contacts to GDPR ok not to break the use of the system if not a single user has gdpr_ok = 1
+$update->processGdprOk();
 
 // Task 3: Rehearsal conductor
 $update->addColumnToTable("rehearsal", "conductor", "INT(11)");  # contact
