@@ -964,7 +964,7 @@ class Installation {
 			array_push($queries, "INSERT INTO location_type (name) VALUES 
 					('Probenräume'), ('Veranstaltungsorte'), ('Übernachtungsmöglichkeiten'), ('Studios'), ('Sonstige');");
 			
-			array_push($queries, "INSERT INTO `doctype` (name, is_action) VALUES 
+			array_push($queries, "INSERT INTO `doctype` (name, is_active) VALUES 
 					('Noten', 1), ('Text', 1), ('Aufnahme', 1), ('Sonstiges', 1);");
 			
 			foreach($queries as $i => $query) {
