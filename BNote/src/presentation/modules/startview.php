@@ -362,64 +362,7 @@ class StartView extends CrudRefLocationView {
 				$liCaption = Data::getWeekdayFromDbDate($row["begin"]) . ", " . $liCaption;
 				$liCaption = "<span class=\"start_concert_title\">" . $row["title"] . "</span><br/>" . $liCaption . "";
 				
-				// concert details
 				$dataview = new Dataview();
-				$dataview->addElement(Lang::txt("title"), $row["title"]);
-				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($row["begin"]));
-				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($row["end"]));
-				$dataview->addElement(Lang::txt("meetingtime"), Data::convertDateFromDb($row["meetingtime"]));
-				$dataview->addElement(Lang::txt("tour_concert_approve_until"), Data::convertDateFromDb($row["approve_until"]));
-				
-				// add button to show participants
-				$participantsButton = new Link($this->modePrefix() . "concertParticipants&id=" . $row["id"], "Teilnehmer anzeigen");
-				$dataview->addElement(Lang::txt("participants"), $participantsButton->toString());
-				
-				if($row['outfit'] != "") {
-					$dataview->addElement(Lang::txt("outfit"), $row['outfit']);
-				}
-				
-				$loc = $this->formatAddress($row);
-				$addy = $loc;
-				if($loc != "") $loc = $row["location_name"] . "<br/>" . $loc;
-				else $loc = $row["location_name"];
-				$dataview->addElement(Lang::txt("location"), $loc);
-				$contact = $row["contact_name"];
-				if($row["contact_phone"] != "") $contact .= "<br/>" . $row["contact_phone"];
-				if($contact != "" && $row["contact_email"] != "") $contact .= "<br/>" . $row["contact_email"];
-				if($contact != "" && $row["contact_web"] != "") $contact .= "<br/>" . $row["contact_web"];
-				$dataview->addElement(Lang::txt("contact"), $contact);
-				if($row["program_name"] != "") {
-					$program = $row["program_name"];
-					if($row["program_notes"] != "") $program .= " (" . $row["program_notes"] . ")";
-					$viewProg = new Link($this->modePrefix() . "viewProgram&id=" . $row["program_id"], Lang::txt("start_viewProgram"));
-					$program .= "<br/><br/>" . $viewProg->toString();
-					$dataview->addElement(Lang::txt("program"), $program);
-				}
-				
-				// custom data
-				$customFields = $this->getData()->getCustomFields('g');
-				$customData = $this->getData()->getCustomData('g', $row["id"]);
-				for($j = 1; $j < count($customFields); $j++) {
-					$field = $customFields[$j];
-					$label = $field["txtdefsingle"];
-					$value = $customData[$field["techname"]];
-					if($field["fieldtype"] == "BOOLEAN") {
-						$value = $value == 1 ? Lang::txt("yes") : Lang::txt("no");
-					}
-					$dataview->addElement($label, $value);
-				}
-				
-				if($row["notes"] != "") {
-					$dataview->addElement(Lang::txt("notes"), $row["notes"]);
-				}
-				
-				// show static map if Google key is set
-				$google_api_key = $this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key");
-				if($google_api_key != "") {
-					$addy = urlencode($addy);
-					$src = "https://maps.googleapis.com/maps/api/staticmap?center=$addy&size=350x250&markers=color:red|$addy&key=$google_api_key";
-					$dataview->addElement(Lang::txt("map"), "<img src=\"$src\" alt=\"map\" />");
-				}
 				
 				// show three buttons to participate/maybe/not in concert
 				$partButtonSpace = "<br/><br/>";
@@ -608,29 +551,36 @@ class StartView extends CrudRefLocationView {
 	 */
 	private function writeBoxListItem($otype, $oid, $popboxid, $liCaption, $dataview,
 			$participation = "", $msg = "", $voteLink = "", $partOver = false, $participate=-1) {
-		
+			
 			$participate_class = "";
 			if($otype == "R" || $otype == "C") {
 				$participate_class = "participate_" . $participate;
-					echo "<li>";
-					echo "<div class=\"" . $participate_class . "\">"; 
+				echo "<li>";
+				echo "<div class=\"" . $participate_class . "\">"; 
 			} else {
 				echo "<li>";
 				echo "<div>";
 			}
-			?>
-
-			<a href="#" class="start_item_heading <?php echo $participate_class; ?>" onClick="$(function() { 
-				$('#<?php echo $popboxid; ?>').dialog({ 
-					width: 500,
-					 modal: true,
-					 resizable: false,
-					 draggable: false,
-					 }); 
-				});
-
-				"><?php echo $liCaption; ?></a>
-			<?php
+						
+			if($otype == "C") {
+				$href = $this->modePrefix() . "gigcard&id=" . $oid;
+				echo "<a href=\"$href\" class=\"start_item_heading $participate_class\">$liCaption</a>";
+			}
+			else {
+				?>	
+				<a href="#" class="start_item_heading <?php echo $participate_class; ?>" onClick="$(function() { 
+					$('#<?php echo $popboxid; ?>').dialog({ 
+						width: 500,
+						 modal: true,
+						 resizable: false,
+						 draggable: false,
+						 }); 
+					});
+	
+					"><?php echo $liCaption; ?></a>
+				<?php
+			}
+			
 			if($msg != "" && $participation != "" && !$partOver) {
 				?>
 				<br/>
@@ -921,6 +871,156 @@ class StartView extends CrudRefLocationView {
 	
 	function saveParticipationOptions() {
 		$this->backToStart();
+	}
+	
+	function gigcard() {
+		require_once $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
+		require_once $GLOBALS["DIR_LOGIC_MODULES"] . "konzertecontroller.php";
+		require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "konzerteview.php";
+		$concertData = new KonzerteData();
+		$concertCtrl = new KonzerteController();
+		$concertCtrl->setData($concertData);
+		$concertView = new KonzerteView($concertCtrl);
+		
+		// get concert data		
+		$c = $concertData->findByIdNoRef($_GET["id"]);
+		$custom = $concertData->getCustomData($_GET["id"]);
+		$loc = $concertData->getLocation($c["location"]);
+		
+		// concert details
+		Writing::h1($c["title"]);
+		
+		Writing::p($c["notes"]);
+		?>
+		<table>
+			<tbody>
+				<tr>
+					<td>Datum/Zeit</td>
+					<td><?php 
+					echo Data::convertDateFromDb($c["begin"]) . " - ";
+					echo Data::convertDateFromDb($c["end"]);
+					?></td>
+				</tr>
+				<tr>
+					<td>Treffpunkt</td>
+					<td><?php echo Data::convertDateFromDb($c["meetingtime"]); ?></td>
+				</tr>
+				<tr>
+					<td>Zusage bis</td>
+					<td><?php echo Data::convertDateFromDb($c["approve_until"]); ?></td>
+				</tr>
+				<tr>
+					<td>Veranstalter</td>
+					<td><?php 
+					if($c["organizer"]) {
+						echo $c["organizer"];
+					}
+					?></td>
+				</tr>
+				<tr>
+					<td>Ort</td>
+					<td><?php 
+					$a = $concertData->getAddress($loc["address"]);
+					$gigAddress = $concertView->exportFormatAddress($a);
+					echo $loc["name"] . "<br/>$gigAddress<br/>";
+					
+					// show static map if Google key is set
+					$google_api_key = $this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key");
+					if($google_api_key != "") {
+						$addy = urlencode($gigAddress);
+						$src = "https://maps.googleapis.com/maps/api/staticmap?center=$addy&size=350x250&markers=color:red|$addy&key=$google_api_key";
+						echo "<img src=\"$src\" alt=\"map\" />";
+					}
+					
+					?></td>
+				</tr>
+				<tr>
+					<td>Kontakt</td>
+					<td><?php 
+					if($c["contact"]) {
+						$cnt = $concertData->getContact($c["contact"]);
+						$cv = $concertView->exportFormatContact($cnt, 'NAME_COMM_LB');
+					}
+					else {
+						$cv = "-";
+					}
+					echo $cv;
+					?></td>
+				</tr>
+				<tr>
+					<td>Unterkunft</td>
+					<td><?php 
+					if($c["accommodation"] > 0) {
+						$acc = $concertData->adp()->getAccommodationLocation($c["accommodation"]);
+						$addy = $this->formatAddress($acc);
+						echo $acc["name"] . "<br>$addy";
+					}
+					?></td>
+				</tr>
+				
+				<?php 
+				// custom data
+				$customFields = $concertData->getCustomFields(KonzerteData::$CUSTOM_DATA_OTYPE);
+				for($i = 1; $i < count($customFields); $i++) {
+					$field = $customFields[$i];
+					?>
+					<tr>
+						<td><?php echo $field["txtdefsingle"]; ?></td>
+						<td><?php echo $custom[$field["techname"]]; ?></td>
+					</tr>
+					<?php 
+				}
+				?>
+			</tbody>
+		</table>
+		
+		<h2>Organisation</h2>
+		<table>
+			<tbody>
+				<tr>
+					<td>Besetzung</td>
+					<td><?php 
+					$groups = $concertData->getConcertGroups($c["id"]);
+					$groupNames = Database::flattenSelection($groups, "name");
+					echo join(", ", $groupNames);
+					?></td>
+				</tr>
+				<tr>
+					<td>Programm</td>
+					<td><?php 
+					if($c["program"]) {
+						$prg = $concertData->getProgram($c["program"]);
+						echo $prg["name"];
+					}
+					?></td>
+				</tr>
+				<tr>
+					<td>Outfit</td>
+					<td><?php 
+					if($c["outfit"]) {
+						$outfit = $concertData->getOutfit($c["outfit"]);
+						echo $outfit["name"];
+					}
+					?></td>
+				</tr>
+			</tbody>
+		</table>
+		
+		<?php
+	}
+	
+	function gigcardOptions() {
+		$this->backToStart();
+		
+		$prt = new Link("javascript:print()", Lang::txt("print"));
+		$prt->addIcon("printer");
+		$prt->write();
+		
+		// show participants
+		$participantsButton = new Link($this->modePrefix() . "concertParticipants&id=" . $_GET["id"], Lang::txt("participants"));
+		$participantsButton->addIcon("mitspieler");
+		$participantsButton->write();
+		
 	}
 	
 }

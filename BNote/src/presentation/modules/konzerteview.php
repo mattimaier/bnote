@@ -564,11 +564,11 @@ class KonzerteView extends CrudRefLocationView {
 	}
 	
 	function exportFormatAddress($address) {
-		$this->formatAddress($address);
+		return $this->formatAddress($address);
 	}
 	
 	function exportFormatContact($contact, $profile) {
-		$this->formatContact($contact, $profile);
+		return $this->formatContact($contact, $profile);
 	}
 }
 

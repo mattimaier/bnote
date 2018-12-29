@@ -5,7 +5,7 @@
  * @author matti
  *
  */
-class StartData extends AbstractData {
+class StartData extends AbstractLocationData {
 	
 	private $newsData;
 	private $dir_prefix;
