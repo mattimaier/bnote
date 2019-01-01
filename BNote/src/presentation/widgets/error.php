@@ -16,7 +16,14 @@ class BNoteError {
 	border: 1px solid #FCBDBD;
 	color: #fff;
 	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;">
- 	<span style="font-size: 16pt;"><?php echo Lang::txt("error"); ?></span><br/>
+ 	<span style="font-size: 16pt;"><?php 
+ 	if(class_exists("Lang")) {
+ 		echo Lang::txt("error");
+ 	}
+ 	else {
+ 		echo "Error";
+ 	}
+ 	?></span><br/>
  	<p><?php echo $message; ?></p>
  </div>
   <?php

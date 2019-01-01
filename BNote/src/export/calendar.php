@@ -147,7 +147,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	
 	// conductor
 	$notes = "";
-	if(isset($rehearsals[$i]["conductor"]) && $rehearsals["conductor"] != null) {
+	if(isset($rehearsals[$i]["conductor"]) && $rehearsals[$i]["conductor"] != null) {
 		$notes = "Dirigent: " . $adp->getConductorname($rehearsals[$i]["conductor"]) . "\r\n";
 	}
 	

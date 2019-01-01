@@ -29,7 +29,7 @@ class StartData extends AbstractLocationData {
 		
 		// includes
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php");
-		$this->newsData = new NachrichtenData();
+		$this->newsData = new NachrichtenData($dir_prefix);
 		
 		$this->init($dir_prefix);
 	}
