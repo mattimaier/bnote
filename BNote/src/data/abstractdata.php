@@ -465,12 +465,12 @@ abstract class AbstractData {
 				$t = $this->getTypeOfField($field);
 				
 				if($t == FieldType::DATE || $t == FieldType::DATETIME) {
-						$val = Data::convertDateToDb($val);
+					$val = Data::convertDateToDb($val);
 				}
 				else if($t == FieldType::DECIMAL) {
 					$val = Data::convertToDb($val);
 				}
-				else if($t == FieldType::BOOLEAN) {
+				else if($t == FieldType::BOOLEAN && $val === "on") {
 					$val = 1;
 				}
 					
@@ -479,7 +479,7 @@ abstract class AbstractData {
 					|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN) {
 						$query .= '"' . $val . '", ';
 				}
-					else {
+				else {
 					$query .= $val . ", ";
 				}
 			}

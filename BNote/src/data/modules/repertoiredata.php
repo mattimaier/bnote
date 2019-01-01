@@ -243,7 +243,7 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function getFilteredRepertoire($filters, $offset=0, $pageSize=100) {
-		$query = "SELECT DISTINCT s.id, s.title, c.name as composer, s.length, s.bpm, s.music_key, s.notes, g.name as genre, stat.name as status ";
+		$query = "SELECT DISTINCT s.id, s.title, c.name as composer, s.length, s.bpm, s.music_key, s.notes, g.name as genre, stat.name as status, s.is_active ";
 		$query .= "FROM song s JOIN composer c ON s.composer = c.id ";
 		$query .= "JOIN genre g ON s.genre = g.id ";
 		$query .= "JOIN status stat ON s.status = stat.id ";
@@ -287,8 +287,13 @@ class RepertoireData extends AbstractData {
 			else if($field == "title") {
 				$where .= "s.title LIKE \"%$value%\"";
 			}
+			else if($type == FieldType::BOOLEAN) {
+				if($value >= 0) {
+					$where .= $field . " = ";
+					$where .= $value == "on" || $value == 1 ? 1 : 0;
+				}
+			}
 			else if($type == FieldType::INTEGER
-					|| $type == FieldType::BOOLEAN
 					|| $type == FieldType::DECIMAL
 					|| $type == FieldType::REFERENCE) {
 				$where .= $field . " = " . $value;

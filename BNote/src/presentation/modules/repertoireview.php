@@ -93,7 +93,8 @@ class RepertoireView extends CrudRefView {
 			"music_key" => array("Tonart", FieldType::CHAR, ""),
 			"solist" => array("Solist", FieldType::SET, $this->getData()->getAllSolists()),
 			"status" => array("Status", FieldType::SET, $this->getData()->getStatuses()),
-			"composer" => array("Komponist", FieldType::SET, $this->getData()->getComposers())
+			"composer" => array("Komponist", FieldType::SET, $this->getData()->getComposers()),
+			"is_active" => array("Aktuell", FieldType::BOOLEAN, True)
 		);
 		foreach($filterList as $field => $info) {
 			$filter->addFilter($field, $info[0], $info[1], $info[2]);

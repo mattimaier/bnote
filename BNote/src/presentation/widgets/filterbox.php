@@ -102,6 +102,18 @@ class Filterbox implements iWriteable {
 					$element->setSelected(-1);
 				}
 			}
+			else if($infos["type"] == FieldType::BOOLEAN) {
+				$element = new Dropdown($column);
+				$element->addOption("-", -1);
+				$element->addOption(Lang::txt("yes"), 1);
+				$element->addOption(Lang::txt("no"), 0);
+				
+				$val = -1; // default
+				if(isset($_POST[$column])) {
+					$val = $_POST[$column];
+				}
+				$element->setSelected($val);
+			}
 			else {
 				$val = "";
 				if(isset($_POST[$column])) {
