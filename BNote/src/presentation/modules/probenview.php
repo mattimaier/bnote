@@ -604,18 +604,11 @@ class ProbenView extends CrudRefLocationView {
 		}
 		
 		// filtering
-		$form = new Form("Filter", $this->modePrefix() . "history");
-		$dd = new Dropdown("year");
-		$years = $this->getData()->getRehearsalYears();
-		for($i = 1; $i < count($years); $i++) {
-			$y = $years[$i]["year"];
-			$dd->addOption($y, $y);
-		}
-		$dd->setSelected($year);
-		
-		$form->addElement("Jahr", $dd);
-		$form->changeSubmitButton("Filtern");
-		$form->write();
+		$filters = new Filterbox($this->modePrefix() . "history");
+		$rehearsalYears = $this->getData()->getRehearsalYears();
+		$filters->addFilter("year", "Jahr", FieldType::SET, Filterbox::dbSelectionPreparation($rehearsalYears, "year", "year"));
+		$filters->setShowAllOption("year", FALSE);
+		$filters->write();
 		
 		// result
 		Writing::p("Klicke auf einen Eintrag um diesen anzuzeigen.");
@@ -630,6 +623,7 @@ class ProbenView extends CrudRefLocationView {
 		$tab->renameHeader("street", "Straße");
 		$tab->renameHeader("zip", "PLZ");
 		$tab->renameHeader("city", "Stadt");
+		$tab->showFilter(FALSE);
 		$tab->write();
 	}
 	

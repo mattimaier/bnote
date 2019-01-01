@@ -37,9 +37,17 @@ class Filterbox implements iWriteable {
 	 */
 	private $cssClass;
 	
+	/**
+	 * Whether a filter has the "Show all" option.
+	 * Format of array: $column => true|false
+	 * @var Array
+	 */
+	private $showAllOption;
+	
 	function __construct($link) {
 		$this->filters = array();
 		$this->nameCols = array();
+		$this->showAllOption = array();
 		$this->link = $link;
 		
 		$this->formname = "Filter";
@@ -47,7 +55,10 @@ class Filterbox implements iWriteable {
 	
 	function addFilter($column, $caption, $type, $values) {
 		$this->filters[$column] = array( "caption" => $caption, "type" => $type, "values" => $values );
-		$this->nameCols[$column] = array("name"); // default
+		
+		// defaults
+		$this->nameCols[$column] = array("name");
+		$this->showAllOption[$column] = TRUE; 
 	}
 	
 	function setHeading($heading) {
@@ -56,6 +67,10 @@ class Filterbox implements iWriteable {
 	
 	function setCssClass($cssClass) {
 		$this->cssClass = $cssClass;
+	}
+	
+	function setShowAllOption($column, $showAll = true) {
+		$this->showAllOption[$column] = $showAll;
 	}
 	
 	/**
@@ -76,7 +91,9 @@ class Filterbox implements iWriteable {
 			if($infos["type"] == FieldType::SET) {
 				// create a dropdown
 				$element = new Dropdown($column);
-				$element->addOption(Lang::txt("show_all"), -1);
+				if(isset($this->showAllOption[$column]) && $this->showAllOption[$column] === TRUE) {
+					$element->addOption(Lang::txt("show_all"), -1);
+				}
 				
 				foreach($infos["values"] as $i => $val) {
 					// build name
@@ -136,6 +153,22 @@ class Filterbox implements iWriteable {
 		</form>
 		</div>
 		<?php
+	}
+	
+	/**
+	 * Converts a DB selection array to a filterbox key-value array (named "id" and "name").
+	 * @param array $selection Database selection result.
+	 * @param String $idCol Name of the ID column, by default "id".
+	 * @param String $nameCol Name of the caption column, by default "name".
+	 */
+	public static function dbSelectionPreparation($selection, $idCol = "id", $nameCol = "name") {
+		$result = array();
+		for($i = 1; $i < count($selection); $i++) {
+			$row = $selection[$i];
+			$filterRow = array("id" => $row[$idCol], "name" => $row[$nameCol]);
+			array_push($result, $filterRow);
+		}
+		return $result;
 	}
 	
 }
