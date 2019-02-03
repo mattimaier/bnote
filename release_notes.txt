@@ -5,16 +5,18 @@
 #335 Allowing import of genre in repertoire
 #334 Bugfix for special characters in files and folders
 #331 Renewed concerts with many more features such as payment conditions and accommodation
-#330 Improved locations view
+#330 Improved locations module
 #328 Repertoire print and export
 #325 Custom fields in concerts, reservations and rehearsals
 #324 Conductor field in rehearsal and contact
+#323 Alphabetically ordered dropdown list
 #321 Improved gallery interface
 #320 App bugfix for null value meeting times
 #319 typo in rehearsals fixed
 #318 Calendar export with meeting time
 #317 GDPR mailing function
 #316 Customizable contact fields
+#315 Other appointments such as assemblies
 #314 GDPR reports and deletion functions as required within the EU
 #305 Configurable group view on start screen
 #300 Repertoire archive

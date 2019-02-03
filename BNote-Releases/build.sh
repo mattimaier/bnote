@@ -2,7 +2,7 @@
 ## BUILD FILE FOR BNote Releases
 
 # Check that the release name is given
-if [ "$1" == "" ]; then
+if ["$1" == ""]; then
 	echo "Usage: build.bash <release_number>";
 	exit -1;
 fi
