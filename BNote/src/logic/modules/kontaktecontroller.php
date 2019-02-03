@@ -226,7 +226,7 @@ class KontakteController extends DefaultController {
 			if($sepPos <= 0) continue;
 			$field = strtoupper(substr($line, 0, $sepPos));
 			$val = trim(substr($line, $sepPos+1));
-			if($field == "BEGIN" && $val == "VCARD") {
+			if($field == "BEGIN" && strtoupper($val) == "VCARD") {
 				$card = array();
 			}
 			if($field == "VERSION" || $field == "REV") continue;
@@ -260,7 +260,7 @@ class KontakteController extends DefaultController {
 			if(Data::startsWith($field, "ORG")) {
 				$card["company"] = $val;
 			}
-			if($field == "END" && $val == "VCARD") {
+			if($field == "END" && strtoupper($val) == "VCARD") {
 				array_push($cards, $card);
 			}
 		}
