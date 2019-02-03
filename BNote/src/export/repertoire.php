@@ -63,6 +63,9 @@ for($i = 0; $i < count($data); $i++) {
 	$rowData = array();
 	foreach($header as $j => $field) {
 		$fieldName = strtolower($field);
+		if(!isset($row[$fieldName])) {
+			$fieldName = $field;
+		}
 		if(isset($row[$fieldName])) {
 			array_push($rowData, $row[$fieldName]);
 		}
