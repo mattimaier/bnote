@@ -795,9 +795,13 @@ class Installation {
 				`group` int(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
-			array_push($queries,
-			"CREATE TABLE IF NOT EXISTS `rehearsal_group` (
+			array_push($queries, "CREATE TABLE IF NOT EXISTS `rehearsal_group` (
 				`rehearsal` int(11) NOT NULL,
+				`group` int(11) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+			
+			array_push($queries, "CREATE TABLE IF NOT EXISTS `concert_group` (
+				`concert` int(11) NOT NULL,
 				`group` int(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
