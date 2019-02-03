@@ -57,7 +57,7 @@ class KontaktdatenData extends KontakteData {
 	function getPIN($uid) {
 		$pin = $this->database->getCell($this->database->getUserTable(), "pin", "id = $uid");
 		if($pin == null || $pin == "") {
-			$pid = LoginController::createPin($this->database, $uid);
+			$pin = LoginController::createPin($this->database, $uid);
 		}
 		return $pin; 
 	}

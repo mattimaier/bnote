@@ -1,4 +1,5 @@
 <?php
+require_once $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
 
 /**
  * Data Access Class for vote data.
@@ -437,7 +438,11 @@ class AbstimmungData extends AbstractData {
 		if($uid == -1) {
 			$uid = $_SESSION["user"];
 		}
-		return $this->database->getCell($this->database->getUserTable(), "pin", "id = $uid");
+		$pin = $this->database->getCell($this->database->getUserTable(), "pin", "id = $uid");
+		if($pin == null || $pin == "") {
+			$pin = LoginController::createPin($this->database, $uid);
+		}
+		return $pin;
 	}
 	
 	function getOpenVoters($voteId) {
