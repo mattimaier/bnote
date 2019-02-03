@@ -25,9 +25,7 @@ class LocationsView extends CrudRefLocationView {
 		$form->removeElement("address");
 		$form->renameElement("Notes", "Notizen");
 		$form->setForeign("location_type", "location_type", "id", array("name"), 1);
-		
 		$this->addAddressFieldsToForm($form);
-		$this->appendCustomFieldsToForm($form, LocationsData::$CUSTOM_DATA_OTYPE);
 		
 		$form->write();
 	}
