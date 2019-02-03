@@ -46,7 +46,7 @@ $sysconfig = new XmlData($dir_prefix . $GLOBALS["DIR_CONFIG"] . "config.xml", "S
 // get access to repertoire data
 $repertoireData = new RepertoireData($dir_prefix);
 
-$data = $repertoireData->findAllJoinedOrdered(RepertoireData::getJoinedAttributes(), "title");
+$data = $repertoireData->exportData();
 $header = array();
 
 header("Content-Type: application/csv");

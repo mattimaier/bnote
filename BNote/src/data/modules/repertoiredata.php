@@ -428,6 +428,11 @@ class RepertoireData extends AbstractData {
 		$customData = $this->getCustomFieldData('s', $id);
 		return array_merge($row, $song, $customData);
 	}
+	
+	function exportData() {
+		$selection = $this->findAllJoinedOrdered(RepertoireData::getJoinedAttributes(), "title");
+		return $this->appendCustomDataToSelection('s', $selection);
+	}
 }
 
 ?>
