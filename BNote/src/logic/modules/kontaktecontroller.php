@@ -277,7 +277,7 @@ class KontakteController extends DefaultController {
 		$_POST["subject"] = "Einverständniserklärung DSGVO";
 		$templateContent = file_get_contents("data/gdpr_mail.php");
 		$templateContent .= $this->getData()->getSysdata()->getCompany() . "<br><br>";
-		$approveUrl = $this->getData()->getSysdata()->getSystemURL() . "main.php?mod=extGdpr&code=";
+		$approveUrl = $_SERVER["SCRIPT_FILENAME"] . "?mod=extGdpr&code=";
 		
 		$successful = 0;
 		foreach($addresses as $address) {
