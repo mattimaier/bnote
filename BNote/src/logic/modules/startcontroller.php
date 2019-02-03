@@ -21,11 +21,10 @@ class StartController extends DefaultController {
 				// save in DB
 				$this->getData()->getSysdata()->gdprAccept($accept);
 				if($accept == 0) {
-					//logout
-					header("location: ?mod=logout");
+					$this->getView()->flash("Schade. Du kannst BNote somit nicht nutzen.");
 				}
 				else {
-					header("location: ?mod=1");
+					$this->getView()->start();
 				}
 			}
 			else {

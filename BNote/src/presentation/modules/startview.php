@@ -81,7 +81,7 @@ class StartView extends CrudRefLocationView {
 	
 	function start() {
 		$news = $this->getData()->getNews();
-		if($news != "") {
+		if($news != "" || $this->getData()->getSysdata()->gdprOk() == 0) {
 			?>
 			<div class="start_box_news">
 				<?php 
