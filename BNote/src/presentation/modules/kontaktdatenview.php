@@ -27,6 +27,9 @@ class KontaktdatenView extends CrudRefLocationView {
 		$form->removeElement("address");
 		$form->removeElement("status");
 		$form->removeElement("is_conductor");
+		if($form->getElement("instrument") == null) {
+			$form->addElement("instrument", new Dropdown("instrument"));
+		}
 		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
 		
 		$address = $this->getData()->getAddress($contact["address"]);
