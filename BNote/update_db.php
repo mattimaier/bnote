@@ -225,87 +225,11 @@ $update = new UpdateDb();
 
 <?php 
 /*
- * 3.4.0 UPDATES
+ * 3.4.1 UPDATES
  * -------------
  */
 
-// Task 1: Archive flag for songs
-$update->addColumnToTable("song", "is_active", "INT(1) DEFAULT 1");
-
-// Task 2: GDPR OK flag and code on contacts
-$update->addColumnToTable("contact", "gdpr_ok", "INT(1) DEFAULT 0");
-$update->addColumnToTable("contact", "gdpr_code", "VARCHAR(255)");
-// set all current users with their contacts to GDPR ok not to break the use of the system if not a single user has gdpr_ok = 1
-$update->processGdprOk();
-
-// Task 3: Rehearsal conductor
-$update->addColumnToTable("rehearsal", "conductor", "INT(11)");  # contact
-$update->addColumnToTable("contact", "is_conductor", "INT(1) DEFAULT 0");
-$update->addDynConfigParam("default_conductor", "");
-
-// Task 4: Custom field extensions
-$update->addColumnToTable("customfield", "public_field", "INT(1) DEFAULT 0");
-$update->addColumnToTable("customfield_value", "dateval", "DATE");
-$update->addColumnToTable("customfield_value", "datetimeval", "DATETIME");
-
-// Task 5: Appointment submodule
-$update->addTable("appointment", "CREATE TABLE IF NOT EXISTS `appointment` (
-	id int(11) PRIMARY KEY AUTO_INCREMENT,
-	begin DATETIME NOT NULL,
-	end DATETIME NOT NULL,
-	name VARCHAR(100) NOT NULL,
-	location INT(11),
-	contact INT(11),
-	notes TEXT
-)");
-
-$update->addTable("appointment_group", "CREATE TABLE IF NOT EXISTS `appointment_group` (
-	`appointment` int(11) NOT NULL,
-	`group` int(11) NOT NULL
-)");
-
-// Task 6: Save rehearsal/concert groups
-$update->addTable("rehearsal_group", "CREATE TABLE IF NOT EXISTS `rehearsal_group` (
-	`rehearsal` int(11) NOT NULL,
-	`group` int(11) NOT NULL
-)");
-
-$update->addTable("concert_group", "CREATE TABLE IF NOT EXISTS `concert_group` (
-	`concert` int(11) NOT NULL,
-	`group` int(11) NOT NULL
-)");
-
-// Task 7: Add state field to address
-$update->addColumnToTable("address", "state", "VARCHAR(50)");
-$update->addDynConfigParam("default_country", "DEU");
-
-// Task 8: Document types
-$update->addTable("doctype", "CREATE TABLE IF NOT EXISTS `doctype` (
-	id int(11) PRIMARY KEY AUTO_INCREMENT,
-	name VARCHAR(100) NOT NULL,
-	is_active INT(1) NOT NULL DEFAULT 1
-)");
-$update->addColumnToTable("song_files", "doctype", "INT(11)");
-$numRowsDocType = $update->getNumberRows("doctype");
-if($numRowsDocType == 0) {
-	$update->executeQuery("INSERT INTO `doctype` (name, is_active) VALUES ('Noten', 1), ('Text', 1), ('Aufnahme', 1), ('Sonstiges', 1)");
-	$update->message("Default doctypes added");
-}
-
-// Task 9: Contact updates
-$update->addColumnToTable("contact", "company", "VARCHAR(100)");
-
-// Task 10: Concert updates
-$update->addColumnToTable("concert", "organizer", "VARCHAR(200)");
-$update->addColumnToTable("concert", "accommodation", "INT(11)");
-$update->addColumnToTable("concert", "payment", "DECIMAL(12,2)");
-$update->addColumnToTable("concert", "conditions", "TEXT");
-$update->addTable("concert_equipment", "CREATE TABLE IF NOT EXISTS `concert_equipment` (
-	`concert` int(11) NOT NULL,
-	`equipment` int(11) NOT NULL,
-	`amount` int(10) NOT NULL DEFAULT 1,
-	`notes` VARCHAR(255)
-)");
+// Task 1: tba 
 
 ?>
 
