@@ -23,7 +23,8 @@ class CustomFieldsData extends AbstractData {
 		"s" => "song",
 		"v" => "reservation",  # v = vacancy
 		"a" => "appointment",
-		"l" => "location"
+		"l" => "location",
+		"e" => "equipment"
 	);
 	
 	/**

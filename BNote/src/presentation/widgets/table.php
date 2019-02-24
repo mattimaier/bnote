@@ -224,6 +224,10 @@ class Table implements iWriteable {
 					if(isset($this->headernames[strtolower($value)])) {
 						$headerLabel = $this->headernames[strtolower($value)];
 					}
+					else if(isset($this->headernames[$value])) {
+						// technical debt
+						$headerLabel = $this->headernames[$value];
+					}
 					else {
 						$headerLabel = $value;
 					}
