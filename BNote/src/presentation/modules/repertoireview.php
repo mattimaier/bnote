@@ -419,6 +419,8 @@ class RepertoireView extends CrudRefView {
 		$form->addElement("Komponist/Arrangeur", $this->columnSelector("col_composer", $header));
 		$form->addElement("Tonart", $this->columnSelector("col_key", $header));
 		$form->addElement("Tempo (BPM)", $this->columnSelector("col_tempo", $header));
+		$form->addElement("Länge", $this->columnSelector("col_length", $header));
+		$form->addElement("Besetzung", $this->columnSelector("col_setting", $header));
 		$form->addElement("Notizen", $this->columnSelector("col_notes", $header));
 		$form->addElement("Genre", $this->columnSelector("col_genre", $header));
 		
