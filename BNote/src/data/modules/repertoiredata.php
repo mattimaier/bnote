@@ -245,7 +245,7 @@ class RepertoireData extends AbstractData {
 	function getFilteredRepertoire($filters, $offset=0, $pageSize=100) {
 		$query = "SELECT DISTINCT s.id, s.title, c.name as composer, s.length, s.bpm, s.music_key, s.notes, g.name as genre, stat.name as status, s.is_active ";
 		$query .= "FROM song s JOIN composer c ON s.composer = c.id ";
-		$query .= "JOIN genre g ON s.genre = g.id ";
+		$query .= "LEFT OUTER JOIN genre g ON s.genre = g.id ";
 		$query .= "JOIN status stat ON s.status = stat.id ";
 		$query .= "LEFT OUTER JOIN song_solist sol ON sol.song = s.id ";
 		
@@ -423,10 +423,16 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function getSong($id) {
-		$row = $this->findByIdNoRef($id);
-		$song = $this->findByIdJoined($id, RepertoireData::getJoinedAttributes());
+		$this->regex->isPositiveAmount($id);
+		$query = "SELECT s.*, g.name as genrename, t.name as statusname, c.name as composername
+				FROM " . $this->table . " s
+				LEFT OUTER JOIN genre g ON s.genre = g.id
+				JOIN status t ON s.status = t.id
+				LEFT OUTER JOIN composer c ON s.composer = c.id
+				WHERE s.id = $id";
+		$song = $this->database->getRow($query);
 		$customData = $this->getCustomFieldData('s', $id);
-		return array_merge($row, $song, $customData);
+		return array_merge($song, $customData);
 	}
 	
 	function exportData() {

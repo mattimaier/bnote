@@ -69,6 +69,8 @@ class RepertoireView extends CrudRefView {
 		
 		$form->removeElement("id");
 		$form->setForeign("genre", "genre", "id", "name", -1);
+		$genreDropdown = $form->getForeignElement("genre");
+		$genreDropdown->addOption("-", 0);
 		$form->setForeign("status", "status", "id", "name", -1);
 		
 		$form->removeElement("composer");
@@ -366,6 +368,8 @@ class RepertoireView extends CrudRefView {
 		$form->removeElement("id");
 		$form->renameElement("length", "Länge in Stunden");
 		$form->setForeign("genre", "genre", "id", "name", $song["genre"]);
+		$genreDropdown = $form->getForeignElement("genre");
+		$genreDropdown->addOption("-", 0);
 		$form->setForeign("status", "status", "id", "name", $song["status"]);
 		$form->removeElement("composer");
 		$form->addElement("Komponist/Arrangeur", new Field("composer",
