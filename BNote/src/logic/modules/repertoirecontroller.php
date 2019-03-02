@@ -252,7 +252,7 @@ class RepertoireController extends DefaultController {
 			"setting" => $setting
 		);
 	}
-	
+
 	protected function mapGenre($name) {
 		// preload all genres for faster mapping
 		if($this->genres == null) {
