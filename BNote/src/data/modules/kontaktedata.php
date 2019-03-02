@@ -97,8 +97,7 @@ class KontakteData extends AbstractLocationData {
 		$query .= "        ) as c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";
-		$query .= "LEFT JOIN instrument i ";
-		$query .= "ON c2.instrument = i.id ";
+		$query .= "LEFT OUTER JOIN instrument i ON c2.instrument = i.id ";
 		$query .= "ORDER BY c2.name ASC";
 		
 		$contacts = $this->filterSuperUsers($this->database->getSelection($query));
@@ -138,8 +137,7 @@ class KontakteData extends AbstractLocationData {
 		$query .= "  FROM contact c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";
-		$query .= "LEFT JOIN instrument i ";
-		$query .= "ON c2.instrument = i.id ";
+		$query .= "LEFT OUTER JOIN instrument i ON c2.instrument = i.id ";
 		return $query;
 	}
 	
