@@ -130,14 +130,14 @@ class RepertoireData extends AbstractData {
 				// Does composer exist?
 				$cid = $this->doesComposerExist($values["composer"]);
 				if($cid > 0) {
-					// YES
+					// YES: composer exists, but is not used by another song
+					$query = "UPDATE composer SET name = \"" . $values["composer"] . "\" WHERE id = $cid";
+					$this->database->execute($query);
 					$values["composer"] = $cid;
 				}
 				else {
-					// NO --> update composer
-					$query = "UPDATE composer SET name = \"" . $values["composer"] . "\" WHERE id = " . $song["composer"];
-					$this->database->execute($query);
-					$values["composer"] = $song["composer"];
+					// NO: composer exists and is not used by another song (obviously)
+					$values["composer"] = $this->createComposer($values["composer"]);
 				}
 			}
 		}
