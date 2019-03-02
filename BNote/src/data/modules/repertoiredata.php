@@ -17,7 +17,7 @@ class RepertoireData extends AbstractData {
 			"genre" => array("Genre", FieldType::REFERENCE),
 			"bpm" => array("Tempo (bpm)", FieldType::INTEGER),
 			"music_key" => array("Tonart", FieldType::CHAR),
-			"composer" => array("Komponist / Arrangeur", FieldType::CHAR, true),
+			"composer" => array("Komponist / Arrangeur", FieldType::CHAR),
 			"status" => array("Status", FieldType::REFERENCE),
 			"setting" => array("Besetzung", FieldType::CHAR),
 			"notes" => array("Anmerkungen", FieldType::TEXT),
@@ -63,7 +63,9 @@ class RepertoireData extends AbstractData {
 	
 	function create($values) {
 		// validation
-		$this->regex->isSubject($values["composer"]);
+		if(isset($values["composer"]) && $values["composer"] != "") {
+			$this->regex->isSubject($values["composer"]);
+		}
 		
 		// modify length
 		if($values["length"] == "") $values["length"] = "00"; 
@@ -79,33 +81,7 @@ class RepertoireData extends AbstractData {
 		/* look for composer, if there don't add him/her
 		 * -> use key, otherwise add and use key.
 		 */
-		$cid = $this->doesComposerExist($values["composer"]);
-		if($cid > 0) {
-			$values["composer"] = $cid;
-		}
-		else {
-			// add as a new composer
-			$query = "INSERT INTO composer (name) VALUES (\"" . $values["composer"] . "\")";
-			$values["composer"] = $this->database->execute($query);
-		}
-		
-		$id = parent::create($values);
-		
-		// custom data
-		$this->createCustomFieldData('s', $id, $values);
-		
-		return $id;
-	}
-	
-	function update($id, $values) {
-		// convert title and composer
-		$values["composer"] = $this->modifyString($values["composer"]);
-		$values["title"] = $this->modifyString($values["title"]);
-		
-		$song = $this->findByIdNoRef($id);
-		// don't update composer if used by another song
-		if($this->isComposerUsedByAnotherSong($song["composer"])) {
-			// is new composer already in list?
+		if(isset($values["composer"]) && $values["composer"] != "") {
 			$cid = $this->doesComposerExist($values["composer"]);
 			if($cid > 0) {
 				$values["composer"] = $cid;
@@ -117,10 +93,57 @@ class RepertoireData extends AbstractData {
 			}
 		}
 		else {
-			// update composer
-			$query = "UPDATE composer SET name = \"" . $values["composer"] . "\" WHERE id = " . $song["composer"];
-			$this->database->execute($query);
-			$values["composer"] = $song["composer"];
+			$values["composer"] = 0;
+		}
+		
+		$id = parent::create($values);
+		
+		// custom data
+		$this->createCustomFieldData('s', $id, $values);
+		
+		return $id;
+	}
+	
+	function update($id, $values) {
+		$song = $this->findByIdNoRef($id);
+		
+		// convert title and composer
+		$values["title"] = $this->modifyString($values["title"]);
+		
+		if(isset($values["composer"]) && $values["composer"] != "") {
+			$values["composer"] = $this->modifyString($values["composer"]);
+						
+			// UPDATE composer only if not used by another song
+			if($this->isComposerUsedByAnotherSong($song["composer"])) {
+				// Does composer exist?
+				$cid = $this->doesComposerExist($values["composer"]);
+				if($cid > 0) {
+					// YES
+					$values["composer"] = $cid;
+				}
+				else {
+					// NO --> create composer
+					$values["composer"] = $this->createComposer($values["composer"]);
+				}
+			}
+			else {
+				// Does composer exist?
+				$cid = $this->doesComposerExist($values["composer"]);
+				if($cid > 0) {
+					// YES
+					$values["composer"] = $cid;
+				}
+				else {
+					// NO --> update composer
+					$query = "UPDATE composer SET name = \"" . $values["composer"] . "\" WHERE id = " . $song["composer"];
+					$this->database->execute($query);
+					$values["composer"] = $song["composer"];
+				}
+			}
+		}
+		else {
+			// 3) REMOVE composer from song
+			$values["composer"] = 0;
 		}
 		
 		// modify bpm
@@ -138,6 +161,12 @@ class RepertoireData extends AbstractData {
 		$this->updateCustomFieldData('s', $id, $values);
 	}
 	
+	protected function createComposer($name) {
+		$this->regex->isSubject($name);
+		$query = "INSERT INTO composer (name) VALUES (\"$name\")";
+		return $this->database->execute($query);
+	}
+	
 	function delete($id) {
 		// custom data
 		$this->deleteCustomFieldData('s', $id);
@@ -147,7 +176,10 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function getComposerName($id) {
-		return $this->database->getCell("composer", "name", "id = $id");
+		if($id > 0) {
+			return $this->database->getCell("composer", "name", "id = $id");
+		}
+		return "";
 	}
 	
 	function totalRepertoireLength() {
@@ -165,6 +197,9 @@ class RepertoireData extends AbstractData {
 	 * @return The ID of the existent composer or -1 if not exists.
 	 */
 	private function doesComposerExist($name) {
+		if($name == "") {
+			return -1;
+		}
 		$ct = $this->database->getCell("composer", "count(id)", "name = \"$name\"");
 		if($ct < 1) return -1;
 		else {
@@ -244,10 +279,11 @@ class RepertoireData extends AbstractData {
 	
 	function getFilteredRepertoire($filters, $offset=0, $pageSize=100) {
 		$query = "SELECT DISTINCT s.id, s.title, c.name as composer, s.length, s.bpm, s.music_key, s.notes, g.name as genre, stat.name as status, s.is_active ";
-		$query .= "FROM song s JOIN composer c ON s.composer = c.id ";
-		$query .= "LEFT OUTER JOIN genre g ON s.genre = g.id ";
-		$query .= "JOIN status stat ON s.status = stat.id ";
-		$query .= "LEFT OUTER JOIN song_solist sol ON sol.song = s.id ";
+		$query .= "FROM song s 
+				LEFT OUTER JOIN composer c ON s.composer = c.id 
+				LEFT OUTER JOIN genre g ON s.genre = g.id 
+				JOIN status stat ON s.status = stat.id 
+				LEFT OUTER JOIN song_solist sol ON sol.song = s.id ";
 		
 		// remove empty values from filters
 		$cleanFilters = array();
