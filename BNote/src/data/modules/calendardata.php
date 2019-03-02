@@ -76,7 +76,8 @@ class CalendarData extends AbstractLocationData {
 			
 			foreach($fields as $field) {
 				if(isset($key_replace[$field])) {
-					$res_row[$key_replace[$field]] = $row[$field];
+					$replaceKey = $key_replace[$field];
+					$res_row[$replaceKey] = $row[$field];
 				}
 				else {
 					$res_row[$field] = $row[$field];
@@ -96,7 +97,12 @@ class CalendarData extends AbstractLocationData {
 				if($detailValue == null) {
 					$detailValue = "";
 				}
-				$res_row["details"][Lang::txt("calendar_" . $field)] = $detailValue;
+				if(isset($key_replace[$field])) {
+					$res_row["details"][Lang::txt($replaceKey)] = $detailValue;
+				}
+				else {
+					$res_row["details"][Lang::txt("calendar_" . $field)] = $detailValue;
+				}
 			}
 			
 			if(isset($res_row["title"])) {
@@ -148,8 +154,8 @@ class CalendarData extends AbstractLocationData {
 		$rehs = $this->reduce_data(
 				"rehearsal",
 				$rehs_db,
-				array("id", "begin", "end", "approve_until", "notes"),
-				array("begin" => "start"),
+				array("id", "begin", "end", "approve_until", "name", "notes"),
+				array("begin" => "start", "name" => "location"),
 				Lang::txt("calendar_rehearsal"),
 				"?mod=" . $this->getSysdata()->getModuleId("Proben") . "&mode=view&id="
 		);

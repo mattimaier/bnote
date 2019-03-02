@@ -180,6 +180,7 @@ class Translation extends BNoteTranslation {
 			"tour" => "Tour",
 			"map" => "Karte",
 			"accounts" => "Konten",
+			"start" => "Beginn",
 			
 			// module: start
 			"start_calendarExport" => "Kalender Export",
@@ -343,6 +344,7 @@ class Translation extends BNoteTranslation {
 			"calendar_end_vote" => "Abst.-Ende:",
 			"calendar_birthday" => "Geb.:",
 			"calendar_reservation" => "Res.:",
+			"calendar_start" => "Beginn",
 			"calendar_begin" => "Beginn",
 			"calendar_end" => "Ende",
 			"calendar_notes" => "Anmerkungen",
