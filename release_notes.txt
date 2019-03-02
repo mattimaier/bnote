@@ -1,5 +1,10 @@
 #############################################
-# Changes to BNote in comparison with 3.3.2 #
+# Changes to BNote in comparison with 3.4.0 #
 #############################################
 
-#000 ABC
+#339 Rehearsal location in calendar details
+#341 Import setting and length of songs from CSV
+#342 Add custom fields also for equipments
+#346 Show contacts without instrument set
+#347 Use band address as sender of account mail
+#348 Optional composer and genre for songs

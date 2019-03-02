@@ -1,5 +1,3 @@
-#!/bin/sh
-
 tmp_dir="BNote-Releases/tmp"
 
 # Check if the first argument is set
@@ -30,3 +28,5 @@ find $tmp_dir -name .DS_Store -delete
 
 # Create zip file
 zip -r BNote-Releases/BNote/Patches/bnote_latest_patch.zip $tmp_dir
+
+
