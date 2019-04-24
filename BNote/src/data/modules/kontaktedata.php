@@ -178,10 +178,11 @@ class KontakteData extends AbstractLocationData {
 		$addy["street"] = isset($values['street']) ? $values["street"] : "";
 		$addy["city"] = isset($values['city']) ? $values["city"] : "";
 		$addy["zip"] = isset($values['zip']) ? $values["zip"] : "";
+		$addy["country"] = isset($values['country']) ? $values["country"] : "";
 		
 		// simply create one address per contact
-		$query = "INSERT INTO address (street, city, zip) VALUES (";
-		$query .= " \"" . $addy["street"] . "\", \"" . $addy["city"] . "\", \"" . $addy["zip"] . "\")";
+		$query = "INSERT INTO address (street, city, zip, country) VALUES (";
+		$query .= " \"" . $addy["street"] . "\", \"" . $addy["city"] . "\", \"" . $addy["zip"] . "\", \"" . $addy["country"] . "\")";
 		$values["address"] = $this->database->execute($query);
 		
 		$cid = parent::create($values);
