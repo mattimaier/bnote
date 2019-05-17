@@ -122,8 +122,8 @@ class LoginData extends AbstractData {
 	}
 	
 	function createAddress() {
-		$query = "INSERT INTO address (street, city, zip) VALUES (";
-		$query .= '"' . $_POST["street"] . '", "' . $_POST["city"] . '", "' . $_POST["zip"] . '"';
+		$query = "INSERT INTO address (street, city, zip, country) VALUES (";
+		$query .= '"' . $_POST["street"] . '", "' . $_POST["city"] . '", "' . $_POST["zip"] . '", "' . $_POST["country"] . '"';
 		$query .= ")";
 		return $this->database->execute($query);
 	}
