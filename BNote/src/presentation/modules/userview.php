@@ -131,7 +131,7 @@ class UserView extends CrudRefView {
 	
 	function editEntityForm($write=true) {
 		$user = $this->getData()->findByIdNoRef($_GET["id"]);
-		$form = new Form($this->getData()->getUsername($_GET["id"]) . " bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
+		$form = new Form($this->getData()->getUsername($_GET["id"]) . Lang::txt("UserView_editEntityForm.edit_process"), $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->addElement(Lang::txt("UserView_editEntityForm.login"), new Field("login", $user["login"], 99));
 		$form->addElement(Lang::txt("UserView_editEntityForm.password"), new Field("password", "", FieldType::PASSWORD));
 		$form->addHidden("isActive", $user["isActive"]);

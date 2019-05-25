@@ -7,7 +7,7 @@ class TravelView extends CrudRefView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName(Lang::txt("travel"));
+		$this->setEntityName(Lang::txt("TravelView_construct.EntityName"));
 		$this->setJoinedAttributes(array(
 			"tour" => array("id", "name")
 		));

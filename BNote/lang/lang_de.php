@@ -805,6 +805,7 @@ class Translation extends BNoteTranslation {
 			"KonfigurationView_construct.EntityName" => "Konfiguration",
 			"KonfigurationView_start.warning" => "Bitte klicke auf eine Zeile um deren Wert zu ändern.",
 			"KonfigurationView_start.caption" => "Parameter",
+			"KonfigurationView_start.value" => "Wert",
 			"KonfigurationView_start.group" => "Wert",
 			"KonfigurationView_start.conductor" => "Wert",			
 			"KonfigurationView_start.country" => "Land",
@@ -1482,7 +1483,42 @@ class Translation extends BNoteTranslation {
 			"RecpayData_ref2val.no_otype" => "[keine Referenz]",
 			"RecpayData_getRecurringPayments.type_0" => "Einnahme",
 			"RecpayData_getRecurringPayments.type_1" => "Ausgabe",
-
+			
+			// RecpayView
+			"RecpayView_construct.EntityName" => "Laufende Zahlung",
+			"RecpayView_showAllTableGenerator.accountname" => "Konto",
+			"RecpayView_startOptions.back" => "Zurück",
+			"RecpayView_startOptions.book" => "Buchen",
+			"RecpayView_changeReference.otype" => "[keine Referenz]",
+			"RecpayView_changeReference.contact" => "Kontakt",
+			"RecpayView_changeReference.concert" => "Auftritt",
+			"RecpayView_changeReference.rehearsalphase" => "Probenphase",
+			"RecpayView_changeReference.location" => "Ort",
+			"RecpayView_changeReference.tour" => "Tour",
+			"RecpayView_changeReference.equipment" => "Equipment",
+			"RecpayView_addEntityForm.form" => "Laufende Zahlung hinzufügen",
+			"RecpayView_addEntityForm.btype" => "Typ",
+			"RecpayView_addEntityForm.otype" => "Referenztyp",
+			"RecpayView_editEntityForm.btype" => "Typ",
+			"RecpayView_book.title" => "Laufende Zahlungen Buchen",
+			"RecpayView_book.bdate" => "Datum",
+			"RecpayView_book.book" => "Buchen",
+			"RecpayView_book.submit" => "Buchen",
+			"RecpayView_bookProcess.message_1" => "Buchung erfolgreich",
+			"RecpayView_bookProcess.message_2" => "Alle Buchungen wurden erfolgreich eingefügt.",
+			"RecpayView_viewDetailTable.expense" => "Ausgabe",
+			"RecpayView_viewDetailTable.income" => "Einnahme",
+			"RecpayView_viewDetailTable.accountname" => "Konto",
+			"RecpayView_objectReferenceTypeToText.H" => "Kontakt",
+			"RecpayView_objectReferenceTypeToText.C" => "Auftritt",
+			"RecpayView_objectReferenceTypeToText.P" => "Probenphase",
+			"RecpayView_objectReferenceTypeToText.L" => "Ort",
+			"RecpayView_objectReferenceTypeToText.T" => "Tour",
+			"RecpayView_objectReferenceTypeToText.E" => "Equipment",
+			"RecpayView_viewOptions.edit" => "%p bearbeiten",
+			"RecpayView_viewOptions.delete_confirm" => "%p löschen",
+			"RecpayView_backToStart.back" => "Zurück",
+			
 			// module: Repertoire *********************************************
 			
 			// RepertoireData
@@ -1818,6 +1854,7 @@ class Translation extends BNoteTranslation {
 			// module: Travel *********************************************
 
 			// TravelView	
+			"TravelView_construct.EntityName" => "Transfer",
 			"TravelView_viewDetailTable.tourname" => "Tour",
 			
 			// TravelData			
@@ -1899,7 +1936,7 @@ class Translation extends BNoteTranslation {
 			"UserView_additionalViewButtons.no_entry" => "Benutzer deaktivieren",
 			"UserView_additionalViewButtons.no_entry" => "Benutzer aktivieren",
 			"UserView_view.user" => "Benutzer ",
-			
+			"UserView_editEntityForm.edit_process" => " bearbeiten",
 			
 			// module: Website *********************************************
 
