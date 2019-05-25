@@ -224,10 +224,6 @@ class Table implements iWriteable {
 					if(isset($this->headernames[strtolower($value)])) {
 						$headerLabel = $this->headernames[strtolower($value)];
 					}
-					else if(isset($this->headernames[$value])) {
-						// technical debt
-						$headerLabel = $this->headernames[$value];
-					}
 					else {
 						$headerLabel = $value;
 					}
@@ -300,8 +296,8 @@ class Table implements iWriteable {
 							$value = Data::convertDateFromDb($value);
 						}
 						if($this->formats[$id] == "BOOLEAN") {
-							if($value == 1) $value = Lang::txt("yes");
-							else $value = Lang::txt("no");
+							if($value == 1) $value = Lang::txt("Table_write.yes");
+							else $value = Lang::txt("Table_write.yes");
 						}
 					}
 
@@ -337,7 +333,7 @@ class Table implements iWriteable {
 
 			# Write empty message
 			if($empty) {
-				echo ' <TR><TD colspan="' . $colcount . '">[' . Lang::txt("table_no_entries") . ']</TD></TR>' . "\n";
+				echo ' <TR><TD colspan="' . $colcount . '">[' . Lang::txt("Table_write.table_no_entries") . ']</TD></TR>' . "\n";
 			}
 		}
 		
@@ -355,8 +351,8 @@ class Table implements iWriteable {
 		echo "</table>\n";
 		if($this->isPaginated) {
 			?>
-			<a href="<?php echo $this->paginationLinkPrev; ?>"><div class="DataTable_prevpage"><?php echo Lang::txt("table_prev"); ?></div></a>
-			<a href="<?php echo $this->paginationLinkNext; ?>"><div class="DataTable_nextpage"><?php echo Lang::txt("table_next"); ?></div></a>
+			<a href="<?php echo $this->paginationLinkPrev; ?>"><div class="DataTable_prevpage"><?php echo Lang::txt("Table_write.prevpage"); ?></div></a>
+			<a href="<?php echo $this->paginationLinkNext; ?>"><div class="DataTable_nextpage"><?php echo Lang::txt("Table_write.nextpage"); ?></div></a>
 			<?php
 		}
 
@@ -370,10 +366,10 @@ class Table implements iWriteable {
 					 "paging": false, 
 					 "info": false,  
 					 "oLanguage": {
-				 		 "sEmptyTable":  "<?php echo Lang::txt("table_no_entries"); ?>",
-						 "sInfoEmpty":  "<?php echo Lang::txt("table_no_entries"); ?>",
-						 "sZeroRecords":  "<?php echo Lang::txt("table_no_entries"); ?>",
-	        			 "sSearch": "<?php echo Lang::txt("table_search"); ?>"
+				 		 "sEmptyTable":  "<?php echo Lang::txt("Table_write.sEmptyTable"); ?>",
+						 "sInfoEmpty":  "<?php echo Lang::txt("Table_write.sInfoEmpty"); ?>",
+						 "sZeroRecords":  "<?php echo Lang::txt("Table_write.sZeroRecords"); ?>",
+	        			 "sSearch": "<?php echo Lang::txt("Table_write.sSearch"); ?>"
 			 		 }
 				});
 			});

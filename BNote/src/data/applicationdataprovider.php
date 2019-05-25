@@ -123,7 +123,7 @@ class ApplicationDataProvider {
 	 * @return All rehearsals joined with location and address.
 	 */
 	public function getFutureRehearsals($withGroups=false) {
-		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes as notes, name, street, city, zip, state, country, l.id as location";
+		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes as notes, name, street, city, zip, l.id as location";
 		$query .= " FROM rehearsal r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
 		$query .= " AND end > NOW() ORDER BY begin ASC";
@@ -320,7 +320,8 @@ class ApplicationDataProvider {
 		$query .= "  FROM contact c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";
-		$query .= "LEFT OUTER JOIN instrument i ON c2.instrument = i.id ";
+		$query .= "LEFT JOIN instrument i ";
+		$query .= "ON c2.instrument = i.id ";
 		
 		// filter out super users
 		$suContacts = $this->sysdata->getSuperUserContactIDs();

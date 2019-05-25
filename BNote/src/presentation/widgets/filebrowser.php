@@ -105,7 +105,7 @@ class Filebrowser implements iWriteable {
 		
 		// check permission for folder to prevent URL hacks within the system
 		if(!$this->adp->getSecurityManager()->canUserAccessFile($this->path)) {
-			new BNoteError("Zugriff verweigert.");
+			new BNoteError(Lang::txt("Filebrowser_write.error"));
 		}
 		
 		// execute functions
@@ -128,12 +128,12 @@ class Filebrowser implements iWriteable {
 				$path = "/";
 			}
 			
-			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($path)), Lang::txt("addFolder"));
+			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($path)), Lang::txt("Filebrowser_showOptions.addFolderForm"));
 			$lnk->addIcon("plus");
 			$lnk->write();
 			
 			AbstractView::buttonSpace();
-			$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($path)), Lang::txt("addFile"));
+			$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($path)), Lang::txt("Filebrowser_showOptions.addFileForm"));
 			$lnk->addIcon("plus");
 			$lnk->write();
 		}
@@ -142,7 +142,7 @@ class Filebrowser implements iWriteable {
 		if($this->sysdata->getDynamicConfigParameter("allow_zip_download") == "1") {
 			// only allow downloads of subfolders, not the root-folders to prevent heavy load on server
 			AbstractView::buttonSpace();
-			$dl = new Link($this->linkprefix("download&path=" . urlencode($this->path)), Lang::txt("folderAsZip"));
+			$dl = new Link($this->linkprefix("download&path=" . urlencode($this->path)), Lang::txt("Filebrowser_showOptions.download"));
 			$dl->addIcon("arrow_down");
 			$dl->write();
 		}
@@ -178,7 +178,7 @@ class Filebrowser implements iWriteable {
 		// show the folders and their contents
 		?>
 		<div class="filebrowser_favs_container">
-			<div class="filebrowser_favs_title"><?php echo Lang::txt("favorites"); ?></div>
+			<div class="filebrowser_favs_title"><?php echo Lang::txt("Filebrowser_mainView.writeFavs"); ?></div>
 			<?php $this->writeFavs(); ?>
 		</div>
 		
@@ -191,7 +191,7 @@ class Filebrowser implements iWriteable {
 			  <div class="fallback">
 			    <input name="file" type="file" multiple />
 			  </div>
-			  <div class="dz-message" data-dz-message><span>Dateien auf diesen Bereich ziehen um Sie dem Ordner hinzuzufügen</span></div>
+			  <div class="dz-message" data-dz-message><span><?php echo Lang::txt("Filebrowser_mainView.addFile"); ?></span></div>
 			</form>
 		</div>
 		<?php
@@ -204,12 +204,12 @@ class Filebrowser implements iWriteable {
 	private function writeFavs() {
 		// get favorite dirs
 		$favs = array(
-			Lang::txt("myFiles") => $this->sysdata->getUsersHomeDir(),
-			Lang::txt("commonShare") => $this->root
+			Lang::txt("Filebrowser_writeFavs.myFiles") => $this->sysdata->getUsersHomeDir(),
+			Lang::txt("Filebrowser_writeFavs.commonShare") => $this->root
 		);
 		
 		if($this->adp->getSecurityManager()->isUserAdmin()) {
-			$favs[Lang::txt("userFolder")] = $GLOBALS["DATA_PATHS"]["userhome"];
+			$favs[Lang::txt("Filebrowser_writeFavs.userFolder")] = $GLOBALS["DATA_PATHS"]["userhome"];
 		}
 		
 		$groups = $this->adp->getUsersGroups();
@@ -266,7 +266,7 @@ class Filebrowser implements iWriteable {
 	 */
 	private function writeFolderContent() {
 		if($this->path == "") {
-			Writing::p(Lang::txt("selectFolder"));
+			Writing::p(Lang::txt("Filebrowser_writeFolderContent.message"));
 		}
 		else {
 			$caption = $this->getFolderCaption();
@@ -331,8 +331,8 @@ class Filebrowser implements iWriteable {
 	}
 	
 	private function addFolderForm() {
-		$form = new Form(Lang::txt("createFolder"), $this->linkprefix("addFolder&path=" . $this->path));
-		$form->addElement(Lang::txt("foldername"), new Field("folder", "", FieldType::CHAR));
+		$form = new Form(Lang::txt("Filebrowser_addFolderForm.addFolder"), $this->linkprefix("addFolder&path=" . $this->path));
+		$form->addElement(Lang::txt("Filebrowser_addFolderForm.foldername"), new Field("folder", "", FieldType::CHAR));
 		$form->addHidden("path", urlencode($_GET["path"]));
 		$form->write();
 	}
@@ -352,7 +352,7 @@ class Filebrowser implements iWriteable {
 	private function addFile() {
 		// check permission
 		if($this->viewmode) {
-			new BNoteError(Lang::txt("noFileAddPermission"));
+			new BNoteError(Lang::txt("Filebrowser_addFile.error_1"));
 		}
 		
 		// validate upload
@@ -361,20 +361,20 @@ class Filebrowser implements iWriteable {
 		}
 		if($_FILES["file"]["error"] > 0) {
 			switch($_FILES["file"]["error"]) {
-				case 1: $msg = Lang::txt("errorFileMaxSize"); break;
-				case 2: $msg = Lang::txt("errorFileMaxSize"); break;
-				case 3: $msg = Lang::txt("errorFileAbort"); break;
-				case 4: $msg = Lang::txt("errorNoFile"); break;
-				default: $msg = Lang::txt("errorSavingFile"); break;
+				case 1: $msg = Lang::txt("Filebrowser_addFile.errorFileMaxSize"); break;
+				case 2: $msg = Lang::txt("Filebrowser_addFile.errorFileMaxSize"); break;
+				case 3: $msg = Lang::txt("Filebrowser_addFile.errorFileAbort"); break;
+				case 4: $msg = Lang::txt("Filebrowser_addFile.errorNoFile"); break;
+				default: $msg = Lang::txt("Filebrowser_addFile.errorSavingFile"); break;
 			}
 			new BNoteError($msg);
 		}
 		if(!is_uploaded_file($_FILES["file"]["tmp_name"])) {
-			new BNoteError(Lang::txt("errorUploadingFile"));
+			new BNoteError(Lang::txt("Filebrowser_addFile.error_2"));
 		}
 		
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_WRITE, $this->root . $this->path)) {
-			new BNoteError(Lang::txt("noFileAddPermission"));
+			new BNoteError(Lang::txt("Filebrowser_addFile.error_3"));
 		}
 		
 		// copy file to target directory
@@ -386,7 +386,7 @@ class Filebrowser implements iWriteable {
 		}
 		
 		if(!copy($_FILES["file"]["tmp_name"], $target . "/" . $targetFilename)) {
-			new BNoteError(Lang::txt("errorSavingFile"));
+			new BNoteError(Lang::txt("Filebrowser_addFile.error_4"));
 		}
 		
 		$this->mainView();
@@ -398,19 +398,19 @@ class Filebrowser implements iWriteable {
 	private function deleteFile() {
 		// check permission
 		if($this->viewmode) {
-			new BNoteError(Lang::txt("errorDeletingFile"));
+			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_1"));
 		}
 		
 		// decode filename
 		if(!isset($_GET["file"])) {
-			new BNoteError(Lang::txt("errorFileNotFound"));
+			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_2"));
 		}
 		$fn = urldecode($_GET["file"]);
 		$fullpath = $this->root . $this->path . "/" . $fn; 
 		
 		// check permission to delete
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $this->path . "/" . $fn)) {
-			new BNoteError(Lang::txt("errorDeletingFile"));
+			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_3"));
 		}
 		
 		if(is_dir($fullpath)) {
@@ -429,7 +429,7 @@ class Filebrowser implements iWriteable {
 	private function addFolder() {		
 		// check permission
 		if($this->viewmode) {
-			new BNoteError(Lang::txt("noFolderAddPermission"));
+			new BNoteError(Lang::txt("Filebrowser_addFolder.error_1"));
 		}
 		
 		// validate name
@@ -438,7 +438,7 @@ class Filebrowser implements iWriteable {
 		
 		// prevent user from adding reserved directories to root folder
 		if($_POST["folder"] == "users" || $_POST["folder"] == "groups") {
-			new BNoteError(Lang::txt("errorReservedFolderNames"));
+			new BNoteError(Lang::txt("Filebrowser_addFolder.error_2"));
 		}
 		
 		// create folder in root
@@ -510,7 +510,7 @@ class Filebrowser implements iWriteable {
 					if($this->levelUp() != null) {
 						$showLink = $this->linkprefix("view&path=" . urlencode($this->levelUp()));
 						$iconName = "arrow_up";
-						$openLink = new Link($showLink, Lang::txt("open"));
+						$openLink = new Link($showLink, Lang::txt("Filebrowser_getFilesFromFolder.open"));
 						$openLink->addIcon($iconName);
 						$show = $openLink->toString();
 					}
@@ -520,7 +520,7 @@ class Filebrowser implements iWriteable {
 				}
 				else {
 					$showLink = $this->linkprefix("view&path=" . urlencode($fullpath . "/"));
-					$openLink = new Link($showLink, Lang::txt("open"));
+					$openLink = new Link($showLink, Lang::txt("Filebrowser_getFilesFromFolder.open"));
 					$openLink->addIcon($iconName);
 					$show = $openLink->toString();
 				}
@@ -529,7 +529,7 @@ class Filebrowser implements iWriteable {
 				# file
 				$sharePath = substr($fullpath, strlen($this->root)-1);
 				$showLink = $this->sysdata->getFileHandler() . "?file=" . $sharePath;
-				$showLnk = new Link($showLink, Lang::txt("download"));
+				$showLnk = new Link($showLink, Lang::txt("Filebrowser_getFilesFromFolder.download"));
 				$showLnk->setTarget("_blank");
 				$showLnk->addIcon("arrow_down");
 				$show = $showLnk->toString();
@@ -540,7 +540,7 @@ class Filebrowser implements iWriteable {
 			
 			if(!$this->viewmode) { 
 				$delLink = $this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file));
-				$delLnk = new Link($delLink, Lang::txt("delete"));
+				$delLnk = new Link($delLink, Lang::txt("Filebrowser_getFilesFromFolder.delete"));
 				$delLnk->addIcon("remove");
 				$delete = $delLnk->toString();
 			}
@@ -592,7 +592,7 @@ class Filebrowser implements iWriteable {
 		
 	private function getFolderCaption() {		
 		if($this->root . $this->path == $this->sysdata->getUsersHomeDir() . "/") {
-			return Lang::txt("myFiles");
+			return Lang::txt("Filebrowser_getFolderCaption.myFiles");
 		}
 		else if(Data::startsWith($this->path, "groups")) {
 			$gid = $this->getGroupIdFromPath();
@@ -601,10 +601,10 @@ class Filebrowser implements iWriteable {
 			return $groupName;
 		}
 		else if($this->path == "users/") {
-			return Lang::txt("userFolder");
+			return Lang::txt("Filebrowser_getFolderCaption.userFolder");
 		}
 		else if($this->path == "/") {
-			return Lang::txt("commonShare");
+			return Lang::txt("Filebrowser_getFolderCaption.commonShare");
 		}
 		else {
 			return $this->path;
@@ -675,15 +675,15 @@ class Filebrowser implements iWriteable {
 		// create zip file by closing this archive
 		$zip->close();
 		
-		Writing::p(Lang::txt("archiveCreated"));
+		Writing::p(Lang::txt("Filebrowser_download.archiveCreated"));
 		
-		$link = new Link($this->sysdata->getFileHandler() . "?file=" . $zip_suffix, Lang::txt("downloadArchive"));
+		$link = new Link($this->sysdata->getFileHandler() . "?file=" . $zip_suffix, Lang::txt("Filebrowser_download.downloadArchive"));
 		$link->setTarget("_blank");
 		$link->addIcon("arrow_down");
 		$link->write();
 		AbstractView::buttonSpace();
 		
-		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)), Lang::txt("back"));
+		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)), Lang::txt("Filebrowser_download.back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 	}

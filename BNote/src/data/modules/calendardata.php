@@ -18,13 +18,13 @@ class CalendarData extends AbstractLocationData {
 	
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array(Lang::txt("id"), FieldType::INTEGER),
-			"begin" => array(Lang::txt("begin"), FieldType::DATETIME),
-			"end" => array(Lang::txt("end"), FieldType::DATETIME),
-			"name" => array(Lang::txt("name"), FieldType::CHAR),
-			"location" => array(Lang::txt("location"), FieldType::REFERENCE),
-			"contact" => array(Lang::txt("contact"), FieldType::REFERENCE),
-			"notes" => array(Lang::txt("notes"), FieldType::TEXT)
+			"id" => array(Lang::txt("CalendarData_construct.id"), FieldType::INTEGER),
+			"begin" => array(Lang::txt("CalendarData_construct.begin"), FieldType::DATETIME),
+			"end" => array(Lang::txt("CalendarData_construct.end"), FieldType::DATETIME),
+			"name" => array(Lang::txt("CalendarData_construct.name"), FieldType::CHAR),
+			"location" => array(Lang::txt("CalendarData_construct.location"), FieldType::REFERENCE),
+			"contact" => array(Lang::txt("CalendarData_construct.contact"), FieldType::REFERENCE),
+			"notes" => array(Lang::txt("CalendarData_construct.notes"), FieldType::TEXT)
 		);
 		
 		$this->references = array(
@@ -76,8 +76,7 @@ class CalendarData extends AbstractLocationData {
 			
 			foreach($fields as $field) {
 				if(isset($key_replace[$field])) {
-					$replaceKey = $key_replace[$field];
-					$res_row[$replaceKey] = $row[$field];
+					$res_row[$key_replace[$field]] = $row[$field];
 				}
 				else {
 					$res_row[$field] = $row[$field];
@@ -97,12 +96,7 @@ class CalendarData extends AbstractLocationData {
 				if($detailValue == null) {
 					$detailValue = "";
 				}
-				if(isset($key_replace[$field])) {
-					$res_row["details"][Lang::txt($replaceKey)] = $detailValue;
-				}
-				else {
-					$res_row["details"][Lang::txt("calendar_" . $field)] = $detailValue;
-				}
+				$res_row["details"][Lang::txt("calendar_" . $field)] = $detailValue;
 			}
 			
 			if(isset($res_row["title"])) {
@@ -154,9 +148,9 @@ class CalendarData extends AbstractLocationData {
 		$rehs = $this->reduce_data(
 				"rehearsal",
 				$rehs_db,
-				array("id", "begin", "end", "approve_until", "name", "notes"),
-				array("begin" => "start", "name" => "location"),
-				Lang::txt("calendar_rehearsal"),
+				array("id", "begin", "end", "approve_until", "notes"),
+				array("begin" => "start"),
+				Lang::txt("CalendarData_getEvents.rehearsal"),
 				"?mod=" . $this->getSysdata()->getModuleId("Proben") . "&mode=view&id="
 		);
 		$phases = $this->reduce_data(
@@ -171,7 +165,7 @@ class CalendarData extends AbstractLocationData {
 				$concerts_db,
 				array("id", "title", "begin", "end", "approve_until", "location_name", "outfit", "notes"),
 				array("begin" => "start"),
-				Lang::txt("calendar_concert"),
+				Lang::txt("CalendarData_getEvents.concert"),
 				"?mod=" . $this->getSysdata()->getModuleId("Konzerte") . "&mode=view&id="
 		);
 		$votes = $this->reduce_data(
@@ -179,7 +173,7 @@ class CalendarData extends AbstractLocationData {
 				$votes_db,
 				array("id", "name", "end"),
 				array("end" => "start", "name" => "title"),
-				Lang::txt("calendar_end_vote"),
+				Lang::txt("CalendarData_getEvents.end_vote"),
 				"?mod=" . $this->getSysdata()->getModuleId("Abstimmung") . "&mode=view&id="
 		);
 		$contacts = $this->reduce_data(
@@ -187,7 +181,7 @@ class CalendarData extends AbstractLocationData {
 				$contacts_db_edit,
 				array("id", "birthday", "title"),
 				array("birthday" => "start"),
-				Lang::txt("calendar_birthday"),
+				Lang::txt("CalendarData_getEvents.birthday"),
 				"?mod=" . $this->getSysdata()->getModuleId("Kontakte") . "&mode=view&id="
 		);
 		$reservations = $this->reduce_data(
@@ -195,7 +189,7 @@ class CalendarData extends AbstractLocationData {
 				$reservations_db,
 				array("id", "begin", "end", "name"),
 				array("begin" => "start", "name" => "title"),
-				Lang::txt("calendar_reservation"),
+				Lang::txt("CalendarData_getEvents.reservation"),
 				"?mod=" . $this->getSysdata()->getModuleId("Calendar") . "&mode=view&id="
 		);
 		$appointments = $this->reduce_data(
@@ -203,7 +197,7 @@ class CalendarData extends AbstractLocationData {
 				$appointments_db,
 				array("id", "begin", "end", "name"),
 				array("begin" => "start", "name" => "title"),
-				Lang::txt("calendar_appointment"),
+				Lang::txt("CalendarData_getEvents.appointment"),
 				"?mod=" . $this->getSysdata()->getModuleId("Calendar") . "&mode=appointments&func=view&id=");
 		
 		return array(

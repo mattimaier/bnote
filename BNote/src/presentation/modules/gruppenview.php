@@ -7,7 +7,7 @@ class GruppenView extends CrudView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Gruppe");
+		$this->setEntityName(Lang::txt("GruppenView_construct.EntityName"));
 	}
 	
 	/**
@@ -18,10 +18,8 @@ class GruppenView extends CrudView {
 	}
 	
 	function start() {
-		Writing::h1("Gruppen");
-		$explanation = "Auf dieser Seite verwaltest du die Gruppen deiner Band.
-		                Die Gruppen \"Administratoren\" und \"Mitglieder\" können nicht gelöscht werden.
-						Möglich weitere Gruppen sind, z.B. Rhythmusgruppe, Combo, etc.";
+		Writing::h1(Lang::txt("GruppenView_start.Title"));
+		$explanation = Lang::txt("GruppenView_start.explanation");
 		Writing::p($explanation);
 		
 		$groups = $this->getData()->getGroups();
@@ -48,18 +46,18 @@ class GruppenView extends CrudView {
 	}
 	
 	function startOptions() {
-		$backBtn = new Link("?mod=" . $this->getModId() . "&mode=start", "Zurück");
+		$backBtn = new Link("?mod=" . $this->getModId() . "&mode=start", Lang::txt("GruppenView_startOptions.Back"));
 		$backBtn->addIcon("arrow_left");
 		$backBtn->write();
 		$this->buttonSpace();
 		
-		$new = new Link($this->modePrefix() . "addEntity", "Gruppe hinzufügen");
+		$new = new Link($this->modePrefix() . "addEntity", Lang::txt("GruppenView_startOptions.addEntity"));
 		$new->addIcon("plus");
 		$new->write();
 	}
 	
 	function backToStart() {
-		$back = new Link($this->modePrefix() . "start", "Zurück");
+		$back = new Link($this->modePrefix() . "start", Lang::txt("GruppenView_backToStart.Back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 	}
@@ -68,7 +66,7 @@ class GruppenView extends CrudView {
 		$this->checkID();
 		
 		$group = $this->getData()->findByIdNoRef($_GET["id"]);
-		Writing::h2("Gruppe: " . $group["name"]);
+		Writing::h2(Lang::txt("GruppenView_view.Title") . $group["name"]);
 		
 		// group information
 		$dv = new Dataview();
@@ -77,7 +75,7 @@ class GruppenView extends CrudView {
 		$dv->write();
 		
 		// group members
-		Writing::h3("Gruppenmitglieder");
+		Writing::h3(Lang::txt("GruppenView_view.GroupMembers"));
 		
 		$members = $this->getData()->getGroupMembers($_GET["id"]);
 		$table = new Table($members);
@@ -92,14 +90,14 @@ class GruppenView extends CrudView {
 			
 			// show buttons to edit and delete
 			$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
-					$this->getEntityName() . " bearbeiten");
+					$this->getEntityName() . Lang::txt("GruppenView_viewOptions.edit"));
 			$edit->addIcon("edit");
 			$edit->write();
 			
 			$this->buttonSpace();
 			
 			$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
-					$this->getEntityName() . " löschen");
+					$this->getEntityName() . Lang::txt("GruppenView_viewOptions.remove"));
 			$del->addIcon("remove");
 			$del->write();
 		}

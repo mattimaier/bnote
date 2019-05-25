@@ -40,7 +40,7 @@ global $system_data;
 $db = $system_data->dbcon;
 
 // check whether a user is registered and has contact (mod=3) permission
-$deniedMsg = "Du hast keine Berechtigung den Auftritt zu exportieren!";
+$deniedMsg = Lang::txt("gigcard_concert.deniedMsg");
 if(!isset($_SESSION["user"])) {
 	new BNoteError($deniedMsg);
 }
@@ -84,11 +84,11 @@ Writing::h1($c["title"]);
 Writing::p($c["notes"]);
 ?>
 
-<h1>Veranstaltung</h1>
+<h1><?php echo Lang::txt("gigcard_concert.event"); ?></h1>
 <table>
 	<tbody>
 		<tr>
-			<td>Veranstalter</td>
+			<td><?php echo Lang::txt("gigcard_concert.organizer"); ?></td>
 			<td><?php 
 			if($c["organizer"]) {
 				echo $c["organizer"];
@@ -96,14 +96,14 @@ Writing::p($c["notes"]);
 			?></td>
 		</tr>
 		<tr>
-			<td>Ort</td>
+			<td><?php echo Lang::txt("gigcard_concert.address"); ?></td>
 			<td><?php 
 			echo $loc["name"] . "<br/>";
 			echo $concertView->exportFormatAddress($concertData->getAddress($loc["address"]));
 			?></td>
 		</tr>
 		<tr>
-			<td>Kontakt</td>
+			<td><?php echo Lang::txt("gigcard_concert.contact"); ?></td>
 			<td><?php 
 			if($c["contact"]) {
 				$cnt = $concertData->getContact($c["contact"]);
@@ -118,32 +118,32 @@ Writing::p($c["notes"]);
 	</tbody>
 </table>
 
-<h1>Zeiten</h1>
+<h1><?php echo Lang::txt("gigcard_concert.times"); ?></h1>
 <table>
 	<tbody>
 		<tr>
-			<td>Datum/Zeit</td>
+			<td><?php echo Lang::txt("gigcard_concert.period"); ?></td>
 			<td><?php 
 			echo Data::convertDateFromDb($c["begin"]) . " - ";
 			echo Data::convertDateFromDb($c["end"]);
 			?></td>
 		</tr>
 		<tr>
-			<td>Treffpunkt</td>
+			<td><?php echo Lang::txt("gigcard_concert.meetingtime"); ?></td>
 			<td><?php echo Data::convertDateFromDb($c["meetingtime"]); ?></td>
 		</tr>
 		<tr>
-			<td>Zusage bis</td>
+			<td><?php echo Lang::txt("gigcard_concert.approve_until"); ?></td>
 			<td><?php echo Data::convertDateFromDb($c["approve_until"]); ?></td>
 		</tr>
 	</tbody>
 </table>
 
-<h1>Organisation</h1>
+<h1><?php echo Lang::txt("gigcard_concert.organisation"); ?></h1>
 <table>
 	<tbody>
 		<tr>
-			<td>Besetzung</td>
+			<td><?php echo Lang::txt("gigcard_concert.groupNames"); ?></td>
 			<td><?php 
 			$groups = $concertData->getConcertGroups($c["id"]);
 			$groupNames = Database::flattenSelection($groups, "name");
@@ -151,7 +151,7 @@ Writing::p($c["notes"]);
 			?></td>
 		</tr>
 		<tr>
-			<td>Programm</td>
+			<td><?php echo Lang::txt("gigcard_concert.program"); ?></td>
 			<td><?php 
 			if($c["program"]) {
 				$prg = $concertData->getProgram($c["program"]);
@@ -160,7 +160,7 @@ Writing::p($c["notes"]);
 			?></td>
 		</tr>
 		<tr>
-			<td>Outfit</td>
+			<td><?php echo Lang::txt("gigcard_concert.outfit"); ?></td>
 			<td><?php 
 			if($c["outfit"]) {
 				$outfit = $concertData->getOutfit($c["outfit"]);
@@ -169,7 +169,7 @@ Writing::p($c["notes"]);
 			?></td>
 		</tr>
 		<tr>
-			<td>Equipment</td>
+			<td><?php echo Lang::txt("gigcard_concert.equipment"); ?></td>
 			<td>
 			<?php 
 			$equipment = $concertData->getConcertEquipment($c["id"]);
@@ -189,11 +189,11 @@ Writing::p($c["notes"]);
 	</tbody>
 </table>
 
-<h1>Details</h1>
+<h1><?php echo Lang::txt("gigcard_concert.details"); ?></h1>
 <table>
 	<tbody>
 		<tr>
-			<td>Unterkunft</td>
+			<td><?php echo Lang::txt("gigcard_concert.accommodation"); ?></td>
 			<td><?php 
 			if($c["accommodation"] > 0) {
 				$acc = $concertData->adp()->getAccommodationLocation($c["accommodation"]);
@@ -202,11 +202,11 @@ Writing::p($c["notes"]);
 			?></td>
 		</tr>
 		<tr>
-			<td>Gage</td>
+			<td><?php echo Lang::txt("gigcard_concert.payment"); ?></td>
 			<td><?php echo Data::convertFromDb($c["payment"]); ?></td>
 		</tr>
 		<tr>
-			<td>Konditionen</td>
+			<td><?php echo Lang::txt("gigcard_concert.conditions"); ?></td>
 			<td><?php echo $c["conditions"]; ?></td>
 		</tr>
 		

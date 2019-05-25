@@ -46,11 +46,11 @@ abstract class AbstractLocationData extends AbstractData {
 	public function getAddressViewFields() {
 		$fields = $this->getAddressFields();
 		return array(
-			$fields["street"] => array(Lang::txt("street"), FieldType::CHAR),
-			$fields["city"] => array(Lang::txt("city"), FieldType::CHAR),
-			$fields["zip"] => array(Lang::txt("zip"), FieldType::CHAR),
-			$fields["state"] => array(Lang::txt("state"), FieldType::CHAR),
-			$fields["country"] => array(Lang::txt("country"), FieldType::CHAR)
+			$fields["street"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.street"), FieldType::CHAR),
+			$fields["city"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.city"), FieldType::CHAR),
+			$fields["zip"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.zip"), FieldType::CHAR),
+			$fields["state"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.state"), FieldType::CHAR),
+			$fields["country"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.country"), FieldType::CHAR)
 		);
 	}
 	
@@ -215,7 +215,8 @@ abstract class AbstractLocationData extends AbstractData {
 				array_push($this->isoCountries, array(
 					"code" => $data[1],
 					"de" => $data[0],
-					"en" => $data[2]
+					"en" => $data[2],
+					"fr" => $data[3]					
 				));
 				$rowIdx++;
 			}

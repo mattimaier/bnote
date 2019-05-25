@@ -12,7 +12,8 @@ class ProbenView extends CrudRefLocationView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Probe");
+		$this->setEntityName(Lang::txt("ProbenView_construct.EntityName"));
+		$this->setaddEntityName(Lang::txt("ProbenView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
 			"serie" => array("name"),
@@ -21,37 +22,37 @@ class ProbenView extends CrudRefLocationView {
 	}
 	
 	function start() {
-		Writing::p("Bitte auf eine Probe klicken um diese zu bearbeiten.");
+		Writing::p(Lang::txt("ProbenView_start.text"));
 		
-		Writing::h2("Nächste Probe");
+		Writing::h2(Lang::txt("ProbenView_start.title"));
 		$nextRehearsal = $this->getData()->getNextRehearsal();
 		if($nextRehearsal != null && $nextRehearsal != "" && count($nextRehearsal) > 0) {
 			$this->writeRehearsal($nextRehearsal);
 		}
 		else {
-			Writing::p("Keine Probe angesagt.");
+			Writing::p(Lang::txt("ProbenView_start.norehearsal"));
 		}
 
-		Writing::h2("Weitere Proben");
+		Writing::h2(Lang::txt("ProbenView_start.title_2"));
 		$this->writeRehearsalList($this->getData()->adp()->getFutureRehearsals());
 	}
 	
 	function startOptions() {
 		parent::startOptions();
 		
-		$series = new Link($this->modePrefix() . "addSerie", "Probenstrecke hinzufügen");
+		$series = new Link($this->modePrefix() . "addSerie", Lang::txt("ProbenView_startOptions.overtime"));
 		$series->addIcon("overtime");
 		$series->write();
 		
-		$seriesEdit = new Link($this->modePrefix() . "editSerie", "Probenstrecke bearbeiten");
+		$seriesEdit = new Link($this->modePrefix() . "editSerie", Lang::txt("ProbenView_startOptions.edit"));
 		$seriesEdit->addIcon("edit");
 		$seriesEdit->write();
 		
-		$overview = new Link($this->modePrefix() . "overview", "Teilnehmerübersicht");
+		$overview = new Link($this->modePrefix() . "overview", Lang::txt("ProbenView_startOptions.mitspieler"));
 		$overview->addIcon("mitspieler");
 		$overview->write();
 		
-		$history = new Link($this->modePrefix() . "history", "Frühere Proben anzeigen");
+		$history = new Link($this->modePrefix() . "history", Lang::txt("ProbenView_startOptions.timer"));
 		$history->addIcon("timer");
 		$history->write();
 	}
@@ -59,7 +60,7 @@ class ProbenView extends CrudRefLocationView {
 	function addEntity($form_target=null, $tour=null) {
 		// check whether a location exists
 		if(!$this->getData()->locationsPresent()) {
-			$msg = new Message("Keine Location vorhanden", "Bevor du eine Probe anlegen kannst, erstelle bitte eine Location.");
+			$msg = new Message(Lang::txt("ProbenView_addEntity.message_1"), Lang::txt("ProbenView_addEntity.message_2"));
 			$this->backToStart();
 			return;
 		}
@@ -68,45 +69,45 @@ class ProbenView extends CrudRefLocationView {
 		if($form_target == null) {
 			$form_target = $this->modePrefix() . "add";
 		}
-		$form = new Form("Neue Probe", $form_target);
+		$form = new Form(Lang::txt($this->getaddEntityName()), $form_target);
 		
 		// begin
 		$beginField = new Field("begin", date("d.m.Y") . " " . $this->getData()->getDefaultTime(), Field::FIELDTYPE_DATETIME_SELECTOR);
 		$beginField->setCssClass("copyDateOrigin");
-		$form->addElement("Beginn", $beginField);
+		$form->addElement(Lang::txt("ProbenView_addEntity.begin"), $beginField);
 		
 		// end
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
 			$end = Data::addMinutesToDate(date("d.m.Y") . " " . $this->getData()->getDefaultTime() . ":00", $this->getData()->getDefaultDuration());
-			$form->addElement("Ende", new Field("end", $end, Field::FIELDTYPE_DATETIME_SELECTOR));
+			$form->addElement(Lang::txt("ProbenView_addEntity.end"), new Field("end", $end, Field::FIELDTYPE_DATETIME_SELECTOR));
 		}
 		else {
-			$form->addElement("Dauer in min", new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
+			$form->addElement(Lang::txt("ProbenView_addEntity.duration"), new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
 		}
 		
 		// location
 		$form->addElement("location", new Field("location", "", FieldType::REFERENCE));
 		$form->setForeign("location", "location", "id", "name", -1);
-		$form->renameElement("location", "Ort");
+		$form->renameElement("location", Lang::txt("ProbenView_addEntity.location"));
 		
 		// approve until
 		$approve_until_field = new Field("approve_until", "", FieldType::DATETIME);
 		$approve_until_field->setCssClass("copyDateTarget");
-		$form->addElement("Zusagen bis", $approve_until_field);
+		$form->addElement(Lang::txt("ProbenView_addEntity.approve_until"), $approve_until_field);
 		
 		// conductor
-		$form->addElement("Dirigent", $this->buildConductorDropdown());
+		$form->addElement(Lang::txt("ProbenView_addEntity.conductor"), $this->buildConductorDropdown());
 		
 		// custom fields
 		$this->appendCustomFieldsToForm($form, 'r');
 		
 		// notes
-		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
+		$form->addElement(Lang::txt("ProbenView_addEntity.notes"), new Field("notes", "", FieldType::TEXT));
 		
 		// groups
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
 		$gs->setNameColumn("name_member");
-		$form->addElement("Probe für", $gs);
+		$form->addElement(Lang::txt("ProbenView_addEntity.groups"), $gs);
 		
 		if($tour != null) {
 			$form->addHidden("tour", $tour);
@@ -143,67 +144,67 @@ class ProbenView extends CrudRefLocationView {
 		$rid = $this->getData()->create($_POST);
 		
 		// write success
-		new Message($this->getEntityName() . " gespeichert",
-				"Die Probe wurde erfolgreich gespeichert.");
+		new Message($this->getEntityName() . Lang::txt("ProbenView_add.message_1"),
+				Lang::txt("ProbenView_add.message_2"));
 		
 		// Show link to create a rehearsal information
-		$lnk = new Link("?mod=7&mode=rehearsalMail&preselect=$rid", "Probenbenachrichtigung an Mitglieder senden");
+		$lnk = new Link("?mod=7&mode=rehearsalMail&preselect=$rid", Lang::txt("ProbenView_add.rehearsalMail"));
 		$lnk->write();
 	}
 	
 	function addSerie() {		
-		$form = new Form("Probenserie hinzufügen", $this->modePrefix() . "processSerie");
+		$form = new Form(Lang::txt("ProbenView_addSerie.Form"), $this->modePrefix() . "processSerie");
 		
-		$form->addElement("Probenstrecke", new Field("name", "", FieldType::CHAR));
-		$form->setFieldRequired("Serienname");
+		$form->addElement(Lang::txt("ProbenView_addSerie.name"), new Field("name", "", FieldType::CHAR));
+		$form->setFieldRequired(Lang::txt("ProbenView_addSerie.name"));
 		
 		$first_session = new Field("first_session", "", FieldType::DATE);
 		$first_session->setCssClass("copyDateOrigin");
-		$form->addElement("Erste Probe am", $first_session);
-		$form->setFieldRequired("Erste Probe am");
+		$form->addElement(Lang::txt("ProbenView_addSerie.first_session"), $first_session);
+		$form->setFieldRequired(Lang::txt("ProbenView_addSerie.first_session"));
 		
 		$last_session = new Field("last_session", "", FieldType::DATE);
 		$last_session->setCssClass("copyDateTarget");
-		$form->addElement("Letzte Probe am", $last_session);
-		$form->setFieldRequired("Letzte Probe am");
+		$form->addElement(Lang::txt("ProbenView_addSerie.last_session"), $last_session);
+		$form->setFieldRequired(Lang::txt("ProbenView_addSerie.last_session"));
 		
 		$cycle = new Dropdown("cycle");
-		$cycle->addOption("wöchentlich", "1");
-		$cycle->addOption("zweiwöchentlich", "2");
-		$form->addElement("Zyklus", $cycle);
+		$cycle->addOption(Lang::txt("ProbenView_addSerie.cycle_1"), "1");
+		$cycle->addOption(Lang::txt("ProbenView_addSerie.cycle_2"), "2");
+		$form->addElement(Lang::txt("ProbenView_addSerie.cycle"), $cycle);
 		
-		$form->addElement("Uhrzeit", new Field("default_time", $this->getData()->getDefaultTime(), 96));
-		$form->addElement("Dauer in min", new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
+		$form->addElement(Lang::txt("ProbenView_addSerie.default_time"), new Field("default_time", $this->getData()->getDefaultTime(), 96));
+		$form->addElement(Lang::txt("ProbenView_addSerie.duration"), new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
 		
-		$form->addElement("Ort", new Field("location", "", FieldType::REFERENCE));
-		$form->setForeign("Ort", "location", "id", "name", -1);
+		$form->addElement(Lang::txt("ProbenView_addSerie.location"), new Field("location", "", FieldType::REFERENCE));
+		$form->setForeign(Lang::txt("ProbenView_addSerie.location"), "location", "id", "name", -1);
 		
-		$form->addElement("Dirigent", $this->buildConductorDropdown());
+		$form->addElement(Lang::txt("ProbenView_addSerie.Conductor"), $this->buildConductorDropdown());
 		
 		$this->appendCustomFieldsToForm($form, 'r');
 		
-		$form->addElement("Notizen", new Field("notes", "", FieldType::TEXT));
+		$form->addElement(Lang::txt("ProbenView_addSerie.notes"), new Field("notes", "", FieldType::TEXT));
 		
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
 		$gs->setNameColumn("name_member");
-		$form->addElement("Proben für", $gs);
-		$form->setFieldRequired("Proben für");
+		$form->addElement(Lang::txt("ProbenView_addSerie.group"), $gs);
+		$form->setFieldRequired(Lang::txt("ProbenView_addSerie.group"));
 		
 		$form->write();
 	}
 	
 	function processSerie() {
 		if($this->getData()->saveSerie()) {
-			new Message("Probenstrecke gespeichert", "Alle Proben wurde erfolgreich erstellt.");
+			new Message(Lang::txt("ProbenView_processSerie.message_1"), Lang::txt("ProbenView_processSerie.message_2"));
 			$this->backToStart();
 		}
 		else {
-			new BNoteError("Die Probenserie konnte nicht verarbeitet werden.");
+			new BNoteError(Lang::txt("ProbenView_processSerie.error"));
 		}
 	}
 	
 	function editSerie() {
-		$form = new Form("Probenstrecke bearbeiten", $this->modePrefix() . "processEditSerie");
+		$form = new Form(Lang::txt("ProbenView_editSerie.Form"), $this->modePrefix() . "processEditSerie");
 		
 		// select series
 		$series = $this->getData()->getCurrentSeries();
@@ -212,31 +213,31 @@ class ProbenView extends CrudRefLocationView {
 			$s = $series[$i];
 			$serieSelector->addOption($s["name"], $s["id"]);
 		}
-		$form->addElement("Serie", $serieSelector);
+		$form->addElement(Lang::txt("ProbenView_editSerie.serieSelector"), $serieSelector);
 		
 		// Change rehearsal beginning
-		$form->addElement("Beginn aktualisieren", new Field("update_begin", false, FieldType::BOOLEAN));
-		$form->addElement("Beginn", new Field("begin", $this->getData()->getDefaultTime(), 96));
+		$form->addElement(Lang::txt("ProbenView_editSerie.update_begin"), new Field("update_begin", false, FieldType::BOOLEAN));
+		$form->addElement(Lang::txt("ProbenView_editSerie.begin"), new Field("begin", $this->getData()->getDefaultTime(), 96));
 		
 		// Change location
-		$form->addElement("Location aktualisieren", new Field("update_location", false, FieldType::BOOLEAN));
+		$form->addElement(Lang::txt("ProbenView_editSerie.update_location"), new Field("update_location", false, FieldType::BOOLEAN));
 		$locations = $this->getData()->adp()->getLocations(array(1,2,5));  // band rooms, gig venues, others
 		$locationSelector = new Dropdown("location");
 		for($i = 1; $i < count($locations); $i++) {
 			$l = $locations[$i];
 			$locationSelector->addOption($l["name"], $l["id"]);
 		}
-		$form->addElement("Location", $locationSelector);
+		$form->addElement(Lang::txt("ProbenView_editSerie.locationSelector"), $locationSelector);
 		
 		// Delete all rehearsals in series
-		$form->addElement("Strecke und Proben <u>löschen</u>", new Field("delete", false, FieldType::BOOLEAN));
+		$form->addElement(Lang::txt("ProbenView_editSerie.delete"), new Field("delete", false, FieldType::BOOLEAN));
 		
 		$form->write();
 	}
 	
 	function processEditSerie() {
 		$this->getData()->updateSerie();
-		new Message("Probenstrecke aktualisiert", "Die Probenstrecke wurde erfolgreich aktualisiert.");
+		new Message(Lang::txt("ProbenView_processEditSerie.message_1"), Lang::txt("ProbenView_processEditSerie.message_2"));
 	}
 	
 	/**
@@ -251,7 +252,7 @@ class ProbenView extends CrudRefLocationView {
 			$count++;
 		}
 		if($count == 0) {
-			Writing::p("Keine weiteren Proben angesagt.");
+			Writing::p(Lang::txt("ProbenView_writeRehearsalList.message"));
 		}
 	}
 	
@@ -324,7 +325,7 @@ class ProbenView extends CrudRefLocationView {
 		$table = new Table($contacts);
 		$table->removeColumn("id");
 		$table->removeColumn("instrumentid");
-		$table->renameHeader("mobile", "Handynummer");
+		$table->renameHeader("mobile", Lang::txt("ProbenView_invitations.mobile"));
 		$table->write();
 	}
 	
@@ -336,17 +337,17 @@ class ProbenView extends CrudRefLocationView {
 		?>
 		<div class="probendetail_block">
 			<div class="probendetail_set">
-				<div class="probendetail_heading">Zeit</div>
+				<div class="probendetail_heading"><?php echo Lang::txt("ProbenView_viewDetailTable.period"); ?></div>
 				<div class="probendetail_value"><?php 
 				echo $this->formatFromToDateShort($entity["begin"], $entity["end"]);
 				?></div>
-				<div class="probendetail_value">Zusagen bis: <?php 
+				<div class="probendetail_value"><?php echo Lang::txt("ProbenView_viewDetailTable.approve_until"); ?><?php 
 				echo Data::convertDateFromDb($entity["approve_until"]);
 				?></div>
 			</div>
 			
 			<div class="probendetail_set">
-				<div class="probendetail_heading">Ort</div>
+				<div class="probendetail_heading"><?php echo Lang::txt("ProbenView_viewDetailTable.location"); ?></div>
 				<div class="probendetail_value"><?php
 				echo $entity["name"]; 
 				?></div>
@@ -361,7 +362,7 @@ class ProbenView extends CrudRefLocationView {
 			if($entity["conductor"]) {
 				?>
 				<div class="probendetail_set">
-						<div class="probendetail_heading">Dirigent</div>
+						<div class="probendetail_heading"><?php echo Lang::txt("ProbenView_viewDetailTable.conductor"); ?></div>
 						<div class="probendetail_value"><?php
 						echo $this->getData()->adp()->getConductorname($entity["conductor"]); 
 						?></div>
@@ -372,7 +373,7 @@ class ProbenView extends CrudRefLocationView {
 			if($serie != null && count($serie) > 0) {
 				?>
 				<div class="probendetail_set">
-					<div class="probendetail_heading">Probenstrecke</div>
+					<div class="probendetail_heading"><?php echo Lang::txt("ProbenView_viewDetailTable.serie_name"); ?></div>
 					<div class="probendetail_value"><?php
 					echo $serie["name"]; 
 					?></div>
@@ -381,7 +382,7 @@ class ProbenView extends CrudRefLocationView {
 			}
 			?>
 			<div class="probendetail_set">
-				<div class="probendetail_heading">Eingeladene Gruppen</div>
+				<div class="probendetail_heading"><?php echo Lang::txt("ProbenView_viewDetailTable.groups"); ?></div>
 				<div class="probendetail_value"><?php
 				$groupNames = Database::flattenSelection($entity["groups"], "name");
 				echo join(", ", $groupNames);
@@ -389,7 +390,7 @@ class ProbenView extends CrudRefLocationView {
 			</div>
 			
 			<div class="probendetail_set">
-				<div class="probendetail_heading">Notizen</div>
+				<div class="probendetail_heading"><?php echo Lang::txt("ProbenView_viewDetailTable.notes"); ?></div>
 				<div class="probendetail_value"><?php
 				echo $entity["notes"]; 
 				?></div>
@@ -408,7 +409,7 @@ class ProbenView extends CrudRefLocationView {
 				<div class="probendetail_heading"><?php echo $caption; ?></div>
 				<div class="probendetail_value"><?php
 				if($field["fieldtype"] == "BOOLEAN") {
-					echo $entity[$techName] == 1 ? "ja" : "nein";
+					echo $entity[$techName] == 1 ? Lang::txt("ProbenView_viewDetailTable.yes") : Lang::txt("ProbenView_viewDetailTable.no");
 				}
 				else {
 					echo $entity[$techName];
@@ -426,13 +427,13 @@ class ProbenView extends CrudRefLocationView {
 			$phases = $this->getData()->getRehearsalsPhases($_GET["id"]);
 			
 			if(count($phases) > 1) {
-				Writing::h2("Probenphasen");
+				Writing::h2(Lang::txt("ProbenView_viewDetailTable.phases_title"));
 				$table = new Table($phases);
 				$table->removeColumn("id");
-				$table->renameHeader("name", "Probenphase");
-				$table->renameHeader("begin", "Von");
-				$table->renameHeader("end", "bis");
-				$table->renameHeader("notes", "Anmerkungen");
+				$table->renameHeader("name", Lang::txt("ProbenView_viewDetailTable.phases_name"));
+				$table->renameHeader("begin", Lang::txt("ProbenView_viewDetailTable.phases_begin"));
+				$table->renameHeader("end", Lang::txt("ProbenView_viewDetailTable.phases_end"));
+				$table->renameHeader("notes", Lang::txt("ProbenView_viewDetailTable.phases_notes"));
 				$table->write();
 			}
 		}
@@ -441,7 +442,7 @@ class ProbenView extends CrudRefLocationView {
 	public function addContact() {
 		$this->checkID();
 		
-		$form = new Form("Einladung zu Probe hinzufügen", $this->modePrefix() . "process_addContact&id=" . $_GET["id"]);
+		$form = new Form(Lang::txt("ProbenView_addContact.Form"), $this->modePrefix() . "process_addContact&id=" . $_GET["id"]);
 		$contacts = $this->getData()->getContacts();
 		$gs = new GroupSelector($contacts, array(), "contact");
 		$gs->setNameColumn("fullname");
@@ -456,7 +457,7 @@ class ProbenView extends CrudRefLocationView {
 	public function process_addContact() {
 		$this->checkID();
 		$this->getData()->addRehearsalContact($_GET["id"]);
-		new Message("Kontakt hinzugefügt", "Der Kontakt wurde zu dieser Probe hinzugefügt.");
+		new Message(Lang::txt("ProbenView_process_addContact.message_1"), Lang::txt("ProbenView_process_addContact.message_2"));
 	}
 	
 	public function process_addContactOptions() {
@@ -472,31 +473,31 @@ class ProbenView extends CrudRefLocationView {
 	function participants() {
 		$this->checkID();
 		
-		Writing::h3("Instrumente");
+		Writing::h3(Lang::txt("ProbenView_participants.title_1"));
 		$dv = new Dataview();
 		$dv->autoAddElements($this->getData()->getAttendingInstruments($_GET["id"]));
 		$dv->write();
 		
-		Writing::h3("Teilnahme");
+		Writing::h3(Lang::txt("ProbenView_participants.title_2"));
 		$table = new Table($this->getData()->getParticipants($_GET["id"]));
 		$table->removeColumn("id");
 		$table->removeColumn("instrumentid");
-		$table->renameHeader("nickname", Lang::txt("nickname"));
-		$table->renameHeader("participate", "Nimmt teil");
-		$table->renameHeader("reason", "Grund");
+		$table->renameHeader("nickname", Lang::txt("ProbenView_participants.nickname_1"));
+		$table->renameHeader("participate", Lang::txt("ProbenView_participants.participate"));
+		$table->renameHeader("reason", Lang::txt("ProbenView_participants.reason"));
 		$table->write();
 		
 		// remaining calls
-		Writing::h3("Ausstehende Zu-/Absagen");
+		Writing::h3(Lang::txt("ProbenView_participants.title_2"));
 		$openTab = new Table($this->getData()->getOpenParticipation($_GET["id"]));
 		$openTab->showFilter();
 		$openTab->removeColumn("id");
 		$openTab->removeColumn("instrumentid");
-		$openTab->renameHeader("nickname", Lang::txt("nickname"));
-		$openTab->renameHeader("mobile", "Handy");
+		$openTab->renameHeader("nickname", Lang::txt("ProbenView_participants.nickname_2"));
+		$openTab->renameHeader("mobile", Lang::txt("ProbenView_participants.mobile"));
 		$openTab->write();
 		
-		Writing::h3("Zusammenfassung");
+		Writing::h3(Lang::txt("ProbenView_participants.title_3"));
 		$dv = new Dataview();
 		$dv->autoAddElements($this->getData()->getParticipantStats($_GET["id"]));
 		$dv->write();
@@ -512,7 +513,7 @@ class ProbenView extends CrudRefLocationView {
 	
 	function practise() {
 		$this->checkID();
-		Writing::h3("Stückauswahl");
+		Writing::h3(Lang::txt("ProbenView_practise.title"));
 		
 		// check if a new song was added
 		if(isset($_POST["song"])) {
@@ -545,15 +546,15 @@ class ProbenView extends CrudRefLocationView {
 			echo "</li>\n";
 		}
 		if(count($songs) == 1) {
-			echo "<li>Keine Stücke ausgewählt.</li>\n";
+			echo "<li>" . Lang::txt("ProbenView_practise.no_song") . "</li>\n";
 		}
 		echo "</ul>\n";
 		
 		// add a song
-		$form = new Form("Stück hinzufügen", $this->modePrefix() . "view&tab=practise&id=" . $_GET["id"]);
+		$form = new Form(Lang::txt("ProbenView_practise.Form"), $this->modePrefix() . "view&tab=practise&id=" . $_GET["id"]);
 		$form->addElement("song", new Field("song", "", FieldType::REFERENCE));
 		$form->setForeign("song", "song", "id", "title", -1);
-		$form->renameElement("song", "Stück");
+		$form->renameElement("song", Lang::txt("ProbenView_practise.song"));
 		$form->addElement("Anmerkungen", new Field("notes", "", FieldType::CHAR));
 		$form->write();
 	}
@@ -606,12 +607,12 @@ class ProbenView extends CrudRefLocationView {
 		// filtering
 		$filters = new Filterbox($this->modePrefix() . "history");
 		$rehearsalYears = $this->getData()->getRehearsalYears();
-		$filters->addFilter("year", "Jahr", FieldType::SET, Filterbox::dbSelectionPreparation($rehearsalYears, "year", "year"));
+		$filters->addFilter("year", Lang::txt("ProbenView_history.year"), FieldType::SET, Filterbox::dbSelectionPreparation($rehearsalYears, "year", "year"));
 		$filters->setShowAllOption("year", FALSE);
 		$filters->write();
 		
 		// result
-		Writing::p("Klicke auf einen Eintrag um diesen anzuzeigen.");
+		Writing::p(Lang::txt("ProbenView_history.message"));
 		
 		$data = $this->getData()->getPastRehearsals($year);
 		$tab = new Table($data);
@@ -620,9 +621,9 @@ class ProbenView extends CrudRefLocationView {
 		$tab->renameAndAlign($this->getData()->getFields());
 		$tab->setColumnFormat("begin", "DATE");
 		$tab->setColumnFormat("end", "DATE");
-		$tab->renameHeader("street", "Straße");
-		$tab->renameHeader("zip", "PLZ");
-		$tab->renameHeader("city", "Stadt");
+		$tab->renameHeader("street", Lang::txt("ProbenView_history.street"));
+		$tab->renameHeader("zip", Lang::txt("ProbenView_history.zip"));
+		$tab->renameHeader("city", Lang::txt("ProbenView_history.city"));
 		$tab->showFilter(FALSE);
 		$tab->write();
 	}
@@ -631,16 +632,16 @@ class ProbenView extends CrudRefLocationView {
 		if($this->isReadOnlyView()) {
 			// history view
 			$this->checkID();
-			Writing::h2("Probendetails");
+			Writing::h2(Lang::txt("ProbenView_view.details"));
 			$this->viewDetailTable();
 			$this->participants();
 			
-			Writing::h3("Stücke zum üben");
+			Writing::h3(Lang::txt("ProbenView_view.program"));
 			$songs = $this->getData()->getSongsForRehearsal($_GET["id"]);
 			$tab = new Table($songs);
 			$tab->removeColumn("id");
-			$tab->renameHeader("title", "Stück");
-			$tab->renameHeader("notes", "Aktuelle Notizen");
+			$tab->renameHeader("title", Lang::txt("ProbenView_view.title"));
+			$tab->renameHeader("notes", Lang::txt("ProbenView_view.notes"));
 			$tab->write();
 		}
 		else {
@@ -688,7 +689,7 @@ class ProbenView extends CrudRefLocationView {
 	
 	function viewOptions() {
 		if($this->isReadOnlyView()) {
-			$back = new Link($this->modePrefix() . "history&year=" . $_GET["year"], Lang::txt("back"));
+			$back = new Link($this->modePrefix() . "history&year=" . $_GET["year"], Lang::txt("ProbenView_viewOptions.back"));
 			$back->addIcon("arrow_left");
 			$back->write();
 		}

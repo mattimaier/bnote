@@ -29,7 +29,7 @@ global $system_data;
 $db = $system_data->dbcon;
 
 // check whether a user is registered and has contact (mod=3) permission
-$deniedMsg = "Du hast keine Berechtigung das Repertoire zu exportieren!";
+$deniedMsg = Lang::txt("repertoire_start.deniedMsg");
 if(!isset($_SESSION["user"])) {
 	new BNoteError($deniedMsg);
 }

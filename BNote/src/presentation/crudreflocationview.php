@@ -52,11 +52,11 @@ class CrudRefLocationView extends CrudRefView {
 	 * @param string $prefix Prefix for fields, e.g. "address" for "addressstreet".
 	 */
 	protected function renameTableAddressColumns($table, $prefix = "") {
-		$table->renameHeader($prefix . "street", Lang::txt("street"));
-		$table->renameHeader($prefix . "city", Lang::txt("city"));
-		$table->renameHeader($prefix . "zip", Lang::txt("zip"));
-		$table->renameHeader($prefix . "state", Lang::txt("state"));
-		$table->renameHeader($prefix . "country", Lang::txt("country"));
+		$table->renameHeader($prefix . "street", Lang::txt("CrudRefLocationView_renameTableAddressColumns.street"));
+		$table->renameHeader($prefix . "city", Lang::txt("CrudRefLocationView_renameTableAddressColumns.city"));
+		$table->renameHeader($prefix . "zip", Lang::txt("CrudRefLocationView_renameTableAddressColumns.zip"));
+		$table->renameHeader($prefix . "state", Lang::txt("CrudRefLocationView_renameTableAddressColumns.state"));
+		$table->renameHeader($prefix . "country", Lang::txt("CrudRefLocationView_renameTableAddressColumns.country"));
 	}
 	
 	/**
@@ -65,11 +65,11 @@ class CrudRefLocationView extends CrudRefView {
 	 * @param string $prefix Prefix for fields, e.g. "address" for "addressstreet".
 	 */
 	protected function renameDataViewFields($dataview, $prefix = "") {
-		$dataview->renameElement($prefix . "street", Lang::txt("street"));
-		$dataview->renameElement($prefix . "city", Lang::txt("city"));
-		$dataview->renameElement($prefix . "zip", Lang::txt("zip"));
-		$dataview->renameElement($prefix . "state", Lang::txt("state"));
-		$dataview->renameElement($prefix . "country", Lang::txt("country"));
+		$dataview->renameElement($prefix . "street", Lang::txt("CrudRefLocationView_renameDataViewFields.street"));
+		$dataview->renameElement($prefix . "city", Lang::txt("CrudRefLocationView_renameDataViewFields.city"));
+		$dataview->renameElement($prefix . "zip", Lang::txt("CrudRefLocationView_renameDataViewFields.zip"));
+		$dataview->renameElement($prefix . "state", Lang::txt("CrudRefLocationView_renameDataViewFields.state"));
+		$dataview->renameElement($prefix . "country", Lang::txt("CrudRefLocationView_renameDataViewFields.country"));
 	}
 	
 	/**
@@ -78,7 +78,7 @@ class CrudRefLocationView extends CrudRefView {
 	 * @param string $prefix Prefix for fields, e.g. "address" for "addressstreet".
 	 */
 	protected function replaceDataViewFieldWithAddress($dataview, $prefix = "") {
-		$dataview->addElement(Lang::txt("address"), $this->formatAddress($dataview->getElements(), FALSE, $prefix, TRUE));
+		$dataview->addElement(Lang::txt("CrudRefLocationView_replaceDataViewFieldWithAddress.address"), $this->formatAddress($dataview->getElements(), FALSE, $prefix, TRUE));
 		$dataview->removeElement($prefix . "street");
 		$dataview->removeElement($prefix . "city");
 		$dataview->removeElement($prefix . "zip");

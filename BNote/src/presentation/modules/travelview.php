@@ -68,7 +68,7 @@ class TravelView extends CrudRefView {
 		$details = new Dataview();
 		$details->autoAddElements($entity);
 		$details->autoRename($this->getData()->getFields());
-		$details->renameElement("tourname", Lang::txt("accommodation_tourname"));
+		$details->renameElement("tourname", Lang::txt("TravelView_viewDetailTable.tourname"));
 		$details->write();
 	}
 }

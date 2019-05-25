@@ -12,12 +12,12 @@ class UserData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array("User ID", FieldType::INTEGER),
-			"isActive" => array("Aktiver Benutzer", FieldType::BOOLEAN),
-			"login" => array("Login", FieldType::LOGIN),
-			"password" => array("Passwort", FieldType::PASSWORD),
-			"contact" => array("Kontakt", FieldType::REFERENCE),
-			"lastlogin" => array("Zuletzt Angemeldet", FieldType::DATETIME)
+			"id" => array(Lang::txt("UserData_construct.id"), FieldType::INTEGER),
+			"isActive" => array(Lang::txt("UserData_construct.isActive"), FieldType::BOOLEAN),
+			"login" => array(Lang::txt("UserData_construct.login"), FieldType::LOGIN),
+			"password" => array(Lang::txt("UserData_construct.password"), FieldType::PASSWORD),
+			"contact" => array(Lang::txt("UserData_construct.contact"), FieldType::REFERENCE),
+			"lastlogin" => array(Lang::txt("UserData_construct.lastlogin"), FieldType::DATETIME)
 		);
 		
 		$this->references = array(
@@ -49,13 +49,13 @@ class UserData extends AbstractData {
 	
 	function create($values) { // values and $_POST is the same
 		// Do a manual validation
-		if(!$this->regex->isLogin($values["login"])) new BNoteError("Der angegebene Benutzername ist ungültig.");
-		if(!$this->regex->isPassword($values["password"])) new BNoteError("Das angegebene Passwort ist ungültig (mindestens 6 Zeichen notwendig).");
-		if(!isset($values["contact"]) || $values["contact"] == "") new BNoteError("Bitte wähle einen Kontakt aus.");
+		if(!$this->regex->isLogin($values["login"])) new BNoteError(Lang::txt("UserData_create.error_1"));
+		if(!$this->regex->isPassword($values["password"])) new BNoteError(Lang::txt("UserData_create.error_2"));
+		if(!isset($values["contact"]) || $values["contact"] == "") new BNoteError(Lang::txt("UserData_create.error_3"));
 		
 		// check that the login is not taken
 		if($this->adp()->doesLoginExist($values["login"])) {
-			new BNoteError("Der Benutzername wird bereits verwendet!");
+			new BNoteError(Lang::txt("UserData_create.error_4"));
 		}
 		
 		$newUsr = array();
@@ -64,7 +64,7 @@ class UserData extends AbstractData {
 			if($id == "id" || $id == "lastlogin") continue;
 			if($id == "password") {
 				// specially validate password for empty passwords
-				if($values[$id] == "") new BNoteError("Das angegebene Password ist nicht ausreichend.");
+				if($values[$id] == "") new BNoteError(Lang::txt("UserData_create.error_5"));
 				$newUsr[$id] = crypt($values[$id], LoginController::ENCRYPTION_HASH);
 			}
 			else if($id != "isActive") {
@@ -95,7 +95,7 @@ class UserData extends AbstractData {
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($_GET["id"])) {
-					new BNoteError("Zugriff verweigert.");
+					new BNoteError(Lang::txt("UserData_update.error"));
 		}
 		
 		$usr = array();
@@ -122,7 +122,7 @@ class UserData extends AbstractData {
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($id)) {
-					new BNoteError("Zugriff verweigert.");
+					new BNoteError(Lang::txt("UserData_delete.error"));
 		}
 		else {
 			parent::delete($id);
@@ -180,7 +180,7 @@ class UserData extends AbstractData {
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($uid)) {
-					new BNoteError("Zugriff verweigert.");
+					new BNoteError(Lang::txt("UserData_updatePrivileges.error"));
 		}
 		
 		// clear privileges
@@ -217,7 +217,7 @@ class UserData extends AbstractData {
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($id)) {
-					new BNoteError("Zugriff verweigert.");
+					new BNoteError(Lang::txt("UserData_changeUserStatus.error"));
 		}
 		
 		$query = "UPDATE " . $this->table . " SET isActive =";

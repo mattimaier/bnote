@@ -7,15 +7,15 @@ class RecpayData extends AbstractData {
 	 */
 	function __construct() {
 		$this->fields = array(
-			"id" => array("ID", FieldType::INTEGER),
-			"subject" => array(Lang::txt("finance_booking_subject"), FieldType::CHAR),
-			"account" => array(Lang::txt("recpay_account"), FieldType::REFERENCE),
-			"amount_net" => array(Lang::txt("finance_booking_amount_net"), FieldType::DECIMAL),
-			"amount_tax" => array(Lang::txt("finance_booking_amount_tax"), FieldType::DECIMAL),
-			"btype" => array(Lang::txt("finance_booking_btype"), FieldType::ENUM),
-			"otype" => array(Lang::txt("recpay_otype"), FieldType::ENUM),
-			"oid" => array(Lang::txt("recpay_oid"), FieldType::CHAR),
-			"notes" => array(Lang::txt("finance_booking_notes"), FieldType::CHAR, true)
+			"id" => array(Lang::txt("RecpayData_construct.id"), FieldType::INTEGER),
+			"subject" => array(Lang::txt("RecpayData_construct.subject"), FieldType::CHAR),
+			"account" => array(Lang::txt("RecpayData_construct.account"), FieldType::REFERENCE),
+			"amount_net" => array(Lang::txt("RecpayData_construct.amount_net"), FieldType::DECIMAL),
+			"amount_tax" => array(Lang::txt("RecpayData_construct.amount_tax"), FieldType::DECIMAL),
+			"btype" => array(Lang::txt("RecpayData_construct.btype"), FieldType::ENUM),
+			"otype" => array(Lang::txt("RecpayData_construct.otype"), FieldType::ENUM),
+			"oid" => array(Lang::txt("RecpayData_construct.oid"), FieldType::CHAR),
+			"notes" => array(Lang::txt("RecpayData_construct.notes"), FieldType::CHAR, true)
 		);
 	
 		$this->references = array(
@@ -33,26 +33,26 @@ class RecpayData extends AbstractData {
 	
 	function ref2val($otype, $oid) {
 		switch($otype) {
-			case "L": $otype = Lang::txt("location");
+			case "L": $otype = Lang::txt("RecpayData_ref2val.location");
 				$oid = $this->getLocationName($oid);
 				break;
-			case "H": $otype = Lang::txt("contact");
+			case "H": $otype = Lang::txt("RecpayData_ref2val.contact");
 				$oid = $this->getContactName($oid);
 				break;
-			case "C": $otype = Lang::txt("concert");
+			case "C": $otype = Lang::txt("RecpayData_ref2val.concert");
 				$oid = $this->getConcertName($oid);
 				break;
-			case "P": $otype = Lang::txt("rehearsalphase");
+			case "P": $otype = Lang::txt("RecpayData_ref2val.rehearsalphase");
 				$oid = $this->getPhaseName($oid);
 				break;
-			case "T": $otype = Lang::txt("tour");
+			case "T": $otype = Lang::txt("RecpayData_ref2val.tour");
 				$oid = $this->getTourName($oid);
 				break;
-			case "E": $otype = Lang::txt("equipment");
+			case "E": $otype = Lang::txt("RecpayData_ref2val.equipment");
 				$oid = $this->getEquipmentName($oid);
 				break;
 			default:
-				$otype = Lang::txt("recpay_no_otype");
+				$otype = Lang::txt("RecpayData_ref2val.no_otype");
 				$oid = null;
 				break;
 		}
@@ -67,10 +67,10 @@ class RecpayData extends AbstractData {
 		foreach($sel as $i => $row) {
 			if($i == 0) continue;
 			if($row["btype"] == "0") {
-				$row["btype"] = Lang::txt("finance_booking_type_0");
+				$row["btype"] = Lang::txt("RecpayData_getRecurringPayments.type_0");
 			}
 			else if($row["btype"] == "1") {
-				$row["btype"] = Lang::txt("finance_booking_type_1");
+				$row["btype"] = Lang::txt("RecpayData_getRecurringPayments.type_1");
 			}
 			$r2v = $this->ref2val($row["otype"], $row["oid"]);
 			$row["otype"] = $r2v[0];

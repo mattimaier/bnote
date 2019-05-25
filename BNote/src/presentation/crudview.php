@@ -16,7 +16,7 @@ abstract class CrudView extends AbstractView {
 	 * @see AbstractView::start()
 	 */
 	public function start() {
-		Writing::p(Lang::txt("selectEntryText"));		
+		Writing::p(Lang::txt("CrudView_start.showAllTable"));		
 		$this->showAllTable();
 	}
 	
@@ -59,7 +59,7 @@ abstract class CrudView extends AbstractView {
 	}
 	
 	protected function startOptions() {
-		$add = new Link($this->modePrefix() . "addEntity", Lang::txt("add_entity", array($this->getEntityName())));
+		$add = new Link($this->modePrefix() . "addEntity", Lang::txt($this->getaddEntityName()));
 		$add->addIcon("plus");
 		$add->write();
 	}
@@ -70,7 +70,7 @@ abstract class CrudView extends AbstractView {
 	
 	protected function addEntityForm() {
 		// add entry form
-		$form = new Form(Lang::txt("add_entity", array($this->entityName)), $this->modePrefix() . "add");
+		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement($this->idField);
 		$form->write();
@@ -101,14 +101,14 @@ abstract class CrudView extends AbstractView {
 		$this->getData()->create($_POST);
 		
 		// write success
-		new Message(Lang::txt("saved_entity", array($this->entityName)), Lang::txt("entrySaved"));
+		new Message(Lang::txt("CrudView_add.Message_1", array($this->entityName)), Lang::txt("CrudView_add.Message_2"));
 	}
 	
 	public function view() {
 		$this->checkID();
 		
 		// heading
-		Writing::h2(Lang::txt("details_entity", array($this->entityName)));
+		Writing::h2(Lang::txt("CrudView_view.Message", array($this->entityName)));
 		
 		// show the details
 		$this->viewDetailTable();
@@ -121,13 +121,13 @@ abstract class CrudView extends AbstractView {
 		
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&" . $this->idParameter . "=" . $_GET[$this->idParameter],
-				Lang::txt("edit_entity", array($this->entityName)));
+				Lang::txt("CrudView_viewOptions.edit", array($this->entityName)));
 		$edit->addIcon("edit");
 		$edit->write();
 		$this->buttonSpace();
 		
 		$del = new Link($this->modePrefix() . "delete_confirm&" . $this->idParameter . "=" . $_GET[$this->idParameter],
-				Lang::txt("delete_entity", array($this->entityName)));
+				Lang::txt("CrudView_viewOptions.delete_confirm", array($this->entityName)));
 		$del->addIcon("remove");
 		$del->write();
 		$this->buttonSpace();
@@ -169,7 +169,7 @@ abstract class CrudView extends AbstractView {
 	}
 	
 	protected function editEntityForm() {
-		$form = new Form(Lang::txt("edit", array($this->entityName)),
+		$form = new Form(Lang::txt("CrudView_editEntityForm.delete_edit", array($this->entityName)),
 							$this->modePrefix() . "edit_process&" . $this->idParameter . "=" . $_GET[$this->idParameter]);
 		$form->autoAddElements($this->getData()->getFields(),
 									$this->getData()->getTable(), $_GET[$this->idParameter]);
@@ -189,8 +189,8 @@ abstract class CrudView extends AbstractView {
 		$this->getData()->update($_GET[$this->idParameter], $_POST);
 		
 		// show success
-		new Message($this->entityName . " " . Lang::txt("changed"),
-						Lang::txt("entryChanged"));
+		new Message($this->entityName . " " . Lang::txt("CrudView_edit_process.delete_changed"),
+						Lang::txt("CrudView_edit_process.delete_changed"));
 	}
 	
 	public function delete_confirm() {
@@ -210,8 +210,8 @@ abstract class CrudView extends AbstractView {
 		$this->getData()->delete($_GET[$this->idParameter]);
 		
 		// show success
-		new Message(Lang::txt("deleted_entity", array($this->entityName)),
-						Lang::txt("entryDeleted"));
+		new Message(Lang::txt("CrudView_delete.deleted_entity", array($this->entityName)),
+						Lang::txt("CrudView_delete.entryDeleted"));
 	}
 	
 	/**
@@ -221,7 +221,7 @@ abstract class CrudView extends AbstractView {
 	 */
 	public function backToViewButton($id) {
 		global $system_data;
-		$btv = new Link($this->modePrefix() . "view&" . $this->idParameter . "=$id", Lang::txt("back"));
+		$btv = new Link($this->modePrefix() . "view&" . $this->idParameter . "=$id", Lang::txt("CrudView_backToViewButton.back"));
 		$btv->addIcon("arrow_left");
 		$btv->write();
 	}
@@ -232,5 +232,12 @@ abstract class CrudView extends AbstractView {
 	
 	public function getEntityName() {
 		return $this->entityName;
+	}
+		public function setaddEntityName($name) {
+		$this->addentityName = $name;
+	}
+	
+	public function getaddEntityName() {
+		return $this->addentityName;
 	}
 }

@@ -4,7 +4,7 @@ class ProgramView extends CrudView {
 	
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Programm");
+		$this->setEntityName(Lang::txt("ProgramView_construct.EntityName"));
 	}
 	
 	/**
@@ -30,42 +30,42 @@ class ProgramView extends CrudView {
 	}
 	
 	function backToStart() {
-		$link = new Link("?mod=" . $this->getModId() . "&mode=programs", Lang::txt("back"));
+		$link = new Link("?mod=" . $this->getModId() . "&mode=programs", Lang::txt("ProgramView_backToStart.back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
 	
 	function startOptions() {
-		$back = new Link("?mod=" . $this->getModId() . "&mode=start", Lang::txt("back"));
+		$back = new Link("?mod=" . $this->getModId() . "&mode=start", Lang::txt("ProgramView_startOptions.back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 		
 		$this->buttonSpace();
-		$add = new Link($this->modePrefix() . "addEntity", "Programm hinzufügen");
+		$add = new Link($this->modePrefix() . "addEntity", Lang::txt("ProgramView_startOptions.addEntity"));
 		$add->addIcon("plus");
 		$add->write();
 		
 		$this->buttonSpace();
-		$addTpl = new Link($this->modePrefix() . "addFromTemplate", "Programm mit Vorlage hinzufügen");
+		$addTpl = new Link($this->modePrefix() . "addFromTemplate", Lang::txt("ProgramView_startOptions.addFromTemplate"));
 		$addTpl->addIcon("plus");
 		$addTpl->write();
 	}
 	
 	function writeTitle() {
-		Writing::h2("Programme");
-		Writing::p("Klicke auf ein Programm um Details anzuzeigen und die Stücke zu bearbeiten.");
+		Writing::h2(Lang::txt("ProgramView_writeTitle.title"));
+		Writing::p(Lang::txt("ProgramView_writeTitle.message"));
 	}
 	
 	function addFromTemplate() {
 		// add the form to insert a program from a template		
-		$form = new Form("Program aus Vorlage hinzufügen", $this->modePrefix() . "addWithTemplate");
-		$form->addElement("Name", new Field("name", "", FieldType::CHAR));
+		$form = new Form(Lang::txt("ProgramView_addFromTemplate.form"), $this->modePrefix() . "addWithTemplate");
+		$form->addElement(Lang::txt("ProgramView_addFromTemplate.name"), new Field("name", "", FieldType::CHAR));
 		$dd = new Dropdown("template");
 		$templates = $this->getData()->getTemplates();
 		for($i = 1; $i < count($templates); $i++) {
 			$dd->addOption($templates[$i]["name"], $templates[$i]["id"]);
 		}
-		$form->addElement("Vorlage", $dd);
+		$form->addElement(Lang::txt("ProgramView_addFromTemplate.template"), $dd);
 		$form->write();
 	}
 	
@@ -74,7 +74,7 @@ class ProgramView extends CrudView {
 		$table->removeColumn("id");
 		$table->setEdit("id");
 		$table->changeMode("programs&sub=view");
-		$table->renameHeader("istemplate", "Vorlage");
+		$table->renameHeader("istemplate", Lang::txt("ProgramView_addFromTemplate.ask"));
 		$table->setColumnFormat("isTemplate", "BOOLEAN");
 		$table->write();
 	}
@@ -87,23 +87,23 @@ class ProgramView extends CrudView {
 		$dv->write();
 		
 		// track list heading
-		Writing::h2("Titelliste");
+		Writing::h2(Lang::txt("ProgramView_viewDetailTable.header"));
 		
 		// actual track list
 		$table = new Table($this->getData()->getSongsForProgram($_GET["id"]));
 		$table->removeColumn("song");
-		$table->renameHeader("rank", "Nr.");
-		$table->renameHeader("title", "Titel");
-		$table->renameHeader("composer", "Komponist/Arrangeuer");
-		$table->renameHeader("length", "Länge");
-		$table->renameHeader("notes", "Notizen");
+		$table->renameHeader("rank", Lang::txt("ProgramView_viewDetailTable.rank"));
+		$table->renameHeader("title", Lang::txt("ProgramView_viewDetailTable.title"));
+		$table->renameHeader("composer", Lang::txt("ProgramView_viewDetailTable.title"));
+		$table->renameHeader("length", Lang::txt("ProgramView_viewDetailTable.length"));
+		$table->renameHeader("notes", Lang::txt("ProgramView_viewDetailTable.notes"));
 		$table->write();
 		$this->writeProgramLength();
 	}
 	
 	private function writeProgramLength() {
 		$tt = $this->getData()->totalProgramLength($_GET["id"]);
-		Writing::p("Das Programm hat eine Gesamtlänge von <span style=\"font-weight: 600;\">" . $tt . "</span> Stunden.");		
+		Writing::p(Lang::txt("ProgramView_writeProgramLength.message_1")"<span style=\"font-weight: 600;\">" . $tt . "</span>"Lang::txt("ProgramView_writeProgramLength.message_2"));		
 	}
 	
 	public function view() {
@@ -117,17 +117,17 @@ class ProgramView extends CrudView {
 	}
 	
 	function additionalViewButtons() {
-		$lnk = new Link($this->modePrefix() . "editList&id=" . $_GET["id"], "Titelliste bearbeiten");
+		$lnk = new Link($this->modePrefix() . "editList&id=" . $_GET["id"], Lang::txt("ProgramView_additionalViewButtons.edit"));
 		$lnk->addIcon("edit");
 		$lnk->write();
 		$this->buttonSpace();
 		
-		$lnk = new Link($this->modePrefix() . "printList&id=" . $_GET["id"], "Titelliste drucken");
+		$lnk = new Link($this->modePrefix() . "printList&id=" . $_GET["id"], Lang::txt("ProgramView_additionalViewButtons.printer"));
 		$lnk->addIcon("printer");
 		$lnk->write();
 		$this->buttonSpace();
 		
-		$lnk = new Link("src/export/programm.csv?id=" . $_GET["id"], "Titelliste exportieren (CSV)");
+		$lnk = new Link("src/export/programm.csv?id=" . $_GET["id"], Lang::txt("ProgramView_additionalViewButtons.export"));
 		$lnk->addIcon("arrow_down");
 		$lnk->setTarget("_blank");
 		$lnk->write();
@@ -135,7 +135,7 @@ class ProgramView extends CrudView {
 	
 	function editList() {
 		Writing::h2($this->getData()->getProgramName($_GET["id"]));
-		Writing::p("Schiebe die Titel in die Reihenfolge, die du möchtest.");
+		Writing::p(Lang::txt("ProgramView_editList.message"));
 		
 		$tracks = $this->getData()->getSongsForProgram($_GET["id"]);
 		echo "<form action=\"" . $this->modePrefix() . "saveList&id=" . $_GET["id"] . "\" method=\"POST\">\n";
@@ -194,7 +194,7 @@ class ProgramView extends CrudView {
 	}
 	
 	protected function editListOptions() {
-		$back = new Link($this->modePrefix() . "view&id=" . $_GET["id"], Lang::txt("back"));
+		$back = new Link($this->modePrefix() . "view&id=" . $_GET["id"], Lang::txt("ProgramView_editListOptions.back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 	}
@@ -235,10 +235,10 @@ class ProgramView extends CrudView {
 		// print table
 		$songs = $this->getData()->getSongsForProgramPrint($_GET["id"]);
 		$tab = new Table($songs);
-		$tab->renameHeader("title", "Stück");
-		$tab->renameHeader("notes", Lang::txt("notes"));
-		$tab->renameHeader("length", Lang::txt("length"));
-		$tab->addSumLine("Programmlänge", $this->getData()->totalProgramLength());  // automatically uses $_GET["id"]
+		$tab->renameHeader("title", Lang::txt("ProgramView_printList.title"));
+		$tab->renameHeader("notes", Lang::txt("ProgramView_printList.notes"));
+		$tab->renameHeader("length", Lang::txt("ProgramView_printList.length"));
+		$tab->addSumLine(Lang::txt("ProgramView_printList.totalProgramLength"), $this->getData()->totalProgramLength());  // automatically uses $_GET["id"]
 		$tab->write();
 	}
 	
@@ -246,7 +246,7 @@ class ProgramView extends CrudView {
 		$this->backToViewButton($_GET["id"]);
 		$this->buttonSpace();
 		
-		$print = new Link("javascript:print()", Lang::txt("print"));
+		$print = new Link("javascript:print()", Lang::txt("ProgramView_printListOptions.print"));
 		$print->addIcon("printer");
 		$print->write();
 	}

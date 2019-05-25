@@ -115,7 +115,7 @@ class GroupSelector implements iWriteable {
 				$groupName .= $this->groups[$i][$this->nameColumn[$j]];
 			}
 			switch($this->captionType) {
-				case FieldType::BOOLEAN: $groupName = ($groupName == "1") ? "ja" : "nein"; break;
+				case FieldType::BOOLEAN: $groupName = ($groupName == "1") ? Lang::txt("GroupSelector_toString.yes") : Lang::txt("GroupSelector_toString.no"); break;
 				case FieldType::DATE: $groupName = Data::convertDateFromDb($groupName); break;
 				case FieldType::DATETIME: $groupName = Data::convertDateFromDb($groupName); break;
 				case FieldType::DECIMAL: $groupName = Data::convertFromDb($groupName); break;

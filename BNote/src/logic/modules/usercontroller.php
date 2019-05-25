@@ -23,17 +23,16 @@ class UserController extends DefaultController {
 		if($this->getData()->changeUserStatus($_GET["id"])) {
 			// prepare mail
 			$to = $this->getData()->getUsermail($_GET["id"]);
-			$subject = "Benutzerkonto freigeschaltet.";
-			$body = "Dein " . $this->getData()->getSysdata()->getCompany() . " Benutzerkonto wurde aktiviert. ";
-			$body .= "Du kannst dich nun unter " . $this->getData()->getSysdata()->getSystemURL() . " anmelden.";
+			$subject = Lang::txt("UserController_activate.message_1");
+			$body = Lang::txt("UserController_activate.message_2") . $this->getData()->getSysdata()->getCompany() . Lang::txt("UserController_activate.message_3");
+			$body .= Lang::txt("UserController_activate.message_4") . $this->getData()->getSysdata()->getSystemURL() . Lang::txt("UserController_activate.message_5");
 			
 			// send mail
 			require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
 			$mail = new Mailing($to, $subject, $body);
 			
 			if(!$mail->sendMail()) {
-				new Message("Aktivierungsemail fehlgeschlagen",
-						"Das Senden der Aktivierungsemail war nicht erfolgreich. Bitte benachrichtigen Sie den Benutzer selbst.");
+				new Message(Lang::txt("UserController_activate.message_6"), Lang::txt("UserController_activate.message_7"));
 			}
 		}
 	

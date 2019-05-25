@@ -13,6 +13,7 @@ class KonzerteView extends CrudRefLocationView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName("Auftritt");
+		$this->setaddEntityName(Lang::txt("KonzerteView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
 			"program" => array("name"),
@@ -36,17 +37,17 @@ class KonzerteView extends CrudRefLocationView {
 	}
 	
 	function start() {
-		Writing::p("Um einen Auftritt anzuzeigen oder zu bearbeiten, bitte auf den entsprechenden Auftritt klicken.");
+		Writing::p(Lang::txt("KonzerteView_start.Message"));
 		
 		// Next Concert
 		$concerts = $this->getData()->getFutureConcerts();
-		Writing::h2("Nächster Auftritt");
+		Writing::h2(Lang::txt("KonzerteView_start.Next"));
 		if(count($concerts) > 1) {
 			$this->writeConcert($concerts[1]);
 		}
 		
 		// More Concerts
-		Writing::h2("Geplante Auftritte");
+		Writing::h2(Lang::txt("KonzerteView_start.More"));
 		$this->writeConcerts($concerts);
 	}
 	
@@ -54,12 +55,12 @@ class KonzerteView extends CrudRefLocationView {
 		parent::startOptions();
 		
 		$this->buttonSpace();
-		$lnk = new Link($this->modePrefix() . "programs", "Programme verwalten");
+		$lnk = new Link($this->modePrefix() . "programs", Lang::txt("KonzerteView_startOptions.programs"));
 		$lnk->addIcon("setlist");
 		$lnk->write();
 		
 		$this->buttonSpace();
-		$lnk = new Link($this->modePrefix() . "history", "Chronik");
+		$lnk = new Link($this->modePrefix() . "history", Lang::txt("KonzerteView_startOptions.history"));
 		$lnk->addIcon("timer");
 		$lnk->write();
 	}
@@ -108,8 +109,8 @@ class KonzerteView extends CrudRefLocationView {
 		
 		// filters
 		$filter = new Filterbox($this->modePrefix() . "history");
-		$filter->addFilter("from", "Zeitraum von", FieldType::DATE, $from);
-		$filter->addFilter("to", "Zeitraum bis", FieldType::DATE, $to);
+		$filter->addFilter("from", Lang::txt("KonzerteView_history.from"), FieldType::DATE, $from);
+		$filter->addFilter("to", Lang::txt("KonzerteView_history.to"), FieldType::DATE, $to);
 		$filter->write();
 		
 		// data
@@ -119,11 +120,11 @@ class KonzerteView extends CrudRefLocationView {
 		$table = new Table($concerts);
 		$table->renameAndAlign($this->getData()->getFields());
 		$table->removeColumn("notes");
-		$table->renameHeader("id", "Nr");
-		$table->renameHeader("location_name", "Aufführungsort");
-		$table->renameHeader("location_city", "Stadt");
-		$table->renameHeader("contact_name", "Kontaktperson");
-		$table->renameHeader("program_name", "Programm");
+		$table->renameHeader("id", Lang::txt("KonzerteView_history.id"));
+		$table->renameHeader("location_name", Lang::txt("KonzerteView_history.location_name"));
+		$table->renameHeader("location_city", Lang::txt("KonzerteView_history.location_city"));
+		$table->renameHeader("contact_name", Lang::txt("KonzerteView_history.contact_name"));
+		$table->renameHeader("program_name", Lang::txt("KonzerteView_history.program_name"));
 		$table->setColumnFormat("begin", "DATE");
 		$table->setColumnFormat("end", "DATE");
 		$table->setEdit("id");
@@ -144,10 +145,10 @@ class KonzerteView extends CrudRefLocationView {
 		?>
 		
 		<div class="concertdetail_box">
-			<div class="concertdetail_heading">Veranstaltung</div>
+			<div class="concertdetail_heading"><?php echo Lang::txt("KonzerteView_view.title"); ?></div>
 			<div class="concertdetail_data">
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Veranstalter</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.organizer"); ?></span>
 					<span class="concertdetail_value"><?php 
 					if($c["organizer"]) {
 						echo $c["organizer"];
@@ -155,14 +156,14 @@ class KonzerteView extends CrudRefLocationView {
 					?></span>
 				</div>
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Ort</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.location"); ?></span>
 					<span class="concertdetail_value"><?php 
 					echo $loc["name"] . "<br/>";
 					echo $this->formatAddress($this->getData()->getAddress($loc["address"]));
 					?></span>
 				</div>
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Kontakt</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.contact"); ?></span>
 					<span class="concertdetail_value"><?php 
 					if($c["contact"]) {
 						$cnt = $this->getData()->getContact($c["contact"]);
@@ -178,31 +179,31 @@ class KonzerteView extends CrudRefLocationView {
 		</div>
 		
 		<div class="concertdetail_box">
-			<div class="concertdetail_heading">Zeiten</div>
+			<div class="concertdetail_heading"><?php echo Lang::txt("KonzerteView_view.periods"); ?></div>
 			<div class="concertdetail_data">
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Datum/Zeit</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.date"); ?></span>
 					<span class="concertdetail_value"><?php 
 					echo Data::convertDateFromDb($c["begin"]) . " - ";
 					echo Data::convertDateFromDb($c["end"]);
 					?></span>
 				</div>
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Treffpunkt</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.place"); ?></span>
 					<span class="concertdetail_value"><?php echo Data::convertDateFromDb($c["meetingtime"]); ?></span>
 				</div>
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Zusage bis</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.till"); ?></span>
 					<span class="concertdetail_value"><?php echo Data::convertDateFromDb($c["approve_until"]); ?></span>
 				</div>
 			</div>
 		</div>
 		
 		<div class="concertdetail_box">
-			<div class="concertdetail_heading">Organisation</div>
+			<div class="concertdetail_heading"><?php echo Lang::txt("KonzerteView_view.organisation"); ?></div>
 			<div class="concertdetail_data">
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Besetzung</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.occupation"); ?></span>
 					<span class="concertdetail_value"><?php 
 					$groups = $this->getData()->getConcertGroups($c["id"]);
 					$groupNames = Database::flattenSelection($groups, "name");
@@ -210,7 +211,7 @@ class KonzerteView extends CrudRefLocationView {
 					?></span>
 				</div>
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Programm</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.program"); ?></span>
 					<span class="concertdetail_value"><?php 
 					if($c["program"]) {
 						$prg = $this->getData()->getProgram($c["program"]);
@@ -219,7 +220,7 @@ class KonzerteView extends CrudRefLocationView {
 					?></span>
 				</div>
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Outfit</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.Outfit"); ?></span>
 					<span class="concertdetail_value"><?php 
 					if($c["outfit"]) {
 						$outfit = $this->getData()->getOutfit($c["outfit"]);
@@ -228,7 +229,7 @@ class KonzerteView extends CrudRefLocationView {
 					?></span>
 				</div>
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Equipment</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.equipment"); ?></span>
 					<span class="concertdetail_value">
 						<?php 
 						$equipment = $this->getData()->getConcertEquipment($c["id"]);
@@ -249,10 +250,10 @@ class KonzerteView extends CrudRefLocationView {
 		</div>
 		
 		<div class="concertdetail_box">
-			<div class="concertdetail_heading">Details</div>
+			<div class="concertdetail_heading"><?php echo Lang::txt("KonzerteView_view.details"); ?></div>
 			<div class="concertdetail_data">
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Unterkunft</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.accommodation"); ?></span>
 					<span class="concertdetail_value"><?php 
 					if($c["accommodation"] > 0) {
 						$acc = $this->getData()->adp()->getAccommodationLocation($c["accommodation"]);
@@ -261,11 +262,11 @@ class KonzerteView extends CrudRefLocationView {
 					?></span>
 				</div>
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Gage</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.payment"); ?></span>
 					<span class="concertdetail_value"><?php echo Data::convertFromDb($c["payment"]); ?></span>
 				</div>
 				<div class="concertdetail_entry">
-					<span class="concertdetail_key">Konditionen</span>
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.conditions"); ?></span>
 					<span class="concertdetail_value"><?php echo $c["conditions"]; ?></span>
 				</div>
 			<?php 
@@ -295,28 +296,28 @@ class KonzerteView extends CrudRefLocationView {
 	
 	private function viewInvitations() {
 		// manage members who will play in this concert
-		Writing::h2("Eingeladene Kontakte");
+		Writing::h2("KonzerteView_viewInvitations.title");
 		
 		$contacts = $this->getData()->getConcertContacts($_GET["id"]);
 		$contacts = Table::addDeleteColumn($contacts, $this->modePrefix() . "delConcertContact&id=" . $_GET["id"] . "&contactid=");
 		$tab = new Table($contacts);
 		$tab->removeColumn("id");
-		$tab->renameHeader("fullname", "Name");
-		$tab->renameHeader("nickname", Lang::txt("nickname"));
-		$tab->renameHeader("phone", "Telefon");
-		$tab->renameHeader("mobile", "Handy");
+		$tab->renameHeader("fullname", Lang::txt("KonzerteView_viewInvitations.fullname"));
+		$tab->renameHeader("nickname", Lang::txt("KonzerteView_viewInvitations.nickname"));
+		$tab->renameHeader("phone", Lang::txt("KonzerteView_viewInvitations.phone"));
+		$tab->renameHeader("mobile", Lang::txt("KonzerteView_viewInvitations.mobile"));
 		$tab->write();
 	}
 	
 	private function viewPhases() {
 		// show the rehearsal phases this concert is related to
-		Writing::h2("Probenphasen");
+		Writing::h2(Lang::txt("KonzerteView_viewPhases.title"));
 		$phases = $this->getData()->getRehearsalphases($_GET["id"]);
 		$tab = new Table($phases);
 		$tab->removeColumn("id");
-		$tab->renameHeader("Begin", "von");
-		$tab->renameHeader("end", "bis");
-		$tab->renameHeader("notes", "Notizen");
+		$tab->renameHeader("Begin", Lang::txt("KonzerteView_viewPhases.Begin"));
+		$tab->renameHeader("end", Lang::txt("KonzerteView_viewPhases.end"));
+		$tab->renameHeader("notes", Lang::txt("KonzerteView_viewPhases.notes"));
 		$tab->write();
 	}
 	
@@ -459,23 +460,23 @@ class KonzerteView extends CrudRefLocationView {
 		$this->checkID();
 		$parts = $this->getData()->getParticipants($_GET["id"]);
 		
-		Writing::h2("Teilnehmer");
+		Writing::h2(Lang::txt("KonzerteView_showParticipants.title_1"));
 		$table = new Table($parts);
-		$table->renameHeader("participate", "Nimmt teil");
-		$table->renameHeader("reason", "Grund");
-		$table->renameHeader("category", "Gruppe");
-		$table->renameHeader("nickname", Lang::txt("nickname"));
+		$table->renameHeader("participate", Lang::txt("KonzerteView_showParticipants.participate"));
+		$table->renameHeader("reason", Lang::txt("KonzerteView_showParticipants.reason"));
+		$table->renameHeader("category", Lang::txt("KonzerteView_showParticipants.category"));
+		$table->renameHeader("nickname", Lang::txt("KonzerteView_showParticipants.nickname_1"));
 		$table->removeColumn("id");
 		$table->write();
 		$this->verticalSpace();
 		
-		Writing::h3("Ausstehende Zu-/Absagen");
+		Writing::h3(Lang::txt("KonzerteView_showParticipants.title_2"));
 		$openTab = new Table($this->getData()->getOpenParticipants($_GET["id"]));
 		$openTab->removeColumn("id");
-		$openTab->renameHeader("nickname", Lang::txt("nickname"));
-		$openTab->renameHeader("fullname", Lang::txt("fullname"));
-		$openTab->renameHeader("phone", Lang::txt("phone"));
-		$openTab->renameHeader("mobile", Lang::txt("mobile"));
+		$openTab->renameHeader("nickname", Lang::txt("KonzerteView_showParticipants.nickname_2"));
+		$openTab->renameHeader("fullname", Lang::txt("KonzerteView_showParticipants.fullname"));
+		$openTab->renameHeader("phone", Lang::txt("KonzerteView_showParticipants.phone"));
+		$openTab->renameHeader("mobile", Lang::txt("KonzerteView_showParticipants.mobile"));
 		$openTab->write();
 	}
 	
@@ -486,29 +487,29 @@ class KonzerteView extends CrudRefLocationView {
 	protected function addEntityForm() {
 		require_once $GLOBALS["DIR_WIDGETS"] . "sectionform.php";
 		
-		$form = new SectionForm("Neuer Auftritt", $this->modePrefix() . "add");
-		$this->flash("Bevor ein neuer Auftritt angelegt werden kann, bitte alle Kontaktdaten (Kontakte) und Orte (Locations) anlegen.", "info");
+		$form = new SectionForm(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
+		$this->flash(Lang::txt("KonzerteView_addEntityForm.flash_1"), Lang::txt("KonzerteView_addEntityForm.flash_2"));
 		
 		// ************* MASTER DATA *************
 		$title_field = new Field("title", "", FieldType::CHAR);
-		$form->addElement("Titel", $title_field);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.title"), $title_field);
 		$begin_field = new Field("begin", "", FieldType::DATETIME);
 		$begin_field->setCssClass("copyDateOrigin");
-		$form->addElement("Beginn", $begin_field);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.begin"), $begin_field);
 		$end_field = new Field("end", "", FieldType::DATETIME);
 		$end_field->setCssClass("copyDateTarget");
-		$form->addElement("Ende", $end_field);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.copyDateTarget"), $end_field);
 		$approve_field = new Field("approve_until", "", FieldType::DATETIME);
 		$approve_field->setCssClass("copyDateTarget");
 		$meetingtime = new Field("meetingtime", "", FieldType::DATETIME);
 		$meetingtime->setCssClass("copyDateTarget");
-		$form->addElement("Treffpunkt (Zeit)", $meetingtime);
-		$form->addElement("Zusagen bis", $approve_field);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.meetingtime_from"), $meetingtime);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.meetingtime_to"), $approve_field);
 		$notesField = new Field("notes", "", FieldType::TEXT);
 		$notesField->setColsAndRows(5, 40);
-		$form->addElement("Notizen", $notesField);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.notes"), $notesField);
 		
-		$form->setSection("Auftritt", array("title", "begin", "end", "approve_until", "meetingtime", "notes"));
+		$form->setSection(Lang::txt("KonzerteView_addEntityForm.title"), array("title", "begin", "end", "approve_until", "meetingtime", "notes"));
 		
 		// ************* LOCATION AND CONTACT *************
 		// choose location
@@ -519,17 +520,17 @@ class KonzerteView extends CrudRefLocationView {
 			$l = $loc["name"] . ": " . $this->formatAddress($loc);
 			$dd1->addOption($l, $loc["id"]);
 		}
-		$form->addElement("Location", $dd1);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.location"), $dd1);
 		
 		// choose contact
-		$form->addElement("Veranstalter", new Field("organizer", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.organizer"), new Field("organizer", "", FieldType::CHAR));
 		$dd2 = new Dropdown("contact");
 		$contacts = $this->getData()->getContacts();
 		for($i = 1; $i < count($contacts); $i++) {
 			$label = $this->formatContact($contacts[$i], "NAME_COMM");
 			$dd2->addOption($label, $contacts[$i]["id"]);
 		}
-		$form->addElement("Kontakt", $dd2);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.contact"), $dd2);
 		
 		// choose accommodation
 		$dd3 = new Dropdown("accommodation");
@@ -540,14 +541,14 @@ class KonzerteView extends CrudRefLocationView {
 			$caption = $acc["name"] . ": " . $this->formatAddress($acc);
 			$dd3->addOption($caption, $acc["id"]);
 		}
-		$form->addElement("Unterkunft", $dd3);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.accommodation"), $dd3);
 		
-		$form->setSection("Ort und Veranstalter", array("location", "organizer", "contact", "accommodation"));
+		$form->setSection(Lang::txt("KonzerteView_addEntityForm.title_location"), array("location", "organizer", "contact", "accommodation"));
 		
 		// ************* ORGANISATION *************
 		// choose members
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
-		$form->addElement("Besetzung", $gs);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.group"), $gs);
 		
 		// chosse program
 		$dd4 = new Dropdown("program");
@@ -556,31 +557,31 @@ class KonzerteView extends CrudRefLocationView {
 		for($i = 1; $i < count($templates); $i++) {
 			$dd4->addOption($templates[$i]["name"], $templates[$i]["id"]);
 		}
-		$form->addElement("Programm aus Vorlage", $dd4);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.group"), $dd4);
 		
 		// choose equipment
 		$equipment = $this->getData()->adp()->getEquipment();
 		$equipmentSelector = new GroupSelector($equipment, array(), "equipment");
-		$form->addElement("Equipment", $equipmentSelector);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.equipment"), $equipmentSelector);
 		
 		// outfit
 		$form->addElement("outfit", new Field("outfit", 0, FieldType::REFERENCE));
 		$form->setForeign("outfit", "outfit", "id", array("name"), -1);
 		$form->addForeignOption("outfit", "Kein Outfit", 0);
 		
-		$form->setSection("Organisation", array("group", "program", "equipment", "outfit"));
-		$form->renameElement("outfit", "Outfit");
+		$form->setSection(Lang::txt("KonzerteView_addEntityForm.group_title"), array("group", "program", "equipment", "outfit"));
+		$form->renameElement("outfit", Lang::txt("KonzerteView_addEntityForm.outfit"));
 		
 		// ************* DETAILS *************
-		$form->addElement("Gage", new Field("payment", "", FieldType::DECIMAL));
-		$form->addElement("Konditionen", new Field("conditions", "", FieldType::TEXT));
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.payment"), new Field("payment", "", FieldType::DECIMAL));
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.conditions"), new Field("conditions", "", FieldType::TEXT));
 		
 		// custom fields
 		$customFields = $this->getData()->getCustomFields(KonzerteData::$CUSTOM_DATA_OTYPE);
 		$customFieldNames = Database::flattenSelection($customFields, "techname");
 		$this->appendCustomFieldsToForm($form, KonzerteData::$CUSTOM_DATA_OTYPE);
 		
-		$form->setSection("Details", array_merge(array("payment", "conditions"), $customFieldNames));
+		$form->setSection(Lang::txt("KonzerteView_addEntityForm.details_title"), array_merge(array("payment", "conditions"), $customFieldNames));
 		
 		$form->write();
 	}

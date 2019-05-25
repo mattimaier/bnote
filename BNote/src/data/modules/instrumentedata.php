@@ -12,9 +12,9 @@ class InstrumenteData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"name" => array("Name", FieldType::CHAR),
-				"category" => array("Kategorie", FieldType::REFERENCE)
+				"id" => array(Lang::txt("InstrumenteData_construct.id"), FieldType::INTEGER),
+				"name" => array(Lang::txt("InstrumenteData_construct.name"), FieldType::CHAR),
+				"category" => array(Lang::txt("InstrumenteData_construct.category"), FieldType::REFERENCE)
 		);
 	
 		$this->references = array(
@@ -74,7 +74,7 @@ class InstrumenteData extends AbstractData {
 			parent::delete($id);
 		}
 		else {
-			new BNoteError("Das Instrument kann nicht gelöscht werden, da es mindestens einem Kontakt zugeordnet ist.");
+			new BNoteError(Lang::txt("InstrumenteData_delete.BNoteError"));
 		}
 	}
 }

@@ -14,21 +14,21 @@ class KonzerteData extends AbstractLocationData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array("Auftritt ID", FieldType::INTEGER),
-			"title" => array("Titel", FieldType::CHAR, true),
-			"begin" => array("Beginn", FieldType::DATETIME, true),
-			"end" => array("Ende", FieldType::DATETIME, true),
-			"approve_until" => array("Zusagen bis", FieldType::DATETIME, true),
-			"meetingtime" => array("Treffpunkt (Zeit)", FieldType::DATETIME, true),
-			"organizer" => array("Veranstalter", FieldType::CHAR),
-			"location" => array("Ort", FieldType::REFERENCE),
-			"accommodation" => array("Unterkunft", FieldType::REFERENCE),
-			"program" => array("Programm", FieldType::REFERENCE),
-			"contact" => array("Kontakt", FieldType::REFERENCE),
-			"outfit" => array("Outfit", FieldType::REFERENCE),
-			"notes" => array("Anmerkungen", FieldType::TEXT), 
-			"payment" => array("Gage", FieldType::DECIMAL),
-			"conditions" => array("Konditionen", FieldType::TEXT)
+			"id" => array(Lang::txt("KonzerteData_construct.id"), FieldType::INTEGER),
+			"title" => array(Lang::txt("KonzerteData_construct.title"), FieldType::CHAR, true),
+			"begin" => array(Lang::txt("KonzerteData_construct.begin"), FieldType::DATETIME, true),
+			"end" => array(Lang::txt("KonzerteData_construct.end"), FieldType::DATETIME, true),
+			"approve_until" => array(Lang::txt("KonzerteData_construct.approve_until"), FieldType::DATETIME, true),
+			"meetingtime" => array(Lang::txt("KonzerteData_construct.meetingtime"), FieldType::DATETIME, true),
+			"organizer" => array(Lang::txt("KonzerteData_construct.organizer"), FieldType::CHAR),
+			"location" => array(Lang::txt("KonzerteData_construct.location"), FieldType::REFERENCE),
+			"accommodation" => array(Lang::txt("KonzerteData_construct.accommodation"), FieldType::REFERENCE),
+			"program" => array(Lang::txt("KonzerteData_construct.program"), FieldType::REFERENCE),
+			"contact" => array(Lang::txt("KonzerteData_construct.contact"), FieldType::REFERENCE),
+			"outfit" => array(Lang::txt("KonzerteData_construct.outfit"), FieldType::REFERENCE),
+			"notes" => array(Lang::txt("KonzerteData_construct.notes"), FieldType::TEXT), 
+			"payment" => array(Lang::txt("KonzerteData_construct.payment"), FieldType::DECIMAL),
+			"conditions" => array(Lang::txt("KonzerteData_construct.conditions"), FieldType::TEXT)
 		);
 		
 		$this->references = array(

@@ -88,18 +88,17 @@ class KontakteController extends DefaultController {
 		if(isset($contact["email"]) && $contact["email"] != "") {
 			// send email
 			global $system_data;
-			$subject = "Anmeldeinformationen " . $system_data->getCompany();
+			$subject = Lang::txt("KontakteController_createUserAccount.subject") . $system_data->getCompany();
 			
-			$body = "Du kannst dich nun unter ";
-			$body .= $system_data->getSystemURL() . " anmelden.\n\n";
-			$body .= "Dein Benutzername ist " . $username . " und dein ";
-			$body .= "Kennwort ist " . $password . " .\n";
+			$body = Lang::txt("KontakteController_createUserAccount.message_1");
+			$body .= $system_data->getSystemURL() . Lang::txt("KontakteController_createUserAccount.message_2");
+			$body .= Lang::txt("KontakteController_createUserAccount.message_3") . $username . Lang::txt("KontakteController_createUserAccount.message_4");
+			$body .= Lang::txt("KontakteController_createUserAccount.message_5") . $password . " .\n";
 			
 			// notify user about result
 			require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
 			$mail = new Mailing($contact["email"], $subject, $body);
-			$bandInfo = $this->getData()->getSysdata()->getCompanyInformation();
-			$mail->setFrom($bandInfo["Name"] . '<' . $bandInfo["Mail"] . '>');
+			$mail->setFrom($username . '<' . $contact["email"] . '>');
 				
 			if(!$mail->sendMail()) {
 				$this->getView()->userCredentials($username , $password);
@@ -180,30 +179,30 @@ class KontakteController extends DefaultController {
 			foreach($rehearsals as $rid) {
 				$res = $this->getData()->addContactRelation("rehearsal", $rid, $cid);
 				if($res < 0) {
-					new Message("Relation fehlgeschlagen", "Die Relation R$rid - $cid kann nicht gesetzt werden.");
+					new Message(Lang::txt("KontakteController_integrate.message_1"), Lang::txt("KontakteController_integrate.message_2") . "$rid - $cid" . Lang::txt("KontakteController_integrate.message_3"));
 				} 
 			}
 			foreach($phases as $pid) {
 				$res =$this->getData()->addContactRelation("rehearsalphase", $pid, $cid);
 				if($res < 0) {
-					new Message("Relation fehlgeschlagen", "Die Relation RP$pid - $cid kann nicht gesetzt werden.");
+					new Message(Lang::txt("KontakteController_integrate.message_1"), Lang::txt("KontakteController_integrate.message_4") . "$pid - $cid" . Lang::txt("KontakteController_integrate.message_3"));
 				}
 			}
 			foreach($concerts as $conid) {
 				$res =$this->getData()->addContactRelation("concert", $conid, $cid);
 				if($res < 0) {
-					new Message("Relation fehlgeschlagen", "Die Relation C$conid - $cid kann nicht gesetzt werden.");
+					new Message(Lang::txt("KontakteController_integrate.message_1"), Lang::txt("KontakteController_integrate.message_5") . "$conid - $cid" . Lang::txt("KontakteController_integrate.message_3"));
 				}
 			}
 			foreach($votes as $vid) {
 				$res =$this->getData()->addContactToVote($vid, $cid);
 				if($res < 0) {
-					new Message("Relation fehlgeschlagen", "Die Relation V$vid - $cid kann nicht gesetzt werden.");
+					new Message(Lang::txt("KontakteController_integrate.message_1"), Lang::txt("KontakteController_integrate.message_6") . "$vid - $cid" . Lang::txt("KontakteController_integrate.message_3"));
 				}
 			}
 		}
 		
-		new Message("Zuordnungen gespeichert", "Die Zuordnungen wurden gespeichert.");
+		new Message(Lang::txt("KontakteController_integrate.message_7"), Lang::txt("KontakteController_integrate.message_8"));
 	}
 	
 	private function importVCard() {
@@ -214,7 +213,7 @@ class KontakteController extends DefaultController {
 		$this->getData()->saveVCards($cards, $selectedGroups);
 		
 		// show success
-		$message = count($cards) . " Einträge wurden importiert.";
+		$message = count($cards) . Lang::txt("KontakteController_importVCard.cards");
 		$this->getView()->importVCardSuccess($message);
 	}
 	
@@ -275,7 +274,7 @@ class KontakteController extends DefaultController {
 		$addresses = array_unique($addresses);
 		
 		// compile mail
-		$_POST["subject"] = "Einverständniserklärung DSGVO";
+		$_POST["subject"] = Lang::txt("KontakteController_gdprSendMail.subject");
 		$templateContent = file_get_contents("data/gdpr_mail.php");
 		$templateContent .= $this->getData()->getSysdata()->getCompany() . "<br><br>";
 		$approveUrl = "http".(!empty($_SERVER['HTTPS'])?"s":"")."://".$_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME']."?mod=extGdpr&code=";
@@ -283,7 +282,7 @@ class KontakteController extends DefaultController {
 		$successful = 0;
 		foreach($addresses as $address) {
 			$approveUrl .= $this->getData()->getGdprCode($address);
-			$templateContent .= '<a href="' . $approveUrl . '">Überprüfen und zustimmen</a>';
+			$templateContent .= '<a href="' . $approveUrl . '"><?php echo Lang::txt("KontakteController_gdprSendMail.message"); ?></a>';
 			$_POST["message"] = $templateContent;
 			
 			// send mail with template
@@ -297,9 +296,9 @@ class KontakteController extends DefaultController {
 		
 		// processing
 		if($successful == 0) {
-			new BNoteError("Die Nachricht(en) konnte(n) nicht versandt werden. Bitte kontaktiere den Administrator.");
+			new BNoteError(Lang::txt("KontakteController_gdprSendMail.error"));
 		}
-		new Message("Mails versandt", "$successful Nachrichten wurden den Kontakten zugestellt.");
+		new Message(Lang::txt("KontakteController_gdprSendMail.newmessage_1"), "$successful" . Lang::txt("KontakteController_gdprSendMail.newmessage_2"));
 	}
 	
 	private function gdprNOK() {

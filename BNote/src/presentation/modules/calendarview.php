@@ -7,7 +7,7 @@ class CalendarView extends CrudRefLocationView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName(lang::txt("reservation"));
+		$this->setEntityName(lang::txt("CalendarView_construct.EntityName"));
 		
 		$this->setJoinedAttributes(CalendarData::$colExchange);
 	}
@@ -101,11 +101,11 @@ class CalendarView extends CrudRefLocationView {
 		$dv = new Dataview();
 		$dv->autoAddElements($reservation);
 		$dv->autoRename($this->getData()->getFields());
-		$dv->renameElement("id", Lang::txt("reservation_id"));
+		$dv->renameElement("id", Lang::txt("CalendarView_viewDetailTable.id"));
 		$dv->removeElement("contactname");
 		$dv->removeElement("contactsurname");
-		$dv->renameElement("locationname", Lang::txt("location"));
-		$dv->addElement(Lang::txt("contact"), $reservation["contactname"] . " " . $reservation["contactsurname"]);
+		$dv->renameElement("locationname", Lang::txt("CalendarView_viewDetailTable.id"));
+		$dv->addElement(Lang::txt("CalendarView_viewDetailTable.contact"), $reservation["contactname"] . " " . $reservation["contactsurname"]);
 		
 		// custom data
 		$customFields = $this->getData()->getCustomFields('v');
@@ -121,11 +121,11 @@ class CalendarView extends CrudRefLocationView {
 	}
 	
 	function startOptions() {
-		$reservation = new Link($this->modePrefix() . "addEntity", "Reservierung hinzufügen");
+		$reservation = new Link($this->modePrefix() . "addEntity", Lang::txt("CalendarView_startOptions.addEntity"));
 		$reservation->addIcon("plus");
 		$reservation->write();
 		
-		$appointment = new Link($this->modePrefix() . "appointments&func=addEntity", "Termin hinzufügen");
+		$appointment = new Link($this->modePrefix() . "appointments&func=addEntity", Lang::txt("CalendarView_startOptions.appointments"));
 		$appointment->addIcon("plus");
 		$appointment->write();
 	}

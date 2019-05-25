@@ -7,9 +7,9 @@ class GruppenData extends AbstractData {
 	 */
 	function __construct() {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"name" => array("Name", FieldType::CHAR),
-				"is_active" => array("Aktiv", FieldType::BOOLEAN)
+				"id" => array(Lang::txt("GruppenData_construct.id"), FieldType::INTEGER),
+				"name" => array(Lang::txt("GruppenData_construct.name"), FieldType::CHAR),
+				"is_active" => array(Lang::txt("GruppenData_construct.is_active"), FieldType::BOOLEAN)
 		);
 	
 		$this->references = array(
@@ -62,13 +62,11 @@ class GruppenData extends AbstractData {
 		$res = $this->database->getSelection($query);
 		$numContactsWithNoOtherGroup = count($res) -1;
 		if($numContactsWithNoOtherGroup > 0) {
-			new BNoteError("In dieser Gruppe sind $numContactsWithNoOtherGroup Kontakte die keiner anderen Gruppe zugeordnet sind.
-					   Bitte ändere deren Gruppenzugehörigkeit bevor du die Gruppe löschen kannst.");
+			new BNoteError(Lang::txt("GruppenData_delete.BNoteError_1"), "$numContactsWithNoOtherGroup", Lang::txt("GruppenData_delete.BNoteError_2"));
 		}
 		// check if there are files in the folder -> cancel removal
 		if(!$this->isDirEmpty($this->getSysdata()->getGroupHomeDir($id))) {
-			new BNoteError("Das Verzeichnis der Gruppe enthält noch Dateien. Bitte entfernen Sie diese aus dem Verzeichnis
-					   damit es gelöscht werden kann.");
+			new BNoteError(Lang::txt("GruppenData_delete.BNoteError_3"));
 		}
 		
 		// first remove all members from the group

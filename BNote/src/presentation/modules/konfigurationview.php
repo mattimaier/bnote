@@ -12,7 +12,7 @@ class KonfigurationView extends CrudRefLocationView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Konfiguration");
+		$this->setEntityName(Lang::txt("KonfigurationView_construct.EntityName"));
 	}
 	
 	function showOptions() {
@@ -35,13 +35,13 @@ class KonfigurationView extends CrudRefLocationView {
 	function start() {
 		$this->showWarnings();
 		
-		Writing::p("Bitte klicke auf eine Zeile um deren Wert zu ändern.");
+		Writing::p(Lang::txt("KonfigurationView_start.warning"));
 		
 		$parameter = $this->getData()->getActiveParameter();
 
 		$table = new Table($parameter);
-		$table->renameHeader("caption", "Parameter");
-		$table->renameHeader("value", "Wert");
+		$table->renameHeader("caption", Lang::txt("KonfigurationView_start.caption"));
+		$table->renameHeader("value", Lang::txt("KonfigurationView_start.value"));
 		$table->setEdit("param");
 		$table->removeColumn("param");
 		$table->changeMode("edit");
@@ -50,19 +50,19 @@ class KonfigurationView extends CrudRefLocationView {
 	
 	function startOptions() {		
 		// instrument configuration
-		$istr = new Link($this->modePrefix() . "instruments", "Instrumente");
+		$istr = new Link($this->modePrefix() . "instruments", Lang::txt("KonfigurationView_start.instruments"));
 		$istr->addIcon("instrument");
 		$istr->write();
 		
 		// fields configuration
-		$cuf = new Link($this->modePrefix() . "customfields", Lang::txt("customfields"));
+		$cuf = new Link($this->modePrefix() . "customfields", Lang::txt("KonfigurationView_start.customfields"));
 		$cuf->addIcon("copy_link");
 		$cuf->write();
 	}
 	
 	protected function showWarnings() {
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key") == "") {
-			$this->flash("Google Maps API Key not set.");
+			$this->flash(Lang::txt("KonfigurationView_showWarnings.Warnings"));
 		}
 	}
 	
@@ -70,7 +70,7 @@ class KonfigurationView extends CrudRefLocationView {
 		$this->checkID();
 		
 		// header
-		Writing::h2("Konfiguration");
+		Writing::h2(Lang::txt("KonfigurationView_edit.header"));
 		
 		// show form
 		$this->editEntityForm();
@@ -87,7 +87,7 @@ class KonfigurationView extends CrudRefLocationView {
 				$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		
 		if($_GET["id"] == "default_contact_group") {
-			Writing::p("Jeder neu registrierte Benutzer wird dieser Gruppe zugeordnet.");
+			Writing::p(Lang::txt("KonfigurationView_editEntityForm.message"));
 			$dd = new Dropdown("value");
 			$groups = $this->getData()->adp()->getGroups();
 			foreach($groups as $i => $group) {
@@ -95,7 +95,7 @@ class KonfigurationView extends CrudRefLocationView {
 				$dd->addOption($group["name"], $group["id"]);
 			}
 			$dd->setSelected($default);
-			$form->addElement("Wert", $dd);
+			$form->addElement(Lang::txt("KonfigurationView_start.group"), $dd);
 		}
 		else if($_GET["id"] == "default_conductor") {
 			$dd = new Dropdown("value");
@@ -106,16 +106,16 @@ class KonfigurationView extends CrudRefLocationView {
 			}
 			$dd->addOption("-", 0);
 			$dd->setSelected($default);
-			$form->addElement("Wert", $dd);
+			$form->addElement(Lang::txt("KonfigurationView_start.conductor"), $dd);
 		}
 		else if($_GET["id"] == "default_country") {
 			$dd = $this->buildCountryDropdown($default);
 			$dd->setName("value");
-			$form->addElement(Lang::txt("country"), $dd);
+			$form->addElement(Lang::txt("KonfigurationView_start.country"), $dd);
 		}
 		else {
 			// default case
-			$form->addElement("Wert", new Field("value", $default, $this->getData()->getParameterType($_GET["id"])));
+			$form->addElement(Lang::txt("KonfigurationView_start.value"), new Field("value", $default, $this->getData()->getParameterType($_GET["id"])));
 		}
 		
 		$form->write();
@@ -128,8 +128,8 @@ class KonfigurationView extends CrudRefLocationView {
 		$this->getData()->update($_GET["id"], $_POST);
 	
 		// show success
-		new Message($this->getEntityName() . " geändert",
-				"Der Eintrag wurde erfolgreich geändert.");
+		new Message($this->getEntityName() . Lang::txt("KonfigurationView_edit_process.message_1"),
+				Lang::txt("KonfigurationView_edit_process.message_2"));
 	}
 	
 }

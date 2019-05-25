@@ -16,9 +16,9 @@ class KonfigurationData extends AbstractLocationData {
 	 */
 	function __construct() {
 		$this->fields = array(
-				"param" => array("Parameter", FieldType::CHAR),
-				"value" => array("Wert", FieldType::CHAR),
-				"is_active" => array("Aktiv", FieldType::BOOLEAN)
+				"param" => array(Lang::txt("KonfigurationData_construct.param"), FieldType::CHAR),
+				"value" => array(Lang::txt("KonfigurationData_construct.value"), FieldType::CHAR),
+				"is_active" => array(Lang::txt("KonfigurationData_construct.is_active"), FieldType::BOOLEAN)
 		);
 	
 		$this->references = array(
@@ -28,26 +28,25 @@ class KonfigurationData extends AbstractLocationData {
 		$this->table = "configuration";
 	
 		$this->parameterConfig = array(
-				"rehearsal_start" => array("Probenbeginn", 96),
-				"rehearsal_duration" => array("Probendauer in min", FieldType::INTEGER),
-				"default_contact_group" => array("Standardgruppe", FieldType::REFERENCE),
-				"auto_activation" => array("Automatische Benutzeraktivierung", FieldType::BOOLEAN),
-				"user_registration" => array("Benutzer Registrierung", FieldType::BOOLEAN),
-				"share_nonadmin_viewmode" => array("Share-Lesemodus für Nicht-Administratoren", FieldType::BOOLEAN),
-				"rehearsal_show_length" => array("Probenlänge anzeigen", FieldType::BOOLEAN),
-				"allow_participation_maybe" => array("Vielleicht-Teilname zugelassen", FieldType::BOOLEAN),
-				"allow_zip_download" => array("Zip-Download für Ordner zulassen", FieldType::BOOLEAN),
-				"rehearsal_show_max" => array("Anzahl Proben auf Startseite", FieldType::INTEGER),
-				"discussion_on" => array("Diskussionen erlauben", FieldType::BOOLEAN),
-				"updates_show_max" => array("Anzahl Updates auf Startseite", FieldType::INTEGER),
-				"language" => array("Sprache", FieldType::CHAR),
-				"default_country" => array("Land", FieldType::CHAR),
-				"google_api_key" => array("Google Maps API Key", FieldType::CHAR),
-				"trigger_key" => array("Notification Interface Key", FieldType::CHAR),
-				"trigger_cycle_days" => array("Erinnerungszyklus (jede X Tage)", FieldType::INTEGER),
-				"trigger_repeat_count" => array("Anzahl der Erinnerungen", FieldType::INTEGER),
-				"enable_trigger_service" => array("Benachrichtigungen aktiv", FieldType::BOOLEAN),
-				"default_conductor" => array("Standarddirigent", FieldType::REFERENCE)
+				"rehearsal_start" => array(Lang::txt("KonfigurationData_construct.rehearsal_start"), 96),
+				"rehearsal_duration" => array(Lang::txt("KonfigurationData_construct.rehearsal_duration"), FieldType::INTEGER),
+				"default_contact_group" => array(Lang::txt("KonfigurationData_construct.default_contact_group"), FieldType::REFERENCE),
+				"auto_activation" => array(Lang::txt("KonfigurationData_construct.auto_activation"), FieldType::BOOLEAN),
+				"share_nonadmin_viewmode" => array(Lang::txt("KonfigurationData_construct.share_nonadmin_viewmode"), FieldType::BOOLEAN),
+				"rehearsal_show_length" => array(Lang::txt("KonfigurationData_construct.rehearsal_show_length"), FieldType::BOOLEAN),
+				"allow_participation_maybe" => array(Lang::txt("KonfigurationData_construct.allow_participation_maybe"), FieldType::BOOLEAN),
+				"allow_zip_download" => array(Lang::txt("KonfigurationData_construct.allow_zip_download"), FieldType::BOOLEAN),
+				"rehearsal_show_max" => array(Lang::txt("KonfigurationData_construct.rehearsal_show_max"), FieldType::INTEGER),
+				"discussion_on" => array(Lang::txt("KonfigurationData_construct.discussion_on"), FieldType::BOOLEAN),
+				"updates_show_max" => array(Lang::txt("KonfigurationData_construct.updates_show_max"), FieldType::INTEGER),
+				"language" => array(Lang::txt("KonfigurationData_construct.language"), FieldType::CHAR),
+				"default_country" => array(Lang::txt("KonfigurationData_construct.default_country"), FieldType::CHAR),
+				"google_api_key" => array(Lang::txt("KonfigurationData_construct.google_api_key"), FieldType::CHAR),
+				"trigger_key" => array(Lang::txt("KonfigurationData_construct.trigger_key"), FieldType::CHAR),
+				"trigger_cycle_days" => array(Lang::txt("KonfigurationData_construct.trigger_cycle_days"), FieldType::INTEGER),
+				"trigger_repeat_count" => array(Lang::txt("KonfigurationData_construct.trigger_repeat_count"), FieldType::INTEGER),
+				"enable_trigger_service" => array(Lang::txt("KonfigurationData_construct.enable_trigger_service"), FieldType::BOOLEAN),
+				"default_conductor" => array(Lang::txt("KonfigurationData_construct.default_conductor"), FieldType::REFERENCE)
 		);
 		
 		$this->parameterExclude = array(
@@ -93,7 +92,7 @@ class KonfigurationData extends AbstractLocationData {
 			return $this->database->getCell("contact", "CONCAT(name, ' ', surname)", "id = $value");
 		}
 		else if($this->getParameterType($param) == FieldType::BOOLEAN) {
-			return ($value == 1) ? "ja" : "nein";
+			return ($value == 1) ? Lang::txt("KonfigurationData_replaceParameterValue.yes") : Lang::txt("KonfigurationData_replaceParameterValue.no");
 		}
 		else {
 			return $value;

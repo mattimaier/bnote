@@ -92,7 +92,7 @@ class Filterbox implements iWriteable {
 				// create a dropdown
 				$element = new Dropdown($column);
 				if(isset($this->showAllOption[$column]) && $this->showAllOption[$column] === TRUE) {
-					$element->addOption(Lang::txt("show_all"), -1);
+					$element->addOption(Lang::txt("Filterbox_write.showAllOption"), -1);
 				}
 				
 				foreach($infos["values"] as $i => $val) {
@@ -122,8 +122,8 @@ class Filterbox implements iWriteable {
 			else if($infos["type"] == FieldType::BOOLEAN) {
 				$element = new Dropdown($column);
 				$element->addOption("-", -1);
-				$element->addOption(Lang::txt("yes"), 1);
-				$element->addOption(Lang::txt("no"), 0);
+				$element->addOption(Lang::txt("Filterbox_write.yes"), 1);
+				$element->addOption(Lang::txt("Filterbox_write.no"), 0);
 				
 				$val = -1; // default
 				if(isset($_POST[$column])) {

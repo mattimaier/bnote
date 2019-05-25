@@ -54,7 +54,7 @@ class StartView extends CrudRefLocationView {
 		// Calendar Exports
 		$userExt = "?user=" . urlencode($this->getData()->adp()->getLogin());
 		
-		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("start_calendarExport"));
+		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("StartView_startOptions.calendarExport"));
 		$ical->addIcon("save");
 		$ical->write();
 		$this->buttonSpace();
@@ -74,7 +74,7 @@ class StartView extends CrudRefLocationView {
 			$webcal_link = str_replace("BNote/BNote/", "BNote/", $webcal_link);
 		}
 		
-		$calSubsc = new Link($webcal_link, Lang::txt("start_calendarSubscribe"));
+		$calSubsc = new Link($webcal_link, Lang::txt("StartView_startOptions.calendarSubscribe"));
 		$calSubsc->addIcon("calendar");
 		$calSubsc->write();
 	}
@@ -88,18 +88,18 @@ class StartView extends CrudRefLocationView {
 				// GDPR
 				if($this->getData()->getSysdata()->gdprOk() == 0) {
 					?>
-					<div class="start_box_heading"><?php echo Lang::txt("gdprStartHeading"); ?></div>
+					<div class="start_box_heading"><?php echo Lang::txt("StartView_start.box_heading"); ?></div>
 					<div class="start_box_content">
 						<span class="warning">
-							<?php echo Lang::txt("gdprOkMessage"); ?>
+							<?php echo Lang::txt("StartView_start.warning"); ?>
 						</span>
-						<a href="?mod=terms" target="_blank"><?php echo Lang::txt("gdprLink"); ?></a>
+						<a href="?mod=terms" target="_blank"><?php echo Lang::txt("StartView_start.terms"); ?></a>
 						<br/>
 						<?php 
-						$yes = new Link($this->modePrefix() . "gdprOk&accept=1", Lang::txt("gdprOkYes"));
+						$yes = new Link($this->modePrefix() . "gdprOk&accept=1", Lang::txt("StartView_start.checkmark"));
 						$yes->addIcon("checkmark");
 						$yes->write();
-						$no = new Link($this->modePrefix() . "gdprOk&accept=0", Lang::txt("gdprOkNo"));
+						$no = new Link($this->modePrefix() . "gdprOk&accept=0", Lang::txt("StartView_start.cancel"));
 						$no->addIcon("cancel");
 						$no->write();
 						?>
@@ -110,7 +110,7 @@ class StartView extends CrudRefLocationView {
 				}
 				
 				?>
-				<div class="start_box_heading"><?php echo Lang::txt("news"); ?></div>
+				<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box.heading"); ?></div>
 				<div class="start_box_content">
 					<?php
 					// news
@@ -120,13 +120,13 @@ class StartView extends CrudRefLocationView {
 					if(($this->getData()->getSysdata()->isUserSuperUser() || $this->getData()->getSysdata()->isUserAdmin())
 							&& $this->getController()->usersToIntegrate()) {
 						$this->verticalSpace();
-						echo '<span class="warning">' . Lang::txt("nonIntegratedUsers") . '</span>';
+						echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_1") . '</span>';
 					}
 					
 					// check whether autologin is active and user is admin
 					if($this->getData()->getSysdata()->isUserAdmin() && $this->getData()->getSysdata()->isAutologinActive()) {
 						$this->verticalSpace();
-						echo '<span class="warning">' . Lang::txt("autoActivation") . '</span>';
+						echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_2") . '</span>';
 					}
 					?>
 				</div>
@@ -137,7 +137,7 @@ class StartView extends CrudRefLocationView {
 		<div class="start_box_table">
 			<div class="start_box_row">
 				<div class="start_box" style="padding-right: 10px;">
-					<div class="start_box_heading"><?php echo Lang::txt("rehearsals"); ?></div>
+					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Rehearsal.heading"); ?></div>
 					<div class="start_box_content">
 						<?php
 						if(isset($_GET["max"]) && $_GET["max"] >= 0) {
@@ -151,7 +151,7 @@ class StartView extends CrudRefLocationView {
 				</div>
 				
 				<div class="start_box">
-					<div class="start_box_heading"><?php echo Lang::txt("concerts"); ?></div>
+					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Concert.heading"); ?></div>
 					<div class="start_box_content">
 						<?php $this->writeConcertList(); ?>
 					</div>
@@ -159,7 +159,7 @@ class StartView extends CrudRefLocationView {
 					<?php
 					if($this->getData()->hasReservations()) {
 					?>
-					<div class="start_box_heading"><?php echo Lang::txt("reservations"); ?></div>
+					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Reservation.heading"); ?></div>
 					<div class="start_box_content">
 						<?php $this->writeReservationList(); ?>
 					</div>	
@@ -170,7 +170,7 @@ class StartView extends CrudRefLocationView {
 					<?php
 					if($this->getData()->hasAppointments()) {
 					?>
-					<div class="start_box_heading"><?php echo Lang::txt("appointments"); ?></div>
+					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Appointment.heading"); ?></div>
 					<div class="start_box_content">
 						<?php $this->writeAppointmentList(); ?>
 					</div>	
@@ -178,12 +178,12 @@ class StartView extends CrudRefLocationView {
 					}
 					?>
 					
-					<div class="start_box_heading"><?php echo Lang::txt("votes"); ?></div>
+					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Vote.heading"); ?></div>
 					<div class="start_box_content">
 						<?php $this->writeVoteList(); ?>
 					</div>
 					
-					<div class="start_box_heading"><?php echo Lang::txt("tasks"); ?></div>
+					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Task.heading"); ?></div>
 					<div class="start_box_content">
 						<?php $this->writeTaskList(); ?>
 					</div>
@@ -197,7 +197,7 @@ class StartView extends CrudRefLocationView {
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) { 
 					?>
 					<div class="start_box" style="max-width: 250px; padding-left: 10px;">
-						<div class="start_box_heading"><?php echo Lang::txt("discussions"); ?></div>
+						<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Task.writeUpdateList"); ?></div>
 						<div class="start_box_content">
 							<?php $this->writeUpdateList(); ?>
 						</div>
@@ -211,7 +211,7 @@ class StartView extends CrudRefLocationView {
 	}
 	
 	public function askReason($type) {
-		$form = new Form(Lang::txt("start_pleaseGiveReason"),
+		$form = new Form(Lang::txt("StartView_askReason.Form"),
 				$this->modePrefix() . "saveParticipation&obj=$type&id=" . $_GET["id"] . "&action=" . $_GET["action"]);
 		$form->addElement("", new Field("explanation", "", FieldType::CHAR));
 		$form->write();
@@ -221,7 +221,7 @@ class StartView extends CrudRefLocationView {
 		$data = $this->getData()->getUsersRehearsals();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
-			echo "<li>" . Lang::txt("start_noRehearsalsScheduled") . "</li>\n";
+			echo "<li>" . Lang::txt("StartView_writeRehearsalList.Form") . "</li>\n";
 		}
 		else {
 			// iterate over rehearsals
@@ -233,7 +233,7 @@ class StartView extends CrudRefLocationView {
 				// limit the number of rehearsals if necessary
 				if($max > 0 && $i > $max) {
 					if($i == $max+1) {
-						echo "<span style=\"font-style: italic;\">" . Lang::txt("start_showNumRehearsals", array($max)) . "</span>\n";
+						echo "<span style=\"font-style: italic;\">" . Lang::txt("StartView_writeRehearsalList.Rehearsal", array($max)) . "</span>\n";
 						echo "<br/><a href=\"" . $this->modePrefix() . "start&max=0" . "\">" . Lang::txt("showAll") . "</a>";
 					}					
 					continue; // cannot break due to discussion addition of objects
@@ -248,16 +248,16 @@ class StartView extends CrudRefLocationView {
 				
 				// create details for each rehearsal
 				$dataview = new Dataview();
-				$dataview->addElement(Lang::txt("begin"), Data::convertDateFromDb($data[$i]["begin"]));
-				$dataview->addElement(Lang::txt("end"), Data::convertDateFromDb($data[$i]["end"]));
+				$dataview->addElement(Lang::txt("StartView_writeRehearsalList.begin"), Data::convertDateFromDb($data[$i]["begin"]));
+				$dataview->addElement(Lang::txt("StartView_writeRehearsalList.end"), Data::convertDateFromDb($data[$i]["end"]));
 				$loc = $data[$i]["name"];
-				$dataview->addElement(Lang::txt("location"), $this->formatAddress($data[$i]));
+				$dataview->addElement(Lang::txt("StartView_writeRehearsalList.location"), $this->formatAddress($data[$i]));
 				if(isset($data[$i]["conductor"]) && $data[$i]["conductor"] != null) {
-					$dataview->addElement(Lang::txt("conductor"), $this->getData()->adp()->getConductorname($data[$i]["conductor"]));
+					$dataview->addElement(Lang::txt("StartView_writeRehearsalList.conductor"), $this->getData()->adp()->getConductorname($data[$i]["conductor"]));
 				}
 				if(isset($data[$i]["groups"])) {
 					$groupNames = array_column($data[$i]["groups"], "name");
-					$dataview->addElement(Lang::txt("groups"), join(", ", $groupNames));
+					$dataview->addElement(Lang::txt("StartView_writeRehearsalList.groupNames"), join(", ", $groupNames));
 				}
 				
 				// custom data
@@ -269,14 +269,14 @@ class StartView extends CrudRefLocationView {
 					if(isset($customData[$field["techname"]])) {
 						$value = $customData[$field["techname"]];
 						if($field["fieldtype"] == "BOOLEAN") {
-							$value = $value == 1 ? Lang::txt("yes") : Lang::txt("no");
+							$value = $value == 1 ? Lang::txt("StartView_writeRehearsalList.yes") : Lang::txt("StartView_writeRehearsalList.no");
 						}
 						$dataview->addElement($label, $value);
 					}
 				}
 				
 				if($data[$i]["notes"] != "") {
-					$dataview->addElement(Lang::txt("comment"), $data[$i]["notes"]);
+					$dataview->addElement(Lang::txt("StartView_writeRehearsalList.comment"), $data[$i]["notes"]);
 				}
 				
 				$songs = $this->getData()->getSongsForRehearsal($data[$i]["id"]);
@@ -287,29 +287,29 @@ class StartView extends CrudRefLocationView {
 						$strSongs .= $songs[$j]["title"];
 						if($songs[$j]["notes"] != "") $strSongs .= " (" . $songs[$j]["notes"] . ")";
 					}
-					$dataview->addElement(Lang::txt("start_songsToPractise"), $strSongs);
+					$dataview->addElement(Lang::txt("StartView_writeRehearsalList.Song"), $strSongs);
 				}
 				
 				// add button to show participants
 				$participantsButton = new Link($this->modePrefix() . "rehearsalParticipants&id=" . $data[$i]["id"], "Teilnehmer anzeigen");
-				$dataview->addElement(Lang::txt("participants"), $participantsButton->toString());
+				$dataview->addElement(Lang::txt("StartView_writeRehearsalList.Participants"), $participantsButton->toString());
 				
 				// show three buttons to participate/maybe/not in rehearsal
 				$partButtonSpace = "<br/><br/>";
 				$partButtons = "";
 				$partLinkPrefix = $this->modePrefix() . "saveParticipation&obj=rehearsal&id=" . $data[$i]["id"] . "&action=";
 				
-				$partBtn = new Link($partLinkPrefix . "yes", Lang::txt("start_iParticipate"));
+				$partBtn = new Link($partLinkPrefix . "yes", Lang::txt("StartView_writeRehearsalList.yes"));
 				$partBtn->addIcon("checkmark");
 				$partButtons .= $partBtn->toString() . $partButtonSpace;
 				
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") != 0) {
-					$mayBtn = new Link($partLinkPrefix . "maybe", Lang::txt("start_iMightParticipate"));
+					$mayBtn = new Link($partLinkPrefix . "maybe", Lang::txt("StartView_writeRehearsalList.maybe"));
 					$mayBtn->addIcon("yield");
 					$partButtons .= $mayBtn->toString() . $partButtonSpace;
 				}
 				
-				$noBtn = new Link($partLinkPrefix . "no", Lang::txt("start_iDoNotParticipate"));
+				$noBtn = new Link($partLinkPrefix . "no", Lang::txt("StartView_writeRehearsalList.no"));
 				$noBtn->addIcon("cancel");
 				$partButtons .= $noBtn->toString();
 				
@@ -317,23 +317,23 @@ class StartView extends CrudRefLocationView {
 				if($userParticipation < 0) {
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
 						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, Lang::txt("start_setParticipation"));
+								$dataview, $partButtons, Lang::txt("StartView_writeRehearsalList.setParticipation"));
 					}
 					else {
 						$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, Lang::txt("start_participationOver"), "", true);
+								$dataview, $partButtons, Lang::txt("StartView_writeRehearsalList.participationOver"), "", true);
 					}
 				}
 				else {
 					$msg = "";
 					if($userParticipation == 1) {
-						$msg .= Lang::txt("start_rehearsalParticipate");
+						$msg .= Lang::txt("StartView_writeRehearsalList.Participate");
 					}
 					else if($userParticipation == 2) {
-						$msg .= Lang::txt("start_rehearsalMaybeParticipate");
+						$msg .= Lang::txt("StartView_writeRehearsalList.MaybeParticipate");
 					}
 					else if($userParticipation == 0) {
-						$msg .= Lang::txt("start_rehearsalNotParticipate");
+						$msg .= Lang::txt("StartView_writeRehearsalList.NotParticipate");
 					}
 					
 					$this->writeBoxListItem("R", $data[$i]["id"], "r" . $data[$i]["id"], $liCaption, $dataview, $partButtons,
@@ -348,7 +348,7 @@ class StartView extends CrudRefLocationView {
 		$data = $this->getData()->getUsersConcerts();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
-			echo "<li>" . Lang::txt("start_noConcertsScheduled") . "</li>\n";
+			echo "<li>" . Lang::txt("StartView_writeConcertList.noConcertsScheduled") . "</li>\n";
 		}
 		else {
 			// iterate over concerts
@@ -369,17 +369,17 @@ class StartView extends CrudRefLocationView {
 				$partButtons = "";
 				$partLinkPrefix = $this->modePrefix() . "saveParticipation&obj=concert&id=" . $data[$i]["id"] . "&action=";
 				
-				$partBtn = new Link($partLinkPrefix . "yes", Lang::txt("start_iPlay"));
+				$partBtn = new Link($partLinkPrefix . "yes", Lang::txt("StartView_writeConcertList.yes"));
 				$partBtn->addIcon("checkmark");
 				$partButtons .= $partBtn->toString() . $partButtonSpace;
 				
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") != 0) {
-					$mayBtn = new Link($partLinkPrefix . "maybe", Lang::txt("start_iMayPlay"));
+					$mayBtn = new Link($partLinkPrefix . "maybe", Lang::txt("StartView_writeConcertList.maybe"));
 					$mayBtn->addIcon("yield");
 					$partButtons .= $mayBtn->toString() . $partButtonSpace;
 				}
 				
-				$noBtn = new Link($partLinkPrefix . "no", Lang::txt("start_iDontPlay"));
+				$noBtn = new Link($partLinkPrefix . "no", Lang::txt("StartView_writeConcertList.no"));
 				$noBtn->addIcon("cancel");
 				$partButtons .= $noBtn->toString();
 				
@@ -387,23 +387,23 @@ class StartView extends CrudRefLocationView {
 				if($userParticipation < 0) {
 					if($data[$i]["approve_until"] == "" || Data::compareDates($data[$i]["approve_until"], Data::getDateNow()) > 0) {
 						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, Lang::txt("start_setParticipation"));
+								$dataview, $partButtons, Lang::txt("StartView_writeConcertList.setParticipation"));
 					}
 					else {
 						$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption,
-								$dataview, $partButtons, Lang::txt("start_participationOver"), "", true);
+								$dataview, $partButtons, Lang::txt("StartView_writeConcertList.participationOver"), "", true);
 					}
 				}
 				else {
 					$msg = "";
 					if($userParticipation == 1) {
-						$msg .= Lang::txt("start_youParticipate");
+						$msg .= Lang::txt("StartView_writeConcertList.Participate");
 					}
 					else if($userParticipation == 2) {
-						$msg .= Lang::txt("start_youMayParticipate");
+						$msg .= Lang::txt("StartView_writeConcertList.MayParticipate");
 					}
 					else if($userParticipation == 0) {
-						$msg .= Lang::txt("start_youDontParticipate");
+						$msg .= Lang::txt("StartView_writeConcertList.DontParticipate");
 					}
 						
 					$this->writeBoxListItem("C", $data[$i]["id"], "c" . $data[$i]["id"], $liCaption, $dataview, $partButtons,
@@ -418,7 +418,7 @@ class StartView extends CrudRefLocationView {
 		$data = $this->getData()->adp()->getUserTasks();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
-			echo "<li>" . Lang::txt("start_noTasks") . "</li>\n";
+			echo "<li>" . Lang::txt("StartView_writeTaskList.noTasks") . "</li>\n";
 		}
 		else {
 			// iterate over tasks
@@ -430,9 +430,9 @@ class StartView extends CrudRefLocationView {
 				
 				$liCaption = $row["title"];
 				$dataview = new Dataview();
-				$dataview->addElement(Lang::txt("title"), $row["title"]);
-				$dataview->addElement(Lang::txt("description"), $row["description"]);
-				$dataview->addElement(Lang::txt("dueAt"), Data::convertDateFromDb($row["due_at"]));
+				$dataview->addElement(Lang::txt("StartView_writeTaskList.title"), $row["title"]);
+				$dataview->addElement(Lang::txt("StartView_writeTaskList.description"), $row["description"]);
+				$dataview->addElement(Lang::txt("StartView_writeTaskList.due_at"), Data::convertDateFromDb($row["due_at"]));
 				$lnk = $this->modePrefix() . "taskComplete&id=" . $row["id"];
 				$this->writeBoxListItem("T", $row["id"],"t" . $row["id"], $liCaption, $dataview, "", Lang::txt("start_markAsCompleted"), $lnk);
 			}
@@ -445,7 +445,7 @@ class StartView extends CrudRefLocationView {
 		
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
-			echo "<li>" . Lang::txt("start_noVotes") . "</li>\n";
+			echo "<li>" . Lang::txt("StartView_writeVoteList.noVotes") . "</li>\n";
 		}
 		else {
 			// iterate over votes
@@ -457,11 +457,11 @@ class StartView extends CrudRefLocationView {
 				
 				$liCaption = $row["name"];
 				$dataview = new Dataview();
-				$dataview->addElement(Lang::txt("name"), $row["name"]);
-				$dataview->addElement(Lang::txt("start_endOfVote"), Data::convertDateFromDb($row["end"]));
+				$dataview->addElement(Lang::txt("StartView_writeVoteList.name"), $row["name"]);
+				$dataview->addElement(Lang::txt("StartView_writeVoteList.end"), Data::convertDateFromDb($row["end"]));
 				
 				$link = $this->modePrefix() . "voteOptions&id=" . $row["id"];
-				$this->writeBoxListItem("V", $row["id"], "v" . $row["id"], $liCaption, $dataview, "", Lang::txt("vote"), $link);
+				$this->writeBoxListItem("V", $row["id"], "v" . $row["id"], $liCaption, $dataview, "", Lang::txt("StartView_writeVoteList.vote"), $link);
 			}
 		}
 		echo "</ul>\n";
@@ -480,7 +480,7 @@ class StartView extends CrudRefLocationView {
 
 			$liCaption =  Data::convertDateFromDb($row["begin"]) . " (" . $row["name"] . ")";
 			$dataview = new Dataview();
-			$dataview->addElement(Lang::txt("name"), $row["name"]);
+			$dataview->addElement(Lang::txt("StartView_writeReservationList.name"), $row["name"]);
 			
 			// custom data
 			$customFields = $this->getData()->getCustomFields('v', true);
@@ -491,7 +491,7 @@ class StartView extends CrudRefLocationView {
 				if(isset($customData[$field["techname"]])) {
 					$value = $customData[$field["techname"]];
 					if($field["fieldtype"] == "BOOLEAN") {
-						$value = $value == 1 ? Lang::txt("yes") : Lang::txt("no");
+						$value = $value == 1 ? Lang::txt("StartView_writeReservationList.yes") : Lang::txt("StartView_writeReservationList.no");
 					}
 					$dataview->addElement($label, $value);
 				}
@@ -513,8 +513,8 @@ class StartView extends CrudRefLocationView {
 			$liCaption =  Data::convertDateFromDb($row["begin"]) . " (" . $row["name"] . ")";
 			
 			$dataview = new Dataview();
-			$dataview->addElement(Lang::txt("name"), $row["name"]);
-			$dataview->addElement(Lang::txt("location"), $row["locationname"]);
+			$dataview->addElement(Lang::txt("StartView_writeAppointmentList.name"), $row["name"]);
+			$dataview->addElement(Lang::txt("StartView_writeAppointmentList.locationname"), $row["locationname"]);
 			
 			// custom data
 			$customFields = $this->getData()->getCustomFields('a', true);
@@ -525,7 +525,7 @@ class StartView extends CrudRefLocationView {
 				if(isset($customData[$field["techname"]])) {
 					$value = $customData[$field["techname"]];
 					if($field["fieldtype"] == "BOOLEAN") {
-						$value = $value == 1 ? Lang::txt("yes") : Lang::txt("no");
+						$value = $value == 1 ? Lang::txt("StartView_writeAppointmentList.yes") : Lang::txt("StartView_writeAppointmentList.no");
 					}
 					$dataview->addElement($label, $value);
 				}
@@ -612,9 +612,9 @@ class StartView extends CrudRefLocationView {
 			
 			<?php 
 			if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) {
-				$commentCaption = Lang::txt("discussion");
+				$commentCaption = Lang::txt("StartView_writeBoxListItem.discussion_on");
 				if(!$this->getData()->hasObjectDiscussion($otype, $oid)) {
-					$commentCaption = Lang::txt("start_newDiscussion");
+					$commentCaption = Lang::txt("StartView_writeBoxListItem.newDiscussion");
 				}
 				$participate_class = "discussion_" . $participate_class;
 				echo '<br/><a href="' . $this->modePrefix() . "discussion&otype=$otype&oid=$oid" . '" class="participation ' . $participate_class . '">';
@@ -625,7 +625,7 @@ class StartView extends CrudRefLocationView {
 			<div id="<?php echo $popboxid; ?>" title="Details" style="display: none;">
 				<?php $dataview->write(); ?>
 			</div>
-			<div id="<?php echo $popboxid; ?>_participation" title="<?php echo Lang::txt("start_participation")?>" style="display: none;">
+			<div id="<?php echo $popboxid; ?>_participation" title="<?php echo Lang::txt("StartView_writeBoxListItem.participation")?>" style="display: none;">
 				<?php echo $participation; ?>
 			</div>
 			</div>
@@ -636,7 +636,7 @@ class StartView extends CrudRefLocationView {
 	public function voteOptions() {
 		$this->checkID();
 		if(!$this->getData()->canUserVote($_GET["id"])) {
-			new BNoteError(Lang::txt("start_youCannotParticipateVote"));
+			new BNoteError(Lang::txt("StartView_voteOptions.error"));
 		}
 		$vote = $this->getData()->getVote($_GET["id"]);
 		Writing::h2($vote["name"]);
@@ -659,9 +659,9 @@ class StartView extends CrudRefLocationView {
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == "1"
 						&& $vote["is_multi"] == 1) {
 					$dd = new Dropdown($options[$i]["id"]);
-					$dd->addOption(Lang::txt("start_worksForMeNot"), 0);
-					$dd->addOption(Lang::txt("start_worksForMe"), 1);
-					$dd->addOption(Lang::txt("start_worksForMeMaybe"), 2);
+					$dd->addOption(Lang::txt("StartView_voteOptions.worksForMeNot"), 0);
+					$dd->addOption(Lang::txt("StartView_voteOptions.worksForMe"), 1);
+					$dd->addOption(Lang::txt("StartView_voteOptions.worksForMeMaybe"), 2);
 					if($selected != -1) {
 						$dd->setSelected($selected);
 					}		
@@ -699,7 +699,7 @@ class StartView extends CrudRefLocationView {
 			echo '<input type="submit" value="abstimmen" />' . "\n";
 		}
 		else {
-			Writing::p(Lang::txt("start_noOptionsYet"));
+			Writing::p(Lang::txt("StartView_voteOptions.noOptionsYet"));
 		}
 		echo "</form>\n";
 		$this->verticalSpace();
@@ -709,7 +709,7 @@ class StartView extends CrudRefLocationView {
 	public function saveVote() {
 		$this->checkID();
 		$this->getData()->saveVote($_GET["id"], $_POST);
-		$msg = new Message(Lang::txt("start_selectionSavedTitle"), Lang::txt("start_selectionSavedMsg"));
+		$msg = new Message(Lang::txt("StartView_saveVote.selectionSavedTitle"), Lang::txt("StartView_saveVote.selectionSavedMsg"));
 		$msg->write();
 		$this->backToStart();
 	}
@@ -717,7 +717,7 @@ class StartView extends CrudRefLocationView {
 	public function taskComplete() {
 		$this->checkID();
 		$this->getData()->taskComplete($_GET["id"]);
-		$msg = new Message(Lang::txt("start_taskCompletedTitle"), Lang::txt("start_taskCompletedMsg"));
+		$msg = new Message(Lang::txt("StartView_taskComplete.taskCompletedTitle"), Lang::txt("StartView_taskComplete.taskCompletedMsg"));
 		$msg->write();
 		$this->backToStart();
 	}
@@ -726,7 +726,7 @@ class StartView extends CrudRefLocationView {
 		$this->checkID();
 		$titles = $this->getData()->getProgramTitles($_GET["id"]);
 		
-		Writing::h2("Programm");
+		Writing::h2(Lang::txt("StartView_viewProgram.ProgramTitles"));
 		
 		// Enhancement #127
 		$konzertMod = $this->getData()->getSysdata()->getModuleId(Lang::txt("concerts"));
@@ -738,10 +738,10 @@ class StartView extends CrudRefLocationView {
 		}
 		
 		$table = new Table($titles);		
-		$table->renameHeader("rank", Lang::txt("start_rank"));
-		$table->renameHeader("title", Lang::txt("start_title"));
-		$table->renameHeader("composer", Lang::txt("start_composer"));
-		$table->renameHeader("notes", Lang::txt("start_notes"));
+		$table->renameHeader("rank", Lang::txt("StartView_viewProgram.rank"));
+		$table->renameHeader("title", Lang::txt("StartView_viewProgram.title"));
+		$table->renameHeader("composer", Lang::txt("StartView_viewProgram.composer"));
+		$table->renameHeader("notes", Lang::txt("StartView_viewProgram.notes"));
 		
 		$table->write();
 		
@@ -751,13 +751,13 @@ class StartView extends CrudRefLocationView {
 	
 	public function rehearsalParticipants() {
 		$rehearsal = $this->getData()->getRehearsal($_GET["id"]);
-		Writing::h2(Lang::txt("start_participantsOfRehearsal", array(Data::convertDateFromDb($rehearsal["begin"]))));
+		Writing::h2(Lang::txt("StartView_rehearsalParticipants.participantsOfRehearsal"), array(Data::convertDateFromDb($rehearsal["begin"])));
 		
 		$parts = $this->getData()->getRehearsalParticipants($_GET["id"]);
 		$table = new Table($parts);
-		$table->renameHeader("name", Lang::txt("firstname"));
-		$table->renameHeader("surname", Lang::txt("surname"));
-		$table->renameHeader("nickname", Lang::txt("nickname"));
+		$table->renameHeader("name", Lang::txt("StartView_rehearsalParticipants.name"));
+		$table->renameHeader("surname", Lang::txt("StartView_rehearsalParticipants.surname"));
+		$table->renameHeader("nickname", Lang::txt("StartView_rehearsalParticipants.nickname"));
 		$table->write();
 	}
 	
@@ -767,13 +767,13 @@ class StartView extends CrudRefLocationView {
 	
 	public function concertParticipants() {
 		$concert = $this->getData()->getConcert($_GET["id"]);
-		Writing::h2(Lang::txt("start_participantsOfConcert", array(Data::convertDateFromDb($concert["begin"]))));
+		Writing::h2(Lang::txt("StartView_concertParticipants.participantsOfConcert"), array(Data::convertDateFromDb($concert["begin"])));
 		
 		$parts = $this->getData()->getConcertParticipants($_GET["id"]);
 		$table = new Table($parts);
-		$table->renameHeader("name", Lang::txt("firstname"));
-		$table->renameHeader("surname", Lang::txt("surname"));
-		$table->renameHeader("nickname", Lang::txt("nickname"));
+		$table->renameHeader("name", Lang::txt("StartView_concertParticipants.name"));
+		$table->renameHeader("surname", Lang::txt("StartView_concertParticipants.surname"));
+		$table->renameHeader("nickname", Lang::txt("StartView_concertParticipants.nickname"));
 		$table->write();
 	}
 	
@@ -788,7 +788,7 @@ class StartView extends CrudRefLocationView {
 		$comments = $this->getData()->getUserUpdates($this->objectListing);
 		
 		if(count($comments) == 1) {
-			echo "<p>" . Lang::txt("start_noNews") . "</p>\n";
+			echo "<p>" . Lang::txt("StartView_writeUpdateList.noNews") . "</p>\n";
 			return;
 		}
 		
@@ -819,19 +819,19 @@ class StartView extends CrudRefLocationView {
 	
 	public function discussion() {
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") != 1) {
-			new BNoteError(Lang::txt("start_discussionsDeactivated"));
+			new BNoteError(Lang::txt("StartView_discussion.Deactivated"));
 		}
 		if(!isset($_GET["otype"]) || !isset($_GET["oid"])) {
-			new BNoteError(Lang::txt("start_giveDiscussionReason"));
+			new BNoteError(Lang::txt("StartView_discussion.Reason"));
 		}
 		
-		Writing::h2(Lang::txt("discussion") . ": " . $this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]));
+		Writing::h2(Lang::txt("StartView_discussion.discussion") . ": " . $this->getData()->getObjectTitle($_GET["otype"], $_GET["oid"]));
 		
 		// show comments
 		$comments = $this->getData()->getDiscussion($_GET["otype"], $_GET["oid"]);
 		
 		if(count($comments) == 1) {
-			new Message(Lang::txt("start_noComments"), Lang::txt("start_noCommentsInDiscussion"));
+			new Message(Lang::txt("StartView_discussion.noComments"), Lang::txt("StartView_discussion.noCommentsInDiscussion"));
 		}
 		else {
 			foreach($comments as $i => $comment) {
@@ -851,9 +851,9 @@ class StartView extends CrudRefLocationView {
 		
 		// add comment form
 		$submitLink = $this->modePrefix() . "addComment&otype=" . $_GET["otype"] . "&oid=" . $_GET["oid"];
-		$form = new Form(Lang::txt("start_addComment"), $submitLink);
+		$form = new Form(Lang::txt("StartView_discussion.addComment"), $submitLink);
 		$form->addElement("", new Field("message", "", FieldType::TEXT));
-		$form->changeSubmitButton(Lang::txt("start_sendComment"));
+		$form->changeSubmitButton(Lang::txt("StartView_discussion.Submit"));
 		$form->write();
 	}
 	
@@ -895,22 +895,22 @@ class StartView extends CrudRefLocationView {
 		<table>
 			<tbody>
 				<tr>
-					<td>Datum/Zeit</td>
+					<td><?php echo Lang::txt("StartView_gigcard.date"); ?></td>
 					<td><?php 
 					echo Data::convertDateFromDb($c["begin"]) . " - ";
 					echo Data::convertDateFromDb($c["end"]);
 					?></td>
 				</tr>
 				<tr>
-					<td>Treffpunkt</td>
+					<td><?php echo Lang::txt("StartView_gigcard.meetingtime"); ?></td>
 					<td><?php echo Data::convertDateFromDb($c["meetingtime"]); ?></td>
 				</tr>
 				<tr>
-					<td>Zusage bis</td>
+					<td><?php echo Lang::txt("StartView_gigcard.approve_until"); ?></td>
 					<td><?php echo Data::convertDateFromDb($c["approve_until"]); ?></td>
 				</tr>
 				<tr>
-					<td>Veranstalter</td>
+					<td><?php echo Lang::txt("StartView_gigcard.organizer"); ?></td>
 					<td><?php 
 					if($c["organizer"]) {
 						echo $c["organizer"];
@@ -918,7 +918,7 @@ class StartView extends CrudRefLocationView {
 					?></td>
 				</tr>
 				<tr>
-					<td>Ort</td>
+					<td><?php echo Lang::txt("StartView_gigcard.address"); ?></td>
 					<td><?php 
 					$a = $concertData->getAddress($loc["address"]);
 					$gigAddress = $concertView->exportFormatAddress($a);
@@ -935,7 +935,7 @@ class StartView extends CrudRefLocationView {
 					?></td>
 				</tr>
 				<tr>
-					<td>Kontakt</td>
+					<td><?php echo Lang::txt("StartView_gigcard.contact"); ?></td>
 					<td><?php 
 					if($c["contact"]) {
 						$cnt = $concertData->getContact($c["contact"]);
@@ -948,7 +948,7 @@ class StartView extends CrudRefLocationView {
 					?></td>
 				</tr>
 				<tr>
-					<td>Unterkunft</td>
+					<td><?php echo Lang::txt("StartView_gigcard.accommodation"); ?></td>
 					<td><?php 
 					if($c["accommodation"] > 0) {
 						$acc = $concertData->adp()->getAccommodationLocation($c["accommodation"]);
@@ -974,11 +974,11 @@ class StartView extends CrudRefLocationView {
 			</tbody>
 		</table>
 		
-		<h2>Organisation</h2>
+		<h2><?php echo Lang::txt("StartView_gigcard.organisation"); ?></h2>
 		<table>
 			<tbody>
 				<tr>
-					<td>Besetzung</td>
+					<td><?php echo Lang::txt("StartView_gigcard.groups"); ?></td>
 					<td><?php 
 					$groups = $concertData->getConcertGroups($c["id"]);
 					$groupNames = Database::flattenSelection($groups, "name");
@@ -986,7 +986,7 @@ class StartView extends CrudRefLocationView {
 					?></td>
 				</tr>
 				<tr>
-					<td>Programm</td>
+					<td><?php echo Lang::txt("StartView_gigcard.program"); ?></td>
 					<td><?php 
 					if($c["program"]) {
 						$prg = $concertData->getProgram($c["program"]);
@@ -995,7 +995,7 @@ class StartView extends CrudRefLocationView {
 					?></td>
 				</tr>
 				<tr>
-					<td>Outfit</td>
+					<td><?php echo Lang::txt("StartView_gigcard.outfit"); ?></td>
 					<td><?php 
 					if($c["outfit"]) {
 						$outfit = $concertData->getOutfit($c["outfit"]);
@@ -1012,12 +1012,12 @@ class StartView extends CrudRefLocationView {
 	function gigcardOptions() {
 		$this->backToStart();
 		
-		$prt = new Link("javascript:print()", Lang::txt("print"));
+		$prt = new Link("javascript:print()", Lang::txt("StartView_gigcardOptions.print"));
 		$prt->addIcon("printer");
 		$prt->write();
 		
 		// show participants
-		$participantsButton = new Link($this->modePrefix() . "concertParticipants&id=" . $_GET["id"], Lang::txt("participants"));
+		$participantsButton = new Link($this->modePrefix() . "concertParticipants&id=" . $_GET["id"], Lang::txt("StartView_gigcardOptions.concertParticipants"));
 		$participantsButton->addIcon("mitspieler");
 		$participantsButton->write();
 		
