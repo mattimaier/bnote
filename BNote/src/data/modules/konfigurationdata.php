@@ -32,6 +32,7 @@ class KonfigurationData extends AbstractLocationData {
 				"rehearsal_duration" => array("Probendauer in min", FieldType::INTEGER),
 				"default_contact_group" => array("Standardgruppe", FieldType::REFERENCE),
 				"auto_activation" => array("Automatische Benutzeraktivierung", FieldType::BOOLEAN),
+				"user_registration" => array("Benutzer Registrierung", FieldType::BOOLEAN),
 				"share_nonadmin_viewmode" => array("Share-Lesemodus für Nicht-Administratoren", FieldType::BOOLEAN),
 				"rehearsal_show_length" => array("Probenlänge anzeigen", FieldType::BOOLEAN),
 				"allow_participation_maybe" => array("Vielleicht-Teilname zugelassen", FieldType::BOOLEAN),

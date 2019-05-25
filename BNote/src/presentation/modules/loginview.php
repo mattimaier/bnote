@@ -39,7 +39,9 @@ class LoginView extends AbstractView {
 		
 		// Registration
 		$mod = "registration";
-		if($_GET["mod"] != $mod) {
+		/* check if user registration is on */
+		$user_reg = $this->getData()->getSysdata()->getDynamicConfigParameter("user_registration");
+		if($user_reg == 1 && $_GET["mod"] != $mod) {
 			$reg = new Link("?mod=$mod", "Registrierung");
 			$reg->write();
 			$this->buttonSpace();
@@ -101,6 +103,12 @@ class LoginView extends AbstractView {
 	}
 	
 	function registration() {
+		/* check if user registration is on */
+		$user_reg = $this->getData()->getSysdata()->getDynamicConfigParameter("user_registration");
+		if($user_reg == 0) {
+			new BNoteError("Registrierung ist deaktiviert.");
+		}
+		
 		Writing::h1("Registrierung");
 		
 		?>

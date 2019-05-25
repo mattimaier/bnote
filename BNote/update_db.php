@@ -225,11 +225,12 @@ $update = new UpdateDb();
 
 <?php 
 /*
- * 3.4.1 UPDATES
+ * 3.4.2 UPDATES
  * -------------
  */
 
-// Task 1: tba 
+// Task 1: Configuration for user registration
+$update->addDynConfigParam("user_registration", 1);
 
 ?>
 
