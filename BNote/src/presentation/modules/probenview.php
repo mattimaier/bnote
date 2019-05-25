@@ -446,7 +446,7 @@ class ProbenView extends CrudRefLocationView {
 		$contacts = $this->getData()->getContacts();
 		$gs = new GroupSelector($contacts, array(), "contact");
 		$gs->setNameColumn("fullname");
-		$form->addElement("Einladung für", $gs);
+		$form->addElement(Lang::txt("ProbenView_ProbenView_addContact.fullname"), $gs);
 		$form->write();
 	}
 	
@@ -534,9 +534,9 @@ class ProbenView extends CrudRefLocationView {
 				echo '<form method="POST" action="' . $this->modePrefix();
 				echo 'practiseUpdate&id=' . $_GET["id"] . '&song=' . $s["id"] . '">';
 				echo ' <input type="text" name="notes" size="30" value="' . $s["notes"] . '" />';
-				echo ' <input type="submit" value="speichern" />&nbsp;&nbsp;';
+				echo ' <input type="submit" value=" . Lang::txt("ProbenView_practise.save") . " />&nbsp;&nbsp;';
 				$del = new Link($this->modePrefix() .
-					"practiseDelete&id=" . $_GET["id"] . "&song=" . $s["id"] . "&tab=practise", "löschen");
+					"practiseDelete&id=" . $_GET["id"] . "&song=" . $s["id"] . "&tab=practise", Lang::txt("ProbenView_practise.delete"));
 				$del->write();
 				echo '</form>';
 			}
@@ -555,7 +555,7 @@ class ProbenView extends CrudRefLocationView {
 		$form->addElement("song", new Field("song", "", FieldType::REFERENCE));
 		$form->setForeign("song", "song", "id", "title", -1);
 		$form->renameElement("song", Lang::txt("ProbenView_practise.song"));
-		$form->addElement("Anmerkungen", new Field("notes", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("ProbenView_practise.notes"), new Field("notes", "", FieldType::CHAR));
 		$form->write();
 	}
 	
@@ -647,14 +647,14 @@ class ProbenView extends CrudRefLocationView {
 		else {
 			// title
 			$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
-			Writing::h2("Probe am $pdate Uhr");
+			Writing::h2(Lang::txt("ProbenView_view.message_1") . "$pdate" . Lang::txt("ProbenView_view.message_2"));
 			
 			// tabs
 			$tabs = array(
-				"details" => "Details",
-				"invitations" => "Einladungen",
-				"participants" => "Teilnehmer",
-				"practise" => "Stücke zum Üben"
+				"details" => Lang::txt("ProbenView_view.details"),
+				"invitations" => Lang::txt("ProbenView_view.invitations"),
+				"participants" => Lang::txt("ProbenView_view.participants"),
+				"practise" => Lang::txt("ProbenView_view.practise")
 			);
 			echo "<div class=\"view_tabs\">\n";
 			foreach($tabs as $tabid => $label) {
@@ -699,7 +699,7 @@ class ProbenView extends CrudRefLocationView {
 			// show a button to send a reminder to all about this rehearsal
 			$remHref = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation") . "&mode=rehearsalMail&preselect=" . $_GET["id"];
 			
-			$reminder = new Link($remHref, "Benachrichtigung senden");
+			$reminder = new Link($remHref, Lang::txt("ProbenView_viewOptions.remHref"));
 			$reminder->addIcon("email");
 			$reminder->write();
 		}
@@ -707,12 +707,12 @@ class ProbenView extends CrudRefLocationView {
 			$this->backToStart();
 			$this->buttonSpace();
 			
-			$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Einladung hinzufügen");
+			$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], Lang::txt("ProbenView_viewOptions.addContact"));
 			$addContact->addIcon("plus");
 			$addContact->write();
 			$this->buttonSpace();
 				
-			$printPartlist = new Link($this->modePrefix() . "printPartlist&id=" . $_GET["id"], "Teilnehmerliste drucken");
+			$printPartlist = new Link($this->modePrefix() . "printPartlist&id=" . $_GET["id"], Lang::txt("ProbenView_viewOptions.printPartlist"));
 			$printPartlist->addIcon("printer");
 			$printPartlist->write();
 		}
@@ -726,14 +726,14 @@ class ProbenView extends CrudRefLocationView {
 		$usedInstruments = $this->getData()->getUsedInstruments();
 		
 		if(count($futureRehearsals) <= 1) {
-			Writing::p("Es sind derzeit keine Proben geplant.");
+			Writing::p(Lang::txt("ProbenView_overview.FutureRehearsals"));
 		}
 		
 		for($reh = 1; $reh < count($futureRehearsals); $reh++) {
 			$rehearsal = $futureRehearsals[$reh];
 			?>
 			<div class="rehearsal_overview_box">
-				<div class="rehearsal_overview_header">Probe am <?php echo Data::convertDateFromDb($rehearsal['begin']); ?> Uhr</div>
+				<div class="rehearsal_overview_header"><?php echo Lang::txt("ProbenView_overview.header_1"); Data::convertDateFromDb($rehearsal['begin']); Lang::txt("ProbenView_overview.header_2"); ?></div>
 				<?php 
 				for($i = 1; $i < count($usedInstruments); $i++) {
 					$instrument = $usedInstruments[$i];
@@ -745,19 +745,19 @@ class ProbenView extends CrudRefLocationView {
 						foreach($parts as $j => $participant) {
 							switch($participant['participate']) {
 								case -1: 
-									$alt = "Keine Angabe";
+									$alt = Lang::txt("ProbenView_overview.unspecified");
 									$icon = "unspecified";
 									break;
 								case 0: 
-									$alt = "Nimmt nicht teil";
+									$alt = Lang::txt("ProbenView_overview.cancel");
 									$icon = "cancel";
 									break;
 								case 2: 
-									$alt = "Nimmt vielleicht teil";
+									$alt = Lang::txt("ProbenView_overview.yield");
 									$icon = "yield";
 									break;
 								default:
-									$alt = "Nimmt teil";
+									$alt = Lang::txt("ProbenView_overview.checked");
 									$icon = "checked";
 									break;
 							}
