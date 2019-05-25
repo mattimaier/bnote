@@ -309,7 +309,7 @@ class RepertoireView extends CrudRefView {
 			
 			<form action="<?php echo $this->modePrefix() . "addSongFile&id=" . $_GET["id"] ?>" method="POST">
 				<h3>Datei hinzufügen</h3>
-				<p>Gebe mindestens 3 Zeichen eines Dateinamen aus "Share" an um die Datei hinzuzufügen.</p>
+				<p>Gebe mindestens 3 Zeichen eines Dateinamen aus "Share" an, warte bis ein Vorschlag erscheint und füge dann die Datei hinzu.</p>
 				<input type="text" id="repertoire_filesearch" name="file" />
 				<select name="doctype">
 				<?php 
@@ -337,6 +337,11 @@ class RepertoireView extends CrudRefView {
 	public function addSongFile() {
 		$songId = $_GET["id"];
 		$fullpath = $_POST["file"];
+		// check file's existence
+		$sys_path = $GLOBALS["DATA_PATHS"]["share"] . $fullpath;
+		if($fullpath == "" || !file_exists($sys_path)) {
+			new BNoteError("Die Datei kann nicht gefunden werden. Bitte prüfen ob du die Datei richtig ausgewählt hast.");
+		}
 		$this->getData()->addFile($songId, $fullpath, $_POST["doctype"]);
 		$this->view();
 	}
