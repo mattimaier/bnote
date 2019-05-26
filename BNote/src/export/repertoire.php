@@ -17,7 +17,7 @@ require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "iwriteable.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "message.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "link.php");
-
+require_once($dir_prefix . "lang.php");
 require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "abstractdata.php");
 require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php");
 require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "applicationdataprovider.php");
@@ -29,7 +29,7 @@ global $system_data;
 $db = $system_data->dbcon;
 
 // check whether a user is registered and has contact (mod=3) permission
-$deniedMsg = Lang::txt("repertoire_start.deniedMsg");
+$deniedMsg = (Lang::txt("repertoire_start.deniedMsg"));
 if(!isset($_SESSION["user"])) {
 	new BNoteError($deniedMsg);
 }
