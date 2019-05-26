@@ -671,6 +671,7 @@ class Translation extends BNoteTranslation {
 						
 			// GruppenView
 			"GruppenView_construct.EntityName" => "Groupe",
+			"GruppenView_construct.addEntityName" => "Ajouter un nouveau groupe",
 			"GruppenView_start.Title" => "Groupes",
 			"GruppenView_start.explanation" => "Sur cette page, vous gérez les groupes de votre groupe.
 		                Les groupes \"Administrateurs\" et \"Membres\" ne peuvent pas être supprimés.

@@ -671,6 +671,7 @@ class Translation extends BNoteTranslation {
 					   
 			// GruppenView
 			"GruppenView_construct.EntityName" => "Gruppe",
+			"GruppenView_construct.addEntityName" => "Gruppe hinzufügen",
 			"GruppenView_start.Title" => "Gruppen",
 			"GruppenView_start.explanation" => "Auf dieser Seite verwaltest du die Gruppen deiner Band.
 		                Die Gruppen \"Administratoren\" und \"Mitglieder\" können nicht gelöscht werden.

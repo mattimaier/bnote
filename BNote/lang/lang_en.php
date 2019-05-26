@@ -672,6 +672,7 @@ class Translation extends BNoteTranslation {
 					   
 			// GruppenView
 			"GruppenView_construct.EntityName" => "Group",
+			"GruppenView_construct.addEntityName" => "Add group",
 			"GruppenView_start.Title" => "Groups",
 			"GruppenView_start.explanation" => "On this page you manage the groups of your band.
 		                The groups \"Administrators\" and \"Members\" cannot be deleted.
