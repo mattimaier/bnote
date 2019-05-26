@@ -103,7 +103,7 @@ class ProgramView extends CrudView {
 	
 	private function writeProgramLength() {
 		$tt = $this->getData()->totalProgramLength($_GET["id"]);
-		Writing::p(Lang::txt("ProgramView_writeProgramLength.message_1")"<span style=\"font-weight: 600;\">" . $tt . "</span>"Lang::txt("ProgramView_writeProgramLength.message_2"));		
+		Writing::p(Lang::txt("ProgramView_writeProgramLength.message_1") . "<span style=\"font-weight: 600;\">" . $tt . "</span>" . Lang::txt("ProgramView_writeProgramLength.message_2"));		
 	}
 	
 	public function view() {
