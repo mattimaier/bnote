@@ -98,7 +98,8 @@ class KontakteController extends DefaultController {
 			// notify user about result
 			require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
 			$mail = new Mailing($contact["email"], $subject, $body);
-			$mail->setFrom($username . '<' . $contact["email"] . '>');
+			$bandInfo = $this->getData()->getSysdata()->getCompanyInformation();
+			$mail->setFrom($bandInfo["Name"] . '<' . $bandInfo["Mail"] . '>');
 				
 			if(!$mail->sendMail()) {
 				$this->getView()->userCredentials($username , $password);

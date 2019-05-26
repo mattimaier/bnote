@@ -70,6 +70,8 @@ class RepertoireView extends CrudRefView {
 		
 		$form->removeElement("id");
 		$form->setForeign("genre", "genre", "id", "name", -1);
+		$genreDropdown = $form->getForeignElement("genre");
+		$genreDropdown->addOption("-", 0);							
 		$form->setForeign("status", "status", "id", "name", -1);
 		
 		$form->removeElement("composer");
@@ -367,6 +369,8 @@ class RepertoireView extends CrudRefView {
 		$form->removeElement("id");
 		$form->renameElement("length", Lang::txt("RepertoireView_editEntityForm.length"));
 		$form->setForeign("genre", "genre", "id", "name", $song["genre"]);
+		$genreDropdown = $form->getForeignElement("genre");
+		$genreDropdown->addOption("-", 0);						
 		$form->setForeign("status", "status", "id", "name", $song["status"]);
 		$form->removeElement("composer");
 		$form->addElement(Lang::txt("RepertoireView_editEntityForm.composer"), new Field("composer",
@@ -419,7 +423,9 @@ class RepertoireView extends CrudRefView {
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_title"), $this->columnSelector("col_title", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_composer"), $this->columnSelector("col_composer", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_key"), $this->columnSelector("col_key", $header));
+		$form->addElement("Tempo (BPM)", $this->columnSelector("col_tempo", $header));																				
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_tempo"), $this->columnSelector("col_tempo", $header));
+		$form->addElement("Besetzung", $this->columnSelector("col_setting", $header));																				
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_notes"), $this->columnSelector("col_notes", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_genre"), $this->columnSelector("col_genre", $header));
 		

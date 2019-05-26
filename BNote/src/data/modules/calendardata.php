@@ -76,7 +76,8 @@ class CalendarData extends AbstractLocationData {
 			
 			foreach($fields as $field) {
 				if(isset($key_replace[$field])) {
-					$res_row[$key_replace[$field]] = $row[$field];
+					$replaceKey = $key_replace[$field];
+					$res_row[$replaceKey] = $row[$field];
 				}
 				else {
 					$res_row[$field] = $row[$field];
@@ -96,7 +97,12 @@ class CalendarData extends AbstractLocationData {
 				if($detailValue == null) {
 					$detailValue = "";
 				}
-				$res_row["details"][Lang::txt("calendar_" . $field)] = $detailValue;
+				if(isset($key_replace[$field])) {
+					$res_row["details"][Lang::txt($replaceKey)] = $detailValue;
+				}
+				else {
+					$res_row["details"][Lang::txt("calendar_" . $field)] = $detailValue;
+				}
 			}
 			
 			if(isset($res_row["title"])) {

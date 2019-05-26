@@ -154,6 +154,8 @@ class RepertoireController extends DefaultController {
 	}
 	
 	function xlsProcess() {		
+		require_once $GLOBALS['DIR_LIB'] . "PHPExcel/Classes/PHPExcel.php";
+		
 		// go through data: ignore empties and handle duplicates
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
 		$empties = array();
@@ -176,9 +178,6 @@ class RepertoireController extends DefaultController {
 		// do the real data processing
 		$updated = 0;
 		$created = 0;
-		Data::viewArray($xlsData);
-		Data::viewArray($_POST["empties"]);
-		Data::viewArray($empties);
 		foreach($xlsData as $rowIdx => $row) {
 			if(in_array($rowIdx, $empties)) {
 				// empty -> continue
@@ -227,6 +226,19 @@ class RepertoireController extends DefaultController {
 		if($_POST["col_genre"] >= 0) {
 			$genre = $row[$_POST["col_genre"]];
 		}
+		$length = "";
+		if($_POST["col_length"] >= 0) {
+			$length = $row[$_POST["col_length"]];
+			if(is_numeric($length)) {
+				// convert fraction of day to hh:mm:ss
+				$dt = PHPExcel_Shared_Date::ExcelToPHPObject($length);
+				$length = $dt->format("h:i:s");
+			}
+		}
+		$setting = "";
+		if($_POST["col_setting"] >= 0) {
+			$setting = $row[$_POST["col_setting"]];
+		}
 		
 		return array(
 			"title" => $this->cleanSubject($row[$_POST["col_title"]]),
@@ -236,10 +248,11 @@ class RepertoireController extends DefaultController {
 			"status" => $_POST["status"],
 			"notes" => $notes,
 			"composer" => $this->cleanSubject($composer),
-			"length" => ""
+			"length" => $length,
+			"setting" => $setting
 		);
 	}
-	
+
 	protected function mapGenre($name) {
 		// preload all genres for faster mapping
 		if($this->genres == null) {

@@ -97,8 +97,7 @@ class KontakteData extends AbstractLocationData {
 		$query .= "        ) as c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";
-		$query .= "LEFT JOIN instrument i ";
-		$query .= "ON c2.instrument = i.id ";
+		$query .= "LEFT OUTER JOIN instrument i ON c2.instrument = i.id ";
 		$query .= "ORDER BY c2.name ASC";
 		
 		$contacts = $this->filterSuperUsers($this->database->getSelection($query));
@@ -138,8 +137,7 @@ class KontakteData extends AbstractLocationData {
 		$query .= "  FROM contact c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";
-		$query .= "LEFT JOIN instrument i ";
-		$query .= "ON c2.instrument = i.id ";
+		$query .= "LEFT OUTER JOIN instrument i ON c2.instrument = i.id ";
 		return $query;
 	}
 	
@@ -180,11 +178,10 @@ class KontakteData extends AbstractLocationData {
 		$addy["street"] = isset($values['street']) ? $values["street"] : "";
 		$addy["city"] = isset($values['city']) ? $values["city"] : "";
 		$addy["zip"] = isset($values['zip']) ? $values["zip"] : "";
-		$addy["country"] = isset($values['country']) ? $values["country"] : "";
 		
 		// simply create one address per contact
-		$query = "INSERT INTO address (street, city, zip, country) VALUES (";
-		$query .= " \"" . $addy["street"] . "\", \"" . $addy["city"] . "\", \"" . $addy["zip"] . "\", \"" . $addy["country"] . "\")";
+		$query = "INSERT INTO address (street, city, zip) VALUES (";
+		$query .= " \"" . $addy["street"] . "\", \"" . $addy["city"] . "\", \"" . $addy["zip"] . "\")";
 		$values["address"] = $this->database->execute($query);
 		
 		$cid = parent::create($values);
