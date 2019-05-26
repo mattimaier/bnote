@@ -1391,7 +1391,7 @@ class Translation extends BNoteTranslation {
 			"ProbenphasenData_construct.notes" => "Notes",
 			
 			// ProbenphasenView
-			"ProbenphasenView_construct.addEntityName" => "Période de répétition",				
+			"ProbenphasenView_construct.EntityName" => "Période de répétition",				
 			"ProbenphasenView_construct.addEntityName" => "Ajouter une nouvelle période de répétition",		
 			"ProbenphasenView_startOptions.timer" => "Phases de répétition antérieures",
 			"ProbenphasenView_history.title" => "Phases de répétition antérieures",
@@ -1503,6 +1503,7 @@ class Translation extends BNoteTranslation {
 			
 			// RecpayView
 			"RecpayView_construct.EntityName" => "Paiement courant",
+			"RecpayView_construct.addEntityName" => "Ajoutez un paiement courant",
 			"RecpayView_showAllTableGenerator.accountname" => "Compte",
 			"RecpayView_startOptions.back" => "Retour",
 			"RecpayView_startOptions.book" => "Comptabiliser",

@@ -1393,7 +1393,7 @@ class Translation extends BNoteTranslation {
 			"ProbenphasenData_construct.notes" => "Notizen",
 			
 			// ProbenphasenView
-			"ProbenphasenView_construct.addEntityName" => "Probenphase",				
+			"ProbenphasenView_construct.EntityName" => "Probenphase",				
 			"ProbenphasenView_construct.addEntityName" => "Neue Probenphase",
 			"ProbenphasenView_startOptions.timer" => "Vergangene Probenphasen",
 			"ProbenphasenView_history.title" => "Vergangene Probenphasen",
@@ -1506,6 +1506,7 @@ class Translation extends BNoteTranslation {
 			
 			// RecpayView
 			"RecpayView_construct.EntityName" => "Laufende Zahlung",
+			"RecpayView_construct.addEntityName" => "Neue Laufende Zahlung",
 			"RecpayView_showAllTableGenerator.accountname" => "Konto",
 			"RecpayView_startOptions.back" => "Zurück",
 			"RecpayView_startOptions.book" => "Buchen",

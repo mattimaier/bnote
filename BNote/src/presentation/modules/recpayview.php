@@ -6,6 +6,7 @@ class RecpayView extends CrudRefView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("RecpayView_construct.EntityName"));
+		$this->setaddEntityName(Lang::txt("RecpayView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"account" => array("name")
 		));

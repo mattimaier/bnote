@@ -17,6 +17,7 @@ require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "iwriteable.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "message.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "link.php");
+require_once($dir_prefix . "lang.php");
 
 // Build Database Connection
 $db = new Database();
