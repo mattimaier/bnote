@@ -344,7 +344,7 @@ class AbstimmungData extends AbstractData {
 					// body of result table
 					$optionId = $row["id"];
 					$name = substr(Data::getWeekdayFromDbDate($row["odate"]), 0, 2) . ", ";
-					$name .= Data::convertDateFromDb($row["odate"]) . " Uhr";
+					$name .= Data::convertDateFromDb($row["odate"]) . Lang::txt("AbstimmungData_getResult.odate");
 					
 					$choiceY = $this->getOptionVotes($optionId, 1);
 					$yes = $choiceY["count"];

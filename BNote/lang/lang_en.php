@@ -170,6 +170,44 @@ class Translation extends BNoteTranslation {
 			// Vcard			
 			"vcard_input.deniedMsg" => "You have no permission to export the contacts!",
 			
+			// Export *************************************************************************************************************************************************
+			
+			// Memberlist	
+			"MembersPDF_construct.title" => "Members List",
+			"MembersPDF_writeTable.surname" => "Last Name",
+			"MembersPDF_writeTable.title" => "First name",
+			"MembersPDF_writeTable.phone" => "Private",
+			"MembersPDF_writeTable.mobile" => "Mobile",
+			"MembersPDF_writeTable.occupation" => "Profession",
+			"MembersPDF_writeTable.email" => "Email",
+			"MembersPDF_writeTable.street" => "Street",
+			"MembersPDF_writeTable.city" => "Place",
+			"MembersPDF_writeTable.zip" => "Postcode",
+			"MembersPDF_writeTable.instrument" => "Instrument",
+
+			// MemberlistPDF
+			"MemberlistPDF_Header.title" => "Contact list",
+
+			// PartlistPDF
+			"MembersPDF_PartlistPDF.title" => "Participant List",
+			"MembersPDF_contents.from" => "Sample on",
+			"MembersPDF_contents.hour" => "clock",
+			"MembersPDF_contents.location" => "place",
+			"MembersPDF_contents.notes" => "Notes",
+			"MembersPDF_contents.name" => "Name",
+			"MembersPDF_contents.Instrument" => "Instrument",
+			"MembersPDF_addSignatureCol.contact" => "Signature",
+
+			// PDFTable
+			"PDFTable_write.novalue" => "No entries available.",
+
+			// ProgramPDF	
+			"ProgramPDF_writeTable.title" => "Title",
+			"ProgramPDF_writeTable.arranger" => "Arranger",
+			"ProgramPDF_writeTable.notes" => "Notes",
+			"ProgramPDF_writeTable.length" => "length",
+			"ProgramPDF_writeTable.total_length" => "total length",
+						
 			// General *************************************************************************************************************************************************
 
 			// General: AbstractLocation *********************************************	   
@@ -360,6 +398,7 @@ class Translation extends BNoteTranslation {
 			"AbstimmungData_getResult.no" => " No",
 			"AbstimmungData_getResult.maybe" => " Maybe",
 			"AbstimmungData_validate.BNoteError" => "Please choose a group for the vote.",
+			"AbstimmungData_getResult.odate" => " Clock",
 			
 			// AbstimmungView
 			"AbstimmungView_construct.EntityName" => "Vote",	
@@ -774,6 +813,8 @@ class Translation extends BNoteTranslation {
 			"KommunikationView_reportMailError.message_2" => "</strong> could not be sent.",
 			"KommunikationView_messageSent.message_1" => "E-mails sent",
 			"KommunikationView_messageSent.message_2" => "All e-mails were successfully sent.",
+			"KommunikationView_concertMail.begin_1" => " Clock (",
+			"KommunikationView_concertMail.begin_2" => " Clock",
 			
 			// module: Konfiguration *********************************************
 			
@@ -1033,6 +1074,7 @@ class Translation extends BNoteTranslation {
 			"KonzerteData_construct.notes" => "Notes",
 			"KonzerteData_construct.payment" => "Gage",
 			"KonzerteData_construct.conditions" => "Conditions",
+			"KonzerteData_create.error" => "At least one group (cast) must be selected.",
 			
 			// KonzerteView ********* to finish **********
 			"KonzerteView_construct.addEntityName" => "New gig",	
@@ -1106,6 +1148,7 @@ class Translation extends BNoteTranslation {
 			"KonzerteView_viewPhases.Begin" => "from",
 			"KonzerteView_viewPhases.end" => "bis",
 			"KonzerteView_viewPhases.notes" => "Notes",
+			"KonzerteView_writeConcert.title" => " Clock / ",
 			
 			// module: Locations *********************************************
 
@@ -1384,6 +1427,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_overview.cancel" => "Does not participate",
 			"ProbenView_overview.yield" => "Maybe take part",
 			"ProbenView_overview.checked" => "Participates",
+			"ProbenView_writeRehearsal.begin" => " Clock",
 			
 			// module: Probenphasen *********************************************
 			
@@ -1556,7 +1600,8 @@ class Translation extends BNoteTranslation {
 			"RepertoireData_construct_setting" => "Cast",
 			"RepertoireData_construct_notes" => "Notes",
 			"RepertoireData_construct_is_active" => "Current",	
-
+			"RepertoireData_massUpdate_error" => "Please select at least one song to update.",
+			
 			// RepertoireController			
 			"RepertoireController_xlsMapping.errorFileMaxSize" => "Maximum file size exceeded",
 			"RepertoireController_xlsMapping.errorFileAbort" => "The file was only partially uploaded. Please check your internet connection",
@@ -1652,6 +1697,7 @@ class Translation extends BNoteTranslation {
 			"ShareView_construct.EntityName" => "Document type",
 			"ShareView_startOptions.documenttype" => "Document types",
 			"ShareView_docTypeOptions.addEntity" => "Add document type",
+			"ShareView_docType.error" => "Permission denied.",
 			
 			// module: Stats *********************************************
 						

@@ -425,7 +425,7 @@ class RepertoireData extends AbstractData {
 		// build ID query -> selected songs
 		$songIds = GroupSelector::getPostSelection($this->findAllNoRef(), "songs");
 		if(count($songIds) == 0) {
-			new BNoteError("Bitte wähle mindestens einen Song zum Update aus.");
+			new BNoteError(Lang::txt("RepertoireData_massUpdate_error"));
 		}
 		$idQuery = join(" OR id=", $songIds);
 		

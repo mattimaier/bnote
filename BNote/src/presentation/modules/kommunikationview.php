@@ -108,7 +108,7 @@ class KommunikationView extends AbstractView {
 		for($i = 1; $i < count($concerts); $i++) {
 			$label = Data::getWeekdayFromDbDate($concerts[$i]["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($concerts[$i]["begin"]);
-			$label .= " Uhr (" . $concerts[$i]["location_name"] . ")";
+			$label .= Lang::txt("KommunikationView_concertMail.begin_1") . $concerts[$i]["location_name"] . ")";
 			$dd->addOption($label, $concerts[$i]["id"]);
 		}
 		
@@ -118,7 +118,7 @@ class KommunikationView extends AbstractView {
 			$form->setFieldValue("Nachricht", $concert["notes"]);
 			$label = Data::getWeekdayFromDbDate($concert["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($concert["begin"]);
-			$label .= " Uhr";
+			$label .= Lang::txt("KommunikationView_concertMail.begin_2");
 			$form->addElement(Lang::txt("KommunikationView_concertMail.concert"), new Field("concert_view", $label, Field::FIELDTYPE_UNEDITABLE));
 			$form->addHidden("concert", $_GET["preselect"]);
 		}

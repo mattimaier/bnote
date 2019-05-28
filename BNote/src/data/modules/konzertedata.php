@@ -166,7 +166,7 @@ class KonzerteData extends AbstractLocationData {
 		// at least one group must be selected
 		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 		if(count($groups) == 0) {
-			new BNoteError("Mindestens eine Gruppe (Besetzung) muss ausgewählt werden.");
+			new BNoteError(Lang::txt("KonzerteData_create.error"));
 		}
 		
 		// default values

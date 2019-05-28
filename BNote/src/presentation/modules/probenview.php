@@ -267,7 +267,7 @@ class ProbenView extends CrudRefLocationView {
 		$weekday = Data::convertEnglishWeekday(date("D", $date_begin));
 		$finish = date('H:i', $date_end);
 
-		$when = Data::convertDateFromDb($row["begin"]) . " - " . $finish . " Uhr";
+		$when = Data::convertDateFromDb($row["begin"]) . " - " . $finish . Lang::txt("ProbenView_writeRehearsal.begin");
 		$conductor = "";
 		if(isset($row["conductor"]) && $row["conductor"] != 0) {
 			$conductor .= "Dirigent: ";

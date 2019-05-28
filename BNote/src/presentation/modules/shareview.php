@@ -51,7 +51,7 @@ class ShareView extends CrudView {
 	
 	function docType() {
 		if(!$this->getData()->getSysdata()->isUserAdmin()) {
-			new BNoteError("Permission denied.");
+			new BNoteError(Lang::txt("ShareView_docType.error"));
 		}
 		parent::start();
 	}

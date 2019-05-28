@@ -1,6 +1,6 @@
 <?php
 require_once $GLOBALS["DIR_PRINT"] . "print.php";
-
+require_once("lang.php");
 /**
  * Special landscape PDF with headers.
  * @author matti
@@ -32,6 +32,6 @@ class MemberlistPDF extends PrintPDF {
 	    $this->SetFont($this->font_family, '', $this->footerFontSize);
 	    
 	    // print header
-	    $this->Cell(0, 10, "Kontaktliste", 0, 0, 'L');
+	    $this->Cell(0, 10, Lang::txt("MemberlistPDF_Header.title"), 0, 0, 'L');
 	}
 }

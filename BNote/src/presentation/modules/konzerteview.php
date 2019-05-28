@@ -74,7 +74,7 @@ class KonzerteView extends CrudRefLocationView {
 	private function writeConcert($concert) {
 		// when? where? who to talk to? notes + program
 		$text = "<p class=\"concert_title\">" . Data::convertDateFromDb($concert["begin"]);
-		$text .= " Uhr / <span class=\"concert_title_name\">" . $concert["title"] . "</span></p>";
+		$text .= Lang::txt("KonzerteView_writeConcert.title") . <span class=\"concert_title_name\">" . $concert["title"] . "</span></p>";
 		
 		// location
 		$text .= "<span class=\"concert_location\">";

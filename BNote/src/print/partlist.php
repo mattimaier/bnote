@@ -1,7 +1,7 @@
 <?php
 require_once 'print.php';
 require_once 'pdftable.php';
-
+require_once("lang.php");
 /**
  * Class for a rehearsal participants list.
  * @author matti
@@ -56,7 +56,7 @@ class PartlistPDF {
 		$this->contacts = $contacts;
 		$this->rid = $rid;
 		
-		$this->title = "Teilnehmerliste";
+		$this->title = Lang::txt("MembersPDF_PartlistPDF.title");
 		
 		// create the contents
 		$this->contents();
@@ -80,14 +80,14 @@ class PartlistPDF {
 		$reh = $this->dao->findByIdNoRef($this->rid);
 		
 		// -> when
-		$this->pdf->Cell(30, $this->pdf->lineHeight, "Probe am");
+		$this->pdf->Cell(30, $this->pdf->lineHeight, Lang::txt("MembersPDF_contents.from"));
 		$this->pdf->SetX($this->pdf->leftMargin + 30);
-		$this->pdf->Cell(50, $this->pdf->lineHeight, Data::convertDateFromDb($reh["begin"]) . "Uhr");
+		$this->pdf->Cell(50, $this->pdf->lineHeight, Data::convertDateFromDb($reh["begin"]) . Lang::txt("MembersPDF_contents.hour"));
 		$this->pdf->Ln($this->pdf->lineHeight); // space
 		
 		// -> where
 		$addy = $this->dao->adp()->getEntityForId("location", $reh["location"]);
-		$this->pdf->Cell(30, $this->pdf->lineHeight, "Ort");
+		$this->pdf->Cell(30, $this->pdf->lineHeight, Lang::txt("MembersPDF_contents.location"));
 		$this->pdf->SetX($this->pdf->leftMargin + 30);
 		$this->pdf->Cell(50, $this->pdf->lineHeight, $addy["name"]);
 		$this->pdf->Ln($this->pdf->lineHeight); // space
@@ -96,7 +96,7 @@ class PartlistPDF {
 		$notes = $reh["notes"];
 		if($notes == "" || $notes == null) $notes = "-"; 
 		
-		$this->pdf->Cell(30, $this->pdf->lineHeight, "Notizen");
+		$this->pdf->Cell(30, $this->pdf->lineHeight, Lang::txt("MembersPDF_contents.notes"));
 		$this->pdf->SetX($this->pdf->leftMargin + 30);
 		$this->pdf->MultiCell(100, $this->pdf->lineHeight, $notes);
 		$this->pdf->Ln($this->pdf->lineHeight); // space
@@ -114,11 +114,11 @@ class PartlistPDF {
 		
 		// -> name
 		$tab->setColumnWidth(1, 50);
-		$tab->changeColumnLabel(1, "Name");
+		$tab->changeColumnLabel(1, Lang::txt("MembersPDF_contents.name"));
 		
 		// -> instrument
 		$tab->setColumnWidth(2, 50);
-		$tab->changeColumnLabel(2, "Instrument");
+		$tab->changeColumnLabel(2, Lang::txt("MembersPDF_contents.Instrument"));
 		
 		// -> signature
 		$tab->setColumnWidth(5, 70);
@@ -133,7 +133,7 @@ class PartlistPDF {
 	
 	private function addSignatureCol() {
 		// add header
-		array_push($this->contacts[0], "Unterschrift");
+		array_push($this->contacts[0], Lang::txt("MembersPDF_addSignatureCol.contact"));
 		
 		for($i = 1; $i < count($this->contacts); $i++) {
 			array_push($this->contacts[$i], " ");
