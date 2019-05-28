@@ -210,6 +210,12 @@ class Translation extends BNoteTranslation {
 						
 			// General *************************************************************************************************************************************************
 
+			// General: AbstractData *********************************************	   
+
+			// AbstractData			
+			"AbstractData_adp.message" => "Application Data Provider not set! Call init()!",
+			"AbstractData_validate.error" => "Please provide sufficient information.",
+			
 			// General: AbstractLocation *********************************************	   
 			
 			// AbstractLocationData
@@ -306,6 +312,16 @@ class Translation extends BNoteTranslation {
 			
 			// Regex
 			"Regex_fail.error" => "One or more fields contain invalid values. ",																     
+			
+			// General: Systemdata *********************************************	
+			
+			// Systemdata			
+			"Systemdata_getUserModulePermissions.error" => "You don't have sufficient privileges to access this system. Please contact your system administrator.",
+			
+			// General: XmlData *********************************************	
+			
+			// XmlData			
+			"XmlData_construct.filename" => " could not be loaded",
 			
 			// Widget *********************************************************************************************************************
 

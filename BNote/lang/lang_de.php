@@ -209,7 +209,13 @@ class Translation extends BNoteTranslation {
 			
 			// General *************************************************************************************************************************************************
 
-			// General: AbstractLocation *********************************************	   
+			// General: AbstractData *********************************************	   
+
+			// AbstractData			
+			"AbstractData_adp.message" => "Application Data Provider not set! Call init()!",
+			"AbstractData_validate.error" => "Bitte gebe ausreichend Informationen an.",
+
+			// General: AbstractLocation *********************************************	 
 			
 			// AbstractLocationData
 			"AbstractLocationData_getAddressViewFields.street" => "Straße",
@@ -305,6 +311,16 @@ class Translation extends BNoteTranslation {
 			
 			// Regex
 			"Regex_fail.error" => "Ein oder mehrere Felder enthalten ungültige Werte. ",																     
+			
+			// General: Systemdata *********************************************	
+			
+			// Systemdata			
+			"Systemdata_getUserModulePermissions.error" => "You don't have sufficient privileges to access this system. Please contact your system administrator.",
+			
+			// General: XmlData *********************************************	
+			
+			// XmlData			
+			"XmlData_construct.filename" => " konnte nicht geladen werden",
 			
 			// Widget *********************************************************************************************************************
 

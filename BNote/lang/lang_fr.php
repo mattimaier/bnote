@@ -209,6 +209,12 @@ class Translation extends BNoteTranslation {
 						
 			// General *************************************************************************************************************************************************
 
+			// General: AbstractData *********************************************	   
+
+			// AbstractData			
+			"AbstractData_adp.message" => "Application Data Provider n'est pas paramétré ! Appeler init() !",
+			"AbstractData_validate.error" => "Veuillez fournir suffisamment d'informations.",
+			
 			// General: AbstractLocation *********************************************	
 			
 			// AbstractLocationData
@@ -305,6 +311,16 @@ class Translation extends BNoteTranslation {
 			
 			// Regex
 			"Regex_fail.error" => "Une ou plusieurs zones contiennent des valeurs non valides. ",				
+			
+			// General: Systemdata *********************************************	
+			
+			// Systemdata			
+			"Systemdata_getUserModulePermissions.error" => "Vous n'avez pas suffisamment de privilèges pour accéder à ce système. Veuillez contacter votre administrateur système.",
+			
+			// General: XmlData *********************************************	
+			
+			// XmlData			
+			"XmlData_construct.filename" => " n'a pas pu être chargée",
 			
 			// Widget *********************************************************************************************************************
 
