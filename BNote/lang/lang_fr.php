@@ -743,7 +743,7 @@ class Translation extends BNoteTranslation {
 
 			// HilfeData
 			
-			// HilfeView ***** Trouble with translation label ******
+			// HilfeView
 			"HilfeView_introPages.video" => "Vidéo",
 			"HilfeView_introPages.bnote_news" => "Nouveautés dans BNote",
 			"HilfeView_introPages.sicherheit" => "Instructions de sécurité",
@@ -762,6 +762,18 @@ class Translation extends BNoteTranslation {
 			"HilfeView_helpPages.repertoire" => "Module Répertoire",
 			"HilfeView_helpPages.share" => "Module Partage",
 			"HilfeView_helpPages.tour" => "Module Voyage",
+			"HilfeView_videos.teaser" => "BNote Teaser",
+			"HilfeView_videos.intro" => "BNote Introduction",
+			"HilfeView_videos.admin_overview" => "Vue d'ensemble de l'administration",
+			"HilfeView_start.intro" => "Introduction",
+			"HilfeView_start.video_tutorials" => "Vidéo Didacticiel",
+			"HilfeView_start.help_pages" => "Page d'aide",
+			"HilfeView_start.videos_title" => "Vidéo Didacticiel",
+			"HilfeView_start.vid_1_desc" => "Informations sur les installations et les systèmes disponibles sur le site internet:",
+			"HilfeView_start.vid_1_wiki" => "BNote Wiki",
+			"HilfeView_start.vid_1_provider" => "Sélection du fournisseur",
+			"HilfeView_start.vid_1_install" => "Installation et mise à jour",
+			"HilfeView_start.select_help" => "Veuillez choisir une page d'aide.",
 
 			// module: Instrumente *********************************************	
 			
@@ -1230,6 +1242,7 @@ class Translation extends BNoteTranslation {
 			"LoginView_forgotPassword.title" => "Mot de passe oublié ?",
 			"LoginView_forgotPassword.message" => "Veuillez entrer votre adresse de courriel et le système vous enverra un nouveau mot de passe par e-mail.",
 			"LoginView_forgotPassword.email" => "Adresse de courriel",
+			"LoginView_registration.registration_deactivated" => "L'inscription est désactivée.",
 			"LoginView_registration.title" => "Inscription",
 			"LoginView_registration.logintext" => "Veuillez remplir ce formulaire pour vous inscrire en tant que membre. Les données fournies seront traitées confidentiellement et ne seront pas transmises à des tiers.",
 			"LoginView_registration.first_name" => "* Prénom",
@@ -1662,6 +1675,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_songFiles.addSongFile" => "Ajouter un fichier",
 			"RepertoireView_songFiles.repertoire_filesearch" => "Spécifiez au moins 3 caractères d'un nom de fichier à partir de 'Partager' pour ajouter le fichier.",
 			"RepertoireView_songFiles.submit" => "ajouter",
+			"RepertoireView_addSongFile.error" => "Le fichier est introuvable. Veuillez vérifier si vous avez sélectionné le fichier correctement.",
 			"RepertoireView_additionalViewButtons.addSolist" => "Ajouter un soliste",
 			"RepertoireView_editEntityForm.length" => "Durée en heures",
 			"RepertoireView_editEntityForm.composer" => "Compositeur/arrangeur",

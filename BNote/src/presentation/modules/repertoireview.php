@@ -338,6 +338,11 @@ class RepertoireView extends CrudRefView {
 	public function addSongFile() {
 		$songId = $_GET["id"];
 		$fullpath = $_POST["file"];
+		// check file's existence
+		$sys_path = $GLOBALS["DATA_PATHS"]["share"] . $fullpath;
+		if($fullpath == "" || !file_exists($sys_path)) {
+			new BNoteError(Lang::txt("RepertoireView_addSongFile.error"));
+		}
 		$this->getData()->addFile($songId, $fullpath, $_POST["doctype"]);
 		$this->view();
 	}

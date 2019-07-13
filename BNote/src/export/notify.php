@@ -136,7 +136,7 @@ class Notifier {
 		$subject = $concert['title'] . Lang::txt("Notifier_sendConcertNotification.message_1");
 		$body = Lang::txt("Notifier_sendConcertNotification.message_2") . $concert['title'] . Lang::txt("Notifier_sendConcertNotification.message_3");
 		$bnote_url = $dao->getSysdata()->getSystemURL();
-		$body .= "<a href=\"$bnote_url\"><?php echo Lang::txt("Notifier_sendConcertNotification.message_4"); ?></a><br/>";
+		$body .= '<a href="' . $bnote_url . '">' . Lang::txt("Notifier_sendConcertNotification.message_4") . "</a><br/>";
 		$body .= Lang::txt("Notifier_sendConcertNotification.message_5");
 		
 		// send and ok
@@ -157,7 +157,7 @@ class Notifier {
 		$subject = $vote['name'] . Lang::txt("Notifier_sendVoteNotification.message_1");
 		$body = Lang::txt("Notifier_sendVoteNotification.message_2") . $vote['name'] . Lang::txt("Notifier_sendVoteNotification.message_3");
 		$bnote_url = $dao->getSysdata()->getSystemURL();
-		$body .= "<a href=\"$bnote_url\"><?php echo Lang::txt("Notifier_sendVoteNotification.message_4"); ?></a><br/>";
+		$body .= "<a href=\"$bnote_url\">" . Lang::txt("Notifier_sendVoteNotification.message_4") . "</a><br/>";
 		$body .= Lang::txt("Notifier_sendVoteNotification.message_5");
 		
 		// send and ok

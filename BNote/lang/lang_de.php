@@ -743,7 +743,7 @@ class Translation extends BNoteTranslation {
 
 			// HilfeData
 			
-			// HilfeView ***** Trouble with translation label ******
+			// HilfeView
 			"HilfeView_introPages.video" => "vid",
 			"HilfeView_introPages.bnote_news" => "Neuerungen in BNote",
 			"HilfeView_introPages.sicherheit" => "Sicherheitshinweise",
@@ -762,7 +762,19 @@ class Translation extends BNoteTranslation {
 			"HilfeView_helpPages.repertoire" => "Modul Repertoire",
 			"HilfeView_helpPages.share" => "Modul Share",
 			"HilfeView_helpPages.tour" => "Modul Tour",
-
+			"HilfeView_videos.teaser" => "BNote Teaser",
+			"HilfeView_videos.intro" => "BNote Einführung",
+			"HilfeView_videos.admin_overview" => "Administrationsüberblick",
+			"HilfeView_start.intro" => "Einführung",
+			"HilfeView_start.video_tutorials" => "Video Tutorials",
+			"HilfeView_start.help_pages" => "Hilfeseiten",
+			"HilfeView_start.videos_title" => "Video Tutorial",
+			"HilfeView_start.vid_1_desc" => "Aktuelle Informationen zur Installation und zum Betrieb von BNote findest du auch auf unserer Website:",
+			"HilfeView_start.vid_1_wiki" => "BNote Wiki",
+			"HilfeView_start.vid_1_provider" => "Providerauswahl",
+			"HilfeView_start.vid_1_install" => "Installation und Update",
+			"HilfeView_start.select_help" => "Bitte wähle eine Hilfeseite.",
+				
 			// module: Instrumente *********************************************	
 			
 			// InstrumenteData
@@ -1230,6 +1242,7 @@ class Translation extends BNoteTranslation {
 			"LoginView_forgotPassword.title" => "Passwort vergessen",
 			"LoginView_forgotPassword.message" => "Bitte gebe deine E-Mail-Adresse ein und das System wird dir ein neues Passwort per E-Mail zuschicken.",
 			"LoginView_forgotPassword.email" => "E-Mail-Adresse",
+			"LoginView_registration.registration_deactivated" => "Registrierung ist deaktiviert.",
 			"LoginView_registration.title" => "Registrierung",
 			"LoginView_registration.logintext" => "Bitte fülle dieses Formular aus um dich als
 			Mitglied zu registrieren. Die angegebenen Daten werden vertraulich
@@ -1663,8 +1676,9 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_view.nosolists" => "Keine Solisten angegeben.",
 			"RepertoireView_songFiles.doctype_name" => "Verknüpfung löschen",
 			"RepertoireView_songFiles.addSongFile" => "Datei hinzufügen",
-			"RepertoireView_songFiles.repertoire_filesearch" => "Gebe mindestens 3 Zeichen eines Dateinamen aus 'Share' an um die Datei hinzuzufügen.",
+			"RepertoireView_songFiles.repertoire_filesearch" => "Gebe mindestens 3 Zeichen eines Dateinamen aus 'Share' an, warte bis ein Vorschlag erscheint und füge dann die Datei hinzu.",
 			"RepertoireView_songFiles.submit" => "hinzufügen",
+			"RepertoireView_addSongFile.error" => "Die Datei kann nicht gefunden werden. Bitte prüfen ob du die Datei richtig ausgewählt hast.",
 			"RepertoireView_additionalViewButtons.addSolist" => "Solist hinzufügen",
 			"RepertoireView_editEntityForm.length" => "Länge in Stunden",
 			"RepertoireView_editEntityForm.composer" => "Komponist/Arrangeur",

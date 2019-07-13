@@ -32,6 +32,7 @@ class KonfigurationData extends AbstractLocationData {
 				"rehearsal_duration" => array(Lang::txt("KonfigurationData_construct.rehearsal_duration"), FieldType::INTEGER),
 				"default_contact_group" => array(Lang::txt("KonfigurationData_construct.default_contact_group"), FieldType::REFERENCE),
 				"auto_activation" => array(Lang::txt("KonfigurationData_construct.auto_activation"), FieldType::BOOLEAN),
+				"user_registration" => array("Benutzer Registrierung", FieldType::BOOLEAN),
 				"share_nonadmin_viewmode" => array(Lang::txt("KonfigurationData_construct.share_nonadmin_viewmode"), FieldType::BOOLEAN),
 				"rehearsal_show_length" => array(Lang::txt("KonfigurationData_construct.rehearsal_show_length"), FieldType::BOOLEAN),
 				"allow_participation_maybe" => array(Lang::txt("KonfigurationData_construct.allow_participation_maybe"), FieldType::BOOLEAN),

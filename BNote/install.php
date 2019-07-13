@@ -825,6 +825,7 @@ class Installation {
 					('rehearsal_duration', '120', 1),
 					('default_contact_group', '2', 1),
 					('auto_activation', '1', 1),
+					('user_registration', '1', 1),
 					('instrument_category_filter', 'ALL', 1),
 					('share_nonadmin_viewmode', '0', 1),
 					('rehearsal_show_length', '1', 1),

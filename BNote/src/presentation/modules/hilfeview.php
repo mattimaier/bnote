@@ -8,61 +8,37 @@
 class HilfeView extends AbstractView {
 	
 	private $introPages = array(
-//
-// Bug when trying to translate with this method_exists
-//
-//			"p7LrJzVxl-M" => "HilfeView_introPages.video", // introduction video
-//			"bnote_news" => "HilfeView_introPages.bnote_news",
-//			"sicherheit" => "HilfeView_introPages.sicherheit",
-//			"support" => "HilfeView_introPages.support"
 			"p7LrJzVxl-M" => "vid", // introduction video
-			"bnote_news" => "Neuerungen in BNote",
-			"sicherheit" => "Sicherheitshinweise",
-			"support" => "Support / Kontakt"
+			"bnote_news" => "HilfeView_introPages.bnote_news",
+			"sicherheit" => "HilfeView_introPages.sicherheit",
+			"support" => "HilfeView_introPages.support"
 	);
 	
 	private $helpPagesDir = "data/help/";
 	
 	// alphabetically, format: name of the html-file => title
 	private $helpPages = array(
-//
-// Bug when trying to translate with this method_exists
-//
-//			"abstimmung" => "HilfeView_helpPages.abstimmung",
-//			"aufgaben" => "HilfeView_helpPages.aufgaben",
-//			"equipment" => "HilfeView_helpPages.equipment",
-//			"finance" => "HilfeView_helpPages.finance",
-//			"konfiguration" => "HilfeView_helpPages.konfiguration",
-//			"calendar" => "HilfeView_helpPages.calendar",
-//			"kontakte" => "HilfeView_helpPages.kontakte",
-//			"mitspieler" => "HilfeView_helpPages.mitspieler",
-//			"nachrichten" => "HilfeView_helpPages.nachrichten",
-//			"proben" => "HilfeView_helpPages.proben",
-//			"probenphase" => "HilfeView_helpPages.probenphase",
-//			"repertoire" => "HilfeView_helpPages.repertoire",
-//			"share" => "HilfeView_helpPages.share",
-//			"tour" => "HilfeView_helpPages.tour"
-			"abstimmung" => "Modul Abstimmung",
-			"aufgaben" => "Modul Aufgaben",
-			"equipment" => "Modul Equipment",
-			"finance" => "Modul Finanzen",
-			"konfiguration" => "Modul Konfiguration",
-			"calendar" => "Modul Kalender",
-			"kontakte" => "Modul Kontakte (und Datenschutz)",
-			"mitspieler" => "Modul Mitglieder",
-			"nachrichten" => "Modul Nachrichten",
-			"proben" => "Modul Proben",
-			"probenphase" => "Modul Probenphase",
-			"repertoire" => "Modul Repertoire",
-			"share" => "Modul Share",
-			"tour" => "Modul Tour"
+			"abstimmung" => "HilfeView_helpPages.abstimmung",
+			"aufgaben" => "HilfeView_helpPages.aufgaben",
+			"equipment" => "HilfeView_helpPages.equipment",
+			"finance" => "HilfeView_helpPages.finance",
+			"konfiguration" => "HilfeView_helpPages.konfiguration",
+			"calendar" => "HilfeView_helpPages.calendar",
+			"kontakte" => "HilfeView_helpPages.kontakte",
+			"mitspieler" => "HilfeView_helpPages.mitspieler",
+			"nachrichten" => "HilfeView_helpPages.nachrichten",
+			"proben" => "HilfeView_helpPages.proben",
+			"probenphase" => "HilfeView_helpPages.probenphase",
+			"repertoire" => "HilfeView_helpPages.repertoire",
+			"share" => "HilfeView_helpPages.share",
+			"tour" => "HilfeView_helpPages.tour"
 	);
 	
 	// format: code => description
 	private $videos = array(
-			"p7LrJzVxl-M" => "BNote Teaser",
-			"TEdY7biXXpw" => "BNote Einführung",
-			"kOWQjX8kSaQ" => "Administrationsüberblick"
+			"p7LrJzVxl-M" => "HilfeView_videos.teaser",
+			"TEdY7biXXpw" => "HilfeView_videos.intro",
+			"kOWQjX8kSaQ" => "HilfeView_videos.admin_overview"
 	);
 	
 	function __construct($ctrl) {
@@ -85,42 +61,45 @@ class HilfeView extends AbstractView {
 		<table class="help_navigator">
 			<tr>
 			<td class="help_navigator_menu">
-				<div class="help_navigator_menu_topic">Einführung</div>
+				<div class="help_navigator_menu_topic"><?php echo Lang::txt("HilfeView_start.intro"); ?></div>
 				<?php
 				// show an introduction video
 				$active = false;
 				foreach($this->introPages as $code => $page) {
-					if(isset($_GET["page"]) && $_GET["page"] == $code) $active = true;
-					else if(isset($_GET["vid"]) && $_GET["vid"] == $code) $active = true;
-					
+					if(isset($_GET["page"]) && $_GET["page"] == $code) {
+						$active = true;
+					}
+					else if(isset($_GET["vid"]) && $_GET["vid"] == $code) {
+						$active = true;
+					}
 					if($page == "vid") {
-						$this->writePageLink($this->videos[$code], $this->modePrefix() . "start&vid=" . $code, $active);
+						$this->writePageLink(Lang::txt($this->videos[$code]), $this->modePrefix() . "start&vid=" . $code, $active);
 					}
 					else {
-						$this->writePageLink($page, $this->modePrefix() . "start&page=" . $code, $active);
+						$this->writePageLink(Lang::txt($page), $this->modePrefix() . "start&page=" . $code, $active);
 					}
 					$active = false;
 				}
 				?>
 						
-				<div class="help_navigator_menu_topic">Video Tutorials</div>
+				<div class="help_navigator_menu_topic"><?php echo Lang::txt("HilfeView_start.video_tutorials"); ?></div>
 				<?php 
 				// show all the videos available for this software
 				foreach($this->videos as $code => $vid) {
 					if($code == "p7LrJzVxl-M") continue;
 					if(isset($_GET["vid"]) && $_GET["vid"] == $code) $active = true;
-					$this->writePageLink($vid, $this->modePrefix() . "start&vid=" . $code, $active);
+					$this->writePageLink(Lang::txt($vid), $this->modePrefix() . "start&vid=" . $code, $active);
 					$active = false;
 				}
 				
 				?>
 				
-				<div class="help_navigator_menu_topic">Hilfeseiten</div>
+				<div class="help_navigator_menu_topic"><?php echo Lang::txt("HilfeView_start.help_pages"); ?></div>
 				<?php
 				// show help pages available for this software
 				foreach($this->helpPages as $helpPageId => $helpPageTitle) {
 					if(isset($_GET["page"]) && $_GET["page"] == $helpPageId) $active = true;
-					$this->writePageLink($helpPageTitle, $this->modePrefix() . "start&page=" . $helpPageId, $active);
+					$this->writePageLink(Lang::txt($helpPageTitle), $this->modePrefix() . "start&page=" . $helpPageId, $active);
 					$active = false; 
 				}
 				?>
@@ -129,16 +108,16 @@ class HilfeView extends AbstractView {
 			<td class="help_navigator_content">
 				<?php 
 				if(isset($_GET["vid"])) {
-					Writing::h2("Video Tutorial");
+					Writing::h2(Lang::txt("HilfeView_start.videos_title"));
 					echo '<iframe width="560" height="315" src="http://www.youtube.com/embed/' . $_GET["vid"] . '" frameborder="0" allowfullscreen></iframe>';
 					
 					// add a link to the bnote website for admin stuff
 					if($_GET["vid"] == "kOWQjX8kSaQ") {
 						?>
-						<p>Aktuelle Informationen zur Installation und zum Betrieb von BNote findest du auch auf unserer Website:</p>
-						<a href="https://github.com/mattimaier/bnote/wiki">BNote Wiki</a><br>
-						<a href="http://bnote.info/provider.php">Providerauswahl</a><br>
-						<a href="http://bnote.info/install-tutorial.php">Installation und Update</a>
+						<p><?php echo Lang::txt("HilfeView_start.vid_1_desc"); ?></p>
+						<a href="https://github.com/mattimaier/bnote/wiki"><?php echo Lang::txt("HilfeView_start.vid_1_wiki"); ?></a><br>
+						<a href="http://bnote.info/provider.php"><?php echo Lang::txt("HilfeView_start.vid_1_provider"); ?></a><br>
+						<a href="http://bnote.info/install-tutorial.php"><?php echo Lang::txt("HilfeView_start.vid_1_install"); ?></a>
 						<?php
 					}
 				}
@@ -147,11 +126,11 @@ class HilfeView extends AbstractView {
 					else if(isset($this->introPages[$_GET["page"]])) $title = $this->introPages[$_GET["page"]];
 					else $title = $_GET["page"];
 					
-					echo '<span class="help_page_title">' . $title . '</span>';
+					echo '<span class="help_page_title">' . Lang::txt($title) . '</span>';
 					include $this->helpPagesDir . $_GET["page"] . ".html";
 				}
 				else {
-					Writing::p("Bitte wähle eine Hilfeseite.");
+					Writing::p(Lang::txt("HilfeView_start.select_help"));
 				}
 				?>
 			</td>

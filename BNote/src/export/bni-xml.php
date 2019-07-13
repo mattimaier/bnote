@@ -147,7 +147,7 @@ function getImagesForGallery() {
 function getImage() {
 	// check for id
 	if(!isset($_GET["id"])) {
-		new BNoteError(Lang::txt"bnixml_getImage.error"));
+		new BNoteError(Lang::txt("bnixml_getImage.error"));
 	}
 	
 	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];

@@ -132,16 +132,16 @@ class MembersPDF {
 		$table->setColumnWidth(15, 15);
 		$table->setColumnWidth(16, 24);
 		
-		$table->changeColumnLabel(1, Lang::txt("MembersPDF_writeTable.surname")"Nachname");
-		$table->changeColumnLabel(2, Lang::txt("MembersPDF_writeTable.title")"Vorname");
-		$table->changeColumnLabel(3, Lang::txt("MembersPDF_writeTable.phone")"Privat");
-		$table->changeColumnLabel(5, Lang::txt("MembersPDF_writeTable.mobile")"Mobil");
-		$table->changeColumnLabel(6, Lang::txt("MembersPDF_writeTable.occupation")"Berufl.");
-		$table->changeColumnLabel(7, Lang::txt("MembersPDF_writeTable.email")"E-Mail");
-		$table->changeColumnLabel(13, Lang::txt("MembersPDF_writeTable.street")"Straße");
-		$table->changeColumnLabel(14, Lang::txt("MembersPDF_writeTable.city")"Ort");
-		$table->changeColumnLabel(15, Lang::txt("MembersPDF_writeTable.zip")"PLZ");
-		$table->changeColumnLabel(16, Lang::txt("MembersPDF_writeTable.instrument")"Instrument");
+		$table->changeColumnLabel(1, Lang::txt("MembersPDF_writeTable.surname"));
+		$table->changeColumnLabel(2, Lang::txt("MembersPDF_writeTable.title"));
+		$table->changeColumnLabel(3, Lang::txt("MembersPDF_writeTable.phone"));
+		$table->changeColumnLabel(5, Lang::txt("MembersPDF_writeTable.mobile"));
+		$table->changeColumnLabel(6, Lang::txt("MembersPDF_writeTable.occupation"));
+		$table->changeColumnLabel(7, Lang::txt("MembersPDF_writeTable.email"));
+		$table->changeColumnLabel(13, Lang::txt("MembersPDF_writeTable.street"));
+		$table->changeColumnLabel(14, Lang::txt("MembersPDF_writeTable.city"));
+		$table->changeColumnLabel(15, Lang::txt("MembersPDF_writeTable.zip"));
+		$table->changeColumnLabel(16, Lang::txt("MembersPDF_writeTable.instrument"));
 		
 		$table->setColumnType(3, FieldType::CHAR);
 		$table->setColumnType(5, FieldType::CHAR);
