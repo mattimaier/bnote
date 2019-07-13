@@ -13,15 +13,15 @@ class NachrichtenView extends AbstractView {
 	
 	public function start() {
 		$content = $this->getData()->fetchContent();
-		$form = new Form("Nachrichten", $this->modePrefix() . "save");
+		$form = new Form(Lang::txt("NachrichtenView_start.form"), $this->modePrefix() . "save");
 		$form->addElement("", new Field("news", $content, FieldType::TEXT));
-		$form->changeSubmitButton("speichern");
+		$form->changeSubmitButton(Lang::txt("NachrichtenView_start.Submit"));
 		$form->write();
 	}
 	
 	public function save() {
 		$this->getData()->storeContent($_POST["news"]);
-		new Message("Nachricht gespeichert", "Die eingegebene Nachricht wurde gespeichert.");
+		new Message(Lang::txt("NachrichtenView_save.message_1"), Lang::txt("NachrichtenView_save.message_2"));
 	}
 	
 	function startOptions() {

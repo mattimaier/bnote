@@ -9,14 +9,14 @@ class EquipmentData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"model" => array(Lang::txt("equipment_model"), FieldType::CHAR),
-				"make" => array(Lang::txt("equipment_make"), FieldType::CHAR),
-				"name" => array("Name", FieldType::CHAR, true),
-				"purchase_price" => array(Lang::txt("equipment_purchase_price"), FieldType::DECIMAL),
-				"current_value" => array(Lang::txt("equipment_current_value"), FieldType::DECIMAL),
-				"quantity" => array(Lang::txt("equipment_quantity"), FieldType::INTEGER),
-				"notes" => array("Notizen", FieldType::TEXT, true)
+				"id" => array(Lang::txt("EquipmentData_construct.id"), FieldType::INTEGER),
+				"model" => array(Lang::txt("EquipmentData_construct.model"), FieldType::CHAR),
+				"make" => array(Lang::txt("EquipmentData_construct.make"), FieldType::CHAR),
+				"name" => array(Lang::txt("EquipmentData_construct.name"), FieldType::CHAR, true),
+				"purchase_price" => array(Lang::txt("EquipmentData_construct.purchase_price"), FieldType::DECIMAL),
+				"current_value" => array(Lang::txt("EquipmentData_construct.current_value"), FieldType::DECIMAL),
+				"quantity" => array(Lang::txt("EquipmentData_construct.quantity"), FieldType::INTEGER),
+				"notes" => array(Lang::txt("EquipmentData_construct.notes"), FieldType::TEXT, true)
 		);
 	
 		$this->references = array();

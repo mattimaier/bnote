@@ -8,6 +8,13 @@
 class HilfeView extends AbstractView {
 	
 	private $introPages = array(
+//
+// Bug when trying to translate with this method_exists
+//
+//			"p7LrJzVxl-M" => "HilfeView_introPages.video", // introduction video
+//			"bnote_news" => "HilfeView_introPages.bnote_news",
+//			"sicherheit" => "HilfeView_introPages.sicherheit",
+//			"support" => "HilfeView_introPages.support"
 			"p7LrJzVxl-M" => "vid", // introduction video
 			"bnote_news" => "Neuerungen in BNote",
 			"sicherheit" => "Sicherheitshinweise",
@@ -18,6 +25,23 @@ class HilfeView extends AbstractView {
 	
 	// alphabetically, format: name of the html-file => title
 	private $helpPages = array(
+//
+// Bug when trying to translate with this method_exists
+//
+//			"abstimmung" => "HilfeView_helpPages.abstimmung",
+//			"aufgaben" => "HilfeView_helpPages.aufgaben",
+//			"equipment" => "HilfeView_helpPages.equipment",
+//			"finance" => "HilfeView_helpPages.finance",
+//			"konfiguration" => "HilfeView_helpPages.konfiguration",
+//			"calendar" => "HilfeView_helpPages.calendar",
+//			"kontakte" => "HilfeView_helpPages.kontakte",
+//			"mitspieler" => "HilfeView_helpPages.mitspieler",
+//			"nachrichten" => "HilfeView_helpPages.nachrichten",
+//			"proben" => "HilfeView_helpPages.proben",
+//			"probenphase" => "HilfeView_helpPages.probenphase",
+//			"repertoire" => "HilfeView_helpPages.repertoire",
+//			"share" => "HilfeView_helpPages.share",
+//			"tour" => "HilfeView_helpPages.tour"
 			"abstimmung" => "Modul Abstimmung",
 			"aufgaben" => "Modul Aufgaben",
 			"equipment" => "Modul Equipment",

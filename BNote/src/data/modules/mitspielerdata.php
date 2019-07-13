@@ -9,22 +9,22 @@ class MitspielerData extends AbstractLocationData {
 	
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"surname" => array("Name", FieldType::CHAR),
-				"name" => array("Vorname", FieldType::CHAR),
-				"nickname" => array("Spitzname", FieldType::CHAR),
-				"company" => array("Organisation", FieldType::CHAR),
-				"phone" => array("Telefon", FieldType::CHAR),
-				"fax" => array("Fax", FieldType::CHAR),
-				"mobile" => array("Mobil", FieldType::CHAR),
-				"business" => array("Geschäftlich", FieldType::CHAR),
-				"email" => array("E-Mail", FieldType::EMAIL),
-				"address" => array("Adresse", FieldType::REFERENCE),
-				"instrument_name" => array("Instrument", FieldType::REFERENCE),
-				"birthday" => array("Geburtstag", FieldType::DATE),
-				"status" => array("Status", FieldType::ENUM),
-				"city" => array("Stadt", FieldType::CHAR),
-				"zip" => array("PLZ", FieldType::CHAR)
+				"id" => array(Lang::txt("MitspielerData_construct.id"), FieldType::INTEGER),
+				"surname" => array(Lang::txt("MitspielerData_construct.surname"), FieldType::CHAR),
+				"name" => array(Lang::txt("MitspielerData_construct.name"), FieldType::CHAR),
+				"nickname" => array(Lang::txt("MitspielerData_construct.nickname"), FieldType::CHAR),
+				"company" => array(Lang::txt("MitspielerData_construct.company"), FieldType::CHAR),
+				"phone" => array(Lang::txt("MitspielerData_construct.phone"), FieldType::CHAR),
+				"fax" => array(Lang::txt("MitspielerData_construct.fax"), FieldType::CHAR),
+				"mobile" => array(Lang::txt("MitspielerData_construct.mobile"), FieldType::CHAR),
+				"business" => array(Lang::txt("MitspielerData_construct.business"), FieldType::CHAR),
+				"email" => array(Lang::txt("MitspielerData_construct.email"), FieldType::EMAIL),
+				"address" => array(Lang::txt("MitspielerData_construct.address"), FieldType::REFERENCE),
+				"instrument_name" => array(Lang::txt("MitspielerData_construct.instrument_name"), FieldType::REFERENCE),
+				"birthday" => array(Lang::txt("MitspielerData_construct.birthday"), FieldType::DATE),
+				"status" => array(Lang::txt("MitspielerData_construct.status"), FieldType::ENUM),
+				"city" => array(Lang::txt("MitspielerData_construct.city"), FieldType::CHAR),
+				"zip" => array(Lang::txt("MitspielerData_construct.zip"), FieldType::CHAR)
 		);
 		
 		$this->init($dir_prefix);

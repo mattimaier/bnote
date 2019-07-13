@@ -29,7 +29,7 @@ global $system_data;
 $db = $system_data->dbcon;
 
 // check whether a user is registered and has contact (mod=3) permission
-$deniedMsg = "Du hast keine Berechtigung das Repertoire zu exportieren!";
+$deniedMsg = Lang::txt("repertoire_files_start.deniedMsg");
 if(!isset($_SESSION["user"])) {
 	http_response_code(403);
 	new BNoteError($deniedMsg);
@@ -51,7 +51,7 @@ $repertoireData = new RepertoireData($dir_prefix);
 // check if search term is present, otherwise return nothing
 if(!isset($_GET["term"]) || strlen($_GET["term"]) < 3) {
 	http_response_code(400);
-	return json_encode(array("success" => False, "message" => "Mindestens 3 Zeichen notwendig."));
+	return json_encode(array("success" => False, "message" => Lang::txt("repertoire_files_start.message")));
 }
 
 // search filesystem for file with term

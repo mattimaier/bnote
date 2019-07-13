@@ -141,10 +141,10 @@ class StatsView extends AbstractView {
 		$data = $this->getData()->memberRehearsalPerformance();
 		$table = new Table($data);
 		$table->showFilter(false);
-		$table->renameHeader("surname", Lang::txt("surname"));
-		$table->renameHeader("name", Lang::txt("name"));
-		$table->renameHeader("score", Lang::txt("score"));
-		$table->renameHeader("rank", Lang::txt("rank"));
+		$table->renameHeader("surname", Lang::txt("StatsView_memberrehearsalperformanceChart.surname"));
+		$table->renameHeader("name", Lang::txt("StatsView_memberrehearsalperformanceChart.name"));
+		$table->renameHeader("score", Lang::txt("StatsView_memberrehearsalperformanceChart.score"));
+		$table->renameHeader("rank", Lang::txt("StatsView_memberrehearsalperformanceChart.rank"));
 		$table->write();
 		echo "<script>";
 	}
@@ -157,10 +157,10 @@ class StatsView extends AbstractView {
 		$data = $this->getData()->memberVotePerformance();
 		$table = new Table($data);
 		$table->showFilter(false);
-		$table->renameHeader("surname", Lang::txt("surname"));
-		$table->renameHeader("name", Lang::txt("name"));
-		$table->renameHeader("score", Lang::txt("score"));
-		$table->renameHeader("rank", Lang::txt("rank"));
+		$table->renameHeader("surname", Lang::txt("StatsView_membervoteperformanceChart.surname"));
+		$table->renameHeader("name", Lang::txt("StatsView_membervoteperformanceChart.name"));
+		$table->renameHeader("score", Lang::txt("StatsView_membervoteperformanceChart.score"));
+		$table->renameHeader("rank", Lang::txt("StatsView_membervoteperformanceChart.rank"));
 		$table->write();
 		echo "<script>";
 	}
@@ -173,10 +173,10 @@ class StatsView extends AbstractView {
 		$data = $this->getData()->memberOptionPerformance();
 		$table = new Table($data);
 		$table->showFilter(false);
-		$table->renameHeader("surname", Lang::txt("surname"));
-		$table->renameHeader("name", Lang::txt("name"));
-		$table->renameHeader("score", Lang::txt("score"));
-		$table->renameHeader("rank", Lang::txt("rank"));
+		$table->renameHeader("surname", Lang::txt("StatsView_memberoptionperformanceChart.surname"));
+		$table->renameHeader("name", Lang::txt("StatsView_memberoptionperformanceChart.name"));
+		$table->renameHeader("score", Lang::txt("StatsView_memberoptionperformanceChart.score"));
+		$table->renameHeader("rank", Lang::txt("StatsView_memberoptionperformanceChart.rank"));
 		$table->write();
 		echo "<script>";
 	}
@@ -187,12 +187,12 @@ class StatsView extends AbstractView {
 		<script type="text/javascript" src="lib/jquery/plugins/jqplot.categoryAxisRenderer.min.js"></script>
 		<script type="text/javascript" src="lib/jquery/plugins/jqplot.pointLabels.min.js"></script>
 		<?php
-		$this->statsBlock(Lang::txt("stats_rehearsalstat_title"), "Rehearsal");
-		$this->statsBlock(Lang::txt("stats_concertstat_title"), "Concert");
-		$this->statsBlock(Lang::txt("stats_memberstat_title"), "Member");
-		$this->statsBlock(Lang::txt("stats_memberrehearsalperformancestat_title"), "MemberRehearsalPerformance");
-		$this->statsBlock(Lang::txt("stats_membervoteperformancestat_title"), "MemberVotePerformance");
-		$this->statsBlock(Lang::txt("stats_memberoptionperformancestat_title"), "MemberOptionPerformance");
+		$this->statsBlock(Lang::txt("StatsView_start.Rehearsal_title"), "Rehearsal");
+		$this->statsBlock(Lang::txt("StatsView_start.concertstat_title"), "Concert");
+		$this->statsBlock(Lang::txt("StatsView_start.memberstat_title"), "Member");
+		$this->statsBlock(Lang::txt("StatsView_start.memberrehearsalperformancestat_title"), "MemberRehearsalPerformance");
+		$this->statsBlock(Lang::txt("StatsView_start.membervoteperformancestat_title"), "MemberVotePerformance");
+		$this->statsBlock(Lang::txt("StatsView_start.memberoptionperformancestat_title"), "MemberOptionPerformance");
 	}
 	
 	function startOptions() {

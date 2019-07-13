@@ -1521,7 +1521,7 @@ abstract class AbstractBNA implements iBNA {
 		$addresses = $this->flattenAddresses($mailaddies);
 		
 		if($addresses == null || count($addresses) == 0) {
-			new BNoteError("Es wurden keine Empfänger gefunden.");
+			new BNoteError(Lang::txt("AbstractBNA_sendMail.error"));
 		}
 		
 		// Receipient Setup

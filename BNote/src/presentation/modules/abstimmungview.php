@@ -15,20 +15,20 @@ class AbstimmungView extends CrudView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName(Lang::txt("vote_entity"));
-		$this->entityName_option = Lang::txt("vote_option");
-		$this->entityName_options = Lang::txt("vote_options");
+		$this->setEntityName(Lang::txt("AbstimmungView_construct.EntityName"));
+		$this->setaddEntityName(Lang::txt("AbstimmungView_construct.addEntityName"));
+		$this->entityName_option = Lang::txt("AbstimmungView_construct.option");
+		$this->entityName_options = Lang::txt("AbstimmungView_construct.options");
 	}
 	
 	function writeTitle() {
-		Writing::h2(Lang::txt("vote_yourVotes"));
+		Writing::h2(Lang::txt("AbstimmungView_writeTitle_yourVotes"));
 	}
 
 	function startOptions() {
 		parent::startOptions();
 		$this->buttonSpace();
-		
-		$arc = new Link($this->modePrefix() . "archive", Lang::txt("vote_archive"));
+		$arc = new Link($this->modePrefix() . "archive", Lang::txt("AbstimmungView_startOptions.archive"));
 		$arc->addIcon("archive");
 		$arc->write();
 	}
@@ -45,7 +45,7 @@ class AbstimmungView extends CrudView {
 	}
 	
 	function addEntityForm() {
-		$form = new Form(Lang::txt("add_entity", array($this->getEntityName())), $this->modePrefix() . "add");
+		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		$form->removeElement("author");
@@ -54,7 +54,7 @@ class AbstimmungView extends CrudView {
 		$groups = $this->getData()->adp()->getGroups(true, true);
 		$gs = new GroupSelector($groups, array(), "group");
 		$gs->setNameColumn("name_member");
-		$form->addElement(Lang::txt("vote_voters"), $gs);
+		$form->addElement(Lang::txt("AbstimmungView_addEntityForm.voters"), $gs);
 		
 		$form->write();
 	}
@@ -68,7 +68,7 @@ class AbstimmungView extends CrudView {
 		}
 		else {		
 			// heading
-			Writing::h2(Lang::txt("vote_details_header"));
+			Writing::h2(Lang::txt("AbstimmungView_view.header"));
 			
 			// show the details
 			$this->viewDetailTable();
@@ -81,7 +81,7 @@ class AbstimmungView extends CrudView {
 				&& !$this->getData()->getSysdata()->isUserSuperUser())) {
 			// back
 			if(isset($_GET["from"]) && $_GET["from"] == "history") {
-				$lnk = new Link($this->modePrefix() . "archive", Lang::txt("back"));
+				$lnk = new Link($this->modePrefix() . "archive", Lang::txt("AbstimmungView_viewOptions.back"));
 				$lnk->addIcon("arrow_left");
 				$lnk->write();
 			}
@@ -93,7 +93,7 @@ class AbstimmungView extends CrudView {
 			// in case the user is the author or a superuser, he/she can edit the vote
 			if($this->getData()->isUserAuthorOfVote($_SESSION["user"], $_GET["id"])
 					|| $this->getData()->getSysdata()->isUserSuperUser()) {
-				$editBtn = new Link($this->modePrefix() . "view&id=" . $_GET["id"], Lang::txt("vote_edit"));
+				$editBtn = new Link($this->modePrefix() . "view&id=" . $_GET["id"], Lang::txt("AbstimmungView_viewOptions.edit"));
 				$editBtn->addIcon("edit");
 				$editBtn->write();
 				$this->buttonSpace();
@@ -102,7 +102,7 @@ class AbstimmungView extends CrudView {
 			
 			// in case vote isn't over yet, show button to view
 			if($this->getData()->isVoteActive($_GET["id"])) {
-				$voteBtn = new Link("?mod=1&mode=voteOptions&id=" . $_GET["id"], Lang::txt("vote_now"));
+				$voteBtn = new Link("?mod=1&mode=voteOptions&id=" . $_GET["id"], Lang::txt("AbstimmungView_viewOptions.now"));
 				$voteBtn->addIcon("checkmark");
 				$voteBtn->write();
 				$hasButtons = true;
@@ -113,12 +113,12 @@ class AbstimmungView extends CrudView {
 			$this->buttonSpace();
 			
 			// show buttons to edit and close
-			$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"], Lang::txt("vote_edit"));
+			$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"], Lang::txt("AbstimmungView_viewOptions.edit"));
 			$edit->addIcon("edit");
 			$edit->write();
 			$this->buttonSpace();
 				
-			$del = new Link($this->modePrefix() . "finish&id=" . $_GET["id"], Lang::txt("vote_finish"));
+			$del = new Link($this->modePrefix() . "finish&id=" . $_GET["id"], Lang::txt("AbstimmungView_viewOptions.finish"));
 			$del->addIcon("stop");
 			$del->write();
 			$this->buttonSpace();
@@ -136,11 +136,11 @@ class AbstimmungView extends CrudView {
 		$vid = $this->getData()->create($_POST);
 		
 		// write success
-		new Message(Lang::txt("saved_entity", array($this->getEntityName())),
-				Lang::txt("vote_saved_message"));
+		new Message(Lang::txt("AbstimmungView_add.saved_entity", array($this->getEntityName())),
+				Lang::txt("AbstimmungView_add.saved_message"));
 		
 		// show options link
-		$lnk = new Link($this->modePrefix() . "options&id=$vid", Lang::txt("vote_add_options"));
+		$lnk = new Link($this->modePrefix() . "options&id=$vid", Lang::txt("AbstimmungView_add.add_options"));
 		$lnk->addIcon("plus");
 		$lnk->write();
 		$this->buttonSpace();
@@ -159,10 +159,10 @@ class AbstimmungView extends CrudView {
 		}
 		
 		// show options that are already present
-		Writing::h2($vote["name"] . " - " . Lang::txt("vote_options"));
+		Writing::h2($vote["name"] . " - " . Lang::txt("AbstimmungView_options.options"));
 		$options = $this->getData()->getOptions($_GET["id"]);
 		
-		Writing::p(Lang::txt("vote_remove_option_tip"));
+		Writing::p(Lang::txt("AbstimmungView_options.remove_option_tip"));
 		
 		echo "<ul>";
 		for($i = 1; $i < count($options); $i++) {
@@ -177,7 +177,7 @@ class AbstimmungView extends CrudView {
 		}
 		echo "</ul>";
 		if(count($options) < 2) {
-			Writing::p("<i>" . Lang::txt("vote_no_options_yet") . "</i>");
+			Writing::p("<i>" . Lang::txt("AbstimmungView_options.no_options_yet") . "</i>");
 		}
 		
 		// show add options form
@@ -189,15 +189,15 @@ class AbstimmungView extends CrudView {
 			 */
 			echo "<table>\n";
 			echo " <tr>\n";
-			echo "  <td>" . Lang::txt("vote_addSingleOption") . "</td>\n";
-			echo "  <td>" . Lang::txt("vote_addMultipleOptions") . "</td>\n";
+			echo "  <td>" . Lang::txt("AbstimmungView_options.addSingleOption") . "</td>\n";
+			echo "  <td>" . Lang::txt("AbstimmungView_options.addMultipleOptions") . "</td>\n";
 			echo " </tr>\n";
 			echo " <tr>\n";
 			echo "  <td>\n";
 			
 			// single form
 			$form->setTitle("");
-			$form->addElement(Lang::txt("date"), new Field("odate", "", FieldType::DATETIME));
+			$form->addElement(Lang::txt("AbstimmungView_options.add_date"), new Field("odate", "", FieldType::DATETIME));
 			$form->write();
 			
 			echo "  </td>\n";
@@ -205,19 +205,19 @@ class AbstimmungView extends CrudView {
 			
 			// multiform
 			$form->setTitle("");
-			$form->removeElement(Lang::txt("date"));
-			$form->addElement(Lang::txt("vote_firstDay"), new Field("odate_from", "", FieldType::DATETIME));
-			$form->addElement(Lang::txt("vote_lastDay"), new Field("odate_to", "", FieldType::DATE));
+			$form->removeElement(Lang::txt("AbstimmungView_options.del_date"));
+			$form->addElement(Lang::txt("AbstimmungView_options.firstDay"), new Field("odate_from", "", FieldType::DATETIME));
+			$form->addElement(Lang::txt("AbstimmungView_options.lastDay"), new Field("odate_to", "", FieldType::DATE));
 			$form->write();
 			
 			echo "  </td>\n";
 			echo " </tr>\n";
 			echo "</table>\n";
 			
-			$form->addElement(Lang::txt("date"), new Field("odate", "", FieldType::DATETIME));
+			$form->addElement(Lang::txt("AbstimmungView_options.multiform_add_date"), new Field("odate", "", FieldType::DATETIME));
 		}
 		else {
-			$form->addElement(Lang::txt("name"), new Field("name", "", FieldType::CHAR));
+			$form->addElement(Lang::txt("AbstimmungView_options.name"), new Field("name", "", FieldType::CHAR));
 			$form->write();
 		}
 	}
@@ -235,12 +235,12 @@ class AbstimmungView extends CrudView {
 	function viewDetailTable() {
 		$vote = $this->getData()->findByIdNoRef($_GET["id"]);
 		$dv = new Dataview();
-		$dv->addElement(Lang::txt("title"), $vote["name"]);
-		$dv->addElement(Lang::txt("vote_end"), Data::convertDateFromDb($vote["end"]));
+		$dv->addElement(Lang::txt("AbstimmungView_viewDetailTable.title"), $vote["name"]);
+		$dv->addElement(Lang::txt("AbstimmungView_viewDetailTable.end"), Data::convertDateFromDb($vote["end"]));
 		$checked = ($vote["is_date"] == 1) ? "checked" : "";
-		$dv->addElement(Lang::txt("vote_fields_is_date"), "<input type=\"checkbox\" disabled $checked/>");
+		$dv->addElement(Lang::txt("AbstimmungView_viewDetailTable.fields_is_date"), "<input type=\"checkbox\" disabled $checked/>");
 		$checked = ($vote["is_multi"] == 1) ? "checked" : "";
-		$dv->addElement(Lang::txt("vote_fields_is_multi"), "<input type=\"checkbox\" disabled $checked/>");
+		$dv->addElement(Lang::txt("AbstimmungView_viewDetailTable.fields_is_multi"), "<input type=\"checkbox\" disabled $checked/>");
 		$dv->write();
 	}
 	
@@ -252,7 +252,7 @@ class AbstimmungView extends CrudView {
 		$this->buttonSpace();
 		
 		// users
-		$grp = new Link($this->modePrefix() . "group&id=" . $_GET["id"], Lang::txt("vote_voters"));
+		$grp = new Link($this->modePrefix() . "group&id=" . $_GET["id"], Lang::txt("AbstimmungView_additionalViewButtons.voters"));
 		$grp->addIcon("user");
 		$grp->write();
 		$this->buttonSpace();
@@ -260,20 +260,20 @@ class AbstimmungView extends CrudView {
 		// notifications
 		$emLink = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation");
 		$emLink .= "&mode=voteMail&preselect=" . $_GET["id"];
-		$em = new Link($emLink, Lang::txt("vote_notification"));
+		$em = new Link($emLink, Lang::txt("AbstimmungView_additionalViewButtons.notification"));
 		$em->addIcon("email");
 		$em->write();
 		$this->buttonSpace();
 		
 		// result
-		$res = new Link($this->modePrefix() . "result&id=" . $_GET["id"], Lang::txt("vote_result"));
+		$res = new Link($this->modePrefix() . "result&id=" . $_GET["id"], Lang::txt("AbstimmungView_additionalViewButtons.result"));
 		$res->addIcon("abstimmung");
 		$res->write();
 		$this->buttonSpace();
 	}
 	
 	function editEntityForm() {
-		$form = new Form(Lang::txt("edit_entity", $this->getEntityName()),
+		$form = new Form(Lang::txt("AbstimmungView_additionalViewButtons.edit_entity", $this->getEntityName()),
 				$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(),
 				$this->getData()->getTable(), $_GET["id"]);
@@ -300,10 +300,10 @@ class AbstimmungView extends CrudView {
 		}
 		
 		// show options that are already present
-		Writing::h2($vote["name"] . " - " . Lang::txt("vote_voters"));
+		Writing::h2($vote["name"] . " - " . Lang::txt("AbstimmungView_group.voters"));
 		$group = $this->getData()->getGroup($_GET["id"]);
 		
-		Writing::p(Lang::txt("vote_clickToRemoveUser"));
+		Writing::p(Lang::txt("AbstimmungView_group.clickToRemoveUser"));
 		
 		echo "<ul>";
 		for($i = 1; $i < count($group); $i++) {
@@ -313,11 +313,11 @@ class AbstimmungView extends CrudView {
 		}
 		echo "</ul>";
 		if(count($group) < 2) {
-			Writing::p("<i>" . Lang::txt("vote_noVotersYet") . "</i>");
+			Writing::p("<i>" . Lang::txt("AbstimmungView_group.noVotersYet") . "</i>");
 		}
 			
 		// show add users form
-		$form = new Form(Lang::txt("vote_addVoter"), $this->modePrefix() . "group&id=" . $_GET["id"]);
+		$form = new Form(Lang::txt("AbstimmungView_group.addVoter"), $this->modePrefix() . "group&id=" . $_GET["id"]);
 		$users = $this->getData()->getUsers();
 		$dd = new Dropdown("user");
 		$amIinUsers = false;
@@ -331,7 +331,7 @@ class AbstimmungView extends CrudView {
 			$contact = $this->getData()->getSysdata()->getUsersContact();
 			$dd->addOption($contact["name"] . " " . $contact["surname"], $_SESSION["user"]);
 		}
-		$form->addElement(Lang::txt("vote_voter"), $dd);
+		$form->addElement(Lang::txt("AbstimmungView_group.voter"), $dd);
 		$form->write();
 		$this->verticalSpace();
 	}
@@ -352,10 +352,10 @@ class AbstimmungView extends CrudView {
 		Writing::h2($vote["name"] . " - Ergebnis");
 		
 		if($vote["is_multi"] == 1) {
-			Writing::p(Lang::txt("vote_multipleAnswersPossible"));
+			Writing::p(Lang::txt("AbstimmungView_result.multipleAnswersPossible"));
 		}
 		else {
-			Writing::p(Lang::txt("vote_singleOnlyPossible"));
+			Writing::p(Lang::txt("AbstimmungView_result.singleOnlyPossible"));
 		}
 		
 		// Javascript
@@ -465,8 +465,8 @@ class AbstimmungView extends CrudView {
 		$result = $this->getData()->getResult($_GET["id"]);
 		$table = new Table($result);
 		$table->removeColumn("id");
-		$table->renameHeader("votes", Lang::txt("vote_votes"));
-		$table->renameHeader("voters", Lang::txt("vote_voters"));
+		$table->renameHeader("votes", Lang::txt("AbstimmungView_result.votes"));
+		$table->renameHeader("voters", Lang::txt("AbstimmungView_result.voters"));
 		if($vote["is_multi"] == 1) {
 			$table->setDataRowSpan(3);
 		}
@@ -474,7 +474,7 @@ class AbstimmungView extends CrudView {
 	}
 	
 	function archive() {
-		Writing::h2(Lang::txt("vote_archive"));
+		Writing::h2(Lang::txt("AbstimmungView_archive.archive"));
 		
 		$votes = $this->getData()->getVotesForUser(false);
 		$table = new Table($votes);

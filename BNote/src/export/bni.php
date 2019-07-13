@@ -45,7 +45,7 @@ function getPage() {
 function getImagePath($id=0, $directOut=True) {
 	// check for id
 	if(!isset($_GET["id"]) && $id < 1) {
-		new BNoteError("ID not set.");
+		new BNoteError(Lang::txt("bni_getImagePath.error"));
 	}
 	$imageId = ($id > 0) ? $id : $_GET["id"];
 	
@@ -71,7 +71,7 @@ function getImagePath($id=0, $directOut=True) {
 function getThumbPath($id=0, $directOut=True) {
 	// check for id
 	if(!isset($_GET["id"]) && $id < 1) {
-		new BNoteError("ID not set.");
+		new BNoteError(Lang::txt("bni_getThumbPath.error"));
 	}
 	$imageId = ($id > 0) ? $id : $_GET["id"];
 	
@@ -107,7 +107,7 @@ function getGalleries() {
 function getGallery() {
 	// check for id
 	if(!isset($_GET["id"])) {
-		new BNoteError("ID not set.");
+		new BNoteError(Lang::txt("bni_getGallery.error"));
 	}
 	
 	$query = "SELECT * FROM gallery WHERE id = " . $_GET["id"];
@@ -121,7 +121,7 @@ function getGallery() {
 function getImagesForGallery() {
 	// check for id
 	if(!isset($_GET["id"])) {
-		new BNoteError("ID not set.");
+		new BNoteError(Lang::txt("bni_getImagesForGallery.error"));
 	}
 	
 	$query = "SELECT * FROM galleryimage WHERE gallery = " . $_GET["id"];
@@ -149,7 +149,7 @@ function getImagesForGallery() {
 function getImage() {
 	// check for id
 	if(!isset($_GET["id"])) {
-		new BNoteError("ID not set.");
+		new BNoteError(Lang::txt("bni_getImage.error"));
 	}
 	
 	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];

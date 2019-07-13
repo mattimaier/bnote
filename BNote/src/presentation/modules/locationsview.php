@@ -13,13 +13,14 @@ class LocationsView extends CrudRefLocationView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName("Location");
+		$this->setaddEntityName(Lang::txt("LocationsView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"address" => array("street", "zip", "city", "state", "country")
 		));
 	}
 	
 	function addEntityForm() {
-		$form = new Form("Location hinzufügen", $this->modePrefix() . "add");
+		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFieldsWithCustomFields(LocationsData::$CUSTOM_DATA_OTYPE));
 		$form->removeElement("id");
 		$form->removeElement("address");
@@ -56,7 +57,7 @@ class LocationsView extends CrudRefLocationView {
 		?>
 		<div id="jqui-tabs">
 		<ul>
-			<li><a href="#jqui-tabs-all">Alle</a></li>
+			<li><a href="#jqui-tabs-all"><?php echo Lang::txt("LocationsView_showAllTable.title"); ?></a></li>
 			<?php
 			for($i = 1; $i < count($locTypes); $i++) {
 				$locType = $locTypes[$i]['id'];

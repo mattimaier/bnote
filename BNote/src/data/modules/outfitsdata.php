@@ -8,9 +8,9 @@ class OutfitsData extends AbstractData {
 	
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"name" => array("Name", FieldType::CHAR),
-				"description" => array("Beschreibung", FieldType::TEXT)
+				"id" => array(Lang::txt("OutfitsData_construct.id"), FieldType::INTEGER),
+				"name" => array(Lang::txt("OutfitsData_construct.name"), FieldType::CHAR),
+				"description" => array(Lang::txt("OutfitsData_construct.description"), FieldType::TEXT)
 		);
 		
 		$this->references = array(

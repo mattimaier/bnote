@@ -73,7 +73,7 @@ class Plainlist implements iWriteable {
 		
 		// empty remark
 		if($this->showEmptyRemark && count($this->data) == 1) {
-			Writing::p("[keine Einträge]");
+			Writing::p(Lang::txt("Plainlist_write.empty"));
 		}
 	}
 	

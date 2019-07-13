@@ -10,7 +10,7 @@ class AppointmentView extends CrudRefLocationView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setJoinedAttributes(AppointmentData::$colExchange);
-		$this->setEntityName("Termin");
+		$this->setEntityName(Lang::txt("AppointmentView_construct.EntityName"));
 	}
 	
 	/**
@@ -40,15 +40,15 @@ class AppointmentView extends CrudRefLocationView {
 		// groups
 		$groups = $this->getData()->adp()->getGroups();
 		$groupSelector = new GroupSelector($groups, array(), "group");
-		$form->addElement(Lang::txt("invitations"), $groupSelector);
+		$form->addElement(Lang::txt("AppointmentView_changeDefaultAddEntityForm.group"), $groupSelector);
 	}
 	
 	function startOptions() {
-		$backBtn = new Link("?mod=" . $this->getModId() . "&mode=start", "Zurück");
+		$backBtn = new Link("?mod=" . $this->getModId() . "&mode=start", Lang::txt("AppointmentView_startOptions.back"));
 		$backBtn->addIcon("arrow_left");
 		$backBtn->write();
 	
-		$new = new Link($this->modePrefix() . "addEntity", "Termin hinzufügen");
+		$new = new Link($this->modePrefix() . "addEntity", Lang::txt("AppointmentView_startOptions.addEntity"));
 		$new->addIcon("plus");
 		$new->write();
 	}
@@ -58,17 +58,17 @@ class AppointmentView extends CrudRefLocationView {
 		
 		Writing::h1($appointment["name"]);
 		
-		Writing::h3("Zeit");
+		Writing::h3(Lang::txt("AppointmentView_view.begin"));
 		Writing::p($this->formatFromToDateShort($appointment["begin"], $appointment["end"]));
 		
-		Writing::h3("Ort");
+		Writing::h3(Lang::txt("AppointmentView_view.locationname"));
 		Writing::p($appointment["locationname"]);
 		Writing::p($this->formatAddress($appointment, FALSE, "location", TRUE));
 		
-		Writing::h3("Ansprechpartner");
+		Writing::h3(Lang::txt("AppointmentView_view.contactname"));
 		Writing::p($appointment["contactname"] . " " . $appointment["contactsurname"]);
 		
-		Writing::h3("Details");
+		Writing::h3(Lang::txt("AppointmentView_view.techname"));
 		$customFields = $this->getData()->getCustomFields('a');
 		foreach($customFields as $i => $field) {
 			if($i == 0) continue;
@@ -78,15 +78,15 @@ class AppointmentView extends CrudRefLocationView {
 			}
 		}
 		
-		Writing::h3("Notizen");
+		Writing::h3(Lang::txt("AppointmentView_view.notes"));
 		Writing::p($appointment["notes"]);
 		
-		Writing::h3("Eingeladene Gruppen");
+		Writing::h3(Lang::txt("AppointmentView_view.groups"));
 		Writing::p(join(", ", Database::flattenSelection($appointment["groups"], "name")));
 	}
 	
 	function backToStart() {
-		$link = new Link("?mod=" . $this->getData()->getSysdata()->getModuleId(), Lang::txt("back"));
+		$link = new Link("?mod=" . $this->getData()->getSysdata()->getModuleId(), Lang::txt("AppointmentView_backToStart.back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
@@ -100,7 +100,7 @@ class AppointmentView extends CrudRefLocationView {
 		$groups = $this->getData()->adp()->getGroups();
 		$selectedGroups = Database::flattenSelection($appointment["groups"], "id");
 		$groupSelector = new GroupSelector($groups, $selectedGroups, "group");
-		$form->addElement(Lang::txt("invitations"), $groupSelector);
+		$form->addElement(Lang::txt("AppointmentView_changeDefaultEditEntityForm.group"), $groupSelector);
 	}
 	
 	function edit_processOptions() {

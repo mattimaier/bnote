@@ -247,7 +247,7 @@ class Regex {
 	 *        	The fieldtype which is wrong
 	 */
 	private function fail($d, $type) {
-		new BNoteError ( "Ein oder mehrere Felder enthalten ungültige Werte. ($type / $d)" );
+		new BNoteError ( Lang::txt("Regex_fail.error") . "($type / $d)" );
 	}
 	
 	/**

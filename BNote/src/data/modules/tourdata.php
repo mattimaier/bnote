@@ -19,11 +19,11 @@ class TourData extends AbstractLocationData {
 	
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"name" => array("Name", FieldType::CHAR),
-				"start" => array("Von", FieldType::DATE),
-				"end" => array("Bis", FieldType::DATE),
-				"notes" => array("Notizen", FieldType::TEXT)
+				"id" => array(Lang::txt("TourData_construct.id"), FieldType::INTEGER),
+				"name" => array(Lang::txt("TourData_construct.name"), FieldType::CHAR),
+				"start" => array(Lang::txt("TourData_construct.start"), FieldType::DATE),
+				"end" => array(Lang::txt("TourData_construct.end"), FieldType::DATE),
+				"notes" => array(Lang::txt("TourData_construct.notes"), FieldType::TEXT)
 		);
 	
 		$this->references = array();

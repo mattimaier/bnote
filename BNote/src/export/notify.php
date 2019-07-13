@@ -111,11 +111,11 @@ class Notifier {
 		// message
 		$rehearsal = $dao->findByIdNoRef($rehearsalId);
 		$reh_begin = Data::convertDateFromDb($rehearsal['begin']);
-		$subject = "Probe am $reh_begin - Erinnerung";
-		$body = "Bitte gib deine Teilnahme an der Probe am $reh_begin an.<br/>";
+		$subject = Lang::txt("Notifier_sendRehearsalNotification.message_1") . $reh_begin . Lang::txt("Notifier_sendRehearsalNotification.message_2");
+		$body = Lang::txt("Notifier_sendRehearsalNotification.message_3") . $reh_begin . Lang::txt("Notifier_sendRehearsalNotification.message_4");
 		$bnote_url = $dao->getSysdata()->getSystemURL();
-		$body .= "<a href=\"$bnote_url\">BNote aufrufen</a><br/>";
-		$body .= "Danke!";
+		$body .= "<a href=\"$bnote_url\">" . Lang::txt("Notifier_sendRehearsalNotification.message_5") . "</a><br/>";
+		$body .= Lang::txt("Notifier_sendRehearsalNotification.message_6");
 		
 		// send and ok
 		$this->ok($this->sendEmailToContacts($laggardIds, $subject, $body));
@@ -133,11 +133,11 @@ class Notifier {
 		
 		// message
 		$concert = $dao->findByIdNoRef($concertId);
-		$subject = $concert['title'] . " - Erinnerung";
-		$body = "Bitte gib deine Teilnahme für " . $concert['title'] . " an:<br/>";
+		$subject = $concert['title'] . Lang::txt("Notifier_sendConcertNotification.message_1");
+		$body = Lang::txt("Notifier_sendConcertNotification.message_2") . $concert['title'] . Lang::txt("Notifier_sendConcertNotification.message_3");
 		$bnote_url = $dao->getSysdata()->getSystemURL();
-		$body .= "<a href=\"$bnote_url\">BNote aufrufen</a><br/>";
-		$body .= "Danke!";
+		$body .= "<a href=\"$bnote_url\"><?php echo Lang::txt("Notifier_sendConcertNotification.message_4"); ?></a><br/>";
+		$body .= Lang::txt("Notifier_sendConcertNotification.message_5");
 		
 		// send and ok
 		$this->ok($this->sendEmailToContacts($laggardIds, $subject, $body));
@@ -154,11 +154,11 @@ class Notifier {
 		
 		// message
 		$vote = $dao->findByIdNoRef($voteId);
-		$subject = $vote['name'] . " - Erinnerung";
-		$body = "Bitte stimme noch für " . $vote['name'] . " ab:";
+		$subject = $vote['name'] . Lang::txt("Notifier_sendVoteNotification.message_1");
+		$body = Lang::txt("Notifier_sendVoteNotification.message_2") . $vote['name'] . Lang::txt("Notifier_sendVoteNotification.message_3");
 		$bnote_url = $dao->getSysdata()->getSystemURL();
-		$body .= "<a href=\"$bnote_url\">BNote aufrufen</a><br/>";
-		$body .= "Danke!";
+		$body .= "<a href=\"$bnote_url\"><?php echo Lang::txt("Notifier_sendVoteNotification.message_4"); ?></a><br/>";
+		$body .= Lang::txt("Notifier_sendVoteNotification.message_5");
 		
 		// send and ok
 		$this->ok($this->sendEmailToContacts($laggardIds, $subject, $body));

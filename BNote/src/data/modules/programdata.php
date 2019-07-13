@@ -10,10 +10,10 @@ class ProgramData extends AbstractData {
 	
 	function __construct($dir_prefix="") {
 		$this->fields = array(
-			"id" => array("Programm ID", FieldType::INTEGER),
-			"name" => array("Name", FieldType::CHAR),
-			"notes" => array("Anmerkungen", FieldType::TEXT),
-			"isTemplate" => array("Vorlage", FieldType::BOOLEAN)
+			"id" => array(Lang::txt("ProgramData_construct.id"), FieldType::INTEGER),
+			"name" => array(Lang::txt("ProgramData_construct.name"), FieldType::CHAR),
+			"notes" => array(Lang::txt("ProgramData_construct.notes"), FieldType::TEXT),
+			"isTemplate" => array(Lang::txt("ProgramData_construct.isTemplate"), FieldType::BOOLEAN)
 		);
 		
 		$this->references = array(
@@ -116,7 +116,7 @@ class ProgramData extends AbstractData {
 		// create program
 		$values = array(
 			"name" => $_POST["name"],
-			"notes" => "aus Vorlage $template erstellt",
+			"notes" => Lang::txt("ProgramData_addProgramWithTemplate.message_1") . "$template" . Lang::txt("ProgramData_addProgramWithTemplate.message_2"),
 			"isTemplate" => 0
 		);
 		$pid = $this->create($values);

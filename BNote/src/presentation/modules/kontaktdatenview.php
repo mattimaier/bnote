@@ -15,12 +15,12 @@ class KontaktdatenView extends CrudRefLocationView {
 		// personal data
 		$contact = $this->getData()->getContactForUser($_SESSION["user"]);
 		if($contact <= 0) {
-			Writing::p("Ihrem Benutzer wurde kein Kontakt zugeordnet.");
+			Writing::p(Lang::txt("KontaktdatenView_start.message"));
 			return;
 		}
 		$cid = $contact["id"];
 		
-		$form = new Form("Persönliche Daten ändern", $this->modePrefix() . "savePD");
+		$form = new Form(Lang::txt("KontaktdatenView_start.Form"), $this->modePrefix() . "savePD");
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $cid, array("company"));
 		$form->removeElement("id");
 		$form->removeElement("notes");
@@ -42,42 +42,42 @@ class KontaktdatenView extends CrudRefLocationView {
 	}
 	
 	function startOptions() {
-		$chPw = new Link($this->modePrefix() . "changePassword", "Passwort ändern");
+		$chPw = new Link($this->modePrefix() . "changePassword", Lang::txt("KontaktdatenView_startOptions.changePassword"));
 		$chPw->addIcon("key");
 		$chPw->write();
 		$this->buttonSpace();
 		
-		$settings = new Link($this->modePrefix() . "settings", "Meine Einstellungen");
+		$settings = new Link($this->modePrefix() . "settings", Lang::txt("KontaktdatenView_startOptions.settings"));
 		$settings->addIcon("settings");
 		$settings->write();
 	}
 	
 	function savePD() {
 		$this->getData()->update($_SESSION["user"], $_POST);		
-		new Message("Daten gespeichert", "Die Änderungen wurden gespeichert.");
+		new Message(Lang::txt("KontaktdatenView_savePD.Message_1"), Lang::txt("KontaktdatenView_savePD.Message_2"));
 	}
 	
 	function changePassword() {		
 		// change password
-		$pwNote = "Bitte gebe mindestens 6 Zeichen und keine Leerzeichen ein um dein Passwort zu ändern.";
+		$pwNote = Lang::txt("KontaktdatenView_changePassword.Message");
 		
-		$form2 = new Form("Passwort ändern<br/><p style=\"font-weight: normal;\">$pwNote</p>", $this->modePrefix() . "password");
-		$form2->addElement("Neues Passwort", new Field("pw1", "", FieldType::PASSWORD));
-		$form2->addElement("Passwort Wiederholen", new Field("pw2", "", FieldType::PASSWORD));
+		$form2 = new Form(Lang::txt("KontaktdatenView_changePassword.Form"), "<p style=\"font-weight: normal;\">$pwNote</p>", $this->modePrefix() . "password");
+		$form2->addElement(Lang::txt("KontaktdatenView_changePassword.New"), new Field("pw1", "", FieldType::PASSWORD));
+		$form2->addElement(Lang::txt("KontaktdatenView_changePassword.Repeat"), new Field("pw2", "", FieldType::PASSWORD));
 		$form2->write();
 	}
 	
 	function password() {
 		$this->getData()->updatePassword();
-		new Message("Passwort geändert", "Das Passwort wurde geändert.<br />Ab sofort bitte mit neuem Passwort anmelden.");
+		new Message(Lang::txt("KontaktdatenView_password.Message_1"), Lang::txt("KontaktdatenView_password.Message_2"));
 	}
 	
 	function settings() {		
-		$form = new Form("Einstellungen ändern", $this->modePrefix() . "saveSettings");
+		$form = new Form(Lang::txt("KontaktdatenView_settings.saveSettings"), $this->modePrefix() . "saveSettings");
 		
 		// E-Mail Notification
 		$default = $this->getData()->getSysdata()->userEmailNotificationOn() ? "1" : "0";
-		$form->addElement("E-Mail Benachrichtigung an", new Field("email_notification", $default, FieldType::BOOLEAN));
+		$form->addElement(Lang::txt("KontaktdatenView_settings.email_notification"), new Field("email_notification", $default, FieldType::BOOLEAN));
 		
 		$form->write();
 	}
@@ -85,6 +85,6 @@ class KontaktdatenView extends CrudRefLocationView {
 	function saveSettings() {
 		$this->getData()->saveSettings($_SESSION["user"]);
 		
-		new Message("Einstellungen gespeichert", "Deine Einstellungen wurden gesperichert.");
+		new Message(Lang::txt("KontaktdatenView_saveSettings.Message_1"), Lang::txt("KontaktdatenView_saveSettings.Message_2"));
 	}
 }

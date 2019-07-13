@@ -9,8 +9,8 @@ class GenreData extends AbstractData {
 	
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"name" => array("Name", FieldType::CHAR)
+				"id" => array(Lang::txt("GenreData_construct.id"), FieldType::INTEGER),
+				"name" => array(Lang::txt("GenreData_construct.name"), FieldType::CHAR)
 		);
 		
 		$this->references = array();
@@ -22,7 +22,7 @@ class GenreData extends AbstractData {
 	function delete($id) {
 		// only delete when no song with gerne present
 		if($this->isGenreUsed($id)) {
-			new BNoteError("Die Genre wird in einem oder mehreren Songs verwendet und kann daher nicht gelöscht werden.");
+			new BNoteError(Lang::txt("GenreData_delete.BNoteError"));
 		}
 		else {
 			parent::delete($id);

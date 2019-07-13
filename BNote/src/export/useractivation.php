@@ -12,7 +12,7 @@ $db = new Database();
 
 // CHECK INPUT
 if(!isset($_GET["uid"]) || !isset($_GET["email"])) {
-	printError("Ungültige Eingabe.");
+	printError(Lang::txt("useractivation_input.printError"));
 }
 
 $userid = $_GET["uid"];
@@ -21,24 +21,24 @@ $email = $_GET["email"];
 // VALIDATE VALUES
 $uid_exists = $db->getCell($db->getUserTable(), "count(id)", "id = $userid");
 if($uid_exists < 1) {
-	printError("Benutzer-ID wurde nicht gefunden.");
+	printError(Lang::txt("useractivation_validate.printError"));
 }
 $cid = $db->getCell($db->getUserTable(), "contact", "id = $userid");
 $user_email = $db->getCell("contact", "email", "id = $cid");
 if($email != $user_email) {
-	printError("Ungültige E-Mail-Adresse.");
+	printError(Lang::txt("useractivation_user_email.printError"));
 }
 
 // ACTIVATE USER
 $query = "UPDATE " . $db->getUserTable() . " SET isActive = 1 WHERE id = $userid";
 $db->execute($query);
-echo "<p><b>Benutzerkonto aktiviert!</b><br/>Dein Benutzerkonto wurde erfolgreich aktiviert. Du kannst dich nun anmelden.</p>";
+echo Lang::txt("useractivation_update.message");
 
 
 // error function
 function printError($err) {
-	echo "<p><b>Fehler!</b><br/>Die Aktivierung war nicht erfolgreich. Bitte wende dich an deinen Leiter.<br/>";
-	echo "<i>Fehlermeldung: $err</i></p>";
+	echo Lang::txt("useractivation_update.error_1");
+	echo Lang::txt("useractivation_update.error_2") . $err . Lang::txt("useractivation_update.error_3");
 	exit();
 }
 ?>

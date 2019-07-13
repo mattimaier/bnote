@@ -14,11 +14,11 @@ class LocationsData extends AbstractLocationData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array("ID", FieldType::INTEGER),
-			"name" => array("Name", FieldType::CHAR),
-			"notes" => array("Notizen", FieldType::TEXT),
-			"address" => array("Adresse", FieldType::REFERENCE),
-			"location_type" => array("Location Typ", FieldType::REFERENCE)
+			"id" => array(Lang::txt("LocationsData_construct.id"), FieldType::INTEGER),
+			"name" => array(Lang::txt("LocationsData_construct.name"), FieldType::CHAR),
+			"notes" => array(Lang::txt("LocationsData_construct.notes"), FieldType::TEXT),
+			"address" => array(Lang::txt("LocationsData_construct.address"), FieldType::REFERENCE),
+			"location_type" => array(Lang::txt("LocationsData_construct.location_type"), FieldType::REFERENCE)
 		);
 		
 		$this->references = array(

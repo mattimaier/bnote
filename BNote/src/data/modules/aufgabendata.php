@@ -12,15 +12,15 @@ class AufgabenData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"title" => array("Titel", FieldType::CHAR),
-				"description" => array("Beschreibung", FieldType::TEXT),
-				"created_at" => array("Erstellt am", FieldType::DATETIME),
-				"created_by" => array("Erstellt von", FieldType::REFERENCE),
-				"due_at" => array("Fällig am", FieldType::DATETIME),
-				"assigned_to" => array("Verantwortlicher", FieldType::REFERENCE),
-				"is_complete" => array("Abgeschlossen", FieldType::BOOLEAN),
-				"completed_at" => array("Abgeschlossen am", FieldType::DATETIME)
+				"id" => array(Lang::txt("AufgabenData_construct.id"), FieldType::INTEGER),
+				"title" => array(Lang::txt("AufgabenData_construct.title"), FieldType::CHAR),
+				"description" => array(Lang::txt("AufgabenData_construct.description"), FieldType::TEXT),
+				"created_at" => array(Lang::txt("AufgabenData_construct.created_at"), FieldType::DATETIME),
+				"created_by" => array(Lang::txt("AufgabenData_construct.created_by"), FieldType::REFERENCE),
+				"due_at" => array(Lang::txt("AufgabenData_construct.due_at"), FieldType::DATETIME),
+				"assigned_to" => array(Lang::txt("AufgabenData_construct.assigned_to"), FieldType::REFERENCE),
+				"is_complete" => array(Lang::txt("AufgabenData_construct.is_complete"), FieldType::BOOLEAN),
+				"completed_at" => array(Lang::txt("AufgabenData_construct.completed_at"), FieldType::DATETIME)
 		);
 	
 		$this->references = array(

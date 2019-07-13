@@ -13,13 +13,13 @@ class AbstimmungData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array(Lang::txt("vote_fields_id"), FieldType::INTEGER),
-				"name" => array(Lang::txt("vote_fields_name"), FieldType::CHAR),
-				"author" => array(Lang::txt("vote_fields_author"), FieldType::REFERENCE),
-				"end" => array(Lang::txt("vote_fields_end"), FieldType::DATETIME),
-				"is_date" => array(Lang::txt("vote_fields_is_date"), FieldType::BOOLEAN),
-				"is_multi" => array(Lang::txt("vote_fields_is_multi"), FieldType::BOOLEAN),
-				"is_finished" => array(Lang::txt("vote_fields_is_finished"), FieldType::BOOLEAN)
+				"id" => array(Lang::txt("AbstimmungData_construct.id"), FieldType::INTEGER),
+				"name" => array(Lang::txt("AbstimmungData_construct.name"), FieldType::CHAR),
+				"author" => array(Lang::txt("AbstimmungData_construct.author"), FieldType::REFERENCE),
+				"end" => array(Lang::txt("AbstimmungData_construct.end"), FieldType::DATETIME),
+				"is_date" => array(Lang::txt("AbstimmungData_construct.is_date"), FieldType::BOOLEAN),
+				"is_multi" => array(Lang::txt("AbstimmungData_construct.is_multi"), FieldType::BOOLEAN),
+				"is_finished" => array(Lang::txt("AbstimmungData_construct.is_finished"), FieldType::BOOLEAN)
 		);
 
 		$this->references = array("user");
@@ -344,7 +344,7 @@ class AbstimmungData extends AbstractData {
 					// body of result table
 					$optionId = $row["id"];
 					$name = substr(Data::getWeekdayFromDbDate($row["odate"]), 0, 2) . ", ";
-					$name .= Data::convertDateFromDb($row["odate"]) . " Uhr";
+					$name .= Data::convertDateFromDb($row["odate"]) . Lang::txt("AbstimmungData_getResult.odate");
 					
 					$choiceY = $this->getOptionVotes($optionId, 1);
 					$yes = $choiceY["count"];
@@ -367,17 +367,17 @@ class AbstimmungData extends AbstractData {
 						"voters" => 0
 					);
 					$resYes = $resRow;
-					$resYes["votes"] = $yes . " Ja";
+					$resYes["votes"] = $yes . Lang::txt("AbstimmungData_getResult.yes");
 					$resYes["voters"] = $yesNames;
 					array_push($result, $resYes);
 					
 					$resNo = $resRow;
-					$resNo["votes"] = $no . " Nein";
+					$resNo["votes"] = $no . Lang::txt("AbstimmungData_getResult.no");
 					$resNo["voters"] = $noNames;
 					array_push($result, $resNo);
 					
 					$resMay = $resRow;
-					$resMay["votes"] = $may . " Vllt.";
+					$resMay["votes"] = $may . Lang::txt("AbstimmungData_getResult.maybe");
 					$resMay["voters"] = $mayNames;
 					array_push($result, $resMay);
 				}
@@ -429,7 +429,7 @@ class AbstimmungData extends AbstractData {
 		if($groupRequired) {
 			$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 			if(count($grps) == 0) {
-				new BNoteError("Bitte wähle eine Gruppe für die Abstimmung.");
+				new BNoteError(Lang::txt("AbstimmungData_validate.BNoteError"));
 			}
 		}
 	}
