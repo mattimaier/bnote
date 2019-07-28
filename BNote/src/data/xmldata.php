@@ -14,7 +14,7 @@ class XmlData extends Data {
 
 		if(file_exists($filename)) {
 			$this->xml = simplexml_load_file($filename);
-			if(!$this->xml) exit("$filename konnte nicht geladen werden");
+			if(!$this->xml) exit("$filename" . Lang::txt("XmlData_construct.filename"));
 		}
 		else {
 			exit("$filename not found!");

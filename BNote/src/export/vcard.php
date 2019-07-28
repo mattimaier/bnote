@@ -17,12 +17,13 @@ require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "iwriteable.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "message.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "link.php");
+require_once($dir_prefix . "lang.php");
 
 // Build Database Connection
 $db = new Database();
 
 // check whether a user is registered and has contact (mod=3) permission
-$deniedMsg = "Du hast keine Berechtigung die Kontakte zu exportieren!";
+$deniedMsg = Lang::txt("vcard_input.deniedMsg");
 if(!isset($_SESSION["user"])) {
 	new BNoteError($deniedMsg);
 }

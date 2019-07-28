@@ -1,5 +1,5 @@
 <?php
-
+require_once("lang.php");
 class PDFTable {
 	
 	/* Attributes */
@@ -223,7 +223,7 @@ class PDFTable {
 		// write "no data" of if the table is empty, except header
 		if(count($this->data) == 1)	{
 			$doc->setFontStandard();
-			$doc->Write($height, utf8_encode("Keine Einträge verfügbar."));
+			$doc->Write($height, utf8_encode(Lang::txt("PDFTable_write.novalue")));
 			$doc->Ln($doc->lineHeight*1.5);
 		}
 		

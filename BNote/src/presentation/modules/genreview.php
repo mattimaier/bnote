@@ -9,7 +9,8 @@ class GenreView extends CrudView {
 	
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Genre");
+		$this->setEntityName(Lang::txt("GenreView_construct.EntityName"));
+		$this->setaddEntityName(Lang::txt("GenreView_construct.addEntityName"));
 	}
 	
 	/**
@@ -20,7 +21,7 @@ class GenreView extends CrudView {
 	}
 	
 	function backToStart() {
-		$link = new Link("?mod=" . $this->getModId() . "&mode=genre", Lang::txt("back"));
+		$link = new Link("?mod=" . $this->getModId() . "&mode=genre", Lang::txt("GenreView_backToStart.Back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
@@ -34,7 +35,7 @@ class GenreView extends CrudView {
 	}
 	
 	function startOptions() {
-		$back = new Link("?mod=" . $this->getModId(), Lang::txt("back"));
+		$back = new Link("?mod=" . $this->getModId(), Lang::txt("GenreView_startOptions.Back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 		

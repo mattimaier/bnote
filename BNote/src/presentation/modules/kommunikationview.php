@@ -15,11 +15,11 @@ class KommunikationView extends AbstractView {
 	}
 	
 	function start() {
-		Writing::h1("Kommunikation");
+		Writing::h1(Lang::txt("KommunikationView_start.title"));
 	
 		if($GLOBALS["system_data"]->inDemoMode()) {
 			echo '<p style="font-size: 15px; font-weight: bold; text-align: center;">';
-			echo 'Der Versandt von E-Mails wurde zu Demonstrationszwecken deaktiviert. Sie können gerne auf "SENDEN" klicken.';
+			echo Lang::txt("KommunikationView_start.message");
 			echo '</p>';
 		}
 		
@@ -29,25 +29,25 @@ class KommunikationView extends AbstractView {
 	}
 	
 	function startOptions() {
-		$rh = new Link($this->modePrefix() . "rehearsalMail", "Probennachricht");
+		$rh = new Link($this->modePrefix() . "rehearsalMail", Lang::txt("KommunikationView_startOptions.rehearsalMail"));
 		$rh->addIcon("arrow_right");
 		$rh->write();
 		
-		$rs = new Link($this->modePrefix() . "rehearsalSerieMail", "Probenstrecke");
+		$rs = new Link($this->modePrefix() . "rehearsalSerieMail", Lang::txt("KommunikationView_startOptions.rehearsalSerieMail"));
 		$rs->addIcon("arrow_right");
 		$rs->write();
 		
-		$cm = new Link($this->modePrefix() . "concertMail", "Auftrittsnachricht");
+		$cm = new Link($this->modePrefix() . "concertMail", Lang::txt("KommunikationView_startOptions.concertMail"));
 		$cm->addIcon("arrow_right");
 		$cm->write();
 		
-		$vm = new Link($this->modePrefix() . "voteMail", "Abstimmungsnachricht");
+		$vm = new Link($this->modePrefix() . "voteMail", Lang::txt("KommunikationView_startOptions.voteMail"));
 		$vm->addIcon("arrow_right");
 		$vm->write();
 	}
 	
 	function rehearsalMail() {
-		Writing::h2("Probenbenachrichtigung");
+		Writing::h2(Lang::txt("KommunikationView_rehearsalMail.Title"));
 				
 		$dd = new Dropdown("rehearsal");
 		$rhs = $this->getData()->adp()->getFutureRehearsals();
@@ -56,7 +56,7 @@ class KommunikationView extends AbstractView {
 			$label = Data::getWeekdayFromDbDate($rhs[$i]["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($rhs[$i]["begin"]);
 			$label .= " - " . substr($rhs[$i]["end"], strlen($rhs[$i]["end"])-8, 5);
-			$label .= " Uhr " . $rhs[$i]["name"];
+			$label .= Lang::txt("KommunikationView_rehearsalMail.hour") . $rhs[$i]["name"];
 			$dd->addOption($label, $rhs[$i]["id"]);
 		}
 		
@@ -67,12 +67,12 @@ class KommunikationView extends AbstractView {
 			$label = Data::getWeekdayFromDbDate($rhs["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($rhs["begin"]);
 			$label .= " - " . substr($rhs["end"], strlen($rhs["end"])-8, 5);
-			$label .= " Uhr " . $rhs["location"];
+			$label .= Lang::txt("KommunikationView_rehearsalMail.hour") . $rhs["location"];
 			$form->addElement("Probe", new Field("rehearsal_view", $label, 99));
 			$form->addHidden("rehearsal", $_GET["preselect"]);
 		}
 		else {
-			$form->addElement("Probe", $dd);
+			$form->addElement(Lang::txt("KommunikationView_rehearsalMail.addElement"), $dd);
 		}
 		$form->removeElement("Betreff");
 		$form->write();
@@ -85,7 +85,7 @@ class KommunikationView extends AbstractView {
 	}
 	
 	function rehearsalSerieMail() {
-		Writing::h2("Benachrichtigung zur Probenstrecke");
+		Writing::h2(Lang::txt("KommunikationView_rehearsalSerieMail.Title"));
 		
 		$dd = new Dropdown("rehearsalSerie");
 		$rs = $this->getData()->getRehearsalSeries();
@@ -94,13 +94,13 @@ class KommunikationView extends AbstractView {
 		}
 		
 		$form = $this->createMailForm($this->modePrefix() . "rehearsalSerie", "", false);
-		$form->addElement("Probenstrecke", $dd);
+		$form->addElement(Lang::txt("KommunikationView_rehearsalSerieMail.addElement"), $dd);
 		$form->removeElement("Betreff");
 		$form->write();
 	}
 	
 	function concertMail() {
-		Writing::h2("Auftrittsbenachrichtigung");
+		Writing::h2(Lang::txt("KommunikationView_concertMail.Title"));
 		
 		$dd = new Dropdown("concert");
 		$concerts = $this->getData()->getConcerts();
@@ -108,7 +108,7 @@ class KommunikationView extends AbstractView {
 		for($i = 1; $i < count($concerts); $i++) {
 			$label = Data::getWeekdayFromDbDate($concerts[$i]["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($concerts[$i]["begin"]);
-			$label .= " Uhr (" . $concerts[$i]["location_name"] . ")";
+			$label .= Lang::txt("KommunikationView_concertMail.begin_1") . $concerts[$i]["location_name"] . ")";
 			$dd->addOption($label, $concerts[$i]["id"]);
 		}
 		
@@ -118,12 +118,12 @@ class KommunikationView extends AbstractView {
 			$form->setFieldValue("Nachricht", $concert["notes"]);
 			$label = Data::getWeekdayFromDbDate($concert["begin"]) . ", ";
 			$label .= Data::convertDateFromDb($concert["begin"]);
-			$label .= " Uhr";
-			$form->addElement("Auftritt", new Field("concert_view", $label, Field::FIELDTYPE_UNEDITABLE));
+			$label .= Lang::txt("KommunikationView_concertMail.begin_2");
+			$form->addElement(Lang::txt("KommunikationView_concertMail.concert"), new Field("concert_view", $label, Field::FIELDTYPE_UNEDITABLE));
 			$form->addHidden("concert", $_GET["preselect"]);
 		}
 		else {
-			$form->addElement("Auftritt", $dd);
+			$form->addElement(Lang::txt("KommunikationView_concertMail.concert"), $dd);
 		}
 		$form->removeElement("Betreff");
 		$form->write();
@@ -136,7 +136,7 @@ class KommunikationView extends AbstractView {
 	}
 	
 	function voteMail() {
-		Writing::h2("Abstimmungsbenachrichtigung");
+		Writing::h2(Lang::txt("KommunikationView_voteMail.Title"));
 		
 		$dd = new Dropdown("vote");
 		$votes = $this->getData()->getVotes();
@@ -150,11 +150,11 @@ class KommunikationView extends AbstractView {
 		if(isset($_GET["preselect"])) {
 			$vote = $this->getData()->getVote($_GET["preselect"]);
 			$label = $vote["name"];
-			$form->addElement("Abstimmung", new Field("vote_view", $label, Field::FIELDTYPE_UNEDITABLE));
+			$form->addElement(Lang::txt("KommunikationView_voteMail.Vote"), new Field("vote_view", $label, Field::FIELDTYPE_UNEDITABLE));
 			$form->addHidden("vote", $_GET["preselect"]);
 		}
 		else {
-			$form->addElement("Abstimmung", $dd);
+			$form->addElement(Lang::txt("KommunikationView_voteMail.Vote"), $dd);
 		}
 		$form->removeElement("Betreff");
 		$form->write();
@@ -173,21 +173,21 @@ class KommunikationView extends AbstractView {
 		if($showGroups) {
 			$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
 			$gs->setNameColumn("name_member");
-			$form->addElement("Empfänger", $gs);
+			$form->addElement(Lang::txt("KommunikationView_createMailForm.recipient"), $gs);
 		}
-		$form->addElement("Betreff", new Field("subject", "", FieldType::CHAR));
-		$form->addElement("Nachricht", new Field("message", $message, 98));
-		$form->changeSubmitButton("SENDEN");
+		$form->addElement(Lang::txt("KommunikationView_createMailForm.subject"), new Field("subject", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("KommunikationView_createMailForm.Message"), new Field("message", $message, 98));
+		$form->changeSubmitButton(Lang::txt("KommunikationView_createMailForm.Submit"));
 		
 		return $form;
 	}
 	
 	function reportMailError($email) {
-		Writing::p("<strong>Mail Error:</strong> Die E-Mail an <strong>$email</strong> konnte nicht gesendet werden.");
+		Writing::p(Lang::txt("KommunikationView_reportMailError.message_1") . "$email" . Lang::txt("KommunikationView_reportMailError.message_2"));
 	}
 	
 	function messageSent() {
-		new Message("E-Mails versandt", "Alle E-Mails wurden erfolgreich versandt.");
+		new Message(Lang::txt("KommunikationView_messageSent.message_1"), Lang::txt("KommunikationView_messageSent.message_2"));
 	} 
 }
 

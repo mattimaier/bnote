@@ -12,9 +12,9 @@ class ShareData extends AbstractData {
 	 */
 	function __construct() {
 		$this->fields = array(
-				"id" => array("Schlüssel", FieldType::INTEGER),
-				"name" => array("Name", FieldType::CHAR, true),
-				"is_active" => array("Aktuell", FieldType::BOOLEAN)
+				"id" => array(Lang::txt("ShareData_construct.id"), FieldType::INTEGER),
+				"name" => array(Lang::txt("ShareData_construct.name"), FieldType::CHAR, true),
+				"is_active" => array(Lang::txt("ShareData_construct.is_active"), FieldType::BOOLEAN)
 		);
 		
 		$this->table = "doctype";

@@ -54,7 +54,7 @@ abstract class AbstractView {
 	 * module's home screen.
 	 */
 	public function backToStart() {
-		$link = new Link("?mod=" . $this->getData()->getSysdata()->getModuleId(), Lang::txt("back"));
+		$link = new Link("?mod=" . $this->getData()->getSysdata()->getModuleId(), Lang::txt("AbstractView_backToStart.back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
@@ -68,14 +68,14 @@ abstract class AbstractView {
 	 * @param String $linkDelete The link the confirmation links to, usually to the delete-mode.
 	 */
 	protected function deleteConfirmationMessage($label, $linkDelete, $linkBack = null) {
-		new Message($label . Lang::txt("delete") . "?", Lang::txt("reallyDeleteQ"));
-		$yes = new Link($linkDelete, strtoupper($label) . " " . strtoupper(Lang::txt("delete")));
+		new Message($label . Lang::txt("AbstractView_deleteConfirmationMessage.delete") . "?", Lang::txt("AbstractView_deleteConfirmationMessage.reallyDeleteQ"));
+		$yes = new Link($linkDelete, strtoupper($label) . " " . strtoupper(Lang::txt("AbstractView_deleteConfirmationMessage.delete")));
 		$yes->addIcon("remove");
 		$yes->write();
 		$this->buttonSpace();
 		
 		if($linkBack != null) {
-			$no = new Link($linkBack, Lang::txt("back"));
+			$no = new Link($linkBack, Lang::txt("AbstractView_deleteConfirmationMessage.back"));
 			$no->addIcon("arrow_left");
 			$no->write();
 		}
@@ -86,7 +86,7 @@ abstract class AbstractView {
 	 */
 	public function checkID() {
 		if(!isset($_GET[$this->idParameter])) {
-			new BNoteError(Lang::txt("noUserId"));
+			new BNoteError(Lang::txt("AbstractView_checkID.noUserId"));
 		}
 	}
 	

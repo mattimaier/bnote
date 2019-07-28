@@ -14,13 +14,13 @@ class AppointmentData extends AbstractLocationData {
 	
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array(Lang::txt("id"), FieldType::INTEGER),
-			"begin" => array(Lang::txt("begin"), FieldType::DATETIME),
-			"end" => array(Lang::txt("end"), FieldType::DATETIME),
-			"name" => array(Lang::txt("name"), FieldType::CHAR),
-			"location" => array(Lang::txt("location"), FieldType::REFERENCE),
-			"contact" => array(Lang::txt("contact"), FieldType::REFERENCE),
-			"notes" => array(Lang::txt("notes"), FieldType::TEXT)
+			"id" => array(Lang::txt("AppointmentData_construct.id"), FieldType::INTEGER),
+			"begin" => array(Lang::txt("AppointmentData_construct.begin"), FieldType::DATETIME),
+			"end" => array(Lang::txt("AppointmentData_construct.end"), FieldType::DATETIME),
+			"name" => array(Lang::txt("AppointmentData_construct.name"), FieldType::CHAR),
+			"location" => array(Lang::txt("AppointmentData_construct.location"), FieldType::REFERENCE),
+			"contact" => array(Lang::txt("AppointmentData_construct.contact"), FieldType::REFERENCE),
+			"notes" => array(Lang::txt("AppointmentData_construct.notes"), FieldType::TEXT)
 		);
 		
 		$this->references = array(

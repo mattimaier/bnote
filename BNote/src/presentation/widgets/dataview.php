@@ -111,9 +111,9 @@ class Dataview {
  			$this->elements[$col] = Data::convertFromDb($this->elements[$col]);
  		}
  		else if($info[1] == FieldType::BOOLEAN) {
- 			if($this->elements[$col] == 1) $this->elements[$col] = "ja";
+ 			if($this->elements[$col] == 1) $this->elements[$col] = Lang::txt("Dataview_autoRename.yes");
  			else {
- 				$this->elements[$col] = "nein";
+ 				$this->elements[$col] = Lang::txt("Dataview_autoRename.no");
  			}
  		}
  		

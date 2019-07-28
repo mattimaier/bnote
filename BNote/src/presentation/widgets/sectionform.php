@@ -45,7 +45,7 @@ class SectionForm extends Form {
 							echo " </tr>\n";
 				}
 				if (count ( $this->requiredFields ) > 0) {
-					echo "<tr><td colspan=\"2\" style=\"font-size: 8pt;\">* markierte Felder sind anzugeben</td></tr>";
+					echo "<tr><td colspan=\"2\" style=\"font-size: 8pt;\">" . Lang::txt("SectionForm_write.message") . "</td></tr>";
 				}
 				?>
 				</table>

@@ -15,9 +15,9 @@ class MitspielerView extends CrudRefLocationView {
 	}
 	
 	function start() {
-		Writing::h1("Mitglieder");
+		Writing::h1(Lang::txt("MitspielerView_start.title"));
 		?>
-		<p class="membercard_hint">Benutze die Tastenkombintation STRG+F (Mac: CMD+F) um auf dieser Seite zu suchen.</p>
+		<p class="membercard_hint"><?php echo Lang::txt("MitspielerView_start.message"); ?></p>
 		<?php
 		if($this->getData()->getSysdata()->getUsersContact() == "") return;
 		$members = $this->getData()->getMembers($_SESSION["user"], false);
@@ -97,7 +97,7 @@ class MitspielerView extends CrudRefLocationView {
 	}
 	
 	function startOptions() {
-		$prt = new Link("javascript:print()", "Drucken");
+		$prt = new Link("javascript:print()", Lang::txt("MitspielerView_startOptions.print"));
 		$prt->addIcon("printer");
 		$prt->write();
 	}

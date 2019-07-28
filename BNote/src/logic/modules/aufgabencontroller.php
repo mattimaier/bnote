@@ -19,16 +19,16 @@ class AufgabenController extends DefaultController {
 	private function informUser($mode) {
 		if($mode == "add") {
 			$to = $this->getData()->getContactmail($_POST["Verantwortlicher"]);
-			$subject = "Neue Aufgabe: " . $_POST["title"];
-			$body = "Es wurde eine neue Aufgabe für dich erstellt. Bitte melde dich bei BNote an um weitere Details zu sehen.\n\n";
-			$body .= "Beschreibung der Aufgabe:\n\n";
+			$subject = Lang::txt("AufgabenController_informUser.title_1") . $_POST["title"];
+			$body = Lang::txt("AufgabenController_informUser.body_1");
+			$body .= Lang::txt("AufgabenController_informUser.body_2");
 			$body .= $_POST["description"];
 		}
 		else {
 			$to = $this->getData()->getContactmail($_POST["Verantwortlicher"]);
-			$subject = "Aufgabe geändert: " . $_POST["title"];
-			$body = "Die im Betreff genannte Aufgabe hat sich geändert.";
-			$body .= " Bitte melde dich in BNote an um die Aufgabe einzusehen.";
+			$subject = Lang::txt("AufgabenController_informUser.title_2") . $_POST["title"];
+			$body = Lang::txt("AufgabenController_informUser.body_3");
+			$body .= Lang::txt("AufgabenController_informUser.body_4");
 		}
 		
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");

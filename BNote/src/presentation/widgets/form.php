@@ -146,7 +146,7 @@ class Form implements iWriteable {
 	public function setForeign($field, $table, $idcolumn, $namecolumns, $selectedid) {
 		// check whether key even exists
 		if (! array_key_exists ( $field, $this->elements )) {
-			new BNoteError ( "Der Verweis konnte nicht gefunden werden." );
+			new BNoteError (Lang::txt("Form_setForeign.error"));
 		}
 			
 		// create new dropdown list
@@ -336,7 +336,7 @@ class Form implements iWriteable {
 			echo " </tr>\n";
 		}
 		if (count ( $this->requiredFields ) > 0) {
-			echo "<tr><td colspan=\"2\" style=\"font-size: 8pt;\">* markierte Felder sind anzugeben</td></tr>";
+			echo "<tr><td colspan=\"2\" style=\"font-size: 8pt;\">" . Lang::txt("Form_write.message") . "</td></tr>";
 		}
 		echo '</table>' . "\n";
 		

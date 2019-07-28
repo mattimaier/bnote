@@ -9,13 +9,14 @@ class ProbenphasenView extends CrudView {
 
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Probenphase");
+		$this->setEntityName(lang::txt("ProbenphasenView_construct.EntityName"));
+		$this->setaddEntityName(Lang::txt("ProbenphasenView_construct.addEntityName"));
 	}
 
 	function startOptions() {
 		parent::startOptions();
 		$this->buttonSpace();
-		$hist = new Link($this->modePrefix() . "history", "Vergangene Probenphasen");
+		$hist = new Link($this->modePrefix() . "history", Lang::txt("ProbenphasenView_startOptions.timer"));
 		$hist->addIcon("timer");
 		$hist->write();
 	}
@@ -34,7 +35,7 @@ class ProbenphasenView extends CrudView {
 	}
 
 	function history() {
-		Writing::h2("Vergangene Probenphasen");
+		Writing::h2(Lang::txt("ProbenphasenView_history.title"));
 
 		$data = $this->getData()->getPhases(false);
 		$this->showPhaseTable($data);
@@ -44,9 +45,9 @@ class ProbenphasenView extends CrudView {
 		$rehearsals = $this->getData()->getRehearsalsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("rehearsal", $rehearsals));
 		$table->renameAndAlign(array(
-				"id" => array("ID", FieldType::INTEGER),
-				"begin" => array("Beginn", FieldType::DATETIME),
-				"location" => array("Ort", FieldType::CHAR)
+				"id" => array(Lang::txt("ProbenphasenView_tab_rehearsals.id"), FieldType::INTEGER),
+				"begin" => array(Lang::txt("ProbenphasenView_tab_rehearsals.begin"), FieldType::DATETIME),
+				"location" => array(Lang::txt("ProbenphasenView_tab_rehearsals.location"), FieldType::CHAR)
 		));
 		$table->setColumnFormat("begin", "DATE");
 		$table->removeColumn("id");
@@ -57,11 +58,11 @@ class ProbenphasenView extends CrudView {
 		$concerts = $this->getData()->getConcertsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("concert", $concerts));
 		$table->renameAndAlign(array(
-				"id" => array("ID", FieldType::INTEGER),
-				"title" => array("Titel", FieldType::CHAR),
-				"begin" => array("Beginn", FieldType::DATETIME),
-				"location" => array("Ort", FieldType::CHAR),
-				"notes" => array("Notizen", FieldType::TEXT)
+				"id" => array(Lang::txt("ProbenphasenView_tab_concerts.id"), FieldType::INTEGER),
+				"title" => array(Lang::txt("ProbenphasenView_tab_concerts.title"), FieldType::CHAR),
+				"begin" => array(Lang::txt("ProbenphasenView_tab_concerts.begin"), FieldType::DATETIME),
+				"location" => array(Lang::txt("ProbenphasenView_tab_concerts.location"), FieldType::CHAR),
+				"notes" => array(Lang::txt("ProbenphasenView_tab_concerts.notes"), FieldType::TEXT)
 		));
 		$table->setColumnFormat("begin", "DATE");
 		$table->removeColumn("id");
@@ -72,11 +73,11 @@ class ProbenphasenView extends CrudView {
 		$contacts = $this->getData()->getContactsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("contact", $contacts));
 		$table->renameAndAlign(array(
-				"id" => array("ID", FieldType::INTEGER),
-				"instrument" => array("Instrument", FieldType::CHAR),
-				"phone" => array("Telefon", FieldType::CHAR),
-				"mobile" => array("Handy", FieldType::CHAR),
-				"email" => array("E-Mail", FieldType::CHAR)
+				"id" => array(Lang::txt("ProbenphasenView_tab_contacts.id"), FieldType::INTEGER),
+				"instrument" => array(Lang::txt("ProbenphasenView_tab_contacts.instrument"), FieldType::CHAR),
+				"phone" => array(Lang::txt("ProbenphasenView_tab_contacts.phone"), FieldType::CHAR),
+				"mobile" => array(Lang::txt("ProbenphasenView_tab_contacts.mobile"), FieldType::CHAR),
+				"email" => array(Lang::txt("ProbenphasenView_tab_contacts.email"), FieldType::CHAR)
 		));
 		$table->removeColumn("id");
 		$table->write();
@@ -99,10 +100,10 @@ class ProbenphasenView extends CrudView {
 		Writing::h2($pp["name"]);
 		
 		$tabs = array(
-				"details" => "Details",
-				"rehearsals" => "Proben",
-				"contacts" => "Teilnehmer",
-				"concerts" => "Auftritte"
+				"details" => Lang::txt("ProbenphasenView_view.details"),
+				"rehearsals" => Lang::txt("ProbenphasenView_view.rehearsals"),
+				"contacts" => Lang::txt("ProbenphasenView_view.contacts"),
+				"concerts" => Lang::txt("ProbenphasenView_view.concerts")
 		);
 		echo "<div class=\"view_tabs\">\n";
 		foreach($tabs as $tabid => $label) {
@@ -139,22 +140,22 @@ class ProbenphasenView extends CrudView {
 			
 			switch($_GET["tab"]) {
 				case "rehearsals":
-					$addReh = new Link($this->modePrefix() . "addRehearsal&id=" . $_GET["id"], "Probe hinzufügen");
+					$addReh = new Link($this->modePrefix() . "addRehearsal&id=" . $_GET["id"], Lang::txt("ProbenphasenView_viewOptions.addRehearsal"));
 					$addReh->addIcon("plus");
 					$addReh->write();
 					break;
 				case "contacts":
-					$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], "Kontakt hinzufügen");
+					$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], Lang::txt("ProbenphasenView_viewOptions.addContact"));
 					$addContact->addIcon("plus");
 					$addContact->write();
 					$this->buttonSpace();
 					
-					$addGroupContacts = new Link($this->modePrefix() . "addMultipleContacts&id=" . $_GET["id"], "Kontakte einer Gruppe hinzufügen");
+					$addGroupContacts = new Link($this->modePrefix() . "addMultipleContacts&id=" . $_GET["id"], Lang::txt("ProbenphasenView_viewOptions.addMultipleContacts"));
 					$addGroupContacts->addIcon("plus");
 					$addGroupContacts->write();
 					break;
 				case "concerts":
-					$addConcert = new Link($this->modePrefix() . "addConcert&id=" . $_GET["id"], "Auftritt hinzufügen");
+					$addConcert = new Link($this->modePrefix() . "addConcert&id=" . $_GET["id"], Lang::txt("ProbenphasenView_viewOptions.addConcert"));
 					$addConcert->addIcon("plus");
 					$addConcert->write();
 					break;
@@ -169,15 +170,15 @@ class ProbenphasenView extends CrudView {
 	}
 
 	function addRehearsal() {
-		$form = new Form("Probe hinzufügen", $this->modePrefix() . "process_addRehearsal&id=" . $_GET["id"]);
+		$form = new Form(Lang::txt("ProbenphasenView_addRehearsal.form"), $this->modePrefix() . "process_addRehearsal&id=" . $_GET["id"]);
 
-		Writing::p("Füge durch anklicken einer Probe diese zur Probenphase hinzu.");
+		Writing::p(Lang::txt("ProbenphasenView_addRehearsal.message"));
 
 		$futRehearsals = $this->getData()->adp()->getFutureRehearsals();
 		$gs = new GroupSelector($futRehearsals, array(), "rehearsal");
 		$gs->setNameColumn("begin");
 		$gs->setCaptionType(FieldType::DATE);
-		$form->addElement("kommende Proben", $gs);
+		$form->addElement(Lang::txt("ProbenphasenView_addRehearsal.begin"), $gs);
 		$form->write();
 	}
 	
@@ -187,7 +188,7 @@ class ProbenphasenView extends CrudView {
 
 	function process_addRehearsal() {
 		$this->getData()->addRehearsals($_GET["id"]);
-		new Message("Proben hinzugefügt", "Die ausgewählten Proben wurden der Probenphase hinzugefügt.");
+		new Message(Lang::txt("ProbenphasenView_process_addRehearsal.message_1"), Lang::txt("ProbenphasenView_process_addRehearsal.message_2"));
 	}
 	
 	function process_addRehearsalOptions() {
@@ -195,15 +196,15 @@ class ProbenphasenView extends CrudView {
 	}
 
 	function addConcert() {
-		$form = new Form("Auftritt hinzufügen", $this->modePrefix() . "process_addConcert&id=" . $_GET["id"]);
+		$form = new Form(Lang::txt("ProbenphasenView_addConcert.form"), $this->modePrefix() . "process_addConcert&id=" . $_GET["id"]);
 
-		Writing::p("Füge durch anklicken eines oder mehrerer Auftritte diese der Probenphase hinzu.");
+		Writing::p(Lang::txt("ProbenphasenView_addConcert.message"));
 
 		$futConcerts = $this->getData()->getFutureConcerts();
 		$gs = new GroupSelector($futConcerts, array(), "concert");
 		$gs->setNameColumn("title");
 		$gs->setCaptionType(FieldType::CHAR);
-		$form->addElement("kommende Auftritte", $gs);
+		$form->addElement(Lang::txt("ProbenphasenView_addConcert.title"), $gs);
 		$form->write();
 	}
 	
@@ -213,7 +214,7 @@ class ProbenphasenView extends CrudView {
 
 	function process_addConcert() {
 		$this->getData()->addConcerts($_GET["id"]);
-		new Message("Auftritte hinzugefügt", "Die ausgewählten Auftritte wurden der Probenphase hinzugefügt.");
+		new Message(Lang::txt("ProbenphasenView_process_addConcert.message_1"), Lang::txt("ProbenphasenView_process_addConcert.message_2"));
 	}
 	
 	function process_addConcertOptions() {
@@ -221,13 +222,13 @@ class ProbenphasenView extends CrudView {
 	}
 
 	function addContact() {
-		$form = new Form("Kontakt hinzufügen", $this->modePrefix() . "process_addContact&id=" . $_GET["id"]);
+		$form = new Form(Lang::txt("ProbenphasenView_addContact.form"), $this->modePrefix() . "process_addContact&id=" . $_GET["id"]);
 
-		Writing::p("Füge durch anklicken eines oder mehrerer Kontakte diese der Probenphase hinzu.");
+		Writing::p(Lang::txt("ProbenphasenView_addContact.message"));
 
 		$contacts = $this->getData()->getContacts();
 		$gs = new GroupSelector($contacts, array(), "contact");
-		$form->addElement("Kontakte", $gs);
+		$form->addElement(Lang::txt("ProbenphasenView_addContact.contact"), $gs);
 		$form->write();
 	}
 	
@@ -237,7 +238,7 @@ class ProbenphasenView extends CrudView {
 	
 	function process_addContact() {
 		$this->getData()->addContacts($_GET["id"]);
-		new Message("Kontakte hinzugefügt", "Die ausgewählten Kontakte wurden der Probenphase hinzugefügt.");
+		new Message(Lang::txt("ProbenphasenView_process_addContact.message_1"), Lang::txt("ProbenphasenView_process_addContact.message_2"));
 		$this->backToViewButton($_GET["id"]);
 	}
 	
@@ -246,14 +247,14 @@ class ProbenphasenView extends CrudView {
 	}
 	
 	function addMultipleContacts() {
-		$form = new Form("Alle Kontakte einer Gruppe zur Probenphase hinzufügen",
+		$form = new Form(Lang::txt("ProbenphasenView_addMultipleContacts.form"),
 				$this->modePrefix() . "process_addMultipleContacts&id=" . $_GET["id"]);
 		
-		Writing::p("Fügen durch anklicken einer oder mehrerer Gruppen alle deren Kontakte der Probenphase hinzu.");
+		Writing::p(Lang::txt("ProbenphasenView_addMultipleContacts.message"));
 		
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
 		$gs->setNameColumn("name_member");
-		$form->addElement("Gruppen", $gs);
+		$form->addElement(Lang::txt("ProbenphasenView_addMultipleContacts.name_member"), $gs);
 		$form->write();
 	}
 	
@@ -263,7 +264,7 @@ class ProbenphasenView extends CrudView {
 
 	function process_addMultipleContacts() {
 		$this->getData()->addGroupContacts($_GET["id"]);
-		new Message("Kontakte hinzugefügt", "Die ausgewählten Kontakte wurden der Probenphase hinzugefügt.");
+		new Message(Lang::txt("ProbenphasenView_process_addMultipleContacts.message_1"), Lang::txt("ProbenphasenView_process_addMultipleContacts.message_2"));
 	}
 	
 	function process_addMultipleContactsOptions() {
@@ -273,7 +274,7 @@ class ProbenphasenView extends CrudView {
 	
 	function addRemoveColumnToTable($entity, $data) {
 		// header
-		array_push($data[0], "Löschen");
+		array_push($data[0], Lang::txt("ProbenphasenView_addRemoveColumnToTable.delete"));
 		
 		// body
 		foreach($data as $i => $row) {
@@ -282,7 +283,7 @@ class ProbenphasenView extends CrudView {
 			$lnk = new Link($delLink, "");
 			$lnk->addIcon("remove");
 			array_push($row, $lnk->toString());
-			$row["Löschen"] = $lnk->toString();
+			$row[Lang::txt("ProbenphasenView_addRemoveColumnToTable.delete")] = $lnk->toString();
 			$data[$i] = $row;
 		}
 		return $data;

@@ -12,14 +12,14 @@ class ProbenData extends AbstractLocationData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array("Probennummer", FieldType::INTEGER),
-			"begin" => array("Beginn", FieldType::DATETIME),
-			"end" => array("Ende", FieldType::DATETIME),
-			"approve_until" => array("Zusagen bis", FieldType::DATETIME),
-			"location" => array("Ort", FieldType::REFERENCE),
-			"conductor" => array("Dirigent", FieldType::REFERENCE),
-			"serie" => array("Probenstrecke", FieldType::REFERENCE),
-			"notes" => array("Notizen", FieldType::TEXT)
+			"id" => array(Lang::txt("ProbenData_construct.id"), FieldType::INTEGER),
+			"begin" => array(Lang::txt("ProbenData_construct.begin"), FieldType::DATETIME),
+			"end" => array(Lang::txt("ProbenData_construct.end"), FieldType::DATETIME),
+			"approve_until" => array(Lang::txt("ProbenData_construct.approve_until"), FieldType::DATETIME),
+			"location" => array(Lang::txt("ProbenData_construct.location"), FieldType::REFERENCE),
+			"conductor" => array(Lang::txt("ProbenData_construct.conductor"), FieldType::REFERENCE),
+			"serie" => array(Lang::txt("ProbenData_construct.serie"), FieldType::REFERENCE),
+			"notes" => array(Lang::txt("ProbenData_construct.notes"), FieldType::TEXT)
 		);
 		
 		$this->references = array(
@@ -209,7 +209,7 @@ class ProbenData extends AbstractLocationData {
 		$dateFirstSession = strtotime(Data::convertDateToDb($_POST["first_session"]));
 		$dateLastSession = strtotime(Data::convertDateToDb($_POST["last_session"]));
 		if($dateLastSession - $dateFirstSession < 0) {
-			new BNoteError("Die letzte Probe ist zeitlich vor der ersten Probe.");
+			new BNoteError(Lang::txt("ProbenData_saveSerie.error"));
 		}
 		
 		// create serie

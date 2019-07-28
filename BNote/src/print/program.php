@@ -1,6 +1,6 @@
 <?php
 require_once $GLOBALS["DIR_PRINT"] . "print.php";
-
+require_once("lang.php");
 /**
  * Class for project timesheets.
  * @author matti
@@ -76,13 +76,13 @@ class ProgramPDF {
 		$table->setColumnWidth(2, 81);
 		$table->setColumnWidth(3, 19);
 		
-		$table->changeColumnLabel(0, "Titel");
-		// $table->changeColumnLabel(1, "Arrangeur");
-		$table->changeColumnLabel(2, "Anmerkungen");
-		$table->changeColumnLabel(3, "Länge");
+		$table->changeColumnLabel(0, Lang::txt("ProgramPDF_writeTable.title"));
+		// $table->changeColumnLabel(1, Lang::txt("ProgramPDF_writeTable.arranger"));
+		$table->changeColumnLabel(2, Lang::txt("ProgramPDF_writeTable.notes"));
+		$table->changeColumnLabel(3, Lang::txt("ProgramPDF_writeTable.length"));
 		
 		// add sum
-		$table->addSumLine("Gesamtlänge", $sum, 2);
+		$table->addSumLine(Lang::txt("ProgramPDF_writeTable.total_length"), $sum, 2);
 		
 		// write the document
 		$table->write($this->pdf);

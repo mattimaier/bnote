@@ -7,7 +7,7 @@ class AccommodationView extends CrudRefView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Übernachtung");
+		$this->setEntityName(Lang::txt("AccommodationView_construct.EntityName"));
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
 			"tour" => array("id", "name")
@@ -55,7 +55,7 @@ class AccommodationView extends CrudRefView {
 		$table->setEdit("id");
 		$table->changeMode("view&tab=accommodation&func=view&accId=" . $_GET["accId"]);
 		$table->renameAndAlign($this->getData()->getFields());
-		$table->renameHeader("locationname", "Unterkunft");
+		$table->renameHeader("locationname", Lang::txt("AccommodationView_showAllTable.locationname"));
 		$table->removeColumn("tour");
 		$table->removeColumn("id");
 		$table->removeColumn("tourname");
@@ -68,8 +68,8 @@ class AccommodationView extends CrudRefView {
 		$details = new Dataview();
 		$details->autoAddElements($entity);
 		$details->autoRename($this->getData()->getFields());
-		$details->renameElement("locationname", Lang::txt("accommodation_locationname"));
-		$details->renameElement("tourname", Lang::txt("accommodation_tourname"));
+		$details->renameElement("locationname", Lang::txt("AccommodationView_viewDetailTable.locationname"));
+		$details->renameElement("tourname", Lang::txt("AccommodationView_viewDetailTable.tourname"));
 		$details->write();
 	}
 	

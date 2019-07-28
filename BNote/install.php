@@ -31,21 +31,16 @@ class Installation {
 	 * Step 1: Welcome the user and thank him/her for using BNote. 
 	 */
 	function welcome() {
-		Writing::h1("Willkommen");
+		Writing::h1(Lang::txt("Installation_welcome.title"));
 		
-		Writing::p("Danke dass du dich für BNote entschieden hast. Du tust dir und deiner Band damit einen großen Gefallen.
-					Jetzt brauchst du nur noch die Installation abschließen und dann kann es losgehen!");
+		Writing::p(Lang::txt("Installation_welcome.message_1"));
 		
-		Writing::p("Den ersten Schritt auf dem Weg zu BNote hast du bereits geschafft.
-					Du hast BNote entpackt, es auf deinen Webserver geladen und die Installation gestartet.   
-					Um die Installation erfolgreich abzuschließen gehst du wie folgt vor:");
+		Writing::p(Lang::txt("Installation_welcome.message_2"));
 		?>
 		<ul style="list-style-type: disc;">
-			<li style="margin-left: 20px; margin-bottom: 5px;">Erstelle einen neuen MySQL Datenbankbenutzer mit Passwort und weiße ihm eine neue/leere Datenbank zu.</li>
-			<li style="margin-left: 20px; margin-bottom: 5px;">Stelle sicher, dass dieses Script in den Unterordner config/ von BNote schreiben kann.<br/>
-				In der Regel musst du die Berechtigungen des Ordners für den Webserver-User zugänglich machen oder
-				deinem Hosting Provider sagen, dass Scripte schreiben dürfen.</li>
-			<li style="margin-left: 20px">Halte den Namen und die Anschrift deiner Band bereit.</li>
+			<li style="margin-left: 20px; margin-bottom: 5px;"><?php echo Lang::txt("Installation_welcome.message_3"); ?></li>
+			<li style="margin-left: 20px; margin-bottom: 5px;"><?php echo Lang::txt("Installation_welcome.message_4"); ?></li>
+			<li style="margin-left: 20px"><?php echo Lang::txt("Installation_welcome.message_5"); ?></li>
 		</ul>
 		
 		<?php
@@ -57,26 +52,25 @@ class Installation {
 	 * Step 2: Ask for company configuration if not present.
 	 */
 	function companyConfig() {
-		Writing::h1("Deine Band");
+		Writing::h1(Lang::txt("Installation_companyConfig.title"));
 		
 		if(file_exists("config/company.xml")) {
-			new Message("Band Konfiguration bereits vorhanden", "Es wurde erkannt, dass du bereits eine Band Konfiguration angelegt hast.
-					Daher kannst du diesen Schritt überspringen. Zum Ändern der Grunddaten passe bitte die Datei BNote/config/company.xml an.");
+			new Message(Lang::txt("Installation_companyConfig.message_1"));
 			$this->next("databaseConfig");
 		}
 		else {
-			Writing::p("Bitte gebe die Kontaktdaten deiner Band ein.");
+			Writing::p(Lang::txt("Installation_companyConfig.message_2"));
 			
-			$form = new Form("Band Konfiguration", "?step=databaseConfig&func=process&last=companyConfig");
-			$form->addElement("Bandname", new Field("Name", "", FieldType::CHAR));
-			$form->addElement("Stra&szlig;e", new Field("Street", "", FieldType::CHAR));
-			$form->addElement("PLZ", new Field("Zip", "", FieldType::INTEGER));
-			$form->addElement("Stadt", new Field("City", "", FieldType::CHAR));
-			$form->addElement("Land", new Field("Country", "", FieldType::CHAR));
-			$form->addElement("Telefon", new Field("Phone", "", FieldType::CHAR));
-			$form->addElement("Bandleader E-Mail", new Field("Mail", "", FieldType::CHAR));
-			$form->addElement("Website", new Field("Web", "", FieldType::CHAR));
-			$form->changeSubmitButton("Weiter");
+			$form = new Form(Lang::txt("Installation_companyConfig.Form"), "?step=databaseConfig&func=process&last=companyConfig");
+			$form->addElement(Lang::txt("Installation_companyConfig.Name"), new Field("Name", "", FieldType::CHAR));
+			$form->addElement(Lang::txt("Installation_companyConfig.Street"), new Field("Street", "", FieldType::CHAR));
+			$form->addElement(Lang::txt("Installation_companyConfig.Zip"), new Field("Zip", "", FieldType::INTEGER));
+			$form->addElement(Lang::txt("Installation_companyConfig.City"), new Field("City", "", FieldType::CHAR));
+			$form->addElement(Lang::txt("Installation_companyConfig.Country"), new Field("Country", "", FieldType::CHAR));
+			$form->addElement(Lang::txt("Installation_companyConfig.Phone"), new Field("Phone", "", FieldType::CHAR));
+			$form->addElement(Lang::txt("Installation_companyConfig.Mail"), new Field("Mail", "", FieldType::CHAR));
+			$form->addElement(Lang::txt("Installation_companyConfig.Web"), new Field("Web", "", FieldType::CHAR));
+			$form->changeSubmitButton(Lang::txt("Installation_companyConfig.submit"));
 			$form->write();
 		}
 	}
@@ -100,7 +94,7 @@ class Installation {
 		
 		$res = file_put_contents("config/company.xml", $fileContent);
 		if(!$res) {
-			new BNoteError("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
+			new BNoteError(Lang::txt("Installation_companyConfig.Error"));
 		}
 	}
 	
@@ -170,7 +164,7 @@ class Installation {
 				
 			$res = file_put_contents("config/config.xml", $fileContent);
 			if(!$res) {
-			new BNoteError("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
+			new BNoteError(Lang::txt("Installation_write_appConfig.Error"));
 			}
 		}
 	}
@@ -183,24 +177,23 @@ class Installation {
 		$this->write_appConfig();
 		
 		// continue with database configuration
-		Writing::h1("Datenbank Konfiguration");
+		Writing::h1(Lang::txt("Installation_databaseConfig.title"));
 		
 		if(file_exists("config/database.xml")) {
-			new Message("Datenbank Konfiguration bereits vorhanden", "Es wurde erkannt, dass du bereits eine Datenbank Konfiguration angelegt hast.
-					Daher kannst du diesen Schritt überspringen.");
+			new Message(Lang::txt("Installation_databaseConfig.message_1"));
 			$this->next("adminUser");
 			//TODO ask the user whether to install the database content or use the one present in the db
 		}
 		else {
-			Writing::p("Bitte gebe die Zugangsdaten zur BNote Datenbank ein.");
+			Writing::p(Lang::txt("Installation_databaseConfig.message_2"));
 				
-			$form = new Form("Datenbank Konfiguration", "?step=adminUser&func=process&last=databaseConfig");
-			$form->addElement("Server", new Field("Server", "localhost", FieldType::CHAR));
-			$form->addElement("Port", new Field("Port", "3306", FieldType::INTEGER));
-			$form->addElement("Datenbankname", new Field("Name", "", FieldType::CHAR));
-			$form->addElement("Benutzername", new Field("User", "", FieldType::CHAR));
-			$form->addElement("Passwort", new Field("Password", "", FieldType::PASSWORD));
-			$form->changeSubmitButton("Weiter");
+			$form = new Form(Lang::txt("Installation_databaseConfig.Form"), "?step=adminUser&func=process&last=databaseConfig");
+			$form->addElement(Lang::txt("Installation_databaseConfig.Server"), new Field("Server", "localhost", FieldType::CHAR));
+			$form->addElement(Lang::txt("Installation_databaseConfig.Port"), new Field("Port", "3306", FieldType::INTEGER));
+			$form->addElement(Lang::txt("Installation_databaseConfig.Name"), new Field("Name", "", FieldType::CHAR));
+			$form->addElement(Lang::txt("Installation_databaseConfig.User"), new Field("User", "", FieldType::CHAR));
+			$form->addElement(Lang::txt("Installation_databaseConfig.Password"), new Field("Password", "", FieldType::PASSWORD));
+			$form->changeSubmitButton(Lang::txt("Installation_databaseConfig.Submit"));
 			$form->write();
 		}		
 	}
@@ -219,7 +212,7 @@ class Installation {
 		
 		$res = file_put_contents("config/database.xml", $fileContent);
 		if(!$res) {
-			new BNoteError("Die Konfiguration konnte nicht geschrieben werden. Bitte stelle sicher, dass BNote in das Verzeichnis config/ schreiben kann.");
+			new BNoteError(Lang::txt("Installation_process_databaseConfig.error"));
 		}
 		else {
 			// run database initialization
@@ -879,7 +872,6 @@ class Installation {
 					(5, 'Sonstige', 1);");
 			
 			// create group directories
-			mkdir("data/share");
 			mkdir("data/share/groups");
 			mkdir("data/share/groups/group_1"); // Administrators
 			mkdir("data/share/groups/group_2"); // Members
@@ -988,24 +980,22 @@ class Installation {
 	 * Step 4: Create a new admin user.
 	 */
 	function adminUser() {
-		Writing::h1("Benutzer anlegen");
+		Writing::h1(Lang::txt("Installation_adminUser.title"));
 		
-		$form = new Form("Neuer Benutzer", "?step=finalize&func=process&last=adminUser");
-		
-		$form->addElement("Benutzername", new Field("login", "", FieldType::CHAR));
-		$form->addElement("Passwort", new Field("password", "", FieldType::PASSWORD));
-		
-		$form->addElement("Vorname", new Field("name", "", FieldType::CHAR));
-		$form->addElement("Nachname", new Field("surname", "", FieldType::CHAR));
-		$form->addElement("Organisation", new Field("company", "", FieldType::CHAR));
-		$form->addElement("Telefon", new Field("phone", "", FieldType::CHAR));
-		$form->addElement("Handy", new Field("mobile", "", FieldType::CHAR));
-		$form->addElement("E-Mail-Adresse", new Field("email", "", FieldType::CHAR));
-		$form->addElement("Straße", new Field("street", "", FieldType::CHAR));
-		$form->addElement("PLZ", new Field("zip", "", FieldType::INTEGER));
-		$form->addElement("Ort", new Field("city", "", FieldType::CHAR));
-		$form->addElement("Bundesland", new Field("state", "", FieldType::CHAR));
-		$form->addElement("Land", new Field("country", "DEU", FieldType::CHAR));
+		$form = new Form(Lang::txt("Installation_adminUser.form"), "?step=finalize&func=process&last=adminUser");
+		$form->addElement(Lang::txt("Installation_adminUser.login"), new Field("login", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.password"), new Field("password", "", FieldType::PASSWORD));
+		$form->addElement(Lang::txt("Installation_adminUser.name"), new Field("name", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.surname"), new Field("surname", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.company"), new Field("company", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.phone"), new Field("phone", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.mobile"), new Field("mobile", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.email"), new Field("email", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.street"), new Field("street", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.zip"), new Field("zip", "", FieldType::INTEGER));
+		$form->addElement(Lang::txt("Installation_adminUser.city"), new Field("city", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.state"), new Field("state", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("Installation_adminUser.country"), new Field("country", "DEU", FieldType::CHAR));
 		
 		$db = $this->getDbConnection();
 		$instruments = $db->getSelection("SELECT i.id, i.name, c.name as category
@@ -1025,7 +1015,7 @@ class Installation {
 	function process_adminUser() {
 		// validate password
 		if(!isset($_POST["password"]) || !isset($_POST["login"]) || $_POST["password"] == "" || strlen($_POST["password"]) < 6) {
-			new BNoteError("Ungültiges Passwort. Bitte vergewissere dich, dass das Passwort mindestens 6 Zeichen hat und nicht leer ist.");
+			new BNoteError(Lang::txt("Installation_process_adminUser.error"));
 		}
 		
 		// get database connection
@@ -1085,22 +1075,19 @@ class Installation {
 	 * Step 5: Show what to do next and where to login.
 	 */
 	function finalize() {
-		Writing::h1("Was es noch zu tun gibt...");
+		Writing::h1(Lang::txt("Installation_finalize.title"));
 		
-		Writing::p("Du hast es geschafft: Die Installation ist nun abgeschlossen!
-					So startest du richtig mit BNote:");
+		Writing::p(Lang::txt("Installation_finalize.message"));
 		
 		$bnotePath = $_SERVER["SCRIPT_NAME"];
 		$bnotePath = str_replace("install.php", "", $bnotePath);
 		$system_url = $_SERVER["HTTP_ORIGIN"] . $bnotePath . "main.php?mod=login";
 		?>
 		<ul style="list-style-type: disc;">
-			<li style="margin-left: 20px; margin-bottom: 5px;">Melde dich unter <a href="<?php echo $system_url; ?>"><?php echo $system_url; ?></a> an.</li>
-			<li style="margin-left: 20px; margin-bottom: 5px;">Du bist jetzt Administrator und hast Zugriff auf das gesamte System. Gehe vorsichtig damit um!</li>
-			<li style="margin-left: 20px; margin-bottom: 5px;">Gehe ins Kontaktdaten-Modul und vervollständige deine Kontaktdaten.</li>
-			<li style="margin-left: 20px; color: red; font-weight: bold">Lösche das install.php Script aus dem BNote-Ordner
-				um niemandem unbefugten Zutritt zu verschaffen!
-			</li>
+			<li style="margin-left: 20px; margin-bottom: 5px;"><?php echo Lang::txt("Installation_finalize.message_1"); ?><a href="<?php echo $system_url; ?>"><?php echo $system_url; ?></a><?php echo Lang::txt("Installation_finalize.message_2"); ?></li>
+			<li style="margin-left: 20px; margin-bottom: 5px;"><?php echo Lang::txt("Installation_finalize.message_3"); ?></li>
+			<li style="margin-left: 20px; margin-bottom: 5px;"><?php echo Lang::txt("Installation_finalize.message_4"); ?></li>
+			<li style="margin-left: 20px; color: red; font-weight: bold"><?php echo Lang::txt("Installation_finalize.message_5"); ?></li>
 		</ul>
 		<br/><br/>
 		<?php

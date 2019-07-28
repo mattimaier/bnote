@@ -11,11 +11,11 @@ class ProbenphasenData extends AbstractData {
 	 */
 	function __construct() {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"name" => array("Name", FieldType::CHAR),
-				"begin" => array("Beginn", FieldType::DATE),
-				"end" => array("Ende", FieldType::DATE),
-				"notes" => array("Notizen", FieldType::TEXT)
+				"id" => array(Lang::txt("ProbenphasenData_construct.id"), FieldType::INTEGER),
+				"name" => array(Lang::txt("ProbenphasenData_construct.name"), FieldType::CHAR),
+				"begin" => array(Lang::txt("ProbenphasenData_construct.begin"), FieldType::DATE),
+				"end" => array(Lang::txt("ProbenphasenData_construct.end"), FieldType::DATE),
+				"notes" => array(Lang::txt("ProbenphasenData_construct.notes"), FieldType::TEXT)
 		);
 
 		$this->references = array();
