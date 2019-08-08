@@ -17,11 +17,11 @@ class StartData extends AbstractLocationData {
 		$this->dir_prefix = $dir_prefix;
 		
 		$this->fields = array(
-			"id" => array("User ID", FieldType::INTEGER),
-			"login" => array("Login", FieldType::CHAR),
-			"password" => array("Password", FieldType::PASSWORD),
-			"realname" => array("Name", FieldType::CHAR),
-			"lastlogin" => array("Last Logged in", FieldType::DATETIME)
+			"id" => array(Lang::txt("StartData_construct.id"), FieldType::INTEGER),
+			"login" => array(Lang::txt("StartData_construct.login"), FieldType::CHAR),
+			"password" => array(Lang::txt("StartData_construct.password"), FieldType::PASSWORD),
+			"realname" => array(Lang::txt("StartData_construct.realname"), FieldType::CHAR),
+			"lastlogin" => array(Lang::txt("StartData_construct.lastlogin"), FieldType::DATETIME)
 		);
 		
 		$this->references = array();
@@ -384,23 +384,23 @@ class StartData extends AbstractLocationData {
 		$objTitle = "";
 		if($otype == "R") {
 			$reh = $this->getRehearsal($oid);
-			$objTitle = Lang::txt("rehearsal") . " " . Data::convertDateFromDb($reh["begin"]);
+			$objTitle = Lang::txt("StartData_getObjectTitle.Rehearsal") . " " . Data::convertDateFromDb($reh["begin"]);
 		}
 		else if($otype == "C") {
 			$con = $this->getConcert($oid);
-			$objTitle = Lang::txt("concert") . " " . Data::convertDateFromDb($con["begin"]);
+			$objTitle = Lang::txt("StartData_getObjectTitle.Concert") . " " . Data::convertDateFromDb($con["begin"]);
 		}
 		else if($otype == "V") {
 			$vote = $this->getVote($oid);
-			$objTitle = Lang::txt("vote") . ": " . $vote["name"];
+			$objTitle = Lang::txt("StartData_getObjectTitle.Vote") . ": " . $vote["name"];
 		}
 		else if($otype == "T") {
 			//TODO: In case tasks can be commented as well, fix this
-			$objTitle = Lang::txt("task") . " " . $oid;
+			$objTitle = Lang::txt("StartData_getObjectTitle.Task") . " " . $oid;
 		}
 		else if($otype == "B") {
 			$rv = $this->getReservation($oid);
-			$objTitle = Lang::txt("reservation") . " " . Data::convertDateFromDb($rv["begin"]);
+			$objTitle = Lang::txt("StartData_getObjectTitle.Reservation") . " " . Data::convertDateFromDb($rv["begin"]);
 		}
 		return $objTitle;
 	}

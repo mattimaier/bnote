@@ -18,7 +18,7 @@ class ShareView extends CrudView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Dokumentenart");
+		$this->setEntityName(Lang::txt("ShareView_construct.EntityName"));
 	}
 	
 	private function initFilebrowser() {
@@ -43,7 +43,7 @@ class ShareView extends CrudView {
 		$this->filebrowser->showOptions();
 		
 		if($this->getData()->getSysdata()->isUserAdmin()) {
-			$docType = new Link($this->modePrefix() . "docType", "Dokumentenarten");
+			$docType = new Link($this->modePrefix() . "docType", Lang::txt("ShareView_startOptions.documenttype"));
 			$docType->addIcon("documenttype");
 			$docType->write();
 		}
@@ -51,14 +51,14 @@ class ShareView extends CrudView {
 	
 	function docType() {
 		if(!$this->getData()->getSysdata()->isUserAdmin()) {
-			new BNoteError("Permission denied.");
+			new BNoteError(Lang::txt("ShareView_docType.error"));
 		}
 		parent::start();
 	}
 	
 	function docTypeOptions() {
 		$this->backToStart();
-		$add = new Link($this->modePrefix() . "addEntity", "Dokumentenart hinzufügen");
+		$add = new Link($this->modePrefix() . "addEntity", Lang::txt("ShareView_docTypeOptions.addEntity"));
 		$add->addIcon("plus");
 		$add->write();
 	}

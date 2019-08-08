@@ -7,16 +7,16 @@ class AccommodationData extends AbstractLocationData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array("ID", FieldType::INTEGER),
-			"tour" => array(lang::txt("tour"), FieldType::REFERENCE),
-			"location" => array(lang::txt("location"), FieldType::REFERENCE),
-			"checkin" => array("Checkin", FieldType::DATE),
-			"checkout" => array("Checkout", FieldType::DATE),
-			"breakfast" => array("Frühstück", FieldType::BOOLEAN),
-			"lunch" => array("Mittagessen", FieldType::BOOLEAN),
-			"dinner" => array("Abendessen", FieldType::BOOLEAN),
-			"planned_cost" => array(lang::txt("accommodation_price"), FieldType::DECIMAL),
-			"notes" => array("Notizen", FieldType::TEXT)
+			"id" => array(lang::txt("AccommodationData_construct.id"), FieldType::INTEGER),
+			"tour" => array(lang::txt("AccommodationData_construct.tour"), FieldType::REFERENCE),
+			"location" => array(lang::txt("AccommodationData_construct.location"), FieldType::REFERENCE),
+			"checkin" => array(lang::txt("AccommodationData_construct.checkin"), FieldType::DATE),
+			"checkout" => array(lang::txt("AccommodationData_construct.checkout"), FieldType::DATE),
+			"breakfast" => array(lang::txt("AccommodationData_construct.breakfast"), FieldType::BOOLEAN),
+			"lunch" => array(lang::txt("AccommodationData_construct.lunch"), FieldType::BOOLEAN),
+			"dinner" => array(lang::txt("AccommodationData_construct.dinner"), FieldType::BOOLEAN),
+			"planned_cost" => array(lang::txt("AccommodationData_construct.planned_cost"), FieldType::DECIMAL),
+			"notes" => array(lang::txt("AccommodationData_construct.notes"), FieldType::TEXT)
 		);
 	
 		$this->references = array(

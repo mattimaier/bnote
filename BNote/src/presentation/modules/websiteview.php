@@ -16,9 +16,9 @@ class WebsiteView extends AbstractView {
 	}
 	
 	function start() {
-		Writing::h1("Website Inhalte");
+		Writing::h1(Lang::txt("WebsiteView_construct.title"));
 		
-		Writing::p("Klicke auf eine Seite um deren Inhalte zu bearbeiten.");
+		Writing::p(Lang::txt("WebsiteView_construct.message"));
 		
 		$this->pageEditor();
 	}
@@ -26,13 +26,13 @@ class WebsiteView extends AbstractView {
 	function startOptions() {
 		global $system_data;
 		if($system_data->isGalleryFeatureEnabled()) {
-			$g = new Link($this->modePrefix() . "gallery", "Galerien bearbeiten");
+			$g = new Link($this->modePrefix() . "gallery", Lang::txt("WebsiteView_startOptions.gallery"));
 			$g->addIcon("gallery");
 			$g->write();
 		}
 		if($system_data->isInfopageFeatureEnabled()) {
 			if($system_data->isGalleryFeatureEnabled()) $this->buttonSpace();
-			$n = new Link($this->modePrefix() . "infos", "Sonderseiten");
+			$n = new Link($this->modePrefix() . "infos", Lang::txt("WebsiteView_startOptions.copy_link"));
 			$n->addIcon("copy_link");
 			$n->write();
 		}
@@ -43,7 +43,7 @@ class WebsiteView extends AbstractView {
 		<table id="website_editor">
 		 <tr>
 		  <td id="website_pages">
-		  	<div class="website_webpage_topic">Seiten</div>
+		  	<div class="website_webpage_topic"><?php echo Lang::txt("WebsiteView_pageEditor.pages"); ?></div>
 		<?php
 		global $system_data;		
 		// loop through pages and write them to the bar
@@ -67,7 +67,7 @@ class WebsiteView extends AbstractView {
 		  	$this->editPage($_GET["page"]);
 		  }
 		  else {
-		  	Writing::p("Bitte wähle eine Seite zum bearbeiten aus.");
+		  	Writing::p(Lang::txt("WebsiteView_pageEditor.select_page"));
 		  }
 		  ?>
 		  </td>
@@ -80,16 +80,16 @@ class WebsiteView extends AbstractView {
 		// setup
 		$filename = $this->getController()->getFilenameFromPage($page);
 		if(!file_exists($filename)) {
-			new BNoteError("Die HTML-Datei " . $filename . " existiert nicht.");
+			new BNoteError(Lang::txt("WebsiteView_editPage.filename_1") . $filename . Lang::txt("WebsiteView_editPage.filename_2"));
 		}
 		$html = file_get_contents($filename);
-		$title = ucfirst($page) . " bearbeiten";
+		$title = ucfirst($page) . Lang::txt("WebsiteView_editPage.filename_3");
 		$saveHref = $this->modePrefix() . "save&page=" . $page;
 		
 		// show tinyMCE editor
 		Writing::h3($title);
 		echo "<form action=\"$saveHref\" method=\"POST\">\n";
-		echo '<input type="submit" value="speichern" />' . "\n";
+		echo '<input type="submit" value='.Lang::txt("WebsiteView_editPage.submit").' />' . "\n";
 		$this->verticalSpace();
 		$editor = new HtmlEditor("html", $html);
 		$editor->write();
@@ -98,12 +98,12 @@ class WebsiteView extends AbstractView {
 	
 	function save() {
 		if(!isset($_GET["page"])) {
-			new BNoteError("Bitte wähle eine Seite zum bearbeiten aus!");
+			new BNoteError(Lang::txt("WebsiteView_save.Error_1"));
 		}
 		if(isset($_POST["html"])) {
 			$filename = $this->getController()->getFilenameFromPage($_GET["page"]);
 			if(!file_put_contents($filename, $_POST["html"])) {
-				new BNoteError("Die Seite konnte nicht gespeichert werden.");
+				new BNoteError(Lang::txt("WebsiteView_save.Error_2"));
 			}
 		}
 		$this->start();
@@ -114,18 +114,18 @@ class WebsiteView extends AbstractView {
 	}
 	
 	function infos() {
-		Writing::h2("Sonderseiten");
-		Writing::p("Klicke auf eine Seite um diese zu bearbeiten.");
+		Writing::h2(Lang::txt("WebsiteView_infos.title"));
+		Writing::p(Lang::txt("WebsiteView_infos.message"));
 		
 		// show available pages
 		$infos = $this->getData()->getInfos();
 		$table = new Table($infos);
 		$table->setEdit("id");
 		$table->changeMode("editInfo");
-		$table->renameHeader("id", "ID");
-		$table->renameHeader("createdon", "Erstellt am");
-		$table->renameHeader("editedon", "Zuletzt bearbeitet am");
-		$table->renameHeader("title", "Überschrift");
+		$table->renameHeader("id", Lang::txt("WebsiteView_infos.id"));
+		$table->renameHeader("createdon", Lang::txt("WebsiteView_infos.createdon"));
+		$table->renameHeader("editedon", Lang::txt("WebsiteView_infos.editedon"));
+		$table->renameHeader("title", Lang::txt("WebsiteView_infos.title"));
 		$table->write();
 	}
 	
@@ -133,15 +133,15 @@ class WebsiteView extends AbstractView {
 		$this->backToStart();
 		$this->buttonSpace();
 		
-		$addlink = new Link($this->modePrefix() . "addInfo", "Seite hinzufügen");
+		$addlink = new Link($this->modePrefix() . "addInfo", Lang::txt("WebsiteView_infosOptions.addInfo"));
 		$addlink->addIcon("plus");
 		$addlink->write();
 	}
 	
 	function addInfo() {
-		$form = new Form("Informationsseite hinzufügen", $this->modePrefix() . "processAddInfo");
-		$form->addElement("Titel", new Field("title", "", 7));
-		$form->addElement("Text", new Field("page", "", 98));
+		$form = new Form(Lang::txt("WebsiteView_addInfo.Form"), $this->modePrefix() . "processAddInfo");
+		$form->addElement(Lang::txt("WebsiteView_addInfo.title"), new Field("title", "", 7));
+		$form->addElement(Lang::txt("WebsiteView_addInfo.page"), new Field("page", "", 98));
 		$form->write();
 	}
 	
@@ -151,10 +151,10 @@ class WebsiteView extends AbstractView {
 	
 	function processAddInfo() {
 		if(!$this->getData()->addInfo()) {
-			new BNoteError("Die Informationsseite konnte nicht gespeichert werden.");
+			new BNoteError(Lang::txt("WebsiteView_processAddInfo.error"));
 		}
 		else {
-			new Message("Seite gespeichert", "Die Seite wurde erfolgreich gespeichert.");
+			new Message(Lang::txt("WebsiteView_processAddInfo.message_1"), Lang::txt("WebsiteView_processAddInfo.message_2"));
 		}
 	}
 	
@@ -173,15 +173,15 @@ class WebsiteView extends AbstractView {
 		
 		// details
 		$dv = new Dataview();
-		$dv->addElement("Autor", $author);
-		$dv->addElement("Erstellt am:", Data::convertDateFromDb($info["createdOn"]));
-		$dv->addElement("Zuletzt bearbeitet am:", Data::convertDateFromDb($info["editedOn"]));
+		$dv->addElement(Lang::txt("WebsiteView_editInfo.author"), $author);
+		$dv->addElement(Lang::txt("WebsiteView_editInfo.createdOn"), Data::convertDateFromDb($info["createdOn"]));
+		$dv->addElement(Lang::txt("WebsiteView_editInfo.editedOn"), Data::convertDateFromDb($info["editedOn"]));
 		$dv->write();
 		
 		// show edit form
-		Writing::h3("Seiteninhalt bearbeiten");
+		Writing::h3(Lang::txt("WebsiteView_editInfo.processEditInfo"));
 		echo "<form action=\"" . $this->modePrefix() . "processEditInfo&id=" . $_GET["id"] . "\" method=\"POST\">\n";
-		echo "<input type=\"submit\" value=\"speichern\" />\n";
+		echo '<input type="submit" value='.Lang::txt("WebsiteView_editInfo.processEditInfo").' />' . "\n";
 		$this->verticalSpace();
 		
 		$html = new HtmlEditor("page", $page_content);
@@ -194,17 +194,17 @@ class WebsiteView extends AbstractView {
 		$this->backToInfos();
 		$this->buttonSpace();
 		
-		$delBtn = new Link($this->modePrefix() . "deleteInfo&id=" . $_GET["id"], "Seite löschen");
+		$delBtn = new Link($this->modePrefix() . "deleteInfo&id=" . $_GET["id"], Lang::txt("WebsiteView_editInfoOptions.deleteInfo"));
 		$delBtn->addIcon("remove");
 		$delBtn->write();
 	}
 	
 	function processEditInfo() {
 		if(!$this->getData()->editInfo($_GET["id"])) {
-			new BNoteError("Die Informationsseite konnte nicht gespeichert werden.");
+			new BNoteError(Lang::txt("WebsiteView_processEditInfo.error"));
 		}
 		else {
-			echo '<p>Die Seite wurde erfolgreich gespeichert.</p>';
+			echo '<p>' . Lang::txt("WebsiteView_processEditInfo.message") . '</p>';
 		}
 	}
 	
@@ -214,7 +214,7 @@ class WebsiteView extends AbstractView {
 	
 	function deleteInfo() {
 		$this->getData()->deleteInfo($_GET["id"]);
-		echo '<p>Die Seite wurde erfolgreich gelöscht.</p>';
+		echo '<p>' . Lang::txt("WebsiteView_deleteInfo.message") . '</p>';
 	}
 	
 	function deleteInfoOptions() {
@@ -222,16 +222,16 @@ class WebsiteView extends AbstractView {
 	}
 	
 	function backToInfos() {
-		$back = new Link($this->modePrefix() . "infos", "Zurück");
+		$back = new Link($this->modePrefix() . "infos", Lang::txt("WebsiteView_backToInfos.message"));
 		$back->addIcon("arrow_left");
 		$back->write();
 	}
 	
 	function gallery() {
-		Writing::h2("Galerien");
+		Writing::h2(Lang::txt("WebsiteView_gallery.title"));
 		
 		// show galleries
-		Writing::p("Um eine Galerie zu bearbeiten, klicke auf diese.");
+		Writing::p(Lang::txt("WebsiteView_gallery.message"));
 		$it = new ImageTable($this->getData()->getGalleries());
 		$it->setPrefixPath($GLOBALS["DATA_PATHS"]["gallery"] . "thumbs/");
 		$it->setEditMode($this->galleryModePrefix("viewgallery"));
@@ -242,14 +242,14 @@ class WebsiteView extends AbstractView {
 		$it->write();
 		
 		// add gallery
-		$form = new Form("Galerie hinzufügen", $this->galleryModePrefix("addgallery"));
-		$form->addElement("Name", new Field("name", "", FieldType::CHAR));
+		$form = new Form(Lang::txt("WebsiteView_gallery.Form"), $this->galleryModePrefix("addgallery"));
+		$form->addElement(Lang::txt("WebsiteView_gallery.name"), new Field("name", "", FieldType::CHAR));
 		$form->write();
 	}
 	
 	function gallery_addgallery() {
 		$this->getData()->createGallery($_POST);
-		new Message("Galerie erstellt", "Die Galerie wurde erfolgreiche erstellt.");
+		new Message(Lang::txt("WebsiteView_gallery_addgallery.message_1"), Lang::txt("WebsiteView_gallery_addgallery.message_2"));
 		$this->backToGallery();
 	}
 	
@@ -262,8 +262,8 @@ class WebsiteView extends AbstractView {
 		$images = $this->getData()->getGalleryImages($_GET["id"]);
 		
 		// write stuff
-		Writing::h2("Galerie " . $gallery["name"]);
-		Writing::p("Um ein Bild zu bearbeiten, klicke auf dieses.");		
+		Writing::h2(Lang::txt("WebsiteView_gallery_viewgallery.title") . $gallery["name"]);
+		Writing::p(Lang::txt("WebsiteView_gallery_viewgallery.message"));		
 		
 		// show images
 		$it = new ImageTable($images);
@@ -283,17 +283,17 @@ class WebsiteView extends AbstractView {
 					$gid = $_GET["id"]; // convenience
 					
 					// show options: add image, edit, delete
-					$add = new Link($this->galleryModePrefix("addImageForm", "&id=$gid"), "Bild hinzufügen");
+					$add = new Link($this->galleryModePrefix("addImageForm", "&id=$gid"), Lang::txt("WebsiteView_galleryOptions.addImageForm"));
 					$add->addIcon("plus");
 					$add->write();
 					$this->buttonSpace();
 					
-					$edit = new Link($this->galleryModePrefix("editgallery", "&id=$gid"), "Galeriename ändern");
+					$edit = new Link($this->galleryModePrefix("editgallery", "&id=$gid"), Lang::txt("WebsiteView_galleryOptions.editgallery"));
 					$edit->addIcon("edit");
 					$edit->write();
 					$this->buttonSpace();
 					
-					$del = new Link($this->galleryModePrefix("deletegallery", "&id=$gid"), "Galerie löschen");
+					$del = new Link($this->galleryModePrefix("deletegallery", "&id=$gid"), Lang::txt("WebsiteView_galleryOptions.deletegallery"));
 					$del->addIcon("remove");
 					$del->write();
 					break;
@@ -315,32 +315,32 @@ class WebsiteView extends AbstractView {
 					$this->buttonSpace();
 					
 					// show options
-					$std = new Link($this->galleryModePrefix("setimageasgallerydefault", "&id=" . $_GET["id"]), "als Vorschaubild setzen");
+					$std = new Link($this->galleryModePrefix("setimageasgallerydefault", "&id=" . $_GET["id"]), Lang::txt("WebsiteView_galleryOptions.setimageasgallerydefault"));
 					$std->addIcon("checkmark");
 					$std->write();
 					$this->buttonSpace();
-					$edit = new Link($this->galleryModePrefix("editimage", "&id=" . $_GET["id"]), "Bildbeschreibung ändern");
+					$edit = new Link($this->galleryModePrefix("editimage", "&id=" . $_GET["id"]), Lang::txt("WebsiteView_galleryOptions.editimage"));
 					$edit->addIcon("edit");
 					$edit->write();
 					$this->buttonSpace();
-					$del = new Link($this->galleryModePrefix("deleteimage", "&id=" . $_GET["id"]), "Bild löschen");
+					$del = new Link($this->galleryModePrefix("deleteimage", "&id=" . $_GET["id"]), Lang::txt("WebsiteView_galleryOptions.deleteimage"));
 					$del->addIcon("remove");
 					$del->write();
 					$this->verticalSpace();
 					break;
 				case "setimageasgallerydefault":
-					$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zurück");
+					$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), Lang::txt("WebsiteView_galleryOptions.viewimage"));
 					$back->addIcon("arrow_left");
 					$back->write();
 					break;
 				case "editimage":
 					$img = $this->getData()->getImage($_GET["id"]);
-					$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zurück");
+					$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), Lang::txt("WebsiteView_galleryOptions.viewimage"));
 					$back->addIcon("arrow_left");
 					$back->write();
 					break;
 				case "editimageprocess":
-					$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zurück");
+					$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), Lang::txt("WebsiteView_galleryOptions.viewimage"));
 					$back->addIcon("arrow_left");
 					$back->write();
 					break;
@@ -362,11 +362,11 @@ class WebsiteView extends AbstractView {
 	
 	function gallery_addImageForm() {
 		// add image
-		$form = new Form("Bild hinzufügen", $this->galleryModePrefix("addimage", "&id=" . $_GET["id"]));
+		$form = new Form(Lang::txt("WebsiteView_gallery_addImageForm.form"), $this->galleryModePrefix("addimage", "&id=" . $_GET["id"]));
 		$form->setMultipart();
-		$form->addElement("Name", new Field("name", "", FieldType::CHAR));
-		$form->addElement("Beschreibung", new Field("description", "", FieldType::TEXT));
-		$form->addElement("Bild", new Field("file", "", FieldType::FILE));
+		$form->addElement(Lang::txt("WebsiteView_gallery_addImageForm.name"), new Field("name", "", FieldType::CHAR));
+		$form->addElement(Lang::txt("WebsiteView_gallery_addImageForm.description"), new Field("description", "", FieldType::TEXT));
+		$form->addElement(Lang::txt("WebsiteView_gallery_addImageForm.file"), new Field("file", "", FieldType::FILE));
 		$form->write();
 	}
 	
@@ -378,8 +378,8 @@ class WebsiteView extends AbstractView {
 		$gid = $gallery["id"]; // convenience
 		
 		// show form		
-		$form = new Form("Galerienamen ändern", $this->galleryModePrefix("editgalleryprocess", "&id=$gid"));
-		$form->addElement("Name", new Field("name", $gallery["name"], FieldType::CHAR));
+		$form = new Form(Lang::txt("WebsiteView_gallery_editgallery.editgalleryprocess"), $this->galleryModePrefix("editgalleryprocess", "&id=$gid"));
+		$form->addElement(Lang::txt("WebsiteView_gallery_editgallery.name"), new Field("name", $gallery["name"], FieldType::CHAR));
 		$form->write();
 	}
 	
@@ -388,7 +388,7 @@ class WebsiteView extends AbstractView {
 		$this->getData()->editGallery($_GET["id"], $_POST);
 		
 		// show success
-		new Message("Galerie geändert", "Die Galerie wurde erfolgreich geändert.");
+		new Message(Lang::txt("WebsiteView_gallery_editgalleryprocess.message_1"), Lang::txt("WebsiteView_gallery_editgalleryprocess.message_2"));
 	}
 	
 	/**
@@ -398,14 +398,14 @@ class WebsiteView extends AbstractView {
 		$this->checkID();
 		$g = $this->getData()->getGallery($_GET["id"]);
 		$name = $g["name"]; //convenience
-		$m = "Bist du sicher, dass du die Galerie $name löschen möchtest?";
+		$m = Lang::txt("WebsiteView_gallery_deletegallery.message_1") . $name . Lang::txt("WebsiteView_gallery_deletegallery.message_2");
 		$m .= "<br /><strong>";
-		$m .= "Das löschen einer Galerie löscht alle Bilder und Daten zur Galerie!";
+		$m .= Lang::txt("WebsiteView_gallery_deletegallery.message_3");
 		$m .= "</strong>";
-		new Message("Galerie $name löschen", $m);
+		new Message(Lang::txt("WebsiteView_gallery_deletegallery.message_4") . $name . Lang::txt("WebsiteView_gallery_deletegallery.message_5"), $m);
 		
 		// show options
-		$yes = new Link($this->galleryModePrefix("deletegalleryprocess", "&id=" . $_GET["id"]), "GALERIE LÖSCHEN");
+		$yes = new Link($this->galleryModePrefix("deletegalleryprocess", "&id=" . $_GET["id"]), Lang::txt("WebsiteView_gallery_deletegallery.deletegalleryprocess"));
 		$yes->write();
 		
 		$this->buttonSpace();
@@ -420,7 +420,7 @@ class WebsiteView extends AbstractView {
 		$this->getData()->deleteGallery($_GET["id"]);
 		
 		// show success
-		new Message("Galerie gelöscht", "Die Galerie wurde erfolgreich gelöscht.");
+		new Message(Lang::txt("WebsiteView_gallery_deletegalleryprocess.message_1"), Lang::txt("WebsiteView_gallery_deletegalleryprocess.message_2"));
 		$this->backToGallery();
 	}
 	
@@ -428,7 +428,7 @@ class WebsiteView extends AbstractView {
 		$this->checkID();
 		$this->getData()->addImageToGallery($_GET["id"]);
 		
-		new Message("Bild hinzugeügt", "Das Bild wurde erfolgreiche zur Galerie hinzugefügt.");
+		new Message(Lang::txt("WebsiteView_gallery_addimage.message_1"), Lang::txt("WebsiteView_gallery_addimage.message_2"));
 	}
 	
 	function gallery_viewimage() {
@@ -453,9 +453,9 @@ class WebsiteView extends AbstractView {
 		$img = $this->getData()->getImage($_GET["id"]);
 		
 		// show form
-		$form = new Form("Bild ändern", $this->galleryModePrefix("editimageprocess", "&id=" . $_GET["id"]));
-		$form->addElement("Name", new Field("name", $img["name"], FieldType::CHAR));
-		$form->addElement("Beschreibung", new Field("description", $img["description"], FieldType::TEXT));
+		$form = new Form(Lang::txt("WebsiteView_gallery_editimage.Form"), $this->galleryModePrefix("editimageprocess", "&id=" . $_GET["id"]));
+		$form->addElement(Lang::txt("WebsiteView_gallery_editimage.name"), new Field("name", $img["name"], FieldType::CHAR));
+		$form->addElement(Lang::txt("WebsiteView_gallery_editimage.description"), new Field("description", $img["description"], FieldType::TEXT));
 		$form->write();
 	}
 	
@@ -464,16 +464,16 @@ class WebsiteView extends AbstractView {
 		$this->getData()->editImage($_GET["id"], $_POST);
 		
 		// show success
-		new Message("Bild geändert", "Die Beschreibungen wurden geändert.");
+		new Message(Lang::txt("WebsiteView_gallery_editimageprocess.message_1"), Lang::txt("WebsiteView_gallery_editimageprocess.message_2"));
 	}
 	
 	function gallery_deleteimage() {
 		$this->checkID();
-		new Message("Bild wirklich löschen?", "Wollen Sie das Bild wirklich löschen?");
-		$yes = new Link($this->galleryModePrefix("deleteimageprocess", "&id=" . $_GET["id"]), "BILD LöSCHEN");
+		new Message(Lang::txt("WebsiteView_gallery_deleteimage.message_1"), Lang::txt("WebsiteView_gallery_deleteimage.message_2"));
+		$yes = new Link($this->galleryModePrefix("deleteimageprocess", "&id=" . $_GET["id"]), Lang::txt("WebsiteView_gallery_deleteimage.deleteimageprocess"));
 		$yes->write();
 		$this->buttonSpace();
-		$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), "Zurück");
+		$back = new Link($this->galleryModePrefix("viewimage", "&id=" . $_GET["id"]), Lang::txt("WebsiteView_gallery_deleteimage.viewimage"));
 		$back->addIcon("arrow_left");
 		$back->write();
 	}
@@ -484,7 +484,7 @@ class WebsiteView extends AbstractView {
 		$this->getData()->deleteImage($_GET["id"]);
 		
 		// show success
-		new Message("Bild gelöscht", "Das Bild wurde gelöscht.");
+		new Message(Lang::txt("WebsiteView_gallery_deleteimageprocess.message_1"), Lang::txt("WebsiteView_gallery_deleteimageprocess.message_2"));
 	}
 	
 	function gallery_setimageasgallerydefault() {
@@ -492,17 +492,17 @@ class WebsiteView extends AbstractView {
 		$this->getData()->setImageAsGalleryDefault($_GET["id"]);
 		
 		// show success
-		new Message("Bild als Vorschaubild gespeichert", "Das Bild wurde als Vorschau für diese Galerie gespeichert.");
+		new Message(Lang::txt("WebsiteView_gallery_setimageasgallerydefault.message_1"), Lang::txt("WebsiteView_gallery_setimageasgallerydefault.message_2"));
 	}
 	
 	private function backToGallery() {
-		$back = new Link($this->modePrefix() . "gallery", "Zurück");
+		$back = new Link($this->modePrefix() . "gallery", Lang::txt("WebsiteView_backToGallery.gallery"));
 		$back->addIcon("arrow_left");
 		$back->write();
 	}
 	
 	private function backToGalleryView($id) {
-		$back = new Link($this->galleryModePrefix("viewgallery", "&id=$id"), "Zurück");
+		$back = new Link($this->galleryModePrefix("viewgallery", "&id=$id"), Lang::txt("WebsiteView_backToGalleryView.viewgallery"));
 		$back->addIcon("arrow_left");
 		$back->write();
 	}

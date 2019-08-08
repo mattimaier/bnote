@@ -71,16 +71,16 @@ class RepertoireController extends DefaultController {
 		}
 		if($_FILES["xlsfile"]["error"] > 0) {
 			switch($_FILES["xlsfile"]["error"]) {
-				case 1: $msg = Lang::txt("errorFileMaxSize"); break;
-				case 2: $msg = Lang::txt("errorFileMaxSize"); break;
-				case 3: $msg = Lang::txt("errorFileAbort"); break;
-				case 4: $msg = Lang::txt("errorNoFile"); break;
-				default: $msg = Lang::txt("errorSavingFile"); break;
+				case 1: $msg = Lang::txt("RepertoireController_xlsMapping.errorFileMaxSize"); break;
+				case 2: $msg = Lang::txt("RepertoireController_xlsMapping.errorFileMaxSize"); break;
+				case 3: $msg = Lang::txt("RepertoireController_xlsMapping.errorFileAbort"); break;
+				case 4: $msg = Lang::txt("RepertoireController_xlsMapping.errorNoFile"); break;
+				default: $msg = Lang::txt("RepertoireController_xlsMapping.errorSavingFile"); break;
 			}
 			new BNoteError($msg);
 		}
 		if(!is_uploaded_file($_FILES["xlsfile"]["tmp_name"])) {
-			new BNoteError(Lang::txt("errorUploadingFile"));
+			new BNoteError(Lang::txt("RepertoireController_xlsMapping.errorUploadingFile"));
 		}
 		
 		// read file
@@ -120,7 +120,7 @@ class RepertoireController extends DefaultController {
 	function xlsImport() {
 		// check if title is mapped
 		if($_POST["col_title"] < 0) {
-			new BNoteError("Wähle eine Spalte für den Titel deiner Stücke.");
+			new BNoteError(Lang::txt("RepertoireController_xlsImport.error"));
 		}
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
 		
@@ -219,7 +219,7 @@ class RepertoireController extends DefaultController {
 		if($_POST["col_composer"] >= 0) {
 			$composer = $row[$_POST["col_composer"]];
 			if($composer == "") {
-				$composer = "nicht angegeben";
+				$composer = Lang::txt("RepertoireController_xlsMap.col_composer");
 			}
 		}
 		$genre = "";

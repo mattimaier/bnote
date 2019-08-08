@@ -21,7 +21,7 @@ class StartController extends DefaultController {
 				// save in DB
 				$this->getData()->getSysdata()->gdprAccept($accept);
 				if($accept == 0) {
-					$this->getView()->flash("Schade. Du kannst BNote somit nicht nutzen.");
+					$this->getView()->flash(Lang::txt("StartController_start.flash"));
 				}
 				else {
 					$this->getView()->start();

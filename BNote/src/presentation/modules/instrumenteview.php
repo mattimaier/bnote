@@ -9,7 +9,7 @@ class InstrumenteView extends CrudRefView {
 	
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Instrument");
+		$this->setEntityName(Lang::txt("InstrumenteView_construct.EntityName"));
 		$this->setJoinedAttributes(array(
 			"category" => array("name")
 		));
@@ -49,13 +49,13 @@ class InstrumenteView extends CrudRefView {
 	
 	function backToStart() {
 		global $system_data;
-		$link = new Link("?mod=" . $system_data->getModuleId() . "&mode=instruments", Lang::txt("back"));
+		$link = new Link("?mod=" . $system_data->getModuleId() . "&mode=instruments", Lang::txt("InstrumenteView_backToStart.back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
 	
 	function start() {
-		Writing::h2("Instrumentenkonfiguration");
+		Writing::h2(Lang::txt("InstrumenteView_start.Title"));
 	
 		// show instruments
 		$instruments = $this->getData()->getInstrumentsWithCatName();
@@ -71,51 +71,51 @@ class InstrumenteView extends CrudRefView {
 	
 	function startOptions() {
 		// show a back button
-		$back = new Link(parent::modePrefix() . "start", "Zurück");
+		$back = new Link(parent::modePrefix() . "start", Lang::txt("InstrumenteView_startOptions.start"));
 		$back->addIcon("arrow_left");
 		$back->write();
 		$this->buttonSpace();
 		
 		// add new ones
-		$new = new Link($this->modePrefix() . "addEntity", "Instrument hinzufügen");
+		$new = new Link($this->modePrefix() . "addEntity", Lang::txt("InstrumenteView_startOptions.addEntity"));
 		$new->addIcon("plus");
 		$new->write();
 		$this->buttonSpace();
 		
 		// configure visible instrument groups
-		$cat = new Link($this->modePrefix() . "activeInstrumentGroups", "Instrumentenfilter");
+		$cat = new Link($this->modePrefix() . "activeInstrumentGroups", Lang::txt("InstrumenteView_startOptions.activeInstrumentGroups"));
 		$cat->addIcon("edit");
 		$cat->write();
 		$this->verticalSpace();
 	}
 	
 	function activeInstrumentGroups() {
-		Writing::h2("Instrumente");
-		Writing::p("Hier können die Instrumente-Gruppen festgelegt werden, die in der Registrierung angezeigt werden können.");
+		Writing::h2(Lang::txt("InstrumenteView_activeInstrumentGroups.Title"));
+		Writing::p(Lang::txt("InstrumenteView_activeInstrumentGroups.Message"));
 	
 		// show all categories in a form to select the preferred ones
-		$form = new Form("Aktive Instrumente-Gruppen", $this->modePrefix() . "process_activeInstrumentGroups");
+		$form = new Form(Lang::txt("InstrumenteView_activeInstrumentGroups.Form"), $this->modePrefix() . "process_activeInstrumentGroups");
 		$cats = $this->getData()->getCategories();
 		$activeCats = $this->getData()->getActiveCategories();
 		
 		$gs = new GroupSelector($cats, $activeCats, "category");
-		$form->addElement("Kategorie", $gs);
+		$form->addElement(Lang::txt("InstrumenteView_activeInstrumentGroups.addElement"), $gs);
 	
-		$form->changeSubmitButton("speichern");
+		$form->changeSubmitButton(Lang::txt("InstrumenteView_activeInstrumentGroups.SubmitButton"));
 		$form->write();
 	}
 	
 	function process_activeInstrumentGroups() {
 		$this->getData()->saveInstrumentGroupConfig();
 		
-		new Message("Aktive Instrumenten-Gruppen gespeichert", "Die neuen aktiven Instrumenten-Gruppen wurden gespeichert.");
+		new Message(Lang::txt("InstrumenteView_process_activeInstrumentGroups.Message_1"), Lang::txt("InstrumenteView_process_activeInstrumentGroups.Message_2"));
 	}
 	
 	function viewDetailTable() {
 		$instrument = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
 		$dv = new Dataview();
 		$dv->autoAddElements($instrument);
-		$dv->renameElement("categoryname", "Kategorie");
+		$dv->renameElement("categoryname", Lang::txt("InstrumenteView_viewDetailTable.categoryname"));
 		$dv->write();
 	}
 	

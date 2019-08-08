@@ -21,7 +21,7 @@ require_once("csvcreator.php");
 $db = new Database();
 
 // check whether a user is registered and has program (mod=4) permission
-$deniedMsg = "Du hast keine Berechtigung die Kontakte zu exportieren!";
+$deniedMsg = Lang::txt("program_csv_Notifier_start.deniedMsg");
 if(!isset($_SESSION["user"])) {
 	new BNoteError($deniedMsg);
 }
@@ -34,7 +34,7 @@ else {
 
 // check if ID is set
 if(!isset($_GET["id"]) || $_GET["id"] == "") {
-	new BNoteError("Bitte geben die Nummer des Programms an, das du exportieren möchtest.");
+	new BNoteError(Lang::txt("program_csv_Notifier_start.error"));
 }
 // fetch data
 $query = "SELECT s.title, c.name as composer, s.length, s.bpm, s.music_key, g.name as genre, status.name as status, s.notes
@@ -47,7 +47,7 @@ $query = "SELECT s.title, c.name as composer, s.length, s.bpm, s.music_key, g.na
 $pieces = $db->getSelection($query);
 
 // rename headers
-$pieces[0] = array("Titel", "Komponist/Arrangeur", "Länge", "BPM", "Tonart", "Genre", "Status", "Notizen");
+$pieces[0] = array(Lang::txt("program_csv_Notifier_start.title"), Lang::txt("program_csv_Notifier_start.composer"), Lang::txt("program_csv_Notifier_start.duration"), Lang::txt("program_csv_Notifier_start.bpm"), Lang::txt("program_csv_Notifier_start.key"), Lang::txt("program_csv_Notifier_start.gender"), Lang::txt("program_csv_Notifier_start.status"), Lang::txt("program_csv_Notifier_start.notes"));
 
 // build header
 header('Content-type: text/csv; charset=utf-8');

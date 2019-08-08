@@ -13,11 +13,11 @@ class LoginData extends AbstractLocationData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("User ID", FieldType::INTEGER),
-				"login" => array("Login", FieldType::CHAR),
-				"password" => array("Password", FieldType::PASSWORD),
-				"realname" => array("Name", FieldType::CHAR),
-				"lastlogin" => array("Last Logged in", FieldType::DATETIME)
+				"id" => array(Lang::txt("LoginData_construct.id"), FieldType::INTEGER),
+				"login" => array(Lang::txt("LoginData_construct.login"), FieldType::CHAR),
+				"password" => array(Lang::txt("LoginData_construct.password"), FieldType::PASSWORD),
+				"realname" => array(Lang::txt("LoginData_construct.realname"), FieldType::CHAR),
+				"lastlogin" => array(Lang::txt("LoginData_construct.lastlogin"), FieldType::DATETIME)
 		);
 	
 		$this->references = array();

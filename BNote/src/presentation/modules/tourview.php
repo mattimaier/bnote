@@ -4,7 +4,8 @@ class TourView extends CrudView {
 	
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName(lang::txt("tour"));
+		$this->setEntityName(lang::txt("TourView_construct.EntityName"));
+		$this->setaddEntityName(Lang::txt("TourView_construct.addEntityName"));
 		$this->idParameter = "accId";
 	}
 	
@@ -12,14 +13,14 @@ class TourView extends CrudView {
 		$this->checkID();
 		
 		$tabs = array(
-				"details" => Lang::txt("tour_details"),
-				"rehearsals" => Lang::txt("rehearsals"),
-				"contacts" => Lang::txt("participants"),
-				"concerts" => Lang::txt("concerts"),
-				"accommodation" => Lang::txt("accommodation"),
-				"travel" => Lang::txt("tour_transfers"),
-				"checklist" => Lang::txt("tour_checklist"),
-				"equipment" => Lang::txt("equipment")
+				"details" => Lang::txt("TourView_view.details"),
+				"rehearsals" => Lang::txt("TourView_view.rehearsals"),
+				"contacts" => Lang::txt("TourView_view.contacts"),
+				"concerts" => Lang::txt("TourView_view.concerts"),
+				"accommodation" => Lang::txt("TourView_view.accommodation"),
+				"travel" => Lang::txt("TourView_view.travel"),
+				"checklist" => Lang::txt("TourView_view.checklist"),
+				"equipment" => Lang::txt("TourView_view.equipment")
 		);
 		echo "<div class=\"view_tabs\">\n";
 		foreach($tabs as $tabid => $label) {
@@ -57,7 +58,7 @@ class TourView extends CrudView {
 	
 	function additionalViewButtons() {
 		// show the option of a tour summary sheet
-		$summary = new Link($this->modePrefix() . "summarySheet&accId=" . $_GET[$this->idParameter], Lang::txt("tour_summarysheet"));
+		$summary = new Link($this->modePrefix() . "summarySheet&accId=" . $_GET[$this->idParameter], Lang::txt("TourView_additionalViewButtons.summarysheet"));
 		$summary->addIcon("printer");
 		$summary->write();
 		$this->buttonSpace();
@@ -73,13 +74,13 @@ class TourView extends CrudView {
 					$this->buttonSpace();
 					break;
 				case "rehearsals":
-					$this->addReferenceButton("tour_add_rehearsal", "addRehearsal");
+					$this->addReferenceButton(Lang::txt("TourView_additionalViewButtons.addRehearsal"), "addRehearsal");
 					break;
 				case "contacts":
-					$this->addReferenceButton("tour_add_contacts", "addContacts");
+					$this->addReferenceButton(Lang::txt("TourView_additionalViewButtons.addContacts"), "addContacts");
 					break;
 				case "concerts":
-					$this->addReferenceButton("tour_add_concert", "addConcert");
+					$this->addReferenceButton(Lang::txt("TourView_additionalViewButtons.addConcert"), "addConcert");
 					break;
 				case "travel":
 					$view = $this->getController()->getTravelView();
@@ -87,7 +88,7 @@ class TourView extends CrudView {
 					$this->buttonSpace();
 					break;
 				case "checklist":
-					$this->addReferenceButton("tour_add_task", "addTask");
+					$this->addReferenceButton(Lang::txt("TourView_additionalViewButtons.addTask"), "addTask");
 					break;
 			}
 		}
@@ -105,12 +106,12 @@ class TourView extends CrudView {
 		// show all rehearsals in this tour
 		$rehearsals = $this->getData()->getRehearsals($_GET[$this->idParameter]);
 		$table = new Table($rehearsals);
-		$table->renameHeader("begin", Lang::txt("tour_rehearsal_tab_begin"));
-		$table->renameHeader("rehearsal_notes", Lang::txt("tour_rehearsal_tab_notes"));
-		$table->renameHeader("name", Lang::txt("name"));
-		$table->renameHeader("location_notes", Lang::txt("tour_rehearsal_tab_location_notes"));
-		$table->renameHeader("street", Lang::txt("street"));
-		$table->renameHeader("city", Lang::txt("city"));
+		$table->renameHeader("begin", Lang::txt("TourView_tab_rehearsals.begin"));
+		$table->renameHeader("rehearsal_notes", Lang::txt("TourView_tab_rehearsals.rehearsal_notes"));
+		$table->renameHeader("name", Lang::txt("TourView_tab_rehearsals.name"));
+		$table->renameHeader("location_notes", Lang::txt("TourView_tab_rehearsals.location_notes"));
+		$table->renameHeader("street", Lang::txt("TourView_tab_rehearsals.street"));
+		$table->renameHeader("city", Lang::txt("TourView_tab_rehearsals.city"));
 		$table->setEdit("id");
 		$table->removeColumn("id");
 		$table->setModId(5);
@@ -139,7 +140,7 @@ class TourView extends CrudView {
 	
 	function addRehearsalProcess() {
 		$this->getData()->createRehearsal($_POST);
-		new Message(Lang::txt("tour_rehearsal_created"), Lang::txt("tour_rehearsal_created_msg"));
+		new Message(Lang::txt("TourView_addRehearsalProcess.message_1"), Lang::txt("TourView_addRehearsalProcess.message_2"));
 	}
 	
 	function addRehearsalProcessOptions() {
@@ -164,12 +165,12 @@ class TourView extends CrudView {
 		foreach($cols_to_remove as $col) {
 			$table->removeColumn($col);
 		}
-		$table->renameHeader("surname", Lang::txt("surname"));
-		$table->renameHeader("name", Lang::txt("name"));
-		$table->renameHeader("phone", Lang::txt("phone"));
-		$table->renameHeader("mobile", Lang::txt("mobile"));
-		$table->renameHeader("birthday", Lang::txt("birthday"));
-		$table->renameHeader("instrumentname", Lang::txt("instrument"));
+		$table->renameHeader("surname", Lang::txt("TourView_tab_contacts.surname"));
+		$table->renameHeader("name", Lang::txt("TourView_tab_contacts.name"));
+		$table->renameHeader("phone", Lang::txt("TourView_tab_contacts.phone"));
+		$table->renameHeader("mobile", Lang::txt("TourView_tab_contacts.mobile"));
+		$table->renameHeader("birthday", Lang::txt("TourView_tab_contacts.birthday"));
+		$table->renameHeader("instrumentname", Lang::txt("TourView_tab_contacts.instrumentname"));
 		
 		$table->write();
 	}
@@ -177,7 +178,7 @@ class TourView extends CrudView {
 	function addContacts() {
 		$tour = $_GET[$this->idParameter];
 		$idf = $this->idParameter;
-		$form = new Form(Lang::txt("add_contacts_form_title"), $this->modePrefix() . "addContactsProcess&$idf=$tour&tab=contacts");
+		$form = new Form(Lang::txt("TourView_addContacts.form"), $this->modePrefix() . "addContactsProcess&$idf=$tour&tab=contacts");
 		$contacts = $this->getData()->adp()->getContacts();
 		$grpSelector = new GroupSelector($contacts, array(), "contact");
 		$grpSelector->setNameColumns(array("name", "surname"));
@@ -194,7 +195,7 @@ class TourView extends CrudView {
 		$contacts = $this->getData()->adp()->getContacts($tour_id);
 		$contactIds = GroupSelector::getPostSelection($contacts, "contact");
 		$this->getData()->addContacts($tour_id, $contactIds);
-		new Message(Lang::txt("tour_add_contacts_success_title"), Lang::txt("tour_add_contacts_success_msg"));
+		new Message(Lang::txt("TourView_addContactsProcess.message_1"), Lang::txt("TourView_addContactsProcess.message_2"));
 	}
 	
 	function addContactsProcessOptions() {
@@ -216,13 +217,13 @@ class TourView extends CrudView {
 		
 		$table = new Table($concerts);
 		$table->removeColumn("id");
-		$table->renameHeader("title", Lang::txt("title"));
-		$table->renameHeader("begin", Lang::txt("begin"));
-		$table->renameHeader("end", Lang::txt("end"));
-		$table->renameHeader("notes", Lang::txt("notes"));
-		$table->renameHeader("locationname", Lang::txt("tour_concert_location"));
-		$table->renameHeader("program", Lang::txt("program"));
-		$table->renameHeader("approve_until", Lang::txt("tour_concert_approve_until"));
+		$table->renameHeader("title", Lang::txt("TourView_tab_concerts.title"));
+		$table->renameHeader("begin", Lang::txt("TourView_tab_concerts.begin"));
+		$table->renameHeader("end", Lang::txt("TourView_tab_concerts.end"));
+		$table->renameHeader("notes", Lang::txt("TourView_tab_concerts.notes"));
+		$table->renameHeader("locationname", Lang::txt("TourView_tab_concerts.locationname"));
+		$table->renameHeader("program", Lang::txt("TourView_tab_concerts.program"));
+		$table->renameHeader("approve_until", Lang::txt("TourView_tab_concerts.approve_until"));
 		$table->setEdit("id");
 		$table->setModId(4);
 		$table->write();
@@ -254,11 +255,11 @@ class TourView extends CrudView {
 		$tour_id = $_GET[$this->idParameter];
 		
 		$todos = $this->getData()->getTasks($tour_id, false);
-		Writing::h3(Lang::txt("tour_todos"));
+		Writing::h3(Lang::txt("TourView_tab_checklist.todos"));
 		$this->checklist_table($todos);
 		
 		$completed_tasks = $this->getData()->getTasks($tour_id, true);
-		Writing::h3(Lang::txt("tour_completed_tasks"));
+		Writing::h3(Lang::txt("TourView_tab_checklist.completed_tasks"));
 		$this->checklist_table($completed_tasks);
 	}
 	
@@ -266,10 +267,10 @@ class TourView extends CrudView {
 		$table = new Table($tasks);
 		$table->removeColumn("id");
 		$table->removeColumn("is_complete");
-		$table->renameHeader("title", Lang::txt("tour_task_title"));
-		$table->renameHeader("description", Lang::txt("description"));
-		$table->renameHeader("assigned_to", Lang::txt("tour_task_assigned_to"));
-		$table->renameHeader("due_at", Lang::txt("tour_task_due_at"));
+		$table->renameHeader("title", Lang::txt("TourView_tab_checklist.title"));
+		$table->renameHeader("description", Lang::txt("TourView_tab_checklist.description"));
+		$table->renameHeader("assigned_to", Lang::txt("TourView_tab_checklist.assigned_to"));
+		$table->renameHeader("due_at", Lang::txt("TourView_tab_checklist.due_at"));
 		$table->setColumnFormat("is_complete", "BOOLEAN");
 		$table->setEdit("id");
 		$table->setModId(16);
@@ -301,7 +302,7 @@ class TourView extends CrudView {
 	function tab_equipment() {
 		$tour = $_GET[$this->idParameter];
 		$idf = $this->idParameter;
-		$form = new Form(Lang::txt("add_equipment_form_title"), $this->modePrefix() . "addEquipmentProcess&$idf=$tour&tab=equipment");
+		$form = new Form(Lang::txt("TourView_tab_equipment.form"), $this->modePrefix() . "addEquipmentProcess&$idf=$tour&tab=equipment");
 		
 		// Building an editable table --> replace quantity with an input field and add tour notes for each equipment
 		$equipment = $this->getData()->getEquipment($tour);
@@ -325,11 +326,11 @@ class TourView extends CrudView {
 		$table->removeColumn("id");
 		$table->removeColumn("purchase_price");
 		$table->removeColumn("current_value");
-		$table->renameHeader("model", Lang::txt("equipment_model"));
-		$table->renameHeader("make", Lang::txt("equipment_make"));
-		$table->renameHeader("tour_quantity", Lang::txt("equipment_quantity"));
-		$table->renameHeader("equipment_notes", Lang::txt("tour_equipment_general_notes"));
-		$table->renameHeader("eq_tour_notes", Lang::txt("tour_equipment_notes"));
+		$table->renameHeader("model", Lang::txt("TourView_tab_equipment.model"));
+		$table->renameHeader("make", Lang::txt("TourView_tab_equipment.make"));
+		$table->renameHeader("tour_quantity", Lang::txt("TourView_tab_equipment.tour_quantity"));
+		$table->renameHeader("equipment_notes", Lang::txt("TourView_tab_equipment.equipment_notes"));
+		$table->renameHeader("eq_tour_notes", Lang::txt("TourView_tab_equipment.eq_tour_notes"));
 		
 		$form->addElement("", $table);
 		$form->write();
@@ -343,12 +344,12 @@ class TourView extends CrudView {
 		$table->removeColumn("id");
 		$table->removeColumn("purchase_price");
 		$table->removeColumn("current_value");
-		$table->renameHeader("model", Lang::txt("equipment_model"));
-		$table->renameHeader("make", Lang::txt("equipment_make"));
+		$table->renameHeader("model", Lang::txt("TourView_tab_equipment.model"));
+		$table->renameHeader("make", Lang::txt("TourView_tab_equipment.make"));
 		$table->setColumnFormat("tour_quantity", "INT");
-		$table->renameHeader("tour_quantity", Lang::txt("equipment_quantity"));
-		$table->renameHeader("equipment_notes", Lang::txt("tour_equipment_general_notes"));
-		$table->renameHeader("eq_tour_notes", Lang::txt("tour_equipment_notes"));
+		$table->renameHeader("tour_quantity", Lang::txt("TourView_tab_equipment.tour_quantity"));
+		$table->renameHeader("equipment_notes", Lang::txt("TourView_tab_equipment.equipment_notes"));
+		$table->renameHeader("eq_tour_notes", Lang::txt("TourView_tab_equipment.eq_tour_notes"));
 		$table->write();
 	}
 	
@@ -360,7 +361,7 @@ class TourView extends CrudView {
 		$tour = $_GET[$this->idParameter];
 		$idf = $this->idParameter;
 		$this->getData()->saveEquipment($tour, $_POST);
-		new Message(Lang::txt("tour_equipment_saved"), Lang::txt("tour_equipment_saved_msg"));
+		new Message(Lang::txt("TourView_addEquipmentProcess.message_1"), Lang::txt("TourView_addEquipmentProcess.message_2"));
 	}
 	
 	function addEquipmentProcessOptions() {
@@ -379,22 +380,22 @@ class TourView extends CrudView {
 		Writing::p($tour["notes"]);
 		
 		// Participants
-		Writing::h2(Lang::txt("participants"));
+		Writing::h2(Lang::txt("TourView_summarySheet.tab_contacts"));
 		$this->tab_contacts(true);
 		
 		// Concerts
-		Writing::h2(Lang::txt("concerts"), "pagebreak");
+		Writing::h2(Lang::txt("TourView_summarySheet.tab_concerts"), "pagebreak");
 		$this->tab_concerts();
 		
 		// Rehearsals
-		Writing::h2(Lang::txt("rehearsals"), "pagebreak");
+		Writing::h2(Lang::txt("TourView_summarySheet.tab_rehearsals"), "pagebreak");
 		$this->tab_rehearsals();
 		
 		// Travel and Accommodation List
-		Writing::h2(Lang::txt("tour_transfers"), "pagebreak");
+		Writing::h2(Lang::txt("TourView_summarySheet.TravelView"), "pagebreak");
 		$this->getController()->getTravelView()->showAllTable();
 		
-		Writing::h2(Lang::txt("accommodation"));
+		Writing::h2(Lang::txt("TourView_summarySheet.AccommodationView"));
 		$this->getController()->getAccommodationView()->showAllTable();
 		
 		// Task Checklist
@@ -404,7 +405,7 @@ class TourView extends CrudView {
 		}
 		
 		// Equipment
-		Writing::h2(Lang::txt("Equipment"), "pagebreak");
+		Writing::h2(Lang::txt("TourView_summarySheet.equipment"), "pagebreak");
 		$this->equipmentPrint();
 		
 		echo '</div>'; 
@@ -414,7 +415,7 @@ class TourView extends CrudView {
 		$this->backToViewButton($_GET[$this->idParameter]);
 		$this->buttonSpace();
 		
-		$prt = new Link("javascript:window.print()", Lang::txt("print"));
+		$prt = new Link("javascript:window.print()", Lang::txt("TourView_summarySheetOptions.print"));
 		$prt->addIcon("printer");
 		$prt->write();
 		$this->buttonSpace();

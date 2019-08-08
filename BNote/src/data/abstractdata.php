@@ -154,7 +154,7 @@ abstract class AbstractData {
 	 * @return ApplicationDataProvider The application data provider reference.
 	 */
 	public function adp() {
-		if($this->adp == null) echo "<strong>Application Data Provider not set! Call init()!</strong>";
+		if($this->adp == null) echo "<strong>" . Lang::txt("AbstractData_adp.message") . "</strong>";
 		return $this->adp;
 	}
 	
@@ -514,7 +514,7 @@ abstract class AbstractData {
 	 */
 	public function validate($input) {
 		if(count($input) == 0) {
-			new BNoteError("Bitte gebe ausreichend Informationen an.");
+			new BNoteError(Lang::txt("AbstractData_validate.error"));
 		}
 		foreach($input as $id => $value) {
 			$this->validatePair($id, $value, $this->getTypeOfField($id));

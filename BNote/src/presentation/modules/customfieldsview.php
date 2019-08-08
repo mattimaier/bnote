@@ -9,7 +9,8 @@ class CustomFieldsView extends CrudView {
 
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName(Lang::txt("customfield"));
+		$this->setEntityName(Lang::txt("CustomFieldsView_construct.EntityName"));
+		$this->setaddEntityName(Lang::txt("CustomFieldsView_construct.addEntityName"));
 	}
 
 	function showOptions() {
@@ -46,13 +47,13 @@ class CustomFieldsView extends CrudView {
 
 	function backToStart() {
 		global $system_data;
-		$link = new Link("?mod=" . $system_data->getModuleId() . "&mode=customfields", Lang::txt("back"));
+		$link = new Link("?mod=" . $system_data->getModuleId() . "&mode=customfields", Lang::txt("CustomFieldsView_backToStart.back"));
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
 
 	function start() {
-		Writing::h2(Lang::txt("customfields"));
+		Writing::h2(Lang::txt("CustomFieldsView_start.Title"));
 
 		// show custom fields
 		$customFields = $this->getData()->getAllCustomFields();
@@ -65,18 +66,18 @@ class CustomFieldsView extends CrudView {
 
 	function startOptions() {
 		// show a back button
-		$back = new Link(parent::modePrefix() . "start", Lang::txt("back"));
+		$back = new Link(parent::modePrefix() . "start", Lang::txt("CustomFieldsView_start.back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 
 		// add new ones
-		$new = new Link($this->modePrefix() . "addEntity", "Feld hinzufügen");
-		$new->addIcon("plus");
-		$new->write();
+		$add = new Link($this->modePrefix() . "addEntity", Lang::txt($this->getaddEntityName()));
+		$add->addIcon("plus");
+		$add->write();
 	}
 	
 	function addEntityForm() {
-		$form = new Form(Lang::txt("add_entity", array($this->getEntityName())), $this->modePrefix() . "add");
+		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement($this->idField);
 		
@@ -86,7 +87,7 @@ class CustomFieldsView extends CrudView {
 		foreach($this->getData()->getFieldTypes() as $techType => $name) {
 			$ddFieldType->addOption($name, $techType);
 		}
-		$form->addElement(Lang::txt("fieldtype"), $ddFieldType);
+		$form->addElement(Lang::txt("CustomFieldsView_addEntityForm.fieldtype"), $ddFieldType);
 		
 		// object type
 		$form->removeElement("otype");
@@ -94,7 +95,7 @@ class CustomFieldsView extends CrudView {
 		foreach($this->getData()->getObjectTypes() as $techType => $name) {
 			$ddObjectType->addOption($name, $techType);
 		}
-		$form->addElement(Lang::txt("objecttype"), $ddObjectType);
+		$form->addElement(Lang::txt("CustomFieldsView_addEntityForm.otype"), $ddObjectType);
 		
 		$form->write();
 	}
@@ -117,7 +118,7 @@ class CustomFieldsView extends CrudView {
 			$ddFieldType->addOption($name, $techType);
 		}
 		$ddFieldType->setSelected($entry["fieldtype"]);
-		$form->addElement(Lang::txt("fieldtype"), $ddFieldType);
+		$form->addElement(Lang::txt("CustomFieldsView_editEntityForm.fieldtype"), $ddFieldType);
 		
 		// object type
 		$form->removeElement("otype");
@@ -126,7 +127,7 @@ class CustomFieldsView extends CrudView {
 			$ddObjectType->addOption($name, $techType);
 		}
 		$ddObjectType->setSelected($entry["otype"]);
-		$form->addElement(Lang::txt("objecttype"), $ddObjectType);
+		$form->addElement(Lang::txt("CustomFieldsView_editEntityForm.otype"), $ddObjectType);
 		
 		$form->write();
 	}

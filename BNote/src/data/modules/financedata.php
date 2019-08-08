@@ -12,8 +12,8 @@ class FinanceData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array(Lang::txt("finance_account_id"), FieldType::INTEGER),
-			"name" => array(Lang::txt("finance_account_name"), FieldType::CHAR)
+			"id" => array(Lang::txt("FinanceData_construct.id"), FieldType::INTEGER),
+			"name" => array(Lang::txt("FinanceData_construct.name"), FieldType::CHAR)
 		);
 
 		$this->references = array();
@@ -23,8 +23,8 @@ class FinanceData extends AbstractData {
 	
 	public static function getBookingTypes() {
 		return array(
-			0 => Lang::txt("finance_booking_type_0"),
-			1 => Lang::txt("finance_booking_type_1")
+			0 => Lang::txt("FinanceData_getBookingTypes.type_0"),
+			1 => Lang::txt("FinanceData_getBookingTypes.type_1")
 		);
 	}
 
@@ -81,7 +81,7 @@ class FinanceData extends AbstractData {
 			$tab[0]  // header
 		);
 		$row_total = array(
-			"btype" => Lang::txt("finance_metrics_sum"),
+			"btype" => Lang::txt("FinanceData_findBookingsMetrics.sum"),
 			"total_net" => 0.0,
 			"total_tax" => 0.0,
 			"total" => 0.0
@@ -100,11 +100,11 @@ class FinanceData extends AbstractData {
 			
 			if($row["btype"] == "0") {
 				// income
-				$row["btype"] = Lang::txt("finance_metrics_income");
+				$row["btype"] = Lang::txt("FinanceData_findBookingsMetrics.income");
 			}
 			elseif ($row["btype"] == "1") {
 				// expense
-				$row["btype"] = Lang::txt("finance_metrics_expenses");
+				$row["btype"] = Lang::txt("FinanceData_findBookingsMetrics.expenses");
 				
 				$net *= -1;
 				$tax *= -1;
@@ -184,7 +184,7 @@ class FinanceData extends AbstractData {
 		$this->regex->isPositiveAmount($booking["account_from"]);
 		$this->regex->isPositiveAmount($booking["account_to"]);
 		if($booking["account_from"] == $booking["account_to"]) {
-			new Error(Lang::txt("finance_transfer_same_account"));
+			new Error(Lang::txt("FinanceData_transfer_same_account"));
 		}
 		$this->regex->isDate($booking["bdate"]);
 		$this->regex->isSubject($booking["subject"]);
@@ -199,7 +199,7 @@ class FinanceData extends AbstractData {
 		$name_to = $this->database->getCell($this->table, "name", "id=" . $booking['account_to']);
 		
 		// prepare bookings
-		$booking['notes'] = Lang::txt("finance_transfer_note", array($name_from)) . " " . $name_to;
+		$booking['notes'] = Lang::txt("FinanceData_transfer_note", array($name_from)) . " " . $name_to;
 		$booking['otype'] = 0;
 		$booking_from = $booking;
 		$booking_from["btype"] = 1;  // withdraw

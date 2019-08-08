@@ -21,11 +21,11 @@ class WebsiteData extends AbstractData {
 	 */
 	function __construct() {
 		$this->fields = array(
-			"id" => array("ID", FieldType::INTEGER),
-			"author" => array("Autor", FieldType::REFERENCE),
-			"createdOn" => array("erstellt am", FieldType::DATETIME),
-			"editedOn" => array("bearbeitet am", FieldType::DATETIME),
-			"title" => array("Titel", FieldType::CHAR)
+			"id" => array(Lang::txt("WebsiteData_construct.id"), FieldType::INTEGER),
+			"author" => array(Lang::txt("WebsiteData_construct.author"), FieldType::REFERENCE),
+			"createdOn" => array(Lang::txt("WebsiteData_construct.createdOn"), FieldType::DATETIME),
+			"editedOn" => array(Lang::txt("WebsiteData_construct.editedOn"), FieldType::DATETIME),
+			"title" => array(Lang::txt("WebsiteData_construct.title"), FieldType::CHAR)
 		);
 		
 		$this->references = array(
@@ -182,13 +182,13 @@ class WebsiteData extends AbstractData {
 		
 		// validate upload
 		if($_FILES["file"]["error"] > 0) {
-			new BNoteError("Es trat ein Fehler während des Uploads auf. Bitte versuche es noch einmal.");
+			new BNoteError(Lang::txt("WebsiteData_addImageToGallery.error_1"));
 		}
 		if(!is_uploaded_file($_FILES["file"]["tmp_name"])) {
-			new BNoteError("Die Datei konnte nicht hochgeladen werden.");
+			new BNoteError(Lang::txt("WebsiteData_addImageToGallery.error_2"));
 		}
 		if(!getimagesize($_FILES["file"]["tmp_name"])) {
-			new BNoteError("Die hochgeladene Datei ist kein Bild.");
+			new BNoteError(Lang::txt("WebsiteData_addImageToGallery.error_3"));
 		}
 		
 		// create database entry

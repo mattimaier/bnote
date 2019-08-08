@@ -126,7 +126,7 @@ class Systemdata {
  	$privileges = $this->dbcon->getSelection($query);
  	
  	if(!$privileges) {
- 		new BNoteError("You don't have sufficient privileges to access this system. Please contact your system administrator.");
+ 		new BNoteError(Lang::txt("Systemdata_getUserModulePermissions.error"));
  	} 
  	
  	$ret = array();

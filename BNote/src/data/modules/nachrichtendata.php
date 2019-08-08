@@ -1,3 +1,4 @@
+
 <?php
 
 /**
@@ -53,7 +54,7 @@ class NachrichtenData extends AbstractData {
 		if(strpos($content, "<script") !== false
 			|| strpos($content, "<iframe") !== false
 			|| strpos($content, "<frame") !== false) {
-				new BNoteError("Der Inhalt der Nachricht ist nicht sicher. Bitte verwende keine Frames und Skripte.");
+				new BNoteError(Lang::txt("NachrichtenData_check.error"));
 		}
 	}
 }

@@ -11,23 +11,24 @@ class UserView extends CrudRefView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName(Lang::txt("user"));
+		$this->setEntityName(Lang::txt("UserView_construct.EntityName"));
+		$this->setaddEntityName(Lang::txt("UserView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"contact" => array("name", "surname")
 		));
 	}
 
 	function start() {
-		Writing::p("Hier werden Benutzer, die sich am System anmelden können, verwaltet.");
+		Writing::p(Lang::txt("UserView_start.message"));
 		
 		// show all users
 		$table = new Table($this->getData()->getUsers());
 		$table->setEdit("id");
 		$table->renameAndAlign($this->getData()->getFields());
-		$table->renameHeader("contactsurname", "Nachname");
-		$table->renameHeader("contactname", "Vorname");
-		$table->renameHeader("isactive", "Aktiver Benutzer");
-		$table->setColumnFormat("lastlogin", "DATE");
+		$table->renameHeader("contactsurname", Lang::txt("UserView_start.contactsurname"));
+		$table->renameHeader("contactname", Lang::txt("UserView_start.contactname"));
+		$table->renameHeader("isactive", Lang::txt("UserView_start.isactive"));
+		$table->setColumnFormat("lastlogin", Lang::txt("UserView_start.lastlogin"));
 		$table->write();
 	}
 	
@@ -35,14 +36,14 @@ class UserView extends CrudRefView {
 		parent::startOptions();
 		$this->buttonSpace();
 		
-		$gdpr = new Link($this->modePrefix() . "gdpr", "Datenschutzprüfung");
+		$gdpr = new Link($this->modePrefix() . "gdpr", Lang::txt("UserView_startOptions.question"));
 		$gdpr->addIcon("question");
 		$gdpr->write();
 	}
 	
 	function addEntity() {
 		// add form for new user
-		$form = new Form("Neuer Benutzer", $this->modePrefix() . "add&manualValid=true");
+		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add&manualValid=true");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		$form->removeElement("lastlogin");
@@ -50,7 +51,7 @@ class UserView extends CrudRefView {
 		$form->removeElement("contact");
 		
 		// manually add contacts
-		$form->addElement("Kontakt", $this->contactDropdown());
+		$form->addElement(Lang::txt("UserView_addEntity.contactDropdown"), $this->contactDropdown());
 		$form->write();
 	}
 	
@@ -58,7 +59,7 @@ class UserView extends CrudRefView {
 		$dd = new Dropdown("contact");
 		
 		// add no-contact option
-		$dd->addOption("[kein Kontakt]", 0);
+		$dd->addOption(Lang::txt("UserView_contactDropdown.no_contact"), 0);
 		
 		$contacts = $this->getData()->getContacts();
 		for($i = 1; $i < count($contacts); $i++) {
@@ -77,7 +78,7 @@ class UserView extends CrudRefView {
 		// restrict access to super user for non-super-users
 		if(!$this->getData()->getSysdata()->isUserSuperUser()
 				&& $this->getData()->getSysdata()->isUserSuperUser($_GET["id"])) {
-					new BNoteError("Zugriff verweigert.");
+					new BNoteError(Lang::txt("UserView_view.error"));
 		}
 		
 		// get current user
@@ -89,7 +90,7 @@ class UserView extends CrudRefView {
 		}
 		else {
 			$usr = $this->getData()->findByIdNoRef($_GET["id"]);
-			$title = "Benutzer " . $usr["login"];
+			$title = Lang::txt("UserView_view.user") . $usr["login"];
 		}
 		Writing::h1($title);
 		
@@ -104,23 +105,23 @@ class UserView extends CrudRefView {
 			}
 		}
 		$dv->autoRename($this->getData()->getFields());
-		$dv->renameElement("contactname", "Vorname");
-		$dv->renameElement("contactsurname", "Nachname");
+		$dv->renameElement("contactname", Lang::txt("UserView_view.contactname"));
+		$dv->renameElement("contactsurname", Lang::txt("UserView_view.contactsurname"));
 		$dv->write();
 	}
 	
 	function additionalViewButtons() {
-		$privs = new Link("?mod=" . $this->getModId() . "&mode=privileges&id=" . $_GET["id"], "Rechte bearbeiten");
+		$privs = new Link("?mod=" . $this->getModId() . "&mode=privileges&id=" . $_GET["id"], Lang::txt("UserView_additionalViewButtons.privileges"));
 		$privs->addIcon("key");
 		$privs->write();
 		$this->buttonSpace();
 		
 		if($this->getData()->isUserActive($_GET["id"])) {
-			$btnLbl = "Benutzer deaktivieren";
+			$btnLbl = Lang::txt("UserView_additionalViewButtons.no_entry");
 			$btnIcon = "no_entry";
 		}
 		else {
-			$btnLbl = "Benutzer aktivieren";
+			$btnLbl = Lang::txt("UserView_additionalViewButtons.no_entry");
 			$btnIcon = "checkmark";
 		}
 		$active = new Link($this->modePrefix() . "activate&id=" . $_GET["id"], $btnLbl);
@@ -130,15 +131,15 @@ class UserView extends CrudRefView {
 	
 	function editEntityForm($write=true) {
 		$user = $this->getData()->findByIdNoRef($_GET["id"]);
-		$form = new Form($this->getData()->getUsername($_GET["id"]) . " bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
-		$form->addElement("Login", new Field("login", $user["login"], 99));
-		$form->addElement("Passwort", new Field("password", "", FieldType::PASSWORD));
+		$form = new Form($this->getData()->getUsername($_GET["id"]) . Lang::txt("UserView_editEntityForm.edit_process"), $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
+		$form->addElement(Lang::txt("UserView_editEntityForm.login"), new Field("login", $user["login"], 99));
+		$form->addElement(Lang::txt("UserView_editEntityForm.password"), new Field("password", "", FieldType::PASSWORD));
 		$form->addHidden("isActive", $user["isActive"]);
 		$dd = $this->contactDropdown();
 		$dd->setSelected($user["contact"]);
-		$form->addElement("Kontakt", $dd);
+		$form->addElement(Lang::txt("UserView_editEntityForm.contact"), $dd);
 		$form->write();
-		Writing::p("Wird das Passwort-Feld leer gelassen, bleibt das aktuelle Passwort gültig.");
+		Writing::p(Lang::txt("UserView_editEntityForm.message"));
 	}
 	
 	function edit_process() {
@@ -150,7 +151,7 @@ class UserView extends CrudRefView {
 		$this->checkID();
 		
 		global $system_data;
-		$form = new Form("Privileges for " . $this->getData()->getUsername($_GET["id"]),
+		$form = new Form(Lang::txt("UserView_privileges.form") . $this->getData()->getUsername($_GET["id"]),
 							$this->modePrefix() . "privileges_process&id=" . $_GET["id"]);
 		foreach($system_data->getModuleArray() as $mid => $name) {
 			$selected = "";
@@ -168,55 +169,55 @@ class UserView extends CrudRefView {
 		$this->checkID();
 		$this->getData()->updatePrivileges($_GET["id"]);
 		
-		new Message("Änderungen gespeichert.", "Die Benutzerdaten wurden erfolgreich gespeichert.");
+		new Message(Lang::txt("UserView_privileges_process.message_1"), Lang::txt("UserView_privileges_process.message_2"));
 	}
 	
 	function privileges_processOptions() {
-		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"], Lang::txt("back"));
+		$usrView = new Link($this->modePrefix() . "view&id=" . $_GET["id"], Lang::txt("UserView_privileges_processOptions.back"));
 		$usrView->addIcon("arrow_left");
 		$usrView->write();
 	}
 	
 	function deleteConfirmationMessage($label, $linkDelete, $linkBack = null) {
-		new Message("Löschen?", "Wollen sie diesen Benutzer mit allen seinen Dateien wirklich löschen?");
-		$yes = new Link($linkDelete, strtoupper($label) . " LÖSCHEN");
+		new Message(Lang::txt("UserView_deleteConfirmationMessage.message_1"), Lang::txt("UserView_deleteConfirmationMessage.message_2"));
+		$yes = new Link($linkDelete, strtoupper($label) . Lang::txt("UserView_deleteConfirmationMessage.linkDelete"));
 		$yes->addIcon("remove");
 		$yes->write();
 		$this->buttonSpace();
 		
-		$no = new Link($linkBack, Lang::txt("back"));
+		$no = new Link($linkBack, Lang::txt("UserView_deleteConfirmationMessage.back"));
 		$no->addIcon("arrow_left");
 		$no->write();
 	}
 	
 	function gdpr() {
 		// Check if a user has not logged in for 24 months. In this case, show the list and let the current user decide.
-		Writing::h1("Datenschutzprüfung");
-		Writing::p("Die folgenden Benutzer haben dieses System innerhalb der letzten 24 Monate nicht genutzt:");
+		Writing::h1(Lang::txt("UserView_gdpr.title"));
+		Writing::p(Lang::txt("UserView_gdpr.message_1"));
 		$inactiveUsers = $this->getData()->getLongInactiveUsers();
 		$inactiveUsersList = new Plainlist($inactiveUsers);
 		$inactiveUsersList->setNameField("login");
 		$inactiveUsersList->write();
 		
-		Writing::p("Gemäß EU Datenschutzgrundverordnung (EU DSGVO) sind Sie verpflichtet, die Daten der Benutzer zu löschen. Dies beinhaltet folgende Datensätze:");
-		$delData = array("Benutzerkonto", "Kontaktinformationen", "Teilnahmen", "Einladungen zu Auftritten, Proben und Touren");
+		Writing::p(Lang::txt("UserView_gdpr.message_2"));
+		$delData = array(Lang::txt("UserView_gdpr.account"), Lang::txt("UserView_gdpr.contact_details"), Lang::txt("UserView_gdpr.participation"), Lang::txt("UserView_gdpr.Invitations "));
 		$delDataList = new Plainlist(Plainlist::simpleListToSelection($delData));
 		$delDataList->write();
 		
 		$this->verticalSpace();
 		
-		$del = new Link($this->modePrefix() . "gdprDelete", "DATEN LÖSCHEN");
+		$del = new Link($this->modePrefix() . "gdprDelete", Lang::txt("UserView_gdpr.date"));
 		$del->addIcon("cancel");
 		$del->write();
 	}
 	
 	function gdprDelete() {
-		Writing::h1("Daten löschen");
+		Writing::h1(Lang::txt("UserView_gdprDelete.date"));
 		$inactiveUsers = $this->getData()->getLongInactiveUsers();
 		
 		$this->getData()->deleteUsersFull($inactiveUsers);
 		
-		Writing::p("Die Daten der folgenden Benutzer wurden gelöscht:");
+		Writing::p(Lang::txt("UserView_gdprDelete.message"));
 		$inactiveUsersList = new Plainlist($inactiveUsers);
 		$inactiveUsersList->setNameField("login");
 		$inactiveUsersList->write();

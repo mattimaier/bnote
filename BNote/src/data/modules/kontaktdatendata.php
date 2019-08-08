@@ -22,7 +22,7 @@ class KontaktdatenData extends KontakteData {
 		$this->regex->isPassword($_POST["pw2"]);
 		
 		if($_POST["pw1"] != $_POST["pw2"]) {
-			new BNoteError("Die Passwörter stimmen nicht überein!");
+			new BNoteError(Lang::txt("KontaktdatenData_updatePassword.BNoteError"));
 		}
 		
 		// encrypt passwords

@@ -8,12 +8,12 @@
 class CustomFieldsData extends AbstractData {
 
 	private $fieldTypes = array(
-		"BOOLEAN" => "customfield_bool",
-		"INT" => "customfield_int",
-		"DOUBLE" => "customfield_double",
-		"DATE" => "customfield_date",
-		"DATETIME" => "customfield_datetime",
-		"STRING" => "customfield_string"
+		"BOOLEAN" => "CustomFieldsData_fieldTypes.BOOLEAN",
+		"INT" => "CustomFieldsData_fieldTypes.INT",
+		"DOUBLE" => "CustomFieldsData_fieldTypes.DOUBLE",
+		"DATE" => "CustomFieldsData_fieldTypes.DATE",
+		"DATETIME" => "CustomFieldsData_fieldTypes.DATETIME",
+		"STRING" => "CustomFieldsData_fieldTypes.STRING"
 	);
 	
 	private $objectReferenceTypes = array(
@@ -24,7 +24,7 @@ class CustomFieldsData extends AbstractData {
 		"v" => "reservation",  # v = vacancy
 		"a" => "appointment",
 		"l" => "location",
-		"e" => "equipment"
+		"e" => "equipment"					
 	);
 	
 	/**
@@ -32,13 +32,13 @@ class CustomFieldsData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-				"id" => array("ID", FieldType::INTEGER),
-				"techname" => array("Technischer Name", FieldType::CHAR),
-				"txtdefsingle" => array("Name Singular", FieldType::CHAR),
-				"txtdefplural" => array("Name Plural", FieldType::CHAR),
-				"fieldtype" => array("Wertebereich", FieldType::ENUM),
-				"otype" => array("Objektbezug", FieldType::ENUM),
-				"public_field" => array("Freigegeben", FieldType::BOOLEAN)
+				"id" => array(Lang::txt("CustomFieldsData_construct.id"), FieldType::INTEGER),
+				"techname" => array(Lang::txt("CustomFieldsData_construct.techname"), FieldType::CHAR),
+				"txtdefsingle" => array(Lang::txt("CustomFieldsData_construct.txtdefsingle"), FieldType::CHAR),
+				"txtdefplural" => array(Lang::txt("CustomFieldsData_construct.txtdefplural"), FieldType::CHAR),
+				"fieldtype" => array(Lang::txt("CustomFieldsData_construct.fieldtype"), FieldType::ENUM),
+				"otype" => array(Lang::txt("CustomFieldsData_construct.otype"), FieldType::ENUM),
+				"public_field" => array(Lang::txt("CustomFieldsData_construct.public_field"), FieldType::BOOLEAN)
 		);
 
 		$this->references = array(
@@ -89,7 +89,7 @@ class CustomFieldsData extends AbstractData {
 			$techname = $input["techname"];
 			$cnt = $this->database->getCell($this->table, "count(techname)", "techname = '$techname'");
 			if($cnt > 0) {
-				new BNoteError(Lang::txt("customfield_notunique_error"));
+				new BNoteError(Lang::txt("CustomFieldsData_validate.BNoteError"));
 			}
 		}
 		// do usual security checks

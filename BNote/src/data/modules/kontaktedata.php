@@ -24,23 +24,23 @@ class KontakteData extends AbstractLocationData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array("ID", FieldType::INTEGER),
-			"surname" => array("Name", FieldType::CHAR),
-			"name" => array("Vorname", FieldType::CHAR),
-			"nickname" => array("Spitzname", FieldType::CHAR),
-			"company" => array("Organisation", FieldType::CHAR),
-			"phone" => array("Telefon", FieldType::CHAR),
-			"fax" => array("Fax", FieldType::CHAR),
-			"mobile" => array("Mobil", FieldType::CHAR),
-			"business" => array("Geschäftlich", FieldType::CHAR),
-			"email" => array("E-Mail", FieldType::EMAIL),
-			"web" => array("Web", FieldType::CHAR),
-			"notes" => array("Anmerkungen", FieldType::TEXT),
-			"address" => array("Adresse", FieldType::REFERENCE),
-			"instrument" => array("Instrument", FieldType::REFERENCE),
-			"is_conductor" => array("Ist Dirigent", FieldType::BOOLEAN),
-			"birthday" => array("Geburtstag", FieldType::DATE),
-			"status" => array("Status", FieldType::ENUM)
+			"id" => array(Lang::txt("KontakteData_construct.id"), FieldType::INTEGER),
+			"surname" => array(Lang::txt("KontakteData_construct.surname"), FieldType::CHAR),
+			"name" => array(Lang::txt("KontakteData_construct.name"), FieldType::CHAR),
+			"nickname" => array(Lang::txt("KontakteData_construct.nickname"), FieldType::CHAR),
+			"company" => array(Lang::txt("KontakteData_construct.company"), FieldType::CHAR),
+			"phone" => array(Lang::txt("KontakteData_construct.phone"), FieldType::CHAR),
+			"fax" => array(Lang::txt("KontakteData_construct.fax"), FieldType::CHAR),
+			"mobile" => array(Lang::txt("KontakteData_construct.mobile"), FieldType::CHAR),
+			"business" => array(Lang::txt("KontakteData_construct.business"), FieldType::CHAR),
+			"email" => array(Lang::txt("KontakteData_construct.email"), FieldType::EMAIL),
+			"web" => array(Lang::txt("KontakteData_construct.web"), FieldType::CHAR),
+			"notes" => array(Lang::txt("KontakteData_construct.notes"), FieldType::TEXT),
+			"address" => array(Lang::txt("KontakteData_construct.address"), FieldType::REFERENCE),
+			"instrument" => array(Lang::txt("KontakteData_construct.instrument"), FieldType::REFERENCE),
+			"is_conductor" => array(Lang::txt("KontakteData_construct.is_conductor"), FieldType::BOOLEAN),
+			"birthday" => array(Lang::txt("KontakteData_construct.birthday"), FieldType::DATE),
+			"status" => array(Lang::txt("KontakteData_construct.status"), FieldType::ENUM)
 		);
 		
 		$this->references = array(

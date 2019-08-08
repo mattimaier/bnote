@@ -32,13 +32,13 @@ class KommunikationController extends DefaultController {
 			// adjust subject
 			$reh = $this->getData()->getRehearsal($_POST["rehearsal"]);
 			$text = "Probe am " . Data::getWeekdayFromDbDate($reh["begin"]);
-			$text .= ", " . Data::convertDateFromDb($reh["begin"]) . " Uhr";
+			$text .= ", " . Data::convertDateFromDb($reh["begin"]) . Lang::txt("KommunikationController_prepareMail.begin");
 			$_POST["subject"] = $text;
 			
 			// adjust body: append songs to practise
 			$songs = $this->getData()->getSongsForRehearsal($_POST["rehearsal"]);
 			if(count($songs) > 1) {
-				$ext = "<p>Bitte probt folgende Stücke:</p><ul>\n";
+				$ext = Lang::txt("KommunikationController_prepareMail.songs");
 				for($i = 1; $i < count($songs); $i++) {
 					$ext .= "<li>" . $songs[$i]["title"] . " (" . $songs[$i]["notes"] . ")</li>\n";
 				}
@@ -48,22 +48,22 @@ class KommunikationController extends DefaultController {
 		}
 		else if(isset($_POST["rehearsalSerie"])) {
 			$rs = $this->getData()->getRehearsalSerie($_POST["rehearsalSerie"]);
-			$_POST["subject"] = "Probenstrecke: " . $rs["name"];
+			$_POST["subject"] = Lang::txt("KommunikationController_prepareMail.rehearsalSerie") . $rs["name"];
 		}
 		else if(isset($_POST["concert"])) {
 			$concert = $this->getData()->getConcert($_POST["concert"]);
 			
 			// subject
-			$subj = "Auftritt am " . Data::getWeekdayFromDbDate($concert["begin"]);
-			$text .= ", " . Data::convertDateFromDb($concert["begin"]) . " Uhr";
+			$subj = Lang::txt("KommunikationController_prepareMail.concert") . Data::getWeekdayFromDbDate($concert["begin"]);
+			$text .= ", " . Data::convertDateFromDb($concert["begin"]) . Lang::txt("KommunikationController_prepareMail.begin");
 			$_POST["subject"] = $subj;
 			
 			// body
 			if($_POST["message"] == "") {
-				$body = "Am " . Data::getWeekdayFromDbDate($concert["begin"]) . " den ";
-				$body .= Data::convertDateFromDb($concert["begin"]) . " Uhr findet ein Auftritt ";
-				$body .= "von " . $this->getData()->getSysdata()->getCompany() . " statt.\n";
-				$body .= "Weitere Details findest du in BNote.";
+				$body = Lang::txt("KommunikationController_prepareMail.message_1") . Data::getWeekdayFromDbDate($concert["begin"]) . Lang::txt("KommunikationController_prepareMail.message_2");
+				$body .= Data::convertDateFromDb($concert["begin"]) . Lang::txt("KommunikationController_prepareMail.message_3");
+				$body .= Lang::txt("KommunikationController_prepareMail.message_4") . $this->getData()->getSysdata()->getCompany() . Lang::txt("KommunikationController_prepareMail.message_5");
+				$body .= Lang::txt("KommunikationController_prepareMail.message_6");
 				$_POST["message"] = $body;
 			}
 		}
@@ -71,11 +71,11 @@ class KommunikationController extends DefaultController {
 			$vote = $this->getData()->getVote($_POST["vote"]);
 			
 			// subject
-			$_POST["subject"] = "Abstimmung: " . $vote["name"];
+			$_POST["subject"] = Lang::txt("KommunikationController_prepareMail.subject") . $vote["name"];
 			
 			// body
 			if($_POST["message"] == "") {
-				$_POST["message"] = "Bitte gebe deine Stimme für die im Betreff genannte Abstimmung auf BNote ab.";
+				$_POST["message"] = Lang::txt("KommunikationController_prepareMail.vote_message");
 			}
 		}
 		else if($_POST["subject"] == "") {
@@ -113,7 +113,7 @@ class KommunikationController extends DefaultController {
 		}
 		
 		if($addresses == null || count($addresses) == 0) {
-			new BNoteError("Es wurden keine Empfänger gefunden.");
+			new BNoteError(Lang::txt("KommunikationController_sendMail.error"));
 		}
 		
 		// Receipient Setup

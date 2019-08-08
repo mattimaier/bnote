@@ -11,17 +11,17 @@ class RepertoireData extends AbstractData {
 	 */
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
-			"id" => array("Titel ID", FieldType::INTEGER),
-			"title" => array("Titel", FieldType::CHAR, true),
-			"length" => array("Länge", FieldType::CHAR), // not TIME, because of second precision
-			"genre" => array("Genre", FieldType::REFERENCE),
-			"bpm" => array("Tempo (bpm)", FieldType::INTEGER),
-			"music_key" => array("Tonart", FieldType::CHAR),
-			"composer" => array("Komponist / Arrangeur", FieldType::CHAR),
-			"status" => array("Status", FieldType::REFERENCE),
-			"setting" => array("Besetzung", FieldType::CHAR),
-			"notes" => array("Anmerkungen", FieldType::TEXT),
-			"is_active" => array("Aktuell", FieldType::BOOLEAN)
+			"id" => array(Lang::txt("RepertoireData_construct_id"), FieldType::INTEGER),
+			"title" => array(Lang::txt("RepertoireData_construct_title"), FieldType::CHAR, true),
+			"length" => array(Lang::txt("RepertoireData_construct_length"), FieldType::CHAR), // not TIME, because of second precision
+			"genre" => array(Lang::txt("RepertoireData_construct_genre"), FieldType::REFERENCE),
+			"bpm" => array(Lang::txt("RepertoireData_construct_bpm"), FieldType::INTEGER),
+			"music_key" => array(Lang::txt("RepertoireData_construct_music_key"), FieldType::CHAR),
+			"composer" => array(Lang::txt("RepertoireData_construct_composer"), FieldType::CHAR, true),
+			"status" => array(Lang::txt("RepertoireData_construct_status"), FieldType::REFERENCE),
+			"setting" => array(Lang::txt("RepertoireData_construct_setting"), FieldType::CHAR),
+			"notes" => array(Lang::txt("RepertoireData_construct_notes"), FieldType::TEXT),
+			"is_active" => array(Lang::txt("RepertoireData_construct_is_active"), FieldType::BOOLEAN)
 		);
 		
 		$this->references = array(
@@ -425,7 +425,7 @@ class RepertoireData extends AbstractData {
 		// build ID query -> selected songs
 		$songIds = GroupSelector::getPostSelection($this->findAllNoRef(), "songs");
 		if(count($songIds) == 0) {
-			new BNoteError("Bitte wähle mindestens einen Song zum Update aus.");
+			new BNoteError(Lang::txt("RepertoireData_massUpdate_error"));
 		}
 		$idQuery = join(" OR id=", $songIds);
 		

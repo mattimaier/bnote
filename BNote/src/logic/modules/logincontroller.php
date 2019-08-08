@@ -65,7 +65,7 @@ class LoginController extends DefaultController {
 		$password = crypt($_POST["password"], LoginController::ENCRYPTION_HASH);
 		
 		if($this->SHOW_PASSWORD_HASH) {
-			echo "The password entered is hashed as " . $password . "</br>\n";
+			echo Lang::txt("LoginController_doLogin.message") . $password . "</br>\n";
 		}
 		
 		if($db_pw == $password) {
@@ -90,9 +90,7 @@ class LoginController extends DefaultController {
 				return false;
 			}
 			else {
-				new BNoteError("Bitte überprüfe deine Anmeldedaten.<br />
-						Falls diese Nachricht erneut auftritt, wende dich bitte an deinen Leiter.<br />
-						<a href=\"?mod=login\">Zurück</a><br />");
+				new BNoteError(Lang::txt("LoginController_doLogin.error"));
 			}
 		}
 	}
@@ -104,7 +102,7 @@ class LoginController extends DefaultController {
 		// get user's id for email address
 		$uid = $this->getData()->getUserIdForEMail($_POST["email"]);
 		if($uid < 1) {
-			new BNoteError("Deine E-Mail-Adresse ist dem System nicht bekannt oder existiert mehrfach. Bitte wende dich an deinen Leiter.");
+			new BNoteError(Lang::txt("LoginController_pwForgot.error"));
 		}
 		$username = $this->getData()->getUsernameForId($uid);
 		
@@ -112,9 +110,9 @@ class LoginController extends DefaultController {
 		$password = $this->generatePassword(6);
 		
 		// generate email
-		$subject = "Neues Passwort";
-		$body = "Dein Benutzername lautet: $username .\r\n";
-		$body .= "Dein neues Passwort lautet: $password .";
+		$subject = Lang::txt("LoginController_pwForgot.subject");
+		$body = Lang::txt("LoginController_pwForgot.body_1") . "$username" . "\r\n";
+		$body .= Lang::txt("LoginController_pwForgot.body_2") . "$password";
 		
 		// only change password if mail was sent
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
@@ -122,8 +120,7 @@ class LoginController extends DefaultController {
 		
 		if(!$mail->sendMail()) {
 			// talk to leader
-			new BNoteError("Leider konnte die E-Mail an dich nicht versandt werden.<br />
-					Bitte wende dich an deinen Leiter.");
+			new BNoteError(Lang::txt("LoginController_pwForgot.sendMailerror"));
 		}
 		else {					
 			// Change password in system only if mail has been sent.
@@ -131,7 +128,7 @@ class LoginController extends DefaultController {
 			$this->getData()->saveNewPassword($uid, $pwenc);
 					
 			// success message
-			new Message("Passwort geändert", "Das Passwort wurde dir soeben zugeschickt.");
+			new Message(Lang::txt("LoginController_pwForgot.message_1"), Lang::txt("LoginController_pwForgot.message_2"));
 		}
 	}
 	
@@ -152,7 +149,7 @@ class LoginController extends DefaultController {
 	public function register($writeOutput=true) {
 		// check agreement to terms
 		if(!isset($_POST["terms"])) {
-			new BNoteError("Bitte stimme den Nutzungsbedingungen zu.");
+			new BNoteError(Lang::txt("LoginController_register.error_1"));
 		}
 		
 		// validate data
@@ -160,12 +157,12 @@ class LoginController extends DefaultController {
 		
 		// check for duplicate login
 		if($this->getData()->duplicateLoginCheck()) {
-			new BNoteError("Der Benutzername wird bereits verwendet.");
+			new BNoteError(Lang::txt("LoginController_register.error_2"));
 		}
 		
 		// check passwords and encrypt it
 		if($_POST["pw1"] != $_POST["pw2"]) {
-			new BNoteError("Bitte überprüfe dein Kennwort.");
+			new BNoteError(Lang::txt("LoginController_register.error_3"));
 		}
 		$password = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
 		
@@ -175,10 +172,10 @@ class LoginController extends DefaultController {
 		$uid = $this->getData()->createUser($_POST["login"], $password, $cid); // user id
 		$this->getData()->createDefaultRights($uid);
 		
-		$outMsg = "Du hast dich erfolgreich registriert";
+		$outMsg = Lang::txt("LoginController_register.outMsg");
 		if($writeOutput) {
 			// write success
-			new Message("Registrierung abgeschlossen", $outMsg);
+			new Message(Lang::txt("LoginController_register.writeOutput"), $outMsg);
 		}
 		
 		global $system_data;
@@ -195,8 +192,8 @@ class LoginController extends DefaultController {
 					$linkurl = "http://$linkurl";
 				}
 			}
-			$subject = "BNote Aktivierung";
-			$message = "Bitte klicke auf folgenden Link zur Aktivierung deines Benutzerkontos:\n <a href=\"$linkurl\">Aktivierung</a>";
+			$subject = Lang::txt("LoginController_register.subject");
+			$message = Lang::txt("LoginController_register.message_1") . "<a href=\"$linkurl\">" . Lang::txt("LoginController_register.message_2") . "</a>";
 			
 			// send email to activate account and write message
 			$dir_prefix = "";
@@ -207,15 +204,15 @@ class LoginController extends DefaultController {
 			$mail = new Mailing($_POST["email"], $subject, $message);
 			
 			if(!$mail->sendMail()) {
-				$mailMessage = "Leider trat bei der Aktivierung ein <b>Fehler</b> auf. Wende dich zur Freischaltung bitte an deinen Bandleader.<br/>";
+				$mailMessage = Lang::txt("LoginController_register.message_3");
 				$mailOk = false;
 			}
 			else {
-				$mailMessage = 'Bitte prüfe deine E-Mails. Klicke auf den Aktivierungslink um dein Konto zu bestätigen. Dann kannst du dich anmelden.<br/>';
+				$mailMessage = Lang::txt("LoginController_register.message_4");
 			}
 		}
 		else {
-			$mailMessage = 'Bitte wende dich an deinen Bandleader und warte bis dein Konto freigeschalten ist.<br/>';
+			$mailMessage = Lang::txt("LoginController_register.message_5");
 			$mailOk = false;
 			$outMsg = $mailMessage;
 		}

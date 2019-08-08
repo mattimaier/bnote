@@ -11,7 +11,8 @@ class AufgabenView extends CrudRefView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Aufgabe");
+		$this->setEntityName(lang::txt("AufgabenView_construct.EntityName"));
+		$this->setaddEntityName(Lang::txt("AufgabenView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 				"created_by" => array("name", "surname"),
 				"assigned_to" => array("name", "surname")
@@ -21,18 +22,18 @@ class AufgabenView extends CrudRefView {
 	function startOptions() {
 		parent::startOptions();
 		$this->buttonSpace();
-		$grpTask = new Link($this->modePrefix() . "addGroupTask", "Gruppenaufgabe hinzufügen");
+		$grpTask = new Link($this->modePrefix() . "addGroupTask", Lang::txt("AufgabenView_startOptions.addGroupTask"));
 		$grpTask->addIcon("plus");
 		$grpTask->write();
 		
 		$this->buttonSpace();
 		if(isset($_GET["table"]) && $_GET["table"] == "completed") {
-			$showOpen = new Link($this->modePrefix() . "start&table=open", "Offene Aufgaben anzeigen");
+			$showOpen = new Link($this->modePrefix() . "start&table=open", Lang::txt("AufgabenView_startOptions.open"));
 			$showOpen->addIcon("tasks");
 			$showOpen->write();
 		}
 		else {
-			$showCompleted = new Link($this->modePrefix() . "start&table=completed", "Abgeschlossene Aufgaben anzeigen");
+			$showCompleted = new Link($this->modePrefix() . "start&table=completed", Lang::txt("AufgabenView_startOptions.completed"));
 			$showCompleted->addIcon("tasks");
 			$showCompleted->write();
 		}
@@ -49,8 +50,8 @@ class AufgabenView extends CrudRefView {
 		$table = new Table($data);
 		$table->setEdit("id");
 		$table->removeColumn("id");
-		$table->renameHeader("creator", "Erstellt von");
-		$table->renameHeader("assignee", "Verantwortlicher");
+		$table->renameHeader("creator", Lang::txt("AufgabenView_showAllTable.creator"));
+		$table->renameHeader("assignee", Lang::txt("AufgabenView_showAllTable.assignee"));
 		$table->removeColumn(4);
 		$table->removeColumn("created_by");
 		$table->removeColumn(6);
@@ -70,7 +71,7 @@ class AufgabenView extends CrudRefView {
 		if($form_target != null) {
 			$target = $form_target;
 		}
-		$form = new Form($this->getEntityName() ." hinzufügen", $target);
+		$form = new Form(Lang::txt($this->getaddEntityName()), $target);
 		$form->addElement("Titel", new Field("title", "", FieldType::CHAR));
 		$form->addElement("Beschreibung", new Field("description", "", FieldType::TEXT));
 		$form->addElement("Fällig am", new Field("due_at", "", FieldType::DATETIME));
@@ -113,7 +114,7 @@ class AufgabenView extends CrudRefView {
 				$this->getData()->create($values);
 			}
 		}
-		new Message("Aufgabe hinzugefügt", "Die Aufgabe wurde allen Mitgliedern der ausgewählten Gruppen hinzugefügt.");
+		new Message(Lang::txt("AufgabenView_process_addGroupTask.Message1"), Lang::txt("AufgabenView_process_addGroupTask.Message2"));
 	}
 	
 	protected function viewDetailTable() {
@@ -132,12 +133,12 @@ class AufgabenView extends CrudRefView {
 		$this->buttonSpace();
 		
 		if($this->getData()->isTaskComplete($_GET["id"])) {
-			$markTodo = new Link($this->modePrefix() . "markTask&as=open&id=" . $_GET["id"], "Als offen markieren");
+			$markTodo = new Link($this->modePrefix() . "markTask&as=open&id=" . $_GET["id"], Lang::txt("AufgabenView_additionalViewButtons.open"));
 			$markTodo->addIcon("tasks");
 			$markTodo->write();
 		}
 		else {
-			$markComplete = new Link($this->modePrefix() . "markTask&as=complete&id=" . $_GET["id"], "Als abgeschlossen markieren");
+			$markComplete = new Link($this->modePrefix() . "markTask&as=complete&id=" . $_GET["id"], Lang::txt("AufgabenView_additionalViewButtons.complete"));
 			$markComplete->addIcon("checkmark");
 			$markComplete->write();
 		}
