@@ -1,5 +1,5 @@
 <?php
-
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
 /**
  * Data Access Class for Login.
@@ -119,13 +119,6 @@ class LoginData extends AbstractLocationData {
 		$login = $_POST["login"];
 		$ct = $this->database->getCell("user", "count(id)", "login = '$login'");
 		return ($ct > 0);
-	}
-	
-	function createAddress() {
-		$query = "INSERT INTO address (street, city, zip, country) VALUES (";
-		$query .= '"' . $_POST["street"] . '", "' . $_POST["city"] . '", "' . $_POST["zip"] . '", "' . $_POST["country"] . '"';
-		$query .= ")";
-		return $this->database->execute($query);
 	}
 	
 	function createContact($aid) {

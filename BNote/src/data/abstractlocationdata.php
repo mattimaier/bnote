@@ -101,7 +101,7 @@ abstract class AbstractLocationData extends AbstractData {
 	 * @param Array $values Usually post array containing fields as specified in getAddressFields().
 	 * @return int Address ID.
 	 */
-	protected function createAddress($values) {
+	public function createAddress($values) {
 		$this->validateAddress($values);
 		$fields = $this->getAddressFields();
 		

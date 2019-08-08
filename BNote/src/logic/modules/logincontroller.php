@@ -167,7 +167,7 @@ class LoginController extends DefaultController {
 		$password = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
 		
 		// create entities for complete user
-		$aid = $this->getData()->createAddress(); // address id
+		$aid = $this->getData()->createAddress($_POST); // address id
 		$cid = $this->getData()->createContact($aid); // contact id
 		$uid = $this->getData()->createUser($_POST["login"], $password, $cid); // user id
 		$this->getData()->createDefaultRights($uid);

@@ -158,7 +158,7 @@ class LoginView extends AbstractView {
 		<td class="loginInput">
 			<?php
 			$dd = $this->buildCountryDropdown("");
-			$dd->write();
+			echo $dd->write();
 			?>
 		</td>
 	</TR>
