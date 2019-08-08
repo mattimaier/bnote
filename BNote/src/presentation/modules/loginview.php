@@ -159,6 +159,15 @@ class LoginView extends AbstractView {
 			onChange="validateInput(this, 'city');" /></TD>
 	</TR>
 	<TR>
+		<TD class="login"><?php echo Lang::txt("country"); ?> *</TD>
+		<td class="loginInput">
+			<?php
+			$dd = $this->buildCountryDropdown("");
+			$dd->write();
+			?>
+		</td>
+	</TR>
+	<TR>
 		<TD class="login">Instrument</TD>
 		<TD class="loginInput"><SELECT name="instrument">
 				<?php

@@ -6,7 +6,7 @@
  * @author matti
  *
  */
-class LoginData extends AbstractData {
+class LoginData extends AbstractLocationData {
 	
 	/**
 	 * Build data provider.

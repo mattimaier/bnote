@@ -274,6 +274,40 @@ abstract class AbstractView {
 	}
 	
 	/**
+	 * Creates a dropdown widget for the country value
+	 * @param string $defaultVal Set the country code (3letter) or "" to use system default
+	 * @param array $obj 
+	 * @return Dropdown
+	 */
+	protected function buildCountryDropdown($defaultVal, $obj = NULL) {
+		$countries = $this->getData()->getCountries();
+		$dd = new Dropdown("country");
+		foreach($countries as $country) {
+			$caption = $country["code"] . " - " . $country[$this->getData()->getSysdata()->getLang()];
+			$dd->addOption($caption, $country["code"]);
+		}
+		if($obj == NULL || $defaultVal == "") {
+			$defaultVal = $this->getData()->getSysdata()->getDynamicConfigParameter("default_country");
+		}
+		$dd->setSelected($defaultVal);
+		return $dd;
+	}
+	
+	/**
+	 * Returns the country's name in the configured language.
+	 * @param string $code ISO 3166 Alpha 3 Code.
+	 */
+	protected function resolveCountryCode($code) {
+		$countries = $this->getData()->getCountries();
+		foreach($countries as $country) {
+			if($country["code"] == $code) {
+				return $country[$this->getData()->getSysdata()->getLang()];
+			}
+		}
+		return "";
+	}
+	
+	/**
 	 * Prints two br-tags.
 	 */
 	public static function verticalSpace() {
