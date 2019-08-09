@@ -13,6 +13,7 @@ include $dir_prefix . $GLOBALS["DIR_DATA"] . "systemdata.php";
 include $dir_prefix . $GLOBALS["DIR_DATA"] . "applicationdataprovider.php";
 
 $GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
+require_once($dir_prefix . "lang.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
 require_once($GLOBALS["DIR_WIDGETS"] . "iwriteable.php");
 
@@ -24,7 +25,9 @@ require_once($GLOBALS["DIR_WIDGETS"] . "iwriteable.php");
 
 // SETUP
 $timezone = "Europe/Berlin"; // timezone in which the datetimes are specified
-$timezone_on = true; // set to true to turn the timezone setting on.
+global $timezone;
+$timezone_on = false; // set to true to turn the timezone setting on.
+global $timezone_on;
 
 // Build Database Connection
 $system_data = new Systemdata($dir_prefix);
@@ -44,13 +47,25 @@ $adp = $startdata->adp();
  * @return String in format YYYYMMDDTHHiissZ  
  */
 function convertTime($datetime) {
-	$year = substr($datetime, 0, 4);
-	$month = substr($datetime, 5, 2);
-	$day = substr($datetime, 8, 2);
-	$hour = substr($datetime, 11, 2);
-	$min = substr($datetime, 14, 2);
-	
-	return $year . $month . $day . "T" . $hour . $min . "00Z";
+	$dt = DateTime::createFromFormat("Y-m-d H:i:s", $datetime);
+	$utc = new DateTimeZone('UTC');
+	$dt->setTimezone($utc);
+	return $dt->format('Ymd\THis\Z');
+}
+
+function generateUid($eventType, $id) {
+	return "REHEARSAL-$id@" . $GLOBALS["system_data"]->getSystemURL();
+}
+
+function writeStartEnd($start, $end) {
+	echo "DTSTAMP:" . convertTime($start) . "\r\n";
+	if($GLOBALS["timezone_on"]) {
+		echo "DTSTART;TZID=$timezone:" . convertTime($start) . "\r\n";
+		echo "DTEND;TZID=$timezone:" . convertTime($end) . "\r\n";
+	} else {
+		echo "DTSTART:" . convertTime($start) . "\r\n";
+		echo "DTEND:" . convertTime($end) . "\r\n";
+	}
 }
 
 // read system config
@@ -75,25 +90,28 @@ echo "VERSION:2.0\r\n";
 echo "PRODID:" . $system_data->getSystemURL() . "\r\n";
 
 // add timezone definition
-echo "BEGIN:VTIMEZONE\r\n";
-echo "TZID:Europe/Berlin\r\n";
-echo "TZURL:http://tzurl.org/zoneinfo-outlook/Europe/Berlin\r\n";
-echo "X-LIC-LOCATION:Europe/Berlin\r\n";
-echo "BEGIN:DAYLIGHT\r\n";
-echo "TZOFFSETFROM:+0100\r\n";
-echo "TZOFFSETTO:+0200\r\n";
-echo "TZNAME:CEST\r\n";
-echo "DTSTART:19700329T020000\r\n";
-echo "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU\r\n";
-echo "END:DAYLIGHT\r\n";
-echo "BEGIN:STANDARD\r\n";
-echo "TZOFFSETFROM:+0200\r\n";
-echo "TZOFFSETTO:+0100\r\n";
-echo "TZNAME:CET\r\n";
-echo "DTSTART:19701025T030000\r\n";
-echo "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\r\n";
-echo "END:STANDARD\r\n";
-echo "END:VTIMEZONE\r\n";
+if($timezone_on) {
+	echo "BEGIN:VTIMEZONE\r\n";
+	echo "TZID:Europe/Berlin\r\n";
+	echo "TZURL:http://tzurl.org/zoneinfo-outlook/Europe/Berlin\r\n";
+	echo "X-LIC-LOCATION:Europe/Berlin\r\n";
+	echo "X-WR-TIMEZONE:Europe/Berlin";
+	echo "BEGIN:DAYLIGHT\r\n";
+	echo "TZOFFSETFROM:+0100\r\n";
+	echo "TZOFFSETTO:+0200\r\n";
+	echo "TZNAME:CEST\r\n";
+	echo "DTSTART:19700329T020000\r\n";
+	echo "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU\r\n";
+	echo "END:DAYLIGHT\r\n";
+	echo "BEGIN:STANDARD\r\n";
+	echo "TZOFFSETFROM:+0200\r\n";
+	echo "TZOFFSETTO:+0100\r\n";
+	echo "TZNAME:CET\r\n";
+	echo "DTSTART:19701025T030000\r\n";
+	echo "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\r\n";
+	echo "END:STANDARD\r\n";
+	echo "END:VTIMEZONE\r\n";
+}
 
 /*
  * REHEARSALS
@@ -114,16 +132,11 @@ else {
 // write them
 for($i = 1; $i < count($rehearsals); $i++) {
 	echo "BEGIN:VEVENT\r\n";
+	echo "UID:" . generateUid("REHEARSAL", $rehearsals[$i]["id"]) . "\r\n";
 	echo "SUMMARY:Probe $organizer\r\n";
 	echo "ORGANIZER:$organizer\r\n";
 	
-	if($timezone_on) {
-		echo "DTSTART;TZID=$timezone:" . convertTime($rehearsals[$i]["begin"]) . "\r\n";
-		echo "DTEND;TZID=$timezone:" . convertTime($rehearsals[$i]["end"]) . "\r\n";
-	} else {
-		echo "DTSTART:" . convertTime($rehearsals[$i]["begin"]) . "\r\n";
-		echo "DTEND:" . convertTime($rehearsals[$i]["end"]) . "\r\n";
-	}
+	writeStartEnd($rehearsals[$i]["begin"], $rehearsals[$i]["end"]);
 	
 	if($rehearsals[$i]["name"] != "") { 
 		echo "LOCATION:" . $rehearsals[$i]["name"] . " - " .
@@ -266,16 +279,11 @@ else {
 // write them
 for($i = 1; $i < count($concerts); $i++) {
 	echo "BEGIN:VEVENT\r\n";
+	echo "UID:" . generateUid("CONCERT", $concerts[$i]["id"]) . "\r\n";
 	echo "SUMMARY:" . $concerts[$i]["title"] . "\r\n";
 	echo "ORGANIZER:$organizer\r\n";
 	
-	if($timezone_on) {
-		echo "DTSTART;TZID=$timezone:" . convertTime($concerts[$i]["begin"]) . "\r\n";
-		echo "DTEND;TZID=$timezone:" . convertTime($concerts[$i]["end"]) . "\r\n";
-	} else {
-		echo "DTSTART:" . convertTime($concerts[$i]["begin"]) . "\r\n";
-		echo "DTEND:" . convertTime($concerts[$i]["end"]) . "\r\n";
-	}
+	writeStartEnd($concerts[$i]["begin"], $concerts[$i]["end"]);
 	
 	if($userid == null || $userid < 1) {
 		$location = $concerts[$i]["name"] . " (" .$concerts[$i]["street"] . "\\, ";
@@ -405,24 +413,17 @@ $reservations = $startdata->getReservations();
 // write them
 for($i = 1; $i < count($reservations); $i++) {
 	echo "BEGIN:VEVENT\r\n";
+	echo "UID:" . generateUid("RESERVATION", $reservations[$i]["id"]) . "\r\n";
 	echo "SUMMARY:Reservierung " . $reservations[$i]["name"] . "\r\n";
 	echo "ORGANIZER:$organizer\r\n";
-
-	if($timezone_on) {
-		echo "DTSTART;TZID=$timezone:" . convertTime($reservations[$i]["begin"]) . "\r\n";
-		echo "DTEND;TZID=$timezone:" . convertTime($reservations[$i]["end"]) . "\r\n";
-	} else {
-		echo "DTSTART:" . convertTime($reservations[$i]["begin"]) . "\r\n";
-		echo "DTEND:" . convertTime($reservations[$i]["end"]) . "\r\n";
-	}
-	
+	writeStartEnd($reservations[$i]["begin"], $reservations[$i]["end"]);
 	echo "LOCATION:" . $reservations[$i]["locationname"] . "\r\n";
 	echo "COMMENT:" . $reservations[$i]["notes"] . "\r\n";
 	echo "END:VEVENT\r\n";
 }
 
 /*
- * RESERVATIONS
+ * APPOINTMENTS
  */
 $appointments = $startdata->getAppointments();
 
@@ -430,17 +431,10 @@ $appointments = $startdata->getAppointments();
 for($i = 1; $i < count($appointments); $i++) {
 	$appointment = $appointments[$i];
 	echo "BEGIN:VEVENT\r\n";
+	echo "UID:" . generateUid("APPOINTMENT", $appointment["id"]) . "\r\n";
 	echo "SUMMARY:" . $appointments[$i]["name"] . "\r\n";
 	echo "ORGANIZER:$organizer\r\n";
-
-	if($timezone_on) {
-		echo "DTSTART;TZID=$timezone:" . convertTime($appointment["begin"]) . "\r\n";
-		echo "DTEND;TZID=$timezone:" . convertTime($appointment["end"]) . "\r\n";
-	} else {
-		echo "DTSTART:" . convertTime($appointment["begin"]) . "\r\n";
-		echo "DTEND:" . convertTime($appointment["end"]) . "\r\n";
-	}
-
+	writeStartEnd($appointment["begin"], $appointment["end"]);
 	echo "LOCATION:" . $appointment["locationname"] . ", " . $appointment["street"] . ", " . $appointment["zip"] . " " . $appointment["city"] . "\r\n";
 	echo "COMMENT:" . $appointment["notes"] . "\r\n";
 	echo "END:VEVENT\r\n";
@@ -463,16 +457,10 @@ if($userid != null && $userid > 0) {
 	for($i = 1; $i < count($tours); $i++) {
 		$tour = $tours[$i];
 		echo "BEGIN:VEVENT\r\n";
+		echo "UID:" . generateUid("TOUR", $tour["id"]) . "\r\n";
 		echo "SUMMARY:" . $tour["name"] . "\r\n";
 		echo "ORGANIZER:$organizer\r\n";
-	
-		if($timezone_on) {
-			echo "DTSTART;TZID=$timezone:" . convertTime($tour["start"]) . "\r\n";
-			echo "DTEND;TZID=$timezone:" . convertTime($tour["end"]) . "\r\n";
-		} else {
-			echo "DTSTART:" . convertTime($tour["begin"]) . "\r\n";
-			echo "DTEND:" . convertTime($tour["end"]) . "\r\n";
-		}
+		writeStartEnd($tour["start"], $tour["end"]);
 		echo "LOCATION:\r\n";
 		echo "COMMENT:" . $tour["notes"] . "\r\n";
 		echo "END:VEVENT\r\n";
