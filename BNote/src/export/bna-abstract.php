@@ -1078,9 +1078,13 @@ abstract class AbstractBNA implements iBNA {
 			$composerId = $song["composer"];
 			$song["composer"] = $repData -> getComposerName($composerId);
 			
-			$genre = $repData -> getGenre($song["genre"]);
-
-			$song["genre"] = $this -> removeNumericKeys($genre[1]);
+			$song["genre"] = "";
+			if(array_key_exists("genre", $song)) {
+				$genre = $repData->getGenre($song["genre"]);
+				if($genre != null && count($genre) > 1) {
+					$song["genre"] = $this->removeNumericKeys($genre[1]);
+				}
+			}
 			
 			$songstatus = $this->db->getRow("SELECT * FROM status WHERE id = " . intval($song["status"]));
 			$song["status"] = $songstatus;
