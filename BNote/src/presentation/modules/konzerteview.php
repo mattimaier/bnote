@@ -557,7 +557,7 @@ class KonzerteView extends CrudRefLocationView {
 		for($i = 1; $i < count($templates); $i++) {
 			$dd4->addOption($templates[$i]["name"], $templates[$i]["id"]);
 		}
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.group"), $dd4);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.program"), $dd4);
 		
 		// choose equipment
 		$equipment = $this->getData()->adp()->getEquipment();
@@ -565,7 +565,7 @@ class KonzerteView extends CrudRefLocationView {
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.equipment"), $equipmentSelector);
 		
 		// outfit
-		$form->addElement("outfit", new Field("outfit", 0, FieldType::REFERENCE));
+		$form->addElement("outfit", new Field(Lang::txt("KonzerteView_addEntityForm.outfit"), 0, FieldType::REFERENCE));
 		$form->setForeign("outfit", "outfit", "id", array("name"), -1);
 		$form->addForeignOption("outfit", "Kein Outfit", 0);
 		
