@@ -10,7 +10,7 @@ class CustomFieldsView extends CrudView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("CustomFieldsView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("CustomFieldsView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("CustomFieldsView_construct.addEntityName"));
 	}
 
 	function showOptions() {

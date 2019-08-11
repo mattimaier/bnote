@@ -10,7 +10,7 @@ class ProbenphasenView extends CrudView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(lang::txt("ProbenphasenView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("ProbenphasenView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("ProbenphasenView_construct.addEntityName"));
 	}
 
 	function startOptions() {

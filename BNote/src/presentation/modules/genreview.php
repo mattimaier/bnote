@@ -10,7 +10,7 @@ class GenreView extends CrudView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("GenreView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("GenreView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("GenreView_construct.addEntityName"));
 	}
 	
 	/**

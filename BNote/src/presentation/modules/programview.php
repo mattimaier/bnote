@@ -5,6 +5,7 @@ class ProgramView extends CrudView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("ProgramView_construct.EntityName"));
+		$this->setAddEntityName(Lang::txt("ProgramView_startOptions.addEntity"));
 	}
 	
 	/**

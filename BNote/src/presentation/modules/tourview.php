@@ -5,7 +5,7 @@ class TourView extends CrudView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(lang::txt("TourView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("TourView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("TourView_construct.addEntityName"));
 		$this->idParameter = "accId";
 	}
 	

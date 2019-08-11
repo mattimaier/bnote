@@ -7,6 +7,7 @@
 abstract class CrudView extends AbstractView {
 	
 	protected $entityName;
+	protected $addEntityName;
 	
 	/**
 	 * Views all entities in a table.<br />
@@ -70,7 +71,7 @@ abstract class CrudView extends AbstractView {
 	
 	protected function addEntityForm() {
 		// add entry form
-		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
+		$form = new Form(Lang::txt($this->getAddEntityName()), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement($this->idField);
 		$form->write();
@@ -233,11 +234,12 @@ abstract class CrudView extends AbstractView {
 	public function getEntityName() {
 		return $this->entityName;
 	}
-		public function setaddEntityName($name) {
-		$this->addentityName = $name;
+	
+	public function setAddEntityName($name) {
+		$this->addEntityName = $name;
 	}
 	
-	public function getaddEntityName() {
-		return $this->addentityName;
+	public function getAddEntityName() {
+		return $this->addEntityName;
 	}
 }

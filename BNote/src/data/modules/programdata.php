@@ -58,11 +58,16 @@ class ProgramData extends AbstractData {
 	}
 	
 	function getSongsForProgram($pid) {
+		$this->regex->isPositiveAmount($pid);
+		
 		$query = "SELECT ps.id as psid, ps.rank, ps.song, s.title, c.name as composer, s.length,";
-		$query .= " g.name as genre, s.notes, st.name as status ";
-		$query .= "FROM song s, program_song ps, composer c, genre g, status st ";
-		$query .= "WHERE ps.program = $pid AND ps.song = s.id AND s.composer = c.id";
-		$query .= " AND s.genre = g.id AND s.status = st.id ";
+		$query .= " s.notes, st.name as status, g.name as genre ";
+		$query .= "FROM song s
+					JOIN program_song ps ON ps.song = s.id
+					JOIN composer c ON s.composer = c.id
+					JOIN status st ON s.status = st.id 
+					LEFT OUTER JOIN genre g ON s.genre = g.id ";
+		$query .= "WHERE ps.program = $pid ";
 		$query .= "ORDER BY ps.rank ASC";
 		return $this->database->getSelection($query);
 	}

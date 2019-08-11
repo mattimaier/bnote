@@ -16,7 +16,7 @@ class AbstimmungView extends CrudView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("AbstimmungView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("AbstimmungView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("AbstimmungView_construct.addEntityName"));
 		$this->entityName_option = Lang::txt("AbstimmungView_construct.option");
 		$this->entityName_options = Lang::txt("AbstimmungView_construct.options");
 	}
@@ -45,7 +45,7 @@ class AbstimmungView extends CrudView {
 	}
 	
 	function addEntityForm() {
-		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
+		$form = new Form(Lang::txt($this->getAddEntityName()), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		$form->removeElement("author");

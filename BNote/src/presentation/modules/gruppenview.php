@@ -8,7 +8,7 @@ class GruppenView extends CrudView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("GruppenView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("GruppenView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("GruppenView_construct.addEntityName"));
 	}
 	
 	/**

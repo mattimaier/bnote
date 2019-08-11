@@ -13,7 +13,7 @@ class KontakteView extends CrudRefLocationView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("KontakteView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("KontakteView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("KontakteView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"address" => array("street", "city", "zip", "state", "country"),
 			"instrument" => array("name")

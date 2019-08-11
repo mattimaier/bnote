@@ -12,7 +12,7 @@ class UserView extends CrudRefView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("UserView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("UserView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("UserView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"contact" => array("name", "surname")
 		));

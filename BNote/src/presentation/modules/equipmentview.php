@@ -5,7 +5,7 @@ class EquipmentView extends CrudView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(lang::txt("EquipmentView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("EquipmentView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("EquipmentView_construct.addEntityName"));
 	}
 	
 	function showAllTable() {

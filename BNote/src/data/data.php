@@ -1,5 +1,7 @@
 <?php
-require_once('../../lang.php');
+if(file_exists("../../lang.php")) {
+	require_once('../../lang.php');
+}
 
 /**
  * Provides functions for all data modules

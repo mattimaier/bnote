@@ -13,7 +13,7 @@ class ProbenView extends CrudRefLocationView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("ProbenView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("ProbenView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("ProbenView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
 			"serie" => array("name"),

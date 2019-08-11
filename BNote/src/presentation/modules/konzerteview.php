@@ -13,7 +13,7 @@ class KonzerteView extends CrudRefLocationView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName("Auftritt");
-		$this->setaddEntityName(Lang::txt("KonzerteView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("KonzerteView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
 			"program" => array("name"),

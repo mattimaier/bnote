@@ -12,7 +12,7 @@ class AufgabenView extends CrudRefView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(lang::txt("AufgabenView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("AufgabenView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("AufgabenView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 				"created_by" => array("name", "surname"),
 				"assigned_to" => array("name", "surname")

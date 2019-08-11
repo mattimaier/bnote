@@ -13,7 +13,7 @@ class LocationsView extends CrudRefLocationView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName("Location");
-		$this->setaddEntityName(Lang::txt("LocationsView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("LocationsView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"address" => array("street", "zip", "city", "state", "country")
 		));

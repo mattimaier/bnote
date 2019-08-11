@@ -12,7 +12,7 @@ class FinanceView extends CrudView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(lang::txt("FinanceView_construct.EntityName"));
-		$this->setaddEntityName(Lang::txt("FinanceView_construct.addEntityName"));
+		$this->setAddEntityName(Lang::txt("FinanceView_construct.addEntityName"));
 	}
 	
 	private function getFilterSettings() {
