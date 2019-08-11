@@ -1,4 +1,5 @@
 <?php
+require_once('../../lang.php');
 
 /**
  * Provides functions for all data modules

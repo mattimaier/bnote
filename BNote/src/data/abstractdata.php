@@ -739,7 +739,7 @@ abstract class AbstractData {
 				break;
 			case "DATE": 
 				$val = $customValueRow['dateval'];
-				$val = Data::convertDateFromDb($val);
+				$val = $val == null ? "" : Data::convertDateFromDb($val);
 				break;
 			case "DATETIME": 
 				$val = $customValueRow["datetimeval"];
