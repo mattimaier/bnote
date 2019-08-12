@@ -47,7 +47,7 @@ abstract class AbstractLocationData extends AbstractData {
 		$fields = $this->getAddressFields();
 		return array(
 			$fields["street"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.street"), FieldType::CHAR),
-			$fields["city"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.city"), FieldType::CHAR),
+			$fields["city"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.city"), FieldType::CHAR, true),
 			$fields["zip"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.zip"), FieldType::CHAR),
 			$fields["state"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.state"), FieldType::CHAR),
 			$fields["country"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.country"), FieldType::CHAR)

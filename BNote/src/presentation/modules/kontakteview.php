@@ -129,7 +129,10 @@ class KontakteView extends CrudRefLocationView {
 			else {
 				echo "  <tr>\n";
 				// body
-				$contact_name = $row["surname"] . ", " . $row["name"];
+				$names = array();
+				if($row["surname"] != "") array_push($names, $row["surname"]);
+				if($row["name"] != "") array_push($names, $row["name"]);
+				$contact_name = join(", ", $names);
 				if($row['nickname'] != "") {
 					$contact_name .= "<br/>(" . $row['nickname'] . ")";
 				}
@@ -163,7 +166,7 @@ class KontakteView extends CrudRefLocationView {
 				// online
 				echo "   <td class=\"DataTable\"><a href=\"mailto:" . $row["email"] . "\">" . $row["email"] . "</a>";
 				if($row["web"] != "") {
-					echo "<br/><a href=\"http://" . $row["web"] . "\">" . $row["web"] . "</a>";
+					echo "<br/><a href=\"https://" . $row["web"] . "\" target=\"_blank\">" . $row["web"] . "</a>";
 				} 
 				echo "</td>";
 			}
@@ -201,10 +204,10 @@ class KontakteView extends CrudRefLocationView {
 		<?php
 	}
 	
-	function addEntity() {
-		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");		
+	function addEntity() {		
+		$form = new Form(Lang::txt($this->getAddEntityName()), $this->modePrefix() . "add");		
 		// just add all custom and regular fields
-		$form->autoAddElementsNew($this->getData()->getFields());
+		$form->autoAddElementsNew($this->getData()->getFields());		
 		$form->removeElement("id");
 		$form->removeElement("status");
 		
@@ -373,8 +376,12 @@ class KontakteView extends CrudRefLocationView {
 		$form = new Form(Lang::txt("KontakteView_editEntityForm.Form"), $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"], array("company"));
 		$form->removeElement("id");
-		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
 		
+		// instrument
+		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
+		$form->addForeignOption("instrument", Lang::txt("KontakteView_addEntity.noinstrument"), 0);
+		
+		// address
 		$form->removeElement("address");
 		$this->addAddressFieldsToForm($form, $this->getData()->getAddress($contact["address"]));
 		

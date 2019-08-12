@@ -190,6 +190,12 @@ class Form implements iWriteable {
 		$dp = $this->foreign [$field];
 		$dp->setSelected ( $id );
 	}
+	
+	/**
+	 * Retrieves the foreign element
+	 * @param string $field Name of the field
+	 * @return iWriteable
+	 */
 	public function getForeignElement($field) {
 		return $this->foreign [$field];
 	}

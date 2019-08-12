@@ -161,30 +161,32 @@ class KontakteData extends AbstractLocationData {
 	
 	function validate($input) {
 		// trim the checks only to the ones which were filled out.
-		$values = array();
 		foreach($input as $col => $value) {
 			if($value != "") {
-				$values[$col] = $value;
+				// check that the user has at least one of surname, name, nickname
+				if($input["name"] == "" && $input["surname"] == "" && $input["nickname"] == "") {
+					new BNoteError(Lang::txt("KontakteData_validate.errorNameRequired"));
+				}
+				
+				if($col == "instrument") {
+					$this->regex->isNumber($value);
+				}
+				else {
+					// check all other values for security
+					$this->validatePair($col, $value, $this->getTypeOfField($col));
+				}
 			}
 		}
-		if($values["instrument"] == 0) {
-			unset($values["instrument"]);
-		}
-		
-		parent::validate($values);
 	}
 	
 	function create($values) {
-		$addy["street"] = isset($values['street']) ? $values["street"] : "";
-		$addy["city"] = isset($values['city']) ? $values["city"] : "";
-		$addy["zip"] = isset($values['zip']) ? $values["zip"] : "";
-		$addy["country"] = isset($values['country']) ? $values["country"] : "";
+		// validate contact
+		$this->validate($values);
 		
 		// simply create one address per contact
-		$query = "INSERT INTO address (street, city, zip, country) VALUES (";
-		$query .= " \"" . $addy["street"] . "\", \"" . $addy["city"] . "\", \"" . $addy["zip"] . "\", \"" . $addy["country"] . "\")";
-		$values["address"] = $this->database->execute($query);
+		$values["address"] = $this->createAddress($values);
 		
+		// create contact
 		$cid = parent::create($values);
 		
 		// save custom fields

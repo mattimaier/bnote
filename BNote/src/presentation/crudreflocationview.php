@@ -28,6 +28,9 @@ class CrudRefLocationView extends CrudRefView {
 			}
 			else {
 				$form->addElement($info[0], new Field($fieldName, $defaultVal, $info[1]));
+				if(count($info) > 2 && $info[2] == true) {
+					$form->setFieldRequired($info[0]);
+				}
 			}
 		}
 	}

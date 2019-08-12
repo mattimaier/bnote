@@ -931,6 +931,7 @@ class Translation extends BNoteTranslation {
 			"KontakteData_construct.is_conductor" => "Is conductor",
 			"KontakteData_construct.birthday" => "Birthday",
 			"KontakteData_construct.status" => "Status",
+			"KontakteData_validate.errorNameRequired" => "Please provide at least one name.",
 			
 			// KontakteController				
 			"KontakteController_createUserAccount.subject" => "Login Information ",

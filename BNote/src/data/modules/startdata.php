@@ -395,7 +395,7 @@ class StartData extends AbstractLocationData {
 			$objTitle = Lang::txt("StartData_getObjectTitle.Vote") . ": " . $vote["name"];
 		}
 		else if($otype == "T") {
-			//TODO: In case tasks can be commented as well, fix this
+			//NOTE: In case tasks can be commented as well, fix this
 			$objTitle = Lang::txt("StartData_getObjectTitle.Task") . " " . $oid;
 		}
 		else if($otype == "B") {

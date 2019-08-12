@@ -929,7 +929,8 @@ class Translation extends BNoteTranslation {
 			"KontakteData_construct.instrument" => "Instrument",
 			"KontakteData_construct.is_conductor" => "Chef d'orchestre",
 			"KontakteData_construct.birthday" => "Anniversaire",
-			"KontakteData_construct.status" => "Statut",	
+			"KontakteData_construct.status" => "Statut",
+			"KontakteData_validate.errorNameRequired" => "Veuillez fournir au moins un nom.",
 
 			// KontakteController				
 			"KontakteController_createUserAccount.subject" => "Information de connexion ",
