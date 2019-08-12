@@ -33,8 +33,13 @@ class Database extends Data {
 				$this->connectionData["password"], 
 				$this->connectionData["dbname"],
 				$this->connectionData["port"] );
-		if ($this->db->connect_errno) {
+		
+		if($this->db->connect_errno) {
 			new BNoteError ( "Unable to connect to database: " . $this->db->connect_error );
+		}
+		
+		if(array_key_exists("encoding", $this->connectionData)) {
+			mysqli_set_charset($this->db, $this->connectionData["encoding"]);
 		}
 	}
 	
@@ -42,19 +47,23 @@ class Database extends Data {
 	private function readConfig() {
 		// Different locations for login and system
 		$cfgfile = "config/database.xml";
-		if (file_exists ( $cfgfile )) {
-			$config = new XmlData ( $cfgfile, "Database" );
+		if(file_exists($cfgfile)) {
+			$config = new XmlData($cfgfile, "Database");
 		}
 		else {
-			$config = new XmlData ( "../../" . $cfgfile, "Database" );
+			$config = new XmlData("../../" . $cfgfile, "Database");
 		}
 		$this->connectionData = array (
-				"server" => $config->getParameter ( "Server" ),
-				"user" => $config->getParameter ( "User" ),
-				"password" => $config->getParameter ( "Password" ),
-				"dbname" => $config->getParameter ( "Name" ) ,
-				"port" => intval($config->getParameter ( "Port" ))
+				"server" => $config->getParameter("Server"),
+				"user" => $config->getParameter("User"),
+				"password" => $config->getParameter("Password"),
+				"dbname" => $config->getParameter("Name"),
+				"port" => intval($config->getParameter("Port"))
 		);
+		$encoding = $config->getParameter("Encoding");
+		if($encoding != null) {
+			$this->connectionData["encoding"] = $encoding;
+		}
 		$this->userTable = $config->getParameter ( "UserTable" );
 	}
 	
