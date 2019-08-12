@@ -986,15 +986,6 @@ class StartView extends CrudRefLocationView {
 					?></td>
 				</tr>
 				<tr>
-					<td><?php echo Lang::txt("StartView_gigcard.program"); ?></td>
-					<td><?php 
-					if($c["program"]) {
-						$prg = $concertData->getProgram($c["program"]);
-						echo $prg["name"];
-					}
-					?></td>
-				</tr>
-				<tr>
 					<td><?php echo Lang::txt("StartView_gigcard.outfit"); ?></td>
 					<td><?php 
 					if($c["outfit"]) {
@@ -1007,6 +998,21 @@ class StartView extends CrudRefLocationView {
 		</table>
 		
 		<?php
+		if($c["program"]) {
+			$prg = $concertData->getProgram($c["program"]);
+			$titles = $this->getData()->getProgramTitles($prg["id"]);
+			
+			Writing::h2(Lang::txt("StartView_gigcard.program") . ": " . $prg["name"]);
+			
+			$table = new Table($titles);
+			$table->renameHeader("rank", Lang::txt("StartView_viewProgram.rank"));
+			$table->renameHeader("title", Lang::txt("StartView_viewProgram.title"));
+			$table->renameHeader("composer", Lang::txt("StartView_viewProgram.composer"));
+			$table->renameHeader("notes", Lang::txt("StartView_viewProgram.notes"));
+			$table->showFilter(false);
+			
+			$table->write();
+		}
 	}
 	
 	function gigcardOptions() {

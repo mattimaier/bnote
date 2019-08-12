@@ -95,7 +95,7 @@ class KonzerteData extends AbstractLocationData {
 	}
 	
 	function getProgram($id) {
-		$q4 = "SELECT name, notes FROM program ";
+		$q4 = "SELECT id, name, notes FROM program ";
 		$q4 .= "WHERE id = " . $id;
 		return $this->database->getRow($q4);
 	}

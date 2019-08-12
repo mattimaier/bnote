@@ -296,7 +296,7 @@ class KonzerteView extends CrudRefLocationView {
 	
 	private function viewInvitations() {
 		// manage members who will play in this concert
-		Writing::h2("KonzerteView_viewInvitations.title");
+		Writing::h2(Lang::txt("KonzerteView_viewInvitations.title"));
 		
 		$contacts = $this->getData()->getConcertContacts($_GET["id"]);
 		$contacts = Table::addDeleteColumn($contacts, $this->modePrefix() . "delConcertContact&id=" . $_GET["id"] . "&contactid=");
