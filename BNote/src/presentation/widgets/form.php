@@ -325,26 +325,29 @@ class Form implements iWriteable {
 		echo '<form method="' . $this->method . '" action="' . $this->action . '"';
 		echo $this->multipart . '>' . "\n";
 		
-		echo '<fieldset>';
+		// echo '<fieldset>';
 		echo "<legend class=\"FormBox\">" . $this->formname . "</legend>\n";
 		
-		echo '<table>' . "\n";
+		// echo '<table>' . "\n";
 		
 		foreach ( $this->elements as $label => $element ) {
-			echo " <tr>\n";
+			// echo " <tr>\n";
+			echo "<div class='form-group'>";
 			$required = "";
 			if (isset ( $this->requiredFields [$label] ) && $this->requiredFields [$label])
 				$required = "*";
 			if (isset ( $this->rename [$label] ))
 				$label = $this->rename [$label];
-			echo "  <td>$label$required</td>\n";
-			echo "  <td>" . $element->write () . "</td>\n";
-			echo " </tr>\n";
+			
+				$name = $element->getName();
+			echo "  <label for='$name'>$label$required</label>\n";
+			echo $element->write();
+			echo " </div>\n";
 		}
 		if (count ( $this->requiredFields ) > 0) {
 			echo "<tr><td colspan=\"2\" style=\"font-size: 8pt;\">" . Lang::txt("Form_write.message") . "</td></tr>";
 		}
-		echo '</table>' . "\n";
+		// echo '</table>' . "\n";
 		
 		// add hidden values
 		foreach ( $this->hidden as $name => $value ) {
@@ -353,9 +356,9 @@ class Form implements iWriteable {
 		
 		// Submit Button
 		if (! $this->removeSubmitButton) {
-			echo '<input type="submit" value="' . $this->submitValue . '">' . "\n";
+			echo '<button type="submit" class="btn btn-primary">' . $this->submitValue . '</button>' . "\n";
 		}
-		echo '</fieldset>' . "\n";
+		// echo '</fieldset>' . "\n";
 		echo '</form>' . "\n";
 	}
 }
