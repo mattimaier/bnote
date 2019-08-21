@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Main entry file for the web application.
  */
@@ -18,16 +18,16 @@ include "dirs.php";
 require_once $GLOBALS["DIR_LOGIC"] . "init.php";
 
 # Login forward if necessary
-if(isset($_GET["mod"]) && $_GET["mod"] === "login" && isset($_GET["mode"]) && $_GET["mode"] === "login") {
-	require_once $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
-	require_once $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
-	require_once $GLOBALS["DIR_DATA"] . "fieldtype.php";
-	require_once $GLOBALS["DIR_DATA"] . "abstractdata.php";
-	require_once $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
-	$ctrl = new LoginController();
-	$loginData = new LoginData();
-	$ctrl->setData($loginData);
-	$ctrl->doLogin();
+if (isset($_GET["mod"]) && $_GET["mod"] === "login" && isset($_GET["mode"]) && $_GET["mode"] === "login") {
+    require_once $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
+    require_once $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
+    require_once $GLOBALS["DIR_DATA"] . "fieldtype.php";
+    require_once $GLOBALS["DIR_DATA"] . "abstractdata.php";
+    require_once $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
+    $ctrl = new LoginController();
+    $loginData = new LoginData();
+    $ctrl->setData($loginData);
+    $ctrl->doLogin();
 }
 
 require_once $GLOBALS["DIR_LOGIC"] . "controller.php";
@@ -54,5 +54,21 @@ require_once $GLOBALS["DIR_PRESENTATION"] . "footer.php";
 ?>
 
 </BODY>
+
+<?php
+//embed jQuery library
+$jQuery_dir = $GLOBALS["DIR_LIB"] . "jquery/";
+$MDBootstrap_dir = $GLOBALS["DIR_LIB"] . "MDBootstrap/";
+?>
+
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="<?php echo $MDBootstrap_dir; ?>js/popper.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="<?php echo $MDBootstrap_dir; ?>js/bootstrap.min.js"></script>
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="<?php echo $MDBootstrap_dir; ?>js/mdb.min.js"></script>
+
+  <script type="text/javascript" src="<?php echo $MDBootstrap_dir; ?>js/addons/datatables.min.js"></script>
+  <script type="text/javascript" src="<?php echo $MDBootstrap_dir; ?>js/addons/dataTables.responsive.min.js"></script>
 
 </HTML>

@@ -1,23 +1,26 @@
-<?php
-# Display Navigation
-include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
 
+<?php
 # Display Banner
 include $GLOBALS["DIR_PRESENTATION"] . "banner.php";
+if (isset($_GET["mod"]) && $_GET["mod"] != "extGdpr") {
+    include $GLOBALS["DIR_PRESENTATION"] . "optionsbar.php";
+}
 ?>
 
+
 <!-- Content Area -->
-<div id="content_container"<?php if($system_data->loginMode()) { echo 'class="login"'; } ?>>
-	<?php
-	if(isset($_GET["mod"]) && $_GET["mod"] != "extGdpr") {
-		include $GLOBALS["DIR_PRESENTATION"] . "optionsbar.php";
-	}
-	?>
-	<div id="content_insets">
-		<div id="content">
+<div class="container-fluid" id="content_container"<?php if ($system_data->loginMode()) {echo 'class="login"';}?>>
+<div class="row">
+<?php
+# Display Navigation
+
+include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
+?>
+
+	<main class="col-md-9 ml-sm-auto col-lg-10 px-4">
 			<?php
-			$mainController->getController()->start();
-			?>
-		</div>
+$mainController->getController()->start();
+?>
+	</main>
 	</div>
 </div>
