@@ -192,7 +192,8 @@ class Table implements iWriteable {
 		$identifier = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 10);
 		echo '<table id="';
 		echo $identifier;
-		echo '" cellpadding="0" cellspacing="0" class="BNoteTable">' . "\n";
+		echo '" class="table table-striped table-bordered table-sm BNoteTable" cellspacing="0" width="100%"';
+		echo '>' . "\n";
 
 		$head = true;
 		$empty = false;
@@ -363,20 +364,20 @@ class Table implements iWriteable {
 		if($this->showFilter && !$empty) {
 			?>
 			<script>
-			// convert table to javasript DataTable
-			$(document).ready(function() {
-				var identifier = "#<?php echo $identifier; ?>"
-	    		$(identifier).DataTable({
-					 "paging": false, 
-					 "info": false,  
-					 "oLanguage": {
-				 		 "sEmptyTable":  "<?php echo Lang::txt("Table_write.sEmptyTable"); ?>",
-						 "sInfoEmpty":  "<?php echo Lang::txt("Table_write.sInfoEmpty"); ?>",
-						 "sZeroRecords":  "<?php echo Lang::txt("Table_write.sZeroRecords"); ?>",
-	        			 "sSearch": "<?php echo Lang::txt("Table_write.sSearch"); ?>"
-			 		 }
+			$(document).ready(function () {
+				$('#<?php echo $identifier; ?>').DataTable({
+					"paging": false, 
+					"info": false,  
+					"oLanguage": {
+						"sEmptyTable":  "<?php echo Lang::txt("Table_write.sEmptyTable"); ?>",
+						"sInfoEmpty":  "<?php echo Lang::txt("Table_write.sInfoEmpty"); ?>",
+						"sZeroRecords":  "<?php echo Lang::txt("Table_write.sZeroRecords"); ?>",
+						"sSearch": "<?php echo Lang::txt("Table_write.sSearch"); ?>"
+					}
+
 				});
-			});
+				$('.dataTables_length').addClass('bs-select');
+				});
 			</script>
 			<?php
 		}
