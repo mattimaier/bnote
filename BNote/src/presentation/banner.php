@@ -1,18 +1,27 @@
-<!-- Banner -->
-<div id="banner">
-	<div id="bannerContent">
-		<div id="CompanyName"><?php echo $system_data->getCompany(); ?></div>
- 	   
+
+<nav class="navbar  navbar-dark primary-color justify-content-between position-sticky">
+<a class="navbar-brand" href="#">
+<?php echo $system_data->getCompany(); ?>
+</a>
+<ul class="navbar-nav">
 		<?php
-		if(!$system_data->loginMode()) {
-	 	?> 
-		<div id="Logout">
-		 	<?php echo Lang::txt("banner_Logout.welcome"); ?>
-		 	<a href="?mod=<?php echo $system_data->getModuleId("Kontaktdaten"); ?>" id="UserInfo"><?php echo $system_data->getUsername(); ?></a>,
-		 	<a id="Logout_link" href="main.php?mod=logout"><?php echo Lang::txt("banner_Logout.Logout"); ?></a>
-		</div>
+if (!$system_data->loginMode()) {
+    ?>
+
+	<li class="nav-item dropdown dropdown-menu-left">
+    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+      aria-expanded="false">...</a>
+    <div class="dropdown-menu">
+<?php	$GLOBALS["mainController"]->getView()->showOptions();?>
+
+      <div class="dropdown-divider"></div>
+	  <a class="dropdown-item"  id="Logout_link" href="main.php?mod=logout"><?php echo Lang::txt("banner_Logout.Logout"); ?></a>
+    </div>
+  </li>
+
 		<?php
-	 	}
-		?>
-	</div> 
-</div>
+}
+?>
+</ul>
+</nav>
+
