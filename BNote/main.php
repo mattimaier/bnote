@@ -71,4 +71,46 @@ $MDBootstrap_dir = $GLOBALS["DIR_LIB"] . "MDBootstrap/";
   <script type="text/javascript" src="<?php echo $MDBootstrap_dir; ?>js/addons/datatables.min.js"></script>
   <script type="text/javascript" src="<?php echo $MDBootstrap_dir; ?>js/addons/dataTables.responsive.min.js"></script>
 
+  <script type="text/javascript">
+    function toggleSidebar(animated) {
+        if (animated) {
+            var transition = "all 0.3s";
+            
+            $("#sidebar").css("transition", transition);
+            $("#sidebar-overlay").css("transition", transition);
+            console.log(transition);
+
+
+        } else {
+            $("#sidebar").css("transition", "initial");
+            $("#sidebar-overlay").css("transition", "initial");
+        }
+
+
+        $('#sidebar').toggleClass('active');
+        $('#sidebar-overlay').toggleClass('active');
+
+                if ($('#sidebar').hasClass("active")) {
+                    var width = $("#sidebar").width();
+                    $("#sidebar").css("margin-left", -width);
+
+                } else {
+                $("#sidebar").css("margin-left", 0);
+
+                }
+     }
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+        toggleSidebar(true);
+            });
+
+            if ($(document).width() < 576) {
+                toggleSidebar(false);
+            }
+
+            var width = $("#action-menu").width();
+            $("#action-menu").css("left", -width);
+        });
+    </script>
+    
 </HTML>

@@ -366,15 +366,19 @@ class Table implements iWriteable {
 			<script>
 			$(document).ready(function () {
 				$('#<?php echo $identifier; ?>').DataTable({
-					"paging": false, 
-					"info": false,  
-					"oLanguage": {
-						"sEmptyTable":  "<?php echo Lang::txt("Table_write.sEmptyTable"); ?>",
-						"sInfoEmpty":  "<?php echo Lang::txt("Table_write.sInfoEmpty"); ?>",
-						"sZeroRecords":  "<?php echo Lang::txt("Table_write.sZeroRecords"); ?>",
-						"sSearch": "<?php echo Lang::txt("Table_write.sSearch"); ?>"
-					}
-
+					responsive: {
+            details: {
+                display: $.fn.dataTable.Responsive.display.modal( {
+                    header: function ( row ) {
+                        var data = row.data();
+                        return 'Details for '+data[0]+' '+data[1];
+                    }
+                } ),
+                renderer: $.fn.dataTable.Responsive.renderer.tableAll( {
+                    tableClass: 'table'
+                } )
+            }
+        }
 				});
 				$('.dataTables_length').addClass('bs-select');
 				});

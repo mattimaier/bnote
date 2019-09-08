@@ -1238,7 +1238,7 @@ class Translation extends BNoteTranslation {
 				alors votre compte n'est peut-être pas encore activé. S'il vous plaît
 				réessayer plus tard.",	
 			"LoginView_login.Form" => "Connexion et inscription",
-			"LoginView_login.login" => "Identifiant <br/> ou adresse de courriel",
+			"LoginView_login.login" => "Identifiant ou adresse de courriel",
 			"LoginView_login.password" => "Mot de passe",
 			"LoginView_forgotPassword.title" => "Mot de passe oublié ?",
 			"LoginView_forgotPassword.message" => "Veuillez entrer votre adresse de courriel et le système vous enverra un nouveau mot de passe par e-mail.",

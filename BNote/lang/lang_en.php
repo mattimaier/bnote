@@ -1239,7 +1239,7 @@ class Translation extends BNoteTranslation {
 				then your account may not yet be activated. Please
 				try again at a later time.",
 			"LoginView_login.Form" => "Login",
-			"LoginView_login.login" => "User name<br/>or e-mail address",
+			"LoginView_login.login" => "User name or e-mail address",
 			"LoginView_login.password" => "Password",
 			"LoginView_forgotPassword.title" => "Password forgotten",
 			"LoginView_forgotPassword.message" => "Please enter your e-mail address and the system will send you a new password by e-mail",

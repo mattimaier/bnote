@@ -1238,7 +1238,7 @@ class Translation extends BNoteTranslation {
 				dann ist dein Konto gegebenenfalls noch nicht freigeschalten. Bitte
 				versuche es zu einem späteren Zeitpunkt noch einmal.",	
 			"LoginView_login.Form" => "Anmeldung",
-			"LoginView_login.login" => "Benutzername<br/>oder E-Mail-Adresse",
+			"LoginView_login.login" => "Benutzername oder E-Mail-Adresse",
 			"LoginView_login.password" => "Passwort",
 			"LoginView_forgotPassword.title" => "Passwort vergessen",
 			"LoginView_forgotPassword.message" => "Bitte gebe deine E-Mail-Adresse ein und das System wird dir ein neues Passwort per E-Mail zuschicken.",

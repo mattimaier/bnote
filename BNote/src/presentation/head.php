@@ -26,6 +26,7 @@ $MDBootstrap_dir = $GLOBALS["DIR_LIB"] . "MDBootstrap/";
 
  <!-- <link type="text/css" href="<?php echo "style/css/" . $system_data->getTheme() . "/bnote.css" ?>" rel="stylesheet" /> -->
 
+
  <!-- <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery-2.1.1.min.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery-ui.min.js"></script>
  <script type="text/javascript" src="<?php echo $jQuery_dir; ?>jquery.datetimepicker.full.min.js"></script>
@@ -59,6 +60,9 @@ $MDBootstrap_dir = $GLOBALS["DIR_LIB"] . "MDBootstrap/";
   <link href="<?php echo $MDBootstrap_dir; ?>css/addons/responsive.dataTables.min.css" rel="stylesheet">
 
   <script type="text/javascript" src="<?php echo $MDBootstrap_dir; ?>js/jquery-3.4.1.min.js"></script>
+
+
+  <link type="text/css" href="<?php echo "style/css/default/bnote.css" ?>" rel="stylesheet" />
 
 
 

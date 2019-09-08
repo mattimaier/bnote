@@ -5,116 +5,106 @@
  * @author matti
  *
  */
-class LoginView extends AbstractView {
-	
-	function __construct($ctrl) {
-		$this->setController($ctrl);
-	}
-	
-	function start() {
-		include $GLOBALS["DIR_PRESENTATION"] . "logo.php";
-	}
-	
-	function showOptions() {
-		// Mobile Website
-		$mobile = new Link("../BNote-App", Lang::txt("LoginView_showOptions.BNote-App"));
-		$mobile->write();
-		$this->buttonSpace();
-		
-		// Login
-		$mod = "login";
-		if($_GET["mod"] != $mod) {
-			$login = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.login"));
-			$login->write();
-			$this->buttonSpace();
-		}
-		
-		// PW
-		$mod = "forgotPassword";
-		if($_GET["mod"] != $mod) {
-			$pwForgot = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.forgotPassword"));
-			$pwForgot->write();
-			$this->buttonSpace();
-		}
-		
-		// Registration
-		$mod = "registration";
-		/* check if user registration is on */
-		$user_reg = $this->getData()->getSysdata()->getDynamicConfigParameter("user_registration");
-		if($user_reg == 1 && $_GET["mod"] != $mod) {
-			$reg = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.registration"));
-			$reg->write();
-			$this->buttonSpace();
-		}
-		
-		// Terms
-		$mod = "terms";
-		if($_GET["mod"] != $mod) {
-			$terms = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.terms"));
-			$terms->write();
-			$this->buttonSpace();
-		}
-		
-		// Impressum
-		$mod = "impressum";
-		if($_GET["mod"] != $mod) {
-			$imp = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.impressum"));
-			$imp->write();
-		}
-	}
-	
-	function login() {
-		if(!isset($_GET["device"]) || $_GET["device"] != "desktop") {
-			?>
-			<script>
-			$(document).ready(function() {
-				// when the width of the screen is less than 560px (UI5 default) -> switch to app view
-				var ww = window.screen.width;
-				if(ww < 560) {
-					location = "../BNote-App";
-				}
-			});
-			</script>
-			<?php
-		}
-		
-		Writing::p(Lang::txt("LoginView_login.message_1"));
-		
-		Writing::p(Lang::txt("LoginView_login.message_2"));
-		
-		// login form
-		$form = new Form(Lang::txt("LoginView_login.Form"), $this->modePrefix() . "login");
-		$form->addElement(Lang::txt("LoginView_login.login"), new Field("login", "", FieldType::CHAR));
-		$form->addElement(Lang::txt("LoginView_login.password"), new Field("password", "", FieldType::PASSWORD));
-		$form->write();
-	}
-	
-	function forgotPassword() {
-		Writing::h1(Lang::txt("LoginView_forgotPassword.title"));
-		Writing::p(Lang::txt("LoginView_forgotPassword.message"));
-		
-		// forgotten password form
-		$form = new Form("", $this->modePrefix() . "password");
-		$form->addElement(Lang::txt("LoginView_forgotPassword.email"), new Field("email", "", FieldType::EMAIL));
-		$form->write();
-	}
-	
-	function registration() {
-		/* check if user registration is on */
-		$user_reg = $this->getData()->getSysdata()->getDynamicConfigParameter("user_registration");
-		if($user_reg == 0) {
-			new BNoteError(Lang::txt("LoginView_registration.registration_deactivated"));
-		}
-		
-		Writing::h1(Lang::txt("LoginView_registration.title"));
-		
-		?>
+class LoginView extends AbstractView
+{
+
+    public function __construct($ctrl)
+    {
+        $this->setController($ctrl);
+    }
+
+    public function start()
+    {
+        include $GLOBALS["DIR_PRESENTATION"] . "logo.php";
+    }
+
+    public function showOptions()
+    {
+
+        // Login
+        $mod = "login";
+        if ($_GET["mod"] != $mod) {
+            $login = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.login"));
+            $login->write();
+            $this->buttonSpace();
+        }
+
+        // PW
+        $mod = "forgotPassword";
+        if ($_GET["mod"] != $mod) {
+            $pwForgot = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.forgotPassword"));
+            $pwForgot->write();
+            $this->buttonSpace();
+        }
+
+        // Registration
+        $mod = "registration";
+        /* check if user registration is on */
+        $user_reg = $this->getData()->getSysdata()->getDynamicConfigParameter("user_registration");
+        if ($user_reg == 1 && $_GET["mod"] != $mod) {
+            $reg = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.registration"));
+            $reg->write();
+            $this->buttonSpace();
+        }
+
+        // Terms
+        $mod = "terms";
+        if ($_GET["mod"] != $mod) {
+            $terms = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.terms"));
+            $terms->write();
+            $this->buttonSpace();
+        }
+
+        // Impressum
+        $mod = "impressum";
+        if ($_GET["mod"] != $mod) {
+            $imp = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.impressum"));
+            $imp->write();
+        }
+    }
+
+    public function login()
+    {
+
+        Writing::p(Lang::txt("LoginView_login.message_1"));
+
+        Writing::p(Lang::txt("LoginView_login.message_2"));
+
+        // login form
+        $form = new Form(Lang::txt("LoginView_login.Form"), $this->modePrefix() . "login");
+        $form->addElement(Lang::txt("LoginView_login.login"), new Field("login", "", FieldType::CHAR));
+        $form->addElement(Lang::txt("LoginView_login.password"), new Field("password", "", FieldType::PASSWORD));
+        $form->write();
+    }
+
+    public function forgotPassword()
+    {
+        Writing::h1(Lang::txt("LoginView_forgotPassword.title"));
+        Writing::p(Lang::txt("LoginView_forgotPassword.message"));
+
+        // forgotten password form
+        $form = new Form("", $this->modePrefix() . "password");
+        $form->addElement(Lang::txt("LoginView_forgotPassword.email"), new Field("email", "", FieldType::EMAIL));
+        $form->write();
+    }
+
+    public function registration()
+    {
+        /* check if user registration is on */
+        $user_reg = $this->getData()->getSysdata()->getDynamicConfigParameter("user_registration");
+        if ($user_reg == 0) {
+            new BNoteError(Lang::txt("LoginView_registration.registration_deactivated"));
+        }
+
+        Writing::h1(Lang::txt("LoginView_registration.title"));
+
+        ?>
 <form method="POST" action="<?php echo $this->modePrefix(); ?>register">
-		
+
 <script>
 	  <?php echo $this->getData()->getJSValidationFunctions(); ?>
-</script> 
-		
+</script>
+
 <p class="login"><?php echo Lang::txt("LoginView_registration.logintext"); ?></p>
 
 <table class="login">
@@ -157,25 +147,28 @@ class LoginView extends AbstractView {
 		<TD class="login"><?php echo Lang::txt("LoginView_registration.country"); ?> *</TD>
 		<td class="loginInput">
 			<?php
-			$dd = $this->buildCountryDropdown("");
-			echo $dd->write();
-			?>
+$dd = $this->buildCountryDropdown("");
+        echo $dd->write();
+        ?>
 		</td>
 	</TR>
 	<TR>
 		<TD class="login"><?php echo Lang::txt("LoginView_registration.instrument"); ?></TD>
 		<TD class="loginInput"><SELECT name="instrument">
 				<?php
-		$instruments = $this->getData()->getInstruments();
-		global $system_data;
-		$cats = $system_data->getInstrumentCategories();
-		for($i = 1; $i < count($instruments); $i++) {
-			// filter instruments of categories
-			if(!in_array($instruments[$i]["cat"], $cats)) continue;
-			echo '<OPTION value="' . $instruments[$i]["id"] . '">';
-			echo $instruments[$i]["category"] . ": " . $instruments[$i]["instrument"] . "</OPTION>\n";
-		}
-		?>
+$instruments = $this->getData()->getInstruments();
+        global $system_data;
+        $cats = $system_data->getInstrumentCategories();
+        for ($i = 1; $i < count($instruments); $i++) {
+            // filter instruments of categories
+            if (!in_array($instruments[$i]["cat"], $cats)) {
+                continue;
+            }
+
+            echo '<OPTION value="' . $instruments[$i]["id"] . '">';
+            echo $instruments[$i]["category"] . ": " . $instruments[$i]["instrument"] . "</OPTION>\n";
+        }
+        ?>
 		</SELECT>
 		</TD>
 	</TR>
@@ -214,62 +207,66 @@ class LoginView extends AbstractView {
 </table>
 </form>
 <?php
-	}
-	
-	function impressum() {
-		include "data/impressum.html";
-	}
-	
-	function terms() {
-		include "data/terms.html";
-	}
-	
-	public function gdpr() {
-		include "data/gdpr.php";
-	}
-	
-	public function extGdpr() {
-		?>
+}
+
+    public function impressum()
+    {
+        include "data/impressum.html";
+    }
+
+    public function terms()
+    {
+        include "data/terms.html";
+    }
+
+    public function gdpr()
+    {
+        include "data/gdpr.php";
+    }
+
+    public function extGdpr()
+    {
+        ?>
 		<style> #content_insets { margin-left: 1%; } </style>
 		<?php
-		Writing::h2(Lang::txt("LoginView_extGdpr.title"));
-		
-		// validate code
-		if(!isset($_GET["code"])) {
-			new BNoteError(Lang::txt("LoginView_extGdpr.error"));
-		}
-		$code = $_GET["code"];
-		
-		// process approval
-		if(isset($_GET["sub"]) && $_GET["sub"] == "ok") {
-			$this->getData()->gdprOk($code);
-			new Message(Lang::txt("LoginView_extGdpr.message_1"), Lang::txt("LoginView_extGdpr.message_2"));
-			return;
-		}
-		
-		// show acceptance
-		$contact = $this->getData()->findContactByCode($code);
-		if($contact == null) {
-			new BNoteError(Lang::txt("LoginView_extGdpr.codeerror"));
-		}
-		
-		Writing::p(Lang::txt("LoginView_extGdpr.codemessage"));
-		$dv = new Dataview();
-		$dv->addElement(Lang::txt("LoginView_extGdpr.name"), $contact["name"] . " " . $contact["surname"]);
-		$dv->addElement(Lang::txt("LoginView_extGdpr.nickname"), $contact["nickname"]);
-		$dv->addElement(Lang::txt("LoginView_extGdpr.phone"), $contact["phone"]);
-		$dv->addElement(Lang::txt("LoginView_extGdpr.fax"), $contact["fax"]);
-		$dv->addElement(Lang::txt("LoginView_extGdpr.mobile"), $contact["mobile"]);
-		$dv->addElement(Lang::txt("LoginView_extGdpr.business"), $contact["business"]);
-		$dv->addElement(Lang::txt("LoginView_extGdpr.email"), $contact["email"]);
-		$dv->addElement(Lang::txt("LoginView_extGdpr.web"), $contact["web"]);
-		$dv->addElement(Lang::txt("LoginView_extGdpr.street"), $contact["street"] . ", " . $contact["zip"] . " " . $contact["city"]);
-		$dv->addElement(Lang::txt("LoginView_extGdpr.birthday"), $contact["birthday"]);
-		$dv->write();
-		
-		$ok = new Link("?mod=extGdpr&sub=ok&code=$code", Lang::txt("LoginView_extGdpr.link"));
-		$ok->write();
-	}
+Writing::h2(Lang::txt("LoginView_extGdpr.title"));
+
+        // validate code
+        if (!isset($_GET["code"])) {
+            new BNoteError(Lang::txt("LoginView_extGdpr.error"));
+        }
+        $code = $_GET["code"];
+
+        // process approval
+        if (isset($_GET["sub"]) && $_GET["sub"] == "ok") {
+            $this->getData()->gdprOk($code);
+            new Message(Lang::txt("LoginView_extGdpr.message_1"), Lang::txt("LoginView_extGdpr.message_2"));
+            return;
+        }
+
+        // show acceptance
+        $contact = $this->getData()->findContactByCode($code);
+        if ($contact == null) {
+            new BNoteError(Lang::txt("LoginView_extGdpr.codeerror"));
+        }
+
+        Writing::p(Lang::txt("LoginView_extGdpr.codemessage"));
+        $dv = new Dataview();
+        $dv->addElement(Lang::txt("LoginView_extGdpr.name"), $contact["name"] . " " . $contact["surname"]);
+        $dv->addElement(Lang::txt("LoginView_extGdpr.nickname"), $contact["nickname"]);
+        $dv->addElement(Lang::txt("LoginView_extGdpr.phone"), $contact["phone"]);
+        $dv->addElement(Lang::txt("LoginView_extGdpr.fax"), $contact["fax"]);
+        $dv->addElement(Lang::txt("LoginView_extGdpr.mobile"), $contact["mobile"]);
+        $dv->addElement(Lang::txt("LoginView_extGdpr.business"), $contact["business"]);
+        $dv->addElement(Lang::txt("LoginView_extGdpr.email"), $contact["email"]);
+        $dv->addElement(Lang::txt("LoginView_extGdpr.web"), $contact["web"]);
+        $dv->addElement(Lang::txt("LoginView_extGdpr.street"), $contact["street"] . ", " . $contact["zip"] . " " . $contact["city"]);
+        $dv->addElement(Lang::txt("LoginView_extGdpr.birthday"), $contact["birthday"]);
+        $dv->write();
+
+        $ok = new Link("?mod=extGdpr&sub=ok&code=$code", Lang::txt("LoginView_extGdpr.link"));
+        $ok->write();
+    }
 }
 
 ?>
