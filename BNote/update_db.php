@@ -192,7 +192,7 @@ class UpdateDb {
 	function updateValue($table, $column, $strValue, $where) {
 		$query = "UPDATE `$table` SET $column = '$strValue' WHERE $where";
 		$res = $this->db->execute($query);
-		$this->message("Updated 'Mitglieder' and 'Externe' Group.");
+		$this->message("Updated $table.$column with new value $strValue.");
 	}
 	
 	function getNumberRows($table) {

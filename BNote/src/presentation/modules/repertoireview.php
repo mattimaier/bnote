@@ -141,7 +141,7 @@ class RepertoireView extends CrudRefView {
 	public function view() {
 		$song = $this->getData()->getSong($_GET["id"]);
 		?>
-		<h1><?php echo $song["title"]; ?> <span class="repertoire_song_composer_title"> <?php echo $song["composername"]; ?></span></h1>
+		<h1><?php echo urldecode($song["title"]); ?> <span class="repertoire_song_composer_title"> <?php echo $song["composername"]; ?></span></h1>
 		
 		<div class="repertoire_song_detailbox">
 			<div class="songbox_col">
@@ -184,7 +184,7 @@ class RepertoireView extends CrudRefView {
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.notes"); ?></div>
 				</div>
-				<div class="songbox_areavalue"><?php echo $song["notes"]; ?></div>
+				<div class="songbox_areavalue"><?php echo urldecode($song["notes"]); ?></div>
 			</div>
 			<div class="songbox_col">
 			<?php 
@@ -368,6 +368,8 @@ class RepertoireView extends CrudRefView {
 	
 	protected function editEntityForm($write=true) {
 		$song = $this->getData()->getSong($_GET["id"]);
+		$song["title"] = urldecode($song["title"]);
+		$song["notes"] = urldecode($song["notes"]);
 		
 		$form = new Form("Song bearbeiten", $this->modePrefix() . "edit_process&manualValid=true&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);
@@ -380,7 +382,8 @@ class RepertoireView extends CrudRefView {
 		$form->removeElement("composer");
 		$form->addElement(Lang::txt("RepertoireView_editEntityForm.composer"), new Field("composer",
 					$this->getData()->getComposerName($song["composer"]), FieldType::CHAR));
-		
+		$form->updateValueForElement("title", $song["title"]);
+		$form->updateValueForElement("notes", $song["notes"]);
 		$this->appendCustomFieldsToForm($form, 's', $song, false);
 		
 		if($write) {

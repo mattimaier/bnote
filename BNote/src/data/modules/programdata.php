@@ -69,7 +69,8 @@ class ProgramData extends AbstractData {
 					LEFT OUTER JOIN genre g ON s.genre = g.id ";
 		$query .= "WHERE ps.program = $pid ";
 		$query .= "ORDER BY ps.rank ASC";
-		return $this->database->getSelection($query);
+		$selection = $this->database->getSelection($query);
+		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
 	
 	function getSongsForProgramPrint($pid) {
@@ -77,7 +78,8 @@ class ProgramData extends AbstractData {
 		$query .= "FROM program_song ps JOIN song s ON ps.song = s.id ";
 		$query .= "WHERE ps.program = $pid ";
 		$query .= "ORDER BY ps.rank ASC";
-		return $this->database->getSelection($query);
+		$selection = $this->database->getSelection($query);
+		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
 	
 	function getProgramName($id) {
@@ -86,7 +88,8 @@ class ProgramData extends AbstractData {
 	
 	function getAllSongs() {
 		$query = "SELECT id, title, length FROM song ORDER BY title";
-		return $this->database->getSelection($query);
+		$selection = $this->database->getSelection($query);
+		return $this->urldecodeSelection($selection, array("title"));
 	}
 	
 	function addSongToProgram($pid) {

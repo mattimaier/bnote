@@ -170,7 +170,8 @@ class ProbenData extends AbstractLocationData {
 		$query = "SELECT s.id, s.title, rs.notes ";
 		$query .= "FROM rehearsal_song rs, song s ";
 		$query .= "WHERE rs.song = s.id AND rs.rehearsal = $rid";
-		return $this->database->getSelection($query);
+		$encodedSelection = $this->database->getSelection($query);
+		return $this->urldecodeSelection($encodedSelection, array("title", "notes"));
 	}
 	
 	function saveSongForRehearsal($sid, $rid, $notes) {

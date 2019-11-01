@@ -143,8 +143,10 @@ class Form implements iWriteable {
 	 *        	An array with the naming columns
 	 * @param string $selectedid
 	 *        	The id which is currently set, set -1 if none
+	 * @param boolean $urlencodedNameColumns
+	 * 			Set to true if the name column needs to be urldecoded
 	 */
-	public function setForeign($field, $table, $idcolumn, $namecolumns, $selectedid) {
+	public function setForeign($field, $table, $idcolumn, $namecolumns, $selectedid, $urlencodedNameColumns=FALSE) {
 		// check whether key even exists
 		if (! array_key_exists ( $field, $this->elements )) {
 			new BNoteError (Lang::txt("Form_setForeign.error"));
@@ -156,6 +158,9 @@ class Form implements iWriteable {
 		global $system_data;
 		$choices = $system_data->dbcon->getForeign ( $table, $idcolumn, $namecolumns );
 		foreach ( $choices as $id => $name ) {
+			if($urlencodedNameColumns) {
+				$name = urldecode($name);
+			}
 			$dropdown->addOption ( $name, $id );
 		}
 		if ($selectedid >= 0)
@@ -273,6 +278,10 @@ class Form implements iWriteable {
 	public function getValueForElement($name) {
 		$el = $this->elements [$name];
 		return $el->getValue ();
+	}
+	
+	public function updateValueForElement($name, $value) {
+		$this->elements[$name]->setValue($value);
 	}
 	
 	/**

@@ -823,4 +823,23 @@ abstract class AbstractData {
 			}
 		}
 	}
+	
+	/**
+	 * URL-decodes all values of the given fields. 
+	 * @param array $selection DB selection array.
+	 * @param array $fields Flat array with the names of the columns/fields to convert, e.g. "title", "notes" for songs.
+	 */
+	protected function urldecodeSelection($encodedSelection, $fields) {
+		$decodedData = array();
+		for($i = 0; $i < count($encodedSelection); $i++) {
+			$row = $encodedSelection[$i];
+			if($i > 0) {
+				foreach($fields as $j => $field) {
+					$row[$field] = urldecode($row[$field]);
+				}
+			}
+			array_push($decodedData, $row);
+		}
+		return $decodedData;
+	}
 }

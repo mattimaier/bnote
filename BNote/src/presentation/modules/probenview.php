@@ -553,7 +553,7 @@ class ProbenView extends CrudRefLocationView {
 		// add a song
 		$form = new Form(Lang::txt("ProbenView_practise.Form"), $this->modePrefix() . "view&tab=practise&id=" . $_GET["id"]);
 		$form->addElement("song", new Field("song", "", FieldType::REFERENCE));
-		$form->setForeign("song", "song", "id", "title", -1);
+		$form->setForeign("song", "song", "id", "title", -1, true);
 		$form->renameElement("song", Lang::txt("ProbenView_practise.song"));
 		$form->addElement(Lang::txt("ProbenView_practise.notes"), new Field("notes", "", FieldType::CHAR));
 		$form->write();

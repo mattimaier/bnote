@@ -40,7 +40,7 @@ class KommunikationController extends DefaultController {
 			if(count($songs) > 1) {
 				$ext = Lang::txt("KommunikationController_prepareMail.songs");
 				for($i = 1; $i < count($songs); $i++) {
-					$ext .= "<li>" . $songs[$i]["title"] . " (" . $songs[$i]["notes"] . ")</li>\n";
+					$ext .= "<li>" . urldecode($songs[$i]["title"]) . " (" . urldecode($songs[$i]["notes"]) . ")</li>\n";
 				}
 				$ext .= "</ul>\n";
 				$_POST["message"] .= "\n$ext";

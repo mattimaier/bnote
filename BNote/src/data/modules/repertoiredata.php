@@ -74,6 +74,9 @@ class RepertoireData extends AbstractData {
 		// convert title and composer
 		$values["composer"] = $this->modifyString($values["composer"]);
 		$values["title"] = $this->modifyString($values["title"]);
+		$values["notes"] = $this->modifyString($values["notes"]);
+		$values["title"] = urlencode($values["title"]);
+		$values["notes"] = urlencode($values["notes"]);
 		
 		// modify bpm
 		if($values["bpm"] == "") $values["bpm"] = 0;
@@ -109,6 +112,9 @@ class RepertoireData extends AbstractData {
 		
 		// convert title and composer
 		$values["title"] = $this->modifyString($values["title"]);
+		$values["notes"] = $this->modifyString($values["notes"]);
+		$values["title"] = urlencode($values["title"]);
+		$values["notes"] = urlencode($values["notes"]);
 		
 		if(isset($values["composer"]) && $values["composer"] != "") {
 			$values["composer"] = $this->modifyString($values["composer"]);
@@ -213,12 +219,15 @@ class RepertoireData extends AbstractData {
 		if(strpos($input, '"') >= 0) {
 			$str = str_replace("\"", "'", $input);
 		}
+		
+		// no HTML injection
 		if(strpos($str, "<") >= 0) {
-			$str = str_replace("<", "", $str); // no HTML injection
+			$str = str_replace("<", "", $str);
 		}
 		if(strpos($str, ">") >= 0) {
 			$str = str_replace(">", "", $str);
 		}
+		
 		return $str;
 	}
 	
@@ -324,7 +333,7 @@ class RepertoireData extends AbstractData {
 				$where .= "c.name LIKE \"%$value%\"";
 			}
 			else if($field == "title") {
-				$where .= "s.title LIKE \"%$value%\"";
+				$where .= 's.title LIKE "%' . urlencode($value) . '%"';
 			}
 			else if($type == FieldType::BOOLEAN) {
 				if($value >= 0) {
@@ -348,9 +357,13 @@ class RepertoireData extends AbstractData {
 			$query .= " LIMIT $offset,$pageSize";
 		}
 		
+		// get data and decode the encoded content
+		$encodedData = $this->database->getSelection($query);
+		$decodedData = $this->urldecodeSelection($encodedData, array("title", "notes"));
+		
 		return array(
 			"numFilters" => $numFilters,
-			"data" => $this->database->getSelection($query)
+			"data" => $decodedData
 		);
 	}
 	
@@ -477,6 +490,7 @@ class RepertoireData extends AbstractData {
 	
 	function exportData() {
 		$selection = $this->findAllJoinedOrdered(RepertoireData::getJoinedAttributes(), "title");
+		$selection = $this->urldecodeSelection($selection, array("title", "notes"));
 		return $this->appendCustomDataToSelection('s', $selection);
 	}
 }

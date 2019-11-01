@@ -1081,7 +1081,8 @@ abstract class AbstractBNA implements iBNA {
 			if($i == 0) continue; // header
 			$composerId = $song["composer"];
 			$song["composer"] = $repData -> getComposerName($composerId);
-			
+			$song["title"] = urldecode($song["title"]);
+			$song["notes"] = urldecode($song["notes"]);
 			$song["genre"] = "";
 			if(array_key_exists("genre", $song)) {
 				$genre = $repData->getGenre($song["genre"]);
@@ -1185,11 +1186,11 @@ abstract class AbstractBNA implements iBNA {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		
 		// semantic parameter mappings
-		$values["title"] = $title;
+		$values["title"] = urlencode($title);
 		$values["length"] = $length;
 		$values["bpm"] = $bpm == "" ? "0" : $bpm;
 		$values["music_key"] = $music_key;
-		$values["notes"] = $notes;
+		$values["notes"] = urlencode($notes);
 		$values["genre"] = $genre["id"];
 		$values["composer"] = $composer;
 		$values["status"] = $status["id"];
@@ -1606,6 +1607,8 @@ abstract class AbstractBNA implements iBNA {
 		$song = $repData->findByIdNoRef($id);
 		$song = $this->removeNumericKeys($song);
 		
+		$song["title"] = urldecode($song["title"]);
+		$song["notes"] = urldecode($song["notes"]);
 		$song["composer"] = $repData->getComposerName($song["composer"]);
 		
 		$genre = $repData->getGenre($song["genre"]);

@@ -93,7 +93,8 @@ class StartData extends AbstractLocationData {
 		$query = "SELECT s.id, s.title, rs.notes ";
 		$query .= "FROM rehearsal_song rs, song s ";
 		$query .= "WHERE rs.song = s.id AND rs.rehearsal = $rid";
-		return $this->database->getSelection($query);
+		$selection = $this->database->getSelection($query);
+		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
 	
 	function getRehearsalParticipants($rid) {
@@ -268,7 +269,8 @@ class StartData extends AbstractLocationData {
 		$query .= "FROM song s, program_song ps, composer c ";
 		$query .= "WHERE ps.program = $pid AND ps.song = s.id AND s.composer = c.id ";
 		$query .= "ORDER BY ps.rank ASC";
-		return $this->database->getSelection($query);
+		$selection = $this->database->getSelection($query);
+		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
 	
 	function getRehearsal($rid) {

@@ -167,7 +167,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	// write songs to practise in notes
 	$notes .= "Bitte folgende Stücke üben: ";
 	for($j = 1; $j < count($songs); $j++) {
-		$notes .= $songs[$j]["title"] . "\\, ";
+		$notes .= urldecode($songs[$j]["title"]) . "\\, ";
 	}
 	if(count($songs) > 1) {
 		$notes = substr($notes, 0, strlen($notes)-2);
@@ -393,7 +393,7 @@ for($i = 1; $i < count($concerts); $i++) {
 		$setlist = "\r\n\r\nProgramm: \r\n";
 		
 		foreach($songs as $j => $song) {
-			$setlist .= $song["title"] . "\r\n";
+			$setlist .= urldecode($song["title"]) . "\r\n";
 		}
 		
 		$comment .= $setlist;
