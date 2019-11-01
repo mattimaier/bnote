@@ -170,6 +170,9 @@ class Translation extends BNoteTranslation {
 			// Vcard			
 			"vcard_input.deniedMsg" => "You have no permission to export the contacts!",
 			
+			// Calendar CSV
+			"calendar-csv.rehearsal" => "Rehearsal",
+			
 			// Export *************************************************************************************************************************************************
 			
 			// Memberlist	
