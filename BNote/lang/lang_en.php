@@ -520,9 +520,10 @@ class Translation extends BNoteTranslation {
 			"AccommodationData_construct.notes" => "Notes",
 			
 			// AccommodationView
-			"AccommodationView_construct.EntityName" => "Overnight",				
-			"AccommodationView_viewDetailTable.locationname" => "Accommodationname",
-			"AccommodationView_viewDetailTable.tourname" => "Tour",				
+			"AccommodationView_construct.EntityName" => "Accommodation",
+			"AccommodationView_construct.addEntityName" => "Add accommodation",
+			"AccommodationView_viewDetailTable.locationname" => "Accommodation name",
+			"AccommodationView_viewDetailTable.tourname" => "Tour",	
 			"AccommodationView_showAllTable.locationname" => "Accommodation",
 			
 			// module: Appointment *********************************************
@@ -1890,7 +1891,7 @@ class Translation extends BNoteTranslation {
 			"TourData_construct.notes" => "Notes",
 			
 			// TourView
-			"TourView_construct.addEntityName" => "Tour",				
+			"TourView_construct.EntityName" => "Tour",				
 			"TourView_construct.addEntityName" => "Add Tour",	
 			"TourView_view.details" => "Details",
 			"TourView_view.rehearsals" => "Rehearsal",

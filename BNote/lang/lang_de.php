@@ -519,7 +519,8 @@ class Translation extends BNoteTranslation {
 			"AccommodationData_construct.notes" => "Notizen",
 			
 			// AccommodationView
-			"AccommodationView_construct.EntityName" => "Übernachtung",				
+			"AccommodationView_construct.EntityName" => "Übernachtung",
+			"AccommodationView_construct.addEntityName" => "Übernachtung hinzufügen",
 			"AccommodationView_viewDetailTable.locationname" => "Unterkunftsname",
 			"AccommodationView_viewDetailTable.tourname" => "Tour",				
 			"AccommodationView_showAllTable.locationname" => "Unterkunft",
@@ -1889,7 +1890,7 @@ class Translation extends BNoteTranslation {
 			"TourData_construct.notes" => "Notizen",
 			
 			// TourView
-			"TourView_construct.addEntityName" => "Tour",				
+			"TourView_construct.EntityName" => "Tour",				
 			"TourView_construct.addEntityName" => "Tour hinzufügen",	
 			"TourView_view.details" => "Details",
 			"TourView_view.rehearsals" => "Probe",
@@ -1955,6 +1956,7 @@ class Translation extends BNoteTranslation {
 
 			// TravelView	
 			"TravelView_construct.EntityName" => "Transfer",
+			"TravelView_construct.addEntityName" => "Transfer hinzufügen",
 			"TravelView_viewDetailTable.tourname" => "Tour",
 			
 			// TravelData			

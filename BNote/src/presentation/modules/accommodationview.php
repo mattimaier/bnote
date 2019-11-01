@@ -8,6 +8,7 @@ class AccommodationView extends CrudRefView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("AccommodationView_construct.EntityName"));
+		$this->setAddEntityName(Lang::txt("AccommodationView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
 			"tour" => array("id", "name")

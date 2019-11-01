@@ -60,7 +60,7 @@ abstract class CrudView extends AbstractView {
 	}
 	
 	protected function startOptions() {
-		$add = new Link($this->modePrefix() . "addEntity", Lang::txt($this->getaddEntityName()));
+		$add = new Link($this->modePrefix() . "addEntity", Lang::txt($this->getAddEntityName()));
 		$add->addIcon("plus");
 		$add->write();
 	}
@@ -190,8 +190,7 @@ abstract class CrudView extends AbstractView {
 		$this->getData()->update($_GET[$this->idParameter], $_POST);
 		
 		// show success
-		new Message($this->entityName . " " . Lang::txt("CrudView_edit_process.delete_changed"),
-						Lang::txt("CrudView_edit_process.delete_changed"));
+		new Message($this->entityName, Lang::txt("CrudView_edit_process.delete_changed"));
 	}
 	
 	public function delete_confirm() {
