@@ -997,11 +997,15 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	function getMembers() {
-		$msd = new MitspielerData($GLOBALS["dir_prefix"]);
-		$contacts = $msd->getMembers($this->uid);
-		unset($contacts[0]);  // header
-		
-		$contacts = $this->removeNumericKeys($contacts);
+		if(!$this->sysdata->userHasPermission($this->sysdata->getModuleId("Mitspieler"))) {
+			$contacts = array();
+		}
+		else {
+			$msd = new MitspielerData($GLOBALS["dir_prefix"]);
+			$contacts = $msd->getMembers($this->uid);
+			unset($contacts[0]);  // header
+			$contacts = $this->removeNumericKeys($contacts);
+		}
 		$this->printEntities($contacts, "contacts");
 		return $contacts;
 	}
