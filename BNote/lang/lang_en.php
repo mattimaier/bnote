@@ -1979,7 +1979,7 @@ class Translation extends BNoteTranslation {
 			"UserData_construct.contact" => "Contact",
 			"UserData_construct.lastlogin" => "Last logged in",
 			"UserData_create.error_1" => "The specified username is invalid.",
-			"UserData_create.error_2" => "The specified password is invalid (at least 6 characters required)",
+			"UserData_create.error_2" => "The specified password is invalid (at least 6 characters required, some special characters not allowed)",
 			"UserData_create.error_3" => "Please select a contact",
 			"UserData_create.error_4" => "The username is already in use",
 			"UserData_create.error_5" => "The given password is not sufficient",

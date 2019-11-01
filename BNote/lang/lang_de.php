@@ -1978,7 +1978,7 @@ class Translation extends BNoteTranslation {
 			"UserData_construct.contact" => "Kontakt",
 			"UserData_construct.lastlogin" => "Zuletzt Angemeldet",
 			"UserData_create.error_1" => "Der angegebene Benutzername ist ungültig.",
-			"UserData_create.error_2" => "Das angegebene Passwort ist ungültig (mindestens 6 Zeichen notwendig).",
+			"UserData_create.error_2" => "Das angegebene Passwort ist ungültig (mindestens 6 Zeichen notwendig, Sonderzeichen nur beschränkt zulässig wie z.B. !,._+).",
 			"UserData_create.error_3" => "Bitte wähle einen Kontakt aus.",
 			"UserData_create.error_4" => "Der Benutzername wird bereits verwendet!",
 			"UserData_create.error_5" => "Das angegebene Password ist nicht ausreichend.",

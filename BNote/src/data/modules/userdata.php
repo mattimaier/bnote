@@ -50,7 +50,7 @@ class UserData extends AbstractData {
 	function create($values) { // values and $_POST is the same
 		// Do a manual validation
 		if(!$this->regex->isLogin($values["login"])) new BNoteError(Lang::txt("UserData_create.error_1"));
-		if(!$this->regex->isPassword($values["password"])) new BNoteError(Lang::txt("UserData_create.error_2"));
+		$this->checkPassword($values["password"]);
 		if(!isset($values["contact"]) || $values["contact"] == "") new BNoteError(Lang::txt("UserData_create.error_3"));
 		
 		// check that the login is not taken
@@ -91,7 +91,16 @@ class UserData extends AbstractData {
 		mkdir($this->getSysdata()->getUsersHomeDir($userId));
 	}
 	
-	function update($id, $values) { // $values is the same than $_POST		
+	private function checkPassword($password) {
+		if(!$this->regex->isPasswordQuiet($password)) {
+			new BNoteError(Lang::txt("UserData_create.error_2"));
+		}
+	}
+	
+	function update($id, $values) { // $values is the same than $_POST
+		// validation
+		$this->checkPassword($values["password"]);
+		
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& $this->getSysdata()->isUserSuperUser($_GET["id"])) {

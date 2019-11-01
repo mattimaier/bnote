@@ -48,8 +48,8 @@ class Regex {
 		$this->regex ["bankno"] = '/^[a-zA-Z0-9\ ]{5,30}$/';
 		
 		$this->regex ["kdnr"] = '/^\d{4}-\d{3,6}$/';
-		$this->regex ["password"] = '/^[[:alpha:]' . Regex::$SPECIALCHARACTERS . '0-9\ \.\-\,\;\:\_\+\&\#\'\/]{6,45}$/';
-		$this->regex_js ["password"] = '^[\\\w' . Regex::$SPECIALCHARACTERS . '\\\s\\\.\\\-\\\,\\\;\\\:\\\_\\\+\\\&\\\\#\\\'\\\/]{6,45}$';
+		$this->regex ["password"] = '/^[[:alpha:]' . Regex::$SPECIALCHARACTERS . '0-9\ \.\-\,\;\:\_\+\&\#\'\/\!\$]{6,45}$/';
+		$this->regex_js ["password"] = '^[\\\w' . Regex::$SPECIALCHARACTERS . '\\\s\\\.\\\-\\\,\\\;\\\:\\\_\\\+\\\&\\\\#\\\'\\\/\\\!\\\$]{6,45}$';
 		
 		$this->regex ["login"] = '/^[[:alnum:]\.\-\_]{3,45}$/';
 		$this->regex_js ["login"] = '^[\\\w\\\.\\\-\\\_]{3,45}$';
@@ -65,14 +65,13 @@ class Regex {
 				"date",
 				"datetime" 
 		);
-		if (in_array ( $type, $langTypes )) {
+		if(in_array($type, $langTypes)) {
 			$re = Lang::regex ( $type );
 		}
 		
-		if (empty ( $d ) || ! preg_match ( $re, $d )) {
-			if ($type == "password")
-				$d = "-";
-			$this->fail ( $d, $type );
+		if(empty($d) || !preg_match($re, $d)) {
+			if($type == "password") $d = "-";
+			$this->fail($d, $type);
 		} else {
 			return true;
 		}
@@ -142,6 +141,9 @@ class Regex {
 	}
 	public function isPassword($d) {
 		return $this->isCorrect ( $d, "password" );
+	}
+	public function isPasswordQuiet($d) {
+		return preg_match($this->regex["password"], $d);
 	}
 	public function isLogin($d) {
 		return $this->isCorrect ( $d, "login" );
