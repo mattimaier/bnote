@@ -1791,5 +1791,4 @@ abstract class AbstractBNA implements iBNA {
 	}
 }
 
-
 ?>

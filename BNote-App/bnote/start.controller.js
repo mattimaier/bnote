@@ -8,6 +8,10 @@ sap.ui.controller("bnote.start", {
         	url: backend.get_url("getAll"),
         	success: function(response) {
         		var data = response.data;
+				if(data == null && response != "") {
+					var body = JSON.parse(response);
+					data = body.data;
+				}
                 var rehearsals = data[0]['rehearsals'];
                 var concerts = data[1]['concerts'];
                 var tasks = data[4]['task'];
