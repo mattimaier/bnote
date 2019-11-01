@@ -492,19 +492,19 @@ class KonzerteView extends CrudRefLocationView {
 		
 		// ************* MASTER DATA *************
 		$title_field = new Field("title", "", FieldType::CHAR);
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.title"), $title_field);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.title"), $title_field, true);
 		$begin_field = new Field("begin", "", FieldType::DATETIME);
 		$begin_field->setCssClass("copyDateOrigin");
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.begin"), $begin_field);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.begin"), $begin_field, true);
 		$end_field = new Field("end", "", FieldType::DATETIME);
 		$end_field->setCssClass("copyDateTarget");
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.copyDateTarget"), $end_field);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.copyDateTarget"), $end_field, true);
 		$approve_field = new Field("approve_until", "", FieldType::DATETIME);
 		$approve_field->setCssClass("copyDateTarget");
 		$meetingtime = new Field("meetingtime", "", FieldType::DATETIME);
 		$meetingtime->setCssClass("copyDateTarget");
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.meetingtime_from"), $meetingtime);
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.meetingtime_to"), $approve_field);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.meetingtime_from"), $meetingtime, true);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.meetingtime_to"), $approve_field, true);
 		$notesField = new Field("notes", "", FieldType::TEXT);
 		$notesField->setColsAndRows(5, 40);
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.notes"), $notesField);
@@ -520,7 +520,7 @@ class KonzerteView extends CrudRefLocationView {
 			$l = $loc["name"] . ": " . $this->formatAddress($loc);
 			$dd1->addOption($l, $loc["id"]);
 		}
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.location"), $dd1);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.location"), $dd1, true);
 		
 		// choose contact
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.organizer"), new Field("organizer", "", FieldType::CHAR));
@@ -530,7 +530,7 @@ class KonzerteView extends CrudRefLocationView {
 			$label = $this->formatContact($contacts[$i], "NAME_COMM");
 			$dd2->addOption($label, $contacts[$i]["id"]);
 		}
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.contact"), $dd2);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.contact"), $dd2, true);
 		
 		// choose accommodation
 		$dd3 = new Dropdown("accommodation");
@@ -548,7 +548,7 @@ class KonzerteView extends CrudRefLocationView {
 		// ************* ORGANISATION *************
 		// choose members
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.group"), $gs);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.group"), $gs, true);
 		
 		// chosse program
 		$dd4 = new Dropdown("program");

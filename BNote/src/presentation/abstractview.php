@@ -178,7 +178,7 @@ abstract class AbstractView {
 			// generate the element based on the type
 			$element = new Field($techName, $default, $this->getData()->fieldTypeFromCustom($field["fieldtype"]));
 			
-			$form->addElement($field["txtdefsingle"], $element);
+			$form->addElement($field["txtdefsingle"], $element, true);
 		}
 	}
 	

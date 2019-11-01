@@ -56,7 +56,7 @@ class Regex {
 		
 		$this->regex ["dbid"] = '/^[0-9]{1,11}$/';
 	}
-	private function isCorrect($d, $type) {
+	private function isCorrect($d, $type, $k = NULL) {
 		$re = $this->regex [$type];
 		$langTypes = array (
 				"positive_amount",
@@ -71,35 +71,35 @@ class Regex {
 		
 		if(empty($d) || !preg_match($re, $d)) {
 			if($type == "password") $d = "-";
-			$this->fail($d, $type);
+			$this->fail($d, $type, $k);
 		} else {
 			return true;
 		}
 	}
 	
 	// Default Methods to check against data fraud
-	public function isStreet($d) {
-		return $this->isCorrect ( $d, "street" );
+	public function isStreet($d, $k=NULL) {
+		return $this->isCorrect($d, "street", $k);
 	}
-	public function isZip($d) {
-		return $this->isCorrect ( $d, "zip" );
+	public function isZip($d, $k=NULL) {
+		return $this->isCorrect ( $d, "zip", $k );
 	}
-	public function isCity($d) {
-		return $this->isCorrect ( $d, "city" );
+	public function isCity($d, $k=NULL) {
+		return $this->isCorrect ( $d, "city", $k );
 	}
-	public function isPhone($d) {
-		return $this->isCorrect ( $d, "phone" );
+	public function isPhone($d, $k=NULL) {
+		return $this->isCorrect ( $d, "phone", $k );
 	}
-	public function isEmail($d) {
-		return $this->isCorrect ( $d, "email" );
+	public function isEmail($d, $k=NULL) {
+		return $this->isCorrect ( $d, "email", $k );
 	}
-	public function isPositiveAmount($d) {
-		return $this->isCorrect ( $d, "positive_amount" );
+	public function isPositiveAmount($d, $k=NULL) {
+		return $this->isCorrect ( $d, "positive_amount", $k );
 	}
-	public function isSignedAmount($d) {
-		return $this->isCorrect ( $d, "signed_amount" );
+	public function isSignedAmount($d, $k=NULL) {
+		return $this->isCorrect ( $d, "signed_amount", $k );
 	}
-	public function isMoney($d) {
+	public function isMoney($d, $k=NULL) {
 		// receives a decimal in language format
 		$dbDecimal = Data::convertToDb ( $d );
 		$match = preg_match ( $this->regex ['moneyEnglish'], $dbDecimal );
@@ -108,48 +108,48 @@ class Regex {
 		} else if ($match == 0) {
 			new BNoteError ( "Betrag nicht erkannt." );
 		} else {
-			$this->fail ( $d, "Betrag" );
+			$this->fail($d, "Betrag", $k);
 		}
 		return false;
 	}
-	public function isDate($d) {
-		return $this->isCorrect ( $d, "date" );
+	public function isDate($d, $k=NULL) {
+		return $this->isCorrect ( $d, "date", $k );
 	}
-	public function isTime($d) {
-		return $this->isCorrect ( $d, "time" );
+	public function isTime($d, $k=NULL) {
+		return $this->isCorrect ( $d, "time", $k );
 	}
-	public function isDateTime($d) {
-		return $this->isCorrect ( $d, "datetime" );
+	public function isDateTime($d, $k=NULL) {
+		return $this->isCorrect ( $d, "datetime", $k );
 	}
-	public function isSubject($d) {
-		return $this->isCorrect ( $d, "subject" );
+	public function isSubject($d, $k=NULL) {
+		return $this->isCorrect ( $d, "subject", $k );
 	}
-	public function isName($d) {
-		return $this->isCorrect ( $d, "name" );
+	public function isName($d, $k=NULL) {
+		return $this->isCorrect ( $d, "name", $k );
 	}
-	public function isShortName($d) {
-		return $this->isCorrect ( $d, "short_name" );
+	public function isShortName($d, $k=NULL) {
+		return $this->isCorrect ( $d, "short_name", $k );
 	}
-	public function isAccountNo($d) {
-		return $this->isCorrect ( $d, "accountno" );
+	public function isAccountNo($d, $k=NULL) {
+		return $this->isCorrect ( $d, "accountno", $k );
 	}
-	public function isBankNo($d) {
-		return $this->isCorrect ( $d, "bankno" );
+	public function isBankNo($d, $k=NULL) {
+		return $this->isCorrect ( $d, "bankno", $k );
 	}
-	public function isKdnr($d) {
-		return $this->isCorrect ( $d, "kdnr" );
+	public function isKdnr($d, $k=NULL) {
+		return $this->isCorrect ( $d, "kdnr", $k );
 	}
-	public function isPassword($d) {
-		return $this->isCorrect ( $d, "password" );
+	public function isPassword($d, $k=NULL) {
+		return $this->isCorrect ( $d, "password", $k );
 	}
-	public function isPasswordQuiet($d) {
+	public function isPasswordQuiet($d, $k=NULL) {
 		return preg_match($this->regex["password"], $d);
 	}
-	public function isLogin($d) {
-		return $this->isCorrect ( $d, "login" );
+	public function isLogin($d, $k=NULL) {
+		return $this->isCorrect ( $d, "login", $k );
 	}
-	public function isDatabaseId($d) {
-		return $this->isCorrect ( $d, "dbid" );
+	public function isDatabaseId($d, $k=NULL) {
+		return $this->isCorrect ( $d, "dbid", $k );
 	}
 	
 	// Methods for special testing
@@ -187,19 +187,19 @@ class Regex {
 	 * @param data $d
 	 *        	The data to test
 	 */
-	public function isText($d) {
+	public function isText($d, $k=NULL) {
 		$fail = array ();
 		
 		// $fail[0] = "'"; // check for '
-		$fail [1] = "\""; // check for "
-		$fail [2] = "\\"; // check for \
+		$fail[1] = "\""; // check for "
+		$fail[2] = "\\"; // check for \
 		                 
 		// output / return
 		foreach ( $fail as $char ) {
 			if (strpos ( $d, $char ) === false)
 				continue;
 			else {
-				$this->fail ( $d, "Text >" . $char . "<" );
+				$this->fail($d, "Text >" . $char . "<", $k);
 				return false;
 			}
 		}
@@ -248,8 +248,12 @@ class Regex {
 	 * @param unknown_type $type
 	 *        	The fieldtype which is wrong
 	 */
-	private function fail($d, $type) {
-		new BNoteError ( Lang::txt("Regex_fail.error") . "($type / $d)" );
+	private function fail($d, $type, $k = NULL) {
+		$msg = Lang::txt("Regex_fail.error") . "[$type / $d]";
+		if($k != NULL) {
+			$msg = Lang::txt("Regex_fail.error") . "[$k / $type]";
+		}
+		new BNoteError($msg);
 	}
 	
 	/**

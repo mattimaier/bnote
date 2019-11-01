@@ -61,8 +61,9 @@ class Form implements iWriteable {
 	 * @param iWriteable $element
 	 *        	Reference to an iWriteable implementing object
 	 */
-	public function addElement($name, $element) {
+	public function addElement($name, $element, $required=False) {
 		$this->elements[$name] = $element;
+		$this->setFieldRequired($name, $required);
 	}
 	public function getElement($name) {
 		if(isset($this->elements[$name])) {

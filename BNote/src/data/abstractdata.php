@@ -527,19 +527,19 @@ abstract class AbstractData {
 			if($value == "") return;
 		}
 		switch($type) {
-			case FieldType::INTEGER: $this->regex->isPositiveAmount($value); break;
-			case FieldType::DECIMAL: $this->regex->isMoney($value); break;
-			case FieldType::CHAR: $this->regex->isName($value); break;
-			case FieldType::DATE: $this->regex->isDate(trim($value)); break;
-			case FieldType::TIME: $this->regex->isTime(trim($value)); break;
-			case FieldType::DATETIME: $this->regex->isDateTime(trim($value)); break;
-			case FieldType::REFERENCE: if($value != "null") $this->regex->isPositiveAmount($value); break;
-			case FieldType::EMAIL: $this->regex->isEmail($value); break;
+			case FieldType::INTEGER: $this->regex->isPositiveAmount($value, $k); break;
+			case FieldType::DECIMAL: $this->regex->isMoney($value, $k); break;
+			case FieldType::CHAR: $this->regex->isName($value, $k); break;
+			case FieldType::DATE: $this->regex->isDate(trim($value), $k); break;
+			case FieldType::TIME: $this->regex->isTime(trim($value), $k); break;
+			case FieldType::DATETIME: $this->regex->isDateTime(trim($value), $k); break;
+			case FieldType::REFERENCE: if($value != "null") $this->regex->isPositiveAmount($value, $k); break;
+			case FieldType::EMAIL: $this->regex->isEmail($value, $k); break;
 			case FieldType::PASSWORD: // only check if password is not empty.
-				if(isset($value) && $value != "") $this->regex->isPassword($value);
+				if(isset($value) && $value != "") $this->regex->isPassword($value, $k);
 				break;
-			case FieldType::LOGIN: $this->regex->isLogin($value); break;
-			default: $this->regex->isText($value); break;
+			case FieldType::LOGIN: $this->regex->isLogin($value, $k); break;
+			default: $this->regex->isText($value, $k); break;
 		}
 	}
 	

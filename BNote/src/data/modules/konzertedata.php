@@ -131,33 +131,33 @@ class KonzerteData extends AbstractLocationData {
 	
 	function validate($values) {
 		// Manual Validation
-		$this->regex->isSubject($values["title"]);
-		$this->regex->isDateTime($values["begin"]);
-		$this->regex->isDateTime($values["end"]);
-		$this->regex->isDateTime($values["approve_until"]);
-		$this->regex->isDateTime($values["meetingtime"]);
+		$this->regex->isSubject($values["title"], "title");
+		$this->regex->isDateTime($values["begin"], "begin");
+		$this->regex->isDateTime($values["end"], "end");
+		$this->regex->isDateTime($values["approve_until"], "approve_until");
+		$this->regex->isDateTime($values["meetingtime"], "meetingtime");
 		if(isset($values["notes"]) && $values["notes"] != "") {
-			$this->regex->isText($values["notes"]);
+			$this->regex->isText($values["notes"], "notes");
 		}
 		$this->regex->isPositiveAmount($values["location"]);  // location ID
 		if(isset($values["organizer"]) && $values["organizer"] != "") {
-			$this->regex->isSubject($values["organizer"]);
+			$this->regex->isSubject($values["organizer"], "organizer");
 		}
 		$this->regex->isPositiveAmount($values["contact"]);  // contact ID
 		if(isset($values["accommodation"]) && $values["accommodation"] > 0) {
-			$this->regex->isPositiveAmount($values["accommodation"]);
+			$this->regex->isPositiveAmount($values["accommodation"], "accommodation");
 		}
 		if(isset($values["program"]) && $values["program"] > 0) {
-			$this->regex->isPositiveAmount($values["program"]);
+			$this->regex->isPositiveAmount($values["program"], "program");
 		}
 		if(isset($values["outfit"]) && $values["outfit"] > 0) {
-			$this->regex->isPositiveAmount($values["outfit"]);
+			$this->regex->isPositiveAmount($values["outfit"], "outfit");
 		}
 		if(isset($values["payment"]) && $values["payment"] != "") {
-			$this->regex->isMoney($values["payment"]);
+			$this->regex->isMoney($values["payment"], "payment");
 		}
 		if(isset($values["conditions"]) && $values["conditions"] != "") {
-			$this->regex->isText($values["conditions"]);
+			$this->regex->isText($values["conditions"], "conditions");
 		}
 		$this->validateCustomData($values, $this->getCustomFields(KonzerteData::$CUSTOM_DATA_OTYPE));
 	}
