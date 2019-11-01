@@ -10,8 +10,8 @@ class RecpayData extends AbstractData {
 			"id" => array(Lang::txt("RecpayData_construct.id"), FieldType::INTEGER),
 			"subject" => array(Lang::txt("RecpayData_construct.subject"), FieldType::CHAR),
 			"account" => array(Lang::txt("RecpayData_construct.account"), FieldType::REFERENCE),
-			"amount_net" => array(Lang::txt("RecpayData_construct.amount_net"), FieldType::DECIMAL),
-			"amount_tax" => array(Lang::txt("RecpayData_construct.amount_tax"), FieldType::DECIMAL),
+			"amount_net" => array(Lang::txt("RecpayData_construct.amount_net"), FieldType::CURRENCY, true),
+			"amount_tax" => array(Lang::txt("RecpayData_construct.amount_tax"), FieldType::CURRENCY, true),
 			"btype" => array(Lang::txt("RecpayData_construct.btype"), FieldType::ENUM),
 			"otype" => array(Lang::txt("RecpayData_construct.otype"), FieldType::ENUM),
 			"oid" => array(Lang::txt("RecpayData_construct.oid"), FieldType::CHAR),
@@ -163,8 +163,8 @@ class RecpayData extends AbstractData {
 			$recpay = $this->database->getRow("SELECT * FROM " . $this->table . " WHERE id = $id");
 			$recpay["bdate"] = $_POST["bdate"];
 			// convert to local decimal as if it was sent from the form
-			$recpay["amount_net"] = Data::convertFromDb($recpay["amount_net"]);
-			$recpay["amount_tax"] = Data::convertFromDb($recpay["amount_tax"]);
+			$recpay["amount_net"] = $recpay["amount_net"];
+			$recpay["amount_tax"] = $recpay["amount_tax"];
 			$finData->addBooking($recpay);
 		}
 	}

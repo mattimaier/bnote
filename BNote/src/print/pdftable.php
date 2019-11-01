@@ -139,7 +139,7 @@ class PDFTable {
 
 				// Set align right, when values are decimal
 				if(isset($this->data[1][$col]) && $regex->isNumber($this->data[1][$col]) &&
-					(!isset($this->colType[$col]) || $this->colType[$col] == FieldType::DECIMAL
+					(!isset($this->colType[$col]) || $this->colType[$col] == FieldType::DECIMAL || $this->colType[$col] == FieldType::CURRENCY
 						 || $this->colType[$col] == FieldType::INTEGER)) {
 					$align = 'R';
 					if($regex->isInteger($value)) {

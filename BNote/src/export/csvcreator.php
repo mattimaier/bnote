@@ -77,7 +77,7 @@ class CsvCreator {
 					if($type == FieldType::DATE || $type == FieldType::DATETIME || $type == FieldType::TIME) {
 						$entry = Data::convertDateFromDb($entry);
 					}
-					else if($type == FieldType::DECIMAL) {
+					else if($type == FieldType::DECIMAL || $type == FieldType::CURRENCY) {
 						$entry = Data::convertFromDb($entry);
 					}
 				}

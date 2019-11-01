@@ -111,7 +111,7 @@ class FinanceView extends CrudView {
 				<div class="finance_filter_row">
 					<label for="from"><?php echo Lang::txt("FinanceView_finance_filter_box.date_from"); ?></label>
 					<input type="date" name="from" value="<?php echo $default_from; ?>" />
-					<label for="to" style="width: 30px;"><?php echo Lang::txt("FinanceView_finance_filter_box._box.date_to"); ?></label>
+					<label for="to" style="width: 30px;"><?php echo Lang::txt("FinanceView_finance_filter_box.date_to"); ?></label>
 					<input type="date" name="to" value="<?php echo $default_to; ?>" />
 				</div>
 				<div class="finance_filter_row">
@@ -156,7 +156,7 @@ class FinanceView extends CrudView {
 		$table->renameHeader("oid", Lang::txt("FinanceView_Table_booking.oid"));
 		$table->renameHeader("notes", Lang::txt("FinanceView_Table_booking.notes"));
 		$table->allowWordwrap(false);
-		$table->setColumnFormat("amount", "DECIMAL");
+		$table->setColumnFormat("amount", "CURRENCY");
 		$table->setColumnFormat("id", "TEXT");
 		$table->setOptionColumnNames(array("cancel"));
 		$table->write();
@@ -167,10 +167,14 @@ class FinanceView extends CrudView {
 		Writing::h3(Lang::txt("FinanceView_Table_metrics.header"));
 		$metrics = $this->getData()->findBookingsMetrics($default_from, $default_to, $accId, $default_otype, $default_oid);
 		$mtab = new Table($metrics);
+		$mtab->showFilter(false);
 		$mtab->renameHeader("btype", Lang::txt("FinanceView_Table_metrics.btype"));
 		$mtab->renameHeader("total_net", Lang::txt("FinanceView_Table_metrics.amount_net"));
 		$mtab->renameHeader("total_tax", Lang::txt("FinanceView_Table_metrics.amount_tax"));
 		$mtab->renameHeader("total", Lang::txt("FinanceView_Table_metrics.amount_total"));
+		$mtab->setColumnFormat("total_net", "CURRENCY");
+		$mtab->setColumnFormat("total_tax", "CURRENCY");
+		$mtab->setColumnFormat("total", "CURRENCY");
 		$mtab->write();
 	}
 	
@@ -208,8 +212,8 @@ class FinanceView extends CrudView {
 		$form->autoAddElementsNew(array(
 			"bdate" => array(Lang::txt("FinanceView_addBooking.bdate"), FieldType::DATE, true),
 			"subject" => array(Lang::txt("FinanceView_addBooking.subject"), FieldType::CHAR, true),
-			"amount_net" => array(Lang::txt("FinanceView_addBooking.amount_net"), FieldType::DECIMAL, true),
-			"amount_tax" => array(Lang::txt("FinanceView_addBooking.amount_tax"), FieldType::DECIMAL, true),
+			"amount_net" => array(Lang::txt("FinanceView_addBooking.amount_net"), FieldType::CURRENCY, true),
+			"amount_tax" => array(Lang::txt("FinanceView_addBooking.amount_tax"), FieldType::CURRENCY, true),
 			"notes" => array(Lang::txt("FinanceView_addBooking.notes"), FieldType::CHAR)
 		));
 		$form->setFieldValue("amount_tax", "0,00");
@@ -258,8 +262,8 @@ class FinanceView extends CrudView {
 		
 		$form->addElement(Lang::txt("FinanceView_transfer.bdate"), new Field("bdate", "", FieldType::DATE));
 		$form->addElement(Lang::txt("FinanceView_transfer.subject"), new Field("subject", "", FieldType::CHAR));
-		$form->addElement(Lang::txt("FinanceView_transfer.amount_net"), new Field("amount_net", "0,00", FieldType::DECIMAL));
-		$form->addElement(Lang::txt("FinanceView_transfer.amount_tax"), new Field("amount_tax", "0,00", FieldType::DECIMAL));
+		$form->addElement(Lang::txt("FinanceView_transfer.amount_net"), new Field("amount_net", "0,00", FieldType::CURRENCY));
+		$form->addElement(Lang::txt("FinanceView_transfer.amount_tax"), new Field("amount_tax", "0,00", FieldType::CURRENCY));
 		
 		$form->write();
 	}
@@ -395,21 +399,21 @@ class FinanceView extends CrudView {
 		$mtab = new Table($sumMetrics);
 		$mtab->renameHeader("account", Lang::txt("FinanceView_multireportResult.account"));
 		$mtab->renameHeader("in_total_net", Lang::txt("FinanceView_multireportResult.in_total_net"));
-		$mtab->setColumnFormat("in_total_net", "DECIMAL");
+		$mtab->setColumnFormat("in_total_net", "CURRENCY");
 		$mtab->renameHeader("in_total_tax", Lang::txt("FinanceView_multireportResult.in_total_tax"));
-		$mtab->setColumnFormat("in_total_tax", "DECIMAL");
+		$mtab->setColumnFormat("in_total_tax", "CURRENCY");
 		$mtab->renameHeader("in_total", Lang::txt("FinanceView_multireportResult.in_total"));
-		$mtab->setColumnFormat("in_total", "DECIMAL");
+		$mtab->setColumnFormat("in_total", "CURRENCY");
 		$mtab->renameHeader("out_total_net", Lang::txt("FinanceView_multireportResult.out_total_net"));
-		$mtab->setColumnFormat("out_total_net", "DECIMAL");
+		$mtab->setColumnFormat("out_total_net", "CURRENCY");
 		$mtab->renameHeader("out_total_tax", Lang::txt("FinanceView_multireportResult.out_total_tax"));
-		$mtab->setColumnFormat("out_total_tax", "DECIMAL");
+		$mtab->setColumnFormat("out_total_tax", "CURRENCY");
 		$mtab->renameHeader("out_total", Lang::txt("FinanceView_multireportResult.out_total"));
-		$mtab->setColumnFormat("out_total", "DECIMAL");
+		$mtab->setColumnFormat("out_total", "CURRENCY");
 		$mtab->renameHeader("sum_net", Lang::txt("FinanceView_multireportResult.sum_net"));
-		$mtab->setColumnFormat("sum_net", "DECIMAL");
+		$mtab->setColumnFormat("sum_net", "CURRENCY");
 		$mtab->renameHeader("sum_tax", Lang::txt("FinanceView_multireportResult.sum_tax"));
-		$mtab->setColumnFormat("sum_tax", "DECIMAL");
+		$mtab->setColumnFormat("sum_tax", "CURRENCY");
 		$mtab->renameHeader("sum_gross", Lang::txt("FinanceView_multireportResult.sum_gross"));
 		$mtab->write();
 		?></div><?php

@@ -135,12 +135,16 @@ class FinanceData extends AbstractData {
 		$this->regex->isSubject($values["subject"]);
 		$this->regex->isPositiveDecimalOrInteger($values["btype"]);
 		$this->regex->isText($values["notes"]);
+		$this->regex->isMoneyEnglish($values["amount_net"], "amount_net");
 		
 		if(!isset($values["oid"])) {
 			$values["oid"] = "NULL";
 		}
 		if($values["amount_tax"] == "") {
 			$values["amount_tax"] = 0;
+		}
+		else {
+			$this->regex->isMoneyEnglish($values["amount_tax"], "amount_tax");
 		}
 		
 		// insert to db
@@ -150,8 +154,8 @@ class FinanceData extends AbstractData {
 			" . $values["account"] . ",
 			\"" . Data::convertDateToDb($values["bdate"]) . "\",
 			\"" . $values["subject"] . "\",
-			" . Lang::decimalToDb($values["amount_net"]) . ",
-			" . Lang::decimalToDb($values["amount_tax"]) . ",
+			" . $values["amount_net"] . ",
+			" . $values["amount_tax"] . ",
 			" . $values["btype"] . ",
 			\"" . $values["otype"] . "\",
 			" . $values["oid"] . ",				

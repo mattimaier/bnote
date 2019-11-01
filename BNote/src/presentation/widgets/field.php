@@ -93,6 +93,7 @@ class Field implements iWriteable {
 		    case 9: return $this->Passwordfield(); break;
 		    case 10: return $this->Checkboxfield(); break;
 		    case 12: return $this->Filefield(); break;
+		    case 15: return $this->Currencyfield(); break;
 		    case 96: return $this->TimeSelector(); break;
 		    case 97: return $this->DatetimeSelector(); break;
 		    case 98: return $this->tinyMCE(); break;
@@ -163,6 +164,15 @@ class Field implements iWriteable {
 	 */
 	private function Decimalfield() {
 		return '<input type="text" size="' . $this->DECIMALLENGTH . '" name="' . $this->name . '" value="' . $this->default_value . '" />' . "\n";
+	}
+	
+	/**
+	 * Output for a textfield in decimalstyle
+	 */
+	private function Currencyfield() {
+		$sysdata = $GLOBALS["system_data"];
+		$currency = $sysdata->getDynamicConfigParameter("currency");
+		return '<input type="number" step="0.01" class="currency" name="' . $this->name . '" value="' . $this->default_value . '" />' . " $currency\n";
 	}
 	
 	/**

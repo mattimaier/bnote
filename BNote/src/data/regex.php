@@ -112,6 +112,9 @@ class Regex {
 		}
 		return false;
 	}
+	public function isMoneyEnglish($d, $k=NULL) {
+		return $this->isCorrect($d, "moneyEnglish", $k);
+	}
 	public function isDate($d, $k=NULL) {
 		return $this->isCorrect ( $d, "date", $k );
 	}

@@ -118,7 +118,10 @@ class GroupSelector implements iWriteable {
 				case FieldType::BOOLEAN: $groupName = ($groupName == "1") ? Lang::txt("GroupSelector_toString.yes") : Lang::txt("GroupSelector_toString.no"); break;
 				case FieldType::DATE: $groupName = Data::convertDateFromDb($groupName); break;
 				case FieldType::DATETIME: $groupName = Data::convertDateFromDb($groupName); break;
-				case FieldType::DECIMAL: $groupName = Data::convertFromDb($groupName); break;
+				case FieldType::CURRENCY:
+				case FieldType::DECIMAL: 
+					$groupName = Data::convertFromDb($groupName); 
+					break;
 				case FieldType::INTEGER: $groupName = Data::formatInteger($groupName); break;
 			}
 			

@@ -123,8 +123,12 @@ class Dataview {
 			// convert values in case of dates and decimals
 			if ($info [1] == FieldType::DATE || $info [1] == FieldType::DATETIME) {
 				$this->elements [$col] = Data::convertDateFromDb ( $this->elements [$col] );
-			} else if ($info [1] == FieldType::DECIMAL) {
-				$this->elements [$col] = Data::convertFromDb ( $this->elements [$col] );
+			} else if ($info[1] == FieldType::DECIMAL) {
+				$this->elements[$col] = Data::convertFromDb ( $this->elements [$col] );
+			} else if ($info[1] == FieldType::CURRENCY) {
+				$sysdata = $GLOBALS["system_data"];
+				$currency = $sysdata->getDynamicConfigParameter("currency");
+				$this->elements[$col] = Data::convertFromDb($this->elements[$col]) . " $currency";
 			} else if ($info [1] == FieldType::BOOLEAN) {
 				if ($this->elements [$col] == 1)
 					$this->elements [$col] = Lang::txt ( "Dataview_autoRename.yes" );

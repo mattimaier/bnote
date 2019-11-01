@@ -133,7 +133,7 @@ input[type="submit"]:hover, a.linkbox:hover {
 	color: @white;
 }
 
-input[type="text"], input[type="password"], input[type="search"],
+input[type="text"], input[type="password"], input[type="search"], input[type="number"]
 	textArea, select {
 	color: @black;
 	background-color: @white;
@@ -143,6 +143,19 @@ input[type="text"], input[type="password"], input[type="search"],
 	border: 1px solid;
 	border-color: @bnote-color;
 	margin-left: 1em;
+}
+
+input.currency {
+	color: @black;
+	background-color: @white;
+	font-size: 11pt;
+	font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
+	padding: 2px 6px;
+	border: 1px solid;
+	border-color: @bnote-color;
+	margin-left: 1em;
+	width: 93px;
+	text-align: right;
 }
 
 table {

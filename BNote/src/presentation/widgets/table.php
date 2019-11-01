@@ -72,7 +72,7 @@ class Table implements iWriteable {
 	/**
 	 * Sets the format of a specific column.
 	 * @param Integer $column Id of the column.
-	 * @param String $format One of the following formats: INT, DECIMAL, TEXT, DATE, BOOLEAN
+	 * @param String $format One of the following formats: INT, DECIMAL, CURRENCY, TEXT, DATE, BOOLEAN
 	 */
 	function setColumnFormat($column, $format) {
 		$this->formats[$column] = $format;
@@ -269,7 +269,7 @@ class Table implements iWriteable {
 
 					// Check for special format requests
 					if(isset($this->formats[$id])) {
-						if($this->formats[$id] == "INT" || $this->formats[$id] == "DECIMAL") echo ' align="right"';
+						if($this->formats[$id] == "INT" || $this->formats[$id] == "DECIMAL" || $this->formats[$id] == "CURRENCY") echo ' align="right"';
 					}
 
 					echo '>';
@@ -292,7 +292,7 @@ class Table implements iWriteable {
 
 					// Check for special format requests
 					if(isset($this->formats[$id])) {
-						if($this->formats[$id] == "DECIMAL") {
+						if($this->formats[$id] == "DECIMAL" || $this->formats[$id] == "CURRENCY") {
 							$value = Data::convertFromDb($value);
 							if($value == "") $value = "0,00";
 						}

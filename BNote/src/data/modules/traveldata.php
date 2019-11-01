@@ -14,7 +14,7 @@ class TravelData extends AbstractLocationData {
 			"departure_location" => array(Lang::txt("TravelData_construct.departure_location"), FieldType::CHAR),
 			"arrival" => array(Lang::txt("TravelData_construct.arrival"), FieldType::DATETIME),
 			"arrival_location" => array(Lang::txt("TravelData_construct.arrival_location"), FieldType::CHAR),
-			"planned_cost" => array(Lang::txt("TravelData_construct.planned_cost"), FieldType::DECIMAL),
+			"planned_cost" => array(Lang::txt("TravelData_construct.planned_cost"), FieldType::CURRENCY),
 			"notes" => array(Lang::txt("TravelData_construct.notes"), FieldType::TEXT)
 		);
 	

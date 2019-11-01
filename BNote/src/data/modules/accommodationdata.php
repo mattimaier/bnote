@@ -15,7 +15,7 @@ class AccommodationData extends AbstractLocationData {
 			"breakfast" => array(lang::txt("AccommodationData_construct.breakfast"), FieldType::BOOLEAN),
 			"lunch" => array(lang::txt("AccommodationData_construct.lunch"), FieldType::BOOLEAN),
 			"dinner" => array(lang::txt("AccommodationData_construct.dinner"), FieldType::BOOLEAN),
-			"planned_cost" => array(lang::txt("AccommodationData_construct.planned_cost"), FieldType::DECIMAL),
+			"planned_cost" => array(lang::txt("AccommodationData_construct.planned_cost"), FieldType::CURRENCY),
 			"notes" => array(lang::txt("AccommodationData_construct.notes"), FieldType::TEXT)
 		);
 	

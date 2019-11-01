@@ -146,7 +146,7 @@ abstract class CrudView extends AbstractView {
 			if($info[1] == FieldType::DATE || $info[1] == FieldType::DATETIME) {
 				$val = Data::convertDateFromDb($val);
 			}
-			elseif ($info[1] == FieldType::DECIMAL) {
+			elseif ($info[1] == FieldType::DECIMAL || $info[1] == FieldType::CURRENCY) {
 				$val = Lang::formatDecimal($val);
 			}
 			$details->addElement($info[0], $val);

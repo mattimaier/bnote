@@ -334,6 +334,7 @@ class RepertoireData extends AbstractData {
 			}
 			else if($type == FieldType::INTEGER
 					|| $type == FieldType::DECIMAL
+					|| $type == FieldType::CURRENCY
 					|| $type == FieldType::REFERENCE) {
 				$where .= $field . " = " . $value;
 			}

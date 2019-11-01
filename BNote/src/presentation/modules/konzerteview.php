@@ -573,7 +573,7 @@ class KonzerteView extends CrudRefLocationView {
 		$form->renameElement("outfit", Lang::txt("KonzerteView_addEntityForm.outfit"));
 		
 		// ************* DETAILS *************
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.payment"), new Field("payment", "", FieldType::DECIMAL));
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.payment"), new Field("payment", "", FieldType::CURRENCY));
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.conditions"), new Field("conditions", "", FieldType::TEXT));
 		
 		// custom fields

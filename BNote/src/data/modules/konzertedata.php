@@ -27,7 +27,7 @@ class KonzerteData extends AbstractLocationData {
 			"contact" => array(Lang::txt("KonzerteData_construct.contact"), FieldType::REFERENCE),
 			"outfit" => array(Lang::txt("KonzerteData_construct.outfit"), FieldType::REFERENCE),
 			"notes" => array(Lang::txt("KonzerteData_construct.notes"), FieldType::TEXT), 
-			"payment" => array(Lang::txt("KonzerteData_construct.payment"), FieldType::DECIMAL),
+			"payment" => array(Lang::txt("KonzerteData_construct.payment"), FieldType::CURRENCY),
 			"conditions" => array(Lang::txt("KonzerteData_construct.conditions"), FieldType::TEXT)
 		);
 		

@@ -13,8 +13,8 @@ class EquipmentData extends AbstractData {
 				"model" => array(Lang::txt("EquipmentData_construct.model"), FieldType::CHAR),
 				"make" => array(Lang::txt("EquipmentData_construct.make"), FieldType::CHAR),
 				"name" => array(Lang::txt("EquipmentData_construct.name"), FieldType::CHAR, true),
-				"purchase_price" => array(Lang::txt("EquipmentData_construct.purchase_price"), FieldType::DECIMAL),
-				"current_value" => array(Lang::txt("EquipmentData_construct.current_value"), FieldType::DECIMAL),
+				"purchase_price" => array(Lang::txt("EquipmentData_construct.purchase_price"), FieldType::CURRENCY),
+				"current_value" => array(Lang::txt("EquipmentData_construct.current_value"), FieldType::CURRENCY),
 				"quantity" => array(Lang::txt("EquipmentData_construct.quantity"), FieldType::INTEGER),
 				"notes" => array(Lang::txt("EquipmentData_construct.notes"), FieldType::TEXT, true)
 		);

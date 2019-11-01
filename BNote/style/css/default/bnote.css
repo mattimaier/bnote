@@ -387,7 +387,7 @@ a.linkbox:hover {
 input[type="text"],
 input[type="password"],
 input[type="search"],
-textArea,
+input[type="number"] textArea,
 select {
   color: #000000;
   background-color: #FFFFFF;
@@ -397,6 +397,18 @@ select {
   border: 1px solid;
   border-color: #61b3ff;
   margin-left: 1em;
+}
+input.currency {
+  color: #000000;
+  background-color: #FFFFFF;
+  font-size: 11pt;
+  font-family: 'PT Sans', 'Raleway', Arial, sans-serif;
+  padding: 2px 6px;
+  border: 1px solid;
+  border-color: #61b3ff;
+  margin-left: 1em;
+  width: 93px;
+  text-align: right;
 }
 table {
   margin-top: 1em;

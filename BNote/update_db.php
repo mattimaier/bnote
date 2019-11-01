@@ -232,6 +232,9 @@ $update = new UpdateDb();
 // Task 1: Configuration for user registration
 $update->addDynConfigParam("user_registration", 1);
 
+// Task 2: Configuration for currency
+$update->addDynConfigParam("currency", "EUR");
+
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>

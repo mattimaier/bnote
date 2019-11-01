@@ -428,6 +428,11 @@ abstract class AbstractData {
 				else if($t == FieldType::DECIMAL) {
 					$value = Data::convertToDb($value);
 				}
+				else if($t == FieldType::CURRENCY) {
+					if(strpos($value, ",") !== FALSE) {
+						$value = Data::convertToDb($value);
+					}
+				}
 				else if($t == FieldType::BOOLEAN) {
 					$value = ($value == "on") ? 1 : 0; 
 				}
@@ -469,6 +474,11 @@ abstract class AbstractData {
 				}
 				else if($t == FieldType::DECIMAL) {
 					$val = Data::convertToDb($val);
+				}
+				else if($t == FieldType::CURRENCY) {
+					if(strpos($val, ",") !== FALSE) {
+						$val = Data::convertToDb($val);
+					}
 				}
 				else if($t == FieldType::BOOLEAN && $val === "on") {
 					$val = 1;
@@ -528,7 +538,8 @@ abstract class AbstractData {
 		}
 		switch($type) {
 			case FieldType::INTEGER: $this->regex->isPositiveAmount($value, $k); break;
-			case FieldType::DECIMAL: $this->regex->isMoney($value, $k); break;
+			case FieldType::CURRENCY: $this->regex->isMoney($value, $k); break;
+			case FieldType::DECIMAL: $this->regex->isNumber($d, $k); break;
 			case FieldType::CHAR: $this->regex->isName($value, $k); break;
 			case FieldType::DATE: $this->regex->isDate(trim($value), $k); break;
 			case FieldType::TIME: $this->regex->isTime(trim($value), $k); break;
