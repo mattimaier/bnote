@@ -751,7 +751,7 @@ class StartView extends CrudRefLocationView {
 	
 	public function rehearsalParticipants() {
 		$rehearsal = $this->getData()->getRehearsal($_GET["id"]);
-		Writing::h2(Lang::txt("StartView_rehearsalParticipants.participantsOfRehearsal"), array(Data::convertDateFromDb($rehearsal["begin"])));
+		Writing::h2(Lang::txt("StartView_rehearsalParticipants.participantsOfRehearsal", array(Data::convertDateFromDb($rehearsal["begin"]))));
 		
 		$parts = $this->getData()->getRehearsalParticipants($_GET["id"]);
 		$table = new Table($parts);

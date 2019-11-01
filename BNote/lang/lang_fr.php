@@ -868,7 +868,8 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.trigger_cycle_days" => "Cycle de rappel (tous les X jours)",
 			"KonfigurationData_construct.trigger_repeat_count" => "Nombre de rappels",
 			"KonfigurationData_construct.enable_trigger_service" => "Notifications activées",
-			"KonfigurationData_construct.default_conductor" => "Conducteur standard",			
+			"KonfigurationData_construct.default_conductor" => "Conducteur standard",
+			"KonfigurationData_construct.currency" => "Devises",
 			"KonfigurationData_replaceParameterValue.yes" => "Oui",
 			"KonfigurationData_replaceParameterValue.no" => "Non",
 			
@@ -2132,6 +2133,10 @@ class Translation extends BNoteTranslation {
 			"WebsiteView_gallery_setimageasgallerydefault.message_2" => "L'image a été sauvegardée en avant-première pour cette galerie.",
 			"WebsiteView_backToGallery.gallery" => "Retour",
 			"WebsiteView_backToGalleryView.viewgallery" => "Retour",
+			
+			
+			/* ********************************************** OLD STYLE ********************************************** */
+			"start" => "Début"
 	);
 	
 	protected $regex = array(

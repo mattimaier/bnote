@@ -47,7 +47,8 @@ class KonfigurationData extends AbstractLocationData {
 				"trigger_cycle_days" => array(Lang::txt("KonfigurationData_construct.trigger_cycle_days"), FieldType::INTEGER),
 				"trigger_repeat_count" => array(Lang::txt("KonfigurationData_construct.trigger_repeat_count"), FieldType::INTEGER),
 				"enable_trigger_service" => array(Lang::txt("KonfigurationData_construct.enable_trigger_service"), FieldType::BOOLEAN),
-				"default_conductor" => array(Lang::txt("KonfigurationData_construct.default_conductor"), FieldType::REFERENCE)
+				"default_conductor" => array(Lang::txt("KonfigurationData_construct.default_conductor"), FieldType::REFERENCE),
+				"currency" => array(Lang::txt("KonfigurationData_construct.currency"), FieldType::CHAR)
 		);
 		
 		$this->parameterExclude = array(

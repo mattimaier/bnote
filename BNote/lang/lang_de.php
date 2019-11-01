@@ -868,7 +868,8 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.trigger_cycle_days" => "Erinnerungszyklus (jede X Tage)",
 			"KonfigurationData_construct.trigger_repeat_count" => "Anzahl der Erinnerungen",
 			"KonfigurationData_construct.enable_trigger_service" => "Benachrichtigungen aktiv",
-			"KonfigurationData_construct.default_conductor" => "Standarddirigent",			
+			"KonfigurationData_construct.default_conductor" => "Standarddirigent",
+			"KonfigurationData_construct.currency" => "Währung",
 			"KonfigurationData_replaceParameterValue.yes" => "ja",
 			"KonfigurationData_replaceParameterValue.no" => "nein",		
 			
@@ -2228,6 +2229,7 @@ class Translation extends BNoteTranslation {
 			"address" => "Adresse",
 			"table_prev" => "Vorherige Einträge",
 			"table_next" => "Nächste Einträge",
+			"start" => "Beginn",
 			
 			// GDPR
 			"gdprStartHeading" => "Einverständniserklärung zum Datenschutz",
