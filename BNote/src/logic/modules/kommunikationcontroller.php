@@ -55,7 +55,7 @@ class KommunikationController extends DefaultController {
 			
 			// subject
 			$subj = Lang::txt("KommunikationController_prepareMail.concert") . Data::getWeekdayFromDbDate($concert["begin"]);
-			$text .= ", " . Data::convertDateFromDb($concert["begin"]) . Lang::txt("KommunikationController_prepareMail.begin");
+			$subj .= ", " . Data::convertDateFromDb($concert["begin"]) . Lang::txt("KommunikationController_prepareMail.begin");
 			$_POST["subject"] = $subj;
 			
 			// body
