@@ -64,7 +64,7 @@ class ProgramData extends AbstractData {
 		$query .= " s.notes, st.name as status, g.name as genre ";
 		$query .= "FROM song s
 					JOIN program_song ps ON ps.song = s.id
-					JOIN composer c ON s.composer = c.id
+					LEFT OUTER JOIN composer c ON s.composer = c.id
 					JOIN status st ON s.status = st.id 
 					LEFT OUTER JOIN genre g ON s.genre = g.id ";
 		$query .= "WHERE ps.program = $pid ";

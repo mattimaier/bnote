@@ -181,10 +181,9 @@ class ProgramView extends CrudView {
 		$delTarget = $this->modePrefix() . "delSong&pid=" . $_GET["id"];
 		
 		echo "  <form action=\"$delTarget\" method=\"POST\">\n";		
-		$songs = $this->getData()->getSongsForProgram($_GET["id"]);
 		$dd = new Dropdown("song");
-		for($i = 1; $i < count($songs); $i++) {
-			$dd->addOption($songs[$i]["title"], $songs[$i]["song"]);
+		for($i = 1; $i < count($tracks); $i++) {
+			$dd->addOption($tracks[$i]["title"], $tracks[$i]["song"]);
 		}
 		echo "  <td>" . $dd->write() . "</td>\n";
 		echo "  <td>"; echo "<input type=\"submit\" value=\"entfernen\" /></td>\n";
