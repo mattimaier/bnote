@@ -566,8 +566,8 @@ class Filebrowser implements iWriteable {
 	}
 	
 	private function getFiletype($file) {
-		if(strpos($file, ".") !== false) {
-			$end = strtolower(substr($file, strpos($file, ".")+1));
+		if(strrpos($file, ".") !== false) {
+			$end = strtolower(substr($file, strrpos($file, ".")+1));
 			$music = array("mp3", "ogg", "acc", "wav");
 			if(in_array($end, $music)) {
 				return "music";
