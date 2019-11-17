@@ -1,21 +1,3 @@
 #############################################
-# Changes to BNote in comparison with 3.4.1 #
+# Changes to BNote in comparison with 3.4.2 #
 #############################################
-
-#349 Added song list of program to start
-#351 Finance booking without tax field filled; currency enablement
-#352 Adding files with a search field
-#354 Improved encoding of song title and notes
-#356 Not returning member data via API if module not available for user
-#357 Bugfix for editing contacts
-#359 Encoding of database
-#360 Audio player corrections, especially for mp3
-#361 Fixing some major issues to use the web app, however, it is marked as deprected in favor of a new responsive web interface
-#366 Option to deactive user registration
-#369 Bugfix for not displaying songs without composer or genre in program
-#372 Export repertoire with not filled custom values
-#373 Added country field to registration form
-#378 Bugfix after adding French translation
-#380 Custom fields are marked as mandatory, when adding gigs the meeting time is mandatory
-#382 Better display of invalid password changes and improved set of special characters
-#384 Fixed typo in gig mail to display date and time of gig start

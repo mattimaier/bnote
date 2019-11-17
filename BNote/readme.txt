@@ -39,6 +39,7 @@ How to update an existing BNote instance?
 	- data/nachrichten.html
 	- readme.txt
 	- release_notes.txt
+2. Execute BNote/update_db.php if this file is present in the update archive.
 
 
 Note on Database Installation
