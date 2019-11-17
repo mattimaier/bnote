@@ -657,7 +657,7 @@ class Filebrowser implements iWriteable {
 		
 		// initialize zip-archive
 		$zip = new ZipArchive();
-		$zip->open($zip_fname, ZipArchive::CREATE);
+		$zip->open($zip_fname, ZipArchive::OVERWRITE);
 		$dir_basepath = $this->root . $this->path;
 		$dir_basepath = str_replace("\\", "/", $dir_basepath);
 		
