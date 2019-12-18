@@ -733,7 +733,7 @@ class ProbenView extends CrudRefLocationView {
 			$rehearsal = $futureRehearsals[$reh];
 			?>
 			<div class="rehearsal_overview_box">
-				<div class="rehearsal_overview_header"><?php echo Lang::txt("ProbenView_overview.header_1"); Data::convertDateFromDb($rehearsal['begin']); Lang::txt("ProbenView_overview.header_2"); ?></div>
+				<div class="rehearsal_overview_header"><?php echo Lang::txt("ProbenView_overview.header_1") . Data::convertDateFromDb($rehearsal['begin']) . Lang::txt("ProbenView_overview.header_2"); ?></div>
 				<?php 
 				for($i = 1; $i < count($usedInstruments); $i++) {
 					$instrument = $usedInstruments[$i];
