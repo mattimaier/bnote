@@ -320,7 +320,7 @@ class Filebrowser implements iWriteable {
 						else {
 							$audioType = $mime;
 						}
-						echo '<audio controls style="display: block;">';
+						echo '<audio controls style="display: block;" preload="none">';
 						echo ' <source src="' . $link . '" type="audio/' . $audioType . '">';
 						echo 'Unsupported media type</audio>';
 					}
