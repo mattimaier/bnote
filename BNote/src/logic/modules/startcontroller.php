@@ -107,5 +107,3 @@ class StartController extends DefaultController {
 		return ($inactiveUsers || $usersWithoutRelations);
 	}
 }
-
-?>

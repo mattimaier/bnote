@@ -544,5 +544,3 @@ class ProbenData extends AbstractLocationData {
 		}
 	}
 }
-
-?>

@@ -335,5 +335,3 @@ class KonzerteData extends AbstractLocationData {
 		return $this->database->getSelection($query);
 	}
 }
-
-?>

@@ -57,5 +57,3 @@ class NachrichtenData extends AbstractData {
 		}
 	}
 }
-
-?>

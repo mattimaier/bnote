@@ -494,5 +494,3 @@ class RepertoireData extends AbstractData {
 		return $this->appendCustomDataToSelection('s', $selection);
 	}
 }
-
-?>

@@ -164,5 +164,3 @@ class Lang {
 		return $inst->langObj->formatDecimal($dbDecimal);
 	}
 }
-
-?>

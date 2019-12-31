@@ -69,4 +69,3 @@ class LocationsData extends AbstractLocationData {
 	}
 	
 }
-?>

@@ -247,5 +247,3 @@ abstract class AbstractLocationData extends AbstractData {
 		return $this->getAddress($addressId);
 	}
 }
-
-?>

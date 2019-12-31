@@ -78,5 +78,3 @@ class InstrumenteData extends AbstractData {
 		}
 	}
 }
-
-?>

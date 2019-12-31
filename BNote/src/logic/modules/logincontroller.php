@@ -242,5 +242,3 @@ class LoginController extends DefaultController {
 		return $pin;
 	}
 }
-
-?>

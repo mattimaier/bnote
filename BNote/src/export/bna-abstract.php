@@ -1080,7 +1080,7 @@ abstract class AbstractBNA implements iBNA {
 		foreach($songs as $i => $song) {
 			if($i == 0) continue; // header
 			$composerId = $song["composer"];
-			$song["composer"] = $repData -> getComposerName($composerId);
+			$song["composer"] = $repData->getComposerName($composerId);
 			$song["title"] = urldecode($song["title"]);
 			$song["notes"] = urldecode($song["notes"]);
 			$song["genre"] = "";

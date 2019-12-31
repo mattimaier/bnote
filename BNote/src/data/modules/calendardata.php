@@ -240,5 +240,3 @@ class CalendarData extends AbstractLocationData {
 		parent::delete($id);
 	}
 }
-
-?>

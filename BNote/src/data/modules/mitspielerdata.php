@@ -141,5 +141,3 @@ class MitspielerData extends AbstractLocationData {
 		return null;
 	}
 }
-
-?>

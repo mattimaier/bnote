@@ -89,5 +89,3 @@ class AufgabenData extends AbstractData {
 		return $this->database->getCell("contact", "email", "id = $cid");
 	}
 }
-
-?>

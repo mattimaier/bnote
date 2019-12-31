@@ -52,5 +52,3 @@ class EquipmentData extends AbstractData {
 		parent::delete($id);
 	}
 }
-
-?>

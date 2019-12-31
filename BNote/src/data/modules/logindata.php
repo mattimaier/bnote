@@ -186,5 +186,3 @@ class LoginData extends AbstractLocationData {
 		$this->database->execute("UPDATE contact SET gdpr_ok = 1 WHERE gdpr_code = '$code'");
 	}
 }
-
-?>
