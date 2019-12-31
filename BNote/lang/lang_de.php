@@ -795,7 +795,7 @@ class Translation extends BNoteTranslation {
 			"InstrumenteView_activeInstrumentGroups.Form" => "Aktive Instrumente-Gruppen",
 			"InstrumenteView_activeInstrumentGroups.addElement" => "Kategorie",
 			"InstrumenteView_activeInstrumentGroups.SubmitButton" => "speichern",
-			"InstrumenteView_backToStart.back" => "back",
+			"InstrumenteView_backToStart.back" => "Zurück",
 			"InstrumenteView_process_activeInstrumentGroups.Message_1" => "Aktive Instrumenten-Gruppen gespeichert",
 			"InstrumenteView_process_activeInstrumentGroups.Message_2" => "Die neuen aktiven Instrumenten-Gruppen wurden gespeichert.",
 			"InstrumenteView_viewDetailTable.categoryname" => "Kategorie",

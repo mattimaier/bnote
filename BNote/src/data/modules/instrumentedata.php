@@ -47,8 +47,8 @@ class InstrumenteData extends AbstractData {
 	function saveInstrumentGroupConfig() {
 		$cats = $this->getCategories();		
 		$newActiveCats = "";
-		
 		foreach($cats as $i => $cat) {
+			if($i == 0) continue;
 			$fieldName = "category_" . $cat["id"];
 			if(isset($_POST[$fieldName]) && $_POST[$fieldName] == "on") {
 				if($newActiveCats != "") $newActiveCats .= ",";
