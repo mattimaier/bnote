@@ -265,10 +265,12 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getProgramTitles($pid) {
-		$query = "SELECT ps.rank, s.title, c.name as composer, s.notes ";
-		$query .= "FROM song s, program_song ps, composer c ";
-		$query .= "WHERE ps.program = $pid AND ps.song = s.id AND s.composer = c.id ";
-		$query .= "ORDER BY ps.rank ASC";
+		$query = "SELECT ps.rank, s.title, c.name as composer, s.notes
+				FROM program_song ps
+				JOIN song s ON ps.song = s.id
+				LEFT OUTER JOIN composer c ON s.composer = c.id
+			WHERE ps.program = $pid
+			ORDER BY ps.rank ASC";
 		$selection = $this->database->getSelection($query);
 		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
