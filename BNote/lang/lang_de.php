@@ -366,6 +366,9 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_download.archiveCreated" => "Das Archiv wurde erstellt und kann unter folgendem Link heruntergeladen werden.",
 			"Filebrowser_download.downloadArchive" => "Archiv herunterladen",
 			"Filebrowser_download.back" => "Zurück",
+			"Filebrowser_deleteFile.requestMessage" => "Wollen Sie %p wirklich löschen?",
+			"Filebrowser_deleteFile.approveDelete" => "Löschen",
+			"Filebrowser_deleteFile.abort" => "Abbruch",
 			
 			// Widget: Filterbox *********************************************	
 			"Filterbox_write.showAllOption" => "Alle anzeigen",

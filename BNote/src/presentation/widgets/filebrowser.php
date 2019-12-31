@@ -396,6 +396,37 @@ class Filebrowser implements iWriteable {
 	 * Deletes a file from the current location (path).
 	 */
 	private function deleteFile() {
+		$this->deleteFileChecks();
+		
+		// remove file or folder
+		if(is_dir($fullpath)) {
+			rmdir($fullpath);
+		}
+		else {
+			unlink($fullpath);
+		}
+		
+		// show main view
+		$this->mainView();
+	}
+	
+	private function deleteFileRequest() {
+		$this->deleteFileChecks();
+		
+		// Ask if really to delete?
+		Writing::p(Lang::txt("Filebrowser_deleteFile.requestMessage", array($fn)));
+		
+		// Options
+		$yes = new Link($this->linkprefix("deleteFile&path=" . $this->path . "&file=" . $_GET["file"]), Lang::txt("Filebrowser_deleteFile.approveDelete"));
+		$yes->addIcon("remove");
+		$yes->write();
+		
+		$no = new Link($this->linkprefix("mainView"), Lang::txt("Filebrowser_deleteFile.abort"));
+		$no->addIcon("arrow_left");
+		$no->write();
+	}
+	
+	private function deleteFileChecks() {
 		// check permission
 		if($this->viewmode) {
 			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_1"));
@@ -406,21 +437,12 @@ class Filebrowser implements iWriteable {
 			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_2"));
 		}
 		$fn = urldecode($_GET["file"]);
-		$fullpath = $this->root . $this->path . "/" . $fn; 
+		$fullpath = $this->root . $this->path . "/" . $fn;
 		
 		// check permission to delete
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $this->path . "/" . $fn)) {
 			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_3"));
 		}
-		
-		if(is_dir($fullpath)) {
-			rmdir($fullpath);
-		}
-		else {
-			unlink($fullpath);
-		}
-		
-		$this->mainView();
 	}
 	
 	/**
@@ -539,7 +561,7 @@ class Filebrowser implements iWriteable {
 			}
 			
 			if(!$this->viewmode) { 
-				$delLink = $this->linkprefix("deleteFile&path=" . $this->path . "&file=" . urlencode($file));
+				$delLink = $this->linkprefix("deleteFileRequest&path=" . $this->path . "&file=" . urlencode($file));
 				$delLnk = new Link($delLink, Lang::txt("Filebrowser_getFilesFromFolder.delete"));
 				$delLnk->addIcon("remove");
 				$delete = $delLnk->toString();
