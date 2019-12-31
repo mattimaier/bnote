@@ -173,6 +173,15 @@ class KonzerteData extends AbstractLocationData {
 		if(!isset($values["payment"]) || $values["payment"] == "") {
 			$values["payment"] = 0;
 		}
+		
+		// manage program
+		if($values["program"] == "new") {
+			$program_query = "INSERT INTO program (name, isTemplate) VALUES (?, 0)";
+			$program_id = $this->database->prepStatement($program_query, array(
+					array("s", $values["title"] . " " . Lang::txt("ProgramView_construct.EntityName"))
+			));
+			$values["program"] = $program_id;
+		}
 				
 		// create concert
 		$concertId = parent::create($values);

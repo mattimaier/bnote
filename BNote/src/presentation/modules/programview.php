@@ -81,18 +81,10 @@ class ProgramView extends CrudView {
 	}
 	
 	function viewDetailTable() {		
-		// program details
-		$dv = new Dataview();
-		$dv->autoAddElements($this->getData()->findByIdNoRef($_GET["id"]));
-		$dv->autoRename($this->getData()->getFields());
-		$dv->write();
-		
-		// track list heading
-		Writing::h2(Lang::txt("ProgramView_viewDetailTable.header"));
-		
 		// actual track list
 		$table = new Table($this->getData()->getSongsForProgram($_GET["id"]));
 		$table->removeColumn("song");
+		$table->removeColumn("psid");
 		$table->renameHeader("rank", Lang::txt("ProgramView_viewDetailTable.rank"));
 		$table->renameHeader("title", Lang::txt("ProgramView_viewDetailTable.title"));
 		$table->renameHeader("composer", Lang::txt("ProgramView_viewDetailTable.title"));
@@ -100,6 +92,18 @@ class ProgramView extends CrudView {
 		$table->renameHeader("notes", Lang::txt("ProgramView_viewDetailTable.notes"));
 		$table->write();
 		$this->writeProgramLength();
+		
+		// references - usage in concerts
+		Writing::h2(Lang::txt("ProgramView_view.gigReferences"));
+		$concerts = $this->getData()->getConcertsWithProgram($_GET["id"]);
+		?><ul><?php
+		foreach($concerts as $i => $concert) {
+			if($i == 0) continue;
+			?>
+			<li><a href="<?php echo "?mod=" . $this->getModId() . "&mode=view&id=" . $concert["id"]; ?>"><?php echo $concert["title"] . " - " . Data::convertDateFromDb($concert["begin"]); ?></a></li>
+			<?php
+		}
+		?></ul><?php
 	}
 	
 	private function writeProgramLength() {
@@ -111,7 +115,15 @@ class ProgramView extends CrudView {
 		$this->checkID();
 		
 		// heading
-		Writing::h2($this->getData()->getProgramName($_GET["id"]));
+		$program = $this->getData()->findByIdNoRef($_GET["id"]);
+		$name = $program["name"];
+		if(intval($program["isTemplate"]) == 1) {
+			$name .= " (" . Lang::txt("ProgramView_view.templateHeader") . ")";
+		}
+		Writing::h1($name);
+		if($program["notes"] != null && $program["notes"] != "") {
+			Writing::p($program["notes"]);
+		}
 		
 		// show the details and tracks
 		$this->viewDetailTable();
@@ -138,6 +150,7 @@ class ProgramView extends CrudView {
 		Writing::h2($this->getData()->getProgramName($_GET["id"]));
 		Writing::p(Lang::txt("ProgramView_editList.message"));
 		
+		// Track D'n'd
 		$tracks = $this->getData()->getSongsForProgram($_GET["id"]);
 		echo "<form action=\"" . $this->modePrefix() . "saveList&id=" . $_GET["id"] . "\" method=\"POST\">\n";
 		echo "<ul id=\"sortable\">\n";
@@ -152,45 +165,50 @@ class ProgramView extends CrudView {
 		echo "<input type=\"submit\" value=\"SPEICHERN\" />\n";
 		echo "</form>\n";
 		
-		// add and remove tracks
-		echo "<table>\n";
-		
-		echo " <tr>\n";
-		echo "  <td colspan=\"2\">"; $this->writeIcon("plus"); echo "Titel hinzufügen</td>\n";
-		echo "  <td style=\"width: 20px;\">&nbsp;</td>\n";
-		echo "  <td colspan=\"2\">"; $this->writeIcon("remove"); echo "Titel von Programm entfernen</td>\n";
-		echo " </tr>\n";
-		
-		echo " <tr>\n";
-		
-		// Titel hinzufuegen
+		// add tracks
 		$addTarget = $this->modePrefix() . "addSong&id=" . $_GET["id"];
-		
-		echo "  <form action=\"$addTarget\" method=\"POST\">\n";		
 		$songs = $this->getData()->getAllSongs();
-		$dd = new Dropdown("song");
+		$optionsAdd = array();
 		for($i = 1; $i < count($songs); $i++) {
-			$dd->addOption($songs[$i]["title"], $songs[$i]["id"]);
+			$song_title = $songs[$i]["title"];
+			$song_id = $songs[$i]["id"];
+			$optionsAdd[$song_id] = $song_title;
 		}
-		echo "  <td>" . $dd->write() . "</td>\n";
-		echo "  <td><input type=\"submit\" value=\"hinzufügen\" /></td>\n";
-		echo "  </form>\n";
-		echo "  <td style=\"background-color: #eee;\">&nbsp;</td>\n";
+		$this->trackBox($addTarget, Lang::txt("ProgramView_editList.addSong"), "plus", Lang::txt("ProgramView_editList.add"), "song", $optionsAdd);
 		
-		// Titel loeschen
-		$delTarget = $this->modePrefix() . "delSong&pid=" . $_GET["id"];
-		
-		echo "  <form action=\"$delTarget\" method=\"POST\">\n";		
-		$dd = new Dropdown("song");
+		// remove tracks
+		$delTarget = $this->modePrefix() . "delSong&id=" . $_GET["id"];
+		$optionsRemove = array();
 		for($i = 1; $i < count($tracks); $i++) {
-			$dd->addOption($tracks[$i]["title"], $tracks[$i]["song"]);
+			$optionsRemove[$tracks[$i]["song"]] = $tracks[$i]["title"];
 		}
-		echo "  <td>" . $dd->write() . "</td>\n";
-		echo "  <td>"; echo "<input type=\"submit\" value=\"entfernen\" /></td>\n";
-		echo "  </form>\n";
+		$this->trackBox($delTarget, Lang::txt("ProgramView_editList.removeSong"), "remove", Lang::txt("ProgramView_editList.remove"), "song", $optionsRemove);
 		
-		echo " </tr>\n";
-		echo "</table>\n";
+		// add tracks from template
+		$addFromTemplate = $this->modePrefix() . "addSongsFromTemplate&id=" . $_GET["id"];
+		$templates = $this->getData()->getTemplates();
+		$templateOptions = array();
+		for($i = 1; $i < count($templates); $i++) {
+			$templateOptions[$templates[$i]["id"]] = $templates[$i]["name"];
+		}
+		$this->trackBox($addFromTemplate, Lang::txt("ProgramView_editList.addFromTemplate"), "setlist", Lang::txt("ProgramView_editList.template"), "template", $templateOptions);
+	}
+	
+	private function trackBox($target, $title, $icon, $buttonLabel, $selectName, $options) {
+		?>
+		<div class="trackbox"><form action="<?php echo $target ?>" method="POST">
+			<div class="trackbox_header"><?php $this->writeIcon($icon); echo $title; ?></div>
+			<?php 
+			$dd = new Dropdown($selectName);
+			$dd->setStyleClass("trackbox");
+			foreach($options as $value => $label) {
+				$dd->addOption($label, $value);
+			}
+			echo $dd->write();
+			?>
+			<input type="submit" value="<?php echo $buttonLabel; ?>" />
+		</form></div>
+		<?php
 	}
 	
 	protected function editListOptions() {
@@ -207,15 +225,36 @@ class ProgramView extends CrudView {
 		$this->editList();
 	}
 	
+	protected function saveListOptions() {
+		$this->editListOptions();
+	}
+	
 	function addSong() {
 		$this->getData()->addSongToProgram($_GET["id"]);
 		$this->editList();
 	}
 	
-	function delSong() {
-		$this->getData()->deleteSongFromProgram($_GET["pid"], $_POST["song"]);
-		$_GET["id"] = $_GET["pid"];
+	protected function addSongOptions() {
+		$this->editListOptions();
+	}
+	
+	function addSongsFromTemplate() {
+		$this->getData()->copySongsFromProgram($_GET["id"], $_POST["template"]);
 		$this->editList();
+	}
+	
+	protected function addSongsFromTemplateOptions() {
+		$this->editListOptions();
+	}
+	
+	function delSong() {
+		$this->getData()->deleteSongFromProgram($_GET["id"], $_POST["song"]);
+		$_GET["id"] = $_GET["id"];
+		$this->editList();
+	}
+	
+	protected function delSongOptions() {
+		$this->editListOptions();
 	}
 	
 	function addWithTemplate() {

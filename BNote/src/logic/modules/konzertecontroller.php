@@ -8,6 +8,7 @@
 class KonzerteController extends DefaultController {
 	
 	private $programView;
+	private $programData;
 	
 	function start() {
 		if(isset($_GET["mode"]) && $_GET["mode"] == "programs") {
@@ -24,9 +25,9 @@ class KonzerteController extends DefaultController {
 		require_once $GLOBALS["DIR_LOGIC_MODULES"] . "programcontroller.php";
 		
 		$ctrl = new ProgramController();
-		$data = new ProgramData();
+		$this->programData = new ProgramData();
 		$this->programView = new ProgramView($ctrl);
-		$ctrl->setData($data);
+		$ctrl->setData($this->programData);
 		$ctrl->setView($this->programView);
 		
 		if(!$init) {
@@ -39,6 +40,13 @@ class KonzerteController extends DefaultController {
 			$this->programs(true);
 		}
 		return $this->programView;
+	}
+	
+	function getProgramData() {
+		if($this->programData == null) {
+			$this->programs(true);
+		}
+		return $this->programData;
 	}
 	
 }

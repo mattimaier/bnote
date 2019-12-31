@@ -434,14 +434,25 @@ class KonzerteView extends CrudRefLocationView {
 	}
 	
 	function additionalViewButtons() {
-		$partLink = new Link($this->modePrefix() . "showParticipants&id=" . $_GET["id"], "Teilnehmer anzeigen");
+		$concert_id = $_GET["id"];
+		
+		$partLink = new Link($this->modePrefix() . "showParticipants&id=$concert_id", Lang::txt("KonzerteView_viewButtons.showParticipants"));
 		$partLink->addIcon("user");
 		$partLink->write();
 		
 		// concert contact
-		$addContact = new Link($this->modePrefix() . "addConcertContact&id=" . $_GET["id"], "Kontakt hinzufügen");
+		$addContact = new Link($this->modePrefix() . "addConcertContact&id=$concert_id", Lang::txt("KonzerteView_viewButtons.addConcertContact"));
 		$addContact->addIcon("plus");
 		$addContact->write();
+		
+		// edit program
+		$concert = $this->getData()->getConcert($concert_id);
+		$program_id = $concert["program"];
+		if($program_id != null && $program_id > 0) {
+			$program = new Link($this->modePrefix() . "programs&sub=view&id=$program_id", Lang::txt("KonzerteView_viewButtons.editProgram"));
+			$program->addIcon("setlist");
+			$program->write();
+		}
 		
 		// gig card (Word export)
 		$word = new Link("src/export/gigcard.doc?id=" . $_GET["id"], "Word Export");
@@ -553,7 +564,8 @@ class KonzerteView extends CrudRefLocationView {
 		// chosse program
 		$dd4 = new Dropdown("program");
 		$templates = $this->getData()->getTemplates();
-		$dd4->addOption("Keine Auswahl", 0);
+		$dd4->addOption(Lang::txt("KonzerteView_addEntityForm.programNone"), 0);
+		$dd4->addOption(Lang::txt("KonzerteView_addEntityForm.programNew"), "new");
 		for($i = 1; $i < count($templates); $i++) {
 			$dd4->addOption($templates[$i]["name"], $templates[$i]["id"]);
 		}

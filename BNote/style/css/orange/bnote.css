@@ -68,6 +68,17 @@ span.concertdetail_value {
   display: inline-block;
   vertical-align: top;
 }
+div.trackbox {
+  display: inline-block;
+  margin-right: 1em;
+}
+.trackbox_header {
+  border-bottom: 1px solid #E6DDBA;
+  margin-bottom: 0.3em;
+}
+select.trackbox {
+  margin-left: 0px;
+}
 table.contact_view {
   margin-top: 0px;
   width: 100%;

@@ -124,7 +124,7 @@ class ProgramData extends AbstractData {
 		// create program
 		$values = array(
 			"name" => $_POST["name"],
-			"notes" => Lang::txt("ProgramData_addProgramWithTemplate.message_1") . "$template" . Lang::txt("ProgramData_addProgramWithTemplate.message_2"),
+			"notes" => Lang::txt("ProgramData_addProgramWithTemplate.message_1") . $template . Lang::txt("ProgramData_addProgramWithTemplate.message_2"),
 			"isTemplate" => 0
 		);
 		$pid = $this->create($values);
@@ -134,27 +134,43 @@ class ProgramData extends AbstractData {
 			new BNoteError("Das Programm konnte nicht erstellt werden.");
 		}
 		
-		// copy songs with rank to new program
-		$query = "SELECT song, rank FROM program_song WHERE program = " . $_POST["template"];
-		$songs = $this->database->getSelection($query);
-		
-		$query = "INSERT INTO program_song (program, song, rank) VALUES ";
-		$count = 0;
-		for($i = 1; $i < count($songs); $i++) {
-			$query .= "(";
-			$query .= $pid . ", " . $songs[$i]["song"] . ", " . $songs[$i]["rank"];
-			$query .= "), ";
-			$count++;
-		}
-		if($count > 0) {
-			$query = substr($query, 0, strlen($query)-2);
-			$this->database->execute($query);
-		}
+		$this->copySongsFromProgram($pid, $_POST["template"]);
 		
 		return $pid;
 	}
 	
+	function copySongsFromProgram($program_id, $template_id) {
+		// copy songs with rank to new program
+		$query = "SELECT song, rank FROM program_song WHERE program = $template_id ORDER BY rank";
+		$songs = $this->database->getSelection($query);
+		
+		// compute offset if the program already contains songs
+		$offset = 0;
+		$max = $this->database->getCell("program_song", "max(rank)", "program = $program_id");
+		if($max > $offset) {
+			$offset = $max+1;
+		}
+		
+		// add songs from template to program
+		$query = "INSERT INTO program_song (program, song, rank) VALUES ";
+		$items = array();
+		for($i = 1; $i < count($songs); $i++) {
+			$rank = $offset + intval($songs[$i]["rank"]);
+			$item = "($program_id,". $songs[$i]["song"] .",$rank)";
+			array_push($items, $item);
+		}
+		if(count($items) > 0) {
+			$query = $query . join(",", $items);
+			$this->database->execute($query);
+		}
+	}
+	
 	function getTemplates() {
 		return $this->adp()->getTemplatePrograms();
+	}
+	
+	function getConcertsWithProgram($pid) {
+		$query = "SELECT * FROM concert WHERE program = $pid";
+		return $this->database->getSelection($query);
 	}
 }
