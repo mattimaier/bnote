@@ -878,6 +878,11 @@ div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
   font-weight: 600;
   color: #74E660;
 }
+select.participationQuickSelector {
+  border-color: #7F877E;
+  margin-left: 0px;
+  padding: 0px;
+}
 .songfiles_box {
   display: block;
 }

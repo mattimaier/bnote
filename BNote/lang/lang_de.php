@@ -1459,6 +1459,9 @@ class Translation extends BNoteTranslation {
 			"ProbenView_overview.cancel" => "Nimmt nicht teil",
 			"ProbenView_overview.yield" => "Nimmt vielleicht teil",
 			"ProbenView_overview.checked" => "Nimmt teil",
+			"ProbenView_overviewEdit.buttonLabel" => "Teilnahme bearbeiten",
+			"ProbenView_overviewEdit.save" => "Teilnahmen speichern",
+			"ProbenView_overviewEdit.error" => "Es gibt Teilnehmer ohne Benutzer.",
 			"ProbenView_writeRehearsal.begin" => " Uhr",
 			
 			// module: Probenphasen *********************************************

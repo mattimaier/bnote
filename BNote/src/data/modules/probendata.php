@@ -133,32 +133,16 @@ class ProbenData extends AbstractLocationData {
 	 * @param Integer $instrumentId Instrument ID.
 	 */
 	function getParticipantOverview($rid, $instrumentId) {
-		$partSummary = array();
+		$query = "SELECT c.id as contact_id, CONCAT(c.name, ' ', c.surname) as contactname, u.id as user_id, ru.participate
+				FROM rehearsal_contact rc
+					JOIN contact c ON rc.contact = c.id
+					JOIN user u ON u.contact = c.id
+					LEFT OUTER JOIN rehearsal_user ru ON ru.user = u.id AND ru.rehearsal = $rid
+				WHERE c.instrument = $instrumentId AND rc.rehearsal = $rid";
 		
-		// yes/no/maybe
-		$query = "SELECT CONCAT(c.name, ' ', c.surname) as contactname, ru.participate 
-				FROM rehearsal_user ru
-					JOIN user u ON ru.user = u.id
-					JOIN contact c ON u.contact = c.id
-				WHERE c.instrument = $instrumentId AND ru.rehearsal = $rid";
 		$participants = $this->database->getSelection($query);
-		for($p = 1; $p < count($participants); $p++) {
-			$participant = $participants[$p];
-			array_push($partSummary, $participant);
-		}
-		
-		// unknown: all those that have not said if they come or not
-		$openParticipants = $this->getOpenParticipation($rid);
-		for($o = 1; $o < count($openParticipants); $o++) {
-			$participant = $openParticipants[$o];
-			if($participant['instrumentid'] == $instrumentId) {
-				array_push($partSummary, array(
-						"contactname" => $participant['name'],
-						"participate" => -1
-				));
-			}
-		}
-		return $partSummary;
+		$participants = array_splice($participants, 1);
+		return $participants;
 	}
 	
 	function getRehearsalBegin($rid) {
@@ -510,6 +494,54 @@ class ProbenData extends AbstractLocationData {
 			$this->regex->isDatabaseId($input["serie"]);
 		}
 		$this->regex->isText($input["notes"]);
+	}
+	
+	public function updateParticipations() {
+		// cache contacts' users
+		$contact_user = array();
+		
+		// run through participations and update one by one
+		foreach($_POST as $item => $participation) {
+			$sep_pos = strrpos($item, "_c");
+			$rehearsal_id = substr($item, 6, strlen($item) - $sep_pos-1);
+			$this->regex->isPositiveAmount($rehearsal_id);
+			$contact_id = substr($item, $sep_pos+2);
+			$this->regex->isPositiveAmount($contact_id);
+			
+			// convert contact to user -> cache in map
+			if(in_array($contact_id, $contact_user)) {
+				$user = $contact_user[$contact_id];
+			}
+			else {
+				$user = $this->adp()->getUserForContact($contact_id);
+				$contact_user[$contact_id] = $user;
+			}
+			
+			// eventually delete participation first
+			$do_update = false;
+			if($user != null) {
+				$user_id = $user["id"];
+				$part = $this->database->getCell("rehearsal_user", "participate", "rehearsal = $rehearsal_id AND user = $user_id");
+				if($part != $participation) {
+					$del_query = "DELETE FROM rehearsal_user WHERE rehearsal = $rehearsal_id AND user = $user_id";
+					$this->database->execute($del_query);
+					$do_update = true;
+				}
+			}
+			else {
+				new BNoteError(Lang::txt("ProbenView_overviewEdit.error"));
+			}
+			
+			// insert new participation
+			if($do_update) {
+				$update_query = "INSERT INTO rehearsal_user (rehearsal, user, participate) VALUES (?,?,?)";
+				$this->database->prepStatement($update_query, array(
+						array("i", $rehearsal_id),
+						array("i", $user_id),
+						array("i", $participation)
+				));
+			}
+		}
 	}
 }
 

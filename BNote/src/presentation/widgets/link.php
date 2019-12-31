@@ -10,6 +10,7 @@ class Link implements iWriteable {
 	private $target;
 	private $icon;
 	private $jsClick;
+	private $submitButton = false;
 
 	/**
 	 * Creates a link
@@ -32,6 +33,14 @@ class Link implements iWriteable {
 
 	function setJsClick($jsClick) {
 		$this->jsClick = $jsClick;
+	}
+	
+	/**
+	 * When this mode is turned on, the link is rendered as a button with the type="submit"
+	 * @param boolean $val Nothing or true to turn the mode on, false to turn it off (default).
+	 */
+	function isSubmitButton($val = true) {
+		$this->submitButton = $val;
 	}
 	
 	function write() {
@@ -66,6 +75,10 @@ class Link implements iWriteable {
 			$options .= ' onclick="' . $this->jsClick . '"';
 		}
 		
+		if($this->submitButton) {
+			return '<input type="submit" class="linkbox"' . $options . ' value="' . $this->label . '">';
+		}
+
 		return '<a class="linkbox" ' . $target . 'href="' . $this->href . '"' . $options . '>'
 		     . '<div class="linkbox">' . $icon . $this->label . '</div></a>';
 	}

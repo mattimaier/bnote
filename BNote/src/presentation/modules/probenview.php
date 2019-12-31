@@ -722,6 +722,19 @@ class ProbenView extends CrudRefLocationView {
 	}
 	
 	function overview() {
+		if(isset($_GET["edit"])) {
+			if($_GET["edit"] == "save") {
+				$this->getData()->updateParticipations();
+			}
+			elseif($_GET["edit"] == "true") {
+				echo '<form method="POST" action="' . $this->modePrefix() . "overview&edit=save" . '" style="margin-top: 0px;">';
+				
+				$save = new Link($this->modePrefix() . "overview&edit=save", Lang::txt("ProbenView_overviewEdit.save"));
+				$save->isSubmitButton();
+				$save->write();
+			}
+		}
+		
 		$futureRehearsals = $this->getData()->adp()->getFutureRehearsals();
 		$usedInstruments = $this->getData()->getUsedInstruments();
 		
@@ -763,7 +776,29 @@ class ProbenView extends CrudRefLocationView {
 							}
 							?>
 							<div class="player_participation_line">
+								<?php 
+								if(isset($_GET["edit"]) && $_GET["edit"] == "true") {
+									if(in_array("contact", $participant)) {
+										$cid = $participant["contact"];
+									}
+									else {
+										$cid = $participant["contact_id"];
+									}
+									$dd = new Dropdown("part_r" . $rehearsal['id'] . "_c" . $cid);
+									$dd->addOption("?", -1);
+									$dd->addOption("-", 0);
+									$dd->addOption("✓", 1);
+									$dd->addOption("~", 2);
+									$dd->setSelected($participant['participate']);
+									$dd->setStyleClass("participationQuickSelector");
+									echo $dd->write();
+								}
+								else {
+								?>
 								<img src="style/icons/<?php echo $icon; ?>.png" alt="<?php echo $alt; ?>" style="height: 14px" />
+								<?php 
+								}
+								?>
 								<span><?php echo $participant['contactname']; ?></span>
 							</div>
 						<?php 
@@ -776,6 +811,25 @@ class ProbenView extends CrudRefLocationView {
 			</div>
 			<?php
 		}
+		
+		if(isset($_GET["edit"]) && $_GET["edit"] == "true") {
+			echo '</form>';
+		}
+	}
+	
+	public function overviewOptions() {
+		if(isset($_GET["edit"]) && $_GET["edit"] == "true") {
+			$overview = new Link($this->modePrefix() . "overview", Lang::txt("ProbenView_startOptions.mitspieler"));
+			$overview->addIcon("mitspieler");
+			$overview->write();
+		}
+		else {
+			$this->backToStart();
+			$edit = new Link($this->modePrefix() . "overview&edit=true", Lang::txt("ProbenView_overviewEdit.buttonLabel"));
+			$edit->addIcon("edit");
+			$edit->write();
+		}
+			
 	}
 	
 	private function isReadOnlyView() {
