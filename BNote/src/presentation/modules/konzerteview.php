@@ -493,7 +493,58 @@ class KonzerteView extends CrudRefLocationView {
 	
 	protected function showParticipantsOptions() {
 		$this->backToViewButton($_GET["id"]);
+		
+		$editParticipation = new Link($this->modePrefix() . "editParticipation&id=" . $_GET["id"], Lang::txt("KonzerteView_editParticipation.button"));
+		$editParticipation->addIcon("edit");
+		$editParticipation->write();
 	}
+	
+	public function editParticipation() {
+		$gig = $this->getData()->findByIdNoRef($_GET["id"]);
+		Writing::h3(Lang::txt("KonzerteView_editParticipation.heading", array($gig["title"])));
+		$participation = $this->getData()->getFullParticipation($_GET["id"]);
+		?>
+		<form action="<?php echo $this->modePrefix() . "editParticipation_process&id=" . $_GET["id"]; ?>" method="POST">
+		<?php
+		foreach($participation as $i => $part) {
+			if($i == 0) continue;
+			?><div class="participationEditLine">
+				<?php 
+				$dd = new Dropdown("user_" . $part["user_id"]);
+				$dd->addOption("?", -1);
+				$dd->addOption("-", 0);
+				$dd->addOption("✓", 1);
+				$dd->addOption("~", 2);
+				$dd->setSelected($part['participate']);
+				$dd->setStyleClass("participationQuickSelector");
+				echo $dd->write();
+				?>
+				<span class="participationEditLine_user">
+					<?php echo $this->formatContact($part, "NAME_INST"); ?>
+				</span>
+			</div><?php
+		}
+		?>
+			<input type="submit" value="<?php echo Lang::txt("KonzerteView_editParticipation.saveButton"); ?>" style="margin-top: 1em;" />
+		</form>
+		<?php
+	}
+	
+	protected function editParticipationOptions() {
+		$back = new Link($this->modePrefix() . "showParticipants&id=" . $_GET["id"], Lang::txt("CrudView_backToViewButton.back"));
+		$back->addIcon("arrow_left");
+		$back->write();
+	}
+	
+	public function editParticipation_process() {
+		$this->getData()->saveParticipation($_GET["id"]);
+		$this->showParticipants();
+	}
+	
+	protected function editParticipation_processOptions() {
+		$this->showParticipantsOptions();
+	}
+		
 	
 	protected function addEntityForm() {
 		require_once $GLOBALS["DIR_WIDGETS"] . "sectionform.php";

@@ -251,7 +251,7 @@ class KonzerteData extends AbstractLocationData {
 	
 	function getParticipants($cid) {
 		$query = 'SELECT c.id, cat.name as category, i.name as instrument, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, ';
-		$query .= ' CASE cu.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, cu.reason';		
+		$query .= ' CASE cu.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" WHEN -1 THEN "-" ELSE "nein" END as participate, cu.reason';		
 		$query .= ' FROM concert_user cu JOIN user u ON cu.user = u.id';
 		$query .= '  JOIN contact c ON u.contact = c.id';
 		$query .= '  LEFT JOIN instrument i ON c.instrument = i.id';
@@ -279,6 +279,50 @@ class KonzerteData extends AbstractLocationData {
 			if(!$contactParts) array_push($result, $contacts[$i]);
 		}
 		return $result;
+	}
+	
+	/**
+	 * Returns all invitations including their participation status.
+	 * @param int $concert_id Concert ID.
+	 * @return DbSelection Contact-based selection.
+	 */
+	function getFullParticipation($concert_id) {
+		$query = 'SELECT c.id as contact_id, u.id as user_id, cu.participate, cu.reason, c.nickname, CONCAT_WS(" ", c.name, c.surname) as name,
+					i.name as instrument
+				  FROM concert_contact cc
+					JOIN contact c ON cc.contact = c.id
+					JOIN user u ON u.contact = c.id
+					LEFT OUTER JOIN concert_user cu ON cu.user = u.id AND cu.concert = cc.concert
+					LEFT OUTER JOIN instrument i ON c.instrument = i.id
+				  WHERE cc.concert = ' . $concert_id . '
+				  ORDER BY c.name, c.surname ASC';
+		return $this->database->getSelection($query);
+	}
+	
+	function saveParticipation($concert_id) {
+		// get all participations for this concert
+		$query = "SELECT * FROM concert_user cu WHERE concert = $concert_id";
+		$old_participation = $this->database->getSelection($query);
+		$old_participate = array();
+		for($i = 1; $i < count($old_participation); $i++) {
+			$old_participate[$old_participation[$i]["user"]] = $old_participation[$i]["participate"];
+		}
+		
+		// run through posted result and update the database
+		foreach($_POST as $user_key => $participate) {
+			$user_id = substr($user_key, 5);
+			
+			if(array_key_exists($user_id, $old_participate)) {
+				// update participation
+				$update_query = "UPDATE concert_user SET participate = $participate WHERE user = $user_id AND concert = $concert_id";
+				$this->database->execute($update_query);
+			}
+			else {
+				// create participation
+				$insert_query = "INSERT INTO concert_user (user, concert, participate) VALUES ($user_id, $concert_id, $participate)";
+				$this->database->execute($insert_query);
+			}
+		}
 	}
 	
 	private function isContactInConcert($concertId, $contactId) {
