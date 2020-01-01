@@ -1,3 +1,12 @@
 #############################################
 # Changes to BNote in comparison with 3.4.2 #
 #############################################
+
+#381: Allow admin to update participation
+#388/#405: Removed empty line to fix BNote API (WebApp)
+#390: New fieldtype MINSEC to edit song length in minutes on creation and update
+#391: Set empty custom field date values to NULL instead of empty
+#395: Fix missing date display in rehearsal overview
+#399: Show songs without a composer in the gigcard
+#401: Approve deletion of files and folders
+#404: Instrument filter fixed
