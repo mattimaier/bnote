@@ -23,6 +23,7 @@ class FieldType {
 	const LOGIN = 13;
 	const SET = 14;
 	const CURRENCY = 15;
+	const MINSEC = 16;  // Minutes and seconds
 	const TEXT = 0;
 	
 	/**
@@ -31,21 +32,22 @@ class FieldType {
 	 */
 	public static function getTypeForId($id) {
 		switch($id) {
-			case 1: return "INTEGER";
-			case 2: return "DECIMAL";
-			case 3: return "CHAR";
-			case 4: return "DATE";
-			case 5: return "TIME";
-			case 6: return "DATETIME";
-			case 7: return "REFERENCE";
-			case 8: return "EMAIL";
-			case 9: return "PASSWORD";
-			case 10: return "BOOLEAN";
-			case 11: return "ENUM";
-			case 12: return "FILE";
-			case 13: return "LOGIN";
-			case 14: return "SET";
-			case 15: return "CURRENCY";
+			case FieldType::INTEGER: return "INTEGER";
+			case FieldType::DECIMAL: return "DECIMAL";
+			case FieldType::CHAR: return "CHAR";
+			case FieldType::DATE: return "DATE";
+			case FieldType::TIME: return "TIME";
+			case FieldType::DATETIME: return "DATETIME";
+			case FieldType::REFERENCE: return "REFERENCE";
+			case FieldType::EMAIL: return "EMAIL";
+			case FieldType::PASSWORD: return "PASSWORD";
+			case FieldType::BOOLEAN: return "BOOLEAN";
+			case FieldType::ENUM: return "ENUM";
+			case FieldType::FILE: return "FILE";
+			case FieldType::LOGIN: return "LOGIN";
+			case FieldType::SET: return "SET";
+			case FieldType::CURRENCY: return "CURRENCY";
+			case FieldType::MINSEC: return "MINSEC";
 			default: return "TEXT";
 		}
 	}

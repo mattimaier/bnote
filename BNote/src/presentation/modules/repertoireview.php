@@ -73,15 +73,10 @@ class RepertoireView extends CrudRefView {
 		$genreDropdown = $form->getForeignElement("genre");
 		$genreDropdown->addOption("-", 0);							
 		$form->setForeign("status", "status", "id", "name", -1);
-		
 		$form->removeElement("composer");
 		$composer = "<input type=\"text\" name=\"composer\" id=\"composer\" size=\"30\" />";
 		$form->addElement(Lang::txt("RepertoireView_addEntityForm.composer"), new TextWriteable($composer));
-		
-		$form->removeElement("length");
-		$length = "<input type=\"text\" name=\"length\" size=\"6\" />&nbsp;min";
-		$form->addElement(Lang::txt("RepertoireView_addEntityForm.length"), new TextWriteable($length));
-		
+				
 		$this->appendCustomFieldsToForm($form, 's', null, false);
 		
 		$form->write();

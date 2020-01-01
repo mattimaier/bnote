@@ -436,10 +436,14 @@ abstract class AbstractData {
 				else if($t == FieldType::BOOLEAN) {
 					$value = ($value == "on") ? 1 : 0; 
 				}
+				else if($t == FieldType::MINSEC) {
+					$value = Data::convertMinSecToDb($value);
+				}
 				
 				if($t == FieldType::TEXT || $t == FieldType::CHAR || $t == FieldType::PASSWORD
 					|| $t == FieldType::DATETIME || $t == FieldType::TIME || $t == FieldType::ENUM
-					|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN) $vals .= '"' . $value . '", ';
+					|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN
+					|| $t == FieldType::MINSEC) $vals .= '"' . $value . '", ';
 				else $vals .= $value . ", ";
 			}
 			$cols = substr($cols, 0, strlen($cols)-2); // cut last ", "
@@ -483,10 +487,14 @@ abstract class AbstractData {
 				else if($t == FieldType::BOOLEAN && $val === "on") {
 					$val = 1;
 				}
+				else if($t == FieldType::MINSEC) {
+					$val = Data::convertMinSecToDb($val);
+				}
 					
 				if($t == FieldType::TEXT || $t == FieldType::CHAR || $t == FieldType::PASSWORD
 					|| $t == FieldType::DATETIME || $t == FieldType::TIME || $t == FieldType::ENUM
-					|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN) {
+					|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN
+					|| $t == FieldType::MINSEC) {
 						$query .= '"' . $val . '", ';
 				}
 				else {
@@ -550,6 +558,7 @@ abstract class AbstractData {
 				if(isset($value) && $value != "") $this->regex->isPassword($value, $k);
 				break;
 			case FieldType::LOGIN: $this->regex->isLogin($value, $k); break;
+			case FieldType::MINSEC: $this->regex->isMinSec($value, $k); break;
 			default: $this->regex->isText($value, $k); break;
 		}
 	}

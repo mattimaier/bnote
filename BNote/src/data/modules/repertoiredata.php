@@ -13,7 +13,7 @@ class RepertoireData extends AbstractData {
 		$this->fields = array(
 			"id" => array(Lang::txt("RepertoireData_construct_id"), FieldType::INTEGER),
 			"title" => array(Lang::txt("RepertoireData_construct_title"), FieldType::CHAR, true),
-			"length" => array(Lang::txt("RepertoireData_construct_length"), FieldType::CHAR), // not TIME, because of second precision
+			"length" => array(Lang::txt("RepertoireData_construct_length"), FieldType::MINSEC),
 			"genre" => array(Lang::txt("RepertoireData_construct_genre"), FieldType::REFERENCE),
 			"bpm" => array(Lang::txt("RepertoireData_construct_bpm"), FieldType::INTEGER),
 			"music_key" => array(Lang::txt("RepertoireData_construct_music_key"), FieldType::CHAR),
@@ -66,10 +66,6 @@ class RepertoireData extends AbstractData {
 		if(isset($values["composer"]) && $values["composer"] != "") {
 			$this->regex->isSubject($values["composer"]);
 		}
-		
-		// modify length
-		if($values["length"] == "") $values["length"] = "00"; 
-		$values["length"] = "0:" . $values["length"];
 		
 		// convert title and composer
 		$values["composer"] = $this->modifyString($values["composer"]);

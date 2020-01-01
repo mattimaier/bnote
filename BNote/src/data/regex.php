@@ -55,7 +55,9 @@ class Regex {
 		$this->regex_js ["login"] = '^[\\\w\\\.\\\-\\\_]{3,45}$';
 		
 		$this->regex ["dbid"] = '/^[0-9]{1,11}$/';
+		$this->regex ["minsec"] = '/^([0-9]{1,2}\:)?[0-9]{1,2}\:[0-9]{1,2}$/';
 	}
+	
 	private function isCorrect($d, $type, $k = NULL) {
 		$re = $this->regex [$type];
 		$langTypes = array (
@@ -153,6 +155,12 @@ class Regex {
 	}
 	public function isDatabaseId($d, $k=NULL) {
 		return $this->isCorrect ( $d, "dbid", $k );
+	}
+	public function isMinSec($d, $k=NULL) {
+		if(strpos($d, ":") !== FALSE) {
+			return $this->isCorrect($d, "minsec", $k);
+		}
+		return $this->isPositiveDecimalOrInteger($d);
 	}
 	
 	// Methods for special testing

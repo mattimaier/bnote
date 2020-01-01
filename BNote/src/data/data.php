@@ -247,6 +247,73 @@ abstract class Data {
 		}
 		return array_merge($array, $add);
 	}
+	
+	/**
+	 * Converts a decimal or minute-second value into a time-string for the database.
+	 * @param string $minsec A value like "5:23" meaning 5min and 23sec or "3.5" meaning 3min and 30sec.
+	 * @return string Time-representation in HH:mm:ss for the database to save properly.
+	 */
+	public static function convertMinSecToDb($minsec) {
+		if($minsec != null && strlen($minsec) > 0) {
+			$h = 0; $m = 0; $s = 0;
+			if(strpos($minsec, ":") !== FALSE) {
+				$parts = explode(":", $minsec);
+				if(count($parts) == 1) {
+					$m = intval($parts[0]);
+				}
+				else if(count($parts) == 2) {
+					$m = intval($parts[0]);
+					$s = intval($parts[1]);
+				}
+				else {
+					$h = intval($parts[0]);
+					$m = intval($parts[1]);
+					$s = intval($parts[2]);
+				}
+			}
+			else if(is_int($minsec)) {
+				$m = intval($minsec);
+			}
+			else {
+				// if decimal: convert fraction to seconds
+				$d = floatval(Lang::decimalToDb($minsec));
+				$s = ceil(($d - floor($d)) * 60);
+				$m = floor($d);
+			}
+			if($m > 59) {
+				$h2 = floor($m / 60);
+				$m2 = $m % 60;
+				$h += $h2;
+				$m = $m2;
+			}
+			return sprintf('%02d', $h) . ":" . sprintf('%02d', $m) . ":" . sprintf('%02d', $s);
+		}
+		return "00:00:00";
+	}
+	
+	/**
+	 * Converts a database time string representation into a minute and second based representation.
+	 * @param string $dbTime Time-representation in HH:mm:ss from the database.
+	 * @return string "m:ss" representation for view and edit.
+	 */
+	public static function convertMinSecFromDb($value) {
+		// convert 00:00:00 to 0:00
+		$h = 0;
+		$m = 0;
+		$s = 0;
+		if(strlen($value) > 2) {
+			$h = substr($value, 0, 2);
+			if(strlen($value) > 4) {
+				$col_pos = strpos($value, ":");
+				$m = substr($value, $col_pos+1, 2);
+				if(strlen($value) > 5) {
+					$col_rpos = strrpos($value, ":");
+					$s = substr($value, $col_rpos+1);
+				}
+			}
+		}
+		return (intval($h) * 60 + intval($m)) . ":" . $s;
+	}
  }
 
 ?>

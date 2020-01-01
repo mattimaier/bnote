@@ -8,6 +8,7 @@ class Field implements iWriteable {
 	private $DATELENGTH = 10;
 	private $DECIMALLENGTH = 8;
 	private $INTEGERLENGTH = 6;
+	private $MINSECLENGTH = 6;
 	private $name;
 	private $default_value;
 	private $type;
@@ -84,16 +85,17 @@ class Field implements iWriteable {
 	 */
 	public function write() {
 		switch($this->type) {
-		 	case 0: return $this->Textarea(); break;
-		    case 1: return $this->Integerfield(); break;
-		    case 2: return $this->Decimalfield(); break;
-		    case 4: return $this->Datefield(); break;
-		    case 5: return $this->Timefield(); break;
-		    case 6: return $this->Datetimefield(); break;
-		    case 9: return $this->Passwordfield(); break;
-		    case 10: return $this->Checkboxfield(); break;
-		    case 12: return $this->Filefield(); break;
-		    case 15: return $this->Currencyfield(); break;
+		 	case FieldType::TEXT: return $this->Textarea(); break;
+		    case FieldType::INTEGER: return $this->Integerfield(); break;
+		    case FieldType::DECIMAL: return $this->Decimalfield(); break;
+		    case FieldType::DATE: return $this->Datefield(); break;
+		    case FieldType::TIME: return $this->Timefield(); break;
+		    case FieldType::DATETIME: return $this->Datetimefield(); break;
+		    case FieldType::PASSWORD: return $this->Passwordfield(); break;
+		    case FieldType::BOOLEAN: return $this->Checkboxfield(); break;
+		    case FieldType::FILE: return $this->Filefield(); break;
+		    case FieldType::CURRENCY: return $this->Currencyfield(); break;
+		    case FieldType::MINSEC: return $this->MinuteSecondfield(); break;
 		    case 96: return $this->TimeSelector(); break;
 		    case 97: return $this->DatetimeSelector(); break;
 		    case 98: return $this->tinyMCE(); break;
@@ -187,6 +189,14 @@ class Field implements iWriteable {
 	 */
 	private function Passwordfield() {
 		return '<input type="password" size="' . $this->TEXTLENGTH . '" name="' . $this->name . '" value="' . $this->default_value . '" />' . "\n";
+	}
+	
+	/**
+	 * Field representing minute and second input.
+	 */
+	private function MinuteSecondfield() {
+		$value = Data::convertMinSecFromDb($this->default_value);
+		return '<input type="text" name="' . $this->name . '" size="' . $this->MINSECLENGTH . '" value="' . $value . '" /> min' . "\n";
 	}
 	
 	/**
