@@ -380,6 +380,7 @@ class KontakteView extends CrudRefLocationView {
 		// instrument
 		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
 		$form->addForeignOption("instrument", Lang::txt("KontakteView_addEntity.noinstrument"), 0);
+		$form->renameElement("instrument", Lang::txt("KontakteData_construct.instrument"));
 		
 		// address
 		$form->removeElement("address");

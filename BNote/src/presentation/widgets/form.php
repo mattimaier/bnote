@@ -148,10 +148,10 @@ class Form implements iWriteable {
 	 */
 	public function setForeign($field, $table, $idcolumn, $namecolumns, $selectedid, $urlencodedNameColumns=FALSE) {
 		// check whether key even exists
-		if (! array_key_exists ( $field, $this->elements )) {
-			new BNoteError (Lang::txt("Form_setForeign.error"));
+		if(!array_key_exists($field, $this->elements)) {
+			$this->elements[$field] = NULL;
 		}
-			
+
 		// create new dropdown list
 		$dropdown = new Dropdown ( $field );
 		

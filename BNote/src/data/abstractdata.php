@@ -672,7 +672,10 @@ abstract class AbstractData {
 						$strval = $val;
 				}
 			}
-			array_push($valueSet, "($fieldid, '$otype', $oid, $intval, $dblval, '$strval', '$dateval', '$datetimeval')");
+			$dv = (strlen($dateval) == 0) ? "NULL" : "'$dateval'";
+			$dtv = (strlen($datetimeval) == 0) ? "NULL" : "'$datetimeval'";
+			$set = "($fieldid, '$otype', $oid, $intval, $dblval, '$strval', $dv, $dtv)";
+			array_push($valueSet, $set);
 		}
 		if(count($valueSet) == 0) {
 			return;
