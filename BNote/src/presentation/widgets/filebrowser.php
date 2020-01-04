@@ -396,7 +396,7 @@ class Filebrowser implements iWriteable {
 	 * Deletes a file from the current location (path).
 	 */
 	private function deleteFile() {
-		$this->deleteFileChecks();
+		$fullpath = $this->deleteFileChecks();
 		
 		// remove file or folder
 		if(is_dir($fullpath)) {
@@ -443,6 +443,8 @@ class Filebrowser implements iWriteable {
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $this->path . "/" . $fn)) {
 			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_3"));
 		}
+		
+		return $fullpath;
 	}
 	
 	/**
