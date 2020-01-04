@@ -6,6 +6,7 @@
 #388/#405: Removed empty line to fix BNote API (WebApp)
 #390: New fieldtype MINSEC to edit song length in minutes on creation and update
 #391: Set empty custom field date values to NULL instead of empty
+#392: Editing program shortcut from gig, marking them as templates (even later) and more
 #395: Fix missing date display in rehearsal overview
 #399: Show songs without a composer in the gigcard
 #401: Approve deletion of files and folders
