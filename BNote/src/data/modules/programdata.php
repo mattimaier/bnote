@@ -65,7 +65,7 @@ class ProgramData extends AbstractData {
 		$query .= "FROM song s
 					JOIN program_song ps ON ps.song = s.id
 					LEFT OUTER JOIN composer c ON s.composer = c.id
-					JOIN status st ON s.status = st.id 
+					LEFT OUTER JOIN status st ON s.status = st.id 
 					LEFT OUTER JOIN genre g ON s.genre = g.id ";
 		$query .= "WHERE ps.program = $pid ";
 		$query .= "ORDER BY ps.rank ASC";
@@ -155,7 +155,7 @@ class ProgramData extends AbstractData {
 		$query = "INSERT INTO program_song (program, song, rank) VALUES ";
 		$items = array();
 		for($i = 1; $i < count($songs); $i++) {
-			$rank = $offset + intval($songs[$i]["rank"]);
+			$rank = $offset + $i;
 			$item = "($program_id,". $songs[$i]["song"] .",$rank)";
 			array_push($items, $item);
 		}
