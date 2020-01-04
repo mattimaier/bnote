@@ -502,10 +502,10 @@ class ProbenData extends AbstractLocationData {
 		
 		// run through participations and update one by one
 		foreach($_POST as $item => $participation) {
-			$sep_pos = strrpos($item, "_c");
-			$rehearsal_id = substr($item, 6, strlen($item) - $sep_pos-1);
+			$param_parts = explode("_", $item);  # "part", "rX", "cX"
+			$rehearsal_id = substr($param_parts[1], 1);
 			$this->regex->isPositiveAmount($rehearsal_id);
-			$contact_id = substr($item, $sep_pos+2);
+			$contact_id = substr($param_parts[2], 1);
 			$this->regex->isPositiveAmount($contact_id);
 			
 			// convert contact to user -> cache in map
