@@ -194,7 +194,10 @@ class Database extends Data {
 		$query = "SELECT $col FROM $table WHERE $where";
 		$res = $this->exe ( $query );
 		$row = mysqli_fetch_assoc ( $res );
-		return $row [$col];
+		if($row != null) {
+			return $row[$col];
+		}
+		return null;
 	}
 	
 	/**

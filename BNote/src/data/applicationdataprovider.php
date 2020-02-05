@@ -270,16 +270,16 @@ class ApplicationDataProvider {
 			}
 			
 			// resolve outfit
+			$outfit_out = "-";
 			if($concerts[$i]["outfit"] != "") {
 				$q5 = "SELECT name, description FROM outfit WHERE id = " . $concerts[$i]["outfit"];
 				$outfit = $this->database->getRow($q5);
-				$outfit_out = $outfit["name"];
-				if($outfit["description"] != "") {
-					$outfit_out .= ": " . $outfit["description"];
+				if($outfit != null) { 
+					$outfit_out = $outfit["name"];
+					if($outfit["description"] != "") {
+						$outfit_out .= ": " . $outfit["description"];
+					}
 				}
-			}
-			else {
-				$outfit_out = "-";
 			}
 			
 			// build result for by row
@@ -564,7 +564,10 @@ class ApplicationDataProvider {
 	function getConductorname($cid) {
 		$query = "SELECT CONCAT(name, ' ', surname) as name FROM contact WHERE id = $cid";
 		$row = $this->database->getRow($query);
-		return $row["name"];
+		if($row != null) {
+			return $row["name"];
+		}
+		return "";
 	}
 	
 	function getDocumentTypes() {
