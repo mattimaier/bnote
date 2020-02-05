@@ -227,7 +227,8 @@ class Filebrowser implements iWriteable {
 		// show links
 		foreach($favs as $caption => $loc) {
 			$active = "";
-			if(isset($_GET["path"]) && urlencode($loc) == $this->path) {
+			$current_loc = substr($loc, strlen($GLOBALS["DATA_PATHS"]["share"]));
+			if(isset($_GET["path"]) && $current_loc == $this->path) {
 				$active = "_active";
 			}
 			?>

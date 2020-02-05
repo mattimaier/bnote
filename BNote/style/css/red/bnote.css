@@ -153,7 +153,7 @@ label.contactdetail_entry_label {
 }
 .filebrowser_folderitem_active {
   padding: 5px;
-  margin-bottom: 5px;
+  display: inline-block;
   color: #F24E4E;
   background-color: #FFFFFF;
 }
