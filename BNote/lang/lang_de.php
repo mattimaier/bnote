@@ -391,7 +391,7 @@ class Translation extends BNoteTranslation {
 			
 			// Widget: Table *********************************************	
 			"Table_write.yes" => "ja",
-			"Table_write.yes" => "nein",
+			"Table_write.no" => "nein",
 			"Table_write.table_no_entries" => "Es wurden keine Einträge gefunden.",
 			"Table_write.prevpage" => "Vorherige Einträge",
 			"Table_write.nextpage" => "Nächste Einträge",

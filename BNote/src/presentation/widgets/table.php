@@ -301,7 +301,7 @@ class Table implements iWriteable {
 						}
 						if($this->formats[$id] == "BOOLEAN") {
 							if($value == 1) $value = Lang::txt("Table_write.yes");
-							else $value = Lang::txt("Table_write.yes");
+							else $value = Lang::txt("Table_write.no");
 						}
 					}
 
