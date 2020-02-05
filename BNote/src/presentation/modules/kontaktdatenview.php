@@ -61,7 +61,8 @@ class KontaktdatenView extends CrudRefLocationView {
 		// change password
 		$pwNote = Lang::txt("KontaktdatenView_changePassword.Message");
 		
-		$form2 = new Form(Lang::txt("KontaktdatenView_changePassword.Form"), "<p style=\"font-weight: normal;\">$pwNote</p>", $this->modePrefix() . "password");
+		$form2 = new Form(Lang::txt("KontaktdatenView_changePassword.Form"), $this->modePrefix() . "password");
+		$form2->addElement("", new Field("", $pwNote, 99));
 		$form2->addElement(Lang::txt("KontaktdatenView_changePassword.New"), new Field("pw1", "", FieldType::PASSWORD));
 		$form2->addElement(Lang::txt("KontaktdatenView_changePassword.Repeat"), new Field("pw2", "", FieldType::PASSWORD));
 		$form2->write();

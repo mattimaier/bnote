@@ -905,7 +905,7 @@ class Translation extends BNoteTranslation {
 			"KontaktdatenView_savePD.Message_1" => "Daten gespeichert",
 			"KontaktdatenView_savePD.Message_2" => "Die Änderungen wurden gespeichert.",
 			"KontaktdatenView_changePassword.Message" => "Bitte gebe mindestens 6 Zeichen und keine Leerzeichen ein um dein Passwort zu ändern.",
-			"KontaktdatenView_changePassword.Form" => "<br Passwort ändern<br/>",
+			"KontaktdatenView_changePassword.Form" => "Passwort ändern",
 			"KontaktdatenView_changePassword.New" => "Neues Passwort",
 			"KontaktdatenView_changePassword.Repeat" => "Passwort Wiederholen",
 			"KontaktdatenView_password.Message_1" => "Passwort geändert",

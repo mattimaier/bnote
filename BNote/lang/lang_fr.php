@@ -905,7 +905,7 @@ class Translation extends BNoteTranslation {
 			"KontaktdatenView_savePD.Message_1" => "Données sauvegardées",
 			"KontaktdatenView_savePD.Message_2" => "Les modifications ont été sauvegardées.",
 			"KontaktdatenView_changePassword.Message" => "Veuillez entrer au moins 6 caractères et aucun espace pour changer votre mot de passe.",
-			"KontaktdatenView_changePassword.Form" => "<br Changer de mot de passe<br/>",
+			"KontaktdatenView_changePassword.Form" => "Changer de mot de passe",
 			"KontaktdatenView_changePassword.New" => "Nouveau mot de passe",
 			"KontaktdatenView_changePassword.Repeat" => "Confirmer le mot de passe",
 			"KontaktdatenView_password.Message_1" => "Le mot de passe a été changé",
