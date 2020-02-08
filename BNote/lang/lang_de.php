@@ -1471,6 +1471,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_overview.cancel" => "Nimmt nicht teil",
 			"ProbenView_overview.yield" => "Nimmt vielleicht teil",
 			"ProbenView_overview.checked" => "Nimmt teil",
+			"ProbenView_overview.edit_legend_message" => "Wähle ? für keine Angabe, - für die Nichtteilnahme, ✓  für die Teilnahme und, wenn konfiguriert, ~ für die Vielleicht-Option.",
 			"ProbenView_overviewEdit.buttonLabel" => "Teilnahme bearbeiten",
 			"ProbenView_overviewEdit.save" => "Teilnahmen speichern",
 			"ProbenView_overviewEdit.error" => "Es gibt Teilnehmer ohne Benutzer.",

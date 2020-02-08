@@ -732,6 +732,8 @@ class ProbenView extends CrudRefLocationView {
 				$save = new Link($this->modePrefix() . "overview&edit=save", Lang::txt("ProbenView_overviewEdit.save"));
 				$save->isSubmitButton();
 				$save->write();
+				
+				Writing::p(Lang::txt("ProbenView_overview.edit_legend_message"));
 			}
 		}
 		
@@ -788,7 +790,9 @@ class ProbenView extends CrudRefLocationView {
 									$dd->addOption("?", -1);
 									$dd->addOption("-", 0);
 									$dd->addOption("✓", 1);
-									$dd->addOption("~", 2);
+									if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") != 0) {
+										$dd->addOption("~", 2);
+									}
 									$dd->setSelected($participant['participate']);
 									$dd->setStyleClass("participationQuickSelector");
 									echo $dd->write();
