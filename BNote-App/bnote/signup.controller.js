@@ -50,9 +50,14 @@ sap.ui.controller("bnote.signup", {
 					 data: model.oData,
 					 url: backend.get_url("signup"),
 					 success: function(data) {
-						 signupView.getController().dirty = false;
-						 sap.m.MessageToast.show("Benutzer erfolgreich angelegt.");
-						 app.to("start");					
+                         if(!data.success) {
+                             sap.m.MessageToast.show(data.message);
+                         }
+                         else {
+                             signupView.getController().dirty = false;
+                             sap.m.MessageToast.show("Benutzer erfolgreich angelegt.");
+                             app.to("start");
+                         }
 		             },
 			         error: function() { 
 			        	 sap.m.MessageToast.show("Benutzer konnte nicht angelegt werden.");

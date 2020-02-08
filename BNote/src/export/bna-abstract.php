@@ -1735,10 +1735,16 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	public function signup() {
-		$loginCtrl = new LoginController();
-		$loginCtrl->setData(new LoginData($GLOBALS["dir_prefix"]));
-		$res = $loginCtrl->register(false);
-		echo json_encode($res);
+		$cfgRegistration = $this->sysdata->getDynamicConfigParameter("user_registration");
+		if($cfgRegistration == "1") {
+			$loginCtrl = new LoginController();
+			$loginCtrl->setData(new LoginData($GLOBALS["dir_prefix"]));
+			$res = $loginCtrl->register(false);
+			echo json_encode($res);
+		}
+		else {
+			echo json_encode(array("success" => False, "message" => "Feature disabled by configuration"));
+		}
 	}
 	
 	public function getProgram($id) {
