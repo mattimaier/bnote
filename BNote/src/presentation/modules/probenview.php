@@ -488,7 +488,7 @@ class ProbenView extends CrudRefLocationView {
 		$table->write();
 		
 		// remaining calls
-		Writing::h3(Lang::txt("ProbenView_participants.title_2"));
+		Writing::h3(Lang::txt("ProbenView_participants.title_3"));
 		$openTab = new Table($this->getData()->getOpenParticipation($_GET["id"]));
 		$openTab->showFilter();
 		$openTab->removeColumn("id");
@@ -497,7 +497,7 @@ class ProbenView extends CrudRefLocationView {
 		$openTab->renameHeader("mobile", Lang::txt("ProbenView_participants.mobile"));
 		$openTab->write();
 		
-		Writing::h3(Lang::txt("ProbenView_participants.title_3"));
+		Writing::h3(Lang::txt("ProbenView_participants.title_4"));
 		$dv = new Dataview();
 		$dv->autoAddElements($this->getData()->getParticipantStats($_GET["id"]));
 		$dv->write();
