@@ -1,13 +1,12 @@
 #############################################
-# Changes to BNote in comparison with 3.4.2 #
+# Changes to BNote in comparison with 3.4.3 #
 #############################################
 
-#381: Allow admin to update participation
-#388/#405: Removed empty line to fix BNote API (WebApp)
-#390: New fieldtype MINSEC to edit song length in minutes on creation and update
-#391: Set empty custom field date values to NULL instead of empty
-#392: Editing program shortcut from gig, marking them as templates (even later) and more
-#395: Fix missing date display in rehearsal overview
-#399: Show songs without a composer in the gigcard
-#401: Approve deletion of files and folders
-#404: Instrument filter fixed
+#407: Downloading folders in zip form was fixed
+#409: Fixed wrong titel in rehearsal participants
+#414: Calendar view fixed
+#416: App does not allow registration of users when configuration for registration is off
+#418: Direct access to views via URL possible after login
+#420: Number of performances on start are limited
+#421: Changing passwords is possible again (typo fixed)
+#422: Repertoire status is displayed correctly in overview table again
