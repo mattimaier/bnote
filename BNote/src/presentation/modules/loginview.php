@@ -78,7 +78,12 @@ class LoginView extends AbstractView {
 			<?php
 		}
 		
-		Writing::p(Lang::txt("LoginView_login.message_1"));
+		if(isset($_GET["fwd"])) {
+			new Message(Lang::txt("LoginView_login.fwd_header"), Lang::txt("LoginView_login.fwd_message"));
+		}
+		else {
+			Writing::p(Lang::txt("LoginView_login.message_1"));
+		}
 		
 		Writing::p(Lang::txt("LoginView_login.message_2"));
 		
@@ -86,6 +91,9 @@ class LoginView extends AbstractView {
 		$form = new Form(Lang::txt("LoginView_login.Form"), $this->modePrefix() . "login");
 		$form->addElement(Lang::txt("LoginView_login.login"), new Field("login", "", FieldType::CHAR));
 		$form->addElement(Lang::txt("LoginView_login.password"), new Field("password", "", FieldType::PASSWORD));
+		if(isset($_GET["fwd"])) {
+			$form->addHidden("fwd", $_GET["fwd"]);
+		}
 		$form->write();
 	}
 	

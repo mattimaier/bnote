@@ -1254,6 +1254,8 @@ class Translation extends BNoteTranslation {
 			"LoginView_login.Form" => "Anmeldung",
 			"LoginView_login.login" => "Benutzername<br/>oder E-Mail-Adresse",
 			"LoginView_login.password" => "Passwort",
+			"LoginView_login.fwd_header" => "Geschützter Zugriff",
+			"LoginView_login.fwd_message" => "Du versuchst auf eine geschützte Seite zuzugreifen. Bitte melde dich mit einem priviligierten Benutzerkonto an.",
 			"LoginView_forgotPassword.title" => "Passwort vergessen",
 			"LoginView_forgotPassword.message" => "Bitte gebe deine E-Mail-Adresse ein und das System wird dir ein neues Passwort per E-Mail zuschicken.",
 			"LoginView_forgotPassword.email" => "E-Mail-Adresse",

@@ -1253,6 +1253,8 @@ class Translation extends BNoteTranslation {
 				réessayer plus tard.",	
 			"LoginView_login.Form" => "Connexion et inscription",
 			"LoginView_login.login" => "Identifiant <br/> ou adresse de courriel",
+			"LoginView_login.fwd_header" => "Accès protégé",
+			"LoginView_login.fwd_message" => "Vous essayez d'accéder à une ressource protégée. Veuillez vous authentifier avec un compte privilégié.",
 			"LoginView_login.password" => "Mot de passe",
 			"LoginView_forgotPassword.title" => "Mot de passe oublié ?",
 			"LoginView_forgotPassword.message" => "Veuillez entrer votre adresse de courriel et le système vous enverra un nouveau mot de passe par e-mail.",

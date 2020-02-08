@@ -82,7 +82,13 @@ class LoginController extends DefaultController {
 				return true;
 			}
 			else {
-				header("Location: ?mod=" . $this->getData()->getStartModuleId());
+				if(isset($_POST["fwd"]) && $_POST["fwd"] != "") {
+					$loc = $_POST["fwd"];
+				}
+				else {
+					$loc = "mod=" . $this->getData()->getStartModuleId();
+				}
+				header("Location: ?$loc");
 			}
 		}
 		else {

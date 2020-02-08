@@ -1,6 +1,6 @@
 <?php
 /**
- * Center for control and coordination within the IS
+ * Center for control and coordination
  **/
 class Controller {
 
@@ -14,12 +14,14 @@ class Controller {
 
 		# Check for Permission
 		if(!$system_data->userHasPermission($system_data->getModuleId())) {
-			new BNoteError("<b>Keine Berechtigung</b><br>Sie haben keine Berechtigung dieses Modul zu benutzen.");
+			$req_view = urlencode($_SERVER["QUERY_STRING"]);
+			header("location: main.php?mod=login&fwd=$req_view");
 		}
 
 		# Check all $_GET attributes for attack
 		foreach($_GET as $key => $value) {
-			if(!preg_match("/^[[:alnum:]" . Regex::$SPECIALCHARACTERS . "\.\_\-\%\ \/\'\(\)]{1,255}$/", $value)) {
+			if(!preg_match("/^[[:alnum:]" . Regex::$SPECIALCHARACTERS . "\.\_\-\%\ \/\'\(\)]{1,255}$/", $value)
+					&& !(isset($_GET["mod"]) && $_GET["mod"] == "login" && $key == "fwd")) {
 				new BNoteError("Es wurde ein vermeintlicher Angriff festgestellt.<br>
 						Sollte diese Meldung weiterhin auftreten, wenden Sie sich bitten an Ihren Systemadministrator.");
 			}

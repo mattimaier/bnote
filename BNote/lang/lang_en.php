@@ -1254,6 +1254,8 @@ class Translation extends BNoteTranslation {
 				try again at a later time.",
 			"LoginView_login.Form" => "Login",
 			"LoginView_login.login" => "User name<br/>or e-mail address",
+			"LoginView_login.fwd_header" => "Protected Access",
+			"LoginView_login.fwd_message" => "You are trying to access a protected resource. Please authenticate yourself with a privileged account.",
 			"LoginView_login.password" => "Password",
 			"LoginView_forgotPassword.title" => "Password forgotten",
 			"LoginView_forgotPassword.message" => "Please enter your e-mail address and the system will send you a new password by e-mail",
