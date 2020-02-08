@@ -66,36 +66,6 @@ $(document).ready(function() {
 	$("#sortable").sortable();
 	$("#sortable").disableSelection();
 	
-	$('#calendar').fullCalendar({
-		height: "auto",
-		lang: "de",
-		eventClick: function(calEvent, jsEvent, view) {
-			if(calEvent.bnoteType) {				
-				$('#calendar_eventdetail_title').text(calEvent.title);
-				
-				// show details object
-				$('#calendar_eventdetail_block').text("");
-				
-				for(var k in calEvent.details) {
-					if(k == "id") continue;
-					$('#calendar_eventdetail_block').append('<div class="calendar_eventdetail_keyvalue">'
-							+ '<label class="calendar_eventdetail_key">' + k + '</label>' 
-							+ '<span class="calendar_eventdetail_value">'+ calEvent.details[k] + '</span></div>');
-				}
-				
-				if(calEvent.access) {
-					$('#calendar_eventdetail_block').append(
-							'<a class="linkbox" href="' + calEvent.link + '">' +
-							'<div class="linkbox" style="margin-top: 10px;">Details</div></a>');
-				}
-				
-				$('#calendar_eventdetail').show();
-			}
-		},
-		timeFormat: 'H:mm'
-    });
-	$('#calendar_eventdetail').hide();
-	
 	$(".copyDateOrigin").on('change', function(event) {
 		// get all origin values and build target values
 		var h = "";

@@ -23,15 +23,16 @@ class CalendarView extends CrudRefLocationView {
 	
 	function start() {
 		?>
-		<script>
-		<?php
-		$events = $this->getData()->getEvents();
-		
-		// load all events in a globally available JS array
-		echo "calendar_events = " . json_encode($events) . ";";
-		?>
-		</script>
-		
+		<style>
+		/* fix some bnote defaults for the plugin */
+		table {
+			margin-top: 0;
+			margin-bottom: 0;
+		}
+		tr {
+			border-bottom-width: 0;
+		}
+		</style>
 		<div id='calendar'></div>
 		
 		<div id="calendar_eventdetail">
@@ -40,8 +41,51 @@ class CalendarView extends CrudRefLocationView {
 			</div>
 		</div>
 		
-		<script>
+		<script>		
 		$(function() {
+			// all events
+			var cal_events = <?php echo json_encode($this->getData()->getEvents()); ?>;
+			
+			// Full Calendar View
+			var calendarEl = document.getElementById('calendar'); 
+			var calendar = new FullCalendar.Calendar(calendarEl, {
+				plugins: [ 'dayGrid' ],
+				events: cal_events,
+				locale: 'de',
+				eventClick: function(info) {
+					var calEvent = info.event;
+					$('#calendar_eventdetail_title').text(calEvent.title);
+					
+					// show details object
+					$('#calendar_eventdetail_block').text("");
+					
+					for(var k in calEvent.extendedProps.details) {
+						if(k == "id") continue;
+						$('#calendar_eventdetail_block').append('<div class="calendar_eventdetail_keyvalue">'
+								+ '<label class="calendar_eventdetail_key">' + k + '</label>' 
+								+ '<span class="calendar_eventdetail_value">'+ calEvent.extendedProps.details[k] + '</span></div>');
+					}
+					
+					if(calEvent.extendedProps.link) {
+						$('#calendar_eventdetail_block').append(
+								'<a class="linkbox" href="' + calEvent.extendedProps.link + '">' +
+								'<div class="linkbox" style="margin-top: 10px;">Details</div></a>');
+					}
+					
+					$('#calendar_eventdetail').show();
+				},
+				header: {
+					left: 'title',
+					center: '',
+					right: 'prev,next'
+				}
+		    });
+
+		    calendar.render();
+
+		    $('#calendar_eventdetail').hide();
+
+		    /*
 			$("#calendar").fullCalendar( 'addEventSource', {
 				events: calendar_events["rehearsals"],
 				color: '#61b3ff'  // bnote blue
@@ -70,6 +114,7 @@ class CalendarView extends CrudRefLocationView {
 				events: calendar_events["appointments"],
 				color: '#DF61FF'  // pink
 			});
+			*/
 		});
 		</script>
 		<?php

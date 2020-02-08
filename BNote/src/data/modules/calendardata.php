@@ -114,6 +114,7 @@ class CalendarData extends AbstractLocationData {
 			$res_row["bnoteType"] = $entityType;
 			$res_row["link"] = $link . $res_row["id"];
 			$res_row["access"] = $modAccess;
+			$res_row["groupId"] = $entityType;
 			array_push($result, $res_row);
 		}
 		
@@ -205,16 +206,7 @@ class CalendarData extends AbstractLocationData {
 				array("begin" => "start", "name" => "title"),
 				Lang::txt("CalendarData_getEvents.appointment"),
 				"?mod=" . $this->getSysdata()->getModuleId("Calendar") . "&mode=appointments&func=view&id=");
-		
-		return array(
-			"rehearsals" => $rehs,
-			"rehearsalphases" => $phases,
-			"concerts" => $concerts,
-			"votes" => $votes,
-			"contacts" => $contacts,
-			"reservations" => $reservations,
-			"appointments" => $appointments
-		);
+		return array_merge($rehs, $phases, $concerts, $votes, $contacts, $reservations, $appointments);
 	}
 	
 	function getContact($id) {
