@@ -873,6 +873,7 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.enable_trigger_service" => "Notifications activées",
 			"KonfigurationData_construct.default_conductor" => "Conducteur standard",
 			"KonfigurationData_construct.currency" => "Devises",
+			"KonfigurationData_construct.concert_show_max" => "Nombre de concerts sur la page d'accueil",
 			"KonfigurationData_replaceParameterValue.yes" => "Oui",
 			"KonfigurationData_replaceParameterValue.no" => "Non",
 			
@@ -1835,6 +1836,7 @@ class Translation extends BNoteTranslation {
 			"StartView_writeConcertList.Participate" => "Vous participez au concert.",
 			"StartView_writeConcertList.MayParticipate" => "Vous participez peut-être au concert.",
 			"StartView_writeConcertList.DontParticipate" => "Vous ne participez pas au concert.",
+			"StartView_writeConcertList.Concert" => "Seules les premières %p performances sont affichées.",
 			"StartView_writeTaskList.title" => "Titre",
 			"StartView_start_box_Task.writeUpdateList" => "Commentaires",
 			"StartView_writeRehearsalList.groupNames" => "Groupes",

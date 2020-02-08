@@ -153,7 +153,14 @@ class StartView extends CrudRefLocationView {
 				<div class="start_box">
 					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Concert.heading"); ?></div>
 					<div class="start_box_content">
-						<?php $this->writeConcertList(); ?>
+						<?php
+						if(isset($_GET["concert_max"]) && $_GET["concert_max"] >= 0) {
+							$this->writeConcertList($_GET["concert_max"]);
+						}
+						else {
+							$this->writeConcertList($this->getData()->getSysdata()->getDynamicConfigParameter("concert_show_max"));
+						}
+						?>
 					</div>
 					
 					<?php
@@ -344,7 +351,7 @@ class StartView extends CrudRefLocationView {
 		echo "</ul>\n";
 	}
 	
-	private function writeConcertList() {
+	private function writeConcertList($max = 0) {
 		$data = $this->getData()->getUsersConcerts();
 		echo "<ul>\n";
 		if($data == null || count($data) < 2) {
@@ -357,6 +364,15 @@ class StartView extends CrudRefLocationView {
 				
 				// add every item to the discussion
 				array_push($this->objectListing["C"], $row["id"]);
+				
+				// limit the number of concerts if necessary
+				if($max > 0 && $i > $max) {
+					if($i == $max+1) {
+						echo "<span style=\"font-style: italic;\">" . Lang::txt("StartView_writeConcertList.Concert", array($max)) . "</span>\n";
+						echo "<br/><a href=\"" . $this->modePrefix() . "start&concert_max=0" . "\">" . Lang::txt("showAll") . "</a>";
+					}
+					continue; // cannot break due to discussion addition of objects
+				}
 				
 				$liCaption = Data::convertDateFromDb($row["begin"]);
 				$liCaption = Data::getWeekdayFromDbDate($row["begin"]) . ", " . $liCaption;

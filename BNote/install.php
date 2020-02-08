@@ -833,6 +833,7 @@ class Installation {
 					('allow_zip_download', '1', 1),
 					('rehearsal_show_max', '5', 1),
 					('updates_show_max', '5', 1),
+					('concert_show_max', '5', 1),
 					('language', 'de', 1),
 					('discussion_on', '1', 1),
 					('google_api_key', '', 1),
