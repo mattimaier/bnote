@@ -302,8 +302,8 @@ class ApplicationDataProvider {
 				"contact_email" => $contact["email"],
 				"contact_web" => $contact["web"],
 				"program_id" => $concerts[$i]["program"],
-				"program_name" => $program["name"],
-				"program_notes" => $program["notes"],
+				"program_name" => isset($program["name"]) ? $program["name"] : "",
+				"program_notes" => isset($program["notes"]) ? $program["notes"] : "",
 				"outfit" => $outfit_out
 			));
 		}
