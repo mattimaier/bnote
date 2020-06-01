@@ -571,11 +571,15 @@ class Filebrowser implements iWriteable {
 		if(strrpos($file, ".") !== false) {
 			$end = strtolower(substr($file, strrpos($file, ".")+1));
 			$music = array("mp3", "ogg", "acc", "wav");
+			$image = array("jpg", "jpeg");
 			if(in_array($end, $music)) {
 				return "music";
 			}
 			if($end == "pdf") {
 				return "pdf";
+			}
+			if(in_array($end, $image)) {
+				return "gallery";
 			}
 		}
 		return "doc";
