@@ -8,7 +8,7 @@
  *
  */
 class Filebrowser implements iWriteable {
-	
+
 	/*
 	 * Comment
 	 * -------
@@ -19,43 +19,43 @@ class Filebrowser implements iWriteable {
 	 * usability. However, this makes the single files big and breaks the
 	 * MVC structure.
 	 */
-	
+
 	/**
 	 * These characters are removed when files are added so they don't mess up anything.
 	 * @var array Characters to be removed from filenames.
 	 */
 	private $replace_chars = array("&", "+", "/", "\\", "#");
-	
+
 	/**
 	 * Root directory on the server.
 	 * @var String
 	 */
 	private $root;
-	
+
 	/**
 	 * Current folder location.
 	 * @var String
 	 */
 	private $path;
-	
+
 	/**
 	 * Whether this filebrowser should be set to view only.
 	 * @var bool
 	 */
 	private $viewmode = false;
-	
+
 	/**
 	 * Access to system data.
 	 * @var Systemdata
 	 */
 	private $sysdata;
-	
+
 	/**
 	 * Application Data Provider.
 	 * @var ApplicationDataProvider
 	 */
 	private $adp;
-	
+
 	/**
 	 * Create a new filebrowser widget.
 	 * @param String $root Root directory for the browser.
@@ -65,7 +65,7 @@ class Filebrowser implements iWriteable {
 		$this->sysdata = $sysdata;
 		$this->adp = $adp;
 	}
-	
+
 	/**
 	 * If this function is called without any parameter
 	 * or with the parameter set to true, then the file
@@ -76,7 +76,7 @@ class Filebrowser implements iWriteable {
 	function viewMode($bool = true) {
 		$this->viewmode = $bool;
 	}
-	
+
 	protected function setCurrentPath() {
 		// determine current location
 		if(isset($_GET["path"])) {
@@ -89,25 +89,25 @@ class Filebrowser implements iWriteable {
 			$this->path = "";
 		}
 	}
-	
+
 	function write() {
 		$this->setCurrentPath();
-		
+
 		// strip root if path contains root
 		if(Data::startsWith($this->path, $this->root)) {
 			$this->path = substr($this->path, strlen($this->root));
 		}
-		
+
 		// make sure the path ends with a slash
 		if(!Data::endsWith($this->path, "/")) {
 			$this->path .= "/";
 		}
-		
+
 		// check permission for folder to prevent URL hacks within the system
 		if(!$this->adp->getSecurityManager()->canUserAccessFile($this->path)) {
 			new BNoteError(Lang::txt("Filebrowser_write.error"));
 		}
-		
+
 		// execute functions
 		if(isset($_GET["fbfunc"]) && $_GET["fbfunc"] != "view") {
 			$fbfunc = $_GET["fbfunc"];
@@ -117,28 +117,28 @@ class Filebrowser implements iWriteable {
 			$this->mainView();
 		}
 	}
-	
+
 	function showOptions() {
 		$this->setCurrentPath();
-		
+
 		// show the add folder button if in write-mode
 		if(!$this->viewmode) {
 			$path = $this->path;
 			if($path == "") {
 				$path = "/";
 			}
-			
+
 			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($path)), Lang::txt("Filebrowser_showOptions.addFolderForm"));
 			$lnk->addIcon("plus");
 			$lnk->write();
-			
+
 			AbstractView::buttonSpace();
 			$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($path)), Lang::txt("Filebrowser_showOptions.addFileForm"));
 			$lnk->addIcon("plus");
 			$lnk->write();
 		}
-		
-		// display zip-download button		
+
+		// display zip-download button
 		if($this->sysdata->getDynamicConfigParameter("allow_zip_download") == "1") {
 			// only allow downloads of subfolders, not the root-folders to prevent heavy load on server
 			AbstractView::buttonSpace();
@@ -147,16 +147,16 @@ class Filebrowser implements iWriteable {
 			$dl->write();
 		}
 	}
-	
+
 	protected function isCurrentPathMainFolder() {
 		$mainpathlen = strlen("data/share/");
-		if(Data::startsWith($this->path, "data/share/")) { 
+		if(Data::startsWith($this->path, "data/share/")) {
 			$subpath = substr($this->path, $mainpathlen);
 		}
 		else {
 			$subpath = $this->path;
 		}
-		
+
 		$userfolder = substr($this->sysdata->getUsersHomeDir(), $mainpathlen);
 		if(Data::endsWith($subpath, "/") && !Data::endsWith($userfolder, "/")) {
 			$userfolder .= "/";
@@ -173,19 +173,19 @@ class Filebrowser implements iWriteable {
 		}
 		return False;
 	}
-	
-	private function mainView() {		
+
+	private function mainView() {
 		// show the folders and their contents
 		?>
 		<div class="filebrowser_favs_container">
 			<div class="filebrowser_favs_title"><?php echo Lang::txt("Filebrowser_mainView.writeFavs"); ?></div>
 			<?php $this->writeFavs(); ?>
 		</div>
-		
+
 		<div style="margin-top: 10px;">
 			<?php $this->writeFolderContent(); ?>
 		</div>
-		
+
 		<div id="fb-fileupload">
 			<form id="fb-fileupload-form" action="<?php echo $this->linkprefix("addFile&path=" . $this->path); ?>" class="dropzone">
 			  <div class="fallback">
@@ -196,7 +196,7 @@ class Filebrowser implements iWriteable {
 		</div>
 		<?php
 	}
-	
+
 	/**
 	 * Writes user's home and group homes to this list
 	 * as well as a link to the share root for common access.
@@ -207,23 +207,23 @@ class Filebrowser implements iWriteable {
 			Lang::txt("Filebrowser_writeFavs.myFiles") => $this->sysdata->getUsersHomeDir(),
 			Lang::txt("Filebrowser_writeFavs.commonShare") => $this->root
 		);
-		
+
 		if($this->adp->getSecurityManager()->isUserAdmin()) {
 			$favs[Lang::txt("Filebrowser_writeFavs.userFolder")] = $GLOBALS["DATA_PATHS"]["userhome"];
 		}
-		
+
 		$groups = $this->adp->getUsersGroups();
 		if($this->sysdata->isUserSuperUser()) {
 			$groups = Database::flattenSelection($this->adp->getGroups(), "id"); // flatten
 		}
-		
-		if($groups != null && count($groups) > 0) { 
+
+		if($groups != null && count($groups) > 0) {
 			foreach($groups as $i => $gid) {
 				$name = $this->sysdata->dbcon->getCell("`group`", "name", "id = $gid");
 				$favs[$name] = $this->root . "groups/group_" . $gid . "/";
 			}
 		}
-		
+
 		// show links
 		foreach($favs as $caption => $loc) {
 			$active = "";
@@ -238,12 +238,12 @@ class Filebrowser implements iWriteable {
 			<?php
 		}
 	}
-	
+
 	/**
 	 * Writes all folders on the screen.
 	 */
-	private function writeFolders() { 
-		// iterate through folder		
+	private function writeFolders() {
+		// iterate through folder
 		if($handle = opendir($this->root)) {
 			while(false !== ($file = readdir($handle))) {
 				if($file != "." && $file != ".." && is_dir($this->root . $file)) {
@@ -261,7 +261,7 @@ class Filebrowser implements iWriteable {
 			closedir($handle);
 		}
 	}
-	
+
 	/**
 	 * Writes the folder contents.
 	 */
@@ -280,7 +280,7 @@ class Filebrowser implements iWriteable {
 			}
 			$dirname = str_replace("/", " > ", $dirname);
 			Writing::h3($dirname, "filebrowser_folder_header");
-			
+
 			// show table with files
 			$content = $this->getFilesFromFolder($this->root . $this->path);
 			?>
@@ -293,14 +293,14 @@ class Filebrowser implements iWriteable {
 			<?php
 		}
 	}
-	
+
 	private function writeFolderContentItem($content, $type) {
 		for($i = 1; $i < count($content); $i++) {
 			$item = $content[$i];
-			
+
 			if($type == "folder" && $item["directory"] === false) continue;
 			else if($type == "file" && $item["directory"] === true) continue;
-			
+
 			$link = $item["show"];
 			?>
 				<div class="filebrowser_item">
@@ -312,7 +312,7 @@ class Filebrowser implements iWriteable {
 					</a>
 					<?php } ?>
 					<span class="filebrowser_item_size"><?php echo $item["size"]; ?></span>
-					<?php 
+					<?php
 					if($item["icon"] == "music") {
 						$mime = strtolower(substr($link, strrpos($link, ".")+1));
 						if($mime == "mp3") {
@@ -330,14 +330,14 @@ class Filebrowser implements iWriteable {
 			<?php
 		}
 	}
-	
+
 	private function addFolderForm() {
 		$form = new Form(Lang::txt("Filebrowser_addFolderForm.addFolder"), $this->linkprefix("addFolder&path=" . $this->path));
 		$form->addElement(Lang::txt("Filebrowser_addFolderForm.foldername"), new Field("folder", "", FieldType::CHAR));
 		$form->addHidden("path", urlencode($_GET["path"]));
 		$form->write();
 	}
-	
+
 	private function addFileForm() {
 		$form = new Form(Lang::txt("createFile"), $this->linkprefix("addFile&path=" . $this->path));
 		$form->setMultipart();
@@ -346,7 +346,7 @@ class Filebrowser implements iWriteable {
 		$form->changeSubmitButton(Lang::txt("uploadFile"));
 		$form->write();
 	}
-	
+
 	/**
 	 * Adds a file to the current location (path).
 	 */
@@ -355,7 +355,7 @@ class Filebrowser implements iWriteable {
 		if($this->viewmode) {
 			new BNoteError(Lang::txt("Filebrowser_addFile.error_1"));
 		}
-		
+
 		// validate upload
 		if(!isset($_FILES["file"])) {
 			new BNoteError(Lang::txt("errorWithFile"));
@@ -373,32 +373,32 @@ class Filebrowser implements iWriteable {
 		if(!is_uploaded_file($_FILES["file"]["tmp_name"])) {
 			new BNoteError(Lang::txt("Filebrowser_addFile.error_2"));
 		}
-		
+
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_WRITE, $this->root . $this->path)) {
 			new BNoteError(Lang::txt("Filebrowser_addFile.error_3"));
 		}
-		
+
 		// copy file to target directory
 		$target = $this->root . $this->path;
 		$targetFilename = $_FILES["file"]["name"];
-		
+
 		foreach($this->replace_chars as $i => $char) {
 			$targetFilename = str_replace($char, "", $targetFilename);
 		}
-		
+
 		if(!copy($_FILES["file"]["tmp_name"], $target . "/" . $targetFilename)) {
 			new BNoteError(Lang::txt("Filebrowser_addFile.error_4"));
 		}
-		
+
 		$this->mainView();
 	}
-	
+
 	/**
 	 * Deletes a file from the current location (path).
 	 */
 	private function deleteFile() {
 		$fullpath = $this->deleteFileChecks();
-		
+
 		// remove file or folder
 		if(is_dir($fullpath)) {
 			rmdir($fullpath);
@@ -406,73 +406,73 @@ class Filebrowser implements iWriteable {
 		else {
 			unlink($fullpath);
 		}
-		
+
 		// show main view
 		$this->mainView();
 	}
-	
+
 	private function deleteFileRequest() {
 		$this->deleteFileChecks();
-		
+
 		// Ask if really to delete?
 		Writing::p(Lang::txt("Filebrowser_deleteFile.requestMessage", array($fn)));
-		
+
 		// Options
 		$yes = new Link($this->linkprefix("deleteFile&path=" . $this->path . "&file=" . $_GET["file"]), Lang::txt("Filebrowser_deleteFile.approveDelete"));
 		$yes->addIcon("remove");
 		$yes->write();
-		
+
 		$no = new Link($this->linkprefix("mainView"), Lang::txt("Filebrowser_deleteFile.abort"));
 		$no->addIcon("arrow_left");
 		$no->write();
 	}
-	
+
 	private function deleteFileChecks() {
 		// check permission
 		if($this->viewmode) {
 			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_1"));
 		}
-		
+
 		// decode filename
 		if(!isset($_GET["file"])) {
 			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_2"));
 		}
 		$fn = urldecode($_GET["file"]);
 		$fullpath = $this->root . $this->path . "/" . $fn;
-		
+
 		// check permission to delete
 		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $this->path . "/" . $fn)) {
 			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_3"));
 		}
-		
+
 		return $fullpath;
 	}
-	
+
 	/**
 	 * Adds a folder to the root directory.
 	 */
-	private function addFolder() {		
+	private function addFolder() {
 		// check permission
 		if($this->viewmode) {
 			new BNoteError(Lang::txt("Filebrowser_addFolder.error_1"));
 		}
-		
+
 		// validate name
 		global $system_data;
 		$system_data->regex->isName($_POST["folder"]);
-		
+
 		// prevent user from adding reserved directories to root folder
 		if($_POST["folder"] == "users" || $_POST["folder"] == "groups") {
 			new BNoteError(Lang::txt("Filebrowser_addFolder.error_2"));
 		}
-		
+
 		// create folder in root
 		$fullpath = $this->root . $this->path . "/" . $_POST["folder"];
 		mkdir($fullpath);
-		
+
 		$this->mainView();
 	}
-	
+
 	/**
 	 * Generates the prefix for the links used in this widget.
 	 * @param String $ext Functional extension without the "&".
@@ -491,14 +491,14 @@ class Filebrowser implements iWriteable {
 		}
 		return $script . "?mod=" . $system_data->getModuleId() . "$mode&fbfunc=$ext";
 	}
-	
+
 	/**
-	 * @param String $folder Folder to get the files and their infos from. 
+	 * @param String $folder Folder to get the files and their infos from.
 	 * @return A database selection like array with the contents of the folder.
 	 */
 	private function getFilesFromFolder($folder) {
 		$result = array();
-		
+
 		// header
 		$result[0] = array(
 			"name", "size", "options", "show", "delete"
@@ -508,12 +508,12 @@ class Filebrowser implements iWriteable {
 		if(!file_exists($folder)) {
 			$this->createFolder($folder);
 		}
-		
+
 		// data body
 		$files = scandir($folder, SCANDIR_SORT_ASCENDING);
 		foreach($files as $i => $file) {
 			$fullpath = $folder . $file;
-			
+
 			if(!$this->fileValid($fullpath, $file)) {
 				continue;
 			}
@@ -521,7 +521,7 @@ class Filebrowser implements iWriteable {
 			$size = filesize($fullpath);
 			$size = ceil($size / 1000);
 			$size = number_format($size, 0) . " kb";
-			
+
 			// create options
 			$showLink = "";
 			$delLink = "";
@@ -530,7 +530,7 @@ class Filebrowser implements iWriteable {
 			if(is_dir($fullpath)) {
 				# folder
 				$isDir = true;
-				
+
 				if($file == "..") {
 					if($this->levelUp() != null) {
 						$showLink = $this->linkprefix("view&path=" . urlencode($this->levelUp()));
@@ -558,12 +558,12 @@ class Filebrowser implements iWriteable {
 				$showLnk->setTarget("_blank");
 				$showLnk->addIcon("arrow_down");
 				$show = $showLnk->toString();
-				
+
 				$filetype = $this->getFiletype($file);
 				$iconName = $filetype;
 			}
-			
-			if(!$this->viewmode) { 
+
+			if(!$this->viewmode) {
 				$delLink = $this->linkprefix("deleteFileRequest&path=" . $this->path . "&file=" . urlencode($file));
 				$delLnk = new Link($delLink, Lang::txt("Filebrowser_getFilesFromFolder.delete"));
 				$delLnk->addIcon("remove");
@@ -573,7 +573,7 @@ class Filebrowser implements iWriteable {
 				$delete = "";
 			}
 			$options = $show . "&nbsp;&nbsp;" . $delete;
-			
+
 			// add to result array
 			$row = array(
 				"name" => $file,
@@ -586,10 +586,10 @@ class Filebrowser implements iWriteable {
 			);
 			array_push($result, $row);
 		}
-					
+
 		return $result;
 	}
-	
+
 	private function getFiletype($file) {
 		if(strrpos($file, ".") !== false) {
 			$end = strtolower(substr($file, strrpos($file, ".")+1));
@@ -599,11 +599,11 @@ class Filebrowser implements iWriteable {
 			}
 			if($end == "pdf") {
 				return "pdf";
-			}			
+			}
 		}
 		return "doc";
 	}
-	
+
 	private function createFolder($folder) {
 		// check if base structure is present
 		if(!file_exists($this->root)) {
@@ -614,8 +614,8 @@ class Filebrowser implements iWriteable {
 		}
 		mkdir($folder);
 	}
-		
-	private function getFolderCaption() {		
+
+	private function getFolderCaption() {
 		if($this->root . $this->path == $this->sysdata->getUsersHomeDir() . "/") {
 			return Lang::txt("Filebrowser_getFolderCaption.myFiles");
 		}
@@ -635,17 +635,17 @@ class Filebrowser implements iWriteable {
 			return $this->path;
 		}
 	}
-	
+
 	private function getGroupIdFromPath() {
 		$idstart = strpos($this->path, "/group_")+7;
 		$idend = strpos($this->path, "/", $idstart);
 		$len = $idend - $idstart;
 		return substr($this->path, $idstart, $len);
 	}
-	
-	static function fileValid($fullpath, $file) {		
+
+	static function fileValid($fullpath, $file) {
 		$fullpath = str_replace("//", "/", $fullpath);
-		
+
 		if($file == ".htaccess") return false;
 		else if($file == ".") return false;
 		else if($fullpath . "/" == $GLOBALS["DATA_PATHS"]["userhome"]) return false;
@@ -653,7 +653,7 @@ class Filebrowser implements iWriteable {
 		else if($file == "_temp") return false;
 		return true;
 	}
-	
+
 	private function levelUp() {
 		if(!$this->isCurrentPathMainFolder()) {
 			$lastSlash = strrpos($this->path, "/", -2);
@@ -661,7 +661,7 @@ class Filebrowser implements iWriteable {
 		}
 		return null;
 	}
-	
+
 	public function download() {
 		// get filename of zip-archive in temp
 		/*
@@ -674,40 +674,40 @@ class Filebrowser implements iWriteable {
 		 */
 		$zip_suffix = "_temp/download.zip";
 		$zip_fname = $this->root . $zip_suffix;
-		
+
 		// check that _temp folder exists
 		if(!is_dir($this->root . "_temp")) {
 			mkdir($this->root . "_temp");
 		}
-		
+
 		// initialize zip-archive
 		$zip = new ZipArchive();
 		$zip->open($zip_fname, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 		$dir_basepath = $this->root . $this->path;
 		$dir_basepath = str_replace("\\", "/", $dir_basepath);
-		
+
 		$files = new RecursiveIteratorIterator(
 				new RecursiveDirectoryIterator($dir_basepath),
 				RecursiveIteratorIterator::LEAVES_ONLY);
-		
+
 		foreach($files as $name => $file) {
 			$filename = str_replace("\\", "/", $file->getPathname());
 			if(!Data::endsWith($filename, "/.") && !Data::endsWith($filename, "/..")) {
 				$zip->addFile($filename);
 			}
 		}
-		
+
 		// create zip file by closing this archive
 		$zip->close();
-		
+
 		Writing::p(Lang::txt("Filebrowser_download.archiveCreated"));
-		
+
 		$link = new Link($this->sysdata->getFileHandler() . "?file=" . $zip_suffix, Lang::txt("Filebrowser_download.downloadArchive"));
 		$link->setTarget("_blank");
 		$link->addIcon("arrow_down");
 		$link->write();
 		AbstractView::buttonSpace();
-		
+
 		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)), Lang::txt("Filebrowser_download.back"));
 		$back->addIcon("arrow_left");
 		$back->write();
