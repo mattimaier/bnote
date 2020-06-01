@@ -240,29 +240,6 @@ class Filebrowser implements iWriteable {
 	}
 
 	/**
-	 * Writes all folders on the screen.
-	 */
-	private function writeFolders() {
-		// iterate through folder
-		if($handle = opendir($this->root)) {
-			while(false !== ($file = readdir($handle))) {
-				if($file != "." && $file != ".." && is_dir($this->root . $file)) {
-					$active = "";
-					if(isset($_GET["path"]) && urlencode($file) == $this->path) {
-						$active = "_active";
-					}
-					?>
-					<a href="<?php echo $this->linkprefix("view&path=" . urlencode($file)); ?>">
-						<div class="filebrowser_folderitem<?php echo $active; ?>"><?php echo $file; ?></div>
-					</a>
-					<?php
-				}
-			 }
-			closedir($handle);
-		}
-	}
-
-	/**
 	 * Writes the folder contents.
 	 */
 	private function writeFolderContent() {
