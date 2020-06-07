@@ -278,33 +278,66 @@ class Filebrowser implements iWriteable {
 			if($type == "folder" && $item["directory"] === false) continue;
 			else if($type == "file" && $item["directory"] === true) continue;
 
+			/*
+			 * All infomation to be shown is copied into simple variables that can
+			 * be used in a HEREDOC string.
+			 */
+			$name = $item["name"];
 			$link = $item["show"];
-			?>
+			$icon = "style/icons/" . $item['icon'] . ".png";
+			$delete_link = $item["delete"];
+			$size = $item["size"];
+			
+			/*
+			 * For items that can't be deleted, the trash link is still generated,
+			 * but it's hidden through style attributes.
+			 */
+			if(!$this->viewmode && $item["name"] != "..") {
+				$deletable_style = '';
+			}
+			else {
+				$deletable_style = 'style="visibility:hidden"';
+			}
+
+			/*
+			 * Depending on the file type additional preview content is generated
+			 * here, which is inserted later into the item template.
+			 */
+			if($item["icon"] == "music") {
+				$mime = strtolower(substr($link, strrpos($link, ".")+1));
+				if($mime == "mp3") {
+					$audioType = "mpeg";
+				}
+				else {
+					$audioType = $mime;
+				}
+				$preview = <<< STRING_END
+					<audio controls style="display: block;" preload="none">
+						<source src="$link" type="audio/$audioType">
+						Unsupported media type
+					</audio>
+STRING_END;
+			}
+			else {
+				$preview = "";
+			}
+
+			/*
+			 * Finally the HTML code to display the folder content item is generated
+			 * here. All parameters are taken from variables that have been defined
+			 * above.
+			 */
+			echo <<< STRING_END
 				<div class="filebrowser_item">
-					<img src="style/icons/<?php echo $item["icon"]; ?>.png" height="20px" class="filebrowser_icon">
-					<a href="./<?php echo $link; ?>" class="filebrowser_item"><?php echo $item["name"]; ?></a>
-					<?php if(!$this->viewmode && $item["name"] != "..") { ?>
-					<a href="./<?php echo $item["delete"] ?>">
+					<img src="$icon" height="20px" class="filebrowser_icon">
+					<a href="./$link" class="filebrowser_item">$name</a>
+					<a href="./$delete_link" $deletable_style>
 						<img src="style/icons/remove.png" height="20px" class="filebrowser_trash">
 					</a>
-					<?php } ?>
-					<span class="filebrowser_item_size"><?php echo $item["size"]; ?></span>
-					<?php
-					if($item["icon"] == "music") {
-						$mime = strtolower(substr($link, strrpos($link, ".")+1));
-						if($mime == "mp3") {
-							$audioType = "mpeg";
-						}
-						else {
-							$audioType = $mime;
-						}
-						echo '<audio controls style="display: block;" preload="none">';
-						echo ' <source src="' . $link . '" type="audio/' . $audioType . '">';
-						echo 'Unsupported media type</audio>';
-					}
-					?>
+					<span class="filebrowser_item_size">$size</span>
+					$preview
 				</div>
-			<?php
+STRING_END;
 		}
 	}
 
