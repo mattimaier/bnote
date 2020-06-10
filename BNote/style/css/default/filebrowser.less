@@ -75,12 +75,16 @@ div.filebrowser_favs_title {
 	font-weight: 600;
 	display: inline-block;
 	margin-left: 10px;
-    margin-right: 10px;
-    color: @black;
+	margin-right: 10px;
+	color: @black;
 }
 
 .filebrowser_trash {
 	display: inline-block;
 	float: right;
 	margin-left: 10px;
+}
+
+.no_delete .filebrowser_trash {
+	visibility:hidden;
 }

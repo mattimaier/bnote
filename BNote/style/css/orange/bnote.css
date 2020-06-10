@@ -195,6 +195,9 @@ div.filebrowser_favs_title {
   float: right;
   margin-left: 10px;
 }
+.no_delete .filebrowser_trash {
+  visibility: hidden;
+}
 .finance_filter_box {
   border: 1px solid #E6DDBA;
   padding: 10px;
@@ -967,7 +970,7 @@ select.participationQuickSelector {
   margin: 0 3px 3px 3px;
   padding: 0.4em;
   padding-left: 1.5em;
-  font-size: 1.0em;
+  font-size: 1em;
 }
 #sortable li span {
   position: absolute;

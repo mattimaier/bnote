@@ -287,16 +287,15 @@ class Filebrowser implements iWriteable {
 			$icon = "style/icons/" . $item['icon'] . ".png";
 			$delete_link = $item["delete"];
 			$size = $item["size"];
-			
+
 			/*
 			 * For items that can't be deleted, the trash link is still generated,
-			 * but it's hidden through style attributes.
+			 * but it's hidden through style attributes defined through the style
+			 * class "no_delete".
 			 */
-			if(!$this->viewmode && $item["name"] != "..") {
-				$deletable_style = '';
-			}
-			else {
-				$deletable_style = 'style="visibility:hidden"';
+			$class = "filebrowser_item";
+			if($this->viewmode || $item["name"] == "..") {
+				$class = $class . " no_delete";
 			}
 
 			/*
@@ -328,10 +327,10 @@ STRING_END;
 			 * above.
 			 */
 			echo <<< STRING_END
-				<div class="filebrowser_item">
+				<div class="$class">
 					<img src="$icon" height="20px" class="filebrowser_icon">
 					<a href="./$link" class="filebrowser_item">$name</a>
-					<a href="./$delete_link" $deletable_style>
+					<a href="./$delete_link">
 						<img src="style/icons/remove.png" height="20px" class="filebrowser_trash">
 					</a>
 					<span class="filebrowser_item_size">$size</span>
