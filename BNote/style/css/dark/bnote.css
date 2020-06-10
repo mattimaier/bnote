@@ -128,22 +128,6 @@ label.contactdetail_entry_label {
   display: block;
   color: #2F4152;
 }
-#filebrowser_content {
-  width: 100%;
-}
-#filebrowser_content tr {
-  border-width: 0px;
-}
-#filebrowser_folders {
-  padding: 0px;
-  width: 200px;
-}
-.filebrowser_foldertopic {
-  padding: 5px;
-  background-color: #356A9C;
-  color: #FFFFFF;
-  font-weight: bold;
-}
 .filebrowser_folderitem {
   padding: 5px;
   display: inline-block;
@@ -160,10 +144,6 @@ label.contactdetail_entry_label {
 .filebrowser_folderitem_active:hover {
   background-color: #FFFFFF;
   color: #000000;
-}
-#filebrowser_files {
-  background-color: #FFFFFF;
-  padding-top: 0px;
 }
 .filebrowser_folder_header {
   margin-top: 0px;
