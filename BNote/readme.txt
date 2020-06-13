@@ -28,6 +28,7 @@ How to install BNote?
 	775 data/share		with the group being the apache runtime user-group
 	775 data/gallery	with the group being the apache runtime user-group
 	664 data/gallery/*	all files in this folder; with the group being the apache runtime user-group
+	In addition, make sure your web server does not allow to execute script files like PHP or CGI within the data/ directory.
 3. Access your newly created BNote instance. An installation script should come up where you can setup the system.
 4. Remove install.php from the document root of your BNote instance.
 
