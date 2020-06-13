@@ -352,6 +352,7 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_addFile.error_2" => "Le fichier n'a pas pu être téléchargé.",
 			"Filebrowser_addFile.error_3" => "Vous n'avez pas la permission d'ajouter un fichier.",
 			"Filebrowser_addFile.error_4" => "Erreur de serveur lors de l'enregistrement du fichier.",
+			"Filebrowser_addFile.error_security" => "Ce fichier ne peut pas être téléchargé pour des raisons de sécurité.",
 			"Filebrowser_deleteFile.error_1" => "Vous n'avez pas la permission de supprimer un fichier.",
 			"Filebrowser_deleteFile.error_2" => "Le fichier n'a pas pu être trouvé.",
 			"Filebrowser_deleteFile.error_3" => "Vous n'avez pas la permission de supprimer un fichier.",

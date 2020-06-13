@@ -353,6 +353,7 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_addFile.error_2" => "The file could not be uploaded.",
 			"Filebrowser_addFile.error_3" => "You have no permission to add a file.",
 			"Filebrowser_addFile.error_4" => "Server error when saving the file.",
+			"Filebrowser_addFile.error_security" => "This file cannot be uploaded for security reasons.",
 			"Filebrowser_deleteFile.error_1" => "You have no permission to delete a file.",
 			"Filebrowser_deleteFile.error_2" => "The file could not be found.",
 			"Filebrowser_deleteFile.error_3" => "You have no permission to delete a file.",

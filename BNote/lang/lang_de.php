@@ -352,6 +352,7 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_addFile.error_2" => "Die Datei konnte nicht hochgeladen werden.",
 			"Filebrowser_addFile.error_3" => "Du hast keine Berechtigung eine Datei hinzuzufügen.",
 			"Filebrowser_addFile.error_4" => "Serverfehler beim Speichern der Datei.",
+			"Filebrowser_addFile.error_security" => "Aus Sicherheitsgründen kann diese Datei nicht hochgeladen werden.",
 			"Filebrowser_deleteFile.error_1" => "Du hast keine Berechtigung eine Datei zu löschen.",
 			"Filebrowser_deleteFile.error_2" => "Die Datei konnte nicht gefunden werden.",
 			"Filebrowser_deleteFile.error_3" => "Du hast keine Berechtigung eine Datei zu löschen.",
