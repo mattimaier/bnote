@@ -875,8 +875,9 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.default_conductor" => "Standarddirigent",
 			"KonfigurationData_construct.currency" => "Währung",
 			"KonfigurationData_construct.concert_show_max" => "Anzahl Auftritte auf Startseite",
+			"KonfigurationData_construct.appointments_show_max" => "Anzahl Termine auf Startseite",
 			"KonfigurationData_replaceParameterValue.yes" => "ja",
-			"KonfigurationData_replaceParameterValue.no" => "nein",		
+			"KonfigurationData_replaceParameterValue.no" => "nein",
 			
 			// KonfigurationView
 			"KonfigurationView_construct.EntityName" => "Konfiguration",

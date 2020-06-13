@@ -179,7 +179,14 @@ class StartView extends CrudRefLocationView {
 					?>
 					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Appointment.heading"); ?></div>
 					<div class="start_box_content">
-						<?php $this->writeAppointmentList(); ?>
+						<?php 
+						if(isset($_GET["appointments_max"]) && $_GET["appointments_max"] >= 0) {
+							$this->writeAppointmentList($_GET["appointments_max"]);
+						}
+						else {
+							$this->writeAppointmentList($this->getData()->getSysdata()->getDynamicConfigParameter("appointments_show_max"));
+						}
+						?>
 					</div>	
 					<?php
 					}
@@ -519,12 +526,17 @@ class StartView extends CrudRefLocationView {
 		echo "</ul>\n";
 	}
 
-	private function writeAppointmentList() {
+	private function writeAppointmentList($max = 0) {
 		$data = $this->getData()->getAppointments();
 		echo "<ul>\n";
 		// iterate over votes
 		foreach($data as $i => $row) {
-			if($i < 1) continue;
+			if($i < 1 || ($max > 0 && $i > $max)) {
+				if($i > $max && $i == count($data)-1) {
+					echo "<span style=\"font-style: italic;\"><a href=\"" . $this->modePrefix() . "start&appointments_max=0" . "\">" . Lang::txt("showAll") . "</a></span>";
+				}
+				continue;
+			}
 			
 			$liCaption =  Data::convertDateFromDb($row["begin"]) . " (" . $row["name"] . ")";
 			
