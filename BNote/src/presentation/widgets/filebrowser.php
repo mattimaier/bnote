@@ -260,24 +260,26 @@ class Filebrowser implements iWriteable {
 
 			// show table with files
 			$content = $this->getFilesFromFolder($this->root . $this->path);
-			?>
-			<div class="filebrowser_filepanel">
-				<?php
-				$this->writeFolderContentItem($content, "folder");
-				$this->writeFolderContentItem($content, "file");
-				?>
-			</div>
-			<?php
+			echo '			<div class="filebrowser_filepanel">';
+
+			// show folders as list items
+			for($i = 1; $i < count($content); $i++) {
+				$item = $content[$i];
+				if($item["directory"] === true)
+					$this->writeFolderContentItem($item);
+			}
+
+			// show files as list items
+			for($i = 1; $i < count($content); $i++) {
+				$item = $content[$i];
+				if($item["directory"] === false)
+					$this->writeFolderContentItem($item);
+			}
+			echo '			</div>';
 		}
 	}
 
-	private function writeFolderContentItem($content, $type) {
-		for($i = 1; $i < count($content); $i++) {
-			$item = $content[$i];
-
-			if($type == "folder" && $item["directory"] === false) continue;
-			else if($type == "file" && $item["directory"] === true) continue;
-
+	private function writeFolderContentItem($item) {
 			/*
 			 * All infomation to be shown is copied into simple variables that can
 			 * be used in a HEREDOC string.
@@ -337,7 +339,6 @@ STRING_END;
 					$preview
 				</div>
 STRING_END;
-		}
 	}
 
 	private function addFolderForm() {
