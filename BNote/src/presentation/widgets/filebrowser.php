@@ -266,20 +266,27 @@ class Filebrowser implements iWriteable {
 			for($i = 1; $i < count($content); $i++) {
 				$item = $content[$i];
 				if($item["directory"] === true)
-					$this->writeFolderContentItem($item);
+					$this->writeFolderContentListItem($item);
 			}
 
 			// show files as list items
 			for($i = 1; $i < count($content); $i++) {
 				$item = $content[$i];
-				if($item["directory"] === false)
-					$this->writeFolderContentItem($item);
+				if(($item["directory"] === false) && ($item["tile"] === false))
+					$this->writeFolderContentListItem($item);
+			}
+
+			// show files as tile items
+			for($i = 1; $i < count($content); $i++) {
+				$item = $content[$i];
+				if(($item["directory"] === false) && ($item["tile"] === true))
+					$this->writeFolderContentTileItem($item);
 			}
 			echo '			</div>';
 		}
 	}
 
-	private function writeFolderContentItem($item) {
+	private function writeFolderContentListItem($item) {
 			/*
 			 * All infomation to be shown is copied into simple variables that can
 			 * be used in a HEREDOC string.
@@ -295,32 +302,9 @@ class Filebrowser implements iWriteable {
 			 * but it's hidden through style attributes defined through the style
 			 * class "no_delete".
 			 */
-			$class = "filebrowser_item";
+			$class = "filebrowser_list_item";
 			if($this->viewmode || $item["name"] == "..") {
 				$class = $class . " no_delete";
-			}
-
-			/*
-			 * Depending on the file type additional preview content is generated
-			 * here, which is inserted later into the item template.
-			 */
-			if($item["icon"] == "music") {
-				$mime = strtolower(substr($link, strrpos($link, ".")+1));
-				if($mime == "mp3") {
-					$audioType = "mpeg";
-				}
-				else {
-					$audioType = $mime;
-				}
-				$preview = <<< STRING_END
-					<audio controls style="display: block;" preload="none">
-						<source src="$link" type="audio/$audioType">
-						Unsupported media type
-					</audio>
-STRING_END;
-			}
-			else {
-				$preview = "";
 			}
 
 			/*
@@ -336,7 +320,78 @@ STRING_END;
 						<img src="style/icons/remove.png" height="20px" class="filebrowser_trash">
 					</a>
 					<span class="filebrowser_item_size">$size</span>
-					$preview
+				</div>
+STRING_END;
+	}
+
+	private function writeFolderContentTileItem($item) {
+			/*
+			 * All infomation to be shown is copied into simple variables that can
+			 * be used in a HEREDOC string.
+			 */
+			$name = $item["name"];
+			$link = $item["show"];
+			$icon = "style/icons/" . $item['icon'] . ".png";
+			$delete_link = $item["delete"];
+			$size = $item["size"];
+
+			/*
+			 * For items that can't be deleted, the trash link is still generated,
+			 * but it's hidden through style attributes defined through the style
+			 * class "no_delete".
+			 */
+			$class = "filebrowser_tile_item";
+			if($this->viewmode || $item["name"] == "..") {
+				$class = $class . " no_delete";
+			}
+
+			/*
+			 * Depending on the file type the tile content is generated
+			 * here, which is inserted later into the item template.
+			 */
+			if($item["icon"] == "music") {
+				$mime = strtolower(substr($link, strrpos($link, ".")+1));
+				if($mime == "mp3") {
+					$audioType = "mpeg";
+				}
+				else {
+					$audioType = $mime;
+				}
+				$class = $class . " music";
+				$tile_content = <<< STRING_END
+					<img src="$icon" height="50px">
+					<audio controls preload="none">
+						<source src="$link" type="audio/$audioType">
+						Unsupported media type
+					</audio>
+STRING_END;
+			}
+			else if($item["icon"] == "gallery") {
+				$class = $class . " gallery";
+				$tile_content = <<< STRING_END
+						<img src="$link">
+STRING_END;
+			} else {
+				$tile_content = <<< STRING_END
+						<img src="$icon" height="50px">
+STRING_END;
+			}
+			
+			/*
+			 * Finally the HTML code to display the folder content item is generated
+			 * here. All parameters are taken from variables that have been defined
+			 * above.
+			 */
+			echo <<< STRING_END
+				<div class="$class">
+					<div class="filebrowser_tile">
+					  $tile_content
+					</div>
+					<a href="./$link" class="filebrowser_item">$name</a><br>
+					<a href="./$delete_link">
+						<img src="style/icons/remove.png" height="20px" class="filebrowser_trash">
+					</a>
+					<span class="filebrowser_item_size">$size</span>
 				</div>
 STRING_END;
 	}
@@ -537,6 +592,7 @@ STRING_END;
 			$delLink = "";
 			$iconName = "folder";
 			$isDir = false;
+			$hasTileView = false;
 			if(is_dir($fullpath)) {
 				# folder
 				$isDir = true;
@@ -571,6 +627,7 @@ STRING_END;
 
 				$filetype = $this->getFiletype($file);
 				$iconName = $filetype;
+				$hasTileView = (($filetype == "music") || ($filetype == "gallery"));
 			}
 
 			if(!$this->viewmode) {
@@ -592,7 +649,8 @@ STRING_END;
 				"show" => $showLink,
 				"delete" => $delLink,
 				"icon" => $iconName,
-				"directory" => $isDir
+				"directory" => $isDir,
+				"tile" => $hasTileView
 			);
 			array_push($result, $row);
 		}
