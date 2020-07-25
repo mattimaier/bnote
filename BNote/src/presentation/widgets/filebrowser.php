@@ -259,7 +259,7 @@ class Filebrowser implements iWriteable {
 			Writing::h3($dirname, "filebrowser_folder_header");
 
 			// show table with files
-			$content = $this->getFilesFromFolder($this->root . $this->path);
+			$content = $this->getFilesFromFolder($this->path);
 			echo '			<div class="filebrowser_filepanel">';
 
 			// show folders as list items
@@ -562,6 +562,13 @@ STRING_END;
 	 * @return A database selection like array with the contents of the folder.
 	 */
 	private function getFilesFromFolder($folder) {
+		if ($folder != "/") {
+			$folder = $this->root . $folder;
+		}
+		else {
+			$folder = $this->root;
+		}
+
 		$result = array();
 
 		// header
