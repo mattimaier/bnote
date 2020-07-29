@@ -443,6 +443,13 @@ STRING_END;
 			new BNoteError(Lang::txt("Filebrowser_addFile.error_3"));
 		}
 
+		// security check for executable script
+		require_once($GLOBALS["DIR_DATA"] . "/abstractfile.php");
+		$mime = getFileMimeType($_FILES["file"]["tmp_name"]);
+		if(strpos($mime, "php") !== FALSE) {
+			new BNoteError(Lang::txt("Filebrowser_addFile.error_security"));
+		}
+
 		// copy file to target directory
 		$target = $this->root . $this->path;
 		$targetFilename = $_FILES["file"]["name"];
@@ -480,7 +487,7 @@ STRING_END;
 		$this->deleteFileChecks();
 
 		// Ask if really to delete?
-		Writing::p(Lang::txt("Filebrowser_deleteFile.requestMessage", array($fn)));
+		Writing::p(Lang::txt("Filebrowser_deleteFile.requestMessage", array($_GET["file"])));
 
 		// Options
 		$yes = new Link($this->linkprefix("deleteFile&path=" . $this->path . "&file=" . $_GET["file"]), Lang::txt("Filebrowser_deleteFile.approveDelete"));

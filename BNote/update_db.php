@@ -225,12 +225,12 @@ $update = new UpdateDb();
 
 <?php 
 /*
- * 3.4.4 UPDATES
+ * 3.5.0 UPDATES
  * -------------
  */
 
 // Task 1: Config for number of gigs on start page
-$update->addDynConfigParam("concert_show_max", 5);
+$update->addDynConfigParam("appointments_show_max", 5);
 
 ?>
 

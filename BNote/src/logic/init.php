@@ -36,8 +36,7 @@ if($system_data->getModuleId() === "logout") {
 	$_SESSION["user"] = "null";
 	unset($_SESSION);
 	session_destroy();
-	include $GLOBALS["DIR_PRESENTATION_MODULES"] . "logoutview.php";
-	exit(0);
+	header("Location: main.php?mod=login");
 }
 
 ?>

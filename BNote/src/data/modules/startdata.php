@@ -480,7 +480,8 @@ class StartData extends AbstractLocationData {
 		$query .= "JOIN address addy ON l.address = addy.id ";
 		$query .= "JOIN appointment_group ag ON a.id = ag.appointment ";
 		$query .= "JOIN contact_group cg ON ag.group = cg.group ";
-		$query .= "WHERE cg.contact = $cid";
+		$query .= "WHERE cg.contact = $cid AND a.end > NOW()";
+		$query .= "ORDER BY a.begin, a.end";
 		
 		// add custom data
 		$appointments = $this->database->getSelection($query);

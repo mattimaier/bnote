@@ -53,7 +53,8 @@ class MitspielerData extends AbstractLocationData {
 					  JOIN instrument i ON c.instrument = i.id
 					  LEFT JOIN address a ON c.address = a.id
 					  $order";
-			return $this->database->getSelection($query);
+			$contacts = $this->database->getSelection($query);
+			return $this->appendCustomDataToSelection("c", $contacts);
 		}
 		
 		$contacts = array();

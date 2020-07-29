@@ -134,7 +134,22 @@ class FinanceView extends CrudView {
 		</div>
 		<?php
 		
+		// show metrics
+		Writing::h3(Lang::txt("FinanceView_Table_metrics.header"));
+		$metrics = $this->getData()->findBookingsMetrics($default_from, $default_to, $accId, $default_otype, $default_oid);
+		$mtab = new Table($metrics);
+		$mtab->showFilter(false);
+		$mtab->renameHeader("btype", Lang::txt("FinanceView_Table_metrics.btype"));
+		$mtab->renameHeader("total_net", Lang::txt("FinanceView_Table_metrics.amount_net"));
+		$mtab->renameHeader("total_tax", Lang::txt("FinanceView_Table_metrics.amount_tax"));
+		$mtab->renameHeader("total", Lang::txt("FinanceView_Table_metrics.amount_total"));
+		$mtab->setColumnFormat("total_net", "CURRENCY");
+		$mtab->setColumnFormat("total_tax", "CURRENCY");
+		$mtab->setColumnFormat("total", "CURRENCY");
+		$mtab->write();
+		
 		// Show bookings with total
+		Writing::h3(Lang::txt("FinanceView_Table_booking.header"));
 		$bookings = $this->getData()->findBookings($default_from, $default_to, $accId, $default_otype, $default_oid);
 		$bookings = Table::addDeleteColumn(
 				$bookings,
@@ -161,21 +176,7 @@ class FinanceView extends CrudView {
 		$table->setOptionColumnNames(array("cancel"));
 		$table->write();
 		
-		// show metrics
-		$this->verticalSpace();
 		
-		Writing::h3(Lang::txt("FinanceView_Table_metrics.header"));
-		$metrics = $this->getData()->findBookingsMetrics($default_from, $default_to, $accId, $default_otype, $default_oid);
-		$mtab = new Table($metrics);
-		$mtab->showFilter(false);
-		$mtab->renameHeader("btype", Lang::txt("FinanceView_Table_metrics.btype"));
-		$mtab->renameHeader("total_net", Lang::txt("FinanceView_Table_metrics.amount_net"));
-		$mtab->renameHeader("total_tax", Lang::txt("FinanceView_Table_metrics.amount_tax"));
-		$mtab->renameHeader("total", Lang::txt("FinanceView_Table_metrics.amount_total"));
-		$mtab->setColumnFormat("total_net", "CURRENCY");
-		$mtab->setColumnFormat("total_tax", "CURRENCY");
-		$mtab->setColumnFormat("total", "CURRENCY");
-		$mtab->write();
 	}
 	
 	function additionalViewButtons() {
