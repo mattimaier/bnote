@@ -28,12 +28,16 @@ class Filebrowser implements iWriteable {
 
 	/**
 	 * Root directory on the server.
+	 * This member contains the path without trailing slash to avoid double slashes
+	 * when concatenating $root and $path.
 	 * @var String
 	 */
 	private $root;
 
 	/**
 	 * Current folder location.
+	 * This member is an absolute path starting and ending with a slash, where "/"
+	 * refers to the server path stored in $root.
 	 * @var String
 	 */
 	private $path;
@@ -64,6 +68,11 @@ class Filebrowser implements iWriteable {
 		$this->root = $root;
 		$this->sysdata = $sysdata;
 		$this->adp = $adp;
+		
+		// remove trailing slash to avoid double slash in $this->root .$this->path
+		if(Data::endsWith($this->root, "/")) {
+			$this->root = substr($this->root, 0, -1);
+		}
 	}
 
 	/**
@@ -88,10 +97,6 @@ class Filebrowser implements iWriteable {
 		else {
 			$this->path = "";
 		}
-	}
-
-	function write() {
-		$this->setCurrentPath();
 
 		// strip root if path contains root
 		if(Data::startsWith($this->path, $this->root)) {
@@ -102,6 +107,10 @@ class Filebrowser implements iWriteable {
 		if(!Data::endsWith($this->path, "/")) {
 			$this->path .= "/";
 		}
+	}
+
+	function write() {
+		$this->setCurrentPath();
 
 		// check permission for folder to prevent URL hacks within the system
 		if(!$this->adp->getSecurityManager()->canUserAccessFile($this->path)) {
@@ -123,17 +132,12 @@ class Filebrowser implements iWriteable {
 
 		// show the add folder button if in write-mode
 		if(!$this->viewmode) {
-			$path = $this->path;
-			if($path == "") {
-				$path = "/";
-			}
-
-			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($path)), Lang::txt("Filebrowser_showOptions.addFolderForm"));
+			$lnk = new Link($this->linkprefix("addFolderForm&path=" . urlencode($this->path)), Lang::txt("Filebrowser_showOptions.addFolderForm"));
 			$lnk->addIcon("plus");
 			$lnk->write();
 
 			AbstractView::buttonSpace();
-			$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($path)), Lang::txt("Filebrowser_showOptions.addFileForm"));
+			$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($this->path)), Lang::txt("Filebrowser_showOptions.addFileForm"));
 			$lnk->addIcon("plus");
 			$lnk->write();
 		}
@@ -149,18 +153,13 @@ class Filebrowser implements iWriteable {
 	}
 
 	protected function isCurrentPathMainFolder() {
-		$mainpathlen = strlen("data/share/");
-		if(Data::startsWith($this->path, "data/share/")) {
-			$subpath = substr($this->path, $mainpathlen);
-		}
-		else {
-			$subpath = $this->path;
-		}
+		$mainpathlen = strlen($this->root);
 
 		$userfolder = substr($this->sysdata->getUsersHomeDir(), $mainpathlen);
-		if(Data::endsWith($subpath, "/") && !Data::endsWith($userfolder, "/")) {
+		if(Data::endsWith($this->path, "/") && !Data::endsWith($userfolder, "/")) {
 			$userfolder .= "/";
 		}
+
 		$groupfolders = array();
 		$groups = $this->adp->getUsersGroups();
 		foreach($groups as $i => $groupId) {
@@ -168,7 +167,7 @@ class Filebrowser implements iWriteable {
 			$dir = substr($dir, $mainpathlen) . "/";
 			array_push($groupfolders, $dir);
 		}
-		if($subpath == "" || $subpath == "/" || $subpath == "users/" || $subpath == $userfolder || in_array($subpath, $groupfolders)) {
+		if($this->path == "" || $this->path == "/" || $this->path == "users/" || $this->path == $userfolder || in_array($this->path, $groupfolders)) {
 			return True;
 		}
 		return False;
@@ -220,7 +219,7 @@ class Filebrowser implements iWriteable {
 		if($groups != null && count($groups) > 0) {
 			foreach($groups as $i => $gid) {
 				$name = $this->sysdata->dbcon->getCell("`group`", "name", "id = $gid");
-				$favs[$name] = $this->root . "groups/group_" . $gid . "/";
+				$favs[$name] = $this->root . "/groups/group_" . $gid . "/";
 			}
 		}
 
@@ -369,11 +368,11 @@ STRING_END;
 			else if($item["icon"] == "gallery") {
 				$class = $class . " gallery";
 				$tile_content = <<< STRING_END
-						<img src="$link">
+					<img src="$link">
 STRING_END;
 			} else {
 				$tile_content = <<< STRING_END
-						<img src="$icon" height="50px">
+					<img src="$icon" height="50px">
 STRING_END;
 			}
 			
@@ -458,7 +457,7 @@ STRING_END;
 			$targetFilename = str_replace($char, "", $targetFilename);
 		}
 
-		if(!copy($_FILES["file"]["tmp_name"], $target . "/" . $targetFilename)) {
+		if(!copy($_FILES["file"]["tmp_name"], $target . $targetFilename)) {
 			new BNoteError(Lang::txt("Filebrowser_addFile.error_4"));
 		}
 
@@ -509,15 +508,14 @@ STRING_END;
 		if(!isset($_GET["file"])) {
 			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_2"));
 		}
-		$fn = urldecode($_GET["file"]);
-		$fullpath = $this->root . $this->path . "/" . $fn;
+		$file = $this->path . urldecode($_GET["file"]);
 
 		// check permission to delete
-		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $this->path . "/" . $fn)) {
+		if(!$this->adp->getSecurityManager()->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $file)) {
 			new BNoteError(Lang::txt("Filebrowser_deleteFile.error_3"));
 		}
 
-		return $fullpath;
+		return $this->root . $file;
 	}
 
 	/**
@@ -539,7 +537,7 @@ STRING_END;
 		}
 
 		// create folder in root
-		$fullpath = $this->root . $this->path . "/" . $_POST["folder"];
+		$fullpath = $this->root . $this->path . $_POST["folder"];
 		mkdir($fullpath);
 
 		$this->mainView();
@@ -565,7 +563,6 @@ STRING_END;
 	}
 
 	/**
-	 * @param String $folder Folder to get the files and their infos from.
 	 * @return A database selection like array with the contents of the folder.
 	 */
 	private function getFilesFromFolder() {
@@ -577,15 +574,15 @@ STRING_END;
 		);
 
 		// create directory if not present
-		$folder = $this->root . $this->path;
-		if(!file_exists($folder)) {
-			$this->createFolder($folder);
+		if(!file_exists($this->root . $this->path)) {
+			$this->createFolder($this->root . $this->path);
 		}
 
 		// data body
-		$files = scandir($folder, SCANDIR_SORT_ASCENDING);
+		$files = scandir($this->root . $this->path, SCANDIR_SORT_ASCENDING);
 		foreach($files as $i => $file) {
-			$fullpath = $folder . $file;
+			$sharepath = $this->path . $file;
+			$fullpath = $this->root . $sharepath;
 
 			if(!$this->fileValid($fullpath, $file)) {
 				continue;
@@ -618,7 +615,7 @@ STRING_END;
 					}
 				}
 				else {
-					$showLink = $this->linkprefix("view&path=" . urlencode($fullpath . "/"));
+					$showLink = $this->linkprefix("view&path=" . urlencode($sharepath . "/"));
 					$openLink = new Link($showLink, Lang::txt("Filebrowser_getFilesFromFolder.open"));
 					$openLink->addIcon($iconName);
 					$show = $openLink->toString();
@@ -626,8 +623,7 @@ STRING_END;
 			}
 			else {
 				# file
-				$sharePath = substr($fullpath, strlen($this->root)-1);
-				$showLink = $this->sysdata->getFileHandler() . "?file=" . $sharePath;
+				$showLink = $this->sysdata->getFileHandler() . "?file=" . $sharepath;
 				$showLnk = new Link($showLink, Lang::txt("Filebrowser_getFilesFromFolder.download"));
 				$showLnk->setTarget("_blank");
 				$showLnk->addIcon("arrow_down");
@@ -699,13 +695,13 @@ STRING_END;
 		if($this->root . $this->path == $this->sysdata->getUsersHomeDir() . "/") {
 			return Lang::txt("Filebrowser_getFolderCaption.myFiles");
 		}
-		else if(Data::startsWith($this->path, "groups")) {
+		else if(Data::startsWith($this->path, "/groups")) {
 			$gid = $this->getGroupIdFromPath();
 			if($gid == null || $gid == "") $groupName = "";
 			else $groupName = $this->adp->getGroupName($gid);
 			return $groupName;
 		}
-		else if($this->path == "users/") {
+		else if($this->path == "/users/") {
 			return Lang::txt("Filebrowser_getFolderCaption.userFolder");
 		}
 		else if($this->path == "/") {
@@ -724,8 +720,6 @@ STRING_END;
 	}
 
 	static function fileValid($fullpath, $file) {
-		$fullpath = str_replace("//", "/", $fullpath);
-
 		if($file == ".htaccess") return false;
 		else if($file == ".") return false;
 		else if($fullpath . "/" == $GLOBALS["DATA_PATHS"]["userhome"]) return false;
