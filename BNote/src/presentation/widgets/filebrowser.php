@@ -396,14 +396,14 @@ STRING_END;
 	}
 
 	private function addFolderForm() {
-		$form = new Form(Lang::txt("Filebrowser_addFolderForm.addFolder"), $this->linkprefix("addFolder&path=" . $this->path));
+		$form = new Form(Lang::txt("Filebrowser_addFolderForm.addFolder"), $this->linkprefix("addFolder&path=" . urlencode($this->path)));
 		$form->addElement(Lang::txt("Filebrowser_addFolderForm.foldername"), new Field("folder", "", FieldType::CHAR));
 		$form->addHidden("path", urlencode($_GET["path"]));
 		$form->write();
 	}
 
 	private function addFileForm() {
-		$form = new Form(Lang::txt("createFile"), $this->linkprefix("addFile&path=" . $this->path));
+		$form = new Form(Lang::txt("createFile"), $this->linkprefix("addFile&path=" . urlencode($this->path)));
 		$form->setMultipart();
 		$form->addElement(Lang::txt("file"), new Field("file", "", FieldType::FILE));
 		$form->addHidden("path", urlencode($_GET["path"]));
@@ -623,7 +623,7 @@ STRING_END;
 			}
 			else {
 				# file
-				$showLink = $this->sysdata->getFileHandler() . "?file=" . $sharepath;
+				$showLink = $this->sysdata->getFileHandler() . "?file=" . urlencode($sharepath);
 				$showLnk = new Link($showLink, Lang::txt("Filebrowser_getFilesFromFolder.download"));
 				$showLnk->setTarget("_blank");
 				$showLnk->addIcon("arrow_down");
@@ -635,7 +635,7 @@ STRING_END;
 			}
 
 			if(!$this->viewmode) {
-				$delLink = $this->linkprefix("deleteFileRequest&path=" . $this->path . "&file=" . urlencode($file));
+				$delLink = $this->linkprefix("deleteFileRequest&path=" . urlencode($this->path) . "&file=" . urlencode($file));
 				$delLnk = new Link($delLink, Lang::txt("Filebrowser_getFilesFromFolder.delete"));
 				$delLnk->addIcon("remove");
 				$delete = $delLnk->toString();
