@@ -570,7 +570,7 @@ STRING_END;
 
 		// header
 		$result[0] = array(
-			"name", "size", "options", "show", "delete"
+			"name", "size", "show", "delete"
 		);
 
 		// create directory if not present
@@ -606,9 +606,6 @@ STRING_END;
 					if($this->levelUp() != null) {
 						$showLink = $this->linkprefix("view&path=" . urlencode($this->levelUp()));
 						$iconName = "arrow_up";
-						$openLink = new Link($showLink, Lang::txt("Filebrowser_getFilesFromFolder.open"));
-						$openLink->addIcon($iconName);
-						$show = $openLink->toString();
 					}
 					else {
 						continue;
@@ -616,18 +613,11 @@ STRING_END;
 				}
 				else {
 					$showLink = $this->linkprefix("view&path=" . urlencode($sharepath . "/"));
-					$openLink = new Link($showLink, Lang::txt("Filebrowser_getFilesFromFolder.open"));
-					$openLink->addIcon($iconName);
-					$show = $openLink->toString();
 				}
 			}
 			else {
 				# file
 				$showLink = $this->sysdata->getFileHandler() . "?file=" . urlencode($sharepath);
-				$showLnk = new Link($showLink, Lang::txt("Filebrowser_getFilesFromFolder.download"));
-				$showLnk->setTarget("_blank");
-				$showLnk->addIcon("arrow_down");
-				$show = $showLnk->toString();
 
 				$filetype = $this->getFiletype($file);
 				$iconName = $filetype;
@@ -636,20 +626,12 @@ STRING_END;
 
 			if(!$this->viewmode) {
 				$delLink = $this->linkprefix("deleteFileRequest&path=" . urlencode($this->path) . "&file=" . urlencode($file));
-				$delLnk = new Link($delLink, Lang::txt("Filebrowser_getFilesFromFolder.delete"));
-				$delLnk->addIcon("remove");
-				$delete = $delLnk->toString();
 			}
-			else {
-				$delete = "";
-			}
-			$options = $show . "&nbsp;&nbsp;" . $delete;
 
 			// add to result array
 			$row = array(
 				"name" => $file,
 				"size" => $size,
-				"options" => $options,
 				"show" => $showLink,
 				"delete" => $delLink,
 				"icon" => $iconName,
