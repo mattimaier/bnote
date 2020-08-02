@@ -203,8 +203,8 @@ class Filebrowser implements iWriteable {
 	private function writeFavs() {
 		// get favorite dirs
 		$favs = array(
-			Lang::txt("Filebrowser_writeFavs.myFiles") => $this->sysdata->getUsersHomeDir(),
-			Lang::txt("Filebrowser_writeFavs.commonShare") => $this->root
+			Lang::txt("Filebrowser_writeFavs.myFiles") => $this->sysdata->getUsersHomeDir() ."/",
+			Lang::txt("Filebrowser_writeFavs.commonShare") => $GLOBALS["DATA_PATHS"]["share"]
 		);
 
 		if($this->adp->getSecurityManager()->isUserAdmin()) {
@@ -226,12 +226,12 @@ class Filebrowser implements iWriteable {
 		// show links
 		foreach($favs as $caption => $loc) {
 			$active = "";
-			$current_loc = substr($loc, strlen($GLOBALS["DATA_PATHS"]["share"]));
+			$current_loc = substr($loc, strlen($GLOBALS["DATA_PATHS"]["share"])-1);
 			if(isset($_GET["path"]) && $current_loc == $this->path) {
 				$active = "_active";
 			}
 			?>
-			<a href="<?php echo $this->linkprefix("view&path=" . urlencode($loc)); ?>">
+			<a href="<?php echo $this->linkprefix("view&path=" . urlencode($current_loc)); ?>">
 				<div class="filebrowser_folderitem<?php echo $active; ?>"><?php echo $caption; ?></div>
 			</a>
 			<?php
