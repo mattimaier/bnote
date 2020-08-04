@@ -333,6 +333,7 @@ STRING_END;
 			$icon = "style/icons/" . $item['icon'] . ".png";
 			$delete_link = $item["delete"];
 			$size = $item["size"];
+			$thumbnail = $item["thumbnail"];
 
 			/*
 			 * For items that can't be deleted, the trash link is still generated,
@@ -368,7 +369,7 @@ STRING_END;
 			else if($item["icon"] == "gallery") {
 				$class = $class . " gallery";
 				$tile_content = <<< STRING_END
-					<img src="$link">
+					<img src="$thumbnail">
 STRING_END;
 			} else {
 				$tile_content = <<< STRING_END
@@ -476,6 +477,11 @@ STRING_END;
 		}
 		else {
 			unlink($fullpath);
+			
+			$file = urldecode($_GET["file"]);
+			if ($this->getFiletype($file) == "gallery") {
+				unlink($this->root . $this->path . ".thumbnails/" .$file);
+			}
 		}
 
 		// show main view
@@ -570,7 +576,7 @@ STRING_END;
 
 		// header
 		$result[0] = array(
-			"name", "size", "show", "delete"
+			"name", "size", "show", "thumbnail", "delete"
 		);
 
 		// create directory if not present
@@ -594,6 +600,7 @@ STRING_END;
 
 			// create options
 			$showLink = "";
+			$thumbLink = "";
 			$delLink = "";
 			$iconName = "folder";
 			$isDir = false;
@@ -622,6 +629,14 @@ STRING_END;
 				$filetype = $this->getFiletype($file);
 				$iconName = $filetype;
 				$hasTileView = (($filetype == "music") || ($filetype == "gallery"));
+
+				if ($filetype == "gallery") {
+					$thumbnail = $this->path .".thumbnails/" . $file;
+					$thumbLink = $this->sysdata->getFileHandler() . "?file=" . urlencode($thumbnail);
+					if(!file_exists($this->root . $thumbnail)) {
+						$this->createThumbnail($file);
+					}
+				}
 			}
 
 			if(!$this->viewmode) {
@@ -636,7 +651,8 @@ STRING_END;
 				"delete" => $delLink,
 				"icon" => $iconName,
 				"directory" => $isDir,
-				"tile" => $hasTileView
+				"tile" => $hasTileView,
+				"thumbnail" => $thumbLink
 			);
 			array_push($result, $row);
 		}
@@ -704,6 +720,7 @@ STRING_END;
 	static function fileValid($fullpath, $file) {
 		if($file == ".htaccess") return false;
 		else if($file == ".") return false;
+		else if($file == ".thumbnails") return false;
 		else if($fullpath . "/" == $GLOBALS["DATA_PATHS"]["userhome"]) return false;
 		else if($fullpath . "/" == $GLOBALS["DATA_PATHS"]["grouphome"]) return false;
 		else if($file == "_temp") return false;
@@ -767,6 +784,17 @@ STRING_END;
 		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)), Lang::txt("Filebrowser_download.back"));
 		$back->addIcon("arrow_left");
 		$back->write();
+	}
+
+	private function createThumbnail($file) {
+		$thumb = new SimpleImage();
+		$thumb->load($this->root . $this->path . $file);
+		if ($thumb->getWidth() > $thumb->getHeight()) {
+			$thumb->resizeToWidth(200);
+		} else {
+			$thumb->resizeToHeight(200);
+		}
+		$thumb->save($this->root . $this->path . ".thumbnails/" . $file);
 	}
 }
 
