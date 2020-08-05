@@ -787,6 +787,12 @@ STRING_END;
 	}
 
 	private function createThumbnail($file) {
+
+		$thumb_folder = $this->root . $this->path . ".thumbnails/";
+		if(!file_exists($thumb_folder)) {
+			mkdir($thumb_folder);
+		}
+
 		$thumb = new SimpleImage();
 		$thumb->load($this->root . $this->path . $file);
 		if ($thumb->getWidth() > $thumb->getHeight()) {
@@ -794,7 +800,7 @@ STRING_END;
 		} else {
 			$thumb->resizeToHeight(200);
 		}
-		$thumb->save($this->root . $this->path . ".thumbnails/" . $file);
+		$thumb->save($thumb_folder . $file);
 	}
 }
 
