@@ -128,22 +128,6 @@ label.contactdetail_entry_label {
   display: block;
   color: #7F877E;
 }
-#filebrowser_content {
-  width: 100%;
-}
-#filebrowser_content tr {
-  border-width: 0px;
-}
-#filebrowser_folders {
-  padding: 0px;
-  width: 200px;
-}
-.filebrowser_foldertopic {
-  padding: 5px;
-  background-color: #74E660;
-  color: #FFFFFF;
-  font-weight: bold;
-}
 .filebrowser_folderitem {
   padding: 5px;
   display: inline-block;
@@ -161,17 +145,52 @@ label.contactdetail_entry_label {
   background-color: #FFFFFF;
   color: #000000;
 }
-#filebrowser_files {
-  background-color: #FFFFFF;
-  padding-top: 0px;
-}
 .filebrowser_folder_header {
   margin-top: 0px;
 }
-div.filebrowser_item {
+div.filebrowser_list_item {
   padding: 5px;
   padding-left: 0px;
   border-bottom: 1px solid #D6E8D3;
+}
+div.filebrowser_tile_item {
+  width: 220px;
+  margin: 5px;
+  display: inline-block;
+  padding: 0px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: text-top;
+  border: none;
+}
+div.filebrowser_tile {
+  height: 220px;
+  width: 220px;
+  line-height: 220px;
+  background-color: #D6E8D3;
+  border-radius: 10px;
+}
+.filebrowser_tile img {
+  vertical-align: middle;
+}
+.gallery .filebrowser_tile img {
+  max-height: 200px;
+  max-width: 200px;
+  margin: 10px;
+  border-radius: 10px;
+}
+.music .filebrowser_tile {
+  line-height: 0px;
+}
+.music .filebrowser_tile img {
+  margin-top: 50px;
+}
+.music .filebrowser_tile audio {
+  display: block;
+  width: 200px;
+  margin: 10px;
 }
 a.filebrowser_item {
   color: #000000;
@@ -179,6 +198,10 @@ a.filebrowser_item {
 span.filebrowser_item_size {
   display: inline-block;
   float: right;
+}
+.filebrowser_tile_item span.filebrowser_item_size {
+  display: inline-block;
+  float: none;
 }
 div.filebrowser_favs_container {
   background-color: #D6E8D3;
@@ -194,6 +217,9 @@ div.filebrowser_favs_title {
   display: inline-block;
   float: right;
   margin-left: 10px;
+}
+.no_delete .filebrowser_trash {
+  visibility: hidden;
 }
 .finance_filter_box {
   border: 1px solid #D6E8D3;
@@ -967,7 +993,7 @@ select.participationQuickSelector {
   margin: 0 3px 3px 3px;
   padding: 0.4em;
   padding-left: 1.5em;
-  font-size: 1.0em;
+  font-size: 1em;
 }
 #sortable li span {
   position: absolute;
