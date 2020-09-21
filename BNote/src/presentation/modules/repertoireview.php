@@ -492,7 +492,7 @@ class RepertoireView extends CrudRefView {
 	}
 	
 	function xlsProcessSuccess($updated, $created) {
-		new Message(Lang::txt("RepertoireView_xlsProcessSuccess.message_1"), "$created" . Lang::txt("RepertoireView_xlsProcessSuccess.message_2") . "$updated" . Lang::txt("RepertoireView_xlsProcessSuccess.message_3"));
+		new Message(Lang::txt("RepertoireView_xlsProcessSuccess.message_1"), "$created " . Lang::txt("RepertoireView_xlsProcessSuccess.message_2") . " $updated " . Lang::txt("RepertoireView_xlsProcessSuccess.message_3"));
 	}
 	
 	function massUpdate() {
