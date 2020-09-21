@@ -241,12 +241,12 @@ class RepertoireController extends DefaultController {
 		}
 		
 		return array(
-			"title" => urlencode($row[$_POST["col_title"]]),
+			"title" => $row[$_POST["col_title"]],
 			"genre" => $this->mapGenre($genre),
 			"bpm" => $bpm,
 			"music_key" => $music_key,
 			"status" => $_POST["status"],
-			"notes" => urlencode($notes),
+			"notes" => $notes,
 			"composer" => $this->cleanSubject($composer),
 			"length" => $length,
 			"setting" => $setting
