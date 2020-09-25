@@ -577,19 +577,37 @@ class ProbenView extends CrudRefLocationView {
 		$this->practise();
 	}
 	
-	function printPartlist() {
-		require_once($GLOBALS["DIR_PRINT"] . "partlist.php");
-		$contacts = $this->getData()->getRehearsalContacts($_GET["id"]);
-		$filename = $GLOBALS["DATA_PATHS"]["members"] . "partlist_rehearsal_" . $_GET["id"] . ".pdf";
-		new PartlistPDF($filename, $this->getData(), $contacts, $_GET["id"]);
+	function printPartlist() {		
+		// title
+		$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
+		Writing::h2(Lang::txt("ProbenView_view.message_1") . "$pdate" . Lang::txt("ProbenView_view.message_2"));
+		Writing::h3(Lang::txt("ProbenView_printPartlist.subtitle"));
 		
-		// show report
-		echo "<embed src=\"src/data/filehandler.php?mode=module&file=$filename\" width=\"90%\" height=\"700px\" />\n";
-		$this->verticalSpace();
+		// participation list
+		$parts = $this->getData()->getParticipantOverview($_GET["id"], NULL, FALSE);
+		// add signature column
+		$parts[0][] = "signature"; 
+		for($i = 1; $i < count($parts); $i++) {
+			$parts[$i]["signature"] = "<div style=\"width: 300px;\">&nbsp;</div>";
+		}
 		
-		// back button
-		$this->backToStart();
-		$this->verticalSpace();
+		$table = new Table($parts);
+		$table->showFilter(false);
+		$table->renameHeader("instrument", Lang::txt("ProbenView_printPartlist.printcol_instrument"));
+		$table->removeColumn("contact_id");
+		$table->renameHeader("contactname", Lang::txt("ProbenView_printPartlist.printcol_contact"));
+		$table->removeColumn("user_id");
+		$table->renameHeader("participate", Lang::txt("ProbenView_printPartlist.printcol_participate"));
+		$table->renameHeader("signature", Lang::txt("ProbenView_printPartlist.printcol_signature"));
+		$table->write();
+	}
+	
+	function printPartlistOptions() {
+		$this->backToViewButton($_GET["id"] . "&tab=participants");
+		
+		$print = new Link("javascript:print()", Lang::txt("ProbenView_viewOptions.printPartlist"));
+		$print->addIcon("printer");
+		$print->write();
 	}
 	
 	function history() {

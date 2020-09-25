@@ -130,18 +130,29 @@ class ProbenData extends AbstractLocationData {
 	/**
 	 * Checks for the given instrument and rehearsal what the status of participation is.
 	 * @param Integer $rid Rehearsal ID.
-	 * @param Integer $instrumentId Instrument ID.
+	 * @param Integer $instrumentId Instrument ID, set NULL (default) for all
+	 * @param Boolean $stripped Cut first row (true by default)
 	 */
-	function getParticipantOverview($rid, $instrumentId) {
-		$query = "SELECT c.id as contact_id, CONCAT(c.name, ' ', c.surname) as contactname, u.id as user_id, ru.participate
+	function getParticipantOverview($rid, $instrumentId=NULL, $stripped=TRUE) {
+		$this->regex->isPositiveAmount($rid, "rehearsalId");
+		$instrument = "";
+		if($instrumentId != NULL) {
+			$this->regex->isPositiveAmount($instrumentId, "instrumentId");
+			$instrument = "AND c.instrument = $instrumentId";
+		}
+		$query = "SELECT i.name as instrument, c.id as contact_id, CONCAT(c.name, ' ', c.surname) as contactname, u.id as user_id, ru.participate
 				FROM rehearsal_contact rc
 					JOIN contact c ON rc.contact = c.id
 					JOIN user u ON u.contact = c.id
+					JOIN instrument i ON c.instrument = i.id
 					LEFT OUTER JOIN rehearsal_user ru ON ru.user = u.id AND ru.rehearsal = $rid
-				WHERE c.instrument = $instrumentId AND rc.rehearsal = $rid";
+				WHERE rc.rehearsal = $rid $instrument
+				ORDER BY instrument, contactname";
 		
 		$participants = $this->database->getSelection($query);
-		$participants = array_splice($participants, 1);
+		if($stripped) {
+			$participants = array_splice($participants, 1);
+		}
 		return $participants;
 	}
 	

@@ -1482,6 +1482,11 @@ class Translation extends BNoteTranslation {
 			"ProbenView_overviewEdit.save" => "Save participation",
 			"ProbenView_overviewEdit.error" => "Some participants have no user.",
 			"ProbenView_writeRehearsal.begin" => " o'clock",
+			"ProbenView_printPartlist.subtitle" => "Participants",
+			"ProbenView_printPartlist.printcol_instrument" => "Instrument",
+			"ProbenView_printPartlist.printcol_contact" => "Participant",
+			"ProbenView_printPartlist.printcol_participate" => "Takes part",
+			"ProbenView_printPartlist.printcol_signature" => "Signature",
 			
 			// module: Probenphasen *********************************************
 			
