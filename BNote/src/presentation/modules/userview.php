@@ -28,7 +28,6 @@ class UserView extends CrudRefView {
 		$table->renameHeader("contactsurname", Lang::txt("UserView_start.contactsurname"));
 		$table->renameHeader("contactname", Lang::txt("UserView_start.contactname"));
 		$table->renameHeader("isactive", Lang::txt("UserView_start.isactive"));
-		$table->setColumnFormat("lastlogin", Lang::txt("UserView_start.lastlogin"));
 		$table->write();
 	}
 	
