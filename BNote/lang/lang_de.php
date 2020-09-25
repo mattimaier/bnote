@@ -1469,6 +1469,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_viewOptions.remHref" => "Benachrichtigung senden",
 			"ProbenView_viewOptions.addContact" => "Einladung hinzufügen",
 			"ProbenView_viewOptions.printPartlist" => "Teilnehmerliste drucken",
+			"ProbenView_viewOptions.editParticipation" => "Teilnahme bearbeiten",
 			"ProbenView_overview.FutureRehearsals" => "Es sind derzeit keine Proben geplant.",
 			"ProbenView_overview.header_1" => "Probe am ",
 			"ProbenView_overview.header_2" => " Uhr",

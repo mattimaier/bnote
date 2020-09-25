@@ -1470,6 +1470,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_viewOptions.remHref" => "Send notification",
 			"ProbenView_viewOptions.addContact" => "Add invitation",
 			"ProbenView_viewOptions.printPartlist" => "Print participant list",
+			"ProbenView_viewOptions.editParticipation" => "Edit participation",
 			"ProbenView_overview.FutureRehearsals" => "No Rehearsals planned at this time.",
 			"ProbenView_overview.header_1" => "Rehearsal at ",
 			"ProbenView_overview.header_2" => " o'clock",

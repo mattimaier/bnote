@@ -710,6 +710,10 @@ class ProbenView extends CrudRefLocationView {
 			$back = new Link($this->modePrefix() . "history&year=" . $_GET["year"], Lang::txt("ProbenView_viewOptions.back"));
 			$back->addIcon("arrow_left");
 			$back->write();
+			
+			$editParticipation = new Link($this->modePrefix() . "overview&id=" . $_GET["id"] . "&edit=true", Lang::txt("ProbenView_viewOptions.editParticipation"));
+			$editParticipation->addIcon("mitspieler");
+			$editParticipation->write();
 		}
 		else if(!isset($_GET["tab"]) || $_GET["tab"] == "details") {
 			parent::viewOptions();
@@ -723,12 +727,14 @@ class ProbenView extends CrudRefLocationView {
 		}
 		else if(isset($_GET["tab"]) && ($_GET["tab"] == "invitations" || $_GET["tab"] == "participants")) {
 			$this->backToStart();
-			$this->buttonSpace();
 			
 			$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], Lang::txt("ProbenView_viewOptions.addContact"));
 			$addContact->addIcon("plus");
 			$addContact->write();
-			$this->buttonSpace();
+			
+			$editParticipation = new Link($this->modePrefix() . "overview&id=" . $_GET["id"] . "&edit=true", Lang::txt("ProbenView_viewOptions.editParticipation"));
+			$editParticipation->addIcon("mitspieler");
+			$editParticipation->write();
 				
 			$printPartlist = new Link($this->modePrefix() . "printPartlist&id=" . $_GET["id"], Lang::txt("ProbenView_viewOptions.printPartlist"));
 			$printPartlist->addIcon("printer");
@@ -745,9 +751,14 @@ class ProbenView extends CrudRefLocationView {
 				$this->getData()->updateParticipations();
 			}
 			elseif($_GET["edit"] == "true") {
-				echo '<form method="POST" action="' . $this->modePrefix() . "overview&edit=save" . '" style="margin-top: 0px;">';
+				$single = "";
+				if(isset($_GET["id"])) {
+					$single = "&id=" . $_GET["id"];
+				}
 				
-				$save = new Link($this->modePrefix() . "overview&edit=save", Lang::txt("ProbenView_overviewEdit.save"));
+				echo '<form method="POST" action="' . $this->modePrefix() . "overview$single&edit=save" . '" style="margin-top: 0px;">';
+				
+				$save = new Link($this->modePrefix() . "overview&edit=save$single", Lang::txt("ProbenView_overviewEdit.save"));
 				$save->isSubmitButton();
 				$save->write();
 				
@@ -755,7 +766,12 @@ class ProbenView extends CrudRefLocationView {
 			}
 		}
 		
-		$futureRehearsals = $this->getData()->adp()->getFutureRehearsals();
+		if(isset($_GET["id"])) {
+			$futureRehearsals = array(array(), $this->getData()->findByIdNoRef($_GET["id"]));
+		}
+		else {
+			$futureRehearsals = $this->getData()->adp()->getFutureRehearsals();
+		}
 		$usedInstruments = $this->getData()->getUsedInstruments();
 		
 		if(count($futureRehearsals) <= 1) {
@@ -840,14 +856,19 @@ class ProbenView extends CrudRefLocationView {
 	}
 	
 	public function overviewOptions() {
+		$single = "";
+		if(isset($_GET["id"])) {
+			$single = "&id=" . $_GET["id"];
+		}
+		
 		if(isset($_GET["edit"]) && $_GET["edit"] == "true") {
-			$overview = new Link($this->modePrefix() . "overview", Lang::txt("ProbenView_startOptions.mitspieler"));
+			$overview = new Link($this->modePrefix() . "overview$single", Lang::txt("ProbenView_startOptions.mitspieler"));
 			$overview->addIcon("mitspieler");
 			$overview->write();
 		}
 		else {
 			$this->backToStart();
-			$edit = new Link($this->modePrefix() . "overview&edit=true", Lang::txt("ProbenView_overviewEdit.buttonLabel"));
+			$edit = new Link($this->modePrefix() . "overview$single&edit=true", Lang::txt("ProbenView_overviewEdit.buttonLabel"));
 			$edit->addIcon("edit");
 			$edit->write();
 		}
