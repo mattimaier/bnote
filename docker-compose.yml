@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 services:
     php-apache:
         build: .
@@ -10,7 +10,7 @@ services:
             - 'mariadb'
 
     mariadb:
-        image: mariadb:10.1
+        image: mariadb:10.5
         volumes:
             - mariadb:/var/lib/mysql
         environment:

@@ -55,7 +55,7 @@ class Installation {
 		Writing::h1(Lang::txt("Installation_companyConfig.title"));
 		
 		if(file_exists("config/company.xml")) {
-			new Message(Lang::txt("Installation_companyConfig.message_1"));
+			new Message("Information", Lang::txt("Installation_companyConfig.message_1"));
 			$this->next("databaseConfig");
 		}
 		else {
