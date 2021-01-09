@@ -15,3 +15,6 @@ RUN a2enmod rewrite
 RUN apt-get update -y && apt-get install -y libpng-dev libjpeg-dev
 RUN docker-php-ext-configure gd --with-jpeg
 RUN docker-php-ext-install gd
+
+# The PHP module zip is required for downloading share folders.
+RUN docker-php-ext-install zip
