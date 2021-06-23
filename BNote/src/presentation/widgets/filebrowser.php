@@ -745,12 +745,12 @@ STRING_END;
 		 * for multi-user access, but there is no or a very complicated cleanup -
 		 * thus this very simple solution.
 		 */
-		$zip_suffix = "_temp/download.zip";
-		$zip_fname = $this->root . $zip_suffix;
+		$temp_dir = $this->root . "_temp";
+		$zip_fname = $temp_dir . "/download.zip";
 
 		// check that _temp folder exists
-		if(!is_dir($this->root . "_temp")) {
-			mkdir($this->root . "_temp");
+		if(!is_dir($temp_dir)) {
+			mkdir($temp_dir);
 		}
 
 		// initialize zip-archive
@@ -775,13 +775,16 @@ STRING_END;
 
 		Writing::p(Lang::txt("Filebrowser_download.archiveCreated"));
 
-		$link = new Link($this->sysdata->getFileHandler() . "?file=" . $zip_suffix, Lang::txt("Filebrowser_download.downloadArchive"));
+		$link = new Link($this->sysdata->getFileHandler() . "?mode=all&file=" .
+		                 urlencode($zip_fname),
+		                 Lang::txt("Filebrowser_download.downloadArchive"));
 		$link->setTarget("_blank");
 		$link->addIcon("arrow_down");
 		$link->write();
 		AbstractView::buttonSpace();
 
-		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)), Lang::txt("Filebrowser_download.back"));
+		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)),
+		                 Lang::txt("Filebrowser_download.back"));
 		$back->addIcon("arrow_left");
 		$back->write();
 	}
