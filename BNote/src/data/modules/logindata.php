@@ -44,7 +44,7 @@ class LoginData extends AbstractLocationData {
 				return null;
 			}
 		}
-		return $this->database->getCell($this->table, "password", "login = '" . $login . "' AND isActive = 1");
+		return $this->database->colValue("SELECT password FROM user WHERE login = ? AND isActive = 1", "password", array(array("s", $login)));
 	}
 	
 	function getUserIdForLogin($login) {

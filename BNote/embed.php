@@ -30,7 +30,7 @@ if(isset($_GET["mod"]) && $_GET["mod"] === "login" && isset($_GET["mode"]) && $_
 	$ctrl->doLogin();
 }
 else if(isset($_GET["mobilePin"])) {
-	$uid = $system_data->dbcon->getCell("user", "id", "pin = " . $_GET["mobilePin"]);
+	$uid = $system_data->dbcon->colValue("SELECT id FROM user WHERE pin = ?", "id", array(array("i", $_GET["mobilePin"])));
 	$_SESSION["user"] = $uid;
 	$system_data->initUserPermissions();
 }

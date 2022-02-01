@@ -243,7 +243,7 @@ abstract class AbstractLocationData extends AbstractData {
 	 * @return Array Address as from getAddress($id)
 	 */
 	public function getAddressFromLocation($locationId) {
-		$addressId = $this->database->getCell("location", "address", "id = $locationId");
+		$addressId = $this->database->colValue("SELECT address FROM location WHERE id = ?", "address", array(array("i", $locationId)));
 		return $this->getAddress($addressId);
 	}
 }

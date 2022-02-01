@@ -72,7 +72,7 @@ class Database extends Data {
 	 * @param string $query
 	 * @return mixed
 	 */
-	protected function exe($query) {
+	protected function exe($query) { 
 		$res = $this->db->query( $query );
 		if (!$res) {
 			$this->mysql_error_display($query);
@@ -105,6 +105,22 @@ class Database extends Data {
 			$this->mysql_error_display($query);
 		}
 		return $this->db->insert_id;
+	}
+	
+	/**
+	 * Get selection from database with a prepared statement.
+	 * @param String $query Prepared query.
+	 * @param Array $params Parameter array in the form i => array(type, value).
+	 * @return Array Associated result from mysqli.
+	 */
+	public function preparedQuery($query, $params) {
+		$stmt = $this->db->prepare($query);
+		foreach($params as $i => $param) {
+			$stmt->bind_param($param[0], $param[1]);
+		}
+		$stmt->execute();
+		$result = $stmt->get_result();
+		return $result->fetch_all(MYSQLI_ASSOC);
 	}
 	
 	/**
@@ -191,13 +207,26 @@ class Database extends Data {
 	 *        	Where clause without the "WHERE".
 	 */
 	public function getCell($table, $col, $where) {
+		//FIXME: Unsafe statement
 		$query = "SELECT $col FROM $table WHERE $where";
-		$res = $this->exe ( $query );
-		$row = mysqli_fetch_assoc ( $res );
+		$res = $this->exe($query);		
+		$row = mysqli_fetch_assoc($res);
 		if($row != null) {
 			return $row[$col];
 		}
 		return null;
+	}
+	
+	/**
+	 * Get a single value from a table.
+	 * @param String $query Prepared statement. 
+	 * @param $col Column to fetch
+	 * @param Array $params Parameter array in the form i => array(type, value).
+	 * @return NULL|value
+	 */
+	public function colValue($query, $col, $params) {
+		$res = $this->preparedQuery($query, $params);
+		return $res && count($res) > 0 ? $res[0][$col] : NULL;
 	}
 	
 	/**
@@ -208,9 +237,9 @@ class Database extends Data {
 	 */
 	public function getSelection($query) {
 		// Execute Query
-		$res = $this->exe( $query );
+		$res = $this->exe($query);
+		$dataTable = array();
 		
-		$dataTable = array ();
 		// add header
 		$header = array ();
 		
@@ -327,7 +356,7 @@ class Database extends Data {
 	 * Returns the name of the database.
 	 */
 	public function getDatabaseName() {
-		return $this->connectionData ["dbname"];
+		return $this->connectionData["dbname"];
 	}
 	
 	/**
@@ -345,7 +374,7 @@ class Database extends Data {
 				array_push ( $fields, $row["Field"] );
 			}
 		} else {
-			new BNoteError( "Empty $table table. Please check your database " . $this->getDatabaseName () . "!" );
+			new BNoteError("Empty $table table. Please check your database " . $this->getDatabaseName () . "!");
 		}
 		return $fields;
 	}
@@ -356,7 +385,7 @@ class Database extends Data {
 	 * @return int Number of rows
 	 */
 	public function getNumberRows($table) {
-		return $this->getCell($table, "count(*)", "true");
+		return $this->colValue("SELECT count(*) as cnt FROM $table", "cnt", array());
 	}
 	
 	/**

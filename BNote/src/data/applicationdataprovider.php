@@ -73,29 +73,7 @@ class ApplicationDataProvider {
 		return $this->secManager;
 	}
 	
-	// GENERAL METHODS
-	/**
-	 * Checks whether other entities reference to this entity. This function
-	 * requires the foreign key column in the referencing entity to have
-	 * the same name than the table that is referenced.
-	 * @param String $table Name of the table the referenced entity is stored in.
-	 * @param int $key Reference key.
-	 * @return True if the key is used by another entity, otherwise false.
-	 */
-	private function isKeyUsed($table, $key) {
-		if(isset($this->references[$table])) {
-			$totalcount = 0;
-			foreach($this->references[$table] as $i => $ref) {
-				$e = $this->database->getCell($ref, "count($table)", "$table = $key");
-				$totalcount += $e;
-			}
-			return ($totalcount > 1);
-		}
-		else {
-			return false;
-		}
-	}
-	
+	// GENERAL METHODS	
 	/**
 	 * Searches for the row in the given table.
 	 * @param String $table Name of the entity table.
@@ -105,16 +83,6 @@ class ApplicationDataProvider {
 	public function getEntityForId($table, $id) {
 		$query = "SELECT * FROM $table WHERE id = $id";
 		return $this->database->getRow($query);
-	}
-	
-	/**
-	 * Checks whether the given $id is in the id column of the table.
-	 * @param int $id ID to check.
-	 * @param String $table Table to check in.
-	 * @return True if the ID is present, otherwise false.
-	 */
-	private function idExists($id, $table) {
-		return ($this->database->getCell($table, "count(id)", "id = $id") > 0);
 	}
 	
 	/**
@@ -224,7 +192,9 @@ class ApplicationDataProvider {
 		// iterate over concerts and replace foreign keys with data
 		for($i = 1; $i < count($concerts); $i++) {
 			// resolve location -> mandatory!
-			if(!$this->idExists($concerts[$i]["location"], "location")) {
+			$locCount = $this->database->colValue("SELECT count(id) as cnt FROM location WHERE id = ?", "cnt", 
+					array(array("i", $concerts[$i]["location"])));
+			if($locCount == 0) {
 				$location["name"] = "-";
 				$location["notes"] = "";
 				$location["address"] = "";
@@ -359,8 +329,7 @@ class ApplicationDataProvider {
 	 */
 	public function getUsersGroups($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
-		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = $uid");
-		$query = "SELECT `group` FROM contact_group WHERE contact = $cid";
+		$query = "SELECT `group` FROM contact_group cg JOIN user u ON cg.contact = u.contact WHERE u.id = $uid";
 		$sel = $this->database->getSelection($query);
 		return Database::flattenSelection($sel, "group");
 	}
@@ -372,7 +341,7 @@ class ApplicationDataProvider {
 	 */
 	public function getUsersPhases($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
-		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = $uid");
+		$cid = $this->getUserContact($uid);
 		$query = "SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = $cid";
 		$sel = $this->database->getSelection($query);
 		return Database::flattenSelection($sel, "rehearsalphase");
@@ -394,11 +363,8 @@ class ApplicationDataProvider {
 	 * @return First and last name concatenated.
 	 */
 	public function getUsername($id) {
-		$cid = $this->database->getCell($this->database->getUserTable(),
-					"contact", "id = $id");
-		$query = "SELECT surname, name FROM contact WHERE id = $cid";
-		$cdata = $this->database->getRow($query);
-		return $cdata["name"] . " " . $cdata["surname"];
+		$query = "SELECT CONCAT(c.name, ' ', c.surname) as name FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?";
+		return $this->database->colValue($query, "name", array(array("i", $id)));
 	}
 	
 	/**
@@ -408,7 +374,7 @@ class ApplicationDataProvider {
 	 */
 	public function getLogin($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
-		return $this->database->getCell($this->database->getUserTable(), "login", "id = $uid");
+		return $this->database->colValue("SELECT login FROM user WHERE id = ?", "login", array(array("i", $uid)));
 	}
 	
 	/**
@@ -439,7 +405,7 @@ class ApplicationDataProvider {
 	 * @return String Name of the location.
 	 */
 	public function getLocationName($locId) {
-		return $this->database->getCell("location", "name", "id = $locId");
+		return $this->database->colValue("SELECT name FROM location WHERE id = ?", "name", array(array("i", $locId)));
 	}
 	
 	/**
@@ -456,7 +422,7 @@ class ApplicationDataProvider {
 	 * @return True if it exists, otherwise false.
 	 */
 	function doesLoginExist($login) {
-		$ct = $this->database->getCell("user", "count(id)", "login = '$login'");
+		$ct = $this->database->colValue("SELECT count(id) as cnt FROM user WHERE login = ?", "cnt", array(array("s", $login)));
 		return ($ct == 1);
 	}
 	
@@ -485,7 +451,7 @@ class ApplicationDataProvider {
 	 */
 	function getUserContact($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
-		return $this->database->getCell($this->database->getUserTable(), "contact", "id = $uid");
+		return $this->database->colValue("SELECT contact FROM user WHERE id = ?", "contact", array(array("i", $uid)));
 	}
 	
 	/**
@@ -494,11 +460,10 @@ class ApplicationDataProvider {
 	 * @return array Null or array or user information.
 	 */
 	function getUserForContact($cid) {
-		$uid = $this->database->getCell($this->database->getUserTable(), "id", "contact = $cid");
 		if($uid == null) {
 			return null;
 		}
-		return $this->database->getRow("SELECT * FROM user WHERE id = $uid");
+		return $this->database->getRow("SELECT * FROM user WHERE contact = $cid");
 	}
 	
 	/**
@@ -533,7 +498,7 @@ class ApplicationDataProvider {
 	 * @return Name of group.
 	 */
 	function getGroupName($groupId) {
-		return $this->database->getCell("`group`", "name", "id = $groupId");
+		return $this->database->colValue("SELECT name FROM `group` WHERE id = ?", "name", array(array("i", $groupId)));
 	}
 	
 	/**
@@ -543,8 +508,10 @@ class ApplicationDataProvider {
 	 * @return boolean True when the user is a member, otherwise false.
 	 */
 	function isGroupMember($gid, $uid = -1) {
-		$contact = $this->getUserContact($uid);
-		$ct = $this->database->getCell("contact_group", "count(*)", "`group` = $gid AND contact = $contact");
+		$query = "SELECT count(*) as cnt 
+					FROM contact_group cg JOIN user u ON cg.contact = u.contact 
+					WHERE `group` = ? AND u.id = ?";
+		$ct = $this->database->colValue($query, "cnt", array(array("i", $gid), array("i", $uid)));
 		return ($ct > 0);
 	}
 	
@@ -576,7 +543,7 @@ class ApplicationDataProvider {
 	}
 	
 	function getInstrumentName($id) {
-		return $this->database->getCell("instrument", "name", "id = $id");
+		return $this->database->colValue("SELECT name FROM instrument WHERE id = ?", "name", array(array("i", $id)));
 	}
 	
 	function getAccommodationLocation($id) {

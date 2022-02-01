@@ -83,7 +83,7 @@ class Systemdata {
  	if($id == -1) $modId = $this->current_modid;
  	
  	if(is_numeric($modId)) {
-  		return $this->dbcon->getCell("module", "name", "id = $modId");
+  		return $this->dbcon->colValue("SELECT name FROM module WHERE id = ?", "name", array(array("i", $modId)));
  	}
  	else if($this->loginMode()) {
  		$modarr = $this->getModuleArray();
@@ -94,9 +94,9 @@ class Systemdata {
  	}
  }
 
- public function getModuleDescriptor() {
-  return $this->dbcon->getCell("module", "descriptor", "modulId = " . $this->current_modid);
- }
+	public function getModuleDescriptor() {
+		return $this->dbcon->colValue("SELECT descriptor FROM module WHERE modulId = ?", "descriptor", array(array("i",$this->current_modid)));
+	}
 
  /**
   * Return the title of the company who owns the system
@@ -289,7 +289,7 @@ class Systemdata {
   */
  public function isContactSuperUser($cid = -1) {
  	if($cid == -1) return $this->isUserSuperUser();
- 	$uid = $this->dbcon->getCell($this->dbcon->getUserTable(), "id", "contact = $cid");
+ 	$uid = $this->dbcon->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $cid)));
  	return $this->isUserSuperUser($uid);
  }
  
@@ -393,7 +393,7 @@ class Systemdata {
   * @return Array simply containing all category ids.
   */
  public function getInstrumentCategories() {
- 	$catFilter = $this->dbcon->getCell("configuration", "value", "param = 'instrument_category_filter'");
+ 	$catFilter = $this->dbcon->colValue("SELECT value FROM configuration WHERE param = ?", "value", array(array("s", "instrument_category_filter")));
  	$cats = explode(",", $catFilter);
  	$categories = $this->dbcon->getSelection("SELECT * FROM category");
  	$result = array();
@@ -452,21 +452,28 @@ class Systemdata {
  }
  
  /**
+  * Get the contact ID from the user ID
+  * @param int $uid User ID.
+  * @return NULL|contact ID
+  */
+ public function getContactFromUser($uid = -1) {
+ 	if($uid == -1) $uid = $_SESSION["user"];
+ 	return $this->dbcon->colValue("SELECT contact FROM user WHERE id = ?", "contact", array(array("i", $uid)));
+ }
+ 
+ /**
   * Retrieves the current user's contact in case there is one.
   * @param Integer $uid optional: User ID, by default the current user.
   * @return In case the user has a contact, this is returned, otherwise null.
   */
  public function getUsersContact($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
- 	$cid = $this->dbcon->getCell($this->dbcon->getUserTable(), "contact", "id = $uid");
- 	if($cid == "") return null;
- 	else return $this->dbcon->getRow("SELECT * FROM contact WHERE id = $cid");
+ 	return $this->dbcon->getRow("SELECT * FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = $uid");
  }
  
  public function gdprOk($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
- 	$cid = $this->dbcon->getCell($this->dbcon->getUserTable(), "contact", "id = $uid");
- 	$gdprOk = $this->dbcon->getCell("contact", "gdpr_ok", "id = $cid");
+ 	$gdprOk = $this->dbcon->colValue("SELECT gdpr_ok FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?", "gdpr_ok", array(array("i", $uid)));
  	return $gdprOk;
  }
  
@@ -483,7 +490,7 @@ class Systemdata {
   */
  public function getUsersHomeDir($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
- 	$login = $this->dbcon->getCell($this->dbcon->getUserTable(), "login", "id = $uid");
+ 	$login = $this->dbcon->colValue("SELECT login FROM user WHERE id = ?", "login", array(array("i", $uid)));
  	return $GLOBALS["DATA_PATHS"]["userhome"] . $login;
  }
  
@@ -518,9 +525,8 @@ class Systemdata {
   */
  public function userEmailNotificationOn($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
- 	
- 	$val = $this->dbcon->getCell($this->dbcon->getUserTable(), "email_notification", 
- 			"id = $uid AND isActive = 1");
+ 	$val = $this->dbcon->colValue("SELECT email_notification FROM user WHERE id = ? AND isActive = 1", "email_notification", 
+ 			array(array("i", $uid)));
  	return ($val == 1);
  }
  
@@ -530,8 +536,8 @@ class Systemdata {
   */
  public function contactEmailNotificationOn($cid) {
  	if($cid == "") return false;
- 	$contactsUserId = $this->dbcon->getCell($this->dbcon->getUserTable(), "id", "contact = $cid");
- 	if($contactsUserId == "") return false;
+ 	$contactsUserId = $this->dbcon->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $cid)));
+ 	if($contactsUserId == null) return false;
  	return $this->userEmailNotificationOn($contactsUserId); 
  }
  
