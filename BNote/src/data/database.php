@@ -236,6 +236,8 @@ class Database extends Data {
 	 *        	SQL query.
 	 */
 	public function getSelection($query) {
+		//FIXME: typically unsafe statement use
+		
 		// Execute Query
 		$res = $this->exe($query);
 		$dataTable = array();
@@ -291,7 +293,7 @@ class Database extends Data {
 				}
 			}
 		} else if ($table == "user") {
-			$suUsers = $system_data->getSuperUsers ();
+			$suUsers = $system_data->getSuperUsers();
 			if (count ( $suUsers ) > 0) {
 				$query .= " WHERE ";
 				foreach ( $suUsers as $i => $uid ) {
@@ -328,6 +330,7 @@ class Database extends Data {
 	 *        	String query SQL query.
 	 */
 	public function getRow($query) {
+		//FIXME: typically Unsafe statement use
 		$res = $this->exe( $query );
 		return mysqli_fetch_assoc( $res );
 	}
@@ -341,6 +344,7 @@ class Database extends Data {
 	 *         with an autoincrement generator. See PHP manual for details.
 	 */
 	public function execute($query) {
+		//FIXME: typically unsafe statement use
 		$res = $this->exe($query);
 		return $this->db->insert_id;
 	}

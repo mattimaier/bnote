@@ -35,7 +35,7 @@ $db = new Database();
 $sysconfig = new XmlData($dir_prefix . $GLOBALS["DIR_CONFIG"] . "config.xml", "Software");
 
 // Verify login Data
-$db_pw = $db->getCell($db->getUserTable(), "password", "login = '" . $username . "' AND isActive = 1");
+$db_pw = $db->colValue("SELECT password FROM user WHERE login = ? AND isActive = 1", "password", array(array("s", $username)));
 
 // Encrypt password
 $password = crypt($password, CRYPT_BLOWFISH);
@@ -44,7 +44,7 @@ $password = crypt($password, CRYPT_BLOWFISH);
 
 // Forward OR Reject
 if($db_pw == $password) {
-	$userid = $db->getCell($db->getUserTable(), "id", "login = '" . $username . "'");
+	$userid = $db->colValue("SELECT id FROM user WHERE login = ?", "id", array(array("s", $username)));
 	session_start();
 	$_SESSION["user"] = $userid;
 	
