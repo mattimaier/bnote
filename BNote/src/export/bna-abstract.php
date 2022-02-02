@@ -96,16 +96,18 @@ abstract class AbstractBNA implements iBNA {
 	 * Authenticates users with pin.
 	 */
 	protected function authentication() {
+		//FIXME: Replace with BasicAuth
 		if(isset($_GET["func"]) && ($_GET["func"] == "mobilePin" || $_GET["func"] == "signup" || $_GET["func"] == "getInstruments")) {
 			$this->uid = null;
 		}
 		else if(!isset($_GET["pin"])) {
+			//TODO: Replace all HTTP 1.0 responses
 			header("HTTP/1.0 401 Permission Denied.");
 			exit();
 		}
 		else {
-			$pin = $_GET["pin"];
-			$this->uid = $this->db->getCell($this->db->getUserTable(), "id", "pin = $pin");
+			//FIXME: remove pin auth
+			$this->uid = $this->db->colValue("SELECT id FROM user WHERE pin = ?", "id", array(array("i", $_GET["pin"])));
 			if($this->uid == null || $this->uid < 1) {
 				header("HTTP/1.0 401 Permission Denied.");
 				exit();
@@ -117,6 +119,7 @@ abstract class AbstractBNA implements iBNA {
 	 * Routes a request to the correct function.
 	 */
 	protected function route() {
+		//FIXME: Replace with dynamic routing
 		$function = "";
 		if(!isset($_GET["func"])) {
 			header("HTTP/1.0 400 Function not specified.");
@@ -870,9 +873,8 @@ abstract class AbstractBNA implements iBNA {
 			// participation
 			$concerts[$i]["participate"] = $this->startdata->doesParticipateInConcert($concert["id"], $this->uid);
 			if($concerts[$i]["participate"] >= 0) {
-				$concerts[$i]["reason"] = $this->db->getCell(
-						"concert_user", "reason",
-						"concert = " . $concert["id"] . " AND user = " . $this->uid );
+				$q = "SELECT reason FROM concert_user WHERE concert = ? AND user = ?";
+				$concerts[$i]["reason"] = $this->db->colValue($q, "reason", array(array("i", $concert["id"]), array("i", $this->uid)));
 			}
 			else {
 				$concerts[$i]["reason"] = "";
@@ -1273,7 +1275,7 @@ abstract class AbstractBNA implements iBNA {
 	
 	function getUserInfo() {	
 		$contact = $this->sysdata->getUsersContact($this->uid);
-		$instrument = $this->db->getCell("instrument", "name", "id = " . $contact["instrument"]);
+		$instrument = $this->db->colValue("SELECT name FROM instrument WHERE id = ?", "name", array(array("i", $contact["instrument"])));
 		$addy = $this->startdata->adp()->getEntityForId("address", $contact["address"]);
 		$contact["instrument"] = $instrument;
 		$contact["street"] = $addy["street"];
@@ -1286,12 +1288,14 @@ abstract class AbstractBNA implements iBNA {
 	}
 	
 	function mobilePin($login, $password) {
+		//FIXME: remove pin auth
 		$loginCtrl = new LoginController();
 		$loginData = new LoginData($GLOBALS["dir_prefix"]);
 		$loginCtrl->setData($loginData);
 		if($loginCtrl->doLogin(true)) {
 			$uid = $_SESSION["user"];
-			$pin = $this->db->getCell($this->db->getUserTable(), "pin", "id = $uid");
+			//FIXME: remove pin auth
+			$pin = $this->db->colValue("SELECT pin FROM user WHERE id = ?", "pin", array(array("i", $uid)));
 			if($pin == "") {
 				$pin = LoginController::createPin($this->db, $uid);
 			}

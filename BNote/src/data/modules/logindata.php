@@ -36,19 +36,14 @@ class LoginData extends AbstractLocationData {
 	
 	function getPasswordForLogin($login) {
 		if(strpos($login, "@") !== false) {
-			$cid = $this->database->getCell("contact", "id", "email = \"" . $login . "\"");
-			if($cid > 0) {
-				return $this->database->getCell($this->table, "password", "contact = $cid AND isActive = 1");
-			}
-			else {
-				return null;
-			}
+			$query = "SELECT password FROM user u JOIN contact c ON u.contact = c.id WHERE c.email = ?";
+			return $this->database->colValue($query, "password", array(array("s", $login)));
 		}
 		return $this->database->colValue("SELECT password FROM user WHERE login = ? AND isActive = 1", "password", array(array("s", $login)));
 	}
 	
 	function getUserIdForLogin($login) {
-		return $this->database->getCell($this->table, "id", "login = '" . $login . "'");
+		return $this->database->colValue("SELECT id FROM user WHERE login = ?", "id", array(array("s", $login)));
 	}
 	
 	function saveLastLogin() {
@@ -68,22 +63,22 @@ class LoginData extends AbstractLocationData {
 	
 	function getUserIdForEMail($email) {
 		// check whether mail-address is unique
-		$ct = $this->database->getCell("contact", "count(id)", "email = '$email'");
+		$ct = $this->database->colValue("SELECT count(id) as cnt FROM contact WHERE email = ?", "cnt", array(array("s", $email)));
 		if($ct != 1) { return -1; }
 		
 		// if it's unique return the user's id
-		$contact = $this->database->getCell("contact", "id", "email = '$email'");
+		$contact = $this->database->colValue("SELECT id FROM contact WHERE email = ?", "id", array(array("s", $email)));
 		if($contact < 1) { return -1; }
 		
 		// check more than 1 user for this contact
-		$ct = $this->database->getCell($this->table, "count(id)", "contact = $contact");
+		$ct = $this->database->colValue("SELECT count(id) as cnt FROM user WHERE contact = ?", "cnt", array(array("i", $contact)));
 		if($ct != 1) return -1;
 		
-		return $this->database->getCell($this->table, "id", "contact = $contact"); 
+		return $this->database->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $contact))); 
 	}
 	
 	function getUsernameForId($uid) {
-		return $this->database->getCell($this->table, "login", "id = $uid");
+		return $this->database->colValue("SELECT login FROM user WHERE id = ?", "login", array(array("i", $uid)));
 	}
 	
 	function saveNewPassword($uid, $pwenc) {
@@ -118,7 +113,7 @@ class LoginData extends AbstractLocationData {
 	
 	function duplicateLoginCheck() {
 		$login = $_POST["login"];
-		$ct = $this->database->getCell("user", "count(id)", "login = '$login'");
+		$ct = $this->database->colValue("SELECT count(id) as cnt FROM user WHERE login = ?", "cnt", array(array("s", $login)));
 		return ($ct > 0);
 	}
 	

@@ -19,12 +19,11 @@ $userid = $_GET["uid"];
 $email = $_GET["email"];
 
 // VALIDATE VALUES
-$uid_exists = $db->getCell($db->getUserTable(), "count(id)", "id = $userid");
+$uid_exists = $db->colValue("SELECT count(id) as cnt FROM user WHERE id = ?", "cnt", array(array("i", $userid)));
 if($uid_exists < 1) {
 	printError(Lang::txt("useractivation_validate.printError"));
 }
-$cid = $db->getCell($db->getUserTable(), "contact", "id = $userid");
-$user_email = $db->getCell("contact", "email", "id = $cid");
+$user_email = $db->colValue("SELECT email FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?", "email", array(array("i", $userid)));
 if($email != $user_email) {
 	printError(Lang::txt("useractivation_user_email.printError"));
 }

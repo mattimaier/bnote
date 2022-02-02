@@ -62,7 +62,8 @@ class ProbenphasenData extends AbstractData {
 	}
 	
 	private function idInPhase($phaseId, $entityId, $entity) {
-		$ct = $this->database->getCell("rehearsalphase_$entity", "count($entity)",
+		
+		$ct = $this->database->colValue("rehearsalphase_$entity", "count($entity)",
 				"rehearsalphase = $phaseId AND $entity = $entityId");
 		return ($ct > 0);
 	}
@@ -154,7 +155,7 @@ class ProbenphasenData extends AbstractData {
 	}
 	
 	function isContactSuperUser($cid) {
-		$uid = $this->database->getCell("user", "id", "contact = $cid");
+		$uid = $this->database->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $cid)));
 		return $this->getSysdata()->isUserSuperUser($uid);
 	}
 	

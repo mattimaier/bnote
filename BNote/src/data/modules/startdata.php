@@ -40,8 +40,8 @@ class StartData extends AbstractLocationData {
 	 * @return 2 if the user maybe participated, 1 if the user participates, 0 if not, -1 if not chosen yet.
 	 */
 	function doesParticipateInRehearsal($rid) {
-		$part = $this->database->getCell("rehearsal_user", "participate",
-					"user = " . $_SESSION["user"] . " AND rehearsal = $rid");
+		$partQuery = "SELECT participate FROM rehearsal_user WHERE user = ? AND rehearsal = ?";
+		$part = $this->database->colValue($partQuery, "participate", array(array("i", $_SESSION["user"]), array("i", $rid)));
 		if($part == "0" || $part == "1" || $part == "2") {
 			return $part;
 		}
@@ -58,8 +58,8 @@ class StartData extends AbstractLocationData {
 		if($uid == -1) {
 			$uid = $_SESSION["user"];
 		}
-		$part = $this->database->getCell("concert_user", "participate",
-					"user = $uid AND concert = $cid");
+		$partQuery = "SELECT participate FROM concert_user WHERE user = ? AND concert = ?";
+		$part = $this->database->colValue($partQuery, "participate", array(array("i", $uid), array("i", $cid)));
 		if($part == "1") return 1;
 		else if($part == "0") return 0;
 		else if($part == "2") return 2;
@@ -140,7 +140,8 @@ class StartData extends AbstractLocationData {
 			$uid = $_SESSION["user"];
 		}
 		// security function
-		$c = $this->database->getCell("vote_group", "count(vote)", "vote = $vid AND user = " . $uid);
+		$cq = "SELECT count(vote) as cnt FROM vote_group WHERE vote = ? AND user = ?";
+		$c = $this->database->colValue($cq, "cnt", array(array("i", $vid), array("i", $uid)));
 		return ($c == 1);
 	}
 	
@@ -181,26 +182,6 @@ class StartData extends AbstractLocationData {
 			$query .= "(" . $values["uservote"] . ", $user, 1)";
 			$this->database->execute($query);
 		}
-	}
-	
-	/**
-	 * @deprecated According to a file-search this method is never used!
-	 * @param int $vid Vote ID.
-	 * @return boolean True when the user has already voted, otherwise false.
-	 */
-	function hasUserVoted($vid) {
-		$options = $this->getOptionsForVote($vid);
-		if(count($options) == 1) {
-			return false;
-		}
-		$where = "(";
-		for($i = 1; $i < count($options); $i++) {
-			if($i > 1) $where .= " OR ";
-			$where .= " vote_option = " . $options[$i]["id"];
-		}
-		$where .= ") AND user = " . $_SESSION["user"];
-		$c = $this->database->getCell("vote_option_user", "count(*)", $where);
-		return ($c > 0);
 	}
 	
 	function getNews() {
@@ -312,7 +293,8 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function hasObjectDiscussion($otype, $oid) {
-		$ct = $this->database->getCell("comment", "count(*)", "otype = '$otype' AND oid = $oid");
+		$ctq = "SELECT count(*) as cnt FROM comment WHERE otype = ? AND oid = ?";
+		$ct = $this->database->colValue($ctq, "cnt", array(array("s", $otype), array("i", $oid)));
 		return ($ct > 0);
 	}
 	
@@ -410,7 +392,8 @@ class StartData extends AbstractLocationData {
 	}
 	
 	public function getSelectedOptionsForUser($optionId, $uid) {
-		$choice = $this->database->getCell("vote_option_user", "choice", "vote_option = $optionId AND user = $uid");
+		$choiceQuery = "SELECT choice FROM vote_option_user WHERE vote_option = ? AND user = ?";
+		$choice = $this->database->colValue($choiceQuery, "choice", array(array("i", $optionId), array("i", $uid)));
 		if($choice == null || $choice == "") {
 			return -1;
 		}
@@ -420,7 +403,7 @@ class StartData extends AbstractLocationData {
 	}
 	
 	public function hasInactiveUsers() {
-		$ct = $this->database->getCell($this->database->getUserTable(), "count(*)", "isActive = 0");
+		$ct = $this->database->colValue("SELECT count(*) as cnt FROM user WHERE isActive = 0", "cnt", array());
 		return ($ct > 0);
 	}
 	
@@ -438,7 +421,7 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function hasReservations() {
-		$res = $this->database->getCell("reservation", "count(*)", "begin >= NOW()");
+		$res = $this->database->colValue("SELECT count(*) as cnt FROM reservation WHERE begin >= NOW()", "cnt", array());
 		return ($res > 0);
 	}
 	

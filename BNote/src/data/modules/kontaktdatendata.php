@@ -11,7 +11,7 @@ class KontaktdatenData extends KontakteData {
 	
 	function getContactForUser($uid) {
 		if($uid == null || $uid <= 0 || $uid == "") return -1;
-		$cid = $this->database->getCell("user", "contact", "id = $uid");
+		$cid = $this->getSysdata()->getContactFromUser($uid);
 		if($cid <= 0) return -1;
 		return $this->getContact($cid);
 	}
@@ -43,7 +43,7 @@ class KontaktdatenData extends KontakteData {
 			}
 		}
 		$contact_id = $current["id"];
-		$values["is_conductor"] = $this->database->getCell("contact", "is_conductor", "id = $contact_id");
+		$values["is_conductor"] = $this->database->colValue("SELECT is_conductor FROM contact WHERE id = ?", "is_conductor", array(array("i", $contact_id)));
 		
 		$values = $this->update_address($contact_id, $values);
 		
@@ -55,7 +55,7 @@ class KontaktdatenData extends KontakteData {
 	}
 	
 	function getPIN($uid) {
-		$pin = $this->database->getCell($this->database->getUserTable(), "pin", "id = $uid");
+		$pin = $this->database->colValue("SELECT pin FROM user WHERE id = ?", "pin", array(array("i", $uid)));
 		if($pin == null || $pin == "") {
 			$pin = LoginController::createPin($this->database, $uid);
 		}

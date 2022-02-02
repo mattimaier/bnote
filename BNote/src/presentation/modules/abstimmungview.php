@@ -359,6 +359,7 @@ class AbstimmungView extends CrudView {
 		}
 		
 		// Javascript
+		//FIXME: Replace with session-secured call
 		?>
 		<script type="text/javascript" src="lib/jquery/plugins/jqplot.barRenderer.min.js"></script>
 		<script type="text/javascript" src="lib/jquery/plugins/jqplot.categoryAxisRenderer.min.js"></script>

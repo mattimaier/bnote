@@ -35,7 +35,7 @@ class AppointmentData extends AbstractLocationData {
 	
 	function getAppointment($id) {
 		$appointment = $this->findByIdJoined($id, AppointmentData::$colExchange);
-		$address = $this->getAddressFromLocation($this->database->getCell($this->table, "location", "id = $id"));
+		$address = $this->getAddressFromLocation($this->database->colValue("SELECT location FROM appointment WHERE id = ?", "location", array(array("i", $id))));
 		$appointment = Data::arrayMergeWithPrefix($appointment, $address, "location");
 		$customData = $this->getCustomFieldData('a', $id);
 		$appointment["groups"] = $this->getGroupsForAppointment($id);

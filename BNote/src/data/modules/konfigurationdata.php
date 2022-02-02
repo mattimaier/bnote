@@ -93,7 +93,7 @@ class KonfigurationData extends AbstractLocationData {
 			if($value == "") {
 				return "";
 			}
-			return $this->database->getCell("contact", "CONCAT(name, ' ', surname)", "id = $value");
+			return $this->database->colValue("SELECT CONCAT(name, ' ', surname) as fullname FROM contact WHERE id = ?", "fullname", array(array("i", $value)));
 		}
 		else if($this->getParameterType($param) == FieldType::BOOLEAN) {
 			return ($value == 1) ? Lang::txt("KonfigurationData_replaceParameterValue.yes") : Lang::txt("KonfigurationData_replaceParameterValue.no");

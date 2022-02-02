@@ -88,7 +88,7 @@ class AufgabenView extends CrudRefView {
 	protected function addEntityForm($form_target=null, $tour=null) {
 		$form = $this->getAddForm("add", $form_target, $tour);
 		$form->addElement("Verantwortlicher", new Field("assigned_to", "", FieldType::REFERENCE));
-		$currContactId = $this->getData()->getUserContactId();
+		$currContactId = $this->getData()->getSysdata()->getContactFromUser();
 		$form->setForeign("Verantwortlicher", "contact", "id", "CONCAT(name, ' ', surname)", $currContactId);
 		$form->write();
 	}

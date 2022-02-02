@@ -156,8 +156,8 @@ class UserData extends AbstractData {
 	 * @return E-Mail-Address of the user, may be empty or null.
 	 */
 	function getUsermail($id) {
-		$contactid = $this->database->getCell($this->table, "contact", "id = $id");
-		return $this->database->getCell("contact", "email", "id = $contactid");
+		$query = "SELECT email FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?";
+		return $this->database->colValue($query, "email", array(array("i", $id)));
 	}
 	
 	/**
@@ -176,7 +176,8 @@ class UserData extends AbstractData {
 	 * @param int $mid ID of the module.
 	 */
 	function hasUserPrivilegeForModule($uid, $mid) {
-		$bit = $this->database->getCell("privilege", "id", "user = $uid AND module = $mid");
+		$query = "SELECT id FROM privilege WHERE user = ? AND module = ?";
+		$bit = $this->database->colValue($query, "id", array("i", $uid), array("i", $mid));
 		if(!isset($bit) || $bit == "") return false;
 		else return true;
 	}
@@ -213,7 +214,7 @@ class UserData extends AbstractData {
 	}
 	
 	function isUserActive($id) {
-		return ($this->database->getCell($this->table, "isActive", "id=$id") == 1);
+		return ($this->database->colValue("SELECT isActive FROM user WHERE id = ?", "isActive", array(array("i", $id))) == 1);
 	}
 	
 	/**

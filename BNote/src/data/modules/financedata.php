@@ -199,8 +199,8 @@ class FinanceData extends AbstractData {
 		}
 		
 		// read account names
-		$name_from = $this->database->getCell($this->table, "name", "id=" . $booking['account_from']);
-		$name_to = $this->database->getCell($this->table, "name", "id=" . $booking['account_to']);
+		$name_from = $this->getAccountName($booking['account_from']);
+		$name_to = $this->getAccountName($booking['account_to']);
 		
 		// prepare bookings
 		$booking['notes'] = Lang::txt("FinanceData_transfer_note", array($name_from)) . " " . $name_to;
@@ -215,6 +215,10 @@ class FinanceData extends AbstractData {
 		// do the booking: not transaction save!!!
 		$this->addBooking($booking_from);
 		$this->addBooking($booking_to);
+	}
+	
+	public function getAccountName($aid) {
+		return $this->database->colValue("SELECT name FROM account WHERE id = ?", "name", array(array("i", $aid)));
 	}
 }
 

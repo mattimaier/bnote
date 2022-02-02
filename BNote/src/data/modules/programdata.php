@@ -83,7 +83,7 @@ class ProgramData extends AbstractData {
 	}
 	
 	function getProgramName($id) {
-		return $this->database->getCell($this->table, "name", "id = $id");
+		return $this->database->colValue("SELECT name FROM program WHERE id = ?", "name", array(array("i", $id)));
 	}
 	
 	function getAllSongs() {
@@ -93,7 +93,7 @@ class ProgramData extends AbstractData {
 	}
 	
 	function addSongToProgram($pid) {
-		$max = $this->database->getCell("program_song", "max(rank)", "program = $pid");
+		$max = $this->database->colValue("SELECT max(rank) as mr FROM program_song WHERE program = ?", "mr", array(array("i", $pid)));
 		$rank = $max+1;
 		
 		$query = "INSERT INTO program_song (program, song, rank) VALUES ($pid, " . $_POST["song"] . ", $rank)";
@@ -119,7 +119,7 @@ class ProgramData extends AbstractData {
 	
 	function addProgramWithTemplate() {
 		$this->validate($_POST);
-		$template = $this->database->getCell($this->table, "name", "id = " . $_POST["template"]);
+		$template = $this->database->colValue("SELECT name FROM program WHERE id = ?", "name", array(array("i", $_POST["template"])));
 		
 		// create program
 		$values = array(
@@ -146,7 +146,7 @@ class ProgramData extends AbstractData {
 		
 		// compute offset if the program already contains songs
 		$offset = 0;
-		$max = $this->database->getCell("program_song", "max(rank)", "program = $program_id");
+		$max = $this->database->colValue("SELECT max(rank) mr FROM program_song WHERE program = ?", "mr", array(array("i", $program_id)));
 		if($max > $offset) {
 			$offset = $max+1;
 		}

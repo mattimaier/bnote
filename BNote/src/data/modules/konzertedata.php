@@ -326,7 +326,8 @@ class KonzerteData extends AbstractLocationData {
 	}
 	
 	private function isContactInConcert($concertId, $contactId) {
-		$ct = $this->database->getCell("concert_contact", "count(contact)", "concert = $concertId AND contact = $contactId");
+		$query = "SELECT count(contact) as cnt FROM concert_contact WHERE concert = ? AND contact = ?";
+		$ct = $this->database->colValue($query, "cnt", array(array("i", $concertId), array("i", $contactId)));
 		return ($ct > 0);
 	}
 	

@@ -30,7 +30,7 @@ class GenreData extends AbstractData {
 	}
 	
 	private function isGenreUsed($id) {
-		$ct = $this->database->getCell("song", "count(*)", "genre = $id");
+		$ct = $this->database->colValue("SELECT count(id) as cnt FROM song WHERE genre = ?", "cnt", array(array("i", $id)));
 		return ($ct > 0);
 	}
 }

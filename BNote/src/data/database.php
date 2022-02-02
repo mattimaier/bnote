@@ -197,27 +197,6 @@ class Database extends Data {
 	}
 	
 	/**
-	 * Returns the value of a single cell.
-	 * 
-	 * @param String $table
-	 *        	Table of the cell.
-	 * @param String $col
-	 *        	Column of the cell.
-	 * @param String $where
-	 *        	Where clause without the "WHERE".
-	 */
-	public function getCell($table, $col, $where) {
-		//FIXME: Unsafe statement
-		$query = "SELECT $col FROM $table WHERE $where";
-		$res = $this->exe($query);		
-		$row = mysqli_fetch_assoc($res);
-		if($row != null) {
-			return $row[$col];
-		}
-		return null;
-	}
-	
-	/**
 	 * Get a single value from a table.
 	 * @param String $query Prepared statement. 
 	 * @param $col Column to fetch

@@ -218,7 +218,7 @@ class Filebrowser implements iWriteable {
 
 		if($groups != null && count($groups) > 0) {
 			foreach($groups as $i => $gid) {
-				$name = $this->sysdata->dbcon->getCell("`group`", "name", "id = $gid");
+				$name = $this->sysdata->dbcon->colValue("SELECT name FROM `group` WHERE id = ?", "name", array(array("i", $gid)));
 				$favs[$name] = $this->root . "/groups/group_" . $gid . "/";
 			}
 		}

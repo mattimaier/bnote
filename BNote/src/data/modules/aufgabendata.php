@@ -46,24 +46,17 @@ class AufgabenData extends AbstractData {
 		return $this->database->getSelection($query);
 	}
 	
-	function getUserContactId($user = null) {
-		if($user == null) {
-			$user = $_SESSION["user"];
-		}
-		return $this->database->getCell("user", "contact", "id = " . $user);
-	}
-	
 	function create($values) {
 		// prepare data
 		$values["created_at"] = date("d.m.Y H:i:s");
-		$values["created_by"] = $this->getUserContactId();
+		$values["created_by"] = $this->getSysdata()->getContactFromUser();
 		$values["assigned_to"] = $values["Verantwortlicher"];
 		$values["is_complete"] = "0";
 		return parent::create($values);	
 	}
 	
 	function isTaskComplete($tid) {
-		$complete = $this->database->getCell($this->table, "is_complete", "id = $tid");
+		$complete = $this->database->colValue("SELECT is_complete FROM task WHERE id = ?", "is_complete", array(array("i", $tid)));
 		return ($complete == 1);
 	}
 	
@@ -77,7 +70,7 @@ class AufgabenData extends AbstractData {
 	}
 	
 	function getContactName($cid) {
-		return $this->database->getCell("contact", "CONCAT(name, ' ', surname)", "id = $cid");
+		return $this->database->colValue("SELECT CONCAT(name, ' ', surname) as fullname FROM contact WHERE id = ?", "fullname", array(array("i", $cid)));
 	}
 	
 	function update($id, $values) {
@@ -86,6 +79,6 @@ class AufgabenData extends AbstractData {
 	}
 	
 	function getContactmail($cid) {
-		return $this->database->getCell("contact", "email", "id = $cid");
+		return $this->database->colValue("SELECT email FROM contact WHERE id = ?", "email", array(array("i", $cid)));
 	}
 }

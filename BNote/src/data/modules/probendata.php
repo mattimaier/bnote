@@ -96,15 +96,17 @@ class ProbenData extends AbstractLocationData {
 		$stats = array();
 		
 		// number of paricipants who...
+		$querySum = "SELECT count(*) as cnt FROM rehearsal_user WHERE rehearsal = ?";
+		$query = $querySum . " AND participate = ?";
 		// ...paricipate
-		$stats["Zusagen"] = $this->database->getCell("rehearsal_user", "count(*)", "rehearsal = $rid AND participate = 1");
+		$stats["Zusagen"] = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", 1)));
 		// ...do not paricipate
-		$stats["Absagen"] = $this->database->getCell("rehearsal_user", "count(*)", "rehearsal = $rid AND participate = 0");
+		$stats["Absagen"] = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", 0)));
 		// ...maybe participate
-		$stats["Eventuell"] = $this->database->getCell("rehearsal_user", "count(*)", "rehearsal = $rid AND participate = 2");
+		$stats["Eventuell"] = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", 2)));
 		// total number of...
 		// ...decisions
-		$stats["Summe"] = $this->database->getCell("rehearsal_user", "count(*)", "rehearsal = $rid");
+		$stats["Summe"] = $this->database->colValue($querySum, "cnt", array(array("i", $rid)));
 		
 		return $stats;
 	}
@@ -157,7 +159,7 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	function getRehearsalBegin($rid) {
-		$d = $this->database->getCell($this->getTable(), "begin", "id = $rid");
+		$d = $this->database->colValue("SELECT begin FROM rehearsal WHERE id = ?", "begin", array(array("i", $rid)));
 		return Data::convertDateFromDb($d);
 	}
 	
@@ -189,7 +191,7 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	function locationsPresent() {
-		$ct = $this->database->getCell("location", "count(*)", "id > 0");
+		$ct = $this->database->colValue("SELECT count(*) as cnt FROM location WHERE id > 0", "cnt", array());
 		return ($ct > 0);
 	}
 	
@@ -390,7 +392,8 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	private function isContactInRehearsal($rid, $cid) {
-		$ct = $this->database->getCell("rehearsal_contact", "count(contact)", "rehearsal = $rid AND contact = $cid");
+		$query = "SELECT count(contact) as cnt FROM rehearsal_contact WHERE rehearsal = ? AND contact = ?";
+		$ct = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", $cid)));
 		return ($ct > 0);
 	}
 	
@@ -532,7 +535,8 @@ class ProbenData extends AbstractLocationData {
 			$do_update = false;
 			if($user != null) {
 				$user_id = $user["id"];
-				$part = $this->database->getCell("rehearsal_user", "participate", "rehearsal = $rehearsal_id AND user = $user_id");
+				$partQuery = "SELECT participate FROM rehearsal_user WHERE rehearsal = ? AND user = ?";
+				$part = $this->database->colValue($partQuery, "participate", array(array("i", $rehearsal_id), array("i", $user_id)));
 				if($part != $participation) {
 					$del_query = "DELETE FROM rehearsal_user WHERE rehearsal = $rehearsal_id AND user = $user_id";
 					$this->database->execute($del_query);

@@ -129,7 +129,7 @@ class AbstimmungData extends AbstractData {
 	 * @return True if the user is the author of this vote, otherwise false.
 	 */
 	function isUserAuthorOfVote($uid, $vid) {
-		$author = $this->database->getCell($this->table, "author", "id = $vid");
+		$author = $this->database->colValue("SELECT author FROM vote WHERE id = ?", "author", array(array("i", $vid)));
 		return ($author == $uid);
 	}
 	
@@ -162,7 +162,7 @@ class AbstimmungData extends AbstractData {
 	}
 	
 	private function isDateVote($vid) {
-		return ($this->database->getCell($this->table, "is_date", "id = $vid") == 1);
+		return ($this->database->colValue("SELECT is_date FROM vote WHERE id = ?", "is_date", array(array("i", $vid))) == 1);
 	}
 	
 	function addOption($vid) {
@@ -438,7 +438,7 @@ class AbstimmungData extends AbstractData {
 		if($uid == -1) {
 			$uid = $_SESSION["user"];
 		}
-		$pin = $this->database->getCell($this->database->getUserTable(), "pin", "id = $uid");
+		$pin = $this->database->colValue("SELECT pin FROM user WHERE id = ?", "pin", array(array("i", $uid)));
 		if($pin == null || $pin == "") {
 			$pin = LoginController::createPin($this->database, $uid);
 		}

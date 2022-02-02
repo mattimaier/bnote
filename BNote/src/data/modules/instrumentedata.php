@@ -66,7 +66,7 @@ class InstrumenteData extends AbstractData {
 	
 	function delete($id) {
 		// check whether instrument is used by someone
-		$ct = $this->database->getCell("contact", "count(instrument)", "instrument = $id");
+		$ct = $this->database->colValue("SELECT count(instrument) as cnt FROM contact WHERE instrument = ?", "cnt", array(array("i", $id)));
 		$isUsed = ($ct > 0);
 		
 		// only delete if not used

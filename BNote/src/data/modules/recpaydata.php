@@ -81,15 +81,15 @@ class RecpayData extends AbstractData {
 	}
 	
 	function getLocationName($id) {
-		return $this->database->getCell("location", "name", "id = $id");
+		return $this->database->colValue("SELECT name FROM location WHERE id = ?", "name", array(array("i", $id)));
 	}
 	
 	function getPhaseName($id) {
-		return $this->database->getCell("rehearsalphase", "name", "id = $id");
+		return $this->database->colValue("SELECT name FROM rehearsalphase WHERE id = ?", "name", array(array("i", $id)));
 	}
 	
 	function getConcertName($id) {
-		return $this->database->getCell("concert", "begin", "id = $id");
+		return $this->database->colValue("SELECT begin FROM concert WHERE id = ?", "begin", array(array("i", $id)));
 	}
 	
 	function getContactName($id) {
@@ -98,11 +98,11 @@ class RecpayData extends AbstractData {
 	}
 	
 	function getTourName($id) {
-		return $this->database->getCell("tour", "name", "id = $id");
+		return $this->database->colValue("SELECT name FROM tour WHERE id = ?", "name", array(array("i", $id)));
 	}
 	
 	function getEquipmentName($id) {
-		return $this->database->getCell("equipment", "name", "id = $id");
+		return $this->database->colValue("SELECT name FROM equipment WHERE id = ?", "name", array(array("i", $id)));
 	}
 	
 	function create($values) {

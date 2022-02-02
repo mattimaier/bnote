@@ -179,17 +179,17 @@ class RepertoireData extends AbstractData {
 	
 	function getComposerName($id) {
 		if($id > 0) {
-			return $this->database->getCell("composer", "name", "id = $id");
+			return $this->database->colValue("SELECT name FROM composer WHERE id = ?", "name", array(array("i", $id)));
 		}
 		return "";
 	}
 	
 	function totalRepertoireLength() {
-		return $this->database->getCell($this->table, "Sec_to_Time(Sum(Time_to_Sec(length)))", "length > 0");
+		return $this->database->colValue("SELECT Sec_to_Time(Sum(Time_to_Sec(length))) as tl FROM song WHERE length > 0", "tl", array());
 	}
 	
 	private function isComposerUsedByAnotherSong($composerId) {
-		$ct = $this->database->getCell($this->table, "count(composer)", "composer = $composerId");
+		$ct = $this->database->colValue("SELECT count(composer) as cnt FROM song WHERE composer = ?", "cnt", array(array("i", $composerId)));
 		return ($ct > 1);
 	}
 	
@@ -202,10 +202,10 @@ class RepertoireData extends AbstractData {
 		if($name == "") {
 			return -1;
 		}
-		$ct = $this->database->getCell("composer", "count(id)", "name = \"$name\"");
+		$ct = $this->database->colValue("SELECT count(id) as cnt FROM composer WHERE name = ?", "cnt", array(array("s", $name)));
 		if($ct < 1) return -1;
 		else {
-			return $this->database->getCell("composer", "id", "name = \"$name\"");
+			return $this->database->colValue("SELECT id FROM composer WHERE name = ?", "id", array(array("s", $name)));
 		}
 	}
 	
@@ -298,7 +298,7 @@ class RepertoireData extends AbstractData {
 		foreach($filters as $field => $value) {
 			if($value != "" && $value != "-1" && $value != -1) {
 				if($field == "composer") {
-					$value = $this->database->getCell("composer", "name", "id = $value");
+					$value = $this->getComposerName($value);
 				}
 				$cleanFilters[$field] = $value;
 			}

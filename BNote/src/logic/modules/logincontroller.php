@@ -230,6 +230,7 @@ class LoginController extends DefaultController {
 	}
 	
 	public static function createPin($db, $uid) {
+		//FIXME: remove pin auth
 		// create a pin
 		$lower_bound = 100000;
 		$upper_bound = 999999;
@@ -238,7 +239,7 @@ class LoginController extends DefaultController {
 			
 		while($pin_exists > 0) {
 			$pin = rand($lower_bound, $upper_bound);
-			$pin_exists = $db->getCell($db->getUserTable(), "count(id)", "pin = $pin");
+			$pin_exists = $db->colValue("SELECT count(id) as cnt FROM user WHERE pin = ?", "cnt", array(array("i", $pin)));
 		}
 			
 		// save new pin

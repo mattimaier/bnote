@@ -73,7 +73,7 @@ $organizer = $system_data->getCompany();
 
 // set username
 if(isset($_GET["user"])) {
-	$userid = $db->getCell($db->getUserTable(), "id", "login = '" . $_GET["user"] . "'");
+	$userid = $db->colValue("sELECT id FROM user WHERE login = ?", "id", array(array("s", $_GET["user"])));
 	$_SESSION["user"] = $userid;
 }
 else if(isset($_SESSION["user"])) {

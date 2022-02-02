@@ -34,7 +34,7 @@ if(!isset($_SESSION["user"])) {
 	new BNoteError($deniedMsg);
 }
 else {
-	$userCt = $db->getCell("privilege", "count(*)", "module = 6 AND user = " . $_SESSION["user"]);
+	$userCt = $db->colValue("SELECT count(*) as cnt FROM privilege WHERE module = 6 AND user = ?", "cnt", array(array("i", $_SESSION["user"])));
 	if($userCt < 1) {
 		new BNoteError($deniedMsg);
 	}

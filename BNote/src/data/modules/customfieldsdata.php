@@ -87,7 +87,7 @@ class CustomFieldsData extends AbstractData {
 		// check uniqueness of techname
 		if($_GET["sub"] == "add_process") {
 			$techname = $input["techname"];
-			$cnt = $this->database->getCell($this->table, "count(techname)", "techname = '$techname'");
+			$cnt = $this->database->colValue("SELECT count(techname) as cnt FROM customfield WHERE techname = ?", "cnt", array(array("s", $techname)));
 			if($cnt > 0) {
 				new BNoteError(Lang::txt("CustomFieldsData_validate.BNoteError"));
 			}

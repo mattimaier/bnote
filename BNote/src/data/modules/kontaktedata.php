@@ -257,7 +257,7 @@ class KontakteData extends AbstractLocationData {
 	 * @return True if a user account with this contact exists, otherwise false.
 	 */
 	function hasContactUserAccount($id) {
-		$ct = $this->database->getCell("user", "count(id)", "contact = $id");
+		$ct = $this->database->colValue("SELECT count(id) as cnt FROM user WHERE contact = ?", "cnt", array(array("i", $id)));
 		return ($ct > 0);
 	}
 	
@@ -285,7 +285,7 @@ class KontakteData extends AbstractLocationData {
 	 * @return string Name of the group.
 	 */
 	function getGroupName($groupId) {
-		return $this->database->getCell("`group`", "name", "id = $groupId");
+		return $this->database->colValue("SELECT name FROM `group` WHERE id = ?", "name", array(array("i", $groupId)));
 	}
 	
 	function getGroups() {
@@ -336,8 +336,9 @@ class KontakteData extends AbstractLocationData {
 	}
 	
 	function addContactRelation($otype, $oid, $cid) {
-		$tab = $otype . "_contact";
-		$ct = $this->database->getCell($tab, "count(*)", "$otype = $oid AND contact = $cid");
+		$tab = $otype . "_contact"; // Security note: $otype is set as a static value in the controller call
+		$query = "SELECT count(*) as cnt FROM $tab WHERE $otype = ? AND contact = ?";
+		$ct = $this->database->colValue($query, "cnt", array(array("i", $oid), array("i", $cid)));
 		if($ct <= 0) {
 			$query = "INSERT INTO $tab ($otype, contact) VALUES ($oid, $cid)";
 			return $this->database->execute($query);
@@ -346,9 +347,10 @@ class KontakteData extends AbstractLocationData {
 	}
 	
 	function addContactToVote($vid, $cid) {
-		$uid = $this->database->getCell($this->database->getUserTable(), "id", "contact = $cid");
+		$uid = $this->database->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $cid)));
 		if($uid != null && $uid > 0) {
-			$ct = $this->database->getCell("vote_group", "count(*)", "vote = $vid AND user = $uid");
+			$query = "SELECT count(*) as cnt FROM vote_group WHERE vote = ? AND user = ?";
+			$ct = $this->database->colValue($query, "cnt", array(array("i", $vid), array("i", $uid)));
 			if($ct <= 0) {
 				$query = "INSERT INTO vote_group (vote, user) VALUES ($vid, $uid)";
 				return $this->database->execute($query);
@@ -451,11 +453,11 @@ class KontakteData extends AbstractLocationData {
 	}
 	
 	function getContactmail($id) {
-		return $this->database->getCell("contact", "email", "id = $id");
+		return $this->database->colValue("SELECT email FROM contact WHERE id = ?", "email", array(array("i", $id)));
 	}
 	
 	function getUsermail() {
-		$cid = $this->database->getCell($this->database->getUserTable(), "contact", "id = " . $_SESSION["user"]);
+		$cid = $this->getSysdata()->getContactFromUser();
 		return $this->getContactmail($cid);
 	}
 	
@@ -465,7 +467,7 @@ class KontakteData extends AbstractLocationData {
 	 * @return GDPR Code.
 	 */
 	function getGdprCode($email) {
-		return $this->database->getCell("contact", "gdpr_code", "email = '$email'");
+		return $this->database->colValue("SELECT gdpr_code FROM contact WHERE email = ?", "gdpr_code", array(array("s", $email)));
 	}
 	
 }
