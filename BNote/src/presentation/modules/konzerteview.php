@@ -136,7 +136,7 @@ class KonzerteView extends CrudRefLocationView {
 		// get data
 		$c = $this->getData()->findByIdNoRef($_GET["id"]);
 		$custom = $this->getData()->getCustomData($_GET["id"]);
-		$loc = $this->getData()->getLocation($c["location"]);
+		$loc = $this->getData()->adp()->getLocation($c["location"]);
 		
 		// concert details
 		Writing::h1($c["title"]);

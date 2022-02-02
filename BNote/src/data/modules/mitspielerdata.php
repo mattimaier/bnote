@@ -124,7 +124,7 @@ class MitspielerData extends AbstractLocationData {
 	}
 	
 	public function getContact($cid) {
-		// check access
+		//TODO: Update member data access to make it more GDPR compliant
 		$members = $this->getMembers();
 		$found = false;
 		for($i = 1; $i < count($members); $i++) {
@@ -136,8 +136,8 @@ class MitspielerData extends AbstractLocationData {
 		if($found) {
 			$query = "SELECT c.*, i.name as instrument 
 				FROM contact c JOIN instrument i ON c.instrument = i.id 
-				WHERE c.id = $cid";
-			return $this->database->getRow($query);
+				WHERE c.id = ?";
+			return $this->database->fetchRow($query, array(array($cid)));
 		}
 		return null;
 	}

@@ -86,7 +86,7 @@ class PartlistPDF {
 		$this->pdf->Ln($this->pdf->lineHeight); // space
 		
 		// -> where
-		$addy = $this->dao->adp()->getEntityForId("location", $reh["location"]);
+		$addy = $this->dao->adp()->getLocation($reh["location"]);
 		$this->pdf->Cell(30, $this->pdf->lineHeight, Lang::txt("MembersPDF_contents.location"));
 		$this->pdf->SetX($this->pdf->leftMargin + 30);
 		$this->pdf->Cell(50, $this->pdf->lineHeight, $addy["name"]);

@@ -126,8 +126,7 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getVote($vid) {
-		$query = "SELECT * FROM vote WHERE id = $vid";
-		return $this->database->getRow($query);
+		return $this->database->fetchRow("SELECT * FROM vote WHERE id = ?", array(array("i", $vid)));
 	}
 	
 	function getOptionsForVote($vid) {
@@ -257,11 +256,11 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getRehearsal($rid) {
-		return $this->database->getRow("SELECT * FROM rehearsal WHERE id = $rid");
+		return $this->database->fetchRow("SELECT * FROM rehearsal WHERE id = ?", array(array("i", $rid)));
 	}
 	
 	function getConcert($cid) {
-		return $this->database->getRow("SELECT * FROM concert WHERE id = $cid");
+		return $this->database->fetchRow("SELECT * FROM concert WHERE id = ?", array(array("i", $cid)));
 	}
 	
 	function getUserUpdates($objectListing) {
@@ -434,11 +433,11 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getReservation($id) {
-		return $this->database->getRow("SELECT * FROM reservation WHERE id = $id");
+		return $this->database->fetchRow("SELECT * FROM reservation WHERE id = ?", array(array("i", $id)));
 	}
 	
 	function getOutfit($id) {
-		return $this->database->getRow("SELECT * FROM outfit WHERE id = $id");
+		return $this->database->fetchRow("SELECT * FROM outfit WHERE id = ?", array(array("i", $id)));
 	}
 	
 	function getCustomData($otype, $oid) {

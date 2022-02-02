@@ -109,10 +109,8 @@ class Systemdata {
   * Returns the full name of the current user.
   */
  public function getUsername() {
- 	$query = "SELECT surname, name FROM contact c, user u WHERE u.id = " . $_SESSION["user"];
- 	$query .= " AND c.id = u.contact";
- 	$un = $this->dbcon->getRow($query);
- 	return $un["name"] . " " . $un["surname"];
+ 	$query = "SELECT CONCAT(name, ' ', surname) as fullname FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?";
+ 	return $this->dbcon->colValue($query, "fullname", array(array("i", $_SESSION["user"])));
  }
  
  /**
@@ -306,9 +304,9 @@ class Systemdata {
  	if($this->isUserSuperUser($uid) && $groupId == 1) return true;
  	$query = "SELECT count(*) as n FROM contact_group cg
  		JOIN user u ON u.contact = cg.contact
- 		WHERE u.id = $uid AND cg.`group` = $groupId";
- 	$row = $this->dbcon->getRow($query);
- 	return $row["n"] > 0;
+ 		WHERE u.id = ? AND cg.`group` = ?";
+ 	$n = $this->dbcon->colValue($query, "n", array(array("i", $uid), array("i", $groupId)));
+ 	return $n > 0;
  }
  
  /**
@@ -468,7 +466,7 @@ class Systemdata {
   */
  public function getUsersContact($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
- 	return $this->dbcon->getRow("SELECT * FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = $uid");
+ 	return $this->dbcon->fetchRow("SELECT * FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?", array(array("i", $uid)));
  }
  
  public function gdprOk($uid = -1) {

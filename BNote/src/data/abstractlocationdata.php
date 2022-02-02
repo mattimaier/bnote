@@ -60,13 +60,9 @@ abstract class AbstractLocationData extends AbstractData {
 	 * @return Array Row object of the address.
 	 */
 	function getAddress($id) {
-		if($id < 1) return null;
-		$this->regex->isPositiveAmount($id);
-		
-		$q = "SELECT street, city, zip, state, country FROM address ";
-		$q .= "WHERE id = $id";
-		
-		return $this->database->getRow($q);
+		if($id < 1) return null;		
+		$q = "SELECT street, city, zip, state, country FROM address WHERE id = ?";
+		return $this->database->fetchRow($q, array(array("i", $id)));
 	}
 	
 	/**
@@ -175,13 +171,10 @@ abstract class AbstractLocationData extends AbstractData {
 	 * @return Array with address and location data.
 	 */
 	public function getLocation($id) {
-		$this->regex->isPositiveAmount($id);
-		
 		$query = "SELECT l.*, a.street, a.city, a.zip, a.state, a.country
 			FROM location l JOIN address a ON l.address = a.id 
-			WHERE l.id = $id";
-		
-		return $this->database->getRow($query);
+			WHERE l.id = ?";
+		return $this->database->fetchRow($query, array(array("i", $id)));
 	}
 	
 	/**

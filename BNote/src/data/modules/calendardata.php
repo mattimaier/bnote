@@ -210,7 +210,7 @@ class CalendarData extends AbstractLocationData {
 	}
 	
 	function getContact($id) {
-		return $this->database->getRow("SELECT * FROM contact WHERE id = $id");
+		return $this->database->fetchRow("SELECT * FROM contact WHERE id = ?", array(array("i", $id)));
 	}
 	
 	function getCustomData($id) {

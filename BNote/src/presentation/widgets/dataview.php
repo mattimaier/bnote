@@ -70,7 +70,8 @@ class Dataview {
 			return;
 		}
 		global $system_data;
-		$row = $system_data->dbcon->getRow ( "SELECT " . join ( ",", $nameArray ) . " FROM $table WHERE $idField = " . $refId );
+		//TODO: check $nameArray and $table and $idField for database conform naming
+		$row = $system_data->dbcon->fetchRow("SELECT " . join ( ",", $nameArray ) . " FROM $table WHERE $idField = ?", array(array("i", $refId)));
 		$values = array ();
 		foreach ( $nameArray as $i => $nameField ) {
 			array_push ( $values, $row [$nameField] );

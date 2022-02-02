@@ -115,8 +115,14 @@ class Database extends Data {
 	 */
 	public function preparedQuery($query, $params) {
 		$stmt = $this->db->prepare($query);
+		$bindTypes = "";
+		$bindValues = array();
 		foreach($params as $i => $param) {
-			$stmt->bind_param($param[0], $param[1]);
+			$bindTypes .= $param[0];
+			array_push($bindValues, $param[1]);
+		}
+		if(count($bindValues) > 0) {
+			$stmt->bind_param($bindTypes, ...$bindValues);
 		}
 		$stmt->execute();
 		$result = $stmt->get_result();
@@ -304,14 +310,23 @@ class Database extends Data {
 	
 	/**
 	 * Returns just one row as an array.
-	 * 
-	 * @param
-	 *        	String query SQL query.
+	 * @param String query SQL query.
+	 * @deprecated
 	 */
 	public function getRow($query) {
 		//FIXME: typically Unsafe statement use
 		$res = $this->exe( $query );
 		return mysqli_fetch_assoc( $res );
+	}
+	
+	/**
+	 * Returns one row as an array.
+	 * @param String $preparedStmt Prepared statement to select the row.
+	 * @param Array $params Parameter array in the form i => array(type, value).
+	 */
+	public function fetchRow($preparedStmt, $params) {
+		$res = $this->preparedQuery($preparedStmt, $params);
+		return $res && count($res) > 0 ? $res[0] : NULL;
 	}
 	
 	/**

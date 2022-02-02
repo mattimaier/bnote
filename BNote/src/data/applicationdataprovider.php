@@ -73,18 +73,6 @@ class ApplicationDataProvider {
 		return $this->secManager;
 	}
 	
-	// GENERAL METHODS	
-	/**
-	 * Searches for the row in the given table.
-	 * @param String $table Name of the entity table.
-	 * @param int $id ID of a row in the table.
-	 * @return Array with information. 
-	 */
-	public function getEntityForId($table, $id) {
-		$query = "SELECT * FROM $table WHERE id = $id";
-		return $this->database->getRow($query);
-	}
-	
 	/**
 	 * Retrieves all future rehearsals without participation in ascending order.
 	 * @param boolean $withGroups Add "groups" field with the associated groups to the rehearsal objects (by default: false).
@@ -203,21 +191,18 @@ class ApplicationDataProvider {
 				$address["zip"] = "-";
 			}
 			else {
-				$q1 = "SELECT name, notes, address FROM location ";
-				$q1 .= "WHERE id = " . $concerts[$i]["location"];
-				$location = $this->database->getRow($q1);
+				$q1 = "SELECT name, notes, address FROM location WHERE id = ?";
+				$location = $this->database->fetchRow($q1, array(array("i", $concerts[$i]["location"])));
 				
 				// resolve address -> address id present, because location is mandatory
-				$q2 = "SELECT street, city, zip FROM address ";
-				$q2 .= "WHERE id = " . $location["address"];
-				$address = $this->database->getRow($q2);
+				$q2 = "SELECT street, city, zip FROM address WHERE id = ?";
+				$address = $this->database->fetchRow($q2, array(array("i", $location["address"])));
 			}
 			
 			// resolve contact
 			if($concerts[$i]["contact"] != "") {
-				$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, mobile, email, web ";
-				$q3 .= "FROM contact WHERE id = " . $concerts[$i]["contact"];
-				$contact = $this->database->getRow($q3);
+				$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, mobile, email, web FROM contact WHERE id = ?";
+				$contact = $this->database->fetchRow($q3, array(array("i", $concerts[$i]["contact"])));
 			}
 			else {
 				$contact = array(
@@ -229,9 +214,8 @@ class ApplicationDataProvider {
 			
 			// resolve program
 			if($concerts[$i]["program"] != "") {
-				$q4 = "SELECT name, notes FROM program ";
-				$q4 .= "WHERE id = " . $concerts[$i]["program"];
-				$program = $this->database->getRow($q4);
+				$q4 = "SELECT name, notes FROM program WHERE id = ?";
+				$program = $this->database->fetchRow($q4, array(array("i", $concerts[$i]["program"])));
 			}
 			else {
 				$program = array(
@@ -242,9 +226,9 @@ class ApplicationDataProvider {
 			// resolve outfit
 			$outfit_out = "-";
 			if($concerts[$i]["outfit"] != "") {
-				$q5 = "SELECT name, description FROM outfit WHERE id = " . $concerts[$i]["outfit"];
-				$outfit = $this->database->getRow($q5);
-				if($outfit != null) { 
+				$q5 = "SELECT name, description FROM outfit WHERE id = ?";
+				$outfit = $this->database->fetchRow($q5, array(array("i", $concerts[$i]["outfit"])));
+				if($outfit != null) {
 					$outfit_out = $outfit["name"];
 					if($outfit["description"] != "") {
 						$outfit_out .= ": " . $outfit["description"];
@@ -408,6 +392,10 @@ class ApplicationDataProvider {
 		return $this->database->colValue("SELECT name FROM location WHERE id = ?", "name", array(array("i", $locId)));
 	}
 	
+	public function getLocation($locId) {
+		return $this->database->fetchRow("SELECT * FROM location WHERE id = ?", array(array("i", $locId)));
+	}
+	
 	/**
 	 * @return All templated programs.
 	 */
@@ -460,10 +448,7 @@ class ApplicationDataProvider {
 	 * @return array Null or array or user information.
 	 */
 	function getUserForContact($cid) {
-		if($uid == null) {
-			return null;
-		}
-		return $this->database->getRow("SELECT * FROM user WHERE contact = $cid");
+		return $this->database->fetchRow("SELECT * FROM user WHERE contact = ?", array(array("i", $cid)));
 	}
 	
 	/**
@@ -529,8 +514,8 @@ class ApplicationDataProvider {
 	}
 	
 	function getConductorname($cid) {
-		$query = "SELECT CONCAT(name, ' ', surname) as name FROM contact WHERE id = $cid";
-		$row = $this->database->getRow($query);
+		$query = "SELECT CONCAT(name, ' ', surname) as name FROM contact WHERE id = ?";
+		$row = $this->database->fetchRow($query, array(array("i", $cid)));
 		if($row != null) {
 			return $row["name"];
 		}
@@ -549,8 +534,11 @@ class ApplicationDataProvider {
 	function getAccommodationLocation($id) {
 		$query = "SELECT l.*, a.street, a.city, a.zip, a.state, a.country FROM location l
 			JOIN address a ON l.address = a.id 
-			WHERE l.id = $id";
-		return $this->database->getRow($query);
+			WHERE l.id = ?";
+		return $this->database->fetchRow($query, array(array("i", $id)));
 	}
 	
+	function getAddress($addressId) {
+		return $this->database->fetchRow("SELECT * FROM address WHERE id = ?", array(array("i", $addressId)));
+	}
 }

@@ -64,9 +64,8 @@ class WebsiteData extends AbstractData {
 	}
 	
 	function getUsername($user_id) {
-		$query = "SELECT surname, name FROM contact c, user u WHERE u.id = " . $user_id;
-		$query .= " AND c.id = u.contact";
-		$un = $this->database->getRow($query);
+		$query = "SELECT surname, name FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?";
+		$un = $this->database->fetchRow($query, array(array("i", $user_id)));
 		return $un["name"] . " " . $un["surname"];
 	}
 	
@@ -132,8 +131,7 @@ class WebsiteData extends AbstractData {
 	}
 	
 	function getGallery($id) {
-		$query = "SELECT * FROM gallery WHERE id = $id";
-		return $this->database->getRow($query);
+		return $this->database->fetchRow("SELECT * FROM gallery WHERE id = ?", array(array("i", $id)));
 	}
 	
 	function getGalleryImages($id) {
@@ -223,8 +221,7 @@ class WebsiteData extends AbstractData {
 	}
 	
 	function getImage($id) {
-		$query = "SELECT * FROM galleryimage WHERE id = $id";
-		return $this->database->getRow($query);
+		return $this->database->fetchRow("SELECT * FROM galleryimage WHERE id = ?", array(array("i", $id)));
 	}
 	
 	function editImage($id, $values) {

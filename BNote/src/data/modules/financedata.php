@@ -171,7 +171,8 @@ class FinanceData extends AbstractData {
 		$this->regex->isPositiveAmount($booking_id);
 		
 		// get the booking
-		$booking = $this->database->getRow("SELECT * FROM booking WHERE account = $account AND id = $booking_id");
+		$bookingQuery = "SELECT * FROM booking WHERE account = ? AND id = ?";
+		$booking = $this->database->fetchRow($bookingQuery, array(array("i", $account), array("i", $booking_id)));
 		
 		// update the booking - just set the amounts to 0 and add the previous ones to the notes
 		$notes = $booking["notes"];

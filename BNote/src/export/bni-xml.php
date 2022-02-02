@@ -72,8 +72,7 @@ function getImagePath() {
 	}
 	
 	// get data
-	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];
-	$img = $GLOBALS["db"]->getRow($query);
+	$img = $GLOBALS["db"]->fetchRow("SELECT * FROM galleryimage WHERE id = ?", array(array("i", $_GET["id"])));
 	
 	// build path
 	$res = "/" . $GLOBALS["DATA_PATHS"]["gallery"];
@@ -94,8 +93,7 @@ function getThumbPath() {
 	}
 	
 	// get data
-	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];
-	$img = $GLOBALS["db"]->getRow($query);
+	$img = $GLOBALS["db"]->fetchRow("SELECT * FROM galleryimage WHERE id = ?", array(array("i", $_GET["id"])));
 	
 	// build path
 	$res = "/" . $GLOBALS["DATA_PATHS"]["gallery"];
@@ -123,9 +121,7 @@ function getGallery() {
 	if(!isset($_GET["id"])) {
 		new BNoteError(Lang::txt("bnixml_getGallery.error"));
 	}
-	
-	$query = "SELECT * FROM gallery WHERE id = " . $_GET["id"];
-	echo XmlArray::array_encode($GLOBALS["db"]->getRow($query));
+	echo XmlArray::array_encode($GLOBALS["db"]->fetchRow("SELECT * FROM gallery WHERE id = ?", array(array("i", $_GET["id"]))));
 }
 
 /**
@@ -149,9 +145,7 @@ function getImage() {
 	if(!isset($_GET["id"])) {
 		new BNoteError(Lang::txt("bnixml_getImage.error"));
 	}
-	
-	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];
-	echo XmlArray::array_encode($GLOBALS["db"]->getRow($query));
+	echo XmlArray::array_encode($GLOBALS["db"]->fetchRow("SELECT * FROM galleryimage WHERE id = ?", array(array("i", $_GET["id"]))));
 }
 
 ?>

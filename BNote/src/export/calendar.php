@@ -146,8 +146,8 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		// fetch rehearsal location
 		$query = "SELECT l.name, a.street, a.city ";
 		$query .= "FROM location l JOIN address a ON l.address = a.id ";
-		$query .= "WHERE l.id = " . $rehearsal[$i]["location"];
-		$addy = $db->getRow($query);
+		$query .= "WHERE l.id = ?";
+		$addy = $db->fetchRow($query, array(array("i", $rehearsal[$i]["location"])));
 		echo "LOCATION:" . $addy["name"] . " - " . $addy["street"] . "\\, " . $addy["city"] . "\r\n";
 	}
 	

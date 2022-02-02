@@ -122,8 +122,8 @@ class KontakteData extends AbstractLocationData {
 	 */
 	function getContact($id) {
 		$query = $this->createQuery();
-		$query .= "WHERE c2.id = $id";
-		$contact = $this->database->getRow($query);
+		$query .= "WHERE c2.id = ?";
+		$contact = $this->database->fetchRow($query, array(array("i", $id)));
 		
 		// add custom data
 		$custom = $this->getCustomFieldData('c', $id);

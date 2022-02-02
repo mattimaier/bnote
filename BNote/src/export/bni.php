@@ -50,8 +50,7 @@ function getImagePath($id=0, $directOut=True) {
 	$imageId = ($id > 0) ? $id : $_GET["id"];
 	
 	// get data
-	$query = "SELECT * FROM galleryimage WHERE id = $imageId";
-	$img = $GLOBALS["db"]->getRow($query);
+	$img = $GLOBALS["db"]->fetchRow("SELECT * FROM galleryimage WHERE id = ?", array(array("i", $imageId)));
 	
 	// build path
 	$res = "/" . $GLOBALS["DATA_PATHS"]["gallery"];
@@ -76,8 +75,7 @@ function getThumbPath($id=0, $directOut=True) {
 	$imageId = ($id > 0) ? $id : $_GET["id"];
 	
 	// get data
-	$query = "SELECT * FROM galleryimage WHERE id = $imageId";
-	$img = $GLOBALS["db"]->getRow($query);
+	$img = $GLOBALS["db"]->fetchRow("SELECT * FROM galleryimage WHERE id = ?", array(array("i", $imageId)));
 	
 	// build path
 	$res = "/" . $GLOBALS["DATA_PATHS"]["gallery"];
@@ -109,10 +107,8 @@ function getGallery() {
 	if(!isset($_GET["id"])) {
 		new BNoteError(Lang::txt("bni_getGallery.error"));
 	}
-	
-	$query = "SELECT * FROM gallery WHERE id = " . $_GET["id"];
 	header('Content-Type: application/json');
-	echo json_encode($GLOBALS["db"]->getRow($query));
+	echo json_encode($GLOBALS["db"]->fetchRow("SELECT * FROM gallery WHERE id = ?", array(array("i", $_GET["id"]))));
 }
 
 /**
@@ -151,10 +147,8 @@ function getImage() {
 	if(!isset($_GET["id"])) {
 		new BNoteError(Lang::txt("bni_getImage.error"));
 	}
-	
-	$query = "SELECT * FROM galleryimage WHERE id = " . $_GET["id"];
 	header('Content-Type: application/json');
-	echo json_encode($GLOBALS["db"]->getRow($query));
+	echo json_encode($GLOBALS["db"]->fetchRow("SELECT * FROM galleryimage WHERE id = ?", array(array("i", $_GET["id"]))));
 }
 
 ?>

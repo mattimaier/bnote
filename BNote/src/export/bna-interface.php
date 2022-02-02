@@ -13,14 +13,6 @@ interface iBNA {
 	public function getRehearsals();
 	
 	/**
-	 * @deprecated Please use getRehearsals()
-	 * Retrieves all rehearsals for a user and whether he/she participates or not.
-	 * @param Integer $user ID of the user.
-	 * @return All rehearsal with participation information for the user.
-	 */
-	public function getRehearsalsWithParticipation($user);
-	
-	/**
 	 * @return Returns all concerts.
 	 */
 	public function getConcerts();

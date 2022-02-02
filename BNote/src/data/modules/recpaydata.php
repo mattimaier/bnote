@@ -93,7 +93,7 @@ class RecpayData extends AbstractData {
 	}
 	
 	function getContactName($id) {
-		$c = $this->database->getRow("SELECT surname, name FROM contact WHERE id = $id");
+		$c = $this->database->fetchRow("SELECT surname, name FROM contact WHERE id = ?", array(array("i", $id)));
 		return $c["name"] . " " . $c["surname"];
 	}
 	
@@ -160,7 +160,7 @@ class RecpayData extends AbstractData {
 		
 		foreach($selection as $id) {
 			// create booking
-			$recpay = $this->database->getRow("SELECT * FROM " . $this->table . " WHERE id = $id");
+			$recpay = $this->database->fetchRow("SELECT * FROM `recpay` WHERE id = ?", array(array("i", $id)));
 			$recpay["bdate"] = $_POST["bdate"];
 			// convert to local decimal as if it was sent from the form
 			$recpay["amount_net"] = $recpay["amount_net"];

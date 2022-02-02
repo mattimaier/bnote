@@ -913,7 +913,7 @@ class StartView extends CrudRefLocationView {
 		// get concert data		
 		$c = $concertData->findByIdNoRef($_GET["id"]);
 		$custom = $concertData->getCustomData($_GET["id"]);
-		$loc = $concertData->getLocation($c["location"]);
+		$loc = $concertData->adp()->getLocation($c["location"]);
 		
 		// concert details
 		Writing::h1($c["title"]);

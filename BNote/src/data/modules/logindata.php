@@ -172,8 +172,8 @@ class LoginData extends AbstractLocationData {
 	}
 	
 	function findContactByCode($code) {
-		$this->regex->isSubject($code);
-		return $this->database->getRow("SELECT *, a.* FROM contact c RIGHT OUTER JOIN address a ON c.address = a.id WHERE gdpr_code = '$code'");
+		$q = "SELECT *, a.* FROM contact c RIGHT OUTER JOIN address a ON c.address = a.id WHERE gdpr_code = ?";
+		return $this->database->fetchRow($q, array(array("s", $code)));
 	}
 	
 	function gdprOk($code) {

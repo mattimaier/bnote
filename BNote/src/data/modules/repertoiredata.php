@@ -478,8 +478,8 @@ class RepertoireData extends AbstractData {
 				LEFT OUTER JOIN genre g ON s.genre = g.id
 				JOIN status t ON s.status = t.id
 				LEFT OUTER JOIN composer c ON s.composer = c.id
-				WHERE s.id = $id";
-		$song = $this->database->getRow($query);
+				WHERE s.id = ?";
+		$song = $this->database->fetchRow($query, array(array("i", $id)));
 		$customData = $this->getCustomFieldData('s', $id);
 		return array_merge($song, $customData);
 	}

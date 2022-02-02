@@ -390,8 +390,9 @@ abstract class AbstractData {
 	 * @return Returns a database getRow(...) result. 
 	 */
 	public function findByIdNoRef($id) {
-		$query = "SELECT * FROM $this->table WHERE id = $id";
-		return $this->database->getRow($query);
+		// Security note: $this->table is always a static string programmatically set
+		$query = "SELECT * FROM $this->table WHERE id = ?";
+		return $this->database->fetchRow($query, array(array("i", $id)));
 	}
 	
 	/**
@@ -403,6 +404,7 @@ abstract class AbstractData {
 	public function findByIdJoined($id, $colExchange) {
 		$table = $this->table;
 		$query = $this->createJoinedQuery($colExchange) . " AND $table.id = $id";
+		//FIXME: needs a fix of the method to build the query.
 		return $this->database->getRow($query);
 	}
 	

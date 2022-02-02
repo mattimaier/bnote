@@ -116,8 +116,8 @@ class KonfigurationData extends AbstractLocationData {
 	}
 	
 	function findByIdNoRef($id) {
-		$query = "SELECT * FROM " . $this->table . " WHERE param = \"$id\"";
-		return $this->database->getRow($query);
+		$query = "SELECT * FROM configuration WHERE param = ?";
+		return $this->database->fetchRow($query, array(array("s", $id)));
 	}
 	
 	function createParameter($id, $defaultValue, $isActive) {

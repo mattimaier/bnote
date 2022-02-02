@@ -11,8 +11,8 @@ class KommunikationData extends KontakteData {
 	function getRehearsal($id) {
 		$query = "SELECT begin, end, name as location, street, city, zip, r.notes ";
 		$query .= "FROM rehearsal r, location l, address a ";
-		$query .= "WHERE r.location = l.id AND l.address = a.id AND r.id = " . $id;
-		return $this->database->getRow($query);
+		$query .= "WHERE r.location = l.id AND l.address = a.id AND r.id = ?";
+		return $this->database->fetchRow($query, array(array("i", $id)));
 	}
 	
 	function getMailaddressesFromGroup($prefix) {
@@ -56,7 +56,7 @@ class KommunikationData extends KontakteData {
 	}
 	
 	function getConcert($cid) {
-		return $this->adp()->getEntityForId("concert", $cid);
+		return $this->database->fetchRow("SELECT * FROM concert WHERE id = ?", array(array("i", $cid)));
 	}
 	
 	function getConcertContactMail($cid) {
@@ -75,7 +75,7 @@ class KommunikationData extends KontakteData {
 	}
 	
 	function getVote($vid) {
-		return $this->adp()->getEntityForId("vote", $vid);
+		return $this->database->fetchRow("SELECT * FROM vote WHERE id = ?", array(array("i", $vid)));
 	}
 	
 	function getVoteContactMail($vid) {
@@ -100,8 +100,7 @@ class KommunikationData extends KontakteData {
 	}
 	
 	public function getRehearsalSerie($id) {
-		$this->regex->isPositiveAmount($id);
-		return $this->database->getRow("SELECT * FROM rehearsalserie WHERE id = $id");
+		return $this->database->fetchRow("SELECT * FROM rehearsalserie WHERE id = ?", array(array("i", $id)));
 	}
 	
 	public function getRehearsalSerieContactMail($serieId) {

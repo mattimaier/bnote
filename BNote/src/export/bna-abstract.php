@@ -682,8 +682,8 @@ abstract class AbstractBNA implements iBNA {
 				
 			for($i = 1; $i < count($rehs); $i++) {
 				$rid = $rehs[$i]["id"];
-				$query = "SELECT * FROM rehearsal_user WHERE rehearsal = $rid AND user = " . $this->uid;
-				$part = $this->db->getRow($query);
+				$query = "SELECT * FROM rehearsal_user WHERE rehearsal = $rid AND user = ?";
+				$part = $this->db->fetchRow($query, array(array("i", $this->uid)));
 				if($part == null) {
 					$part = array( "participate" => "-1", "reason" => "" );
 				}
@@ -697,13 +697,9 @@ abstract class AbstractBNA implements iBNA {
 		for($i = 1; $i < count($rehs); $i++) {
 			$query = "SELECT location.id, name, street, city, zip ";
 			$query .= "FROM location JOIN address ON location.address = address.id ";
-			$query .= "WHERE location.id = " . $rehs[$i]["location"];
-			$loc = $this->db->getRow($query);
-			
-			$rehs[$i]["location"] = $loc;
+			$query .= "WHERE location.id = ?";
+			$rehs[$i]["location"] = $this->db->fetchRow($query, array(array("i", $rehs[$i]["location"])));
 		}
-		
-
 		
 		// remove header
 		unset($rehs[0]);
@@ -828,7 +824,7 @@ abstract class AbstractBNA implements iBNA {
 		
 		// enrichment of objects
 		foreach($concerts as $i => $concert) {
-			$dbConcert = $this->db->getRow("SELECT * FROM concert WHERE id = " . $concert["id"]);
+			$dbConcert = $this->db->fetchRow("SELECT * FROM concert WHERE id = ?", array(array("i", $concert["id"])));
 			
 			// location
 			$concerts[$i]["location"] = array(
@@ -992,8 +988,7 @@ abstract class AbstractBNA implements iBNA {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
 		$contact = $contactData->getSysdata()->getUsersContact($this->uid);
 		$contact["address_object"] = $contactData->getAddress($contact["address"]);
-		$iid = $contact["instrument"];
-		$contact["instrument_object"] = $this->db->getRow("SELECT * FROM instrument WHERE id = $iid");
+		$contact["instrument_object"] = $this->db->fetchRow("SELECT * FROM instrument WHERE id = ?", array(array("i", $contact["instrument"])));
 		$this->writeEntity($contact, "contact");
 		return $contact;
 	}
@@ -1093,7 +1088,7 @@ abstract class AbstractBNA implements iBNA {
 				}
 			}
 			
-			$songstatus = $this->db->getRow("SELECT * FROM status WHERE id = " . intval($song["status"]));
+			$songstatus = $this->db->fetchRow("SELECT * FROM status WHERE id = ?", array(array("i", intval($song["status"]))));
 			$song["status"] = $songstatus;
 			$song = $this -> removeNumericKeys($song);
 			array_push($entities, $song);
@@ -1276,7 +1271,7 @@ abstract class AbstractBNA implements iBNA {
 	function getUserInfo() {	
 		$contact = $this->sysdata->getUsersContact($this->uid);
 		$instrument = $this->db->colValue("SELECT name FROM instrument WHERE id = ?", "name", array(array("i", $contact["instrument"])));
-		$addy = $this->startdata->adp()->getEntityForId("address", $contact["address"]);
+		$addy = $this->startdata->adp()->getAddress($contact["address"]);
 		$contact["instrument"] = $instrument;
 		$contact["street"] = $addy["street"];
 		$contact["zip"] = $addy["zip"];
@@ -1618,7 +1613,7 @@ abstract class AbstractBNA implements iBNA {
 		$genre = $repData->getGenre($song["genre"]);
 		$song["genre"] = $this->removeNumericKeys($genre[1]);
 		
-		$songstatus = $this->db->getRow("SELECT * FROM status WHERE id = " . intval($song["status"]));
+		$songstatus = $this->db->fetchRow("SELECT * FROM status WHERE id = ?", array(array("i", intval($song["status"]))));
 		$song["status"] = $songstatus;
 		
 		$this->writeEntity($song, "song");

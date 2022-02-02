@@ -86,7 +86,7 @@ class Form implements iWriteable {
 	 */
 	public function autoAddElements($array, $table, $id, $forceFields=array()) {
 		global $system_data;
-		$entity = $system_data->dbcon->getRow ( "SELECT * FROM $table WHERE id = $id" );
+		$entity = $system_data->dbcon->fetchRow("SELECT * FROM $table WHERE id = ?", array(array("i", $id)));
 		foreach ( $array as $field => $info ) {
 			// ignore custom fields
 			if(!isset($entity[$field]) && !in_array($field, $forceFields)) {

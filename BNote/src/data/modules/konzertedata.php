@@ -82,27 +82,19 @@ class KonzerteData extends AbstractLocationData {
 		return $concerts;
 	}
 	
-	function getLocation($id) {
-		$q1 = "SELECT name, notes, address FROM location ";
-		$q1 .= "WHERE id = $id";
-		return $this->database->getRow($q1);
-	}
-	
 	function getContact($id) {
-		$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, email, web ";
-		$q3 .= "FROM contact WHERE id = " . $id;
-		return $this->database->getRow($q3);
+		$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, email, web FROM contact WHERE id = ?";
+		return $this->database->fetchRow($q3, array(array("i", $id)));
 	}
 	
 	function getProgram($id) {
-		$q4 = "SELECT id, name, notes FROM program ";
-		$q4 .= "WHERE id = " . $id;
-		return $this->database->getRow($q4);
+		$q4 = "SELECT id, name, notes FROM program WHERE id = ?";
+		return $this->database->fetchRow($q4, array(array("i", $id)));
 	}
 	
 	function getOutfit($id) {
-		$query = "SELECT name FROM outfit WHERE id = $id";
-		return $this->database->getRow($query);
+		$query = "SELECT name FROM outfit WHERE id = ?";
+		return $this->database->fetchRow($query, array(array("i", $id)));
 	}
 	
 	function getCustomData($cid) {

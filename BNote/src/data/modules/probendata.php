@@ -51,12 +51,12 @@ class ProbenData extends AbstractLocationData {
 	function getNextRehearsal() {
 		$query = $this->defaultQuery() . " AND end > NOW()";
 		$query .= " ORDER BY begin ASC LIMIT 0,1";
-		return $this->database->getRow($query);
+		return $this->database->fetchRow($query, array());
 	}
 	
 	function findByIdJoined($id, $colExchange) {
-		$query = $this->defaultQuery() . " AND r.id = $id";
-		return $this->database->getRow($query);
+		$query = $this->defaultQuery() . " AND r.id = ?";
+		return $this->database->fetchRow($query, array(array("i", $id)));
 	}
 	
 	function getRehearsalGroups($id) {
@@ -469,9 +469,8 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	public function getRehearsalSerie($rehearsalId) {
-		$this->regex->isPositiveAmount($rehearsalId);
-		$query = "SELECT s.* FROM rehearsal r JOIN rehearsalserie s ON r.serie = s.id WHERE r.id = $rehearsalId";
-		return $this->database->getRow($query);
+		$query = "SELECT s.* FROM rehearsal r JOIN rehearsalserie s ON r.serie = s.id WHERE r.id = ?";
+		return $this->database->fetchRow($query, array(array("i", $rehearsalId)));
 	}
 	
 	public function update($id, $values) {

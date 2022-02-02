@@ -112,8 +112,8 @@ class ProgramData extends AbstractData {
 	
 	function totalProgramLength() {
 		$query = "SELECT Sec_to_Time(Sum(Time_to_Sec(s.length))) as total ";
-		$query .= "FROM song s, program_song ps WHERE ps.song = s.id AND ps.program = " . $_GET["id"];
-		$res = $this->database->getRow($query);
+		$query .= "FROM song s, program_song ps WHERE ps.song = s.id AND ps.program = ?";
+		$res = $this->database->fetchRow($query, array(array("i", $_GET["id"])));
 		return $res["total"];
 	}
 	
