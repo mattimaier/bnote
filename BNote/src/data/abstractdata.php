@@ -264,16 +264,6 @@ abstract class AbstractData {
 	}
 	
 	/**
-	 * Returns all entities, without exchanging the foreign key columns with something.<br />
-	 * @param String $where Where clause in SQL without the "WHERE" identifier.
-	 * @return Returns an database getSelection(...) result array.
-	 */
-	public function findAllNoRefWhere($where) {
-		$query = "SELECT * FROM " . $this->table . " WHERE $where";
-		return $this->database->getSelection($query);
-	}
-	
-	/**
 	 * Returns all entities with the foreign key columns exchanged for the given exchange columns.
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
 	 * 		Format: [foreign_key_column] => [col1, col2, ...] with colX in the referred table.
@@ -336,50 +326,53 @@ abstract class AbstractData {
 	
 	/**
 	 * Helper function to build the complex query.
+	 * 
+	 * Security note
+	 * -------------
+	 * $this->table and $this->fields are const, hardcoded values never changed. 
+	 * Hence they bare little security risk and are tolerated by the author.
+	 * 
 	 * @param Array $colExchange see findAllJoined(...)
 	 */
 	private function createJoinedQuery($colExchange) {
-		// build query
-		$query = "SELECT ";
-		$join = "";
+		$qcols = array();
+		$joins = array();
 		$tables = array();
 		array_push($tables, $this->table);
 		
 		// all native fields
 		foreach($this->fields as $field => $info) {
 			if(isset($colExchange[$field])) continue;
-			$query .= $this->table . "." . $field . ", ";
+			array_push($qcols, $this->table . "." . $field);
 		}
 		
 		// all exchanged fields
 		if(count($colExchange) != 0) {
 			foreach($colExchange as $fcol => $tcols) {
 				if(!isset($this->references[$fcol])) continue;
+				$this->regex->isDbItem($fcol);
 				$foreign_table = $this->references[$fcol];
 				if(is_array($tcols)) {
 					foreach($tcols as $cid => $col) {
-						$query .= $foreign_table . "." . $col . " as $foreign_table$col, "; // foreign_table.foreign_col
+						$this->regex->isDbItem($foreign_table);
+						$this->regex->isDbItem($col);
+						array_push($qcols, $foreign_table . "." . $col . " as $foreign_table$col"); // foreign_table.foreign_col
 					}
 				}
+				
 				// add table to required tables
 				if(!in_array($foreign_table, $tables)) array_push($tables, $foreign_table);
 				
 				// add join clause: fcol_id = foreigntable.id
-				$join .= $this->table . "." . $fcol . " = " . $foreign_table . ".id AND ";
+				array_push($joins, $this->table . "." . $fcol . " = " . $foreign_table . ".id");
 			}
 		}
-		$query = substr($query, 0, strlen($query)-2); // cut last ", "
 		
-		// From tables
-		$query .= " FROM ";
-		foreach($tables as $table) {
-			$query .= $table . ", ";
-		}
-		if(count($tables) > 1) $query = substr($query, 0, strlen($query)-2); // cut last ", "
-		
-		// join statement
-		if(strlen($join) > 5) $join = substr($join, 0, strlen($join)-5); // cut last " AND "
-		$query .= " WHERE " . $join;
+		// From tables and where claus with cross-product join
+		// build query
+		$query = "SELECT " . join(", ", $qcols);
+		$query .= " FROM " . join(", ", $tables);		
+		$query .= " WHERE " . join(" AND ", $joins);
 
 		return $query;
 	}
@@ -402,10 +395,8 @@ abstract class AbstractData {
 	 * @return Returns a database getRow(...) result.
 	 */
 	public function findByIdJoined($id, $colExchange) {
-		$table = $this->table;
-		$query = $this->createJoinedQuery($colExchange) . " AND $table.id = $id";
-		//FIXME: needs a fix of the method to build the query.
-		return $this->database->getRow($query);
+		$query = $this->createJoinedQuery($colExchange) . " AND " . $this->table . ".id = ?";
+		return $this->database->fetchRow($query, array(array("i", $id)));
 	}
 	
 	/**

@@ -1,5 +1,5 @@
 # BNote
-# by Matti Maier und Stefan Kreminski BNote Software GbR
+# by Matti Maier und Stefan Kreminski
 # www.bnote.info
 # License GPLv3
 
@@ -9,7 +9,7 @@ Requirements
 	- an accessible host configuration
 	- modrewrite
 	- htaccess activated
-	- at least PHP 5.6 module (PHP7 ready)
+	- at least PHP 7 module
 - MySQL or MariaDB Server supporting MySQLi driver
 - preferrably Linux OS
 

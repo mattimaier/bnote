@@ -114,6 +114,10 @@ class Database extends Data {
 	 * @return Array Associated result from mysqli.
 	 */
 	public function preparedQuery($query, $params) {
+		return $this->preparedQueryRaw($query, $params)->fetch_all(MYSQLI_ASSOC);
+	}
+	
+	protected function preparedQueryRaw($query, $params) {
 		$stmt = $this->db->prepare($query);
 		$bindTypes = "";
 		$bindValues = array();
@@ -126,7 +130,7 @@ class Database extends Data {
 		}
 		$stmt->execute();
 		$result = $stmt->get_result();
-		return $result->fetch_all(MYSQLI_ASSOC);
+		return $result;
 	}
 	
 	/**
@@ -217,31 +221,30 @@ class Database extends Data {
 	/**
 	 * Returns an array with the data from the query.
 	 * 
-	 * @param String $query
-	 *        	SQL query.
+	 * @param String $preparedStatement Prepared statement (SQL) with "?" placeholders
+	 * @param Array $params Parameter array in the form i => array(type, value).
+	 * @return NULL|Array Data table
 	 */
-	public function getSelection($query) {
-		//FIXME: typically unsafe statement use
-		
+	public function getSelection($preparedStatement, $params=array()) {
 		// Execute Query
-		$res = $this->exe($query);
+		$res = $this->preparedQueryRaw($preparedStatement, $params);
 		$dataTable = array();
 		
 		// add header
-		$header = array ();
+		$header = array();
 		
-		for ($i = 0; $i < $this->db->field_count; $i++) {
-			$meta = mysqli_fetch_field_direct( $res, $i );
+		for($i = 0; $i<$this->db->field_count; $i ++) {
+			$meta = mysqli_fetch_field_direct($res, $i);
 			if (! $meta) {
-				new BNoteError ( "Invalid table header." );
+				new BNoteError("Invalid table header.");
 			}
-			array_push ( $header, ucfirst ( $meta->name ) );
+			array_push($header, ucfirst($meta->name));
 		}
-		array_push ( $dataTable, $header );
+		array_push($dataTable, $header);
 		
 		// add Data
-		while ( $row = mysqli_fetch_array ( $res, MYSQLI_BOTH ) ) {
-			array_push ( $dataTable, $row );
+		foreach($res as $i => $row) {
+			array_push($dataTable, $row);
 		}
 		
 		return $dataTable;
@@ -309,17 +312,6 @@ class Database extends Data {
 	}
 	
 	/**
-	 * Returns just one row as an array.
-	 * @param String query SQL query.
-	 * @deprecated
-	 */
-	public function getRow($query) {
-		//FIXME: typically Unsafe statement use
-		$res = $this->exe( $query );
-		return mysqli_fetch_assoc( $res );
-	}
-	
-	/**
 	 * Returns one row as an array.
 	 * @param String $preparedStmt Prepared statement to select the row.
 	 * @param Array $params Parameter array in the form i => array(type, value).
@@ -336,9 +328,10 @@ class Database extends Data {
 	 *        	Database SQL query to be executed.
 	 * @return The ID if the query has been an insert statement
 	 *         with an autoincrement generator. See PHP manual for details.
+	 * @deprecated
 	 */
 	public function execute($query) {
-		//FIXME: typically unsafe statement use
+		//FIXME: typically unsafe statement use (141 uses)
 		$res = $this->exe($query);
 		return $this->db->insert_id;
 	}
@@ -396,9 +389,16 @@ class Database extends Data {
 	 * @return Flat array containg only the contents of the column.
 	 */
 	public static function flattenSelection($selection, $col) {
-		$flat = array ();
-		for($i = 1; $i < count ( $selection ); $i ++) {
-			array_push ( $flat, $selection [$i] [$col] );
+		if(is_numeric($col)) {
+			// find the name of the col in the header
+			$colName = $selection[0][$col];
+		}
+		else {
+			$colName = $col;
+		}
+		$flat = array();
+		for($r=1; $r<count($selection); $r++) {
+			array_push($flat, $selection[$r][$colName] );
 		}
 		return $flat;
 	}

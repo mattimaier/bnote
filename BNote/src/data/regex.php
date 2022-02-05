@@ -56,6 +56,8 @@ class Regex {
 		
 		$this->regex ["dbid"] = '/^[0-9]{1,11}$/';
 		$this->regex ["minsec"] = '/^([0-9]{1,2}\:)?[0-9]{1,2}\:[0-9]{1,2}$/';
+		
+		$this->regex ["dbitem"] = '/^[0-9a-zA-Z_-]{2,50}$/';
 	}
 	
 	private function isCorrect($d, $type, $k = NULL) {
@@ -249,6 +251,10 @@ class Regex {
 	}
 	public function isLoginQuiet($d) {
 		return (! empty ( $d ) && preg_match ( $this->regex ["login"], $d ));
+	}
+	
+	public function isDbItem($d) {
+		return (!empty($d) && preg_match($this->regex["dbitem"], $d));
 	}
 	
 	/**

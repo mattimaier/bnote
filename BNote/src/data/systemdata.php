@@ -120,8 +120,8 @@ class Systemdata {
  public function getUserModulePermissions($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
  	
- 	$query = "SELECT module FROM privilege WHERE user = $uid";
- 	$privileges = $this->dbcon->getSelection($query);
+ 	$query = "SELECT module FROM privilege WHERE user = ?";
+ 	$privileges = $this->dbcon->getSelection($query, array(array("i", $uid)));
  	
  	if(!$privileges) {
  		new BNoteError(Lang::txt("Systemdata_getUserModulePermissions.error"));
@@ -310,37 +310,20 @@ class Systemdata {
  }
  
  /**
-  * Creates a fraction of an SQL statement to add to a statement for the
-  * user table. For example your statement is "SELECT * FROM user", then
-  * you could add "WHERE " . createSuperUserSQLWhereStatement() to get
-  * all super users from your selection. Make sure you add the statement
-  * in parenthesis and concat it with an OR statement.
-  * @return String with where statement.
-  */
- private function createSuperUserSQLWhereStatement() {
- 	$superUsers = $this->getSuperUsers();
- 	$sql = "";
-	foreach($superUsers as $i => $uid) {
-		if($i > 0) $sql .= " OR ";
-		$sql .= $this->dbcon->getUserTable() . ".id = $uid";
-	}
-	return $sql;
- }
-
- /**
   * @return An array with the IDs of the super user's contacts.
   */
  public function getSuperUserContactIDs() {
- 	if(count($this->getSuperUsers()) == 0) return array();
- 	
- 	$query = "SELECT contact FROM " . $this->dbcon->getUserTable();
- 	$query .= " WHERE " . $this->createSuperUserSQLWhereStatement();
- 	$su = $this->dbcon->getSelection($query);
- 	$contacts = array();
- 	for($i = 1; $i < count($su); $i++) {
- 		array_push($contacts, $su[$i]["contact"]);
+ 	$superUsers = $this->getSuperUsers();
+ 	if(count($superUsers) == 0) return array();
+ 	$params = array();
+ 	$whereList = array();
+ 	foreach($superUsers as $i => $uid) {
+ 		array_push($params, array("i", $uid));
+ 		array_push($whereList, "id = ?");
  	}
- 	return $contacts;
+ 	$query = "SELECT contact FROM user WHERE (" . join(") OR (", $whereList) . ")";
+ 	$su = $this->dbcon->getSelection($query, $params);
+ 	return $this->dbcon->flattenSelection($su, "contact");
  }
  
  /**
