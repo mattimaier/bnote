@@ -92,9 +92,8 @@ class UpdateDb {
 			}
 		}
 		if(!$containsParam) {
-			$query = "INSERT INTO configuration (param, value, is_active) VALUES ";
-			$query .= "('$param', '$default', $active)";
-			$this->db->execute($query);
+			$query = "INSERT INTO configuration (param, value, is_active) VALUES (?, ?, ?)";
+			$this->db->execute($query, array(array("s", $param), array("s", $default), array("i", $active)));
 			$this->message("Added configuration parameter $param.");
 		}
 		else {
@@ -105,8 +104,8 @@ class UpdateDb {
 	function addModule($modname) {
 		if(!in_array($modname, $this->mods)) {
 			// add new module
-			$query = 'INSERT INTO module (name) VALUES ("' . $modname . '")';
-			$modId = $this->db->execute($query);
+			$query = 'INSERT INTO module (name) VALUES (?)';
+			$modId = $this->db->execute($query, array(array("s", $modname)));
 		
 			$this->message("New module $modname (ID $modId) added.");
 		
@@ -114,12 +113,15 @@ class UpdateDb {
 			$users = $this->sysdata->getSuperUsers();
 		
 			$query = "INSERT INTO privilege (user, module) VALUES ";
+			$params = array();
+			$tuples = array();
 			for($i = 0; $i < count($users); $i++) {
-				if($i > 0) $query .= ",";
-				$query .= "(" . $users[$i] . ", " . $modId . ")";
+				array_push($tuples, "(?, ?)");
+				array_push($params, array("i", $users[$i]));
+				array_push($params, array("i", $modId));
 			}
 			if(count($users) > 0) {
-				$this->db->execute($query);
+				$this->db->execute($query . join(", ", $tuples), $params);
 				$this->message("Privileges for module $modId added for all super users.");
 			}
 			else {
@@ -154,19 +156,20 @@ class UpdateDb {
 		}
 		
 		// remove all privileges for this module first
-		$this->db->execute("DELETE FROM privilege WHERE module = $module_id");
+		$this->db->execute("DELETE FROM privilege WHERE module = ?", array(array("i", $module_id)));
 		
 		// insert privilege for all
 		$users_db = $this->db->getSelection("SELECT id FROM user");
-		
-		$query = "INSERT INTO privilege (user, module) VALUES ";
+		$params = array();
+		$tuples = array();
 		for($i = 1; $i < count($users_db); $i++) {
-			if($i > 1) $query .= ",";
 			$uid = $users_db[$i]["id"];
-			$query .= "($uid, $module_id)";
+			array_push($tuples, "(?, ?)");
+			array_push($params, array("i", $uid));
+			array_push($params, array("i", $module_id));
 		}
-		
-		$this->db->execute($query);
+		$query = "INSERT INTO privilege (user, module) VALUES " . join(", ", $tuples);
+		$this->db->execute($query, $params);
 		$this->message($this->mods[$module_id] . " privileges for all users added.");
 	}
 	
@@ -187,12 +190,6 @@ class UpdateDb {
 		else {
 			$this->message("Primary key not existent in $table.");
 		}
-	}
-	
-	function updateValue($table, $column, $strValue, $where) {
-		$query = "UPDATE `$table` SET $column = '$strValue' WHERE $where";
-		$res = $this->db->execute($query);
-		$this->message("Updated $table.$column with new value $strValue.");
 	}
 	
 	function getNumberRows($table) {

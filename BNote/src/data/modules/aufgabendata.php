@@ -56,12 +56,9 @@ class AufgabenData extends AbstractData {
 	}
 	
 	function markTask($tid, $is_complete) {
-		$remove_date = "";
-		if($is_complete == 0) {
-			$remove_date = ", completed_at = NULL";
-		}
-		$query = "UPDATE task SET is_complete = $is_complete" . $remove_date . " WHERE id = $tid";
-		$this->database->execute($query);
+		$remove_date = $is_complete == 0 ? ", completed_at = NULL" : "";
+		$query = "UPDATE task SET is_complete = ?" . $remove_date . " WHERE id = ?";
+		$this->database->execute($query, array(array("i", $is_complete), array("i", $tid)));
 	}
 	
 	function getContactName($cid) {

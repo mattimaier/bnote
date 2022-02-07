@@ -799,7 +799,7 @@ class Installation {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
 			foreach($queries as $i => $query) {
-				$db->execute($query);
+				$db->execute($query, array());
 			}
 		
 			// fill database with initial content
@@ -1050,19 +1050,20 @@ class Installation {
 		
 		// create user
 		$password = crypt($_POST["password"], 'BNot3pW3ncryp71oN');
-		$query = "INSERT INTO user (login, password, contact, isActive) VALUES (";
-		$query .= '"' . $_POST["login"] . '", "' . $password . '", ' . $cid . ', 1)';
-		$uid = $db->execute($query);
+		$query = "INSERT INTO user (login, password, contact, isActive) VALUES (?, ?, ?, 1)";
+		$uid = $db->execute($query, array(array("s", $_POST["login"]), array("s", $password), array("i", $cid)));
 		
 		// create default privileges plus user module privileges
 		$modules = $db->getSelection("SELECT * FROM module");
-		$query = "INSERT INTO privilege (user, module) VALUES ";
+		$tuples = array();
+		$params = array();
 		for($i = 1; $i < count($modules); $i++) {
-			if($i > 1) $query .= ", ";
-			$mod = $modules[$i]["id"];
-			$query .= "($uid, $mod)";
+			array_push($tuples, "(?, ?)");
+			array_push($params, array("i", $uid));
+			array_push($params, array("i", $modules[$i]["id"]));
 		}
-		$db->execute($query);
+		$query = "INSERT INTO privilege (user, module) VALUES " . join(",", $tuples);
+		$db->execute($query, $params);
 		
 		// create user directory
 		mkdir("data/share/users");

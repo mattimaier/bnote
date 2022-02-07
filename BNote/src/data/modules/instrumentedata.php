@@ -59,8 +59,8 @@ class InstrumenteData extends AbstractData {
 			}
 		}
 		
-		$query = "UPDATE configuration SET value = '$newActiveCats' WHERE param = 'instrument_category_filter'";
-		$this->database->execute($query);
+		$query = "UPDATE configuration SET value = ? WHERE param = 'instrument_category_filter'";
+		$this->database->execute($query, array(array("s", $newActiveCats)));
 	}
 	
 	function getActiveCategories() {

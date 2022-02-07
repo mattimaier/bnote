@@ -121,10 +121,9 @@ class KonfigurationData extends AbstractLocationData {
 	}
 	
 	function createParameter($id, $defaultValue, $isActive) {
-		$active = $isActive ? "1" : "0";
-		$query = "INSERT INTO configuration (param, value, is_active) VALUES ";
-		$query .= "('$id', '$defaultValue', $active)";
-		$this->database->execute($query);
+		$active = $isActive ? 1 : 0;
+		$query = "INSERT INTO configuration (param, value, is_active) VALUES (?, ?, ?)";
+		$this->database->execute($query, array(array("i", $id), array("s", $defaultValue), array("i", $active)));
 	}
 	
 	function update($id, $values) {

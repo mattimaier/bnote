@@ -67,20 +67,6 @@ class Database extends Data {
 		$this->userTable = $config->getParameter ( "UserTable" );
 	}
 	
-	/**
-	 * Executes a MySQLi query and handles the result at first.
-	 * @param string $query
-	 * @return mixed
-	 */
-	protected function exe($query) { 
-		$res = $this->db->query( $query );
-		if (!$res) {
-			$this->mysql_error_display($query);
-		} else {
-			return $res;
-		}
-	}
-	
 	private function mysql_error_display($query) {
 		require_once ($GLOBALS['DIR_WIDGETS'] . "error.php");
 		new BNoteError("The database query has failed:<br />" . $this->db->error . ".<br>Debug:" . $query);
@@ -117,7 +103,7 @@ class Database extends Data {
 		return $this->preparedQueryRaw($query, $params)->fetch_all(MYSQLI_ASSOC);
 	}
 	
-	protected function preparedQueryRaw($query, $params) {
+	private function preparedQueryRaw($query, $params) {
 		$stmt = $this->db->prepare($query);
 		$bindTypes = "";
 		$bindValues = array();
@@ -337,14 +323,17 @@ class Database extends Data {
 	 * 
 	 * @param String $query
 	 *        	Database SQL query to be executed.
+	 * @param Array $params
+	 * 			Parameter array; empty array by default means no parameters
 	 * @return The ID if the query has been an insert statement
 	 *         with an autoincrement generator. See PHP manual for details.
-	 * @deprecated
 	 */
-	public function execute($query) {
-		//FIXME: typically unsafe statement use (141 uses)
-		$res = $this->exe($query);
-		return $this->db->insert_id;
+	public function execute($query, $params=array()) {
+		$res = $this->preparedQueryRaw($query, $params);
+		if($res) {
+			return $this->db->insert_id;
+		}
+		return null;
 	}
 	
 	/**
@@ -368,17 +357,11 @@ class Database extends Data {
 	 *        	Name of the table.
 	 */
 	public function getFieldsOfTable($table) {
-		$res = $this->exe( "SHOW COLUMNS FROM $table" );
-		
-		$fields = array();
-		if (mysqli_num_rows( $res ) > 0) {
-			while ( $row = mysqli_fetch_assoc( $res ) ) {
-				array_push ( $fields, $row["Field"] );
-			}
-		} else {
+		$selection = $this->getSelection("SHOW COLUMNS FROM $table");
+		if($selection == NULL || count($selection) < 2) {
 			new BNoteError("Empty $table table. Please check your database " . $this->getDatabaseName () . "!");
 		}
-		return $fields;
+		return $this->flattenSelection($selection, "Field");
 	}
 	
 	/**

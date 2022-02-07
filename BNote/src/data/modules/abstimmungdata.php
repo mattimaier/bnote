@@ -44,15 +44,16 @@ class AbstimmungData extends AbstractData {
 		$end_dt = Data::convertDateToDb($_POST["end"]);
 		
 		// insert vote
-		$query = "INSERT INTO " . $this->table;
-		$query .= " (name, author, end, is_multi, is_date, is_finished)";
-		$query .= " VALUES (";
-		$query .= '"' . $_POST["name"] . '", ';
-		$query .= "$author, ";
-		$query .= '"' . $end_dt . '", ';
-		$query .= "$is_multi, $is_date, $is_finished";
-		$query .= " )";
-		$vid = $this->database->execute($query);
+		$query = "INSERT INTO vote (name, author, end, is_multi, is_date, is_finished) VALUES (?, ?, ?, ?, ?, ?)";
+		$params = array(
+				array("s", $_POST["name"]), 
+				array("s", $author),
+				array("s", $end_dt),
+				array("i", $is_multi),
+				array("i", $is_date),
+				array("i", $is_finished)
+		);
+		$vid = $this->database->execute($query, $params);
 		
 		// resolve groups and add members
 		$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
@@ -159,21 +160,19 @@ class AbstimmungData extends AbstractData {
 	}
 	
 	function addOption($vid) {
-		$is_date = $this->isDateVote($vid); 
-		$query = "INSERT INTO vote_option (vote, ";
-		if($is_date) { $query .= "odate"; } else { $query .= "name"; }
-		$query .= ") VALUES (" . $vid . ", \"";
-		if($is_date) {
+		$params = array(array("i", $vid));
+		if($this->isDateVote($vid)) {
+			$query = "INSERT INTO vote_option (vote, odate) VALUES (?, ?)";
 			$_POST["odate"] = trim($_POST["odate"]);
 			$this->regex->isDateTime($_POST["odate"]);
-			$query .= Data::convertDateToDb($_POST["odate"]);
+			array_push($params, array("s", Data::convertDateToDb($_POST["odate"])));
 		}
 		else {
+			$query = "INSERT INTO vote_option (vote, name) VALUES (?, ?)";
 			$this->regex->isSubject($_POST["name"]);
-			$query .= $_POST["name"];
+			array_push($params, array("s", $_POST["name"]));
 		}
-		$query .= "\")";
-		return $this->database->execute($query);
+		return $this->database->execute($query, $params);
 	}
 	
 	function addOptions($vid, $from, $to) {
@@ -199,14 +198,14 @@ class AbstimmungData extends AbstractData {
 	}
 	
 	function deleteOption($oid) {
-		$query = "DELETE FROM vote_option WHERE id = $oid";
-		$this->database->execute($query);
+		$query = "DELETE FROM vote_option WHERE id = ?";
+		$this->database->execute($query, array(array("i", $oid)));
 	}
 	
 	function finish($id) {
 		// do not delete a vote, just set is_finished
-		$query = "UPDATE " . $this->table . " SET is_finished = 1 WHERE id = $id";
-		$this->database->execute($query);
+		$query = "UPDATE vote SET is_finished = 1 WHERE id = ?";
+		$this->database->execute($query, array(array("i", $id)));
 	}
 	
 	function update($id, $values) {
@@ -216,11 +215,13 @@ class AbstimmungData extends AbstractData {
 		$this->regex->isDateTime($values["end"]);
 		
 		// update db
-		$query = "UPDATE " . $this->table . " SET ";
-		$query .= "name = \"" . $values["name"] . "\", ";
-		$query .= "end = \"" . Data::convertDateToDb($values["end"]) . "\"";
-		$query .= " WHERE id = $id";
-		$this->database->execute($query);
+		$query = "UPDATE vote SET name = ?, end = ? WHERE id = ?";
+		$params = array(
+			array("s", $values["name"]),
+			array("s", Data::convertDateToDb($values["end"])),
+			array("i", $id)
+		);
+		$this->database->execute($query, $params);
 	}
 	
 	function getGroup($vid) {
@@ -257,9 +258,8 @@ class AbstimmungData extends AbstractData {
 	}
 	
 	function addToGroup($vid, $uid) {
-		$this->regex->isPositiveAmount($uid);
-		$query = "INSERT INTO vote_group (vote, user) VALUES ($vid, $uid)";
-		return $this->database->execute($query);
+		$query = "INSERT INTO vote_group (vote, user) VALUES (?, ?)";
+		return $this->database->execute($query, array(array("i", $vid), array("i", $uid)));
 	}
 	
 	/**

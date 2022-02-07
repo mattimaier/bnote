@@ -149,21 +149,20 @@ class FinanceData extends AbstractData {
 		}
 		
 		// insert to db
-		$query = "INSERT INTO booking (
-			account, bdate, subject, amount_net, amount_tax, btype, otype, oid, notes
-		) VALUES (
-			" . $values["account"] . ",
-			\"" . Data::convertDateToDb($values["bdate"]) . "\",
-			\"" . $values["subject"] . "\",
-			" . $values["amount_net"] . ",
-			" . $values["amount_tax"] . ",
-			" . $values["btype"] . ",
-			\"" . $values["otype"] . "\",
-			" . $values["oid"] . ",				
-			\"" . $values["notes"] . "\"
-		)";
-		
-		$this->database->execute($query);
+		$query = "INSERT INTO booking (account, bdate, subject, amount_net, amount_tax, btype, otype, oid, notes)
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		$params = array(
+			array("i", $values["account"]),
+			array("s", Data::convertDateToDb($values["bdate"])),
+			array("s", $values["subject"]),
+			array("d", $values["amount_net"]),
+			array("d", $values["amount_tax"]),
+			array("i", $values["btype"]),
+			array("s", $values["otype"]),
+			array("i", $values["oid"]),				
+			array("s", $values["notes"])
+		);
+		$this->database->execute($query, $params);
 	}
 	
 	function cancelBooking($account, $booking_id) {

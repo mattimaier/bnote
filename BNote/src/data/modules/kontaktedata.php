@@ -199,21 +199,23 @@ class KontakteData extends AbstractLocationData {
 	}
 	
 	private function createContactGroupEntries($cid) {
-		$groups = $this->getGroups();
 		$query = "INSERT INTO contact_group (contact, `group`) VALUES ";
-		$grpCount = 0;
+		$tuples = array();
+		$params = array();
+		$groups = $this->getGroups();
 		for($i = 1; $i < count($groups); $i++) {
 			$gid = $groups[$i]["id"];
 			$fieldId = "group_" . $gid;
 			if(isset($_POST[$fieldId])) {
-				if($grpCount > 0) $query .= ", ";
-				$query .= "($cid, $gid)";
-				$grpCount++;
+				array_push($tuples, "(?, ?)");
+				array_push($params, array("i", $cid));
+				array_push($params, array("i", $gid));
 			}
 		}
 		
-		if($grpCount > 0) {
-			$this->database->execute($query);
+		if(count($tuples) > 0) {
+			$query .= join(",", $tuples);
+			$this->database->execute($query, $params);
 		}
 	}
 	
@@ -223,8 +225,8 @@ class KontakteData extends AbstractLocationData {
 			$values = $this->update_address($id, $values);
 				
 			// update groups
-			$query = "DELETE FROM contact_group WHERE contact = $id";
-			$this->database->execute($query);
+			$query = "DELETE FROM contact_group WHERE contact = ?";
+			$this->database->execute($query, array(array("i", $id)));
 			$this->createContactGroupEntries($id);
 			
 			// update custom data
@@ -242,8 +244,8 @@ class KontakteData extends AbstractLocationData {
 	
 	function delete($id) {
 		// remove group memberships
-		$query = "DELETE FROM contact_group WHERE contact = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM contact_group WHERE contact = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
 		// delete custom data
 		$this->deleteCustomFieldData('c', $id);
@@ -336,8 +338,8 @@ class KontakteData extends AbstractLocationData {
 		$query = "SELECT count(*) as cnt FROM $tab WHERE $otype = ? AND contact = ?";
 		$ct = $this->database->colValue($query, "cnt", array(array("i", $oid), array("i", $cid)));
 		if($ct <= 0) {
-			$query = "INSERT INTO $tab ($otype, contact) VALUES ($oid, $cid)";
-			return $this->database->execute($query);
+			$query = "INSERT INTO $tab ($otype, contact) VALUES (?, ?)";
+			return $this->database->execute($query, array(array("s", $oid), array("i", $cid)));
 		}
 		return 0;
 	}
@@ -348,8 +350,8 @@ class KontakteData extends AbstractLocationData {
 			$query = "SELECT count(*) as cnt FROM vote_group WHERE vote = ? AND user = ?";
 			$ct = $this->database->colValue($query, "cnt", array(array("i", $vid), array("i", $uid)));
 			if($ct <= 0) {
-				$query = "INSERT INTO vote_group (vote, user) VALUES ($vid, $uid)";
-				return $this->database->execute($query);
+				$query = "INSERT INTO vote_group (vote, user) VALUES (?, ?)";
+				return $this->database->execute($query, array(array("i", $vid), array("i", $uid)));
 			}
 			return 0;
 		}
@@ -443,8 +445,8 @@ class KontakteData extends AbstractLocationData {
 			$code = uniqid('BN', true);
 			
 			// update table
-			$query = "UPDATE contact SET gdpr_code = '$code' WHERE id = $cid";
-			$this->database->execute($query);
+			$query = "UPDATE contact SET gdpr_code = ? WHERE id = ?";
+			$this->database->execute($query, array(array("s", $code), array("i", $cid)));
 		}
 	}
 	

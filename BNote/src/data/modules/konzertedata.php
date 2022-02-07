@@ -46,11 +46,11 @@ class KonzerteData extends AbstractLocationData {
 	}
 	
 	public function delete($id) {
-		$query = "DELETE FROM concert_contact WHERE concert = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM concert_contact WHERE concert = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
-		$query = "DELETE FROM concert_user WHERE concert = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM concert_user WHERE concert = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
 		parent::delete($id);
 	}
@@ -212,34 +212,36 @@ class KonzerteData extends AbstractLocationData {
 	public function addMembersToConcert($groups, $concertId) {
 		foreach($groups as $i => $groupId) {
 			$contacts = $this->adp()->getGroupContacts($groupId);
-			$query = "INSERT INTO concert_contact VALUES ";
-			$newEntries = 0;
-				
+			
+			$tuples = array();
+			$params = array();
 			foreach($contacts as $j => $contact) {
 				if($j == 0) continue;
 				$cid = $contact["id"];
 				if(!$this->isContactInConcert($concertId, $cid) && !$this->getSysdata()->isContactSuperUser($cid)) {
-					if($newEntries++ > 0) $query .= ",";
-					$query .= "($concertId, $cid)";
+					array_push($tuples, "(?, ?)");
+					array_push($params, array("i", $concertId));
+					array_push($params, array("i", $cid));
 				}
 			}
 				
-			if($newEntries > 0) {
-				$this->database->execute($query);
+			if(count($tuples) > 0) {
+				$query = "INSERT INTO concert_contact VALUES " . join(",", $tuples);
+				$this->database->execute($query, $params);
 			}
 		}
 	}
 	
 	function addGroupsToConcert($groups, $concertId) {
-		$query = "INSERT INTO concert_group (concert, `group`) VALUES ($concertId,";
-		$query .= join("), ($concertId,", $groups) . ")";
-		$this->database->execute($query);
+		$s = $this->tupleStmt($concertId, $groups);
+		$query = "INSERT INTO concert_group (concert, `group`) VALUES " . $s[0];
+		$this->database->execute($query, $s[1]);
 	}
 	
 	function addEquipmentToConcert($equipmentSelection, $concertId) {
-		$query = "INSERT INTO concert_equipment (concert, `equipment`) VALUES ($concertId,";
-		$query .= join("), ($concertId,", $equipmentSelection) . ")";
-		$this->database->execute($query);
+		$s = $this->tupleStmt($concertId, $equipmentSelection);
+		$query = "INSERT INTO concert_equipment (concert, `equipment`) VALUES " . $s[0];
+		$this->database->execute($query, $s[1]);
 	}
 	
 	function getParticipants($cid) {
@@ -304,17 +306,16 @@ class KonzerteData extends AbstractLocationData {
 		// run through posted result and update the database
 		foreach($_POST as $user_key => $participate) {
 			$user_id = substr($user_key, 5);
-			
 			if(array_key_exists($user_id, $old_participate)) {
 				// update participation
-				$update_query = "UPDATE concert_user SET participate = $participate WHERE user = $user_id AND concert = $concert_id";
-				$this->database->execute($update_query);
+				$query = "UPDATE concert_user SET participate = ? WHERE user = ? AND concert = ?";				
 			}
 			else {
 				// create participation
-				$insert_query = "INSERT INTO concert_user (user, concert, participate) VALUES ($user_id, $concert_id, $participate)";
-				$this->database->execute($insert_query);
+				$insert_query = "INSERT INTO concert_user (participate, user, concert) VALUES (?, ?, ?)";
 			}
+			$params = array(array("i", $participate), array("i", $user_id), array("i", $concert_id));
+			$this->database->execute($query, $params);
 		}
 	}
 	
@@ -343,8 +344,8 @@ class KonzerteData extends AbstractLocationData {
 	}
 	
 	function deleteConcertContact($concertid, $contactid) {
-		$query = "DELETE FROM concert_contact WHERE concert = $concertid AND contact = $contactid";
-		$this->database->execute($query);
+		$query = "DELETE FROM concert_contact WHERE concert = ? AND contact = ?";
+		$this->database->execute($query, array(array("i", $concertid), array("i", $contactid)));
 	}
 	
 	function addConcertContact($concertid, $contacts) {
@@ -354,14 +355,17 @@ class KonzerteData extends AbstractLocationData {
 		$contactsInConcert = $this->database->flattenSelection($contactsInConcertDbSel, "contact");
 		
 		$values = array();
+		$params = array();
 		foreach($contacts as $i => $contact) {
 			if(!in_array($contact, $contactsInConcert)) {
-				array_push($values, "($concertid, $contact)");
+				array_push($values, "(?, ?)");
+				array_push($params, array("i", $concertid));
+				array_push($params, array("i", $contact));
 			}
 		}
 		if(count($values) > 0) {
 			$query = "INSERT INTO concert_contact VALUES " . join(",", $values); 
-			$this->database->execute($query);
+			$this->database->execute($query, $params);
 		}
 	}
 	

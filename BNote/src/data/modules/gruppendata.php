@@ -70,8 +70,8 @@ class GruppenData extends AbstractData {
 		}
 		
 		// first remove all members from the group
-		$query = "DELETE FROM contact_group WHERE `group`=$id";
-		$this->database->execute($query);
+		$query = "DELETE FROM contact_group WHERE `group`=?";
+		$this->database->execute($query, array(array("i", $id)));
 		
 		// remove files from share
 		rmdir($this->getSysdata()->getGroupHomeDir($id));

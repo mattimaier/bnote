@@ -29,8 +29,8 @@ class KontaktdatenData extends KontakteData {
 		$pw = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
 		
 		// update in db
-		$query = "UPDATE user SET password = '$pw' WHERE id = " . $_SESSION["user"];
-		$this->database->execute($query);
+		$query = "UPDATE user SET password = ? WHERE id = ?";
+		$this->database->execute($query, array(array("s", $pw), array("i", $_SESSION["user"])));
 	}
 	
 	
@@ -63,14 +63,9 @@ class KontaktdatenData extends KontakteData {
 	}
 	
 	function saveSettings($uid) {
-		// prepare data
-		$emn = ($_POST["email_notification"] == "") ? "0" : "1";
-		
-		// update settings
-		$query = "UPDATE " . $this->database->getUserTable() . " SET ";
-		$query .= "email_notification = " . $emn . " ";
-		$query .= "WHERE id = $uid";
-		$this->database->execute($query);
+		$query = "UPDATE user SET email_notification = ? WHERE id = ?";
+		$emn = $_POST["email_notification"] == "" ? 0 : 1;
+		$this->database->execute($query, array(array("i", $emn), array("i", $uid)));
 	}
 }
 

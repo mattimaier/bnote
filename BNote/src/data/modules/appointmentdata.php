@@ -64,12 +64,18 @@ class AppointmentData extends AbstractLocationData {
 	 * @param array $groups Group IDs to set.
 	 */
 	private function updateGroups($id, $groups) {
-		$delQuery = "DELETE FROM appointment_group WHERE appointment = $id";
-		$this->database->execute($delQuery);
+		$delQuery = "DELETE FROM appointment_group WHERE appointment = ?";
+		$this->database->execute($delQuery, array(array("i", $id)));
 		
-		$insQuery = "INSERT INTO appointment_group (appointment, `group`) VALUES ($id,";
-		$insQuery .= join("), ($id,", $groups) . ")";
-		$this->database->execute($insQuery);
+		$values = array();
+		$params = array();
+		foreach($groups as $i => $g) {
+			array_push($values, "(?, ?)");
+			array_push($params, array("i", $id));
+			array_push($params, array("i", $g));
+		}
+		$insQuery = "INSERT INTO appointment_group (appointment, `group`) VALUES " . join(", ", $values);
+		$this->database->execute($insQuery, $params);
 	}
 	
 	public function update($id, $values) {
@@ -81,8 +87,8 @@ class AppointmentData extends AbstractLocationData {
 	
 	public function delete($id) {
 		$this->deleteCustomFieldData('a', $id);
-		$delGroupsQuery = "DELETE FROM appointment_group WHERE appointment = $id";
-		$this->database->execute($delGroupsQuery);
+		$delGroupsQuery = "DELETE FROM appointment_group WHERE appointment = ?";
+		$this->database->execute($delGroupsQuery, array(array("i", $id)));
 		parent::delete($id);
 	}
 }

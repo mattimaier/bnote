@@ -409,51 +409,56 @@ abstract class AbstractData {
 	 * @return ID of the insert statement / new entity.
 	 */
 	public function create($values) {
-		if(count($values) > 0) {
-			// build query
-			$cols = "";
-			$vals = "";
+		if(count($values) == 0) {
+			return -1;
+		}
+		
+		// build query
+		$cols = array();
+		$qlist = array();
+		$params = array();
+		
+		foreach($values as $field => $value) {
+			// safety check if field is one of the hardcoded ones
+			if(!in_array($field, array_keys($this->fields))) continue;
+			array_push($cols, $field);
 			
-			foreach($values as $field => $value) {
-				if(!in_array($field, array_keys($this->fields))) continue;
-				$cols .= $field . ", ";
-				$t = $this->getTypeOfField($field);
-				
-				if($t == FieldType::DATE || $t == FieldType::DATETIME) {
-					$value = Data::convertDateToDb($value);
-				}
-				else if($t == FieldType::DECIMAL) {
+			// handle value based on field type
+			$t = $this->getTypeOfField($field);
+			if($t == FieldType::DATE || $t == FieldType::DATETIME) {
+				$value = Data::convertDateToDb($value);
+			}
+			else if($t == FieldType::DECIMAL) {
+				$value = Data::convertToDb($value);
+			}
+			else if($t == FieldType::CURRENCY) {
+				if(strpos($value, ",") !== FALSE) {
 					$value = Data::convertToDb($value);
 				}
-				else if($t == FieldType::CURRENCY) {
-					if(strpos($value, ",") !== FALSE) {
-						$value = Data::convertToDb($value);
-					}
-				}
-				else if($t == FieldType::BOOLEAN) {
-					$value = ($value == "on") ? 1 : 0; 
-				}
-				else if($t == FieldType::MINSEC) {
-					$value = Data::convertMinSecToDb($value);
-				}
-				
-				if($t == FieldType::TEXT || $t == FieldType::CHAR || $t == FieldType::PASSWORD
-					|| $t == FieldType::DATETIME || $t == FieldType::TIME || $t == FieldType::ENUM
-					|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN
-					|| $t == FieldType::MINSEC) $vals .= '"' . $value . '", ';
-				else $vals .= $value . ", ";
 			}
-			$cols = substr($cols, 0, strlen($cols)-2); // cut last ", "
-			$vals = substr($vals, 0, strlen($vals)-2); // cut last ", "
+			else if($t == FieldType::BOOLEAN) {
+				$value = ($value == "on") ? 1 : 0; 
+			}
+			else if($t == FieldType::MINSEC) {
+				$value = Data::convertMinSecToDb($value);
+			}
 			
-			$query = "INSERT INTO $this->table (";
-			$query .= $cols;
-			$query .= ") VALUES (";
-			$query .= $vals;
-			$query .= ")";
+			// add to statement
+			if($t == FieldType::TEXT || $t == FieldType::CHAR || $t == FieldType::PASSWORD
+				|| $t == FieldType::DATETIME || $t == FieldType::TIME || $t == FieldType::ENUM
+				|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN
+				|| $t == FieldType::MINSEC) {
+					array_push($qlist, "?");
+					array_push($params, array("s", $value));
+			}
+			else {
+				array_push($qlist, "?");
+				array_push($params, array("i", $value));
+			}
 		}
-
-		return $this->database->execute($query);
+		
+		$query = "INSERT INTO " . $this->table . "(" . join(",", $cols) . ") VALUES (" . join(",", $qlist) . ")";
+		return $this->database->execute($query, $params);
 	}
 	
 	/**
@@ -854,5 +859,23 @@ abstract class AbstractData {
 			array_push($decodedData, $row);
 		}
 		return $decodedData;
+	}
+	
+	/**
+	 * Generates a tuple statement to insert a list of values with a static first parameter, e.g. to insert members to a concert.
+	 * @param Integer $id Static ID value or alike
+	 * @param Array $list Flat list of integers
+	 * @param Array $params Prepared statement array
+	 * @return [$queryPart, $params]
+	 */
+	protected function tupleStmt($id, $list, $params=array()) {
+		$tuples = array();
+		foreach($list as $i => $item) {
+			array_push($tuples, "(?, ?)");
+			array_push($params, $id);
+			array_push($params, $item);
+		}
+		$queryPart = join(",", $tuples);
+		return array($queryPart, $params);
 	}
 }
