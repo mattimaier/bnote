@@ -296,7 +296,7 @@ class StartData extends AbstractLocationData {
 		
 		$query = "SELECT * FROM comment $where " . join(" OR ", $whereQ);
 		$query .= "ORDER BY created_at DESC LIMIT 0, ?";
-		array_push($params, $this->getSysdata()->getDynamicConfigParameter("updates_show_max"));
+		array_push($params, array("i", $this->getSysdata()->getDynamicConfigParameter("updates_show_max")));
 		
 		return $this->database->getSelection($query, $params);
 	}

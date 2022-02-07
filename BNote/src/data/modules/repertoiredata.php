@@ -228,11 +228,13 @@ class RepertoireData extends AbstractData {
 		$query = "SELECT$distinct c.id, c.surname, c.name, i.name as instrument ";
 		$query .= "FROM song_solist s JOIN contact c ON s.contact = c.id ";
 		$query .= "JOIN instrument i ON c.instrument = i.id ";
+		$params = array();
 		if($songId > 0) {
 			$query .= "WHERE s.song = ? ";
+			array_push($params, array("i", $songId));
 		}
 		$query .= "ORDER BY c.surname, c.name ";
-		return $this->database->getSelection($query, array(array("i", $songId)));
+		return $this->database->getSelection($query, $params);
 	}
 	
 	function addSolist($songId) {

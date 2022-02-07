@@ -293,7 +293,7 @@ class Database extends Data {
 			if (count($suUsers)>0) {
 				$suUids = array();
 				foreach ( $suUsers as $i => $uid ) {
-					array_push("id <> ?");
+					array_push($suUids, "id <> ?");
 					array_push($params, array("i", $uid));
 				}
 				$query .= " WHERE " . join(" AND ", $suUids);
