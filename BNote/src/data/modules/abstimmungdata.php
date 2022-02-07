@@ -71,16 +71,16 @@ class AbstimmungData extends AbstractData {
 	 */
 	function getUserActiveVotes() {
 		$query = "SELECT id, name, end, is_multi, is_date FROM " . $this->table;
-		$query .= " WHERE is_finished = 0 AND author = " . $_SESSION["user"];
+		$query .= " WHERE is_finished = 0 AND author = ?";
 		$query .= " ORDER BY end ASC";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $_SESSION["user"])));
 	}
 	
 	/**
 	 * @return Database Selection with all active votes within the last year that are not marked as finished.
 	 */
 	function getAllActiveVotes() {
-		$query = "SELECT id, name, end, is_multi, is_date FROM " . $this->table;
+		$query = "SELECT id, name, end, is_multi, is_date FROM vote";
 		$query .= " WHERE is_finished = 0 AND YEAR(end) >= (YEAR(NOW())-1)";
 		$query .= " ORDER BY end ASC";
 		return $this->database->getSelection($query);
@@ -94,32 +94,25 @@ class AbstimmungData extends AbstractData {
 	function getVotesForUser($active = true, $uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
 		
-		// in case the system admin looks at the votes, show all of them
+		$finished = $active ? 0 : 1;
+		$params = array(array("i", $finished));
+		 
 		if($this->getSysdata()->isUserSuperUser() || $this->getSysdata()->isUserMemberGroup(1)) {
+			// in case the system admin looks at the votes, show all of them
 			$query = "SELECT id, name, end, is_multi, is_date, is_finished ";
-			$query .= "FROM " . $this->table;
-			if(!$active) {
-				$query .= " WHERE is_finished = 1";
-			}
-			else {
-				$query .= " WHERE is_finished = 0";
-			}
-			$query .= " ORDER BY is_finished = 0, end ASC";
+			$query .= "FROM vote";
+			$query .= " WHERE is_finished = ?";
+			$query .= " ORDER BY is_finished, end ASC";
 		}
 		else {
 			$query = "SELECT v.id, v.name, v.end, v.is_multi, v.is_date ";
 			$query .= " FROM vote v JOIN vote_group vg ON vg.vote = v.id";
-			$query .= " WHERE vg.user = $uid";
-			if(!$active) {
-				$query .= " AND is_finished = 1";
-			}
-			else {
-				$query .= " AND is_finished = 0";
-			}
+			$query .= " WHERE is_finished = ? AND vg.user = ?";
 			$query .= " ORDER BY v.end ASC";
+			array_push($params, array("i", $uid));
 		}
 		
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, $params);
 	}
 	
 	/**
@@ -154,11 +147,11 @@ class AbstimmungData extends AbstractData {
 	function getOptions($vid) {
 		$query = "SELECT vo.* ";
 		$query .= "FROM vote_option vo, vote v ";
-		$query .= "WHERE vo.vote = v.id AND v.id = $vid";
+		$query .= "WHERE vo.vote = v.id AND v.id = ?";
 		if($this->isDateVote($vid)) {
 			$query .= " ORDER BY vo.odate ASC";
 		}
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $vid)));
 	}
 	
 	private function isDateVote($vid) {
@@ -233,9 +226,9 @@ class AbstimmungData extends AbstractData {
 	function getGroup($vid) {
 		$query = "SELECT vg.user as id, c.surname, c.name ";
 		$query .= "FROM vote_group vg, user u, contact c ";
-		$query .= "WHERE vg.vote = $vid AND vg.user = u.id AND u.contact = c.id ";
+		$query .= "WHERE vg.vote = ? AND vg.user = u.id AND u.contact = c.id ";
 		$query .= "ORDER BY c.name, c.surname";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $vid)));
 	}
 	
 	function getUsers() {
@@ -245,12 +238,18 @@ class AbstimmungData extends AbstractData {
 		// bug #13: Filter out admins
 		global $system_data;
 		$superUsers = $system_data->getSuperUserContactIDs();
-		if(count($superUsers) > 0) {
-			$query .= "WHERE ";
-			for($i = 0; $i < count($superUsers); $i++) {
-				if($i > 0) $query .= "AND ";
-				$query .= "c.id <> " . $superUsers[$i] . " ";
+		
+		// filter out super users
+		$suContacts = $this->sysdata->getSuperUserContactIDs();
+		$params = array();
+		
+		if(count($suContacts) > 0 && !$this->sysdata->isUserSuperUser()) {
+			$sus = array();
+			foreach($suContacts as $i => $suc) {
+				$sus = "c.id <> ?";
+				array_push($params, array("i", $suc));
 			}
+			$query .= "WHERE " . join(" AND ", $sus);
 		}
 		
 		$query .= "ORDER BY c.name, c.surname";
@@ -272,16 +271,18 @@ class AbstimmungData extends AbstractData {
 	function registerVoters($vid, $groups) {
 		if($groups == null || count($groups) == 0) return;
 		
+		$groupQ = array();
+		$params = array();
+		foreach($groups as $i => $group) {
+			array_push($groupQ, "cg.group = ?");
+			array_push($params, array("i", $group));
+		}
+		
 		// get all users for the given groups
 		$query = "SELECT DISTINCT u.id
 				  FROM `contact_group` cg JOIN user u ON u.contact = cg.contact
-				  WHERE ";
-		
-		foreach($groups as $i => $group) {
-			if($i > 0) $query .= " OR ";
-			$query .= "cg.group = " . $group;
-		}
-		$users = $this->database->getSelection($query);
+				  WHERE " . join(" OR ", $groupQ);
+		$users = $this->database->getSelection($query, $params);
 		
 		/* bug #13 and #14:
 		 * remove admins from being added to the group
@@ -394,10 +395,10 @@ class AbstimmungData extends AbstractData {
 						     JOIN user u ON vou.user = u.id
 						     LEFT OUTER JOIN contact c ON u.contact = c.id
 						     LEFT OUTER JOIN instrument i ON c.instrument = i.id
-						WHERE v.id = ' . $vid . '
+						WHERE v.id = ?
 						GROUP BY vo.id 
 						ORDER BY vo.id';
-			return $this->database->getSelection($query);
+			return $this->database->getSelection($query, array(array("i", $vid)));
 		}
 	}
 	
@@ -408,10 +409,10 @@ class AbstimmungData extends AbstractData {
 		$query .= 'FROM vote_option_user vou LEFT OUTER JOIN user u ON vou.user = u.id ';
 		$query .= '     LEFT OUTER JOIN contact c ON u.contact = c.id ';
 		$query .= '     LEFT OUTER JOIN instrument i ON c.instrument = i.id ';
-		$query .= 'WHERE vou.vote_option = ' . $optionId . ' AND vou.choice = ' . $choice . ' ';
+		$query .= 'WHERE vou.vote_option = ? AND vou.choice = ? ';
 		$query .= 'ORDER BY voter';
 		
-		$voters = $this->database->getSelection($query);
+		$voters = $this->database->getSelection($query, array(array("i", $optionId), array("i", $choice)));
 		foreach($voters as $i => $voter) {
 			if($i == 0) continue;
 			if($result["names"] != "") $result["names"] .= ", ";
@@ -450,7 +451,7 @@ class AbstimmungData extends AbstractData {
 		$votersDbSel = $this->database->getSelection("SELECT c.id 
 				FROM vote_group vg JOIN user u ON vg.user = u.id
 				JOIN contact c ON u.contact = c.id
-				WHERE vote = $voteId"
+				WHERE vote = ?", array(array("i", $voteId))
 		);
 		$voterContacts = $this->database->flattenSelection($votersDbSel, "id");  # contact ids
 		

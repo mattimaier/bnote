@@ -76,9 +76,10 @@ class KonzerteData extends AbstractLocationData {
 				LEFT OUTER JOIN address a ON l.address = a.id
 				LEFT OUTER JOIN contact k ON c.contact = k.id
 				LEFT OUTER JOIN program p ON c.program = p.id
-				WHERE begin >= '" . Data::convertDateToDb($from) . "' AND end <= '" . Data::convertDateToDb($to) . "'
+				WHERE begin >= ? AND end <= ?
 				ORDER BY begin ASC";
-		$concerts = $this->database->getSelection($query);
+		$params = array(array("s", Data::convertDateToDb($from)), array("s", Data::convertDateToDb($to)));
+		$concerts = $this->database->getSelection($query, $params);
 		return $concerts;
 	}
 	
@@ -248,10 +249,10 @@ class KonzerteData extends AbstractLocationData {
 		$query .= '  JOIN contact c ON u.contact = c.id';
 		$query .= '  LEFT JOIN instrument i ON c.instrument = i.id';
 		$query .= '  LEFT JOIN category cat ON i.category = cat.id';
-		$query .= ' WHERE cu.concert = ' . $cid;
+		$query .= ' WHERE cu.concert = ?';
 		$query .= ' ORDER BY cat.id, i.name, participate, name';
 		
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	function getOpenParticipants($cid) {
@@ -286,15 +287,15 @@ class KonzerteData extends AbstractLocationData {
 					JOIN user u ON u.contact = c.id
 					LEFT OUTER JOIN concert_user cu ON cu.user = u.id AND cu.concert = cc.concert
 					LEFT OUTER JOIN instrument i ON c.instrument = i.id
-				  WHERE cc.concert = ' . $concert_id . '
+				  WHERE cc.concert = ?
 				  ORDER BY c.name, c.surname ASC';
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $concert_id)));
 	}
 	
 	function saveParticipation($concert_id) {
 		// get all participations for this concert
-		$query = "SELECT * FROM concert_user cu WHERE concert = $concert_id";
-		$old_participation = $this->database->getSelection($query);
+		$query = "SELECT * FROM concert_user cu WHERE concert = ?";
+		$old_participation = $this->database->getSelection($query, array(array("i", $concert_id)));
 		$old_participate = array();
 		for($i = 1; $i < count($old_participation); $i++) {
 			$old_participate[$old_participation[$i]["user"]] = $old_participation[$i]["participate"];
@@ -326,19 +327,19 @@ class KonzerteData extends AbstractLocationData {
 	function getConcertContacts($cid) {
 		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as fullname, c.nickname, c.phone, c.mobile, c.email, i.name as instrument ";
 		$query .= "FROM concert_contact cc JOIN contact c ON cc.contact = c.id LEFT OUTER JOIN instrument i ON c.instrument = i.id ";
-		$query .= "WHERE cc.concert = $cid ";
+		$query .= "WHERE cc.concert = ? ";
 		$query .= "ORDER BY fullname";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	function getConcertGroups($cid) {
-		$query = "SELECT g.* FROM concert_group cg JOIN `group` g ON cg.`group` = g.id WHERE cg.concert = $cid";
-		return $this->database->getSelection($query);
+		$query = "SELECT g.* FROM concert_group cg JOIN `group` g ON cg.`group` = g.id WHERE cg.concert = ?";
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	function getConcertEquipment($cid) {
-		$query = "SELECT e.* FROM concert_equipment ce JOIN equipment e ON ce.equipment = e.id WHERE ce.concert = $cid";
-		return $this->database->getSelection($query);
+		$query = "SELECT e.* FROM concert_equipment ce JOIN equipment e ON ce.equipment = e.id WHERE ce.concert = ?";
+		return $this->database->getSelection($query, array("i", $cid));
 	}
 	
 	function deleteConcertContact($concertid, $contactid) {
@@ -348,7 +349,8 @@ class KonzerteData extends AbstractLocationData {
 	
 	function addConcertContact($concertid, $contacts) {
 		// do not insert duplicates, therefore check which contacts are in it already
-		$contactsInConcertDbSel = $this->database->getSelection("SELECT contact FROM concert_contact WHERE concert = $concertid");
+		$q = "SELECT contact FROM concert_contact WHERE concert = ?";
+		$contactsInConcertDbSel = $this->database->getSelection($q, array(array("i", $concertid)));
 		$contactsInConcert = $this->database->flattenSelection($contactsInConcertDbSel, "contact");
 		
 		$values = array();
@@ -376,8 +378,8 @@ class KonzerteData extends AbstractLocationData {
 	function getRehearsalphases($concertid) {
 		$query = "SELECT p.* ";
 		$query .= "FROM rehearsalphase_concert rc JOIN rehearsalphase p ON rc.rehearsalphase = p.id ";
-		$query .= "WHERE concert = $concertid ";
+		$query .= "WHERE concert = ? ";
 		$query .= "ORDER BY p.begin, p.end";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $concertid)));
 	}
 }

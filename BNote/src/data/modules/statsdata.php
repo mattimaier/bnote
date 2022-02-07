@@ -25,6 +25,7 @@ class StatsData extends AbstractData {
 	
 	function last6MonthsNumberEvents($table) {
 		// get the number of events for each month in the last 6 months, omits zero counts
+		$this->regex->isDbItem($table, "database table");
 		$query = "SELECT year(begin) as y, month(begin) as m, count(*) as num 
 				FROM `$table` 
 				WHERE begin < NOW() 
@@ -98,11 +99,11 @@ class StatsData extends AbstractData {
 				 JOIN `contact` c ON u.contact = c.id 
 				 JOIN `instrument`i ON c.instrument = i.id 
 				 JOIN (SELECT @curRow := 0) x
-				WHERE r.`begin` >= '$dateOneYearAgo' AND ru.participate = 1 
+				WHERE r.`begin` >= ? AND ru.participate = 1 
 				GROUP BY ru.`user` 
 				ORDER BY score DESC
 				LIMIT 0,5";
-		return $this->rankResults($this->database->getSelection($query));
+		return $this->rankResults($this->database->getSelection($query, array(array("s", $dateOneYearAgo))));
 	}
 	
 	function memberVotePerformance() {
@@ -116,11 +117,11 @@ class StatsData extends AbstractData {
 				 JOIN `contact` c ON u.contact = c.id 
 				 JOIN `instrument`i ON c.instrument = i.id 
 				 JOIN (SELECT @curRow := 0) x
-				WHERE v.`end` >= '$dateOneYearAgo' 
+				WHERE v.`end` >= ? 
 				GROUP BY vou.`user` 
 				ORDER BY score DESC 
 				LIMIT 0,5";
-		return $this->rankResults($this->database->getSelection($query));
+		return $this->rankResults($this->database->getSelection($query, array(array("s", $dateOneYearAgo))));
 	}
 	
 	function memberOptionPerformance() {
@@ -134,11 +135,11 @@ class StatsData extends AbstractData {
 		JOIN `contact` c ON u.contact = c.id
 		JOIN `instrument`i ON c.instrument = i.id
 		JOIN (SELECT @curRow := 0) x
-		WHERE v.`end` >= '$dateOneYearAgo' AND vou.choice = 1
+		WHERE v.`end` >= ? AND vou.choice = 1
 		GROUP BY vou.`user`
 		ORDER BY score DESC
 		LIMIT 0,5";
-		return $this->rankResults($this->database->getSelection($query));
+		return $this->rankResults($this->database->getSelection($query, array(array("s", $dateOneYearAgo))));
 	}
 	
 	private function rankResults($selection) {

@@ -60,17 +60,17 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	function getRehearsalGroups($id) {
-		$query = "SELECT g.* FROM `rehearsal_group` ag JOIN `group` g ON ag.`group` = g.id WHERE ag.rehearsal = $id";
-		return $this->database->getSelection($query);
+		$query = "SELECT g.* FROM `rehearsal_group` ag JOIN `group` g ON ag.`group` = g.id WHERE ag.rehearsal = ?";
+		return $this->database->getSelection($query, array(array("i", $id)));
 	}
 	
 	function getParticipants($rid) {
 		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, ';
 		$query .= ' CASE ru.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, ru.reason';
 		$query .= ' FROM rehearsal_user ru, user u, contact c';
-		$query .= ' WHERE ru.rehearsal = ' . $rid . ' AND ru.user = u.id AND u.contact = c.id';
+		$query .= ' WHERE ru.rehearsal = ? AND ru.user = u.id AND u.contact = c.id';
 		$query .= ' ORDER BY name';
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	
 	function getOpenParticipation($rid) {
@@ -117,10 +117,10 @@ class ProbenData extends AbstractLocationData {
 					     JOIN user u ON ru.user = u.id
 					     JOIN contact c ON u.contact = c.id
 					     JOIN instrument i ON c.instrument = i.id
-					WHERE ru.participate = 1 AND ru.rehearsal = $rid
+					WHERE ru.participate = 1 AND ru.rehearsal = ?
 					GROUP BY i.name
 					ORDER BY i.name";
-		$res = $this->database->getSelection($query);
+		$res = $this->database->getSelection($query, array(array("i", $rid)));
 		$attInstruments = array();
 		foreach($res as $i => $info) {
 			if($i == 0) continue;
@@ -137,21 +137,23 @@ class ProbenData extends AbstractLocationData {
 	 */
 	function getParticipantOverview($rid, $instrumentId=NULL, $stripped=TRUE) {
 		$this->regex->isPositiveAmount($rid, "rehearsalId");
+		$params = array(array("i", $rid), array("i", $rid));
 		$instrument = "";
 		if($instrumentId != NULL) {
 			$this->regex->isPositiveAmount($instrumentId, "instrumentId");
-			$instrument = "AND c.instrument = $instrumentId";
+			$instrument = "AND c.instrument = ?";
+			array_push($params, array("i", $instrumentId));
 		}
 		$query = "SELECT i.name as instrument, c.id as contact_id, CONCAT(c.name, ' ', c.surname) as contactname, u.id as user_id, ru.participate
 				FROM rehearsal_contact rc
 					JOIN contact c ON rc.contact = c.id
 					JOIN user u ON u.contact = c.id
 					JOIN instrument i ON c.instrument = i.id
-					LEFT OUTER JOIN rehearsal_user ru ON ru.user = u.id AND ru.rehearsal = $rid
-				WHERE rc.rehearsal = $rid $instrument
+					LEFT OUTER JOIN rehearsal_user ru ON ru.user = u.id AND ru.rehearsal = ?
+				WHERE rc.rehearsal = ? $instrument
 				ORDER BY instrument, contactname";
 		
-		$participants = $this->database->getSelection($query);
+		$participants = $this->database->getSelection($query, $params);
 		if($stripped) {
 			$participants = array_splice($participants, 1);
 		}
@@ -166,8 +168,8 @@ class ProbenData extends AbstractLocationData {
 	function getSongsForRehearsal($rid) {
 		$query = "SELECT s.id, s.title, rs.notes ";
 		$query .= "FROM rehearsal_song rs, song s ";
-		$query .= "WHERE rs.song = s.id AND rs.rehearsal = $rid";
-		$encodedSelection = $this->database->getSelection($query);
+		$query .= "WHERE rs.song = s.id AND rs.rehearsal = ?";
+		$encodedSelection = $this->database->getSelection($query, array(array("i", $rid)));
 		return $this->urldecodeSelection($encodedSelection, array("title", "notes"));
 	}
 	
@@ -362,15 +364,15 @@ class ProbenData extends AbstractLocationData {
 		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, c.nickname, i.name as instrument, i.id as instrumentid, c.mobile, c.email ";
 		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";
 		$query .= " LEFT JOIN instrument i ON c.instrument = i.id ";
-		$query .= "WHERE rc.rehearsal = $rid ORDER BY name";
-		return $this->database->getSelection($query);
+		$query .= "WHERE rc.rehearsal = ? ORDER BY name";
+		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	
 	public function getRehearsalsPhases($rid) {
 		$query = "SELECT p.* ";
 		$query .= "FROM rehearsalphase p JOIN rehearsalphase_rehearsal pr ON pr.rehearsalphase = p.id ";
-		$query .= "WHERE pr.rehearsal = $rid";
-		return $this->database->getSelection($query);
+		$query .= "WHERE pr.rehearsal = ?";
+		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	
 	public function deleteRehearsalContact($rid, $cid) {
@@ -425,8 +427,8 @@ class ProbenData extends AbstractLocationData {
 		$query = "SELECT rehearsal.id, begin, end, location.name as Location, address.street, address.zip, address.city ";
 		$query .= "FROM rehearsal JOIN location ON rehearsal.location = location.id ";
 		$query .= "LEFT JOIN address ON location.address = address.id ";
-		$query .= "WHERE end < now() and YEAR(end) = $year ORDER BY begin DESC";
-		return $this->database->getSelection($query);
+		$query .= "WHERE end < now() and YEAR(end) = ? ORDER BY begin DESC";
+		return $this->database->getSelection($query, array(array("i", $year)));
 	}
 	
 	public function getUsedInstruments() {

@@ -92,8 +92,8 @@ class StartData extends AbstractLocationData {
 	function getSongsForRehearsal($rid) {
 		$query = "SELECT s.id, s.title, rs.notes ";
 		$query .= "FROM rehearsal_song rs, song s ";
-		$query .= "WHERE rs.song = s.id AND rs.rehearsal = $rid";
-		$selection = $this->database->getSelection($query);
+		$query .= "WHERE rs.song = s.id AND rs.rehearsal = ?";
+		$selection = $this->database->getSelection($query, array(array("i", $rid)));
 		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
 	
@@ -101,18 +101,18 @@ class StartData extends AbstractLocationData {
 		$query = "SELECT c.name, c.surname, c.nickname, i.name as instrument ";
 		$query .= "FROM rehearsal_user r, user u, contact c, instrument i ";
 		$query .= "WHERE r.participate = 1 AND ";
-		$query .= "r.rehearsal = $rid AND r.user = u.id AND u.contact = c.id AND c.instrument = i.id ";
+		$query .= "r.rehearsal = ? AND r.user = u.id AND u.contact = c.id AND c.instrument = i.id ";
 		$query .= "ORDER BY name, surname, instrument";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	
 	function getConcertParticipants($cid) {
 		$query = "SELECT c.name, c.surname, c.nickname, i.name as instrument ";
 		$query .= "FROM concert_user r, user u, contact c, instrument i ";
 		$query .= "WHERE r.participate = 1 AND ";
-		$query .= "r.concert = $cid AND r.user = u.id AND u.contact = c.id AND c.instrument = i.id ";
+		$query .= "r.concert = ? AND r.user = u.id AND u.contact = c.id AND c.instrument = i.id ";
 		$query .= "ORDER BY name, surname, instrument";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	function getVotesForUser($uid = -1) {
@@ -120,9 +120,9 @@ class StartData extends AbstractLocationData {
 		
 		$query = "SELECT v.id, v.name, v.end, v.is_date, v.is_multi ";
 		$query .= "FROM vote_group vg JOIN vote v ON vg.vote = v.id ";
-		$query .= "WHERE vg.user = $uid AND v.is_finished = 0 AND end > now() ";
+		$query .= "WHERE vg.user = ? AND v.is_finished = 0 AND end > now() ";
 		$query .= "ORDER BY v.end ASC";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $uid)));
 	}
 	
 	function getVote($vid) {
@@ -130,8 +130,8 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getOptionsForVote($vid) {
-		$query = "SELECT * FROM vote_option WHERE vote = $vid ORDER BY name, odate";
-		return $this->database->getSelection($query);
+		$query = "SELECT * FROM vote_option WHERE vote = ? ORDER BY name, odate";
+		return $this->database->getSelection($query, array(array("i", $vid)));
 	}
 	
 	function canUserVote($vid, $uid = null) {
@@ -222,20 +222,26 @@ class StartData extends AbstractLocationData {
 	}
 	
 	private function getRehearsalsForUser($uid) {
-		$cid = $this->adp()->getUserContact($uid);
-		$query = "SELECT rehearsal FROM rehearsal_contact WHERE contact = $cid";
-		$sel = $this->database->getSelection($query);
+		$query = "SELECT rehearsal 
+					FROM rehearsal_contact rc 
+						JOIN contact c ON rc.contact = c.id 
+						JOIN user u ON u.contact = c.id 
+					WHERE u.id = ?";
+		$sel = $this->database->getSelection($query, array(array("i", $uid)));
 		return Database::flattenSelection($sel, "rehearsal");
 	}
 	
 	private function getRehearsalsForPhases($phases) {
 		if(count($phases) == 0) return array();
-		$query = "SELECT rehearsal as id FROM rehearsalphase_rehearsal WHERE ";
+		
+		$params = array();
+		$whereQ = array();
 		foreach($phases as $i => $p) {
-			if($i > 0) $query .= " OR ";
-			$query .= "rehearsalphase = $p";
+			array_push($whereQ, "rehearsalphase = ?");
+			array_push($params, array("i", $p));
 		}
-		$sel = $this->database->getSelection($query);
+		$query = "SELECT rehearsal as id FROM rehearsalphase_rehearsal WHERE " . join(" OR ", $whereQ);
+		$sel = $this->database->getSelection($query, $params);
 		return Database::flattenSelection($sel, "rehearsal");
 	}
 	
@@ -249,9 +255,9 @@ class StartData extends AbstractLocationData {
 				FROM program_song ps
 				JOIN song s ON ps.song = s.id
 				LEFT OUTER JOIN composer c ON s.composer = c.id
-			WHERE ps.program = $pid
+			WHERE ps.program = ?
 			ORDER BY ps.rank ASC";
-		$selection = $this->database->getSelection($query);
+		$selection = $this->database->getSelection($query, array(array("i", $pid)));
 		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
 	
@@ -264,31 +270,35 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getUserUpdates($objectListing) {
-		// create appropriate where statement		
+		// create appropriate where statement
+		$params = array();
+		$whereQ = array();
+		
 		// super users and administrators can see all updates
 		if($this->getSysdata()->isUserSuperUser() || $this->getSysdata()->isUserMemberGroup(1)) {
 			$where = "";
 		}
 		else {
-			$where = "";
+			$where = "WHERE ";
 			foreach($objectListing as $otype => $oids) {
 				foreach($oids as $i => $oid) {
-					if($where != "") $where .= " OR ";
-					$where .= "( otype = '$otype' AND oid = $oid )";
+					array_push($whereQ, "( otype = ? AND oid = ? )");
+					array_push($params, array("s", $otype));
+					array_push($params, array("i", $oid));
 				}
 			}
+			if(count($whereQ) == 0) {
+				// make sure if there are no objects, no updates are displayed
+				$where = "false";
+			}
 			
-			if($where == "") $where = "1 = 2"; // make sure if there are no objects, no updates are displayed
-			
-			$where = "WHERE $where";
 		}
 		
-		$query = "SELECT * FROM comment ";
-		$query .= "$where ";
-		$query .= "ORDER BY created_at DESC LIMIT 0, ";
-		$query .= $this->getSysdata()->getDynamicConfigParameter("updates_show_max");
+		$query = "SELECT * FROM comment $where " . join(" OR ", $whereQ);
+		$query .= "ORDER BY created_at DESC LIMIT 0, ?";
+		array_push($params, $this->getSysdata()->getDynamicConfigParameter("updates_show_max"));
 		
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, $params);
 	}
 	
 	function hasObjectDiscussion($otype, $oid) {
@@ -301,9 +311,9 @@ class StartData extends AbstractLocationData {
 		$query = "SELECT c.*, CONCAT(a.name, ' ', a.surname) as author, a.id as author_id ";
 		$query .= "FROM comment c JOIN user u ON c.author = u.id ";
 		$query .= "JOIN contact a ON u.contact = a.id ";
-		$query .= "WHERE c.oid = $oid AND c.otype = '$otype' ";
+		$query .= "WHERE c.oid = ? AND c.otype = ? ";
 		$query .= "ORDER BY c.created_at DESC";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $oid), array("s", $otype)));
 	}
 	
 	function addComment($otype, $oid, $message = "", $author = -1) {
@@ -347,20 +357,18 @@ class StartData extends AbstractLocationData {
 			
 			if(count($users) == 1) return null;
 			
-			$where = "";
+			$whereQ = array();
+			$params = array();
 			foreach($users as $i => $user) {
 				if($i == 0) continue;
-				if($where != "") $where .= " OR ";
 				$contact = $this->adp()->getUserContact($user["id"]);
 				if($contact != null) {
-					$where .= "id = " . $contact;
-				}
-				else {
-					$where .= "false"; // don't break the statement creation process
+					arary_push($whereQ, "id = ?");
+					array_push($params, array("i", $contact));
 				}
 			}
-			$query = "SELECT * FROM contact WHERE $where";
-			return $this->database->getSelection($query);
+			$query = "SELECT * FROM contact WHERE " . join(" OR ", $whereQ);
+			return $this->database->getSelection($query, $params);
 		}
 		return null;
 	}
@@ -462,11 +470,11 @@ class StartData extends AbstractLocationData {
 		$query .= "JOIN address addy ON l.address = addy.id ";
 		$query .= "JOIN appointment_group ag ON a.id = ag.appointment ";
 		$query .= "JOIN contact_group cg ON ag.group = cg.group ";
-		$query .= "WHERE cg.contact = $cid AND a.end > NOW()";
+		$query .= "WHERE cg.contact = ? AND a.end > NOW()";
 		$query .= "ORDER BY a.begin, a.end";
 		
 		// add custom data
-		$appointments = $this->database->getSelection($query);
+		$appointments = $this->database->getSelection($query, array(array("i", $cid)));
 		$this->appendCustomDataToSelection('a', $appointments);
 		
 		return $appointments;

@@ -24,11 +24,11 @@ class GruppenData extends AbstractData {
 	}
 	
 	function getGroupMembers($gid) {
-		$query = "SELECT CONCAT(c.name, ' ', c.surname) as name, notes as Notizen, i.name as instrument ";
+		$query = "SELECT CONCAT(c.name, ' ', c.surname) as name, notes, i.name as instrument ";
 		$query .= "FROM (contact c JOIN contact_group cg ON cg.contact = c.id) LEFT JOIN instrument i ON c.instrument = i.id ";
-		$query .= "WHERE cg.`group` = $gid ";
+		$query .= "WHERE cg.`group` = ? ";
 		$query .= "ORDER BY name, instrument";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $gid)));
 	}
 	
 	function create($values) {
@@ -55,11 +55,11 @@ class GruppenData extends AbstractData {
 		// check whether the members of this group still have at least one other group
 		$query = "SELECT cg.contact, count(cg.`group`) as numUserGroup
        			  FROM (SELECT * FROM `contact_group`
-						WHERE `group`=$id) as grp, contact_group cg
+						WHERE `group`= ? ) as grp, contact_group cg
 				  WHERE grp.contact = cg.contact
 				  GROUP BY cg.contact
 				  HAVING numUserGroup < 2";
-		$res = $this->database->getSelection($query);
+		$res = $this->database->getSelection($query, array(array("i", $id)));
 		$numContactsWithNoOtherGroup = count($res) -1;
 		if($numContactsWithNoOtherGroup > 0) {
 			new BNoteError(Lang::txt("GruppenData_delete.BNoteError_1"), "$numContactsWithNoOtherGroup", Lang::txt("GruppenData_delete.BNoteError_2"));

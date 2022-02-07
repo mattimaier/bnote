@@ -26,7 +26,7 @@ class ProbenphasenData extends AbstractData {
 	}
 	
 	function getPhases($current = true) {
-		$query = "SELECT * FROM " . $this->table . " ";
+		$query = "SELECT * FROM rehearsalphase ";
 		if(!$current) {
 			$query .= "WHERE end > NOW() ";
 		}
@@ -38,27 +38,27 @@ class ProbenphasenData extends AbstractData {
 		$query = "SELECT c.id, c.title, c.begin, l.name as location, c.notes ";
 		$query .= "FROM rehearsalphase_concert rc JOIN concert c ON rc.concert = c.id ";
 		$query .= "     JOIN location l ON c.location = l.id ";
-		$query .= "WHERE rc.rehearsalphase = $phaseId ";
+		$query .= "WHERE rc.rehearsalphase = ? ";
 		$query .= "ORDER BY c.begin";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $phaseId)));
 	}
 	
 	function getContactsForPhase($phaseId) {
 		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, i.name as instrument, c.phone, c.mobile, c.email ";
 		$query .= "FROM rehearsalphase_contact rc JOIN contact c ON rc.contact = c.id ";
 		$query .= "     LEFT JOIN instrument i ON c.instrument = i.id ";
-		$query .= "WHERE rc.rehearsalphase = $phaseId ";
+		$query .= "WHERE rc.rehearsalphase = ? ";
 		$query .= "ORDER BY name";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $phaseId)));
 	}
 	
 	function getRehearsalsForPhase($phaseId) {
 		$query = "SELECT r.id, r.begin, l.name as location ";
 		$query .= "FROM rehearsalphase_rehearsal p JOIN rehearsal r ON p.rehearsal = r.id ";
 		$query .= "     JOIN location l ON r.location = l.id ";
-		$query .= "WHERE p.rehearsalphase = $phaseId ";
+		$query .= "WHERE p.rehearsalphase = ? ";
 		$query .= "ORDER BY r.begin";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $phaseId)));
 	}
 	
 	private function idInPhase($phaseId, $entityId, $entity) {
@@ -126,12 +126,14 @@ class ProbenphasenData extends AbstractData {
 		
 		if(count($groupsToAdd) > 0) {
 			// get contact ids of selected groups
-			$query = "SELECT c.id FROM contact c JOIN contact_group cg ON cg.contact = c.id WHERE ";
+			$params = array();
+			$groupQ = array();
 			foreach($groupsToAdd as $i => $grp) {
-				if($i > 0) $query .= "OR ";
-				$query .= "cg.group = $grp ";
+				array_push($groupQ, "cg.group = ? ");
+				array_push($params, $grp);
 			}
-			$contacts = $this->database->getSelection($query);
+			$query = "SELECT c.id FROM contact c JOIN contact_group cg ON cg.contact = c.id WHERE " . join(" OR ", $groupQ);
+			$contacts = $this->database->getSelection($query, $params);
 			
 			// add non-super-user contacts to phase
 			$query = "INSERT INTO rehearsalphase_contact VALUES ";

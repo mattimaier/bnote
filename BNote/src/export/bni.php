@@ -120,9 +120,8 @@ function getImagesForGallery() {
 		new BNoteError(Lang::txt("bni_getImagesForGallery.error"));
 	}
 	
-	$query = "SELECT * FROM galleryimage WHERE gallery = " . $_GET["id"];
-	header('Content-Type: application/json');
-	$images = $GLOBALS["db"]->getSelection($query);
+	$query = "SELECT * FROM galleryimage WHERE gallery = ?";
+	$images = $GLOBALS["db"]->getSelection($query, array(array("i", $_GET["id"])));
 	$extendedImages = array();
 	for($i = 1; $i < count($images); $i++) {
 		$pic = $images[$i];
@@ -136,6 +135,8 @@ function getImagesForGallery() {
 		);
 		array_push($extendedImages, $img);
 	}
+	
+	header('Content-Type: application/json');
 	echo json_encode($extendedImages);
 }
 

@@ -30,11 +30,14 @@ class InstrumenteData extends AbstractData {
 	}
 	
 	function getInstruments($cat = 0) {
-		$where = "";
+		$params = array();
+		$query = "SELECT * FROM instrument";
 		if($cat > 0) {
-			$where = "WHERE category = $cat";
+			$query .= " WHERE category = ? ";
+			array_push($params, array("i", $cat));
 		}
-		return $this->database->getSelection("SELECT * FROM instrument $where ORDER BY name");
+		$query .= " ORDER BY name";
+		return $this->database->getSelection($query, $params);
 	}
 	
 	function getInstrumentsWithCatName() {

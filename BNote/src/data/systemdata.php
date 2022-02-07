@@ -321,7 +321,7 @@ class Systemdata {
  		array_push($params, array("i", $uid));
  		array_push($whereList, "id = ?");
  	}
- 	$query = "SELECT contact FROM user WHERE (" . join(") OR (", $whereList) . ")";
+ 	$query = "SELECT contact FROM user WHERE " . join(" OR ", $whereList);
  	$su = $this->dbcon->getSelection($query, $params);
  	return $this->dbcon->flattenSelection($su, "contact");
  }

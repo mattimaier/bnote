@@ -62,10 +62,15 @@ class Notifier {
 	}
 	
 	private function getMailAddresses($contacts) {
-		$where = join(" OR id = ", $contacts);
-		$q = "SELECT DISTINCT email FROM contact WHERE id = $where";
+		$whereQ = array();
+		$params = array();
+		foreach($contacts as $i => $cid) {
+			array_push($whereQ, "id = ?");
+			array_push($params, $cid);
+		}
+		$q = "SELECT DISTINCT email FROM contact WHERE " . join(" OR ", $whereQ);
 		global $system_data;
-		$addressesDbSel = $system_data->dbcon->getSelection($q);
+		$addressesDbSel = $system_data->dbcon->getSelection($q, $params);
 		return $system_data->dbcon->flattenSelection($addressesDbSel, "email");
 	}
 	

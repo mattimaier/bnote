@@ -154,9 +154,9 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	// get songs to practise
 	$query = "SELECT title ";
 	$query .= "FROM song s, rehearsal_song rs ";
-	$query .= "WHERE rs.rehearsal = " . $rehearsals[$i]["id"] . " AND s.id = rs.song ";
+	$query .= "WHERE rs.rehearsal = ? AND s.id = rs.song ";
 	$query .= "ORDER BY title";
-	$songs = $db->getSelection($query);
+	$songs = $db->getSelection($query, array(array("i", $rehearsals[$i]["id"])));
 	
 	// conductor
 	$notes = "";
@@ -179,9 +179,9 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	// participants
 	$query = "SELECT c.id, c.surname, c.name, c.email, ru.participate, ru.reason";
 	$query .= " FROM rehearsal_user ru, user u, contact c";
-	$query .= " WHERE ru.rehearsal = " . $rehearsals[$i]["id"] . " AND ru.user = u.id AND u.contact = c.id" ;
+	$query .= " WHERE ru.rehearsal = ? AND ru.user = u.id AND u.contact = c.id" ;
 
-	$contacts = $db->getSelection($query);
+	$contacts = $db->getSelection($query, array(array("i", $rehearsals[$i]["id"])));
 	
 	unset($contacts[0]);
 	
@@ -221,8 +221,8 @@ for($i = 1; $i < count($rehearsals); $i++) {
 
 	$query = "SELECT c.id, c.surname, c.name, c.email";
 	$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
-	$query .= " WHERE rc.rehearsal = " . $rehearsals[$i]["id"] . " AND rc.contact NOT IN (" . $contactIDsString .")";
-	$participantsNoResponse = $db->getSelection($query);
+	$query .= " WHERE rc.rehearsal = ? AND rc.contact NOT IN (" . $contactIDsString .")";
+	$participantsNoResponse = $db->getSelection($query, array(array("i", $rehearsals[$i]["id"])));
 	unset($participantsNoResponse[0]);
 
 	foreach($participantsNoResponse as $j => $contact) {
@@ -297,8 +297,8 @@ for($i = 1; $i < count($concerts); $i++) {
 	
 	$query = "SELECT c.id, c.surname, c.name, c.email, cu.participate, cu.reason";
 	$query .= " FROM concert_user cu, user u, contact c";
-	$query .= " WHERE cu.concert = " . $concerts[$i]["id"] . " AND cu.user = u.id AND u.contact = c.id" ;
-	$contacts = $db->getSelection($query);
+	$query .= " WHERE cu.concert = ? AND cu.user = u.id AND u.contact = c.id" ;
+	$contacts = $db->getSelection($query, array(array("i", $concerts[$i]["id"])));
 	unset($contacts[0]);
 
 	// ids for filterting contacts without response
@@ -336,8 +336,8 @@ for($i = 1; $i < count($concerts); $i++) {
 	
 	$query = "SELECT c.id, c.surname, c.name, c.email";
 	$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
-	$query .= " WHERE cc.concert = " . $concerts[$i]["id"] . " AND cc.contact NOT IN (" . $contactIDsString .")";
-	$participantsNoResponse = $db->getSelection($query);
+	$query .= " WHERE cc.concert = ? AND cc.contact NOT IN (" . $contactIDsString .")";  // safe statement - IDs from INT field of DB
+	$participantsNoResponse = $db->getSelection($query, array(array("i", $concerts[$i]["id"])));
 	unset($participantsNoResponse[0]);
 	
 	foreach($participantsNoResponse as $j => $contact) 
@@ -385,9 +385,9 @@ for($i = 1; $i < count($concerts); $i++) {
 	$program = $concerts[$i]["program_id"];
 	if (!empty($program)) {
 		$query = "SELECT s.title FROM program_song ps ";
-		$query .= "JOIN song s ON ps.song = s.id WHERE ps.program = $program ORDER BY ps.rank ASC";
+		$query .= "JOIN song s ON ps.song = s.id WHERE ps.program = ? ORDER BY ps.rank ASC";
 		
-		$songs = $db->getSelection($query);
+		$songs = $db->getSelection($query, array(array("i", $program)));
 		unset($songs[0]);
 	
 		$setlist = "\r\n\r\nProgramm: \r\n";
@@ -450,8 +450,8 @@ if($userid != null && $userid > 0) {
 	$cid = $contact["id"];
 	$query = "SELECT t.*
 			FROM tour t JOIN tour_contact tc ON tc.tour = t.id
-			WHERE tc.contact = $cid";
-	$tours = $db->getSelection($query);
+			WHERE tc.contact = ?";
+	$tours = $db->getSelection($query, array(array("i", $cid)));
 
 	// write them
 	for($i = 1; $i < count($tours); $i++) {

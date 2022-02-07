@@ -257,56 +257,67 @@ class Database extends Data {
 	 *        	The referenced table
 	 * @param string $idcolumn
 	 *        	The referenced id column
-	 * @param string $namecolumn
-	 *        	Name columns for reference
+	 * @param string|Array $namecolumns
+	 *        	Either string (1 name column) or array (multiple name columns)
 	 */
 	public function getForeign($table, $idcolumn, $namecolumns) {
-		if (gettype ( $namecolumns ) == "string") {
+		// Validating input to contain only db-permitted (safe) content
+		global $system_data;
+		$system_data->regex->isDbItem($table, "table name");
+		$system_data->regex->isDbItem($idcolumn, "id column");
+		if (gettype($namecolumns)=="string") {
 			$namecols = $namecolumns;
+			$system_data->regex->isDbItem($namecols);
 		} else {
-			$namecols = join ( ",", $namecolumns );
+			foreach($namecolumns as $i => $nc) {
+				$system_data->regex->isDbItem($nc);
+			}
+			$namecols = join(",", $namecolumns);
 		}
 		$query = "SELECT $idcolumn, $namecols FROM $table";
 		
 		// remove administrators from the corresponding tables
-		global $system_data;
-		if ($table == "contact") {
-			$suContacts = $system_data->getSuperUserContactIDs ();
-			if (count ( $suContacts ) > 0) {
-				$query .= " WHERE ";
+		$params = array();
+		if ($table=="contact") {
+			$suContacts = $system_data->getSuperUserContactIDs();
+			if (count($suContacts)>0) {
+				$suCids = array();
 				foreach ( $suContacts as $i => $cid ) {
-					if ($i > 0)
-						$query .= " AND ";
-					$query .= "id != $cid";
+					array_push($suCids, "id <> ?");
+					array_push($params, array("i", $cid));
 				}
+				$query .= " WHERE " . join(" AND ", $suCids);
 			}
-		} else if ($table == "user") {
+		} else if ($table=="user") {
 			$suUsers = $system_data->getSuperUsers();
-			if (count ( $suUsers ) > 0) {
-				$query .= " WHERE ";
+			if (count($suUsers)>0) {
+				$suUids = array();
 				foreach ( $suUsers as $i => $uid ) {
-					if ($i > 0)
-						$query .= " AND ";
-					$query .= "id != $uid";
+					array_push("id <> ?");
+					array_push($params, array("i", $uid));
 				}
+				$query .= " WHERE " . join(" AND ", $suUids);
 			}
 		}
 		$query .= " ORDER BY $namecols";
 		
-		$dbSelection = $this->getSelection ( $query );
-		$ret = array ();
-		for($i = 1; $i < count ( $dbSelection ); $i ++) {
-			$row = $dbSelection [$i];
-			if (gettype ( $namecolumns ) == "string") {
-				$nameVal = $row [$namecolumns];
+		// call db
+		$dbSelection = $this->getSelection($query, $params);
+		
+		// process results
+		$ret = array();
+		for($i = 1; $i<count($dbSelection); $i ++) {
+			$row = $dbSelection[$i];
+			if (gettype($namecolumns)=="string") {
+				$nameVal = $row[$namecolumns];
 			} else {
-				$naming = array ();
+				$naming = array();
 				foreach ( $namecolumns as $col ) {
-					array_push ( $naming, $row [$col] );
+					array_push($naming, $row[$col]);
 				}
-				$nameVal = join ( " ", $naming );
+				$nameVal = join(" ", $naming);
 			}
-			$ret [$row [$idcolumn]] = $nameVal;
+			$ret[$row[$idcolumn]] = $nameVal;
 		}
 		return $ret;
 	}

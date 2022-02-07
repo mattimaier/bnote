@@ -666,11 +666,11 @@ abstract class AbstractBNA implements iBNA {
 	function getRehearsalsWithParticipation($user) {
 		if($this->sysdata->isUserSuperUser($this->uid)
 				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
-			$query = "SELECT * ";
-			$query .= "FROM rehearsal r LEFT JOIN rehearsal_user ru ON ru.rehearsal = r.id ";
-			$query .= "WHERE end > now() AND (ru.user = $user || ru.user IS NULL) ";
-			$query .= "ORDER BY begin ASC";
-			$rehs = $this->db->getSelection($query);
+			$query = "SELECT * 
+						FROM rehearsal r LEFT JOIN rehearsal_user ru ON ru.rehearsal = r.id
+						WHERE end > now() AND (ru.user = ? || ru.user IS NULL)
+						ORDER BY begin ASC";
+			$rehs = $this->db->getSelection($query, array(array("i", $user)));
 		}
 		else {
 			// only get rehearsals for user considering phases and groups
@@ -737,8 +737,8 @@ abstract class AbstractBNA implements iBNA {
 		foreach($rehs as $i => $rehearsal) {
 			$query = "SELECT c.id, c.surname, c.name, ru.participate, ru.reason";
 			$query .= " FROM rehearsal_user ru, user u, contact c";
-			$query .= " WHERE ru.rehearsal = " . $rehearsal["id"] . " AND ru.user = u.id AND u.contact = c.id" ;
-			$contacts = $this->db->getSelection($query);
+			$query .= " WHERE ru.rehearsal = ? AND ru.user = u.id AND u.contact = c.id" ;
+			$contacts = $this->db->getSelection($query, array(array("i",  $rehearsal["id"])));
 			unset($contacts[0]);
 
 			// ids for filterting contacts without response
@@ -769,7 +769,6 @@ abstract class AbstractBNA implements iBNA {
 					array_push($participantsMaybe, $contact);
 				}
 			}
-
 			
 			// get contacts without response (filter other contacts)
 			array_push($contactIDs, PHP_INT_MAX);
@@ -777,27 +776,22 @@ abstract class AbstractBNA implements iBNA {
 		
 			$query = "SELECT c.id, c.surname, c.name";
 			$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
-			$query .= " WHERE rc.rehearsal = " . $rehearsal["id"] . " AND rc.contact NOT IN (" . $contactIDsString .")";
-			$participantsNoResponse = $this->db->getSelection($query);
+			$query .= " WHERE rc.rehearsal = ? AND rc.contact NOT IN (" . $contactIDsString .")";  // safe statement - IDs as INT from DB
+			$participantsNoResponse = $this->db->getSelection($query, array(array("i", $rehearsal["id"])));
 			unset($participantsNoResponse[0]);
 			
-			foreach($participantsNoResponse as $j => $contact) 
-			{
-				
+			foreach($participantsNoResponse as $j => $contact) {
 				foreach($contact as $ck => $cv) {
 					if(is_numeric($ck)) {
 						unset($participantsNoResponse[$j][$ck]);
 					}
-				
 				}
-				
 			}
 			
 			$rehs[$i]["participantsNo"] = array_values($participantsNo);
 			$rehs[$i]["participantsYes"] = array_values($participantsYes);
 			$rehs[$i]["participantsMaybe"] = array_values($participantsMaybe);
 			$rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
-			
 		}
 		
 	
@@ -895,10 +889,10 @@ abstract class AbstractBNA implements iBNA {
 		
 		// add  participants
 		foreach($concerts as $i => $concert) {
-			$query = "SELECT c.id, c.surname, c.name, cu.participate, cu.reason";
-			$query .= " FROM concert_user cu, user u, contact c";
-			$query .= " WHERE cu.concert = " . $concert["id"] . " AND cu.user = u.id AND u.contact = c.id" ;
-			$contacts = $this->db->getSelection($query);
+			$query = "SELECT c.id, c.surname, c.name, cu.participate, cu.reason
+						FROM concert_user cu, user u, contact c
+						WHERE cu.concert = ? AND cu.user = u.id AND u.contact = c.id" ;
+			$contacts = $this->db->getSelection($query, array(array("i", $concert["id"])));
 			unset($contacts[0]);
 
 			// ids for filterting contacts without response
@@ -932,12 +926,12 @@ abstract class AbstractBNA implements iBNA {
 
 			// get contacts without response (filter other contacts)
 			array_push($contactIDs, PHP_INT_MAX);
-			$contactIDsString = join(',',$contactIDs);  
+			$contactIDsString = join(',', $contactIDs);  
 			
 			$query = "SELECT c.id, c.surname, c.name";
 			$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
-			$query .= " WHERE cc.concert = " . $concert["id"] . " AND cc.contact NOT IN (" . $contactIDsString .")";
-			$participantsNoResponse = $this->db->getSelection($query);
+			$query .= " WHERE cc.concert = ? AND cc.contact NOT IN (" . $contactIDsString .")";  // statement safe - ids as int from DB
+			$participantsNoResponse = $this->db->getSelection($query, array(array("i", $concert["id"])));
 			unset($participantsNoResponse[0]);
 			
 			foreach($participantsNoResponse as $j => $contact) 
@@ -1358,10 +1352,10 @@ abstract class AbstractBNA implements iBNA {
 			}
 			$opt["choice"] = array();
 			
-			$query = "SELECT choice, count(*) as num FROM vote_option_user";
-			$query .= " WHERE vote_option = " . $opt["id"];
-			$query .= " GROUP BY choice";
-			$choice = $this->db->getSelection($query);
+			$query = "SELECT choice, count(*) as num FROM vote_option_user
+						WHERE vote_option = ?
+						GROUP BY choice";
+			$choice = $this->db->getSelection($query, array(array("i", $opt["id"])));
 			
 			if($vote["is_multi"]) {
 				$numYes = 0;
@@ -1517,15 +1511,16 @@ abstract class AbstractBNA implements iBNA {
 			exit;
 		}
 		
+		$whereQ = array();
+		$params = array();
+		foreach($groups as $i => $group) {
+			array_push($whereQ, "cg.group = ?");
+			array_push($params, $group);
+		}
 		$query = "SELECT DISTINCT c.email ";
 		$query .= "FROM contact c JOIN contact_group cg ON cg.contact = c.id ";
-		$query .= "WHERE ";
-		foreach($groups as $i => $group) {
-			if($i > 0) $query .= "OR ";
-			$query .= "cg.group = $group ";
-		}
-		
-		$mailaddies = $this->db->getSelection($query);
+		$query .= "WHERE " . join(" OR ", $whereQ);
+		$mailaddies = $this->db->getSelection($query, $params);
 		$addresses = $this->flattenAddresses($mailaddies);
 		
 		if($addresses == null || count($addresses) == 0) {
@@ -1537,11 +1532,7 @@ abstract class AbstractBNA implements iBNA {
 		$receipient = $ci["Mail"];
 		
 		// place sender addresses into the bcc field
-		$bcc_addresses = "";
-		foreach($addresses as $i => $to) {
-			if($i > 0) $bcc_addresses .= ",";
-			$bcc_addresses .= $to;
-		}
+		$bcc_addresses = join(",", $addresses);
 		
 		$mail = new Mailing($receipient, $subject, "");
 		$mail->setBodyInHtml($body);

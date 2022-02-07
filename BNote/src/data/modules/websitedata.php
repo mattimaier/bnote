@@ -135,8 +135,8 @@ class WebsiteData extends AbstractData {
 	}
 	
 	function getGalleryImages($id) {
-		$query = "SELECT * FROM galleryimage WHERE gallery = $id";
-		return $this->database->getSelection($query);
+		$query = "SELECT * FROM galleryimage WHERE gallery = ?";
+		return $this->database->getSelection($query, array(array("i", $id)));
 	}
 	
 	/**

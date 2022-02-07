@@ -278,18 +278,21 @@ class ApplicationDataProvider {
 		
 		// filter out super users
 		$suContacts = $this->sysdata->getSuperUserContactIDs();
+		$params = array();
+		
 		if(count($suContacts) > 0 && !$this->sysdata->isUserSuperUser()) {
-			$query .= "WHERE ";
+			$sus = array();			
 			foreach($suContacts as $i => $suc) {
-				if($i > 0) $query .= " AND ";
-				$query .= "c2.id <> $suc";
+				$sus = "c2.id <> ?";
+				array_push($params, array("i", $suc));
 			}
+			$query .= "WHERE " . join(" AND ", $sus);
 		}
 		
 		// order contacts
 		$query .= " ORDER BY c2.name, c2.surname";
 		
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, $params);
 	}
 	
 	public function getGroupContacts($groupId) {
@@ -301,9 +304,9 @@ class ApplicationDataProvider {
 		$query .= "  ON c.address = a.id) as c2 ";
 		$query .= "LEFT OUTER JOIN instrument i ON c2.instrument = i.id ";
 		$query .= "JOIN contact_group cg ON c2.id = cg.contact ";
-		$query .= "WHERE cg.group = $groupId ";
+		$query .= "WHERE cg.group = ? ";
 		$query .= "ORDER BY c2.name, c2.surname";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $groupId)));
 	}
 	
 	/**
@@ -313,8 +316,8 @@ class ApplicationDataProvider {
 	 */
 	public function getUsersGroups($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
-		$query = "SELECT `group` FROM contact_group cg JOIN user u ON cg.contact = u.contact WHERE u.id = $uid";
-		$sel = $this->database->getSelection($query);
+		$query = "SELECT `group` FROM contact_group cg JOIN user u ON cg.contact = u.contact WHERE u.id = ?";
+		$sel = $this->database->getSelection($query, array(array("i", $uid)));
 		return Database::flattenSelection($sel, "group");
 	}
 	
@@ -326,8 +329,8 @@ class ApplicationDataProvider {
 	public function getUsersPhases($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
 		$cid = $this->getUserContact($uid);
-		$query = "SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = $cid";
-		$sel = $this->database->getSelection($query);
+		$query = "SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = ?";
+		$sel = $this->database->getSelection($query, array(array("i", $cid)));
 		return Database::flattenSelection($sel, "rehearsalphase");
 	}
 	
@@ -337,8 +340,8 @@ class ApplicationDataProvider {
 	 * @return array of votes as a selection
 	 */
 	public function getUsersVotesAll($uid = -1) {
-		$query = "SELECT v.* FROM vote v JOIN vote_group g ON v.id = g.vote WHERE g.user = $uid";
-		return $this->database->getSelection($query);
+		$query = "SELECT v.* FROM vote v JOIN vote_group g ON v.id = g.vote WHERE g.user = ?";
+		return $this->database->getSelection($query, array(array("i", $uid)));
 	}
 	
 	/**
@@ -369,15 +372,15 @@ class ApplicationDataProvider {
 	 */
 	public function getLocations($groups=null) {
 		$query = "SELECT l.id, name, notes, street, city, zip, country ";
-		$query .= "FROM location l, address a ";
-		$query .= "WHERE l.address = a.id ";
+		$query .= "FROM location l JOIN address a ON l.address = a.id ";
+		$params = array();
+		$locTypes = array();
 		if($groups != null && count($groups) > 0) {
-			$query .= "AND (";
 			foreach($groups as $i => $locationType) {
-				if($i > 0) $query .= " OR ";
-				$query .= "location_type = $locationType";
+				array_push($locTypes, "location_type = ?");
+				array_push($params, array("i", $locationType));
 			}
-			$query .= ") ";
+			$query .= "WHERE " . join(" OR ", $locTypes);
 		}
 		$query .= "ORDER BY name";
 		return $this->database->getSelection($query);
@@ -424,12 +427,12 @@ class ApplicationDataProvider {
 		
 		$query = "SELECT t.*, CONCAT(c1.name, ' ', c1.surname) as creator ";
 		$query .= "FROM user u, task t, contact c1, contact c2 ";
-		$query .= "WHERE u.id = $uid AND u.contact = t.assigned_to ";
+		$query .= "WHERE u.id = ? AND u.contact = t.assigned_to ";
 		$query .= " AND t.created_by = c1.id AND t.assigned_to = c2.id ";
 		$query .= " AND is_complete = 0 ";
 		$query .= "ORDER BY due_at DESC";
 		
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $uid)));
 	}
 	
 	/**
@@ -460,21 +463,21 @@ class ApplicationDataProvider {
 	function getGroups($active = null, $showNumberMembers=false) {
 		$query = "SELECT * FROM `group`";
 		if($showNumberMembers) {
-			$memberCaption = Lang::txt("members");
+			$memberCaption = Lang::txt("members"); // Security note: static translation, low risk
 			$query = "SELECT g.*, CONCAT(g.name, ' (', count(cg.contact), ' " . $memberCaption . ")') as name_member " 
 					. "FROM `group` g JOIN contact_group cg ON cg.group = g.id";
 		}
-		$query .= " WHERE is_active = ";
-		if($active != null && $active == false) {
-			$query .= "0";
-		} else {
-			$query .= "1";
-		}
+		$query .= " WHERE is_active = ?";
 		if($showNumberMembers) {
 			$query .= " GROUP BY g.id";
 		}
-		
-		return $this->database->getSelection($query);
+		$params = array();
+		if($active != null && $active == false) {
+			array_push($params, array("i", 0));
+		} else {
+			array_push($params, array("i", 1));
+		}
+		return $this->database->getSelection($query, $params);
 	}
 	
 	/**

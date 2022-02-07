@@ -47,9 +47,9 @@ class TourData extends AbstractLocationData {
 				JOIN tour_rehearsal t ON r.id = t.rehearsal 
 				LEFT OUTER JOIN location l ON r.location = l.id
 				LEFT OUTER JOIN address a ON l.address = a.id
-				WHERE end > now() and t.tour = $tour_id
+				WHERE end > now() and t.tour = ?
 				ORDER BY begin";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $tour_id)));
 	}
 	
 	function addReference($tour_id, $ref_entity, $ref_id) {
@@ -83,7 +83,7 @@ class TourData extends AbstractLocationData {
 		if($tour_id == 0) {
 			return $allContacts;
 		}
-		$contactIdsSel = $this->database->getSelection("SELECT contact FROM tour_contact WHERE tour = $tour_id");
+		$contactIdsSel = $this->database->getSelection("SELECT contact FROM tour_contact WHERE tour = ?", array(array("i", $tour_id)));
 		$dict = Data::dbSelectionToDict($contactIdsSel, "contact", array("contact"));
 		// remove all contacts from the allContacts array that are not part of the tour
 		$contacts = array();
@@ -106,8 +106,8 @@ class TourData extends AbstractLocationData {
 				  FROM concert c JOIN tour_concert t ON c.id = t.concert
 				  LEFT OUTER JOIN location l ON c.location = l.id
 				  LEFT OUTER JOIN program p on c.program = p.id
-				  WHERE t.tour = $tour_id";
-		return $this->database->getSelection($query);
+				  WHERE t.tour = ?";
+		return $this->database->getSelection($query, array(array("i", $tour_id)));
 	}
 	
 	function addConcert($tour_id, $values) {
@@ -118,15 +118,13 @@ class TourData extends AbstractLocationData {
 	}
 	
 	function getTasks($tour_id, $is_complete) {
-		$isc = 0;
-		if($is_complete) $isc = 1;
-		$where = "WHERE tour_task.tour = $tour_id AND is_complete = $isc";
+		$isc = $is_complete ? 1 : 0;
 		$query = "SELECT task.id, title, description, CONCAT(c.name, ' ', c.surname) as assigned_to, due_at, is_complete
 				  FROM task JOIN tour_task ON task.id = tour_task.task
 				  JOIN contact c ON task.assigned_to = c.id
-				  $where
+				  WHERE tour_task.tour = ? AND is_complete = ?
 				  ORDER BY task.is_complete ASC, task.due_at DESC";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $tour_id), array("i", $isc)));
 	}
 	
 	function createTask($tour_id, $values) {
@@ -137,17 +135,16 @@ class TourData extends AbstractLocationData {
 	
 	function getEquipment($tour_id, $show_all=true) {
 		// return all equipment with tour information where available
-		$where = "te.tour = $tour_id OR te.tour IS NULL";
+		$where = "te.tour = ? OR te.tour IS NULL";
 		if(!$show_all) {
-			$where = "te.tour = $tour_id and te.quantity > 0";
+			$where = "te.tour = ? AND te.quantity > 0";
 		}
 		$query = "SELECT e.id, e.name, e.model, e.make, e.notes as equipment_notes,
 						 te.notes as eq_tour_notes, te.quantity as tour_quantity 
 				  FROM equipment e LEFT OUTER JOIN tour_equipment te ON e.id = te.equipment
 				  WHERE $where
 				  ORDER BY e.name ASC";
-		
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $tour_id)));
 	}
 	
 	function saveEquipment($tour, $values) {

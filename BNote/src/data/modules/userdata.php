@@ -35,16 +35,18 @@ class UserData extends AbstractData {
 		$query .= "CONCAT_WS(' ', c.name, c.surname) as name, u.lastlogin";
 		$query .= " FROM user u LEFT JOIN contact c ON u.contact = c.id";
 		
+		$params = array();
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& count($this->getSysdata()->getSuperUsers()) > 0) {
-			$query .= " WHERE ";
+			$whereQ = array();
 			foreach($this->getSysdata()->getSuperUsers() as $i => $su) {
-				if($i > 0) $query .= " AND ";
-				$query .= "u.id <> $su";
+				array_push($whereQ, "u.id <> ?");
+				array_push($params, $su);
 			}
+			$query .= " WHERE " . join(" AND ", $whereQ);
 		}
 		$query .= " ORDER BY name, id";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, $params);
 	}
 	
 	function create($values) { // values and $_POST is the same
@@ -166,8 +168,8 @@ class UserData extends AbstractData {
 	 * @return Array with the ids and names of the modules. 
 	 */
 	function getPrivileges($id) {
-		$query = "SELECT m.id, m.name FROM privilege p, module m WHERE p.module = m.id AND p.user = $id";
-		return $this->database->getSelection($query);
+		$query = "SELECT m.id, m.name FROM privilege p, module m WHERE p.module = m.id AND p.user = ?";
+		return $this->database->getSelection($query, array(array("i", $id)));
 	}
 	
 	/**
@@ -254,8 +256,8 @@ class UserData extends AbstractData {
 	function getLongInactiveUsers() {
 		$loginTresholdFormatted = Data::subtractMonthsFromDate(date("d.m.Y"), 24);
 		$loginTreshold = Data::convertDateToDb($loginTresholdFormatted);
-		$query = "SELECT * FROM " . $this->getTable() . " WHERE lastlogin <= '$loginTreshold'";
-		return $this->database->getSelection($query);
+		$query = "SELECT * FROM user WHERE lastlogin <= ?";
+		return $this->database->getSelection($query, array(array("s", $loginTreshold)));
 	}
 	
 	/**

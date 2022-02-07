@@ -35,15 +35,10 @@ class AufgabenData extends AbstractData {
 	function getTasks($onlyOpen = true) {
 		$query = "SELECT t.*, CONCAT(c1.name, ' ', c1.surname) as creator, CONCAT(c2.name, ' ', c2.surname) as assignee ";
 		$query .= "FROM task t, contact c1, contact c2 ";
-		$query .= "WHERE t.created_by = c1.id AND t.assigned_to = c2.id ";
-		if($onlyOpen) {
-			$query .= "AND is_complete = 0 ";
-		}
-		else {
-			$query .= "AND is_complete = 1 ";
-		}
+		$query .= "WHERE t.created_by = c1.id AND t.assigned_to = c2.id AND is_complete = ? ";
 		$query .= "ORDER BY due_at, assigned_to DESC";
-		return $this->database->getSelection($query);
+		$onlyOpenQ = $onlyOpen ? 0 : 1;
+		return $this->database->getSelection($query, array(array("i", $onlyOpenQ)));
 	}
 	
 	function create($values) {

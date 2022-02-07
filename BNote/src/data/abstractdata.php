@@ -249,7 +249,7 @@ abstract class AbstractData {
 	 * @return Returns an database getSelection(...) result array.
 	 */
 	public function findAllNoRef() {
-		$query = "SELECT * FROM $this->table";
+		$query = "SELECT * FROM $this->table"; // Security note: $this->table is hardcoded
 		return $this->database->getSelection($query);
 	}
 	
@@ -259,6 +259,8 @@ abstract class AbstractData {
 	 * @return Returns an database getSelection(...) result array.
 	 */
 	public function findAllNoRefLimit($limit) {
+		$this->regex->isPositiveAmount($limit);
+		// Security note: $this->table is hardcoded, $limit is checked
 		$query = "SELECT * FROM " . $this->table . " LIMIT $limit";
 		return $this->database->getSelection($query);
 	}
@@ -281,6 +283,7 @@ abstract class AbstractData {
 	 * @return Returns an database getSelection(...) result array.
 	 */
 	public function findAllJoinedLimit($colExchange, $limit) {
+		$this->regex->isPositiveAmount($limit);
 		if(strlen($limit) > 0) {
 			$q = $this->createJoinedQuery($colExchange) . " LIMIT $limit";
 			return $this->database->getSelection($q);
@@ -316,6 +319,7 @@ abstract class AbstractData {
 	 */
 	public function findAllJoinedOrdered($colExchange, $orderByCol) {
 		if(strlen($orderByCol) > 0) {
+			$this->regex->isDbItem($orderByCol);
 			$q = $this->createJoinedQuery($colExchange) . " ORDER BY $orderByCol";
 			return $this->database->getSelection($q);
 		}
@@ -563,11 +567,11 @@ abstract class AbstractData {
 	 * @return Selection of custom fields
 	 */
 	public function getCustomFields($objectType, $publicOnly = false) {
-		$query = "SELECT * FROM customfield WHERE otype = '$objectType'";
+		$query = "SELECT * FROM customfield WHERE otype = ?";
 		if($publicOnly) {
 			$query .= " AND public_field = 1";
 		}
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("s", $objectType)));
 	}
 	
 	/**
@@ -716,8 +720,8 @@ abstract class AbstractData {
 		// get data
 		$query = "SELECT f.techname, v.intval, v.dblval, v.strval, v.dateval, v.datetimeval ";
 		$query .= "FROM customfield_value v JOIN customfield f ON v.customfield = f.id ";
-		$query .= "WHERE f.otype = '$otype' AND oid = $oid";
-		$select = $this->database->getSelection($query);
+		$query .= "WHERE f.otype = ? AND oid = ?";
+		$select = $this->database->getSelection($query, array(array("s", $otype), array("i", $oid)));
 		
 		// get custom fields for otype
 		$customFieldSelection = $this->getCustomFields($otype);
@@ -773,12 +777,16 @@ abstract class AbstractData {
 			// no data to append to
 			return $selection;
 		}
+		$params = array(array("s", $otype));
+		$oidsPart = array();
+		foreach($oids as $i => $oid) {
+			array_push($params, array("i", $oid));
+			array_push($oidsPart, "oid = ?");
+		}
 		$query = "SELECT oid, techname, intval, dblval, strval, dateval, datetimeval "
 				. "FROM customfield_value v JOIN customfield f ON v.customfield = f.id " 
-				. "WHERE f.otype = '$otype' AND (oid = "
-				. join(" OR v.oid = ", $oids)
-				. ")";
-		$fieldValueSelect = $this->database->getSelection($query);
+				. "WHERE f.otype = ? AND (" . join(" OR ", $oidsPart) . ")";
+		$fieldValueSelect = $this->database->getSelection($query, $params);
 		
 		// get custom fields for otype
 		$customFieldSelection = $this->getCustomFields($otype);

@@ -29,24 +29,25 @@ class FinanceData extends AbstractData {
 	}
 
 	function findBookings($from, $to, $accountId, $otype=NULL, $oid=NULL) {		
+		$params = array(array("s", $from), array("s", $to), array("i", $accountId));
 		$otype_oid = "";
-		
 		if($otype != null and $oid != null) {
-			$otype_oid = "AND otype = \"$otype\" AND oid = $oid ";
+			$otype_oid = "AND otype = ? AND oid = ? ";
+			array_push($params, array("s", $otype));
+			array_push($params, array("i", $oid));
 		}
-		
 		$query = "SELECT id, bdate, subject, amount_net, amount_tax, amount_net + amount_tax as amount_total, 
 						 btype, otype, oid, notes 
 				FROM booking 
-				WHERE bdate >= \"$from\" AND bdate <=\"$to\" AND account = $accountId $otype_oid
+				WHERE bdate >= ? AND bdate <= ? AND account = ? $otype_oid
 				ORDER BY bdate DESC";
+		$result = $this->database->getSelection($query, $params);
 		
 		// get the booking types in reverse
 		$btypes = $this->getBookingTypes();
 		
 		// edit data
 		$recpayData = new RecpayData();
-		$result = $this->database->getSelection($query);
 		$bookings = array();
 		foreach($result as $i => $row) {
 			if($i > 0) {
@@ -64,17 +65,17 @@ class FinanceData extends AbstractData {
 	}
 	
 	function findBookingsMetrics($from, $to, $accountId, $otype=NULL, $oid=NULL) {
+		$params = array(array("s", $from), array("s", $to), array("i", $accountId));
 		$otype_oid = "";
-		
 		if($otype != null and $oid != null) {
-			$otype_oid = "AND otype = \"$otype\" AND oid = $oid ";
+			$otype_oid = "AND otype = ? AND oid = ? ";
+			array_push($params, array("s", $otype));
+			array_push($params, array("i", $oid));
 		}
-		
-		$where = "bdate >= \"$from\" AND bdate <=\"$to\" AND account = $accountId $otype_oid";
-	
 		$query = "SELECT btype, sum(amount_net) as total_net, sum(amount_tax) as total_tax, sum(amount_net)+sum(amount_tax) as total 
-				FROM `booking` WHERE $where GROUP BY btype";
-		
+				FROM `booking` 
+				WHERE bdate >= ? AND bdate <= ? AND account = ? $otype_oid
+				GROUP BY btype";
 		$tab = $this->database->getSelection($query);
 		
 		$result = array(

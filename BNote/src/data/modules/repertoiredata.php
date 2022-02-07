@@ -48,17 +48,12 @@ class RepertoireData extends AbstractData {
 	 */
 	function listComposers() {
 		$query = "SELECT name FROM composer";
-		$data = $this->database->getSelection($query);
-		$result = "";
+		$data = $this->database->getSelection($query);		
+		$composers = array();
 		for($i = 1; $i < count($data); $i++) {
-			$result .= "\"" . $data[$i]["name"] . "\",\n";
+			array_push($composers, '"' . $data[$i]["name"] . '"');
 		}
-		$len = strlen($result);
-		if($len > 2) {
-			$result = substr($result, 0, $len-2);
-		}
-		
-		return $result;
+		return join(",\n", $composers);
 	}
 	
 	function create($values) {
@@ -234,10 +229,10 @@ class RepertoireData extends AbstractData {
 		$query .= "FROM song_solist s JOIN contact c ON s.contact = c.id ";
 		$query .= "JOIN instrument i ON c.instrument = i.id ";
 		if($songId > 0) {
-			$query .= "WHERE s.song = $songId ";
+			$query .= "WHERE s.song = ? ";
 		}
 		$query .= "ORDER BY c.surname, c.name ";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $songId)));
 	}
 	
 	function addSolist($songId) {
@@ -266,8 +261,8 @@ class RepertoireData extends AbstractData {
 		if($genreId == null || $genreId == "") {
 			return null;
 		}
-		$query = "SELECT * FROM genre WHERE id = ". $genreId;
-		return $this->database->getSelection($query);
+		$query = "SELECT * FROM genre WHERE id = ?";
+		return $this->database->getSelection($query, array(array("i", $genreId)));
 	}
 	
 	
@@ -297,6 +292,8 @@ class RepertoireData extends AbstractData {
 		$cleanFilters = array();
 		foreach($filters as $field => $value) {
 			if($value != "" && $value != "-1" && $value != -1) {
+				// secure $field key
+				$this->regex->isDbItem($field, "filters[field]");
 				if($field == "composer") {
 					$value = $this->getComposerName($value);
 				}
@@ -311,50 +308,55 @@ class RepertoireData extends AbstractData {
 		}
 		
 		// build filter query
-		$where = "";
+		$params = array();
+		$whereQ = array();
 		foreach($cleanFilters as $field => $value) {
-			if($where != "") {
-				$where .= " AND ";
-			}
 			$type = $this->getTypeOfField($field);
 			
 			if($field == "solist") {
-				$where .= "sol.contact = $value";
+				array_push($whereQ, "sol.contact = ?");
+				array_push($params, array("i", $value));
 			}
 			else if($field == "music_key") {
-				$where .= $field . " LIKE \"%$value%\"";
+				array_push($whereQ, "$field LIKE CONCAT('%',?,'%')");
+				array_push($params, array("s", $value));
 			}
 			else if($field == "composer") {
 				// get name of composer and filter for that
-				$where .= "c.name LIKE \"%$value%\"";
+				array_push($whereQ, "c.name LIKE CONCAT('%',?,'%')");
+				array_push($params, array("s", $value));
 			}
 			else if($field == "title") {
-				$where .= 's.title LIKE "%' . urlencode($value) . '%"';
+				array_push($whereQ, "s.title LIKE CONCAT('%',?,'%')");
+				array_push($params, array("s", urlencode($value)));
 			}
-			else if($type == FieldType::BOOLEAN) {
-				if($value >= 0) {
-					$where .= $field . " = ";
-					$where .= $value == "on" || $value == 1 ? 1 : 0;
-				}
+			else if($type == FieldType::BOOLEAN && $value >= 0) {
+				array_push($whereQ, "$field = ?");
+				array_push($params, array("i", $value == "on" || $value == 1 ? 1 : 0));				
 			}
 			else if($type == FieldType::INTEGER
 					|| $type == FieldType::DECIMAL
 					|| $type == FieldType::CURRENCY
 					|| $type == FieldType::REFERENCE) {
-				$where .= $field . " = " . $value;
+				array_push($whereQ, "$field = ?");
+				array_push($params, array("i", $value));	
 			}
 			else {
-				$where .= $field . " = \"" . $value . "\"";
+				array_push($whereQ, "$field = ?");
+				array_push($params, array("s", $value));
 			}
 		}
 		
-		$query .= "$where ORDER BY title";
+		$query .= join(" AND ", $whereQ) . " ORDER BY title";
+		
+		$this->regex->isInteger($offset);
+		$this->regex->isPositiveAmount($pageSize);
 		if($numFilters == 0 || intval($offset) > 0) {
-			$query .= " LIMIT $offset,$pageSize";
+			$query .= " LIMIT $offset, $pageSize";
 		}
 		
 		// get data and decode the encoded content
-		$encodedData = $this->database->getSelection($query);
+		$encodedData = $this->database->getSelection($query, $params);
 		$decodedData = $this->urldecodeSelection($encodedData, array("title", "notes"));
 		
 		return array(
@@ -364,11 +366,10 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function getFiles($songId) {
-		$this->regex->isPositiveAmount($songId);
 		$query = "SELECT sf.*, dt.name as doctype_name
 			FROM song_files sf JOIN doctype dt ON sf.doctype = dt.id 
-			WHERE song = $songId";
-		return $this->database->getSelection($query);
+			WHERE song = ?";
+		return $this->database->getSelection($query, array(array("i", $songId)));
 	}
 	
 	function addFile($songId, $filename, $doctype) {
@@ -455,17 +456,17 @@ class RepertoireData extends AbstractData {
 		$result = array();
 		
 		// find rehearsals
-		$q1 = "SELECT r.* FROM rehearsal_song rs JOIN rehearsal r ON rs.rehearsal = r.id " 
-				. "WHERE song = $songId ORDER BY r.begin";
-		$rehearsals = $this->database->getSelection($q1);
+		$q1 = "SELECT r.* FROM rehearsal_song rs JOIN rehearsal r ON rs.rehearsal = r.id 
+				WHERE song = ? ORDER BY r.begin";
+		$rehearsals = $this->database->getSelection($q1, array(array("i", $songId)));
 		$result["rehearsals"] = $rehearsals;
 		
 		// find concerts
-		$q1 = "SELECT c.* " 
-				. "FROM program_song ps JOIN program p ON ps.program = p.id "
-				. " JOIN concert c ON c.program = p.id "
-				. "WHERE song = $songId ORDER BY c.begin";
-		$concerts = $this->database->getSelection($q1);
+		$q1 = "SELECT c.* 
+				FROM program_song ps JOIN program p ON ps.program = p.id 
+				JOIN concert c ON c.program = p.id
+				WHERE song = ? ORDER BY c.begin";
+		$concerts = $this->database->getSelection($q1, array(array("i", $songId)));
 		$result["concerts"] = $concerts;
 		
 		return $result;

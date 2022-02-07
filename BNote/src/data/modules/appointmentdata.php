@@ -43,8 +43,8 @@ class AppointmentData extends AbstractLocationData {
 	}
 	
 	function getGroupsForAppointment($id) {
-		$query = "SELECT g.* FROM `appointment_group` ag JOIN `group` g ON ag.`group` = g.id WHERE ag.appointment = $id";
-		return $this->database->getSelection($query);
+		$query = "SELECT g.* FROM `appointment_group` ag JOIN `group` g ON ag.`group` = g.id WHERE ag.appointment = ?";
+		return $this->database->getSelection($query, array(array("i", $id)));
 	}
 	
 	public function getJoinedAttributes() {

@@ -61,7 +61,7 @@ class KonfigurationData extends AbstractLocationData {
 	}
 	
 	function getActiveParameter() {
-		$query = "SELECT param, value FROM " . $this->table . " WHERE is_active = 1";
+		$query = "SELECT param, value FROM configuration WHERE is_active = 1";
 		$res = $this->database->getSelection($query);
 		$params = array();
 		array_push($params, array("param", "caption", "value"));
@@ -73,7 +73,7 @@ class KonfigurationData extends AbstractLocationData {
 					"caption" => $this->getParameterCaption($res[$i]["param"]),
 					"value" => $this->replaceParameterValue($res[$i]["param"], $res[$i]["value"])
 			);
-			array_push($params, $param);			
+			array_push($params, $param);	
 		}
 		
 		return $params;

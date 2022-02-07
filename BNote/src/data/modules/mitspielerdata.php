@@ -64,26 +64,26 @@ class MitspielerData extends AbstractLocationData {
 		// get user's groups
 		$query = "SELECT DISTINCT $fields
 					FROM (
-					  SELECT `group` as id FROM contact_group WHERE contact = $cid
+					  SELECT `group` as id FROM contact_group WHERE contact = ?
 					) as groups JOIN contact_group ON groups.id = contact_group.group
 					JOIN contact c ON contact_group.contact = c.id
 					JOIN instrument i ON c.instrument = i.id
 					LEFT JOIN address a ON c.address = a.id
 					
 					$order";
-		$groupContacts = $this->database->getSelection($query);
+		$groupContacts = $this->database->getSelection($query, array(array("i", $cid)));
 		
 		// get user's phases
 		$query = "SELECT DISTINCT $fields
 					FROM (
-					  SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = $cid
+					  SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = ?
 					) as phases JOIN rehearsalphase_contact ON phases.rehearsalphase = rehearsalphase_contact.rehearsalphase
 					JOIN contact c ON rehearsalphase_contact.contact = c.id
 					JOIN instrument i ON c.instrument = i.id
 					LEFT JOIN address a ON c.address = a.id
 					
 					$order";
-		$phaseContacts = $this->database->getSelection($query);
+		$phaseContacts = $this->database->getSelection($query, array(array("i", $cid)));
 		
 		$contacts[0] = $groupContacts[0];
 		for($i = 1; $i < count($groupContacts); $i++) {

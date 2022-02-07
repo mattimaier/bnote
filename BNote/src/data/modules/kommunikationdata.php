@@ -22,15 +22,17 @@ class KommunikationData extends KontakteData {
 			return null;
 		}
 		
-		$query = "SELECT c.email ";
-		$query .= "FROM contact c JOIN contact_group cg ON cg.contact = c.id ";
-		$query .= "WHERE ";
+		$groupQ = array();
+		$params = array();
 		foreach($selectedGroups as $i => $group) {
-			if($i > 0) $query .= "OR ";
-			$query .= "cg.group = $group ";
+			array_push($groupQ, "cg.group = ?");
+			array_push($params, array("i", $group));
 		}
 		
-		$mailaddies = $this->database->getSelection($query);
+		$query = "SELECT c.email ";
+		$query .= "FROM contact c JOIN contact_group cg ON cg.contact = c.id ";
+		$query .= "WHERE " . join(" OR ", $groupQ);
+		$mailaddies = $this->database->getSelection($query, $params);
 		
 		return $this->flattenAddresses($mailaddies);
 	}
@@ -38,15 +40,15 @@ class KommunikationData extends KontakteData {
 	function getSongsForRehearsal($rid) {
 		$query = "SELECT s.title, rs.notes ";
 		$query .= "FROM rehearsal_song rs, song s ";
-		$query .= "WHERE rs.song = s.id AND rs.rehearsal = $rid";
-		return $this->database->getSelection($query);
+		$query .= "WHERE rs.song = s.id AND rs.rehearsal = ?";
+		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	
 	function getRehearsalContactMail($rid) {
 		$query = "SELECT c.email ";
 		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";
-		$query .= "WHERE rc.rehearsal = $rid";
-		$mailaddies = $this->database->getSelection($query);
+		$query .= "WHERE rc.rehearsal = ?";
+		$mailaddies = $this->database->getSelection($query, array(array("i", $rid)));
 		
 		return $this->flattenAddresses($mailaddies);
 	}
@@ -62,9 +64,8 @@ class KommunikationData extends KontakteData {
 	function getConcertContactMail($cid) {
 		$query = "SELECT c.email ";
 		$query .= "FROM contact c JOIN concert_contact cc ON cc.contact = c.id ";
-		$query .= "WHERE cc.concert = $cid";
-		$mailaddies = $this->database->getSelection($query);
-		
+		$query .= "WHERE cc.concert = ?";
+		$mailaddies = $this->database->getSelection($query, array(array("i", $cid)));
 		return $this->flattenAddresses($mailaddies);
 	}
 	
@@ -107,8 +108,8 @@ class KommunikationData extends KontakteData {
 		$query = "SELECT DISTINCT c.email ";
 		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";
 		$query .= "JOIN rehearsal r ON rc.rehearsal = r.id ";
-		$query .= "WHERE r.serie = $serieId";
-		$mailaddies = $this->database->getSelection($query);
+		$query .= "WHERE r.serie = ?";
+		$mailaddies = $this->database->getSelection($query, array(array("i", $serieId)));
 		return $this->flattenAddresses($mailaddies);
 	}
 }

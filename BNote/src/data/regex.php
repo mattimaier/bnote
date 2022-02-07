@@ -253,8 +253,8 @@ class Regex {
 		return (! empty ( $d ) && preg_match ( $this->regex ["login"], $d ));
 	}
 	
-	public function isDbItem($d) {
-		return (!empty($d) && preg_match($this->regex["dbitem"], $d));
+	public function isDbItem($d, $k=NULL) {
+		return $this->isCorrect($d, "dbitem", $k);
 	}
 	
 	/**

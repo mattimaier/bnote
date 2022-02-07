@@ -93,14 +93,14 @@ class KontakteData extends AbstractLocationData {
 		$query .= "  FROM (SELECT contact.* ";
 		$query .= "        FROM contact, contact_group grp ";
 		$query .= "        JOIN `group` ON grp.group = `group`.id ";
-		$query .= "        WHERE contact.id = grp.contact AND grp.group = $group AND `group`.is_active = 1";
+		$query .= "        WHERE contact.id = grp.contact AND grp.group = ? AND `group`.is_active = 1";
 		$query .= "        ) as c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";
 		$query .= "LEFT OUTER JOIN instrument i ON c2.instrument = i.id ";
 		$query .= "ORDER BY c2.name ASC";
 		
-		$contacts = $this->filterSuperUsers($this->database->getSelection($query));
+		$contacts = $this->filterSuperUsers($this->database->getSelection($query, array(array("i", $group))));
 		return $this->appendCustomDataToSelection('c', $contacts);
 	}
 	
@@ -295,9 +295,9 @@ class KontakteData extends AbstractLocationData {
 	function getContactGroups($cid) {
 		$query = "SELECT GROUP_CONCAT(g.name) as grpConcat ";
 		$query .= "FROM `group` g JOIN contact_group cg ON cg.group = g.id ";
-		$query .= "WHERE cg.contact = $cid ";
+		$query .= "WHERE cg.contact = ? ";
 		$query .= "GROUP BY cg.contact";
-		$grpConcat = $this->database->getSelection($query);
+		$grpConcat = $this->database->getSelection($query, array(array("i", $cid)));
 		if(count($grpConcat) > 1) {
 			$grpString = $grpConcat[1]["grpConcat"];
 		}
@@ -308,21 +308,17 @@ class KontakteData extends AbstractLocationData {
 	}
 	
 	function getContactGroupsArray($cid) {
-		$query = "SELECT `group` FROM contact_group WHERE contact = $cid";
-		$res = $this->database->getSelection($query);
-		$groups = array();
-		for($i = 1; $i < count($res); $i++) {
-			array_push($groups, $res[$i]["group"]);
-		}
-		return $groups;
+		$query = "SELECT `group` FROM contact_group WHERE contact = ?";
+		$res = $this->database->getSelection($query, array(array("i", $cid)));
+		return $this->database->flattenSelection($res, "group");
 	}
 	
 	function getContactFullGroups($cid) {
 		$query = "SELECT g.id, g.name
 			    FROM contact_group cg JOIN `group` g ON cg.group = g.id
-				WHERE cg.contact = $cid AND g.is_active = 1
+				WHERE cg.contact = ? AND g.is_active = 1
 		        ORDER BY g.id";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	function getPhases() {
@@ -372,8 +368,8 @@ class KontakteData extends AbstractLocationData {
 	 */
 	function getConcertInvitations($cid) {
 		$this->regex->isPositiveAmount($cid);
-		$query = "SELECT c.* FROM concert_contact cc JOIN concert c ON cc.concert = c.id WHERE cc.contact = $cid";
-		return $this->database->getSelection($query);
+		$query = "SELECT c.* FROM concert_contact cc JOIN concert c ON cc.concert = c.id WHERE cc.contact = ?";
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	/**
@@ -382,8 +378,8 @@ class KontakteData extends AbstractLocationData {
 	 */
 	function getConcertParticipation($uid) {
 		$this->regex->isPositiveAmount($uid);
-		$query = "SELECT c.* FROM concert_user cu JOIN concert c ON cu.concert = c.id WHERE cu.user = $uid";
-		return $this->database->getSelection($query);
+		$query = "SELECT c.* FROM concert_user cu JOIN concert c ON cu.concert = c.id WHERE cu.user = ?";
+		return $this->database->getSelection($query, array(array("i", $uid)));
 	}
 	
 	/**
@@ -392,8 +388,8 @@ class KontakteData extends AbstractLocationData {
 	 */
 	function getRehearsalInvitations($cid) {
 		$this->regex->isPositiveAmount($cid);
-		$query = "SELECT r.* FROM rehearsal_contact rc JOIN rehearsal r ON rc.rehearsal = r.id WHERE rc.contact = $cid";
-		return $this->database->getSelection($query);
+		$query = "SELECT r.* FROM rehearsal_contact rc JOIN rehearsal r ON rc.rehearsal = r.id WHERE rc.contact = ?";
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	/**
@@ -401,9 +397,8 @@ class KontakteData extends AbstractLocationData {
 	 * @param integer $uid User ID.
 	 */
 	function getRehearsalParticipation($uid) {
-		$this->regex->isPositiveAmount($uid);
-		$query = "SELECT r.* FROM rehearsal_user ru JOIN rehearsal r ON ru.rehearsal = r.id WHERE ru.user = $uid";
-		return $this->database->getSelection($query);
+		$query = "SELECT r.* FROM rehearsal_user ru JOIN rehearsal r ON ru.rehearsal = r.id WHERE ru.user = ?";
+		return $this->database->getSelection($query, array(array("i", $uid)));
 	}
 	
 	/**
@@ -411,9 +406,8 @@ class KontakteData extends AbstractLocationData {
 	 * @param integer $cid Contact ID.
 	 */
 	function getRehearsalphaseInvitations($cid) {
-		$this->regex->isPositiveAmount($cid);
-		$query = "SELECT p.* FROM rehearsalphase_contact rc JOIN rehearsalphase p ON rc.rehearsalphase = p.id WHERE rc.contact = $cid";
-		return $this->database->getSelection($query);
+		$query = "SELECT p.* FROM rehearsalphase_contact rc JOIN rehearsalphase p ON rc.rehearsalphase = p.id WHERE rc.contact = ?";
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	/**
@@ -422,18 +416,20 @@ class KontakteData extends AbstractLocationData {
 	 */
 	function getTourInvitations($cid) {
 		$this->regex->isPositiveAmount($cid);
-		$query = "SELECT t.* FROM tour_contact tc JOIN tour t ON tc.tour = t.id WHERE tc.contact = $cid";
-		return $this->database->getSelection($query);
+		$query = "SELECT t.* FROM tour_contact tc JOIN tour t ON tc.tour = t.id WHERE tc.contact = ?";
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	function getContactGdprStatus($ok = 2) {
 		$query = "SELECT c.id as contact_id, u.id as user_id, c.surname, c.name, c.nickname, c.email, c.gdpr_ok, u.login 
 				FROM contact c LEFT OUTER JOIN user u ON u.contact = c.id";
+		$params = array();
 		if($ok != 2) {
-			$query .= " WHERE c.gdpr_ok = $ok";
+			$query .= " WHERE c.gdpr_ok = ?";
+			array_push($params, array("i", $ok));
 		}
 		$query .= "	ORDER BY surname, name";
-		return $this->database->getSelection($query);
+		return $this->database->getSelection($query, $params);
 	}
 	
 	function generateGdprCodes() {

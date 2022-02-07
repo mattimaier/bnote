@@ -133,8 +133,8 @@ function getImagesForGallery() {
 		new BNoteError(Lang::txt("bnixml_getImagesForGallery.error"));
 	}
 	
-	$query = "SELECT * FROM galleryimage WHERE gallery = " . $_GET["id"];
-	echo XmlArray::array_encode($GLOBALS["db"]->getSelection($query));
+	$query = "SELECT * FROM galleryimage WHERE gallery = ?";
+	echo XmlArray::array_encode($GLOBALS["db"]->getSelection($query, array(array("i", $_GET["id"]))));
 }
 
 /**

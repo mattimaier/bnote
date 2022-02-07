@@ -32,7 +32,7 @@ class EquipmentData extends AbstractData {
 	}
 	
 	function findAllEquipment() {
-		$query = "SELECT name, quantity, make, model, purchase_price, current_value, id, notes FROM " . $this->table . " ORDER BY name";
+		$query = "SELECT name, quantity, make, model, purchase_price, current_value, id, notes FROM equipment ORDER BY name";
 		$selection = $this->database->getSelection($query);
 		return $this->appendCustomDataToSelection(EquipmentData::$CUSTOM_DATA_OTYPE, $selection);
 	}

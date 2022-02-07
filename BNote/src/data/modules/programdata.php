@@ -24,7 +24,7 @@ class ProgramData extends AbstractData {
 		$this->init($dir_prefix);
 	}
 	
-	function getProgramme() {
+	function getPrograms() {
 		$query = "SELECT id, name, isTemplate, notes FROM program";
 		return $this->database->getSelection($query);
 	}
@@ -67,18 +67,18 @@ class ProgramData extends AbstractData {
 					LEFT OUTER JOIN composer c ON s.composer = c.id
 					LEFT OUTER JOIN status st ON s.status = st.id 
 					LEFT OUTER JOIN genre g ON s.genre = g.id ";
-		$query .= "WHERE ps.program = $pid ";
+		$query .= "WHERE ps.program = ? ";
 		$query .= "ORDER BY ps.rank ASC";
-		$selection = $this->database->getSelection($query);
+		$selection = $this->database->getSelection($query, array(array("i", $pid)));
 		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
 	
 	function getSongsForProgramPrint($pid) {
 		$query = "SELECT s.title, s.notes, s.length ";
 		$query .= "FROM program_song ps JOIN song s ON ps.song = s.id ";
-		$query .= "WHERE ps.program = $pid ";
+		$query .= "WHERE ps.program = ? ";
 		$query .= "ORDER BY ps.rank ASC";
-		$selection = $this->database->getSelection($query);
+		$selection = $this->database->getSelection($query, array(array("i", $pid)));
 		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
 	
@@ -141,8 +141,8 @@ class ProgramData extends AbstractData {
 	
 	function copySongsFromProgram($program_id, $template_id) {
 		// copy songs with rank to new program
-		$query = "SELECT song, rank FROM program_song WHERE program = $template_id ORDER BY rank";
-		$songs = $this->database->getSelection($query);
+		$query = "SELECT song, rank FROM program_song WHERE program = ? ORDER BY rank";
+		$songs = $this->database->getSelection($query, array(array("i", $template_id)));
 		
 		// compute offset if the program already contains songs
 		$offset = 0;
@@ -170,7 +170,7 @@ class ProgramData extends AbstractData {
 	}
 	
 	function getConcertsWithProgram($pid) {
-		$query = "SELECT * FROM concert WHERE program = $pid";
-		return $this->database->getSelection($query);
+		$query = "SELECT * FROM concert WHERE program = ?";
+		return $this->database->getSelection($query, array(array("i", $pid)));
 	}
 }

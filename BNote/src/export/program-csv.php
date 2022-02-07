@@ -42,9 +42,9 @@ $query = "SELECT s.title, c.name as composer, s.length, s.bpm, s.music_key, g.na
 			JOIN genre g ON s.genre = g.id
 			JOIN composer c ON s.composer = c.id
 			JOIN status ON s.status = status.id
-		WHERE ps.program = " . $_GET["id"] . " 
+		WHERE ps.program = ? 
 		ORDER BY ps.rank ASC";
-$pieces = $db->getSelection($query);
+$pieces = $db->getSelection($query, array(array("i",  $_GET["id"])));
 
 // rename headers
 $pieces[0] = array(Lang::txt("program_csv_Notifier_start.title"), Lang::txt("program_csv_Notifier_start.composer"), Lang::txt("program_csv_Notifier_start.duration"), Lang::txt("program_csv_Notifier_start.bpm"), Lang::txt("program_csv_Notifier_start.key"), Lang::txt("program_csv_Notifier_start.gender"), Lang::txt("program_csv_Notifier_start.status"), Lang::txt("program_csv_Notifier_start.notes"));
