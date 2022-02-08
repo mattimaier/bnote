@@ -435,17 +435,6 @@ class AbstimmungData extends AbstractData {
 		}
 	}
 	
-	function getUserPin($uid = -1) {
-		if($uid == -1) {
-			$uid = $_SESSION["user"];
-		}
-		$pin = $this->database->colValue("SELECT pin FROM user WHERE id = ?", "pin", array(array("i", $uid)));
-		if($pin == null || $pin == "") {
-			$pin = LoginController::createPin($this->database, $uid);
-		}
-		return $pin;
-	}
-	
 	function getOpenVoters($voteId) {
 		// find all contacts that can vote
 		$votersDbSel = $this->database->getSelection("SELECT c.id 

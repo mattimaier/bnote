@@ -175,21 +175,20 @@ class ProbenData extends AbstractLocationData {
 	
 	function saveSongForRehearsal($sid, $rid, $notes) {
 		$this->regex->isText($notes);
-		$query = "INSERT INTO rehearsal_song (song, rehearsal, notes) VALUES ";
-		$query .= "($sid, $rid, \"$notes\")";
-		$this->database->execute($query);
+		$query = "INSERT INTO rehearsal_song (song, rehearsal, notes) VALUES (?, ?, ?)";
+		$this->database->execute($query, array(array("i", $sid), array("i", $rid), array("s", $notes)));
 	}
 	
 	function updateSongForRehearsal($sid, $rid, $notes) {
 		$this->regex->isText($notes);
 		$query = "UPDATE rehearsal_song SET ";
-		$query .= " notes = \"$notes\" WHERE rehearsal = $rid AND song = $sid";
-		$this->database->execute($query);
+		$query .= " notes = ? WHERE rehearsal = ? AND song = ?";
+		$this->database->execute($query, array(array("s", $notes), array("i", $rid), array("i", $sid)));
 	}
 	
 	function removeSongForRehearsal($sid, $rid) {
-		$query = "DELETE FROM rehearsal_song WHERE rehearsal = $rid AND song = $sid";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsal_song WHERE rehearsal = ? AND song = ?";
+		$this->database->execute($query, array(array("i", $rid), array("i", $sid)));
 	}
 	
 	function locationsPresent() {
@@ -213,8 +212,8 @@ class ProbenData extends AbstractLocationData {
 		}
 		
 		// create serie
-		$query = "INSERT INTO rehearsalserie (name) VALUES ('" . $_POST["name"] . "')";
-		$serieId = $this->database->execute($query);
+		$query = "INSERT INTO rehearsalserie (name) VALUES (?)";
+		$serieId = $this->database->execute($query, array(array("s", $_POST["name"])));
 		
 		// process accoding to cycle
 		if($_POST["cycle"] > 0) {
@@ -316,14 +315,11 @@ class ProbenData extends AbstractLocationData {
 				if(!in_array($contact, $contacts)) array_push($contacts, $contact);
 			}
 		}
-		$query = "INSERT INTO rehearsal_contact VALUES ";
 		
-		foreach($contacts as $i => $contact) {
-			if($i > 0) $query .= ", ";
-			$query .= "($rid, $contact)";
-		}
 		if(count($contacts) > 0) {
-			$this->database->execute($query);
+			$s = $this->tupleStmt($rid, $contacts);
+			$query = "INSERT INTO rehearsal_contact VALUES " . $s[0];
+			$this->database->execute($query, $s[1]);
 		}
 		$this->updateGroups($rid, $groups);
 		
@@ -340,20 +336,20 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	public function delete($id) {
-		$query = "DELETE FROM rehearsal_contact WHERE rehearsal = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsal_contact WHERE rehearsal = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
-		$query = "DELETE FROM rehearsal_song WHERE rehearsal = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsal_song WHERE rehearsal = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
-		$query = "DELETE FROM rehearsal_contact WHERE rehearsal = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsal_contact WHERE rehearsal = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
-		$query = "DELETE FROM rehearsal_user WHERE rehearsal = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsal_user WHERE rehearsal = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
-		$query = "DELETE FROM rehearsal_group WHERE rehearsal = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsal_group WHERE rehearsal = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
 		$this->deleteCustomFieldData('r', $id);
 		
@@ -376,21 +372,25 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	public function deleteRehearsalContact($rid, $cid) {
-		$query = "DELETE FROM rehearsal_contact WHERE rehearsal = $rid AND contact = $cid";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsal_contact WHERE rehearsal = ? AND contact = ?";
+		$this->database->execute($query, array(array("i", $rid), array("i", $cid)));
 	}
 	
 	public function addRehearsalContact($rid) {
 		$contacts = GroupSelector::getPostSelection($this->getContacts(), "contact");
-		$query = "INSERT INTO rehearsal_contact VALUES ";
-		$count = 0;
+		$tuples = array();
+		$params = array();
 		foreach($contacts as $i => $cid) {
 			if(!$this->isContactInRehearsal($rid, $cid)) {
-				if($count++ > 0) $query .= ", ";
-				$query .= "($rid, $cid)";
+				array_push($tuples, "(? ,?)");
+				array_push($params, array("i", $rid));
+				array_push($params, array("i", $cid));
 			}
 		}
-		if($count > 0) $this->database->execute($query);
+		if(count($tuples) > 0) {
+			$query = "INSERT INTO rehearsal_contact VALUES " . join(",", $tuples);
+			$this->database->execute($query);
+		}
 	}
 	
 	private function isContactInRehearsal($rid, $cid) {
@@ -449,23 +449,23 @@ class ProbenData extends AbstractLocationData {
 		
 		// check if the series should be deleted completely
 		if(isset($_POST["delete"]) && $_POST["delete"] == "on") {
-			$q1 = "DELETE FROM " . $this->table . " WHERE serie = $serieId";
-			$this->database->execute($q1);
-			$q2 = "DELETE FROM rehearsalserie WHERE id = $serieId";
-			$this->database->execute($q2);
+			$q1 = "DELETE FROM rehearsal WHERE serie = ?";
+			$this->database->execute($q1, array(array("i", $serieId)));
+			$q2 = "DELETE FROM rehearsalserie WHERE id = ?";
+			$this->database->execute($q2, array(array("i", $serieId)));
 		}
 		else if(isset($_POST["update_begin"]) || isset($_POST["update_location"])) {
 			if(isset($_POST["update_begin"])) {
 				$begin = $_POST["begin_hour"] . ":" . $_POST["begin_minute"];
 				$this->regex->isTime($begin);
-				$q3 = "UPDATE rehearsal SET begin = CONCAT(date(begin), ' $begin:00') WHERE serie = $serieId";
-				$this->database->execute($q3);
+				$q3 = "UPDATE rehearsal SET begin = CONCAT(date(begin), ' ', ?, ':00') WHERE serie = ?";
+				$this->database->execute($q3, array(array("s", $begin), array("i", $serieId)));
 			}
 			if(isset($_POST["update_location"])) {
 				$locationId = $_POST["location"];
 				$this->regex->isPositiveAmount($locationId);
-				$q4 = "UPDATE rehearsal SET location = $locationId WHERE serie = $serieId";
-				$this->database->execute($q4);
+				$q4 = "UPDATE rehearsal SET location = ? WHERE serie = ?";
+				$this->database->execute($q4, array(array("i", $locationId), array("i", $serieId)));
 			}
 		}
 	}
@@ -491,12 +491,12 @@ class ProbenData extends AbstractLocationData {
 	 * @param array $groups Group IDs to set.
 	 */
 	private function updateGroups($id, $groups) {
-		$delQuery = "DELETE FROM rehearsal_group WHERE rehearsal = $id";
-		$this->database->execute($delQuery);
+		$delQuery = "DELETE FROM rehearsal_group WHERE rehearsal = ?";
+		$this->database->execute($delQuery, array(array("i", $id)));
 	
-		$insQuery = "INSERT INTO rehearsal_group (rehearsal, `group`) VALUES ($id,";
-		$insQuery .= join("), ($id,", $groups) . ")";
-		$this->database->execute($insQuery);
+		$s = $this->tupleStmt($id, $groups);
+		$insQuery = "INSERT INTO rehearsal_group (rehearsal, `group`) VALUES " . $s[0];
+		$this->database->execute($insQuery, $s[1]);
 	}
 	
 	public function validate($input) {
@@ -539,8 +539,8 @@ class ProbenData extends AbstractLocationData {
 				$partQuery = "SELECT participate FROM rehearsal_user WHERE rehearsal = ? AND user = ?";
 				$part = $this->database->colValue($partQuery, "participate", array(array("i", $rehearsal_id), array("i", $user_id)));
 				if($part != $participation) {
-					$del_query = "DELETE FROM rehearsal_user WHERE rehearsal = $rehearsal_id AND user = $user_id";
-					$this->database->execute($del_query);
+					$del_query = "DELETE FROM rehearsal_user WHERE rehearsal = ? AND user = ?";
+					$this->database->execute($del_query, array(array("i", $rehearsal_id), array("i", $user_id)));
 					$do_update = true;
 				}
 			}

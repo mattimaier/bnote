@@ -57,10 +57,12 @@ class TourData extends AbstractLocationData {
 		$this->regex->isPositiveAmount($ref_id);
 		
 		$table = "tour_" . $ref_entity;
-		$insert = "INSERT INTO $table (tour, $ref_entity) VALUES ($tour_id, $ref_id)";
+		$this->regex->isDbItem($table, "table");
+		$this->regex->isDbItem($ref_entity, "ref_entity");
 		
 		$this->removeReference($tour_id, $ref_entity, $ref_id);
-		$this->database->execute($insert);
+		$insert = "INSERT INTO $table (tour, $ref_entity) VALUES (?, ?)";
+		$this->database->execute($insert, array(array("i", $tour_id), array("i", $ref_id)));
 	}
 	
 	function removeReference($tour_id, $ref_entity, $ref_id) {
@@ -68,8 +70,10 @@ class TourData extends AbstractLocationData {
 		$this->regex->isPositiveAmount($ref_id);
 		
 		$table = "tour_" . $ref_entity;
-		$remove = "DELETE FROM $table WHERE tour = $tour_id AND $ref_entity = $ref_id";
-		$this->database->execute($remove);
+		$this->regex->isDbItem($table, "table");
+		$this->regex->isDbItem($ref_entity, "ref_entity");
+		$remove = "DELETE FROM $table WHERE tour = ? AND $ref_entity = ?";
+		$this->database->execute($remove, array(array("i", $tour_id), array("i", $ref_id)));
 	}
 	
 	/**
@@ -168,9 +172,10 @@ class TourData extends AbstractLocationData {
 			
 			// remove from list if present --> update by replacement
 			$this->removeReference($tour, "equipment", $eqid);
-			$insert = "INSERT INTO tour_equipment (tour, equipment, quantity, notes)
-					   VALUES ($tour, $eqid, $quantity, \"$notes\")";
-			$this->database->execute($insert);
+			$insert = "INSERT INTO tour_equipment (tour, equipment, quantity, notes) VALUES (?, ?, ?, ?)";
+			$this->database->execute($insert, array(
+					array("i", $tour), array("i", $eqid), array("i", $quantity), array("s", $notes)
+			));
 		}
 	}
 	

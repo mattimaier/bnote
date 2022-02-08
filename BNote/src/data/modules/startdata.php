@@ -71,10 +71,11 @@ class StartData extends AbstractLocationData {
 			$uid = $_SESSION["user"];
 		}
 		$table = $entity . "_user";
+		$this->regex->isDbItem($table, "table"); // checks both entity and table value
 		
 		// remove
-		$query = "DELETE FROM $table WHERE $entity = $id AND user = $uid";
-		$this->database->execute($query);
+		$query = "DELETE FROM $table WHERE $entity = ? AND user = ?";
+		$this->database->execute($query, array(array("i", $id), array("i", $uid)));
 		
 		// insert
 		if($reason != null && isset($_POST["explanation"])) {
@@ -85,8 +86,10 @@ class StartData extends AbstractLocationData {
 			$reason = "";
 		}
 		$query = "INSERT INTO $table ($entity, user, participate, reason)";
-		$query .= " VALUES ($id, $uid, $participate, \"$reason\")";
-		$this->database->execute($query);
+		$query .= " VALUES (?, ?, ?, ?)";
+		$this->database->execute($query, array(
+				array("i", $id), array("i", $uid), array("i", $participate), array("s", $reason)
+		));
 	}
 	
 	function getSongsForRehearsal($rid) {
@@ -150,36 +153,43 @@ class StartData extends AbstractLocationData {
 		
 		// remove eventual old votes first
 		$options = $this->getOptionsForVote($vid);
-		$query = "DELETE FROM vote_option_user WHERE (";
+		$params = array();
+		$tuples = array();
 		for($i = 1; $i < count($options); $i++) {
-			if($i > 1) $query .= " OR ";
-			$query .= " vote_option = " . $options[$i]["id"];
+			array_push($tuples, "vote_option = ?");
+			array_push($params, array("i", $options[$i]["id"]));
 		}
-		$query .= ") AND user = $user";
-		$this->database->execute($query);
+		$query = "DELETE FROM vote_option_user WHERE " . join(" OR ", $tuples) . " AND user = ?";
+		array_push($params, array("i", $user));
+		$this->database->execute($query, $params);
 		
 		if($vote["is_multi"] == 1) {
 			// mutiple options choosable
-			$maybeOn = ($this->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == 1);
-			$query = "INSERT INTO vote_option_user (vote_option, user, choice) VALUES ";
-			$c = 0;
+			$maybeOn = $this->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == 1;
+			
+			$triples = array();
+			$params2 = array();
 			foreach($values as $optionId => $choice) {
-				if($c > 0) $query .= ",";
 				if($maybeOn) {
-					$query .= "($optionId, $user, $choice)";
+					array_push($triples, "(?, ?, ?)");
+					array_push($params2, array("i", $optionId));
+					array_push($params2, array("i", $user));
+					array_push($params2, array("i", $choice));
 				}
 				else {
-					$query .= "($optionId, $user, 1)";
+					array_push($triples, "(?, ?, 1)");
+					array_push($params2, array("i", $optionId));
+					array_push($params2, array("i", $user));
 				}
 				$c++;
 			}
- 			$this->database->execute($query);
+			$query = "INSERT INTO vote_option_user (vote_option, user, choice) VALUES " . join(",", $triples);
+ 			$this->database->execute($query, $params2);
 		}
 		else {
 			// single option only
-			$query = "INSERT INTO vote_option_user (vote_option, user, choice) VALUES ";
-			$query .= "(" . $values["uservote"] . ", $user, 1)";
-			$this->database->execute($query);
+			$query = "INSERT INTO vote_option_user (vote_option, user, choice) VALUES (?, ?, 1)";
+			$this->database->execute($query, array(array("i", $values["uservote"]), array("i", $user)));
 		}
 	}
 	
@@ -332,11 +342,10 @@ class StartData extends AbstractLocationData {
 		if($author == -1) $author = $_SESSION["user"];
 		
 		// insertion
-		$query = "INSERT INTO comment (otype, oid, author, created_at, message) VALUES (";
-		$query .= "'$otype', $oid, $author, now(), '$message'";
-		$query .= ")";
-		
-		return $this->database->execute($query);
+		$query = "INSERT INTO comment (otype, oid, author, created_at, message) VALUES (?, ?, ?, now(), ?)";		
+		return $this->database->execute($query, array(
+				array("s", $otype), array("i", $oid), array("i", $author), array("s", $message)
+		));
 	}
 	
 	function getContactsForObject($otype, $oid) {

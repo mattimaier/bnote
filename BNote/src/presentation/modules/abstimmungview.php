@@ -368,7 +368,7 @@ class AbstimmungView extends CrudView {
 		$(document).ready(function() {
 			// load result over BNA
 			$.ajax({
-				url: "src/export/bna-json.php?pin=<?php echo $this->getData()->getUserPin(); ?>&func=getVoteResult&id=<?php echo $_GET["id"]; ?>",
+				url: "src/export/bna-json.php?func=getVoteResult&id=<?php echo $_GET["id"]; ?>",
 				dataType: "json",
 				success: function(data) {
 					graphData = convertVoteResult(data);

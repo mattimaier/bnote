@@ -82,8 +82,8 @@ class RepertoireData extends AbstractData {
 			}
 			else {
 				// add as a new composer
-				$query = "INSERT INTO composer (name) VALUES (\"" . $values["composer"] . "\")";
-				$values["composer"] = $this->database->execute($query);
+				$query = "INSERT INTO composer (name) VALUES (?)";
+				$values["composer"] = $this->database->execute($query, array("s", $values["composer"]));
 			}
 		}
 		else {
@@ -128,8 +128,8 @@ class RepertoireData extends AbstractData {
 				$cid = $this->doesComposerExist($values["composer"]);
 				if($cid > 0) {
 					// YES: composer exists, but is not used by another song
-					$query = "UPDATE composer SET name = \"" . $values["composer"] . "\" WHERE id = $cid";
-					$this->database->execute($query);
+					$query = "UPDATE composer SET name = ? WHERE id = ?";
+					$this->database->execute($query, array(array("s", $values["composer"]), array("i", $cid)));
 					$values["composer"] = $cid;
 				}
 				else {
@@ -160,8 +160,8 @@ class RepertoireData extends AbstractData {
 	
 	protected function createComposer($name) {
 		$this->regex->isSubject($name);
-		$query = "INSERT INTO composer (name) VALUES (\"$name\")";
-		return $this->database->execute($query);
+		$query = "INSERT INTO composer (name) VALUES (?)";
+		return $this->database->execute($query, array(array("s", $name)));
 	}
 	
 	function delete($id) {
@@ -239,19 +239,20 @@ class RepertoireData extends AbstractData {
 	
 	function addSolist($songId) {
 		$solistIds = GroupSelector::getPostSelection($this->adp()->getContacts(), "solists");
-		
-		$query = "INSERT INTO song_solist VALUES ";
+		$params = array();
+		$triples = array();
 		foreach($solistIds as $i => $solistId) {
-			if($i > 0) $query .= ",";
-			$query .= "($songId, $solistId, \"\")";
+			array_push($triples, "(?, ?, '')");
+			array_push($params, array("i", $songId));
+			array_push($params, array("i", $solistId));
 		}
-		
-		$this->database->execute($query);
+		$query = "INSERT INTO song_solist VALUES " . join(",", $triples);
+		$this->database->execute($query, $params);
 	}
 	
 	function deleteSolist($songId, $solistId) {
-		$query = "DELETE FROM song_solist WHERE song = $songId AND contact = $solistId";
-		$this->database->execute($query);
+		$query = "DELETE FROM song_solist WHERE song = ? AND contact = ?";
+		$this->database->execute($query, array(array("i", $songId), array("i", $solistId)));
 	}
 	
 	function getGenres() {
@@ -377,12 +378,16 @@ class RepertoireData extends AbstractData {
 	function addFile($songId, $filename, $doctype) {
 		$this->regex->isNumber($songId);
 		$this->regex->isNumber($doctype);
-		$q = "INSERT INTO song_files (song, filepath, doctype) VALUES ($songId, '$filename', '$doctype')";
-		$this->database->execute($q);
+		$q = "INSERT INTO song_files (song, filepath, doctype) VALUES (?, ?, ?)";
+		$this->database->execute($q, array(
+				array("i", $songId),
+				array("s", $filename),
+				array("s", $doctype)
+		));
 	}
 	
 	function deleteFileReference($songfileId) {
-		$this->database->execute("DELETE FROM song_files WHERE id = $songfileId");
+		$this->database->execute("DELETE FROM song_files WHERE id = ?", array(array("i", $songfileId)));
 	}
 	
 	function getShareFiles() {
@@ -416,25 +421,31 @@ class RepertoireData extends AbstractData {
 	function massUpdate() {
 		// build update set
 		$keyValues = array();
+		$params = array();
 		if($_POST['genre'] > 0) {
 			$this->regex->isPositiveAmount($_POST["genre"]);
-			array_push($keyValues, "genre = " . $_POST['genre']);
+			array_push($keyValues, "genre = ?");
+			array_push($params, array("i", $_POST['genre']));
 		}
 		if($_POST['status'] > 0) {
 			$this->regex->isPositiveAmount($_POST["status"]);
-			array_push($keyValues, "status = " . $_POST["status"]);
+			array_push($keyValues, "status = ?");
+			array_push($params, array("i", $_POST["status"]));
 		}
 		if($_POST['bpm'] != "") {
 			$this->regex->isPositiveAmount($_POST['bpm']);
-			array_push($keyValues, "bpm = " . $_POST['bpm']);
+			array_push($keyValues, "bpm = ?");
+			array_push($params, array("i", $_POST['bpm']));
 		}
 		if($_POST['music_key'] != "") {
 			$this->regex->isSubject($_POST['music_key']);
-			array_push($keyValues, "music_key = \"" . $_POST['music_key'] . "\"");
+			array_push($keyValues, "music_key = ?");
+			array_push($params, array("s", $_POST['music_key']));
 		}
 		if($_POST['setting'] != "") {
 			$this->regex->isText($_POST['setting']);
-			array_push($keyValues, "setting = \"" . $_POST['setting'] . "\"");
+			array_push($keyValues, "setting = ?");
+			array_push($params, array("s", $_POST['setting']));
 		}
 		$keyValues = join(",", $keyValues);
 		
@@ -443,11 +454,15 @@ class RepertoireData extends AbstractData {
 		if(count($songIds) == 0) {
 			new BNoteError(Lang::txt("RepertoireData_massUpdate_error"));
 		}
-		$idQuery = join(" OR id=", $songIds);
+		$idQuery = array();
+		foreach($songIds as $i => $sid) {
+			array_push($idQuery, "id = ?");
+			array_push($params, array("i", $sid));
+		}
 		
 		// execute query
-		$query = "UPDATE " . $this->getTable() . " SET " . $keyValues . " WHERE id=" . $idQuery;
-		$this->database->execute($query);
+		$query = "UPDATE song SET " . join(",", $keyValues). " WHERE " . join(" OR ", $idQuery);
+		$this->database->execute($query, $params);
 	}
 	
 	function findReferences($songId) {

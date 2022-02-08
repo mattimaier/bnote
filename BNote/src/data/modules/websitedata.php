@@ -89,11 +89,12 @@ class WebsiteData extends AbstractData {
 	
 	function editInfo($id) {
 		// update the edit date and author
-		$query = "UPDATE " . $this->table;
-		$query .= " SET author = " . $_SESSION["user"] . ", ";
-		$query .=    "editedOn = \"" . date("Y-m-d H:i:s") . "\" ";
-		$query .= " WHERE id = $id";
-		$this->database->execute($query);
+		$query = "UPDATE infos SET author = ?, editedOn = ? WHERE id = ?";
+		$this->database->execute($query, array(
+				array("i", $_SESSION["user"]),
+				array("s", date("Y-m-d H:i:s")),
+				array("i", $id)
+		));
 	
 		// and replace the content
 		$filename = $this->controller->getFilenameForInfo($id);
@@ -120,8 +121,8 @@ class WebsiteData extends AbstractData {
 		$this->regex->isName($values["name"]);
 		
 		// create database entry
-		$query = "INSERT INTO gallery (name) VALUES (\"" . $values["name"] . "\")";
-		$gid = $this->database->execute($query);
+		$query = "INSERT INTO gallery (name) VALUES (?)";
+		$gid = $this->database->execute($query, array(array("s", $values["name"])));
 		
 		// create directories in gallery root and thumbs
 		mkdir($this->thumb_dir . $gid);
@@ -150,19 +151,19 @@ class WebsiteData extends AbstractData {
 		rmdir($this->gallery_dir . $id);
 		
 		// delete images from db
-		$query = "DELETE FROM galleryimage WHERE gallery = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM galleryimage WHERE gallery = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
 		// delete gallery
-		$query = "DELETE FROM gallery WHERE id = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM gallery WHERE id = ?";
+		$this->database->execute($query, array(array("i", $id)));
 	}
 	
 	function editGallery($id, $values) {
 		$this->regex->isName($values["name"]);
 		
-		$query = "UPDATE gallery SET name = \"" . $values["name"] . "\" WHERE id = $id";
-		$this->database->execute($query);
+		$query = "UPDATE gallery SET name = ? WHERE id = ?";
+		$this->database->execute($query, array(array("s", $values["name"]), array("i", $id)));
 	}
 	
 	/**
@@ -197,12 +198,10 @@ class WebsiteData extends AbstractData {
 			$description = $_POST["description"];
 		}
 		
-		$query = "INSERT INTO galleryimage (filename, name, description, gallery) ";
-		$query .= " VALUES (";
-		$query .= "\"$filename\", \"" . $_POST["name"] . "\", \"$description\", ";
-		$query .= $gid;
-		$query .= ")";
-		$iid = $this->database->execute($query);
+		$query = "INSERT INTO galleryimage (filename, name, description, gallery) VALUES (?, ?, ?, ?)";
+		$iid = $this->database->execute($query, array(
+				array("s", $filename), array("s", $_POST["name"]), array("s", $description), array("i", $gid)
+		));
 		
 		// resize image and save it in gallery folder
 		$img = new SimpleImage();
@@ -232,11 +231,12 @@ class WebsiteData extends AbstractData {
 		}
 		
 		// udpate db
-		$query = "UPDATE galleryimage SET ";
-		$query .= 'name = "' . $values["name"] . '", ';
-		$query .= 'description = "' . $values["description"] . '" ';
-		$query .= " WHERE id = $id";
-		$this->database->execute($query);
+		$query = "UPDATE galleryimage SET name = ?, description = ? WHERE id = ?";
+		$this->database->execute($query, array(
+				array("s", $values["name"]),
+				array("s", $values["description"]),
+				array("i", $id)
+		));
 	}
 	
 	function deleteImage($id) {
@@ -255,14 +255,14 @@ class WebsiteData extends AbstractData {
 		unlink($image);
 		
 		// remove database entry
-		$query = "DELETE FROM galleryimage WHERE id = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM galleryimage WHERE id = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
 		// check whether image was gallery thumb, if so set that to null
 		$g = $this->getGallery($img["gallery"]);
 		if($g["previewimage"] == $id) {
-			$query = "UPDATE gallery SET previewimage = NULL WHERE id = " . $img["gallery"];
-			$this->database->execute($query);
+			$query = "UPDATE gallery SET previewimage = NULL WHERE id = ?";
+			$this->database->execute($query, array(array("i", $img["gallery"])));
 		}
 	}
 	
@@ -271,9 +271,8 @@ class WebsiteData extends AbstractData {
 		$img = $this->getImage($id);
 		
 		// set this image as the gallery's previewimage
-		$query = "UPDATE gallery SET previewimage = $id WHERE id = " . $img["gallery"];
-		$this->database->execute($query);
-		
+		$query = "UPDATE gallery SET previewimage = ? WHERE id = ?";
+		$this->database->execute($query, array(array("i", $id), array("i", $img["gallery"])));
 	}
 }
 

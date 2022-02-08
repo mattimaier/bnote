@@ -51,8 +51,8 @@ class ProgramData extends AbstractData {
 	
 	function delete($id) {
 		// also remove the entries in program_song
-		$query = "DELETE FROM program_song WHERE program = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM program_song WHERE program = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
 		parent::delete($id);
 	}
@@ -96,18 +96,22 @@ class ProgramData extends AbstractData {
 		$max = $this->database->colValue("SELECT max(rank) as mr FROM program_song WHERE program = ?", "mr", array(array("i", $pid)));
 		$rank = $max+1;
 		
-		$query = "INSERT INTO program_song (program, song, rank) VALUES ($pid, " . $_POST["song"] . ", $rank)";
-		$this->database->execute($query);
+		$query = "INSERT INTO program_song (program, song, rank) VALUES (?, ?, ?)";
+		$this->database->execute($query, array(
+				array("i", $pid),
+				array("i", $_POST["song"]),
+				array("i", $rank)
+		));
 	}
 	
 	function deleteSongFromProgram($pid, $sid) {
-		$query = "DELETE FROM program_song WHERE program = $pid AND song = $sid";
-		$this->database->execute($query);
+		$query = "DELETE FROM program_song WHERE program = ? AND song = ?";
+		$this->database->execute($query, array(array("i", $pid), array("i", $sid)));
 	}
 	
 	function updateRank($pid, $psid, $r) {
-		$query = "UPDATE program_song SET rank = $r WHERE id = $psid";
-		$this->database->execute($query);
+		$query = "UPDATE program_song SET rank = ? WHERE id = ?";
+		$this->database->execute($query, array(array("i", $r), array("i", $psid)));
 	}
 	
 	function totalProgramLength() {
@@ -152,16 +156,18 @@ class ProgramData extends AbstractData {
 		}
 		
 		// add songs from template to program
-		$query = "INSERT INTO program_song (program, song, rank) VALUES ";
+		$params = array();
 		$items = array();
 		for($i = 1; $i < count($songs); $i++) {
 			$rank = $offset + $i;
-			$item = "($program_id,". $songs[$i]["song"] .",$rank)";
-			array_push($items, $item);
+			array_push($items, "(?, ?, ?)");
+			array_push($params, array("i", $program_id));
+			array_push($params, array("i", $songs[$i]["song"]));
+			array_push($params, array("i", $rank));
 		}
 		if(count($items) > 0) {
-			$query = $query . join(",", $items);
-			$this->database->execute($query);
+			$query = "INSERT INTO program_song (program, song, rank) VALUES ". join(",", $items);
+			$this->database->execute($query, $params);
 		}
 	}
 	

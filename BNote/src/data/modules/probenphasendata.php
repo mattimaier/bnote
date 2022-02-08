@@ -69,23 +69,25 @@ class ProbenphasenData extends AbstractData {
 	}
 	
 	private function addEntities($phaseId, $entity, $data) {
-		$query = "INSERT INTO rehearsalphase_$entity VALUES ";
-		$count = 0;
+		$this->regex->isDbItem($entity, "entity");
 		
+		$tuples = array();
+		$params = array();
 		foreach($data as $i => $row) {
 			if($i == 0) continue;
 			$fieldName = $entity . "_" . $row["id"];
-		
+			$this->regex->isDbItem($fieldName);
 			if(isset($_POST[$fieldName]) && $_POST[$fieldName] == "on") {
 				if($this->idInPhase($phaseId, $row["id"], $entity)) continue;
-				if($count > 0) $query .= ",";
-				$query .= "($phaseId, " . $row["id"] . ")";
-				$count++;
+				array_push($tuples, "(?, ?)");
+				array_push($params, array("i", $phaseId));
+				array_push($params, array("i", $row["id"]));
 			}
 		}
 		
-		if($count > 0) {
-			$this->database->execute($query);
+		if(count($tuples) > 0) {
+			$query = "INSERT INTO rehearsalphase_$entity VALUES " . join(", ", $tuples);
+			$this->database->execute($query, $params);
 		}
 	}
 	
@@ -136,24 +138,27 @@ class ProbenphasenData extends AbstractData {
 			$contacts = $this->database->getSelection($query, $params);
 			
 			// add non-super-user contacts to phase
-			$query = "INSERT INTO rehearsalphase_contact VALUES ";
-			$count = 0;			
+			$tuples = array();
+			$params = array();
 			for($i = 1; $i < count($contacts); $i++) {
 				$cid = $contacts[$i]["id"];
 				if(!$this->isContactSuperUser($cid) && !$this->idInPhase($phaseId, $cid, "contact")) {
-					if($count++ > 0) $query .= ", ";
-					$query .= "( $phaseId, $cid )";
+					array_push($tuples, "(?, ?)");
+					array_push($params, array("i", $phaseId));
+					array_push($params, array("i", $cid));
 				}
 			}
 			if($count > 0) {
-				$this->database->execute($query);
+				$query = "INSERT INTO rehearsalphase_contact VALUES " . join(",", $tuples);
+				$this->database->execute($query, $params);
 			}
 		}
 	}
 	
 	function deleteEntity($entity, $phaseId, $entityId) {
-		$query = "DELETE FROM rehearsalphase_$entity WHERE rehearsalphase = $phaseId AND $entity = $entityId";
-		$this->database->execute($query);
+		$this->regex->isDbItem($entity, "rehersalphase_<entity>");
+		$query = "DELETE FROM rehearsalphase_$entity WHERE rehearsalphase = ? AND $entity = ?";
+		$this->database->execute($query, array(array("i", $phaseId), array("i", $entityId)));
 	}
 	
 	function isContactSuperUser($cid) {
@@ -163,14 +168,14 @@ class ProbenphasenData extends AbstractData {
 	
 	function delete($id) {
 		// first remove all relations
-		$query = "DELETE FROM rehearsalphase_rehearsal WHERE rehearsalphase = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsalphase_rehearsal WHERE rehearsalphase = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
-		$query = "DELETE FROM rehearsalphase_concert WHERE rehearsalphase = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsalphase_concert WHERE rehearsalphase = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
-		$query = "DELETE FROM rehearsalphase_contact WHERE rehearsalphase = $id";
-		$this->database->execute($query);
+		$query = "DELETE FROM rehearsalphase_contact WHERE rehearsalphase = ?";
+		$this->database->execute($query, array(array("i", $id)));
 		
 		// delete rehearsalphase
 		parent::delete($id);

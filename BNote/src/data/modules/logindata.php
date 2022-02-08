@@ -48,8 +48,7 @@ class LoginData extends AbstractLocationData {
 	
 	function saveLastLogin() {
 		// Save last logged in
-		$uid = $_SESSION["user"];
-		$this->database->execute("UPDATE " . $this->table . " SET lastlogin = NOW() WHERE id = $uid");
+		$this->database->execute("UPDATE user SET lastlogin = NOW() WHERE id = ?", array(array("i", $_SESSION["user"])));
 	}
 	
 	function getStartModuleId() {
@@ -82,8 +81,8 @@ class LoginData extends AbstractLocationData {
 	}
 	
 	function saveNewPassword($uid, $pwenc) {
-		$query = "UPDATE user SET password = '$pwenc' WHERE id = $uid";
-		$this->database->execute($query);
+		$query = "UPDATE user SET password = ? WHERE id = ?";
+		$this->database->execute($query, array(array("s", $pwenc), array("i", $uid)));
 	}
 	
 	function getInstruments() {
@@ -118,37 +117,35 @@ class LoginData extends AbstractLocationData {
 	}
 	
 	function createContact($aid) {
-		$query = "INSERT INTO contact (surname, name, phone, email, address, instrument)";
-		$query .= " VALUES (";
-		$query .= '"' . $_POST["surname"] . '", ';
-		$query .= '"' . $_POST["name"] . '", ';
-		$query .= '"' . $_POST["phone"] . '", ';
-		$query .= '"' . $_POST["email"] . '", ';
-		$query .= "$aid, ";
-		$query .= $_POST["instrument"];
-		$query .= ")";
-		$cid = $this->database->execute($query);
+		$query = "INSERT INTO contact (surname, name, phone, email, address, instrument) VALUES (?, ?, ?, ?, ?, ?)";
+		$cid = $this->database->execute($query, array(
+				array("s", $_POST["surname"]),
+				array("s", $_POST["name"]),
+				array("s", $_POST["phone"]),
+				array("s", $_POST["email"]),
+				array("i", $aid),
+				array("i", $_POST["instrument"])
+		));
 		
 		// get configured default group
 		$defaultGroup = $this->getSysdata()->getDynamicConfigParameter("default_contact_group");
 		if($defaultGroup == null || $defaultGroup == "") $defaultGroup = 2; // fallback
 		
 		// add the contact to the members group (gid=2)
-		$query = "INSERT INTO contact_group (contact, `group`) VALUES ($cid, $defaultGroup)"; 
-		$this->database->execute($query);
+		$query = "INSERT INTO contact_group (contact, `group`) VALUES (?, ?)"; 
+		$this->database->execute($query, array(array("i", $cid), array("i", $defaultGroup)));
 		
 		return $cid;
 	}
 	
 	function createUser($login, $password, $cid) {
 		// create inactive user
-		$query = "INSERT INTO user (login, password, isActive, contact)";
-		$query .= " VALUES (";
-		$query .= '"' . $login . '", ';
-		$query .= '"' . $password . '", ';
-		$query .= "0, $cid";
-		$query .= ")";
-		$uid = $this->database->execute($query);
+		$query = "INSERT INTO user (login, password, isActive, contact) VALUES (?, ?, 0, ?)";
+		$uid = $this->database->execute($query, array(
+				array("s", $login),
+				array("s", $password),
+				array("i", $cid)
+		));
 		
 		// create user directory
 		$dir_prefix = "";
@@ -162,13 +159,9 @@ class LoginData extends AbstractLocationData {
 	}
 	
 	function createDefaultRights($uid) {
-		$privQuery = "INSERT INTO privilege (user, module) VALUES ";
-		global $system_data;
-		foreach($system_data->getDefaultUserCreatePermissions() as $i => $mod) {
-			$privQuery .= "($uid, $mod), ";
-		}
-		$privQuery = substr($privQuery, 0, strlen($privQuery)-2);
-		$this->database->execute($privQuery);
+		$s = $this->tupleStmt($uid, $this->getSysdata()->getDefaultUserCreatePermissions());
+		$privQuery = "INSERT INTO privilege (user, module) VALUES " . $s[0];
+		$this->database->execute($privQuery, $s[1]);
 	}
 	
 	function findContactByCode($code) {
@@ -178,6 +171,6 @@ class LoginData extends AbstractLocationData {
 	
 	function gdprOk($code) {
 		$this->regex->isSubject($code);
-		$this->database->execute("UPDATE contact SET gdpr_ok = 1 WHERE gdpr_code = '$code'");
+		$this->database->execute("UPDATE contact SET gdpr_ok = 1 WHERE gdpr_code = ?", array(array("s", $code)));
 	}
 }

@@ -228,24 +228,4 @@ class LoginController extends DefaultController {
 		
 		return array("user" => $uid, "contact" => $cid, "address" => $aid, "mailOk" => $mailOk, "message" => $outMsg);
 	}
-	
-	public static function createPin($db, $uid) {
-		//FIXME: remove pin auth
-		// create a pin
-		$lower_bound = 100000;
-		$upper_bound = 999999;
-		$pin = 0;
-		$pin_exists = 1;
-			
-		while($pin_exists > 0) {
-			$pin = rand($lower_bound, $upper_bound);
-			$pin_exists = $db->colValue("SELECT count(id) as cnt FROM user WHERE pin = ?", "cnt", array(array("i", $pin)));
-		}
-			
-		// save new pin
-		$query = "UPDATE " . $db->getUserTable() . " SET pin = $pin WHERE id = $uid";
-		$db->execute($query);
-		
-		return $pin;
-	}
 }

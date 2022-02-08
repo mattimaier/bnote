@@ -49,7 +49,7 @@ if($db_pw == $password) {
 	$_SESSION["user"] = $userid;
 	
 	// Save last logged in
-	$db->execute("UPDATE " . $db->getUserTable() . " SET lastlogin = NOW() WHERE id = $userid");
+	$db->execute("UPDATE user SET lastlogin = NOW() WHERE id = ?", array(array("i", $userid)));
 	
 	// go to application
 	header("Location: ../../main.php?mod=" . $sysconfig->getParameter("StartModule"));

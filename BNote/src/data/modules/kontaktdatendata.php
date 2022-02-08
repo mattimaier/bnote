@@ -54,14 +54,6 @@ class KontaktdatenData extends KontakteData {
 		AbstractData::update($contact_id, $values); // includes validation
 	}
 	
-	function getPIN($uid) {
-		$pin = $this->database->colValue("SELECT pin FROM user WHERE id = ?", "pin", array(array("i", $uid)));
-		if($pin == null || $pin == "") {
-			$pin = LoginController::createPin($this->database, $uid);
-		}
-		return $pin; 
-	}
-	
 	function saveSettings($uid) {
 		$query = "UPDATE user SET email_notification = ? WHERE id = ?";
 		$emn = $_POST["email_notification"] == "" ? 0 : 1;

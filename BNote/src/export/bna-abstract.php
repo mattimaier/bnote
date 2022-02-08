@@ -268,13 +268,6 @@ abstract class AbstractBNA implements iBNA {
 			}
 			$this->getSongsToPractise($_GET["rid"]);
 		}
-		else if($function == "mobilePin") {
-			if(!isset($_POST["login"]) || !isset($_POST["password"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->mobilePin($_POST["login"], $_POST["password"]);
-		}
 		else if($function == "getVoteResult") {
 			// validation
 			if(!isset($_GET["id"])) {
@@ -1274,27 +1267,6 @@ abstract class AbstractBNA implements iBNA {
 		unset($contact["status"]); // not existent anymore
 		
 		$this->writeEntity($contact, "contact");
-	}
-	
-	function mobilePin($login, $password) {
-		//FIXME: remove pin auth
-		$loginCtrl = new LoginController();
-		$loginData = new LoginData($GLOBALS["dir_prefix"]);
-		$loginCtrl->setData($loginData);
-		if($loginCtrl->doLogin(true)) {
-			$uid = $_SESSION["user"];
-			//FIXME: remove pin auth
-			$pin = $this->db->colValue("SELECT pin FROM user WHERE id = ?", "pin", array(array("i", $uid)));
-			if($pin == "") {
-				$pin = LoginController::createPin($this->db, $uid);
-			}
-			unset($_SESSION["user"]); // logout
-			echo $pin;
-		}
-		else {
-			header("HTTP/1.0 403 Permission Denied.");
-			echo "Invalid Credentials.";
-		}
 	}
 	
 	function hasUserAccess() {

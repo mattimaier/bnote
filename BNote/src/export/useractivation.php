@@ -29,8 +29,8 @@ if($email != $user_email) {
 }
 
 // ACTIVATE USER
-$query = "UPDATE " . $db->getUserTable() . " SET isActive = 1 WHERE id = $userid";
-$db->execute($query);
+$query = "UPDATE user SET isActive = 1 WHERE id = ?";
+$db->execute($query, array(array("i", $userid)));
 echo Lang::txt("useractivation_update.message");
 
 

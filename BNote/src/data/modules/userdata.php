@@ -80,14 +80,9 @@ class UserData extends AbstractData {
 		$userId = parent::create($newUsr);
 
 		// add default privileges
-		global $system_data;
-		$privQuery = "INSERT INTO privilege (user, module) VALUES ";
-		
-		foreach($system_data->getDefaultUserCreatePermissions() as $i => $mod) {
-			$privQuery .= "($userId, $mod), ";
-		}
-		$privQuery = substr($privQuery, 0, strlen($privQuery)-2);
-		$this->database->execute($privQuery);
+		$s = $this->tupleStmt($userId, $this->getSysdata()->getDefaultUserCreatePermissions());
+		$privQuery = "INSERT INTO privilege (user, module) VALUES " . $s[0];
+		$this->database->execute($privQuery, $s[1]);
 		
 		// create user directory
 		mkdir($this->getSysdata()->getUsersHomeDir($userId));
@@ -196,22 +191,15 @@ class UserData extends AbstractData {
 		}
 		
 		// clear privileges
-		$query = "DELETE FROM privilege WHERE user = $uid";
-		$this->database->execute($query);
+		$query = "DELETE FROM privilege WHERE user = ?";
+		$this->database->execute($query, array(array("i", $uid)));
 		
 		// insert privileges
 		// $_POST format: [modid] => [on] , if [modid] not in array = off
-		$query = "INSERT INTO privilege (user, module) VALUES ";
-		$count = 0;
-		
-		foreach($_POST as $mid => $status) {
-			$query .= "($uid, $mid), ";
-			$count++;
-		}
-		$query = substr($query, 0, strlen($query)-2); // cut last ", "
-		
-		if($count > 0) {
-			$this->database->execute($query);
+		$s = $this->tupleStmt($uid, array_keys($_POST));
+		if(count($s[1]) > 0) {
+			$query = "INSERT INTO privilege (user, module) VALUES " . $s[0];
+			$this->database->execute($query, $s[1]);
 		}
 	}
 	
@@ -232,17 +220,16 @@ class UserData extends AbstractData {
 					new BNoteError(Lang::txt("UserData_changeUserStatus.error"));
 		}
 		
-		$query = "UPDATE " . $this->table . " SET isActive =";
 		$isActiveNow = false;
+		$activeInt = 1;
 		if($this->isUserActive($id)) {
-			$query .= "0";
+			$activeInt = 0;
 		}
 		else {
-			$query .= "1";
 			$isActiveNow = true;
 		}
-		$query .= " WHERE id = $id";
-		$this->database->execute($query);
+		$query = "UPDATE user SET isActive = ? WHERE id = ?";
+		$this->database->execute($query, array(array("i", $activeInt), array("i", $id)));
 		return $isActiveNow;
 	}
 	
@@ -270,49 +257,51 @@ class UserData extends AbstractData {
 			$user = $inactiveUsers[$i];
 			$uid = $user["id"];
 			$cid = $user["contact"];
+			$userIdParams = array(array("i", $uid));
+			$contactIdParams = array(array("i", $cid));
 			
 			// remove all vote data
-			$query = "DELETE FROM vote_option_user WHERE user = $uid";
-			$this->database->execute($query);
-			$query = "DELETE FROM vote_group WHERE user = $uid";
-			$this->database->execute($query);
+			$query = "DELETE FROM vote_option_user WHERE user = ?";
+			$this->database->execute($query, $userIdParams);
+			$query = "DELETE FROM vote_group WHERE user = ?";
+			$this->database->execute($query, $userIdParams);
 			
 			// remove all task data
-			$query = "DELETE FROM task WHERE created_by = $cid or assigned_to = $cid";
-			$this->database->execute($query);
+			$query = "DELETE FROM task WHERE created_by = ? or assigned_to = ?";
+			$this->database->execute($query, array(array("i", $cid), array("i", $cid)));
 			
 			// remove all concert data
-			$query = "DELETE FROM concert_user WHERE user = $uid";
-			$this->database->execute($query);
-			$query = "DELETE FROM concert_contact WHERE contact = $cid";
-			$this->database->execute($query);
+			$query = "DELETE FROM concert_user WHERE user = ?";
+			$this->database->execute($query, $userIdParams);
+			$query = "DELETE FROM concert_contact WHERE contact = ?";
+			$this->database->execute($query, $contactIdParams);
 			
 			// remove all rehearsal data
-			$query = "DELETE FROM rehearsal_user WHERE user = $uid";
-			$this->database->execute($query);
-			$query = "DELETE FROM rehearsal_contact WHERE contact = $cid";
-			$this->database->execute($query);
+			$query = "DELETE FROM rehearsal_user WHERE user = ?";
+			$this->database->execute($query, $userIdParams);
+			$query = "DELETE FROM rehearsal_contact WHERE contact = ?";
+			$this->database->execute($query, $contactIdParams);
 			
 			// remove all rehearsalphase data
-			$query = "DELETE FROM rehearsalphase_contact WHERE contact = $cid";
-			$this->database->execute($query);
+			$query = "DELETE FROM rehearsalphase_contact WHERE contact = ?";
+			$this->database->execute($query, $contactIdParams);
 			
 			// remove all tour data
-			$query = "DELETE FROM tour_contact WHERE contact = $cid";
-			$this->database->execute($query);
+			$query = "DELETE FROM tour_contact WHERE contact = ?";
+			$this->database->execute($query, $contactIdParams);
 			
 			// remove all comments from this user
-			$query = "DELETE FROM comment WHERE author = $uid";
-			$this->database->execute($query);
+			$query = "DELETE FROM comment WHERE author = ?";
+			$this->database->execute($query, $userIdParams);
 			
 			// remove all group associations of this contact
-			$query = "DELETE FROM contact_group WHERE contact = $cid";
-			$this->database->execute($query);
+			$query = "DELETE FROM contact_group WHERE contact = ?";
+			$this->database->execute($query, $contactIdParams);
 			
 			// remove contact information
 			$this->deleteCustomFieldData('c', $cid);
-			$query = "DELETE FROM contact WHERE id = $cid";
-			$this->database->execute($query);
+			$query = "DELETE FROM contact WHERE id = ?";
+			$this->database->execute($query, $contactIdParams);
 			
 			// remove user
 			$this->delete($uid);
