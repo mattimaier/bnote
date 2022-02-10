@@ -75,13 +75,10 @@ class Form implements iWriteable {
 	/**
 	 * Automatically adds elements from an array
 	 * 
-	 * @param $array Array
-	 *        	with format field => fieldtype
-	 * @param $table table
-	 *        	associated with the array
-	 * @param $id id
-	 *        	to fill the form with the data of the row with this id
-	 * @param $forceFields Array
+	 * @param Array $array format field => fieldtype
+	 * @param Array $table table associated with the array
+	 * @param Integer $id ID to fill the form with the data of the row with this id
+	 * @param Array $forceFields
 	 * 			list of fields which are forced to be added
 	 */
 	public function autoAddElements($array, $table, $id, $forceFields=array()) {
@@ -172,7 +169,7 @@ class Form implements iWriteable {
 	/**
 	 * Add an option to a foreign key dropboxbox
 	 * 
-	 * @param Identifier $field
+	 * @param String $field
 	 *        	Name of the field to add the option for
 	 * @param String $optionname
 	 *        	Name of the option
@@ -187,7 +184,7 @@ class Form implements iWriteable {
 	/**
 	 * Change what's selected on a foreign field
 	 * 
-	 * @param Identifier $field
+	 * @param String $field
 	 *        	Name of the field where to change the option
 	 * @param integer $id
 	 *        	Selected option
@@ -219,7 +216,7 @@ class Form implements iWriteable {
 	/**
 	 * Removes the element from the form
 	 * 
-	 * @param Identifier $name
+	 * @param String $name
 	 *        	The name of the element to remove
 	 */
 	public function removeElement($name) {
@@ -238,7 +235,7 @@ class Form implements iWriteable {
 	/**
 	 * Adds a hidden field to the form
 	 * 
-	 * @param Identifier $name
+	 * @param String $name
 	 *        	The identifier in the $_POST array
 	 * @param String $value
 	 *        	Value of the identifier
@@ -272,7 +269,7 @@ class Form implements iWriteable {
 	/**
 	 * Returns the given elements currently saved value
 	 * 
-	 * @param Identifier $name
+	 * @param String $name
 	 *        	Identifying name of the element
 	 */
 	public function getValueForElement($name) {

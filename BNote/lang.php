@@ -83,7 +83,7 @@ class Lang {
 	 * @param int $year Year (4 digits)
 	 * @param int $hour Hour of day
 	 * @param int $minute Minute of hour
-	 * @return Localized date(time) string.
+	 * @return String Localized date(time)
 	 */
 	public static function dt($day, $month, $year, $hour, $minute) {
 		$inst = Lang::getInstance();
@@ -119,7 +119,7 @@ class Lang {
 	}
 	
 	/**
-	 * @return A language-specific datetime format pattern like d.m.Y HH:ii.
+	 * @return String Language-specific datetime format pattern like d.m.Y HH:ii.
 	 */
 	public static function getDateTimeFormatPattern() {
 		$inst = Lang::getInstance();
@@ -127,7 +127,7 @@ class Lang {
 	}
 	
 	/**
-	 * @return A language-specific date format pattern like d.m.Y.
+	 * @return String Language-specific date format pattern like d.m.Y.
 	 */
 	public static function getDateFormatPattern() {
 		$inst = Lang::getInstance();
@@ -147,7 +147,7 @@ class Lang {
 	/**
 	 * Language-specific decimal representation to decimal in database format.
 	 * @param String $decimal Language-string, e.g. "203.203,20"
-	 * @return More or less float/double.
+	 * @return Double More or less float/double.
 	 */
 	public static function decimalToDb($decimal) {
 		$inst = Lang::getInstance();
@@ -157,7 +157,7 @@ class Lang {
 	/**
 	 * Database representation to language-specific representation of decimals. 
 	 * @param float/String $dbDecimal A floating point number or a String in database decimal format, usually with "." as decimal separator.
-	 * @return A language-specific decimal.
+	 * @return String Language-specific decimal.
 	 */
 	public static function formatDecimal($dbDecimal) {
 		$inst = Lang::getInstance();

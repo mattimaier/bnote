@@ -79,7 +79,7 @@ class CrudRefLocationView extends CrudRefView {
 	 * Checks the given keys whether it contains the needle.
 	 * @param String $needle Contains-String to search for.
 	 * @param Array $keyArray Keys.
-	 * @return Name of the first occurance of a fuzzy key or null if not found.
+	 * @return String name of the first occurance of a fuzzy key or null if not found.
 	 */
 	protected function fuzzyKeySearch($needle, $keyArray) {
 		foreach($keyArray as $i => $key) {

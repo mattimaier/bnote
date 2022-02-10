@@ -92,7 +92,7 @@ abstract class AbstractView {
 	
 	/**
 	 * Convenience function.
-	 * @return A string like "?mod=<id>&mode=". Append the mode and other GET parameters.
+	 * @return String like "?mod=<id>&mode=". Append the mode and other GET parameters
 	 */
 	protected function modePrefix() {
 		return "?mod=" . $this->getModId() . "&mode=";
@@ -118,7 +118,7 @@ abstract class AbstractView {
 	protected function createYearDropdown($years, $name) {
 		$dd = new Dropdown($name);
 		$count = 0;
-		foreach($years as $row => $y) {
+		foreach($years as $y) {
 			if($count == 0) {
 				$count++;
 				continue;

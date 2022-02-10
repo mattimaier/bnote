@@ -29,19 +29,19 @@ class SecurityManager {
 	
 	/**
 	 * Read action on a file.
-	 * @var char
+	 * @var String "r"
 	 */
 	public static $FILE_ACTION_READ = "r";
 	
 	/**
 	 * Write action on a file.
-	 * @var char
+	 * @var String "w"
 	 */
 	public static $FILE_ACTION_WRITE = "w";
 	
 	/**
 	 * Delete action on a file.
-	 * @var char
+	 * @var String "d"
 	 */
 	public static $FILE_ACTION_DELETE = "d";
 	
@@ -118,7 +118,7 @@ class SecurityManager {
 	
 	/**
 	 * Whether the user has access to read/write a file.
-	 * @param char $action See: $FILE_ACTION_* fields of this class.
+	 * @param String $action Single character, see: $FILE_ACTION_* fields of this class.
 	 * @param string $file full path to file
 	 * @return True when the user has the right to perform the action on the file, otherwise false.
 	 */

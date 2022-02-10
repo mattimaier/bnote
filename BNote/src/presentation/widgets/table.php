@@ -54,8 +54,8 @@ class Table implements iWriteable {
 
 	/**
 	 * Adds a line at the end of the table with all cells merged except the last and displays the value in the last cell
-	 * @param $label Text in the merged cell
-	 * @param $value Value of the last cell
+	 * @param String $label Text in the merged cell
+	 * @param String $value Value of the last cell
 	 */
 	function addSumLine($label, $value) {
 		$this->lastlines[$label] = $value;
@@ -106,7 +106,7 @@ class Table implements iWriteable {
 	 * This method can be overridden by subclasses to implment special behaviour.
 	 * @param String $value Value before its written (usually formatted).
 	 * @param String $col Name of the column.
-	 * @return The value that will be written.
+	 * @return String The value that will be written.
 	 */
 	protected function editValue($value, $col) {
 		return $value;
@@ -146,7 +146,7 @@ class Table implements iWriteable {
 	
 	/**
 	 * Adds a column to the data with a link to delete the item.
-	 * @param Selection $tabData Database Selection which is used in this table class.
+	 * @param Array $tabData Database Selection which is used in this table class.
 	 * @param String $delHref Link to the action of the buttons, format: "...&contactid=". The id of the item will be appended.
 	 * @param String $delColName Name of the column in the data, by default "delete".
 	 * @param String $delColCaption Caption of the column, by default "Löschen".
@@ -205,7 +205,7 @@ class Table implements iWriteable {
 		$regex = new Regex();
 
 		$rowSpanCount = 0;
-		foreach($this->data as $i => $row) {
+		foreach($this->data as $row) {
 			if($head) {
 				echo "<thead>\n";
 			}

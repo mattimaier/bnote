@@ -176,7 +176,7 @@ abstract class AbstractData {
 	
 	/**
 	 * Returns the name of the database fields.
-	 * @return One dimensional array with db_fields as values.
+	 * @return Array One dimensional array with db_fields as values.
 	 */
 	public function getDatabaseFields() {
 		return array_keys($this->fields);
@@ -192,7 +192,7 @@ abstract class AbstractData {
 	}
 	
 	/**
-	 * @return The name of the database table.
+	 * @return String The name of the database table
 	 */
 	public function getTable() {
 		return $this->table;
@@ -211,7 +211,7 @@ abstract class AbstractData {
 	/**
 	 * Returns the type of the given field name.
 	 * @param String $field Database field name.
-	 * @return Type Type of the field. If field not existent, TEXT is returned.
+	 * @return String Type of the field. If field not existent, TEXT is returned.
 	 */
 	public function getTypeOfField($field) {
 		if(!key_exists($field, $this->fields)) {
@@ -234,7 +234,7 @@ abstract class AbstractData {
 	/**
 	 * Returns the table references by the given column.
 	 * @param String $column Name of the referencing column.
-	 * @return Name of the table the column references to.
+	 * @return String Name of the table the column references to.
 	 */
 	public function getReferencedTable($column) {
 		if(isset($this->references[$column])) {
@@ -246,7 +246,7 @@ abstract class AbstractData {
 	/**
 	 * Returns all entities, without exchanging the foreign key columns with something.<br />
 	 * <strong>Don't use this function for entities with possible large contents!</strong>
-	 * @return Returns an database getSelection(...) result array.
+	 * @return Array Returns an database getSelection(...) result array.
 	 */
 	public function findAllNoRef() {
 		$query = "SELECT * FROM $this->table"; // Security note: $this->table is hardcoded
@@ -256,7 +256,7 @@ abstract class AbstractData {
 	/**
 	 * Returns all entities, without exchanging the foreign key columns with something.<br />
 	 * @param String $limit Limit Expression in SQL without the "LIMIT" identifier.
-	 * @return Returns an database getSelection(...) result array.
+	 * @return Array Returns an database getSelection(...) result array.
 	 */
 	public function findAllNoRefLimit($limit) {
 		$this->regex->isPositiveAmount($limit);
@@ -269,7 +269,7 @@ abstract class AbstractData {
 	 * Returns all entities with the foreign key columns exchanged for the given exchange columns.
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
 	 * 		Format: [foreign_key_column] => [col1, col2, ...] with colX in the referred table.
-	 * @return Returns an database getSelection(...) result array.
+	 * @return Array Returns an database getSelection(...) result array.
 	 */
 	public function findAllJoined($colExchange) {
 		return $this->database->getSelection($this->createJoinedQuery($colExchange));
@@ -280,7 +280,7 @@ abstract class AbstractData {
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
 	 * 		Format: [foreign_key_column] => [col1, col2, ...] with colX in the referred table.
 	 * @param String $limit Limit Expression in SQL without the "LIMIT" identifier.
-	 * @return Returns an database getSelection(...) result array.
+	 * @return Array Returns an database getSelection(...) result array.
 	 */
 	public function findAllJoinedLimit($colExchange, $limit) {
 		$this->regex->isPositiveAmount($limit);
@@ -298,7 +298,7 @@ abstract class AbstractData {
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
 	 * 		Format: [foreign_key_column] => [col1, col2, ...] with colX in the referred table.
 	 * @param String $where Where clause in SQL without the "WHERE" identifier.
-	 * @return Returns an database getSelection(...) result array.
+	 * @return Array Returns an database getSelection(...) result array.
 	 */
 	public function findAllJoinedWhere($colExchange, $where) {
 		if(strlen($where) > 0) {
@@ -315,7 +315,7 @@ abstract class AbstractData {
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
 	 * 		Format: [foreign_key_column] => [col1, col2, ...] with colX in the referred table.
 	 * @param String $orderByCol Order By clause in SQL without the "ORDER BY" identifier, so basically just the column name and eventually ASC/DESC.
-	 * @return Returns an database getSelection(...) result array.
+	 * @return Array Returns an database getSelection(...) result array.
 	 */
 	public function findAllJoinedOrdered($colExchange, $orderByCol) {
 		if(strlen($orderByCol) > 0) {
@@ -357,7 +357,7 @@ abstract class AbstractData {
 				$this->regex->isDbItem($fcol);
 				$foreign_table = $this->references[$fcol];
 				if(is_array($tcols)) {
-					foreach($tcols as $cid => $col) {
+					foreach($tcols as $col) {
 						$this->regex->isDbItem($foreign_table);
 						$this->regex->isDbItem($col);
 						array_push($qcols, $foreign_table . "." . $col . " as $foreign_table$col"); // foreign_table.foreign_col
@@ -384,7 +384,7 @@ abstract class AbstractData {
 	/**
 	 * Finds one row result by its id.
 	 * @param int $id ID of the row.
-	 * @return Returns a database getRow(...) result. 
+	 * @return Array Returns a database getRow(...) result. 
 	 */
 	public function findByIdNoRef($id) {
 		// Security note: $this->table is always a static string programmatically set
@@ -396,7 +396,7 @@ abstract class AbstractData {
 	 * Finds a row results by its id and includes exchanged columns.
 	 * @param int $id ID of the row.
 	 * @param Array $colExchange
-	 * @return Returns a database getRow(...) result.
+	 * @return Array Returns a database getRow(...) result.
 	 */
 	public function findByIdJoined($id, $colExchange) {
 		$query = $this->createJoinedQuery($colExchange) . " AND " . $this->table . ".id = ?";
@@ -406,7 +406,7 @@ abstract class AbstractData {
 	/**
 	 * Creates a new row with the given values.
 	 * @param Array $values Value array in the format [db_field] => [value].
-	 * @return ID of the insert statement / new entity.
+	 * @return Integer ID of the insert statement / new entity.
 	 */
 	public function create($values) {
 		if(count($values) == 0) {
@@ -549,7 +549,7 @@ abstract class AbstractData {
 		switch($type) {
 			case FieldType::INTEGER: $this->regex->isPositiveAmount($value, $k); break;
 			case FieldType::CURRENCY: $this->regex->isMoney($value, $k); break;
-			case FieldType::DECIMAL: $this->regex->isNumber($d, $k); break;
+			case FieldType::DECIMAL: $this->regex->isNumber($value, $k); break;
 			case FieldType::CHAR: $this->regex->isName($value, $k); break;
 			case FieldType::DATE: $this->regex->isDate(trim($value), $k); break;
 			case FieldType::TIME: $this->regex->isTime(trim($value), $k); break;
@@ -569,7 +569,7 @@ abstract class AbstractData {
 	 * Retrieves the custom fields for this object type.
 	 * @param String $objectType Character referring to CustomFieldsData::objectReferenceTypes
 	 * @param boolean $publicOnly If only public fields should be exported, false by default.
-	 * @return Selection of custom fields
+	 * @return Array Selection of custom fields
 	 */
 	public function getCustomFields($objectType, $publicOnly = false) {
 		$query = "SELECT * FROM customfield WHERE otype = ?";
@@ -597,7 +597,7 @@ abstract class AbstractData {
 	
 	/**
 	 * Convenience method for custom field type info access.
-	 * @param Selection $selection Usually from getCustomFields($objectype)
+	 * @param Array $selection Usually from getCustomFields($objectype)
 	 * @return Array Format: techname => [txtdefsingle, fieldtype, id]
 	 */
 	public function compileCustomFieldInfo($selection) {
@@ -717,9 +717,9 @@ abstract class AbstractData {
 	
 	/**
 	 * Compiles a flat array of custom field data for the given entity.
-	 * @param Character $otype Object Type, e.g. 'c' for a contact.
+	 * @param String $otype Object Type, e.g. 'c' for a contact.
 	 * @param int $oid Object ID
-	 * @return flat array in format: techname => value
+	 * @return Array (flat) in format: techname => value
 	 */
 	protected function getCustomFieldData($otype, $oid) {
 		// get data
@@ -852,7 +852,7 @@ abstract class AbstractData {
 		for($i = 0; $i < count($encodedSelection); $i++) {
 			$row = $encodedSelection[$i];
 			if($i > 0) {
-				foreach($fields as $j => $field) {
+				foreach($fields as $field) {
 					$row[$field] = urldecode($row[$field]);
 				}
 			}
@@ -870,7 +870,7 @@ abstract class AbstractData {
 	 */
 	protected function tupleStmt($id, $list, $params=array()) {
 		$tuples = array();
-		foreach($list as $i => $item) {
+		foreach($list as $item) {
 			array_push($tuples, "(?, ?)");
 			array_push($params, $id);
 			array_push($params, $item);

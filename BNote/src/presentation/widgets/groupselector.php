@@ -145,7 +145,7 @@ class GroupSelector implements iWriteable {
 	 * Converts the ids given in the $_POST array to a plain array of the selected items.<br/>
 	 * The selectedGroups parameter in the constructor has no effect on this method.<br/>
 	 * <strong>This method should be called when processing the $_POST request from the client!</strong>
-	 * @return Flat array with all selected item ids.
+	 * @return Array (flat) with all selected item ids.
 	 */
 	public function getPlainSelection() {
 		$result = array();

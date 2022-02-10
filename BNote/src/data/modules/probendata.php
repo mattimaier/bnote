@@ -243,8 +243,8 @@ class ProbenData extends AbstractLocationData {
 	
 	/**
 	 * Finds all dates inbetween the first and the last date that fit to the cycle.
-	 * @param Date $firstDate First date of rehearsal.
-	 * @param Date $lastDate Last date of rehearsal.
+	 * @param String $firstDate First date of rehearsal.
+	 * @param String $lastDate Last date of rehearsal.
 	 * @param Integer $cycle Cycle length in weeks.
 	 * @return Array All dates when a rehearsal should be created.
 	 */
@@ -308,7 +308,7 @@ class ProbenData extends AbstractLocationData {
 		// additionally add the groups' contacts to rehearsal_contact
 		$groups = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
 		$contacts = array();
-		foreach($groups as $i => $groupId) {
+		foreach($groups as $groupId) {
 			$cts = $this->adp()->getGroupContacts($groupId);
 			for($j = 1; $j < count($cts); $j++) {
 				$contact = $cts[$j]["id"];
@@ -380,7 +380,7 @@ class ProbenData extends AbstractLocationData {
 		$contacts = GroupSelector::getPostSelection($this->getContacts(), "contact");
 		$tuples = array();
 		$params = array();
-		foreach($contacts as $i => $cid) {
+		foreach($contacts as $cid) {
 			if(!$this->isContactInRehearsal($rid, $cid)) {
 				array_push($tuples, "(? ,?)");
 				array_push($params, array("i", $rid));

@@ -58,7 +58,7 @@ class Systemdata {
 
  /**
   * @param name Name of a module, e.g. "Proben".
-  * @return The current module's id.
+  * @return Integer The current module's id.
   */
  public function getModuleId($name = null) {
  	if($name == null) {
@@ -76,7 +76,7 @@ class Systemdata {
  /**
   * Retrieves the name of the (current) module.
   * @param Module ID.
-  * @return The title of the module.
+  * @return String The title of the module.
   */
  public function getModuleTitle($id = -1, $enableCustom = true) {
  	$modId = $id;
@@ -115,7 +115,7 @@ class Systemdata {
  
  /**
   * @param Integer $uid optional: User ID, by default current user.
-  * @return An array with the module-ids the current user has permission for
+  * @return Array An array with the module-ids the current user has permission for
   */
  public function getUserModulePermissions($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
@@ -220,7 +220,7 @@ class Systemdata {
 
  /**
   * Holds the permissions a user has when created.
-  * @return The IDs of the modules.
+  * @return Array The IDs of the modules.
   */
  public function getDefaultUserCreatePermissions() {
  	// get default privileges from configuration
@@ -261,7 +261,7 @@ class Systemdata {
  }
  
  /**
-  * @return All super users from the configuration.
+  * @return Array All super users from the configuration.
   */
  public function getSuperUsers() {
  	$su = $this->cfg_system->getParameter("SuperUsers");
@@ -283,7 +283,7 @@ class Systemdata {
  /**
   * Checks if the contact's user is a super user.
   * @param int $cid Contact ID, default current.
-  * @return If super user.
+  * @return Boolean If super user.
   */
  public function isContactSuperUser($cid = -1) {
  	if($cid == -1) return $this->isUserSuperUser();
@@ -310,14 +310,14 @@ class Systemdata {
  }
  
  /**
-  * @return An array with the IDs of the super user's contacts.
+  * @return Array with the IDs of the super user's contacts
   */
  public function getSuperUserContactIDs() {
  	$superUsers = $this->getSuperUsers();
  	if(count($superUsers) == 0) return array();
  	$params = array();
  	$whereList = array();
- 	foreach($superUsers as $i => $uid) {
+ 	foreach($superUsers as $uid) {
  		array_push($params, array("i", $uid));
  		array_push($whereList, "id = ?");
  	}
@@ -336,7 +336,7 @@ class Systemdata {
  }
  
  /**
-  * @return The name of the group who can edit the share module.
+  * @return String The name of the group who can edit the share module.
   * @deprecated as of 2.4.0, use grouping instead
   */
  public function getShareEditGroup() {
@@ -394,7 +394,7 @@ class Systemdata {
  	$xml = $this->cfg_system->getXmlNode();
  	$pages = $xml->xpath("/Software/WebPages/Page");
  	$result = array();
- 	foreach($pages as $i => $page) {
+ 	foreach($pages as $page) {
  		$attribs = $page->attributes();
  		$result["".$page] = "".$attribs["file"];
  	}
@@ -435,7 +435,7 @@ class Systemdata {
  /**
   * Get the contact ID from the user ID
   * @param int $uid User ID.
-  * @return NULL|contact ID
+  * @return NULL|Integer Contact ID
   */
  public function getContactFromUser($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
@@ -445,7 +445,7 @@ class Systemdata {
  /**
   * Retrieves the current user's contact in case there is one.
   * @param Integer $uid optional: User ID, by default the current user.
-  * @return In case the user has a contact, this is returned, otherwise null.
+  * @return NULL|Array In case the user has a contact, this is returned, otherwise null.
   */
  public function getUsersContact($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
@@ -467,7 +467,7 @@ class Systemdata {
  /**
   * Holds the generation of the user's home directory.
   * @param Integer $uid optional: User ID, by default current user.
-  * @return Relative path to user's directory.
+  * @return String Relative path to user's directory.
   */
  public function getUsersHomeDir($uid = -1) {
  	if($uid == -1) $uid = $_SESSION["user"];
@@ -478,7 +478,7 @@ class Systemdata {
  /**
   * Holds the generation of the group's home directory.
   * @param Integer $groupId Group ID.
-  * @return Relative path to group's directory.
+  * @return String Relative path to group's directory.
   */
  public function getGroupHomeDir($groupId) {
  	$dirname = "group_" . $groupId; // name can contain spaces and other weird characters
@@ -512,7 +512,7 @@ class Systemdata {
  }
  
  /**
-  * @param $cid Contact ID.
+  * @param Integer $cid Contact ID.
   * @return True when the user allows email notifications, otherwise false.
   */
  public function contactEmailNotificationOn($cid) {
@@ -523,13 +523,13 @@ class Systemdata {
  }
  
  /**
-  * @return BNote version as a string.
+  * @return String BNote version
   */
  public function getVersion() {
  	if($this->version == "") {
  		$contents = file_get_contents($this->dir_prefix . "bnote_version");
  		$lines = explode("\n", $contents);
- 		foreach($lines as $i => $line) {
+ 		foreach($lines as $line) {
  			if(substr(trim($line), 0, 1) == "#") continue;
  			$this->version = $line;
  			break;

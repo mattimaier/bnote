@@ -45,9 +45,10 @@ class UpdateDb {
 	
 	private function loadTabs() {
 		$tabs = $this->db->getSelection("SHOW TABLES");
+		$colName = $tabs[0][0];
 		$tables = array();
 		for($i = 1; $i < count($tabs); $i++) {
-			array_push($tables, $tabs[$i][0]);
+			array_push($tables, $tabs[$i][$colName]);
 		}
 		$this->tabs = $tables;
 	}
@@ -85,7 +86,7 @@ class UpdateDb {
 	function addDynConfigParam($param, $default, $active = 1) {
 		$confParams = $this->db->getSelection("SELECT param FROM configuration");
 		$containsParam = false;
-		foreach($confParams as $i => $row) {
+		foreach($confParams as $row) {
 			if(isset($row["param"]) && $row["param"] == $param) {
 				$containsParam = true;
 				break;
@@ -228,6 +229,10 @@ $update = new UpdateDb();
 
 // Task 1: Config for number of gigs on start page
 $update->addDynConfigParam("appointments_show_max", 5);
+
+// Task 2: Add module icon to table
+$update->addColumnToTable("module", "icon", "varchar(50)");
+//TODO: Add data for all modules + also change this in installation
 
 ?>
 

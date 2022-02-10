@@ -170,7 +170,7 @@ class PrintPDF extends FPDF {
 	
 	/**
 	 * Prints the given date at the given place
-	 * @param Date $date The formatted date.
+	 * @param String $date The formatted date.
 	 * @param String $place Where the document is issued
 	 */
 	function writeDate($date, $place) {

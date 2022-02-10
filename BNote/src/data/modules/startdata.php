@@ -37,7 +37,7 @@ class StartData extends AbstractLocationData {
 	/**
 	 * Checks whether the current user participates in a rehearsal.
 	 * @param int $rid ID of the rehearsal.
-	 * @return 2 if the user maybe participated, 1 if the user participates, 0 if not, -1 if not chosen yet.
+	 * @return Integer 2 if the user maybe participated, 1 if the user participates, 0 if not, -1 if not chosen yet.
 	 */
 	function doesParticipateInRehearsal($rid) {
 		$partQuery = "SELECT participate FROM rehearsal_user WHERE user = ? AND rehearsal = ?";
@@ -52,7 +52,7 @@ class StartData extends AbstractLocationData {
 	 * Checks whether the current user participates in a concert.
 	 * @param int $cid ID of the concert.
 	 * @param int $uid Optional: user ID.
-	 * @return 1 if the user participates, 0 if not, -1 if not chosen yet.
+	 * @return Integer 1 if the user participates, 0 if not, -1 if not chosen yet.
 	 */
 	function doesParticipateInConcert($cid, $uid = -1) {
 		if($uid == -1) {
@@ -181,7 +181,6 @@ class StartData extends AbstractLocationData {
 					array_push($params2, array("i", $optionId));
 					array_push($params2, array("i", $user));
 				}
-				$c++;
 			}
 			$query = "INSERT INTO vote_option_user (vote_option, user, choice) VALUES " . join(",", $triples);
  			$this->database->execute($query, $params2);
@@ -246,7 +245,7 @@ class StartData extends AbstractLocationData {
 		
 		$params = array();
 		$whereQ = array();
-		foreach($phases as $i => $p) {
+		foreach($phases as $p) {
 			array_push($whereQ, "rehearsalphase = ?");
 			array_push($params, array("i", $p));
 		}
@@ -291,7 +290,7 @@ class StartData extends AbstractLocationData {
 		else {
 			$where = "WHERE ";
 			foreach($objectListing as $otype => $oids) {
-				foreach($oids as $i => $oid) {
+				foreach($oids as $oid) {
 					array_push($whereQ, "( otype = ? AND oid = ? )");
 					array_push($params, array("s", $otype));
 					array_push($params, array("i", $oid));

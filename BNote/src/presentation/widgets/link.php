@@ -14,8 +14,8 @@ class Link implements iWriteable {
 
 	/**
 	 * Creates a link
-	 * @param $href String to where the field links
-	 * @param $label Label of the link field
+	 * @param String $href where the field links
+	 * @param String $label Label of the link field
 	 */
 	function __construct($href, $label) {
 		$this->href = $href;
@@ -63,8 +63,7 @@ class Link implements iWriteable {
 		}
 		
 		if(isset($this->icon) && $this->icon != "") {
-			$icon = "<img src=\"" . $GLOBALS["DIR_ICONS"] . $this->icon . ".png\""
-				    . " height=\"15px\" class=\"linkIcon\" alt=\"" . $this->icon . "\" border=\"0\" />&nbsp;";
+			$icon = '<i class="bi-' . $this->icon . '"></i>';
 		}
 		else {
 			$icon = "";
@@ -76,11 +75,11 @@ class Link implements iWriteable {
 		}
 		
 		if($this->submitButton) {
-			return '<input type="submit" class="linkbox"' . $options . ' value="' . $this->label . '">';
+			return '<input type="submit" class="btn btn-primary"' . $options . ' value="' . $this->label . '">';
 		}
 
-		return '<a class="linkbox" ' . $target . 'href="' . $this->href . '"' . $options . '>'
-		     . '<div class="linkbox">' . $icon . $this->label . '</div></a>';
+		return '<a class="btn btn-sm btn-outline-secondary" ' . $target . 'href="' . $this->href . '"' . $options . '>'
+		     . $icon . $this->label . '</a>';
 	}
 
 	/**

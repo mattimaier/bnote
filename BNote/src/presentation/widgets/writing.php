@@ -73,7 +73,7 @@ class Writing {
 	 * @param String $message Message to display.
 	 */
 	public static function info($message) {
-		$this->message($message, 'info');
+		Writing::message($message, 'info');
 	}
 	
 	/**
@@ -81,13 +81,13 @@ class Writing {
 	 * @param String $message Message to display.
 	 */
 	public static function warning($message) {
-		$this->message($message, 'warning');
+		Writing::message($message, 'warning');
 	}
 	
 	/**
 	 * Shows a full-width message.
 	 * @param String $message Message to show.
-	 * @param Enum $type info, warn
+	 * @param String $type Enum as {info, warn}
 	 */
 	public static function message($message, $type) {
 		?>

@@ -264,7 +264,6 @@ class StartView extends CrudRefLocationView {
 				$dataview = new Dataview();
 				$dataview->addElement(Lang::txt("StartView_writeRehearsalList.begin"), Data::convertDateFromDb($data[$i]["begin"]));
 				$dataview->addElement(Lang::txt("StartView_writeRehearsalList.end"), Data::convertDateFromDb($data[$i]["end"]));
-				$loc = $data[$i]["name"];
 				$dataview->addElement(Lang::txt("StartView_writeRehearsalList.location"), $this->formatAddress($data[$i]));
 				if(isset($data[$i]["conductor"]) && $data[$i]["conductor"] != null) {
 					$dataview->addElement(Lang::txt("StartView_writeRehearsalList.conductor"), $this->getData()->adp()->getConductorname($data[$i]["conductor"]));
@@ -521,7 +520,7 @@ class StartView extends CrudRefLocationView {
 			}
 
 			$link = $this->modePrefix() . "voteOptions&id=" . $row["id"];
-			$this->writeBoxListItem("B", $row["id"], "b" . $row["id"], $liCaption, $dataview, "", Lang::txt("vote"));
+			$this->writeBoxListItem("B", $row["id"], "b" . $row["id"], $liCaption, $dataview, $link, Lang::txt("vote"));
 		}
 		echo "</ul>\n";
 	}
@@ -566,7 +565,7 @@ class StartView extends CrudRefLocationView {
 	
 	/**
 	 * Writes one item to the start page.
-	 * @param char $otype {R = Rehearsal, C = Concert, V = Vote, T = Task}, but T is not supported yet
+	 * @param String $otype Single character {R = Rehearsal, C = Concert, V = Vote, T = Task}, but T is not supported yet
 	 * @param int $oid ID of the discussion object (see $otype).
 	 * @param string $popboxid ID of the popup window.
 	 * @param string $liCaption Caption of the Item (writing in blue).

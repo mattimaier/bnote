@@ -79,7 +79,7 @@ class TourData extends AbstractLocationData {
 	/**
 	 * Finds tour contacts.
 	 * @param int $tour_id 0 if all contacts should be returned, otherwise for this tour only.
-	 * @return DB selection
+	 * @return Array DbSelection
 	 */
 	function getContacts($tour_id) {
 		// all contacts (but filtered super users)
@@ -100,7 +100,7 @@ class TourData extends AbstractLocationData {
 	}
 	
 	function addContacts($tour_id, $contactIds) {
-		foreach($contactIds as $i => $cid) {
+		foreach($contactIds as $cid) {
 			$this->addReference($tour_id, "contact", $cid);
 		}
 	}

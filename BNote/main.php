@@ -47,7 +47,7 @@ require_once $GLOBALS["DIR_PRESENTATION"] . "head.php";
 <BODY>
 
 <?php
-include "desktop.php";
+include "content.php";
 
 # Display Footer
 require_once $GLOBALS["DIR_PRESENTATION"] . "footer.php";

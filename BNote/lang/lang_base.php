@@ -23,7 +23,7 @@ abstract class BNoteTranslation {
 	 * @param int $year Year (4 digits)
 	 * @param int $hour Hour of day
 	 * @param int $minute Minute of hour
-	 * @return Localized date(time) string.
+	 * @return String Localized date(time) string
 	 */
 	public abstract function formatDate($day, $month, $year, $hour, $minute);
 	
@@ -47,12 +47,12 @@ abstract class BNoteTranslation {
 	public abstract function convertEnglishWeekday($wd);
 	
 	/**
-	 * @return A language-specific datetime format pattern like d.m.Y HH:ii.
+	 * @return String A language-specific datetime format pattern like d.m.Y HH:ii.
 	 */
 	public abstract function getDateTimeFormatPattern();
 	
 	/**
-	 * @return A language-specific date format pattern like d.m.Y.
+	 * @return String A language-specific date format pattern like d.m.Y.
 	 */
 	public abstract function getDateFormatPattern();
 	
@@ -67,14 +67,14 @@ abstract class BNoteTranslation {
 	 * Converts the given decimal in language-specific format to
 	 * a database-conform decimal.
 	 * @param String $decimal Decimal in language-format.
-	 * @return more or less a float/double.
+	 * @return Double more or less a float/double.
 	 */
 	public abstract function decimalToDb($decimal);
 	
 	/**
 	 * Converts a database-formatted decimal to language-specific format.
 	 * @param float/String $dbDecimal Number to convert.
-	 * @return Formatted string.
+	 * @return String (formatted)
 	 */
 	public abstract function formatDecimal($dbDecimal);
 }

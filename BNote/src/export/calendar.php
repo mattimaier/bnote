@@ -60,6 +60,7 @@ function generateUid($eventType, $id) {
 function writeStartEnd($start, $end) {
 	echo "DTSTAMP:" . convertTime($start) . "\r\n";
 	if($GLOBALS["timezone_on"]) {
+		global $timezone;
 		echo "DTSTART;TZID=$timezone:" . convertTime($start) . "\r\n";
 		echo "DTEND;TZID=$timezone:" . convertTime($end) . "\r\n";
 	} else {
@@ -142,12 +143,12 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		echo "LOCATION:" . $rehearsals[$i]["name"] . " - " .
 			$rehearsals[$i]["street"] . "\\, " . $rehearsals[$i]["city"] . "\r\n";
 	}
-	else if($rehearsal[$i]["location"] != "") {
+	else if($rehearsals[$i]["location"] != "") {
 		// fetch rehearsal location
 		$query = "SELECT l.name, a.street, a.city ";
 		$query .= "FROM location l JOIN address a ON l.address = a.id ";
 		$query .= "WHERE l.id = ?";
-		$addy = $db->fetchRow($query, array(array("i", $rehearsal[$i]["location"])));
+		$addy = $db->fetchRow($query, array(array("i", $rehearsals[$i]["location"])));
 		echo "LOCATION:" . $addy["name"] . " - " . $addy["street"] . "\\, " . $addy["city"] . "\r\n";
 	}
 	
@@ -193,7 +194,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 
 	foreach($contacts as $j => $contact)
 	{
-		foreach($contact as $ck => $cv) {
+		foreach(array_keys($contact) as $ck) {
 			if(is_numeric($ck)) {
 				unset($contact[$ck]);
 			}
@@ -226,7 +227,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	unset($participantsNoResponse[0]);
 
 	foreach($participantsNoResponse as $j => $contact) {
-		foreach($contact as $ck => $cv) {
+		foreach(array_keys($contact) as $ck) {
 			if(is_numeric($ck)) {
 				unset($participantsNoResponse[$j][$ck]);
 			}
@@ -309,7 +310,7 @@ for($i = 1; $i < count($concerts); $i++) {
 				
 	foreach($contacts as $j => $contact) 
 	{
-		foreach($contact as $ck => $cv) {
+		foreach(array_keys($contact) as $ck) {
 			if(is_numeric($ck)) {
 				unset($contact[$ck]);
 			}
@@ -342,7 +343,7 @@ for($i = 1; $i < count($concerts); $i++) {
 	
 	foreach($participantsNoResponse as $j => $contact) 
 	{
-		foreach($contact as $ck => $cv) {
+		foreach(array_keys($contact) as $ck) {
 			if(is_numeric($ck)) {
 				unset($participantsNoResponse[$j][$ck]);
 			}

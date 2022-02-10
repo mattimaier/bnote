@@ -279,7 +279,7 @@ class KonzerteData extends AbstractLocationData {
 	/**
 	 * Returns all invitations including their participation status.
 	 * @param int $concert_id Concert ID.
-	 * @return DbSelection Contact-based selection.
+	 * @return Array Array Contact-based selection.
 	 */
 	function getFullParticipation($concert_id) {
 		$query = 'SELECT c.id as contact_id, u.id as user_id, cu.participate, cu.reason, c.nickname, CONCAT_WS(" ", c.name, c.surname) as name,

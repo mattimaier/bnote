@@ -38,7 +38,7 @@ class Plainlist implements iWriteable {
 	
 	/**
 	 * CSS class(es) that are attached to a list item.
-	 * @param unknown $cssClassName
+	 * @param String $cssClassName
 	 */
 	function setItemCssClass($cssClassName) {
 		$this->liCssClass = $cssClassName;

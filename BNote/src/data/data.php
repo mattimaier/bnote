@@ -10,7 +10,7 @@ abstract class Data {
  
 	/**
 	 * Converts a german decimal formatted number x,xx to x.xx
-	 * @param decimal $decimal Decimal number in the form of x,xx
+	 * @param Double $decimal Decimal number in the form of x,xx
 	 */
 	public static function convertToDb($decimal) {
 		return Lang::decimalToDb($decimal);
@@ -35,7 +35,7 @@ abstract class Data {
 	/**
 	 * Converts an american formatted datetime YYYY-MM-DD H:i:s
 	 * to a german formatted datetime value
-	 * @param Date $date Date in format YYYY-MM-DD
+	 * @param String $date Date in format YYYY-MM-DD
 	 * @return String in format d.m.Y H:i:s
 	 */
 	public static function convertDateFromDb($date) {
@@ -61,7 +61,7 @@ abstract class Data {
 	
 	/**
 	 * Converts a german formatted date to an american format of YYYY-MM-DD
-	 * @param dedate $date Date in format DD.MM.YYYY or DD.MM.YYYY HH:ii
+	 * @param String $date Date in format DD.MM.YYYY or DD.MM.YYYY HH:ii
 	 */
 	public static function convertDateToDb($date) {
 		$date = trim($date);
@@ -80,9 +80,9 @@ abstract class Data {
 	
 	/**
 	 * Adds $numDays days to $date
-	 * @param Date $date Format dd.mm.yyyy
+	 * @param String $date Format dd.mm.yyyy
 	 * @param integer $numDays Number of days to add
-	 * @return New date in format dd.mm.yyyy
+	 * @return String New date in format dd.mm.yyyy
 	 */
 	public static function addDaysToDate($date, $numDays) {
 		$date = Data::convertDateToDb($date);
@@ -92,9 +92,9 @@ abstract class Data {
 	
 	/**
 	 * Subtracts $numDays days from $date
-	 * @param Date $date Format dd.mm.yyyy 
+	 * @param String $date Format dd.mm.yyyy 
 	 * @param integer $numDays Number of days to subtract
-	 * @return New date in format dd.mm.yyyy
+	 * @return String New date in format dd.mm.yyyy
 	 */
 	public static function subtractDaysFromDate($date, $numDays) {
 		$date = Data::convertDateToDb($date);
@@ -104,9 +104,9 @@ abstract class Data {
 	
 	/**
 	 * Subtracts $numMonths months from $date
-	 * @param Date $date Format dd.mm.yyyy
+	 * @param String $date Format dd.mm.yyyy
 	 * @param integer $numDays Number of months to subtract
-	 * @return New date in format dd.mm.yyyy
+	 * @return String New date in format dd.mm.yyyy
 	 */
 	public static function subtractMonthsFromDate($date, $numMonths) {
 		$date = Data::convertDateToDb($date);
@@ -116,9 +116,9 @@ abstract class Data {
 	
 	/**
 	 * Adds $numMonths months from $date
-	 * @param Date $date Format dd.mm.yyyy
+	 * @param String $date Format dd.mm.yyyy
 	 * @param integer $numDays Number of months to add
-	 * @return New date in format dd.mm.yyyy
+	 * @return String New date in format dd.mm.yyyy
 	 */
 	public static function addMonthsToDate($date, $numMonths) {
 		$date = Data::convertDateToDb($date);
@@ -204,7 +204,7 @@ abstract class Data {
 	}
 	
 	/**
-	 * @return Current date in YYYY-MM-DD HH:ii:ss (Db-)format.
+	 * @return String Current date in YYYY-MM-DD HH:ii:ss (Db-)format.
 	 */
 	public static function getDateNow() {
 		return date('Y-m-d H:i:s');

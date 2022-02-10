@@ -44,7 +44,7 @@ class RepertoireData extends AbstractData {
 	}
 	
 	/**
-	 * @return A list in Javascript format for autocompletion.
+	 * @return String A list in Javascript format for autocompletion.
 	 */
 	function listComposers() {
 		$query = "SELECT name FROM composer";
@@ -191,7 +191,7 @@ class RepertoireData extends AbstractData {
 	/**
 	 * Checks whether a similar name exists.
 	 * @param String $name Name of the composer.
-	 * @return The ID of the existent composer or -1 if not exists.
+	 * @return Integer The ID of the existent composer or -1 if not exists.
 	 */
 	private function doesComposerExist($name) {
 		if($name == "") {
@@ -241,7 +241,7 @@ class RepertoireData extends AbstractData {
 		$solistIds = GroupSelector::getPostSelection($this->adp()->getContacts(), "solists");
 		$params = array();
 		$triples = array();
-		foreach($solistIds as $i => $solistId) {
+		foreach($solistIds as $solistId) {
 			array_push($triples, "(?, ?, '')");
 			array_push($params, array("i", $songId));
 			array_push($params, array("i", $solistId));
@@ -455,7 +455,7 @@ class RepertoireData extends AbstractData {
 			new BNoteError(Lang::txt("RepertoireData_massUpdate_error"));
 		}
 		$idQuery = array();
-		foreach($songIds as $i => $sid) {
+		foreach($songIds as $sid) {
 			array_push($idQuery, "id = ?");
 			array_push($params, array("i", $sid));
 		}

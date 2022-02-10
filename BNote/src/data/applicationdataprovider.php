@@ -76,7 +76,7 @@ class ApplicationDataProvider {
 	/**
 	 * Retrieves all future rehearsals without participation in ascending order.
 	 * @param boolean $withGroups Add "groups" field with the associated groups to the rehearsal objects (by default: false).
-	 * @return All rehearsals joined with location and address.
+	 * @return Array All rehearsals joined with location and address.
 	 */
 	public function getFutureRehearsals($withGroups=false) {
 		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes as notes, name, street, city, zip, state, country, l.id as location";
@@ -113,7 +113,7 @@ class ApplicationDataProvider {
 	/**
 	 * Retrieves all user specific future concerts.
 	 * @param Integer $uid optional: User ID, by default current user.
-	 * @return All future concerts with joined attributes.
+	 * @return Array All future concerts with joined attributes.
 	 */
 	public function getFutureConcerts($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
@@ -282,7 +282,7 @@ class ApplicationDataProvider {
 		
 		if(count($suContacts) > 0 && !$this->sysdata->isUserSuperUser()) {
 			$sus = array();			
-			foreach($suContacts as $i => $suc) {
+			foreach($suContacts as $suc) {
 				$sus = "c2.id <> ?";
 				array_push($params, array("i", $suc));
 			}
@@ -312,7 +312,7 @@ class ApplicationDataProvider {
 	/**
 	 * Retrieves the groups for the given/current user.
 	 * @param Integer $uid Optional: User ID, by default current user.
-	 * @return Flat array of groups.
+	 * @return Array (flat) of groups
 	 */
 	public function getUsersGroups($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
@@ -324,7 +324,7 @@ class ApplicationDataProvider {
 	/**
 	 * Retrieves the rehearsal phases for the given/current user.
 	 * @param Integer $uid Optional: User ID, by default current user.
-	 * @return Flat array of phases.
+	 * @return Array (flat) of phases
 	 */
 	public function getUsersPhases($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
@@ -347,7 +347,7 @@ class ApplicationDataProvider {
 	/**
 	 * Retrieves the name of the user.
 	 * @param int $id ID of the user.
-	 * @return First and last name concatenated.
+	 * @return String First and last name concatenated.
 	 */
 	public function getUsername($id) {
 		$query = "SELECT CONCAT(c.name, ' ', c.surname) as name FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?";
@@ -357,7 +357,7 @@ class ApplicationDataProvider {
 	/**
 	 * Retrieves the login name of the given user.
 	 * @param Integer $uid User ID, by default current user.
-	 * @return Login name.
+	 * @return String Login name
 	 */
 	public function getLogin($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
@@ -368,7 +368,7 @@ class ApplicationDataProvider {
 	 * Retrives all locations for any group by default. 
 	 * If groups is set, then only locations of these groups are returned.
 	 * @param array $groups Optionally an array of location_type IDs.
-	 * @return All locations with joined address.
+	 * @return Array All locations with joined address.
 	 */
 	public function getLocations($groups=null) {
 		$query = "SELECT l.id, name, notes, street, city, zip, country ";
@@ -376,7 +376,7 @@ class ApplicationDataProvider {
 		$params = array();
 		$locTypes = array();
 		if($groups != null && count($groups) > 0) {
-			foreach($groups as $i => $locationType) {
+			foreach($groups as $locationType) {
 				array_push($locTypes, "location_type = ?");
 				array_push($params, array("i", $locationType));
 			}
@@ -400,7 +400,7 @@ class ApplicationDataProvider {
 	}
 	
 	/**
-	 * @return All templated programs.
+	 * @return Array All templated programs.
 	 */
 	function getTemplatePrograms() {
 		$query = "SELECT id, name FROM program WHERE isTemplate = 1";
@@ -438,7 +438,7 @@ class ApplicationDataProvider {
 	/**
 	 * Retrieves the contact id for the given user id.
 	 * @param Integer $uid optional: User ID, if not set current user.
-	 * @return Contact ID of the user. 
+	 * @return Integer Contact ID of the user 
 	 */
 	function getUserContact($uid = -1) {
 		if($uid == -1) $uid = $_SESSION["user"];
@@ -483,7 +483,7 @@ class ApplicationDataProvider {
 	/**
 	 * Retrieves the name of the group.
 	 * @param Integer $groupId Group ID.
-	 * @return Name of group.
+	 * @return String Name of group
 	 */
 	function getGroupName($groupId) {
 		return $this->database->colValue("SELECT name FROM `group` WHERE id = ?", "name", array(array("i", $groupId)));

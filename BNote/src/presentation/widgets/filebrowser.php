@@ -162,7 +162,7 @@ class Filebrowser implements iWriteable {
 
 		$groupfolders = array();
 		$groups = $this->adp->getUsersGroups();
-		foreach($groups as $i => $groupId) {
+		foreach($groups as $groupId) {
 			$dir = $this->sysdata->getGroupHomeDir($groupId);
 			$dir = substr($dir, $mainpathlen) . "/";
 			array_push($groupfolders, $dir);
@@ -217,7 +217,7 @@ class Filebrowser implements iWriteable {
 		}
 
 		if($groups != null && count($groups) > 0) {
-			foreach($groups as $i => $gid) {
+			foreach($groups as $gid) {
 				$name = $this->sysdata->dbcon->colValue("SELECT name FROM `group` WHERE id = ?", "name", array(array("i", $gid)));
 				$favs[$name] = $this->root . "/groups/group_" . $gid . "/";
 			}
@@ -454,7 +454,7 @@ STRING_END;
 		$target = $this->root . $this->path;
 		$targetFilename = $_FILES["file"]["name"];
 
-		foreach($this->replace_chars as $i => $char) {
+		foreach($this->replace_chars as $char) {
 			$targetFilename = str_replace($char, "", $targetFilename);
 		}
 
@@ -569,7 +569,7 @@ STRING_END;
 	}
 
 	/**
-	 * @return A database selection like array with the contents of the folder.
+	 * @return Array with database selection like array with the contents of the folder.
 	 */
 	private function getFilesFromFolder() {
 		$result = array();
@@ -586,7 +586,7 @@ STRING_END;
 
 		// data body
 		$files = scandir($this->root . $this->path, SCANDIR_SORT_ASCENDING);
-		foreach($files as $i => $file) {
+		foreach($files as $file) {
 			$sharepath = $this->path . $file;
 			$fullpath = $this->root . $sharepath;
 
@@ -763,7 +763,7 @@ STRING_END;
 				new RecursiveDirectoryIterator($dir_basepath),
 				RecursiveIteratorIterator::LEAVES_ONLY);
 
-		foreach($files as $name => $file) {
+		foreach($files as $file) {
 			$filename = str_replace("\\", "/", $file->getPathname());
 			if(!Data::endsWith($filename, "/.") && !Data::endsWith($filename, "/..")) {
 				$zip->addFile($filename);
@@ -790,12 +790,11 @@ STRING_END;
 	}
 
 	private function createThumbnail($file) {
-
 		$thumb_folder = $this->root . $this->path . ".thumbnails/";
 		if(!file_exists($thumb_folder)) {
 			mkdir($thumb_folder);
 		}
-
+		require_once $GLOBALS["DIR_LIB"] . "simpleimage.php";
 		$thumb = new SimpleImage();
 		$thumb->load($this->root . $this->path . $file);
 		if ($thumb->getWidth() > $thumb->getHeight()) {

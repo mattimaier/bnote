@@ -34,7 +34,7 @@ class MitspielerData extends AbstractLocationData {
 	 * Retrieves all members from the database which are associated with given or current user.
 	 * @param Integer $uid optional: User ID, by default current user.
 	 * @param Boolean $singleInfo optional: Display Name, Surname and ID in single field
-	 * @return Members of groups and phases the current user is part of.
+	 * @return Array Members of groups and phases the current user is part of.
 	 */
 	function getMembers($uid = -1, $singleInfo = true) {
 		if($uid == -1) {
@@ -108,7 +108,7 @@ class MitspielerData extends AbstractLocationData {
 	/**
 	 * Removes all super users from selection.
 	 * @param Array $selection Database Selection Array
-	 * @return Selection array without super users.
+	 * @return Array Selection without super users
 	 */
 	private function filterSuperUsers($selection) {
 		$filtered = array();

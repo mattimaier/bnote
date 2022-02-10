@@ -260,9 +260,9 @@ class Regex {
 	/**
 	 * Calls for an error and prints it
 	 * 
-	 * @param unknown_type $d
+	 * @param String $d
 	 *        	The given data
-	 * @param unknown_type $type
+	 * @param String $type
 	 *        	The fieldtype which is wrong
 	 */
 	private function fail($d, $type, $k = NULL) {

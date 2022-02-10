@@ -80,14 +80,14 @@ class WebsiteController extends DefaultController {
 	}
 	
 	/**
-	 * @return The default width as an integer in pixel.
+	 * @return Integer The default width as an integer in pixel.
 	 */
 	function getDefaultImageWidth() {
 		return $this->default_image_width;
 	}
 	
 	/**
-	 * @return The default height for a thumbnail in pixel.
+	 * @return Integer The default height for a thumbnail in pixel.
 	 */
 	function getDefaultThumbnailHeight() {
 		return $this->default_thumbnail_height;

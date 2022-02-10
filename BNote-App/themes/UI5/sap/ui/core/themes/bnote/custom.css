@@ -1,9 +1,0 @@
-/**
-* Copyright (c) 2012-2016 SAP SE, All Rights Reserved
-*
-* Theming Engine 1.30.8
-* data:{"Path": "UI5.sap/ui/core.bnote.custom", "PathPattern": "/%frameworkId%/%libId%/themes/%themeId%/%fileId%.css", "IECssRuleLimitFiles": [], "Extends": ["sap_belize","base"], "Version": { "Build":"1.52.4.20180208203949", "Source": "1.52.4", "Engine": "1.30.8"}}
-*/
-
-.sapThemeMetaData-UI5-sap-ui-core{background-image: url('data:text/plain;utf-8,{"Path": "UI5.sap/ui/core.bnote.custom", "PathPattern": "/%frameworkId%/%libId%/themes/%themeId%/%fileId%.css", "IECssRuleLimitFiles": [], "Extends": ["sap_belize","base"], "Version": { "Build":"1.52.4.20180208203949", "Source": "1.52.4", "Engine": "1.30.8"}}');}
-.sapSvgLibs{background-image:none,url(../../../../../../Base/baseLib/sap_belize/svg/libs/SAPGUI-icons.svg),url(../../../../../../Base/baseLib/sap_belize/svg/libs/SAPWeb-icons.svg)}.sapSvgIconPositive{fill:#2b7d2b !important}.sapSvgIconCritical{fill:#e78c07 !important}.sapSvgIconNegative{fill:#b00 !important}

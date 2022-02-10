@@ -14,7 +14,7 @@ class TriggerServiceClient {
 	
 	/**
 	 * Creates a trigger that will POST a message to the callback_url with the given callback_data.
-	 * @param DateTimeString $trigger_on Y-m-d H:i:s formatted String.
+	 * @param String $trigger_on Y-m-d H:i:s formatted String.
 	 * @param String $callback_url URL to call back -> notifyClients.php on the BNote Server
 	 * @param Array $callback_data Associative array with oid, otype and token.
 	 * @return True when ok, otherwise false (shows error on failure, but when notification date in past then just false is returned)

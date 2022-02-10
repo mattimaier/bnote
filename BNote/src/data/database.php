@@ -195,9 +195,9 @@ class Database extends Data {
 	/**
 	 * Get a single value from a table.
 	 * @param String $query Prepared statement. 
-	 * @param $col Column to fetch
+	 * @param String $col Column to fetch
 	 * @param Array $params Parameter array in the form i => array(type, value).
-	 * @return NULL|value
+	 * @return NULL|Object
 	 */
 	public function colValue($query, $col, $params) {
 		$res = $this->preparedQuery($query, $params);
@@ -325,7 +325,7 @@ class Database extends Data {
 	 *        	Database SQL query to be executed.
 	 * @param Array $params
 	 * 			Parameter array; empty array by default means no parameters
-	 * @return The ID if the query has been an insert statement
+	 * @return Integer The ID if the query has been an insert statement
 	 *         with an autoincrement generator. See PHP manual for details.
 	 */
 	public function execute($query, $params=array()) {
@@ -380,7 +380,7 @@ class Database extends Data {
 	 *        	Database Selection.
 	 * @param string $col
 	 *        	Column Name.
-	 * @return Flat array containg only the contents of the column.
+	 * @return Array (flat) containg only the contents of the column
 	 */
 	public static function flattenSelection($selection, $col) {
 		if(is_numeric($col)) {

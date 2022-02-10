@@ -144,7 +144,7 @@ class KontakteData extends AbstractLocationData {
 	/**
 	 * Removes all super users from selection.
 	 * @param Array $selection Database Selection Array
-	 * @return Selection array without super users.
+	 * @return Array Selection without super users
 	 */
 	private function filterSuperUsers($selection) {
 		$filtered = array();
@@ -268,7 +268,7 @@ class KontakteData extends AbstractLocationData {
 	 * @param int $cid Contact ID
 	 * @param String $username Unique login.
 	 * @param String $password Unencrypted password.
-	 * @return User ID.
+	 * @return Integer User ID
 	 */
 	function createUser($cid, $username, $password) {
 		$dao = new UserData();
@@ -359,7 +359,7 @@ class KontakteData extends AbstractLocationData {
 	}
 	
 	function saveVCards($cards, $selectedGroups) {
-		foreach($cards as $i => $card) {
+		foreach($cards as $card) {
 			$this->create($card);
 		}
 	}
@@ -462,7 +462,7 @@ class KontakteData extends AbstractLocationData {
 	/**
 	 * Be careful with duplicate email usages.
 	 * @param string $email E-Mail-Address
-	 * @return GDPR Code.
+	 * @return String GDPR Code.
 	 */
 	function getGdprCode($email) {
 		return $this->database->colValue("SELECT gdpr_code FROM contact WHERE email = ?", "gdpr_code", array(array("s", $email)));

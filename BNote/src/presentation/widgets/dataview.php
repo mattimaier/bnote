@@ -102,9 +102,9 @@ class Dataview {
 	/**
 	 * Rename the attribute.
 	 * 
-	 * @param unknown_type $name
+	 * @param String $name
 	 *        	The name/label of the attribute.
-	 * @param unknown_type $newName
+	 * @param String $newName
 	 *        	The new name/label of the attribute.
 	 */
 	function renameElement($name, $newName) {

@@ -16,7 +16,7 @@ class ImageTable implements iWriteable {
 	/**
 	 * Creates a new table-like structure showing an image
 	 * in front of a text.
-	 * @param unknown_type $data
+	 * @param Array $data
 	 */
 	function __construct($data) {
 		$this->data = $data;

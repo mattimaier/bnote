@@ -39,7 +39,7 @@ class UserData extends AbstractData {
 		if(!$this->getSysdata()->isUserSuperUser()
 				&& count($this->getSysdata()->getSuperUsers()) > 0) {
 			$whereQ = array();
-			foreach($this->getSysdata()->getSuperUsers() as $i => $su) {
+			foreach($this->getSysdata()->getSuperUsers() as $su) {
 				array_push($whereQ, "u.id <> ?");
 				array_push($params, $su);
 			}
@@ -62,7 +62,7 @@ class UserData extends AbstractData {
 		
 		$newUsr = array();
 		// encrypt password
-		foreach($this->getFields()as $id => $info) {
+		foreach($this->getFields() as $id => $info) {
 			if($id == "id" || $id == "lastlogin") continue;
 			if($id == "password") {
 				// specially validate password for empty passwords
@@ -141,7 +141,7 @@ class UserData extends AbstractData {
 	/**
 	 * Looks up the real name of the user.
 	 * @param int $id ID of the user.
-	 * @return The real name of the user.
+	 * @return String The real name of the user.
 	 */
 	function getUsername($id) {
 		return $this->adp()->getUsername($id);
