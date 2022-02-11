@@ -16,94 +16,34 @@ class LoginView extends AbstractView {
 	}
 	
 	function showOptions() {
-		// Mobile Website
-		$mobile = new Link("../BNote-App", Lang::txt("LoginView_showOptions.BNote-App"));
-		$mobile->write();
-		$this->buttonSpace();
-		
-		// Login
-		$mod = "login";
-		if($_GET["mod"] != $mod) {
-			$login = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.login"));
-			$login->write();
-			$this->buttonSpace();
-		}
-		
-		// PW
-		$mod = "forgotPassword";
-		if($_GET["mod"] != $mod) {
-			$pwForgot = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.forgotPassword"));
-			$pwForgot->write();
-			$this->buttonSpace();
-		}
-		
-		// Registration
-		$mod = "registration";
-		/* check if user registration is on */
-		$user_reg = $this->getData()->getSysdata()->getDynamicConfigParameter("user_registration");
-		if($user_reg == 1 && $_GET["mod"] != $mod) {
-			$reg = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.registration"));
-			$reg->write();
-			$this->buttonSpace();
-		}
-		
-		// Terms
-		$mod = "terms";
-		if($_GET["mod"] != $mod) {
-			$terms = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.terms"));
-			$terms->write();
-			$this->buttonSpace();
-		}
-		
-		// Impressum
-		$mod = "impressum";
-		if($_GET["mod"] != $mod) {
-			$imp = new Link("?mod=$mod", Lang::txt("LoginView_showOptions.impressum"));
-			$imp->write();
-		}
+		// do not show any options here
 	}
 	
 	function login() {
-		if(!isset($_GET["device"]) || $_GET["device"] != "desktop") {
-			?>
-			<script>
-			$(document).ready(function() {
-				// when the width of the screen is less than 560px (UI5 default) -> switch to app view
-				var ww = window.screen.width;
-				if(ww < 560) {
-					location = "../BNote-App";
-				}
-			});
-			</script>
-			<?php
-		}
-		
 		if(isset($_GET["fwd"])) {
 			new Message(Lang::txt("LoginView_login.fwd_header"), Lang::txt("LoginView_login.fwd_message"));
 		}
-		else {
-			Writing::p(Lang::txt("LoginView_login.message_1"));
-		}
 		
-		Writing::p(Lang::txt("LoginView_login.message_2"));
+		Writing::p(Lang::txt("LoginView_login.message_2"), "text-dark mt-2");
 		
 		// login form
-		$form = new Form(Lang::txt("LoginView_login.Form"), $this->modePrefix() . "login");
+		$form = new Form("", $this->modePrefix() . "login");
 		$form->addElement(Lang::txt("LoginView_login.login"), new Field("login", "", FieldType::CHAR));
 		$form->addElement(Lang::txt("LoginView_login.password"), new Field("password", "", FieldType::PASSWORD));
 		if(isset($_GET["fwd"])) {
 			$form->addHidden("fwd", $_GET["fwd"]);
 		}
+		$form->setFormCss("col-md-3");
 		$form->write();
 	}
 	
 	function forgotPassword() {
-		Writing::h1(Lang::txt("LoginView_forgotPassword.title"));
 		Writing::p(Lang::txt("LoginView_forgotPassword.message"));
 		
 		// forgotten password form
 		$form = new Form("", $this->modePrefix() . "password");
-		$form->addElement(Lang::txt("LoginView_forgotPassword.email"), new Field("email", "", FieldType::EMAIL));
+		$form->addElement(Lang::txt("LoginView_forgotPassword.email"), new Field("email", "", FieldType::EMAIL), true);
+		$form->setFormCss("col-md-3");
 		$form->write();
 	}
 	
@@ -114,114 +54,38 @@ class LoginView extends AbstractView {
 			new BNoteError(Lang::txt("LoginView_registration.registration_deactivated"));
 		}
 		
-		Writing::h1(Lang::txt("LoginView_registration.title"));
+		$form = new Form("", $this->modePrefix() . "register");
+		$form->addElement(Lang::txt("LoginView_registration.first_name"), new Field("name", "", FieldType::CHAR), true);
+		$form->addElement(Lang::txt("LoginView_registration.surname"), new Field("surname", "", FieldType::CHAR), true);
+		$form->addElement(Lang::txt("LoginView_registration.phone"), new Field("phone", "", FieldType::CHAR), false);
+		$form->addElement(Lang::txt("LoginView_registration.email"), new Field("email", "", FieldType::EMAIL), true);
+		$form->addElement(Lang::txt("LoginView_registration.street"), new Field("street", "", FieldType::CHAR), false);
+		$form->addElement(Lang::txt("LoginView_registration.street"), new Field("street", "", FieldType::CHAR), false);
+		$form->addElement(Lang::txt("LoginView_registration.zip"), new Field("zip", "", FieldType::CHAR), false);
+		$form->addElement(Lang::txt("LoginView_registration.city"), new Field("city", "", FieldType::CHAR), false);
+		$form->addElement(Lang::txt("LoginView_registration.country"), $this->buildCountryDropdown(""));
 		
-		?>
-<form method="POST" action="<?php echo $this->modePrefix(); ?>register">
-		
-<script>
-	  <?php echo $this->getData()->getJSValidationFunctions(); ?>
-</script> 
-		
-<p class="login"><?php echo Lang::txt("LoginView_registration.logintext"); ?></p>
-
-<table class="login">
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.first_name"); ?></TD>
-		<TD class="loginInput"><input name="name" type="text" size="25"
-			onChange="validateInput(this, 'name');" /></TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.surname"); ?></TD>
-		<TD class="loginInput"><input name="surname" type="text" size="25"
-			onChange="validateInput(this, 'name');" /></TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.phone"); ?></TD>
-		<TD class="loginInput"><input name="phone" type="text" size="25"
-			onChange="validateInputOptional(this, 'phone');" /></TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.email"); ?></TD>
-		<TD class="loginInput"><input name="email" type="text" size="25"
-			onChange="validateInput(this, 'email');" /></TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.street"); ?></TD>
-		<TD class="loginInput"><input name="street" type="text" size="25"
-			onChange="validateInput(this, 'street');" /></TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.zip"); ?></TD>
-		<TD class="loginInput"><input name="zip" type="text" size="25"
-			onChange="validateInput(this, 'zip');" /></TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.city"); ?></TD>
-		<TD class="loginInput"><input name="city" type="text" size="25"
-			onChange="validateInput(this, 'city');" /></TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.country"); ?> *</TD>
-		<td class="loginInput">
-			<?php
-			$dd = $this->buildCountryDropdown("");
-			echo $dd->write();
-			?>
-		</td>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.instrument"); ?></TD>
-		<TD class="loginInput"><SELECT name="instrument">
-				<?php
 		$instruments = $this->getData()->getInstruments();
-		global $system_data;
-		$cats = $system_data->getInstrumentCategories();
+		$cats = $this->getData()->getSysdata()->getInstrumentCategories();
+		$instrumentDropdown = new Dropdown("instrument");
 		for($i = 1; $i < count($instruments); $i++) {
 			// filter instruments of categories
 			if(!in_array($instruments[$i]["cat"], $cats)) continue;
-			echo '<OPTION value="' . $instruments[$i]["id"] . '">';
-			echo $instruments[$i]["category"] . ": " . $instruments[$i]["instrument"] . "</OPTION>\n";
+			$label = $instruments[$i]["category"] . ": " . $instruments[$i]["instrument"];
+			$instrumentDropdown->addOption($label, $instruments[$i]["id"]);
 		}
-		?>
-		</SELECT>
-		</TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.login"); ?></TD>
-		<TD class="loginInput"><input name="login" type="text" size="25"
-			onChange="validateInput(this, 'login');" /><br /> <span
-			style="font-size: 10px;"><?php echo Lang::txt("LoginView_registration.login_text"); ?></span>
-		</TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.pw1"); ?></TD>
-		<TD class="loginInput"><input name="pw1" type="password" size="25"
-			onChange="validateInput(this, 'password');" /><br /> <span
-			style="font-size: 10px;"><?php echo Lang::txt("LoginView_registration.password_text"); ?></span>
-		</TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.pw2"); ?></TD>
-		<TD class="loginInput"><input name="pw2" type="password" size="25"
-			onChange="validateInput(this, 'password');" /></TD>
-	</TR>
-	<TR>
-		<TD class="login"><?php echo Lang::txt("LoginView_registration.terms_1"); ?><a href="?mod=terms" style="text-decoration: underline;" target="_blank"><?php echo Lang::txt("LoginView_registration.terms_2"); ?></a><?php echo Lang::txt("LoginView_registration.terms_3"); ?>
-		</TD>
-		<TD class="loginInput"><input type="checkbox" name="terms" /></TD>
-	</TR>
-	<TR>
-		<TD class="login" colspan="2"
-			style="font-size: 10pt; padding-bottom: 15px; width: 100%;"><?php echo Lang::txt("LoginView_registration.message"); ?></TD>
-	</TR>
-	<TR>
-		<TD class="login" colspan="2"><input name="register" type="submit"
-			value=<?php echo Lang::txt("LoginView_registration.register"); ?>></TD>
-	</TR>
-</table>
-</form>
-<?php
+		$form->addElement(Lang::txt("LoginView_registration.instrument"), $instrumentDropdown);
+		
+		$form->addElement(Lang::txt("LoginView_registration.pw1"), new Field("pw1", "", FieldType::PASSWORD), true);
+		$form->addElement(Lang::txt("LoginView_registration.pw2"), new Field("pw2", "", FieldType::PASSWORD), true);
+		$termLabel = Lang::txt("LoginView_registration.terms_1") . '<a href="?mod=' . $this->getData()->getSysdata()->getModuleId("Terms") . 
+			'" style="text-decoration: underline;" target="_blank">' . Lang::txt("LoginView_registration.terms_2") . '</a>' 
+					. Lang::txt("LoginView_registration.terms_3");
+		$form->addElement($termLabel, new Field("terms", "", FieldType::BOOLEAN));
+		
+		$form->setFormCss("col-md-3");
+		$form->changeSubmitButton(Lang::txt("LoginView_registration.register"));
+		$form->write();
 	}
 	
 	function impressum() {

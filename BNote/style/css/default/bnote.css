@@ -325,22 +325,14 @@ body {
 .sidebar {
   position: fixed;
   top: 0;
-  /* rtl:raw:
-  right: 0;
-  */
   bottom: 0;
-  /* rtl:remove */
   left: 0;
   z-index: 100;
   /* Behind the navbar */
   padding: 48px 0 0;
   /* Height of navbar */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-}
-@media (max-width: 767.98px) {
-  .sidebar {
-    top: 5rem;
-  }
+  background-color: #eef4fa !important;
 }
 .sidebar-sticky {
   position: relative;
@@ -360,7 +352,7 @@ body {
   color: #727272;
 }
 .sidebar .nav-link.active {
-  color: #2470dc;
+  color: #61b3ff;
 }
 .sidebar .nav-link:hover .feather,
 .sidebar .nav-link.active .feather {
@@ -377,7 +369,7 @@ body {
   padding-top: .75rem;
   padding-bottom: .75rem;
   font-size: 1rem;
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: #436f98;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
 }
 .navbar .navbar-toggler {
@@ -388,6 +380,15 @@ body {
   padding: .75rem 1rem;
   border-width: 0;
   border-radius: 0;
+}
+.bg-dark {
+  background-color: #243E56 !important;
+}
+#bnote-logo {
+  margin-right: 1rem;
+}
+i.bnote-opt-btn {
+  margin-right: 0.2rem;
 }
 .form-control-dark {
   color: #fff;

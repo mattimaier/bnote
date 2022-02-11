@@ -32,7 +32,7 @@ class LoginController extends DefaultController {
 	}
 	
 	function start() {
-		// show approprivate page
+		// show appropriate page
 		if(isset($_GET["mode"]) && $_GET["mode"] == "login") {
 			$this->doLogin();
 		}
@@ -45,6 +45,9 @@ class LoginController extends DefaultController {
 		else {
 			$view = $this->getView();
 			$func = $this->current_page;
+			if(is_numeric($func)) {
+				$func = $this->getData()->getSysdata()->getModuleTitle($func, false);
+			}
 			if($view != null) {
 				$view->$func();
 			}
@@ -139,12 +142,12 @@ class LoginController extends DefaultController {
 	}
 	
 	public static function generatePassword($length) {
-		$chars = "abcdefghijkmnpqrstuvwxyz123456789";
+		$chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz123456789";
 		srand((double)microtime()*1000000);
 		$i = 0;
 		$pass = '' ;
 		while ($i <= $length) {
-			$num = rand() % 33;
+			$num = rand() % count($chars);
 			$tmp = substr($chars, $num, 1);
 			$pass = $pass . $tmp;
 			$i++;
@@ -175,7 +178,7 @@ class LoginController extends DefaultController {
 		// create entities for complete user
 		$aid = $this->getData()->createAddress($_POST); // address id
 		$cid = $this->getData()->createContact($aid); // contact id
-		$uid = $this->getData()->createUser($_POST["login"], $password, $cid); // user id
+		$uid = $this->getData()->createUser($_POST["email"], $password, $cid); // user id
 		$this->getData()->createDefaultRights($uid);
 		
 		$outMsg = Lang::txt("LoginController_register.outMsg");
@@ -184,12 +187,11 @@ class LoginController extends DefaultController {
 			new Message(Lang::txt("LoginController_register.writeOutput"), $outMsg);
 		}
 		
-		global $system_data;
 		$mailMessage = null;
 		$mailOk = true;
-		if($system_data->autoUserActivation()) {
+		if($this->getData()->getSysdata()->autoUserActivation()) {
 			// create link for activation
-			$linkurl = $system_data->getSystemURL() . "/src/export/useractivation.php?uid=$uid&email=" . $_POST["email"];
+			$linkurl = $this->getData()->getSysdata()->getSystemURL() . "/src/export/useractivation.php?uid=$uid&email=" . $_POST["email"];
 			if(substr($linkurl, 0, 4) != "http") {
 				if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
 					$linkurl = "https://$linkurl";

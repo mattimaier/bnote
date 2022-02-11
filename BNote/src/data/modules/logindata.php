@@ -28,9 +28,6 @@ class LoginData extends AbstractLocationData {
 	}
 	
 	function validateLogin() {
-		if(!$this->regex->isLoginQuiet($_POST["login"])) {
-			$this->regex->isEmail($_POST["login"]);
-		}
 		$this->regex->isPassword($_POST["password"]);
 	}
 	
@@ -105,14 +102,13 @@ class LoginData extends AbstractLocationData {
 		$this->regex->isZip($_POST["zip"]);
 		$this->regex->isCity($_POST["city"]);
 		$this->regex->isPositiveAmount($_POST["instrument"]);
-		$this->regex->isLogin($_POST["login"]);
 		$this->regex->isPassword($_POST["pw1"]);
 		$this->regex->isPassword($_POST["pw2"]);
 	}
 	
 	function duplicateLoginCheck() {
-		$login = $_POST["login"];
-		$ct = $this->database->colValue("SELECT count(id) as cnt FROM user WHERE login = ?", "cnt", array(array("s", $login)));
+		$email = $_POST["email"];
+		$ct = $this->database->colValue("SELECT count(id) as cnt FROM user WHERE email = ?", "cnt", array(array("s", $email)));
 		return ($ct > 0);
 	}
 	

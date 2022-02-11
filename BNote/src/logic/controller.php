@@ -27,11 +27,10 @@ class Controller {
 			}
 		}
 		# Start Module
-		if(!is_numeric($system_data->getModuleId())) {
+		$modName = $system_data->getModuleTitle(-1, false);
+		$loginModules = array("Home", "Login", "Logout", "ForgotPassword", "Registration", "WhyBNote", "Terms", "Impressum", "Gdpr", "ExtGdpr");
+		if(!is_numeric($system_data->getModuleId()) || in_array($modName, $loginModules)) {
 			$modName = "login";
-		}
-		else {
-			$modName = strtolower($system_data->getModuleTitle(-1, false));
 		}
 
 		// include preliminaries

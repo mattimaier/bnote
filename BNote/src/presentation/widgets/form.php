@@ -16,6 +16,7 @@ class Form implements iWriteable {
 	protected $submitValue;
 	protected $removeSubmitButton = false;
 	protected $requiredFields = array();
+	protected $formCss = "";
 	
 	/**
 	 * Constructor
@@ -323,46 +324,51 @@ class Form implements iWriteable {
 		$this->requiredFields [$field] = $required;
 	}
 	
+	public function setFormCss($cssClasses) {
+		$this->formCss = $cssClasses;
+	}
+	
 	/**
 	 * print html output
 	 */
 	public function write() {
 		$this->createForeign ();
 		
-		echo '<form method="' . $this->method . '" action="' . $this->action . '"';
-		echo $this->multipart . '>' . "\n";
+		echo '<form method="' . $this->method . '" action="' . $this->action . '" class="' . $this->formCss . '" ';
+		echo $this->multipart . '>';
 		
-		echo '<fieldset>';
-		echo "<legend class=\"FormBox\">" . $this->formname . "</legend>\n";
+		if($this->formname != "") {
+			echo '<h3 class="h3">' . $this->formname . "</h3>";
+		}
 		
-		echo '<table>' . "\n";
-		
-		foreach ( $this->elements as $label => $element ) {
-			echo " <tr>\n";
+		foreach ( $this->elements as $label => $element ) {			
 			$required = "";
-			if (isset ( $this->requiredFields [$label] ) && $this->requiredFields [$label])
+			if (isset ( $this->requiredFields [$label] ) && $this->requiredFields [$label]) {
 				$required = "*";
-			if (isset ( $this->rename [$label] ))
+			}
+			if (isset ( $this->rename [$label] )) {
 				$label = $this->rename [$label];
-			echo "  <td>$label$required</td>\n";
-			echo "  <td>" . $element->write () . "</td>\n";
-			echo " </tr>\n";
+			}
+			
+			echo '<div class="mb-1">
+					<label for="' . $element->getName() . '" class="col-form-label">' . $label . $required . '</label>
+				    ' . $element->write() . '
+				  </div>';
 		}
 		if (count ( $this->requiredFields ) > 0) {
-			echo "<tr><td colspan=\"2\" style=\"font-size: 8pt;\">" . Lang::txt("Form_write.message") . "</td></tr>";
+			echo '<div class="row"><div class="col-auto"><span class="form-text">' . Lang::txt("Form_write.message") . "</span></div></div>";
 		}
-		echo '</table>' . "\n";
 		
 		// add hidden values
 		foreach ( $this->hidden as $name => $value ) {
-			echo '<input type="hidden" value="' . $value . '" name="' . $name . '">' . "\n";
+			echo '<input type="hidden" value="' . $value . '" name="' . $name . '">';
 		}
 		
 		// Submit Button
 		if (! $this->removeSubmitButton) {
-			echo '<input type="submit" value="' . $this->submitValue . '">' . "\n";
+			echo '<input type="submit" class="btn btn-primary mt-2" value="' . $this->submitValue . '" />';
 		}
-		echo '</fieldset>' . "\n";
+		
 		echo '</form>' . "\n";
 	}
 }

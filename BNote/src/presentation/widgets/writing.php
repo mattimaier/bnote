@@ -55,8 +55,8 @@ class Writing {
 	 * Convenience method to print a p-tag with enclosed text.
 	 * @param String $text Text to print.
 	 */
-	public static function p($text) {
-		echo "<p>" . $text . "</p>\n";
+	public static function p($text, $css="") {
+		echo "<p class=\"$css\">" . $text . "</p>";
 	}
 	
 	/**

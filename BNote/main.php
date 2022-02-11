@@ -18,7 +18,7 @@ include "dirs.php";
 require_once $GLOBALS["DIR_LOGIC"] . "init.php";
 
 # Login forward if necessary
-if(isset($_GET["mod"]) && $_GET["mod"] === "login" && isset($_GET["mode"]) && $_GET["mode"] === "login") {
+if(isset($_GET["mod"]) && ($_GET["mod"] === "login" || $_GET["mod"] === 26) && isset($_GET["mode"]) && $_GET["mode"] === "login") {
 	require_once $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 	require_once $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
 	require_once $GLOBALS["DIR_DATA"] . "fieldtype.php";

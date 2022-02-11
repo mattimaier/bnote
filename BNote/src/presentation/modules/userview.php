@@ -153,10 +153,11 @@ class UserView extends CrudRefView {
 		global $system_data;
 		$form = new Form(Lang::txt("UserView_privileges.form") . $this->getData()->getUsername($_GET["id"]),
 							$this->modePrefix() . "privileges_process&id=" . $_GET["id"]);
-		foreach($system_data->getModuleArray() as $mid => $name) {
+		foreach($system_data->getModuleArray() as $mid => $modRow) {
 			$selected = "";
 			if($this->getData()->hasUserPrivilegeForModule($_GET["id"], $mid)) $selected = "checked";
-			$form->addElement($name, new Field($mid, $selected, FieldType::BOOLEAN));
+			if($modRow["category"] == "public") continue; 
+			$form->addElement($modRow["name"], new Field($mid, $selected, FieldType::BOOLEAN));
 		}
 		$form->write();
 	}

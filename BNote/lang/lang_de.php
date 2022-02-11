@@ -306,6 +306,16 @@ class Translation extends BNoteTranslation {
 			"navigation_Tour" => "Tour",
 			"navigation_Outfits" => "Outfits",
 			"navigation_Stats" => "Auswertungen",
+			"navigation_Home" => "Willkommen",
+			"navigation_Login" => "Login",
+			"navigation_Logout" => "Abmelden",
+			"navigation_ForgotPassword" => "Passwort vergessen",
+			"navigation_Registration" => "Registrierung",
+			"navigation_WhyBNote" => "Warum BNote?",
+			"navigation_Terms" => "Datenschutz",
+			"navigation_Impressum" => "Impressum",
+			"navigation_Gdpr" => "Datenschutzhinweise",
+			"navigation_ExtGdpr" => "Einverständnis DSGVO",
 			
 			// General: Regex *********************************************	
 			
@@ -1242,20 +1252,14 @@ class Translation extends BNoteTranslation {
 			"LoginController_register.message_4" => "Bitte prüfe deine E-Mails. Klicke auf den Aktivierungslink um dein Konto zu bestätigen. Dann kannst du dich anmelden.<br/>",
 			"LoginController_register.message_5" => "Bitte wende dich an deinen Bandleader und warte bis dein Konto freigeschalten ist.<br/>",	
 			
-			// LoginView ********* to finish **********		
-			"LoginView_showOptions.BNote-App" => "Mobil",
-			"LoginView_showOptions.login" => "Login",
-			"LoginView_showOptions.forgotPassword" => "Passwort vergessen",
-			"LoginView_showOptions.registration" => "Registrierung",
-			"LoginView_showOptions.terms" => "Datenschutz",
-			"LoginView_showOptions.impressum" => "Impressum",
+			// LoginView ********* to finish **********
 			"LoginView_login.message_1" => "Bitte melde dich an um BNote zu nutzen. Wenn du noch kein
 				Konto deiner Band hast, dann <a href=\"?mod=registration\">registriere</a> dich jetzt.",
 			"LoginView_login.message_2" => "Wenn du dich wiederholt nicht anmelden kannst,
 				dann ist dein Konto gegebenenfalls noch nicht freigeschalten. Bitte
 				versuche es zu einem späteren Zeitpunkt noch einmal.",	
 			"LoginView_login.Form" => "Anmeldung",
-			"LoginView_login.login" => "Benutzername<br/>oder E-Mail-Adresse",
+			"LoginView_login.login" => "Benutzername oder E-Mail-Adresse",
 			"LoginView_login.password" => "Passwort",
 			"LoginView_login.fwd_header" => "Geschützter Zugriff",
 			"LoginView_login.fwd_message" => "Du versuchst auf eine geschützte Seite zuzugreifen. Bitte melde dich mit einem priviligierten Benutzerkonto an.",
@@ -1267,24 +1271,24 @@ class Translation extends BNoteTranslation {
 			"LoginView_registration.logintext" => "Bitte fülle dieses Formular aus um dich als
 			Mitglied zu registrieren. Die angegebenen Daten werden vertraulich
 			behandelt und nicht an Dritte weitergegeben.",
-			"LoginView_registration.first_name" => "Vorname *",
-			"LoginView_registration.surname" => "Name *",
+			"LoginView_registration.first_name" => "Vorname",
+			"LoginView_registration.surname" => "Name",
 			"LoginView_registration.phone" => "Telefon",
-			"LoginView_registration.email" => "E-Mail *",
-			"LoginView_registration.street" => "Straße *",
-			"LoginView_registration.zip" => "PLZ *",
-			"LoginView_registration.city" => "Stadt *",
-			"LoginView_registration.country" => "Land *",
+			"LoginView_registration.email" => "E-Mail",
+			"LoginView_registration.street" => "Straße",
+			"LoginView_registration.zip" => "PLZ",
+			"LoginView_registration.city" => "Stadt",
+			"LoginView_registration.country" => "Land",
 			"LoginView_registration.instrument" => "Instrument",
-			"LoginView_registration.login" => "Login *",
+			"LoginView_registration.login" => "Login",
 			"LoginView_registration.login_text" => "Erlaubte Zeichen: Buchstaben, Zahlen, Punkt,
 				Bindestrich, Unterstrich",
-			"LoginView_registration.pw1" => "Passwort *",
+			"LoginView_registration.pw1" => "Passwort",
 			"LoginView_registration.password_text" => "Bitte gebe mindestens 6 Zeichen und keine Leerzeichen ein.",
-			"LoginView_registration.pw2" => "Passwort Wdh. *",
+			"LoginView_registration.pw2" => "Passwort Wdh.",
 			"LoginView_registration.terms_1" => "Ich stimme den ", 
 			"LoginView_registration.terms_2" => "Nutzungsbedingungen", 
-			"LoginView_registration.terms_3" => " zu.*", 
+			"LoginView_registration.terms_3" => " zu.", 
 			"LoginView_registration.message" => "* Die mit Stern gekennzeichneten Felder sind auszufüllen.",
 			"LoginView_registration.register" => "Registrieren",
 			"LoginView_extGdpr.title" => "Datenschutzgrundverordnung (DSGVO): Einverständnis",
@@ -2175,7 +2179,7 @@ class Translation extends BNoteTranslation {
 			"WebsiteView_backToGalleryView.viewgallery" => "Zurück",
 			
 //**********************************************************************************************************************************************************
-// Old traduction			
+// Old translations			
 //**********************************************************************************************************************************************************			
 			// general
 			"welcome" => "Willkommen",
@@ -2612,7 +2616,8 @@ class Translation extends BNoteTranslation {
 			"reservations" => "Reservierungen",
 			"reservation_id" => "Reservierungsnr.",
 			"score" => "Wert",
-			"rank" => "Platz"
+			"rank" => "Platz",
+			"Field.password_description" => "Das Passwort muss mindestens 6 Zeichen lang sein, Groß- und Kleinbuchstaben sowie eine Zahl beinhalten."
 	);
 	
 	protected $regex = array(

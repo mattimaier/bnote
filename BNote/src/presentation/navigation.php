@@ -1,45 +1,37 @@
-<?php 
-if(isset($_GET["mod"]) && is_numeric($_GET["mod"])) {
-	?>
-	<!-- Navigation -->
-	<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-		<div class="position-sticky pt-3">
-			<ul class="nav flex-column">
+<!-- Navigation -->
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+	<div class="position-sticky pt-3">
+		<ul class="nav flex-column">
+		
+		<?php
+		$modarr = $system_data->getModuleArray();
+	
+		// render menu
+		foreach($modarr as $id => $modRow) {
+	
+			// don't show module if user doesn't have permission
+			if($system_data->isUserAuthenticated() && !$system_data->userHasPermission($id)) continue;
 			
-			<?php
-			$modarr = $system_data->getModuleArray();
-		
-			// render menu
-			foreach($modarr as $id => $name) {
-		
-				// don't show module if user doesn't have permission
-				if(!$system_data->loginMode() && !$system_data->userHasPermission($id)) continue;
-		
-				if($id == $system_data->getModuleId()) {
-					// current Module
-					$selected = "_selected";
-				}
-				else $selected = "";
-		
-				$tecName = strtolower($name);
-				$caption = Lang::txt("navigation_" . $system_data->getModuleTitle($id));
-				?>
-				<li class="nav-item">
-		        	<a class="nav-link" href="?mod=<?php echo $id; ?>">
-		        		<i class="bi-app"></i>
-		          		<?php echo $caption; ?>
-		        	</a>
-		      	</li>
-				<?php
+			// don't show module if just technical
+			if(in_array($modRow["name"], array("Home", "Logout", "WhyBNote", "Gdpr", "ExtGdpr"))) continue;
+			$user_reg = $system_data->getDynamicConfigParameter("user_registration");
+			if($modRow["name"] == "Registration" && $user_reg == 0) continue;
+	
+			if($id == $system_data->getModuleId()) {
+				// current Module
+				$selected = "active";
 			}
+			else $selected = "";
 			?>
-			</ul>
-			
-			<div class="badge bg-secondary text-wrap">
-				BNote <?php echo $GLOBALS["system_data"]->getVersion(); ?>
-			</div>
-		</div>
-	</nav>	
-	<?php 
-}
-?>
+			<li class="nav-item">
+	        	<a class="nav-link <?php echo $selected; ?>" href="?mod=<?php echo $id; ?>">
+	        		<i class="bi-<?php echo $modRow["icon"]; ?>"></i>
+	          		<?php echo $system_data->getModuleTitle($id); ?>
+	        	</a>
+	      	</li>
+			<?php
+		}
+		?>
+		</ul>
+	</div>
+</nav>

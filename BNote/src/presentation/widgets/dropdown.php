@@ -87,7 +87,7 @@ class Dropdown implements iWriteable {
 			$id = ' id="' . $this->id . '"';
 		}
 		
-		$str = '<SELECT name="' . $this->name . '"' . $style . $jsChange . $jsLoad . $id . ' ' . $this->disabled .'>' . "\n";
+		$str = '<SELECT class="form-select" name="' . $this->name . '"' . $style . $jsChange . $jsLoad . $id . ' ' . $this->disabled .'>' . "\n";
 
 		foreach($this->options as $l => $v) {
 			$str .= ' <OPTION value="' . $v . '"';

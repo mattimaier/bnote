@@ -102,11 +102,12 @@ class UpdateDb {
 		}
 	}
 	
-	function addModule($modname) {
-		if(!in_array($modname, $this->mods)) {
+	function addModule($modname, $icon, $category) {
+		$moduleNames = Database::flattenSelection($this->mods, "name");
+		if(!in_array($modname, $moduleNames)) {
 			// add new module
-			$query = 'INSERT INTO module (name) VALUES (?)';
-			$modId = $this->db->execute($query, array(array("s", $modname)));
+			$query = 'INSERT INTO module (name, icon, category) VALUES (?, ?, ?)';
+			$modId = $this->db->execute($query, array(array("s", $modname), array("s", $icon), array("s", $category)));
 		
 			$this->message("New module $modname (ID $modId) added.");
 		
@@ -134,6 +135,17 @@ class UpdateDb {
 			$this->message("Module $modname already exists.");
 			return $this->sysdata->getModuleId($modname);
 		}
+	}
+	
+	function updateModule($id, $name, $icon, $category) {
+		$q = "UPDATE module SET name = ?, icon = ?, category = ? WHERE id = ?";
+		$this->db->execute($q, array(array("s", $name), array("s", $icon), array("s", $category), array("i", $id)));
+		$this->message("Module $id ($name) updated.");
+	}
+	
+	function removeModule($id) {
+		$this->db->execute("DELETE FROM module WHERE id = ?", array(array("i", $id)));
+		$this->message("Module $id removed from database.");
 	}
 	
 	function createFolder($path) {
@@ -171,7 +183,7 @@ class UpdateDb {
 		}
 		$query = "INSERT INTO privilege (user, module) VALUES " . join(", ", $tuples);
 		$this->db->execute($query, $params);
-		$this->message($this->mods[$module_id] . " privileges for all users added.");
+		$this->message($this->sysdata->getModuleTitle($module_id) . " privileges for all users added.");
 	}
 	
 	function getPrimaryKeys($table) {
@@ -232,7 +244,44 @@ $update->addDynConfigParam("appointments_show_max", 5);
 
 // Task 2: Add module icon to table
 $update->addColumnToTable("module", "icon", "varchar(50)");
-//TODO: Add data for all modules + also change this in installation
+$update->addColumnToTable("module", "category", "varchar(50)");
+
+$update->updateModule(1, "Start", "play-circle", "main");
+$update->updateModule(2, "User", "people", "admin");
+$update->updateModule(3, "Kontakte", "person-video2", "main");
+$update->updateModule(4, "Konzerte", "mic", "main");
+$update->updateModule(5, "Proben", "collection-play", "main");
+$update->updateModule(6, "Repertoire", "music-note-list", "main");
+$update->updateModule(7, "Kommunikation", "envelope", "main");
+$update->updateModule(8, "Locations", "geo-alt", "main");
+$update->updateModule(9, "Kontaktdaten", "person-bounding-box", "user");
+$update->updateModule(10, "Hilfe", "info-circle-fill", "help");
+$update->removeModule(11);
+$update->updateModule(12, "Share", "folder2-open", "main");
+$update->updateModule(13, "Mitspieler", "person-badge", "main");
+$update->updateModule(14, "Abstimmung", "check2-square", "main");
+$update->updateModule(15, "Nachrichten", "newspaper", "admin");
+$update->updateModule(16, "Aufgaben", "list-task", "main");
+$update->updateModule(17, "Konfiguration", "sliders", "admin");
+$update->updateModule(18, "Probephasen", "calendar-range", "main");
+$update->updateModule(19, "Finance", "piggy-bank", "main");
+$update->updateModule(20, "Calendar", "calendar2-week", "main");
+$update->updateModule(21, "Equipment", "boombox", "main");
+$update->updateModule(22, "Tour", "truck", "main");
+$update->updateModule(23, "Outfits", "handbag", "main");
+$update->updateModule(24, "Stats", "bar-chart", "admin");
+$update->addModule("Home", "house", "public");
+$update->addModule("Login", "door-open", "public");
+$update->addModule("Logout", "box-arrow-right", "public");
+$update->addModule("ForgotPassword", "asterisk", "public");
+$update->addModule("Registration", "journal-plus", "public");
+$update->addModule("WhyBNote", "question-circle", "public");
+$update->addModule("Terms", "file-text", "public");
+$update->addModule("Impressum", "building", "public");
+$update->addModule("Gdpr", "bookmark-check", "public");
+$update->addModule("ExtGdpr", "bookmark-check", "public");
+
+//TODO: Also change this in installation
 
 ?>
 

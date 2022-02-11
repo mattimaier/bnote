@@ -30,7 +30,7 @@ class Systemdata {
   * @param String $dir_prefix Prefix for configuration files, e.g. "../../". 
   */
  function __construct($dir_prefix = "") {
-  if(!isset($_GET["mod"])) $this->current_modid = 0;
+  if(!isset($_GET["mod"])) $this->current_modid = 26;  // Login
   else $this->current_modid = $_GET["mod"];
 
   $this->cfg_system = new XmlData($dir_prefix . "config/config.xml", "Software");
@@ -66,8 +66,8 @@ class Systemdata {
  	}
  	else {
  		$mods = $this->getModuleArray();
- 		foreach($mods as $id => $modName) {
- 			if($name == $modName) return $id;
+ 		foreach($mods as $id => $modRow) {
+ 			if($name == $modRow["name"]) return $id;
  		}
  		return 0;
  	}
@@ -76,22 +76,22 @@ class Systemdata {
  /**
   * Retrieves the name of the (current) module.
   * @param Module ID.
+  * @param bool $translated By default true - returns the translated name.
   * @return String The title of the module.
   */
- public function getModuleTitle($id = -1, $enableCustom = true) {
- 	$modId = $id;
- 	if($id == -1) $modId = $this->current_modid;
+ public function getModuleTitle($id = -1, $translated = true) {
+ 	$modId = ($id < 1) ? $this->current_modid : $id;
+ 	if(!is_numeric($modId)) {
+ 		$modId = $this->dbcon->colValue("SELECT id FROM module WHERE lower(name) = ?", "id", array(array("s", strtolower($modId))));
+ 	}
  	
- 	if(is_numeric($modId)) {
-  		return $this->dbcon->colValue("SELECT name FROM module WHERE id = ?", "name", array(array("i", $modId)));
+ 	// get module's name
+ 	$mods = $this->getModuleArray();
+ 	$name = $mods[$modId]["name"];
+ 	if($translated) {
+ 		return Lang::txt("navigation_$name");
  	}
- 	else if($this->loginMode()) {
- 		$modarr = $this->getModuleArray();
- 		return $modarr[$modId];
- 	}
- 	else {
- 		return $modId;
- 	}
+ 	return $name;
  }
 
 	public function getModuleDescriptor() {
@@ -135,15 +135,20 @@ class Systemdata {
  }
  
  public function userHasPermission($modulId, $uid = -1) {
- 	if($this->loginMode() && !is_numeric($modulId)) {
- 		// not logged in users requesting login-pages
- 		return true;
+ 	$modules = $this->getModuleArray();
+ 	
+ 	$modId = ($modulId < 1) ? $this->current_modid : $modulId;
+ 	if(!is_numeric($modulId)) {
+ 		$modId = $this->dbcon->colValue("SELECT id FROM module WHERE lower(name) = ?", "id", array(array("s", strtolower($modulId))));
  	}
- 	else if(!$this->loginMode() && !is_numeric($modulId)) {
- 		// logged in users requesting login-pages
+ 	$module = $modules[$modId];
+ 	
+ 	// allow access to public pages always
+ 	if($module["category"] == "public") {
  		return true;
  	}
  	
+ 	// check access to restricted pages
  	if($uid == -1) {
  		$permissions = $this->user_module_permission;
  	}
@@ -153,51 +158,43 @@ class Systemdata {
  	if($permissions == null) {
  		return false;
  	}
- 	if($this->gdprOk($uid) == 0 && $modulId != 1) {
+ 	if($this->gdprOk($uid) == 0 && $modId != 1) {
  		return false;
  	}
- 	return in_array($modulId, $permissions);
+ 	return in_array($modId, $permissions);
  }
 
  /**
+  * @param String $category Optional category, by default all
   * @return Array with all modules for the current situation: id => name
   */
- public function getModuleArray() {
- 	if($this->loginMode()) {
- 		return array(
-				"home" => "Start",
- 				"login" => "Login",
- 				"logout" => "Logout",
- 				"forgotPassword" => "Passwort",
- 				"registration" => "Registrierung",
- 				"whyBNote" => "Warum BNote?",
- 				"terms" => "Bedingungen",
- 				"impressum" => "Impressum",
- 				"gdpr" => "DSGVO Einverständnis",
- 				"extGdpr" => "DSGVO Einverständnis"
- 		);
+ public function getModuleArray($category=NULL) {
+ 	if(!$this->isUserAuthenticated()) {
+ 		return $this->getInnerModuleArray("public");
  	}
-
  	if(isset($this->modulearray) && count($this->modulearray) > 0) {
  		return $this->modulearray;
  	}
-
-	return $this->getInnerModuleArray();
+	return $this->getInnerModuleArray($category);
  }
  
  /**
   * @return Array with all modules of the inner system (not from the login-module).
   */
- public function getInnerModuleArray() {
- 	$mods = array();
+ public function getInnerModuleArray($category=NULL) {
+ 	$params = array();
+ 	$where = "";
+ 	if($category != NULL) {
+ 		$where = "WHERE category = ?";
+ 		array_push($params, array("s", $category));
+ 	}
+ 	$query = "SELECT * FROM module $where ORDER BY id";
+ 	$mods = $this->dbcon->getSelection($query, $params);
  	
- 	$query = "SELECT id, name FROM module ORDER BY id";
- 	$mods = $this->dbcon->getSelection($query);
- 	
- 	$this->modulearray = null;
+ 	$this->modulearray = array();
  	
  	for($i = 1; $i < count($mods); $i++) {
- 		$this->modulearray[$mods[$i]["id"]] = $mods[$i]["name"];
+ 		$this->modulearray[$mods[$i]["id"]] = $mods[$i];
  	}
  	
  	return $this->modulearray;
@@ -299,7 +296,7 @@ class Systemdata {
   * @return True when the user is a member of the given group, otherwise false.
   */
  public function isUserMemberGroup($groupId, $uid = -1) {
- 	if($this->loginMode()) return false;
+ 	if(!$this->isUserAuthenticated()) return false;
  	if($uid == -1) $uid = $_SESSION["user"];
  	if($this->isUserSuperUser($uid) && $groupId == 1) return true;
  	$query = "SELECT count(*) as n FROM contact_group cg
@@ -364,8 +361,8 @@ class Systemdata {
  /**
   * @return True when the user is not logged in, otherwise false.
   */
- public function loginMode() {
- 	return !isset($_SESSION["user"]);
+ public function isUserAuthenticated() {
+ 	return isset($_SESSION["user"]);
  }
  
  /**
