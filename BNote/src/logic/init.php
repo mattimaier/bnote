@@ -32,7 +32,11 @@ $system_data = new Systemdata();
 require_once "lang.php";
 
 # Logout
-if($system_data->getModuleId() === "logout") {
+if(isset($_GET["mod"]) && (
+		$_GET["mod"] === "logout" 
+		|| $system_data->getModuleId("Logout") == $_GET["mod"]) 
+		|| ($_GET["mod"] == "login" && isset($_GET["mode"]) && $_GET["mode"] == "logout")
+		) {
 	$_SESSION["user"] = "null";
 	unset($_SESSION);
 	session_destroy();

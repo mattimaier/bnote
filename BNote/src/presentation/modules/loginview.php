@@ -33,7 +33,7 @@ class LoginView extends AbstractView {
 		if(isset($_GET["fwd"])) {
 			$form->addHidden("fwd", $_GET["fwd"]);
 		}
-		$form->setFormCss("col-md-3");
+		$form->changeSubmitButton(Lang::txt("navigation_Login"));
 		$form->write();
 	}
 	
@@ -43,7 +43,6 @@ class LoginView extends AbstractView {
 		// forgotten password form
 		$form = new Form("", $this->modePrefix() . "password");
 		$form->addElement(Lang::txt("LoginView_forgotPassword.email"), new Field("email", "", FieldType::EMAIL), true);
-		$form->setFormCss("col-md-3");
 		$form->write();
 	}
 	
@@ -55,15 +54,9 @@ class LoginView extends AbstractView {
 		}
 		
 		$form = new Form("", $this->modePrefix() . "register");
-		$form->addElement(Lang::txt("LoginView_registration.first_name"), new Field("name", "", FieldType::CHAR), true);
-		$form->addElement(Lang::txt("LoginView_registration.surname"), new Field("surname", "", FieldType::CHAR), true);
-		$form->addElement(Lang::txt("LoginView_registration.phone"), new Field("phone", "", FieldType::CHAR), false);
-		$form->addElement(Lang::txt("LoginView_registration.email"), new Field("email", "", FieldType::EMAIL), true);
-		$form->addElement(Lang::txt("LoginView_registration.street"), new Field("street", "", FieldType::CHAR), false);
-		$form->addElement(Lang::txt("LoginView_registration.street"), new Field("street", "", FieldType::CHAR), false);
-		$form->addElement(Lang::txt("LoginView_registration.zip"), new Field("zip", "", FieldType::CHAR), false);
-		$form->addElement(Lang::txt("LoginView_registration.city"), new Field("city", "", FieldType::CHAR), false);
-		$form->addElement(Lang::txt("LoginView_registration.country"), $this->buildCountryDropdown(""));
+		
+		$form->addElement(Lang::txt("LoginView_registration.first_name"), new Field("name", "", FieldType::CHAR), true, 3);
+		$form->addElement(Lang::txt("LoginView_registration.surname"), new Field("surname", "", FieldType::CHAR), true, 3);
 		
 		$instruments = $this->getData()->getInstruments();
 		$cats = $this->getData()->getSysdata()->getInstrumentCategories();
@@ -76,14 +69,21 @@ class LoginView extends AbstractView {
 		}
 		$form->addElement(Lang::txt("LoginView_registration.instrument"), $instrumentDropdown);
 		
-		$form->addElement(Lang::txt("LoginView_registration.pw1"), new Field("pw1", "", FieldType::PASSWORD), true);
-		$form->addElement(Lang::txt("LoginView_registration.pw2"), new Field("pw2", "", FieldType::PASSWORD), true);
+		$form->addElement(Lang::txt("LoginView_registration.email"), new Field("email", "", FieldType::EMAIL), true, 3);
+		$form->addElement(Lang::txt("LoginView_registration.phone"), new Field("phone", "", FieldType::CHAR), false, 3);
+		
+		$form->addElement(Lang::txt("LoginView_registration.country"), $this->buildCountryDropdown(""));
+		$form->addElement(Lang::txt("LoginView_registration.street"), new Field("street", "", FieldType::CHAR), false, 3);
+		$form->addElement(Lang::txt("LoginView_registration.zip"), new Field("zip", "", FieldType::CHAR), false, 1);
+		$form->addElement(Lang::txt("LoginView_registration.city"), new Field("city", "", FieldType::CHAR), false, 2);
+				
+		$form->addElement(Lang::txt("LoginView_registration.pw1"), new Field("pw1", "", FieldType::PASSWORD), true, 3);
+		$form->addElement(Lang::txt("LoginView_registration.pw2"), new Field("pw2", "", FieldType::PASSWORD), true, 3);
 		$termLabel = Lang::txt("LoginView_registration.terms_1") . '<a href="?mod=' . $this->getData()->getSysdata()->getModuleId("Terms") . 
 			'" style="text-decoration: underline;" target="_blank">' . Lang::txt("LoginView_registration.terms_2") . '</a>' 
 					. Lang::txt("LoginView_registration.terms_3");
 		$form->addElement($termLabel, new Field("terms", "", FieldType::BOOLEAN));
 		
-		$form->setFormCss("col-md-3");
 		$form->changeSubmitButton(Lang::txt("LoginView_registration.register"));
 		$form->write();
 	}

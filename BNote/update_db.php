@@ -280,6 +280,7 @@ $update->addModule("Terms", "file-text", "public");
 $update->addModule("Impressum", "building", "public");
 $update->addModule("Gdpr", "bookmark-check", "public");
 $update->addModule("ExtGdpr", "bookmark-check", "public");
+$update->addModule("Admin", "gear-fill", "admin");
 
 //TODO: Also change this in installation
 

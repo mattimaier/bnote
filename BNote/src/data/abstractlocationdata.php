@@ -1,4 +1,6 @@
 <?php
+global $dir_prefix;
+require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "abstractdata.php";
 
 /**
  * All classes needing address functionality should extend this class instead from direct AbstractData.
@@ -46,11 +48,11 @@ abstract class AbstractLocationData extends AbstractData {
 	public function getAddressViewFields() {
 		$fields = $this->getAddressFields();
 		return array(
-			$fields["street"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.street"), FieldType::CHAR),
-			$fields["city"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.city"), FieldType::CHAR, true),
-			$fields["zip"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.zip"), FieldType::CHAR),
-			$fields["state"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.state"), FieldType::CHAR),
-			$fields["country"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.country"), FieldType::CHAR)
+				$fields["street"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.street"), FieldType::CHAR, false, 3),
+				$fields["zip"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.zip"), FieldType::CHAR, false, 1),
+				$fields["city"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.city"), FieldType::CHAR, true, 2),
+				$fields["state"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.state"), FieldType::CHAR, false, 3),
+				$fields["country"] => array(Lang::txt("AbstractLocationData_getAddressViewFields.country"), FieldType::CHAR, true, 3)
 		);
 	}
 	

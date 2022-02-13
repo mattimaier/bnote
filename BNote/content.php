@@ -5,7 +5,7 @@ include $GLOBALS["DIR_PRESENTATION"] . "banner.php";
 ?>
 
 <!-- Content Area -->
-<div class="container-fluid">
+<div class="container-fluid mb-3">
 	<div class="row">
 		<?php
 		# Display Navigation

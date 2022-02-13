@@ -1,6 +1,7 @@
 <?php
 global $dir_prefix;
 require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
+require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php";
 
 /**
  * Data Access Class for Login.

@@ -8,6 +8,14 @@ body {
   vertical-align: text-bottom;
 }
 
+a {
+	color: @bnote-color;
+}
+
+a:hover {
+	color: @bnote-dark-alt;
+}
+
 /*
  * Sidebar
  */
@@ -79,6 +87,11 @@ body {
   border-radius: 0;
 }
 
+.bnote-useradmin-bar {
+	font-size: 1.6em;
+	color: @white;
+}
+
 .bg-dark {
 	background-color: @bnote-very-dark!important;
 }
@@ -91,13 +104,56 @@ i.bnote-opt-btn {
 	margin-right: 0.2rem;
 }
 
-.form-control-dark {
-  color: #fff;
-  background-color: rgba(255, 255, 255, .1);
-  border-color: rgba(255, 255, 255, .1);
+/*
+ * Forms
+ */
+.bnote-form-label {
+	padding-top: 0;
+	padding-bottom: 2px;
 }
 
-.form-control-dark:focus {
-  border-color: transparent;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
+input.form-control {
+	border-width: 0;
+    border-radius: 0px;
+    border-bottom: 2px solid @bnote-dark-alt;
+    background-color: @bnote-light;
+}
+
+select.form-select {
+	border-bottom: 2px solid @bnote-dark-alt;
+    border-radius: 0px;
+}
+
+.form-switch {
+	padding-left: 2.5rem;
+}
+
+.form-check-input:checked {
+    background-color: @bnote-color;
+    border-color: @bnote-color;
+}
+
+.btn-primary {
+	background-color: @bnote-dark-alt;
+	border-radius: 0;
+	border-width: 0;
+}
+
+.btn-primary:hover {
+	background-color: @bnote-very-dark;
+	border-radius: 0;
+	border-width: 0;
+}
+
+
+/*
+ * Data View
+ */
+.bnote-dataview-row {
+	border-bottom: 1px solid @bnote-lightgray;
+}
+ 
+.bnote-dataview-label {
+	font-weight: 600;
+	color: @bnote-darkgray;
 }

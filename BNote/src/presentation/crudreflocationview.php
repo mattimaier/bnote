@@ -24,13 +24,10 @@ class CrudRefLocationView extends CrudRefView {
 			// field display
 			if($fieldName == "country") {
 				$dd = $this->buildCountryDropdown($defaultVal, $obj);			
-				$form->addElement($info[0], $dd);
+				$form->addElement($info[0], $dd, $info[2], $info[3]);
 			}
 			else {
-				$form->addElement($info[0], new Field($fieldName, $defaultVal, $info[1]));
-				if(count($info) > 2 && $info[2] == true) {
-					$form->setFieldRequired($info[0]);
-				}
+				$form->addElement($info[0], new Field($fieldName, $defaultVal, $info[1]), $info[2], $info[3]);
 			}
 		}
 	}

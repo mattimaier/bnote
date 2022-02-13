@@ -83,26 +83,28 @@ class StartView extends CrudRefLocationView {
 		$news = $this->getData()->getNews();
 		if($news != "" || $this->getData()->getSysdata()->gdprOk() == 0) {
 			?>
-			<div class="start_box_news">
+			<div class="d-flex justify-content-start">
 				<?php 
 				// GDPR
 				if($this->getData()->getSysdata()->gdprOk() == 0) {
 					?>
-					<div class="start_box_heading"><?php echo Lang::txt("StartView_start.box_heading"); ?></div>
-					<div class="start_box_content">
-						<span class="warning">
-							<?php echo Lang::txt("StartView_start.warning"); ?>
-						</span>
-						<a href="?mod=terms" target="_blank"><?php echo Lang::txt("StartView_start.terms"); ?></a>
-						<br/>
-						<?php 
-						$yes = new Link($this->modePrefix() . "gdprOk&accept=1", Lang::txt("StartView_start.checkmark"));
-						$yes->addIcon("checkmark");
-						$yes->write();
-						$no = new Link($this->modePrefix() . "gdprOk&accept=0", Lang::txt("StartView_start.cancel"));
-						$no->addIcon("cancel");
-						$no->write();
-						?>
+					<div class="row">
+						<div class="start_box_heading"><?php echo Lang::txt("StartView_start.box_heading"); ?></div>
+						<div class="start_box_content">
+							<span class="warning">
+								<?php echo Lang::txt("StartView_start.warning"); ?>
+							</span>
+							<a href="?mod=terms" target="_blank"><?php echo Lang::txt("StartView_start.terms"); ?></a>
+							<br/>
+							<?php 
+							$yes = new Link($this->modePrefix() . "gdprOk&accept=1", Lang::txt("StartView_start.checkmark"));
+							$yes->addIcon("checkmark");
+							$yes->write();
+							$no = new Link($this->modePrefix() . "gdprOk&accept=0", Lang::txt("StartView_start.cancel"));
+							$no->addIcon("cancel");
+							$no->write();
+							?>
+						</div>
 					</div>
 					<?php
 					// do not show anything on the start page unless the user has selected (ok)
@@ -110,33 +112,35 @@ class StartView extends CrudRefLocationView {
 				}
 				
 				?>
-				<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box.heading"); ?></div>
-				<div class="start_box_content">
-					<?php
-					// news
-					echo $news;
-					
-					// warning
-					if(($this->getData()->getSysdata()->isUserSuperUser() || $this->getData()->getSysdata()->isUserAdmin())
-							&& $this->getController()->usersToIntegrate()) {
-						$this->verticalSpace();
-						echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_1") . '</span>';
-					}
-					
-					// check whether autologin is active and user is admin
-					if($this->getData()->getSysdata()->isUserAdmin() && $this->getData()->getSysdata()->isAutologinActive()) {
-						$this->verticalSpace();
-						echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_2") . '</span>';
-					}
-					?>
+				<div class="row">
+					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box.heading"); ?></div>
+					<div class="start_box_content">
+						<?php
+						// news
+						echo $news;
+						
+						// warning
+						if(($this->getData()->getSysdata()->isUserSuperUser() || $this->getData()->getSysdata()->isUserAdmin())
+								&& $this->getController()->usersToIntegrate()) {
+							$this->verticalSpace();
+							echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_1") . '</span>';
+						}
+						
+						// check whether autologin is active and user is admin
+						if($this->getData()->getSysdata()->isUserAdmin() && $this->getData()->getSysdata()->isAutologinActive()) {
+							$this->verticalSpace();
+							echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_2") . '</span>';
+						}
+						?>
+					</div>
 				</div>
 			</div>
 			<?php 
 		}
 		?>
-		<div class="start_box_table">
-			<div class="start_box_row">
-				<div class="start_box" style="padding-right: 10px;">
+		<div class="d-flex justify-content-start">
+			<div class="row">
+				<div class="col-md-4">
 					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Rehearsal.heading"); ?></div>
 					<div class="start_box_content">
 						<?php

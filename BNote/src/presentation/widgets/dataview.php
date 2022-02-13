@@ -143,18 +143,18 @@ class Dataview {
 	}
 	
 	function write() {
-		echo '<table>' . "\n";
+		echo '<div class="mb-2 mx-3">';
 		if (count ( $this->elements ) > 0) {
 			foreach ( $this->elements as $label => $element ) {
 				if (is_numeric ( $label ) && ! $this->allowNumericLabels)
 					continue;
-				echo " <tr>\n";
-				echo "  <td><b>" . ucfirst ( $label ) . "</b></td>\n";
-				echo "  <td>" . $element . "</td>\n";
-				echo " </tr>\n";
+				echo ' <div class="row py-2 bnote-dataview-row">';
+				echo '  <div class="col-md-2 bnote-dataview-label">' . ucfirst ( $label ) . '</div>';
+				echo '  <div class="col-md-10">' . $element . "</div>";
+				echo " </div>";
 			}
 		}
-		echo '</table>' . "\n<br>\n";
+		echo '</div>';
 	}
 }
 

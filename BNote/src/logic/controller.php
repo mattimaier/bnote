@@ -32,17 +32,17 @@ class Controller {
 		if(!is_numeric($system_data->getModuleId()) || in_array($modName, $loginModules)) {
 			$modName = "login";
 		}
-
+		
 		// include preliminaries
-		require $GLOBALS['DIR_DATA'] . "fieldtype.php";
+		require_once $GLOBALS['DIR_DATA'] . "fieldtype.php";
 
 		// include abstract classes
-		require($GLOBALS['DIR_DATA'] . "abstractdata.php");
-		require($GLOBALS["DIR_DATA"] . "abstractlocationdata.php");
-		require($GLOBALS['DIR_PRESENTATION'] . "abstractview.php");
-		require($GLOBALS['DIR_PRESENTATION'] . "crudview.php");
-		require($GLOBALS['DIR_PRESENTATION'] . "crudrefview.php");
-		require($GLOBALS['DIR_PRESENTATION'] . "crudreflocationview.php");
+		require_once $GLOBALS['DIR_DATA'] . "abstractdata.php";
+		require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
+		require_once $GLOBALS['DIR_PRESENTATION'] . "abstractview.php";
+		require_once $GLOBALS['DIR_PRESENTATION'] . "crudview.php";
+		require_once $GLOBALS['DIR_PRESENTATION'] . "crudrefview.php";
+		require_once $GLOBALS['DIR_PRESENTATION'] . "crudreflocationview.php";
 
 		// check whether there is an individual controller, if not go by default
 		require($GLOBALS['DIR_LOGIC'] . "defaultcontroller.php");

@@ -2,9 +2,8 @@
 /**
  * Main entry file for the web application.
  */
-
 # debugging
-#error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 
 # Make a few settings
 date_default_timezone_set("Europe/Berlin");
@@ -18,11 +17,10 @@ include "dirs.php";
 require_once $GLOBALS["DIR_LOGIC"] . "init.php";
 
 # Login forward if necessary
-if(isset($_GET["mod"]) && ($_GET["mod"] === "login" || $_GET["mod"] === 26) && isset($_GET["mode"]) && $_GET["mode"] === "login") {
+if(isset($_GET["mod"]) && ($_GET["mod"] === "login" || $_GET["mod"] == $system_data->getModuleId("Login")) 
+		&& isset($_GET["mode"]) && $_GET["mode"] === "login") {
 	require_once $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 	require_once $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
-	require_once $GLOBALS["DIR_DATA"] . "fieldtype.php";
-	require_once $GLOBALS["DIR_DATA"] . "abstractdata.php";
 	require_once $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
 	$ctrl = new LoginController();
 	$loginData = new LoginData();

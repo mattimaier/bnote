@@ -1,11 +1,21 @@
 <!-- Navigation -->
 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-	<div class="position-sticky pt-3">
-		<ul class="nav flex-column">
+	<div class="position-sticky pt-3">	    
 		
+		<ul class="nav flex-column">
 		<?php
-		$modarr = $system_data->getModuleArray();
-	
+		if($system_data->isUserAuthenticated()) {
+			if(isset($_GET["menu"])) {
+				$modarr = $system_data->getModuleArray($_GET["menu"]);
+			}
+			else {
+				$modarr = $system_data->getModuleArray("main");
+			}
+		}
+		else {
+			$modarr = $system_data->getModuleArray("public");
+		}
+		
 		// render menu
 		foreach($modarr as $id => $modRow) {
 	
@@ -16,6 +26,9 @@
 			if(in_array($modRow["name"], array("Home", "Logout", "WhyBNote", "Gdpr", "ExtGdpr"))) continue;
 			$user_reg = $system_data->getDynamicConfigParameter("user_registration");
 			if($modRow["name"] == "Registration" && $user_reg == 0) continue;
+			
+			// check if to add special menu entry
+			$menu = $modRow["category"] == "admin" ? "&menu=admin" : ""; 
 	
 			if($id == $system_data->getModuleId()) {
 				// current Module
@@ -24,7 +37,7 @@
 			else $selected = "";
 			?>
 			<li class="nav-item">
-	        	<a class="nav-link <?php echo $selected; ?>" href="?mod=<?php echo $id; ?>">
+	        	<a class="nav-link <?php echo $selected; ?>" href="?mod=<?php echo $id . $menu; ?>">
 	        		<i class="bi-<?php echo $modRow["icon"]; ?>"></i>
 	          		<?php echo $system_data->getModuleTitle($id); ?>
 	        	</a>

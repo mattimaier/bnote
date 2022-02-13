@@ -13,6 +13,7 @@ class Form implements iWriteable {
 	protected $foreign = array();
 	protected $hidden = array();
 	protected $rename = array();
+	protected $fieldColSize = array();
 	protected $submitValue;
 	protected $removeSubmitButton = false;
 	protected $requiredFields = array();
@@ -62,9 +63,12 @@ class Form implements iWriteable {
 	 * @param iWriteable $element
 	 *        	Reference to an iWriteable implementing object
 	 */
-	public function addElement($name, $element, $required=False) {
+	public function addElement($name, $element, $required=False, $colSize=0) {
 		$this->elements[$name] = $element;
 		$this->setFieldRequired($name, $required);
+		if($colSize > 0) {
+			$this->fieldColSize[$name] = $colSize;
+		}
 	}
 	public function getElement($name) {
 		if(isset($this->elements[$name])) {
@@ -328,17 +332,21 @@ class Form implements iWriteable {
 		$this->formCss = $cssClasses;
 	}
 	
+	public function setFieldColSize($name, $cols) {
+		$this->fieldColSize[$name] = $cols;
+	}
+	
 	/**
 	 * print html output
 	 */
 	public function write() {
 		$this->createForeign ();
 		
-		echo '<form method="' . $this->method . '" action="' . $this->action . '" class="' . $this->formCss . '" ';
+		echo '<form method="' . $this->method . '" action="' . $this->action . '" class="row g-2 ' . $this->formCss . '" ';
 		echo $this->multipart . '>';
 		
 		if($this->formname != "") {
-			echo '<h3 class="h3">' . $this->formname . "</h3>";
+			echo '<h4 class="h4">' . $this->formname . "</h4>";
 		}
 		
 		foreach ( $this->elements as $label => $element ) {			
@@ -349,11 +357,24 @@ class Form implements iWriteable {
 			if (isset ( $this->rename [$label] )) {
 				$label = $this->rename [$label];
 			}
-			
-			echo '<div class="mb-1">
-					<label for="' . $element->getName() . '" class="col-form-label">' . $label . $required . '</label>
-				    ' . $element->write() . '
-				  </div>';
+			if(isset($this->fieldColSize[$label])) {
+				$colClass = "col-md-" . $this->fieldColSize[$label];
+			}
+			else {
+				$colClass = "col-md-6";
+			}
+			if($element instanceof Field && $element->getType() == FieldType::BOOLEAN) {
+				echo '<div class="' . $colClass . ' mb-1 form-check form-switch">
+						' . $element->write() . '
+						<label for="' . $element->getName() . '" class="col-form-label bnote-form-label">' . $label . ' ' . $required . '</label>
+					  </div>';
+			}
+			else {
+				echo '<div class="' . $colClass . ' mb-1">
+						<label for="' . $element->getName() . '" class="col-form-label bnote-form-label">' . $label . ' ' . $required . '</label>
+					    ' . $element->write() . '
+					  </div>';
+			}
 		}
 		if (count ( $this->requiredFields ) > 0) {
 			echo '<div class="row"><div class="col-auto"><span class="form-text">' . Lang::txt("Form_write.message") . "</span></div></div>";

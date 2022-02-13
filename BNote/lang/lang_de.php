@@ -316,6 +316,7 @@ class Translation extends BNoteTranslation {
 			"navigation_Impressum" => "Impressum",
 			"navigation_Gdpr" => "Datenschutzhinweise",
 			"navigation_ExtGdpr" => "Einverständnis DSGVO",
+			"navigation_Admin" => "Systeminformation",
 			
 			// General: Regex *********************************************	
 			

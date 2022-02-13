@@ -17,7 +17,6 @@ class Systemdata {
  private $current_modid;
  
  private $user_module_permission;
- private $modulearray;
  
  private $version;
  private $dir_prefix;
@@ -25,36 +24,42 @@ class Systemdata {
  private $theme;
  private $logoFilename;
 
- /**
-  * Creates a new system data object.
-  * @param String $dir_prefix Prefix for configuration files, e.g. "../../". 
-  */
- function __construct($dir_prefix = "") {
-  if(!isset($_GET["mod"])) $this->current_modid = 26;  // Login
-  else $this->current_modid = $_GET["mod"];
+	/**
+	 * Creates a new system data object.
+	 *
+	 * @param String $dir_prefix
+	 *        	Prefix for configuration files, e.g. "../../".
+	 */
+	function __construct($dir_prefix = "") {
+		if (! isset($_GET["mod"])) {
+			$this->current_modid = 0;
+		} else {
+			$this->current_modid = $_GET["mod"];
+		}
 
-  $this->cfg_system = new XmlData($dir_prefix . "config/config.xml", "Software");
-  $this->cfg_company = new XmlData($dir_prefix . "config/company.xml", "Company");
+		$this->cfg_system = new XmlData($dir_prefix . "config/config.xml", "Software");
+		$this->cfg_company = new XmlData($dir_prefix . "config/company.xml", "Company");
 
-  $this->dbcon = new Database();
-  $this->regex = new Regex();
-  $this->version = "";
-  $this->dir_prefix = $dir_prefix;
-  
-  $this->initUserPermissions();
-  
-  // make sure dynamic configuration exists already
-  $tabs = Database::flattenSelection($this->dbcon->getSelection("SHOW TABLES"), 0);
-  if(in_array("configuration", $tabs)) {
-  	$this->cfg_dynamic = $this->getDynamicConfiguration();
-  }
- }
- 
- public function initUserPermissions() {
- 	if(isset($_SESSION["user"]) && $_SESSION["user"] > 0) {
- 		$this->user_module_permission = $this->getUserModulePermissions();
- 	}
- }
+		$this->dbcon = new Database();
+		$this->regex = new Regex();
+		$this->version = "";
+		$this->dir_prefix = $dir_prefix;
+		$this->user_module_permission = NULL;
+
+		$this->initUserPermissions();
+
+		// make sure dynamic configuration exists already
+		$tabs = Database::flattenSelection($this->dbcon->getSelection("SHOW TABLES"), 0);
+		if (in_array("configuration", $tabs)) {
+			$this->cfg_dynamic = $this->getDynamicConfiguration();
+		}
+	}
+
+	public function initUserPermissions() {
+		if ($this->user_module_permission == NULL) {
+			$this->user_module_permission = $this->getUserModulePermissions();
+		}
+	}
 
  /**
   * @param name Name of a module, e.g. "Proben".
@@ -93,9 +98,13 @@ class Systemdata {
  	}
  	return $name;
  }
-
-	public function getModuleDescriptor() {
-		return $this->dbcon->colValue("SELECT descriptor FROM module WHERE modulId = ?", "descriptor", array(array("i",$this->current_modid)));
+	
+	public function getModule($id) {
+		$modId = ($id < 1) ? $this->current_modid : $id;
+		if(!is_numeric($modId)) {
+			$modId = $this->dbcon->colValue("SELECT id FROM module WHERE lower(name) = ?", "id", array(array("s", strtolower($modId))));
+		}
+		return $this->dbcon->fetchRow("SELECT * FROM module WHERE id = ?", array(array("i", $modId)));
 	}
 
  /**
@@ -118,10 +127,10 @@ class Systemdata {
   * @return Array An array with the module-ids the current user has permission for
   */
  public function getUserModulePermissions($uid = -1) {
- 	if($uid == -1) $uid = $_SESSION["user"];
+ 	$userId = ($uid == -1 && $this->isUserAuthenticated()) ? $_SESSION["user"] : $uid;
  	
  	$query = "SELECT module FROM privilege WHERE user = ?";
- 	$privileges = $this->dbcon->getSelection($query, array(array("i", $uid)));
+ 	$privileges = $this->dbcon->getSelection($query, array(array("i", $userId)));
  	
  	if(!$privileges) {
  		new BNoteError(Lang::txt("Systemdata_getUserModulePermissions.error"));
@@ -135,13 +144,15 @@ class Systemdata {
  }
  
  public function userHasPermission($modulId, $uid = -1) {
- 	$modules = $this->getModuleArray();
- 	
- 	$modId = ($modulId < 1) ? $this->current_modid : $modulId;
+ 	if($modulId === "login") {
+ 		return true;
+ 	}
+ 	 	
+ 	$modId = (is_numeric($modulId) && $modulId < 1) ? $this->current_modid : $modulId;
  	if(!is_numeric($modulId)) {
  		$modId = $this->dbcon->colValue("SELECT id FROM module WHERE lower(name) = ?", "id", array(array("s", strtolower($modulId))));
  	}
- 	$module = $modules[$modId];
+ 	$module = $this->getModuleArray()[$modId];
  	
  	// allow access to public pages always
  	if($module["category"] == "public") {
@@ -155,9 +166,11 @@ class Systemdata {
  	else {
  		$permissions = $this->getUserModulePermissions($uid);
  	}
+ 	
  	if($permissions == null) {
  		return false;
  	}
+ 	
  	if($this->gdprOk($uid) == 0 && $modId != 1) {
  		return false;
  	}
@@ -172,9 +185,7 @@ class Systemdata {
  	if(!$this->isUserAuthenticated()) {
  		return $this->getInnerModuleArray("public");
  	}
- 	if(isset($this->modulearray) && count($this->modulearray) > 0) {
- 		return $this->modulearray;
- 	}
+ 	
 	return $this->getInnerModuleArray($category);
  }
  
@@ -191,13 +202,13 @@ class Systemdata {
  	$query = "SELECT * FROM module $where ORDER BY id";
  	$mods = $this->dbcon->getSelection($query, $params);
  	
- 	$this->modulearray = array();
+ 	$res = array();
  	
  	for($i = 1; $i < count($mods); $i++) {
- 		$this->modulearray[$mods[$i]["id"]] = $mods[$i];
+ 		$res[$mods[$i]["id"]] = $mods[$i];
  	}
  	
- 	return $this->modulearray;
+ 	return $res;
  }
  
  /**

@@ -21,19 +21,38 @@ class KontaktdatenView extends CrudRefLocationView {
 		$cid = $contact["id"];
 		
 		$form = new Form(Lang::txt("KontaktdatenView_start.Form"), $this->modePrefix() . "savePD");
+		
+		$form->addElement(Lang::txt("KontakteData_construct.name"), new Field("name", $contact["name"], FieldType::CHAR), true, 3);
+		$form->addElement(Lang::txt("KontakteData_construct.surname"), new Field("surname", $contact["surname"], FieldType::CHAR), true, 3);
+		$form->addElement(Lang::txt("KontakteData_construct.nickname"), new Field("nickname", $contact["nickname"], FieldType::CHAR), false, 3);
+		
+		$form->addElement(Lang::txt("KontakteData_construct.instrument"), new Dropdown("instrument"), true, 3);
+		$form->setForeign(Lang::txt("KontakteData_construct.instrument"), "instrument", "id", "name", $contact["instrument"]);
+		
+		$address = $this->getData()->getAddress($contact["address"]);
+		$this->addAddressFieldsToForm($form, $address);
+		
+		
+		/*
+		company
+		business
+		
+		phone
+		mobile
+		
+		email
+		web
+		
+		birthday
+		
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $cid, array("company"));
 		$form->removeElement("id");
 		$form->removeElement("notes");
 		$form->removeElement("address");
 		$form->removeElement("status");
 		$form->removeElement("is_conductor");
-		if($form->getElement("instrument") == null) {
-			$form->addElement("instrument", new Dropdown("instrument"));
-		}
-		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
+		*/
 		
-		$address = $this->getData()->getAddress($contact["address"]);
-		$this->addAddressFieldsToForm($form, $address);
 		
 		// custom data
 		$this->appendCustomFieldsToForm($form, 'c', $contact, true);

@@ -60,6 +60,10 @@ class Field implements iWriteable {
 		return $this->name;
 	}
 	
+	public function getType() {
+		return $this->type;
+	}
+	
 	/**
 	 * Returns the default value for the element
 	 */
@@ -96,6 +100,7 @@ class Field implements iWriteable {
 		    case FieldType::FILE: return $this->Filefield(); break;
 		    case FieldType::CURRENCY: return $this->Currencyfield(); break;
 		    case FieldType::MINSEC: return $this->MinuteSecondfield(); break;
+		    case 95: return $this->combinedNameFields(); break;
 		    case 96: return $this->TimeSelector(); break;
 		    case 97: return $this->DatetimeSelector(); break;
 		    case 98: return $this->tinyMCE(); break;
@@ -131,7 +136,7 @@ class Field implements iWriteable {
 	 */
 	private function Datefield() {
 		$css = ($this->cssClass != null) ? $this->cssClass : "";
-		return '<input class="dateChooser ' . $css . '" type="text" size="' . $this->DATELENGTH . '" name="' . $this->name . '" value="' . $this->default_value . '" />';
+		return '<input class="dateChooser form-control ' . $css . '" type="text" size="' . $this->DATELENGTH . '" name="' . $this->name . '" value="' . $this->default_value . '" />';
 	}
 	
 	/**
@@ -203,7 +208,7 @@ class Field implements iWriteable {
 		$checked = "";
 		if ($dv == "checked" || $dv == "true" || $dv == 1)
 			$checked = "checked";
-		return '<input type="checkbox" class="form-check-input" name="' . $this->name . '" ' . $checked . '/>';
+		return '<input type="checkbox" role="switch" class="form-check-input" name="' . $this->name . '" ' . $checked . '/>';
 	}
 	
 	/**
@@ -317,6 +322,10 @@ class Field implements iWriteable {
 		
 		// combination
 		return $hourfield . ":" . $minutefield;
+	}
+	
+	private function combinedNameFields() {
+		
 	}
 }
 

@@ -21,6 +21,8 @@ abstract class AbstractView {
 	 */
 	protected $idField = "id";
 	
+	protected $moduleInfo = NULL;
+	
 	/**
 	 * Entry Point for any view.
 	 */
@@ -95,7 +97,14 @@ abstract class AbstractView {
 	 * @return String like "?mod=<id>&mode=". Append the mode and other GET parameters
 	 */
 	protected function modePrefix() {
-		return "?mod=" . $this->getModId() . "&mode=";
+		if($this->moduleInfo == NULL) {
+			$this->moduleInfo = $this->getData()->getSysdata()->getModule($this->getModId());
+		}
+		$menu = "";
+		if($this->moduleInfo["category"] == "admin") {
+			$menu = "&menu=admin";
+		}
+		return "?mod=" . $this->getModId() . "$menu&mode=";
 	}
 	
 	/**
@@ -178,7 +187,7 @@ abstract class AbstractView {
 			// generate the element based on the type
 			$element = new Field($techName, $default, $this->getData()->fieldTypeFromCustom($field["fieldtype"]));
 			
-			$form->addElement($field["txtdefsingle"], $element, true);
+			$form->addElement($field["txtdefsingle"], $element, true, 3);
 		}
 	}
 	

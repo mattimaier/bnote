@@ -174,7 +174,7 @@ class UserData extends AbstractData {
 	 */
 	function hasUserPrivilegeForModule($uid, $mid) {
 		$query = "SELECT id FROM privilege WHERE user = ? AND module = ?";
-		$bit = $this->database->colValue($query, "id", array("i", $uid), array("i", $mid));
+		$bit = $this->database->colValue($query, "id", array(array("i", $uid), array("i", $mid)));
 		if(!isset($bit) || $bit == "") return false;
 		else return true;
 	}
@@ -191,14 +191,15 @@ class UserData extends AbstractData {
 		}
 		
 		// clear privileges
-		$query = "DELETE FROM privilege WHERE user = ?";
-		$this->database->execute($query, array(array("i", $uid)));
+		#$query = "DELETE FROM privilege WHERE user = ?";
+		#$this->database->execute($query, array(array("i", $uid)));
 		
 		// insert privileges
 		// $_POST format: [modid] => [on] , if [modid] not in array = off
 		$s = $this->tupleStmt($uid, array_keys($_POST));
 		if(count($s[1]) > 0) {
 			$query = "INSERT INTO privilege (user, module) VALUES " . $s[0];
+			print($query);
 			$this->database->execute($query, $s[1]);
 		}
 	}
