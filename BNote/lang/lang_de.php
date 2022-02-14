@@ -781,7 +781,11 @@ class Translation extends BNoteTranslation {
 			"HilfeView_helpPages.tour" => "Modul Tour",
 			"HilfeView_videos.teaser" => "BNote Teaser",
 			"HilfeView_videos.intro" => "BNote Einführung",
+			"HilfeView_videos.intro_description" => "Ein Überblick über die Funktionen/Nutzung der Software",
+			"HilfeView_videos.intro_button" => "Video ansehen (online)",
 			"HilfeView_videos.admin_overview" => "Administrationsüberblick",
+			"HilfeView_videos.admin_description" => "Installation, Konfiguration, Hinweise",
+			"HilfeView_videos.admin_button" => "Video ansehen (online)",
 			"HilfeView_start.intro" => "Einführung",
 			"HilfeView_start.video_tutorials" => "Video Tutorials",
 			"HilfeView_start.help_pages" => "Hilfeseiten",
@@ -791,6 +795,9 @@ class Translation extends BNoteTranslation {
 			"HilfeView_start.vid_1_provider" => "Providerauswahl",
 			"HilfeView_start.vid_1_install" => "Installation und Update",
 			"HilfeView_start.select_help" => "Bitte wähle eine Hilfeseite.",
+			"HilfeView_start.more_videos" => "Weitere Videos...",
+			"HilfeView_start.read_page" => "Lesen",
+			"HilfeView_start.module_documentation" => "Moduldokumentation",
 				
 			// module: Instrumente *********************************************	
 			
@@ -1341,7 +1348,7 @@ class Translation extends BNoteTranslation {
 			"NachrichtenData_check.error" => "Der Inhalt der Nachricht ist nicht sicher. Bitte verwende keine Frames und Skripte.",
 			
 			// NachrichtenView	
-			"NachrichtenView_start.form" => "Nachrichten",
+			"NachrichtenView_start.form" => "Nachricht",
 			"NachrichtenView_start.Submit" => "speichern",
 			"NachrichtenView_save.message_1" => "Nachricht gespeichert",
 			"NachrichtenView_save.message_2" => "Die eingegebene Nachricht wurde gespeichert.",

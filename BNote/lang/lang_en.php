@@ -780,9 +780,13 @@ class Translation extends BNoteTranslation {
 			"HilfeView_helpPages.repertoire" => "Module Repertoire",
 			"HilfeView_helpPages.share" => "Module Share",
 			"HilfeView_helpPages.tour" => "Module Tour",
-			"HilfeView_videos.teaser" => "BNote Teaser (German)",
-			"HilfeView_videos.intro" => "BNote Introduction (German)",
-			"HilfeView_videos.admin_overview" => "BNote Administration (German)",
+			"HilfeView_videos.teaser" => "BNote Teaser",
+			"HilfeView_videos.intro" => "BNote Intro (German)",
+			"HilfeView_videos.intro_description" => "Overview of Features (German)",
+			"HilfeView_videos.intro_button" => "Watch video (online)",
+			"HilfeView_videos.admin_overview" => "BNote Admin Overview (German)",
+			"HilfeView_videos.admin_description" => "Installation, Configuration, Notes",
+			"HilfeView_videos.admin_button" => "Watch video (online)",
 			"HilfeView_start.intro" => "Introduction",
 			"HilfeView_start.video_tutorials" => "Video Tutorials",
 			"HilfeView_start.help_pages" => "Help pages",
@@ -792,6 +796,9 @@ class Translation extends BNoteTranslation {
 			"HilfeView_start.vid_1_provider" => "Select a hosting provider",
 			"HilfeView_start.vid_1_install" => "Installation and update",
 			"HilfeView_start.select_help" => "Please select a help page.",
+			"HilfeView_start.more_videos" => "More videos...",
+			"HilfeView_start.read_page" => "Read",
+			"HilfeView_start.module_documentation" => "Module documentation",
 
 			// module: Instrumente *********************************************	
 			
@@ -1342,7 +1349,7 @@ class Translation extends BNoteTranslation {
 			"NachrichtenData_check.error" => "The content of the message is not secure. Please do not use frames and scripts.",
 			
 			// NachrichtenView	
-			"NachrichtenView_start.form" => "Messages",
+			"NachrichtenView_start.form" => "Message",
 			"NachrichtenView_start.Submit" => "Save",
 			"NachrichtenView_save.message_1" => "Message saved",
 			"NachrichtenView_save.message_2" => "The entered message has been saved",

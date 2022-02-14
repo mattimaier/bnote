@@ -13,8 +13,8 @@ class NachrichtenView extends AbstractView {
 	
 	public function start() {
 		$content = $this->getData()->fetchContent();
-		$form = new Form(Lang::txt("NachrichtenView_start.form"), $this->modePrefix() . "save");
-		$form->addElement("", new Field("news", $content, FieldType::TEXT));
+		$form = new Form("", $this->modePrefix() . "save");
+		$form->addElement(Lang::txt("NachrichtenView_start.form"), new Field("news", $content, FieldType::TEXT), true, 12);
 		$form->changeSubmitButton(Lang::txt("NachrichtenView_start.Submit"));
 		$form->write();
 	}

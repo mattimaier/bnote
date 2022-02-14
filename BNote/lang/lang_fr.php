@@ -780,8 +780,12 @@ class Translation extends BNoteTranslation {
 			"HilfeView_helpPages.share" => "Module Partage",
 			"HilfeView_helpPages.tour" => "Module Voyage",
 			"HilfeView_videos.teaser" => "BNote Teaser",
-			"HilfeView_videos.intro" => "BNote Introduction",
-			"HilfeView_videos.admin_overview" => "Vue d'ensemble de l'administration",
+			"HilfeView_videos.intro" => "Introduction à la BNote (allemand)",
+			"HilfeView_videos.intro_description" => "Aperçu des fonctions (allemand)",
+			"HilfeView_videos.intro_button" => "Regarder la vidéo en ligne",
+			"HilfeView_videos.admin_overview" => "BNote Administration (allemand)",
+			"HilfeView_videos.admin_description" => "Installation, configuration, remarques",
+			"HilfeView_videos.admin_button" => "Regarder la vidéo en ligne",
 			"HilfeView_start.intro" => "Introduction",
 			"HilfeView_start.video_tutorials" => "Vidéo Didacticiel",
 			"HilfeView_start.help_pages" => "Page d'aide",
@@ -791,6 +795,9 @@ class Translation extends BNoteTranslation {
 			"HilfeView_start.vid_1_provider" => "Sélection du fournisseur",
 			"HilfeView_start.vid_1_install" => "Installation et mise à jour",
 			"HilfeView_start.select_help" => "Veuillez choisir une page d'aide.",
+			"HilfeView_start.more_videos" => "Plus de vidéos...",
+			"HilfeView_start.read_page" => "Lire la page",
+			"HilfeView_start.module_documentation" => "Module documentaire",
 
 			// module: Instrumente *********************************************	
 			
@@ -1339,7 +1346,7 @@ class Translation extends BNoteTranslation {
 			"NachrichtenData_check.error" => "Le contenu du message n'est pas sécurisé. Veuillez ne pas utiliser de cadres et de scripts.",
 			
 			// NachrichtenView	
-			"NachrichtenView_start.form" => "Actualités",
+			"NachrichtenView_start.form" => "Message",
 			"NachrichtenView_start.Submit" => "Sauvegarder",
 			"NachrichtenView_save.message_1" => "Message sauvegardé",
 			"NachrichtenView_save.message_2" => "Le message saisi a été enregistré.",
