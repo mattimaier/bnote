@@ -18,41 +18,28 @@ class KontaktdatenView extends CrudRefLocationView {
 			Writing::p(Lang::txt("KontaktdatenView_start.message"));
 			return;
 		}
-		$cid = $contact["id"];
 		
 		$form = new Form(Lang::txt("KontaktdatenView_start.Form"), $this->modePrefix() . "savePD");
 		
-		$form->addElement(Lang::txt("KontakteData_construct.name"), new Field("name", $contact["name"], FieldType::CHAR), true, 3);
-		$form->addElement(Lang::txt("KontakteData_construct.surname"), new Field("surname", $contact["surname"], FieldType::CHAR), true, 3);
-		$form->addElement(Lang::txt("KontakteData_construct.nickname"), new Field("nickname", $contact["nickname"], FieldType::CHAR), false, 3);
+		$form->addElement(Lang::txt("KontakteData_construct.name"), new Field("name", $contact["name"], FieldType::CHAR), true, 4);
+		$form->addElement(Lang::txt("KontakteData_construct.surname"), new Field("surname", $contact["surname"], FieldType::CHAR), true, 4);
+		$form->addElement(Lang::txt("KontakteData_construct.nickname"), new Field("nickname", $contact["nickname"], FieldType::CHAR), false, 4);
 		
-		$form->addElement(Lang::txt("KontakteData_construct.instrument"), new Dropdown("instrument"), true, 3);
+		$form->addElement(Lang::txt("KontakteData_construct.email"), new Field("email", $contact["email"], FieldType::EMAIL), true, 4);
+		$form->addElement(Lang::txt("KontakteData_construct.birthday"), new Field("birthday", $contact["birthday"], FieldType::DATE), false, 4);
+		$form->addElement(Lang::txt("KontakteData_construct.instrument"), new Dropdown("instrument"), true, 4);
 		$form->setForeign(Lang::txt("KontakteData_construct.instrument"), "instrument", "id", "name", $contact["instrument"]);
 		
+		# Website is not relevant for the most people who use the system, just for contacts
+		# $form->addElement(Lang::txt("KontakteData_construct.web"), new Field("web", $contact["web"], FieldType::CHAR), false, 4);
+				
 		$address = $this->getData()->getAddress($contact["address"]);
 		$this->addAddressFieldsToForm($form, $address);
 		
-		
-		/*
-		company
-		business
-		
-		phone
-		mobile
-		
-		email
-		web
-		
-		birthday
-		
-		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $cid, array("company"));
-		$form->removeElement("id");
-		$form->removeElement("notes");
-		$form->removeElement("address");
-		$form->removeElement("status");
-		$form->removeElement("is_conductor");
-		*/
-		
+		$form->addElement(Lang::txt("KontakteData_construct.phone"), new Field("phone", $contact["phone"], FieldType::CHAR), false, 3);
+		$form->addElement(Lang::txt("KontakteData_construct.mobile"), new Field("mobile", $contact["mobile"], FieldType::CHAR), false, 3);
+		$form->addElement(Lang::txt("KontakteData_construct.company"), new Field("company", $contact["company"], FieldType::CHAR), false, 3);
+		$form->addElement(Lang::txt("KontakteData_construct.business"), new Field("business", $contact["business"], FieldType::CHAR), false, 3);
 		
 		// custom data
 		$this->appendCustomFieldsToForm($form, 'c', $contact, true);

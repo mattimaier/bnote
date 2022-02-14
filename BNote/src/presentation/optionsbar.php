@@ -3,10 +3,9 @@
 		<?php echo $system_data->getModuleTitle($_GET["mod"]); ?>
 	</h4>
 	<div class="btn-toolbar mb-2 mb-md-0">
-		<div class="btn-group me-2">
-			<?php 
-			$GLOBALS["mainController"]->getView()->showOptions();
-			?>
-		</div>
+		<?php 
+		// buttons
+		$GLOBALS["mainController"]->getView()->showOptions();
+		?>
 	</div>
 </div>

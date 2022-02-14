@@ -629,14 +629,6 @@ STRING_END;
 				$filetype = $this->getFiletype($file);
 				$iconName = $filetype;
 				$hasTileView = (($filetype == "music") || ($filetype == "gallery"));
-
-				if ($filetype == "gallery") {
-					$thumbnail = $this->path .".thumbnails/" . $file;
-					$thumbLink = $this->sysdata->getFileHandler() . "?file=" . urlencode($thumbnail);
-					if(!file_exists($this->root . $thumbnail)) {
-						$this->createThumbnail($file);
-					}
-				}
 			}
 
 			if(!$this->viewmode) {
@@ -789,21 +781,6 @@ STRING_END;
 		$back->write();
 	}
 
-	private function createThumbnail($file) {
-		$thumb_folder = $this->root . $this->path . ".thumbnails/";
-		if(!file_exists($thumb_folder)) {
-			mkdir($thumb_folder);
-		}
-		require_once $GLOBALS["DIR_LIB"] . "simpleimage.php";
-		$thumb = new SimpleImage();
-		$thumb->load($this->root . $this->path . $file);
-		if ($thumb->getWidth() > $thumb->getHeight()) {
-			$thumb->resizeToWidth(200);
-		} else {
-			$thumb->resizeToHeight(200);
-		}
-		$thumb->save($thumb_folder . $file);
-	}
 }
 
 ?>

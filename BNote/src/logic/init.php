@@ -11,7 +11,7 @@ $widgets = array(
 	"iwriteable", "box", "dropdown", "dataview", "error", "field",
 	"form", "link", "message", "table", "writing", "textwriteable",
 	"htmleditor", "imagetable", "filebrowser", "groupselector", "filterbox",
-	"list", "plainlist"
+	"list", "plainlist", "card"
 );
 
 foreach($widgets as $id => $file) {
@@ -20,9 +20,6 @@ foreach($widgets as $id => $file) {
 		require($widget_file);
 	}
 }
-
-# load additional PHP libraries
-require_once $GLOBALS["DIR_LIB"] . "simpleimage.php";
 
 # Inizialize System Array
 require_once $GLOBALS["DIR_DATA"] . "systemdata.php";

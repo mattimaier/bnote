@@ -78,7 +78,7 @@ class Link implements iWriteable {
 			return '<input type="submit" class="btn btn-primary"' . $options . ' value="' . $this->label . '">';
 		}
 
-		return '<a class="btn btn-sm btn-outline-secondary bnote-opt-btn" ' . $target . 'href="' . $this->href . '"' . $options . '>'
+		return '<a class="btn btn-secondary bnote-opt-btn ms-2" ' . $target . 'href="' . $this->href . '"' . $options . '>'
 		     . $icon . $this->label . '</a>';
 	}
 

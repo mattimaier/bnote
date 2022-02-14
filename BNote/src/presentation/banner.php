@@ -22,8 +22,18 @@
       		<a href="?mod=<?php echo $system_data->getModuleId("Kontaktdaten"); ?>" class="p-2 text-light">
 				<i class="bi-person-circle"></i>
 	      	</a>
-	      	<a href="?mod=<?php echo $system_data->getModuleId("Admin"); ?>&menu=admin" class="p-2 text-light">
-				<i class="bi-gear-fill"></i>
+	      	<?php
+	      	$adminModuleId = $system_data->getModuleId("Admin");
+	      	if($system_data->userHasPermission($adminModuleId)) {
+	      		?>
+		      	<a href="?mod=<?php echo $adminModuleId; ?>&menu=admin" class="p-2 text-light">
+					<i class="bi-gear-fill"></i>
+		      	</a>
+	      		<?php
+	      	}
+	      	?>
+	      	<a href="?mod=<?php echo $system_data->getModuleId("Hilfe"); ?>" class="p-2 text-light">
+				<i class="bi-question-circle"></i>
 	      	</a>
       		<a href="?mod=<?php echo $system_data->getModuleId("Logout"); ?>" class="p-2 text-light">
 				<i class="bi-box-arrow-right"></i>

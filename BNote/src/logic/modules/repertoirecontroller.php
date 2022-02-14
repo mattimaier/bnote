@@ -84,7 +84,7 @@ class RepertoireController extends DefaultController {
 		}
 		
 		// read file
-		require_once $GLOBALS['DIR_LIB'] . "PHPExcel/Classes/PHPExcel.php";
+		require_once $GLOBALS['DIR_LIB'] . "lib/PHPExcel/Classes/PHPExcel.php";
 		$reader = PHPExcel_IOFactory::createReader('Excel2007');
 		$reader->setReadDataOnly(true);
 		
