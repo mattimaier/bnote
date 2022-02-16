@@ -13,7 +13,5 @@ Im [Release-Ordner](BNote-Releases/BNote) sind alle offiziellen Releases geliste
 ### Team
 Hinter BNote steht ein Team von Software-Entwicklern und Amateurmusikern. Unsere Release-Planung ist öffentlich, ebenso wie die Bugs (siehe hierzu [Issues](../../issues)).
 
-ℹ️ Seit ich Vater wurde, habe ich leider keine Zeit mehr an BNote weiterzuentwickeln. Gerne übergebe ich das Projekt an engagierte Entwickler. Jedoch ist der Quellcode jetzt an manchen Stellen etwa 10 Jahre alt und weder sicherheitstechnisch noch programmatisch auf der Höhe der Zeit.
-
 ### Infos
 Weitere Informationen, Hilfe und Angebote gibt es auf der [BNote Website](http://www.bnote.info) und im [Wiki](../../wiki).
