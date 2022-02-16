@@ -34,8 +34,9 @@ class Database extends Data {
 				$this->connectionData["dbname"],
 				$this->connectionData["port"] );
 		
-		if($this->db->connect_errno) {
-			new BNoteError ( "Unable to connect to database: " . $this->db->connect_error );
+		if(!$this->db || $this->db->connect_errno) {
+			$err = isset($this->db->connect_error) ? $this->db->connect_error : "Check logs.";
+			new BNoteError ( "Unable to connect to database: " . $err );
 		}
 		
 		if(array_key_exists("encoding", $this->connectionData)) {

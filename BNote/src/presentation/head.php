@@ -15,18 +15,19 @@
  <link type="text/css" href="lib/jquery/jquery.datetimepicker.min.css" rel="stylesheet" />
  <link type="text/css" href="lib/jquery/jquery.jqplot.min.css" rel="stylesheet" /> 
  <link type="text/css" href="lib/dropzone.css" rel="stylesheet" />
- <link rel="stylesheet" href="lib/bootstrap-icons-1.8.1/font/bootstrap-icons.css">
+ <link rel="stylesheet" href="lib/bootstrap-icons-1.8.1/font/bootstrap-icons.css" />
+ <link rel="stylesheet" type="text/css" href="lib/DataTables/datatables.min.css" />
  
  <link type="text/css" href="<?php echo "style/css/" . $system_data->getTheme() . "/bnote.css"?>" rel="stylesheet" />
  
  <link type="text/css" href='lib/fullcalendar/core/main.css' rel='stylesheet' />
  <link type="text/css" href='lib/fullcalendar/daygrid/main.css' rel='stylesheet' />
 
- <script type="text/javascript" src="lib/jquery/jquery-2.1.1.min.js"></script>
+ <script type="text/javascript" src="lib/jquery/jquery-3.6.0.min.js"></script>
  <script type="text/javascript" src="lib/jquery/jquery-ui.min.js"></script>
  <script type="text/javascript" src="lib/jquery/jquery.datetimepicker.full.min.js"></script>
  <script type="text/javascript" src="lib/jquery/jquery.jqplot.min.js"></script>
- <script type="text/javascript" src="lib/jquery/jquery.dataTables.min.js"></script>
+ <script type="text/javascript" src="lib/DataTables/datatables.min.js"></script>
 
  <script src='lib/jquery/moment.min.js'></script>
  

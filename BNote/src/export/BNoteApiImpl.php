@@ -89,19 +89,9 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		if(isset($_GET["func"]) && ($_GET["func"] == "mobilePin" || $_GET["func"] == "signup" || $_GET["func"] == "getInstruments")) {
 			$this->uid = null;
 		}
-		else if(!isset($_GET["pin"])) {
-			//TODO: Replace all HTTP 1.0 responses
-			header("HTTP/1.0 401 Permission Denied.");
-			exit();
-		}
-		else {
-			//FIXME: remove pin auth
-			$this->uid = $this->db->colValue("SELECT id FROM user WHERE pin = ?", "id", array(array("i", $_GET["pin"])));
-			if($this->uid == null || $this->uid < 1) {
-				header("HTTP/1.0 401 Permission Denied.");
-				exit();
-			}
-		}
+		//TODO: Replace all HTTP 1.0 responses
+		header("HTTP/1.0 401 Permission Denied.");
+		exit();
 	}
 
 	/**

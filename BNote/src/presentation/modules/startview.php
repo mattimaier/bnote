@@ -79,37 +79,54 @@ class StartView extends CrudRefLocationView {
 		$calSubsc->write();
 	}
 	
+	private function box($heading, $content) {
+		/*
+		 * THIS IS THE APPROPRIATE BOX STYLE
+		 * TODO: Reformat start to this style
+		 */
+		?>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="p-2 start_box_heading"><?php echo $heading; ?></div>
+				<div class="p-2">
+					<p>Alle Happy</p>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+	
 	function start() {
 		$news = $this->getData()->getNews();
-		if($news != "" || $this->getData()->getSysdata()->gdprOk() == 0) {
-			?>
-			<div class="d-flex justify-content-start">
-				<?php 
-				// GDPR
-				if($this->getData()->getSysdata()->gdprOk() == 0) {
-					?>
-					<div class="row">
-						<div class="start_box_heading"><?php echo Lang::txt("StartView_start.box_heading"); ?></div>
-						<div class="start_box_content">
-							<span class="warning">
-								<?php echo Lang::txt("StartView_start.warning"); ?>
-							</span>
-							<a href="?mod=terms" target="_blank"><?php echo Lang::txt("StartView_start.terms"); ?></a>
-							<br/>
-							<?php 
-							$yes = new Link($this->modePrefix() . "gdprOk&accept=1", Lang::txt("StartView_start.checkmark"));
-							$yes->addIcon("checkmark");
-							$yes->write();
-							$no = new Link($this->modePrefix() . "gdprOk&accept=0", Lang::txt("StartView_start.cancel"));
-							$no->addIcon("cancel");
-							$no->write();
-							?>
-						</div>
+		if($news != "" || $this->getData()->getSysdata()->gdprOk() == 0) { 
+			// GDPR
+			if($this->getData()->getSysdata()->gdprOk() == 0) {
+				$h = Lang::txt("StartView_start.box_heading");
+				$c = "";
+				$this->box($h, $c);
+				?>
+				<div class="row">
+					
+					<div class="start_box_content">
+						<span class="warning">
+							<?php echo Lang::txt("StartView_start.warning"); ?>
+						</span>
+						<a href="?mod=terms" target="_blank"><?php echo Lang::txt("StartView_start.terms"); ?></a>
+						<br/>
+						<?php 
+						$yes = new Link($this->modePrefix() . "gdprOk&accept=1", Lang::txt("StartView_start.checkmark"));
+						$yes->addIcon("checkmark");
+						$yes->write();
+						$no = new Link($this->modePrefix() . "gdprOk&accept=0", Lang::txt("StartView_start.cancel"));
+						$no->addIcon("cancel");
+						$no->write();
+						?>
 					</div>
-					<?php
-					// do not show anything on the start page unless the user has selected (ok)
-					exit(1);
-				}
+				</div>
+				<?php
+				// do not show anything on the start page unless the user has selected (ok)
+				exit(1);
+			}
 				
 				?>
 				<div class="row">

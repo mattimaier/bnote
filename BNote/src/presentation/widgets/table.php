@@ -188,11 +188,10 @@ class Table implements iWriteable {
 	}
 	
 	function write() {
+		echo '<div class="table-responsive">';
 		// generate id for each table to apply the javascript DataTable function later
 		$identifier = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 10);
-		echo '<table id="';
-		echo $identifier;
-		echo '" cellpadding="0" cellspacing="0" class="BNoteTable">' . "\n";
+		echo '<table id="'. $identifier . '" style="width: 100%" class="table-primary display">';
 
 		$head = true;
 		$empty = false;
@@ -237,7 +236,7 @@ class Table implements iWriteable {
 						$cssClasses = " bn-table-option-column";
 					}
 					
-					echo '  <td class="DataTable_Header' . $cssClasses . '">' . $headerLabel . '</td>' . "\n";
+					echo '  <th class="' . $cssClasses . '" scope="col">' . $headerLabel . '</td>' . "\n";
 					$colcount++;
 				}
 				else if(!is_numeric($id)) {
@@ -252,7 +251,7 @@ class Table implements iWriteable {
 					}
 					
 					# Data
-					echo '  <td class="DataTable';
+					echo '  <td class="';
 					if(in_array($id, $this->optColumns)) {
 						echo ' bn-table-option-column';
 					}
@@ -277,7 +276,7 @@ class Table implements iWriteable {
 					// Check for primary keys
 					if($this->edit && !in_array($id, $this->optColumns)) {
 						$href = '?mod=' . $this->modid . '&mode=' . $this->mode . '&' . $this->edit_id_field . '=' . $row[$this->primkey];
-						echo '<a class="silent" href="' . $href . '">';
+						#echo '<a class="silent" href="' . $href . '">';
 					}
 
 					// Check for foreign keys
@@ -322,7 +321,7 @@ class Table implements iWriteable {
 					echo $value;
 
 					if($this->edit && !in_array($id, $this->optColumns)) {
-						echo '</a>';
+						#echo '</a>';
 					}
 					echo '</td>' . "\n";
 					$firstVisibleColumn = false;
@@ -353,6 +352,8 @@ class Table implements iWriteable {
 
 		echo "</tbody>\n";
 		echo "</table>\n";
+		echo '</div>';
+		
 		if($this->isPaginated) {
 			?>
 			<a href="<?php echo $this->paginationLinkPrev; ?>"><div class="DataTable_prevpage"><?php echo Lang::txt("Table_write.prevpage"); ?></div></a>
