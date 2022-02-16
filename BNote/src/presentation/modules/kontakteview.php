@@ -92,8 +92,8 @@ class KontakteView extends CrudRefLocationView {
 		$groups = $this->getData()->getGroups();
 		
 		// show groups as tabs
-		echo "<div class=\"contact_view\">\n";
-		echo " <div class=\"view_tabs\">";
+		echo "<div class=\"contact_view\">";
+		echo " <div class=\"nav nav-tabs\">";
 		foreach($groups as $cmd => $info) {
 			if($cmd == 0) {
 				// instead of skipping the first header-row,
@@ -105,24 +105,27 @@ class KontakteView extends CrudRefLocationView {
 			$groupId = $info["id"];
 			
 			$active = "";
-			if(isset($_GET["group"]) && $_GET["group"] == $groupId) $active = "_active";
-			else if(!isset($_GET["group"]) && $groupId == 2) $active = "_active";
+			if(isset($_GET["group"]) && $_GET["group"] == $groupId) $active = "active";
+			else if(!isset($_GET["group"]) && $groupId == 2) $active = "active";
 			
-			echo "<a href=\"" . $this->modePrefix() . "start&group=$groupId\"><span class=\"view_tab$active\">$label</span></a>";
+			echo "<div class=\"nav-item\">";
+			echo " <a class=\"nav-link $active\" href=\"" . $this->modePrefix() . "start&group=$groupId\">$label</a>";
+			echo "</div>";
 		}
+		echo " </div>";
 		
 		// show data
-		echo " <table id=\"contact_table\" class=\"contact_view\">\n";
+		echo " <table id=\"contact_table\" class=\"table contact_view\">\n";
 		foreach($data as $i => $row) {
 					
 			if($i == 0) {
 				// header
 				echo "<thead>";
-				echo "   <td class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.name") . "</td>";
-				echo "   <td class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.music") . "</td>";
-				echo "   <td class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.adress") . "</td>";
-				echo "   <td class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.phone") . "</td>";
-				echo "   <td class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.online") . "</td>";
+				echo "   <th class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.name") . "</th>";
+				echo "   <th class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.music") . "</th>";
+				echo "   <th class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.adress") . "</th>";
+				echo "   <th class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.phone") . "</th>";
+				echo "   <th class=\"DataTable_Header\">" . Lang::txt("KontakteView_showContactTable.online") . "</th>";
 				echo "</thead>";
 				echo "<tbody>";
 			}
@@ -180,7 +183,6 @@ class KontakteView extends CrudRefLocationView {
 		
 		echo "</tbody>";
 		echo "</table>\n";
-		echo " </div>";
 		echo "</div>";
 
 		?>
@@ -192,6 +194,7 @@ class KontakteView extends CrudRefLocationView {
     		$(identifier).DataTable({
 				 "paging": false, 
 				 "info": false,  
+				 "responsive": true,
 				 "oLanguage": {
 					 		 "sEmptyTable":  "<?php echo Lang::txt("KontakteView_showContactTable.sEmptyTable"); ?>",
 							 "sInfoEmpty":  "<?php echo Lang::txt("KontakteView_showContactTable.sInfoEmpty"); ?>",

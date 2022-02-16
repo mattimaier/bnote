@@ -132,12 +132,13 @@ class UserView extends CrudRefView {
 		$user = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form = new Form($this->getData()->getUsername($_GET["id"]) . Lang::txt("UserView_editEntityForm.edit_process"),
 				$this->modePrefix() . "edit_process&id=" . $_GET["id"] . "&manualValid=true");
-		$form->addElement(Lang::txt("UserView_editEntityForm.login"), new Field("login", $user["login"], 99));
-		$form->addElement(Lang::txt("UserView_editEntityForm.password"), new Field("password", "", FieldType::PASSWORD));
+		$form->addElement(Lang::txt("UserView_editEntityForm.login"), new Field("login", $user["login"], 99), true, 6);
+		$form->addElement(Lang::txt("UserView_editEntityForm.password"), new Field("password", "", FieldType::PASSWORD), true, 6);
 		$form->addHidden("isActive", $user["isActive"]);
 		$dd = $this->contactDropdown();
 		$dd->setSelected($user["contact"]);
-		$form->addElement(Lang::txt("UserView_editEntityForm.contact"), $dd);
+		$form->addElement(Lang::txt("UserView_editEntityForm.contact"), $dd, false, 6);
+		$form->setFormCss("");
 		$form->write();
 		Writing::p(Lang::txt("UserView_editEntityForm.message"));
 	}

@@ -408,6 +408,12 @@ a:hover {
 i.bnote-opt-btn {
   margin-right: 0.2rem;
 }
+.nav-link {
+  color: #61b3ff;
+}
+.nav-link:hover {
+  color: #436f98;
+}
 /*
  * Forms
  */
@@ -451,6 +457,15 @@ select.form-select {
 .bnote-dataview-label {
   font-weight: 600;
   color: #8A8A8A;
+}
+/*
+ * Table
+ */
+tr.odd td {
+  background-color: #eef4fa;
+}
+table.dataTable th {
+  border-bottom-color: #436f98;
 }
 @media print {
   #banner {

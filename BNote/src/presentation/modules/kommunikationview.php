@@ -175,8 +175,8 @@ class KommunikationView extends AbstractView {
 			$gs->setNameColumn("name_member");
 			$form->addElement(Lang::txt("KommunikationView_createMailForm.recipient"), $gs);
 		}
-		$form->addElement(Lang::txt("KommunikationView_createMailForm.subject"), new Field("subject", "", FieldType::CHAR));
-		$form->addElement(Lang::txt("KommunikationView_createMailForm.Message"), new Field("message", $message, 98));
+		$form->addElement(Lang::txt("KommunikationView_createMailForm.subject"), new Field("subject", "", FieldType::CHAR), true, 12);
+		$form->addElement(Lang::txt("KommunikationView_createMailForm.Message"), new Field("message", $message, 98), true, 12);
 		$form->changeSubmitButton(Lang::txt("KommunikationView_createMailForm.Submit"));
 		
 		return $form;

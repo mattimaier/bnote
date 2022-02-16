@@ -215,8 +215,7 @@ class Field implements iWriteable {
 	 * Just write out the value including a hidden field for the $_POST array.
 	 */
 	private function UneditableField() {
-		$hidden = '<input type="hidden" name="' . $this->name . '" value="' . $this->default_value . '" />';
-		return $this->default_value . $hidden;
+		return '<input type="text" class="form-control" name="' . $this->name . '" value="' . $this->default_value . '" disabled/>';
 	}
 	
 	/**

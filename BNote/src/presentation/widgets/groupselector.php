@@ -102,7 +102,7 @@ class GroupSelector implements iWriteable {
 		if($this->cssClass != null) {
 			$cssClass = " " . $this->cssClass;
 		}
-		$out = "<ul class=\"groupSelector$cssClass\">\n";
+		$out = "<div class=\"groupSelector$cssClass\">\n";
 		
 		for($i = 1; $i < count($this->groups); $i++) {
 			$groupId = $this->groups[$i]["id"];
@@ -130,10 +130,13 @@ class GroupSelector implements iWriteable {
 				$selected = "checked";
 			}
 			
-			$out .= " <li><input type=\"checkbox\" name=\"" . $this->fieldName . "_$groupId\" $selected/>$groupName</li>\n";
+			$out .= '<div class="form-check form-switch">';
+			$out .= " <input class=\"form-check-input\" type=\"checkbox\" name=\"" . $this->fieldName . "_$groupId\" $selected />";
+			$out .= " <label class=\"form-check-label\" for=\"" . $this->fieldName . "\">$groupName</label>";
+			$out .= '</div>';
 		}
 		
-		$out .= "</ul>\n";
+		$out .= "</div>";
 		return $out;
 	}
 	

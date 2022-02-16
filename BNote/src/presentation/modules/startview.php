@@ -89,7 +89,7 @@ class StartView extends CrudRefLocationView {
 			<div class="col-md-12">
 				<div class="p-2 start_box_heading"><?php echo $heading; ?></div>
 				<div class="p-2">
-					<p>Alle Happy</p>
+					<p><?php echo $content; ?></p>
 				</div>
 			</div>
 		</div>
@@ -106,8 +106,7 @@ class StartView extends CrudRefLocationView {
 				$this->box($h, $c);
 				?>
 				<div class="row">
-					
-					<div class="start_box_content">
+					<div class="col-md-12">
 						<span class="warning">
 							<?php echo Lang::txt("StartView_start.warning"); ?>
 						</span>
@@ -125,122 +124,130 @@ class StartView extends CrudRefLocationView {
 				</div>
 				<?php
 				// do not show anything on the start page unless the user has selected (ok)
-				exit(1);
+				return;
 			}
 				
-				?>
-				<div class="row">
-					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box.heading"); ?></div>
-					<div class="start_box_content">
-						<?php
-						// news
-						echo $news;
-						
-						// warning
-						if(($this->getData()->getSysdata()->isUserSuperUser() || $this->getData()->getSysdata()->isUserAdmin())
-								&& $this->getController()->usersToIntegrate()) {
-							$this->verticalSpace();
-							echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_1") . '</span>';
-						}
-						
-						// check whether autologin is active and user is admin
-						if($this->getData()->getSysdata()->isUserAdmin() && $this->getData()->getSysdata()->isAutologinActive()) {
-							$this->verticalSpace();
-							echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_2") . '</span>';
-						}
-						?>
+			?>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box.heading"); ?></div>
+					<div class="p-2">
+					<?php
+					// news
+					echo $news;
+					
+					// warning
+					if(($this->getData()->getSysdata()->isUserSuperUser() || $this->getData()->getSysdata()->isUserAdmin())
+							&& $this->getController()->usersToIntegrate()) {
+						$this->verticalSpace();
+						echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_1") . '</span>';
+					}
+					
+					// check whether autologin is active and user is admin
+					if($this->getData()->getSysdata()->isUserAdmin() && $this->getData()->getSysdata()->isAutologinActive()) {
+						$this->verticalSpace();
+						echo '<span class="warning">' . Lang::txt("StartView_start_box_content.warning_2") . '</span>';
+					}
+					?>
 					</div>
 				</div>
 			</div>
 			<?php 
 		}
 		?>
-		<div class="d-flex justify-content-start">
-			<div class="row">
-				<div class="col-md-4">
-					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Rehearsal.heading"); ?></div>
-					<div class="start_box_content">
-						<?php
-						if(isset($_GET["max"]) && $_GET["max"] >= 0) {
-							$this->writeRehearsalList($_GET["max"]);
-						}
-						else {
-							$this->writeRehearsalList($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_max"));
-						}
-						?>
-					</div>
-				</div>
-				
-				<div class="start_box">
-					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Concert.heading"); ?></div>
-					<div class="start_box_content">
-						<?php
-						if(isset($_GET["concert_max"]) && $_GET["concert_max"] >= 0) {
-							$this->writeConcertList($_GET["concert_max"]);
-						}
-						else {
-							$this->writeConcertList($this->getData()->getSysdata()->getDynamicConfigParameter("concert_show_max"));
-						}
-						?>
-					</div>
-					
+		<div class="row">
+		
+			<div class="col-md-4">
+				<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Rehearsal.heading"); ?></div>
+				<div class="p-2">
 					<?php
-					if($this->getData()->hasReservations()) {
-					?>
-					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Reservation.heading"); ?></div>
-					<div class="start_box_content">
-						<?php $this->writeReservationList(); ?>
-					</div>	
-					<?php
+					if(isset($_GET["max"]) && $_GET["max"] >= 0) {
+						$this->writeRehearsalList($_GET["max"]);
+					}
+					else {
+						$this->writeRehearsalList($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_max"));
 					}
 					?>
-					
-					<?php
-					if($this->getData()->hasAppointments()) {
-					?>
-					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Appointment.heading"); ?></div>
-					<div class="start_box_content">
-						<?php 
-						if(isset($_GET["appointments_max"]) && $_GET["appointments_max"] >= 0) {
-							$this->writeAppointmentList($_GET["appointments_max"]);
-						}
-						else {
-							$this->writeAppointmentList($this->getData()->getSysdata()->getDynamicConfigParameter("appointments_show_max"));
-						}
-						?>
-					</div>	
-					<?php
-					}
-					?>
-					
-					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Vote.heading"); ?></div>
-					<div class="start_box_content">
-						<?php $this->writeVoteList(); ?>
-					</div>
-					
-					<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Task.heading"); ?></div>
-					<div class="start_box_content">
-						<?php $this->writeTaskList(); ?>
-					</div>
 				</div>
-				
-				<?php
-				/*
-				 * The update generation has to be last!
-				 * For explanation see comment for $objectListing.
-				 */
-				if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) { 
-					?>
-					<div class="start_box" style="max-width: 250px; padding-left: 10px;">
-						<div class="start_box_heading"><?php echo Lang::txt("StartView_start_box_Task.writeUpdateList"); ?></div>
-						<div class="start_box_content">
-							<?php $this->writeUpdateList(); ?>
-						</div>
-					</div>
-					<?php 
-				}
-				?>
 			</div>
+			
+			<div class="col-md-4">
+				<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Concert.heading"); ?></div>
+				<div class="p-2">
+					<?php
+					if(isset($_GET["concert_max"]) && $_GET["concert_max"] >= 0) {
+						$this->writeConcertList($_GET["concert_max"]);
+					}
+					else {
+						$this->writeConcertList($this->getData()->getSysdata()->getDynamicConfigParameter("concert_show_max"));
+					}
+					?>
+				</div>
+			</div>
+			
+			<?php
+			if($this->getData()->hasReservations()) {
+				?>
+				<div class="col-md-4">
+					<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Reservation.heading"); ?></div>
+					<div class="p-2">
+					<?php $this->writeReservationList(); ?>
+					</div>
+				</div>	
+				<?php
+			}
+			?>
+				
+			<?php
+			if($this->getData()->hasAppointments()) {
+				?>
+				<div class="col-md-4">
+					<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Appointment.heading"); ?></div>
+					<div class="p-2">
+					<?php 
+					if(isset($_GET["appointments_max"]) && $_GET["appointments_max"] >= 0) {
+						$this->writeAppointmentList($_GET["appointments_max"]);
+					}
+					else {
+						$this->writeAppointmentList($this->getData()->getSysdata()->getDynamicConfigParameter("appointments_show_max"));
+					}
+					?>
+					</div>
+				</div>	
+				<?php
+			}
+			?>
+			
+			<div class="col-md-4">
+				<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Vote.heading"); ?></div>
+				<div class="p-2">
+					<?php $this->writeVoteList(); ?>
+				</div>
+			</div>
+			
+			<div class="col-md-4">
+				<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Task.heading"); ?></div>
+				<div class="p-2">
+					<?php $this->writeTaskList(); ?>
+				</div>
+			</div>
+			
+			<?php
+			/*
+			 * The update generation has to be last!
+			 * For explanation see comment for $objectListing.
+			 */
+			if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) { 
+				?>
+				<div class="col-md-4">
+					<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Task.writeUpdateList"); ?></div>
+					<div class="p-2">
+						<?php $this->writeUpdateList(); ?>
+					</div>
+				</div>
+				<?php 
+			}
+			?>
 		</div>
 		<?php
 	}

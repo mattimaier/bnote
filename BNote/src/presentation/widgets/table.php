@@ -191,7 +191,7 @@ class Table implements iWriteable {
 		echo '<div class="table-responsive">';
 		// generate id for each table to apply the javascript DataTable function later
 		$identifier = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 10);
-		echo '<table id="'. $identifier . '" style="width: 100%" class="table-primary display">';
+		echo '<table id="'. $identifier . '" style="width: 100%" class="table">';
 
 		$head = true;
 		$empty = false;
@@ -208,8 +208,13 @@ class Table implements iWriteable {
 			if($head) {
 				echo "<thead>\n";
 			}
-			 
-			echo ' <tr>' . "\n";
+			
+			$rowHref = "";
+			if(!$head && $this->edit) {
+				$rowHref = ' data-href="?mod=' . $this->modid . '&mode=' . $this->mode . '&' . $this->edit_id_field . '=' . $row[$this->primkey] . '"';
+			}
+			
+			echo ' <tr' . $rowHref . '>';
 			
 			$firstVisibleColumn = true;
 			foreach($row as $id => $value) {
@@ -273,12 +278,6 @@ class Table implements iWriteable {
 
 					echo '>';
 
-					// Check for primary keys
-					if($this->edit && !in_array($id, $this->optColumns)) {
-						$href = '?mod=' . $this->modid . '&mode=' . $this->mode . '&' . $this->edit_id_field . '=' . $row[$this->primkey];
-						#echo '<a class="silent" href="' . $href . '">';
-					}
-
 					// Check for foreign keys
 					if(isset($this->foreign[$id]) && !empty($value)) {
 						global $system_data;
@@ -320,9 +319,6 @@ class Table implements iWriteable {
 
 					echo $value;
 
-					if($this->edit && !in_array($id, $this->optColumns)) {
-						#echo '</a>';
-					}
 					echo '</td>' . "\n";
 					$firstVisibleColumn = false;
 				}
@@ -370,6 +366,7 @@ class Table implements iWriteable {
 	    		$(identifier).DataTable({
 					 "paging": false, 
 					 "info": false,  
+					 "responsive": true,
 					 "oLanguage": {
 				 		 "sEmptyTable":  "<?php echo Lang::txt("Table_write.sEmptyTable"); ?>",
 						 "sInfoEmpty":  "<?php echo Lang::txt("Table_write.sInfoEmpty"); ?>",
@@ -377,6 +374,10 @@ class Table implements iWriteable {
 	        			 "sSearch": "<?php echo Lang::txt("Table_write.sSearch"); ?>"
 			 		 }
 				});
+				$(identifier).on('click', 'tbody tr', function() {
+					window.location.href = $(this).data('href');
+				});
+				$('tr').css('cursor','pointer');
 			});
 			</script>
 			<?php

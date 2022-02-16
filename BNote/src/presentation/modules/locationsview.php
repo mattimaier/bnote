@@ -54,21 +54,37 @@ class LocationsView extends CrudRefLocationView {
 	protected function showAllTable() {
 		// get all types and display the locations per type
 		$locTypes = $this->getData()->getLocationTypes();
+		
+		$allActive = "";
+		if(!isset($_GET["locationType"]) || (isset($_GET["locationType"]) && $_GET["locationType"] == "all")) {
+			$allActive = "active";
+		}
 		?>
-		<div id="jqui-tabs">
-		<ul>
-			<li><a href="#jqui-tabs-all"><?php echo Lang::txt("LocationsView_showAllTable.title"); ?></a></li>
+		<div class="row">
+			<div class="nav nav-tabs">
+				<div class="nav-item">
+					<a class="nav-link <?php echo $allActive; ?>" href="<?php echo $this->modePrefix() . "start&locationType=all"; ?>"><?php echo Lang::txt("LocationsView_showAllTable.title"); ?></a>
+				</div>
 			<?php
 			for($i = 1; $i < count($locTypes); $i++) {
 				$locType = $locTypes[$i]['id'];
 				$locTypeName = $locTypes[$i]['name'];
-				echo '<li><a href="#jqui-tabs-' . $locType . '">' . $locTypeName . '</a></li>';
+				$active = "";
+				if(isset($_GET["locationType"]) && $_GET["locationType"] == $locType) {
+					$active = "active";
+				}
+				?>
+				<div class="nav-item">
+					<a class="nav-link <?php echo $active; ?>" href="<?php echo $this->modePrefix() . "start&locationType=$locType"; ?>"><?php echo $locTypeName; ?></a>
+				</div>
+				<?php
 			}
 			?>
-		</ul>
+		</div>
 		
-		<div id="jqui-tabs-all">
-			<?php 
+		<div class="row">
+		<?php 
+		if($allActive) {
 			$table = new Table($this->getData()->findAllJoined($this->getJoinedAttributes()));
 			$table->setEdit("id");
 			$table->renameAndAlign($this->getData()->getFields());
@@ -76,19 +92,10 @@ class LocationsView extends CrudRefLocationView {
 			$this->renameTableAddressColumns($table, "address");
 			$table->removeColumn("location_type");
 			$table->write();
-			?>
-		</div>
-		
-		<?php
-		for($i = 1; $i < count($locTypes); $i++) {
-			$locType = $locTypes[$i]['id'];
-			$locTypeName = $locTypes[$i]['name'];
-			#Writing::h3($locTypeName);
-			
-			// show table rows
-			?>
-			<div id="jqui-tabs-<?php echo $locType; ?>">
-			<?php
+		}
+		else {
+			$locType = $_GET["locationType"];
+			$this->getData()->getSysdata()->regex->isPositiveAmount($locType);
 			$table = new Table($this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "location_type = $locType"));
 			$table->setEdit("id");
 			$table->removeColumn("id");
@@ -96,17 +103,11 @@ class LocationsView extends CrudRefLocationView {
 			$this->renameTableAddressColumns($table, "address");
 			$table->removeColumn("location_type");
 			$table->write();
-			?>
-			</div>
-			<?php
 		}
 		?>
 		</div>
-		<script>
-		$( function() {
-			$( "#jqui-tabs" ).tabs();
-		} );
-		</script>
+		
+		</div>
 		<?php
 	}
 	

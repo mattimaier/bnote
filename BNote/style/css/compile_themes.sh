@@ -1,16 +1,5 @@
-cd default
-lessc bnote.less > bnote.css
-
-cd ../dark
-lessc bnote.less > bnote.css
-
-cd ../green
-lessc bnote.less > bnote.css
-
-cd ../orange
-lessc bnote.less > bnote.css
-
-cd ../red
-lessc bnote.less > bnote.css
-
-cd ..
+lessc default/bnote.less > default/bnote.css
+lessc dark/bnote.less > dark/bnote.css
+lessc green/bnote.less > green/bnote.css
+lessc orange/bnote.less > orange/bnote.css
+lessc red/bnote.less > red/bnote.css

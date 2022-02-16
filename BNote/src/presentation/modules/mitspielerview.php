@@ -15,7 +15,6 @@ class MitspielerView extends CrudRefLocationView {
 	}
 	
 	function start() {
-		Writing::h1(Lang::txt("MitspielerView_start.title"));
 		?>
 		<p class="membercard_hint"><?php echo Lang::txt("MitspielerView_start.message"); ?></p>
 		<?php
