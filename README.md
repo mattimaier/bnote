@@ -1,9 +1,9 @@
 # BNote
 ## Don't get blue organizing your band!
 
-⚠️ **BNote contains security issues that cannot be fixed in the short term. Please be advised to use the software for experimental purposes only or switch to another software.**
+⚠️ **BNote contains security issues that are being fixed soon. Please be advised to use the software for experimental purposes only.**
 
-⚠️ **BNote enthält Sicherheitsfehler, die nicht behoben werden. Daher ist von der Nutzung von BNote abzusehen.**
+⚠️ **BNote enthält Sicherheitsfehler, die demnächst erst behoben werden. Daher ist die Nutzung von BNote 3.4.3 und davor nur für interne Netzwerke und experimentelle Zwecke anzuraten.**
 
 BNote ist eine webbasierte Software für Bigbands, Orchester, Chöre, Schulen, Hochschulen/Universitäten, Musikschulen und Vereine. Ziel von BNote ist es, standardisierte Vorgehensweise in der Proben- und Auftrittsorganisation als IT-Lösung umzusetzen und sie für alle frei zugänglich zu machen.
 
