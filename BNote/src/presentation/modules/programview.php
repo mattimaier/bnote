@@ -32,13 +32,13 @@ class ProgramView extends CrudView {
 	
 	function backToStart() {
 		$link = new Link("?mod=" . $this->getModId() . "&mode=programs", Lang::txt("ProgramView_backToStart.back"));
-		$link->addIcon("arrow_left");
+		$link->addIcon("arrow-left");
 		$link->write();
 	}
 	
 	function startOptions() {
 		$back = new Link("?mod=" . $this->getModId() . "&mode=start", Lang::txt("ProgramView_startOptions.back"));
-		$back->addIcon("arrow_left");
+		$back->addIcon("arrow-left");
 		$back->write();
 		
 		$this->buttonSpace();
@@ -71,7 +71,7 @@ class ProgramView extends CrudView {
 	}
 	
 	function showAllTable() {
-		$table = new Table($this->getData()->getProgramme());
+		$table = new Table($this->getData()->getPrograms());
 		$table->removeColumn("id");
 		$table->setEdit("id");
 		$table->changeMode("programs&sub=view");

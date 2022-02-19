@@ -205,8 +205,8 @@ class ProbenData extends AbstractLocationData {
 		$this->regex->isPositiveAmount($_POST["Ort"]);
 		
 		// make sure last date is after first date
-		$dateFirstSession = strtotime(Data::convertDateToDb($_POST["first_session"]));
-		$dateLastSession = strtotime(Data::convertDateToDb($_POST["last_session"]));
+		$dateFirstSession = strtotime($_POST["first_session"]);
+		$dateLastSession = strtotime($_POST["last_session"]);
 		if($dateLastSession - $dateFirstSession < 0) {
 			new BNoteError(Lang::txt("ProbenData_saveSerie.error"));
 		}
@@ -250,7 +250,7 @@ class ProbenData extends AbstractLocationData {
 	 */
 	private function getRehearsalDates($firstDate, $lastDate, $cycle) {
 		$dates = array($firstDate);
-		$finalDate = strtotime(Data::convertDateToDb($lastDate));
+		$finalDate = strtotime($lastDate);
 		
 		$currDate = $firstDate;
 		$endReached = false;
@@ -328,7 +328,7 @@ class ProbenData extends AbstractLocationData {
 		
 		// create notification
 		if($this->triggerServiceEnabled) {
-			$begin_dt = Data::convertDateToDb($values["begin"]);
+			$begin_dt = $values["begin"];
 			$this->createTrigger($begin_dt, $this->buildTriggerData("R", $rid));
 		}
 		

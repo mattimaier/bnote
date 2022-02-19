@@ -84,8 +84,8 @@ class Filterbox implements iWriteable {
 	
 	function write() {
 		?>
-		<div class="<?php echo $this->cssClass; ?>">
-		<form action="<?php echo $this->link; ?>" method="POST" class="filterbox_form">
+		<div class="mb-2 <?php echo $this->cssClass; ?>">
+		<form action="<?php echo $this->link; ?>" method="POST" class="row g-2 filterbox_form">
 		<?php
 		foreach($this->filters as $column => $infos) {
 			if($infos["type"] == FieldType::SET) {
@@ -142,14 +142,16 @@ class Filterbox implements iWriteable {
 				$element = new Field($column, $val, $infos["type"]);
 			}
 			?>
-			<div class="filterbox_filter">
+			<div class="col-4 filterbox_filter">
 				<div class="filterbox_filter_caption"><?php echo $infos["caption"]; ?></div>
 				<div class="filterbox_filter_element"><?php echo $element->write(); ?></div>
 			</div>
 			<?php
 		}
 		?>
-			<input type="submit" value="Suchen" class="filterbox_submit" />
+			<div class="col-2">
+				<input type="submit" value="Suchen" class="btn btn-primary" style="height: 100%" />
+			</div>
 		</form>
 		</div>
 		<?php

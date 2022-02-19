@@ -78,7 +78,7 @@ class KonzerteData extends AbstractLocationData {
 				LEFT OUTER JOIN program p ON c.program = p.id
 				WHERE begin >= ? AND end <= ?
 				ORDER BY begin ASC";
-		$params = array(array("s", Data::convertDateToDb($from)), array("s", Data::convertDateToDb($to)));
+		$params = array(array("s", $from), array("s", $to));
 		$concerts = $this->database->getSelection($query, $params);
 		return $concerts;
 	}
@@ -194,7 +194,7 @@ class KonzerteData extends AbstractLocationData {
 		
 		// create trigger if configured
 		if($this->triggerServiceEnabled) {
-			$approve_dt = Data::convertDateToDb($values["approve_until"]);
+			$approve_dt = $values["approve_until"];
 			$this->createTrigger($approve_dt, $this->buildTriggerData("C", $concertId));
 		}
 		
@@ -340,7 +340,7 @@ class KonzerteData extends AbstractLocationData {
 	
 	function getConcertEquipment($cid) {
 		$query = "SELECT e.* FROM concert_equipment ce JOIN equipment e ON ce.equipment = e.id WHERE ce.concert = ?";
-		return $this->database->getSelection($query, array("i", $cid));
+		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
 	
 	function deleteConcertContact($concertid, $contactid) {

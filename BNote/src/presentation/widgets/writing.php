@@ -91,7 +91,7 @@ class Writing {
 	 */
 	public static function message($message, $type) {
 		?>
-		<div class="flash_message <?php echo $type; ?>"><?php echo $message; ?></div>
+		<div class="alert alert-<?php echo $type; ?>" role="alert"><?php echo $message; ?></div>
 		<?php
 	}
 }

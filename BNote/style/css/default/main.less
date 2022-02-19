@@ -26,6 +26,16 @@ a:hover {
 	border-width: 0;
 }
 
+.alert {
+	padding: 0.5rem 1rem;
+}
+
+.alert-info {
+    color: @white;
+    background-color: @bnote-dark-alt;
+    border-color: @bnote-very-dark;
+}
+
 /*
  * Sidebar
  */
@@ -137,6 +147,13 @@ input.form-control {
     background-color: @bnote-light;
 }
 
+textarea.form-control {
+	border-width: 0;
+    border-radius: 0px;
+    border-bottom: 2px solid @bnote-dark-alt;
+    background-color: @bnote-light;
+}
+
 select.form-select {
 	border-bottom: 2px solid @bnote-dark-alt;
     border-radius: 0px;
@@ -149,6 +166,14 @@ select.form-select {
 .form-check-input:checked {
     background-color: @bnote-color;
     border-color: @bnote-color;
+}
+
+span.input-group-text {
+    background-color: @bnote-darkgray;
+    color: @white;
+    border-width: 0;
+    border-bottom: 2px solid @bnote-dark-alt;
+    border-radius: 0;
 }
 
 .btn-primary {

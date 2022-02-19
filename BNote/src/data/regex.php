@@ -32,9 +32,9 @@ class Regex {
 		$this->regex ["moneyEnglish"] = '/^-?\d{1,8}(\.\d{1,2})?$/';
 		$this->regex ["moneyEnglishFull"] = '/^-?\d{0,8}\.\d{1,2}$/';
 		
-		$this->regex ["date"] = '/^\d{1,2}.\d{1,2}.\d{4}$/';
+		$this->regex ["date"] = '/^\d{4}-\d{2}-\d{2}$/';
 		$this->regex ["time"] = '/^\d{2}:\d{2}$/';
-		$this->regex ["datetime"] = '/^\d{1,2}.\d{1,2}.\d{4}\ \d{1,2}:\d{2}$/';
+		$this->regex ["datetime"] = '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/';
 		$this->regex ["database_date"] = '/^\d{4}-\d{2}-\d{2}$/';
 		$this->regex ["db_datetime"] = '/^\d{4}-\d{2}-\d{2}\ \d{2}:\d{2}:\d{2}$/';
 		
@@ -65,9 +65,7 @@ class Regex {
 		$langTypes = array (
 				"positive_amount",
 				"positive_decimal",
-				"signed_amount",
-				"date",
-				"datetime" 
+				"signed_amount"
 		);
 		if(in_array($type, $langTypes)) {
 			$re = Lang::regex ( $type );

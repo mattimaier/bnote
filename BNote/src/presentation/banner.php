@@ -1,5 +1,5 @@
 <!-- Banner -->
-<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow d-print-none">
 
 	<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="?mod=1">
 		<img src="style/images/BNote_Logo_white_transparent_44px.png" alt="BNote" height="31px" id="bnote-logo" />

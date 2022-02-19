@@ -333,6 +333,14 @@ a:hover {
   background-color: #243E56;
   border-width: 0;
 }
+.alert {
+  padding: 0.5rem 1rem;
+}
+.alert-info {
+  color: #FFFFFF;
+  background-color: #436f98;
+  border-color: #243E56;
+}
 /*
  * Sidebar
  */
@@ -427,6 +435,12 @@ input.form-control {
   border-bottom: 2px solid #436f98;
   background-color: #eef4fa;
 }
+textarea.form-control {
+  border-width: 0;
+  border-radius: 0px;
+  border-bottom: 2px solid #436f98;
+  background-color: #eef4fa;
+}
 select.form-select {
   border-bottom: 2px solid #436f98;
   border-radius: 0px;
@@ -437,6 +451,13 @@ select.form-select {
 .form-check-input:checked {
   background-color: #61b3ff;
   border-color: #61b3ff;
+}
+span.input-group-text {
+  background-color: #8A8A8A;
+  color: #FFFFFF;
+  border-width: 0;
+  border-bottom: 2px solid #436f98;
+  border-radius: 0;
 }
 .btn-primary {
   background-color: #436f98;
@@ -468,13 +489,7 @@ table.dataTable th {
   border-bottom-color: #436f98;
 }
 @media print {
-  #banner {
-    display: none;
-  }
-  #optionsbar {
-    display: none;
-  }
-  #navigation {
+  .btn-toolbar {
     display: none;
   }
   #footer {

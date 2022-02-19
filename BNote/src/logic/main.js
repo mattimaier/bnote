@@ -31,41 +31,6 @@ tinyMCE.init({
 fullNavi = true;
 
 $(document).ready(function() {
-	$(".dateChooser").datepicker({
-		autoSize: true,
-		dateFormat: 'dd.mm.yy',
-		dayNames: [ "Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag" ],
-		dayNamesMin: [ "So", "Mo", "Di", "Mi", "Do", "Fr", "Sa" ],
-		monthNames: [ "Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember" ],
-		firstDay: 1
-	});
-	
-	$(".datetimeChooser").datetimepicker({
-		 lang:'de',
-		 i18n:{
-		  de:{
-		   months:[
-		    'Januar','Februar','März','April',
-		    'Mai','Juni','Juli','August',
-		    'September','Oktober','November','Dezember',
-		   ],
-		   dayOfWeek:[
-		    "So", "Mo", "Di", "Mi", 
-		    "Do", "Fr", "Sa",
-		   ]
-		  }
-		 },
-		 format:'d.m.Y H:i',
-		 defaultTime: '18:00',
-		 step: 15,
-		 weeks: true,
-		 dayOfWeekStart: 1,
-		 scrollMonth: true
-	});
-	
-	$("#sortable").sortable();
-	$("#sortable").disableSelection();
-	
 	$(".copyDateOrigin").on('change', function(event) {
 		// get all origin values and build target values
 		var h = "";

@@ -150,7 +150,7 @@ class AufgabenView extends CrudRefView {
 		$form = new Form($this->getEntityName() ." bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->addElement("Titel", new Field("title", $task["title"], FieldType::CHAR));
 		$form->addElement("Beschreibung", new Field("description", $task["description"], FieldType::TEXT));
-		$form->addElement("Fällig am", new Field("due_at", Data::convertDateFromDb($task["due_at"]), FieldType::DATETIME));
+		$form->addElement("Fällig am", new Field("due_at", $task["due_at"], FieldType::DATETIME));
 		$form->addElement("Verantwortlicher", new Field("assigned_to", "", FieldType::REFERENCE));
 		$form->setForeign("Verantwortlicher", "contact", "id", "CONCAT(name, ' ', surname)", $task["assigned_to"]);
 		$form->write();

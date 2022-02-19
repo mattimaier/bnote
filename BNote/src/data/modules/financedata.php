@@ -153,7 +153,7 @@ class FinanceData extends AbstractData {
 					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		$params = array(
 			array("i", $values["account"]),
-			array("s", Data::convertDateToDb($values["bdate"])),
+			array("s", $values["bdate"]),
 			array("s", $values["subject"]),
 			array("d", $values["amount_net"]),
 			array("d", $values["amount_tax"]),

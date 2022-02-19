@@ -1,6 +1,6 @@
 <?php
 
-# Display Banner
+# Display banner if not in print mode
 include $GLOBALS["DIR_PRESENTATION"] . "banner.php";
 ?>
 
@@ -8,7 +8,7 @@ include $GLOBALS["DIR_PRESENTATION"] . "banner.php";
 <div class="container-fluid mb-3">
 	<div class="row">
 		<?php
-		# Display Navigation
+		# Display navigation if not in print mode
 		include $GLOBALS["DIR_PRESENTATION"] . "navigation.php";
 		?>
 		

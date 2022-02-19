@@ -136,7 +136,7 @@ class Field implements iWriteable {
 	 */
 	private function Datefield() {
 		$css = ($this->cssClass != null) ? $this->cssClass : "";
-		return '<input class="dateChooser form-control ' . $css . '" type="text" size="' . $this->DATELENGTH . '" name="' . $this->name . '" value="' . $this->default_value . '" />';
+		return '<input class="form-control ' . $css . '" type="date" name="' . $this->name . '" value="' . $this->default_value . '" />';
 	}
 	
 	/**
@@ -144,7 +144,7 @@ class Field implements iWriteable {
 	 */
 	private function Datetimefield() {
 		$css = ($this->cssClass != null) ? $this->cssClass : "";
-		return '<input class="form-control ' . $css . '" type="date" size="' . ($this->DATELENGTH + 6) . '" name="' . $this->name . '" value="' . $this->default_value . '" />';
+		return '<input class="form-control ' . $css . '" type="datetime-local" name="' . $this->name . '" value="' . $this->default_value . '" />';
 	}
 	
 	/**

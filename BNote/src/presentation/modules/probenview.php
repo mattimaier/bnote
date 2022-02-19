@@ -72,13 +72,13 @@ class ProbenView extends CrudRefLocationView {
 		$form = new Form(Lang::txt($this->getaddEntityName()), $form_target);
 		
 		// begin
-		$beginField = new Field("begin", date("d.m.Y") . " " . $this->getData()->getDefaultTime(), Field::FIELDTYPE_DATETIME_SELECTOR);
+		$beginField = new Field("begin", date("Y-m-d") . " " . $this->getData()->getDefaultTime(), Field::FIELDTYPE_DATETIME_SELECTOR);
 		$beginField->setCssClass("copyDateOrigin");
 		$form->addElement(Lang::txt("ProbenView_addEntity.begin"), $beginField);
 		
 		// end
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
-			$end = Data::addMinutesToDate(date("d.m.Y") . " " . $this->getData()->getDefaultTime() . ":00", $this->getData()->getDefaultDuration());
+			$end = Data::addMinutesToDate(date("Y-m-d") . " " . $this->getData()->getDefaultTime() . ":00", $this->getData()->getDefaultDuration());
 			$form->addElement(Lang::txt("ProbenView_addEntity.end"), new Field("end", $end, Field::FIELDTYPE_DATETIME_SELECTOR));
 		}
 		else {

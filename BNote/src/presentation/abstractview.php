@@ -57,7 +57,7 @@ abstract class AbstractView {
 	 */
 	public function backToStart() {
 		$link = new Link("?mod=" . $this->getData()->getSysdata()->getModuleId(), Lang::txt("AbstractView_backToStart.back"));
-		$link->addIcon("arrow_left");
+		$link->addIcon("arrow-left");
 		$link->write();
 	}
 	
@@ -333,9 +333,9 @@ abstract class AbstractView {
 	/**
 	 * Print a flash message.
 	 * @param String $message Message body.
-	 * @param string $level Level: info, warn, error
+	 * @param string $level Level: info, warning, error
 	 */
-	public static function flash($message, $level="warn") {
+	public static function flash($message, $level="warning") {
 		Writing::message($message, $level);
 	}
 	

@@ -425,10 +425,7 @@ abstract class AbstractData {
 			
 			// handle value based on field type
 			$t = $this->getTypeOfField($field);
-			if($t == FieldType::DATE || $t == FieldType::DATETIME) {
-				$value = Data::convertDateToDb($value);
-			}
-			else if($t == FieldType::DECIMAL) {
+			if($t == FieldType::DECIMAL) {
 				$value = Data::convertToDb($value);
 			}
 			else if($t == FieldType::CURRENCY) {
@@ -467,18 +464,16 @@ abstract class AbstractData {
 	 * @param Array $values Array in the format [db_field] => [value]
 	 */
 	public function update($id, $values) {
-		$query = "UPDATE " . $this->table . " SET ";
+		$params = array();
+		$colEqValues = array();
 		
 		foreach($values as $field => $val) {
 			if(!array_key_exists($field, $this->fields)) continue;
 			else {
-				$query .= $field . " = ";
+				array_push($colEqValues, "$field = ?");
 				$t = $this->getTypeOfField($field);
 				
-				if($t == FieldType::DATE || $t == FieldType::DATETIME) {
-					$val = Data::convertDateToDb($val);
-				}
-				else if($t == FieldType::DECIMAL) {
+				if($t == FieldType::DECIMAL) {
 					$val = Data::convertToDb($val);
 				}
 				else if($t == FieldType::CURRENCY) {
@@ -497,10 +492,13 @@ abstract class AbstractData {
 					|| $t == FieldType::DATETIME || $t == FieldType::TIME || $t == FieldType::ENUM
 					|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN
 					|| $t == FieldType::MINSEC) {
-						$query .= '"' . $val . '", ';
+						array_push($params, array("s", $val));
+				}
+				else if(in_array($t, array(FieldType::CURRENCY, FieldType::DECIMAL))) {
+					array_push($params, array("d", $val));
 				}
 				else {
-					$query .= $val . ", ";
+					array_push($params, array("i", $val));
 				}
 			}
 		}
@@ -513,9 +511,10 @@ abstract class AbstractData {
 			}
 		}
 		
-		$query = substr($query, 0, strlen($query)-2);
-		$query .= " WHERE id = $id";
-		$this->database->execute($query);
+		$query = "UPDATE " . $this->table . " SET " . join(",", $colEqValues);
+		$query .= " WHERE id = ?";
+		array_push($params, array("i", $id));
+		$this->database->execute($query, $params);
 	}
 	
 	/**
@@ -635,6 +634,8 @@ abstract class AbstractData {
 		$customFieldSelection = $this->getCustomFields($otype);
 		$fields = $this->compileCustomFieldInfo($customFieldSelection);
 		
+		$params = array();
+		
 		foreach($fields as $techname => $info) {
 			$vtype = $info[1];
 			$fieldid = $info[2];
@@ -664,19 +665,21 @@ abstract class AbstractData {
 							$dblval = 0;
 						}
 						break;
-					case "DATE":
-						$dateval = Data::convertDateToDb($val);
-						break;
-					case "DATETIME":
-						$datetimeval = Data::convertDateToDb($val);
-						break;
 					default:
 						$strval = $val;
 				}
 			}
 			$dv = (strlen($dateval) == 0) ? "NULL" : "'$dateval'";
 			$dtv = (strlen($datetimeval) == 0) ? "NULL" : "'$datetimeval'";
-			$set = "($fieldid, '$otype', $oid, $intval, $dblval, '$strval', $dv, $dtv)";
+			$set = "(?, ?, ?, ?, ?, ?, ?, ?)";
+			array_push($params, array("i", $fieldid));
+			array_push($params, array("s", $otype));
+			array_push($params, array("i", $oid));
+			array_push($params, array("i", $intval));
+			array_push($params, array("d", $dblval));
+			array_push($params, array("s", $strval));
+			array_push($params, array("s", $dv));
+			array_push($params, array("s", $dtv));
 			array_push($valueSet, $set);
 		}
 		if(count($valueSet) == 0) {
@@ -761,14 +764,6 @@ abstract class AbstractData {
 			case "DOUBLE": 
 				$val = $customValueRow['dblval'];
 				$val = Data::convertFromDb($val);
-				break;
-			case "DATE": 
-				$val = $customValueRow['dateval'];
-				$val = $val == null ? "" : Data::convertDateFromDb($val);
-				break;
-			case "DATETIME": 
-				$val = $customValueRow["datetimeval"];
-				$val = Data::convertDateFromDb($val);
 				break;
 			default: $val = $customValueRow['strval'];
 		}
@@ -872,8 +867,8 @@ abstract class AbstractData {
 		$tuples = array();
 		foreach($list as $item) {
 			array_push($tuples, "(?, ?)");
-			array_push($params, $id);
-			array_push($params, $item);
+			array_push($params, array("i", $id));
+			array_push($params, array("s", $item));
 		}
 		$queryPart = join(",", $tuples);
 		return array($queryPart, $params);

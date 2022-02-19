@@ -123,13 +123,13 @@ abstract class CrudView extends AbstractView {
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&" . $this->idParameter . "=" . $_GET[$this->idParameter],
 				Lang::txt("CrudView_viewOptions.edit", array($this->entityName)));
-		$edit->addIcon("edit");
+		$edit->addIcon("pen");
 		$edit->write();
 		$this->buttonSpace();
 		
 		$del = new Link($this->modePrefix() . "delete_confirm&" . $this->idParameter . "=" . $_GET[$this->idParameter],
 				Lang::txt("CrudView_viewOptions.delete_confirm", array($this->entityName)));
-		$del->addIcon("remove");
+		$del->addIcon("trash3");
 		$del->write();
 		$this->buttonSpace();
 		
@@ -222,7 +222,7 @@ abstract class CrudView extends AbstractView {
 	public function backToViewButton($id) {
 		global $system_data;
 		$btv = new Link($this->modePrefix() . "view&" . $this->idParameter . "=$id", Lang::txt("CrudView_backToViewButton.back"));
-		$btv->addIcon("arrow_left");
+		$btv->addIcon("arrow-left");
 		$btv->write();
 	}
 	

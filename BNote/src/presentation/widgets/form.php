@@ -97,9 +97,7 @@ class Form implements iWriteable {
 			
 			// process regular fields
 			$value = isset($entity[$field]) ? $entity[$field] : "";
-			if (($info[1] == FieldType::DATE || $info[1] == FieldType::DATETIME) && !empty($value)) {
-				$value = Data::convertDateFromDb ( $value );
-			} else if ($info[1] == FieldType::DECIMAL) {
+			if ($info[1] == FieldType::DECIMAL) {
 				$value = Data::convertFromDb ( $value );
 			} else if ($info[1] == FieldType::PASSWORD) {
 				$value = "";

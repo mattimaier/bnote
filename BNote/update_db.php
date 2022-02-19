@@ -263,7 +263,7 @@ $update->updateModule(14, "Abstimmung", "check2-square", "main");
 $update->updateModule(15, "Nachrichten", "newspaper", "admin");
 $update->updateModule(16, "Aufgaben", "list-task", "main");
 $update->updateModule(17, "Konfiguration", "sliders", "admin");
-$update->updateModule(18, "Probephasen", "calendar-range", "main");
+$update->updateModule(18, "Probenphasen", "calendar-range", "main");
 $update->updateModule(19, "Finance", "piggy-bank", "main");
 $update->updateModule(20, "Calendar", "calendar2-week", "main");
 $update->updateModule(21, "Equipment", "boombox", "main");

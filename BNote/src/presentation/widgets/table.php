@@ -153,7 +153,7 @@ class Table implements iWriteable {
 	 * @param String $icon Icon to use, by default "remove".
 	 * @return Table data with delete column.
 	 */
-	public static function addDeleteColumn($tabData, $delHref, $delColName = "delete", $delColCaption = "Löschen", $icon="remove") {
+	public static function addDeleteColumn($tabData, $delHref, $delColName = "delete", $delColCaption = "Löschen", $icon="trash3") {
 		$tabData[0][$delColName] = $delColCaption;
 		for($i = 1; $i < count($tabData); $i++) {
 			$btn = new Link($delHref . $tabData[$i]["id"], "");
@@ -372,7 +372,10 @@ class Table implements iWriteable {
 						 "sInfoEmpty":  "<?php echo Lang::txt("Table_write.sInfoEmpty"); ?>",
 						 "sZeroRecords":  "<?php echo Lang::txt("Table_write.sZeroRecords"); ?>",
 	        			 "sSearch": "<?php echo Lang::txt("Table_write.sSearch"); ?>"
-			 		 }
+			 		 },
+			 		 "buttons": [
+				 		 'print'
+				 	 ]
 				});
 				$(identifier).on('click', 'tbody tr', function() {
 					window.location.href = $(this).data('href');

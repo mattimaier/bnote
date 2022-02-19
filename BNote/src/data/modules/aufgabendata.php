@@ -43,7 +43,7 @@ class AufgabenData extends AbstractData {
 	
 	function create($values) {
 		// prepare data
-		$values["created_at"] = date("d.m.Y H:i:s");
+		$values["created_at"] = date("Y-m-d H:i:s");
 		$values["created_by"] = $this->getSysdata()->getContactFromUser();
 		$values["assigned_to"] = $values["Verantwortlicher"];
 		$values["is_complete"] = "0";

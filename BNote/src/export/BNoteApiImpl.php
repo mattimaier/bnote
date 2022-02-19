@@ -1163,9 +1163,9 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 	
 	function addRehearsal($begin, $end, $approve_until, $notes, $location, $groups) {
 		// semantic parameter mappings
-		$values["begin"] = Data::convertDateFromDb($begin);
-		$values["end"] = Data::convertDateFromDb($end);
-		$values["approve_until"] = ($approve_until == "") ? Data::convertDateFromDb($begin) : Data::convertDateFromDb($approve_until);
+		$values["begin"] = $begin;
+		$values["end"] = $end;
+		$values["approve_until"] = ($approve_until == "") ? $begin : $approve_until;
 		$values["notes"] = $notes;
 		$values["location"] = $location;
 		
@@ -1597,8 +1597,8 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 	public function addReservation() {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$values = $_POST;
-		$values["begin"] = Data::convertDateFromDb($values["begin"]);
-		$values["end"] = Data::convertDateFromDb($values["end"]);
+		$values["begin"] = $values["begin"];
+		$values["end"] = $values["end"];
 		echo $calData->create($values);
 	}
 	
@@ -1619,7 +1619,6 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$_SESSION["user"] = $this->uid;
 		
 		$values = $_POST;
-		$values["due_at"] = Data::convertDateFromDb($values["due_at"]);
 		$taskId = $taskData->create($values);
 		
 		unset($_SESSION["user"]);
@@ -1629,9 +1628,6 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 	public function addContact() {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
 		$values = $_POST;
-		if($values["birthday"] != "") {
-			$values["birthday"] = Data::convertDateFromDb($values["birthday"]);
-		}
 		$cid = $contactData->create($values);
 		echo $cid;
 	}
@@ -1644,10 +1640,6 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		
 		// data and corrections
 		$values = $_POST;
-		if(isset($values["birthday"])) {
-			$bd = Data::convertDateFromDb($values["birthday"]);
-			$values["birthday"] = $bd;
-		}
 		
 		// don't touch groups or custom fields
 		$contactData->update_address($cid, $_POST["address_object"]);

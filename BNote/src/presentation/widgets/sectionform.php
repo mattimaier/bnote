@@ -22,48 +22,51 @@ class SectionForm extends Form {
 		$this->createForeign();
 		?>
 		<form method="<?php echo $this->method; ?>" action="<?php echo $this->action;?>" <?php echo $this->multipart ?>>
-		<h2><?php echo $this->formname; ?></h2>
 		<div id="sectionform">
+			<h4 class="h4"><?php echo $this->formname; ?></h4>
 		<?php
 		foreach($this->sections as $sectionId => $fields) {
 			?>
-			<h3><?php echo $sectionId; ?></h3>
-			<div class="sectionform_section_content">
-				<table>
+			<h5 class="h5 mt-3"><?php echo $sectionId; ?></h5>
+			<div class="row g-2 sectionform_section_content">
 				<?php
 				foreach ( $this->elements as $label => $element ) {
 					if(!in_array($element->getName(), $fields)) continue;
-					
-					echo " <tr>\n";
+					if(isset($this->fieldColSize[$label])) {
+						$colClass = "col-md-" . $this->fieldColSize[$label];
+					}
+					else {
+						$colClass = "col-md-6";
+					}
+					echo "<div class=\"$colClass mb-1\">";
 					$required = "";
 					if (isset ( $this->requiredFields [$label] ) && $this->requiredFields [$label])
 						$required = "*";
 						if (isset ( $this->rename [$label] ))
 							$label = $this->rename [$label];
-							echo "  <td>$label$required</td>\n";
-							echo "  <td>" . $element->write() . "</td>\n";
-							echo " </tr>\n";
+							echo "  <label class=\"col-form-label bnote-form-label\">$label$required</label>";
+							echo $element->write();
+							echo "</div>";
 				}
 				if (count ( $this->requiredFields ) > 0) {
-					echo "<tr><td colspan=\"2\" style=\"font-size: 8pt;\">" . Lang::txt("SectionForm_write.message") . "</td></tr>";
+					echo '<div class="row"><div class="col-auto"><span class="form-text">' . Lang::txt("SectionForm_write.message") . "</span></div></div>";
 				}
 				?>
-				</table>
 			</div>
 			<?php
 		}
 		?>
 		</div>
-		<div style="height: 20px;">&nbsp;</div>
+		
 		<?php 
 		// add hidden values
 		foreach ( $this->hidden as $name => $value ) {
-			echo '<input type="hidden" value="' . $value . '" name="' . $name . '">' . "\n";
+			echo '<input type="hidden" value="' . $value . '" name="' . $name . '">';
 		}
 		
 		// Submit Button
 		if (! $this->removeSubmitButton) {
-			echo '<input type="submit" value="' . $this->submitValue . '">' . "\n";
+			echo '<input type="submit" class="btn btn-primary" value="' . $this->submitValue . '">';
 		}
 		?>
 		</form>

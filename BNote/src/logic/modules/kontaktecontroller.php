@@ -248,7 +248,7 @@ class KontakteController extends DefaultController {
 				$card['surname'] = $names[0];
 			}
 			if($field == "BDAY") {
-				$card['birthday'] = Data::convertDateFromDb($val);
+				$card['birthday'] = $val;
 			}
 			if(Data::startsWith($field, "ADR")) {
 				if(strpos($field, "HOME") !== false || !isset($card['street'])) {

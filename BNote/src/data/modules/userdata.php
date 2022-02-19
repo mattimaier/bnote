@@ -242,7 +242,7 @@ class UserData extends AbstractData {
 	 * Retrieves users not having used BNote within the last 24 months.
 	 */
 	function getLongInactiveUsers() {
-		$loginTresholdFormatted = Data::subtractMonthsFromDate(date("d.m.Y"), 24);
+		$loginTresholdFormatted = Data::subtractMonthsFromDate(date("Y-m-d"), 24);
 		$loginTreshold = Data::convertDateToDb($loginTresholdFormatted);
 		$query = "SELECT * FROM user WHERE lastlogin <= ?";
 		return $this->database->getSelection($query, array(array("s", $loginTreshold)));

@@ -382,8 +382,8 @@ class ApplicationDataProvider {
 			}
 			$query .= "WHERE " . join(" OR ", $locTypes);
 		}
-		$query .= "ORDER BY name";
-		return $this->database->getSelection($query);
+		$query .= " ORDER BY name";
+		return $this->database->getSelection($query, $params);
 	}
 	
 	/**

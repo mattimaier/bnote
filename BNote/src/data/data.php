@@ -8,6 +8,10 @@ if(file_exists("../../lang.php")) {
 **/
 abstract class Data {
  
+	const DATE_UNIFORMAT = "Y-m-d";
+	const DATETIME_UNIFORMAT = "Y-m-d H:i:s";
+	
+	
 	/**
 	 * Converts a german decimal formatted number x,xx to x.xx
 	 * @param Double $decimal Decimal number in the form of x,xx
@@ -36,7 +40,7 @@ abstract class Data {
 	 * Converts an american formatted datetime YYYY-MM-DD H:i:s
 	 * to a german formatted datetime value
 	 * @param String $date Date in format YYYY-MM-DD
-	 * @return String in format d.m.Y H:i:s
+	 * @return String in language format
 	 */
 	public static function convertDateFromDb($date) {
 		if(strlen($date) < 8) return "-";
@@ -80,50 +84,42 @@ abstract class Data {
 	
 	/**
 	 * Adds $numDays days to $date
-	 * @param String $date Format dd.mm.yyyy
+	 * @param String $date Format Y-m-d
 	 * @param integer $numDays Number of days to add
-	 * @return String New date in format dd.mm.yyyy
+	 * @return String New date
 	 */
 	public static function addDaysToDate($date, $numDays) {
-		$date = Data::convertDateToDb($date);
-		$newdate = strtotime("+$numDays day", strtotime($date));
-		return date(Lang::getDateFormatPattern(), $newdate);
+		return date(Data::DATE_UNIFORMAT, strtotime("+$numDays day", strtotime($date)));
 	}
 	
 	/**
 	 * Subtracts $numDays days from $date
-	 * @param String $date Format dd.mm.yyyy 
+	 * @param String $date Format Y-m-d
 	 * @param integer $numDays Number of days to subtract
-	 * @return String New date in format dd.mm.yyyy
+	 * @return String New date
 	 */
 	public static function subtractDaysFromDate($date, $numDays) {
-		$date = Data::convertDateToDb($date);
-		$newdate = strtotime("-$numDays day", strtotime($date));
-		return date(Lang::getDateFormatPattern(), $newdate);
+		return date(Data::DATE_UNIFORMAT, strtotime("-$numDays day", strtotime($date)));
 	}
 	
 	/**
 	 * Subtracts $numMonths months from $date
-	 * @param String $date Format dd.mm.yyyy
+	 * @param String $date Format Y-m-d
 	 * @param integer $numDays Number of months to subtract
-	 * @return String New date in format dd.mm.yyyy
+	 * @return String New date
 	 */
 	public static function subtractMonthsFromDate($date, $numMonths) {
-		$date = Data::convertDateToDb($date);
-		$newdate = strtotime("-$numMonths month", strtotime($date));
-		return date(Lang::getDateFormatPattern(), $newdate);
+		return date(Data::DATE_UNIFORMAT, strtotime("-$numMonths month", strtotime($date)));
 	}
 	
 	/**
 	 * Adds $numMonths months from $date
-	 * @param String $date Format dd.mm.yyyy
+	 * @param String $date Format Y-m-d
 	 * @param integer $numDays Number of months to add
-	 * @return String New date in format dd.mm.yyyy
+	 * @return String New date
 	 */
 	public static function addMonthsToDate($date, $numMonths) {
-		$date = Data::convertDateToDb($date);
-		$newdate = strtotime("+$numMonths month", strtotime($date));
-		return date(Lang::getDateFormatPattern(), $newdate);
+		return date(Data::DATE_UNIFORMAT, strtotime("+$numMonths month", strtotime($date)));
 	}
 	
 	/**
@@ -156,15 +152,15 @@ abstract class Data {
 	/**
 	 * Adds the given number of minutes to the date and returns it.
 	 * <strong>Requires PHP >5.2.0</strong>
-	 * @param String $date Date in Format dd.mm.yyyy
+	 * @param String $date Date in Format Y-m-d
 	 * @param int $numMinutes Amount of minutes to add.
-	 * @return String Formatted datetime dd.mm.yyyy hh:ii
+	 * @return String Y-m-d H:i:s formatted date
 	 */
 	public static function addMinutesToDate($date, $numMinutes) {
 		if($numMinutes == 0) return $date;
-		$dt = new DateTime(Data::convertDateToDb($date));
+		$dt = new DateTime($date);
 		$dt->modify("+$numMinutes minutes");
-		return $dt->format(Lang::getDateTimeFormatPattern());
+		return $dt->format(Data::DATETIME_UNIFORMAT);
 	}
 	
 	/**

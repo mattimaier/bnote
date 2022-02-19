@@ -10,9 +10,6 @@
  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
  
  <link href="lib/bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet" />
- <link type="text/css" href="lib/jquery/jquery-ui.min.css" rel="stylesheet" />
- <link type="text/css" href="lib/jquery/jquery-ui.theme.min.css" rel="stylesheet" />
- <link type="text/css" href="lib/jquery/jquery.datetimepicker.min.css" rel="stylesheet" />
  <link type="text/css" href="lib/jquery/jquery.jqplot.min.css" rel="stylesheet" /> 
  <link type="text/css" href="lib/dropzone.css" rel="stylesheet" />
  <link rel="stylesheet" href="lib/bootstrap-icons-1.8.1/font/bootstrap-icons.css" />
@@ -24,8 +21,6 @@
  <link type="text/css" href='lib/fullcalendar/daygrid/main.css' rel='stylesheet' />
 
  <script type="text/javascript" src="lib/jquery/jquery-3.6.0.min.js"></script>
- <script type="text/javascript" src="lib/jquery/jquery-ui.min.js"></script>
- <script type="text/javascript" src="lib/jquery/jquery.datetimepicker.full.min.js"></script>
  <script type="text/javascript" src="lib/jquery/jquery.jqplot.min.js"></script>
  <script type="text/javascript" src="lib/DataTables/datatables.min.js"></script>
 

@@ -46,11 +46,11 @@ class KontakteView extends CrudRefLocationView {
 			$groupFilter .= KontakteData::$GROUP_MEMBER; // members by default
 		}
 		$eps = new Link($this->modePrefix() . "integration" . $groupFilter, Lang::txt("KontakteView_startOptions.integration"));
-		$eps->addIcon("integration");
+		$eps->addIcon("box-arrow-in-up-right");
 		$eps->write();
 		
 		$groups = new Link($this->modePrefix() . "groups&func=start", Lang::txt("KontakteView_startOptions.players"));
-		$groups->addIcon("mitspieler");
+		$groups->addIcon("people-fill");
 		$groups->write();
 		
 		$print = new Link($this->modePrefix() . "selectPrintGroups", Lang::txt("KontakteView_startOptions.selectPrintGroups"));
@@ -58,16 +58,16 @@ class KontakteView extends CrudRefLocationView {
 		$print->write();
 		
 		$vc = new Link($this->modePrefix() . "contactImport", Lang::txt("KontakteView_startOptions.contactImport"));
-		$vc->addIcon("arrow_down");
+		$vc->addIcon("person-rolodex");
 		$vc->write();
 		
 		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", Lang::txt("KontakteView_startOptions.contactExport"));
-		$vc->addIcon("arrow_up");
+		$vc->addIcon("file-earmark-arrow-down-fill");
 		$vc->setTarget("_blank");
 		$vc->write();
 	
 		$gdprOk = new Link($this->modePrefix() . "gdprOk", Lang::txt("KontakteView_startOptions.gdprOk"));
-		$gdprOk->addIcon("question");
+		$gdprOk->addIcon("journal-check");
 		$gdprOk->write();
 	}
 	
@@ -369,7 +369,7 @@ class KontakteView extends CrudRefLocationView {
 		
 		// GDPR report
 		$gdpr = new Link($this->modePrefix() . "gdprReport&id=" . $_GET["id"], Lang::txt("KontakteView_additionalViewButtons.question"));
-		$gdpr->addIcon("question");
+		$gdpr->addIcon("person-rolodex");
 		$gdpr->write();
 	}
 	
@@ -475,17 +475,9 @@ class KontakteView extends CrudRefLocationView {
 		// print styles
 		?>
 		<style>
-			@media print {
+			@media print {			
 				.dataTables_filter {
 					display: none;
-				}
-				
-				thead > tr {
-					border-color: #61b3ff;
-				}
-				
-				td.DataTable_Header {
-					color: #61b3ff;
 				}
 			}
 		</style>
@@ -791,11 +783,11 @@ class KontakteView extends CrudRefLocationView {
 		$this->backToStart();
 	
 		$get = new Link($this->modePrefix() . "getGdprOk", Lang::txt("KontakteView_gdprOkOptions.getGdprOk"));
-		$get->addIcon("question");
+		$get->addIcon("envelope-exclamation");
 		$get->write();
 	
 		$del = new Link($this->modePrefix() . "gdprNOK", Lang::txt("KontakteView_gdprOkOptions.gdprNOK"));
-		$del->addIcon("cancel");
+		$del->addIcon("person-x-fill");
 		$del->write();
 	}
 	
@@ -822,7 +814,7 @@ class KontakteView extends CrudRefLocationView {
 		$this->backToStart();
 		
 		$send = new Link($this->modePrefix() . "gdprSendMail", Lang::txt("KontakteView_getGdprOkOptions.gdprSendMail"));
-		$send->addIcon("kommunikation");
+		$send->addIcon("send");
 		$send->write();
 	}
 	

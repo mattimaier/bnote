@@ -41,7 +41,7 @@ class AbstimmungData extends AbstractData {
 		if(isset($_POST["is_multi"])) { $is_multi = 1; } else { $is_multi = 0; }
 		$is_finished = 0;
 		
-		$end_dt = Data::convertDateToDb($_POST["end"]);
+		$end_dt = $_POST["end"];
 		
 		// insert vote
 		$query = "INSERT INTO vote (name, author, end, is_multi, is_date, is_finished) VALUES (?, ?, ?, ?, ?, ?)";
@@ -165,7 +165,7 @@ class AbstimmungData extends AbstractData {
 			$query = "INSERT INTO vote_option (vote, odate) VALUES (?, ?)";
 			$_POST["odate"] = trim($_POST["odate"]);
 			$this->regex->isDateTime($_POST["odate"]);
-			array_push($params, array("s", Data::convertDateToDb($_POST["odate"])));
+			array_push($params, array("s", $_POST["odate"]));
 		}
 		else {
 			$query = "INSERT INTO vote_option (vote, name) VALUES (?, ?)";
@@ -186,7 +186,6 @@ class AbstimmungData extends AbstractData {
 			}
 			array_push($options, $current);
 			$current = Data::addDaysToDate(substr(Data::convertDateFromDb($current), 0, 10), 1);
-			$current = Data::convertDateToDb($current);
 			$infPrevention++;
 		}
 		
@@ -218,7 +217,7 @@ class AbstimmungData extends AbstractData {
 		$query = "UPDATE vote SET name = ?, end = ? WHERE id = ?";
 		$params = array(
 			array("s", $values["name"]),
-			array("s", Data::convertDateToDb($values["end"])),
+			array("s", $values["end"]),
 			array("i", $id)
 		);
 		$this->database->execute($query, $params);

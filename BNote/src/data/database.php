@@ -83,7 +83,7 @@ class Database extends Data {
 		$typeDefs = "";
 		$paramValues = array();
 		
-		foreach($params as $i => $val_def) {
+		foreach($params as $val_def) {
 			$typeDefs .= $val_def[0];
 			array_push($paramValues, $val_def[1]);
 		}
@@ -108,9 +108,12 @@ class Database extends Data {
 		$stmt = $this->db->prepare($query);
 		$bindTypes = "";
 		$bindValues = array();
-		foreach($params as $i => $param) {
-			$bindTypes .= $param[0];
-			array_push($bindValues, $param[1]);
+		#print($query . "<br>");
+		foreach($params as $param) {
+			if(count($param) > 1) {
+				$bindTypes .= $param[0];
+				array_push($bindValues, $param[1]);
+			}
 		}
 		if(count($bindValues) > 0) {
 			$stmt->bind_param($bindTypes, ...$bindValues);
