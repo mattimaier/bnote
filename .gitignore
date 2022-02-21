@@ -12,3 +12,9 @@ TriggerServer/db.xml
 BNote-Releases/tmp/
 .idea
 .metadata
+BNote/style/css/bnote.css
+BNote/style/css/dark/bnote.css
+BNote/style/css/default/bnote.css
+BNote/style/css/green/bnote.css
+BNote/style/css/orange/bnote.css
+BNote/style/css/red/bnote.css

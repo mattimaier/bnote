@@ -41,12 +41,10 @@ class ProgramView extends CrudView {
 		$back->addIcon("arrow-left");
 		$back->write();
 		
-		$this->buttonSpace();
 		$add = new Link($this->modePrefix() . "addEntity", Lang::txt("ProgramView_startOptions.addEntity"));
 		$add->addIcon("plus");
 		$add->write();
 		
-		$this->buttonSpace();
 		$addTpl = new Link($this->modePrefix() . "addFromTemplate", Lang::txt("ProgramView_startOptions.addFromTemplate"));
 		$addTpl->addIcon("plus");
 		$addTpl->write();
@@ -94,16 +92,21 @@ class ProgramView extends CrudView {
 		$this->writeProgramLength();
 		
 		// references - usage in concerts
-		Writing::h2(Lang::txt("ProgramView_view.gigReferences"));
+		?><div class="row mt-4"><?php
+		Writing::h4(Lang::txt("ProgramView_view.gigReferences"));
 		$concerts = $this->getData()->getConcertsWithProgram($_GET["id"]);
-		?><ul><?php
+		
 		foreach($concerts as $i => $concert) {
 			if($i == 0) continue;
 			?>
-			<li><a href="<?php echo "?mod=" . $this->getModId() . "&mode=view&id=" . $concert["id"]; ?>"><?php echo $concert["title"] . " - " . Data::convertDateFromDb($concert["begin"]); ?></a></li>
+			<div class="col-md-12">
+				<a href="<?php echo "?mod=" . $this->getModId() . "&mode=view&id=" . $concert["id"]; ?>">
+				<?php echo $concert["title"] . " - " . Data::convertDateFromDb($concert["begin"]); ?>
+				</a>
+			</div>
 			<?php
 		}
-		?></ul><?php
+		?></div><?php
 	}
 	
 	private function writeProgramLength() {
@@ -131,7 +134,7 @@ class ProgramView extends CrudView {
 	
 	function additionalViewButtons() {
 		$lnk = new Link($this->modePrefix() . "editList&id=" . $_GET["id"], Lang::txt("ProgramView_additionalViewButtons.edit"));
-		$lnk->addIcon("edit");
+		$lnk->addIcon("list-columns-reverse");
 		$lnk->write();
 		$this->buttonSpace();
 		
@@ -141,7 +144,7 @@ class ProgramView extends CrudView {
 		$this->buttonSpace();
 		
 		$lnk = new Link("src/export/programm.csv?id=" . $_GET["id"], Lang::txt("ProgramView_additionalViewButtons.export"));
-		$lnk->addIcon("arrow_down");
+		$lnk->addIcon("filetype-csv");
 		$lnk->setTarget("_blank");
 		$lnk->write();
 	}
@@ -152,20 +155,21 @@ class ProgramView extends CrudView {
 		
 		// Track D'n'd
 		$tracks = $this->getData()->getSongsForProgram($_GET["id"]);
-		echo "<form action=\"" . $this->modePrefix() . "saveList&id=" . $_GET["id"] . "\" method=\"POST\">\n";
-		echo "<ul id=\"sortable\">\n";
-		for($i = 1; $i < count($tracks); $i++) {
-			$text = $tracks[$i]["length"] . "&nbsp;" . $tracks[$i]["title"] . " (" . $tracks[$i]["composer"] . ")";
-			$text .= "<input type=\"hidden\" name=\"tracks[]\" value=\"" . $tracks[$i]["psid"] . "\" />\n";
-			echo "<li class=\"ui-state-default\">" . '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>';
-			echo $text . "</li>\n";
-		}
-		echo "</ul>\n";
-		$this->writeProgramLength();
-		echo "<input type=\"submit\" value=\"SPEICHERN\" />\n";
-		echo "</form>\n";
-		
+		$delHref = $this->modePrefix() . "delSong&id=" . $_GET["id"] . "&psid=";
+		$delCaption = Lang::txt("AbstractView_deleteConfirmationMessage.delete");
+		$tracks = Table::addDeleteColumn($tracks, $delHref, "delete", $delCaption, "trash3", "psid");
+		$tab = new Table($tracks);
+		$tab->hideColumn("Psid");
+		$tab->hideColumn("Rank");
+		$tab->hideColumn("Song");
+		$saveLink = $this->modePrefix() . "saveList&id=" . $_GET["id"];
+		$tab->allowRowReorder(true, $saveLink);
+		$tab->write();
+				
 		// add tracks
+		?>
+		<div class="row mt-3">
+		<?php
 		$addTarget = $this->modePrefix() . "addSong&id=" . $_GET["id"];
 		$songs = $this->getData()->getAllSongs();
 		$optionsAdd = array();
@@ -176,14 +180,6 @@ class ProgramView extends CrudView {
 		}
 		$this->trackBox($addTarget, Lang::txt("ProgramView_editList.addSong"), "plus", Lang::txt("ProgramView_editList.add"), "song", $optionsAdd);
 		
-		// remove tracks
-		$delTarget = $this->modePrefix() . "delSong&id=" . $_GET["id"];
-		$optionsRemove = array();
-		for($i = 1; $i < count($tracks); $i++) {
-			$optionsRemove[$tracks[$i]["song"]] = $tracks[$i]["title"];
-		}
-		$this->trackBox($delTarget, Lang::txt("ProgramView_editList.removeSong"), "remove", Lang::txt("ProgramView_editList.remove"), "song", $optionsRemove);
-		
 		// add tracks from template
 		$addFromTemplate = $this->modePrefix() . "addSongsFromTemplate&id=" . $_GET["id"];
 		$templates = $this->getData()->getTemplates();
@@ -192,11 +188,14 @@ class ProgramView extends CrudView {
 			$templateOptions[$templates[$i]["id"]] = $templates[$i]["name"];
 		}
 		$this->trackBox($addFromTemplate, Lang::txt("ProgramView_editList.addFromTemplate"), "setlist", Lang::txt("ProgramView_editList.template"), "template", $templateOptions);
+		?>
+		</div>
+		<?php
 	}
 	
 	private function trackBox($target, $title, $icon, $buttonLabel, $selectName, $options) {
 		?>
-		<div class="trackbox"><form action="<?php echo $target ?>" method="POST">
+		<div class="trackbox col-md-3"><form action="<?php echo $target ?>" method="POST">
 			<div class="trackbox_header"><?php $this->writeIcon($icon); echo $title; ?></div>
 			<?php 
 			$dd = new Dropdown($selectName);
@@ -206,7 +205,7 @@ class ProgramView extends CrudView {
 			}
 			echo $dd->write();
 			?>
-			<input type="submit" value="<?php echo $buttonLabel; ?>" />
+			<input type="submit" class="btn btn-secondary mt-2" value="<?php echo $buttonLabel; ?>" />
 		</form></div>
 		<?php
 	}
@@ -215,18 +214,6 @@ class ProgramView extends CrudView {
 		$back = new Link($this->modePrefix() . "view&id=" . $_GET["id"], Lang::txt("ProgramView_editListOptions.back"));
 		$back->addIcon("arrow_left");
 		$back->write();
-	}
-	
-	function saveList() {
-		foreach ($_POST["tracks"] as $i => $psid) {
-			$this->getData()->updateRank($_GET["id"], $psid, $i+1);
-			$i++;
-		}
-		$this->editList();
-	}
-	
-	protected function saveListOptions() {
-		$this->editListOptions();
 	}
 	
 	function addSong() {
@@ -248,8 +235,7 @@ class ProgramView extends CrudView {
 	}
 	
 	function delSong() {
-		$this->getData()->deleteSongFromProgram($_GET["id"], $_POST["song"]);
-		$_GET["id"] = $_GET["id"];
+		$this->getData()->deleteProgramEntry($_GET["psid"]);
 		$this->editList();
 	}
 	
@@ -291,6 +277,6 @@ class ProgramView extends CrudView {
 	}
 	
 	private function writeIcon($name) {
-		echo "<img src=\"" . $GLOBALS["DIR_ICONS"] . $name . ".png\" height=\"15px\" alt=\"\" border=\"0\" />&nbsp;";
+		echo "<i class=\"bi-$name\"></i>";
 	}
 }

@@ -109,9 +109,24 @@ class ProgramData extends AbstractData {
 		$this->database->execute($query, array(array("i", $pid), array("i", $sid)));
 	}
 	
-	function updateRank($pid, $psid, $r) {
+	function deleteProgramEntry($psid) {
+		$query = "DELETE FROM program_song WHERE id = ?";
+		$this->database->execute($query, array(array("i", $psid)));
+	}
+	
+	function updateRank($psid, $r) {
 		$query = "UPDATE program_song SET rank = ? WHERE id = ?";
 		$this->database->execute($query, array(array("i", $r), array("i", $psid)));
+	}
+	
+	/**
+	 * Updates the entire program's ranks
+	 * @param Array $uiRows Array of Arrays / rows of program with psid, rank, song as index 0, 1 and 2 in row
+	 */
+	function updateRanks($uiRows) {
+		foreach($uiRows as $row) {
+			$this->updateRank($row[0], $row[1]);
+		}
 	}
 	
 	function totalProgramLength() {

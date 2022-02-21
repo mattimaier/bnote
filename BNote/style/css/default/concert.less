@@ -1,18 +1,14 @@
 @CHARSET: "UTF-8";
 
 div.concert {
-	padding: 10px;
-	background-color: @white;
 	border: 1px solid @bnote-lightgray;
-	border-bottom-width: 2px;
-	margin-bottom: 5px;
-	vertical-align: text-top;
+	border-bottom: 2px solid @bnote-dark-alt;
 	color: @black;
 }
 
-p.concert_title {
+.concert_title {
 	font-weight: 600;
-	color: @bnote-darkgray;
+	color: @bnote-dark-alt;
 }
 
 span.concert_title_name {
@@ -20,15 +16,8 @@ span.concert_title_name {
 	font-weight: normal;
 }
 
-span.concert_location {
-    float: right;
-    margin-top: -30px;
-}
-
-span.concert_contact {
-    float: right;
-    margin-top: -10px;
-    font-size: 80%;
+.concert_link {
+	text-decoration: none;
 }
 
 span.concert_notes {
@@ -49,13 +38,17 @@ span.start_concert_title {
 }
 
 .concertdetail_heading {
-    font-size: large;
-    font-weight: 600;
-    border-bottom: 1px solid @bnote-darkgray;
+    background-color: @bnote-dark-alt;
+    color: @white;
+    padding: 0.2rem 0.5rem;
+}
+
+.concertdetail_entry {
+    padding-top: 0.3rem;
 }
 
 span.concertdetail_key {
-    width: 90px;
+    padding-left: 0.5rem;
     display: inline-block;
     color: @bnote-darkgray;
     vertical-align: top;
@@ -64,6 +57,7 @@ span.concertdetail_key {
 span.concertdetail_value {
 	display: inline-block;
     vertical-align: top;
+    padding-left: 0.5rem;
 }
 
 div.trackbox {

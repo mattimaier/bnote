@@ -41,13 +41,13 @@ class KonzerteView extends CrudRefLocationView {
 		
 		// Next Concert
 		$concerts = $this->getData()->getFutureConcerts();
-		Writing::h2(Lang::txt("KonzerteView_start.Next"));
+		Writing::h4(Lang::txt("KonzerteView_start.Next"), "mt-2");
 		if(count($concerts) > 1) {
 			$this->writeConcert($concerts[1]);
 		}
 		
 		// More Concerts
-		Writing::h2(Lang::txt("KonzerteView_start.More"));
+		Writing::h4(Lang::txt("KonzerteView_start.More"), "mt-3");
 		$this->writeConcerts($concerts);
 	}
 	
@@ -72,28 +72,30 @@ class KonzerteView extends CrudRefLocationView {
 	}
 	
 	private function writeConcert($concert) {
+		$href = $this->modePrefix() . "view&id=" . $concert["id"];
+		
 		// when? where? who to talk to? notes + program
-		$text = "<p class=\"concert_title\">" . Data::convertDateFromDb($concert["begin"]);
-		$text .= Lang::txt("KonzerteView_writeConcert.title") . "<span class=\"concert_title_name\">" . $concert["title"] . "</span></p>";
-		
-		// location
-		$text .= "<span class=\"concert_location\">";
-		$text .= $concert["location_name"] . ", " . $this->formatAddress($concert, FALSE, "location_");
-		$text .= "</span>";
-		
-		// contact
-		if($concert["contact_name"] != "") {
-			$text .= "<span class=\"concert_contact\">" . $this->formatContact($concert, "NAME_COMM", "contact_") . "</span>";
-		}
-		
-		// notes
-		$text .= "<span class=\"concert_notes\">" . $concert["notes"] . "</span>\n";
-		
-		// actually write concert
-		echo '<a class="concert" href="' . $this->modePrefix() . "view&id=" . $concert["id"] . '">';
-		echo '<div class="concert">';
-		echo $text;
-		echo "</div></a>";
+		?>
+		<div class="card concert">
+			<div class="card-body">
+				<a href="<?php echo $href; ?>" class="concert_link">
+					<p class="card-subtitle text-muted"><?php echo Data::convertDateFromDb($concert["begin"]); ?></p>
+					<h5 class="card-title concert_title"><?php echo $concert["title"]; ?></h5>
+				</a>
+				<p class="card-text">
+					<span class="d-block"><?php echo $concert["location_name"] . ", " . $this->formatAddress($concert, FALSE, "location_"); ?></span>
+					<?php
+					if($concert["contact_name"] != "") {
+					?>
+					<span class="d-block"><?php echo $this->formatContact($concert, "NAME_COMM", "contact_"); ?></span>
+					<?php 
+					}
+					?>
+					<span class="concert_notes d-block"><?php echo $concert["notes"]; ?></span>
+				</p>
+			</div>
+		</div>
+		<?php
 	}
 	
 	function history() {
@@ -144,7 +146,8 @@ class KonzerteView extends CrudRefLocationView {
 		Writing::p($c["notes"]);
 		?>
 		
-		<div class="concertdetail_box">
+		<div class="row mb-3">
+		<div class="col-md-3 mt-2"> 
 			<div class="concertdetail_heading"><?php echo Lang::txt("KonzerteView_view.title"); ?></div>
 			<div class="concertdetail_data">
 				<div class="concertdetail_entry">
@@ -178,7 +181,7 @@ class KonzerteView extends CrudRefLocationView {
 			</div>
 		</div>
 		
-		<div class="concertdetail_box">
+		<div class="col-md-3 mt-2">
 			<div class="concertdetail_heading"><?php echo Lang::txt("KonzerteView_view.periods"); ?></div>
 			<div class="concertdetail_data">
 				<div class="concertdetail_entry">
@@ -199,7 +202,7 @@ class KonzerteView extends CrudRefLocationView {
 			</div>
 		</div>
 		
-		<div class="concertdetail_box">
+		<div class="col-md-3 mt-2">
 			<div class="concertdetail_heading"><?php echo Lang::txt("KonzerteView_view.organisation"); ?></div>
 			<div class="concertdetail_data">
 				<div class="concertdetail_entry">
@@ -249,7 +252,7 @@ class KonzerteView extends CrudRefLocationView {
 			</div>
 		</div>
 		
-		<div class="concertdetail_box">
+		<div class="col-md-3 mt-2">
 			<div class="concertdetail_heading"><?php echo Lang::txt("KonzerteView_view.details"); ?></div>
 			<div class="concertdetail_data">
 				<div class="concertdetail_entry">
@@ -283,6 +286,7 @@ class KonzerteView extends CrudRefLocationView {
 			?>
 			</div>
 		</div>
+		</div>
 		
 		<?php
 		
@@ -296,7 +300,7 @@ class KonzerteView extends CrudRefLocationView {
 	
 	private function viewInvitations() {
 		// manage members who will play in this concert
-		Writing::h2(Lang::txt("KonzerteView_viewInvitations.title"));
+		Writing::h4(Lang::txt("KonzerteView_viewInvitations.title"));
 		
 		$contacts = $this->getData()->getConcertContacts($_GET["id"]);
 		$contacts = Table::addDeleteColumn($contacts, $this->modePrefix() . "delConcertContact&id=" . $_GET["id"] . "&contactid=");
@@ -311,7 +315,7 @@ class KonzerteView extends CrudRefLocationView {
 	
 	private function viewPhases() {
 		// show the rehearsal phases this concert is related to
-		Writing::h2(Lang::txt("KonzerteView_viewPhases.title"));
+		Writing::h4(Lang::txt("KonzerteView_viewPhases.title"));
 		$phases = $this->getData()->getRehearsalphases($_GET["id"]);
 		$tab = new Table($phases);
 		$tab->removeColumn("id");
@@ -437,7 +441,7 @@ class KonzerteView extends CrudRefLocationView {
 		$concert_id = $_GET["id"];
 		
 		$partLink = new Link($this->modePrefix() . "showParticipants&id=$concert_id", Lang::txt("KonzerteView_viewButtons.showParticipants"));
-		$partLink->addIcon("user");
+		$partLink->addIcon("person-lines-fill");
 		$partLink->write();
 		
 		// concert contact
@@ -450,7 +454,7 @@ class KonzerteView extends CrudRefLocationView {
 		$program_id = $concert["program"];
 		if($program_id != null && $program_id > 0) {
 			$program = new Link($this->modePrefix() . "programs&sub=view&id=$program_id", Lang::txt("KonzerteView_viewButtons.editProgram"));
-			$program->addIcon("setlist");
+			$program->addIcon("music-note-list");
 			$program->write();
 		}
 		
@@ -463,7 +467,7 @@ class KonzerteView extends CrudRefLocationView {
 		$emLink = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation");
 		$emLink .= "&mode=concertMail&preselect=" . $_GET["id"];
 		$em = new Link($emLink, "Benachrichtigung senden");
-		$em->addIcon("email");
+		$em->addIcon("envelope");
 		$em->write();
 	}
 	
@@ -495,7 +499,7 @@ class KonzerteView extends CrudRefLocationView {
 		$this->backToViewButton($_GET["id"]);
 		
 		$editParticipation = new Link($this->modePrefix() . "editParticipation&id=" . $_GET["id"], Lang::txt("KonzerteView_editParticipation.button"));
-		$editParticipation->addIcon("edit");
+		$editParticipation->addIcon("pen");
 		$editParticipation->write();
 	}
 	

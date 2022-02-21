@@ -144,7 +144,12 @@ class Field implements iWriteable {
 	 */
 	private function Datetimefield() {
 		$css = ($this->cssClass != null) ? $this->cssClass : "";
-		return '<input class="form-control ' . $css . '" type="datetime-local" name="' . $this->name . '" value="' . $this->default_value . '" />';
+		$val = $this->default_value;
+		// optionally convert database dates to HTML5-compatible dates
+		if(is_string($val) && strlen($val) > 10 && $val[10] == " ") {
+			$val = substr($val, 0, 10) . "T" . substr($val, 11);
+		}
+		return '<input class="form-control ' . $css . '" type="datetime-local" name="' . $this->name . '" value="' . $val . '" />';
 	}
 	
 	/**

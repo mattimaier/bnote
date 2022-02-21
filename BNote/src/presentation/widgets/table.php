@@ -16,6 +16,8 @@ class Table implements iWriteable {
 	private $formats = array();
 	private $headernames = array();
 	private $optColumns = array();
+	private $hideCols = array();
+	private $controlButtons = array();
 
 	private $dataRowSpan = 0;
 	private $allowContentWrap = true;
@@ -25,6 +27,8 @@ class Table implements iWriteable {
 	private $limit;
 	private $paginationLinkPrev;
 	private $paginationLinkNext;
+	private $allowRowReorder = false;
+	private $reorderPostUrl;
 	
 	/**
 	 * Creates a new table
@@ -151,12 +155,13 @@ class Table implements iWriteable {
 	 * @param String $delColName Name of the column in the data, by default "delete".
 	 * @param String $delColCaption Caption of the column, by default "Löschen".
 	 * @param String $icon Icon to use, by default "remove".
+	 * @param String $idcol Name of the ID column, most often "id" which is the default
 	 * @return Table data with delete column.
 	 */
-	public static function addDeleteColumn($tabData, $delHref, $delColName = "delete", $delColCaption = "Löschen", $icon="trash3") {
+	public static function addDeleteColumn($tabData, $delHref, $delColName = "delete", $delColCaption = "Löschen", $icon="trash3", $idcol="id") {
 		$tabData[0][$delColName] = $delColCaption;
 		for($i = 1; $i < count($tabData); $i++) {
-			$btn = new Link($delHref . $tabData[$i]["id"], "");
+			$btn = new Link($delHref . $tabData[$i][$idcol], "");
 			$btn->addIcon($icon);
 			$tabData[$i][$delColName] = $btn->toString();
 		}
@@ -185,6 +190,23 @@ class Table implements iWriteable {
 		$this->limit = $limit;
 		$this->paginationLinkPrev = $link . ($offset-$limit >= 0 ? $offset-$limit : 0);
 		$this->paginationLinkNext = $link . ($offset+$limit);
+	}
+	
+	function allowRowReorder($allow = true, $postUrl) {
+		$this->allowRowReorder = $allow;
+		$this->reorderPostUrl = $postUrl;
+	}
+	
+	function hideColumn($colName) {
+		array_push($this->hideCols, $colName);
+	}
+	
+	/**
+	 * Add global control buttons to the table.
+	 * @param String $buttonId Examples: 'print', 'csvHtml5'
+	 */
+	function addControlButton($buttonId) {
+		array_push($this->controlButtons, $buttonId);
 	}
 	
 	function write() {
@@ -363,24 +385,82 @@ class Table implements iWriteable {
 			// convert table to javasript DataTable
 			$(document).ready(function() {
 				var identifier = "#<?php echo $identifier; ?>"
-	    		$(identifier).DataTable({
+	    		var table = $(identifier).DataTable({
 					 "paging": false, 
 					 "info": false,  
 					 "responsive": true,
+					 <?php 
+					 if($this->allowRowReorder) {
+					 ?>
+					 "rowReorder": {
+					 	dataSrc: 1  // rank index
+					 },
+					 "orderFixed": [ 1, 'asc' ],  // by rank ascending
+					 <?php } ?>
 					 "oLanguage": {
 				 		 "sEmptyTable":  "<?php echo Lang::txt("Table_write.sEmptyTable"); ?>",
 						 "sInfoEmpty":  "<?php echo Lang::txt("Table_write.sInfoEmpty"); ?>",
 						 "sZeroRecords":  "<?php echo Lang::txt("Table_write.sZeroRecords"); ?>",
 	        			 "sSearch": "<?php echo Lang::txt("Table_write.sSearch"); ?>"
 			 		 },
-			 		 "buttons": [
-				 		 'print'
-				 	 ]
+			 		 <?php 
+			 		 if(count($this->controlButtons) > 0) {
+			 		 ?>
+			 		 "dom": 'Bfrtip',
+			 		 "buttons": <?php echo json_encode($this->controlButtons); ?>
+			 		 <?php 
+					 }
+					 else {
+					 // define default buttons
+					 ?>
+					 "buttons": []
+					 <?php
+					 }
+					 ?>
 				});
+				<?php 
+				// hide columns
+				if(count($this->hideCols) > 0) {
+					$colIndices = array();
+					foreach($this->hideCols as $colName) {
+						$colIdx = array_search($colName, $this->data[0]);
+						if($colIdx !== false) {
+							array_push($colIndices, $colIdx);
+						}
+					}
+					?>
+					table.columns(<?php echo json_encode($colIndices); ?>).visible(false);
+					<?php
+				}
+				
+				// Allow reordering rows, e.g. for program sorting - disable other features like sorting and click-to-open
+				if($this->allowRowReorder) {
+				?>
+				table.rowReorder.enable();
+				table.on('row-reordered', function ( e, diff, edit ) {
+					var reqData = table.data().toArray();
+					$.ajax({
+						url: "<?php echo $this->reorderPostUrl; ?>",
+						method: "POST",
+						contentType: "application/json",
+						data: JSON.stringify(reqData)
+					}).done(function() {
+						console.log("Autosave successful");
+					}).fail(function() {
+						alert("Unable to autosave. Please check logs.");
+					});
+				} );
+				<?php 
+				}
+				else {
+				?>
 				$(identifier).on('click', 'tbody tr', function() {
 					window.location.href = $(this).data('href');
 				});
 				$('tr').css('cursor','pointer');
+				<?php
+				}
+				?>
 			});
 			</script>
 			<?php

@@ -17,7 +17,7 @@
 	if ($system_data->isUserAuthenticated()) {
 	?>
 	
-	<div class="navbar-nav bnote-useradmin-bar">
+	<div class="navbar-nav bnote-useradmin-bar ms-2">
 		<div class="d-flex flex-row">
       		<a href="?mod=<?php echo $system_data->getModuleId("Kontaktdaten"); ?>" class="p-2 text-light">
 				<i class="bi-person-circle"></i>
