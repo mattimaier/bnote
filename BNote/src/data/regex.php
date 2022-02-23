@@ -34,7 +34,7 @@ class Regex {
 		
 		$this->regex ["date"] = '/^\d{4}-\d{2}-\d{2}$/';
 		$this->regex ["time"] = '/^\d{2}:\d{2}$/';
-		$this->regex ["datetime"] = '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/';
+		$this->regex ["datetime"] = '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/';
 		$this->regex ["database_date"] = '/^\d{4}-\d{2}-\d{2}$/';
 		$this->regex ["db_datetime"] = '/^\d{4}-\d{2}-\d{2}\ \d{2}:\d{2}:\d{2}$/';
 		

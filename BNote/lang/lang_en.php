@@ -1376,7 +1376,8 @@ class Translation extends BNoteTranslation {
 			"ProbenData_construct.conductor" => "Conductor",
 			"ProbenData_construct.serie" => "Rehearsal Route",
 			"ProbenData_construct.notes" => "Notes",
-			"ProbenData_saveSeries.error" => "The last Rehearsal is before the first Rehearsal",
+			"ProbenData_saveSerie.error" => "The last Rehearsal is before the first Rehearsal",
+			"ProbenData_saveSerie.dberror" => "Database error saving the rehearsal series",
 			
 			// ProbenView
 			"ProbenView_construct.EntityName" => "Rehearsal",	
@@ -1494,7 +1495,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_overviewEdit.buttonLabel" => "Edit participation",
 			"ProbenView_overviewEdit.save" => "Save participation",
 			"ProbenView_overviewEdit.error" => "Some participants have no user.",
-			"ProbenView_writeRehearsal.begin" => " o'clock",
+			"ProbenView_writeRehearsal.begin" => "Rehearsal",
 			"ProbenView_printPartlist.subtitle" => "Participants",
 			"ProbenView_printPartlist.printcol_instrument" => "Instrument",
 			"ProbenView_printPartlist.printcol_contact" => "Participant",

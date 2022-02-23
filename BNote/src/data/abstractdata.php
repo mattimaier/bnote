@@ -455,7 +455,7 @@ abstract class AbstractData {
 		}
 		
 		$query = "INSERT INTO " . $this->table . "(" . join(",", $cols) . ") VALUES (" . join(",", $qlist) . ")";
-		return $this->database->execute($query, $params);
+		return $this->database->prepStatement($query, $params);
 	}
 	
 	/**

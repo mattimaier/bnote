@@ -44,7 +44,7 @@ class ShareView extends CrudView {
 		
 		if($this->getData()->getSysdata()->isUserAdmin()) {
 			$docType = new Link($this->modePrefix() . "docType", Lang::txt("ShareView_startOptions.documenttype"));
-			$docType->addIcon("documenttype");
+			$docType->addIcon("files");
 			$docType->write();
 		}
 	}

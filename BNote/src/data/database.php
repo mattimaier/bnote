@@ -108,7 +108,6 @@ class Database extends Data {
 		$stmt = $this->db->prepare($query);
 		$bindTypes = "";
 		$bindValues = array();
-		#print($query . "<br>");
 		foreach($params as $param) {
 			if(count($param) > 1) {
 				$bindTypes .= $param[0];
@@ -334,7 +333,7 @@ class Database extends Data {
 	 */
 	public function execute($query, $params=array()) {
 		$res = $this->preparedQueryRaw($query, $params);
-		if($res) {
+		if($res !== FALSE) {
 			return $this->db->insert_id;
 		}
 		return null;

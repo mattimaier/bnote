@@ -144,7 +144,7 @@ class ProbenData extends AbstractLocationData {
 			$instrument = "AND c.instrument = ?";
 			array_push($params, array("i", $instrumentId));
 		}
-		$query = "SELECT i.name as instrument, c.id as contact_id, CONCAT(c.name, ' ', c.surname) as contactname, u.id as user_id, ru.participate
+		$query = "SELECT i.name as instrument, c.id as contact_id, CONCAT(c.name, ' ', c.surname) as contactname, u.id as user_id, IFNULL(ru.participate, -1) as participate
 				FROM rehearsal_contact rc
 					JOIN contact c ON rc.contact = c.id
 					JOIN user u ON u.contact = c.id
@@ -201,7 +201,7 @@ class ProbenData extends AbstractLocationData {
 		$this->regex->isName($_POST["name"]);
 		if($_POST["notes"] != "") $this->regex->isText($_POST["notes"]);
 		$this->regex->isPositiveAmount($_POST["duration"]);
-		$this->regex->isPositiveAmount($_POST["default_time_hour"]);
+		$this->regex->isTime($_POST["default_time"]);
 		$this->regex->isPositiveAmount($_POST["Ort"]);
 		
 		// make sure last date is after first date
@@ -213,25 +213,25 @@ class ProbenData extends AbstractLocationData {
 		
 		// create serie
 		$query = "INSERT INTO rehearsalserie (name) VALUES (?)";
-		$serieId = $this->database->execute($query, array(array("s", $_POST["name"])));
+		$serieId = $this->database->prepStatement($query, array(array("s", $_POST["name"])));
+		if($serieId == NULL || $serieId == "" || $serieId <= 0) {
+			new BNoteError(Lang::txt("ProbenData_saveSerie.dberror"));
+		}
 		
 		// process accoding to cycle
 		if($_POST["cycle"] > 0) {
 			$rehearsalDates = $this->getRehearsalDates($_POST["first_session"], $_POST["last_session"], intval($_POST["cycle"]));			
 			foreach($rehearsalDates as $rehDate) {
-				$beginDate = $rehDate . " " . $_POST["default_time_hour"] . ":" . $_POST["default_time_minute"];
-				$endDate = Data::addMinutesToDate($beginDate, $_POST["duration"]);
-				
-				$values = array(
+				$beginDate = $rehDate . " " . $_POST["default_time"];
+				$this->create(array(
 					"begin" => $beginDate,
-					"end" => $endDate,
+					"end" => Data::addMinutesToDate($beginDate, $_POST["duration"]),
 					"approve_until" => $beginDate,
 					"conductor" => $_POST["conductor"],
 					"notes" => $_POST["notes"],
 					"location" => $_POST["Ort"],
 					"serie" => $serieId
-				);
-				$this->create($values);
+				));
 			}
 		}		
 		else {
@@ -279,25 +279,18 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	public function create($values) {
-		// convert data from view to process format
-		if(strpos($values["begin"], ":") === false) {
-			$hour = $values["begin_hour"];
-			if($hour < 10) $hour = "0" . $hour;
-			$values["begin"] = $values["begin"] . " " . $hour . ":" . $values["begin_minute"];
-		}
-		
+		// convert data to process format
 		if(!isset($values["end"])) {
 			$values["end"] = Data::addMinutesToDate($values["begin"], $values["duration"]);
-		}
-		else if(strpos($values["end"], ":") === false) {
-			$endhour = $values["end_hour"];
-			if($endhour < 10) $endhour = "0" . $endhour;
-			$values["end"] = $values["end"] . " " . $endhour . ":" . $values["end_minute"];
 		}
 		
 		if($values["approve_until"] == "") {
 			$values["approve_until"] = $values["begin"];
 		}
+		
+		$values["begin"] = Data::dateTimeTstd($values["begin"]);
+		$values["end"] = Data::dateTimeTstd($values["end"]);
+		$values["approve_until"] = Data::dateTimeTstd($values["approve_until"]);
 		
 		// validate
 		$this->validate($values);
@@ -389,7 +382,7 @@ class ProbenData extends AbstractLocationData {
 		}
 		if(count($tuples) > 0) {
 			$query = "INSERT INTO rehearsal_contact VALUES " . join(",", $tuples);
-			$this->database->execute($query);
+			$this->database->execute($query, $params);
 		}
 	}
 	
@@ -501,10 +494,10 @@ class ProbenData extends AbstractLocationData {
 	
 	public function validate($input) {
 		// custom validation
-		$this->regex->isDateTime($input["begin"]);
-		$this->regex->isDateTime($input["end"]);
-		$this->regex->isDateTime($input["approve_until"]);
-		$this->regex->isDatabaseId($input["location"]);
+		$this->regex->isDateTime($input["begin"], "begin");
+		$this->regex->isDateTime($input["end"], "end");
+		$this->regex->isDateTime($input["approve_until"], "approve_until");
+		$this->regex->isDatabaseId($input["location"], "location");
 		if(isset($input["serie"]) && $input["serie"] != "") {
 			$this->regex->isDatabaseId($input["serie"]);
 		}

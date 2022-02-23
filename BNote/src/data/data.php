@@ -72,6 +72,13 @@ abstract class Data {
 		return Lang::dtdb($date);
 	}
 	
+	public static function dateTimeTstd($datetime) {
+		if(strpos($datetime, " ") !== FALSE) {
+			return str_replace(" ", "T", trim($datetime));
+		}
+		return $datetime;
+	}
+	
 	/**
 	 * For debugging reasons a function to display a full array
 	 * @param Array $array Any kind of array

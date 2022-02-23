@@ -147,7 +147,7 @@ class Filebrowser implements iWriteable {
 			// only allow downloads of subfolders, not the root-folders to prevent heavy load on server
 			AbstractView::buttonSpace();
 			$dl = new Link($this->linkprefix("download&path=" . urlencode($this->path)), Lang::txt("Filebrowser_showOptions.download"));
-			$dl->addIcon("arrow_down");
+			$dl->addIcon("download");
 			$dl->write();
 		}
 	}
@@ -176,8 +176,7 @@ class Filebrowser implements iWriteable {
 	private function mainView() {
 		// show the folders and their contents
 		?>
-		<div class="filebrowser_favs_container">
-			<div class="filebrowser_favs_title"><?php echo Lang::txt("Filebrowser_mainView.writeFavs"); ?></div>
+		<div class="nav nav-tabs">
 			<?php $this->writeFavs(); ?>
 		</div>
 
@@ -228,12 +227,12 @@ class Filebrowser implements iWriteable {
 			$active = "";
 			$current_loc = substr($loc, strlen($GLOBALS["DATA_PATHS"]["share"])-1);
 			if(isset($_GET["path"]) && $current_loc == $this->path) {
-				$active = "_active";
+				$active = "active";
 			}
 			?>
-			<a href="<?php echo $this->linkprefix("view&path=" . urlencode($current_loc)); ?>">
-				<div class="filebrowser_folderitem<?php echo $active; ?>"><?php echo $caption; ?></div>
-			</a>
+			<div class="nav-item">
+				<a class="nav-link <?php echo $active; ?>" href="<?php echo $this->linkprefix("view&path=" . urlencode($current_loc)); ?>"><?php echo $caption; ?></a>
+			</div>
 			<?php
 		}
 	}
@@ -255,7 +254,7 @@ class Filebrowser implements iWriteable {
 				$dirname = substr($dirname, 0, strlen($dirname)-1);
 			}
 			$dirname = str_replace("/", " > ", $dirname);
-			Writing::h3($dirname, "filebrowser_folder_header");
+			Writing::h4($dirname, "filebrowser_folder_header");
 
 			// show table with files
 			$content = $this->getFilesFromFolder();
@@ -292,7 +291,7 @@ class Filebrowser implements iWriteable {
 			 */
 			$name = $item["name"];
 			$link = $item["show"];
-			$icon = "style/icons/" . $item['icon'] . ".png";
+			$icon = $item['icon'];
 			$delete_link = $item["delete"];
 			$size = $item["size"];
 
@@ -313,11 +312,9 @@ class Filebrowser implements iWriteable {
 			 */
 			echo <<< STRING_END
 				<div class="$class">
-					<img src="$icon" height="20px" class="filebrowser_icon">
+					<i class="bi-$icon" class="filebrowser_icon"></i>
 					<a href="./$link" class="filebrowser_item">$name</a>
-					<a href="./$delete_link">
-						<img src="style/icons/remove.png" height="20px" class="filebrowser_trash">
-					</a>
+					<a href="./$delete_link" class="filebrowser_trash"><i class="bi-trash3"></i></a>
 					<span class="filebrowser_item_size">$size</span>
 				</div>
 STRING_END;
@@ -387,11 +384,9 @@ STRING_END;
 					<div class="filebrowser_tile">
 					  $tile_content
 					</div>
-					<a href="./$link" class="filebrowser_item">$name</a><br>
-					<a href="./$delete_link">
-						<img src="style/icons/remove.png" height="20px" class="filebrowser_trash">
-					</a>
-					<span class="filebrowser_item_size">$size</span>
+					<a href="./$link" class="filebrowser_item">$name</a><br>					
+					<a href="./$delete_link" class="filebrowser_trash"><i class="bi-trash3"></i></a>					
+					<span class="filebrowser_item_size">$size</span>					
 				</div>
 STRING_END;
 	}
@@ -658,16 +653,16 @@ STRING_END;
 			$music = array("mp3", "ogg", "acc", "wav");
 			$image = array("jpg", "jpeg");
 			if(in_array($end, $music)) {
-				return "music";
+				return "file-music";
 			}
 			if($end == "pdf") {
-				return "pdf";
+				return "filetype-pdf";
 			}
 			if(in_array($end, $image)) {
-				return "gallery";
+				return "file-image";
 			}
 		}
-		return "doc";
+		return "file-earmark";
 	}
 
 	private function createFolder($folder) {

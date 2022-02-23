@@ -1376,6 +1376,7 @@ class Translation extends BNoteTranslation {
 			"ProbenData_construct.serie" => "Probenstrecke",
 			"ProbenData_construct.notes" => "Notizen",
 			"ProbenData_saveSerie.error" => "Die letzte Probe ist zeitlich vor der ersten Probe.",
+			"ProbenData_saveSerie.dberror" => "Datenbankfehler bei der Erstellung der Probenserie",
 			
 			// ProbenView
 			"ProbenView_construct.EntityName" => "Probe",	
@@ -1493,7 +1494,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_overviewEdit.buttonLabel" => "Teilnahme bearbeiten",
 			"ProbenView_overviewEdit.save" => "Teilnahmen speichern",
 			"ProbenView_overviewEdit.error" => "Es gibt Teilnehmer ohne Benutzer.",
-			"ProbenView_writeRehearsal.begin" => " Uhr",
+			"ProbenView_writeRehearsal.begin" => "Probe",
 			"ProbenView_printPartlist.subtitle" => "Teilnehmerliste",
 			"ProbenView_printPartlist.printcol_instrument" => "Instrument",
 			"ProbenView_printPartlist.printcol_contact" => "Teilnehmer",

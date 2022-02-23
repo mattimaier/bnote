@@ -106,7 +106,7 @@ class StartView extends CrudRefLocationView {
 				$this->box($h, $c);
 				?>
 				<div class="row">
-					<div class="col-md-12">
+					<div class="col-md-12 mb-3">
 						<span class="warning">
 							<?php echo Lang::txt("StartView_start.warning"); ?>
 						</span>
@@ -129,7 +129,7 @@ class StartView extends CrudRefLocationView {
 				
 			?>
 			<div class="row">
-				<div class="col-md-12">
+				<div class="col-md-12 mb-3">
 					<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box.heading"); ?></div>
 					<div class="p-2">
 					<?php
@@ -156,8 +156,7 @@ class StartView extends CrudRefLocationView {
 		}
 		?>
 		<div class="row">
-		
-			<div class="col-md-4">
+			<div class="col-md-4 mb-3">
 				<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Rehearsal.heading"); ?></div>
 				<div class="p-2">
 					<?php
@@ -171,7 +170,7 @@ class StartView extends CrudRefLocationView {
 				</div>
 			</div>
 			
-			<div class="col-md-4">
+			<div class="col-md-4 mb-3">
 				<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Concert.heading"); ?></div>
 				<div class="p-2">
 					<?php
@@ -188,7 +187,7 @@ class StartView extends CrudRefLocationView {
 			<?php
 			if($this->getData()->hasReservations()) {
 				?>
-				<div class="col-md-4">
+				<div class="col-md-4 mb-3">
 					<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Reservation.heading"); ?></div>
 					<div class="p-2">
 					<?php $this->writeReservationList(); ?>
@@ -201,7 +200,7 @@ class StartView extends CrudRefLocationView {
 			<?php
 			if($this->getData()->hasAppointments()) {
 				?>
-				<div class="col-md-4">
+				<div class="col-md-4 mb-3">
 					<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Appointment.heading"); ?></div>
 					<div class="p-2">
 					<?php 
@@ -218,14 +217,14 @@ class StartView extends CrudRefLocationView {
 			}
 			?>
 			
-			<div class="col-md-4">
+			<div class="col-md-4 mb-3">
 				<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Vote.heading"); ?></div>
 				<div class="p-2">
 					<?php $this->writeVoteList(); ?>
 				</div>
 			</div>
 			
-			<div class="col-md-4">
+			<div class="col-md-4 mb-3">
 				<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Task.heading"); ?></div>
 				<div class="p-2">
 					<?php $this->writeTaskList(); ?>
@@ -239,7 +238,7 @@ class StartView extends CrudRefLocationView {
 			 */
 			if($this->getData()->getSysdata()->getDynamicConfigParameter("discussion_on") == 1) { 
 				?>
-				<div class="col-md-4">
+				<div class="col-md-4 mb-3">
 					<div class="p-2 start_box_heading"><?php echo Lang::txt("StartView_start_box_Task.writeUpdateList"); ?></div>
 					<div class="p-2">
 						<?php $this->writeUpdateList(); ?>

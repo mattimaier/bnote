@@ -1374,6 +1374,7 @@ class Translation extends BNoteTranslation {
 			"ProbenData_construct.serie" => "Série de répétition",
 			"ProbenData_construct.notes" => "Notes",
 			"ProbenData_saveSerie.error" => "La dernière répétition est avant la première.",
+			"ProbenData_saveSerie.dberror" => "Erreur de la base de données",
 			
 			// ProbenView
 			"ProbenView_construct.EntityName" => "Répétition",
@@ -1491,7 +1492,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_overviewEdit.buttonLabel" => "Modifier participants",
 			"ProbenView_overviewEdit.save" => "Sauvegarder",
 			"ProbenView_overviewEdit.error" => "Il y a des participants sans utilisateur.",
-			"ProbenView_writeRehearsal.begin" => " Heures",
+			"ProbenView_writeRehearsal.begin" => "Répétition",
 			"ProbenView_printPartlist.subtitle" => "Participants",
 			"ProbenView_printPartlist.printcol_instrument" => "Instrument",
 			"ProbenView_printPartlist.printcol_contact" => "Nom",
