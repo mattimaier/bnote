@@ -91,6 +91,7 @@ class Link implements iWriteable {
 		$this->icon = $icon_id;
 	}
 	
+	public function getName() { return $this->label; }
 }
 
 ?>

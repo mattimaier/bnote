@@ -84,6 +84,10 @@ class Plainlist implements iWriteable {
 		}
 		return $selection;
 	}
+	
+	public function getName() {
+		return $this->nameField;
+	}
 }
 
 ?>

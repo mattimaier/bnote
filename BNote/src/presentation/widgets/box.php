@@ -70,5 +70,9 @@ class Box implements iWriteable {
 		}
 	}
 	
+	public function getName() {
+		return $this->key;
+	}
+	
 	// END OF CLASS
 }

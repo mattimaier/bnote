@@ -53,8 +53,8 @@ class Filterbox implements iWriteable {
 		$this->formname = "Filter";
 	}
 	
-	function addFilter($column, $caption, $type, $values) {
-		$this->filters[$column] = array( "caption" => $caption, "type" => $type, "values" => $values );
+	function addFilter($column, $caption, $type, $values, $colSize = 4) {
+		$this->filters[$column] = array( "caption" => $caption, "type" => $type, "values" => $values, "colSize" => $colSize );
 		
 		// defaults
 		$this->nameCols[$column] = array("name");
@@ -95,7 +95,7 @@ class Filterbox implements iWriteable {
 					$element->addOption(Lang::txt("Filterbox_write.showAllOption"), -1);
 				}
 				
-				foreach($infos["values"] as $i => $val) {
+				foreach($infos["values"] as $val) {
 					// build name
 					$name = "";
 					for($j = 0; $j < count($this->nameCols[$column]); $j++) {
@@ -142,15 +142,15 @@ class Filterbox implements iWriteable {
 				$element = new Field($column, $val, $infos["type"]);
 			}
 			?>
-			<div class="col-4 filterbox_filter">
+			<div class="col-md-<?php echo $infos["colSize"]; ?> filterbox_filter">
 				<div class="filterbox_filter_caption"><?php echo $infos["caption"]; ?></div>
 				<div class="filterbox_filter_element"><?php echo $element->write(); ?></div>
 			</div>
 			<?php
 		}
 		?>
-			<div class="col-2">
-				<input type="submit" value="Suchen" class="btn btn-primary" style="height: 100%" />
+			<div class="col-md-6">
+				<input type="submit" value="Suchen" class="btn btn-primary px-3" style="margin-top: 1.4rem" />
 			</div>
 		</form>
 		</div>
@@ -173,6 +173,9 @@ class Filterbox implements iWriteable {
 		return $result;
 	}
 	
+	public function getName() {
+		return $this->formname;
+	}
 }
 
 ?>

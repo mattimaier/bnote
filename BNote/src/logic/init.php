@@ -11,7 +11,7 @@ $widgets = array(
 	"iwriteable", "box", "dropdown", "dataview", "error", "field",
 	"form", "link", "message", "table", "writing", "textwriteable",
 	"htmleditor", "imagetable", "filebrowser", "groupselector", "filterbox",
-	"list", "plainlist", "card"
+	"list", "plainlist", "card", "listfield"
 );
 
 foreach($widgets as $id => $file) {

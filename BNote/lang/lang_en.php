@@ -2368,6 +2368,7 @@ class Translation extends BNoteTranslation {
 			"tour" => "Tour",
 			"map" => "Map",
 			"accounts" => "Accounts",
+			"ListField_write.placeholder" => "Type to search...",
 
 			// module: start
 			"start_calendarExport" => "Export Calendar",

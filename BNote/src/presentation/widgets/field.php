@@ -202,7 +202,13 @@ class Field implements iWriteable {
 	 */
 	private function MinuteSecondfield() {
 		$value = Data::convertMinSecFromDb($this->default_value);
-		return '<input type="text" class="form-control" name="' . $this->name . '" size="' . $this->MINSECLENGTH . '" value="' . $value . '" /> min';
+		$name = $this->name;
+		return <<<EOS
+			<div class="input-group">
+				<input type="text" class="form-control" name="$name" value="$value" aria-describedby="minsecunit">
+				<span class="input-group-text" id="minsecunit">min</span>
+			</div>
+		EOS;
 	}
 	
 	/**

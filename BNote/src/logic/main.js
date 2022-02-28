@@ -64,26 +64,4 @@ $(document).ready(function() {
 		url: $('#fb-fileupload-form').attr('action')
 	});
 	
-	$('#navbarCollapseIcon').click(function() {
-		if(fullNavi) {
-			$('.navi_item_caption').hide();
-			$('.navi_item_caption_selected').hide();
-			$('#navigation').addClass("naviCollapsed");
-			$('#optionsContainer').addClass("optionsContainerLeft");
-			$('#content_insets').addClass("insetLeft");
-			$('#bannerContent').addClass("insetLeft");
-			$('#logoBanner').addClass("naviCollapsed");
-			fullNavi = false;
-		}
-		else {
-			$('.navi_item_caption').show();
-			$('.navi_item_caption_selected').show();
-			$('#navigation').removeClass("naviCollapsed");
-			$('#optionsContainer').removeClass("optionsContainerLeft");
-			$('#content_insets').removeClass("insetLeft");
-			$('#bannerContent').removeClass("insetLeft");
-			$('#logoBanner').removeClass("naviCollapsed");
-			fullNavi = true;
-		}
-	});
 });

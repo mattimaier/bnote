@@ -13,6 +13,10 @@ class TextWriteable implements iWriteable {
 		$this->value = $v;
 	}
 	
+	function getName() {
+		return NULL;
+	}
+	
 	function write() {
 		return $this->value;
 	} 

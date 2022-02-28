@@ -43,10 +43,10 @@ else {
 }
 
 // read system config
-$sysconfig = new XmlData($dir_prefix . $GLOBALS["DIR_CONFIG"] . "config.xml", "Software");
+#$sysconfig = new XmlData($dir_prefix . $GLOBALS["DIR_CONFIG"] . "config.xml", "Software");
 
 // get access to repertoire data
-$repertoireData = new RepertoireData($dir_prefix);
+#$repertoireData = new RepertoireData($dir_prefix);
 
 // check if search term is present, otherwise return nothing
 if(!isset($_GET["term"]) || strlen($_GET["term"]) < 3) {
@@ -69,7 +69,7 @@ $searchTerm = $shareDirPrefix . $_GET["term"] . "*.*";
 $filesFound = glob_recursive($searchTerm);
 
 $results = array();
-foreach($filesFound as $i => $found) {
+foreach($filesFound as $found) {
 	array_push($results, substr($found, strlen($shareDirPrefix)));
 }
 

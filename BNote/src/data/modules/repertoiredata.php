@@ -43,27 +43,24 @@ class RepertoireData extends AbstractData {
 		);
 	}
 	
-	/**
-	 * @return String A list in Javascript format for autocompletion.
-	 */
-	function listComposers() {
-		$query = "SELECT name FROM composer";
-		$data = $this->database->getSelection($query);		
-		$composers = array();
-		for($i = 1; $i < count($data); $i++) {
-			array_push($composers, '"' . $data[$i]["name"] . '"');
-		}
-		return join(",\n", $composers);
-	}
-	
 	function create($values) {
-		// validation
-		if(isset($values["composer"]) && $values["composer"] != "") {
-			$this->regex->isSubject($values["composer"]);
+		// composer handling
+		$composerId = 0;
+		if(isset($values["composer"]) && strlen($values["composer"]) > 0) {
+			// check if the value contains the '[id=...]' string
+			$matches = array();
+			if(preg_match('/\[id=\d{1,10}\]/', $values["composer"], $matches) > 0) {
+				$composerId = substr($matches[0], 4, -1);
+			}
+			else {
+				// create composer
+				$query = "INSERT INTO composer (name) VALUES (?)";
+				$composerId = $this->database->prepStatement($query, array("s", $this->modifyString($values["composer"])));
+			}
 		}
+		$values["composer"] = $composerId;
 		
-		// convert title and composer
-		$values["composer"] = $this->modifyString($values["composer"]);
+		// convert strings
 		$values["title"] = $this->modifyString($values["title"]);
 		$values["notes"] = $this->modifyString($values["notes"]);
 		$values["title"] = urlencode($values["title"]);
@@ -72,24 +69,7 @@ class RepertoireData extends AbstractData {
 		// modify bpm
 		if($values["bpm"] == "") $values["bpm"] = 0;
 		
-		/* look for composer, if there don't add him/her
-		 * -> use key, otherwise add and use key.
-		 */
-		if(isset($values["composer"]) && $values["composer"] != "") {
-			$cid = $this->doesComposerExist($values["composer"]);
-			if($cid > 0) {
-				$values["composer"] = $cid;
-			}
-			else {
-				// add as a new composer
-				$query = "INSERT INTO composer (name) VALUES (?)";
-				$values["composer"] = $this->database->execute($query, array("s", $values["composer"]));
-			}
-		}
-		else {
-			$values["composer"] = 0;
-		}
-		
+		// create song
 		$id = parent::create($values);
 		
 		// custom data
@@ -99,49 +79,27 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function update($id, $values) {
-		$song = $this->findByIdNoRef($id);
-		
 		// convert title and composer
 		$values["title"] = $this->modifyString($values["title"]);
 		$values["notes"] = $this->modifyString($values["notes"]);
 		$values["title"] = urlencode($values["title"]);
 		$values["notes"] = urlencode($values["notes"]);
 		
-		if(isset($values["composer"]) && $values["composer"] != "") {
-			$values["composer"] = $this->modifyString($values["composer"]);
-						
-			// UPDATE composer only if not used by another song
-			if($this->isComposerUsedByAnotherSong($song["composer"])) {
-				// Does composer exist?
-				$cid = $this->doesComposerExist($values["composer"]);
-				if($cid > 0) {
-					// YES
-					$values["composer"] = $cid;
-				}
-				else {
-					// NO --> create composer
-					$values["composer"] = $this->createComposer($values["composer"]);
-				}
+		// composer handling
+		$composerId = 0;
+		if(isset($values["composer"]) && strlen($values["composer"]) > 0) {
+			// check if the value contains the '[id=...]' string
+			$matches = array();
+			if(preg_match('/\[id=\d{1,10}\]/', $values["composer"], $matches) > 0) {
+				$composerId = substr($matches[0], 4, -1);
 			}
 			else {
-				// Does composer exist?
-				$cid = $this->doesComposerExist($values["composer"]);
-				if($cid > 0) {
-					// YES: composer exists, but is not used by another song
-					$query = "UPDATE composer SET name = ? WHERE id = ?";
-					$this->database->execute($query, array(array("s", $values["composer"]), array("i", $cid)));
-					$values["composer"] = $cid;
-				}
-				else {
-					// NO: composer exists and is not used by another song (obviously)
-					$values["composer"] = $this->createComposer($values["composer"]);
-				}
+				// create composer
+				$query = "INSERT INTO composer (name) VALUES (?)";
+				$composerId = $this->database->prepStatement($query, array("s", $this->modifyString($values["composer"])));
 			}
 		}
-		else {
-			// 3) REMOVE composer from song
-			$values["composer"] = 0;
-		}
+		$values["composer"] = $composerId;
 		
 		// modify bpm
 		if($values["bpm"] == "") $values["bpm"] = 0;
@@ -188,30 +146,10 @@ class RepertoireData extends AbstractData {
 		return ($ct > 1);
 	}
 	
-	/**
-	 * Checks whether a similar name exists.
-	 * @param String $name Name of the composer.
-	 * @return Integer The ID of the existent composer or -1 if not exists.
-	 */
-	private function doesComposerExist($name) {
-		if($name == "") {
-			return -1;
-		}
-		$ct = $this->database->colValue("SELECT count(id) as cnt FROM composer WHERE name = ?", "cnt", array(array("s", $name)));
-		if($ct < 1) return -1;
-		else {
-			return $this->database->colValue("SELECT id FROM composer WHERE name = ?", "id", array(array("s", $name)));
-		}
-	}
-	
 	private function modifyString($input) {
-		// just replace double quotes with single quotes and remove < and >
 		$str = $input;
-		if(strpos($input, '"') >= 0) {
-			$str = str_replace("\"", "'", $input);
-		}
 		
-		// no HTML injection
+		// single injection prevention
 		if(strpos($str, "<") >= 0) {
 			$str = str_replace("<", "", $str);
 		}
@@ -279,7 +217,7 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function getComposers() {
-		$query = "SELECT DISTINCT * FROM composer ORDER BY name";
+		$query = "SELECT * FROM composer ORDER BY name";
 		return $this->database->getSelection($query);
 	}
 	

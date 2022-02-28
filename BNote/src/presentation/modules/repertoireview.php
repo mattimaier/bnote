@@ -33,51 +33,56 @@ class RepertoireView extends CrudRefView {
 		$prt->write();
 		
 		$massChange = new Link($this->modePrefix() . "massUpdate", Lang::txt("RepertoireView_startOptions.massUpdate"));
-		$massChange->addIcon("edit");
+		$massChange->addIcon("pen");
 		$massChange->write();
 		
 		$genre_mod = new Link($this->modePrefix() . "genre&func=start", Lang::txt("RepertoireView_startOptions.start"));
-		$genre_mod->addIcon("music_folder");
+		$genre_mod->addIcon("music-note-list");
 		$genre_mod->write();
 		
 		$xlsImport = new Link($this->modePrefix() . "xlsUpload", Lang::txt("RepertoireView_startOptions.xlsUpload"));
-		$xlsImport->addIcon("arrow_down");
+		$xlsImport->addIcon("upload");
 		$xlsImport->write();
 		
 		$xlsExport = new Link($GLOBALS["DIR_EXPORT"] . "repertoire.csv", Lang::txt("RepertoireView_startOptions.repertoire"));
-		$xlsExport->addIcon("save");
+		$xlsExport->addIcon("filetype-csv");
 		$xlsExport->write();
 	}
 	
 	protected function addEntityForm() {
-		?>
-		<script type="text/javascript">
-		$(function() {
-			var composers = [
-			    <?php
-			    echo $this->getData()->listComposers();
-			    ?>
-			];
-
-			$("#composer").autocomplete({
-				source: composers
-			});
-		});	
-		</script>
-		<?php
+		// init form
 		$form = new Form(Lang::txt("RepertoireView_addEntityForm.Form"), $this->modePrefix() . "add&manualValid=true");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		
-		$form->removeElement("id");
+		// order fields
+		$order = array("title", "composer", "genre", "music_key", "bpm", "length", "is_active", "status", "setting", "notes");
+		$customFields = $this->getData()->getCustomFields('s', false);
+		for($i = 1; $i < count($customFields); $i++) {
+			array_push($order, $customFields[$i]["txtdefsingle"]);
+		}
+		$form->orderElements($order);
+		
+		// adapt references
 		$form->setForeign("genre", "genre", "id", "name", -1);
 		$genreDropdown = $form->getForeignElement("genre");
 		$genreDropdown->addOption("-", 0);							
 		$form->setForeign("status", "status", "id", "name", -1);
+		$composerField = new ListField("composer", $this->getData()->getComposers());
 		$form->removeElement("composer");
-		$composer = "<input type=\"text\" name=\"composer\" id=\"composer\" size=\"30\" />";
-		$form->addElement(Lang::txt("RepertoireView_addEntityForm.composer"), new TextWriteable($composer));
-				
+		$form->addElement("composer", $composerField, true, 6);
+		
+		// add custom fields
 		$this->appendCustomFieldsToForm($form, 's', null, false);
+		
+		// set sizes
+		$form->setFieldColSize("genre", 3);
+		$form->setFieldColSize("music_key", 3);
+		$form->setFieldColSize("length", 3);
+		$form->setFieldColSize("bpm", 3);
+		$form->setFieldColSize("is_active", 1);
+		$form->setFieldColSize("status", 2);
+		$form->setFieldColSize("setting", 9);
+		$form->setFieldColSize("notes", 12);
 		
 		$form->write();
 	}
@@ -86,16 +91,17 @@ class RepertoireView extends CrudRefView {
 		// Filters
 		$filter = new Filterbox($this->modePrefix() . "start");
 		$filterList = array(
-			"title" => array(Lang::txt("RepertoireView_start.title"), FieldType::CHAR, ""),
-			"genre" => array(Lang::txt("RepertoireView_start.genre"), FieldType::SET, $this->getData()->getGenres()),
-			"music_key" => array(Lang::txt("RepertoireView_start.music_key"), FieldType::CHAR, ""),
-			"solist" => array(Lang::txt("RepertoireView_start.solist"), FieldType::SET, $this->getData()->getAllSolists()),
-			"status" => array(Lang::txt("RepertoireView_start.status"), FieldType::SET, $this->getData()->getStatuses()),
-			"composer" => array(Lang::txt("RepertoireView_start.composer"), FieldType::SET, $this->getData()->getComposers()),
-			"is_active" => array(Lang::txt("RepertoireView_start.is_active"), FieldType::BOOLEAN, True)
+				"title" => array(Lang::txt("RepertoireView_start.title"), FieldType::CHAR, "", 3),
+				"composer" => array(Lang::txt("RepertoireView_start.composer"), FieldType::SET, $this->getData()->getComposers(), 3),
+				"solist" => array(Lang::txt("RepertoireView_start.solist"), FieldType::SET, $this->getData()->getAllSolists(), 3),
+				"genre" => array(Lang::txt("RepertoireView_start.genre"), FieldType::SET, $this->getData()->getGenres(), 3),
+				"status" => array(Lang::txt("RepertoireView_start.status"), FieldType::SET, $this->getData()->getStatuses(), 2),
+				"is_active" => array(Lang::txt("RepertoireView_start.is_active"), FieldType::BOOLEAN, True, 2),
+				"music_key" => array(Lang::txt("RepertoireView_start.music_key"), FieldType::CHAR, "", 2)
 		);
 		foreach($filterList as $field => $info) {
-			$filter->addFilter($field, $info[0], $info[1], $info[2]);
+			$colSize = isset($info[3]) ? $info[3] : 4;
+			$filter->addFilter($field, $info[0], $info[1], $info[2], $colSize);
 			if($field == "solist") {
 				$filter->setNameCols("solist", array("name", "surname"));
 			}
@@ -138,8 +144,8 @@ class RepertoireView extends CrudRefView {
 		?>
 		<h1><?php echo urldecode($song["title"]); ?> <span class="repertoire_song_composer_title"> <?php echo $song["composername"]; ?></span></h1>
 		
-		<div class="repertoire_song_detailbox">
-			<div class="songbox_col">
+		<div class="row">
+			<div class="col-md-3">
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.music_key"); ?></div>
 					<div class="songbox_value"><?php echo $song["music_key"]; ?></div>
@@ -155,7 +161,7 @@ class RepertoireView extends CrudRefView {
 					<div class="songbox_value"><?php echo $song["bpm"]; ?></div>
 				</div>
 			</div>
-			<div class="songbox_col">
+			<div class="col-md-3">
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.statusname"); ?></div>
 					<div class="songbox_value"><?php echo $song["statusname"]; ?></div>
@@ -171,7 +177,7 @@ class RepertoireView extends CrudRefView {
 					<div class="songbox_value"><?php echo $song["setting"]; ?></div>
 				</div>
 			</div>
-			<div class="songbox_col">
+			<div class="col-md-3">
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.is_active"); ?></div>
 					<div class="songbox_value"><?php echo $song["is_active"] == 1 ? "ja" : "archiviert"; ?></div>
@@ -181,7 +187,7 @@ class RepertoireView extends CrudRefView {
 				</div>
 				<div class="songbox_areavalue"><?php echo urldecode($song["notes"]); ?></div>
 			</div>
-			<div class="songbox_col">
+			<div class="col-md-3">
 			<?php 
 			$customFields = $this->getData()->getCustomFields('s');
 			for($i = 1; $i < count($customFields); $i++) {
@@ -206,11 +212,41 @@ class RepertoireView extends CrudRefView {
 			</div>
 		</div>
 		
-		<div class="repertoire_song_extra">
-			<div class="songextra_col">
-				<h2><?php echo Lang::txt("RepertoireView_view.id"); ?></h2>
+		<div class="row mt-4">
+			<div class="col-md-4 mt-2">
+				<?php 
+				// Files
+				if($this->getData()->getSysdata()->userHasPermission(12)) {
+					$this->songFiles();
+				}
+				?>
+			</div>
+			<div class="col-md-4 mt-2">
+				<h4><?php echo Lang::txt("RepertoireView_view.solists"); ?></h4>
+				<ul>
+					<?php 
+					// Solists
+					$solists = $this->getData()->getSolists($_GET["id"]);
+					// add a link to the data to remove the solist from the list
+					for($i = 1; $i < count($solists); $i++) {
+						$sol = $solists[$i];
+						$delLink = $this->modePrefix() . "delSolist&id=" . $_GET["id"] . "&solistId=" . $solists[$i]["id"];
+						$btn = new Link($delLink, "");
+						$btn->addIcon("trash3");
+						echo "<li>" . $sol["name"] . " " . $sol["surname"] . " (" . $sol["instrument"] . ") " . $btn->toString() . "</li>";
+					}
+					if(count($solists) == 1) {
+						?>
+						<li><?php echo Lang::txt("RepertoireView_view.nosolists"); ?></li>
+						<?php
+					}
+					?>
+				</ul>
+			</div>
+			<div class="col-md-4 mt-2">
+				<h4><?php echo Lang::txt("RepertoireView_view.id"); ?></h4>
 				
-				<h3><?php echo Lang::txt("RepertoireView_view.rehearsals_song"); ?></h3>
+				<h5><?php echo Lang::txt("RepertoireView_view.rehearsals_song"); ?></h5>
 				<ul>
 					<?php 
 					// References
@@ -222,43 +258,13 @@ class RepertoireView extends CrudRefView {
 					?>
 				</ul>
 				
-				<h3><?php echo Lang::txt("RepertoireView_view.concerts_song"); ?></h3>
+				<h5><?php echo Lang::txt("RepertoireView_view.concerts_song"); ?></h5>
 				<ul>
 					<?php
 					for($i = 1; $i < count($references["concerts"]); $i++) {
 						$con = $references["concerts"][$i];
 						$title = $con["title"];
 						echo "<li>" . Data::convertDateFromDb($con["begin"]) . " / $title</li>";
-					}
-					?>
-				</ul>
-			</div>
-			<div class="songextra_col">
-				<?php 
-				// Files
-				if($this->getData()->getSysdata()->userHasPermission(12)) {
-					$this->songFiles();
-				}
-				?>
-			</div>
-			<div class="songextra_col">
-				<h2><?php echo Lang::txt("RepertoireView_view.solists"); ?></h2>
-				<ul>
-					<?php 
-					// Solists
-					$solists = $this->getData()->getSolists($_GET["id"]);
-					// add a link to the data to remove the solist from the list
-					for($i = 1; $i < count($solists); $i++) {
-						$sol = $solists[$i];
-						$delLink = $this->modePrefix() . "delSolist&id=" . $_GET["id"] . "&solistId=" . $solists[$i]["id"];
-						$btn = new Link($delLink, "");
-						$btn->addIcon("remove");
-						echo "<li>" . $sol["name"] . " " . $sol["surname"] . " (" . $sol["instrument"] . ") " . $btn->toString() . "</li>";
-					}
-					if(count($solists) == 1) {
-						?>
-						<li><?php echo Lang::txt("RepertoireView_view.nosolists"); ?></li>
-						<?php
 					}
 					?>
 				</ul>
@@ -271,59 +277,71 @@ class RepertoireView extends CrudRefView {
 		$songs = $this->getData()->getFiles($_GET["id"]);
 		?>
 		<div class="songfiles_box">
-			<h3>Dateien</h3>
+			<h4>Dateien</h4>
 			<ul>
 			<?php
 			// show files
 			for($i = 1; $i < count($songs); $i++) {
 				$file = $songs[$i]["filepath"];
 				$href = "src/data/filehandler.php?file=/" . urlencode($file);
-				$preview = $href;
 				$delHref = $this->modePrefix() . "removeSongFile&id=" . $_GET["id"] . "&songfile=" . $songs[$i]["id"];
-				$imgWidth = "50px";
 				?>
-				<li class="songfiles_filebox">
+				<li>
 					<?php
 					if(!Data::endsWith($file, "png") && !Data::endsWith($file, "jpg") && !Data::endsWith($file, "jpeg") && !Data::endsWith($file, "bmp")) {
 						$preview = "style/icons/copy_link.png";
-						$imgWidth = "32px";
 					}
 					?>
-					<a href="<?php echo $href; ?>" target="_blank">
-						<img class="songfiles_preview" src="<?php echo $preview; ?>" width="<?php echo $imgWidth; ?>">
-					</a>
-					<div class="songfiles_textbox">
-						<a class="songfiles_filelink" href="<?php echo $href; ?>" target="_blank"><?php echo $file; ?></a><br/>
-						<a class="songfiles_doctype"><?php echo $songs[$i]["doctype_name"]; ?></a>
-						<a href="<?php echo $delHref; ?>"><?php echo Lang::txt("RepertoireView_songFiles.doctype_name"); ?></a>
-					</div>
+					<span class=""><?php echo $file; ?> (<?php echo $songs[$i]["doctype_name"]; ?>)</span>
+					<a class="" href="<?php echo $href; ?>" target="_blank"><i class="bi-box-arrow-down"></i></a>
+					<a class="" href="<?php echo $delHref; ?>"><i class="bi-file-earmark-minus"></i></a>
 				</li>
 				<?php
 			}
 			?>
 			</ul>
 			
-			<form action="<?php echo $this->modePrefix() . "addSongFile&id=" . $_GET["id"] ?>" method="POST">
-				<h3><?php echo Lang::txt("RepertoireView_songFiles.addSongFile"); ?></h3>
-				<p><?php echo Lang::txt("RepertoireView_songFiles.repertoire_filesearch"); ?></p>
-				<input type="text" id="repertoire_filesearch" name="file" />
-				<select name="doctype">
-				<?php 
-				$doctypes = $this->getData()->adp()->getDocumentTypes();
-				for($j = 1; $j < count($doctypes); $j++) {
-					echo '<option value="' . $doctypes[$j]["id"] . '">' . $doctypes[$j]["name"] . '</option>';
-				}
-				?>
-				</select>
-				<input type="submit" value=<?php echo Lang::txt("RepertoireView_songFiles.submit"); ?> />
+			<h5><?php echo Lang::txt("RepertoireView_songFiles.addSongFile"); ?></h5>
+			<p><?php echo Lang::txt("RepertoireView_songFiles.repertoire_filesearch"); ?></p>
+			
+			<form class="row gx-3 gy-2 align-items-center" action="<?php echo $this->modePrefix() . "addSongFile&id=" . $_GET["id"] ?>" method="POST">
+				<div class="col-sm-6">
+					<input type="text" class="form-control" id="repertoire_filesearch" name="file" list="searchresults" autocomplete="off" />
+					<datalist id="searchresults"></datalist>
+				</div>
+				<div class="col-sm-3">
+					<select name="doctype" class="form-select">
+					<?php 
+					$doctypes = $this->getData()->adp()->getDocumentTypes();
+					for($j = 1; $j < count($doctypes); $j++) {
+						echo '<option value="' . $doctypes[$j]["id"] . '">' . $doctypes[$j]["name"] . '</option>';
+					}
+					?>
+					</select>
+				</div>
+				<div class="col-auto">
+					<input type="submit" class="btn btn-secondary" value=<?php echo Lang::txt("RepertoireView_songFiles.submit"); ?> />
+				</div>
 			</form>
 			
 			<script>
 			$(document).ready(function() {
-				$( "#repertoire_filesearch" ).autocomplete({
-			      source: "src/export/repertoire-files.php",
-			      minLength: 3
-			    });
+				var sourceDataEndpoint =  "src/export/repertoire-files.php";
+				$("#repertoire_filesearch").on("input", function(e) {
+					var val = $(this).val();
+					if(val.length < 3) return;
+					
+					$.get(sourceDataEndpoint, {term:val}, function(res) {
+						var dataList = $("#searchresults");
+						dataList.empty();
+						if(res.length) {
+							for(var i=0, len=res.length; i<len; i++) {
+								var opt = $("<option></option>").attr("value", res[i]);
+								dataList.append(opt);
+							}
+						}
+					},"json");
+				});
 			});
 			</script>
 		</div>
@@ -368,18 +386,44 @@ class RepertoireView extends CrudRefView {
 		
 		$form = new Form("Song bearbeiten", $this->modePrefix() . "edit_process&manualValid=true&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);
+		$form->updateValueForElement("title", $song["title"]);
+		$form->updateValueForElement("notes", $song["notes"]);
 		$form->removeElement("id");
-		$form->renameElement("length", Lang::txt("RepertoireView_editEntityForm.length"));
+		$form->renameElement("length", Lang::txt("RepertoireView_addEntityForm.length"));
+		
+		// order fields
+		$order = array("title", "composer", "genre", "music_key", "bpm", "length", "is_active", "status", "setting", "notes");
+		$customFields = $this->getData()->getCustomFields('s', false);
+		for($i = 1; $i < count($customFields); $i++) {
+			array_push($order, $customFields[$i]["txtdefsingle"]);
+		}
+		$form->orderElements($order);
+		
+		
+		// references
 		$form->setForeign("genre", "genre", "id", "name", $song["genre"]);
 		$genreDropdown = $form->getForeignElement("genre");
 		$genreDropdown->addOption("-", 0);						
 		$form->setForeign("status", "status", "id", "name", $song["status"]);
+		
 		$form->removeElement("composer");
-		$form->addElement(Lang::txt("RepertoireView_editEntityForm.composer"), new Field("composer",
-					$this->getData()->getComposerName($song["composer"]), FieldType::CHAR));
-		$form->updateValueForElement("title", $song["title"]);
-		$form->updateValueForElement("notes", $song["notes"]);
+		$composerField = new ListField("composer", $this->getData()->getComposers());
+		$cid = $song["composer"];
+		$composerField->setIdNameValue($cid, $this->getData()->getComposerName($cid));
+		$form->addElement("composer", $composerField, true, 6);
+		
+		// add custom fields
 		$this->appendCustomFieldsToForm($form, 's', $song, false);
+		
+		// set sizes
+		$form->setFieldColSize("genre", 3);
+		$form->setFieldColSize("music_key", 3);
+		$form->setFieldColSize("length", 3);
+		$form->setFieldColSize("bpm", 3);
+		$form->setFieldColSize("is_active", 1);
+		$form->setFieldColSize("status", 2);
+		$form->setFieldColSize("setting", 9);
+		$form->setFieldColSize("notes", 12);
 		
 		if($write) {
 			$form->write();

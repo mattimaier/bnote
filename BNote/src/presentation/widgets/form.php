@@ -18,6 +18,7 @@ class Form implements iWriteable {
 	protected $removeSubmitButton = false;
 	protected $requiredFields = array();
 	protected $formCss = "";
+	protected $elementOrder = NULL;
 	
 	/**
 	 * Constructor
@@ -334,6 +335,10 @@ class Form implements iWriteable {
 		$this->fieldColSize[$name] = $cols;
 	}
 	
+	public function orderElements($orderedLabels) {
+		$this->elementOrder = $orderedLabels;
+	}
+	
 	/**
 	 * print html output
 	 */
@@ -347,19 +352,22 @@ class Form implements iWriteable {
 			echo '<h4 class="h4">' . $this->formname . "</h4>";
 		}
 		
-		foreach ( $this->elements as $label => $element ) {			
+		$elementKeys = ($this->elementOrder != NULL) ? $this->elementOrder : array_keys($this->elements);
+		foreach ( $elementKeys as $label ) {
+			if(!isset($this->elements [$label])) continue;
+			$element = $this->elements[$label];
 			$required = "";
 			if (isset ( $this->requiredFields [$label] ) && $this->requiredFields [$label]) {
 				$required = "*";
-			}
-			if (isset ( $this->rename [$label] )) {
-				$label = $this->rename [$label];
 			}
 			if(isset($this->fieldColSize[$label])) {
 				$colClass = "col-md-" . $this->fieldColSize[$label];
 			}
 			else {
 				$colClass = "col-md-6";
+			}
+			if (isset ( $this->rename [$label] )) {
+				$label = $this->rename [$label];
 			}
 			if($element instanceof Field && $element->getType() == FieldType::BOOLEAN) {
 				echo '<div class="' . $colClass . ' mb-1 form-check form-switch">
@@ -389,6 +397,10 @@ class Form implements iWriteable {
 		}
 		
 		echo '</form>' . "\n";
+	}
+	
+	public function getName() {
+		return $this->formname;
 	}
 }
 

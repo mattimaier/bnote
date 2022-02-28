@@ -669,8 +669,8 @@ abstract class AbstractData {
 						$strval = $val;
 				}
 			}
-			$dv = (strlen($dateval) == 0) ? "NULL" : "'$dateval'";
-			$dtv = (strlen($datetimeval) == 0) ? "NULL" : "'$datetimeval'";
+			$dv = (strlen($dateval) == 0) ? NULL : $dateval;
+			$dtv = (strlen($datetimeval) == 0) ? NULL : $datetimeval;
 			$set = "(?, ?, ?, ?, ?, ?, ?, ?)";
 			array_push($params, array("i", $fieldid));
 			array_push($params, array("s", $otype));
@@ -687,7 +687,7 @@ abstract class AbstractData {
 		}
 		$query = "INSERT INTO customfield_value (customfield, otype, oid, intval, dblval, strval, dateval, datetimeval) VALUES ";
 		$query .= join(",", $valueSet);
-		$this->database->execute($query);
+		$this->database->prepStatement($query, $params);
 	}
 	
 	protected function updateCustomFieldData($otype, $oid, $values, $public_mode = false) {

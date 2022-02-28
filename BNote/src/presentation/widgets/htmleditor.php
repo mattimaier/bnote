@@ -29,6 +29,7 @@ class HtmlEditor implements iWriteable {
  		echo $editor;
 	}
 	
+	public function getName() { return $this->name; }
 }
 
 ?>

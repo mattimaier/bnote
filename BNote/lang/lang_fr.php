@@ -2183,9 +2183,12 @@ class Translation extends BNoteTranslation {
 			"WebsiteView_backToGallery.gallery" => "Retour",
 			"WebsiteView_backToGalleryView.viewgallery" => "Retour",
 			
+			// misc
+			"ListField_write.placeholder" => "Tapez pour rechercher...",
 			
 			/* ********************************************** OLD STYLE ********************************************** */
 			"start" => "Début"
+			
 	);
 	
 	protected $regex = array(

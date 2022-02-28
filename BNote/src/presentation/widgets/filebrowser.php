@@ -775,6 +775,8 @@ STRING_END;
 		$back->addIcon("arrow_left");
 		$back->write();
 	}
+	
+	public function getName() { return NULL; }
 
 }
 

@@ -379,7 +379,7 @@ class Table implements iWriteable {
 			<?php
 		}
 
-		if($this->showFilter && !$empty) {
+		if(!$empty) {
 			?>
 			<script>
 			// convert table to javasript DataTable
@@ -389,6 +389,7 @@ class Table implements iWriteable {
 					 "paging": false, 
 					 "info": false,  
 					 "responsive": true,
+					 "searching": <?php echo $this->showFilter ? "true" : "false"; ?>,
 					 <?php 
 					 if($this->allowRowReorder) {
 					 ?>
@@ -467,6 +468,9 @@ class Table implements iWriteable {
 		}
 		return $identifier;
 	}
+	
+	public function getName() { return NULL; }
+
 
 }
 

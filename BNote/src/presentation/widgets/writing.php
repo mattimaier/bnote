@@ -10,7 +10,7 @@ class Writing {
 	private static function createOutput($caption, $level, $css_classes="") {
 		$css = "";
 		if($css_classes != "") {
-			$css = ' class="' . $css_classes . '"'; 
+			$css = ' class="h' . $level . " " . $css_classes . '"'; 
 		}
 		return "<h" . $level . $css . ">" . $caption . "</h" . $level . ">\n"; 
 	}
@@ -49,6 +49,14 @@ class Writing {
 	 */
 	public static function h4($caption, $css_classes="") {
 		echo Writing::createOutput($caption, 4, $css_classes);
+	}
+	
+	public static function h5($caption, $css_classes="") {
+		echo Writing::createOutput($caption, 5, $css_classes);
+	}
+	
+	public static function h6($caption, $css_classes="") {
+		echo Writing::createOutput($caption, 6, $css_classes);
 	}
 	
 	/**

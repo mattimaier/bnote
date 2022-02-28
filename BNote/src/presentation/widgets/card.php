@@ -54,6 +54,10 @@ class Card implements iWriteable {
 		<?php
 	}
 	
+	public function getName() {
+		return $this->title;
+	}
+	
 }
 
 ?>

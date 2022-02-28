@@ -17,6 +17,7 @@ class MitspielerView extends CrudRefLocationView {
 	function start() {
 		?>
 		<p class="membercard_hint"><?php echo Lang::txt("MitspielerView_start.message"); ?></p>
+		<div class="row px-2">
 		<?php
 		if($this->getData()->getSysdata()->getUsersContact() == "") return;
 		$members = $this->getData()->getMembers($_SESSION["user"], false);
@@ -25,14 +26,15 @@ class MitspielerView extends CrudRefLocationView {
 		for($i = 1; $i < count($members); $i++) {
 			$member = $members[$i];
 			?>
-			<div class="membercard">
-			
-				<div class="membercard_name"><?php
+			<div class="card col-md-3 mb-2 me-2 membercard">
+				<div class="card-body p-2">
+				<h5 class="card-title">
+				<?php
 				echo $member["fullname"];
 				if($member["nickname"] != "") {
 					echo " (" . $member["nickname"] . ")";
 				}
-				?></div>
+				?></h5>
 				
 				<div class="membercard_instrument"><?php
 				echo $member["instrumentname"];
@@ -44,7 +46,7 @@ class MitspielerView extends CrudRefLocationView {
 				<div class="membercard_phone"><?php
 				$showPhone = false;
 				if($member["phone"] != "") {
-					echo $member["phone"];
+					echo "<a href=\"tel:" . $member["phone"] . "\">" . $member["phone"] . "</a>";
 					$showPhone = true;
 				} 
 				$showMobile = false;
@@ -52,7 +54,7 @@ class MitspielerView extends CrudRefLocationView {
 					if($showPhone) {
 						echo " | ";
 					}
-					echo $member["mobile"];
+					echo "<a href=\"tel:" . $member["mobile"] . "\">" . $member["mobile"] . "</a>";
 					$showMobile = true;
 				}
 				if(!$showMobile && !$showPhone) {
@@ -63,7 +65,13 @@ class MitspielerView extends CrudRefLocationView {
 				<div class="membercard_web"><?php 
 				echo "<a href=\"mailto:" . $member["email"] . "\">" . $member["email"] . "</a>";
 				if($member["web"] != "") {
-					echo " | " . $member["web"];
+					if(Data::startsWith($member["web"], "http")) {
+						$webHref = $member["web"];
+					}
+					else {
+						$webHref = "http://" . $member["web"];
+					}
+					echo " | <a href=\"" . $webHref . "\" target=\"_blank\">" . $member["web"] . "</a>";
 				}
 				?></div>
 				
@@ -71,11 +79,12 @@ class MitspielerView extends CrudRefLocationView {
 				echo $this->formatAddress($member, FALSE); 
 				?></div>
 				
-				<div class="membercard_customfields"><?php 
+				<div class="membercard_customfields">
+				<?php
+				$entries = array();
 				foreach($customFields as $j => $field) {
 					if($j == 0) continue;
-					?>
-					<span class="customfield_entry"><?php echo $field["txtdefsingle"] . ": ";
+					$val = "";
 					if(isset($member[$field["techname"]])) {
 						$val = $member[$field["techname"]];
 						if($field["fieldtype"] == "BOOLEAN") {
@@ -84,21 +93,23 @@ class MitspielerView extends CrudRefLocationView {
 						else if($field["fieldtype"] == "DOUBLE") {
 							$val = Data::convertFromDb($val);
 						}
-						echo $val;
-					} ?></span>
-					<?php
+					}
+					array_push($entries, $field["txtdefsingle"] . ": " . $val);
 				}
-				?></div>
-				
+				echo join(" | ", $entries);
+				?>
+				</div>
+				</div>
 			</div>
 			<?php
 		}
+		?>
+		</div>
+		<?php
 	}
 	
 	function startOptions() {
-		$prt = new Link("javascript:print()", Lang::txt("MitspielerView_startOptions.print"));
-		$prt->addIcon("printer");
-		$prt->write();
+		// none
 	}
 }
 
