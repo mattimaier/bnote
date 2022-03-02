@@ -129,7 +129,7 @@ class Systemdata {
 	 * @return Integer|NULL User ID of NULL if not authenticated.
 	 */
 	public function getUserId() {
-		if(isset($_SESSION["user"]) && $_SESSION["user"]>0) {
+		if(isset($_SESSION["user"]) && $_SESSION["user"] > 0) {
 			return $_SESSION["user"];
 		}
 		else if(isset($_SERVER["PHP_AUTH_USER"]) && strlen($_SERVER["PHP_AUTH_USER"])>2 && isset($_SERVER["PHP_AUTH_PW"])) {

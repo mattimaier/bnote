@@ -1,50 +1,12 @@
 <?php
 
-/**********************************************************
- * Abstract Implementation of BNote Application Interface *
- **********************************************************/
-
-// connect to application
-$dir_prefix = "../../";
-global $dir_prefix;
-
-require_once $dir_prefix . "dirs.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "database.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "regex.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "systemdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "abstractdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "applicationdataprovider.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "startdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "mitspielerdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "locationsdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "repertoiredata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "logindata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "equipmentdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "calendardata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "aufgabendata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "instrumentedata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "kontaktedata.php";
-require_once $dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "programdata.php";
-require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
-require_once $dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php";
-require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "startcontroller.php";
-require_once $dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
-require_once $dir_prefix . "lang.php";
-
-$GLOBALS["DIR_WIDGETS"] = $dir_prefix . $GLOBALS["DIR_WIDGETS"];
-require_once($GLOBALS["DIR_WIDGETS"] . "error.php");
 
 /**
  * Abstract Implementation of BNote Application Interface
  * @author Matti
  *
  */
-abstract class BNoteApiImpl implements BNoteApiInterface {
+class BNoteApiImpl implements BNoteApiInterface {
 
 	/**
 	 * Database instance.
@@ -66,574 +28,26 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 	protected $startdata;
 
 	/**
-	 * The user ID assoicated with the PIN.
+	 * User ID, by default use the current user
 	 * @var Integer
 	 */
-	protected $uid;
+	protected $uid = -1;
 
 	function __construct() {
 		$this->sysdata = new Systemdata($GLOBALS["dir_prefix"]);
 		$this->db = $this->sysdata->dbcon;
-		global $system_data;
-		$system_data = $this->sysdata;
-		$this->uid = -1;
+		$GLOBALS["system_data"] = $this->sysdata;
 		global $dir_prefix;
 		$this->startdata = new StartData($dir_prefix);
 	}
-
-	/**
-	 * Authenticates users with pin.
-	 */
-	protected function authentication() {
-		//FIXME: Replace with BasicAuth
-		if(isset($_GET["func"]) && ($_GET["func"] == "mobilePin" || $_GET["func"] == "signup" || $_GET["func"] == "getInstruments")) {
-			$this->uid = null;
-		}
-		//TODO: Replace all HTTP 1.0 responses
-		header("HTTP/1.0 401 Permission Denied.");
-		exit();
-	}
-
-	/**
-	 * Routes a request to the correct function.
-	 */
-	protected function route() {
-		//FIXME: Replace with dynamic routing
-		$function = "";
-		if(!isset($_GET["func"])) {
-			header("HTTP/1.0 400 Function not specified.");
-			exit();
-		}
-		else {
-			$function = $_GET["func"];
-		}
-
-		if($function == "getRehearsalParticipation" || $function == "setRehearsalParticipation") {
-			if(!isset($_GET["rehearsal"]) && !isset($_POST["rehearsal"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			else if($function == "getRehearsalParticipation") {
-				$this->getRehearsalParticipation($_GET["rehearsal"], $this->uid);
-			}
-			else if($function == "setRehearsalParticipation") {
-				if(!isset($_POST["participation"])) {
-					header("HTTP/1.0 412 Insufficient Parameters.");
-					exit();
-				}
-				$part = $_POST["participation"];
-				if($part > 2 || $part < -1) {
-					$part = -1;
-				}
-				$reason = "";
-				if(isset($_POST["reason"])) {
-					$reason = $_POST["reason"];
-				}
-				$this->setRehearsalParticipation($_POST["rehearsal"], $this->uid, $part, $reason);
-			}
-		}
-		else if($function == "getRehearsalsWithParticipation") {
-			$this->getRehearsalsWithParticipation($this->uid);
-		}
-		else if($function == "getVoteOptions") {
-			// validation
-			if(!isset($_GET["vid"]) || $_GET["vid"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->getVoteOptions($_GET["vid"]);
-		}
-		else if($function == "getComments") {
-			if(!isset($_GET["otype"]) || !isset($_GET["oid"])
-				|| $_GET["otype"] == "" || $_GET["oid"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->getComments($_GET["otype"], $_GET["oid"]);
-		}
-		else if($function == "taskCompleted") {
-			if(!isset($_POST["taskId"]) || $_POST["taskId"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->taskCompleted($_POST["taskId"]);
-		}
-		else if($function == "addSong") {
-			// check permission
-			if(!$this->sysdata->userHasPermission(6, $this->uid)) { // 6=Repertoire
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			
-			// validation
-			if(!isset($_POST["title"]) || $_POST["title"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			
-			// Parameter mapping
-			$title = isset($_POST["title"]) ? $_POST["title"] : "";
-			$length = isset($_POST["length"]) ? $_POST["length"] : "";
-			$bpm = isset($_POST["bpm"]) ? $_POST["bpm"] : "";
-			$music_key = isset($_POST["music_key"]) ? $_POST["music_key"] : "";
-			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
-			$genre = isset($_POST["genre"]) ? $_POST["genre"] : "";
-			$composer = isset($_POST["composer"]) ? $_POST["composer"] : "";
-			$status = isset($_POST["status"]) ? $_POST["status"] : "";
-			
-			$this->addSong($title, $length, $bpm, $music_key, $notes, $genre, $composer, $status);
-		}
-		else if($function == "addRehearsal") {
-			// check permission
-			if(!$this->sysdata->userHasPermission(5, $this->uid)) { // 5=Rehearsals
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			
-			// validation
-			if(!isset($_POST["begin"]) || $_POST["begin"] == ""
-				|| !isset($_POST["end"]) || $_POST["end"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			
-			// Parameter mapping
-			$begin = isset($_POST["begin"]) ? $_POST["begin"] : "";
-			$end = isset($_POST["end"]) ? $_POST["end"] : "";
-			$approve_until = isset($_POST["approve_until"]) ? $_POST["approve_until"] : "";
-			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
-			$location = isset($_POST["location"]) ? $_POST["location"] : "";
-			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
-			if(!is_array($groups)) {
-				$groups = explode(",", $groups);
-			}
-			
-			$this->addRehearsal($begin, $end, $approve_until, $notes, $location, $groups);
-		}
-		else if($function == "vote") {
-			// validation
-			if(!isset($_POST["vid"]) || $_POST["vid"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			
-			// Parameter mapping
-			$options = array();
-			foreach($_POST as $k => $v) {
-				if(is_numeric($k) && $v <= 2 && $v >= 0) {
-					$options[$k] = $v;
-				}
-			}
-			
-			$this->vote($_POST["vid"], $options);
-		}
-		else if($function == "addComment") {
-			if(!isset($_POST["otype"]) || !isset($_POST["oid"]) || !isset($_POST["message"])
-					|| $_POST["otype"] == "" || $_POST["oid"] == ""
-					|| $_POST["message"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			
-			$this->addComment($_POST["otype"], $_POST["oid"], $_POST["message"]);
-		}
-		else if($function == "hasUserAccess") {
-			$this->hasUserAccess();
-		}
-		else if($function == "getSongsToPractise") {
-			if(!isset($_GET["rid"]) || $_GET["rid"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->getSongsToPractise($_GET["rid"]);
-		}
-		else if($function == "getVoteResult") {
-			// validation
-			if(!isset($_GET["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			
-			// permission check
-			if(!$this->startdata->canUserVote($_GET["id"], $this->uid)
-					&& !$this->sysdata->isUserSuperUser($this->uid)) {
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			
-			$this->getVoteResult($_GET["id"]);
-		}
-		else if($function == "setConcertParticipation") {
-			if(!isset($_POST["concert"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			if(!isset($_POST["participation"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$part = $_POST["participation"];
-			if($part > 2 || $part < -1) {
-				$part = -1;
-			}
-			$reason = "";
-			if(isset($_POST["explanation"])) {
-				$reason = $_POST["explanation"];
-			}
-			$this->setConcertParticipation($_POST["concert"], $this->uid, $part, $reason);
-		}
-		else if($function == "addConcert") {
-			// check permission
-			if(!$this->sysdata->userHasPermission(4, $this->uid)) { // 4=Concerts
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			
-			// validation
-			if(!isset($_POST["begin"]) || $_POST["begin"] == ""
-					|| !isset($_POST["end"]) || $_POST["end"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			
-			// Parameter mapping
-			$begin = isset($_POST["begin"]) ? $_POST["begin"] : "";
-			$end = isset($_POST["end"]) ? $_POST["end"] : "";
-			$approve_until = isset($_POST["approve_until"]) ? $_POST["approve_until"] : "";
-			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
-			$location = isset($_POST["location"]) ? $_POST["location"] : "";
-			$program = isset($_POST["program"]) ? $_POST["program"] : "";
-			$contact = isset($_POST["contact"]) ? $_POST["coxntact"] : "";
-			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
-			if(!is_array($groups)) {
-				$groups = explode(",", $groups);
-			}
-			$this->addConcert($begin, $end, $approve_until, $notes, $location, $program, $contact, $groups);
-		}
-		else if($function == "updateRehearsal") {
-			// check permission
-			if(!$this->sysdata->userHasPermission(5, $this->uid)) { // 5=Rehearsals
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-				
-			// validation
-			if(!isset($_POST["id"]) || $_POST["id"] == ""
-					|| !isset($_POST["begin"]) || $_POST["begin"] == ""
-					|| !isset($_POST["end"]) || $_POST["end"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-				
-			// Parameter mapping
-			$id = $_POST["id"];
-			$begin = isset($_POST["begin"]) ? $_POST["begin"] : "";
-			$end = isset($_POST["end"]) ? $_POST["end"] : "";
-			$approve_until = isset($_POST["approve_until"]) ? $_POST["approve_until"] : "";
-			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
-			$location = isset($_POST["location"]) ? $_POST["location"] : "";
-			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
-			if(!is_array($groups)) {
-				$groups = explode(",", $groups);
-			}
-			$this->updateRehearsal($id, $begin, $end, $approve_until, $notes, $location, $groups);
-		}
-		else if($function == "updateConcert") {
-			// check permission
-			if(!$this->sysdata->userHasPermission(4, $this->uid)) { // 4=Concerts
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-				
-			// validation
-			if(!isset($_POST["id"]) || $_POST["id"] == ""
-					|| !isset($_POST["begin"]) || $_POST["begin"] == ""
-					|| !isset($_POST["end"]) || $_POST["end"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-				
-			// Parameter mapping
-			$id = $_POST["id"];
-			$begin = isset($_POST["begin"]) ? $_POST["begin"] : "";
-			$end = isset($_POST["end"]) ? $_POST["end"] : "";
-			$approve_until = isset($_POST["approve_until"]) ? $_POST["approve_until"] : "";
-			$notes = isset($_POST["notes"]) ? $_POST["notes"] : "";
-			$location = isset($_POST["location"]) ? $_POST["location"] : "";
-			$program = isset($_POST["program"]) ? $_POST["program"] : "";
-			$contact = isset($_POST["contact"]) ? $_POST["contact"] : "";
-			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
-			if(!is_array($groups)) {
-				$groups = explode(",", $groups);
-			}
-			$this->updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $contact, $groups);
-		}
-		else if($function == "deleteRehearsal") {
-			// check permission
-			if(!$this->sysdata->userHasPermission(5, $this->uid)) { // 5=Rehearsals
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-				
-			// validation
-			if(!isset($_POST["id"]) || $_POST["id"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			
-			$this->deleteRehearsal($_POST["id"]);
-		}
-		else if($function == "deleteConcert") {
-			// check permission
-			if(!$this->sysdata->userHasPermission(4, $this->uid)) { // 4=Concerts
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			
-			// validation
-			if(!isset($_POST["id"]) || $_POST["id"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			
-			$this->deleteConcert($_POST["id"]);
-		}
-		else if($function == "sendMail") {
-			// check permission
-			if(!$this->sysdata->userHasPermission(7, $this->uid)) { // 7=Communication
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			
-			// validation
-			if(!isset($_POST["subject"]) || !isset($_POST["body"]) 
-					|| !isset($_POST["groups"]) || $_POST["groups"] == "") {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			
-			// mapping
-			$groups = isset($_POST["groups"]) ? $_POST["groups"] : array();
-			if(!is_array($groups)) {
-				$groups = explode(",", $groups);
-			}
-			
-			$this->sendMail($_POST["subject"], $_POST["body"], $groups);
-		}
-		else if($function == "updateSong") {
-			// permission
-			if(!$this->sysdata->userHasPermission(6, $this->uid)) { // 6=Repertoire
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			if(!isset($_POST["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->updateSong($_POST["id"]);
-		}
-		else if($function == "addEquipment") {
-			// permission
-			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Equipment
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			
-			$this->addEquipment();
-		}
-		else if($function == "updateEquipment") {
-			// permission
-			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Equipment
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			if(!isset($_POST["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->updateEquipment($_POST["id"]);
-		}
-		else if($function == "getEquipment") {
-			// permission
-			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Equipment
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			$this->getEquipment();
-		}
-		else if($function == "deleteEquipment") {
-			// permission
-			if(!$this->sysdata->userHasPermission(22, $this->uid)) { // 22=Equipment
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			if(!isset($_POST["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->deleteEquipment($_POST["id"]);
-		}
-		else if($function == "deleteSong") {
-			// permission
-			if(!$this->sysdata->userHasPermission(6, $this->uid)) { // 6=Repertoire
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			if(!isset($_POST["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->deleteSong($_POST["id"]);
-		}
-		else if($function == "getSong") {
-			// permission
-			if(!$this->sysdata->userHasPermission(6, $this->uid)) { // 6=Repertoire
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			if(!isset($_GET["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->getSong($_GET['id']);
-		}
-		else if($function == "getReservation") {
-			// permission
-			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			if(!isset($_GET["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->getReservation($_GET['id']);
-		}
-		else if($function == "getReservations") {
-			// permission
-			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			$this->getReservations();
-		}
-		else if($function == "addReservation") {
-			// permission
-			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			$this->addReservation();
-		}
-		else if($function == "updateReservation") {
-			// permission
-			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			if(!isset($_POST["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->updateReservation($_POST["id"]);
-		}
-		else if($function == "deleteReservation") {
-			// permission
-			if(!$this->sysdata->userHasPermission(20, $this->uid)) { // 20=Calendar
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			if(!isset($_POST["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->deleteReservation($_POST["id"]);
-		}
-		else if($function == "addTask") {
-			// permission
-			if(!$this->sysdata->userHasPermission(16, $this->uid)) { // 16=Tasks
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			$this->addTask();
-		}
-		else if($function == "addLocation") {
-			// NO PERMISSION CHECK, because we want to allow users to create locations
-			// as references where needed. The worst case really is that a registered user
-			// adds a very large number of locations to flood the system. But from the
-			// server logs we would know who (at least IP address).
-			$this->addLocation();
-		}
-		else if($function == "addContact") {
-			// permission
-			if(!$this->sysdata->userHasPermission(3, $this->uid)) { // 3=Contacts
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			$this->addContact();
-		}
-		else if($function == "getContacts") {
-			// permission
-			if(!$this->sysdata->userHasPermission(3, $this->uid)) { // 3=Contacts
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}
-			$this->getContacts();
-		}
-		else if($function == "getProgram") {
-			if(!isset($_GET["id"])) {
-				header("HTTP/1.0 412 Insufficient Parameters.");
-				exit();
-			}
-			$this->getProgram($_GET["id"]);
-		}
-		else if($function == "updateContact") {
-			// check for permission to update his own contact
-			if(!$this->sysdata->userHasPermission(9, $this->uid)) { // 9=Contact Data
-				header("HTTP/1.0 403 Permission denied.");
-				exit();
-			}			
-			$this->updateContact();
-		}
-		else {
-			$this->$function();
-		}
-	}
-
-	/* METHODS TO IMPLEMENT BY SUBCLASSES */
-
-	/**
-	 * Prints out a statement with which the entity starts,
-	 * e.g. "<location>".
-	 */
-	protected abstract function beginOutputWith();
-
-	/**
-	 * Prints out a statement with which the entity ends,
-	 * e.g. "</location>".
-	 */
-	protected abstract function endOutputWith();
-
-	/**
-	 * Prints the entities out.
-	 * @param Array $entities SQL selection array with the entities.
-	 * @param String $nodeName Name of the node in case required, e.g. singluar.
-	 */
-	protected abstract function printEntities($entities, $nodeName);
 	
-	/**
-	 * Writes a single, flat entity.
-	 * @param Object $entity Object with attributes and values.
-	 * @param String $type Name, e.g. "song", "rehearsal", "concert"
-	 */
-	protected abstract function writeEntity($entity, $type);
-
-	/* DEFAULT IMPLEMENTATIONS */
+	function getSysdata() {
+		return $this->sysdata;
+	}
 	
 	function getRehearsals() {
 		return $this->getRehearsalsWithParticipation($this->uid);
 	}
-	
 
 	function getRehearsalsWithParticipation($user) {
 		if($this->sysdata->isUserSuperUser($this->uid)
@@ -663,7 +77,6 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 				$rehs[$i]["reason"] = $part["reason"];
 			}
 		}
-		
 		
 		// resolve location
 		for($i = 1; $i < count($rehs); $i++) {
@@ -696,7 +109,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 				
 				foreach($comments as $j => $comment)
 				{
-					$comments[$j]["author"] = array("id" => $comments[$j]["author_id"], "fullname" => $comments[$j]["author"]);
+					$comments[$j]["author"] = array("id" => $comment["author_id"], "fullname" => $comment["author"]);
 					unset($comments[$j]["author_id"]);
 										$comments[$j]["message"] = urldecode($comments[$j]["message"]);
 				}				
@@ -704,7 +117,6 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			
 		}
 
-	
 		// add  participants
 		foreach($rehs as $i => $rehearsal) {
 			$query = "SELECT c.id, c.surname, c.name, ru.participate, ru.reason";
@@ -721,7 +133,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 						
 			foreach($contacts as $j => $contact) 
 			{
-				foreach($contact as $ck => $cv) {
+				foreach(array_keys($contact) as $ck) {
 					if(is_numeric($ck)) {
 						unset($contact[$ck]);
 					}
@@ -753,7 +165,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			unset($participantsNoResponse[0]);
 			
 			foreach($participantsNoResponse as $j => $contact) {
-				foreach($contact as $ck => $cv) {
+				foreach(array_keys($contact) as $ck) {
 					if(is_numeric($ck)) {
 						unset($participantsNoResponse[$j][$ck]);
 					}
@@ -769,19 +181,16 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 	
 		// cleanup
 		foreach($rehs as $i => $rehearsal) {
-			foreach($rehearsal as $k => $v) {
+			foreach(array_keys($rehearsal) as $k) {
 				if(is_numeric($k) || $k == "rehearsal" || $k == "user") {
 					unset($rehs[$i][$k]);
 				}
 			}
 		}
 		
-		$this->printEntities($rehs, "rehearsals");
 		return $rehs;
 	}
 	
-	protected abstract function printRehearsals($rehs);
-
 	function getConcerts() {
 		$concerts = $this->startdata->getUsersConcerts($this->uid);
 		
@@ -851,9 +260,9 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 				
 				foreach($comments as $j => $comment)
 				{
-					$comments[$j]["author"] = array("id" => $comments[$j]["author_id"], "fullname" => $comments[$j]["author"]);
+					$comments[$j]["author"] = array("id" => $comment["author_id"], "fullname" => $comment["author"]);
 					unset($comments[$j]["author_id"]);
-										$comments[$j]["message"] = urldecode($comments[$j]["message"]);
+					$comments[$j]["message"] = urldecode($comment["message"]);
 				}				
 				$concerts[$i]["comments"] = array_values($this->removeNumericKeys($comments));
 		}
@@ -875,7 +284,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 						
 			foreach($contacts as $j => $contact) 
 			{
-				foreach($contact as $ck => $cv) {
+				foreach(array_keys($contact) as $ck) {
 					if(is_numeric($ck)) {
 						unset($contact[$ck]);
 					}
@@ -908,7 +317,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			
 			foreach($participantsNoResponse as $j => $contact) 
 			{
-				foreach($contact as $ck => $cv) {
+				foreach(array_keys($contact) as $ck) {
 					if(is_numeric($ck)) {
 						unset($participantsNoResponse[$j][$ck]);
 					}
@@ -922,12 +331,9 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		}
 		
 		$concerts = $this -> removeNumericKeys($concerts);
-		$this->printEntities($concerts, "concerts");
 		return $concerts;
 	}
 	
-	protected abstract function printConcerts($concerts);
-
 	function getContacts() {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
 		$_SESSION["user"] = $this->uid;
@@ -935,19 +341,19 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		unset($_SESSION["user"]);
 		unset($entities[0]);
 		$allContacts = array();
-		foreach($entities as $i => $entity) {
+		foreach($entities as $entity) {
 			$entity = $this->removeNumericKeys($entity);
 			$entity["fullname"] = join(' ', array($entity["name"], $entity["surname"]));
 			$groups = $contactData->getContactFullGroups($entity["id"]);
 			unset($groups[0]);
 			$grps = array();
-			foreach($groups as $i => $grp) {
+			foreach($groups as $grp) {
 				array_push($grps, $this->removeNumericKeys($grp));
 			}
 			$entity["groups"] = $grps;
 			array_push($allContacts, $entity);
 		}
-		$this->printEntities($allContacts, "contacts");
+		return $allContacts;
 	}
 	
 	function getContact() {
@@ -955,7 +361,6 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$contact = $contactData->getSysdata()->getUsersContact($this->uid);
 		$contact["address_object"] = $contactData->getAddress($contact["address"]);
 		$contact["instrument_object"] = $this->db->fetchRow("SELECT * FROM instrument WHERE id = ?", array(array("i", $contact["instrument"])));
-		$this->writeEntity($contact, "contact");
 		return $contact;
 	}
 	
@@ -969,7 +374,6 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			unset($contacts[0]);  // header
 			$contacts = $this->removeNumericKeys($contacts);
 		}
-		$this->printEntities($contacts, "contacts");
 		return $contacts;
 	}
 
@@ -979,7 +383,6 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			"address" => array("street", "city", "zip")
 		));
 		unset($locs[0]);  // header
-		$this->printEntities($locs, "locations");
 		return $locs;
 	}
 
@@ -987,12 +390,12 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$tasks = $this->startdata->adp()->getUserTasks($this->uid);
 		unset($tasks[0]);  // header
         $this->removeNumericKeys($tasks);
-		$this->printEntities($tasks, "task");
+		return $tasks;
 	}
 	
 	function getNews() {
 		$newsData = new NachrichtenData($GLOBALS["dir_prefix"]);
-		echo $newsData->preparedContent();
+		return array("news" => $newsData->preparedContent());
 	}
 	
 	function getVotes() {
@@ -1000,7 +403,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		unset($votes[0]); // remove header
 		foreach($votes as $i => $vote) {
 			// remove numeric fields
-			foreach($vote as $k => $v) {
+			foreach(array_keys($vote) as $k) {
 				if(is_numeric($k)) {
 					unset($votes[$i][$k]);
 				}
@@ -1023,15 +426,13 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			$votes[$i]["options"] = $opts;
 		}
 		
-		$this->printVotes($votes);
 		return $votes;
 	}
-	
-	protected abstract function printVotes($votes);
-	
+		
 	function getVoteOptions($vid) {
 		$options = $this->startdata->getOptionsForVote($vid);
-		$this->printEntities($options, "vote_option");
+		unset($options[0]);
+		return $options;
 	}
 	
 	function getSongs() {
@@ -1060,8 +461,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			array_push($entities, $song);
 		}
 		
-		$this->printEntities($entities, "songs");
-		return $songs;
+		return $entities;
 	}
 	
 	function getGenres() {
@@ -1069,66 +469,27 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$genres = $repData->getGenres();
 		unset($genres[0]);
 		$genres =  $this -> removeNumericKeys($genres);
-		
-		$this->printEntities($genres, "genres");
 		return $genres;
 	}
 	
 	function getStatuses() {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
-		$this->printEntities($repData->getStatuses(), "status");
-	}
-	
-	function getAll() {
-		$this->documentBegin();
-		
-		$sep = $this->entitySeparator();
-
-		$this->getRehearsalsWithParticipation($this->uid); echo $sep . "\n";
-		$this->getConcerts(); echo $sep . "\n";
-		$this->getMembers(); echo $sep . "\n";
-		$this->getLocations(); echo $sep . "\n";
-		$this->getTasks(); echo $sep . "\n";
-		$this->getReservations(); echo $sep . "\n";
-		$this->getVotes(); echo $sep . "\n";
-		$this->getGenres(); echo $sep . "\n";
-		$this->getStatuses(); echo $sep . "\n";
-		$this->getGroups(); echo "\n";
-		
-		$this->documentEnd();
-	}
-	
-	/**
-	 * @return String A separator between entities, in JSON for example ",".
-	 */
-	protected function entitySeparator() {
-		return "";
-	}
-	
-	/**
-	 * Used in the getAll method to begin the document.
-	 */
-	protected function documentBegin() {
-		// empty by default
-	}
-	
-	/**
-	 * Used in the getAll method to end the document.
-	 */
-	protected function documentEnd() {
-		// empty by default
+		$statuses = $repData->getStatuses();
+		unset($statuses[0]);
+		return $statuses;
 	}
 	
 	function getComments($otype, $oid) {
 		$comments = $this->startdata->getDiscussion($otype, $oid);
-		$this->printEntities($comments, "comment");
+		unset($comments[0]);
+		return $comments;
 	}
 
 	function getRehearsalParticipation($rid, $uid) {
 		$_SESSION["user"] = $uid;
 		$res = $this->startdata->doesParticipateInRehearsal($rid);
 		unset($_SESSION["user"]);
-		return $res;
+		return array("participate" => $res);
 	}
 
 	function setRehearsalParticipation($rid, $uid, $part, $reason) {
@@ -1137,12 +498,12 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			$reason = $_POST["reason"];
 		}
 		$this->startdata->saveParticipation("rehearsal", $uid, $rid, $part, $reason);
-		$this->writeEntity(array("success" => "true"), null);
+		return array("success" => True);
 	}
 
 	function taskCompleted($tid) {
 		$this->startdata->taskComplete($tid);
-		echo '{"success": true}';
+		return array("success" => True);
 	}
 	
 	function addSong($title, $length, $bpm, $music_key, $notes, $genre, $composer, $status) {
@@ -1158,7 +519,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$values["composer"] = $composer;
 		$values["status"] = $status["id"];
 		
-		echo $repData->create($values);
+		return $repData->create($values);
 	}
 	
 	function addRehearsal($begin, $end, $approve_until, $notes, $location, $groups) {
@@ -1176,7 +537,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			$_POST["group_" . $defaultGroup] = "on";
 		}
 		else {
-			foreach($groups as $i => $grp) {
+			foreach($groups as $grp) {
 				$values["group_" . $grp] = "on";
 				$_POST["group_" . $grp] = "on";
 			}
@@ -1186,7 +547,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		require_once $GLOBALS["DIR_WIDGETS"] . "iwriteable.php";
 		require_once $GLOBALS["DIR_WIDGETS"] . "groupselector.php";
 		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
-		echo $rehData->create($values);
+		return $rehData->create($values);
 	}
 	
 	function vote($vid, $options) {
@@ -1194,14 +555,14 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		if($vote["is_multi"] != "1") {
 			// single option vote
 			$firstOption = "";
-			foreach($options as $optionId => $choice) {
+			foreach(array_keys($options) as $optionId) {
 				$firstOption = $optionId;
 				break;
 			}
 			$options["uservote"] = $firstOption;
 		}
 		$this->startdata->saveVote($vid, $options, $this->uid);
-		echo '{"success": true}';
+		return array("success" => True);
 	}
 	
 	function addComment($otype, $oid, $message) {
@@ -1223,15 +584,12 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			"message" => $message,
 			"otype" => $otype,
 		);
-		
-		$this -> writeEntity($response);
-	
-		
 		$startCtrl->notifyContactsOnComment($this->uid);
+		return $response;
 	}
 	
 	function getVersion() {
-		echo $this->sysdata->getVersion();
+		return array("version" => $this->sysdata->getVersion());
 	}
 	
 	function getUserInfo() {	
@@ -1245,29 +603,29 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		unset($contact["address"]);
 		unset($contact["status"]); // not existent anymore
 		
-		$this->writeEntity($contact, "contact");
+		return $contact;
 	}
 	
 	function hasUserAccess() {
 		if(!isset($_GET["moduleId"]) || $_GET["moduleId"] == "") {
 			$arr = $this->sysdata->getUserModulePermissions($this->uid);
-			$this->writeEntity($arr, "permission");
+			return $arr;
 		}
 		else {
-			echo ($this->sysdata->userHasPermission($_GET["moduleId"], $this->uid)) ? "true" : "false";
+			$res = $this->sysdata->userHasPermission($_GET["moduleId"], $this->uid);
+			return array("access" => $res);
 		}
 	}
 	
 	function getSongsToPractise($rid) {
 		$probenData = new ProbenData($GLOBALS["dir_prefix"]);
-		$songs = $probenData->getSongsForRehearsal($rid);
-		$this->printEntities($songs, "song");
+		return $probenData->getSongsForRehearsal($rid);
 	}
 	
 	function getGroups() {
 		$selection = $this->startdata->adp()->getGroups();
 		unset($selection[0]);  // header
-		$this->printEntities($selection, "group");
+		return $selection;
 	}
 	
 	function getVoteResult($vid) {
@@ -1345,14 +703,12 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		
 		$vote["options"] = $opts;
 		
-		$this->printVoteResult($vote);
+		return $vote;
 	}
-	
-	protected abstract function printVoteResult($vote);
-	
+		
 	function setConcertParticipation($cid, $uid, $part, $reason) {
 		$this->startdata->saveParticipation("concert", $uid, $cid, $part, $reason);
-		$this->writeEntity(array("success" => "true"), null);
+		return array("success" => True);
 	}
 	
 	function addConcert($begin, $end, $approve_until, $notes, $location, $program, $contact, $groups) {
@@ -1380,10 +736,11 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			
 			// write output
 			$con = $conData->findByIdNoRef($id);
-			$this->writeEntity($con, "concert");
+			return $con;
 		}
 		else {
-			echo "Error: Cannot create concert.";
+			http_response_code(500);
+			return array("success" => False, "message" => "Error: Cannot create concert.");
 		}
 	}
 	
@@ -1400,8 +757,8 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			$values["location"] = $location;
 		}
 		
-		if($groups != null && $group != "" && count($groups) > 0) {
-			foreach($groups as $i => $grp) {
+		if($groups != null && $groups != "" && count($groups) > 0) {
+			foreach($groups as $grp) {
 				$values["group_" . $grp] = "on";
 				$_POST["group_" . $grp] = "on";
 			}
@@ -1411,11 +768,10 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		require_once $GLOBALS["DIR_WIDGETS"] . "iwriteable.php";
 		require_once $GLOBALS["DIR_WIDGETS"] . "groupselector.php";
 		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
-		echo $rehData->update($id, $values);
+		$rehData->update($id, $values);
 		
 		// return updated entry
-		$reh = $rehData->findByIdNoRef($id);
-		$this->writeEntity($reh, "rehearsal");
+		return $rehData->findByIdNoRef($id);
 	}
 	
 	function updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $contact, $groups) {
@@ -1440,31 +796,31 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			
 		// write output
 		$con = $conData->findByIdNoRef($id);
-		$this->writeEntity($con, "concert");
+		return $con;
 	}
 	
 	function deleteRehearsal($id) {
 		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
 		$rehData->delete($id);
-		echo "true";
+		return array("success" => True);
 	}
 	
 	function deleteConcert($id) {
 		$conData = new KonzerteData($GLOBALS["dir_prefix"]);
 		$conData->delete($id);
-		echo "true";
+		return array("success" => True);
 	}
 	
 	function sendMail($subject, $body, $groups) {
 		// fetch addresses
 		if($groups == null || $groups == "" || count($groups) == 0) {
-			echo "Error: no groups.";
-			exit;
+			http_response_code(400);
+			return array("success" => False, "message" => "Error: no groups.");
 		}
 		
 		$whereQ = array();
 		$params = array();
-		foreach($groups as $i => $group) {
+		foreach($groups as $group) {
 			array_push($whereQ, "cg.group = ?");
 			array_push($params, $group);
 		}
@@ -1492,36 +848,37 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$mail->setBcc($bcc_addresses);
 		
 		if(!$mail->sendMail()) {
-			echo "Error: Cannot send mail.";
+			http_response_code(400);
+			return array("success" => False, "message" => "Error: Cannot send mail.");
 		}
 		else {
-			echo "true";
+			return array("success" => True);
 		}
 	}
 	
 	public function addEquipment() {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		unset($_POST["id"]);
-		echo $eqData->create($_POST);
+		return $eqData->create($_POST);
 	}
 	
 	public function updateEquipment($id) {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		$eqData->update($id, $_POST);
-		echo '{"success": true}';
+		return array("success" => True);
 	}
 	
 	public function deleteEquipment($id) {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		$eqData->delete($id);
-		echo '{"success": true}';
+		return array("success" => True);
 	}
 	
 	public function getEquipment() {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		if(isset($_GET["id"]) && $_GET["id"] != "") {
 			$eq = $eqData->findByIdNoRef($_GET["id"]);
-			$this->writeEntity($eq, "equipment");
+			return $eq;
 		}
 		else {
 			$eq = $eqData->findAllNoRef();
@@ -1531,7 +888,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 				$e_out = $this->removeNumericKeys($e);
 				array_push($out, $e_out);
 			}
-			$this->printEntities($out, "equipment");
+			return $out;
 		}
 	}
 	
@@ -1540,7 +897,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$_POST["status"] = $_POST["status"]["id"];
 		$_POST["genre"] = $_POST["genre"]["id"];
 		$repData->update($id, $_POST);
-		echo '{"success": true}';
+		return array("success" => True);
 	}
 	
 	public function getSong($id) {
@@ -1558,13 +915,13 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$songstatus = $this->db->fetchRow("SELECT * FROM status WHERE id = ?", array(array("i", intval($song["status"]))));
 		$song["status"] = $songstatus;
 		
-		$this->writeEntity($song, "song");
+		return $song;
 	}
 	
 	public function deleteSong($id) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$repData->delete($id);
-		echo '{"success": true}';
+		return array("success" => True);
 	}
 	
 	public function getReservation($id) {
@@ -1574,15 +931,15 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$entity["contact"] = $calData->getContact($entity["contact"]);
 		$entity["location"] = $calData->getLocation($entity["location"]);
 		$this->removeNumericKeys($entity);
-		$this->writeEntity($entity, "reservation");
+		return $entity;
 	}
 	
 	public function getReservations() {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
-		$entities = $calData->findAllNoRefWhere("end >= NOW()");  //FIXME: use calendar data method instead
+		$entities = $calData->findAllNoRefWhere("end >= NOW()");
 		unset($entities[0]);
 		$reservations = array();
-		foreach($entities as $i => $entity) {
+		foreach($entities as $entity) {
 			$entity = $this->removeNumericKeys($entity);
 			$entity["contact"] = $calData->getContact($entity["contact"]);
 			$entity["contact"]["fullname"] = join(" ", array(
@@ -1591,7 +948,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 			$entity["location"] = $calData->getLocation($entity["location"]);
 			array_push($reservations, $entity);
 		}
-		$this->printEntities($reservations, "reservation");
+		return $reservations;
 	}
 	
 	public function addReservation() {
@@ -1599,37 +956,34 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$values = $_POST;
 		$values["begin"] = $values["begin"];
 		$values["end"] = $values["end"];
-		echo $calData->create($values);
+		return $calData->create($values);
 	}
 	
 	public function updateReservation($id) {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$calData->update($id, $_POST);
-		echo '{"success": true}';
+		return array("success" => True);
 	}
 	
 	public function deleteReservation($id) {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$calData->delete($id);
-		echo '{"success": true}';
+		return array("success" => True);
 	}
 	
 	public function addTask() {
 		$taskData = new AufgabenData($GLOBALS["dir_prefix"]);
 		$_SESSION["user"] = $this->uid;
-		
-		$values = $_POST;
-		$taskId = $taskData->create($values);
+		$taskId = $taskData->create($_POST);
 		
 		unset($_SESSION["user"]);
-		echo $taskId;
+		return $taskData->findByIdNoRef($taskId);
 	}
 	
 	public function addContact() {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
-		$values = $_POST;
-		$cid = $contactData->create($values);
-		echo $cid;
+		$cid = $contactData->create($_POST);
+		return $contactData->findByIdNoRef($cid);
 	}
 	
 	public function updateContact() {
@@ -1638,21 +992,17 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$userContact = $this->sysdata->getUsersContact();
 		$cid = $userContact["id"];
 		
-		// data and corrections
-		$values = $_POST;
-		
 		// don't touch groups or custom fields
 		$contactData->update_address($cid, $_POST["address_object"]);
-		$contactData->update($cid, $values, true);
+		$contactData->update($cid, $_POST, true);
 		unset($_SESSION["user"]);
 		
-		$this->writeEntity(array("success" => true), "Result");
+		return array("success" => true);
 	}
 	
 	public function addLocation() {
 		$locData = new LocationsData($GLOBALS["dir_prefix"]);
-		$lid = $locData->create($_POST);
-		echo $lid;
+		return $locData->create($_POST);
 	}
 	
 	public function getInstruments() {
@@ -1660,11 +1010,11 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$entities = $instrData->getInstrumentsWithCatName();
 		unset($entities[0]);
 		$instruments = array();
-		foreach($entities as $i => $entity) {
+		foreach($entities as $entity) {
 			$entity = $this->removeNumericKeys($entity);
 			array_push($instruments, $entity);
 		}
-		$this->printEntities($instruments, "instrument");
+		return $instruments;
 	}
 	
 	public function signup() {
@@ -1672,11 +1022,11 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		if($cfgRegistration == "1") {
 			$loginCtrl = new LoginController();
 			$loginCtrl->setData(new LoginData($GLOBALS["dir_prefix"]));
-			$res = $loginCtrl->register(false);
-			echo json_encode($res);
+			return $loginCtrl->register(false);
 		}
 		else {
-			echo json_encode(array("success" => False, "message" => "Feature disabled by configuration"));
+			http_response_code(400);
+			return array("success" => False, "message" => "Feature disabled by configuration");
 		}
 	}
 	
@@ -1686,7 +1036,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 		$songs = $programData->getSongsForProgram($id);
 		unset($songs[0]);
 		$program["songs"] = $songs;
-		echo json_encode($program);
+		return $program;
 	}
 	
 	private function flattenAddresses($selection) {
@@ -1726,7 +1076,7 @@ abstract class BNoteApiImpl implements BNoteApiInterface {
 	
 	function isMaybeEnabled() {
 		$on = $this->sysdata->getDynamicConfigParameter("allow_participation_maybe") == 1;
-		$this->writeEntity(array("isMaybeEnabled" => $on), "Result");
+		return array("isMaybeEnabled" => $on);
 	}
 }
 

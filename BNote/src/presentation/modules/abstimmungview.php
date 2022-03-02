@@ -344,16 +344,15 @@ class AbstimmungView extends CrudView {
 		}
 		
 		// Javascript
-		//FIXME: Replace with session-secured call
 		?>
 		<script type="text/javascript" src="lib/jquery/plugins/jqplot.barRenderer.min.js"></script>
 		<script type="text/javascript" src="lib/jquery/plugins/jqplot.categoryAxisRenderer.min.js"></script>
 		<script type="text/javascript" src="lib/jquery/plugins/jqplot.pointLabels.min.js"></script>
 		<script>
 		$(document).ready(function() {
-			// load result over BNA
+			// load result over API
 			$.ajax({
-				url: "src/export/bna-json.php?func=getVoteResult&id=<?php echo $_GET["id"]; ?>",
+				url: "src/export/api.php?func=getVoteResult&vid=<?php echo $_GET["id"]; ?>",
 				dataType: "json",
 				success: function(data) {
 					graphData = convertVoteResult(data);

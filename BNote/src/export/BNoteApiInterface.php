@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Interface definition for BNote App (BNA) connection.
+ * Interface definition for BNote API
  * @author Matti
  *
  */
@@ -80,12 +80,6 @@ interface BNoteApiInterface {
 	 * @return Array Returns all statuses.
 	 */
 	public function getStatuses();
-	
-	/**
-	 * <b>Use this function only to fetch all data for a user once!</b>
-	 * @return Array Returns all rehearsals, concerts, contacts, location and so on.
-	 */
-	public function getAll();
 	
 	/**
 	 * Retrieves all comments for the given object.
