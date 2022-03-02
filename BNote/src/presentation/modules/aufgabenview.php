@@ -33,7 +33,7 @@ class AufgabenView extends CrudRefView {
 		}
 		else {
 			$showCompleted = new Link($this->modePrefix() . "start&table=completed", Lang::txt("AufgabenView_startOptions.completed"));
-			$showCompleted->addIcon("tasks");
+			$showCompleted->addIcon("archive");
 			$showCompleted->write();
 		}
 	}
@@ -71,8 +71,8 @@ class AufgabenView extends CrudRefView {
 			$target = $form_target;
 		}
 		$form = new Form(Lang::txt($this->getaddEntityName()), $target);
-		$form->addElement("Titel", new Field("title", "", FieldType::CHAR));
-		$form->addElement("Beschreibung", new Field("description", "", FieldType::TEXT));
+		$form->addElement("Titel", new Field("title", "", FieldType::CHAR), true, 12);
+		$form->addElement("Beschreibung", new Field("description", "", FieldType::TEXT), false, 12);
 		$form->addElement("Fällig am", new Field("due_at", "", FieldType::DATETIME));
 		if($tour != null) {
 			$form->addHidden("tour", $tour);
@@ -88,7 +88,7 @@ class AufgabenView extends CrudRefView {
 		$form = $this->getAddForm("add", $form_target, $tour);
 		$form->addElement("Verantwortlicher", new Field("assigned_to", "", FieldType::REFERENCE));
 		$currContactId = $this->getData()->getSysdata()->getContactFromUser();
-		$form->setForeign("Verantwortlicher", "contact", "id", "CONCAT(name, ' ', surname)", $currContactId);
+		$form->setForeign("Verantwortlicher", "contact", "id", array("name", "surname"), $currContactId);
 		$form->write();
 	}
 	
@@ -105,7 +105,7 @@ class AufgabenView extends CrudRefView {
 		$values = $_POST;
 		$this->getData()->validate($values);
 		
-		foreach($groups as $i => $gid) {
+		foreach($groups as $gid) {
 			$contacts = $this->getData()->adp()->getGroupContacts($gid);
 			for($j = 1; $j < count($contacts); $j++) {
 				$values["Verantwortlicher"] = $contacts[$j]["id"];
@@ -136,7 +136,7 @@ class AufgabenView extends CrudRefView {
 		}
 		else {
 			$markComplete = new Link($this->modePrefix() . "markTask&as=complete&id=" . $_GET["id"], Lang::txt("AufgabenView_additionalViewButtons.complete"));
-			$markComplete->addIcon("checkmark");
+			$markComplete->addIcon("check");
 			$markComplete->write();
 		}
 	}
@@ -149,7 +149,7 @@ class AufgabenView extends CrudRefView {
 		$form->addElement("Beschreibung", new Field("description", $task["description"], FieldType::TEXT));
 		$form->addElement("Fällig am", new Field("due_at", $task["due_at"], FieldType::DATETIME));
 		$form->addElement("Verantwortlicher", new Field("assigned_to", "", FieldType::REFERENCE));
-		$form->setForeign("Verantwortlicher", "contact", "id", "CONCAT(name, ' ', surname)", $task["assigned_to"]);
+		$form->setForeign("Verantwortlicher", "contact", "id", array("name", "surname"), $task["assigned_to"]);
 		$form->write();
 	}
 	

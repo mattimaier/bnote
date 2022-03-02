@@ -507,7 +507,8 @@ abstract class AbstractData {
 		foreach($this->fields as $fieldName => $field) {
 			$fieldType = $field[1];
 			if($fieldType == FieldType::BOOLEAN && !array_key_exists($fieldName, $values)) {
-				$query .= $fieldName . " = 0, ";
+				array_push($colEqValues, "$fieldName = ?");
+				array_push($params, array("i", 0));
 			}
 		}
 		
