@@ -136,12 +136,10 @@ class ProgramView extends CrudView {
 		$lnk = new Link($this->modePrefix() . "editList&id=" . $_GET["id"], Lang::txt("ProgramView_additionalViewButtons.edit"));
 		$lnk->addIcon("list-columns-reverse");
 		$lnk->write();
-		$this->buttonSpace();
 		
 		$lnk = new Link($this->modePrefix() . "printList&id=" . $_GET["id"], Lang::txt("ProgramView_additionalViewButtons.printer"));
 		$lnk->addIcon("printer");
 		$lnk->write();
-		$this->buttonSpace();
 		
 		$lnk = new Link("src/export/programm.csv?id=" . $_GET["id"], Lang::txt("ProgramView_additionalViewButtons.export"));
 		$lnk->addIcon("filetype-csv");
@@ -269,7 +267,6 @@ class ProgramView extends CrudView {
 	
 	protected function printListOptions() {
 		$this->backToViewButton($_GET["id"]);
-		$this->buttonSpace();
 		
 		$print = new Link("javascript:print()", Lang::txt("ProgramView_printListOptions.print"));
 		$print->addIcon("printer");

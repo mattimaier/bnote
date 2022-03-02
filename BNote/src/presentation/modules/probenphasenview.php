@@ -15,7 +15,6 @@ class ProbenphasenView extends CrudView {
 
 	function startOptions() {
 		parent::startOptions();
-		$this->buttonSpace();
 		$hist = new Link($this->modePrefix() . "history", Lang::txt("ProbenphasenView_startOptions.timer"));
 		$hist->addIcon("timer");
 		$hist->write();
@@ -136,7 +135,6 @@ class ProbenphasenView extends CrudView {
 		}
 		else {
 			$this->backToStart();
-			$this->buttonSpace();
 			
 			switch($_GET["tab"]) {
 				case "rehearsals":
@@ -148,7 +146,6 @@ class ProbenphasenView extends CrudView {
 					$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], Lang::txt("ProbenphasenView_viewOptions.addContact"));
 					$addContact->addIcon("plus");
 					$addContact->write();
-					$this->buttonSpace();
 					
 					$addGroupContacts = new Link($this->modePrefix() . "addMultipleContacts&id=" . $_GET["id"], Lang::txt("ProbenphasenView_viewOptions.addMultipleContacts"));
 					$addGroupContacts->addIcon("plus");

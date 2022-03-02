@@ -30,7 +30,7 @@ class KontaktdatenData extends KontakteData {
 		
 		// update in db
 		$query = "UPDATE user SET password = ? WHERE id = ?";
-		$this->database->execute($query, array(array("s", $pw), array("i", $_SESSION["user"])));
+		$this->database->execute($query, array(array("s", $pw), array("i", $this->getUserId())));
 	}
 	
 	

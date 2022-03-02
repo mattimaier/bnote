@@ -57,7 +57,6 @@ class StartView extends CrudRefLocationView {
 		$ical = new Link($GLOBALS["DIR_EXPORT"] . "calendar.ics$userExt", Lang::txt("StartView_startOptions.calendarExport"));
 		$ical->addIcon("save");
 		$ical->write();
-		$this->buttonSpace();
 		
 		// WebCal URL creation
 		$systemUrl = $this->getData()->getSysdata()->getSystemURL();
@@ -709,7 +708,7 @@ class StartView extends CrudRefLocationView {
 				}
 				
 				$in = '<input type="';
-				$selected = $this->getData()->getSelectedOptionsForUser($options[$i]["id"], $_SESSION["user"]);
+				$selected = $this->getData()->getSelectedOptionsForUser($options[$i]["id"], $this->getUserId());
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == "1"
 						&& $vote["is_multi"] == 1) {
 					$dd = new Dropdown($options[$i]["id"]);

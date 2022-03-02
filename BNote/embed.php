@@ -3,9 +3,6 @@
  * Main entry file for the web application.
 */
 
-# debugging
-#error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
-
 # Make a few settings
 date_default_timezone_set("Europe/Berlin");
 
@@ -28,11 +25,6 @@ if(isset($_GET["mod"]) && $_GET["mod"] === "login" && isset($_GET["mode"]) && $_
 	$loginData = new LoginData();
 	$ctrl->setData($loginData);
 	$ctrl->doLogin();
-}
-else if(isset($_GET["mobilePin"])) {
-	$uid = $system_data->dbcon->colValue("SELECT id FROM user WHERE pin = ?", "id", array(array("i", $_GET["mobilePin"])));
-	$_SESSION["user"] = $uid;
-	$system_data->initUserPermissions();
 }
 
 require_once $GLOBALS["DIR_LOGIC"] . "controller.php";

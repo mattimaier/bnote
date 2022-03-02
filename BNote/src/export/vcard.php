@@ -25,17 +25,16 @@ $db = new Database();
 // check whether a user is registered and has contact (mod=3) permission
 $deniedMsg = Lang::txt("vcard_input.deniedMsg");
 if(!isset($_SESSION["user"])) {
+	http_response_code(403);
 	new BNoteError($deniedMsg);
 }
 else {
 	$userCt = $db->colValue("SELECT count(*) as cnt FROM privilege WHERE module = 3 AND user = ?", "cnt", array(array("i", $_SESSION["user"])));;
 	if($userCt < 1) {
+		http_response_code(403);
 		new BNoteError($deniedMsg);
 	}
 }
-
-// read system config
-$sysconfig = new XmlData($dir_prefix . $GLOBALS["DIR_CONFIG"] . "config.xml", "Software");
 
 // get data
 $query = "SELECT c2.*, i.name as instrumentname ";
@@ -56,7 +55,6 @@ for($i = 1; $i < count($data); $i++) {
 	$c = $data[$i];
 	echo 'BEGIN:VCARD' . "\n";
 	echo 'VERSION:3.0' . "\n";
-	$nick = "";
 	echo 'N:' . $c["surname"] .';' . $c["name"] . "\n";
 	echo 'FN:' . $c["name"] . " " . $c["surname"] . "\n";
 	if($c['nickname'] != "") {

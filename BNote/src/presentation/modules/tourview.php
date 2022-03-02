@@ -61,7 +61,6 @@ class TourView extends CrudView {
 		$summary = new Link($this->modePrefix() . "summarySheet&accId=" . $_GET[$this->idParameter], Lang::txt("TourView_additionalViewButtons.summarysheet"));
 		$summary->addIcon("printer");
 		$summary->write();
-		$this->buttonSpace();
 		
 		// show options based on selected tab
 		if(isset($_GET["tab"])) {
@@ -71,7 +70,6 @@ class TourView extends CrudView {
 				case "accommodation": 
 					$view = $this->getController()->getAccommodationView();
 					$view->subModuleOptions();
-					$this->buttonSpace();
 					break;
 				case "rehearsals":
 					$this->addReferenceButton(Lang::txt("TourView_additionalViewButtons.addRehearsal"), "addRehearsal");
@@ -85,7 +83,6 @@ class TourView extends CrudView {
 				case "travel":
 					$view = $this->getController()->getTravelView();
 					$view->subModuleOptions();
-					$this->buttonSpace();
 					break;
 				case "checklist":
 					$this->addReferenceButton(Lang::txt("TourView_additionalViewButtons.addTask"), "addTask");
@@ -98,7 +95,6 @@ class TourView extends CrudView {
 		$addRef = new Link($this->modePrefix() . $target . "&accId=" . $_GET[$this->idParameter], Lang::txt($lang_txt));
 		$addRef->addIcon("plus");
 		$addRef->write();
-		$this->buttonSpace();
 	}
 	
 	// --- REHEARSALS ---
@@ -413,12 +409,10 @@ class TourView extends CrudView {
 	
 	function summarySheetOptions() {
 		$this->backToViewButton($_GET[$this->idParameter]);
-		$this->buttonSpace();
 		
 		$prt = new Link("javascript:window.print()", Lang::txt("TourView_summarySheetOptions.print"));
 		$prt->addIcon("printer");
 		$prt->write();
-		$this->buttonSpace();
 		
 		$checklist = 1;
 		$checklist_action = "show";

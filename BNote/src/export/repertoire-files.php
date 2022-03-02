@@ -26,27 +26,13 @@ require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "repertoiredata.php");
 // Build Database Connection
 $system_data = new Systemdata($dir_prefix);
 global $system_data;
-$db = $system_data->dbcon;
 
-// check whether a user is registered and has contact (mod=3) permission
+// check whether a user is registered and has module permission
 $deniedMsg = Lang::txt("repertoire_files_start.deniedMsg");
-if(!isset($_SESSION["user"])) {
+if(!$system_data->isUserAuthenticated() || !$system_data->userHasPermission(6)) {
 	http_response_code(403);
 	new BNoteError($deniedMsg);
 }
-else {
-	$userCt = $db->colValue("SELECT count(*) as cnt FROM privilege WHERE module = 6 AND user = ?", "cnt", array(array("i", $_SESSION["user"])));
-	if($userCt < 1) {
-		http_response_code(403);
-		new BNoteError($deniedMsg);
-	}
-}
-
-// read system config
-#$sysconfig = new XmlData($dir_prefix . $GLOBALS["DIR_CONFIG"] . "config.xml", "Software");
-
-// get access to repertoire data
-#$repertoireData = new RepertoireData($dir_prefix);
 
 // check if search term is present, otherwise return nothing
 if(!isset($_GET["term"]) || strlen($_GET["term"]) < 3) {

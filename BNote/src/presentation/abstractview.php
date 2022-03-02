@@ -74,7 +74,6 @@ abstract class AbstractView {
 		$yes = new Link($linkDelete, strtoupper($label) . " " . strtoupper(Lang::txt("AbstractView_deleteConfirmationMessage.delete")));
 		$yes->addIcon("remove");
 		$yes->write();
-		$this->buttonSpace();
 		
 		if($linkBack != null) {
 			$no = new Link($linkBack, Lang::txt("AbstractView_deleteConfirmationMessage.back"));
@@ -137,13 +136,6 @@ abstract class AbstractView {
 		return $dd;
 	}
 	
-	/**
-	 * Prints the string which contrains the space inbetween buttons.
-	 */
-	static function buttonSpace() {
-		//none
-	}
-	
 	protected function setController($ctrl) {
 		$this->controller = $ctrl;
 	}
@@ -161,8 +153,11 @@ abstract class AbstractView {
 	}
 	
 	protected function getModId() {
-		global $system_data;
-		return $system_data->getModuleId();
+		return $this->getData()->getSysdata()->getModuleId();
+	}
+	
+	protected function getUserId() {
+		return $this->getData()->getSysdata()->getUserId();
 	}
 	
 	/**

@@ -360,7 +360,4 @@ interface BNoteApiInterface {
 	public function getProgram($id);
 }
 
-// Abstract Implementation of BNote Application Interface
-include "bna-abstract.php";
-
 ?>

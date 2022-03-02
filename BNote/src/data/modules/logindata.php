@@ -46,7 +46,7 @@ class LoginData extends AbstractLocationData {
 	
 	function saveLastLogin() {
 		// Save last logged in
-		$this->database->execute("UPDATE user SET lastlogin = NOW() WHERE id = ?", array(array("i", $_SESSION["user"])));
+		$this->database->execute("UPDATE user SET lastlogin = NOW() WHERE id = ?", array(array("i", $this->getUserId())));
 	}
 	
 	function getStartModuleId() {

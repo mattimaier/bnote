@@ -39,7 +39,6 @@ class GenreView extends CrudView {
 		$back->addIcon("arrow_left");
 		$back->write();
 		
-		$this->buttonSpace();
 		parent::startOptions();
 	}
 	

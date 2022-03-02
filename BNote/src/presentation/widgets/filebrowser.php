@@ -136,7 +136,6 @@ class Filebrowser implements iWriteable {
 			$lnk->addIcon("plus");
 			$lnk->write();
 
-			AbstractView::buttonSpace();
 			$lnk = new Link($this->linkprefix("addFileForm&path=" . urlencode($this->path)), Lang::txt("Filebrowser_showOptions.addFileForm"));
 			$lnk->addIcon("plus");
 			$lnk->write();
@@ -145,7 +144,6 @@ class Filebrowser implements iWriteable {
 		// display zip-download button
 		if($this->sysdata->getDynamicConfigParameter("allow_zip_download") == "1") {
 			// only allow downloads of subfolders, not the root-folders to prevent heavy load on server
-			AbstractView::buttonSpace();
 			$dl = new Link($this->linkprefix("download&path=" . urlencode($this->path)), Lang::txt("Filebrowser_showOptions.download"));
 			$dl->addIcon("download");
 			$dl->write();
@@ -768,7 +766,6 @@ STRING_END;
 		$link->setTarget("_blank");
 		$link->addIcon("arrow_down");
 		$link->write();
-		AbstractView::buttonSpace();
 
 		$back = new Link($this->linkprefix("view&path=" . urlencode($this->path)),
 		                 Lang::txt("Filebrowser_download.back"));

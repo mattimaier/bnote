@@ -41,7 +41,7 @@ class StartData extends AbstractLocationData {
 	 */
 	function doesParticipateInRehearsal($rid) {
 		$partQuery = "SELECT participate FROM rehearsal_user WHERE user = ? AND rehearsal = ?";
-		$part = $this->database->colValue($partQuery, "participate", array(array("i", $_SESSION["user"]), array("i", $rid)));
+		$part = $this->database->colValue($partQuery, "participate", array(array("i", $this->getUserId()), array("i", $rid)));
 		if($part == "0" || $part == "1" || $part == "2") {
 			return $part;
 		}
@@ -56,7 +56,7 @@ class StartData extends AbstractLocationData {
 	 */
 	function doesParticipateInConcert($cid, $uid = -1) {
 		if($uid == -1) {
-			$uid = $_SESSION["user"];
+			$uid = $this->getUserId();
 		}
 		$partQuery = "SELECT participate FROM concert_user WHERE user = ? AND concert = ?";
 		$part = $this->database->colValue($partQuery, "participate", array(array("i", $uid), array("i", $cid)));
@@ -68,7 +68,7 @@ class StartData extends AbstractLocationData {
 	
 	function saveParticipation($entity, $uid, $id, $participate, $reason) {
 		if($uid == null) {
-			$uid = $_SESSION["user"];
+			$uid = $this->getUserId();
 		}
 		$table = $entity . "_user";
 		$this->regex->isDbItem($table, "table"); // checks both entity and table value
@@ -119,7 +119,7 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getVotesForUser($uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->getUserId();
 		
 		$query = "SELECT v.id, v.name, v.end, v.is_date, v.is_multi ";
 		$query .= "FROM vote_group vg JOIN vote v ON vg.vote = v.id ";
@@ -139,7 +139,7 @@ class StartData extends AbstractLocationData {
 	
 	function canUserVote($vid, $uid = null) {
 		if($uid == null) {
-			$uid = $_SESSION["user"];
+			$uid = $this->getUserId();
 		}
 		// security function
 		$cq = "SELECT count(vote) as cnt FROM vote_group WHERE vote = ? AND user = ?";
@@ -149,7 +149,7 @@ class StartData extends AbstractLocationData {
 	
 	function saveVote($vid, $values, $user = -1) {
 		$vote = $this->getVote($vid);
-		if($user == -1) $user = $_SESSION["user"];
+		if($user == -1) $user = $this->getUserId();
 		
 		// remove eventual old votes first
 		$options = $this->getOptionsForVote($vid);
@@ -211,7 +211,7 @@ class StartData extends AbstractLocationData {
 		}
 		
 		// only show rehearsals of groups and rehearsal phases the user is in
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->getUserId();
 		
 		$usersPhases = $this->adp()->getUsersPhases($uid);
 		$rehearsals = array_merge($this->getRehearsalsForUser($uid), $this->getRehearsalsForPhases($usersPhases));
@@ -255,7 +255,7 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getUsersConcerts($uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->getUserId();
 		return $this->adp()->getFutureConcerts($uid);
 	}
 	
@@ -338,7 +338,7 @@ class StartData extends AbstractLocationData {
 		// preparation
 		$message = urlencode($message);
 		
-		if($author == -1) $author = $_SESSION["user"];
+		if($author == -1) $author = $this->getUserId();
 		
 		// insertion
 		$query = "INSERT INTO comment (otype, oid, author, created_at, message) VALUES (?, ?, ?, now(), ?)";		

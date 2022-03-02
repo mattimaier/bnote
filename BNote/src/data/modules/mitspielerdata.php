@@ -38,7 +38,7 @@ class MitspielerData extends AbstractLocationData {
 	 */
 	function getMembers($uid = -1, $singleInfo = true) {
 		if($uid == -1) {
-			$uid = $_SESSION["user"];
+			$uid = $this->getUserId();
 		}
 		
 		$single = ", c.id";

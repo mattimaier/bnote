@@ -873,4 +873,12 @@ abstract class AbstractData {
 		$queryPart = join(",", $tuples);
 		return array($queryPart, $params);
 	}
+	
+	/**
+	 * Delegate for SystemData::getUserId()
+	 * @return int|NULL User ID
+	 */
+	public function getUserId() {
+		return $this->getSysdata()->getUserId();
+	}
 }

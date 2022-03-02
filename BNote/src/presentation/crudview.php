@@ -118,20 +118,17 @@ abstract class CrudView extends AbstractView {
 	function viewOptions() {
 		// back button
 		$this->backToStart();
-		$this->buttonSpace();
 		
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&" . $this->idParameter . "=" . $_GET[$this->idParameter],
 				Lang::txt("CrudView_viewOptions.edit", array($this->entityName)));
 		$edit->addIcon("pen");
 		$edit->write();
-		$this->buttonSpace();
 		
 		$del = new Link($this->modePrefix() . "delete_confirm&" . $this->idParameter . "=" . $_GET[$this->idParameter],
 				Lang::txt("CrudView_viewOptions.delete_confirm", array($this->entityName)));
 		$del->addIcon("trash3");
 		$del->write();
-		$this->buttonSpace();
 		
 		// additional buttons
 		$this->additionalViewButtons();

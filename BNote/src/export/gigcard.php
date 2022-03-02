@@ -37,22 +37,15 @@ require_once($dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "konzertecontroller.p
 // Build Database Connection
 $system_data = new Systemdata($dir_prefix);
 global $system_data;
-$db = $system_data->dbcon;
 
 // check whether a user is registered and has contact (mod=3) permission
 $deniedMsg = Lang::txt("gigcard_concert.deniedMsg");
-if(!isset($_SESSION["user"])) {
+if(!$system_data->isUserAuthenticated()) {
 	new BNoteError($deniedMsg);
 }
-else {
-	$userCt = $db->colValue("SELECT count(*) as cnt FROM privilege WHERE module = 4 AND user = ?", "cnt", array(array("i", $_SESSION["user"])));
-	if($userCt < 1) {
-		new BNoteError($deniedMsg);
-	}
+else if(!$system_data->userHasPermission(4)) {
+	new BNoteError($deniedMsg);
 }
-
-// read system config
-$sysconfig = new XmlData($dir_prefix . $GLOBALS["DIR_CONFIG"] . "config.xml", "Software");
 
 // get access to data
 $concertData = new KonzerteData($dir_prefix);
@@ -66,7 +59,6 @@ $loc = $concertData->adp()->getLocation($c["location"]);
 
 // set the return type
 header("Content-Type: application/msword");
-
 
 ?>
 

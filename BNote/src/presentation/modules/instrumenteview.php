@@ -74,13 +74,11 @@ class InstrumenteView extends CrudRefView {
 		$back = new Link(parent::modePrefix() . "start", Lang::txt("InstrumenteView_startOptions.start"));
 		$back->addIcon("arrow_left");
 		$back->write();
-		$this->buttonSpace();
 		
 		// add new ones
 		$new = new Link($this->modePrefix() . "addEntity", Lang::txt("InstrumenteView_startOptions.addEntity"));
 		$new->addIcon("plus");
 		$new->write();
-		$this->buttonSpace();
 		
 		// configure visible instrument groups
 		$cat = new Link($this->modePrefix() . "activeInstrumentGroups", Lang::txt("InstrumenteView_startOptions.activeInstrumentGroups"));

@@ -239,7 +239,6 @@ class KontakteView extends CrudRefLocationView {
 	
 	function addOptions() {
 		$this->backToStart();
-		$this->buttonSpace();
 		
 		$addMore = new Link($this->modePrefix() . "addEntity", Lang::txt("KontakteView_addOptions.addEntity"));
 		$addMore->addIcon("plus");
@@ -364,7 +363,6 @@ class KontakteView extends CrudRefLocationView {
 			$btn = new Link($this->modePrefix() . "createUserAccount&id=" . $_GET["id"], Lang::txt("KontakteView_additionalViewButtons.user"));
 			$btn->addIcon("user");
 			$btn->write();
-			$this->buttonSpace();
 		}
 		
 		// GDPR report
@@ -549,7 +547,6 @@ class KontakteView extends CrudRefLocationView {
 	
 	function printMembersOptions() {
 		$this->backToStart();
-		$this->buttonSpace();
 		
 		$prt = new Link("javascript:window.print();", Lang::txt("KontakteView_printMembersOptions.print"));
 		$prt->addIcon("printer");
@@ -758,7 +755,6 @@ class KontakteView extends CrudRefLocationView {
 	
 	function gdprReportOptions() {
 		$this->backToViewButton($_GET["id"]);
-		$this->buttonSpace();
 		
 		$prt = new Link("javascript:window.print();", Lang::txt("KontakteView_gdprReportOptions.print"));
 		$prt->addIcon("printer");

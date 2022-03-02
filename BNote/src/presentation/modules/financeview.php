@@ -65,17 +65,14 @@ class FinanceView extends CrudView {
 	
 	function startOptions() {
 		parent::startOptions();
-		$this->buttonSpace();
 		
 		$btn = new Link($this->modePrefix() . "recpay", Lang::txt("FinanceView_startOptions.recpay"));
 		$btn->addIcon("recurring");
 		$btn->write();
-		$this->buttonSpace();
 		
 		$transfer = new Link($this->modePrefix() . "transfer", Lang::txt("FinanceView_startOptions.transfer"));
 		$transfer->addIcon("signpost");
 		$transfer->write();
-		$this->buttonSpace();
 		
 		$multi_reporting = new Link($this->modePrefix() . "multireport", Lang::txt("FinanceView_startOptions.multireporting"));
 		$multi_reporting->addIcon("abstimmung");
@@ -187,7 +184,6 @@ class FinanceView extends CrudView {
 		$addBooking->addIcon("plus");
 		$addBooking->write();
 		
-		$this->buttonSpace();
 		$prt = new Link("javascript:window.print()", Lang::txt("FinanceView_additionalViewButtons.print"));
 		$prt->addIcon("printer");
 		$prt->write();
@@ -424,7 +420,6 @@ class FinanceView extends CrudView {
 		$multi_reporting = new Link($this->modePrefix() . "multireport", Lang::txt("FinanceView_multireportResultOptions.back"));
 		$multi_reporting->addIcon("arrow_left");
 		$multi_reporting->write();
-		$this->buttonSpace();
 		
 		$print = new Link("javascript:print()", Lang::txt("FinanceView_multireportResultOptions.print"));
 		$print->addIcon("printer");

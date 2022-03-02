@@ -107,27 +107,54 @@ class Systemdata {
 		return $this->dbcon->fetchRow("SELECT * FROM module WHERE id = ?", array(array("i", $modId)));
 	}
 
- /**
-  * Return the title of the company who owns the system
-  */
- public function getCompany() {
-  return $this->cfg_company->getParameter("Name");
- }
+	/**
+	 * Return the title of the company who owns the system
+	 */
+	public function getCompany() {
+		return $this->cfg_company->getParameter("Name");
+	}
 
- /**
-  * Returns the full name of the current user.
-  */
- public function getUsername() {
- 	$query = "SELECT CONCAT(name, ' ', surname) as fullname FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?";
- 	return $this->dbcon->colValue($query, "fullname", array(array("i", $_SESSION["user"])));
- }
+	/**
+	 * Returns the full name of the current user.
+	 */
+	public function getUsername() {
+		$query = "SELECT CONCAT(name, ' ', surname) as fullname FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?";
+		return $this->dbcon->colValue($query, "fullname", array(array("i", $this->getUserId())));
+	}
+
+	/**
+	 * Find the current user's ID either from the session or a server-based authentication (e.g.
+	 * BasicAuth).
+	 *
+	 * @return Integer|NULL User ID of NULL if not authenticated.
+	 */
+	public function getUserId() {
+		if(isset($_SESSION["user"]) && $_SESSION["user"]>0) {
+			return $_SESSION["user"];
+		}
+		else if(isset($_SERVER["PHP_AUTH_USER"]) && strlen($_SERVER["PHP_AUTH_USER"])>2 && isset($_SERVER["PHP_AUTH_PW"])) {
+			# check un/pw and get user for this username
+			$un = $_SERVER["PHP_AUTH_USER"];
+			require_once $this->dir_prefix . $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";
+			$pw = crypt($_SERVER["PHP_AUTH_PW"], LoginController::ENCRYPTION_HASH);
+			$params = array(
+					array("s", $un),
+					array("s", $un),
+					array("s", $pw)
+			);
+			$query = "SELECT u.id FROM user u LEFT OUTER JOIN contact c ON u.contact = c.id 
+						WHERE (u.login = ? OR c.email = ?) AND u.password = ?";
+			return $this->dbcon->colValue($query, "id", $params);
+		}
+		return NULL;
+	}
  
  /**
   * @param Integer $uid optional: User ID, by default current user.
   * @return Array An array with the module-ids the current user has permission for
   */
  public function getUserModulePermissions($uid = -1) {
- 	$userId = ($uid == -1 && $this->isUserAuthenticated()) ? $_SESSION["user"] : $uid;
+ 	$userId = ($uid == -1 && $this->isUserAuthenticated()) ? $this->getUserId() : $uid;
  	
  	$query = "SELECT module FROM privilege WHERE user = ?";
  	$privileges = $this->dbcon->getSelection($query, array(array("i", $userId)));
@@ -284,7 +311,7 @@ class Systemdata {
   * @return True when the user is a super user, otherwise false.
   */
  public function isUserSuperUser($uid = -1) {
- 	if($uid == -1) $uid = $_SESSION["user"];
+ 	if($uid == -1) $uid = $this->getUserId();
  	return in_array($uid, $this->getSuperUsers());
  }
  
@@ -308,7 +335,7 @@ class Systemdata {
   */
  public function isUserMemberGroup($groupId, $uid = -1) {
  	if(!$this->isUserAuthenticated()) return false;
- 	if($uid == -1) $uid = $_SESSION["user"];
+ 	if($uid == -1) $uid = $this->getUserId();
  	if($this->isUserSuperUser($uid) && $groupId == 1) return true;
  	$query = "SELECT count(*) as n FROM contact_group cg
  		JOIN user u ON u.contact = cg.contact
@@ -373,7 +400,7 @@ class Systemdata {
   * @return True when the user is not logged in, otherwise false.
   */
  public function isUserAuthenticated() {
- 	return isset($_SESSION["user"]);
+ 	return $this->getUserId() != NULL;
  }
  
  /**
@@ -446,7 +473,7 @@ class Systemdata {
   * @return NULL|Integer Contact ID
   */
  public function getContactFromUser($uid = -1) {
- 	if($uid == -1) $uid = $_SESSION["user"];
+ 	if($uid == -1) $uid = $this->getUserId();
  	return $this->dbcon->colValue("SELECT contact FROM user WHERE id = ?", "contact", array(array("i", $uid)));
  }
  
@@ -456,12 +483,12 @@ class Systemdata {
   * @return NULL|Array In case the user has a contact, this is returned, otherwise null.
   */
  public function getUsersContact($uid = -1) {
- 	if($uid == -1) $uid = $_SESSION["user"];
+ 	if($uid == -1) $uid = $this->getUserId();
  	return $this->dbcon->fetchRow("SELECT * FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?", array(array("i", $uid)));
  }
  
  public function gdprOk($uid = -1) {
- 	if($uid == -1) $uid = $_SESSION["user"];
+ 	if($uid == -1) $uid = $this->getUserId();
  	$gdprOk = $this->dbcon->colValue("SELECT gdpr_ok FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?", "gdpr_ok", array(array("i", $uid)));
  	return $gdprOk;
  }
@@ -478,7 +505,7 @@ class Systemdata {
   * @return String Relative path to user's directory.
   */
  public function getUsersHomeDir($uid = -1) {
- 	if($uid == -1) $uid = $_SESSION["user"];
+ 	if($uid == -1) $uid = $this->getUserId();
  	$login = $this->dbcon->colValue("SELECT login FROM user WHERE id = ?", "login", array(array("i", $uid)));
  	return $GLOBALS["DATA_PATHS"]["userhome"] . $login;
  }
@@ -513,7 +540,7 @@ class Systemdata {
   * @return True when the user allows email notifications, otherwise false.
   */
  public function userEmailNotificationOn($uid = -1) {
- 	if($uid == -1) $uid = $_SESSION["user"];
+ 	if($uid == -1) $uid = $this->getUserId();
  	$val = $this->dbcon->colValue("SELECT email_notification FROM user WHERE id = ? AND isActive = 1", "email_notification", 
  			array(array("i", $uid)));
  	return ($val == 1);

@@ -50,7 +50,6 @@ class GruppenView extends CrudView {
 		$backBtn = new Link("?mod=" . $this->getModId() . "&mode=start", Lang::txt("GruppenView_startOptions.Back"));
 		$backBtn->addIcon("arrow_left");
 		$backBtn->write();
-		$this->buttonSpace();
 		
 		$new = new Link($this->modePrefix() . "addEntity", Lang::txt("GruppenView_startOptions.addEntity"));
 		$new->addIcon("plus");
@@ -87,15 +86,11 @@ class GruppenView extends CrudView {
 		$this->backToStart();
 		
 		if($_GET["id"] != KontakteData::$GROUP_ADMIN && $_GET["id"] != KontakteData::$GROUP_MEMBER) {
-			$this->buttonSpace();
-			
 			// show buttons to edit and delete
 			$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
 					$this->getEntityName() . Lang::txt("GruppenView_viewOptions.edit"));
 			$edit->addIcon("edit");
 			$edit->write();
-			
-			$this->buttonSpace();
 			
 			$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
 					$this->getEntityName() . Lang::txt("GruppenView_viewOptions.remove"));

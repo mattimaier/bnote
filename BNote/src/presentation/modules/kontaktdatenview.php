@@ -13,7 +13,7 @@ class KontaktdatenView extends CrudRefLocationView {
 	
 	function start() {		
 		// personal data
-		$contact = $this->getData()->getContactForUser($_SESSION["user"]);
+		$contact = $this->getData()->getContactForUser($this->getUserId());
 		if($contact <= 0) {
 			Writing::p(Lang::txt("KontaktdatenView_start.message"));
 			return;
@@ -51,7 +51,6 @@ class KontaktdatenView extends CrudRefLocationView {
 		$chPw = new Link($this->modePrefix() . "changePassword", Lang::txt("KontaktdatenView_startOptions.changePassword"));
 		$chPw->addIcon("key");
 		$chPw->write();
-		$this->buttonSpace();
 		
 		$settings = new Link($this->modePrefix() . "settings", Lang::txt("KontaktdatenView_startOptions.settings"));
 		$settings->addIcon("settings");
@@ -59,7 +58,7 @@ class KontaktdatenView extends CrudRefLocationView {
 	}
 	
 	function savePD() {
-		$this->getData()->update($_SESSION["user"], $_POST);		
+		$this->getData()->update($this->getUserId(), $_POST);		
 		new Message(Lang::txt("KontaktdatenView_savePD.Message_1"), Lang::txt("KontaktdatenView_savePD.Message_2"));
 	}
 	
@@ -90,7 +89,7 @@ class KontaktdatenView extends CrudRefLocationView {
 	}
 	
 	function saveSettings() {
-		$this->getData()->saveSettings($_SESSION["user"]);
+		$this->getData()->saveSettings($this->getUserId());
 		
 		new Message(Lang::txt("KontaktdatenView_saveSettings.Message_1"), Lang::txt("KontaktdatenView_saveSettings.Message_2"));
 	}

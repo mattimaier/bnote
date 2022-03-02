@@ -54,12 +54,10 @@ class KonzerteView extends CrudRefLocationView {
 	protected function startOptions() {
 		parent::startOptions();
 		
-		$this->buttonSpace();
 		$lnk = new Link($this->modePrefix() . "programs", Lang::txt("KonzerteView_startOptions.programs"));
 		$lnk->addIcon("music-note-list");
 		$lnk->write();
 		
-		$this->buttonSpace();
 		$lnk = new Link($this->modePrefix() . "history", Lang::txt("KonzerteView_startOptions.history"));
 		$lnk->addIcon("clock-history");
 		$lnk->write();

@@ -71,7 +71,7 @@ class SecurityManager {
 	 * @return boolean True when file can be accessed, otherwise false.
 	 */
 	public function canUserAccessFile($file, $uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->sysdata->getUserId();
 		
 		// make sure no user leaves the context of the web application (#169).
 		if(strpos($file, "../") !== false) {

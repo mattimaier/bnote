@@ -33,7 +33,6 @@ class UserView extends CrudRefView {
 	
 	function startOptions() {
 		parent::startOptions();
-		$this->buttonSpace();
 		
 		$gdpr = new Link($this->modePrefix() . "gdpr", Lang::txt("UserView_startOptions.question"));
 		$gdpr->addIcon("question");
@@ -113,7 +112,6 @@ class UserView extends CrudRefView {
 		$privs = new Link("?mod=" . $this->getModId() . "&mode=privileges&id=" . $_GET["id"], Lang::txt("UserView_additionalViewButtons.privileges"));
 		$privs->addIcon("key");
 		$privs->write();
-		$this->buttonSpace();
 		
 		if($this->getData()->isUserActive($_GET["id"])) {
 			$btnLbl = Lang::txt("UserView_additionalViewButtons.no_entry");
@@ -185,7 +183,6 @@ class UserView extends CrudRefView {
 		$yes = new Link($linkDelete, strtoupper($label) . Lang::txt("UserView_deleteConfirmationMessage.linkDelete"));
 		$yes->addIcon("remove");
 		$yes->write();
-		$this->buttonSpace();
 		
 		$no = new Link($linkBack, Lang::txt("UserView_deleteConfirmationMessage.back"));
 		$no->addIcon("arrow_left");

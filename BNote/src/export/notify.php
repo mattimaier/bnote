@@ -32,7 +32,6 @@ require_once($dir_prefix . "lang.php");
 // Build Database Connection
 $system_data = new Systemdata($dir_prefix);
 global $system_data;
-$db = $system_data->dbcon;
 require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "abstractdata.php");
 require_once($dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php");
 
@@ -64,7 +63,7 @@ class Notifier {
 	private function getMailAddresses($contacts) {
 		$whereQ = array();
 		$params = array();
-		foreach($contacts as $i => $cid) {
+		foreach($contacts as $cid) {
 			array_push($whereQ, "id = ?");
 			array_push($params, $cid);
 		}

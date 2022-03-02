@@ -116,7 +116,7 @@ class ApplicationDataProvider {
 	 * @return Array All future concerts with joined attributes.
 	 */
 	public function getFutureConcerts($uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->sysdata->getUserId();
 		/* 
 		 * For complexity reasons is this data filtering
 		 * done in PHP instead of SQL. Since there are only
@@ -315,7 +315,7 @@ class ApplicationDataProvider {
 	 * @return Array (flat) of groups
 	 */
 	public function getUsersGroups($uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->sysdata->getUserId();
 		$query = "SELECT `group` FROM contact_group cg JOIN user u ON cg.contact = u.contact WHERE u.id = ?";
 		$sel = $this->database->getSelection($query, array(array("i", $uid)));
 		return Database::flattenSelection($sel, "group");
@@ -327,7 +327,7 @@ class ApplicationDataProvider {
 	 * @return Array (flat) of phases
 	 */
 	public function getUsersPhases($uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->sysdata->getUserId();
 		$cid = $this->getUserContact($uid);
 		$query = "SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = ?";
 		$sel = $this->database->getSelection($query, array(array("i", $cid)));
@@ -360,7 +360,7 @@ class ApplicationDataProvider {
 	 * @return String Login name
 	 */
 	public function getLogin($uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->sysdata->getUserId();
 		return $this->database->colValue("SELECT login FROM user WHERE id = ?", "login", array(array("i", $uid)));
 	}
 	
@@ -423,7 +423,7 @@ class ApplicationDataProvider {
 	 * @return array DB Selection of user's tasks.
 	 */
 	function getUserTasks($uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->sysdata->getUserId();
 		
 		$query = "SELECT t.*, CONCAT(c1.name, ' ', c1.surname) as creator ";
 		$query .= "FROM user u, task t, contact c1, contact c2 ";
@@ -441,7 +441,7 @@ class ApplicationDataProvider {
 	 * @return Integer Contact ID of the user 
 	 */
 	function getUserContact($uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->sysdata->getUserId();
 		return $this->database->colValue("SELECT contact FROM user WHERE id = ?", "contact", array(array("i", $uid)));
 	}
 	

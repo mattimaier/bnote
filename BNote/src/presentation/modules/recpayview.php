@@ -38,9 +38,7 @@ class RecpayView extends CrudRefView {
 		$back->addIcon("arrow_left");
 		$back->write();
 		
-		$this->buttonSpace();
 		parent::startOptions();
-		$this->buttonSpace();
 		
 		$book = new Link($this->modePrefix() . "book", Lang::txt("RecpayView_startOptions.book"));
 		$book->addIcon("booking");
@@ -316,14 +314,12 @@ class RecpayView extends CrudRefView {
 	function viewOptions() {
 		// back button
 		$this->backToStart();
-		$this->buttonSpace();
 		
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
 				Lang::txt("RecpayView_viewOptions.edit"), array($this->getEntityName()));
 		$edit->addIcon("edit");
 		$edit->write();
-		$this->buttonSpace();
 		
 		$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
 				Lang::txt("RecpayView_viewOptions.delete_confirm"), array($this->getEntityName()));

@@ -36,7 +36,7 @@ class AbstimmungData extends AbstractData {
 		$_POST["end"] = trim($_POST["end"]);	
 		$this->regex->isDateTime($_POST["end"]);
 		
-		$author = $_SESSION["user"];
+		$author = $this->getUserId();
 		if(isset($_POST["is_date"])) { $is_date = 1; } else { $is_date = 0; }
 		if(isset($_POST["is_multi"])) { $is_multi = 1; } else { $is_multi = 0; }
 		$is_finished = 0;
@@ -53,7 +53,7 @@ class AbstimmungData extends AbstractData {
 				array("i", $is_date),
 				array("i", $is_finished)
 		);
-		$vid = $this->database->execute($query, $params);
+		$vid = $this->database->prepStatement($query, $params);
 		
 		// resolve groups and add members
 		$grps = GroupSelector::getPostSelection($this->adp()->getGroups(), "group");
@@ -74,7 +74,7 @@ class AbstimmungData extends AbstractData {
 		$query = "SELECT id, name, end, is_multi, is_date FROM " . $this->table;
 		$query .= " WHERE is_finished = 0 AND author = ?";
 		$query .= " ORDER BY end ASC";
-		return $this->database->getSelection($query, array(array("i", $_SESSION["user"])));
+		return $this->database->getSelection($query, array(array("i", $this->getUserId())));
 	}
 	
 	/**
@@ -93,7 +93,7 @@ class AbstimmungData extends AbstractData {
 	 * @param Integer $uid optional: User ID, by default current user.
 	 */
 	function getVotesForUser($active = true, $uid = -1) {
-		if($uid == -1) $uid = $_SESSION["user"];
+		if($uid == -1) $uid = $this->getUserId();
 		
 		$finished = $active ? 0 : 1;
 		$params = array(array("i", $finished));
@@ -172,13 +172,12 @@ class AbstimmungData extends AbstractData {
 			$this->regex->isSubject($_POST["name"]);
 			array_push($params, array("s", $_POST["name"]));
 		}
-		return $this->database->execute($query, $params);
+		return $this->database->prepStatement($query, $params);
 	}
 	
 	function addOptions($vid, $from, $to) {
 		$options = array();
-		$current = Data::convertDateToDb($from);
-		$to = Data::convertDateToDb($to);
+		$current = $from;
 		$infPrevention = 0; // max. 1 year, every day
 		while(Data::compareDates($current, $to) < 1 && $infPrevention < 365) {
 			if(strlen($current) <= 10) { // only date, no time
@@ -189,9 +188,8 @@ class AbstimmungData extends AbstractData {
 			$infPrevention++;
 		}
 		
-		foreach($options as $i => $option) {
-			$_POST["odate"] = Data::convertDateFromDb($option);
-			$_POST["odate"] = substr($_POST["odate"], 0,16); // eventually cut whatever is behind the first 16 chars
+		foreach($options as $option) {
+			$_POST["odate"] = $option;
 			$this->addOption($vid);
 		}
 	}
@@ -240,7 +238,7 @@ class AbstimmungData extends AbstractData {
 		$superUsers = $system_data->getSuperUserContactIDs();
 		
 		// filter out super users
-		$suContacts = $this->sysdata->getSuperUserContactIDs();
+		$suContacts = $this->getSysdata()->getSuperUserContactIDs();
 		$params = array();
 		
 		if(count($suContacts) > 0 && !$this->sysdata->isUserSuperUser()) {
