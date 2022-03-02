@@ -70,13 +70,22 @@ class Dataview {
 			return;
 		}
 		global $system_data;
-		//TODO: check $nameArray and $table and $idField for database conform naming
-		$row = $system_data->dbcon->fetchRow("SELECT " . join ( ",", $nameArray ) . " FROM $table WHERE $idField = ?", array(array("i", $refId)));
-		$values = array ();
-		foreach ( $nameArray as $i => $nameField ) {
-			array_push ( $values, $row [$nameField] );
+		// check $nameArray and $table and $idField for database conform naming (prevent injection)
+		foreach($nameArray as $name) {
+			$system_data->regex->isDbItem($name);
 		}
-		$this->addElement ( $label, join ( " ", $values ) );
+		$system_data->regex->isDbItem($table);
+		$system_data->regex->isDbItem($idField);
+		
+		// fetch foreign row
+		$row = $system_data->dbcon->fetchRow("SELECT " . join ( ",", $nameArray ) . " FROM $table WHERE $idField = ?", array(array("i", $refId)));
+
+		// push values to data
+		$values = array();
+		foreach ( $nameArray as $nameField ) {
+			array_push($values, $row[$nameField]);
+		}
+		$this->addElement($label, join(" ", $values));
 	}
 	
 	/**
