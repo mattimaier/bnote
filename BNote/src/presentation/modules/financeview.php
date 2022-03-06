@@ -63,11 +63,21 @@ class FinanceView extends CrudView {
 		}
 	}
 	
+	function getTitle() {
+		if(isset($_GET["mode"]) && $this->isSubModule($_GET['mode'])) {
+			if($_GET['mode'] == "recpay") {
+				$ctrl = $this->getController()->getRecpayCtrl();
+			}
+			return $ctrl->getView()->getTitle();
+		}
+		return parent::getTitle();
+	}
+	
 	function startOptions() {
 		parent::startOptions();
 		
 		$btn = new Link($this->modePrefix() . "recpay", Lang::txt("FinanceView_startOptions.recpay"));
-		$btn->addIcon("recurring");
+		$btn->addIcon("calendar4-range");
 		$btn->write();
 		
 		$transfer = new Link($this->modePrefix() . "transfer", Lang::txt("FinanceView_startOptions.transfer"));
@@ -75,8 +85,14 @@ class FinanceView extends CrudView {
 		$transfer->write();
 		
 		$multi_reporting = new Link($this->modePrefix() . "multireport", Lang::txt("FinanceView_startOptions.multireporting"));
-		$multi_reporting->addIcon("abstimmung");
+		$multi_reporting->addIcon("clipboard-data");
 		$multi_reporting->write();
+	}
+	
+	function viewTitle() {
+		$accId = $_GET["id"];
+		$accDetails = $this->getData()->findByIdNoRef($accId);
+		return $accDetails["name"] . " (" . $accId . ")";
 	}
 	
 	function view() {
@@ -90,9 +106,7 @@ class FinanceView extends CrudView {
 		}
 		</style>
 		<?php
-		$accId = $_GET["id"];
-		$accDetails = $this->getData()->findByIdNoRef($accId);
-		Writing::h2($accDetails["name"] . " (" . $accId . ")");
+		$accId = $_GET["id"];	
 		
 		// Show filter
 		$fromToArr = $this->getFilterSettings();
@@ -103,15 +117,18 @@ class FinanceView extends CrudView {
 		
 		?>
 		<div class="finance_filter_box">
-			<span class="finance_filter_title"><?php echo Lang::txt("FinanceView_finance_filter_box.filter_items"); ?></span>
+			<h6 class="finance_filter_title h6"><?php echo Lang::txt("FinanceView_finance_filter_box.filter_items"); ?></h6>
 			<form action="<?php echo $this->modePrefix() . "view&id=" . $_GET["id"]; ?>" method="POST">
-				<div class="finance_filter_row">
+			<div class="row">
+				<div class="col-md-3">
 					<label for="from"><?php echo Lang::txt("FinanceView_finance_filter_box.date_from"); ?></label>
-					<input type="date" name="from" value="<?php echo $default_from; ?>" />
-					<label for="to" style="width: 30px;"><?php echo Lang::txt("FinanceView_finance_filter_box.date_to"); ?></label>
-					<input type="date" name="to" value="<?php echo $default_to; ?>" />
+					<input type="date" class="form-control" name="from" value="<?php echo $default_from; ?>" />
 				</div>
-				<div class="finance_filter_row">
+				<div class="col-md-3">
+					<label for="to" style="width: 30px;"><?php echo Lang::txt("FinanceView_finance_filter_box.date_to"); ?></label>
+					<input type="date" class="form-control" name="to" value="<?php echo $default_to; ?>" />
+				</div>
+				<div class="col-md-3">
 					<label for="otype"><?php echo Lang::txt("FinanceView_finance_filter_row.otype"); ?></label>
 					<?php 
 					$objdd = $this->getController()->getRecpayCtrl()->getView()->objectReferenceForm($default_otype, $default_oid);
@@ -126,13 +143,16 @@ class FinanceView extends CrudView {
 					}
 					?>
 				</div>
-			<input type="submit" style="margin-left: 0px;" value="<?php echo Lang::txt("FinanceView_finance_filter_row.bookings_filter"); ?>" />
+				<div class="col-md-3">
+					<input type="submit" class="btn btn-primary mt-4" value="<?php echo Lang::txt("FinanceView_finance_filter_row.bookings_filter"); ?>" />
+				</div>
+			</div>
 			</form>
 		</div>
 		<?php
 		
 		// show metrics
-		Writing::h3(Lang::txt("FinanceView_Table_metrics.header"));
+		Writing::h4(Lang::txt("FinanceView_Table_metrics.header"), "mt-3");
 		$metrics = $this->getData()->findBookingsMetrics($default_from, $default_to, $accId, $default_otype, $default_oid);
 		$mtab = new Table($metrics);
 		$mtab->showFilter(false);
@@ -146,14 +166,14 @@ class FinanceView extends CrudView {
 		$mtab->write();
 		
 		// Show bookings with total
-		Writing::h3(Lang::txt("FinanceView_Table_booking.header"));
+		Writing::h4(Lang::txt("FinanceView_Table_booking.header"), "mt-3");
 		$bookings = $this->getData()->findBookings($default_from, $default_to, $accId, $default_otype, $default_oid);
 		$bookings = Table::addDeleteColumn(
 				$bookings,
 				$this->modePrefix() . "cancelBooking&id=" . $_GET["id"] . "&booking=",
 				"cancel",
 				"stornieren",
-				"cancel"
+				"journal-minus"
 		);
 		$table = new Table($bookings);
 		$table->removeColumn("account");
@@ -189,11 +209,13 @@ class FinanceView extends CrudView {
 		$prt->write();
 	}
 	
+	function addBookingTitle() { return Lang::txt("FinanceView_addBooking.Form"); }
+	
 	function addBooking() {
 		$fromToArr = $this->getFilterSettings();
 		$from = $fromToArr[0];
 		$to = $fromToArr[1];
-		$form = new Form(Lang::txt("FinanceView_addBooking.Form"), $this->modePrefix() . "addBookingProcess&id=" . $_GET["id"] . "&from=$from&to=$to");
+		$form = new Form("", $this->modePrefix() . "addBookingProcess&id=" . $_GET["id"] . "&from=$from&to=$to");
 		
 		$dd = new Dropdown("btype");
 		$btypes = FinanceData::getBookingTypes();
@@ -207,11 +229,11 @@ class FinanceView extends CrudView {
 		$objdd = $this->getController()->getRecpayCtrl()->getView()->objectReferenceForm();
 		$form->addElement(Lang::txt("FinanceView_addBooking.otype"), $objdd);
 		$form->autoAddElementsNew(array(
-			"bdate" => array(Lang::txt("FinanceView_addBooking.bdate"), FieldType::DATE, true),
-			"subject" => array(Lang::txt("FinanceView_addBooking.subject"), FieldType::CHAR, true),
-			"amount_net" => array(Lang::txt("FinanceView_addBooking.amount_net"), FieldType::CURRENCY, true),
-			"amount_tax" => array(Lang::txt("FinanceView_addBooking.amount_tax"), FieldType::CURRENCY, true),
-			"notes" => array(Lang::txt("FinanceView_addBooking.notes"), FieldType::CHAR)
+			"bdate" => array(Lang::txt("FinanceView_addBooking.bdate"), FieldType::DATE, true, 3),
+			"subject" => array(Lang::txt("FinanceView_addBooking.subject"), FieldType::CHAR, true, 3),
+			"amount_net" => array(Lang::txt("FinanceView_addBooking.amount_net"), FieldType::CURRENCY, true, 3),
+			"amount_tax" => array(Lang::txt("FinanceView_addBooking.amount_tax"), FieldType::CURRENCY, true, 3),
+			"notes" => array(Lang::txt("FinanceView_addBooking.notes"), FieldType::CHAR, false, 12)
 		));
 		$form->setFieldValue("amount_tax", "0,00");
 		
@@ -285,18 +307,18 @@ class FinanceView extends CrudView {
 		$default_oid = $fromToArr[3];
 		
 		?>
-		<div class="finance_filter_box">
-			<span class="finance_filter_title"><?php echo Lang::txt("FinanceView_multireport.items"); ?></span>
+		<div class="row">
+			<h4 class="h4"><?php echo Lang::txt("FinanceView_multireport.items"); ?></h4>
 			<form action="<?php echo $this->modePrefix() . "multireportResult"; ?>" method="POST">
-				<div class="finance_filter_row">
+				<div class="col-md-3">
 					<label for="from"><?php echo Lang::txt("FinanceView_multireport.from"); ?></label>
-					<div style="display: inline-block; margin-left: 15px;">
-						<input type="date" name="from" value="<?php echo $default_from; ?>" />
-						<label for="to" style="width: 30px;"><?php echo Lang::txt("FinanceView_multireport.to"); ?></label>
-						<input type="date" name="to" value="<?php echo $default_to; ?>" />
-					</div>
+					<input class="form-control" type="date" name="from" value="<?php echo $default_from; ?>" />
 				</div>
-				<div class="finance_filter_row">
+				<div class="col-md-3">
+					<label for="to" style="width: 30px;"><?php echo Lang::txt("FinanceView_multireport.to"); ?></label>
+					<input class="form-control" type="date" name="to" value="<?php echo $default_to; ?>" />
+				</div>
+				<div class="col-md-3">
 					<label for="otype"><?php echo Lang::txt("FinanceView_multireport.oid"); ?></label>
 					<?php 
 					$objdd = $this->getController()->getRecpayCtrl()->getView()->objectReferenceForm($default_otype, $default_oid);
@@ -311,7 +333,7 @@ class FinanceView extends CrudView {
 					}
 					?>
 				</div>
-				<div class="finance_filter_row">
+				<div class="col-md-3 mt-2">
 					<label for="accounts"><?php echo Lang::txt("FinanceView_multireport.accounts"); ?></label>
 					<?php 
 					$accounts = $this->getData()->findAllNoRef();
@@ -320,7 +342,9 @@ class FinanceView extends CrudView {
 					echo $objdd->write();
 					?>
 				</div>
-			<input type="submit" style="margin-left: 0px;" value="<?php echo Lang::txt("FinanceView_multireport.submit"); ?>" />
+				<div class="col-md-3 mt-3">
+					<input class="btn btn-primary" type="submit" style="margin-left: 0px;" value="<?php echo Lang::txt("FinanceView_multireport.submit"); ?>" />
+				</div>
 			</form>
 		</div>
 		<?php
@@ -366,7 +390,7 @@ class FinanceView extends CrudView {
 			}
 			
 			$accName = $this->getData()->findByIdNoRef($accId)['name'];
-			$metrics = $this->getData()->findBookingsMetrics($_POST["from"], $_POST['to'], $accId, $default_otype, $default_oid);
+			$metrics = $this->getData()->findBookingsMetrics($_POST["from"], $_POST['to'], $accId, $default_otype, $default_oid, FALSE);
 			$accRow = array(
 				"account" => $accName,
 				"in_total_net" => $metrics[1]['total_net'],
@@ -412,6 +436,7 @@ class FinanceView extends CrudView {
 		$mtab->renameHeader("sum_tax", Lang::txt("FinanceView_multireportResult.sum_tax"));
 		$mtab->setColumnFormat("sum_tax", "CURRENCY");
 		$mtab->renameHeader("sum_gross", Lang::txt("FinanceView_multireportResult.sum_gross"));
+		$mtab->allowRowSorting(false);
 		$mtab->write();
 		?></div><?php
 	}

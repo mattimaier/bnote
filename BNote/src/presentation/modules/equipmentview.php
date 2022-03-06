@@ -15,17 +15,28 @@ class EquipmentView extends CrudView {
 		$table->setEditIdField($this->idParameter);
 		$table->renameAndAlign($this->getData()->getFieldsWithCustomFields(EquipmentData::$CUSTOM_DATA_OTYPE));
 		$table->showFilter();
-		$table->removeColumn("id");
-		$table->write();			  
+		#$table->removeColumn("id");
+		$table->write();
 	}
 	
+	function addEntityTitle() { return Lang::txt($this->getaddEntityName()); }
+	
 	function addEntityForm() {
-		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
+		$form = new Form("", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement($this->idField);
-		$form->setFieldValue("purchase_price", "0,00");
-		$form->setFieldValue("current_value", "0,00");
+		$form->setFieldValue("purchase_price", "0.00");
+		$form->setFieldColSize("purchase_price", 4);
+		$form->setFieldValue("current_value", "0.00");
+		$form->setFieldColSize("current_value", 4);
 		$form->setFieldValue("quantity", "1");
+		$form->setFieldColSize("quantity", 4);
+		
+		$form->setFieldColSize("model", 4);
+		$form->setFieldColSize("make", 4);
+		$form->setFieldColSize("name", 4);
+		$form->setFieldColSize("notes", 12);
+		
 		$form->write();
 	}
 	

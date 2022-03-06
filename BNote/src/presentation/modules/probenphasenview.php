@@ -16,7 +16,7 @@ class ProbenphasenView extends CrudView {
 	function startOptions() {
 		parent::startOptions();
 		$hist = new Link($this->modePrefix() . "history", Lang::txt("ProbenphasenView_startOptions.timer"));
-		$hist->addIcon("timer");
+		$hist->addIcon("archive");
 		$hist->write();
 	}
 
@@ -94,30 +94,31 @@ class ProbenphasenView extends CrudView {
 	function view() {
 		$this->checkID();
 		
-		// always write title first
-		$pp = $this->getData()->findByIdNoRef($_GET["id"]);
-		Writing::h2($pp["name"]);
-		
 		$tabs = array(
 				"details" => Lang::txt("ProbenphasenView_view.details"),
 				"rehearsals" => Lang::txt("ProbenphasenView_view.rehearsals"),
 				"contacts" => Lang::txt("ProbenphasenView_view.contacts"),
 				"concerts" => Lang::txt("ProbenphasenView_view.concerts")
 		);
-		echo "<div class=\"view_tabs\">\n";
+		echo "<div class=\"nav nav-tabs\">\n";
 		foreach($tabs as $tabid => $label) {
 			$href = $this->modePrefix() . "view&id=" . $_GET["id"] . "&tab=$tabid";
 
 			$active = "";
-			if(isset($_GET["tab"]) && $_GET["tab"] == $tabid) $active = "_active";
-			else if(!isset($_GET["tab"]) && $tabid == "details") $active = "_active";
+			if(isset($_GET["tab"]) && $_GET["tab"] == $tabid) $active = "active";
+			else if(!isset($_GET["tab"]) && $tabid == "details") $active = "active";
 
-			echo "<a href=\"$href\"><span class=\"view_tab$active\">$label</span></a>";
+			echo <<<EOS
+			<div class="nav-item">
+				<a class="nav-link $active" href="$href">$label</a>
+			</div>
+			EOS;
 		}
 		echo "</div>\n";
+		
+		// content
 		echo "<div class=\"view_tab_content\">\n";
 
-		// content
 		if(!isset($_GET["tab"]) || $_GET["tab"] == "details") {
 			$this->viewDetailTable();
 		}
@@ -127,6 +128,12 @@ class ProbenphasenView extends CrudView {
 		}
 			
 		echo "</div>\n";
+	}
+	
+	function viewTitle() {
+		// always write title first
+		$pp = $this->getData()->findByIdNoRef($_GET["id"]);
+		return $pp["name"];
 	}
 	
 	function viewOptions() {
@@ -162,7 +169,7 @@ class ProbenphasenView extends CrudView {
 	
 	protected function backToViewTab($id, $tab) {
 		$back = new Link($this->modePrefix() . "view&id=$id&tab=$tab", "Zurück");
-		$back->addIcon("arrow_left");
+		$back->addIcon("arrow-left");
 		$back->write();
 	}
 
@@ -192,10 +199,10 @@ class ProbenphasenView extends CrudView {
 		$this->backToViewTab($_GET["id"], "rehearsals");
 	}
 
+	function addConcertTitle() { return Lang::txt("ProbenphasenView_addConcert.form"); }
+	
 	function addConcert() {
-		$form = new Form(Lang::txt("ProbenphasenView_addConcert.form"), $this->modePrefix() . "process_addConcert&id=" . $_GET["id"]);
-
-		Writing::p(Lang::txt("ProbenphasenView_addConcert.message"));
+		$form = new Form("", $this->modePrefix() . "process_addConcert&id=" . $_GET["id"]);
 
 		$futConcerts = $this->getData()->getFutureConcerts();
 		$gs = new GroupSelector($futConcerts, array(), "concert");
@@ -236,7 +243,6 @@ class ProbenphasenView extends CrudView {
 	function process_addContact() {
 		$this->getData()->addContacts($_GET["id"]);
 		new Message(Lang::txt("ProbenphasenView_process_addContact.message_1"), Lang::txt("ProbenphasenView_process_addContact.message_2"));
-		$this->backToViewButton($_GET["id"]);
 	}
 	
 	function process_addContactOptions() {
@@ -278,7 +284,7 @@ class ProbenphasenView extends CrudView {
 			if($i == 0) continue;
 			$delLink = $this->modePrefix() . "delEntity&entity=$entity&id=" . $_GET["id"] . "&eid=" . $row["id"];
 			$lnk = new Link($delLink, "");
-			$lnk->addIcon("remove");
+			$lnk->addIcon("trash3");
 			array_push($row, $lnk->toString());
 			$row[Lang::txt("ProbenphasenView_addRemoveColumnToTable.delete")] = $lnk->toString();
 			$data[$i] = $row;

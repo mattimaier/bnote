@@ -44,8 +44,12 @@ class AbstimmungView extends CrudView {
 		$table->write();
 	}
 	
+	function addEntityTitle() {
+		return Lang::txt($this->getAddEntityName());
+	}
+	
 	function addEntityForm() {
-		$form = new Form(Lang::txt($this->getAddEntityName()), $this->modePrefix() . "add");
+		$form = new Form("", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		$form->removeElement("author");
@@ -59,6 +63,18 @@ class AbstimmungView extends CrudView {
 		$form->write();
 	}
 	
+	function viewTitle() {
+		if(isset($_GET["resultview"]) && $_GET["resultview"] == "true"
+				|| (!$this->getData()->isUserAuthorOfVote($this->getUserId(), $_GET["id"])
+						&& !$this->getData()->getSysdata()->isUserSuperUser())) {
+			// result title
+			$this->checkID();
+			$vote = $this->getData()->findByIdNoRef($_GET["id"]);
+			return $vote["name"] . " - Ergebnis";
+		}
+		return Lang::txt("AbstimmungView_view.header");
+	}
+	
 	function view() {
 		$this->checkID();
 		if(isset($_GET["resultview"]) && $_GET["resultview"] == "true"
@@ -66,10 +82,7 @@ class AbstimmungView extends CrudView {
 				&& !$this->getData()->getSysdata()->isUserSuperUser())) {
 			$this->result();
 		}
-		else {		
-			// heading
-			Writing::h2(Lang::txt("AbstimmungView_view.header"));
-			
+		else {
 			// show the details
 			$this->viewDetailTable();
 		}
@@ -334,7 +347,6 @@ class AbstimmungView extends CrudView {
 	function result() {
 		$this->checkID();
 		$vote = $this->getData()->findByIdNoRef($_GET["id"]);
-		Writing::h2($vote["name"] . " - Ergebnis");
 		
 		if($vote["is_multi"] == 1) {
 			Writing::p(Lang::txt("AbstimmungView_result.multipleAnswersPossible"));
@@ -458,9 +470,9 @@ class AbstimmungView extends CrudView {
 		$table->write();
 	}
 	
-	function archive() {
-		Writing::h2(Lang::txt("AbstimmungView_archive.archive"));
-		
+	function archiveTitle() { return Lang::txt("AbstimmungView_archive.archive"); }
+	
+	function archive() {		
 		$votes = $this->getData()->getVotesForUser(false);
 		$table = new Table($votes);
 		$table->setEdit("id");

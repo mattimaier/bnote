@@ -84,37 +84,6 @@ class CalendarView extends CrudRefLocationView {
 		    calendar.render();
 
 		    $('#calendar_eventdetail').hide();
-
-		    /*
-			$("#calendar").fullCalendar( 'addEventSource', {
-				events: calendar_events["rehearsals"],
-				color: '#61b3ff'  // bnote blue
-			});
-			$("#calendar").fullCalendar( 'addEventSource', {
-				events: calendar_events["rehearsalphases"],
-				color: '#B361FF'  // purple
-			});
-			$("#calendar").fullCalendar( 'addEventSource', {
-				events: calendar_events["concerts"],
-				color: '#FF6161'  // red
-			});
-			$("#calendar").fullCalendar( 'addEventSource', {
-				events: calendar_events["votes"],
-				color: '#FFCD61'  // orange
-			});
-			$("#calendar").fullCalendar( 'addEventSource', {
-				events: calendar_events["contacts"],
-				color: '#66FF61'  // green
-			});
-			$("#calendar").fullCalendar( 'addEventSource', {
-				events: calendar_events["reservations"],
-				color: '#A0A0A0'  // gray
-			});
-			$("#calendar").fullCalendar( 'addEventSource', {
-				events: calendar_events["appointments"],
-				color: '#DF61FF'  // pink
-			});
-			*/
 		});
 		</script>
 		<?php
@@ -126,11 +95,21 @@ class CalendarView extends CrudRefLocationView {
 		$endField = $form->getElement("end");
 		$endField->setCssClass("copyDateTarget");
 		
+		// adapt sizing
+		$form->setFieldColSize("begin", 3);
+		$form->setFieldColSize("end", 3);
+		$form->setFieldColSize("notes", 12);
+		
 		// custom data
 		$this->appendCustomFieldsToForm($form, 'v', null, false);
 	}
 	
 	function changeDefaultEditEntityForm($form, $record) {
+		// adapt sizing
+		$form->setFieldColSize("begin", 3);
+		$form->setFieldColSize("end", 3);
+		$form->setFieldColSize("notes", 12);
+		
 		// custom data
 		$customData = $this->getData()->getCustomData($record["id"]);
 		$reservation = array_merge($record, $customData);

@@ -28,6 +28,21 @@ abstract class AbstractView {
 	 */
 	abstract function start();
 	
+	function getTitle() {
+		if(isset($_GET["mode"])) {
+			$mode = $_GET["mode"];
+		}
+		else {
+			$mode = "start";
+		}
+		$titleFunc = $mode . "Title"; 
+		if(method_exists($this, $titleFunc)) {
+			return $this->$titleFunc();
+		}
+		global $system_data;
+		return $system_data->getModuleTitle($_GET["mod"]);
+	}
+	
 	/**
 	 * Contains the buttons with the options that are available on this page/view.
 	 */

@@ -62,9 +62,9 @@ class ProbenphasenData extends AbstractData {
 	}
 	
 	private function idInPhase($phaseId, $entityId, $entity) {
-		
-		$ct = $this->database->colValue("rehearsalphase_$entity", "count($entity)",
-				"rehearsalphase = $phaseId AND $entity = $entityId");
+		$query = "SELECT count($entity) as cnt FROM rehearsalphase_$entity WHERE rehearsalphase = ? AND $entity = ?";
+		$params = array(array("i", $phaseId), array("i", $entityId));
+		$ct = $this->database->colValue($query, "cnt", $params);
 		return ($ct > 0);
 	}
 	

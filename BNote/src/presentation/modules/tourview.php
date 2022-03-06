@@ -22,18 +22,18 @@ class TourView extends CrudView {
 				"checklist" => Lang::txt("TourView_view.checklist"),
 				"equipment" => Lang::txt("TourView_view.equipment")
 		);
-		echo "<div class=\"view_tabs\">\n";
+		echo "<div class=\"nav nav-tabs\">\n";
 		foreach($tabs as $tabid => $label) {
 			$href = $this->modePrefix() . "view&" . $this->idParameter . "=" . $_GET[$this->idParameter] . "&tab=$tabid";
 		
 			$active = "";
-			if(isset($_GET["tab"]) && $_GET["tab"] == $tabid) $active = "_active";
-			else if(!isset($_GET["tab"]) && $tabid == "details") $active = "_active";
+			if(isset($_GET["tab"]) && $_GET["tab"] == $tabid) $active = "active";
+			else if(!isset($_GET["tab"]) && $tabid == "details") $active = "active";
 		
-			echo "<a href=\"$href\"><span class=\"view_tab$active\">$label</span></a>";
+			echo "<div class=\"nav-item\"><a class=\"nav-link $active\" href=\"$href\">$label</a></div>";
 		}
 		echo "</div>\n";
-		echo "<div class=\"view_tab_content\">\n";
+		echo "<div class=\"view_tab_content pt-2\">\n";
 		
 		// content
 		if(!isset($_GET["tab"]) || $_GET["tab"] == "details") {
@@ -126,7 +126,7 @@ class TourView extends CrudView {
 	protected function addXOptionsBack($tab) {
 		$idf = $this->idParameter;
 		$back = new Link($this->modePrefix() . "view&$idf=" . $_GET[$this->idParameter] . "&tab=$tab", Lang::txt("back"));
-		$back->addIcon("arrow_left");
+		$back->addIcon("arrow-left");
 		$back->write();
 	}
 	
@@ -251,11 +251,11 @@ class TourView extends CrudView {
 		$tour_id = $_GET[$this->idParameter];
 		
 		$todos = $this->getData()->getTasks($tour_id, false);
-		Writing::h3(Lang::txt("TourView_tab_checklist.todos"));
+		Writing::h4(Lang::txt("TourView_tab_checklist.todos"));
 		$this->checklist_table($todos);
 		
 		$completed_tasks = $this->getData()->getTasks($tour_id, true);
-		Writing::h3(Lang::txt("TourView_tab_checklist.completed_tasks"));
+		Writing::h4(Lang::txt("TourView_tab_checklist.completed_tasks"));
 		$this->checklist_table($completed_tasks);
 	}
 	
@@ -298,7 +298,7 @@ class TourView extends CrudView {
 	function tab_equipment() {
 		$tour = $_GET[$this->idParameter];
 		$idf = $this->idParameter;
-		$form = new Form(Lang::txt("TourView_tab_equipment.form"), $this->modePrefix() . "addEquipmentProcess&$idf=$tour&tab=equipment");
+		$form = new Form("", $this->modePrefix() . "addEquipmentProcess&$idf=$tour&tab=equipment");
 		
 		// Building an editable table --> replace quantity with an input field and add tour notes for each equipment
 		$equipment = $this->getData()->getEquipment($tour);

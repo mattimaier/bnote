@@ -64,7 +64,7 @@ class FinanceData extends AbstractData {
 		return $bookings;
 	}
 	
-	function findBookingsMetrics($from, $to, $accountId, $otype=NULL, $oid=NULL) {
+	function findBookingsMetrics($from, $to, $accountId, $otype=NULL, $oid=NULL, $formatted=TRUE) {
 		$params = array(array("s", $from), array("s", $to), array("i", $accountId));
 		$otype_oid = "";
 		if($otype != null and $oid != null) {
@@ -76,7 +76,7 @@ class FinanceData extends AbstractData {
 				FROM `booking` 
 				WHERE bdate >= ? AND bdate <= ? AND account = ? $otype_oid
 				GROUP BY btype";
-		$tab = $this->database->getSelection($query);
+		$tab = $this->database->getSelection($query, $params);
 		
 		$result = array(
 			$tab[0]  // header
@@ -120,9 +120,11 @@ class FinanceData extends AbstractData {
 		}
 		
 		// format total
-		$row_total["total_net"] = Data::convertFromDb($row_total["total_net"]);
-		$row_total["total_tax"] = Data::convertFromDb($row_total["total_tax"]);
-		$row_total["total"] = Data::convertFromDb($row_total["total"]);
+		if($formatted) {
+			$row_total["total_net"] = Data::convertFromDb($row_total["total_net"]);
+			$row_total["total_tax"] = Data::convertFromDb($row_total["total_tax"]);
+			$row_total["total"] = Data::convertFromDb($row_total["total"]);
+		}
 		
 		array_push($result, $row_total);
 		

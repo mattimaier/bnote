@@ -69,9 +69,13 @@ abstract class CrudView extends AbstractView {
 		$this->addEntityForm();
 	}
 	
+	function addEntityTitle() {
+		return Lang::txt($this->getAddEntityName());
+	}
+	
 	protected function addEntityForm() {
 		// add entry form
-		$form = new Form(Lang::txt($this->getAddEntityName()), $this->modePrefix() . "add");
+		$form = new Form("", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement($this->idField);
 		$form->write();
@@ -105,11 +109,10 @@ abstract class CrudView extends AbstractView {
 		new Message(Lang::txt("CrudView_add.Message_1", array($this->entityName)), Lang::txt("CrudView_add.Message_2"));
 	}
 	
+	public function viewTitle() { return Lang::txt("CrudView_view.Message", array($this->entityName)); }
+	
 	public function view() {
 		$this->checkID();
-		
-		// heading
-		Writing::h2(Lang::txt("CrudView_view.Message", array($this->entityName)));
 		
 		// show the details
 		$this->viewDetailTable();
@@ -168,7 +171,7 @@ abstract class CrudView extends AbstractView {
 	
 	protected function editEntityForm() {
 		$form = new Form(Lang::txt("CrudView_editEntityForm.delete_edit", array($this->entityName)),
-							$this->modePrefix() . "edit_process&" . $this->idParameter . "=" . $_GET[$this->idParameter]);
+				$this->modePrefix() . "edit_process&" . $this->idParameter . "=" . $_GET[$this->idParameter]);
 		$form->autoAddElements($this->getData()->getFields(),
 									$this->getData()->getTable(), $_GET[$this->idParameter]);
 		$form->removeElement($this->idField);

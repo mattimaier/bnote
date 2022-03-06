@@ -28,6 +28,7 @@ class Table implements iWriteable {
 	private $paginationLinkPrev;
 	private $paginationLinkNext;
 	private $allowRowReorder = false;
+	private $allowRowSorting = true;
 	private $reorderPostUrl;
 	
 	/**
@@ -46,6 +47,10 @@ class Table implements iWriteable {
 	function setEdit($primkey) {
 		$this->edit = true;
 		$this->primkey = $primkey;
+	}
+	
+	function disableForwardNav() {
+		$this->edit = FALSE;
 	}
 
 	function changeMode($mode) {
@@ -195,6 +200,10 @@ class Table implements iWriteable {
 	function allowRowReorder($allow = true, $postUrl) {
 		$this->allowRowReorder = $allow;
 		$this->reorderPostUrl = $postUrl;
+	}
+	
+	function allowRowSorting($allow = true) {
+		$this->allowRowSorting = $allow;
 	}
 	
 	function hideColumn($colName) {
@@ -397,7 +406,16 @@ class Table implements iWriteable {
 					 	dataSrc: 1  // rank index
 					 },
 					 "orderFixed": [ 1, 'asc' ],  // by rank ascending
-					 <?php } ?>
+					 <?php 
+					 }
+					 if(!$this->allowRowSorting) {
+					 	?>
+					 	"rowReorder": {
+						 	enable: false
+					 	},
+					 	<?php
+					 }
+					 ?>
 					 "oLanguage": {
 				 		 "sEmptyTable":  "<?php echo Lang::txt("Table_write.sEmptyTable"); ?>",
 						 "sInfoEmpty":  "<?php echo Lang::txt("Table_write.sInfoEmpty"); ?>",
@@ -453,7 +471,7 @@ class Table implements iWriteable {
 				} );
 				<?php 
 				}
-				else {
+				else if($this->edit) {
 				?>
 				$(identifier).on('click', 'tbody tr', function() {
 					window.location.href = $(this).data('href');

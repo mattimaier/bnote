@@ -14,9 +14,11 @@ class KommunikationView extends AbstractView {
 		$this->setController($ctrl);
 	}
 	
-	function start() {
-		Writing::h1(Lang::txt("KommunikationView_start.title"));
+	function startTitle() {
+		return Lang::txt("KommunikationView_start.title");
+	}
 	
+	function start() {
 		if($GLOBALS["system_data"]->inDemoMode()) {
 			echo '<p style="font-size: 15px; font-weight: bold; text-align: center;">';
 			echo Lang::txt("KommunikationView_start.message");
@@ -30,24 +32,25 @@ class KommunikationView extends AbstractView {
 	
 	function startOptions() {
 		$rh = new Link($this->modePrefix() . "rehearsalMail", Lang::txt("KommunikationView_startOptions.rehearsalMail"));
-		$rh->addIcon("arrow_right");
+		$rh->addIcon("arrow-right");
 		$rh->write();
 		
 		$rs = new Link($this->modePrefix() . "rehearsalSerieMail", Lang::txt("KommunikationView_startOptions.rehearsalSerieMail"));
-		$rs->addIcon("arrow_right");
+		$rs->addIcon("arrow-right");
 		$rs->write();
 		
 		$cm = new Link($this->modePrefix() . "concertMail", Lang::txt("KommunikationView_startOptions.concertMail"));
-		$cm->addIcon("arrow_right");
+		$cm->addIcon("arrow-right");
 		$cm->write();
 		
 		$vm = new Link($this->modePrefix() . "voteMail", Lang::txt("KommunikationView_startOptions.voteMail"));
-		$vm->addIcon("arrow_right");
+		$vm->addIcon("arrow-right");
 		$vm->write();
 	}
 	
+	function rehearsalMailTitle() { return Lang::txt("KommunikationView_rehearsalMail.Title"); }
+	
 	function rehearsalMail() {
-		Writing::h2(Lang::txt("KommunikationView_rehearsalMail.Title"));
 				
 		$dd = new Dropdown("rehearsal");
 		$rhs = $this->getData()->adp()->getFutureRehearsals();
@@ -84,9 +87,9 @@ class KommunikationView extends AbstractView {
 		}
 	}
 	
+	function rehearsalSerieMailTitle() { return Lang::txt("KommunikationView_rehearsalSerieMail.Title"); }
+	
 	function rehearsalSerieMail() {
-		Writing::h2(Lang::txt("KommunikationView_rehearsalSerieMail.Title"));
-		
 		$dd = new Dropdown("rehearsalSerie");
 		$rs = $this->getData()->getRehearsalSeries();
 		for($i = 1; $i < count($rs); $i++) {
@@ -99,9 +102,9 @@ class KommunikationView extends AbstractView {
 		$form->write();
 	}
 	
-	function concertMail() {
-		Writing::h2(Lang::txt("KommunikationView_concertMail.Title"));
-		
+	function concertMailTitle() { return Lang::txt("KommunikationView_concertMail.Title"); }
+	
+	function concertMail() {		
 		$dd = new Dropdown("concert");
 		$concerts = $this->getData()->getConcerts();
 		
@@ -135,9 +138,9 @@ class KommunikationView extends AbstractView {
 		}
 	}
 	
-	function voteMail() {
-		Writing::h2(Lang::txt("KommunikationView_voteMail.Title"));
-		
+	function voteMailTitle() { return Lang::txt("KommunikationView_voteMail.Title"); }
+	
+	function voteMail() {		
 		$dd = new Dropdown("vote");
 		$votes = $this->getData()->getVotes();
 		
@@ -167,7 +170,7 @@ class KommunikationView extends AbstractView {
 	}
 	
 	private function createMailForm($action, $message = "", $showGroups = true) {
-		$form = new Form("Rundmail", $action . "&sub=send");
+		$form = new Form("", $action . "&sub=send");
 		
 		// for rehearsal mails no receipients are needed, take the ones from the list
 		if($showGroups) {

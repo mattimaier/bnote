@@ -1362,7 +1362,8 @@ class Translation extends BNoteTranslation {
 			
 			// OutfitsView
 			"OutfitsView_construct.EntityName" => "Outfits",				
-			"OutfitsView_construct.addEntityName" => "Outfits hinzufügen",
+			"OutfitsView_construct.addEntityName" => "Outfit hinzufügen",
+			"OutfitsView_construct.editEntityName" => "Outfit bearbeiten",
 
 			// module: Proben *********************************************
 

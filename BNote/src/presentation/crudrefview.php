@@ -18,8 +18,12 @@ abstract class CrudRefView extends CrudView {
 	 */
 	protected $internalReferenceFields = array();
 	
+	function addEntityTitle() {
+		return $this->getEntityName() . Lang::txt("CrudRefView_addEntityForm.getEntityName");
+	}
+	
 	protected function addEntityForm() {
-		$form = new Form($this->getEntityName() .Lang::txt("CrudRefView_addEntityForm.getEntityName"), $this->modePrefix() . "add");
+		$form = new Form("", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement($this->idField);
 		foreach($this->joinedAttributes as $field => $naming_cols) {

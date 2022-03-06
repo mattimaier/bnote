@@ -19,6 +19,20 @@ class RecpayView extends CrudRefView {
 		return "?mod=" . $this->getModId() . "&mode=recpay&sub=";
 	}
 	
+	function getTitle() {
+		if(isset($_GET["sub"])) {
+			$mode = $_GET["sub"];
+		}
+		else {
+			$mode = "start";
+		}
+		$titleFunc = $mode . "Title";
+		if(method_exists($this, $titleFunc)) {
+			return $this->$titleFunc();
+		}
+		return $this->getData()->getSysdata()->getModuleTitle($_GET["mod"]);
+	}
+	
 	private function showAllTableGenerator($data) {
 		$table = new Table($data);
 		$table->setEdit("id");
@@ -35,13 +49,13 @@ class RecpayView extends CrudRefView {
 	
 	function startOptions() {
 		$back = new Link("?mod=" . $this->getModId(), Lang::txt("RecpayView_startOptions.back"));
-		$back->addIcon("arrow_left");
+		$back->addIcon("arrow-left");
 		$back->write();
 		
 		parent::startOptions();
 		
 		$book = new Link($this->modePrefix() . "book", Lang::txt("RecpayView_startOptions.book"));
-		$book->addIcon("booking");
+		$book->addIcon("journal-plus");
 		$book->write();
 	}
 	
@@ -112,7 +126,7 @@ class RecpayView extends CrudRefView {
 			}
 			else if(numOptions > 0) {
 				var oref_parent = $('#oref').parent();
-				oref_parent.append("<select id=\"oref_id\" name=\"oid\">" + options + "</select>");
+				oref_parent.append("<select id=\"oref_id\" class=\"form-select\" name=\"oid\">" + options + "</select>");
 			}
 		}
 
@@ -208,8 +222,11 @@ class RecpayView extends CrudRefView {
 		$form->write();
 	}
 	
+	function bookTitle() {
+		return Lang::txt("RecpayView_book.title");
+	}
+	
 	function book() {
-		Writing::h2(Lang::txt("RecpayView_book.title"));
 		?>
 		<form action="<?php echo $this->modePrefix() . "bookProcess"; ?>" method="POST">
 		<?php
@@ -236,9 +253,10 @@ class RecpayView extends CrudRefView {
 		$tab = $this->showAllTableGenerator($displayData);
 		$tab->removeColumn("id");
 		$tab->setOptionColumnNames(array("book"));
+		$tab->disableForwardNav();
 		$tab->write();
 		?>
-		<input type="submit" value="<?php echo Lang::txt("RecpayView_book.submit"); ?>" />
+		<input type="submit" class="btn btn-primary" value="<?php echo Lang::txt("RecpayView_book.submit"); ?>" />
 		</form>
 		<?php
 	}
@@ -318,18 +336,18 @@ class RecpayView extends CrudRefView {
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
 				Lang::txt("RecpayView_viewOptions.edit"), array($this->getEntityName()));
-		$edit->addIcon("edit");
+		$edit->addIcon("pen");
 		$edit->write();
 		
 		$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
 				Lang::txt("RecpayView_viewOptions.delete_confirm"), array($this->getEntityName()));
-		$del->addIcon("remove");
+		$del->addIcon("trash3");
 		$del->write();
 	}
 	
 	function backToStart() {
 		$link = new Link("?mod=" . $this->getModId() . "&mode=recpay", Lang::txt("RecpayView_backToStart.back"));
-		$link->addIcon("arrow_left");
+		$link->addIcon("arrow-left");
 		$link->write();
 	}
 }

@@ -42,7 +42,7 @@ class AccommodationView extends CrudRefView {
 	
 	function backToStart() {
 		$link = new Link("?mod=" . $this->getModId() . "&mode=view&tab=accommodation&accId=" . $_GET["accId"], "Zurück");
-		$link->addIcon("arrow_left");
+		$link->addIcon("arrow-left");
 		$link->write();
 	}
 	

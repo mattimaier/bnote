@@ -79,7 +79,7 @@ class CrudRefLocationView extends CrudRefView {
 	 * @return String name of the first occurance of a fuzzy key or null if not found.
 	 */
 	protected function fuzzyKeySearch($needle, $keyArray) {
-		foreach($keyArray as $i => $key) {
+		foreach($keyArray as $key) {
 			if(substr_count($key, $needle) > 0) return $key;
 		}
 		return null;

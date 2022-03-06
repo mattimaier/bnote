@@ -69,7 +69,7 @@ class AppointmentData extends AbstractLocationData {
 		
 		$values = array();
 		$params = array();
-		foreach($groups as $i => $g) {
+		foreach($groups as $g) {
 			array_push($values, "(?, ?)");
 			array_push($params, array("i", $id));
 			array_push($params, array("i", $g));

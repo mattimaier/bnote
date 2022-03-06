@@ -245,6 +245,11 @@ class KontakteView extends CrudRefLocationView {
 		$addMore->write();
 	}
 	
+	function viewTitle() {
+		$contact = $this->getData()->getContact($_GET["id"]);
+		return $contact["name"] . " " . $contact["surname"];
+	}
+	
 	function view() {
 		// fetch contact and user details
 		$contact = $this->getData()->getContact($_GET["id"]);
@@ -257,7 +262,6 @@ class KontakteView extends CrudRefLocationView {
 		$customFields = $this->getData()->getCustomFields("c");
 		
 		// build output
-		Writing::h1($contact["name"] . " " . $contact["surname"]);
 		?>
 		<div class="contactdetail_section">
 			<div class="contactdetail_section_header"><?php echo Lang::txt("KontakteView_view.title_1"); ?></div>

@@ -122,7 +122,6 @@ class LocationsView extends CrudRefLocationView {
 		$details->write();
 		
 		// show map
-		Writing::h3("Karte");
 		$addy = $entity['addressstreet'] . ", " . $entity["addresszip"] . " " . $entity["addresscity"];
 		$google_api_key = $this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key");
 		
