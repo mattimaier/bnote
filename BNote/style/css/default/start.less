@@ -83,6 +83,14 @@ div.start_box_content div {
 }
 
 div.start_box_heading {	
+	background-color: @bnote-dark-alt;
+	color: @white;
+	text-transform: uppercase;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+}
+
+div.start_box_content_heading {
 	background-color: @bnote-very-dark;
 	color: @white;
 	text-transform: uppercase;
@@ -118,6 +126,43 @@ span.start_update_box_author {
 
 .start_rehearsal_title {
 	font-weight: 600;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+a.start_card {
+    text-decoration: none;
+    color: @black;
+}
+
+.start_box_active {
+	border-left: 4px solid @bnote-color;
+}
+
+.start_card_due {
+    position: absolute;
+    right: 1em;
+    top: 0.8em;
+    font-size: smaller;
+    color: @bnote-darkgray;
+}
+
+.start_box_participation_no {
+	border-right: 4px solid @bnote-redish;
+}
+
+.start_box_participation_yes {
+	border-right: 4px solid @bnote-green;
+}
+
+.start_box_participation_maybe {
+	border-right: 4px solid @bnote-yellow;
+}
+
+.start_box_participation_unknown {
+	border-right: 4px solid @bnote-darkgray;
 }
 
 .warning {

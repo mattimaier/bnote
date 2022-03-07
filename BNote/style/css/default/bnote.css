@@ -385,6 +385,10 @@ a:hover {
 .navbar .navbar-toggler {
   top: .25rem;
   right: 1rem;
+  border-width: 0;
+}
+.mobile-menu-toggler {
+  font-size: 1.6em;
 }
 .navbar .form-control {
   padding: .75rem 1rem;
@@ -754,6 +758,13 @@ div.start_box_content div {
   padding: 0.75em;
 }
 div.start_box_heading {
+  background-color: #436f98;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+div.start_box_content_heading {
   background-color: #243E56;
   color: #FFFFFF;
   text-transform: uppercase;
@@ -783,6 +794,35 @@ span.start_update_box_author {
 }
 .start_rehearsal_title {
   font-weight: 600;
+}
+.card-title {
+  font-weight: 600;
+}
+a.start_card {
+  text-decoration: none;
+  color: #000000;
+}
+.start_box_active {
+  border-left: 4px solid #61b3ff;
+}
+.start_card_due {
+  position: absolute;
+  right: 1em;
+  top: 0.8em;
+  font-size: smaller;
+  color: #8A8A8A;
+}
+.start_box_participation_no {
+  border-right: 4px solid #ED6D6D;
+}
+.start_box_participation_yes {
+  border-right: 4px solid #58b658;
+}
+.start_box_participation_maybe {
+  border-right: 4px solid #F9FF61;
+}
+.start_box_participation_unknown {
+  border-right: 4px solid #8A8A8A;
 }
 .warning {
   color: #ff821e;

@@ -1818,11 +1818,18 @@ class Translation extends BNoteTranslation {
 			"StartData_getObjectTitle.Vote" => "Abstimmungen",
 			"StartData_getObjectTitle.Task" => "Aufgaben",
 			"StartData_getObjectTitle.Reservation" => "Reservierungen",
+			"StartData_inboxItems.rehearsalOn" => "Probe am",
+			"StartData_inboxItems.concertOn" => "Auftritt am",
+			"StartData_inboxItems.appointmentOn" => "Termin am",
+			"StartData_inboxItems.reservationOn" => "Reservierung am",
 
 			// StartController
 			"StartController_start.flash" => "Schade. Du kannst BNote somit nicht nutzen.",
 			
 			// StartView ******** to finish *********
+			"StartView_start.Feed" => "Aktuelles",
+			"StartView_start.Calendar" => "Kalender",
+			"StartView_start.Inbox" => "Eingang",
 			"StartView_startOptions.calendarExport" => "Kalender Export",
 			"StartView_startOptions.calendarSubscribe" => "Kalender abonnieren",
 			"StartView_start.box_heading" => "Einverständniserklärung zum Datenschutz",

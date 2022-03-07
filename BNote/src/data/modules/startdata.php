@@ -492,4 +492,113 @@ class StartData extends AbstractLocationData {
 		// to make sure we have the permission included just load 'em
 		return count($this->getAppointments(false)) > 0;
 	}
+	
+	function getInboxItems() {
+		$items = array();
+		
+		// rehearsals
+		$rehearsals = $this->getUsersRehearsals();
+		for($i = 1; $i < count($rehearsals); $i++) {
+			$r = $rehearsals[$i];
+			$previewItems = array();
+			if(isset($r["groups"])) {
+				$groupPreview = array();
+				foreach($r["groups"] as $group) {
+					array_push($groupPreview, $group["name"]);
+				}
+				array_push($previewItems, join("|", $groupPreview));
+			}
+			array_push($previewItems, $r["name"]);
+			if($r["conductor"] > 0) array_push($previewItems, $this->adp()->getConductorname($r["conductor"]));
+			if($r["notes"] != "") array_push($previewItems, $r["notes"]);
+			array_push($items, array(
+					"itemType" => "rehearsal",
+					"id" => $r["id"],
+					"title" => Lang::txt("StartData_inboxItems.rehearsalOn") . " " . Data::convertDateFromDb($r["begin"]),
+					"preview" => join(", ", $previewItems),
+					"due" => Data::convertDateFromDb($r["approve_until"]),
+					"eventBegin" => $r["begin"],
+					"replyUntil" => $r["approve_until"],
+					"participation" => $this->doesParticipateInRehearsal($r["id"])
+			));
+		}
+		
+		// concerts
+		$concerts = $this->getUsersConcerts();
+		for($i = 1; $i < count($concerts); $i++) {
+			$c = $concerts[$i];
+			array_push($items, array(
+					"itemType" => "concert",
+					"id" => $c["id"],
+					"title" => Lang::txt("StartData_inboxItems.concertOn") . " " . Data::convertDateFromDb($c["begin"]),
+					"preview" => $c["title"] . ", " . $c["location_name"],
+					"due" => Data::convertDateFromDb($c["approve_until"]),
+					"eventBegin" => $c["begin"],
+					"replyUntil" => $c["approve_until"],
+					"participation" => $this->doesParticipateInConcert($c["id"])
+			));
+		}
+		
+		// appointments
+		$appointments = $this->getAppointments();
+		for($i = 1; $i < count($appointments); $i++) {
+			$a = $appointments[$i];
+			array_push($items, array(
+					"itemType" => "appointment",
+					"id" => $a["id"],
+					"title" => Lang::txt("StartData_inboxItems.appointmentOn") . " " . Data::convertDateFromDb($a["begin"]),
+					"preview" => $a["name"] . ", " . $a["locationname"],
+					"due" => NULL,
+					"eventBegin" => $a["begin"],
+					"replyUntil" => $a["begin"]
+			));
+		}
+		
+		// reservations
+		$reservations = $this->getReservations();
+		for($i = 1; $i < count($reservations); $i++) {
+			$r = $reservations[$i];
+			array_push($items, array(
+					"itemType" => "reservation",
+					"id" => $r["id"],
+					"title" => Lang::txt("StartData_inboxItems.reservationOn") . " " . Data::convertDateFromDb($r["begin"]),
+					"preview" => $r["name"] . ", " . $a["locationname"],
+					"due" => NULL,
+					"eventBegin" => $r["begin"],
+					"replyUntil" => $r["begin"]
+			));
+		}
+		
+		// votes
+		$votes = $this->getVotesForUser();
+		for($i = 1; $i < count($votes); $i++) {
+			$v = $votes[$i];
+			array_push($items, array(
+					"itemType" => "vote",
+					"id" => $v["id"],
+					"title" => $v["name"],
+					"preview" => Lang::txt("vote"),
+					"due" => Data::convertDateFromDb($v["end"]),
+					"eventBegin" => $v["end"],
+					"replyUntil" => $v["end"]
+			));
+		}
+		
+		// tasks
+		$tasks = $this->adp()->getUserTasks();
+		for($i = 1; $i < count($tasks); $i++) {
+			$t = $tasks[$i];
+			array_push($items, array(
+					"itemType" => "task",
+					"id" => $t["id"],
+					"title" => $t["title"],
+					"preview" => substr($t["description"], 0, 50),
+					"due" => Data::convertDateFromDb($t["due_at"]),
+					"eventBegin" => $t["created_at"],
+					"replyUntil" => $t["due_at"]
+			));
+		}
+		
+		return $items;
+	}
 }
