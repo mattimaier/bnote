@@ -331,6 +331,65 @@ class StartView extends CrudRefLocationView {
 		$dataview->write();
 	}
 	
+	function startViewA() {
+		$appointment = $this->getData()->getAppointment($_GET["oid"]);
+		$dataview = new Dataview();
+		$dataview->addElement(Lang::txt("StartView_writeAppointmentList.name"), $appointment["name"]);
+		$dataview->addElement(Lang::txt("StartView_writeAppointmentList.locationname"), $appointment["locationname"]);
+		
+		// custom data
+		$customFields = $this->getData()->getCustomFields('a', true);
+		$customData = $this->getData()->getCustomData('a', $appointment["id"]);
+		for($j = 1; $j < count($customFields); $j++) {
+			$field = $customFields[$j];
+			$label = $field["txtdefsingle"];
+			if(isset($customData[$field["techname"]])) {
+				$value = $customData[$field["techname"]];
+				if($field["fieldtype"] == "BOOLEAN") {
+					$value = $value == 1 ? Lang::txt("StartView_writeAppointmentList.yes") : Lang::txt("StartView_writeAppointmentList.no");
+				}
+				$dataview->addElement($label, $value);
+			}
+		}
+		
+		$dataview->write();
+	}
+	
+	function startViewB() {
+		$oid = $_GET["oid"];
+		$reservation = $this->getData()->getReservation($oid);
+		
+		$dataview = new Dataview();
+		$dataview->addElement(Lang::txt("StartView_writeReservationList.name"), $reservation["name"]);
+		
+		// custom data
+		$customFields = $this->getData()->getCustomFields('b', true);
+		$customData = $this->getData()->getCustomData('b', $oid);
+		for($j = 1; $j < count($customFields); $j++) {
+			$field = $customFields[$j];
+			$label = $field["txtdefsingle"];
+			if(isset($customData[$field["techname"]])) {
+				$value = $customData[$field["techname"]];
+				if($field["fieldtype"] == "BOOLEAN") {
+					$value = $value == 1 ? Lang::txt("StartView_writeReservationList.yes") : Lang::txt("StartView_writeReservationList.no");
+				}
+				$dataview->addElement($label, $value);
+			}
+		}
+		
+		$dataview->write();
+	}
+	
+	function startViewV() {
+		$vote = $this->getData()->getVote($_GET["oid"]);
+		$dataview = new Dataview();
+		$dataview->addElement(Lang::txt("StartView_writeVoteList.name"), $vote["name"]);
+		$dataview->addElement(Lang::txt("StartView_writeVoteList.end"), Data::convertDateFromDb($vote["end"]));
+		$dataview->write();
+		
+		$this->voteOptions();
+	}
+	
 	/*
 	function startOld() {
 		$news = $this->getData()->getNews();
@@ -770,15 +829,15 @@ class StartView extends CrudRefLocationView {
 	}
 	
 	public function voteOptions() {
-		$this->checkID();
-		if(!$this->getData()->canUserVote($_GET["id"])) {
+		$oid = $_GET["oid"];
+		if(!$this->getData()->canUserVote($oid)) {
 			new BNoteError(Lang::txt("StartView_voteOptions.error"));
 		}
-		$vote = $this->getData()->getVote($_GET["id"]);
-		Writing::h2($vote["name"]);
+		$vote = $this->getData()->getVote($oid);
+		Writing::h4(Lang::txt("vote"), "mt-3");
 		
-		echo "<form action=\"" . $this->modePrefix() . "saveVote&id=" . $_GET["id"] . "\" method=\"POST\">\n";
-		$options = $this->getData()->getOptionsForVote($_GET["id"]);
+		echo "<form action=\"" . $this->modePrefix() . "saveVote&id=$oid\" method=\"POST\" class=\"mb-3\">\n";
+		$options = $this->getData()->getOptionsForVote($oid);
 		if(count($options) > 1) {
 			$dv = new Dataview();
 			for($i = 1 ; $i < count($options); $i++) {
@@ -832,7 +891,7 @@ class StartView extends CrudRefLocationView {
 				$dv->addElement($label, $in);
 			}
 			$dv->write();
-			echo '<input type="submit" value="abstimmen" />' . "\n";
+			echo '<input type="submit" class="btn btn-primary" />' . "\n";
 		}
 		else {
 			Writing::p(Lang::txt("StartView_voteOptions.noOptionsYet"));
@@ -843,8 +902,13 @@ class StartView extends CrudRefLocationView {
 	public function saveVote() {
 		$this->checkID();
 		$this->getData()->saveVote($_GET["id"], $_POST);
-		$msg = new Message(Lang::txt("StartView_saveVote.selectionSavedTitle"), Lang::txt("StartView_saveVote.selectionSavedMsg"));
-		$msg->write();
+		new Message(Lang::txt("StartView_saveVote.selectionSavedTitle"), Lang::txt("StartView_saveVote.selectionSavedMsg"));
+	}
+	
+	function saveVoteOptions() {
+		$back = new Link($this->modePrefix() . "start&otype=V&oid=" . $_GET["id"], Lang::txt("back"));
+		$back->addIcon("arrow-left");
+		$back->write();
 	}
 	
 	public function taskComplete() {
