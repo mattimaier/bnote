@@ -5,7 +5,7 @@
 label.calendar_eventdetail_key {
   width: 100px;
   display: inline-block;
-  color: #ED6D6D;
+  color: #dc3545;
 }
 #calendar_eventdetail {
   border: 0px solid #E6E6E6;
@@ -480,6 +480,30 @@ tr.odd td {
 table.dataTable th {
   border-bottom-color: #436f98;
 }
+/*
+ * Widgets
+ */
+.participation_widget {
+  border: 1px solid #E6E6E6;
+}
+.participation_button {
+  font-size: 1.5rem;
+  padding: 0.4rem;
+  line-height: 1;
+}
+.chatbar {
+  background-color: #f6f6f6;
+  border-left: 1px solid #D0D0D0;
+}
+.chat_message_box {
+  border: 1px solid #E6E6E6;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+}
+.message_author {
+  font-size: smaller;
+  color: #61b3ff;
+}
 @media print {
   .btn-toolbar {
     display: none;
@@ -696,7 +720,7 @@ div.start_box div.participate_0:hover {
   -webkit-transition: opacity 0.55s ease-in-out;
 }
 div.start_box div.participate_-1 {
-  border-color: #ED6D6D;
+  border-color: #dc3545;
   border-bottom-width: 2px;
 }
 div.start_box a.participation.participate_0 {
@@ -713,7 +737,7 @@ div.start_box a.participation.participate_0::before {
   display: inline-block;
 }
 div.start_box a.participation.participate_1 {
-  color: #58b658;
+  color: #198754;
 }
 div.start_box a.participation.participate_1::before {
   content: '';
@@ -783,15 +807,6 @@ div.start_box_table {
 div.start_box_row {
   display: table-row;
 }
-div.start_update_box {
-  border: 0px solid #E6E6E6;
-  border-bottom-width: 1px;
-  margin-bottom: 10px;
-}
-span.start_update_box_author {
-  font-size: 9pt;
-  color: #8A8A8A;
-}
 .start_rehearsal_title {
   font-weight: 600;
 }
@@ -806,20 +821,21 @@ a.start_card {
   border-left: 4px solid #61b3ff;
 }
 .start_card_due {
-  position: absolute;
-  right: 1em;
-  top: 0.8em;
+  display: block;
+  float: right;
+  margin-right: 1em;
+  margin-top: 0.8em;
   font-size: smaller;
   color: #8A8A8A;
 }
 .start_box_participation_no {
-  border-right: 4px solid #ED6D6D;
+  border-right: 4px solid #dc3545;
 }
 .start_box_participation_yes {
-  border-right: 4px solid #58b658;
+  border-right: 4px solid #198754;
 }
 .start_box_participation_maybe {
-  border-right: 4px solid #F9FF61;
+  border-right: 4px solid #ffc107;
 }
 .start_box_participation_unknown {
   border-right: 4px solid #8A8A8A;

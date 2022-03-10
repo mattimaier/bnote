@@ -19,7 +19,7 @@ class Dataview {
 	private $allowNumericLabels = false;
 	
 	/**
-	 * Sets an element / value with the given lable.
+	 * Sets an element / value with the given label.
 	 * 
 	 * @param String $label
 	 *        	Name of the attribute

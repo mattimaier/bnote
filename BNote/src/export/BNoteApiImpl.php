@@ -489,7 +489,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$_SESSION["user"] = $uid;
 		$res = $this->startdata->doesParticipateInRehearsal($rid);
 		unset($_SESSION["user"]);
-		return array("participate" => $res);
+		return $res;
 	}
 
 	function setRehearsalParticipation($rid, $uid, $part, $reason) {

@@ -38,27 +38,17 @@ class StartController extends DefaultController {
 	}
 	
 	private function saveParticipation() {
-		if(isset($_GET["action"]) && ($_GET["action"] == "maybe" || $_GET["action"] == "no")
-				&& (!isset($_POST["explanation"]) || $_POST["explanation"] == "")) {
-			// show reason view
-			$this->getView()->askReason($_GET["obj"]);
+		if(isset($_GET["otype"]) && isset($_GET["oid"])) {
+			if(!isset($_POST["participation"])) {
+				new BNoteError("Bug - no participation set");
+			}
+			$part = intval($_POST["participation"]);
+			$reason = isset($_POST["reason"]) ? $_POST["reason"] : "";
+			$this->getData()->saveParticipation($_GET["otype"], null, $_GET["oid"], $part, $reason);
+			$this->getView()->start();
 		}
 		else {
-			// map parameters (this is necessary due to old implementation)
-			switch($_GET["action"]) {
-				case "yes": $participate = 1; break;
-				case "no": $participate = 0; break;
-				case "maybe": $participate = 2; break;
-				default: $participate = -1; break;  // not set
-			}
-			
-			$reason = "";
-			if(isset($_POST['explanation'])) {
-				$reason = $_POST['explanation'];
-			}
-			
-			$this->getData()->saveParticipation($_GET["obj"], null, $_GET["id"], $participate, $reason);
-			$this->getView()->start();
+			new BNoteError("Bug - no otype/oid set.");
 		}
 	}
 	

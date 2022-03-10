@@ -40,12 +40,12 @@ class StartData extends AbstractLocationData {
 	 * @return Integer 2 if the user maybe participated, 1 if the user participates, 0 if not, -1 if not chosen yet.
 	 */
 	function doesParticipateInRehearsal($rid) {
-		$partQuery = "SELECT participate FROM rehearsal_user WHERE user = ? AND rehearsal = ?";
-		$part = $this->database->colValue($partQuery, "participate", array(array("i", $this->getUserId()), array("i", $rid)));
-		if($part == "0" || $part == "1" || $part == "2") {
-			return $part;
+		$partQuery = "SELECT participate, reason FROM rehearsal_user WHERE user = ? AND rehearsal = ?";
+		$res = $this->database->fetchRow($partQuery, array(array("i", $this->getUserId()), array("i", $rid)));
+		if($res == NULL) {
+			return array("participate" => -1, "reason" => "");
 		}
-		else return -1;
+		return $res;
 	}
 	
 	/**
@@ -58,36 +58,41 @@ class StartData extends AbstractLocationData {
 		if($uid == -1) {
 			$uid = $this->getUserId();
 		}
-		$partQuery = "SELECT participate FROM concert_user WHERE user = ? AND concert = ?";
-		$part = $this->database->colValue($partQuery, "participate", array(array("i", $uid), array("i", $cid)));
-		if($part == "1") return 1;
-		else if($part == "0") return 0;
-		else if($part == "2") return 2;
-		else return -1;
+		$partQuery = "SELECT participate, reason FROM concert_user WHERE user = ? AND concert = ?";
+		$res = $this->database->fetchRow($partQuery, array(array("i", $uid), array("i", $cid)));
+		if($res == NULL) {
+			return array("participate" => -1, "reason" => "");
+		}
+		return $res;
 	}
 	
-	function saveParticipation($entity, $uid, $id, $participate, $reason) {
+	function saveParticipation($otype, $uid, $id, $participate, $reason) {
 		if($uid == null) {
 			$uid = $this->getUserId();
 		}
-		$table = $entity . "_user";
-		$this->regex->isDbItem($table, "table"); // checks both entity and table value
+		switch($otype) {
+			case "R": $entity = "rehearsal"; break;
+			case "C": $entity = "concert"; break;
+			default:
+				new BNoteError("Unknown entity for $otype");
+		}
+		$table = $entity . "_user"; // table name hardcoded, see switch above
 		
 		// remove
 		$query = "DELETE FROM $table WHERE $entity = ? AND user = ?";
 		$this->database->execute($query, array(array("i", $id), array("i", $uid)));
 		
 		// insert
-		if($reason != null && isset($_POST["explanation"])) {
+		if($reason != null) {
 			// save non-participation with reason
-			$this->regex->isText($_POST["explanation"]);
+			$this->regex->isText($reason);
 		}
 		else {
 			$reason = "";
 		}
 		$query = "INSERT INTO $table ($entity, user, participate, reason)";
 		$query .= " VALUES (?, ?, ?, ?)";
-		$this->database->execute($query, array(
+		$this->database->prepStatement($query, array(
 				array("i", $id), array("i", $uid), array("i", $participate), array("s", $reason)
 		));
 	}
@@ -197,9 +202,9 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function taskComplete($tid) {
-		$date = date("Y-m-d H:i:s");
-		$query = "UPDATE task SET is_complete = 1, completed_at = \"$date\" WHERE id = $tid";
-		$this->database->execute($query);
+		$query = "UPDATE task SET is_complete = 1, completed_at = NOW() WHERE id = ?";
+		$params = array(array("i", $tid));
+		$this->database->execute($query, $params);
 	}
 	
 	function getUsersRehearsals($uid = -1) {
@@ -271,7 +276,11 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getRehearsal($rid) {
-		return $this->database->fetchRow("SELECT * FROM rehearsal WHERE id = ?", array(array("i", $rid)));
+		$query = "SELECT * FROM rehearsal r 
+					JOIN location l ON r.location = l.id
+					JOIN address a ON l.address = a.id 
+				   WHERE r.id = ?";
+		return $this->database->fetchRow($query, array(array("i", $rid)));
 	}
 	
 	function getConcert($cid) {
@@ -309,44 +318,7 @@ class StartData extends AbstractLocationData {
 		
 		return $this->database->getSelection($query, $params);
 	}
-	
-	function hasObjectDiscussion($otype, $oid) {
-		$ctq = "SELECT count(*) as cnt FROM comment WHERE otype = ? AND oid = ?";
-		$ct = $this->database->colValue($ctq, "cnt", array(array("s", $otype), array("i", $oid)));
-		return ($ct > 0);
-	}
-	
-	function getDiscussion($otype, $oid) {
-		$query = "SELECT c.*, CONCAT(a.name, ' ', a.surname) as author, a.id as author_id ";
-		$query .= "FROM comment c JOIN user u ON c.author = u.id ";
-		$query .= "JOIN contact a ON u.contact = a.id ";
-		$query .= "WHERE c.oid = ? AND c.otype = ? ";
-		$query .= "ORDER BY c.created_at DESC";
-		return $this->database->getSelection($query, array(array("i", $oid), array("s", $otype)));
-	}
-	
-	function addComment($otype, $oid, $message = "", $author = -1) {
-		if($message == "") {
-			$message = $_POST["message"];
-		}
 		
-		// validation
-		require_once $this->dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php";
-		$newsData = new NachrichtenData();
-		$newsData->check($message);
-		
-		// preparation
-		$message = urlencode($message);
-		
-		if($author == -1) $author = $this->getUserId();
-		
-		// insertion
-		$query = "INSERT INTO comment (otype, oid, author, created_at, message) VALUES (?, ?, ?, now(), ?)";		
-		return $this->database->execute($query, array(
-				array("s", $otype), array("i", $oid), array("i", $author), array("s", $message)
-		));
-	}
-	
 	function getContactsForObject($otype, $oid) {
 		if($otype == "R") {
 			require_once $this->dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
@@ -512,14 +484,14 @@ class StartData extends AbstractLocationData {
 			if($r["conductor"] > 0) array_push($previewItems, $this->adp()->getConductorname($r["conductor"]));
 			if($r["notes"] != "") array_push($previewItems, $r["notes"]);
 			array_push($items, array(
-					"itemType" => "rehearsal",
-					"id" => $r["id"],
+					"otype" => "R",
+					"oid" => $r["id"],
 					"title" => Lang::txt("StartData_inboxItems.rehearsalOn") . " " . Data::convertDateFromDb($r["begin"]),
 					"preview" => join(", ", $previewItems),
 					"due" => Data::convertDateFromDb($r["approve_until"]),
 					"eventBegin" => $r["begin"],
 					"replyUntil" => $r["approve_until"],
-					"participation" => $this->doesParticipateInRehearsal($r["id"])
+					"participation" => $this->doesParticipateInRehearsal($r["id"])["participate"]
 			));
 		}
 		
@@ -528,14 +500,14 @@ class StartData extends AbstractLocationData {
 		for($i = 1; $i < count($concerts); $i++) {
 			$c = $concerts[$i];
 			array_push($items, array(
-					"itemType" => "concert",
-					"id" => $c["id"],
+					"otype" => "C",
+					"oid" => $c["id"],
 					"title" => Lang::txt("StartData_inboxItems.concertOn") . " " . Data::convertDateFromDb($c["begin"]),
 					"preview" => $c["title"] . ", " . $c["location_name"],
 					"due" => Data::convertDateFromDb($c["approve_until"]),
 					"eventBegin" => $c["begin"],
 					"replyUntil" => $c["approve_until"],
-					"participation" => $this->doesParticipateInConcert($c["id"])
+					"participation" => $this->doesParticipateInConcert($c["id"])["participate"]
 			));
 		}
 		
@@ -544,8 +516,8 @@ class StartData extends AbstractLocationData {
 		for($i = 1; $i < count($appointments); $i++) {
 			$a = $appointments[$i];
 			array_push($items, array(
-					"itemType" => "appointment",
-					"id" => $a["id"],
+					"otype" => "A",
+					"oid" => $a["id"],
 					"title" => Lang::txt("StartData_inboxItems.appointmentOn") . " " . Data::convertDateFromDb($a["begin"]),
 					"preview" => $a["name"] . ", " . $a["locationname"],
 					"due" => NULL,
@@ -559,8 +531,8 @@ class StartData extends AbstractLocationData {
 		for($i = 1; $i < count($reservations); $i++) {
 			$r = $reservations[$i];
 			array_push($items, array(
-					"itemType" => "reservation",
-					"id" => $r["id"],
+					"otype" => "B",
+					"oid" => $r["id"],
 					"title" => Lang::txt("StartData_inboxItems.reservationOn") . " " . Data::convertDateFromDb($r["begin"]),
 					"preview" => $r["name"] . ", " . $a["locationname"],
 					"due" => NULL,
@@ -574,8 +546,8 @@ class StartData extends AbstractLocationData {
 		for($i = 1; $i < count($votes); $i++) {
 			$v = $votes[$i];
 			array_push($items, array(
-					"itemType" => "vote",
-					"id" => $v["id"],
+					"otype" => "V",
+					"oid" => $v["id"],
 					"title" => $v["name"],
 					"preview" => Lang::txt("vote"),
 					"due" => Data::convertDateFromDb($v["end"]),
@@ -589,8 +561,8 @@ class StartData extends AbstractLocationData {
 		for($i = 1; $i < count($tasks); $i++) {
 			$t = $tasks[$i];
 			array_push($items, array(
-					"itemType" => "task",
-					"id" => $t["id"],
+					"otype" => "T",
+					"oid" => $t["id"],
 					"title" => $t["title"],
 					"preview" => substr($t["description"], 0, 50),
 					"due" => Data::convertDateFromDb($t["due_at"]),
@@ -600,5 +572,9 @@ class StartData extends AbstractLocationData {
 		}
 		
 		return $items;
+	}
+	
+	function getTask($taskId) {
+		return $this->database->fetchRow("SELECT * FROM task WHERE id = ?", array(array("i", $taskId)));
 	}
 }

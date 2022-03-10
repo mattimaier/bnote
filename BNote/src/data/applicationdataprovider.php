@@ -544,4 +544,49 @@ class ApplicationDataProvider {
 	function getAddress($addressId) {
 		return $this->database->fetchRow("SELECT * FROM address WHERE id = ?", array(array("i", $addressId)));
 	}
+	
+	function getDiscussion($otype, $oid) {
+		$query = "SELECT c.*, CONCAT(a.name, ' ', a.surname) as author, a.id as author_id ";
+		$query .= "FROM comment c JOIN user u ON c.author = u.id ";
+		$query .= "JOIN contact a ON u.contact = a.id ";
+		$query .= "WHERE c.oid = ? AND c.otype = ? ";
+		$query .= "ORDER BY c.created_at DESC";
+		return $this->database->getSelection($query, array(array("i", $oid), array("s", $otype)));
+	}
+	
+	function hasObjectDiscussion($otype, $oid) {
+		$ctq = "SELECT count(*) as cnt FROM comment WHERE otype = ? AND oid = ?";
+		$ct = $this->database->colValue($ctq, "cnt", array(array("s", $otype), array("i", $oid)));
+		return ($ct > 0);
+	}
+	
+	function addComment($otype, $oid, $message = "", $author = -1) {
+		if($message == "") {
+			$message = $_POST["message"];
+		}
+		
+		// validation
+		$this->checkMessage($message);
+		
+		// preparation
+		$message = urlencode($message);
+		
+		if($author == -1) $author = $this->sysdata->getUserId();
+		
+		// insertion
+		$query = "INSERT INTO comment (otype, oid, author, created_at, message) VALUES (?, ?, ?, now(), ?)";
+		return $this->database->prepStatement($query, array(
+				array("s", $otype), array("i", $oid), array("i", $author), array("s", $message)
+		));
+	}
+	
+	public function checkMessage($content) {
+		$content = strtolower($content);
+		if(strpos($content, "<script") !== false
+				|| strpos($content, "<iframe") !== false
+				|| strpos($content, "<frame") !== false
+				|| strpos($content, "<embed") !== false) {
+			new BNoteError(Lang::txt("NachrichtenData_check.error"));
+		}
+	}
 }

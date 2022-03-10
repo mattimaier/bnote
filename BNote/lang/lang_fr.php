@@ -412,6 +412,14 @@ class Translation extends BNoteTranslation {
 			"Table_write.sZeroRecords" => "Aucune entrée n'a été trouvée.",
 			"Table_write.sSearch" => "Filtre :",
 			
+			// Widget: Participation
+			"ParticipationWidget_write.participation" => "Participation",
+			"ParticipationWidget_write.reason" => "Raison / note",
+			"ParticipationWidget_write.save" => "Enregistrer",
+			
+			// Widget: Chat
+			"ChatWidget_write.messagePlaceholder" => "Votre message...",
+			
 			// Module *********************************************************************************************************************
 			
 			// module: Abstimmung *********************************************
@@ -1827,6 +1835,7 @@ class Translation extends BNoteTranslation {
 			"StartView_start.Feed" => "Nouvelles",
 			"StartView_start.Calendar" => "Calendrier",
 			"StartView_start.Inbox" => "Boîte de réception",
+			"StartView_startViewR.info" => "Détails de l'échantillon",
 			"StartView_startOptions.calendarExport" => "Exportation du calendrier",
 			"StartView_startOptions.calendarSubscribe" => "S'abonner à l'agenda",
 			"StartView_start.box_heading" => "Déclaration de consentement à la protection des données",

@@ -48,12 +48,4 @@ class NachrichtenData extends AbstractData {
 		file_put_contents($this->newsFile, $content);
 	}
 	
-	public function check($content) {
-		$content = strtolower($content);
-		if(strpos($content, "<script") !== false
-			|| strpos($content, "<iframe") !== false
-			|| strpos($content, "<frame") !== false) {
-				new BNoteError(Lang::txt("NachrichtenData_check.error"));
-		}
-	}
 }
