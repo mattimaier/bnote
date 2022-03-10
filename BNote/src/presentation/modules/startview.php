@@ -315,14 +315,20 @@ class StartView extends CrudRefLocationView {
 	}
 	
 	function startViewT() {
+		?>
+		<div class="mb-3">
+			<a href="<?php echo $this->modePrefix() . "taskComplete&otype=T&oid=" . $_GET["oid"]; ?>" class="btn btn-primary">
+				<i class="bi-check"></i>
+				<?php echo Lang::txt("StartView_taskComplete.taskCompletedTitle"); ?>
+			</a>
+		</div>
+		<?php
 		$task = $this->getData()->getTask($_GET["oid"]);
 		$dataview = new Dataview();
 		$dataview->addElement(Lang::txt("StartView_writeTaskList.title"), $task["title"]);
 		$dataview->addElement(Lang::txt("StartView_writeTaskList.description"), $task["description"]);
 		$dataview->addElement(Lang::txt("StartView_writeTaskList.due_at"), Data::convertDateFromDb($task["due_at"]));
 		$dataview->write();
-		
-		//TODO continue by adding "mark task complete" widget
 	}
 	
 	/*
@@ -832,8 +838,6 @@ class StartView extends CrudRefLocationView {
 			Writing::p(Lang::txt("StartView_voteOptions.noOptionsYet"));
 		}
 		echo "</form>\n";
-		$this->verticalSpace();
-		$this->backToStart();
 	}
 	
 	public function saveVote() {
@@ -841,14 +845,14 @@ class StartView extends CrudRefLocationView {
 		$this->getData()->saveVote($_GET["id"], $_POST);
 		$msg = new Message(Lang::txt("StartView_saveVote.selectionSavedTitle"), Lang::txt("StartView_saveVote.selectionSavedMsg"));
 		$msg->write();
-		$this->backToStart();
 	}
 	
 	public function taskComplete() {
-		$this->checkID();
-		$this->getData()->taskComplete($_GET["id"]);
-		$msg = new Message(Lang::txt("StartView_taskComplete.taskCompletedTitle"), Lang::txt("StartView_taskComplete.taskCompletedMsg"));
-		$msg->write();
+		$this->getData()->taskComplete($_GET["oid"]);
+		new Message(Lang::txt("StartView_taskComplete.taskCompletedTitle"), Lang::txt("StartView_taskComplete.taskCompletedMsg"));
+	}
+	
+	public function taskCompleteOptions() {
 		$this->backToStart();
 	}
 	
