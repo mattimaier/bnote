@@ -60,7 +60,7 @@ class ProbenView extends CrudRefLocationView {
 	function addEntity($form_target=null, $tour=null) {
 		// check whether a location exists
 		if(!$this->getData()->locationsPresent()) {
-			$msg = new Message(Lang::txt("ProbenView_addEntity.message_1"), Lang::txt("ProbenView_addEntity.message_2"));
+			new Message(Lang::txt("ProbenView_addEntity.message_1"), Lang::txt("ProbenView_addEntity.message_2"));
 			$this->backToStart();
 			return;
 		}
@@ -72,28 +72,29 @@ class ProbenView extends CrudRefLocationView {
 		$form = new Form(Lang::txt($this->getaddEntityName()), $form_target);
 		
 		// begin
-		$beginField = new Field("begin", date("Y-m-d") . " " . $this->getData()->getDefaultTime(), Field::FIELDTYPE_DATETIME_SELECTOR);
+		$beginField = new Field("begin", date("Y-m-d") . " " . $this->getData()->getDefaultTime(), FieldType::DATETIME);
 		$beginField->setCssClass("copyDateOrigin");
-		$form->addElement(Lang::txt("ProbenView_addEntity.begin"), $beginField);
+		$form->addElement(Lang::txt("ProbenView_addEntity.begin"), $beginField, true, 4);
 		
 		// end
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("rehearsal_show_length") == 0) {
 			$end = Data::addMinutesToDate(date("Y-m-d") . " " . $this->getData()->getDefaultTime() . ":00", $this->getData()->getDefaultDuration());
-			$form->addElement(Lang::txt("ProbenView_addEntity.end"), new Field("end", $end, Field::FIELDTYPE_DATETIME_SELECTOR));
+			$form->addElement(Lang::txt("ProbenView_addEntity.end"), new Field("end", $end, FieldType::DATETIME), true, 4);
 		}
 		else {
-			$form->addElement(Lang::txt("ProbenView_addEntity.duration"), new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER));
+			$form->addElement(Lang::txt("ProbenView_addEntity.duration"), new Field("duration", $this->getData()->getDefaultDuration(), FieldType::INTEGER), true, 4);
 		}
+		
+		// approve until
+		$approve_until_field = new Field("approve_until", "", FieldType::DATETIME);
+		$approve_until_field->setCssClass("copyDateTarget");
+		$form->addElement(Lang::txt("ProbenView_addEntity.approve_until"), $approve_until_field, true, 4);
 		
 		// location
 		$form->addElement("location", new Field("location", "", FieldType::REFERENCE));
 		$form->setForeign("location", "location", "id", "name", -1);
 		$form->renameElement("location", Lang::txt("ProbenView_addEntity.location"));
 		
-		// approve until
-		$approve_until_field = new Field("approve_until", "", FieldType::DATETIME);
-		$approve_until_field->setCssClass("copyDateTarget");
-		$form->addElement(Lang::txt("ProbenView_addEntity.approve_until"), $approve_until_field);
 		
 		// conductor
 		$form->addElement(Lang::txt("ProbenView_addEntity.conductor"), $this->buildConductorDropdown());
@@ -102,7 +103,7 @@ class ProbenView extends CrudRefLocationView {
 		$this->appendCustomFieldsToForm($form, 'r');
 		
 		// notes
-		$form->addElement(Lang::txt("ProbenView_addEntity.notes"), new Field("notes", "", FieldType::TEXT));
+		$form->addElement(Lang::txt("ProbenView_addEntity.notes"), new Field("notes", "", FieldType::TEXT), false, 12);
 		
 		// groups
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
