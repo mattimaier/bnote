@@ -60,11 +60,11 @@ class LoginData extends AbstractLocationData {
 	
 	function getUserIdForEMail($email) {
 		// check whether mail-address is unique
-		$ct = $this->database->colValue("SELECT count(id) as cnt FROM contact WHERE email = ?", "cnt", array(array("s", $email)));
+		$ct = $this->database->colValue("SELECT count(id) as cnt FROM contact WHERE lower(email) = ?", "cnt", array(array("s", strtolower($email))));
 		if($ct != 1) { return -1; }
 		
 		// if it's unique return the user's id
-		$contact = $this->database->colValue("SELECT id FROM contact WHERE email = ?", "id", array(array("s", $email)));
+		$contact = $this->database->colValue("SELECT id FROM contact WHERE lower(email) = ?", "id", array(array("s", strtolower($email))));
 		if($contact < 1) { return -1; }
 		
 		// check more than 1 user for this contact

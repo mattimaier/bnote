@@ -116,7 +116,7 @@ class LoginController extends DefaultController {
 		$username = $this->getData()->getUsernameForId($uid);
 		
 		// generate new password
-		$password = $this->generatePassword(6);
+		$password = $this->generatePassword(8);
 		
 		// generate email
 		$subject = Lang::txt("LoginController_pwForgot.subject");
