@@ -846,10 +846,12 @@ class Translation extends BNoteTranslation {
 			"KommunikationController_prepareMail.message_6" => "Vous trouverez plus de détails dans BNote.",
 			"KommunikationController_prepareMail.subject" => "Vote: ",
 			"KommunikationController_prepareMail.vote_message" => "Veuillez voter pour le vote sur BNote dans l'objet du message..",
+			"KommunikationController_prepareMail.inclreceivers" => "Destinataire de ce message",
 			"KommunikationController_sendMail.error" => "Aucun destinataire trouvé.",
 
 			// KommunikationView
 			"KommunikationView_start.title" => "Message",
+			"KommunikationView_start.includeReceivers" => "Insérer le groupe de destinataires au-dessus du texte",
 			"KommunikationView_startOptions.rehearsalMail" => "Message pour une répétitions",
 			"KommunikationView_startOptions.rehearsalSerieMail" => "Message d'une série de répétitions",
 			"KommunikationView_startOptions.concertMail" => "Message de concert",

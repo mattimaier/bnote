@@ -82,6 +82,22 @@ class KommunikationController extends DefaultController {
 			global $system_data;
 			$_POST["subject"] = $system_data->getCompany(); // band name
 		}
+		if(isset($_POST["inclreceivers"]) && $_POST["inclreceivers"] == "on") {
+			$groups = $this->getData()->adp()->getGroups(true, false);
+			$groupIds = GroupSelector::getPostSelection($groups, "group");
+			$groupNames = array();
+			// doing this in memory is faster than selecting from DB again
+			foreach($groupIds as $id) {
+				for($g = 1; $g < count($groups); $g++) {
+					if($groups[$g]["id"] == $id) {
+						array_push($groupNames, $groups[$g]["name"]);
+						break;
+					}
+				}
+			}
+			$inclrev = Lang::txt("KommunikationController_prepareMail.inclreceivers") . ": " . join(", ", $groupNames);
+			$_POST["message"] = $inclrev . "\n\n" . $_POST["message"];
+		}
 	}
 	
 	/**
