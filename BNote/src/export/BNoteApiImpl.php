@@ -370,7 +370,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		}
 		else {
 			$msd = new MitspielerData($GLOBALS["dir_prefix"]);
-			$contacts = $msd->getMembers($this->uid);
+			$contacts = $msd->getMembers();
 			unset($contacts[0]);  // header
 			$contacts = $this->removeNumericKeys($contacts);
 		}

@@ -945,7 +945,10 @@ class Translation extends BNoteTranslation {
 			"KontaktdatenView_settings.saveSettings" => "Modifier les paramètres",
 			"KontaktdatenView_settings.email_notification" => "Notification par courriel à",
 			"KontaktdatenView_saveSettings.Message_1" => "Paramètres sauvegardés",
-			"KontaktdatenView_saveSettings.Message_2" => "Vos Paramètres ont été verrouillés.",	
+			"KontaktdatenView_saveSettings.Message_2" => "Vos Paramètres ont été verrouillés.",
+			"KontaktdatenView_start.share_address" => "Partager l'adresse avec d'autres membres",
+			"KontaktdatenView_start.share_phones" => "Partager des numéros de téléphone avec d'autres membres",
+			"KontaktdatenView_start.share_birthday" => "Partager l'anniversaire avec d'autres membres",
 			
 			// module: Kontakte *********************************************	
 			
@@ -967,6 +970,9 @@ class Translation extends BNoteTranslation {
 			"KontakteData_construct.is_conductor" => "Chef d'orchestre",
 			"KontakteData_construct.birthday" => "Anniversaire",
 			"KontakteData_construct.status" => "Statut",
+			"KontakteData_construct.share_address" => "Partager l'adresse",
+			"KontakteData_construct.share_phones" => "Partager des numéros de téléphone",
+			"KontakteData_construct.share_birhtday" => "Partager l'anniversaire",
 			"KontakteData_validate.errorNameRequired" => "Veuillez fournir au moins un nom.",
 
 			// KontakteController				

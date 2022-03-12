@@ -947,6 +947,9 @@ class Translation extends BNoteTranslation {
 			"KontaktdatenView_settings.email_notification" => "E-mail notification to",
 			"KontaktdatenView_saveSettings.Message_1" => "Settings saved",
 			"KontaktdatenView_saveSettings.Message_2" => "Your settings have been locked.",
+			"KontaktdatenView_start.share_address" => "Share address with other members",
+			"KontaktdatenView_start.share_phones" => "Share phone numbers with other members",
+			"KontaktdatenView_start.share_birthday" => "Share birthday with other members",
 			
 			// module: Kontakte *********************************************
 			
@@ -968,6 +971,9 @@ class Translation extends BNoteTranslation {
 			"KontakteData_construct.is_conductor" => "Is conductor",
 			"KontakteData_construct.birthday" => "Birthday",
 			"KontakteData_construct.status" => "Status",
+			"KontakteData_construct.share_address" => "Shares address",
+			"KontakteData_construct.share_phones" => "Shares phone numbers",
+			"KontakteData_construct.share_birhtday" => "Shares birthday",
 			"KontakteData_validate.errorNameRequired" => "Please provide at least one name.",
 			
 			// KontakteController				

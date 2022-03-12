@@ -946,6 +946,9 @@ class Translation extends BNoteTranslation {
 			"KontaktdatenView_settings.email_notification" => "E-Mail Benachrichtigung an",
 			"KontaktdatenView_saveSettings.Message_1" => "Einstellungen gespeichert",
 			"KontaktdatenView_saveSettings.Message_2" => "Deine Einstellungen wurden gesperichert.",
+			"KontaktdatenView_start.share_address" => "Adresse mit anderen Mitgliedern teilen",
+			"KontaktdatenView_start.share_phones" => "Telefonnummern mit anderen Mitgliedern teilen",
+			"KontaktdatenView_start.share_birthday" => "Geburtstag mit anderen Mitgliedern teilen",
 			
 			// module: Kontakte *********************************************
 			
@@ -967,6 +970,9 @@ class Translation extends BNoteTranslation {
 			"KontakteData_construct.is_conductor" => "Ist Dirigent",
 			"KontakteData_construct.birthday" => "Geburtstag",
 			"KontakteData_construct.status" => "Status",
+			"KontakteData_construct.share_address" => "Addresse geteilt",
+			"KontakteData_construct.share_phones" => "Telefonnummern geteilt",
+			"KontakteData_construct.share_birhtday" => "Geburtstag geteilt",
 			"KontakteData_validate.errorNameRequired" => "Bitte gebe mindestens einen Namen an.",
 			
 			// KontakteController				

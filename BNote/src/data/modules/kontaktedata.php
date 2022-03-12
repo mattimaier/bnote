@@ -40,7 +40,10 @@ class KontakteData extends AbstractLocationData {
 			"instrument" => array(Lang::txt("KontakteData_construct.instrument"), FieldType::REFERENCE),
 			"is_conductor" => array(Lang::txt("KontakteData_construct.is_conductor"), FieldType::BOOLEAN),
 			"birthday" => array(Lang::txt("KontakteData_construct.birthday"), FieldType::DATE),
-			"status" => array(Lang::txt("KontakteData_construct.status"), FieldType::ENUM)
+			"status" => array(Lang::txt("KontakteData_construct.status"), FieldType::ENUM),
+			"share_address" => array(Lang::txt("KontakteData_construct.share_address"), FieldType::BOOLEAN),
+			"share_phones" => array(Lang::txt("KontakteData_construct.share_phones"), FieldType::BOOLEAN),
+			"share_birthday" => array(Lang::txt("KontakteData_construct.share_birthday"), FieldType::BOOLEAN),
 		);
 		
 		$this->references = array(

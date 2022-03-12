@@ -50,7 +50,7 @@ class KontaktdatenData extends KontakteData {
 		// update custom data
 		$this->updateCustomFieldData('c', $contact_id, $values, true);
 		
-		// update info
+		// update entry in db
 		AbstractData::update($contact_id, $values); // includes validation
 	}
 	

@@ -31,25 +31,46 @@ class MitspielerData extends AbstractLocationData {
 	}
 	
 	/**
-	 * Retrieves all members from the database which are associated with given or current user.
-	 * @param Integer $uid optional: User ID, by default current user.
-	 * @param Boolean $singleInfo optional: Display Name, Surname and ID in single field
+	 * Retrieves all members from the database which are associated with the current user.
 	 * @return Array Members of groups and phases the current user is part of.
 	 */
-	function getMembers($uid = -1, $singleInfo = true) {
-		if($uid == -1) {
-			$uid = $this->getUserId();
-		}
+	function getMembers() {
+		$uid = $this->getUserId();
 		
-		$single = ", c.id";
-		if($singleInfo) $single .= ", c.name, c.surname";
-		$fields = "c.id, CONCAT(c.name, ' ', c.surname) as fullname, nickname, phone, mobile, email, web, fax, business, 
-				notes,  a.street, a.zip, a.city, i.id as instrument, i.name as instrumentname, birthday" . $single;
+		$fields = array(
+				"c.id",
+				"c.name",
+				"c.surname",
+				"CONCAT(c.name, ' ', c.surname) as fullname",
+				"nickname",
+				"email",
+				"web",
+				"i.id as instrument",
+				"i.name as instrumentname",
+				"notes",
+				
+				// address fields
+				"IF(share_address = 1, a.street, '') as street",
+				"IF(share_address = 1, a.zip, '') as zip",
+				"IF(share_address = 1, a.city, '') as city",
+				"IF(share_address = 1, a.state, '') as state",
+				"IF(share_address = 1, a.country, '') as country",
+				
+				// phone fields
+				"IF(share_phones = 1, phone, '') as phone",
+				"IF(share_phones = 1, mobile, '') as mobile",
+				"IF(share_phones = 1, fax, '') as fax",
+				"IF(share_phones = 1, business, '') as business",
+				
+				// birthday field
+				"IF(share_birthday = 1, birthday, '') as birthday"
+		);
+		$fieldsStr = join(",", $fields);
 		$order = "ORDER BY fullname, instrument";
 		
 		// Super User or Admin
 		if($this->getSysdata()->isUserSuperUser($uid) || $this->getSysdata()->isUserMemberGroup(1, $uid)) {
-			$query = "SELECT $fields FROM contact c
+			$query = "SELECT $fieldsStr FROM contact c
 					  JOIN instrument i ON c.instrument = i.id
 					  LEFT JOIN address a ON c.address = a.id
 					  $order";
@@ -62,7 +83,7 @@ class MitspielerData extends AbstractLocationData {
 		$cid = $currContact["id"];
 		
 		// get user's groups
-		$query = "SELECT DISTINCT $fields
+		$query = "SELECT DISTINCT $fieldsStr
 					FROM (
 					  SELECT `group` as id FROM contact_group WHERE contact = ?
 					) as groups JOIN contact_group ON groups.id = contact_group.group
@@ -74,7 +95,7 @@ class MitspielerData extends AbstractLocationData {
 		$groupContacts = $this->database->getSelection($query, array(array("i", $cid)));
 		
 		// get user's phases
-		$query = "SELECT DISTINCT $fields
+		$query = "SELECT DISTINCT $fieldsStr
 					FROM (
 					  SELECT rehearsalphase FROM rehearsalphase_contact WHERE contact = ?
 					) as phases JOIN rehearsalphase_contact ON phases.rehearsalphase = rehearsalphase_contact.rehearsalphase
@@ -124,7 +145,6 @@ class MitspielerData extends AbstractLocationData {
 	}
 	
 	public function getContact($cid) {
-		//TODO: Update member data access to make it more GDPR compliant
 		$members = $this->getMembers();
 		$found = false;
 		for($i = 1; $i < count($members); $i++) {

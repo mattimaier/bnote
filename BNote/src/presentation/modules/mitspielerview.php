@@ -20,7 +20,7 @@ class MitspielerView extends CrudRefLocationView {
 		<div class="row px-2">
 		<?php
 		if($this->getData()->getSysdata()->getUsersContact() == "") return;
-		$members = $this->getData()->getMembers($this->getUserId(), false);
+		$members = $this->getData()->getMembers();
 		$customFields = $this->getData()->getCustomFields('c', true);
 		
 		for($i = 1; $i < count($members); $i++) {
