@@ -904,7 +904,8 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.default_conductor" => "Standarddirigent",
 			"KonfigurationData_construct.currency" => "Währung",
 			"KonfigurationData_construct.concert_show_max" => "Anzahl Auftritte auf Startseite",
-			"KonfigurationData_construct.appointments_show_max" => "Anzahl Termine auf Startseite",
+			"KonfigurationData_construct.export_rehearsal_notes" => "Probennotizen exportieren",
+			"KonfigurationData_construct.export_rehearsalsong_notes" => "Proben: Anmerkungen der Stücke zum üben exportieren",
 			"KonfigurationData_replaceParameterValue.yes" => "ja",
 			"KonfigurationData_replaceParameterValue.no" => "nein",
 			

@@ -153,7 +153,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	}
 	
 	// get songs to practise
-	$query = "SELECT title ";
+	$query = "SELECT title, rs.notes ";
 	$query .= "FROM song s, rehearsal_song rs ";
 	$query .= "WHERE rs.rehearsal = ? AND s.id = rs.song ";
 	$query .= "ORDER BY title";
@@ -167,15 +167,15 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	
 	// write songs to practise in notes
 	$notes .= "Bitte folgende Stücke üben: ";
+	$songsToPractise = array();
 	for($j = 1; $j < count($songs); $j++) {
-		$notes .= urldecode($songs[$j]["title"]) . "\\, ";
+		$s = urldecode($songs[$j]["title"]);
+		if($system_data->getDynamicConfigParameter("export_rehearsalsong_notes") == 1) {
+			$s .= " (" . $songs[$j]["notes"] . ")";
+		}
+		array_push($songsToPractise, $s);
 	}
-	if(count($songs) > 1) {
-		$notes = substr($notes, 0, strlen($notes)-2);
-	}
-	else {
-		$notes .= "keine";
-	}
+	$notes .= count($songs) > 1 ? join("\\, ", $songsToPractise) : "-";
 	
 	// participants
 	$query = "SELECT c.id, c.surname, c.name, c.email, ru.participate, ru.reason";
@@ -253,6 +253,10 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	{
 		$line = "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
  		echo $line;
+	}
+	
+	if(intval($system_data->getDynamicConfigParameter("export_rehearsal_notes")) == 1) {
+		$notes .= "\n" . $rehearsals[$i]["notes"];
 	}
 	
 	$notes = str_replace("\n","\\n", $notes);

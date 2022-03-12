@@ -240,7 +240,7 @@ $update = new UpdateDb();
  */
 
 //TODO: Also change all following this in installation script
-
+/*
 // Task: Adapt modules as part of a new navigation structure in BNote 4
 $update->addColumnToTable("module", "icon", "varchar(50)");
 $update->addColumnToTable("module", "category", "varchar(50)");
@@ -285,6 +285,10 @@ $update->addModule("Admin", "gear-fill", "admin");
 $update->addColumnToTable("contact", "share_address", "int(1) default 1");
 $update->addColumnToTable("contact", "share_phones", "int(1) default 1");
 $update->addColumnToTable("contact", "share_birthday", "int(1) default 1");
+*/
+// Task: Add configuration
+$update->addDynConfigParam("export_rehearsal_notes", 0);
+$update->addDynConfigParam("export_rehearsalsong_notes", 0);
 
 ?>
 

@@ -50,7 +50,8 @@ class KonfigurationData extends AbstractLocationData {
 				"default_conductor" => array(Lang::txt("KonfigurationData_construct.default_conductor"), FieldType::REFERENCE),
 				"currency" => array(Lang::txt("KonfigurationData_construct.currency"), FieldType::CHAR),
 				"concert_show_max" => array(Lang::txt("KonfigurationData_construct.concert_show_max"), FieldType::INTEGER),
-				"appointments_show_max" => array(Lang::txt("KonfigurationData_construct.appointments_show_max"), FieldType::INTEGER)
+				"export_rehearsal_notes" => array(Lang::txt("KonfigurationData_construct.export_rehearsal_notes"), FieldType::BOOLEAN),
+				"export_rehearsalsong_notes" => array(lang::txt("KonfigurationData_construct.export_rehearsalsong_notes"), FieldType::BOOLEAN)
 		);
 		
 		$this->parameterExclude = array(
