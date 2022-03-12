@@ -103,7 +103,7 @@ class KonzerteData extends AbstractLocationData {
 	}
 	
 	function getLocations() {
-		return $this->adp()->getLocations(array(2, 3, 4, 5));
+		return $this->adp()->getLocations();  # just show all for more flexibility (see #444 on GitHub)
 	}
 	
 	function getContacts() {
