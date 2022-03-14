@@ -276,7 +276,7 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getRehearsal($rid) {
-		$query = "SELECT * FROM rehearsal r 
+		$query = "SELECT *, r.notes FROM rehearsal r 
 					JOIN location l ON r.location = l.id
 					JOIN address a ON l.address = a.id 
 				   WHERE r.id = ?";
@@ -490,6 +490,7 @@ class StartData extends AbstractLocationData {
 		
 		// rehearsals
 		$rehearsals = $this->getUsersRehearsals();
+		
 		for($i = 1; $i < count($rehearsals); $i++) {
 			$r = $rehearsals[$i];
 			$previewItems = array();
@@ -502,7 +503,7 @@ class StartData extends AbstractLocationData {
 			}
 			array_push($previewItems, $r["name"]);
 			if($r["conductor"] > 0) array_push($previewItems, $this->adp()->getConductorname($r["conductor"]));
-			if($r["notes"] != "") array_push($previewItems, $r["notes"]);
+			
 			array_push($items, array(
 					"otype" => "R",
 					"oid" => $r["id"],

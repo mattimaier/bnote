@@ -279,7 +279,7 @@ class StartView extends CrudRefLocationView {
 		}
 		
 		if($rehearsal["notes"] != "") {
-			$dataview->addElement(Lang::txt("StartView_writeRehearsalList.comment"), $rehearsal["notes"]);
+			$dataview->addElement(Lang::txt("StartView_writeRehearsalList.comment"), "<pre>" . $rehearsal["notes"] . "</pre>");
 		}
 		
 		$songs = $this->getData()->getSongsForRehearsal($rehearsal["id"]);

@@ -423,9 +423,9 @@ class ProbenView extends CrudRefLocationView {
 			
 			<div class="probendetail_set">
 				<div class="probendetail_heading"><?php echo Lang::txt("ProbenView_viewDetailTable.notes"); ?></div>
-				<div class="probendetail_value"><?php
+				<div class="probendetail_value"><pre><?php
 				echo $entity["notes"]; 
-				?></div>
+				?></pre></div>
 			</div>
 		</div>
 		
