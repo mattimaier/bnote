@@ -484,9 +484,17 @@ class RepertoireView extends CrudRefView {
 		}
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.dd_status"), $dd_status);
 		
+		// add custom fields
+		$fields = $this->getData()->getCustomFields('s');
+		$i = 0;
+		foreach($fields as $field) {
+			if($i++ == 0) continue;
+			$form->addElement($field["txtdefsingle"], $this->columnSelector("col_" . $field["techname"], $header));
+		}
+		
 		// finalize form
 		$form->changeSubmitButton(Lang::txt("RepertoireView_xlsMapping.submit"));
-		$xlsData = urlencode(json_encode($data));
+		$xlsData = urlencode(json_encode(array("header" => $header, "data" => $data)));
 		$form->addHidden("xlsData", $xlsData);
 		$form->write();
 	}
@@ -510,8 +518,8 @@ class RepertoireView extends CrudRefView {
 	function xlsImport($duplicates, $num_rows, $empties) {
 		// show how many can be imported directly
 		Writing::h2(Lang::txt("RepertoireView_xlsImport.import"));
-		Writing::p("$num_rows" . Lang::txt("RepertoireView_xlsImport.message_1") . 
-				count($empties) .  Lang::txt("RepertoireView_xlsImport.message_2"));
+		Writing::p("$num_rows " . Lang::txt("RepertoireView_xlsImport.message_1") . 
+				count($empties) . " " .  Lang::txt("RepertoireView_xlsImport.message_2"));
 		
 		// show duplicates and ask to overwrite (use from sheet) or ignore (use from BNote) for each
 		$form = new Form(Lang::txt("RepertoireView_xlsImport.Form"), $this->modePrefix() . "xlsProcess");

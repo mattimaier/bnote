@@ -55,7 +55,7 @@ class RepertoireData extends AbstractData {
 			else {
 				// create composer
 				$query = "INSERT INTO composer (name) VALUES (?)";
-				$composerId = $this->database->prepStatement($query, array("s", $this->modifyString($values["composer"])));
+				$composerId = $this->database->prepStatement($query, array(array("s", $this->modifyString($values["composer"]))));
 			}
 		}
 		$values["composer"] = $composerId;

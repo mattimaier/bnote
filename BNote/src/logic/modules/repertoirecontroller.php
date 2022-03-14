@@ -5,6 +5,8 @@
  * @author Matti
  *
  */
+use Shuchkin\SimpleXLSX;
+
 class RepertoireController extends DefaultController {
 	
 	private $genreView;
@@ -84,37 +86,21 @@ class RepertoireController extends DefaultController {
 		}
 		
 		// read file
-		require_once $GLOBALS['DIR_LIB'] . "lib/PHPExcel/Classes/PHPExcel.php";
-		$reader = PHPExcel_IOFactory::createReader('Excel2007');
-		$reader->setReadDataOnly(true);
-		
-		$xls = $reader->load($_FILES["xlsfile"]["tmp_name"]);
-		$sheet = $xls->getActiveSheet();
-		
-		$highestRow = $sheet->getHighestRow();
-		$highestColumn = $sheet->getHighestColumn();
-		$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
-		
-		$header = array();
-		$rows = array();
-		for ($rowIdx = 1; $rowIdx <= $highestRow; ++$rowIdx) {
-			$row = array();
-			for ($col = 0; $col <= $highestColumnIndex; ++$col) {
-				$val = $sheet->getCellByColumnAndRow($col, $rowIdx)->getValue();
-				if($rowIdx == 1) {
-					// header
-					$header[$col] = $val;
+		$xlsxfilename = $_FILES["xlsfile"]["tmp_name"];
+		if($xlsx = SimpleXLSX::parse($xlsxfilename)) {
+			$header = $rows = [];
+			foreach($xlsx->rows() as $k => $row) {
+				if ( $k === 0 ) {
+					$header = $row;
+					continue;
 				}
-				else {
-					$row[$col] = $val;
-				}
+				$rows[] = array_combine( $header, $row );
 			}
-			if($rowIdx > 1) {
-				array_push($rows, $row);
-			}
+			$this->getView()->xlsMapping($rows, $header);
 		}
-		
-		$this->getView()->xlsMapping($rows, $header);
+		else {
+			new BNoteError(SimpleXLSX::parseError());
+		}
 	}
 	
 	function xlsImport() {
@@ -124,7 +110,7 @@ class RepertoireController extends DefaultController {
 		}
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
 		
-		// load songs from database, then hash them to check for duplicates
+		// load songs from database, then "hash" them to check for duplicates
 		$songs = $this->getData()->findAllNoRef();
 		$dict = Data::dbSelectionToDict($songs, "title", array("id"));
 		$songs_dict = array();
@@ -134,13 +120,13 @@ class RepertoireController extends DefaultController {
 		
 		// find duplicates and empty rows
 		$duplicates = array();
-		$title_idx = $_POST["col_title"];
+		$title_col = $xlsData->header[$_POST["col_title"]];
 		$num_rows = 0;
 		$empties = array();  # indices of empty rows
-		foreach($xlsData as $rowIdx => $row) {
-			$title = strtolower($row[$title_idx]);
+		foreach($xlsData->data as $rowIdx => $row) {
+			$title = strtolower($row->$title_col);
 			if(in_array($title, $songs_dict) && isset($songs_dict[$title])) {
-				$row["duplicate_id"] = $songs_dict[$title];
+				$row->duplicate_id = $songs_dict[$title];
 				array_push($duplicates, $row);
 			}
 			if($title == "") {
@@ -153,9 +139,7 @@ class RepertoireController extends DefaultController {
 		$this->getView()->xlsImport($duplicates, $num_rows, $empties);
 	}
 	
-	function xlsProcess() {		
-		require_once $GLOBALS['DIR_LIB'] . "PHPExcel/Classes/PHPExcel.php";
-		
+	function xlsProcess() {
 		// go through data: ignore empties and handle duplicates
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
 		$empties = array();
@@ -178,7 +162,7 @@ class RepertoireController extends DefaultController {
 		// do the real data processing
 		$updated = 0;
 		$created = 0;
-		foreach($xlsData as $rowIdx => $row) {
+		foreach($xlsData->data as $rowIdx => $row) {
 			if(in_array($rowIdx, $empties)) {
 				// empty -> continue
 				continue;
@@ -186,71 +170,91 @@ class RepertoireController extends DefaultController {
 			elseif(in_array($rowIdx, $duplicates)) {
 				// duplicate -> map and update
 				$id = $duplicate_ids[$rowIdx];
-				$this->getData()->update($id, $this->xlsMap($row));
+				$this->getData()->update($id, $this->xlsMap($row, $xlsData->header));
 				$updated++;
 			}
 			else {
 				// map and insert
-				$this->getData()->create($this->xlsMap($row));
+				$this->getData()->create($this->xlsMap($row, $xlsData->header));
 				$created++;
 			}
 		}
 		$this->getView()->xlsProcessSuccess($updated, $created);
 	}
 	
-	protected function xlsMap($row) {
+	protected function xlsMap($row, $header) {
 		// handle non-mapped fields
 		$bpm = "";
 		if($_POST["col_tempo"] >= 0) {
-			$bpm = $row[$_POST["col_tempo"]];
+			$f = $header[$_POST["col_tempo"]];
+			$bpm = $row->$f;
 			if($bpm == "-") {
 				$bpm = 0;
 			}
 		}
 		$music_key = "";
 		if($_POST["col_key"] >= 0) {
-			$music_key = $row[$_POST["col_key"]];
+			$f = $header[$_POST["col_key"]];
+			$music_key = $row->$f;
 		}
 		$notes = "";
 		if($_POST["col_notes"] >= 0) {
-			$notes = $row[$_POST["col_notes"]];
+			$f = $header[$_POST["col_notes"]];
+			$notes = $row->$f;
 		}
 		$composer = "nicht angegeben";
 		if($_POST["col_composer"] >= 0) {
-			$composer = $row[$_POST["col_composer"]];
+			$f = $header[$_POST["col_composer"]];
+			$composer = $row->$f;
 			if($composer == "") {
 				$composer = Lang::txt("RepertoireController_xlsMap.col_composer");
 			}
 		}
 		$genre = "";
 		if($_POST["col_genre"] >= 0) {
-			$genre = $row[$_POST["col_genre"]];
+			$f = $header[$_POST["col_composer"]];
+			$genre = $row->$f;
 		}
 		$length = "";
-		if($_POST["col_length"] >= 0) {
-			$length = $row[$_POST["col_length"]];
+		if(isset($_POST["col_length"]) && $_POST["col_length"] >= 0) {
+			$f = $header[$_POST["col_length"]];
+			$length = $row->$f;
 			if(is_numeric($length)) {
 				// convert fraction of day to hh:mm:ss
-				$dt = PHPExcel_Shared_Date::ExcelToPHPObject($length);
-				$length = $dt->format("h:i:s");
+				$length = gmdate("h:i:s", $length);
 			}
 		}
 		$setting = "";
 		if($_POST["col_setting"] >= 0) {
-			$setting = $row[$_POST["col_setting"]];
+			$f = $header[$_POST["col_setting"]];
+			$setting = $row->$f;
+		}
+		$title_f = $header[$_POST["col_title"]];
+		
+		$song = array(
+				"title" => $row->$title_f,
+				"genre" => $this->mapGenre($genre),
+				"bpm" => $bpm,
+				"music_key" => $music_key,
+				"status" => $_POST["status"],
+				"notes" => $notes,
+				"composer" => $this->cleanSubject($composer),
+				"length" => $length,
+				"setting" => $setting);
+		
+		// add custom fields
+		$customFields = $this->getData()->getCustomFields('s');
+		$i = 0;
+		foreach($customFields as $field) {
+			if($i++ == 0) continue;
+			$colName = "col_" . $field["techname"];
+			if(isset($_POST[$colName]) && $_POST[$colName] >= 0) {
+				$f = $header[$_POST[$colName]];
+				$song[$field["techname"]] = $row->$f;
+			}
 		}
 		
-		return array(
-			"title" => $row[$_POST["col_title"]],
-			"genre" => $this->mapGenre($genre),
-			"bpm" => $bpm,
-			"music_key" => $music_key,
-			"status" => $_POST["status"],
-			"notes" => $notes,
-			"composer" => $this->cleanSubject($composer),
-			"length" => $length,
-			"setting" => $setting
-		);
+		return $song;
 	}
 
 	protected function mapGenre($name) {
