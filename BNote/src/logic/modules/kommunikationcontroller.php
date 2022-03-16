@@ -146,18 +146,28 @@ class KommunikationController extends DefaultController {
 		$ci = $system_data->getCompanyInformation();
 		$receipient = $ci["Mail"];
 		
-		// place sender addresses into the bcc field
-		$bcc_addresses = join(",", $addresses);
-		
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
 		$mail = new Mailing($receipient, $subject, "");
 		$mail->setBodyInHtml($body);
 		$mail->setFrom($this->getData()->getUsermail());
-		$mail->setBcc($bcc_addresses);
-			
+		
+		// place receiver addresses into the bcc field
+		$mail->setBcc($addresses);
+		
+		// handle attachments
+		if(isset($_FILES["attachments"])) {
+			for($i = 0; $i < count($_FILES['attachments']['name']); $i++) {
+				$tmpFilename = $_FILES['attachments']['tmp_name'][$i];
+				$filename = $_FILES['attachments']['name'][$i];
+				if($tmpFilename != "") {
+					$mail->addAttachment($tmpFilename, $filename);
+				}
+			}
+		}
+		
 		if(!$mail->sendMail()) {
 			if(!$silent) {
-				$this->getView()->reportMailError($bcc_addresses);
+				$this->getView()->reportMailError($addresses);
 			}
 			return false;
 		}

@@ -1,5 +1,8 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 /**
  * Central Mail Creation in BNote
  * @author Matti
@@ -8,12 +11,12 @@
 class Mailing {
 	
 	private $from;
-	private $encoding;
 	private $to;
 	private $bcc = null;
 	private $subject;
 	private $body;
 	private $isHtml = false;
+	private $attachments = array();
 	
 	private $sysdata;
 	
@@ -34,9 +37,6 @@ class Mailing {
 		$this->sysdata = $system_data;
 		$comp = $this->sysdata->getCompanyInformation();
 		$this->from = $comp["Mail"];
-		
-		// set default encoding
-		$this->encoding = "utf-8";
 	}
 	
 	public function getFrom() {
@@ -50,14 +50,6 @@ class Mailing {
 	public function setFromUser($userId) {
 		$contact = $this->sysdata->getUsersContact($userId);
 		$this->from = $contact["name"] . " " . $contact["surname"] . " <" . $contact["email"] . ">";
-	}
-	
-	public function getEncoding() {
-		return $this->encoding;
-	}
-	
-	public function setEncoding($encoding) {
-		$this->encoding = $encoding;
 	}
 	
 	public function getTo() {
@@ -119,6 +111,10 @@ class Mailing {
 		$this->body .= $text;
 	}
 	
+	public function addAttachment($attachment, $name) {
+		array_push($this->attachments, array($attachment, $name));
+	}
+	
 	/**
 	 * Call this method to send the email.<br/>
 	 * <strong>Just by creating an object of this class, no mail is sent!</strong>
@@ -128,15 +124,6 @@ class Mailing {
 		if($this->sysdata->inDemoMode()) {
 			new BNoteError("Das System ist im demonstrationsmodus und versendet daher keine E-Mails.");
 			return false;
-		}
-		
-		// building headers
-		$headers  = "From: " . $this->from . "\r\n";
-		$headers .= 'MIME-Version: 1.0' . "\r\n";
-		$headers .= 'Content-type: text/html; charset=' . $this->encoding . "\r\n";
-		
-		if($this->bcc != null) {
-			$headers .= 'Bcc: ' . $this->bcc . "\r\n";
 		}
 		
 		// building receipient
@@ -158,7 +145,7 @@ class Mailing {
 			new BNoteError("Es ist kein Betreff angegeben.");
 		}
 		
-		// handle encoding
+		// handle charset
 		$strenc = mb_detect_encoding($this->subject, 'UTF-8', true);
 		if($strenc == false) {
 			$subject = utf8_encode($this->subject);
@@ -184,7 +171,7 @@ class Mailing {
 		$template = file_get_contents($dir_prefix . $tpl_path);
 		
 		// replace placeholders
-		$tpl_mail = str_replace("%encoding%", $this->encoding, $template);
+		$tpl_mail = str_replace("%encoding%", 'utf-8', $template);
 		
 		$tpl_mail = str_replace("%title%", $subject, $tpl_mail);
 		$tpl_mail = str_replace("%content%", $body, $tpl_mail);
@@ -194,7 +181,34 @@ class Mailing {
 		$tpl_mail = str_replace("%footer%", Lang::txt("mail_footerText"), $tpl_mail);
 		
 		// sending mail
-		return mail($to, $subject, $tpl_mail, $headers);
+		$mail = new PHPMailer(true);
+		try {
+			$mail->isMail();  // use mail() function from PHP
+			$mail->CharSet = PHPMailer::CHARSET_UTF8;
+			$mail->setFrom($this->from);
+			$mail->addAddress($to);
+			if($this->bcc != NULL) {
+				foreach($this->bcc as $address) {
+					if($address != "") {
+						$mail->addBCC($address);
+					}
+				}
+			}
+			$mail->isHTML(true);
+			$mail->Subject = $subject;
+			$mail->Body = $tpl_mail;
+			
+			if(count($this->attachments) > 0) {
+				foreach($this->attachments as $atmt) {
+					$mail->addAttachment($atmt[0], $atmt[1]);
+				}
+			}
+			
+			return $mail->send();
+		} catch (Exception $e) {
+			new BNoteError("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+		}
+		return False;
 	}
 	
 	/**

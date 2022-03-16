@@ -838,14 +838,11 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$ci = $this->sysdata->getCompanyInformation();
 		$receipient = $ci["Mail"];
 		
-		// place sender addresses into the bcc field
-		$bcc_addresses = join(",", $addresses);
-		
 		$mail = new Mailing($receipient, $subject, "");
 		$mail->setBodyInHtml($body);
 		$userContact = $this->sysdata->getUsersContact($this->uid);
 		$mail->setFrom($userContact["email"]);
-		$mail->setBcc($bcc_addresses);
+		$mail->setBcc($addresses);
 		
 		if(!$mail->sendMail()) {
 			http_response_code(400);

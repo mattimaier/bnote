@@ -86,12 +86,7 @@ class KommunikationData extends KontakteData {
 	}
 	
 	private function flattenAddresses($selection) {
-		$addresses = array();
-		for($i = 1; $i < count($selection); $i++) {
-			$addy = $selection[$i]["email"];
-			if($addy != "") array_push($addresses, $addy);
-		}
-		return $addresses;
+		return $this->database->flattenSelection($selection, "email");
 	}
 	
 	public function getRehearsalSeries() {

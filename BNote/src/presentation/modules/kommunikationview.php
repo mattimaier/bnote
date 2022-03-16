@@ -181,6 +181,7 @@ class KommunikationView extends AbstractView {
 		}
 		$form->addElement(Lang::txt("KommunikationView_createMailForm.subject"), new Field("subject", "", FieldType::CHAR), true, 12);
 		$form->addElement(Lang::txt("KommunikationView_createMailForm.Message"), new Field("message", $message, 98), true, 12);
+		$form->addElement("", new Field("attachments", NULL, Field::FIELDTYPE_MULTIFILE), false, 12);
 		$form->changeSubmitButton(Lang::txt("KommunikationView_createMailForm.Submit"));
 		
 		return $form;

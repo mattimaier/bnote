@@ -68,15 +68,14 @@ class StartController extends DefaultController {
 		$body .= "<p>" . $_POST["message"] . "</p>"; // checked here already
 		
 		// create receipients as BCC, no to
-		$bcc = "";
+		$bcc = array();
 		foreach($contacts as $i => $contact) {
 			if($i == 0) continue; // header
 			
 			// check whether the user has turned email notification on
 			$emn = $this->getData()->getSysdata()->contactEmailNotificationOn($contact["id"]);
 			if($emn) {
-				if($bcc != "") $bcc .= ",";
-				$bcc .= $contact["email"];
+				array_push($bcc, $contact["email"]);
 			}
 		}
 		

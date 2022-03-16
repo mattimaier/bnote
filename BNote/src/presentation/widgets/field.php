@@ -19,23 +19,29 @@ class Field implements iWriteable {
 	/**
 	 * Uneditable textfield.
 	 * 
-	 * @var int
+	 * @var integer
 	 */
 	const FIELDTYPE_UNEDITABLE = 99;
 	
 	/**
 	 * Shows a tinyMCE editor instead of a textarea.
 	 * 
-	 * @var int
+	 * @var integer
 	 */
 	const FIELDTYPE_TINYMCE = 98;
 	
 	/**
 	 * DateTime Selector.
 	 * 
-	 * @var int
+	 * @var integer
 	 */
 	const FIELDTYPE_DATETIME_SELECTOR = 97;
+	
+	/**
+	 * Creates a multifile picker
+	 * @var integer
+	 */
+	const FIELDTYPE_MULTIFILE = 95;
 	
 	/**
 	 * Constructor
@@ -100,7 +106,7 @@ class Field implements iWriteable {
 		    case FieldType::FILE: return $this->Filefield(); break;
 		    case FieldType::CURRENCY: return $this->Currencyfield(); break;
 		    case FieldType::MINSEC: return $this->MinuteSecondfield(); break;
-		    case 95: return $this->combinedNameFields(); break;
+		    case Field::FIELDTYPE_MULTIFILE: return $this->multifilefield(); break;
 		    case 96: return $this->TimeSelector(); break;
 		    case 97: return $this->DatetimeSelector(); break;
 		    case 98: return $this->tinyMCE(); break;
@@ -334,8 +340,10 @@ class Field implements iWriteable {
 		return $hourfield . ":" . $minutefield;
 	}
 	
-	private function combinedNameFields() {
-		
+	private function multifilefield() {
+		?>
+  		<input class="form-control" type="file" name="<?php echo $this->name; ?>[]" multiple />
+		<?php
 	}
 }
 

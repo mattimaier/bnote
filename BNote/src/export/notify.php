@@ -87,8 +87,7 @@ class Notifier {
 		global $dir_prefix;
 		require_once($dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php");
 		$mail = new Mailing(null, $subject, null);
-		$addresses = join(",", $this->getMailAddresses($contacts));
-		$mail->setBcc($addresses);  // string of addresses separated properly
+		$mail->setBcc($this->getMailAddresses($contacts));  // string of addresses separated properly
 		$mail->setBodyInHtml($body);
 		return $mail->sendMail();
 	}
