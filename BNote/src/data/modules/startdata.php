@@ -512,7 +512,8 @@ class StartData extends AbstractLocationData {
 					"due" => Data::convertDateFromDb($r["approve_until"]),
 					"eventBegin" => $r["begin"],
 					"replyUntil" => $r["approve_until"],
-					"participation" => $this->doesParticipateInRehearsal($r["id"])["participate"]
+					"participation" => $this->doesParticipateInRehearsal($r["id"])["participate"],
+					"status" => $r["status"]
 			));
 		}
 		

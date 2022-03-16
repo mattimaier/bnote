@@ -19,7 +19,8 @@ class ProbenData extends AbstractLocationData {
 			"location" => array(Lang::txt("ProbenData_construct.location"), FieldType::REFERENCE),
 			"conductor" => array(Lang::txt("ProbenData_construct.conductor"), FieldType::REFERENCE),
 			"serie" => array(Lang::txt("ProbenData_construct.serie"), FieldType::REFERENCE),
-			"notes" => array(Lang::txt("ProbenData_construct.notes"), FieldType::TEXT)
+			"notes" => array(Lang::txt("ProbenData_construct.notes"), FieldType::TEXT),
+			"status" => array(Lang::txt("ProbenData_construct.status"), FieldType::ENUM)
 		);
 		
 		$this->references = array(
@@ -35,7 +36,7 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	private function defaultQuery() {
-		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes, r.serie, r.location, name, street, city, zip";
+		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes, r.status, r.serie, r.location, name, street, city, zip";
 		$query .= " FROM " . $this->table . " r, location l, address a";
 		$query .= " WHERE r.location = l.id AND l.address = a.id";
 		return $query;
@@ -551,5 +552,9 @@ class ProbenData extends AbstractLocationData {
 				));
 			}
 		}
+	}
+	
+	function getStatusOptions() {
+		return array("planned", "confirmed", "cancelled", "hidden");
 	}
 }

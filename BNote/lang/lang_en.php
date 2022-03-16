@@ -1385,6 +1385,10 @@ class Translation extends BNoteTranslation {
 			"OutfitsView_construct.editEntityName" => "Edit Outfit",
 
 			// module: Proben *********************************************
+			"Proben_status.planned" => "planned",
+			"Proben_status.cancelled" => "cancelled",
+			"Proben_status.confirmed" => "confirmed",
+			"Proben_status.hidden" => "hidden",
 
 			// ProbenData			
 			"ProbenData_construct.id" => "Rehearsal number",
@@ -1393,8 +1397,9 @@ class Translation extends BNoteTranslation {
 			"ProbenData_construct.approve_until" => "Commit to",
 			"ProbenData_construct.location" => "Location",
 			"ProbenData_construct.conductor" => "Conductor",
-			"ProbenData_construct.serie" => "Rehearsal Route",
+			"ProbenData_construct.serie" => "Rehearsal Series",
 			"ProbenData_construct.notes" => "Notes",
+			"ProbenData_construct.status" => "Status",
 			"ProbenData_saveSerie.error" => "The last Rehearsal is before the first Rehearsal",
 			"ProbenData_saveSerie.dberror" => "Database error saving the rehearsal series",
 			

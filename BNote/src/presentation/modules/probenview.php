@@ -90,14 +90,15 @@ class ProbenView extends CrudRefLocationView {
 		$approve_until_field->setCssClass("copyDateTarget");
 		$form->addElement(Lang::txt("ProbenView_addEntity.approve_until"), $approve_until_field, true, 4);
 		
+		$form->addElement(Lang::txt("ProbenData_construct.status"), $this->buildStatusDropdown($this->getData()->getStatusOptions()), true, 4);
+		
 		// location
-		$form->addElement("location", new Field("location", "", FieldType::REFERENCE));
+		$form->addElement("location", new Field("location", "", FieldType::REFERENCE), true, 4);
 		$form->setForeign("location", "location", "id", "name", -1);
 		$form->renameElement("location", Lang::txt("ProbenView_addEntity.location"));
 		
-		
 		// conductor
-		$form->addElement(Lang::txt("ProbenView_addEntity.conductor"), $this->buildConductorDropdown());
+		$form->addElement(Lang::txt("ProbenView_addEntity.conductor"), $this->buildConductorDropdown(), false, 4);
 		
 		// custom fields
 		$this->appendCustomFieldsToForm($form, 'r');
@@ -115,6 +116,17 @@ class ProbenView extends CrudRefLocationView {
 		}
 		
 		$form->write();
+	}
+	
+	private function buildStatusDropdown($options, $selectedOpt=NULL) {
+		$dd = new Dropdown("status");
+		foreach($options as $opt) {
+			$dd->addOption(Lang::txt("Proben_status.$opt"), $opt);
+		}
+		if($selectedOpt != NULL) {
+			$dd->setSelected($selectedOpt);
+		}
+		return $dd;
 	}
 	
 	private function buildConductorDropdown($selected = null) {
@@ -257,13 +269,14 @@ class ProbenView extends CrudRefLocationView {
 		// combine data in a smart way
 		$displayData = array();
 		array_push($displayData, array(
-			"id", "when", "approve_until", "conductor", "Location"
+			"id", "when", "approve_until", "status", "conductor", "Location"
 		));
 		for($i = 1; $i < count($data); $i++) {
 			array_push($displayData, array(
 				"id" => $data[$i]["id"],
 				"when" => $this->buildWhen($data[$i]["begin"], $data[$i]["end"]),
 				"approve_until" => $data[$i]["approve_until"],
+				"status" => Lang::txt("Proben_status." . $data[$i]["status"]),
 				"conductor" => $data[$i]["conductor"],
 				"location" => $data[$i]["name"] . "<br>" . $this->formatAddress($data[$i])
 			));
@@ -272,6 +285,7 @@ class ProbenView extends CrudRefLocationView {
 		$tab = new Table($displayData);
 		$tab->renameHeader("when", Lang::txt("ProbenView_writeRehearsal.begin"));
 		$tab->renameHeader("approve_until", Lang::txt("ProbenView_addEntity.approve_until"));
+		$tab->renameHeader("status", Lang::txt("ProbenData_construct.status"));
 		$tab->renameHeader("conductor", Lang::txt("ProbenView_addEntity.conductor"));
 		$tab->renameHeader("location", Lang::txt("ProbenView_addEntity.location"));
 		$tab->setEdit("id");
@@ -307,10 +321,9 @@ class ProbenView extends CrudRefLocationView {
 		?>
 		<div class="card mb-2 p-2">
 			<div class="">
-				<a href="<?php echo $href; ?>">
-					<?php echo $weekday; ?> <?php echo $when; ?><br>
-					<span class=""><?php echo $conductor; ?></span>
-				</a>
+				<a href="<?php echo $href; ?>"><?php echo $weekday; ?> <?php echo $when; ?></a>
+				<span class=""><?php echo $conductor; ?></span>
+				<span class="text-muted"><?php echo Lang::txt("Proben_status." . $row["status"]); ?></span>
 			</div>
 			<div class="">
 				<span class="fw-bold"><?php echo $row["name"]; ?></span>
@@ -333,8 +346,15 @@ class ProbenView extends CrudRefLocationView {
 		$form->addHidden("serie", $r["serie"]);
 		$form->setForeign("location", "location", "id", "name", $r["location"]);
 		
-		// conductor
-		$form->addElement("conductor", $this->buildConductorDropdown($r["conductor"]));
+		$form->setFieldColSize("begin", 4);
+		$form->setFieldColSize("end", 4);
+		$form->setFieldColSize("approve_until", 4);
+		$form->setFieldColSize("location", 4);
+		$form->setFieldColSize("notes", 12);
+		
+		$form->addElement("conductor", $this->buildConductorDropdown($r["conductor"]), false, 4);
+		$form->addElement("status", $this->buildStatusDropdown($this->getData()->getStatusOptions(), $r["status"]), true, 4);
+		
 		
 		// custom fields
 		$this->appendCustomFieldsToForm($form, 'r', $r);
@@ -386,6 +406,11 @@ class ProbenView extends CrudRefLocationView {
 				<div class="probendetail_value"><?php
 				echo $this->formatAddress($entity); 
 				?></div>
+			</div>
+			
+			<div class="probendetail_set">
+				<div class="probendetail_heading"><?php echo Lang::txt("ProbenData_construct.status"); ?></div>
+				<div class="probendetail_value"><?php echo Lang::txt("Proben_status." . $entity["status"]); ?></div>
 			</div>
 		</div>
 		

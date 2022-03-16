@@ -813,6 +813,16 @@ div.start_box_row {
 .card-title {
   font-weight: 600;
 }
+.start_box_status_confirmed {
+  color: #198754;
+}
+.start_box_status_cancelled {
+  color: #dc3545;
+  text-decoration: line-through;
+}
+.start_box_status_hidden {
+  color: #E6E6E6;
+}
 a.start_card {
   text-decoration: none;
   color: #000000;

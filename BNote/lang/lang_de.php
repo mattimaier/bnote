@@ -1384,6 +1384,10 @@ class Translation extends BNoteTranslation {
 			"OutfitsView_construct.editEntityName" => "Outfit bearbeiten",
 
 			// module: Proben *********************************************
+			"Proben_status.planned" => "geplant",
+			"Proben_status.cancelled" => "abgesagt",
+			"Proben_status.confirmed" => "bestätigt",
+			"Proben_status.hidden" => "versteckt",
 
 			// ProbenData			
 			"ProbenData_construct.id" => "Probennummer",
@@ -1394,6 +1398,7 @@ class Translation extends BNoteTranslation {
 			"ProbenData_construct.conductor" => "Dirigent",
 			"ProbenData_construct.serie" => "Probenstrecke",
 			"ProbenData_construct.notes" => "Notizen",
+			"ProbenData_construct.status" => "Status",
 			"ProbenData_saveSerie.error" => "Die letzte Probe ist zeitlich vor der ersten Probe.",
 			"ProbenData_saveSerie.dberror" => "Datenbankfehler bei der Erstellung der Probenserie",
 			

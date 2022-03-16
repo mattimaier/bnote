@@ -1382,6 +1382,10 @@ class Translation extends BNoteTranslation {
 			"OutfitsView_construct.editEntityName" => "Modifier des tenue",
 
 			// module: Proben *********************************************
+			"Proben_status.planned" => "prévu",
+			"Proben_status.cancelled" => "annulé",
+			"Proben_status.confirmed" => "confirmé",
+			"Proben_status.hidden" => "caché",
 
 			// ProbenData			
 			"ProbenData_construct.id" => "Numéro de répétition",
@@ -1392,6 +1396,7 @@ class Translation extends BNoteTranslation {
 			"ProbenData_construct.conductor" => "Chef d'orchestre",
 			"ProbenData_construct.serie" => "Série de répétition",
 			"ProbenData_construct.notes" => "Notes",
+			"ProbenData_construct.status" => "Statut",
 			"ProbenData_saveSerie.error" => "La dernière répétition est avant la première.",
 			"ProbenData_saveSerie.dberror" => "Erreur de la base de données",
 			

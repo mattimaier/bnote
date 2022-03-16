@@ -137,7 +137,9 @@ class StartView extends CrudRefLocationView {
 				foreach($inboxItems as $item) {
 					$href = $this->modePrefix() . "start&otype=" . $item["otype"] . "&oid=" . $item["oid"] . "#itemContentScreen";
 					$active = (isset($_GET["otype"]) && isset($_GET["oid"]) && $_GET["otype"] == $item["otype"] && $_GET["oid"] == $item["oid"]);
-					$this->writeCard($item["title"], $item["preview"], $href, $active, $item["due"], isset($item["participation"]) ? $item["participation"] : NULL);
+					$part = isset($item["participation"]) ? $item["participation"] : NULL;
+					$status = isset($item["status"]) ? $item["status"] : NULL;
+					$this->writeCard($item["title"], $item["preview"], $href, $active, $item["due"], $part, $status);
 				}
 				?>
 			</div>
@@ -185,7 +187,7 @@ class StartView extends CrudRefLocationView {
 		}
 	}
 	
-	private function writeCard($title, $preview, $href, $active, $dueDate=NULL, $userParticipation=NULL) {
+	private function writeCard($title, $preview, $href, $active, $dueDate=NULL, $userParticipation=NULL, $status=NULL) {
 		$partClass = "";
 		if($userParticipation != NULL || is_int($userParticipation)) {
 			switch($userParticipation) {
@@ -202,6 +204,11 @@ class StartView extends CrudRefLocationView {
 					$partClass = "start_box_participation_unknown";
 			}
 		}
+		
+		$statusClass = "";
+		if($status != NULL) {
+			$statusClass = " start_box_status_$status";
+		}
 		?>
 		<div class="card <?php echo $active ? "start_box_active" : ""; echo " " . $partClass; ?> mb-1">
 			<a class="start_card" href="<?php echo $href; ?>">
@@ -212,7 +219,7 @@ class StartView extends CrudRefLocationView {
 				}
 				?></div>
 				<div class="card-body p-2 ps-3">
-					<div class="card-title"><?php echo $title; ?></div>
+					<div class="card-title <?php echo $statusClass; ?>"><?php echo $title; ?></div>
 					<span class="fw-light"><?php echo $preview?></span>
 				</div>
 			</a>
@@ -254,6 +261,7 @@ class StartView extends CrudRefLocationView {
 		$dataview = new Dataview();
 		$dataview->addElement(Lang::txt("StartView_writeRehearsalList.begin"), Data::convertDateFromDb($rehearsal["begin"]));
 		$dataview->addElement(Lang::txt("StartView_writeRehearsalList.end"), Data::convertDateFromDb($rehearsal["end"]));
+		$dataview->addElement(Lang::txt("ProbenData_construct.status"), Lang::txt("Proben_status." . $rehearsal["status"]));
 		$dataview->addElement(Lang::txt("StartView_writeRehearsalList.location"), $rehearsal["name"] . ": " . $this->formatAddress($rehearsal));
 		if(isset($rehearsal["conductor"]) && $rehearsal["conductor"] != null) {
 			$dataview->addElement(Lang::txt("StartView_writeRehearsalList.conductor"), $this->getData()->adp()->getConductorname($rehearsal["conductor"]));
