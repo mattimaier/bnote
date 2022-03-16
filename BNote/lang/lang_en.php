@@ -848,6 +848,7 @@ class Translation extends BNoteTranslation {
 			"KommunikationController_prepareMail.subject" => "Voting: ",
 			"KommunikationController_prepareMail.vote_message" => "Please cast your vote for the vote on BNote in the subject line",
 			"KommunikationController_prepareMail.inclreceivers" => "Receivers of this message",
+			"KommunikationController_prepareMail.rehearsalLink" => "RSVP rehearsal",
 			"KommunikationController_sendMail.error" => "No recipients found.",
 			
 			// KommunikationView

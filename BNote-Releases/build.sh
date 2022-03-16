@@ -11,7 +11,6 @@ echo "Building Release $1 ..."
 # Settings
 root_dir=".."
 main_dir="../BNote"
-app_dir="../BNote-App"
 tmp_dir="tmp"
 
 # Create temporary directory
@@ -27,19 +26,6 @@ echo "Preparing root resources..."
 cp "$root_dir/index.php" $tmp_dir
 cp "$root_dir/release_notes.txt" $tmp_dir
 
-
-## APP
-echo "Preparing app..."
-# copy app
-cp -rv $app_dir $tmp_dir
-
-# clean up in target folder
-rm -r "$tmp_dir/BNote-App/data"
-rm "$tmp_dir/BNote-App/.DS_Store"
-
-
-## DESKTOP
-echo "Preparing desktop application..."
 
 # Compile Themes
 echo "Compiing themes..."
@@ -66,7 +52,6 @@ rm "$tmp_main_dir/config/database.xml"
 
 # data/ handling
 rm -r "$tmp_main_dir/data/gallery/*"
-mkdir "$tmp_main_dir/data/gallery/thumbs"
 rm "$tmp_main_dir/data/members/*.pdf"
 rm "$tmp_main_dir/data/programs/*.pdf"
 rm -r "$tmp_main_dir/data/share/groups/*"  # create on installation
