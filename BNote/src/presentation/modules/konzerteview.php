@@ -77,7 +77,7 @@ class KonzerteView extends CrudRefLocationView {
 		<div class="card concert">
 			<div class="card-body">
 				<a href="<?php echo $href; ?>" class="concert_link">
-					<p class="card-subtitle text-muted"><?php echo Data::convertDateFromDb($concert["begin"]); ?></p>
+					<p class="card-subtitle text-muted"><?php echo Data::convertDateFromDb($concert["begin"]) . " " . Lang::txt("Konzerte_status." . $concert["status"]); ?></p>
 					<h5 class="card-title concert_title"><?php echo $concert["title"]; ?></h5>
 				</a>
 				<p class="card-text">
@@ -196,6 +196,10 @@ class KonzerteView extends CrudRefLocationView {
 				<div class="concertdetail_entry">
 					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteView_view.till"); ?></span>
 					<span class="concertdetail_value"><?php echo Data::convertDateFromDb($c["approve_until"]); ?></span>
+				</div>
+				<div class="concertdetail_entry">
+					<span class="concertdetail_key"><?php echo Lang::txt("KonzerteData_construct.status"); ?></span>
+					<span class="concertdetail_value"><?php echo Lang::txt("Konzerte_status." . $c["status"]); ?></span>
 				</div>
 			</div>
 		</div>
@@ -376,61 +380,11 @@ class KonzerteView extends CrudRefLocationView {
 	function editEntityForm($write=true) {
 		// data
 		$c = $this->getData()->getConcert($_GET["id"]);
-		
-		// form init
-		$form = new Form("Auftritt bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
-		$form->autoAddElements($this->getData()->getFields(), "concert", $_GET["id"]);
-		$form->removeElement("accommodation");
-		$form->removeElement("id");
-		
-		// location
-		$form->setForeign("location", "location", "id", "name", $c["location"]);
-		
-		// program
-		if(!isset($c["program"]) || $c["program"] == "" || $c["program"] == null) {
-			$c["program"] = "0";
-			$form->addElement("program", new Field("program", $c["program"], FieldType::REFERENCE));
-		}
-		$form->setForeign("program", "program", "id", "name", $c["program"]);
-		$form->addForeignOption("program", "Kein Programm", "0");
-		$form->setForeignOptionSelected("program", $c["program"]);
-		
-		// contact
-		$form->removeElement("contact");
-		$dd = new Dropdown("contact");
-		$contacts = $this->getData()->getContacts();
-		for($i = 1; $i < count($contacts); $i++) {
-			$label = $contacts[$i]["name"] . " " . $contacts[$i]["surname"];
-			$instr = isset($contacts[$i]["instrumentname"]) ? $contacts[$i]["instrumentname"] : '';
-			if($instr != "") $label .= " (" . $contacts[$i]["instrumentname"] . ")";
-			$dd->addOption($label, $contacts[$i]["id"]);
-		}
-		$dd->setSelected($c["contact"]);
-		$form->addElement("Kontakt", $dd);
-		
-		// accommodation
-		$dd3 = new Dropdown("accommodation");
-		$accommodations = $this->getData()->adp()->getLocations(array(3));
-		$dd3->addOption("Keine Unterkunft", 0);
-		for($a = 1; $a < count($accommodations); $a++) {
-			$acc = $accommodations[$a];
-			$caption = $acc["name"] . ": " . $this->formatAddress($acc);
-			$dd3->addOption($caption, $acc["id"]);
-		}
-		$dd3->setSelected($c["accommodation"]);
-		$form->addElement("Unterkunft", $dd3);
-		
-		// outfit
-		$outfit = $c['outfit'];
-		if($outfit == "" || !isset($c["outfit"])) {
-			$outfit = 0;
-			$form->addElement("outfit", new Field("outfit", $c["outfit"], FieldType::REFERENCE));
-		}
-		$form->setForeign("outfit", "outfit", "id", array("name"), $outfit);
-		$form->addForeignOption("outfit", "Kein Outfit", 0);
-		
-		// custom data
-		$this->appendCustomFieldsToForm($form, KonzerteData::$CUSTOM_DATA_OTYPE, $c);
+		$grps = $this->getData()->getConcertGroups($c["id"]);
+		$c["groups"] = Database::flattenSelection($grps, "id");
+		$equip = $this->getData()->getConcertEquipment($c["id"]);
+		$c["equipment"] = Database::flattenSelection($equip, "id");
+		$form = $this->concertForm($this->modePrefix() . "edit_process&id=" . $c["id"], $c);
 		
 		$form->write();
 	}
@@ -546,108 +500,160 @@ class KonzerteView extends CrudRefLocationView {
 	protected function editParticipation_processOptions() {
 		$this->showParticipantsOptions();
 	}
-		
 	
-	protected function addEntityForm() {
+	/**
+	 * Creates a nice concert form and returns it (no echo)
+	 * @param array $c Concert (for edit), NULL by default (for create)
+	 */
+	private function concertForm($href, $c = NULL) {
 		require_once $GLOBALS["DIR_WIDGETS"] . "sectionform.php";
 		
-		$form = new SectionForm(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
+		$form = new SectionForm(Lang::txt($this->getaddEntityName()), $href);
 		$this->flash(Lang::txt("KonzerteView_addEntityForm.flash_1"), Lang::txt("KonzerteView_addEntityForm.flash_2"));
 		
 		// ************* MASTER DATA *************
-		$title_field = new Field("title", "", FieldType::CHAR);
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.title"), $title_field, true, 12);
-		$begin_field = new Field("begin", "", FieldType::DATETIME);
+		$title = ($c != NULL) ? $c["title"] : "";
+		$title_field = new Field("title", $title, FieldType::CHAR);
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.title"), $title_field, true, 9);
+		
+		$status = ($c != NULL) ? $c["status"] : NULL;
+		$status_dd = $this->buildStatusDropdown($this->getData()->getStatusOptions(), $status);
+		$form->addElement(Lang::txt("KonzerteData_construct.status"), $status_dd, true, 3);
+		
+		$begin = ($c != NULL) ? $c["begin"] : "";
+		$begin_field = new Field("begin", $begin, FieldType::DATETIME);
 		$begin_field->setCssClass("copyDateOrigin");
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.begin"), $begin_field, true, 3);
-		$end_field = new Field("end", "", FieldType::DATETIME);
+		
+		$end = ($c != NULL) ? $c["end"] : "";
+		$end_field = new Field("end", $end, FieldType::DATETIME);
 		$end_field->setCssClass("copyDateTarget");
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.copyDateTarget"), $end_field, true, 3);
-		$approve_field = new Field("approve_until", "", FieldType::DATETIME);
+		
+		$approve_until = ($c != NULL) ? $c["approve_until"] : "";
+		$approve_field = new Field("approve_until", $approve_until, FieldType::DATETIME);
 		$approve_field->setCssClass("copyDateTarget");
-		$meetingtime = new Field("meetingtime", "", FieldType::DATETIME);
+		$meeting = ($c != NULL) ? $c["meetingtime"] : "";
+		$meetingtime = new Field("meetingtime", $meeting, FieldType::DATETIME);
 		$meetingtime->setCssClass("copyDateTarget");
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.meetingtime_from"), $meetingtime, true, 3);
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.meetingtime_to"), $approve_field, true, 3);
-		$notesField = new Field("notes", "", FieldType::TEXT);
+		
+		$notes = ($c != NULL) ? $c["notes"] : "";
+		$notesField = new Field("notes", $notes, FieldType::TEXT);
 		$notesField->setColsAndRows(2, 40);
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.notes"), $notesField, false, 12);
 		
-		$form->setSection(Lang::txt("KonzerteView_addEntityForm.title"), array("title", "begin", "end", "approve_until", "meetingtime", "notes"));
+		$form->setSection(Lang::txt("KonzerteView_addEntityForm.title"), array("title", "status", "begin", "end", "approve_until", "meetingtime", "notes"));
 		
 		// ************* LOCATION AND CONTACT *************
 		// choose location
-		$dd1 = new Dropdown("location");
+		$ddLocation = new Dropdown("location");
 		$locs = $this->getData()->getLocations();
 		for($i = 1; $i < count($locs); $i++) {
 			$loc = $locs[$i];
 			$l = $loc["name"] . ": " . $this->formatAddress($loc);
-			$dd1->addOption($l, $loc["id"]);
+			$ddLocation->addOption($l, $loc["id"]);
 		}
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.location"), $dd1, true);
+		if($c != NULL) {
+			$ddLocation->setSelected($c["location"]);
+		}
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.location"), $ddLocation, true);
 		
 		// choose accommodation
-		$dd3 = new Dropdown("accommodation");
+		$ddAccommodation = new Dropdown("accommodation");
 		$accommodations = $this->getData()->adp()->getLocations(array(3));
-		$dd3->addOption("Keine Unterkunft", 0);
+		$ddAccommodation->addOption("Keine Unterkunft", 0);
 		for($a = 1; $a < count($accommodations); $a++) {
 			$acc = $accommodations[$a];
 			$caption = $acc["name"] . ": " . $this->formatAddress($acc);
-			$dd3->addOption($caption, $acc["id"]);
+			$ddAccommodation->addOption($caption, $acc["id"]);
 		}
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.accommodation"), $dd3);
+		if($c != NULL) {
+			$ddAccommodation->setSelected($c["accommodation"]);
+		}
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.accommodation"), $ddAccommodation);
 		
 		// choose contact
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.organizer"), new Field("organizer", "", FieldType::CHAR));
-		$dd2 = new Dropdown("contact");
+		$ddContact = new Dropdown("contact");
 		$contacts = $this->getData()->getContacts();
 		for($i = 1; $i < count($contacts); $i++) {
 			$label = $this->formatContact($contacts[$i], "NAME_COMM");
-			$dd2->addOption($label, $contacts[$i]["id"]);
+			$ddContact->addOption($label, $contacts[$i]["id"]);
 		}
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.contact"), $dd2, true);
+		if($c != NULL) {
+			$ddContact->setSelected($c["contact"]);
+		}
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.contact"), $ddContact, true);
 		
 		$form->setSection(Lang::txt("KonzerteView_addEntityForm.title_location"), array("location", "organizer", "contact", "accommodation"));
 		
 		// ************* ORGANISATION *************
 		// choose members
-		$gs = new GroupSelector($this->getData()->adp()->getGroups(), array(), "group");
+		$selectedGroups = array();
+		if($c != NULL && isset($c["groups"])) {
+			$selectedGroups = $c["groups"];
+		}
+		$gs = new GroupSelector($this->getData()->adp()->getGroups(), $selectedGroups, "group");
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.group"), $gs, true);
 		
 		// choose program
-		$dd4 = new Dropdown("program");
+		$ddProgram = new Dropdown("program");
 		$templates = $this->getData()->getTemplates();
-		$dd4->addOption(Lang::txt("KonzerteView_addEntityForm.programNone"), 0);
-		$dd4->addOption(Lang::txt("KonzerteView_addEntityForm.programNew"), "new");
+		$ddProgram->addOption(Lang::txt("KonzerteView_addEntityForm.programNone"), 0);
+		$ddProgram->addOption(Lang::txt("KonzerteView_addEntityForm.programNew"), "new");
 		for($i = 1; $i < count($templates); $i++) {
-			$dd4->addOption($templates[$i]["name"], $templates[$i]["id"]);
+			$ddProgram->addOption($templates[$i]["name"], $templates[$i]["id"]);
 		}
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.program"), $dd4);
+		if($c != NULL) {
+			$ddProgram->setSelected($c["program"]);
+		}
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.program"), $ddProgram);
 		
 		// choose equipment
 		$equipment = $this->getData()->adp()->getEquipment();
-		$equipmentSelector = new GroupSelector($equipment, array(), "equipment");
+		$selectedEquipment = array();
+		if($c != NULL && isset($c["equipment"])) {
+			$selectedEquipment = $c["equipment"];
+		}
+		$equipmentSelector = new GroupSelector($equipment, $selectedEquipment, "equipment");
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.equipment"), $equipmentSelector);
 		
 		// outfit
 		$form->addElement("outfit", new Field(Lang::txt("KonzerteView_addEntityForm.outfit"), 0, FieldType::REFERENCE));
-		$form->setForeign("outfit", "outfit", "id", array("name"), -1);
+		$selectedOutfit = -1;
+		if($c != NULL) {
+			$selectedOutfit = $c["outfit"];
+		}
+		$form->setForeign("outfit", "outfit", "id", array("name"), $selectedOutfit);
 		$form->addForeignOption("outfit", "Kein Outfit", 0);
 		
 		$form->setSection(Lang::txt("KonzerteView_addEntityForm.group_title"), array("group", "program", "equipment", "outfit"));
 		$form->renameElement("outfit", Lang::txt("KonzerteView_addEntityForm.outfit"));
 		
 		// ************* DETAILS *************
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.payment"), new Field("payment", "", FieldType::CURRENCY));
-		$form->addElement(Lang::txt("KonzerteView_addEntityForm.conditions"), new Field("conditions", "", FieldType::TEXT));
+		$payment = ($c != NULL) ? $c["payment"] : "";
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.payment"), new Field("payment", $payment, FieldType::CURRENCY));
+		
+		$conditions = ($c != NULL) ? $c["conditions"] : "";
+		$form->addElement(Lang::txt("KonzerteView_addEntityForm.conditions"), new Field("conditions", $conditions, FieldType::TEXT));
 		
 		// custom fields
 		$customFields = $this->getData()->getCustomFields(KonzerteData::$CUSTOM_DATA_OTYPE);
 		$customFieldNames = Database::flattenSelection($customFields, "techname");
-		$this->appendCustomFieldsToForm($form, KonzerteData::$CUSTOM_DATA_OTYPE);
+		$concertCustomData = NULL;
+		if($c != NULL) {
+			$concertCustomData = $c;
+		}
+		$this->appendCustomFieldsToForm($form, KonzerteData::$CUSTOM_DATA_OTYPE, $concertCustomData);
 		
 		$form->setSection(Lang::txt("KonzerteView_addEntityForm.details_title"), array_merge(array("payment", "conditions"), $customFieldNames));
-		
+		return $form;
+	}
+	
+	protected function addEntityForm() {
+		$form = $this->concertForm($this->modePrefix() . "add");
 		$form->write();
 	}
 	
@@ -657,6 +663,17 @@ class KonzerteView extends CrudRefLocationView {
 	
 	function exportFormatContact($contact, $profile) {
 		return $this->formatContact($contact, $profile);
+	}
+	
+	private function buildStatusDropdown($options, $selectedOpt=NULL) {
+		$dd = new Dropdown("status");
+		foreach($options as $opt) {
+			$dd->addOption(Lang::txt("Konzerte_status.$opt"), $opt);
+		}
+		if($selectedOpt != NULL) {
+			$dd->setSelected($selectedOpt);
+		}
+		return $dd;
 	}
 }
 

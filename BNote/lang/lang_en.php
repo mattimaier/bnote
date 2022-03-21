@@ -1131,6 +1131,10 @@ class Translation extends BNoteTranslation {
 			"KontakteView_gdprOk.gdpr_ok" => "Consent",
 			
 			// module: Konzerte *********************************************
+			"Konzerte_status.planned" => "planned",
+			"Konzerte_status.cancelled" => "cancelled",
+			"Konzerte_status.confirmed" => "confirmed",
+			"Konzerte_status.hidden" => "hidden",
 			
 			// KonzerteData
 			"KonzerteData_construct.id" => "Performance ID",
@@ -1148,6 +1152,7 @@ class Translation extends BNoteTranslation {
 			"KonzerteData_construct.notes" => "Notes",
 			"KonzerteData_construct.payment" => "Gage",
 			"KonzerteData_construct.conditions" => "Conditions",
+			"KonzerteData_construct.status" => "Status",
 			"KonzerteData_create.error" => "At least one group (cast) must be selected.",
 			
 			// KonzerteView ********* to finish **********

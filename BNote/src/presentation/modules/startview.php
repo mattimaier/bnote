@@ -566,6 +566,10 @@ class StartView extends CrudRefLocationView {
 					?></td>
 				</tr>
 				<tr>
+					<td><?php echo Lang::txt("KonzerteData_construct.status"); ?></td>
+					<td><?php echo Lang::txt("Konzerte_status." . $c["status"]); ?></td>
+				</tr>
+				<tr>
 					<td><?php echo Lang::txt("StartView_gigcard.meetingtime"); ?></td>
 					<td><?php echo Data::convertDateFromDb($c["meetingtime"]); ?></td>
 				</tr>

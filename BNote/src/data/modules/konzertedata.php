@@ -28,7 +28,8 @@ class KonzerteData extends AbstractLocationData {
 			"outfit" => array(Lang::txt("KonzerteData_construct.outfit"), FieldType::REFERENCE),
 			"notes" => array(Lang::txt("KonzerteData_construct.notes"), FieldType::TEXT), 
 			"payment" => array(Lang::txt("KonzerteData_construct.payment"), FieldType::CURRENCY),
-			"conditions" => array(Lang::txt("KonzerteData_construct.conditions"), FieldType::TEXT)
+			"conditions" => array(Lang::txt("KonzerteData_construct.conditions"), FieldType::TEXT),
+			"status" => array(Lang::txt("KonzerteData_construct.status"), FieldType::ENUM)
 		);
 		
 		$this->references = array(
@@ -70,7 +71,7 @@ class KonzerteData extends AbstractLocationData {
 		$this->regex->isDate($to);
 		
 		$query = "SELECT c.id, c.begin, c.title, c.organizer, l.name as location_name, a.city as location_city, 
-				CONCAT(k.name, ' ', k.surname) as contact_name, p.name as program_name
+				CONCAT(k.name, ' ', k.surname) as contact_name, p.name as program_name, c.status
 				FROM concert c
 				LEFT OUTER JOIN location l ON c.location = l.id
 				LEFT OUTER JOIN address a ON l.address = a.id
@@ -385,5 +386,10 @@ class KonzerteData extends AbstractLocationData {
 		$query .= "WHERE concert = ? ";
 		$query .= "ORDER BY p.begin, p.end";
 		return $this->database->getSelection($query, array(array("i", $concertid)));
+	}
+	
+	
+	function getStatusOptions() {
+		return array("planned", "confirmed", "cancelled", "hidden");
 	}
 }

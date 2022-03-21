@@ -132,7 +132,7 @@ class ApplicationDataProvider {
 			"location_street", "location_city", "location_zip", // 8-10
 			"contact_name", "contact_phone", "contact_email", "contact_web", // 11-14
 			"program_name", "program_notes", // 15,16
-			"outfit" // 17
+			"outfit", "status" // 17,18
 		));
 		
 		// get all future concerts
@@ -145,13 +145,15 @@ class ApplicationDataProvider {
 			// only show concerts of groups and rehearsal phases the user is in
 			$phases = $this->getUsersPhases($uid);
 			$phasesWhere = "WHERE ";
+			$params = array();
 			if(count($phases) == 0) {
 				$phasesWhere .= "0 = 1"; // no phases
 			}
 			else {
 				foreach($phases as $i => $p) {
 					if($i > 0) $phasesWhere .= " OR ";
-					$phasesWhere .= "rehearsalphase = $p";
+					$phasesWhere .= "rehearsalphase = ?";
+					array_push($params, array("i", $p));
 				}
 			}
 			
@@ -168,13 +170,14 @@ class ApplicationDataProvider {
 						UNION ALL (
 							SELECT concert
 							FROM concert_contact
-							WHERE contact = $cid
+							WHERE contact = ?
 						)
 					) AS concerts ON c.id = concerts.concert
 				WHERE END > NOW( )
 				ORDER BY BEGIN,
 				END";
-			$concerts = $this->database->getSelection($query);
+			array_push($params, array("i", $cid));
+			$concerts = $this->database->getSelection($query, $params);
 		}
 		
 		// iterate over concerts and replace foreign keys with data
@@ -258,7 +261,8 @@ class ApplicationDataProvider {
 				"program_id" => $concerts[$i]["program"],
 				"program_name" => isset($program["name"]) ? $program["name"] : "",
 				"program_notes" => isset($program["notes"]) ? $program["notes"] : "",
-				"outfit" => $outfit_out
+				"outfit" => $outfit_out,
+				"status" => $concerts[$i]["status"]
 			));
 		}
 		return $result;

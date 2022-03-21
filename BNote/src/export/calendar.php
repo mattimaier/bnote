@@ -132,6 +132,7 @@ else {
 
 // write them
 for($i = 1; $i < count($rehearsals); $i++) {
+	if($rehearsals[$i]["status"] == "cancelled" || $rehearsals[$i]["status"] == "hidden") continue;
 	echo "BEGIN:VEVENT\r\n";
 	echo "UID:" . generateUid("REHEARSAL", $rehearsals[$i]["id"]) . "\r\n";
 	echo "SUMMARY:Probe $organizer\r\n";
