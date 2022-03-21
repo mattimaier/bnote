@@ -388,8 +388,42 @@ class KonzerteData extends AbstractLocationData {
 		return $this->database->getSelection($query, array(array("i", $concertid)));
 	}
 	
-	
 	function getStatusOptions() {
 		return array("planned", "confirmed", "cancelled", "hidden");
+	}
+	
+	function getUsedInstruments() {
+		return $this->adp()->getUsedInstruments();
+	}
+	
+	/**
+	 * Checks for the given instrument and concert what the status of participation is.
+	 * @param Integer $cid Concert ID.
+	 * @param Integer $instrumentId Instrument ID, set NULL (default) for all
+	 * @param Boolean $stripped Cut first row (true by default)
+	 */
+	function getParticipantOverview($cid, $instrumentId=NULL, $stripped=TRUE) {
+		$this->regex->isPositiveAmount($cid, "concertId");
+		$params = array(array("i", $cid), array("i", $cid));
+		$instrument = "";
+		if($instrumentId != NULL) {
+			$this->regex->isPositiveAmount($instrumentId, "instrumentId");
+			$instrument = "AND c.instrument = ?";
+			array_push($params, array("i", $instrumentId));
+		}
+		$query = "SELECT i.name as instrument, c.id as contact_id, CONCAT(c.name, ' ', c.surname) as contactname, u.id as user_id, IFNULL(cu.participate, -1) as participate
+				FROM concert_contact cc
+					JOIN contact c ON cc.contact = c.id
+					JOIN user u ON u.contact = c.id
+					JOIN instrument i ON c.instrument = i.id
+					LEFT OUTER JOIN concert_user cu ON cu.user = u.id AND cu.concert = ?
+				WHERE cc.concert = ? $instrument
+				ORDER BY instrument, contactname";
+		
+		$participants = $this->database->getSelection($query, $params);
+		if($stripped) {
+			$participants = array_splice($participants, 1);
+		}
+		return $participants;
 	}
 }

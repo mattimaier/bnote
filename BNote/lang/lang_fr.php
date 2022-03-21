@@ -1163,6 +1163,7 @@ class Translation extends BNoteTranslation {
 			"KonzerteView_startOptions.programs" => "Gestion des programmes",
 			"KonzerteView_startOptions.history" => "Historique",
 			"KonzerteView_viewInvitations.title" => "Contacts invités",
+			"KonzerteView_startOptions.overview" => "Participation",
 			"KonzerteView_viewInvitations.fullname" => "Nom",
 			"KonzerteView_viewInvitations.nickname" => "Surnom",
 			"KonzerteView_viewInvitations.phone" => "Téléphone",
@@ -1236,6 +1237,7 @@ class Translation extends BNoteTranslation {
 			"KonzerteView_viewPhases.end" => "jusqu'à",
 			"KonzerteView_viewPhases.notes" => "Notes",
 			"KonzerteView_writeConcert.title" => " Hour / ",
+			"KonzerteView_overviewTitle.title" => "Aperçu des participants",
 			
 			// module: Locations *********************************************
 

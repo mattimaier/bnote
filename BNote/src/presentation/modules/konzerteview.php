@@ -54,6 +54,10 @@ class KonzerteView extends CrudRefLocationView {
 	protected function startOptions() {
 		parent::startOptions();
 		
+		$lnk = new Link($this->modePrefix() . "overview", Lang::txt("KonzerteView_startOptions.overview"));
+		$lnk->addIcon("people");
+		$lnk->write();
+		
 		$lnk = new Link($this->modePrefix() . "programs", Lang::txt("KonzerteView_startOptions.programs"));
 		$lnk->addIcon("music-note-list");
 		$lnk->write();
@@ -674,6 +678,62 @@ class KonzerteView extends CrudRefLocationView {
 			$dd->setSelected($selectedOpt);
 		}
 		return $dd;
+	}
+	
+	function overviewTitle() {
+		return Lang::txt("KonzerteView_overviewTitle.title");
+	}
+	
+	function overview() {
+		$futureConcerts = $this->getData()->getFutureConcerts();
+		$usedInstruments = $this->getData()->getUsedInstruments();
+		for($c = 1; $c < count($futureConcerts); $c++) {
+			$concert = $futureConcerts[$c];
+			?>
+			<div class="rehearsal_overview_box">
+				<div class="rehearsal_overview_header">
+					<?php echo $concert["title"] . " - " . Data::convertDateFromDb($concert["begin"]); ?>
+				</div>
+				<?php 
+				for($i = 1; $i < count($usedInstruments); $i++) {
+					$instrument = $usedInstruments[$i];
+					?>
+					<div class="instrument_box">
+						<div class="instrument_box_header"><?php echo $instrument["name"]; ?></div>
+						<?php 
+						$parts = $this->getData()->getParticipantOverview($concert['id'], $instrument["id"]);
+						foreach($parts as $participant) {
+							$p = $participant['participate'];
+							if(is_null($p) || (is_string($p) && $p == "") || (is_numeric($p) && $p < 0)) {
+								$icon = "question-square";
+							} else {
+								switch($p) {
+									case 0:
+										$icon = "x-square-fill icon-red";
+										break;
+									case 2:
+										$icon = "question-square-fill icon-yellow";
+										break;
+									default:
+										$icon = "check-square-fill icon-green";
+										break;
+								}
+							}
+							?>
+							<div class="player_participation_line">
+								<i class="bi-<?php echo $icon; ?>"></i>
+								<span><?php echo $participant['contactname']; ?></span>
+							</div>
+						<?php 
+						}
+						?>
+					</div>
+					<?php
+				}
+				?>
+			</div>
+			<?php
+		}
 	}
 }
 

@@ -426,8 +426,7 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	public function getUsedInstruments() {
-		$query = "SELECT DISTINCT i.* FROM instrument i JOIN contact c ON c.instrument = i.id ORDER BY i.rank, i.name";
-		return $this->database->getSelection($query);
+		return $this->adp()->getUsedInstruments();
 	}
 	
 	public function getCurrentSeries() {

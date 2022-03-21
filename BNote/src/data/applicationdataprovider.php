@@ -593,4 +593,9 @@ class ApplicationDataProvider {
 			new BNoteError(Lang::txt("NachrichtenData_check.error"));
 		}
 	}
+	
+	public function getUsedInstruments() {
+		$query = "SELECT DISTINCT i.* FROM instrument i JOIN contact c ON c.instrument = i.id ORDER BY i.rank, i.name";
+		return $this->database->getSelection($query);
+	}
 }
