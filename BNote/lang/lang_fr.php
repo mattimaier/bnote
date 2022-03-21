@@ -812,6 +812,7 @@ class Translation extends BNoteTranslation {
 			// InstrumenteData
 			"InstrumenteData_construct.id" => "ID",
 			"InstrumenteData_construct.name" => "Nom",
+			"InstrumenteData_construct.rank" => "Tri",
 			"InstrumenteData_construct.category" => "Catégorie",
 			"InstrumenteData_delete.BNoteError" => "L'instrument ne peut pas être effacé car il est affecté à au moins un contact.",
 			"InstrumenteView_viewDetailTable.categoryname" => "Catégorie",
@@ -974,7 +975,7 @@ class Translation extends BNoteTranslation {
 			"KontakteData_construct.status" => "Statut",
 			"KontakteData_construct.share_address" => "Partager l'adresse",
 			"KontakteData_construct.share_phones" => "Partager des numéros de téléphone",
-			"KontakteData_construct.share_birhtday" => "Partager l'anniversaire",
+			"KontakteData_construct.share_birthday" => "Partager l'anniversaire",
 			"KontakteData_validate.errorNameRequired" => "Veuillez fournir au moins un nom.",
 
 			// KontakteController				

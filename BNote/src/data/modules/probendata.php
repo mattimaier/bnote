@@ -426,7 +426,7 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	public function getUsedInstruments() {
-		$query = "SELECT DISTINCT i.* FROM instrument i JOIN contact c ON c.instrument = i.id";
+		$query = "SELECT DISTINCT i.* FROM instrument i JOIN contact c ON c.instrument = i.id ORDER BY i.rank, i.name";
 		return $this->database->getSelection($query);
 	}
 	
@@ -513,8 +513,9 @@ class ProbenData extends AbstractLocationData {
 		foreach($_POST as $item => $participation) {
 			$param_parts = explode("_", $item);  # "part", "rX", "cX"
 			$rehearsal_id = substr($param_parts[1], 1);
-			$this->regex->isPositiveAmount($rehearsal_id);
 			$contact_id = substr($param_parts[2], 1);
+			if(!is_numeric($rehearsal_id) || !is_numeric($contact_id) || $rehearsal_id == "" || $contact_id == "") continue;
+			$this->regex->isPositiveAmount($rehearsal_id);
 			$this->regex->isPositiveAmount($contact_id);
 			
 			// convert contact to user -> cache in map

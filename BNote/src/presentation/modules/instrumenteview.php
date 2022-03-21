@@ -50,7 +50,7 @@ class InstrumenteView extends CrudRefView {
 	function backToStart() {
 		global $system_data;
 		$link = new Link("?mod=" . $system_data->getModuleId() . "&mode=instruments", Lang::txt("InstrumenteView_backToStart.back"));
-		$link->addIcon("arrow_left");
+		$link->addIcon("arrow-left");
 		$link->write();
 	}
 	
@@ -72,7 +72,7 @@ class InstrumenteView extends CrudRefView {
 	function startOptions() {
 		// show a back button
 		$back = new Link(parent::modePrefix() . "start", Lang::txt("InstrumenteView_startOptions.start"));
-		$back->addIcon("arrow_left");
+		$back->addIcon("arrow-left");
 		$back->write();
 		
 		// add new ones
@@ -82,7 +82,7 @@ class InstrumenteView extends CrudRefView {
 		
 		// configure visible instrument groups
 		$cat = new Link($this->modePrefix() . "activeInstrumentGroups", Lang::txt("InstrumenteView_startOptions.activeInstrumentGroups"));
-		$cat->addIcon("edit");
+		$cat->addIcon("pen");
 		$cat->write();
 		$this->verticalSpace();
 	}
@@ -113,6 +113,7 @@ class InstrumenteView extends CrudRefView {
 		$instrument = $this->getData()->findByIdJoined($_GET["id"], $this->getJoinedAttributes());
 		$dv = new Dataview();
 		$dv->autoAddElements($instrument);
+		$dv->renameElement("rank", Lang::txt("InstrumenteData_construct.rank"));
 		$dv->renameElement("categoryname", Lang::txt("InstrumenteView_viewDetailTable.categoryname"));
 		$dv->write();
 	}
@@ -121,7 +122,7 @@ class InstrumenteView extends CrudRefView {
 		$instrument = $this->getData()->findByIdNoRef($_GET["id"]);
 		$form = new Form("Instrument bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(),
-				$this->getData()->getTable(), $_GET["id"]);
+				$this->getData()->getTable(), $_GET["id"], array("rank"));
 		$form->setForeign("category", "category", "id", "name", $instrument["category"]);
 		$form->removeElement("id");
 		$form->write();

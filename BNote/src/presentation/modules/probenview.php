@@ -855,13 +855,13 @@ class ProbenView extends CrudRefLocationView {
 							} else {
 								switch($p) {
 									case 0: 
-										$icon = "x-square-fill";
+										$icon = "x-square-fill icon-red";
 										break;
 									case 2: 
-										$icon = "question-square-fill";
+										$icon = "question-square-fill icon-yellow";
 										break;
 									default:
-										$icon = "check-square-fill";
+										$icon = "check-square-fill icon-green";
 										break;
 								}
 							}

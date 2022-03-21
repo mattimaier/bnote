@@ -504,6 +504,22 @@ table.dataTable th {
   font-size: smaller;
   color: #61b3ff;
 }
+.messageHeader {
+  font-size: larger;
+  color: #61b3ff;
+}
+/*
+ * MISC
+ */
+.icon-green {
+  color: #198754;
+}
+.icon-yellow {
+  color: #ffc107;
+}
+.icon-red {
+  color: #dc3545;
+}
 @media print {
   .btn-toolbar {
     display: none;

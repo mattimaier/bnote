@@ -14,6 +14,7 @@ class InstrumenteData extends AbstractData {
 		$this->fields = array(
 				"id" => array(Lang::txt("InstrumenteData_construct.id"), FieldType::INTEGER),
 				"name" => array(Lang::txt("InstrumenteData_construct.name"), FieldType::CHAR),
+				"rank" => array(Lang::txt("InstrumenteData_construct.rank"), FieldType::INTEGER),
 				"category" => array(Lang::txt("InstrumenteData_construct.category"), FieldType::REFERENCE)
 		);
 	
@@ -41,9 +42,9 @@ class InstrumenteData extends AbstractData {
 	}
 	
 	function getInstrumentsWithCatName() {
-		$query = "SELECT i.id, i.name, i.category as catid, c.name as category ";
+		$query = "SELECT i.id, i.name, i.rank, i.category as catid, c.name as category ";
 		$query .= "FROM instrument i JOIN category c ON i.category = c.id ";
-		$query .= "ORDER BY i.name";
+		$query .= "ORDER BY i.rank, i.name";
 		return $this->database->getSelection($query);
 	}
 	

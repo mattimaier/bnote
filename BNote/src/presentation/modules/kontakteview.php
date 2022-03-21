@@ -365,7 +365,7 @@ class KontakteView extends CrudRefLocationView {
 		if(!$this->getData()->hasContactUserAccount($_GET["id"])) {
 			// show button
 			$btn = new Link($this->modePrefix() . "createUserAccount&id=" . $_GET["id"], Lang::txt("KontakteView_additionalViewButtons.user"));
-			$btn->addIcon("user");
+			$btn->addIcon("person");
 			$btn->write();
 		}
 		
@@ -558,8 +558,8 @@ class KontakteView extends CrudRefLocationView {
 	}
 	
 	function userCreatedAndMailed($username, $email) {
-		$m = Lang::txt("KontakteView_userCreatedAndMailed.Message_1") . $email . Lang::txt("KontakteView_userCreatedAndMailed.Message_2");
-		new Message(Lang::txt("KontakteView_userCreatedAndMailed.Message_3") . "$username" . Lang::txt("KontakteView_userCreatedAndMailed.Message_4"), $m);
+		$m = Lang::txt("KontakteView_userCreatedAndMailed.Message_1") . " $email " . Lang::txt("KontakteView_userCreatedAndMailed.Message_2");
+		new Message(Lang::txt("KontakteView_userCreatedAndMailed.Message_3") . " $username " . Lang::txt("KontakteView_userCreatedAndMailed.Message_4"), $m);
 	}
 	
 	function userCredentials($username, $password) {

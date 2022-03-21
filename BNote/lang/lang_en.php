@@ -813,6 +813,7 @@ class Translation extends BNoteTranslation {
 			// InstrumenteData
 			"InstrumenteData_construct.id" => "ID",
 			"InstrumenteData_construct.name" => "Name",
+			"InstrumenteData_construct.rank" => "Sort index",
 			"InstrumenteData_construct.category" => "Category",
 			"InstrumenteData_delete.BNoteError" => "The instrument cannot be deleted because it is assigned to at least one contact",
 			
@@ -975,7 +976,7 @@ class Translation extends BNoteTranslation {
 			"KontakteData_construct.status" => "Status",
 			"KontakteData_construct.share_address" => "Shares address",
 			"KontakteData_construct.share_phones" => "Shares phone numbers",
-			"KontakteData_construct.share_birhtday" => "Shares birthday",
+			"KontakteData_construct.share_birthday" => "Shares birthday",
 			"KontakteData_validate.errorNameRequired" => "Please provide at least one name.",
 			
 			// KontakteController				
