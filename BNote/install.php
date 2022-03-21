@@ -273,6 +273,7 @@ class Installation {
 					`accommodation` INT(11),
 					`payment` DECIMAL(12,2),
 					`conditions` TEXT,
+					`status` varchar(20) default 'planned',
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
@@ -321,6 +322,9 @@ class Installation {
 					`gdpr_code` varchar(255) DEFAULT NULL,
 					`is_conductor` int(1) default 0,
 					`company` VARCHAR(100),
+					`share_address` int(1) default 1,
+					`share_phones` int(1) default 1,
+					`share_birthday` int(1) default 1,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -380,6 +384,7 @@ class Installation {
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					`name` varchar(60) NOT NULL,
 					`category` int(10) unsigned NOT NULL,
+					`rank` int(4),
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -397,6 +402,8 @@ class Installation {
 					"CREATE TABLE IF NOT EXISTS `module` (
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					`name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+					`icon` varchar(50),
+					`category` varchar(50),
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -435,6 +442,7 @@ class Installation {
 					`location` int(10) unsigned NOT NULL,
 					`serie` int(11),
 					`conductor` int(11),
+					`status` varchar(20) default 'planned',
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -844,7 +852,9 @@ class Installation {
 					('enable_trigger_service', '1', 1),
 					('default_conductor', '', 1),
 					('default_country', 'DEU', 1),
-					('currency', 'EUR', 1);");
+					('currency', 'EUR', 1),
+					('export_rehearsal_notes', '0', 1),
+					('export_rehearsalsong_notes', '0', 1);");
 			
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES
@@ -932,31 +942,41 @@ class Installation {
 					(46, 'Banjo', 8);");
 
 			array_push($queries,
-					"INSERT INTO `module` (`id`, `name`) VALUES
-					(1, 'Start'),
-					(2, 'User'),
-					(3, 'Kontakte'),
-					(4, 'Konzerte'),
-					(5, 'Proben'),
-					(6, 'Repertoire'),
-					(7, 'Kommunikation'),
-					(8, 'Locations'),
-					(9, 'Kontaktdaten'),
-					(10, 'Hilfe'),
-					(11, 'Website'),
-					(12, 'Share'),
-					(13, 'Mitspieler'),
-					(14, 'Abstimmung'),
-					(15, 'Nachrichten'),
-					(16, 'Aufgaben'),
-					(17, 'Konfiguration'),
-					(18, 'Probenphasen'),
-					(19, 'Finance'),
-					(20, 'Calendar'),
-					(21, 'Equipment'),
-					(22, 'Tour'),
-					(23, 'Outfits'),
-					(24, 'Stats');");
+					"INSERT INTO `module` (`id`, `name`, `icon`, `category`) VALUES
+					(1, 'Start', 'play-circle', 'main'),
+					(2, 'User', 'people', 'admin'),
+					(3, 'Kontakte', 'person-video2', 'main'),
+					(4, 'Konzerte', 'mic', 'main'),
+					(5, 'Proben'. 'collection-play', 'main'),
+					(6, 'Repertoire', 'music-note-list', 'main'),
+					(7, 'Kommunikation', 'envelope', 'main'),
+					(8, 'Locations', 'geo-alt', 'main'),
+					(9, 'Kontaktdaten', 'person-bounding-box', 'user'),
+					(10, 'Hilfe', 'info-circle-fill', 'help'),
+					(12, 'Share', 'folder2-open', 'main'),
+					(13, 'Mitspieler', 'person-badge', 'main'),
+					(14, 'Abstimmung', 'check2-square', 'main'),
+					(15, 'Nachrichten', 'newspaper', 'admin'),
+					(16, 'Aufgaben', 'list-task', 'main'),
+					(17, 'Konfiguration', 'sliders', 'admin'),
+					(18, 'Probenphasen', 'calendar-range', 'main'),
+					(19, 'Finance', 'piggy-bank', 'main'),
+					(20, 'Calendar', 'calendar2-week', 'main'),
+					(21, 'Equipment', 'boombox', 'main'),
+					(22, 'Tour', 'truck', 'main'),
+					(23, 'Outfits', 'handbag', 'main'),
+					(24, 'Stats', 'bar-chart', 'admin'),
+					(25, 'Home', 'house', 'public')
+					(26, 'Login', 'door-open', 'public');
+					(27, 'Logout', 'box-arrow-right', 'public');
+					(28, 'ForgotPassword', 'asterisk', 'public');
+					(29, 'Registration', 'journal-plus', 'public');
+					(30, 'WhyBNote', 'question-circle', 'public');
+					(31, 'Terms', 'file-text', 'public');
+					(32, 'Impressum', 'building', 'public');
+					(33, 'Gdpr', 'bookmark-check', 'public');
+					(34, 'ExtGdpr', 'bookmark-check', 'public');
+					(35, 'Admin', 'gear-fill', 'admin');");
 
 			array_push($queries,
 					"INSERT INTO `status` (`id`, `name`) VALUES

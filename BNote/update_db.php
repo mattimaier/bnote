@@ -235,12 +235,22 @@ $update = new UpdateDb();
 
 <?php 
 /*
+ * Add 3.4.x updates to allow update from any 3.4 version
+ */
+// --- 3.4.2 UPDATES ---
+// Task 1: Configuration for user registration
+$update->addDynConfigParam("user_registration", 1);
+// Task 2: Configuration for currency
+$update->addDynConfigParam("currency", "EUR");
+
+// --- 3.4.4 UPDATES ---
+// Task 1: Config for number of gigs on start page
+$update->addDynConfigParam("concert_show_max", 5);  # already deprecated, but required not to break the system
+
+/*
  * 4.0.0 UPDATES
  * -------------
  */
-//TODO: Add 3.4.x updates to allow update from any 3.4 version
-//TODO: Also change all following this in installation script
-
 // Task: Adapt modules as part of a new navigation structure in BNote 4
 $update->addColumnToTable("module", "icon", "varchar(50)");
 $update->addColumnToTable("module", "category", "varchar(50)");

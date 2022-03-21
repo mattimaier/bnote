@@ -480,6 +480,46 @@ tr.odd td {
 table.dataTable th {
   border-bottom-color: #143452;
 }
+/*
+ * Widgets
+ */
+.participation_widget {
+  border: 1px solid #BFCEDB;
+}
+.participation_button {
+  font-size: 1.5rem;
+  padding: 0.4rem;
+  line-height: 1;
+}
+.chatbar {
+  background-color: #f6f6f6;
+  border-left: 1px solid #586C80;
+}
+.chat_message_box {
+  border: 1px solid #BFCEDB;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+}
+.message_author {
+  font-size: smaller;
+  color: #356A9C;
+}
+.messageHeader {
+  font-size: larger;
+  color: #356A9C;
+}
+/*
+ * MISC
+ */
+.icon-green {
+  color: #58b658;
+}
+.icon-yellow {
+  color: #F9FF61;
+}
+.icon-red {
+  color: #ED6D6D;
+}
 @media print {
   .btn-toolbar {
     display: none;
@@ -758,6 +798,13 @@ div.start_box_content div {
   padding: 0.75em;
 }
 div.start_box_heading {
+  background-color: #143452;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+div.start_box_content_heading {
   background-color: #243E56;
   color: #FFFFFF;
   text-transform: uppercase;
@@ -776,17 +823,48 @@ div.start_box_table {
 div.start_box_row {
   display: table-row;
 }
-div.start_update_box {
-  border: 0px solid #BFCEDB;
-  border-bottom-width: 1px;
-  margin-bottom: 10px;
-}
-span.start_update_box_author {
-  font-size: 9pt;
-  color: #2F4152;
-}
 .start_rehearsal_title {
   font-weight: 600;
+}
+.card-title {
+  font-weight: 600;
+}
+.start_box_status_confirmed {
+  color: #58b658;
+}
+.start_box_status_cancelled {
+  color: #ED6D6D;
+  text-decoration: line-through;
+}
+.start_box_status_hidden {
+  color: #BFCEDB;
+}
+a.start_card {
+  text-decoration: none;
+  color: #000000;
+}
+.start_box_active {
+  border-left: 4px solid #356A9C;
+}
+.start_card_due {
+  display: block;
+  float: right;
+  margin-right: 1em;
+  margin-top: 0.8em;
+  font-size: smaller;
+  color: #2F4152;
+}
+.start_box_participation_no {
+  border-right: 4px solid #ED6D6D;
+}
+.start_box_participation_yes {
+  border-right: 4px solid #58b658;
+}
+.start_box_participation_maybe {
+  border-right: 4px solid #F9FF61;
+}
+.start_box_participation_unknown {
+  border-right: 4px solid #2F4152;
 }
 .warning {
   color: #ff821e;

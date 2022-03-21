@@ -6,12 +6,11 @@
 		<span class="d-none d-md-inline-block"><?php echo $system_data->getCompany(); ?></span>
 	</a>
 	
-	<?php	
-	if ($system_data->isUserAuthenticated()) {
-	?>
-	
 	<div class="navbar-nav bnote-useradmin-bar ms-2">
 		<div class="d-flex flex-row">
+			<?php	
+			if ($system_data->isUserAuthenticated()) {
+			?>
       		<a href="?mod=<?php echo $system_data->getModuleId("Kontaktdaten"); ?>" class="p-2 text-light">
 				<i class="bi-person-circle"></i>
 	      	</a>
@@ -31,7 +30,9 @@
       		<a href="?mod=<?php echo $system_data->getModuleId("Logout"); ?>" class="p-2 text-light">
 				<i class="bi-box-arrow-right"></i>
 			</a>
-			
+			<?php
+			}
+			?>
 			<button class="navbar-toggler d-md-none collapsed"
 				type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
 				aria-controls="sidebarMenu" aria-expanded="false"
@@ -40,8 +41,5 @@
 			</button>
 		</div>
 	</div>
-	<?php
-	}
-	?>
 
 </header>
