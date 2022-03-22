@@ -29,10 +29,7 @@ class NachrichtenData extends AbstractData {
 			file_put_contents($this->newsFile, "");
 		}
 		$content = file_get_contents($this->newsFile);
-		if(get_magic_quotes_gpc() != 0) {
-			$content = stripcslashes($content);
-		}
-		return $content;
+		return urldecode($content);
 	}
 	
 	/**
@@ -44,8 +41,8 @@ class NachrichtenData extends AbstractData {
 	}
 	
 	public function storeContent($content) {
-		$this->check($content);
-		file_put_contents($this->newsFile, $content);
+		$fileContent = urlencode($content);
+		file_put_contents($this->newsFile, $fileContent);
 	}
 	
 }
