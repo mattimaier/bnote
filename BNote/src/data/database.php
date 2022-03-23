@@ -8,6 +8,12 @@ require ("xmldata.php");
 class Database extends Data {
 	
 	/**
+	 * Set this to true if you are developing for environments without a mysqlnd driver.
+	 * @var boolean
+	 */
+	private $debugNoMysqlnd = false;
+	
+	/**
 	 * Connection parameters
 	 * @var array
 	 */
@@ -65,7 +71,7 @@ class Database extends Data {
 		if($encoding != null) {
 			$this->connectionData["encoding"] = $encoding;
 		}
-		$this->userTable = $config->getParameter ( "UserTable" );
+		$this->userTable = $config->getParameter("UserTable");
 	}
 	
 	private function mysql_error_display($query) {
@@ -101,7 +107,15 @@ class Database extends Data {
 	 * @return Array Associated result from mysqli.
 	 */
 	public function preparedQuery($query, $params) {
-		return $this->preparedQueryRaw($query, $params)->fetch_all(MYSQLI_ASSOC);
+		$res = $this->preparedQueryRaw($query, $params);
+		if(method_exists($res, "fetch_all") && !$this->debugNoMysqlnd) {
+			return $res->fetch_all(MYSQLI_ASSOC);
+		}
+		$rows = array();
+		while($data = array_shift($res["data"])) {
+			array_push($rows, $data);
+		}
+		return $rows;
 	}
 	
 	private function preparedQueryRaw($query, $params) {
@@ -118,7 +132,28 @@ class Database extends Data {
 			$stmt->bind_param($bindTypes, ...$bindValues);
 		}
 		$stmt->execute();
-		$result = $stmt->get_result();
+		if(method_exists($stmt, "get_result") && !$this->debugNoMysqlnd) {
+			$result = $stmt->get_result();
+		}
+		else {
+			$meta = $stmt->result_metadata();
+			$result = array("meta" => $meta, "data" => $this->stmt_get_result($stmt));
+		}
+		return $result;
+	}
+	
+	private function stmt_get_result($stmt) {
+		$result = array();
+		$stmt->store_result();
+		for( $i = 0; $i < $stmt->num_rows; $i++ ) {
+			$metadata = $stmt->result_metadata();
+			$params = array();
+			while ( $field = $metadata->fetch_field() ) {
+				$params[] = &$result[ $i ][ $field->name ];
+			}
+			call_user_func_array( array( $stmt, 'bind_result' ), $params );
+			$stmt->fetch();
+		}
 		return $result;
 	}
 	
@@ -217,14 +252,26 @@ class Database extends Data {
 	public function getSelection($preparedStatement, $params=array()) {
 		// Execute Query
 		$res = $this->preparedQueryRaw($preparedStatement, $params);
+		if(is_array($res) || $this->debugNoMysqlnd) {
+			$data = $res["data"];
+		}
+		else {
+			$data = $res;
+		}
 		$dataTable = array();
 		
 		// add header
 		$header = array();
 		
-		for($i = 0; $i<$this->db->field_count; $i ++) {
-			$meta = mysqli_fetch_field_direct($res, $i);
-			if (! $meta) {
+		for($i = 0; $i<$this->db->field_count; $i++) {
+			if(is_array($res) || $this->debugNoMysqlnd) {
+				$resultMeta = $res["meta"];
+				$meta = $resultMeta->fetch_field_direct($i);
+			}
+			else {
+				$meta = mysqli_fetch_field_direct($res, $i);
+			}
+			if (!$meta) {
 				new BNoteError("Invalid table header.");
 			}
 			array_push($header, ucfirst($meta->name));
@@ -232,7 +279,7 @@ class Database extends Data {
 		array_push($dataTable, $header);
 		
 		// add Data
-		foreach($res as $i => $row) {
+		foreach($data as $i => $row) {
 			array_push($dataTable, $row);
 		}
 		
