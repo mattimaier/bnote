@@ -79,10 +79,14 @@ class ApplicationDataProvider {
 	 * @return Array All rehearsals joined with location and address.
 	 */
 	public function getFutureRehearsals($withGroups=false) {
-		$query = "SELECT r.id as id, begin, end, approve_until, conductor, r.notes as notes, name, street, city, zip, state, country, l.id as location, status";
-		$query .= " FROM rehearsal r, location l, address a";
-		$query .= " WHERE r.location = l.id AND l.address = a.id";
-		$query .= " AND end > NOW() ORDER BY begin ASC";
+		$query = "SELECT r.id as id, r.begin, r.end, r.approve_until, r.conductor, CONCAT(c.name, ' ', c.surname) as conductorname, r.notes as notes, 
+						 l.name, a.street, a.city, a.zip, a.state, a.country, l.id as location, r.status
+				  FROM rehearsal r
+					JOIN location l ON r.location = l.id
+					JOIN address a ON l.address = a.id
+					LEFT JOIN contact c ON r.conductor = c.id
+				  WHERE end > NOW()
+				  ORDER BY begin ASC";
 		$rehearsals = $this->database->getSelection($query);
 		
 		// find groups for all future rehearsals

@@ -277,7 +277,7 @@ class ProbenView extends CrudRefLocationView {
 				"when" => $this->buildWhen($data[$i]["begin"], $data[$i]["end"]),
 				"approve_until" => $data[$i]["approve_until"],
 				"status" => Lang::txt("Proben_status." . $data[$i]["status"]),
-				"conductor" => $data[$i]["conductor"],
+				"conductor" => $data[$i]["conductorname"],
 				"location" => $data[$i]["name"] . "<br>" . $this->formatAddress($data[$i])
 			));
 		}
