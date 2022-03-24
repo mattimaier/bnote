@@ -703,6 +703,12 @@ class ProbenView extends CrudRefLocationView {
 		$tab->write();
 	}
 	
+	function viewTitle() {
+		// title
+		$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
+		return Lang::txt("ProbenView_view.message_1") . "$pdate" . Lang::txt("ProbenView_view.message_2");
+	}
+	
 	function view() {
 		if($this->isReadOnlyView()) {
 			// history view
@@ -720,10 +726,6 @@ class ProbenView extends CrudRefLocationView {
 			$tab->write();
 		}
 		else {
-			// title
-			$pdate = $this->getData()->getRehearsalBegin($_GET["id"]);
-			Writing::h2(Lang::txt("ProbenView_view.message_1") . "$pdate" . Lang::txt("ProbenView_view.message_2"));
-			
 			// tabs
 			$tabs = array(
 				"details" => Lang::txt("ProbenView_view.details"),

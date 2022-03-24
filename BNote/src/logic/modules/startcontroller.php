@@ -9,14 +9,15 @@ class StartController extends DefaultController {
 
 	public function start() {
 		if(isset($_GET['mode'])) {
-			if($_GET['mode'] == "saveParticipation") {
+			$mode = $_GET["mode"];
+			if($mode == "saveParticipation") {
 				$this->saveParticipation();
 			}
-			else if($_GET['mode'] == "addComment") {
+			else if($mode == "addComment") {
 				$this->getView()->addComment();
 				$this->notifyContactsOnComment();
 			}
-			else if($_GET["mode"] == "gdprOk") {
+			else if($mode == "gdprOk") {
 				$accept = $_GET["accept"];
 				// save in DB
 				$this->getData()->getSysdata()->gdprAccept($accept);
@@ -28,7 +29,6 @@ class StartController extends DefaultController {
 				}
 			}
 			else {
-				$mode = $_GET['mode'];
 				$this->getView()->$mode();
 			}
 		}

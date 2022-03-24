@@ -28,8 +28,8 @@ class Controller {
 		}
 		# Start Module
 		$modName = strtolower($system_data->getModuleTitle(-1, false));
-		$loginModules = array("Home", "Login", "Logout", "ForgotPassword", "Registration", "WhyBNote", "Terms", "Impressum", "Gdpr", "ExtGdpr");
-		if(!is_numeric($system_data->getModuleId()) || in_array($modName, $loginModules)) {
+		$loginModules = array("home", "login", "logout", "forgotpassword", "registration", "whybnote", "terms", "impressum", "gdpr", "extgdpr");
+		if(!is_numeric($system_data->getModuleId()) || in_array(strtolower($modName), $loginModules)) {
 			$modName = "login";
 		}
 		

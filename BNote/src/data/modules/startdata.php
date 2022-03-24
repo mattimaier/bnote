@@ -557,7 +557,7 @@ class StartData extends AbstractLocationData {
 					"otype" => "B",
 					"oid" => $r["id"],
 					"title" => Lang::txt("StartData_inboxItems.reservationOn") . " " . Data::convertDateFromDb($r["begin"]),
-					"preview" => $r["name"] . ", " . $a["locationname"],
+					"preview" => $r["name"] . ", " . $r["locationname"],
 					"due" => NULL,
 					"eventBegin" => $r["begin"],
 					"replyUntil" => $r["begin"]

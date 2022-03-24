@@ -313,7 +313,7 @@ class KonzerteData extends AbstractLocationData {
 			}
 			else {
 				// create participation
-				$insert_query = "INSERT INTO concert_user (participate, user, concert) VALUES (?, ?, ?)";
+				$query = "INSERT INTO concert_user (participate, user, concert) VALUES (?, ?, ?)";
 			}
 			$params = array(array("i", $participate), array("i", $user_id), array("i", $concert_id));
 			$this->database->execute($query, $params);

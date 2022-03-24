@@ -147,7 +147,7 @@ class LoginController extends DefaultController {
 		$i = 0;
 		$pass = '' ;
 		while ($i <= $length) {
-			$num = rand() % count($chars);
+			$num = rand() % strlen($chars);
 			$tmp = substr($chars, $num, 1);
 			$pass = $pass . $tmp;
 			$i++;
