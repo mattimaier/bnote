@@ -90,8 +90,8 @@ class StartData extends AbstractLocationData {
 		else {
 			$reason = "";
 		}
-		$query = "INSERT INTO $table ($entity, user, participate, reason)";
-		$query .= " VALUES (?, ?, ?, ?)";
+		$query = "INSERT INTO $table ($entity, user, participate, reason, replyon)";
+		$query .= " VALUES (?, ?, ?, ?, NOW())";
 		$this->database->prepStatement($query, array(
 				array("i", $id), array("i", $uid), array("i", $participate), array("s", $reason)
 		));

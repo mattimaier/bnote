@@ -67,7 +67,7 @@ class ProbenData extends AbstractLocationData {
 	
 	function getParticipants($rid) {
 		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, ';
-		$query .= ' CASE ru.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, ru.reason';
+		$query .= ' CASE ru.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, ru.reason, ru.replyon';
 		$query .= ' FROM rehearsal_user ru, user u, contact c';
 		$query .= ' WHERE ru.rehearsal = ? AND ru.user = u.id AND u.contact = c.id';
 		$query .= ' ORDER BY name';
@@ -544,7 +544,7 @@ class ProbenData extends AbstractLocationData {
 			
 			// insert new participation
 			if($do_update) {
-				$update_query = "INSERT INTO rehearsal_user (rehearsal, user, participate) VALUES (?,?,?)";
+				$update_query = "INSERT INTO rehearsal_user (rehearsal, user, participate, replyon) VALUES (?,?,?, NOW())";
 				$this->database->prepStatement($update_query, array(
 						array("i", $rehearsal_id),
 						array("i", $user_id),

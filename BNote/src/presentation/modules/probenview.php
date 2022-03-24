@@ -542,6 +542,7 @@ class ProbenView extends CrudRefLocationView {
 		$table->renameHeader("nickname", Lang::txt("ProbenView_participants.nickname_1"));
 		$table->renameHeader("participate", Lang::txt("ProbenView_participants.participate"));
 		$table->renameHeader("reason", Lang::txt("ProbenView_participants.reason"));
+		$table->renameHeader("replyon", Lang::txt("ProbenView_participants.replyon"));
 		$table->write();
 		
 		// remaining calls

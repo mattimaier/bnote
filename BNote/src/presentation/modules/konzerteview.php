@@ -437,6 +437,7 @@ class KonzerteView extends CrudRefLocationView {
 		$table->renameHeader("reason", Lang::txt("KonzerteView_showParticipants.reason"));
 		$table->renameHeader("category", Lang::txt("KonzerteView_showParticipants.category"));
 		$table->renameHeader("nickname", Lang::txt("KonzerteView_showParticipants.nickname_1"));
+		$table->renameHeader("replyon", Lang::txt("KonzerteView_showParticipants.replyon"));
 		$table->removeColumn("id");
 		$table->write();
 		$this->verticalSpace();
