@@ -7,7 +7,7 @@
  <link rel="shortcut icon" href="favicon.png" type="image/png" />
  <link rel="icon" href="favicon.png" type="image/png" />
   
- <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+ <link href='https://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
  
  <link href="lib/bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet" />
  <link type="text/css" href="lib/jquery/jquery.jqplot.min.css" rel="stylesheet" /> 
