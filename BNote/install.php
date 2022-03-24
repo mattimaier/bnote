@@ -290,6 +290,7 @@ class Installation {
 					`user` int(11) NOT NULL,
 					`participate` tinyint(4) NOT NULL,
 					`reason` varchar(200) DEFAULT NULL,
+					`replyon` datetime,
 					PRIMARY KEY (`concert`,`user`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
@@ -491,6 +492,7 @@ class Installation {
 					`user` int(11) NOT NULL,
 					`participate` tinyint(4) NOT NULL,
 					`reason` varchar(200) DEFAULT NULL,
+					`replyon` datetime,
 					PRIMARY KEY (`rehearsal`,`user`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
