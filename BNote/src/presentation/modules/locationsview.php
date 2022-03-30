@@ -85,25 +85,20 @@ class LocationsView extends CrudRefLocationView {
 		<div class="row">
 		<?php 
 		if($allActive) {
-			$table = new Table($this->getData()->findAllJoined($this->getJoinedAttributes()));
-			$table->setEdit("id");
-			$table->renameAndAlign($this->getData()->getFields());
-			$table->removeColumn("id");
-			$this->renameTableAddressColumns($table, "address");
-			$table->removeColumn("location_type");
-			$table->write();
+			$d = $this->getData()->findAllJoined($this->getJoinedAttributes());
 		}
 		else {
 			$locType = $_GET["locationType"];
 			$this->getData()->getSysdata()->regex->isPositiveAmount($locType);
-			$table = new Table($this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "location_type = $locType"));
-			$table->setEdit("id");
-			$table->removeColumn("id");
-			$table->renameAndAlign($this->getData()->getFields());
-			$this->renameTableAddressColumns($table, "address");
-			$table->removeColumn("location_type");
-			$table->write();
+			$d = $this->getData()->findAllJoinedWhere($this->getJoinedAttributes(), "location_type = $locType");
 		}
+		$table = new Table($d);
+		$table->setEdit("id");
+		$table->renameAndAlign($this->getData()->getFields());
+		$table->removeColumn("id");
+		$this->renameTableAddressColumns($table, "address");
+		$table->removeColumn("location_type");
+		$table->write();
 		?>
 		</div>
 		
