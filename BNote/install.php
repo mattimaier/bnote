@@ -44,7 +44,6 @@ class Installation {
 		</ul>
 		
 		<?php
-		echo '<br/><br/>';
 		$this->next("companyConfig");
 	}
 	
@@ -56,6 +55,7 @@ class Installation {
 		
 		if(file_exists("config/company.xml")) {
 			new Message("Information", Lang::txt("Installation_companyConfig.message_1"));
+			echo "<br>\n";
 			$this->next("databaseConfig");
 		}
 		else {
@@ -130,7 +130,7 @@ class Installation {
 		
 			<!-- True when the gallery management is used
 			and should be displayed and functional, otherwise false. -->
-			<UseGallery>True</UseGallery>
+			<UseGallery>False</UseGallery>
 		
 			<!-- True when the infopage/news/additional pages management is used
 			and should be displayed and functional, otherwise false. -->
@@ -147,18 +147,6 @@ class Installation {
 			in the data/webpages folder and the body containing the displayed name of the page. -->
 			<WebPages>
 			<Page file=\"startseite\">Startseite</Page>
-			<Page file=\"news\">Nachrichten</Page>
-			<Page file=\"infos\">Informationen</Page>
-			<Page file=\"band\">Die Band</Page>
-			<Page file=\"geschichte\">Geschichte</Page>
-			<Page file=\"mitspieler\">Besetzung</Page>
-			<Page file=\"konzerte\">Konzerte</Page>
-			<Page file=\"mediathek\">mediathek</Page>
-			<Page file=\"galerie\">Galerie</Page>
-			<Page file=\"videos\">Videos</Page>
-			<Page file=\"samples\">Aufnahmen</Page>
-			<Page file=\"kontakt\">Kontakt</Page>
-			<Page file=\"impressum\">Impressum</Page>
 			</WebPages>
 			</Software>";
 				
@@ -949,7 +937,7 @@ class Installation {
 					(2, 'User', 'people', 'admin'),
 					(3, 'Kontakte', 'person-video2', 'main'),
 					(4, 'Konzerte', 'mic', 'main'),
-					(5, 'Proben'. 'collection-play', 'main'),
+					(5, 'Proben', 'collection-play', 'main'),
 					(6, 'Repertoire', 'music-note-list', 'main'),
 					(7, 'Kommunikation', 'envelope', 'main'),
 					(8, 'Locations', 'geo-alt', 'main'),
@@ -968,16 +956,16 @@ class Installation {
 					(22, 'Tour', 'truck', 'main'),
 					(23, 'Outfits', 'handbag', 'main'),
 					(24, 'Stats', 'bar-chart', 'admin'),
-					(25, 'Home', 'house', 'public')
-					(26, 'Login', 'door-open', 'public');
-					(27, 'Logout', 'box-arrow-right', 'public');
-					(28, 'ForgotPassword', 'asterisk', 'public');
-					(29, 'Registration', 'journal-plus', 'public');
-					(30, 'WhyBNote', 'question-circle', 'public');
-					(31, 'Terms', 'file-text', 'public');
-					(32, 'Impressum', 'building', 'public');
-					(33, 'Gdpr', 'bookmark-check', 'public');
-					(34, 'ExtGdpr', 'bookmark-check', 'public');
+					(25, 'Home', 'house', 'public'),
+					(26, 'Login', 'door-open', 'public'),
+					(27, 'Logout', 'box-arrow-right', 'public'),
+					(28, 'ForgotPassword', 'asterisk', 'public'),
+					(29, 'Registration', 'journal-plus', 'public'),
+					(30, 'WhyBNote', 'question-circle', 'public'),
+					(31, 'Terms', 'file-text', 'public'),
+					(32, 'Impressum', 'building', 'public'),
+					(33, 'Gdpr', 'bookmark-check', 'public'),
+					(34, 'ExtGdpr', 'bookmark-check', 'public'),
 					(35, 'Admin', 'gear-fill', 'admin');");
 
 			array_push($queries,
@@ -1122,39 +1110,44 @@ class Installation {
 		$login->write();
 	}
 	
-	/************** HELPERS ****************/
+	/************** UI ****************/
 	
 	private function screen() {
 		?>
 		<!DOCTYPE html>
 		<HTML lang="de">
 		<HEAD>
-			<title>BNote | Installation</title>
- 			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-			<style type="text/css">
-			body {padding: 0px; margin: 0px;}
-			</style>
-			<LINK href="style/css/default/bnote.css" rel="StyleSheet" type="text/css">
+			<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+			 
+			<link rel="shortcut icon" href="favicon.png" type="image/png" />
+			<link rel="icon" href="favicon.png" type="image/png" />
+			  
+			<link href='https://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+			 
+			<link href="lib/bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet" />
+			<link type="text/css" href="lib/jquery/jquery.jqplot.min.css" rel="stylesheet" /> 
+			<link type="text/css" href="lib/dropzone.css" rel="stylesheet" />
+			<link rel="stylesheet" href="lib/bootstrap-icons-1.8.1/font/bootstrap-icons.css" />
+			<link rel="stylesheet" type="text/css" href="lib/DataTables/datatables.min.css" />
+			 
+			<link type="text/css" href="style/css/default/bnote.css" rel="stylesheet" />
 		</HEAD>
 		<BODY>	
 				
 		<!-- Banner -->
-		<div id="banner">
-			<div id="bannerContent">
-				<div id="logoBanner">
-					<a href="/">
-			 			<img src="style/images/BNote_Logo_white_on_blue_44px.png" />	
-			 		</a>	
-				 </div>
-				
-				<div id="CompanyName">BNote Installation</div>
-		 	   
-					</div> 
-		</div>
+		<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow d-print-none">		
+			<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="?mod=1">
+				<img src="style/images/BNote_Logo_white_transparent_44px.png" alt="BNote" height="31px" id="bnote-logo" />
+				<span class="d-none d-md-inline-block">BNote</span>
+			</a>
+		</header>
+		
 		<!-- Content Area -->
-		<div id="content_container">
-			<div id="content_insets">
-				<div id="content">
+		<div class="container-fluid mb-3">
+			<div class="row mt-3">
+				<main class="col-md-12 px-md-4">
 					<?php
 					// routing
 					if(isset($_GET["step"])) {
@@ -1165,10 +1158,11 @@ class Installation {
 						$this->welcome();
 					}
 					?>
-				</div>
+				</main>
 			</div>
 		</div>
-				
+			
+			<script src="lib/bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js"></script>
 		</BODY>
 		
 		</HTML>
@@ -1177,7 +1171,7 @@ class Installation {
 	
 	private function next($step) {
 		$lnk = new Link("?step=$step", "Weiter");
-		$lnk->addIcon("arrow_right");
+		$lnk->addIcon("arrow-right");
 		$lnk->write();
 	}
 }
