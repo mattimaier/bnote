@@ -455,7 +455,10 @@ class Systemdata {
   * @return String Value of the parameter, "untyped".
   */
  public function getDynamicConfigParameter($parameter) {
- 	return $this->cfg_dynamic[$parameter];
+ 	if(in_array($parameter, $this->cfg_dynamic)) {
+ 		return $this->cfg_dynamic[$parameter];
+ 	}
+ 	return NULL;
  }
  
  /**
