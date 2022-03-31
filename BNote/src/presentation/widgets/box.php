@@ -20,7 +20,7 @@ class Box implements iWriteable {
 	 * Constructor
 	 * @param Data $data Data-selection from a database->getSelection-call
 	 */
-	function Box($data) {
+	function __construct($data) {
 		$this->data = $data;
 		$this->key = "";
 		$this->header = "";

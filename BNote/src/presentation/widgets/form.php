@@ -28,7 +28,7 @@ class Form implements iWriteable {
 	 * @param String $action
 	 *        	link to call when form is submitted
 	 */
-	function Form($name, $action) {
+	function __construct($name, $action) {
 		$this->formname = $name;
 		$this->method = 'POST';
 		$this->action = $action;
