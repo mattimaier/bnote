@@ -48,8 +48,8 @@ class KommunikationController extends DefaultController {
 			
 			// add direct link to rehearsal on start
 			$href = $this->getData()->getSysdata()->getSystemURL();
-			if(!Data::endsWith(strtolower($href), "bnote")) {
-				$href .= "/BNote/";
+			if(!Data::startsWith(strtolower($href), "http")) {
+				$href = "https://" . $href;
 			}
 			$href .= "main.php?mod=1&mode=start&otype=R&oid=" . $_POST["rehearsal"];
 			$_POST["message"] .= "\n<a href=\"$href\">" . Lang::txt("KommunikationController_prepareMail.rehearsalLink") . "</a>";
