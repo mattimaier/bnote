@@ -274,7 +274,10 @@ class Database extends Data {
 			if (!$meta) {
 				new BNoteError("Invalid table header.");
 			}
-			array_push($header, ucfirst($meta->name));
+			
+			// weird bug in some systems
+			$name = ord($meta->name) == 0 ? "id" : ucfirst($meta->name);
+			array_push($header, $name);
 		}
 		array_push($dataTable, $header);
 		
