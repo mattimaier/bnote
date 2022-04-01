@@ -66,11 +66,14 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	function getParticipants($rid) {
-		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, ';
-		$query .= ' CASE ru.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, ru.reason, ru.replyon';
-		$query .= ' FROM rehearsal_user ru, user u, contact c';
-		$query .= ' WHERE ru.rehearsal = ? AND ru.user = u.id AND u.contact = c.id';
-		$query .= ' ORDER BY name';
+		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, i.name as instrument
+					CASE ru.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, ru.reason, ru.replyon
+					FROM rehearsal_user ru
+						JOIN user u ON ru.user = u.id
+						JOIN contact c ON u.contact = c.id
+						LEFT OUTER JOIN instrument i ON c.instrument = i.id
+					WHERE ru.rehearsal = ?
+					ORDER BY i.rank, name';
 		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	
@@ -120,7 +123,7 @@ class ProbenData extends AbstractLocationData {
 					     JOIN instrument i ON c.instrument = i.id
 					WHERE ru.participate = 1 AND ru.rehearsal = ?
 					GROUP BY i.name
-					ORDER BY i.name";
+					ORDER BY i.rank, i.name";
 		$res = $this->database->getSelection($query, array(array("i", $rid)));
 		$attInstruments = array();
 		foreach($res as $i => $info) {
@@ -351,10 +354,12 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	public function getRehearsalContacts($rid) {
-		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, c.nickname, i.name as instrument, i.id as instrumentid, c.mobile, c.email ";
-		$query .= "FROM contact c JOIN rehearsal_contact rc ON rc.contact = c.id ";
-		$query .= " LEFT JOIN instrument i ON c.instrument = i.id ";
-		$query .= "WHERE rc.rehearsal = ? ORDER BY name";
+		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, c.nickname, i.name as instrument, i.id as instrumentid, c.mobile, c.email
+					FROM contact c 
+						JOIN rehearsal_contact rc ON rc.contact = c.id
+						LEFT OUTER JOIN instrument i ON c.instrument = i.id
+					WHERE rc.rehearsal = ? 
+					ORDER BY i.rank, name";
 		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	
