@@ -1418,7 +1418,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_start.text" => "Please click on a Rehearsal to edit",
 			"ProbenView_start.title" => "Next Rehearsal",
 			"ProbenView_start.norehearsal" => "No Rehearsal announced.",
-			"ProbenView_start.title_2" => "Further Rehearsals",
+			"ProbenView_start.title_2" => "All Rehearsals",
 			"ProbenView_startOptions.overtime" => "Add Rehearsal section",
 			"ProbenView_startOptions.edit" => "Edit Rehearsal section",
 			"ProbenView_startOptions.mitspieler" => "Participant overview",
