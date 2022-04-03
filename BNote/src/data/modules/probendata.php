@@ -66,7 +66,7 @@ class ProbenData extends AbstractLocationData {
 	}
 	
 	function getParticipants($rid) {
-		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, i.name as instrument
+		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, i.name as instrument,
 					CASE ru.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, ru.reason, ru.replyon
 					FROM rehearsal_user ru
 						JOIN user u ON ru.user = u.id
@@ -74,6 +74,7 @@ class ProbenData extends AbstractLocationData {
 						LEFT OUTER JOIN instrument i ON c.instrument = i.id
 					WHERE ru.rehearsal = ?
 					ORDER BY i.rank, name';
+		
 		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	
