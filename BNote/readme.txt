@@ -9,15 +9,14 @@ Requirements
 	- an accessible host configuration
 	- modrewrite
 	- htaccess activated
-	- at least PHP 7 module
-- MySQL or MariaDB Server supporting MySQLi driver
-- preferrably Linux OS
+	- at least PHP 7.3 module (PHP 8.x is experimentally supported at the moment)
+- MySQL or MariaDB Server supporting MySQLi (preferrably mysqlnd) driver
 
 
 How to install BNote?
 ---------------------
-1. Create a new database user in your MySQL database server and give him access to a new database.
-2. Copy all files (including hidden ones like .htaccess files) from this folder, except readme.txt and release_notes.txt.
+1. Create a new database user on your database server and give him access to a new (blank) database.
+2. Copy all files (including hidden ones like .htaccess files) from this folder to your webserver.
 (2.1) If you are installing a 3-digit version like 2.4.2, then make sure to take the last full release and update the files first (copy them over).
 3. If you are using Mac OS, Linux, Unix, BSD or system alike make sure the permissions on the files are correct. Here is an overview of how it should be:
 	750 config/			with the group being the apache runtime user-group
@@ -30,17 +29,20 @@ How to install BNote?
 	664 data/gallery/*	all files in this folder; with the group being the apache runtime user-group
 	In addition, make sure your web server does not allow to execute script files like PHP or CGI within the data/ directory.
 3. Access your newly created BNote instance. An installation script should come up where you can setup the system.
-4. Remove install.php from the document root of your BNote instance.
+4. IMPORTANT -> Remove install.php from the document root of your BNote instance!!!
 
 
-How to update an existing BNote instance?
------------------------------------------
-1. Copy all files (including hidden ones like .htaccess files) from this folder, except:
+How to update an existing BNote 3.4 instance?
+---------------------------------------------
+1. Remove these folders:
+    - BNote/lang
+	- BNote/lib
+	- BNote/src
+	- BNote/style
+2. Copy all files (including hidden ones like .htaccess files) from this folder, except:
 	- all files from the config/ folder including the folder itself
 	- data/nachrichten.html
-	- readme.txt
-	- release_notes.txt
-2. Execute BNote/update_db.php if this file is present in the update archive.
+3. Execute BNote/update_db.php
 
 
 Note on Database Installation
