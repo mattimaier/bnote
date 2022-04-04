@@ -256,7 +256,8 @@ for($i = 1; $i < count($rehearsals); $i++) {
  		echo $line;
 	}
 	
-	if(intval($system_data->getDynamicConfigParameter("export_rehearsal_notes")) == 1) {
+	$cfgExportNotes = $system_data->getDynamicConfigParameter("export_rehearsal_notes");
+	if($cfgExportNotes == 1) {
 		$notes .= "\n" . $rehearsals[$i]["notes"];
 	}
 	
