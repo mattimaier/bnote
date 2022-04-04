@@ -51,13 +51,13 @@ rm "$tmp_main_dir/config/config.xml"
 rm "$tmp_main_dir/config/database.xml"
 
 # data/ handling
-rm -r "$tmp_main_dir/data/gallery/*"
+rm -r "$tmp_main_dir/data/gallery"
 rm "$tmp_main_dir/data/members/*.pdf"
 rm "$tmp_main_dir/data/programs/*.pdf"
-rm -r "$tmp_main_dir/data/share/groups/*"  # create on installation
+rm -r "$tmp_main_dir/data/share/groups"  # create on installation
 rm -r "$tmp_main_dir/data/share/members/*"  # create on installation
 rm -r "$tmp_main_dir/data/share/_temp/*"
-rm -r "$tmp_main_dir/data/webpages/*"  # no webpages are shipped
+rm -r "$tmp_main_dir/data/webpages"  # no webpages are shipped
 rm "$tmp_main_dir/data/nachrichten.html"
 touch "$tmp_main_dir/data/nachrichten.html"
 
