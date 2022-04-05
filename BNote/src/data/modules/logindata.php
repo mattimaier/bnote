@@ -109,13 +109,14 @@ class LoginData extends AbstractLocationData {
 	
 	function duplicateLoginCheck() {
 		$email = $_POST["email"];
-		$ct = $this->database->colValue("SELECT count(id) as cnt FROM user WHERE email = ?", "cnt", array(array("s", $email)));
+		$query = "SELECT count(u.id) as cnt FROM user u JOIN contact c ON u.contact = c.id WHERE c.email = ?";
+		$ct = $this->database->colValue($query, "cnt", array(array("s", $email)));
 		return ($ct > 0);
 	}
 	
 	function createContact($aid) {
 		$query = "INSERT INTO contact (surname, name, phone, email, address, instrument) VALUES (?, ?, ?, ?, ?, ?)";
-		$cid = $this->database->execute($query, array(
+		$cid = $this->database->prepStatement($query, array(
 				array("s", $_POST["surname"]),
 				array("s", $_POST["name"]),
 				array("s", $_POST["phone"]),
@@ -138,7 +139,7 @@ class LoginData extends AbstractLocationData {
 	function createUser($login, $password, $cid) {
 		// create inactive user
 		$query = "INSERT INTO user (login, password, isActive, contact) VALUES (?, ?, 0, ?)";
-		$uid = $this->database->execute($query, array(
+		$uid = $this->database->prepStatement($query, array(
 				array("s", $login),
 				array("s", $password),
 				array("i", $cid)

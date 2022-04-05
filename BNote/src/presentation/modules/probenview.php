@@ -872,7 +872,7 @@ class ProbenView extends CrudRefLocationView {
 							<div class="player_participation_line">
 								<?php 
 								if(isset($_GET["edit"]) && $_GET["edit"] == "true") {
-									if(in_array("contact", $participant)) {
+									if(isset($participant["contact"])) {
 										$cid = $participant["contact"];
 									}
 									else {

@@ -1415,7 +1415,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_start.text" => "Veuillez cliquer sur une répétition pour l'éditer.",
 			"ProbenView_start.title" => "Prochaine répétition",
 			"ProbenView_start.norehearsal" => "Aucune répétition annoncée.",
-			"ProbenView_start.title_2" => "Autres répétition",
+			"ProbenView_start.title_2" => "Tous les répétition",
 			"ProbenView_startOptions.overtime" => "Ajouter des occurences de répétition",
 			"ProbenView_startOptions.edit" => "Modifier des occurences de répétition",
 			"ProbenView_startOptions.mitspieler" => "Synthèse des participants",

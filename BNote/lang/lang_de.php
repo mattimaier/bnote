@@ -1417,7 +1417,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_start.text" => "Bitte auf eine Probe klicken um diese zu bearbeiten.",
 			"ProbenView_start.title" => "Nächste Probe",
 			"ProbenView_start.norehearsal" => "Keine Probe angesagt.",
-			"ProbenView_start.title_2" => "Weitere Proben",
+			"ProbenView_start.title_2" => "Alle Proben",
 			"ProbenView_startOptions.overtime" => "Probenstrecke hinzufügen",
 			"ProbenView_startOptions.edit" => "Probenstrecke bearbeiten",
 			"ProbenView_startOptions.mitspieler" => "Teilnehmerübersicht",
