@@ -128,6 +128,10 @@ abstract class AbstractData {
 	protected function createTrigger($event_dt, $triggerData) {
 		# End of the event
 		$limit_dt = DateTime::createFromFormat(TriggerServiceClient::DATE_FORMAT, $event_dt);
+		if($limit_dt === FALSE) {
+			// invalid date format - do not break the system, so just abort
+			return;
+		}
 		# every n days send a reminder
 		$repeatCycle = intval($this->getSysdata()->getDynamicConfigParameter("trigger_cycle_days"));
 		# how often should this be repeated

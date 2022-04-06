@@ -445,7 +445,9 @@ class Database extends Data {
 		}
 		$flat = array();
 		for($r=1; $r<count($selection); $r++) {
-			array_push($flat, $selection[$r][$colName] );
+			if(isset($selection[$r][$colName])) {
+				array_push($flat, $selection[$r][$colName]);
+			}
 		}
 		return $flat;
 	}

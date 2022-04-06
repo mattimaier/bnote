@@ -327,7 +327,7 @@ class ProbenData extends AbstractLocationData {
 		// create notification
 		if($this->triggerServiceEnabled) {
 			$begin_dt = $values["begin"];
-			$this->createTrigger($begin_dt, $this->buildTriggerData("R", $rid));
+			$this->createTrigger(str_replace("T", " ", $begin_dt), $this->buildTriggerData("R", $rid));
 		}
 		
 		return $rid;
