@@ -27,8 +27,11 @@ class ProbenphasenData extends AbstractData {
 	
 	function getPhases($current = true) {
 		$query = "SELECT * FROM rehearsalphase ";
-		if(!$current) {
-			$query .= "WHERE end > NOW() ";
+		if($current) {
+			$query .= "WHERE end >= NOW() ";
+		}
+		else {
+			$query .= "WHERE end < NOW() ";
 		}
 		$query .= "ORDER BY begin";
 		return $this->database->getSelection($query);

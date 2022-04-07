@@ -327,7 +327,7 @@ class KontakteData extends AbstractLocationData {
 	}
 	
 	function getPhases() {
-		$query = "SELECT * FROM rehearsalphase";
+		$query = "SELECT * FROM rehearsalphase ORDER BY begin";
 		return $this->database->getSelection($query);
 	}
 	
