@@ -19,6 +19,13 @@ class RepertoireController extends DefaultController {
 	 */
 	private $genres = NULL;
 	
+	/**
+	 * internal map for faster processing<br/>
+	 * name_of_status => id
+	 * @var array
+	 */
+	private $statuses = NULL;
+	
 	function start() {
 		if(isset($_GET["mode"]) && $_GET["mode"] == "genre") {
 			$this->genre();
@@ -110,33 +117,31 @@ class RepertoireController extends DefaultController {
 		}
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
 		
-		// load songs from database, then "hash" them to check for duplicates
-		$songs = $this->getData()->findAllNoRef();
-		$dict = Data::dbSelectionToDict($songs, "title", array("id"));
-		$songs_dict = array();
-		foreach($dict as $k => $v) {
-			$songs_dict[strtolower($k)] = $v;
+		// find duplicates to update and empty rows to ignore
+		$updateCandidates = array();
+		$id_col = NULL;
+		if(isset($xlsData->header[$_POST["col_id"]])) {
+			$id_col = $xlsData->header[$_POST["col_id"]];
 		}
-		
-		// find duplicates and empty rows
-		$duplicates = array();
 		$title_col = $xlsData->header[$_POST["col_title"]];
-		$num_rows = 0;
+		$numNonEmptyRows = 0;
 		$empties = array();  # indices of empty rows
 		foreach($xlsData->data as $rowIdx => $row) {
-			$title = strtolower($row->$title_col);
-			if(in_array($title, $songs_dict) && isset($songs_dict[$title])) {
-				$row->duplicate_id = $songs_dict[$title];
-				array_push($duplicates, $row);
+			if($id_col != NULL) {
+				$rowSongId = $row->$id_col;
+				if($rowSongId != "" && is_int($rowSongId) && intval($rowSongId) > 0) {
+					$row->duplicate_id = $rowSongId;
+					array_push($updateCandidates, $row);
+				}
 			}
-			if($title == "") {
+			if($row->$title_col == "") {
 				array_push($empties, $rowIdx);
 			}
 			else {
-				$num_rows++;
+				$numNonEmptyRows++;
 			}
 		}		
-		$this->getView()->xlsImport($duplicates, $num_rows, $empties);
+		$this->getView()->xlsImport($title_col, $updateCandidates, $numNonEmptyRows, $empties);
 	}
 	
 	function xlsProcess() {
@@ -197,6 +202,21 @@ class RepertoireController extends DefaultController {
 			$f = $header[$_POST["col_key"]];
 			$music_key = $row->$f;
 		}
+		$status = $_POST["status"];  // default status
+		if($_POST["col_status"] >= 0) {
+			$f = $header[$_POST["col_status"]];
+			$statusname = $row->$f;
+			if($this->statuses == NULL) {
+				$this->statuses = array();
+			}
+			if(in_array($statusname, $this->statuses)) {
+				$status = $this->statuses[$statusname];
+			}
+			else {
+				$status = $this->getData()->getStatusByName($statusname, $status);
+				$this->statuses[$statusname] = $status;
+			}
+		}
 		$notes = "";
 		if($_POST["col_notes"] >= 0) {
 			$f = $header[$_POST["col_notes"]];
@@ -212,7 +232,7 @@ class RepertoireController extends DefaultController {
 		}
 		$genre = "";
 		if($_POST["col_genre"] >= 0) {
-			$f = $header[$_POST["col_composer"]];
+			$f = $header[$_POST["col_genre"]];
 			$genre = $row->$f;
 		}
 		$length = "";
@@ -236,7 +256,7 @@ class RepertoireController extends DefaultController {
 				"genre" => $this->mapGenre($genre),
 				"bpm" => $bpm,
 				"music_key" => $music_key,
-				"status" => $_POST["status"],
+				"status" => $status,
 				"notes" => $notes,
 				"composer" => $this->cleanSubject($composer),
 				"length" => $length,

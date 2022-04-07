@@ -467,14 +467,16 @@ class RepertoireView extends CrudRefView {
 		$form = new Form("Spalten zuweisen", $this->modePrefix() . "xlsImport");
 		
 		// create column selector
-		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_title"), $this->columnSelector("col_title", $header));
+		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_id"), $this->columnSelector("col_id", $header));
+		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_title"), $this->columnSelector("col_title", $header), true);
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_composer"), $this->columnSelector("col_composer", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_key"), $this->columnSelector("col_key", $header));
-		$form->addElement("Tempo (BPM)", $this->columnSelector("col_tempo", $header));																				
+		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_length"), $this->columnSelector("col_length", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_tempo"), $this->columnSelector("col_tempo", $header));
-		$form->addElement("Besetzung", $this->columnSelector("col_setting", $header));																				
-		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_notes"), $this->columnSelector("col_notes", $header));
+		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_setting"), $this->columnSelector("col_setting", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_genre"), $this->columnSelector("col_genre", $header));
+		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_status"), $this->columnSelector("col_status", $header));
+		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_notes"), $this->columnSelector("col_notes", $header));
 		
 		// Status
 		$dd_status = new Dropdown("status");
@@ -515,7 +517,7 @@ class RepertoireView extends CrudRefView {
 		return $dd;
 	}
 	
-	function xlsImport($duplicates, $num_rows, $empties) {
+	function xlsImport($titleCol, $duplicates, $num_rows, $empties) {
 		// show how many can be imported directly
 		Writing::h2(Lang::txt("RepertoireView_xlsImport.import"));
 		Writing::p("$num_rows " . Lang::txt("RepertoireView_xlsImport.message_1") . 
@@ -524,9 +526,9 @@ class RepertoireView extends CrudRefView {
 		// show duplicates and ask to overwrite (use from sheet) or ignore (use from BNote) for each
 		$form = new Form(Lang::txt("RepertoireView_xlsImport.Form"), $this->modePrefix() . "xlsProcess");
 		foreach($duplicates as $idx => $row) {
-			$name = $row[$_POST["col_title"]];
+			$name = $row->$titleCol;
 			$element = new Dropdown("duplicate_$idx");
-			$element->addOption(Lang::txt("RepertoireView_xlsImport.duplicate_id"), $row["duplicate_id"]);
+			$element->addOption(Lang::txt("RepertoireView_xlsImport.duplicate_id"), $row->duplicate_id);
 			$element->addOption(Lang::txt("RepertoireView_xlsImport.duplicate_ignore"), -1);
 			$form->addElement($name, $element);
 		}

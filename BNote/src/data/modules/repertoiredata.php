@@ -119,7 +119,7 @@ class RepertoireData extends AbstractData {
 	protected function createComposer($name) {
 		$this->regex->isSubject($name);
 		$query = "INSERT INTO composer (name) VALUES (?)";
-		return $this->database->execute($query, array(array("s", $name)));
+		return $this->database->prepStatement($query, array(array("s", $name)));
 	}
 	
 	function delete($id) {
@@ -214,6 +214,21 @@ class RepertoireData extends AbstractData {
 	function getStatuses() {
 		$query = "SELECT * FROM status ORDER BY id";
 		return $this->database->getSelection($query);
+	}
+	
+	/**
+	 * Finds the status ID by name (case insensitive) and return the given $defaultStatus in case the name is not found.
+	 * @param string $name Status name to search for.
+	 * @param int $defaultStatus ID of the status to return if the name was not found.
+	 * @return int Status ID
+	 */
+	function getStatusByName($name, $defaultStatus) {
+		$query = "SELECT * FROM status WHERE lower(name) = ? LIMIT 1";
+		$result = $this->database->fetchRow($query, array(array("s", strtolower($name))));
+		if($result == NULL || !isset($result["id"])) {
+			return $defaultStatus;
+		}
+		return $result["id"];
 	}
 	
 	function getComposers() {
