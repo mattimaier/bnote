@@ -106,11 +106,11 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getRehearsalParticipants($rid) {
-		$query = "SELECT c.name, c.surname, c.nickname, i.name as instrument ";
+		$query = "SELECT c.name, c.surname, c.nickname, i.name as instrument, i.rank as instrumentrank ";
 		$query .= "FROM rehearsal_user r, user u, contact c, instrument i ";
 		$query .= "WHERE r.participate = 1 AND ";
 		$query .= "r.rehearsal = ? AND r.user = u.id AND u.contact = c.id AND c.instrument = i.id ";
-		$query .= "ORDER BY name, surname, instrument";
+		$query .= "ORDER BY instrumentrank, instrument, name, surname";
 		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	
