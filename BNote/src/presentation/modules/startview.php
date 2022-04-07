@@ -311,6 +311,7 @@ class StartView extends CrudRefLocationView {
 		$table->renameHeader("name", Lang::txt("StartView_rehearsalParticipants.name"));
 		$table->renameHeader("surname", Lang::txt("StartView_rehearsalParticipants.surname"));
 		$table->renameHeader("nickname", Lang::txt("StartView_rehearsalParticipants.nickname"));
+		$table->removeColumn("instrumentrank");
 		$table->write();
 	}
 	

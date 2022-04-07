@@ -110,7 +110,7 @@ class StartData extends AbstractLocationData {
 		$query .= "FROM rehearsal_user r, user u, contact c, instrument i ";
 		$query .= "WHERE r.participate = 1 AND ";
 		$query .= "r.rehearsal = ? AND r.user = u.id AND u.contact = c.id AND c.instrument = i.id ";
-		$query .= "ORDER BY instrumentrank, instrument, name, surname";
+		$query .= "ORDER BY instrumentrank, name, surname";
 		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
 	

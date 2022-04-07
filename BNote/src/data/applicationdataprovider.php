@@ -208,14 +208,15 @@ class ApplicationDataProvider {
 			
 			// resolve contact
 			if($concerts[$i]["contact"] != "") {
-				$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, mobile, email, web FROM contact WHERE id = ?";
+				$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, mobile, email, web, share_email, share_phones FROM contact WHERE id = ?";
 				$contact = $this->database->fetchRow($q3, array(array("i", $concerts[$i]["contact"])));
 			}
 			else {
 				$contact = array(
 					"name" => "",
 					"phone" => "", "mobile" => "",
-					"email" => "", "web" => ""
+					"email" => "", "web" => "",
+					"share_phones", "share_email"
 				);
 			}
 			
@@ -262,6 +263,8 @@ class ApplicationDataProvider {
 				"contact_mobile" => $contact["mobile"],
 				"contact_email" => $contact["email"],
 				"contact_web" => $contact["web"],
+				"contact_share_phones" => $contact["share_phones"],
+				"contact_share_email" => $contact["share_email"],
 				"program_id" => $concerts[$i]["program"],
 				"program_name" => isset($program["name"]) ? $program["name"] : "",
 				"program_notes" => isset($program["notes"]) ? $program["notes"] : "",

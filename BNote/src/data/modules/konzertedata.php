@@ -71,7 +71,10 @@ class KonzerteData extends AbstractLocationData {
 		$this->regex->isDate($to);
 		
 		$query = "SELECT c.id, c.begin, c.title, c.organizer, l.name as location_name, a.city as location_city, 
-				CONCAT(k.name, ' ', k.surname) as contact_name, p.name as program_name, c.status
+				CONCAT(k.name, ' ', k.surname) as contact_name, 
+				k.share_phones as contact_share_phones, k.phone as contact_phone, k.business as contact_business, k.mobile as contact_mobile, 
+				k.share_email as contact_share_email, k.email as contact_email,
+				p.name as program_name, c.status
 				FROM concert c
 				LEFT OUTER JOIN location l ON c.location = l.id
 				LEFT OUTER JOIN address a ON l.address = a.id
@@ -85,7 +88,7 @@ class KonzerteData extends AbstractLocationData {
 	}
 	
 	function getContact($id) {
-		$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, phone, email, web FROM contact WHERE id = ?";
+		$q3 = "SELECT CONCAT_WS(' ', name, surname) as name, c.* FROM contact c WHERE id = ?";
 		return $this->database->fetchRow($q3, array(array("i", $id)));
 	}
 	

@@ -47,11 +47,14 @@ class ProbenphasenData extends AbstractData {
 	}
 	
 	function getContactsForPhase($phaseId) {
-		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, i.name as instrument, c.phone, c.mobile, c.email ";
+		$query = "SELECT c.id, CONCAT(c.name, ' ', c.surname) as name, i.name as instrument, 
+					IF(c.share_phones = 1, c.phone, '') as phone, 
+					IF(c.share_phones = 1, c.mobile, '') as mobile,
+					IF(c.share_email = 1, c.email, '') as email ";
 		$query .= "FROM rehearsalphase_contact rc JOIN contact c ON rc.contact = c.id ";
 		$query .= "     LEFT JOIN instrument i ON c.instrument = i.id ";
 		$query .= "WHERE rc.rehearsalphase = ? ";
-		$query .= "ORDER BY name";
+		$query .= "ORDER BY i.rank, c.surname";
 		return $this->database->getSelection($query, array(array("i", $phaseId)));
 	}
 	

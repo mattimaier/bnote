@@ -224,7 +224,7 @@ class KonzerteView extends CrudRefLocationView {
 					<span class="concertdetail_value"><?php 
 					if($c["program"]) {
 						$prg = $this->getData()->getProgram($c["program"]);
-						echo $prg["name"];
+						if($prg != NULL && isset($prg["name"])) echo $prg["name"];
 					}
 					?></span>
 				</div>
