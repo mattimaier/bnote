@@ -45,6 +45,7 @@ class KontaktdatenView extends CrudRefLocationView {
 		$this->appendCustomFieldsToForm($form, 'c', $contact, true);
 		
 		// privacy settings
+		$form->addElement(Lang::txt("KontaktdatenView_start.share_email"), new Field("share_email", $contact["share_email"], FieldType::BOOLEAN), false, 12);
 		$form->addElement(Lang::txt("KontaktdatenView_start.share_address"), new Field("share_address", $contact["share_address"], FieldType::BOOLEAN), false, 12);
 		$form->addElement(Lang::txt("KontaktdatenView_start.share_phones"), new Field("share_phones", $contact["share_phones"], FieldType::BOOLEAN), false, 12);
 		$form->addElement(Lang::txt("KontaktdatenView_start.share_birthday"), new Field("share_birthday", $contact["share_birthday"], FieldType::BOOLEAN), false, 12);

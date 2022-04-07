@@ -297,6 +297,7 @@ if($executeModuleUpdate) {
 $update->addColumnToTable("contact", "share_address", "int(1) default 1");
 $update->addColumnToTable("contact", "share_phones", "int(1) default 1");
 $update->addColumnToTable("contact", "share_birthday", "int(1) default 1");
+$update->addColumnToTable("contact", "share_email", "int(1) default 1");
 
 // Task: Add configuration
 $update->addDynConfigParam("export_rehearsal_notes", 0);

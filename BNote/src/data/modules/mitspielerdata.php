@@ -43,7 +43,7 @@ class MitspielerData extends AbstractLocationData {
 				"c.surname",
 				"CONCAT(c.name, ' ', c.surname) as fullname",
 				"nickname",
-				"email",
+				"IF(share_email = 1, email, '') as email",
 				"web",
 				"i.id as instrument",
 				"i.name as instrumentname",

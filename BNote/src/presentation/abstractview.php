@@ -261,14 +261,18 @@ abstract class AbstractView {
 		}
 		
 		// communication
+		$sharePhoneNumbers = intval($contact[$fieldPrefix . "share_phones"]) == 1;
+		$shareEmail = intval($contact[$fieldPrefix . "share_email"]) == 1;
 		$comm = array();
-		if($comp != "") array_push($comm, $comp);
-		$email = isset($contact[$fieldPrefix . "email"]) ? $contact[$fieldPrefix . "email"] : "";
+		if($comp != "" && $sharePhoneNumbers) {
+			array_push($comm, $comp);
+		}
+		$email = isset($contact[$fieldPrefix . "email"]) && $shareEmail ? $contact[$fieldPrefix . "email"] : "";
 		if($email != "") array_push($comm, "E-Mail $email");
-		$phone = isset($contact[$fieldPrefix . "phone"]) ? $contact[$fieldPrefix . "phone"] : "";
-		if($phone == "" && isset($contact[$fieldPrefix . "mobile"])) $phone = $contact[$fieldPrefix . "mobile"];
-		if($phone == "" && isset($contact[$fieldPrefix . "business"])) $phone = $contact[$fieldPrefix . "business"];
-		if($phone != "") array_push($comm, "Tel. $phone");
+		$phone = isset($contact[$fieldPrefix . "phone"]) && $sharePhoneNumbers ? $contact[$fieldPrefix . "phone"] : "";
+		if($phone == "" && isset($contact[$fieldPrefix . "mobile"]) && $sharePhoneNumbers) $phone = $contact[$fieldPrefix . "mobile"];
+		if($phone == "" && isset($contact[$fieldPrefix . "business"]) && $sharePhoneNumbers) $phone = $contact[$fieldPrefix . "business"];
+		if($phone != "" && $sharePhoneNumbers) array_push($comm, "Tel. $phone");
 		
 		// output according to profile
 		switch($profile) {

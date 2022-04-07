@@ -952,6 +952,7 @@ class Translation extends BNoteTranslation {
 			"KontaktdatenView_start.share_address" => "Partager l'adresse avec d'autres membres",
 			"KontaktdatenView_start.share_phones" => "Partager des numéros de téléphone avec d'autres membres",
 			"KontaktdatenView_start.share_birthday" => "Partager l'anniversaire avec d'autres membres",
+			"KontaktdatenView_start.share_email" => "Partager l'adresse e-mail avec d'autres membres",
 			
 			// module: Kontakte *********************************************	
 			
@@ -976,6 +977,7 @@ class Translation extends BNoteTranslation {
 			"KontakteData_construct.share_address" => "Partager l'adresse",
 			"KontakteData_construct.share_phones" => "Partager des numéros de téléphone",
 			"KontakteData_construct.share_birthday" => "Partager l'anniversaire",
+			"KontakteData_construct.share_email" => "Partager l'adresse e-mail",
 			"KontakteData_validate.errorNameRequired" => "Veuillez fournir au moins un nom.",
 
 			// KontakteController				

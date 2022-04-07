@@ -44,6 +44,7 @@ class KontakteData extends AbstractLocationData {
 			"share_address" => array(Lang::txt("KontakteData_construct.share_address"), FieldType::BOOLEAN),
 			"share_phones" => array(Lang::txt("KontakteData_construct.share_phones"), FieldType::BOOLEAN),
 			"share_birthday" => array(Lang::txt("KontakteData_construct.share_birthday"), FieldType::BOOLEAN),
+			"share_email" => array(Lang::txt("KontakteData_construct.share_email"), FieldType::BOOLEAN)
 		);
 		
 		$this->references = array(

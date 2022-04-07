@@ -314,6 +314,7 @@ class Installation {
 					`share_address` int(1) default 1,
 					`share_phones` int(1) default 1,
 					`share_birthday` int(1) default 1,
+					`share_email` int(1) default 1,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
