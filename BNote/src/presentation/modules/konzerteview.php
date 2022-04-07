@@ -381,6 +381,15 @@ class KonzerteView extends CrudRefLocationView {
 		$this->viewOptions();
 	}
 	
+	function editTitle() {
+		$c = $this->getData()->getConcert($_GET["id"]);
+		$name = Lang::txt($this->getaddEntityName());
+		if($c != NULL) {
+			$name = $this->getEntityName() . ": " . $c["title"];
+		}
+		return $name;
+	}
+	
 	function editEntityForm($write=true) {
 		// data
 		$c = $this->getData()->getConcert($_GET["id"]);
@@ -513,8 +522,10 @@ class KonzerteView extends CrudRefLocationView {
 	private function concertForm($href, $c = NULL) {
 		require_once $GLOBALS["DIR_WIDGETS"] . "sectionform.php";
 		
-		$form = new SectionForm(Lang::txt($this->getaddEntityName()), $href);
-		$this->flash(Lang::txt("KonzerteView_addEntityForm.flash_1"), Lang::txt("KonzerteView_addEntityForm.flash_2"));
+		$form = new SectionForm("", $href);
+		if($c == NULL) {
+			$this->flash(Lang::txt("KonzerteView_addEntityForm.flash_1"), Lang::txt("KonzerteView_addEntityForm.flash_2"));
+		}
 		
 		// ************* MASTER DATA *************
 		$title = ($c != NULL) ? $c["title"] : "";
@@ -605,11 +616,16 @@ class KonzerteView extends CrudRefLocationView {
 		
 		// choose program
 		$ddProgram = new Dropdown("program");
-		$templates = $this->getData()->getTemplates();
+		if($c == NULL) {
+			$programs = $this->getData()->getTemplates();
+		}
+		else {
+			$programs = $this->getData()->getPrograms();
+		}
 		$ddProgram->addOption(Lang::txt("KonzerteView_addEntityForm.programNone"), 0);
 		$ddProgram->addOption(Lang::txt("KonzerteView_addEntityForm.programNew"), "new");
-		for($i = 1; $i < count($templates); $i++) {
-			$ddProgram->addOption($templates[$i]["name"], $templates[$i]["id"]);
+		for($i = 1; $i < count($programs); $i++) {
+			$ddProgram->addOption($programs[$i]["name"], $programs[$i]["id"]);
 		}
 		if($c != NULL) {
 			$ddProgram->setSelected($c["program"]);

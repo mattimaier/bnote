@@ -123,6 +123,10 @@ class KonzerteData extends AbstractLocationData {
 		return $this->adp()->getTemplatePrograms();
 	}
 	
+	function getPrograms() {
+		return $this->adp()->getPrograms();
+	}
+	
 	function validate($values) {
 		// Manual Validation
 		$this->regex->isSubject($values["title"], "title");

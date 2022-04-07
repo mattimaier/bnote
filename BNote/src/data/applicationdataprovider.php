@@ -411,7 +411,20 @@ class ApplicationDataProvider {
 	 * @return Array All templated programs.
 	 */
 	function getTemplatePrograms() {
-		$query = "SELECT id, name FROM program WHERE isTemplate = 1";
+		return $this->getPrograms(TRUE);
+	}
+	
+	/**
+	 * Fetches all programs with ID and name from database.
+	 * @param boolean $templatesOnly True if you want only templates (isTemplate=1).
+	 * @return Array Selection of the program table.
+	 */
+	function getPrograms($templatesOnly = FALSE) {
+		$query = "SELECT id, name FROM program";
+		if($templatesOnly) {
+			$query .= " WHERE isTemplate = 1";
+		}
+		$query .= " ORDER BY name";
 		return $this->database->getSelection($query);
 	}
 	
