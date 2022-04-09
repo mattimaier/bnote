@@ -827,19 +827,22 @@ class ProbenView extends CrudRefLocationView {
 		}
 		
 		if(isset($_GET["id"])) {
-			$futureRehearsals = array(array(), $this->getData()->findByIdNoRef($_GET["id"]));
+			$rehearsals = array(array(), $this->getData()->findByIdNoRef($_GET["id"]));
+		}
+		if(isset($_GET["rehearsals"]) && $_GET["rehearsals"] == "history") {
+			$rehearsals = $this->getData()->getPastRehearsalsWithLimit(10);
 		}
 		else {
-			$futureRehearsals = $this->getData()->adp()->getFutureRehearsals();
+			$rehearsals = $this->getData()->adp()->getFutureRehearsals();
 		}
 		$usedInstruments = $this->getData()->getUsedInstruments();
 		
-		if(count($futureRehearsals) <= 1) {
+		if(count($rehearsals) <= 1) {
 			Writing::p(Lang::txt("ProbenView_overview.FutureRehearsals"));
 		}
 		
-		for($reh = 1; $reh < count($futureRehearsals); $reh++) {
-			$rehearsal = $futureRehearsals[$reh];
+		for($reh = 1; $reh < count($rehearsals); $reh++) {
+			$rehearsal = $rehearsals[$reh];
 			?>
 			<div class="rehearsal_overview_box">
 				<div class="rehearsal_overview_header"><?php echo Lang::txt("ProbenView_overview.header_1") . Data::convertDateFromDb($rehearsal['begin']) . Lang::txt("ProbenView_overview.header_2"); ?></div>
@@ -918,6 +921,10 @@ class ProbenView extends CrudRefLocationView {
 		if(isset($_GET["id"])) {
 			$single = "&id=" . $_GET["id"];
 		}
+		$rehearsalMode = "";
+		if(isset($_GET["rehearsals"])) {
+			$rehearsalMode = "&rehearsals=" . $_GET["rehearsals"];
+		}
 		
 		if(isset($_GET["edit"]) && $_GET["edit"] == "true") {
 			$overview = new Link($this->modePrefix() . "overview$single", Lang::txt("ProbenView_startOptions.mitspieler"));
@@ -926,11 +933,14 @@ class ProbenView extends CrudRefLocationView {
 		}
 		else {
 			$this->backToStart();
-			$edit = new Link($this->modePrefix() . "overview$single&edit=true", Lang::txt("ProbenView_overviewEdit.buttonLabel"));
+			$edit = new Link($this->modePrefix() . "overview$single$rehearsalMode&edit=true", Lang::txt("ProbenView_overviewEdit.buttonLabel"));
 			$edit->addIcon("pen");
 			$edit->write();
-		}
 			
+			$pastRehearsals = new Link($this->modePrefix() . "overview&rehearsals=history", Lang::txt("ProbenView_startOptions.timer"));
+			$pastRehearsals->addIcon("clock");
+			$pastRehearsals->write();
+		}
 	}
 	
 	private function isReadOnlyView() {

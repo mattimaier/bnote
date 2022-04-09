@@ -431,6 +431,14 @@ class ProbenData extends AbstractLocationData {
 		return $this->database->getSelection($query, array(array("i", $year)));
 	}
 	
+	public function getPastRehearsalsWithLimit($limit = 5) {
+		$query = "SELECT rehearsal.id, begin, end, location.name as Location, address.street, address.zip, address.city 
+					FROM rehearsal JOIN location ON rehearsal.location = location.id
+					LEFT JOIN address ON location.address = address.id
+					WHERE end < now() ORDER BY begin DESC LIMIT ?";
+		return $this->database->getSelection($query, array(array("i", $limit)));
+	}
+	
 	public function getUsedInstruments() {
 		return $this->adp()->getUsedInstruments();
 	}
