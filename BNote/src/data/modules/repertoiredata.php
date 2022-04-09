@@ -69,6 +69,11 @@ class RepertoireData extends AbstractData {
 		// modify bpm
 		if($values["bpm"] == "") $values["bpm"] = 0;
 		
+		// default "is_active" = FALSE
+		if(!isset($values["is_active"])) {
+			$values["is_active"] = FALSE;
+		}
+		
 		// create song
 		$id = parent::create($values);
 		
@@ -456,8 +461,24 @@ class RepertoireData extends AbstractData {
 	}
 	
 	function exportData() {
-		$selection = $this->findAllJoinedOrdered(RepertoireData::getJoinedAttributes(), "title");
+		$exportJoinAttributes = array(
+				"genre" => array("name"),
+				"composer" => array("name", "id"),
+				"status" => array("name")
+		);
+		$selection = $this->findAllJoinedOrdered($exportJoinAttributes, "id");
 		$selection = $this->urldecodeSelection($selection, array("title", "notes"));
-		return $this->appendCustomDataToSelection('s', $selection);
+		$songs = $this->appendCustomDataToSelection('s', $selection);
+		$header = $songs[0];
+		array_push($header, "composer");
+		$export = array(
+			$header
+		);
+		for($i = 1; $i < count($songs); $i++) {
+			$song = $songs[$i];
+			$song["composer"] = $song["composername"] . " [id=" . $song["composerid"] . "]";
+			array_push($export, $song);
+		}
+		return $export;
 	}
 }

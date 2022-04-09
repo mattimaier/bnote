@@ -131,7 +131,7 @@ class RepertoireController extends DefaultController {
 				$rowSongId = $row->$id_col;
 				if($rowSongId != "" && is_int($rowSongId) && intval($rowSongId) > 0) {
 					$row->duplicate_id = $rowSongId;
-					array_push($updateCandidates, $row);
+					$updateCandidates[$rowIdx] = $row;
 				}
 			}
 			if($row->$title_col == "") {
@@ -152,15 +152,14 @@ class RepertoireController extends DefaultController {
 			$empties = explode(",", $_POST["empties"]);
 		}
 		
-		// process duplicates
-		$duplicates = array();
-		$duplicate_ids = array();
+		// put together decision on duplicate rows (songs to update)
+		$songsToUpdate = array();
 		$dup_prefix = "duplicate_";
 		foreach($_POST as $k => $v) {
 			if(Data::startsWith($k, $dup_prefix) && $v != -1) {
-				$idx = substr($k, strlen($dup_prefix));
-				array_push($duplicates, $idx);
-				$duplicate_ids[$idx] = $v;
+				$rowIdx = substr($k, strlen($dup_prefix));
+				$songId = $v;
+				$songsToUpdate[$rowIdx] = $songId;
 			}
 		}
 		
@@ -172,10 +171,10 @@ class RepertoireController extends DefaultController {
 				// empty -> continue
 				continue;
 			}
-			elseif(in_array($rowIdx, $duplicates)) {
+			elseif(isset($songsToUpdate[$rowIdx])) {
 				// duplicate -> map and update
-				$id = $duplicate_ids[$rowIdx];
-				$this->getData()->update($id, $this->xlsMap($row, $xlsData->header));
+				$songId = $songsToUpdate[$rowIdx];
+				$this->getData()->update($songId, $this->xlsMap($row, $xlsData->header));
 				$updated++;
 			}
 			else {
@@ -243,6 +242,10 @@ class RepertoireController extends DefaultController {
 				// convert fraction of day to hh:mm:ss
 				$length = gmdate("h:i:s", $length);
 			}
+			else if(strlen($length) > 8) {
+				// possibly a datetime string was sent, use only last 8 characters
+				$length = substr($length, -8);
+			}
 		}
 		$setting = "";
 		if($_POST["col_setting"] >= 0) {
@@ -250,6 +253,17 @@ class RepertoireController extends DefaultController {
 			$setting = $row->$f;
 		}
 		$title_f = $header[$_POST["col_title"]];
+		$active = "on";
+		if($_POST["col_active"] >= 0) {
+			$f = $header[$_POST["col_active"]];
+			$activeVal = $row->$f;
+			if(in_array(strtolower($activeVal), array("on", "1", "true", "yes", "ja", "oui", "x", "j", "y", "t"))) {
+				$active = "on";
+			}
+			else {
+				$active = "off";
+			}
+		}
 		
 		$song = array(
 				"title" => $row->$title_f,
@@ -260,7 +274,9 @@ class RepertoireController extends DefaultController {
 				"notes" => $notes,
 				"composer" => $this->cleanSubject($composer),
 				"length" => $length,
-				"setting" => $setting);
+				"setting" => $setting,
+				"is_active" => $active
+		);
 		
 		// add custom fields
 		$customFields = $this->getData()->getCustomFields('s');

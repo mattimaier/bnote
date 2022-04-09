@@ -51,7 +51,7 @@ class RepertoireView extends CrudRefView {
 	
 	protected function addEntityForm() {
 		// init form
-		$form = new Form(Lang::txt("RepertoireView_addEntityForm.Form"), $this->modePrefix() . "add&manualValid=true");
+		$form = new Form("", $this->modePrefix() . "add&manualValid=true");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		
 		// order fields
@@ -475,8 +475,9 @@ class RepertoireView extends CrudRefView {
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_tempo"), $this->columnSelector("col_tempo", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_setting"), $this->columnSelector("col_setting", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_genre"), $this->columnSelector("col_genre", $header));
-		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_status"), $this->columnSelector("col_status", $header));
+		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_active"), $this->columnSelector("col_active", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_notes"), $this->columnSelector("col_notes", $header));
+		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_status"), $this->columnSelector("col_status", $header));
 		
 		// Status
 		$dd_status = new Dropdown("status");
@@ -525,9 +526,9 @@ class RepertoireView extends CrudRefView {
 		
 		// show duplicates and ask to overwrite (use from sheet) or ignore (use from BNote) for each
 		$form = new Form(Lang::txt("RepertoireView_xlsImport.Form"), $this->modePrefix() . "xlsProcess");
-		foreach($duplicates as $idx => $row) {
+		foreach($duplicates as $rowIdx => $row) {
 			$name = $row->$titleCol;
-			$element = new Dropdown("duplicate_$idx");
+			$element = new Dropdown("duplicate_$rowIdx");
 			$element->addOption(Lang::txt("RepertoireView_xlsImport.duplicate_id"), $row->duplicate_id);
 			$element->addOption(Lang::txt("RepertoireView_xlsImport.duplicate_ignore"), -1);
 			$form->addElement($name, $element);

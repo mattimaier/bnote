@@ -1787,6 +1787,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_xlsMapping.col_notes" => "Notes",
 			"RepertoireView_xlsMapping.col_genre" => "Genre",
 			"RepertoireView_xlsMapping.col_setting" => "Setting",
+			"RepertoireView_xlsMapping.col_active" => "Is active",
 			"RepertoireView_xlsMapping.col_status" => "Status",
 			"RepertoireView_xlsMapping.dd_status" => "Default status",
 			"RepertoireView_xlsMapping.submit" => "Next",
