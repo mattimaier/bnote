@@ -66,13 +66,13 @@ class MitspielerData extends AbstractLocationData {
 				"IF(share_birthday = 1, birthday, '') as birthday"
 		);
 		$fieldsStr = join(",", $fields);
-		$order = "ORDER BY fullname, instrument";
+		$order = "ORDER BY fullname, i.rank";
 		
 		// Super User or Admin
 		if($this->getSysdata()->isUserSuperUser($uid) || $this->getSysdata()->isUserMemberGroup(1, $uid)) {
 			$query = "SELECT $fieldsStr FROM contact c
 					  JOIN instrument i ON c.instrument = i.id
-					  LEFT JOIN address a ON c.address = a.id
+					  LEFT OUTER JOIN address a ON c.address = a.id
 					  $order";
 			$contacts = $this->database->getSelection($query);
 			return $this->appendCustomDataToSelection("c", $contacts);
@@ -89,8 +89,7 @@ class MitspielerData extends AbstractLocationData {
 					) as groups JOIN contact_group ON groups.id = contact_group.group
 					JOIN contact c ON contact_group.contact = c.id
 					JOIN instrument i ON c.instrument = i.id
-					LEFT JOIN address a ON c.address = a.id
-					
+					LEFT OUTER JOIN address a ON c.address = a.id
 					$order";
 		$groupContacts = $this->database->getSelection($query, array(array("i", $cid)));
 		
@@ -101,8 +100,7 @@ class MitspielerData extends AbstractLocationData {
 					) as phases JOIN rehearsalphase_contact ON phases.rehearsalphase = rehearsalphase_contact.rehearsalphase
 					JOIN contact c ON rehearsalphase_contact.contact = c.id
 					JOIN instrument i ON c.instrument = i.id
-					LEFT JOIN address a ON c.address = a.id
-					
+					LEFT OUTER JOIN address a ON c.address = a.id
 					$order";
 		$phaseContacts = $this->database->getSelection($query, array(array("i", $cid)));
 		

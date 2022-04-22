@@ -490,7 +490,7 @@ class Systemdata {
   */
  public function getUsersContact($uid = -1) {
  	if($uid == -1) $uid = $this->getUserId();
- 	return $this->dbcon->fetchRow("SELECT * FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?", array(array("i", $uid)));
+ 	return $this->dbcon->fetchRow("SELECT c.* FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?", array(array("i", $uid)));
  }
  
  public function gdprOk($uid = -1) {
