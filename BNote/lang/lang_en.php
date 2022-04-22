@@ -1734,7 +1734,8 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_startOptions.massUpdate" => "Change multiple songs",
 			"RepertoireView_startOptions.start" => "Manage Genres",
 			"RepertoireView_startOptions.xlsUpload" => "Excel Import",
-			"RepertoireView_startOptions.repertoire" => "CSV Export",
+			"RepertoireView_startOptions.repertoire" => "CSV Export",,
+			"RepertoireView_startOptions.wipe" => "Wipe repertoire",
 			"RepertoireView_start.title" => "Title",
 			"RepertoireView_start.genre" => "Genre",
 			"RepertoireView_start.music_key" => "Key",
@@ -1808,6 +1809,10 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_massUpdate.songSelector" => "Songs",
 			"RepertoireView_process_massUpdate.message_1" => "Saves songs",
 			"RepertoireView_process_massUpdate.message_2" => "The songs have been updated successfully.",
+			"RepertoireView_wipe.doneHeader" => "Repertoire removed",
+			"RepertoireView_wipe.doneMessage" => "The entire repertoire including all songs and references to them were removed from the system.",
+			"RepertoireView_wipe.confirm" => "Do you really want to remove all songs including all references to these songs?",
+			"RepertoireView_wipe.confirmHeader" => "Wipe repertoire",
 			
 			// module: Share *********************************************
 

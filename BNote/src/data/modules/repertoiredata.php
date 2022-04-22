@@ -481,4 +481,12 @@ class RepertoireData extends AbstractData {
 		}
 		return $export;
 	}
+	
+	function wipe() {
+		$tables = ["program_song", "rehearsal_song", "song_files", "song_solist", "song"];
+		foreach($tables as $tname) {
+			$q = "DELETE FROM $tname WHERE 1=1";
+			$this->database->execute($q);
+		}
+	}
 }

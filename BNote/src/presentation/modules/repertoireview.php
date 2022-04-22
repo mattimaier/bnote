@@ -27,18 +27,10 @@ class RepertoireView extends CrudRefView {
 	
 	protected function startOptions() {
 		parent::startOptions();
-
-		$prt = new Link("javascript:print()", Lang::txt("RepertoireView_startOptions.print"));
-		$prt->addIcon("printer");
-		$prt->write();
 		
 		$massChange = new Link($this->modePrefix() . "massUpdate", Lang::txt("RepertoireView_startOptions.massUpdate"));
 		$massChange->addIcon("pen");
 		$massChange->write();
-		
-		$genre_mod = new Link($this->modePrefix() . "genre&func=start", Lang::txt("RepertoireView_startOptions.start"));
-		$genre_mod->addIcon("music-note-list");
-		$genre_mod->write();
 		
 		$xlsImport = new Link($this->modePrefix() . "xlsUpload", Lang::txt("RepertoireView_startOptions.xlsUpload"));
 		$xlsImport->addIcon("upload");
@@ -47,6 +39,18 @@ class RepertoireView extends CrudRefView {
 		$xlsExport = new Link($GLOBALS["DIR_EXPORT"] . "repertoire.csv", Lang::txt("RepertoireView_startOptions.repertoire"));
 		$xlsExport->addIcon("filetype-csv");
 		$xlsExport->write();
+		
+		$prt = new Link("javascript:print()", Lang::txt("RepertoireView_startOptions.print"));
+		$prt->addIcon("printer");
+		$prt->write();
+		
+		$genre_mod = new Link($this->modePrefix() . "genre&func=start", Lang::txt("RepertoireView_startOptions.start"));
+		$genre_mod->addIcon("music-note-list");
+		$genre_mod->write();
+		
+		$wipe = new Link($this->modePrefix() . "wipe", Lang::txt("RepertoireView_startOptions.wipe"));
+		$wipe->addIcon("folder-x");
+		$wipe->write();
 	}
 	
 	protected function addEntityForm() {
@@ -503,6 +507,8 @@ class RepertoireView extends CrudRefView {
 	}
 	
 	protected function columnSelector($fieldname, $header) {
+		$dbField = Data::startsWith($fieldname, "col_") ? substr($fieldname, 4) : $fieldname;
+		$preselection = "-1";
 		$dd = new Dropdown($fieldname);
 		
 		$dd->addOption(Lang::txt("RepertoireView_columnSelector.import"), "-1");
@@ -512,9 +518,14 @@ class RepertoireView extends CrudRefView {
 				$n = "(unnamed)";
 			}
 			$dd->addOption($n, $idx);
+			if(strtolower($name) == strtolower($dbField)) {
+				$preselection = strval($idx);
+			}
 		}
 		
-		$dd->setSelected("-1");
+		// try to preselect the right column		
+		$dd->setSelected($preselection);
+		
 		return $dd;
 	}
 	
@@ -580,6 +591,27 @@ class RepertoireView extends CrudRefView {
 	function process_massUpdate() {
 		$this->getData()->massUpdate();
 		new Message(Lang::txt("RepertoireView_process_massUpdate.message_1"), Lang::txt("RepertoireView_process_massUpdate.message_2"));
+	}
+	
+	function wipeTitle() {
+		return Lang::txt("RepertoireView_wipe.confirmHeader");
+	}
+	
+	function wipe() {
+		if(isset($_GET["choice"]) && $_GET["choice"] == "yes") {
+			$this->getData()->wipe();
+			new Message(Lang::txt("RepertoireView_wipe.doneHeader"), Lang::txt("RepertoireView_wipe.doneMessage"));
+		}
+		else {
+			Writing::p(Lang::txt("RepertoireView_wipe.confirm"));
+			$yes = new Link($this->modePrefix() . "wipe&choice=yes", Lang::txt("yes"));
+			$yes->addIcon("check");
+			$yes->write();
+			
+			$no = new Link($this->modePrefix() . "start", Lang::txt("no"));
+			$no->addIcon("x");
+			$no->write();
+		}
 	}
 }
 

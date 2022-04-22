@@ -1730,7 +1730,8 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_startOptions.massUpdate" => "Mise à jour en masse",
 			"RepertoireView_startOptions.start" => "Gestion des genres",
 			"RepertoireView_startOptions.xlsUpload" => "Import Excel",
-			"RepertoireView_startOptions.repertoire" => "Export CSV",
+			"RepertoireView_startOptions.repertoire" => "Export CSV",,
+			"RepertoireView_startOptions.wipe" => "Supprimer toutes les chansons",
 			"RepertoireView_start.title" => "Titre",
 			"RepertoireView_start.genre" => "Genre",
 			"RepertoireView_start.music_key" => "Tonalité",
@@ -1804,6 +1805,10 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_massUpdate.songSelector" => "Pièces",
 			"RepertoireView_process_massUpdate.message_1" => "Enregistrement des pièces",
 			"RepertoireView_process_massUpdate.message_2" => "Les pièces ont été mises à jour avec succès.",
+			"RepertoireView_wipe.doneHeader" => "Répertoire supprimé",
+			"RepertoireView_wipe.doneMessage" => "L'ensemble du répertoire, y compris toutes les chansons et leurs références, a été supprimé du système.",
+			"RepertoireView_wipe.confirm" => "Voulez-vous vraiment supprimer toutes les chansons, y compris toutes les références à ces chansons?",
+			"RepertoireView_wipe.confirmHeader" => "Supprimer le répertoire",
 			
 			// module: Share *********************************************
 
