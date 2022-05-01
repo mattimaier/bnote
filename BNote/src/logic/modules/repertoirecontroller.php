@@ -131,7 +131,8 @@ class RepertoireController extends DefaultController {
 				$rowSongId = $row->$id_col;
 				if($rowSongId != "" && is_int($rowSongId) && intval($rowSongId) > 0) {
 					$row->duplicate_id = $rowSongId;
-					$updateCandidates[$rowIdx] = $row;
+					$row->file_index = $rowIdx;
+					array_push($updateCandidates, $row);
 				}
 			}
 			if($row->$title_col == "") {
@@ -140,7 +141,7 @@ class RepertoireController extends DefaultController {
 			else {
 				$numNonEmptyRows++;
 			}
-		}		
+		}
 		$this->getView()->xlsImport($title_col, $updateCandidates, $numNonEmptyRows, $empties);
 	}
 	

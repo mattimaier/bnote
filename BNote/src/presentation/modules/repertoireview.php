@@ -549,8 +549,9 @@ class RepertoireView extends CrudRefView {
 		
 		// show duplicates and ask to overwrite (use from sheet) or ignore (use from BNote) for each
 		$form = new Form(Lang::txt("RepertoireView_xlsImport.Form"), $this->modePrefix() . "xlsProcess");
-		foreach($duplicates as $rowIdx => $row) {
+		foreach($duplicates as $row) {
 			$name = $row->$titleCol;
+			$rowIdx = $row->file_index;
 			$element = new Dropdown("duplicate_$rowIdx");
 			$element->addOption(Lang::txt("RepertoireView_xlsImport.duplicate_id"), $row->duplicate_id);
 			$element->addOption(Lang::txt("RepertoireView_xlsImport.duplicate_ignore"), -1);
