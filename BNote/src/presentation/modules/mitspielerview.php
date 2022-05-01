@@ -94,7 +94,9 @@ class MitspielerView extends CrudRefLocationView {
 							$val = Data::convertFromDb($val);
 						}
 					}
-					array_push($entries, $field["txtdefsingle"] . ": " . $val);
+					if($val != "") {
+						array_push($entries, $field["txtdefsingle"] . ": " . $val);
+					}
 				}
 				echo join(" | ", $entries);
 				?>
