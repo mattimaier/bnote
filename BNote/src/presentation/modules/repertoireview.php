@@ -512,13 +512,25 @@ class RepertoireView extends CrudRefView {
 		$dd = new Dropdown($fieldname);
 		
 		$dd->addOption(Lang::txt("RepertoireView_columnSelector.import"), "-1");
+		
+		// preselection helper
+		$selectionFields = array(
+			"key" => array("music_key"),
+			"composer" => array("composername"),
+			"genre" => array("genrename"),
+			"tempo" => array("bpm"),
+			"active" => array("is_active"),
+			"status" => array("statusname")
+		);
+		
 		foreach($header as $idx => $name) {
 			$n = $name;
 			if($n == "") {
 				$n = "(unnamed)";
 			}
 			$dd->addOption($n, $idx);
-			if(strtolower($name) == strtolower($dbField)) {
+			$lowerDbField = strtolower($dbField);
+			if(strtolower($name)==$lowerDbField || (isset($selectionFields[$lowerDbField]) && in_array(strtolower($name), $selectionFields[$lowerDbField]))) {
 				$preselection = strval($idx);
 			}
 		}
