@@ -5,7 +5,7 @@
 
 Requirements
 ------------
-- Apache2 Webserver with...
+- Apache HTTPd Webserver with...
 	- an accessible host configuration
 	- modrewrite
 	- htaccess activated
@@ -21,12 +21,9 @@ How to install BNote?
 3. If you are using Mac OS, Linux, Unix, BSD or system alike make sure the permissions on the files are correct. Here is an overview of how it should be:
 	750 config/			with the group being the apache runtime user-group
 	755 data/ 			with the group being the apache runtime user-group
-	775 data/gallery	recursively, with the group being the apache runtime user-group
 	775 data/members	with the group being the apache runtime user-group
 	775 data/programs	with the group being the apache runtime user-group
 	775 data/share		with the group being the apache runtime user-group
-	775 data/gallery	with the group being the apache runtime user-group
-	664 data/gallery/*	all files in this folder; with the group being the apache runtime user-group
 	In addition, make sure your web server does not allow to execute script files like PHP or CGI within the data/ directory.
 3. Access your newly created BNote instance. An installation script should come up where you can setup the system.
 4. IMPORTANT -> Remove install.php from the document root of your BNote instance!!!
