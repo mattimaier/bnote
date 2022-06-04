@@ -137,6 +137,22 @@ class UpdateDb {
 		}
 	}
 	
+	function getModuleIds($modnames) {
+		$q = array();
+		$params = array();
+		foreach($modnames as $name) {
+			array_push($q, "?");
+			array_push($params, array("s", $name));
+		}
+		$qstr = "SELECT id, name FROM module WHERE name = " . join(" OR name = ", $q);
+		$mods = $this->db->getSelection($qstr, $params);
+		$res = array();
+		for($i = 1; $i < count($mods); $i++) {
+			$res[$mods[$i]["name"]] = $mods[$i]["id"];
+		}
+		return $res;
+	}
+	
 	function updateModule($id, $name, $icon, $category) {
 		$q = "UPDATE module SET name = ?, icon = ?, category = ? WHERE id = ?";
 		$this->db->execute($q, array(array("s", $name), array("s", $icon), array("s", $category), array("i", $id)));
@@ -184,6 +200,32 @@ class UpdateDb {
 		$query = "INSERT INTO privilege (user, module) VALUES " . join(", ", $tuples);
 		$this->db->execute($query, $params);
 		$this->message($this->sysdata->getModuleTitle($module_id) . " privileges for all users added.");
+	}
+	
+	function addPrivilegeForAdmins($module_id) {
+		if($module_id <= 0) {
+			$this->message("Cannot insert privileges. Invalid module ID.");
+			return;
+		}
+		
+		// remove all privileges for this module first
+		$adminQuery = "SELECT u.id FROM user u JOIN contact_group cg ON cg.contact = u.contact WHERE cg.group = 1";  // 1 = Admins
+		$delQuery = "DELETE FROM privilege WHERE module = ? AND user IN ($adminQuery)";
+		$this->db->execute($delQuery, array(array("i", $module_id)));
+		
+		// insert privilege for all
+		$adminUserIds = $this->db->getSelection($adminQuery);
+		$params = array();
+		$tuples = array();
+		for($i = 1; $i < count($adminUserIds); $i++) {
+			$uid = $adminUserIds[$i]["id"];
+			array_push($tuples, "(?, ?)");
+			array_push($params, array("i", $uid));
+			array_push($params, array("i", $module_id));
+		}
+		$query = "INSERT INTO privilege (user, module) VALUES " . join(", ", $tuples);
+		$this->db->execute($query, $params);
+		$this->message("Privileges for module $module_id added to all admins (group 1).");
 	}
 	
 	function getPrimaryKeys($table) {
@@ -255,7 +297,7 @@ $update->addDynConfigParam("concert_show_max", 5);  # already deprecated, but re
 $update->addColumnToTable("module", "icon", "varchar(50)");
 $update->addColumnToTable("module", "category", "varchar(50)");
 
-$executeModuleUpdate = TRUE;
+$executeModuleUpdate = FALSE;
 if($executeModuleUpdate) {
 	$update->updateModule(1, "Start", "play-circle", "main");
 	$update->updateModule(2, "User", "people", "admin");
@@ -313,6 +355,12 @@ $update->addColumnToTable("instrument", "rank", "int(4)");
 // Task: Extend participation registration by datetime
 $update->addColumnToTable("rehearsal_user", "replyon", "datetime");
 $update->addColumnToTable("concert_user", "replyon", "datetime");
+
+
+// --- 4.0.1 UPDATES ---
+// Task: Add admin privileges for admin users
+$modinfo = $update->getModuleIds(array("Admin"));
+$update->addPrivilegeForAdmins($modinfo["Admin"]);
 
 ?>
 
