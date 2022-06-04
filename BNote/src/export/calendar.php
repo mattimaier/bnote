@@ -179,7 +179,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	$notes .= count($songs) > 1 ? join("\\, ", $songsToPractise) : "-";
 	
 	// participants
-	$query = "SELECT c.id, c.surname, c.name, c.email, ru.participate, ru.reason";
+	$query = "SELECT c.id, c.surname, c.name, IF(c.share_email = 1, c.email, '') as email, ru.participate, ru.reason";
 	$query .= " FROM rehearsal_user ru, user u, contact c";
 	$query .= " WHERE ru.rehearsal = ? AND ru.user = u.id AND u.contact = c.id" ;
 
@@ -221,7 +221,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	array_push($contactIDs, PHP_INT_MAX);
 	$contactIDsString = join(',',$contactIDs);
 
-	$query = "SELECT c.id, c.surname, c.name, c.email";
+	$query = "SELECT c.id, c.surname, c.name, IF(c.share_email = 1, c.email, '') as email";
 	$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
 	$query .= " WHERE rc.rehearsal = ? AND rc.contact NOT IN (" . $contactIDsString .")";
 	$participantsNoResponse = $db->getSelection($query, array(array("i", $rehearsals[$i]["id"])));
@@ -302,7 +302,7 @@ for($i = 1; $i < count($concerts); $i++) {
 	}
 	
 	
-	$query = "SELECT c.id, c.surname, c.name, c.email, cu.participate, cu.reason";
+	$query = "SELECT c.id, c.surname, c.name, IF(c.share_email = 1, c.email, '') as email, cu.participate, cu.reason";
 	$query .= " FROM concert_user cu, user u, contact c";
 	$query .= " WHERE cu.concert = ? AND cu.user = u.id AND u.contact = c.id" ;
 	$contacts = $db->getSelection($query, array(array("i", $concerts[$i]["id"])));
@@ -341,7 +341,7 @@ for($i = 1; $i < count($concerts); $i++) {
 	array_push($contactIDs, PHP_INT_MAX);
 	$contactIDsString = join(',',$contactIDs);  
 	
-	$query = "SELECT c.id, c.surname, c.name, c.email";
+	$query = "SELECT c.id, c.surname, c.name, IF(c.share_email = 1, c.email, '') as email";
 	$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
 	$query .= " WHERE cc.concert = ? AND cc.contact NOT IN (" . $contactIDsString .")";  // safe statement - IDs from INT field of DB
 	$participantsNoResponse = $db->getSelection($query, array(array("i", $concerts[$i]["id"])));
