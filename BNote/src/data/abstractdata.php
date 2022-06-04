@@ -438,7 +438,7 @@ abstract class AbstractData {
 				}
 			}
 			else if($t == FieldType::BOOLEAN) {
-				$value = ($value == "on") ? 1 : 0; 
+				$value = ($value === "on") ? 1 : 0;
 			}
 			else if($t == FieldType::MINSEC) {
 				$value = Data::convertMinSecToDb($value);

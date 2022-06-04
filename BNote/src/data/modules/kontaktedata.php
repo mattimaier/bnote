@@ -190,6 +190,12 @@ class KontakteData extends AbstractLocationData {
 		// simply create one address per contact
 		$values["address"] = $this->createAddress($values);
 		
+		// set share_* values to false by default
+		$values["share_address"] = isset($values["share_address"]) ? $values["share_address"] : 0;  // false by default
+		$values["share_phones"] = isset($values["share_phones"]) ? $values["share_phones"] : 0;  // false by default
+		$values["share_birthday"] = isset($values["share_birthday"]) ? $values["share_birthday"] : 0;  // false by default
+		$values["share_email"] = isset($values["share_email"]) ? $values["share_email"] : 0;  // false by default
+		
 		// create contact
 		$cid = parent::create($values);
 		
