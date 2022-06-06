@@ -399,7 +399,7 @@ class StartView extends CrudRefLocationView {
 		$this->voteOptions();
 	}
 	public function voteOptions() {
-		$oid = $_GET["oid"];
+		$oid = $_GET["id"];
 		if(!$this->getData()->canUserVote($oid)) {
 			new BNoteError(Lang::txt("StartView_voteOptions.error"));
 		}
