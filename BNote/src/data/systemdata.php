@@ -538,7 +538,7 @@ class Systemdata {
   */
  public function isAutologinActive() {
  	$autoLogin = $this->getDynamicConfigParameter("auto_activation");
- 	return ($autoLogin == 1);
+ 	return (intval($autoLogin) === 1);
  }
  
  /**
