@@ -502,7 +502,7 @@ class Systemdata {
  public function gdprAccept($accept) {
  	$info = $this->getUsersContact();
  	$query = "UPDATE contact SET gdpr_ok = ? WHERE id = ?";
- 	$this->dbcon->prepStatement($query, array(array("i", $accept), array("i", $info["contact"])));
+ 	$this->dbcon->prepStatement($query, array(array("i", $accept), array("i", $info["id"])));
  }
  
  /**
