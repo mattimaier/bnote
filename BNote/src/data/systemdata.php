@@ -606,7 +606,7 @@ class Systemdata {
  	if($this->logoFilename == null) {
  		$this->logoFilename = $this->cfg_system->getParameter("Logo");
  		if($this->logoFilename == null) {
- 			return "BNote_Logo_white_transparent_44px.png";
+ 			return "BNote_Logo_white_transparent.svg";
  		}
  	}
  	return $this->logoFilename;

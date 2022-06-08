@@ -140,7 +140,7 @@ class Installation {
 			<Theme>default</Theme>
 			
 			<!-- Logo, BNote's Logo by default. Please put your logo in BNote/style/images -->
-			<Logo>BNote_Logo_white_transparent_44px.png</Logo>
+			<Logo>BNote_Logo_white_transparent.svg</Logo>
 					
 			<!-- The webpages available in the website module.
 			A page tag contains an attribute \"file\" specifying the filename without the html-extension
@@ -1140,7 +1140,7 @@ class Installation {
 		<!-- Banner -->
 		<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow d-print-none">		
 			<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="?mod=1">
-				<img src="style/images/BNote_Logo_white_transparent_44px.png" alt="BNote" height="31px" id="bnote-logo" />
+				<img src="style/images/BNote_Logo_white_transparent.svg" alt="BNote" height="32px" id="bnote-logo" />
 				<span class="d-none d-md-inline-block">BNote</span>
 			</a>
 		</header>
