@@ -11,7 +11,11 @@
 			else if(isset($_GET["mod"])) {
 				// get the menu of the current module
 				$mod = $system_data->getModule($_GET["mod"]);
-				$modarr = $system_data->getModuleArray($mod["category"]);
+				$cat = $mod["category"];
+				if($cat == "user") {
+					$cat = "main";
+				}
+				$modarr = $system_data->getModuleArray($cat);
 			}
 			else {
 				$modarr = $system_data->getModuleArray("main");
