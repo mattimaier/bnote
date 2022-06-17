@@ -520,10 +520,11 @@ class ApplicationDataProvider {
 	 * @return boolean True when the user is a member, otherwise false.
 	 */
 	function isGroupMember($gid, $uid = -1) {
+		$userId = $uid < 1 ? $this->sysdata->getUserId() : $uid;
 		$query = "SELECT count(*) as cnt 
 					FROM contact_group cg JOIN user u ON cg.contact = u.contact 
 					WHERE `group` = ? AND u.id = ?";
-		$ct = $this->database->colValue($query, "cnt", array(array("i", $gid), array("i", $uid)));
+		$ct = $this->database->colValue($query, "cnt", array(array("i", $gid), array("i", $userId)));
 		return ($ct > 0);
 	}
 	

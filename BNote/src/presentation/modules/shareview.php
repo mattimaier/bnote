@@ -30,7 +30,8 @@ class ShareView extends CrudView {
 	function start() {
 		$this->initFilebrowser();
 		$viewMode = $this->getData()->getSysdata()->getDynamicConfigParameter("share_nonadmin_viewmode");
-		if($viewMode == "1" && !$this->getData()->getSysdata()->isUserSuperUser()
+		
+		if(intval($viewMode) === 1 && !$this->getData()->getSysdata()->isUserSuperUser()
 				&& !$this->getData()->adp()->isGroupMember(1)) {
 			$this->filebrowser->viewMode(true);
 		}
