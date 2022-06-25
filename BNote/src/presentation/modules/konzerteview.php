@@ -144,9 +144,8 @@ class KonzerteView extends CrudRefLocationView {
 		
 		// concert details
 		Writing::h1($c["title"]);
-		
-		Writing::p($c["notes"]);
 		?>
+		<p class="ml-comment"><?php echo $c["notes"]; ?></p>
 		
 		<div class="row mb-3">
 		<div class="col-md-3 mt-2"> 

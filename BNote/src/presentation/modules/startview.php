@@ -287,7 +287,7 @@ class StartView extends CrudRefLocationView {
 		}
 		
 		if($rehearsal["notes"] != "") {
-			$dataview->addElement(Lang::txt("StartView_writeRehearsalList.comment"), "<pre>" . $rehearsal["notes"] . "</pre>");
+			$dataview->addElement(Lang::txt("StartView_writeRehearsalList.comment"), "<p class=\"ml-comment\">" . $rehearsal["notes"] . "</p>");
 		}
 		
 		$songs = $this->getData()->getSongsForRehearsal($rehearsal["id"]);
@@ -554,9 +554,8 @@ class StartView extends CrudRefLocationView {
 		
 		// concert details
 		Writing::h4($c["title"], "mt-3");
-		
-		Writing::p($c["notes"]);
 		?>
+		<p class="ml-comment"><?php echo $c["notes"]; ?></p>
 		<table>
 			<tbody>
 				<tr>

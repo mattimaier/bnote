@@ -33,6 +33,7 @@ span.concert_notes {
   color: #8A8A8A;
   font-style: italic;
   display: block;
+  white-space: pre-wrap;
 }
 span.start_concert_title {
   font-weight: 600;
@@ -328,6 +329,9 @@ a:hover {
   color: #FFFFFF;
   background-color: #8C2B2B;
   border-color: #441717;
+}
+.ml-comment {
+  white-space: pre-wrap;
 }
 /*
  * Sidebar
