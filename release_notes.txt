@@ -1,33 +1,15 @@
 #############################################
-# Changes to BNote in comparison with 3.4.4 #
+# Changes to BNote in comparison with 4.0.0 #
 #############################################
 
-#265: New menus and navigation
-#284: Migrate entire application to Bootstrap 5
-#326: Edit rehearsal participation
-#343: Show member data only if permitted in privacy settings of user
-#344: Show sorted participation overview
-#345: Allow sorting of instruments
-#350: Direct link to event in mails
-#368: Responsive design for the entire application
-#370: Add status to rehearsal and concert
-#376: Attachments for mails
-#388: Show e-mail receipient
-#411: Concerts with participation overview
-#425: Participation overview for past rehearsals
-#429: Custom fields import for repertoire
-#431: Event list at start
-#432: Fix bug in finance module
-#433: Small improvement in participation dropdown
-#434: Change logout page to login page
-#435: Show user-defined fields in members properly
-#437: Calendar export with optionally configurable notes
-#439: Last logged in sortable in user view
-#445: Ignore casing for password forgotten e-mail address
-#447: Import error fixed for repertoire
-#448: Print participation in (old) PDF format
-#444: Location extension for rehearsals and concerts
-#446: Show order of logins
-#449: Enable line breaks for rehearsal notes
-#450: Allow comma in folder names (share)
-#454: Changed all SQL statements to prepared statements
+#474: Bugfix for voting on start page
+#475: Bugfix for warning display of automated registration on start page
+#480: Remove mail-adresses from calendar export according to share settings
+#482: Privacy setting fix
+#483: Privacy policy approval at first use lead to error
+#484: Bugfix for editing gig participation
+#489: Show linebreaks for gig comments
+#491: Change header color for sidebar to allow long band names
+#492: Bugfix for read mode in share module also affected administrators
+#495: Contact data module shows main sidebar
+#496: Administrator privilege fix after 3.4.x update
