@@ -478,7 +478,10 @@ class KonzerteView extends CrudRefLocationView {
 		<?php
 		foreach($participation as $i => $part) {
 			if($i == 0) continue;
-			?><div class="participationEditLine">
+			?><div class="participationEditLine col-md-4">
+				<span class="participationEditLine_user">
+					<?php echo $this->formatContact($part, "NAME_INST"); ?>
+				</span>
 				<?php 
 				$dd = new Dropdown("user_" . $part["user_id"]);
 				$dd->addOption("?", -1);
@@ -489,9 +492,6 @@ class KonzerteView extends CrudRefLocationView {
 				$dd->setStyleClass("participationQuickSelector");
 				echo $dd->write();
 				?>
-				<span class="participationEditLine_user">
-					<?php echo $this->formatContact($part, "NAME_INST"); ?>
-				</span>
 			</div><?php
 		}
 		?>

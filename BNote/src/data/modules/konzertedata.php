@@ -306,15 +306,12 @@ class KonzerteData extends AbstractLocationData {
 		// get all participations for this concert
 		$query = "SELECT * FROM concert_user cu WHERE concert = ?";
 		$old_participation = $this->database->getSelection($query, array(array("i", $concert_id)));
-		$old_participate = array();
-		for($i = 1; $i < count($old_participation); $i++) {
-			$old_participate[$old_participation[$i]["user"]] = $old_participation[$i]["participate"];
-		}
+		$old_participate = Database::flattenSelection($old_participation, "user");
 		
 		// run through posted result and update the database
 		foreach($_POST as $user_key => $participate) {
 			$user_id = substr($user_key, 5);
-			if(array_key_exists($user_id, $old_participate)) {
+			if(in_array($user_id, $old_participate)) {
 				// update participation
 				$query = "UPDATE concert_user SET participate = ? WHERE user = ? AND concert = ?";				
 			}

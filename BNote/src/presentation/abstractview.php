@@ -261,8 +261,8 @@ abstract class AbstractView {
 		}
 		
 		// communication
-		$sharePhoneNumbers = intval($contact[$fieldPrefix . "share_phones"]) == 1;
-		$shareEmail = intval($contact[$fieldPrefix . "share_email"]) == 1;
+		$sharePhoneNumbers = isset($contact[$fieldPrefix . "share_phones"]) && intval($contact[$fieldPrefix . "share_phones"]) == 1;
+		$shareEmail = isset($contact[$fieldPrefix . "share_email"]) && intval($contact[$fieldPrefix . "share_email"]) == 1;
 		$comm = array();
 		if($comp != "" && $sharePhoneNumbers) {
 			array_push($comm, $comp);
