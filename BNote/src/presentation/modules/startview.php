@@ -431,14 +431,17 @@ class StartView extends CrudRefLocationView {
 				if($this->getData()->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == "1"
 						&& $vote["is_multi"] == 1) {
 					$dd = new Dropdown($options[$i]["id"]);
-					$dd->addOption(Lang::txt("StartView_voteOptions.worksForMeNot"), 0);
-					$dd->addOption(Lang::txt("StartView_voteOptions.worksForMe"), 1);
-					$dd->addOption(Lang::txt("StartView_voteOptions.worksForMeMaybe"), 2);
-					if($selected != -1) {
-						$dd->setSelected($selected);
+					$dd->addOption(Lang::txt("StartView_voteOptions.worksForMeNot"), "no");
+					$dd->addOption(Lang::txt("StartView_voteOptions.worksForMe"), "yes");
+					$dd->addOption(Lang::txt("StartView_voteOptions.worksForMeMaybe"), "maybe");
+					if($selected !== -1) {
+						$choice = "yes";
+						if($selected == 2) $choice = "maybe";
+						else if($selected < 1) $choice = "no";
+						$dd->setSelected($choice);
 					}		
 					else {
-						$dd->setSelected(1);
+						$dd->setSelected("yes"); // default
 					}			
 					$in = $dd->write();
 				}

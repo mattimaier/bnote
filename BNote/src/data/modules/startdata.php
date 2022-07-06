@@ -169,23 +169,16 @@ class StartData extends AbstractLocationData {
 		$this->database->execute($query, $params);
 		
 		if($vote["is_multi"] == 1) {
-			// mutiple options choosable
-			$maybeOn = $this->getSysdata()->getDynamicConfigParameter("allow_participation_maybe") == 1;
-			
 			$triples = array();
 			$params2 = array();
 			foreach($values as $optionId => $choice) {
-				if($maybeOn) {
-					array_push($triples, "(?, ?, ?)");
-					array_push($params2, array("i", $optionId));
-					array_push($params2, array("i", $user));
-					array_push($params2, array("i", $choice));
-				}
-				else {
-					array_push($triples, "(?, ?, 1)");
-					array_push($params2, array("i", $optionId));
-					array_push($params2, array("i", $user));
-				}
+				if($choice == "maybe") $choiceNo = 2;
+				else if($choice == "no") $choiceNo = 0;
+				else $choiceNo = 1; // yes
+				array_push($triples, "(?, ?, ?)");
+				array_push($params2, array("i", $optionId));
+				array_push($params2, array("i", $user));
+				array_push($params2, array("i", $choiceNo));
 			}
 			$query = "INSERT INTO vote_option_user (vote_option, user, choice) VALUES " . join(",", $triples);
  			$this->database->execute($query, $params2);
@@ -381,12 +374,7 @@ class StartData extends AbstractLocationData {
 	public function getSelectedOptionsForUser($optionId, $uid) {
 		$choiceQuery = "SELECT choice FROM vote_option_user WHERE vote_option = ? AND user = ?";
 		$choice = $this->database->colValue($choiceQuery, "choice", array(array("i", $optionId), array("i", $uid)));
-		if($choice == null || $choice == "") {
-			return -1;
-		}
-		else {
-			return $choice;
-		}
+		return $choice;
 	}
 	
 	public function hasInactiveUsers() {
