@@ -12,7 +12,7 @@ class KonzerteView extends CrudRefLocationView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Auftritt");
+		$this->setEntityName(Lang::txt("KonzerteView_construct.concert"));
 		$this->setAddEntityName(Lang::txt("KonzerteView_construct.addEntityName"));
 		$this->setJoinedAttributes(array(
 			"location" => array("name"),
@@ -324,6 +324,7 @@ class KonzerteView extends CrudRefLocationView {
 		$phases = $this->getData()->getRehearsalphases($_GET["id"]);
 		$tab = new Table($phases);
 		$tab->removeColumn("id");
+		$tab->renameHeader("Name", Lang::txt("KonzerteView_viewPhases.name"));
 		$tab->renameHeader("Begin", Lang::txt("KonzerteView_viewPhases.Begin"));
 		$tab->renameHeader("end", Lang::txt("KonzerteView_viewPhases.end"));
 		$tab->renameHeader("notes", Lang::txt("KonzerteView_viewPhases.notes"));
@@ -430,7 +431,7 @@ class KonzerteView extends CrudRefLocationView {
 		// notifications
 		$emLink = "?mod=" . $this->getData()->getSysdata()->getModuleId("Kommunikation");
 		$emLink .= "&mode=concertMail&preselect=" . $_GET["id"];
-		$em = new Link($emLink, "Benachrichtigung senden");
+		$em = new Link($emLink, Lang::txt("KonzerteView_viewButtons.Sendnotification"));
 		$em->addIcon("envelope");
 		$em->write();
 	}
@@ -444,6 +445,7 @@ class KonzerteView extends CrudRefLocationView {
 		$table->renameHeader("participate", Lang::txt("KonzerteView_showParticipants.participate"));
 		$table->renameHeader("reason", Lang::txt("KonzerteView_showParticipants.reason"));
 		$table->renameHeader("category", Lang::txt("KonzerteView_showParticipants.category"));
+		$table->renameHeader("Name", Lang::txt("KonzerteView_showParticipants.name_1"));
 		$table->renameHeader("nickname", Lang::txt("KonzerteView_showParticipants.nickname_1"));
 		$table->renameHeader("replyon", Lang::txt("KonzerteView_showParticipants.replyon"));
 		$table->removeColumn("id");
@@ -578,7 +580,7 @@ class KonzerteView extends CrudRefLocationView {
 		// choose accommodation
 		$ddAccommodation = new Dropdown("accommodation");
 		$accommodations = $this->getData()->adp()->getLocations(array(3));
-		$ddAccommodation->addOption("Keine Unterkunft", 0);
+		$ddAccommodation->addOption(Lang::txt("KonzerteView_addEntityForm.no_accommodation"), 0);
 		for($a = 1; $a < count($accommodations); $a++) {
 			$acc = $accommodations[$a];
 			$caption = $acc["name"] . ": " . $this->formatAddress($acc);
@@ -647,7 +649,7 @@ class KonzerteView extends CrudRefLocationView {
 			$selectedOutfit = $c["outfit"];
 		}
 		$form->setForeign("outfit", "outfit", "id", array("name"), $selectedOutfit);
-		$form->addForeignOption("outfit", "Kein Outfit", 0);
+		$form->addForeignOption("outfit", Lang::txt("KonzerteView_addEntityForm.no_outfit"), 0);
 		
 		$form->setSection(Lang::txt("KonzerteView_addEntityForm.group_title"), array("group", "program", "equipment", "outfit"));
 		$form->renameElement("outfit", Lang::txt("KonzerteView_addEntityForm.outfit"));

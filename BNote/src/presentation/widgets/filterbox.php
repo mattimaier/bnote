@@ -150,7 +150,7 @@ class Filterbox implements iWriteable {
 		}
 		?>
 			<div class="col-md-6">
-				<input type="submit" value="Suchen" class="btn btn-primary px-3" style="margin-top: 1.4rem" />
+				<input type="submit" value="<?php echo Lang::txt("Filterbox_write.searchButton"); ?>" class="btn btn-primary px-3" style="margin-top: 1.4rem" />
 			</div>
 		</form>
 		</div>
