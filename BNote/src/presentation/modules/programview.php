@@ -73,7 +73,8 @@ class ProgramView extends CrudView {
 		$table->removeColumn("id");
 		$table->setEdit("id");
 		$table->changeMode("programs&sub=view");
-		$table->renameHeader("istemplate", Lang::txt("ProgramView_addFromTemplate.ask"));
+		$table->renameHeader("Name", Lang::txt("ProgramView_showAllTable.name"));																		   
+		$table->renameHeader("istemplate", Lang::txt("ProgramView_showAllTable.ask"));
 		$table->setColumnFormat("isTemplate", "BOOLEAN");
 		$table->write();
 	}

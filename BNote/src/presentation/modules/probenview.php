@@ -366,7 +366,7 @@ class ProbenView extends CrudRefLocationView {
 		$contacts = $this->getData()->getRehearsalContacts($_GET["id"]);
 			
 		// add a link to the data to remove the contact from the list
-		$contacts[0]["delete"] = "Löschen";
+		$contacts[0]["delete"] = Lang::txt("ProbenView_invitations.Delete");
 		for($i = 1; $i < count($contacts); $i++) {
 			$delLink = $this->modePrefix() . "delContact&id=" . $_GET["id"] . "&cid=" . $contacts[$i]["id"] . "&tab=invitations";
 			$btn = new Link($delLink, "");
@@ -377,6 +377,8 @@ class ProbenView extends CrudRefLocationView {
 		$table = new Table($contacts);
 		$table->removeColumn("id");
 		$table->removeColumn("instrumentid");
+		$table->renameHeader("Name", Lang::txt("ProbenView_invitations.Name"));
+		$table->renameHeader("Nickname", Lang::txt("ProbenView_invitations.Nickname"));
 		$table->renameHeader("mobile", Lang::txt("ProbenView_invitations.mobile"));
 		$table->write();
 	}
@@ -539,6 +541,7 @@ class ProbenView extends CrudRefLocationView {
 		$table = new Table($this->getData()->getParticipants($_GET["id"]));
 		$table->removeColumn("id");
 		$table->removeColumn("instrumentid");
+		$table->renameHeader("Name", Lang::txt("ProbenView_participants.Name_1"));																			
 		$table->renameHeader("nickname", Lang::txt("ProbenView_participants.nickname_1"));
 		$table->renameHeader("participate", Lang::txt("ProbenView_participants.participate"));
 		$table->renameHeader("reason", Lang::txt("ProbenView_participants.reason"));
@@ -551,6 +554,7 @@ class ProbenView extends CrudRefLocationView {
 		$openTab->showFilter(false);
 		$openTab->removeColumn("id");
 		$openTab->removeColumn("instrumentid");
+		$openTab->renameHeader("Name", Lang::txt("ProbenView_participants.Name_2"));																			  
 		$openTab->renameHeader("nickname", Lang::txt("ProbenView_participants.nickname_2"));
 		$openTab->renameHeader("mobile", Lang::txt("ProbenView_participants.mobile"));
 		$openTab->write();

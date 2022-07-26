@@ -51,7 +51,7 @@ class CalendarView extends CrudRefLocationView {
 			var calendar = new FullCalendar.Calendar(calendarEl, {
 				plugins: [ 'dayGrid' ],
 				events: cal_events,
-				locale: 'de',
+				locale: <?php echo json_encode($this->getData()->getSysdata()->getLang()); ?>,
 				eventClick: function(info) {
 					var calEvent = info.event;
 					$('#calendar_eventdetail_title').text(calEvent.title);

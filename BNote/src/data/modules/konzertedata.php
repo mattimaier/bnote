@@ -254,7 +254,7 @@ class KonzerteData extends AbstractLocationData {
 	
 	function getParticipants($cid) {
 		$query = 'SELECT c.id, cat.name as category, i.name as instrument, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, ';
-		$query .= ' CASE cu.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" WHEN -1 THEN "-" ELSE "nein" END as participate, cu.reason, cu.replyon';		
+		$query .= ' CASE cu.participate WHEN 1 THEN "' . Lang::txt("KonzerteData_getParticipants.yes") . '" WHEN 2 THEN "' . Lang::txt("KonzerteData_getParticipants.maybe") . '" WHEN -1 THEN "-" ELSE "' . Lang::txt("KonzerteData_getParticipants.no") . '" END as participate, cu.reason, cu.replyon';		
 		$query .= ' FROM concert_user cu JOIN user u ON cu.user = u.id';
 		$query .= '  JOIN contact c ON u.contact = c.id';
 		$query .= '  LEFT JOIN instrument i ON c.instrument = i.id';

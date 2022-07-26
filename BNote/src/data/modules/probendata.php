@@ -67,7 +67,7 @@ class ProbenData extends AbstractLocationData {
 	
 	function getParticipants($rid) {
 		$query = 'SELECT c.id, CONCAT_WS(" ", c.name, c.surname) as name, c.nickname, i.name as instrument,
-					CASE ru.participate WHEN 1 THEN "ja" WHEN 2 THEN "vielleicht" ELSE "nein" END as participate, ru.reason, ru.replyon
+					CASE ru.participate WHEN 1 THEN "' . Lang::txt("ProbenData_getParticipants.yes") . '" WHEN 2 THEN "' . Lang::txt("ProbenData_getParticipants.maybe") . '" ELSE "' . Lang::txt("ProbenData_getParticipants.no") . '" END as participate, ru.reason, ru.replyon
 					FROM rehearsal_user ru
 						JOIN user u ON ru.user = u.id
 						JOIN contact c ON u.contact = c.id
@@ -104,14 +104,14 @@ class ProbenData extends AbstractLocationData {
 		$querySum = "SELECT count(*) as cnt FROM rehearsal_user WHERE rehearsal = ?";
 		$query = $querySum . " AND participate = ?";
 		// ...paricipate
-		$stats["Zusagen"] = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", 1)));
+		$stats[Lang::txt("ProbenData_getParticipantStats.Confirmations")] = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", 1)));
 		// ...do not paricipate
-		$stats["Absagen"] = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", 0)));
+		$stats[Lang::txt("ProbenData_getParticipantStats.Cancellations")] = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", 0)));
 		// ...maybe participate
-		$stats["Eventuell"] = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", 2)));
+		$stats[Lang::txt("ProbenData_getParticipantStats.Possible")] = $this->database->colValue($query, "cnt", array(array("i", $rid), array("i", 2)));
 		// total number of...
 		// ...decisions
-		$stats["Summe"] = $this->database->colValue($querySum, "cnt", array(array("i", $rid)));
+		$stats[Lang::txt("ProbenData_getParticipantStats.Total")] = $this->database->colValue($querySum, "cnt", array(array("i", $rid)));
 		
 		return $stats;
 	}
@@ -207,7 +207,7 @@ class ProbenData extends AbstractLocationData {
 		if($_POST["notes"] != "") $this->regex->isText($_POST["notes"]);
 		$this->regex->isPositiveAmount($_POST["duration"]);
 		$this->regex->isTime($_POST["default_time"]);
-		$this->regex->isPositiveAmount($_POST["Ort"]);
+		$this->regex->isPositiveAmount($_POST[Lang::txt("ProbenData_saveSerie.location")]);
 		
 		// make sure last date is after first date
 		$dateFirstSession = strtotime($_POST["first_session"]);
@@ -234,7 +234,7 @@ class ProbenData extends AbstractLocationData {
 					"approve_until" => $beginDate,
 					"conductor" => $_POST["conductor"],
 					"notes" => $_POST["notes"],
-					"location" => $_POST["Ort"],
+					"location" => $_POST[Lang::txt("ProbenData_saveSerie.location")],
 					"serie" => $serieId
 				));
 			}
