@@ -4,7 +4,7 @@
 **/
 class Regex {
 
-	public static $SPECIALCHARACTERS = "äüöÄÜÖßàáèéô";
+	public static $SPECIALCHARACTERS = "àáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøœšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŒŠÙÚÛÜŰÝÞß";
 	
 	private $regex;
 	private $regex_js;
