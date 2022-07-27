@@ -184,7 +184,7 @@ class RepertoireView extends CrudRefView {
 			<div class="col-md-3">
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.is_active"); ?></div>
-					<div class="songbox_value"><?php echo $song["is_active"] == 1 ? "ja" : "archiviert"; ?></div>
+					<div class="songbox_value"><?php echo $song["is_active"] == 1 ? Lang::txt("RepertoireView_view.is_active_yes") : Lang::txt("RepertoireView_view.is_archived"); ?></div>
 				</div>
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.notes"); ?></div>
@@ -281,7 +281,7 @@ class RepertoireView extends CrudRefView {
 		$songs = $this->getData()->getFiles($_GET["id"]);
 		?>
 		<div class="songfiles_box">
-			<h4>Dateien</h4>
+			<h4><?php echo Lang::txt("RepertoireView_songFiles.Files"); ?></h4>
 			<ul>
 			<?php
 			// show files
