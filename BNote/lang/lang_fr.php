@@ -1749,6 +1749,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireController_xlsMap.col_composer" => "non spécifié",
 			
 			// RepertoireView
+			"RepertoireView_construct.Song" => "Partition",
 			"RepertoireView_construct.addEntityName" => "Ajouter une nouvelle Partition",	
 			"RepertoireView_startOptions.print" => "Imprimer",
 			"RepertoireView_startOptions.massUpdate" => "Mise à jour en masse",

@@ -1753,6 +1753,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireController_xlsMap.col_composer" => "not specified",
 			
 			// RepertoireView
+			"RepertoireView_construct.Song" => "Song",
 			"RepertoireView_construct.addEntityName" => "Add piece",
 			"RepertoireView_startOptions.print" => "Print",
 			"RepertoireView_startOptions.massUpdate" => "Change multiple songs",

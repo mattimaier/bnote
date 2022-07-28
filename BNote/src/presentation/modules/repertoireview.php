@@ -11,7 +11,7 @@ class RepertoireView extends CrudRefView {
 	 */
 	function __construct($ctrl) {
 		$this->setController($ctrl);
-		$this->setEntityName("Song");
+		$this->setEntityName(Lang::txt("RepertoireView_construct.Song"));
 		$this->setAddEntityName(Lang::txt("RepertoireView_construct.addEntityName"));
 		$this->setJoinedAttributes(RepertoireData::getJoinedAttributes());
 	}
