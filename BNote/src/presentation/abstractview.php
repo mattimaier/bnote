@@ -307,7 +307,7 @@ abstract class AbstractView {
 		$countries = $this->getData()->getCountries();
 		$dd = new Dropdown("country");
 		foreach($countries as $country) {
-			$caption = $country["code"] . " - " . $country[$this->getData()->getSysdata()->getLang()];
+			$caption = $country[$this->getData()->getSysdata()->getLang()] . " - " . $country["code"];
 			$dd->addOption($caption, $country["code"]);
 		}
 		if($obj == NULL || $defaultVal == "") {
