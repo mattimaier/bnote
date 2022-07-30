@@ -1753,6 +1753,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireController_xlsMap.col_composer" => "not specified",
 			
 			// RepertoireView
+			"RepertoireView_construct.Song" => "Song",
 			"RepertoireView_construct.addEntityName" => "Add piece",
 			"RepertoireView_startOptions.print" => "Print",
 			"RepertoireView_startOptions.massUpdate" => "Change multiple songs",
@@ -1780,6 +1781,8 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_view.genrename" => "Genre",
 			"RepertoireView_view.setting" => "Cast",
 			"RepertoireView_view.is_active" => "Current",
+			"RepertoireView_view.is_active_yes" => "yes",
+			"RepertoireView_view.is_archived" => "archived",	
 			"RepertoireView_view.notes" => "Notes",
 			"RepertoireView_view.yes" => "yes",
 			"RepertoireView_view.no" => "no",
@@ -1788,6 +1791,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_view.concerts_song" => "piece in performances",
 			"RepertoireView_view.solists" => "Soloists",
 			"RepertoireView_view.nosolists" => "No soloists specified.",
+			"RepertoireView_songFiles.Files" => "Files",
 			"RepertoireView_songFiles.doctype_name" => "Delete shortcut",
 			"RepertoireView_songFiles.addSongFile" => "Add file",
 			"RepertoireView_songFiles.repertoire_filesearch" => "Enter at least 3 characters of a file name from 'Share', wait for it to show and then add the file.",

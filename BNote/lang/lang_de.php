@@ -1752,6 +1752,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireController_xlsMap.col_composer" => "nicht angegeben",
 			
 			// RepertoireView
+			"RepertoireView_construct.Song" => "Song",
 			"RepertoireView_construct.addEntityName" => "Stück hinzufügen",
 			"RepertoireView_startOptions.print" => "Drucken",
 			"RepertoireView_startOptions.massUpdate" => "Mehrere Songs ändern",
@@ -1779,6 +1780,8 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_view.genrename" => "Genre",
 			"RepertoireView_view.setting" => "Besetzung",
 			"RepertoireView_view.is_active" => "Aktuell",
+			"RepertoireView_view.is_active_yes" => "ja",
+			"RepertoireView_view.is_archived" => "archiviert",			
 			"RepertoireView_view.notes" => "Anmerkungen",
 			"RepertoireView_view.yes" => "ja",
 			"RepertoireView_view.no" => "nein",
@@ -1787,6 +1790,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_view.concerts_song" => "Stück in Auftritten",
 			"RepertoireView_view.solists" => "Solisten",
 			"RepertoireView_view.nosolists" => "Keine Solisten angegeben.",
+			"RepertoireView_songFiles.Files" => "Dateien",
 			"RepertoireView_songFiles.doctype_name" => "Verknüpfung löschen",
 			"RepertoireView_songFiles.addSongFile" => "Datei hinzufügen",
 			"RepertoireView_songFiles.repertoire_filesearch" => "Gebe mindestens 3 Zeichen eines Dateinamen aus 'Share' an, warte bis ein Vorschlag erscheint und füge dann die Datei hinzu.",

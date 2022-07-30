@@ -1749,6 +1749,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireController_xlsMap.col_composer" => "non spécifié",
 			
 			// RepertoireView
+			"RepertoireView_construct.Song" => "Partition",
 			"RepertoireView_construct.addEntityName" => "Ajouter une nouvelle Partition",	
 			"RepertoireView_startOptions.print" => "Imprimer",
 			"RepertoireView_startOptions.massUpdate" => "Mise à jour en masse",
@@ -1776,6 +1777,8 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_view.genrename" => "Genre",
 			"RepertoireView_view.setting" => "Occupation",
 			"RepertoireView_view.is_active" => "Actuel",
+			"RepertoireView_view.is_active_yes" => "oui",
+			"RepertoireView_view.is_archived" => "archivé",			
 			"RepertoireView_view.notes" => "Notes",
 			"RepertoireView_view.yes" => "Oui",
 			"RepertoireView_view.no" => "Non",
@@ -1784,6 +1787,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_view.concerts_song" => "Pièces du concert",
 			"RepertoireView_view.solists" => "Solistes",
 			"RepertoireView_view.nosolists" => "Aucun soliste n'est spécifié.",
+			"RepertoireView_songFiles.Files" => "Fichiers",
 			"RepertoireView_songFiles.doctype_name" => "Supprimer le lien",
 			"RepertoireView_songFiles.addSongFile" => "Ajouter un fichier",
 			"RepertoireView_songFiles.repertoire_filesearch" => "Spécifiez au moins 3 caractères d'un nom de fichier à partir de 'Partager' pour ajouter le fichier.",
