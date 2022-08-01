@@ -342,6 +342,9 @@ class Translation extends BNoteTranslation {
 			// Widget: Error *********************************************	
 			"BNoteError_construct.error" => "Erreurs",
 			
+			// Widget: Field *********************************************		
+			"Field.password_description" => "Le mot de passe doit comporter au moins 6 caractères, des majuscules, des minuscules et un chiffre.",
+				
 			// Widget: Filebrowser *********************************************	
 			"Filebrowser_write.error" => "Accès refusé.",
 			"Filebrowser_showOptions.addFolderForm" => "Ajouter un dossier",
@@ -381,7 +384,7 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_deleteFile.requestMessage" => "Voulez-vous vraiment supprimer %p?",
 			"Filebrowser_deleteFile.approveDelete" => "Supprimer",
 			"Filebrowser_deleteFile.abort" => "Annuler",
-			
+
 			// Widget: Filterbox *********************************************			
 			"Filterbox_write.showAllOption" => "Tout afficher",
 			"Filterbox_write.yes" => "Oui",

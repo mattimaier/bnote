@@ -342,6 +342,9 @@ class Translation extends BNoteTranslation {
 			// Widget: Error *********************************************	
 			"BNoteError_construct.error" => "Fehler",
 			
+			// Widget: Field *********************************************		
+			"Field.password_description" => "Das Passwort muss mindestens 6 Zeichen lang sein, Groß- und Kleinbuchstaben sowie eine Zahl beinhalten.",
+			
 			// Widget: Filebrowser *********************************************	
 			"Filebrowser_write.error" => "Zugriff verweigert.",
 			"Filebrowser_showOptions.addFolderForm" => "Ordner hinzufügen",
@@ -2710,8 +2713,7 @@ class Translation extends BNoteTranslation {
 			"reservations" => "Reservierungen",
 			"reservation_id" => "Reservierungsnr.",
 			"score" => "Wert",
-			"rank" => "Platz",
-			"Field.password_description" => "Das Passwort muss mindestens 6 Zeichen lang sein, Groß- und Kleinbuchstaben sowie eine Zahl beinhalten."
+			"rank" => "Platz"
 	);
 	
 	protected $regex = array(

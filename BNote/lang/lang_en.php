@@ -343,6 +343,9 @@ class Translation extends BNoteTranslation {
 			// Widget: Error *********************************************	
 			"BNoteError_construct.error" => "Error",
 			
+			// Widget: Field *********************************************		
+			"Field.password_description" => "The password must be at least 6 characters long, contain upper and lower case letters and a number.",
+			
 			// Widget: Filebrowser *********************************************	
 			"Filebrowser_write.error" => "Access denied.",
 			"Filebrowser_showOptions.addFolderForm" => "Add folder",
@@ -1761,7 +1764,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_startOptions.massUpdate" => "Change multiple songs",
 			"RepertoireView_startOptions.start" => "Manage Genres",
 			"RepertoireView_startOptions.xlsUpload" => "Excel Import",
-			"RepertoireView_startOptions.repertoire" => "CSV Export",,
+			"RepertoireView_startOptions.repertoire" => "CSV Export",
 			"RepertoireView_startOptions.wipe" => "Wipe repertoire",
 			"RepertoireView_start.title" => "Title",
 			"RepertoireView_start.genre" => "Genre",
