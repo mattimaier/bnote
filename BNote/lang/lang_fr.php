@@ -312,7 +312,7 @@ class Translation extends BNoteTranslation {
 			"navigation_ForgotPassword" => "Mot de passe oublié?",
 			"navigation_Registration" => "Inscription",
 			"navigation_WhyBNote" => "Pourquoi BNote ?",
-			"navigation_Terms" => "Avis d'utilisation",
+			"navigation_Terms" => "Conditions d'utilisation",
 			"navigation_Impressum" => "Mentions légales",
 			"navigation_Gdpr" => "Protection de la vie privée",
 			"navigation_ExtGdpr" => "Une Entente",
