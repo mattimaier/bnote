@@ -163,10 +163,22 @@ class TourView extends CrudView {
 		}
 		$table->renameHeader("surname", Lang::txt("TourView_tab_contacts.surname"));
 		$table->renameHeader("name", Lang::txt("TourView_tab_contacts.name"));
+		$table->renameHeader("Nickname", Lang::txt("TourView_tab_contacts.Nickname"));
 		$table->renameHeader("phone", Lang::txt("TourView_tab_contacts.phone"));
 		$table->renameHeader("mobile", Lang::txt("TourView_tab_contacts.mobile"));
 		$table->renameHeader("birthday", Lang::txt("TourView_tab_contacts.birthday"));
+		$table->renameHeader("Gdpr_ok", Lang::txt("TourView_tab_contacts.Gdpr_ok"));
+		$table->renameHeader("Gdpr_code", Lang::txt("TourView_tab_contacts.Gdpr_code"));
+		$table->renameHeader("Is_conductor", Lang::txt("TourView_tab_contacts.Is_conductor"));
+		$table->renameHeader("Company", Lang::txt("TourView_tab_contacts.Company"));
+		$table->renameHeader("Share_address", Lang::txt("TourView_tab_contacts.Share_address"));
+		$table->renameHeader("Share_phones", Lang::txt("TourView_tab_contacts.Share_phones"));
+		$table->renameHeader("Share_birthday", Lang::txt("TourView_tab_contacts.Share_birthday"));
+		$table->renameHeader("Share_email", Lang::txt("TourView_tab_contacts.Share_email"));
+		$table->renameHeader("State", Lang::txt("TourView_tab_contacts.State"));
+		$table->renameHeader("Country", Lang::txt("TourView_tab_contacts.Country"));
 		$table->renameHeader("instrumentname", Lang::txt("TourView_tab_contacts.instrumentname"));
+		$table->renameHeader("tour_contact_remove_ref", Lang::txt("TourView_tab_contacts.instrumentname"));
 		
 		$table->write();
 	}
