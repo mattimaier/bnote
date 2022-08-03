@@ -321,6 +321,8 @@ class Translation extends BNoteTranslation {
 			// General: Regex *********************************************	
 			
 			// Regex
+			"Regex_isMoney.error" => "Betrag nicht erkannt.",
+			"Regex_isMoney.fail" => "Betrag",
 			"Regex_fail.error" => "Ein oder mehrere Felder enthalten ungültige Werte. ",																     
 			
 			// General: Systemdata *********************************************	
@@ -656,6 +658,8 @@ class Translation extends BNoteTranslation {
 			"FinanceData_findBookingsMetrics.sum" => "Summe",
 			"FinanceData_findBookingsMetrics.income" => "Einnahmen",
 			"FinanceData_findBookingsMetrics.expenses" => "Ausgaben",
+			"FinanceData_cancelBooking.netto" => "STORNIERT: netto ",
+			"FinanceData_cancelBooking.steuer" => " steuer ",
 			"FinanceData_transfer_same_account" => "Die Konten müssen sich unterscheiden.",
 			"FinanceData_transfer_note" => "Übertrag %p an",
 			
@@ -681,6 +685,7 @@ class Translation extends BNoteTranslation {
 			"FinanceView_Table_booking.oid" => "Referenz",
 			"FinanceView_Table_booking.notes" => "Anmerkungen",
 			"FinanceView_Table_booking.header" => "Buchungen",
+			"FinanceView_Table_booking.cancel" => "stornieren",
 			"FinanceView_Table_metrics.header" => "Ergebnisse",
 			"FinanceView_Table_metrics.btype" => "Typ",
 			"FinanceView_Table_metrics.amount_net" => "Netto",

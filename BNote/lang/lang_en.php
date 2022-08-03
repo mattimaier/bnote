@@ -322,6 +322,8 @@ class Translation extends BNoteTranslation {
 			// General: Regex *********************************************	
 			
 			// Regex
+			"Regex_isMoney.error" => "Amount not detected.",
+			"Regex_isMoney.fail" => "Amount",
 			"Regex_fail.error" => "One or more fields contain invalid values. ",																     
 			
 			// General: Systemdata *********************************************	
@@ -657,6 +659,8 @@ class Translation extends BNoteTranslation {
 			"FinanceData_findBookingsMetrics.sum" => "Sum",
 			"FinanceData_findBookingsMetrics.income" => "Revenue",
 			"FinanceData_findBookingsMetrics.expenses" => "Expenses",
+			"FinanceData_cancelBooking.netto" => "CANCELLED: net ",
+			"FinanceData_cancelBooking.steuer" => " tax ",
 			"FinanceData_transfer_same_account" => "The accounts must be different.",
 			"FinanceData_transfer_note" => "Transfer %p to",
 			
@@ -682,6 +686,7 @@ class Translation extends BNoteTranslation {
 			"FinanceView_Table_booking.oid" => "Reference",
 			"FinanceView_Table_booking.notes" => "Notes",
 			"FinanceView_Table_booking.header" => "Bookings",
+			"FinanceView_Table_booking.cancel" => "cancel",
 			"FinanceView_Table_metrics.header" => "Results",
 			"FinanceView_Table_metrics.btype" => "Type",
 			"FinanceView_Table_metrics.amount_net" => "Net",

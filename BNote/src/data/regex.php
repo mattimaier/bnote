@@ -108,9 +108,9 @@ class Regex {
 		if ($match) {
 			return true;
 		} else if ($match == 0) {
-			new BNoteError ( "Betrag nicht erkannt." );
+			new BNoteError ( Lang::txt("Regex_isMoney.error") );
 		} else {
-			$this->fail($d, "Betrag", $k);
+			$this->fail($d, Lang::txt("Regex_isMoney.fail"), $k);
 		}
 		return false;
 	}
