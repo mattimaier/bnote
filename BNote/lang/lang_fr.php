@@ -477,11 +477,11 @@ class Translation extends BNoteTranslation {
 			"AbstimmungView_viewDetailTable.end" => "Fin du vote",
 			"AbstimmungView_viewDetailTable.fields_is_date" => "Vote par date",
 			"AbstimmungView_viewDetailTable.fields_is_multi" => "Choix multiple possibles",
-			"AbstimmungView_additionalViewButtons.voters" => "Personne habilitée à voter",
+			"AbstimmungView_additionalViewButtons.voters" => "Votants",
 			"AbstimmungView_additionalViewButtons.notification" => "Notification du vote",
 			"AbstimmungView_additionalViewButtons.result" => "Résultat",
 			"AbstimmungView_additionalViewButtons.edit_entity" => "%p éditer",
-			"AbstimmungView_group.voters" => "Personne habilitée à voter",
+			"AbstimmungView_group.voters" => "Votants",
 			"AbstimmungView_group.clickToRemoveUser" => "Cliquez sur un utilisateur pour le supprimer de la liste.",
 			"AbstimmungView_group.noVotersYet" => "Ce vote n'a pas encore de droit de vote.",
 			"AbstimmungView_group.addVoter" => "Ajouter une personne habilitée à voter",
@@ -489,7 +489,7 @@ class Translation extends BNoteTranslation {
 			"AbstimmungView_result.multipleAnswersPossible" => "Plusieurs réponses possibles.",
 			"AbstimmungView_result.singleOnlyPossible" => "Chaque personne habilitée à voter ne pouvait exprimer qu'une seule voix.",
 			"AbstimmungView_result.votes" => "Voix",
-			"AbstimmungView_result.voters" => "Personne habilitée à voter",
+			"AbstimmungView_result.voters" => "Votants",
 			"AbstimmungView_archive.archive" => "Archives des votes",
 						
 			// module: Appointment *********************************************
