@@ -522,7 +522,6 @@ class Translation extends BNoteTranslation {
 			"AufgabenData_construct.assigned_to" => "Responsible",
 			"AufgabenData_construct.is_complete" => "Completed",
 			"AufgabenData_construct.completed_at" => "Completed on",
-			AufgabenData_construct
 			
 			// AufgabenController
 			"AufgabenController_informUser.title_1" => "New task: ",
