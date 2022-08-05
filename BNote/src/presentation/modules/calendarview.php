@@ -125,10 +125,10 @@ class CalendarView extends CrudRefLocationView {
 		$dv = new Dataview();
 		$dv->autoAddElements($reservation);
 		$dv->autoRename($this->getData()->getFields());
-		$dv->renameElement("id", Lang::txt("CalendarView_viewDetailTable.id"));
+		$dv->renameElement("ID", Lang::txt("CalendarView_viewDetailTable.id"));
 		$dv->removeElement("contactname");
 		$dv->removeElement("contactsurname");
-		$dv->renameElement("locationname", Lang::txt("CalendarView_viewDetailTable.id"));
+		$dv->renameElement("locationname", Lang::txt("CalendarView_viewDetailTable.locationname"));
 		$dv->addElement(Lang::txt("CalendarView_viewDetailTable.contact"), $reservation["contactname"] . " " . $reservation["contactsurname"]);
 		
 		// custom data

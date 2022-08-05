@@ -620,6 +620,7 @@ class Translation extends BNoteTranslation {
 			// CalendarView
 			"CalendarView_construct.EntityName" => "Reservierung",
 			"CalendarView_viewDetailTable.id" => "Reservierungsnr.",
+			"CalendarView_viewDetailTable.locationname" => "Ort",
 			"CalendarView_viewDetailTable.contact" => "Kontakt",
 			"CalendarView_startOptions.addEntity" => "Reservierung hinzufügen",
 			"CalendarView_startOptions.appointments" => "Termin hinzufügen",
