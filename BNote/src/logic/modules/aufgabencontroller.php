@@ -18,14 +18,14 @@ class AufgabenController extends DefaultController {
 	
 	private function informUser($mode) {
 		if($mode == "add") {
-			$to = $this->getData()->getContactmail($_POST["Verantwortlicher"]);
+			$to = $this->getData()->getContactmail($_POST[Lang::txt("AufgabenView_add_editEntityForm.assigned_to")]);
 			$subject = Lang::txt("AufgabenController_informUser.title_1") . $_POST["title"];
 			$body = Lang::txt("AufgabenController_informUser.body_1");
 			$body .= Lang::txt("AufgabenController_informUser.body_2");
 			$body .= $_POST["description"];
 		}
 		else {
-			$to = $this->getData()->getContactmail($_POST["Verantwortlicher"]);
+			$to = $this->getData()->getContactmail($_POST[Lang::txt("AufgabenView_add_editEntityForm.assigned_to")]);
 			$subject = Lang::txt("AufgabenController_informUser.title_2") . $_POST["title"];
 			$body = Lang::txt("AufgabenController_informUser.body_3");
 			$body .= Lang::txt("AufgabenController_informUser.body_4");

@@ -207,7 +207,17 @@ class Translation extends BNoteTranslation {
 			"ProgramPDF_writeTable.notes" => "Notes",
 			"ProgramPDF_writeTable.length" => "length",
 			"ProgramPDF_writeTable.total_length" => "total length",
-						
+
+			// Logic *************************************************************************************************************************************************
+			
+			// ProgramPDF	
+			"Mailing_sendMail.BNoteError_1" => "Das System ist im demonstrationsmodus und versendet daher keine E-Mails.",
+			"Mailing_sendMail.BNoteError_2" => "Bitte geben Sie BCC or AN or beide Felder an.",
+			"Mailing_sendMail.BNoteError_3" => "Es ist keine Nachricht angegeben.",
+			"Mailing_sendMail.BNoteError_4" => "Es ist kein Betreff angegeben.",
+			"Mailing_sendMail.BNoteError_5" => "Message could not be sent. Mailer Error:",
+			"Mailing_sendMail.BNoteError_6" => "Die E-Mail konnte nicht gesendet werden.",
+			
 			// General *************************************************************************************************************************************************
 
 			// General: AbstractData *********************************************	   
@@ -512,6 +522,7 @@ class Translation extends BNoteTranslation {
 			"AufgabenData_construct.assigned_to" => "Responsible",
 			"AufgabenData_construct.is_complete" => "Completed",
 			"AufgabenData_construct.completed_at" => "Completed on",
+			AufgabenData_construct
 			
 			// AufgabenController
 			"AufgabenController_informUser.title_1" => "New task: ",
@@ -529,10 +540,21 @@ class Translation extends BNoteTranslation {
 			"AufgabenView_startOptions.completed" => "Show completed tasks",
 			"AufgabenView_showAllTable.creator" => "Created by",
 			"AufgabenView_showAllTable.assignee" => "Responsible",
+			"AufgabenView_getAddForm.title" => "Title",
+			"AufgabenView_getAddForm.description" => "Description",
+			"AufgabenView_getAddForm.due_at" => "Due at",
+			"AufgabenView_add_editEntityForm.assigned_to" => "Person in charge",
+			"AufgabenView_addGroupTask.assigned_to" => "Responsible group(s)",
 			"AufgabenView_process_addGroupTask.Message1" => "Task added", 
-			"AufgabenView_process_addGroupTask.Message2" => "The task was added to all members of the selected groups.",			
+			"AufgabenView_process_addGroupTask.Message2" => "The task was added to all members of the selected groups.",	
+			"AufgabenView_viewDetailTable.created_by" => "Created by",			
+			"AufgabenView_viewDetailTable.assigned_to" => "Responsible",
 			"AufgabenView_additionalViewButtons.open" => "Mark as open",
 			"AufgabenView_additionalViewButtons.complete" => "Mark as completed",
+			"AufgabenView_editEntityForm.edit" => " edit",
+			"AufgabenView_editEntityForm.title" => "Title",
+			"AufgabenView_editEntityForm.description" => "Description",
+			"AufgabenView_editEntityForm.due_at" => "Due at",
 			
 			// module: Accommodation *********************************************
 			

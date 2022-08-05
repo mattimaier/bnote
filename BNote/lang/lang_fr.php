@@ -206,6 +206,16 @@ class Translation extends BNoteTranslation {
 			"ProgramPDF_writeTable.notes" => "Notes",
 			"ProgramPDF_writeTable.length" => "Durée",
 			"ProgramPDF_writeTable.total_length" => "Durée totale",
+
+			// Logic *************************************************************************************************************************************************
+			
+			// ProgramPDF	
+			"Mailing_sendMail.BNoteError_1" => "Le système est en mode de démonstration et n'envoie donc pas d'e-mails.",
+			"Mailing_sendMail.BNoteError_2" => "Veuillez renseigner BCC ou A ou les deux champs.",
+			"Mailing_sendMail.BNoteError_3" => "Aucun message n'est spécifié.",
+			"Mailing_sendMail.BNoteError_4" => "Il n'y a pas d'objet.",
+			"Mailing_sendMail.BNoteError_5" => "Le message n'a pas pu être envoyé. Erreur d'expéditeur:",
+			"Mailing_sendMail.BNoteError_6" => "L'e-mail n'a pas pu être envoyé.",
 						
 			// General *************************************************************************************************************************************************
 
@@ -528,10 +538,21 @@ class Translation extends BNoteTranslation {
 			"AufgabenView_startOptions.completed" => "Afficher les tâches terminées",
 			"AufgabenView_showAllTable.creator" => "Créé par",
 			"AufgabenView_showAllTable.assignee" => "Personne en charge",
+			"AufgabenView_getAddForm.title" => "Titre",
+			"AufgabenView_getAddForm.description" => "Description",
+			"AufgabenView_getAddForm.due_at" => "Échu le",
+			"AufgabenView_add_editEntityForm.assigned_to" => "Responsable",
+			"AufgabenView_addGroupTask.assigned_to" => "Groupe(s) responsable(s)",
 			"AufgabenView_process_addGroupTask.Message1" => "Tâche ajoutée", 
-			"AufgabenView_process_addGroupTask.Message2" => "La tâche a été ajoutée à tous les membres des groupes sélectionnés.",	
+			"AufgabenView_process_addGroupTask.Message2" => "La tâche a été ajoutée à tous les membres des groupes sélectionnés.",
+			"AufgabenView_viewDetailTable.created_by" => "Créé par",			
+			"AufgabenView_viewDetailTable.assigned_to" => "Responsable",
 			"AufgabenView_additionalViewButtons.open" => "Marquer comme ouvert",
 			"AufgabenView_additionalViewButtons.complete" => "Marquer comme terminé",
+			"AufgabenView_editEntityForm.edit" => " édition",
+			"AufgabenView_editEntityForm.title" => "Titre",
+			"AufgabenView_editEntityForm.description" => "Description",
+			"AufgabenView_editEntityForm.due_at" => "Échu le",
 			
 			// module: Accommodation *********************************************
 			

@@ -45,7 +45,7 @@ class AufgabenData extends AbstractData {
 		// prepare data
 		$values["created_at"] = date("Y-m-d H:i:s");
 		$values["created_by"] = $this->getSysdata()->getContactFromUser();
-		$values["assigned_to"] = $values["Verantwortlicher"];
+		$values["assigned_to"] = $values[Lang::txt("AufgabenView_add_editEntityForm.assigned_to")];
 		$values["is_complete"] = "0";
 		return parent::create($values);	
 	}
@@ -66,7 +66,7 @@ class AufgabenData extends AbstractData {
 	}
 	
 	function update($id, $values) {
-		$values["assigned_to"] = $values["Verantwortlicher"];
+		$values["assigned_to"] = $values[Lang::txt("AufgabenView_add_editEntityForm.assigned_to")];
 		parent::update($id, $values);
 	}
 	
