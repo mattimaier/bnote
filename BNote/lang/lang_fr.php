@@ -287,7 +287,7 @@ class Translation extends BNoteTranslation {
 					
 			// navigation
 			"navigation_Login" => "Connexion et inscription",
-			"navigation_Start" => "Démarrage",
+			"navigation_Start" => "Accueil",
 			"navigation_User" => "Utilisateur",
 			"navigation_Kontakte" => "Contacts",
 			"navigation_Konzerte" => "Concerts",
@@ -298,7 +298,7 @@ class Translation extends BNoteTranslation {
 			"navigation_Kontaktdaten" => "Coordonnées de contact",
 			"navigation_Hilfe" => "Aide",
 			"navigation_Website" => "Website",
-			"navigation_Share" => "partage",
+			"navigation_Share" => "Partage",
 			"navigation_Mitspieler" => "Membres",
 			"navigation_Abstimmung" => "Votes",
 			"navigation_Konfiguration" => "Paramétrage",
