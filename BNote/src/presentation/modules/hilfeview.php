@@ -11,21 +11,21 @@ class HilfeView extends AbstractView {
 	
 	// alphabetically, format: name of the html-file => title
 	private $helpPages = array(
-			"abstimmung" => "HilfeView_helpPages.abstimmung",
-			"aufgaben" => "HilfeView_helpPages.aufgaben",
-			"equipment" => "HilfeView_helpPages.equipment",
-			"finance" => "HilfeView_helpPages.finance",
-			"konfiguration" => "HilfeView_helpPages.konfiguration",
-			"calendar" => "HilfeView_helpPages.calendar",
-			"kontakte" => "HilfeView_helpPages.kontakte",
-			"mitspieler" => "HilfeView_helpPages.mitspieler",
-			"nachrichten" => "HilfeView_helpPages.nachrichten",
-			"proben" => "HilfeView_helpPages.proben",
-			"probenphase" => "HilfeView_helpPages.probenphase",
-			"repertoire" => "HilfeView_helpPages.repertoire",
-			"share" => "HilfeView_helpPages.share",
-			"tour" => "HilfeView_helpPages.tour",
-			"sicherheit" => "HilfeView_introPages.sicherheit"
+			"abstimmung_" => "HilfeView_helpPages.abstimmung",
+			"aufgaben_" => "HilfeView_helpPages.aufgaben",
+			"equipment_" => "HilfeView_helpPages.equipment",
+			"finance_" => "HilfeView_helpPages.finance",
+			"konfiguration_" => "HilfeView_helpPages.konfiguration",
+			"calendar_" => "HilfeView_helpPages.calendar",
+			"kontakte_" => "HilfeView_helpPages.kontakte",
+			"mitspieler_" => "HilfeView_helpPages.mitspieler",
+			"nachrichten_" => "HilfeView_helpPages.nachrichten",
+			"proben_" => "HilfeView_helpPages.proben",
+			"probenphase_" => "HilfeView_helpPages.probenphase",
+			"repertoire_" => "HilfeView_helpPages.repertoire",
+			"share_" => "HilfeView_helpPages.share",
+			"tour_" => "HilfeView_helpPages.tour",
+			"sicherheit_" => "HilfeView_introPages.sicherheit"
 	);
 	
 	// format: code => description
@@ -96,13 +96,19 @@ class HilfeView extends AbstractView {
 	}
 	
 	function help() {
-		
+		$lang = $this->getData()->getSysdata()->getLang();
 		if(isset($this->helpPages[$_GET["page"]])) $title = $this->helpPages[$_GET["page"]];
 		else if(isset($this->introPages[$_GET["page"]])) $title = $this->introPages[$_GET["page"]];
 		else $title = $_GET["page"];
 		
 		echo '<span class="help_page_title">' . Lang::txt($title) . '</span>';
-		include $this->helpPagesDir . $_GET["page"] . ".html";
+		
+		if (file_exists($this->helpPagesDir . $_GET["page"] . $lang . ".html")) {
+		} else {
+		$lang = "de";
+		}
+		
+		include $this->helpPagesDir . $_GET["page"] . $lang . ".html";
 	}
 	
 }

@@ -923,7 +923,7 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.user_registration" => "Inscription de l'utilisateur",
 			"KonfigurationData_construct.share_nonadmin_viewmode" => "Mode de lecture partagée pour les non-administrateurs",
 			"KonfigurationData_construct.rehearsal_show_length" => "Affichage de la durée de la répétition",
-			"KonfigurationData_construct.allow_participation_maybe" => "Peut-être que le nom de la partie est autorisé",
+			"KonfigurationData_construct.allow_participation_maybe" => "Participation: valeur 'peut-être' autorisée",
 			"KonfigurationData_construct.allow_zip_download" => "Autoriser le téléchargement zip pour les dossiers",
 			"KonfigurationData_construct.appointments_show_max" => "Nombre de rendez-vous sur la page d'accueil",
 			"KonfigurationData_construct.rehearsal_show_max" => "Nombre de répétition sur la page d'accueil",
