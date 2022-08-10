@@ -1059,6 +1059,10 @@ class Installation {
 				array("i", 1), 
 				array("i", 1)));
 		
+		// add the contact to the admin group (gid=1)
+		$query = "INSERT INTO contact_group (contact, `group`) VALUES (?, ?)"; 
+		$ugroup = $db->execute($query, array(array("i", $cid), array("i", 1)));
+				
 		// create user
 		$password = crypt($_POST["password"], 'BNot3pW3ncryp71oN');
 		$query = "INSERT INTO user (login, password, contact, isActive) VALUES (?, ?, ?, 1)";
