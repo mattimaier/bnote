@@ -78,6 +78,8 @@ class Translation extends BNoteTranslation {
 			"Installation_finalize.message_4" => "Go to the Contact Details module and complete your contact details.",
 			"Installation_finalize.message_5" => "Delete the install.php script from the BNote folder
 				to prevent any unauthorized access.",
+			"Installation_finalize.login" => "To the sign in",
+			"Installation_next.next" => "Next",
 																				   
 			// Export *************************************************************************************************************************************************
 

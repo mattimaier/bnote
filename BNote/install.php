@@ -1110,7 +1110,7 @@ class Installation {
 		</ul>
 		<br/><br/>
 		<?php
-		$login = new Link("main.php?mod=login", "Zur Anmeldung");
+		$login = new Link("main.php?mod=login", Lang::txt("Installation_finalize.login"));
 		$login->addIcon("arrow_right");
 		$login->write();
 	}
@@ -1175,7 +1175,7 @@ class Installation {
 	}
 	
 	private function next($step) {
-		$lnk = new Link("?step=$step", "Weiter");
+		$lnk = new Link("?step=$step", Lang::txt("Installation_next.next"));
 		$lnk->addIcon("arrow-right");
 		$lnk->write();
 	}

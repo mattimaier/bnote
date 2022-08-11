@@ -69,14 +69,16 @@ class Translation extends BNoteTranslation {
 			"Installation_adminUser.country" => "Pays",
 			"Installation_process_adminUser.error" => "Mot de passe invalide. Veuillez vous assurer que le mot de passe comporte au moins 6 caractères et qu'il n'est pas vide.",
 			"Installation_finalize.title" => "Ce qu'il reste à faire.....",
-			"Installation_finalize.message" => "Vous l'avez fait : L'installation est maintenant terminée !
-					Vous commencez donc correctement avec BNote :",
-			"Installation_finalize.message_1" => "Rapport à l'intention du ",
-			"Installation_finalize.message_2" => " pour.",
-			"Installation_finalize.message_3" => "Vous êtes maintenant administrateur et avez accès à l'ensemble du système. Fais attention avec ça !",
+			"Installation_finalize.message" => "Vous avez finis : L'installation est maintenant terminée !
+					Comment bien débuter avec BNote :",
+			"Installation_finalize.message_1" => "Connectez-vous à ",
+			"Installation_finalize.message_2" => " pour lancer Bnote.",
+			"Installation_finalize.message_3" => "Vous êtes maintenant administrateur et avez accès à l'ensemble du système. À utiliser avec précaution !",
 			"Installation_finalize.message_4" => "Allez dans le module des coordonnées et complétez vos coordonnées.",
 			"Installation_finalize.message_5" => "Supprimer le script install.php du dossier BNote
 				pour empêcher tout accès non autorisé !",
+			"Installation_finalize.login" => "Aller vers la connexion",
+			"Installation_next.next" => "Continuer",
 
 			// Export *************************************************************************************************************************************************
 
