@@ -79,7 +79,7 @@ class Translation extends BNoteTranslation {
 				um niemandem unbefugten Zutritt zu verschaffen!",
 			"Installation_finalize.login" => "Zur Anmeldung",
 			"Installation_next.next" => "Weiter",
-																				   
+			
 			// Export *************************************************************************************************************************************************
 
 			// AbstractBNA
@@ -372,6 +372,9 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_writeFolderContent.message" => "Bitte wähle einen Ordner.",
 			"Filebrowser_addFolderForm.addFolder" => "Ordner erstellen",
 			"Filebrowser_addFolderForm.foldername" => "Ordnername",
+			"Filebrowser_addFileForm.createFile" => "Datei hinzufügen",
+			"Filebrowser_addFileForm.File" => "Datei",
+			"Filebrowser_addFileForm.uploadFile" => "Datei hochladen",
 			"Filebrowser_addFile.error_1" => "Du hast keine Berechtigung eine Datei hinzuzufügen.",
 			"Filebrowser_addFile.errorFileMaxSize" => "Die maximale Dateigröße wurde überschritten.",
 			"Filebrowser_addFile.errorFileAbort" => "Die Datei wurde nur teilweise hochgeladen. Bitte überprüfe deine Internetverbindung.",

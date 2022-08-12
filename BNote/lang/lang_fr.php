@@ -79,7 +79,7 @@ class Translation extends BNoteTranslation {
 				pour empêcher tout accès non autorisé !",
 			"Installation_finalize.login" => "Aller vers la connexion",
 			"Installation_next.next" => "Continuer",
-
+			
 			// Export *************************************************************************************************************************************************
 
 			// AbstractBNA
@@ -372,6 +372,9 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_writeFolderContent.message" => "Veuillez choisir un dossier.",
 			"Filebrowser_addFolderForm.addFolder" => "Créer un dossier",
 			"Filebrowser_addFolderForm.foldername" => "Nom du dossier",
+			"Filebrowser_addFileForm.createFile" => "Ajouter un fichier",
+			"Filebrowser_addFileForm.File" => "Fichier",
+			"Filebrowser_addFileForm.uploadFile" => "Télécharger le fichier",
 			"Filebrowser_addFile.error_1" => "Vous n'avez pas la permission d'ajouter un fichier.",
 			"Filebrowser_addFile.errorFileMaxSize" => "La taille maximale du fichier a été dépassée.",
 			"Filebrowser_addFile.errorFileAbort" => "Le fichier n'a été que partiellement téléchargé. Veuillez vérifier votre connexion Internet.",

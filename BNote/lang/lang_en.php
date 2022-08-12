@@ -13,7 +13,6 @@ class Translation extends BNoteTranslation {
 			// Installation *************************************************************************************************************************************************
 			
 			// Installation
-			// Installation
 			"Installation_welcome.title" => "Welcome",
 			"Installation_welcome.message_1" => "Thank you for choosing BNote. You are doing yourself and your band a big favor.
 					Now all you have to do is finish the installation and you're ready to go",
@@ -80,7 +79,7 @@ class Translation extends BNoteTranslation {
 				to prevent any unauthorized access.",
 			"Installation_finalize.login" => "To the sign in",
 			"Installation_next.next" => "Next",
-																				   
+			
 			// Export *************************************************************************************************************************************************
 
 			// AbstractBNA
@@ -373,6 +372,9 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_writeFolderContent.message" => "Please choose a folder.",
 			"Filebrowser_addFolderForm.addFolder" => "Create folder",
 			"Filebrowser_addFolderForm.foldername" => "Folder name",
+			"Filebrowser_addFileForm.createFile" => "Create File",
+			"Filebrowser_addFileForm.File" => "File",
+			"Filebrowser_addFileForm.uploadFile" => "Upload file",
 			"Filebrowser_addFile.error_1" => "You don't have permission to add a file.",
 			"Filebrowser_addFile.errorFileMaxSize" => "The maximum file size was exceeded.",
 			"Filebrowser_addFile.errorFileAbort" => "The file was only partially uploaded. Please check your internet connection",
