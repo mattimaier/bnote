@@ -81,7 +81,9 @@ else if(isset($_SESSION["user"])) {
 	$userid = $_SESSION["user"];
 }
 else {
-	$userid = null;
+	http_response_code(400);
+	echo "Bad Request";
+	exit(1);
 }
 
 // set content format

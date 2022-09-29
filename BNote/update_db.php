@@ -276,91 +276,14 @@ $update = new UpdateDb();
 <h3>Log</h3>
 
 <?php 
-/*
- * Add 3.4.x updates to allow update from any 3.4 version
- */
-// --- 3.4.2 UPDATES ---
-// Task 1: Configuration for user registration
-$update->addDynConfigParam("user_registration", 1);
-// Task 2: Configuration for currency
-$update->addDynConfigParam("currency", "EUR");
-
-// --- 3.4.4 UPDATES ---
-// Task 1: Config for number of gigs on start page
-$update->addDynConfigParam("concert_show_max", 5);  # already deprecated, but required not to break the system
-
-/*
- * 4.0.0 UPDATES
- * -------------
- */
-// Task: Adapt modules as part of a new navigation structure in BNote 4
-$update->addColumnToTable("module", "icon", "varchar(50)");
-$update->addColumnToTable("module", "category", "varchar(50)");
-
-$executeModuleUpdate = FALSE;
-if($executeModuleUpdate) {
-	$update->updateModule(1, "Start", "play-circle", "main");
-	$update->updateModule(2, "User", "people", "admin");
-	$update->updateModule(3, "Kontakte", "person-video2", "main");
-	$update->updateModule(4, "Konzerte", "mic", "main");
-	$update->updateModule(5, "Proben", "collection-play", "main");
-	$update->updateModule(6, "Repertoire", "music-note-list", "main");
-	$update->updateModule(7, "Kommunikation", "envelope", "main");
-	$update->updateModule(8, "Locations", "geo-alt", "main");
-	$update->updateModule(9, "Kontaktdaten", "person-bounding-box", "user");
-	$update->updateModule(10, "Hilfe", "info-circle-fill", "help");
-	$update->removeModule(11);
-	$update->updateModule(12, "Share", "folder2-open", "main");
-	$update->updateModule(13, "Mitspieler", "person-badge", "main");
-	$update->updateModule(14, "Abstimmung", "check2-square", "main");
-	$update->updateModule(15, "Nachrichten", "newspaper", "admin");
-	$update->updateModule(16, "Aufgaben", "list-task", "main");
-	$update->updateModule(17, "Konfiguration", "sliders", "admin");
-	$update->updateModule(18, "Probenphasen", "calendar-range", "main");
-	$update->updateModule(19, "Finance", "piggy-bank", "main");
-	$update->updateModule(20, "Calendar", "calendar2-week", "main");
-	$update->updateModule(21, "Equipment", "boombox", "main");
-	$update->updateModule(22, "Tour", "truck", "main");
-	$update->updateModule(23, "Outfits", "handbag", "main");
-	$update->updateModule(24, "Stats", "bar-chart", "admin");
-	$update->addModule("Home", "house", "public");
-	$update->addModule("Login", "door-open", "public");
-	$update->addModule("Logout", "box-arrow-right", "public");
-	$update->addModule("ForgotPassword", "asterisk", "public");
-	$update->addModule("Registration", "journal-plus", "public");
-	$update->addModule("WhyBNote", "question-circle", "public");
-	$update->addModule("Terms", "file-text", "public");
-	$update->addModule("Impressum", "building", "public");
-	$update->addModule("Gdpr", "bookmark-check", "public");
-	$update->addModule("ExtGdpr", "bookmark-check", "public");
-	$update->addModule("Admin", "gear-fill", "admin");
-}
-// Task: Adapt contact not to share all details
-$update->addColumnToTable("contact", "share_address", "int(1) default 1");
-$update->addColumnToTable("contact", "share_phones", "int(1) default 1");
-$update->addColumnToTable("contact", "share_birthday", "int(1) default 1");
-$update->addColumnToTable("contact", "share_email", "int(1) default 1");
-
-// Task: Add configuration
-$update->addDynConfigParam("export_rehearsal_notes", 0);
-$update->addDynConfigParam("export_rehearsalsong_notes", 0);
-
-// Task: Extend rehearsal and concert with status
-$update->addColumnToTable("rehearsal", "status", "varchar(20) default 'planned'");
-$update->addColumnToTable("concert", "status", "varchar(20) default 'planned'");
-
-// Task: Enable sorting of instruments
-$update->addColumnToTable("instrument", "rank", "int(4)");
-
-// Task: Extend participation registration by datetime
-$update->addColumnToTable("rehearsal_user", "replyon", "datetime");
-$update->addColumnToTable("concert_user", "replyon", "datetime");
-
 
 // --- 4.0.1 UPDATES ---
 // Task: Add admin privileges for admin users
 $modinfo = $update->getModuleIds(array("Admin"));
 $update->addPrivilegeForAdmins($modinfo["Admin"]);
+
+// --- 4.0.2 UPDATES ---
+
 
 ?>
 
