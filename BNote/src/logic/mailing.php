@@ -122,7 +122,7 @@ class Mailing {
 	public function sendMail() {
 		// abort if in demo mode
 		if($this->sysdata->inDemoMode()) {
-			new BNoteError("Das System ist im demonstrationsmodus und versendet daher keine E-Mails.");
+			new BNoteError(Lang::txt("Mailing_sendMail.BNoteError_1"));
 			return false;
 		}
 		
@@ -136,13 +136,13 @@ class Mailing {
 		
 		// validation
 		if($this->bcc == null && $this->to == null) {
-			new BNoteError("Bitte geben Sie BCC or AN or beide Felder an.");
+			new BNoteError(Lang::txt("Mailing_sendMail.BNoteError_2"));
 		}
 		if($this->body == null) {
-			new BNoteError("Es ist keine Nachricht angegeben.");
+			new BNoteError(Lang::txt("Mailing_sendMail.BNoteError_3"));
 		}
 		if($this->subject == null) {
-			new BNoteError("Es ist kein Betreff angegeben.");
+			new BNoteError(Lang::txt("Mailing_sendMail.BNoteError_4"));
 		}
 		
 		// handle charset
@@ -206,7 +206,7 @@ class Mailing {
 			
 			return $mail->send();
 		} catch (Exception $e) {
-			new BNoteError("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+			new BNoteError(Lang::txt("Mailing_sendMail.BNoteError_5") . " {$mail->ErrorInfo}");
 		}
 		return False;
 	}
@@ -216,7 +216,7 @@ class Mailing {
 	 */
 	public function sendMailWithFailError() {
 		if($this->sendMail() === false) {
-			new BNoteError("Die E-Mail konnte nicht gesendet werden.");
+			new BNoteError(Lang::txt("Mailing_sendMail.BNoteError_6"));
 		}
 	}
 }

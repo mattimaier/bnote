@@ -77,7 +77,9 @@ class Translation extends BNoteTranslation {
 			"Installation_finalize.message_4" => "Gehe ins Kontaktdaten-Modul und vervollständige deine Kontaktdaten.",
 			"Installation_finalize.message_5" => "Lösche das install.php Script aus dem BNote-Ordner
 				um niemandem unbefugten Zutritt zu verschaffen!",
-																				   
+			"Installation_finalize.login" => "Zur Anmeldung",
+			"Installation_next.next" => "Weiter",
+			
 			// Export *************************************************************************************************************************************************
 
 			// AbstractBNA
@@ -206,6 +208,16 @@ class Translation extends BNoteTranslation {
 			"ProgramPDF_writeTable.notes" => "Anmerkungen",
 			"ProgramPDF_writeTable.length" => "Länge",
 			"ProgramPDF_writeTable.total_length" => "Gesamtlänge",
+
+			// Logic *************************************************************************************************************************************************
+			
+			// ProgramPDF	
+			"Mailing_sendMail.BNoteError_1" => "Das System ist im demonstrationsmodus und versendet daher keine E-Mails.",
+			"Mailing_sendMail.BNoteError_2" => "Bitte geben Sie BCC or AN or beide Felder an.",
+			"Mailing_sendMail.BNoteError_3" => "Es ist keine Nachricht angegeben.",
+			"Mailing_sendMail.BNoteError_4" => "Es ist kein Betreff angegeben.",
+			"Mailing_sendMail.BNoteError_5" => "Message could not be sent. Mailer Error:",
+			"Mailing_sendMail.BNoteError_6" => "Die E-Mail konnte nicht gesendet werden.",
 			
 			// General *************************************************************************************************************************************************
 
@@ -321,6 +333,8 @@ class Translation extends BNoteTranslation {
 			// General: Regex *********************************************	
 			
 			// Regex
+			"Regex_isMoney.error" => "Betrag nicht erkannt.",
+			"Regex_isMoney.fail" => "Betrag",
 			"Regex_fail.error" => "Ein oder mehrere Felder enthalten ungültige Werte. ",																     
 			
 			// General: Systemdata *********************************************	
@@ -342,6 +356,9 @@ class Translation extends BNoteTranslation {
 			// Widget: Error *********************************************	
 			"BNoteError_construct.error" => "Fehler",
 			
+			// Widget: Field *********************************************		
+			"Field.password_description" => "Das Passwort muss mindestens 6 Zeichen lang sein, Groß- und Kleinbuchstaben sowie eine Zahl beinhalten.",
+			
 			// Widget: Filebrowser *********************************************	
 			"Filebrowser_write.error" => "Zugriff verweigert.",
 			"Filebrowser_showOptions.addFolderForm" => "Ordner hinzufügen",
@@ -355,6 +372,9 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_writeFolderContent.message" => "Bitte wähle einen Ordner.",
 			"Filebrowser_addFolderForm.addFolder" => "Ordner erstellen",
 			"Filebrowser_addFolderForm.foldername" => "Ordnername",
+			"Filebrowser_addFileForm.createFile" => "Datei hinzufügen",
+			"Filebrowser_addFileForm.File" => "Datei",
+			"Filebrowser_addFileForm.uploadFile" => "Datei hochladen",
 			"Filebrowser_addFile.error_1" => "Du hast keine Berechtigung eine Datei hinzuzufügen.",
 			"Filebrowser_addFile.errorFileMaxSize" => "Die maximale Dateigröße wurde überschritten.",
 			"Filebrowser_addFile.errorFileAbort" => "Die Datei wurde nur teilweise hochgeladen. Bitte überprüfe deine Internetverbindung.",
@@ -523,10 +543,21 @@ class Translation extends BNoteTranslation {
 			"AufgabenView_startOptions.completed" => "Abgeschlossene Aufgaben anzeigen",
 			"AufgabenView_showAllTable.creator" => "Erstellt von",
 			"AufgabenView_showAllTable.assignee" => "Verantwortlicher",
+			"AufgabenView_getAddForm.title" => "Titel",
+			"AufgabenView_getAddForm.description" => "Beschreibung",
+			"AufgabenView_getAddForm.due_at" => "Fällig am",
+			"AufgabenView_add_editEntityForm.assigned_to" => "Verantwortlicher",
+			"AufgabenView_addGroupTask.assigned_to" => "Verantwortliche Gruppe(n)",
 			"AufgabenView_process_addGroupTask.Message1" => "Aufgabe hinzugefügt", 
-			"AufgabenView_process_addGroupTask.Message2" => "Die Aufgabe wurde allen Mitgliedern der ausgewählten Gruppen hinzugefügt.",			
+			"AufgabenView_process_addGroupTask.Message2" => "Die Aufgabe wurde allen Mitgliedern der ausgewählten Gruppen hinzugefügt.",
+			"AufgabenView_viewDetailTable.created_by" => "Erstellt von",			
+			"AufgabenView_viewDetailTable.assigned_to" => "Verantwortlicher",
 			"AufgabenView_additionalViewButtons.open" => "Als offen markieren",
 			"AufgabenView_additionalViewButtons.complete" => "Als abgeschlossen markieren",
+			"AufgabenView_editEntityForm.edit" => " bearbeiten",
+			"AufgabenView_editEntityForm.title" => "Titel",
+			"AufgabenView_editEntityForm.description" => "Beschreibung",
+			"AufgabenView_editEntityForm.due_at" => "Fällig am",
 			
 			// module: Accommodation *********************************************
 			
@@ -594,6 +625,7 @@ class Translation extends BNoteTranslation {
 			// CalendarView
 			"CalendarView_construct.EntityName" => "Reservierung",
 			"CalendarView_viewDetailTable.id" => "Reservierungsnr.",
+			"CalendarView_viewDetailTable.locationname" => "Ort",
 			"CalendarView_viewDetailTable.contact" => "Kontakt",
 			"CalendarView_startOptions.addEntity" => "Reservierung hinzufügen",
 			"CalendarView_startOptions.appointments" => "Termin hinzufügen",
@@ -653,6 +685,8 @@ class Translation extends BNoteTranslation {
 			"FinanceData_findBookingsMetrics.sum" => "Summe",
 			"FinanceData_findBookingsMetrics.income" => "Einnahmen",
 			"FinanceData_findBookingsMetrics.expenses" => "Ausgaben",
+			"FinanceData_cancelBooking.netto" => "STORNIERT: netto ",
+			"FinanceData_cancelBooking.steuer" => " steuer ",
 			"FinanceData_transfer_same_account" => "Die Konten müssen sich unterscheiden.",
 			"FinanceData_transfer_note" => "Übertrag %p an",
 			
@@ -678,6 +712,7 @@ class Translation extends BNoteTranslation {
 			"FinanceView_Table_booking.oid" => "Referenz",
 			"FinanceView_Table_booking.notes" => "Anmerkungen",
 			"FinanceView_Table_booking.header" => "Buchungen",
+			"FinanceView_Table_booking.cancel" => "stornieren",
 			"FinanceView_Table_metrics.header" => "Ergebnisse",
 			"FinanceView_Table_metrics.btype" => "Typ",
 			"FinanceView_Table_metrics.amount_net" => "Netto",
@@ -890,10 +925,12 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.rehearsal_duration" => "Probendauer in min",
 			"KonfigurationData_construct.default_contact_group" => "Standardgruppe",
 			"KonfigurationData_construct.auto_activation" => "Automatische Benutzeraktivierung",
+			"KonfigurationData_construct.user_registration" => "Benutzer Registrierung",
 			"KonfigurationData_construct.share_nonadmin_viewmode" => "Share-Lesemodus für Nicht-Administratoren",
 			"KonfigurationData_construct.rehearsal_show_length" => "Probenlänge anzeigen",
 			"KonfigurationData_construct.allow_participation_maybe" => "Vielleicht-Teilname zugelassen",
 			"KonfigurationData_construct.allow_zip_download" => "Zip-Download für Ordner zulassen",
+			"KonfigurationData_construct.appointments_show_max" => "Anzahl der Ernennungen auf Startseite",
 			"KonfigurationData_construct.rehearsal_show_max" => "Anzahl Proben auf Startseite",
 			"KonfigurationData_construct.discussion_on" => "Diskussionen erlauben",
 			"KonfigurationData_construct.updates_show_max" => "Anzahl Updates auf Startseite",
@@ -1117,6 +1154,14 @@ class Translation extends BNoteTranslation {
 			"KontakteView_selectPrintGroups.submit" => "Druckvorschau anzeigen",
 			"KontakteView_printMembers.message_1" => "Fehler bei Gruppenauswahl",
 			"KontakteView_printMembers.message_2" => "Wähle mindestens eine Gruppe zum drucken aus.",
+			"KontakteView_formatMemberPrintTable.Name" => "Name",
+			"KontakteView_formatMemberPrintTable.Nickname" => "Spitzname",
+			"KontakteView_formatMemberPrintTable.Instrument" => "Instrument",
+			"KontakteView_formatMemberPrintTable.Phone" => "Telefon",
+			"KontakteView_formatMemberPrintTable.Mobil" => "Mobil",
+			"KontakteView_formatMemberPrintTable.Business" => "Business",
+			"KontakteView_formatMemberPrintTable.Email" => "Email",
+			"KontakteView_formatMemberPrintTable.Adresse" => "Adresse",
 			"KontakteView_userCreatedAndMailed.Message_3" => "Benutzer",
 			"KontakteView_userCreatedAndMailed.Message_4" => "erstellt",
 			"KontakteView_userCredentials.Message_1" => "<br />Die Zugangsdaten konnten dem Benutzer nicht zugestellt werden ",
@@ -1320,13 +1365,16 @@ class Translation extends BNoteTranslation {
 			behandelt und nicht an Dritte weitergegeben.",
 			"LoginView_registration.first_name" => "Vorname",
 			"LoginView_registration.surname" => "Name",
+			"LoginView_registration.nickname" => "Spitzname",
+			"LoginView_registration.birthday" => "Geburtstag",
 			"LoginView_registration.phone" => "Telefon",
+			"LoginView_registration.mobile"	=> "Handy",
 			"LoginView_registration.email" => "E-Mail",
 			"LoginView_registration.street" => "Straße",
 			"LoginView_registration.zip" => "PLZ",
 			"LoginView_registration.city" => "Stadt",
 			"LoginView_registration.country" => "Land",
-			"LoginView_registration.instrument" => "Instrument",
+			"LoginView_registration.instrument" => "Instrument *",
 			"LoginView_registration.login" => "Login",
 			"LoginView_registration.login_text" => "Erlaubte Zeichen: Buchstaben, Zahlen, Punkt,
 				Bindestrich, Unterstrich",
@@ -2047,10 +2095,22 @@ class Translation extends BNoteTranslation {
 			"TourView_addRehearsalProcess.message_2" => "Die Probe wurde der Tour erfolgreich hinzugefügt.",
 			"TourView_tab_contacts.surname" => "Nachname",
 			"TourView_tab_contacts.name" => "Name",
+			"TourView_tab_contacts.Nickname" => "Nickname",			
 			"TourView_tab_contacts.phone" => "Telefon",
 			"TourView_tab_contacts.mobile" => "Mobil",
 			"TourView_tab_contacts.birthday" => "Geburtstag",
+			"TourView_tab_contacts.Gdpr_ok" => "Gdpr_ok",
+			"TourView_tab_contacts.Gdpr_code" => "Gdpr_code",
+			"TourView_tab_contacts.Is_conductor" => "Is_conductor",
+			"TourView_tab_contacts.Company" => "Company",
+			"TourView_tab_contacts.Share_address" => "Share_address",
+			"TourView_tab_contacts.Share_phones" => "Share_phones",
+			"TourView_tab_contacts.Share_birthday" => "Share_birthday",
+			"TourView_tab_contacts.Share_email" => "Share_email",
+			"TourView_tab_contacts.State" => "State",
+			"TourView_tab_contacts.Country" => "Country",
 			"TourView_tab_contacts.instrumentname" => "Instrument",
+			"TourView_tab_contacts.tour_contact_remove_ref" => "tour_contact_remove_ref",
 			"TourView_addContacts.form" => "Teilnehmer für Tour auswählen",
 			"TourView_addContactsProcess.message_1" => "Teilnehmer hinzugefügt",
 			"TourView_addContactsProcess.message_2" => "Die Teilnehmer wurden der Tour erfolgreich hinzugefügt.",
@@ -2149,6 +2209,30 @@ class Translation extends BNoteTranslation {
 			"UserView_editEntityForm.contact" => "Kontakt",
 			"UserView_editEntityForm.message" => "Wird das Passwort-Feld leer gelassen, bleibt das aktuelle Passwort gültig.",
 			"UserView_privileges.form" => "Privileges for ",
+			"UserView_privileges.Start" => "Start",
+			"UserView_privileges.Contacts" => "Kontakte",
+			"UserView_privileges.Rehearsals" => "Proben",
+			"UserView_privileges.Communication" => "Kommunikation",
+			"UserView_privileges.Contact_data" => "Kontaktdaten",
+			"UserView_privileges.Share" => "Share",
+			"UserView_privileges.Voting" => "Abstimmung",
+			"UserView_privileges.Tasks" => "Aufgaben",
+			"UserView_privileges.Rehearsal_phases" => "Probenphasen",
+			"UserView_privileges.Calendar" => "Calendar",
+			"UserView_privileges.Tour" => "Tour",
+			"UserView_privileges.Evaluations" => "Stats",
+			"UserView_privileges.User" => "User",
+			"UserView_privileges.Performances" => "Konzerte",
+			"UserView_privileges.Repertoire" => "Repertoire",
+			"UserView_privileges.Locations" => "Locations",
+			"UserView_privileges.Help" => "Hilfe",
+			"UserView_privileges.Members" => "Mitspieler",
+			"UserView_privileges.Messages" => "Nachrichten",
+			"UserView_privileges.Configuration" => "Konfiguration",
+			"UserView_privileges.Finances" => "Finance",
+			"UserView_privileges.Equipment" => "Equipment",
+			"UserView_privileges.Outfits" => "Outfits",
+			"UserView_privileges.System_Information" => "Admin",
 			"UserView_privileges_process.message_1" => "Änderungen gespeichert.",
 			"UserView_privileges_process.message_2" => "Die Benutzerdaten wurden erfolgreich gespeichert.",
 			"UserView_privileges_processOptions.back" => "Zurück",
@@ -2708,8 +2792,7 @@ class Translation extends BNoteTranslation {
 			"reservations" => "Reservierungen",
 			"reservation_id" => "Reservierungsnr.",
 			"score" => "Wert",
-			"rank" => "Platz",
-			"Field.password_description" => "Das Passwort muss mindestens 6 Zeichen lang sein, Groß- und Kleinbuchstaben sowie eine Zahl beinhalten."
+			"rank" => "Platz"
 	);
 	
 	protected $regex = array(

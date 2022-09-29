@@ -71,9 +71,9 @@ class AufgabenView extends CrudRefView {
 			$target = $form_target;
 		}
 		$form = new Form(Lang::txt($this->getaddEntityName()), $target);
-		$form->addElement("Titel", new Field("title", "", FieldType::CHAR), true, 12);
-		$form->addElement("Beschreibung", new Field("description", "", FieldType::TEXT), false, 12);
-		$form->addElement("Fällig am", new Field("due_at", "", FieldType::DATETIME));
+		$form->addElement(Lang::txt("AufgabenView_getAddForm.title"), new Field("title", "", FieldType::CHAR), true, 12);
+		$form->addElement(Lang::txt("AufgabenView_getAddForm.description"), new Field("description", "", FieldType::TEXT), false, 12);
+		$form->addElement(Lang::txt("AufgabenView_getAddForm.due_at"), new Field("due_at", "", FieldType::DATETIME));
 		if($tour != null) {
 			$form->addHidden("tour", $tour);
 		}
@@ -86,9 +86,9 @@ class AufgabenView extends CrudRefView {
 	
 	protected function addEntityForm($form_target=null, $tour=null) {
 		$form = $this->getAddForm("add", $form_target, $tour);
-		$form->addElement("Verantwortlicher", new Field("assigned_to", "", FieldType::REFERENCE));
+		$form->addElement(Lang::txt("AufgabenView_add_editEntityForm.assigned_to"), new Field("assigned_to", "", FieldType::REFERENCE));
 		$currContactId = $this->getData()->getSysdata()->getContactFromUser();
-		$form->setForeign("Verantwortlicher", "contact", "id", array("name", "surname"), $currContactId);
+		$form->setForeign(Lang::txt("AufgabenView_add_editEntityForm.assigned_to"), "contact", "id", array("name", "surname"), $currContactId);
 		$form->write();
 	}
 	
@@ -96,7 +96,7 @@ class AufgabenView extends CrudRefView {
 		$form = $this->getAddForm("process_addGroupTask");
 		$groups = $this->getData()->adp()->getGroups();
 		$selector = new GroupSelector($groups, array(), "group");
-		$form->addElement("Verantwortliche Gruppe(n)", $selector);
+		$form->addElement(Lang::txt("AufgabenView_addGroupTask.assigned_to"), $selector);
 		$form->write();
 	}
 	
@@ -108,8 +108,8 @@ class AufgabenView extends CrudRefView {
 		foreach($groups as $gid) {
 			$contacts = $this->getData()->adp()->getGroupContacts($gid);
 			for($j = 1; $j < count($contacts); $j++) {
-				$values["Verantwortlicher"] = $contacts[$j]["id"];
-				if($values["Verantwortlicher"] == "") continue;
+				$values[Lang::txt("AufgabenView_add_editEntityForm.assigned_to")] = $contacts[$j]["id"];
+				if($values[Lang::txt("AufgabenView_add_editEntityForm.assigned_to")] == "") continue;
 				$this->getData()->create($values);
 			}
 		}
@@ -122,9 +122,9 @@ class AufgabenView extends CrudRefView {
 		$dv->autoAddElements($task);
 		$dv->autoRename($this->getData()->getFields());
 		$dv->removeElement("Erstellt von");
-		$dv->addElement("Erstellt von", $this->getData()->getContactname($task["created_by"]));
+		$dv->addElement(Lang::txt("AufgabenView_viewDetailTable.created_by"), $this->getData()->getContactname($task["created_by"]));
 		$dv->removeElement("Verantwortlicher");
-		$dv->addElement("Verantwortlicher", $this->getData()->getContactname($task["assigned_to"]));
+		$dv->addElement(Lang::txt("AufgabenView_viewDetailTable.assigned_to"), $this->getData()->getContactname($task["assigned_to"]));
 		$dv->write();
 	}
 	
@@ -144,12 +144,12 @@ class AufgabenView extends CrudRefView {
 	protected function editEntityForm($write=true) {
 		$task = $this->getData()->findByIdNoRef($_GET["id"]);
 		
-		$form = new Form($this->getEntityName() ." bearbeiten", $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
-		$form->addElement("Titel", new Field("title", $task["title"], FieldType::CHAR));
-		$form->addElement("Beschreibung", new Field("description", $task["description"], FieldType::TEXT));
-		$form->addElement("Fällig am", new Field("due_at", $task["due_at"], FieldType::DATETIME));
-		$form->addElement("Verantwortlicher", new Field("assigned_to", "", FieldType::REFERENCE));
-		$form->setForeign("Verantwortlicher", "contact", "id", array("name", "surname"), $task["assigned_to"]);
+		$form = new Form($this->getEntityName() .Lang::txt("AufgabenView_editEntityForm.edit"), $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
+		$form->addElement(Lang::txt("AufgabenView_editEntityForm.title"), new Field("title", $task["title"], FieldType::CHAR));
+		$form->addElement(Lang::txt("AufgabenView_editEntityForm.description"), new Field("description", $task["description"], FieldType::TEXT));
+		$form->addElement(Lang::txt("AufgabenView_editEntityForm.due_at"), new Field("due_at", $task["due_at"], FieldType::DATETIME));
+		$form->addElement(Lang::txt("AufgabenView_add_editEntityForm.assigned_to"), new Field("assigned_to", "", FieldType::REFERENCE));
+		$form->setForeign(Lang::txt("AufgabenView_add_editEntityForm.assigned_to"), "contact", "id", array("name", "surname"), $task["assigned_to"]);
 		$form->write();
 	}
 	

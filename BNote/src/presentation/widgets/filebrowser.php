@@ -397,11 +397,11 @@ STRING_END;
 	}
 
 	private function addFileForm() {
-		$form = new Form(Lang::txt("createFile"), $this->linkprefix("addFile&path=" . urlencode($this->path)));
+		$form = new Form(Lang::txt("Filebrowser_addFileForm.createFile"), $this->linkprefix("addFile&path=" . urlencode($this->path)));
 		$form->setMultipart();
-		$form->addElement(Lang::txt("file"), new Field("file", "", FieldType::FILE));
+		$form->addElement(Lang::txt("Filebrowser_addFileForm.File"), new Field("file", "", FieldType::FILE));
 		$form->addHidden("path", urlencode($_GET["path"]));
-		$form->changeSubmitButton(Lang::txt("uploadFile"));
+		$form->changeSubmitButton(Lang::txt("Filebrowser_addFileForm.uploadFile"));
 		$form->write();
 	}
 

@@ -1059,6 +1059,10 @@ class Installation {
 				array("i", 1), 
 				array("i", 1)));
 		
+		// add the contact to the admin group (gid=1)
+		$query = "INSERT INTO contact_group (contact, `group`) VALUES (?, ?)"; 
+		$ugroup = $db->execute($query, array(array("i", $cid), array("i", 1)));
+				
 		// create user
 		$password = crypt($_POST["password"], 'BNot3pW3ncryp71oN');
 		$query = "INSERT INTO user (login, password, contact, isActive) VALUES (?, ?, ?, 1)";
@@ -1106,7 +1110,7 @@ class Installation {
 		</ul>
 		<br/><br/>
 		<?php
-		$login = new Link("main.php?mod=login", "Zur Anmeldung");
+		$login = new Link("main.php?mod=login", Lang::txt("Installation_finalize.login"));
 		$login->addIcon("arrow_right");
 		$login->write();
 	}
@@ -1171,7 +1175,7 @@ class Installation {
 	}
 	
 	private function next($step) {
-		$lnk = new Link("?step=$step", "Weiter");
+		$lnk = new Link("?step=$step", Lang::txt("Installation_next.next"));
 		$lnk->addIcon("arrow-right");
 		$lnk->write();
 	}

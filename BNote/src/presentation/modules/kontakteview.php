@@ -500,14 +500,14 @@ class KontakteView extends CrudRefLocationView {
 		$formatted = array();
 		// header
 		$header = array (
-				"Name",
-				"Spitzname",
-				"Instrument",
-				"Telefon",
-				"Mobil",
-				"Business",
-				"Email",
-				"Adresse" 
+				Lang::txt("KontakteView_formatMemberPrintTable.Name"),
+				Lang::txt("KontakteView_formatMemberPrintTable.Nickname"),
+				Lang::txt("KontakteView_formatMemberPrintTable.Instrument"),
+				Lang::txt("KontakteView_formatMemberPrintTable.Phone"),
+				Lang::txt("KontakteView_formatMemberPrintTable.Mobil"),
+				Lang::txt("KontakteView_formatMemberPrintTable.Business"),
+				Lang::txt("KontakteView_formatMemberPrintTable.Email"),
+				Lang::txt("KontakteView_formatMemberPrintTable.Adresse") 
 		);
 		// add selected custom fields
 		$fields = $this->getData()->getCustomFields('c');

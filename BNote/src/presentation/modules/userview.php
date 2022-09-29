@@ -157,6 +157,30 @@ class UserView extends CrudRefView {
 			if($this->getData()->hasUserPrivilegeForModule($_GET["id"], $mid)) $selected = "checked";
 			if($modRow["category"] == "public") continue; 
 			$form->addElement($modRow["name"], new Field($mid, $selected, FieldType::BOOLEAN));
+			$form->renameElement("Start", Lang::txt("UserView_privileges.Start"));
+			$form->renameElement("Kontakte", Lang::txt("UserView_privileges.Contacts"));
+			$form->renameElement("Proben", Lang::txt("UserView_privileges.Rehearsals"));
+			$form->renameElement("Kommunikation", Lang::txt("UserView_privileges.Communication"));
+			$form->renameElement("Kontaktdaten", Lang::txt("UserView_privileges.Contact_data"));
+			$form->renameElement("Share", Lang::txt("UserView_privileges.Share"));
+			$form->renameElement("Abstimmung", Lang::txt("UserView_privileges.Voting"));
+			$form->renameElement("Aufgaben", Lang::txt("UserView_privileges.Tasks"));
+			$form->renameElement("Probenphasen", Lang::txt("UserView_privileges.Rehearsal_phases"));
+			$form->renameElement("Calendar", Lang::txt("UserView_privileges.Calendar"));
+			$form->renameElement("Tour", Lang::txt("UserView_privileges.Tour"));
+			$form->renameElement("Stats", Lang::txt("UserView_privileges.Evaluations"));
+			$form->renameElement("User", Lang::txt("UserView_privileges.User"));
+			$form->renameElement("Konzerte", Lang::txt("UserView_privileges.Performances"));
+			$form->renameElement("Repertoire", Lang::txt("UserView_privileges.Repertoire"));
+			$form->renameElement("Locations", Lang::txt("UserView_privileges.Locations"));
+			$form->renameElement("Hilfe", Lang::txt("UserView_privileges.Help"));
+			$form->renameElement("Mitspieler", Lang::txt("UserView_privileges.Members"));
+			$form->renameElement("Nachrichten", Lang::txt("UserView_privileges.Messages"));
+			$form->renameElement("Konfiguration", Lang::txt("UserView_privileges.Configuration"));
+			$form->renameElement("Finance", Lang::txt("UserView_privileges.Finances"));
+			$form->renameElement("Equipment", Lang::txt("UserView_privileges.Equipment"));
+			$form->renameElement("Outfits", Lang::txt("UserView_privileges.Outfits"));
+			$form->renameElement("Admin", Lang::txt("UserView_privileges.System_Information"));
 		}
 		$form->write();
 	}

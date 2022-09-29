@@ -57,6 +57,8 @@ class LoginView extends AbstractView {
 		
 		$form->addElement(Lang::txt("LoginView_registration.first_name"), new Field("name", "", FieldType::CHAR), true, 3);
 		$form->addElement(Lang::txt("LoginView_registration.surname"), new Field("surname", "", FieldType::CHAR), true, 3);
+		$form->addElement(Lang::txt("LoginView_registration.nickname"), new Field("nickname", "", FieldType::CHAR), false, 3);
+		$form->addElement(Lang::txt("LoginView_registration.birthday"), new Field("birthday", "", FieldType::DATE), false, 3);
 		
 		$instruments = $this->getData()->getInstruments();
 		$cats = $this->getData()->getSysdata()->getInstrumentCategories();
@@ -71,11 +73,11 @@ class LoginView extends AbstractView {
 		
 		$form->addElement(Lang::txt("LoginView_registration.email"), new Field("email", "", FieldType::EMAIL), true, 3);
 		$form->addElement(Lang::txt("LoginView_registration.phone"), new Field("phone", "", FieldType::CHAR), false, 3);
-		
+		$form->addElement(Lang::txt("LoginView_registration.mobile"), new Field("mobile", "", FieldType::CHAR), false, 3);		
 		$form->addElement(Lang::txt("LoginView_registration.country"), $this->buildCountryDropdown(""));
-		$form->addElement(Lang::txt("LoginView_registration.street"), new Field("street", "", FieldType::CHAR), false, 3);
-		$form->addElement(Lang::txt("LoginView_registration.zip"), new Field("zip", "", FieldType::CHAR), false, 1);
-		$form->addElement(Lang::txt("LoginView_registration.city"), new Field("city", "", FieldType::CHAR), false, 2);
+		$form->addElement(Lang::txt("LoginView_registration.street"), new Field("street", "", FieldType::CHAR), true, 3);
+		$form->addElement(Lang::txt("LoginView_registration.zip"), new Field("zip", "", FieldType::CHAR), true, 1);
+		$form->addElement(Lang::txt("LoginView_registration.city"), new Field("city", "", FieldType::CHAR), true, 2);
 				
 		$form->addElement(Lang::txt("LoginView_registration.pw1"), new Field("pw1", "", FieldType::PASSWORD), true, 3);
 		$form->addElement(Lang::txt("LoginView_registration.pw2"), new Field("pw2", "", FieldType::PASSWORD), true, 3);

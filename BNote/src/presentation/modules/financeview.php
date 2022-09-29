@@ -172,7 +172,7 @@ class FinanceView extends CrudView {
 				$bookings,
 				$this->modePrefix() . "cancelBooking&id=" . $_GET["id"] . "&booking=",
 				"cancel",
-				"stornieren",
+				Lang::txt("FinanceView_Table_booking.cancel"),
 				"journal-minus"
 		);
 		$table = new Table($bookings);

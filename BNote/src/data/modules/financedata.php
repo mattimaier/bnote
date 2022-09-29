@@ -180,7 +180,7 @@ class FinanceData extends AbstractData {
 		$notes = $booking["notes"];
 		if($notes == null) $notes = "";
 		if($notes != "") $notes .= "; ";
-		$notes .= "STORNIERT: netto " . Lang::formatDecimal($booking["amount_net"]) . " steuer " . Lang::formatDecimal($booking["amount_tax"]);
+		$notes .= Lang::txt("FinanceData_cancelBooking.netto") . Lang::formatDecimal($booking["amount_net"]) . Lang::txt("FinanceData_cancelBooking.steuer") . Lang::formatDecimal($booking["amount_tax"]);
 		
 		$query = "UPDATE booking SET amount_net = 0, amount_tax = 0, notes = \"$notes\" WHERE id = $booking_id";
 		$this->database->execute($query);

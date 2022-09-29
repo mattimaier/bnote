@@ -115,14 +115,17 @@ class LoginData extends AbstractLocationData {
 	}
 	
 	function createContact($aid) {
-		$query = "INSERT INTO contact (surname, name, phone, email, address, instrument) VALUES (?, ?, ?, ?, ?, ?)";
+		$query = "INSERT INTO contact (surname, name, nickname, phone, mobile, email, address, instrument, birthday) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		$cid = $this->database->prepStatement($query, array(
 				array("s", $_POST["surname"]),
 				array("s", $_POST["name"]),
+				array("s", $_POST["nickname"]),
 				array("s", $_POST["phone"]),
+				array("s", $_POST["mobile"]),
 				array("s", $_POST["email"]),
 				array("i", $aid),
-				array("i", $_POST["instrument"])
+				array("i", $_POST["instrument"]),
+				array("s", $_POST["birthday"])
 		));
 		
 		// get configured default group
