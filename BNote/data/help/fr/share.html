@@ -1,0 +1,103 @@
+<p>
+Le module Share <span style="font-style: italic;">(de l'allemand share : échanger)</span> est un module qui permet l'échange de fichiers. 
+Contrairement aux solutions cloud comme par exemple Dropbox ou un serveur FTP, le module Share est intégré dans le monde de BNote. 
+Cela signifie qu'un concept d'autorisation sophistiqué s'applique également aux fichiers. Le module de partage est sécurisé par les possibilités du serveur web (Apache) 
+et éventuellement crypté si BNote est exploité via HTTPs. 
+</p>
+
+<h2>Partage pour les utilisateurs</h2>
+<p>
+Chaque utilisateur qui a accès au module Share peut accéder <span style="font-weight: bold;">en lecture et en écriture</span> aux dossiers suivants:
+</p>
+<table>
+	<tr>
+		<td>Mes fichiers</td>
+		<td>Un répertoire auquel seuls les administrateurs et l'utilisateur lui-même ont accès.</td>
+	</tr>
+	<tr>
+		<td>Dossier d'échange</td>
+		<td>Un répertoire auquel <span style="text-decoration: underline;">tous les utilisateurs</span> ont accès.</td>
+	</tr>
+	<tr>
+		<td>Dossier de groupe</td>
+		<td>Chaque groupe a un répertoire auquel seuls les membres du groupe ont accès.</td>
+	</tr>
+</table>
+
+<h2>Partage pour les administrateurs</h2>
+<p>Tout utilisateur qui a accès au module de partage et qui fait partie du groupe des administrateurs peut 
+accéder <span style="font-weight: bold;">en lecture et en écriture</span> aux dossiers suivants:</p>
+<table>
+	<tr>
+		<td>Mes fichiers</td>
+		<td>Un répertoire auquel seuls les administrateurs et l'utilisateur lui-même ont accès.</td>
+	</tr>
+	<tr>
+		<td>Dossier d'échange</td>
+		<td>Un répertoire auquel <span style="text-decoration: underline;">tous les utilisateurs</span> ont accès.</td>
+	</tr>
+	<tr>
+		<td>Dossier de l'utilisateur</td>
+		<td>Dans ce répertoire, chaque utilisateur se trouve sous son nom de connexion. C'est ici qu'un administrateur 
+		peut mettre des fichiers à disposition de l'utilisateur.</td>
+	</tr>
+	<tr>
+		<td>Dossier de groupe</td>
+		<td>Chaque groupe a un répertoire auquel seuls les membres du groupe ont accès.</td>
+	</tr>
+</table>
+
+<h2>La gestion des fichiers et des répertoires</h2>
+<p>
+Les paragraphes suivants décrivent la manière de traiter les fichiers et les répertoires/dossiers dans BNote. 
+L'interface utilisateur représente, à quelques exceptions près, la structure du système de fichiers.
+</p>
+
+<h3>Dossiers/répertoires</h3>
+<p>
+Un nouveau dossier peut être créé en cliquant sur le bouton "Ajouter un dossier". Pour ouvrir un dossier, il faut cliquer sur "Ouvrir" sur la barre du dossier. 
+Le bouton "Supprimer" situé derrière le dossier permet de supprimer le dossier et les fichiers qu'il contient. 
+</p>
+
+<h3>Fichiers</h3>
+<p>
+De nouveaux fichiers peuvent être ajoutés au dossier actuellement sélectionné en cliquant sur le bouton "Ajouter un fichier". 
+Il convient de noter que que de nombreux serveurs web définissent une taille maximale pour un fichier. 
+Il peut donc arriver que des fichiers volumineux ne puissent pas être ajoutés. ne peuvent pas être ajoutés (pour y remédier, voir données de masse). 
+Pour afficher ou supprimer des fichiers, on peut utiliser les boutons sur la ligne du fichier.
+</p>
+
+<h3>Zip-Download</h3>
+<p>
+Pour télécharger un dossier, y compris tous les fichiers et sous-dossiers, sous forme d'archive zip, on choisit dans un sous-dossier
+"Télécharger le dossier en tant qu'archive zip". Après un court délai d'attente pendant lequel l'archive est générée, on peut télécharger l'archive.
+</p>
+
+<h2>Données en masse</h2>
+<p>
+En général, il est recommandé d'insérer des fichiers dans les répertoires via BNote et de les récupérer via BNote. 
+Cependant, le remplissage initial des répertoires peut prendre beaucoup de temps et la gestion des données de masse via l'interface utilisateur peut être difficile. 
+Il est également possible (selon le serveur) d'accéder aux fichiers via un autre protocole (p. ex. WebDav, SFTP, FTP).
+Le respect de la structure des répertoires est nécessaire pour que le système continue à fonctionner.
+Sinon, les répertoires peuvent être remplis selon le schéma suivant :
+</p>
+
+<table>
+	<tr>
+		<td>Mes fichiers/dossiers d'utilisateur</td>
+		<td>"Répertoire BNote"/data/share/users/"Nom d'utilisateur"</td>
+	</tr>
+	<tr>
+		<td>Dossier de groupe</td>
+		<td>"Répertoire BNote"/data/share/groups/group_"id"<br/>
+		L'ID du groupe est disponible dans la gestion des groupes.</td>
+	</tr>
+	<tr>
+		<td>Dossier d'échange</td>
+		<td>"Répertoire BNote"/data/share/ tous les sous-dossiers sauf ceux mentionnés par ailleurs.</td>
+	</tr>
+</table>
+
+<p>
+Il faut veiller à ce que, sous les serveurs Linux/Unix, l'utilisateur et le groupe du serveur web Apache aient accès aux données.
+</p>
