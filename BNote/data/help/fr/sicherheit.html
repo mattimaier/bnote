@@ -1,0 +1,94 @@
+<p>
+Afin de garantir une utilisation correcte de BNote, cette page contient des consignes importantes concernant la sécurité du système. 
+En tant qu'administrateur vous êtes responsable de ce système, lisez attentivement ces instructions et transmettez-les à tous !
+</p>
+
+<h2>Connexion automatique</h2>
+<p>
+Si l'activation automatique des utilisateurs est activée (voir configuration), 
+toute personne ayant accès à l'adresse de ce système peut se connecter à l'aide d'une adresse e-mail et accéder aux données. 
+L'activation n'est utile que lors de la première utilisation, aussi longtemps que les membres s'inscrivent pour la première fois, 
+en limitant l'accès à partir d'Internet. L'activation devra être désactivée au bout d'une semaine environ. 
+Si l'activation automatique des utilisateurs est inactive, chaque nouvel utilisateur doit être activé dans le module utilisateur.
+</p>
+
+<h2>Utilisateurs et autorisations dans BNote</h2>
+<p>
+Chaque personne qui peut se connecter au système détient un compte utilisateur. Ce compte utilisateur peut être actif (l'utilisateur peut se connecter) 
+ou inactif (l'utilisateur ne peut pas se connecter et n'a pas accès). Des autorisations sont également attribuées au compte d'utilisateur. Les autorisations 
+pour chaque utilisateur peuvent être consultées dans les détails du compte d'utilisateur sous "Modifier les droits". Le contrôle des autorisations se fait d'abord 
+au niveau du module. Les utilisateurs qui ont accès à un module peuvent l'utiliser en lecture et en écriture !
+</p>
+<p>
+Il est recommandé de ne donner aux utilisateurs que l'accès aux modules dont ils ont réellement besoin. 
+Par défaut BNote prévoit les autorisations suivantes :
+</p>
+<table>
+	<tr>
+		<td>Membres </td>
+		<td>Modules : Accueil, Coordonnées, Aide, Partage, Membres et Vote</td>
+	</tr>
+	<tr>
+		<td>Administrateur (configuré lors de l'installation)</td>
+		<td>Tous les modules</td>
+	</tr>
+</table>
+<p>
+Les autorisations par défaut peuvent être adaptées dans le fichier config/config.xml. 
+Les autorisations d'accès au sein des modules peuvent toutefois différer de ces valeurs par défaut (ex: Partage, Membres, Accueil).
+</p>
+<p>
+<span style="font-weight: bold">ATTENTION : La suppression du contact n'empêche pas l'accès au système. Pour cela, veuillez paramétrer 
+le compte utilisateur dans le module Utilisateur sur "désactivé" ou le supprimer également.</span>
+</p>
+
+<h2>Accès aux fichiers</h2>
+<p>
+A quelques endroits dans le système, il est possible d'accéder à des fichiers, par exemple à des PDF ou à des partages. 
+Cet accès est bloqué par le serveur web Apache et n'est ouvert par le système qu'aux utilisateurs connectés. Le contrôle des autorisations se fait au niveau de l'application. 
+Pour plus de détails, veuillez consulter la page d'aide du module Partage. 
+Pour des informations sur la protection du serveur web, le fichier readme.txt de l'installation est également disponible (par ex. pour les paramètres d'autorisation Unix).
+</p>
+
+<h2>Protection en ligne</h2>
+<p>
+Le système est protégé en toute bonne foi contre les agresseurs sur Internet. 
+Malheureusement, il n'est pas possible de garantir la sécurité, car celle-ci dépend d'une part des utilisateurs et d'autre part de la configuration du système. 
+C'est pourquoi le système doit être installé et configuré par un spécialiste. 
+Les mises à jour de BNote et des composants du système qui ne sont pas installées régulièrement peuvent entraîner un risque supplémentaire pour le système.
+</p>
+
+<h2>Sécurité de fonctionnement</h2>
+<p>
+Les programmeurs sont aussi des êtres humains et font des erreurs. La fonctionnalité du système ne peut donc pas être garantie à tout moment. 
+Si vous avez détecté un problème ou si vous souhaitez nous faire part d'une amélioration, rendez-vous sur www.bnote.info et envoyez-nous un e-mail. 
+Vous pouvez également nous aider à améliorer BNote en vous impliquant dans le projet sur GitHub.
+</p>
+
+<h2>Remarques pour les établissements scolaires</h2>
+<p>
+En plus des mesures prévues par BNote, il est recommandé de sécuriser le système par exemple par une authentification HTTP de base ou par une procédure d'accès basée sur un certificat, 
+car les données se trouvant dans le système peuvent être celles de mineurs. Dans tous les cas, l'accès au système doit se faire via des certificats SSL valides et vérifiés. 
+</p>
+
+<h2>Modifier la clé de chiffrement</h2>
+<style>
+.security_item { margin-left: 30px; padding-left: 3px; }
+.code { font-family: 'Courier New';  font-size: 10pt; display: inline; }
+</style>
+<p>
+BNote utilise une clé standard fournie pour crypter les mots de passe dans la base de données. Cette clé est stockée en dehors de la base de données. 
+Pour renforcer encore la sécurité du système, procéder comme suit :
+</p>
+<ol style="list-style-type:decimal;">
+	<li class="security_item">Assurez-vous d'avoir accès au code source sur votre serveur.</li>
+    <li class="security_item">Ouvrez le fichier <pre class="code">src/logic/modules/logincontroller.php</pre></li>
+    <li class="security_item">Modifier la constante <pre class="code">ENCRYPTION_HASH</pre> à une valeur quelconque (mais si possible suffisamment longue) avec des chiffres et des lettres.</li>
+    <li class="security_item">Mettez temporairement la variable <pre class="code">$SHOW_PASSWORD_HASH</pre> à <pre class="code">true</pre>.</li>
+    <li class="security_item">Enregister le fichier et essayer de vous connecter à BNote avec votre nom d'utilisateur et votre mot de passe.</li>
+    <li class="security_item">La tentative de connexion échoue, mais te montre un hash. Copie ce hash dans le presse-papiers.</li>
+    <li class="security_item">Connectez-vous à la base de données et ouvrez la table <pre class="code">user</pre>.</li>
+    <li class="security_item">Modifier la valeur du mot de passe pour qu'elle corresponde au hash contenu dans le presse-papiers.</li>
+    <li class="security_item">Maintenant, mets <pre class="code">$SHOW_PASSWORD_HASH</pre> à nouveau sur <pre class="code">false</pre> et enregistre le fichier <pre class="code">src/logic/modules/logincontroller.php</pre>.</li>
+    <li class="security_item">Veuillez informer tous les utilisateurs du système de réinitialiser ou de modifier leur mot de passe.</li>
+</ol>
