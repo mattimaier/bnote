@@ -1,0 +1,199 @@
+<p>
+À partir de la version 2.4 de BNote, le système peut être configuré de manière dynamique. Les possibilités de configuration sont expliquées plus en détail ci-dessous. 
+Il est recommandé de n'autoriser l'accès à ce module qu'aux utilisateurs expérimentés.
+</p>
+
+<h2>Paramètres</h2>
+<p>
+
+Certains réglages (paramètres) s'affichent directement au démarrage du module. En cliquant sur le paramètre, un formulaire de modification du paramètre s'affiche. 
+Un clic sur "OK" permet de définir la nouvelle valeur du paramètre. En cliquant sur "Retour", on revient à l'écran initial sans enregistrer.
+</p>
+
+<table>
+	<tr>
+		<td class="DataTable_Header">Paramètre</td>
+		<td class="DataTable_Header">Description</td>
+	</tr>
+	<tr>
+		<td>Heure par défaut du début des répétitions</td>
+		<td>Définit l'heure à laquelle les répétitions commencent généralement. Cette heure est par exemple le réglage par défaut pour les nouvelles répétitions.</td>
+	</tr>
+	<tr>
+		<td>Durée de la répétition en min</td>
+		<td>Définit la durée normale d'une répétition en minutes.</td>
+	</tr>
+	<tr>
+		<td>Groupe par défaut</td>
+		<td>Chaque nouvel utilisateur inscrit est affecté à ce groupe.</td>
+	</tr>
+	<tr>
+		<td>Activation automatique du compte utilisateur</td>
+		<td>Si l'activation automatique de l'utilisateur est activée <span style="font-weight: bold;">toutes personnes</span> ayant accès 
+		à l'adresse de ce système se connecte à l'aide d'une adresse e-mail et accède aux données. L'activation n'est nécessaire que lors de 
+		la première utilisation, tant que les membres s'inscrivent pour la première fois et avec un accès limité à partir d'Internet. 
+		L'activation devrait être désactivée après environ une semaine. Si l'activation automatique de l'utilisateur est inactive, 
+		chaque nouvel utilisateur doit être activé dans le module utilisateur..</td>
+	</tr>
+	<tr>
+		<td>Inscription des utilisateurs</td>
+		<td>Si cette valeur est modifiée en "non", les nouveaux utilisateurs ne peuvent pas s'enregistrer eux-mêmes sur le système, 
+		c'est-à-dire que l'option "Enregistrement" est désactivée dans le domaine public. de BNote, l'option "Enregistrement" est désactivée 
+		et un accès direct par lien entraîne un refus d'accès.</td>
+	</tr>
+	<tr>
+		<td>Mode de lecture partagée pour les non-administrateurs</td>
+		<td>Pour interdire l'accès en écriture aux dossiers et aux fichiers à tous les utilisateurs sauf les administrateurs 
+		(c'est-à-dire les utilisateurs/contacts qui ne sont pas dans le groupe Administrateurs), cochez la case "Non". 
+		Pour autoriser l'accès aux répertoires et aux fichiers à tous les utilisateurs, cette valeur doit être saisie à "Oui".</td>
+	</tr>
+	<tr>
+		<td>Affichage de la durée de la répétition</td>
+		<td>En règle générale, à la création la durée de la répétition est indiquée en minutes (par défaut : valeur = oui). 
+		Si la valeur est "non", la durée n'est pas indiquée, mais l'heure de fin de la répétition est définie à la place. 
+		En outre, la page d'accueil indique également l'heure de fin de la répétition et l'heure du début de la répétition.</td>
+	</tr>
+	<tr>
+		<td>Participation valeur "peut-être" autorisée</td>
+		<td>Les membres peuvent indiquer leur participation (oui/non/peut-être) lors des répétitions et des représentations. 
+		Si l'option "peut-être" ne doit pas être disponible, cette valeur peut être modifiée en "non".Par défaut, l'option "peut-être" est autorisée (valeur = oui).</td>
+	</tr>
+	<tr>
+		<td>Autoriser le téléchargement zip pour les dossiers</td>
+		<td>Si l'extension PHP "zip" est installée sur le serveur, cette fonctionnalité peut être activée. Il est ainsi possible dans le module Partage de télécharger des sous-dossiers 
+		(pas de dossiers principaux, à cause de la charge) sous forme d'archive zip. La fonction est activée par défaut.</td>
+	</tr>
+	<tr>
+		<td>Nombre de concerts sur la page d'accueil</td>
+		<td>Si de nombreuses représentations sont ajoutées, l'utilisateur est submergé d'annonces. 
+		Pour réduire ce phénomène, il est possible de définir une valeur maximale pour le nombre de représentations qui doivent être affichées sur la page d'accueil. 
+		S'il y en a plus, un lien "Afficher tout" s'affiche avec le comportement afférent et un message à ce sujet. La fonctionnalité peut être désactivée avec la valeur 0. 
+		Après l'installation, la valeur est de 5.</td>
+	</tr>
+	<tr>
+		<td>Nombre de répétition sur la page d'accueil</td>
+		<td>Par exemple, si un grand nombre de répétitions sont ajoutées dans la section répétition, 
+		l'utilisateur sera submergé d'annonces. Pour réduire ce phénomène il est possible de définir une valeur maximale pour le nombre de répétitions à afficher. 
+		S'il y en a plus, un lien est affiché. un lien "Afficher tout" s'affiche avec le comportement afférent et un message à ce sujet. 
+		La fonctionnalité peut être désactivée avec la valeur 0. Après l'installation, la valeur est de 5.</td>
+	</tr>
+	<tr>
+		<td>Nombre de mises à jour sur la page d'accueil</td>
+		<td>Pour réduire le nombre de mises à jour qui sont pertinentes pour l'utilisateur, 
+		il est possible de définir une valeur maximale pour le nombre de mises à jour qui doivent être affichées sur la page d'accueil. 
+		Après l'installation, la valeur est fixée à 5.</td>
+	</tr>
+	<tr>
+		<td>Autoriser les discussions</td>
+		<td>Des discussions peuvent être créées à propos des répétitions, des représentations et des votes. 
+		Cela est particulièrement nécessaire dans les petits ensembles car une coordination étroite entre les membres a lieu ici. 
+		Pour les écoles, il peut toutefois s'avérer nécessaire de désactiver cette fonctionnalité, en raison de cela peut entraîner 
+		des difficultés juridiques et des charges administratives (inutiles). Par défaut, la fonctionnalité est activée.</td>
+	</tr>
+	<tr>
+		<td>Nombre de rendez-vous sur la page d'accueil</td>
+		<td>Renvoie le nombre de rappels envoyés avant la fin du délai d'engagement pour les répétitions/représentations ou avant la fin du vote.</td>
+	</tr>
+	<tr>
+		<td>Notifications activées</td>
+		<td>Activation de la fonction de rappel automatique. Le serveur envoie des messages via un service fourni par BNote.info aux personnes suivantes 
+		aux participants aux répétitions/invitations à se produire ainsi qu'aux personnes autorisées à voter si elles n'ont pas encore voté ou indiqué leur participation.</td>
+	</tr>
+	<tr>
+		<td>Cycle de rappel (tous les X jours)</td>
+		<td>Nombre de jours pendant lesquels le système avertit les participants/ayants droit au vote.</td>
+	</tr>
+	<tr>
+		<td>Clé de l'API Google Maps</td>
+		<td>La clé de l'onglet "Données de connexion" dans la Google Cloud Console pour les API Google Maps "Geocoding API", "Maps JavaScript API" et "Maps Static API". Veuillez vous assurer que l'API a été activée. <a style="text-decoration: underline;" href="https://console.developers.google.com" target="_blank">Google Developer Console</a></td>
+	</tr>
+	<tr>
+		<td>Clé d'interface de notification</td>
+		<td>Une clé générée aléatoirement pour ce système.</td>
+	</tr>
+	<tr>
+		<td>Pays</td>
+		<td>Le pays par défaut pour les adresses dans BNote. Ici, le code ISO-3166 à 3 chiffres est nécessaire, par ex. DEU ou AUT pour l'Allemagne ou l'Autriche.</td>
+	</tr>
+	<tr>
+		<td>Langue</td>
+		<td>Indication du code de langue pour le système, par exemple "de". Actuellement, "en" n'est que partiellement pris en charge pour l'anglais.</td>
+	</tr>
+	<tr>
+		<td>Devises</td>
+		<td>Cette monnaie est celle dans laquelle les comptes de l'organisation sont établis. Il peut également s'agir d'un symbole ou d'un nom complet de la devise.</td>
+	</tr>
+	<tr>
+		<td>Conducteur par défaut</td>
+		<td>Quelle personne sera engagée par défaut comme chef d'orchestre pour les nouvelles répétitions.</td>
+	</tr>
+</table>
+
+<h2>Champs personnalisés</h2>
+<p>A partir de BNote 3.4, il est possible d'ajouter des champs supplémentaires aux contacts, répétitions, représentations, pièces, réservations, dates et lieux. Pour ce faire, il faut procéder comme suit :</p>
+<p>Va dans la configuration, sélectionne "Champs personnalisés". Un aperçu des champs est affiché.</p>
+
+<h3>Ajouter un champ personnalisé</h3>
+<p>Clique sur "Ajouter un champ" pour ajouter un nouveau champ à l'un des objets mentionnés ci-dessus. Un formulaire apparaît :</p>
+<table>
+	<tr>
+		<td>Nom technique</td>
+		<td>Veuillez utiliser uniquement des lettres et des chiffres pour donner au champ une clé technique unique, par exemple "INSTRUMENT2".</td>
+	<tr>
+	<tr>
+		<td>Nom singulier/pluriel</td>
+		<td>Comment le champ doit s'appeler, par exemple : "Deuxième instrument".</td>
+	</tr>
+	<tr>
+		<td>Partagé</td>
+		<td>Si un contact peut voir le champ (alors oui), sinon le champ est réservé à un usage interne. Veuillez noter que les contacts peuvent également modifier eux-mêmes leurs champs partagés.</td>
+	</tr>
+	<tr>
+		<td>Plage de valeurs</td>
+		<td>La valeur que le champ peut prendre</td>
+	</tr>
+	<tr>
+		<td>Référence à l'objet</td>
+		<td>A quel objet ce champ doit être ajouté.</td>
+	</tr>
+</table>
+
+<h2>Instruments</h2>
+<p>
+Lors de l'enregistrement, chaque membre détermine quel instrument il/elle joue. Comme un big band ne dispose pas des mêmes instruments qu'un orchestre ou un chœur, 
+le choix des instruments peut être configuré. On ouvre cette configuration en cliquant sur le bouton "Instruments" en haut du module de configuration. 
+</p>
+
+<h3>Afficher les instruments</h3>
+<p>
+Sur la page d'accueil de la configuration des instruments, tous les instruments sont classés par ordre alphabétique. Les instruments configurés pour être utilisés sont
+visibles dans le formulaire d'enregistrement. Tu peux y accéder en cliquant sur "Logout" en haut à droite, en ouvrant à nouveau BNote et en cliquant sur le bouton "Enregistrer".
+et ensuite cliquer sur "Enregistrement" dans le menu à gauche à côté de la connexion. 
+</p>
+
+<h3>Ajouter un instrument</h3>
+<p>
+Sur la page de configuration des instruments, il y a un bouton "Ajouter un instrument" en haut. Un clic sur celui-ci ouvre un formulaire avec le nom et la catégorie de l'instrument.
+catégorie des instruments. En cliquant sur "OK", un nouvel instrument est créé.
+</p>
+
+<h3>Éditer les instruments</h3>
+<p>
+Comme dans d'autres modules, les différentes entrées d'un tableau peuvent être sélectionnées en cliquant sur la ligne correspondante. 
+Un clic sur un instrument affiche des informations sur l'instrument et un autre bouton "Modifier l'instrument". Remplir le formulaire en conséquence et valider avec "OK".
+confirmer les modifications.
+</p>
+
+<h3>Supprimer des instruments</h3>
+<p>
+A côté du bouton "Modifier l'instrument" se trouve le bouton "Supprimer l'instrument" dans la vue détaillée d'un instrument. 
+Après avoir confirmé que l'on souhaite vraiment supprimer l'instrument, celui-ci est supprimé. Si un instrument est utilisé par un contact, 
+il ne peut pas être supprimé !
+</p>
+
+<h3>Filtrage des instruments</h3>
+<p>
+Sur la page d'accueil de la configuration des instruments se trouve le bouton "Filtres d'instruments". 
+En cliquant dessus, on obtient une liste de groupes d'instruments qui peuvent être sélectionnés ou désélectionnés. 
+Seuls les groupes d'instruments sélectionnés sont affichés dans le formulaire d'enregistrement.
+</p>
