@@ -4,7 +4,7 @@
  **/
 
 class Link implements iWriteable {
-	
+
 	private $href;
 	private $label;
 	private $target;
@@ -34,7 +34,7 @@ class Link implements iWriteable {
 	function setJsClick($jsClick) {
 		$this->jsClick = $jsClick;
 	}
-	
+
 	/**
 	 * When this mode is turned on, the link is rendered as a button with the type="submit"
 	 * @param boolean $val Nothing or true to turn the mode on, false to turn it off (default).
@@ -42,7 +42,7 @@ class Link implements iWriteable {
 	function isSubmitButton($val = true) {
 		$this->submitButton = $val;
 	}
-	
+
 	function write() {
 		echo $this->generate();
 	}
@@ -53,7 +53,7 @@ class Link implements iWriteable {
 	function toString() {
 		return $this->generate();
 	}
-	
+
 	private function generate() {
 		if(isset($this->target) && $this->target != "") {
 			$target = 'target="' . $this->target . '"';
@@ -61,19 +61,19 @@ class Link implements iWriteable {
 		else {
 			$target = "";
 		}
-		
+
 		if(isset($this->icon) && $this->icon != "") {
 			$icon = '<i class="bi-' . $this->icon . ' bnote-opt-btn"></i>';
 		}
 		else {
 			$icon = "";
 		}
-		
+
 		$options = "";
 		if($this->jsClick != null) {
 			$options .= ' onclick="' . $this->jsClick . '"';
 		}
-		
+
 		if($this->submitButton) {
 			return '<input type="submit" class="btn btn-primary"' . $options . ' value="' . $this->label . '">';
 		}
@@ -90,7 +90,7 @@ class Link implements iWriteable {
 	function addIcon($icon_id) {
 		$this->icon = $icon_id;
 	}
-	
+
 	public function getName() { return $this->label; }
 }
 

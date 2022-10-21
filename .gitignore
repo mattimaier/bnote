@@ -11,6 +11,7 @@ TriggerServer/.buildpath
 TriggerServer/db.xml
 BNote-Releases/tmp/
 .idea
+.env
 .metadata
 BNote/style/css/bnote.css
 BNote/style/css/dark/bnote.css

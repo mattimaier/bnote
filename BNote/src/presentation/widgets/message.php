@@ -4,7 +4,7 @@
  * This class handles messages
  **/
 class Message implements iWriteable {
-	
+
 	private $message;
 	private $header;
 

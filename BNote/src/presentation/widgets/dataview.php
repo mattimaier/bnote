@@ -3,24 +3,24 @@
  * Container to display data
  **/
 class Dataview {
-	
+
 	/**
 	 * Key-Value pairs that are going to be displayed.
-	 * 
+	 *
 	 * @var array
 	 */
 	private $elements;
-	
+
 	/**
 	 * If numeric labels should be displayed (true) or not (false).
-	 * 
+	 *
 	 * @var boolean
 	 */
 	private $allowNumericLabels = false;
-	
+
 	/**
 	 * Sets an element / value with the given label.
-	 * 
+	 *
 	 * @param String $label
 	 *        	Name of the attribute
 	 * @param String $value
@@ -29,10 +29,10 @@ class Dataview {
 	function addElement($label, $value) {
 		$this->elements [$label] = $value;
 	}
-	
+
 	/**
 	 * Gets the value of the given element.
-	 * 
+	 *
 	 * @param string $label
 	 *        	Label / key of the element.
 	 * @return string value
@@ -43,17 +43,17 @@ class Dataview {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the data within this data view.
 	 */
 	function getElements() {
 		return $this->elements;
 	}
-	
+
 	/**
 	 * Resolves the given foreign field to its named value.
-	 * 
+	 *
 	 * @param string $label
 	 *        	Element key.
 	 * @param string $table
@@ -76,7 +76,7 @@ class Dataview {
 		}
 		$system_data->regex->isDbItem($table);
 		$system_data->regex->isDbItem($idField);
-		
+
 		// fetch foreign row
 		$row = $system_data->dbcon->fetchRow("SELECT " . join ( ",", $nameArray ) . " FROM $table WHERE $idField = ?", array(array("i", $refId)));
 
@@ -87,30 +87,30 @@ class Dataview {
 		}
 		$this->addElement($label, join(" ", $values));
 	}
-	
+
 	/**
 	 * Automatically adds all records from array.
-	 * 
+	 *
 	 * @param Array $selection
 	 *        	Flat array in form of [name] => [value].
 	 */
 	function autoAddElements($selection) {
 		$this->elements = $selection;
 	}
-	
+
 	/**
 	 * Remove the given element from view.
-	 * 
+	 *
 	 * @param String $name
 	 *        	The name/label of the attribute.
 	 */
 	function removeElement($name) {
 		unset ( $this->elements [$name] );
 	}
-	
+
 	/**
 	 * Rename the attribute.
-	 * 
+	 *
 	 * @param String $name
 	 *        	The name/label of the attribute.
 	 * @param String $newName
@@ -123,11 +123,11 @@ class Dataview {
 			$this->elements [$newName] = $v;
 		}
 	}
-	
+
 	function allowNumericLabels($anl = true) {
 		$this->allowNumericLabels = $anl;
 	}
-	
+
 	function autoRename($fields) {
 		foreach ( $fields as $col => $info ) {
 			// convert values in case of dates and decimals
@@ -146,11 +146,11 @@ class Dataview {
 					$this->elements [$col] = Lang::txt ( "Dataview_autoRename.no" );
 				}
 			}
-			
+
 			$this->renameElement ( $col, $info [0] );
 		}
 	}
-	
+
 	function write() {
 		echo '<div class="mb-2 mx-3">';
 		if (count ( $this->elements ) > 0) {

@@ -6,19 +6,19 @@
  *
  */
 class DefaultController {
-	
+
 	/**
 	 * View of the module.
 	 * @var AbstractView
 	 */
 	private $view;
-	
+
 	/**
 	 * Data Access Object.
 	 * @var AbstractData
 	 */
 	private $data;
-	
+
 	/**
 	 * Entry point of module.
 	 * Controls the flow of a module.
@@ -37,19 +37,19 @@ class DefaultController {
 			}
 		}
 	}
-	
+
 	public function setView($view) {
 		$this->view = $view;
 	}
-	
+
 	public function getView() {
 		return $this->view;
 	}
-	
+
 	public function setData($data) {
 		$this->data = $data;
 	}
-	
+
 	public function getData() {
 		return $this->data;
 	}

@@ -52,7 +52,7 @@ _display.modal = function ( options ) {
 					.append( options && options.header ? '<h4>'+options.header( row )+'</h4>' : null )
 					.append( render() )
 					.appendTo( modalContainer );
-				
+
 				modalContainer.appendTo('body');
 
 				$('button.close-button').on('click', function() {

@@ -44,17 +44,17 @@ require_once $dir_prefix . $GLOBALS["DIR_EXPORT"] . "BNoteApiImpl.php";
 
 
 class BNoteApi {
-	
+
 	private $bnote;
-	
+
 	function __construct() {
 		$this->bnote = new BNoteApiImpl();
 	}
-	
+
 	public function onRequest() {
 		// set response content type header
 		header("Content-Type: application/json");
-		
+
 		// check authentication
 		if(!isset($_SERVER["PHP_AUTH_USER"])) {
 			session_start();
@@ -63,14 +63,14 @@ class BNoteApi {
 			http_response_code(403);
 			return json_encode(array("success" => false, "message" => "Unauthorized"));
 		}
-		
+
 		// route based on requested function
 		if(!isset($_GET["func"])) {
 			http_response_code(400);
 			return json_encode(array("success" => false, "message" => "Please specify a 'func' query parameter"));
 		}
 		$function = $_GET["func"];
-		
+
 		// check parameters
 		$reflectionClazz = new ReflectionClass(BNoteApiImpl::class);
 		if(!$reflectionClazz->hasMethod($function)) {

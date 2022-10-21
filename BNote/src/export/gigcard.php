@@ -69,7 +69,7 @@ header("Content-Type: application/msword");
 
 <body>
 
-<?php 
+<?php
 // concert details
 Writing::h1($c["title"]);
 
@@ -81,7 +81,7 @@ Writing::p($c["notes"]);
 	<tbody>
 		<tr>
 			<td><?php echo Lang::txt("gigcard_concert.organizer"); ?></td>
-			<td><?php 
+			<td><?php
 			if($c["organizer"]) {
 				echo $c["organizer"];
 			}
@@ -89,14 +89,14 @@ Writing::p($c["notes"]);
 		</tr>
 		<tr>
 			<td><?php echo Lang::txt("gigcard_concert.address"); ?></td>
-			<td><?php 
+			<td><?php
 			echo $loc["name"] . "<br/>";
 			echo $concertView->exportFormatAddress($concertData->getAddress($loc["address"]));
 			?></td>
 		</tr>
 		<tr>
 			<td><?php echo Lang::txt("gigcard_concert.contact"); ?></td>
-			<td><?php 
+			<td><?php
 			if($c["contact"]) {
 				$cnt = $concertData->getContact($c["contact"]);
 				$cv = $concertView->exportFormatContact($cnt, 'NAME_COMM_LB');
@@ -115,7 +115,7 @@ Writing::p($c["notes"]);
 	<tbody>
 		<tr>
 			<td><?php echo Lang::txt("gigcard_concert.period"); ?></td>
-			<td><?php 
+			<td><?php
 			echo Data::convertDateFromDb($c["begin"]) . " - ";
 			echo Data::convertDateFromDb($c["end"]);
 			?></td>
@@ -136,7 +136,7 @@ Writing::p($c["notes"]);
 	<tbody>
 		<tr>
 			<td><?php echo Lang::txt("gigcard_concert.groupNames"); ?></td>
-			<td><?php 
+			<td><?php
 			$groups = $concertData->getConcertGroups($c["id"]);
 			$groupNames = Database::flattenSelection($groups, "name");
 			echo join(", ", $groupNames);
@@ -144,7 +144,7 @@ Writing::p($c["notes"]);
 		</tr>
 		<tr>
 			<td><?php echo Lang::txt("gigcard_concert.program"); ?></td>
-			<td><?php 
+			<td><?php
 			if($c["program"]) {
 				$prg = $concertData->getProgram($c["program"]);
 				echo $prg["name"];
@@ -153,7 +153,7 @@ Writing::p($c["notes"]);
 		</tr>
 		<tr>
 			<td><?php echo Lang::txt("gigcard_concert.outfit"); ?></td>
-			<td><?php 
+			<td><?php
 			if($c["outfit"]) {
 				$outfit = $concertData->getOutfit($c["outfit"]);
 				echo $outfit["name"];
@@ -163,10 +163,10 @@ Writing::p($c["notes"]);
 		<tr>
 			<td><?php echo Lang::txt("gigcard_concert.equipment"); ?></td>
 			<td>
-			<?php 
+			<?php
 			$equipment = $concertData->getConcertEquipment($c["id"]);
 			if(count($equipment) == 0) {
-				echo '-';		
+				echo '-';
 			}
 			else {
 				echo '<ul>';
@@ -186,7 +186,7 @@ Writing::p($c["notes"]);
 	<tbody>
 		<tr>
 			<td><?php echo Lang::txt("gigcard_concert.accommodation"); ?></td>
-			<td><?php 
+			<td><?php
 			if($c["accommodation"] > 0) {
 				$acc = $concertData->adp()->getAccommodationLocation($c["accommodation"]);
 				echo $acc["name"] . "<br>" . $this->formatAddress($acc);
@@ -201,8 +201,8 @@ Writing::p($c["notes"]);
 			<td><?php echo Lang::txt("gigcard_concert.conditions"); ?></td>
 			<td><?php echo $c["conditions"]; ?></td>
 		</tr>
-		
-		<?php 
+
+		<?php
 		// custom data
 		$customFields = $concertData->getCustomFields(KonzerteData::$CUSTOM_DATA_OTYPE);
 		for($i = 1; $i < count($customFields); $i++) {
@@ -212,7 +212,7 @@ Writing::p($c["notes"]);
 				<td><?php echo $field["txtdefsingle"]; ?></td>
 				<td><?php echo $custom[$field["techname"]]; ?></td>
 			</tr>
-			<?php 
+			<?php
 		}
 		?>
 	</tbody>

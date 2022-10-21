@@ -27,50 +27,50 @@ div.start_box {
 	display: table-cell;
 	background-color: @white;
 	color: @black;
-	
+
 	a {
 		color: @black;
 		line-height: 1.8;
-		
+
 		&:hover { text-decoration: underline; }
 	}
-	
+
 	a.participation {
 		color: @bnote-darkgray;
 	}
-		
+
 	div.participate_0 {
 	    .start_box_opacity(0.5);
-	    
+
 	    &:hover { .start_box_opacity(1.0); }
 	}
-	
+
 	div.participate_-1 {
 		border-color: @bnote-redish;
 	    border-bottom-width: 2px;
 	}
-	
+
 	a.participation.participate_0 {
 		color: #ff6161;
-		
+
 		&::before { .start_box_participation_before("../../icons/no.png"); }
 	}
-	
+
 	a.participation.participate_1 {
 		color: @bnote-green;
-		
+
 		&::before { .start_box_participation_before("../../icons/selected.png"); }
 	}
-	
+
 	a.participation.participate_2 {
 		color: #ff821e;
-		
+
 		&::before { .start_box_participation_before("../../icons/maybe.png"); }
 	}
-	
+
 	a.participation.participate_-1 {
 		font-weight: bold;
-			    
+
 		&::before { .start_box_participation_before("../../icons/unspecified.png"); }
 	}
 }
@@ -82,7 +82,7 @@ div.start_box_content div {
 	padding: 0.75em;
 }
 
-div.start_box_heading {	
+div.start_box_heading {
 	background-color: @bnote-dark-alt;
 	color: @white;
 	text-transform: uppercase;
@@ -172,4 +172,3 @@ a.start_card {
 	color: #ff821e;
 	font-weight: bold;
 }
-

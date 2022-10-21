@@ -75,12 +75,12 @@ class CustomFieldsView extends CrudView {
 		$add->addIcon("plus");
 		$add->write();
 	}
-	
+
 	function addEntityForm() {
 		$form = new Form(Lang::txt($this->getaddEntityName()), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement($this->idField);
-		
+
 		// field type
 		$form->removeElement("fieldtype");
 		$ddFieldType = new Dropdown("fieldtype");
@@ -88,7 +88,7 @@ class CustomFieldsView extends CrudView {
 			$ddFieldType->addOption($name, $techType);
 		}
 		$form->addElement(Lang::txt("CustomFieldsView_addEntityForm.fieldtype"), $ddFieldType);
-		
+
 		// object type
 		$form->removeElement("otype");
 		$ddObjectType = new Dropdown("otype");
@@ -96,21 +96,21 @@ class CustomFieldsView extends CrudView {
 			$ddObjectType->addOption($name, $techType);
 		}
 		$form->addElement(Lang::txt("CustomFieldsView_addEntityForm.otype"), $ddObjectType);
-		
+
 		$form->write();
 	}
-	
+
 	function editEntityForm() {
 		// entry
 		$entry = $this->getData()->findByIdNoRef($_GET[$this->idParameter]);
-		
+
 		// form
 		$form = new Form(Lang::txt("edit", array($this->getEntityName())),
 				$this->modePrefix() . "edit_process&" . $this->idParameter . "=" . $_GET[$this->idParameter]);
 		$form->autoAddElements($this->getData()->getFields(),
 				$this->getData()->getTable(), $_GET[$this->idParameter]);
 		$form->removeElement($this->idField);
-		
+
 		// field type
 		$form->removeElement("fieldtype");
 		$ddFieldType = new Dropdown("fieldtype");
@@ -119,7 +119,7 @@ class CustomFieldsView extends CrudView {
 		}
 		$ddFieldType->setSelected($entry["fieldtype"]);
 		$form->addElement(Lang::txt("CustomFieldsView_editEntityForm.fieldtype"), $ddFieldType);
-		
+
 		// object type
 		$form->removeElement("otype");
 		$ddObjectType = new Dropdown("otype");
@@ -128,7 +128,7 @@ class CustomFieldsView extends CrudView {
 		}
 		$ddObjectType->setSelected($entry["otype"]);
 		$form->addElement(Lang::txt("CustomFieldsView_editEntityForm.otype"), $ddObjectType);
-		
+
 		$form->write();
 	}
 

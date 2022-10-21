@@ -42,7 +42,7 @@ $query = "SELECT s.title, c.name as composer, s.length, s.bpm, s.music_key, g.na
 			JOIN genre g ON s.genre = g.id
 			JOIN composer c ON s.composer = c.id
 			JOIN status ON s.status = status.id
-		WHERE ps.program = ? 
+		WHERE ps.program = ?
 		ORDER BY ps.rank ASC";
 $pieces = $db->getSelection($query, array(array("i",  $_GET["id"])));
 

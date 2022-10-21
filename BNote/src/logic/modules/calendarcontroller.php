@@ -8,19 +8,19 @@ require_once $GLOBALS["DIR_DATA_MODULES"] . "appointmentdata.php";
  *
  */
 class CalendarController extends DefaultController {
-	
+
 	/**
 	 * Submodule view.
 	 * @var AppointmentView
 	 */
 	private $appointmentView;
-	
+
 	/**
 	 * Submodule dao.
 	 * @var AppointmentData
 	 */
 	private $appointmentData;
-	
+
 	public function start() {
 		$this->initAppointment();
 		if(isset($_GET['mode'])) {
@@ -36,7 +36,7 @@ class CalendarController extends DefaultController {
 			$this->getView()->start();
 		}
 	}
-	
+
 	private function appointments() {
 		if(!isset($_GET["func"])) {
 			$this->appointmentView->start();
@@ -46,7 +46,7 @@ class CalendarController extends DefaultController {
 			$this->appointmentView->$func();
 		}
 	}
-	
+
 	private function initAppointment() {
 		if($this->appointmentData == null || $this->appointmentView == null) {
 			$this->appointmentData = new AppointmentData();
@@ -54,17 +54,17 @@ class CalendarController extends DefaultController {
 			$this->appointmentView = new AppointmentView($this);
 		}
 	}
-	
+
 	function appointmentOptions() {
 		$this->initAppointment();
 		$this->appointmentView->showOptions();
 	}
-	
+
 	function getData() {
 		if(isset($_GET["mode"]) && $_GET["mode"] == "appointments") {
 			return $this->appointmentData;
 		}
-		return parent::getData();	
+		return parent::getData();
 	}
 }
 

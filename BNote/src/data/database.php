@@ -6,50 +6,50 @@ require ("xmldata.php");
  * Global Database Connection
  */
 class Database extends Data {
-	
+
 	/**
 	 * Set this to true if you are developing for environments without a mysqlnd driver.
 	 * @var boolean
 	 */
 	private $debugNoMysqlnd = false;
-	
+
 	/**
 	 * Connection parameters
 	 * @var array
 	 */
 	private $connectionData;
-	
+
 	/**
 	 * MySQLi Connection
 	 * @var mysqli
 	 */
 	private $db;
-	
+
 	private $userTable;
-	
+
 	/**
 	 * Builds a new database connection and offers basic methods.
 	 */
 	function __construct() {
 		// build mysql connection with login-data from the xmlfile
 		$this->readConfig();
-		$this->db = mysqli_connect( 
-				$this->connectionData["server"], 
-				$this->connectionData["user"], 
-				$this->connectionData["password"], 
+		$this->db = mysqli_connect(
+				$this->connectionData["server"],
+				$this->connectionData["user"],
+				$this->connectionData["password"],
 				$this->connectionData["dbname"],
 				$this->connectionData["port"] );
-		
+
 		if(!$this->db || $this->db->connect_errno) {
 			$err = isset($this->db->connect_error) ? $this->db->connect_error : "Check logs.";
 			new BNoteError ( "Unable to connect to database: " . $err );
 		}
-		
+
 		if(array_key_exists("encoding", $this->connectionData)) {
 			mysqli_set_charset($this->db, $this->connectionData["encoding"]);
 		}
 	}
-	
+
 	// reads the database config from config/database.xml
 	private function readConfig() {
 		// Different locations for login and system
@@ -73,12 +73,12 @@ class Database extends Data {
 		}
 		$this->userTable = $config->getParameter("UserTable");
 	}
-	
+
 	private function mysql_error_display($query) {
 		require_once ($GLOBALS['DIR_WIDGETS'] . "error.php");
 		new BNoteError("The database query has failed:<br />" . $this->db->error . ".<br>Debug:" . $query);
 	}
-	
+
 	/**
 	 * Manipulates a row in the database with the prepared statement.
 	 * @param String $query Prepared statement to execute. Use "?" as a placeholder.
@@ -88,7 +88,7 @@ class Database extends Data {
 	public function prepStatement($query, $params) {
 		$typeDefs = "";
 		$paramValues = array();
-		
+
 		foreach($params as $val_def) {
 			$typeDefs .= $val_def[0];
 			array_push($paramValues, $val_def[1]);
@@ -99,7 +99,7 @@ class Database extends Data {
 		}
 		return $this->db->insert_id;
 	}
-	
+
 	/**
 	 * Get selection from database with a prepared statement.
 	 * @param String $query Prepared query.
@@ -117,7 +117,7 @@ class Database extends Data {
 		}
 		return $rows;
 	}
-	
+
 	private function preparedQueryRaw($query, $params) {
 		$stmt = $this->db->prepare($query);
 		$bindTypes = "";
@@ -141,7 +141,7 @@ class Database extends Data {
 		}
 		return $result;
 	}
-	
+
 	private function stmt_get_result($stmt) {
 		$result = array();
 		$stmt->store_result();
@@ -156,13 +156,13 @@ class Database extends Data {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Helper function from http://php.net/manual/de/mysqli.prepare.php
 	 * @param string $sql Prepared SQL statement.
 	 * @param string $typeDef Optional string-concatenated type definition.
 	 * @param string $params Parameter value array.
-	 * @return Array result. 
+	 * @return Array result.
 	 */
 	function mysqli_prepared_query($sql, $typeDef = FALSE, $params = FALSE){
 		if($stmt = $this->db->prepare($sql)){
@@ -172,7 +172,7 @@ class Database extends Data {
 			} else {
 				$multiQuery = TRUE;
 			}
-	
+
 			if($typeDef){
 				$bindParams = array();
 				$bindParamsReferences = array();
@@ -184,7 +184,7 @@ class Database extends Data {
 				$bindParamsMethod = new ReflectionMethod('mysqli_stmt', 'bind_param');
 				$bindParamsMethod->invokeArgs($stmt,$bindParamsReferences);
 			}
-	
+
 			$result = array();
 			foreach($params as $queryKey => $query){
 				foreach($bindParams as $paramKey => $value){
@@ -222,17 +222,17 @@ class Database extends Data {
 		} else {
 			$result = FALSE;
 		}
-	
+
 		if($multiQuery){
 			return $result;
 		} else {
 			return $result[0];
 		}
 	}
-	
+
 	/**
 	 * Get a single value from a table.
-	 * @param String $query Prepared statement. 
+	 * @param String $query Prepared statement.
 	 * @param String $col Column to fetch
 	 * @param Array $params Parameter array in the form i => array(type, value).
 	 * @return NULL|Object
@@ -241,10 +241,10 @@ class Database extends Data {
 		$res = $this->preparedQuery($query, $params);
 		return $res && count($res) > 0 ? $res[0][$col] : NULL;
 	}
-	
+
 	/**
 	 * Returns an array with the data from the query.
-	 * 
+	 *
 	 * @param String $preparedStatement Prepared statement (SQL) with "?" placeholders
 	 * @param Array $params Parameter array in the form i => array(type, value).
 	 * @return NULL|Array Data table
@@ -259,10 +259,10 @@ class Database extends Data {
 			$data = $res;
 		}
 		$dataTable = array();
-		
+
 		// add header
 		$header = array();
-		
+
 		for($i = 0; $i<$this->db->field_count; $i++) {
 			if(is_array($res) || $this->debugNoMysqlnd) {
 				$resultMeta = $res["meta"];
@@ -274,24 +274,24 @@ class Database extends Data {
 			if (!$meta) {
 				new BNoteError("Invalid table header.");
 			}
-			
+
 			// weird bug in some systems
 			$name = ord($meta->name) == 0 ? "id" : ucfirst($meta->name);
 			array_push($header, $name);
 		}
 		array_push($dataTable, $header);
-		
+
 		// add Data
 		foreach($data as $i => $row) {
 			array_push($dataTable, $row);
 		}
-		
+
 		return $dataTable;
 	}
-	
+
 	/**
 	 * Returns an array of the form $id => name with the possible foreign keys
-	 * 
+	 *
 	 * @param string $table
 	 *        	The referenced table
 	 * @param string $idcolumn
@@ -314,7 +314,7 @@ class Database extends Data {
 			$namecols = join(",", $namecolumns);
 		}
 		$query = "SELECT $idcolumn, $namecols FROM $table";
-		
+
 		// remove administrators from the corresponding tables
 		$params = array();
 		if ($table=="contact") {
@@ -339,10 +339,10 @@ class Database extends Data {
 			}
 		}
 		$query .= " ORDER BY $namecols";
-		
+
 		// call db
 		$dbSelection = $this->getSelection($query, $params);
-		
+
 		// process results
 		$ret = array();
 		for($i = 1; $i<count($dbSelection); $i ++) {
@@ -360,7 +360,7 @@ class Database extends Data {
 		}
 		return $ret;
 	}
-	
+
 	/**
 	 * Returns one row as an array.
 	 * @param String $preparedStmt Prepared statement to select the row.
@@ -370,10 +370,10 @@ class Database extends Data {
 		$res = $this->preparedQuery($preparedStmt, $params);
 		return $res && count($res) > 0 ? $res[0] : NULL;
 	}
-	
+
 	/**
 	 * Executes the given String as an SQL statement.
-	 * 
+	 *
 	 * @param String $query
 	 *        	Database SQL query to be executed.
 	 * @param Array $params
@@ -388,24 +388,24 @@ class Database extends Data {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the name of the user table.
 	 */
 	public function getUserTable() {
 		return $this->userTable;
 	}
-	
+
 	/**
 	 * Returns the name of the database.
 	 */
 	public function getDatabaseName() {
 		return $this->connectionData["dbname"];
 	}
-	
+
 	/**
 	 * Returns the name of the fields in the given table.
-	 * 
+	 *
 	 * @param String $table
 	 *        	Name of the table.
 	 */
@@ -416,7 +416,7 @@ class Database extends Data {
 		}
 		return $this->flattenSelection($selection, "Field");
 	}
-	
+
 	/**
 	 * Computes the total number of rows of a table.
 	 * @param string $table Table name
@@ -425,10 +425,10 @@ class Database extends Data {
 	public function getNumberRows($table) {
 		return $this->colValue("SELECT count(*) as cnt FROM $table", "cnt", array());
 	}
-	
+
 	/**
 	 * Takes a selection and makes a flat array with the contents of the given column.
-	 * 
+	 *
 	 * @param array $selection
 	 *        	Database Selection.
 	 * @param string $col

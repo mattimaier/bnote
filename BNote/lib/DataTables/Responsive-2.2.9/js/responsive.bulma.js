@@ -57,7 +57,7 @@ _display.modal = function ( options ) {
 			if ( options && options.header ) {
 				var header = _modal.find('div.modal-header');
 				header.find('button').detach();
-				
+
 				header
 					.empty()
 					.append( '<h4 class="modal-title subtitle">'+options.header( row )+'</h4>' );

@@ -1,7 +1,7 @@
 <?php
 
 class RecpayData extends AbstractData {
-	
+
 	/**
 	 * Build data provider.
 	 */
@@ -17,20 +17,20 @@ class RecpayData extends AbstractData {
 			"oid" => array(Lang::txt("RecpayData_construct.oid"), FieldType::CHAR),
 			"notes" => array(Lang::txt("RecpayData_construct.notes"), FieldType::CHAR, true)
 		);
-	
+
 		$this->references = array(
 			"account" => "account"
 		);
-	
+
 		$this->table = "`recpay`";
 		$this->init();
 	}
-	
+
 	function getPhases() {
 		$query = "SELECT * FROM rehearsalphase ORDER BY name";
 		return $this->database->getSelection($query);
 	}
-	
+
 	function ref2val($otype, $oid) {
 		switch($otype) {
 			case "L": $otype = Lang::txt("RecpayData_ref2val.location");
@@ -58,7 +58,7 @@ class RecpayData extends AbstractData {
 		}
 		return array($otype, $oid);
 	}
-	
+
 	function getRecurringPayments($joinedAttributes) {
 		$sel = $this->findAllJoined($joinedAttributes);
 		$res = array(
@@ -79,52 +79,52 @@ class RecpayData extends AbstractData {
 		}
 		return $res;
 	}
-	
+
 	function getLocationName($id) {
 		return $this->database->colValue("SELECT name FROM location WHERE id = ?", "name", array(array("i", $id)));
 	}
-	
+
 	function getPhaseName($id) {
 		return $this->database->colValue("SELECT name FROM rehearsalphase WHERE id = ?", "name", array(array("i", $id)));
 	}
-	
+
 	function getConcertName($id) {
 		return $this->database->colValue("SELECT begin FROM concert WHERE id = ?", "begin", array(array("i", $id)));
 	}
-	
+
 	function getContactName($id) {
 		$c = $this->database->fetchRow("SELECT surname, name FROM contact WHERE id = ?", array(array("i", $id)));
 		return $c["name"] . " " . $c["surname"];
 	}
-	
+
 	function getTourName($id) {
 		return $this->database->colValue("SELECT name FROM tour WHERE id = ?", "name", array(array("i", $id)));
 	}
-	
+
 	function getEquipmentName($id) {
 		return $this->database->colValue("SELECT name FROM equipment WHERE id = ?", "name", array(array("i", $id)));
 	}
-	
+
 	function create($values) {
 		// validate
 		$this->validateRecpay($values);
-		
+
 		// translate type
 		if($values["otype"] == "0") {
 			$values["otype"] = null;
 			$values["oid"] = null;
 		}
-		
+
 		if($values["btype"] == "0") {
 			$values["btype"] = 0;
 		}
 		else {
 			$values["btype"] = 1;
 		}
-		
+
 		parent::create($values);
 	}
-	
+
 	protected function validateRecpay($values) {
 		$this->regex->isPositiveAmount($values["account"]);
 		$this->regex->isText($values["subject"]);
@@ -132,32 +132,32 @@ class RecpayData extends AbstractData {
 		$this->regex->isMoney($values["amount_tax"]);
 		$this->regex->isText($values["notes"]);
 	}
-	
+
 	function update($id, $values) {
 		// validate
 		$this->validateRecpay($values);
-		
+
 		// translate type
 		if($values["otype"] == "0") {
 			$values["otype"] = null;
 			$values["oid"] = null;
 		}
-		
+
 		if($values["btype"] == "0") {
 			$values["btype"] = 0;
 		}
 		else {
 			$values["btype"] = 1;
 		}
-		
+
 		parent::update($id, $values);
 	}
-	
+
 	function book() {
 		$selection = GroupSelector::getPostSelection($this->findAllNoRef(), "recpay");
-		
+
 		$finData = new FinanceData();
-		
+
 		foreach($selection as $id) {
 			// create booking
 			$recpay = $this->database->fetchRow("SELECT * FROM `recpay` WHERE id = ?", array(array("i", $id)));
@@ -168,7 +168,7 @@ class RecpayData extends AbstractData {
 			$finData->addBooking($recpay);
 		}
 	}
-	
+
 }
 
 ?>

@@ -39,8 +39,8 @@ class ProbenphasenView extends CrudView {
 		$data = $this->getData()->getPhases(false);
 		$this->showPhaseTable($data);
 	}
-	
-	protected function tab_rehearsals() {		
+
+	protected function tab_rehearsals() {
 		$rehearsals = $this->getData()->getRehearsalsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("rehearsal", $rehearsals));
 		$table->renameAndAlign(array(
@@ -52,8 +52,8 @@ class ProbenphasenView extends CrudView {
 		$table->removeColumn("id");
 		$table->write();
 	}
-	
-	protected function tab_concerts() {		
+
+	protected function tab_concerts() {
 		$concerts = $this->getData()->getConcertsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("concert", $concerts));
 		$table->renameAndAlign(array(
@@ -67,8 +67,8 @@ class ProbenphasenView extends CrudView {
 		$table->removeColumn("id");
 		$table->write();
 	}
-	
-	protected function tab_contacts() {		
+
+	protected function tab_contacts() {
 		$contacts = $this->getData()->getContactsForPhase($_GET["id"]);
 		$table = new Table($this->addRemoveColumnToTable("contact", $contacts));
 		$table->renameAndAlign(array(
@@ -90,10 +90,10 @@ class ProbenphasenView extends CrudView {
 		$dv->autoRename($this->getData()->getFields());
 		$dv->write();
 	}
-	
+
 	function view() {
 		$this->checkID();
-		
+
 		$tabs = array(
 				"details" => Lang::txt("ProbenphasenView_view.details"),
 				"rehearsals" => Lang::txt("ProbenphasenView_view.rehearsals"),
@@ -115,7 +115,7 @@ class ProbenphasenView extends CrudView {
 			EOS;
 		}
 		echo "</div>\n";
-		
+
 		// content
 		echo "<div class=\"view_tab_content\">\n";
 
@@ -126,23 +126,23 @@ class ProbenphasenView extends CrudView {
 			$func = "tab_" . $_GET["tab"];
 			$this->$func();
 		}
-			
+
 		echo "</div>\n";
 	}
-	
+
 	function viewTitle() {
 		// always write title first
 		$pp = $this->getData()->findByIdNoRef($_GET["id"]);
 		return $pp["name"];
 	}
-	
+
 	function viewOptions() {
 		if(!isset($_GET["tab"]) || $_GET["tab"] == "details") {
 			parent::viewOptions();
 		}
 		else {
 			$this->backToStart();
-			
+
 			switch($_GET["tab"]) {
 				case "rehearsals":
 					$addReh = new Link($this->modePrefix() . "addRehearsal&id=" . $_GET["id"], Lang::txt("ProbenphasenView_viewOptions.addRehearsal"));
@@ -153,7 +153,7 @@ class ProbenphasenView extends CrudView {
 					$addContact = new Link($this->modePrefix() . "addContact&id=" . $_GET["id"], Lang::txt("ProbenphasenView_viewOptions.addContact"));
 					$addContact->addIcon("plus");
 					$addContact->write();
-					
+
 					$addGroupContacts = new Link($this->modePrefix() . "addMultipleContacts&id=" . $_GET["id"], Lang::txt("ProbenphasenView_viewOptions.addMultipleContacts"));
 					$addGroupContacts->addIcon("plus");
 					$addGroupContacts->write();
@@ -166,7 +166,7 @@ class ProbenphasenView extends CrudView {
 			}
 		}
 	}
-	
+
 	protected function backToViewTab($id, $tab) {
 		$back = new Link($this->modePrefix() . "view&id=$id&tab=$tab", "Zurück");
 		$back->addIcon("arrow-left");
@@ -185,7 +185,7 @@ class ProbenphasenView extends CrudView {
 		$form->addElement(Lang::txt("ProbenphasenView_addRehearsal.begin"), $gs);
 		$form->write();
 	}
-	
+
 	function addRehearsalOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
@@ -194,13 +194,13 @@ class ProbenphasenView extends CrudView {
 		$this->getData()->addRehearsals($_GET["id"]);
 		new Message(Lang::txt("ProbenphasenView_process_addRehearsal.message_1"), Lang::txt("ProbenphasenView_process_addRehearsal.message_2"));
 	}
-	
+
 	function process_addRehearsalOptions() {
 		$this->backToViewTab($_GET["id"], "rehearsals");
 	}
 
 	function addConcertTitle() { return Lang::txt("ProbenphasenView_addConcert.form"); }
-	
+
 	function addConcert() {
 		$form = new Form("", $this->modePrefix() . "process_addConcert&id=" . $_GET["id"]);
 
@@ -211,7 +211,7 @@ class ProbenphasenView extends CrudView {
 		$form->addElement(Lang::txt("ProbenphasenView_addConcert.title"), $gs);
 		$form->write();
 	}
-	
+
 	function addConcertOptions() {
 		$this->backToViewTab($_GET["id"], "concerts");
 	}
@@ -220,7 +220,7 @@ class ProbenphasenView extends CrudView {
 		$this->getData()->addConcerts($_GET["id"]);
 		new Message(Lang::txt("ProbenphasenView_process_addConcert.message_1"), Lang::txt("ProbenphasenView_process_addConcert.message_2"));
 	}
-	
+
 	function process_addConcertOptions() {
 		$this->backToViewTab($_GET["id"], "concerts");
 	}
@@ -235,32 +235,32 @@ class ProbenphasenView extends CrudView {
 		$form->addElement(Lang::txt("ProbenphasenView_addContact.contact"), $gs);
 		$form->write();
 	}
-	
+
 	function addContactOptions() {
 		$this->backToViewTab($_GET["id"], "contacts");
 	}
-	
+
 	function process_addContact() {
 		$this->getData()->addContacts($_GET["id"]);
 		new Message(Lang::txt("ProbenphasenView_process_addContact.message_1"), Lang::txt("ProbenphasenView_process_addContact.message_2"));
 	}
-	
+
 	function process_addContactOptions() {
 		$this->backToViewTab($_GET["id"], "contacts");
 	}
-	
+
 	function addMultipleContacts() {
 		$form = new Form(Lang::txt("ProbenphasenView_addMultipleContacts.form"),
 				$this->modePrefix() . "process_addMultipleContacts&id=" . $_GET["id"]);
-		
+
 		Writing::p(Lang::txt("ProbenphasenView_addMultipleContacts.message"));
-		
+
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(true, true), array(), "group");
 		$gs->setNameColumn("name_member");
 		$form->addElement(Lang::txt("ProbenphasenView_addMultipleContacts.name_member"), $gs);
 		$form->write();
 	}
-	
+
 	function addMultipleContactsOptions() {
 		$this->backToViewTab($_GET["id"], "contacts");
 	}
@@ -269,16 +269,16 @@ class ProbenphasenView extends CrudView {
 		$this->getData()->addGroupContacts($_GET["id"]);
 		new Message(Lang::txt("ProbenphasenView_process_addMultipleContacts.message_1"), Lang::txt("ProbenphasenView_process_addMultipleContacts.message_2"));
 	}
-	
+
 	function process_addMultipleContactsOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
-	
-	
+
+
 	function addRemoveColumnToTable($entity, $data) {
 		// header
 		array_push($data[0], Lang::txt("ProbenphasenView_addRemoveColumnToTable.delete"));
-		
+
 		// body
 		foreach($data as $i => $row) {
 			if($i == 0) continue;
@@ -291,7 +291,7 @@ class ProbenphasenView extends CrudView {
 		}
 		return $data;
 	}
-	
+
 	function delEntity() {
 		$this->getData()->deleteEntity($_GET["entity"], $_GET["id"], $_GET["eid"]);
 		$this->view();

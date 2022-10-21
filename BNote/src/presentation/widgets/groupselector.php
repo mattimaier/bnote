@@ -12,43 +12,43 @@ class GroupSelector implements iWriteable {
 	 * @var Array
 	 */
 	private $groups;
-	
+
 	/**
 	 * Simple array with all groups that are marked selected.
 	 * @var Array
 	 */
 	private $selectedGroups;
-	
+
 	/**
 	 * Name of the field in the form.
 	 * @var string
 	 */
 	private $fieldName;
-	
+
 	/**
 	 * Stores group IDs not to show/remove from list.
 	 * @var Array
 	 */
 	private $remove;
-	
+
 	/**
 	 * The name of the column which is shown as option caption.
 	 * @var Array
 	 */
 	private $nameColumn;
-	
+
 	/**
 	 * Type of the caption content.
 	 * @var FieldType
 	 */
 	private $captionType;
-	
+
 	/**
 	 * Optional css classes to be added to selection group.
 	 * @var String
 	 */
 	private $cssClass;
-	
+
 	/**
 	 * Builds a new group selector.
 	 * @param array $groups DB Selection of groups.
@@ -63,11 +63,11 @@ class GroupSelector implements iWriteable {
 		$this->nameColumn = array("name");
 		$this->cssClass = null;
 	}
-	
+
 	function removeGroup($groupId) {
 		array_push($remove, $groupId);
 	}
-	
+
 	/**
 	 * Set a single name column.
 	 * @param String $nameCol
@@ -75,7 +75,7 @@ class GroupSelector implements iWriteable {
 	function setNameColumn($nameCol) {
 		$this->nameColumn = array($nameCol);
 	}
-	
+
 	/**
 	 * Set multiple name columns.
 	 * They will be concatenated by space.
@@ -84,30 +84,30 @@ class GroupSelector implements iWriteable {
 	function setNameColumns($nameCols) {
 		$this->nameColumn = $nameCols;
 	}
-	
+
 	function setCaptionType($captionType) {
 		$this->captionType = $captionType;
 	}
-	
+
 	function additionalCssClasses($cssClass) {
 		$this->cssClass = $cssClass;
 	}
-	
+
 	function getName() {
 		return $this->fieldName;
 	}
-	
+
 	function toString() {
 		$cssClass = "";
 		if($this->cssClass != null) {
 			$cssClass = " " . $this->cssClass;
 		}
 		$out = "<div class=\"groupSelector$cssClass\">\n";
-		
+
 		for($i = 1; $i < count($this->groups); $i++) {
 			$groupId = $this->groups[$i]["id"];
 			if(in_array($groupId, $this->remove)) continue;
-			
+
 			// format caption
 			$groupName = "";
 			for($j = 0; $j < count($this->nameColumn); $j++) {
@@ -119,31 +119,31 @@ class GroupSelector implements iWriteable {
 				case FieldType::DATE: $groupName = Data::convertDateFromDb($groupName); break;
 				case FieldType::DATETIME: $groupName = Data::convertDateFromDb($groupName); break;
 				case FieldType::CURRENCY:
-				case FieldType::DECIMAL: 
-					$groupName = Data::convertFromDb($groupName); 
+				case FieldType::DECIMAL:
+					$groupName = Data::convertFromDb($groupName);
 					break;
 				case FieldType::INTEGER: $groupName = Data::formatInteger($groupName); break;
 			}
-			
+
 			$selected = "";
 			if(in_array($groupId, $this->selectedGroups)) {
 				$selected = "checked";
 			}
-			
+
 			$out .= '<div class="form-check form-switch">';
 			$out .= " <input class=\"form-check-input\" type=\"checkbox\" name=\"" . $this->fieldName . "_$groupId\" $selected />";
 			$out .= " <label class=\"form-check-label\" for=\"" . $this->fieldName . "\">$groupName</label>";
 			$out .= '</div>';
 		}
-		
+
 		$out .= "</div>";
 		return $out;
 	}
-	
+
 	public function write() {
 		return $this->toString();
 	}
-	
+
 	/**
 	 * Converts the ids given in the $_POST array to a plain array of the selected items.<br/>
 	 * The selectedGroups parameter in the constructor has no effect on this method.<br/>
@@ -159,7 +159,7 @@ class GroupSelector implements iWriteable {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Convenience access method for instance method.<br/>
 	 * <i>See instance method for details.</i>

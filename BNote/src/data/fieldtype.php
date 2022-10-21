@@ -6,7 +6,7 @@
  *
  */
 class FieldType {
-	
+
 	// types
 	const INTEGER = 1;
 	const DECIMAL = 2;
@@ -25,7 +25,7 @@ class FieldType {
 	const CURRENCY = 15;
 	const MINSEC = 16;  // Minutes and seconds
 	const TEXT = 0;
-	
+
 	/**
 	 * Returns the name of the type which is equals to the fields name.
 	 * @param int $id ID of the type.

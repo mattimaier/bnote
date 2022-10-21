@@ -7,11 +7,11 @@ if(file_exists("../../lang.php")) {
  * Provides functions for all data modules
 **/
 abstract class Data {
- 
+
 	const DATE_UNIFORMAT = "Y-m-d";
 	const DATETIME_UNIFORMAT = "Y-m-d H:i:s";
-	
-	
+
+
 	/**
 	 * Converts a german decimal formatted number x,xx to x.xx
 	 * @param Double $decimal Decimal number in the form of x,xx
@@ -19,7 +19,7 @@ abstract class Data {
 	public static function convertToDb($decimal) {
 		return Lang::decimalToDb($decimal);
 	}
-	
+
 	/**
 	 * Rounds a format to two decimal figures.
 	 * @param float $decimal Decimal number in the form of x.xx
@@ -27,7 +27,7 @@ abstract class Data {
 	public static function convertFromDb($decimal) {
 		return Lang::formatDecimal($decimal);
 	}
-	
+
 	/**
 	 * Formats an integer.
 	 * @param int $integer Number to format.
@@ -35,7 +35,7 @@ abstract class Data {
 	public static function formatInteger($integer) {
 		return number_format($integer, 0, ',', '.');
 	}
-	
+
 	/**
 	 * Converts an american formatted datetime YYYY-MM-DD H:i:s
 	 * to a german formatted datetime value
@@ -44,7 +44,7 @@ abstract class Data {
 	 */
 	public static function convertDateFromDb($date) {
 		if(strlen($date) < 8) return "-";
-		
+
 		if(strlen($date) > 10) {
 			// with time in format yyyy-mm-dd hh:mm
 			$year = substr($date, 0, 4);
@@ -55,14 +55,14 @@ abstract class Data {
 			//$second = substr($date, 17, 2); // second is ignored!
 			return Lang::dt($day, $month, $year, $hour, $minute);
 		}
-		
+
 		// Because it's always in full format character lengths are constant
 		$year = substr($date, 0, 4);
 		$month = substr($date, 5, 2);
 		$day = substr($date, 8, 2);
 		return Lang::dt($day, $month, $year, null, null);
 	}
-	
+
 	/**
 	 * Converts a german formatted date to an american format of YYYY-MM-DD
 	 * @param String $date Date in format DD.MM.YYYY or DD.MM.YYYY HH:ii
@@ -71,14 +71,14 @@ abstract class Data {
 		$date = trim($date);
 		return Lang::dtdb($date);
 	}
-	
+
 	public static function dateTimeTstd($datetime) {
 		if(strpos($datetime, " ") !== FALSE) {
 			return str_replace(" ", "T", trim($datetime));
 		}
 		return $datetime;
 	}
-	
+
 	/**
 	 * For debugging reasons a function to display a full array
 	 * @param Array $array Any kind of array
@@ -88,7 +88,7 @@ abstract class Data {
 		print_r($array);
 		echo "</pre>";
 	}
-	
+
 	/**
 	 * Adds $numDays days to $date
 	 * @param String $date Format Y-m-d
@@ -98,7 +98,7 @@ abstract class Data {
 	public static function addDaysToDate($date, $numDays) {
 		return date(Data::DATE_UNIFORMAT, strtotime("+$numDays day", strtotime($date)));
 	}
-	
+
 	/**
 	 * Subtracts $numDays days from $date
 	 * @param String $date Format Y-m-d
@@ -108,7 +108,7 @@ abstract class Data {
 	public static function subtractDaysFromDate($date, $numDays) {
 		return date(Data::DATE_UNIFORMAT, strtotime("-$numDays day", strtotime($date)));
 	}
-	
+
 	/**
 	 * Subtracts $numMonths months from $date
 	 * @param String $date Format Y-m-d
@@ -118,7 +118,7 @@ abstract class Data {
 	public static function subtractMonthsFromDate($date, $numMonths) {
 		return date(Data::DATE_UNIFORMAT, strtotime("-$numMonths month", strtotime($date)));
 	}
-	
+
 	/**
 	 * Adds $numMonths months from $date
 	 * @param String $date Format Y-m-d
@@ -128,14 +128,14 @@ abstract class Data {
 	public static function addMonthsToDate($date, $numMonths) {
 		return date(Data::DATE_UNIFORMAT, strtotime("+$numMonths month", strtotime($date)));
 	}
-	
+
 	/**
 	 * @return array All months in format [number] => [name], e.g. 6 => Juni.
 	 */
 	public static function getMonths() {
 		return Lang::getMonths();
 	}
-	
+
 	/**
 	 * Converts the English name of the weekday to another language.
 	 * @param String $wd [Mon/Tue/.../Sun]
@@ -144,18 +144,18 @@ abstract class Data {
 	public static function convertEnglishWeekday($wd) {
 		return Lang::convertEnglishWeekday($wd);
 	}
-	
+
 	/**
 	 * Retrieves the weekday of the given date.
 	 * @param String $dbdate Format YYYY-MM-DD
 	 */
-	public static function getWeekdayFromDbDate($dbdate) {		 
+	public static function getWeekdayFromDbDate($dbdate) {
 		 // this works with PHP <5.3 - we leave it for now
 		 $t = strtotime($dbdate);
 		 $dinfo = getdate($t);
 		 return Data::convertEnglishWeekday($dinfo["weekday"]);
 	}
-	
+
 	/**
 	 * Adds the given number of minutes to the date and returns it.
 	 * <strong>Requires PHP >5.2.0</strong>
@@ -169,7 +169,7 @@ abstract class Data {
 		$dt->modify("+$numMinutes minutes");
 		return $dt->format(Data::DATETIME_UNIFORMAT);
 	}
-	
+
 	/**
 	 * Checks whether a string starts with a substring.
 	 * @param string $haystack String to search in.
@@ -179,7 +179,7 @@ abstract class Data {
 	public static function startsWith($haystack, $needle) {
 		return $needle === "" || strpos($haystack, $needle) === 0;
 	}
-	
+
 	/**
 	 * Checks whether a string ends with a substring.
 	 * @param string $haystack String to search in.
@@ -189,7 +189,7 @@ abstract class Data {
 	public static function endsWith($haystack, $needle) {
 		return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 	}
-	
+
 	/**
 	 * Compares two dates.
 	 * <strong>Requires PHP >5.2.0</strong>
@@ -200,19 +200,19 @@ abstract class Data {
 	public static function compareDates($date1, $date2) {
 		$ts1 = strtotime($date1);
 		$ts2 = strtotime($date2);
-		
+
 		if($ts1 < $ts2) return -1; // Date 1 before Date 2
 		else if($ts1 == $ts2) return 0; // Date 1 is same than Date 2
 		else return 1; // Date 1 after Date 2
 	}
-	
+
 	/**
 	 * @return String Current date in YYYY-MM-DD HH:ii:ss (Db-)format.
 	 */
 	public static function getDateNow() {
 		return date('Y-m-d H:i:s');
 	}
-	
+
 	public static function dbSelectionToDict($selection, $k, $v_arr, $glue=" ") {
 		$dict = array();
 		foreach($selection as $i => $row) {
@@ -225,7 +225,7 @@ abstract class Data {
 		}
 		return $dict;
 	}
-	
+
 	/**
 	 * Determines if the given string representing a date(time) is in the future.
 	 * @param string $dbDate Date in standard format (DB format).
@@ -235,10 +235,10 @@ abstract class Data {
 		$now = Data::getDateNow();
 		return $now < strtotime($dbDate);
 	}
-	
+
 	/**
 	 * Adds an array to another array, but with the keys having a prefix.
-	 * @param Array $array Original array. 
+	 * @param Array $array Original array.
 	 * @param Array $addition Array to add.
 	 * @param Array $prefix Prefix to add in front of keys of additional array.
 	 * @return Array completely merged array.
@@ -250,7 +250,7 @@ abstract class Data {
 		}
 		return array_merge($array, $add);
 	}
-	
+
 	/**
 	 * Converts a decimal or minute-second value into a time-string for the database.
 	 * @param string $minsec A value like "5:23" meaning 5min and 23sec or "3.5" meaning 3min and 30sec.
@@ -293,7 +293,7 @@ abstract class Data {
 		}
 		return "00:00:00";
 	}
-	
+
 	/**
 	 * Converts a database time string representation into a minute and second based representation.
 	 * @param string $dbTime Time-representation in HH:mm:ss from the database.

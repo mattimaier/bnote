@@ -6,22 +6,22 @@
  *
  */
 class LoginController extends DefaultController {
-	
+
 	/**
 	 * If you turn on this flag you can see the hash value of the password
 	 * which was entered, e.g. to save it in a database manually.
 	 * @var Boolean
 	 */
 	private $SHOW_PASSWORD_HASH = false;
-	
+
 	/**
 	 * Globally used encryption hash for the passwords.
 	 * @var String
 	 */
 	const ENCRYPTION_HASH = 'BNot3pW3ncryp71oN';
-	
+
 	private $current_page;
-	
+
 	function __construct() {
 		if(isset($_GET["mod"])) {
 			$this->current_page = $_GET["mod"];
@@ -30,7 +30,7 @@ class LoginController extends DefaultController {
 			$this->current_page = "login";
 		}
 	}
-	
+
 	function start() {
 		// show appropriate page
 		if(isset($_GET["mode"]) && $_GET["mode"] == "login") {
@@ -53,7 +53,7 @@ class LoginController extends DefaultController {
 			}
 		}
 	}
-	
+
 	/**
 	 * This function is executed from without the context of the rest of this controller.
 	 * This way it's not possible to call too many fancy things. Just forward on success
@@ -66,11 +66,11 @@ class LoginController extends DefaultController {
 		$this->getData()->validateLogin();
 		$db_pw = $this->getData()->getPasswordForLogin($_POST["login"]);
 		$password = crypt($_POST["password"], LoginController::ENCRYPTION_HASH);
-		
+
 		if($this->SHOW_PASSWORD_HASH) {
 			echo Lang::txt("LoginController_doLogin.message") . $password . "</br>\n";
 		}
-		
+
 		if($db_pw == $password) {
 			if(strpos($_POST["login"], "@") !== false) {
 				$_SESSION["user"] = $this->getData()->getUserIdForEMail($_POST["login"]);
@@ -79,7 +79,7 @@ class LoginController extends DefaultController {
 				$_SESSION["user"] = $this->getData()->getUserIdForLogin($_POST["login"]);
 			}
 			$this->getData()->saveLastLogin();
-		
+
 			// go to application
 			if($quite) {
 				return true;
@@ -103,44 +103,44 @@ class LoginController extends DefaultController {
 			}
 		}
 	}
-	
+
 	private function pwForgot() {
 		// validate input
 		$this->getData()->validateEMail($_POST["email"]);
-		
+
 		// get user's id for email address
 		$uid = $this->getData()->getUserIdForEMail($_POST["email"]);
 		if($uid < 1) {
 			new BNoteError(Lang::txt("LoginController_pwForgot.error"));
 		}
 		$username = $this->getData()->getUsernameForId($uid);
-		
+
 		// generate new password
 		$password = $this->generatePassword(8);
-		
+
 		// generate email
 		$subject = Lang::txt("LoginController_pwForgot.subject");
 		$body = Lang::txt("LoginController_pwForgot.body_1") . "$username" . "\r\n";
 		$body .= Lang::txt("LoginController_pwForgot.body_2") . "$password";
-		
+
 		// only change password if mail was sent
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
 		$mail = new Mailing($_POST["email"], $subject, $body);
-		
+
 		if(!$mail->sendMail()) {
 			// talk to leader
 			new BNoteError(Lang::txt("LoginController_pwForgot.sendMailerror"));
 		}
-		else {					
+		else {
 			// Change password in system only if mail has been sent.
 			$pwenc = crypt($password, LoginController::ENCRYPTION_HASH);
 			$this->getData()->saveNewPassword($uid, $pwenc);
-					
+
 			// success message
 			new Message(Lang::txt("LoginController_pwForgot.message_1"), Lang::txt("LoginController_pwForgot.message_2"));
 		}
 	}
-	
+
 	public static function generatePassword($length) {
 		$chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz123456789";
 		srand((double)microtime()*1000000);
@@ -154,39 +154,39 @@ class LoginController extends DefaultController {
 		}
 		return $pass;
 	}
-	
+
 	public function register($writeOutput=true) {
 		// check agreement to terms
 		if(!isset($_POST["terms"])) {
 			new BNoteError(Lang::txt("LoginController_register.error_1"));
 		}
-		
+
 		// validate data
 		$this->getData()->validateRegistration();
-		
+
 		// check for duplicate login
 		if($this->getData()->duplicateLoginCheck()) {
 			new BNoteError(Lang::txt("LoginController_register.error_2"));
 		}
-		
+
 		// check passwords and encrypt it
 		if($_POST["pw1"] != $_POST["pw2"]) {
 			new BNoteError(Lang::txt("LoginController_register.error_3"));
 		}
 		$password = crypt($_POST["pw1"], LoginController::ENCRYPTION_HASH);
-		
+
 		// create entities for complete user
 		$aid = $this->getData()->createAddress($_POST); // address id
 		$cid = $this->getData()->createContact($aid); // contact id
 		$uid = $this->getData()->createUser($_POST["email"], $password, $cid); // user id
 		$this->getData()->createDefaultRights($uid);
-		
+
 		$outMsg = Lang::txt("LoginController_register.outMsg");
 		if($writeOutput) {
 			// write success
 			new Message(Lang::txt("LoginController_register.writeOutput"), $outMsg);
 		}
-		
+
 		$mailMessage = null;
 		$mailOk = true;
 		if($this->getData()->getSysdata()->autoUserActivation()) {
@@ -202,7 +202,7 @@ class LoginController extends DefaultController {
 			}
 			$subject = Lang::txt("LoginController_register.subject");
 			$message = Lang::txt("LoginController_register.message_1") . "<a href=\"$linkurl\">" . Lang::txt("LoginController_register.message_2") . "</a>";
-			
+
 			// send email to activate account and write message
 			$dir_prefix = "";
 			if(isset($GLOBALS['dir_prefix'])) {
@@ -210,7 +210,7 @@ class LoginController extends DefaultController {
 			}
 			require_once($dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php");
 			$mail = new Mailing($_POST["email"], $subject, $message);
-			
+
 			if(!$mail->sendMail()) {
 				$mailMessage = Lang::txt("LoginController_register.message_3");
 				$mailOk = false;
@@ -227,7 +227,7 @@ class LoginController extends DefaultController {
 		if($mailMessage != null && $writeOutput) {
 			echo $mailMessage;
 		}
-		
+
 		return array("user" => $uid, "contact" => $cid, "address" => $aid, "mailOk" => $mailOk, "message" => $outMsg);
 	}
 }

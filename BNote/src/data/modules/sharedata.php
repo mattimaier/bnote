@@ -6,7 +6,7 @@
  *
  */
 class ShareData extends AbstractData {
-	
+
 	/**
 	 * Create a new data provider for the share module.
 	 */
@@ -16,12 +16,12 @@ class ShareData extends AbstractData {
 				"name" => array(Lang::txt("ShareData_construct.name"), FieldType::CHAR, true),
 				"is_active" => array(Lang::txt("ShareData_construct.is_active"), FieldType::BOOLEAN)
 		);
-		
+
 		$this->table = "doctype";
-		
+
 		$this->init();
 	}
-	
+
 }
 
 ?>

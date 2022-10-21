@@ -6,38 +6,38 @@
  *
  */
 class ChatWidget implements iWriteable {
-	
+
 	/**
 	 * Object Type
 	 * @var String
 	 */
 	private $otype;
-	
+
 	/**
 	 * Object ID
 	 * @var Integer
 	 */
 	private $oid;
-	
+
 	/**
 	 * Application Data Provider handle
 	 * @var ApplicationDataProvider
 	 */
 	private $adp;
-	
+
 	/**
 	 * URL which is prefixed when adding comments, typically containing the modePrefix() segment.
 	 * @var String
 	 */
 	private $addCommentPrefix;
-	
+
 	public function __construct($otype, $oid, $adp, $addCommentPrefix) {
 		$this->otype = $otype;
 		$this->oid = $oid;
 		$this->adp = $adp;
 		$this->addCommentPrefix = $addCommentPrefix;
 	}
-	
+
 	public function getName() {
 		return $this->otype . "_" . $this->oid . "_discussion";
 	}
@@ -53,14 +53,14 @@ class ChatWidget implements iWriteable {
 		<?php
 		// show comments
 		$comments = $this->adp->getDiscussion($this->otype, $this->oid);
-		
+
 		if(count($comments) == 1) {
 			echo Lang::txt("StartView_discussion.noCommentsInDiscussion");
 		}
 		else {
 			foreach($comments as $i => $comment) {
 				if($i == 0) continue; // header
-				
+
 				$author = $comment["author"] . " / " . Data::convertDateFromDb($comment["created_at"]);
 				?>
 				<div class="chat_message_box mb-2 p-2">
@@ -72,10 +72,10 @@ class ChatWidget implements iWriteable {
 				<?php
 			}
 		}
-		
+
 		// add comment form
 		$submitLink = $this->addCommentPrefix . "&otype=" . $this->otype . "&oid=" . $this->oid;
-		
+
 		?>
 		<hr>
 		<form id="<?php echo $this->getName(); ?>" action="<?php echo $submitLink; ?>" method="POST" class="row row-cols-lg-auto align-items-center">
@@ -90,5 +90,5 @@ class ChatWidget implements iWriteable {
 		<?php
 	}
 
-	
+
 }

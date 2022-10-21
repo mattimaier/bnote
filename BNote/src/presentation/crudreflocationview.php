@@ -6,7 +6,7 @@
  *
  */
 class CrudRefLocationView extends CrudRefView {
-	
+
 	/**
 	 * Adds the address fields as defined in the AbstractLocationData.getAddressViewFields() method.
 	 * @param Form $form Form object to add fields to.
@@ -20,10 +20,10 @@ class CrudRefLocationView extends CrudRefView {
 			if($obj != NULL && isset($obj[$fieldName])) {
 				$defaultVal = $obj[$fieldName];
 			}
-			
+
 			// field display
 			if($fieldName == "country") {
-				$dd = $this->buildCountryDropdown($defaultVal, $obj);			
+				$dd = $this->buildCountryDropdown($defaultVal, $obj);
 				$form->addElement($info[0], $dd, $info[2], $info[3]);
 			}
 			else {
@@ -31,7 +31,7 @@ class CrudRefLocationView extends CrudRefView {
 			}
 		}
 	}
-	
+
 	/**
 	 * Renames the address columns within the table.
 	 * @param Table $table Table to rename columns.
@@ -44,7 +44,7 @@ class CrudRefLocationView extends CrudRefView {
 		$table->renameHeader($prefix . "state", Lang::txt("CrudRefLocationView_renameTableAddressColumns.state"));
 		$table->renameHeader($prefix . "country", Lang::txt("CrudRefLocationView_renameTableAddressColumns.country"));
 	}
-	
+
 	/**
 	 * Rename address fields in data view object.
 	 * @param Dataview $dataview Dataview to rename fields in.
@@ -57,7 +57,7 @@ class CrudRefLocationView extends CrudRefView {
 		$dataview->renameElement($prefix . "state", Lang::txt("CrudRefLocationView_renameDataViewFields.state"));
 		$dataview->renameElement($prefix . "country", Lang::txt("CrudRefLocationView_renameDataViewFields.country"));
 	}
-	
+
 	/**
 	 * Replace address fields in data view object with one "address" field and formatted address.
 	 * @param Dataview $dataview Dataview to rename fields in.
@@ -71,7 +71,7 @@ class CrudRefLocationView extends CrudRefView {
 		$dataview->removeElement($prefix . "state");
 		$dataview->removeElement($prefix . "country");
 	}
-	
+
 	/**
 	 * Checks the given keys whether it contains the needle.
 	 * @param String $needle Contains-String to search for.
@@ -84,7 +84,7 @@ class CrudRefLocationView extends CrudRefView {
 		}
 		return null;
 	}
-	
+
 	private function handleAddressFieldValue($field, $row, $useFuzzy, $prefix) {
 		$rowKeys = array_keys($row);
 		$fieldValue = "";
@@ -98,7 +98,7 @@ class CrudRefLocationView extends CrudRefView {
 		}
 		return $fieldValue;
 	}
-	
+
 	/**
 	 * Searches the given array for the address fields.
 	 * Then builds a string with the given address. In case a field cannot
@@ -115,7 +115,7 @@ class CrudRefLocationView extends CrudRefView {
 		$zip = $this->handleAddressFieldValue("zip", $row, $useFuzzy, $prefix);
 		$state = $this->handleAddressFieldValue("state", $row, $useFuzzy, $prefix);
 		$country = $this->handleAddressFieldValue("country", $row, $useFuzzy, $prefix);
-	
+
 		/*
 		 * street & zip & city & state & country
 		 * street & zip & city & state
@@ -138,7 +138,7 @@ class CrudRefLocationView extends CrudRefView {
 		 * only state
 		 * only country
 		 */
-		
+
 		// compile local part
 		$local = "";
 		if($street != "" && $city != "" && $zip != "") {
@@ -156,7 +156,7 @@ class CrudRefLocationView extends CrudRefView {
 		else if($city != "") {
 			$local = $city;
 		}
-		
+
 		// compile global part
 		$global = "";
 		if($state != "" && $country != "") {
@@ -168,7 +168,7 @@ class CrudRefLocationView extends CrudRefView {
 		else if($country != "") {
 			$global = $this->resolveCountryCode($country);
 		}
-		
+
 		// combile local and global
 		$addy = "";
 		if($local != "") {
@@ -182,14 +182,14 @@ class CrudRefLocationView extends CrudRefView {
 		else if($global != "") {
 			$addy = $global;
 		}
-		
+
 		// multiline handling
 		if($multiline) {
 			return str_replace(",", $multilineSeparator, $addy);
 		}
 		return $addy;
 	}
-	
+
 }
 
 ?>

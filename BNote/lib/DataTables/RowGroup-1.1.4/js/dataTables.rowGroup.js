@@ -245,7 +245,7 @@ $.extend( RowGroup.prototype, {
 			if ( group === null || group === undefined ) {
 				group = that.c.emptyDataGroup;
 			}
-			
+
 			if ( last === undefined || group !== last ) {
 				data.push( {
 					dataPoint: group,
@@ -277,7 +277,7 @@ $.extend( RowGroup.prototype, {
 	{
 		var dt = this.s.dt;
 		var display;
-	
+
 		for ( var i=0, ien=groups.length ; i<ien ; i++ ) {
 			var group = groups[i];
 			var groupName = group.dataPoint;
@@ -320,7 +320,7 @@ $.extend( RowGroup.prototype, {
 	_rowWrap: function ( display, className, level )
 	{
 		var row;
-		
+
 		if ( display === null || display === '' ) {
 			display = this.c.emptyDataGroup;
 		}
@@ -328,7 +328,7 @@ $.extend( RowGroup.prototype, {
 		if ( display === undefined || display === null ) {
 			return null;
 		}
-		
+
 		if ( typeof display === 'object' && display.nodeName && display.nodeName.toLowerCase() === 'tr') {
 			row = $(display);
 		}

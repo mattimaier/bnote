@@ -39,7 +39,7 @@ class FileHandler {
 		$this->filepath = $this->dir_prefix . $this->innerpath;
 		$this->filepath = str_replace("\\'", "'", $this->filepath);
 		$this->filepath = realpath($this->filepath);
-		
+
 		if(!file_exists($this->filepath)) {
 			header("HTTP/1.0 404 " . $this->innerpath . " not found");
 			exit;

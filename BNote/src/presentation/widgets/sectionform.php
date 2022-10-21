@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * A form with sections
@@ -6,9 +6,9 @@
  *
  */
 class SectionForm extends Form {
-	
+
 	protected $sections = array();
-	
+
 	/**
 	 * Groups fields by section.
 	 * @param String $sectionId Name of the section (must be unique)
@@ -17,7 +17,7 @@ class SectionForm extends Form {
 	public function setSection($sectionId, $fields) {
 		$this->sections[$sectionId] = $fields;
 	}
-	
+
 	public function write() {
 		$this->createForeign();
 		?>
@@ -57,13 +57,13 @@ class SectionForm extends Form {
 		}
 		?>
 		</div>
-		
-		<?php 
+
+		<?php
 		// add hidden values
 		foreach ( $this->hidden as $name => $value ) {
 			echo '<input type="hidden" value="' . $value . '" name="' . $name . '">';
 		}
-		
+
 		// Submit Button
 		if (! $this->removeSubmitButton) {
 			echo '<input type="submit" class="btn btn-primary" value="' . $this->submitValue . '">';
@@ -72,7 +72,7 @@ class SectionForm extends Form {
 		</form>
 		<?php
 	}
-	
+
 }
 
 ?>

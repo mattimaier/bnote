@@ -5,9 +5,9 @@ require_once($GLOBALS['DIR_PRESENTATION_MODULES'] . "recpayview.php");
 
 
 class FinanceController extends DefaultController {
-	
+
 	private $recpayCtrl = null;
-	
+
 	public function getRecpayCtrl() {
 		if($this->recpayCtrl == null) {
 			$ctrl = new RecpayController();
@@ -20,7 +20,7 @@ class FinanceController extends DefaultController {
 		}
 		return $this->recpayCtrl;
 	}
-	
+
 	/**
 	 * Entry point of module.
 	 * Controls the flow of a module.
@@ -45,7 +45,7 @@ class FinanceController extends DefaultController {
 			}
 		}
 	}
-	
+
 }
 
 ?>

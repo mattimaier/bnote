@@ -6,7 +6,7 @@
  *
  */
 class KontakteView extends CrudRefLocationView {
-	
+
 	/**
 	 * Create the contact view.
 	 */
@@ -19,24 +19,24 @@ class KontakteView extends CrudRefLocationView {
 			"instrument" => array("name")
 		));
 	}
-	
-	function start() {		
+
+	function start() {
 		// show band members
 		$this->showContacts();
 	}
-	
+
 	protected function isSubModule($mode) {
 		if($mode == "groups") return true;
 		return false;
 	}
-	
+
 	protected function subModuleOptions() {
 		$this->getController()->groupOptions();
 	}
-	
+
 	protected function startOptions() {
 		parent::startOptions();
-		
+
 		// set group filter if group is selected
 		$groupFilter = "&group=";
 		if(isset($_GET["group"])) {
@@ -48,30 +48,30 @@ class KontakteView extends CrudRefLocationView {
 		$eps = new Link($this->modePrefix() . "integration" . $groupFilter, Lang::txt("KontakteView_startOptions.integration"));
 		$eps->addIcon("box-arrow-in-up-right");
 		$eps->write();
-		
+
 		$groups = new Link($this->modePrefix() . "groups&func=start", Lang::txt("KontakteView_startOptions.players"));
 		$groups->addIcon("people-fill");
 		$groups->write();
-		
+
 		$print = new Link($this->modePrefix() . "selectPrintGroups", Lang::txt("KontakteView_startOptions.selectPrintGroups"));
 		$print->addIcon("printer");
 		$print->write();
-		
+
 		$vc = new Link($this->modePrefix() . "contactImport", Lang::txt("KontakteView_startOptions.contactImport"));
 		$vc->addIcon("person-rolodex");
 		$vc->write();
-		
+
 		$vc = new Link($GLOBALS["DIR_EXPORT"] . "kontakte.vcd", Lang::txt("KontakteView_startOptions.contactExport"));
 		$vc->addIcon("file-earmark-arrow-down-fill");
 		$vc->setTarget("_blank");
 		$vc->write();
-	
+
 		$gdprOk = new Link($this->modePrefix() . "gdprOk", Lang::txt("KontakteView_startOptions.gdprOk"));
 		$gdprOk->addIcon("journal-check");
 		$gdprOk->write();
 	}
-	
-	function showContacts() {		
+
+	function showContacts() {
 		// show correct group
 		if(isset($_GET["group"]) && $_GET["group"] == "all") {
 			$data = $this->getData()->getAllContacts();
@@ -83,14 +83,14 @@ class KontakteView extends CrudRefLocationView {
 			// default: MEMBERS
 			$data = $this->getData()->getMembers();
 		}
-		
+
 		// write
 		$this->showContactTable($data);
 	}
-	
+
 	private function showContactTable($data) {
 		$groups = $this->getData()->getGroups();
-		
+
 		// show groups as tabs
 		echo "<div class=\"contact_view\">";
 		echo " <div class=\"nav nav-tabs\">";
@@ -103,21 +103,21 @@ class KontakteView extends CrudRefLocationView {
 			}
 			$label = $info["name"];
 			$groupId = $info["id"];
-			
+
 			$active = "";
 			if(isset($_GET["group"]) && $_GET["group"] == $groupId) $active = "active";
 			else if(!isset($_GET["group"]) && $groupId == 2) $active = "active";
-			
+
 			echo "<div class=\"nav-item\">";
 			echo " <a class=\"nav-link $active\" href=\"" . $this->modePrefix() . "start&group=$groupId\">$label</a>";
 			echo "</div>";
 		}
 		echo " </div>";
-		
+
 		// show data
 		echo " <table id=\"contact_table\" class=\"table contact_view\">\n";
 		foreach($data as $i => $row) {
-					
+
 			if($i == 0) {
 				// header
 				echo "<thead>";
@@ -140,7 +140,7 @@ class KontakteView extends CrudRefLocationView {
 					$contact_name .= "<br/>(" . $row['nickname'] . ")";
 				}
 				echo "   <td class=\"DataTable\"><a href=\"" . $this->modePrefix() . "view&id=" . $row["id"] . "\">$contact_name</a></td>";
-				
+
 				// instrument, conductor
 				echo "   <td class=\"DataTable\">". Lang::txt("KontakteView_showContactTable.instrumentname") . $row["instrumentname"];
 				if(isset($row["is_conductor"])) {
@@ -148,9 +148,9 @@ class KontakteView extends CrudRefLocationView {
 					echo $row["is_conductor"] == "1" ? Lang::txt("KontakteView_showContactTable.yes") : Lang::txt("KontakteView_showContactTable.no");
 				}
 				echo "</td>";
-				
+
 				echo "   <td class=\"DataTable\" style=\"width: 150px;\">" . $this->formatAddress($row, TRUE, "", TRUE) . "</td>";
-				
+
 				// phones
 				$phones = "";
 				if($row["phone"] != "") {
@@ -158,42 +158,42 @@ class KontakteView extends CrudRefLocationView {
 				}
 				if($row["mobile"] != "") {
 					if($phones != "") $phones .= "<br/>";
-					$phones .= Lang::txt("KontakteView_showContactTable.mobile") . $row["mobile"]; 
+					$phones .= Lang::txt("KontakteView_showContactTable.mobile") . $row["mobile"];
 				}
 				if($row["business"] != "") {
 					if($phones != "") $phones .= "<br/>";
 					$phones .= Lang::txt("KontakteView_showContactTable.business") . $row["business"];
 				}
 				echo "   <td class=\"DataTable\" style=\"width: 150px;\">$phones</td>";
-				
+
 				// online
 				echo "   <td class=\"DataTable\"><a href=\"mailto:" . $row["email"] . "\">" . $row["email"] . "</a>";
 				if($row["web"] != "") {
 					echo "<br/><a href=\"https://" . $row["web"] . "\" target=\"_blank\">" . $row["web"] . "</a>";
-				} 
+				}
 				echo "</td>";
 			}
-			
+
 			echo "  </tr>";
 		}
 		// show "no entries" row when this is the case
 		if(count($data) == 1) {
 			echo "<tr><td colspan=\"5\">" . Lang::txt("KontakteView_showContactTable.no_entries") . "</td></tr>\n";
 		}
-		
+
 		echo "</tbody>";
 		echo "</table>\n";
 		echo "</div>";
 
 		?>
 			<script>
-		
+
 		// convert table to javasript DataTable
 		$(document).ready(function() {
 			var identifier = "#contact_table";
     		$(identifier).DataTable({
-				 "paging": false, 
-				 "info": false,  
+				 "paging": false,
+				 "info": false,
 				 "responsive": true,
 				 "oLanguage": {
 					 		 "sEmptyTable":  "<?php echo Lang::txt("KontakteView_showContactTable.sEmptyTable"); ?>",
@@ -206,61 +206,61 @@ class KontakteView extends CrudRefLocationView {
 		</script>
 		<?php
 	}
-	
-	function addEntity() {		
-		$form = new Form(Lang::txt($this->getAddEntityName()), $this->modePrefix() . "add");		
+
+	function addEntity() {
+		$form = new Form(Lang::txt($this->getAddEntityName()), $this->modePrefix() . "add");
 		// just add all custom and regular fields
-		$form->autoAddElementsNew($this->getData()->getFields());		
+		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		$form->removeElement("status");
-		
+
 		// instrument
 		$form->setForeign("instrument", "instrument", "id", "name", -1);
 		$form->addForeignOption("instrument", Lang::txt("KontakteView_addEntity.noinstrument"), 0);
-		
+
 		// address
 		$form->removeElement("address");
 		$this->addAddressFieldsToForm($form);
-		
+
 		// contact group selection
 		$groups = $this->getData()->getGroups();
 		$gs = new GroupSelector($groups, array(), "group");
 		$form->addElement(Lang::txt("KontakteView_addEntity.group"), $gs);
-		
+
 		$form->write();
 	}
-	
+
 	function add() {
 		$this->groupSelectionCheck();
-		
+
 		// do as usual
 		parent::add();
 	}
-	
+
 	function addOptions() {
 		$this->backToStart();
-		
+
 		$addMore = new Link($this->modePrefix() . "addEntity", Lang::txt("KontakteView_addOptions.addEntity"));
 		$addMore->addIcon("plus");
 		$addMore->write();
 	}
-	
+
 	function viewTitle() {
 		$contact = $this->getData()->getContact($_GET["id"]);
 		return $contact["name"] . " " . $contact["surname"];
 	}
-	
+
 	function view() {
 		// fetch contact and user details
 		$contact = $this->getData()->getContact($_GET["id"]);
-		
+
 		// the contact is a member of these groups
 		$groups = $this->getData()->getContactGroups($_GET["id"]);
 		$groups = str_replace(",", ", ", $groups);
-		
+
 		// custom field handling
 		$customFields = $this->getData()->getCustomFields("c");
-		
+
 		// build output
 		?>
 		<div class="contactdetail_section">
@@ -294,7 +294,7 @@ class KontakteView extends CrudRefLocationView {
 				<div class="contactdetail_entry_value"><?php echo $this->formatAddress($contact, TRUE, "", TRUE); ?></div>
 			</div>
 		</div>
-		
+
 		<div class="contactdetail_section">
 			<div class="contactdetail_section_header"><?php echo Lang::txt("KontakteView_view.title_2"); ?></div>
 			<div class="contactdetail_entry">
@@ -322,7 +322,7 @@ class KontakteView extends CrudRefLocationView {
 				<div class="contactdetail_entry_value"><?php echo $contact["web"]; ?></div>
 			</div>
 		</div>
-		
+
 		<div class="contactdetail_section">
 			<div class="contactdetail_section_header"><?php echo Lang::txt("KontakteView_view.title_3"); ?></div>
 			<div class="contactdetail_entry">
@@ -354,12 +354,12 @@ class KontakteView extends CrudRefLocationView {
 				?></div>
 			</div>
 			<?php
-			} 
+			}
 			?>
 		</div>
 		<?php
 	}
-	
+
 	function additionalViewButtons() {
 		// only show when it doesn't already exist
 		if(!$this->getData()->hasContactUserAccount($_GET["id"])) {
@@ -368,61 +368,61 @@ class KontakteView extends CrudRefLocationView {
 			$btn->addIcon("person");
 			$btn->write();
 		}
-		
+
 		// GDPR report
 		$gdpr = new Link($this->modePrefix() . "gdprReport&id=" . $_GET["id"], Lang::txt("KontakteView_additionalViewButtons.question"));
 		$gdpr->addIcon("person-rolodex");
 		$gdpr->write();
 	}
-	
+
 	function editEntityForm($write=true) {
 		$contact = $this->getData()->getContact($_GET["id"]);
-		
+
 		$form = new Form(Lang::txt("KontakteView_editEntityForm.Form"), $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"], array("company"));
 		$form->removeElement("id");
-		
+
 		// instrument
 		$form->setForeign("instrument", "instrument", "id", "name", $contact["instrument"]);
 		$form->addForeignOption("instrument", Lang::txt("KontakteView_addEntity.noinstrument"), 0);
 		$form->renameElement("instrument", Lang::txt("KontakteData_construct.instrument"));
-		
+
 		// address
 		$form->removeElement("address");
 		$this->addAddressFieldsToForm($form, $this->getData()->getAddress($contact["address"]));
-		
+
 		$form->removeElement("status");
-		
+
 		// custom fields
 		$fields = $this->getData()->getCustomFields('c');
 		for($i = 1; $i < count($fields); $i++) {
 			$field = $fields[$i];
 			$techname = $field["techname"];
-			$form->addElement($field['txtdefsingle'], new Field($techname, $contact[$techname], 
+			$form->addElement($field['txtdefsingle'], new Field($techname, $contact[$techname],
 					$this->getData()->fieldTypeFromCustom($field['fieldtype'])));
 		}
-		
+
 		// group selection
 		$groups = $this->getData()->getGroups();
 		$userGroups = $this->getData()->getContactGroupsArray($_GET["id"]);
 		$gs = new GroupSelector($groups, $userGroups, "group");
 		$form->addElement(Lang::txt("KontakteView_editEntityForm.group"), $gs);
-		
+
 		$form->write();
 	}
-	
+
 	function edit_process() {
 		$this->groupSelectionCheck();
-		
+
 		// do as usual
 		parent::edit_process();
 	}
-	
+
 	private function groupSelectionCheck() {
 		// make sure at least one group is selected
 		$groups = $this->getData()->getGroups();
 		$isAGroupSelected = false;
-		
+
 		for($i = 1; $i < count($groups); $i++) {
 			$fieldId = "group_" . $groups[$i]["id"];
 			if(isset($_POST[$fieldId])) {
@@ -430,33 +430,33 @@ class KontakteView extends CrudRefLocationView {
 				break;
 			}
 		}
-		
+
 		if(!$isAGroupSelected) {
 			new BNoteError(Lang::txt("KontakteView_groupSelectionCheck.error"));
 		}
 	}
-	
+
 	function selectPrintGroups() {
 		Writing::h2(Lang::txt("KontakteView_selectPrintGroups.title"));
 		Writing::p(Lang::txt("KontakteView_selectPrintGroups.message"));
-		
+
 		$form = new Form(Lang::txt("KontakteView_selectPrintGroups.form"), $this->modePrefix() . "printMembers");
-		
+
 		// custom field selection
 		$fields = $this->getData()->getCustomFields('c');
 		$fieldSelector = new GroupSelector($fields, array(), "custom");
 		$fieldSelector->setNameColumn("txtdefsingle");
 		$form->addElement(Lang::txt("KontakteView_selectPrintGroups.txtdefsingle"), $fieldSelector);
-				
+
 		// group filter
 		$groups = $this->getData()->getGroups();
 		$gs = new GroupSelector($groups, array(), "group");
 		$form->addElement(Lang::txt("KontakteView_selectPrintGroups.group"), $gs);
-		
+
 		$form->changeSubmitButton(Lang::txt("KontakteView_selectPrintGroups.submit"));
 		$form->write();
 	}
-	
+
 	function printMembers() {
 		// convert $_POST groups into a flat groups array
 		$allGroups = $this->getData()->getGroups();
@@ -473,11 +473,11 @@ class KontakteView extends CrudRefLocationView {
 			$this->backToStart();
 			return;
 		}
-		
+
 		// print styles
 		?>
 		<style>
-			@media print {			
+			@media print {
 				.dataTables_filter {
 					display: none;
 				}
@@ -487,15 +487,15 @@ class KontakteView extends CrudRefLocationView {
 		// show a printable list of members for each group
 		foreach($groups as $gid => $name) {
 			Writing::h3($name);
-			
+
 			$members = $this->getData()->getGroupContacts($gid);
 			$tab = new Table($this->formatMemberPrintTable($members));
 			$tab->write();
-			
+
 			$this->verticalSpace();
 		}
 	}
-	
+
 	private function formatMemberPrintTable($members) {
 		$formatted = array();
 		// header
@@ -507,12 +507,12 @@ class KontakteView extends CrudRefLocationView {
 				Lang::txt("KontakteView_formatMemberPrintTable.Mobil"),
 				Lang::txt("KontakteView_formatMemberPrintTable.Business"),
 				Lang::txt("KontakteView_formatMemberPrintTable.Email"),
-				Lang::txt("KontakteView_formatMemberPrintTable.Adresse") 
+				Lang::txt("KontakteView_formatMemberPrintTable.Adresse")
 		);
 		// add selected custom fields
 		$fields = $this->getData()->getCustomFields('c');
 		$fieldInfo = $this->getData()->compileCustomFieldInfo($fields);
-		$customFields = GroupSelector::getPostSelection($fields, "custom");		
+		$customFields = GroupSelector::getPostSelection($fields, "custom");
 		$selectedCustomFields = array();
 		foreach($fieldInfo as $techname => $info) {
 			if(in_array($info[2], $customFields)) {
@@ -521,7 +521,7 @@ class KontakteView extends CrudRefLocationView {
 			}
 		}
 		array_push($formatted, $header);
-		
+
 		// body
 		for($i = 1; $i < count($members); $i++) {
 			$row = $members[$i];
@@ -545,23 +545,23 @@ class KontakteView extends CrudRefLocationView {
 			}
 			array_push($formatted, $fRow);
 		}
-		
+
 		return $formatted;
 	}
-	
+
 	function printMembersOptions() {
 		$this->backToStart();
-		
+
 		$prt = new Link("javascript:window.print();", Lang::txt("KontakteView_printMembersOptions.print"));
 		$prt->addIcon("printer");
 		$prt->write();
 	}
-	
+
 	function userCreatedAndMailed($username, $email) {
 		$m = Lang::txt("KontakteView_userCreatedAndMailed.Message_1") . " $email " . Lang::txt("KontakteView_userCreatedAndMailed.Message_2");
 		new Message(Lang::txt("KontakteView_userCreatedAndMailed.Message_3") . " $username " . Lang::txt("KontakteView_userCreatedAndMailed.Message_4"), $m);
 	}
-	
+
 	function userCredentials($username, $password) {
 		$m = Lang::txt("KontakteView_userCredentials.Message_1");
 		$m .= Lang::txt("KontakteView_userCredentials.Message_2");
@@ -571,7 +571,7 @@ class KontakteView extends CrudRefLocationView {
 		$m .= Lang::txt("KontakteView_userCredentials.Message_6") . "<strong>$password</strong>";
 		new Message(Lang::txt("KontakteView_userCredentials.Message_7") . "$username" . Lang::txt("KontakteView_userCredentials.Message_8"), $m);
 	}
-	
+
 	function integration() {
 		Writing::h2(Lang::txt("KontakteView_integration.title"));
 		Writing::p(Lang::txt("KontakteView_integration.text"));
@@ -604,7 +604,7 @@ class KontakteView extends CrudRefLocationView {
 					</div>
 					<div class="start_box_heading"><?php echo Lang::txt("KontakteView_integration.rehearsalphase"); ?></div>
 					<div class="start_box_content">
-						<?php 
+						<?php
 						$phases = $this->getData()->getPhases();
 						$group = new GroupSelector($phases, array(), "rehearsalphase");
 						echo $group->write();
@@ -633,13 +633,13 @@ class KontakteView extends CrudRefLocationView {
 				</div>
 			</div>
 		</div>
-		
+
 		<input type="hidden" name="group" value="<?php echo isset($_GET["group"]) ? $_GET["group"] : ""; ?>" />
 		<input type="submit" value=<?php echo Lang::txt("KontakteView_integration.save"); ?> />
 		</form>
 		<?php
 	}
-	
+
 	function contactImport() {
 		$form = new Form(Lang::txt("KontakteView_contactImport.form"), $this->modePrefix() . "contactImportProcess");
 		$form->setMultipart();
@@ -648,26 +648,26 @@ class KontakteView extends CrudRefLocationView {
 		$form->addElement(Lang::txt("KontakteView_contactImport.vcdfile"), new Field("vcdfile", "", FieldType::FILE));
 		$form->write();
 	}
-	
+
 	function importVCardSuccess($message) {
 		new Message(Lang::txt("KontakteView_importVCardSuccess.message"), $message);
 	}
-	
+
 	function gdprReport() {
 		Writing::h1(Lang::txt("KontakteView_gdprReport.title_1"));
-		
+
 		// fetch contact and user details
 		$contact = $this->getData()->getContact($_GET["id"]);
 		$cid = $contact["id"];
 		$user = $this->getData()->adp()->getUserForContact($cid);
 		$uid = $user["id"];
-		
+
 		// the contact is a member of these groups
 		$groups = $this->getData()->getContactGroups($cid);
-		
+
 		// report creation line
 		Writing::p(Lang::txt("KontakteView_gdprReport.message_1") . date("d.m.Y H:i:s") . Lang::txt("KontakteView_gdprReport.message_2") . $contact["surname"] . ", " . $contact["name"]);
-		
+
 		// personal information
 		Writing::h2(Lang::txt("KontakteView_gdprReport.title_2"));
 		$dv = new Dataview();
@@ -680,17 +680,17 @@ class KontakteView extends CrudRefLocationView {
 		$dv->renameElement("city", Lang::txt("KontakteView_gdprReport.city"));
 		$dv->renameElement("zip", Lang::txt("KontakteView_gdprReport.zip"));
 		$dv->write();
-		
+
 		if($uid != NULL && $uid > 0) {
 			// Votes: participation
 			Writing::h2(Lang::txt("KontakteView_gdprReport.title_3"));
 			Writing::p(Lang::txt("KontakteView_gdprReport.message_3"));
-			
+
 			$votes = $this->getData()->adp()->getUsersVotesAll($uid);
 			$voteList = new Plainlist($votes);
 			$voteList->write();
 			Writing::p(Lang::txt("KontakteView_gdprReport.message_4"));
-			
+
 			// Tasks
 			Writing::h2(Lang::txt("KontakteView_gdprReport.title_4"));
 			Writing::p(Lang::txt("KontakteView_gdprReport.message_5"));
@@ -700,7 +700,7 @@ class KontakteView extends CrudRefLocationView {
 			$taskList->write();
 			Writing::p(Lang::txt("KontakteView_gdprReport.message_6"));
 		}
-		
+
 		// Concerts: participation
 		Writing::h2(Lang::txt("KontakteView_gdprReport.title_5"));
 		/*
@@ -712,7 +712,7 @@ class KontakteView extends CrudRefLocationView {
 		$concertInvitationList = new Plainlist($concertInvitations);
 		$concertInvitationList->setNameField("title");
 		$concertInvitationList->write();
-		
+
 		if($uid != NULL && $uid > 0) {
 			Writing::p(Lang::txt("KontakteView_gdprReport.message_8"));
 			$concertParticipation = $this->getData()->getConcertParticipation($uid);
@@ -720,9 +720,9 @@ class KontakteView extends CrudRefLocationView {
 			$concertParticipationList->setNameField("title");
 			$concertParticipationList->write();
 		}
-		
+
 		Writing::p(Lang::txt("KontakteView_gdprReport.message_9"));
-		
+
 		// Rehearsals: participation
 		Writing::h2(Lang::txt("KontakteView_gdprReport.title_6"));
 		/*
@@ -735,7 +735,7 @@ class KontakteView extends CrudRefLocationView {
 		$rehearsalInvitationsList = new Plainlist($rehearsalInvitations);
 		$rehearsalInvitationsList->setNameField("begin");
 		$rehearsalInvitationsList->write();
-		
+
 		if($uid != NULL && $uid > 0) {
 			Writing::p(Lang::txt("KontakteView_gdprReport.message_11"));
 			$rehearsalParticipation = $this->getData()->getRehearsalParticipation($uid);
@@ -743,12 +743,12 @@ class KontakteView extends CrudRefLocationView {
 			$rehearsalParticipationList->setNameField("begin");
 			$rehearsalParticipationList->write();
 		}
-		
+
 		Writing::p(Lang::txt("KontakteView_gdprReport.message_12"));
 		$phaseInvitations = $this->getData()->getRehearsalphaseInvitations($cid);
 		$phaseInvitationsList = new Plainlist($phaseInvitations);
 		$phaseInvitationsList->write();
-		
+
 		// Tours: participation
 		Writing::h2(Lang::txt("KontakteView_gdprReport.title_7"));
 		Writing::p(Lang::txt("KontakteView_gdprReport.message_13"));
@@ -756,19 +756,19 @@ class KontakteView extends CrudRefLocationView {
 		$tourInvitationsList = new Plainlist($tourInvitations);
 		$tourInvitationsList->write();
 	}
-	
+
 	function gdprReportOptions() {
 		$this->backToViewButton($_GET["id"]);
-		
+
 		$prt = new Link("javascript:window.print();", Lang::txt("KontakteView_gdprReportOptions.print"));
 		$prt->addIcon("printer");
 		$prt->write();
 	}
-	
+
 	function gdprOk() {
 		Writing::h1(Lang::txt("KontakteView_gdprOk.title"));
 		Writing::p(Lang::txt("KontakteView_gdprOk.message"));
-		
+
 		$contacts = $this->getData()->getContactGdprStatus();
 		$table = new Table($contacts);
 		$table->renameAndAlign($this->getData()->getFields());
@@ -778,19 +778,19 @@ class KontakteView extends CrudRefLocationView {
 		$table->removeColumn("user_id");
 		$table->write();
 	}
-	
+
 	function gdprOkOptions() {
 		$this->backToStart();
-	
+
 		$get = new Link($this->modePrefix() . "getGdprOk", Lang::txt("KontakteView_gdprOkOptions.getGdprOk"));
 		$get->addIcon("envelope-exclamation");
 		$get->write();
-	
+
 		$del = new Link($this->modePrefix() . "gdprNOK", Lang::txt("KontakteView_gdprOkOptions.gdprNOK"));
 		$del->addIcon("person-x-fill");
 		$del->write();
 	}
-	
+
 	function getGdprOk() {
 		/*
 		 * Users should login and accept - otherwise not usable
@@ -799,25 +799,25 @@ class KontakteView extends CrudRefLocationView {
 		Writing::h1(Lang::txt("KontakteView_getGdprOk.title"));
 		?>
 		<p><?php echo Lang::txt("KontakteView_getGdprOk.message"); ?></p>
-		
+
 		<div style="margin: 10px 20px;">
 		<?php
 		require_once "data/gdpr_mail.php";
-		
+
 		echo $this->getData()->getSysdata()->getCompany();
 		?>
 		</div>
 		<?php
 	}
-	
+
 	function getGdprOkOptions() {
 		$this->backToStart();
-		
+
 		$send = new Link($this->modePrefix() . "gdprSendMail", Lang::txt("KontakteView_getGdprOkOptions.gdprSendMail"));
 		$send->addIcon("send");
 		$send->write();
 	}
-	
+
 	function gdprNOK() {
 		Writing::p(Lang::txt("KontakteView_gdprNOK.message"));
 	}

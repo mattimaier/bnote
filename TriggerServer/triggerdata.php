@@ -8,7 +8,7 @@ class TriggerData extends TriggerDB {
 		$id = $this->getCell("instances", "id", "hostname = '$hostname'");
 		return ($id > 0);
 	}
-	
+
 	public function increaseCountOfInstance($hostname) {
 		$stmt = $this->db->prepare("UPDATE instances SET count = count + 1 WHERE hostname = ?");
 		$stmt->bind_param("s", $hostname);
@@ -45,7 +45,7 @@ class TriggerData extends TriggerDB {
 		$end->setTime(date("H"), 0, 0);
 		$start = clone $end;
 		$end->add(new DateInterval("PT1H"));  # plus time 1 hour -> inplace operation
-		
+
 		// build query
 		$query = "SELECT id, callback_data, callback_url FROM jobs WHERE trigger_on >= ? AND trigger_on < ?";
 		$stmt = $this->db->prepare($query);

@@ -6,12 +6,12 @@
  *
  */
 class CsvCreator {
-	
+
 	private $selection;
 	private $separator;
 	private $remove = array();
 	private $types = array();
-	
+
 	/**
 	 * Creates a new csv file out of the given database selection result.
 	 * @param Array $selection Return value of a Database->getSelection(...) call.
@@ -20,7 +20,7 @@ class CsvCreator {
 		$this->selection = $selection;
 		$this->separator = ",";
 	}
-	
+
 	/**
 	 * Sets the separator between values. By default a comma.
 	 * @param String $separator Separator, e.g. ",".
@@ -28,7 +28,7 @@ class CsvCreator {
 	public function setSeparator($separator) {
 		$this->separator = $separator;
 	}
-	
+
 	/**
 	 * Remove a column from the output.
 	 * @param String $col Name of the column in the data set.
@@ -36,7 +36,7 @@ class CsvCreator {
 	public function removeColumn($col) {
 		array_push($this->remove, $col);
 	}
-	
+
 	/**
 	 * Sets the type of a column in order to be formatted accordingly.
 	 * @param String $col Name of the column in the data set.
@@ -45,7 +45,7 @@ class CsvCreator {
 	public function setFieldType($col, $type) {
 		$this->types[$col] = $type;
 	}
-	
+
 	/**
 	 * Writes the csv file to the standard output.
 	 */
@@ -62,7 +62,7 @@ class CsvCreator {
 		}
 		$header = substr($header, 0, strlen($header)-1); // cut last separator
 		echo $header . "\n";
-		
+
 		// write data
 		for($i = 1; $i < count($this->selection); $i++) {
 			$row = $this->selection[$i];
@@ -87,5 +87,5 @@ class CsvCreator {
 			echo $rowout . "\n";
 		}
 	}
-	
+
 }

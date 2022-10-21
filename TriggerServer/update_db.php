@@ -14,27 +14,27 @@
 <body>
 <h3>Log</h3>
 
-<?php 
+<?php
 
 // include necessary scripts
 require_once("triggerdb.php");
 
 
 class UpdateDb {
-	
+
 	/**
 	 * Database Wrapper
 	 * @var TriggerDB
 	 */
 	private $db;
-	
+
 	private $tabs; // existing tables
-	
+
 	function __construct() {
 		$this->db = new TriggerDB();
 		$this->loadTabs();
 	}
-	
+
 	private function loadTabs() {
 		try {
 			$this->tabs = $this->db->getTables();
@@ -46,11 +46,11 @@ class UpdateDb {
 	private function handleException($e) {
 		echo "<strong>Exception! " . $e->getMessage() . "</strong><br/><pre>" . $e . "</pre>";
 	}
-	
+
 	function message($msg) {
 		echo "<i>$msg</i><br/>\n";
 	}
-	
+
 	function addColumnToTable($table, $column, $type, $options = "") {
 		$fields = $this->db->getFieldsOfTable($table);
 		if(!in_array($column, $fields)) {
@@ -62,7 +62,7 @@ class UpdateDb {
 			$this->message("Column $column already exists in table $table.");
 		}
 	}
-	
+
 	function addTable($table, $definition) {
 		if(!in_array($table, $this->tabs)) {
 			$this->db->execute($definition);
@@ -72,7 +72,7 @@ class UpdateDb {
 			$this->message("Table $table already exists.");
 		}
 	}
-	
+
 	function createFolder($path) {
 		if(file_exists($path)) {
 			$this->message("Folder $path already exists.");
@@ -92,7 +92,7 @@ $update = new UpdateDb();
 
 ?>
 <p>
-<?php 
+<?php
 
 // Create tables
 $update->addTable("jobs", "CREATE TABLE IF NOT EXISTS jobs (

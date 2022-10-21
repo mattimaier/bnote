@@ -15,7 +15,7 @@ class CustomFieldsData extends AbstractData {
 		"DATETIME" => "CustomFieldsData_fieldTypes.DATETIME",
 		"STRING" => "CustomFieldsData_fieldTypes.STRING"
 	);
-	
+
 	private $objectReferenceTypes = array(
 		"c" => "contact",
 		"r" => "rehearsal",
@@ -24,9 +24,9 @@ class CustomFieldsData extends AbstractData {
 		"v" => "reservation",  # v = vacancy
 		"a" => "appointment",
 		"l" => "location",
-		"e" => "equipment"					
+		"e" => "equipment"
 	);
-	
+
 	/**
 	 * Build data provider.
 	 */
@@ -47,10 +47,10 @@ class CustomFieldsData extends AbstractData {
 		$this->table = "customfield";
 		$this->init($dir_prefix);
 	}
-	
+
 	function getAllCustomFields() {
 		$fields = $this->findAllNoRef();
-		
+
 		// replace enum reference values
 		$selection = array();
 		for($i = 0; $i < count($fields); $i++) {
@@ -66,7 +66,7 @@ class CustomFieldsData extends AbstractData {
 		}
 		return $selection;
 	}
-	
+
 	function getFieldTypes() {
 		$out = array();
 		foreach($this->fieldTypes as $t => $txt) {
@@ -74,7 +74,7 @@ class CustomFieldsData extends AbstractData {
 		}
 		return $out;
 	}
-	
+
 	function getObjectTypes() {
 		$out = array();
 		foreach($this->objectReferenceTypes as $t => $txt) {
@@ -82,7 +82,7 @@ class CustomFieldsData extends AbstractData {
 		}
 		return $out;
 	}
-	
+
 	function validate($input) {
 		// check uniqueness of techname
 		if($_GET["sub"] == "add_process") {

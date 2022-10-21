@@ -15,12 +15,12 @@ class Systemdata {
  private $cfg_company;
  private $cfg_dynamic;
  private $current_modid;
- 
+
  private $user_module_permission;
- 
+
  private $version;
  private $dir_prefix;
- 
+
  private $theme;
  private $logoFilename;
 
@@ -89,7 +89,7 @@ class Systemdata {
  	if(!is_numeric($modId)) {
  		$modId = $this->dbcon->colValue("SELECT id FROM module WHERE lower(name) = ?", "id", array(array("s", strtolower($modId))));
  	}
- 	
+
  	// get module's name
  	$mods = $this->getModuleArray();
  	$name = $mods[$modId]["name"];
@@ -98,7 +98,7 @@ class Systemdata {
  	}
  	return $name;
  }
-	
+
 	public function getModule($id) {
 		$modId = ($id < 1) ? $this->current_modid : $id;
 		if(!is_numeric($modId)) {
@@ -142,50 +142,50 @@ class Systemdata {
 					array("s", $un),
 					array("s", $pw)
 			);
-			$query = "SELECT u.id FROM user u LEFT OUTER JOIN contact c ON u.contact = c.id 
+			$query = "SELECT u.id FROM user u LEFT OUTER JOIN contact c ON u.contact = c.id
 						WHERE (u.login = ? OR c.email = ?) AND u.password = ?";
 			return $this->dbcon->colValue($query, "id", $params);
 		}
 		return NULL;
 	}
- 
+
  /**
   * @param Integer $uid optional: User ID, by default current user.
   * @return Array An array with the module-ids the current user has permission for
   */
  public function getUserModulePermissions($uid = -1) {
  	$userId = ($uid == -1 && $this->isUserAuthenticated()) ? $this->getUserId() : $uid;
- 	
+
  	$query = "SELECT module FROM privilege WHERE user = ?";
  	$privileges = $this->dbcon->getSelection($query, array(array("i", $userId)));
- 	
+
  	if(!$privileges) {
  		new BNoteError(Lang::txt("Systemdata_getUserModulePermissions.error"));
- 	} 
- 	
+ 	}
+
  	$ret = array();
  	for($i = 1; $i < count($privileges); $i++) {
  		array_push($ret, $privileges[$i]["module"]);
  	}
  	return $ret;
  }
- 
+
  public function userHasPermission($modulId, $uid = -1) {
  	if($modulId === "login") {
  		return true;
  	}
- 	 	
+
  	$modId = (is_numeric($modulId) && $modulId < 1) ? $this->current_modid : $modulId;
  	if(!is_numeric($modulId)) {
  		$modId = $this->dbcon->colValue("SELECT id FROM module WHERE lower(name) = ?", "id", array(array("s", strtolower($modulId))));
  	}
  	$module = $this->getModuleArray()[$modId];
- 	
+
  	// allow access to public pages always
  	if($module["category"] == "public") {
  		return true;
  	}
- 	
+
  	// check access to restricted pages
  	if($uid == -1) {
  		$permissions = $this->user_module_permission;
@@ -193,11 +193,11 @@ class Systemdata {
  	else {
  		$permissions = $this->getUserModulePermissions($uid);
  	}
- 	
+
  	if($permissions == null) {
  		return false;
  	}
- 	
+
  	if($this->gdprOk($uid) == 0 && $modId != 1) {
  		return false;
  	}
@@ -212,10 +212,10 @@ class Systemdata {
  	if(!$this->isUserAuthenticated()) {
  		return $this->getInnerModuleArray("public");
  	}
- 	
+
 	return $this->getInnerModuleArray($category);
  }
- 
+
  /**
   * @return Array with all modules of the inner system (not from the login-module).
   */
@@ -228,27 +228,27 @@ class Systemdata {
  	}
  	$query = "SELECT * FROM module $where ORDER BY id";
  	$mods = $this->dbcon->getSelection($query, $params);
- 	
+
  	$res = array();
- 	
+
  	for($i = 1; $i < count($mods); $i++) {
  		$res[$mods[$i]["id"]] = $mods[$i];
  	}
- 	
+
  	return $res;
  }
- 
+
  /**
   * Returns an array with the company's full information
   */
  public function getCompanyInformation() {
  	return $this->cfg_company->getArray();
  }
- 
+
  public function getApplicationName() {
  	return $this->cfg_system->getParameter("Name");
  }
- 
+
  public function getStartModuleId() {
  	return "" . $this->cfg_system->getParameter("StartModule");
  }
@@ -261,22 +261,22 @@ class Systemdata {
  	// get default privileges from configuration
  	$defaultMods = explode(",", $this->cfg_system->getParameter("DefaultPrivileges"));
  	array_push($defaultMods, $this->getStartModuleId());
- 	
+
  	// make sure at least one permission is specified -> start module
  	if(count($defaultMods) < 1) {
  		return array($this->getStartModuleId());
  	}
- 	
+
  	return $defaultMods;
  }
- 
+
  /**
   * Returns the URL where the system is reachable.
   */
  public function getSystemURL() {
  	return $this->cfg_system->getParameter("URL");
  }
- 
+
  /**
   * Returns true when DemoMode is on, otherwise false.
   */
@@ -285,7 +285,7 @@ class Systemdata {
  	if(strtolower($demoMode) == "true") return true;
  	else return false;
  }
- 
+
  /**
   * Returns true when users should be able to activate their accounts
   * by clicking on a link in an email after registration.
@@ -294,7 +294,7 @@ class Systemdata {
  	$autoActiv = $this->getDynamicConfigParameter('auto_activation');
 	return ($autoActiv == "1");
  }
- 
+
  /**
   * @return Array All super users from the configuration.
   */
@@ -304,17 +304,17 @@ class Systemdata {
  	if($sus[0] == "") return array();
  	return $sus;
  }
- 
+
  /**
   * Checks whether the given user is a super user or not.
-  * @param Integer $uid User ID. In case no id is given, the current user is checked. 
+  * @param Integer $uid User ID. In case no id is given, the current user is checked.
   * @return True when the user is a super user, otherwise false.
   */
  public function isUserSuperUser($uid = -1) {
  	if($uid == -1) $uid = $this->getUserId();
  	return in_array($uid, $this->getSuperUsers());
  }
- 
+
  /**
   * Checks if the contact's user is a super user.
   * @param int $cid Contact ID, default current.
@@ -325,7 +325,7 @@ class Systemdata {
  	$uid = $this->dbcon->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $cid)));
  	return $this->isUserSuperUser($uid);
  }
- 
+
  /**
   * Checks whether the given or current user is a member of the given group.<br/>
   * Default Groups are: 1=Administrators, 2=Members
@@ -343,7 +343,7 @@ class Systemdata {
  	$n = $this->dbcon->colValue($query, "n", array(array("i", $uid), array("i", $groupId)));
  	return $n > 0;
  }
- 
+
  /**
   * @return Array with the IDs of the super user's contacts
   */
@@ -360,7 +360,7 @@ class Systemdata {
  	$su = $this->dbcon->getSelection($query, $params);
  	return $this->dbcon->flattenSelection($su, "contact");
  }
- 
+
  /**
   * Checks if the user is part of the admin group.<br/>
   * <i>Utility method only</i>
@@ -369,7 +369,7 @@ class Systemdata {
  public function isUserAdmin($uid = -1) {
  	return $this->isUserMemberGroup(1, $uid);
  }
- 
+
  /**
   * @return String The name of the group who can edit the share module.
   * @deprecated as of 2.4.0, use grouping instead
@@ -377,7 +377,7 @@ class Systemdata {
  public function getShareEditGroup() {
  	return "" . $this->cfg_system->getParameter("ShareEditGroup");
  }
- 
+
  /**
   * @return True when the gallery management is used and should be displayed and functional, otherwise false.
   */
@@ -386,7 +386,7 @@ class Systemdata {
  	if($gal != null && strtolower($gal) == "true") return true;
  	else return false;
  }
- 
+
  /**
   * @return True when the infopage/news/additional pages management is used and should be displayed and functional, otherwise false.
   */
@@ -395,14 +395,14 @@ class Systemdata {
  	if($gal != null && strtolower($gal) == "true") return true;
  	else return false;
  }
- 
+
  /**
   * @return True when the user is not logged in, otherwise false.
   */
  public function isUserAuthenticated() {
  	return $this->getUserId() != NULL;
  }
- 
+
  /**
   * Returns the configured instrument categories.
   * <i>Needed for registration...</i>
@@ -415,17 +415,17 @@ class Systemdata {
  	$result = array();
  	for($i = 1; $i < count($categories); $i++) {
  		if($catFilter == "ALL" || in_array($categories[$i]["id"], $cats)) {
- 			array_push($result, $categories[$i]["id"]);	
+ 			array_push($result, $categories[$i]["id"]);
  		}
  	}
  	return $result;
  }
- 
+
  /**
   * Returns the configured pages as an array.
   * @return Array format: <Page Name> => <Filename wo/ extension>
   */
- public function getConfiguredPages() { 	
+ public function getConfiguredPages() {
  	$xml = $this->cfg_system->getXmlNode();
  	$pages = $xml->xpath("/Software/WebPages/Page");
  	$result = array();
@@ -435,7 +435,7 @@ class Systemdata {
  	}
  	return $result;
  }
- 
+
  /**
   * Fetches all dynamic configuration parameters from the configuration table.
   * @return Array format: <parameter identifier> => <value>
@@ -448,7 +448,7 @@ class Systemdata {
  	}
  	return $config;
  }
- 
+
  /**
   * Determines the value of the dynamically configured parameter.
   * @param String $parameter Identifier of the parameter.
@@ -463,7 +463,7 @@ class Systemdata {
  	}
  	return NULL;
  }
- 
+
  /**
   * Retrieves static system configuraiton parameters.
   * @param string $parameter Parameter name.
@@ -472,7 +472,7 @@ class Systemdata {
  public function getSystemConfigParameter($parameter) {
  	return $this->cfg_system->getParameter($parameter);
  }
- 
+
  /**
   * Get the contact ID from the user ID
   * @param int $uid User ID.
@@ -482,7 +482,7 @@ class Systemdata {
  	if($uid == -1) $uid = $this->getUserId();
  	return $this->dbcon->colValue("SELECT contact FROM user WHERE id = ?", "contact", array(array("i", $uid)));
  }
- 
+
  /**
   * Retrieves the current user's contact in case there is one.
   * @param Integer $uid optional: User ID, by default the current user.
@@ -492,19 +492,19 @@ class Systemdata {
  	if($uid == -1) $uid = $this->getUserId();
  	return $this->dbcon->fetchRow("SELECT c.* FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?", array(array("i", $uid)));
  }
- 
+
  public function gdprOk($uid = -1) {
  	if($uid == -1) $uid = $this->getUserId();
  	$gdprOk = $this->dbcon->colValue("SELECT gdpr_ok FROM contact c JOIN user u ON u.contact = c.id WHERE u.id = ?", "gdpr_ok", array(array("i", $uid)));
  	return $gdprOk;
  }
- 
+
  public function gdprAccept($accept) {
  	$info = $this->getUsersContact();
  	$query = "UPDATE contact SET gdpr_ok = ? WHERE id = ?";
  	$this->dbcon->prepStatement($query, array(array("i", $accept), array("i", $info["id"])));
  }
- 
+
  /**
   * Holds the generation of the user's home directory.
   * @param Integer $uid optional: User ID, by default current user.
@@ -515,7 +515,7 @@ class Systemdata {
  	$login = $this->dbcon->colValue("SELECT login FROM user WHERE id = ?", "login", array(array("i", $uid)));
  	return $GLOBALS["DATA_PATHS"]["userhome"] . $login;
  }
- 
+
  /**
   * Holds the generation of the group's home directory.
   * @param Integer $groupId Group ID.
@@ -525,14 +525,14 @@ class Systemdata {
  	$dirname = "group_" . $groupId; // name can contain spaces and other weird characters
  	return $GLOBALS["DATA_PATHS"]["grouphome"] . $dirname;
  }
- 
+
  /**
   * Returns the path to the filehandler script.
   */
  public function getFileHandler() {
  	return $GLOBALS["DIR_DATA"] . "filehandler.php";
  }
- 
+
  /**
   * @return True when auto activation of accounts is on, otherwise false.
   */
@@ -540,18 +540,18 @@ class Systemdata {
  	$autoLogin = $this->getDynamicConfigParameter("auto_activation");
  	return (intval($autoLogin) === 1);
  }
- 
+
  /**
   * @param $uid optional: User ID, by default current user.
   * @return True when the user allows email notifications, otherwise false.
   */
  public function userEmailNotificationOn($uid = -1) {
  	if($uid == -1) $uid = $this->getUserId();
- 	$val = $this->dbcon->colValue("SELECT email_notification FROM user WHERE id = ? AND isActive = 1", "email_notification", 
+ 	$val = $this->dbcon->colValue("SELECT email_notification FROM user WHERE id = ? AND isActive = 1", "email_notification",
  			array(array("i", $uid)));
  	return ($val == 1);
  }
- 
+
  /**
   * @param Integer $cid Contact ID.
   * @return True when the user allows email notifications, otherwise false.
@@ -560,9 +560,9 @@ class Systemdata {
  	if($cid == "") return false;
  	$contactsUserId = $this->dbcon->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $cid)));
  	if($contactsUserId == null) return false;
- 	return $this->userEmailNotificationOn($contactsUserId); 
+ 	return $this->userEmailNotificationOn($contactsUserId);
  }
- 
+
  /**
   * @return String BNote version
   */
@@ -578,14 +578,14 @@ class Systemdata {
  	}
  	return $this->version;
  }
- 
+
  /**
   * @return String Language Code to use from the settings.
   */
  public function getLang() {
  	return $this->getDynamicConfigParameter("language");
  }
- 
+
  /**
   * @return string Name of the theme to use.
   */
@@ -598,7 +598,7 @@ class Systemdata {
  	}
  	return $this->theme;
  }
- 
+
  /**
   * @return string Filename of the logo in style/images
   */

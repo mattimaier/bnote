@@ -7,10 +7,10 @@
  *
  */
 class HtmlEditor implements iWriteable {
-	
+
 	private $html;
 	private $name;
-	
+
 	/**
 	 * Creates a new html editor. Make sure the javascript has
 	 * a tinyMCE init for the exact element "tinymcefull".
@@ -21,14 +21,14 @@ class HtmlEditor implements iWriteable {
 		$this->name = $name;
 		$this->html = $default;
 	}
-	
+
 	function write() {
 		$editor = '<textarea id="tinymcefull" name="' . $this->name . '"';
 		$editor .= ' cols="100" rows="20">';
  		$editor .= $this->html . '</textarea>' . "\n";
  		echo $editor;
 	}
-	
+
 	public function getName() { return $this->name; }
 }
 

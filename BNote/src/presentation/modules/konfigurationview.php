@@ -14,7 +14,7 @@ class KonfigurationView extends CrudRefLocationView {
 		$this->setController($ctrl);
 		$this->setEntityName(Lang::txt("KonfigurationView_construct.EntityName"));
 	}
-	
+
 	function showOptions() {
 		if(isset($_GET["mode"])) {
 			if($_GET["mode"] == "instruments") {
@@ -31,12 +31,12 @@ class KonfigurationView extends CrudRefLocationView {
 			parent::showOptions();
 		}
 	}
-	
+
 	function start() {
 		$this->showWarnings();
-		
+
 		Writing::p(Lang::txt("KonfigurationView_start.warning"));
-		
+
 		$parameter = $this->getData()->getActiveParameter();
 
 		$table = new Table($parameter);
@@ -47,45 +47,45 @@ class KonfigurationView extends CrudRefLocationView {
 		$table->changeMode("edit");
 		$table->write();
 	}
-	
-	function startOptions() {		
+
+	function startOptions() {
 		// instrument configuration
 		$istr = new Link($this->modePrefix() . "instruments", Lang::txt("KonfigurationView_start.instruments"));
 		$istr->addIcon("instrument");
 		$istr->write();
-		
+
 		// fields configuration
 		$cuf = new Link($this->modePrefix() . "customfields", Lang::txt("KonfigurationView_start.customfields"));
 		$cuf->addIcon("copy_link");
 		$cuf->write();
 	}
-	
+
 	protected function showWarnings() {
 		if($this->getData()->getSysdata()->getDynamicConfigParameter("google_api_key") == "") {
 			$this->flash(Lang::txt("KonfigurationView_showWarnings.Warnings"));
 		}
 	}
-	
+
 	function edit() {
 		$this->checkID();
-		
+
 		// header
 		Writing::h2(Lang::txt("KonfigurationView_edit.header"));
-		
+
 		// show form
 		$this->editEntityForm();
 	}
-	
+
 	function editOptions() {
 		$this->backToStart();
 	}
-	
+
 	function editEntityForm($write = true) {
 		$param = $this->getData()->findByIdNoRef($_GET["id"]);
 		$default = $param["value"];
 		$form = new Form($this->getData()->getParameterCaption($_GET["id"]),
 				$this->modePrefix() . "edit_process&id=" . $_GET["id"]);
-		
+
 		if($_GET["id"] == "default_contact_group") {
 			Writing::p(Lang::txt("KonfigurationView_editEntityForm.message"));
 			$dd = new Dropdown("value");
@@ -117,21 +117,21 @@ class KonfigurationView extends CrudRefLocationView {
 			// default case
 			$form->addElement(Lang::txt("KonfigurationView_start.value"), new Field("value", $default, $this->getData()->getParameterType($_GET["id"])));
 		}
-		
+
 		$form->write();
 	}
-	
+
 	public function edit_process() {
 		$this->checkID();
-	
+
 		// update
 		$this->getData()->update($_GET["id"], $_POST);
-	
+
 		// show success
 		new Message($this->getEntityName() . Lang::txt("KonfigurationView_edit_process.message_1"),
 				Lang::txt("KonfigurationView_edit_process.message_2"));
 	}
-	
+
 }
 
 ?>

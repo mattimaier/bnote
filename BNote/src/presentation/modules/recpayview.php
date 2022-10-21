@@ -11,14 +11,14 @@ class RecpayView extends CrudRefView {
 			"account" => array("name")
 		));
 	}
-	
+
 	/**
 	 * Extended version of modePrefix for sub-module.
 	 */
 	function modePrefix() {
 		return "?mod=" . $this->getModId() . "&mode=recpay&sub=";
 	}
-	
+
 	function getTitle() {
 		if(isset($_GET["sub"])) {
 			$mode = $_GET["sub"];
@@ -32,7 +32,7 @@ class RecpayView extends CrudRefView {
 		}
 		return $this->getData()->getSysdata()->getModuleTitle($_GET["mod"]);
 	}
-	
+
 	private function showAllTableGenerator($data) {
 		$table = new Table($data);
 		$table->setEdit("id");
@@ -41,24 +41,24 @@ class RecpayView extends CrudRefView {
 		$table->changeMode("recpay&sub=view");
 		return $table;
 	}
-	
+
 	function showAllTable() {
 		$table = $this->showAllTableGenerator($this->getData()->getRecurringPayments($this->getJoinedAttributes()));
 		$table->write();
 	}
-	
+
 	function startOptions() {
 		$back = new Link("?mod=" . $this->getModId(), Lang::txt("RecpayView_startOptions.back"));
 		$back->addIcon("arrow-left");
 		$back->write();
-		
+
 		parent::startOptions();
-		
+
 		$book = new Link($this->modePrefix() . "book", Lang::txt("RecpayView_startOptions.book"));
 		$book->addIcon("journal-plus");
 		$book->write();
 	}
-	
+
 	function objectReferenceForm($otype=NULL, $oid=NULL) {
 		$contacts = $this->getData()->adp()->getContacts();
 		$concerts = $this->getData()->adp()->getFutureConcerts();
@@ -66,7 +66,7 @@ class RecpayView extends CrudRefView {
 		$locations = $this->getData()->adp()->getLocations();
 		$tours = $this->getData()->adp()->getTours();
 		$equipment = $this->getData()->adp()->getEquipment();
-		
+
 		$contacts = Data::dbSelectionToDict($contacts, "id", array("name", "surname"));
 		$concerts = Data::dbSelectionToDict($concerts, "id", array("begin"));
 		$phases = Data::dbSelectionToDict($phases, "id", array("name"));
@@ -82,7 +82,7 @@ class RecpayView extends CrudRefView {
 
 			var preset_otype = <?php if($otype != null) { echo '"' . $otype . '"'; } else { echo "null"; } ?>;
 			var preset_oid = <?php if($oid != null) { echo $oid; } else { echo "null"; }?>;
-			
+
 			if(dd.value == "H") {
 				dict = <?php echo json_encode($contacts); ?>;
 			}
@@ -152,26 +152,26 @@ class RecpayView extends CrudRefView {
 		if($otype != null) {
 			$objdd->setSelected($otype);
 		}
-		
+
 		return $objdd;
 	}
-	
+
 	function addEntityForm() {
 		$form = new Form(Lang::txt("RecpayView_addEntityForm.form"), $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$form->removeElement("id");
 		foreach($this->getJoinedAttributes() as $field => $cols) {
-				
+
 			$caption = "";
 			foreach($cols as $i => $col) {
 				$caption .= $col . ", ";
 			}
 			$caption = substr($caption, 0, strlen($caption)-2);
-				
+
 			$form->setForeign($field, $this->getData()->getReferencedTable($field),
 					"id", $caption, -1);
 		}
-		
+
 		// adapt form
 		$form->removeElement("btype");
 		$dd = new Dropdown("btype");
@@ -181,28 +181,28 @@ class RecpayView extends CrudRefView {
 		}
 		$dd->setSelected(1);
 		$form->addElement(Lang::txt("RecpayView_addEntityForm.btype"), $dd);
-		
+
 		$form->removeElement("otype");
 		$form->removeElement("oid");
-		
+
 		$objdd = $this->objectReferenceForm();
 		$form->addElement(Lang::txt("RecpayView_addEntityForm.otype"), $objdd);
-		
+
 		$form->write();
 	}
-	
+
 	function addEntityOptions() {
 		$this->backToStart();
 	}
-	
+
 	function addOptions() {
 		$this->backToStart();
 	}
-	
+
 	function editEntityForm($write=true) {
 		$form = parent::editEntityForm(false);
 		$record = $this->getData()->findByIdNoRef($_GET["id"]);
-		
+
 		// adapt form
 		$form->removeElement("btype");
 		$dd = new Dropdown("btype");
@@ -212,20 +212,20 @@ class RecpayView extends CrudRefView {
 		}
 		$dd->setSelected($record["btype"]);
 		$form->addElement(Lang::txt("RecpayView_editEntityForm.btype"), $dd);
-		
+
 		$form->removeElement("otype");
 		$form->removeElement("oid");
-		
+
 		$objdd = $this->objectReferenceForm($record["otype"], $record["oid"]);
 		$form->addElement(Lang::txt("recpay_otype"), $objdd);
-		
+
 		$form->write();
 	}
-	
+
 	function bookTitle() {
 		return Lang::txt("RecpayView_book.title");
 	}
-	
+
 	function book() {
 		?>
 		<form action="<?php echo $this->modePrefix() . "bookProcess"; ?>" method="POST">
@@ -234,14 +234,14 @@ class RecpayView extends CrudRefView {
 		$f = new Field("bdate", "", FieldType::DATE);
 		echo $f->write();
 		$this->verticalSpace();
-		
+
 		$recpay = $this->getData()->getRecurringPayments($this->getJoinedAttributes());
 		// add column with checkbox
 		$displayData = array();
 		foreach($recpay as $i => $row) {
 			if($i == 0) {
 				// header
-				$row["book"] = Lang::txt("RecpayView_book.book"); 
+				$row["book"] = Lang::txt("RecpayView_book.book");
 			}
 			else {
 				// body
@@ -260,24 +260,24 @@ class RecpayView extends CrudRefView {
 		</form>
 		<?php
 	}
-	
+
 	function bookOptions() {
 		$this->backToStart();
 	}
-	
+
 	function bookProcess() {
 		$this->getData()->book();
 		new Message(Lang::txt("RecpayView_bookProcess.message_1"), Lang::txt("RecpayView_bookProcess.message_2"));
 	}
-	
+
 	function bookProcessOptions() {
 		$this->backToStart();
 	}
-	
+
 	function deleteOptions() {
 		$this->backToStart();
 	}
-	
+
 	function edit_processOptions() {
 		$this->backToViewButton($_GET["id"]);
 	}
@@ -285,7 +285,7 @@ class RecpayView extends CrudRefView {
 	function viewDetailTable() {
 		// get data
 		$entity = $this->getData()->findByIdJoined($_GET[$this->idParameter], $this->getJoinedAttributes());
-		
+
 		// edit values to make them more readible
 		$entity["btype"] = $entity["btype"] == 1 ? Lang::txt("RecpayView_viewDetailTable.expense") : Lang::txt("RecpayView_viewDetailTable.income");
 		$otype = $entity["otype"];
@@ -296,7 +296,7 @@ class RecpayView extends CrudRefView {
 		else {
 			$entity["oid"] = "-";
 		}
-		
+
 		// show view
 		$details = new Dataview();
 		$details->autoAddElements($entity);
@@ -304,7 +304,7 @@ class RecpayView extends CrudRefView {
 		$details->renameElement("accountname", Lang::txt("RecpayView_viewDetailTable.accountname"));
 		$details->write();
 	}
-	
+
 	protected function objectReferenceTypeToText($otype) {
 		switch($otype) {
 			case "H": return Lang::txt("RecpayView_objectReferenceTypeToText.H");
@@ -316,7 +316,7 @@ class RecpayView extends CrudRefView {
 		}
 		return $otype;
 	}
-	
+
 	protected function resolveObjectReference($otype, $oid) {
 		switch($otype) {
 			case "H": return $this->getData()->getContactName($oid);
@@ -328,23 +328,23 @@ class RecpayView extends CrudRefView {
 		}
 		return $oid;
 	}
-	
+
 	function viewOptions() {
 		// back button
 		$this->backToStart();
-		
+
 		// show buttons to edit and delete
 		$edit = new Link($this->modePrefix() . "edit&id=" . $_GET["id"],
 				Lang::txt("RecpayView_viewOptions.edit"), array($this->getEntityName()));
 		$edit->addIcon("pen");
 		$edit->write();
-		
+
 		$del = new Link($this->modePrefix() . "delete_confirm&id=" . $_GET["id"],
 				Lang::txt("RecpayView_viewOptions.delete_confirm"), array($this->getEntityName()));
 		$del->addIcon("trash3");
 		$del->write();
 	}
-	
+
 	function backToStart() {
 		$link = new Link("?mod=" . $this->getModId() . "&mode=recpay", Lang::txt("RecpayView_backToStart.back"));
 		$link->addIcon("arrow-left");

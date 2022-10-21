@@ -13,7 +13,7 @@ class MitspielerView extends CrudRefLocationView {
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 	}
-	
+
 	function start() {
 		?>
 		<p class="membercard_hint"><?php echo Lang::txt("MitspielerView_start.message"); ?></p>
@@ -22,7 +22,7 @@ class MitspielerView extends CrudRefLocationView {
 		if($this->getData()->getSysdata()->getUsersContact() == "") return;
 		$members = $this->getData()->getMembers();
 		$customFields = $this->getData()->getCustomFields('c', true);
-		
+
 		for($i = 1; $i < count($members); $i++) {
 			$member = $members[$i];
 			?>
@@ -35,20 +35,20 @@ class MitspielerView extends CrudRefLocationView {
 					echo " (" . $member["nickname"] . ")";
 				}
 				?></h5>
-				
+
 				<div class="membercard_instrument"><?php
 				echo $member["instrumentname"];
 				if($member["birthday"] != "0000-00-00") {
 					echo " | " . Data::convertDateFromDb($member["birthday"]);
 				}
 				?></div>
-				
+
 				<div class="membercard_phone"><?php
 				$showPhone = false;
 				if($member["phone"] != "") {
 					echo "<a href=\"tel:" . $member["phone"] . "\">" . $member["phone"] . "</a>";
 					$showPhone = true;
-				} 
+				}
 				$showMobile = false;
 				if($member["mobile"] != "") {
 					if($showPhone) {
@@ -61,8 +61,8 @@ class MitspielerView extends CrudRefLocationView {
 					echo "&nbsp;"; // add empty line for same line heights
 				}
 				?></div>
-				
-				<div class="membercard_web"><?php 
+
+				<div class="membercard_web"><?php
 				echo "<a href=\"mailto:" . $member["email"] . "\">" . $member["email"] . "</a>";
 				if($member["web"] != "") {
 					if(Data::startsWith($member["web"], "http")) {
@@ -74,11 +74,11 @@ class MitspielerView extends CrudRefLocationView {
 					echo " | <a href=\"" . $webHref . "\" target=\"_blank\">" . $member["web"] . "</a>";
 				}
 				?></div>
-				
+
 				<div class="membercard_address"><?php
-				echo $this->formatAddress($member, FALSE); 
+				echo $this->formatAddress($member, FALSE);
 				?></div>
-				
+
 				<div class="membercard_customfields">
 				<?php
 				$entries = array();
@@ -109,7 +109,7 @@ class MitspielerView extends CrudRefLocationView {
 		</div>
 		<?php
 	}
-	
+
 	function startOptions() {
 		// none
 	}

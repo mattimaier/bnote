@@ -59,9 +59,9 @@ $(document).ready(function() {
 		}
 		$('.copyDateTarget').val(val);
 	});
-	
+
 	$("#fb-fileupload").dropzone({
 		url: $('#fb-fileupload-form').attr('action')
 	});
-	
+
 });

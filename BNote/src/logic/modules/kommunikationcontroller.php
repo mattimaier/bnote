@@ -6,7 +6,7 @@
  *
  */
 class KommunikationController extends DefaultController {
-	
+
 	function start() {
 		if(isset($_GET['mode'])) {
 			if(isset($_GET['sub']) && $_GET['sub'] = "send") {
@@ -22,7 +22,7 @@ class KommunikationController extends DefaultController {
 			$this->getView()->start();
 		}
 	}
-	
+
 	/**
 	 * Prepares the data for the mail.
 	 */
@@ -34,7 +34,7 @@ class KommunikationController extends DefaultController {
 			$text = "Probe am " . Data::getWeekdayFromDbDate($reh["begin"]);
 			$text .= ", " . Data::convertDateFromDb($reh["begin"]) . Lang::txt("KommunikationController_prepareMail.begin");
 			$_POST["subject"] = $text;
-			
+
 			// adjust body: append songs to practise
 			$songs = $this->getData()->getSongsForRehearsal($_POST["rehearsal"]);
 			if(count($songs) > 1) {
@@ -45,7 +45,7 @@ class KommunikationController extends DefaultController {
 				$ext .= "</ul>\n";
 				$_POST["message"] .= "\n$ext";
 			}
-			
+
 			// add direct link to rehearsal on start
 			$href = $this->getData()->getSysdata()->getSystemURL();
 			if(!Data::startsWith(strtolower($href), "http")) {
@@ -53,7 +53,7 @@ class KommunikationController extends DefaultController {
 			}
 			$href .= "main.php?mod=1&mode=start&otype=R&oid=" . $_POST["rehearsal"];
 			$_POST["message"] .= "\n<a href=\"$href\">" . Lang::txt("KommunikationController_prepareMail.rehearsalLink") . "</a>";
-			
+
 		}
 		else if(isset($_POST["rehearsalSerie"])) {
 			$rs = $this->getData()->getRehearsalSerie($_POST["rehearsalSerie"]);
@@ -61,12 +61,12 @@ class KommunikationController extends DefaultController {
 		}
 		else if(isset($_POST["concert"])) {
 			$concert = $this->getData()->getConcert($_POST["concert"]);
-			
+
 			// subject
 			$subj = Lang::txt("KommunikationController_prepareMail.concert") . Data::getWeekdayFromDbDate($concert["begin"]);
 			$subj .= ", " . Data::convertDateFromDb($concert["begin"]) . Lang::txt("KommunikationController_prepareMail.begin");
 			$_POST["subject"] = $subj;
-			
+
 			// body
 			if($_POST["message"] == "") {
 				$body = Lang::txt("KommunikationController_prepareMail.message_1") . Data::getWeekdayFromDbDate($concert["begin"]) . Lang::txt("KommunikationController_prepareMail.message_2");
@@ -78,10 +78,10 @@ class KommunikationController extends DefaultController {
 		}
 		else if(isset($_POST["vote"])) {
 			$vote = $this->getData()->getVote($_POST["vote"]);
-			
+
 			// subject
 			$_POST["subject"] = Lang::txt("KommunikationController_prepareMail.subject") . $vote["name"];
-			
+
 			// body
 			if($_POST["message"] == "") {
 				$_POST["message"] = Lang::txt("KommunikationController_prepareMail.vote_message");
@@ -108,16 +108,16 @@ class KommunikationController extends DefaultController {
 			$_POST["message"] = $inclrev . "\n\n" . $_POST["message"];
 		}
 	}
-	
+
 	/**
 	 * Please make sure that the $_POST array has a subject and message attribute.
 	 * @param array $addresses Optionally provide the addresses to send the mail to.
-	 * @param bool $silent If set to true does not call the view. Default false. 
+	 * @param bool $silent If set to true does not call the view. Default false.
 	 */
 	public function sendMail($addresses = array(), $silent = false) {
 		$subject = $_POST["subject"];
 		$body = $_POST["message"];
-		
+
 		// determine email adresses
 		if(isset($_POST["rehearsal"])) {
 			// get mail addresses for a rehearsal
@@ -136,24 +136,24 @@ class KommunikationController extends DefaultController {
 			// get all mail addresses from selected groups
 			$addresses = $this->getData()->getMailaddressesFromGroup("group");
 		}
-		
+
 		if($addresses == null || count($addresses) == 0) {
 			new BNoteError(Lang::txt("KommunikationController_sendMail.error"));
 		}
-		
+
 		// Receipient Setup
 		global $system_data;
 		$ci = $system_data->getCompanyInformation();
 		$receipient = $ci["Mail"];
-		
+
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
 		$mail = new Mailing($receipient, $subject, "");
 		$mail->setBodyInHtml($body);
 		$mail->setFrom($this->getData()->getUsermail());
-		
+
 		// place receiver addresses into the bcc field
 		$mail->setBcc($addresses);
-		
+
 		// handle attachments
 		if(isset($_FILES["attachments"])) {
 			for($i = 0; $i < count($_FILES['attachments']['name']); $i++) {
@@ -164,7 +164,7 @@ class KommunikationController extends DefaultController {
 				}
 			}
 		}
-		
+
 		if(!$mail->sendMail()) {
 			if(!$silent) {
 				$this->getView()->reportMailError($addresses);

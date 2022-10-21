@@ -5,12 +5,12 @@
 **/
 
 interface iWriteable {
-	
+
 	/**
 	 * Outputs the HTML code of the element
 	 */
  	public function write();
- 	
+
  	/**
  	 * @return String name of the field or writable, optionally NULL
  	 */

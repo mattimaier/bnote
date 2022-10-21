@@ -6,35 +6,35 @@
  *
  */
 class Lang {
-	
+
 	/**
 	 * Parameter Placeholder.
 	 * @var String
 	 */
 	public static $PARAMETER = "%p";
-	
+
 	/**
 	 * The language that has been set.
 	 * @var String
 	 */
 	private $lang;
-	
+
 	/**
 	 * Language Object.
 	 * @var BNoteTranslation
 	 */
 	private $langObj;
-	
+
 	/**
 	 * Singleton.
 	 * @var Lang
 	 */
 	private static $INSTANCE = null;
-	
+
 	protected static function getInstance() {
 		if(Lang::$INSTANCE == null) {
 			global $system_data;
-			if($system_data != null) { 
+			if($system_data != null) {
 				$l = $system_data->getLang();
 			}
 			else {
@@ -44,7 +44,7 @@ class Lang {
 		}
 		return Lang::$INSTANCE;
 	}
-	
+
 	function __construct($lang) {
 		$this->lang = $lang;
 		if($this->lang == null) {
@@ -53,7 +53,7 @@ class Lang {
 		require_once 'lang/lang_' . $this->lang . ".php";
 		$this->langObj = new Translation();
 	}
-	
+
 	/**
 	 * Translate according to language settings.<br/>
 	 * You can use %p as a placeholder for parameters.
@@ -75,7 +75,7 @@ class Lang {
 		}
 		return $txt;
 	}
-	
+
 	/**
 	 * Formats the given date(time) fields in local format.
 	 * @param int $day Day in month
@@ -89,7 +89,7 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->formatDate($day, $month, $year, $hour, $minute);
 	}
-	
+
 	/**
 	 * Translates a language-specific date into a standardized database format date.
 	 * @param String $formattedDate Formatted date.
@@ -99,7 +99,7 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->formatDateForDb($formattedDate);
 	}
-	
+
 	/**
 	 * @return Array with keys 1-12 and the respective month names.
 	 */
@@ -107,7 +107,7 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->getMonths();
 	}
-	
+
 	/**
 	 * Converts the English name of the weekday to another language.
 	 * @param String $wd [Mon/Tue/.../Sun]
@@ -117,7 +117,7 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->convertEnglishWeekday($wd);
 	}
-	
+
 	/**
 	 * @return String Language-specific datetime format pattern like d.m.Y HH:ii.
 	 */
@@ -125,7 +125,7 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->getDateTimeFormatPattern();
 	}
-	
+
 	/**
 	 * @return String Language-specific date format pattern like d.m.Y.
 	 */
@@ -133,7 +133,7 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->getDateFormatPattern();
 	}
-	
+
 	/**
 	 * Language-specific regular expressions.
 	 * @param string $code Pattern code.
@@ -143,7 +143,7 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->getRegex($code);
 	}
-	
+
 	/**
 	 * Language-specific decimal representation to decimal in database format.
 	 * @param String $decimal Language-string, e.g. "203.203,20"
@@ -153,9 +153,9 @@ class Lang {
 		$inst = Lang::getInstance();
 		return $inst->langObj->decimalToDb($decimal);
 	}
-	
+
 	/**
-	 * Database representation to language-specific representation of decimals. 
+	 * Database representation to language-specific representation of decimals.
 	 * @param float/String $dbDecimal A floating point number or a String in database decimal format, usually with "." as decimal separator.
 	 * @return String Language-specific decimal.
 	 */

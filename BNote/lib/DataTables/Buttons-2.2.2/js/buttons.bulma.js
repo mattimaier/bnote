@@ -81,7 +81,7 @@ $.extend( true, DataTable.Buttons.defaults, {
 			// Wrap the dropdown content in a menu element
 			config._collection = $('<div class="dropdown-menu"/>')
 				.append(config._collection);
-			
+
 			// And add the collection dropdown icon
 			$(button).append(
 				'<span class="icon is-small">' +

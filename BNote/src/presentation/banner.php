@@ -5,10 +5,10 @@
 		<img src="style/images/BNote_Logo_white_transparent.svg" alt="BNote" height="32px" id="bnote-logo" />
 		<span class="d-none d-md-inline-block"><?php echo $system_data->getCompany(); ?></span>
 	</a>
-	
+
 	<div class="navbar-nav bnote-useradmin-bar ms-2">
 		<div class="d-flex flex-row">
-			<?php	
+			<?php
 			if ($system_data->isUserAuthenticated()) {
 			?>
       		<a href="?mod=<?php echo $system_data->getModuleId("Kontaktdaten"); ?>" class="p-2 text-light">

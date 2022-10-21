@@ -8,9 +8,9 @@ use function Composer\Autoload\includeFile;
  *
  */
 class HilfeView extends AbstractView {
-	
+
 	private $helpPagesDir = "data/help/";
-	
+
 	// alphabetically, format: name of the html-file => title
 	private $helpPages = array(
 			"abstimmung" => "HilfeView_helpPages.abstimmung",
@@ -29,7 +29,7 @@ class HilfeView extends AbstractView {
 			"tour" => "HilfeView_helpPages.tour",
 			"sicherheit" => "HilfeView_introPages.sicherheit"
 	);
-	
+
 	// format: code => description
 	private $videos = array(
 			"TEdY7biXXpw" => array(
@@ -43,27 +43,27 @@ class HilfeView extends AbstractView {
 					"button" => "HilfeView_videos.admin_button"
 			)
 	);
-	
+
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 	}
-	
+
 	function start() {
 		// Introduction
 		?>
 		<div class="embed-responsive embed-responsive-16by9 mb-2">
 			<iframe class="embed-responsive-item" src="http://www.youtube.com/embed/p7LrJzVxl-M" allowfullscreen></iframe>
 		</div>
-		
+
 		<div class="d-flex row mt-3 justify-content-start">
 			<a href="https://github.com/mattimaier/bnote/wiki"><?php echo Lang::txt("HilfeView_start.vid_1_wiki"); ?></a>
 			<a href="http://bnote.info/provider.php"><?php echo Lang::txt("HilfeView_start.vid_1_provider"); ?></a>
 			<a href="http://bnote.info/install-tutorial.php"><?php echo Lang::txt("HilfeView_start.vid_1_install"); ?></a>
 		</div>
-		
+
 		<div class="d-flex row">
 		<?php
-		
+
 		// show all links as cards with an icon indicating the page category
 		foreach($this->videos as $code => $info) {
 			$ytLink = "http://www.youtube.com/embed/" . $code;
@@ -73,17 +73,17 @@ class HilfeView extends AbstractView {
 			$card->write();
 		}
 		echo '</div>';
-		
+
 		// --- HELP PAGES ---
 		echo '<div class="d-flex row mt-3">';
 		echo Writing::h4(Lang::txt("HilfeView_start.help_pages"));
-		
+
 		// show all links as cards with an icon indicating the page category
 		foreach($this->helpPages as $helpPageId => $helpPageTitle) {
 			$card = new Card(
-					Lang::txt($helpPageTitle), 
-					Lang::txt("HilfeView_start.module_documentation"), 
-					$this->modePrefix() . "help&page=$helpPageId", 
+					Lang::txt($helpPageTitle),
+					Lang::txt("HilfeView_start.module_documentation"),
+					$this->modePrefix() . "help&page=$helpPageId",
 					Lang::txt("HilfeView_start.read_page"));
 			$card->setColSize(3);
 			$card->write();
@@ -92,19 +92,19 @@ class HilfeView extends AbstractView {
 		</div>
 		<?php
 	}
-	
+
 	function startOptions() {
 		// none
 	}
-	
-	function help() {		
+
+	function help() {
 		# get the title
 		if(isset($this->helpPages[$_GET["page"]])) $title = $this->helpPages[$_GET["page"]];
 		else if(isset($this->introPages[$_GET["page"]])) $title = $this->introPages[$_GET["page"]];
 		else $title = $_GET["page"];
-		
+
 		echo '<span class="help_page_title">' . Lang::txt($title) . '</span>';
-		
+
 		# fetch the body
 		$lang = $this->getData()->getSysdata()->getLang();
 		$helpPagePath = $this->helpPagesDir . "/$lang/" . $_GET["page"] . ".html";
@@ -115,7 +115,7 @@ class HilfeView extends AbstractView {
 			include $this->helpPagesDir . "/de/" . $_GET["page"] . ".html";
 		}
 	}
-	
+
 }
 
 ?>

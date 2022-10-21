@@ -10,7 +10,7 @@
 		?>
 	</h4>
 	<div class="btn-toolbar mb-2 mb-md-0">
-		<?php 
+		<?php
 		// buttons
 		$GLOBALS["mainController"]->getView()->showOptions();
 		?>

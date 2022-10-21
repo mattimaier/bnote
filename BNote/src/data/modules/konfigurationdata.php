@@ -6,11 +6,11 @@
  *
  */
 class KonfigurationData extends AbstractLocationData {
-	
+
 	private $parameterConfig = array();
-	
+
 	private $parameterExclude = array();
-	
+
 	/**
 	 * Build data provider.
 	 */
@@ -20,13 +20,13 @@ class KonfigurationData extends AbstractLocationData {
 				"value" => array(Lang::txt("KonfigurationData_construct.value"), FieldType::CHAR),
 				"is_active" => array(Lang::txt("KonfigurationData_construct.is_active"), FieldType::BOOLEAN)
 		);
-	
+
 		$this->references = array(
 				"default_contact_group" => "group"
 		);
-	
+
 		$this->table = "configuration";
-	
+
 		$this->parameterConfig = array(
 				"rehearsal_start" => array(Lang::txt("KonfigurationData_construct.rehearsal_start"), 96),
 				"rehearsal_duration" => array(Lang::txt("KonfigurationData_construct.rehearsal_duration"), FieldType::INTEGER),
@@ -54,14 +54,14 @@ class KonfigurationData extends AbstractLocationData {
 				"export_rehearsal_notes" => array(Lang::txt("KonfigurationData_construct.export_rehearsal_notes"), FieldType::BOOLEAN),
 				"export_rehearsalsong_notes" => array(lang::txt("KonfigurationData_construct.export_rehearsalsong_notes"), FieldType::BOOLEAN)
 		);
-		
+
 		$this->parameterExclude = array(
 				"instrument_category_filter"
 		);
-		
+
 		$this->init();
 	}
-	
+
 	function getActiveParameter() {
 		$query = "SELECT param, value FROM configuration WHERE is_active = 1";
 		$res = $this->database->getSelection($query);
@@ -69,18 +69,18 @@ class KonfigurationData extends AbstractLocationData {
 		array_push($params, array("param", "caption", "value"));
 		for($i = 1; $i < count($res); $i++) {
 			if(in_array($res[$i]["param"], $this->parameterExclude)) continue;
-			
+
 			$param = array(
 					"param" => $res[$i]["param"],
 					"caption" => $this->getParameterCaption($res[$i]["param"]),
 					"value" => $this->replaceParameterValue($res[$i]["param"], $res[$i]["value"])
 			);
-			array_push($params, $param);	
+			array_push($params, $param);
 		}
-		
+
 		return $params;
 	}
-	
+
 	/**
 	 * Converts the value of a parameter for view purposes.
 	 * @param string $param Name of the parameter.
@@ -104,30 +104,30 @@ class KonfigurationData extends AbstractLocationData {
 			return $value;
 		}
 	}
-	
+
 	function getParameterCaption($param) {
 		$caption = $this->parameterConfig[$param][0];
 		if($caption == null || $caption == "") return $param;
 		else return $caption;
 	}
-	
+
 	function getParameterType($param) {
 		$type = $this->parameterConfig[$param][1];
 		if($type == null) return FieldType::CHAR;
 		return $type;
 	}
-	
+
 	function findByIdNoRef($id) {
 		$query = "SELECT * FROM configuration WHERE param = ?";
 		return $this->database->fetchRow($query, array(array("s", $id)));
 	}
-	
+
 	function createParameter($id, $defaultValue, $isActive) {
 		$active = $isActive ? 1 : 0;
 		$query = "INSERT INTO configuration (param, value, is_active) VALUES (?, ?, ?)";
 		$this->database->execute($query, array(array("i", $id), array("s", $defaultValue), array("i", $active)));
 	}
-	
+
 	function update($id, $values) {
 		if(!isset($values["value"])) {
 			$val = NULL;
@@ -135,7 +135,7 @@ class KonfigurationData extends AbstractLocationData {
 		else {
 			$val = $values["value"];
 		}
-		
+
 		// convert values to be saved to database
 		if($this->getParameterType($id) == 96) {
 			$val = $values["value_hour"] . ":" . $values["value_minute"];
@@ -143,12 +143,12 @@ class KonfigurationData extends AbstractLocationData {
 		else if($this->getParameterType($id) == FieldType::BOOLEAN) {
 			$val = (isset($_POST["value"])) ? "1" : "0";
 		}
-		
+
 		// save to db
 		$query = "UPDATE configuration SET value = \"$val\" WHERE param = \"$id\"";
 		$this->database->execute($query);
 	}
-	
+
 }
 
 ?>

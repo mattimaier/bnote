@@ -4,7 +4,7 @@
  * Prints a form in a formbox
  **/
 class Form implements iWriteable {
-	
+
 	protected $formname;
 	protected $method;
 	protected $action;
@@ -19,10 +19,10 @@ class Form implements iWriteable {
 	protected $requiredFields = array();
 	protected $formCss = "";
 	protected $elementOrder = NULL;
-	
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param String $name
 	 *        	The form's header description
 	 * @param String $action
@@ -35,30 +35,30 @@ class Form implements iWriteable {
 		$this->multipart = ""; // none by default
 		$this->submitValue = "OK";
 	}
-	
+
 	/**
 	 * Sets the form's header.
-	 * 
+	 *
 	 * @param String $title
 	 *        	Title of the form.
 	 */
 	function setTitle($title) {
 		$this->formname = $title;
 	}
-	
+
 	/**
 	 * Sets either POST or GET as method.
-	 * 
+	 *
 	 * @param String $method
 	 *        	Method attribute of form-tag.
 	 */
 	function setMethod($method) {
 		$this->method = $method;
 	}
-	
+
 	/**
 	 * adds an Element to the form
-	 * 
+	 *
 	 * @param String $name
 	 *        	Label of the element
 	 * @param iWriteable $element
@@ -77,10 +77,10 @@ class Form implements iWriteable {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Automatically adds elements from an array
-	 * 
+	 *
 	 * @param Array $array format field => fieldtype
 	 * @param Array $table table associated with the array
 	 * @param Integer $id ID to fill the form with the data of the row with this id
@@ -95,7 +95,7 @@ class Form implements iWriteable {
 			if(!isset($entity[$field]) && !in_array($field, $forceFields)) {
 				continue;
 			}
-			
+
 			// process regular fields
 			$value = isset($entity[$field]) ? $entity[$field] : "";
 			if ($info[1] == FieldType::DECIMAL) {
@@ -103,10 +103,10 @@ class Form implements iWriteable {
 			} else if ($info[1] == FieldType::PASSWORD) {
 				$value = "";
 			}
-			
+
 			// create element
 			$this->addElement($field, new Field($field, $value, $info[1]));
-			
+
 			// configure element
 			$this->renameElement ( $field, $info [0] );
 			if (count ( $info ) > 2 && $info [2] == true) {
@@ -114,10 +114,10 @@ class Form implements iWriteable {
 			}
 		}
 	}
-	
+
 	/**
 	 * automatically adds elements from an array, but without values
-	 * 
+	 *
 	 * @param $array Array
 	 *        	with format fieldid => [fieldname, fieldtype]
 	 */
@@ -133,10 +133,10 @@ class Form implements iWriteable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Sets a certain column as a foreign key and creates a dropbox for it
-	 * 
+	 *
 	 * @param string $field
 	 *        	The column which is the foreign key
 	 * @param string $table
@@ -158,7 +158,7 @@ class Form implements iWriteable {
 
 		// create new dropdown list
 		$dropdown = new Dropdown ( $field );
-		
+
 		global $system_data;
 		$choices = $system_data->dbcon->getForeign ( $table, $idcolumn, $namecolumns );
 		foreach ( $choices as $id => $name ) {
@@ -169,13 +169,13 @@ class Form implements iWriteable {
 		}
 		if ($selectedid >= 0)
 			$dropdown->setSelected ( $selectedid );
-		
+
 		$this->foreign [$field] = $dropdown;
 	}
-	
+
 	/**
 	 * Add an option to a foreign key dropboxbox
-	 * 
+	 *
 	 * @param String $field
 	 *        	Name of the field to add the option for
 	 * @param String $optionname
@@ -187,10 +187,10 @@ class Form implements iWriteable {
 		$dp = $this->foreign [$field];
 		$dp->addOption ( $optionname, $optionvalue );
 	}
-	
+
 	/**
 	 * Change what's selected on a foreign field
-	 * 
+	 *
 	 * @param String $field
 	 *        	Name of the field where to change the option
 	 * @param integer $id
@@ -200,7 +200,7 @@ class Form implements iWriteable {
 		$dp = $this->foreign [$field];
 		$dp->setSelected ( $id );
 	}
-	
+
 	/**
 	 * Retrieves the foreign element
 	 * @param string $field Name of the field
@@ -209,7 +209,7 @@ class Form implements iWriteable {
 	public function getForeignElement($field) {
 		return $this->foreign [$field];
 	}
-	
+
 	/**
 	 * Prepare dropdownlists to be written
 	 */
@@ -219,10 +219,10 @@ class Form implements iWriteable {
 			$this->elements [$field] = $dropdown;
 		}
 	}
-	
+
 	/**
 	 * Removes the element from the form
-	 * 
+	 *
 	 * @param String $name
 	 *        	The name of the element to remove
 	 */
@@ -234,14 +234,14 @@ class Form implements iWriteable {
 				break;
 			$i ++;
 		}
-		
+
 		// remove element
 		array_splice ( $this->elements, $i, 1 );
 	}
-	
+
 	/**
 	 * Adds a hidden field to the form
-	 * 
+	 *
 	 * @param String $name
 	 *        	The identifier in the $_POST array
 	 * @param String $value
@@ -250,20 +250,20 @@ class Form implements iWriteable {
 	public function addHidden($name, $value) {
 		$this->hidden [$name] = $value;
 	}
-	
+
 	/**
 	 * Changes the caption for the submit button
-	 * 
+	 *
 	 * @param String $name
 	 *        	Caption of the submit button
 	 */
 	public function changeSubmitButton($name) {
 		$this->submitValue = $name;
 	}
-	
+
 	/**
 	 * Changes the label for the Element
-	 * 
+	 *
 	 * @param String $name
 	 *        	Name of the Element
 	 * @param String $label
@@ -272,10 +272,10 @@ class Form implements iWriteable {
 	public function renameElement($name, $label) {
 		$this->rename [$name] = $label;
 	}
-	
+
 	/**
 	 * Returns the given elements currently saved value
-	 * 
+	 *
 	 * @param String $name
 	 *        	Identifying name of the element
 	 */
@@ -283,14 +283,14 @@ class Form implements iWriteable {
 		$el = $this->elements [$name];
 		return $el->getValue ();
 	}
-	
+
 	public function updateValueForElement($name, $value) {
 		$this->elements[$name]->setValue($value);
 	}
-	
+
 	/**
 	 * Sets the value for a element
-	 * 
+	 *
 	 * @param String $name
 	 *        	Name of element.
 	 * @param String $value
@@ -302,11 +302,11 @@ class Form implements iWriteable {
 			$el->setValue ( $value );
 		}
 	}
-	
+
 	/**
 	 * Sets whether the form contains multipart fields, e.g.
 	 * file fields.
-	 * 
+	 *
 	 * @param boolean $bool
 	 *        	True if it contains multipart data (default), otherwise false.
 	 */
@@ -316,10 +316,10 @@ class Form implements iWriteable {
 		else
 			$this->multipart = "";
 	}
-	
+
 	/**
 	 * Sets whether the submit button should be shown or not.
-	 * 
+	 *
 	 * @param boolean $bool
 	 *        	True or nothing when the button should be removed, otherwise false.
 	 */
@@ -329,32 +329,32 @@ class Form implements iWriteable {
 	public function setFieldRequired($field, $required = true) {
 		$this->requiredFields [$field] = $required;
 	}
-	
+
 	public function setFormCss($cssClasses) {
 		$this->formCss = $cssClasses;
 	}
-	
+
 	public function setFieldColSize($name, $cols) {
 		$this->fieldColSize[$name] = $cols;
 	}
-	
+
 	public function orderElements($orderedLabels) {
 		$this->elementOrder = $orderedLabels;
 	}
-	
+
 	/**
 	 * print html output
 	 */
 	public function write() {
 		$this->createForeign ();
-		
+
 		echo '<form method="' . $this->method . '" action="' . $this->action . '" class="row g-2 ' . $this->formCss . '" ';
 		echo $this->multipart . '>';
-		
+
 		if($this->formname != "") {
 			echo '<h4 class="h4">' . $this->formname . "</h4>";
 		}
-		
+
 		$elementKeys = ($this->elementOrder != NULL) ? $this->elementOrder : array_keys($this->elements);
 		foreach ( $elementKeys as $label ) {
 			if(!isset($this->elements [$label])) continue;
@@ -388,20 +388,20 @@ class Form implements iWriteable {
 		if (count ( $this->requiredFields ) > 0) {
 			echo '<div class="row"><div class="col-auto"><span class="form-text">' . Lang::txt("Form_write.message") . "</span></div></div>";
 		}
-		
+
 		// add hidden values
 		foreach ( $this->hidden as $name => $value ) {
 			echo '<input type="hidden" value="' . $value . '" name="' . $name . '">';
 		}
-		
+
 		// Submit Button
 		if (! $this->removeSubmitButton) {
 			echo '<input type="submit" class="btn btn-primary mt-2" value="' . $this->submitValue . '" />';
 		}
-		
+
 		echo '</form>' . "\n";
 	}
-	
+
 	public function getName() {
 		return $this->formname;
 	}

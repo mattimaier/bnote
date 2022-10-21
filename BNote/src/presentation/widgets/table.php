@@ -30,7 +30,7 @@ class Table implements iWriteable {
 	private $allowRowReorder = false;
 	private $allowRowSorting = true;
 	private $reorderPostUrl;
-	
+
 	/**
 	 * Creates a new table
 	 * @param Array $data Table data, e.g. from a getSelection-Query
@@ -48,7 +48,7 @@ class Table implements iWriteable {
 		$this->edit = true;
 		$this->primkey = $primkey;
 	}
-	
+
 	function disableForwardNav() {
 		$this->edit = FALSE;
 	}
@@ -128,7 +128,7 @@ class Table implements iWriteable {
 	public function allowWordwrap($bool) {
 		$this->allowContentWrap = $bool;
 	}
-	
+
 	/**
 	 * If the number is greater than 1 every n-th row will be grouped at the first visible row.
 	 * @param int $n Rowspan for first visible column.
@@ -136,7 +136,7 @@ class Table implements iWriteable {
 	public function setDataRowSpan($n) {
 		$this->dataRowSpan = $n;
 	}
-	
+
 	/**
 	 * Set the ID field that is used to plug the id in.
 	 * @param String $edit_id_field Name of the field.
@@ -144,7 +144,7 @@ class Table implements iWriteable {
 	public function setEditIdField($edit_id_field) {
 		$this->edit_id_field = $edit_id_field;
 	}
-	
+
 	/**
 	 * Set a new module ID.
 	 * @param int $modId Module ID.
@@ -152,7 +152,7 @@ class Table implements iWriteable {
 	public function setModId($modId) {
 		$this->modid = $modId;
 	}
-	
+
 	/**
 	 * Adds a column to the data with a link to delete the item.
 	 * @param Array $tabData Database Selection which is used in this table class.
@@ -180,7 +180,7 @@ class Table implements iWriteable {
 	function setOptionColumnNames($cols) {
 		$this->optColumns = $cols;
 	}
-	
+
 	/**
 	 * Show the filter line and enable the table as a JS data table.
 	 * @param string $show True or False (hides the filter and marks it not as a data table).
@@ -188,7 +188,7 @@ class Table implements iWriteable {
 	function showFilter($show=true) {
 		$this->showFilter = $show;
 	}
-	
+
 	function setPagination($offset, $limit, $link) {
 		$this->isPaginated = true;
 		$this->offset = $offset;
@@ -196,20 +196,20 @@ class Table implements iWriteable {
 		$this->paginationLinkPrev = $link . ($offset-$limit >= 0 ? $offset-$limit : 0);
 		$this->paginationLinkNext = $link . ($offset+$limit);
 	}
-	
+
 	function allowRowReorder($allow = true, $postUrl) {
 		$this->allowRowReorder = $allow;
 		$this->reorderPostUrl = $postUrl;
 	}
-	
+
 	function allowRowSorting($allow = true) {
 		$this->allowRowSorting = $allow;
 	}
-	
+
 	function hideColumn($colName) {
 		array_push($this->hideCols, $colName);
 	}
-	
+
 	/**
 	 * Add global control buttons to the table.
 	 * @param String $buttonId Examples: 'print', 'csvHtml5'
@@ -217,7 +217,7 @@ class Table implements iWriteable {
 	function addControlButton($buttonId) {
 		array_push($this->controlButtons, $buttonId);
 	}
-	
+
 	function write() {
 		echo '<div class="table-responsive">';
 		// generate id for each table to apply the javascript DataTable function later
@@ -239,14 +239,14 @@ class Table implements iWriteable {
 			if($head) {
 				echo "<thead>\n";
 			}
-			
+
 			$rowHref = "";
 			if(!$head && $this->edit) {
 				$rowHref = ' data-href="?mod=' . $this->modid . '&mode=' . $this->mode . '&' . $this->edit_id_field . '=' . $row[$this->primkey] . '"';
 			}
-			
+
 			echo ' <tr' . $rowHref . '>';
-			
+
 			$firstVisibleColumn = true;
 			foreach($row as $id => $value) {
 				if($head) {
@@ -271,7 +271,7 @@ class Table implements iWriteable {
 					if(!is_numeric($id) && in_array($id, $this->optColumns)) {
 						$cssClasses = " bn-table-option-column";
 					}
-					
+
 					echo '  <th class="' . $cssClasses . '" scope="col">' . $headerLabel . '</td>' . "\n";
 					$colcount++;
 				}
@@ -285,13 +285,13 @@ class Table implements iWriteable {
 						$firstVisibleColumn = false;
 						continue;
 					}
-					
+
 					# Data
 					echo '  <td class="';
 					if(in_array($id, $this->optColumns)) {
 						echo ' bn-table-option-column';
 					}
-					
+
 					echo '"';
 					if($firstVisibleColumn && $this->dataRowSpan > 0) {
 						echo ' rowspan="' . $this->dataRowSpan . '"';
@@ -366,7 +366,7 @@ class Table implements iWriteable {
 				echo ' <TR><TD colspan="' . $colcount . '">[' . Lang::txt("Table_write.table_no_entries") . ']</TD></TR>' . "\n";
 			}
 		}
-		
+
 		// write last lines
 		foreach($this->lastlines as $label => $value) {
 			echo " <tr>\n";
@@ -380,7 +380,7 @@ class Table implements iWriteable {
 		echo "</tbody>\n";
 		echo "</table>\n";
 		echo '</div>';
-		
+
 		if($this->isPaginated) {
 			?>
 			<a href="<?php echo $this->paginationLinkPrev; ?>"><div class="DataTable_prevpage"><?php echo Lang::txt("Table_write.prevpage"); ?></div></a>
@@ -395,18 +395,18 @@ class Table implements iWriteable {
 			$(document).ready(function() {
 				var identifier = "#<?php echo $identifier; ?>"
 	    		var table = $(identifier).DataTable({
-					 "paging": false, 
-					 "info": false,  
+					 "paging": false,
+					 "info": false,
 					 "responsive": true,
 					 "searching": <?php echo $this->showFilter ? "true" : "false"; ?>,
-					 <?php 
+					 <?php
 					 if($this->allowRowReorder) {
 					 ?>
 					 "rowReorder": {
 					 	dataSrc: 1  // rank index
 					 },
 					 "orderFixed": [ 1, 'asc' ],  // by rank ascending
-					 <?php 
+					 <?php
 					 }
 					 if(!$this->allowRowSorting) {
 					 	?>
@@ -422,12 +422,12 @@ class Table implements iWriteable {
 						 "sZeroRecords":  "<?php echo Lang::txt("Table_write.sZeroRecords"); ?>",
 	        			 "sSearch": "<?php echo Lang::txt("Table_write.sSearch"); ?>"
 			 		 },
-			 		 <?php 
+			 		 <?php
 			 		 if(count($this->controlButtons) > 0) {
 			 		 ?>
 			 		 "dom": 'Bfrtip',
 			 		 "buttons": <?php echo json_encode($this->controlButtons); ?>
-			 		 <?php 
+			 		 <?php
 					 }
 					 else {
 					 // define default buttons
@@ -437,7 +437,7 @@ class Table implements iWriteable {
 					 }
 					 ?>
 				});
-				<?php 
+				<?php
 				// hide columns
 				if(count($this->hideCols) > 0) {
 					$colIndices = array();
@@ -451,7 +451,7 @@ class Table implements iWriteable {
 					table.columns(<?php echo json_encode($colIndices); ?>).visible(false);
 					<?php
 				}
-				
+
 				// Allow reordering rows, e.g. for program sorting - disable other features like sorting and click-to-open
 				if($this->allowRowReorder) {
 				?>
@@ -469,7 +469,7 @@ class Table implements iWriteable {
 						alert("Unable to autosave. Please check logs.");
 					});
 				} );
-				<?php 
+				<?php
 				}
 				else if($this->edit) {
 				?>
@@ -486,7 +486,7 @@ class Table implements iWriteable {
 		}
 		return $identifier;
 	}
-	
+
 	public function getName() { return NULL; }
 
 

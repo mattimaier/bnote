@@ -30,8 +30,8 @@ require_once "lang.php";
 
 # Logout
 if(isset($_GET["mod"]) && (
-		$_GET["mod"] === "logout" 
-		|| $system_data->getModuleId("Logout") == $_GET["mod"]) 
+		$_GET["mod"] === "logout"
+		|| $system_data->getModuleId("Logout") == $_GET["mod"])
 		|| ($_GET["mod"] == "login" && isset($_GET["mode"]) && $_GET["mode"] == "logout")
 		) {
 	$_SESSION["user"] = NULL;

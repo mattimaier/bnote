@@ -65,7 +65,7 @@ var DataTable = $.fn.dataTable;
  * * `rowReorder` parameter in the DataTable initialisation object
  * * `new $.fn.dataTable.RowReorder( table, opts )` after DataTables
  *   initialisation.
- * 
+ *
  *  @class
  *  @param {object} settings DataTables settings object for the host table
  *  @param {object} [opts] Configuration options
@@ -215,7 +215,7 @@ $.extend( RowReorder.prototype, {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	 * Private methods
 	 */
-	
+
 	/**
 	 * Cache the measurements that RowReorder needs in the mouse move handler
 	 * to attempt to speed things up, rather than reading from the DOM.
@@ -520,7 +520,7 @@ $.extend( RowReorder.prototype, {
 				diffNodes.push( endNodes[i] );
 			}
 		}
-		
+
 		// Create event args
 		var eventArgs = [ fullDiff, {
 			dataSrc:       dataSrc,
@@ -529,7 +529,7 @@ $.extend( RowReorder.prototype, {
 			triggerRow:    dt.row( this.dom.target ),
 			originalEvent: e
 		} ];
-		
+
 		// Emit event
 		this._emitEvent( 'row-reorder', eventArgs );
 
@@ -663,7 +663,7 @@ $.extend( RowReorder.prototype, {
 
 					if ( top !== $(document).scrollTop() ) {
 						var move = parseFloat(that.dom.clone.css("top"));
-						that.dom.clone.css("top", move + scroll.windowVert);					
+						that.dom.clone.css("top", move + scroll.windowVert);
 					}
 				}
 

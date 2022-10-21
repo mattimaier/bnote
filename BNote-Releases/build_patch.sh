@@ -28,5 +28,3 @@ find $tmp_dir -name .DS_Store -delete
 
 # Create zip file
 zip -r BNote-Releases/BNote/Patches/bnote_latest_patch.zip $tmp_dir
-
-

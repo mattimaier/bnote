@@ -1,7 +1,7 @@
 <?php
 
 class AccommodationData extends AbstractLocationData {
-	
+
 	/**
 	 * Build data provider.
 	 */
@@ -18,16 +18,16 @@ class AccommodationData extends AbstractLocationData {
 			"planned_cost" => array(lang::txt("AccommodationData_construct.planned_cost"), FieldType::CURRENCY),
 			"notes" => array(lang::txt("AccommodationData_construct.notes"), FieldType::TEXT)
 		);
-	
+
 		$this->references = array(
 			"tour" => "tour",
 			"location" => "location"
 		);
-	
+
 		$this->table = "accommodation";
 		$this->init($dir_prefix);
 	}
-	
+
 	function filterTourAccommodations($items, $tour_id, $filterAttribute="tour") {
 		$result = array();
 		for($i = 0; $i < count($items); $i++) {

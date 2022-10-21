@@ -1,13 +1,13 @@
 <?php
 
 class EquipmentView extends CrudView {
-	
+
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 		$this->setEntityName(lang::txt("EquipmentView_construct.EntityName"));
 		$this->setAddEntityName(Lang::txt("EquipmentView_construct.addEntityName"));
 	}
-	
+
 	function showAllTable() {
 		// show table rows
 		$table = new Table($this->getData()->findAllEquipment());
@@ -18,9 +18,9 @@ class EquipmentView extends CrudView {
 		#$table->removeColumn("id");
 		$table->write();
 	}
-	
+
 	function addEntityTitle() { return Lang::txt($this->getaddEntityName()); }
-	
+
 	function addEntityForm() {
 		$form = new Form("", $this->modePrefix() . "add");
 		$form->autoAddElementsNew($this->getData()->getFields());
@@ -31,34 +31,34 @@ class EquipmentView extends CrudView {
 		$form->setFieldColSize("current_value", 4);
 		$form->setFieldValue("quantity", "1");
 		$form->setFieldColSize("quantity", 4);
-		
+
 		$form->setFieldColSize("model", 4);
 		$form->setFieldColSize("make", 4);
 		$form->setFieldColSize("name", 4);
 		$form->setFieldColSize("notes", 12);
-		
+
 		$form->write();
 	}
-	
+
 	function editEntityForm() {
 		$this->checkID();
-		
+
 		$eq = $this->getData()->findEquipmentById($_GET["id"]);
-		
+
 		$form = new Form(Lang::txt("edit", array($this->getEntityName())),
 				$this->modePrefix() . "edit_process&" . $this->idParameter . "=" . $_GET[$this->idParameter]);
-		
+
 		$form->autoAddElements($this->getData()->getFields(),
 				$this->getData()->getTable(), $_GET[$this->idParameter]);
-		
-		$this->appendCustomFieldsToForm($form, EquipmentData::$CUSTOM_DATA_OTYPE, $eq, false); 
+
+		$this->appendCustomFieldsToForm($form, EquipmentData::$CUSTOM_DATA_OTYPE, $eq, false);
 		$form->removeElement($this->idField);
 		$form->write();
 	}
-	
+
 	function viewDetailTable() {
 		$this->checkID();
-		
+
 		$dv = new Dataview();
 		$eq = $this->getData()->findEquipmentById($_GET["id"]);
 		foreach($this->getData()->getFieldsWithCustomFields(EquipmentData::$CUSTOM_DATA_OTYPE) as $dbf => $info) {
@@ -77,7 +77,7 @@ class EquipmentView extends CrudView {
 		}
 		$dv->write();
 	}
-	
+
 }
 
 ?>

@@ -2,7 +2,7 @@
 
 /**
  * @autor Matti Maier
- * This is an installation wizzard to install BNote. 
+ * This is an installation wizzard to install BNote.
  */
 require_once("dirs.php");
 require_once("lang.php");
@@ -18,7 +18,7 @@ require_once($GLOBALS["DIR_WIDGETS"] . "form.php");
 
 
 class Installation {
-	
+
 	function __construct() {
 		if(isset($_GET["func"]) && isset($_GET["last"]) && $_GET["func"] == "process") {
 			$process = "process_" . $_GET["last"];
@@ -26,15 +26,15 @@ class Installation {
 		}
 		$this->screen();
 	}
-	
+
 	/**
-	 * Step 1: Welcome the user and thank him/her for using BNote. 
+	 * Step 1: Welcome the user and thank him/her for using BNote.
 	 */
 	function welcome() {
 		Writing::h1(Lang::txt("Installation_welcome.title"));
-		
+
 		Writing::p(Lang::txt("Installation_welcome.message_1"));
-		
+
 		Writing::p(Lang::txt("Installation_welcome.message_2"));
 		?>
 		<ul style="list-style-type: disc;">
@@ -42,17 +42,17 @@ class Installation {
 			<li style="margin-left: 20px; margin-bottom: 5px;"><?php echo Lang::txt("Installation_welcome.message_4"); ?></li>
 			<li style="margin-left: 20px"><?php echo Lang::txt("Installation_welcome.message_5"); ?></li>
 		</ul>
-		
+
 		<?php
 		$this->next("companyConfig");
 	}
-	
+
 	/**
 	 * Step 2: Ask for company configuration if not present.
 	 */
 	function companyConfig() {
 		Writing::h1(Lang::txt("Installation_companyConfig.title"));
-		
+
 		if(file_exists("config/company.xml")) {
 			new Message("Information", Lang::txt("Installation_companyConfig.message_1"));
 			echo "<br>\n";
@@ -60,7 +60,7 @@ class Installation {
 		}
 		else {
 			Writing::p(Lang::txt("Installation_companyConfig.message_2"));
-			
+
 			$form = new Form(Lang::txt("Installation_companyConfig.Form"), "?step=databaseConfig&func=process&last=companyConfig");
 			$form->addElement(Lang::txt("Installation_companyConfig.Name"), new Field("Name", "", FieldType::CHAR));
 			$form->addElement(Lang::txt("Installation_companyConfig.Street"), new Field("Street", "", FieldType::CHAR));
@@ -74,12 +74,12 @@ class Installation {
 			$form->write();
 		}
 	}
-	
+
 	function process_companyConfig() {
 		if(!isset($_POST["Mail"]) || $_POST["Mail"] == "") {
 			$_POST["Mail"] = "support@bnote.info";
 		}
-		
+
 		$fileContent = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>
 <Company>
  <Name>" . $_POST["Name"] . "</Name>
@@ -91,57 +91,57 @@ class Installation {
  <Mail>" . $_POST["Mail"] . "</Mail>
  <Web>" . $_POST["Web"] . "</Web>
 </Company>";
-		
+
 		$res = file_put_contents("config/company.xml", $fileContent);
 		if(!$res) {
 			new BNoteError(Lang::txt("Installation_companyConfig.Error"));
 		}
 	}
-	
+
 	private function write_appConfig() {
 		// write config.xml if it does not exist already
 		if(!file_exists("config/config.xml")) {
 			$bnotePath = $_SERVER["SCRIPT_NAME"];
 			$bnotePath = str_replace("install.php", "", $bnotePath);
 			$system_url = $_SERVER["HTTP_HOST"] . $bnotePath;
-				
+
 			$fileContent = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>
 			<Software Name=\"BNote\">
-		
+
 			<!-- ID of the Start module -->
 			<StartModule>1</StartModule>
-		
+
 			<!-- URL of the BNote system -->
 			<URL>$system_url</URL>
-		
+
 			<!-- E-mail-address of the administrator -->
 			<Admin>" . $_POST["Mail"] . "</Admin>
-		
+
 			<!-- True when this is a demo system with deactived mailing function, otherwise false (default). -->
 			<DemoMode>false</DemoMode>
-		
+
 			<!-- The user IDs of all super users whos credentials will not be shown on the website.
 			This is a comma separated list without spaces.
 			-->
 			<SuperUsers></SuperUsers>
-		
+
 			<!-- Default Permissions for a new user. Comma separated list of user IDs without spaces. -->
 			<DefaultPrivileges>9,10,12,13,14</DefaultPrivileges>
-		
+
 			<!-- True when the gallery management is used
 			and should be displayed and functional, otherwise false. -->
 			<UseGallery>False</UseGallery>
-		
+
 			<!-- True when the infopage/news/additional pages management is used
 			and should be displayed and functional, otherwise false. -->
 			<UseInfoPages>True</UseInfoPages>
-		
+
 			<!-- Theme Name -->
 			<Theme>default</Theme>
-			
+
 			<!-- Logo, BNote's Logo by default. Please put your logo in BNote/style/images -->
 			<Logo>BNote_Logo_white_transparent.svg</Logo>
-					
+
 			<!-- The webpages available in the website module.
 			A page tag contains an attribute \"file\" specifying the filename without the html-extension
 			in the data/webpages folder and the body containing the displayed name of the page. -->
@@ -149,24 +149,24 @@ class Installation {
 			<Page file=\"startseite\">Startseite</Page>
 			</WebPages>
 			</Software>";
-				
+
 			$res = file_put_contents("config/config.xml", $fileContent);
 			if(!$res) {
 			new BNoteError(Lang::txt("Installation_write_appConfig.Error"));
 			}
 		}
 	}
-	
+
 	/**
 	 * Step 3: Ask for database configuration if not present.
 	 */
 	function databaseConfig() {
 		// before getting to the database configuration, make sure to write the app config, if necessary
 		$this->write_appConfig();
-		
+
 		// continue with database configuration
 		Writing::h1(Lang::txt("Installation_databaseConfig.title"));
-		
+
 		if(file_exists("config/database.xml")) {
 			new Message(Lang::txt("Installation_databaseConfig.message_1"));
 			$this->next("adminUser");
@@ -174,7 +174,7 @@ class Installation {
 		}
 		else {
 			Writing::p(Lang::txt("Installation_databaseConfig.message_2"));
-				
+
 			$form = new Form(Lang::txt("Installation_databaseConfig.Form"), "?step=adminUser&func=process&last=databaseConfig");
 			$form->addElement(Lang::txt("Installation_databaseConfig.Server"), new Field("Server", "localhost", FieldType::CHAR));
 			$form->addElement(Lang::txt("Installation_databaseConfig.Port"), new Field("Port", "3306", FieldType::INTEGER));
@@ -183,9 +183,9 @@ class Installation {
 			$form->addElement(Lang::txt("Installation_databaseConfig.Password"), new Field("Password", "", FieldType::PASSWORD));
 			$form->changeSubmitButton(Lang::txt("Installation_databaseConfig.Submit"));
 			$form->write();
-		}		
+		}
 	}
-	
+
 	function process_databaseConfig() {
 		$fileContent = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>
 <Database ConnectionName=\"Default MySQL-Connection\">
@@ -194,10 +194,10 @@ class Installation {
  <Name>" . $_POST["Name"] . "</Name>
  <User>" . $_POST["User"] . "</User>
  <Password>" . $_POST["Password"] . "</Password>
- 
+
  <UserTable>user</UserTable>
 </Database>";
-		
+
 		$res = file_put_contents("config/database.xml", $fileContent);
 		if(!$res) {
 			new BNoteError(Lang::txt("Installation_process_databaseConfig.error"));
@@ -205,9 +205,9 @@ class Installation {
 		else {
 			// run database initialization
 			$db = $this->getDbConnection();
-			
+
 			$queries = array();
-			array_push($queries, 
+			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `address` (
 					  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					  `street` varchar(45) NOT NULL,
@@ -235,7 +235,7 @@ class Installation {
 					`message` text,
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `composer` (
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -264,7 +264,7 @@ class Installation {
 					`status` varchar(20) default 'planned',
 					PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE IF NOT EXISTS `concert_equipment` (
 					`concert` int(11) NOT NULL,
 					`equipment` int(11) NOT NULL,
@@ -491,7 +491,7 @@ class Installation {
 					`title` varchar(60) NOT NULL,
 					`length` time DEFAULT NULL,
 					`bpm` int(3),
-					`music_key` varchar(40), 
+					`music_key` varchar(40),
 					`notes` text,
 					`genre` int(10) unsigned NOT NULL,
 					`composer` int(10) unsigned NOT NULL,
@@ -509,7 +509,7 @@ class Installation {
 					PRIMARY KEY (`song`,`contact`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
 			);
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `status` (
 					`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -599,7 +599,7 @@ class Installation {
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
 					name VARCHAR(100) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `booking` (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -613,7 +613,7 @@ class Installation {
 					oid INT(11),
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `recpay` (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -626,7 +626,7 @@ class Installation {
 					oid INT(11),
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `equipment` (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -638,7 +638,7 @@ class Installation {
 					quantity INT(10) NOT NULL DEFAULT 1,
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `tour` (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -647,7 +647,7 @@ class Installation {
 					end DATE NOT NULL,
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `accommodation` (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -661,7 +661,7 @@ class Installation {
 					planned_cost DECIMAL(9,2),
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `travel` (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -675,32 +675,32 @@ class Installation {
 					planned_cost DECIMAL(9,2),
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `doctype` (
 					id int(11) PRIMARY KEY AUTO_INCREMENT,
 					name VARCHAR(100) NOT NULL,
 					is_active INT(1) NOT NULL DEFAULT 1
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `tour_rehearsal` (
 					tour INT(11) NOT NULL,
 					rehearsal INT(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `tour_concert` (
 					tour INT(11) NOT NULL,
 					concert INT(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `tour_contact` (
 					tour INT(11) NOT NULL,
 					contact INT(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `tour_equipment` (
 					tour INT(11) NOT NULL,
@@ -708,13 +708,13 @@ class Installation {
 					quantity VARCHAR(50) NOT NULL DEFAULT '',
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `tour_task` (
 					tour INT(11) NOT NULL,
 					task INT(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries,
 					"CREATE TABLE IF NOT EXISTS `reservation` (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -725,7 +725,7 @@ class Installation {
 					contact INT(11),
 					notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE IF NOT EXISTS song_files (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
 					song INT(11) NOT NULL,
@@ -733,18 +733,18 @@ class Installation {
 					notes TEXT,
 					doctype INT(11)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE location_type (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
 					name VARCHAR(50) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE outfit (
 					id INT(11) PRIMARY KEY AUTO_INCREMENT,
 					name VARCHAR(50) NOT NULL,
 					description TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE customfield (
 				id int(11) PRIMARY KEY AUTO_INCREMENT,
 				techname VARCHAR(50) NOT NULL,
@@ -754,7 +754,7 @@ class Installation {
 				otype CHAR(1) NOT NULL,
 				public_field INT(1) DEFAULT 0
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE customfield_value (
 				id int(11) PRIMARY KEY AUTO_INCREMENT,
 				customfield int(11) NOT NULL,
@@ -766,12 +766,12 @@ class Installation {
 				dateval DATE,
 				datetimeval DATETIME
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE rehearsalserie (
 				id int(11) PRIMARY KEY AUTO_INCREMENT,
 				name VARCHAR(200) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE IF NOT EXISTS `appointment` (
 				id int(11) PRIMARY KEY AUTO_INCREMENT,
 				begin DATETIME NOT NULL,
@@ -781,29 +781,29 @@ class Installation {
 				contact INT(11),
 				notes TEXT
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE IF NOT EXISTS `appointment_group` (
 				`appointment` int(11) NOT NULL,
 				`group` int(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE IF NOT EXISTS `rehearsal_group` (
 				`rehearsal` int(11) NOT NULL,
 				`group` int(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			array_push($queries, "CREATE TABLE IF NOT EXISTS `concert_group` (
 				`concert` int(11) NOT NULL,
 				`group` int(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-			
+
 			foreach($queries as $i => $query) {
 				$db->execute($query, array());
 			}
-		
+
 			// fill database with initial content
 			$queries = array();
-			
+
 			array_push($queries,
 					"INSERT INTO `category` (`id`, `name`) VALUES
 					(1, 'Streicher'),
@@ -817,7 +817,7 @@ class Installation {
 
 			// simple key
 			$trigger_key = date("Ymd") . "X" . date("His") . rand(1000, 9999);
-			
+
 			array_push($queries,
 					"INSERT INTO `configuration` (`param`, `value`, `is_active`) VALUES
 					('rehearsal_start', '18:00', 1),
@@ -846,7 +846,7 @@ class Installation {
 					('currency', 'EUR', 1),
 					('export_rehearsal_notes', '0', 1),
 					('export_rehearsalsong_notes', '0', 1);");
-			
+
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES
 					(1, 'Swing'),
@@ -874,7 +874,7 @@ class Installation {
 					(3, 'Externe', 1),
 					(4, 'Bewerber', 1),
 					(5, 'Sonstige', 1);");
-			
+
 			// create group directories
 			mkdir("data/share/groups");
 			mkdir("data/share/groups/group_1"); // Administrators
@@ -978,24 +978,24 @@ class Installation {
 					(5, 'nicht im Notenbestand'),
 					(6, 'Idee');");
 
-			array_push($queries, "INSERT INTO location_type (name) VALUES 
+			array_push($queries, "INSERT INTO location_type (name) VALUES
 					('Probenräume'), ('Veranstaltungsorte'), ('Übernachtungsmöglichkeiten'), ('Studios'), ('Sonstige');");
-			
-			array_push($queries, "INSERT INTO `doctype` (name, is_active) VALUES 
+
+			array_push($queries, "INSERT INTO `doctype` (name, is_active) VALUES
 					('Noten', 1), ('Text', 1), ('Aufnahme', 1), ('Sonstiges', 1);");
-			
+
 			foreach($queries as $i => $query) {
 				$db->execute($query);
 			}
 		}
 	}
-	
+
 	/**
 	 * Step 4: Create a new admin user.
 	 */
 	function adminUser() {
 		Writing::h1(Lang::txt("Installation_adminUser.title"));
-		
+
 		$form = new Form(Lang::txt("Installation_adminUser.form"), "?step=finalize&func=process&last=adminUser");
 		$form->addElement(Lang::txt("Installation_adminUser.login"), new Field("login", "", FieldType::CHAR));
 		$form->addElement(Lang::txt("Installation_adminUser.password"), new Field("password", "", FieldType::PASSWORD));
@@ -1010,7 +1010,7 @@ class Installation {
 		$form->addElement(Lang::txt("Installation_adminUser.city"), new Field("city", "", FieldType::CHAR));
 		$form->addElement(Lang::txt("Installation_adminUser.state"), new Field("state", "", FieldType::CHAR));
 		$form->addElement(Lang::txt("Installation_adminUser.country"), new Field("country", "DEU", FieldType::CHAR));
-		
+
 		$db = $this->getDbConnection();
 		$instruments = $db->getSelection("SELECT i.id, i.name, c.name as category
 										  FROM instrument i, category c
@@ -1022,52 +1022,52 @@ class Installation {
 			$dd->addOption($label, $instruments[$i]["id"]);
 		}
 		$form->addElement("Instrument", $dd);
-		
+
 		$form->write();
 	}
-	
+
 	function process_adminUser() {
 		// validate password
 		if(!isset($_POST["password"]) || !isset($_POST["login"]) || $_POST["password"] == "" || strlen($_POST["password"]) < 6) {
 			new BNoteError(Lang::txt("Installation_process_adminUser.error"));
 		}
-		
+
 		// get database connection
 		$db = $this->getDbConnection();
-		
+
 		// create contact address
 		$query = "INSERT INTO address (street, city, zip, state, country) VALUES (?,?,?,?,?)";
 		$aid = $db->prepStatement($query, array(
-				array("s", $_POST["street"]), 
-				array("s", $_POST["city"]), 
+				array("s", $_POST["street"]),
+				array("s", $_POST["city"]),
 				array("s", $_POST["zip"]),
 				array("s", $_POST["state"]),
 				array("s", $_POST["country"])));
-		
+
 		// create contact
 		$query = "INSERT INTO contact (surname, name, company, phone, mobile, email, address, instrument, gdpr_ok, is_conductor)
 				VALUES (?,?,?,?,?,?,?,?,?,?)";
 		$cid = $db->prepStatement($query, array(
 				array("s", $_POST["surname"]),
-				array("s", $_POST["name"]), 
+				array("s", $_POST["name"]),
 				array("s", $_POST["company"]),
 				array("s", $_POST["phone"]),
 				array("s", $_POST["mobile"]),
 				array("s", $_POST["email"]),
-				array("i", $aid), 
-				array("i", $_POST["instrument"]), 
-				array("i", 1), 
+				array("i", $aid),
+				array("i", $_POST["instrument"]),
+				array("i", 1),
 				array("i", 1)));
-		
+
 		// add the contact to the admin group (gid=1)
-		$query = "INSERT INTO contact_group (contact, `group`) VALUES (?, ?)"; 
+		$query = "INSERT INTO contact_group (contact, `group`) VALUES (?, ?)";
 		$ugroup = $db->execute($query, array(array("i", $cid), array("i", 1)));
-				
+
 		// create user
 		$password = crypt($_POST["password"], 'BNot3pW3ncryp71oN');
 		$query = "INSERT INTO user (login, password, contact, isActive) VALUES (?, ?, ?, 1)";
 		$uid = $db->execute($query, array(array("s", $_POST["login"]), array("s", $password), array("i", $cid)));
-		
+
 		// create default privileges plus user module privileges
 		$modules = $db->getSelection("SELECT * FROM module");
 		$tuples = array();
@@ -1079,25 +1079,25 @@ class Installation {
 		}
 		$query = "INSERT INTO privilege (user, module) VALUES " . join(",", $tuples);
 		$db->execute($query, $params);
-		
+
 		// create user directory
 		mkdir("data/share/users");
 		mkdir("data/share/users/" . $_POST["login"]);
 	}
-	
+
 	private function getDbConnection() {
 		require_once($GLOBALS["DIR_DATA"] . "database.php");
 		return new Database();
 	}
-	
+
 	/**
 	 * Step 5: Show what to do next and where to login.
 	 */
 	function finalize() {
 		Writing::h1(Lang::txt("Installation_finalize.title"));
-		
+
 		Writing::p(Lang::txt("Installation_finalize.message"));
-		
+
 		$bnotePath = $_SERVER["SCRIPT_NAME"];
 		$bnotePath = str_replace("install.php", "", $bnotePath);
 		$system_url = $_SERVER["HTTP_ORIGIN"] . $bnotePath . "main.php?mod=login";
@@ -1114,9 +1114,9 @@ class Installation {
 		$login->addIcon("arrow_right");
 		$login->write();
 	}
-	
+
 	/************** UI ****************/
-	
+
 	private function screen() {
 		?>
 		<!DOCTYPE html>
@@ -1125,30 +1125,30 @@ class Installation {
 			<meta charset="utf-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1">
 			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-			 
+
 			<link rel="shortcut icon" href="favicon.png" type="image/png" />
 			<link rel="icon" href="favicon.png" type="image/png" />
-			  
+
 			<link href='https://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-			 
+
 			<link href="lib/bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet" />
-			<link type="text/css" href="lib/jquery/jquery.jqplot.min.css" rel="stylesheet" /> 
+			<link type="text/css" href="lib/jquery/jquery.jqplot.min.css" rel="stylesheet" />
 			<link type="text/css" href="lib/dropzone.css" rel="stylesheet" />
 			<link rel="stylesheet" href="lib/bootstrap-icons-1.8.1/font/bootstrap-icons.css" />
 			<link rel="stylesheet" type="text/css" href="lib/DataTables/datatables.min.css" />
-			 
+
 			<link type="text/css" href="style/css/default/bnote.css" rel="stylesheet" />
 		</HEAD>
-		<BODY>	
-				
+		<BODY>
+
 		<!-- Banner -->
-		<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow d-print-none">		
+		<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow d-print-none">
 			<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="?mod=1">
 				<img src="style/images/BNote_Logo_white_transparent.svg" alt="BNote" height="32px" id="bnote-logo" />
 				<span class="d-none d-md-inline-block">BNote</span>
 			</a>
 		</header>
-		
+
 		<!-- Content Area -->
 		<div class="container-fluid mb-3">
 			<div class="row mt-3">
@@ -1166,14 +1166,14 @@ class Installation {
 				</main>
 			</div>
 		</div>
-			
+
 			<script src="lib/bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js"></script>
 		</BODY>
-		
+
 		</HTML>
 		<?php
 	}
-	
+
 	private function next($step) {
 		$lnk = new Link("?step=$step", Lang::txt("Installation_next.next"));
 		$lnk->addIcon("arrow-right");

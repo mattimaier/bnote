@@ -186,7 +186,7 @@ $.extend( DateTime.prototype, {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	 * Public
 	 */
-	
+
 	/**
 	 * Destroy the control
 	 */
@@ -323,7 +323,7 @@ $.extend( DateTime.prototype, {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	 * Constructor
 	 */
-	
+
 	/**
 	 * Build the control and assign initial event handlers
 	 *
@@ -684,7 +684,7 @@ $.extend( DateTime.prototype, {
 	 * @private
 	 */
 	_daysInMonth: function ( year, month ) {
-		// 
+		//
 		var isLeap = ((year % 4) === 0 && ((year % 100) !== 0 || (year % 400) === 0));
 		var months = [31, (isLeap ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
@@ -797,7 +797,7 @@ $.extend( DateTime.prototype, {
 
 	/**
 	 * Create the HTML for a month to be displayed in the calendar table.
-	 * 
+	 *
 	 * Based upon the logic used in Pikaday - MIT licensed
 	 * Copyright (c) 2014 David Bushell
 	 * https://github.com/dbushell/Pikaday
@@ -937,7 +937,7 @@ $.extend( DateTime.prototype, {
 
 			return i18n.weekdays[day];
 		};
-		
+
 		// Empty cell in the header
 		if ( this.c.showWeekNumber ) {
 			a.push( '<th></th>' );
@@ -959,7 +959,7 @@ $.extend( DateTime.prototype, {
 	 * @param  {integer} d Day of month
 	 * @param  {integer} m Month of year (zero index)
 	 * @param  {integer} y Year
-	 * @return {string}   
+	 * @return {string}
 	 * @private
 	 */
 	_htmlWeekOfYear: function ( d, m, y ) {
@@ -1076,7 +1076,7 @@ $.extend( DateTime.prototype, {
 			var selected = val === value || (value === 'am' && val < 12) || (value === 'pm' && val >= 12) ?
 				'selected' :
 				'';
-			
+
 			if (allowed && $.inArray(value, allowed) === -1) {
 				selected += ' disabled';
 			}
@@ -1095,7 +1095,7 @@ $.extend( DateTime.prototype, {
 		if ( count === 12 ) {
 			// Hours with AM/PM
 			a += '<tr>';
-			
+
 			for ( i=1 ; i<=6 ; i++ ) {
 				a += button(i, render(i));
 			}
@@ -1133,7 +1133,7 @@ $.extend( DateTime.prototype, {
 				a += button(j, render(j), 'range');
 			}
 			a += '</tr>';
-			
+
 			// Slight hack to allow for the different number of columns
 			a += '</tbody></thead><table class="'+className+' '+className+'-nospace"><tbody>';
 
@@ -1316,7 +1316,7 @@ $.extend( DateTime.prototype, {
 	_setTime: function () {
 		var that = this;
 		var d = this.s.d;
-		
+
 		// luxon uses different method names so need to be able to call them. This happens a few time later in this method too
 		var luxDT = null
 		if (dateLib && dateLib == window.luxon) {
@@ -1362,7 +1362,7 @@ $.extend( DateTime.prototype, {
 	/**
 	 * Show the widget and add events to the document required only while it
 	 * is displayed
-	 * 
+	 *
 	 * @private
 	 */
 	_show: function () {
@@ -1444,7 +1444,7 @@ $.extend( DateTime.prototype, {
 		this.dom.input
 			.val( out )
 			.trigger('change', {write: date});
-		
+
 		if ( this.dom.input.attr('type') === 'hidden' ) {
 			this.val(out, false);
 		}

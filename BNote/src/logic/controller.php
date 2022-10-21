@@ -7,7 +7,7 @@ class Controller {
 	private $moduleCtrl;
 	private $moduleView;
 	private $moduleData;
-	
+
 	function __construct() {
 
 		global $system_data;
@@ -32,7 +32,7 @@ class Controller {
 		if(!is_numeric($system_data->getModuleId()) || in_array(strtolower($modName), $loginModules)) {
 			$modName = "login";
 		}
-		
+
 		// include preliminaries
 		require_once $GLOBALS['DIR_DATA'] . "fieldtype.php";
 
@@ -81,11 +81,11 @@ class Controller {
 	public function getController() {
 		return $this->moduleCtrl;
 	}
-	
+
 	public function getData() {
 		return $this->moduleData;
 	}
-	
+
 	public function getView() {
 		return $this->moduleView;
 	}

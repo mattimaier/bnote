@@ -1,11 +1,11 @@
 <?php
 
 class AdminView extends AbstractView {
-	
+
 	function __construct($ctrl) {
 		$this->setController($ctrl);
 	}
-	
+
 	public function start() {
 		$dv = new Dataview();
 		$dv->addElement("Version", $this->getData()->getSysdata()->getVersion());
@@ -16,9 +16,9 @@ class AdminView extends AbstractView {
 		$dv->addElement("Demo Mode", $this->getData()->getSysdata()->getSystemConfigParameter("DemoMode"));
 		$dv->write();
 	}
-	
+
 	public function startOptions() {
 		// none
 	}
-	
+
 }

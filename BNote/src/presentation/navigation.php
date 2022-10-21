@@ -1,7 +1,7 @@
 <!-- Navigation -->
 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar overflow-auto collapse d-print-none">
-	<div class="position-sticky pt-3">	    
-		
+	<div class="position-sticky pt-3">
+
 		<ul class="nav flex-column">
 		<?php
 		if($system_data->isUserAuthenticated()) {
@@ -24,21 +24,21 @@
 		else {
 			$modarr = $system_data->getModuleArray("public");
 		}
-		
+
 		// render menu
 		foreach($modarr as $id => $modRow) {
-	
+
 			// don't show module if user doesn't have permission
 			if($system_data->isUserAuthenticated() && !$system_data->userHasPermission($id)) continue;
-			
+
 			// don't show module if just technical
 			if(in_array($modRow["name"], array("Home", "Logout", "WhyBNote", "Gdpr", "ExtGdpr"))) continue;
 			$user_reg = $system_data->getDynamicConfigParameter("user_registration");
 			if($modRow["name"] == "Registration" && $user_reg == 0) continue;
-			
+
 			// check if to add special menu entry
-			$menu = $modRow["category"] == "admin" ? "&menu=admin" : ""; 
-	
+			$menu = $modRow["category"] == "admin" ? "&menu=admin" : "";
+
 			if($id == $system_data->getModuleId()) {
 				// current Module
 				$selected = "active";

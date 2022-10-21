@@ -44,7 +44,7 @@ $adp = $startdata->adp();
 /**
  * define a function to write the timecodes correctly
  * @param String $datetime Date Time String in Format: YYYY-MM-DD HH:ii:ss
- * @return String in format YYYYMMDDTHHiissZ  
+ * @return String in format YYYYMMDDTHHiissZ
  */
 function convertTime($datetime) {
 	$dt = DateTime::createFromFormat("Y-m-d H:i:s", $datetime);
@@ -129,7 +129,7 @@ if($userid == null || $userid < 1) {
 }
 else {
 	// get user's rehearsals including those from phases
-	$rehearsals = $startdata->getUsersRehearsals();	
+	$rehearsals = $startdata->getUsersRehearsals();
 }
 
 // write them
@@ -139,10 +139,10 @@ for($i = 1; $i < count($rehearsals); $i++) {
 	echo "UID:" . generateUid("REHEARSAL", $rehearsals[$i]["id"]) . "\r\n";
 	echo "SUMMARY:Probe $organizer\r\n";
 	echo "ORGANIZER:$organizer\r\n";
-	
+
 	writeStartEnd($rehearsals[$i]["begin"], $rehearsals[$i]["end"]);
-	
-	if($rehearsals[$i]["name"] != "") { 
+
+	if($rehearsals[$i]["name"] != "") {
 		echo "LOCATION:" . $rehearsals[$i]["name"] . " - " .
 			$rehearsals[$i]["street"] . "\\, " . $rehearsals[$i]["city"] . "\r\n";
 	}
@@ -154,20 +154,20 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		$addy = $db->fetchRow($query, array(array("i", $rehearsals[$i]["location"])));
 		echo "LOCATION:" . $addy["name"] . " - " . $addy["street"] . "\\, " . $addy["city"] . "\r\n";
 	}
-	
+
 	// get songs to practise
 	$query = "SELECT title, rs.notes ";
 	$query .= "FROM song s, rehearsal_song rs ";
 	$query .= "WHERE rs.rehearsal = ? AND s.id = rs.song ";
 	$query .= "ORDER BY title";
 	$songs = $db->getSelection($query, array(array("i", $rehearsals[$i]["id"])));
-	
+
 	// conductor
 	$notes = "";
 	if(isset($rehearsals[$i]["conductor"]) && $rehearsals[$i]["conductor"] != null) {
 		$notes = "Dirigent: " . $adp->getConductorname($rehearsals[$i]["conductor"]) . "\r\n";
 	}
-	
+
 	// write songs to practise in notes
 	$notes .= "Bitte folgende Stücke üben: ";
 	$songsToPractise = array();
@@ -179,16 +179,16 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		array_push($songsToPractise, $s);
 	}
 	$notes .= count($songs) > 1 ? join("\\, ", $songsToPractise) : "-";
-	
+
 	// participants
 	$query = "SELECT c.id, c.surname, c.name, IF(c.share_email = 1, c.email, '') as email, ru.participate, ru.reason";
 	$query .= " FROM rehearsal_user ru, user u, contact c";
 	$query .= " WHERE ru.rehearsal = ? AND ru.user = u.id AND u.contact = c.id" ;
 
 	$contacts = $db->getSelection($query, array(array("i", $rehearsals[$i]["id"])));
-	
+
 	unset($contacts[0]);
-	
+
 	// ids for filterting contacts without response
 	$contactIDs = array();
 	$participantsNo = array();
@@ -236,7 +236,7 @@ for($i = 1; $i < count($rehearsals); $i++) {
 			}
 		}
 	}
-	
+
 	foreach($participantsYes as $j => $contact)
 	{
 		$line = "ATTENDEE;PARTSTAT=ACCEPTED;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
@@ -257,12 +257,12 @@ for($i = 1; $i < count($rehearsals); $i++) {
 		$line = "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
  		echo $line;
 	}
-	
+
 	$cfgExportNotes = $system_data->getDynamicConfigParameter("export_rehearsal_notes");
 	if($cfgExportNotes == 1) {
 		$notes .= "\n" . $rehearsals[$i]["notes"];
 	}
-	
+
 	$notes = str_replace("\n","\\n", $notes);
 	$notes =	str_replace("\r","", $notes);
 	echo "DESCRIPTION:$notes\r\n";
@@ -291,9 +291,9 @@ for($i = 1; $i < count($concerts); $i++) {
 	echo "UID:" . generateUid("CONCERT", $concerts[$i]["id"]) . "\r\n";
 	echo "SUMMARY:" . $concerts[$i]["title"] . "\r\n";
 	echo "ORGANIZER:$organizer\r\n";
-	
+
 	writeStartEnd($concerts[$i]["begin"], $concerts[$i]["end"]);
-	
+
 	if($userid == null || $userid < 1) {
 		$location = $concerts[$i]["name"] . " (" .$concerts[$i]["street"] . "\\, ";
 		$location .= $concerts[$i]["city"] . ")";
@@ -302,8 +302,8 @@ for($i = 1; $i < count($concerts); $i++) {
 		$location = $concerts[$i]["location_name"] . " (" . $concerts[$i]["location_street"] . "\\, ";
 		$location .= $concerts[$i]["location_city"] . ")";
 	}
-	
-	
+
+
 	$query = "SELECT c.id, c.surname, c.name, IF(c.share_email = 1, c.email, '') as email, cu.participate, cu.reason";
 	$query .= " FROM concert_user cu, user u, contact c";
 	$query .= " WHERE cu.concert = ? AND cu.user = u.id AND u.contact = c.id" ;
@@ -315,8 +315,8 @@ for($i = 1; $i < count($concerts); $i++) {
 	$participantsNo = array();
 	$participantsYes = array();
 	$participantsMaybe = array();
-				
-	foreach($contacts as $j => $contact) 
+
+	foreach($contacts as $j => $contact)
 	{
 		foreach(array_keys($contact) as $ck) {
 			if(is_numeric($ck)) {
@@ -324,7 +324,7 @@ for($i = 1; $i < count($concerts); $i++) {
 			}
 		}
 		array_push($contactIDs, $contact["id"]);
-		
+
 		if ($contact["participate"] == 0)
 		{
 			array_push($participantsNo, $contact);
@@ -341,15 +341,15 @@ for($i = 1; $i < count($concerts); $i++) {
 
 	// get contacts without response (filter other contacts)
 	array_push($contactIDs, PHP_INT_MAX);
-	$contactIDsString = join(',',$contactIDs);  
-	
+	$contactIDsString = join(',',$contactIDs);
+
 	$query = "SELECT c.id, c.surname, c.name, IF(c.share_email = 1, c.email, '') as email";
 	$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
 	$query .= " WHERE cc.concert = ? AND cc.contact NOT IN (" . $contactIDsString .")";  // safe statement - IDs from INT field of DB
 	$participantsNoResponse = $db->getSelection($query, array(array("i", $concerts[$i]["id"])));
 	unset($participantsNoResponse[0]);
-	
-	foreach($participantsNoResponse as $j => $contact) 
+
+	foreach($participantsNoResponse as $j => $contact)
 	{
 		foreach(array_keys($contact) as $ck) {
 			if(is_numeric($ck)) {
@@ -357,7 +357,7 @@ for($i = 1; $i < count($concerts); $i++) {
 			}
 		}
 	}
-	
+
 	foreach($participantsYes as $j => $contact)
 	{
 		$line = "ATTENDEE;PARTSTAT=ACCEPTED;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
@@ -378,9 +378,9 @@ for($i = 1; $i < count($concerts); $i++) {
 		$line = "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=" . $contact["name"] . " " . $contact["surname"] . ":MAILTO:" . $contact["email"] . "\r\n";
  		echo $line;
 	}
-	
+
 	echo "LOCATION:" . $location . "\r\n";
-	
+
 	// compile description
 	$comment = "";
 	if(isset($concerts[$i]["outfit"]) && $concerts[$i]["outfit"] != "") {
@@ -395,16 +395,16 @@ for($i = 1; $i < count($concerts); $i++) {
 	if (!empty($program)) {
 		$query = "SELECT s.title FROM program_song ps ";
 		$query .= "JOIN song s ON ps.song = s.id WHERE ps.program = ? ORDER BY ps.rank ASC";
-		
+
 		$songs = $db->getSelection($query, array(array("i", $program)));
 		unset($songs[0]);
-	
+
 		$setlist = "\r\n\r\nProgramm: \r\n";
-		
+
 		foreach($songs as $j => $song) {
 			$setlist .= urldecode($song["title"]) . "\r\n";
 		}
-		
+
 		$comment .= $setlist;
 	}
 
@@ -473,7 +473,7 @@ if($userid != null && $userid > 0) {
 		echo "LOCATION:\r\n";
 		echo "COMMENT:" . $tour["notes"] . "\r\n";
 		echo "END:VEVENT\r\n";
-	}	
+	}
 }
 
 // finish

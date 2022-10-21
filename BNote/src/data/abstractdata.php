@@ -9,7 +9,7 @@ if(file_exists($GLOBALS["DIR_DATA"] . "applicationdataprovider.php")) {
  *
  */
 abstract class AbstractData {
-	
+
 	/**
 	 * Database Object
 	 */
@@ -19,27 +19,27 @@ abstract class AbstractData {
 	 * Regular Expression Object
 	 */
 	protected $regex;
-	
+
 	/**
 	 * Content: [db_field] => [label, Type]<br />
 	 * With [label] as the displayed name and [type] as the Type constant.
 	 * @var Array
 	 */
 	protected $fields;
-	
+
 	/**
 	 * References to other entities.
 	 * Content: [foreign_key_column] => [foreign table]
 	 * @var Array
 	 */
 	protected $references;
-	
+
 	/**
 	 * Associated database table.
 	 * @var String
 	 */
 	protected $table;
-	
+
 	/**
 	 * ADP = Application Data Provider
 	 * A collection of data access methods used in multiple modules
@@ -47,46 +47,46 @@ abstract class AbstractData {
 	 * @var Object
 	 */
 	private $adp;
-	
+
 	/**
 	 * System Data: Application core settings and holder of diverse system functions.
 	 * @var Systemdata
 	 */
 	private $sysdata;
-	
+
 	/**
 	 * True when the trigger service is available.
 	 * @var boolean
 	 */
 	protected $triggerServiceEnabled = false;
-	
+
 	/**
 	 * BNote.info Trigger service
 	 * @var TriggerServiceClient
 	 */
 	protected $triggerServiceClient = null;
-	
+
 	/**
 	 * Prefix for includion in exports
 	 * @var string
 	 */
 	protected $dirPrefix = "";
-	
+
 	/**
 	 * Initialize data provider.
 	 * @param string $dir_prefix Optional parameter for include(s) prefix.
 	 */
 	protected function init($dir_prefix = "") {
 		$this->dirPrefix = $dir_prefix;
-		
+
 		global $system_data;
 		$this->sysdata = $system_data;
 		$this->database = $system_data->dbcon;
 		$this->regex = $system_data->regex;
-		
+
 		$this->adp = new ApplicationDataProvider($this->database, $this->regex, $system_data, $dir_prefix);
 	}
-	
+
 	protected function init_trigger($dir_prefix) {
 		$service_active = $this->getSysdata()->getDynamicConfigParameter("enable_trigger_service");
 		if($service_active) {
@@ -95,7 +95,7 @@ abstract class AbstractData {
 			$this->triggerServiceEnabled = true;
 		}
 	}
-	
+
 	protected function getNotificationTriggerUrl() {
 		// use $_SERVER info over configuration, because it's often mal-configured
 		if(isset($_SERVER['REQUEST_SCHEME'])) {
@@ -105,13 +105,13 @@ abstract class AbstractData {
 		} else {
 			$proto = "http";
 		}
-		
+
 		$bnote_url = $proto . "://" . $_SERVER['HTTP_HOST'];
 		$bnote_url .= substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], "/"));  # bnote path on this server
 		$bnote_url .= "/src/export/notify.php";
 		return $bnote_url;
 	}
-	
+
 	protected function buildTriggerData($otype, $oid) {
 		return array(
 			"oid" => $oid,
@@ -119,7 +119,7 @@ abstract class AbstractData {
 			"token" => $this->sysdata->getDynamicConfigParameter("trigger_key")
 		);
 	}
-	
+
 	/**
 	 * Creates a trigger.
 	 * @param String $event_dt Date when the event begins/ends in Format: YYYY-mm-dd HH:ii:ss
@@ -136,14 +136,14 @@ abstract class AbstractData {
 		$repeatCycle = intval($this->getSysdata()->getDynamicConfigParameter("trigger_cycle_days"));
 		# how often should this be repeated
 		$repeatCount = intval($this->getSysdata()->getDynamicConfigParameter("trigger_repeat_count"));
-		
+
 		# Create triggers
 		if($repeatCount > 0) {
 			$trigger_on = clone $limit_dt;
 			$dtinterval = new DateInterval("P" . strval($repeatCycle) . "D");
-			
+
 			for($i = 0; $i < $repeatCount;$i++) {
-				date_sub($trigger_on, $dtinterval);  // inplace operation				
+				date_sub($trigger_on, $dtinterval);  // inplace operation
 				$this->triggerServiceClient->createTrigger(
 					date_format($trigger_on, TriggerServiceClient::DATE_FORMAT),
 					$this->getNotificationTriggerUrl(),
@@ -152,7 +152,7 @@ abstract class AbstractData {
 			}
 		}
 	}
-	
+
 	/**
 	 * <strong>init() must have been called first!</strong>
 	 * @return ApplicationDataProvider The application data provider reference.
@@ -161,7 +161,7 @@ abstract class AbstractData {
 		if($this->adp == null) echo "<strong>" . Lang::txt("AbstractData_adp.message") . "</strong>";
 		return $this->adp;
 	}
-	
+
 	/**
 	 * <strong>init() must have been called first!</strong>
 	 * @return Systemdata Reference to application core settings and diverse system functions.
@@ -169,7 +169,7 @@ abstract class AbstractData {
 	public function getSysdata() {
 		return $this->sysdata;
 	}
-	
+
 	/**
 	 * Sets the SystemData reference.
 	 * @param Systemdata $sysdata System Data Reference.
@@ -177,7 +177,7 @@ abstract class AbstractData {
 	public function setSysdata($sysdata) {
 		$this->sysdata = $sysdata;
 	}
-	
+
 	/**
 	 * Returns the name of the database fields.
 	 * @return Array One dimensional array with db_fields as values.
@@ -185,7 +185,7 @@ abstract class AbstractData {
 	public function getDatabaseFields() {
 		return array_keys($this->fields);
 	}
-	
+
 	/**
 	 * Returns the complete field information array.
 	 * @return Array with the content: [db_field] => [label, Type]<br />
@@ -194,14 +194,14 @@ abstract class AbstractData {
 	public function getFields() {
 		return $this->fields;
 	}
-	
+
 	/**
 	 * @return String The name of the database table
 	 */
 	public function getTable() {
 		return $this->table;
 	}
-	
+
 	/**
 	 * Returns the label of the given field name.
 	 * @param String $field Database field name.
@@ -211,7 +211,7 @@ abstract class AbstractData {
 		if(in_array($field, $this->fields)) return "";
 		return $this->fields[$field][0];
 	}
-	
+
 	/**
 	 * Returns the type of the given field name.
 	 * @param String $field Database field name.
@@ -223,7 +223,7 @@ abstract class AbstractData {
 		}
 		return $this->fields[$field][1];
 	}
-	
+
 	/**
 	 * Optional handling of fields.
 	 * @param boolean $field True if the field has a third parameter set to true/optional, otherwise false.
@@ -234,7 +234,7 @@ abstract class AbstractData {
 		}
 		return $this->fields[$field][2];
 	}
-	
+
 	/**
 	 * Returns the table references by the given column.
 	 * @param String $column Name of the referencing column.
@@ -246,7 +246,7 @@ abstract class AbstractData {
 		}
 		return $this->getTable();
 	}
-	
+
 	/**
 	 * Returns all entities, without exchanging the foreign key columns with something.<br />
 	 * <strong>Don't use this function for entities with possible large contents!</strong>
@@ -256,7 +256,7 @@ abstract class AbstractData {
 		$query = "SELECT * FROM $this->table"; // Security note: $this->table is hardcoded
 		return $this->database->getSelection($query);
 	}
-	
+
 	/**
 	 * Returns all entities, without exchanging the foreign key columns with something.<br />
 	 * @param String $limit Limit Expression in SQL without the "LIMIT" identifier.
@@ -268,7 +268,7 @@ abstract class AbstractData {
 		$query = "SELECT * FROM " . $this->table . " LIMIT $limit";
 		return $this->database->getSelection($query);
 	}
-	
+
 	/**
 	 * Returns all entities with the foreign key columns exchanged for the given exchange columns.
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
@@ -278,7 +278,7 @@ abstract class AbstractData {
 	public function findAllJoined($colExchange) {
 		return $this->database->getSelection($this->createJoinedQuery($colExchange));
 	}
-	
+
 	/**
 	 * Returns all entities with the foreign key columns exchanged for the given exchange columns.
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
@@ -296,7 +296,7 @@ abstract class AbstractData {
 			return $this->findAllJoined($colExchange);
 		}
 	}
-	
+
 	/**
 	 * Returns all entities with the foreign key columns exchanged for the given exchange columns.
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
@@ -313,7 +313,7 @@ abstract class AbstractData {
 			return $this->findAllJoined($colExchange);
 		}
 	}
-	
+
 	/**
 	 * Returns all entities with the foreign key columns exchanged for the given exchange columns.
 	 * @param Array $colExchange The columns that will be exchanged for the foreign key column.<br/>
@@ -331,15 +331,15 @@ abstract class AbstractData {
 			return $this->findAllJoined($colExchange);
 		}
 	}
-	
+
 	/**
 	 * Helper function to build the complex query.
-	 * 
+	 *
 	 * Security note
 	 * -------------
-	 * $this->table and $this->fields are const, hardcoded values never changed. 
+	 * $this->table and $this->fields are const, hardcoded values never changed.
 	 * Hence they bare little security risk and are tolerated by the author.
-	 * 
+	 *
 	 * @param Array $colExchange see findAllJoined(...)
 	 */
 	private function createJoinedQuery($colExchange) {
@@ -347,13 +347,13 @@ abstract class AbstractData {
 		$joins = array();
 		$tables = array();
 		array_push($tables, $this->table);
-		
+
 		// all native fields
 		foreach($this->fields as $field => $info) {
 			if(isset($colExchange[$field])) continue;
 			array_push($qcols, $this->table . "." . $field);
 		}
-		
+
 		// all exchanged fields
 		if(count($colExchange) != 0) {
 			foreach($colExchange as $fcol => $tcols) {
@@ -367,35 +367,35 @@ abstract class AbstractData {
 						array_push($qcols, $foreign_table . "." . $col . " as $foreign_table$col"); // foreign_table.foreign_col
 					}
 				}
-				
+
 				// add table to required tables
 				if(!in_array($foreign_table, $tables)) array_push($tables, $foreign_table);
-				
+
 				// add join clause: fcol_id = foreigntable.id
 				array_push($joins, $this->table . "." . $fcol . " = " . $foreign_table . ".id");
 			}
 		}
-		
+
 		// From tables and where claus with cross-product join
 		// build query
 		$query = "SELECT " . join(", ", $qcols);
-		$query .= " FROM " . join(", ", $tables);		
+		$query .= " FROM " . join(", ", $tables);
 		$query .= " WHERE " . join(" AND ", $joins);
 
 		return $query;
 	}
-	
+
 	/**
 	 * Finds one row result by its id.
 	 * @param int $id ID of the row.
-	 * @return Array Returns a database getRow(...) result. 
+	 * @return Array Returns a database getRow(...) result.
 	 */
 	public function findByIdNoRef($id) {
 		// Security note: $this->table is always a static string programmatically set
 		$query = "SELECT * FROM $this->table WHERE id = ?";
 		return $this->database->fetchRow($query, array(array("i", $id)));
 	}
-	
+
 	/**
 	 * Finds a row results by its id and includes exchanged columns.
 	 * @param int $id ID of the row.
@@ -406,7 +406,7 @@ abstract class AbstractData {
 		$query = $this->createJoinedQuery($colExchange) . " AND " . $this->table . ".id = ?";
 		return $this->database->fetchRow($query, array(array("i", $id)));
 	}
-	
+
 	/**
 	 * Creates a new row with the given values.
 	 * @param Array $values Value array in the format [db_field] => [value].
@@ -416,17 +416,17 @@ abstract class AbstractData {
 		if(count($values) == 0) {
 			return -1;
 		}
-		
+
 		// build query
 		$cols = array();
 		$qlist = array();
 		$params = array();
-		
+
 		foreach($values as $field => $value) {
 			// safety check if field is one of the hardcoded ones
 			if(!in_array($field, array_keys($this->fields))) continue;
 			array_push($cols, $field);
-			
+
 			// handle value based on field type
 			$t = $this->getTypeOfField($field);
 			if($t == FieldType::DECIMAL) {
@@ -443,7 +443,7 @@ abstract class AbstractData {
 			else if($t == FieldType::MINSEC) {
 				$value = Data::convertMinSecToDb($value);
 			}
-			
+
 			// add to statement
 			if($t == FieldType::TEXT || $t == FieldType::CHAR || $t == FieldType::PASSWORD
 				|| $t == FieldType::DATETIME || $t == FieldType::TIME || $t == FieldType::ENUM
@@ -457,11 +457,11 @@ abstract class AbstractData {
 				array_push($params, array("i", $value));
 			}
 		}
-		
+
 		$query = "INSERT INTO " . $this->table . "(" . join(",", $cols) . ") VALUES (" . join(",", $qlist) . ")";
 		return $this->database->prepStatement($query, $params);
 	}
-	
+
 	/**
 	 * Updates the row with the given $id with the values.
 	 * @param String $id ID of the row to update.
@@ -470,13 +470,13 @@ abstract class AbstractData {
 	public function update($id, $values) {
 		$params = array();
 		$colEqValues = array();
-		
+
 		foreach($values as $field => $val) {
 			if(!array_key_exists($field, $this->fields)) continue;
 			else {
 				array_push($colEqValues, "$field = ?");
 				$t = $this->getTypeOfField($field);
-				
+
 				if($t == FieldType::DECIMAL) {
 					$val = Data::convertToDb($val);
 				}
@@ -491,7 +491,7 @@ abstract class AbstractData {
 				else if($t == FieldType::MINSEC) {
 					$val = Data::convertMinSecToDb($val);
 				}
-					
+
 				if($t == FieldType::TEXT || $t == FieldType::CHAR || $t == FieldType::PASSWORD
 					|| $t == FieldType::DATETIME || $t == FieldType::TIME || $t == FieldType::ENUM
 					|| $t == FieldType::DATE || $t == FieldType::EMAIL || $t == FieldType::LOGIN
@@ -506,7 +506,7 @@ abstract class AbstractData {
 				}
 			}
 		}
-		
+
 		// update unset boolean values
 		foreach($this->fields as $fieldName => $field) {
 			$fieldType = $field[1];
@@ -515,13 +515,13 @@ abstract class AbstractData {
 				array_push($params, array("i", 0));
 			}
 		}
-		
+
 		$query = "UPDATE " . $this->table . " SET " . join(",", $colEqValues);
 		$query .= " WHERE id = ?";
 		array_push($params, array("i", $id));
 		$this->database->execute($query, $params);
 	}
-	
+
 	/**
 	 * Removes the row with the given id.
 	 * @param int $id Id of the row.
@@ -530,7 +530,7 @@ abstract class AbstractData {
 		$query = "DELETE FROM " . $this->table . " WHERE id = $id";
 		$this->database->execute($query);
 	}
-	
+
 	/**
 	 * Validate user input based on fieldtype information. If function passes,
 	 * then the values are ok.
@@ -544,7 +544,7 @@ abstract class AbstractData {
 			$this->validatePair($id, $value, $this->getTypeOfField($id));
 		}
 	}
-	
+
 	protected function validatePair($k, $value, $type) {
 		// check if a field has a third parameter -> optional
 		if($this->isFieldOptional($k)) {
@@ -568,7 +568,7 @@ abstract class AbstractData {
 			default: $this->regex->isText($value, $k); break;
 		}
 	}
-	
+
 	/**
 	 * Retrieves the custom fields for this object type.
 	 * @param String $objectType Character referring to CustomFieldsData::objectReferenceTypes
@@ -582,7 +582,7 @@ abstract class AbstractData {
 		}
 		return $this->database->getSelection($query, array(array("s", $objectType)));
 	}
-	
+
 	/**
 	 * Converts the custom field type into a FieldType ENUM value.
 	 * @param String $customType Custom field type string.
@@ -598,7 +598,7 @@ abstract class AbstractData {
 			default: return FieldType::CHAR;
 		}
 	}
-	
+
 	/**
 	 * Convenience method for custom field type info access.
 	 * @param Array $selection Usually from getCustomFields($objectype)
@@ -615,7 +615,7 @@ abstract class AbstractData {
 		}
 		return $info;
 	}
-	
+
 	/**
 	 * Adds custom field information to the result of getFields() and returns the full package.
 	 * @param String $otype Object type for custom data.
@@ -626,34 +626,34 @@ abstract class AbstractData {
 			$techName = $customFields[$i]['techname'];
 			$fieldName = $customFields[$i]['txtdefsingle'];
 			$customFieldType = $customFields[$i]['fieldtype'];
-			
+
 			$this->fields[$techName] = array($fieldName, $this->fieldTypeFromCustom($customFieldType));
 		}
 		return $this->fields;
 	}
-	
+
 	protected function createCustomFieldData($otype, $oid, $values) {
 		$valueSet = array();
-		
+
 		// get custom fields for otype
 		$customFieldSelection = $this->getCustomFields($otype);
 		$fields = $this->compileCustomFieldInfo($customFieldSelection);
-		
+
 		$params = array();
-		
+
 		foreach($fields as $techname => $info) {
 			$vtype = $info[1];
 			$fieldid = $info[2];
-		
+
 			$intval = 0;
 			$dblval = 0.0;
 			$strval = "";
 			$dateval = "";
 			$datetimeval = "";
-				
+
 			if(isset($values[$techname])) {
 				$val = $values[$techname];
-		
+
 				switch($vtype) {
 					case "BOOLEAN":
 						$intval = $val ? 1 : 0;
@@ -694,12 +694,12 @@ abstract class AbstractData {
 		$query .= join(",", $valueSet);
 		$this->database->prepStatement($query, $params);
 	}
-	
+
 	protected function updateCustomFieldData($otype, $oid, $values, $public_mode = false) {
 		// in case the public_mode is on, add the non-public field values to the value set
 		if($public_mode) {
 			$currentData = $this->getCustomFieldData($otype, $oid);
-			
+
 			$customFields = $this->getCustomFields($otype);
 			for($i = 1; $i < count($customFields); $i++) {
 				$field = $customFields[$i];
@@ -709,20 +709,20 @@ abstract class AbstractData {
 				}
 			}
 		}
-		
+
 		// for update compatibility of custom fields, remove all custom data before inserting new ones
 		$delQuery = "DELETE FROM customfield_value WHERE otype = '$otype' AND oid = $oid";
 		$this->database->execute($delQuery);
-		
+
 		// create data again
 		$this->createCustomFieldData($otype, $oid, $values);
 	}
-	
+
 	protected function deleteCustomFieldData($otype, $oid) {
 		$query = "DELETE FROM customfield_value WHERE otype = '$otype' AND oid = $oid";
 		$this->database->execute($query);
 	}
-	
+
 	/**
 	 * Compiles a flat array of custom field data for the given entity.
 	 * @param String $otype Object Type, e.g. 'c' for a contact.
@@ -735,18 +735,18 @@ abstract class AbstractData {
 		$query .= "FROM customfield_value v JOIN customfield f ON v.customfield = f.id ";
 		$query .= "WHERE f.otype = ? AND oid = ?";
 		$select = $this->database->getSelection($query, array(array("s", $otype), array("i", $oid)));
-		
+
 		// get custom fields for otype
 		$customFieldSelection = $this->getCustomFields($otype);
 		$fields = $this->compileCustomFieldInfo($customFieldSelection);
-		
+
 		// process and flatten data
 		$out = array();
 		for($i = 1; $i < count($select); $i++) {
 			$techname = $select[$i]['techname'];
 			$out[$techname] = $this->customFieldValueMapper($select[$i], $fields);
 		}
-		
+
 		// in case there is no custom data for this object yet
 		if(count($out) < count($fields)) {
 			foreach($fields as $techname => $info) {
@@ -757,16 +757,16 @@ abstract class AbstractData {
 		}
 		return $out;
 	}
-	
+
 	protected function customFieldValueMapper($customValueRow, $fields) {
 		$techname = $customValueRow['techname'];
 		$vtype = $fields[$techname][1];
 		switch($vtype) {
-			case "BOOLEAN": 
-				$val = ($customValueRow['intval'] == 1); 
+			case "BOOLEAN":
+				$val = ($customValueRow['intval'] == 1);
 				break;
 			case "INT": $val = $customValueRow['intval']; break;
-			case "DOUBLE": 
+			case "DOUBLE":
 				$val = $customValueRow['dblval'];
 				$val = Data::convertFromDb($val);
 				break;
@@ -774,7 +774,7 @@ abstract class AbstractData {
 		}
 		return $val;
 	}
-	
+
 	protected function appendCustomDataToSelection($otype, $selection, $idcol="id") {
 		// get all OIDs from selection
 		$oids = Database::flattenSelection($selection, "id");
@@ -789,18 +789,18 @@ abstract class AbstractData {
 			array_push($oidsPart, "oid = ?");
 		}
 		$query = "SELECT oid, techname, intval, dblval, strval, dateval, datetimeval "
-				. "FROM customfield_value v JOIN customfield f ON v.customfield = f.id " 
+				. "FROM customfield_value v JOIN customfield f ON v.customfield = f.id "
 				. "WHERE f.otype = ? AND (" . join(" OR ", $oidsPart) . ")";
 		$fieldValueSelect = $this->database->getSelection($query, $params);
-		
+
 		// get custom fields for otype
 		$customFieldSelection = $this->getCustomFields($otype);
 		$fields = $this->compileCustomFieldInfo($customFieldSelection);
-		
+
 		// iterate over data and append to each row
 		$result = array();
 		for($i = 0; $i < count($selection); $i++) {
-			$row = $selection[$i];			
+			$row = $selection[$i];
 			if($i == 0) {
 				// header: add tech names
 				foreach($fields as $techname => $info) {
@@ -820,7 +820,7 @@ abstract class AbstractData {
 		}
 		return $result;
 	}
-	
+
 	protected function filterCustomValueRows($fieldValueSelect, $oid) {
 		$result_rows = array();
 		for($i = 1; $i < count($fieldValueSelect); $i++) {
@@ -830,7 +830,7 @@ abstract class AbstractData {
 		}
 		return $result_rows;
 	}
-	
+
 	protected function validateCustomData($values, $fields) {
 		for($i = 1; $i < count($fields); $i++) {
 			$field = $fields[$i];
@@ -841,9 +841,9 @@ abstract class AbstractData {
 			}
 		}
 	}
-	
+
 	/**
-	 * URL-decodes all values of the given fields. 
+	 * URL-decodes all values of the given fields.
 	 * @param array $selection DB selection array.
 	 * @param array $fields Flat array with the names of the columns/fields to convert, e.g. "title", "notes" for songs.
 	 */
@@ -860,7 +860,7 @@ abstract class AbstractData {
 		}
 		return $decodedData;
 	}
-	
+
 	/**
 	 * Generates a tuple statement to insert a list of values with a static first parameter, e.g. to insert members to a concert.
 	 * @param Integer $id Static ID value or alike
@@ -878,7 +878,7 @@ abstract class AbstractData {
 		$queryPart = join(",", $tuples);
 		return array($queryPart, $params);
 	}
-	
+
 	/**
 	 * Delegate for SystemData::getUserId()
 	 * @return int|NULL User ID

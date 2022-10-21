@@ -8,24 +8,24 @@
 use Shuchkin\SimpleXLSX;
 
 class RepertoireController extends DefaultController {
-	
+
 	private $genreView;
 	private $genreData;
-	
+
 	/**
 	 * internal map for faster processing<br/>
 	 * name_of_genre => id
 	 * @var array
 	 */
 	private $genres = NULL;
-	
+
 	/**
 	 * internal map for faster processing<br/>
 	 * name_of_status => id
 	 * @var array
 	 */
 	private $statuses = NULL;
-	
+
 	function start() {
 		if(isset($_GET["mode"]) && $_GET["mode"] == "genre") {
 			$this->genre();
@@ -43,12 +43,12 @@ class RepertoireController extends DefaultController {
 			parent::start();
 		}
 	}
-	
+
 	private function initGenre() {
 		if($this->genreView == null) {
 			require_once $GLOBALS["DIR_DATA_MODULES"] . "genredata.php";
 			require_once $GLOBALS["DIR_PRESENTATION_MODULES"] . "genreview.php";
-			
+
 			$ctrl = new DefaultController();
 			$this->genreData = new GenreData();
 			$this->genreView = new GenreView($ctrl);
@@ -56,12 +56,12 @@ class RepertoireController extends DefaultController {
 			$ctrl->setView($this->genreView);
 		}
 	}
-	
+
 	function getGenreView() {
 		$this->initGenre();
 		return $this->genreView;
 	}
-	
+
 	private function genre() {
 		$this->initGenre();
 		if(isset($_GET["func"])) {
@@ -72,8 +72,8 @@ class RepertoireController extends DefaultController {
 			$this->genreView->start();
 		}
 	}
-	
-	private function xlsMapping() {		
+
+	private function xlsMapping() {
 		// validate upload
 		if(!isset($_FILES["xlsfile"])) {
 			new BNoteError(Lang::txt("errorWithFile"));
@@ -91,7 +91,7 @@ class RepertoireController extends DefaultController {
 		if(!is_uploaded_file($_FILES["xlsfile"]["tmp_name"])) {
 			new BNoteError(Lang::txt("RepertoireController_xlsMapping.errorUploadingFile"));
 		}
-		
+
 		// read file
 		$xlsxfilename = $_FILES["xlsfile"]["tmp_name"];
 		if($xlsx = SimpleXLSX::parse($xlsxfilename)) {
@@ -109,14 +109,14 @@ class RepertoireController extends DefaultController {
 			new BNoteError(SimpleXLSX::parseError());
 		}
 	}
-	
+
 	function xlsImport() {
 		// check if title is mapped
 		if($_POST["col_title"] < 0) {
 			new BNoteError(Lang::txt("RepertoireController_xlsImport.error"));
 		}
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
-		
+
 		// find duplicates to update and empty rows to ignore
 		$updateCandidates = array();
 		$id_col = NULL;
@@ -144,7 +144,7 @@ class RepertoireController extends DefaultController {
 		}
 		$this->getView()->xlsImport($title_col, $updateCandidates, $numNonEmptyRows, $empties);
 	}
-	
+
 	function xlsProcess() {
 		// go through data: ignore empties and handle duplicates
 		$xlsData = json_decode(urldecode($_POST["xlsData"]));
@@ -152,7 +152,7 @@ class RepertoireController extends DefaultController {
 		if($_POST["empties"] != "") {
 			$empties = explode(",", $_POST["empties"]);
 		}
-		
+
 		// put together decision on duplicate rows (songs to update)
 		$songsToUpdate = array();
 		$dup_prefix = "duplicate_";
@@ -163,7 +163,7 @@ class RepertoireController extends DefaultController {
 				$songsToUpdate[$rowIdx] = $songId;
 			}
 		}
-		
+
 		// do the real data processing
 		$updated = 0;
 		$created = 0;
@@ -186,7 +186,7 @@ class RepertoireController extends DefaultController {
 		}
 		$this->getView()->xlsProcessSuccess($updated, $created);
 	}
-	
+
 	protected function xlsMap($row, $header) {
 		// handle non-mapped fields
 		$bpm = "";
@@ -265,7 +265,7 @@ class RepertoireController extends DefaultController {
 				$active = "off";
 			}
 		}
-		
+
 		$song = array(
 				"title" => $row->$title_f,
 				"genre" => $this->mapGenre($genre),
@@ -278,7 +278,7 @@ class RepertoireController extends DefaultController {
 				"setting" => $setting,
 				"is_active" => $active
 		);
-		
+
 		// add custom fields
 		$customFields = $this->getData()->getCustomFields('s');
 		$i = 0;
@@ -290,7 +290,7 @@ class RepertoireController extends DefaultController {
 				$song[$field["techname"]] = $row->$f;
 			}
 		}
-		
+
 		return $song;
 	}
 
@@ -304,7 +304,7 @@ class RepertoireController extends DefaultController {
 				$this->genres[strtolower($genres[$i]["name"])] = $genres[$i]["id"];
 			}
 		}
-		
+
 		// check if name exists in genres
 		$k = strtolower($name);
 		if(array_key_exists($k, $this->genres)) {
@@ -312,13 +312,13 @@ class RepertoireController extends DefaultController {
 		}
 		return 0;
 	}
-	
+
 	private function cleanSubject($subject) {
 		$s = str_replace('"', "", $subject);
 		$s = str_replace("'", "", $s);
 		return $s;
 	}
-	
+
 }
 
 ?>

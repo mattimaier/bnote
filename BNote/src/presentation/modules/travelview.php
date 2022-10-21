@@ -16,7 +16,7 @@ class TravelView extends CrudRefView {
 			"tour" => $_GET["accId"]
 		);
 	}
-	
+
 	/**
 	 * Extended version of modePrefix for sub-module.
 	 */
@@ -24,11 +24,11 @@ class TravelView extends CrudRefView {
 		$tid = $_GET["accId"];
 		return "?mod=" . $this->getModId() . "&mode=view&accId=$tid&tab=travel&func=";
 	}
-	
+
 	function isSubModule($mode) {
 		return true;
 	}
-	
+
 	function subModuleOptions() {
 		$subOptionFunc = isset($_GET["func"]) ? $_GET["func"] . "Options" : "startOptions";
 		if(method_exists($this, $subOptionFunc)) {
@@ -38,13 +38,13 @@ class TravelView extends CrudRefView {
 			$this->defaultOptions();
 		}
 	}
-	
+
 	function backToStart() {
 		$link = new Link("?mod=" . $this->getModId() . "&mode=view&tab=travel&accId=" . $_GET["accId"], "Zurück");
 		$link->addIcon("arrow_left");
 		$link->write();
 	}
-	
+
 	function showAllTable() {
 		$trips = $this->getData()->findAllJoinedOrdered($this->getJoinedAttributes(), "departure");
 		if(isset($_GET["accId"])) {
@@ -63,7 +63,7 @@ class TravelView extends CrudRefView {
 		$table->setColumnFormat("arrival", "DATE");
 		$table->write();
 	}
-	
+
 	function viewDetailTable() {
 		$entity = $this->getData()->findByIdJoined($_GET[$this->idParameter], $this->getJoinedAttributes());
 		$details = new Dataview();

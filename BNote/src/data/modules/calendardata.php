@@ -4,18 +4,18 @@ class CalendarData extends AbstractLocationData {
 
 	private $startdata;
 	private $mitspielerdata;
-	
+
 	/**
 	 * Submodule dao.
 	 * @var AppointmentData
 	 */
 	private $appointmentdata;
-	
+
 	public static $colExchange = array(
 		"contact" => array("name", "surname"),
 		"location" => array("name")
 	);
-	
+
 	function __construct($dir_prefix = "") {
 		$this->fields = array(
 			"id" => array(Lang::txt("CalendarData_construct.id"), FieldType::INTEGER),
@@ -26,32 +26,32 @@ class CalendarData extends AbstractLocationData {
 			"contact" => array(Lang::txt("CalendarData_construct.contact"), FieldType::REFERENCE),
 			"notes" => array(Lang::txt("CalendarData_construct.notes"), FieldType::TEXT)
 		);
-		
+
 		$this->references = array(
 			"location" => "location",
 			"contact" => "contact"
 		);
-		
+
 		$this->table = "reservation";
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "startdata.php");
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "mitspielerdata.php");
-		
+
 		$this->startdata = new StartData($dir_prefix);
 		$this->mitspielerdata = new MitspielerData($dir_prefix);
 		$this->init($dir_prefix);
 	}
-	
+
 	public function getJoinedAttributes() {
 		return $this->colExchange;
 	}
-	
+
 	public function setAppointmentData($appointmentData) {
 		$this->appointmentdata = $appointmentData;
 	}
-	
+
 	private function reduce_data($entityType, $dbsel, $fields, $key_replace=array(), $title_prefix="", $link="#") {
 		$result = array();
-		
+
 		// check if the user has access to the module associated with the entity type to provide an edit button for the event
 		$modName = null;
 		switch($entityType) {
@@ -67,13 +67,13 @@ class CalendarData extends AbstractLocationData {
 		if($modName != null) {
 			$modAccess = $this->getSysdata()->userHasPermission($this->getSysdata()->getModuleId($modName));
 		}
-		
+
 		// compile result
 		for($i = 1; $i < count($dbsel); $i++) {
 			$row = $dbsel[$i];
 			$res_row = array();
 			$res_row["details"] = array();
-			
+
 			foreach($fields as $field) {
 				if(isset($key_replace[$field])) {
 					$replaceKey = $key_replace[$field];
@@ -82,12 +82,12 @@ class CalendarData extends AbstractLocationData {
 				else {
 					$res_row[$field] = $row[$field];
 				}
-				
+
 				// special replacements for dates
 				if(($field == "begin" || $field == "end") && isset($res_row[$field])) {
 					$res_row[$field] = str_replace(" ", "T", $res_row[$field]);
 				}
-				
+
 				// details
 				if($field == "id") continue;
 				$detailValue = $row[$field];
@@ -104,9 +104,9 @@ class CalendarData extends AbstractLocationData {
 					$res_row["details"][Lang::txt("calendar_" . $field)] = $detailValue;
 				}
 			}
-			
+
 			if(isset($res_row["title"])) {
-				$res_row["title"] = $title_prefix . " " . $res_row["title"]; 
+				$res_row["title"] = $title_prefix . " " . $res_row["title"];
 			}
 			else {
 				$res_row["title"] = $title_prefix;
@@ -117,10 +117,10 @@ class CalendarData extends AbstractLocationData {
 			$res_row["groupId"] = $entityType;
 			array_push($result, $res_row);
 		}
-		
+
 		return $result;
 	}
-	
+
 	function getEvents() {
 		$rehs_db = $this->startdata->getUsersRehearsals();
 		$phases_db = $this->adp()->getUsersPhases();
@@ -129,7 +129,7 @@ class CalendarData extends AbstractLocationData {
 		$contacts_db = $this->mitspielerdata->getMembers();
 		$reservations_db = $this->findAllNoRef();
 		$appointments_db = $this->appointmentdata->findAllJoined(AppointmentData::$colExchange);
-		
+
 		// birthday: replace year with the current year
 		$contacts_db_edit = array();
 		for($i = 0; $i < count($contacts_db); $i++) {
@@ -139,19 +139,19 @@ class CalendarData extends AbstractLocationData {
 				continue;
 			}
 			if(!isset($row["birthday"])) continue;
-			
-			$bday = $row["birthday"]; 
+
+			$bday = $row["birthday"];
 			if($bday == null || $bday == "" || $bday == "-") {
 				continue;
 			}
 			$bday = date("Y") . substr($bday, 4);
 			$row["birthday"] = $bday;
-			
+
 			$row["title"] = $row["name"] . " " . $row["surname"];
-			
+
 			array_push($contacts_db_edit, $row);
 		}
-		
+
 		$rehs = $this->reduce_data(
 				"rehearsal",
 				$rehs_db,
@@ -208,25 +208,25 @@ class CalendarData extends AbstractLocationData {
 				"?mod=" . $this->getSysdata()->getModuleId("Calendar") . "&mode=appointments&func=view&id=");
 		return array_merge($rehs, $phases, $concerts, $votes, $contacts, $reservations, $appointments);
 	}
-	
+
 	function getContact($id) {
 		return $this->database->fetchRow("SELECT * FROM contact WHERE id = ?", array(array("i", $id)));
 	}
-	
+
 	function getCustomData($id) {
 		return $this->getCustomFieldData('v', $id);
 	}
-	
+
 	function create($values) {
 		$id = parent::create($values);
 		$this->createCustomFieldData('v', $id, $values);
 	}
-	
+
 	function update($id, $values) {
 		parent::update($id, $values);
 		$this->updateCustomFieldData('v', $id, $values);
 	}
-	
+
 	function delete($id) {
 		$this->deleteCustomFieldData('v', $id);
 		parent::delete($id);

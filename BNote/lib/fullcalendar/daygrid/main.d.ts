@@ -307,4 +307,3 @@ declare module '@fullcalendar/daygrid/SimpleDayGridEventRenderer' {
         computeDisplayEventEnd(): boolean;
     }
 }
-

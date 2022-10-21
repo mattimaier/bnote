@@ -2,18 +2,18 @@
 require_once 'notificationLogger.php';
 /*
  * THIS SCRIPT IS EXECUTED HOURLY
- * 
+ *
  * - Read all jobs that need to be notified in this hour
  * - Send the callbacks
- * 
+ *
  * -> write success/failure to stdout
- * -> update DB for the hostname usage 
+ * -> update DB for the hostname usage
  */
 
 class NotificationService {
 
 	private $dao;
-	
+
 	/**
 	 * Singleton for database access in lazy way.
 	 * @return TriggerData
@@ -25,7 +25,7 @@ class NotificationService {
 		}
 		return $this->dao;
 	}
-	
+
 	public function run() {
 		$jobs = $this->getData()->getCurrentHoursJobs();
 		$count = 0;
@@ -39,7 +39,7 @@ class NotificationService {
 				$failed++;
 				continue;
 			}
-			
+
 			$callback_url = $job[2];
 			try {
 				$this->sendRequest($callback_url, $callback_data);
@@ -52,7 +52,7 @@ class NotificationService {
 		}
 		echo date(TriggerDB::DATETIME_FORMAT_DB) . "\t$count Notifications successfully sent. $failed failed.\n";
 	}
-	
+
 	protected function sendRequest($url, $post_data) {
 		$options = array(
 				'http' => array(
@@ -67,7 +67,7 @@ class NotificationService {
 			throw new Exception("Sending request to $url failed.");
 		}
 	}
-	
+
 }
 
 $service = new NotificationService();

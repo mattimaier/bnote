@@ -6,16 +6,16 @@
  *
  */
 class StartData extends AbstractLocationData {
-	
+
 	private $newsData;
 	private $dir_prefix;
-	
+
 	/**
 	 * Build data provider.
 	 */
 	function __construct($dir_prefix = "") {
 		$this->dir_prefix = $dir_prefix;
-		
+
 		$this->fields = array(
 			"id" => array(Lang::txt("StartData_construct.id"), FieldType::INTEGER),
 			"login" => array(Lang::txt("StartData_construct.login"), FieldType::CHAR),
@@ -23,17 +23,17 @@ class StartData extends AbstractLocationData {
 			"realname" => array(Lang::txt("StartData_construct.realname"), FieldType::CHAR),
 			"lastlogin" => array(Lang::txt("StartData_construct.lastlogin"), FieldType::DATETIME)
 		);
-		
+
 		$this->references = array();
 		$this->table = "user";
-		
+
 		// includes
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "nachrichtendata.php");
 		$this->newsData = new NachrichtenData($dir_prefix);
-		
+
 		$this->init($dir_prefix);
 	}
-	
+
 	/**
 	 * Checks whether the current user participates in a rehearsal.
 	 * @param int $rid ID of the rehearsal.
@@ -47,7 +47,7 @@ class StartData extends AbstractLocationData {
 		}
 		return $res;
 	}
-	
+
 	/**
 	 * Checks whether the current user participates in a concert.
 	 * @param int $cid ID of the concert.
@@ -65,7 +65,7 @@ class StartData extends AbstractLocationData {
 		}
 		return $res;
 	}
-	
+
 	function saveParticipation($otype, $uid, $id, $participate, $reason) {
 		if($uid == null) {
 			$uid = $this->getUserId();
@@ -77,11 +77,11 @@ class StartData extends AbstractLocationData {
 				new BNoteError("Unknown entity for $otype");
 		}
 		$table = $entity . "_user"; // table name hardcoded, see switch above
-		
+
 		// remove
 		$query = "DELETE FROM $table WHERE $entity = ? AND user = ?";
 		$this->database->execute($query, array(array("i", $id), array("i", $uid)));
-		
+
 		// insert
 		if($reason != null) {
 			// save non-participation with reason
@@ -96,7 +96,7 @@ class StartData extends AbstractLocationData {
 				array("i", $id), array("i", $uid), array("i", $participate), array("s", $reason)
 		));
 	}
-	
+
 	function getSongsForRehearsal($rid) {
 		$query = "SELECT s.id, s.title, rs.notes ";
 		$query .= "FROM rehearsal_song rs, song s ";
@@ -104,7 +104,7 @@ class StartData extends AbstractLocationData {
 		$selection = $this->database->getSelection($query, array(array("i", $rid)));
 		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
-	
+
 	function getRehearsalParticipants($rid) {
 		$query = "SELECT c.name, c.surname, c.nickname, i.name as instrument, i.rank as instrumentrank ";
 		$query .= "FROM rehearsal_user r, user u, contact c, instrument i ";
@@ -113,7 +113,7 @@ class StartData extends AbstractLocationData {
 		$query .= "ORDER BY instrumentrank, name, surname";
 		return $this->database->getSelection($query, array(array("i", $rid)));
 	}
-	
+
 	function getConcertParticipants($cid) {
 		$query = "SELECT c.name, c.surname, c.nickname, i.name as instrument ";
 		$query .= "FROM concert_user r, user u, contact c, instrument i ";
@@ -122,26 +122,26 @@ class StartData extends AbstractLocationData {
 		$query .= "ORDER BY name, surname, instrument";
 		return $this->database->getSelection($query, array(array("i", $cid)));
 	}
-	
+
 	function getVotesForUser($uid = -1) {
 		if($uid == -1) $uid = $this->getUserId();
-		
+
 		$query = "SELECT v.id, v.name, v.end, v.is_date, v.is_multi ";
 		$query .= "FROM vote_group vg JOIN vote v ON vg.vote = v.id ";
 		$query .= "WHERE vg.user = ? AND v.is_finished = 0 AND end > now() ";
 		$query .= "ORDER BY v.end ASC";
 		return $this->database->getSelection($query, array(array("i", $uid)));
 	}
-	
+
 	function getVote($vid) {
 		return $this->database->fetchRow("SELECT * FROM vote WHERE id = ?", array(array("i", $vid)));
 	}
-	
+
 	function getOptionsForVote($vid) {
 		$query = "SELECT * FROM vote_option WHERE vote = ? ORDER BY name, odate";
 		return $this->database->getSelection($query, array(array("i", $vid)));
 	}
-	
+
 	function canUserVote($vid, $uid = null) {
 		if($uid == null) {
 			$uid = $this->getUserId();
@@ -151,11 +151,11 @@ class StartData extends AbstractLocationData {
 		$c = $this->database->colValue($cq, "cnt", array(array("i", $vid), array("i", $uid)));
 		return ($c == 1);
 	}
-	
+
 	function saveVote($vid, $values, $user = -1) {
 		$vote = $this->getVote($vid);
 		if($user == -1) $user = $this->getUserId();
-		
+
 		// remove eventual old votes first
 		$options = $this->getOptionsForVote($vid);
 		$params = array();
@@ -167,7 +167,7 @@ class StartData extends AbstractLocationData {
 		$query = "DELETE FROM vote_option_user WHERE " . join(" OR ", $tuples) . " AND user = ?";
 		array_push($params, array("i", $user));
 		$this->database->execute($query, $params);
-		
+
 		if($vote["is_multi"] == 1) {
 			$triples = array();
 			$params2 = array();
@@ -189,34 +189,34 @@ class StartData extends AbstractLocationData {
 			$this->database->execute($query, array(array("i", $values["uservote"]), array("i", $user)));
 		}
 	}
-	
+
 	function getNews() {
 		return $this->newsData->preparedContent();
 	}
-	
+
 	function taskComplete($tid) {
 		$query = "UPDATE task SET is_complete = 1, completed_at = NOW() WHERE id = ?";
 		$params = array(array("i", $tid));
 		$this->database->execute($query, $params);
 	}
-	
+
 	function getUsersRehearsals($uid = -1) {
 		$data = $this->adp()->getFutureRehearsals(true);
-		
+
 		// super users should see it all
 		if($this->getSysdata()->isUserSuperUser($uid)) {
 			return $data;
 		}
-		
+
 		// only show rehearsals of groups and rehearsal phases the user is in
 		if($uid == -1) $uid = $this->getUserId();
-		
+
 		$usersPhases = $this->adp()->getUsersPhases($uid);
 		$rehearsals = array_merge($this->getRehearsalsForUser($uid), $this->getRehearsalsForPhases($usersPhases));
-		
+
 		$result = array();
 		$result[0] = $data[0]; // header
-		
+
 		// add rehearsals to resultset which the user can see
 		foreach($data as $i => $row) {
 			if($i == 0) continue; // skip header
@@ -224,23 +224,23 @@ class StartData extends AbstractLocationData {
 				array_push($result, $row);
 			}
 		}
-		
-		return $result;		
+
+		return $result;
 	}
-	
+
 	private function getRehearsalsForUser($uid) {
-		$query = "SELECT rehearsal 
-					FROM rehearsal_contact rc 
-						JOIN contact c ON rc.contact = c.id 
-						JOIN user u ON u.contact = c.id 
+		$query = "SELECT rehearsal
+					FROM rehearsal_contact rc
+						JOIN contact c ON rc.contact = c.id
+						JOIN user u ON u.contact = c.id
 					WHERE u.id = ?";
 		$sel = $this->database->getSelection($query, array(array("i", $uid)));
 		return Database::flattenSelection($sel, "rehearsal");
 	}
-	
+
 	private function getRehearsalsForPhases($phases) {
 		if(count($phases) == 0) return array();
-		
+
 		$params = array();
 		$whereQ = array();
 		foreach($phases as $p) {
@@ -251,12 +251,12 @@ class StartData extends AbstractLocationData {
 		$sel = $this->database->getSelection($query, $params);
 		return Database::flattenSelection($sel, "rehearsal");
 	}
-	
+
 	function getUsersConcerts($uid = -1) {
 		if($uid == -1) $uid = $this->getUserId();
 		return $this->adp()->getFutureConcerts($uid);
 	}
-	
+
 	function getProgramTitles($pid) {
 		$query = "SELECT ps.rank, s.title, c.name as composer, s.notes
 				FROM program_song ps
@@ -267,24 +267,24 @@ class StartData extends AbstractLocationData {
 		$selection = $this->database->getSelection($query, array(array("i", $pid)));
 		return $this->urldecodeSelection($selection, array("title", "notes"));
 	}
-	
+
 	function getRehearsal($rid) {
-		$query = "SELECT *, r.notes FROM rehearsal r 
+		$query = "SELECT *, r.notes FROM rehearsal r
 					JOIN location l ON r.location = l.id
-					JOIN address a ON l.address = a.id 
+					JOIN address a ON l.address = a.id
 				   WHERE r.id = ?";
 		return $this->database->fetchRow($query, array(array("i", $rid)));
 	}
-	
+
 	function getConcert($cid) {
 		return $this->database->fetchRow("SELECT * FROM concert WHERE id = ?", array(array("i", $cid)));
 	}
-	
+
 	function getUserUpdates($objectListing) {
 		// create appropriate where statement
 		$params = array();
 		$whereQ = array();
-		
+
 		// super users and administrators can see all updates
 		if($this->getSysdata()->isUserSuperUser() || $this->getSysdata()->isUserMemberGroup(1)) {
 			$where = "";
@@ -302,16 +302,16 @@ class StartData extends AbstractLocationData {
 				// make sure if there are no objects, no updates are displayed
 				$where = "false";
 			}
-			
+
 		}
-		
+
 		$query = "SELECT * FROM comment $where " . join(" OR ", $whereQ);
 		$query .= "ORDER BY created_at DESC LIMIT 0, ?";
 		array_push($params, array("i", $this->getSysdata()->getDynamicConfigParameter("updates_show_max")));
-		
+
 		return $this->database->getSelection($query, $params);
 	}
-		
+
 	function getContactsForObject($otype, $oid) {
 		if($otype == "R") {
 			require_once $this->dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php";
@@ -327,9 +327,9 @@ class StartData extends AbstractLocationData {
 			require_once $this->dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "abstimmungdata.php";
 			$absData = new AbstimmungData($this->dir_prefix);
 			$users = $absData->getGroup($oid);
-			
+
 			if(count($users) == 1) return null;
-			
+
 			$whereQ = array();
 			$params = array();
 			foreach($users as $i => $user) {
@@ -345,7 +345,7 @@ class StartData extends AbstractLocationData {
 		}
 		return null;
 	}
-	
+
 	public function getObjectTitle($otype, $oid) {
 		$objTitle = "";
 		if($otype == "R") {
@@ -370,18 +370,18 @@ class StartData extends AbstractLocationData {
 		}
 		return $objTitle;
 	}
-	
+
 	public function getSelectedOptionsForUser($optionId, $uid) {
 		$choiceQuery = "SELECT choice FROM vote_option_user WHERE vote_option = ? AND user = ?";
 		$choice = $this->database->colValue($choiceQuery, "choice", array(array("i", $optionId), array("i", $uid)));
 		return $choice;
 	}
-	
+
 	public function hasInactiveUsers() {
 		$ct = $this->database->colValue("SELECT count(*) as cnt FROM user WHERE isActive = 0", "cnt", array());
 		return ($ct > 0);
 	}
-	
+
 	public function hasMembersWithoutRelations() {
 		// check if a member has no concerts, no rehearsals, no phase and no vote
 		$query = "SELECT count(*) as numNonIntegrated
@@ -394,28 +394,28 @@ class StartData extends AbstractLocationData {
 		$ct = $this->database->getSelection($query);
 		return $ct[1]["numNonIntegrated"] > 0;
 	}
-	
+
 	function hasReservations() {
 		$res = $this->database->colValue("SELECT count(*) as cnt FROM reservation WHERE begin >= NOW()", "cnt", array());
 		return ($res > 0);
 	}
-	
+
 	function getReservations() {
-		$query = "SELECT r.*, l.name as locationname 
+		$query = "SELECT r.*, l.name as locationname
 				FROM reservation r JOIN location l ON r.location = l.id
-				WHERE begin > NOW() 
+				WHERE begin > NOW()
 				ORDER BY begin";
 		return $this->database->getSelection($query);
 	}
-	
+
 	function getReservation($id) {
 		return $this->database->fetchRow("SELECT * FROM reservation WHERE id = ?", array(array("i", $id)));
 	}
-	
+
 	function getOutfit($id) {
 		return $this->database->fetchRow("SELECT * FROM outfit WHERE id = ?", array(array("i", $id)));
 	}
-	
+
 	function getCustomData($otype, $oid) {
 		// show only public fields
 		$pubFields = $this->getCustomFields($otype, true);
@@ -429,7 +429,7 @@ class StartData extends AbstractLocationData {
 		}
 		return $cleaned;
 	}
-	
+
 	function getAppointments($withCustomData = true) {
 		// find all appointments where the user is in the group
 		$cid = $this->adp()->getUserContact();
@@ -440,16 +440,16 @@ class StartData extends AbstractLocationData {
 		$query .= "JOIN contact_group cg ON ag.group = cg.group ";
 		$query .= "WHERE cg.contact = ? AND a.end > NOW()";
 		$query .= "ORDER BY a.begin, a.end";
-		
+
 		// add custom data
 		$appointments = $this->database->getSelection($query, array(array("i", $cid)));
 		if($withCustomData) {
 			$this->appendCustomDataToSelection('a', $appointments);
 		}
-		
+
 		return $appointments;
 	}
-	
+
 	function getAppointment($id) {
 		// find all appointments where the user is in the group
 		$cid = $this->adp()->getUserContact();
@@ -460,25 +460,25 @@ class StartData extends AbstractLocationData {
 		$query .= "JOIN contact_group cg ON ag.group = cg.group ";
 		$query .= "WHERE a.id = ? AND cg.contact = ? AND a.end > NOW() ";
 		$query .= "ORDER BY a.begin, a.end";
-		
+
 		// add custom data
 		$appointments = $this->database->getSelection($query, array(array("i", $id), array("i", $cid)));
 		$this->appendCustomDataToSelection('a', $appointments);
-		
+
 		return $appointments[1]; // ignore header and there can only be this ID just once
 	}
-	
+
 	function hasAppointments() {
 		// to make sure we have the permission included just load 'em
 		return count($this->getAppointments(false)) > 0;
 	}
-	
+
 	function getInboxItems() {
 		$items = array();
-		
+
 		// rehearsals
 		$rehearsals = $this->getUsersRehearsals();
-		
+
 		for($i = 1; $i < count($rehearsals); $i++) {
 			$r = $rehearsals[$i];
 			$previewItems = array();
@@ -491,7 +491,7 @@ class StartData extends AbstractLocationData {
 			}
 			array_push($previewItems, $r["name"]);
 			if($r["conductor"] > 0) array_push($previewItems, $this->adp()->getConductorname($r["conductor"]));
-			
+
 			array_push($items, array(
 					"otype" => "R",
 					"oid" => $r["id"],
@@ -504,7 +504,7 @@ class StartData extends AbstractLocationData {
 					"status" => $r["status"]
 			));
 		}
-		
+
 		// concerts
 		$concerts = $this->getUsersConcerts();
 		for($i = 1; $i < count($concerts); $i++) {
@@ -521,7 +521,7 @@ class StartData extends AbstractLocationData {
 					"status" => $c["status"]
 			));
 		}
-		
+
 		// appointments
 		$appointments = $this->getAppointments();
 		for($i = 1; $i < count($appointments); $i++) {
@@ -536,7 +536,7 @@ class StartData extends AbstractLocationData {
 					"replyUntil" => $a["begin"]
 			));
 		}
-		
+
 		// reservations
 		$reservations = $this->getReservations();
 		for($i = 1; $i < count($reservations); $i++) {
@@ -551,7 +551,7 @@ class StartData extends AbstractLocationData {
 					"replyUntil" => $r["begin"]
 			));
 		}
-		
+
 		// votes
 		$votes = $this->getVotesForUser();
 		for($i = 1; $i < count($votes); $i++) {
@@ -566,7 +566,7 @@ class StartData extends AbstractLocationData {
 					"replyUntil" => $v["end"]
 			));
 		}
-		
+
 		// tasks
 		$tasks = $this->adp()->getUserTasks();
 		for($i = 1; $i < count($tasks); $i++) {
@@ -581,10 +581,10 @@ class StartData extends AbstractLocationData {
 					"replyUntil" => $t["due_at"]
 			));
 		}
-		
+
 		return $items;
 	}
-	
+
 	function getTask($taskId) {
 		return $this->database->fetchRow("SELECT * FROM task WHERE id = ?", array(array("i", $taskId)));
 	}

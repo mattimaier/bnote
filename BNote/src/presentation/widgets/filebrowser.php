@@ -68,7 +68,7 @@ class Filebrowser implements iWriteable {
 		$this->root = $root;
 		$this->sysdata = $sysdata;
 		$this->adp = $adp;
-		
+
 		// remove trailing slash to avoid double slash in $this->root .$this->path
 		if(Data::endsWith($this->root, "/")) {
 			$this->root = substr($this->root, 0, -1);
@@ -371,7 +371,7 @@ STRING_END;
 					<img src="$icon" height="50px">
 STRING_END;
 			}
-			
+
 			/*
 			 * Finally the HTML code to display the folder content item is generated
 			 * here. All parameters are taken from variables that have been defined
@@ -382,9 +382,9 @@ STRING_END;
 					<div class="filebrowser_tile">
 					  $tile_content
 					</div>
-					<a href="./$link" class="filebrowser_item">$name</a><br>					
-					<a href="./$delete_link" class="filebrowser_trash"><i class="bi-trash3"></i></a>					
-					<span class="filebrowser_item_size">$size</span>					
+					<a href="./$link" class="filebrowser_item">$name</a><br>
+					<a href="./$delete_link" class="filebrowser_trash"><i class="bi-trash3"></i></a>
+					<span class="filebrowser_item_size">$size</span>
 				</div>
 STRING_END;
 	}
@@ -470,7 +470,7 @@ STRING_END;
 		}
 		else {
 			unlink($fullpath);
-			
+
 			$file = urldecode($_GET["file"]);
 			if ($this->getFiletype($file) == "gallery") {
 				unlink($this->root . $this->path . ".thumbnails/" .$file);
@@ -772,7 +772,7 @@ STRING_END;
 		$back->addIcon("arrow_left");
 		$back->write();
 	}
-	
+
 	public function getName() { return NULL; }
 
 }

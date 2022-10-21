@@ -19,10 +19,10 @@ class TourController extends DefaultController {
 
 	private $accommodationView;
 	private $accommodationData;
-	
+
 	private $travelView;
 	private $travelData;
-	
+
 	private $rehearsalView;
 	private $concertView;
 	private $taskView;
@@ -51,7 +51,7 @@ class TourController extends DefaultController {
 			parent::start();
 		}
 	}
-	
+
 	function getAccommodationView() {
 		if($this->accommodationView == null) {
 			$defaultCtrl = new DefaultController();
@@ -62,7 +62,7 @@ class TourController extends DefaultController {
 		}
 		return $this->accommodationView;
 	}
-	
+
 	/**
 	 * Singleton for Proben access
 	 * @return ProbenView View
@@ -77,7 +77,7 @@ class TourController extends DefaultController {
 		}
 		return $this->rehearsalView;
 	}
-	
+
 	function getConcertView() {
 		if($this->concertView == null) {
 			$ctrl = new KonzerteController();
@@ -88,7 +88,7 @@ class TourController extends DefaultController {
 		}
 		return $this->concertView;
 	}
-	
+
 	function getTravelView() {
 		if($this->travelView == null) {
 			$ctrl = new DefaultController();
@@ -99,7 +99,7 @@ class TourController extends DefaultController {
 		}
 		return $this->travelView;
 	}
-	
+
 	function getChecklistView() {
 		if($this->taskView == null) {
 			$ctrl = new AufgabenController();

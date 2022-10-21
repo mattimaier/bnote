@@ -40,11 +40,11 @@ class BNoteApiImpl implements BNoteApiInterface {
 		global $dir_prefix;
 		$this->startdata = new StartData($dir_prefix);
 	}
-	
+
 	function getSysdata() {
 		return $this->sysdata;
 	}
-	
+
 	function getRehearsals() {
 		return $this->getRehearsalsWithParticipation($this->uid);
 	}
@@ -52,7 +52,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 	function getRehearsalsWithParticipation($user) {
 		if($this->sysdata->isUserSuperUser($this->uid)
 				|| $this->sysdata->isUserMemberGroup(1, $this->uid)) {
-			$query = "SELECT * 
+			$query = "SELECT *
 						FROM rehearsal r LEFT JOIN rehearsal_user ru ON ru.rehearsal = r.id
 						WHERE end > now() AND (ru.user = ? || ru.user IS NULL)
 						ORDER BY begin ASC";
@@ -61,11 +61,11 @@ class BNoteApiImpl implements BNoteApiInterface {
 		else {
 			// only get rehearsals for user considering phases and groups
 			$rehs = $this->startdata->getUsersRehearsals($this->uid);
-				
+
 			// manually join participation
 			array_push($rehs[0], "participate");
 			array_push($rehs[0], "reason");
-				
+
 			for($i = 1; $i < count($rehs); $i++) {
 				$rid = $rehs[$i]["id"];
 				$query = "SELECT * FROM rehearsal_user WHERE rehearsal = $rid AND user = ?";
@@ -77,7 +77,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 				$rehs[$i]["reason"] = $part["reason"];
 			}
 		}
-		
+
 		// resolve location
 		for($i = 1; $i < count($rehs); $i++) {
 			$query = "SELECT location.id, name, street, city, zip ";
@@ -85,10 +85,10 @@ class BNoteApiImpl implements BNoteApiInterface {
 			$query .= "WHERE location.id = ?";
 			$rehs[$i]["location"] = $this->db->fetchRow($query, array(array("i", $rehs[$i]["location"])));
 		}
-		
+
 		// remove header
 		unset($rehs[0]);
-		
+
 		// resolve songs for rehearsal
 		for($i = 1; $i < count($rehs); $i++)
 		{
@@ -96,25 +96,25 @@ class BNoteApiImpl implements BNoteApiInterface {
 			$probenData = new ProbenData($GLOBALS["dir_prefix"]);
 			$songs = $probenData->getSongsForRehearsal($rehearsal["id"]);
 			unset($songs[0]);
-			
+
 			$rehs[$i]["songsToPractice"] = array_values($this->removeNumericKeys($songs));
 		}
 
 		// resolve comments
-		for($i = 1; $i < count($rehs); $i++) 
+		for($i = 1; $i < count($rehs); $i++)
 		{
 			$rehearsal = $rehs[$i];
 				$comments = $this->startdata->getDiscussion("r", $rehearsal["id"]);
 				unset($comments[0]);
-				
+
 				foreach($comments as $j => $comment)
 				{
 					$comments[$j]["author"] = array("id" => $comment["author_id"], "fullname" => $comment["author"]);
 					unset($comments[$j]["author_id"]);
 										$comments[$j]["message"] = urldecode($comments[$j]["message"]);
-				}				
+				}
 				$rehs[$i]["comments"] = array_values($this->removeNumericKeys($comments));
-			
+
 		}
 
 		// add  participants
@@ -130,8 +130,8 @@ class BNoteApiImpl implements BNoteApiInterface {
 			$participantsNo = array();
 			$participantsYes = array();
 			$participantsMaybe = array();
-						
-			foreach($contacts as $j => $contact) 
+
+			foreach($contacts as $j => $contact)
 			{
 				foreach(array_keys($contact) as $ck) {
 					if(is_numeric($ck)) {
@@ -139,7 +139,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 					}
 				}
 				array_push($contactIDs, $contact["id"]);
-				
+
 				if ($contact["participate"] == 0)
 				{
 					array_push($participantsNo, $contact);
@@ -153,17 +153,17 @@ class BNoteApiImpl implements BNoteApiInterface {
 					array_push($participantsMaybe, $contact);
 				}
 			}
-			
+
 			// get contacts without response (filter other contacts)
 			array_push($contactIDs, PHP_INT_MAX);
-			$contactIDsString = join(',',$contactIDs);  
-		
+			$contactIDsString = join(',',$contactIDs);
+
 			$query = "SELECT c.id, c.surname, c.name";
 			$query .= " FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id";
 			$query .= " WHERE rc.rehearsal = ? AND rc.contact NOT IN (" . $contactIDsString .")";  // safe statement - IDs as INT from DB
 			$participantsNoResponse = $this->db->getSelection($query, array(array("i", $rehearsal["id"])));
 			unset($participantsNoResponse[0]);
-			
+
 			foreach($participantsNoResponse as $j => $contact) {
 				foreach(array_keys($contact) as $ck) {
 					if(is_numeric($ck)) {
@@ -171,14 +171,14 @@ class BNoteApiImpl implements BNoteApiInterface {
 					}
 				}
 			}
-			
+
 			$rehs[$i]["participantsNo"] = array_values($participantsNo);
 			$rehs[$i]["participantsYes"] = array_values($participantsYes);
 			$rehs[$i]["participantsMaybe"] = array_values($participantsMaybe);
 			$rehs[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
 		}
-		
-	
+
+
 		// cleanup
 		foreach($rehs as $i => $rehearsal) {
 			foreach(array_keys($rehearsal) as $k) {
@@ -187,20 +187,20 @@ class BNoteApiImpl implements BNoteApiInterface {
 				}
 			}
 		}
-		
+
 		return $rehs;
 	}
-	
+
 	function getConcerts() {
 		$concerts = $this->startdata->getUsersConcerts($this->uid);
-		
+
 		// remove header
 		unset($concerts[0]);
-		
+
 		// enrichment of objects
 		foreach($concerts as $i => $concert) {
 			$dbConcert = $this->db->fetchRow("SELECT * FROM concert WHERE id = ?", array(array("i", $concert["id"])));
-			
+
 			// location
 			$concerts[$i]["location"] = array(
 				"id" => $dbConcert["location"],
@@ -215,7 +215,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 			unset($concerts[$i]["location_street"]);
 			unset($concerts[$i]["location_city"]);
 			unset($concerts[$i]["location_zip"]);
-			
+
 			// contact
 			$concerts[$i]["contact"] = array(
 				"id" => $dbConcert["contact"],
@@ -230,7 +230,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 			unset($concerts[$i]["contact_mobile"]);
 			unset($concerts[$i]["contact_email"]);
 			unset($concerts[$i]["contact_web"]);
-			
+
 			// program
 			$concerts[$i]["program"] = array(
 					"id" => $dbConcert["program"],
@@ -240,7 +240,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 			unset($concerts[$i]["program_id"]);
 			unset($concerts[$i]["program_name"]);
 			unset($concerts[$i]["program_notes"]);
-			
+
 			// participation
 			$concerts[$i]["participate"] = $this->startdata->doesParticipateInConcert($concert["id"], $this->uid);
 			if($concerts[$i]["participate"] >= 0) {
@@ -251,23 +251,23 @@ class BNoteApiImpl implements BNoteApiInterface {
 				$concerts[$i]["reason"] = "";
 			}
 		}
-		
+
 		// resolve comments
 		foreach($concerts as $i => $concert) {
 
 				$comments = $this->startdata->getDiscussion("c", $concert["id"]);
 				unset($comments[0]);
-				
+
 				foreach($comments as $j => $comment)
 				{
 					$comments[$j]["author"] = array("id" => $comment["author_id"], "fullname" => $comment["author"]);
 					unset($comments[$j]["author_id"]);
 					$comments[$j]["message"] = urldecode($comment["message"]);
-				}				
+				}
 				$concerts[$i]["comments"] = array_values($this->removeNumericKeys($comments));
 		}
-		
-		
+
+
 		// add  participants
 		foreach($concerts as $i => $concert) {
 			$query = "SELECT c.id, c.surname, c.name, cu.participate, cu.reason
@@ -281,8 +281,8 @@ class BNoteApiImpl implements BNoteApiInterface {
 			$participantsNo = array();
 			$participantsYes = array();
 			$participantsMaybe = array();
-						
-			foreach($contacts as $j => $contact) 
+
+			foreach($contacts as $j => $contact)
 			{
 				foreach(array_keys($contact) as $ck) {
 					if(is_numeric($ck)) {
@@ -290,7 +290,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 					}
 				}
 				array_push($contactIDs, $contact["id"]);
-				
+
 				if ($contact["participate"] == 0)
 				{
 					array_push($participantsNo, $contact);
@@ -307,15 +307,15 @@ class BNoteApiImpl implements BNoteApiInterface {
 
 			// get contacts without response (filter other contacts)
 			array_push($contactIDs, PHP_INT_MAX);
-			$contactIDsString = join(',', $contactIDs);  
-			
+			$contactIDsString = join(',', $contactIDs);
+
 			$query = "SELECT c.id, c.surname, c.name";
 			$query .= " FROM concert_contact cc JOIN contact c ON cc.contact = c.id";
 			$query .= " WHERE cc.concert = ? AND cc.contact NOT IN (" . $contactIDsString .")";  // statement safe - ids as int from DB
 			$participantsNoResponse = $this->db->getSelection($query, array(array("i", $concert["id"])));
 			unset($participantsNoResponse[0]);
-			
-			foreach($participantsNoResponse as $j => $contact) 
+
+			foreach($participantsNoResponse as $j => $contact)
 			{
 				foreach(array_keys($contact) as $ck) {
 					if(is_numeric($ck)) {
@@ -323,17 +323,17 @@ class BNoteApiImpl implements BNoteApiInterface {
 					}
 				}
 			}
-			
+
 			$concerts[$i]["participantsNo"] = array_values($participantsNo);
 			$concerts[$i]["participantsYes"] = array_values($participantsYes);
 			$concerts[$i]["participantsMaybe"] = array_values($participantsMaybe);
-			$concerts[$i]["participantsNoResponse"] = array_values($participantsNoResponse);	
+			$concerts[$i]["participantsNoResponse"] = array_values($participantsNoResponse);
 		}
-		
+
 		$concerts = $this -> removeNumericKeys($concerts);
 		return $concerts;
 	}
-	
+
 	function getContacts() {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
 		$_SESSION["user"] = $this->uid;
@@ -355,7 +355,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		}
 		return $allContacts;
 	}
-	
+
 	function getContact() {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
 		$contact = $contactData->getSysdata()->getUsersContact($this->uid);
@@ -363,7 +363,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$contact["instrument_object"] = $this->db->fetchRow("SELECT * FROM instrument WHERE id = ?", array(array("i", $contact["instrument"])));
 		return $contact;
 	}
-	
+
 	function getMembers() {
 		if(!$this->sysdata->userHasPermission($this->sysdata->getModuleId("Mitspieler"))) {
 			$contacts = array();
@@ -392,12 +392,12 @@ class BNoteApiImpl implements BNoteApiInterface {
         $this->removeNumericKeys($tasks);
 		return $tasks;
 	}
-	
+
 	function getNews() {
 		$newsData = new NachrichtenData($GLOBALS["dir_prefix"]);
 		return array("news" => $newsData->preparedContent());
 	}
-	
+
 	function getVotes() {
 		$votes = $this->startdata->getVotesForUser($this->uid);
 		unset($votes[0]); // remove header
@@ -408,7 +408,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 					unset($votes[$i][$k]);
 				}
 			}
-			
+
 			// add vote options
 			$opts = $this->startdata->getOptionsForVote($vote["id"]);
 			unset($opts[0]); // options header
@@ -425,22 +425,22 @@ class BNoteApiImpl implements BNoteApiInterface {
 
 			$votes[$i]["options"] = $opts;
 		}
-		
+
 		return $votes;
 	}
-		
+
 	function getVoteOptions($vid) {
 		$options = $this->startdata->getOptionsForVote($vid);
 		unset($options[0]);
 		return $options;
 	}
-	
+
 	function getSongs() {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$songs = $repData->findAllNoRef();
-				
+
 		$entities = array();
-		
+
 		foreach($songs as $i => $song) {
 			if($i == 0) continue; // header
 			$composerId = $song["composer"];
@@ -454,16 +454,16 @@ class BNoteApiImpl implements BNoteApiInterface {
 					$song["genre"] = $this->removeNumericKeys($genre[1]);
 				}
 			}
-			
+
 			$songstatus = $this->db->fetchRow("SELECT * FROM status WHERE id = ?", array(array("i", intval($song["status"]))));
 			$song["status"] = $songstatus;
 			$song = $this -> removeNumericKeys($song);
 			array_push($entities, $song);
 		}
-		
+
 		return $entities;
 	}
-	
+
 	function getGenres() {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$genres = $repData->getGenres();
@@ -471,14 +471,14 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$genres =  $this -> removeNumericKeys($genres);
 		return $genres;
 	}
-	
+
 	function getStatuses() {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$statuses = $repData->getStatuses();
 		unset($statuses[0]);
 		return $statuses;
 	}
-	
+
 	function getComments($otype, $oid) {
 		$comments = $this->startdata->getDiscussion($otype, $oid);
 		unset($comments[0]);
@@ -505,10 +505,10 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$this->startdata->taskComplete($tid);
 		return array("success" => True);
 	}
-	
+
 	function addSong($title, $length, $bpm, $music_key, $notes, $genre, $composer, $status) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
-		
+
 		// semantic parameter mappings
 		$values["title"] = urlencode($title);
 		$values["length"] = $length;
@@ -518,10 +518,10 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$values["genre"] = $genre["id"];
 		$values["composer"] = $composer;
 		$values["status"] = $status["id"];
-		
+
 		return $repData->create($values);
 	}
-	
+
 	function addRehearsal($begin, $end, $approve_until, $notes, $location, $groups) {
 		// semantic parameter mappings
 		$values["begin"] = $begin;
@@ -529,7 +529,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$values["approve_until"] = ($approve_until == "") ? $begin : $approve_until;
 		$values["notes"] = $notes;
 		$values["location"] = $location;
-		
+
 		if($groups == null || count($groups) == 0) {
 			// add rehearsal to default group
 			$defaultGroup = $this->sysdata->getDynamicConfigParameter("default_contact_group");
@@ -542,14 +542,14 @@ class BNoteApiImpl implements BNoteApiInterface {
 				$_POST["group_" . $grp] = "on";
 			}
 		}
-		
+
 		// create rehearsal
 		require_once $GLOBALS["DIR_WIDGETS"] . "iwriteable.php";
 		require_once $GLOBALS["DIR_WIDGETS"] . "groupselector.php";
 		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
 		return $rehData->create($values);
 	}
-	
+
 	function vote($vid, $options) {
 		$vote = $this->startdata->getVote($vid);
 		if($vote["is_multi"] != "1") {
@@ -564,15 +564,15 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$this->startdata->saveVote($vid, $options, $this->uid);
 		return array("success" => True);
 	}
-	
+
 	function addComment($otype, $oid, $message) {
 		// save comments
 		$commentId = $this->startdata->addComment($otype, $oid, $message, $this->uid);
-		
+
 		// notify contacts
 		$startCtrl = new StartController();
 		$startCtrl->setData($this->startdata);
-		
+
 		// $_POST["message"] is set from the interface
 		// set $_GET array
 		$_GET["oid"] = $_POST["oid"];
@@ -587,12 +587,12 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$startCtrl->notifyContactsOnComment($this->uid);
 		return $response;
 	}
-	
+
 	function getVersion() {
 		return array("version" => $this->sysdata->getVersion());
 	}
-	
-	function getUserInfo() {	
+
+	function getUserInfo() {
 		$contact = $this->sysdata->getUsersContact($this->uid);
 		$instrument = $this->db->colValue("SELECT name FROM instrument WHERE id = ?", "name", array(array("i", $contact["instrument"])));
 		$addy = $this->startdata->adp()->getAddress($contact["address"]);
@@ -602,10 +602,10 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$contact["city"] = $addy["city"];
 		unset($contact["address"]);
 		unset($contact["status"]); // not existent anymore
-		
+
 		return $contact;
 	}
-	
+
 	function hasUserAccess() {
 		if(!isset($_GET["moduleId"]) || $_GET["moduleId"] == "") {
 			$arr = $this->sysdata->getUserModulePermissions($this->uid);
@@ -616,18 +616,18 @@ class BNoteApiImpl implements BNoteApiInterface {
 			return array("access" => $res);
 		}
 	}
-	
+
 	function getSongsToPractise($rid) {
 		$probenData = new ProbenData($GLOBALS["dir_prefix"]);
 		return $probenData->getSongsForRehearsal($rid);
 	}
-	
+
 	function getGroups() {
 		$selection = $this->startdata->adp()->getGroups();
 		unset($selection[0]);  // header
 		return $selection;
 	}
-	
+
 	function getVoteResult($vid) {
 		/* target structure:
 		 * array(
@@ -648,7 +648,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		 */
 		$vote = $this->startdata->getVote($vid);
 		$options = $options = $this->startdata->getOptionsForVote($vid);
-		
+
 		$opts = array();
 		for($i = 1; $i < count($options); $i++) {
 			$opt = array();
@@ -660,17 +660,17 @@ class BNoteApiImpl implements BNoteApiInterface {
 				$opt["name"] = $options[$i]["name"];
 			}
 			$opt["choice"] = array();
-			
+
 			$query = "SELECT choice, count(*) as num FROM vote_option_user
 						WHERE vote_option = ?
 						GROUP BY choice";
 			$choice = $this->db->getSelection($query, array(array("i", $opt["id"])));
-			
+
 			if($vote["is_multi"]) {
 				$numYes = 0;
 				$numNo = 0;
 				$numMay = 0;
-				
+
 				for($c = 1; $c < count($choice); $c++) {
 					if($choice[$c]["choice"] == 1) {
 						$numYes = $choice[$c]["num"];
@@ -682,7 +682,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 						$numMay = $choice[$c]["num"];
 					}
 				}
-				
+
 				$opt["choice"]["0"] = $numNo;
 				$opt["choice"]["1"] = $numYes;
 				$opt["choice"]["2"] = $numMay;
@@ -697,20 +697,20 @@ class BNoteApiImpl implements BNoteApiInterface {
 				}
 				$opt["choice"]["2"] = 0;
 			}
-			
+
 			array_push($opts, $opt);
 		}
-		
+
 		$vote["options"] = $opts;
-		
+
 		return $vote;
 	}
-		
+
 	function setConcertParticipation($cid, $uid, $part, $reason) {
 		$this->startdata->saveParticipation("concert", $uid, $cid, $part, $reason);
 		return array("success" => True);
 	}
-	
+
 	function addConcert($begin, $end, $approve_until, $notes, $location, $program, $contact, $groups) {
 		// semantic parameter mappings
 		$values["begin"] = $begin;
@@ -722,10 +722,10 @@ class BNoteApiImpl implements BNoteApiInterface {
 			$values["program"] = $program;
 		}
 		$values["contact"] = $contact;
-		
+
 		$conData = new KonzerteData($GLOBALS["dir_prefix"]);
 		$id = $conData->create($values);
-		
+
 		if($id > 0) {
 			// add contacts to concert
 			if($groups == null || count($groups) == 0) {
@@ -733,7 +733,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 				$groups = $this->sysdata->getDynamicConfigParameter("default_contact_group");
 			}
 			$conData->addMembersToConcert($groups, $id);
-			
+
 			// write output
 			$con = $conData->findByIdNoRef($id);
 			return $con;
@@ -743,7 +743,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 			return array("success" => False, "message" => "Error: Cannot create concert.");
 		}
 	}
-	
+
 	function updateRehearsal($id, $begin, $end, $approve_until, $notes, $location, $groups) {
 		// semantic parameter mappings
 		$values["begin"] = $begin;
@@ -756,24 +756,24 @@ class BNoteApiImpl implements BNoteApiInterface {
 		else {
 			$values["location"] = $location;
 		}
-		
+
 		if($groups != null && $groups != "" && count($groups) > 0) {
 			foreach($groups as $grp) {
 				$values["group_" . $grp] = "on";
 				$_POST["group_" . $grp] = "on";
 			}
 		}
-		
+
 		// create rehearsal
 		require_once $GLOBALS["DIR_WIDGETS"] . "iwriteable.php";
 		require_once $GLOBALS["DIR_WIDGETS"] . "groupselector.php";
 		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
 		$rehData->update($id, $values);
-		
+
 		// return updated entry
 		return $rehData->findByIdNoRef($id);
 	}
-	
+
 	function updateConcert($id, $begin, $end, $approve_until, $notes, $location, $program, $contact, $groups) {
 		// semantic parameter mappings
 		$values["begin"] = $begin;
@@ -785,39 +785,39 @@ class BNoteApiImpl implements BNoteApiInterface {
 			$values["program"] = $program;
 		}
 		$values["contact"] = $contact;
-		
+
 		$conData = new KonzerteData($GLOBALS["dir_prefix"]);
 		$conData->update($id, $values);
-		
+
 		// add contacts to concert
 		if($groups != null && count($groups) > 0) {
 			$conData->addMembersToConcert($groups, $id);
 		}
-			
+
 		// write output
 		$con = $conData->findByIdNoRef($id);
 		return $con;
 	}
-	
+
 	function deleteRehearsal($id) {
 		$rehData = new ProbenData($GLOBALS["dir_prefix"]);
 		$rehData->delete($id);
 		return array("success" => True);
 	}
-	
+
 	function deleteConcert($id) {
 		$conData = new KonzerteData($GLOBALS["dir_prefix"]);
 		$conData->delete($id);
 		return array("success" => True);
 	}
-	
+
 	function sendMail($subject, $body, $groups) {
 		// fetch addresses
 		if($groups == null || $groups == "" || count($groups) == 0) {
 			http_response_code(400);
 			return array("success" => False, "message" => "Error: no groups.");
 		}
-		
+
 		$whereQ = array();
 		$params = array();
 		foreach($groups as $group) {
@@ -829,21 +829,21 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$query .= "WHERE " . join(" OR ", $whereQ);
 		$mailaddies = $this->db->getSelection($query, $params);
 		$addresses = $this->flattenAddresses($mailaddies);
-		
+
 		if($addresses == null || count($addresses) == 0) {
 			new BNoteError(Lang::txt("AbstractBNA_sendMail.error"));
 		}
-		
+
 		// Receipient Setup
 		$ci = $this->sysdata->getCompanyInformation();
 		$receipient = $ci["Mail"];
-		
+
 		$mail = new Mailing($receipient, $subject, "");
 		$mail->setBodyInHtml($body);
 		$userContact = $this->sysdata->getUsersContact($this->uid);
 		$mail->setFrom($userContact["email"]);
 		$mail->setBcc($addresses);
-		
+
 		if(!$mail->sendMail()) {
 			http_response_code(400);
 			return array("success" => False, "message" => "Error: Cannot send mail.");
@@ -852,25 +852,25 @@ class BNoteApiImpl implements BNoteApiInterface {
 			return array("success" => True);
 		}
 	}
-	
+
 	public function addEquipment() {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		unset($_POST["id"]);
 		return $eqData->create($_POST);
 	}
-	
+
 	public function updateEquipment($id) {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		$eqData->update($id, $_POST);
 		return array("success" => True);
 	}
-	
+
 	public function deleteEquipment($id) {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		$eqData->delete($id);
 		return array("success" => True);
 	}
-	
+
 	public function getEquipment() {
 		$eqData = new EquipmentData($GLOBALS["dir_prefix"]);
 		if(isset($_GET["id"]) && $_GET["id"] != "") {
@@ -888,7 +888,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 			return $out;
 		}
 	}
-	
+
 	public function updateSong($id) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$_POST["status"] = $_POST["status"]["id"];
@@ -896,31 +896,31 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$repData->update($id, $_POST);
 		return array("success" => True);
 	}
-	
+
 	public function getSong($id) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$song = $repData->findByIdNoRef($id);
 		$song = $this->removeNumericKeys($song);
-		
+
 		$song["title"] = urldecode($song["title"]);
 		$song["notes"] = urldecode($song["notes"]);
 		$song["composer"] = $repData->getComposerName($song["composer"]);
-		
+
 		$genre = $repData->getGenre($song["genre"]);
 		$song["genre"] = $this->removeNumericKeys($genre[1]);
-		
+
 		$songstatus = $this->db->fetchRow("SELECT * FROM status WHERE id = ?", array(array("i", intval($song["status"]))));
 		$song["status"] = $songstatus;
-		
+
 		return $song;
 	}
-	
+
 	public function deleteSong($id) {
 		$repData = new RepertoireData($GLOBALS["dir_prefix"]);
 		$repData->delete($id);
 		return array("success" => True);
 	}
-	
+
 	public function getReservation($id) {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$entity = $calData->findByIdNoRef($id);
@@ -930,7 +930,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$this->removeNumericKeys($entity);
 		return $entity;
 	}
-	
+
 	public function getReservations() {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$entities = $calData->findAllNoRefWhere("end >= NOW()");
@@ -947,7 +947,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		}
 		return $reservations;
 	}
-	
+
 	public function addReservation() {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$values = $_POST;
@@ -955,53 +955,53 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$values["end"] = $values["end"];
 		return $calData->create($values);
 	}
-	
+
 	public function updateReservation($id) {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$calData->update($id, $_POST);
 		return array("success" => True);
 	}
-	
+
 	public function deleteReservation($id) {
 		$calData = new CalendarData($GLOBALS["dir_prefix"]);
 		$calData->delete($id);
 		return array("success" => True);
 	}
-	
+
 	public function addTask() {
 		$taskData = new AufgabenData($GLOBALS["dir_prefix"]);
 		$_SESSION["user"] = $this->uid;
 		$taskId = $taskData->create($_POST);
-		
+
 		unset($_SESSION["user"]);
 		return $taskData->findByIdNoRef($taskId);
 	}
-	
+
 	public function addContact() {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
 		$cid = $contactData->create($_POST);
 		return $contactData->findByIdNoRef($cid);
 	}
-	
+
 	public function updateContact() {
 		$contactData = new KontakteData($GLOBALS["dir_prefix"]);
 		$_SESSION["user"] = $this->uid;
 		$userContact = $this->sysdata->getUsersContact();
 		$cid = $userContact["id"];
-		
+
 		// don't touch groups or custom fields
 		$contactData->update_address($cid, $_POST["address_object"]);
 		$contactData->update($cid, $_POST, true);
 		unset($_SESSION["user"]);
-		
+
 		return array("success" => true);
 	}
-	
+
 	public function addLocation() {
 		$locData = new LocationsData($GLOBALS["dir_prefix"]);
 		return $locData->create($_POST);
 	}
-	
+
 	public function getInstruments() {
 		$instrData = new InstrumenteData($GLOBALS["dir_prefix"]);
 		$entities = $instrData->getInstrumentsWithCatName();
@@ -1013,7 +1013,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		}
 		return $instruments;
 	}
-	
+
 	public function signup() {
 		$cfgRegistration = $this->sysdata->getDynamicConfigParameter("user_registration");
 		if($cfgRegistration == "1") {
@@ -1026,7 +1026,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 			return array("success" => False, "message" => "Feature disabled by configuration");
 		}
 	}
-	
+
 	public function getProgram($id) {
 		$programData = new ProgramData($GLOBALS["dir_prefix"]);
 		$program = $programData->findByIdNoRef($id);
@@ -1035,7 +1035,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		$program["songs"] = $songs;
 		return $program;
 	}
-	
+
 	private function flattenAddresses($selection) {
 		$addresses = array();
 		for($i = 1; $i < count($selection); $i++) {
@@ -1044,7 +1044,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		}
 		return $addresses;
 	}
-	
+
 	/* array helpers */
 	function isArrayAllKeyInt($InputArray) {
 	    if(!is_array($InputArray)) {
@@ -1057,7 +1057,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 
 	    return array_unique(array_map("is_int", array_keys($InputArray))) === array(true);
 	}
-	
+
 	function removeNumericKeys($array) {
 		$isArrayAllKeysInt = $this->isArrayAllKeyInt($array);
 		foreach ($array as $key => $value) {
@@ -1070,7 +1070,7 @@ class BNoteApiImpl implements BNoteApiInterface {
 		}
 		return $array;
 	}
-	
+
 	function isMaybeEnabled() {
 		$on = $this->sysdata->getDynamicConfigParameter("allow_participation_maybe") == 1;
 		return array("isMaybeEnabled" => $on);

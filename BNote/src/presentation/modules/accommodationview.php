@@ -17,7 +17,7 @@ class AccommodationView extends CrudRefView {
 			"tour" => $_GET["accId"]
 		);
 	}
-	
+
 	/**
 	 * Extended version of modePrefix for sub-module.
 	 */
@@ -25,11 +25,11 @@ class AccommodationView extends CrudRefView {
 		$tid = $_GET["accId"];
 		return "?mod=" . $this->getModId() . "&mode=view&accId=$tid&tab=accommodation&func=";
 	}
-	
+
 	function isSubModule($mode) {
 		return true;
 	}
-	
+
 	function subModuleOptions() {
 		$subOptionFunc = isset($_GET["func"]) ? $_GET["func"] . "Options" : "startOptions";
 		if(method_exists($this, $subOptionFunc)) {
@@ -39,13 +39,13 @@ class AccommodationView extends CrudRefView {
 			$this->defaultOptions();
 		}
 	}
-	
+
 	function backToStart() {
 		$link = new Link("?mod=" . $this->getModId() . "&mode=view&tab=accommodation&accId=" . $_GET["accId"], "Zurück");
 		$link->addIcon("arrow-left");
 		$link->write();
 	}
-	
+
 	function showAllTable() {
 		$accommodations = $this->getData()->findAllJoinedOrdered($this->getJoinedAttributes(), "checkin");
 		if(isset($_GET["accId"])) {
@@ -63,7 +63,7 @@ class AccommodationView extends CrudRefView {
 		$table->removeColumn("tourid");
 		$table->write();
 	}
-	
+
 	function viewDetailTable() {
 		$entity = $this->getData()->findByIdJoined($_GET[$this->idParameter], $this->getJoinedAttributes());
 		$details = new Dataview();
@@ -73,7 +73,7 @@ class AccommodationView extends CrudRefView {
 		$details->renameElement("tourname", Lang::txt("AccommodationView_viewDetailTable.tourname"));
 		$details->write();
 	}
-	
+
 	function changeDefaultAddEntityForm($form) {
 		// only let the user set a location from the accommodation group
 		$locations = $this->getData()->adp()->getLocations(array(3));

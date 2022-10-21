@@ -7,17 +7,17 @@ require_once 'lang_base.php';
  *
  */
 class Translation extends BNoteTranslation {
-	
+
 	protected $texts = array(
-																				   
+
 			// Installation *************************************************************************************************************************************************
-			
+
 			// Installation
 			"Installation_welcome.title" => "Welcome",
 			"Installation_welcome.message_1" => "Thank you for choosing BNote. You are doing yourself and your band a big favor.
 					Now all you have to do is finish the installation and you're ready to go",
 			"Installation_welcome.message_2" => "The first step on the way to BNote is already done.
-					You have unpacked BNote, uploaded it to your webserver and started the installation.   
+					You have unpacked BNote, uploaded it to your webserver and started the installation.
 					To complete the installation successfully, proceed as follows:",
 			"Installation_welcome.message_3" => "Create a new MySQL database user with password and assign him a new/empty database",
 			"Installation_welcome.message_4" => "Make sure this script can write to the config/ subfolder of BNote.<br/>
@@ -25,7 +25,7 @@ class Translation extends BNoteTranslation {
 				tell your hosting provider that scripts can write.",
 			"Installation_welcome.message_5" => "Have your band name and address ready.",
 			"Installation_companyConfig.message_1" => "Tape configuration already present, It was recognized that you have already created a tape configuration.
-					Therefore you can skip this step. To change the basic data, please adapt the file BNote/config/company.xml",		
+					Therefore you can skip this step. To change the basic data, please adapt the file BNote/config/company.xml",
 			"Installation_companyConfig.title" => "Your band",
 			"Installation_companyConfig.message_2" => "Please enter the contact details of your band",
 			"Installation_companyConfig.Form" => "Band Configuration",
@@ -79,19 +79,19 @@ class Translation extends BNoteTranslation {
 				to prevent any unauthorized access.",
 			"Installation_finalize.login" => "To the sign in",
 			"Installation_next.next" => "Next",
-			
+
 			// Export *************************************************************************************************************************************************
 
 			// AbstractBNA
 			"AbstractBNA_sendMail.error" => "No recipients found.",
 
-			// BNote Interface (BNI)			
+			// BNote Interface (BNI)
 			"bni_getThumbPath.error" => "ID not set.",
 			"bni_getImagePath.error" => "ID not set.",
 			"bni_getGallery.error" => "ID not set.",
 			"bni_getImagesForGallery.error" => "ID not set.",
 			"bni_getImage.error" => "ID not set.",
-			
+
 			// BNote Interface (BNI) - XML
 			"bnixml_getImagePath.error" => "ID not set.",
 			"bnixml_getThumbPath.error" => "ID not set.",
@@ -99,7 +99,7 @@ class Translation extends BNoteTranslation {
 			"bnixml_getImagesForGallery.error" => "ID not set.",
 			"bnixml_getImage.error" => "ID not set.",
 
-			// Gigcard			
+			// Gigcard
 			"gigcard_concert.deniedMsg" => "You have no permission to export the gig!",
 			"gigcard_concert.event" => "Event",
 			"gigcard_concert.organizer" => "Organizer",
@@ -119,7 +119,7 @@ class Translation extends BNoteTranslation {
 			"gigcard_concert.payment" => "Gage",
 			"gigcard_concert.conditions" => "Conditions",
 
-			// Notify			
+			// Notify
 			"Notifier_sendRehearsalNotification.message_1" => "Probe am",
 			"Notifier_sendRehearsalNotification.message_2" => "- Reminder",
 			"Notifier_sendRehearsalNotification.message_3" => "Please enter your participation in the rehearsal",
@@ -136,30 +136,30 @@ class Translation extends BNoteTranslation {
 			"Notifier_sendVoteNotification.message_3" => " ab:",
 			"Notifier_sendVoteNotification.message_4" => "Call BNote",
 			"Notifier_sendVoteNotification.message_5" => "Thank you!",
-			
-			// Program_csv				
+
+			// Program_csv
 			"program_csv_Notifier_start.deniedMsg" => "You have no permission to export the contacts!",
 			"program_csv_Notifier_start.error" => "Please enter the number of the program you want to export",
 			"program_csv_Notifier_start.title" => "Title",
 			"program_csv_Notifier_start.composer" => "Composer/Arrangeur",
 			"program_csv_Notifier_start.duration" => "Length",
 			"program_csv_Notifier_start.bpm" => "BPM",
-			"program_csv_Notifier_start.key" => "Key",		
+			"program_csv_Notifier_start.key" => "Key",
 			"program_csv_Notifier_start.gender" => "Genre",
 			"program_csv_Notifier_start.status" => "Status",
 			"program_csv_Notifier_start.notes" => "Notes",
 
-			// Repertoire				
+			// Repertoire
 			"repertoire_start.deniedMsg" => "You have no permission to export the repertoire!",
-			
-			// Repertoire_files				
+
+			// Repertoire_files
 			"repertoire_files_start.deniedMsg" => "You have no permission to export the repertoire!",
 			"repertoire_files_start.message" => "At least 3 characters required.",
-			
+
 			// TriggerServiceClient
 			"TriggerServiceClient_createTrigger.error" => "Notifications cannot be created.",
 
-			// useractivation	
+			// useractivation
 			"useractivation_input.printError" => "Invalid input.",
 			"useractivation_validate.printError" => "User ID was not found.",
 			"useractivation_user_email.printError" => "Invalid e-mail address.",
@@ -168,12 +168,12 @@ class Translation extends BNoteTranslation {
 			"useractivation_update.error_2" => "<i>error message:",
 			"useractivation_update.error_3" => "</i></p>",
 
-			// Vcard			
+			// Vcard
 			"vcard_input.deniedMsg" => "You have no permission to export the contacts!",
-			
+
 			// Export *************************************************************************************************************************************************
-			
-			// Memberlist	
+
+			// Memberlist
 			"MembersPDF_construct.title" => "Members List",
 			"MembersPDF_writeTable.surname" => "Last Name",
 			"MembersPDF_writeTable.title" => "First name",
@@ -202,7 +202,7 @@ class Translation extends BNoteTranslation {
 			// PDFTable
 			"PDFTable_write.novalue" => "No entries available.",
 
-			// ProgramPDF	
+			// ProgramPDF
 			"ProgramPDF_writeTable.title" => "Title",
 			"ProgramPDF_writeTable.arranger" => "Arranger",
 			"ProgramPDF_writeTable.notes" => "Notes",
@@ -210,52 +210,52 @@ class Translation extends BNoteTranslation {
 			"ProgramPDF_writeTable.total_length" => "total length",
 
 			// Logic *************************************************************************************************************************************************
-			
-			// ProgramPDF	
+
+			// ProgramPDF
 			"Mailing_sendMail.BNoteError_1" => "Das System ist im demonstrationsmodus und versendet daher keine E-Mails.",
 			"Mailing_sendMail.BNoteError_2" => "Bitte geben Sie BCC or AN or beide Felder an.",
 			"Mailing_sendMail.BNoteError_3" => "Es ist keine Nachricht angegeben.",
 			"Mailing_sendMail.BNoteError_4" => "Es ist kein Betreff angegeben.",
 			"Mailing_sendMail.BNoteError_5" => "Message could not be sent. Mailer Error:",
 			"Mailing_sendMail.BNoteError_6" => "Die E-Mail konnte nicht gesendet werden.",
-			
+
 			// General *************************************************************************************************************************************************
 
-			// General: AbstractData *********************************************	   
+			// General: AbstractData *********************************************
 
-			// AbstractData			
+			// AbstractData
 			"AbstractData_adp.message" => "Application Data Provider not set! Call init()!",
 			"AbstractData_validate.error" => "Please provide sufficient information.",
-			
-			// General: AbstractLocation *********************************************	   
-			
+
+			// General: AbstractLocation *********************************************
+
 			// AbstractLocationData
 			"AbstractLocationData_getAddressViewFields.street" => "Street",
 			"AbstractLocationData_getAddressViewFields.city" => "City",
 			"AbstractLocationData_getAddressViewFields.zip" => "ZIP",
 			"AbstractLocationData_getAddressViewFields.state" => "State",
 			"AbstractLocationData_getAddressViewFields.country" => "Country",
-			
-			// General: Abstract *********************************************																		  
-			
+
+			// General: Abstract *********************************************
+
 			// AbstractView
 			"AbstractView_backToStart.back" => "Back",
 			"AbstractView_deleteConfirmationMessage.delete" => "Delete",
 			"AbstractView_deleteConfirmationMessage.reallyDeleteQ" => "Do you really want to delete this entry?",
 			"AbstractView_deleteConfirmationMessage.back" => "Back",
 			"AbstractView_checkID.noUserId" => "Please enter a user ID.",
-			
-			// General: banner *********************************************																		
-			
+
+			// General: banner *********************************************
+
 			// banner
 			"banner_Logout.welcome" => "Welcome",
 			"banner_Logout.Logout" => "Logout",
-			
-			// General: Crud *********************************************				
 
-			// CrudRefView			
+			// General: Crud *********************************************
+
+			// CrudRefView
 			"CrudRefView_addEntityForm.getEntityName" => " add",
-			
+
 			// CrudView
 			"CrudView_start.showAllTable" => "Please select an entry to view or edit",
 			"CrudView_add.Message_1" => "%p saved",
@@ -269,9 +269,9 @@ class Translation extends BNoteTranslation {
 			"CrudView_delete.deleted_entity" => "%p deleted",
 			"CrudView_delete.entryDeleted" => "The entry was successfully deleted.",
 			"CrudView_backToViewButton.back" => "Back",
-			
-			// General: CrudRefLocation *********************************************	
-			
+
+			// General: CrudRefLocation *********************************************
+
 			// CrudRefLocationView
 			"CrudRefLocationView_renameTableAddressColumns.street" => "Street",
 			"CrudRefLocationView_renameTableAddressColumns.city" => "City",
@@ -285,8 +285,8 @@ class Translation extends BNoteTranslation {
 			"CrudRefLocationView_renameDataViewFields.country" => "Country",
 			"CrudRefLocationView_replaceDataViewFieldWithAddress.address" => "Adresse",
 
-			// General: navigation *********************************************			
-			
+			// General: navigation *********************************************
+
 			// navigation
 			"navigation_Login" => "Login",
 			"navigation_Start" => "Start",
@@ -317,7 +317,7 @@ class Translation extends BNoteTranslation {
 			"navigation_Equipment" => "Equipment",
 			"navigation_Tour" => "Tour",
 			"navigation_Outfits" => "Outfits",
-			"navigation_Stats" => "Evaluations",			
+			"navigation_Stats" => "Evaluations",
 			"navigation_Home" => "Welcome",
 			"navigation_Login" => "Login",
 			"navigation_Logout" => "Logout",
@@ -329,37 +329,37 @@ class Translation extends BNoteTranslation {
 			"navigation_Gdpr" => "Data Privacy",
 			"navigation_ExtGdpr" => "Data Privacy Approval",
 			"navigation_Admin" => "System Information",
-			
-			// General: Regex *********************************************	
-			
+
+			// General: Regex *********************************************
+
 			// Regex
 			"Regex_isMoney.error" => "Amount not detected.",
 			"Regex_isMoney.fail" => "Amount",
-			"Regex_fail.error" => "One or more fields contain invalid values. ",																     
-			
-			// General: Systemdata *********************************************	
-			
-			// Systemdata			
+			"Regex_fail.error" => "One or more fields contain invalid values. ",
+
+			// General: Systemdata *********************************************
+
+			// Systemdata
 			"Systemdata_getUserModulePermissions.error" => "You don't have sufficient privileges to access this system. Please contact your system administrator.",
-			
-			// General: XmlData *********************************************	
-			
-			// XmlData			
+
+			// General: XmlData *********************************************
+
+			// XmlData
 			"XmlData_construct.filename" => " could not be loaded",
-			
+
 			// Widget *********************************************************************************************************************
 
-			// Widget: Dataview *********************************************	
+			// Widget: Dataview *********************************************
 			"Dataview_autoRename.yes" => "yes",
 			"Dataview_autoRename.no" => "no",
-			
-			// Widget: Error *********************************************	
+
+			// Widget: Error *********************************************
 			"BNoteError_construct.error" => "Error",
-			
-			// Widget: Field *********************************************		
+
+			// Widget: Field *********************************************
 			"Field.password_description" => "The password must be at least 6 characters long, contain upper and lower case letters and a number.",
-			
-			// Widget: Filebrowser *********************************************	
+
+			// Widget: Filebrowser *********************************************
 			"Filebrowser_write.error" => "Access denied.",
 			"Filebrowser_showOptions.addFolderForm" => "Add folder",
 			"Filebrowser_showOptions.addFileForm" => "Add file",
@@ -401,28 +401,28 @@ class Translation extends BNoteTranslation {
 			"Filebrowser_deleteFile.requestMessage" => "Do you really want to delete %p?",
 			"Filebrowser_deleteFile.approveDelete" => "Delete",
 			"Filebrowser_deleteFile.abort" => "Abort",
-			
-			// Widget: Filterbox *********************************************	
+
+			// Widget: Filterbox *********************************************
 			"Filterbox_write.showAllOption" => "Show All",
 			"Filterbox_write.yes" => "yes",
 			"Filterbox_write.no" => "no",
 			"Filterbox_write.searchButton" => "Search",
-			
-			// Widget: Form *********************************************				
+
+			// Widget: Form *********************************************
 			"Form_setForeign.error" => "The reference could not be found.",
 			"Form_write.message" => "* marked fields must be specified",
 
-			// Widget: GroupSelector *********************************************				
+			// Widget: GroupSelector *********************************************
 			"GroupSelector_toString.no" => "no",
 			"GroupSelector_toString.yes" => "yes",
 
-			// Widget: SectionForm *********************************************					
+			// Widget: SectionForm *********************************************
 			"SectionForm_write.message" => "* marked fields must be specified",
-			
-			// Widget: Plainlist *********************************************	
+
+			// Widget: Plainlist *********************************************
 			"Plainlist_write.empty" => "[no entries]",
-			
-			// Widget: Table *********************************************	
+
+			// Widget: Table *********************************************
 			"Table_write.yes" => "yes",
 			"Table_write.no" => "no",
 			"Table_write.table_no_entries" => "No entries found.",
@@ -432,17 +432,17 @@ class Translation extends BNoteTranslation {
 			"Table_write.sInfoEmpty" => "No entries found.",
 			"Table_write.sZeroRecords" => "No entries found.",
 			"Table_write.sSearch" => "Filter:",
-			
+
 			// Widget: Participation
 			"ParticipationWidget_write.participation" => "Participation",
 			"ParticipationWidget_write.reason" => "Reason or note",
 			"ParticipationWidget_write.save" => "Save",
-			
+
 			// Widget: Chat
 			"ChatWidget_write.messagePlaceholder" => "Your message...",
-			
+
 			// Module *********************************************************************************************************************
-			
+
 			// module: Abstimmung *********************************************
 
 			// AbstimmungData
@@ -458,11 +458,11 @@ class Translation extends BNoteTranslation {
 			"AbstimmungData_getResult.maybe" => " Maybe",
 			"AbstimmungData_validate.BNoteError" => "Please choose a group for the vote.",
 			"AbstimmungData_getResult.odate" => " o'clock",
-			
+
 			// AbstimmungView
-			"AbstimmungView_construct.EntityName" => "Vote",	
-			"AbstimmungView_construct.addEntityName" => "Add Vote",	
-			"AbstimmungView_construct.option" => "Option",			
+			"AbstimmungView_construct.EntityName" => "Vote",
+			"AbstimmungView_construct.addEntityName" => "Add Vote",
+			"AbstimmungView_construct.option" => "Option",
 			"AbstimmungView_construct.options" => "Options",
 			"AbstimmungView_writeTitle_yourVotes" => "Your Votes",
 			"AbstimmungView_startOptions.archive" => "Archive",
@@ -473,7 +473,7 @@ class Translation extends BNoteTranslation {
 			"AbstimmungView_viewOptions.edit" => "Edit Reconciliation",
 			"AbstimmungView_viewOptions.now" => "Vote Now",
 			"AbstimmungView_viewOptions.finish" => "End voting",
-			"AbstimmungView_add.saved_entity" => "%p saved",			
+			"AbstimmungView_add.saved_entity" => "%p saved",
 			"AbstimmungView_add.saved_message" => "Reconciliation saved successfully.",
 			"AbstimmungView_add.add_options" => "Add options",
 			"AbstimmungView_options.options" => "Options",
@@ -505,15 +505,15 @@ class Translation extends BNoteTranslation {
 			"AbstimmungView_result.singleOnlyPossible" => "Each voter could only cast one vote.",
 			"AbstimmungView_result.votes" => "Votes",
 			"AbstimmungView_result.voters" => "Votee",
-			"AbstimmungView_archive.archive" => "Reconciliation archive",		
-			
+			"AbstimmungView_archive.archive" => "Reconciliation archive",
+
 			// module: Appointment *********************************************
 
-			// AppointmentView			
+			// AppointmentView
 			"AppointmentView_changeDefaultAddEntityForm.group" => "Invitations",
 			"AppointmentView_backToStart.back" => "Back",
 			"AppointmentView_changeDefaultEditEntityForm.group" => "Invitations",
-			
+
 			// module: Aufgaben *********************************************
 
 			// AufgabenData
@@ -526,7 +526,7 @@ class Translation extends BNoteTranslation {
 			"AufgabenData_construct.assigned_to" => "Responsible",
 			"AufgabenData_construct.is_complete" => "Completed",
 			"AufgabenData_construct.completed_at" => "Completed on",
-			
+
 			// AufgabenController
 			"AufgabenController_informUser.title_1" => "New task: ",
 			"AufgabenController_informUser.body_1" => "A new task was created for you. Please login to BNote to see more details.\n\n",
@@ -534,9 +534,9 @@ class Translation extends BNoteTranslation {
 			"AufgabenController_informUser.title_2" => "Task changed: ",
 			"AufgabenController_informUser.body_3" => "The task named in the subject has changed.",
 			"AufgabenController_informUser.body_4" => " Please log in to BNote to see the task.",
-			
+
 			// AufgabenView
-			"AufgabenView_construct.EntityName" => "Task",					
+			"AufgabenView_construct.EntityName" => "Task",
 			"AufgabenView_construct.addEntityName" => "Add Task",
 			"AufgabenView_startOptions.addGroupTask" => "Add group task",
 			"AufgabenView_startOptions.open" => "Show open tasks",
@@ -548,9 +548,9 @@ class Translation extends BNoteTranslation {
 			"AufgabenView_getAddForm.due_at" => "Due at",
 			"AufgabenView_add_editEntityForm.assigned_to" => "Person in charge",
 			"AufgabenView_addGroupTask.assigned_to" => "Responsible group(s)",
-			"AufgabenView_process_addGroupTask.Message1" => "Task added", 
-			"AufgabenView_process_addGroupTask.Message2" => "The task was added to all members of the selected groups.",	
-			"AufgabenView_viewDetailTable.created_by" => "Created by",			
+			"AufgabenView_process_addGroupTask.Message1" => "Task added",
+			"AufgabenView_process_addGroupTask.Message2" => "The task was added to all members of the selected groups.",
+			"AufgabenView_viewDetailTable.created_by" => "Created by",
 			"AufgabenView_viewDetailTable.assigned_to" => "Responsible",
 			"AufgabenView_additionalViewButtons.open" => "Mark as open",
 			"AufgabenView_additionalViewButtons.complete" => "Mark as completed",
@@ -558,9 +558,9 @@ class Translation extends BNoteTranslation {
 			"AufgabenView_editEntityForm.title" => "Title",
 			"AufgabenView_editEntityForm.description" => "Description",
 			"AufgabenView_editEntityForm.due_at" => "Due at",
-			
+
 			// module: Accommodation *********************************************
-			
+
 			//AccommodationData
 			"AccommodationData_construct.id" => "ID",
 			"AccommodationData_construct.tour" => "tour",
@@ -572,16 +572,16 @@ class Translation extends BNoteTranslation {
 			"AccommodationData_construct.dinner" => "Dinner",
 			"AccommodationData_construct.planned_cost" => "Price (planned)",
 			"AccommodationData_construct.notes" => "Notes",
-			
+
 			// AccommodationView
 			"AccommodationView_construct.EntityName" => "Accommodation",
 			"AccommodationView_construct.addEntityName" => "Add accommodation",
 			"AccommodationView_viewDetailTable.locationname" => "Accommodation name",
-			"AccommodationView_viewDetailTable.tourname" => "Tour",	
+			"AccommodationView_viewDetailTable.tourname" => "Tour",
 			"AccommodationView_showAllTable.locationname" => "Accommodation",
-			
+
 			// module: Appointment *********************************************
-			
+
 			// AppointmentData
 			"AppointmentData_construct.id" => "ID",
 			"AppointmentData_construct.begin" => "Begin",
@@ -590,7 +590,7 @@ class Translation extends BNoteTranslation {
 			"AppointmentData_construct.location" => "Location",
 			"AppointmentData_construct.contact" => "Contact",
 			"AppointmentData_construct.notes" => "Notes",
-			
+
 			// AppointmentView
 			"AppointmentView_construct.EntityName" => "Appointment",
 			"AppointmentView_changeDefaultAddEntityForm.group" => "Invitations",
@@ -604,7 +604,7 @@ class Translation extends BNoteTranslation {
 			"AppointmentView_view.groups" => "Invited groups",
 			"AppointmentView_backToStart.back" => "Back",
 			"AppointmentView_changeDefaultEditEntityForm.group" => "Invitations",
-			
+
 			// module: Calendar *********************************************
 
 			// CalendarData
@@ -621,7 +621,7 @@ class Translation extends BNoteTranslation {
 			"CalendarData_getEvents.birthday" => "Geb.:",
 			"CalendarData_getEvents.reservation" => "Res.:",
 			"CalendarData_getEvents.appointment" => "Appointment",
-			
+
 			// CalendarView
 			"CalendarView_construct.EntityName" => "Reservation",
 			"CalendarView_viewDetailTable.id" => "Reservation No.",
@@ -647,32 +647,32 @@ class Translation extends BNoteTranslation {
 			"CustomFieldsData_construct.otype" => "Object reference",
 			"CustomFieldsData_construct.public_field" => "Released",
 			"CustomFieldsData_validate.BNoteError" => "The technical name already exists. Please choose another technical name",
-						
+
 			// CustomFieldsView
-			"CustomFieldsView_construct.EntityName" => "Custom field",			
+			"CustomFieldsView_construct.EntityName" => "Custom field",
 			"CustomFieldsView_construct.addEntityName" => "Add custom fields",
 			"CustomFieldsView_start.Title" => "User-defined fields",
 			"CustomFieldsView_start.back" => "Back",
 			"CustomFieldsView_backToStart.back" => "Back",
 			"CustomFieldsView_addEntityForm.fieldtype" => "Value range",
-			"CustomFieldsView_addEntityForm.otype" => "Object reference",			
+			"CustomFieldsView_addEntityForm.otype" => "Object reference",
 			"CustomFieldsView_editEntityForm.fieldtype" => "Value range",
-			"CustomFieldsView_editEntityForm.otype" => "Object reference",	
+			"CustomFieldsView_editEntityForm.otype" => "Object reference",
 
 			// module: Equipment *********************************************
-			
+
 			// EquipmentData
 			"EquipmentData_construct.id" => "ID",
 			"EquipmentData_construct.model" => "Model",
 			"EquipmentData_construct.make" => "Brand",
-			"EquipmentData_construct.name" => "Name",				
+			"EquipmentData_construct.name" => "Name",
 			"EquipmentData_construct.purchase_price" => "Purchase price",
 			"EquipmentData_construct.current_value" => "Current value",
 			"EquipmentData_construct.quantity" => "Quantity",
-			"EquipmentData_construct.notes" => "Notes",	
-			
+			"EquipmentData_construct.notes" => "Notes",
+
 			// EquipmentView
-			"EquipmentView_construct.EntityName" => "Equipment",			
+			"EquipmentView_construct.EntityName" => "Equipment",
 			"EquipmentView_construct.addEntityName" => "Add Equipment",
 
 			// module: Finance *********************************************
@@ -689,9 +689,9 @@ class Translation extends BNoteTranslation {
 			"FinanceData_cancelBooking.steuer" => " tax ",
 			"FinanceData_transfer_same_account" => "The accounts must be different.",
 			"FinanceData_transfer_note" => "Transfer %p to",
-			
+
 			// FinanceView
-			"FinanceView_construct.EntityName" => "Account",			
+			"FinanceView_construct.EntityName" => "Account",
 			"FinanceView_construct.addEntityName" => "Add Account",
 			"FinanceView_startOptions.recpay" => "Current Payments",
 			"FinanceView_startOptions.transfer" => "Transfer",
@@ -766,7 +766,7 @@ class Translation extends BNoteTranslation {
 			"GenreData_construct.id" => "ID",
 			"GenreData_construct.name" => "Name",
 			"GenreData_delete.BNoteError" => "The genre is used in one or more songs and therefore cannot be deleted",
-			
+
 			// GenreView
 			"GenreView_construct.EntityName" => "Genre",
 			"GenreView_construct.addEntityName" => "Add Genre",
@@ -784,7 +784,7 @@ class Translation extends BNoteTranslation {
 					   Please change their group membership before you can delete the group.",
 			"GruppenData_delete.BNoteError_3" => "The group directory still contains files. Please remove them from the directory
 					   so it can be erased.",
-					   
+
 			// GruppenView
 			"GruppenView_construct.EntityName" => "Group",
 			"GruppenView_construct.addEntityName" => "Add group",
@@ -799,11 +799,11 @@ class Translation extends BNoteTranslation {
 			"GruppenView_view.GroupMembers" => "Group members",
 			"GruppenView_viewOptions.edit" => " edit",
 			"GruppenView_viewOptions.remove" => " delete",
-			
-			// module: Hilfe *********************************************	
+
+			// module: Hilfe *********************************************
 
 			// HilfeData
-			
+
 			// HilfeView
 			"HilfeView_introPages.video" => "vid",
 			"HilfeView_introPages.bnote_news" => "Innovations in BNote",
@@ -843,15 +843,15 @@ class Translation extends BNoteTranslation {
 			"HilfeView_start.read_page" => "Read",
 			"HilfeView_start.module_documentation" => "Module documentation",
 
-			// module: Instrumente *********************************************	
-			
+			// module: Instrumente *********************************************
+
 			// InstrumenteData
 			"InstrumenteData_construct.id" => "ID",
 			"InstrumenteData_construct.name" => "Name",
 			"InstrumenteData_construct.rank" => "Sort index",
 			"InstrumenteData_construct.category" => "Category",
 			"InstrumenteData_delete.BNoteError" => "The instrument cannot be deleted because it is assigned to at least one contact",
-			
+
 			// InstrumenteView
 			"InstrumenteView_construct.EntityName" => "Instrument",
 			"InstrumenteView_start.Title" => "Instrument Configuration",
@@ -867,9 +867,9 @@ class Translation extends BNoteTranslation {
 			"InstrumenteView_process_activeInstrumentGroups.Message_1" => "Active instrument groups saved",
 			"InstrumenteView_process_activeInstrumentGroups.Message_2" => "The new active instrument groups have been saved.",
 			"InstrumenteView_viewDetailTable.categoryname" => "Category",
-			
+
 			// module: Kommunikation *********************************************
-			
+
 			// KommunikationController
 			"KommunikationController_prepareMail.begin" => " o'clock",
 			"KommunikationController_prepareMail.songs" => "<p>Please rehearse the following songs:</p><ul>\n",
@@ -886,7 +886,7 @@ class Translation extends BNoteTranslation {
 			"KommunikationController_prepareMail.inclreceivers" => "Receivers of this message",
 			"KommunikationController_prepareMail.rehearsalLink" => "RSVP rehearsal",
 			"KommunikationController_sendMail.error" => "No recipients found.",
-			
+
 			// KommunikationView
 			"KommunikationView_start.title" => "Kommunikation",
 			"KommunikationView_start.includeReceivers" => "Add receiver group on top of text",
@@ -914,9 +914,9 @@ class Translation extends BNoteTranslation {
 			"KommunikationView_messageSent.message_2" => "All e-mails were successfully sent.",
 			"KommunikationView_concertMail.begin_1" => " o'clock (",
 			"KommunikationView_concertMail.begin_2" => " o'clock",
-			
+
 			// module: Konfiguration *********************************************
-			
+
 			// KonfigurationData
 			"KonfigurationData_construct.param" => "Parameter",
 			"KonfigurationData_construct.value" => "Value",
@@ -947,15 +947,15 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.export_rehearsal_notes" => "Export rehearsal notes",
 			"KonfigurationData_construct.export_rehearsalsong_notes" => "Export notes for songs to practise",
 			"KonfigurationData_replaceParameterValue.yes" => "yes",
-			"KonfigurationData_replaceParameterValue.no" => "no",			
-			
+			"KonfigurationData_replaceParameterValue.no" => "no",
+
 			// KonfigurationView
 			"KonfigurationView_construct.EntityName" => "Konfiguration",
 			"KonfigurationView_start.warning" => "Please click on a line to change its value",
 			"KonfigurationView_start.caption" => "Parameters",
 			"KonfigurationView_start.value" => "Value",
 			"KonfigurationView_start.group" => "Value",
-			"KonfigurationView_start.conductor" => "Value",			
+			"KonfigurationView_start.conductor" => "Value",
 			"KonfigurationView_start.country" => "Country",
 			"KonfigurationView_start.instruments" => "Instruments",
 			"KonfigurationView_start.customfields" => "User-defined fields",
@@ -964,12 +964,12 @@ class Translation extends BNoteTranslation {
 			"KonfigurationView_editEntityForm.message" => "Every newly registered user is assigned to this group",
 			"KonfigurationView_edit_process.message_1" => " changed",
 			"KonfigurationView_edit_process.message_2" => "The entry was changed successfully",
-			
+
 			// module: Kontaktdaten *********************************************
-			
+
 			// KontaktdatenData
 			"KontaktdatenData_updatePassword.BNoteError" => "The passwords do not match",
-			
+
 			// KontaktdatenView
 			"KontaktdatenView_start.message" => "Your user has not been assigned a contact",
 			"KontaktdatenView_start.Form" => "Change personal data",
@@ -991,10 +991,10 @@ class Translation extends BNoteTranslation {
 			"KontaktdatenView_start.share_phones" => "Share phone numbers with other members",
 			"KontaktdatenView_start.share_birthday" => "Share birthday with other members",
 			"KontaktdatenView_start.share_email" => "Share e-mail address with other members",
-			
+
 			// module: Kontakte *********************************************
-			
-			// KontakteData			
+
+			// KontakteData
 			"KontakteData_construct.id" => "ID",
 			"KontakteData_construct.surname" => "Name",
 			"KontakteData_construct.name" => "Firstname",
@@ -1017,8 +1017,8 @@ class Translation extends BNoteTranslation {
 			"KontakteData_construct.share_birthday" => "Shares birthday",
 			"KontakteData_construct.share_email" => "Shares e-mail address",
 			"KontakteData_validate.errorNameRequired" => "Please provide at least one name.",
-			
-			// KontakteController				
+
+			// KontakteController
 			"KontakteController_createUserAccount.subject" => "Login Information ",
 			"KontakteController_createUserAccount.message_1" => "You can now register under ",
 			"KontakteController_createUserAccount.message_2" => " login.\n\n",
@@ -1039,10 +1039,10 @@ class Translation extends BNoteTranslation {
 			"KontakteController_gdprSendMail.error" => "The message(s) could not be sent. Please contact the administrator",
 			"KontakteController_gdprSendMail.newmessage_1" => "Mails sent",
 			"KontakteController_gdprSendMail.newmessage_2" => "Messages were delivered to the contacts.",
-			
-			// KontakteView	
+
+			// KontakteView
 			"KontakteView_construct.EntityName" => "Contact",
-			"KontakteView_construct.addEntityName" => "Add contact",			
+			"KontakteView_construct.addEntityName" => "Add contact",
 			"KontakteView_startOptions.integration" => "Phase in",
 			"KontakteView_startOptions.players" => "Groups",
 			"KontakteView_startOptions.selectPrintGroups" => "Print list",
@@ -1136,7 +1136,7 @@ class Translation extends BNoteTranslation {
 			"KontakteView_additionalViewButtons.question" => "Data extract",
 			"KontakteView_editEntityForm.Form" => "Edit contact",
 			"KontakteView_editEntityForm.group" => "Groups",
-			"KontakteView_groupSelectionCheck.error" => "Please assign at least one group to the contact",			
+			"KontakteView_groupSelectionCheck.error" => "Please assign at least one group to the contact",
 			"KontakteView_addEntity.group" => "Groups",
 			"KontakteView_gdprReport.instrumentname" => "Instrument",
 			"KontakteView_gdprReport.street" => "Street",
@@ -1177,13 +1177,13 @@ class Translation extends BNoteTranslation {
 			"KontakteView_contactImport.vcdfile" => "VCard file",
 			"KontakteView_importVCardSuccess.message" => "VCard Import",
 			"KontakteView_gdprOk.gdpr_ok" => "Consent",
-			
+
 			// module: Konzerte *********************************************
 			"Konzerte_status.planned" => "planned",
 			"Konzerte_status.cancelled" => "cancelled",
 			"Konzerte_status.confirmed" => "confirmed",
 			"Konzerte_status.hidden" => "hidden",
-			
+
 			// KonzerteData
 			"KonzerteData_construct.id" => "Performance ID",
 			"KonzerteData_construct.title" => "Title",
@@ -1205,10 +1205,10 @@ class Translation extends BNoteTranslation {
 			"KonzerteData_getParticipants.yes" => "Yes",
 			"KonzerteData_getParticipants.maybe" => "Maybe",
 			"KonzerteData_getParticipants.no" => "No",
-			
+
 			// KonzerteView ********* to finish **********
 			"KonzerteView_construct.concert" => "Performances",
-			"KonzerteView_construct.addEntityName" => "New gig",	
+			"KonzerteView_construct.addEntityName" => "New gig",
 			"KonzerteView_start.Message" => "To view or edit a performance, please click on the corresponding performance",
 			"KonzerteView_start.Next" => "Next performance",
 			"KonzerteView_start.More" => "Scheduled gigs",
@@ -1296,7 +1296,7 @@ class Translation extends BNoteTranslation {
 			"KonzerteView_viewPhases.notes" => "Notes",
 			"KonzerteView_writeConcert.title" => " o'clock / ",
 			"KonzerteView_overviewTitle.title" => "Participation overview",
-			
+
 			// module: Locations *********************************************
 
 			// LocationsData
@@ -1305,11 +1305,11 @@ class Translation extends BNoteTranslation {
 			"LocationsData_construct.notes" => "Notizen",
 			"LocationsData_construct.address" => "Adresse",
 			"LocationsData_construct.location_type" => "Location Typ",
-			
+
 			// LocationsView
-			"LocationsView_construct.addEntityName" => "Location hinzufügen",	
+			"LocationsView_construct.addEntityName" => "Location hinzufügen",
 			"LocationsView_showAllTable.title" => "Alle",
-			
+
 			// module: Login *********************************************
 
 			// LoginData
@@ -1342,9 +1342,9 @@ class Translation extends BNoteTranslation {
 			"LoginController_register.message_2" => "Activation",
 			"LoginController_register.message_3" => "Unfortunately an <b>error</b> occurred during activation. Please contact your bandleader.<br/> for activation,",
 			"LoginController_register.message_4" => "Please check your e-mails. Click on the activation link to confirm your account. Then you can login.<br/>",
-			"LoginController_register.message_5" => "Please contact your bandleader and wait until your account is activated.<br/>",	
-			
-			// LoginView ********* to finish **********		
+			"LoginController_register.message_5" => "Please contact your bandleader and wait until your account is activated.<br/>",
+
+			// LoginView ********* to finish **********
 			"LoginView_login.message_1" => "Please login to use BNote. If you don't have a
 				If you have a band account, then <a href=\"?mod=registration\">register</a> you now.",
 			"LoginView_login.message_2" => "If you can't log in repeatedly,
@@ -1381,9 +1381,9 @@ class Translation extends BNoteTranslation {
 			"LoginView_registration.pw1" => "Password",
 			"LoginView_registration.password_text" => "Please enter at least 6 characters and no spaces",
 			"LoginView_registration.pw2" => "Password Wdh.",
-			"LoginView_registration.terms_1" => "I agree the ", 
-			"LoginView_registration.terms_2" => "Terms of Use", 
-			"LoginView_registration.terms_3" => " to.", 
+			"LoginView_registration.terms_1" => "I agree the ",
+			"LoginView_registration.terms_2" => "Terms of Use",
+			"LoginView_registration.terms_3" => " to.",
 			"LoginView_registration.message" => "* The fields marked with an asterisk must be filled in",
 			"LoginView_registration.register" => "Register",
 			"LoginView_extGdpr.title" => "Basic Data Protection Regulation (DSGVO): Consent",
@@ -1403,10 +1403,10 @@ class Translation extends BNoteTranslation {
 			"LoginView_extGdpr.street" => "Address",
 			"LoginView_extGdpr.birthday" => "Birthday",
 			"LoginView_extGdpr.link" => "Agreed",
-			
+
 			// module: Mitspieler *********************************************
 
-			// MitspielerData	
+			// MitspielerData
 			"MitspielerData_construct.id" => "ID",
 			"MitspielerData_construct.surname" => "Name",
 			"MitspielerData_construct.name" => "Firstname",
@@ -1423,32 +1423,32 @@ class Translation extends BNoteTranslation {
 			"MitspielerData_construct.status" => "Status",
 			"MitspielerData_construct.city" => "City",
 			"MitspielerData_construct.zip" => "PLZ",
-			
-			// MitspielerView		
+
+			// MitspielerView
 			"MitspielerView_start.title" => "Members",
 			"MitspielerView_start.message" => "Use the key combination CTRL+F (Mac: CMD+F) to search this page.",
 			"MitspielerView_startOptions.print" => "Print",
-			
+
 			// module: Nachrichten *********************************************
 
-			// NachrichtenData				
+			// NachrichtenData
 			"NachrichtenData_check.error" => "The content of the message is not secure. Please do not use frames and scripts.",
-			
-			// NachrichtenView	
+
+			// NachrichtenView
 			"NachrichtenView_start.form" => "Message",
 			"NachrichtenView_start.Submit" => "Save",
 			"NachrichtenView_save.message_1" => "Message saved",
 			"NachrichtenView_save.message_2" => "The entered message has been saved",
-			
+
 			// module: Outfits *********************************************
 
 			// OutfitsData
 			"OutfitsData_construct.id" => "ID",
 			"OutfitsData_construct.name" => "Name",
 			"OutfitsData_construct.description" => "Description",
-			
+
 			// OutfitsView
-			"OutfitsView_construct.EntityName" => "Outfits",				
+			"OutfitsView_construct.EntityName" => "Outfits",
 			"OutfitsView_construct.addEntityName" => "Add Outfit",
 			"OutfitsView_construct.editEntityName" => "Edit Outfit",
 
@@ -1458,7 +1458,7 @@ class Translation extends BNoteTranslation {
 			"Proben_status.confirmed" => "confirmed",
 			"Proben_status.hidden" => "hidden",
 
-			// ProbenData			
+			// ProbenData
 			"ProbenData_construct.id" => "Rehearsal number",
 			"ProbenData_construct.begin" => "Start",
 			"ProbenData_construct.end" => "End",
@@ -1478,10 +1478,10 @@ class Translation extends BNoteTranslation {
 			"ProbenData_saveSerie.location" => "Location",
 			"ProbenData_saveSerie.error" => "The last Rehearsal is before the first Rehearsal",
 			"ProbenData_saveSerie.dberror" => "Database error saving the rehearsal series",
-			
+
 			// ProbenView
-			"ProbenView_construct.EntityName" => "Rehearsal",	
-			"ProbenView_construct.addEntityName" => "New Rehearsal",	
+			"ProbenView_construct.EntityName" => "Rehearsal",
+			"ProbenView_construct.addEntityName" => "New Rehearsal",
 			"ProbenView_start.text" => "Please click on a Rehearsal to edit",
 			"ProbenView_start.title" => "Next Rehearsal",
 			"ProbenView_start.norehearsal" => "No Rehearsal announced.",
@@ -1490,7 +1490,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_startOptions.edit" => "Edit Rehearsal section",
 			"ProbenView_startOptions.mitspieler" => "Participant overview",
 			"ProbenView_startOptions.timer" => "Show previous Rehearsals",
-			"ProbenView_addEntity.message_1" => "No location available", 
+			"ProbenView_addEntity.message_1" => "No location available",
 			"ProbenView_addEntity.message_2" => "Before you can create a Rehearsal, please create a location.",
 			"ProbenView_addEntity.begin" => "Start",
 			"ProbenView_addEntity.end" => "End",
@@ -1505,7 +1505,7 @@ class Translation extends BNoteTranslation {
 			"ProbenView_add.rehearsalMail" => "Send Rehearsal notification to members",
 			"ProbenView_addSerie.Form" => "Add Rehearsal Series",
 			"ProbenView_addSerie.name" => "Rehearsal Route",
-			"ProbenView_addSerie.first_session" => "First Rehearsal on",		
+			"ProbenView_addSerie.first_session" => "First Rehearsal on",
 			"ProbenView_addSerie.last_session" => "Last Rehearsal on",
 			"ProbenView_addSerie.cycle_1" => "weekly",
 			"ProbenView_addSerie.cycle_2" => "every two weeks",
@@ -1607,18 +1607,18 @@ class Translation extends BNoteTranslation {
 			"ProbenView_printPartlist.printcol_contact" => "Participant",
 			"ProbenView_printPartlist.printcol_participate" => "Takes part",
 			"ProbenView_printPartlist.printcol_signature" => "Signature",
-			
+
 			// module: Probenphasen *********************************************
-			
-			// ProbenphasenData		
+
+			// ProbenphasenData
 			"ProbenphasenData_construct.id" => "ID",
 			"ProbenphasenData_construct.name" => "Name",
 			"ProbenphasenData_construct.begin" => "Start",
 			"ProbenphasenData_construct.end" => "End",
 			"ProbenphasenData_construct.notes" => "Notes",
-			
+
 			// ProbenphasenView
-			"ProbenphasenView_construct.EntityName" => "Rehearsal phase",				
+			"ProbenphasenView_construct.EntityName" => "Rehearsal phase",
 			"ProbenphasenView_construct.addEntityName" => "New Rehearsal phase",
 			"ProbenphasenView_startOptions.timer" => "Past Rehearsal phases",
 			"ProbenphasenView_history.title" => "Past Rehearsal phases",
@@ -1664,10 +1664,10 @@ class Translation extends BNoteTranslation {
 			"ProbenphasenView_process_addMultipleContacts.message_1" => "Contacts added",
 			"ProbenphasenView_process_addMultipleContacts.message_2" => "The selected contacts have been added to the Rehearsal phase.",
 			"ProbenphasenView_addRemoveColumnToTable.delete" => "Delete",
-			
+
 			// module: Program *********************************************
-						
-			// ProgramData	
+
+			// ProgramData
 			"ProgramData_construct.id" => "Program ID",
 			"ProgramData_construct.name" => "Name",
 			"ProgramData_construct.notes" => "Notes",
@@ -1675,7 +1675,7 @@ class Translation extends BNoteTranslation {
 			"ProgramData_addProgramWithTemplate.message_1" => "from template",
 			"ProgramData_addProgramWithTemplate.message_2" => " created",
 
-			// ProgramView	
+			// ProgramView
 			"ProgramView_construct.EntityName" => "Program",
 			"ProgramView_backToStart.back" => "Back",
 			"ProgramView_startOptions.back" => "Back",
@@ -1714,11 +1714,11 @@ class Translation extends BNoteTranslation {
 			"ProgramView_printList.length" => "Length",
 			"ProgramView_printList.totalProgramLength" => "Program Length",
 			"ProgramView_printListOptions.print" => "Print",
-			
-			
+
+
 			// module: Recpay *********************************************
-			
-			// RecpayData			
+
+			// RecpayData
 			"RecpayData_construct.id" => "ID",
 			"RecpayData_construct.subject" => "Subject",
 			"RecpayData_construct.account" => "Account",
@@ -1737,7 +1737,7 @@ class Translation extends BNoteTranslation {
 			"RecpayData_ref2val.no_otype" => "[no reference]",
 			"RecpayData_getRecurringPayments.type_0" => "Revenue",
 			"RecpayData_getRecurringPayments.type_1" => "Output",
-			
+
 			// RecpayView
 			"RecpayView_construct.EntityName" => "Current Payment",
 			"RecpayView_construct.addEntityName" => "Add a current Payment",
@@ -1773,9 +1773,9 @@ class Translation extends BNoteTranslation {
 			"RecpayView_viewOptions.edit" => "Edit %p",
 			"RecpayView_viewOptions.delete_confirm" => "Delete %p",
 			"RecpayView_backToStart.back" => "Back",
-			
+
 			// module: Repertoire *********************************************
-			
+
 			// RepertoireData
 			"RepertoireData_construct_id" => "Title ID",
 			"RepertoireData_construct_title" => "Title",
@@ -1787,10 +1787,10 @@ class Translation extends BNoteTranslation {
 			"RepertoireData_construct_status" => "Status",
 			"RepertoireData_construct_setting" => "Cast",
 			"RepertoireData_construct_notes" => "Notes",
-			"RepertoireData_construct_is_active" => "Current",	
+			"RepertoireData_construct_is_active" => "Current",
 			"RepertoireData_massUpdate_error" => "Please select at least one song to update.",
-			
-			// RepertoireController			
+
+			// RepertoireController
 			"RepertoireController_xlsMapping.errorFileMaxSize" => "Maximum file size exceeded",
 			"RepertoireController_xlsMapping.errorFileAbort" => "The file was only partially uploaded. Please check your internet connection",
 			"RepertoireController_xlsMapping.errorNoFile" => "No file uploaded.",
@@ -1798,7 +1798,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireController_xlsMapping.errorUploadingFile" => "The file could not be uploaded.",
 			"RepertoireController_xlsImport.error" => "Choose a column for the title of your songs.",
 			"RepertoireController_xlsMap.col_composer" => "not specified",
-			
+
 			// RepertoireView
 			"RepertoireView_construct.Song" => "Song",
 			"RepertoireView_construct.addEntityName" => "Add piece",
@@ -1829,7 +1829,7 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_view.setting" => "Cast",
 			"RepertoireView_view.is_active" => "Current",
 			"RepertoireView_view.is_active_yes" => "yes",
-			"RepertoireView_view.is_archived" => "archived",	
+			"RepertoireView_view.is_archived" => "archived",
 			"RepertoireView_view.notes" => "Notes",
 			"RepertoireView_view.yes" => "yes",
 			"RepertoireView_view.no" => "no",
@@ -1888,24 +1888,24 @@ class Translation extends BNoteTranslation {
 			"RepertoireView_wipe.doneMessage" => "The entire repertoire including all songs and references to them were removed from the system.",
 			"RepertoireView_wipe.confirm" => "Do you really want to remove all songs including all references to these songs?",
 			"RepertoireView_wipe.confirmHeader" => "Wipe repertoire",
-			
+
 			// module: Share *********************************************
 
-			// ShareData	
+			// ShareData
 			"ShareData_construct.id" => "Key",
 			"ShareData_construct.name" => "Name",
 			"ShareData_construct.is_active" => "Current",
-			
-			// ShareView			
+
+			// ShareView
 			"ShareView_construct.EntityName" => "Document type",
 			"ShareView_startOptions.documenttype" => "Document types",
 			"ShareView_docTypeOptions.addEntity" => "Add document type",
 			"ShareView_docType.error" => "Permission denied.",
-			
+
 			// module: Stats *********************************************
-						
+
 			// StatsData
-						
+
 			// StatsView
 			"StatsView_memberrehearsalperformanceChart.surname" => "Last name",
 			"StatsView_memberrehearsalperformanceChart.name" => "Name",
@@ -1925,7 +1925,7 @@ class Translation extends BNoteTranslation {
 			"StatsView_start.memberrehearsalperformancestat_title" => "Top Rehearsal Participant (1-year)",
 			"StatsView_start.membervoteperformancestat_title" => "Top voting participant (1-year)",
 			"StatsView_start.memberoptionperformancestat_title" => "Top Engagement (1-year)",
-			
+
 			// module: Start *********************************************
 
 			// StartData
@@ -1933,7 +1933,7 @@ class Translation extends BNoteTranslation {
 			"StartData_construct.login" => "Login",
 			"StartData_construct.password" => "Password",
 			"StartData_construct.realname" => "Name",
-			"StartData_construct.lastlogin" => "Last Login",		
+			"StartData_construct.lastlogin" => "Last Login",
 			"StartData_getObjectTitle.Rehearsal" => "Rehearsals",
 			"StartData_getObjectTitle.Concert" => "Performances",
 			"StartData_getObjectTitle.Vote" => "Votes",
@@ -1946,7 +1946,7 @@ class Translation extends BNoteTranslation {
 
 			// StartController
 			"StartController_start.flash" => "Too bad. So you can't use BNote.",
-			
+
 			// StartView ******** to finish *********
 			"StartView_start.Feed" => "Feed",
 			"StartView_start.Calendar" => "Calendar",
@@ -2059,7 +2059,7 @@ class Translation extends BNoteTranslation {
 			"StartView_gigcardOptions.concertParticipants" => "Participants",
 			"StartView_writeVoteList.noVotes" => "No votes open.",
 			"StartView_writeTaskList.noTasks" => "No tasks available.",
-			
+
 			// module: Tour *********************************************
 
 			// TourData
@@ -2068,10 +2068,10 @@ class Translation extends BNoteTranslation {
 			"TourData_construct.start" => "From",
 			"TourData_construct.end" => "Bis",
 			"TourData_construct.notes" => "Notes",
-			
+
 			// TourView
-			"TourView_construct.EntityName" => "Tour",				
-			"TourView_construct.addEntityName" => "Add Tour",	
+			"TourView_construct.EntityName" => "Tour",
+			"TourView_construct.addEntityName" => "Add Tour",
 			"TourView_view.details" => "Details",
 			"TourView_view.rehearsals" => "Rehearsal",
 			"TourView_view.contacts" => "Participants",
@@ -2095,7 +2095,7 @@ class Translation extends BNoteTranslation {
 			"TourView_addRehearsalProcess.message_2" => "The Rehearsal was successfully added to the tour.",
 			"TourView_tab_contacts.surname" => "Last name",
 			"TourView_tab_contacts.name" => "Name",
-			"TourView_tab_contacts.Nickname" => "Nickname",			
+			"TourView_tab_contacts.Nickname" => "Nickname",
 			"TourView_tab_contacts.phone" => "Phone",
 			"TourView_tab_contacts.mobile" => "Mobile",
 			"TourView_tab_contacts.birthday" => "Birthday",
@@ -2143,14 +2143,14 @@ class Translation extends BNoteTranslation {
 			"TourView_summarySheet.AccommodationView" => "Overnight stays",
 			"TourView_summarySheet.equipment" => "Equipment",
 			"TourView_summarySheetOptions.print" => "Print",
-			
+
 			// module: Travel *********************************************
 
-			// TravelView	
+			// TravelView
 			"TravelView_construct.EntityName" => "Transfer",
 			"TravelView_viewDetailTable.tourname" => "Tour",
-			
-			// TravelData			
+
+			// TravelData
 			"TravelData_construct.id" => "ID",
 			"TravelData_construct.tour" => "Tour",
 			"TravelData_construct.num" => "Travel No.",
@@ -2179,7 +2179,7 @@ class Translation extends BNoteTranslation {
 			"UserData_delete.error" => "Access denied.",
 			"UserData_updatePrivileges.error" => "Access denied.",
 			"UserData_changeUserStatus.error" => "Access denied.",
-			
+
 			// UserController
 			"UserController_activate.message_1" => "User account enabled.",
 			"UserController_activate.message_2" => "Your ",
@@ -2188,7 +2188,7 @@ class Translation extends BNoteTranslation {
 			"UserController_activate.message_5" => "log in.",
 			"UserController_activate.message_6" => "Activation email failed",
 			"UserController_activate.message_7" => "The sending of the activation email was not successful. Please inform the user yourself",
-			
+
 			// UserView
 			"UserView_construct.EntityName" => "User",
 			"UserView_construct.addEntityName" => "Add User",
@@ -2254,10 +2254,10 @@ class Translation extends BNoteTranslation {
 			"UserView_additionalViewButtons.no_entry" => "Activate user",
 			"UserView_view.user" => "User ",
 			"UserView_editEntityForm.edit_process" => " edit",
-			
+
 			// module: Website *********************************************
 
-			// WebsiteData		
+			// WebsiteData
 			"WebsiteData_construct.id" => "ID",
 			"WebsiteData_construct.author" => "Author",
 			"WebsiteData_construct.createdOn" => "created on",
@@ -2266,8 +2266,8 @@ class Translation extends BNoteTranslation {
 			"WebsiteData_addImageToGallery.error_1" => "An error occurred during upload. Please try again.",
 			"WebsiteData_addImageToGallery.error_2" => "The file could not be uploaded.",
 			"WebsiteData_addImageToGallery.error_3" => "The uploaded file is not an image.",
-			
-			// WebsiteView			
+
+			// WebsiteView
 			"WebsiteView_construct.title" => "Website Contents",
 			"WebsiteView_construct.message" => "Click on a page to edit its contents",
 			"WebsiteView_startOptions.gallery" => "Edit galleries",
@@ -2358,10 +2358,10 @@ class Translation extends BNoteTranslation {
 			"WebsiteView_gallery_setimageasgallerydefault.message_2" => "The image was previewed for this gallery.",
 			"WebsiteView_backToGallery.gallery" => "Back",
 			"WebsiteView_backToGalleryView.viewgallery" => "Back",
-			
+
 //**********************************************************************************************************************************************************
-// Old traduction			
-//**********************************************************************************************************************************************************	
+// Old traduction
+//**********************************************************************************************************************************************************
 			"welcome" => "Welcome",
 			"autoActivation" => "The automated user activation is enabled. Please see the security notes for details.",
 			"back" => "Back",
@@ -2451,14 +2451,14 @@ class Translation extends BNoteTranslation {
 			"table_prev" => "Previous entries",
 			"table_next" => "Next entries",
 			"start" => "Beginning",
-			
+
 			// GDPR
 			"gdprStartHeading" => "Privacy Policy",
 			"gdprOkMessage" => "Do you agree to our privacy policy?",
 			"gdprLink" => "Show privacy policy",
 			"gdprOkYes" => "Accept policy",
 			"gdprOkNo" => "Do not accept policy",
-			
+
 			// navigation
 			"mod_Login" => "Login",
 			"mod_Start" => "Start",
@@ -2490,7 +2490,7 @@ class Translation extends BNoteTranslation {
 			"mod_Tour" => "Tour",
 			"mod_Outfits" => "Outfits",
 			"mod_Stats" => "Statistics",
-			
+
 			// widgets
 			"addFolder" => "Add Folder",
 			"addFile" => "Add File",
@@ -2590,7 +2590,7 @@ class Translation extends BNoteTranslation {
 
 			// module: kontakte
 			"kontakte_addMoreBtn" => "Add Another Contact",
-			
+
 			// module: vote
 			"vote_yourVotes" => "Your Votes",
 			"vote_archive" => "Archive",
@@ -2676,7 +2676,7 @@ class Translation extends BNoteTranslation {
 			"finance_net" => "Sum Revenue",
 			"finance_tax" => "Sum Spent",
 			"finance_gross" => "Sum Gross",
-			
+
 			"finance_recpay" => "Recurring Payments",
 			"recurringpayment" => "Recurring Payment",
 			"recpay_account" => "Account",
@@ -2689,7 +2689,7 @@ class Translation extends BNoteTranslation {
 			"recpay_no_otype" => "[No Reference]",
 			"recpay_book_success_title" => "Booking inserted",
 			"recpay_book_success_msg" => "All bookings have been inserted successfully.",
-			
+
 			"calendar_rehearsal" => "Rehearsal",
 			"calendar_concert" => "Concert",
 			"calendar_end_vote" => "Vote End:",
@@ -2706,13 +2706,13 @@ class Translation extends BNoteTranslation {
 			"calendar_birthday" => "Birthday",
 			"calendar_outfit" => "Outfit",
 			"calendar_appointment" => "Appointment",
-			
+
 			"equipment_model" => "Model",
 			"equipment_make" => "Make",
 			"equipment_purchase_price" => "Purchase Price",
 			"equipment_current_value" => "Current Value",
 			"equipment_quantity" => "Quantity",
-			
+
 			"tour_details" => "Details",
 			"tour_heading" => "Tour Planning",
 			"tour_summarysheet" => "Toursheet",
@@ -2759,14 +2759,14 @@ class Translation extends BNoteTranslation {
 			"tour_equipment_notes" => "Notes for the Tour",
 			"tour_equipment_saved" => "Equipment Saved",
 			"tour_equipment_saved_msg" => "The list of equipment for this tour has been saved.",
-			
+
 			// module: contacts
 			"contacts_integration_header" => "Integration of New Members",
 			"contacts_integration_text" => "Select the members your want to integrate first.
 				If you do not see all members, make sure to select the correcr group on the screen
 				before this. Select all entries where you want to add these new members. Finally
 				hit save to add the associations.",
-			
+
 			// module: stats
 			"stats_rehearsalstat_title" => "Number of Rehearsals in the Last 6 Months",
 			"stats_concertstat_title" => "Number of Gigs in the Last 6 Months",
@@ -2774,7 +2774,7 @@ class Translation extends BNoteTranslation {
 			"stats_memberrehearsalperformancestat_title" => "Top Rehearsal Participants (1-year)",
 			"stats_membervoteperformancestat_title" => "Top Vote Participants (1-year)",
 			"stats_memberoptionperformancestat_title" => "Top Engagement (1-year)",
-			
+
 			// submodule: custom fields
 			"customfield" => "Custom Field",
 			"customfields" => "Custom Fields",
@@ -2787,7 +2787,7 @@ class Translation extends BNoteTranslation {
 			"customfield_datetime" => "Date and Time",
 			"objecttype" => "Object Reference",
 			"customfield_notunique_error" => "This technical name exists. Please choose another one.",
-			
+
 			// misc
 			"reservation" => "Reservation",
 			"reservations" => "Reservations",
@@ -2795,7 +2795,7 @@ class Translation extends BNoteTranslation {
 			"score" => "Score",
 			"rank" => "Rank"
 	);
-	
+
 	protected $regex = array(
 			"positive_amount" => '/^\d{1,12}$/',
 			"positive_decimal" => '/^\d{0,8}\.\d{0,2}$/',
@@ -2803,7 +2803,7 @@ class Translation extends BNoteTranslation {
 			"date" => '/^\d{4}\/\d{1,2}\/\d{1,2}$/',
 			"datetime" => '/^\d{4}\/\d{1,2}\/\d{1,2}\ \d{2}:\d{2}$/'
 	);
-	
+
 	public function formatDate($day, $month, $year, $hour, $minute) {
 		$time = "";
 		if($hour != null && $minute != null) {
@@ -2811,7 +2811,7 @@ class Translation extends BNoteTranslation {
 		}
 		return "$year/$month/$day" . $time;
 	}
-	
+
 	public function formatDateForDb($formattedDate) {
 		if(strlen($formattedDate) > 10) {
 			// datetime conversion
@@ -2837,7 +2837,7 @@ class Translation extends BNoteTranslation {
 			return $formattedDate;
 		}
 	}
-	
+
 	public function getMonths() {
 		return array(
 				1 => "January",
@@ -2854,30 +2854,30 @@ class Translation extends BNoteTranslation {
 				12 => "December"
 		);
 	}
-	
+
 	public function convertEnglishWeekday($wd) {
 		return $wd;
 	}
-	
+
 	public function getDateTimeFormatPattern() {
 		return "Y/m/d H:i";
 	}
-	
+
 	public function getDateFormatPattern() {
 		return "Y/m/d";
 	}
-	
+
 	public function getRegex($patternCode) {
 		if(!isset($this->regex[$patternCode])) {
 			return null;
 		}
 		return $this->regex[$patternCode];
 	}
-	
+
 	public function decimalToDb($decimal) {
 		return str_replace(",", "", $decimal);
 	}
-	
+
 	public function formatDecimal($dbDecimal) {
 		return $dbDecimal;
 	}

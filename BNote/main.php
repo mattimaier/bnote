@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Main entry file for the web application.
  */
@@ -17,7 +17,7 @@ include "dirs.php";
 require_once $GLOBALS["DIR_LOGIC"] . "init.php";
 
 # Login forward if necessary
-if(isset($_GET["mod"]) && ($_GET["mod"] === "login" || $_GET["mod"] == $system_data->getModuleId("Login")) 
+if(isset($_GET["mod"]) && ($_GET["mod"] === "login" || $_GET["mod"] == $system_data->getModuleId("Login"))
 		&& isset($_GET["mode"]) && $_GET["mode"] === "login") {
 	require_once $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
 	require_once $GLOBALS["DIR_LOGIC_MODULES"] . "logincontroller.php";

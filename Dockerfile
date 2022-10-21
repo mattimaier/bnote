@@ -1,4 +1,4 @@
-FROM php:7.4.10-apache 
+FROM php:7.4.10-apache
 
 # To access a MySQL database the according PHP module must be installed
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli

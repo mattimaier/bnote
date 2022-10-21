@@ -6,12 +6,12 @@
  *
  */
 class TriggerServiceClient {
-	
+
 	private $service_url = "http://www.bnote.info/TriggerServer/createTrigger";
 	private $service_token = "l12jqHgfhdfgHWE12lXMLPOLIfdWE57457459264j2bl35ij23";
-	
+
 	const DATE_FORMAT = "Y-m-d H:i:s";
-	
+
 	/**
 	 * Creates a trigger that will POST a message to the callback_url with the given callback_data.
 	 * @param String $trigger_on Y-m-d H:i:s formatted String.
@@ -28,7 +28,7 @@ class TriggerServiceClient {
 			# date in the past
 			return false;
 		}
-		
+
 		# create post data array
 		$post_data = array(
 			"token" => $this->service_token,
@@ -44,7 +44,7 @@ class TriggerServiceClient {
 			return false;
 		}
 	}
-	
+
 	protected function sendRequest($url, $post_data) {
 		$options = array(
 				'http' => array(

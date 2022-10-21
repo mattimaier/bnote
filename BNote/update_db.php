@@ -16,7 +16,7 @@ $PATH_TO_SRC = "src/";
 </head>
 <body>
 
-<?php 
+<?php
 
 // include necessary libs
 require_once "dirs.php";
@@ -25,24 +25,24 @@ require_once "lang.php";
 require_once $PATH_TO_SRC . "presentation/widgets/error.php";
 
 class UpdateDb {
-	
+
 	private $sysdata;
 	private $db;
 	private $regex;
-	
+
 	private $tabs; // existing tables
 	private $mods; // existing modules
-	
+
 	function __construct() {
 		// build DB connection
 		$this->sysdata = new Systemdata();
 		$this->db = $this->sysdata->dbcon;
 		$this->regex = $this->sysdata->regex;
-		
+
 		$this->loadTabs();
 		$this->loadMods();
 	}
-	
+
 	private function loadTabs() {
 		$tabs = $this->db->getSelection("SHOW TABLES");
 		$colName = $tabs[0][0];
@@ -52,7 +52,7 @@ class UpdateDb {
 		}
 		$this->tabs = $tables;
 	}
-	
+
 	private function loadMods() {
 		$this->mods = $this->sysdata->getInnerModuleArray();
 	}
@@ -60,7 +60,7 @@ class UpdateDb {
 	function message($msg) {
 		echo "<i>$msg</i><br/>\n";
 	}
-	
+
 	function addColumnToTable($table, $column, $type, $options = "") {
 		$fields = $this->db->getFieldsOfTable($table);
 		if(!in_array($column, $fields)) {
@@ -72,7 +72,7 @@ class UpdateDb {
 			$this->message("Column $column already exists in table $table.");
 		}
 	}
-	
+
 	function addTable($table, $definition) {
 		if(!in_array($table, $this->tabs)) {
 			$this->db->execute($definition);
@@ -82,7 +82,7 @@ class UpdateDb {
 			$this->message("Table $table already exists.");
 		}
 	}
-	
+
 	function addDynConfigParam($param, $default, $active = 1) {
 		$confParams = $this->db->getSelection("SELECT param FROM configuration");
 		$containsParam = false;
@@ -101,19 +101,19 @@ class UpdateDb {
 			$this->message("<i>Configuration parameter $param exists.");
 		}
 	}
-	
+
 	function addModule($modname, $icon, $category) {
 		$moduleNames = Database::flattenSelection($this->mods, "name");
 		if(!in_array($modname, $moduleNames)) {
 			// add new module
 			$query = 'INSERT INTO module (name, icon, category) VALUES (?, ?, ?)';
 			$modId = $this->db->execute($query, array(array("s", $modname), array("s", $icon), array("s", $category)));
-		
+
 			$this->message("New module $modname (ID $modId) added.");
-		
+
 			// add privileges for super user
 			$users = $this->sysdata->getSuperUsers();
-		
+
 			$query = "INSERT INTO privilege (user, module) VALUES ";
 			$params = array();
 			$tuples = array();
@@ -136,7 +136,7 @@ class UpdateDb {
 			return $this->sysdata->getModuleId($modname);
 		}
 	}
-	
+
 	function getModuleIds($modnames) {
 		$q = array();
 		$params = array();
@@ -152,18 +152,18 @@ class UpdateDb {
 		}
 		return $res;
 	}
-	
+
 	function updateModule($id, $name, $icon, $category) {
 		$q = "UPDATE module SET name = ?, icon = ?, category = ? WHERE id = ?";
 		$this->db->execute($q, array(array("s", $name), array("s", $icon), array("s", $category), array("i", $id)));
 		$this->message("Module $id ($name) updated.");
 	}
-	
+
 	function removeModule($id) {
 		$this->db->execute("DELETE FROM module WHERE id = ?", array(array("i", $id)));
 		$this->message("Module $id removed from database.");
 	}
-	
+
 	function createFolder($path) {
 		if(file_exists($path)) {
 			$this->message("Folder $path already exists.");
@@ -177,16 +177,16 @@ class UpdateDb {
 			}
 		}
 	}
-	
+
 	function addPrivilegeForAllUsers($module_id) {
 		if($module_id <= 0) {
 			$this->message("Cannot insert privileges. Invalid module ID.");
 			return;
 		}
-		
+
 		// remove all privileges for this module first
 		$this->db->execute("DELETE FROM privilege WHERE module = ?", array(array("i", $module_id)));
-		
+
 		// insert privilege for all
 		$users_db = $this->db->getSelection("SELECT id FROM user");
 		$params = array();
@@ -201,18 +201,18 @@ class UpdateDb {
 		$this->db->execute($query, $params);
 		$this->message($this->sysdata->getModuleTitle($module_id) . " privileges for all users added.");
 	}
-	
+
 	function addPrivilegeForAdmins($module_id) {
 		if($module_id <= 0) {
 			$this->message("Cannot insert privileges. Invalid module ID.");
 			return;
 		}
-		
+
 		// remove all privileges for this module first
 		$adminQuery = "SELECT u.id FROM user u JOIN contact_group cg ON cg.contact = u.contact WHERE cg.group = 1";  // 1 = Admins
 		$delQuery = "DELETE FROM privilege WHERE module = ? AND user IN ($adminQuery)";
 		$this->db->execute($delQuery, array(array("i", $module_id)));
-		
+
 		// insert privilege for all
 		$adminUserIds = $this->db->getSelection($adminQuery);
 		$params = array();
@@ -227,13 +227,13 @@ class UpdateDb {
 		$this->db->execute($query, $params);
 		$this->message("Privileges for module $module_id added to all admins (group 1).");
 	}
-	
+
 	function getPrimaryKeys($table) {
 		$key_query = "SHOW KEYS FROM $table WHERE key_name = 'PRIMARY'";
 		$selection = $this->db->getSelection($key_query);
 		return Database::flattenSelection($selection, "Column_name");
 	}
-	
+
 	function removePrimaryKey($table) {
 		$key_query = "SHOW KEYS FROM $table WHERE key_name = 'PRIMARY'";
 		$selection = $this->db->getSelection($key_query);
@@ -246,15 +246,15 @@ class UpdateDb {
 			$this->message("Primary key not existent in $table.");
 		}
 	}
-	
+
 	function getNumberRows($table) {
 		return $this->db->getNumberRows($table);
 	}
-	
+
 	function executeQuery($query) {
 		return $this->db->execute($query);
 	}
-	
+
 	function processGdprOk() {
 		$query = "SELECT id FROM contact WHERE gdpr_ok = 1";
 		$gdprOkContacts = $this->db->getSelection($query);
@@ -275,7 +275,7 @@ $update = new UpdateDb();
 
 <h3>Log</h3>
 
-<?php 
+<?php
 
 // --- 4.0.1 UPDATES ---
 // Task: Add admin privileges for admin users

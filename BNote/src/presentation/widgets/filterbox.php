@@ -6,73 +6,73 @@
  *
  */
 class Filterbox implements iWriteable {
-	
+
 	/**
 	 * Saves the filters in the format:  [colname] => array( [caption], [type], [db-selection of values] )
 	 * @var Array
 	 */
 	private $filters;
-	
+
 	/**
 	 * Link where the filters are submitted.
 	 * @var String
 	 */
 	private $link;
-	
+
 	/**
 	 * Heading over the filters.
 	 * @var String
 	 */
 	private $formname;
-	
+
 	/**
 	 * Columns of the dropdown captions.
 	 * @var Array
 	 */
 	private $nameCols;
-	
+
 	/**
 	 * Css classes to add to main filterbox.
 	 * @var String
 	 */
 	private $cssClass;
-	
+
 	/**
 	 * Whether a filter has the "Show all" option.
 	 * Format of array: $column => true|false
 	 * @var Array
 	 */
 	private $showAllOption;
-	
+
 	function __construct($link) {
 		$this->filters = array();
 		$this->nameCols = array();
 		$this->showAllOption = array();
 		$this->link = $link;
-		
+
 		$this->formname = "Filter";
 	}
-	
+
 	function addFilter($column, $caption, $type, $values, $colSize = 4) {
 		$this->filters[$column] = array( "caption" => $caption, "type" => $type, "values" => $values, "colSize" => $colSize );
-		
+
 		// defaults
 		$this->nameCols[$column] = array("name");
-		$this->showAllOption[$column] = TRUE; 
+		$this->showAllOption[$column] = TRUE;
 	}
-	
+
 	function setHeading($heading) {
 		$this->formname = $heading;
 	}
-	
+
 	function setCssClass($cssClass) {
 		$this->cssClass = $cssClass;
 	}
-	
+
 	function setShowAllOption($column, $showAll = true) {
 		$this->showAllOption[$column] = $showAll;
 	}
-	
+
 	/**
 	 * Set the name columuns that are concatinated by space and refer to the given value selection.
 	 * @param String $column Name of the column to set the naming for.
@@ -81,7 +81,7 @@ class Filterbox implements iWriteable {
 	function setNameCols($column, $nameCols) {
 		$this->nameCols[$column] = $nameCols;
 	}
-	
+
 	function write() {
 		?>
 		<div class="mb-2 <?php echo $this->cssClass; ?>">
@@ -94,7 +94,7 @@ class Filterbox implements iWriteable {
 				if(isset($this->showAllOption[$column]) && $this->showAllOption[$column] === TRUE) {
 					$element->addOption(Lang::txt("Filterbox_write.showAllOption"), -1);
 				}
-				
+
 				foreach($infos["values"] as $val) {
 					// build name
 					$name = "";
@@ -105,13 +105,13 @@ class Filterbox implements iWriteable {
 							$name .= $val[$nameCol];
 						}
 					}
-					
+
 					// build element
 					if(isset($val["id"])) {
 						$element->addOption($name, $val["id"]);
 					}
 				}
-				
+
 				if(isset($_POST[$column])) {
 					$element->setSelected($_POST[$column]);
 				}
@@ -124,7 +124,7 @@ class Filterbox implements iWriteable {
 				$element->addOption("-", -1);
 				$element->addOption(Lang::txt("Filterbox_write.yes"), 1);
 				$element->addOption(Lang::txt("Filterbox_write.no"), 0);
-				
+
 				$val = -1; // default
 				if(isset($_POST[$column])) {
 					$val = $_POST[$column];
@@ -156,7 +156,7 @@ class Filterbox implements iWriteable {
 		</div>
 		<?php
 	}
-	
+
 	/**
 	 * Converts a DB selection array to a filterbox key-value array (named "id" and "name").
 	 * @param array $selection Database selection result.
@@ -172,7 +172,7 @@ class Filterbox implements iWriteable {
 		}
 		return $result;
 	}
-	
+
 	public function getName() {
 		return $this->formname;
 	}

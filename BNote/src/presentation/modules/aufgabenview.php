@@ -18,14 +18,14 @@ class AufgabenView extends CrudRefView {
 				"assigned_to" => array("name", "surname")
 				));
 	}
-	
+
 	function startOptions() {
 		parent::startOptions();
-		
+
 		$grpTask = new Link($this->modePrefix() . "addGroupTask", Lang::txt("AufgabenView_startOptions.addGroupTask"));
 		$grpTask->addIcon("plus");
 		$grpTask->write();
-		
+
 		if(isset($_GET["table"]) && $_GET["table"] == "completed") {
 			$showOpen = new Link($this->modePrefix() . "start&table=open", Lang::txt("AufgabenView_startOptions.open"));
 			$showOpen->addIcon("tasks");
@@ -37,7 +37,7 @@ class AufgabenView extends CrudRefView {
 			$showCompleted->write();
 		}
 	}
-	
+
 	protected function showAllTable() {
 		// show table rows
 		if(isset($_GET["table"]) && $_GET["table"] == "completed") {
@@ -64,7 +64,7 @@ class AufgabenView extends CrudRefView {
 		$table->setColumnFormat("due_at", "DATE");
 		$table->write();
 	}
-	
+
 	private function getAddForm($mode = "add", $form_target=null, $tour=null) {
 		$target = $this->modePrefix() . $mode;
 		if($form_target != null) {
@@ -79,11 +79,11 @@ class AufgabenView extends CrudRefView {
 		}
 		return $form;
 	}
-	
+
 	function addEntity($form_target=null, $tour=null) {
 		$this->addEntityForm($form_target, $tour);
 	}
-	
+
 	protected function addEntityForm($form_target=null, $tour=null) {
 		$form = $this->getAddForm("add", $form_target, $tour);
 		$form->addElement(Lang::txt("AufgabenView_add_editEntityForm.assigned_to"), new Field("assigned_to", "", FieldType::REFERENCE));
@@ -91,7 +91,7 @@ class AufgabenView extends CrudRefView {
 		$form->setForeign(Lang::txt("AufgabenView_add_editEntityForm.assigned_to"), "contact", "id", array("name", "surname"), $currContactId);
 		$form->write();
 	}
-	
+
 	function addGroupTask() {
 		$form = $this->getAddForm("process_addGroupTask");
 		$groups = $this->getData()->adp()->getGroups();
@@ -99,12 +99,12 @@ class AufgabenView extends CrudRefView {
 		$form->addElement(Lang::txt("AufgabenView_addGroupTask.assigned_to"), $selector);
 		$form->write();
 	}
-	
+
 	function process_addGroupTask() {
 		$groups = GroupSelector::getPostSelection($this->getData()->adp()->getGroups(), "group");
 		$values = $_POST;
 		$this->getData()->validate($values);
-		
+
 		foreach($groups as $gid) {
 			$contacts = $this->getData()->adp()->getGroupContacts($gid);
 			for($j = 1; $j < count($contacts); $j++) {
@@ -115,7 +115,7 @@ class AufgabenView extends CrudRefView {
 		}
 		new Message(Lang::txt("AufgabenView_process_addGroupTask.Message1"), Lang::txt("AufgabenView_process_addGroupTask.Message2"));
 	}
-	
+
 	protected function viewDetailTable() {
 		$dv = new Dataview();
 		$task = $this->getData()->findByIdNoRef($_GET["id"]);
@@ -127,8 +127,8 @@ class AufgabenView extends CrudRefView {
 		$dv->addElement(Lang::txt("AufgabenView_viewDetailTable.assigned_to"), $this->getData()->getContactname($task["assigned_to"]));
 		$dv->write();
 	}
-	
-	protected function additionalViewButtons() {		
+
+	protected function additionalViewButtons() {
 		if($this->getData()->isTaskComplete($_GET["id"])) {
 			$markTodo = new Link($this->modePrefix() . "markTask&as=open&id=" . $_GET["id"], Lang::txt("AufgabenView_additionalViewButtons.open"));
 			$markTodo->addIcon("tasks");
@@ -140,10 +140,10 @@ class AufgabenView extends CrudRefView {
 			$markComplete->write();
 		}
 	}
-	
+
 	protected function editEntityForm($write=true) {
 		$task = $this->getData()->findByIdNoRef($_GET["id"]);
-		
+
 		$form = new Form($this->getEntityName() .Lang::txt("AufgabenView_editEntityForm.edit"), $this->modePrefix() . "edit_process&id=" . $_GET["id"]);
 		$form->addElement(Lang::txt("AufgabenView_editEntityForm.title"), new Field("title", $task["title"], FieldType::CHAR));
 		$form->addElement(Lang::txt("AufgabenView_editEntityForm.description"), new Field("description", $task["description"], FieldType::TEXT));
@@ -152,7 +152,7 @@ class AufgabenView extends CrudRefView {
 		$form->setForeign(Lang::txt("AufgabenView_add_editEntityForm.assigned_to"), "contact", "id", array("name", "surname"), $task["assigned_to"]);
 		$form->write();
 	}
-	
+
 	public function markTask() {
 		if($_GET["as"] == "complete") {
 			$is_complete = 1;

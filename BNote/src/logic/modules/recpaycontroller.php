@@ -11,7 +11,7 @@ class RecpayController extends DefaultController {
 			$this->getView()->start();
 		}
 	}
-	
+
 }
 
 ?>

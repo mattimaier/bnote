@@ -44,7 +44,7 @@ if($_POST["token"] != $trigger_key) {
 
 // Implementation
 class Notifier {
-	
+
 	public function sendNotification($otype, $oid) {
 		if(!is_numeric($oid) || $oid < 1) {
 			header("HTTP/1.0 404 Cannot find object with this ID.");
@@ -59,7 +59,7 @@ class Notifier {
 				exit(404);
 		}
 	}
-	
+
 	private function getMailAddresses($contacts) {
 		$whereQ = array();
 		$params = array();
@@ -72,13 +72,13 @@ class Notifier {
 		$addressesDbSel = $system_data->dbcon->getSelection($q, $params);
 		return $system_data->dbcon->flattenSelection($addressesDbSel, "email");
 	}
-	
+
 	private function getEnsembleEmail() {
 		global $system_data;
 		$ensemble = $system_data->getCompanyInformation();
 		return $ensemble['Mail'];
 	}
-	
+
 	private function sendEmailToContacts($contacts, $subject, $body) {
 		// no email must be sent, all good
 		if(count($contacts) == 0) {
@@ -91,7 +91,7 @@ class Notifier {
 		$mail->setBodyInHtml($body);
 		return $mail->sendMail();
 	}
-	
+
 	private function ok($ok=true) {
 		if(!$ok) {
 			header("HTTP/1.0 500 Unable to send notification.");
@@ -100,17 +100,17 @@ class Notifier {
 			echo json_encode(array("success" => $ok, "message" => "OK"));
 		}
 	}
-	
+
 	private function sendRehearsalNotification($rehearsalId) {
 		// data access object
 		global $dir_prefix;
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "probendata.php");
 		$dao = new ProbenData($dir_prefix);
-		
+
 		// open participation
 		$laggards = $dao->getOpenParticipation($rehearsalId);
 		$laggardIds = Database::flattenSelection($laggards, "id");
-		
+
 		// message
 		$rehearsal = $dao->findByIdNoRef($rehearsalId);
 		$reh_begin = Data::convertDateFromDb($rehearsal['begin']);
@@ -119,21 +119,21 @@ class Notifier {
 		$bnote_url = $dao->getSysdata()->getSystemURL();
 		$body .= "<a href=\"$bnote_url\">" . Lang::txt("Notifier_sendRehearsalNotification.message_5") . "</a><br/>";
 		$body .= Lang::txt("Notifier_sendRehearsalNotification.message_6");
-		
+
 		// send and ok
 		$this->ok($this->sendEmailToContacts($laggardIds, $subject, $body));
 	}
-	
+
 	private function sendConcertNotification($concertId) {
 		// data access object
 		global $dir_prefix;
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "konzertedata.php");
 		$dao = new KonzerteData($dir_prefix);
-		
+
 		// open participation
 		$laggards = $dao->getOpenParticipants($concertId);
 		$laggardIds = Database::flattenSelection($laggards, "id");
-		
+
 		// message
 		$concert = $dao->findByIdNoRef($concertId);
 		$subject = $concert['title'] . Lang::txt("Notifier_sendConcertNotification.message_1");
@@ -141,20 +141,20 @@ class Notifier {
 		$bnote_url = $dao->getSysdata()->getSystemURL();
 		$body .= '<a href="' . $bnote_url . '">' . Lang::txt("Notifier_sendConcertNotification.message_4") . "</a><br/>";
 		$body .= Lang::txt("Notifier_sendConcertNotification.message_5");
-		
+
 		// send and ok
 		$this->ok($this->sendEmailToContacts($laggardIds, $subject, $body));
 	}
-	
+
 	private function sendVoteNotification($voteId) {
 		// data access object
 		global $dir_prefix;
 		require_once($dir_prefix . $GLOBALS["DIR_DATA_MODULES"] . "abstimmungdata.php");
 		$dao = new AbstimmungData($dir_prefix);
-		
+
 		// open votes
 		$laggardIds = $dao->getOpenVoters($voteId);
-		
+
 		// message
 		$vote = $dao->findByIdNoRef($voteId);
 		$subject = $vote['name'] . Lang::txt("Notifier_sendVoteNotification.message_1");
@@ -162,11 +162,11 @@ class Notifier {
 		$bnote_url = $dao->getSysdata()->getSystemURL();
 		$body .= "<a href=\"$bnote_url\">" . Lang::txt("Notifier_sendVoteNotification.message_4") . "</a><br/>";
 		$body .= Lang::txt("Notifier_sendVoteNotification.message_5");
-		
+
 		// send and ok
 		$this->ok($this->sendEmailToContacts($laggardIds, $subject, $body));
 	}
-	
+
 }
 
 $notifier = new Notifier();

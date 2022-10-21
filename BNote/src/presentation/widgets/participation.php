@@ -6,35 +6,35 @@
  *
  */
 class ParticipationWidget implements iWriteable {
-	
+
 	/**
 	 * URL that's call when the form is submitted.
 	 * @var String
 	 */
 	private $formAction;
-	
+
 	/**
 	 * Participation (-1 = not set, 0 = no, 1 = yes, 2 = maybe)
 	 * @var Integer
 	 */
 	private $participation;
-	
+
 	/**
 	 * In case the widget is used multiple times on a page, you can use a suffix to distinugish the field IDs
 	 * @var string
 	 */
 	private $fieldIdSuffix = "";
-	
+
 	function __construct($formAction, $participation, $reason) {
 		$this->formAction = $formAction;
 		$this->participation = ($participation != 0 && $participation == "") ? -1 : intval($participation);
 		$this->reason = $reason;
 	}
-	
+
 	public function setFieldIdSuffix($suffix) {
 		$this->fieldIdSuffix = $suffix;
 	}
-	
+
 	public function getName() {
 		return NULL;
 	}
@@ -56,7 +56,7 @@ class ParticipationWidget implements iWriteable {
 					?>
 					<input type="radio" class="btn-check" name="participation" value="2" id="<?php echo $fieldId . "_maybe"; ?>" autocomplete="off" <?php echo $this->participation == 2 ? "checked" : ""; ?>/>
 					<label class="btn btn-outline-warning participation_button" for="<?php echo $fieldId . "_maybe"; ?>"><i class="bi-question"></i></label>
-					<?php 
+					<?php
 					}
 					?>
 					<input type="radio" class="btn-check" name="participation" value="0" id="<?php echo $fieldId . "_no"; ?>" autocomplete="off" <?php echo $this->participation == 0 ? "checked" : ""; ?>/>
@@ -72,5 +72,5 @@ class ParticipationWidget implements iWriteable {
 		</div>
 		<?php
 	}
-	
+
 }

@@ -15,7 +15,7 @@ class RepertoireView extends CrudRefView {
 		$this->setAddEntityName(Lang::txt("RepertoireView_construct.addEntityName"));
 		$this->setJoinedAttributes(RepertoireData::getJoinedAttributes());
 	}
-	
+
 	function showOptions() {
 		if(isset($_GET["mode"]) && $_GET["mode"] == "genre") {
 			$this->getController()->getGenreView()->showOptions();
@@ -24,40 +24,40 @@ class RepertoireView extends CrudRefView {
 			parent::showOptions();
 		}
 	}
-	
+
 	protected function startOptions() {
 		parent::startOptions();
-		
+
 		$massChange = new Link($this->modePrefix() . "massUpdate", Lang::txt("RepertoireView_startOptions.massUpdate"));
 		$massChange->addIcon("pen");
 		$massChange->write();
-		
+
 		$xlsImport = new Link($this->modePrefix() . "xlsUpload", Lang::txt("RepertoireView_startOptions.xlsUpload"));
 		$xlsImport->addIcon("upload");
 		$xlsImport->write();
-		
+
 		$xlsExport = new Link($GLOBALS["DIR_EXPORT"] . "repertoire.csv", Lang::txt("RepertoireView_startOptions.repertoire"));
 		$xlsExport->addIcon("filetype-csv");
 		$xlsExport->write();
-		
+
 		$prt = new Link("javascript:print()", Lang::txt("RepertoireView_startOptions.print"));
 		$prt->addIcon("printer");
 		$prt->write();
-		
+
 		$genre_mod = new Link($this->modePrefix() . "genre&func=start", Lang::txt("RepertoireView_startOptions.start"));
 		$genre_mod->addIcon("music-note-list");
 		$genre_mod->write();
-		
+
 		$wipe = new Link($this->modePrefix() . "wipe", Lang::txt("RepertoireView_startOptions.wipe"));
 		$wipe->addIcon("folder-x");
 		$wipe->write();
 	}
-	
+
 	protected function addEntityForm() {
 		// init form
 		$form = new Form("", $this->modePrefix() . "add&manualValid=true");
 		$form->autoAddElementsNew($this->getData()->getFields());
-		
+
 		// order fields
 		$order = array("title", "composer", "genre", "music_key", "bpm", "length", "is_active", "status", "setting", "notes");
 		$customFields = $this->getData()->getCustomFields('s', false);
@@ -65,19 +65,19 @@ class RepertoireView extends CrudRefView {
 			array_push($order, $customFields[$i]["txtdefsingle"]);
 		}
 		$form->orderElements($order);
-		
+
 		// adapt references
 		$form->setForeign("genre", "genre", "id", "name", -1);
 		$genreDropdown = $form->getForeignElement("genre");
-		$genreDropdown->addOption("-", 0);							
+		$genreDropdown->addOption("-", 0);
 		$form->setForeign("status", "status", "id", "name", -1);
 		$composerField = new ListField("composer", $this->getData()->getComposers());
 		$form->removeElement("composer");
 		$form->addElement("composer", $composerField, true, 6);
-		
+
 		// add custom fields
 		$this->appendCustomFieldsToForm($form, 's', null, false);
-		
+
 		// set sizes
 		$form->setFieldColSize("genre", 3);
 		$form->setFieldColSize("music_key", 3);
@@ -87,10 +87,10 @@ class RepertoireView extends CrudRefView {
 		$form->setFieldColSize("status", 2);
 		$form->setFieldColSize("setting", 9);
 		$form->setFieldColSize("notes", 12);
-		
+
 		$form->write();
 	}
-	
+
 	public function start() {
 		// Filters
 		$filter = new Filterbox($this->modePrefix() . "start");
@@ -125,7 +125,7 @@ class RepertoireView extends CrudRefView {
 			$filters = $_POST;
 		}
 		$result = $this->getData()->getFilteredRepertoire($filters, $offset, $limit);
-		
+
 		// Table
 		$table = new Table($result["data"]);
 		$table->setEdit("id");
@@ -140,26 +140,26 @@ class RepertoireView extends CrudRefView {
 		}
 		$table->showFilter(false);
 		$table->write();
-		
+
 	}
-	
+
 	public function view() {
 		$song = $this->getData()->getSong($_GET["id"]);
 		?>
 		<h1><?php echo urldecode($song["title"]); ?> <span class="repertoire_song_composer_title"> <?php echo $song["composername"]; ?></span></h1>
-		
+
 		<div class="row">
 			<div class="col-md-3">
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.music_key"); ?></div>
 					<div class="songbox_value"><?php echo $song["music_key"]; ?></div>
 				</div>
-				
+
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.length"); ?></div>
 					<div class="songbox_value"><?php echo $song["length"]; ?></div>
 				</div>
-				
+
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.bpm"); ?></div>
 					<div class="songbox_value"><?php echo $song["bpm"]; ?></div>
@@ -170,12 +170,12 @@ class RepertoireView extends CrudRefView {
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.statusname"); ?></div>
 					<div class="songbox_value"><?php echo $song["statusname"]; ?></div>
 				</div>
-				
+
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.genrename"); ?></div>
 					<div class="songbox_value"><?php echo $song["genrename"]; ?></div>
 				</div>
-				
+
 				<div class="songbox_entry">
 					<div class="songbox_label"><?php echo Lang::txt("RepertoireView_view.setting"); ?></div>
 					<div class="songbox_value"><?php echo $song["setting"]; ?></div>
@@ -192,7 +192,7 @@ class RepertoireView extends CrudRefView {
 				<div class="songbox_areavalue"><?php echo urldecode($song["notes"]); ?></div>
 			</div>
 			<div class="col-md-3">
-			<?php 
+			<?php
 			$customFields = $this->getData()->getCustomFields('s');
 			for($i = 1; $i < count($customFields); $i++) {
 				$field = $customFields[$i];
@@ -215,10 +215,10 @@ class RepertoireView extends CrudRefView {
 			?>
 			</div>
 		</div>
-		
+
 		<div class="row mt-4">
 			<div class="col-md-4 mt-2">
-				<?php 
+				<?php
 				// Files
 				if($this->getData()->getSysdata()->userHasPermission(12)) {
 					$this->songFiles();
@@ -228,7 +228,7 @@ class RepertoireView extends CrudRefView {
 			<div class="col-md-4 mt-2">
 				<h4><?php echo Lang::txt("RepertoireView_view.solists"); ?></h4>
 				<ul>
-					<?php 
+					<?php
 					// Solists
 					$solists = $this->getData()->getSolists($_GET["id"]);
 					// add a link to the data to remove the solist from the list
@@ -249,10 +249,10 @@ class RepertoireView extends CrudRefView {
 			</div>
 			<div class="col-md-4 mt-2">
 				<h4><?php echo Lang::txt("RepertoireView_view.id"); ?></h4>
-				
+
 				<h5><?php echo Lang::txt("RepertoireView_view.rehearsals_song"); ?></h5>
 				<ul>
-					<?php 
+					<?php
 					// References
 					$references = $this->getData()->findReferences($_GET["id"]);
 					for($i = 1; $i < count($references["rehearsals"]); $i++) {
@@ -261,7 +261,7 @@ class RepertoireView extends CrudRefView {
 					}
 					?>
 				</ul>
-				
+
 				<h5><?php echo Lang::txt("RepertoireView_view.concerts_song"); ?></h5>
 				<ul>
 					<?php
@@ -276,7 +276,7 @@ class RepertoireView extends CrudRefView {
 		</div>
 		<?php
 	}
-	
+
 	private function songFiles() {
 		$songs = $this->getData()->getFiles($_GET["id"]);
 		?>
@@ -304,10 +304,10 @@ class RepertoireView extends CrudRefView {
 			}
 			?>
 			</ul>
-			
+
 			<h5><?php echo Lang::txt("RepertoireView_songFiles.addSongFile"); ?></h5>
 			<p><?php echo Lang::txt("RepertoireView_songFiles.repertoire_filesearch"); ?></p>
-			
+
 			<form class="row gx-3 gy-2 align-items-center" action="<?php echo $this->modePrefix() . "addSongFile&id=" . $_GET["id"] ?>" method="POST">
 				<div class="col-sm-6">
 					<input type="text" class="form-control" id="repertoire_filesearch" name="file" list="searchresults" autocomplete="off" />
@@ -315,7 +315,7 @@ class RepertoireView extends CrudRefView {
 				</div>
 				<div class="col-sm-3">
 					<select name="doctype" class="form-select">
-					<?php 
+					<?php
 					$doctypes = $this->getData()->adp()->getDocumentTypes();
 					for($j = 1; $j < count($doctypes); $j++) {
 						echo '<option value="' . $doctypes[$j]["id"] . '">' . $doctypes[$j]["name"] . '</option>';
@@ -327,14 +327,14 @@ class RepertoireView extends CrudRefView {
 					<input type="submit" class="btn btn-secondary" value=<?php echo Lang::txt("RepertoireView_songFiles.submit"); ?> />
 				</div>
 			</form>
-			
+
 			<script>
 			$(document).ready(function() {
 				var sourceDataEndpoint =  "src/export/repertoire-files.php";
 				$("#repertoire_filesearch").on("input", function(e) {
 					var val = $(this).val();
 					if(val.length < 3) return;
-					
+
 					$.get(sourceDataEndpoint, {term:val}, function(res) {
 						var dataList = $("#searchresults");
 						dataList.empty();
@@ -351,7 +351,7 @@ class RepertoireView extends CrudRefView {
 		</div>
 		<?php
 	}
-	
+
 	public function addSongFile() {
 		$songId = $_GET["id"];
 		$fullpath = $_POST["file"];
@@ -363,11 +363,11 @@ class RepertoireView extends CrudRefView {
 		$this->getData()->addFile($songId, $fullpath, $_POST["doctype"]);
 		$this->view();
 	}
-	
+
 	function addSongFileOptions() {
 		$this->viewOptions();
 	}
-	
+
 	function removeSongFile() {
 		$this->getData()->deleteFileReference($_GET["songfile"]);
 		$this->view();
@@ -376,25 +376,25 @@ class RepertoireView extends CrudRefView {
 	function removeSongFileOptions() {
 		$this->viewOptions();
 	}
-	
+
 	protected function additionalViewButtons() {
 		$addSol = new Link($this->modePrefix() . "addSolist&id=" . $_GET["id"], Lang::txt("RepertoireView_additionalViewButtons.addSolist"));
 		$addSol->addIcon("plus");
 		$addSol->write();
 	}
-	
+
 	protected function editEntityForm($write=true) {
 		$song = $this->getData()->getSong($_GET["id"]);
 		$song["title"] = urldecode($song["title"]);
 		$song["notes"] = urldecode($song["notes"]);
-		
+
 		$form = new Form("Song bearbeiten", $this->modePrefix() . "edit_process&manualValid=true&id=" . $_GET["id"]);
 		$form->autoAddElements($this->getData()->getFields(), $this->getData()->getTable(), $_GET["id"]);
 		$form->updateValueForElement("title", $song["title"]);
 		$form->updateValueForElement("notes", $song["notes"]);
 		$form->removeElement("id");
 		$form->renameElement("length", Lang::txt("RepertoireView_addEntityForm.length"));
-		
+
 		// order fields
 		$order = array("title", "composer", "genre", "music_key", "bpm", "length", "is_active", "status", "setting", "notes");
 		$customFields = $this->getData()->getCustomFields('s', false);
@@ -402,23 +402,23 @@ class RepertoireView extends CrudRefView {
 			array_push($order, $customFields[$i]["txtdefsingle"]);
 		}
 		$form->orderElements($order);
-		
-		
+
+
 		// references
 		$form->setForeign("genre", "genre", "id", "name", $song["genre"]);
 		$genreDropdown = $form->getForeignElement("genre");
-		$genreDropdown->addOption("-", 0);						
+		$genreDropdown->addOption("-", 0);
 		$form->setForeign("status", "status", "id", "name", $song["status"]);
-		
+
 		$form->removeElement("composer");
 		$composerField = new ListField("composer", $this->getData()->getComposers());
 		$cid = $song["composer"];
 		$composerField->setIdNameValue($cid, $this->getData()->getComposerName($cid));
 		$form->addElement("composer", $composerField, true, 6);
-		
+
 		// add custom fields
 		$this->appendCustomFieldsToForm($form, 's', $song, false);
-		
+
 		// set sizes
 		$form->setFieldColSize("genre", 3);
 		$form->setFieldColSize("music_key", 3);
@@ -428,16 +428,16 @@ class RepertoireView extends CrudRefView {
 		$form->setFieldColSize("status", 2);
 		$form->setFieldColSize("setting", 9);
 		$form->setFieldColSize("notes", 12);
-		
+
 		if($write) {
 			$form->write();
 		}
 		return $form;
 	}
-	
+
 	function addSolist() {
 		$this->checkID();
-		
+
 		$form = new Form(Lang::txt("RepertoireView_addSolist.Form"), $this->modePrefix() . "process_addSolist&id=" . $_GET["id"]);
 		$contacts = $this->getData()->adp()->getContacts();
 		$selector = new GroupSelector($contacts, array(), "solists");
@@ -445,18 +445,18 @@ class RepertoireView extends CrudRefView {
 		$form->addElement(Lang::txt("RepertoireView_addSolist.selector"), $selector);
 		$form->write();
 	}
-	
+
 	function process_addSolist() {
 		$this->getData()->addSolist($_GET["id"]);
 		new Message(Lang::txt("RepertoireView_process_addSolist.message_1"), Lang::txt("RepertoireView_process_addSolist.message_2"));
 		$this->backToViewButton($_GET["id"]);
 	}
-	
+
 	function delSolist() {
 		$this->getData()->deleteSolist($_GET["id"], $_GET["solistId"]);
 		$this->view();
 	}
-	
+
 	function xlsUpload() {
 		// file upload
 		$form = new Form(Lang::txt("RepertoireView_xlsUpload.Form"), $this->modePrefix() . "xlsMapping");
@@ -465,11 +465,11 @@ class RepertoireView extends CrudRefView {
 		$form->changeSubmitButton(Lang::txt("RepertoireView_xlsUpload.submit"));
 		$form->write();
 	}
-	
-	function xlsMapping($data, $header) {		
+
+	function xlsMapping($data, $header) {
 		// show which columns were detected and allow mapping
 		$form = new Form("Spalten zuweisen", $this->modePrefix() . "xlsImport");
-		
+
 		// create column selector
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_id"), $this->columnSelector("col_id", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_title"), $this->columnSelector("col_title", $header), true);
@@ -482,7 +482,7 @@ class RepertoireView extends CrudRefView {
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_active"), $this->columnSelector("col_active", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_notes"), $this->columnSelector("col_notes", $header));
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.col_status"), $this->columnSelector("col_status", $header));
-		
+
 		// Status
 		$dd_status = new Dropdown("status");
 		$stati = $this->getData()->getStatuses();
@@ -490,7 +490,7 @@ class RepertoireView extends CrudRefView {
 			$dd_status->addOption($stati[$i]["name"], $stati[$i]["id"]);
 		}
 		$form->addElement(Lang::txt("RepertoireView_xlsMapping.dd_status"), $dd_status);
-		
+
 		// add custom fields
 		$fields = $this->getData()->getCustomFields('s');
 		$i = 0;
@@ -498,21 +498,21 @@ class RepertoireView extends CrudRefView {
 			if($i++ == 0) continue;
 			$form->addElement($field["txtdefsingle"], $this->columnSelector("col_" . $field["techname"], $header));
 		}
-		
+
 		// finalize form
 		$form->changeSubmitButton(Lang::txt("RepertoireView_xlsMapping.submit"));
 		$xlsData = urlencode(json_encode(array("header" => $header, "data" => $data)));
 		$form->addHidden("xlsData", $xlsData);
 		$form->write();
 	}
-	
+
 	protected function columnSelector($fieldname, $header) {
 		$dbField = Data::startsWith($fieldname, "col_") ? substr($fieldname, 4) : $fieldname;
 		$preselection = "-1";
 		$dd = new Dropdown($fieldname);
-		
+
 		$dd->addOption(Lang::txt("RepertoireView_columnSelector.import"), "-1");
-		
+
 		// preselection helper
 		$selectionFields = array(
 			"key" => array("music_key"),
@@ -522,7 +522,7 @@ class RepertoireView extends CrudRefView {
 			"active" => array("is_active"),
 			"status" => array("statusname")
 		);
-		
+
 		foreach($header as $idx => $name) {
 			$n = $name;
 			if($n == "") {
@@ -534,19 +534,19 @@ class RepertoireView extends CrudRefView {
 				$preselection = strval($idx);
 			}
 		}
-		
-		// try to preselect the right column		
+
+		// try to preselect the right column
 		$dd->setSelected($preselection);
-		
+
 		return $dd;
 	}
-	
+
 	function xlsImport($titleCol, $duplicates, $num_rows, $empties) {
 		// show how many can be imported directly
 		Writing::h2(Lang::txt("RepertoireView_xlsImport.import"));
-		Writing::p("$num_rows " . Lang::txt("RepertoireView_xlsImport.message_1") . 
+		Writing::p("$num_rows " . Lang::txt("RepertoireView_xlsImport.message_1") .
 				count($empties) . " " .  Lang::txt("RepertoireView_xlsImport.message_2"));
-		
+
 		// show duplicates and ask to overwrite (use from sheet) or ignore (use from BNote) for each
 		$form = new Form(Lang::txt("RepertoireView_xlsImport.Form"), $this->modePrefix() . "xlsProcess");
 		foreach($duplicates as $row) {
@@ -561,55 +561,55 @@ class RepertoireView extends CrudRefView {
 			$form->addElement(Lang::txt("RepertoireView_xlsImport.duplicates"), new Field("", "", 99));
 		}
 		$form->addHidden("empties", join(",", $empties));
-		
+
 		// add data from previous form
 		foreach($_POST as $k => $v) {
 			$form->addHidden($k, $v);
 		}
-		
+
 		$form->write();
 	}
-	
+
 	function xlsProcessSuccess($updated, $created) {
 		new Message(Lang::txt("RepertoireView_xlsProcessSuccess.message_1"), "$created " . Lang::txt("RepertoireView_xlsProcessSuccess.message_2") . " $updated " . Lang::txt("RepertoireView_xlsProcessSuccess.message_3"));
 	}
-	
+
 	function massUpdate() {
 		// setup form
 		$form = new Form(Lang::txt("RepertoireView_massUpdate.form"), $this->modePrefix() . "process_massUpdate&manualValid=true");
-		
+
 		// select what to change
 		$form->autoAddElementsNew($this->getData()->getFields());
 		$toRemove = array("id", "notes", "title", "length", "composer");
 		foreach($toRemove as $i => $field) {
 			$form->removeElement($field);
 		}
-		
+
 		$form->setForeign("genre", "genre", "id", array("name"), 0);
 		$form->addForeignOption("genre", Lang::txt("RepertoireView_massUpdate.genre"), 0);
-		
+
 		$form->setForeign("status", "status", "id", array("name"), 0);
 		$form->addForeignOption("status", Lang::txt("RepertoireView_massUpdate.status"), 0);
-		
+
 		// select the song
 		$songs = $this->getData()->findAllJoined($this->getJoinedAttributes());
 		$songSelector = new GroupSelector($songs, array(), "songs");
 		$songSelector->setNameColumns(array("title"));
 		$form->addElement(Lang::txt("RepertoireView_massUpdate.songSelector"), $songSelector);
-		
+
 		// show form
 		$form->write();
 	}
-	
+
 	function process_massUpdate() {
 		$this->getData()->massUpdate();
 		new Message(Lang::txt("RepertoireView_process_massUpdate.message_1"), Lang::txt("RepertoireView_process_massUpdate.message_2"));
 	}
-	
+
 	function wipeTitle() {
 		return Lang::txt("RepertoireView_wipe.confirmHeader");
 	}
-	
+
 	function wipe() {
 		if(isset($_GET["choice"]) && $_GET["choice"] == "yes") {
 			$this->getData()->wipe();
@@ -620,7 +620,7 @@ class RepertoireView extends CrudRefView {
 			$yes = new Link($this->modePrefix() . "wipe&choice=yes", Lang::txt("yes"));
 			$yes->addIcon("check");
 			$yes->write();
-			
+
 			$no = new Link($this->modePrefix() . "start", Lang::txt("no"));
 			$no->addIcon("x");
 			$no->write();

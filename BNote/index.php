@@ -4,7 +4,7 @@
  * by Matti Maier und Stefan Kreminski BNote Software GbR
  * @author Matti Maier
  * @author Stefan Kreminski
- * 
+ *
  * This is the entry point to the software. However, the main application
  * starts with main.php, not with this file. This file is meant for
  * routing between different applications and the installation in case a configuration is missing.
@@ -12,10 +12,10 @@
 
 $installFile = "install.php";
 
-if(!file_exists("config/company.xml") 
-		|| !file_exists("config/database.xml") 
+if(!file_exists("config/company.xml")
+		|| !file_exists("config/database.xml")
 		|| !file_exists("config/config.xml")) {
-	
+
 	if(file_exists($installFile)) {
 		header("location: " . $installFile);
 	}

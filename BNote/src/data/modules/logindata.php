@@ -9,7 +9,7 @@ require_once $dir_prefix . $GLOBALS["DIR_DATA"] . "fieldtype.php";
  *
  */
 class LoginData extends AbstractLocationData {
-	
+
 	/**
 	 * Build data provider.
 	 */
@@ -21,17 +21,17 @@ class LoginData extends AbstractLocationData {
 				"realname" => array(Lang::txt("LoginData_construct.realname"), FieldType::CHAR),
 				"lastlogin" => array(Lang::txt("LoginData_construct.lastlogin"), FieldType::DATETIME)
 		);
-	
+
 		$this->references = array();
 		$this->table = "user";
-	
+
 		$this->init($dir_prefix);
 	}
-	
+
 	function validateLogin() {
 		$this->regex->isPassword($_POST["password"]);
 	}
-	
+
 	function getPasswordForLogin($login) {
 		if(strpos($login, "@") !== false) {
 			$query = "SELECT password FROM user u JOIN contact c ON u.contact = c.id WHERE c.email = ?";
@@ -39,61 +39,61 @@ class LoginData extends AbstractLocationData {
 		}
 		return $this->database->colValue("SELECT password FROM user WHERE login = ? AND isActive = 1", "password", array(array("s", $login)));
 	}
-	
+
 	function getUserIdForLogin($login) {
 		return $this->database->colValue("SELECT id FROM user WHERE login = ?", "id", array(array("s", $login)));
 	}
-	
+
 	function saveLastLogin() {
 		// Save last logged in
 		$this->database->execute("UPDATE user SET lastlogin = NOW() WHERE id = ?", array(array("i", $this->getUserId())));
 	}
-	
+
 	function getStartModuleId() {
 		global $system_data;
 		return $system_data->getStartModuleId();
 	}
-	
+
 	function validateEMail($email) {
 		$this->regex->isEmail($email);
 	}
-	
+
 	function getUserIdForEMail($email) {
 		// check whether mail-address is unique
 		$ct = $this->database->colValue("SELECT count(id) as cnt FROM contact WHERE lower(email) = ?", "cnt", array(array("s", strtolower($email))));
 		if($ct != 1) { return -1; }
-		
+
 		// if it's unique return the user's id
 		$contact = $this->database->colValue("SELECT id FROM contact WHERE lower(email) = ?", "id", array(array("s", strtolower($email))));
 		if($contact < 1) { return -1; }
-		
+
 		// check more than 1 user for this contact
 		$ct = $this->database->colValue("SELECT count(id) as cnt FROM user WHERE contact = ?", "cnt", array(array("i", $contact)));
 		if($ct != 1) return -1;
-		
-		return $this->database->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $contact))); 
+
+		return $this->database->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $contact)));
 	}
-	
+
 	function getUsernameForId($uid) {
 		return $this->database->colValue("SELECT login FROM user WHERE id = ?", "login", array(array("i", $uid)));
 	}
-	
+
 	function saveNewPassword($uid, $pwenc) {
 		$query = "UPDATE user SET password = ? WHERE id = ?";
 		$this->database->execute($query, array(array("s", $pwenc), array("i", $uid)));
 	}
-	
+
 	function getInstruments() {
 		$query = "SELECT i.id, i.name as instrument, c.id as cat, c.name as category";
 		$query .= " FROM instrument i JOIN category c ON i.category = c.id";
 		$query .= " ORDER BY c.name, i.name";
 		return $this->database->getSelection($query);
 	}
-	
+
 	function getJSValidationFunctions() {
 		return $this->regex->getJSValidationFunctions();
 	}
-	
+
 	function validateRegistration() {
 		$this->regex->isName($_POST["name"]);
 		$this->regex->isName($_POST["surname"]);
@@ -106,14 +106,14 @@ class LoginData extends AbstractLocationData {
 		$this->regex->isPassword($_POST["pw1"]);
 		$this->regex->isPassword($_POST["pw2"]);
 	}
-	
+
 	function duplicateLoginCheck() {
 		$email = $_POST["email"];
 		$query = "SELECT count(u.id) as cnt FROM user u JOIN contact c ON u.contact = c.id WHERE c.email = ?";
 		$ct = $this->database->colValue($query, "cnt", array(array("s", $email)));
 		return ($ct > 0);
 	}
-	
+
 	function createContact($aid) {
 		$query = "INSERT INTO contact (surname, name, nickname, phone, mobile, email, address, instrument, birthday) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		$cid = $this->database->prepStatement($query, array(
@@ -127,18 +127,18 @@ class LoginData extends AbstractLocationData {
 				array("i", $_POST["instrument"]),
 				array("s", $_POST["birthday"])
 		));
-		
+
 		// get configured default group
 		$defaultGroup = $this->getSysdata()->getDynamicConfigParameter("default_contact_group");
 		if($defaultGroup == null || $defaultGroup == "") $defaultGroup = 2; // fallback
-		
+
 		// add the contact to the members group (gid=2)
-		$query = "INSERT INTO contact_group (contact, `group`) VALUES (?, ?)"; 
+		$query = "INSERT INTO contact_group (contact, `group`) VALUES (?, ?)";
 		$this->database->execute($query, array(array("i", $cid), array("i", $defaultGroup)));
-		
+
 		return $cid;
 	}
-	
+
 	function createUser($login, $password, $cid) {
 		// create inactive user
 		$query = "INSERT INTO user (login, password, isActive, contact) VALUES (?, ?, 0, ?)";
@@ -147,7 +147,7 @@ class LoginData extends AbstractLocationData {
 				array("s", $password),
 				array("i", $cid)
 		));
-		
+
 		// create user directory
 		$dir_prefix = "";
 		if(isset($GLOBALS['dir_prefix'])) {
@@ -155,21 +155,21 @@ class LoginData extends AbstractLocationData {
 		}
 		$path = $dir_prefix . $GLOBALS["DATA_PATHS"]["userhome"] . $login;
 		mkdir($path);
-		
+
 		return $uid;
 	}
-	
+
 	function createDefaultRights($uid) {
 		$s = $this->tupleStmt($uid, $this->getSysdata()->getDefaultUserCreatePermissions());
 		$privQuery = "INSERT INTO privilege (user, module) VALUES " . $s[0];
 		$this->database->execute($privQuery, $s[1]);
 	}
-	
+
 	function findContactByCode($code) {
 		$q = "SELECT *, a.* FROM contact c RIGHT OUTER JOIN address a ON c.address = a.id WHERE gdpr_code = ?";
 		return $this->database->fetchRow($q, array(array("s", $code)));
 	}
-	
+
 	function gdprOk($code) {
 		$this->regex->isSubject($code);
 		$this->database->execute("UPDATE contact SET gdpr_ok = 1 WHERE gdpr_code = ?", array(array("s", $code)));

@@ -6,14 +6,14 @@
  *
  */
 class StatsView extends AbstractView {
-	
+
 	/**
 	 * Create the start view.
 	 */
 	function __construct($ctrl) {
 		$this->setController ( $ctrl );
 	}
-	
+
 	protected function statsBlock($title, $chartId) {
 		?>
 		<div class="statsTile">
@@ -29,14 +29,14 @@ class StatsView extends AbstractView {
 		</div>
 		<?php
 	}
-	
+
 	protected function rehearsalChart() {
 		$data = $this->getData()->last6MonthsNumberEvents("rehearsal");
 		?>
 		$(document).ready(function() {
 			var series = [<?php echo json_encode($data["series"]); ?>];
 			var labels = <?php echo json_encode($data["labels"]); ?>;
-			
+
 			$.jqplot.config.enablePlugins = true;
 			rehearsalPlot = $.jqplot('statsChartRehearsal', series, {
 				seriesColors:['#436f98'],
@@ -64,14 +64,14 @@ class StatsView extends AbstractView {
 		});
 		<?php
 	}
-	
+
 	protected function concertChart() {
 		$data = $this->getData()->last6MonthsNumberEvents("concert");
 		?>
 		$(document).ready(function() {
 			var series = [<?php echo json_encode($data["series"]); ?>];
 			var labels = <?php echo json_encode($data["labels"]); ?>;
-			
+
 			$.jqplot.config.enablePlugins = true;
 			rehearsalPlot = $.jqplot('statsChartConcert', series, {
 				seriesColors:['#436f98'],
@@ -96,17 +96,17 @@ class StatsView extends AbstractView {
 	            },
 	            highlighter: { show: false }
 			});
-		});	
+		});
 		<?php
 	}
-	
+
 	protected function memberChart() {
 		$data = $this->getData()->membersPerGroup();
 		?>
 		$(document).ready(function() {
 			var series = [<?php echo json_encode($data["series"]); ?>];
 			var labels = <?php echo json_encode($data["labels"]); ?>;
-			
+
 			$.jqplot.config.enablePlugins = true;
 			rehearsalPlot = $.jqplot('statsChartMember', series, {
 				seriesColors:['#436f98'],
@@ -129,10 +129,10 @@ class StatsView extends AbstractView {
 	            },
 	            highlighter: { show: false }
 			});
-		});	
+		});
 		<?php
 	}
-	
+
 	protected function memberrehearsalperformanceChart() {
 		?>
 		$(document).ready(function() { $('#statsChartMemberRehearsalPerformance').hide(); });
@@ -148,7 +148,7 @@ class StatsView extends AbstractView {
 		$table->write();
 		echo "<script>";
 	}
-	
+
 	protected function membervoteperformanceChart() {
 		?>
 		$(document).ready(function() { $('#statsChartMemberVotePerformance').hide(); });
@@ -164,7 +164,7 @@ class StatsView extends AbstractView {
 		$table->write();
 		echo "<script>";
 	}
-		
+
 	protected function memberoptionperformanceChart() {
 		?>
 		$(document).ready(function() { $('#statsChartMemberOptionPerformance').hide(); });
@@ -180,7 +180,7 @@ class StatsView extends AbstractView {
 		$table->write();
 		echo "<script>";
 	}
-	
+
 	function start() {
 		?>
 		<script type="text/javascript" src="lib/jquery/plugins/jqplot.barRenderer.min.js"></script>
@@ -194,7 +194,7 @@ class StatsView extends AbstractView {
 		$this->statsBlock(Lang::txt("StatsView_start.membervoteperformancestat_title"), "MemberVotePerformance");
 		$this->statsBlock(Lang::txt("StatsView_start.memberoptionperformancestat_title"), "MemberOptionPerformance");
 	}
-	
+
 	function startOptions() {
 		// none
 	}
