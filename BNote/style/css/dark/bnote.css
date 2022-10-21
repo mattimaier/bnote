@@ -5,16 +5,16 @@
 label.calendar_eventdetail_key {
   width: 100px;
   display: inline-block;
-  color: #ED6D6D;
+  color: #ed6d6d;
 }
 #calendar_eventdetail {
-  border: 0px solid #BFCEDB;
+  border: 0px solid #bfcedb;
   border-top-width: 1px;
   margin-top: 0px;
   padding: 10px;
 }
 div.concert {
-  border: 1px solid #BFCEDB;
+  border: 1px solid #bfcedb;
   border-bottom: 2px solid #143452;
   color: #000000;
 }
@@ -23,14 +23,14 @@ div.concert {
   color: #143452;
 }
 span.concert_title_name {
-  color: #356A9C;
+  color: #356a9c;
   font-weight: normal;
 }
 .concert_link {
   text-decoration: none;
 }
 span.concert_notes {
-  color: #2F4152;
+  color: #2f4152;
   font-style: italic;
   display: block;
   white-space: pre-wrap;
@@ -46,7 +46,7 @@ span.start_concert_title {
 }
 .concertdetail_heading {
   background-color: #143452;
-  color: #FFFFFF;
+  color: #ffffff;
   padding: 0.2rem 0.5rem;
 }
 .concertdetail_entry {
@@ -55,7 +55,7 @@ span.start_concert_title {
 span.concertdetail_key {
   padding-left: 0.5rem;
   display: inline-block;
-  color: #2F4152;
+  color: #2f4152;
   vertical-align: top;
 }
 span.concertdetail_value {
@@ -68,7 +68,7 @@ div.trackbox {
   margin-right: 1em;
 }
 .trackbox_header {
-  border-bottom: 1px solid #BFCEDB;
+  border-bottom: 1px solid #bfcedb;
   margin-bottom: 0.3em;
 }
 select.trackbox {
@@ -95,7 +95,7 @@ div#contact_table_filter.dataTables_filter {
 }
 .contactdetail_entry {
   display: block;
-  border-bottom: 1px solid #BFCEDB;
+  border-bottom: 1px solid #bfcedb;
 }
 label.contactdetail_entry_label {
   display: inline-block;
@@ -105,32 +105,32 @@ label.contactdetail_entry_label {
   display: inline-block;
 }
 .membercard {
-  border: 1px solid #586C80;
+  border: 1px solid #586c80;
   border-radius: 0;
   background-color: #f6f6f6;
-  border-bottom: 2px solid #243E56;
+  border-bottom: 2px solid #243e56;
 }
 .membercard_instrument {
-  color: #2F4152;
+  color: #2f4152;
 }
 .membercard_customfields .customfield_entry {
-  color: #2F4152;
+  color: #2f4152;
 }
 .filebrowser_folderitem {
   padding: 5px;
   display: inline-block;
 }
 .filebrowser_folderitem:hover {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 .filebrowser_folderitem_active {
   padding: 5px;
   display: inline-block;
-  color: #356A9C;
-  background-color: #FFFFFF;
+  color: #356a9c;
+  background-color: #ffffff;
 }
 .filebrowser_folderitem_active:hover {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: #000000;
 }
 .filebrowser_folder_header {
@@ -139,7 +139,7 @@ label.contactdetail_entry_label {
 div.filebrowser_list_item {
   padding: 5px;
   padding-left: 0px;
-  border-bottom: 1px solid #BFCEDB;
+  border-bottom: 1px solid #bfcedb;
 }
 div.filebrowser_tile_item {
   width: 220px;
@@ -157,7 +157,7 @@ div.filebrowser_tile {
   height: 220px;
   width: 220px;
   line-height: 220px;
-  background-color: #BFCEDB;
+  background-color: #bfcedb;
   border-radius: 10px;
 }
 .filebrowser_tile img {
@@ -192,7 +192,7 @@ span.filebrowser_item_size {
   float: none;
 }
 div.filebrowser_favs_container {
-  background-color: #BFCEDB;
+  background-color: #bfcedb;
 }
 div.filebrowser_favs_title {
   font-weight: 600;
@@ -210,7 +210,7 @@ div.filebrowser_favs_title {
   visibility: hidden;
 }
 .finance_filter_box {
-  border: 1px solid #BFCEDB;
+  border: 1px solid #bfcedb;
   padding: 10px;
 }
 .finance_filter_box form {
@@ -238,7 +238,7 @@ ul.finance_multireport_account_selection {
 }
 #finance_multireport_report td.DataTable:nth-child(4),
 #finance_multireport_report td.DataTable:nth-child(7) {
-  border-right: 2px solid #BFCEDB;
+  border-right: 2px solid #bfcedb;
 }
 #finance_multireport_report tbody tr:last-child {
   border-top: 2px solid #383838;
@@ -249,13 +249,13 @@ ul.finance_multireport_account_selection {
 }
 .help_navigator_menu {
   width: 250px;
-  background: #BFCEDB;
+  background: #bfcedb;
   padding: 0px;
 }
 .help_navigator_menu_topic {
   padding: 5px;
-  background-color: #356A9C;
-  color: #FFFFFF;
+  background-color: #356a9c;
+  color: #ffffff;
   font-weight: bold;
 }
 .help_navigator_menu_page {
@@ -264,14 +264,14 @@ ul.finance_multireport_account_selection {
   padding-right: 20px;
 }
 .help_navigator_menu_page:hover {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 .help_navigator_menu_page_active {
   padding: 5px;
   padding-left: 15px;
   padding-right: 20px;
-  background-color: #FFFFFF;
-  color: #356A9C;
+  background-color: #ffffff;
+  color: #356a9c;
 }
 .help_navigator_menu_page_active::hover {
   color: #000000;
@@ -280,7 +280,7 @@ ul.finance_multireport_account_selection {
   width: 750px;
   padding-left: 10px;
   padding-right: 10px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 a.help_navigator_menu_page_link {
   text-decoration: none;
@@ -288,11 +288,11 @@ a.help_navigator_menu_page_link {
 .help_page_title {
   font-size: 20px;
   font-weight: bold;
-  color: #356A9C;
+  color: #356a9c;
 }
 div.imagetable {
   display: inline-block;
-  border: 1px solid #BFCEDB;
+  border: 1px solid #bfcedb;
   text-align: center;
   padding: 5px;
 }
@@ -300,7 +300,7 @@ img.imagetable {
   margin-bottom: 3px;
 }
 body {
-  font-size: .875rem;
+  font-size: 0.875rem;
 }
 .feather {
   width: 16px;
@@ -308,7 +308,7 @@ body {
   vertical-align: text-bottom;
 }
 a {
-  color: #356A9C;
+  color: #356a9c;
 }
 a:hover {
   color: #143452;
@@ -319,16 +319,16 @@ a:hover {
   border-radius: 0;
 }
 .btn-secondary:hover {
-  background-color: #243E56;
+  background-color: #243e56;
   border-width: 0;
 }
 .alert {
   padding: 0.5rem 1rem;
 }
 .alert-info {
-  color: #FFFFFF;
+  color: #ffffff;
   background-color: #143452;
-  border-color: #243E56;
+  border-color: #243e56;
 }
 .ml-comment {
   white-space: pre-wrap;
@@ -352,7 +352,7 @@ a:hover {
   position: relative;
   top: 0;
   height: calc(100vh - 48px);
-  padding-top: .5rem;
+  padding-top: 0.5rem;
   overflow-x: hidden;
   overflow-y: auto;
   /* Scrollable contents if viewport is shorter than content. */
@@ -366,26 +366,26 @@ a:hover {
   color: #727272;
 }
 .sidebar .nav-link.active {
-  color: #356A9C;
+  color: #356a9c;
 }
 .sidebar .nav-link:hover .feather,
 .sidebar .nav-link.active .feather {
   color: inherit;
 }
 .sidebar-heading {
-  font-size: .75rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
 }
 /*
  * Navbar
  */
 .navbar-brand {
-  padding-top: .75rem;
-  padding-bottom: .75rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
   font-size: 1rem;
 }
 .navbar .navbar-toggler {
-  top: .25rem;
+  top: 0.25rem;
   right: 1rem;
   border-width: 0;
 }
@@ -393,16 +393,16 @@ a:hover {
   font-size: 1.6em;
 }
 .navbar .form-control {
-  padding: .75rem 1rem;
+  padding: 0.75rem 1rem;
   border-width: 0;
   border-radius: 0;
 }
 .bnote-useradmin-bar {
   font-size: 1.6em;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 .bg-dark {
-  background-color: #243E56 !important;
+  background-color: #243e56 !important;
 }
 #bnote-logo {
   margin-right: 1rem;
@@ -411,7 +411,7 @@ i.bnote-opt-btn {
   margin-right: 0.2rem;
 }
 .nav-link {
-  color: #356A9C;
+  color: #356a9c;
 }
 .nav-link:hover {
   color: #143452;
@@ -443,12 +443,12 @@ select.form-select {
   padding-left: 2.5rem;
 }
 .form-check-input:checked {
-  background-color: #356A9C;
-  border-color: #356A9C;
+  background-color: #356a9c;
+  border-color: #356a9c;
 }
 span.input-group-text {
-  background-color: #2F4152;
-  color: #FFFFFF;
+  background-color: #2f4152;
+  color: #ffffff;
   border-width: 0;
   border-bottom: 2px solid #143452;
   border-radius: 0;
@@ -459,7 +459,7 @@ span.input-group-text {
   border-width: 0;
 }
 .btn-primary:hover {
-  background-color: #243E56;
+  background-color: #243e56;
   border-radius: 0;
   border-width: 0;
 }
@@ -467,11 +467,11 @@ span.input-group-text {
  * Data View
  */
 .bnote-dataview-row {
-  border-bottom: 1px solid #BFCEDB;
+  border-bottom: 1px solid #bfcedb;
 }
 .bnote-dataview-label {
   font-weight: 600;
-  color: #2F4152;
+  color: #2f4152;
 }
 /*
  * Table
@@ -486,7 +486,7 @@ table.dataTable th {
  * Widgets
  */
 .participation_widget {
-  border: 1px solid #BFCEDB;
+  border: 1px solid #bfcedb;
 }
 .participation_button {
   font-size: 1.5rem;
@@ -495,20 +495,20 @@ table.dataTable th {
 }
 .chatbar {
   background-color: #f6f6f6;
-  border-left: 1px solid #586C80;
+  border-left: 1px solid #586c80;
 }
 .chat_message_box {
-  border: 1px solid #BFCEDB;
+  border: 1px solid #bfcedb;
   border-radius: 10px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 .message_author {
   font-size: smaller;
-  color: #356A9C;
+  color: #356a9c;
 }
 .messageHeader {
   font-size: larger;
-  color: #356A9C;
+  color: #356a9c;
 }
 /*
  * MISC
@@ -517,10 +517,10 @@ table.dataTable th {
   color: #58b658;
 }
 .icon-yellow {
-  color: #F9FF61;
+  color: #f9ff61;
 }
 .icon-red {
-  color: #ED6D6D;
+  color: #ed6d6d;
 }
 @media print {
   .btn-toolbar {
@@ -543,7 +543,7 @@ table.dataTable th {
   }
   td.DataTable_Header {
     color: #143452;
-    background-color: #BFCEDB;
+    background-color: #bfcedb;
     font-weight: bold;
   }
   .membercard_hint {
@@ -570,17 +570,17 @@ pre.start_rehearsal {
 div.rehearsal {
   display: block;
   padding: 5px 10px;
-  border: 1px solid #BFCEDB;
+  border: 1px solid #bfcedb;
   border-bottom-width: 2px;
   margin-bottom: 5px;
   vertical-align: text-top;
 }
 p.rehearsal_title {
-  color: #2F4152;
+  color: #2f4152;
   float: left;
 }
 span.rehearsal_conductor {
-  color: #2F4152;
+  color: #2f4152;
   position: absolute;
   left: 475px;
 }
@@ -598,10 +598,10 @@ div.rehearsal_overview_box {
   padding: 5px;
 }
 div.rehearsal_overview_header {
-  background-color: #BFCEDB;
+  background-color: #bfcedb;
   padding: 5px;
   font-weight: 600;
-  color: #2F4152;
+  color: #2f4152;
 }
 div.rehearsal_overview_box > .instrument_box {
   display: inline-block;
@@ -623,10 +623,10 @@ div.rehearsal_overview_box > .instrument_box > .instrument_box_header {
 }
 .probendetail_heading {
   font-weight: 600;
-  color: #356A9C;
+  color: #356a9c;
 }
 select.participationQuickSelector {
-  border-color: #2F4152;
+  border-color: #2f4152;
   margin-left: 0px;
   padding: 0px;
 }
@@ -678,7 +678,7 @@ select.participationQuickSelector {
 .songbox_entry {
   display: block;
   margin-right: 20px;
-  border-bottom: 1px solid #586C80;
+  border-bottom: 1px solid #586c80;
   margin-top: 6px;
 }
 .repertoire_song_extra {
@@ -700,19 +700,19 @@ select.participationQuickSelector {
   margin: 0 3px 3px 3px;
   padding: 0.4em;
   padding-left: 1.5em;
-  font-size: 1.0em;
+  font-size: 1em;
 }
 #sortable li span {
   position: absolute;
   margin-left: -1.3em;
 }
 div.start_box_news {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: #000000;
 }
 div.start_box {
   display: table-cell;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: #000000;
 }
 div.start_box a {
@@ -723,7 +723,7 @@ div.start_box a:hover {
   text-decoration: underline;
 }
 div.start_box a.participation {
-  color: #2F4152;
+  color: #2f4152;
 }
 div.start_box div.participate_0 {
   opacity: 0.5;
@@ -738,14 +738,14 @@ div.start_box div.participate_0:hover {
   -webkit-transition: opacity 0.55s ease-in-out;
 }
 div.start_box div.participate_-1 {
-  border-color: #ED6D6D;
+  border-color: #ed6d6d;
   border-bottom-width: 2px;
 }
 div.start_box a.participation.participate_0 {
   color: #ff6161;
 }
 div.start_box a.participation.participate_0::before {
-  content: '';
+  content: "";
   background-image: url("../../icons/no.png");
   height: 20px;
   width: 20px;
@@ -758,7 +758,7 @@ div.start_box a.participation.participate_1 {
   color: #58b658;
 }
 div.start_box a.participation.participate_1::before {
-  content: '';
+  content: "";
   background-image: url("../../icons/selected.png");
   height: 20px;
   width: 20px;
@@ -771,7 +771,7 @@ div.start_box a.participation.participate_2 {
   color: #ff821e;
 }
 div.start_box a.participation.participate_2::before {
-  content: '';
+  content: "";
   background-image: url("../../icons/maybe.png");
   height: 20px;
   width: 20px;
@@ -784,7 +784,7 @@ div.start_box a.participation.participate_-1 {
   font-weight: bold;
 }
 div.start_box a.participation.participate_-1::before {
-  content: '';
+  content: "";
   background-image: url("../../icons/unspecified.png");
   height: 20px;
   width: 20px;
@@ -794,21 +794,21 @@ div.start_box a.participation.participate_-1::before {
   display: inline-block;
 }
 div.start_box_content div {
-  border: 0px solid #BFCEDB;
+  border: 0px solid #bfcedb;
   border-bottom-width: 1px;
   margin-bottom: 10px;
   padding: 0.75em;
 }
 div.start_box_heading {
   background-color: #143452;
-  color: #FFFFFF;
+  color: #ffffff;
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
 div.start_box_content_heading {
-  background-color: #243E56;
-  color: #FFFFFF;
+  background-color: #243e56;
+  color: #ffffff;
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -835,18 +835,18 @@ div.start_box_row {
   color: #58b658;
 }
 .start_box_status_cancelled {
-  color: #ED6D6D;
+  color: #ed6d6d;
   text-decoration: line-through;
 }
 .start_box_status_hidden {
-  color: #BFCEDB;
+  color: #bfcedb;
 }
 a.start_card {
   text-decoration: none;
   color: #000000;
 }
 .start_box_active {
-  border-left: 4px solid #356A9C;
+  border-left: 4px solid #356a9c;
 }
 .start_card_due {
   display: block;
@@ -854,19 +854,19 @@ a.start_card {
   margin-right: 1em;
   margin-top: 0.8em;
   font-size: smaller;
-  color: #2F4152;
+  color: #2f4152;
 }
 .start_box_participation_no {
-  border-right: 4px solid #ED6D6D;
+  border-right: 4px solid #ed6d6d;
 }
 .start_box_participation_yes {
   border-right: 4px solid #58b658;
 }
 .start_box_participation_maybe {
-  border-right: 4px solid #F9FF61;
+  border-right: 4px solid #f9ff61;
 }
 .start_box_participation_unknown {
-  border-right: 4px solid #2F4152;
+  border-right: 4px solid #2f4152;
 }
 .warning {
   color: #ff821e;
@@ -875,7 +875,7 @@ a.start_card {
 .statsTile {
   width: 400px;
   height: 300px;
-  border: 1px solid #586C80;
+  border: 1px solid #586c80;
   display: inline-block;
   margin-bottom: 5px;
 }

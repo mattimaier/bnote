@@ -1,73 +1,77 @@
 <!DOCTYPE html>
 
 <html>
-	<head>
-		<link href="http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic" rel="stylesheet" type="text/css">
-		<meta http-equiv="Content-Type" content="text/html; charset=%encoding%" />
-		<title>%title%</title>
-		<style>
-		body {
-			font-family: "PT Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-			font-size: 12pt;
-			margin: 0px;
-			padding: 0.25em 1.25em 1.25em 1.25em;
-			background: #fff;
-			line-height: 1.25;
-		}
-		#header {
-			padding: 1em 1em 1em 0em;
-		}
+  <head>
+    <link
+      href="http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <meta http-equiv="Content-Type" content="text/html; charset=%encoding%" />
+    <title>%title%</title>
+    <style>
+      body {
+        font-family: "PT Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji",
+          "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 12pt;
+        margin: 0px;
+        padding: 0.25em 1.25em 1.25em 1.25em;
+        background: #fff;
+        line-height: 1.25;
+      }
+      #header {
+        padding: 1em 1em 1em 0em;
+      }
 
-		h2 {
-			color: #61b3ff;
-		}
-		#header_writing {
-			padding-left: 0.5em;
-			font-weight: bold;
-			font-size: 1em;
-			color: #61b3ff;
-		}
-		#footer {
-			font-size: 10pt;
-			color: #a0a0a0;
-			border: 0px solid #a0a0a0;
-			border-top-width: 1px;
-			padding-top: 1em;
-		}
-		a {
-			color: #61b3ff;
-		}
-		a:hover {
-			text-decoration: none;
-			color: #61b3ff;
-		}
-		a:visited {
-			text-decoration: none;
-			color: #61b3ff;
-		}
+      h2 {
+        color: #61b3ff;
+      }
+      #header_writing {
+        padding-left: 0.5em;
+        font-weight: bold;
+        font-size: 1em;
+        color: #61b3ff;
+      }
+      #footer {
+        font-size: 10pt;
+        color: #a0a0a0;
+        border: 0px solid #a0a0a0;
+        border-top-width: 1px;
+        padding-top: 1em;
+      }
+      a {
+        color: #61b3ff;
+      }
+      a:hover {
+        text-decoration: none;
+        color: #61b3ff;
+      }
+      a:visited {
+        text-decoration: none;
+        color: #61b3ff;
+      }
 
-		#content {
-			padding-top: 1em;
-			padding-bottom: 2em;
-		}
-		</style>
-	</head>
+      #content {
+        padding-top: 1em;
+        padding-bottom: 2em;
+      }
+    </style>
+  </head>
 
-<body>
-	<div id="header">
-  <img style="vertical-align:middle"  alt="BNote" src="http://bnote.info/images/BNote_Logo_blue_on_white_192px.png" height="48px">
-	<span id="header_writing" style="">BNote &#183; %title%</span>
-</div>
+  <body>
+    <div id="header">
+      <img
+        style="vertical-align: middle"
+        alt="BNote"
+        src="http://bnote.info/images/BNote_Logo_blue_on_white_192px.png"
+        height="48px"
+      />
+      <span id="header_writing" style="">BNote &#183; %title%</span>
+    </div>
 
+    <div id="content">%content%</div>
 
-	<div id="content">
-		%content%
-	</div>
-
-	<div id="footer">
-		%footer% <a href="%link%">%link_name%</a>
-	</div>
-
-</body>
-
+    <div id="footer">%footer% <a href="%link%">%link_name%</a></div>
+  </body>
 </html>

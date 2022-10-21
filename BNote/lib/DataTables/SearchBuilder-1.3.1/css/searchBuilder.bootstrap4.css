@@ -45,7 +45,9 @@ div.dtsb-searchBuilder div.dtsb-titleRow button.dtsb-clearAll {
   float: right;
   margin-bottom: 0.333em;
 }
-div.dtsb-searchBuilder div.dtsb-vertical .dtsb-value, div.dtsb-searchBuilder div.dtsb-vertical .dtsb-data, div.dtsb-searchBuilder div.dtsb-vertical .dtsb-condition {
+div.dtsb-searchBuilder div.dtsb-vertical .dtsb-value,
+div.dtsb-searchBuilder div.dtsb-vertical .dtsb-data,
+div.dtsb-searchBuilder div.dtsb-vertical .dtsb-condition {
   display: block;
 }
 div.dtsb-searchBuilder div.dtsb-group {
@@ -78,21 +80,60 @@ div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-input {
   max-width: 20em;
   background-color: rgba(200, 200, 200, 0.3);
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-dropDown option.dtsb-notItalic,
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-input option.dtsb-notItalic {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  select.dtsb-dropDown
+  option.dtsb-notItalic,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  input.dtsb-input
+  option.dtsb-notItalic {
   font-style: normal;
 }
 div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-italic {
   font-style: italic;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer {
   float: right;
   display: inline-block;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-delete, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-right, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-left {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-delete,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-right,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-left {
   margin-right: 0.8em;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-delete:last-child, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-right:last-child, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-left:last-child {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-delete:last-child,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-right:last-child,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-left:last-child {
   margin-right: 0;
 }
 div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria span.dtsp-joiner {
@@ -118,7 +159,8 @@ div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-condition {
 div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-data {
   border-color: #dc3545;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-value, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-value {
+div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-value,
+div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-value {
   border-color: #007bff;
 }
 div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer {
@@ -131,7 +173,10 @@ div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer {
   align-items: flex-start;
   margin-top: 10px;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer button.dtsb-logic {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-logicContainer
+  button.dtsb-logic {
   border: none;
   border-radius: 0px;
   flex-grow: 1;
@@ -139,7 +184,10 @@ div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer button.dtsb-logic 
   flex-basis: 3em;
   margin: 0px;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer button.dtsb-clearGroup {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-logicContainer
+  button.dtsb-clearGroup {
   border: none;
   border-radius: 0px;
   width: 2em;

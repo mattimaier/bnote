@@ -67,7 +67,7 @@ div.dt-datetime table td.selectable.now button {
   font-weight: bold;
 }
 div.dt-datetime table td.selectable.selected button {
-  background: #4E6CA3;
+  background: #4e6ca3;
   color: white;
   border-radius: 2px;
 }

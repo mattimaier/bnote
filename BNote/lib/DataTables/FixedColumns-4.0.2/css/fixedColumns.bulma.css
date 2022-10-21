@@ -1,4 +1,5 @@
-table.dataTable td, table.dataTable th {
+table.dataTable td,
+table.dataTable th {
   background-color: white;
 }
 table.dataTable .dtfc-fixed-left,

@@ -45,7 +45,9 @@ div.dtsb-searchBuilder div.dtsb-titleRow button.dtsb-clearAll {
   float: right;
   margin-bottom: 0.333em;
 }
-div.dtsb-searchBuilder div.dtsb-vertical .dtsb-value, div.dtsb-searchBuilder div.dtsb-vertical .dtsb-data, div.dtsb-searchBuilder div.dtsb-vertical .dtsb-condition {
+div.dtsb-searchBuilder div.dtsb-vertical .dtsb-value,
+div.dtsb-searchBuilder div.dtsb-vertical .dtsb-data,
+div.dtsb-searchBuilder div.dtsb-vertical .dtsb-condition {
   display: block;
 }
 div.dtsb-searchBuilder div.dtsb-group {
@@ -78,28 +80,69 @@ div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-input {
   max-width: 20em;
   background-color: rgba(200, 200, 200, 0.3);
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-dropDown option.dtsb-notItalic,
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-input option.dtsb-notItalic {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  select.dtsb-dropDown
+  option.dtsb-notItalic,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  input.dtsb-input
+  option.dtsb-notItalic {
   font-style: normal;
 }
 div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-italic {
   font-style: italic;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer {
   float: right;
   display: inline-block;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-delete, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-right, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-left {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-delete,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-right,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-left {
   margin-right: 0.8em;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-delete:last-child, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-right:last-child, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria div.dtsb-buttonContainer button.dtsb-left:last-child {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-delete:last-child,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-right:last-child,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  div.dtsb-buttonContainer
+  button.dtsb-left:last-child {
   margin-right: 0;
 }
 div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria span.dtsp-joiner {
   margin-right: 0.8em;
 }
 
-div.dtsb-searchBuilder button, div.dtsb-searchBuilder select, div.dtsb-searchBuilder input {
+div.dtsb-searchBuilder button,
+div.dtsb-searchBuilder select,
+div.dtsb-searchBuilder input {
   background-color: #f9f9f9;
 }
 div.dtsb-searchBuilder button.dtsb-button {
@@ -117,7 +160,11 @@ div.dtsb-searchBuilder button.dtsb-button {
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.1);
   /* Fallback */
-  background: linear-gradient(to bottom, rgba(230, 230, 230, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(230, 230, 230, 0.1) 0%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -134,7 +181,11 @@ div.dtsb-searchBuilder div.dtsb-logicContainer {
   border: 1px solid rgba(0, 0, 0, 0.3);
   background-color: rgba(0, 0, 0, 0.1);
   /* Fallback */
-  background: linear-gradient(to right, rgba(230, 230, 230, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  background: linear-gradient(
+    to right,
+    rgba(230, 230, 230, 0.1) 0%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
 }
 div.dtsb-searchBuilder div.dtsb-logicContainer button {
   border: 1px solid transparent;
@@ -159,7 +210,10 @@ div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer {
   align-content: flex-start;
   align-items: flex-start;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer button.dtsb-logic {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-logicContainer
+  button.dtsb-logic {
   border: none;
   border-radius: 0px;
   flex-grow: 1;
@@ -167,13 +221,17 @@ div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer button.dtsb-logic 
   flex-basis: 3em;
   margin: 0px;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer button.dtsb-clearGroup {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-logicContainer
+  button.dtsb-clearGroup {
   border: none;
   border-radius: 0px;
   width: 2em;
   margin: 0px;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-dropDown, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-input {
+div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-dropDown,
+div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-input {
   border: 1px solid;
   border-radius: 3px;
 }
@@ -183,9 +241,24 @@ div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-condition {
 div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-data {
   border-color: #e70f00;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-value, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-value {
+div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-value,
+div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria input.dtsb-value {
   border-color: #0069ba;
 }
-div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-condition option.dtsb-option, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-data option.dtsb-option, div.dtsb-searchBuilder div.dtsb-group div.dtsb-criteria select.dtsb-value option.dtsb-option {
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  select.dtsb-condition
+  option.dtsb-option,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  select.dtsb-data
+  option.dtsb-option,
+div.dtsb-searchBuilder
+  div.dtsb-group
+  div.dtsb-criteria
+  select.dtsb-value
+  option.dtsb-option {
   background-color: white;
 }

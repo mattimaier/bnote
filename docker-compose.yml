@@ -1,25 +1,25 @@
-version: '3.5'
+version: "3.5"
 services:
-    php-apache:
-        build: .
-        ports:
-            - 80:80
-        volumes:
-            - ./:/var/www/html
-        links:
-            - 'mariadb'
+  php-apache:
+    build: .
+    ports:
+      - 80:80
+    volumes:
+      - ./:/var/www/html
+    links:
+      - "mariadb"
 
-    mariadb:
-        image: mariadb:10.5
-        volumes:
-            - mariadb:/var/lib/mysql
-        environment:
-            TZ: "Europe/Rome"
-            MYSQL_ALLOW_EMPTY_PASSWORD: "no"
-            MYSQL_ROOT_PASSWORD: "XXXXX"
-            MYSQL_USER: 'bnote_user'
-            MYSQL_PASSWORD: 'XXX'
-            MYSQL_DATABASE: 'bnote'
+  mariadb:
+    image: mariadb:10.5
+    volumes:
+      - mariadb:/var/lib/mysql
+    environment:
+      TZ: "Europe/Rome"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_ROOT_PASSWORD: "XXXXX"
+      MYSQL_USER: "bnote_user"
+      MYSQL_PASSWORD: "XXX"
+      MYSQL_DATABASE: "bnote"
 
 volumes:
-    mariadb:
+  mariadb:

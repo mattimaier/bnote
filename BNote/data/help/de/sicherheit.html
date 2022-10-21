@@ -1,90 +1,171 @@
 <p>
-Um den richtigen Umgang mit BNote zu gewährleisten sind auf dieser Seite die wichtigsten Hinweise zur Einhaltung
-der Sicherheit im System aufgeführt. Wenn du Administrator dieses Systems bist, dann lies dir diese Hinweise sorgfältig
-durch und gib Sie an alle weiter!
+  Um den richtigen Umgang mit BNote zu gewährleisten sind auf dieser Seite die
+  wichtigsten Hinweise zur Einhaltung der Sicherheit im System aufgeführt. Wenn
+  du Administrator dieses Systems bist, dann lies dir diese Hinweise sorgfältig
+  durch und gib Sie an alle weiter!
 </p>
 
 <h2>Automatische Anmeldung</h2>
 <p>
-Ist die automatische Benutzeraktivierung eingeschaltet (siehe Konfiguration) kann <span style="font-weight: bold;">jeder</span> der Zugriff zur Adresse
-dieses Systems hat sich mit Hilfe einer E-Mail-Adresse anmelden und auf Daten zugreifen. Die Aktivierung ist nur am Anfang der Benutzung,
-solange sich Mitglieder neu registrieren, und mit eingeschränktem Zugriff aus dem Internet sinnvoll. Die Aktivierung sollte nach
-ca. einer Woche wieder deaktiviert werden. Ist die automatische Benutzeraktivierung inaktiv so muss jeder neue Benutzer im User-Modul
-freigeschaltet werden.
+  Ist die automatische Benutzeraktivierung eingeschaltet (siehe Konfiguration)
+  kann <span style="font-weight: bold">jeder</span> der Zugriff zur Adresse
+  dieses Systems hat sich mit Hilfe einer E-Mail-Adresse anmelden und auf Daten
+  zugreifen. Die Aktivierung ist nur am Anfang der Benutzung, solange sich
+  Mitglieder neu registrieren, und mit eingeschränktem Zugriff aus dem Internet
+  sinnvoll. Die Aktivierung sollte nach ca. einer Woche wieder deaktiviert
+  werden. Ist die automatische Benutzeraktivierung inaktiv so muss jeder neue
+  Benutzer im User-Modul freigeschaltet werden.
 </p>
 
 <h2>Benutzer und Berechtigungen in BNote</h2>
 <p>
-Jede Person, die sich am System anmelden kann hat ein Benutzerkonto. Dieses Benutzerkonto kann aktiv (Benutzer kann sich anmelden)
-oder inaktiv (Benutzer kann sich nicht anmelden und hat keinen Zugriff) sein. Dem Benutzerkonto sind außerdem Berechtigungen zugeordnet.
-Die Berechtigungen für jeden Benutzer können in den Benutzerkontodetails unter "Rechte bearbeiten" eingesehen werden. Die Berechtigungs-
-steuerung geschieht zunächst auf Modulebene. Benutzer die Zugriff auf ein Modul haben können dies lesend und schreibend nutzen!
+  Jede Person, die sich am System anmelden kann hat ein Benutzerkonto. Dieses
+  Benutzerkonto kann aktiv (Benutzer kann sich anmelden) oder inaktiv (Benutzer
+  kann sich nicht anmelden und hat keinen Zugriff) sein. Dem Benutzerkonto sind
+  außerdem Berechtigungen zugeordnet. Die Berechtigungen für jeden Benutzer
+  können in den Benutzerkontodetails unter "Rechte bearbeiten" eingesehen
+  werden. Die Berechtigungs- steuerung geschieht zunächst auf Modulebene.
+  Benutzer die Zugriff auf ein Modul haben können dies lesend und schreibend
+  nutzen!
 </p>
 <p>
-Es empfielt sich den Benutzern nur Zugriff auf Module zu geben die wirklich von diesen benötigt werden. Bei Auslieferung von BNote sind
-folgende Berechtigungen vorgesehen:
+  Es empfielt sich den Benutzern nur Zugriff auf Module zu geben die wirklich
+  von diesen benötigt werden. Bei Auslieferung von BNote sind folgende
+  Berechtigungen vorgesehen:
 </p>
 <table>
-	<tr>
-		<td>Mitglieder</td>
-		<td>Module: Start, Kontaktdaten, Hilfe, Share, Mitglieder und Abstimmung</td>
-	</tr>
-	<tr>
-		<td>Administrator (eingerichtet bei Installation)</td>
-		<td>alle Module</td>
-	</tr>
+  <tr>
+    <td>Mitglieder</td>
+    <td>
+      Module: Start, Kontaktdaten, Hilfe, Share, Mitglieder und Abstimmung
+    </td>
+  </tr>
+  <tr>
+    <td>Administrator (eingerichtet bei Installation)</td>
+    <td>alle Module</td>
+  </tr>
 </table>
 <p>
-Die voreingestellten Berechtigungen können in der Datei config/config.xml angepasst werden. Die Berechtigungen für den Zugriff innerhalb
-der Module können allerdings von diesen Standardwerte abweichen (z.B. Share, Mitglieder, Start).
+  Die voreingestellten Berechtigungen können in der Datei config/config.xml
+  angepasst werden. Die Berechtigungen für den Zugriff innerhalb der Module
+  können allerdings von diesen Standardwerte abweichen (z.B. Share, Mitglieder,
+  Start).
 </p>
 <p>
-<span style="font-weight: bold">ACHTUNG: Durch löschen des Kontakts wird der Zugriff auf das System nicht verhindert. Hierfür bitte das
-Benutzerkonto im Modul User auf "deaktiviert" setzen oder ebenfalls löschen.</span>
+  <span style="font-weight: bold"
+    >ACHTUNG: Durch löschen des Kontakts wird der Zugriff auf das System nicht
+    verhindert. Hierfür bitte das Benutzerkonto im Modul User auf "deaktiviert"
+    setzen oder ebenfalls löschen.</span
+  >
 </p>
 
 <h2>Dateizugriff</h2>
 <p>
-An manchen Stellen im System ist der Zugriff auf Dateien, z.B. PDFs oder Share möglich. Dieser Zugriff ist über den Apache Webserver blockiert
-und wird vom System nur für angemeldete Benutzer geöffnet. Die Berechtigungssteuerung findet auf Anwendungsebene statt. Für Details lese
-bitte in der Hilfeseite für das Modul Share. Für Informationen zur Absicherung des Webservers steht auch die readme.txt Datei der Installationsdaten
-zur Verfügung (z.B. für Unix-Berechtiungseinstellungen).
+  An manchen Stellen im System ist der Zugriff auf Dateien, z.B. PDFs oder Share
+  möglich. Dieser Zugriff ist über den Apache Webserver blockiert und wird vom
+  System nur für angemeldete Benutzer geöffnet. Die Berechtigungssteuerung
+  findet auf Anwendungsebene statt. Für Details lese bitte in der Hilfeseite für
+  das Modul Share. Für Informationen zur Absicherung des Webservers steht auch
+  die readme.txt Datei der Installationsdaten zur Verfügung (z.B. für
+  Unix-Berechtiungseinstellungen).
 </p>
 
 <h2>Schutz ins Internet</h2>
 <p>
-Das System ist nach bestem Wissen und Gewissen gegenüber Angreifern aus dem Internet geschützt. Leider ist es nicht möglich Sicherheit zu garantieren, da diese zum einen von den Benutzern und zum anderen von der Konfiguration des Systems abhängt. Daher sollte das System von einem Fachmann installiert und konfiguriert werden. Nicht regelmäßig installierte Updates für BNote und Systemkomponenten können zu einer zusätzlichen Gefahr für das System führen.
+  Das System ist nach bestem Wissen und Gewissen gegenüber Angreifern aus dem
+  Internet geschützt. Leider ist es nicht möglich Sicherheit zu garantieren, da
+  diese zum einen von den Benutzern und zum anderen von der Konfiguration des
+  Systems abhängt. Daher sollte das System von einem Fachmann installiert und
+  konfiguriert werden. Nicht regelmäßig installierte Updates für BNote und
+  Systemkomponenten können zu einer zusätzlichen Gefahr für das System führen.
 </p>
 
 <h2>Funktionssicherheit</h2>
 <p>
-Auch Programmierer sind Menschen und machen Fehler. Daher kann die Funktionalität des Systems nicht zu jeder Zeit garantiert werden. Wenn du ein Problem gefunden hast oder eine Verbesserung melden möchtest, dann gehe auf www.bnote.info und sende uns eine E-Mail. Alternativ kannst du uns auch helfen BNote zu verbessern indem du auf GitHub dich in das Projekt einbringst.
+  Auch Programmierer sind Menschen und machen Fehler. Daher kann die
+  Funktionalität des Systems nicht zu jeder Zeit garantiert werden. Wenn du ein
+  Problem gefunden hast oder eine Verbesserung melden möchtest, dann gehe auf
+  www.bnote.info und sende uns eine E-Mail. Alternativ kannst du uns auch helfen
+  BNote zu verbessern indem du auf GitHub dich in das Projekt einbringst.
 </p>
 
 <h2>Hinweise für Schulen</h2>
 <p>
-Es ist zu empfehlen das System zusätzlich zu den von BNote vorgesehenen Maßnahmen beispielsweise über eine HTTP-Basic Authentication oder über
-ein Zertifikate-basiertes Zugangsverfahren zu sichern, da es sich bei den im System befindlichen Daten um deren Minderjähriger handeln kann. Der
-Zugriff auf das System sollte aber in jedem Fall über gültige und verifizierte SSL-Zertifikate geschehen.
+  Es ist zu empfehlen das System zusätzlich zu den von BNote vorgesehenen
+  Maßnahmen beispielsweise über eine HTTP-Basic Authentication oder über ein
+  Zertifikate-basiertes Zugangsverfahren zu sichern, da es sich bei den im
+  System befindlichen Daten um deren Minderjähriger handeln kann. Der Zugriff
+  auf das System sollte aber in jedem Fall über gültige und verifizierte
+  SSL-Zertifikate geschehen.
 </p>
 
 <h2>Schlüssel ändern</h2>
 <style>
-.security_item { margin-left: 30px; padding-left: 3px; }
-.code { font-family: 'Courier New';  font-size: 10pt; display: inline; }
+  .security_item {
+    margin-left: 30px;
+    padding-left: 3px;
+  }
+  .code {
+    font-family: "Courier New";
+    font-size: 10pt;
+    display: inline;
+  }
 </style>
 <p>
-BNote verwendet einen mitgelieferten Standardschlüssel zur Verschlüsselung der Passwörter in der Datenbank. Dieser Schlüssel wird außerhalb der
-Datenbank gespeichert. Um die Sicherheit des Systems zusätzlich zu erhöhen, gehe wie folgt vor:</p>
-<ol style="list-style-type:decimal;">
-	<li class="security_item">Stelle sicher, dass du Zugang zum Quellcode auf deinem Server hast.</li>
-    <li class="security_item">Öffne die Datei <pre class="code">src/logic/modules/logincontroller.php</pre></li>
-    <li class="security_item">Ändere die Konstante <pre class="code">ENCRYPTION_HASH</pre> auf einen beliebigen (aber wenn möglich langen) Wert mit Zahlen und Buchstaben.</li>
-    <li class="security_item">Setze nun kurzfristig die variable <pre class="code">$SHOW_PASSWORD_HASH</pre> auf <pre class="code">true</pre>.</li>
-    <li class="security_item">Speichere die Datei und versuche dich mit deinem Benutzernamen und Passwort an BNote anzumelden.</li>
-    <li class="security_item">Der Anmeldeversuch schlägt fehl, zeigt dir aber einen Hash an. Kopiere diesen Hash in die Zwischenablage.</li>
-    <li class="security_item">Melde dich an der Datenbank an und öffne die Tabelle <pre class="code">user</pre>.</li>
-    <li class="security_item">Ändere den Wert deines Passworts auf den in der Zwischenablage befindlichen Hash.</li>
-    <li class="security_item">Nun stelle <pre class="code">$SHOW_PASSWORD_HASH</pre> wieder auf <pre class="code">false</pre> und speichere die Datei <pre class="code">src/logic/modules/logincontroller.php</pre>.</li>
-    <li class="security_item">Bitte teile allen Benutzern des Systems mit ihr Passwort zurückzusetzen bzw. zu ändern.</li>
+  BNote verwendet einen mitgelieferten Standardschlüssel zur Verschlüsselung der
+  Passwörter in der Datenbank. Dieser Schlüssel wird außerhalb der Datenbank
+  gespeichert. Um die Sicherheit des Systems zusätzlich zu erhöhen, gehe wie
+  folgt vor:
+</p>
+<ol style="list-style-type: decimal">
+  <li class="security_item">
+    Stelle sicher, dass du Zugang zum Quellcode auf deinem Server hast.
+  </li>
+  <li class="security_item">
+    Öffne die Datei
+    <pre class="code">src/logic/modules/logincontroller.php</pre>
+  </li>
+  <li class="security_item">
+    Ändere die Konstante
+    <pre class="code">ENCRYPTION_HASH</pre>
+    auf einen beliebigen (aber wenn möglich langen) Wert mit Zahlen und
+    Buchstaben.
+  </li>
+  <li class="security_item">
+    Setze nun kurzfristig die variable
+    <pre class="code">$SHOW_PASSWORD_HASH</pre>
+    auf
+    <pre class="code">true</pre>
+    .
+  </li>
+  <li class="security_item">
+    Speichere die Datei und versuche dich mit deinem Benutzernamen und Passwort
+    an BNote anzumelden.
+  </li>
+  <li class="security_item">
+    Der Anmeldeversuch schlägt fehl, zeigt dir aber einen Hash an. Kopiere
+    diesen Hash in die Zwischenablage.
+  </li>
+  <li class="security_item">
+    Melde dich an der Datenbank an und öffne die Tabelle
+    <pre class="code">user</pre>
+    .
+  </li>
+  <li class="security_item">
+    Ändere den Wert deines Passworts auf den in der Zwischenablage befindlichen
+    Hash.
+  </li>
+  <li class="security_item">
+    Nun stelle
+    <pre class="code">$SHOW_PASSWORD_HASH</pre>
+    wieder auf
+    <pre class="code">false</pre>
+    und speichere die Datei
+    <pre class="code">src/logic/modules/logincontroller.php</pre>
+    .
+  </li>
+  <li class="security_item">
+    Bitte teile allen Benutzern des Systems mit ihr Passwort zurückzusetzen bzw.
+    zu ändern.
+  </li>
 </ol>

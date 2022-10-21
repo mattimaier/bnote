@@ -1,4 +1,7 @@
-table.dataTable thead th, table.dataTable thead td, table.dataTable tfoot th, table.dataTable tfoot td {
+table.dataTable thead th,
+table.dataTable thead td,
+table.dataTable tfoot th,
+table.dataTable tfoot td {
   background-color: white;
 }
 table.dataTable tbody tr td {
@@ -54,7 +57,7 @@ table.dataTable.table-striped.DTFC_Cloned tbody {
 }
 
 table.dataTable th {
-  border-bottom-color: #DEE2E6;
+  border-bottom-color: #dee2e6;
   background-color: white;
 }
 

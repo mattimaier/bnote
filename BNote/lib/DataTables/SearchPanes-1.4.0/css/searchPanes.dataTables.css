@@ -84,7 +84,12 @@ div.dtsp-topRow.dtsp-bordered:hover {
 }
 
 div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane table thead th,
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane table thead td {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  table
+  thead
+  td {
   width: 100% !important;
 }
 
@@ -163,14 +168,30 @@ div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody thead {
 div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody table {
   table-layout: fixed;
 }
-div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody table tr > th,
-div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody table tr > td {
+div.dtsp-panesContainer
+  div.dataTables_wrapper
+  div.dataTables_scrollBody
+  table
+  tr
+  > th,
+div.dtsp-panesContainer
+  div.dataTables_wrapper
+  div.dataTables_scrollBody
+  table
+  tr
+  > td {
   padding: 5px 10px;
 }
-div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody td.dtsp-nameColumn {
+div.dtsp-panesContainer
+  div.dataTables_wrapper
+  div.dataTables_scrollBody
+  td.dtsp-nameColumn {
   width: 100% !important;
 }
-div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody div.dtsp-nameCont {
+div.dtsp-panesContainer
+  div.dataTables_wrapper
+  div.dataTables_scrollBody
+  div.dtsp-nameCont {
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -178,11 +199,23 @@ div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody div.dts
   align-content: flex-start;
   align-items: flex-start;
 }
-div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody div.dtsp-nameCont span.dtsp-name,
-div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody div.dtsp-nameCont span.dtsp-pill {
+div.dtsp-panesContainer
+  div.dataTables_wrapper
+  div.dataTables_scrollBody
+  div.dtsp-nameCont
+  span.dtsp-name,
+div.dtsp-panesContainer
+  div.dataTables_wrapper
+  div.dataTables_scrollBody
+  div.dtsp-nameCont
+  span.dtsp-pill {
   cursor: default;
 }
-div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody div.dtsp-nameCont span.dtsp-name {
+div.dtsp-panesContainer
+  div.dataTables_wrapper
+  div.dataTables_scrollBody
+  div.dtsp-nameCont
+  span.dtsp-name {
   text-overflow: ellipsis;
   overflow: hidden;
   display: inline-block;
@@ -190,7 +223,11 @@ div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody div.dts
   white-space: nowrap;
   flex-grow: 1;
 }
-div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody div.dtsp-nameCont span.dtsp-pill {
+div.dtsp-panesContainer
+  div.dataTables_wrapper
+  div.dataTables_scrollBody
+  div.dtsp-nameCont
+  span.dtsp-pill {
   display: inline-block;
   background-color: #cfcfcf;
   text-align: center;
@@ -202,7 +239,11 @@ div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody div.dts
   font-size: 0.9em;
   padding: 0 4px;
 }
-div.dtsp-panesContainer div.dataTables_wrapper div.dataTables_scrollBody div.dtsp-nameCont span.dtsp-pill:empty {
+div.dtsp-panesContainer
+  div.dataTables_wrapper
+  div.dataTables_scrollBody
+  div.dtsp-nameCont
+  span.dtsp-pill:empty {
   display: none;
 }
 
@@ -228,11 +269,18 @@ div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane {
   font-size: 0.9em;
   margin-top: 15px !important;
 }
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dataTables_wrapper {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  div.dataTables_wrapper {
   flex: 1;
   box-sizing: border-box;
 }
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dataTables_wrapper div.dataTables_filter {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  div.dataTables_wrapper
+  div.dataTables_filter {
   display: none;
 }
 div.dtsp-panesContainer div.dtsp-title {
@@ -251,26 +299,49 @@ div.dtsp-hidden {
   display: none !important;
 }
 
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dataTables_wrapper {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  div.dataTables_wrapper {
   border: 2px solid #f0f0f0;
   border-radius: 4px;
 }
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dataTables_wrapper:hover {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  div.dataTables_wrapper:hover {
   border: 2px solid #cfcfcf;
 }
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dtsp-selected {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  div.dtsp-selected {
   border: 2px solid #3276b1;
   border-radius: 4px;
 }
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dtsp-selected:hover {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  div.dtsp-selected:hover {
   border: 2px solid #286092;
 }
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dtsp-topRow div.dtsp-searchCont input.dtsp-search {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  div.dtsp-topRow
+  div.dtsp-searchCont
+  input.dtsp-search {
   border: none;
   padding-left: 3px;
 }
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane input.dtsp-paneInputButton,
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane button.dtsp-paneButton {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  input.dtsp-paneInputButton,
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  button.dtsp-paneButton {
   height: 35px;
   width: 35px;
   min-width: 0;
@@ -280,13 +351,22 @@ div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane button.dtsp-pan
   background-color: transparent;
   margin-bottom: 0px;
 }
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane input.dtsp-paneInputButton:hover,
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane button.dtsp-paneButton:hover {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  input.dtsp-paneInputButton:hover,
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  button.dtsp-paneButton:hover {
   background-color: #f0f0f0;
   border-radius: 2px;
   cursor: pointer;
 }
-div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane button.dtsp-paneButton {
+div.dtsp-panesContainer
+  div.dtsp-searchPanes
+  div.dtsp-searchPane
+  button.dtsp-paneButton {
   opacity: 0.6;
 }
 div.dtsp-panesContainer button.dtsp-clearAll,
@@ -331,8 +411,8 @@ div.dtsp-narrow div.dtsp-subRows {
 
 @media screen and (max-width: 767px) {
   div.dtsp-columns-4,
-div.dtsp-columns-5,
-div.dtsp-columns-6 {
+  div.dtsp-columns-5,
+  div.dtsp-columns-6 {
     max-width: 31% !important;
     min-width: 31% !important;
   }

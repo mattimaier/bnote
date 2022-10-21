@@ -1,52 +1,163 @@
-<p>Depuis la version 3, BNote dispose d'un module permettant de réaliser les principales fonctionnalités de gestion financière. Outre la comptabilisation d'enregistrements individuels, il est également possible d'effectuer des paiements courants, ainsi que d'attribuer des enregistrements comptables à des répétitions, des représentations, etc.</p>
+<p>
+  Depuis la version 3, BNote dispose d'un module permettant de réaliser les
+  principales fonctionnalités de gestion financière. Outre la comptabilisation
+  d'enregistrements individuels, il est également possible d'effectuer des
+  paiements courants, ainsi que d'attribuer des enregistrements comptables à des
+  répétitions, des représentations, etc.
+</p>
 
 <h2>Modèle</h2>
-<img src="data/help/bnote_finance_model.png" alt="Finanzmodul Datenmodell">
-<p>Le module financier est basé sur un modèle simple comprenant les entités suivantes :</p>
-<ul style="list-style-type: disc;">
-    <li class="bn-help-item"><strong class="bn-help-strong">Compte (Konto)</strong>: Liste de toutes les écritures relatives à un compte, par exemple "compte orchestre" si un seul compte est utilisé. Pour les organisations plus importantes, il pourrait y avoir plusieurs comptes, par exemple : "Compte voyage", "Compte immobilisations", "Orchestre U20", "Orchestre senior", etc.</li>
-    <li class="bn-help-item"><strong class="bn-help-strong">Écriture (Buchung)</strong>: Une écriture se réfère à un paiement. Celui-ci peut être effectué en espèces, par virement, par carte de crédit ou sous quelque forme que ce soit. Un paiement est débité du compte (dépense) ou crédité sur le compte (recette). En option, une écriture peut contenir une référence à un spectacle, un contact, une phase de répétition ou un lieu. Dans ce cas, l'écriture est non seulement attribuée au compte, mais aussi à cet objet.</li>
-    <li class="bn-help-item"><strong class="bn-help-strong">Paiement courant (Laufende Zahlung)</strong>: La plupart du temps, certains paiements sont dus mensuellement ou annuellement, par exemple le loyer, les charges, les taxes, etc. Afin de rendre la comptabilisation aussi uniforme et simple que possible, il est possible de créer un paiement récurrent. Celui-ci est alors comptabilisé avec une certaine date et devient ainsi une écriture.</li>
+<img src="data/help/bnote_finance_model.png" alt="Finanzmodul Datenmodell" />
+<p>
+  Le module financier est basé sur un modèle simple comprenant les entités
+  suivantes :
+</p>
+<ul style="list-style-type: disc">
+  <li class="bn-help-item">
+    <strong class="bn-help-strong">Compte (Konto)</strong>: Liste de toutes les
+    écritures relatives à un compte, par exemple "compte orchestre" si un seul
+    compte est utilisé. Pour les organisations plus importantes, il pourrait y
+    avoir plusieurs comptes, par exemple : "Compte voyage", "Compte
+    immobilisations", "Orchestre U20", "Orchestre senior", etc.
+  </li>
+  <li class="bn-help-item">
+    <strong class="bn-help-strong">Écriture (Buchung)</strong>: Une écriture se
+    réfère à un paiement. Celui-ci peut être effectué en espèces, par virement,
+    par carte de crédit ou sous quelque forme que ce soit. Un paiement est
+    débité du compte (dépense) ou crédité sur le compte (recette). En option,
+    une écriture peut contenir une référence à un spectacle, un contact, une
+    phase de répétition ou un lieu. Dans ce cas, l'écriture est non seulement
+    attribuée au compte, mais aussi à cet objet.
+  </li>
+  <li class="bn-help-item">
+    <strong class="bn-help-strong">Paiement courant (Laufende Zahlung)</strong>:
+    La plupart du temps, certains paiements sont dus mensuellement ou
+    annuellement, par exemple le loyer, les charges, les taxes, etc. Afin de
+    rendre la comptabilisation aussi uniforme et simple que possible, il est
+    possible de créer un paiement récurrent. Celui-ci est alors comptabilisé
+    avec une certaine date et devient ainsi une écriture.
+  </li>
 </ul>
 
 <h2>Les comptes</h2>
-<p>Si l'on sélectionne le module "Finances", on accède à l'aperçu de tous les comptes.</p>
+<p>
+  Si l'on sélectionne le module "Finances", on accède à l'aperçu de tous les
+  comptes.
+</p>
 
 <h3>Créer, modifier, supprimer un compte</h3>
-<p>Depuis la page d'accueil du module financier, il est possible de créer de nouveaux comptes en cliquant sur l'option "Ajouter un compte". Ici, on peut saisir la désignation du compte. Le numéro de compte est un nombre continu commençant par 1. Pour afficher le compte, il faut cliquer sur le nom du compte dans l'aperçu du module. Un aperçu des écritures s'affiche alors, avec des options pour "Modifier le compte" et "Supprimer le compte".</p>
+<p>
+  Depuis la page d'accueil du module financier, il est possible de créer de
+  nouveaux comptes en cliquant sur l'option "Ajouter un compte". Ici, on peut
+  saisir la désignation du compte. Le numéro de compte est un nombre continu
+  commençant par 1. Pour afficher le compte, il faut cliquer sur le nom du
+  compte dans l'aperçu du module. Un aperçu des écritures s'affiche alors, avec
+  des options pour "Modifier le compte" et "Supprimer le compte".
+</p>
 
 <h2>Ecritures</h2>
-<p>Sélectionnez d'abord le compte pour l'écriture. Dans l'aperçu du compte, le système affiche toutes les écritures qu'il contient pour l'année en cours. Les paragraphes suivants ont pour point de départ cet écran.</p>
+<p>
+  Sélectionnez d'abord le compte pour l'écriture. Dans l'aperçu du compte, le
+  système affiche toutes les écritures qu'il contient pour l'année en cours. Les
+  paragraphes suivants ont pour point de départ cet écran.
+</p>
 
 <h3>Ajouter une écriture</h3>
-<p>Cliquez sur "Ajouter une écriture" pour ajouter une nouvelle écriture à ce compte.</p>
-<ul style="list-style-type: disc;">
-    <li class="bn-help-item">Choisir comme type soit "recette" soit "dépense". En principe, cela se réfère toujours à un compte.</li>
-    <li class="bn-help-item">Le type de référence indique d'abord s'il n'y a pas de référence du tout ou s'il s'agit d'une référence à un contact, à une répétition. Si le type de référence a été sélectionné, la référence proprement dite peut être choisie dans le menu déroulant situé à droite.</li>
-    <li class="bn-help-item">La date est celle de la transaction (pas nécessairement celle du paiement).</li>
-    <li class="bn-help-item">L'objet se réfère à la raison du paiement, par exemple "loyer" ou "microphone".</li>
-    <li class="bn-help-item">Le montant net est le montant hors taxe sur les ventes/taxe sur la valeur ajoutée. Veuillez indiquer sous la forme 123,45.</li>
-    <li class="bn-help-item">La taxe est le montant de la taxe pure, c'est-à-dire que pour une TVA de 19% et un montant net de 100€, cela fait 19€. Veuillez indiquer sous la forme 123,45.</li>
-    <li class="bn-help-item">Les annotations sont des notes comptables.</li>
+<p>
+  Cliquez sur "Ajouter une écriture" pour ajouter une nouvelle écriture à ce
+  compte.
+</p>
+<ul style="list-style-type: disc">
+  <li class="bn-help-item">
+    Choisir comme type soit "recette" soit "dépense". En principe, cela se
+    réfère toujours à un compte.
+  </li>
+  <li class="bn-help-item">
+    Le type de référence indique d'abord s'il n'y a pas de référence du tout ou
+    s'il s'agit d'une référence à un contact, à une répétition. Si le type de
+    référence a été sélectionné, la référence proprement dite peut être choisie
+    dans le menu déroulant situé à droite.
+  </li>
+  <li class="bn-help-item">
+    La date est celle de la transaction (pas nécessairement celle du paiement).
+  </li>
+  <li class="bn-help-item">
+    L'objet se réfère à la raison du paiement, par exemple "loyer" ou
+    "microphone".
+  </li>
+  <li class="bn-help-item">
+    Le montant net est le montant hors taxe sur les ventes/taxe sur la valeur
+    ajoutée. Veuillez indiquer sous la forme 123,45.
+  </li>
+  <li class="bn-help-item">
+    La taxe est le montant de la taxe pure, c'est-à-dire que pour une TVA de 19%
+    et un montant net de 100€, cela fait 19€. Veuillez indiquer sous la forme
+    123,45.
+  </li>
+  <li class="bn-help-item">Les annotations sont des notes comptables.</li>
 </ul>
 
 <h3>Annuler une écriture</h3>
-<p>Dans l'aperçu des écritures du compte, un symbole X permettant d'annuler l'écriture se trouve derrière chaque écriture. Si ce bouton est actionné, BNote met les montants à 0,00 et reprend les anciens montants dans les détails de l'écriture avec la mention ANNULÉE. Cela garantit une traçabilité sans faille des finances.</p>
+<p>
+  Dans l'aperçu des écritures du compte, un symbole X permettant d'annuler
+  l'écriture se trouve derrière chaque écriture. Si ce bouton est actionné,
+  BNote met les montants à 0,00 et reprend les anciens montants dans les détails
+  de l'écriture avec la mention ANNULÉE. Cela garantit une traçabilité sans
+  faille des finances.
+</p>
 
 <strong class="bn-help-strong">Remarque</strong>
-<p style="font-style: italic;">Si une écriture doit être entièrement supprimée ou si le texte de l'écriture doit être modifié, cette opération doit être effectuée directement dans la base de données. Cela doit permettre d'accroître le soin nécessaire lors de la gestion des finances ainsi que d'augmenter les possibilités de manipulation.</p>
+<p style="font-style: italic">
+  Si une écriture doit être entièrement supprimée ou si le texte de l'écriture
+  doit être modifié, cette opération doit être effectuée directement dans la
+  base de données. Cela doit permettre d'accroître le soin nécessaire lors de la
+  gestion des finances ainsi que d'augmenter les possibilités de manipulation.
+</p>
 
-<h3>Synthèses</h2>
-<p>Sous les écritures d'un compte est affiché un petit tableau avec des totaux. Outre l'en-tête, deux autres lignes et une ligne de totaux sont affichées. S'il n'y a pas de recettes ou de dépenses, la ligne correspondante est masquée. Les valeurs du tableau se réfèrent aux données du compte actuellement affiché et aux filtres actuels. Le total est calculé à partir des recettes et des dépenses.</p>
+<h2>Synthèses</h2>
+<p>
+  Sous les écritures d'un compte est affiché un petit tableau avec des totaux.
+  Outre l'en-tête, deux autres lignes et une ligne de totaux sont affichées.
+  S'il n'y a pas de recettes ou de dépenses, la ligne correspondante est
+  masquée. Les valeurs du tableau se réfèrent aux données du compte actuellement
+  affiché et aux filtres actuels. Le total est calculé à partir des recettes et
+  des dépenses.
+</p>
 
-<h3>Filtre</h2>
-<p>Pour limiter les écritures du compte à une période plus courte, la date peut être modifiée sous "Filtrer les écritures". Il est également possible d'indiquer une référence. Ces filtres sont complémentaires, c'est-à-dire que le filtrage est toujours appliqué en même temps. Une demande de toutes les écritures à tout moment serait ainsi possible du 1.1.1970 au 31.12.2099. Dans le contre-exemple, on pourrait afficher du 1.1. au 31.1. d'une année uniquement les écritures pour un emplacement donné.</p>
+<h2>Filtre</h2>
+<p>
+  Pour limiter les écritures du compte à une période plus courte, la date peut
+  être modifiée sous "Filtrer les écritures". Il est également possible
+  d'indiquer une référence. Ces filtres sont complémentaires, c'est-à-dire que
+  le filtrage est toujours appliqué en même temps. Une demande de toutes les
+  écritures à tout moment serait ainsi possible du 1.1.1970 au 31.12.2099. Dans
+  le contre-exemple, on pourrait afficher du 1.1. au 31.1. d'une année
+  uniquement les écritures pour un emplacement donné.
+</p>
 
 <h2>Paiements courants</h2>
-<p>Les paiements récurrents vers ou depuis les comptes sont accessibles depuis la page d'accueil du module financier, sous le bouton "Paiements courants". Les descriptions suivantes partent de la page "Paiements courants".</p>
+<p>
+  Les paiements récurrents vers ou depuis les comptes sont accessibles depuis la
+  page d'accueil du module financier, sous le bouton "Paiements courants". Les
+  descriptions suivantes partent de la page "Paiements courants".
+</p>
 
 <h3>Gérer les paiements</h3>
-<p>Insérez un nouveau paiement courant/récurrent en cliquant sur le bouton "Ajouter un paiement courant". Indiquez le sujet, le compte, les montants nets et les montants de TVA comme indiqué ci-dessus, ainsi que des annotations et, le cas échéant, des références. Une date n'est fixée qu'au moment de l'enregistrement. Pour traiter le paiement en cours (n'a pas d'effet rétroactif !), cliquez sur la ligne de l'aperçu pour afficher les détails. Vous y trouverez également des boutons pour éditer ou supprimer la saisie.</p>
+<p>
+  Insérez un nouveau paiement courant/récurrent en cliquant sur le bouton
+  "Ajouter un paiement courant". Indiquez le sujet, le compte, les montants nets
+  et les montants de TVA comme indiqué ci-dessus, ainsi que des annotations et,
+  le cas échéant, des références. Une date n'est fixée qu'au moment de
+  l'enregistrement. Pour traiter le paiement en cours (n'a pas d'effet
+  rétroactif !), cliquez sur la ligne de l'aperçu pour afficher les détails.
+  Vous y trouverez également des boutons pour éditer ou supprimer la saisie.
+</p>
 
 <h3>Créer des écritures à partir de paiements en cours</h3>
-<p>Outre la vue de tous les paiements en cours et l'option d'ajouter d'autres entrées, il y a le bouton "Comptabiliser". Sélectionne-le pour comptabiliser tout ou partie des paiements en cours à une date donnée. Saisis d'abord la date, puis sélectionne dans le tableau ci-dessous les écritures qui doivent être comptabilisées à cette date.</p>
+<p>
+  Outre la vue de tous les paiements en cours et l'option d'ajouter d'autres
+  entrées, il y a le bouton "Comptabiliser". Sélectionne-le pour comptabiliser
+  tout ou partie des paiements en cours à une date donnée. Saisis d'abord la
+  date, puis sélectionne dans le tableau ci-dessous les écritures qui doivent
+  être comptabilisées à cette date.
+</p>

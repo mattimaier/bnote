@@ -183,7 +183,9 @@ div.dt-button-collection.fixed > :last-child {
   max-height: 100vh;
   overflow: auto;
 }
-div.dt-button-collection.two-column > :last-child, div.dt-button-collection.three-column > :last-child, div.dt-button-collection.four-column > :last-child {
+div.dt-button-collection.two-column > :last-child,
+div.dt-button-collection.three-column > :last-child,
+div.dt-button-collection.four-column > :last-child {
   display: block !important;
   -webkit-column-gap: 8px;
   -moz-column-gap: 8px;
@@ -191,7 +193,9 @@ div.dt-button-collection.two-column > :last-child, div.dt-button-collection.thre
   -o-column-gap: 8px;
   column-gap: 8px;
 }
-div.dt-button-collection.two-column > :last-child > *, div.dt-button-collection.three-column > :last-child > *, div.dt-button-collection.four-column > :last-child > * {
+div.dt-button-collection.two-column > :last-child > *,
+div.dt-button-collection.three-column > :last-child > *,
+div.dt-button-collection.four-column > :last-child > * {
   -webkit-column-break-inside: avoid;
   break-inside: avoid;
 }
@@ -236,7 +240,9 @@ div.dt-button-collection.columns > :last-child .dt-button {
   flex: 0 1;
   margin: 0;
 }
-div.dt-button-collection.columns.dtb-b3 > :last-child, div.dt-button-collection.columns.dtb-b2 > :last-child, div.dt-button-collection.columns.dtb-b1 > :last-child {
+div.dt-button-collection.columns.dtb-b3 > :last-child,
+div.dt-button-collection.columns.dtb-b2 > :last-child,
+div.dt-button-collection.columns.dtb-b1 > :last-child {
   justify-content: space-between;
 }
 div.dt-button-collection.columns.dtb-b3 .dt-button {
@@ -266,7 +272,8 @@ div.dt-button-collection.columns.dtb-b1 .dt-button {
     width: 200px;
   }
 }
-div.dt-button-collection.fixed:before, div.dt-button-collection.fixed:after {
+div.dt-button-collection.fixed:before,
+div.dt-button-collection.fixed:after {
   display: none;
 }
 div.dt-button-collection .btn-group {
@@ -351,16 +358,19 @@ div.dt-buttons div.btn-group {
   position: initial;
 }
 
-div.dt-btn-split-wrapper:active:not(.disabled) button, div.dt-btn-split-wrapper.active:not(.disabled) button {
+div.dt-btn-split-wrapper:active:not(.disabled) button,
+div.dt-btn-split-wrapper.active:not(.disabled) button {
   background-color: #5a6268;
   border-color: #545b62;
 }
-div.dt-btn-split-wrapper:active:not(.disabled) button.dt-btn-split-drop, div.dt-btn-split-wrapper.active:not(.disabled) button.dt-btn-split-drop {
+div.dt-btn-split-wrapper:active:not(.disabled) button.dt-btn-split-drop,
+div.dt-btn-split-wrapper.active:not(.disabled) button.dt-btn-split-drop {
   box-shadow: none;
   background-color: #6c757d;
   border-color: #6c757d;
 }
-div.dt-btn-split-wrapper:active:not(.disabled) button:hover, div.dt-btn-split-wrapper.active:not(.disabled) button:hover {
+div.dt-btn-split-wrapper:active:not(.disabled) button:hover,
+div.dt-btn-split-wrapper.active:not(.disabled) button:hover {
   background-color: #5a6268;
   border-color: #545b62;
 }
@@ -376,16 +386,24 @@ div.dataTables_wrapper div.dt-buttons.btn-group div.btn-group:first-child {
   border-top-right-radius: 0px !important;
   border-bottom-right-radius: 0px !important;
 }
-div.dataTables_wrapper div.dt-buttons.btn-group div.btn-group:last-child:first-child {
+div.dataTables_wrapper
+  div.dt-buttons.btn-group
+  div.btn-group:last-child:first-child {
   border-top-left-radius: 4px !important;
   border-bottom-left-radius: 4px !important;
   border-top-right-radius: 4px !important;
   border-bottom-right-radius: 4px !important;
 }
-div.dataTables_wrapper div.dt-buttons.btn-group div.btn-group button.dt-btn-split-drop:last-child {
+div.dataTables_wrapper
+  div.dt-buttons.btn-group
+  div.btn-group
+  button.dt-btn-split-drop:last-child {
   border: 1px solid #6c757d;
 }
-div.dataTables_wrapper div.dt-buttons.btn-group div.btn-group div.dt-btn-split-wrapper {
+div.dataTables_wrapper
+  div.dt-buttons.btn-group
+  div.btn-group
+  div.dt-btn-split-wrapper {
   border: none;
 }
 
