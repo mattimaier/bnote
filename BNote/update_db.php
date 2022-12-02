@@ -224,8 +224,10 @@ class UpdateDb {
 			array_push($params, array("i", $module_id));
 		}
 		$query = "INSERT INTO privilege (user, module) VALUES " . join(", ", $tuples);
-		$this->db->execute($query, $params);
-		$this->message("Privileges for module $module_id added to all admins (group 1).");
+		if(count($tuples) > 0) {
+			$this->db->execute($query, $params);
+			$this->message("Privileges for module $module_id added to all admins (group 1).");
+		}
 	}
 	
 	function getPrimaryKeys($table) {
@@ -251,8 +253,12 @@ class UpdateDb {
 		return $this->db->getNumberRows($table);
 	}
 	
-	function executeQuery($query) {
-		return $this->db->execute($query);
+	function executeQuery($query, $params=array()) {
+		return $this->db->execute($query, $params);
+	}
+	
+	function getSelection($query, $params=array()) {
+		return $this->db->getSelection($query, $params);
 	}
 	
 	function processGdprOk() {
@@ -283,8 +289,16 @@ $modinfo = $update->getModuleIds(array("Admin"));
 $update->addPrivilegeForAdmins($modinfo["Admin"]);
 
 // --- 4.0.2 UPDATES ---
-
-
+// Task: Add more instruments
+$instruments = array(array("Banjo", 8), array('Erster Tenor', 5), array('Zweiter Tenor', 5), array('Erster Bass', 5), array('Zweiter Bass', 5));
+foreach($instruments as $inst) {
+	$dbInst = $update->getSelection("SELECT id, name FROM instrument WHERE name = ?", array(array("s", $inst[0])));
+	if(count($dbInst) < 2) {
+		$addInstrumentsSql = "INSERT INTO instrument (`name`, `category`) VALUES (?, ?)";
+		$update->executeQuery($addInstrumentsSql, array(array("s", $inst[0]), array("i", $inst[1])));
+		$update->message("Created instrument '" . $inst[0] . "'.");
+	}
+}
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>
