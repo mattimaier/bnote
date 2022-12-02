@@ -20,6 +20,12 @@ class LoginController extends DefaultController {
 	 */
 	const ENCRYPTION_HASH = 'BNot3pW3ncryp71oN';
 	
+	/**
+	 * The file where to log failed login approaches
+	 * @var string
+	 */
+	const FAILED_LOGIN_LOG = 'log/login_fail.log';
+	
 	private $current_page;
 	
 	function __construct() {
@@ -95,6 +101,10 @@ class LoginController extends DefaultController {
 			}
 		}
 		else {
+			# login failed, log to disk
+			$line = date("c") . "\t" . $_SERVER['REMOTE_ADDR'] . "\tInvalid Login for user " . urlencode($_POST["login"]);
+			file_put_contents(LoginController::FAILED_LOGIN_LOG, $line . "\n", FILE_APPEND);
+			
 			if($quite) {
 				return false;
 			}
