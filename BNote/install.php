@@ -930,7 +930,11 @@ class Installation {
 					(43, 'Panflöte', 3),
 					(44, 'Akkordeon', 8),
 					(45, 'Althorn', 2),
-					(46, 'Banjo', 8);");
+					(46, 'Banjo', 8),
+					(47, 'Erster Tenor', 5),
+					(48, 'Zweiter Tenor', 5),
+					(49, 'Erster Bass', 5),
+					(50, 'Zweiter Bass', 5);");
 
 			array_push($queries,
 					"INSERT INTO `module` (`id`, `name`, `icon`, `category`) VALUES
