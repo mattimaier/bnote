@@ -297,8 +297,8 @@ class RepertoireView extends CrudRefView {
 					}
 					?>
 					<span class=""><?php echo $file; ?> (<?php echo $songs[$i]["doctype_name"]; ?>)</span>
-					<a class="" href="<?php echo $href; ?>" target="_blank"><i class="bi-box-arrow-down"></i></a>
-					<a class="" href="<?php echo $delHref; ?>"><i class="bi-file-earmark-minus"></i></a>
+					<a class="btn btn-secondary btn-sm mx-1" href="<?php echo $href; ?>" target="_blank"><i class="bi-box-arrow-down"></i></a>
+					<a class="btn btn-danger btn-sm mx-1" href="<?php echo $delHref; ?>"><i class="bi-file-earmark-minus"></i></a>
 				</li>
 				<?php
 			}
