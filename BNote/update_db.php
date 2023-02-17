@@ -107,7 +107,7 @@ class UpdateDb {
 		if(!in_array($modname, $moduleNames)) {
 			// add new module
 			$query = 'INSERT INTO module (name, icon, category) VALUES (?, ?, ?)';
-			$modId = $this->db->execute($query, array(array("s", $modname), array("s", $icon), array("s", $category)));
+			$modId = $this->db->prepStatement($query, array(array("s", $modname), array("s", $icon), array("s", $category)));
 		
 			$this->message("New module $modname (ID $modId) added.");
 		
@@ -299,6 +299,10 @@ foreach($instruments as $inst) {
 		$update->message("Created instrument '" . $inst[0] . "'.");
 	}
 }
+// Task: Add website module again
+$modId = $update->addModule('Website', 'globe', 'main');
+$update->addPrivilegeForAdmins($modId);
+
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>

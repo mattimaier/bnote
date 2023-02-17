@@ -948,6 +948,7 @@ class Installation {
 					(8, 'Locations', 'geo-alt', 'main'),
 					(9, 'Kontaktdaten', 'person-bounding-box', 'user'),
 					(10, 'Hilfe', 'info-circle-fill', 'help'),
+					(11, 'Website', 'globe', 'main'),
 					(12, 'Share', 'folder2-open', 'main'),
 					(13, 'Mitspieler', 'person-badge', 'main'),
 					(14, 'Abstimmung', 'check2-square', 'main'),

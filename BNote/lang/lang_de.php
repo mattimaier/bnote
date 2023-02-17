@@ -2286,7 +2286,6 @@ class Translation extends BNoteTranslation {
 			"WebsiteView_infos.id" => "ID",
 			"WebsiteView_infos.createdon" => "Erstellt am",
 			"WebsiteView_infos.editedon" => "Zuletzt bearbeitet am",
-			"WebsiteView_infos.title" => "Überschrift",
 			"WebsiteView_infosOptions.addInfo" => "Seite hinzufügen",
 			"WebsiteView_addInfo.Form" => "Informationsseite hinzufügen",
 			"WebsiteView_addInfo.title" => "Titel",

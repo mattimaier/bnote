@@ -20,9 +20,9 @@ tinyMCE.init({
 	elements: "tinymcefull",
 	language: "de",
 	theme: "modern",
-	plugins: "preview table hr print textcolor code",
+	plugins: "preview table hr print textcolor link code",
 	menubar: "edit format tools table",
-	toolbar: "preview | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | forecolor backcolor | fontsizeselect | cut copy paste | undo redo | hr | print",
+	toolbar: "preview | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | forecolor backcolor | fontsizeselect | link unlink | cut copy paste | undo redo | hr | print",
 	statusbar: false,
 	tools: "inserttable"
 });
