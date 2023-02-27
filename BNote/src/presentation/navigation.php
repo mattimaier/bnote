@@ -4,6 +4,8 @@
 		
 		<ul class="nav flex-column">
 		<?php
+		global $system_data;
+		$isHelpMenu = False;
 		if($system_data->isUserAuthenticated()) {
 			if(isset($_GET["menu"])) {
 				$modarr = $system_data->getModuleArray($_GET["menu"]);
@@ -12,10 +14,17 @@
 				// get the menu of the current module
 				$mod = $system_data->getModule($_GET["mod"]);
 				$cat = $mod["category"];
-				if($cat == "user") {
-					$cat = "main";
+				if($cat == "help") {
+					global $mainController;
+					$modarr = $mainController->getView()->getNavigationItems();
+					$isHelpMenu = True;
 				}
-				$modarr = $system_data->getModuleArray($cat);
+				else {
+					if($cat == "user") {
+						$cat = "main";
+					}
+					$modarr = $system_data->getModuleArray($cat);
+				}
 			}
 			else {
 				$modarr = $system_data->getModuleArray("main");
@@ -27,7 +36,6 @@
 		
 		// render menu
 		foreach($modarr as $id => $modRow) {
-	
 			// don't show module if user doesn't have permission
 			if($system_data->isUserAuthenticated() && !$system_data->userHasPermission($id)) continue;
 			
@@ -44,11 +52,18 @@
 				$selected = "active";
 			}
 			else $selected = "";
+			
+			if($isHelpMenu) {
+				$title = Lang::txt($modRow["name"]);
+			}
+			else {
+				$title = $system_data->getModuleTitle($id);
+			}
 			?>
 			<li class="nav-item">
 	        	<a class="nav-link <?php echo $selected; ?>" href="?mod=<?php echo $id . $menu; ?>">
 	        		<i class="bi-<?php echo $modRow["icon"]; ?>"></i>
-	          		<?php echo $system_data->getModuleTitle($id); ?>
+	          		<?php echo $title; ?>
 	        	</a>
 	      	</li>
 			<?php

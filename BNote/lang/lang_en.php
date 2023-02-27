@@ -831,6 +831,8 @@ class Translation extends BNoteTranslation {
 			"HilfeView_videos.admin_description" => "Installation, Configuration, Notes",
 			"HilfeView_videos.admin_button" => "Watch video (online)",
 			"HilfeView_start.intro" => "Introduction",
+			"HilfeView_start.intro_title" => "Overview",
+			"HilfeView_start.intro_description" => "Behind the following links you may find basic information on BNote:",
 			"HilfeView_start.video_tutorials" => "Video Tutorials",
 			"HilfeView_start.help_pages" => "Help pages",
 			"HilfeView_start.videos_title" => "Video Tutorial",

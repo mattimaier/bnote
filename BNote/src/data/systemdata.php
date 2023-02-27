@@ -171,7 +171,7 @@ class Systemdata {
  }
  
  public function userHasPermission($modulId, $uid = -1) {
- 	if($modulId === "login") {
+ 	if($modulId === "login" || (is_string($modulId) && intval(substr($modulId, 0, 2)) == $this->getModuleId("Hilfe"))) {
  		return true;
  	}
  	 	
@@ -230,11 +230,9 @@ class Systemdata {
  	$mods = $this->dbcon->getSelection($query, $params);
  	
  	$res = array();
- 	
  	for($i = 1; $i < count($mods); $i++) {
  		$res[$mods[$i]["id"]] = $mods[$i];
  	}
- 	
  	return $res;
  }
  

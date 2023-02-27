@@ -5,11 +5,11 @@ heißt, dass ein ausgefeiltes Berechtigungskonzept auch für die Dateien zutriff
 des Webservers (Apache) und gegebenenfalls verschlüsselt sofern BNote über HTTPs betrieben wird.
 </p>
 
-<h2>Share für Benutzer</h2>
+<h3>Share für Benutzer</h3>
 <p>
 Jeder Benutzer der Zugriff auf das Share Modul hat, kann auf folgende Ordner <span style="font-weight: bold;">lesend und schreibend</span> zugreifen:
 </p>
-<table>
+<table class="table">
 	<tr>
 		<td>Meine Dateien</td>
 		<td>Ein Verzeichnis auf das nur Administratoren und der Benutzer selbst Zugriff hat.</td>
@@ -24,12 +24,12 @@ Jeder Benutzer der Zugriff auf das Share Modul hat, kann auf folgende Ordner <sp
 	</tr>
 </table>
 
-<h2>Share für Administratoren</h2>
+<h3>Share für Administratoren</h3>
 <p>
 Jeder Benutzer der Zugriff auf das Share Modul hat und in der Gruppe der Administratoren ist,
 kann auf folgende Ordner <span style="font-weight: bold;">lesend und schreibend</span> zugreifen:
 </p>
-<table>
+<table class="table">
 	<tr>
 		<td>Meine Dateien</td>
 		<td>Ein Verzeichnis auf das nur Administratoren und der Benutzer selbst Zugriff hat.</td>
@@ -49,20 +49,20 @@ kann auf folgende Ordner <span style="font-weight: bold;">lesend und schreibend<
 	</tr>
 </table>
 
-<h2>Der Umgang mit Dateien und Verzeichnissen</h2>
+<h3>Der Umgang mit Dateien und Verzeichnissen</h3>
 <p>
 Im folgenden ist der Umgang mit Dateien und Verzeichnissen/Ordnern in BNote beschrieben. Die Benutzerschnittstelle stellt
 mit wenigen Ausnahmen die Struktur des Dateisystems dar.
 </p>
 
-<h3>Ordner/Verzeichnisse</h3>
+<h5>Ordner/Verzeichnisse</h5>
 <p>
 Ein neuer Ordner kann mit der Schaltfläche "Ordner hinzufügen" angelegt werden. Um einen Ordner zu öffnen, klickt man auf
 "Öffnen" in der Zeile des Ordners. Mit der Schaltfläche "Löschen" hinter dem Ordner werden der Ordner und die darin 
 befindlichen Dateien gelöscht. 
 </p>
 
-<h3>Dateien</h3>
+<h5>Dateien</h5>
 <p>
 Neue Dateien können über den Button "Datei hinzufügen" dem derzeit ausgewählten Ordner hinzugefügt werden. Es ist zu beachten,
 dass viele Webserver eine maximale Größe für eine Datei festlegen. Daher kann es bei großen Dateien dazu kommen, dass diese
@@ -70,14 +70,14 @@ nicht hinzugefügt werden können (Abhilfe siehe Massendaten). Um Dateien anzuze
 in der Zeile der Datei verwenden.
 </p>
 
-<h3>Zip-Download</h3>
+<h5>Zip-Download</h5>
 <p>
 Um einen Ordner inklusive aller Dateien und Unterordner als Zip-Archiv herunterzuladen, wählt man in einem Unterordner
 "Ordner als Zip-Archiv herunterladen". Nach einer kurzen Wartezeit in der das Archiv generiert wird, kann man das Archiv
 dann herunterladen.
 </p>
 
-<h2>Massendaten</h2>
+<h3>Massendaten</h3>
 <p>
 Generell ist es empfehlenswert Dateien über BNote in die Verzeichnisse einzufügen und über BNote diese auch wieder abzurufen.
 Da die initiale Befüllung der Verzeichnisse allerdings sehr lange dauern könnte und die Verwaltung von Massendaten über die
@@ -86,7 +86,7 @@ Dateien zugegriffen werden. Die Einhaltung der Verzeichnisstruktur ist notwendig
 Ansonsten können nach folgendem Schema die Verzeichnisse befüllt werden:
 </p>
 
-<table>
+<table class="table">
 	<tr>
 		<td>Meine Dateien/Benutzerordner</td>
 		<td>"BNote Verzeichnis"/data/share/users/"Benutzername"</td>
