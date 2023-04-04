@@ -797,7 +797,7 @@ class Installation {
 				`group` int(11) NOT NULL
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 			
-			foreach($queries as $i => $query) {
+			foreach($queries as $query) {
 				$db->execute($query, array());
 			}
 		
@@ -989,7 +989,7 @@ class Installation {
 			array_push($queries, "INSERT INTO `doctype` (name, is_active) VALUES 
 					('Noten', 1), ('Text', 1), ('Aufnahme', 1), ('Sonstiges', 1);");
 			
-			foreach($queries as $i => $query) {
+			foreach($queries as $query) {
 				$db->execute($query);
 			}
 		}
@@ -1066,12 +1066,12 @@ class Installation {
 		
 		// add the contact to the admin group (gid=1)
 		$query = "INSERT INTO contact_group (contact, `group`) VALUES (?, ?)"; 
-		$ugroup = $db->execute($query, array(array("i", $cid), array("i", 1)));
+		$db->execute($query, array(array("i", $cid), array("i", 1)));
 				
 		// create user
 		$password = crypt($_POST["password"], 'BNot3pW3ncryp71oN');
 		$query = "INSERT INTO user (login, password, contact, isActive) VALUES (?, ?, ?, 1)";
-		$uid = $db->execute($query, array(array("s", $_POST["login"]), array("s", $password), array("i", $cid)));
+		$uid = $db->prepStatement($query, array(array("s", $_POST["login"]), array("s", $password), array("i", $cid)));
 		
 		// create default privileges plus user module privileges
 		$modules = $db->getSelection("SELECT * FROM module");

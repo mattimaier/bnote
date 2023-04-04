@@ -1,0 +1,52 @@
+<p>Seit Version 3 besitzt BNote ein Modul um die wichtigsten Funktionen zur Kontrolle der Finanzen bereitzustellen. Es sind neben der Buchung von einzelnen Sätzen auch laufende Zahlungen möglich, ebenso wie die Zuordnung von Buchungssätzen zu Proben, Auftritten, etc.</p>
+
+<h3>Modell</h3>
+<img src="data/help/bnote_finance_model.png" alt="Finanzmodul Datenmodell">
+<p>Das Finanzmodul basiert auf einem einfachen Modell mit folgenden Entitäten:</p>
+<ul style="list-style-type: disc;">
+    <li class="bn-help-item"><strong class="bn-help-strong">Konto</strong>: Liste aller Buchungen zu einem Aspekt, z.B. "Bandkonto" wenn nur ein Konto verwendet wird. Bei größeren Organisationen könnte es mehrere Konten geben, z.B: "Reisekonto", "Anlagenkonto", "U20 Orchester", "Senior Orchester", etc.</li>
+    <li class="bn-help-item"><strong class="bn-help-strong">Buchung</strong>: Ein Buchungssatz bezieht sich auf eine Zahlung. Diese kann bar, als Überweisung, als Kreditkartenzahlung oder in welcher Form auch immer erfolgen. Eine Zahlung wird dem Konto belastet (Ausgabe) oder dem Konto gutgeschrieben (Einnahme). Optional kann eine Buchung für eine Referenz auf ein Auftritt, einen Kontakt, eine Probenphase oder einen Ort enthalten. Dann wird die Buchung nicht nur dem Konto, sondern auch diesem Objekt zugeordnet.</li>
+    <li class="bn-help-item"><strong class="bn-help-strong">Laufende Zahlung</strong>: Meist monatlich oder jährlich werden gewisse Zahlungen fällig, z.B. Miete, Nebenkosten, Gebühren, etc. Um die Verbuchung so einheitlich und einfach wie möglich zu machen, kann eine wiederkehrende Zahlung angelegt werden. Diese wird dann mit einem gewissen Datum verbucht und damit zu einer Buchung.</li>
+</ul>
+
+<h3>Konten</h3>
+<p>Wählt man das "Finanzen" Modul aus, so gelangt man zur Übersicht aller Konten.</p>
+
+<h5>Konto anlegen, bearbeiten, löschen</h5>
+<p>Von der Startansicht des Finanzmoduls können neue Konten angelegt werden indem man auf die Option "Konto hinzufügen" drückt. Hier kann die Kontobezeichnung eingegeben werden. Also Kontonummer wird eine fortlaufende Zahl beginnend mit 1 verwendet. Zur Anzeige des Kontos klicke in der Modulübersicht auf den Kontonamen. Nun siehst du die Buchungsübersicht und Optionen zum "Konto bearbeiten" und "Konto löschen".</p>
+
+<h3>Buchungen</h3>
+<p>Wähle zunächst das Konto für die Buchung aus. In der Übersicht des Kontos siehst du alle darin enthaltenen Buchungen für das aktuelle Jahr. Die folgenden Abschnitte gehen von diesem Bildschirm aus.</p>
+
+<h5>Buchung hinzufügen</h5>
+<p>Klicke auf "Buchung hinzufügen" um eine neue Buchung diesem Konto hinzuzufügen.</p>
+<ul style="list-style-type: disc;">
+    <li class="bn-help-item">Wähle als Type entweder "Einnahme" oder "Ausgabe" aus. Pauschal bezieht sich das immer auf die Sicht des Kontos.</li>
+    <li class="bn-help-item">Der Referenztyp gibt zunächst an, ob gar keine Referenz oder die Referenz zu einem Kontakt, zu einer Probe, zu einem Ort oder einer Probenphase bestehen soll. Wurde der Referenztyp gewählt, kann in der Auswahl rechts daneben, die eigentliche Referenz ausgewählt werden.</li>
+    <li class="bn-help-item">Das Datum ist das Datum der Buchung (nicht unbedingt der Zahlung).</li>
+    <li class="bn-help-item">Der Betreff bezieht sich auf den Grund für die Zahlung, z.B. "Miete" oder "Mikrophon".</li>
+    <li class="bn-help-item">Nettobetrag ist der Betrag ohne Umsatz-/Mehrwertsteuer. Bitte in der Form 123,45 angeben.</li>
+    <li class="bn-help-item">Steuer ist der reine Steuerbetrag, d.h. bei 19% MwSt und einem Nettobetrag von 100€ sind das 19%. Bitte in der Form 123,45 angeben.</li>
+    <li class="bn-help-item">Anmerkungen sind Buchungsvermerke.</li>
+</ul>
+
+<h5>Buchung stornieren</h5>
+<p>In der Buchungsübersicht des Kontos ist hinter jeder Buchung ein X-Symbol zur Stornierung der Buchung. Wird diese Schaltfläche betätigt, setzt BNote die Beträge auf 0,00 und übernimmt die ehemaligen Beträge in die Buchungsdetails mit dem Zusatz STORNIERT. So ist eine lückenlose Nachvollziehbarkeit der Finanzen gewährleistet.</p>
+
+<strong class="bn-help-strong">Hinweis</strong>
+<p style="font-style: italic;">Soll eine Buchung gänzlich gelöscht oder Buchungstext verändert werden, so muss dieser Vorgang direkt in der Datenbank erfolgen. Dies soll die notwendige Sorgfalt beim Umgang mit den Finanzen sowie die Hürde für Manipulation erhöhen.</p>
+
+<h3>Zusammenfassungen</h3>
+<p>Unter den Buchungen eines Konto ist eine kleine Tabelle mit Summen gezeigt. Neben der Kopfzeile werden 2 weitere Zeilen und eine Summenzeile gezeigt. Sind keine Einnahmen oder Ausgaben vorhanden so wird die entsprechende Zeile ausgeblendet. Die Werte der Tabelle beziehen sich auf die Daten des derzeit angezeigten Kontos und der jetzigen Filter. Die Summe wird aus Einnahmen - Ausgaben berechnet.</p>
+
+<h5>Filter</h5>
+<p>Um die Buchungen des Kontos auf einen geringeren Zeitraum einzuschränken, kann das Datum unter "Buchungen filtern" verändert werden. Ebenfalls kann eine Referenz angegeben werden. Diese Filter wirken additiv, d.h. es wird immer auf beides gefiltert. Eine Anfrage nach allen Buchungen zu jederzeit würde damit vom 1.1.1970 bis 31.12.2099 gelingen. Im Gegenbeispiel könnte man von 1.1. bis 31.1. eines Jahres nur die Buchungen für einen bestimmten Ort anzeigen.</p>
+
+<h3>Laufende Zahlungen</h3>
+<p>Wiederkehrende Zahlungen auf oder von den Konten können auf der Startseite des Finanzmoduls unter der Schaltfläche "Laufende Zahlungen" erreicht werden. Die folgenden Beschreibungen gehen von der "Laufende Zahlungen" Seite aus.</p>
+
+<h5>Zahlungen verwalten</h5>
+<p>Fügen Sie eine neue laufende/wiederkehrende Zahlung über die Schaltfläche "Laufende Zahlung hinzufügen" ein. Geben Sie den Betreff, das Konto, die netto und Steuerbeträge wie oben genannt sowie Anmerkungen und ggf. Referenzen ein. Ein Datum wird erst beim Verbuchen gesetzt. Zur Bearbeitung der laufenden Zahlung (wirkt sich nicht rückwirkend aus!) klicke auf die Zeile der Übersicht um die Details anzuzeigen. Dort findest du auch Schaltflächen um den Eintrag zu bearbeiten bzw. zu löschen.</p>
+
+<h5>Buchungen aus laufenden Zahlungen erstellen</h5>
+<p>Neben der Ansicht aller laufenden Zahlungen und der Option weitere Einträge hinzuzufügen gibt es die Schaltfläche "Buchen". Wähle diese aus um alle oder einen Teil der laufenden Zahlungen zu einem Datum zu verbuchen. Gebe zunächst das Datum ein und wähle dann die Buchungen aus der untenstehenden Tabelle aus, die zu diesem Datum verbucht werden sollen.</p>
