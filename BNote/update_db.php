@@ -303,6 +303,9 @@ foreach($instruments as $inst) {
 $modId = $update->addModule('Website', 'globe', 'main');
 $update->addPrivilegeForAdmins($modId);
 
+// Task: Config parameter to active Log for failed login attempts
+$update->addDynConfigParam("enable_failed_login_log", "0");
+
 ?>
 
 <div style="font-weight: bold; font-style: italic;">COMPLETE.</div>

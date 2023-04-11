@@ -948,6 +948,7 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.concert_show_max" => "Nombre de concerts sur la page d'accueil",
 			"KonfigurationData_construct.export_rehearsal_notes" => "Exporter les notes de répétition",
 			"KonfigurationData_construct.export_rehearsalsong_notes" => "Exporter les notes des partitions à pratiquer",
+			"KonfigurationData_contruct.enable_failed_login_log" => "Enregistrer les tentatives de connexion échouées",
 			"KonfigurationData_replaceParameterValue.yes" => "Oui",
 			"KonfigurationData_replaceParameterValue.no" => "Non",
 			

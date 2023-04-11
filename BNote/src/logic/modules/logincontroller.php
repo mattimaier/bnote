@@ -104,8 +104,11 @@ class LoginController extends DefaultController {
 		}
 		else {
 			# login failed, log to disk
-			$line = date("c") . "\t" . $_SERVER['REMOTE_ADDR'] . "\tInvalid Login for user " . urlencode($_POST["login"]);
-			file_put_contents(LoginController::FAILED_LOGIN_LOG, $line . "\n", FILE_APPEND);
+			$logActive = $this->getData()->getSysdata()->getDynamicConfigParameter("enable_failed_login_log");
+			if(strval($logActive) == "1") {
+				$line = date("c") . "\t" . $_SERVER['REMOTE_ADDR'] . "\tInvalid login for user";
+				file_put_contents(LoginController::FAILED_LOGIN_LOG, $line . "\n", FILE_APPEND);
+			}
 			
 			if($quiet) {
 				return false;
