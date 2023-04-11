@@ -290,7 +290,7 @@ class Systemdata {
   */
  public function autoUserActivation() {
  	$autoActiv = $this->getDynamicConfigParameter('auto_activation');
-	return ($autoActiv == "1");
+	return (strval($autoActiv) == "1");
  }
  
  /**

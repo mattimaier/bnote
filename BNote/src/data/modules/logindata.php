@@ -40,10 +40,6 @@ class LoginData extends AbstractLocationData {
 		return $this->database->colValue("SELECT password FROM user WHERE login = ? AND isActive = 1", "password", array(array("s", $login)));
 	}
 	
-	function getUserIdForLogin($login) {
-		return $this->database->colValue("SELECT id FROM user WHERE login = ?", "id", array(array("s", $login)));
-	}
-	
 	function saveLastLogin() {
 		// Save last logged in
 		$this->database->execute("UPDATE user SET lastlogin = NOW() WHERE id = ?", array(array("i", $this->getUserId())));
@@ -56,6 +52,10 @@ class LoginData extends AbstractLocationData {
 	
 	function validateEMail($email) {
 		$this->regex->isEmail($email);
+	}
+	
+	function getUserIdForLogin($login) {
+		return $this->database->colValue("SELECT id FROM `user` WHERE login = ?", "id", array(array("s", $login)));
 	}
 	
 	function getUserIdForEMail($email) {
@@ -173,5 +173,13 @@ class LoginData extends AbstractLocationData {
 	function gdprOk($code) {
 		$this->regex->isSubject($code);
 		$this->database->execute("UPDATE contact SET gdpr_ok = 1 WHERE gdpr_code = ?", array(array("s", $code)));
+	}
+	
+	function isUserActive($uid) {
+		if($uid == NULL) {
+			return FALSE;
+		}
+		// same as in UserData->isUserActive() but copied so user module must not be imported just for this function 
+		return ($this->database->colValue("SELECT isActive FROM user WHERE id = ?", "isActive", array(array("i", $uid))) == 1);
 	}
 }

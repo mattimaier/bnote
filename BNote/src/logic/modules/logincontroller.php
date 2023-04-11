@@ -64,12 +64,12 @@ class LoginController extends DefaultController {
 	 * This function is executed from without the context of the rest of this controller.
 	 * This way it's not possible to call too many fancy things. Just forward on success
 	 * and show an echo on failure.
-	 * @param Boolean $quite When true, no output is made, but true or false is returned.
+	 * @param Boolean $quiet When true, no output is made, but true or false is returned.
 	 * @return (Optional) True (login ok), false (not ok).
 	 */
-	function doLogin($quite = false) {
+	function doLogin($quiet = false) {
 		// verify information
-		$this->getData()->validateLogin();
+		$this->getData()->validateLogin();		
 		$db_pw = $this->getData()->getPasswordForLogin($_POST["login"]);
 		$password = crypt($_POST["password"], LoginController::ENCRYPTION_HASH);
 		
@@ -77,17 +77,19 @@ class LoginController extends DefaultController {
 			echo Lang::txt("LoginController_doLogin.message") . $password . "</br>\n";
 		}
 		
-		if($db_pw == $password) {
-			if(strpos($_POST["login"], "@") !== false) {
-				$_SESSION["user"] = $this->getData()->getUserIdForEMail($_POST["login"]);
-			}
-			else {
-				$_SESSION["user"] = $this->getData()->getUserIdForLogin($_POST["login"]);
-			}
+		$requestedUserId = $this->getData()->getUserIdForLogin($_POST["login"]);
+		if($requestedUserId < 0) {
+			$requestedUserId = $this->getData()->getUserIdForEMail($_POST["login"]);
+		}
+		$isUserActive = $this->getData()->isUserActive($requestedUserId);
+		
+		if($db_pw == $password && $isUserActive) {			
+			// set session variable
+			$_SESSION["user"] = $requestedUserId;
 			$this->getData()->saveLastLogin();
 		
 			// go to application
-			if($quite) {
+			if($quiet) {
 				return true;
 			}
 			else {
@@ -105,7 +107,7 @@ class LoginController extends DefaultController {
 			$line = date("c") . "\t" . $_SERVER['REMOTE_ADDR'] . "\tInvalid Login for user " . urlencode($_POST["login"]);
 			file_put_contents(LoginController::FAILED_LOGIN_LOG, $line . "\n", FILE_APPEND);
 			
-			if($quite) {
+			if($quiet) {
 				return false;
 			}
 			else {
