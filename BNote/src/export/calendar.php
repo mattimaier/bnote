@@ -73,7 +73,7 @@ function writeStartEnd($start, $end) {
 $organizer = $system_data->getCompany();
 
 // set username
-if(isset($_GET["user"])) {
+if(isset($_GET["user"]) && $_GET["user"] != "") {
 	$userid = $db->colValue("SELECT id FROM user WHERE login = ?", "id", array(array("s", $_GET["user"])));
 	$_SESSION["user"] = $userid;
 }
