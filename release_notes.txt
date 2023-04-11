@@ -1,15 +1,13 @@
 #############################################
-# Changes to BNote in comparison with 4.0.0 #
+# Changes to BNote in comparison with 4.0.1 #
 #############################################
 
-#474: Bugfix for voting on start page
-#475: Bugfix for warning display of automated registration on start page
-#480: Remove mail-adresses from calendar export according to share settings
-#482: Privacy setting fix
-#483: Privacy policy approval at first use lead to error
-#484: Bugfix for editing gig participation
-#489: Show linebreaks for gig comments
-#491: Change header color for sidebar to allow long band names
-#492: Bugfix for read mode in share module also affected administrators
-#495: Contact data module shows main sidebar
-#496: Administrator privilege fix after 3.4.x update
+#478/533 Reimplementation of a simplified version of the website module
+#505 Enable scrolling in navigation sidebar
+#506 Improve help pages and allow for multilanguage content (German and French at the moment)
+#507 Do not allow anonymous downloads of the calendar
+#527 Added mens voices for choires
+#529 Improve usability on repertoire file links
+#531 Configurable logging for failed login attempts
+#534 Fix issue not checking on active flag on user table
+#536 Fix bug to show users for non-superusers
