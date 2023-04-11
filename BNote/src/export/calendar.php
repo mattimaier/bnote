@@ -274,9 +274,9 @@ for($i = 1; $i < count($rehearsals); $i++) {
  */
 if($userid == null || $userid < 1) {
 	// get all concerts
-	$query = "SELECT title, begin, end, ";
+	$query = "SELECT id, title, begin, end, ";
 	$query .= " concert.notes, name, street, city, state, country ";
-	$query .= " FROM concert, location, address";
+	$query .= " FROM concert, location, address ";
 	$query .= " WHERE location = location.id AND address = address.id";
 	$concerts = $db->getSelection($query);
 }
@@ -391,21 +391,23 @@ for($i = 1; $i < count($concerts); $i++) {
 	}
 	$comment .= $concerts[$i]["notes"];
 
-	$program = $concerts[$i]["program_id"];
-	if (!empty($program)) {
-		$query = "SELECT s.title FROM program_song ps ";
-		$query .= "JOIN song s ON ps.song = s.id WHERE ps.program = ? ORDER BY ps.rank ASC";
+	if(array_key_exists("program_id", $concerts[$i])) {
+		$program = $concerts[$i]["program_id"];
+		if (!empty($program)) {
+			$query = "SELECT s.title FROM program_song ps ";
+			$query .= "JOIN song s ON ps.song = s.id WHERE ps.program = ? ORDER BY ps.rank ASC";
+			
+			$songs = $db->getSelection($query, array(array("i", $program)));
+			unset($songs[0]);
 		
-		$songs = $db->getSelection($query, array(array("i", $program)));
-		unset($songs[0]);
-	
-		$setlist = "\r\n\r\nProgramm: \r\n";
-		
-		foreach($songs as $j => $song) {
-			$setlist .= urldecode($song["title"]) . "\r\n";
+			$setlist = "\r\n\r\nProgramm: \r\n";
+			
+			foreach($songs as $j => $song) {
+				$setlist .= urldecode($song["title"]) . "\r\n";
+			}
+			
+			$comment .= $setlist;
 		}
-		
-		$comment .= $setlist;
 	}
 
 	$comment = str_replace("\n","\\n", $comment);

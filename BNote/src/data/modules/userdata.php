@@ -41,7 +41,7 @@ class UserData extends AbstractData {
 			$whereQ = array();
 			foreach($this->getSysdata()->getSuperUsers() as $su) {
 				array_push($whereQ, "u.id <> ?");
-				array_push($params, $su);
+				array_push($params, array("i", $su));
 			}
 			$query .= " WHERE " . join(" AND ", $whereQ);
 		}
