@@ -164,7 +164,7 @@ class StartData extends AbstractLocationData {
 			array_push($tuples, "vote_option = ?");
 			array_push($params, array("i", $options[$i]["id"]));
 		}
-		$query = "DELETE FROM vote_option_user WHERE " . join(" OR ", $tuples) . " AND user = ?";
+		$query = "DELETE FROM vote_option_user WHERE (" . join(" OR ", $tuples) . ") AND user = ?";
 		array_push($params, array("i", $user));
 		$this->database->execute($query, $params);
 		
