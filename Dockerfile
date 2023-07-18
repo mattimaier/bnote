@@ -17,4 +17,5 @@ RUN docker-php-ext-configure gd --with-jpeg
 RUN docker-php-ext-install gd
 
 # The PHP module zip is required for downloading share folders.
+RUN apt-get install -y libzip-dev
 RUN docker-php-ext-install zip
