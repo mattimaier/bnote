@@ -8,8 +8,8 @@ Requirements
 - Apache HTTPd Webserver with...
 	- an accessible host configuration
 	- modrewrite
-	- htaccess activated
-	- at least PHP 7.3 module (PHP 8.x is experimentally supported at the moment)
+	- htaccess activated (see https://wiki.ubuntuusers.de/Apache/mod_rewrite/ for pointers about modrewrite and htaccess, although specific commands and file paths may vary)
+	- at least PHP 7.3 module (PHP 8.x is experimentally supported at the moment) with the xml- and xql-modules
 - MySQL or MariaDB Server supporting MySQLi (preferrably mysqlnd) driver
 
 
@@ -19,7 +19,7 @@ How to install BNote?
 2. Copy all files (including hidden ones like .htaccess files) from this folder to your webserver.
 (2.1) If you are installing a 3-digit version like 2.4.2, then make sure to take the last full release and update the files first (copy them over).
 3. If you are using Mac OS, Linux, Unix, BSD or system alike make sure the permissions on the files are correct. Here is an overview of how it should be:
-	750 config/			with the group being the apache runtime user-group
+	770 config/			with the group being the apache runtime user-group
 	755 data/ 			with the group being the apache runtime user-group
 	775 data/members	with the group being the apache runtime user-group
 	775 data/programs	with the group being the apache runtime user-group
