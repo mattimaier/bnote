@@ -834,14 +834,9 @@ class BNoteApiImpl implements BNoteApiInterface {
 			new BNoteError(Lang::txt("AbstractBNA_sendMail.error"));
 		}
 		
-		// Receipient Setup
-		$ci = $this->sysdata->getCompanyInformation();
-		$receipient = $ci["Mail"];
-		
-		$mail = new Mailing($receipient, $subject, "");
+		$mail = new Mailing($subject, "");
 		$mail->setBodyInHtml($body);
-		$userContact = $this->sysdata->getUsersContact($this->uid);
-		$mail->setFrom($userContact["email"]);
+		$mail->setFromUser($this->uid);
 		$mail->setBcc($addresses);
 		
 		if(!$mail->sendMail()) {

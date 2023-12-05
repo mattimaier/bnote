@@ -73,12 +73,6 @@ class Notifier {
 		return $system_data->dbcon->flattenSelection($addressesDbSel, "email");
 	}
 	
-	private function getEnsembleEmail() {
-		global $system_data;
-		$ensemble = $system_data->getCompanyInformation();
-		return $ensemble['Mail'];
-	}
-	
 	private function sendEmailToContacts($contacts, $subject, $body) {
 		// no email must be sent, all good
 		if(count($contacts) == 0) {
@@ -86,7 +80,7 @@ class Notifier {
 		}
 		global $dir_prefix;
 		require_once($dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php");
-		$mail = new Mailing(null, $subject, null);
+		$mail = new Mailing($subject, null);
 		$mail->setBcc($this->getMailAddresses($contacts));  // string of addresses separated properly
 		$mail->setBodyInHtml($body);
 		return $mail->sendMail();

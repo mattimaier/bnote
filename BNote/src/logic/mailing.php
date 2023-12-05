@@ -10,7 +10,7 @@ use PHPMailer\PHPMailer\Exception;
  */
 class Mailing {
 	
-	private $from;
+	private $fromId = null;
 	private $to;
 	private $bcc = null;
 	private $subject;
@@ -27,29 +27,17 @@ class Mailing {
 	 * @param string $subject Message subject.
 	 * @param string $body Message body.
 	 */
-	function __construct($to, $subject, $body) {
-		$this->to = $to;
+	function __construct($subject, $body) {
 		$this->subject = $subject;
 		$this->body = $body;
 		
 		// set default from as system-admin mail
 		global $system_data;
 		$this->sysdata = $system_data;
-		$comp = $this->sysdata->getCompanyInformation();
-		$this->from = $comp["Mail"];
-	}
-	
-	public function getFrom() {
-		return $this->from;
-	}
-	
-	public function setFrom($from) {
-		$this->from = $from;
 	}
 	
 	public function setFromUser($userId) {
-		$contact = $this->sysdata->getUsersContact($userId);
-		$this->from = $contact["name"] . " " . $contact["surname"] . " <" . $contact["email"] . ">";
+		$this->fromId = $userId;
 	}
 	
 	public function getTo() {
@@ -134,6 +122,20 @@ class Mailing {
 			$to = $this->to;
 		}
 		
+		// building sender information
+		$fromEmail = $this->sysdata->getCompanyInformation()["Mail"];
+		if($this->fromId == null) {
+			$fromName = "BNote";
+		}
+		else {
+			$contact = $this->sysdata->getUsersContact($this->fromId);
+			$fromName =  $contact["name"] . " " . $contact["surname"] . " via BNote";
+			$replyTo = $contact["email"];
+			if($to == "") {
+				$to = $contact["email"];
+			}
+		}
+		
 		// validation
 		if($this->bcc == null && $this->to == null) {
 			new BNoteError(Lang::txt("Mailing_sendMail.BNoteError_2"));
@@ -185,7 +187,10 @@ class Mailing {
 		try {
 			$mail->isMail();  // use mail() function from PHP
 			$mail->CharSet = PHPMailer::CHARSET_UTF8;
-			$mail->setFrom($this->from);
+			$mail->setFrom($fromEmail, $fromName);
+			if(isset($replyTo)) {
+				$mail->addReplyTo($replyTo);
+			}
 			$mail->addAddress($to);
 			if($this->bcc != NULL) {
 				foreach($this->bcc as $address) {

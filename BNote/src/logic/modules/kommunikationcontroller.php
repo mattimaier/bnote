@@ -141,15 +141,11 @@ class KommunikationController extends DefaultController {
 			new BNoteError(Lang::txt("KommunikationController_sendMail.error"));
 		}
 		
-		// Receipient Setup
 		global $system_data;
-		$ci = $system_data->getCompanyInformation();
-		$receipient = $ci["Mail"];
-		
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
-		$mail = new Mailing($receipient, $subject, "");
+		$mail = new Mailing($subject, "");
 		$mail->setBodyInHtml($body);
-		$mail->setFrom($this->getData()->getUsermail());
+		$mail->setFromUser($system_data->getUserId());
 		
 		// place receiver addresses into the bcc field
 		$mail->setBcc($addresses);

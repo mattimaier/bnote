@@ -32,7 +32,8 @@ class AufgabenController extends DefaultController {
 		}
 		
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
-		$mail = new Mailing($to, $subject, $body);
+		$mail = new Mailing($subject, $body);
+		$mail->setTo($to);
 		$mail->sendMailWithFailError();
 	}
 }

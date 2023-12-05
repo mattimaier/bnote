@@ -29,7 +29,8 @@ class UserController extends DefaultController {
 			
 			// send mail
 			require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
-			$mail = new Mailing($to, $subject, $body);
+			$mail = new Mailing($subject, $body);
+			$mail->setTo($to);
 			
 			if(!$mail->sendMail()) {
 				new Message(Lang::txt("UserController_activate.message_6"), Lang::txt("UserController_activate.message_7"));
