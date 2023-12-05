@@ -81,7 +81,7 @@ class StartController extends DefaultController {
 		
 		// send only one email to notify all users
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
-		$mail = new Mailing(null, $subject, null);
+		$mail = new Mailing($subject, null);
 		$mail->setBodyInHtml($body);
 		$mail->setFromUser($uid);
 		$mail->setBcc($bcc);
