@@ -168,7 +168,7 @@ class Installation {
 		Writing::h1(Lang::txt("Installation_databaseConfig.title"));
 		
 		if(file_exists("config/database.xml")) {
-			new Message(Lang::txt("Installation_databaseConfig.message_1"));
+			new Message("Configuration", Lang::txt("Installation_databaseConfig.message_1"));
 			$this->next("adminUser");
 			//TODO ask the user whether to install the database content or use the one present in the db
 		}
