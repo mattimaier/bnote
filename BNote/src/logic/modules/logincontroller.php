@@ -140,13 +140,14 @@ class LoginController extends DefaultController {
 		
 		// only change password if mail was sent
 		require_once($GLOBALS["DIR_LOGIC"] . "mailing.php");
-		$mail = new Mailing($_POST["email"], $subject, $body);
+		$mail = new Mailing($subject, $body);
+		$mail->setTo($_POST["email"]);
 		
 		if(!$mail->sendMail()) {
 			// talk to leader
 			new BNoteError(Lang::txt("LoginController_pwForgot.sendMailerror"));
 		}
-		else {					
+		else {
 			// Change password in system only if mail has been sent.
 			$pwenc = crypt($password, LoginController::ENCRYPTION_HASH);
 			$this->getData()->saveNewPassword($uid, $pwenc);
@@ -224,7 +225,8 @@ class LoginController extends DefaultController {
 				$dir_prefix = $GLOBALS['dir_prefix'];
 			}
 			require_once($dir_prefix . $GLOBALS["DIR_LOGIC"] . "mailing.php");
-			$mail = new Mailing($_POST["email"], $subject, $message);
+			$mail = new Mailing($subject, $message);
+			$mail->setTo($_POST["email"]);
 			
 			if(!$mail->sendMail()) {
 				$mailMessage = Lang::txt("LoginController_register.message_3");

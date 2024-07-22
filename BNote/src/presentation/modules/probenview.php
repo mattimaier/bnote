@@ -772,11 +772,11 @@ class ProbenView extends CrudRefLocationView {
 	function viewOptions() {
 		if($this->isReadOnlyView()) {
 			$back = new Link($this->modePrefix() . "history&year=" . $_GET["year"], Lang::txt("ProbenView_viewOptions.back"));
-			$back->addIcon("arrow_left");
+			$back->addIcon("arrow-left");
 			$back->write();
 			
 			$editParticipation = new Link($this->modePrefix() . "overview&id=" . $_GET["id"] . "&edit=true", Lang::txt("ProbenView_viewOptions.editParticipation"));
-			$editParticipation->addIcon("mitspieler");
+			$editParticipation->addIcon("card-checklist");
 			$editParticipation->write();
 		}
 		else if(!isset($_GET["tab"]) || $_GET["tab"] == "details") {
