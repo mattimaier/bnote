@@ -88,16 +88,16 @@
         },
         {
             "name": "shuchkin/simplexlsx",
-            "version": "1.0.19",
+            "version": "1.1.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/shuchkin/simplexlsx.git",
-                "reference": "978e4bc2c377d4f1e83ad681705d0327a3725ef4"
+                "reference": "0044a4c917037f7613bcd81c7766339a35b9832a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/shuchkin/simplexlsx/zipball/978e4bc2c377d4f1e83ad681705d0327a3725ef4",
-                "reference": "978e4bc2c377d4f1e83ad681705d0327a3725ef4",
+                "url": "https://api.github.com/repos/shuchkin/simplexlsx/zipball/0044a4c917037f7613bcd81c7766339a35b9832a",
+                "reference": "0044a4c917037f7613bcd81c7766339a35b9832a",
                 "shasum": ""
             },
             "require": {
@@ -131,13 +131,14 @@
                 "excel",
                 "parser",
                 "php",
+                "reader",
                 "xlsx"
             ],
             "support": {
                 "issues": "https://github.com/shuchkin/simplexlsx/issues",
-                "source": "https://github.com/shuchkin/simplexlsx/tree/1.0.19"
+                "source": "https://github.com/shuchkin/simplexlsx/tree/1.1.12"
             },
-            "time": "2023-02-03T20:26:49+00:00"
+            "time": "2024-12-11T14:13:23+00:00"
         }
     ],
     "packages-dev": [],
@@ -148,5 +149,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
