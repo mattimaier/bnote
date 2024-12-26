@@ -50,6 +50,11 @@ rm "$tmp_main_dir/config/company.xml"
 rm "$tmp_main_dir/config/config.xml"
 rm "$tmp_main_dir/config/database.xml"
 
+rm "$tmp_main_dir/composer.install.sh"
+rm "$tmp_main_dir/composer.json"
+rm "$tmp_main_dir/composer.lock"
+rm "$tmp_main_dir/composer.phar"
+
 # data/ handling
 rm -r "$tmp_main_dir/data/gallery"
 rm "$tmp_main_dir/data/members/*.pdf"

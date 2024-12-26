@@ -1,13 +1,12 @@
 #############################################
-# Changes to BNote in comparison with 4.0.1 #
+# Changes to BNote in comparison with 4.0.2 #
 #############################################
 
-#478/533 Reimplementation of a simplified version of the website module
-#505 Enable scrolling in navigation sidebar
-#506 Improve help pages and allow for multilanguage content (German and French at the moment)
-#507 Do not allow anonymous downloads of the calendar
-#527 Added mens voices for choires
-#529 Improve usability on repertoire file links
-#531 Configurable logging for failed login attempts
-#534 Fix issue not checking on active flag on user table
-#536 Fix bug to show users for non-superusers
+#479 Filtering "inbox" on start by type of card
+#504 Bugfix for vote result display
+#537 Bugfix for Website module multi display in navigation
+#539 Bugfix for registration of new users wo/ birthday field filled
+#542 and #544 Harmonizing installation guides
+#547 Disabled group field when editing gigs
+
+Plus: Reorganization of used libraries and update of them using composer.
