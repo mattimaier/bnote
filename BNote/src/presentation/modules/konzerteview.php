@@ -613,6 +613,10 @@ class KonzerteView extends CrudRefLocationView {
 			$selectedGroups = $c["groups"];
 		}
 		$gs = new GroupSelector($this->getData()->adp()->getGroups(), $selectedGroups, "group");
+		if($_GET["mode"] == "edit") {
+			// #547: You may edit the group using the other features of the modules / participants of the concert
+			$gs->setDisabled();
+		}
 		$form->addElement(Lang::txt("KonzerteView_addEntityForm.group"), $gs, true);
 		
 		// choose program

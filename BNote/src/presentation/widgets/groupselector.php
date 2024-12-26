@@ -50,6 +50,12 @@ class GroupSelector implements iWriteable {
 	private $cssClass;
 	
 	/**
+	 * Set all fields disabled / non-editable.
+	 * @var boolean
+	 */
+	private $disabled = False;
+	
+	/**
 	 * Builds a new group selector.
 	 * @param array $groups DB Selection of groups.
 	 * @param array $selectedGroups Simple array with all groups that are marked selected.
@@ -97,6 +103,10 @@ class GroupSelector implements iWriteable {
 		return $this->fieldName;
 	}
 	
+	function setDisabled($disabled = True) {
+		$this->disabled = $disabled;
+	}
+	
 	function toString() {
 		$cssClass = "";
 		if($this->cssClass != null) {
@@ -128,6 +138,9 @@ class GroupSelector implements iWriteable {
 			$selected = "";
 			if(in_array($groupId, $this->selectedGroups)) {
 				$selected = "checked";
+			}
+			if($this->disabled) {
+				$selected .= " disabled";
 			}
 			
 			$out .= '<div class="form-check form-switch">';
