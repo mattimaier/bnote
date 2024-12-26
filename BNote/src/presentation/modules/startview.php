@@ -126,7 +126,20 @@ class StartView extends CrudRefLocationView {
 		<div class="row">
 			<div class="col-md-3">
 				<!-- FEED -->
-				<div class="start_box_heading p-2 mb-1"><?php echo Lang::txt("StartView_start.Inbox"); ?></div>
+				<div class="start_box_heading p-2 mb-1">
+					<div class="d-sm-inline-flex"><?php echo Lang::txt("StartView_start.Inbox"); ?></div>
+					<?php 
+					$cardHrefPrefix = $this->modePrefix() . "start&only=";
+					?>
+					<div class="d-sm-inline-flex">
+						<a href="<?php echo $cardHrefPrefix; ?>R" class="p-1 text-light"><i class="bi-collection-play"></i></a>
+						<a href="<?php echo $cardHrefPrefix; ?>C" class="p-1 text-light"><i class="bi-mic"></i></a>
+						<a href="<?php echo $cardHrefPrefix; ?>V" class="p-1 text-light"><i class="bi-check2-square"></i></a>
+						<a href="<?php echo $cardHrefPrefix; ?>A" class="p-1 text-light"><i class="bi-calendar2-week"></i></a>
+						<a href="<?php echo $cardHrefPrefix; ?>T" class="p-1 text-light"><i class="bi-list-task"></i></a>
+						<a href="<?php echo $this->modePrefix(); ?>start" class="p-1 text-light"><i class="bi-x-square-fill"></i></a>
+					</div>
+				</div>
 				<?php
 				$newsActive = (!isset($_GET["otype"]) || !isset($_GET["oid"]) || ($_GET["otype"] == "N"));
 				$this->writeCard(Lang::txt("StartView_start_box.heading"), substr($news, 0, 50) . "...", $this->modePrefix() . "start&otype=N", $newsActive);
@@ -135,11 +148,14 @@ class StartView extends CrudRefLocationView {
 				array_multisort($sortedInboxItems, SORT_ASC, $inboxItems);
 				
 				foreach($inboxItems as $item) {
-					$href = $this->modePrefix() . "start&otype=" . $item["otype"] . "&oid=" . $item["oid"] . "#itemContentScreen";
+					$only = isset($_GET["only"]) ? "only=" . $_GET["only"] : "";
+					$href = $this->modePrefix() . "start&otype=" . $item["otype"] . "&oid=" . $item["oid"] . "$only#itemContentScreen";
 					$active = (isset($_GET["otype"]) && isset($_GET["oid"]) && $_GET["otype"] == $item["otype"] && $_GET["oid"] == $item["oid"]);
 					$part = isset($item["participation"]) ? $item["participation"] : NULL;
 					$status = isset($item["status"]) ? $item["status"] : NULL;
-					$this->writeCard($item["title"], $item["preview"], $href, $active, $item["due"], $part, $status);
+					if(!isset($_GET["only"]) || (isset($_GET["only"]) && $_GET["only"] == $item["otype"])) {
+						$this->writeCard($item["title"], $item["preview"], $href, $active, $item["due"], $part, $status);
+					}
 				}
 				?>
 			</div>
