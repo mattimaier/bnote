@@ -4,27 +4,25 @@
 
 // NORMAL EDITOR -> used for rich text fields, e.g. communication
 tinyMCE.init({
-	mode: "exact",
-	elements: "tinymce",
+	selector: "textarea#tinymce",
 	language: "de",
-	theme: "modern",
-	plugins: "textcolor",
+	theme: "silver",
 	toolbar: "bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | forecolor backcolor | fontsizeselect",
 	menubar: false,
-	statusbar: false
+	statusbar: false,
+	license_key: 'gpl'
 });
 
 // FULL EDITOR -> used for website editing
 tinyMCE.init({
-	mode: "exact",
-	elements: "tinymcefull",
+	selector: "textarea#tinymcefull",
 	language: "de",
-	theme: "modern",
-	plugins: "preview table hr print textcolor link code",
+	theme: "silver",
 	menubar: "edit format tools table",
 	toolbar: "preview | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | forecolor backcolor | fontsizeselect | link unlink | cut copy paste | undo redo | hr | print",
 	statusbar: false,
-	tools: "inserttable"
+	tools: "inserttable",
+	license_key: 'gpl'
 });
 
 // global settings

@@ -1,5 +1,4 @@
 <?php
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -210,7 +209,7 @@ class Mailing {
 			}
 			
 			return $mail->send();
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			new BNoteError(Lang::txt("Mailing_sendMail.BNoteError_5") . " {$mail->ErrorInfo}");
 		}
 		return False;

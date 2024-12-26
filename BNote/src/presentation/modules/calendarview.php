@@ -47,28 +47,27 @@ class CalendarView extends CrudRefLocationView {
 			var cal_events = <?php echo json_encode($this->getData()->getEvents()); ?>;
 			
 			// Full Calendar View
-			var calendarEl = document.getElementById('calendar'); 
+			var calendarEl = $('#calendar'); 
 			var calendar = new FullCalendar.Calendar(calendarEl, {
 				plugins: [ 'dayGrid' ],
 				events: cal_events,
 				locale: <?php echo json_encode($this->getData()->getSysdata()->getLang()); ?>,
 				eventClick: function(info) {
-					var calEvent = info.event;
-					$('#calendar_eventdetail_title').text(calEvent.title);
+					$('#calendar_eventdetail_title').text(info.title);
 					
 					// show details object
 					$('#calendar_eventdetail_block').text("");
 					
-					for(var k in calEvent.extendedProps.details) {
+					for(var k in info.details) {
 						if(k == "id") continue;
 						$('#calendar_eventdetail_block').append('<div class="calendar_eventdetail_keyvalue">'
 								+ '<label class="calendar_eventdetail_key">' + k + '</label>' 
-								+ '<span class="calendar_eventdetail_value">'+ calEvent.extendedProps.details[k] + '</span></div>');
+								+ '<span class="calendar_eventdetail_value">'+ info.details[k] + '</span></div>');
 					}
 					
-					if(calEvent.extendedProps.link) {
+					if(info.link) {
 						$('#calendar_eventdetail_block').append(
-								'<a class="linkbox" href="' + calEvent.extendedProps.link + '">' +
+								'<a class="linkbox" href="' + info.link + '">' +
 								'<div class="linkbox" style="margin-top: 10px;">Details</div></a>');
 					}
 					
@@ -78,7 +77,8 @@ class CalendarView extends CrudRefLocationView {
 					left: 'title',
 					center: '',
 					right: 'prev,next'
-				}
+				},
+				initialView: 'dayGridMonth'
 		    });
 
 		    calendar.render();

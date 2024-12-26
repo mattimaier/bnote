@@ -1,6 +1,31 @@
 {
 	"require" : {
 		"shuchkin/simplexlsx" : "^1.0",
-		"phpmailer/phpmailer" : "^6.6"
+		"phpmailer/phpmailer" : "^6.6",
+		"tinymce/tinymce" : "^7.6",
+		"components/jquery" : "^3.6",
+		"fullcalendar/fullcalendar" : "^3.10",
+		"datatables/datatables" : "^1.10",
+		"twbs/bootstrap" : "^5.1",
+		"twbs/bootstrap-icons" : "^1.8.1",
+		"enyo/dropzone": "^5.9"
+	},
+	"name" : "mattimaier/bnote",
+	"description" : "Music Ensemble Management Software",
+	"homepage" : "https://www.bnote.info",
+	"license" : "GPL-3.0",
+	"keywords" : [
+		"band",
+		"choir",
+		"club",
+		"orchestra"
+	],
+	"type" : "project",
+	"config" : {
+		"allow-plugins" : {
+			"composer/installers" : true,
+			"robloach/component-installer" : true,
+			"oomphinc/composer-installers-extender" : true
+		}
 	}
 }
