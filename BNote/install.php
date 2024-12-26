@@ -845,7 +845,8 @@ class Installation {
 					('default_country', 'DEU', 1),
 					('currency', 'EUR', 1),
 					('export_rehearsal_notes', '0', 1),
-					('export_rehearsalsong_notes', '0', 1);");
+					('export_rehearsalsong_notes', '0', 1),
+					('enable_failed_login_log', '0', 1);");
 			
 			array_push($queries,
 					"INSERT INTO `genre` (`id`, `name`) VALUES

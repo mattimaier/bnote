@@ -303,4 +303,7 @@ class Translation extends BNoteTranslation {
         "navigation_Stats" => "Estadísticas",
         "navigation_Home" => "Bienvenido",
         "navigation_Login" => "Iniciar sesión",
-        "navigation_
+        "navigation_" => ""
+	);
+}
+?>

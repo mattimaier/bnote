@@ -105,6 +105,7 @@ class LoginData extends AbstractLocationData {
 		$this->regex->isPositiveAmount($_POST["instrument"]);
 		$this->regex->isPassword($_POST["pw1"]);
 		$this->regex->isPassword($_POST["pw2"]);
+		if(isset($_POST["birthday"]) && $_POST["birthday"] != "") $this->regex->isDate($_POST["birthday"]);
 	}
 	
 	function duplicateLoginCheck() {
@@ -116,6 +117,7 @@ class LoginData extends AbstractLocationData {
 	
 	function createContact($aid) {
 		$query = "INSERT INTO contact (surname, name, nickname, phone, mobile, email, address, instrument, birthday) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		$bd = $_POST["birthday"] ? isset($_POST["birthday"]) && $_POST["birthday"] != "" : NULL;
 		$cid = $this->database->prepStatement($query, array(
 				array("s", $_POST["surname"]),
 				array("s", $_POST["name"]),
@@ -125,7 +127,7 @@ class LoginData extends AbstractLocationData {
 				array("s", $_POST["email"]),
 				array("i", $aid),
 				array("i", $_POST["instrument"]),
-				array("s", $_POST["birthday"])
+				array("s", $bd)
 		));
 		
 		// get configured default group
