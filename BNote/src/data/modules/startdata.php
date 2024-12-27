@@ -269,7 +269,7 @@ class StartData extends AbstractLocationData {
 	}
 	
 	function getRehearsal($rid) {
-		$query = "SELECT *, r.notes FROM rehearsal r 
+		$query = "SELECT r.*, l.name, a.street, a.city, a.zip, a.state, a.country FROM rehearsal r 
 					JOIN location l ON r.location = l.id
 					JOIN address a ON l.address = a.id 
 				   WHERE r.id = ?";
