@@ -48,8 +48,10 @@ $adp = $startdata->adp();
  */
 function convertTime($datetime) {
 	$dt = DateTime::createFromFormat("Y-m-d H:i:s", $datetime);
-	$utc = new DateTimeZone('UTC');
-	$dt->setTimezone($utc);
+	if($GLOBALS["timezone_on"]) {
+		$utc = new DateTimeZone('UTC');
+		$dt->setTimezone($utc);
+	}
 	return $dt->format('Ymd\THis\Z');
 }
 
