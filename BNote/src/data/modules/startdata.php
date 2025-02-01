@@ -224,7 +224,10 @@ class StartData extends AbstractLocationData {
 				array_push($result, $row);
 			}
 		}
-		
+		$maxLen = intval($this->getSysdata()->getDynamicConfigParameter("rehearsal_show_max"));
+		if($maxLen > 0) {
+			return array_slice($result, 0, $maxLen+1);
+		}
 		return $result;		
 	}
 	
@@ -254,7 +257,12 @@ class StartData extends AbstractLocationData {
 	
 	function getUsersConcerts($uid = -1) {
 		if($uid == -1) $uid = $this->getUserId();
-		return $this->adp()->getFutureConcerts($uid);
+		$concerts = $this->adp()->getFutureConcerts($uid);
+		$maxLen = intval($this->getSysdata()->getDynamicConfigParameter("concert_show_max"));
+		if($maxLen > 0) {
+			return array_slice($concerts, 0, $maxLen+1);
+		}
+		return $concerts;
 	}
 	
 	function getProgramTitles($pid) {
@@ -445,6 +453,11 @@ class StartData extends AbstractLocationData {
 		$appointments = $this->database->getSelection($query, array(array("i", $cid)));
 		if($withCustomData) {
 			$this->appendCustomDataToSelection('a', $appointments);
+		}
+		
+		$maxLen = intval($this->getSysdata()->getDynamicConfigParameter("appointments_show_max"));
+		if($maxLen > 0) {
+			return array_slice($appointments, 0, $maxLen+1);
 		}
 		
 		return $appointments;
