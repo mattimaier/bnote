@@ -306,7 +306,7 @@ class StartView extends CrudRefLocationView {
 			$dataview->addElement(Lang::txt("StartView_writeRehearsalList.comment"), "<p class=\"ml-comment\">" . $rehearsal["notes"] . "</p>");
 		}
 		
-		$songs = $this->getData()->getSongsForRehearsal($rehearsal["id"]);
+		$songs = $this->getData()->getSongsForRehearsal($oid);
 		if(count($songs) > 1) {
 			$strSongs = "";
 			for($j = 1; $j < count($songs); $j++) {
