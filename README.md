@@ -1,10 +1,6 @@
 # BNote
 ## Don't get blue organizing your band!
 
-⚠️ **Bitte verwenden Sie nur BNote 4.0 oder neuere Versionen, da vorherige Versionen bekannte Sicherheitslücken enthalten. Sollten Sie eine ältere Version von BNote verwenden, aktualisieren Sie BNote nächstmöglich.**
-
-⚠️ **Please use BNote 4.0 and later since earlier versions contain severe security issues. If you are running BNote 2.x or 3.x, please upgrade to BNote 4.x.**
-
 BNote ist eine webbasierte Software für Bigbands, Orchester, Chöre, Schulen, Hochschulen/Universitäten, Musikschulen und Vereine. Ziel von BNote ist es, standardisierte Vorgehensweise in der Proben- und Auftrittsorganisation als IT-Lösung umzusetzen und sie für alle frei zugänglich zu machen.
 
 ### Download und Installation
