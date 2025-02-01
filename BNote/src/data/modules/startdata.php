@@ -433,7 +433,7 @@ class StartData extends AbstractLocationData {
 	function getAppointments($withCustomData = true) {
 		// find all appointments where the user is in the group
 		$cid = $this->adp()->getUserContact();
-		$query = "SELECT a.*, l.name as locationname, addy.street, addy.zip, addy.city FROM appointment a ";
+		$query = "SELECT DISTINCT a.*, l.name as locationname, addy.street, addy.zip, addy.city FROM appointment a ";
 		$query .= "JOIN location l ON a.location = l.id ";
 		$query .= "JOIN address addy ON l.address = addy.id ";
 		$query .= "JOIN appointment_group ag ON a.id = ag.appointment ";
@@ -453,11 +453,12 @@ class StartData extends AbstractLocationData {
 	function getAppointment($id) {
 		// find all appointments where the user is in the group
 		$cid = $this->adp()->getUserContact();
-		$query = "SELECT a.*, l.name as locationname, addy.street, addy.zip, addy.city FROM appointment a ";
+		$query = "SELECT a.*, l.name as locationname, addy.street, addy.zip, addy.city, c.name as contactname, c.surname as contactsurname FROM appointment a ";
 		$query .= "JOIN location l ON a.location = l.id ";
 		$query .= "JOIN address addy ON l.address = addy.id ";
 		$query .= "JOIN appointment_group ag ON a.id = ag.appointment ";
 		$query .= "JOIN contact_group cg ON ag.group = cg.group ";
+		$query .= "JOIN contact c ON c.id = a.contact ";
 		$query .= "WHERE a.id = ? AND cg.contact = ? AND a.end > NOW() ";
 		$query .= "ORDER BY a.begin, a.end";
 		

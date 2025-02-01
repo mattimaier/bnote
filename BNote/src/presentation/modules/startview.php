@@ -358,9 +358,12 @@ class StartView extends CrudRefLocationView {
 	
 	function startViewA() {
 		$appointment = $this->getData()->getAppointment($_GET["oid"]);
+		
 		$dataview = new Dataview();
 		$dataview->addElement(Lang::txt("StartView_writeAppointmentList.name"), $appointment["name"]);
-		$dataview->addElement(Lang::txt("StartView_writeAppointmentList.locationname"), $appointment["locationname"]);
+		$dataview->addElement(Lang::txt("StartView_writeAppointmentList.locationname"), $appointment["locationname"] . "<br>" . $this->formatAddress($appointment));
+		$dataview->addElement(Lang::txt("AppointmentView_view.contactname"), $appointment["contactname"] . " " . $appointment["contactsurname"]);
+		$dataview->addElement(Lang::txt("AppointmentView_view.notes"), $appointment["notes"]);
 		
 		// custom data
 		$customFields = $this->getData()->getCustomFields('a', true);
