@@ -932,7 +932,7 @@ class Translation extends BNoteTranslation {
 			"KonfigurationData_construct.rehearsal_show_length" => "Probenlänge anzeigen",
 			"KonfigurationData_construct.allow_participation_maybe" => "Vielleicht-Teilname zugelassen",
 			"KonfigurationData_construct.allow_zip_download" => "Zip-Download für Ordner zulassen",
-			"KonfigurationData_construct.appointments_show_max" => "Anzahl der Ernennungen auf Startseite",
+			"KonfigurationData_construct.appointments_show_max" => "Anzahl der Termine auf Startseite",
 			"KonfigurationData_construct.rehearsal_show_max" => "Anzahl Proben auf Startseite",
 			"KonfigurationData_construct.discussion_on" => "Diskussionen erlauben",
 			"KonfigurationData_construct.updates_show_max" => "Anzahl Updates auf Startseite",

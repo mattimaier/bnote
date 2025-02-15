@@ -8,5 +8,9 @@
 #539 Bugfix for registration of new users wo/ birthday field filled
 #542 and #544 Harmonizing installation guides
 #547 Disabled group field when editing gigs
+#554 Apply appointment, rehearsal and concert max parameters on start page again
+#556 Rehearsal data query fix
+#558 Display further details for appointments on start page
+
 
 Plus: Reorganization of used libraries and update of them using composer.

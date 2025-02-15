@@ -224,7 +224,10 @@ class StartData extends AbstractLocationData {
 				array_push($result, $row);
 			}
 		}
-		
+		$maxLen = intval($this->getSysdata()->getDynamicConfigParameter("rehearsal_show_max"));
+		if($maxLen > 0) {
+			return array_slice($result, 0, $maxLen+1);
+		}
 		return $result;		
 	}
 	
@@ -254,7 +257,12 @@ class StartData extends AbstractLocationData {
 	
 	function getUsersConcerts($uid = -1) {
 		if($uid == -1) $uid = $this->getUserId();
-		return $this->adp()->getFutureConcerts($uid);
+		$concerts = $this->adp()->getFutureConcerts($uid);
+		$maxLen = intval($this->getSysdata()->getDynamicConfigParameter("concert_show_max"));
+		if($maxLen > 0) {
+			return array_slice($concerts, 0, $maxLen+1);
+		}
+		return $concerts;
 	}
 	
 	function getProgramTitles($pid) {
@@ -433,7 +441,7 @@ class StartData extends AbstractLocationData {
 	function getAppointments($withCustomData = true) {
 		// find all appointments where the user is in the group
 		$cid = $this->adp()->getUserContact();
-		$query = "SELECT a.*, l.name as locationname, addy.street, addy.zip, addy.city FROM appointment a ";
+		$query = "SELECT DISTINCT a.*, l.name as locationname, addy.street, addy.zip, addy.city FROM appointment a ";
 		$query .= "JOIN location l ON a.location = l.id ";
 		$query .= "JOIN address addy ON l.address = addy.id ";
 		$query .= "JOIN appointment_group ag ON a.id = ag.appointment ";
@@ -447,17 +455,23 @@ class StartData extends AbstractLocationData {
 			$this->appendCustomDataToSelection('a', $appointments);
 		}
 		
+		$maxLen = intval($this->getSysdata()->getDynamicConfigParameter("appointments_show_max"));
+		if($maxLen > 0) {
+			return array_slice($appointments, 0, $maxLen+1);
+		}
+		
 		return $appointments;
 	}
 	
 	function getAppointment($id) {
 		// find all appointments where the user is in the group
 		$cid = $this->adp()->getUserContact();
-		$query = "SELECT a.*, l.name as locationname, addy.street, addy.zip, addy.city FROM appointment a ";
+		$query = "SELECT a.*, l.name as locationname, addy.street, addy.zip, addy.city, c.name as contactname, c.surname as contactsurname FROM appointment a ";
 		$query .= "JOIN location l ON a.location = l.id ";
 		$query .= "JOIN address addy ON l.address = addy.id ";
 		$query .= "JOIN appointment_group ag ON a.id = ag.appointment ";
 		$query .= "JOIN contact_group cg ON ag.group = cg.group ";
+		$query .= "JOIN contact c ON c.id = a.contact ";
 		$query .= "WHERE a.id = ? AND cg.contact = ? AND a.end > NOW() ";
 		$query .= "ORDER BY a.begin, a.end";
 		
