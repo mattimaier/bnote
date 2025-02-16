@@ -43,7 +43,7 @@ abstract class Data {
 	 * @return String in language format
 	 */
 	public static function convertDateFromDb($date) {
-		if(strlen($date) < 8) return "-";
+		if($date==null or strlen($date) < 8) return "-";
 		
 		if(strlen($date) > 10) {
 			// with time in format yyyy-mm-dd hh:mm
