@@ -197,7 +197,7 @@ class Table implements iWriteable {
 		$this->paginationLinkNext = $link . ($offset+$limit);
 	}
 	
-	function allowRowReorder($allow = true, $postUrl) {
+	function allowRowReorder($allow, $postUrl) {
 		$this->allowRowReorder = $allow;
 		$this->reorderPostUrl = $postUrl;
 	}
