@@ -234,6 +234,10 @@ class Table implements iWriteable {
 		# Table
 		$regex = new Regex();
 
+		# mapping of columns to local indices (after removing columns)
+		$colIndex = 0;
+		$hideColsLocal = array();
+
 		$rowSpanCount = 0;
 		foreach($this->data as $row) {
 			if($head) {
@@ -254,6 +258,11 @@ class Table implements iWriteable {
 					if(in_array(strtolower($value), $this->remove)) {
 						continue;
 					}
+
+					if (in_array(strtolower($value), $this->hideCols)) {
+						array_push($hideColsLocal, $colIndex);
+					}
+					$colIndex = $colIndex + 1;
 
 					# Header
 					if(isset($this->headernames[strtolower($value)])) {
@@ -439,16 +448,9 @@ class Table implements iWriteable {
 				});
 				<?php 
 				// hide columns
-				if(count($this->hideCols) > 0) {
-					$colIndices = array();
-					foreach($this->hideCols as $colName) {
-						$colIdx = array_search($colName, $this->data[0]);
-						if($colIdx !== false) {
-							array_push($colIndices, $colIdx);
-						}
-					}
+				if(count($hideColsLocal) > 0) {
 					?>
-					table.columns(<?php echo json_encode($colIndices); ?>).visible(false);
+					table.columns(<?php echo json_encode($hideColsLocal); ?>).visible(false);
 					<?php
 				}
 				
