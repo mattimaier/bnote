@@ -290,6 +290,8 @@ class ProbenView extends CrudRefLocationView {
 		$tab->renameHeader("location", Lang::txt("ProbenView_addEntity.location"));
 		$tab->setEdit("id");
 		$tab->hideColumn("id");
+		$tab->sortColumnByDate("when");
+		$tab->sortColumnByDate("approve_until");
 		$tab->write();
 	}
 	
@@ -546,6 +548,7 @@ class ProbenView extends CrudRefLocationView {
 		$table->renameHeader("participate", Lang::txt("ProbenView_participants.participate"));
 		$table->renameHeader("reason", Lang::txt("ProbenView_participants.reason"));
 		$table->renameHeader("replyon", Lang::txt("ProbenView_participants.replyon"));
+		$table->setColumnFormat("replyon", "DATE");
 		$table->write();
 		
 		// remaining calls
