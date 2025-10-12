@@ -158,9 +158,9 @@ class ProgramView extends CrudView {
 		$delCaption = Lang::txt("AbstractView_deleteConfirmationMessage.delete");
 		$tracks = Table::addDeleteColumn($tracks, $delHref, "delete", $delCaption, "trash3", "psid");
 		$tab = new Table($tracks);
-		$tab->hideColumn("Psid");
-		$tab->hideColumn("Rank");
-		$tab->hideColumn("Song");
+		$tab->hideColumn("psid");
+		$tab->hideColumn("rank");
+		$tab->hideColumn("song");
 		$saveLink = $this->modePrefix() . "saveList&id=" . $_GET["id"];
 		$tab->allowRowReorder(true, $saveLink);
 		$tab->write();

@@ -18,6 +18,7 @@ class Table implements iWriteable {
 	private $optColumns = array();
 	private $hideCols = array();
 	private $controlButtons = array();
+	private $colsSortedByDate = array();
 
 	private $dataRowSpan = 0;
 	private $allowContentWrap = true;
@@ -209,7 +210,15 @@ class Table implements iWriteable {
 	function hideColumn($colName) {
 		array_push($this->hideCols, $colName);
 	}
-	
+
+    /**
+     * Set column sort order by DATE dd.mm.yyyy hh:mm even if the field's data format is not DATE
+     * This is useful if the field string has more info appended: "01.01.1970 13:00 - 14:00"
+     */
+	function sortColumnByDate($colName) {
+		array_push($this->colsSortedByDate, $colName);
+	}
+
 	/**
 	 * Add global control buttons to the table.
 	 * @param String $buttonId Examples: 'print', 'csvHtml5'
@@ -234,6 +243,11 @@ class Table implements iWriteable {
 		# Table
 		$regex = new Regex();
 
+		# mapping of columns to local indices (after removing columns)
+		$colIndex = 0;
+		$hideColsLocal = array();
+		$colsSortedByDateLocal = array();
+
 		$rowSpanCount = 0;
 		foreach($this->data as $row) {
 			if($head) {
@@ -254,6 +268,16 @@ class Table implements iWriteable {
 					if(in_array(strtolower($value), $this->remove)) {
 						continue;
 					}
+
+					if (in_array(strtolower($value), $this->hideCols)) {
+						array_push($hideColsLocal, $colIndex);
+					}
+
+					if ( isset($this->formats[strtolower($value)]) && $this->formats[strtolower($value)] == "DATE" ||
+							in_array(strtolower($value), $this->colsSortedByDate) ) {
+						array_push($colsSortedByDateLocal, $colIndex);
+					}
+					$colIndex = $colIndex + 1;
 
 					# Header
 					if(isset($this->headernames[strtolower($value)])) {
@@ -391,8 +415,68 @@ class Table implements iWriteable {
 		if(!$empty) {
 			?>
 			<script>
+<?php
+			if(count($colsSortedByDateLocal) > 0) {
+?>
+			function parseDate(dateStr) {
+				var parts = dateStr.split(/[\s\.\:]+/);
+				if (parts.length < 3) return null;
+				var day = parseInt(parts[0]);
+				var mon = parseInt(parts[1]);
+				var yea = parseInt(parts[2]);
+				var hou = 0;
+				var min = 0;
+				if (parts.length >= 5) {
+					var hou = parseInt(parts[3]);
+					var min = parseInt(parts[4]);
+				}
+				if (isNaN(day) || day<0 || day>31 || isNaN(mon) || mon<1 || mon>12 ||
+					isNaN(yea) || isNaN(hou) || hou < 0 || hou > 23 ||
+					isNaN(min) || min < 0 || min >= 60) { return null; }
+				return new Date(yea, mon-1, day, hou, min);
+			}
+
+			function dateCmp(date1, date2) {
+				return date1.getFullYear() < date2.getFullYear() ? 1 :
+					date1.getFullYear() > date2.getFullYear() ? -1 :
+					date1.getMonth() < date2.getMonth() ? 1 :
+					date1.getMonth() > date2.getMonth() ? -1 :
+					date1.getDate() < date2.getDate() ? 1 :
+					date1.getDate() > date2.getDate() ? -1 :
+					date1.getHours() < date2.getHours() ? 1 :
+					date1.getHours() > date2.getHours() ? -1 :
+					date1.getMinutes() < date2.getMinutes() ? 1 :
+					date1.getMinutes() > date2.getMinutes() ? -1 : 0;
+			}
+<?php
+			}
+?>
 			// convert table to javasript DataTable
 			$(document).ready(function() {
+<?php
+			if(count($colsSortedByDateLocal) > 0) {
+?>
+				$.extend( $.fn.dataTable.ext.type.order, {
+					"sortByDate-desc": function ( val_1, val_2 ) {
+						var date1 = parseDate(val_1);
+						var date2 = parseDate(val_2);
+						if (date1 == null || date2 == null) {
+							return val_1 < val_2 ? 1 : val_1 > val_2 ? -1 : 0;
+						}
+						return dateCmp(date1, date2);
+					},
+					"sortByDate-asc": function ( val_1, val_2 ) {
+						var date1 = parseDate(val_1);
+						var date2 = parseDate(val_2);
+						if (date1 == null || date2 == null) {
+							return val_1 > val_2 ? 1 : val_1 < val_2 ? -1 : 0;
+						}
+						return dateCmp(date2, date1);
+					}
+				} );
+<?php
+			}
+?>
 				var identifier = "#<?php echo $identifier; ?>"
 	    		var table = $(identifier).DataTable({
 					 "paging": false, 
@@ -434,62 +518,59 @@ class Table implements iWriteable {
 					 ?>
 					 "buttons": []
 					 <?php
-					 }
-					 ?>
-				});
-				<?php 
-				// hide columns
-				if(count($this->hideCols) > 0) {
-					$colIndices = array();
-					foreach($this->hideCols as $colName) {
-						$colIdx = array_search($colName, $this->data[0]);
-						if($colIdx !== false) {
-							array_push($colIndices, $colIdx);
-						}
-					}
+				if(count($colsSortedByDateLocal) > 0) {
 					?>
-					table.columns(<?php echo json_encode($colIndices); ?>).visible(false);
+					, "columnDefs": [
+						{ "type": "sortByDate", targets: <?php echo json_encode($colsSortedByDateLocal); ?> }
+					]
 					<?php
 				}
-				
-				// Allow reordering rows, e.g. for program sorting - disable other features like sorting and click-to-open
-				if($this->allowRowReorder) {
-				?>
-				table.rowReorder.enable();
-				table.on('row-reordered', function ( e, diff, edit ) {
-					var reqData = table.data().toArray();
-					$.ajax({
-						url: "<?php echo $this->reorderPostUrl; ?>",
-						method: "POST",
-						contentType: "application/json",
-						data: JSON.stringify(reqData)
-					}).done(function() {
-						console.log("Autosave successful");
-					}).fail(function() {
-						alert("Unable to autosave. Please check logs.");
+			}
+					?>
 					});
-				} );
-				<?php 
-				}
-				else if($this->edit) {
-				?>
-				$(identifier).on('click', 'tbody tr', function() {
-					window.location.href = $(this).data('href');
-				});
-				$('tr').css('cursor','pointer');
-				<?php
-				}
-				?>
-			});
-			</script>
 			<?php
+			// hide columns
+			if(count($hideColsLocal) > 0) {
+				?>
+				table.columns(<?php echo json_encode($hideColsLocal); ?>).visible(false);
+				<?php
+			}
+			
+			// Allow reordering rows, e.g. for program sorting - disable other features like sorting and click-to-open
+			if($this->allowRowReorder) {
+			?>
+			table.rowReorder.enable();
+			table.on('row-reordered', function ( e, diff, edit ) {
+				var reqData = table.data().toArray();
+				$.ajax({
+					url: "<?php echo $this->reorderPostUrl; ?>",
+					method: "POST",
+					contentType: "application/json",
+					data: JSON.stringify(reqData)
+				}).done(function() {
+					console.log("Autosave successful");
+				}).fail(function() {
+					alert("Unable to autosave. Please check logs.");
+				});
+			} );
+		<?php
+			}
+			else if($this->edit) {
+			?>
+			$(identifier).on('click', 'tbody tr', function() {
+				window.location.href = $(this).data('href');
+			});
+			$('tr').css('cursor','pointer');
+			<?php
+			}
+		?>
+		});
+		</script>
+		<?php
 		}
 		return $identifier;
 	}
-	
+
 	public function getName() { return NULL; }
-
-
 }
-
 ?>
