@@ -467,6 +467,7 @@ class AbstimmungView extends CrudView {
 		if($vote["is_multi"] == 1) {
 			$table->setDataRowSpan(3);
 		}
+		$table->setColumnFormat("end", "DATE");
 		$table->write();
 	}
 	
