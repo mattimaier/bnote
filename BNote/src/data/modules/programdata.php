@@ -30,7 +30,7 @@ class ProgramData extends AbstractData {
 	}
 	
 	function create($values) {
-		if(isset($values["isTempalte"])) {
+		if(isset($values["isTemplate"])) {
 			$values["isTemplate"] = "1";
 		}
 		else {
