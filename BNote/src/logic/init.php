@@ -21,6 +21,15 @@ foreach($widgets as $id => $file) {
 	}
 }
 
+# Validate mod parameter
+if (isset($_GET['mod'])) {
+    $mod = $_GET['mod'];
+    // Validate: alphanumeric only, 1-100 characters
+	if (!preg_match('/^[a-zA-Z0-9]{1,100}$/', $mod)) {
+	    die('Error: "mod" parameter must contain only alphanumeric characters.');
+	}
+}
+
 # Inizialize System Array
 require_once $GLOBALS["DIR_DATA"] . "systemdata.php";
 $system_data = new Systemdata();
