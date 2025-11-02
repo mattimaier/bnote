@@ -3,7 +3,8 @@
 #############################################
 
 #565: Critical security fix for mod-parameter XSS vulnerability
-#548: Date sorting implemented
 #560: Remove PHP warnings
+#563: Typo fix in program module
+#548: Date sorting implemented
 
 Plus updating libraries through composer.
