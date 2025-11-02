@@ -1,16 +1,9 @@
 #############################################
-# Changes to BNote in comparison with 4.0.2 #
+# Changes to BNote in comparison with 4.0.3 #
 #############################################
 
-#479 Filtering "inbox" on start by type of card
-#504 Bugfix for vote result display
-#537 Bugfix for Website module multi display in navigation
-#539 Bugfix for registration of new users wo/ birthday field filled
-#542 and #544 Harmonizing installation guides
-#547 Disabled group field when editing gigs
-#554 Apply appointment, rehearsal and concert max parameters on start page again
-#556 Rehearsal data query fix
-#558 Display further details for appointments on start page
+#565: Critical security fix for mod-parameter XSS vulnerability
+#548: Date sorting implemented
+#560: Remove PHP warnings
 
-
-Plus: Reorganization of used libraries and update of them using composer.
+Plus updating libraries through composer.
