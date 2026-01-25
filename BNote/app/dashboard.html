@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BNote</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-semibold text-gray-900">BNote Dashboard</h1>
+                <button 
+                    onclick="Auth.logout()" 
+                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                    Abmelden
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="app">
+            <!-- Loading state -->
+            <div id="loading" class="flex items-center justify-center p-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            </div>
+            
+            <!-- Dashboard content -->
+            <div id="dashboard-content" class="hidden space-y-6">
+                <!-- Stats section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Anstehende Proben</h3>
+                        <p id="rehearsals-count" class="text-2xl font-semibold text-gray-900">-</p>
+                    </div>
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Anstehende Konzerte</h3>
+                        <p id="concerts-count" class="text-2xl font-semibold text-gray-900">-</p>
+                    </div>
+                </div>
+                
+                <!-- News section -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-lg font-semibold mb-4 text-gray-900">Neuigkeiten</h2>
+                    <div id="news-list" class="space-y-4">
+                        <p class="text-gray-500 text-sm">Lade Neuigkeiten...</p>
+                    </div>
+                </div>
+                
+                <!-- Inbox section -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-lg font-semibold mb-4 text-gray-900">Posteingang</h2>
+                    <div id="inbox-list" class="space-y-3">
+                        <p class="text-gray-500 text-sm">Lade Posteingang...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error state -->
+            <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+                <p id="error-message"></p>
+            </div>
+        </div>
+    </main>
+    
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Check authentication on page load
+        Auth.redirectIfNotAuthenticated().then(() => {
+            // Load dashboard data
+            loadDashboard();
+        });
+        
+        async function loadDashboard() {
+            const loadingEl = document.getElementById('loading');
+            const contentEl = document.getElementById('dashboard-content');
+            const errorEl = document.getElementById('error');
+            const errorMsgEl = document.getElementById('error-message');
+            
+            try {
+                loadingEl.classList.remove('hidden');
+                contentEl.classList.add('hidden');
+                errorEl.classList.add('hidden');
+                
+                const data = await DashboardApi.getDashboard();
+                
+                // Render news
+                const newsList = document.getElementById('news-list');
+                if (data.news && Array.isArray(data.news) && data.news.length > 0) {
+                    newsList.innerHTML = data.news.map(item => {
+                        const newsItem = typeof item === 'string' ? { content: item } : item;
+                        return `
+                            <div class="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                                <div class="text-sm text-gray-600">${newsItem.content || newsItem.title || 'News'}</div>
+                                ${newsItem.date ? `<div class="text-xs text-gray-400 mt-2">${newsItem.date}</div>` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    newsList.innerHTML = '<p class="text-gray-500 text-sm">Keine Neuigkeiten verfügbar</p>';
+                }
+                
+                // Render inbox
+                const inboxList = document.getElementById('inbox-list');
+                if (data.inbox && data.inbox.length > 0) {
+                    inboxList.innerHTML = data.inbox.map(item => {
+                        // Format due date - parse database format (YYYY-MM-DD HH:MM:SS) or use formatted string
+                        let dueDateDisplay = null;
+                        if (item.dueDate) {
+                            try {
+                                // JavaScript can parse YYYY-MM-DD HH:MM:SS format directly
+                                const date = new Date(item.dueDate);
+                                if (!isNaN(date.getTime())) {
+                                    // Format as German date: DD.MM.YYYY
+                                    dueDateDisplay = date.toLocaleDateString('de-DE', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric'
+                                    });
+                                }
+                            } catch (e) {
+                                console.warn('Date parsing error:', e, item.dueDate);
+                            }
+                        }
+                        // Fallback to pre-formatted date if parsing failed or no raw date available
+                        if (!dueDateDisplay && item.dueDateFormatted && item.dueDateFormatted !== '-') {
+                            dueDateDisplay = item.dueDateFormatted;
+                        }
+                        
+                        return `
+                            <div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                                <h3 class="font-medium text-gray-900 mb-1">${item.title || 'Eintrag'}</h3>
+                                <p class="text-sm text-gray-600">${item.preview || ''}</p>
+                                ${dueDateDisplay ? `<p class="text-xs text-gray-400 mt-1">Fällig: ${dueDateDisplay}</p>` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    inboxList.innerHTML = '<p class="text-gray-500 text-sm">Keine Einträge im Posteingang</p>';
+                }
+                
+                // Update stats
+                document.getElementById('rehearsals-count').textContent = data.stats?.upcoming_rehearsals || 0;
+                document.getElementById('concerts-count').textContent = data.stats?.upcoming_concerts || 0;
+                
+                loadingEl.classList.add('hidden');
+                contentEl.classList.remove('hidden');
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+                loadingEl.classList.add('hidden');
+                errorEl.classList.remove('hidden');
+                errorMsgEl.textContent = error.message || 'Fehler beim Laden des Dashboards';
+            }
+        }
+    </script>
+</body>
+</html>

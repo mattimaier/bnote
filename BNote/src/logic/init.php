@@ -3,8 +3,10 @@
  * Initializes System
 **/
 
-# Start session
-session_start();
+# Start session (only if not already started)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 # Load all widgets - not automated, due to exclusion of widgets and order
 $widgets = array(
@@ -21,7 +23,7 @@ foreach($widgets as $id => $file) {
 	}
 }
 
-# Validate mod parameter
+# Validate mod parameter (only if present - API calls don't have it)
 if (isset($_GET['mod'])) {
     $mod = $_GET['mod'];
     // Validate: alphanumeric only, 1-100 characters
@@ -34,19 +36,27 @@ if (isset($_GET['mod'])) {
 require_once $GLOBALS["DIR_DATA"] . "systemdata.php";
 $system_data = new Systemdata();
 
-# Load language
-require_once "lang.php";
+# Load language - use absolute path from project root
+$langFile = __DIR__ . "/../lang.php";
+if (file_exists($langFile)) {
+    require_once $langFile;
+} else {
+    // Fallback: try relative path (for backward compatibility)
+    require_once "lang.php";
+}
 
-# Logout
-if(isset($_GET["mod"]) && (
-		$_GET["mod"] === "logout" 
-		|| $system_data->getModuleId("Logout") == $_GET["mod"]) 
-		|| ($_GET["mod"] == "login" && isset($_GET["mode"]) && $_GET["mode"] == "logout")
+# Logout (only if mod parameter exists - API calls don't have it)
+if(isset($_GET["mod"])) {
+	$mod = $_GET["mod"];
+	if($mod === "logout" 
+		|| $system_data->getModuleId("Logout") == $mod
+		|| ($mod == "login" && isset($_GET["mode"]) && $_GET["mode"] == "logout")
 		) {
-	$_SESSION["user"] = NULL;
-	unset($_SESSION);
-	session_destroy();
-	header("Location: main.php?mod=login");
+		$_SESSION["user"] = NULL;
+		unset($_SESSION);
+		session_destroy();
+		header("Location: main.php?mod=login");
+	}
 }
 
 ?>
