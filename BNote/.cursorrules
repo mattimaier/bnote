@@ -1,0 +1,230 @@
+# BNote UI Modernization Rules
+
+## Project Context
+This is BNote - an open source ensemble management system for bands, orchestras, and choirs.
+- **Architecture:** 3-tier MVC (data/logic/presentation)
+- **Current UI:** Old PHP-generated HTML with inline CSS
+- **Goal:** Modern Tailwind CSS UI while preserving all PHP backend logic
+- **License:** GPL-3.0 (all code must remain GPL-compliant)
+
+## Core Principles
+
+### 1. Preserve Backend Completely
+- NEVER modify files in `/src/data/` or `/src/logic/`
+- ONLY modify files in `/src/presentation/`
+- Keep all existing PHP class methods and signatures
+- Preserve session management and security checks
+
+### 2. UI Modernization Strategy
+- Replace old CSS with Tailwind CSS utility classes
+- Replace inline styles with Tailwind classes
+- Keep PHP echo/print statements (just change HTML content)
+- Use Tailwind CDN (no build tools required)
+- Mobile-first responsive design
+- Maintain accessibility (ARIA labels, semantic HTML)
+
+### 3. Widget-First Approach
+- Start with `/src/presentation/widgets/` directory
+- These widgets are used across all 30+ modules
+- Modernizing widgets automatically updates entire app
+- Priority widgets: form.php, table.php, box.php, field.php
+
+### 4. Tailwind Guidelines
+- Use Tailwind 3.x utility classes
+- Prefer utility classes over custom CSS
+- Use standard spacing scale (p-4, m-6, etc.)
+- Use semantic color names (bg-blue-500, text-gray-700)
+- Mobile breakpoints: sm:, md:, lg:, xl:
+- Dark mode: optional (add dark: prefix when appropriate)
+
+### 5. Code Style
+- PSR-12 PHP coding standards
+- German variable names are OK (existing codebase convention)
+- Add comments for complex Tailwind class combinations
+- Keep indentation consistent with existing files
+
+### 6. Browser Compatibility
+- Target modern browsers (last 2 versions)
+- No IE11 support needed
+- Progressive enhancement approach
+- Use standard HTML5/CSS3
+
+## Specific Instructions
+
+### When Modifying Widget Classes:
+
+```php
+// CORRECT: Change only the HTML/CSS output
+class Form {
+    function render() {
+        // OLD: echo '<form class="old-style">';
+        echo '<form class="max-w-2xl mx-auto space-y-6 bg-white shadow-lg rounded-lg p-6">';
+        // Keep all PHP logic unchanged
+    }
+}
+
+// WRONG: Don't change method signatures or add dependencies
+class Form {
+    function render($tailwindConfig) { // ❌ Don't add parameters
+        // ...
+    }
+}
+```
+
+
+### Tailwind Patterns to Use:
+
+**Forms:**
+
+```html
+<form class="max-w-2xl mx-auto space-y-6 bg-white shadow-lg rounded-lg p-6">
+    <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+    <button class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+</form>
+```
+
+**Tables:**
+
+```html
+<table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+        <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+    <tbody class="bg-white divide-y divide-gray-200">
+        <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+```
+
+**Cards/Boxes:**
+
+```html
+<div class="bg-white rounded-lg shadow-md p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-gray-900">
+    <p class="text-gray-600">
+</div>
+```
+
+**Buttons:**
+
+```html
+<!-- Primary -->
+<button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+
+<!-- Secondary -->
+<button class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+
+<!-- Danger -->
+<button class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
+```
+
+**Responsive Layouts:**
+
+```html
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    ```
+    <div class="col-span-1">...</div>
+    ```
+</div>
+```
+
+
+### German Language Support:
+
+- Keep all German text unchanged (lang="de_DE")
+- Maintain existing translation system
+- UI labels stay in German
+
+
+### Rights/Security:
+
+- Never remove or bypass security checks
+- Preserve all `SecurityManager` calls
+- Keep session handling intact
+- Maintain permission-based UI hiding/showing
+
+
+## Testing Reminders
+
+- Test in Chrome/Firefox (latest)
+- Check mobile responsiveness (narrow browser window)
+- Verify all buttons/links still work
+- No JavaScript errors in console
+- Forms still submit correctly
+
+
+## License Compliance
+
+- All code must remain GPL-3.0
+- Use standard Tailwind patterns (MIT licensed)
+- Avoid copying proprietary UI components
+- Keep GPL headers in modified files
+
+
+## Workflow
+
+1. Analyze existing widget/view file
+2. Identify HTML output sections
+3. Replace old CSS classes with Tailwind
+4. Test in browser
+5. Iterate if needed
+
+## Example Transformation
+
+### Before:
+
+```php
+class LoginView {
+    function login() {
+        echo '<div class="loginbox">';
+        ```
+        echo '<h2>Login</h2>';
+        ```
+        echo '<form action="main.php?mod=login" method="post">';
+        echo '<input type="text" name="login" class="textfield">';
+        echo '<input type="password" name="password" class="textfield">';
+        echo '<input type="submit" value="Anmelden" class="submit">';
+        echo '</form>';
+        echo '</div>';
+    }
+}
+```
+
+
+### After:
+
+```php
+class LoginView {
+    function login() {
+        echo '<div class="max-w-md mx-auto mt-10 bg-white rounded-lg shadow-lg p-8">';
+        ```
+        echo '<h2 class="text-2xl font-bold text-gray-900 mb-6">Login</h2>';
+        ```
+        echo '<form action="main.php?mod=login" method="post" class="space-y-4">';
+        echo '<input type="text" name="login" placeholder="Benutzername" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">';
+        echo '<input type="password" name="password" placeholder="Passwort" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">';
+        ```
+        echo '<button type="submit" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">Anmelden</button>';
+        ```
+        echo '</form>';
+        echo '</div>';
+    }
+}
+```
+
+
+## Priority Order
+
+1. Core widgets (form, table, box, field)
+2. Login module
+3. Start/dashboard module
+4. High-traffic modules (rehearsals, concerts, calendar)
+5. Remaining modules
+
+## Notes
+
+- Cursor should generate clean, readable code
+- Preserve existing functionality 100%
+- Focus on visual improvements only in Phase 1
+- AJAX/async features come in Phase 2
+
+```
