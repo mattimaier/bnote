@@ -414,16 +414,16 @@
             </div>
         </header>
 
-        <main class="px-4 py-6 lg:px-6 flex-1">
+        <main class="px-4 py-4 lg:px-6 flex-1">
             <div class="mx-auto max-w-4xl">
-                <div class="space-y-6">
+                <div class="space-y-4">
                     <!-- Events Needing Response -->
                     <div id="events-needing-response-card"
-                        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border/40 py-6 shadow-sm hover:shadow-md transition-shadow">
-                        <div class="px-6 pb-3 border-b border-border/30">
+                        class="bg-card text-card-foreground flex flex-col gap-4 rounded-xl border border-border/40 py-4 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="px-4 lg:px-5 pb-2 border-b border-border/30">
                             <h2 class="text-base font-semibold text-foreground">Your Response Needed</h2>
                         </div>
-                        <div class="px-6 pb-4">
+                        <div class="px-4 lg:px-5 pb-3">
                             <div class="flex items-center gap-3 flex-wrap">
                                 <span class="text-xs font-medium text-muted-foreground">Filter:</span>
                                 <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal" data-section="events-needing-response">
@@ -440,33 +440,33 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="px-6">
+                        <div class="px-4 lg:px-5">
                             <!-- Loading skeleton -->
-                            <div id="events-needing-response-skeleton" class="relative space-y-5">
-                                <div class="relative flex gap-4">
+                            <div id="events-needing-response-skeleton" class="relative space-y-3">
+                                <div class="relative flex gap-3">
                                     <div
-                                        class="relative z-10 mt-1 h-8 w-8 shrink-0 rounded-full bg-muted animate-pulse ring-4 ring-background shadow-sm">
+                                        class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full bg-muted animate-pulse ring-3 ring-background shadow-sm">
                                     </div>
                                     <div
-                                        class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-4">
-                                        <div class="h-4 bg-muted animate-pulse rounded w-1/4 mb-2"></div>
-                                        <div class="h-5 bg-muted animate-pulse rounded w-3/4 mb-2"></div>
+                                        class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-3">
+                                        <div class="h-4 bg-muted animate-pulse rounded w-1/4 mb-1.5"></div>
+                                        <div class="h-4 bg-muted animate-pulse rounded w-3/4 mb-1.5"></div>
                                         <div class="h-3 bg-muted animate-pulse rounded w-1/2"></div>
                                     </div>
                                 </div>
                             </div>
                             <!-- Content will be inserted here -->
-                            <div id="events-needing-response-content" class="relative space-y-5 hidden"></div>
+                            <div id="events-needing-response-content" class="relative space-y-3 hidden"></div>
                         </div>
                     </div>
 
                     <!-- Events Timeline -->
                     <div id="events-timeline-card"
-                        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border/40 py-6 shadow-sm hover:shadow-md transition-shadow">
-                        <div class="px-6 pb-3 border-b border-border/30">
+                        class="bg-card text-card-foreground flex flex-col gap-4 rounded-xl border border-border/40 py-4 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="px-4 lg:px-5 pb-2 border-b border-border/30">
                             <h2 class="text-base font-semibold text-foreground">Upcoming Events</h2>
                         </div>
-                        <div class="px-6 pb-4">
+                        <div class="px-4 lg:px-5 pb-3">
                             <div class="flex items-center gap-3 flex-wrap">
                                 <span class="text-xs font-medium text-muted-foreground">Filter:</span>
                                 <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal" data-section="events-timeline">
@@ -483,33 +483,33 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="px-6">
+                        <div class="px-4 lg:px-5">
                             <!-- Loading skeleton -->
-                            <div id="events-timeline-skeleton" class="relative space-y-5">
-                                <div class="relative flex gap-4">
+                            <div id="events-timeline-skeleton" class="relative space-y-3">
+                                <div class="relative flex gap-3">
                                     <div
-                                        class="relative z-10 mt-1 h-8 w-8 shrink-0 rounded-full bg-muted animate-pulse ring-4 ring-background shadow-sm">
+                                        class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full bg-muted animate-pulse ring-3 ring-background shadow-sm">
                                     </div>
                                     <div
-                                        class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-4">
-                                        <div class="h-4 bg-muted animate-pulse rounded w-1/4 mb-2"></div>
-                                        <div class="h-5 bg-muted animate-pulse rounded w-3/4 mb-2"></div>
+                                        class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-3">
+                                        <div class="h-4 bg-muted animate-pulse rounded w-1/4 mb-1.5"></div>
+                                        <div class="h-4 bg-muted animate-pulse rounded w-3/4 mb-1.5"></div>
                                         <div class="h-3 bg-muted animate-pulse rounded w-1/2"></div>
                                     </div>
                                 </div>
                             </div>
                             <!-- Content will be inserted here -->
-                            <div id="events-timeline-content" class="relative space-y-5 hidden"></div>
+                            <div id="events-timeline-content" class="relative space-y-3 hidden"></div>
                         </div>
                     </div>
 
                     <!-- Quick Actions -->
                     <div id="quick-actions-card"
-                        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border/40 py-6 shadow-sm hover:shadow-md transition-shadow">
-                        <div class="px-6 pb-3 border-b border-border/30">
+                        class="bg-card text-card-foreground flex flex-col gap-4 rounded-xl border border-border/40 py-4 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="px-4 lg:px-5 pb-2 border-b border-border/30">
                             <h2 class="text-base font-semibold text-foreground">Quick Actions</h2>
                         </div>
-                        <div class="px-6 pt-4">
+                        <div class="px-4 lg:px-5 pt-3">
                             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="quick-actions-content">
                                 <!-- Quick actions will be inserted here -->
                             </div>

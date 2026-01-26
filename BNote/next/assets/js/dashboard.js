@@ -834,33 +834,33 @@ const Dashboard = {
             ` : '';
 
             return `
-                <div class="relative flex gap-4" data-event-id="${event.oid}">
-                    ${!isLast ? `<div class="absolute left-[15px] top-10 h-[calc(100%-16px)] w-0.5 timeline-connector"></div>` : ''}
-                    <div class="relative z-10 mt-1 h-8 w-8 shrink-0 rounded-full ${typeConfig.dotClass} ring-4 ring-background shadow-sm flex items-center justify-center">
-                        <i data-lucide="${typeConfig.icon}" class="h-3.5 w-3.5 text-white"></i>
+                <div class="relative flex gap-3" data-event-id="${event.oid}">
+                    ${!isLast ? `<div class="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector"></div>` : ''}
+                    <div class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ${typeConfig.dotClass} ring-3 ring-background shadow-sm flex items-center justify-center">
+                        <i data-lucide="${typeConfig.icon}" class="h-3 w-3 text-white"></i>
                     </div>
-                    <div class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-4 transition-all duration-200 hover:shadow-md hover:border-primary/30 group">
-                        <div class="flex items-start gap-4 mb-3">
+                    <div class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-3 transition-all duration-200 hover:shadow-md hover:border-primary/30 group">
+                        <div class="flex items-start gap-3 mb-2">
                             <div class="flex-1 min-w-0">
-                                <div class="mb-2">
-                                    <p class="text-lg font-bold text-foreground leading-none">${dateStr}</p>
+                                <div class="mb-1.5">
+                                    <p class="text-base font-bold text-foreground leading-tight">${dateStr}</p>
                                 </div>
-                                <div class="flex items-center gap-2 mb-2">
-                                    <h3 class="font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(event.title || 'Event')}</h3>
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <h3 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(event.title || 'Event')}</h3>
                                     <span class="${typeConfig.badgeClass}">
                                         ${typeConfig.label}
                                     </span>
                                 </div>
-                                <div class="flex items-center gap-1.5 text-sm text-muted-foreground/80">
-                                    <i data-lucide="clock" class="h-3.5 w-3.5 text-primary/60"></i>
+                                <div class="flex items-center gap-1.5 text-xs text-muted-foreground/80">
+                                    <i data-lucide="clock" class="h-3 w-3 text-primary/60"></i>
                                     <span>${timeStr}</span>
                                 </div>
                             </div>
                             ${participationWidget}
                         </div>
-                        <div class="flex items-center justify-between text-xs text-muted-foreground/70 pt-3 border-t border-border/30">
+                        <div class="flex items-center justify-between text-xs text-muted-foreground/70 pt-2 border-t border-border/30">
                             <span class="flex items-center gap-1.5">
-                                <i data-lucide="map-pin" class="h-3.5 w-3.5 text-primary/50"></i>
+                                <i data-lucide="map-pin" class="h-3 w-3 text-primary/50"></i>
                                 ${this.escapeHtml(location)}
                             </span>
                         </div>
@@ -878,6 +878,11 @@ const Dashboard = {
                 </button>
             </div>
         ` : '');
+        
+        // Re-initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
 
         // Reinitialize Lucide icons
         if (typeof lucide !== 'undefined') {
