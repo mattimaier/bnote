@@ -143,5 +143,12 @@ const DashboardApi = {
         const params = otype ? { otype } : {};
         return api.get('dashboard', 'inbox', params);
     },
-    getNews: () => api.get('dashboard', 'news')
+    getNews: () => api.get('dashboard', 'news'),
+    getEventsNeedingResponse: () => api.get('dashboard', 'eventsNeedingResponse'),
+    respondToEvent: (otype, oid, attending, reason = '') => api.post('dashboard', 'respondToEvent', { otype, oid, attending, reason })
+};
+
+const ParticipationApi = {
+    getStatus: (eventId, eventType) => api.get('participation', 'get', { event_id: eventId, event_type: eventType }),
+    saveStatus: (eventId, eventType, status, reason = '') => api.post('participation', 'save', { event_id: eventId, event_type: eventType, status, reason })
 };

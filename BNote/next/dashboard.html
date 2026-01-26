@@ -1,180 +1,571 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - BNote</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* CSS Custom Properties from v0.dev globals.css */
+        :root {
+            --background: oklch(0.99 0.001 250);
+            --foreground: oklch(0.18 0.01 250);
+            --card: oklch(1 0 0);
+            --card-foreground: oklch(0.18 0.01 250);
+            --popover: oklch(1 0 0);
+            --popover-foreground: oklch(0.18 0.01 250);
+            --primary: oklch(0.50 0.18 240);
+            --primary-foreground: oklch(1 0 0);
+            --secondary: oklch(0.97 0.002 250);
+            --secondary-foreground: oklch(0.30 0.01 250);
+            --muted: oklch(0.96 0.002 250);
+            --muted-foreground: oklch(0.50 0.01 250);
+            --accent: oklch(0.68 0.20 80);
+            --accent-foreground: oklch(1 0 0);
+            --destructive: oklch(0.58 0.22 20);
+            --destructive-foreground: oklch(1 0 0);
+            --border: oklch(0.93 0.002 250);
+            --input: oklch(0.95 0.002 250);
+            --ring: oklch(0.50 0.18 240);
+            --chart-1: oklch(0.50 0.18 240);
+            --chart-2: oklch(0.68 0.20 80);
+            --chart-3: oklch(0.62 0.18 150);
+            --chart-4: oklch(0.58 0.22 20);
+            --chart-5: oklch(0.65 0.15 300);
+            --radius: 0.875rem;
+            --sidebar: oklch(0.995 0.001 250);
+            --sidebar-foreground: oklch(0.18 0.01 250);
+            --sidebar-primary: oklch(0.50 0.18 240);
+            --sidebar-primary-foreground: oklch(1 0 0);
+            --sidebar-accent: oklch(0.96 0.002 250);
+            --sidebar-accent-foreground: oklch(0.30 0.01 250);
+            --sidebar-border: oklch(0.92 0.002 250);
+            --sidebar-ring: oklch(0.50 0.18 240);
+            /* Badge styling variables */
+            --spacing: 0.25rem;
+            --text-xs: 0.75rem;
+            --font-weight-medium: 500;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+        }
+
+        /* Utility classes for theme colors */
+        .bg-background {
+            background-color: var(--background);
+        }
+
+        .text-foreground {
+            color: var(--foreground);
+        }
+
+        .bg-card {
+            background-color: var(--card);
+        }
+
+        .text-card-foreground {
+            color: var(--card-foreground);
+        }
+
+        .bg-primary {
+            background-color: var(--primary);
+        }
+
+        .text-primary {
+            color: var(--primary);
+        }
+
+        .bg-muted {
+            background-color: var(--muted);
+        }
+
+        .text-muted-foreground {
+            color: var(--muted-foreground);
+        }
+
+        .bg-accent {
+            background-color: var(--accent);
+        }
+
+        .text-accent {
+            color: var(--accent);
+        }
+
+        .border-border {
+            border-color: var(--border);
+        }
+
+        .bg-sidebar {
+            background-color: var(--sidebar);
+        }
+
+        .text-sidebar-foreground {
+            color: var(--sidebar-foreground);
+        }
+
+        .border-sidebar-border {
+            border-color: var(--sidebar-border);
+        }
+
+        .bg-sidebar-accent {
+            background-color: var(--sidebar-accent);
+        }
+
+        .text-sidebar-accent-foreground {
+            color: var(--sidebar-accent-foreground);
+        }
+
+        /* Badge/Ribbon styling matching the design */
+        .event-badge {
+            display: inline-flex;
+            width: fit-content;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            gap: calc(var(--spacing, 0.25rem) * 1);
+            overflow: hidden;
+            border-radius: calc(var(--radius, 0.875rem) - 2px);
+            border-style: solid;
+            border-width: 1px;
+            border-color: color-mix(in oklab, var(--primary) 20%, transparent);
+            background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+            padding-inline: calc(var(--spacing, 0.25rem) * 2);
+            padding-block: calc(var(--spacing, 0.25rem) * 0.5);
+            font-size: var(--text-xs, 0.75rem);
+            line-height: calc(1 / 0.75);
+            font-weight: var(--font-weight-medium, 500);
+            white-space: nowrap;
+            color: var(--primary);
+            transition-property: color, box-shadow;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        .event-badge.accent {
+            border-color: color-mix(in oklab, var(--accent) 20%, transparent);
+            background-color: color-mix(in oklab, var(--accent) 10%, transparent);
+            color: var(--accent);
+        }
+
+        .event-badge.chart-3 {
+            border-color: color-mix(in oklab, var(--chart-3) 20%, transparent);
+            background-color: color-mix(in oklab, var(--chart-3) 10%, transparent);
+            color: var(--chart-3);
+        }
+
+        /* Enhanced gradient line for timeline connections */
+        .timeline-connector {
+            background: linear-gradient(to bottom,
+                    color-mix(in oklab, var(--border) 100%, transparent),
+                    color-mix(in oklab, var(--border) 40%, transparent),
+                    color-mix(in oklab, var(--border) 10%, transparent));
+        }
+
+        /* Participation widget button styles - locked state */
+        .participation-btn:disabled {
+            background-color: transparent !important;
+            border-color: var(--border) !important;
+            color: var(--muted-foreground) !important;
+            cursor: not-allowed !important;
+            opacity: 0.6 !important;
+        }
+
+        /* Participation widget button animations */
+        .participation-btn {
+            transform-origin: center;
+        }
+
+        .participation-btn.pointer-events-none {
+            pointer-events: none;
+        }
+
+        /* Ensure buttons container is right-aligned and compact */
+        .participation-btn.hidden,
+        .participation-btn[style*="display: none"] {
+            display: none !important;
+            width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* Filter bubble styles */
+        .filter-bubble {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding-inline: calc(var(--spacing, 0.25rem) * 2);
+            padding-block: calc(var(--spacing, 0.25rem) * 0.5);
+            font-size: var(--text-xs, 0.75rem);
+            line-height: calc(1 / 0.75);
+            font-weight: var(--font-weight-medium, 500);
+            border-radius: calc(var(--radius, 0.875rem) - 2px);
+            border: 1px solid;
+            transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Unselected state - subtle hint */
+        .filter-bubble-rehearsal {
+            border-color: color-mix(in oklab, var(--primary) 20%, transparent);
+            background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+            color: var(--primary);
+        }
+
+        .filter-bubble-performance {
+            border-color: color-mix(in oklab, var(--accent) 20%, transparent);
+            background-color: color-mix(in oklab, var(--accent) 10%, transparent);
+            color: var(--accent);
+        }
+
+        .filter-bubble-meeting {
+            border-color: color-mix(in oklab, var(--chart-3) 20%, transparent);
+            background-color: color-mix(in oklab, var(--chart-3) 10%, transparent);
+            color: var(--chart-3);
+        }
+
+        /* Selected state - filled */
+        .filter-bubble-rehearsal.selected {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .filter-bubble-performance.selected {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: var(--accent-foreground);
+        }
+
+        .filter-bubble-meeting.selected {
+            background-color: var(--chart-3);
+            border-color: var(--chart-3);
+            color: var(--background);
+        }
+    </style>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                        },
+                        background: 'var(--background)',
+                        foreground: 'var(--foreground)',
+                        card: 'var(--card)',
+                        'card-foreground': 'var(--card-foreground)',
+                        primary: 'var(--primary)',
+                        'primary-foreground': 'var(--primary-foreground)',
+                        secondary: 'var(--secondary)',
+                        'secondary-foreground': 'var(--secondary-foreground)',
+                        muted: 'var(--muted)',
+                        'muted-foreground': 'var(--muted-foreground)',
+                        accent: 'var(--accent)',
+                        'accent-foreground': 'var(--accent-foreground)',
+                        destructive: 'var(--destructive)',
+                        'destructive-foreground': 'var(--destructive-foreground)',
+                        border: 'var(--border)',
+                        input: 'var(--input)',
+                        ring: 'var(--ring)',
+                        'chart-1': 'var(--chart-1)',
+                        'chart-2': 'var(--chart-2)',
+                        'chart-3': 'var(--chart-3)',
+                        'chart-4': 'var(--chart-4)',
+                        'chart-5': 'var(--chart-5)',
+                        sidebar: 'var(--sidebar)',
+                        'sidebar-foreground': 'var(--sidebar-foreground)',
+                        'sidebar-primary': 'var(--sidebar-primary)',
+                        'sidebar-primary-foreground': 'var(--sidebar-primary-foreground)',
+                        'sidebar-accent': 'var(--sidebar-accent)',
+                        'sidebar-accent-foreground': 'var(--sidebar-accent-foreground)',
+                        'sidebar-border': 'var(--sidebar-border)',
+                        'sidebar-ring': 'var(--sidebar-ring)',
+                    },
+                    borderRadius: {
+                        DEFAULT: 'var(--radius)',
                     },
                 },
             },
         }
     </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex items-center justify-between">
-                <h1 class="text-xl font-semibold text-gray-900">BNote Dashboard</h1>
+
+<body class="min-h-screen bg-background flex flex-col lg:flex-row">
+    <!-- Left module sidebar -->
+    <aside id="sidebar"
+        class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 sticky top-0 z-40 w-64 lg:relative lg:translate-x-0 fixed inset-y-0 left-0 translate-x-0 lg:block">
+        <!-- Header with brand -->
+        <div id="sidebar-header" class="flex items-center justify-between px-4 py-5 border-b border-sidebar-border/50">
+            <div id="sidebar-brand" class="flex items-center gap-3">
+                <div
+                    class="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                    <i data-lucide="music" class="h-5 w-5 text-primary"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
+                </div>
+            </div>
+            <button id="sidebar-collapse-btn"
+                class="h-8 w-8 p-0 hover:bg-sidebar-accent/80 text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors rounded-md flex items-center justify-center"
+                title="Collapse sidebar">
+                <i data-lucide="chevron-left" class="h-4 w-4"></i>
+            </button>
+        </div>
+
+        <!-- Modules list -->
+        <nav class="flex-1 overflow-y-auto p-3 space-y-1.5">
+            <a href="dashboard.html"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground font-semibold bg-primary/12 text-primary hover:bg-primary/16 shadow-sm">
+                <i data-lucide="layout-dashboard" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Dashboard</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="calendar" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Calendar</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="users" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Members</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="message-square" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Messages</span>
+                <span
+                    class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/20 text-primary text-xs font-bold shrink-0 sidebar-badge"
+                    id="messages-badge">0</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="map-pin" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Venues</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="file-text" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Documents</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Overlay for mobile when sidebar is open -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 lg:hidden z-30 hidden"
+        onclick="Dashboard.toggleSidebar()"></div>
+
+    <!-- Main content area -->
+    <div class="flex-1 flex flex-col">
+        <!-- Welcome Header -->
+        <header
+            class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div class="flex h-16 items-center justify-between px-4 lg:px-6 gap-4">
+                <!-- Menu button - visible on mobile only -->
+                <button id="mobile-menu-btn"
+                    class="lg:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
+                    onclick="Dashboard.toggleSidebar()" title="Toggle menu">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
+                </button>
+
+                <!-- Left: Search - hidden on mobile -->
+                <div class="hidden md:flex flex-1 max-w-sm">
+                    <div class="relative w-full">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
+                        <input type="text" placeholder="Search events, members..."
+                            class="pl-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
+                    </div>
+                </div>
+
+                <!-- Right side actions -->
+                <div class="flex items-center gap-2 ml-auto">
+                    <div class="h-6 w-px bg-border/30 hidden sm:block"></div>
+                    <button
+                        class="flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors group"
+                        onclick="Auth.logout()">
+                        <div class="h-8 w-8 rounded-full bg-primary/10 text-primary font-semibold text-xs flex items-center justify-center ring-1.5 ring-primary/20 group-hover:ring-primary/40 transition-all"
+                            id="user-avatar">
+                            <span id="user-initials">U</span>
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <p class="text-xs font-semibold leading-tight text-foreground" id="user-name">User</p>
+                            <span
+                                class="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] mt-0.5 bg-muted text-muted-foreground border-border"
+                                id="user-role">Member</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Welcome message -->
+            <div class="border-t border-border/30 bg-background/50 px-4 py-5 lg:px-6">
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-3xl font-bold tracking-tight text-foreground" id="welcome-greeting">
+                        Welcome
+                    </h1>
+                    <p class="text-muted-foreground text-sm font-medium">
+                        Here's what's happening with your band today.
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <main class="px-4 py-6 lg:px-6 flex-1">
+            <div class="mx-auto max-w-4xl">
+                <div class="space-y-6">
+                    <!-- Events Needing Response -->
+                    <div id="events-needing-response-card"
+                        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border/40 py-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="px-6 pb-3 border-b border-border/30">
+                            <h2 class="text-base font-semibold text-foreground">Your Response Needed</h2>
+                        </div>
+                        <div class="px-6 pb-4">
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <span class="text-xs font-medium text-muted-foreground">Filter:</span>
+                                <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal" data-section="events-needing-response">
+                                    rehearsal <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
+                                </button>
+                                <button class="filter-bubble filter-bubble-performance" data-filter-type="performance" data-section="events-needing-response">
+                                    performance <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
+                                </button>
+                                <button class="filter-bubble filter-bubble-meeting" data-filter-type="meeting" data-section="events-needing-response">
+                                    meeting <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
+                                </button>
+                                <button class="filter-clear-btn text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/50 transition-colors" data-section="events-needing-response">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                        <div class="px-6">
+                            <!-- Loading skeleton -->
+                            <div id="events-needing-response-skeleton" class="relative space-y-5">
+                                <div class="relative flex gap-4">
+                                    <div
+                                        class="relative z-10 mt-1 h-8 w-8 shrink-0 rounded-full bg-muted animate-pulse ring-4 ring-background shadow-sm">
+                                    </div>
+                                    <div
+                                        class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-4">
+                                        <div class="h-4 bg-muted animate-pulse rounded w-1/4 mb-2"></div>
+                                        <div class="h-5 bg-muted animate-pulse rounded w-3/4 mb-2"></div>
+                                        <div class="h-3 bg-muted animate-pulse rounded w-1/2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Content will be inserted here -->
+                            <div id="events-needing-response-content" class="relative space-y-5 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Events Timeline -->
+                    <div id="events-timeline-card"
+                        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border/40 py-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="px-6 pb-3 border-b border-border/30">
+                            <h2 class="text-base font-semibold text-foreground">Upcoming Events</h2>
+                        </div>
+                        <div class="px-6 pb-4">
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <span class="text-xs font-medium text-muted-foreground">Filter:</span>
+                                <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal" data-section="events-timeline">
+                                    rehearsal <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
+                                </button>
+                                <button class="filter-bubble filter-bubble-performance" data-filter-type="performance" data-section="events-timeline">
+                                    performance <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
+                                </button>
+                                <button class="filter-bubble filter-bubble-meeting" data-filter-type="meeting" data-section="events-timeline">
+                                    meeting <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
+                                </button>
+                                <button class="filter-clear-btn text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/50 transition-colors" data-section="events-timeline">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                        <div class="px-6">
+                            <!-- Loading skeleton -->
+                            <div id="events-timeline-skeleton" class="relative space-y-5">
+                                <div class="relative flex gap-4">
+                                    <div
+                                        class="relative z-10 mt-1 h-8 w-8 shrink-0 rounded-full bg-muted animate-pulse ring-4 ring-background shadow-sm">
+                                    </div>
+                                    <div
+                                        class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-4">
+                                        <div class="h-4 bg-muted animate-pulse rounded w-1/4 mb-2"></div>
+                                        <div class="h-5 bg-muted animate-pulse rounded w-3/4 mb-2"></div>
+                                        <div class="h-3 bg-muted animate-pulse rounded w-1/2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Content will be inserted here -->
+                            <div id="events-timeline-content" class="relative space-y-5 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div id="quick-actions-card"
+                        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border/40 py-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="px-6 pb-3 border-b border-border/30">
+                            <h2 class="text-base font-semibold text-foreground">Quick Actions</h2>
+                        </div>
+                        <div class="px-6 pt-4">
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="quick-actions-content">
+                                <!-- Quick actions will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-[420px]"></div>
+
+    <!-- Participation Modal -->
+    <div id="participation-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full mx-4 border border-border">
+            <h3 class="text-xl font-semibold mb-4 text-card-foreground">Reason for <span id="modal-status-label"></span></h3>
+            <textarea 
+                id="participation-reason" 
+                class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30" 
+                rows="4" 
+                placeholder="Optional reason...">
+            </textarea>
+            <div class="flex gap-3 mt-4 justify-end">
                 <button 
-                    onclick="Auth.logout()" 
-                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    id="modal-cancel" 
+                    class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground"
                 >
-                    Abmelden
+                    Cancel
+                </button>
+                <button 
+                    id="modal-confirm" 
+                    class="px-4 py-2 rounded-md text-white transition-colors"
+                >
+                    Confirm
                 </button>
             </div>
         </div>
-    </header>
-    
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div id="app">
-            <!-- Loading state -->
-            <div id="loading" class="flex items-center justify-center p-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            </div>
-            
-            <!-- Dashboard content -->
-            <div id="dashboard-content" class="hidden space-y-6">
-                <!-- Stats section -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-white shadow rounded-lg p-6">
-                        <h3 class="text-sm font-medium text-gray-500 mb-2">Anstehende Proben</h3>
-                        <p id="rehearsals-count" class="text-2xl font-semibold text-gray-900">-</p>
-                    </div>
-                    <div class="bg-white shadow rounded-lg p-6">
-                        <h3 class="text-sm font-medium text-gray-500 mb-2">Anstehende Konzerte</h3>
-                        <p id="concerts-count" class="text-2xl font-semibold text-gray-900">-</p>
-                    </div>
-                </div>
-                
-                <!-- News section -->
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h2 class="text-lg font-semibold mb-4 text-gray-900">Neuigkeiten</h2>
-                    <div id="news-list" class="space-y-4">
-                        <p class="text-gray-500 text-sm">Lade Neuigkeiten...</p>
-                    </div>
-                </div>
-                
-                <!-- Inbox section -->
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h2 class="text-lg font-semibold mb-4 text-gray-900">Posteingang</h2>
-                    <div id="inbox-list" class="space-y-3">
-                        <p class="text-gray-500 text-sm">Lade Posteingang...</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Error state -->
-            <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
-                <p id="error-message"></p>
-            </div>
-        </div>
-    </main>
-    
+    </div>
+
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="assets/js/participation.js"></script>
+    <script src="assets/js/dashboard.js"></script>
     <script>
-        // Check authentication on page load
-        Auth.redirectIfNotAuthenticated().then(() => {
-            // Load dashboard data
-            loadDashboard();
-        });
-        
-        async function loadDashboard() {
-            const loadingEl = document.getElementById('loading');
-            const contentEl = document.getElementById('dashboard-content');
-            const errorEl = document.getElementById('error');
-            const errorMsgEl = document.getElementById('error-message');
-            
-            try {
-                loadingEl.classList.remove('hidden');
-                contentEl.classList.add('hidden');
-                errorEl.classList.add('hidden');
-                
-                const data = await DashboardApi.getDashboard();
-                
-                // Render news
-                const newsList = document.getElementById('news-list');
-                if (data.news && Array.isArray(data.news) && data.news.length > 0) {
-                    newsList.innerHTML = data.news.map(item => {
-                        const newsItem = typeof item === 'string' ? { content: item } : item;
-                        return `
-                            <div class="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
-                                <div class="text-sm text-gray-600">${newsItem.content || newsItem.title || 'News'}</div>
-                                ${newsItem.date ? `<div class="text-xs text-gray-400 mt-2">${newsItem.date}</div>` : ''}
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    newsList.innerHTML = '<p class="text-gray-500 text-sm">Keine Neuigkeiten verfügbar</p>';
-                }
-                
-                // Render inbox
-                const inboxList = document.getElementById('inbox-list');
-                if (data.inbox && data.inbox.length > 0) {
-                    inboxList.innerHTML = data.inbox.map(item => {
-                        // Format due date - parse database format (YYYY-MM-DD HH:MM:SS) or use formatted string
-                        let dueDateDisplay = null;
-                        if (item.dueDate) {
-                            try {
-                                // JavaScript can parse YYYY-MM-DD HH:MM:SS format directly
-                                const date = new Date(item.dueDate);
-                                if (!isNaN(date.getTime())) {
-                                    // Format as German date: DD.MM.YYYY
-                                    dueDateDisplay = date.toLocaleDateString('de-DE', {
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric'
-                                    });
-                                }
-                            } catch (e) {
-                                console.warn('Date parsing error:', e, item.dueDate);
-                            }
-                        }
-                        // Fallback to pre-formatted date if parsing failed or no raw date available
-                        if (!dueDateDisplay && item.dueDateFormatted && item.dueDateFormatted !== '-') {
-                            dueDateDisplay = item.dueDateFormatted;
-                        }
-                        
-                        return `
-                            <div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
-                                <h3 class="font-medium text-gray-900 mb-1">${item.title || 'Eintrag'}</h3>
-                                <p class="text-sm text-gray-600">${item.preview || ''}</p>
-                                ${dueDateDisplay ? `<p class="text-xs text-gray-400 mt-1">Fällig: ${dueDateDisplay}</p>` : ''}
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    inboxList.innerHTML = '<p class="text-gray-500 text-sm">Keine Einträge im Posteingang</p>';
-                }
-                
-                // Update stats
-                document.getElementById('rehearsals-count').textContent = data.stats?.upcoming_rehearsals || 0;
-                document.getElementById('concerts-count').textContent = data.stats?.upcoming_concerts || 0;
-                
-                loadingEl.classList.add('hidden');
-                contentEl.classList.remove('hidden');
-            } catch (error) {
-                console.error('Failed to load dashboard:', error);
-                loadingEl.classList.add('hidden');
-                errorEl.classList.remove('hidden');
-                errorMsgEl.textContent = error.message || 'Fehler beim Laden des Dashboards';
-            }
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
         }
+
+        // Check authentication on page load
+        Auth.redirectIfNotAuthenticated().then((session) => {
+            // Initialize dashboard
+            Dashboard.init(session);
+        });
     </script>
 </body>
+
 </html>
