@@ -2,6 +2,8 @@
 /**
  * Simple JSON response helper for BNote API
  * Provides consistent response format across all endpoints
+ * 
+ * Note: Logging is handled in api/index.php before calling these methods
  */
 class Response {
     /**

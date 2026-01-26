@@ -5,41 +5,47 @@
 class Api {
     constructor() {
         // Calculate base path from current location
-        // The API is at /api/index.php, but we're in /app/
-        // So we need to go up one level from /app/ to reach the root
+        // The API is at /api/index.php (root level), but we're in /next/
+        // So we need to go up one level from /next/ to reach the root
         const pathname = window.location.pathname;
         
-        // Find the position of /app/ in the pathname
-        const appIndex = pathname.indexOf('/app/');
-        
+        // Method 1: Try to find /next/ or /next in the pathname and get everything before it
         let basePath;
-        if (appIndex !== -1) {
-            // We're in /app/ directory, get everything before it
-            basePath = pathname.substring(0, appIndex);
+        const nextSlashIndex = pathname.indexOf('/next/');
+        const nextIndex = pathname.indexOf('/next');
+        
+        if (nextSlashIndex !== -1) {
+            // Found /next/ with trailing slash
+            basePath = pathname.substring(0, nextSlashIndex);
+        } else if (nextIndex !== -1) {
+            // Found /next without trailing slash (e.g., /next/login.html)
+            basePath = pathname.substring(0, nextIndex);
         } else {
-            // Fallback: remove filename and any trailing /app
-            const pathParts = pathname.split('/').filter(p => p);
-            // Remove last part (filename)
-            if (pathParts.length > 0) pathParts.pop();
-            // Remove 'app' if it's the last part
-            if (pathParts.length > 0 && pathParts[pathParts.length - 1] === 'app') {
-                pathParts.pop();
+            // Fallback: parse path segments
+            const pathParts = pathname.split('/').filter(p => p && p !== '');
+            const nextPos = pathParts.indexOf('next');
+            if (nextPos !== -1) {
+                pathParts.splice(nextPos);
+            } else {
+                // Remove filename if no 'next' found
+                if (pathParts.length > 0 && pathParts[pathParts.length - 1].includes('.')) {
+                    pathParts.pop();
+                }
             }
-            basePath = pathParts.length > 0 ? '/' + pathParts.join('/') : '';
+            basePath = pathParts.length > 0 ? '/' + pathParts.join('/') : '/';
         }
         
-        // Ensure basePath ends with /
-        if (!basePath.endsWith('/')) {
+        // Ensure basePath ends with / (unless it's root)
+        if (basePath !== '/' && !basePath.endsWith('/')) {
             basePath += '/';
         }
-        if (!basePath.startsWith('/')) {
-            basePath = '/' + basePath;
-        }
         
+        // API is at root level: basePath + 'api/index.php'
+        // Example: /bnote/BNote/ + api/index.php = /bnote/BNote/api/index.php
         this.baseUrl = basePath + 'api/index.php';
         
-        // Debug: log the calculated URL
-        console.log('API Base URL:', this.baseUrl, 'from pathname:', pathname, 'basePath:', basePath);
+        // Debug: log the calculated URL with detailed info
+        console.log('API Base URL:', this.baseUrl, 'from pathname:', pathname, 'basePath:', basePath, 'nextIndex:', nextIndex, 'nextSlashIndex:', nextSlashIndex);
     }
     
     /**
