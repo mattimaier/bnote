@@ -42,6 +42,9 @@ This is BNote - an open source ensemble management system for bands, orchestras,
 - German variable names are OK (existing codebase convention)
 - Add comments for complex Tailwind class combinations
 - Keep indentation consistent with existing files
+- **CRITICAL: Do NOT reformat existing PHP code** - preserve exact whitespace, line endings, and formatting to avoid unnecessary diffs
+- Only modify code that you're intentionally changing - don't auto-format entire files
+- When editing, only change the specific lines you need to modify
 
 ### 6. Browser Compatibility
 - Target modern browsers (last 2 versions)
