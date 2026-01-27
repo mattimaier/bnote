@@ -43,146 +43,14 @@ const Dashboard = {
      */
     async init(session) {
         this.session = session;
-        
+
         // Initialize UI
-        this.initSidebar();
         this.initWelcomeHeader();
         this.initQuickActions();
         this.initFilters();
         
         // Load dashboard data
         await this.loadDashboard();
-    },
-
-    /**
-     * Initialize sidebar functionality
-     */
-    initSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        const collapseBtn = document.getElementById('sidebar-collapse-btn');
-
-        // Collapse/expand functionality
-        if (collapseBtn) {
-            collapseBtn.addEventListener('click', () => {
-                this.toggleSidebarCollapse();
-            });
-        }
-
-        // Close sidebar on mobile when clicking overlay
-        if (overlay) {
-            overlay.addEventListener('click', () => {
-                this.toggleSidebar();
-            });
-        }
-
-        // Close sidebar on mobile/tablet when clicking outside
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth < 1280 && this.sidebarOpen) {
-                if (!sidebar.contains(e.target) && !document.getElementById('mobile-menu-btn')?.contains(e.target)) {
-                    this.toggleSidebar();
-                }
-            }
-        });
-        
-        // Handle window resize - show sidebar on desktop, hide on mobile/tablet
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                if (window.innerWidth >= 1280) {
-                    // Desktop: always show sidebar
-                    sidebar.classList.remove('-translate-x-full');
-                    overlay.classList.add('hidden');
-                    this.sidebarOpen = true;
-                } else {
-                    // Mobile/Tablet: hide sidebar by default
-                    sidebar.classList.add('-translate-x-full');
-                    overlay.classList.add('hidden');
-                    this.sidebarOpen = false;
-                }
-                
-                // Re-render events to switch between mobile/desktop layouts
-                if (this.allEvents['events-needing-response'].length > 0) {
-                    this.applyFiltersToSection('events-needing-response');
-                }
-                if (this.allEvents['events-timeline'].length > 0) {
-                    this.applyFiltersToSection('events-timeline');
-                }
-            }, 150);
-        });
-        
-        // Initialize sidebar state based on screen size
-        if (window.innerWidth < 1280) {
-            sidebar.classList.add('-translate-x-full');
-            this.sidebarOpen = false;
-        }
-    },
-
-    /**
-     * Toggle sidebar open/closed (mobile and tablet/compact devices)
-     */
-    toggleSidebar() {
-        this.sidebarOpen = !this.sidebarOpen;
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-
-        // Show/hide sidebar on mobile and tablet (below xl breakpoint)
-        if (window.innerWidth < 1280) {
-            if (this.sidebarOpen) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-            }
-        }
-    },
-
-    /**
-     * Toggle sidebar collapse (desktop)
-     */
-    toggleSidebarCollapse() {
-        this.sidebarCollapsed = !this.sidebarCollapsed;
-        const sidebar = document.getElementById('sidebar');
-        const collapseBtn = document.getElementById('sidebar-collapse-btn');
-        const icon = collapseBtn?.querySelector('i[data-lucide]');
-        const brand = document.getElementById('sidebar-brand');
-
-        if (this.sidebarCollapsed) {
-            sidebar.classList.remove('w-64');
-            sidebar.classList.add('w-20');
-            collapseBtn?.setAttribute('title', 'Expand sidebar');
-            if (icon) {
-                icon.setAttribute('data-lucide', 'chevron-right');
-            }
-            // Hide text in nav items and brand text
-            sidebar.querySelectorAll('.sidebar-text, .sidebar-badge').forEach(el => {
-                el.classList.add('hidden');
-            });
-            if (brand) {
-                brand.querySelector('div:last-child')?.classList.add('hidden');
-            }
-        } else {
-            sidebar.classList.remove('w-20');
-            sidebar.classList.add('w-64');
-            collapseBtn?.setAttribute('title', 'Collapse sidebar');
-            if (icon) {
-                icon.setAttribute('data-lucide', 'chevron-left');
-            }
-            // Show text in nav items and brand text
-            sidebar.querySelectorAll('.sidebar-text, .sidebar-badge').forEach(el => {
-                el.classList.remove('hidden');
-            });
-            if (brand) {
-                brand.querySelector('div:last-child')?.classList.remove('hidden');
-            }
-        }
-
-        // Reinitialize Lucide icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
     },
 
     /**
@@ -299,7 +167,7 @@ const Dashboard = {
                 DashboardApi.getDashboard(),
                 DashboardApi.getEventsNeedingResponse()
             ]);
-            
+
             this.dashboardData = dashboardData;
 
             // Store all events and config
@@ -387,7 +255,7 @@ const Dashboard = {
 
         // Apply filtering to the section
         this.applyFiltersToSection(sectionId);
-        
+
         // Update filter counts based on filtered events
         this.updateFilterCountsForSection(sectionId);
     },
@@ -409,7 +277,7 @@ const Dashboard = {
 
         // Apply filtering (show all events)
         this.applyFiltersToSection(sectionId);
-        
+
         // Update filter counts to show all counts
         this.updateFilterCounts(sectionId, this.eventCounts[sectionId]);
     },
@@ -421,7 +289,7 @@ const Dashboard = {
         const allEvents = this.allEvents[sectionId] || [];
         const filteredEvents = this.applyFilters(sectionId, allEvents);
         const maxDisplay = this.maxDisplayCounts[sectionId] || 5;
-        
+
         // Reset displayed count to max if current is less than max, otherwise keep current
         const currentDisplayed = this.displayedCounts[sectionId] || maxDisplay;
         if (currentDisplayed <= maxDisplay) {
@@ -431,7 +299,7 @@ const Dashboard = {
             // Keep current if user has loaded more, but cap at filtered length
             this.displayedCounts[sectionId] = Math.min(currentDisplayed, filteredEvents.length);
         }
-        
+
         if (sectionId === 'events-needing-response') {
             // Re-render events needing response
             this.renderEventsNeedingResponse(allEvents);
@@ -449,13 +317,13 @@ const Dashboard = {
         const currentDisplayed = this.displayedCounts[sectionId] || maxDisplay;
         const allEvents = this.allEvents[sectionId] || [];
         const filteredEvents = this.applyFilters(sectionId, allEvents);
-        
+
         // Increase displayed count
         this.displayedCounts[sectionId] = Math.min(
             currentDisplayed + maxDisplay,
             filteredEvents.length
         );
-        
+
         // Re-render section
         this.applyFiltersToSection(sectionId);
     },
@@ -484,7 +352,7 @@ const Dashboard = {
     updateFilterCountsForSection(sectionId) {
         const allEvents = this.allEvents[sectionId] || [];
         const filterSet = this.filters[sectionId];
-        
+
         if (!filterSet || filterSet.size === 0) {
             // No filters, show all counts
             this.updateFilterCounts(sectionId, this.eventCounts[sectionId]);
@@ -505,7 +373,7 @@ const Dashboard = {
             'performance': 0,
             'meeting': 0
         };
-        
+
         events.forEach(event => {
             const eventType = this.mapOtypeToEventType(event.otype);
             if (eventType === 'rehearsal') {
@@ -516,7 +384,7 @@ const Dashboard = {
                 counts.meeting++;
             }
         });
-        
+
         return counts;
     },
 
@@ -552,15 +420,15 @@ const Dashboard = {
                 DashboardApi.getDashboard(),
                 DashboardApi.getEventsNeedingResponse()
             ]);
-            
+
             // Update stored dashboard data
             this.dashboardData = dashboardData;
 
             // Extract events from response (handle both old array format and new object format)
-            const eventsNeedingResponseArray = Array.isArray(eventsNeedingResponse) 
-                ? eventsNeedingResponse 
+            const eventsNeedingResponseArray = Array.isArray(eventsNeedingResponse)
+                ? eventsNeedingResponse
                 : (eventsNeedingResponse.events || []);
-            
+
             // Update stored events and counts
             this.allEvents['events-needing-response'] = eventsNeedingResponseArray;
             if (eventsNeedingResponse.counts) {
@@ -603,8 +471,8 @@ const Dashboard = {
         if (!container) return;
 
         // Handle both array and object format
-        const events = Array.isArray(eventsNeedingResponse) 
-            ? eventsNeedingResponse 
+        const events = Array.isArray(eventsNeedingResponse)
+            ? eventsNeedingResponse
             : (eventsNeedingResponse.events || []);
         const currentEventIds = new Set(
             Array.from(container.querySelectorAll('[data-event-id]'))
@@ -629,7 +497,7 @@ const Dashboard = {
                 item.style.paddingTop = '0';
                 item.style.paddingBottom = '0';
                 item.style.maxHeight = item.offsetHeight + 'px';
-                
+
                 setTimeout(() => {
                     item.remove();
                 }, 300);
@@ -675,7 +543,7 @@ const Dashboard = {
                 }
             });
         }
-        
+
         // Re-initialize participation widgets after animation completes
         setTimeout(() => {
             this.initializeParticipationWidgets(container);
@@ -689,22 +557,26 @@ const Dashboard = {
         const container = document.getElementById('events-timeline-content');
         if (!container) return;
 
-        const inboxItems = dashboardData.inbox || [];
-        const upcomingEvents = inboxItems
+        // Use all events from stored data (already updated in refreshEventsSections)
+        // This ensures filters work correctly - we need ALL events, not just first 5
+        const allInboxItems = this.allEvents['events-timeline'] || dashboardData.inbox || [];
+        const upcomingEvents = allInboxItems
             .filter(item => item.eventBegin || item.dueDate)
             .sort((a, b) => {
                 const dateA = new Date(a.eventBegin || a.dueDate);
                 const dateB = new Date(b.eventBegin || b.dueDate);
                 return dateA - dateB;
-            })
-            .slice(0, 5);
+            });
+        // Don't slice here - renderEventsWidget will handle filtering and limiting
 
-        const events = upcomingEvents;
+        // Apply filters to get the events that should be displayed
+        const filteredEvents = this.applyFilters('events-timeline', upcomingEvents);
+        
         const currentEventIds = new Set(
             Array.from(container.querySelectorAll('[data-event-id]'))
                 .map(el => el.getAttribute('data-event-id'))
         );
-        const newEventIds = new Set(events.map(e => String(e.oid)));
+        const newEventIds = new Set(filteredEvents.map(e => String(e.oid)));
 
         // Find events to remove (fade out)
         const toRemove = Array.from(container.children).filter(child => {
@@ -723,7 +595,7 @@ const Dashboard = {
                 item.style.paddingTop = '0';
                 item.style.paddingBottom = '0';
                 item.style.maxHeight = item.offsetHeight + 'px';
-                
+
                 setTimeout(() => {
                     item.remove();
                 }, 300);
@@ -733,16 +605,12 @@ const Dashboard = {
         // Wait for removals to complete
         await new Promise(resolve => setTimeout(resolve, toRemove.length * 50 + 350));
 
-        // Apply filters before comparing
-        const filteredEvents = this.applyFilters('events-timeline', upcomingEvents);
-        const filteredEventIds = new Set(filteredEvents.map(e => String(e.oid)));
-
         // Find events to add (fade in) - use filtered events
         const toAdd = filteredEvents.filter(e => !currentEventIds.has(String(e.oid)));
 
-        // Render all events (including existing ones) - already filtered
+        // Render all events (including existing ones) - renderEventsWidget will apply filters and limit
         this.renderEventsWidget(
-            upcomingEvents,
+            upcomingEvents, // Pass all events, renderEventsWidget will filter and limit
             'events-timeline-content',
             'events-timeline-skeleton',
             'No upcoming events scheduled.',
@@ -769,7 +637,7 @@ const Dashboard = {
                 }
             });
         }
-        
+
         // Re-initialize participation widgets after animation
         setTimeout(() => {
             this.initializeParticipationWidgets(container);
@@ -842,7 +710,7 @@ const Dashboard = {
         } else {
             currentDisplayed = 5; // Default
         }
-        
+
         const displayedEvents = eventsList.slice(0, currentDisplayed);
         const hasMore = eventsList.length > currentDisplayed;
 
@@ -869,7 +737,7 @@ const Dashboard = {
 
             // Mobile compact layout: no timeline icons, less padding, unified design
             const isMobile = window.innerWidth < 768;
-            
+
             if (isMobile) {
                 // Mobile compact layout - unified for both sections
                 return `
@@ -903,7 +771,7 @@ const Dashboard = {
                     </div>
                 `;
             }
-            
+
             // Desktop layout with timeline
             return `
                 <div class="relative flex gap-3" data-event-id="${event.oid}">
@@ -950,21 +818,21 @@ const Dashboard = {
                 </button>
             </div>
         ` : '');
-        
+
         // Re-initialize Lucide icons after rendering
         setTimeout(() => {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
         }, 0);
-        
+
         // Initialize participation widgets for all events
         // Wait a bit for DOM to be ready, then initialize widgets
         setTimeout(() => {
             this.initializeParticipationWidgets(container);
         }, 100);
     },
-    
+
     /**
      * Initialize participation widgets in a container
      */
@@ -973,18 +841,18 @@ const Dashboard = {
             console.warn('initializeParticipationWidgets: container is null');
             return;
         }
-        
+
         const widgets = container.querySelectorAll('[data-participation-widget]:not([data-initialized])');
-        
+
         if (widgets.length === 0) {
             // No widgets to initialize
             return;
         }
-        
+
         widgets.forEach(element => {
             const eventId = element.getAttribute('data-event-id');
             const eventType = element.getAttribute('data-event-type');
-            
+
             if (!eventId || !eventType) {
                 console.warn('ParticipationWidget: Missing eventId or eventType', {
                     eventId,
@@ -996,12 +864,12 @@ const Dashboard = {
                 element.setAttribute('data-initialized', 'error');
                 return;
             }
-            
+
             if (!element.hasAttribute('data-initialized')) {
                 try {
                     element.setAttribute('data-initialized', 'true');
                     const widget = new ParticipationWidget(element, eventId, eventType);
-                    
+
                     // Verify widget was created successfully
                     if (!widget || !widget.container) {
                         console.error('ParticipationWidget: Widget creation failed', {
@@ -1031,10 +899,10 @@ const Dashboard = {
      */
     renderEventsNeedingResponse(eventsNeedingResponse) {
         // Handle both old format (array) and new format (object with events property)
-        const events = Array.isArray(eventsNeedingResponse) 
-            ? eventsNeedingResponse 
+        const events = Array.isArray(eventsNeedingResponse)
+            ? eventsNeedingResponse
             : (eventsNeedingResponse.events || []);
-        
+
         this.renderEventsWidget(
             events,
             'events-needing-response-content',
@@ -1050,7 +918,7 @@ const Dashboard = {
      */
     renderEventsTimeline(data) {
         const inboxItems = data.inbox || [];
-        
+
         // Get upcoming events (all inbox items, sorted by date)
         // Include all events, not just those needing response
         const upcomingEvents = inboxItems
@@ -1060,7 +928,7 @@ const Dashboard = {
                 const dateB = new Date(b.eventBegin || b.dueDate);
                 return dateA - dateB;
             });
-            // No slice here - renderEventsWidget will handle the limit
+        // No slice here - renderEventsWidget will handle the limit
 
         this.renderEventsWidget(
             upcomingEvents,
@@ -1121,7 +989,7 @@ const Dashboard = {
         try {
             const date = new Date(dateStr);
             if (isNaN(date.getTime())) return 'TBA';
-            
+
             // Format as "Jan 28" or "Feb 2"
             const month = date.toLocaleDateString('en-US', { month: 'short' });
             const day = date.getDate();
@@ -1139,12 +1007,12 @@ const Dashboard = {
         try {
             const date = new Date(dateStr);
             if (isNaN(date.getTime())) return 'TBA';
-            
+
             // Format as "7:00 PM"
-            return date.toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
                 minute: '2-digit',
-                hour12: true 
+                hour12: true
             });
         } catch (e) {
             return 'TBA';
@@ -1163,7 +1031,7 @@ const Dashboard = {
             /in\s+([A-Z][a-zA-Z\s]+)/i,
             /,\s+([A-Z][a-zA-Z\s]+)$/i
         ];
-        
+
         for (const pattern of locationPatterns) {
             const match = title.match(pattern);
             if (match && match[1]) {
@@ -1179,9 +1047,9 @@ const Dashboard = {
     async respondToEvent(otype, oid, attending) {
         try {
             await DashboardApi.respondToEvent(otype, oid, attending);
-            
+
             this.showToast(attending ? 'Event accepted' : 'Event declined', 'success');
-            
+
             // Reload dashboard to update UI
             await this.loadDashboard();
         } catch (error) {
@@ -1200,7 +1068,7 @@ const Dashboard = {
         const toast = document.createElement('div');
         const bgColor = type === 'error' ? 'bg-destructive' : type === 'success' ? 'bg-accent' : 'bg-background';
         const textColor = type === 'error' ? 'text-destructive-foreground' : type === 'success' ? 'text-accent-foreground' : 'text-foreground';
-        
+
         toast.className = `group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all ${bgColor} ${textColor} border-border`;
         toast.innerHTML = `
             <div class="flex-1">

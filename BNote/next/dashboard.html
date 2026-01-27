@@ -295,9 +295,9 @@
 </head>
 
 <body class="min-h-screen bg-background flex flex-col lg:flex-row">
-    <!-- Left module sidebar -->
+    <!-- Left module sidebar - Always visible on desktop, toggleable on mobile -->
     <aside id="sidebar"
-        class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 fixed inset-y-0 left-0 z-[60] w-64 xl:translate-x-0 -translate-x-full xl:block">
+        class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 fixed inset-y-0 left-0 z-[60] w-64 xl:translate-x-0 -translate-x-full">
         <!-- Header with brand -->
         <div id="sidebar-header" class="flex items-center justify-between px-4 py-5 border-b border-sidebar-border/50">
             <div id="sidebar-brand" class="flex items-center gap-3">
@@ -318,10 +318,15 @@
 
         <!-- Modules list -->
         <nav class="flex-1 overflow-y-auto p-3 space-y-1.5">
-            <a href="dashboard.html"
+            <a href="dashboard.html" data-page="dashboard"
                 class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground font-semibold bg-primary/12 text-primary hover:bg-primary/16 shadow-sm">
                 <i data-lucide="layout-dashboard" class="h-5 w-5 shrink-0"></i>
                 <span class="flex-1 truncate sidebar-text">Dashboard</span>
+            </a>
+            <a href="users.html" id="users-menu-item" data-page="users"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium hidden">
+                <i data-lucide="user-cog" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Users</span>
             </a>
             <a href="#"
                 class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
@@ -356,10 +361,10 @@
 
     <!-- Overlay for mobile/tablet when sidebar is open -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 xl:hidden z-30 hidden"
-        onclick="Dashboard.toggleSidebar()"></div>
+        onclick="Sidebar.toggleSidebar()"></div>
 
     <!-- Main content area -->
-    <div class="flex-1 flex flex-col xl:ml-64">
+    <div class="flex-1 flex flex-col min-w-0 xl:ml-64">
         <!-- Top Header Bar -->
         <header
             class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -367,7 +372,7 @@
                 <!-- Menu button - visible on mobile and tablet (compact devices) -->
                 <button id="mobile-menu-btn"
                     class="xl:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
-                    onclick="Dashboard.toggleSidebar()" title="Toggle menu">
+                    onclick="Sidebar.toggleSidebar()" title="Toggle menu">
                     <i data-lucide="menu" class="h-5 w-5"></i>
                 </button>
 
@@ -425,16 +430,21 @@
                         <div class="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
                             <div class="flex items-center gap-3 flex-wrap">
                                 <span class="text-xs font-medium text-muted-foreground">Filter:</span>
-                                <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal" data-section="events-needing-response">
+                                <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal"
+                                    data-section="events-needing-response">
                                     rehearsal <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
-                                <button class="filter-bubble filter-bubble-performance" data-filter-type="performance" data-section="events-needing-response">
+                                <button class="filter-bubble filter-bubble-performance" data-filter-type="performance"
+                                    data-section="events-needing-response">
                                     performance <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
-                                <button class="filter-bubble filter-bubble-meeting" data-filter-type="meeting" data-section="events-needing-response">
+                                <button class="filter-bubble filter-bubble-meeting" data-filter-type="meeting"
+                                    data-section="events-needing-response">
                                     meeting <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
-                                <button class="filter-clear-btn text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/50 transition-colors" data-section="events-needing-response">
+                                <button
+                                    class="filter-clear-btn text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/50 transition-colors"
+                                    data-section="events-needing-response">
                                     Clear
                                 </button>
                             </div>
@@ -462,7 +472,8 @@
                                 </div>
                             </div>
                             <!-- Content will be inserted here -->
-                            <div id="events-needing-response-content" class="relative space-y-2 md:space-y-3 hidden"></div>
+                            <div id="events-needing-response-content" class="relative space-y-2 md:space-y-3 hidden">
+                            </div>
                         </div>
                     </div>
 
@@ -475,16 +486,21 @@
                         <div class="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
                             <div class="flex items-center gap-3 flex-wrap">
                                 <span class="text-xs font-medium text-muted-foreground">Filter:</span>
-                                <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal" data-section="events-timeline">
+                                <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal"
+                                    data-section="events-timeline">
                                     rehearsal <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
-                                <button class="filter-bubble filter-bubble-performance" data-filter-type="performance" data-section="events-timeline">
+                                <button class="filter-bubble filter-bubble-performance" data-filter-type="performance"
+                                    data-section="events-timeline">
                                     performance <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
-                                <button class="filter-bubble filter-bubble-meeting" data-filter-type="meeting" data-section="events-timeline">
+                                <button class="filter-bubble filter-bubble-meeting" data-filter-type="meeting"
+                                    data-section="events-timeline">
                                     meeting <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
-                                <button class="filter-clear-btn text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/50 transition-colors" data-section="events-timeline">
+                                <button
+                                    class="filter-clear-btn text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/50 transition-colors"
+                                    data-section="events-timeline">
                                     Clear
                                 </button>
                             </div>
@@ -539,24 +555,18 @@
     <!-- Participation Modal -->
     <div id="participation-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full mx-4 border border-border">
-            <h3 class="text-xl font-semibold mb-4 text-card-foreground">Reason for <span id="modal-status-label"></span></h3>
-            <textarea 
-                id="participation-reason" 
-                class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30" 
-                rows="4" 
-                placeholder="Optional reason...">
+            <h3 class="text-xl font-semibold mb-4 text-card-foreground">Reason for <span id="modal-status-label"></span>
+            </h3>
+            <textarea id="participation-reason"
+                class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
+                rows="4" placeholder="Optional reason...">
             </textarea>
             <div class="flex gap-3 mt-4 justify-end">
-                <button 
-                    id="modal-cancel" 
-                    class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground"
-                >
+                <button id="modal-cancel"
+                    class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">
                     Cancel
                 </button>
-                <button 
-                    id="modal-confirm" 
-                    class="px-4 py-2 rounded-md text-white transition-colors"
-                >
+                <button id="modal-confirm" class="px-4 py-2 rounded-md text-white transition-colors">
                     Confirm
                 </button>
             </div>
@@ -565,6 +575,7 @@
 
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/participation.js"></script>
     <script src="assets/js/dashboard.js"></script>
     <script>
@@ -575,6 +586,9 @@
 
         // Check authentication on page load
         Auth.redirectIfNotAuthenticated().then((session) => {
+            // Initialize sidebar (always visible, independent of dashboard)
+            Sidebar.init('dashboard');
+            
             // Initialize dashboard
             Dashboard.init(session);
         });

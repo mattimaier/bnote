@@ -8,12 +8,12 @@ class Api {
         // The API is at /api/index.php (root level), but we're in /next/
         // So we need to go up one level from /next/ to reach the root
         const pathname = window.location.pathname;
-        
+
         // Method 1: Try to find /next/ or /next in the pathname and get everything before it
         let basePath;
         const nextSlashIndex = pathname.indexOf('/next/');
         const nextIndex = pathname.indexOf('/next');
-        
+
         if (nextSlashIndex !== -1) {
             // Found /next/ with trailing slash
             basePath = pathname.substring(0, nextSlashIndex);
@@ -34,20 +34,20 @@ class Api {
             }
             basePath = pathParts.length > 0 ? '/' + pathParts.join('/') : '/';
         }
-        
+
         // Ensure basePath ends with / (unless it's root)
         if (basePath !== '/' && !basePath.endsWith('/')) {
             basePath += '/';
         }
-        
+
         // API is at root level: basePath + 'api/index.php'
         // Example: /bnote/BNote/ + api/index.php = /bnote/BNote/api/index.php
         this.baseUrl = basePath + 'api/index.php';
-        
+
         // Debug: log the calculated URL with detailed info
         console.log('API Base URL:', this.baseUrl, 'from pathname:', pathname, 'basePath:', basePath, 'nextIndex:', nextIndex, 'nextSlashIndex:', nextSlashIndex);
     }
-    
+
     /**
      * Make API request
      * @param {string} module Module name (e.g., 'rehearsals', 'dashboard')
@@ -61,12 +61,12 @@ class Api {
         const url = new URL(this.baseUrl, window.location.origin);
         url.searchParams.set('module', module);
         url.searchParams.set('action', action);
-        
+
         // Add params to URL
         Object.keys(params).forEach(key => {
             url.searchParams.set(key, params[key]);
         });
-        
+
         const options = {
             method: data ? 'POST' : 'GET',
             headers: {
@@ -74,22 +74,31 @@ class Api {
             },
             credentials: 'same-origin', // Include cookies for session
         };
-        
+
         if (data) {
             // Add action to POST body
             options.body = JSON.stringify({ ...data, action });
         }
-        
+
         try {
             const response = await fetch(url, options);
-            
+
             // Check if response is OK
             if (!response.ok) {
                 const text = await response.text();
-                console.error('API HTTP Error:', response.status, text);
-                throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+                let errorData;
+                try {
+                    errorData = JSON.parse(text);
+                } catch (e) {
+                    errorData = { error: text };
+                }
+                console.error('API HTTP Error:', response.status, errorData);
+                const error = new Error(errorData.error || `API request failed: ${response.status} ${response.statusText}`);
+                error.status = response.status;
+                error.code = errorData.code || response.status;
+                throw error;
             }
-            
+
             // Try to parse as JSON
             const text = await response.text();
             let result;
@@ -100,25 +109,25 @@ class Api {
                 console.error('Response text:', text);
                 throw new Error('Invalid JSON response from server');
             }
-            
+
             if (!result.success) {
                 throw new Error(result.error || 'Request failed');
             }
-            
+
             return result.data;
         } catch (error) {
             console.error('API Error:', error);
             throw error;
         }
     }
-    
+
     /**
      * GET request convenience method
      */
     async get(module, action, params = {}) {
         return this.request(module, action, null, params);
     }
-    
+
     /**
      * POST request convenience method
      */
@@ -151,4 +160,18 @@ const DashboardApi = {
 const ParticipationApi = {
     getStatus: (eventId, eventType) => api.get('participation', 'get', { event_id: eventId, event_type: eventType }),
     saveStatus: (eventId, eventType, status, reason = '') => api.post('participation', 'save', { event_id: eventId, event_type: eventType, status, reason })
+};
+
+const UsersApi = {
+    list: () => api.get('users', 'list'),
+    get: (id) => api.get('users', 'get', { id }),
+    create: (data) => api.post('users', 'create', data),
+    update: (id, data) => api.post('users', 'update', { id, ...data }),
+    delete: (id) => api.post('users', 'delete', { id }),
+    activate: (id) => api.post('users', 'activate', { id }),
+    getPrivileges: (id) => api.get('users', 'getPrivileges', { id }),
+    updatePrivileges: (id, privileges) => api.post('users', 'updatePrivileges', { id, privileges }),
+    getContacts: () => api.get('users', 'getContacts'),
+    getLongInactiveUsers: () => api.get('users', 'getLongInactiveUsers'),
+    deleteUsersFull: (userIds) => api.post('users', 'deleteUsersFull', { userIds })
 };

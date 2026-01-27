@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - BNote</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* CSS Custom Properties from dashboard.html */
+        :root {
+            --background: oklch(0.99 0.001 250);
+            --foreground: oklch(0.18 0.01 250);
+            --card: oklch(1 0 0);
+            --card-foreground: oklch(0.18 0.01 250);
+            --primary: oklch(0.50 0.18 240);
+            --primary-foreground: oklch(1 0 0);
+            --secondary: oklch(0.97 0.002 250);
+            --muted: oklch(0.96 0.002 250);
+            --muted-foreground: oklch(0.50 0.01 250);
+            --accent: oklch(0.68 0.20 80);
+            --accent-foreground: oklch(1 0 0);
+            --destructive: oklch(0.58 0.22 20);
+            --destructive-foreground: oklch(1 0 0);
+            --border: oklch(0.93 0.002 250);
+            --input: oklch(0.95 0.002 250);
+            --ring: oklch(0.50 0.18 240);
+            --sidebar: oklch(0.995 0.001 250);
+            --sidebar-foreground: oklch(0.18 0.01 250);
+            --sidebar-accent: oklch(0.96 0.002 250);
+            --sidebar-border: oklch(0.92 0.002 250);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: 'var(--background)',
+                        foreground: 'var(--foreground)',
+                        card: 'var(--card)',
+                        primary: 'var(--primary)',
+                        muted: 'var(--muted)',
+                        'muted-foreground': 'var(--muted-foreground)',
+                        accent: 'var(--accent)',
+                        destructive: 'var(--destructive)',
+                        border: 'var(--border)',
+                        sidebar: 'var(--sidebar)',
+                        'sidebar-foreground': 'var(--sidebar-foreground)',
+                        'sidebar-accent': 'var(--sidebar-accent)',
+                        'sidebar-border': 'var(--sidebar-border)',
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="min-h-screen bg-background flex flex-col lg:flex-row">
+    <!-- Left module sidebar - Always visible on desktop, toggleable on mobile -->
+    <aside id="sidebar"
+        class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 fixed inset-y-0 left-0 z-[60] w-64 xl:translate-x-0 -translate-x-full">
+        <!-- Header with brand -->
+        <div id="sidebar-header" class="flex items-center justify-between px-4 py-5 border-b border-sidebar-border/50">
+            <div id="sidebar-brand" class="flex items-center gap-3">
+                <div
+                    class="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                    <i data-lucide="music" class="h-5 w-5 text-primary"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
+                </div>
+            </div>
+            <button id="sidebar-collapse-btn"
+                class="h-8 w-8 p-0 hover:bg-sidebar-accent/80 text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors rounded-md flex items-center justify-center"
+                title="Collapse sidebar">
+                <i data-lucide="chevron-left" class="h-4 w-4"></i>
+            </button>
+        </div>
+
+        <!-- Modules list -->
+        <nav class="flex-1 overflow-y-auto p-3 space-y-1.5">
+            <a href="dashboard.html" data-page="dashboard"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="layout-dashboard" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Dashboard</span>
+            </a>
+            <a href="users.html" id="users-menu-item" data-page="users"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground font-semibold bg-primary/12 text-primary hover:bg-primary/16 shadow-sm hidden">
+                <i data-lucide="user-cog" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Users</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="calendar" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Calendar</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="users" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Members</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="message-square" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Messages</span>
+                <span
+                    class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/20 text-primary text-xs font-bold shrink-0 sidebar-badge"
+                    id="messages-badge">0</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="map-pin" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Venues</span>
+            </a>
+            <a href="#"
+                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
+                <i data-lucide="file-text" class="h-5 w-5 shrink-0"></i>
+                <span class="flex-1 truncate sidebar-text">Documents</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Overlay for mobile/tablet when sidebar is open -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 xl:hidden z-30 hidden"
+        onclick="Sidebar.toggleSidebar()"></div>
+
+    <!-- Main content area -->
+    <div class="flex-1 flex flex-col min-w-0 xl:ml-64">
+        <!-- Top Header Bar -->
+        <header
+            class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div class="flex h-16 items-center justify-between px-4 lg:px-6 gap-4">
+                <!-- Menu button - visible on mobile and tablet (compact devices) -->
+                <button id="mobile-menu-btn"
+                    class="xl:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
+                    onclick="Sidebar.toggleSidebar()" title="Toggle menu">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
+                </button>
+
+                <!-- Left: Search - hidden on mobile -->
+                <div class="hidden md:flex flex-1 max-w-sm">
+                    <div class="relative w-full">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
+                        <input type="text" placeholder="Search users, members..."
+                            class="pl-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
+                    </div>
+                </div>
+
+                <!-- Right side actions -->
+                <div class="flex items-center gap-2 ml-auto">
+                    <div class="h-6 w-px bg-border/30 hidden sm:block"></div>
+                    <button
+                        class="flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors group"
+                        onclick="Auth.logout()">
+                        <div class="h-8 w-8 rounded-full bg-primary/10 text-primary font-semibold text-xs flex items-center justify-center ring-1.5 ring-primary/20 group-hover:ring-primary/40 transition-all"
+                            id="user-avatar">
+                            <span id="user-initials">U</span>
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <p class="text-xs font-semibold leading-tight text-foreground" id="user-name">User</p>
+                            <span
+                                class="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] mt-0.5 bg-muted text-muted-foreground border-border"
+                                id="user-role">Member</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="px-4 py-6 lg:px-6 flex-1 overflow-y-auto">
+            <div class="mx-auto max-w-7xl">
+                <!-- Page title -->
+                <div class="mb-6">
+                    <h1 class="text-2xl font-semibold text-foreground">User Management</h1>
+                    <p class="text-sm text-muted-foreground mt-1">Manage users, permissions, and access</p>
+                </div>
+                
+                <!-- Action buttons -->
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <button id="add-user-btn"
+                            class="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                            <span>Add User</span>
+                        </button>
+                        <button id="gdpr-btn"
+                            class="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground">
+                            <i data-lucide="shield-alert" class="h-4 w-4"></i>
+                            <span>GDPR</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Users table -->
+                <div class="bg-card rounded-xl border border-border/40 shadow-sm">
+                    <div class="p-6">
+                        <div id="users-table-container"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-[420px]"></div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full border border-border">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-card-foreground">Add User</h3>
+                <button data-modal-close="add-user-modal" class="text-muted-foreground hover:text-foreground">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <form id="add-user-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-1">Login *</label>
+                    <input type="text" name="login" required
+                        class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-1">Password *</label>
+                    <input type="password" name="password" required
+                        class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-1">Contact</label>
+                    <select name="contact" id="add-user-contact"
+                        class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="isActive" id="add-user-active" checked
+                        class="rounded border-border">
+                    <label for="add-user-active" class="text-sm text-foreground">Active</label>
+                </div>
+                <div class="flex gap-3 justify-end pt-4">
+                    <button type="button" data-modal-close="add-user-modal"
+                        class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full border border-border">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-card-foreground">Edit User</h3>
+                <button data-modal-close="edit-user-modal" class="text-muted-foreground hover:text-foreground">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <form id="edit-user-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-1">Login</label>
+                    <input type="text" name="login" readonly
+                        class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-muted cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-1">New Password (leave empty to keep current)</label>
+                    <input type="password" name="password"
+                        class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-1">Contact</label>
+                    <select name="contact" id="edit-user-contact"
+                        class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="isActive" id="edit-user-active"
+                        class="rounded border-border">
+                    <label for="edit-user-active" class="text-sm text-foreground">Active</label>
+                </div>
+                <div class="flex gap-3 justify-end pt-4">
+                    <button type="button" data-modal-close="edit-user-modal"
+                        class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="user-details-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full border border-border">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-card-foreground">User Details</h3>
+                <button data-modal-close="user-details-modal" class="text-muted-foreground hover:text-foreground">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <div id="user-details-content" class="mb-4"></div>
+            <div class="flex gap-3 justify-end pt-4 border-t border-border/40">
+                <button id="user-details-activate-btn" type="button"
+                    class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">
+                    Activate
+                </button>
+                <button data-modal-close="user-details-modal"
+                    class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privileges Modal -->
+    <div id="privileges-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-card-foreground">Manage Privileges</h3>
+                <button data-modal-close="privileges-modal" class="text-muted-foreground hover:text-foreground">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <form id="privileges-form" class="flex-1 overflow-y-auto">
+                <div id="privileges-list" class="space-y-2"></div>
+                <div class="flex gap-3 justify-end pt-4 mt-4 border-t border-border/40">
+                    <button type="button" data-modal-close="privileges-modal"
+                        class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- GDPR Modal -->
+    <div id="gdpr-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-card-foreground">GDPR - Delete Inactive Users</h3>
+                <button data-modal-close="gdpr-modal" class="text-muted-foreground hover:text-foreground">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-muted-foreground">
+                    Users who have not logged in for 24+ months. Select users to permanently delete with all associated data.
+                </p>
+            </div>
+            <form id="gdpr-form" class="flex-1 overflow-y-auto">
+                <div id="gdpr-users-list" class="space-y-2"></div>
+                <div class="flex gap-3 justify-end pt-4 mt-4 border-t border-border/40">
+                    <button type="button" data-modal-close="gdpr-modal"
+                        class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="Users.handleGDPRDelete()"
+                        class="px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors">
+                        Delete Selected
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/table.js"></script>
+    <script src="assets/js/users.js"></script>
+    <script>
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        // Check authentication on page load
+        Auth.redirectIfNotAuthenticated().then((session) => {
+            // Initialize sidebar (always visible, independent of users module)
+            Sidebar.init('users');
+            
+            // Initialize users module
+            Users.init(session);
+        });
+    </script>
+</body>
+
+</html>
