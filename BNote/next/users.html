@@ -13,15 +13,15 @@
 </head>
 
 <body class="min-h-screen bg-background">
-    <div class="flex h-screen overflow-hidden">
-        <div id="sidebar-container" class="shrink-0 h-full"></div>
+    <div class="flex flex-col md:flex-row h-screen overflow-hidden">
+        <div id="sidebar-container" class="hidden md:block shrink-0 h-full"></div>
 
         <!-- Main content area -->
-        <div class="flex-1 flex flex-col min-w-0">
+        <div class="flex-1 flex flex-col min-w-0 min-h-0">
         <div id="topbar-container"></div>
 
         <!-- Main content -->
-        <main class="px-4 py-6 lg:px-6 flex-1 overflow-y-auto">
+        <main class="px-4 py-6 lg:px-6 flex-1 overflow-y-auto min-h-0">
             <div class="mx-auto max-w-7xl">
                 <!-- Page title -->
                 <div class="mb-6">
@@ -173,6 +173,7 @@
     <script src="assets/js/user-info.js"></script>
     <script src="assets/js/components.js"></script>
     <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/mobile-nav.js"></script>
     <script src="assets/js/form.js"></script>
     <script src="assets/js/table.js"></script>
     <script src="assets/js/users.js"></script>
@@ -229,6 +230,7 @@
                     await UserInfo.init(session);
                 }
                 await Sidebar.init('users');
+                await MobileNav.init();
                 Components.initThemeToggle();
                 Users.init(session);
                 

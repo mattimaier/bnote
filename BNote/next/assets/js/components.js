@@ -41,6 +41,13 @@ const Components = {
         <header
             class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div class="flex h-16 items-center justify-between px-4 lg:px-6 gap-4">
+                <!-- Hamburger button - visible only on small screens -->
+                <button id="mobile-menu-btn"
+                    class="md:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
+                    title="Menu" aria-label="Menu">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
+                </button>
+
                 <!-- Left: Search -->
                 <div class="flex flex-1 max-w-sm">
                     <div class="relative w-full">
@@ -81,9 +88,9 @@ const Components = {
      */
     renderSidebar() {
         return `
-        <!-- Left module sidebar - Fixed width, always visible -->
+        <!-- Left module sidebar - Hidden on small screens, visible on larger screens -->
         <aside id="sidebar"
-            class="flex flex-col h-full bg-sidebar border-r border-sidebar-border w-64 shrink-0"
+            class="hidden md:flex flex-col h-full bg-sidebar border-r border-sidebar-border w-64 shrink-0"
             style="position: relative !important; z-index: auto !important;">
             <!-- Header with brand -->
             <div id="sidebar-header" class="flex items-center h-16 px-4 lg:px-6">
