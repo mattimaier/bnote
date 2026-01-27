@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/tailwind-config.js"></script>
+    <script src="assets/js/theme-toggle.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
@@ -61,12 +62,18 @@
                         <i data-lucide="search"
                             class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
                         <input type="text" data-i18n-placeholder="js.dashboard.searchPlaceholder" placeholder="Search events, members..."
-                            class="pl-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
+                            class="pl-9 h-9 bg-muted/40 border border-border/40 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
                     </div>
                 </div>
 
                 <!-- Right side actions (reusable user component) -->
                 <div id="user-info-container" class="flex items-center gap-2 ml-auto">
+                    <!-- Theme toggle button -->
+                    <button id="theme-toggle-btn" class="h-9 w-9 p-0 hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors rounded-md flex items-center justify-center"
+                        title="Toggle theme" aria-label="Toggle theme">
+                        <i data-lucide="sun" class="h-5 w-5 hidden dark:block"></i>
+                        <i data-lucide="moon" class="h-5 w-5 block dark:hidden"></i>
+                    </button>
                     <div class="h-6 w-px bg-border/30 hidden sm:block"></div>
                     <button
                         class="user-info-btn flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors group"
@@ -319,6 +326,16 @@
             
             // Initialize sidebar (always visible, independent of dashboard)
             await Sidebar.init('dashboard');
+            
+            // Initialize theme toggle button
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            if (themeToggleBtn && typeof ThemeToggle !== 'undefined') {
+                themeToggleBtn.addEventListener('click', () => {
+                    ThemeToggle.toggle();
+                    // Update icons
+                    lucide.createIcons();
+                });
+            }
             
             // Initialize dashboard
             Dashboard.init(session);

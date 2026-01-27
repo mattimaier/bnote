@@ -5,12 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - BNote</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/tailwind-config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/tailwind-config.js"></script>
+    <script src="assets/js/theme-toggle.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-background min-h-screen flex items-center justify-center">
+    <!-- Theme toggle button -->
+    <button id="theme-toggle-btn" class="fixed top-4 right-4 h-10 w-10 p-0 hover:bg-muted text-foreground/60 hover:text-foreground transition-colors rounded-md flex items-center justify-center z-50"
+        title="Toggle theme" aria-label="Toggle theme">
+        <i data-lucide="sun" class="h-5 w-5 hidden dark:block"></i>
+        <i data-lucide="moon" class="h-5 w-5 block dark:hidden"></i>
+    </button>
     <div class="max-w-md w-full mx-4">
-        <div class="bg-card shadow-lg rounded-lg p-8">
+        <!-- Construction tape banner above login form -->
+        <div class="construction-tape">
+            <div class="construction-tape-text">
+                <span class="font-bold">BNote Next Generation</span>
+                <i data-lucide="construction" class="h-4 w-4 inline-block"></i>
+                <span>Under Construction</span>
+            </div>
+        </div>
+        
+        <div class="bg-card shadow-lg rounded-lg p-8 relative overflow-hidden rounded-t-none">
             <div class="text-center mb-8">
                 <img src="../style/images/BNote_Logo_white_transparent.svg" alt="BNote" class="h-16 w-16 mx-auto mb-4" style="filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%);" />
                 <h1 class="text-2xl font-bold text-foreground mb-2" data-i18n="js.common.appName">BNote</h1>
@@ -54,7 +71,7 @@
                 <button 
                     type="submit" 
                     id="loginButton"
-                    class="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                     data-i18n="js.login.login"
                 >
                     Anmelden
@@ -74,35 +91,66 @@
             Auth.redirectIfAuthenticated();
             
             // Load public config (company name, lang, country) and initialize i18n
+            const debugCompany = /[?&]debug=1/.test(window.location.search);
             try {
                 let raw = null;
+                const debugParam = debugCompany ? { debug: '1' } : {};
                 if (typeof api !== 'undefined' && api.get) {
-                    raw = await api.get('auth', 'getPublicConfig');
+                    raw = await api.get('auth', 'getPublicConfig', debugParam);
                 } else {
                     const base = window.location.pathname.replace(/\/[^/]*$/, '');
-                    const res = await fetch(base + '/api/index.php?module=auth&action=getPublicConfig');
+                    const qs = debugCompany ? '&debug=1' : '';
+                    const res = await fetch(base + '/api/index.php?module=auth&action=getPublicConfig' + qs);
                     const json = await res.json();
                     raw = json && json.data != null ? json.data : json;
                 }
                 const config = raw && typeof raw === 'object' ? raw : {};
+                if (debugCompany) {
+                    console.log('[BNote company debug] raw', raw);
+                    console.log('[BNote company debug] config', config);
+                    console.log('[BNote company debug] config.company', config.company);
+                    if (config._debug) console.log('[BNote company debug] _debug', config._debug);
+                }
                 if (typeof i18n !== 'undefined') {
                     await i18n.init(config.lang || 'de', config.country || null);
-                    await i18n.loadTranslations();
                     if (typeof i18n.translatePage === 'function') {
                         i18n.translatePage();
                     }
                     // Welcome text: "Welcome to {band/company name}"
                     const welcomeEl = document.getElementById('login-welcome-text');
                     if (welcomeEl) {
-                        const company = config.company || '';
+                        const companyName = (typeof i18n.normalizeCompany === 'function')
+                            ? i18n.normalizeCompany(config.company)
+                            : (typeof config.company === 'string' ? config.company : '');
                         const welcomeText = (typeof i18n.t === 'function')
-                            ? i18n.t('js.dashboard.subtitle', [company])
-                            : ('Welcome to ' + company);
-                        welcomeEl.textContent = welcomeText || 'Welcome to';
+                            ? i18n.t('js.dashboard.subtitle', [companyName])
+                            : ('Welcome to ' + companyName);
+                        welcomeEl.textContent = welcomeText || (companyName ? 'Welcome to ' + companyName : 'Welcome');
+                        if (debugCompany) {
+                            console.log('[BNote company debug] companyName (used)', companyName);
+                            console.log('[BNote company debug] welcomeText', welcomeText);
+                        }
                     }
                 }
             } catch (error) {
                 console.warn('Failed to load public config:', error);
+            }
+            
+            // Initialize theme toggle button
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            if (themeToggleBtn && typeof ThemeToggle !== 'undefined') {
+                themeToggleBtn.addEventListener('click', () => {
+                    ThemeToggle.toggle();
+                    // Update icons
+                    lucide.createIcons();
+                });
+                // Initialize icons (including construction icon)
+                lucide.createIcons();
+            } else {
+                // Initialize icons even if theme toggle isn't ready
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
             }
             
             // Handle login form submission

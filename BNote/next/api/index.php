@@ -74,8 +74,8 @@ if (!file_exists($moduleFile)) {
 
 require_once $moduleFile;
 
-// Check authentication (except for auth module itself)
-if ($module !== 'auth' && !Auth::check()) {
+// Check authentication (except for auth and translations – login page needs both)
+if ($module !== 'auth' && $module !== 'translations' && !Auth::check()) {
     Response::error('Authentication required', 403);
 }
 

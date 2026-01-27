@@ -99,9 +99,9 @@ const Dashboard = {
         if (!subtitleEl) return;
 
         const raw = this.dashboardData?.company;
-        const companyName = typeof raw === 'string'
-            ? raw
-            : (raw && typeof raw === 'object' && typeof raw.name === 'string' ? raw.name : null);
+        const companyName = (typeof i18n.normalizeCompany === 'function')
+            ? i18n.normalizeCompany(raw)
+            : (typeof raw === 'string' ? raw : '');
         const fallback = companyName || (typeof i18n.t === 'function' ? i18n.t('js.common.appName') : 'BNote');
 
         const translated = i18n.t('js.dashboard.subtitle', [fallback]);

@@ -174,12 +174,12 @@ class ParticipationWidget {
             
             // Remove all state classes
             button.classList.remove(
-                'bg-green-500', 'border-green-500', 'text-white',
-                'bg-amber-400', 'border-amber-400',
-                'bg-red-500', 'border-red-500',
-                'bg-green-50', 'border-green-200', 'text-green-600',
-                'bg-amber-50', 'border-amber-200', 'text-amber-600',
-                'bg-red-50', 'border-red-200', 'text-red-600',
+                'bg-success', 'border-success', 'text-white',
+                'bg-warning', 'border-warning',
+                'bg-danger', 'border-danger',
+                'bg-success-muted', 'border-success-muted', 'text-success',
+                'bg-warning-muted', 'border-warning-muted', 'text-warning',
+                'bg-danger-muted', 'border-danger-muted', 'text-danger',
                 'border-gray-300', 'text-gray-400', 'bg-transparent',
                 'opacity-0', 'scale-0', 'pointer-events-none',
                 'opacity-100', 'scale-100'
@@ -210,14 +210,9 @@ class ParticipationWidget {
                 button.style.width = '';
                 button.disabled = false;
                 
-                // Inactive state: subtle hint at color (light background + colored border/text)
-                if (status === 'yes') {
-                    button.classList.add('bg-green-50', 'border-green-200', 'text-green-600');
-                } else if (status === 'maybe') {
-                    button.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-600');
-                } else if (status === 'no') {
-                    button.classList.add('bg-red-50', 'border-red-200', 'text-red-600');
-                }
+                // Inactive state: subtle hint at color (handled by CSS with badge-style borders)
+                // CSS will apply badge-style borders based on button class (participation-btn-yes, etc.)
+                // No need to add classes here - CSS handles it
             } else {
                 // Status is selected: show only active button, hide others
                 if (isActive) {
@@ -229,11 +224,11 @@ class ParticipationWidget {
                     
                     // Active state: filled color + white icon
                     if (status === 'yes') {
-                        button.classList.add('bg-green-500', 'border-green-500', 'text-white');
+                        button.classList.add('bg-success', 'border-success', 'text-white');
                     } else if (status === 'maybe') {
-                        button.classList.add('bg-amber-400', 'border-amber-400', 'text-white');
+                        button.classList.add('bg-warning', 'border-warning', 'text-white');
                     } else if (status === 'no') {
-                        button.classList.add('bg-red-500', 'border-red-500', 'text-white');
+                        button.classList.add('bg-danger', 'border-danger', 'text-white');
                     }
                 } else {
                     // Hide inactive buttons when a status is selected - remove from layout
@@ -360,11 +355,11 @@ class ParticipationWidget {
         
         // Update confirm button color based on status
         if (confirmBtn) {
-            confirmBtn.classList.remove('bg-amber-400', 'bg-red-500', 'hover:bg-amber-500', 'hover:bg-red-600');
+            confirmBtn.classList.remove('bg-warning', 'bg-danger', 'hover:bg-warning/90', 'hover:bg-danger/90');
             if (status === 'maybe') {
-                confirmBtn.classList.add('bg-amber-400', 'hover:bg-amber-500');
+                confirmBtn.classList.add('bg-warning', 'hover:bg-warning/90');
             } else {
-                confirmBtn.classList.add('bg-red-500', 'hover:bg-red-600');
+                confirmBtn.classList.add('bg-danger', 'hover:bg-danger/90');
             }
         }
         

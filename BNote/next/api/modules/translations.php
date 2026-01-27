@@ -104,6 +104,26 @@ class TranslationsModule {
     }
     
     /**
+     * Public subset for unauthenticated users (login page): js.*, banner_*, etc.
+     * @param array $translations All translations
+     * @return array Filtered translations
+     */
+    private function getPublicTranslations($translations) {
+        $filtered = [];
+        foreach ($translations as $key => $value) {
+            if (strpos($key, 'js.') === 0 ||
+                strpos($key, 'banner_') === 0 ||
+                strpos($key, 'AbstractView_') === 0 ||
+                strpos($key, 'CrudView_') === 0 ||
+                strpos($key, 'Form_') === 0 ||
+                strpos($key, 'navigation_') === 0) {
+                $filtered[$key] = $value;
+            }
+        }
+        return $filtered;
+    }
+    
+    /**
      * Filter translations by user permissions
      * Only return translations for modules the user can access
      * @param array $translations All translations
@@ -178,8 +198,8 @@ class TranslationsModule {
         // Use array_merge with JS first so JS can override PHP
         $merged = array_merge($phpTranslations, $jsTranslations);
         
-        // Filter by user permissions
-        $filtered = $this->filterByPermissions($merged);
+        // Filter by user permissions when authenticated; otherwise return public subset for login page
+        $filtered = Auth::check() ? $this->filterByPermissions($merged) : $this->getPublicTranslations($merged);
         
         // Debug logging
         error_log('TranslationsModule: Loaded ' . count($phpTranslations) . ' PHP translations, ' . 
@@ -220,14 +240,13 @@ class TranslationsModule {
     
     /**
      * Handle API requests
+     * 'get' is allowed without auth for login page; 'getModule' requires auth.
      */
     public function handle() {
-        // Check authentication (translations are user-specific due to permissions)
-        if (!Auth::check()) {
+        $action = $_GET['action'] ?? $_POST['action'] ?? 'get';
+        if ($action !== 'get' && !Auth::check()) {
             Response::error('Authentication required', 401);
         }
-        
-        $action = $_GET['action'] ?? $_POST['action'] ?? 'get';
         $langCode = $_GET['lang'] ?? $_POST['lang'] ?? null;
         $module = $_GET['module'] ?? $_POST['module'] ?? null;
         

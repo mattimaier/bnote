@@ -6,7 +6,7 @@ const EventDetail = {
     currentEvent: null,
     eventType: null,
     eventId: null,
-    
+
     /**
      * Initialize detail view
      * @param {string} eventType - Event type ('R' for rehearsal, 'C' for concert)
@@ -15,24 +15,24 @@ const EventDetail = {
     async init(eventType, eventId) {
         this.eventType = eventType;
         this.eventId = eventId;
-        
+
         // Show detail container, hide dashboard
         const detailContainer = document.getElementById('event-detail-container');
         const dashboardContainer = document.getElementById('dashboard-container');
-        
+
         if (detailContainer) detailContainer.classList.remove('hidden');
         if (dashboardContainer) dashboardContainer.classList.add('hidden');
-        
+
         // Show loading state
         this.showLoading();
-        
+
         try {
             // Load event data
             await this.loadEvent();
-            
+
             // Render detail view
             this.render();
-            
+
             // Reinitialize Lucide icons
             if (typeof lucide !== 'undefined') {
                 setTimeout(() => lucide.createIcons(), 100);
@@ -43,13 +43,13 @@ const EventDetail = {
             this.showError(error.message || msg);
         }
     },
-    
+
     /**
      * Load event data from API
      */
     async loadEvent() {
         let eventData;
-        
+
         if (this.eventType === 'R') {
             eventData = await RehearsalsApi.get(this.eventId);
         } else if (this.eventType === 'C') {
@@ -57,42 +57,42 @@ const EventDetail = {
         } else {
             throw new Error('Invalid event type');
         }
-        
+
         this.currentEvent = eventData;
     },
-    
+
     /**
      * Render complete detail view
      */
     render() {
         const container = document.getElementById('event-detail-content');
         if (!container) return;
-        
+
         const event = this.currentEvent;
         if (!event) return;
-        
+
         // Render header with badge and icon
         const headerHtml = this.renderHeader(event);
-        
+
         // Render basic info
         const basicInfoHtml = this.renderBasicInfo(event);
-        
+
         // Render participation widget
         const participationWidgetHtml = this.renderParticipationWidget();
-        
+
         // Render participation diagram
         const diagramContainer = document.createElement('div');
         ParticipationDiagram.render(diagramContainer, event.participationStats);
-        
+
         // Render participant overview (with container ID for re-rendering)
         const participantContainer = document.createElement('div');
         participantContainer.id = 'participant-overview-container';
         ParticipantOverview.render(participantContainer, event.participantsByInstrument);
-        
+
         // Render metadata (concert-specific)
         const metadataContainer = document.createElement('div');
         EventMetadata.render(metadataContainer, event);
-        
+
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         container.innerHTML = `
             <div class="event-detail-content space-y-6">
@@ -117,7 +117,7 @@ const EventDetail = {
                 ` : ''}
             </div>
         `;
-        
+
         // Initialize participation widget after DOM is ready
         // Use requestAnimationFrame to ensure DOM is fully rendered
         requestAnimationFrame(() => {
@@ -125,13 +125,13 @@ const EventDetail = {
                 this.initializeParticipationWidget();
             }, 50);
         });
-        
+
         // Reinitialize Lucide icons
         if (typeof lucide !== 'undefined') {
             setTimeout(() => lucide.createIcons(), 200);
         }
     },
-    
+
     /**
      * Render header with event type badge and icon
      * Order: Icon Text Badge
@@ -144,7 +144,7 @@ const EventDetail = {
             eventTypeConfig.label,
             event.type === 'C' ? 'accent' : 'primary'
         );
-        
+
         return `
             <div class="event-detail-header flex items-center gap-3 mb-4">
                 <div class="h-8 w-8 rounded-full ${eventTypeConfig.dotClass} ring-2 ring-background shadow-sm flex items-center justify-center">
@@ -155,7 +155,7 @@ const EventDetail = {
             </div>
         `;
     },
-    
+
     /**
      * Get event type configuration (matching dashboard)
      */
@@ -166,7 +166,7 @@ const EventDetail = {
         }
         return { badgeClass: 'event-badge', dotClass: 'bg-primary', label: t('js.event.rehearsal'), icon: 'music' };
     },
-    
+
     /**
      * Render participation widget container
      */
@@ -186,7 +186,7 @@ const EventDetail = {
             </div>
         `;
     },
-    
+
     /**
      * Initialize participation widget
      */
@@ -197,36 +197,36 @@ const EventDetail = {
             console.warn('Event detail content container not found');
             return;
         }
-        
+
         const widgetContainer = eventDetailContent.querySelector('[data-participation-widget]');
         if (!widgetContainer) {
             console.warn('Participation widget container not found');
             return;
         }
-        
+
         if (typeof ParticipationWidget === 'undefined') {
             console.error('ParticipationWidget class not available');
             return;
         }
-        
+
         // Check if already initialized
         if (widgetContainer.hasAttribute('data-initialized')) {
             return; // Already initialized
         }
-        
+
         widgetContainer.setAttribute('data-initialized', 'true');
-        
+
         try {
             const widget = new ParticipationWidget(widgetContainer, this.eventId, this.eventType);
-            
+
             // Store reference to EventDetail for refresh callback
             const self = this;
-            
+
             // Hook into the widget's updateStatus by wrapping it
             const originalUpdateStatus = widget.updateStatus.bind(widget);
-            widget.updateStatus = async function(status, reason) {
+            widget.updateStatus = async function (status, reason) {
                 await originalUpdateStatus(status, reason);
-                
+
                 // Refresh event detail after participation update
                 if (self && self.eventId && self.eventType) {
                     setTimeout(async () => {
@@ -244,7 +244,7 @@ const EventDetail = {
             widgetContainer.removeAttribute('data-initialized'); // Allow retry
         }
     },
-    
+
     /**
      * Refresh event detail (called after participation update)
      */
@@ -256,7 +256,7 @@ const EventDetail = {
             console.error('Failed to refresh event detail:', error);
         }
     },
-    
+
     /**
      * Render basic information section (shared between rehearsals and concerts)
      */
@@ -266,14 +266,14 @@ const EventDetail = {
         const endTime = event.end ? this.formatTime(event.end) : null;
         const statusBadge = this.renderStatusBadge(event.status);
         const deadlineHtml = this.renderDeadline(event.approve_until);
-        
+
         // Location info
-        const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations).length > 0 
-            ? i18n.t('js.event.tba') 
+        const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations).length > 0
+            ? i18n.t('js.event.tba')
             : 'TBA';
         let locationHtml = `<span class="text-muted-foreground">${tbaText}</span>`;
         let mapLinkHtml = '';
-        
+
         if (event.location) {
             const loc = event.location;
             const addr = (typeof i18n !== 'undefined' && i18n.formatAddress)
@@ -300,7 +300,7 @@ const EventDetail = {
                 `;
             }
         }
-        
+
         // Conductor (rehearsals only)
         let conductorHtml = '';
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
@@ -312,7 +312,7 @@ const EventDetail = {
                 </div>
             `;
         }
-        
+
         let songsHtml = '';
         if (event.type === 'R' && event.songsToPractice && event.songsToPractice.length > 0) {
             const songsListItems = event.songsToPractice.map(song => {
@@ -330,7 +330,7 @@ const EventDetail = {
                 </div>
             `;
         }
-        
+
         let meetingTimeHtml = '';
         let concertNotesHtml = '';
         if (event.type === 'C') {
@@ -347,7 +347,7 @@ const EventDetail = {
                 </div>
             ` : '';
         }
-        
+
         return `
             <div class="basic-info-section bg-card border border-border/40 rounded-lg p-6 shadow-sm">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -379,7 +379,7 @@ const EventDetail = {
             </div>
         `;
     },
-    
+
     /**
      * Render status badge using Badge component
      */
@@ -411,7 +411,7 @@ const EventDetail = {
             </div>
         `;
     },
-    
+
     /**
      * Format date and time together (short date, time without seconds). Uses parseEventDate.
      */
@@ -469,7 +469,7 @@ const EventDetail = {
             : (navigator.language || 'en-US');
         return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(date);
     },
-    
+
     /**
      * Format status
      */
@@ -483,7 +483,7 @@ const EventDetail = {
         };
         return statusMap[status] || status;
     },
-    
+
     /**
      * Show loading state
      */
@@ -497,7 +497,7 @@ const EventDetail = {
             `;
         }
     },
-    
+
     /**
      * Show error state
      */
@@ -513,23 +513,23 @@ const EventDetail = {
             `;
         }
     },
-    
+
     /**
      * Navigate back to dashboard
      */
     navigateBack() {
         const detailContainer = document.getElementById('event-detail-container');
         const dashboardContainer = document.getElementById('dashboard-container');
-        
+
         if (detailContainer) detailContainer.classList.add('hidden');
         if (dashboardContainer) dashboardContainer.classList.remove('hidden');
-        
+
         // Reset state
         this.currentEvent = null;
         this.eventType = null;
         this.eventId = null;
     },
-    
+
     /**
      * Escape HTML to prevent XSS
      */

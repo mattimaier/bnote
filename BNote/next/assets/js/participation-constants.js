@@ -11,44 +11,44 @@ const ParticipationConstants = {
      */
     colors: {
         yes: {
-            bg: 'bg-green-500',
-            bgLight: 'bg-green-50',
-            border: 'border-green-500',
-            borderLight: 'border-green-200',
-            text: 'text-green-600',
+            bg: 'bg-success',
+            bgLight: 'bg-success-muted',
+            border: 'border-success',
+            borderLight: 'border-success-muted',
+            text: 'text-success',
             textWhite: 'text-white',
             // CSS variable fallback
-            hex: '#22c55e', // green-500
-            hexLight: '#f0fdf4' // green-50
+            hex: '#25A65A', // success
+            hexLight: '#CFEBDD' // success-muted
         },
         maybe: {
-            bg: 'bg-amber-400',
-            bgLight: 'bg-amber-50',
-            border: 'border-amber-400',
-            borderLight: 'border-amber-200',
-            text: 'text-amber-600',
+            bg: 'bg-warning',
+            bgLight: 'bg-warning-muted',
+            border: 'border-warning',
+            borderLight: 'border-warning-muted',
+            text: 'text-warning',
             textWhite: 'text-white',
-            hex: '#fbbf24', // amber-400
-            hexLight: '#fffbeb' // amber-50
+            hex: '#FFAA1A', // warning
+            hexLight: '#FFE4BF' // warning-muted
         },
         no: {
-            bg: 'bg-red-500',
-            bgLight: 'bg-red-50',
-            border: 'border-red-500',
-            borderLight: 'border-red-200',
-            text: 'text-red-600',
+            bg: 'bg-danger',
+            bgLight: 'bg-danger-muted',
+            border: 'border-danger',
+            borderLight: 'border-danger-muted',
+            text: 'text-danger',
             textWhite: 'text-white',
-            hex: '#ef4444', // red-500
-            hexLight: '#fef2f2' // red-50
+            hex: '#E52B3C', // danger
+            hexLight: '#FAD5DC' // danger-muted
         },
         pending: {
-            bg: 'bg-gray-400',
+            bg: 'bg-gray-300',
             bgLight: 'bg-gray-50',
-            border: 'border-gray-400',
+            border: 'border-gray-300',
             borderLight: 'border-gray-200',
-            text: 'text-gray-400',
+            text: 'text-gray-500',
             textWhite: 'text-gray-600',
-            hex: '#9ca3af', // gray-400
+            hex: '#d1d5db', // gray-300 (lighter gray)
             hexLight: '#f9fafb' // gray-50
         }
     },
@@ -61,7 +61,7 @@ const ParticipationConstants = {
         yes: 'check-circle',
         maybe: 'help-circle',
         no: 'x-circle',
-        pending: 'help-circle'
+        pending: 'clock'
     },
 
     /**

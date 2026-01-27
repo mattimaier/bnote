@@ -663,7 +663,7 @@ const Contacts = {
         const toast = document.createElement('div');
         toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 ${
             type === 'error' ? 'bg-destructive text-white' :
-            type === 'success' ? 'bg-green-500 text-white' :
+            type === 'success' ? 'bg-success text-white' :
             'bg-primary text-white'
         }`;
         toast.textContent = message;

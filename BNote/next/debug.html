@@ -164,13 +164,13 @@
         function formatStatus(status) {
             const badge = document.getElementById('status-badge');
             if (status >= 200 && status < 300) {
-                badge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800';
+                badge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-success-muted text-success';
                 return '✓ ' + status;
             } else if (status >= 400 && status < 500) {
-                badge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
+                badge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-warning-muted text-warning';
                 return '⚠ ' + status;
             } else {
-                badge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800';
+                badge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-danger-muted text-danger';
                 return '✗ ' + status;
             }
         }
@@ -211,8 +211,8 @@
             }
             
             historyList.innerHTML = requestHistory.map((req, index) => {
-                const statusColor = req.status >= 200 && req.status < 300 ? 'text-green-600' : 
-                                   req.status >= 400 ? 'text-red-600' : 'text-muted-foreground';
+                const statusColor = req.status >= 200 && req.status < 300 ? 'text-success' : 
+                                   req.status >= 400 ? 'text-danger' : 'text-muted-foreground';
                 return `
                     <div class="border border-border rounded p-3 hover:bg-muted cursor-pointer" 
                          onclick="loadFromHistory(${index})">

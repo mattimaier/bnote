@@ -4,26 +4,44 @@
  */
 
 :root {
+    /* BNote blue – single source for primary; use var(--primary) everywhere */
+    --primary: #3399FF;
+    --primary-foreground: #ffffff;
+
+    /* Semantic color tokens - Brand */
+    --brand: #3399FF;
+    --brand-muted: #D6E9FF;
+
+    /* Semantic color tokens - Danger (No / Error) */
+    --danger: #E52B3C;
+    --danger-muted: #FAD5DC;
+
+    /* Semantic color tokens - Warning (Maybe / Warning) */
+    --warning: #FFAA1A;
+    --warning-muted: #FFE4BF;
+
+    /* Semantic color tokens - Success (Yes / Success) */
+    --success: #25A65A;
+    --success-muted: #CFEBDD;
+
     --background: oklch(0.99 0.001 250);
     --foreground: oklch(0.18 0.01 250);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.18 0.01 250);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.18 0.01 250);
-    --primary: oklch(0.65 0.2 240);
-    --primary-foreground: oklch(1 0 0);
     --secondary: oklch(0.97 0.002 250);
     --secondary-foreground: oklch(0.30 0.01 250);
     --muted: oklch(0.96 0.002 250);
     --muted-foreground: oklch(0.50 0.01 250);
     --accent: oklch(0.68 0.20 80);
     --accent-foreground: oklch(1 0 0);
-    --destructive: oklch(0.58 0.22 20);
+    --destructive: var(--danger);
     --destructive-foreground: oklch(1 0 0);
     --border: oklch(0.93 0.002 250);
     --input: oklch(0.95 0.002 250);
-    --ring: oklch(0.65 0.2 240);
-    --chart-1: oklch(0.65 0.2 240);
+    --ring: var(--primary);
+    --chart-1: var(--primary);
     --chart-2: oklch(0.68 0.20 80);
     --chart-3: oklch(0.62 0.18 150);
     --chart-4: oklch(0.58 0.22 20);
@@ -31,15 +49,174 @@
     --radius: 0.875rem;
     --sidebar: oklch(0.995 0.001 250);
     --sidebar-foreground: oklch(0.18 0.01 250);
-    --sidebar-primary: oklch(0.65 0.2 240);
-    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: #ffffff;
     --sidebar-accent: oklch(0.96 0.002 250);
     --sidebar-accent-foreground: oklch(0.30 0.01 250);
     --sidebar-border: oklch(0.92 0.002 250);
-    --sidebar-ring: oklch(0.65 0.2 240);
+    --sidebar-ring: var(--primary);
     --spacing: 0.25rem;
     --text-xs: 0.75rem;
     --font-weight-medium: 500;
+}
+
+/* Dark mode variables */
+.dark {
+    --background: oklch(0.22 0.01 250);
+    --foreground: oklch(0.95 0.01 250);
+    /* Dark gray cards - lighter for better contrast */
+    --card: oklch(0.25 0.01 250);
+    --card-foreground: oklch(0.95 0.01 250);
+    --popover: oklch(0.25 0.01 250);
+    --popover-foreground: oklch(0.95 0.01 250);
+    --secondary: oklch(0.24 0.01 250);
+    --secondary-foreground: oklch(0.90 0.01 250);
+    --muted: oklch(0.24 0.01 250);
+    --muted-foreground: oklch(0.70 0.01 250);
+    --accent: oklch(0.68 0.20 80);
+    --accent-foreground: oklch(0.95 0.01 250);
+    --destructive: var(--danger);
+    --destructive-foreground: oklch(0.95 0.01 250);
+    /* Dark gray borders - increased lightness for better contrast */
+    --border: oklch(0.32 0.001 0);
+    --input: oklch(0.28 0.001 0);
+    --ring: var(--primary);
+    --chart-1: var(--primary);
+    --chart-2: oklch(0.68 0.20 80);
+    --chart-3: oklch(0.62 0.18 150);
+    --chart-4: oklch(0.58 0.22 20);
+    --chart-5: oklch(0.65 0.15 300);
+    --sidebar: oklch(0.25 0.01 250);
+    --sidebar-foreground: oklch(0.95 0.01 250);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: oklch(0.25 0.01 250);
+    --sidebar-accent-foreground: oklch(0.90 0.01 250);
+    /* Dark sidebar border */
+    --sidebar-border: oklch(0.32 0.001 0);
+    --sidebar-ring: var(--primary);
+
+    /* Dark mode semantic colors - adjusted for dark backgrounds */
+    --brand-muted: oklch(0.30 0.05 250);
+    --danger-muted: oklch(0.30 0.05 20);
+    --warning-muted: oklch(0.30 0.05 80);
+    --success-muted: oklch(0.30 0.05 150);
+}
+
+/* Dark mode: Override border opacity variants to use darker colors */
+.dark .border-border\/40,
+.dark [class*="border-border/40"],
+.dark [class*="border-border/30"],
+.dark [class*="border-border/50"] {
+    border-color: color-mix(in oklch, var(--border) 40%, transparent) !important;
+}
+
+/* Dark mode: Ensure dividers (h-px, w-px) use darker colors */
+.dark .h-px,
+.dark .w-px {
+    background-color: var(--border);
+}
+
+/* Dark mode: Override all border utilities to use dark gray */
+.dark .border-t,
+.dark .border-b,
+.dark .border-l,
+.dark .border-r,
+.dark .border {
+    border-color: var(--border) !important;
+}
+
+/* Dark mode: Override dashboard-container and event cards specifically */
+.dark #dashboard-container,
+.dark [class*="border-border"],
+.dark .border-sidebar-border {
+    border-color: var(--border) !important;
+}
+
+/* Dark mode: Specifically target event card borders on dashboard to ensure neutral gray */
+.dark #events-needing-response-content .rounded-lg[class*="border"],
+.dark #events-timeline-content .rounded-lg[class*="border"],
+.dark [id*="events"][id*="content"] .rounded-lg[class*="border-border"],
+.dark .rounded-lg.border-border\/40[class*="bg-gradient"],
+.dark [class*="rounded-lg"][class*="border-border/40"][class*="bg-gradient"] {
+    border-color: color-mix(in oklch, oklch(0.32 0.001 0) 40%, transparent) !important;
+}
+
+/* Dark mode: Override sidebar borders */
+.dark .border-sidebar-border,
+.dark [class*="border-sidebar-border"] {
+    border-color: var(--sidebar-border) !important;
+}
+
+/* Dark mode: Change gray-300 to gray-400 */
+.dark .bg-gray-300,
+.dark [class*="bg-gray-300"] {
+    background-color: #9ca3af !important; /* gray-400 */
+}
+
+.dark .text-gray-300,
+.dark [class*="text-gray-300"] {
+    color: #9ca3af !important; /* gray-400 */
+}
+
+.dark .border-gray-300,
+.dark [class*="border-gray-300"] {
+    border-color: #9ca3af !important; /* gray-400 */
+}
+
+/* Dark mode: Fix search input styling */
+.dark input[type="text"][class*="bg-muted"],
+.dark input[type="text"][class*="bg-muted/"] {
+    background-color: color-mix(in oklch, var(--muted) 40%, transparent) !important;
+    border-color: color-mix(in oklch, var(--border) 40%, transparent) !important;
+    color: var(--foreground) !important;
+}
+
+.dark input[type="text"][class*="bg-muted"]:focus,
+.dark input[type="text"][class*="bg-muted/"]:focus {
+    background-color: color-mix(in oklch, var(--muted) 60%, transparent) !important;
+    border-color: var(--input) !important;
+}
+
+/* Dark mode: Ensure all input fields have proper dark styling */
+.dark input[type="text"],
+.dark input[type="search"],
+.dark input[type="email"],
+.dark input[type="password"] {
+    background-color: color-mix(in oklch, var(--muted) 40%, transparent) !important;
+    border-color: color-mix(in oklch, var(--border) 40%, transparent) !important;
+    color: var(--foreground) !important;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="search"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus {
+    background-color: color-mix(in oklch, var(--muted) 60%, transparent) !important;
+    border-color: var(--input) !important;
+}
+
+/* Dark mode: Fix load-more button border - ensure primary color is used */
+.dark .load-more-btn,
+.dark [class*="load-more-btn"],
+.dark .border-primary\/30,
+.dark [class*="border-primary/30"] {
+    border-color: color-mix(in oklch, var(--primary) 30%, transparent) !important;
+}
+
+.dark .load-more-btn:hover,
+.dark [class*="load-more-btn"]:hover,
+.dark .hover\:border-primary\/50:hover,
+.dark [class*="hover:border-primary/50"]:hover {
+    border-color: color-mix(in oklch, var(--primary) 50%, transparent) !important;
+}
+
+/* Dark mode: User avatar border - light blue */
+.dark .user-info-initials,
+.dark [class*="user-info-initials"],
+.dark .border-primary\/20[class*="user-info"],
+.dark [class*="border-primary/20"][class*="user-info"] {
+    border-color: color-mix(in oklch, var(--primary) 40%, transparent) !important;
 }
 
 body {
@@ -48,22 +225,166 @@ body {
 }
 
 /* Utility classes for theme colors */
-.bg-background { background-color: var(--background); }
-.text-foreground { color: var(--foreground); }
-.bg-card { background-color: var(--card); }
-.text-card-foreground { color: var(--card-foreground); }
-.bg-primary { background-color: var(--primary); }
-.text-primary { color: var(--primary); }
-.bg-muted { background-color: var(--muted); }
-.text-muted-foreground { color: var(--muted-foreground); }
-.bg-accent { background-color: var(--accent); }
-.text-accent { color: var(--accent); }
-.border-border { border-color: var(--border); }
-.bg-sidebar { background-color: var(--sidebar); }
-.text-sidebar-foreground { color: var(--sidebar-foreground); }
-.border-sidebar-border { border-color: var(--sidebar-border); }
-.bg-sidebar-accent { background-color: var(--sidebar-accent); }
-.text-sidebar-accent-foreground { color: var(--sidebar-accent-foreground); }
+.bg-background {
+    background-color: var(--background);
+}
+
+.text-foreground {
+    color: var(--foreground);
+}
+
+.bg-card {
+    background-color: var(--card);
+}
+
+.text-card-foreground {
+    color: var(--card-foreground);
+}
+
+.bg-primary {
+    background-color: var(--primary);
+}
+
+.text-primary {
+    color: var(--primary);
+}
+
+.bg-muted {
+    background-color: var(--muted);
+}
+
+.text-muted-foreground {
+    color: var(--muted-foreground);
+}
+
+.bg-accent {
+    background-color: var(--accent);
+}
+
+.text-accent {
+    color: var(--accent);
+}
+
+.border-border {
+    border-color: var(--border);
+}
+
+.bg-sidebar {
+    background-color: var(--sidebar);
+}
+
+.text-sidebar-foreground {
+    color: var(--sidebar-foreground);
+}
+
+.border-sidebar-border {
+    border-color: var(--sidebar-border);
+}
+
+.bg-sidebar-accent {
+    background-color: var(--sidebar-accent);
+}
+
+.text-sidebar-accent-foreground {
+    color: var(--sidebar-accent-foreground);
+}
+
+/* Semantic color utility classes */
+.bg-brand {
+    background-color: var(--brand);
+}
+
+.text-brand {
+    color: var(--brand);
+}
+
+.bg-brand-muted {
+    background-color: var(--brand-muted);
+}
+
+.text-brand-muted {
+    color: var(--brand-muted);
+}
+
+.bg-danger {
+    background-color: var(--danger);
+}
+
+.text-danger {
+    color: var(--danger);
+}
+
+.bg-danger-muted {
+    background-color: var(--danger-muted);
+}
+
+.text-danger-muted {
+    color: var(--danger-muted);
+}
+
+.bg-warning {
+    background-color: var(--warning);
+}
+
+.text-warning {
+    color: var(--warning);
+}
+
+.bg-warning-muted {
+    background-color: var(--warning-muted);
+}
+
+.text-warning-muted {
+    color: var(--warning-muted);
+}
+
+.bg-success {
+    background-color: var(--success);
+}
+
+.text-success {
+    color: var(--success);
+}
+
+.bg-success-muted {
+    background-color: var(--success-muted);
+}
+
+.text-success-muted {
+    color: var(--success-muted);
+}
+
+.border-brand {
+    border-color: var(--brand);
+}
+
+.border-brand-muted {
+    border-color: var(--brand-muted);
+}
+
+.border-danger {
+    border-color: var(--danger);
+}
+
+.border-danger-muted {
+    border-color: var(--danger-muted);
+}
+
+.border-warning {
+    border-color: var(--warning);
+}
+
+.border-warning-muted {
+    border-color: var(--warning-muted);
+}
+
+.border-success {
+    border-color: var(--success);
+}
+
+.border-success-muted {
+    border-color: var(--success-muted);
+}
 
 /* Badge/Ribbon styling */
 .event-badge {
@@ -106,14 +427,54 @@ body {
 /* Timeline connector */
 .timeline-connector {
     background: linear-gradient(to bottom,
-        color-mix(in oklab, var(--border) 100%, transparent),
-        color-mix(in oklab, var(--border) 40%, transparent),
-        color-mix(in oklab, var(--border) 10%, transparent));
+            color-mix(in oklab, var(--border) 100%, transparent),
+            color-mix(in oklab, var(--border) 40%, transparent),
+            color-mix(in oklab, var(--border) 10%, transparent));
 }
 
 /* Participation widget buttons */
 .participation-btn {
     transform-origin: center;
+    border-style: solid;
+    border-width: 1px !important; /* Match badge border width */
+}
+
+/* Inactive state - similar to badge styling with semantic colors */
+.participation-btn.participation-btn-yes:not(.bg-success):not(.bg-success-muted) {
+    border-color: color-mix(in oklab, var(--success) 20%, transparent) !important;
+    background-color: color-mix(in oklab, var(--success) 10%, transparent) !important;
+    color: var(--success) !important;
+}
+
+.participation-btn.participation-btn-maybe:not(.bg-warning):not(.bg-warning-muted) {
+    border-color: color-mix(in oklab, var(--warning) 20%, transparent) !important;
+    background-color: color-mix(in oklab, var(--warning) 10%, transparent) !important;
+    color: var(--warning) !important;
+}
+
+.participation-btn.participation-btn-no:not(.bg-danger):not(.bg-danger-muted) {
+    border-color: color-mix(in oklab, var(--danger) 20%, transparent) !important;
+    background-color: color-mix(in oklab, var(--danger) 10%, transparent) !important;
+    color: var(--danger) !important;
+}
+
+/* Active state - filled colors with matching border */
+.participation-btn.bg-success {
+    border-color: var(--success) !important;
+    background-color: var(--success) !important;
+    color: white !important;
+}
+
+.participation-btn.bg-warning {
+    border-color: var(--warning) !important;
+    background-color: var(--warning) !important;
+    color: white !important;
+}
+
+.participation-btn.bg-danger {
+    border-color: var(--danger) !important;
+    background-color: var(--danger) !important;
+    color: white !important;
 }
 
 .participation-btn:disabled {
@@ -214,6 +575,7 @@ body {
         opacity: 0;
         transform: translateY(8px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -259,7 +621,7 @@ body {
     width: 100%;
 }
 
-.participation-diagram .flex.items-center.gap-0 > div {
+.participation-diagram .flex.items-center.gap-0>div {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -269,7 +631,7 @@ body {
 }
 
 /* Ensure numbers are perfectly centered */
-.participation-diagram .flex.items-center.gap-0 > div > span {
+.participation-diagram .flex.items-center.gap-0>div>span {
     display: inline-block;
     text-align: center;
     line-height: 1;
@@ -283,9 +645,7 @@ body {
 }
 
 /* Grouping Toggle - uses filter-bubble style from dashboard */
-[data-grouping-toggle="true"] {
-    /* Inherits filter-bubble styles */
-}
+/* [data-grouping-toggle="true"] inherits filter-bubble styles */
 
 /* Participant Overview */
 .participant-overview {
@@ -383,20 +743,20 @@ body {
     .basic-info-section {
         padding: 1rem;
     }
-    
+
     .basic-info-section .info-item {
         margin-bottom: 0.75rem;
     }
-    
+
     .event-metadata .metadata-section {
         padding: 1rem;
     }
-    
+
     .event-metadata .metadata-field {
         flex-direction: column;
         gap: 0.25rem;
     }
-    
+
     .event-metadata .metadata-field .metadata-label {
         min-width: auto;
     }
@@ -409,4 +769,58 @@ body {
 
 .cursor-pointer:hover {
     opacity: 0.95;
+}
+
+/* Construction tape banner (Absperrband style) - Classic diagonal black and yellow stripes */
+.construction-tape {
+    background: repeating-linear-gradient(
+        45deg,
+        #000000,
+        #000000 8.5px,
+        var(--warning) 8.5px,
+        var(--warning) 17px
+    );
+    background-size: 24.04px 24.04px;
+    background-position: 0 0;
+    padding: 0.625rem 0;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: -1px;
+    border-radius: 0.5rem 0.5rem 0 0;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    animation: tape-move 3s linear infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+}
+
+@keyframes tape-move {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 24.04px 24.04px;
+    }
+}
+
+.construction-tape-text {
+    background: var(--warning);
+    width: 100%;
+    padding: 0.25rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: black;
+    font-weight: bold;
+    font-size: 0.9375rem;
+}
+
+.construction-tape-text i {
+    display: inline-block;
+    vertical-align: middle;
+    color: black;
 }

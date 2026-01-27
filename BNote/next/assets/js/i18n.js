@@ -101,11 +101,27 @@ const i18n = {
             text = text.replace(/%p/g, () => {
                 const param = paramIndex < params.length ? params[paramIndex] : '';
                 paramIndex++;
-                return param;
+                return String(param != null ? param : '');
             });
         }
-        
+
         return text;
+    },
+
+    /**
+     * Normalize company/band name from API (may be string, array, or {0: '...'}).
+     * @param {*} val Raw company value
+     * @returns {string} Company name string
+     */
+    normalizeCompany(val) {
+        if (val == null) return '';
+        if (typeof val === 'string') return val.trim();
+        if (Array.isArray(val)) return (val[0] != null ? String(val[0]) : '').trim();
+        if (typeof val === 'object' && !Array.isArray(val)) {
+            const v = val[0] ?? val.name ?? Object.values(val)[0];
+            return (v != null ? String(v) : '').trim();
+        }
+        return '';
     },
     
     /**

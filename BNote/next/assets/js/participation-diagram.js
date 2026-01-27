@@ -115,7 +115,7 @@ const ParticipationDiagram = {
 
         container.innerHTML = `
             <div class="participation-diagram">
-                <div class="flex items-center gap-0 rounded-lg overflow-hidden bg-gray-100 shadow-sm">
+                <div class="flex items-center gap-0 rounded-lg overflow-hidden bg-muted shadow-sm">
                     ${segmentsHtml || '<div class="h-8 w-full flex items-center justify-center text-muted-foreground text-xs">No responses</div>'}
                 </div>
             </div>

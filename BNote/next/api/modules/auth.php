@@ -158,11 +158,24 @@ class AuthModule {
         $country = $system_data->getDynamicConfigParameter('default_country');
         $country = $this->countryAlpha3ToAlpha2($country);
         $company = $system_data->getCompany();
-        return [
+        $out = [
             'lang' => $lang ?: 'de',
             'country' => $country ?: null,
             'company' => $company ?: ''
         ];
+        $debug = isset($_GET['debug']) && $_GET['debug'] === '1';
+        if ($debug) {
+            $configPath = 'config/company.xml';
+            $absPath = getcwd() . DIRECTORY_SEPARATOR . $configPath;
+            $out['_debug'] = [
+                'company_from_getCompany' => $company,
+                'config_path' => $configPath,
+                'config_abs_path' => $absPath,
+                'config_exists' => file_exists($absPath),
+                'config_readable' => is_readable($absPath),
+            ];
+        }
+        return $out;
     }
 
     /**

@@ -81,7 +81,7 @@ const App = {
         if (container) {
             container.innerHTML = `
                 <div class="flex items-center justify-center p-8">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
             `;
         }
@@ -95,7 +95,7 @@ const App = {
     showError(container, message) {
         if (container) {
             container.innerHTML = `
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+                <div class="bg-danger-muted border border-danger-muted rounded-lg p-4 text-danger">
                     <p>${message || 'An error occurred'}</p>
                 </div>
             `;
@@ -108,7 +108,7 @@ const App = {
      */
     showSuccess(message) {
         const toast = document.createElement('div');
-        toast.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg shadow-lg z-50';
+        toast.className = 'fixed top-4 right-4 bg-success-muted border border-success-muted text-success px-4 py-3 rounded-lg shadow-lg z-50';
         toast.textContent = message;
         document.body.appendChild(toast);
         

@@ -236,11 +236,11 @@ const ParticipantOverview = {
         // Use the same SVG structure and classes as ParticipationWidget
         let statusIconHtml = '';
         if (participate === null || participate === undefined || participate < 0) {
-            // Pending: gray background with white question mark (same SVG as ParticipationWidget)
+            // Pending: gray background with white clock icon (waiting/pending)
             statusIconHtml = `
                 <div class="h-8 w-8 rounded-full bg-gray-400 border-2 border-gray-400 flex items-center justify-center shrink-0 text-white">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
             `;
@@ -249,7 +249,7 @@ const ParticipantOverview = {
             if (participateNum === 1) {
                 // Yes: green background with white checkmark (same SVG as ParticipationWidget)
                 statusIconHtml = `
-                    <div class="h-8 w-8 rounded-full bg-green-500 border-2 border-green-500 flex items-center justify-center shrink-0 text-white">
+                    <div class="h-8 w-8 rounded-full bg-success border-2 border-success flex items-center justify-center shrink-0 text-white">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
@@ -258,7 +258,7 @@ const ParticipantOverview = {
             } else if (participateNum === 2) {
                 // Maybe: amber background with white question mark (same SVG as ParticipationWidget)
                 statusIconHtml = `
-                    <div class="h-8 w-8 rounded-full bg-amber-400 border-2 border-amber-400 flex items-center justify-center shrink-0 text-white">
+                    <div class="h-8 w-8 rounded-full bg-warning border-2 border-warning flex items-center justify-center shrink-0 text-white">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
@@ -267,7 +267,7 @@ const ParticipantOverview = {
             } else {
                 // No: red background with white X (same SVG as ParticipationWidget)
                 statusIconHtml = `
-                    <div class="h-8 w-8 rounded-full bg-red-500 border-2 border-red-500 flex items-center justify-center shrink-0 text-white">
+                    <div class="h-8 w-8 rounded-full bg-danger border-2 border-danger flex items-center justify-center shrink-0 text-white">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>

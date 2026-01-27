@@ -6,6 +6,7 @@ if (typeof tailwind === 'undefined') {
     window.tailwind = {};
 }
 tailwind.config = {
+    darkMode: 'class',
     theme: {
         extend: {
             colors: {
@@ -39,6 +40,15 @@ tailwind.config = {
                 'sidebar-accent-foreground': 'var(--sidebar-accent-foreground)',
                 'sidebar-border': 'var(--sidebar-border)',
                 'sidebar-ring': 'var(--sidebar-ring)',
+                /* Semantic color tokens */
+                brand: 'var(--brand)',
+                'brand-muted': 'var(--brand-muted)',
+                danger: 'var(--danger)',
+                'danger-muted': 'var(--danger-muted)',
+                warning: 'var(--warning)',
+                'warning-muted': 'var(--warning-muted)',
+                success: 'var(--success)',
+                'success-muted': 'var(--success-muted)',
             },
             borderRadius: {
                 DEFAULT: 'var(--radius)',
