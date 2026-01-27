@@ -28,9 +28,10 @@ const ParticipantOverview = {
         );
 
         if (!hasParticipants) {
+            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
             container.innerHTML = `
                 <div class="text-center py-8 text-muted-foreground text-sm">
-                    No participants yet
+                    ${t('js.participants.noParticipantsYet')}
                 </div>
             `;
             return;
@@ -74,22 +75,23 @@ const ParticipantOverview = {
         const categoryActive = this.groupingMode === 'category';
         const instrumentActive = this.groupingMode === 'instrument';
 
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         return `
             <div class="flex items-center gap-3 mb-4">
-                <span class="text-sm font-medium text-muted-foreground">Group by:</span>
+                <span class="text-sm font-medium text-muted-foreground">${t('js.participants.groupBy')}</span>
                 <button 
                     class="filter-bubble ${categoryActive ? 'selected' : ''}"
                     data-mode="category"
                     data-grouping-toggle="true"
                 >
-                    Category
+                    ${t('js.participants.category')}
                 </button>
                 <button 
                     class="filter-bubble ${instrumentActive ? 'selected' : ''}"
                     data-mode="instrument"
                     data-grouping-toggle="true"
                 >
-                    Instrument
+                    ${t('js.participants.instrument')}
                 </button>
             </div>
         `;
@@ -158,6 +160,7 @@ const ParticipantOverview = {
     renderGroup(group, mode, index) {
         const groupName = InstrumentGrouping.getGroupName(group, mode);
         const { participants, stats } = group;
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
 
         // Calculate total if not present in stats
         const yes = stats?.yes || 0;
@@ -211,7 +214,7 @@ const ParticipantOverview = {
                     </div>
                 ` : `
                     <div class="text-center py-4 text-muted-foreground text-sm">
-                        No participants yet
+                        ${t('js.participants.noParticipantsYet')}
                     </div>
                 `}
             </div>

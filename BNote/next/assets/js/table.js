@@ -78,20 +78,26 @@ class Table {
         html += '<tr class="border-b border-border/40">';
         
         // Render headers
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+        
         this.columns.forEach((col, index) => {
             const sortable = this.sortable && col.sortable !== false;
             const sortIcon = sortable && this.sortColumn === col.key 
                 ? (this.sortDirection === 'asc' ? '↑' : '↓') 
                 : '';
             
+            // Translate label if it has an i18n key, otherwise use label as-is
+            const label = col.i18n ? t(col.i18n) : col.label;
+            
             const thId = `th-${this.containerId}-${col.key}`;
             html += `<th id="${thId}" class="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider ${sortable ? 'cursor-pointer hover:bg-muted/50' : ''}"`;
-            html += `>${col.label} ${sortIcon}</th>`;
+            html += `>${label} ${sortIcon}</th>`;
         });
         
         // Actions column if needed
         if (this.onEdit || this.onDelete || this.onAction) {
-            html += '<th class="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>';
+            const actionsLabel = t('js.table.actions') || 'Actions';
+            html += `<th class="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">${actionsLabel}</th>`;
         }
         
         html += '</tr>';
@@ -713,7 +719,7 @@ class Table {
                 <i data-lucide="search" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
                 <input type="text" 
                     id="table-search-${this.containerId}"
-                    placeholder="Search..."
+                    placeholder="${typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.table.searchPlaceholder') : 'Search...'}"
                     value="${this.escapeHtml(this.searchTerm)}"
                     class="pl-9 pr-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
                 ${this.searchTerm ? `

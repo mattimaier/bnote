@@ -55,23 +55,25 @@ class ParticipationWidget {
                 eventId: this.eventId,
                 eventType: this.eventType
             });
+            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
             this.container.innerHTML = `
                 <div class="flex flex-col gap-2 items-end">
-                    <p class="text-xs font-medium text-muted-foreground opacity-50">Teilnahme</p>
-                    <p class="text-xs text-muted-foreground/50">Error</p>
+                    <p class="text-xs font-medium text-muted-foreground opacity-50">${t('js.event.participation')}</p>
+                    <p class="text-xs text-muted-foreground/50">${t('js.common.error')}</p>
                 </div>
             `;
             return;
         }
         
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         this.container.innerHTML = `
             <div class="flex flex-col gap-2 items-end">
-                <p class="text-xs font-medium text-muted-foreground">Teilnahme</p>
+                <p class="text-xs font-medium text-muted-foreground">${t('js.event.participation')}</p>
                 <div class="flex items-center gap-3 justify-end">
                     <button 
                         data-status="yes" 
                         class="participation-btn participation-btn-yes w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                        aria-label="Participate"
+                        aria-label="${t('js.participation.participate')}"
                     >
                         <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -81,7 +83,7 @@ class ParticipationWidget {
                         data-status="maybe" 
                         class="participation-btn participation-btn-maybe w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                         style="display: none;"
-                        aria-label="Maybe participate"
+                        aria-label="${t('js.participation.maybe')}"
                     >
                         <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -90,7 +92,7 @@ class ParticipationWidget {
                     <button 
                         data-status="no" 
                         class="participation-btn participation-btn-no w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                        aria-label="Do not participate"
+                        aria-label="${t('js.participation.doNotParticipate')}"
                     >
                         <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -153,7 +155,7 @@ class ParticipationWidget {
             // Show error state on widget
             if (this.container) {
                 this.container.classList.add('opacity-50');
-                this.container.title = 'Failed to load participation status';
+                this.container.title = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.participationLoadFailed') : 'Failed to load participation status');
             }
         }
     }
@@ -346,23 +348,14 @@ class ParticipationWidget {
             return;
         }
         
-        // Set status label
-        const statusLabels = {
-            'maybe': 'Maybe',
-            'no': 'No'
-        };
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+        const statusLabels = { 'maybe': t('js.participation.maybe'), 'no': t('js.participation.no') };
         if (statusLabel) {
             statusLabel.textContent = statusLabels[status] || status;
         }
-        
-        // Clear textarea
         if (reasonTextarea) {
             reasonTextarea.value = '';
-            if (status === 'no') {
-                reasonTextarea.placeholder = 'Reason (suggested)...';
-            } else {
-                reasonTextarea.placeholder = 'Optional reason...';
-            }
+            reasonTextarea.placeholder = status === 'no' ? t('js.participation.reasonSuggested') : t('js.participation.reasonOptional');
         }
         
         // Update confirm button color based on status
@@ -487,20 +480,21 @@ class ParticipationWidget {
             
             // Show success toast
             if (typeof Dashboard !== 'undefined' && Dashboard.showToast) {
+                const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
                 const messages = {
-                    'yes': 'Participation confirmed',
-                    'maybe': 'Maybe status saved',
-                    'no': 'Non-participation saved',
-                    'undecided': 'Participation cleared'
+                    yes: t('js.participation.confirmed'),
+                    maybe: t('js.participation.maybeSaved'),
+                    no: t('js.participation.notAttending'),
+                    undecided: t('js.participation.cleared')
                 };
-                Dashboard.showToast(messages[status] || 'Status updated', 'success');
+                Dashboard.showToast(messages[status] || t('js.participation.statusUpdated'), 'success');
             }
         } catch (error) {
             console.error('Failed to update participation:', error);
             
-            // Show error toast
             if (typeof Dashboard !== 'undefined' && Dashboard.showToast) {
-                Dashboard.showToast('Failed to update participation', 'error');
+                const msg = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.participationUpdateFailed') : 'Failed to update participation.');
+                Dashboard.showToast(msg, 'error');
             }
         } finally {
             this.isLoading = false;

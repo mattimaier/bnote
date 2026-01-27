@@ -405,7 +405,7 @@ class Form {
         if (searchable) {
             // Searchable dropdown with typeahead
             html += `<div class="relative">`;
-            html += `<input type="text" id="${fieldId}-search" placeholder="Type to search..."`;
+            html += `<input type="text" id="${fieldId}-search" placeholder="${typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.form.typeToSearch') : 'Type to search...'}"`;
             html += ` class="w-full px-3 py-2 border ${error ? 'border-destructive' : 'border-border'} rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 ${field.className || ''}"`;
             html += ` autocomplete="off" />`;
             html += `<i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none"></i>`;

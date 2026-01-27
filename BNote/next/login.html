@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,13 +12,14 @@
     <div class="max-w-md w-full mx-4">
         <div class="bg-card shadow-lg rounded-lg p-8">
             <div class="text-center mb-8">
-                <h1 class="text-2xl font-bold text-foreground mb-2">BNote</h1>
-                <p class="text-muted-foreground">Ensemble Management System</p>
+                <img src="style/images/BNote_Logo_white_transparent.svg" alt="BNote" class="h-16 w-16 mx-auto mb-4" style="filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%);" />
+                <h1 class="text-2xl font-bold text-foreground mb-2" data-i18n="js.common.appName">BNote</h1>
+                <p class="text-muted-foreground" id="login-welcome-text" data-i18n="js.dashboard.subtitle">Welcome to %p</p>
             </div>
             
             <form id="loginForm" class="space-y-6">
                 <div>
-                    <label for="username" class="block text-sm font-medium text-foreground mb-2">
+                    <label for="username" class="block text-sm font-medium text-foreground mb-2" data-i18n="js.login.usernameLabel">
                         Benutzername oder E-Mail
                     </label>
                     <input 
@@ -27,12 +28,13 @@
                         name="username" 
                         required
                         class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                        data-i18n-placeholder="js.login.usernamePlaceholder"
                         placeholder="Benutzername oder E-Mail"
                     />
                 </div>
                 
                 <div>
-                    <label for="password" class="block text-sm font-medium text-foreground mb-2">
+                    <label for="password" class="block text-sm font-medium text-foreground mb-2" data-i18n="js.login.passwordLabel">
                         Passwort
                     </label>
                     <input 
@@ -41,6 +43,7 @@
                         name="password" 
                         required
                         class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                        data-i18n-placeholder="js.login.passwordPlaceholder"
                         placeholder="Passwort"
                     />
                 </div>
@@ -52,6 +55,7 @@
                     type="submit" 
                     id="loginButton"
                     class="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    data-i18n="js.login.login"
                 >
                     Anmelden
                 </button>
@@ -61,41 +65,73 @@
     
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="assets/js/i18n.js"></script>
     <script src="assets/js/app.js"></script>
     <script>
-        // Redirect if already authenticated
-        Auth.redirectIfAuthenticated();
-        
-        // Handle login form submission
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Initialize login page
+        (async () => {
+            // Redirect if already authenticated
+            Auth.redirectIfAuthenticated();
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('errorMessage');
-            const loginButton = document.getElementById('loginButton');
-            
-            // Hide error message
-            errorMessage.classList.add('hidden');
-            
-            // Disable button and show loading state
-            loginButton.disabled = true;
-            loginButton.textContent = 'Anmeldung...';
-            
+            // Load public config (company name, lang, country) and initialize i18n
             try {
-                await Auth.login(username, password);
-                // Redirect to dashboard on success
-                window.location.href = 'dashboard.html';
+                const config = await (typeof api !== 'undefined' ? api.get('auth', 'getPublicConfig') : fetch('/next/api/index.php?module=auth&action=getPublicConfig').then(r => r.json()));
+                if (config && typeof i18n !== 'undefined') {
+                    await i18n.init(config.lang || 'de', config.country || null);
+                    await i18n.loadTranslations();
+                    
+                    // Update welcome text with company name
+                    const welcomeEl = document.getElementById('login-welcome-text');
+                    if (welcomeEl && config.company) {
+                        const welcomeKey = welcomeEl.getAttribute('data-i18n');
+                        if (welcomeKey && i18n.translations[welcomeKey]) {
+                            const welcomeText = i18n.t(welcomeKey, [config.company]);
+                            welcomeEl.textContent = welcomeText;
+                        }
+                    }
+                    
+                    // Translate page
+                    if (typeof i18n.translatePage === 'function') {
+                        i18n.translatePage();
+                    }
+                }
             } catch (error) {
-                // Show error message
-                errorMessage.textContent = error.message || 'Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.';
-                errorMessage.classList.remove('hidden');
-                
-                // Re-enable button
-                loginButton.disabled = false;
-                loginButton.textContent = 'Anmelden';
+                console.warn('Failed to load public config:', error);
             }
-        });
+            
+            // Handle login form submission
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const errorMessage = document.getElementById('errorMessage');
+                const loginButton = document.getElementById('loginButton');
+                
+                // Hide error message
+                errorMessage.classList.add('hidden');
+                
+                // Disable button and show loading state
+                loginButton.disabled = true;
+                const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+                loginButton.textContent = t('js.login.loggingIn') || 'Anmeldung...';
+                
+                try {
+                    await Auth.login(username, password);
+                    // Redirect to dashboard on success
+                    window.location.href = 'dashboard.html';
+                } catch (error) {
+                    // Show error message
+                    const errorMsg = error.message || (t('js.login.loginFailed') || 'Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.');
+                    errorMessage.textContent = errorMsg;
+                    errorMessage.classList.remove('hidden');
+                    
+                    // Re-enable button
+                    loginButton.disabled = false;
+                    loginButton.textContent = t('js.login.login') || 'Anmelden';
+                }
+            });
+        })();
     </script>
 </body>
 </html>

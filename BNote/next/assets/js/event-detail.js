@@ -39,7 +39,8 @@ const EventDetail = {
             }
         } catch (error) {
             console.error('Failed to load event detail:', error);
-            this.showError(error.message || 'Failed to load event details');
+            const msg = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.eventDetailLoadFailed') : 'Failed to load event details.');
+            this.showError(error.message || msg);
         }
     },
     
@@ -92,29 +93,25 @@ const EventDetail = {
         const metadataContainer = document.createElement('div');
         EventMetadata.render(metadataContainer, event);
         
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         container.innerHTML = `
             <div class="event-detail-content space-y-6">
                 ${headerHtml}
-                
                 ${basicInfoHtml}
-                
                 ${participationWidgetHtml}
-                
                 <div class="participation-section">
-                    <h2 class="text-lg font-semibold text-foreground mb-4">Participation Overview</h2>
+                    <h2 class="text-lg font-semibold text-foreground mb-4">${t('js.event.detail.participationOverview')}</h2>
                     ${diagramContainer.innerHTML}
                 </div>
-                
                 <div class="participants-section">
-                    <h2 class="text-lg font-semibold text-foreground mb-4">Participants</h2>
+                    <h2 class="text-lg font-semibold text-foreground mb-4">${t('js.event.detail.participants')}</h2>
                     <div id="participant-overview-container">
                         ${participantContainer.innerHTML}
                     </div>
                 </div>
-                
                 ${metadataContainer.innerHTML ? `
                     <div class="metadata-section-wrapper">
-                        <h2 class="text-lg font-semibold text-foreground mb-4">Additional Information</h2>
+                        <h2 class="text-lg font-semibold text-foreground mb-4">${t('js.event.detail.additionalInfo')}</h2>
                         ${metadataContainer.innerHTML}
                     </div>
                 ` : ''}
@@ -140,8 +137,9 @@ const EventDetail = {
      * Order: Icon Text Badge
      */
     renderHeader(event) {
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         const eventTypeConfig = this.getEventTypeConfig(event.type);
-        const title = event.type === 'C' ? event.title : 'Probe';
+        const title = event.type === 'C' ? event.title : t('js.event.rehearsal');
         const eventTypeBadge = Badge.render(
             eventTypeConfig.label,
             event.type === 'C' ? 'accent' : 'primary'
@@ -162,31 +160,22 @@ const EventDetail = {
      * Get event type configuration (matching dashboard)
      */
     getEventTypeConfig(type) {
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         if (type === 'C') {
-            return {
-                badgeClass: 'event-badge accent',
-                dotClass: 'bg-accent',
-                label: 'performance',
-                icon: 'calendar'
-            };
-        } else {
-            return {
-                badgeClass: 'event-badge',
-                dotClass: 'bg-primary',
-                label: 'rehearsal',
-                icon: 'music'
-            };
+            return { badgeClass: 'event-badge accent', dotClass: 'bg-accent', label: t('js.event.performance'), icon: 'calendar' };
         }
+        return { badgeClass: 'event-badge', dotClass: 'bg-primary', label: t('js.event.rehearsal'), icon: 'music' };
     },
     
     /**
      * Render participation widget container
      */
     renderParticipationWidget() {
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         return `
             <div class="participation-widget-section bg-card border border-border/40 rounded-lg p-4 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-base font-semibold text-foreground">Your Participation</h3>
+                    <h3 class="text-base font-semibold text-foreground">${t('js.event.detail.yourParticipation')}</h3>
                     <div 
                         class="flex flex-col gap-2 items-end" 
                         data-participation-widget 
@@ -279,29 +268,25 @@ const EventDetail = {
         const deadlineHtml = this.renderDeadline(event.approve_until);
         
         // Location info
-        let locationHtml = '<span class="text-muted-foreground">TBA</span>';
+        const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations).length > 0 
+            ? i18n.t('js.event.tba') 
+            : 'TBA';
+        let locationHtml = `<span class="text-muted-foreground">${tbaText}</span>`;
         let mapLinkHtml = '';
         
         if (event.location) {
-            const location = event.location;
-            const addressParts = [
-                location.address?.street,
-                location.address?.zip && location.address?.city 
-                    ? `${location.address.zip} ${location.address.city}` 
-                    : location.address?.city
-            ].filter(Boolean);
-            
-            const locationText = [
-                location.name,
-                ...addressParts
-            ].filter(Boolean).join(', ');
-            
-            locationHtml = `<span>${this.escapeHtml(locationText)}</span>`;
-            
-            // Google Maps link
-            if (addressParts.length > 0) {
-                const addressQuery = encodeURIComponent(addressParts.join(', '));
-                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${addressQuery}`;
+            const loc = event.location;
+            const addr = (typeof i18n !== 'undefined' && i18n.formatAddress)
+                ? i18n.formatAddress(loc.address || {})
+                : [loc.address?.street, loc.address?.zip, loc.address?.city].filter(Boolean).join(', ');
+            const locationLines = [loc.name, addr].filter(Boolean).join('\n');
+            const locationEncoded = locationLines.includes('\n')
+                ? locationLines.split('\n').map(l => this.escapeHtml(l)).join('<br>')
+                : this.escapeHtml(locationLines);
+            locationHtml = `<span>${locationEncoded}</span>`;
+            const queryLine = [loc.name, addr].filter(Boolean).join(', ').replace(/\n/g, ', ');
+            if (queryLine) {
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryLine)}`;
                 mapLinkHtml = `
                     <a 
                         href="${mapsUrl}" 
@@ -310,7 +295,7 @@ const EventDetail = {
                         class="inline-flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium"
                     >
                         <i data-lucide="map-pin" class="h-4 w-4"></i>
-                        Open in Google Maps
+                        ${(typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.event.detail.openInMaps') : 'Open in Google Maps')}
                     </a>
                 `;
             }
@@ -318,28 +303,27 @@ const EventDetail = {
         
         // Conductor (rehearsals only)
         let conductorHtml = '';
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         if (event.type === 'R' && event.conductor) {
             conductorHtml = `
                 <div class="info-item">
-                    <span class="info-label">Conductor:</span>
+                    <span class="info-label">${t('js.event.detail.conductor')}:</span>
                     <span class="info-value">${this.escapeHtml(event.conductor.name)}</span>
                 </div>
             `;
         }
         
-        // Songs to practice (rehearsals only) - display as list
         let songsHtml = '';
         if (event.type === 'R' && event.songsToPractice && event.songsToPractice.length > 0) {
             const songsListItems = event.songsToPractice.map(song => {
-                const notesHtml = song.notes && song.notes.trim() 
+                const notesHtml = song.notes && song.notes.trim()
                     ? ` <span class="text-xs text-muted-foreground">(${this.escapeHtml(song.notes)})</span>`
                     : '';
                 return `<li class="text-sm">${this.escapeHtml(song.title)}${notesHtml}</li>`;
             }).join('');
-            
             songsHtml = `
                 <div class="info-item md:col-span-2">
-                    <span class="info-label">Songs to practice:</span>
+                    <span class="info-label">${t('js.event.detail.songsToPractice')}:</span>
                     <ul class="info-value list-disc list-inside space-y-1 mt-1">
                         ${songsListItems}
                     </ul>
@@ -347,20 +331,18 @@ const EventDetail = {
             `;
         }
         
-        // Concert-specific fields
         let meetingTimeHtml = '';
         let concertNotesHtml = '';
         if (event.type === 'C') {
             meetingTimeHtml = event.meetingtime ? `
                 <div class="info-item">
-                    <span class="info-label">Meeting Time:</span>
+                    <span class="info-label">${t('js.event.detail.meetingTime')}:</span>
                     <span class="info-value">${this.formatDateTime(event.meetingtime)}</span>
                 </div>
             ` : '';
-            
             concertNotesHtml = event.notes ? `
                 <div class="info-item md:col-span-2">
-                    <span class="info-label">Notes:</span>
+                    <span class="info-label">${t('js.event.detail.notes')}:</span>
                     <div class="info-value whitespace-pre-wrap">${this.escapeHtml(event.notes)}</div>
                 </div>
             ` : '';
@@ -370,36 +352,27 @@ const EventDetail = {
             <div class="basic-info-section bg-card border border-border/40 rounded-lg p-6 shadow-sm">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="info-item">
-                        <span class="info-label">Date:</span>
+                        <span class="info-label">${t('js.event.detail.date')}:</span>
                         <span class="info-value">${beginDate}</span>
                     </div>
-                    
                     <div class="info-item">
-                        <span class="info-label">Time:</span>
-                        <span class="info-value">
-                            ${beginTime}${endTime ? ` - ${endTime}` : ''}
-                        </span>
+                        <span class="info-label">${t('js.event.detail.time')}:</span>
+                        <span class="info-value">${beginTime}${endTime ? ` - ${endTime}` : ''}</span>
                     </div>
-                    
                     <div class="info-item">
-                        <span class="info-label">Status:</span>
+                        <span class="info-label">${t('js.event.detail.status')}:</span>
                         <span class="info-value">${statusBadge}</span>
                     </div>
-                    
                     ${deadlineHtml}
-                    
                     ${conductorHtml}
-                    
                     ${meetingTimeHtml}
-                    
                     <div class="info-item md:col-span-2">
-                        <span class="info-label">Location:</span>
+                        <span class="info-label">${t('js.event.detail.location')}:</span>
                         <div class="flex items-center gap-2 flex-wrap">
                             ${locationHtml}
                             ${mapLinkHtml}
                         </div>
                     </div>
-                    
                     ${songsHtml}
                     ${concertNotesHtml}
                 </div>
@@ -411,99 +384,102 @@ const EventDetail = {
      * Render status badge using Badge component
      */
     renderStatusBadge(status) {
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         const statusMap = {
-            'planned': { text: 'Geplant', color: 'info' },
-            'confirmed': { text: 'Bestätigt', color: 'success' },
-            'cancelled': { text: 'Abgesagt', color: 'destructive' },
-            'hidden': { text: 'Versteckt', color: 'warning' }
+            'planned': { text: t('js.event.status.planned'), color: 'info' },
+            'confirmed': { text: t('js.event.status.confirmed'), color: 'success' },
+            'cancelled': { text: t('js.event.status.cancelled'), color: 'destructive' },
+            'hidden': { text: t('js.event.status.hidden'), color: 'warning' }
         };
-        
         const statusInfo = statusMap[status] || { text: status, color: 'primary' };
         return Badge.render(statusInfo.text, statusInfo.color);
     },
-    
-    /**
-     * Render deadline display
-     */
+
     renderDeadline(approveUntil) {
         if (!approveUntil) return '';
-        
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         const deadlineDate = this.formatDateTime(approveUntil);
-        const isPast = new Date(approveUntil) < new Date();
-        
+        const d = (typeof i18n !== 'undefined' && i18n.parseEventDate ? i18n.parseEventDate(approveUntil) : null) || new Date(approveUntil);
+        const isPast = !isNaN(d.getTime()) && d < new Date();
         return `
             <div class="info-item">
-                <span class="info-label">Deadline:</span>
+                <span class="info-label">${t('js.event.detail.deadline')}:</span>
                 <span class="info-value ${isPast ? 'text-destructive' : ''}">
                     ${deadlineDate}
-                    ${isPast ? ' <span class="text-xs">(Past)</span>' : ''}
+                    ${isPast ? ` <span class="text-xs">(${t('js.event.detail.past')})</span>` : ''}
                 </span>
             </div>
         `;
     },
     
     /**
-     * Format date and time together
+     * Format date and time together (short date, time without seconds). Uses parseEventDate.
      */
     formatDateTime(dateStr) {
-        if (!dateStr) return 'TBA';
-        try {
-            const date = new Date(dateStr);
-            return date.toLocaleString('de-DE', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        } catch (e) {
-            return dateStr;
-        }
+        const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
+            ? i18n.t('js.event.tba')
+            : 'TBA';
+        if (dateStr == null || typeof dateStr !== 'string') return tbaText;
+        const date = typeof i18n !== 'undefined' && i18n.parseEventDate ? i18n.parseEventDate(dateStr) : null;
+        if (!date) return tbaText;
+        const locale = typeof i18n !== 'undefined' && i18n.getBrowserLocale
+            ? i18n.getBrowserLocale(i18n.getLang())
+            : (navigator.language || 'en-US');
+        return new Intl.DateTimeFormat(locale, {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+        }).format(date);
     },
-    
+
     /**
-     * Format date
+     * Format date (short format: DD.MM.YYYY or MM/DD/YYYY). Uses parseEventDate.
      */
     formatDate(dateStr) {
-        if (!dateStr) return 'TBA';
-        try {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('de-DE', {
-                weekday: 'long',
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-        } catch (e) {
-            return dateStr;
-        }
+        const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
+            ? i18n.t('js.event.tba')
+            : 'TBA';
+        if (dateStr == null || typeof dateStr !== 'string') return tbaText;
+        const date = typeof i18n !== 'undefined' && i18n.parseEventDate ? i18n.parseEventDate(dateStr) : null;
+        if (!date) return tbaText;
+        const locale = typeof i18n !== 'undefined' && i18n.getBrowserLocale
+            ? i18n.getBrowserLocale(i18n.getLang())
+            : (navigator.language || 'en-US');
+        return new Intl.DateTimeFormat(locale, {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).format(date);
     },
-    
+
     /**
-     * Format time
+     * Format time (hours and minutes only, no seconds). Uses parseEventDate.
      */
     formatTime(dateStr) {
-        if (!dateStr) return 'TBA';
-        try {
-            const date = new Date(dateStr);
-            return date.toLocaleTimeString('de-DE', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        } catch (e) {
-            return dateStr;
-        }
+        const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
+            ? i18n.t('js.event.tba')
+            : 'TBA';
+        if (dateStr == null || typeof dateStr !== 'string') return tbaText;
+        const date = typeof i18n !== 'undefined' && i18n.parseEventDate ? i18n.parseEventDate(dateStr) : null;
+        if (!date) return tbaText;
+        const locale = typeof i18n !== 'undefined' && i18n.getBrowserLocale
+            ? i18n.getBrowserLocale(i18n.getLang())
+            : (navigator.language || 'en-US');
+        return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(date);
     },
     
     /**
      * Format status
      */
     formatStatus(status) {
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         const statusMap = {
-            'planned': 'Geplant',
-            'confirmed': 'Bestätigt',
-            'cancelled': 'Abgesagt',
-            'hidden': 'Versteckt'
+            planned: t('js.event.status.planned'),
+            confirmed: t('js.event.status.confirmed'),
+            cancelled: t('js.event.status.cancelled'),
+            hidden: t('js.event.status.hidden')
         };
         return statusMap[status] || status;
     },
@@ -528,9 +504,10 @@ const EventDetail = {
     showError(message) {
         const container = document.getElementById('event-detail-content');
         if (container) {
+            const errLabel = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.common.error') : 'Error');
             container.innerHTML = `
                 <div class="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-destructive">
-                    <p class="font-semibold">Error</p>
+                    <p class="font-semibold">${this.escapeHtml(errLabel)}</p>
                     <p class="text-sm mt-1">${this.escapeHtml(message)}</p>
                 </div>
             `;

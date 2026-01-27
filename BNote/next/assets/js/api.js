@@ -127,7 +127,8 @@ const api = new Api();
 const AuthApi = {
     login: (username, password) => api.post('auth', 'login', { username, password }),
     logout: () => api.post('auth', 'logout'),
-    checkSession: () => api.get('auth', 'session')
+    checkSession: () => api.get('auth', 'session'),
+    getModules: () => api.get('auth', 'getModules')
 };
 
 const DashboardApi = {
@@ -166,6 +167,11 @@ const RehearsalsApi = {
 
 const ConcertsApi = {
     get: (id) => api.get('concerts', null, { id })
+};
+
+const TranslationsApi = {
+    get: (lang) => api.get('translations', 'get', { lang }),
+    getModule: (module, lang) => api.get('translations', 'getModule', { module, lang })
 };
 
 const ContactsApi = {

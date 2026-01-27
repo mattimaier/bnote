@@ -87,7 +87,9 @@ class RehearsalsModule {
                     'address' => [
                         'street' => $address['street'] ?? null,
                         'city' => $address['city'] ?? null,
-                        'zip' => $address['zip'] ?? null
+                        'zip' => $address['zip'] ?? null,
+                        'state' => $address['state'] ?? null,
+                        'country' => $address['country'] ?? null
                     ]
                 ];
             }

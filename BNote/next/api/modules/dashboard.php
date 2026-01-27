@@ -77,6 +77,7 @@ class DashboardModule {
                 'concert_show_max' => $concertMax,
                 'max_show' => $maxShow
             ],
+            'company' => $system_data->getCompany(), // Band/company name for localization
             'total' => count($formattedInbox),
             'hasMore' => count($formattedInbox) > $maxShow,
             'stats' => [
@@ -112,8 +113,15 @@ class DashboardModule {
             
             if ($otype && $oid) {
                 if ($otype === 'R') {
-                    // Rehearsal - always use "Probe" as the title
-                    $eventName = 'Probe';
+                    // Rehearsal - use translated label (Lang::txt is available from init.php)
+                    // Use StartData key and remove " on", " am", " le" suffix
+                    $rehearsalText = Lang::txt('StartData_inboxItems.rehearsalOn');
+                    // Remove " on", " am", " le" suffix to get just "Rehearsal" / "Probe" / "Répétition"
+                    $eventName = preg_replace('/\s+(on|am|le)$/i', '', $rehearsalText);
+                    if (empty($eventName) || $eventName === 'StartData_inboxItems.rehearsalOn') {
+                        // Fallback if translation not found
+                        $eventName = 'Rehearsal';
+                    }
                     
                     // Get location
                     $rehearsal = $this->data->getRehearsal($oid);

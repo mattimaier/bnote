@@ -63,7 +63,8 @@ const Contacts = {
                 (error.message && error.message.includes('forbidden'));
 
             if (is403) {
-                this.showToast('You do not have permission to access Contacts', 'error');
+                const msg = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.contactsAccessDenied') : 'You do not have permission to access Contacts';
+                this.showToast(msg, 'error');
                 return false;
             }
             throw error;
@@ -215,20 +216,22 @@ const Contacts = {
         const container = document.getElementById('contacts-table-container');
         if (!container) return;
 
-        // Define columns
+        // Define columns with i18n keys
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         const columns = [
-            { key: 'id', label: 'ID', sortable: true },
-            { key: 'name', label: 'First Name', sortable: true },
-            { key: 'surname', label: 'Last Name', sortable: true },
-            { key: 'nickname', label: 'Nickname', sortable: true },
-            { key: 'instrumentname', label: 'Instrument', sortable: true },
-            { key: 'email', label: 'Email', sortable: true },
-            { key: 'phone', label: 'Phone', sortable: true },
-            { key: 'mobile', label: 'Mobile', sortable: true },
-            { key: 'city', label: 'City', sortable: true },
+            { key: 'id', label: t('js.table.id') || 'ID', i18n: 'js.table.id', sortable: true },
+            { key: 'name', label: t('js.contacts.firstName') || 'First Name', i18n: 'js.contacts.firstName', sortable: true },
+            { key: 'surname', label: t('js.contacts.lastName') || 'Last Name', i18n: 'js.contacts.lastName', sortable: true },
+            { key: 'nickname', label: t('js.contacts.nickname') || 'Nickname', i18n: 'js.contacts.nickname', sortable: true },
+            { key: 'instrumentname', label: t('js.contacts.instrument') || 'Instrument', i18n: 'js.contacts.instrument', sortable: true },
+            { key: 'email', label: t('js.contacts.email') || 'Email', i18n: 'js.contacts.email', sortable: true },
+            { key: 'phone', label: t('js.contacts.phone') || 'Phone', i18n: 'js.contacts.phone', sortable: true },
+            { key: 'mobile', label: t('js.contacts.mobile') || 'Mobile', i18n: 'js.contacts.mobile', sortable: true },
+            { key: 'city', label: t('js.contacts.city') || 'City', i18n: 'js.contacts.city', sortable: true },
             { 
                 key: 'status', 
-                label: 'Status', 
+                label: t('js.contacts.status') || 'Status',
+                i18n: 'js.contacts.status',
                 sortable: true,
                 render: (value) => value ? Badge.render(value, 'primary') : ''
             }
@@ -307,15 +310,16 @@ const Contacts = {
             { key: 'notes', label: 'Notes', type: 'textarea', required: false },
             {
                 key: 'groups',
-                label: 'Groups',
+                label: (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.contacts.groups') : 'Groups'),
                 type: 'privilege-checkbox',
                 options: groupOptions
             }
         ];
 
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         this.addContactForm = new Form('add-contact-form-container', {
             fields,
-            title: 'Add Contact',
+            title: t('js.contacts.addContactModalTitle'),
             onSubmit: (data) => this.handleAddContact(data),
             onCancel: () => this.closeModal('add-contact-modal')
         });
@@ -373,7 +377,7 @@ const Contacts = {
                 { key: 'notes', label: 'Notes', type: 'textarea', required: false },
                 {
                     key: 'groups',
-                    label: 'Groups',
+                    label: (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.contacts.groups') : 'Groups'),
                     type: 'privilege-checkbox',
                     options: groupOptions
                 }
@@ -385,9 +389,10 @@ const Contacts = {
                 groups: contact.groups || []
             };
 
+            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
             this.editContactForm = new Form('edit-contact-form-container', {
                 fields,
-                title: 'Edit Contact',
+                title: t('js.contacts.editContactModalTitle'),
                 data: initialData,
                 onSubmit: (data) => this.handleUpdateContact(contactId, data),
                 onCancel: () => this.closeModal('edit-contact-modal')
@@ -463,7 +468,8 @@ const Contacts = {
         this.currentMode = 'integration';
         this.showMode('integration');
         // TODO: Implement integration UI
-        this.showToast('Integration mode - coming soon', 'info');
+        const msg = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.contacts.integrationComingSoon') : 'Integration mode - coming soon';
+        this.showToast(msg, 'info');
     },
 
     /**
@@ -482,7 +488,8 @@ const Contacts = {
         this.currentMode = 'print';
         this.showMode('print');
         // TODO: Implement print UI
-        this.showToast('Print mode - coming soon', 'info');
+        const msg = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.contacts.printComingSoon') : 'Print mode - coming soon';
+        this.showToast(msg, 'info');
     },
 
     /**
@@ -492,7 +499,8 @@ const Contacts = {
         this.currentMode = 'vcard';
         this.showMode('vcard');
         // TODO: Implement vCard UI
-        this.showToast('vCard mode - coming soon', 'info');
+        const msg = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.contacts.vcardComingSoon') : 'vCard mode - coming soon';
+        this.showToast(msg, 'info');
     },
 
     /**
@@ -588,13 +596,15 @@ const Contacts = {
         try {
             const contacts = await ContactsApi.getGdprStatus();
 
+            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
             const columns = [
-                { key: 'id', label: 'ID', sortable: true },
-                { key: 'name', label: 'Name', sortable: true },
-                { key: 'email', label: 'Email', sortable: true },
+                { key: 'id', label: t('js.table.id') || 'ID', i18n: 'js.table.id', sortable: true },
+                { key: 'name', label: t('js.contacts.name') || 'Name', i18n: 'js.contacts.name', sortable: true },
+                { key: 'email', label: t('js.contacts.email') || 'Email', i18n: 'js.contacts.email', sortable: true },
                 { 
                     key: 'gdpr_ok', 
-                    label: 'GDPR OK', 
+                    label: t('js.contacts.gdprOk') || 'GDPR OK',
+                    i18n: 'js.contacts.gdprOk',
                     sortable: true,
                     render: (value) => Badge.renderStatus(value)
                 }

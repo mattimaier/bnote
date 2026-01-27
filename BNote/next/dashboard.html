@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 
 <head>
     <meta charset="UTF-8">
@@ -20,7 +20,7 @@
             <div id="sidebar-brand" class="flex items-center gap-3">
                 <div
                     class="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
-                    <i data-lucide="music" class="h-5 w-5 text-primary"></i>
+                    <img src="../style/images/BNote_Logo_white_transparent.svg" alt="BNote" class="h-5 w-5" style="filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%);" />
                 </div>
                 <div class="flex flex-col">
                     <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
@@ -34,50 +34,8 @@
         </div>
 
         <!-- Modules list -->
-        <nav class="flex-1 overflow-y-auto p-3 space-y-1.5">
-            <a href="dashboard.html" data-page="dashboard"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground font-semibold bg-primary/12 text-primary hover:bg-primary/16 shadow-sm">
-                <i data-lucide="layout-dashboard" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Dashboard</span>
-            </a>
-            <a href="users.html" id="users-menu-item" data-page="users"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium hidden">
-                <i data-lucide="user-cog" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Users</span>
-            </a>
-            <a href="contacts.html" id="contacts-menu-item" data-page="contacts"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium hidden">
-                <i data-lucide="users" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Contacts</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="calendar" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Calendar</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="users" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Members</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="message-square" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Messages</span>
-                <span
-                    class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/20 text-primary text-xs font-bold shrink-0 sidebar-badge"
-                    id="messages-badge">0</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="map-pin" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Venues</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="file-text" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Documents</span>
-            </a>
+        <nav id="sidebar-nav" class="flex-1 overflow-y-auto p-3 space-y-1.5">
+            <!-- Modules will be dynamically loaded here -->
         </nav>
     </aside>
 
@@ -103,7 +61,7 @@
                     <div class="relative w-full">
                         <i data-lucide="search"
                             class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
-                        <input type="text" placeholder="Search events, members..."
+                        <input type="text" data-i18n-placeholder="js.dashboard.searchPlaceholder" placeholder="Search events, members..."
                             class="pl-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
                     </div>
                 </div>
@@ -122,7 +80,7 @@
                             <p class="text-xs font-semibold leading-tight text-foreground" id="user-name">User</p>
                             <span
                                 class="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] mt-0.5 bg-muted text-muted-foreground border-border"
-                                id="user-role">Member</span>
+                                id="user-role" data-i18n="js.common.member">Member</span>
                         </div>
                     </button>
                 </div>
@@ -138,8 +96,8 @@
                         <h1 class="text-3xl font-bold tracking-tight text-foreground" id="welcome-greeting">
                             Welcome
                         </h1>
-                        <p class="text-muted-foreground text-sm font-medium">
-                            Here's what's happening with your band today.
+                        <p class="text-muted-foreground text-sm font-medium" id="dashboard-subtitle" data-i18n="js.dashboard.subtitle">
+                            Welcome to BNote
                         </p>
                     </div>
                 </div>
@@ -149,26 +107,26 @@
                     <div id="events-needing-response-card"
                         class="md:bg-card md:text-card-foreground flex flex-col gap-4 md:rounded-xl md:border md:border-border/40 py-2 md:py-4 md:shadow-sm md:hover:shadow-md transition-shadow">
                         <div class="px-1 md:px-4 lg:px-5 pb-2 md:border-b md:border-border/30">
-                            <h2 class="text-sm md:text-base font-semibold text-foreground">Your Response Needed</h2>
+                            <h2 class="text-sm md:text-base font-semibold text-foreground" data-i18n="js.dashboard.responseNeeded">Your Response Needed</h2>
                         </div>
                         <div class="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
                             <div class="flex items-center gap-3 flex-wrap">
-                                <span class="text-xs font-medium text-muted-foreground">Filter:</span>
+                                <span class="text-xs font-medium text-muted-foreground" data-i18n="js.common.filter">Filter:</span>
                                 <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal"
-                                    data-section="events-needing-response">
+                                    data-section="events-needing-response" data-i18n-label="js.event.rehearsal">
                                     rehearsal <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
                                 <button class="filter-bubble filter-bubble-performance" data-filter-type="performance"
-                                    data-section="events-needing-response">
+                                    data-section="events-needing-response" data-i18n-label="js.event.performance">
                                     performance <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
                                 <button class="filter-bubble filter-bubble-meeting" data-filter-type="meeting"
-                                    data-section="events-needing-response">
+                                    data-section="events-needing-response" data-i18n-label="js.event.meeting">
                                     meeting <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
                                 <button
                                     class="filter-clear-btn text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/50 transition-colors"
-                                    data-section="events-needing-response">
+                                    data-section="events-needing-response" data-i18n="js.common.clear">
                                     Clear
                                 </button>
                             </div>
@@ -205,26 +163,26 @@
                     <div id="events-timeline-card"
                         class="md:bg-card md:text-card-foreground flex flex-col gap-4 md:rounded-xl md:border md:border-border/40 py-2 md:py-4 md:shadow-sm md:hover:shadow-md transition-shadow">
                         <div class="px-1 md:px-4 lg:px-5 pb-2 md:border-b md:border-border/30">
-                            <h2 class="text-sm md:text-base font-semibold text-foreground">Upcoming Events</h2>
+                            <h2 class="text-sm md:text-base font-semibold text-foreground" data-i18n="js.dashboard.upcomingEvents">Upcoming Events</h2>
                         </div>
                         <div class="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
                             <div class="flex items-center gap-3 flex-wrap">
-                                <span class="text-xs font-medium text-muted-foreground">Filter:</span>
+                                <span class="text-xs font-medium text-muted-foreground" data-i18n="js.common.filter">Filter:</span>
                                 <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal"
-                                    data-section="events-timeline">
+                                    data-section="events-timeline" data-i18n-label="js.event.rehearsal">
                                     rehearsal <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
                                 <button class="filter-bubble filter-bubble-performance" data-filter-type="performance"
-                                    data-section="events-timeline">
+                                    data-section="events-timeline" data-i18n-label="js.event.performance">
                                     performance <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
                                 <button class="filter-bubble filter-bubble-meeting" data-filter-type="meeting"
-                                    data-section="events-timeline">
+                                    data-section="events-timeline" data-i18n-label="js.event.meeting">
                                     meeting <span class="filter-count text-xs opacity-70 ml-1">(0)</span>
                                 </button>
                                 <button
                                     class="filter-clear-btn text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/50 transition-colors"
-                                    data-section="events-timeline">
+                                    data-section="events-timeline" data-i18n="js.common.clear">
                                     Clear
                                 </button>
                             </div>
@@ -260,7 +218,7 @@
                     <div id="quick-actions-card"
                         class="bg-card text-card-foreground flex flex-col gap-4 rounded-xl border border-border/40 py-4 shadow-sm hover:shadow-md transition-shadow">
                         <div class="px-4 lg:px-5 pb-2 border-b border-border/30">
-                            <h2 class="text-base font-semibold text-foreground">Quick Actions</h2>
+                            <h2 class="text-base font-semibold text-foreground" data-i18n="js.dashboard.quickActions">Quick Actions</h2>
                         </div>
                         <div class="px-4 lg:px-5 pt-3">
                             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="quick-actions-content">
@@ -281,7 +239,7 @@
                         class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground hover:text-primary bg-muted/50 hover:bg-muted rounded-lg transition-colors"
                     >
                         <i data-lucide="arrow-left" class="h-4 w-4"></i>
-                        Back to Dashboard
+                        <span data-i18n="js.dashboard.backToDashboard">Back to Dashboard</span>
                     </button>
                 </div>
                 <div id="event-detail-content" class="mx-auto max-w-4xl">
@@ -297,27 +255,24 @@
     <!-- Participation Modal -->
     <div id="participation-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full mx-4 border border-border">
-            <h3 class="text-xl font-semibold mb-4 text-card-foreground">Reason for <span id="modal-status-label"></span>
-            </h3>
+            <h3 class="text-xl font-semibold mb-4 text-card-foreground"><span data-i18n="js.participation.reasonFor">Reason for </span><span id="modal-status-label"></span></h3>
             <textarea id="participation-reason"
                 class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
-                rows="4" placeholder="Optional reason...">
-            </textarea>
+                rows="4" data-i18n-placeholder="js.participation.reasonOptional" placeholder="Optional reason..."></textarea>
             <div class="flex gap-3 mt-4 justify-end">
-                <button id="modal-cancel"
-                    class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">
-                    Cancel
-                </button>
-                <button id="modal-confirm" class="px-4 py-2 rounded-md text-white transition-colors">
-                    Confirm
-                </button>
+                <button id="modal-cancel" data-i18n="js.common.cancel"
+                    class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">Cancel</button>
+                <button id="modal-confirm" data-i18n="js.common.confirm" class="px-4 py-2 rounded-md text-white transition-colors">Confirm</button>
             </div>
         </div>
     </div>
 
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/app.js"></script>
     <script src="assets/js/badge.js"></script>
+    <script src="assets/js/user-info.js"></script>
     <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/participation-constants.js"></script>
     <script src="assets/js/instrument-grouping.js"></script>
@@ -333,14 +288,46 @@
             lucide.createIcons();
         }
 
-        // Check authentication on page load
-        Auth.redirectIfNotAuthenticated().then((session) => {
+        // Wait for i18n to be initialized, then check authentication
+        (async () => {
+            // Initialize i18n first if App is available
+            if (typeof App !== 'undefined' && typeof i18n !== 'undefined') {
+                await App.initI18n();
+                // Wait for translations to load (up to 5 seconds)
+                await new Promise((resolve) => {
+                    const t = () => Object.keys(i18n.translations || {}).length > 0;
+                    if (t()) {
+                        resolve();
+                        return;
+                    }
+                    const checkInterval = setInterval(() => {
+                        if (t()) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                    // Timeout after 5 seconds
+                    setTimeout(() => {
+                        clearInterval(checkInterval);
+                        resolve(); // Continue even if translations didn't load
+                    }, 5000);
+                });
+            }
+            
+            // Check authentication on page load
+            const session = await Auth.redirectIfNotAuthenticated();
+            
+            // Initialize user info component
+            if (typeof UserInfo !== 'undefined') {
+                await UserInfo.init(session);
+            }
+            
             // Initialize sidebar (always visible, independent of dashboard)
-            Sidebar.init('dashboard');
+            await Sidebar.init('dashboard');
             
             // Initialize dashboard
             Dashboard.init(session);
-        });
+        })();
     </script>
 </body>
 

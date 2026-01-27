@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 
 <head>
     <meta charset="UTF-8">
@@ -20,7 +20,7 @@
             <div id="sidebar-brand" class="flex items-center gap-3">
                 <div
                     class="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
-                    <i data-lucide="music" class="h-5 w-5 text-primary"></i>
+                    <img src="../style/images/BNote_Logo_white_transparent.svg" alt="BNote" class="h-5 w-5" style="filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%);" />
                 </div>
                 <div class="flex flex-col">
                     <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
@@ -60,7 +60,7 @@
                     <div class="relative w-full">
                         <i data-lucide="search"
                             class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
-                        <input type="text" placeholder="Search contacts..."
+                        <input type="text" data-i18n-placeholder="js.contacts.searchPlaceholder" placeholder="Search contacts..."
                             class="pl-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
                     </div>
                 </div>
@@ -79,7 +79,7 @@
                             <p class="text-xs font-semibold leading-tight text-foreground" id="user-name">User</p>
                             <span
                                 class="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] mt-0.5 bg-muted text-muted-foreground border-border"
-                                id="user-role">Member</span>
+                                id="user-role" data-i18n="js.common.member">Member</span>
                         </div>
                     </button>
                 </div>
@@ -91,8 +91,8 @@
             <div class="mx-auto max-w-7xl">
                 <!-- Page title -->
                 <div class="mb-6">
-                    <h1 class="text-2xl font-semibold text-foreground">Contacts</h1>
-                    <p class="text-sm text-muted-foreground mt-1">Manage contacts, groups, and integrations</p>
+                    <h1 class="text-2xl font-semibold text-foreground" data-i18n="js.contacts.title">Contacts</h1>
+                    <p class="text-sm text-muted-foreground mt-1" data-i18n="js.contacts.subtitle">Manage contacts, groups, and integrations</p>
                 </div>
 
                 <!-- Action buttons -->
@@ -101,37 +101,37 @@
                         <button id="add-contact-btn"
                             class="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium shadow-sm hover:shadow">
                             <i data-lucide="plus" class="h-4 w-4"></i>
-                            <span>Add Contact</span>
+                            <span data-i18n="js.contacts.addContact">Add Contact</span>
                         </button>
                         <button id="integration-btn"
                             class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
                             <i data-lucide="box-arrow-in-up-right" class="h-4 w-4"></i>
-                            <span>Integration</span>
+                            <span data-i18n="js.contacts.integration">Integration</span>
                         </button>
                         <button id="groups-btn"
                             class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
                             <i data-lucide="people" class="h-4 w-4"></i>
-                            <span>Groups</span>
+                            <span data-i18n="js.contacts.groups">Groups</span>
                         </button>
                         <button id="print-btn"
                             class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
                             <i data-lucide="printer" class="h-4 w-4"></i>
-                            <span>Print</span>
+                            <span data-i18n="js.contacts.print">Print</span>
                         </button>
                         <button id="vcard-btn"
                             class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
                             <i data-lucide="file-text" class="h-4 w-4"></i>
-                            <span>vCard</span>
+                            <span data-i18n="js.contacts.vcard">vCard</span>
                         </button>
                         <button id="privacy-btn"
                             class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
                             <i data-lucide="shield-alert" class="h-4 w-4"></i>
-                            <span>Privacy</span>
+                            <span data-i18n="js.contacts.privacy">Privacy</span>
                         </button>
                     </div>
                     <button id="back-to-list-btn" class="hidden flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
                         <i data-lucide="arrow-left" class="h-4 w-4"></i>
-                        <span>Back to List</span>
+                        <span data-i18n="js.contacts.backToList">Back to List</span>
                     </button>
                 </div>
 
@@ -154,8 +154,8 @@
                 <!-- Integration Mode -->
                 <div id="integration-mode" class="hidden">
                     <div class="bg-card rounded-xl border border-border/40 shadow-sm p-6">
-                        <h2 class="text-xl font-semibold mb-4">Integration</h2>
-                        <p class="text-muted-foreground">Integration mode - coming soon</p>
+                        <h2 class="text-xl font-semibold mb-4" data-i18n="js.contacts.integration">Integration</h2>
+                        <p class="text-muted-foreground" data-i18n="js.contacts.integrationComingSoon">Integration mode - coming soon</p>
                     </div>
                 </div>
 
@@ -171,16 +171,16 @@
                 <!-- Print Mode -->
                 <div id="print-mode" class="hidden">
                     <div class="bg-card rounded-xl border border-border/40 shadow-sm p-6">
-                        <h2 class="text-xl font-semibold mb-4">Print</h2>
-                        <p class="text-muted-foreground">Print mode - coming soon</p>
+                        <h2 class="text-xl font-semibold mb-4" data-i18n="js.contacts.print">Print</h2>
+                        <p class="text-muted-foreground" data-i18n="js.contacts.printComingSoon">Print mode - coming soon</p>
                     </div>
                 </div>
 
                 <!-- vCard Mode -->
                 <div id="vcard-mode" class="hidden">
                     <div class="bg-card rounded-xl border border-border/40 shadow-sm p-6">
-                        <h2 class="text-xl font-semibold mb-4">vCard Import/Export</h2>
-                        <p class="text-muted-foreground">vCard mode - coming soon</p>
+                        <h2 class="text-xl font-semibold mb-4" data-i18n="js.contacts.vcardImportExport">vCard Import/Export</h2>
+                        <p class="text-muted-foreground" data-i18n="js.contacts.vcardComingSoon">vCard mode - coming soon</p>
                     </div>
                 </div>
 
@@ -189,18 +189,21 @@
                     <div class="bg-card rounded-xl border border-border/40 shadow-sm">
                         <div class="p-6">
                             <div class="flex items-center justify-between mb-4">
-                                <h2 class="text-xl font-semibold">GDPR Status</h2>
+                                <h2 class="text-xl font-semibold" data-i18n="js.contacts.gdprStatus">GDPR Status</h2>
                                 <div class="flex gap-2">
                                     <button id="generate-gdpr-codes-btn"
-                                        class="px-4 py-2 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                                        class="px-4 py-2 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium"
+                                        data-i18n="js.contacts.generateCodes">
                                         Generate Codes
                                     </button>
                                     <button id="send-gdpr-mail-btn"
-                                        class="px-4 py-2 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                                        class="px-4 py-2 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium"
+                                        data-i18n="js.contacts.sendMail">
                                         Send Mail
                                     </button>
                                     <button id="delete-gdpr-nok-btn"
-                                        class="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors text-sm font-medium">
+                                        class="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors text-sm font-medium"
+                                        data-i18n="js.contacts.deleteNonConsenting">
                                         Delete Non-Consenting
                                     </button>
                                 </div>
@@ -218,7 +221,7 @@
         <div class="bg-card rounded-lg p-6 shadow-xl">
             <div class="flex items-center gap-3">
                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                <span class="text-foreground">Loading...</span>
+                <span class="text-foreground" data-i18n="js.common.loading">Loading...</span>
             </div>
         </div>
     </div>
@@ -227,7 +230,7 @@
     <div id="add-contact-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground">Add Contact</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.contacts.addContactModalTitle">Add Contact</h3>
                 <button data-modal-close="add-contact-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -240,7 +243,7 @@
     <div id="edit-contact-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground">Edit Contact</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.contacts.editContactModalTitle">Edit Contact</h3>
                 <button data-modal-close="edit-contact-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -251,33 +254,49 @@
 
     <!-- Scripts -->
     <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/badge.js"></script>
+    <script src="assets/js/user-info.js"></script>
     <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/table.js"></script>
     <script src="assets/js/form.js"></script>
-    <script src="assets/js/badge.js"></script>
     <script src="assets/js/contacts.js"></script>
-    <script src="assets/js/auth.js"></script>
 
     <script>
-        // Initialize app
         document.addEventListener('DOMContentLoaded', async () => {
-            // Initialize icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-
-            // Check authentication
+            if (typeof lucide !== 'undefined') lucide.createIcons();
             try {
                 const session = await AuthApi.checkSession();
                 if (!session || !session.authenticated) {
                     window.location.href = 'login.html';
                     return;
                 }
-
-                // Initialize sidebar
-                Sidebar.init(session);
-
-                // Initialize contacts module
+                if (typeof App !== 'undefined' && typeof i18n !== 'undefined') {
+                    await App.initI18n();
+                    await new Promise((resolve) => {
+                        if (Object.keys(i18n.translations || {}).length > 0) {
+                            resolve();
+                            return;
+                        }
+                        const iv = setInterval(() => {
+                            if (Object.keys(i18n.translations || {}).length > 0) {
+                                clearInterval(iv);
+                                resolve();
+                            }
+                        }, 100);
+                        setTimeout(() => { clearInterval(iv); resolve(); }, 5000);
+                    });
+                    if (typeof i18n.translatePage === 'function') i18n.translatePage();
+                }
+                
+                // Initialize user info component
+                if (typeof UserInfo !== 'undefined') {
+                    await UserInfo.init(session);
+                }
+                
+                await Sidebar.init();
                 await Contacts.init(session);
             } catch (error) {
                 console.error('Initialization error:', error);

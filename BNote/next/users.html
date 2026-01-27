@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 
 <head>
     <meta charset="UTF-8">
@@ -20,7 +20,7 @@
             <div id="sidebar-brand" class="flex items-center gap-3">
                 <div
                     class="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
-                    <i data-lucide="music" class="h-5 w-5 text-primary"></i>
+                    <img src="../style/images/BNote_Logo_white_transparent.svg" alt="BNote" class="h-5 w-5" style="filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%);" />
                 </div>
                 <div class="flex flex-col">
                     <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
@@ -34,50 +34,8 @@
         </div>
 
         <!-- Modules list -->
-        <nav class="flex-1 overflow-y-auto p-3 space-y-1.5">
-            <a href="dashboard.html" data-page="dashboard"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="layout-dashboard" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Dashboard</span>
-            </a>
-            <a href="users.html" id="users-menu-item" data-page="users"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground font-semibold bg-primary/12 text-primary hover:bg-primary/16 shadow-sm hidden">
-                <i data-lucide="user-cog" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Users</span>
-            </a>
-            <a href="contacts.html" id="contacts-menu-item" data-page="contacts"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium hidden">
-                <i data-lucide="users" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Contacts</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="calendar" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Calendar</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="users" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Members</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="message-square" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Messages</span>
-                <span
-                    class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/20 text-primary text-xs font-bold shrink-0 sidebar-badge"
-                    id="messages-badge">0</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="map-pin" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Venues</span>
-            </a>
-            <a href="#"
-                class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium">
-                <i data-lucide="file-text" class="h-5 w-5 shrink-0"></i>
-                <span class="flex-1 truncate sidebar-text">Documents</span>
-            </a>
+        <nav id="sidebar-nav" class="flex-1 overflow-y-auto p-3 space-y-1.5">
+            <!-- Modules will be dynamically loaded here -->
         </nav>
     </aside>
 
@@ -102,7 +60,7 @@
                     <div class="relative w-full">
                         <i data-lucide="search"
                             class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
-                        <input type="text" placeholder="Search users, members..."
+                        <input type="text" data-i18n-placeholder="js.users.searchPlaceholder" placeholder="Search users, members..."
                             class="pl-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
                     </div>
                 </div>
@@ -121,7 +79,7 @@
                             <p class="text-xs font-semibold leading-tight text-foreground" id="user-name">User</p>
                             <span
                                 class="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] mt-0.5 bg-muted text-muted-foreground border-border"
-                                id="user-role">Member</span>
+                                id="user-role" data-i18n="js.common.member">Member</span>
                         </div>
                     </button>
                 </div>
@@ -133,8 +91,8 @@
             <div class="mx-auto max-w-7xl">
                 <!-- Page title -->
                 <div class="mb-6">
-                    <h1 class="text-2xl font-semibold text-foreground">User Management</h1>
-                    <p class="text-sm text-muted-foreground mt-1">Manage users, permissions, and access</p>
+                    <h1 class="text-2xl font-semibold text-foreground" data-i18n="js.users.title">User Management</h1>
+                    <p class="text-sm text-muted-foreground mt-1" data-i18n="js.users.subtitle">Manage users, permissions, and access</p>
                 </div>
                 
                 <!-- Action buttons -->
@@ -143,12 +101,12 @@
                         <button id="add-user-btn"
                             class="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium shadow-sm hover:shadow">
                             <i data-lucide="plus" class="h-4 w-4"></i>
-                            <span>Add User</span>
+                            <span data-i18n="js.users.addUser">Add User</span>
                         </button>
                         <button id="gdpr-btn"
                             class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
                             <i data-lucide="shield-alert" class="h-4 w-4"></i>
-                            <span>GDPR</span>
+                            <span data-i18n="js.users.gdpr">GDPR</span>
                         </button>
                     </div>
                 </div>
@@ -173,7 +131,7 @@
     <div id="add-user-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full border border-border">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground">Add User</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.addUserModalTitle">Add User</h3>
                 <button data-modal-close="add-user-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -186,7 +144,7 @@
     <div id="edit-user-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full border border-border">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground">Edit User</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.editUserModalTitle">Edit User</h3>
                 <button data-modal-close="edit-user-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -199,7 +157,7 @@
     <div id="user-details-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full border border-border">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground">User Details</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.userDetailsModalTitle">User Details</h3>
                 <button data-modal-close="user-details-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -207,11 +165,13 @@
             <div id="user-details-content" class="mb-4"></div>
             <div class="flex gap-3 justify-end pt-4 border-t border-border/40">
                 <button id="user-details-activate-btn" type="button"
-                    class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">
+                    class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground"
+                    data-i18n="js.users.activate">
                     Activate
                 </button>
                 <button data-modal-close="user-details-modal"
-                    class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+                    class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                    data-i18n="js.common.close">
                     Close
                 </button>
             </div>
@@ -222,7 +182,7 @@
     <div id="privileges-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[80vh] flex flex-col">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground">Manage Privileges</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.managePrivilegesModalTitle">Manage Privileges</h3>
                 <button data-modal-close="privileges-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -235,13 +195,13 @@
     <div id="gdpr-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[80vh] flex flex-col">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground">GDPR - Delete Inactive Users</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.gdprModalTitle">GDPR - Delete Inactive Users</h3>
                 <button data-modal-close="gdpr-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
             </div>
             <div class="mb-4">
-                <p class="text-sm text-muted-foreground">
+                <p class="text-sm text-muted-foreground" data-i18n="js.users.gdprModalDescription">
                     Users who have not logged in for 24+ months. Select users to permanently delete with all associated data.
                 </p>
             </div>
@@ -249,11 +209,13 @@
                 <div id="gdpr-users-list" class="space-y-2"></div>
                 <div class="flex gap-3 justify-end pt-4 mt-4 border-t border-border/40">
                     <button type="button" data-modal-close="gdpr-modal"
-                        class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">
+                        class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground"
+                        data-i18n="js.common.cancel">
                         Cancel
                     </button>
                     <button type="button" onclick="Users.handleGDPRDelete()"
-                        class="px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors">
+                        class="px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
+                        data-i18n="js.users.gdprDeleteSelected">
                         Delete Selected
                     </button>
                 </div>
@@ -263,8 +225,11 @@
 
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
-    <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/app.js"></script>
     <script src="assets/js/badge.js"></script>
+    <script src="assets/js/user-info.js"></script>
+    <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/form.js"></script>
     <script src="assets/js/table.js"></script>
     <script src="assets/js/users.js"></script>
@@ -274,14 +239,35 @@
             lucide.createIcons();
         }
 
-        // Check authentication on page load
-        Auth.redirectIfNotAuthenticated().then((session) => {
-            // Initialize sidebar (always visible, independent of users module)
-            Sidebar.init('users');
+        // Check authentication, init i18n, then sidebar + users
+        (async () => {
+            const session = await Auth.redirectIfNotAuthenticated();
+            if (typeof App !== 'undefined' && typeof i18n !== 'undefined') {
+                await App.initI18n();
+                await new Promise((resolve) => {
+                    if (Object.keys(i18n.translations || {}).length > 0) {
+                        resolve();
+                        return;
+                    }
+                    const iv = setInterval(() => {
+                        if (Object.keys(i18n.translations || {}).length > 0) {
+                            clearInterval(iv);
+                            resolve();
+                        }
+                    }, 100);
+                    setTimeout(() => { clearInterval(iv); resolve(); }, 5000);
+                });
+                if (typeof i18n.translatePage === 'function') i18n.translatePage();
+            }
             
-            // Initialize users module
+            // Initialize user info component
+            if (typeof UserInfo !== 'undefined') {
+                await UserInfo.init(session);
+            }
+            
+            await Sidebar.init('users');
             Users.init(session);
-        });
+        })();
     </script>
 </body>
 

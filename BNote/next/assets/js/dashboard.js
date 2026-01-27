@@ -49,10 +49,10 @@ const Dashboard = {
         this.initWelcomeHeader();
         this.initQuickActions();
         this.initFilters();
-        
+
         // Initialize event click handlers early (before loading dashboard)
         this.initGlobalEventClickHandlers();
-        
+
         // Load dashboard data
         await this.loadDashboard();
     },
@@ -64,7 +64,7 @@ const Dashboard = {
         if (!this.session?.user) return;
 
         const user = this.session.user;
-        const firstName = user.name || 'User';
+        const firstName = user.name || (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.common.user') : 'User');
         const lastName = user.surname || '';
         const fullName = `${firstName} ${lastName}`.trim();
 
@@ -78,60 +78,101 @@ const Dashboard = {
         const initialsEl = document.getElementById('user-initials');
         if (initialsEl) {
             const initials = (firstName[0] || '') + (lastName[0] || '');
-            initialsEl.textContent = initials || 'U';
+            const initialsFallback = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.common.user') : 'User').trim()[0] || 'U';
+        initialsEl.textContent = initials || initialsFallback;
         }
 
-        // Set greeting
+        // Set greeting - will be updated by translatePage() if translations are loaded
         const greetingEl = document.getElementById('welcome-greeting');
         if (greetingEl) {
+            // Get greeting text (time-based)
             const greeting = this.getGreeting();
+            // Set initial text (will be translated if i18n is available)
             greetingEl.textContent = `${greeting}, ${firstName}`;
+        }
+
+        // Set dashboard subtitle with company name (will be updated after dashboard loads)
+        // Only update if translations are loaded
+        if (typeof i18n !== 'undefined' && Object.keys(i18n.translations).length > 0) {
+            this.updateDashboardSubtitle();
         }
     },
 
     /**
-     * Get time-based greeting
+     * Update dashboard subtitle with band/company name (from config).
+     * %p in js.dashboard.subtitle is the Band Name. No hardcoded fallback.
+     */
+    updateDashboardSubtitle() {
+        if (typeof i18n === 'undefined' || Object.keys(i18n.translations || {}).length === 0) {
+            return;
+        }
+
+        const subtitleEl = document.getElementById('dashboard-subtitle');
+        if (!subtitleEl) return;
+
+        const raw = this.dashboardData?.company;
+        const companyName = typeof raw === 'string'
+            ? raw
+            : (raw && typeof raw === 'object' && typeof raw.name === 'string' ? raw.name : null);
+        const fallback = companyName || (typeof i18n.t === 'function' ? i18n.t('js.common.appName') : 'BNote');
+
+        const translated = i18n.t('js.dashboard.subtitle', [fallback]);
+        if (translated && translated !== 'js.dashboard.subtitle') {
+            subtitleEl.textContent = translated;
+        }
+    },
+
+    /**
+     * Translate page elements
+     */
+    translatePage() {
+        if (typeof i18n === 'undefined' || Object.keys(i18n.translations || {}).length === 0) {
+            return;
+        }
+
+        i18n.translatePage();
+
+        // Update welcome greeting with translated welcome text + name
+        const greetingEl = document.getElementById('welcome-greeting');
+        if (greetingEl && this.session?.user) {
+            const firstName = this.session.user.name || (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.common.user') : 'User');
+            const welcomeText = i18n.t('banner_Logout.welcome');
+            // Use translated welcome text if available, otherwise use time-based greeting
+            if (welcomeText && welcomeText !== 'banner_Logout.welcome') {
+                greetingEl.textContent = `${welcomeText}, ${firstName}`;
+            } else {
+                // Fallback to time-based greeting
+                const greeting = this.getGreeting();
+                greetingEl.textContent = `${greeting}, ${firstName}`;
+            }
+        }
+    },
+
+    /**
+     * Get time-based greeting (localized)
      */
     getGreeting() {
         const hour = new Date().getHours();
-        if (hour < 12) return 'Good morning';
-        if (hour < 18) return 'Good afternoon';
-        return 'Good evening';
+        if (typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0) {
+            if (hour < 12) return i18n.t('js.common.greeting.morning');
+            if (hour < 18) return i18n.t('js.common.greeting.afternoon');
+            return i18n.t('js.common.greeting.evening');
+        }
+        if (hour < 12) return 'js.common.greeting.morning';
+        if (hour < 18) return 'js.common.greeting.afternoon';
+        return 'js.common.greeting.evening';
     },
 
     /**
      * Initialize quick actions
      */
     initQuickActions() {
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         const actions = [
-            {
-                title: 'View Calendar',
-                description: 'See all upcoming events',
-                icon: 'calendar-days',
-                colorClass: 'bg-primary/10 text-primary hover:bg-primary/20',
-                href: '#'
-            },
-            {
-                title: 'Contact Band',
-                description: 'Message the band members',
-                icon: 'message-square',
-                colorClass: 'bg-accent/10 text-accent hover:bg-accent/20',
-                href: '#'
-            },
-            {
-                title: 'Band Directory',
-                description: 'View all band members',
-                icon: 'users',
-                colorClass: 'bg-chart-3/10 text-chart-3 hover:bg-chart-3/20',
-                href: '#'
-            },
-            {
-                title: 'My Profile',
-                description: 'Edit your band profile',
-                icon: 'music',
-                colorClass: 'bg-chart-4/10 text-chart-4 hover:bg-chart-4/20',
-                href: '#'
-            }
+            { titleKey: 'js.dashboard.quickAction.viewCalendar', descKey: 'js.dashboard.quickAction.viewCalendarDesc', icon: 'calendar-days', colorClass: 'bg-primary/10 text-primary hover:bg-primary/20', href: '#' },
+            { titleKey: 'js.dashboard.quickAction.contactBand', descKey: 'js.dashboard.quickAction.contactBandDesc', icon: 'message-square', colorClass: 'bg-accent/10 text-accent hover:bg-accent/20', href: '#' },
+            { titleKey: 'js.dashboard.quickAction.bandDirectory', descKey: 'js.dashboard.quickAction.bandDirectoryDesc', icon: 'users', colorClass: 'bg-chart-3/10 text-chart-3 hover:bg-chart-3/20', href: '#' },
+            { titleKey: 'js.dashboard.quickAction.myProfile', descKey: 'js.dashboard.quickAction.myProfileDesc', icon: 'music', colorClass: 'bg-chart-4/10 text-chart-4 hover:bg-chart-4/20', href: '#' }
         ];
 
         const container = document.getElementById('quick-actions-content');
@@ -146,8 +187,8 @@ const Dashboard = {
                     <i data-lucide="${action.icon}" class="h-5 w-5"></i>
                 </div>
                 <div class="text-center">
-                    <p class="font-semibold text-sm leading-tight">${action.title}</p>
-                    <p class="text-xs text-muted-foreground/70 font-normal mt-1">${action.description}</p>
+                    <p class="font-semibold text-sm leading-tight">${t(action.titleKey)}</p>
+                    <p class="text-xs text-muted-foreground/70 font-normal mt-1">${t(action.descKey)}</p>
                 </div>
             </a>
         `).join('');
@@ -201,12 +242,39 @@ const Dashboard = {
             this.renderEventsNeedingResponse(eventsNeedingResponse.events || eventsNeedingResponse);
             this.renderEventsTimeline(dashboardData);
 
+            // Translate page elements (will update subtitle if translations loaded)
+            this.translatePage();
+            this.updateDashboardSubtitle();
+
+            // Listen for i18n loaded event and re-translate everything
+            const handleI18nLoaded = () => {
+                this.translatePage();
+                this.updateDashboardSubtitle();
+                // Re-render events to update labels and dates
+                if (this.allEvents['events-needing-response']?.length > 0) {
+                    this.renderEventsNeedingResponse(this.allEvents['events-needing-response']);
+                }
+                if (this.allEvents['events-timeline']?.length > 0) {
+                    this.renderEventsTimeline({ inbox: this.allEvents['events-timeline'] });
+                }
+            };
+
+            // Add listener (remove after first call to avoid duplicates)
+            window.addEventListener('i18n:loaded', handleI18nLoaded, { once: true });
+
+            // Also check if translations are already loaded
+            if (typeof i18n !== 'undefined' && Object.keys(i18n.translations).length > 0) {
+                // Translations already loaded, translate now
+                setTimeout(handleI18nLoaded, 100);
+            }
+
             // Hide loading states
             this.hideLoadingStates();
 
         } catch (error) {
             console.error('Failed to load dashboard:', error);
-            this.showError(error.message || 'Fehler beim Laden des Dashboards');
+            const msg = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.dashboardLoadFailed') : 'Failed to load dashboard.');
+            this.showError(error.message || msg);
             this.hideLoadingStates();
         }
     },
@@ -575,7 +643,7 @@ const Dashboard = {
 
         // Apply filters to get the events that should be displayed
         const filteredEvents = this.applyFilters('events-timeline', upcomingEvents);
-        
+
         const currentEventIds = new Set(
             Array.from(container.querySelectorAll('[data-event-id]'))
                 .map(el => el.getAttribute('data-event-id'))
@@ -724,7 +792,11 @@ const Dashboard = {
             const dateStr = this.formatEventDate(event.eventBegin || event.dueDate);
             const timeStr = this.formatEventTime(event.eventBegin || event.dueDate);
             // Use location from API response
-            const location = event.location || event.locationData?.name || this.extractLocationFromTitle(event.title) || 'TBA';
+            const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
+                ? i18n.t('js.event.tba')
+                : 'TBA';
+            const eventTitleFallback = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.event.event') : 'Event';
+            const location = event.location || event.locationData?.name || this.extractLocationFromTitle(event.title) || tbaText;
             const isLast = index === eventsList.length - 1;
 
             // Generate participation widget HTML if needed
@@ -741,7 +813,7 @@ const Dashboard = {
 
             // Mobile compact layout: no timeline icons, less padding, unified design
             const isMobile = window.innerWidth < 768;
-            
+
             // Only make clickable if it's a rehearsal or concert
             const isClickable = event.otype === 'R' || event.otype === 'C';
             const clickableClass = isClickable ? 'cursor-pointer event-clickable' : '';
@@ -758,7 +830,7 @@ const Dashboard = {
                                         <p class="text-sm font-bold text-foreground leading-tight">${dateStr}</p>
                                     </div>
                                     <div class="flex items-center gap-1.5 mb-1 flex-wrap">
-                                        <h3 class="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(event.title || 'Event')}</h3>
+                                        <h3 class="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(event.title || eventTitleFallback)}</h3>
                                         <span class="${typeConfig.badgeClass} text-[10px]">
                                             ${typeConfig.label}
                                         </span>
@@ -795,7 +867,7 @@ const Dashboard = {
                                     <p class="text-base font-bold text-foreground leading-tight">${dateStr}</p>
                                 </div>
                                 <div class="flex items-center gap-2 mb-1.5">
-                                    <h3 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(event.title || 'Event')}</h3>
+                                    <h3 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(event.title || eventTitleFallback)}</h3>
                                     <span class="${typeConfig.badgeClass}">
                                         ${typeConfig.label}
                                     </span>
@@ -823,7 +895,7 @@ const Dashboard = {
                     data-section="${sectionId}"
                     onclick="Dashboard.loadMoreEvents('${sectionId}')"
                 >
-                    Load More
+                    ${typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.common.loadMore') : 'Load More'}
                 </button>
             </div>
         ` : '');
@@ -841,7 +913,7 @@ const Dashboard = {
             this.initializeParticipationWidgets(container);
         }, 100);
     },
-    
+
     /**
      * Initialize global click handlers for event items (set up once)
      */
@@ -849,31 +921,31 @@ const Dashboard = {
         if (this.eventClickHandlerInitialized) {
             return;
         }
-        
+
         const self = this;
-        
+
         // Use event delegation on document level for all event clicks
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             // Don't trigger if clicking on participation widget or its children
             if (e.target.closest('[data-participation-widget]')) {
                 return;
             }
-            
+
             // Find element with data-event-id and data-event-type attributes
             // Check the clicked element and walk up the DOM tree
             let currentElement = e.target;
             let eventElement = null;
-            
+
             while (currentElement && currentElement !== document.body) {
                 // Check if this element has the required data attributes
                 const eventType = currentElement.getAttribute('data-event-type');
                 const eventId = currentElement.getAttribute('data-event-id');
-                
+
                 if (eventType && eventId && (eventType === 'R' || eventType === 'C')) {
                     eventElement = currentElement;
                     break;
                 }
-                
+
                 // Also check for event-clickable class
                 if (currentElement.classList && currentElement.classList.contains('event-clickable')) {
                     const type = currentElement.getAttribute('data-event-type');
@@ -883,14 +955,14 @@ const Dashboard = {
                         break;
                     }
                 }
-                
+
                 currentElement = currentElement.parentElement;
             }
-            
+
             if (eventElement) {
                 const eventType = eventElement.getAttribute('data-event-type');
                 const eventId = eventElement.getAttribute('data-event-id');
-                
+
                 if (eventType && eventId) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -898,7 +970,7 @@ const Dashboard = {
                 }
             }
         });
-        
+
         this.eventClickHandlerInitialized = true;
     },
 
@@ -1027,23 +1099,25 @@ const Dashboard = {
      * Get event type configuration
      */
     getEventTypeConfig(type) {
+        const getLabel = (key) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(key) : key);
+
         const configs = {
             rehearsal: {
                 badgeClass: 'event-badge',
                 dotClass: 'bg-primary',
-                label: 'rehearsal',
+                label: getLabel('js.event.rehearsal'),
                 icon: 'music'
             },
             performance: {
                 badgeClass: 'event-badge accent',
                 dotClass: 'bg-accent',
-                label: 'performance',
+                label: getLabel('js.event.performance'),
                 icon: 'calendar'
             },
             meeting: {
                 badgeClass: 'event-badge chart-3',
                 dotClass: 'bg-chart-3',
-                label: 'meeting',
+                label: getLabel('js.event.meeting'),
                 icon: 'users'
             }
         };
@@ -1051,41 +1125,42 @@ const Dashboard = {
     },
 
     /**
-     * Format event date
+     * Format event date (short format: DD.MM.YYYY or MM/DD/YYYY). Uses parseEventDate; returns TBA when no valid date.
      */
     formatEventDate(dateStr) {
-        if (!dateStr) return 'TBA';
-        try {
-            const date = new Date(dateStr);
-            if (isNaN(date.getTime())) return 'TBA';
-
-            // Format as "Jan 28" or "Feb 2"
-            const month = date.toLocaleDateString('en-US', { month: 'short' });
-            const day = date.getDate();
-            return `${month} ${day}`;
-        } catch (e) {
-            return 'TBA';
+        const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
+            ? i18n.t('js.event.tba')
+            : 'TBA';
+        if (dateStr == null || typeof dateStr !== 'string') return tbaText;
+        const date = typeof i18n !== 'undefined' && i18n.parseEventDate ? i18n.parseEventDate(dateStr) : null;
+        if (!date) {
+            if (typeof console !== 'undefined' && console.warn) console.warn('formatEventDate: invalid date', dateStr);
+            return tbaText;
         }
+        const locale = typeof i18n !== 'undefined' && i18n.getBrowserLocale
+            ? i18n.getBrowserLocale(i18n.getLang())
+            : (navigator.language || 'de-DE');
+        return new Intl.DateTimeFormat(locale, {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).format(date);
     },
 
     /**
-     * Format event time
+     * Format event time (hours and minutes only, no seconds). Uses parseEventDate.
      */
     formatEventTime(dateStr) {
-        if (!dateStr) return 'TBA';
-        try {
-            const date = new Date(dateStr);
-            if (isNaN(date.getTime())) return 'TBA';
-
-            // Format as "7:00 PM"
-            return date.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            });
-        } catch (e) {
-            return 'TBA';
-        }
+        const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
+            ? i18n.t('js.event.tba')
+            : 'TBA';
+        if (dateStr == null || typeof dateStr !== 'string') return tbaText;
+        const date = typeof i18n !== 'undefined' && i18n.parseEventDate ? i18n.parseEventDate(dateStr) : null;
+        if (!date) return tbaText;
+        const locale = typeof i18n !== 'undefined' && i18n.getBrowserLocale
+            ? i18n.getBrowserLocale(i18n.getLang())
+            : (navigator.language || 'de-DE');
+        return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(date);
     },
 
     /**
@@ -1117,13 +1192,15 @@ const Dashboard = {
         try {
             await DashboardApi.respondToEvent(otype, oid, attending);
 
-            this.showToast(attending ? 'Event accepted' : 'Event declined', 'success');
+            const okMsg = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.event.accepted') : 'Event accepted');
+            const noMsg = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.event.declined') : 'Event declined');
+            this.showToast(attending ? okMsg : noMsg, 'success');
 
             // Reload dashboard to update UI
             await this.loadDashboard();
         } catch (error) {
             console.error('Failed to respond to event:', error);
-            this.showToast('Failed to update response', 'error');
+            this.showToast((typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.updateResponseFailed') : 'Failed to update response'), 'error');
         }
     },
 
@@ -1180,7 +1257,7 @@ const Dashboard = {
             EventDetail.init(eventType, eventId);
         } else {
             console.error('EventDetail component not loaded');
-            this.showToast('Event detail view not available. Please refresh the page.', 'error');
+            this.showToast((typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.eventDetailUnavailable') : 'Event detail view not available. Please refresh the page.'), 'error');
         }
     },
 

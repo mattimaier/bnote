@@ -13,14 +13,18 @@ const Sidebar = {
      * Initialize sidebar
      * @param {string} currentPage - Current page identifier (e.g., 'dashboard', 'users')
      */
-    init(currentPage = null) {
+    async init(currentPage = null) {
         this.currentPage = currentPage || this.detectCurrentPage();
         
         // Initialize sidebar functionality
         this.initSidebar();
         this.initCollapse();
+        
+        // Load and render modules dynamically
+        await this.loadModules();
+        
+        // Highlight current page after modules are rendered
         this.highlightCurrentPage();
-        this.checkUserPermissions();
     },
     
     /**
@@ -220,40 +224,130 @@ const Sidebar = {
     },
     
     /**
-     * Check user permissions and show/hide menu items
+     * Load modules from API and render them
      */
-    async checkUserPermissions() {
-        // Check User Management permission
+    async loadModules() {
         try {
-            await UsersApi.list();
-            const usersMenuItem = document.getElementById('users-menu-item');
-            if (usersMenuItem) {
-                usersMenuItem.classList.remove('hidden');
+            console.log('Sidebar: Loading modules from API...');
+            console.log('Sidebar: AuthApi available?', typeof AuthApi !== 'undefined');
+            console.log('Sidebar: AuthApi.getModules available?', typeof AuthApi !== 'undefined' && typeof AuthApi.getModules === 'function');
+            
+            // Fallback: use api directly if AuthApi.getModules doesn't exist
+            let response;
+            if (typeof AuthApi !== 'undefined' && typeof AuthApi.getModules === 'function') {
+                response = await AuthApi.getModules();
+            } else if (typeof api !== 'undefined' && typeof api.get === 'function') {
+                console.log('Sidebar: Using api.get directly as fallback');
+                response = await api.get('auth', 'getModules');
+            } else {
+                throw new Error('Neither AuthApi.getModules nor api.get is available');
+            }
+            
+            console.log('Sidebar: Received response:', response);
+            
+            // Handle both array response and object with modules property
+            let modules = null;
+            if (Array.isArray(response)) {
+                modules = response;
+            } else if (response && Array.isArray(response.modules)) {
+                modules = response.modules;
+            } else if (response && response.data && Array.isArray(response.data.modules)) {
+                modules = response.data.modules;
+            }
+            
+            console.log('Sidebar: Extracted modules:', modules);
+            console.log('Sidebar: Module count:', modules ? modules.length : 0);
+            
+            if (!modules || modules.length === 0) {
+                console.warn('Sidebar: No modules returned from API, using fallback');
+                // Fallback: show at least dashboard
+                this.renderModules([{
+                    id: 1,
+                    name: 'Start',
+                    route: 'dashboard.html',
+                    icon: 'layout-dashboard',
+                    i18n: 'js.sidebar.dashboard'
+                }]);
+            } else {
+                this.renderModules(modules);
             }
         } catch (error) {
-            if (error.status === 403 || error.code === 403 || error.message.includes('403') || error.message.includes('Access denied')) {
-                const usersMenuItem = document.getElementById('users-menu-item');
-                if (usersMenuItem) {
-                    usersMenuItem.classList.add('hidden');
-                }
-            }
+            console.error('Sidebar: Failed to load modules:', error);
+            console.error('Sidebar: Error details:', {
+                message: error.message,
+                status: error.status,
+                code: error.code
+            });
+            // Fallback: show at least dashboard
+            this.renderModules([{
+                id: 1,
+                name: 'Start',
+                route: 'dashboard.html',
+                icon: 'layout-dashboard',
+                i18n: 'js.sidebar.dashboard'
+            }]);
+        }
+    },
+
+    /**
+     * Render modules in the sidebar navigation
+     * @param {Array} modules Array of module objects with {id, name, route, icon, i18n}
+     */
+    renderModules(modules) {
+        console.log('Sidebar: renderModules called with:', modules);
+        
+        const nav = document.getElementById('sidebar-nav');
+        if (!nav) {
+            console.error('Sidebar: nav container not found!');
+            return;
         }
 
-        // Check Contacts permission
-        try {
-            await ContactsApi.list();
-            const contactsMenuItem = document.getElementById('contacts-menu-item');
-            if (contactsMenuItem) {
-                contactsMenuItem.classList.remove('hidden');
-            }
-        } catch (error) {
-            if (error.status === 403 || error.code === 403 || error.message.includes('403') || error.message.includes('Access denied')) {
-                const contactsMenuItem = document.getElementById('contacts-menu-item');
-                if (contactsMenuItem) {
-                    contactsMenuItem.classList.add('hidden');
-                }
-            }
+        if (!modules || modules.length === 0) {
+            console.warn('Sidebar: No modules to render');
+            nav.innerHTML = '<!-- No modules available -->';
+            return;
         }
+
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+        
+        // Determine current page route for highlighting
+        const currentRoute = window.location.pathname.split('/').pop() || 'dashboard.html';
+        
+        const modulesHtml = modules.map(module => {
+            const isActive = module.route === currentRoute || 
+                           (module.route === 'dashboard.html' && currentRoute === 'index.html');
+            const activeClasses = isActive 
+                ? 'bg-primary/12 text-primary font-semibold shadow-sm' 
+                : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 text-sm font-medium';
+            
+            const label = t(module.i18n) || module.name;
+            const pageId = module.route.replace('.html', '');
+            
+            console.log(`Sidebar: Rendering module ${module.name} (${module.route})`);
+            
+            return `
+                <a href="${module.route}" data-page="${pageId}"
+                    class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${activeClasses}">
+                    <i data-lucide="${module.icon}" class="h-5 w-5 shrink-0"></i>
+                    <span class="flex-1 truncate sidebar-text" data-i18n="${module.i18n}">${label}</span>
+                </a>
+            `;
+        }).join('');
+
+        console.log('Sidebar: Generated HTML length:', modulesHtml.length);
+        nav.innerHTML = modulesHtml;
+
+        // Reinitialize Lucide icons for the new elements
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        // Translate page to update i18n labels
+        if (typeof i18n !== 'undefined' && typeof i18n.translatePage === 'function') {
+            i18n.translatePage();
+        }
+        
+        console.log('Sidebar: Modules rendered successfully');
     },
     
     /**

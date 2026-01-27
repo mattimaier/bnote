@@ -87,7 +87,9 @@ class ConcertsModule {
                     'address' => [
                         'street' => $address['street'] ?? null,
                         'city' => $address['city'] ?? null,
-                        'zip' => $address['zip'] ?? null
+                        'zip' => $address['zip'] ?? null,
+                        'state' => $address['state'] ?? null,
+                        'country' => $address['country'] ?? null
                     ]
                 ];
             }
@@ -166,7 +168,9 @@ class ConcertsModule {
                     'address' => [
                         'street' => $accData['street'] ?? null,
                         'city' => $accData['city'] ?? null,
-                        'zip' => $accData['zip'] ?? null
+                        'zip' => $accData['zip'] ?? null,
+                        'state' => $accData['state'] ?? null,
+                        'country' => $accData['country'] ?? null
                     ]
                 ];
             }

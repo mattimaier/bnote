@@ -12,6 +12,9 @@ const App = {
             return;
         }
         
+        // Initialize i18n (internationalization)
+        await this.initI18n();
+        
         // Global error handler
         window.addEventListener('error', (event) => {
             console.error('Global error:', event.error);
@@ -21,6 +24,53 @@ const App = {
         window.addEventListener('unhandledrejection', (event) => {
             console.error('Unhandled promise rejection:', event.reason);
         });
+    },
+    
+    /**
+     * Initialize internationalization
+     * Uses system configuration language and country, not browser settings
+     */
+    async initI18n() {
+        if (typeof i18n === 'undefined') {
+            console.warn('i18n service not loaded');
+            return;
+        }
+        
+        try {
+            // Get language and country from system configuration
+            let langCode = 'de'; // Default to German
+            let countryCode = null;
+            
+            try {
+                const configResponse = await api.get('auth', 'getUserLang');
+                langCode = configResponse.lang || 'de';
+                countryCode = configResponse.country || null;
+            } catch (error) {
+                console.error('Failed to get system config language:', error);
+                // Only fallback to browser if API completely fails
+                const browserLang = navigator.language || navigator.userLanguage;
+                if (browserLang) {
+                    langCode = browserLang.split('-')[0];
+                    const browserCountry = browserLang.split('-')[1];
+                    if (browserCountry) {
+                        countryCode = browserCountry;
+                    }
+                }
+            }
+            
+            // Validate language code
+            const validLanguages = ['de', 'en', 'es', 'fr'];
+            if (!validLanguages.includes(langCode)) {
+                langCode = 'de';
+            }
+            
+            // Initialize i18n with system config language and country
+            await i18n.init(langCode, countryCode);
+        } catch (error) {
+            console.error('Failed to initialize i18n:', error);
+            // Initialize with default language
+            await i18n.init('de');
+        }
     },
     
     /**

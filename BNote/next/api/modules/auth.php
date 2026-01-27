@@ -36,6 +36,12 @@ class AuthModule {
                 return $this->logout();
             case 'session':
                 return $this->checkSession();
+            case 'getUserLang':
+                return $this->getUserLang();
+            case 'getPublicConfig':
+                return $this->getPublicConfig();
+            case 'getModules':
+                return $this->getModules();
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
@@ -129,5 +135,190 @@ class AuthModule {
             'authenticated' => true,
             'user' => $userInfo
         ];
+    }
+    
+    private function getUserLang() {
+        global $system_data;
+        $lang = $system_data->getLang();
+        $country = $system_data->getDynamicConfigParameter('default_country');
+        $country = $this->countryAlpha3ToAlpha2($country);
+        return [
+            'lang' => $lang ?: 'de',
+            'country' => $country ?: null
+        ];
+    }
+
+    /**
+     * Get public configuration (company name, language, country) for login page.
+     * This endpoint is public and doesn't require authentication.
+     */
+    private function getPublicConfig() {
+        global $system_data;
+        $lang = $system_data->getLang();
+        $country = $system_data->getDynamicConfigParameter('default_country');
+        $country = $this->countryAlpha3ToAlpha2($country);
+        $company = $system_data->getCompany();
+        return [
+            'lang' => $lang ?: 'de',
+            'country' => $country ?: null,
+            'company' => $company ?: ''
+        ];
+    }
+
+    /**
+     * Get available modules for the authenticated user.
+     * Returns modules with route, icon, and i18n key mappings.
+     */
+    private function getModules() {
+        global $system_data;
+        
+        if (!Auth::check()) {
+            Response::error('Authentication required', 403);
+        }
+        
+        // Get modules from both 'main' and 'admin' categories (User is in admin)
+        $mainModules = $system_data->getModuleArray('main');
+        $adminModules = $system_data->getModuleArray('admin');
+        // Use + operator to preserve numeric keys (module IDs)
+        $allModules = $mainModules + $adminModules;
+        $modules = [];
+        
+        // Debug: Log module counts
+        error_log('getModules: mainModules count: ' . count($mainModules));
+        error_log('getModules: adminModules count: ' . count($adminModules));
+        error_log('getModules: allModules count: ' . count($allModules));
+        
+        // Technical modules to exclude
+        $excludedModules = ['Home', 'Logout', 'WhyBNote', 'Gdpr', 'ExtGdpr'];
+        
+        // Check registration module visibility
+        $userReg = $system_data->getDynamicConfigParameter('user_registration');
+        $showRegistration = strval($userReg) == '1';
+        
+        // Module name to route/icon/i18n mappings
+        $moduleMappings = [
+            'Start' => [
+                'route' => 'dashboard.html',
+                'icon' => 'layout-dashboard',
+                'i18n' => 'js.sidebar.dashboard'
+            ],
+            'User' => [
+                'route' => 'users.html',
+                'icon' => 'user-cog',
+                'i18n' => 'js.sidebar.users'
+            ],
+            'Kontakte' => [
+                'route' => 'contacts.html',
+                'icon' => 'users',
+                'i18n' => 'js.sidebar.contacts'
+            ]
+        ];
+        
+        foreach ($allModules as $modId => $modRow) {
+            $modName = $modRow['name'] ?? '';
+            $modIdInt = intval($modId);
+            
+            error_log("getModules: Checking module ID=$modIdInt, name='$modName'");
+            
+            // Skip technical modules first (before permission check)
+            if (in_array($modName, $excludedModules)) {
+                error_log("getModules: Skipping $modName (excluded)");
+                continue;
+            }
+            
+            // Skip Registration if disabled
+            if ($modName === 'Registration' && !$showRegistration) {
+                error_log("getModules: Skipping $modName (registration disabled)");
+                continue;
+            }
+            
+            // Only check modules that have a mapping (i.e., implemented in next/)
+            if (!isset($moduleMappings[$modName])) {
+                error_log("getModules: Skipping $modName (no mapping)");
+                continue;
+            }
+            
+            // Check if user has permission for this module
+            $hasPermission = $system_data->userHasPermission($modIdInt);
+            error_log("getModules: Module $modName (ID=$modIdInt) hasPermission=" . ($hasPermission ? 'true' : 'false'));
+            
+            if (!$hasPermission) {
+                continue;
+            }
+            
+            $mapping = $moduleMappings[$modName];
+            $modules[] = [
+                'id' => $modIdInt,
+                'name' => $modName,
+                'route' => $mapping['route'],
+                'icon' => $mapping['icon'],
+                'i18n' => $mapping['i18n']
+            ];
+            error_log("getModules: Added module $modName");
+        }
+        
+        // Sort by module ID to maintain consistent order
+        usort($modules, function($a, $b) {
+            return $a['id'] <=> $b['id'];
+        });
+        
+        error_log('getModules: Returning ' . count($modules) . ' modules');
+        
+        // Debug: Also return debug info if requested
+        if (isset($_GET['debug']) && $_GET['debug'] === '1') {
+            return [
+                'modules' => $modules,
+                'debug' => [
+                    'mainModulesCount' => count($mainModules),
+                    'adminModulesCount' => count($adminModules),
+                    'allModulesCount' => count($allModules),
+                    'mainModuleNames' => array_map(function($m) { return $m['name'] ?? 'unknown'; }, $mainModules),
+                    'adminModuleNames' => array_map(function($m) { return $m['name'] ?? 'unknown'; }, $adminModules),
+                    'allModuleNames' => array_map(function($m) { return $m['name'] ?? 'unknown'; }, $allModules),
+                    'userId' => $system_data->getUserId(),
+                    'userPermissions' => $system_data->user_module_permission ?? 'not set'
+                ]
+            ];
+        }
+        
+        // Return modules array directly (not wrapped)
+        return $modules;
+    }
+
+    /**
+     * Convert ISO 3166-1 alpha-3 (e.g. DEU) to alpha-2 (e.g. DE) for BCP 47 locale tags.
+     * Config stores 3-letter codes; Intl expects 2-letter. Uses next/iso3166-alpha3-to-alpha2.json.
+     *
+     * @param string|null $country
+     * @return string|null Alpha-2 code or original if already 2-letter; null if invalid/missing.
+     */
+    private function countryAlpha3ToAlpha2($country) {
+        if ($country === null || $country === '') {
+            return null;
+        }
+        $raw = trim((string) $country);
+        if ($raw === '') {
+            return null;
+        }
+        $upper = strtoupper($raw);
+        if (strlen($upper) === 2) {
+            return $upper;
+        }
+        if (strlen($upper) !== 3) {
+            return null;
+        }
+        static $map = null;
+        if ($map === null) {
+            $path = __DIR__ . '/../../iso3166-alpha3-to-alpha2.json';
+            if (!is_file($path)) {
+                return null;
+            }
+            $json = file_get_contents($path);
+            $map = json_decode($json, true);
+            if (!is_array($map)) {
+                $map = [];
+            }
+        }
+        return isset($map[$upper]) ? $map[$upper] : null;
     }
 }

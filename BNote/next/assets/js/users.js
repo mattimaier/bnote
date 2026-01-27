@@ -54,7 +54,8 @@ const Users = {
                 (error.message && error.message.includes('forbidden'));
 
             if (is403) {
-                this.showToast('You do not have permission to access User Management', 'error');
+                const msg = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.usersAccessDenied') : 'You do not have permission to access User Management';
+                this.showToast(msg, 'error');
                 return false;
             }
             throw error;
@@ -96,32 +97,38 @@ const Users = {
         const container = document.getElementById('users-table-container');
         if (!container) return;
 
-        // Define columns
+        // Define columns with i18n keys
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         const columns = [
             {
                 key: 'id',
-                label: 'ID',
+                label: t('js.table.id') || 'ID',
+                i18n: 'js.table.id',
                 sortable: true
             },
             {
                 key: 'login',
-                label: 'Login',
+                label: t('js.users.login') || 'Login',
+                i18n: 'js.users.login',
                 sortable: true,
                 editable: false // Login should not be changed after creation
             },
             {
                 key: 'firstName',
-                label: 'First Name',
+                label: t('js.users.firstName') || 'First Name',
+                i18n: 'js.users.firstName',
                 sortable: true
             },
             {
                 key: 'lastName',
-                label: 'Last Name',
+                label: t('js.users.lastName') || 'Last Name',
+                i18n: 'js.users.lastName',
                 sortable: true
             },
             {
                 key: 'isActive',
-                label: 'Status',
+                label: t('js.users.status') || 'Status',
+                i18n: 'js.users.status',
                 sortable: true,
                 render: (value) => {
                     return Badge.renderStatus(value);
@@ -129,7 +136,8 @@ const Users = {
             },
             {
                 key: 'lastlogin',
-                label: 'Last Login',
+                label: t('js.users.lastLogin') || 'Last Login',
+                i18n: 'js.users.lastLogin',
                 sortable: true,
                 type: 'date',
                 render: (value) => {
@@ -401,7 +409,8 @@ const Users = {
             // Update action buttons
             const activateBtn = document.getElementById('user-details-activate-btn');
             if (activateBtn) {
-                activateBtn.textContent = user.isActive ? 'Deactivate' : 'Activate';
+                const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+                activateBtn.textContent = user.isActive ? t('js.users.deactivate') : t('js.users.activate');
                 activateBtn.onclick = () => {
                     this.handleActivateUser(userId);
                     this.closeModal('user-details-modal');
@@ -485,7 +494,8 @@ const Users = {
             const container = document.getElementById('gdpr-users-list');
             if (container) {
                 if (users.length === 0) {
-                    container.innerHTML = '<p class="text-sm text-muted-foreground">No inactive users found.</p>';
+                    const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+                    container.innerHTML = `<p class="text-sm text-muted-foreground">${t('js.users.noInactiveUsers')}</p>`;
                 } else {
                     container.innerHTML = users.map(user => `
                         <label class="flex items-center gap-3 p-3 rounded-lg border border-border/40 hover:bg-muted/30 cursor-pointer">
