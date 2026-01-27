@@ -297,7 +297,7 @@
 <body class="min-h-screen bg-background flex flex-col lg:flex-row">
     <!-- Left module sidebar -->
     <aside id="sidebar"
-        class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 sticky top-0 z-40 w-64 lg:relative lg:translate-x-0 fixed inset-y-0 left-0 translate-x-0 lg:block">
+        class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 fixed inset-y-0 left-0 z-[60] w-64 xl:translate-x-0 -translate-x-full xl:block">
         <!-- Header with brand -->
         <div id="sidebar-header" class="flex items-center justify-between px-4 py-5 border-b border-sidebar-border/50">
             <div id="sidebar-brand" class="flex items-center gap-3">
@@ -354,19 +354,19 @@
         </nav>
     </aside>
 
-    <!-- Overlay for mobile when sidebar is open -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 lg:hidden z-30 hidden"
+    <!-- Overlay for mobile/tablet when sidebar is open -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 xl:hidden z-30 hidden"
         onclick="Dashboard.toggleSidebar()"></div>
 
     <!-- Main content area -->
-    <div class="flex-1 flex flex-col">
-        <!-- Welcome Header -->
+    <div class="flex-1 flex flex-col xl:ml-64">
+        <!-- Top Header Bar -->
         <header
             class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div class="flex h-16 items-center justify-between px-4 lg:px-6 gap-4">
-                <!-- Menu button - visible on mobile only -->
+                <!-- Menu button - visible on mobile and tablet (compact devices) -->
                 <button id="mobile-menu-btn"
-                    class="lg:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
+                    class="xl:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
                     onclick="Dashboard.toggleSidebar()" title="Toggle menu">
                     <i data-lucide="menu" class="h-5 w-5"></i>
                 </button>
@@ -400,9 +400,11 @@
                     </button>
                 </div>
             </div>
+        </header>
 
-            <!-- Welcome message -->
-            <div class="border-t border-border/30 bg-background/50 px-4 py-5 lg:px-6">
+        <main class="px-4 py-4 lg:px-6 flex-1 overflow-y-auto">
+            <!-- Welcome message - now part of dashboard content -->
+            <div class="mb-6 pb-4 border-b border-border/30">
                 <div class="flex flex-col gap-2">
                     <h1 class="text-3xl font-bold tracking-tight text-foreground" id="welcome-greeting">
                         Welcome
@@ -412,18 +414,15 @@
                     </p>
                 </div>
             </div>
-        </header>
-
-        <main class="px-4 py-4 lg:px-6 flex-1">
             <div class="mx-auto max-w-4xl">
                 <div class="space-y-4">
                     <!-- Events Needing Response -->
                     <div id="events-needing-response-card"
-                        class="bg-card text-card-foreground flex flex-col gap-4 rounded-xl border border-border/40 py-4 shadow-sm hover:shadow-md transition-shadow">
-                        <div class="px-4 lg:px-5 pb-2 border-b border-border/30">
-                            <h2 class="text-base font-semibold text-foreground">Your Response Needed</h2>
+                        class="md:bg-card md:text-card-foreground flex flex-col gap-4 md:rounded-xl md:border md:border-border/40 py-2 md:py-4 md:shadow-sm md:hover:shadow-md transition-shadow">
+                        <div class="px-1 md:px-4 lg:px-5 pb-2 md:border-b md:border-border/30">
+                            <h2 class="text-sm md:text-base font-semibold text-foreground">Your Response Needed</h2>
                         </div>
-                        <div class="px-4 lg:px-5 pb-3">
+                        <div class="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
                             <div class="flex items-center gap-3 flex-wrap">
                                 <span class="text-xs font-medium text-muted-foreground">Filter:</span>
                                 <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal" data-section="events-needing-response">
@@ -440,10 +439,17 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="px-4 lg:px-5">
+                        <div class="px-1 md:px-4 lg:px-5">
                             <!-- Loading skeleton -->
-                            <div id="events-needing-response-skeleton" class="relative space-y-3">
-                                <div class="relative flex gap-3">
+                            <div id="events-needing-response-skeleton" class="relative space-y-2 md:space-y-3">
+                                <!-- Mobile skeleton (no timeline) -->
+                                <div class="relative md:hidden px-1 pb-2 mb-2 border-b border-border/30">
+                                    <div class="h-3 bg-muted animate-pulse rounded w-1/4 mb-1.5"></div>
+                                    <div class="h-3 bg-muted animate-pulse rounded w-3/4 mb-1.5"></div>
+                                    <div class="h-2.5 bg-muted animate-pulse rounded w-1/2"></div>
+                                </div>
+                                <!-- Desktop skeleton (with timeline) -->
+                                <div class="hidden md:flex relative gap-3">
                                     <div
                                         class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full bg-muted animate-pulse ring-3 ring-background shadow-sm">
                                     </div>
@@ -456,17 +462,17 @@
                                 </div>
                             </div>
                             <!-- Content will be inserted here -->
-                            <div id="events-needing-response-content" class="relative space-y-3 hidden"></div>
+                            <div id="events-needing-response-content" class="relative space-y-2 md:space-y-3 hidden"></div>
                         </div>
                     </div>
 
                     <!-- Events Timeline -->
                     <div id="events-timeline-card"
-                        class="bg-card text-card-foreground flex flex-col gap-4 rounded-xl border border-border/40 py-4 shadow-sm hover:shadow-md transition-shadow">
-                        <div class="px-4 lg:px-5 pb-2 border-b border-border/30">
-                            <h2 class="text-base font-semibold text-foreground">Upcoming Events</h2>
+                        class="md:bg-card md:text-card-foreground flex flex-col gap-4 md:rounded-xl md:border md:border-border/40 py-2 md:py-4 md:shadow-sm md:hover:shadow-md transition-shadow">
+                        <div class="px-1 md:px-4 lg:px-5 pb-2 md:border-b md:border-border/30">
+                            <h2 class="text-sm md:text-base font-semibold text-foreground">Upcoming Events</h2>
                         </div>
-                        <div class="px-4 lg:px-5 pb-3">
+                        <div class="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
                             <div class="flex items-center gap-3 flex-wrap">
                                 <span class="text-xs font-medium text-muted-foreground">Filter:</span>
                                 <button class="filter-bubble filter-bubble-rehearsal" data-filter-type="rehearsal" data-section="events-timeline">
@@ -483,10 +489,17 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="px-4 lg:px-5">
+                        <div class="px-1 md:px-4 lg:px-5">
                             <!-- Loading skeleton -->
-                            <div id="events-timeline-skeleton" class="relative space-y-3">
-                                <div class="relative flex gap-3">
+                            <div id="events-timeline-skeleton" class="relative space-y-2 md:space-y-3">
+                                <!-- Mobile skeleton (no timeline) -->
+                                <div class="relative md:hidden px-1 pb-2 mb-2 border-b border-border/30">
+                                    <div class="h-3 bg-muted animate-pulse rounded w-1/4 mb-1.5"></div>
+                                    <div class="h-3 bg-muted animate-pulse rounded w-3/4 mb-1.5"></div>
+                                    <div class="h-2.5 bg-muted animate-pulse rounded w-1/2"></div>
+                                </div>
+                                <!-- Desktop skeleton (with timeline) -->
+                                <div class="hidden md:flex relative gap-3">
                                     <div
                                         class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full bg-muted animate-pulse ring-3 ring-background shadow-sm">
                                     </div>
@@ -499,7 +512,7 @@
                                 </div>
                             </div>
                             <!-- Content will be inserted here -->
-                            <div id="events-timeline-content" class="relative space-y-3 hidden"></div>
+                            <div id="events-timeline-content" class="relative space-y-2 md:space-y-3 hidden"></div>
                         </div>
                     </div>
 

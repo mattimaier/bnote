@@ -76,25 +76,59 @@ const Dashboard = {
             });
         }
 
-        // Close sidebar on mobile when clicking outside
+        // Close sidebar on mobile/tablet when clicking outside
         document.addEventListener('click', (e) => {
-            if (window.innerWidth < 1024 && this.sidebarOpen) {
+            if (window.innerWidth < 1280 && this.sidebarOpen) {
                 if (!sidebar.contains(e.target) && !document.getElementById('mobile-menu-btn')?.contains(e.target)) {
                     this.toggleSidebar();
                 }
             }
         });
+        
+        // Handle window resize - show sidebar on desktop, hide on mobile/tablet
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (window.innerWidth >= 1280) {
+                    // Desktop: always show sidebar
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.add('hidden');
+                    this.sidebarOpen = true;
+                } else {
+                    // Mobile/Tablet: hide sidebar by default
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                    this.sidebarOpen = false;
+                }
+                
+                // Re-render events to switch between mobile/desktop layouts
+                if (this.allEvents['events-needing-response'].length > 0) {
+                    this.applyFiltersToSection('events-needing-response');
+                }
+                if (this.allEvents['events-timeline'].length > 0) {
+                    this.applyFiltersToSection('events-timeline');
+                }
+            }, 150);
+        });
+        
+        // Initialize sidebar state based on screen size
+        if (window.innerWidth < 1280) {
+            sidebar.classList.add('-translate-x-full');
+            this.sidebarOpen = false;
+        }
     },
 
     /**
-     * Toggle sidebar open/closed (mobile)
+     * Toggle sidebar open/closed (mobile and tablet/compact devices)
      */
     toggleSidebar() {
         this.sidebarOpen = !this.sidebarOpen;
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
 
-        if (window.innerWidth < 1024) {
+        // Show/hide sidebar on mobile and tablet (below xl breakpoint)
+        if (window.innerWidth < 1280) {
             if (this.sidebarOpen) {
                 sidebar.classList.remove('-translate-x-full');
                 overlay.classList.remove('hidden');
@@ -833,6 +867,44 @@ const Dashboard = {
                 ></div>
             ` : '';
 
+            // Mobile compact layout: no timeline icons, less padding, unified design
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                // Mobile compact layout - unified for both sections
+                return `
+                    <div class="relative ${!isLast ? 'border-b border-border/30 pb-2 mb-2' : ''}" data-event-id="${event.oid}">
+                        <div class="px-1 transition-all duration-200 group">
+                            <div class="flex items-start gap-2 mb-1.5">
+                                <div class="flex-1 min-w-0">
+                                    <div class="mb-1">
+                                        <p class="text-sm font-bold text-foreground leading-tight">${dateStr}</p>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+                                        <h3 class="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(event.title || 'Event')}</h3>
+                                        <span class="${typeConfig.badgeClass} text-[10px]">
+                                            ${typeConfig.label}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-1 text-[10px] text-muted-foreground/80">
+                                        <i data-lucide="clock" class="h-2.5 w-2.5 text-primary/60"></i>
+                                        <span>${timeStr}</span>
+                                    </div>
+                                </div>
+                                ${participationWidget}
+                            </div>
+                            <div class="flex items-center text-[10px] text-muted-foreground/70 pt-1">
+                                <span class="flex items-center gap-1">
+                                    <i data-lucide="map-pin" class="h-2.5 w-2.5 text-primary/50"></i>
+                                    ${this.escapeHtml(location)}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Desktop layout with timeline
             return `
                 <div class="relative flex gap-3" data-event-id="${event.oid}">
                     ${!isLast ? `<div class="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector"></div>` : ''}
@@ -858,7 +930,7 @@ const Dashboard = {
                             </div>
                             ${participationWidget}
                         </div>
-                        <div class="flex items-center justify-between text-xs text-muted-foreground/70 pt-2 border-t border-border/30">
+                        <div class="flex items-center text-xs text-muted-foreground/70 pt-2 border-t border-border/30">
                             <span class="flex items-center gap-1.5">
                                 <i data-lucide="map-pin" class="h-3 w-3 text-primary/50"></i>
                                 ${this.escapeHtml(location)}
@@ -879,15 +951,12 @@ const Dashboard = {
             </div>
         ` : '');
         
-        // Re-initialize Lucide icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-
-        // Reinitialize Lucide icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
+        // Re-initialize Lucide icons after rendering
+        setTimeout(() => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }, 0);
         
         // Initialize participation widgets for all events
         // Wait a bit for DOM to be ready, then initialize widgets
