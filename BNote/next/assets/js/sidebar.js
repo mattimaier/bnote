@@ -24,8 +24,6 @@
  */
 const Sidebar = {
     // State
-    sidebarOpen: true,
-    sidebarCollapsed: false,
     currentPage: null,
     
     /**
@@ -34,10 +32,6 @@ const Sidebar = {
      */
     async init(currentPage = null) {
         this.currentPage = currentPage || this.detectCurrentPage();
-        
-        // Initialize sidebar functionality
-        this.initSidebar();
-        this.initCollapse();
         
         // Load and render modules dynamically
         await this.loadModules();
@@ -57,165 +51,6 @@ const Sidebar = {
         return 'dashboard'; // Default
     },
     
-    /**
-     * Initialize sidebar functionality
-     */
-    initSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        
-        if (!sidebar) return;
-        
-        // Mobile menu button - use both onclick (from HTML) and event listener as fallback
-        if (mobileMenuBtn) {
-            // Remove any existing onclick to avoid double-triggering
-            mobileMenuBtn.onclick = null;
-            mobileMenuBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent document click handler from firing
-                this.toggleSidebar();
-            });
-        }
-        
-        // Close sidebar on mobile when clicking overlay
-        if (overlay) {
-            overlay.addEventListener('click', () => {
-                this.toggleSidebar();
-            });
-        }
-        
-        // Close sidebar on mobile when clicking outside
-        // Use a separate handler that doesn't interfere with other click handlers
-        this._sidebarCloseHandler = (e) => {
-            if (window.innerWidth < 1280 && this.sidebarOpen) {
-                // Don't close if clicking the mobile menu button (it will toggle itself)
-                if (mobileMenuBtn && mobileMenuBtn.contains(e.target)) {
-                    return; // Let the button's own handler toggle it
-                }
-                // Don't close if clicking inside sidebar
-                if (sidebar.contains(e.target)) {
-                    return;
-                }
-                // Close if clicking outside
-                this.toggleSidebar();
-            }
-        };
-        document.addEventListener('click', this._sidebarCloseHandler);
-        
-        // Handle window resize
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                if (window.innerWidth >= 1280) {
-                    // Desktop: sidebar is always visible (xl:translate-x-0)
-                    // Ensure overlay is hidden
-                    if (overlay) overlay.classList.add('hidden');
-                    this.sidebarOpen = true;
-                } else {
-                    // Mobile/Tablet: hide sidebar if it was open
-                    if (this.sidebarOpen) {
-                        sidebar.classList.add('-translate-x-full');
-                        if (overlay) overlay.classList.add('hidden');
-                        this.sidebarOpen = false;
-                    }
-                }
-            }, 150);
-        });
-        
-        // Initialize sidebar state based on screen size
-        // Desktop: xl:translate-x-0 makes it always visible
-        // Mobile: -translate-x-full hides it by default
-        if (window.innerWidth >= 1280) {
-            // Desktop: sidebar is always visible (xl:translate-x-0)
-            this.sidebarOpen = true;
-        } else {
-            // Mobile/Tablet: sidebar is hidden by default
-            this.sidebarOpen = false;
-        }
-    },
-    
-    /**
-     * Initialize collapse functionality
-     */
-    initCollapse() {
-        const collapseBtn = document.getElementById('sidebar-collapse-btn');
-        if (!collapseBtn) return;
-        
-        collapseBtn.addEventListener('click', () => {
-            this.toggleSidebarCollapse();
-        });
-    },
-    
-    /**
-     * Toggle sidebar open/closed (mobile/tablet)
-     */
-    toggleSidebar() {
-        this.sidebarOpen = !this.sidebarOpen;
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        
-        if (!sidebar) return;
-        
-        // Only toggle on mobile/tablet
-        if (window.innerWidth < 1280) {
-            if (this.sidebarOpen) {
-                sidebar.classList.remove('-translate-x-full');
-                if (overlay) overlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                if (overlay) overlay.classList.add('hidden');
-            }
-        }
-    },
-    
-    /**
-     * Toggle sidebar collapse (desktop)
-     */
-    toggleSidebarCollapse() {
-        this.sidebarCollapsed = !this.sidebarCollapsed;
-        const sidebar = document.getElementById('sidebar');
-        const collapseBtn = document.getElementById('sidebar-collapse-btn');
-        const icon = collapseBtn?.querySelector('i[data-lucide]');
-        const brand = document.getElementById('sidebar-brand');
-        
-        if (!sidebar) return;
-        
-        if (this.sidebarCollapsed) {
-            sidebar.classList.remove('w-64');
-            sidebar.classList.add('w-20');
-            if (collapseBtn) collapseBtn.setAttribute('title', 'Expand sidebar');
-            if (icon) {
-                icon.setAttribute('data-lucide', 'chevron-right');
-            }
-            // Hide text in nav items and brand text
-            sidebar.querySelectorAll('.sidebar-text, .sidebar-badge').forEach(el => {
-                el.classList.add('hidden');
-            });
-            if (brand) {
-                brand.querySelector('div:last-child')?.classList.add('hidden');
-            }
-        } else {
-            sidebar.classList.remove('w-20');
-            sidebar.classList.add('w-64');
-            if (collapseBtn) collapseBtn.setAttribute('title', 'Collapse sidebar');
-            if (icon) {
-                icon.setAttribute('data-lucide', 'chevron-left');
-            }
-            // Show text in nav items and brand text
-            sidebar.querySelectorAll('.sidebar-text, .sidebar-badge').forEach(el => {
-                el.classList.remove('hidden');
-            });
-            if (brand) {
-                brand.querySelector('div:last-child')?.classList.remove('hidden');
-            }
-        }
-        
-        // Reinitialize Lucide icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    },
     
     /**
      * Highlight current page in sidebar
@@ -373,9 +208,6 @@ const Sidebar = {
      * Cleanup event listeners (for page navigation)
      */
     cleanup() {
-        if (this._sidebarCloseHandler) {
-            document.removeEventListener('click', this._sidebarCloseHandler);
-            this._sidebarCloseHandler = null;
-        }
+        // No cleanup needed for simple responsive sidebar
     }
 };

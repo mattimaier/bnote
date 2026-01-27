@@ -41,15 +41,8 @@ const Components = {
         <header
             class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div class="flex h-16 items-center justify-between px-4 lg:px-6 gap-4">
-                <!-- Menu button - visible on mobile and tablet (compact devices) -->
-                <button id="mobile-menu-btn"
-                    class="xl:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
-                    onclick="Sidebar.toggleSidebar()" title="Toggle menu">
-                    <i data-lucide="menu" class="h-5 w-5"></i>
-                </button>
-
-                <!-- Left: Search - hidden on mobile -->
-                <div class="hidden md:flex flex-1 max-w-sm">
+                <!-- Left: Search -->
+                <div class="flex flex-1 max-w-sm">
                     <div class="relative w-full">
                         <i data-lucide="search"
                             class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
@@ -88,11 +81,12 @@ const Components = {
      */
     renderSidebar() {
         return `
-        <!-- Left module sidebar - Always visible on desktop, toggleable on mobile -->
+        <!-- Left module sidebar - Fixed width, always visible -->
         <aside id="sidebar"
-            class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 fixed inset-y-0 left-0 z-[60] w-64 xl:translate-x-0 -translate-x-full">
+            class="flex flex-col h-full bg-sidebar border-r border-sidebar-border w-64 shrink-0"
+            style="position: relative !important; z-index: auto !important;">
             <!-- Header with brand -->
-            <div id="sidebar-header" class="flex items-center justify-between px-4 py-5 border-b border-sidebar-border/50">
+            <div id="sidebar-header" class="flex items-center h-16 px-4 lg:px-6">
                 <div id="sidebar-brand" class="flex items-center gap-3">
                     <div
                         class="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
@@ -102,10 +96,6 @@ const Components = {
                         <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
                     </div>
                 </div>
-                <button id="sidebar-collapse-btn" class="hidden h-8 w-8 p-0 hover:bg-sidebar-accent/80 text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors rounded-md flex items-center justify-center"
-                    title="Collapse sidebar" aria-hidden="true">
-                    <i data-lucide="chevron-left" class="h-4 w-4"></i>
-                </button>
             </div>
 
             <!-- Modules list -->
@@ -113,10 +103,6 @@ const Components = {
                 <!-- Modules will be dynamically loaded here -->
             </nav>
         </aside>
-
-        <!-- Overlay for mobile/tablet when sidebar is open -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 xl:hidden z-30 hidden"
-            onclick="Sidebar.toggleSidebar()"></div>
         `;
     },
 

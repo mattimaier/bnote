@@ -882,13 +882,10 @@ html.i18n-loading body > *:not(script) {
 }
 
 /* Prevent sidebar from flashing during content updates */
+/* Sidebar styles - using Tailwind classes for flex layout */
 #sidebar {
-    will-change: transform;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    /* Ensure sidebar stays fixed and doesn't reflow */
-    position: fixed !important;
-    isolation: isolate;
+    position: relative !important;
+    z-index: auto !important;
 }
 
 /* Prevent layout shifts in main content area */
