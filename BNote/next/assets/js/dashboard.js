@@ -9,6 +9,7 @@ const Dashboard = {
     sidebarCollapsed: false,
     session: null,
     dashboardData: null,
+    eventClickHandlerInitialized: false,
     filters: {
         'events-needing-response': new Set(),
         'events-timeline': new Set()
@@ -48,6 +49,9 @@ const Dashboard = {
         this.initWelcomeHeader();
         this.initQuickActions();
         this.initFilters();
+        
+        // Initialize event click handlers early (before loading dashboard)
+        this.initGlobalEventClickHandlers();
         
         // Load dashboard data
         await this.loadDashboard();
@@ -737,11 +741,16 @@ const Dashboard = {
 
             // Mobile compact layout: no timeline icons, less padding, unified design
             const isMobile = window.innerWidth < 768;
+            
+            // Only make clickable if it's a rehearsal or concert
+            const isClickable = event.otype === 'R' || event.otype === 'C';
+            const clickableClass = isClickable ? 'cursor-pointer event-clickable' : '';
+            const eventDataAttr = isClickable ? `data-event-type="${event.otype}" data-event-id="${event.oid}"` : '';
 
             if (isMobile) {
                 // Mobile compact layout - unified for both sections
                 return `
-                    <div class="relative ${!isLast ? 'border-b border-border/30 pb-2 mb-2' : ''}" data-event-id="${event.oid}">
+                    <div class="relative ${!isLast ? 'border-b border-border/30 pb-2 mb-2' : ''} ${clickableClass}" data-event-id="${event.oid}" ${eventDataAttr}>
                         <div class="px-1 transition-all duration-200 group">
                             <div class="flex items-start gap-2 mb-1.5">
                                 <div class="flex-1 min-w-0">
@@ -774,7 +783,7 @@ const Dashboard = {
 
             // Desktop layout with timeline
             return `
-                <div class="relative flex gap-3" data-event-id="${event.oid}">
+                <div class="relative flex gap-3 ${clickableClass}" data-event-id="${event.oid}" ${eventDataAttr}>
                     ${!isLast ? `<div class="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector"></div>` : ''}
                     <div class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ${typeConfig.dotClass} ring-3 ring-background shadow-sm flex items-center justify-center">
                         <i data-lucide="${typeConfig.icon}" class="h-3 w-3 text-white"></i>
@@ -831,6 +840,66 @@ const Dashboard = {
         setTimeout(() => {
             this.initializeParticipationWidgets(container);
         }, 100);
+    },
+    
+    /**
+     * Initialize global click handlers for event items (set up once)
+     */
+    initGlobalEventClickHandlers() {
+        if (this.eventClickHandlerInitialized) {
+            return;
+        }
+        
+        const self = this;
+        
+        // Use event delegation on document level for all event clicks
+        document.addEventListener('click', function(e) {
+            // Don't trigger if clicking on participation widget or its children
+            if (e.target.closest('[data-participation-widget]')) {
+                return;
+            }
+            
+            // Find element with data-event-id and data-event-type attributes
+            // Check the clicked element and walk up the DOM tree
+            let currentElement = e.target;
+            let eventElement = null;
+            
+            while (currentElement && currentElement !== document.body) {
+                // Check if this element has the required data attributes
+                const eventType = currentElement.getAttribute('data-event-type');
+                const eventId = currentElement.getAttribute('data-event-id');
+                
+                if (eventType && eventId && (eventType === 'R' || eventType === 'C')) {
+                    eventElement = currentElement;
+                    break;
+                }
+                
+                // Also check for event-clickable class
+                if (currentElement.classList && currentElement.classList.contains('event-clickable')) {
+                    const type = currentElement.getAttribute('data-event-type');
+                    const id = currentElement.getAttribute('data-event-id');
+                    if (type && id) {
+                        eventElement = currentElement;
+                        break;
+                    }
+                }
+                
+                currentElement = currentElement.parentElement;
+            }
+            
+            if (eventElement) {
+                const eventType = eventElement.getAttribute('data-event-type');
+                const eventId = eventElement.getAttribute('data-event-id');
+                
+                if (eventType && eventId) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    self.openEventDetail(eventType, parseInt(eventId));
+                }
+            }
+        });
+        
+        this.eventClickHandlerInitialized = true;
     },
 
     /**
@@ -1099,6 +1168,20 @@ const Dashboard = {
      */
     showError(message) {
         this.showToast(message, 'error');
+    },
+
+    /**
+     * Open event detail view
+     * @param {string} eventType - Event type ('R' or 'C')
+     * @param {number} eventId - Event ID
+     */
+    openEventDetail(eventType, eventId) {
+        if (typeof EventDetail !== 'undefined') {
+            EventDetail.init(eventType, eventId);
+        } else {
+            console.error('EventDetail component not loaded');
+            this.showToast('Event detail view not available. Please refresh the page.', 'error');
+        }
     },
 
     /**

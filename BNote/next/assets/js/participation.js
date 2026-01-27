@@ -474,6 +474,17 @@ class ParticipationWidget {
                 }, 100);
             }
             
+            // Refresh event detail view if it's currently displayed
+            if (typeof EventDetail !== 'undefined' && EventDetail.eventId && EventDetail.eventType) {
+                setTimeout(async () => {
+                    try {
+                        await EventDetail.refresh();
+                    } catch (error) {
+                        console.error('Failed to refresh event detail:', error);
+                    }
+                }, 300);
+            }
+            
             // Show success toast
             if (typeof Dashboard !== 'undefined' && Dashboard.showToast) {
                 const messages = {

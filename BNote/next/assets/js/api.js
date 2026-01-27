@@ -41,7 +41,10 @@ class Api {
         // Use absolute URL to ensure correct path
         const url = new URL(this.baseUrl, window.location.origin);
         url.searchParams.set('module', module);
-        url.searchParams.set('action', action);
+        // Only set action if it's not null/undefined
+        if (action != null) {
+            url.searchParams.set('action', action);
+        }
 
         // Add params to URL
         Object.keys(params).forEach(key => {
@@ -155,6 +158,14 @@ const UsersApi = {
     getContacts: () => api.get('users', 'getContacts'),
     getLongInactiveUsers: () => api.get('users', 'getLongInactiveUsers'),
     deleteUsersFull: (userIds) => api.post('users', 'deleteUsersFull', { userIds })
+};
+
+const RehearsalsApi = {
+    get: (id) => api.get('rehearsals', null, { id })
+};
+
+const ConcertsApi = {
+    get: (id) => api.get('concerts', null, { id })
 };
 
 const ContactsApi = {

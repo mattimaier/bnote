@@ -190,3 +190,223 @@ body {
     border-color: var(--chart-3);
     color: var(--background);
 }
+
+/* Generic filter bubble for grouping toggle */
+.filter-bubble:not(.filter-bubble-rehearsal):not(.filter-bubble-performance):not(.filter-bubble-meeting) {
+    border-color: color-mix(in oklab, var(--primary) 20%, transparent);
+    background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+    color: var(--primary);
+}
+
+.filter-bubble:not(.filter-bubble-rehearsal):not(.filter-bubble-performance):not(.filter-bubble-meeting).selected {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--primary-foreground);
+}
+
+/* Event Detail View */
+.event-detail-content {
+    animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.basic-info-section .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.basic-info-section .info-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+}
+
+.basic-info-section .info-value {
+    font-size: 0.875rem;
+    color: var(--foreground);
+}
+
+/* Participation Diagram */
+.participation-diagram {
+    width: 100%;
+}
+
+.participation-diagram .participation-segment {
+    transition: all 0.2s ease;
+}
+
+.participation-diagram .participation-segment:hover {
+    opacity: 0.9;
+    transform: scaleY(1.05);
+}
+
+/* Ensure diagram bar segments are properly aligned and don't overflow */
+.participation-diagram .flex.items-center.gap-0 {
+    display: flex;
+    align-items: stretch;
+    min-height: 2rem;
+    width: 100%;
+}
+
+.participation-diagram .flex.items-center.gap-0 > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ensure numbers are perfectly centered */
+.participation-diagram .flex.items-center.gap-0 > div > span {
+    display: inline-block;
+    text-align: center;
+    line-height: 1;
+}
+
+/* Event Detail Header */
+.event-detail-header {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+}
+
+/* Grouping Toggle - uses filter-bubble style from dashboard */
+[data-grouping-toggle="true"] {
+    /* Inherits filter-bubble styles */
+}
+
+/* Participant Overview */
+.participant-overview {
+    width: 100%;
+}
+
+.participant-overview .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.participant-group {
+    transition: all 0.2s ease;
+}
+
+.participant-group:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.participant-item {
+    border-bottom: 1px solid var(--border);
+}
+
+.participant-item:last-child {
+    border-bottom: none;
+}
+
+/* Participant Reason Text */
+.participant-item .text-muted-foreground.italic {
+    font-style: italic;
+    color: var(--muted-foreground);
+    line-height: 1.4;
+}
+
+/* Participation Widget Section */
+.participation-widget-section {
+    margin-bottom: 1.5rem;
+}
+
+/* Deadline Display */
+.info-item .info-value.text-destructive {
+    color: var(--destructive);
+}
+
+@media (max-width: 768px) {
+    .participant-overview {
+        grid-template-columns: 1fr;
+    }
+}
+
+.participant-group {
+    transition: all 0.2s ease;
+}
+
+.participant-group:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.participant-item {
+    transition: all 0.15s ease;
+}
+
+.participant-item:hover {
+    background-color: color-mix(in oklab, var(--muted) 80%, transparent);
+}
+
+/* Event Metadata */
+.event-metadata .metadata-section {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 1.5rem;
+}
+
+.event-metadata .metadata-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+}
+
+.event-metadata .metadata-field:last-child {
+    border-bottom: none;
+}
+
+.event-metadata .metadata-field .metadata-label {
+    min-width: 120px;
+    flex-shrink: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .basic-info-section {
+        padding: 1rem;
+    }
+    
+    .basic-info-section .info-item {
+        margin-bottom: 0.75rem;
+    }
+    
+    .event-metadata .metadata-section {
+        padding: 1rem;
+    }
+    
+    .event-metadata .metadata-field {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .event-metadata .metadata-field .metadata-label {
+        min-width: auto;
+    }
+}
+
+/* Clickable event items */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-pointer:hover {
+    opacity: 0.95;
+}

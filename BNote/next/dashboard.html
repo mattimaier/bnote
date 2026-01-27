@@ -130,18 +130,20 @@
         </header>
 
         <main class="px-4 py-4 lg:px-6 flex-1 overflow-y-auto">
-            <!-- Welcome message - now part of dashboard content -->
-            <div class="mb-6 pb-4 border-b border-border/30">
-                <div class="flex flex-col gap-2">
-                    <h1 class="text-3xl font-bold tracking-tight text-foreground" id="welcome-greeting">
-                        Welcome
-                    </h1>
-                    <p class="text-muted-foreground text-sm font-medium">
-                        Here's what's happening with your band today.
-                    </p>
+            <!-- Dashboard Container -->
+            <div id="dashboard-container">
+                <!-- Welcome message - now part of dashboard content -->
+                <div class="mb-6 pb-4 border-b border-border/30">
+                    <div class="flex flex-col gap-2">
+                        <h1 class="text-3xl font-bold tracking-tight text-foreground" id="welcome-greeting">
+                            Welcome
+                        </h1>
+                        <p class="text-muted-foreground text-sm font-medium">
+                            Here's what's happening with your band today.
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <div class="mx-auto max-w-4xl">
+                <div class="mx-auto max-w-4xl">
                 <div class="space-y-4">
                     <!-- Events Needing Response -->
                     <div id="events-needing-response-card"
@@ -268,6 +270,24 @@
                     </div>
                 </div>
             </div>
+            </div>
+            
+            <!-- Event Detail View Container (hidden by default) -->
+            <div id="event-detail-container" class="hidden">
+                <div class="mb-4">
+                    <button 
+                        id="back-to-dashboard" 
+                        onclick="EventDetail.navigateBack()"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground hover:text-primary bg-muted/50 hover:bg-muted rounded-lg transition-colors"
+                    >
+                        <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                        Back to Dashboard
+                    </button>
+                </div>
+                <div id="event-detail-content" class="mx-auto max-w-4xl">
+                    <!-- Rendered by EventDetail component -->
+                </div>
+            </div>
         </main>
     </div>
 
@@ -297,8 +317,15 @@
 
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="assets/js/badge.js"></script>
     <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/participation-constants.js"></script>
+    <script src="assets/js/instrument-grouping.js"></script>
     <script src="assets/js/participation.js"></script>
+    <script src="assets/js/participation-diagram.js"></script>
+    <script src="assets/js/participant-overview.js"></script>
+    <script src="assets/js/event-metadata.js"></script>
+    <script src="assets/js/event-detail.js"></script>
     <script src="assets/js/dashboard.js"></script>
     <script>
         // Initialize Lucide icons
