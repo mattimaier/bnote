@@ -39,22 +39,6 @@ class ParticipationWidget implements iWriteable {
 		return NULL;
 	}
 
-	/**
-	 * Write modern participation widget (traffic light UI)
-	 * @param string $eventId Event ID
-	 * @param string $eventType Event type ('R' for rehearsal, 'C' for concert)
-	 */
-	public function writeModern($eventId, $eventType) {
-		?>
-		<div 
-			class="flex items-center gap-3" 
-			data-participation-widget 
-			data-event-id="<?php echo htmlspecialchars($eventId); ?>" 
-			data-event-type="<?php echo htmlspecialchars($eventType); ?>"
-		></div>
-		<?php
-	}
-
 	public function write() {
 		$fieldId = "participation" . $this->fieldIdSuffix;
 		global $system_data;

@@ -95,11 +95,8 @@ class UserData extends AbstractData {
 	}
 	
 	function update($id, $values) { // $values is the same than $_POST
-		// validation - only validate password if it's provided and not empty
-		// Empty password means "keep current password"
-		if(isset($values["password"]) && $values["password"] != "" && $values["password"] !== null) {
-			$this->checkPassword($values["password"]);
-		}
+		// validation
+		$this->checkPassword($values["password"]);
 		
 		// restrict access to super user for non-super-users
 		if(!$this->getSysdata()->isUserSuperUser()
@@ -112,11 +109,7 @@ class UserData extends AbstractData {
 		foreach($this->getFields()as $id => $info) {
 			if($id == "id" || $id == "lastlogin" || $id == "login") continue;
 			else if($id == "password") {
-				// Only update password if it's provided and not empty
-				if(isset($_POST[$id]) && $_POST[$id] != "" && $_POST[$id] !== null) {
-					$usr[$id] = crypt($_POST[$id], LoginController::ENCRYPTION_HASH);
-				}
-				// If password is not set or empty, skip it (keep current password)
+				if($_POST[$id] != "") $usr[$id] = crypt($_POST[$id], LoginController::ENCRYPTION_HASH);
 			} else {
 				$usr[$id] = $_POST[$id];
 			}

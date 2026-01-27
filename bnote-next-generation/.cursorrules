@@ -1,0 +1,241 @@
+# BNote Development Rules
+
+## ⚠️ MOST IMPORTANT RULE - READ THIS FIRST ⚠️
+
+**🚫 NEVER MODIFY ANY CODE OUTSIDE THE `/bnote-next-generation/` FOLDER 🚫**
+
+**ABSOLUTE PROHIBITION:**
+- ❌ **DO NOT** touch `/BNote/src/` directory (old PHP codebase)
+- ❌ **DO NOT** modify `/BNote/main.php`, `/BNote/content.php`, or any files in `/BNote/` folder
+- ❌ **DO NOT** change any files outside `/bnote-next-generation/` folder
+- ❌ **DO NOT** refactor, update, modernize, or improve old codebase
+- ❌ **DO NOT** fix bugs in old code (unless explicitly requested for critical security)
+- ❌ **DO NOT** add features to old codebase
+- ❌ **DO NOT** update dependencies for old codebase
+
+**✅ ONLY ALLOWED:**
+- ✅ Work **ONLY** in `/bnote-next-generation/` directory
+- ✅ Modify files **ONLY** within `/bnote-next-generation/` folder
+- ✅ Read old codebase for reference (but never modify)
+- ✅ Use old codebase classes/functions via API calls (but never change them)
+- ✅ Use `BNOTE_ROOT` constant (defined in `bnote-next-generation/api/paths.php`) to reference old codebase
+
+**This is the #1 priority rule. If you're unsure, DON'T modify it. Ask the user first.**
+
+## Project Context
+This is BNote - an open source ensemble management system for bands, orchestras, and choirs.
+- **Architecture:** 3-tier MVC (data/logic/presentation)
+- **Old UI:** PHP-generated HTML with inline CSS (`/BNote/src/presentation/`) - **READ ONLY**
+- **New UI:** BNote Next Generation - Modern JavaScript SPA (`/bnote-next-generation/`) - **ONLY MODIFY THIS**
+- **License:** GPL-3.0 (all code must remain GPL-compliant)
+
+## Project Structure
+
+```
+/bnote/
+├── BNote/                      ← Old codebase (NEVER MODIFY)
+│   ├── src/
+│   ├── main.php
+│   └── config/
+└── bnote-next-generation/      ← New app (ONLY MODIFY THIS)
+    ├── api/
+    ├── assets/
+    └── docs/
+```
+
+## Protected Directories (NEVER MODIFY)
+
+**Complete list of off-limits directories:**
+- `/BNote/src/` - All old PHP code (data, logic, presentation) - **READ ONLY**
+- `/BNote/main.php` - Old entry point - **DO NOT TOUCH**
+- `/BNote/content.php` - Old layout - **DO NOT TOUCH**
+- `/BNote/index.php` - Old routing - **DO NOT TOUCH**
+- `/BNote/components/` - Old JavaScript components - **DO NOT TOUCH**
+- `/BNote/style/` - Old CSS/styles - **DO NOT TOUCH**
+- `/BNote/lib/` - Old libraries - **DO NOT TOUCH**
+- Any file or directory outside `/bnote-next-generation/` - **DO NOT TOUCH**
+
+**Exception:** Only modify old code if user explicitly requests it for critical security fixes AND confirms in writing.
+
+## Core Principles
+
+### 1. Code Style (Next Generation Only)
+- Use modern JavaScript (ES6+)
+- Use English variable names (no German)
+- Use meaningful, descriptive names
+- Keep indentation consistent
+- Add comments for complex logic
+
+### 2. Browser Compatibility
+- Target modern browsers (last 2 versions)
+- No IE11 support needed
+- Progressive enhancement approach
+- Use standard HTML5/CSS3
+
+### 3. Internationalization (i18n) - MANDATORY
+
+**CRITICAL:** ALL user-facing strings MUST use the i18n system. No hardcoded text.
+
+**For Next Generation UI (`/bnote-next-generation/`):**
+- **HTML:** Use `data-i18n`, `data-i18n-placeholder`, `data-i18n-label` attributes
+- **JavaScript:** Always use `i18n.t(key)` for user-facing strings
+- **Translation Files:** Add keys to all language files (`bnote-next-generation/lang/*.json`)
+- **Key Format:** `js.{module}.{key}` (e.g., `js.dashboard.welcome`)
+- **Never hardcode:** No English, German, or other language strings in code
+- **German text:** Only exists in `bnote-next-generation/lang/de.json` (translation file)
+
+**Examples:**
+```html
+<!-- GOOD -->
+<h1 data-i18n="js.dashboard.welcome">Welcome</h1>
+<input data-i18n-placeholder="js.login.usernamePlaceholder" />
+
+<!-- BAD -->
+<h1>Welcome</h1>
+<input placeholder="Username" />
+```
+
+```javascript
+// GOOD
+showToast(i18n.t('js.users.created'));
+const errorMsg = i18n.t('js.error.loadFailed');
+
+// BAD
+showToast('User created');
+const errorMsg = 'Failed to load';
+```
+
+### 4. Dark Mode Support - MANDATORY
+
+**CRITICAL:** ALL UI components MUST support dark mode.
+
+**CSS Variables:**
+- Use semantic color variables from `next/assets/css/app.css`
+- Variables automatically adapt to dark mode via `.dark` class
+- Never hardcode colors
+
+**Tailwind Classes:**
+```html
+<!-- GOOD - Uses semantic variables -->
+<div class="bg-background text-foreground">
+  <div class="bg-card border border-border">
+    <p class="text-muted-foreground">Text</p>
+  </div>
+</div>
+
+<!-- BAD - Hardcoded colors -->
+<div class="bg-white text-black dark:bg-gray-800 dark:text-white">
+```
+
+**Theme Toggle:**
+- Use `ThemeToggle.toggle()` to switch themes
+- Theme preference saved in localStorage
+- Respects system preference on first load
+
+**Testing:**
+- Always test components in both light and dark modes
+- Use browser dev tools to toggle dark mode
+
+### 5. License Compliance
+
+- All code must remain GPL-3.0
+- **MANDATORY:** Add GPL v3 license headers to all source files in `/next/`
+- Use standard Tailwind patterns (MIT licensed)
+- Avoid copying proprietary UI components
+- Keep GPL headers in all modified files
+
+## Next Generation UI Development
+
+**Location:** `/bnote-next-generation/` directory ONLY
+
+**Key Requirements:**
+1. **MANDATORY i18n:** All user-facing strings must use `i18n.t()` or `data-i18n` attributes
+2. **MANDATORY Dark Mode:** All components must use semantic CSS variables
+3. **GPL Headers:** All source files must include GPL v3 license headers
+4. **API Pattern:** Use module-based API (`/bnote-next-generation/api/index.php?module=X&action=Y`)
+5. **Translation Files:** Add keys to all language files (`bnote-next-generation/lang/*.json`)
+6. **Path Configuration:** Use `BNOTE_ROOT` constant (from `bnote-next-generation/api/paths.php`) to reference old codebase
+
+**Technology Stack:**
+- Vanilla JavaScript (no frameworks)
+- Tailwind CSS (via CDN)
+- Lucide Icons (via CDN)
+- Custom i18n service (`next/assets/js/i18n.js`)
+- Theme toggle (`next/assets/js/theme-toggle.js`)
+
+**See:** [bnote-next-generation/README.md](bnote-next-generation/README.md) for architecture details
+
+## Workflow
+
+**For Next Generation UI (`/bnote-next-generation/`):**
+1. All user-facing strings must use i18n
+2. All components must support dark mode
+3. Use semantic CSS variables for colors
+4. Test in both light and dark modes
+5. Add translation keys to all language files
+6. Add GPL v3 headers to all new/modified files
+
+## Next Generation UI Examples
+
+### Example: Component with i18n and Dark Mode
+
+```html
+<!-- GOOD - Uses i18n and semantic colors -->
+<div class="bg-card border border-border rounded-lg p-4">
+    <h2 class="text-xl font-semibold text-card-foreground mb-4" 
+        data-i18n="js.dashboard.welcome">Welcome</h2>
+    <p class="text-muted-foreground" data-i18n="js.dashboard.subtitle">Welcome to %p</p>
+    <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg"
+            data-i18n-label="js.common.save">Save</button>
+</div>
+```
+
+```javascript
+// GOOD - Uses i18n for all strings
+const Dashboard = {
+    async loadData() {
+        try {
+            const data = await DashboardApi.getDashboard();
+            this.render(data);
+        } catch (error) {
+            // Use i18n for error message
+            showToast(i18n.t('js.error.dashboardLoadFailed'));
+        }
+    },
+    
+    render(data) {
+        // All text uses i18n
+        container.innerHTML = `
+            <h1 data-i18n="js.dashboard.welcome">Welcome</h1>
+            <div class="bg-card border border-border">
+                <!-- Content -->
+            </div>
+        `;
+        // Translate after rendering
+        i18n.translatePage();
+    }
+};
+```
+
+## Priority Order
+
+**Next Generation:**
+1. Complete localization for existing modules
+2. Implement remaining modules (Calendar, Messages, etc.)
+3. Add advanced features (search, exports, etc.)
+
+## Testing Reminders
+
+- Test in Chrome/Firefox (latest)
+- Check mobile responsiveness (narrow browser window)
+- Verify all buttons/links still work
+- No JavaScript errors in console
+- Forms still submit correctly
+- Test in both light and dark modes
+
+## Notes
+
+- Cursor should generate clean, readable code
+- Preserve existing functionality 100%
+- For Next Generation: Always use i18n and support dark mode
+- **NEVER modify old codebase** - work only in `/bnote-next-generation/` directory
