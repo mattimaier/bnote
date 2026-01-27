@@ -419,7 +419,9 @@ const EventDetail = {
      * Render basic information section (shared between rehearsals and concerts)
      */
     renderBasicInfo(event) {
-        const beginDate = this.formatDate(event.begin);
+        // Check if event is in the past
+        const isEventPast = this.isEventPast(event.begin);
+        const beginDate = this.formatDate(event.begin, isEventPast);
         const beginTime = this.formatTime(event.begin);
         const endTime = event.end ? this.formatTime(event.end) : null;
         const statusBadge = this.renderStatusBadge(event.status);
@@ -594,9 +596,21 @@ const EventDetail = {
     },
 
     /**
-     * Format date (short format: DD.MM.YYYY or MM/DD/YYYY). Uses parseEventDate.
+     * Check if event is in the past based on begin date
      */
-    formatDate(dateStr) {
+    isEventPast(beginDateStr) {
+        if (!beginDateStr || typeof beginDateStr !== 'string') return false;
+        const date = typeof i18n !== 'undefined' && i18n.parseEventDate ? i18n.parseEventDate(beginDateStr) : null;
+        if (!date) return false;
+        return date < new Date();
+    },
+
+    /**
+     * Format date (short format: DD.MM.YYYY or MM/DD/YYYY). Uses parseEventDate.
+     * @param {string} dateStr - Date string to format
+     * @param {boolean} isPast - Whether to append "(Vergangen)" for past events
+     */
+    formatDate(dateStr, isPast = false) {
         const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
             ? i18n.t('js.event.tba')
             : 'TBA';
@@ -606,11 +620,19 @@ const EventDetail = {
         const locale = typeof i18n !== 'undefined' && i18n.getBrowserLocale
             ? i18n.getBrowserLocale(i18n.getLang())
             : (navigator.language || 'en-US');
-        return new Intl.DateTimeFormat(locale, {
+        const formattedDate = new Intl.DateTimeFormat(locale, {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
         }).format(date);
+        
+        // Add "(Vergangen)" if event is in the past
+        if (isPast) {
+            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+            return `${formattedDate} (${t('js.event.detail.past')})`;
+        }
+        
+        return formattedDate;
     },
 
     /**
