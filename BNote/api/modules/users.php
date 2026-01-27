@@ -60,7 +60,25 @@ class UsersModule {
      * Get all users (respects super user restrictions)
      */
     private function listUsers() {
-        $users = $this->data->getUsers();
+        // Use custom query to get firstName and lastName separately
+        global $system_data;
+        $query = "SELECT u.id, u.isActive, u.login, ";
+        $query .= "c.name as firstName, c.surname as lastName, ";
+        $query .= "CONCAT_WS(' ', c.name, c.surname) as name, u.lastlogin";
+        $query .= " FROM user u LEFT JOIN contact c ON u.contact = c.id";
+        
+        $params = [];
+        if (!$system_data->isUserSuperUser() && count($system_data->getSuperUsers()) > 0) {
+            $whereQ = [];
+            foreach ($system_data->getSuperUsers() as $su) {
+                $whereQ[] = "u.id <> ?";
+                $params[] = ['i', $su];
+            }
+            $query .= " WHERE " . join(" AND ", $whereQ);
+        }
+        $query .= " ORDER BY name, id";
+        
+        $users = $system_data->dbcon->getSelection($query, $params);
         
         // Convert to array format (skip first row which is header)
         $result = [];
@@ -69,7 +87,9 @@ class UsersModule {
             $result[] = [
                 'id' => intval($user['id']),
                 'login' => $user['login'] ?? '',
-                'name' => $user['name'] ?? '',
+                'name' => $user['name'] ?? '', // Keep for backward compatibility
+                'firstName' => $user['firstName'] ?? '',
+                'lastName' => $user['lastName'] ?? '',
                 'isActive' => intval($user['isActive']) === 1,
                 'lastlogin' => $user['lastlogin'] ?? null
             ];

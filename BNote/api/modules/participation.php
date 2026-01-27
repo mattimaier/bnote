@@ -188,6 +188,7 @@ class ParticipationModule {
         }
         
         // Save participation using StartData
+        // Note: StartData::saveParticipation expects 'R' or 'C' as first parameter
         $this->data->saveParticipation($eventType, $userId, $eventId, $participate, $reason);
         
         return [

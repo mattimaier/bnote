@@ -22,11 +22,20 @@ class Table {
         this.sortable = options.sortable !== false; // Default true
         this.emptyMessage = options.emptyMessage || 'No data available';
         this.loading = false;
+        this.searchable = options.searchable !== false; // Default true
+        this.searchInputContainer = options.searchInputContainer || null;
         
         // State
-        this.sortColumn = null;
-        this.sortDirection = 'asc';
+        this.sortColumn = options.defaultSort || 'id'; // Default sort by ID
+        this.sortDirection = options.defaultSortDirection || 'asc';
         this.editingCell = null;
+        this.searchTerm = '';
+        this.openMenuRowId = null;
+        
+        // Render search input if container provided
+        if (this.searchable && this.searchInputContainer) {
+            this.renderSearchInput();
+        }
         
         // Render table
         this.render();
@@ -41,13 +50,20 @@ class Table {
             return;
         }
         
-        if (this.data.length === 0) {
-            this.container.innerHTML = this.getEmptyHTML();
+        // Apply filtering first
+        let filteredData = this.filterData([...this.data]);
+        
+        if (filteredData.length === 0) {
+            if (this.searchTerm) {
+                this.container.innerHTML = this.getEmptyHTML('No results found');
+            } else {
+                this.container.innerHTML = this.getEmptyHTML();
+            }
             return;
         }
         
         // Apply sorting
-        const sortedData = this.sortData([...this.data]);
+        const sortedData = this.sortData(filteredData);
         
         // Build table HTML
         let html = '<div class="overflow-x-auto">';
@@ -62,10 +78,8 @@ class Table {
                 ? (this.sortDirection === 'asc' ? '↑' : '↓') 
                 : '';
             
-            html += `<th class="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider ${sortable ? 'cursor-pointer hover:bg-muted/50' : ''}"`;
-            if (sortable) {
-                html += ` onclick="window.tableInstances['${this.containerId}'].sort('${col.key}')"`;
-            }
+            const thId = `th-${this.containerId}-${col.key}`;
+            html += `<th id="${thId}" class="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider ${sortable ? 'cursor-pointer hover:bg-muted/50' : ''}"`;
             html += `>${col.label} ${sortIcon}</th>`;
         });
         
@@ -93,6 +107,34 @@ class Table {
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
+        
+        // Attach sort event listeners to headers
+        this.columns.forEach((col) => {
+            const sortable = this.sortable && col.sortable !== false;
+            if (sortable) {
+                const th = document.getElementById(`th-${this.containerId}-${col.key}`);
+                if (th) {
+                    th.addEventListener('click', () => {
+                        this.sort(col.key);
+                    });
+                }
+            }
+        });
+        
+        // Attach action menu button listeners
+        if (this.onEdit || this.onDelete || this.onAction) {
+            const actionButtons = this.container.querySelectorAll(`[data-actions-btn]`);
+            actionButtons.forEach(btn => {
+                const rowId = btn.getAttribute('data-actions-btn');
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleActionsMenu(parseInt(rowId), e);
+                });
+            });
+        }
+        
+        // Note: Don't close menus here as it interferes with menu interactions
+        // Menus will close on outside click or escape key
     }
     
     /**
@@ -129,35 +171,14 @@ class Table {
             html += '</td>';
         });
         
-        // Actions cell
+        // Actions cell - 3-dots menu
         if (this.onEdit || this.onDelete || this.onAction) {
-            html += '<td class="px-4 py-3 text-sm" onclick="event.stopPropagation();">';
-            html += '<div class="flex items-center gap-2">';
-            
-            if (this.onEdit) {
-                html += `<button onclick="window.tableInstances['${this.containerId}'].handleEdit(${rowId})" class="text-primary hover:text-primary/80 p-1 rounded hover:bg-primary/10" title="Edit">`;
-                html += '<i data-lucide="edit" class="h-4 w-4"></i>';
-                html += '</button>';
-            }
-            
-            if (this.onDelete) {
-                html += `<button onclick="window.tableInstances['${this.containerId}'].handleDelete(${rowId})" class="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10" title="Delete">`;
-                html += '<i data-lucide="trash-2" class="h-4 w-4"></i>';
-                html += '</button>';
-            }
-            
-            if (this.onAction) {
-                const actions = this.onAction(row, rowIndex);
-                if (Array.isArray(actions)) {
-                    actions.forEach(action => {
-                        html += `<button onclick="window.tableInstances['${this.containerId}'].handleCustomAction('${action.key}', ${rowId})" class="${action.class || 'text-muted-foreground hover:text-foreground'} p-1 rounded hover:bg-muted/50" title="${action.title || ''}">`;
-                        html += `<i data-lucide="${action.icon || 'more-horizontal'}" class="h-4 w-4"></i>`;
-                        html += '</button>';
-                    });
-                }
-            }
-            
-            html += '</div>';
+            html += `<td class="px-4 py-3 text-sm">`;
+            html += `<div class="relative" data-actions-cell="${rowId}">`;
+            html += `<button data-actions-btn="${rowId}" class="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted/50" title="Actions">`;
+            html += '<i data-lucide="more-vertical" class="h-4 w-4"></i>';
+            html += '</button>';
+            html += `</div>`;
             html += '</td>';
         }
         
@@ -176,11 +197,36 @@ class Table {
     }
     
     /**
+     * Filter data based on search term
+     */
+    filterData(data) {
+        if (!this.searchTerm || !this.searchable) {
+            return data;
+        }
+        
+        const searchLower = this.searchTerm.toLowerCase().trim();
+        if (!searchLower) {
+            return data;
+        }
+        
+        return data.filter(row => {
+            // Search across all visible columns
+            return this.columns.some(col => {
+                const value = this.getCellValue(row, col);
+                const valueStr = String(value || '').toLowerCase();
+                return valueStr.includes(searchLower);
+            });
+        });
+    }
+    
+    /**
      * Sort data
      */
     sortData(data) {
+        // Default sort by ID if no sort column specified
         if (!this.sortColumn) {
-            return data;
+            this.sortColumn = 'id';
+            this.sortDirection = 'asc';
         }
         
         const col = this.columns.find(c => c.key === this.sortColumn);
@@ -196,6 +242,21 @@ class Table {
             if (aVal == null && bVal == null) return 0;
             if (aVal == null) return 1;
             if (bVal == null) return -1;
+            
+            // Date sorting
+            if (col.type === 'date') {
+                const aDate = new Date(aVal);
+                const bDate = new Date(bVal);
+                
+                // Handle invalid dates
+                if (isNaN(aDate.getTime()) && isNaN(bDate.getTime())) return 0;
+                if (isNaN(aDate.getTime())) return 1;
+                if (isNaN(bDate.getTime())) return -1;
+                
+                const aTime = aDate.getTime();
+                const bTime = bDate.getTime();
+                return this.sortDirection === 'asc' ? aTime - bTime : bTime - aTime;
+            }
             
             // Custom sort function
             if (col.sort) {
@@ -391,6 +452,162 @@ class Table {
     }
     
     /**
+     * Toggle actions menu for a row
+     */
+    toggleActionsMenu(rowId, event) {
+        event.stopPropagation();
+        
+        // Close if clicking the same row
+        if (this.openMenuRowId === rowId) {
+            this.closeActionsMenu();
+            return;
+        }
+        
+        // Close any other open menu
+        this.closeActionsMenu();
+        
+        // Find the button that was clicked
+        const button = event.target.closest('button');
+        if (!button) return;
+        
+        const buttonRect = button.getBoundingClientRect();
+        this.openMenuRowId = rowId;
+        
+        // Get row data
+        const row = this.data.find(r => (r.id || r) === rowId);
+        if (!row) return;
+        
+        // Build menu items
+        const menuItems = [];
+        
+        if (this.onEdit) {
+            menuItems.push({
+                label: 'Edit',
+                icon: 'edit',
+                onClick: () => this.handleEdit(rowId)
+            });
+        }
+        
+        if (this.onAction) {
+            const actions = this.onAction(row);
+            if (Array.isArray(actions)) {
+                actions.forEach(action => {
+                    menuItems.push({
+                        label: action.title || action.key,
+                        icon: action.icon || 'more-horizontal',
+                        onClick: () => {
+                            if (action.onClick) {
+                                action.onClick(action.row || row);
+                            } else {
+                                this.handleCustomAction(action.key, rowId);
+                            }
+                            this.closeActionsMenu();
+                        }
+                    });
+                });
+            }
+        }
+        
+        if (this.onDelete) {
+            menuItems.push({
+                label: 'Delete',
+                icon: 'trash-2',
+                onClick: () => {
+                    this.handleDelete(rowId);
+                    this.closeActionsMenu();
+                },
+                destructive: true
+            });
+        }
+        
+        if (menuItems.length === 0) return;
+        
+        // Create menu
+        const menu = document.createElement('div');
+        menu.className = 'absolute right-0 mt-1 w-48 bg-card border border-border rounded-lg shadow-lg z-50 py-1';
+        menu.style.top = '100%';
+        menu.style.left = 'auto';
+        menu.style.right = '0';
+        menu.setAttribute('data-menu-row-id', rowId);
+        
+        // Create menu items with direct event listeners
+        menuItems.forEach((item, index) => {
+            const button = document.createElement('button');
+            button.className = `w-full flex items-center gap-2 px-4 py-2 text-sm ${item.destructive ? 'text-destructive hover:bg-destructive/10' : 'text-foreground hover:bg-muted/50'} transition-colors`;
+            button.innerHTML = `<i data-lucide="${item.icon}" class="h-4 w-4"></i><span>${this.escapeHtml(item.label)}</span>`;
+            
+            // Add click handler directly
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (item.onClick) {
+                    item.onClick();
+                }
+                this.closeActionsMenu();
+            });
+            
+            menu.appendChild(button);
+        });
+        
+        // Insert menu after button
+        button.parentElement.style.position = 'relative';
+        button.parentElement.appendChild(menu);
+        
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Close on outside click (but not on the button that opened it)
+        // Use a small delay to avoid immediate closure
+        setTimeout(() => {
+            this._menuCloseHandler = (e) => {
+                // Don't close if clicking inside the menu, the button, or any action cell
+                const clickedCell = e.target.closest('[data-actions-cell]');
+                const clickedBtn = e.target.closest('[data-actions-btn]');
+                if (!menu.contains(e.target) && 
+                    !button.contains(e.target) && 
+                    clickedCell?.getAttribute('data-actions-cell') !== String(rowId) &&
+                    clickedBtn?.getAttribute('data-actions-btn') !== String(rowId)) {
+                    this.closeActionsMenu();
+                }
+            };
+            // Use capture phase to catch events before they bubble
+            document.addEventListener('click', this._menuCloseHandler, true);
+        }, 100);
+        
+        // Close on escape
+        this._menuEscapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                this.closeActionsMenu();
+            }
+        };
+        document.addEventListener('keydown', this._menuEscapeHandler);
+    }
+    
+    /**
+     * Close actions menu
+     */
+    closeActionsMenu() {
+        if (this.openMenuRowId !== null) {
+            const menu = this.container.querySelector(`[data-menu-row-id="${this.openMenuRowId}"]`);
+            if (menu) {
+                menu.remove();
+            }
+            this.openMenuRowId = null;
+        }
+        
+        // Remove event listeners
+        if (this._menuCloseHandler) {
+            document.removeEventListener('click', this._menuCloseHandler);
+            this._menuCloseHandler = null;
+        }
+        if (this._menuEscapeHandler) {
+            document.removeEventListener('keydown', this._menuEscapeHandler);
+            this._menuEscapeHandler = null;
+        }
+    }
+    
+    /**
      * Handle custom action
      */
     handleCustomAction(actionKey, rowId) {
@@ -443,14 +660,108 @@ class Table {
     }
     
     /**
+     * Render search input
+     */
+    renderSearchInput() {
+        const container = document.getElementById(this.searchInputContainer);
+        if (!container) return;
+        
+        // Check if input already exists to preserve focus
+        const existingInput = document.getElementById(`table-search-${this.containerId}`);
+        const wasFocused = document.activeElement === existingInput;
+        
+        container.innerHTML = `
+            <div class="relative w-full">
+                <i data-lucide="search" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
+                <input type="text" 
+                    id="table-search-${this.containerId}"
+                    placeholder="Search..."
+                    value="${this.escapeHtml(this.searchTerm)}"
+                    class="pl-9 pr-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
+                ${this.searchTerm ? `
+                    <button id="table-search-clear-${this.containerId}"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground">
+                        <i data-lucide="x" class="h-4 w-4"></i>
+                    </button>
+                ` : ''}
+            </div>
+        `;
+        
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Add event listeners
+        const input = document.getElementById(`table-search-${this.containerId}`);
+        if (input) {
+            // Store reference to avoid losing focus
+            this._searchInput = input;
+            
+            // Debounce search - update immediately but don't re-render input
+            let timeout;
+            input.addEventListener('input', (e) => {
+                // Update search term immediately for instant feedback
+                this.searchTerm = e.target.value;
+                
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    // Only re-render table, not the search input
+                    this.render();
+                }, 300);
+            });
+            
+            // Restore focus if it was focused before
+            if (wasFocused) {
+                setTimeout(() => input.focus(), 0);
+            }
+        }
+        
+        // Add clear button listener
+        const clearBtn = document.getElementById(`table-search-clear-${this.containerId}`);
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.clearSearch();
+            });
+        }
+    }
+    
+    /**
+     * Set search term and re-render
+     */
+    setSearchTerm(term) {
+        this.searchTerm = term;
+        // Update input value if it exists without recreating it
+        if (this._searchInput) {
+            this._searchInput.value = term;
+        } else if (this.searchInputContainer) {
+            this.renderSearchInput();
+        }
+        this.render();
+    }
+    
+    /**
+     * Clear search
+     */
+    clearSearch() {
+        this.searchTerm = '';
+        if (this._searchInput) {
+            this._searchInput.value = '';
+            this._searchInput.focus();
+        }
+        this.render();
+    }
+    
+    /**
      * Get empty state HTML
      */
-    getEmptyHTML() {
+    getEmptyHTML(message = null) {
+        const msg = message || this.emptyMessage;
         return `
             <div class="flex items-center justify-center py-12">
                 <div class="text-center">
                     <i data-lucide="inbox" class="h-12 w-12 text-muted-foreground/50 mx-auto mb-4"></i>
-                    <p class="text-sm text-muted-foreground">${this.escapeHtml(this.emptyMessage)}</p>
+                    <p class="text-sm text-muted-foreground">${this.escapeHtml(msg)}</p>
                 </div>
             </div>
         `;

@@ -107,8 +107,13 @@ const Users = {
                 editable: false // Login should not be changed after creation
             },
             {
-                key: 'name',
-                label: 'Name',
+                key: 'firstName',
+                label: 'First Name',
+                sortable: true
+            },
+            {
+                key: 'lastName',
+                label: 'Last Name',
                 sortable: true
             },
             {
@@ -116,15 +121,14 @@ const Users = {
                 label: 'Status',
                 sortable: true,
                 render: (value) => {
-                    return value
-                        ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">Active</span>'
-                        : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">Inactive</span>';
+                    return Badge.renderStatus(value);
                 }
             },
             {
                 key: 'lastlogin',
                 label: 'Last Login',
                 sortable: true,
+                type: 'date',
                 render: (value) => {
                     if (!value) return '-';
                     const date = new Date(value);
@@ -139,6 +143,10 @@ const Users = {
         this.table = new Table('users-table-container', {
             columns,
             data: this.users,
+            defaultSort: 'id',
+            defaultSortDirection: 'asc',
+            searchable: true,
+            searchInputContainer: 'users-search-container',
             onRowClick: (row) => {
                 this.showUserDetails(row.id);
             },
@@ -154,13 +162,15 @@ const Users = {
                         key: 'activate',
                         icon: row.isActive ? 'x-circle' : 'check-circle',
                         title: row.isActive ? 'Deactivate' : 'Activate',
-                        class: 'text-muted-foreground hover:text-foreground'
+                        class: 'text-muted-foreground hover:text-foreground',
+                        onClick: () => this.handleActivateUser(row.id)
                     },
                     {
                         key: 'privileges',
                         icon: 'key',
                         title: 'Manage Privileges',
-                        class: 'text-muted-foreground hover:text-foreground'
+                        class: 'text-muted-foreground hover:text-foreground',
+                        onClick: () => this.showPrivilegesModal(row.id)
                     }
                 ];
                 // Store row for action handlers

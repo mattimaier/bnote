@@ -26,15 +26,58 @@
             --border: oklch(0.93 0.002 250);
             --input: oklch(0.95 0.002 250);
             --ring: oklch(0.50 0.18 240);
+            --chart-3: oklch(0.62 0.18 150);
             --sidebar: oklch(0.995 0.001 250);
             --sidebar-foreground: oklch(0.18 0.01 250);
             --sidebar-accent: oklch(0.96 0.002 250);
             --sidebar-border: oklch(0.92 0.002 250);
+            --spacing: 0.25rem;
+            --text-xs: 0.75rem;
+            --font-weight-medium: 500;
+            --radius: 0.875rem;
         }
 
         body {
             background-color: var(--background);
             color: var(--foreground);
+        }
+
+        /* Badge/Ribbon styling matching the design */
+        .event-badge {
+            display: inline-flex;
+            width: fit-content;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            gap: calc(var(--spacing, 0.25rem) * 1);
+            overflow: hidden;
+            border-radius: calc(var(--radius, 0.875rem) - 2px);
+            border-style: solid;
+            border-width: 1px;
+            border-color: color-mix(in oklab, var(--primary) 20%, transparent);
+            background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+            padding-inline: calc(var(--spacing, 0.25rem) * 2);
+            padding-block: calc(var(--spacing, 0.25rem) * 0.5);
+            font-size: var(--text-xs, 0.75rem);
+            line-height: calc(1 / 0.75);
+            font-weight: var(--font-weight-medium, 500);
+            white-space: nowrap;
+            color: var(--primary);
+            transition-property: color, box-shadow;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        .event-badge.accent {
+            border-color: color-mix(in oklab, var(--accent) 20%, transparent);
+            background-color: color-mix(in oklab, var(--accent) 10%, transparent);
+            color: var(--accent);
+        }
+
+        .event-badge.chart-3 {
+            border-color: color-mix(in oklab, var(--chart-3) 20%, transparent);
+            background-color: color-mix(in oklab, var(--chart-3) 10%, transparent);
+            color: var(--chart-3);
         }
     </style>
     <script>
@@ -128,8 +171,7 @@
     </aside>
 
     <!-- Overlay for mobile/tablet when sidebar is open -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 xl:hidden z-30 hidden"
-        onclick="Sidebar.toggleSidebar()"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 xl:hidden z-30 hidden"></div>
 
     <!-- Main content area -->
     <div class="flex-1 flex flex-col min-w-0 xl:ml-64">
@@ -140,7 +182,7 @@
                 <!-- Menu button - visible on mobile and tablet (compact devices) -->
                 <button id="mobile-menu-btn"
                     class="xl:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
-                    onclick="Sidebar.toggleSidebar()" title="Toggle menu">
+                    title="Toggle menu">
                     <i data-lucide="menu" class="h-5 w-5"></i>
                 </button>
 
@@ -188,17 +230,20 @@
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">
                         <button id="add-user-btn"
-                            class="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                            class="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium shadow-sm hover:shadow">
                             <i data-lucide="plus" class="h-4 w-4"></i>
                             <span>Add User</span>
                         </button>
                         <button id="gdpr-btn"
-                            class="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground">
+                            class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
                             <i data-lucide="shield-alert" class="h-4 w-4"></i>
                             <span>GDPR</span>
                         </button>
                     </div>
                 </div>
+
+                <!-- Search input -->
+                <div id="users-search-container" class="mb-4"></div>
 
                 <!-- Users table -->
                 <div class="bg-card rounded-xl border border-border/40 shadow-sm">
@@ -384,6 +429,7 @@
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/badge.js"></script>
     <script src="assets/js/table.js"></script>
     <script src="assets/js/users.js"></script>
     <script>

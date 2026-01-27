@@ -43,9 +43,12 @@ const Sidebar = {
         
         if (!sidebar) return;
         
-        // Mobile menu button
+        // Mobile menu button - use both onclick (from HTML) and event listener as fallback
         if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', () => {
+            // Remove any existing onclick to avoid double-triggering
+            mobileMenuBtn.onclick = null;
+            mobileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent document click handler from firing
                 this.toggleSidebar();
             });
         }
@@ -58,14 +61,22 @@ const Sidebar = {
         }
         
         // Close sidebar on mobile when clicking outside
-        document.addEventListener('click', (e) => {
+        // Use a separate handler that doesn't interfere with other click handlers
+        this._sidebarCloseHandler = (e) => {
             if (window.innerWidth < 1280 && this.sidebarOpen) {
-                if (!sidebar.contains(e.target) && 
-                    !mobileMenuBtn?.contains(e.target)) {
-                    this.toggleSidebar();
+                // Don't close if clicking the mobile menu button (it will toggle itself)
+                if (mobileMenuBtn && mobileMenuBtn.contains(e.target)) {
+                    return; // Let the button's own handler toggle it
                 }
+                // Don't close if clicking inside sidebar
+                if (sidebar.contains(e.target)) {
+                    return;
+                }
+                // Close if clicking outside
+                this.toggleSidebar();
             }
-        });
+        };
+        document.addEventListener('click', this._sidebarCloseHandler);
         
         // Handle window resize
         let resizeTimeout;
@@ -228,6 +239,16 @@ const Sidebar = {
                     usersMenuItem.classList.add('hidden');
                 }
             }
+        }
+    },
+    
+    /**
+     * Cleanup event listeners (for page navigation)
+     */
+    cleanup() {
+        if (this._sidebarCloseHandler) {
+            document.removeEventListener('click', this._sidebarCloseHandler);
+            this._sidebarCloseHandler = null;
         }
     }
 };
