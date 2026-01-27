@@ -1,4 +1,23 @@
 /**
+ * BNote Next Generation - Event Detail Component
+ *
+ * Copyright (C) 2026 BNote Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
  * Event Detail Component
  * Main orchestrator for detail view (shared between rehearsals and concerts)
  */
@@ -130,6 +149,9 @@ const EventDetail = {
         if (typeof lucide !== 'undefined') {
             setTimeout(() => lucide.createIcons(), 200);
         }
+
+        // Initialize address click handlers
+        this.initializeAddressClickHandlers();
     },
 
     /**
@@ -272,7 +294,7 @@ const EventDetail = {
             ? i18n.t('js.event.tba')
             : 'TBA';
         let locationHtml = `<span class="text-muted-foreground">${tbaText}</span>`;
-        let mapLinkHtml = '';
+        let locationQueryLine = '';
 
         if (event.location) {
             const loc = event.location;
@@ -283,21 +305,11 @@ const EventDetail = {
             const locationEncoded = locationLines.includes('\n')
                 ? locationLines.split('\n').map(l => this.escapeHtml(l)).join('<br>')
                 : this.escapeHtml(locationLines);
-            locationHtml = `<span>${locationEncoded}</span>`;
-            const queryLine = [loc.name, addr].filter(Boolean).join(', ').replace(/\n/g, ', ');
-            if (queryLine) {
-                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryLine)}`;
-                mapLinkHtml = `
-                    <a 
-                        href="${mapsUrl}" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium"
-                    >
-                        <i data-lucide="map-pin" class="h-4 w-4"></i>
-                        ${(typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.event.detail.openInMaps') : 'Open in Google Maps')}
-                    </a>
-                `;
+            locationQueryLine = [loc.name, addr].filter(Boolean).join(', ').replace(/\n/g, ', ');
+            if (locationQueryLine) {
+                locationHtml = `<span class="address-clickable cursor-pointer hover:text-primary transition-colors" data-address-query="${this.escapeHtml(locationQueryLine)}">${locationEncoded}</span>`;
+            } else {
+                locationHtml = `<span>${locationEncoded}</span>`;
             }
         }
 
@@ -370,7 +382,6 @@ const EventDetail = {
                         <span class="info-label">${t('js.event.detail.location')}:</span>
                         <div class="flex items-center gap-2 flex-wrap">
                             ${locationHtml}
-                            ${mapLinkHtml}
                         </div>
                     </div>
                     ${songsHtml}
@@ -528,6 +539,100 @@ const EventDetail = {
         this.currentEvent = null;
         this.eventType = null;
         this.eventId = null;
+    },
+
+    /**
+     * Initialize address click handlers for context menu
+     */
+    initializeAddressClickHandlers() {
+        const addressElements = document.querySelectorAll('.address-clickable');
+        addressElements.forEach(element => {
+            element.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const query = element.getAttribute('data-address-query');
+                if (query) {
+                    this.showMapContextMenu(e, query);
+                }
+            });
+        });
+    },
+
+    /**
+     * Show context menu for map selection
+     */
+    showMapContextMenu(event, query) {
+        // Remove any existing context menu
+        const existingMenu = document.getElementById('map-context-menu');
+        if (existingMenu) {
+            existingMenu.remove();
+        }
+
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+
+        // Create context menu
+        const menu = document.createElement('div');
+        menu.id = 'map-context-menu';
+        menu.className = 'map-context-menu';
+        menu.innerHTML = `
+            <div class="map-context-menu-item" data-map-type="google">
+                <i data-lucide="map-pin" class="h-4 w-4"></i>
+                <span>${t('js.event.detail.openInGoogleMaps')}</span>
+            </div>
+            <div class="map-context-menu-item" data-map-type="apple">
+                <i data-lucide="map-pin" class="h-4 w-4"></i>
+                <span>${t('js.event.detail.openInAppleMaps')}</span>
+            </div>
+        `;
+
+        document.body.appendChild(menu);
+
+        // Position menu near click
+        const rect = event.target.getBoundingClientRect();
+        menu.style.left = `${rect.left}px`;
+        menu.style.top = `${rect.bottom + 4}px`;
+
+        // Initialize Lucide icons in menu
+        if (typeof lucide !== 'undefined') {
+            setTimeout(() => lucide.createIcons(), 10);
+        }
+
+        // Handle menu item clicks
+        menu.querySelectorAll('.map-context-menu-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const mapType = item.getAttribute('data-map-type');
+                this.openInMaps(query, mapType);
+                menu.remove();
+            });
+        });
+
+        // Close menu on outside click
+        const closeMenu = (e) => {
+            if (!menu.contains(e.target) && !event.target.contains(e.target)) {
+                menu.remove();
+                document.removeEventListener('click', closeMenu);
+            }
+        };
+        setTimeout(() => {
+            document.addEventListener('click', closeMenu);
+        }, 0);
+    },
+
+    /**
+     * Open address in selected map service
+     */
+    openInMaps(query, mapType) {
+        let url;
+        if (mapType === 'google') {
+            url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+        } else if (mapType === 'apple') {
+            url = `https://maps.apple.com/?q=${encodeURIComponent(query)}`;
+        } else {
+            return;
+        }
+        window.open(url, '_blank', 'noopener,noreferrer');
     },
 
     /**

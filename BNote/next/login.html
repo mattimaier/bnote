@@ -176,13 +176,13 @@
                     window.location.href = 'dashboard.html';
                 } catch (error) {
                     // Show error message
-                    const errorMsg = error.message || (t('js.login.loginFailed') || 'Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.');
+                    const errorMsg = error.message || (t('js.login.loginFailed') || 'Login failed. Please check your credentials.');
                     errorMessage.textContent = errorMsg;
                     errorMessage.classList.remove('hidden');
                     
                     // Re-enable button
                     loginButton.disabled = false;
-                    loginButton.textContent = t('js.login.login') || 'Anmelden';
+                    loginButton.textContent = t('js.login.login') || 'Login';
                 }
             });
         })();

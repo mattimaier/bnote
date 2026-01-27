@@ -60,6 +60,8 @@
   "js.event.detail.notes": "Notizen",
   "js.event.detail.songsToPractice": "Stücke zum Üben",
   "js.event.detail.openInMaps": "In Google Maps öffnen",
+  "js.event.detail.openInGoogleMaps": "In Google Maps öffnen",
+  "js.event.detail.openInAppleMaps": "In Apple Maps öffnen",
   "js.event.detail.yourParticipation": "Deine Teilnahme",
   "js.event.detail.participationOverview": "Teilnahme-Übersicht",
   "js.event.detail.participants": "Teilnehmer",
