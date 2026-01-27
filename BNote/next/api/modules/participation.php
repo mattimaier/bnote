@@ -88,16 +88,19 @@ class ParticipationModule {
         
         // Get participation status
         $participation = null;
+        $eventBegin = null;
         if ($eventType === 'R') {
             $participation = $this->data->doesParticipateInRehearsal($eventId);
-            // Get rehearsal to check deadline
+            // Get rehearsal to check deadline and begin date
             $rehearsal = $this->data->getRehearsal($eventId);
             $deadline = $rehearsal['approve_until'] ?? null;
+            $eventBegin = $rehearsal['begin'] ?? null;
         } else {
             $participation = $this->data->doesParticipateInConcert($eventId, $userId);
-            // Get concert to check deadline
+            // Get concert to check deadline and begin date
             $concert = $this->data->getConcert($eventId);
             $deadline = $concert['approve_until'] ?? null;
+            $eventBegin = $concert['begin'] ?? null;
         }
         
         // Map participation integer to status string
@@ -112,6 +115,13 @@ class ParticipationModule {
             $deadlineTime = strtotime($deadline);
             $currentTime = time();
             $isLocked = $deadlineTime < $currentTime;
+        }
+        
+        // Also lock if event begin date is in the past
+        if (!$isLocked && $eventBegin && $eventBegin !== '-' && strlen(trim($eventBegin)) >= 10) {
+            $eventBeginTime = strtotime($eventBegin);
+            $currentTime = time();
+            $isLocked = $eventBeginTime < $currentTime;
         }
         
         return [
@@ -180,21 +190,34 @@ class ParticipationModule {
             Response::error('Access denied to this event', 403);
         }
         
-        // Check if deadline has passed (lock check)
+        // Check if deadline has passed or event is in the past (lock check)
         $deadline = null;
+        $eventBegin = null;
         if ($eventType === 'R') {
             $rehearsal = $this->data->getRehearsal($eventId);
             $deadline = $rehearsal['approve_until'] ?? null;
+            $eventBegin = $rehearsal['begin'] ?? null;
         } else {
             $concert = $this->data->getConcert($eventId);
             $deadline = $concert['approve_until'] ?? null;
+            $eventBegin = $concert['begin'] ?? null;
         }
         
+        // Check if deadline has passed
         if ($deadline && $deadline !== '-' && strlen(trim($deadline)) >= 10) {
             $deadlineTime = strtotime($deadline);
             $currentTime = time();
             if ($deadlineTime < $currentTime) {
                 Response::error('Participation deadline has passed', 403);
+            }
+        }
+        
+        // Check if event begin date is in the past
+        if ($eventBegin && $eventBegin !== '-' && strlen(trim($eventBegin)) >= 10) {
+            $eventBeginTime = strtotime($eventBegin);
+            $currentTime = time();
+            if ($eventBeginTime < $currentTime) {
+                Response::error('Event is in the past and cannot be changed', 403);
             }
         }
         
