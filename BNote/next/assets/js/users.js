@@ -13,6 +13,9 @@ const Users = {
     table: null,
     editingUserId: null,
     selectedUserId: null,
+    addUserForm: null,
+    editUserForm: null,
+    privilegesForm: null,
 
     /**
      * Initialize module
@@ -138,7 +141,6 @@ const Users = {
         ];
 
         // Create table instance
-        window.tableInstances['users-table-container'] = this;
         window.Users = this; // Make available globally for table actions
         this.table = new Table('users-table-container', {
             columns,
@@ -148,7 +150,7 @@ const Users = {
             searchable: true,
             searchInputContainer: 'users-search-container',
             onRowClick: (row) => {
-                this.showUserDetails(row.id);
+                this.showEditUserModal(row.id);
             },
             onEdit: (row) => {
                 this.showEditUserModal(row.id);
@@ -208,30 +210,7 @@ const Users = {
             });
         });
 
-        // Form submissions
-        const addForm = document.getElementById('add-user-form');
-        if (addForm) {
-            addForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleAddUser();
-            });
-        }
-
-        const editForm = document.getElementById('edit-user-form');
-        if (editForm) {
-            editForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleUpdateUser();
-            });
-        }
-
-        const privilegesForm = document.getElementById('privileges-form');
-        if (privilegesForm) {
-            privilegesForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleUpdatePrivileges();
-            });
-        }
+        // Forms are now handled by Form component, no need for manual event listeners
     },
 
     /**
@@ -241,12 +220,61 @@ const Users = {
         const modal = document.getElementById('add-user-modal');
         if (!modal) return;
 
-        // Reset form
-        const form = document.getElementById('add-user-form');
-        if (form) form.reset();
+        const formContainer = document.getElementById('add-user-form-container');
+        if (!formContainer) return;
 
-        // Populate contact dropdown
-        this.populateContactDropdown('add-user-contact', 0);
+        // Create or recreate form
+        if (this.addUserForm) {
+            // Reset form data
+            this.addUserForm.data = {};
+            this.addUserForm.errors = {};
+        }
+
+        this.addUserForm = new Form('add-user-form-container', {
+            title: '',
+            showTitle: false,
+            fields: [
+                {
+                    key: 'login',
+                    label: 'Login',
+                    type: 'text',
+                    required: true,
+                    placeholder: 'Enter username'
+                },
+                {
+                    key: 'password',
+                    label: 'Password',
+                    type: 'password',
+                    required: true,
+                    placeholder: 'Enter password'
+                },
+                {
+                    key: 'contact',
+                    label: 'Contact',
+                    type: 'select',
+                    required: false,
+                    emptyLabel: 'No contact',
+                    options: this.contacts.map(c => ({
+                        value: c.id,
+                        label: c.label
+                    }))
+                },
+                {
+                    key: 'isActive',
+                    label: 'Active',
+                    type: 'checkbox',
+                    value: true
+                }
+            ],
+            submitLabel: 'Create',
+            cancelLabel: 'Cancel',
+            onSubmit: async (data) => {
+                await this.handleAddUser(data);
+            },
+            onCancel: () => {
+                this.closeModal('add-user-modal');
+            }
+        });
 
         modal.classList.remove('hidden');
     },
@@ -258,19 +286,70 @@ const Users = {
         const modal = document.getElementById('edit-user-modal');
         if (!modal) return;
 
+        const formContainer = document.getElementById('edit-user-form-container');
+        if (!formContainer) return;
+
         try {
             const user = await UsersApi.get(userId);
             this.editingUserId = userId;
 
-            // Populate form
-            const form = document.getElementById('edit-user-form');
-            if (form) {
-                form.querySelector('[name="login"]').value = user.login || '';
-                form.querySelector('[name="isActive"]').checked = user.isActive;
-
-                // Populate contact dropdown
-                this.populateContactDropdown('edit-user-contact', user.contact || 0);
-            }
+            // Create or recreate form with user data
+            this.editUserForm = new Form('edit-user-form-container', {
+                title: '',
+                showTitle: false,
+                fields: [
+                    {
+                        key: 'login',
+                        label: 'Login',
+                        type: 'text',
+                        required: true,
+                        value: user.login || '',
+                        disabled: true,
+                        className: 'bg-muted cursor-not-allowed'
+                    },
+                    {
+                        key: 'password',
+                        label: 'New Password',
+                        type: 'password',
+                        required: false,
+                        placeholder: 'Leave empty to keep current password',
+                        help: 'Leave empty to keep current password',
+                        value: '' // Always start empty for edit form
+                    },
+                    {
+                        key: 'contact',
+                        label: 'Contact',
+                        type: 'select',
+                        required: false,
+                        emptyLabel: 'No contact',
+                        value: user.contact || '0',
+                        options: this.contacts.map(c => ({
+                            value: c.id,
+                            label: c.label
+                        }))
+                    },
+                    {
+                        key: 'isActive',
+                        label: 'Active',
+                        type: 'checkbox',
+                        value: user.isActive || false
+                    }
+                ],
+                data: {
+                    login: user.login || '',
+                    password: '',
+                    contact: user.contact || '0',
+                    isActive: user.isActive || false
+                },
+                submitLabel: 'Save',
+                cancelLabel: 'Cancel',
+                onSubmit: async (data) => {
+                    await this.handleUpdateUser(data);
+                },
+                onCancel: () => {
+                    this.closeModal('edit-user-modal');
+                }
+            });
 
             modal.classList.remove('hidden');
         } catch (error) {
@@ -343,20 +422,48 @@ const Users = {
         const modal = document.getElementById('privileges-modal');
         if (!modal) return;
 
+        const formContainer = document.getElementById('privileges-form-container');
+        if (!formContainer) return;
+
         try {
             const data = await UsersApi.getPrivileges(userId);
             this.editingUserId = userId;
 
-            // Populate modules list
-            const container = document.getElementById('privileges-list');
-            if (container) {
-                container.innerHTML = data.modules.map(module => `
-                    <label class="flex items-center gap-3 p-3 rounded-lg border border-border/40 hover:bg-muted/30 cursor-pointer">
-                        <input type="checkbox" name="module_${module.id}" value="${module.id}" ${module.hasAccess ? 'checked' : ''} class="rounded border-border">
-                        <span class="text-sm text-foreground">${this.escapeHtml(module.name)}</span>
-                    </label>
-                `).join('');
-            }
+            // Get selected module IDs
+            const selectedModules = data.modules
+                .filter(m => m.hasAccess)
+                .map(m => m.id.toString());
+
+            // Create form with privilege checkboxes
+            this.privilegesForm = new Form('privileges-form-container', {
+                title: '',
+                showTitle: false,
+                fields: [
+                {
+                    key: 'modules',
+                    label: 'Module Access',
+                    type: 'privilege-checkbox',
+                    required: false,
+                    options: data.modules.map(module => ({
+                        value: module.id.toString(),
+                        label: module.name,
+                        checked: module.hasAccess
+                    }))
+                }
+                ],
+                data: {
+                    modules: selectedModules
+                },
+                layout: 'vertical',
+                submitLabel: 'Save',
+                cancelLabel: 'Cancel',
+                onSubmit: async (formData) => {
+                    await this.handleUpdatePrivileges(formData);
+                },
+                onCancel: () => {
+                    this.closeModal('privileges-modal');
+                }
+            });
 
             modal.classList.remove('hidden');
         } catch (error) {
@@ -399,74 +506,51 @@ const Users = {
         }
     },
 
-    /**
-     * Populate contact dropdown
-     */
-    populateContactDropdown(selectId, selectedValue) {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-
-        select.innerHTML = '<option value="0">No contact</option>';
-        this.contacts.forEach(contact => {
-            const option = document.createElement('option');
-            option.value = contact.id;
-            option.textContent = contact.label;
-            if (contact.id == selectedValue) {
-                option.selected = true;
-            }
-            select.appendChild(option);
-        });
-    },
+    // Removed populateContactDropdown - now handled by Form component
 
     /**
      * Handle add user
      */
-    async handleAddUser() {
-        const form = document.getElementById('add-user-form');
-        if (!form) return;
-
-        const formData = new FormData(form);
-        const data = {
-            login: formData.get('login'),
-            password: formData.get('password'),
-            contact: formData.get('contact') || '0',
-            isActive: formData.get('isActive') === 'on'
-        };
-
+    async handleAddUser(data) {
         try {
-            await UsersApi.create(data);
+            const submitData = {
+                login: data.login,
+                password: data.password,
+                contact: data.contact || '0',
+                isActive: data.isActive || false
+            };
+
+            await UsersApi.create(submitData);
             this.showToast('User created successfully', 'success');
             this.closeModal('add-user-modal');
             await this.loadUsers();
         } catch (error) {
             console.error('Failed to create user:', error);
             this.showToast('Failed to create user: ' + error.message, 'error');
+            throw error; // Re-throw so form can handle it
         }
     },
 
     /**
      * Handle update user
      */
-    async handleUpdateUser() {
+    async handleUpdateUser(data) {
         if (!this.editingUserId) return;
 
-        const form = document.getElementById('edit-user-form');
-        if (!form) return;
-
-        const formData = new FormData(form);
-        const data = {
-            contact: formData.get('contact') || '0',
-            isActive: formData.get('isActive') === 'on'
-        };
-
-        // Only include password if provided
-        const password = formData.get('password');
-        if (password) {
-            data.password = password;
-        }
-
         try {
-            await UsersApi.update(this.editingUserId, data);
+            const submitData = {
+                contact: data.contact || '0',
+                isActive: data.isActive || false
+            };
+
+            // Only include password if provided and not empty
+            // Empty string means "keep current password"
+            if (data.password !== undefined && data.password !== null && data.password.trim() !== '') {
+                submitData.password = data.password.trim();
+            }
+            // If password is empty/undefined, don't include it in the request at all
+
+            await UsersApi.update(this.editingUserId, submitData);
             this.showToast('User updated successfully', 'success');
             this.closeModal('edit-user-modal');
             this.editingUserId = null;
@@ -474,6 +558,7 @@ const Users = {
         } catch (error) {
             console.error('Failed to update user:', error);
             this.showToast('Failed to update user: ' + error.message, 'error');
+            throw error; // Re-throw so form can handle it
         }
     },
 
@@ -512,23 +597,14 @@ const Users = {
     /**
      * Handle update privileges
      */
-    async handleUpdatePrivileges() {
+    async handleUpdatePrivileges(formData) {
         if (!this.editingUserId) return;
 
-        const form = document.getElementById('privileges-form');
-        if (!form) return;
-
-        const formData = new FormData(form);
-        const privileges = [];
-
-        // Get all checked module IDs
-        formData.forEach((value, key) => {
-            if (key.startsWith('module_')) {
-                privileges.push(parseInt(value));
-            }
-        });
-
         try {
+            // Get selected module IDs from form data
+            const selectedModules = formData.modules || [];
+            const privileges = selectedModules.map(id => parseInt(id));
+
             await UsersApi.updatePrivileges(this.editingUserId, privileges);
             this.showToast('Privileges updated successfully', 'success');
             this.closeModal('privileges-modal');
@@ -536,6 +612,7 @@ const Users = {
         } catch (error) {
             console.error('Failed to update privileges:', error);
             this.showToast('Failed to update privileges: ' + error.message, 'error');
+            throw error; // Re-throw so form can handle it
         }
     },
 

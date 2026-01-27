@@ -11,6 +11,12 @@ class Table {
             return;
         }
         
+        // Store instance globally for event handlers
+        if (!window.tableInstances) {
+            window.tableInstances = {};
+        }
+        window.tableInstances[containerId] = this;
+        
         // Configuration
         this.columns = options.columns || [];
         this.data = options.data || [];
@@ -97,6 +103,9 @@ class Table {
             html += this.renderRow(row, rowIndex);
         });
         
+        // Store reference for row click handlers
+        this._sortedData = sortedData;
+        
         html += '</tbody>';
         html += '</table>';
         html += '</div>';
@@ -120,6 +129,31 @@ class Table {
                 }
             }
         });
+        
+        // Attach row click listeners (use event listeners instead of onclick)
+        if (this.onRowClick) {
+            const rows = this.container.querySelectorAll('tbody tr[data-row-id]');
+            rows.forEach(row => {
+                // Remove any existing onclick attributes
+                row.removeAttribute('onclick');
+                
+                const rowId = row.getAttribute('data-row-id');
+                row.addEventListener('click', (e) => {
+                    // Don't trigger if clicking on action button or editable cell
+                    if (e.target.closest('[data-actions-btn]') || 
+                        e.target.closest('[data-editable]') ||
+                        e.target.closest('button') ||
+                        e.target.closest('input') ||
+                        e.target.closest('select') ||
+                        e.target.closest('td[onclick]')) {
+                        return;
+                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.handleRowClick(parseInt(rowId));
+                });
+            });
+        }
         
         // Attach action menu button listeners
         if (this.onEdit || this.onDelete || this.onAction) {
@@ -145,7 +179,7 @@ class Table {
         let html = `<tr class="border-b border-border/20 hover:bg-muted/30 transition-colors" data-row-id="${rowId}"`;
         
         if (this.onRowClick) {
-            html += ` onclick="window.tableInstances['${this.containerId}'].handleRowClick(${rowId})" style="cursor: pointer;"`;
+            html += ` style="cursor: pointer;"`;
         }
         html += '>';
         
@@ -173,7 +207,7 @@ class Table {
         
         // Actions cell - 3-dots menu
         if (this.onEdit || this.onDelete || this.onAction) {
-            html += `<td class="px-4 py-3 text-sm">`;
+            html += `<td class="px-4 py-3 text-sm" onclick="event.stopPropagation();">`;
             html += `<div class="relative" data-actions-cell="${rowId}">`;
             html += `<button data-actions-btn="${rowId}" class="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted/50" title="Actions">`;
             html += '<i data-lucide="more-vertical" class="h-4 w-4"></i>';
@@ -420,7 +454,11 @@ class Table {
      */
     handleRowClick(rowId) {
         if (this.onRowClick) {
-            const row = this.data.find(r => (r.id || r) === rowId);
+            // Try to find row in sorted data first, then fall back to original data
+            const row = (this._sortedData || this.data).find(r => {
+                const rId = r.id !== undefined ? r.id : r;
+                return rId == rowId;
+            });
             if (row) {
                 this.onRowClick(row);
             }

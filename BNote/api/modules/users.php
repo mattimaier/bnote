@@ -215,9 +215,15 @@ class UsersModule {
         $_POST = [];
         $_GET['id'] = $id;
         
-        if (isset($data['password']) && !empty($data['password'])) {
-            $_POST['password'] = $data['password'];
+        // Only include password if it's provided and not empty
+        // Empty password means "keep current password" - don't validate or update it
+        if (isset($data['password']) && $data['password'] !== '' && $data['password'] !== null) {
+            $password = trim($data['password']);
+            if ($password !== '') {
+                $_POST['password'] = $password;
+            }
         }
+        // If password is not set or is empty, don't include it in $_POST at all
         
         if (isset($data['contact'])) {
             $_POST['contact'] = $data['contact'] == 0 ? '0' : $data['contact'];
