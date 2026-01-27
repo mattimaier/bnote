@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts - BNote</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* CSS Custom Properties from dashboard.html */
+        :root {
+            --background: oklch(0.99 0.001 250);
+            --foreground: oklch(0.18 0.01 250);
+            --card: oklch(1 0 0);
+            --card-foreground: oklch(0.18 0.01 250);
+            --primary: oklch(0.50 0.18 240);
+            --primary-foreground: oklch(1 0 0);
+            --secondary: oklch(0.97 0.002 250);
+            --muted: oklch(0.96 0.002 250);
+            --muted-foreground: oklch(0.50 0.01 250);
+            --accent: oklch(0.68 0.20 80);
+            --accent-foreground: oklch(1 0 0);
+            --destructive: oklch(0.58 0.22 20);
+            --destructive-foreground: oklch(1 0 0);
+            --border: oklch(0.93 0.002 250);
+            --input: oklch(0.95 0.002 250);
+            --ring: oklch(0.50 0.18 240);
+            --chart-3: oklch(0.62 0.18 150);
+            --sidebar: oklch(0.995 0.001 250);
+            --sidebar-foreground: oklch(0.18 0.01 250);
+            --sidebar-accent: oklch(0.96 0.002 250);
+            --sidebar-border: oklch(0.92 0.002 250);
+            --spacing: 0.25rem;
+            --text-xs: 0.75rem;
+            --font-weight-medium: 500;
+            --radius: 0.875rem;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+        }
+
+        /* Badge/Ribbon styling matching the design */
+        .event-badge {
+            display: inline-flex;
+            width: fit-content;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            gap: calc(var(--spacing, 0.25rem) * 1);
+            overflow: hidden;
+            border-radius: calc(var(--radius, 0.875rem) - 2px);
+            border-style: solid;
+            border-width: 1px;
+            border-color: color-mix(in oklab, var(--primary) 20%, transparent);
+            background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+            padding-inline: calc(var(--spacing, 0.25rem) * 2);
+            padding-block: calc(var(--spacing, 0.25rem) * 0.5);
+            font-size: var(--text-xs, 0.75rem);
+            line-height: calc(1 / 0.75);
+            font-weight: var(--font-weight-medium, 500);
+            white-space: nowrap;
+            color: var(--primary);
+            transition-property: color, box-shadow;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        .event-badge.accent {
+            border-color: color-mix(in oklab, var(--accent) 20%, transparent);
+            background-color: color-mix(in oklab, var(--accent) 10%, transparent);
+            color: var(--accent);
+        }
+
+        .event-badge.chart-3 {
+            border-color: color-mix(in oklab, var(--chart-3) 20%, transparent);
+            background-color: color-mix(in oklab, var(--chart-3) 10%, transparent);
+            color: var(--chart-3);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: 'var(--background)',
+                        foreground: 'var(--foreground)',
+                        card: 'var(--card)',
+                        primary: 'var(--primary)',
+                        muted: 'var(--muted)',
+                        'muted-foreground': 'var(--muted-foreground)',
+                        accent: 'var(--accent)',
+                        destructive: 'var(--destructive)',
+                        border: 'var(--border)',
+                        sidebar: 'var(--sidebar)',
+                        'sidebar-foreground': 'var(--sidebar-foreground)',
+                        'sidebar-accent': 'var(--sidebar-accent)',
+                        'sidebar-border': 'var(--sidebar-border)',
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="min-h-screen bg-background flex flex-col lg:flex-row">
+    <!-- Left module sidebar - Always visible on desktop, toggleable on mobile -->
+    <aside id="sidebar"
+        class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 fixed inset-y-0 left-0 z-[60] w-64 xl:translate-x-0 -translate-x-full">
+        <!-- Header with brand -->
+        <div id="sidebar-header" class="flex items-center justify-between px-4 py-5 border-b border-sidebar-border/50">
+            <div id="sidebar-brand" class="flex items-center gap-3">
+                <div
+                    class="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                    <i data-lucide="music" class="h-5 w-5 text-primary"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
+                </div>
+            </div>
+            <button id="sidebar-collapse-btn"
+                class="h-8 w-8 p-0 hover:bg-sidebar-accent/80 text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors rounded-md flex items-center justify-center"
+                title="Collapse sidebar">
+                <i data-lucide="chevron-left" class="h-4 w-4"></i>
+            </button>
+        </div>
+
+        <!-- Modules list -->
+        <nav class="flex-1 overflow-y-auto p-3 space-y-1.5" id="sidebar-nav">
+            <!-- Sidebar items will be populated by sidebar.js -->
+        </nav>
+    </aside>
+
+    <!-- Overlay for mobile/tablet when sidebar is open -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 xl:hidden z-30 hidden"></div>
+
+    <!-- Main content area -->
+    <div class="flex-1 flex flex-col min-w-0 xl:ml-64">
+        <!-- Top Header Bar -->
+        <header
+            class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div class="flex h-16 items-center justify-between px-4 lg:px-6 gap-4">
+                <!-- Menu button - visible on mobile and tablet (compact devices) -->
+                <button id="mobile-menu-btn"
+                    class="xl:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
+                    title="Toggle menu">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
+                </button>
+
+                <!-- Left: Search - hidden on mobile -->
+                <div class="hidden md:flex flex-1 max-w-sm">
+                    <div class="relative w-full">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
+                        <input type="text" placeholder="Search contacts..."
+                            class="pl-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
+                    </div>
+                </div>
+
+                <!-- Right side actions -->
+                <div class="flex items-center gap-2 ml-auto">
+                    <div class="h-6 w-px bg-border/30 hidden sm:block"></div>
+                    <button
+                        class="flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors group"
+                        onclick="Auth.logout()">
+                        <div class="h-8 w-8 rounded-full bg-primary/10 text-primary font-semibold text-xs flex items-center justify-center ring-1.5 ring-primary/20 group-hover:ring-primary/40 transition-all"
+                            id="user-avatar">
+                            <span id="user-initials">U</span>
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <p class="text-xs font-semibold leading-tight text-foreground" id="user-name">User</p>
+                            <span
+                                class="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] mt-0.5 bg-muted text-muted-foreground border-border"
+                                id="user-role">Member</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="px-4 py-6 lg:px-6 flex-1 overflow-y-auto">
+            <div class="mx-auto max-w-7xl">
+                <!-- Page title -->
+                <div class="mb-6">
+                    <h1 class="text-2xl font-semibold text-foreground">Contacts</h1>
+                    <p class="text-sm text-muted-foreground mt-1">Manage contacts, groups, and integrations</p>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <button id="add-contact-btn"
+                            class="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium shadow-sm hover:shadow">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                            <span>Add Contact</span>
+                        </button>
+                        <button id="integration-btn"
+                            class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                            <i data-lucide="box-arrow-in-up-right" class="h-4 w-4"></i>
+                            <span>Integration</span>
+                        </button>
+                        <button id="groups-btn"
+                            class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                            <i data-lucide="people" class="h-4 w-4"></i>
+                            <span>Groups</span>
+                        </button>
+                        <button id="print-btn"
+                            class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                            <i data-lucide="printer" class="h-4 w-4"></i>
+                            <span>Print</span>
+                        </button>
+                        <button id="vcard-btn"
+                            class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                            <i data-lucide="file-text" class="h-4 w-4"></i>
+                            <span>vCard</span>
+                        </button>
+                        <button id="privacy-btn"
+                            class="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                            <i data-lucide="shield-alert" class="h-4 w-4"></i>
+                            <span>Privacy</span>
+                        </button>
+                    </div>
+                    <button id="back-to-list-btn" class="hidden flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                        <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                        <span>Back to List</span>
+                    </button>
+                </div>
+
+                <!-- List Mode -->
+                <div id="list-mode">
+                    <!-- Group tabs -->
+                    <div id="group-tabs-container" class="mb-4"></div>
+
+                    <!-- Search input -->
+                    <div id="contacts-search-container" class="mb-4"></div>
+
+                    <!-- Contacts table -->
+                    <div class="bg-card rounded-xl border border-border/40 shadow-sm">
+                        <div class="p-6">
+                            <div id="contacts-table-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integration Mode -->
+                <div id="integration-mode" class="hidden">
+                    <div class="bg-card rounded-xl border border-border/40 shadow-sm p-6">
+                        <h2 class="text-xl font-semibold mb-4">Integration</h2>
+                        <p class="text-muted-foreground">Integration mode - coming soon</p>
+                    </div>
+                </div>
+
+                <!-- Groups Management Mode -->
+                <div id="groups-mode" class="hidden">
+                    <div class="bg-card rounded-xl border border-border/40 shadow-sm">
+                        <div class="p-6">
+                            <div id="groups-table-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Print Mode -->
+                <div id="print-mode" class="hidden">
+                    <div class="bg-card rounded-xl border border-border/40 shadow-sm p-6">
+                        <h2 class="text-xl font-semibold mb-4">Print</h2>
+                        <p class="text-muted-foreground">Print mode - coming soon</p>
+                    </div>
+                </div>
+
+                <!-- vCard Mode -->
+                <div id="vcard-mode" class="hidden">
+                    <div class="bg-card rounded-xl border border-border/40 shadow-sm p-6">
+                        <h2 class="text-xl font-semibold mb-4">vCard Import/Export</h2>
+                        <p class="text-muted-foreground">vCard mode - coming soon</p>
+                    </div>
+                </div>
+
+                <!-- Privacy/GDPR Mode -->
+                <div id="privacy-mode" class="hidden">
+                    <div class="bg-card rounded-xl border border-border/40 shadow-sm">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-xl font-semibold">GDPR Status</h2>
+                                <div class="flex gap-2">
+                                    <button id="generate-gdpr-codes-btn"
+                                        class="px-4 py-2 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                                        Generate Codes
+                                    </button>
+                                    <button id="send-gdpr-mail-btn"
+                                        class="px-4 py-2 border border-border rounded-lg hover:bg-muted/50 transition-colors text-foreground text-sm font-medium">
+                                        Send Mail
+                                    </button>
+                                    <button id="delete-gdpr-nok-btn"
+                                        class="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors text-sm font-medium">
+                                        Delete Non-Consenting
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="gdpr-table-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loading-indicator" class="hidden fixed inset-0 bg-black/20 z-50 flex items-center justify-center">
+        <div class="bg-card rounded-lg p-6 shadow-xl">
+            <div class="flex items-center gap-3">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                <span class="text-foreground">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Contact Modal -->
+    <div id="add-contact-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-card-foreground">Add Contact</h3>
+                <button data-modal-close="add-contact-modal" class="text-muted-foreground hover:text-foreground">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <div id="add-contact-form-container"></div>
+        </div>
+    </div>
+
+    <!-- Edit Contact Modal -->
+    <div id="edit-contact-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-card-foreground">Edit Contact</h3>
+                <button data-modal-close="edit-contact-modal" class="text-muted-foreground hover:text-foreground">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <div id="edit-contact-form-container"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/table.js"></script>
+    <script src="assets/js/form.js"></script>
+    <script src="assets/js/badge.js"></script>
+    <script src="assets/js/contacts.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Check authentication
+            try {
+                const session = await AuthApi.checkSession();
+                if (!session || !session.authenticated) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Initialize sidebar
+                Sidebar.init(session);
+
+                // Initialize contacts module
+                await Contacts.init(session);
+            } catch (error) {
+                console.error('Initialization error:', error);
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

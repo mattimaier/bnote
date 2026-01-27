@@ -175,3 +175,80 @@ const UsersApi = {
     getLongInactiveUsers: () => api.get('users', 'getLongInactiveUsers'),
     deleteUsersFull: (userIds) => api.post('users', 'deleteUsersFull', { userIds })
 };
+
+const ContactsApi = {
+    // Contact CRUD
+    list: (groupId = null) => {
+        const params = groupId ? { group: groupId } : {};
+        return api.get('contacts', 'list', params);
+    },
+    get: (id) => api.get('contacts', 'get', { id }),
+    create: (data) => api.post('contacts', 'create', data),
+    update: (id, data) => api.post('contacts', 'update', { id, ...data }),
+    delete: (id) => api.post('contacts', 'delete', { id }),
+    
+    // Groups
+    getGroups: () => api.get('contacts', 'getGroups'),
+    getGroupContacts: (groupId) => api.get('contacts', 'getGroupContacts', { group: groupId }),
+    
+    // Integration
+    getMembers: (groupId = null) => {
+        const params = groupId ? { group: groupId } : {};
+        return api.get('contacts', 'getMembers', params);
+    },
+    getRehearsals: () => api.get('contacts', 'getRehearsals'),
+    getPhases: () => api.get('contacts', 'getPhases'),
+    getConcerts: () => api.get('contacts', 'getConcerts'),
+    getVotes: () => api.get('contacts', 'getVotes'),
+    integrate: (data) => api.post('contacts', 'integrate', data),
+    
+    // Groups management
+    listGroups: () => api.get('contacts', 'listGroups'),
+    getGroup: (id) => api.get('contacts', 'getGroup', { id }),
+    createGroup: (data) => api.post('contacts', 'createGroup', data),
+    updateGroup: (id, data) => api.post('contacts', 'updateGroup', { id, ...data }),
+    deleteGroup: (id) => api.post('contacts', 'deleteGroup', { id }),
+    getGroupMembers: (id) => api.get('contacts', 'getGroupMembers', { id }),
+    
+    // Printing
+    getPrintData: (data) => api.post('contacts', 'getPrintData', data),
+    
+    // VCard
+    importVCard: (formData) => {
+        // For file uploads, we need to use FormData
+        const url = new URL(api.baseUrl, window.location.origin);
+        url.searchParams.set('module', 'contacts');
+        url.searchParams.set('action', 'importVCard');
+        
+        return fetch(url, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        }).then(async (response) => {
+            if (!response.ok) {
+                const text = await response.text();
+                let errorData;
+                try {
+                    errorData = JSON.parse(text);
+                } catch (e) {
+                    errorData = { error: text };
+                }
+                const error = new Error(errorData.error || `API request failed: ${response.status}`);
+                error.status = response.status;
+                error.code = errorData.code || response.status;
+                throw error;
+            }
+            const result = await response.json();
+            if (!result.success) {
+                throw new Error(result.error || 'Request failed');
+            }
+            return result.data;
+        });
+    },
+    
+    // GDPR
+    getGdprStatus: (ok = 2) => api.get('contacts', 'getGdprStatus', { ok }),
+    generateGdprCodes: () => api.post('contacts', 'generateGdprCodes'),
+    sendGdprMail: () => api.post('contacts', 'sendGdprMail'),
+    deleteGdprNok: (contactIds) => api.post('contacts', 'deleteGdprNok', { contactIds })
+};

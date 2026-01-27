@@ -45,6 +45,7 @@ This is BNote - an open source ensemble management system for bands, orchestras,
 - **CRITICAL: Do NOT reformat existing PHP code** - preserve exact whitespace, line endings, and formatting to avoid unnecessary diffs
 - Only modify code that you're intentionally changing - don't auto-format entire files
 - When editing, only change the specific lines you need to modify
+- - **CRITICAL:** DO NOT TOUCH ANY CODE IN /presentation etc
 
 ### 6. Browser Compatibility
 - Target modern browsers (last 2 versions)
@@ -84,50 +85,6 @@ class Form {
     <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
     <button class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
 </form>
-```
-
-**Tables:**
-
-```html
-<table class="min-w-full divide-y divide-gray-200">
-    <thead class="bg-gray-50">
-        <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-    <tbody class="bg-white divide-y divide-gray-200">
-        <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-```
-
-**Cards/Boxes:**
-
-```html
-<div class="bg-white rounded-lg shadow-md p-6 space-y-4">
-    <h3 class="text-xl font-semibold text-gray-900">
-    <p class="text-gray-600">
-</div>
-```
-
-**Buttons:**
-
-```html
-<!-- Primary -->
-<button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-
-<!-- Secondary -->
-<button class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium">
-
-<!-- Danger -->
-<button class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
-```
-
-**Responsive Layouts:**
-
-```html
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    ```
-    <div class="col-span-1">...</div>
-    ```
-</div>
 ```
 
 
@@ -231,3 +188,4 @@ class LoginView {
 - AJAX/async features come in Phase 2
 
 ```
+

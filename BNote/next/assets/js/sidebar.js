@@ -29,6 +29,7 @@ const Sidebar = {
     detectCurrentPage() {
         const path = window.location.pathname;
         if (path.includes('users.html')) return 'users';
+        if (path.includes('contacts.html')) return 'contacts';
         if (path.includes('dashboard.html')) return 'dashboard';
         return 'dashboard'; // Default
     },
@@ -222,21 +223,34 @@ const Sidebar = {
      * Check user permissions and show/hide menu items
      */
     async checkUserPermissions() {
+        // Check User Management permission
         try {
-            // Check if user has access to User Management module
             await UsersApi.list();
-            // If successful, show the menu item
             const usersMenuItem = document.getElementById('users-menu-item');
             if (usersMenuItem) {
                 usersMenuItem.classList.remove('hidden');
             }
         } catch (error) {
-            // If 403 or access denied, hide the menu item
-            // Silently fail - user just doesn't have access
             if (error.status === 403 || error.code === 403 || error.message.includes('403') || error.message.includes('Access denied')) {
                 const usersMenuItem = document.getElementById('users-menu-item');
                 if (usersMenuItem) {
                     usersMenuItem.classList.add('hidden');
+                }
+            }
+        }
+
+        // Check Contacts permission
+        try {
+            await ContactsApi.list();
+            const contactsMenuItem = document.getElementById('contacts-menu-item');
+            if (contactsMenuItem) {
+                contactsMenuItem.classList.remove('hidden');
+            }
+        } catch (error) {
+            if (error.status === 403 || error.code === 403 || error.message.includes('403') || error.message.includes('Access denied')) {
+                const contactsMenuItem = document.getElementById('contacts-menu-item');
+                if (contactsMenuItem) {
+                    contactsMenuItem.classList.add('hidden');
                 }
             }
         }
