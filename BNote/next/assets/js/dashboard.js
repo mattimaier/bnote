@@ -68,19 +68,7 @@ const Dashboard = {
         const lastName = user.surname || '';
         const fullName = `${firstName} ${lastName}`.trim();
 
-        // Set user name
-        const userNameEl = document.getElementById('user-name');
-        if (userNameEl) {
-            userNameEl.textContent = firstName;
-        }
-
-        // Set user initials
-        const initialsEl = document.getElementById('user-initials');
-        if (initialsEl) {
-            const initials = (firstName[0] || '') + (lastName[0] || '');
-            const initialsFallback = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.common.user') : 'User').trim()[0] || 'U';
-        initialsEl.textContent = initials || initialsFallback;
-        }
+        // User name and initials in header are set by UserInfo.init(); do not overwrite here.
 
         // Set greeting - will be updated by translatePage() if translations are loaded
         const greetingEl = document.getElementById('welcome-greeting');
@@ -798,6 +786,9 @@ const Dashboard = {
             const eventTitleFallback = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.event.event') : 'Event';
             const location = event.location || event.locationData?.name || this.extractLocationFromTitle(event.title) || tbaText;
             const isLast = index === eventsList.length - 1;
+            // Don't duplicate type label: if title equals type (e.g. "Probe"), show badge only
+            const title = event.title || eventTitleFallback;
+            const hideTitleWhenDuplicate = title === typeConfig.label;
 
             // Generate participation widget HTML if needed
             // Only show widget if we have valid event ID and type (R or C for rehearsals/concerts)
@@ -830,7 +821,7 @@ const Dashboard = {
                                         <p class="text-sm font-bold text-foreground leading-tight">${dateStr}</p>
                                     </div>
                                     <div class="flex items-center gap-1.5 mb-1 flex-wrap">
-                                        <h3 class="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(event.title || eventTitleFallback)}</h3>
+                                        ${!hideTitleWhenDuplicate ? `<h3 class="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(title)}</h3>` : ''}
                                         <span class="${typeConfig.badgeClass} text-[10px]">
                                             ${typeConfig.label}
                                         </span>
@@ -867,7 +858,7 @@ const Dashboard = {
                                     <p class="text-base font-bold text-foreground leading-tight">${dateStr}</p>
                                 </div>
                                 <div class="flex items-center gap-2 mb-1.5">
-                                    <h3 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(event.title || eventTitleFallback)}</h3>
+                                    ${!hideTitleWhenDuplicate ? `<h3 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(title)}</h3>` : ''}
                                     <span class="${typeConfig.badgeClass}">
                                         ${typeConfig.label}
                                     </span>

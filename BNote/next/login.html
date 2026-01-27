@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - BNote</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-background min-h-screen flex items-center justify-center">
     <div class="max-w-md w-full mx-4">
         <div class="bg-card shadow-lg rounded-lg p-8">
             <div class="text-center mb-8">
-                <img src="style/images/BNote_Logo_white_transparent.svg" alt="BNote" class="h-16 w-16 mx-auto mb-4" style="filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%);" />
+                <img src="../style/images/BNote_Logo_white_transparent.svg" alt="BNote" class="h-16 w-16 mx-auto mb-4" style="filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%);" />
                 <h1 class="text-2xl font-bold text-foreground mb-2" data-i18n="js.common.appName">BNote</h1>
-                <p class="text-muted-foreground" id="login-welcome-text" data-i18n="js.dashboard.subtitle">Welcome to %p</p>
+                <p class="text-muted-foreground" id="login-welcome-text">Welcome to %p</p>
             </div>
             
             <form id="loginForm" class="space-y-6">
@@ -75,24 +75,30 @@
             
             // Load public config (company name, lang, country) and initialize i18n
             try {
-                const config = await (typeof api !== 'undefined' ? api.get('auth', 'getPublicConfig') : fetch('/next/api/index.php?module=auth&action=getPublicConfig').then(r => r.json()));
-                if (config && typeof i18n !== 'undefined') {
+                let raw = null;
+                if (typeof api !== 'undefined' && api.get) {
+                    raw = await api.get('auth', 'getPublicConfig');
+                } else {
+                    const base = window.location.pathname.replace(/\/[^/]*$/, '');
+                    const res = await fetch(base + '/api/index.php?module=auth&action=getPublicConfig');
+                    const json = await res.json();
+                    raw = json && json.data != null ? json.data : json;
+                }
+                const config = raw && typeof raw === 'object' ? raw : {};
+                if (typeof i18n !== 'undefined') {
                     await i18n.init(config.lang || 'de', config.country || null);
                     await i18n.loadTranslations();
-                    
-                    // Update welcome text with company name
-                    const welcomeEl = document.getElementById('login-welcome-text');
-                    if (welcomeEl && config.company) {
-                        const welcomeKey = welcomeEl.getAttribute('data-i18n');
-                        if (welcomeKey && i18n.translations[welcomeKey]) {
-                            const welcomeText = i18n.t(welcomeKey, [config.company]);
-                            welcomeEl.textContent = welcomeText;
-                        }
-                    }
-                    
-                    // Translate page
                     if (typeof i18n.translatePage === 'function') {
                         i18n.translatePage();
+                    }
+                    // Welcome text: "Welcome to {band/company name}"
+                    const welcomeEl = document.getElementById('login-welcome-text');
+                    if (welcomeEl) {
+                        const company = config.company || '';
+                        const welcomeText = (typeof i18n.t === 'function')
+                            ? i18n.t('js.dashboard.subtitle', [company])
+                            : ('Welcome to ' + company);
+                        welcomeEl.textContent = welcomeText || 'Welcome to';
                     }
                 }
             } catch (error) {

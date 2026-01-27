@@ -26,9 +26,8 @@
                     <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
                 </div>
             </div>
-            <button id="sidebar-collapse-btn"
-                class="h-8 w-8 p-0 hover:bg-sidebar-accent/80 text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors rounded-md flex items-center justify-center"
-                title="Collapse sidebar">
+            <button id="sidebar-collapse-btn" class="hidden h-8 w-8 p-0 hover:bg-sidebar-accent/80 text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors rounded-md flex items-center justify-center"
+                title="Collapse sidebar" aria-hidden="true">
                 <i data-lucide="chevron-left" class="h-4 w-4"></i>
             </button>
         </div>
@@ -66,20 +65,16 @@
                 </div>
 
                 <!-- Right side actions -->
-                <div class="flex items-center gap-2 ml-auto">
+                <div id="user-info-container" class="flex items-center gap-2 ml-auto">
                     <div class="h-6 w-px bg-border/30 hidden sm:block"></div>
                     <button
-                        class="flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors group"
+                        class="user-info-btn flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors group"
                         onclick="Auth.logout()">
-                        <div class="h-8 w-8 rounded-full bg-primary/10 text-primary font-semibold text-xs flex items-center justify-center ring-1.5 ring-primary/20 group-hover:ring-primary/40 transition-all"
-                            id="user-avatar">
+                        <div id="user-avatar" class="user-info-initials h-8 w-8 rounded-full border-2 border-primary/20 bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center shrink-0">
                             <span id="user-initials">U</span>
                         </div>
                         <div class="hidden sm:block text-left">
                             <p class="text-xs font-semibold leading-tight text-foreground" id="user-name">User</p>
-                            <span
-                                class="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] mt-0.5 bg-muted text-muted-foreground border-border"
-                                id="user-role" data-i18n="js.common.member">Member</span>
                         </div>
                     </button>
                 </div>
