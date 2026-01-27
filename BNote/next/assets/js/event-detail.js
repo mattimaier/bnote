@@ -71,8 +71,8 @@ const EventDetail = {
         }
         } catch (error) {
             console.error('Failed to load event detail:', error);
-            const msg = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.eventDetailLoadFailed') : 'Failed to load event details.');
-            this.showError(error.message || msg);
+            // showError will handle translation mapping
+            this.showError(error.message || 'Failed to load event details.');
         }
     },
 
@@ -87,7 +87,8 @@ const EventDetail = {
         } else if (this.eventType === 'C') {
             eventData = await ConcertsApi.get(this.eventId);
         } else {
-            throw new Error('Invalid event type');
+            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+            throw new Error(t('js.error.invalidEventType'));
         }
 
         this.currentEvent = eventData;
@@ -680,16 +681,54 @@ const EventDetail = {
     },
 
     /**
+     * Map API error messages to translation keys
+     * @param {string} errorMessage - API error message
+     * @returns {string} Translation key or original message
+     */
+    mapErrorToTranslation(errorMessage) {
+        if (!errorMessage || typeof errorMessage !== 'string') {
+            return 'js.error.eventDetailLoadFailed';
+        }
+        
+        const lowerMessage = errorMessage.toLowerCase();
+        
+        // Map common API error messages to translation keys
+        if (lowerMessage.includes('invalid') && (lowerMessage.includes('concert id') || lowerMessage.includes('rehearsal id') || lowerMessage.includes('event id'))) {
+            return 'js.error.invalidEventId';
+        }
+        if (lowerMessage.includes('invalid') && lowerMessage.includes('event type')) {
+            return 'js.error.invalidEventType';
+        }
+        if (lowerMessage.includes('not found') && (lowerMessage.includes('concert') || lowerMessage.includes('rehearsal') || lowerMessage.includes('event'))) {
+            return 'js.error.eventNotFound';
+        }
+        if (lowerMessage.includes('access denied') || lowerMessage.includes('forbidden')) {
+            return 'js.error.eventAccessDenied';
+        }
+        
+        // Default fallback
+        return 'js.error.eventDetailLoadFailed';
+    },
+
+    /**
      * Show error state
      */
     showError(message) {
         const container = document.getElementById('event-detail-content');
         if (container) {
-            const errLabel = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.common.error') : 'Error');
+            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+            const errLabel = t('js.common.error');
+            
+            // Try to map API error message to translation key
+            const translationKey = this.mapErrorToTranslation(message);
+            const translatedMessage = translationKey.startsWith('js.error.') 
+                ? t(translationKey) 
+                : this.escapeHtml(message);
+            
             container.innerHTML = `
                 <div class="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-destructive">
                     <p class="font-semibold">${this.escapeHtml(errLabel)}</p>
-                    <p class="text-sm mt-1">${this.escapeHtml(message)}</p>
+                    <p class="text-sm mt-1">${translatedMessage}</p>
                 </div>
             `;
         }

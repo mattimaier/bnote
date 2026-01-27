@@ -249,25 +249,21 @@ class RehearsalsModule {
     
     /**
      * Check if user has access to a rehearsal
-     * Uses the same logic as dashboard
+     * Allows access to both past and future rehearsals
      */
     private function userHasAccessToRehearsal($rehearsalId, $userId) {
         global $system_data;
         
         $rehearsalId = intval($rehearsalId);
         
-        // Super users see all
+        // Super users see all rehearsals (past and future)
         if ($system_data->isUserSuperUser($userId)) {
-            $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
-            for ($i = 1; $i < count($allRehearsals); $i++) {
-                if (intval($allRehearsals[$i]['id']) == $rehearsalId) {
-                    return true;
-                }
-            }
-            return false;
+            // Check if rehearsal exists (regardless of date)
+            $rehearsal = $this->data->findByIdNoRef($rehearsalId);
+            return $rehearsal !== null && count($rehearsal) > 0;
         }
         
-        // Get rehearsals from groups and phases
+        // Get rehearsals from groups and phases (includes past and future)
         try {
             $startData = new StartData();
             $usersPhases = $startData->adp()->getUsersPhases($userId);

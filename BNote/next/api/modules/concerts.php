@@ -323,14 +323,35 @@ class ConcertsModule {
         
         $concertId = intval($concertId);
         
-        // Get all future concerts (same as dashboard)
+        // Super users see all concerts (past and future)
+        if ($system_data->isUserSuperUser($userId)) {
+            // Check if concert exists (regardless of date)
+            $concert = $this->data->findByIdNoRef($concertId);
+            return $concert !== null && count($concert) > 0;
+        }
+        
+        // Check if user has access to this concert (past or future)
+        // Check if user's contact is associated with this concert
         try {
-            $allConcerts = $this->data->adp()->getFutureConcerts($userId);
-            for ($i = 1; $i < count($allConcerts); $i++) {
-                if (intval($allConcerts[$i]['id']) == $concertId) {
-                    return true;
-                }
+            // Get user's contact ID
+            $query = "SELECT contact FROM user WHERE id = ?";
+            $user = $system_data->dbcon->fetchRow($query, [['i', $userId]]);
+            if (!$user || !$user['contact'] || intval($user['contact']) <= 0) {
+                return false;
             }
+            $contactId = intval($user['contact']);
+            
+            // Check if this contact is associated with the concert (regardless of date)
+            $query = "SELECT COUNT(*) as cnt FROM concert_contact WHERE concert = ? AND contact = ?";
+            $result = $system_data->dbcon->fetchRow($query, [
+                ['i', $concertId],
+                ['i', $contactId]
+            ]);
+            
+            if ($result && intval($result['cnt']) > 0) {
+                return true;
+            }
+            
             return false;
         } catch (Exception $e) {
             error_log("Error checking concert access: " . $e->getMessage());

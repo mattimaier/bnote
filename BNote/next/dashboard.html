@@ -10,6 +10,50 @@
     <script src="assets/js/tailwind-config.js"></script>
     <script src="assets/js/theme-toggle.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Early auth check to prevent content flash -->
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/routing.js"></script>
+    <script>
+        // Immediate auth check before any content renders
+        // This prevents the dashboard from flashing before redirect to login
+        (async () => {
+            try {
+                const session = await Auth.checkSession();
+                if (!session.authenticated) {
+                    // Not authenticated - check for deeplink parameters in URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const rehearsalId = urlParams.get('rehearsal');
+                    const concertId = urlParams.get('concert');
+                    
+                    // Build login URL with event parameters if present
+                    let loginUrl = 'login.html';
+                    if (rehearsalId) {
+                        loginUrl = `login.html?rehearsal=${rehearsalId}`;
+                    } else if (concertId) {
+                        loginUrl = `login.html?concert=${concertId}`;
+                    }
+                    
+                    // Redirect immediately - prevents any dashboard content from rendering
+                    window.location.replace(loginUrl);
+                    return;
+                }
+            } catch (error) {
+                // On error, redirect to login
+                console.error('Auth check failed:', error);
+                window.location.replace('login.html');
+            }
+        })();
+    </script>
+    <style>
+        /* Hide body content until auth check completes */
+        body {
+            visibility: hidden;
+        }
+        body.auth-checked {
+            visibility: visible;
+        }
+    </style>
 </head>
 
 <body class="min-h-screen bg-background flex flex-col lg:flex-row">
@@ -197,9 +241,7 @@
         </div>
     </div>
 
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/routing.js"></script>
+    <!-- API, Auth, and Routing already loaded in head for early auth check -->
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/badge.js"></script>
@@ -233,8 +275,16 @@
                     attempts++;
                 }
                 
-                // Check authentication
-                const session = await Auth.redirectIfNotAuthenticated();
+                // Check authentication (already checked in head, but verify again)
+                const session = await Auth.checkSession();
+                if (!session.authenticated) {
+                    // Should not happen if head script worked, but fallback
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Mark auth check as complete - show content
+                document.body.classList.add('auth-checked');
                 
                 // Initialize i18n immediately
                 if (typeof App !== 'undefined' && typeof i18n !== 'undefined') {

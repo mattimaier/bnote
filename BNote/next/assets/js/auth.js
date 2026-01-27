@@ -69,10 +69,19 @@ const Auth = {
     /**
      * Redirect to dashboard if already authenticated
      * Use on login page
+     * @param {boolean} preserveParams - If true, preserve URL parameters when redirecting
      */
-    async redirectIfAuthenticated() {
+    async redirectIfAuthenticated(preserveParams = false) {
         const session = await this.checkSession();
         if (session.authenticated) {
+            if (preserveParams && typeof Routing !== 'undefined') {
+                // Check for event parameters in URL
+                const eventFromUrl = Routing.getEventFromUrl();
+                if (eventFromUrl) {
+                    window.location.href = Routing.buildDashboardUrl(eventFromUrl.type, eventFromUrl.id);
+                    return;
+                }
+            }
             window.location.href = 'dashboard.html';
         }
     },

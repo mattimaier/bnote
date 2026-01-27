@@ -13,10 +13,11 @@
 4. [Internationalization (i18n)](#internationalization-i18n)
 5. [Dark Mode Support](#dark-mode-support)
 6. [API Client](#api-client)
-7. [Component System](#component-system)
-8. [Form Handling](#form-handling)
+7. [Routing and Deeplinks](#routing-and-deeplinks)
+8. [Component System](#component-system)
 9. [UI Components](#ui-components)
 10. [Best Practices](#best-practices)
+11. [Module Examples](#module-examples)
 
 ---
 
@@ -66,6 +67,7 @@ next/
 │       ├── theme-toggle.js   # Dark mode toggle utility
 │       ├── dashboard.js      # Dashboard module
 │       ├── sidebar.js       # Sidebar navigation
+│       ├── routing.js        # Routing and deeplink utility
 │       ├── users.js          # User management
 │       ├── contacts.js       # Contact management
 │       ├── participation.js  # Participation widget
@@ -334,8 +336,6 @@ Theme preference is saved in `localStorage` and persists across sessions. On fir
 
 ## 6. API Client
 
-### 8.1 Form Component (`next/assets/js/form.js`)
-
 The `Form` class provides reusable form UI:
 
 ```javascript
@@ -481,6 +481,223 @@ POST /next/api/index.php?module=users&action=create
 }
 ```
 
+---
+
+## 7. Routing and Deeplinks
+
+### 7.1 Overview
+
+BNote Next Generation supports direct links (deeplinks) to event details (concerts and rehearsals). The routing system automatically handles authentication flow, ensuring users can access event details whether they're logged in or not.
+
+### 7.2 Routing Utility (`next/assets/js/routing.js`)
+
+The `Routing` object provides URL parameter parsing and navigation state management:
+
+```javascript
+const Routing = {
+    // Parse event parameters from URL
+    getEventFromUrl() {
+        // Returns { type: 'R'|'C', id: number } or null
+        // Supports: ?rehearsal={id} or ?concert={id}
+    },
+    
+    // Store pending navigation in sessionStorage
+    storePendingNavigation(eventType, eventId) {
+        // Persists through login redirect
+    },
+    
+    // Get and clear pending navigation
+    getPendingNavigation() {
+        // Returns stored navigation and clears it
+    },
+    
+    // Build dashboard URL with event parameters
+    buildDashboardUrl(eventType, eventId) {
+        // Returns: 'dashboard.html?rehearsal=123' or 'dashboard.html?concert=456'
+    },
+    
+    // Clean URL by removing event parameters
+    cleanUrl() {
+        // Uses history.replaceState to update URL without reload
+    }
+};
+```
+
+### 7.3 URL Scheme
+
+**Rehearsals:**
+```
+dashboard.html?rehearsal={id}
+```
+
+**Concerts:**
+```
+dashboard.html?concert={id}
+```
+
+**Examples:**
+- `dashboard.html?rehearsal=536` - Opens rehearsal #536
+- `dashboard.html?concert=123` - Opens concert #123
+
+### 7.4 Authentication Flow
+
+The routing system automatically handles authentication:
+
+**Not Logged In:**
+1. User visits `dashboard.html?rehearsal=123`
+2. Redirected to `login.html?rehearsal=123`
+3. Event parameter stored in `sessionStorage`
+4. After successful login, redirected to `dashboard.html?rehearsal=123`
+5. Dashboard shows event detail
+
+**Already Logged In:**
+1. User visits `dashboard.html?concert=456`
+2. Dashboard shows event detail immediately
+
+### 7.5 Implementation Details
+
+**Login Page (`next/login.html`):**
+- Checks for event parameters on page load
+- Stores event parameters in `sessionStorage` before redirect
+- Preserves event parameters after successful login
+- Handles authenticated users with event parameters
+
+**Dashboard Page (`next/dashboard.html`):**
+- Parses URL parameters on initialization
+- Checks `sessionStorage` for pending navigation (from login redirect)
+- Initializes `EventDetail` component when event parameter found
+- Handles browser back/forward navigation
+
+**Event Detail Component (`next/assets/js/event-detail.js`):**
+- Uses correct URL format (`?rehearsal=123` or `?concert=456`)
+- Updates browser history with `pushState` for back button support
+- Cleans URL when navigating back to dashboard
+
+### 7.6 Access Control
+
+**Past Events:**
+- Past concerts and rehearsals are accessible via deeplinks
+- Access control checks user permissions, not event dates
+- Super users can access all events (past and future)
+- Regular users can access events they're associated with (regardless of date)
+
+**Error Handling:**
+- Invalid event ID: Shows error message in event detail view
+- Event not found: Shows "Event not found" error
+- Missing permissions: API returns 403, shows appropriate error
+- Malformed URL parameters: Ignored, shows normal dashboard
+
+### 7.7 Usage Examples
+
+**Creating a Deeplink:**
+```javascript
+// Build URL for a rehearsal
+const url = Routing.buildDashboardUrl('R', 536);
+// Returns: 'dashboard.html?rehearsal=536'
+
+// Build URL for a concert
+const url = Routing.buildDashboardUrl('C', 123);
+// Returns: 'dashboard.html?concert=123'
+```
+
+**Parsing URL Parameters:**
+```javascript
+// Get event from current URL
+const event = Routing.getEventFromUrl();
+if (event) {
+    console.log(`Event type: ${event.type}, ID: ${event.id}`);
+    // Initialize event detail
+    EventDetail.init(event.type, event.id);
+}
+```
+
+**Storing Pending Navigation:**
+```javascript
+// Store event for after login
+Routing.storePendingNavigation('R', 536);
+
+// Later, retrieve and use
+const pending = Routing.getPendingNavigation();
+if (pending) {
+    window.location.href = Routing.buildDashboardUrl(
+        pending.eventType, 
+        pending.eventId
+    );
+}
+```
+
+### 7.8 Future Extensions
+
+The URL scheme supports future participation links:
+- `dashboard.html?rehearsal=123&token=abc123` - Participation link with token
+- `dashboard.html?concert=456&participation=yes` - Direct participation flow
+
+The routing utility can be extended to handle these parameters without breaking existing functionality.
+
+### 7.9 Browser History
+
+The routing system uses the History API for proper browser navigation:
+- `pushState` - Adds event detail view to history
+- `popstate` - Handles browser back/forward buttons
+- `replaceState` - Cleans URL when navigating back to dashboard
+
+**Example:**
+```javascript
+// When opening event detail
+const state = { view: 'event-detail', eventType: 'R', eventId: 536 };
+const url = '?rehearsal=536';
+history.pushState(state, '', url);
+
+// Browser back button automatically triggers popstate event
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.view === 'event-detail') {
+        EventDetail.init(event.state.eventType, event.state.eventId);
+    } else {
+        EventDetail.navigateBack();
+    }
+});
+```
+
+---
+
+## 8. Component System
+
+### 8.1 Form Component (`next/assets/js/form.js`)
+
+The `Form` class provides reusable form UI:
+
+```javascript
+class Form {
+    constructor(container, options) {
+        this.container = container;
+        this.options = options;
+    }
+    
+    render() {
+        // All labels and buttons use i18n
+        this.container.innerHTML = `
+            <form class="space-y-4">
+                ${this.options.fields.map(field => `
+                    <div>
+                        <label class="block text-sm font-medium text-foreground mb-2"
+                               data-i18n="${field.i18nLabel}">${field.label}</label>
+                        <input class="w-full px-4 py-2 bg-background border border-border 
+                                      text-foreground rounded-lg focus:ring-2 focus:ring-primary"
+                               data-i18n-placeholder="${field.i18nPlaceholder}" />
+                    </div>
+                `).join('')}
+                <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg"
+                        data-i18n="${this.options.submitI18n}">Submit</button>
+            </form>
+        `;
+        
+        // Translate after rendering
+        if (typeof i18n !== 'undefined' && i18n.translatePage) {
+            i18n.translatePage();
+        }
+    }
+}
+```
 
 ---
 
@@ -545,9 +762,9 @@ showToast('js.users.created'); // Uses i18n
 
 ---
 
-## 10. Best Practices
+## 11. Best Practices
 
-### 10.1 Internationalization
+### 11.1 Internationalization
 
 **MANDATORY:** All user-facing strings must use i18n:
 
@@ -571,7 +788,7 @@ button.textContent = 'Save';
 <button data-i18n-label="js.common.save">Save</button>
 ```
 
-### 10.2 Dark Mode
+### 11.2 Dark Mode
 
 **MANDATORY:** All components must support dark mode:
 
@@ -596,7 +813,7 @@ button.textContent = 'Save';
 <div class="bg-background text-foreground">
 ```
 
-### 10.3 Error Handling
+### 11.3 Error Handling
 
 Always handle errors with i18n messages:
 
@@ -611,7 +828,7 @@ try {
 }
 ```
 
-### 10.4 Date/Time Formatting
+### 11.4 Date/Time Formatting
 
 Always use i18n formatting:
 
@@ -626,9 +843,47 @@ const dateStr = new Date(event.begin).toLocaleDateString('de-DE');
 
 ---
 
-## 11. Module Examples
+### 11.5 Routing and Deeplinks
 
-### 11.1 Dashboard Module (`next/assets/js/dashboard.js`)
+**Always use Routing utility for event navigation:**
+```javascript
+// GOOD - Use Routing utility
+const event = Routing.getEventFromUrl();
+if (event) {
+    EventDetail.init(event.type, event.id);
+}
+
+// BAD - Manual URL parsing
+const params = new URLSearchParams(window.location.search);
+const rehearsalId = params.get('rehearsal');
+```
+
+**Store navigation state for login flow:**
+```javascript
+// Store before redirect
+Routing.storePendingNavigation('R', 536);
+
+// Retrieve after login
+const pending = Routing.getPendingNavigation();
+if (pending) {
+    window.location.href = Routing.buildDashboardUrl(
+        pending.eventType, 
+        pending.eventId
+    );
+}
+```
+
+**Clean URLs when appropriate:**
+```javascript
+// Clean URL when navigating back to dashboard
+Routing.cleanUrl();
+```
+
+---
+
+## 12. Module Examples
+
+### 12.1 Dashboard Module (`next/assets/js/dashboard.js`)
 
 Example of a complete module with i18n and dark mode:
 
@@ -674,7 +929,7 @@ const Dashboard = {
 };
 ```
 
-### 11.2 Sidebar Module (`next/assets/js/sidebar.js`)
+### 12.2 Sidebar Module (`next/assets/js/sidebar.js`)
 
 Sidebar with i18n module names:
 
@@ -708,4 +963,4 @@ const Sidebar = {
 
 **Document Status:** Updated  
 **Last Updated:** 2026-01-27  
-**See Also:** [README.md](../next/README.md) for overview
+**See Also:** [README.md](../next/README.md) for overview, [Event Deeplink Plan](../.cursor/plans/event_deeplink_feature_b28b78cc.plan.md) for deeplink implementation details
