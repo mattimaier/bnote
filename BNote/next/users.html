@@ -8,78 +8,16 @@
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/tailwind-config.js"></script>
+    <script src="assets/js/theme-toggle.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="min-h-screen bg-background flex flex-col lg:flex-row">
-    <!-- Left module sidebar - Always visible on desktop, toggleable on mobile -->
-    <aside id="sidebar"
-        class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 fixed inset-y-0 left-0 z-[60] w-64 xl:translate-x-0 -translate-x-full">
-        <!-- Header with brand -->
-        <div id="sidebar-header" class="flex items-center justify-between px-4 py-5 border-b border-sidebar-border/50">
-            <div id="sidebar-brand" class="flex items-center gap-3">
-                <div
-                    class="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
-                    <img src="../style/images/BNote_Logo_white_transparent.svg" alt="BNote" class="h-5 w-5" style="filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%);" />
-                </div>
-                <div class="flex flex-col">
-                    <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
-                </div>
-            </div>
-            <button id="sidebar-collapse-btn" class="hidden h-8 w-8 p-0 hover:bg-sidebar-accent/80 text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors rounded-md flex items-center justify-center"
-                title="Collapse sidebar" aria-hidden="true">
-                <i data-lucide="chevron-left" class="h-4 w-4"></i>
-            </button>
-        </div>
-
-        <!-- Modules list -->
-        <nav id="sidebar-nav" class="flex-1 overflow-y-auto p-3 space-y-1.5">
-            <!-- Modules will be dynamically loaded here -->
-        </nav>
-    </aside>
-
-    <!-- Overlay for mobile/tablet when sidebar is open -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 xl:hidden z-30 hidden"></div>
+    <div id="sidebar-container"></div>
 
     <!-- Main content area -->
     <div class="flex-1 flex flex-col min-w-0 xl:ml-64">
-        <!-- Top Header Bar -->
-        <header
-            class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div class="flex h-16 items-center justify-between px-4 lg:px-6 gap-4">
-                <!-- Menu button - visible on mobile and tablet (compact devices) -->
-                <button id="mobile-menu-btn"
-                    class="xl:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
-                    title="Toggle menu">
-                    <i data-lucide="menu" class="h-5 w-5"></i>
-                </button>
-
-                <!-- Left: Search - hidden on mobile -->
-                <div class="hidden md:flex flex-1 max-w-sm">
-                    <div class="relative w-full">
-                        <i data-lucide="search"
-                            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
-                        <input type="text" data-i18n-placeholder="js.users.searchPlaceholder" placeholder="Search users, members..."
-                            class="pl-9 h-9 bg-muted/40 border-transparent text-sm focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
-                    </div>
-                </div>
-
-                <!-- Right side actions -->
-                <div id="user-info-container" class="flex items-center gap-2 ml-auto">
-                    <div class="h-6 w-px bg-border/30 hidden sm:block"></div>
-                    <button
-                        class="user-info-btn flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors group"
-                        onclick="Auth.logout()">
-                        <div id="user-avatar" class="user-info-initials h-8 w-8 rounded-full border-2 border-primary/20 bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center shrink-0">
-                            <span id="user-initials">U</span>
-                        </div>
-                        <div class="hidden sm:block text-left">
-                            <p class="text-xs font-semibold leading-tight text-foreground" id="user-name">User</p>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </header>
+        <div id="topbar-container"></div>
 
         <!-- Main content -->
         <main class="px-4 py-6 lg:px-6 flex-1 overflow-y-auto">
@@ -87,9 +25,10 @@
                 <!-- Page title -->
                 <div class="mb-6">
                     <h1 class="text-2xl font-semibold text-foreground" data-i18n="js.users.title">User Management</h1>
-                    <p class="text-sm text-muted-foreground mt-1" data-i18n="js.users.subtitle">Manage users, permissions, and access</p>
+                    <p class="text-sm text-muted-foreground mt-1" data-i18n="js.users.subtitle">Manage users,
+                        permissions, and access</p>
                 </div>
-                
+
                 <!-- Action buttons -->
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">
@@ -126,7 +65,8 @@
     <div id="add-user-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full border border-border">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.addUserModalTitle">Add User</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.addUserModalTitle">Add User
+                </h3>
                 <button data-modal-close="add-user-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -139,7 +79,8 @@
     <div id="edit-user-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full border border-border">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.editUserModalTitle">Edit User</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.editUserModalTitle">Edit User
+                </h3>
                 <button data-modal-close="edit-user-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -152,7 +93,8 @@
     <div id="user-details-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full border border-border">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.userDetailsModalTitle">User Details</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.userDetailsModalTitle">User
+                    Details</h3>
                 <button data-modal-close="user-details-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -177,7 +119,8 @@
     <div id="privileges-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[80vh] flex flex-col">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.managePrivilegesModalTitle">Manage Privileges</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.managePrivilegesModalTitle">
+                    Manage Privileges</h3>
                 <button data-modal-close="privileges-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
@@ -190,14 +133,16 @@
     <div id="gdpr-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-2xl w-full border border-border max-h-[80vh] flex flex-col">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.gdprModalTitle">GDPR - Delete Inactive Users</h3>
+                <h3 class="text-xl font-semibold text-card-foreground" data-i18n="js.users.gdprModalTitle">GDPR - Delete
+                    Inactive Users</h3>
                 <button data-modal-close="gdpr-modal" class="text-muted-foreground hover:text-foreground">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
             </div>
             <div class="mb-4">
                 <p class="text-sm text-muted-foreground" data-i18n="js.users.gdprModalDescription">
-                    Users who have not logged in for 24+ months. Select users to permanently delete with all associated data.
+                    Users who have not logged in for 24+ months. Select users to permanently delete with all associated
+                    data.
                 </p>
             </div>
             <form id="gdpr-form" class="flex-1 overflow-y-auto">
@@ -224,44 +169,84 @@
     <script src="assets/js/app.js"></script>
     <script src="assets/js/badge.js"></script>
     <script src="assets/js/user-info.js"></script>
+    <script src="assets/js/components.js"></script>
     <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/form.js"></script>
     <script src="assets/js/table.js"></script>
     <script src="assets/js/users.js"></script>
     <script>
-        // Initialize Lucide icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-
-        // Check authentication, init i18n, then sidebar + users
+        // Hide content until translations are loaded
+        document.documentElement.classList.add('i18n-loading');
+        
         (async () => {
-            const session = await Auth.redirectIfNotAuthenticated();
-            if (typeof App !== 'undefined' && typeof i18n !== 'undefined') {
-                await App.initI18n();
-                await new Promise((resolve) => {
-                    if (Object.keys(i18n.translations || {}).length > 0) {
-                        resolve();
-                        return;
-                    }
-                    const iv = setInterval(() => {
-                        if (Object.keys(i18n.translations || {}).length > 0) {
-                            clearInterval(iv);
-                            resolve();
-                        }
-                    }, 100);
-                    setTimeout(() => { clearInterval(iv); resolve(); }, 5000);
-                });
-                if (typeof i18n.translatePage === 'function') i18n.translatePage();
+            try {
+                // Wait for DOM
+                if (document.readyState === 'loading') {
+                    await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+                }
+                
+                // Wait briefly for scripts
+                let attempts = 0;
+                while ((typeof Components === 'undefined' || typeof Users === 'undefined' || typeof App === 'undefined' || typeof i18n === 'undefined') && attempts < 20) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    attempts++;
+                }
+                
+                // Check authentication
+                const session = await Auth.redirectIfNotAuthenticated();
+                
+                // Initialize i18n immediately
+                if (typeof App !== 'undefined' && typeof i18n !== 'undefined') {
+                    await App.initI18n();
+                }
+                
+                // Render components
+                const sidebarContainer = document.getElementById('sidebar-container');
+                const topbarContainer = document.getElementById('topbar-container');
+                
+                if (sidebarContainer) {
+                    sidebarContainer.innerHTML = Components.renderSidebar();
+                }
+                if (topbarContainer) {
+                    topbarContainer.innerHTML = Components.renderTopbar({
+                        searchPlaceholder: 'Search users, members...',
+                        searchPlaceholderI18n: 'js.users.searchPlaceholder'
+                    });
+                }
+                
+                // Translate and initialize icons
+                if (typeof i18n !== 'undefined' && typeof i18n.translatePage === 'function') {
+                    i18n.translatePage();
+                }
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+
+                // Initialize components
+                if (typeof UserInfo !== 'undefined') {
+                    await UserInfo.init(session);
+                }
+                await Sidebar.init('users');
+                Components.initThemeToggle();
+                Users.init(session);
+                
+                // Show content
+                document.documentElement.classList.remove('i18n-loading');
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.documentElement.classList.remove('i18n-loading');
+                
+                const isAuthError = error.message && (
+                    error.message.includes('Unauthorized') ||
+                    error.message.includes('403') ||
+                    error.message.includes('not authenticated') ||
+                    error.status === 403
+                );
+                
+                if (isAuthError) {
+                    window.location.href = 'login.html';
+                }
             }
-            
-            // Initialize user info component
-            if (typeof UserInfo !== 'undefined') {
-                await UserInfo.init(session);
-            }
-            
-            await Sidebar.init('users');
-            Users.init(session);
         })();
     </script>
 </body>

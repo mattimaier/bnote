@@ -162,7 +162,11 @@ const Users = {
                 render: (value) => {
                     if (!value) return '-';
                     const date = new Date(value);
-                    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    // Use locale-aware formatting
+                    const locale = (typeof i18n !== 'undefined' && i18n.currentLang) 
+                        ? (i18n.currentCountry ? `${i18n.currentLang}-${i18n.currentCountry}` : i18n.currentLang)
+                        : 'de-DE';
+                    return date.toLocaleDateString(locale) + ' ' + date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
                 }
             }
         ];
@@ -190,14 +194,16 @@ const Users = {
                     {
                         key: 'activate',
                         icon: row.isActive ? 'x-circle' : 'check-circle',
-                        title: row.isActive ? 'Deactivate' : 'Activate',
+                        title: row.isActive ? t('js.users.deactivate') || 'Deactivate' : t('js.users.activate') || 'Activate',
+                        i18n: row.isActive ? 'js.users.deactivate' : 'js.users.activate',
                         class: 'text-muted-foreground hover:text-foreground',
                         onClick: () => this.handleActivateUser(row.id)
                     },
                     {
                         key: 'privileges',
                         icon: 'key',
-                        title: 'Manage Privileges',
+                        title: t('js.users.managePrivileges') || 'Manage Privileges',
+                        i18n: 'js.users.managePrivileges',
                         class: 'text-muted-foreground hover:text-foreground',
                         onClick: () => this.showPrivilegesModal(row.id)
                     }
@@ -257,30 +263,32 @@ const Users = {
             this.addUserForm.errors = {};
         }
 
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+        
         this.addUserForm = new Form('add-user-form-container', {
             title: '',
             showTitle: false,
             fields: [
                 {
                     key: 'login',
-                    label: 'Login',
+                    label: t('js.users.login') || 'Login',
                     type: 'text',
                     required: true,
-                    placeholder: 'Enter username'
+                    placeholder: t('js.users.loginPlaceholder') || 'Enter username'
                 },
                 {
                     key: 'password',
-                    label: 'Password',
+                    label: t('js.users.password') || 'Password',
                     type: 'password',
                     required: true,
-                    placeholder: 'Enter password'
+                    placeholder: t('js.users.passwordPlaceholder') || 'Enter password'
                 },
                 {
                     key: 'contact',
-                    label: 'Contact',
+                    label: t('js.users.contact') || 'Contact',
                     type: 'select',
                     required: false,
-                    emptyLabel: 'No contact',
+                    emptyLabel: t('js.users.noContact') || 'No contact',
                     options: this.contacts.map(c => ({
                         value: c.id,
                         label: c.label
@@ -288,13 +296,13 @@ const Users = {
                 },
                 {
                     key: 'isActive',
-                    label: 'Active',
+                    label: t('js.users.active') || 'Active',
                     type: 'checkbox',
                     value: true
                 }
             ],
-            submitLabel: 'Create',
-            cancelLabel: 'Cancel',
+            submitLabel: t('js.users.create') || 'Create',
+            cancelLabel: t('js.common.cancel') || 'Cancel',
             onSubmit: async (data) => {
                 await this.handleAddUser(data);
             },
@@ -320,6 +328,8 @@ const Users = {
             const user = await UsersApi.get(userId);
             this.editingUserId = userId;
 
+            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+            
             // Create or recreate form with user data
             this.editUserForm = new Form('edit-user-form-container', {
                 title: '',
@@ -327,7 +337,7 @@ const Users = {
                 fields: [
                     {
                         key: 'login',
-                        label: 'Login',
+                        label: t('js.users.login') || 'Login',
                         type: 'text',
                         required: true,
                         value: user.login || '',
@@ -336,19 +346,19 @@ const Users = {
                     },
                     {
                         key: 'password',
-                        label: 'New Password',
+                        label: t('js.users.newPassword') || 'New Password',
                         type: 'password',
                         required: false,
-                        placeholder: 'Leave empty to keep current password',
-                        help: 'Leave empty to keep current password',
+                        placeholder: t('js.users.passwordLeaveEmpty') || 'Leave empty to keep current password',
+                        help: t('js.users.passwordLeaveEmpty') || 'Leave empty to keep current password',
                         value: '' // Always start empty for edit form
                     },
                     {
                         key: 'contact',
-                        label: 'Contact',
+                        label: t('js.users.contact') || 'Contact',
                         type: 'select',
                         required: false,
-                        emptyLabel: 'No contact',
+                        emptyLabel: t('js.users.noContact') || 'No contact',
                         value: user.contact || '0',
                         options: this.contacts.map(c => ({
                             value: c.id,
@@ -357,7 +367,7 @@ const Users = {
                     },
                     {
                         key: 'isActive',
-                        label: 'Active',
+                        label: t('js.users.active') || 'Active',
                         type: 'checkbox',
                         value: user.isActive || false
                     }
@@ -368,8 +378,8 @@ const Users = {
                     contact: user.contact || '0',
                     isActive: user.isActive || false
                 },
-                submitLabel: 'Save',
-                cancelLabel: 'Cancel',
+                submitLabel: t('js.common.save') || 'Save',
+                cancelLabel: t('js.common.cancel') || 'Cancel',
                 onSubmit: async (data) => {
                     await this.handleUpdateUser(data);
                 },
@@ -410,16 +420,22 @@ const Users = {
                             <p class="text-sm text-foreground mt-1">${this.escapeHtml(user.contactName || '-')}</p>
                         </div>
                         <div>
-                            <label class="text-xs font-semibold text-muted-foreground uppercase">Status</label>
+                            <label class="text-xs font-semibold text-muted-foreground uppercase">${t('js.users.status') || 'Status'}</label>
                             <p class="text-sm text-foreground mt-1">
                                 ${user.isActive
-                        ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">Active</span>'
-                        : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">Inactive</span>'}
+                        ? `<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">${t('js.common.active') || 'Active'}</span>`
+                        : `<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">${t('js.common.inactive') || 'Inactive'}</span>`}
                             </p>
                         </div>
                         <div>
-                            <label class="text-xs font-semibold text-muted-foreground uppercase">Last Login</label>
-                            <p class="text-sm text-foreground mt-1">${user.lastlogin ? new Date(user.lastlogin).toLocaleString() : '-'}</p>
+                            <label class="text-xs font-semibold text-muted-foreground uppercase">${t('js.users.lastLogin') || 'Last Login'}</label>
+                            <p class="text-sm text-foreground mt-1">${user.lastlogin ? (() => {
+                                const date = new Date(user.lastlogin);
+                                const locale = (typeof i18n !== 'undefined' && i18n.currentLang) 
+                                    ? (i18n.currentCountry ? `${i18n.currentLang}-${i18n.currentCountry}` : i18n.currentLang)
+                                    : 'de-DE';
+                                return date.toLocaleString(locale);
+                            })() : '-'}</p>
                         </div>
                     </div>
                 `;

@@ -13,81 +13,11 @@
 </head>
 
 <body class="min-h-screen bg-background flex flex-col lg:flex-row">
-    <!-- Left module sidebar - Always visible on desktop, toggleable on mobile -->
-    <aside id="sidebar"
-        class="flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 fixed inset-y-0 left-0 z-[60] w-64 xl:translate-x-0 -translate-x-full">
-        <!-- Header with brand -->
-        <div id="sidebar-header" class="flex items-center justify-between px-4 py-5 border-b border-sidebar-border/50">
-            <div id="sidebar-brand" class="flex items-center gap-3">
-                <div
-                    class="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
-                    <img src="../style/images/BNote_Logo_white_transparent.svg" alt="BNote" class="h-5 w-5" style="filter: brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%);" />
-                </div>
-                <div class="flex flex-col">
-                    <span class="font-semibold text-sidebar-foreground text-sm">BNote</span>
-                </div>
-            </div>
-            <button id="sidebar-collapse-btn" class="hidden h-8 w-8 p-0 hover:bg-sidebar-accent/80 text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors rounded-md flex items-center justify-center"
-                title="Collapse sidebar" aria-hidden="true">
-                <i data-lucide="chevron-left" class="h-4 w-4"></i>
-            </button>
-        </div>
-
-        <!-- Modules list -->
-        <nav id="sidebar-nav" class="flex-1 overflow-y-auto p-3 space-y-1.5">
-            <!-- Modules will be dynamically loaded here -->
-        </nav>
-    </aside>
-
-    <!-- Overlay for mobile/tablet when sidebar is open -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 xl:hidden z-30 hidden"
-        onclick="Sidebar.toggleSidebar()"></div>
+    <div id="sidebar-container"></div>
 
     <!-- Main content area -->
     <div class="flex-1 flex flex-col min-w-0 xl:ml-64">
-        <!-- Top Header Bar -->
-        <header
-            class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div class="flex h-16 items-center justify-between px-4 lg:px-6 gap-4">
-                <!-- Menu button - visible on mobile and tablet (compact devices) -->
-                <button id="mobile-menu-btn"
-                    class="xl:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-md flex items-center justify-center"
-                    onclick="Sidebar.toggleSidebar()" title="Toggle menu">
-                    <i data-lucide="menu" class="h-5 w-5"></i>
-                </button>
-
-                <!-- Left: Search - hidden on mobile -->
-                <div class="hidden md:flex flex-1 max-w-sm">
-                    <div class="relative w-full">
-                        <i data-lucide="search"
-                            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60"></i>
-                        <input type="text" data-i18n-placeholder="js.dashboard.searchPlaceholder" placeholder="Search events, members..."
-                            class="pl-9 h-9 bg-muted/40 border border-border/40 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
-                    </div>
-                </div>
-
-                <!-- Right side actions (reusable user component) -->
-                <div id="user-info-container" class="flex items-center gap-2 ml-auto">
-                    <!-- Theme toggle button -->
-                    <button id="theme-toggle-btn" class="h-9 w-9 p-0 hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors rounded-md flex items-center justify-center"
-                        title="Toggle theme" aria-label="Toggle theme">
-                        <i data-lucide="sun" class="h-5 w-5 hidden dark:block"></i>
-                        <i data-lucide="moon" class="h-5 w-5 block dark:hidden"></i>
-                    </button>
-                    <div class="h-6 w-px bg-border/30 hidden sm:block"></div>
-                    <button
-                        class="user-info-btn flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors group"
-                        onclick="Auth.logout()">
-                        <div id="user-avatar" class="user-info-initials h-8 w-8 rounded-full border-2 border-primary/20 bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center shrink-0">
-                            <span id="user-initials">U</span>
-                        </div>
-                        <div class="hidden sm:block text-left">
-                            <p class="text-xs font-semibold leading-tight text-foreground" id="user-name">User</p>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </header>
+        <div id="topbar-container"></div>
 
         <main class="px-4 py-4 lg:px-6 flex-1 overflow-y-auto">
             <!-- Dashboard Container -->
@@ -96,10 +26,8 @@
                 <div class="mb-6 pb-4 border-b border-border/30">
                     <div class="flex flex-col gap-2">
                         <h1 class="text-3xl font-bold tracking-tight text-foreground" id="welcome-greeting">
-                            Welcome
                         </h1>
                         <p class="text-muted-foreground text-sm font-medium" id="dashboard-subtitle" data-i18n="js.dashboard.subtitle">
-                            Welcome to BNote
                         </p>
                     </div>
                 </div>
@@ -275,6 +203,7 @@
     <script src="assets/js/app.js"></script>
     <script src="assets/js/badge.js"></script>
     <script src="assets/js/user-info.js"></script>
+    <script src="assets/js/components.js"></script>
     <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/participation-constants.js"></script>
     <script src="assets/js/instrument-grouping.js"></script>
@@ -285,60 +214,113 @@
     <script src="assets/js/event-detail.js"></script>
     <script src="assets/js/dashboard.js"></script>
     <script>
-        // Initialize Lucide icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-
-        // Wait for i18n to be initialized, then check authentication
+        // Hide content until translations are loaded
+        document.documentElement.classList.add('i18n-loading');
+        
         (async () => {
-            // Initialize i18n first if App is available
-            if (typeof App !== 'undefined' && typeof i18n !== 'undefined') {
-                await App.initI18n();
-                // Wait for translations to load (up to 5 seconds)
-                await new Promise((resolve) => {
-                    const t = () => Object.keys(i18n.translations || {}).length > 0;
-                    if (t()) {
-                        resolve();
-                        return;
+            try {
+                // Wait for DOM
+                if (document.readyState === 'loading') {
+                    await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+                }
+                
+                // Wait briefly for scripts
+                let attempts = 0;
+                while ((typeof Components === 'undefined' || typeof Dashboard === 'undefined' || typeof App === 'undefined' || typeof i18n === 'undefined') && attempts < 20) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    attempts++;
+                }
+                
+                // Check authentication
+                const session = await Auth.redirectIfNotAuthenticated();
+                
+                // Initialize i18n immediately
+                if (typeof App !== 'undefined' && typeof i18n !== 'undefined') {
+                    await App.initI18n();
+                }
+                
+                // Render components
+                const sidebarContainer = document.getElementById('sidebar-container');
+                const topbarContainer = document.getElementById('topbar-container');
+                
+                if (sidebarContainer) {
+                    sidebarContainer.innerHTML = Components.renderSidebar();
+                }
+                if (topbarContainer) {
+                    topbarContainer.innerHTML = Components.renderTopbar({
+                        searchPlaceholder: 'Search events, members...',
+                        searchPlaceholderI18n: 'js.dashboard.searchPlaceholder'
+                    });
+                }
+                
+                // Initialize components first
+                if (typeof UserInfo !== 'undefined') {
+                    await UserInfo.init(session);
+                }
+                await Sidebar.init('dashboard');
+                Components.initThemeToggle();
+                
+                // Initialize dashboard (this will render content)
+                await Dashboard.init(session);
+                
+                // Translate page elements AFTER dashboard init (to override any English text)
+                if (typeof i18n !== 'undefined' && typeof i18n.translatePage === 'function') {
+                    i18n.translatePage();
+                    // Also call Dashboard's translatePage to update welcome greeting
+                    if (typeof Dashboard.translatePage === 'function') {
+                        Dashboard.translatePage();
                     }
-                    const checkInterval = setInterval(() => {
-                        if (t()) {
-                            clearInterval(checkInterval);
-                            resolve();
-                        }
-                    }, 100);
-                    // Timeout after 5 seconds
-                    setTimeout(() => {
-                        clearInterval(checkInterval);
-                        resolve(); // Continue even if translations didn't load
-                    }, 5000);
-                });
-            }
-            
-            // Check authentication on page load
-            const session = await Auth.redirectIfNotAuthenticated();
-            
-            // Initialize user info component
-            if (typeof UserInfo !== 'undefined') {
-                await UserInfo.init(session);
-            }
-            
-            // Initialize sidebar (always visible, independent of dashboard)
-            await Sidebar.init('dashboard');
-            
-            // Initialize theme toggle button
-            const themeToggleBtn = document.getElementById('theme-toggle-btn');
-            if (themeToggleBtn && typeof ThemeToggle !== 'undefined') {
-                themeToggleBtn.addEventListener('click', () => {
-                    ThemeToggle.toggle();
-                    // Update icons
+                }
+                
+                // Initialize icons after translation
+                if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
+                }
+                
+                // Handle browser back/forward buttons
+                window.addEventListener('popstate', (event) => {
+                    if (event.state && event.state.view === 'event-detail') {
+                        // User navigated to event detail via history
+                        if (typeof EventDetail !== 'undefined') {
+                            EventDetail.init(event.state.eventType, event.state.eventId);
+                        }
+                    } else {
+                        // User navigated back to dashboard
+                        if (typeof EventDetail !== 'undefined') {
+                            EventDetail.showDashboard();
+                        }
+                    }
                 });
+                
+                // Check if we should show event detail from URL on initial load
+                const urlParams = new URLSearchParams(window.location.search);
+                const eventParam = urlParams.get('event');
+                if (eventParam && typeof EventDetail !== 'undefined') {
+                    // Parse event parameter (format: R123 or C456)
+                    const eventType = eventParam.charAt(0);
+                    const eventId = parseInt(eventParam.substring(1));
+                    if ((eventType === 'R' || eventType === 'C') && !isNaN(eventId)) {
+                        EventDetail.init(eventType, eventId);
+                    }
+                }
+                
+                // Show content
+                document.documentElement.classList.remove('i18n-loading');
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.documentElement.classList.remove('i18n-loading');
+                
+                const isAuthError = error.message && (
+                    error.message.includes('Unauthorized') ||
+                    error.message.includes('403') ||
+                    error.message.includes('not authenticated') ||
+                    error.status === 403
+                );
+                
+                if (isAuthError) {
+                    window.location.href = 'login.html';
+                }
             }
-            
-            // Initialize dashboard
-            Dashboard.init(session);
         })();
     </script>
 </body>

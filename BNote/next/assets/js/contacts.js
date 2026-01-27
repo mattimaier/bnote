@@ -77,16 +77,17 @@ const Contacts = {
         } catch (error) {
             const is403 = error.status === 403 ||
                 error.code === 403 ||
-                error.message.includes('403') ||
-                error.message.includes('Access denied') ||
-                (error.message && error.message.includes('forbidden'));
+                (error.message && (error.message.includes('403') || error.message.includes('Access denied') || error.message.includes('forbidden')));
 
             if (is403) {
                 const msg = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.contactsAccessDenied') : 'You do not have permission to access Contacts';
                 this.showToast(msg, 'error');
                 return false;
             }
-            throw error;
+            // For other errors (network, server errors, etc.), allow access
+            // The actual list call will handle the error appropriately
+            console.warn('Contacts permission check had non-403 error (allowing access):', error);
+            return true;
         }
     },
 
@@ -259,11 +260,11 @@ const Contacts = {
         // Define actions
         const actions = [
             {
-                label: 'Edit',
+                label: t('js.common.edit') || 'Edit',
                 onClick: (row) => this.showEditContactModal(row.id)
             },
             {
-                label: 'Delete',
+                label: t('js.common.delete') || 'Delete',
                 onClick: (row) => this.handleDeleteContact(row.id),
                 className: 'text-destructive'
             }
@@ -304,29 +305,31 @@ const Contacts = {
             label: i.name
         }));
 
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+        
         const fields = [
-            { key: 'name', label: 'First Name', type: 'text', required: false },
-            { key: 'surname', label: 'Last Name', type: 'text', required: false },
-            { key: 'nickname', label: 'Nickname', type: 'text', required: false },
-            { key: 'company', label: 'Company', type: 'text', required: false },
-            { key: 'email', label: 'Email', type: 'email', required: false },
-            { key: 'phone', label: 'Phone', type: 'text', required: false },
-            { key: 'mobile', label: 'Mobile', type: 'text', required: false },
-            { key: 'business', label: 'Business', type: 'text', required: false },
-            { key: 'web', label: 'Website', type: 'text', required: false },
+            { key: 'name', label: t('js.contacts.firstName') || 'First Name', type: 'text', required: false },
+            { key: 'surname', label: t('js.contacts.lastName') || 'Last Name', type: 'text', required: false },
+            { key: 'nickname', label: t('js.contacts.nickname') || 'Nickname', type: 'text', required: false },
+            { key: 'company', label: t('js.contacts.company') || 'Company', type: 'text', required: false },
+            { key: 'email', label: t('js.contacts.email') || 'Email', type: 'email', required: false },
+            { key: 'phone', label: t('js.contacts.phone') || 'Phone', type: 'text', required: false },
+            { key: 'mobile', label: t('js.contacts.mobile') || 'Mobile', type: 'text', required: false },
+            { key: 'business', label: t('js.contacts.business') || 'Business', type: 'text', required: false },
+            { key: 'web', label: t('js.contacts.website') || 'Website', type: 'text', required: false },
             { 
                 key: 'instrument', 
-                label: 'Instrument', 
+                label: t('js.contacts.instrument') || 'Instrument', 
                 type: 'select', 
                 required: false,
-                options: [{ value: '', label: 'None' }, ...instrumentOptions]
+                options: [{ value: '', label: t('js.contacts.none') || 'None' }, ...instrumentOptions]
             },
-            { key: 'birthday', label: 'Birthday', type: 'text', required: false },
-            { key: 'status', label: 'Status', type: 'text', required: false },
-            { key: 'street', label: 'Street', type: 'text', required: false },
-            { key: 'zip', label: 'ZIP', type: 'text', required: false },
-            { key: 'city', label: 'City', type: 'text', required: false },
-            { key: 'notes', label: 'Notes', type: 'textarea', required: false },
+            { key: 'birthday', label: t('js.contacts.birthday') || 'Birthday', type: 'text', required: false },
+            { key: 'status', label: t('js.contacts.status') || 'Status', type: 'text', required: false },
+            { key: 'street', label: t('js.contacts.street') || 'Street', type: 'text', required: false },
+            { key: 'zip', label: t('js.contacts.zip') || 'ZIP', type: 'text', required: false },
+            { key: 'city', label: t('js.contacts.city') || 'City', type: 'text', required: false },
+            { key: 'notes', label: t('js.contacts.notes') || 'Notes', type: 'textarea', required: false },
             {
                 key: 'groups',
                 label: (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.contacts.groups') : 'Groups'),
@@ -335,7 +338,6 @@ const Contacts = {
             }
         ];
 
-        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         this.addContactForm = new Form('add-contact-form-container', {
             fields,
             title: t('js.contacts.addContactModalTitle'),
@@ -371,29 +373,31 @@ const Contacts = {
                 label: i.name
             }));
 
+            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+            
             const fields = [
-                { key: 'name', label: 'First Name', type: 'text', required: false },
-                { key: 'surname', label: 'Last Name', type: 'text', required: false },
-                { key: 'nickname', label: 'Nickname', type: 'text', required: false },
-                { key: 'company', label: 'Company', type: 'text', required: false },
-                { key: 'email', label: 'Email', type: 'email', required: false },
-                { key: 'phone', label: 'Phone', type: 'text', required: false },
-                { key: 'mobile', label: 'Mobile', type: 'text', required: false },
-                { key: 'business', label: 'Business', type: 'text', required: false },
-                { key: 'web', label: 'Website', type: 'text', required: false },
+                { key: 'name', label: t('js.contacts.firstName') || 'First Name', type: 'text', required: false },
+                { key: 'surname', label: t('js.contacts.lastName') || 'Last Name', type: 'text', required: false },
+                { key: 'nickname', label: t('js.contacts.nickname') || 'Nickname', type: 'text', required: false },
+                { key: 'company', label: t('js.contacts.company') || 'Company', type: 'text', required: false },
+                { key: 'email', label: t('js.contacts.email') || 'Email', type: 'email', required: false },
+                { key: 'phone', label: t('js.contacts.phone') || 'Phone', type: 'text', required: false },
+                { key: 'mobile', label: t('js.contacts.mobile') || 'Mobile', type: 'text', required: false },
+                { key: 'business', label: t('js.contacts.business') || 'Business', type: 'text', required: false },
+                { key: 'web', label: t('js.contacts.website') || 'Website', type: 'text', required: false },
                 { 
                     key: 'instrument', 
-                    label: 'Instrument', 
+                    label: t('js.contacts.instrument') || 'Instrument', 
                     type: 'select', 
                     required: false,
-                    options: [{ value: '', label: 'None' }, ...instrumentOptions]
+                    options: [{ value: '', label: t('js.contacts.none') || 'None' }, ...instrumentOptions]
                 },
-                { key: 'birthday', label: 'Birthday', type: 'text', required: false },
-                { key: 'status', label: 'Status', type: 'text', required: false },
-                { key: 'street', label: 'Street', type: 'text', required: false },
-                { key: 'zip', label: 'ZIP', type: 'text', required: false },
-                { key: 'city', label: 'City', type: 'text', required: false },
-                { key: 'notes', label: 'Notes', type: 'textarea', required: false },
+                { key: 'birthday', label: t('js.contacts.birthday') || 'Birthday', type: 'text', required: false },
+                { key: 'status', label: t('js.contacts.status') || 'Status', type: 'text', required: false },
+                { key: 'street', label: t('js.contacts.street') || 'Street', type: 'text', required: false },
+                { key: 'zip', label: t('js.contacts.zip') || 'ZIP', type: 'text', required: false },
+                { key: 'city', label: t('js.contacts.city') || 'City', type: 'text', required: false },
+                { key: 'notes', label: t('js.contacts.notes') || 'Notes', type: 'textarea', required: false },
                 {
                     key: 'groups',
                     label: (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.contacts.groups') : 'Groups'),
@@ -408,7 +412,6 @@ const Contacts = {
                 groups: contact.groups || []
             };
 
-            const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
             this.editContactForm = new Form('edit-contact-form-container', {
                 fields,
                 title: t('js.contacts.editContactModalTitle'),
@@ -702,3 +705,6 @@ const Contacts = {
         return div.innerHTML;
     }
 };
+
+// Export for use in other scripts
+window.Contacts = Contacts;

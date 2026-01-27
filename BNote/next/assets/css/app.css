@@ -875,3 +875,33 @@ body {
 .address-clickable {
     user-select: none;
 }
+
+/* Hide content until translations are loaded to prevent flash of untranslated content */
+html.i18n-loading body > *:not(script) {
+    visibility: hidden;
+}
+
+/* Prevent sidebar from flashing during content updates */
+#sidebar {
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    /* Ensure sidebar stays fixed and doesn't reflow */
+    position: fixed !important;
+    isolation: isolate;
+}
+
+/* Prevent layout shifts in main content area */
+#dashboard-container,
+#events-needing-response-content,
+#events-timeline-content {
+    contain: layout style paint;
+    /* Smooth transitions without layout shifts */
+    transition: opacity 0.2s ease;
+}
+
+/* Prevent flashing during participation widget updates */
+[data-participation-widget] {
+    contain: layout style;
+    will-change: contents;
+}

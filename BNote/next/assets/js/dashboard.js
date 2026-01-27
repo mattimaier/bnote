@@ -89,18 +89,31 @@ const Dashboard = {
 
         // User name and initials in header are set by UserInfo.init(); do not overwrite here.
 
-        // Set greeting - will be updated by translatePage() if translations are loaded
+        // Set greeting - use translations if available, otherwise will be updated by translatePage()
         const greetingEl = document.getElementById('welcome-greeting');
         if (greetingEl) {
-            // Get greeting text (time-based)
-            const greeting = this.getGreeting();
-            // Set initial text (will be translated if i18n is available)
-            greetingEl.textContent = `${greeting}, ${firstName}`;
+            // Check if translations are loaded
+            const translationsLoaded = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0;
+            
+            if (translationsLoaded) {
+                // Use translated welcome text if available
+                const welcomeText = i18n.t('banner_Logout.welcome');
+                if (welcomeText && welcomeText !== 'banner_Logout.welcome') {
+                    greetingEl.textContent = `${welcomeText}, ${firstName}`;
+                } else {
+                    // Fallback to time-based greeting
+                    const greeting = this.getGreeting();
+                    greetingEl.textContent = `${greeting}, ${firstName}`;
+                }
+            } else {
+                // Translations not loaded yet - set placeholder (will be updated by translatePage())
+                greetingEl.textContent = 'Welcome';
+            }
         }
 
         // Set dashboard subtitle with company name (will be updated after dashboard loads)
         // Only update if translations are loaded
-        if (typeof i18n !== 'undefined' && Object.keys(i18n.translations).length > 0) {
+        if (typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0) {
             this.updateDashboardSubtitle();
         }
     },
@@ -487,12 +500,16 @@ const Dashboard = {
     /**
      * Refresh events sections after participation update
      * This ensures events appearing in both sections are updated
-     * Uses animations to show what's happening
+     * Uses a lightweight update that only refreshes counts, avoiding full re-renders
      */
     async refreshEventsSections() {
         try {
+            // Debounce: only refresh if not already refreshing
+            if (this._refreshing) return;
+            this._refreshing = true;
+
             // Small delay to let user see the widget update first
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 200));
 
             // Fetch fresh data for both sections
             const [dashboardData, eventsNeedingResponse] = await Promise.all([
@@ -508,6 +525,13 @@ const Dashboard = {
                 ? eventsNeedingResponse
                 : (eventsNeedingResponse.events || []);
 
+            // Check if event list actually changed (not just participation status)
+            const oldEventIds = new Set((this.allEvents['events-needing-response'] || []).map(e => String(e.oid)));
+            const newEventIds = new Set(eventsNeedingResponseArray.map(e => String(e.oid)));
+            const eventListChanged = oldEventIds.size !== newEventIds.size || 
+                Array.from(oldEventIds).some(id => !newEventIds.has(id)) ||
+                Array.from(newEventIds).some(id => !oldEventIds.has(id));
+
             // Update stored events and counts
             this.allEvents['events-needing-response'] = eventsNeedingResponseArray;
             if (eventsNeedingResponse.counts) {
@@ -516,6 +540,14 @@ const Dashboard = {
             if (eventsNeedingResponse.config) {
                 this.maxDisplayCounts['events-needing-response'] = eventsNeedingResponse.config.max_show || 5;
             }
+            
+            // Reset displayed count to match available events (after filtering)
+            // This ensures we don't show "Load More" when there are no more events
+            const filteredCount = this.applyFilters('events-needing-response', eventsNeedingResponseArray).length;
+            this.displayedCounts['events-needing-response'] = Math.min(
+                this.maxDisplayCounts['events-needing-response'] || 5,
+                filteredCount
+            );
 
             // Update timeline events
             if (dashboardData.inbox) {
@@ -528,17 +560,32 @@ const Dashboard = {
                 }
             }
 
-            // Update filter counts
+            // Always update filter counts (lightweight, no re-render)
             this.updateFilterCounts('events-needing-response', this.eventCounts['events-needing-response']);
             this.updateFilterCounts('events-timeline', this.eventCounts['events-timeline']);
 
-            // Re-render both sections with animations
+            // Always re-render "events-needing-response" section because participation changes
+            // can affect which events appear in this section (e.g., if participation is removed,
+            // the event might no longer need a response)
             await this.renderEventsNeedingResponseWithAnimation(eventsNeedingResponseArray);
-            await this.renderEventsTimelineWithAnimation(dashboardData);
+            
+            // Only re-render timeline if event list changed (events added/removed)
+            // Timeline events are less affected by participation status changes
+            if (eventListChanged) {
+                await this.renderEventsTimelineWithAnimation(dashboardData);
+            } else {
+                // Just re-initialize participation widgets in timeline section
+                const container2 = document.getElementById('events-timeline-content');
+                if (container2) {
+                    this.initializeParticipationWidgets(container2);
+                }
+            }
 
         } catch (error) {
             console.error('Failed to refresh events sections:', error);
             // Don't show error toast for background refresh
+        } finally {
+            this._refreshing = false;
         }
     },
 
@@ -553,11 +600,23 @@ const Dashboard = {
         const events = Array.isArray(eventsNeedingResponse)
             ? eventsNeedingResponse
             : (eventsNeedingResponse.events || []);
+        
+        // Apply filters first to get the actual events that should be displayed
+        const filteredEvents = this.applyFilters('events-needing-response', events);
+        
+        // Reset displayed count to match filtered events (but don't exceed max)
+        // This ensures we don't show "Load More" when there are no more events
+        const maxDisplay = this.maxDisplayCounts['events-needing-response'] || 5;
+        this.displayedCounts['events-needing-response'] = Math.min(maxDisplay, filteredEvents.length);
+        
+        // Get currently displayed event IDs from DOM
         const currentEventIds = new Set(
             Array.from(container.querySelectorAll('[data-event-id]'))
                 .map(el => el.getAttribute('data-event-id'))
         );
-        const newEventIds = new Set(events.map(e => String(e.oid)));
+        
+        // Get new event IDs from filtered events (these are the events that should be displayed)
+        const newEventIds = new Set(filteredEvents.map(e => String(e.oid)));
 
         // Find events to remove (fade out)
         const toRemove = Array.from(container.children).filter(child => {
@@ -586,14 +645,11 @@ const Dashboard = {
         // Wait for removals to complete
         await new Promise(resolve => setTimeout(resolve, toRemove.length * 50 + 350));
 
-        // Apply filters before comparing
-        const filteredEvents = this.applyFilters('events-needing-response', events);
-        const filteredEventIds = new Set(filteredEvents.map(e => String(e.oid)));
-
         // Find events to add (fade in) - use filtered events
         const toAdd = filteredEvents.filter(e => !currentEventIds.has(String(e.oid)));
 
         // Render all events (including existing ones) - already filtered
+        // This will use the updated displayedCounts we set above
         this.renderEventsWidget(
             events,
             'events-needing-response-content',

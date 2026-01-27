@@ -474,23 +474,22 @@ class ParticipationWidget {
             this.updateButtonStates();
             
             // Refresh dashboard events sections to update all instances of this event
+            // Debounced to avoid multiple rapid refreshes
             if (typeof Dashboard !== 'undefined' && Dashboard.refreshEventsSections) {
-                // Use setTimeout to allow current widget update to complete first
-                setTimeout(() => {
+                // Clear any pending refresh
+                if (Dashboard._refreshTimeout) {
+                    clearTimeout(Dashboard._refreshTimeout);
+                }
+                // Debounce: wait a bit to allow multiple rapid updates to batch together
+                Dashboard._refreshTimeout = setTimeout(() => {
                     Dashboard.refreshEventsSections();
-                }, 100);
+                }, 300);
             }
             
             // Refresh event detail view if it's currently displayed
-            if (typeof EventDetail !== 'undefined' && EventDetail.eventId && EventDetail.eventType) {
-                setTimeout(async () => {
-                    try {
-                        await EventDetail.refresh();
-                    } catch (error) {
-                        console.error('Failed to refresh event detail:', error);
-                    }
-                }, 300);
-            }
+            // Note: The refresh is already handled by the wrapped updateStatus in event-detail.js
+            // So we don't need to call it again here to avoid double refresh
+            // The widget's updateStatus will trigger the refresh via the wrapper
             
             // Show success toast
             if (typeof Dashboard !== 'undefined' && Dashboard.showToast) {

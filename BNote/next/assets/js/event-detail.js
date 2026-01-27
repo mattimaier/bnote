@@ -35,6 +35,11 @@ const EventDetail = {
         this.eventType = eventType;
         this.eventId = eventId;
 
+        // Push state to history for browser back button support
+        const state = { view: 'event-detail', eventType, eventId };
+        const url = `?event=${eventType}${eventId}`;
+        history.pushState(state, '', url);
+
         // Show detail container, hide dashboard
         const detailContainer = document.getElementById('event-detail-container');
         const dashboardContainer = document.getElementById('dashboard-container');
@@ -52,10 +57,10 @@ const EventDetail = {
             // Render detail view
             this.render();
 
-            // Reinitialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                setTimeout(() => lucide.createIcons(), 100);
-            }
+        // Reinitialize Lucide icons (including back button)
+        if (typeof lucide !== 'undefined') {
+            setTimeout(() => lucide.createIcons(), 100);
+        }
         } catch (error) {
             console.error('Failed to load event detail:', error);
             const msg = (typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.error.eventDetailLoadFailed') : 'Failed to load event details.');
@@ -113,39 +118,63 @@ const EventDetail = {
         EventMetadata.render(metadataContainer, event);
 
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
-        container.innerHTML = `
-            <div class="event-detail-content space-y-6">
-                ${headerHtml}
-                ${basicInfoHtml}
-                ${participationWidgetHtml}
-                <div class="participation-section">
-                    <h2 class="text-lg font-semibold text-foreground mb-4">${t('js.event.detail.participationOverview')}</h2>
-                    ${diagramContainer.innerHTML}
-                </div>
-                <div class="participants-section">
-                    <h2 class="text-lg font-semibold text-foreground mb-4">${t('js.event.detail.participants')}</h2>
-                    <div id="participant-overview-container">
-                        ${participantContainer.innerHTML}
-                    </div>
-                </div>
-                ${metadataContainer.innerHTML ? `
-                    <div class="metadata-section-wrapper">
-                        <h2 class="text-lg font-semibold text-foreground mb-4">${t('js.event.detail.additionalInfo')}</h2>
-                        ${metadataContainer.innerHTML}
-                    </div>
-                ` : ''}
-            </div>
-        `;
-
-        // Initialize participation widget after DOM is ready
-        // Use requestAnimationFrame to ensure DOM is fully rendered
+        
+        // Use requestAnimationFrame to batch DOM updates and prevent flashing
         requestAnimationFrame(() => {
-            setTimeout(() => {
-                this.initializeParticipationWidget();
-            }, 50);
+            // Fade out slightly before update to make transition smoother
+            const currentContent = container.querySelector('.event-detail-content');
+            if (currentContent) {
+                currentContent.style.opacity = '0.7';
+                currentContent.style.transition = 'opacity 0.15s ease';
+            }
+            
+            // Update content
+            requestAnimationFrame(() => {
+                container.innerHTML = `
+                    <div class="event-detail-content space-y-6" style="opacity: 0; transition: opacity 0.2s ease;">
+                        ${headerHtml}
+                        ${basicInfoHtml}
+                        ${participationWidgetHtml}
+                        <div class="participation-section">
+                            <h2 class="text-lg font-semibold text-foreground mb-4">${t('js.event.detail.participationOverview')}</h2>
+                            ${diagramContainer.innerHTML}
+                        </div>
+                        <div class="participants-section">
+                            <h2 class="text-lg font-semibold text-foreground mb-4">${t('js.event.detail.participants')}</h2>
+                            <div id="participant-overview-container">
+                                ${participantContainer.innerHTML}
+                            </div>
+                        </div>
+                        ${metadataContainer.innerHTML ? `
+                            <div class="metadata-section-wrapper">
+                                <h2 class="text-lg font-semibold text-foreground mb-4">${t('js.event.detail.additionalInfo')}</h2>
+                                ${metadataContainer.innerHTML}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                // Fade in new content
+                const newContent = container.querySelector('.event-detail-content');
+                if (newContent) {
+                    requestAnimationFrame(() => {
+                        newContent.style.opacity = '1';
+                    });
+                }
+                
+                // Reinitialize icons after render
+                if (typeof lucide !== 'undefined') {
+                    setTimeout(() => lucide.createIcons(), 50);
+                }
+                
+                // Reinitialize participation widget after render
+                setTimeout(() => {
+                    this.initializeParticipationWidget();
+                }, 100);
+            });
         });
 
-        // Reinitialize Lucide icons
+        // Reinitialize Lucide icons (outside requestAnimationFrame for initial render)
         if (typeof lucide !== 'undefined') {
             setTimeout(() => lucide.createIcons(), 200);
         }
@@ -250,15 +279,10 @@ const EventDetail = {
                 await originalUpdateStatus(status, reason);
 
                 // Refresh event detail after participation update
+                // Use the centralized refresh method which has debouncing
                 if (self && self.eventId && self.eventType) {
-                    setTimeout(async () => {
-                        try {
-                            await self.loadEvent();
-                            self.render();
-                        } catch (error) {
-                            console.error('Failed to refresh event detail:', error);
-                        }
-                    }, 500);
+                    // Use the refresh method which already has debouncing
+                    await self.refresh();
                 }
             };
         } catch (error) {
@@ -269,14 +293,27 @@ const EventDetail = {
 
     /**
      * Refresh event detail (called after participation update)
+     * Uses debouncing to prevent multiple rapid refreshes
+     * Only updates changed parts to minimize flashing
      */
     async refresh() {
-        try {
-            await this.loadEvent();
-            this.render();
-        } catch (error) {
-            console.error('Failed to refresh event detail:', error);
+        // Clear any pending refresh
+        if (this._refreshTimeout) {
+            clearTimeout(this._refreshTimeout);
         }
+        
+        // Debounce: wait a bit to allow multiple rapid updates to batch together
+        this._refreshTimeout = setTimeout(async () => {
+            try {
+                // Load fresh data
+                await this.loadEvent();
+                
+                // Re-render with smooth fade transition (handled in render method)
+                this.render();
+            } catch (error) {
+                console.error('Failed to refresh event detail:', error);
+            }
+        }, 400);
     },
 
     /**
@@ -529,11 +566,29 @@ const EventDetail = {
      * Navigate back to dashboard
      */
     navigateBack() {
+        // Go back in history if we have a history state, otherwise just show dashboard
+        if (history.state && history.state.view === 'event-detail') {
+            history.back();
+        } else {
+            // Fallback: just show dashboard
+            this.showDashboard();
+        }
+    },
+
+    /**
+     * Show dashboard (called from history popstate or direct navigation)
+     */
+    showDashboard() {
         const detailContainer = document.getElementById('event-detail-container');
         const dashboardContainer = document.getElementById('dashboard-container');
 
         if (detailContainer) detailContainer.classList.add('hidden');
         if (dashboardContainer) dashboardContainer.classList.remove('hidden');
+
+        // Reinitialize icons for back button
+        if (typeof lucide !== 'undefined') {
+            setTimeout(() => lucide.createIcons(), 50);
+        }
 
         // Reset state
         this.currentEvent = null;

@@ -81,10 +81,11 @@ const Badge = {
      * @returns {string} HTML string for status badge
      */
     renderStatus(isActive) {
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         if (isActive) {
-            return this.render('Active', 'success');
+            return this.render(t('js.common.active') || 'Active', 'success');
         } else {
-            return this.render('Inactive', 'destructive');
+            return this.render(t('js.common.inactive') || 'Inactive', 'destructive');
         }
     },
 

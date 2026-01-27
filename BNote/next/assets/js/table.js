@@ -542,10 +542,11 @@ class Table {
         
         // Build menu items
         const menuItems = [];
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         
         if (this.onEdit) {
             menuItems.push({
-                label: 'Edit',
+                label: t('js.common.edit') || 'Edit',
                 icon: 'edit',
                 onClick: () => this.handleEdit(rowId)
             });
@@ -555,8 +556,21 @@ class Table {
             const actions = this.onAction(row);
             if (Array.isArray(actions)) {
                 actions.forEach(action => {
+                    // Use i18n key if provided, otherwise use title or key
+                    let label = action.title || action.key;
+                    if (action.i18n) {
+                        label = t(action.i18n) || label;
+                    } else if (action.key === 'activate') {
+                        // Special handling for activate/deactivate based on row state
+                        label = action.row?.isActive 
+                            ? (t('js.users.deactivate') || 'Deactivate')
+                            : (t('js.users.activate') || 'Activate');
+                    } else if (action.key === 'privileges') {
+                        label = t('js.users.managePrivileges') || 'Manage Privileges';
+                    }
+                    
                     menuItems.push({
-                        label: action.title || action.key,
+                        label: label,
                         icon: action.icon || 'more-horizontal',
                         onClick: () => {
                             if (action.onClick) {
@@ -573,7 +587,7 @@ class Table {
         
         if (this.onDelete) {
             menuItems.push({
-                label: 'Delete',
+                label: t('js.common.delete') || 'Delete',
                 icon: 'trash-2',
                 onClick: () => {
                     this.handleDelete(rowId);
