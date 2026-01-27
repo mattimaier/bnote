@@ -3,8 +3,8 @@
  * BNote Lightweight JSON API Router
  * Routes requests to module-specific API handlers
  * 
- * URL Pattern: /api/index.php?module={module}&action={action}&id={id}
- * Example: /api/index.php?module=rehearsals&action=list
+ * URL Pattern: /next/api/index.php?module={module}&action={action}&id={id}
+ * Example: /next/api/index.php?module=rehearsals&action=list
  */
 
 // Start session (required for authentication) - check if already started
@@ -12,8 +12,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Change to project root directory so relative paths work correctly
-$projectRoot = __DIR__ . '/..';
+// Change to project root directory so relative paths work correctly (next/api -> project root)
+$projectRoot = __DIR__ . '/../..';
 $originalDir = getcwd();
 chdir($projectRoot);
 

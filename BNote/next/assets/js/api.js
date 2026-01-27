@@ -4,48 +4,29 @@
  */
 class Api {
     constructor() {
-        // Calculate base path from current location
-        // The API is at /api/index.php (root level), but we're in /next/
-        // So we need to go up one level from /next/ to reach the root
+        // API lives at /next/api/index.php. Compute base path up to and including /next.
         const pathname = window.location.pathname;
-
-        // Method 1: Try to find /next/ or /next in the pathname and get everything before it
-        let basePath;
         const nextSlashIndex = pathname.indexOf('/next/');
         const nextIndex = pathname.indexOf('/next');
 
+        let basePath;
         if (nextSlashIndex !== -1) {
-            // Found /next/ with trailing slash
-            basePath = pathname.substring(0, nextSlashIndex);
+            basePath = pathname.substring(0, nextSlashIndex + 6); // through /next/
         } else if (nextIndex !== -1) {
-            // Found /next without trailing slash (e.g., /next/login.html)
-            basePath = pathname.substring(0, nextIndex);
+            basePath = pathname.substring(0, nextIndex + 5);      // through /next
         } else {
-            // Fallback: parse path segments
             const pathParts = pathname.split('/').filter(p => p && p !== '');
             const nextPos = pathParts.indexOf('next');
             if (nextPos !== -1) {
-                pathParts.splice(nextPos);
+                basePath = '/' + pathParts.slice(0, nextPos + 1).join('/');
             } else {
-                // Remove filename if no 'next' found
-                if (pathParts.length > 0 && pathParts[pathParts.length - 1].includes('.')) {
-                    pathParts.pop();
-                }
+                const withoutFile = pathParts.length > 0 && pathParts[pathParts.length - 1].includes('.')
+                    ? pathParts.slice(0, -1) : pathParts;
+                basePath = withoutFile.length > 0 ? '/' + withoutFile.join('/') : '/';
             }
-            basePath = pathParts.length > 0 ? '/' + pathParts.join('/') : '/';
         }
 
-        // Ensure basePath ends with / (unless it's root)
-        if (basePath !== '/' && !basePath.endsWith('/')) {
-            basePath += '/';
-        }
-
-        // API is at root level: basePath + 'api/index.php'
-        // Example: /bnote/BNote/ + api/index.php = /bnote/BNote/api/index.php
-        this.baseUrl = basePath + 'api/index.php';
-
-        // Debug: log the calculated URL with detailed info
-        console.log('API Base URL:', this.baseUrl, 'from pathname:', pathname, 'basePath:', basePath, 'nextIndex:', nextIndex, 'nextSlashIndex:', nextSlashIndex);
+        this.baseUrl = basePath + (basePath.endsWith('/') ? '' : '/') + 'api/index.php';
     }
 
     /**

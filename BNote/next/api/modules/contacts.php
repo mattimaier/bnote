@@ -5,10 +5,10 @@
  * 
  * Note: This file is loaded after api/index.php has changed working directory to project root
  */
-require_once __DIR__ . '/../../src/logic/defaultcontroller.php';
-require_once __DIR__ . '/../../src/data/modules/kontaktedata.php';
-require_once __DIR__ . '/../../src/data/modules/gruppendata.php';
-require_once __DIR__ . '/../../src/logic/mailing.php';
+require_once __DIR__ . '/../../../src/logic/defaultcontroller.php';
+require_once __DIR__ . '/../../../src/data/modules/kontaktedata.php';
+require_once __DIR__ . '/../../../src/data/modules/gruppendata.php';
+require_once __DIR__ . '/../../../src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 
@@ -952,7 +952,7 @@ class ContactsModule {
             // Get contacts for deletion (only those with gdpr_ok = 0)
             $contacts = $this->data->getContactGdprStatus(0);
             
-            require_once __DIR__ . '/../../src/data/modules/userdata.php';
+            require_once __DIR__ . '/../../../src/data/modules/userdata.php';
             $userData = new UserData();
             
             $userFullRemoval = [['id', 'contact']];

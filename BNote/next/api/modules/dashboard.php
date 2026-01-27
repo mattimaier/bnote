@@ -9,8 +9,8 @@
 // dirs.php, init.php, and bootstrap.php are already loaded by api/index.php
 // All base classes (FieldType, AbstractData, AbstractLocationData) are loaded
 // Just load the module-specific data class
-require_once __DIR__ . '/../../src/data/modules/startdata.php';
-require_once __DIR__ . '/../../src/data/database.php';
+require_once __DIR__ . '/../../../src/data/modules/startdata.php';
+require_once __DIR__ . '/../../../src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 

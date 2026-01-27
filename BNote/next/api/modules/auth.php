@@ -9,9 +9,9 @@
 // dirs.php, init.php, and bootstrap.php are already loaded by api/index.php
 // All base classes (FieldType, AbstractData, AbstractLocationData) are loaded
 // But we need to load DefaultController before LoginController
-require_once __DIR__ . '/../../src/logic/defaultcontroller.php';
-require_once __DIR__ . '/../../src/data/modules/logindata.php';
-require_once __DIR__ . '/../../src/logic/modules/logincontroller.php';
+require_once __DIR__ . '/../../../src/logic/defaultcontroller.php';
+require_once __DIR__ . '/../../../src/data/modules/logindata.php';
+require_once __DIR__ . '/../../../src/logic/modules/logincontroller.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 

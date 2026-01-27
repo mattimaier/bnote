@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Debug Tool - BNote</title>
+    <link rel="stylesheet" href="assets/css/app.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/tailwind-config.js"></script>
     <style>
         pre {
             white-space: pre-wrap;
@@ -17,46 +19,46 @@
         .json-null { color: #6f42c1; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-background min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-6">API Debug Tool</h1>
+        <h1 class="text-3xl font-bold text-foreground mb-6">API Debug Tool</h1>
         
         <!-- API Call Form -->
-        <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <div class="bg-card shadow rounded-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Make API Call</h2>
             <form id="api-form" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Module</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Module</label>
                         <input type="text" id="module" name="module" value="dashboard" 
-                               class="w-full border border-gray-300 rounded-md px-3 py-2" 
+                               class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground" 
                                placeholder="e.g., auth, dashboard">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Action</label>
                         <input type="text" id="action" name="action" value="dashboard" 
-                               class="w-full border border-gray-300 rounded-md px-3 py-2" 
+                               class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground" 
                                placeholder="e.g., login, dashboard, inbox">
                     </div>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Method</label>
-                    <select id="method" name="method" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    <label class="block text-sm font-medium text-foreground mb-1">Method</label>
+                    <select id="method" name="method" class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground">
                         <option value="GET">GET</option>
                         <option value="POST">POST</option>
                     </select>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Request Body (JSON for POST)</label>
+                    <label class="block text-sm font-medium text-foreground mb-1">Request Body (JSON for POST)</label>
                     <textarea id="body" name="body" rows="4" 
-                              class="w-full border border-gray-300 rounded-md px-3 py-2 font-mono text-sm"
+                              class="w-full border border-border rounded-md px-3 py-2 font-mono text-sm bg-background text-foreground"
                               placeholder='{"username": "test", "password": "test"}'></textarea>
                 </div>
                 
                 <button type="submit" 
-                        class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-medium">
+                        class="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium">
                     Send Request
                 </button>
             </form>
@@ -65,49 +67,49 @@
         <!-- Results Section -->
         <div id="results" class="hidden">
             <!-- Response -->
-            <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <div class="bg-card shadow rounded-lg p-6 mb-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-semibold">Response</h2>
+                    <h2 class="text-xl font-semibold text-foreground">Response</h2>
                     <div class="flex gap-2">
                         <span id="status-badge" class="px-3 py-1 rounded-full text-sm font-medium"></span>
                         <button onclick="copyResponse()" 
-                                class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm">
+                                class="bg-muted hover:bg-muted/80 px-3 py-1 rounded text-sm text-foreground">
                             Copy JSON
                         </button>
                     </div>
                 </div>
-                <pre id="response-json" class="bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto text-sm"></pre>
+                <pre id="response-json" class="bg-muted p-4 rounded border border-border overflow-x-auto text-sm text-foreground"></pre>
             </div>
             
             <!-- cURL Command -->
-            <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <div class="bg-card shadow rounded-lg p-6 mb-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-semibold">cURL Command</h2>
+                    <h2 class="text-xl font-semibold text-foreground">cURL Command</h2>
                     <button onclick="copyCurl()" 
-                            class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm">
+                            class="bg-muted hover:bg-muted/80 px-3 py-1 rounded text-sm text-foreground">
                         Copy cURL
                     </button>
                 </div>
-                <pre id="curl-command" class="bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto text-sm font-mono"></pre>
+                <pre id="curl-command" class="bg-muted p-4 rounded border border-border overflow-x-auto text-sm font-mono text-foreground"></pre>
             </div>
             
             <!-- Request Details -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-xl font-semibold mb-4">Request Details</h2>
-                <div class="space-y-2 text-sm">
+            <div class="bg-card shadow rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-foreground">Request Details</h2>
+                <div class="space-y-2 text-sm text-foreground">
                     <div><strong>URL:</strong> <span id="request-url" class="font-mono"></span></div>
                     <div><strong>Method:</strong> <span id="request-method"></span></div>
-                    <div><strong>Headers:</strong> <pre id="request-headers" class="bg-gray-50 p-2 rounded mt-1 font-mono text-xs"></pre></div>
-                    <div><strong>Body:</strong> <pre id="request-body-display" class="bg-gray-50 p-2 rounded mt-1 font-mono text-xs"></pre></div>
+                    <div><strong>Headers:</strong> <pre id="request-headers" class="bg-muted p-2 rounded mt-1 font-mono text-xs text-foreground"></pre></div>
+                    <div><strong>Body:</strong> <pre id="request-body-display" class="bg-muted p-2 rounded mt-1 font-mono text-xs text-foreground"></pre></div>
                 </div>
             </div>
         </div>
         
         <!-- History Section -->
-        <div class="bg-white shadow rounded-lg p-6 mt-6">
-            <h2 class="text-xl font-semibold mb-4">Request History</h2>
+        <div class="bg-card shadow rounded-lg p-6 mt-6">
+            <h2 class="text-xl font-semibold mb-4 text-foreground">Request History</h2>
             <div id="history-list" class="space-y-2">
-                <p class="text-gray-500 text-sm">No requests yet</p>
+                <p class="text-muted-foreground text-sm">No requests yet</p>
             </div>
         </div>
     </div>
@@ -116,12 +118,23 @@
     <script>
         const API_BASE_URL = (() => {
             const pathname = window.location.pathname;
-            const nextIndex = pathname.indexOf('/next/');
-            if (nextIndex !== -1) {
-                return pathname.substring(0, nextIndex) + '/api/index.php';
+            const nextSlash = pathname.indexOf('/next/');
+            const nextOnly = pathname.indexOf('/next');
+            let base;
+            if (nextSlash !== -1) {
+                base = pathname.substring(0, nextSlash + 6);
+            } else if (nextOnly !== -1) {
+                base = pathname.substring(0, nextOnly + 5);
+            } else {
+                const pathParts = pathname.split('/').filter(p => p && p !== '');
+                const nextPos = pathParts.indexOf('next');
+                if (nextPos !== -1) {
+                    base = '/' + pathParts.slice(0, nextPos + 1).join('/');
+                } else {
+                    base = pathname.replace(/\/[^/]+\.html$/, '') || '/';
+                }
             }
-            // Fallback: remove filename and /next segment
-            return pathname.replace(/\/[^/]+\.html$/, '').replace(/\/next\/?$/, '') + '/api/index.php';
+            return base + (base.endsWith('/') ? '' : '/') + 'api/index.php';
         })();
         
         let requestHistory = JSON.parse(localStorage.getItem('api-debug-history') || '[]');
@@ -193,21 +206,21 @@
         function renderHistory() {
             const historyList = document.getElementById('history-list');
             if (requestHistory.length === 0) {
-                historyList.innerHTML = '<p class="text-gray-500 text-sm">No requests yet</p>';
+                historyList.innerHTML = '<p class="text-muted-foreground text-sm">No requests yet</p>';
                 return;
             }
             
             historyList.innerHTML = requestHistory.map((req, index) => {
                 const statusColor = req.status >= 200 && req.status < 300 ? 'text-green-600' : 
-                                   req.status >= 400 ? 'text-red-600' : 'text-gray-600';
+                                   req.status >= 400 ? 'text-red-600' : 'text-muted-foreground';
                 return `
-                    <div class="border border-gray-200 rounded p-3 hover:bg-gray-50 cursor-pointer" 
+                    <div class="border border-border rounded p-3 hover:bg-muted cursor-pointer" 
                          onclick="loadFromHistory(${index})">
                         <div class="flex items-center justify-between">
-                            <span class="font-mono text-sm">${req.method} ${req.module}/${req.action}</span>
+                            <span class="font-mono text-sm text-foreground">${req.method} ${req.module}/${req.action}</span>
                             <span class="${statusColor} font-medium">${req.status}</span>
                         </div>
-                        <div class="text-xs text-gray-500 mt-1">${new Date(req.timestamp).toLocaleString('de-DE')}</div>
+                        <div class="text-xs text-muted-foreground mt-1">${new Date(req.timestamp).toLocaleString('de-DE')}</div>
                     </div>
                 `;
             }).join('');

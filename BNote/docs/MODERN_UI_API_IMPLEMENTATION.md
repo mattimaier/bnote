@@ -15,34 +15,36 @@ This document describes the architecture and implementation approach for the mod
 
 ```
 BNote/
-├── api/                          # Lightweight JSON API layer
-│   ├── index.php                # API router (entry point)
-│   ├── bootstrap.php            # Dependency loader (base classes)
-│   ├── response.php             # JSON response helper
-│   ├── auth.php                 # Authentication helpers
-│   ├── logger.php               # API logging system
-│   ├── modules/                 # Module-specific API handlers
-│   │   ├── auth.php            # Login/logout/session
-│   │   └── dashboard.php       # Dashboard data
-│   └── ENABLE_API_LOGGING.sql  # SQL to enable detailed logging
-│
-├── next/                        # Modern JavaScript UI (completely separate)
+├── next/                        # New app (frontend + API)
 │   ├── index.html              # Entry point (routes to login/dashboard)
 │   ├── login.html              # Login page
 │   ├── dashboard.html          # Dashboard page
 │   ├── debug.html              # API debugging tool
+│   ├── api/                    # Lightweight JSON API layer
+│   │   ├── index.php          # API router (entry point)
+│   │   ├── bootstrap.php      # Dependency loader (base classes)
+│   │   ├── response.php       # JSON response helper
+│   │   ├── auth.php           # Authentication helpers
+│   │   ├── logger.php         # API logging system
+│   │   ├── modules/           # Module-specific API handlers
+│   │   │   ├── auth.php      # Login/logout/session
+│   │   │   └── dashboard.php # Dashboard data
+│   │   └── ENABLE_API_LOGGING.sql
 │   └── assets/
+│       ├── css/
+│       │   └── app.css        # Shared theme + component styles
 │       └── js/
-│           ├── api.js          # API client
-│           ├── auth.js         # Authentication helpers
-│           └── app.js          # App initialization
+│           ├── api.js         # API client
+│           ├── auth.js        # Authentication helpers
+│           ├── app.js         # App initialization
+│           └── tailwind-config.js
 │
 └── [existing BNote code unchanged]
 ```
 
 ### Key Principles
 
-1. **Complete Separation**: New UI in `/next/` directory, API in `/api/` directory
+1. **Complete Separation**: New app (UI + API) in `/next/` directory
 2. **No PHP in UI**: All HTML pages are static - all logic via JavaScript API calls
 3. **Session-Based Auth**: Uses existing PHP sessions (no token system needed)
 4. **Direct Access**: New UI accessible directly at `/next/index.html` (no feature flag routing)
@@ -50,19 +52,19 @@ BNote/
 
 ## API Layer
 
-### API Router (`/api/index.php`)
+### API Router (`/next/api/index.php`)
 
 The API router handles all requests and routes them to module-specific handlers.
 
 **URL Pattern:**
 ```
-GET/POST /api/index.php?module={module}&action={action}&id={id}
+GET/POST /next/api/index.php?module={module}&action={action}&id={id}
 ```
 
 **Example:**
 ```
-GET /api/index.php?module=dashboard&action=dashboard
-POST /api/index.php?module=auth&action=login
+GET /next/api/index.php?module=dashboard&action=dashboard
+POST /next/api/index.php?module=auth&action=login
 ```
 
 **Request Flow:**
@@ -72,7 +74,7 @@ POST /api/index.php?module=auth&action=login
 4. Load API bootstrap (base classes)
 5. Load API helpers (`response.php`, `auth.php`, `logger.php`)
 6. Validate module name (security)
-7. Load module file from `/api/modules/{module}.php`
+7. Load module file from `/next/api/modules/{module}.php`
 8. Check authentication (except for `auth` module)
 9. Instantiate module handler class (`{Module}Module`)
 10. Call `handle()` method
@@ -94,7 +96,7 @@ POST /api/index.php?module=auth&action=login
 }
 ```
 
-### Bootstrap System (`/api/bootstrap.php`)
+### Bootstrap System (`/next/api/bootstrap.php`)
 
 **Purpose**: Loads all required base classes before module-specific classes are loaded.
 
@@ -113,7 +115,7 @@ POST /api/index.php?module=auth&action=login
 **When to update**: If you encounter "Class X not found" errors, check:
 1. What class is missing?
 2. What does it extend/use?
-3. Add the required class to `bootstrap.php` in dependency order
+3. Add the required class to `next/api/bootstrap.php` in dependency order
 
 ### Module Handler Pattern
 
@@ -124,13 +126,13 @@ Each module API file follows this pattern:
 /**
  * {Module} API module
  * 
- * Note: This file is loaded after api/index.php has changed working directory to project root
+ * Note: This file is loaded after next/api/index.php has changed working directory to project root
  * So relative paths in {module}data.php will work correctly
  */
-// dirs.php, init.php, and bootstrap.php are already loaded by api/index.php
+// dirs.php, init.php, and bootstrap.php are already loaded by next/api/index.php
 // All base classes (FieldType, AbstractData, AbstractLocationData) are loaded
-// Load module-specific dependencies
-require_once __DIR__ . '/../../src/data/modules/{module}data.php';
+// Load module-specific dependencies (next/api/modules -> project root is ../../..)
+require_once __DIR__ . '/../../../src/data/modules/{module}data.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 
@@ -206,7 +208,7 @@ class {Module}Module {
 
 ### Adding a New API Module
 
-1. **Create `/api/modules/{module}.php`** following the pattern above
+1. **Create `/next/api/modules/{module}.php`** following the pattern above
 2. **Check dependencies**: What classes does `{Module}Data` need?
    - If it extends `AbstractLocationData`, bootstrap already loaded it
    - If it needs other classes, add `require_once` statements
@@ -223,20 +225,20 @@ class {Module}Module {
    ```
 5. **Test with curl**:
    ```bash
-   curl -X GET "http://localhost:8888/bnote/BNote/api/index.php?module={module}&action=list" \
+   curl -X GET "http://localhost:8888/bnote/BNote/next/api/index.php?module={module}&action=list" \
      -H "Cookie: PHPSESSID=..."
    ```
 
 ### API Helpers
 
-#### Response Helper (`/api/response.php`)
+#### Response Helper (`/next/api/response.php`)
 
 ```php
 Response::success($data);        // Returns 200 with JSON
 Response::error($message, $code); // Returns error with JSON
 ```
 
-#### Auth Helper (`/api/auth.php`)
+#### Auth Helper (`/next/api/auth.php`)
 
 ```php
 Auth::check();                    // Check if user authenticated
@@ -244,19 +246,19 @@ Auth::getUserId();                // Get current user ID
 Auth::checkModule($moduleName);   // Check module permissions
 ```
 
-#### Logger (`/api/logger.php`)
+#### Logger (`/next/api/logger.php`)
 
 Logs all API requests and responses when enabled via database setting `api_detailed_logging`.
 
 **Enable logging:**
 ```sql
--- Run api/ENABLE_API_LOGGING.sql
+-- Run next/api/ENABLE_API_LOGGING.sql
 INSERT INTO configuration (param, value, is_active) 
 VALUES ('api_detailed_logging', '1', 1)
 ON DUPLICATE KEY UPDATE value = '1', is_active = 1;
 ```
 
-**Log location:** `/log/api/api_YYYY-MM-DD.log`
+**Log location:** `/log/api/api_YYYY-MM-DD.log` (project root; unchanged)
 
 **Log format:** JSON lines, one per request/response
 
@@ -266,15 +268,13 @@ ON DUPLICATE KEY UPDATE value = '1', is_active = 1;
 
 **Path Calculation Logic:**
 
-The API client automatically calculates the correct API path based on the current page location. This is critical because the UI is in `/next/` but the API is at the root level.
+The API client automatically calculates the correct API path based on the current page location. The API lives at `/next/api/index.php`.
 
 **How it works:**
 1. Get current pathname (e.g., `/bnote/BNote/next/login.html`)
-2. Split into path segments: `['bnote', 'BNote', 'next', 'login.html']`
-3. Find `'next'` in the array
-4. Remove `'next'` and everything after it: `['bnote', 'BNote']`
-5. Join to get base path: `/bnote/BNote/`
-6. Append API path: `/bnote/BNote/api/index.php`
+2. Find `/next/` or `/next` in the pathname
+3. Take the path **up to and including** `next`: `/bnote/BNote/next` or `/bnote/BNote/next/`
+4. Append `api/index.php`: `/bnote/BNote/next/api/index.php`
 
 **Important**: This logic handles both `/next/` (with trailing slash) and `/next` (without trailing slash) patterns.
 
@@ -365,23 +365,23 @@ Auth.redirectIfNotAuthenticated();  // Use on protected pages
 
 ### Issue: "Class X not found"
 
-**Solution**: Add the missing class to `/api/bootstrap.php` in dependency order.
+**Solution**: Add the missing class to `/next/api/bootstrap.php` in dependency order.
 
 **Check:**
 1. What class is missing?
 2. What does it extend/use?
 3. Load parent classes first
 
-### Issue: "API Base URL includes /next/"
+### Issue: "API Base URL wrong"
 
-**Solution**: The path calculation in `api.js` should automatically handle this. If it doesn't:
-1. Check browser console for path calculation logs
-2. Verify the pathname format
-3. Update the path calculation logic if needed
+**Solution**: The path calculation in `api.js` uses the path up to and including `/next`, then appends `api/index.php`. If requests fail:
+1. Verify the pathname format (must contain `/next/` or `/next`)
+2. Check network tab for the requested URL
+3. Update the path calculation logic in `api.js` if needed
 
 ### Issue: "Session already active" warnings
 
-**Solution**: Already handled in `api/index.php` with:
+**Solution**: Already handled in `next/api/index.php` with:
 ```php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -396,7 +396,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 **Solution**: This usually means PHP errors are being returned as HTML. Check:
 1. PHP error logs
-2. API logs (`/log/api/api_YYYY-MM-DD.log`)
+2. API logs (`/log/api/api_YYYY-MM-DD.log` at project root)
 3. Use debug tool (`/next/debug.html`) to see raw response
 
 ### Issue: Path resolution errors in module files
@@ -441,7 +441,7 @@ When enabled, logs all API requests/responses to `/log/api/api_YYYY-MM-DD.log`.
 
 **Enable:**
 ```sql
--- Run api/ENABLE_API_LOGGING.sql
+-- Run next/api/ENABLE_API_LOGGING.sql
 UPDATE configuration SET value = '1' WHERE param = 'api_detailed_logging';
 ```
 
@@ -451,13 +451,13 @@ UPDATE configuration SET value = '1' WHERE param = 'api_detailed_logging';
 
 ```bash
 # Login
-curl -X POST "http://localhost:8888/bnote/BNote/api/index.php?module=auth&action=login" \
+curl -X POST "http://localhost:8888/bnote/BNote/next/api/index.php?module=auth&action=login" \
   -H "Content-Type: application/json" \
   -d '{"username":"test","password":"test"}' \
   -c cookies.txt
 
 # Get dashboard (use cookie from login)
-curl -X GET "http://localhost:8888/bnote/BNote/api/index.php?module=dashboard&action=dashboard" \
+curl -X GET "http://localhost:8888/bnote/BNote/next/api/index.php?module=dashboard&action=dashboard" \
   -b cookies.txt
 ```
 
@@ -499,7 +499,7 @@ curl -X GET "http://localhost:8888/bnote/BNote/api/index.php?module=dashboard&ac
 ## References
 
 - Plan: `.cursor/plans/separate_modern_ui_with_api_-_login_&_dashboard_5c4f1c69.plan.md`
-- API Router: `/api/index.php`
-- Bootstrap: `/api/bootstrap.php`
+- API Router: `/next/api/index.php`
+- Bootstrap: `/next/api/bootstrap.php`
 - API Client: `/next/assets/js/api.js`
 - Debug Tool: `/next/debug.html`

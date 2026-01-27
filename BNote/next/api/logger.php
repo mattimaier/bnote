@@ -30,8 +30,8 @@ class ApiLogger {
      */
     private static function getLogDir() {
         if (self::$logDir === null) {
-            // Use the existing log directory
-            self::$logDir = __DIR__ . '/../log/api/';
+            // Use the existing log directory (next/api -> project root -> log/api)
+            self::$logDir = __DIR__ . '/../../log/api/';
             if (!is_dir(self::$logDir)) {
                 mkdir(self::$logDir, 0755, true);
             }

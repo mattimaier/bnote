@@ -6,10 +6,10 @@
  * Note: This file is loaded after api/index.php has changed working directory to project root
  */
 // Load DefaultController before LoginController (LoginController extends DefaultController)
-require_once __DIR__ . '/../../src/logic/defaultcontroller.php';
-require_once __DIR__ . '/../../src/data/modules/userdata.php';
-require_once __DIR__ . '/../../src/logic/modules/logincontroller.php';
-require_once __DIR__ . '/../../src/logic/mailing.php';
+require_once __DIR__ . '/../../../src/logic/defaultcontroller.php';
+require_once __DIR__ . '/../../../src/data/modules/userdata.php';
+require_once __DIR__ . '/../../../src/logic/modules/logincontroller.php';
+require_once __DIR__ . '/../../../src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 

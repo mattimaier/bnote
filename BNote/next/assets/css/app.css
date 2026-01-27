@@ -1,0 +1,192 @@
+/**
+ * BNote next app – shared theme and component styles
+ * Edit :root variables to change the theme; no Tailwind expertise required.
+ */
+
+:root {
+    --background: oklch(0.99 0.001 250);
+    --foreground: oklch(0.18 0.01 250);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.18 0.01 250);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.18 0.01 250);
+    --primary: oklch(0.50 0.18 240);
+    --primary-foreground: oklch(1 0 0);
+    --secondary: oklch(0.97 0.002 250);
+    --secondary-foreground: oklch(0.30 0.01 250);
+    --muted: oklch(0.96 0.002 250);
+    --muted-foreground: oklch(0.50 0.01 250);
+    --accent: oklch(0.68 0.20 80);
+    --accent-foreground: oklch(1 0 0);
+    --destructive: oklch(0.58 0.22 20);
+    --destructive-foreground: oklch(1 0 0);
+    --border: oklch(0.93 0.002 250);
+    --input: oklch(0.95 0.002 250);
+    --ring: oklch(0.50 0.18 240);
+    --chart-1: oklch(0.50 0.18 240);
+    --chart-2: oklch(0.68 0.20 80);
+    --chart-3: oklch(0.62 0.18 150);
+    --chart-4: oklch(0.58 0.22 20);
+    --chart-5: oklch(0.65 0.15 300);
+    --radius: 0.875rem;
+    --sidebar: oklch(0.995 0.001 250);
+    --sidebar-foreground: oklch(0.18 0.01 250);
+    --sidebar-primary: oklch(0.50 0.18 240);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.96 0.002 250);
+    --sidebar-accent-foreground: oklch(0.30 0.01 250);
+    --sidebar-border: oklch(0.92 0.002 250);
+    --sidebar-ring: oklch(0.50 0.18 240);
+    --spacing: 0.25rem;
+    --text-xs: 0.75rem;
+    --font-weight-medium: 500;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+}
+
+/* Utility classes for theme colors */
+.bg-background { background-color: var(--background); }
+.text-foreground { color: var(--foreground); }
+.bg-card { background-color: var(--card); }
+.text-card-foreground { color: var(--card-foreground); }
+.bg-primary { background-color: var(--primary); }
+.text-primary { color: var(--primary); }
+.bg-muted { background-color: var(--muted); }
+.text-muted-foreground { color: var(--muted-foreground); }
+.bg-accent { background-color: var(--accent); }
+.text-accent { color: var(--accent); }
+.border-border { border-color: var(--border); }
+.bg-sidebar { background-color: var(--sidebar); }
+.text-sidebar-foreground { color: var(--sidebar-foreground); }
+.border-sidebar-border { border-color: var(--sidebar-border); }
+.bg-sidebar-accent { background-color: var(--sidebar-accent); }
+.text-sidebar-accent-foreground { color: var(--sidebar-accent-foreground); }
+
+/* Badge/Ribbon styling */
+.event-badge {
+    display: inline-flex;
+    width: fit-content;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing, 0.25rem) * 1);
+    overflow: hidden;
+    border-radius: calc(var(--radius, 0.875rem) - 2px);
+    border-style: solid;
+    border-width: 1px;
+    border-color: color-mix(in oklab, var(--primary) 20%, transparent);
+    background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+    padding-inline: calc(var(--spacing, 0.25rem) * 2);
+    padding-block: calc(var(--spacing, 0.25rem) * 0.5);
+    font-size: var(--text-xs, 0.75rem);
+    line-height: calc(1 / 0.75);
+    font-weight: var(--font-weight-medium, 500);
+    white-space: nowrap;
+    color: var(--primary);
+    transition-property: color, box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.event-badge.accent {
+    border-color: color-mix(in oklab, var(--accent) 20%, transparent);
+    background-color: color-mix(in oklab, var(--accent) 10%, transparent);
+    color: var(--accent);
+}
+
+.event-badge.chart-3 {
+    border-color: color-mix(in oklab, var(--chart-3) 20%, transparent);
+    background-color: color-mix(in oklab, var(--chart-3) 10%, transparent);
+    color: var(--chart-3);
+}
+
+/* Timeline connector */
+.timeline-connector {
+    background: linear-gradient(to bottom,
+        color-mix(in oklab, var(--border) 100%, transparent),
+        color-mix(in oklab, var(--border) 40%, transparent),
+        color-mix(in oklab, var(--border) 10%, transparent));
+}
+
+/* Participation widget buttons */
+.participation-btn {
+    transform-origin: center;
+}
+
+.participation-btn:disabled {
+    background-color: transparent !important;
+    border-color: var(--border) !important;
+    color: var(--muted-foreground) !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
+.participation-btn.pointer-events-none {
+    pointer-events: none;
+}
+
+.participation-btn.hidden,
+.participation-btn[style*="display: none"] {
+    display: none !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Filter bubbles */
+.filter-bubble {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: calc(var(--spacing, 0.25rem) * 2);
+    padding-block: calc(var(--spacing, 0.25rem) * 0.5);
+    font-size: var(--text-xs, 0.75rem);
+    line-height: calc(1 / 0.75);
+    font-weight: var(--font-weight-medium, 500);
+    border-radius: calc(var(--radius, 0.875rem) - 2px);
+    border: 1px solid;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.filter-bubble-rehearsal {
+    border-color: color-mix(in oklab, var(--primary) 20%, transparent);
+    background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+    color: var(--primary);
+}
+
+.filter-bubble-performance {
+    border-color: color-mix(in oklab, var(--accent) 20%, transparent);
+    background-color: color-mix(in oklab, var(--accent) 10%, transparent);
+    color: var(--accent);
+}
+
+.filter-bubble-meeting {
+    border-color: color-mix(in oklab, var(--chart-3) 20%, transparent);
+    background-color: color-mix(in oklab, var(--chart-3) 10%, transparent);
+    color: var(--chart-3);
+}
+
+.filter-bubble-rehearsal.selected {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.filter-bubble-performance.selected {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.filter-bubble-meeting.selected {
+    background-color: var(--chart-3);
+    border-color: var(--chart-3);
+    color: var(--background);
+}
