@@ -36,9 +36,17 @@ const EventDetail = {
         this.eventId = eventId;
 
         // Push state to history for browser back button support
-        const state = { view: 'event-detail', eventType, eventId };
-        const url = `?event=${eventType}${eventId}`;
-        history.pushState(state, '', url);
+        // Only push if URL doesn't already have the correct parameter
+        const param = eventType === 'R' ? 'rehearsal' : 'concert';
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentParamValue = urlParams.get(param);
+        
+        // Only push state if URL doesn't match or if we're not already in event detail view
+        if (currentParamValue !== String(eventId) || !history.state || history.state.view !== 'event-detail') {
+            const state = { view: 'event-detail', eventType, eventId };
+            const url = `?${param}=${eventId}`;
+            history.pushState(state, '', url);
+        }
 
         // Show detail container, hide dashboard
         const detailContainer = document.getElementById('event-detail-container');
@@ -317,6 +325,97 @@ const EventDetail = {
     },
 
     /**
+     * Detect if text contains markdown syntax patterns
+     * @param {string} text - Text to check
+     * @returns {boolean} - True if markdown patterns detected
+     */
+    isMarkdown(text) {
+        if (!text || typeof text !== 'string') return false;
+        
+        // Common markdown patterns
+        const markdownPatterns = [
+            /^#{1,6}\s+.+/m,                    // Headers: #, ##, ###, etc.
+            /\*\*[^*]+\*\*/,                    // Bold: **text**
+            /__[^_]+__/,                        // Bold: __text__
+            /\*[^*]+\*/,                        // Italic: *text*
+            /_[^_]+_/,                          // Italic: _text_
+            /^[-*+]\s+.+/m,                     // Unordered lists: -, *, +
+            /^\d+\.\s+.+/m,                     // Ordered lists: 1., 2., etc.
+            /\[.+\]\(.+\)/,                     // Links: [text](url)
+            /`[^`]+`/,                          // Inline code: `code`
+            /```[\s\S]+```/,                    // Code blocks: ```code```
+            /^>\s+.+/m,                         // Blockquotes: > text
+            /^\s*\|.+\|/m,                      // Tables: | col1 | col2 |
+            /^---+$/m,                          // Horizontal rules: ---
+            /^\*\*\*+$/m                        // Horizontal rules: ***
+        ];
+        
+        return markdownPatterns.some(pattern => pattern.test(text));
+    },
+
+    /**
+     * Render markdown text to HTML with security configuration
+     * @param {string} markdown - Markdown text to render
+     * @returns {string} - Rendered HTML
+     */
+    renderMarkdown(markdown) {
+        if (!markdown || typeof markdown !== 'string') return '';
+        
+        // Check if marked is available
+        if (typeof marked === 'undefined') {
+            console.warn('marked.js not available, falling back to plain text');
+            return this.escapeHtml(markdown);
+        }
+        
+        try {
+            // Configure marked with security options
+            // Use modern API if available, fallback to setOptions for older versions
+            if (typeof marked.use === 'function') {
+                marked.use({
+                    breaks: true,           // Convert line breaks to <br>
+                    gfm: true,              // GitHub Flavored Markdown
+                    silent: true            // Suppress warnings
+                });
+            } else if (typeof marked.setOptions === 'function') {
+                marked.setOptions({
+                    breaks: true,
+                    gfm: true,
+                    sanitize: false,        // We'll sanitize manually
+                    silent: true
+                });
+            }
+            
+            // Parse markdown to HTML
+            let html = marked.parse(markdown);
+            
+            // Basic XSS protection: remove script tags and event handlers
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            
+            // Remove script tags
+            const scripts = div.querySelectorAll('script');
+            scripts.forEach(script => script.remove());
+            
+            // Remove event handlers from all elements
+            const allElements = div.querySelectorAll('*');
+            allElements.forEach(el => {
+                // Remove all event handler attributes
+                Array.from(el.attributes).forEach(attr => {
+                    if (attr.name.startsWith('on')) {
+                        el.removeAttribute(attr.name);
+                    }
+                });
+            });
+            
+            return div.innerHTML;
+        } catch (error) {
+            console.error('Error rendering markdown:', error);
+            // Fallback to escaped plain text
+            return this.escapeHtml(markdown);
+        }
+    },
+
+    /**
      * Render basic information section (shared between rehearsals and concerts)
      */
     renderBasicInfo(event) {
@@ -389,12 +488,24 @@ const EventDetail = {
                     <span class="info-value">${this.formatDateTime(event.meetingtime)}</span>
                 </div>
             ` : '';
-            concertNotesHtml = event.notes ? `
-                <div class="info-item md:col-span-2">
-                    <span class="info-label">${t('js.event.detail.notes')}:</span>
-                    <div class="info-value whitespace-pre-wrap">${this.escapeHtml(event.notes)}</div>
-                </div>
-            ` : '';
+            
+            // Render concert notes with markdown support
+            if (event.notes) {
+                const isMarkdownContent = this.isMarkdown(event.notes);
+                const notesContent = isMarkdownContent 
+                    ? this.renderMarkdown(event.notes)
+                    : this.escapeHtml(event.notes);
+                const notesClass = isMarkdownContent
+                    ? 'info-value prose prose-sm max-w-none'
+                    : 'info-value whitespace-pre-wrap';
+                
+                concertNotesHtml = `
+                    <div class="info-item md:col-span-2">
+                        <span class="info-label">${t('js.event.detail.notes')}:</span>
+                        <div class="${notesClass}">${notesContent}</div>
+                    </div>
+                `;
+            }
         }
 
         return `
@@ -584,6 +695,11 @@ const EventDetail = {
 
         if (detailContainer) detailContainer.classList.add('hidden');
         if (dashboardContainer) dashboardContainer.classList.remove('hidden');
+        
+        // Clean URL when showing dashboard (remove event parameters)
+        if (typeof Routing !== 'undefined') {
+            Routing.cleanUrl();
+        }
 
         // Reinitialize icons for back button
         if (typeof lucide !== 'undefined') {

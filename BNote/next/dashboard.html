@@ -199,6 +199,7 @@
 
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="assets/js/routing.js"></script>
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/badge.js"></script>
@@ -210,6 +211,7 @@
     <script src="assets/js/participation.js"></script>
     <script src="assets/js/participation-diagram.js"></script>
     <script src="assets/js/participant-overview.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
     <script src="assets/js/event-metadata.js"></script>
     <script src="assets/js/event-detail.js"></script>
     <script src="assets/js/dashboard.js"></script>
@@ -277,6 +279,35 @@
                     lucide.createIcons();
                 }
                 
+                // Check for event parameters in URL or sessionStorage
+                let eventToShow = null;
+                
+                // First, check URL parameters
+                const eventFromUrl = Routing.getEventFromUrl();
+                if (eventFromUrl) {
+                    eventToShow = eventFromUrl;
+                    // Store in sessionStorage in case of redirect
+                    Routing.storePendingNavigation(eventFromUrl.type, eventFromUrl.id);
+                } else {
+                    // Check sessionStorage for pending navigation (from login redirect)
+                    const pendingNav = Routing.getPendingNavigation();
+                    if (pendingNav) {
+                        eventToShow = pendingNav;
+                    }
+                }
+                
+                // If event found, initialize EventDetail after dashboard loads
+                if (eventToShow && typeof EventDetail !== 'undefined') {
+                    // Initialize event detail view
+                    // Note: EventDetail.init() will update the URL with pushState to maintain the correct format
+                    try {
+                        await EventDetail.init(eventToShow.type, eventToShow.id);
+                    } catch (error) {
+                        console.error('Failed to initialize event detail:', error);
+                        // Error is already shown by EventDetail component
+                    }
+                }
+                
                 // Handle browser back/forward buttons
                 window.addEventListener('popstate', (event) => {
                     if (event.state && event.state.view === 'event-detail') {
@@ -287,22 +318,10 @@
                     } else {
                         // User navigated back to dashboard
                         if (typeof EventDetail !== 'undefined') {
-                            EventDetail.showDashboard();
+                            EventDetail.navigateBack();
                         }
                     }
                 });
-                
-                // Check if we should show event detail from URL on initial load
-                const urlParams = new URLSearchParams(window.location.search);
-                const eventParam = urlParams.get('event');
-                if (eventParam && typeof EventDetail !== 'undefined') {
-                    // Parse event parameter (format: R123 or C456)
-                    const eventType = eventParam.charAt(0);
-                    const eventId = parseInt(eventParam.substring(1));
-                    if ((eventType === 'R' || eventType === 'C') && !isNaN(eventId)) {
-                        EventDetail.init(eventType, eventId);
-                    }
-                }
                 
                 // Show content
                 document.documentElement.classList.remove('i18n-loading');
