@@ -1,107 +1,200 @@
-# BNote UI Modernization Rules
+# BNote Development Rules
 
 ## Project Context
 This is BNote - an open source ensemble management system for bands, orchestras, and choirs.
 - **Architecture:** 3-tier MVC (data/logic/presentation)
-- **Current UI:** Old PHP-generated HTML with inline CSS
-- **Goal:** Modern Tailwind CSS UI while preserving all PHP backend logic
+- **Old UI:** PHP-generated HTML with inline CSS (`/src/presentation/`)
+- **New UI:** BNote Next Generation - Modern JavaScript SPA (`/next/`)
 - **License:** GPL-3.0 (all code must remain GPL-compliant)
+
+## CRITICAL: Old Codebase is Off-Limits
+
+**ABSOLUTE RULE:** Do NOT modify ANY code in the old codebase.
+
+**Protected Directories (NEVER modify):**
+- `/src/` - All old PHP code (data, logic, presentation)
+- `/main.php` - Old entry point
+- `/content.php` - Old layout
+- `/api/` - Old API (if exists, separate from `/next/api/`)
+- Any file outside `/next/` directory
+
+**What This Means:**
+- ❌ Do NOT refactor old code
+- ❌ Do NOT update old UI
+- ❌ Do NOT modernize old widgets
+- ❌ Do NOT add Tailwind to old code
+- ❌ Do NOT fix bugs in old code (unless critical security)
+- ❌ Do NOT improve old code structure
+- ✅ ONLY work in `/next/` directory
+- ✅ ONLY modify Next Generation UI
+
+**Exception:** Only modify old code if explicitly requested by user for critical security fixes.
 
 ## Core Principles
 
-### 1. Preserve Backend Completely
-- NEVER modify files in `/src/data/` or `/src/logic/`
-- ONLY modify files in `/src/presentation/`
-- Keep all existing PHP class methods and signatures
-- Preserve session management and security checks
+### 1. Code Style (Next Generation Only)
+- Use modern JavaScript (ES6+)
+- Use English variable names (no German)
+- Use meaningful, descriptive names
+- Keep indentation consistent
+- Add comments for complex logic
 
-### 2. UI Modernization Strategy
-- Replace old CSS with Tailwind CSS utility classes
-- Replace inline styles with Tailwind classes
-- Keep PHP echo/print statements (just change HTML content)
-- Use Tailwind CDN (no build tools required)
-- Mobile-first responsive design
-- Maintain accessibility (ARIA labels, semantic HTML)
-
-### 3. Widget-First Approach
-- Start with `/src/presentation/widgets/` directory
-- These widgets are used across all 30+ modules
-- Modernizing widgets automatically updates entire app
-- Priority widgets: form.php, table.php, box.php, field.php
-
-### 4. Tailwind Guidelines
-- Use Tailwind 3.x utility classes
-- Prefer utility classes over custom CSS
-- Use standard spacing scale (p-4, m-6, etc.)
-- Use semantic color names (bg-blue-500, text-gray-700)
-- Mobile breakpoints: sm:, md:, lg:, xl:
-- Dark mode: optional (add dark: prefix when appropriate)
-
-### 5. Code Style
-- PSR-12 PHP coding standards
-- German variable names are OK (existing codebase convention)
-- Add comments for complex Tailwind class combinations
-- Keep indentation consistent with existing files
-- **CRITICAL: Do NOT reformat existing PHP code** - preserve exact whitespace, line endings, and formatting to avoid unnecessary diffs
-- Only modify code that you're intentionally changing - don't auto-format entire files
-- When editing, only change the specific lines you need to modify
-- - **CRITICAL:** DO NOT TOUCH ANY CODE IN /presentation etc
-
-### 6. Browser Compatibility
+### 2. Browser Compatibility
 - Target modern browsers (last 2 versions)
 - No IE11 support needed
 - Progressive enhancement approach
 - Use standard HTML5/CSS3
 
-## Specific Instructions
+### 3. Internationalization (i18n) - MANDATORY
 
-### When Modifying Widget Classes:
+**CRITICAL:** ALL user-facing strings MUST use the i18n system. No hardcoded text.
 
-```php
-// CORRECT: Change only the HTML/CSS output
-class Form {
-    function render() {
-        // OLD: echo '<form class="old-style">';
-        echo '<form class="max-w-2xl mx-auto space-y-6 bg-white shadow-lg rounded-lg p-6">';
-        // Keep all PHP logic unchanged
-    }
-}
+**For Next Generation UI (`/next/`):**
+- **HTML:** Use `data-i18n`, `data-i18n-placeholder`, `data-i18n-label` attributes
+- **JavaScript:** Always use `i18n.t(key)` for user-facing strings
+- **Translation Files:** Add keys to all language files (`next/lang/*.json`)
+- **Key Format:** `js.{module}.{key}` (e.g., `js.dashboard.welcome`)
+- **Never hardcode:** No English, German, or other language strings in code
+- **German text:** Only exists in `next/lang/de.json` (translation file)
 
-// WRONG: Don't change method signatures or add dependencies
-class Form {
-    function render($tailwindConfig) { // ❌ Don't add parameters
-        // ...
-    }
-}
+**Examples:**
+```html
+<!-- GOOD -->
+<h1 data-i18n="js.dashboard.welcome">Welcome</h1>
+<input data-i18n-placeholder="js.login.usernamePlaceholder" />
+
+<!-- BAD -->
+<h1>Welcome</h1>
+<input placeholder="Username" />
 ```
 
+```javascript
+// GOOD
+showToast(i18n.t('js.users.created'));
+const errorMsg = i18n.t('js.error.loadFailed');
 
-### Tailwind Patterns to Use:
+// BAD
+showToast('User created');
+const errorMsg = 'Failed to load';
+```
 
-**Forms:**
+### 4. Dark Mode Support - MANDATORY
+
+**CRITICAL:** ALL UI components MUST support dark mode.
+
+**CSS Variables:**
+- Use semantic color variables from `next/assets/css/app.css`
+- Variables automatically adapt to dark mode via `.dark` class
+- Never hardcode colors
+
+**Tailwind Classes:**
+```html
+<!-- GOOD - Uses semantic variables -->
+<div class="bg-background text-foreground">
+  <div class="bg-card border border-border">
+    <p class="text-muted-foreground">Text</p>
+  </div>
+</div>
+
+<!-- BAD - Hardcoded colors -->
+<div class="bg-white text-black dark:bg-gray-800 dark:text-white">
+```
+
+**Theme Toggle:**
+- Use `ThemeToggle.toggle()` to switch themes
+- Theme preference saved in localStorage
+- Respects system preference on first load
+
+**Testing:**
+- Always test components in both light and dark modes
+- Use browser dev tools to toggle dark mode
+
+### 5. License Compliance
+
+- All code must remain GPL-3.0
+- **MANDATORY:** Add GPL v3 license headers to all source files in `/next/`
+- Use standard Tailwind patterns (MIT licensed)
+- Avoid copying proprietary UI components
+- Keep GPL headers in all modified files
+
+## Next Generation UI Development
+
+**Location:** `/next/` directory ONLY
+
+**Key Requirements:**
+1. **MANDATORY i18n:** All user-facing strings must use `i18n.t()` or `data-i18n` attributes
+2. **MANDATORY Dark Mode:** All components must use semantic CSS variables
+3. **GPL Headers:** All source files must include GPL v3 license headers
+4. **API Pattern:** Use module-based API (`/next/api/index.php?module=X&action=Y`)
+5. **Translation Files:** Add keys to all language files (`next/lang/*.json`)
+
+**Technology Stack:**
+- Vanilla JavaScript (no frameworks)
+- Tailwind CSS (via CDN)
+- Lucide Icons (via CDN)
+- Custom i18n service (`next/assets/js/i18n.js`)
+- Theme toggle (`next/assets/js/theme-toggle.js`)
+
+**See:** [next/README.md](next/README.md) for architecture details
+
+## Workflow
+
+**For Next Generation UI (`/next/`):**
+1. All user-facing strings must use i18n
+2. All components must support dark mode
+3. Use semantic CSS variables for colors
+4. Test in both light and dark modes
+5. Add translation keys to all language files
+6. Add GPL v3 headers to all new/modified files
+
+## Next Generation UI Examples
+
+### Example: Component with i18n and Dark Mode
 
 ```html
-<form class="max-w-2xl mx-auto space-y-6 bg-white shadow-lg rounded-lg p-6">
-    <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-    <button class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-</form>
+<!-- GOOD - Uses i18n and semantic colors -->
+<div class="bg-card border border-border rounded-lg p-4">
+    <h2 class="text-xl font-semibold text-card-foreground mb-4" 
+        data-i18n="js.dashboard.welcome">Welcome</h2>
+    <p class="text-muted-foreground" data-i18n="js.dashboard.subtitle">Welcome to %p</p>
+    <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg"
+            data-i18n-label="js.common.save">Save</button>
+</div>
 ```
 
+```javascript
+// GOOD - Uses i18n for all strings
+const Dashboard = {
+    async loadData() {
+        try {
+            const data = await DashboardApi.getDashboard();
+            this.render(data);
+        } catch (error) {
+            // Use i18n for error message
+            showToast(i18n.t('js.error.dashboardLoadFailed'));
+        }
+    },
+    
+    render(data) {
+        // All text uses i18n
+        container.innerHTML = `
+            <h1 data-i18n="js.dashboard.welcome">Welcome</h1>
+            <div class="bg-card border border-border">
+                <!-- Content -->
+            </div>
+        `;
+        // Translate after rendering
+        i18n.translatePage();
+    }
+};
+```
 
-### German Language Support:
+## Priority Order
 
-- Keep all German text unchanged (lang="de_DE")
-- Maintain existing translation system
-- UI labels stay in German
-
-
-### Rights/Security:
-
-- Never remove or bypass security checks
-- Preserve all `SecurityManager` calls
-- Keep session handling intact
-- Maintain permission-based UI hiding/showing
-
+**Next Generation:**
+1. Complete localization for existing modules
+2. Implement remaining modules (Calendar, Messages, etc.)
+3. Add advanced features (search, exports, etc.)
 
 ## Testing Reminders
 
@@ -110,82 +203,11 @@ class Form {
 - Verify all buttons/links still work
 - No JavaScript errors in console
 - Forms still submit correctly
-
-
-## License Compliance
-
-- All code must remain GPL-3.0
-- Use standard Tailwind patterns (MIT licensed)
-- Avoid copying proprietary UI components
-- Keep GPL headers in modified files
-
-
-## Workflow
-
-1. Analyze existing widget/view file
-2. Identify HTML output sections
-3. Replace old CSS classes with Tailwind
-4. Test in browser
-5. Iterate if needed
-
-## Example Transformation
-
-### Before:
-
-```php
-class LoginView {
-    function login() {
-        echo '<div class="loginbox">';
-        ```
-        echo '<h2>Login</h2>';
-        ```
-        echo '<form action="main.php?mod=login" method="post">';
-        echo '<input type="text" name="login" class="textfield">';
-        echo '<input type="password" name="password" class="textfield">';
-        echo '<input type="submit" value="Anmelden" class="submit">';
-        echo '</form>';
-        echo '</div>';
-    }
-}
-```
-
-
-### After:
-
-```php
-class LoginView {
-    function login() {
-        echo '<div class="max-w-md mx-auto mt-10 bg-white rounded-lg shadow-lg p-8">';
-        ```
-        echo '<h2 class="text-2xl font-bold text-gray-900 mb-6">Login</h2>';
-        ```
-        echo '<form action="main.php?mod=login" method="post" class="space-y-4">';
-        echo '<input type="text" name="login" placeholder="Benutzername" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">';
-        echo '<input type="password" name="password" placeholder="Passwort" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">';
-        ```
-        echo '<button type="submit" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">Anmelden</button>';
-        ```
-        echo '</form>';
-        echo '</div>';
-    }
-}
-```
-
-
-## Priority Order
-
-1. Core widgets (form, table, box, field)
-2. Login module
-3. Start/dashboard module
-4. High-traffic modules (rehearsals, concerts, calendar)
-5. Remaining modules
+- Test in both light and dark modes
 
 ## Notes
 
 - Cursor should generate clean, readable code
 - Preserve existing functionality 100%
-- Focus on visual improvements only in Phase 1
-- AJAX/async features come in Phase 2
-
-```
-
+- For Next Generation: Always use i18n and support dark mode
+- **NEVER modify old codebase** - work only in `/next/` directory

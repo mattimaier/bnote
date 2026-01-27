@@ -766,16 +766,101 @@ Lang::txt("ModuleName_key")
 
 ---
 
-## 16. Next Steps
+## 16. BNote Next Generation Architecture
 
-1. **Create API Architecture Document** (see `API_ARCHITECTURE.md`)
-2. **Design API Endpoints** (see `API_ENDPOINTS.md`)
-3. **Design JavaScript Architecture** (see `JS_ARCHITECTURE.md`)
-4. **Create Migration Plan** (see `MIGRATION_PLAN.md`)
-5. **Create Testing Checklist** (see `TESTING_CHECKLIST.md`)
+### 16.1 Overview
+
+BNote Next Generation is a modern JavaScript-based UI rewrite located in the `/next` directory. It provides a faster, more responsive user experience while maintaining full compatibility with the existing PHP backend.
+
+### 16.2 Directory Structure
+
+```
+next/
+├── api/                    # REST API backend
+│   ├── index.php          # API router
+│   ├── bootstrap.php     # Backend initialization
+│   ├── auth.php           # Auth helpers
+│   ├── response.php       # Response helper
+│   ├── logger.php         # API logger
+│   └── modules/           # Module handlers
+│       ├── auth.php
+│       ├── dashboard.php
+│       ├── users.php
+│       └── ...
+├── assets/
+│   ├── css/
+│   │   └── app.css        # Custom styles with CSS variables
+│   └── js/                # JavaScript modules
+│       ├── api.js         # API client
+│       ├── i18n.js        # Internationalization
+│       ├── theme-toggle.js # Dark mode
+│       └── ...
+├── lang/                  # Translation files
+│   ├── de.json
+│   ├── en.json
+│   ├── es.json
+│   └── fr.json
+└── *.html                 # Page templates
+```
+
+### 16.3 Architecture Pattern
+
+**Frontend-Backend Separation:**
+- Frontend: Vanilla JavaScript SPA in `/next/assets/js/`
+- Backend: PHP REST API in `/next/api/`
+- Communication: JSON via Fetch API
+- Authentication: PHP session-based (same as old UI)
+
+**Key Features:**
+- No page reloads (SPA architecture)
+- Mandatory internationalization (all strings use i18n)
+- Mandatory dark mode support (CSS variables + Tailwind dark:)
+- Progressive migration (old and new UI coexist)
+
+### 16.4 API Pattern
+
+**URL Format:** `/next/api/index.php?module={module}&action={action}`
+
+**Module Handlers:** Each module implements `{Module}Module` class with `handle()` method
+
+**Response Format:**
+```json
+{
+    "success": true,
+    "data": { ... }
+}
+```
+
+### 16.5 Technology Stack
+
+- **Frontend:** Vanilla JavaScript (ES6+), Tailwind CSS (CDN), Lucide Icons
+- **Backend:** PHP REST API wrapping existing BNote data/logic layers
+- **Internationalization:** Custom i18n service with JSON translation files
+- **Theming:** CSS variables with automatic dark mode support
+
+### 16.6 Current Status
+
+**Completed Modules:**
+- Authentication (login/logout/session)
+- Dashboard (events, participation)
+- Users (CRUD, privileges, GDPR)
+- Contacts (CRUD, groups, integration)
+- Event detail views (rehearsals, concerts)
+- Participation system
+
+**See:** [next/README.md](../next/README.md) for complete status
 
 ---
 
-**Document Status:** Complete  
-**Last Updated:** 2026-01-25  
-**Author:** AI Assistant (Auto)
+## 17. Next Steps
+
+1. **Continue Next Generation Development** (see `next/README.md`)
+2. **Migrate Remaining Modules** to Next Generation UI
+3. **Complete Localization** for all modules
+4. **Add Advanced Features** (search, exports, etc.)
+
+---
+
+**Document Status:** Updated  
+**Last Updated:** 2026-01-27  
+**See Also:** [next/README.md](../next/README.md) for Next Generation details

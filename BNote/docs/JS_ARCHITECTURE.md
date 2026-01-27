@@ -1,7 +1,7 @@
-# BNote JavaScript Architecture
-**Version:** 1.0  
-**Date:** 2026-01-25  
-**Purpose:** Vanilla JavaScript SPA architecture for BNote frontend
+# BNote Next Generation JavaScript Architecture
+**Version:** 2.0  
+**Date:** 2026-01-27  
+**Purpose:** Vanilla JavaScript architecture for BNote Next Generation frontend
 
 ---
 
@@ -10,13 +10,13 @@
 1. [Overview](#overview)
 2. [Directory Structure](#directory-structure)
 3. [Core Modules](#core-modules)
-4. [Component System](#component-system)
-5. [State Management](#state-management)
-6. [Routing](#routing)
-7. [API Client](#api-client)
+4. [Internationalization (i18n)](#internationalization-i18n)
+5. [Dark Mode Support](#dark-mode-support)
+6. [API Client](#api-client)
+7. [Component System](#component-system)
 8. [Form Handling](#form-handling)
 9. [UI Components](#ui-components)
-10. [Build & Deployment](#build--deployment)
+10. [Best Practices](#best-practices)
 
 ---
 
@@ -40,1152 +40,672 @@
 
 ### 1.3 Technology Stack
 
-- **JavaScript:** ES6+ (modules, async/await, classes)
-- **CSS:** Tailwind CSS 3.x (already integrated)
-- **Icons:** Bootstrap Icons (already integrated)
+- **JavaScript:** ES6+ (vanilla JavaScript, no frameworks)
+- **CSS:** Tailwind CSS 3.x (via CDN)
+- **Icons:** Lucide Icons (via CDN)
 - **HTTP:** Fetch API
-- **Storage:** localStorage, sessionStorage
+- **Storage:** localStorage (theme preference), sessionStorage
 - **DOM:** Native DOM APIs
+- **Internationalization:** Custom i18n service with JSON translations
+- **Theming:** CSS variables with dark mode support
 
 ---
 
 ## 2. Directory Structure
 
 ```
-/js/
-├── app/
-│   ├── main.js              # Application entry point
-│   ├── config.js            # Configuration
-│   ├── api/
-│   │   ├── client.js        # API client wrapper
-│   │   ├── endpoints.js     # Endpoint definitions
-│   │   └── auth.js          # Authentication helpers
-│   ├── store/
-│   │   ├── store.js         # State management
-│   │   └── modules/         # State modules
-│   ├── router/
-│   │   └── router.js        # Client-side routing (optional)
-│   ├── components/
-│   │   ├── Modal.js
-│   │   ├── Dropdown.js
-│   │   ├── Table.js
-│   │   ├── Form.js
-│   │   ├── Card.js
-│   │   ├── Alert.js
-│   │   ├── Spinner.js
-│   │   ├── Pagination.js
-│   │   └── DatePicker.js
-│   ├── utils/
-│   │   ├── dom.js           # DOM utilities
-│   │   ├── validation.js    # Form validation
-│   │   ├── format.js        # Data formatting
-│   │   └── storage.js       # localStorage helpers
-│   └── pages/
-│       ├── Dashboard.js
-│       ├── Rehearsals.js
-│       ├── Concerts.js
-│       ├── Contacts.js
-│       └── ...
-└── lib/                      # Third-party libraries (if needed)
+next/
+├── assets/
+│   ├── css/
+│   │   └── app.css          # Custom styles and CSS variables
+│   └── js/                   # JavaScript modules
+│       ├── api.js            # API client
+│       ├── app.js            # Application initialization
+│       ├── auth.js           # Authentication helpers
+│       ├── i18n.js           # Internationalization service
+│       ├── theme-toggle.js   # Dark mode toggle utility
+│       ├── dashboard.js      # Dashboard module
+│       ├── sidebar.js       # Sidebar navigation
+│       ├── users.js          # User management
+│       ├── contacts.js       # Contact management
+│       ├── participation.js  # Participation widget
+│       ├── event-detail.js   # Event detail view
+│       ├── form.js           # Form component
+│       ├── table.js          # Table component
+│       ├── badge.js          # Badge component
+│       └── ...               # Other modules
+├── lang/                     # Translation files
+│   ├── de.json              # German translations
+│   ├── en.json              # English translations
+│   ├── es.json              # Spanish translations
+│   └── fr.json              # French translations
+└── *.html                    # Page templates
 ```
 
 ---
 
 ## 3. Core Modules
 
-### 3.1 Application Entry (`/js/app/main.js`)
+### 3.1 Application Entry (`next/assets/js/app.js`)
+
+The `App` object handles application initialization:
 
 ```javascript
-// Application initialization
-class BNoteApp {
-    constructor() {
-        this.api = new ApiClient();
-        this.store = new Store();
-        this.router = new Router(); // Optional
-        this.init();
-    }
-    
+const App = {
     async init() {
-        // Check authentication
-        const authenticated = await this.api.auth.checkSession();
-        if (!authenticated) {
-            this.redirectToLogin();
-            return;
-        }
+        // Initialize i18n first
+        await this.initI18n();
         
-        // Load user data
-        const user = await this.api.auth.getUser();
-        this.store.set('user', user);
+        // Global error handlers
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+        });
         
-        // Initialize router
-        this.router.init();
-        
-        // Load current page
-        this.loadPage();
-    }
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+        });
+    },
     
-    loadPage() {
-        const page = this.router.getCurrentPage();
-        const PageClass = this.getPageClass(page);
-        if (PageClass) {
-            const pageInstance = new PageClass(this.api, this.store);
-            pageInstance.render();
-        }
-    }
-    
-    redirectToLogin() {
-        window.location.href = '/main.php?mod=login';
-    }
-}
-
-// Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new BNoteApp();
-});
-```
-
-### 3.2 Configuration (`/js/app/config.js`)
-
-```javascript
-const Config = {
-    api: {
-        baseUrl: '/api/v1',
-        timeout: 30000
-    },
-    storage: {
-        prefix: 'bnote_',
-        sessionKey: 'bnote_session'
-    },
-    ui: {
-        theme: 'default',
-        language: 'de'
-    },
-    pagination: {
-        defaultLimit: 50,
-        maxLimit: 200
+    async initI18n() {
+        // Get language from system configuration
+        const configResponse = await api.get('auth', 'getUserLang');
+        const langCode = configResponse.lang || 'de';
+        const countryCode = configResponse.country || null;
+        
+        // Initialize i18n with system config language
+        await i18n.init(langCode, countryCode);
     }
 };
-
-export default Config;
 ```
 
----
+### 3.2 Authentication (`next/assets/js/auth.js`)
 
-## 4. Component System
-
-### 4.1 Base Component Class
+The `Auth` object handles authentication:
 
 ```javascript
-class Component {
-    constructor(container, props = {}) {
-        this.container = container;
-        this.props = props;
-        this.state = {};
-    }
-    
-    setState(newState) {
-        this.state = { ...this.state, ...newState };
-        this.render();
-    }
-    
-    render() {
-        // Override in subclasses
-    }
-    
-    destroy() {
-        if (this.container) {
-            this.container.innerHTML = '';
-        }
-    }
-}
-```
-
-### 4.2 Component Examples
-
-**Modal Component:**
-```javascript
-class Modal extends Component {
-    constructor(container, props) {
-        super(container, props);
-        this.isOpen = false;
-    }
-    
-    open() {
-        this.isOpen = true;
-        this.render();
-    }
-    
-    close() {
-        this.isOpen = false;
-        this.render();
-    }
-    
-    render() {
-        if (!this.isOpen) {
-            this.container.innerHTML = '';
-            return;
-        }
-        
-        this.container.innerHTML = `
-            <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                <div class="bg-white rounded-xl shadow-medium p-6 max-w-2xl w-full mx-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold">${this.props.title}</h2>
-                        <button class="text-gray-400 hover:text-gray-600" onclick="this.close()">
-                            <i class="bi-x-lg"></i>
-                        </button>
-                    </div>
-                    <div class="modal-content">
-                        ${this.props.content || ''}
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // Attach event listeners
-        this.container.querySelector('.bi-x-lg').closest('button')
-            .addEventListener('click', () => this.close());
-    }
-}
-```
-
-**Table Component:**
-```javascript
-class DataTable extends Component {
-    constructor(container, props) {
-        super(container, props);
-        this.data = props.data || [];
-        this.columns = props.columns || [];
-        this.sortBy = null;
-        this.sortOrder = 'asc';
-    }
-    
-    sort(column) {
-        if (this.sortBy === column) {
-            this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-        } else {
-            this.sortBy = column;
-            this.sortOrder = 'asc';
-        }
-        this.render();
-    }
-    
-    render() {
-        const sortedData = this.getSortedData();
-        
-        this.container.innerHTML = `
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-100 text-sm">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            ${this.columns.map(col => `
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                                    onclick="this.sort('${col.key}')">
-                                    ${col.label}
-                                    ${this.sortBy === col.key ? 
-                                        (this.sortOrder === 'asc' ? '↑' : '↓') : ''}
-                                </th>
-                            `).join('')}
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                        ${sortedData.map(row => `
-                            <tr class="hover:bg-gray-50">
-                                ${this.columns.map(col => `
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        ${this.formatCell(row[col.key], col)}
-                                    </td>
-                                `).join('')}
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
-    }
-    
-    getSortedData() {
-        if (!this.sortBy) return this.data;
-        
-        return [...this.data].sort((a, b) => {
-            const aVal = a[this.sortBy];
-            const bVal = b[this.sortBy];
-            
-            if (this.sortOrder === 'asc') {
-                return aVal > bVal ? 1 : -1;
-            } else {
-                return aVal < bVal ? 1 : -1;
-            }
-        });
-    }
-    
-    formatCell(value, column) {
-        if (column.format === 'date') {
-            return new Date(value).toLocaleDateString('de-DE');
-        }
-        if (column.format === 'currency') {
-            return new Intl.NumberFormat('de-DE', {
-                style: 'currency',
-                currency: 'EUR'
-            }).format(value);
-        }
-        return value;
-    }
-}
-```
-
----
-
-## 5. State Management
-
-### 5.1 Simple Store
-
-```javascript
-class Store {
-    constructor() {
-        this.state = {};
-        this.listeners = [];
-    }
-    
-    set(key, value) {
-        this.state[key] = value;
-        this.notify(key, value);
-    }
-    
-    get(key) {
-        return this.state[key];
-    }
-    
-    subscribe(key, callback) {
-        this.listeners.push({ key, callback });
-    }
-    
-    notify(key, value) {
-        this.listeners
-            .filter(listener => listener.key === key)
-            .forEach(listener => listener.callback(value));
-    }
-}
-```
-
-### 5.2 Usage Example
-
-```javascript
-// Set state
-app.store.set('user', { id: 5, name: 'John' });
-
-// Get state
-const user = app.store.get('user');
-
-// Subscribe to changes
-app.store.subscribe('user', (user) => {
-    console.log('User changed:', user);
-});
-```
-
----
-
-## 6. Routing
-
-### 6.1 Simple Router (Optional)
-
-```javascript
-class Router {
-    constructor() {
-        this.routes = {};
-        this.currentRoute = null;
-    }
-    
-    register(path, handler) {
-        this.routes[path] = handler;
-    }
-    
-    navigate(path) {
-        window.history.pushState({}, '', path);
-        this.handleRoute();
-    }
-    
-    handleRoute() {
-        const path = window.location.pathname;
-        const handler = this.routes[path] || this.routes['/'];
-        if (handler) {
-            handler();
-        }
-    }
-    
-    init() {
-        window.addEventListener('popstate', () => this.handleRoute());
-        this.handleRoute();
-    }
-}
-```
-
-### 6.2 Alternative: URL-Based Routing
-
-For simplicity, we can use URL parameters:
-```
-/modern/dashboard.html
-/modern/rehearsals.html
-/modern/rehearsals.html?id=42
-/modern/contacts.html
-```
-
----
-
-## 7. API Client
-
-### 7.1 API Client Class
-
-```javascript
-class ApiClient {
-    constructor() {
-        this.baseUrl = '/api/v1';
-        this.timeout = 30000;
-    }
-    
-    async request(method, endpoint, data = null, options = {}) {
-        const url = `${this.baseUrl}${endpoint}`;
-        const config = {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            credentials: 'same-origin', // Include cookies
-            ...options
-        };
-        
-        if (data && (method === 'POST' || method === 'PUT')) {
-            config.body = JSON.stringify(data);
-        }
-        
-        try {
-            const response = await fetch(url, config);
-            const result = await response.json();
-            
-            if (!response.ok) {
-                throw new ApiError(result.error.code, result.error.message, result.error.details);
-            }
-            
-            return result.data;
-        } catch (error) {
-            if (error instanceof ApiError) {
-                throw error;
-            }
-            throw new ApiError('NETWORK_ERROR', 'Network request failed', error);
-        }
-    }
-    
-    async get(endpoint, params = {}) {
-        const queryString = new URLSearchParams(params).toString();
-        const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-        return this.request('GET', url);
-    }
-    
-    async post(endpoint, data) {
-        return this.request('POST', endpoint, data);
-    }
-    
-    async put(endpoint, data) {
-        return this.request('PUT', endpoint, data);
-    }
-    
-    async delete(endpoint) {
-        return this.request('DELETE', endpoint);
-    }
-}
-
-class ApiError extends Error {
-    constructor(code, message, details = []) {
-        super(message);
-        this.code = code;
-        this.details = details;
-    }
-}
-```
-
-### 7.2 Auth Module
-
-```javascript
-class AuthApi {
-    constructor(client) {
-        this.client = client;
-    }
-    
+const Auth = {
     async login(username, password) {
-        return this.client.post('/auth/login', { username, password });
-    }
+        await AuthApi.login(username, password);
+        window.location.href = 'dashboard.html';
+    },
     
     async logout() {
-        return this.client.post('/auth/logout');
-    }
+        await AuthApi.logout();
+        window.location.href = 'login.html';
+    },
     
     async checkSession() {
-        try {
-            const result = await this.client.get('/auth/session');
-            return result.authenticated;
-        } catch (error) {
-            return false;
-        }
-    }
+        return await AuthApi.checkSession();
+    },
     
-    async getUser() {
-        const result = await this.client.get('/auth/session');
-        return result.user;
+    redirectIfNotAuthenticated() {
+        // Check session and redirect if needed
     }
-}
-```
-
-### 7.3 Module-Specific APIs
-
-```javascript
-class RehearsalsApi {
-    constructor(client) {
-        this.client = client;
-    }
-    
-    async list(params = {}) {
-        return this.client.get('/rehearsals', params);
-    }
-    
-    async get(id) {
-        return this.client.get(`/rehearsals/${id}`);
-    }
-    
-    async create(data) {
-        return this.client.post('/rehearsals', data);
-    }
-    
-    async update(id, data) {
-        return this.client.put(`/rehearsals/${id}`, data);
-    }
-    
-    async delete(id) {
-        return this.client.delete(`/rehearsals/${id}`);
-    }
-    
-    async getParticipants(id) {
-        return this.client.get(`/rehearsals/${id}/participants`);
-    }
-    
-    async participate(id, participate, reason = '') {
-        return this.client.post(`/rehearsals/${id}/participate`, {
-            participate,
-            reason
-        });
-    }
-}
-```
-
-### 7.4 API Client Usage
-
-```javascript
-// Initialize
-const apiClient = new ApiClient();
-const authApi = new AuthApi(apiClient);
-const rehearsalsApi = new RehearsalsApi(apiClient);
-
-// Usage
-const rehearsals = await rehearsalsApi.list({ page: 1, limit: 50 });
-const rehearsal = await rehearsalsApi.get(42);
-await rehearsalsApi.participate(42, 1, 'Will attend');
+};
 ```
 
 ---
 
-## 8. Form Handling
+## 4. Internationalization (i18n)
 
-### 8.1 Form Handler
+### 4.1 Mandatory Requirement
+
+**ALL user-facing strings MUST use the i18n system.** No hardcoded text in HTML or JavaScript.
+
+### 4.2 i18n Service (`next/assets/js/i18n.js`)
+
+The `i18n` object provides translation and localization:
 
 ```javascript
-class FormHandler {
-    constructor(formElement, onSubmit) {
-        this.form = formElement;
-        this.onSubmit = onSubmit;
-        this.init();
+// Initialize with language and country
+await i18n.init('de', 'DE');
+
+// Translate a key
+const text = i18n.t('js.dashboard.welcome');
+
+// Translate with parameters
+const greeting = i18n.t('js.dashboard.greeting', ['John']);
+
+// Format dates/times using locale
+const dateStr = i18n.formatDate(new Date());
+const timeStr = i18n.formatTime(new Date());
+```
+
+### 4.3 Translation Files
+
+Location: `next/lang/*.json`
+
+**Key Format:** `js.{module}.{key}`
+
+Example (`next/lang/de.json`):
+```json
+{
+  "js.dashboard.welcome": "Willkommen",
+  "js.dashboard.subtitle": "Willkommen bei %p",
+  "js.common.save": "Speichern",
+  "js.common.cancel": "Abbrechen"
+}
+```
+
+### 4.4 HTML Usage
+
+**Text Content:**
+```html
+<h1 data-i18n="js.dashboard.welcome">Welcome</h1>
+```
+
+**Placeholders:**
+```html
+<input data-i18n-placeholder="js.login.usernamePlaceholder" placeholder="Username" />
+```
+
+**Labels:**
+```html
+<button data-i18n-label="js.common.save">Save</button>
+```
+
+**Dynamic Translation:**
+```javascript
+// After i18n.init() and i18n.translatePage()
+i18n.translatePage(); // Translates all data-i18n attributes
+```
+
+### 4.5 JavaScript Usage
+
+**Always use i18n.t() for user-facing strings:**
+```javascript
+// GOOD
+showToast(i18n.t('js.users.created'));
+const errorMsg = i18n.t('js.error.loadFailed');
+
+// BAD - Never hardcode strings
+showToast('User created');
+const errorMsg = 'Failed to load';
+```
+
+### 4.6 Date/Time Formatting
+
+Uses system configuration language and country:
+
+```javascript
+// Format date (uses locale from system config)
+const dateStr = i18n.formatDate(new Date());
+
+// Format time (no seconds, follows locale hour12)
+const timeStr = i18n.formatTime(new Date());
+
+// Format date and time
+const datetimeStr = i18n.formatDateTime(new Date());
+
+// Parse API date strings
+const date = i18n.parseEventDate('2026-01-27 19:00:00');
+```
+
+### 4.7 Supported Languages
+
+- German (de) - Default
+- English (en)
+- Spanish (es)
+- French (fr)
+
+---
+
+## 5. Dark Mode Support
+
+### 5.1 Mandatory Requirement
+
+**ALL UI components MUST support dark mode.** Use CSS variables and Tailwind `dark:` prefix.
+
+### 5.2 Theme Toggle (`next/assets/js/theme-toggle.js`)
+
+The `ThemeToggle` utility handles theme switching:
+
+```javascript
+// Initialize (respects system preference on first load)
+ThemeToggle.init();
+
+// Toggle theme
+ThemeToggle.toggle();
+
+// Get current theme
+const theme = ThemeToggle.getCurrentTheme(); // 'light' or 'dark'
+
+// Check if dark mode
+if (ThemeToggle.isDark()) {
+    // Dark mode specific logic
+}
+```
+
+### 5.3 CSS Variables (`next/assets/css/app.css`)
+
+Use semantic color variables that automatically adapt to dark mode:
+
+```css
+:root {
+    --background: oklch(0.99 0.001 250);
+    --foreground: oklch(0.18 0.01 250);
+    --card: oklch(1 0 0);
+    --border: oklch(0.93 0.002 250);
+    --muted: oklch(0.96 0.002 250);
+    --muted-foreground: oklch(0.50 0.01 250);
+}
+
+.dark {
+    --background: oklch(0.22 0.01 250);
+    --foreground: oklch(0.95 0.01 250);
+    --card: oklch(0.25 0.01 250);
+    --border: oklch(0.32 0.001 0);
+    --muted: oklch(0.24 0.01 250);
+    --muted-foreground: oklch(0.70 0.01 250);
+}
+```
+
+### 5.4 Tailwind Classes
+
+**Use semantic color classes:**
+```html
+<div class="bg-background text-foreground">
+  <div class="bg-card border border-border">
+    <p class="text-muted-foreground">Muted text</p>
+  </div>
+</div>
+```
+
+**Use dark: prefix when needed:**
+```html
+<div class="bg-background dark:bg-card">
+  <p class="text-foreground dark:text-muted-foreground">
+```
+
+**Never hardcode colors:**
+```html
+<!-- BAD -->
+<div class="bg-white text-black dark:bg-gray-800 dark:text-white">
+
+<!-- GOOD -->
+<div class="bg-background text-foreground">
+```
+
+### 5.5 Theme Persistence
+
+Theme preference is saved in `localStorage` and persists across sessions. On first load, respects system preference (`prefers-color-scheme`).
+
+---
+
+## 6. API Client
+
+### 8.1 Form Component (`next/assets/js/form.js`)
+
+The `Form` class provides reusable form UI:
+
+```javascript
+class Form {
+    constructor(container, options) {
+        this.container = container;
+        this.options = options;
     }
     
-    init() {
-        this.form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await this.handleSubmit();
-        });
-    }
-    
-    async handleSubmit() {
-        const data = this.serialize();
-        const errors = this.validate(data);
+    render() {
+        // All labels and buttons use i18n
+        this.container.innerHTML = `
+            <form class="space-y-4">
+                ${this.options.fields.map(field => `
+                    <div>
+                        <label class="block text-sm font-medium text-foreground mb-2"
+                               data-i18n="${field.i18nLabel}">${field.label}</label>
+                        <input class="w-full px-4 py-2 bg-background border border-border 
+                                      text-foreground rounded-lg focus:ring-2 focus:ring-primary"
+                               data-i18n-placeholder="${field.i18nPlaceholder}" />
+                    </div>
+                `).join('')}
+                <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg"
+                        data-i18n="${this.options.submitI18n}">Submit</button>
+            </form>
+        `;
         
-        if (errors.length > 0) {
-            this.showErrors(errors);
-            return;
+        // Translate after rendering
+        if (typeof i18n !== 'undefined' && i18n.translatePage) {
+            i18n.translatePage();
         }
-        
-        try {
-            await this.onSubmit(data);
-        } catch (error) {
-            this.showError(error.message);
-        }
-    }
-    
-    serialize() {
-        const formData = new FormData(this.form);
-        const data = {};
-        for (const [key, value] of formData.entries()) {
-            data[key] = value;
-        }
-        return data;
-    }
-    
-    validate(data) {
-        const errors = [];
-        const requiredFields = this.form.querySelectorAll('[required]');
-        
-        requiredFields.forEach(field => {
-            if (!data[field.name]) {
-                errors.push({
-                    field: field.name,
-                    message: `${field.label || field.name} is required`
-                });
-            }
-        });
-        
-        return errors;
-    }
-    
-    showErrors(errors) {
-        errors.forEach(error => {
-            const field = this.form.querySelector(`[name="${error.field}"]`);
-            if (field) {
-                field.classList.add('border-red-500');
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'text-red-500 text-sm mt-1';
-                errorMsg.textContent = error.message;
-                field.parentNode.appendChild(errorMsg);
-            }
-        });
-    }
-    
-    showError(message) {
-        // Show global error message
-        const alert = new Alert(document.body, {
-            type: 'error',
-            message: message
-        });
-        alert.show();
     }
 }
 ```
 
-### 8.2 Usage Example
+### 6.1 API Client (`next/assets/js/api.js`)
+
+The `Api` class handles all API requests:
 
 ```javascript
-const form = document.querySelector('#rehearsal-form');
-const handler = new FormHandler(form, async (data) => {
-    await rehearsalsApi.create(data);
-    // Show success message
-    // Redirect or refresh
-});
+class Api {
+    constructor() {
+        // Computes base path to /next/api/index.php
+        this.baseUrl = basePath + '/api/index.php';
+    }
+    
+    async request(module, action, data = null, params = {}) {
+        const url = new URL(this.baseUrl, window.location.origin);
+        url.searchParams.set('module', module);
+        if (action != null) {
+            url.searchParams.set('action', action);
+        }
+        
+        // Add params to URL
+        Object.keys(params).forEach(key => {
+            url.searchParams.set(key, params[key]);
+        });
+        
+        const options = {
+            method: data ? 'POST' : 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin'
+        };
+        
+        if (data) {
+            options.body = JSON.stringify({ ...data, action });
+        }
+        
+        const response = await fetch(url, options);
+        // ... error handling
+        return result.data;
+    }
+    
+    async get(module, action, params = {}) {
+        return this.request(module, action, null, params);
+    }
+    
+    async post(module, action, data = {}, params = {}) {
+        return this.request(module, action, data, params);
+    }
+}
+
+const api = new Api();
 ```
+
+### 6.2 Module-Specific API Helpers
+
+Predefined helpers for each module:
+
+```javascript
+const AuthApi = {
+    login: (username, password) => api.post('auth', 'login', { username, password }),
+    logout: () => api.post('auth', 'logout'),
+    checkSession: () => api.get('auth', 'session'),
+    getModules: () => api.get('auth', 'getModules')
+};
+
+const DashboardApi = {
+    getDashboard: () => api.get('dashboard', 'dashboard'),
+    getEventsNeedingResponse: () => api.get('dashboard', 'eventsNeedingResponse'),
+    respondToEvent: (otype, oid, attending, reason) => 
+        api.post('dashboard', 'respondToEvent', { otype, oid, attending, reason })
+};
+
+const UsersApi = {
+    list: () => api.get('users', 'list'),
+    get: (id) => api.get('users', 'get', { id }),
+    create: (data) => api.post('users', 'create', data),
+    update: (id, data) => api.post('users', 'update', { id, ...data }),
+    delete: (id) => api.post('users', 'delete', { id })
+};
+```
+
+### 6.3 API URL Pattern
+
+**Base URL:** `/next/api/index.php`
+
+**Pattern:** `?module={module}&action={action}&{params}`
+
+**Examples:**
+```
+GET  /next/api/index.php?module=dashboard&action=dashboard
+GET  /next/api/index.php?module=rehearsals&id=42
+POST /next/api/index.php?module=users&action=create
+```
+
+### 6.4 Response Format
+
+**Success:**
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+**Error:**
+```json
+{
+  "success": false,
+  "error": "Error message",
+  "code": 400
+}
+```
+
 
 ---
 
 ## 9. UI Components
 
-### 9.1 Alert/Notification Component
+### 9.1 Badge Component (`next/assets/js/badge.js`)
+
+Reusable badge with i18n support:
 
 ```javascript
-class Alert extends Component {
-    constructor(container, props) {
-        super(container, props);
-        this.type = props.type || 'info'; // info, success, error, warning
-        this.message = props.message;
-        this.duration = props.duration || 5000;
-    }
-    
-    show() {
-        this.render();
-        setTimeout(() => this.hide(), this.duration);
-    }
-    
-    hide() {
-        this.container.innerHTML = '';
-    }
-    
-    render() {
-        const colors = {
-            info: 'bg-blue-50 text-blue-800 border-blue-200',
-            success: 'bg-green-50 text-green-800 border-green-200',
-            error: 'bg-red-50 text-red-800 border-red-200',
-            warning: 'bg-yellow-50 text-yellow-800 border-yellow-200'
-        };
+const Badge = {
+    render(text, color = 'default', i18nKey = null) {
+        // Use i18n if key provided
+        const displayText = i18nKey ? i18n.t(i18nKey) : text;
         
-        this.container.innerHTML = `
-            <div class="fixed top-4 right-4 z-50 max-w-md">
-                <div class="border rounded-lg p-4 shadow-medium ${colors[this.type]}">
-                    <div class="flex items-center justify-between">
-                        <p>${this.message}</p>
-                        <button onclick="this.hide()" class="ml-4">
-                            <i class="bi-x"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-}
-```
-
-### 9.2 Loading Spinner
-
-```javascript
-class Spinner extends Component {
-    render() {
-        this.container.innerHTML = `
-            <div class="flex items-center justify-center p-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            </div>
-        `;
-    }
-}
-```
-
-### 9.3 Pagination Component
-
-```javascript
-class Pagination extends Component {
-    constructor(container, props) {
-        super(container, props);
-        this.page = props.page || 1;
-        this.totalPages = props.totalPages || 1;
-        this.onPageChange = props.onPageChange || (() => {});
-    }
-    
-    setPage(page) {
-        this.page = page;
-        this.onPageChange(page);
-        this.render();
-    }
-    
-    render() {
-        const pages = [];
-        for (let i = 1; i <= this.totalPages; i++) {
-            pages.push(i);
-        }
-        
-        this.container.innerHTML = `
-            <div class="flex gap-2 items-center">
-                <button 
-                    class="px-3 py-2 rounded-lg ${this.page === 1 ? 'bg-gray-200' : 'bg-primary-600 text-white'}"
-                    ${this.page === 1 ? 'disabled' : ''}
-                    onclick="this.setPage(${this.page - 1})">
-                    Previous
-                </button>
-                ${pages.map(p => `
-                    <button 
-                        class="px-3 py-2 rounded-lg ${this.page === p ? 'bg-primary-600 text-white' : 'bg-gray-200'}"
-                        onclick="this.setPage(${p})">
-                        ${p}
-                    </button>
-                `).join('')}
-                <button 
-                    class="px-3 py-2 rounded-lg ${this.page === this.totalPages ? 'bg-gray-200' : 'bg-primary-600 text-white'}"
-                    ${this.page === this.totalPages ? 'disabled' : ''}
-                    onclick="this.setPage(${this.page + 1})">
-                    Next
-                </button>
-            </div>
-        `;
-    }
-}
-```
-
----
-
-## 10. Page Implementation Example
-
-### 10.1 Rehearsals Page
-
-```javascript
-class RehearsalsPage {
-    constructor(api, store) {
-        this.api = api;
-        this.store = store;
-        this.container = document.querySelector('#main-content');
-        this.page = 1;
-        this.loading = false;
-    }
-    
-    async render() {
-        this.container.innerHTML = `
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-semibold">Rehearsals</h1>
-                    <button id="add-rehearsal-btn" class="bg-primary-600 text-white px-4 py-2 rounded-lg">
-                        Add Rehearsal
-                    </button>
-                </div>
-                <div id="rehearsals-table"></div>
-                <div id="pagination"></div>
-            </div>
-        `;
-        
-        await this.loadRehearsals();
-        this.attachEventListeners();
-    }
-    
-    async loadRehearsals() {
-        this.showLoading();
-        
-        try {
-            const result = await this.api.rehearsals.list({
-                page: this.page,
-                limit: 50
-            });
-            
-            this.renderTable(result.data);
-            this.renderPagination(result.meta.pagination);
-        } catch (error) {
-            this.showError(error.message);
-        } finally {
-            this.hideLoading();
-        }
-    }
-    
-    renderTable(rehearsals) {
-        const tableContainer = document.querySelector('#rehearsals-table');
-        const table = new DataTable(tableContainer, {
-            data: rehearsals,
-            columns: [
-                { key: 'begin', label: 'Date', format: 'date' },
-                { key: 'location', label: 'Location', format: (val) => val.name },
-                { key: 'conductor', label: 'Conductor', format: (val) => `${val.name} ${val.surname}` },
-                { key: 'status', label: 'Status' }
-            ]
-        });
-        table.render();
-    }
-    
-    renderPagination(pagination) {
-        const paginationContainer = document.querySelector('#pagination');
-        const paginationComponent = new Pagination(paginationContainer, {
-            page: pagination.page,
-            totalPages: pagination.pages,
-            onPageChange: (page) => {
-                this.page = page;
-                this.loadRehearsals();
-            }
-        });
-        paginationComponent.render();
-    }
-    
-    attachEventListeners() {
-        document.querySelector('#add-rehearsal-btn')
-            .addEventListener('click', () => this.showAddForm());
-    }
-    
-    showAddForm() {
-        const modal = new Modal(document.body, {
-            title: 'Add Rehearsal',
-            content: this.getFormHTML()
-        });
-        modal.open();
-        
-        const form = document.querySelector('#rehearsal-form');
-        const handler = new FormHandler(form, async (data) => {
-            await this.api.rehearsals.create(data);
-            modal.close();
-            await this.loadRehearsals();
-        });
-    }
-    
-    getFormHTML() {
+        // Use semantic colors for dark mode
         return `
-            <form id="rehearsal-form">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">Begin</label>
-                    <input type="datetime-local" name="begin" required 
-                           class="border border-gray-200 rounded-lg px-3 py-2 w-full">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">End</label>
-                    <input type="datetime-local" name="end" required 
-                           class="border border-gray-200 rounded-lg px-3 py-2 w-full">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">Location</label>
-                    <select name="location" required 
-                            class="border border-gray-200 rounded-lg px-3 py-2 w-full">
-                        <!-- Options loaded dynamically -->
-                    </select>
-                </div>
-                <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-lg">
-                    Save
-                </button>
-            </form>
+            <span class="px-2 py-1 rounded-md text-xs font-medium 
+                         bg-muted text-muted-foreground">
+                ${displayText}
+            </span>
         `;
     }
+};
+```
+
+### 9.2 Loading States
+
+Always show loading states with i18n:
+
+```javascript
+// Loading spinner with i18n text
+const loadingHTML = `
+    <div class="flex items-center justify-center p-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p class="ml-3 text-muted-foreground" data-i18n="js.common.loading">Loading...</p>
+    </div>
+`;
+```
+
+### 9.3 Toast Notifications
+
+Toast messages must use i18n:
+
+```javascript
+function showToast(message, type = 'info') {
+    // message should be i18n key or already translated
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 bg-card border border-border 
+                       text-card-foreground px-4 py-3 rounded-lg shadow-lg`;
+    toast.textContent = typeof message === 'string' && message.startsWith('js.') 
+        ? i18n.t(message) 
+        : message;
+    document.body.appendChild(toast);
     
-    showLoading() {
-        const spinner = new Spinner(this.container);
-        spinner.render();
-    }
-    
-    hideLoading() {
-        // Remove spinner
-    }
-    
-    showError(message) {
-        const alert = new Alert(document.body, {
-            type: 'error',
-            message: message
-        });
-        alert.show();
-    }
+    setTimeout(() => toast.remove(), 3000);
 }
+
+// Usage
+showToast('js.users.created'); // Uses i18n
 ```
 
 ---
 
-## 11. Utilities
+## 10. Best Practices
 
-### 11.1 DOM Utilities
+### 10.1 Internationalization
+
+**MANDATORY:** All user-facing strings must use i18n:
 
 ```javascript
-class DOMUtils {
-    static $(selector) {
-        return document.querySelector(selector);
-    }
-    
-    static $$(selector) {
-        return document.querySelectorAll(selector);
-    }
-    
-    static createElement(tag, classes = '', content = '') {
-        const el = document.createElement(tag);
-        el.className = classes;
-        el.innerHTML = content;
-        return el;
-    }
-    
-    static show(element) {
-        element.classList.remove('hidden');
-    }
-    
-    static hide(element) {
-        element.classList.add('hidden');
-    }
-}
+// GOOD - Always use i18n
+const title = i18n.t('js.dashboard.welcome');
+showToast(i18n.t('js.users.created'));
+button.textContent = i18n.t('js.common.save');
+
+// BAD - Never hardcode strings
+const title = 'Welcome';
+showToast('User created');
+button.textContent = 'Save';
 ```
 
-### 11.2 Format Utilities
-
-```javascript
-class FormatUtils {
-    static date(dateString) {
-        return new Date(dateString).toLocaleDateString('de-DE');
-    }
-    
-    static datetime(dateString) {
-        return new Date(dateString).toLocaleString('de-DE');
-    }
-    
-    static currency(amount) {
-        return new Intl.NumberFormat('de-DE', {
-            style: 'currency',
-            currency: 'EUR'
-        }).format(amount);
-    }
-    
-    static time(dateString) {
-        return new Date(dateString).toLocaleTimeString('de-DE', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-}
+**HTML:**
+```html
+<!-- Always use data-i18n attributes -->
+<h1 data-i18n="js.dashboard.welcome">Welcome</h1>
+<input data-i18n-placeholder="js.login.usernamePlaceholder" />
+<button data-i18n-label="js.common.save">Save</button>
 ```
 
-### 11.3 Storage Utilities
+### 10.2 Dark Mode
 
-```javascript
-class StorageUtils {
-    static set(key, value) {
-        localStorage.setItem(`bnote_${key}`, JSON.stringify(value));
-    }
-    
-    static get(key) {
-        const value = localStorage.getItem(`bnote_${key}`);
-        return value ? JSON.parse(value) : null;
-    }
-    
-    static remove(key) {
-        localStorage.removeItem(`bnote_${key}`);
-    }
-}
-```
+**MANDATORY:** All components must support dark mode:
 
----
-
-## 12. Integration with Existing UI
-
-### 12.1 Progressive Enhancement
-
-**Option 1: Separate Pages**
-- Create `/modern/` directory
-- New pages: `modern/dashboard.html`, `modern/rehearsals.html`, etc.
-- Old pages remain at `/src/presentation/modules/`
-
-**Option 2: Feature Flag**
-- Add toggle in settings: "Use new UI"
-- JavaScript checks flag and loads appropriate UI
-- URL parameter: `?ui=modern`
-
-### 12.2 Shared Layout
-
-**Reuse existing layout:**
-- Header (`banner.php`)
-- Sidebar (`navigation.php`)
-- Footer (`footer.php`)
-
-**JavaScript loads content into main area:**
-```javascript
-// In modern pages
-<div id="app">
-    <!-- Header and sidebar loaded via PHP includes -->
-    <main id="main-content" class="md:ml-64 p-4 md:p-6">
-        <!-- JavaScript renders content here -->
-    </main>
+```html
+<!-- Use semantic color classes -->
+<div class="bg-background text-foreground">
+  <div class="bg-card border border-border">
+    <p class="text-muted-foreground">Text</p>
+  </div>
 </div>
+
+<!-- Use dark: prefix only when needed -->
+<div class="bg-background dark:bg-card">
 ```
 
----
+**Never hardcode colors:**
+```html
+<!-- BAD -->
+<div class="bg-white text-black dark:bg-gray-800">
 
-## 13. Best Practices
+<!-- GOOD -->
+<div class="bg-background text-foreground">
+```
 
-### 13.1 Error Handling
+### 10.3 Error Handling
 
-**Always handle errors:**
+Always handle errors with i18n messages:
+
 ```javascript
 try {
-    const data = await api.rehearsals.list();
+    const data = await DashboardApi.getDashboard();
     // Handle success
 } catch (error) {
-    if (error.code === 'AUTH_REQUIRED') {
-        // Redirect to login
-    } else if (error.code === 'NETWORK_ERROR') {
-        // Show network error
-    } else {
-        // Show generic error
-    }
+    // Use i18n for error messages
+    showToast(i18n.t('js.error.dashboardLoadFailed'));
+    console.error('Dashboard error:', error);
 }
 ```
 
-### 13.2 Loading States
+### 10.4 Date/Time Formatting
 
-**Show loading indicators:**
+Always use i18n formatting:
+
 ```javascript
-async loadData() {
-    this.showLoading();
-    try {
-        const data = await this.api.getData();
-        this.render(data);
-    } finally {
-        this.hideLoading();
-    }
-}
-```
+// GOOD - Uses locale from system config
+const dateStr = i18n.formatDate(event.begin);
+const timeStr = i18n.formatTime(event.begin);
 
-### 13.3 Debouncing
-
-**Debounce search inputs:**
-```javascript
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-const searchInput = document.querySelector('#search');
-searchInput.addEventListener('input', debounce((e) => {
-    this.search(e.target.value);
-}, 300));
+// BAD - Hardcoded locale
+const dateStr = new Date(event.begin).toLocaleDateString('de-DE');
 ```
 
 ---
 
-## 14. Testing
+## 11. Module Examples
 
-### 14.1 Manual Testing
+### 11.1 Dashboard Module (`next/assets/js/dashboard.js`)
 
-**Browser Console Testing:**
+Example of a complete module with i18n and dark mode:
+
 ```javascript
-// Test API
-const api = new ApiClient();
-const rehearsals = await api.get('/rehearsals');
-console.log(rehearsals);
-
-// Test components
-const modal = new Modal(document.body, { title: 'Test', content: 'Hello' });
-modal.open();
-```
-
-### 14.2 Integration Testing
-
-**Test full workflows:**
-1. Login
-2. Load dashboard
-3. Navigate to rehearsals
-4. Create rehearsal
-5. Edit rehearsal
-6. Delete rehearsal
-
----
-
-## 15. Performance Optimization
-
-### 15.1 Lazy Loading
-
-**Load components on demand:**
-```javascript
-async loadPage(pageName) {
-    const module = await import(`./pages/${pageName}.js`);
-    const PageClass = module.default;
-    const page = new PageClass(this.api, this.store);
-    page.render();
-}
-```
-
-### 15.2 Caching
-
-**Cache API responses:**
-```javascript
-class CachedApiClient extends ApiClient {
-    constructor() {
-        super();
-        this.cache = new Map();
-    }
+const Dashboard = {
+    async init(session) {
+        this.session = session;
+        
+        // Initialize i18n translations
+        await App.initI18n();
+        
+        // Load dashboard data
+        await this.loadDashboard();
+    },
     
-    async get(endpoint, params = {}) {
-        const key = `${endpoint}:${JSON.stringify(params)}`;
-        if (this.cache.has(key)) {
-            return this.cache.get(key);
+    async loadDashboard() {
+        try {
+            const data = await DashboardApi.getDashboard();
+            this.render(data);
+        } catch (error) {
+            // Use i18n for error message
+            showToast(i18n.t('js.error.dashboardLoadFailed'));
         }
-        const data = await super.get(endpoint, params);
-        this.cache.set(key, data);
-        return data;
+    },
+    
+    render(data) {
+        // All text uses i18n
+        const container = document.getElementById('dashboard-container');
+        container.innerHTML = `
+            <h1 data-i18n="js.dashboard.welcome">Welcome</h1>
+            <p data-i18n="js.dashboard.subtitle">Welcome to %p</p>
+            <!-- Content with semantic colors for dark mode -->
+            <div class="bg-card border border-border rounded-lg p-4">
+                <!-- Dashboard content -->
+            </div>
+        `;
+        
+        // Translate page after rendering
+        if (typeof i18n !== 'undefined' && i18n.translatePage) {
+            i18n.translatePage();
+        }
     }
-}
+};
+```
+
+### 11.2 Sidebar Module (`next/assets/js/sidebar.js`)
+
+Sidebar with i18n module names:
+
+```javascript
+const Sidebar = {
+    async init(currentModule) {
+        const modules = await AuthApi.getModules();
+        this.renderModules(modules, currentModule);
+    },
+    
+    renderModules(modules, currentModule) {
+        const nav = document.getElementById('sidebar-nav');
+        nav.innerHTML = modules.map(module => `
+            <a href="${module.url}" 
+               class="flex items-center gap-3 px-3 py-2 rounded-lg 
+                      bg-sidebar-accent text-sidebar-foreground
+                      hover:bg-sidebar-accent/80">
+                <i data-lucide="${module.icon}"></i>
+                <span data-i18n="${module.i18nKey}">${module.name}</span>
+            </a>
+        `).join('');
+        
+        // Translate and initialize icons
+        i18n.translatePage();
+        lucide.createIcons();
+    }
+};
 ```
 
 ---
 
-**Document Status:** Complete  
-**Last Updated:** 2026-01-25  
-**Next:** See `MIGRATION_PLAN.md` for detailed migration roadmap
+**Document Status:** Updated  
+**Last Updated:** 2026-01-27  
+**See Also:** [README.md](../next/README.md) for overview

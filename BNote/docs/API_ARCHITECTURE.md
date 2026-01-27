@@ -1,7 +1,7 @@
-# BNote REST API Architecture
-**Version:** 1.0  
-**Date:** 2026-01-25  
-**Purpose:** Complete REST API design specification for BNote backend
+# BNote Next Generation REST API Architecture
+**Version:** 2.0  
+**Date:** 2026-01-27  
+**Purpose:** REST API architecture for BNote Next Generation backend
 
 ---
 
@@ -34,15 +34,19 @@
 ### 1.2 Base URL
 
 ```
-/api/v1/
+/next/api/index.php
+```
+
+**URL Pattern:**
+```
+?module={module}&action={action}&{params}
 ```
 
 **Examples:**
-- `GET /api/v1/rehearsals`
-- `POST /api/v1/rehearsals`
-- `GET /api/v1/rehearsals/42`
-- `PUT /api/v1/rehearsals/42`
-- `DELETE /api/v1/rehearsals/42`
+- `GET /next/api/index.php?module=rehearsals&id=42`
+- `GET /next/api/index.php?module=dashboard&action=dashboard`
+- `POST /next/api/index.php?module=users&action=create`
+- `POST /next/api/index.php?module=participation&action=save`
 
 ### 1.3 HTTP Methods
 
@@ -63,93 +67,63 @@
 ### 2.1 Directory Structure
 
 ```
-/api/
-├── v1/
-│   ├── index.php              # API router
-│   ├── middleware/
-│   │   ├── auth.php           # Authentication middleware
-│   │   ├── permissions.php    # Permission checker
-│   │   └── cors.php           # CORS handler
-│   ├── lib/
-│   │   ├── Response.php       # Response helper
-│   │   ├── ErrorHandler.php   # Error handler
-│   │   └── Logger.php         # API logger
-│   ├── modules/
-│   │   ├── auth.php           # Authentication endpoints
-│   │   ├── rehearsals.php     # Rehearsals endpoints
-│   │   ├── concerts.php       # Concerts endpoints
-│   │   ├── contacts.php       # Contacts endpoints
-│   │   ├── calendar.php       # Calendar endpoints
-│   │   ├── tasks.php           # Tasks endpoints
-│   │   ├── messages.php        # Messages endpoints
-│   │   ├── programs.php        # Programs endpoints
-│   │   ├── members.php         # Members endpoints
-│   │   ├── finance.php         # Finance endpoints
-│   │   ├── equipment.php       # Equipment endpoints
-│   │   ├── repertoire.php      # Repertoire endpoints
-│   │   ├── locations.php       # Locations endpoints
-│   │   ├── groups.php          # Groups endpoints
-│   │   ├── instruments.php     # Instruments endpoints
-│   │   ├── votes.php           # Votes/Polls endpoints
-│   │   ├── appointments.php    # Appointments endpoints
-│   │   ├── tours.php           # Tours endpoints
-│   │   ├── travel.php          # Travel endpoints
-│   │   ├── accommodation.php   # Accommodations endpoints
-│   │   ├── outfits.php         # Outfits endpoints
-│   │   ├── share.php           # File sharing endpoints
-│   │   ├── stats.php           # Statistics endpoints
-│   │   ├── admin.php           # Admin endpoints
-│   │   ├── config.php          # Configuration endpoints
-│   │   └── dashboard.php       # Dashboard endpoints
-│   └── .htaccess              # URL rewriting
-└── .htaccess                  # API routing
+next/api/
+├── index.php                  # API router
+├── bootstrap.php              # Backend initialization
+├── auth.php                   # Authentication helpers
+├── response.php               # Response helper
+├── logger.php                 # API logger
+└── modules/
+    ├── auth.php               # Authentication module
+    ├── dashboard.php          # Dashboard module
+    ├── users.php              # Users module
+    ├── contacts.php           # Contacts module
+    ├── rehearsals.php         # Rehearsals module
+    ├── concerts.php           # Concerts module
+    ├── participation.php      # Participation module
+    └── translations.php       # Translations module
 ```
 
 ### 2.2 URL Patterns
 
-**Resource-Based URLs:**
+**Module-Action Pattern:**
 ```
-GET    /api/v1/{resource}           # List resources
-POST   /api/v1/{resource}           # Create resource
-GET    /api/v1/{resource}/{id}      # Get resource
-PUT    /api/v1/{resource}/{id}      # Update resource
-DELETE /api/v1/{resource}/{id}      # Delete resource
-```
-
-**Sub-Resources:**
-```
-GET    /api/v1/{resource}/{id}/{sub-resource}  # Get sub-resources
-POST   /api/v1/{resource}/{id}/{sub-resource}  # Create sub-resource
-```
-
-**Actions (when CRUD doesn't fit):**
-```
-POST   /api/v1/{resource}/{id}/{action}       # Custom action
+GET  /next/api/index.php?module={module}&action={action}&{params}
+POST /next/api/index.php?module={module}&action={action}
 ```
 
 **Examples:**
 ```
-GET    /api/v1/rehearsals
-GET    /api/v1/rehearsals/42
-GET    /api/v1/rehearsals/42/participants
-POST   /api/v1/rehearsals/42/participants
-POST   /api/v1/rehearsals/42/participate
-GET    /api/v1/contacts/5/instruments
-GET    /api/v1/calendar/events?from=2026-01-01&to=2026-01-31
+GET  /next/api/index.php?module=dashboard&action=dashboard
+GET  /next/api/index.php?module=rehearsals&id=42
+GET  /next/api/index.php?module=users&action=list
+POST /next/api/index.php?module=users&action=create
+POST /next/api/index.php?module=participation&action=save
+GET  /next/api/index.php?module=translations&action=get&lang=de
 ```
 
-### 2.3 Resource Naming
+**Module Handler Pattern:**
+Each module implements a `{Module}Module` class with a `handle()` method that processes the action.
 
-**Plural Nouns:**
-- `rehearsals` (not `rehearsal`)
-- `concerts` (not `concert`)
-- `contacts` (not `contact`)
-- `tasks` (not `task`)
+### 2.3 Module Naming
 
-**Exceptions:**
-- `auth` (authentication)
-- `dashboard` (aggregate data)
-- `stats` (statistics)
+**Module Names (lowercase):**
+- `auth` - Authentication
+- `dashboard` - Dashboard data
+- `users` - User management
+- `contacts` - Contact management
+- `rehearsals` - Rehearsal data
+- `concerts` - Concert data
+- `participation` - Participation status
+- `translations` - Translation strings
+
+**Action Names:**
+- `list` - List resources
+- `get` - Get single resource
+- `create` - Create resource
+- `update` - Update resource
+- `delete` - Delete resource
+- Module-specific actions (e.g., `dashboard`, `eventsNeedingResponse`)
 
 ---
 
@@ -185,7 +159,7 @@ if (isset($_SESSION['user'])) {
 
 **Login:**
 ```
-POST /api/v1/auth/login
+POST /next/api/index.php?module=auth&action=login
 Body: {
     "username": "user@example.com",
     "password": "password123"
@@ -193,24 +167,23 @@ Body: {
 Response: {
     "success": true,
     "data": {
-        "user": { ... },
-        "token": "..." // Optional, for mobile
+        "user": { ... }
     }
 }
 ```
 
 **Logout:**
 ```
-POST /api/v1/auth/logout
+POST /next/api/index.php?module=auth&action=logout
 Response: {
     "success": true,
-    "message": "Logged out successfully"
+    "data": true
 }
 ```
 
 **Session Check:**
 ```
-GET /api/v1/auth/session
+GET /next/api/index.php?module=auth&action=session
 Response: {
     "success": true,
     "data": {
@@ -220,16 +193,14 @@ Response: {
 }
 ```
 
-**Token Refresh (Future):**
+**Get User Language:**
 ```
-POST /api/v1/auth/refresh
-Body: {
-    "token": "..."
-}
+GET /next/api/index.php?module=auth&action=getUserLang
 Response: {
     "success": true,
     "data": {
-        "token": "..."
+        "lang": "de",
+        "country": "DE"
     }
 }
 ```
@@ -274,7 +245,7 @@ Authorization: Bearer {token}  # Optional
 
 **Query Parameters:**
 ```
-GET /api/v1/rehearsals?page=1&limit=50&sort=begin&order=asc&filter[status]=confirmed
+GET /next/api/index.php?module=rehearsals&action=list&page=1&limit=50&sort=begin&order=asc&filter[status]=confirmed
 ```
 
 **Common Query Parameters:**
@@ -304,10 +275,6 @@ GET /api/v1/rehearsals?page=1&limit=50&sort=begin&order=asc&filter[status]=confi
     "success": true,
     "data": {
         // Resource data
-    },
-    "meta": {
-        "timestamp": "2026-01-25T12:00:00Z",
-        "version": "1.0"
     }
 }
 ```
@@ -319,16 +286,7 @@ GET /api/v1/rehearsals?page=1&limit=50&sort=begin&order=asc&filter[status]=confi
     "data": [
         { /* resource 1 */ },
         { /* resource 2 */ }
-    ],
-    "meta": {
-        "pagination": {
-            "page": 1,
-            "limit": 50,
-            "total": 150,
-            "pages": 3
-        },
-        "timestamp": "2026-01-25T12:00:00Z"
-    }
+    ]
 }
 ```
 
@@ -336,21 +294,18 @@ GET /api/v1/rehearsals?page=1&limit=50&sort=begin&order=asc&filter[status]=confi
 ```json
 {
     "success": false,
-    "error": {
-        "code": "VALIDATION_ERROR",
-        "message": "Invalid input data",
-        "details": [
-            {
-                "field": "begin",
-                "message": "Begin date is required"
-            }
-        ]
-    },
-    "meta": {
-        "timestamp": "2026-01-25T12:00:00Z"
-    }
+    "error": "Error message",
+    "code": 400
 }
 ```
+
+**HTTP Status Codes:**
+- 200 - Success
+- 400 - Bad Request / Validation Error
+- 401 - Unauthorized
+- 403 - Forbidden
+- 404 - Not Found
+- 500 - Internal Server Error
 
 ### 4.3 HTTP Status Codes
 
@@ -451,387 +406,277 @@ class ErrorHandler {
 
 ## 6. API Infrastructure
 
-### 6.1 Router (`/api/v1/index.php`)
+### 6.1 Router (`next/api/index.php`)
 
 **Responsibilities:**
-- Parse URL and route to module endpoint
-- Apply middleware (auth, permissions, CORS)
+- Parse module and action from query parameters
+- Load module handler file
+- Check authentication (except auth/translations modules)
 - Handle errors globally
 - Log requests
 
-**Implementation:**
+**Implementation Pattern:**
 ```php
 <?php
-require_once __DIR__ . '/../../dirs.php';
-require_once __DIR__ . '/../../src/logic/init.php';
-require_once __DIR__ . '/lib/Response.php';
-require_once __DIR__ . '/lib/ErrorHandler.php';
-require_once __DIR__ . '/lib/Logger.php';
-require_once __DIR__ . '/middleware/auth.php';
-require_once __DIR__ . '/middleware/permissions.php';
-require_once __DIR__ . '/middleware/cors.php';
+// Start session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Change to project root
+chdir(__DIR__ . '/../..');
+
+// Load BNote core
+require_once 'dirs.php';
+require_once 'src/logic/init.php';
+require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/response.php';
+require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/logger.php';
 
 // Set JSON headers
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
-// CORS middleware
-CorsMiddleware::handle();
+// Get module and action
+$module = $_GET['module'] ?? $_POST['module'] ?? 'dashboard';
+$action = $_GET['action'] ?? $_POST['action'] ?? null;
 
-// Parse request
-$method = $_SERVER['REQUEST_METHOD'];
-$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$path = str_replace('/api/v1', '', $path);
-$segments = array_filter(explode('/', $path));
+// Validate module name
+if (!preg_match('/^[a-z]+$/', $module)) {
+    Response::error('Invalid module name', 400);
+}
 
-// Route to module
-$resource = $segments[0] ?? 'dashboard';
-$id = $segments[1] ?? null;
-$action = $segments[2] ?? null;
-
-// Load module endpoint
-$moduleFile = __DIR__ . '/modules/' . $resource . '.php';
+// Load module file
+$moduleFile = __DIR__ . '/modules/' . $module . '.php';
 if (!file_exists($moduleFile)) {
-    Response::notFound("Resource '$resource' not found");
-    exit;
+    Response::error('Module not found: ' . $module, 404);
 }
 
 require_once $moduleFile;
 
-// Auth middleware
-if (!AuthMiddleware::check()) {
-    Response::unauthorized('Authentication required');
-    exit;
+// Check authentication (except auth and translations)
+if ($module !== 'auth' && $module !== 'translations' && !Auth::check()) {
+    Response::error('Authentication required', 403);
 }
 
-// Execute endpoint
-try {
-    $module = new $resource();
-    $result = $module->handle($method, $id, $action);
-    Response::success($result);
-} catch (Exception $e) {
-    ErrorHandler::handle($e);
-}
+// Instantiate module handler
+$className = ucfirst($module) . 'Module';
+$handler = new $className();
+$result = $handler->handle();
+Response::success($result);
 ```
 
-### 6.2 Response Helper (`/api/v1/lib/Response.php`)
+### 6.2 Response Helper (`next/api/response.php`)
 
 ```php
 class Response {
-    public static function success($data, $meta = []) {
+    public static function success($data) {
+        header('Content-Type: application/json; charset=utf-8');
         http_response_code(200);
         echo json_encode([
             'success' => true,
-            'data' => $data,
-            'meta' => array_merge([
-                'timestamp' => date('c'),
-                'version' => '1.0'
-            ], $meta)
-        ]);
+            'data' => $data
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
     
-    public static function created($data) {
-        http_response_code(201);
-        echo json_encode([
-            'success' => true,
-            'data' => $data,
-            'meta' => ['timestamp' => date('c')]
-        ]);
-        exit;
-    }
-    
-    public static function error($code, $message, $details = []) {
-        http_response_code(self::getHttpCode($code));
+    public static function error($message, $code = 400) {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code($code);
         echo json_encode([
             'success' => false,
-            'error' => [
-                'code' => $code,
-                'message' => $message,
-                'details' => $details
-            ],
-            'meta' => ['timestamp' => date('c')]
-        ]);
+            'error' => $message,
+            'code' => $code
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
-    
-    public static function unauthorized($message = 'Authentication required') {
-        self::error('AUTH_REQUIRED', $message);
-    }
-    
-    public static function forbidden($message = 'Permission denied') {
-        self::error('AUTH_FORBIDDEN', $message);
-    }
-    
-    public static function notFound($message = 'Resource not found') {
-        self::error('RESOURCE_NOT_FOUND', $message);
-    }
-    
-    private static function getHttpCode($code) {
-        $map = [
-            'AUTH_REQUIRED' => 401,
-            'AUTH_FORBIDDEN' => 403,
-            'RESOURCE_NOT_FOUND' => 404,
-            'VALIDATION_ERROR' => 422,
-        ];
-        return $map[$code] ?? 500;
-    }
 }
 ```
 
-### 6.3 Authentication Middleware (`/api/v1/middleware/auth.php`)
+### 6.3 Authentication Helper (`next/api/auth.php`)
 
 ```php
-class AuthMiddleware {
+class Auth {
     public static function check() {
         global $system_data;
-        
-        // Check session
-        if (isset($_SESSION['user']) && $_SESSION['user'] > 0) {
-            return $system_data->isUserAuthenticated();
-        }
-        
-        // Check token (future)
-        if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
-            $token = self::extractToken($_SERVER['HTTP_AUTHORIZATION']);
-            return self::validateToken($token);
-        }
-        
-        return false;
+        return $system_data->isUserAuthenticated();
     }
     
-    private static function extractToken($header) {
-        if (preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
-            return $matches[1];
-        }
-        return null;
-    }
-    
-    private static function validateToken($token) {
-        // TODO: Implement token validation
-        // For now, return false (session-only)
-        return false;
-    }
-}
-```
-
-### 6.4 Permissions Middleware (`/api/v1/middleware/permissions.php`)
-
-```php
-class PermissionsMiddleware {
-    public static function check($moduleName) {
+    public static function getUserId() {
         global $system_data;
-        
+        return $system_data->getUserId();
+    }
+    
+    public static function checkModule($moduleName) {
+        global $system_data;
         $moduleId = $system_data->getModuleId($moduleName);
         if (!$moduleId) {
             return false;
         }
-        
         return $system_data->userHasPermission($moduleId);
     }
 }
 ```
 
-### 6.5 CORS Middleware (`/api/v1/middleware/cors.php`)
+### 6.4 Module Handler Pattern
+
+Each module implements a handler class:
 
 ```php
-class CorsMiddleware {
-    public static function handle() {
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
+class DashboardModule {
+    public function handle() {
+        $action = $_GET['action'] ?? $_POST['action'] ?? 'dashboard';
         
-        // Allow same-origin (web UI)
-        if ($origin === $_SERVER['HTTP_HOST']) {
-            header("Access-Control-Allow-Origin: $origin");
-        }
-        
-        // Allow configured origins (for mobile apps)
-        $allowedOrigins = self::getAllowedOrigins();
-        if (in_array($origin, $allowedOrigins)) {
-            header("Access-Control-Allow-Origin: $origin");
-        }
-        
-        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-        header("Access-Control-Allow-Headers: Content-Type, Authorization");
-        header("Access-Control-Allow-Credentials: true");
-        
-        // Handle preflight
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            http_response_code(200);
-            exit;
+        switch ($action) {
+            case 'dashboard':
+                return $this->getDashboard();
+            case 'eventsNeedingResponse':
+                return $this->getEventsNeedingResponse();
+            default:
+                Response::error('Unknown action: ' . $action, 400);
         }
     }
     
-    private static function getAllowedOrigins() {
-        // TODO: Load from configuration
-        return [];
+    private function getDashboard() {
+        // Use existing BNote data classes
+        $data = new StartData();
+        return $data->getDashboardData();
     }
 }
 ```
 
-### 6.6 Logger (`/api/v1/lib/Logger.php`)
+### 6.5 Logger (`next/api/logger.php`)
 
 ```php
-class Logger {
-    private static $logFile = __DIR__ . '/../../log/api.log';
-    
-    public static function info($message, $context = []) {
-        self::write('INFO', $message, $context);
+class ApiLogger {
+    public static function logRequest($module, $action, $method, $params, $body) {
+        // Log to /log/api/api_YYYY-MM-DD.log
     }
     
-    public static function error($code, $message, $exception = null) {
-        $context = ['code' => $code];
-        if ($exception) {
-            $context['trace'] = $exception->getTraceAsString();
-        }
-        self::write('ERROR', $message, $context);
+    public static function logResponse($module, $action, $statusCode, $response, $responseTime) {
+        // Log response
     }
     
-    private static function write($level, $message, $context = []) {
-        $log = [
-            'timestamp' => date('c'),
-            'level' => $level,
-            'message' => $message,
-            'context' => $context,
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-            'method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown',
-            'uri' => $_SERVER['REQUEST_URI'] ?? 'unknown'
-        ];
-        
-        file_put_contents(
-            self::$logFile,
-            json_encode($log) . "\n",
-            FILE_APPEND
-        );
+    public static function logError($module, $action, $error, $code) {
+        // Log errors
     }
 }
 ```
 
 ---
 
-## 7. Endpoint Patterns
+## 7. Endpoint Examples
 
-### 7.1 Standard CRUD Pattern
+### 7.1 Dashboard Module
 
-**List:**
-```php
-GET /api/v1/rehearsals
+**Get Dashboard:**
+```
+GET /next/api/index.php?module=dashboard&action=dashboard
+Response: {
+    "success": true,
+    "data": {
+        "company": "Band Name",
+        "events": [ ... ],
+        "news": [ ... ]
+    }
+}
+```
+
+**Get Events Needing Response:**
+```
+GET /next/api/index.php?module=dashboard&action=eventsNeedingResponse
 Response: {
     "success": true,
     "data": [
-        { "id": 1, "begin": "...", ... },
-        { "id": 2, "begin": "...", ... }
-    ],
-    "meta": {
-        "pagination": { "page": 1, "limit": 50, "total": 100 }
-    }
-}
-```
-
-**Get:**
-```php
-GET /api/v1/rehearsals/42
-Response: {
-    "success": true,
-    "data": {
-        "id": 42,
-        "begin": "2026-02-01 19:00:00",
-        "end": "2026-02-01 21:00:00",
-        "location": { "id": 5, "name": "..." },
-        "participants": [ ... ]
-    }
-}
-```
-
-**Create:**
-```php
-POST /api/v1/rehearsals
-Body: {
-    "begin": "2026-02-01 19:00:00",
-    "end": "2026-02-01 21:00:00",
-    "location": 5
-}
-Response: {
-    "success": true,
-    "data": {
-        "id": 43,
-        "begin": "2026-02-01 19:00:00",
-        ...
-    }
-}
-```
-
-**Update:**
-```php
-PUT /api/v1/rehearsals/42
-Body: {
-    "begin": "2026-02-01 20:00:00",
-    "end": "2026-02-01 22:00:00",
-    "location": 5
-}
-Response: {
-    "success": true,
-    "data": {
-        "id": 42,
-        "begin": "2026-02-01 20:00:00",
-        ...
-    }
-}
-```
-
-**Delete:**
-```php
-DELETE /api/v1/rehearsals/42
-Response: {
-    "success": true,
-    "message": "Rehearsal deleted"
-}
-```
-
-### 7.2 Sub-Resource Pattern
-
-**Get Participants:**
-```php
-GET /api/v1/rehearsals/42/participants
-Response: {
-    "success": true,
-    "data": [
-        { "id": 1, "name": "...", "participate": 1 },
-        { "id": 2, "name": "...", "participate": 0 }
+        { "otype": "R", "oid": 42, "begin": "...", ... }
     ]
 }
 ```
 
-**Add Participant:**
-```php
-POST /api/v1/rehearsals/42/participants
+### 7.2 Users Module
+
+**List Users:**
+```
+GET /next/api/index.php?module=users&action=list
+Response: {
+    "success": true,
+    "data": [
+        { "id": 1, "name": "...", "surname": "...", ... }
+    ]
+}
+```
+
+**Get User:**
+```
+GET /next/api/index.php?module=users&action=get&id=5
+Response: {
+    "success": true,
+    "data": {
+        "id": 5,
+        "name": "...",
+        "privileges": [ ... ]
+    }
+}
+```
+
+**Create User:**
+```
+POST /next/api/index.php?module=users&action=create
 Body: {
-    "user_id": 5,
-    "participate": 1,
-    "reason": ""
+    "name": "John",
+    "surname": "Doe",
+    "email": "john@example.com"
 }
 Response: {
     "success": true,
     "data": {
         "id": 123,
-        "user_id": 5,
-        "participate": 1
+        "name": "John",
+        ...
     }
 }
 ```
 
-### 7.3 Action Pattern
+### 7.3 Participation Module
 
-**Participate:**
-```php
-POST /api/v1/rehearsals/42/participate
+**Get Participation Status:**
+```
+GET /next/api/index.php?module=participation&action=get&event_id=42&event_type=R
+Response: {
+    "success": true,
+    "data": {
+        "status": 1,
+        "reason": ""
+    }
+}
+```
+
+**Save Participation:**
+```
+POST /next/api/index.php?module=participation&action=save
 Body: {
-    "participate": 1,  // 1=yes, 0=no, 2=maybe
+    "event_id": 42,
+    "event_type": "R",
+    "status": 1,
     "reason": "Will attend"
 }
 Response: {
     "success": true,
+    "data": true
+}
+```
+
+### 7.4 Translations Module
+
+**Get Translations:**
+```
+GET /next/api/index.php?module=translations&action=get&lang=de
+Response: {
+    "success": true,
     "data": {
-        "participate": 1,
-        "reason": "Will attend"
+        "js.dashboard.welcome": "Willkommen",
+        "js.common.save": "Speichern",
+        ...
     }
 }
 ```
@@ -926,10 +771,10 @@ class RateLimiter {
 
 ### 9.1 Caching Strategy
 
-**Cacheable Endpoints:**
-- `GET /api/v1/instruments` - Static data
-- `GET /api/v1/groups` - Changes infrequently
-- `GET /api/v1/locations` - Changes infrequently
+**Cacheable Endpoints (Future):**
+- `GET /next/api/index.php?module=instruments&action=list` - Static data
+- `GET /next/api/index.php?module=groups&action=list` - Changes infrequently
+- `GET /next/api/index.php?module=locations&action=list` - Changes infrequently
 
 **Cache Headers:**
 ```
@@ -989,9 +834,9 @@ class Cache {
 
 ### 9.3 Field Selection
 
-**Allow clients to request specific fields:**
+**Field Selection (Future):**
 ```
-GET /api/v1/rehearsals?fields=id,begin,end,location
+GET /next/api/index.php?module=rehearsals&action=list&fields=id,begin,end,location
 ```
 
 **Response:**
@@ -1005,95 +850,132 @@ GET /api/v1/rehearsals?fields=id,begin,end,location
 
 ---
 
-## 10. Versioning
+## 8. Module Implementation
 
-### 10.1 Version Strategy
+### 8.1 Module Handler Pattern
 
-**URL-based versioning:**
-- `/api/v1/` - Current version
-- `/api/v2/` - Future version (when breaking changes needed)
+All modules follow the same pattern:
 
-**Versioning Rules:**
-- Breaking changes → New version
-- Non-breaking changes → Same version
-- Deprecation → Announce in v1, remove in v2
-
-### 10.2 Deprecation Process
-
-1. **Announce:** Add deprecation notice in response headers
-2. **Document:** Update API docs with deprecation date
-3. **Support:** Keep deprecated endpoint for 6 months
-4. **Remove:** Remove in next major version
-
-**Deprecation Header:**
-```
-Deprecation: true
-Sunset: Sat, 25 Jul 2026 12:00:00 GMT
-Link: <https://api.example.com/docs/v2>; rel="successor-version"
-```
-
----
-
-## 11. API Testing
-
-### 11.1 Testing Endpoints
-
-**Health Check:**
-```
-GET /api/v1/health
-Response: {
-    "success": true,
-    "data": {
-        "status": "ok",
-        "database": "connected",
-        "version": "1.0.0"
+```php
+class {Module}Module {
+    public function __construct() {
+        // Check permissions if needed
+        // Initialize data classes
+    }
+    
+    public function handle() {
+        $action = $_GET['action'] ?? $_POST['action'] ?? 'default';
+        
+        switch ($action) {
+            case 'list':
+                return $this->list();
+            case 'get':
+                return $this->get();
+            case 'create':
+                return $this->create();
+            // ... other actions
+            default:
+                Response::error('Unknown action: ' . $action, 400);
+        }
+    }
+    
+    private function list() {
+        // Use existing BNote data classes
+        $data = new {Module}Data();
+        return $data->findAll();
     }
 }
 ```
 
-**Test Authentication:**
-```
-GET /api/v1/auth/test
-Response: {
-    "success": true,
-    "data": {
-        "authenticated": true,
-        "user_id": 5
-    }
+### 8.2 Implemented Modules
+
+- `auth` - Authentication and session management
+- `dashboard` - Dashboard data and events
+- `users` - User management (CRUD, privileges, GDPR)
+- `contacts` - Contact management (CRUD, groups, integration)
+- `rehearsals` - Rehearsal detail with participants
+- `concerts` - Concert detail with participants and metadata
+- `participation` - Participation status management
+- `translations` - Translation strings for frontend
+
+---
+
+## 9. Error Handling
+
+### 9.1 Error Response Format
+
+All errors follow consistent format:
+
+```json
+{
+    "success": false,
+    "error": "Human-readable error message",
+    "code": 400
 }
 ```
 
-### 11.2 Testing Tools
+### 9.2 Common Error Codes
 
-**Recommended:**
-- cURL (command line)
-- Postman (GUI)
-- Browser DevTools (for web UI)
-- PHPUnit (for automated tests)
+- 400 - Bad Request (validation errors, invalid parameters)
+- 401 - Unauthorized (not authenticated)
+- 403 - Forbidden (no permission for module)
+- 404 - Not Found (module or resource not found)
+- 500 - Internal Server Error (server errors)
+
+### 9.3 Error Handling in Modules
+
+```php
+try {
+    // Use existing BNote data/logic classes
+    $data = new UsersData();
+    $result = $data->findById($id);
+    
+    if (!$result) {
+        Response::error('User not found', 404);
+    }
+    
+    return $result;
+} catch (BNoteError $e) {
+    Response::error($e->getMessage(), 400);
+} catch (Exception $e) {
+    error_log('API Error: ' . $e->getMessage());
+    Response::error('Internal server error', 500);
+}
+```
 
 ---
 
-## 12. Documentation
+## 10. Backend Integration
 
-### 12.1 API Documentation
+### 10.1 Using Existing BNote Classes
 
-**Location:** `/docs/API_ENDPOINTS.md`
+The API wraps existing BNote data and logic layers without modification:
 
-**Contents:**
-- All endpoints documented
-- Request/response examples
-- Error codes
-- Authentication requirements
+```php
+// Load existing data class
+require_once __DIR__ . '/../../../src/data/modules/userdata.php';
+$data = new UserData();
 
-### 12.2 OpenAPI/Swagger (Future)
+// Use existing methods
+$users = $data->findAll();
+$user = $data->findById($id);
+$data->add($values);
+```
 
-**Consider generating OpenAPI spec:**
-- Auto-generate from code
-- Interactive API docs
-- Client SDK generation
+### 10.2 Permission Checks
+
+Use existing permission system:
+
+```php
+global $system_data;
+$moduleId = $system_data->getModuleId('Users');
+if (!$system_data->userHasPermission($moduleId)) {
+    Response::error('Access denied', 403);
+}
+```
 
 ---
 
-**Document Status:** Complete  
-**Last Updated:** 2026-01-25  
-**Next:** See `API_ENDPOINTS.md` for detailed endpoint specifications
+**Document Status:** Updated  
+**Last Updated:** 2026-01-27  
+**See Also:** [README.md](../next/README.md) for overview
