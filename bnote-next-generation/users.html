@@ -18,11 +18,55 @@
         <div id="sidebar-container" class="hidden md:block shrink-0 h-full"></div>
 
         <!-- Main content area -->
-        <div class="flex-1 flex flex-col min-w-0 min-h-0">
+        <div class="flex-1 flex flex-col min-w-0 min-h-0 relative">
         <div id="topbar-container"></div>
 
+        <!-- Mobile Search Overlay Backdrop (only on mobile) -->
+        <div id="search-overlay-backdrop" class="hidden fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-40 md:hidden"></div>
+        
+        <!-- Mobile Search Overlay (fullscreen on mobile, overlay on desktop) -->
+        <div id="search-overlay" class="hidden fixed inset-0 md:inset-auto md:absolute md:top-16 md:bottom-auto md:max-h-[calc(100vh-4rem)] z-50 bg-card border-t md:border-t-0 md:border-b md:border-x border-border/60 shadow-2xl md:shadow-2xl overflow-y-auto">
+            <div id="search-overlay-content" class="p-4 md:p-6">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Event Detail View Container (hidden by default) -->
+        <div id="event-detail-container" class="hidden">
+            <div class="mb-4">
+                <button 
+                    id="back-to-dashboard" 
+                    onclick="EventDetail.navigateBack()"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground hover:text-primary bg-muted/50 hover:bg-muted rounded-lg transition-colors"
+                >
+                    <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                    <span data-i18n="js.common.back">Back</span>
+                </button>
+            </div>
+            <div id="event-detail-content" class="mx-auto max-w-4xl">
+                <!-- Rendered by EventDetail component -->
+            </div>
+        </div>
+
+        <!-- Search Results View Container (hidden by default) -->
+        <div id="search-results-container" class="hidden">
+            <div class="mb-4">
+                <button 
+                    id="back-to-dashboard-from-search" 
+                    onclick="SearchResultsPage.navigateBack()"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground hover:text-primary bg-muted/50 hover:bg-muted rounded-lg transition-colors"
+                >
+                    <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                    <span data-i18n="js.common.back">Back</span>
+                </button>
+            </div>
+            <div id="search-results-content" class="mx-auto max-w-4xl">
+                <!-- Rendered by SearchResultsPage component -->
+            </div>
+        </div>
+
         <!-- Main content -->
-        <main class="px-4 py-6 lg:px-6 flex-1 overflow-y-auto min-h-0">
+        <main id="users-main-content" class="px-4 py-6 lg:px-6 flex-1 overflow-y-auto min-h-0">
             <div class="mx-auto max-w-7xl">
                 <!-- Page title -->
                 <div class="mb-6">
@@ -173,10 +217,13 @@
     <script src="assets/js/badge.js"></script>
     <script src="assets/js/user-info.js"></script>
     <script src="assets/js/components.js"></script>
+    <script src="assets/js/event-renderer.js"></script>
     <script src="assets/js/search.js"></script>
     <script src="assets/js/search-results.js"></script>
     <script src="assets/js/search-filters.js"></script>
     <script src="assets/js/search-integration.js"></script>
+    <script src="assets/js/search-results-page.js"></script>
+    <script src="assets/js/event-detail.js"></script>
     <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/mobile-nav.js"></script>
     <script src="assets/js/form.js"></script>
@@ -237,7 +284,50 @@
                 await Sidebar.init('users');
                 await MobileNav.init();
                 Components.initThemeToggle();
+                
+                // Initialize search integration (must be after topbar is rendered)
+                if (typeof SearchIntegration !== 'undefined') {
+                    await SearchIntegration.init();
+                }
+                
                 Users.init(session);
+                
+                // Handle browser back/forward buttons
+                window.addEventListener('popstate', (event) => {
+                    if (event.state) {
+                        if (event.state.view === 'search-results') {
+                            // User navigated to search results via history
+                            if (typeof SearchResultsPage !== 'undefined') {
+                                // Use replaceState to avoid creating new history entry when navigating back
+                                SearchResultsPage.init(event.state.query, event.state.filters || {}, true);
+                            }
+                        } else if (event.state.view === 'event-detail') {
+                            // User navigated to event detail via history
+                            if (typeof EventDetail !== 'undefined') {
+                                // Pass fromPopstate=true to avoid pushing new state
+                                EventDetail.init(event.state.eventType, event.state.eventId, true);
+                            }
+                        } else {
+                            // User navigated back to users (or other view)
+                            // Hide search results and event detail, show users
+                            if (typeof SearchResultsPage !== 'undefined') {
+                                SearchResultsPage.showDashboard();
+                            }
+                            if (typeof EventDetail !== 'undefined') {
+                                EventDetail.showDashboard();
+                            }
+                        }
+                    } else {
+                        // No state - user went back to initial page or cleared state
+                        // Always show users/main content (don't check URL params - user explicitly went back)
+                        if (typeof SearchResultsPage !== 'undefined') {
+                            SearchResultsPage.showDashboard();
+                        }
+                        if (typeof EventDetail !== 'undefined') {
+                            EventDetail.showDashboard();
+                        }
+                    }
+                });
                 
                 // Show content
                 document.documentElement.classList.remove('i18n-loading');

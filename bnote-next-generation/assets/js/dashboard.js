@@ -852,112 +852,118 @@ const Dashboard = {
         const displayedEvents = eventsList.slice(0, currentDisplayed);
         const hasMore = showLoadMore && eventsList.length > currentDisplayed;
 
-        container.innerHTML = displayedEvents.map((event, index) => {
-            const eventType = this.mapOtypeToEventType(event.otype);
-            const typeConfig = this.getEventTypeConfig(eventType);
-            const dateStr = this.formatEventDate(event.eventBegin || event.dueDate);
-            const timeStr = this.formatEventTime(event.eventBegin || event.dueDate);
-            // Use location from API response
-            const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
-                ? i18n.t('js.event.tba')
-                : 'TBA';
-            const eventTitleFallback = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.event.event') : 'Event';
-            const location = event.location || event.locationData?.name || this.extractLocationFromTitle(event.title) || tbaText;
-            const isLast = index === eventsList.length - 1;
-            // Don't duplicate type label: if title equals type (e.g. "Probe"), show badge only
-            const title = event.title || eventTitleFallback;
-            const hideTitleWhenDuplicate = title === typeConfig.label;
+        // Use shared EventRenderer for consistent rendering
+        let eventsHtml = '';
+        if (typeof EventRenderer !== 'undefined' && EventRenderer.renderEventItem) {
+            eventsHtml = displayedEvents.map((event, index) => {
+                return EventRenderer.renderEventItem(event, {
+                    showParticipation: showParticipation,
+                    isLast: index === displayedEvents.length - 1,
+                    isMobile: window.innerWidth < 768
+                });
+            }).join('');
+        } else {
+            // Fallback to original implementation if EventRenderer not available
+            eventsHtml = displayedEvents.map((event, index) => {
+                const eventType = this.mapOtypeToEventType(event.otype);
+                const typeConfig = this.getEventTypeConfig(eventType);
+                const dateStr = this.formatEventDate(event.eventBegin || event.dueDate);
+                const timeStr = this.formatEventTime(event.eventBegin || event.dueDate);
+                const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
+                    ? i18n.t('js.event.tba')
+                    : 'TBA';
+                const eventTitleFallback = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.event.event') : 'Event';
+                const location = event.location || event.locationData?.name || 
+                    (typeof EventRenderer !== 'undefined' && EventRenderer.extractLocationFromTitle ? EventRenderer.extractLocationFromTitle(event.title) : null) || 
+                    this.extractLocationFromTitle(event.title) || tbaText;
+                const isLast = index === eventsList.length - 1;
+                const title = event.title || eventTitleFallback;
+                const hideTitleWhenDuplicate = title === typeConfig.label;
+                const hasValidEventData = event.oid && event.otype && (event.otype === 'R' || event.otype === 'C');
+                const participationWidget = showParticipation && hasValidEventData ? `
+                    <div 
+                        class="flex flex-col gap-2 shrink-0 items-end w-fit" 
+                        data-participation-widget 
+                        data-event-id="${event.oid}" 
+                        data-event-type="${event.otype}"
+                    ></div>
+                ` : '';
+                const isMobile = window.innerWidth < 768;
+                const isClickable = event.otype === 'R' || event.otype === 'C';
+                const clickableClass = isClickable ? 'cursor-pointer event-clickable' : '';
+                const eventDataAttr = isClickable ? `data-event-type="${event.otype}" data-event-id="${event.oid}"` : '';
 
-            // Generate participation widget HTML if needed
-            // Only show widget if we have valid event ID and type (R or C for rehearsals/concerts)
-            const hasValidEventData = event.oid && event.otype && (event.otype === 'R' || event.otype === 'C');
-            const participationWidget = showParticipation && hasValidEventData ? `
-                <div 
-                    class="flex flex-col gap-2 shrink-0 items-end w-fit" 
-                    data-participation-widget 
-                    data-event-id="${event.oid}" 
-                    data-event-type="${event.otype}"
-                ></div>
-            ` : '';
-
-            // Mobile compact layout: no timeline icons, less padding, unified design
-            const isMobile = window.innerWidth < 768;
-
-            // Only make clickable if it's a rehearsal or concert
-            const isClickable = event.otype === 'R' || event.otype === 'C';
-            const clickableClass = isClickable ? 'cursor-pointer event-clickable' : '';
-            const eventDataAttr = isClickable ? `data-event-type="${event.otype}" data-event-id="${event.oid}"` : '';
-
-            if (isMobile) {
-                // Mobile compact layout - unified for both sections
-                return `
-                    <div class="relative ${!isLast ? 'border-b border-border/30 pb-2 mb-2' : ''} ${clickableClass}" data-event-id="${event.oid}" ${eventDataAttr}>
-                        <div class="px-1 transition-all duration-200 group">
-                            <div class="flex items-start gap-2 mb-1.5">
-                                <div class="flex-1 min-w-0">
-                                    <div class="mb-1">
-                                        <p class="text-sm font-bold text-foreground leading-tight">${dateStr}</p>
+                if (isMobile) {
+                    return `
+                        <div class="relative ${!isLast ? 'border-b border-border/30 pb-2 mb-2' : ''} ${clickableClass}" data-event-id="${event.oid}" ${eventDataAttr}>
+                            <div class="px-1 transition-all duration-200 group">
+                                <div class="flex items-start gap-2 mb-1.5">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="mb-1">
+                                            <p class="text-sm font-bold text-foreground leading-tight">${dateStr}</p>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+                                            ${!hideTitleWhenDuplicate ? `<h3 class="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(title)}</h3>` : ''}
+                                            <span class="${typeConfig.badgeClass} text-[10px]">
+                                                ${typeConfig.label}
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[10px] text-muted-foreground/80">
+                                            <i data-lucide="clock" class="h-2.5 w-2.5 text-primary/60"></i>
+                                            <span>${timeStr}</span>
+                                        </div>
                                     </div>
-                                    <div class="flex items-center gap-1.5 mb-1 flex-wrap">
-                                        ${!hideTitleWhenDuplicate ? `<h3 class="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(title)}</h3>` : ''}
-                                        <span class="${typeConfig.badgeClass} text-[10px]">
+                                    ${participationWidget}
+                                </div>
+                                <div class="flex items-center text-[10px] text-muted-foreground/70 pt-1">
+                                    <span class="flex items-center gap-1">
+                                        <i data-lucide="map-pin" class="h-2.5 w-2.5 text-primary/50"></i>
+                                        ${this.escapeHtml(location)}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="relative flex gap-3 ${clickableClass}" data-event-id="${event.oid}" ${eventDataAttr}>
+                        ${!isLast ? `<div class="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector"></div>` : ''}
+                        <div class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ${typeConfig.dotClass} ring-3 ring-background shadow-sm flex items-center justify-center">
+                            <i data-lucide="${typeConfig.icon}" class="h-3 w-3 text-white"></i>
+                        </div>
+                        <div class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-3 transition-all duration-200 hover:shadow-md hover:border-primary/30 group">
+                            <div class="flex items-start gap-3 mb-2">
+                                <div class="flex-1 min-w-0">
+                                    <div class="mb-1.5">
+                                        <p class="text-base font-bold text-foreground leading-tight">${dateStr}</p>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-1.5">
+                                        ${!hideTitleWhenDuplicate ? `<h3 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(title)}</h3>` : ''}
+                                        <span class="${typeConfig.badgeClass}">
                                             ${typeConfig.label}
                                         </span>
                                     </div>
-                                    <div class="flex items-center gap-1 text-[10px] text-muted-foreground/80">
-                                        <i data-lucide="clock" class="h-2.5 w-2.5 text-primary/60"></i>
+                                    <div class="flex items-center gap-1.5 text-xs text-muted-foreground/80">
+                                        <i data-lucide="clock" class="h-3 w-3 text-primary/60"></i>
                                         <span>${timeStr}</span>
                                     </div>
                                 </div>
                                 ${participationWidget}
                             </div>
-                            <div class="flex items-center text-[10px] text-muted-foreground/70 pt-1">
-                                <span class="flex items-center gap-1">
-                                    <i data-lucide="map-pin" class="h-2.5 w-2.5 text-primary/50"></i>
+                            <div class="flex items-center text-xs text-muted-foreground/70 pt-2 border-t border-border/30">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="map-pin" class="h-3 w-3 text-primary/50"></i>
                                     ${this.escapeHtml(location)}
                                 </span>
                             </div>
                         </div>
                     </div>
                 `;
-            }
+            }).join('');
+        }
 
-            // Desktop layout with timeline
-            return `
-                <div class="relative flex gap-3 ${clickableClass}" data-event-id="${event.oid}" ${eventDataAttr}>
-                    ${!isLast ? `<div class="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector"></div>` : ''}
-                    <div class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ${typeConfig.dotClass} ring-3 ring-background shadow-sm flex items-center justify-center">
-                        <i data-lucide="${typeConfig.icon}" class="h-3 w-3 text-white"></i>
-                    </div>
-                    <div class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-3 transition-all duration-200 hover:shadow-md hover:border-primary/30 group">
-                        <div class="flex items-start gap-3 mb-2">
-                            <div class="flex-1 min-w-0">
-                                <div class="mb-1.5">
-                                    <p class="text-base font-bold text-foreground leading-tight">${dateStr}</p>
-                                </div>
-                                <div class="flex items-center gap-2 mb-1.5">
-                                    ${!hideTitleWhenDuplicate ? `<h3 class="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">${this.escapeHtml(title)}</h3>` : ''}
-                                    <span class="${typeConfig.badgeClass}">
-                                        ${typeConfig.label}
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-1.5 text-xs text-muted-foreground/80">
-                                    <i data-lucide="clock" class="h-3 w-3 text-primary/60"></i>
-                                    <span>${timeStr}</span>
-                                </div>
-                            </div>
-                            ${participationWidget}
-                        </div>
-                        <div class="flex items-center text-xs text-muted-foreground/70 pt-2 border-t border-border/30">
-                            <span class="flex items-center gap-1.5">
-                                <i data-lucide="map-pin" class="h-3 w-3 text-primary/50"></i>
-                                ${this.escapeHtml(location)}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('') + (showLoadMore && sectionId && hasMore ? `
+        container.innerHTML = eventsHtml + (showLoadMore && sectionId && hasMore ? `
             <div class="flex justify-center mt-6">
                 <button 
                     class="load-more-btn px-6 py-3 text-sm font-semibold text-primary bg-primary/10 hover:bg-primary/20 border-2 border-primary/30 hover:border-primary/50 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
@@ -1175,7 +1181,14 @@ const Dashboard = {
     /**
      * Map BNote otype to event type
      */
+    /**
+     * Map otype to event type (delegates to EventRenderer)
+     */
     mapOtypeToEventType(otype) {
+        if (typeof EventRenderer !== 'undefined' && EventRenderer.mapOtypeToEventType) {
+            return EventRenderer.mapOtypeToEventType(otype);
+        }
+        // Fallback
         const mapping = {
             'R': 'rehearsal',
             'C': 'performance',
@@ -1187,11 +1200,14 @@ const Dashboard = {
     },
 
     /**
-     * Get event type configuration
+     * Get event type configuration (delegates to EventRenderer)
      */
     getEventTypeConfig(type) {
+        if (typeof EventRenderer !== 'undefined' && EventRenderer.getEventTypeConfig) {
+            return EventRenderer.getEventTypeConfig(type);
+        }
+        // Fallback
         const getLabel = (key) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(key) : key);
-
         const configs = {
             rehearsal: {
                 badgeClass: 'event-badge',
@@ -1216,9 +1232,13 @@ const Dashboard = {
     },
 
     /**
-     * Format event date (short format: DD.MM.YYYY or MM/DD/YYYY). Uses parseEventDate; returns TBA when no valid date.
+     * Format event date (delegates to EventRenderer)
      */
     formatEventDate(dateStr) {
+        if (typeof EventRenderer !== 'undefined' && EventRenderer.formatEventDate) {
+            return EventRenderer.formatEventDate(dateStr);
+        }
+        // Fallback
         const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
             ? i18n.t('js.event.tba')
             : 'TBA';
@@ -1239,9 +1259,13 @@ const Dashboard = {
     },
 
     /**
-     * Format event time (hours and minutes only, no seconds). Uses parseEventDate.
+     * Format event time (delegates to EventRenderer)
      */
     formatEventTime(dateStr) {
+        if (typeof EventRenderer !== 'undefined' && EventRenderer.formatEventTime) {
+            return EventRenderer.formatEventTime(dateStr);
+        }
+        // Fallback
         const tbaText = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0
             ? i18n.t('js.event.tba')
             : 'TBA';

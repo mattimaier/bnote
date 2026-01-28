@@ -30,30 +30,36 @@ const EventDetail = {
      * Initialize detail view
      * @param {string} eventType - Event type ('R' for rehearsal, 'C' for concert)
      * @param {number} eventId - Event ID
+     * @param {boolean} fromPopstate - If true, we're navigating via popstate (don't push new state)
      */
-    async init(eventType, eventId) {
+    async init(eventType, eventId, fromPopstate = false) {
         this.eventType = eventType;
         this.eventId = eventId;
 
-        // Check if we came from search results (check previous history state or internal flag)
-        const previousState = history.state;
-        const cameFromSearch = (this._fromSearch && this._searchQuery) || (previousState && previousState.view === 'search-results');
-        const searchQuery = this._searchQuery || (previousState && previousState.query) || null;
-        const searchFilters = this._searchFilters || (previousState && previousState.filters) || null;
+        // Check if we came from search results (check internal flag or current state's previousView)
+        // When fromPopstate=true, history.state already has the correct state with previousView
+        const currentState = history.state;
+        const cameFromSearch = (this._fromSearch && this._searchQuery) || 
+                              (currentState && currentState.previousView === 'search-results') ||
+                              (currentState && currentState.view === 'search-results');
+        const searchQuery = this._searchQuery || (currentState && currentState.searchQuery) || (currentState && currentState.query) || null;
+        const searchFilters = this._searchFilters || (currentState && currentState.searchFilters) || (currentState && currentState.filters) || null;
         
         // Push state to history for browser back button support
-        // Only push if URL doesn't already have the correct parameter
+        // Only push if URL doesn't already have the correct parameter AND we're not navigating via popstate
         const param = eventType === 'R' ? 'rehearsal' : 'concert';
         const urlParams = new URLSearchParams(window.location.search);
         const currentParamValue = urlParams.get(param);
         
-        // Only push state if URL doesn't match or if we're not already in event detail view
-        if (currentParamValue !== String(eventId) || !history.state || history.state.view !== 'event-detail') {
+        // Only push/replace state if:
+        // 1. Not navigating via popstate (popstate already has the correct state)
+        // 2. URL doesn't match or we're not already in event detail view
+        if (!fromPopstate && (currentParamValue !== String(eventId) || !history.state || history.state.view !== 'event-detail')) {
             const state = { 
                 view: 'event-detail', 
                 eventType, 
                 eventId,
-                previousView: cameFromSearch ? 'search-results' : (previousState?.view || 'dashboard'),
+                previousView: cameFromSearch ? 'search-results' : (currentState?.view || 'dashboard'),
                 searchQuery: searchQuery,
                 searchFilters: searchFilters
             };
@@ -790,24 +796,14 @@ const EventDetail = {
     },
 
     /**
-     * Navigate back to dashboard
+     * Navigate back to dashboard or search results
      */
     navigateBack() {
-        // Check if we came from search results
-        const state = history.state;
-        if (state && state.previousView === 'search-results' && state.searchQuery) {
-            // Return to search results page
-            if (typeof SearchResultsPage !== 'undefined') {
-                SearchResultsPage.init(state.searchQuery, state.searchFilters || {});
-                return;
-            }
-        }
-        
-        // Go back in history if we have a history state, otherwise just show dashboard
-        if (history.state && history.state.view === 'event-detail') {
+        // Always use browser history - popstate handler will show the appropriate view
+        if (history.length > 1) {
             history.back();
         } else {
-            // Fallback: just show dashboard
+            // No history - show dashboard
             this.showDashboard();
         }
     },

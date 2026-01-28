@@ -136,7 +136,66 @@ const errorMsg = 'Failed to load';
 - Always test components in both light and dark modes
 - Use browser dev tools to toggle dark mode
 
-### 5. License Compliance
+### 5. Shared Components Architecture - MANDATORY
+
+**CRITICAL:** Build shared, reusable components that are used throughout the app. Do NOT create duplicate implementations.
+
+**Key Principles:**
+- ✅ **Extract common functionality** into shared components/modules
+- ✅ **Reuse existing components** instead of creating new ones
+- ✅ **Share design/styling** through shared rendering components
+- ✅ **No dependencies** between feature modules (e.g., Search should not depend on Dashboard)
+- ✅ **Shared utilities** for common operations (formatting, rendering, etc.)
+
+**Examples:**
+
+```javascript
+// ✅ GOOD - Shared EventRenderer component
+// File: assets/js/event-renderer.js
+const EventRenderer = {
+    renderEventItem(event, options) { /* shared rendering logic */ },
+    formatEventDate(dateStr) { /* shared formatting */ }
+};
+
+// Dashboard uses EventRenderer
+Dashboard.renderEventsWidget() {
+    return EventRenderer.renderEvents(events);
+}
+
+// Search uses EventRenderer (no Dashboard dependency)
+SearchResults.renderEventItems(events) {
+    return EventRenderer.renderEvents(events);
+}
+```
+
+```javascript
+// ❌ BAD - Duplicate implementations
+// Dashboard has its own event rendering
+Dashboard.renderEventsWidget() { /* custom rendering */ }
+
+// Search has its own event rendering (duplicate code)
+SearchResults.renderEventItems() { /* duplicate rendering */ }
+```
+
+**When to Create Shared Components:**
+- When the same functionality appears in 2+ places
+- When rendering logic is shared (e.g., event cards, user cards)
+- When formatting/utility functions are reused
+- When design consistency is required across modules
+
+**Shared Component Structure:**
+- Place in `assets/js/` with descriptive names (e.g., `event-renderer.js`, `user-card.js`)
+- Include GPL v3 license header
+- Export via `window.ComponentName` for global access
+- Include fallback implementations if needed
+- Support all required options (mobile/desktop, participation widgets, etc.)
+
+**Architectural Independence:**
+- Feature modules (Dashboard, Search, Contacts, etc.) should NOT depend on each other
+- They SHOULD depend on shared components/utilities
+- Example: Search should use `EventRenderer`, not `Dashboard.renderEventsWidget()`
+
+### 6. License Compliance
 
 - All code must remain GPL-3.0
 - **MANDATORY:** Add GPL v3 license headers to all source files in `/next/`
@@ -151,10 +210,12 @@ const errorMsg = 'Failed to load';
 **Key Requirements:**
 1. **MANDATORY i18n:** All user-facing strings must use `i18n.t()` or `data-i18n` attributes
 2. **MANDATORY Dark Mode:** All components must use semantic CSS variables
-3. **GPL Headers:** All source files must include GPL v3 license headers
-4. **API Pattern:** Use module-based API (`/bnote-next-generation/api/index.php?module=X&action=Y`)
-5. **Translation Files:** Add keys to all language files (`bnote-next-generation/lang/*.json`)
-6. **Path Configuration:** Use `BNOTE_ROOT` constant (from `bnote-next-generation/api/paths.php`) to reference old codebase
+3. **MANDATORY Shared Components:** Extract reusable functionality into shared components, avoid duplicate implementations
+4. **GPL Headers:** All source files must include GPL v3 license headers
+5. **API Pattern:** Use module-based API (`/bnote-next-generation/api/index.php?module=X&action=Y`)
+6. **Translation Files:** Add keys to all language files (`bnote-next-generation/lang/*.json`)
+7. **Path Configuration:** Use `BNOTE_ROOT` constant (from `bnote-next-generation/api/paths.php`) to reference old codebase
+8. **Architectural Independence:** Feature modules should not depend on each other, only on shared components
 
 **Technology Stack:**
 - Vanilla JavaScript (no frameworks)
@@ -170,10 +231,12 @@ const errorMsg = 'Failed to load';
 **For Next Generation UI (`/bnote-next-generation/`):**
 1. All user-facing strings must use i18n
 2. All components must support dark mode
-3. Use semantic CSS variables for colors
-4. Test in both light and dark modes
-5. Add translation keys to all language files
-6. Add GPL v3 headers to all new/modified files
+3. Extract shared functionality into reusable components (no duplicate implementations)
+4. Feature modules should be independent (no cross-dependencies, only shared components)
+5. Use semantic CSS variables for colors
+6. Test in both light and dark modes
+7. Add translation keys to all language files
+8. Add GPL v3 headers to all new/modified files
 
 ## Next Generation UI Examples
 

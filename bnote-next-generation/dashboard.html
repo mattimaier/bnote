@@ -62,8 +62,18 @@
         <div id="sidebar-container" class="hidden md:block shrink-0 h-full"></div>
 
         <!-- Main content area -->
-        <div class="flex-1 flex flex-col min-w-0 min-h-0">
+        <div class="flex-1 flex flex-col min-w-0 min-h-0 relative">
         <div id="topbar-container"></div>
+
+        <!-- Mobile Search Overlay Backdrop (only on mobile) -->
+        <div id="search-overlay-backdrop" class="hidden fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-40 md:hidden"></div>
+        
+        <!-- Mobile Search Overlay (fullscreen on mobile, overlay on desktop) -->
+        <div id="search-overlay" class="hidden fixed inset-0 md:inset-auto md:absolute md:top-16 md:bottom-auto md:max-h-[calc(100vh-4rem)] z-50 bg-card border-t md:border-t-0 md:border-b md:border-x border-border/60 shadow-2xl md:shadow-2xl overflow-y-auto">
+            <div id="search-overlay-content" class="p-4 md:p-6">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+        </div>
 
         <main class="px-4 py-4 lg:px-6 flex-1 overflow-y-auto min-h-0">
             <!-- Dashboard Container -->
@@ -224,7 +234,7 @@
                         class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground hover:text-primary bg-muted/50 hover:bg-muted rounded-lg transition-colors"
                     >
                         <i data-lucide="arrow-left" class="h-4 w-4"></i>
-                        <span data-i18n="js.dashboard.backToDashboard">Back to Dashboard</span>
+                        <span data-i18n="js.common.back">Back</span>
                     </button>
                 </div>
                 <div id="search-results-content" class="mx-auto max-w-4xl">
@@ -259,6 +269,7 @@
     <script src="assets/js/badge.js"></script>
     <script src="assets/js/user-info.js"></script>
     <script src="assets/js/components.js"></script>
+    <script src="assets/js/event-renderer.js"></script>
     <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/mobile-nav.js"></script>
     <script src="assets/js/participation-constants.js"></script>
@@ -330,6 +341,11 @@
                 await Sidebar.init('dashboard');
                 await MobileNav.init();
                 Components.initThemeToggle();
+                
+                // Initialize search integration (must be after topbar is rendered)
+                if (typeof SearchIntegration !== 'undefined') {
+                    await SearchIntegration.init();
+                }
                 
                 // Initialize dashboard (this will render content)
                 await Dashboard.init(session);
@@ -404,44 +420,33 @@
                         if (event.state.view === 'search-results') {
                             // User navigated to search results via history
                             if (typeof SearchResultsPage !== 'undefined') {
-                                SearchResultsPage.init(event.state.query, event.state.filters || {});
+                                // Use replaceState to avoid creating new history entry when navigating back
+                                SearchResultsPage.init(event.state.query, event.state.filters || {}, true);
                             }
                         } else if (event.state.view === 'event-detail') {
                             // User navigated to event detail via history
                             if (typeof EventDetail !== 'undefined') {
-                                EventDetail.init(event.state.eventType, event.state.eventId);
+                                // Pass fromPopstate=true to avoid pushing new state
+                                EventDetail.init(event.state.eventType, event.state.eventId, true);
                             }
                         } else {
-                            // User navigated back to dashboard
-                            if (typeof EventDetail !== 'undefined') {
-                                EventDetail.navigateBack();
-                            }
+                            // User navigated back to dashboard (or other view)
+                            // Hide search results and event detail, show dashboard
                             if (typeof SearchResultsPage !== 'undefined') {
-                                SearchResultsPage.navigateBack();
+                                SearchResultsPage.showDashboard();
+                            }
+                            if (typeof EventDetail !== 'undefined') {
+                                EventDetail.showDashboard();
                             }
                         }
                     } else {
-                        // No state - check URL for search or event params
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const searchQuery = urlParams.get('search');
-                        
-                        if (searchQuery && searchQuery.trim().length >= 2 && typeof SearchResultsPage !== 'undefined') {
-                            const filters = {};
-                            const year = urlParams.get('year');
-                            if (year) filters.date_year = parseInt(year);
-                            const month = urlParams.get('month');
-                            if (month) filters.date_month = parseInt(month);
-                            const moduleType = urlParams.get('module_type');
-                            if (moduleType) filters.module_type = moduleType;
-                            SearchResultsPage.init(searchQuery.trim(), filters);
-                        } else {
-                            // Show dashboard
-                            if (typeof EventDetail !== 'undefined') {
-                                EventDetail.navigateBack();
-                            }
-                            if (typeof SearchResultsPage !== 'undefined') {
-                                SearchResultsPage.navigateBack();
-                            }
+                        // No state - user went back to initial page or cleared state
+                        // Always show dashboard/main content (don't check URL params - user explicitly went back)
+                        if (typeof SearchResultsPage !== 'undefined') {
+                            SearchResultsPage.showDashboard();
+                        }
+                        if (typeof EventDetail !== 'undefined') {
+                            EventDetail.showDashboard();
                         }
                     }
                 });

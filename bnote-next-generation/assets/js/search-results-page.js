@@ -31,8 +31,9 @@ const SearchResultsPage = {
      * Initialize and show search results page
      * @param {string} query Search query
      * @param {object} filters Optional filters
+     * @param {boolean} fromPopstate If true, we're navigating back via popstate (use replaceState)
      */
-    async init(query, filters = {}) {
+    async init(query, filters = {}, fromPopstate = false) {
         // If query is empty, try reading from URL (for bookmark/shared link support)
         let trimmedQuery = query ? query.trim() : '';
         if (!trimmedQuery || trimmedQuery.length < 2) {
@@ -71,23 +72,49 @@ const SearchResultsPage = {
         this.currentFilters = filters || {};
         
         // Update URL with query and filters
-        this.updateUrl();
+        // Only update URL if NOT navigating via popstate (popstate already restored the URL and state)
+        if (!fromPopstate) {
+            this.updateUrl(false);
+        }
         
-        // Show search container, hide dashboard and event detail - check elements exist
+        // Show search container, hide other main content containers - check elements exist
         const searchContainer = document.getElementById('search-results-container');
-        const dashboardContainer = document.getElementById('dashboard-container');
-        const eventDetailContainer = document.getElementById('event-detail-container');
         
         if (!searchContainer) {
             console.error('search-results-container not found in DOM');
             return;
         }
         
-        if (dashboardContainer) {
-            dashboardContainer.classList.add('hidden');
-        }
-        if (eventDetailContainer) {
-            eventDetailContainer.classList.add('hidden');
+        // Hide all main content containers (works on any page)
+        // On dashboard: dashboard-container is inside main, search-results-container is also inside main
+        // On contacts/users: main has id, search-results-container is outside main
+        const containersToHide = [
+            'dashboard-container',
+            'event-detail-container',
+            'contacts-main-content', // contacts.html main content
+            'users-main-content'     // users.html main content
+        ];
+        
+        // Also hide event-detail-container if it exists (should be hidden when showing search results)
+        
+        containersToHide.forEach(containerId => {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.classList.add('hidden');
+            }
+        });
+        
+        // Hide main content if it exists (for contacts/users pages where search-results-container is outside main)
+        // On dashboard.html, search-results-container is INSIDE main, so we don't hide main
+        const mainContent = document.querySelector('main');
+        if (mainContent) {
+            // Check if search-results-container is inside this main element
+            const isSearchContainerInsideMain = mainContent.contains(searchContainer);
+            
+            // Only hide main if search-results-container is NOT inside it (contacts/users pages)
+            if (!isSearchContainerInsideMain) {
+                mainContent.classList.add('hidden');
+            }
         }
         
         searchContainer.classList.remove('hidden');
@@ -307,8 +334,9 @@ const SearchResultsPage = {
     
     /**
      * Update URL with current query and filters
+     * @param {boolean} useReplaceState If true, use replaceState instead of pushState (for navigation back)
      */
-    updateUrl() {
+    updateUrl(useReplaceState = false) {
         const urlParams = new URLSearchParams();
         urlParams.set('search', encodeURIComponent(this.currentQuery));
         
@@ -324,7 +352,15 @@ const SearchResultsPage = {
         
         const url = '?' + urlParams.toString();
         const state = { view: 'search-results', query: this.currentQuery, filters: this.currentFilters };
-        history.pushState(state, '', url);
+        
+        // Use replaceState if:
+        // 1. Already on search results (filter change)
+        // 2. Navigating back from event detail (to avoid creating new history entry)
+        if (useReplaceState || (history.state && history.state.view === 'search-results')) {
+            history.replaceState(state, '', url);
+        } else {
+            history.pushState(state, '', url);
+        }
     },
     
     /**
@@ -401,13 +437,28 @@ const SearchResultsPage = {
                     const eventType = eventElement.getAttribute('data-event-type');
                     const eventId = eventElement.getAttribute('data-event-id');
                     
-                    if (eventType && eventId && typeof Dashboard !== 'undefined' && Dashboard.openEventDetail) {
+                    if (eventType && eventId) {
                         e.preventDefault();
                         e.stopPropagation();
-                        // Pass search context when opening event detail (await async method)
-                        Dashboard.openEventDetail(eventType, parseInt(eventId), true, this.currentQuery, this.currentFilters).catch(err => {
-                            console.error('Failed to open event detail:', err);
-                        });
+                        
+                        // Use EventDetail if available (e.g., on dashboard)
+                        if (typeof EventDetail !== 'undefined' && EventDetail.init) {
+                            // Store search context for navigation back
+                            EventDetail._fromSearch = true;
+                            EventDetail._searchQuery = this.currentQuery;
+                            EventDetail._searchFilters = this.currentFilters;
+                            // Navigate to event detail
+                            EventDetail.init(eventType, parseInt(eventId)).catch(err => {
+                                console.error('Failed to open event detail:', err);
+                                // Fallback to URL navigation on error
+                                const param = eventType === 'R' ? 'rehearsal' : 'concert';
+                                window.location.href = `dashboard.html?${param}=${eventId}`;
+                            });
+                        } else {
+                            // Navigate via URL (works on all pages, will redirect to dashboard if needed)
+                            const param = eventType === 'R' ? 'rehearsal' : 'concert';
+                            window.location.href = `dashboard.html?${param}=${eventId}`;
+                        }
                     }
                 }
             });
@@ -461,17 +512,60 @@ const SearchResultsPage = {
     },
     
     /**
-     * Navigate back to dashboard
+     * Navigate back (uses browser history or shows dashboard)
      */
     navigateBack() {
-        // Hide search container, show dashboard, hide event detail
+        // Always use browser back if we have history (popstate handler will take care of showing the right view)
+        // Only show dashboard directly if there's no history to go back to
+        if (history.length > 1) {
+            // Go back in browser history - popstate handler will show the appropriate view
+            history.back();
+        } else {
+            // No history to go back to - show dashboard directly
+            this.showDashboard();
+        }
+    },
+    
+    /**
+     * Show dashboard (called from history popstate or when no history available)
+     */
+    showDashboard() {
+        // Hide search container, show main content (works on any page)
         const searchContainer = document.getElementById('search-results-container');
-        const dashboardContainer = document.getElementById('dashboard-container');
-        const eventDetailContainer = document.getElementById('event-detail-container');
         
         if (searchContainer) searchContainer.classList.add('hidden');
-        if (dashboardContainer) dashboardContainer.classList.remove('hidden');
-        if (eventDetailContainer) eventDetailContainer.classList.add('hidden');
+        
+        // Show main content containers (works on any page)
+        const containersToShow = [
+            'dashboard-container',
+            'contacts-main-content',
+            'users-main-content'
+        ];
+        
+        containersToShow.forEach(containerId => {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.classList.remove('hidden');
+            }
+        });
+        
+        // Show main content if it exists (for contacts/users pages)
+        // On dashboard.html, main contains dashboard-container, so it's already shown above
+        const mainContent = document.querySelector('main');
+        if (mainContent && mainContent.id !== 'search-results-content') {
+            // Only show main if it's not already shown (i.e., for contacts/users pages)
+            // On dashboard, main contains dashboard-container which is already shown
+            const hasDashboardContainer = document.getElementById('dashboard-container');
+            if (!hasDashboardContainer || !mainContent.contains(hasDashboardContainer)) {
+                mainContent.classList.remove('hidden');
+            }
+        }
+        
+        // Hide event detail if it exists
+        const eventDetailContainer = document.getElementById('event-detail-container');
+        if (eventDetailContainer) {
+            eventDetailContainer.classList.add('hidden');
+        }
         
         // Clear search input field
         if (typeof SearchIntegration !== 'undefined' && SearchIntegration.searchInput) {
@@ -495,7 +589,7 @@ const SearchResultsPage = {
         urlParams.delete('month');
         urlParams.delete('module_type');
         const newUrl = urlParams.toString() ? `?${urlParams.toString()}` : window.location.pathname;
-        history.pushState({ view: 'dashboard' }, '', newUrl);
+        history.replaceState({ view: 'dashboard' }, '', newUrl);
         
         // Clear search state
         this.currentQuery = '';
