@@ -97,29 +97,19 @@
         
         // Initialize login page
         (async () => {
-            // Check for event parameters in URL
-            const eventFromUrl = Routing.getEventFromUrl();
-            
-            // If event parameter exists, store it for after login
-            if (eventFromUrl) {
-                Routing.storePendingNavigation(eventFromUrl.type, eventFromUrl.id);
-            }
-            
             // Redirect if already authenticated
             const session = await Auth.checkSession();
             if (session.authenticated) {
-                // If we have an event from URL, redirect with it
-                if (eventFromUrl) {
-                    window.location.href = Routing.buildDashboardUrl(eventFromUrl.type, eventFromUrl.id);
+                // Check for redirect parameter (preserved URL from before login)
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectUrl = urlParams.get('redirect');
+                
+                if (redirectUrl) {
+                    // Redirect to the preserved URL (decoded)
+                    window.location.href = decodeURIComponent(redirectUrl);
                 } else {
-                    // Check for stored navigation (from previous visit)
-                    const pendingNav = Routing.getPendingNavigation();
-                    if (pendingNav) {
-                        // Redirect with event parameter - dashboard will handle it
-                        window.location.href = Routing.buildDashboardUrl(pendingNav.eventType, pendingNav.eventId);
-                    } else {
-                        window.location.href = 'dashboard.html';
-                    }
+                    // Default: go to dashboard
+                    window.location.href = 'app.html?module=dashboard';
                 }
                 return;
             }
@@ -206,14 +196,17 @@
                 
                 try {
                     await Auth.login(username, password);
-                    // Check for pending navigation (from URL or stored)
-                    const pendingNav = Routing.getPendingNavigation();
-                    if (pendingNav) {
-                        // Redirect to dashboard with event parameter
-                        window.location.href = Routing.buildDashboardUrl(pendingNav.eventType, pendingNav.eventId);
+                    
+                    // Check for redirect parameter (preserved URL from before login)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirectUrl = urlParams.get('redirect');
+                    
+                    if (redirectUrl) {
+                        // Redirect to the preserved URL (decoded)
+                        window.location.href = decodeURIComponent(redirectUrl);
                     } else {
-                        // Normal redirect to dashboard
-                        window.location.href = 'dashboard.html';
+                        // Default: go to dashboard
+                        window.location.href = 'app.html?module=dashboard';
                     }
                 } catch (error) {
                     // Show error message

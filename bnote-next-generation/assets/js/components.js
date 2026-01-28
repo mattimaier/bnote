@@ -54,16 +54,11 @@ const Components = {
                         <i data-lucide="search"
                             class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 z-10"></i>
                         <input type="text" id="search-input" ${searchPlaceholderI18n ? `data-i18n-placeholder="${searchPlaceholderI18n}"` : ''} placeholder="${this.escapeHtml(searchPlaceholder)}"
-                            class="pl-9 pr-9 md:pr-24 h-9 bg-muted/40 border border-border/40 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
-                        <button id="search-clear-btn" class="hidden absolute right-3 md:right-12 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors rounded-md flex items-center justify-center z-10"
+                            class="pl-9 pr-9 h-9 bg-muted/40 border border-border/40 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-input focus:bg-muted/60 focus:ring-1 focus:ring-primary/30 rounded-md w-full px-3" />
+                        <button id="search-clear-btn" class="hidden absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors rounded-md flex items-center justify-center z-10"
                             data-i18n-title="js.search.clear" title="${this.escapeHtml(t('js.search.clear') || 'Clear search')}" 
                             data-i18n-aria-label="js.search.clear" aria-label="${this.escapeHtml(t('js.search.clear') || 'Clear search')}">
                             <i data-lucide="x" class="h-4 w-4"></i>
-                        </button>
-                        <button id="search-button" class="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md text-xs font-medium transition-colors items-center gap-1.5 z-10"
-                            data-i18n-title="js.search.showResults" title="${this.escapeHtml(t('js.search.showResults') || 'Show results')}" 
-                            data-i18n-aria-label="js.search.showResults" aria-label="${this.escapeHtml(t('js.search.showResults') || 'Show results')}">
-                            <span>${this.escapeHtml(t('js.search.showResults') || 'Show results')}</span>
                         </button>
                     </div>
                 </div>

@@ -68,9 +68,9 @@
         <!-- Mobile Search Overlay Backdrop (only on mobile) -->
         <div id="search-overlay-backdrop" class="hidden fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-40 md:hidden"></div>
         
-        <!-- Mobile Search Overlay (fullscreen on mobile, overlay on desktop) -->
-        <div id="search-overlay" class="hidden fixed inset-0 md:inset-auto md:absolute md:top-16 md:bottom-auto md:max-h-[calc(100vh-4rem)] z-50 bg-card border-t md:border-t-0 md:border-b md:border-x border-border/60 shadow-2xl md:shadow-2xl overflow-y-auto">
-            <div id="search-overlay-content" class="p-4 md:p-6">
+        <!-- Mobile Search Overlay (fullscreen below topbar on mobile, overlay on desktop) -->
+        <div id="search-overlay" class="hidden fixed top-16 inset-x-0 bottom-0 md:inset-auto md:absolute md:top-16 md:bottom-auto md:max-h-[calc(100vh-4rem)] z-50 bg-card border-t md:border-t-0 md:border-b md:border-x border-border/60 shadow-2xl md:shadow-2xl overflow-y-auto">
+            <div id="search-overlay-content" class="pt-2 pb-6 px-4 md:pt-3 md:pb-6 md:px-6">
                 <!-- Content will be dynamically inserted here -->
             </div>
         </div>

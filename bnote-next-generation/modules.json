@@ -1,0 +1,31 @@
+{
+  "modules": [
+    {
+      "id": 1,
+      "name": "Start",
+      "route": "dashboard",
+      "icon": "layout-dashboard",
+      "i18n": "js.sidebar.dashboard",
+      "html": "modules/dashboard.html",
+      "js": "dashboard.js"
+    },
+    {
+      "id": 3,
+      "name": "Kontakte",
+      "route": "contacts",
+      "icon": "users",
+      "i18n": "js.sidebar.contacts",
+      "html": "modules/contacts.html",
+      "js": "contacts.js"
+    },
+    {
+      "id": 4,
+      "name": "Benutzer",
+      "route": "users",
+      "icon": "user",
+      "i18n": "js.sidebar.users",
+      "html": "modules/users.html",
+      "js": "users.js"
+    }
+  ]
+}

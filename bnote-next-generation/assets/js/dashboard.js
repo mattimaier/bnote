@@ -890,13 +890,30 @@ const Dashboard = {
                 ` : '';
                 const isMobile = window.innerWidth < 768;
                 const isClickable = event.otype === 'R' || event.otype === 'C';
-                const clickableClass = isClickable ? 'cursor-pointer event-clickable' : '';
-                const eventDataAttr = isClickable ? `data-event-type="${event.otype}" data-event-id="${event.oid}"` : '';
+                const entityType = event.otype === 'C' ? 'concert' : 'rehearsal';
+                const entityId = event.oid;
+                
+                // Generate entity detail URL
+                // Dashboard always uses 'dashboard' as module context
+                const moduleContext = 'dashboard';
+                
+                let eventUrl = '#';
+                if (isClickable && entityId) {
+                    if (typeof EntityService !== 'undefined' && typeof EntityService.getEntityDetailUrl === 'function') {
+                        eventUrl = EntityService.getEntityDetailUrl(entityType, entityId, moduleContext, 'view');
+                    } else if (typeof NavigationService !== 'undefined' && typeof NavigationService.getEntityUrl === 'function') {
+                        eventUrl = NavigationService.getEntityUrl(entityType, entityId, moduleContext, 'view');
+                    }
+                }
+                
+                const linkClass = isClickable ? 'block no-underline text-foreground hover:text-foreground' : '';
+                const wrapperTag = isClickable ? 'a' : 'div';
+                const wrapperAttrs = isClickable ? `href="${eventUrl}"` : '';
 
                 if (isMobile) {
                     return `
-                        <div class="relative ${!isLast ? 'border-b border-border/30 pb-2 mb-2' : ''} ${clickableClass}" data-event-id="${event.oid}" ${eventDataAttr}>
-                            <div class="px-1 transition-all duration-200 group">
+                        <${wrapperTag} class="relative ${!isLast ? 'border-b border-border/30 pb-2 mb-2' : ''} ${linkClass}" ${wrapperAttrs}>
+                            <div class="px-1 transition-all duration-200 group" ${!isClickable ? 'onclick="return false;"' : ''}>
                                 <div class="flex items-start gap-2 mb-1.5">
                                     <div class="flex-1 min-w-0">
                                         <div class="mb-1">
@@ -922,12 +939,12 @@ const Dashboard = {
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        </${wrapperTag}>
                     `;
                 }
 
                 return `
-                    <div class="relative flex gap-3 ${clickableClass}" data-event-id="${event.oid}" ${eventDataAttr}>
+                    <${wrapperTag} class="relative flex gap-3 ${linkClass}" ${wrapperAttrs}>
                         ${!isLast ? `<div class="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector"></div>` : ''}
                         <div class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ${typeConfig.dotClass} ring-3 ring-background shadow-sm flex items-center justify-center">
                             <i data-lucide="${typeConfig.icon}" class="h-3 w-3 text-white"></i>
@@ -958,7 +975,7 @@ const Dashboard = {
                                 </span>
                             </div>
                         </div>
-                    </div>
+                    </${wrapperTag}>
                 `;
             }).join('');
         }
@@ -999,47 +1016,29 @@ const Dashboard = {
 
         const self = this;
 
-        // Use event delegation on document level for all event clicks
+        // Use event delegation on document level - only handle participation widget clicks
+        // Browser handles navigation via native <a> tags
         document.addEventListener('click', function (e) {
             // Don't trigger if clicking on participation widget or its children
+            // Participation widgets need special handling (modal, etc.)
             if (e.target.closest('[data-participation-widget]')) {
-                return;
+                return; // Let participation widget handle its own clicks
             }
 
-            // Find element with data-event-id and data-event-type attributes
-            // Check the clicked element and walk up the DOM tree
-            let currentElement = e.target;
-            let eventElement = null;
-
-            while (currentElement && currentElement !== document.body) {
-                // Check if this element has the required data attributes
-                const eventType = currentElement.getAttribute('data-event-type');
-                const eventId = currentElement.getAttribute('data-event-id');
-
-                if (eventType && eventId && (eventType === 'R' || eventType === 'C')) {
-                    eventElement = currentElement;
-                    break;
-                }
-
-                // Also check for event-clickable class
-                if (currentElement.classList && currentElement.classList.contains('event-clickable')) {
-                    const type = currentElement.getAttribute('data-event-type');
-                    const id = currentElement.getAttribute('data-event-id');
-                    if (type && id) {
-                        eventElement = currentElement;
-                        break;
-                    }
-                }
-
-                currentElement = currentElement.parentElement;
+            // Don't intercept clicks on links - let browser handle navigation
+            if (e.target.closest('a[href]')) {
+                return; // Browser handles <a> tag navigation
             }
 
+            // Only handle clicks on old-style event-clickable divs (for backward compatibility)
+            // These should be migrated to <a> tags eventually
+            const eventElement = e.target.closest('.event-clickable[data-event-type][data-event-id]');
             if (eventElement) {
                 const eventType = eventElement.getAttribute('data-event-type');
                 const eventId = eventElement.getAttribute('data-event-id');
 
-                if (eventType && eventId) {
-                    // Check if click came from search results (check if element is in search results container)
+                if (eventType && eventId && (eventType === 'R' || eventType === 'C')) {
+                    // Check if click came from search results
                     const searchResultsContainer = document.getElementById('search-results-container');
                     const searchResultsOverlay = document.getElementById('search-results-overlay');
                     const isFromSearch = (searchResultsContainer && searchResultsContainer.contains(eventElement)) ||

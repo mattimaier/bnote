@@ -417,6 +417,42 @@ class ParticipationWidget {
         // Show modal
         modal.classList.remove('hidden');
         
+        // Translate modal elements (in case they weren't translated yet)
+        if (typeof i18n !== 'undefined' && typeof i18n.translatePage === 'function') {
+            // Translate only modal elements to avoid re-translating entire page
+            const modalElements = modal.querySelectorAll('[data-i18n]');
+            modalElements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (key) {
+                    const translated = i18n.t(key);
+                    if (translated && translated !== key) {
+                        // Preserve any existing content structure (like spans)
+                        if (el.children.length === 0) {
+                            el.textContent = translated;
+                        } else {
+                            // If element has children, only update text nodes
+                            const textNodes = Array.from(el.childNodes).filter(n => n.nodeType === Node.TEXT_NODE);
+                            if (textNodes.length > 0) {
+                                textNodes[0].textContent = translated;
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Translate placeholders
+            const placeholderElements = modal.querySelectorAll('[data-i18n-placeholder]');
+            placeholderElements.forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (key) {
+                    const translated = i18n.t(key);
+                    if (translated && translated !== key) {
+                        el.placeholder = translated;
+                    }
+                }
+            });
+        }
+        
         // Focus textarea
         if (reasonTextarea) {
             setTimeout(() => reasonTextarea.focus(), 100);

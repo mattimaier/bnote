@@ -90,12 +90,7 @@ const SearchResults = {
         // Always show total count if available, otherwise show items.length
         const displayCount = totalCount !== null && totalCount !== undefined ? totalCount : items.length;
         html += `<h3 class="text-base font-semibold text-foreground">${this.escapeHtml(category.label)} <span class="text-sm text-muted-foreground font-normal">(${displayCount})</span></h3>`;
-        if (showAllButton) {
-            // Show button if we have exactly 5 or 50 items (might have more)
-            html += `<button data-action="show-all" data-category="${this.escapeHtml(category.key)}" class="text-xs text-primary hover:text-primary/80 font-medium px-2 py-1 rounded-md hover:bg-primary/10 transition-colors">`;
-            html += `${this.escapeHtml(t('js.search.results.showAll') || 'Show all')}`;
-            html += `</button>`;
-        }
+        // "Show all" button removed - users can use the main "Show all results" button instead
         html += `</div>`;
         html += `<div class="px-4 py-4">`;
         
@@ -148,10 +143,9 @@ const SearchResults = {
             const totalCount = (results._totals && results._totals[category.key]) ? results._totals[category.key] : items.length;
             
             if (items.length > 0 || totalCount > 0) {
-                // Only show "Show all" button for overlay (5 items limit) when there are more results
-                const showAllButton = items.length === 5 && totalCount > 5 && !expandedCategories[category.key];
                 // Pass totalCount to renderGroup so it displays the total, not just items.length
-                html += this.renderGroup(category, items, index === categories.length - 1, totalCount, showAllButton);
+                // showAllButton parameter removed - always pass false
+                html += this.renderGroup(category, items, index === categories.length - 1, totalCount, false);
             }
         });
         
@@ -173,10 +167,12 @@ const SearchResults = {
      */
     renderEventItems(events) {
         // Use shared EventRenderer component (same as dashboard)
+        // Always use 'search' as module context since this is only called for search results
         if (typeof EventRenderer !== 'undefined' && EventRenderer.renderEvents) {
             return EventRenderer.renderEvents(events, {
                 showParticipation: false,
-                isMobile: window.innerWidth < 768
+                isMobile: window.innerWidth < 768,
+                moduleContext: 'search'
             });
         }
         // Fallback if EventRenderer not available
@@ -358,23 +354,45 @@ const SearchResults = {
             });
         }
         
-        // Last resort fallback - simple rendering
+        // Last resort fallback - simple rendering with native links
+        // Always use 'search' as module context since this is only used for search results
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         let html = '<div class="space-y-3">';
+        const moduleContext = 'search';
         
         events.forEach(event => {
-            const eventType = event.otype === 'R' ? 'rehearsal' : (event.otype === 'C' ? 'concert' : 'event');
+            const isClickable = event.otype === 'R' || event.otype === 'C';
+            const entityType = event.otype === 'C' ? 'concert' : 'rehearsal';
+            const entityId = event.oid || event.id;
+            
+            // Generate URL for clickable events
+            let eventUrl = '#';
+            if (isClickable && entityId) {
+                if (typeof EntityService !== 'undefined' && typeof EntityService.getEntityDetailUrl === 'function') {
+                    eventUrl = EntityService.getEntityDetailUrl(entityType, entityId, moduleContext, 'view');
+                } else if (typeof NavigationService !== 'undefined' && typeof NavigationService.getEntityUrl === 'function') {
+                    eventUrl = NavigationService.getEntityUrl(entityType, entityId, moduleContext, 'view');
+                } else {
+                    eventUrl = `entity-detail.html?module=${moduleContext}&entity=${entityType}&id=${entityId}&mode=view`;
+                }
+            }
+            
             const dateStr = event.begin ? new Date(event.begin).toLocaleDateString('de-DE') : '';
             const timeStr = event.begin ? new Date(event.begin).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
             const location = event.location || event.locationData?.name || (t('js.event.tba') || 'TBA');
             const title = event.title || (t('js.event.event') || 'Event');
             
-            html += `<div class="relative flex gap-3 cursor-pointer event-clickable" data-event-type="${event.otype}" data-event-id="${event.oid || event.id}">`;
+            const wrapperTag = isClickable ? 'a' : 'div';
+            const wrapperAttrs = isClickable ? `href="${eventUrl}" class="block no-underline text-foreground hover:text-foreground"` : 'class="relative flex gap-3"';
+            
+            html += `<${wrapperTag} ${wrapperAttrs}>`;
+            html += `<div class="relative flex gap-3">`;
             html += `<div class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-3">`;
             html += `<div class="mb-1.5"><p class="text-base font-bold text-foreground">${this.escapeHtml(dateStr)}</p></div>`;
             html += `<h3 class="text-sm font-semibold text-foreground mb-1">${this.escapeHtml(title)}</h3>`;
             html += `<div class="text-xs text-muted-foreground">${this.escapeHtml(timeStr)} - ${this.escapeHtml(location)}</div>`;
             html += `</div></div>`;
+            html += `</${wrapperTag}>`;
         });
         
         html += '</div>';

@@ -86,6 +86,14 @@ const i18n = {
             window.dispatchEvent(new CustomEvent('i18n:loaded', { 
                 detail: { lang: this.currentLang, country: this.currentCountry, translations: this.translations } 
             }));
+            
+            // Auto-translate page when translations are loaded
+            // Use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+                if (typeof this.translatePage === 'function') {
+                    this.translatePage();
+                }
+            }, 100);
         } catch (error) {
             console.error('Failed to load translations:', error);
             this.translations = {};

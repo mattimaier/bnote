@@ -47,6 +47,12 @@ const MobileNav = {
      * Detect current page from URL
      */
     detectCurrentPage() {
+        // Check query parameter first (new routing)
+        const urlParams = new URLSearchParams(window.location.search);
+        const moduleParam = urlParams.get('module');
+        if (moduleParam) return moduleParam;
+        
+        // Fallback to pathname (old routing)
         const path = window.location.pathname;
         if (path.includes('users.html')) return 'users';
         if (path.includes('contacts.html')) return 'contacts';
@@ -305,23 +311,32 @@ const MobileNav = {
         
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         
-        // Determine current page route for highlighting
-        const currentRoute = window.location.pathname.split('/').pop() || 'dashboard.html';
+        // Determine current page route for highlighting (check query param first)
+        const urlParams = new URLSearchParams(window.location.search);
+        const moduleParam = urlParams.get('module');
+        const currentRoute = moduleParam || window.location.pathname.split('/').pop() || 'dashboard';
         
         const modulesHtml = modules.map(module => {
-            const isActive = module.route === currentRoute || 
-                           (module.route === 'dashboard.html' && currentRoute === 'index.html');
+            // Extract route without .html extension
+            const moduleRoute = module.route.replace('.html', '');
+            const isActive = moduleRoute === currentRoute || 
+                           (moduleRoute === 'dashboard' && currentRoute === 'index.html');
             const activeClasses = isActive 
                 ? 'bg-primary/12 text-primary border-primary/20' 
                 : 'bg-card hover:bg-muted/50 text-foreground border-border/40';
             
             const label = t(module.i18n) || module.name;
-            const pageId = module.route.replace('.html', '');
+            const pageId = moduleRoute;
+            
+            // Use NavigationService for module URLs (app.html?module=route)
+            const moduleUrl = (typeof NavigationService !== 'undefined' && NavigationService.getModuleUrl) 
+                ? NavigationService.getModuleUrl(moduleRoute)
+                : `app.html?module=${moduleRoute}`;
             
             return `
-                <a href="${module.route}" data-page="${pageId}"
+                <a href="${moduleUrl}" data-module-route="${moduleRoute}" data-page="${pageId}"
                     class="flex items-center gap-4 px-4 py-4 rounded-xl border transition-all duration-200 ${activeClasses}"
-                    onclick="MobileNav.navigate('${module.route}')">
+                    onclick="MobileNav.navigate('${moduleUrl}')">
                     <div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                         <i data-lucide="${module.icon}" class="h-6 w-6"></i>
                     </div>

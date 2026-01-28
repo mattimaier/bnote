@@ -85,10 +85,20 @@ const App = {
             
             // Initialize i18n with system config language and country
             await i18n.init(langCode, countryCode);
+            
+            // Translate page after i18n is initialized
+            if (typeof i18n.translatePage === 'function') {
+                i18n.translatePage();
+            }
         } catch (error) {
             console.error('Failed to initialize i18n:', error);
             // Initialize with default language
             await i18n.init('de');
+            
+            // Translate page even if initialization had errors
+            if (typeof i18n.translatePage === 'function') {
+                i18n.translatePage();
+            }
         }
     },
     

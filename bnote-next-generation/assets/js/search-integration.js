@@ -101,8 +101,8 @@ const SearchIntegration = {
         // Wire up SearchFilters callbacks
         this.wireFilterCallbacks();
         
-        // Initialize search button visibility based on current input value
-        this.updateSearchButtonVisibility();
+        // Initialize overlay button based on current input value
+        this.renderOverlayButton();
         
         console.log('Search integration setup complete', {
             searchInput: !!this.searchInput,
@@ -118,10 +118,12 @@ const SearchIntegration = {
         // Use the overlay container from dashboard.html if it exists, otherwise create one
         let container = document.getElementById('search-overlay');
         if (!container) {
-            // Fallback: create overlay container if not in HTML (matches dashboard.html exactly)
+            // Fallback: create overlay container if not in HTML
+            // On mobile: fixed, starts below topbar (top-16 = 64px), fullscreen below that
+            // On desktop: absolute, positioned below topbar
             container = document.createElement('div');
             container.id = 'search-overlay';
-            container.className = 'hidden fixed inset-0 md:inset-auto md:absolute md:top-16 md:bottom-auto md:max-h-[calc(100vh-4rem)] z-50 bg-card border-t md:border-t-0 md:border-b md:border-x border-border/60 shadow-2xl md:shadow-2xl overflow-y-auto';
+            container.className = 'hidden fixed top-16 inset-x-0 bottom-0 md:inset-auto md:absolute md:top-16 md:bottom-auto md:max-h-[calc(100vh-4rem)] z-50 bg-card border-t md:border-t-0 md:border-b md:border-x border-border/60 shadow-2xl md:shadow-2xl overflow-y-auto';
             document.body.appendChild(container);
         }
         
@@ -142,9 +144,21 @@ const SearchIntegration = {
         if (!innerContainer) {
             innerContainer = document.createElement('div');
             innerContainer.id = 'search-overlay-content';
-            innerContainer.className = 'p-4 md:p-6';
+            // Reduced top padding, increased bottom padding on mobile
+            innerContainer.className = 'pt-2 pb-6 px-4 md:pt-3 md:pb-6 md:px-6';
             container.appendChild(innerContainer);
         }
+        
+        // Create "Show results" button container at the top of overlay content
+        let buttonContainer = document.getElementById('search-overlay-button-container');
+        if (!buttonContainer) {
+            buttonContainer = document.createElement('div');
+            buttonContainer.id = 'search-overlay-button-container';
+            // Minimal padding, no border separator
+            buttonContainer.className = 'px-3 pt-1 pb-1 flex md:justify-end';
+            innerContainer.insertBefore(buttonContainer, innerContainer.firstChild);
+        }
+        this.overlayButtonContainer = buttonContainer;
     },
     
     /**
@@ -160,7 +174,7 @@ const SearchIntegration = {
     positionResultsContainer() {
         if (!this.searchInput || !this.resultsContainer) return;
         
-        // On mobile, overlay is fullscreen (handled by CSS classes)
+        // On mobile, overlay starts below topbar (top-16) and fills rest of screen
         if (this.isMobile()) {
             // Remove any inline positioning styles - let CSS handle it
             this.resultsContainer.style.top = '';
@@ -169,9 +183,10 @@ const SearchIntegration = {
             this.resultsContainer.style.maxWidth = '';
             this.resultsContainer.style.maxHeight = '';
             this.resultsContainer.style.right = '';
-            // Ensure mobile classes are applied
-            this.resultsContainer.classList.remove('md:inset-auto', 'md:absolute', 'md:top-16', 'md:left-0', 'md:right-0', 'md:bottom-auto', 'md:max-h-[calc(100vh-4rem)]', 'md:border-x');
-            this.resultsContainer.classList.add('inset-0');
+            this.resultsContainer.style.bottom = '';
+            // Ensure mobile classes are applied: fixed, starts at top-16, full width, fills to bottom
+            this.resultsContainer.classList.remove('md:inset-auto', 'md:absolute', 'md:top-16', 'md:left-0', 'md:right-0', 'md:bottom-auto', 'md:max-h-[calc(100vh-4rem)]', 'md:border-x', 'inset-0');
+            this.resultsContainer.classList.add('fixed', 'top-16', 'inset-x-0', 'bottom-0');
             return;
         }
         
@@ -181,6 +196,7 @@ const SearchIntegration = {
         const containerRect = searchContainer.getBoundingClientRect();
         const inputRect = this.searchInput.getBoundingClientRect();
         const topbarHeight = inputRect.bottom;
+        const gap = 4; // Small gap to avoid collision with search bar
         
         // Ensure desktop classes are applied
         this.resultsContainer.classList.remove('inset-0');
@@ -193,12 +209,13 @@ const SearchIntegration = {
         
         // Use fixed positioning to match search bar container width exactly
         // This makes the overlay look like an extension of the search bar
+        // Add small gap to avoid collision with search bar
         this.resultsContainer.style.position = 'fixed';
-        this.resultsContainer.style.top = topbarHeight + 'px';
+        this.resultsContainer.style.top = (topbarHeight + gap) + 'px';
         this.resultsContainer.style.left = containerRect.left + 'px';
         this.resultsContainer.style.width = containerRect.width + 'px';
         this.resultsContainer.style.maxWidth = containerRect.width + 'px';
-        this.resultsContainer.style.maxHeight = 'calc(100vh - ' + topbarHeight + 'px)';
+        this.resultsContainer.style.maxHeight = 'calc(100vh - ' + (topbarHeight + gap) + 'px)';
         this.resultsContainer.style.right = 'auto';
     },
     
@@ -240,8 +257,8 @@ const SearchIntegration = {
             if (this.mobileNavigationTimer) {
                 clearTimeout(this.mobileNavigationTimer);
             }
-            // Update button visibility
-            this.updateSearchButtonVisibility();
+            // Update overlay button (both mobile and desktop)
+            this.renderOverlayButton();
             this.handleInputChange(e.target.value);
         });
         
@@ -287,25 +304,16 @@ const SearchIntegration = {
             });
         }
         
-        // Search button
-        const searchBtn = document.getElementById('search-button');
-        if (searchBtn) {
-            searchBtn.addEventListener('click', () => {
-                if (this.searchInput.value.trim().length >= 2) {
-                    this.openSearchResultsPage();
-                } else {
-                    this.searchInput.focus();
-                }
-            });
-        }
-        
         // Click outside to close
         document.addEventListener('click', (e) => {
             if (this.isVisible && 
                 !this.searchInput.contains(e.target) && 
-                !this.resultsContainer.contains(e.target) &&
-                !searchBtn?.contains(e.target)) {
-                this.hideResults();
+                !this.resultsContainer.contains(e.target)) {
+                // Also check if clicking on overlay button (should not close)
+                const overlayButton = document.getElementById('search-overlay-button');
+                if (!overlayButton || !overlayButton.contains(e.target)) {
+                    this.hideResults();
+                }
             }
         });
         
@@ -318,18 +326,19 @@ const SearchIntegration = {
             });
         }
         
-        // Handle window resize to update button visibility (mobile/desktop switch)
+        // Handle window resize to update overlay position
         window.addEventListener('resize', () => {
-            this.updateSearchButtonVisibility();
-            // Also update overlay position if visible
+            // Update overlay position if visible
             if (this.isVisible && this.resultsContainer) {
                 this.positionResultsContainer();
             }
+            // Update overlay button (may need to switch between mobile/desktop styles)
+            this.renderOverlayButton();
         });
     },
     
     /**
-     * Open search results page (right column)
+     * Open search results page (full page navigation)
      */
     openSearchResultsPage() {
         const query = this.searchInput ? this.searchInput.value.trim() : '';
@@ -344,34 +353,27 @@ const SearchIntegration = {
         // Hide the live results overlay
         this.hideResults();
         
-        const filters = typeof Search !== 'undefined' ? (Search.currentFilters || {}) : {};
+        // Build URL with only the search query (no filters in URL)
+        const urlParams = new URLSearchParams();
+        urlParams.set('search', query);
         
-        if (typeof SearchResultsPage !== 'undefined') {
-            SearchResultsPage.init(query, filters);
-        } else {
-            console.error('SearchResultsPage component not available');
-        }
+        // Navigate to search.html with query parameter only (full page load)
+        window.location.href = `search.html?${urlParams.toString()}`;
     },
     
     /**
-     * Handle input change - on mobile, navigate directly to results page
+     * Handle input change - show overlay with typeahead results (works on both mobile and desktop)
      */
     handleInputChange(value) {
         const query = value.trim();
         
-        // On mobile, if query is long enough, navigate directly to results page
-        if (this.isMobile() && query.length >= 2) {
-            // Debounce navigation to avoid too many navigations while typing
-            if (this.mobileNavigationTimer) {
-                clearTimeout(this.mobileNavigationTimer);
-            }
-            this.mobileNavigationTimer = setTimeout(() => {
-                this.openSearchResultsPage();
-            }, 500); // Wait 500ms after user stops typing
-            return;
+        // Clear any mobile navigation timer (no longer used)
+        if (this.mobileNavigationTimer) {
+            clearTimeout(this.mobileNavigationTimer);
+            this.mobileNavigationTimer = null;
         }
         
-        // Desktop: show overlay with results as user types
+        // Show overlay with results as user types (works on both mobile and desktop)
         if (typeof Search !== 'undefined') {
             Search.handleInputChange(value);
         }
@@ -484,24 +486,6 @@ const SearchIntegration = {
         };
     },
     
-    /**
-     * Update search button visibility
-     * Hidden on mobile always, hidden on desktop when search bar is empty
-     */
-    updateSearchButtonVisibility() {
-        const searchButton = document.getElementById('search-button');
-        if (!searchButton) return;
-        
-        const hasValue = this.searchInput && this.searchInput.value.trim().length > 0;
-        
-        // Always hidden on mobile, show on desktop only when there's a value
-        if (this.isMobile() || !hasValue) {
-            searchButton.classList.add('hidden');
-        } else {
-            // Desktop and has value - show button (md:flex will make it visible)
-            searchButton.classList.remove('hidden');
-        }
-    },
     
     /**
      * Handle search input changes
@@ -521,8 +505,8 @@ const SearchIntegration = {
             }
         }
         
-        // Update search button visibility (handles mobile + empty state)
-        this.updateSearchButtonVisibility();
+        // Update overlay button (both mobile and desktop)
+        this.renderOverlayButton();
         
         // Clear results if input is empty or too short
         if (!hasMinLength) {
@@ -568,15 +552,7 @@ const SearchIntegration = {
             return;
         }
         
-        // On mobile, don't show overlay - navigate directly to results page
-        if (this.isMobile()) {
-            const query = this.searchInput ? this.searchInput.value.trim() : '';
-            if (query.length >= 2) {
-                this.openSearchResultsPage();
-            }
-            return;
-        }
-        
+        // Mobile and desktop both use overlay (fullscreen on mobile, dropdown on desktop)
         const displayResults = results || (typeof Search !== 'undefined' ? Search.currentResults : null);
         console.log('displayResults:', displayResults);
         
@@ -623,10 +599,11 @@ const SearchIntegration = {
         console.log('Removing hidden class from resultsContainer');
         this.resultsContainer.classList.remove('hidden');
         
-        // Show backdrop on mobile
-        if (this.backdrop && this.isMobile()) {
-            this.backdrop.classList.remove('hidden');
-        }
+        // Render "Show results" button in overlay AFTER results are rendered (mobile only)
+        // This ensures the button isn't cleared when results are rendered
+        this.renderOverlayButton();
+        
+        // Don't show backdrop on mobile (overlay starts below topbar, no backdrop needed)
         
         this.isVisible = true;
         
@@ -643,87 +620,119 @@ const SearchIntegration = {
     attachResultClickHandlers(container) {
         // Use event delegation to handle all clicks in the overlay
         container.addEventListener('click', (e) => {
-            // Handle "Show all" button click - navigate to full results page
-            const showAllButton = e.target.closest('[data-action="show-all"]');
-            if (showAllButton) {
-                e.preventDefault();
-                e.stopPropagation();
-                // Navigate to full search results page (works independently of current page)
-                this.openSearchResultsPage();
-                return;
-            }
-            
             // Don't handle clicks on filter chips or filter buttons
             if (e.target.closest('.filter-chip-btn') || e.target.closest('.filter-bubble') || e.target.closest('.filter-clear-btn')) {
                 return; // Let filter handlers deal with these
             }
             
-            // Intercept event clicks from search overlay to pass search context
-            const eventElement = e.target.closest('[data-event-id][data-event-type]');
-            if (eventElement) {
-                const eventType = eventElement.getAttribute('data-event-type');
-                const eventId = eventElement.getAttribute('data-event-id');
-                
-                if (eventType && eventId) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Hide overlay first
-                    this.hideResults();
-                    
-                    // Navigate to event detail - use EventDetail if available (e.g., on dashboard)
-                    // Otherwise navigate via URL (works on all pages)
-                    if (typeof EventDetail !== 'undefined' && EventDetail.init) {
-                        // Get current search query and filters from Search component
-                        const searchQuery = typeof Search !== 'undefined' ? Search.currentQuery : '';
-                        const searchFilters = typeof Search !== 'undefined' ? Search.currentFilters : {};
-                        // Store search context in EventDetail for navigation back
-                        EventDetail._fromSearch = true;
-                        EventDetail._searchQuery = searchQuery;
-                        EventDetail._searchFilters = searchFilters;
-                        // Navigate to event detail
-                        EventDetail.init(eventType, parseInt(eventId)).catch(err => {
-                            console.error('Failed to open event detail:', err);
-                            // Fallback to URL navigation on error
-                            const param = eventType === 'R' ? 'rehearsal' : 'concert';
-                            window.location.href = `dashboard.html?${param}=${eventId}`;
-                        });
-                    } else {
-                        // Navigate via URL (works on all pages, will redirect to dashboard if needed)
-                        const param = eventType === 'R' ? 'rehearsal' : 'concert';
-                        // Try to navigate to dashboard with event parameter
-                        window.location.href = `dashboard.html?${param}=${eventId}`;
-                    }
-                    return;
-                }
+            // Don't intercept clicks on links - let browser handle them
+            // When clicking a link, hide overlay first, then let browser navigate
+            const linkElement = e.target.closest('a[href]');
+            if (linkElement && linkElement.getAttribute('href') !== '#') {
+                // Hide overlay before navigation
+                this.hideResults();
+                // Browser will handle the navigation via the <a> tag
+                return;
             }
             
-            // Handle non-event result items
+            // Handle non-link result items (users, contacts)
             const resultItem = e.target.closest('.search-result-item');
             if (resultItem) {
                 const itemType = resultItem.getAttribute('data-item-type');
                 const itemId = resultItem.getAttribute('data-item-id');
                 
                 if (itemType === 'user') {
-                    // Navigate to user detail (if users page supports it)
+                    e.preventDefault();
+                    this.hideResults();
                     window.location.href = `users.html?id=${itemId}`;
                 } else if (itemType === 'contact') {
-                    // Navigate to contact detail (if contacts page supports it)
+                    e.preventDefault();
+                    this.hideResults();
                     window.location.href = `contacts.html?id=${itemId}`;
-                } else if (itemType === 'task') {
-                    // Navigate to task detail (if tasks page exists)
-                    // For now, just close search
-                    this.hideResults();
-                } else if (itemType === 'repertoire') {
-                    // Navigate to repertoire detail
-                    // For now, just close search
-                    this.hideResults();
-                } else if (itemType === 'location') {
-                    // Navigate to location detail
+                } else if (itemType === 'task' || itemType === 'repertoire' || itemType === 'location') {
                     // For now, just close search
                     this.hideResults();
                 }
+                // Events are handled by browser via <a> tags
             }
         });
+    },
+    
+    /**
+     * Render "Show results" button in overlay (both mobile and desktop)
+     */
+    renderOverlayButton() {
+        // Ensure button container exists (re-find it in case it was cleared)
+        let buttonContainer = document.getElementById('search-overlay-button-container');
+        if (!buttonContainer) {
+            const content = document.getElementById('search-overlay-content');
+            if (!content) return;
+            
+            // Create button container - different styling for mobile vs desktop
+            buttonContainer = document.createElement('div');
+            buttonContainer.id = 'search-overlay-button-container';
+            // Mobile: full width with minimal padding, Desktop: flex container with right alignment
+            // No border separator - seamless integration with results
+            buttonContainer.className = 'px-3 pt-1 pb-1 flex md:justify-end';
+            content.insertBefore(buttonContainer, content.firstChild);
+            this.overlayButtonContainer = buttonContainer;
+        }
+        
+        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
+        const query = this.searchInput ? this.searchInput.value.trim() : '';
+        const hasValue = query.length >= 2;
+        const isMobile = this.isMobile();
+        
+        if (hasValue) {
+            // Show container and render button
+            buttonContainer.style.display = '';
+            // Mobile: full width button, Desktop: auto width button (right-aligned via container)
+            const buttonClasses = isMobile 
+                ? 'w-full h-8 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2'
+                : 'h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2';
+            
+            buttonContainer.innerHTML = `
+                <button id="search-overlay-button" 
+                    class="${buttonClasses}"
+                    data-i18n="js.search.showResults">
+                    <span data-i18n="js.search.showResults">${this.escapeHtml(t('js.search.showResults') || 'Show all results')}</span>
+                </button>
+            `;
+            
+            // Attach click handler
+            const button = document.getElementById('search-overlay-button');
+            if (button) {
+                // Remove old listener if exists
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                newButton.addEventListener('click', () => {
+                    this.openSearchResultsPage();
+                });
+            }
+            
+            // Translate button text
+            if (typeof i18n !== 'undefined' && typeof i18n.translatePage === 'function') {
+                setTimeout(() => {
+                    const buttonEl = document.getElementById('search-overlay-button');
+                    if (buttonEl) {
+                        const span = buttonEl.querySelector('span[data-i18n]');
+                        if (span) {
+                            const key = span.getAttribute('data-i18n');
+                            if (key) {
+                                const translated = i18n.t(key);
+                                if (translated && translated !== key) {
+                                    span.textContent = translated;
+                                }
+                            }
+                        }
+                    }
+                }, 100);
+            }
+        } else {
+            // Hide container when no value (don't show empty gray box)
+            buttonContainer.innerHTML = '';
+            buttonContainer.style.display = 'none';
+        }
     },
     
     /**
@@ -754,8 +763,8 @@ const SearchIntegration = {
             this.clearButton.classList.add('hidden');
         }
         
-        // Hide search button when cleared
-        this.updateSearchButtonVisibility();
+        // Hide overlay button (both mobile and desktop)
+        this.renderOverlayButton();
         
         if (typeof Search !== 'undefined') {
             Search.clear();

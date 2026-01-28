@@ -12,13 +12,31 @@
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/app.js"></script>
     <script>
-        // Route to login or dashboard based on session
+        // Route to login or app based on session
+        // Preserve any URL parameters (for deep links opened when logged out)
         (async () => {
             const session = await Auth.checkSession();
             if (session.authenticated) {
-                window.location.href = 'dashboard.html';
+                // Check if there's a target URL in query params (from login redirect)
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetUrl = urlParams.get('redirect');
+                
+                if (targetUrl) {
+                    // Redirect to the target URL (decoded)
+                    window.location.href = decodeURIComponent(targetUrl);
+                } else {
+                    // Default: go to dashboard
+                    window.location.href = 'app.html?module=dashboard';
+                }
             } else {
-                window.location.href = 'login.html';
+                // Not authenticated - preserve current URL as redirect parameter
+                const currentUrl = window.location.pathname + window.location.search;
+                // Only preserve if it's not index.html itself
+                if (currentUrl && !currentUrl.includes('index.html')) {
+                    window.location.href = `login.html?redirect=${encodeURIComponent(currentUrl)}`;
+                } else {
+                    window.location.href = 'login.html';
+                }
             }
         })();
     </script>

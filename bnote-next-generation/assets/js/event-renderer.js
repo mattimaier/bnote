@@ -154,13 +154,15 @@ const EventRenderer = {
      * @param {boolean} options.showParticipation Show participation widget
      * @param {boolean} options.isLast Whether this is the last event
      * @param {boolean} options.isMobile Whether to use mobile layout
+     * @param {string} options.moduleContext Module context for URL generation ('search' or 'dashboard')
      * @returns {string} HTML string
      */
     renderEventItem(event, options = {}) {
         const {
             showParticipation = false,
             isLast = false,
-            isMobile = window.innerWidth < 768
+            isMobile = window.innerWidth < 768,
+            moduleContext = null
         } = options;
 
         const eventType = this.mapOtypeToEventType(event.otype);
@@ -191,14 +193,31 @@ const EventRenderer = {
 
         // Only make clickable if it's a rehearsal or concert
         const isClickable = event.otype === 'R' || event.otype === 'C';
-        const clickableClass = isClickable ? 'cursor-pointer event-clickable' : '';
-        const eventDataAttr = isClickable ? `data-event-type="${event.otype}" data-event-id="${event.oid || event.id}"` : '';
+        const entityType = event.otype === 'C' ? 'concert' : 'rehearsal';
+        const entityId = event.oid || event.id;
+        
+        // Generate entity detail URL
+        // Use provided moduleContext, or detect from page if not provided
+        const finalModuleContext = moduleContext || (window.location.pathname.includes('search.html') ? 'search' : 'dashboard');
+        
+        let eventUrl = '#';
+        if (isClickable && entityId) {
+            if (typeof EntityService !== 'undefined' && typeof EntityService.getEntityDetailUrl === 'function') {
+                eventUrl = EntityService.getEntityDetailUrl(entityType, entityId, finalModuleContext, 'view');
+            } else if (typeof NavigationService !== 'undefined' && typeof NavigationService.getEntityUrl === 'function') {
+                eventUrl = NavigationService.getEntityUrl(entityType, entityId, finalModuleContext, 'view');
+            }
+        }
+        
+        const linkClass = isClickable ? 'block no-underline text-foreground hover:text-foreground' : '';
+        const wrapperTag = isClickable ? 'a' : 'div';
+        const wrapperAttrs = isClickable ? `href="${eventUrl}"` : '';
 
         if (isMobile) {
             // Mobile compact layout
             return `
-                <div class="relative ${!isLast ? 'border-b border-border/30 pb-2 mb-2' : ''} ${clickableClass}" data-event-id="${event.oid || event.id}" ${eventDataAttr}>
-                    <div class="px-1 transition-all duration-200 group">
+                <${wrapperTag} class="relative ${!isLast ? 'border-b border-border/30 pb-2 mb-2' : ''} ${linkClass}" ${wrapperAttrs}>
+                    <div class="px-1 transition-all duration-200 group" ${!isClickable ? 'onclick="return false;"' : ''}>
                         <div class="flex items-start gap-2 mb-1.5">
                             <div class="flex-1 min-w-0">
                                 <div class="mb-1">
@@ -224,13 +243,13 @@ const EventRenderer = {
                             </span>
                         </div>
                     </div>
-                </div>
+                </${wrapperTag}>
             `;
         }
 
         // Desktop layout with timeline
         return `
-            <div class="relative flex gap-3 ${clickableClass}" data-event-id="${event.oid || event.id}" ${eventDataAttr}>
+            <${wrapperTag} class="relative flex gap-3 ${linkClass}" ${wrapperAttrs}>
                 ${!isLast ? `<div class="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector"></div>` : ''}
                 <div class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ${typeConfig.dotClass} ring-3 ring-background shadow-sm flex items-center justify-center">
                     <i data-lucide="${typeConfig.icon}" class="h-3 w-3 text-white"></i>
@@ -261,7 +280,7 @@ const EventRenderer = {
                         </span>
                     </div>
                 </div>
-            </div>
+            </${wrapperTag}>
         `;
     },
 

@@ -91,7 +91,7 @@ const EventDetail = {
             // Render detail view
             this.render();
 
-        // Reinitialize Lucide icons (including back button)
+        // Reinitialize Lucide icons
         if (typeof lucide !== 'undefined') {
             setTimeout(() => lucide.createIcons(), 100);
         }
@@ -218,35 +218,8 @@ const EventDetail = {
         if (typeof lucide !== 'undefined') {
             setTimeout(() => lucide.createIcons(), 200);
         }
-
-        // Update back button text based on where we came from
-        this.updateBackButton();
-    },
-    
-    /**
-     * Update back button text based on navigation context
-     */
-    updateBackButton() {
-        const backButton = document.getElementById('back-to-dashboard');
-        if (!backButton) return;
         
-        const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
-        const state = history.state;
-        const cameFromSearch = state && state.previousView === 'search-results' && state.searchQuery;
-        
-        if (cameFromSearch) {
-            const backToSearchLabel = t('js.search.results.backToSearch') || 'Back to Search Results';
-            const span = backButton.querySelector('span');
-            if (span) {
-                span.textContent = backToSearchLabel;
-            }
-        } else {
-            const backToDashboardLabel = t('js.dashboard.backToDashboard') || 'Back to Dashboard';
-            const span = backButton.querySelector('span');
-            if (span) {
-                span.textContent = backToDashboardLabel;
-            }
-        }
+        // Browser handles back navigation - no custom back button needed
     },
 
     /**
@@ -262,9 +235,7 @@ const EventDetail = {
             event.type === 'C' ? 'accent' : 'primary'
         );
         
-        // Back button is already in HTML template (id="back-to-dashboard")
-        // Don't render it here to avoid duplication
-        // The updateBackButton() method will update the existing button's text
+        // Browser handles back navigation - no custom back button needed
         
         return `
             <div class="event-detail-header flex items-center gap-3 mb-4">
@@ -823,7 +794,7 @@ const EventDetail = {
             Routing.cleanUrl();
         }
 
-        // Reinitialize icons for back button
+        // Reinitialize icons
         if (typeof lucide !== 'undefined') {
             setTimeout(() => lucide.createIcons(), 50);
         }

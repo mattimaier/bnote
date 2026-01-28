@@ -34,10 +34,13 @@ const SearchResultsPage = {
      * @param {boolean} fromPopstate If true, we're navigating back via popstate (use replaceState)
      */
     async init(query, filters = {}, fromPopstate = false) {
+        console.log('SearchResultsPage.init called with:', { query, filters, fromPopstate });
+        
         // If query is empty, try reading from URL (for bookmark/shared link support)
         let trimmedQuery = query ? query.trim() : '';
         if (!trimmedQuery || trimmedQuery.length < 2) {
             const urlData = this.readUrlParams();
+            console.log('Read URL params:', urlData);
             if (urlData.query && urlData.query.length >= 2) {
                 trimmedQuery = urlData.query;
                 // Use filters from URL if query came from URL
@@ -52,9 +55,11 @@ const SearchResultsPage = {
         
         // Validate query length
         if (trimmedQuery.length < 2) {
-            console.error('Search query too short');
+            console.error('Search query too short:', trimmedQuery);
             return;
         }
+        
+        console.log('Using query:', trimmedQuery, 'filters:', filters);
         
         // Reset filters if query changed (new search)
         if (this.currentQuery && this.currentQuery !== trimmedQuery) {
@@ -71,18 +76,26 @@ const SearchResultsPage = {
         this.currentQuery = trimmedQuery;
         this.currentFilters = filters || {};
         
-        // Update URL with query and filters
+        // Update URL with query (filters not in URL)
+        // Use replaceState on initial load since URL is already correct from navigation
         // Only update URL if NOT navigating via popstate (popstate already restored the URL and state)
         if (!fromPopstate) {
-            this.updateUrl(false);
+            this.updateUrl(true); // Use replaceState to avoid creating duplicate history entry
         }
         
         // Show search container, hide other main content containers - check elements exist
-        const searchContainer = document.getElementById('search-results-container');
-        
+        // On search.html, the container is search-results-content directly
+        let searchContainer = document.getElementById('search-results-container');
         if (!searchContainer) {
-            console.error('search-results-container not found in DOM');
-            return;
+            // Fallback: check if we're on search.html (has search-results-content directly)
+            const contentContainer = document.getElementById('search-results-content');
+            if (contentContainer) {
+                // Create wrapper if it doesn't exist
+                searchContainer = contentContainer;
+            } else {
+                console.error('search-results-container or search-results-content not found in DOM');
+                return;
+            }
         }
         
         // Hide all main content containers (works on any page)
@@ -105,7 +118,7 @@ const SearchResultsPage = {
         });
         
         // Hide main content if it exists (for contacts/users pages where search-results-container is outside main)
-        // On dashboard.html, search-results-container is INSIDE main, so we don't hide main
+        // On dashboard.html and search.html, search-results-container is INSIDE main, so we don't hide main
         const mainContent = document.querySelector('main');
         if (mainContent) {
             // Check if search-results-container is inside this main element
@@ -117,7 +130,16 @@ const SearchResultsPage = {
             }
         }
         
-        searchContainer.classList.remove('hidden');
+        // Show container (remove hidden class if it exists)
+        if (searchContainer.classList.contains('hidden')) {
+            searchContainer.classList.remove('hidden');
+        }
+        
+        // Ensure container is visible
+        searchContainer.style.display = '';
+        searchContainer.style.visibility = '';
+        
+        console.log('Container shown, calling showLoading');
         
         // Show loading state
         this.showLoading();
@@ -126,13 +148,8 @@ const SearchResultsPage = {
             // Perform search - ensure it completes before rendering
             await this.loadSearchResults();
             
-            // Ensure we have results before rendering
-            if (!this.currentResults) {
-                this.showError('No results found');
-                return;
-            }
-            
             // Render results (async - loads years from API)
+            // render() will handle empty results case (currentResults can be null or have total: 0)
             await this.render();
             
             // Reinitialize Lucide icons
@@ -149,6 +166,8 @@ const SearchResultsPage = {
      * Load search results from API
      */
     async loadSearchResults() {
+        console.log('loadSearchResults called with query:', this.currentQuery, 'filters:', this.currentFilters);
+        
         // Always call API directly for full page (don't rely on Search component state)
         // Don't send limit parameter - API will return all results when limit is not provided
         const params = {
@@ -168,7 +187,14 @@ const SearchResultsPage = {
             params.filter.module_type = this.currentFilters.module_type;
         }
         
-        this.currentResults = await api.get('search', null, params);
+        console.log('Calling API with params:', params);
+        try {
+            this.currentResults = await api.get('search', null, params);
+            console.log('API returned results:', this.currentResults);
+        } catch (error) {
+            console.error('API call failed:', error);
+            throw error;
+        }
         
         // Also update Search component state if available (for consistency)
         if (typeof Search !== 'undefined') {
@@ -183,7 +209,12 @@ const SearchResultsPage = {
      */
     async render() {
         const container = document.getElementById('search-results-content');
-        if (!container) return;
+        if (!container) {
+            console.error('render: search-results-content container not found');
+            return;
+        }
+        
+        console.log('render: Rendering with results:', this.currentResults);
         
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         
@@ -196,6 +227,7 @@ const SearchResultsPage = {
         // Render results
         const resultsHtml = this.renderResults();
         
+        console.log('render: Setting innerHTML, header length:', headerHtml.length, 'filters length:', filtersHtml.length, 'results length:', resultsHtml.length);
         container.innerHTML = headerHtml + filtersHtml + resultsHtml;
         
         // Wire up filter callbacks and attach event listeners (must be after HTML is inserted)
@@ -283,8 +315,8 @@ const SearchResultsPage = {
             
             this.currentFilters = filters;
             
-            // Update URL with new filters
-            this.updateUrl();
+            // Don't update URL when filters change - keep browser history clean
+            // Filters are local state only, not part of URL
             
             // Reload search with new filters
             this.showLoading();
@@ -302,8 +334,8 @@ const SearchResultsPage = {
         SearchFilters.onClearAll = () => {
             this.currentFilters = {};
             
-            // Update URL to remove filters
-            this.updateUrl();
+            // Don't update URL when clearing filters - keep browser history clean
+            // Filters are local state only, not part of URL
             
             // Reload search without filters
             this.showLoading();
@@ -333,22 +365,13 @@ const SearchResultsPage = {
     },
     
     /**
-     * Update URL with current query and filters
+     * Update URL with current query only (filters are not stored in URL)
      * @param {boolean} useReplaceState If true, use replaceState instead of pushState (for navigation back)
      */
     updateUrl(useReplaceState = false) {
         const urlParams = new URLSearchParams();
         urlParams.set('search', encodeURIComponent(this.currentQuery));
-        
-        if (this.currentFilters.date_year) {
-            urlParams.set('year', this.currentFilters.date_year);
-        }
-        if (this.currentFilters.date_month) {
-            urlParams.set('month', this.currentFilters.date_month);
-        }
-        if (this.currentFilters.module_type) {
-            urlParams.set('module_type', this.currentFilters.module_type);
-        }
+        // Filters are not stored in URL - only query parameter
         
         const url = '?' + urlParams.toString();
         const state = { view: 'search-results', query: this.currentQuery, filters: this.currentFilters };
@@ -364,28 +387,15 @@ const SearchResultsPage = {
     },
     
     /**
-     * Read URL parameters and restore query and filters
-     * @returns {object} Object with query and filters
+     * Read URL parameters and restore query (filters are not stored in URL)
+     * @returns {object} Object with query and empty filters
      */
     readUrlParams() {
         const urlParams = new URLSearchParams(window.location.search);
-        const query = urlParams.get('search') || '';
+        // Support both 'q' and 'search' parameters (q is more common, search is legacy)
+        const query = urlParams.get('q') || urlParams.get('search') || '';
+        // Filters are not stored in URL - always start with empty filters
         const filters = {};
-        
-        const year = urlParams.get('year');
-        if (year) {
-            filters.date_year = parseInt(year);
-        }
-        
-        const month = urlParams.get('month');
-        if (month) {
-            filters.date_month = parseInt(month);
-        }
-        
-        const moduleType = urlParams.get('module_type');
-        if (moduleType) {
-            filters.module_type = moduleType;
-        }
         
         return { query, filters };
     },
@@ -422,63 +432,38 @@ const SearchResultsPage = {
      * Attach event listeners
      */
     attachEventListeners() {
-        // Handle clicks on search results
+        // Browser handles navigation via native <a> tags - no need to intercept clicks
+        // Only handle non-link items (users, contacts) that need special navigation
         const container = document.getElementById('search-results-content');
         if (container) {
-            container.addEventListener('click', async (e) => {
+            container.addEventListener('click', (e) => {
                 // Don't handle clicks on filter chips or filter buttons
                 if (e.target.closest('.filter-chip-btn') || e.target.closest('.filter-bubble') || e.target.closest('.filter-clear-btn')) {
                     return; // Let filter handlers deal with these
                 }
                 
-                // Intercept event clicks from search results to pass search context
-                const eventElement = e.target.closest('[data-event-id][data-event-type]');
-                if (eventElement) {
-                    const eventType = eventElement.getAttribute('data-event-type');
-                    const eventId = eventElement.getAttribute('data-event-id');
+                // Don't intercept clicks on links - let browser handle them
+                if (e.target.closest('a[href]')) {
+                    return;
+                }
+                
+                // Handle result item clicks for non-link items (users, contacts)
+                const resultItem = e.target.closest('.search-result-item');
+                if (resultItem) {
+                    const itemType = resultItem.getAttribute('data-item-type');
+                    const itemId = resultItem.getAttribute('data-item-id');
                     
-                    if (eventType && eventId) {
+                    if (itemType === 'user') {
                         e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Use EventDetail if available (e.g., on dashboard)
-                        if (typeof EventDetail !== 'undefined' && EventDetail.init) {
-                            // Store search context for navigation back
-                            EventDetail._fromSearch = true;
-                            EventDetail._searchQuery = this.currentQuery;
-                            EventDetail._searchFilters = this.currentFilters;
-                            // Navigate to event detail
-                            EventDetail.init(eventType, parseInt(eventId)).catch(err => {
-                                console.error('Failed to open event detail:', err);
-                                // Fallback to URL navigation on error
-                                const param = eventType === 'R' ? 'rehearsal' : 'concert';
-                                window.location.href = `dashboard.html?${param}=${eventId}`;
-                            });
-                        } else {
-                            // Navigate via URL (works on all pages, will redirect to dashboard if needed)
-                            const param = eventType === 'R' ? 'rehearsal' : 'concert';
-                            window.location.href = `dashboard.html?${param}=${eventId}`;
-                        }
+                        window.location.href = `users.html?id=${itemId}`;
+                    } else if (itemType === 'contact') {
+                        e.preventDefault();
+                        window.location.href = `contacts.html?id=${itemId}`;
                     }
+                    // Events are handled by browser via <a> tags
                 }
             });
         }
-        
-        // Handle result item clicks (for navigation)
-        const resultItems = document.querySelectorAll('.search-result-item');
-        resultItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                const itemType = item.getAttribute('data-item-type');
-                const itemId = item.getAttribute('data-item-id');
-                
-                if (itemType === 'user') {
-                    window.location.href = `users.html?id=${itemId}`;
-                } else if (itemType === 'contact') {
-                    window.location.href = `contacts.html?id=${itemId}`;
-                }
-                // Events are handled above via event delegation
-            });
-        });
     },
     
     /**
