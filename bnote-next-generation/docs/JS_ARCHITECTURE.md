@@ -483,179 +483,146 @@ POST /next/api/index.php?module=users&action=create
 
 ---
 
-## 7. Routing and Deeplinks
+## 7. Routing and Navigation
 
-### 7.1 Overview
+BNote Next Generation uses a **hybrid navigation approach** combining traditional HTML page loads with AJAX updates. See [ROUTING_ARCHITECTURE.md](./ROUTING_ARCHITECTURE.md) for complete documentation.
 
-BNote Next Generation supports direct links (deeplinks) to event details (concerts and rehearsals). The routing system automatically handles authentication flow, ensuring users can access event details whether they're logged in or not.
+### 7.1 Navigation Philosophy
 
-### 7.2 Routing Utility (`next/assets/js/routing.js`)
+**Full Page Loads** for:
+- Module switching (dashboard → contacts → users)
+- Opening entity detail views (rehearsal, concert, contact)
+- Navigation between major sections
 
-The `Routing` object provides URL parameter parsing and navigation state management:
+**AJAX/Inline Updates** for:
+- Search overlay with typeahead results
+- Form submissions (participation, user edits)
+- Dynamic content updates within a page
+
+### 7.2 URL Structure
+
+All URLs use **query parameters**:
+
+```
+{page}.html?module={module}&entity={entity}&id={id}&mode={mode}
+```
+
+**Examples:**
+- `app.html?module=dashboard` - Dashboard module
+- `app.html?module=contacts` - Contacts module
+- `entity-detail.html?module=dashboard&entity=rehearsal&id=123&mode=view` - Rehearsal detail
+- `search.html?search=query` - Search results
+
+### 7.3 Router (`next/assets/js/router.js`)
+
+Simple URL parser - no client-side routing logic:
 
 ```javascript
-const Routing = {
-    // Parse event parameters from URL
-    getEventFromUrl() {
-        // Returns { type: 'R'|'C', id: number } or null
-        // Supports: ?rehearsal={id} or ?concert={id}
-    },
-    
-    // Store pending navigation in sessionStorage
-    storePendingNavigation(eventType, eventId) {
-        // Persists through login redirect
-    },
-    
-    // Get and clear pending navigation
-    getPendingNavigation() {
-        // Returns stored navigation and clears it
-    },
-    
-    // Build dashboard URL with event parameters
-    buildDashboardUrl(eventType, eventId) {
-        // Returns: 'dashboard.html?rehearsal=123' or 'dashboard.html?concert=456'
-    },
-    
-    // Clean URL by removing event parameters
-    cleanUrl() {
-        // Uses history.replaceState to update URL without reload
+const Router = {
+    parseUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return {
+            module: urlParams.get('module') || 'dashboard',
+            entity: urlParams.get('entity'),
+            id: urlParams.get('id') ? parseInt(urlParams.get('id'), 10) : null,
+            mode: urlParams.get('mode') || 'view'
+        };
     }
 };
 ```
 
-### 7.3 URL Scheme
+### 7.4 Navigation Service (`next/assets/js/navigation-service.js`)
 
-**Rehearsals:**
-```
-dashboard.html?rehearsal={id}
-```
+URL generation helpers for `<a href>` links:
 
-**Concerts:**
-```
-dashboard.html?concert={id}
-```
-
-**Examples:**
-- `dashboard.html?rehearsal=536` - Opens rehearsal #536
-- `dashboard.html?concert=123` - Opens concert #123
-
-### 7.4 Authentication Flow
-
-The routing system automatically handles authentication:
-
-**Not Logged In:**
-1. User visits `dashboard.html?rehearsal=123`
-2. Redirected to `login.html?rehearsal=123`
-3. Event parameter stored in `sessionStorage`
-4. After successful login, redirected to `dashboard.html?rehearsal=123`
-5. Dashboard shows event detail
-
-**Already Logged In:**
-1. User visits `dashboard.html?concert=456`
-2. Dashboard shows event detail immediately
-
-### 7.5 Implementation Details
-
-**Login Page (`next/login.html`):**
-- Checks for event parameters on page load
-- Stores event parameters in `sessionStorage` before redirect
-- Preserves event parameters after successful login
-- Handles authenticated users with event parameters
-
-**Dashboard Page (`next/dashboard.html`):**
-- Parses URL parameters on initialization
-- Checks `sessionStorage` for pending navigation (from login redirect)
-- Initializes `EventDetail` component when event parameter found
-- Handles browser back/forward navigation
-
-**Event Detail Component (`next/assets/js/event-detail.js`):**
-- Uses correct URL format (`?rehearsal=123` or `?concert=456`)
-- Updates browser history with `pushState` for back button support
-- Cleans URL when navigating back to dashboard
-
-### 7.6 Access Control
-
-**Past Events:**
-- Past concerts and rehearsals are accessible via deeplinks
-- Access control checks user permissions, not event dates
-- Super users can access all events (past and future)
-- Regular users can access events they're associated with (regardless of date)
-
-**Error Handling:**
-- Invalid event ID: Shows error message in event detail view
-- Event not found: Shows "Event not found" error
-- Missing permissions: API returns 403, shows appropriate error
-- Malformed URL parameters: Ignored, shows normal dashboard
-
-### 7.7 Usage Examples
-
-**Creating a Deeplink:**
 ```javascript
-// Build URL for a rehearsal
-const url = Routing.buildDashboardUrl('R', 536);
-// Returns: 'dashboard.html?rehearsal=536'
-
-// Build URL for a concert
-const url = Routing.buildDashboardUrl('C', 123);
-// Returns: 'dashboard.html?concert=123'
-```
-
-**Parsing URL Parameters:**
-```javascript
-// Get event from current URL
-const event = Routing.getEventFromUrl();
-if (event) {
-    console.log(`Event type: ${event.type}, ID: ${event.id}`);
-    // Initialize event detail
-    EventDetail.init(event.type, event.id);
-}
-```
-
-**Storing Pending Navigation:**
-```javascript
-// Store event for after login
-Routing.storePendingNavigation('R', 536);
-
-// Later, retrieve and use
-const pending = Routing.getPendingNavigation();
-if (pending) {
-    window.location.href = Routing.buildDashboardUrl(
-        pending.eventType, 
-        pending.eventId
-    );
-}
-```
-
-### 7.8 Future Extensions
-
-The URL scheme supports future participation links:
-- `dashboard.html?rehearsal=123&token=abc123` - Participation link with token
-- `dashboard.html?concert=456&participation=yes` - Direct participation flow
-
-The routing utility can be extended to handle these parameters without breaking existing functionality.
-
-### 7.9 Browser History
-
-The routing system uses the History API for proper browser navigation:
-- `pushState` - Adds event detail view to history
-- `popstate` - Handles browser back/forward buttons
-- `replaceState` - Cleans URL when navigating back to dashboard
-
-**Example:**
-```javascript
-// When opening event detail
-const state = { view: 'event-detail', eventType: 'R', eventId: 536 };
-const url = '?rehearsal=536';
-history.pushState(state, '', url);
-
-// Browser back button automatically triggers popstate event
-window.addEventListener('popstate', (event) => {
-    if (event.state && event.state.view === 'event-detail') {
-        EventDetail.init(event.state.eventType, event.state.eventId);
-    } else {
-        EventDetail.navigateBack();
+const NavigationService = {
+    getModuleUrl(moduleRoute) {
+        return `app.html?module=${moduleRoute}`;
+    },
+    
+    getEntityUrl(entityType, id, moduleContext, mode = 'view') {
+        return `entity-detail.html?module=${moduleContext}&entity=${entityType}&id=${id}&mode=${mode}`;
     }
-});
+};
+```
+
+### 7.5 Entity Service (`next/assets/js/entity-service.js`)
+
+Entity detail URL generation and rendering:
+
+```javascript
+const EntityService = {
+    getEntityDetailUrl(entityType, id, moduleContext, mode = 'view') {
+        return NavigationService.getEntityUrl(entityType, id, moduleContext, mode);
+    },
+    
+    async renderEntityDetail(entityType, id, mode, moduleContext, container) {
+        // Load entity handler and render detail view
+    }
+};
+```
+
+### 7.6 Deep Linking
+
+When accessing protected pages while logged out, URLs are preserved:
+
+**Flow:**
+1. User tries: `entity-detail.html?module=dashboard&entity=rehearsal&id=123`
+2. Redirected to: `login.html?redirect=entity-detail.html%3Fmodule%3Ddashboard%26entity%3Drehearsal%26id%3D123`
+3. After login: Redirected back to original URL
+
+**Implementation:**
+```javascript
+// In protected pages (app.html, entity-detail.html, search.html)
+if (!session.authenticated) {
+    const currentUrl = window.location.pathname + window.location.search;
+    window.location.href = `login.html?redirect=${encodeURIComponent(currentUrl)}`;
+}
+
+// In login.html after successful login
+const urlParams = new URLSearchParams(window.location.search);
+const redirectUrl = urlParams.get('redirect');
+if (redirectUrl) {
+    window.location.href = decodeURIComponent(redirectUrl);
+} else {
+    window.location.href = 'app.html?module=dashboard';
+}
+```
+
+### 7.7 Browser History
+
+Browser automatically manages history for full page loads:
+- Each page load creates a history entry
+- Back/forward buttons work automatically
+- No JavaScript needed for basic navigation
+
+### 7.8 Usage Examples
+
+**Module Navigation:**
+```javascript
+// Sidebar link
+<a href="app.html?module=contacts">Contacts</a>
+
+// JavaScript generation
+const url = NavigationService.getModuleUrl('contacts');
+```
+
+**Entity Detail Navigation:**
+```javascript
+// Dashboard event card
+const url = EntityService.getEntityDetailUrl('rehearsal', 123, 'dashboard', 'view');
+// Result: entity-detail.html?module=dashboard&entity=rehearsal&id=123&mode=view
+
+// Search results
+const url = EntityService.getEntityDetailUrl('concert', 456, 'search', 'view');
+// Result: entity-detail.html?module=search&entity=concert&id=456&mode=view
+```
+
+**Search Navigation:**
+```javascript
+// Search overlay button
+window.location.href = `search.html?search=${encodeURIComponent(query)}`;
 ```
 
 ---
@@ -843,40 +810,39 @@ const dateStr = new Date(event.begin).toLocaleDateString('de-DE');
 
 ---
 
-### 11.5 Routing and Deeplinks
+### 11.5 Routing and Navigation
 
-**Always use Routing utility for event navigation:**
+**Always use NavigationService or EntityService for URL generation:**
 ```javascript
-// GOOD - Use Routing utility
-const event = Routing.getEventFromUrl();
-if (event) {
-    EventDetail.init(event.type, event.id);
-}
+// GOOD - Use navigation services
+const moduleUrl = NavigationService.getModuleUrl('contacts');
+const entityUrl = EntityService.getEntityDetailUrl('rehearsal', 123, 'dashboard', 'view');
 
-// BAD - Manual URL parsing
-const params = new URLSearchParams(window.location.search);
-const rehearsalId = params.get('rehearsal');
+// GOOD - Use Router for parsing
+const route = Router.parseUrl();
+
+// BAD - Manual URL construction
+const url = 'app.html?module=contacts'; // Hardcoded
 ```
 
-**Store navigation state for login flow:**
+**Use native HTML links for navigation:**
 ```javascript
-// Store before redirect
-Routing.storePendingNavigation('R', 536);
+// GOOD - Native <a> tag (browser handles navigation)
+<a href="app.html?module=contacts">Contacts</a>
 
-// Retrieve after login
-const pending = Routing.getPendingNavigation();
-if (pending) {
-    window.location.href = Routing.buildDashboardUrl(
-        pending.eventType, 
-        pending.eventId
-    );
-}
+// GOOD - Generate URL dynamically
+const url = NavigationService.getModuleUrl('contacts');
+linkElement.href = url;
+
+// BAD - JavaScript navigation for major navigation
+window.location.href = 'app.html?module=contacts'; // Only for programmatic navigation
 ```
 
-**Clean URLs when appropriate:**
+**Preserve URLs through login:**
 ```javascript
-// Clean URL when navigating back to dashboard
-Routing.cleanUrl();
+// When redirecting to login, preserve current URL
+const currentUrl = window.location.pathname + window.location.search;
+window.location.href = `login.html?redirect=${encodeURIComponent(currentUrl)}`;
 ```
 
 ---

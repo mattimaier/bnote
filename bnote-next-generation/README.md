@@ -134,9 +134,92 @@ next/
 
 ## Getting Started
 
-Access via: `http://your-bnote-installation/next/`
+Access via: `http://your-bnote-installation/bnote-next-generation/`
 
 The system automatically routes to login or dashboard based on session.
+
+## Routing and Navigation
+
+BNote Next Generation uses a **hybrid navigation approach**:
+
+- **Full page loads** for module switching and entity detail views
+- **AJAX updates** for dynamic content (search overlay, form submissions)
+- **Browser-managed history** - back/forward buttons work automatically
+
+### URL Structure
+
+All URLs use query parameters:
+
+```
+{page}.html?module={module}&entity={entity}&id={id}&mode={mode}
+```
+
+### Examples
+
+**Module Navigation:**
+```
+# Dashboard
+app.html?module=dashboard
+
+# Contacts
+app.html?module=contacts
+
+# Users
+app.html?module=users
+```
+
+**Entity Detail Views:**
+```
+# Rehearsal detail (from dashboard)
+entity-detail.html?module=dashboard&entity=rehearsal&id=123&mode=view
+
+# Concert detail (from search)
+entity-detail.html?module=search&entity=concert&id=456&mode=view
+```
+
+**Search:**
+```
+# Search results
+search.html?search=query
+```
+
+**Deep Linking:**
+```
+# Accessing protected page while logged out preserves URL
+User tries: entity-detail.html?module=dashboard&entity=rehearsal&id=123
+↓
+Redirected to: login.html?redirect=entity-detail.html%3Fmodule%3Ddashboard%26entity%3Drehearsal%26id%3D123
+↓
+After login: entity-detail.html?module=dashboard&entity=rehearsal&id=123
+```
+
+### Navigation Services
+
+**Router** (`router.js`):
+```javascript
+const route = Router.parseUrl();
+// Returns: { module, entity, id, mode }
+```
+
+**NavigationService** (`navigation-service.js`):
+```javascript
+// Module URL
+const url = NavigationService.getModuleUrl('contacts');
+// Returns: app.html?module=contacts
+
+// Entity URL
+const url = NavigationService.getEntityUrl('rehearsal', 123, 'dashboard', 'view');
+// Returns: entity-detail.html?module=dashboard&entity=rehearsal&id=123&mode=view
+```
+
+**EntityService** (`entity-service.js`):
+```javascript
+// Entity detail URL
+const url = EntityService.getEntityDetailUrl('rehearsal', 123, 'dashboard', 'view');
+// Returns: entity-detail.html?module=dashboard&entity=rehearsal&id=123&mode=view
+```
+
+For complete routing documentation, see [docs/ROUTING_ARCHITECTURE.md](./docs/ROUTING_ARCHITECTURE.md).
 
 ## License
 
