@@ -46,6 +46,12 @@ const EventRenderer = {
     getEventTypeConfig(type) {
         const getLabel = (key) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(key) : key);
 
+        // Use EntityConfig if available, otherwise fallback to hardcoded values
+        if (typeof EntityConfig !== 'undefined' && EntityConfig.getEventConfig) {
+            return EntityConfig.getEventConfig(type, getLabel);
+        }
+
+        // Fallback to hardcoded configs if EntityConfig not loaded
         const configs = {
             rehearsal: {
                 badgeClass: 'event-badge',
@@ -170,12 +176,12 @@ const EventRenderer = {
         // Support both dashboard format (eventBegin/dueDate) and search format (begin)
         const dateStr = this.formatEventDate(event.eventBegin || event.dueDate || event.begin);
         const timeStr = this.formatEventTime(event.eventBegin || event.dueDate || event.begin);
-        
+
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         const tbaText = t('js.event.tba') || 'TBA';
         const eventTitleFallback = t('js.event.event') || 'Event';
         // Support both dashboard format (locationData) and search format (location)
-        const location = event.location || event.locationData?.name || 
+        const location = event.location || event.locationData?.name ||
             this.extractLocationFromTitle(event.title) || tbaText;
         const title = event.title || eventTitleFallback;
         const hideTitleWhenDuplicate = title === typeConfig.label;
@@ -195,11 +201,11 @@ const EventRenderer = {
         const isClickable = event.otype === 'R' || event.otype === 'C';
         const entityType = event.otype === 'C' ? 'concert' : 'rehearsal';
         const entityId = event.oid || event.id;
-        
+
         // Generate entity detail URL
         // Use provided moduleContext, or detect from page if not provided
         const finalModuleContext = moduleContext || (window.location.pathname.includes('search.html') ? 'search' : 'dashboard');
-        
+
         let eventUrl = '#';
         if (isClickable && entityId) {
             if (typeof EntityService !== 'undefined' && typeof EntityService.getEntityDetailUrl === 'function') {
@@ -208,7 +214,7 @@ const EventRenderer = {
                 eventUrl = NavigationService.getEntityUrl(entityType, entityId, finalModuleContext, 'view');
             }
         }
-        
+
         const linkClass = isClickable ? 'block no-underline text-foreground hover:text-foreground' : '';
         const wrapperTag = isClickable ? 'a' : 'div';
         const wrapperAttrs = isClickable ? `href="${eventUrl}"` : '';

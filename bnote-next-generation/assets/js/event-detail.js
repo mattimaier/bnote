@@ -39,25 +39,25 @@ const EventDetail = {
         // Check if we came from search results (check internal flag or current state's previousView)
         // When fromPopstate=true, history.state already has the correct state with previousView
         const currentState = history.state;
-        const cameFromSearch = (this._fromSearch && this._searchQuery) || 
-                              (currentState && currentState.previousView === 'search-results') ||
-                              (currentState && currentState.view === 'search-results');
+        const cameFromSearch = (this._fromSearch && this._searchQuery) ||
+            (currentState && currentState.previousView === 'search-results') ||
+            (currentState && currentState.view === 'search-results');
         const searchQuery = this._searchQuery || (currentState && currentState.searchQuery) || (currentState && currentState.query) || null;
         const searchFilters = this._searchFilters || (currentState && currentState.searchFilters) || (currentState && currentState.filters) || null;
-        
+
         // Push state to history for browser back button support
         // Only push if URL doesn't already have the correct parameter AND we're not navigating via popstate
         const param = eventType === 'R' ? 'rehearsal' : 'concert';
         const urlParams = new URLSearchParams(window.location.search);
         const currentParamValue = urlParams.get(param);
-        
+
         // Only push/replace state if:
         // 1. Not navigating via popstate (popstate already has the correct state)
         // 2. URL doesn't match or we're not already in event detail view
         if (!fromPopstate && (currentParamValue !== String(eventId) || !history.state || history.state.view !== 'event-detail')) {
-            const state = { 
-                view: 'event-detail', 
-                eventType, 
+            const state = {
+                view: 'event-detail',
+                eventType,
                 eventId,
                 previousView: cameFromSearch ? 'search-results' : (currentState?.view || 'dashboard'),
                 searchQuery: searchQuery,
@@ -66,7 +66,7 @@ const EventDetail = {
             const url = `?${param}=${eventId}`;
             history.pushState(state, '', url);
         }
-        
+
         // Clear internal flags after use
         this._fromSearch = false;
         this._searchQuery = null;
@@ -91,10 +91,10 @@ const EventDetail = {
             // Render detail view
             this.render();
 
-        // Reinitialize Lucide icons
-        if (typeof lucide !== 'undefined') {
-            setTimeout(() => lucide.createIcons(), 100);
-        }
+            // Reinitialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                setTimeout(() => lucide.createIcons(), 100);
+            }
         } catch (error) {
             console.error('Failed to load event detail:', error);
             // showError will handle translation mapping
@@ -153,7 +153,7 @@ const EventDetail = {
         EventMetadata.render(metadataContainer, event);
 
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
-        
+
         // Use requestAnimationFrame to batch DOM updates and prevent flashing
         requestAnimationFrame(() => {
             // Fade out slightly before update to make transition smoother
@@ -162,7 +162,7 @@ const EventDetail = {
                 currentContent.style.opacity = '0.7';
                 currentContent.style.transition = 'opacity 0.15s ease';
             }
-            
+
             // Update content
             requestAnimationFrame(() => {
                 container.innerHTML = `
@@ -188,7 +188,7 @@ const EventDetail = {
                         ` : ''}
                     </div>
                 `;
-                
+
                 // Fade in new content
                 const newContent = container.querySelector('.event-detail-content');
                 if (newContent) {
@@ -196,17 +196,17 @@ const EventDetail = {
                         newContent.style.opacity = '1';
                     });
                 }
-                
+
                 // Reinitialize icons after render
                 if (typeof lucide !== 'undefined') {
                     setTimeout(() => lucide.createIcons(), 50);
                 }
-                
+
                 // Reinitialize participation widget after render
                 setTimeout(() => {
                     this.initializeParticipationWidget();
                 }, 100);
-                
+
                 // Initialize address click handlers after DOM is updated
                 setTimeout(() => {
                     this.initializeAddressClickHandlers();
@@ -218,7 +218,7 @@ const EventDetail = {
         if (typeof lucide !== 'undefined') {
             setTimeout(() => lucide.createIcons(), 200);
         }
-        
+
         // Browser handles back navigation - no custom back button needed
     },
 
@@ -234,9 +234,9 @@ const EventDetail = {
             eventTypeConfig.label,
             event.type === 'C' ? 'accent' : 'primary'
         );
-        
+
         // Browser handles back navigation - no custom back button needed
-        
+
         return `
             <div class="event-detail-header flex items-center gap-3 mb-4">
                 <div class="h-8 w-8 rounded-full ${eventTypeConfig.dotClass} ring-2 ring-background shadow-sm flex items-center justify-center">
@@ -253,7 +253,21 @@ const EventDetail = {
      */
     getEventTypeConfig(type) {
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
-        if (type === 'C') {
+
+        // Map single letter codes to full type names
+        const typeMap = {
+            'C': 'performance',
+            'R': 'rehearsal'
+        };
+        const eventType = typeMap[type] || type;
+
+        // Use EntityConfig if available
+        if (typeof EntityConfig !== 'undefined' && EntityConfig.getEventConfig) {
+            return EntityConfig.getEventConfig(eventType, t);
+        }
+
+        // Fallback to hardcoded configs
+        if (type === 'C' || eventType === 'performance') {
             return { badgeClass: 'event-badge accent', dotClass: 'bg-accent', label: t('js.event.performance'), icon: 'calendar' };
         }
         return { badgeClass: 'event-badge', dotClass: 'bg-primary', label: t('js.event.rehearsal'), icon: 'music' };
@@ -342,13 +356,13 @@ const EventDetail = {
         if (this._refreshTimeout) {
             clearTimeout(this._refreshTimeout);
         }
-        
+
         // Debounce: wait a bit to allow multiple rapid updates to batch together
         this._refreshTimeout = setTimeout(async () => {
             try {
                 // Load fresh data
                 await this.loadEvent();
-                
+
                 // Re-render with smooth fade transition (handled in render method)
                 this.render();
             } catch (error) {
@@ -364,7 +378,7 @@ const EventDetail = {
      */
     isMarkdown(text) {
         if (!text || typeof text !== 'string') return false;
-        
+
         // Common markdown patterns
         const markdownPatterns = [
             /^#{1,6}\s+.+/m,                    // Headers: #, ##, ###, etc.
@@ -382,7 +396,7 @@ const EventDetail = {
             /^---+$/m,                          // Horizontal rules: ---
             /^\*\*\*+$/m                        // Horizontal rules: ***
         ];
-        
+
         return markdownPatterns.some(pattern => pattern.test(text));
     },
 
@@ -393,13 +407,13 @@ const EventDetail = {
      */
     renderMarkdown(markdown) {
         if (!markdown || typeof markdown !== 'string') return '';
-        
+
         // Check if marked is available
         if (typeof marked === 'undefined') {
             console.warn('marked.js not available, falling back to plain text');
             return this.escapeHtml(markdown);
         }
-        
+
         try {
             // Configure marked with security options
             // Use modern API if available, fallback to setOptions for older versions
@@ -417,18 +431,18 @@ const EventDetail = {
                     silent: true
                 });
             }
-            
+
             // Parse markdown to HTML
             let html = marked.parse(markdown);
-            
+
             // Basic XSS protection: remove script tags and event handlers
             const div = document.createElement('div');
             div.innerHTML = html;
-            
+
             // Remove script tags
             const scripts = div.querySelectorAll('script');
             scripts.forEach(script => script.remove());
-            
+
             // Remove event handlers from all elements
             const allElements = div.querySelectorAll('*');
             allElements.forEach(el => {
@@ -439,7 +453,7 @@ const EventDetail = {
                     }
                 });
             });
-            
+
             return div.innerHTML;
         } catch (error) {
             console.error('Error rendering markdown:', error);
@@ -523,17 +537,17 @@ const EventDetail = {
                     <span class="info-value">${this.formatDateTime(event.meetingtime)}</span>
                 </div>
             ` : '';
-            
+
             // Render concert notes with markdown support
             if (event.notes) {
                 const isMarkdownContent = this.isMarkdown(event.notes);
-                const notesContent = isMarkdownContent 
+                const notesContent = isMarkdownContent
                     ? this.renderMarkdown(event.notes)
                     : this.escapeHtml(event.notes);
                 const notesClass = isMarkdownContent
                     ? 'info-value prose prose-sm max-w-none'
                     : 'info-value whitespace-pre-wrap';
-                
+
                 concertNotesHtml = `
                     <div class="info-item md:col-span-2">
                         <span class="info-label">${t('js.event.detail.notes')}:</span>
@@ -658,13 +672,13 @@ const EventDetail = {
             month: '2-digit',
             year: 'numeric'
         }).format(date);
-        
+
         // Add "(Vergangen)" if event is in the past
         if (isPast) {
             const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
             return `${formattedDate} (${t('js.event.detail.past')})`;
         }
-        
+
         return formattedDate;
     },
 
@@ -721,9 +735,9 @@ const EventDetail = {
         if (!errorMessage || typeof errorMessage !== 'string') {
             return 'js.error.eventDetailLoadFailed';
         }
-        
+
         const lowerMessage = errorMessage.toLowerCase();
-        
+
         // Map common API error messages to translation keys
         if (lowerMessage.includes('invalid') && (lowerMessage.includes('concert id') || lowerMessage.includes('rehearsal id') || lowerMessage.includes('event id'))) {
             return 'js.error.invalidEventId';
@@ -737,7 +751,7 @@ const EventDetail = {
         if (lowerMessage.includes('access denied') || lowerMessage.includes('forbidden')) {
             return 'js.error.eventAccessDenied';
         }
-        
+
         // Default fallback
         return 'js.error.eventDetailLoadFailed';
     },
@@ -750,13 +764,13 @@ const EventDetail = {
         if (container) {
             const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
             const errLabel = t('js.common.error');
-            
+
             // Try to map API error message to translation key
             const translationKey = this.mapErrorToTranslation(message);
-            const translatedMessage = translationKey.startsWith('js.error.') 
-                ? t(translationKey) 
+            const translatedMessage = translationKey.startsWith('js.error.')
+                ? t(translationKey)
                 : this.escapeHtml(message);
-            
+
             container.innerHTML = `
                 <div class="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-destructive">
                     <p class="font-semibold">${this.escapeHtml(errLabel)}</p>
@@ -788,7 +802,7 @@ const EventDetail = {
 
         if (detailContainer) detailContainer.classList.add('hidden');
         if (dashboardContainer) dashboardContainer.classList.remove('hidden');
-        
+
         // Clean URL when showing dashboard (remove event parameters)
         if (typeof Routing !== 'undefined') {
             Routing.cleanUrl();
@@ -817,7 +831,7 @@ const EventDetail = {
                 container.removeEventListener('click', this._addressClickHandler);
             }
         }
-        
+
         // Create a bound handler function
         this._addressClickHandler = (e) => {
             // Check if clicked element or its parent has the address-clickable class
@@ -832,7 +846,7 @@ const EventDetail = {
                 }
             }
         };
-        
+
         // Use event delegation on the container
         const container = document.getElementById('event-detail-content');
         if (container) {

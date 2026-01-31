@@ -30,16 +30,16 @@ const SearchResults = {
      */
     render(results, container) {
         if (!container) return;
-        
+
         if (!results || results.total === 0) {
             this.renderEmptyState(container);
             return;
         }
-        
+
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
-        
+
         let html = '<div class="space-y-0">';
-        
+
         // Render each category group
         const categories = [
             { key: 'rehearsals', label: t('js.search.results.rehearsals') || 'Rehearsals', type: 'events' },
@@ -50,21 +50,21 @@ const SearchResults = {
             { key: 'repertoire', label: t('js.search.results.repertoire') || 'Repertoire', type: 'list' },
             { key: 'locations', label: t('js.search.results.locations') || 'Locations', type: 'list' }
         ];
-        
+
         categories.forEach((category, index) => {
             const items = results[category.key] || [];
             // Get total count for this category (from _totals if available, otherwise use items.length)
             const totalCount = (results._totals && results._totals[category.key]) ? results._totals[category.key] : items.length;
-            
+
             if (items.length > 0 || totalCount > 0) {
                 // Pass totalCount to renderGroup so it displays the total
                 html += this.renderGroup(category, items, index === categories.length - 1, totalCount);
             }
         });
-        
+
         html += '</div>';
         container.innerHTML = html;
-        
+
         // Re-initialize Lucide icons
         setTimeout(() => {
             if (typeof lucide !== 'undefined') {
@@ -72,7 +72,7 @@ const SearchResults = {
             }
         }, 0);
     },
-    
+
     /**
      * Render single category group
      * @param {object} category Category info
@@ -84,7 +84,7 @@ const SearchResults = {
      */
     renderGroup(category, items, isLast = false, totalCount = null, showAllButton = false) {
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
-        
+
         let html = `<div class="search-result-group ${!isLast ? 'mb-6' : ''}" data-category="${this.escapeHtml(category.key)}">`;
         html += `<div class="px-4 py-3 bg-muted/20 flex items-center justify-between border-b border-border/30">`;
         // Always show total count if available, otherwise show items.length
@@ -93,7 +93,7 @@ const SearchResults = {
         // "Show all" button removed - users can use the main "Show all results" button instead
         html += `</div>`;
         html += `<div class="px-4 py-4">`;
-        
+
         if (category.type === 'events') {
             // Render event items (rehearsals/concerts) with icons
             html += this.renderEventItems(items);
@@ -101,13 +101,13 @@ const SearchResults = {
             // Render list items for other types
             html += this.renderListItems(items, category.key);
         }
-        
+
         html += `</div>`;
         html += `</div>`;
-        
+
         return html;
     },
-    
+
     /**
      * Render search results with "Show all" support
      * @param {object} results Search results object with categories
@@ -116,16 +116,16 @@ const SearchResults = {
      */
     renderWithShowAll(results, container, expandedCategories = {}) {
         if (!container) return;
-        
+
         if (!results || results.total === 0) {
             this.renderEmptyState(container);
             return;
         }
-        
+
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
-        
+
         let html = '<div class="space-y-0">';
-        
+
         // Render each category group
         const categories = [
             { key: 'rehearsals', label: t('js.search.results.rehearsals') || 'Rehearsals', type: 'events' },
@@ -136,22 +136,22 @@ const SearchResults = {
             { key: 'repertoire', label: t('js.search.results.repertoire') || 'Repertoire', type: 'list' },
             { key: 'locations', label: t('js.search.results.locations') || 'Locations', type: 'list' }
         ];
-        
+
         categories.forEach((category, index) => {
             const items = results[category.key] || [];
             // Get total count for this category (from _totals if available, otherwise use items.length)
             const totalCount = (results._totals && results._totals[category.key]) ? results._totals[category.key] : items.length;
-            
+
             if (items.length > 0 || totalCount > 0) {
                 // Pass totalCount to renderGroup so it displays the total, not just items.length
                 // showAllButton parameter removed - always pass false
                 html += this.renderGroup(category, items, index === categories.length - 1, totalCount, false);
             }
         });
-        
+
         html += '</div>';
         container.innerHTML = html;
-        
+
         // Re-initialize Lucide icons
         setTimeout(() => {
             if (typeof lucide !== 'undefined') {
@@ -159,7 +159,7 @@ const SearchResults = {
             }
         }, 0);
     },
-    
+
     /**
      * Render event items (rehearsals/concerts) - uses shared EventRenderer
      * @param {array} events Event items
@@ -178,7 +178,7 @@ const SearchResults = {
         // Fallback if EventRenderer not available
         return this.renderEventItemsFallback(events);
     },
-    
+
     /**
      * Render list items for non-event types
      * @param {array} items Items to render
@@ -187,15 +187,15 @@ const SearchResults = {
      */
     renderListItems(items, type) {
         let html = '<div class="space-y-3">';
-        
+
         items.forEach(item => {
             html += this.renderListItem(item, type);
         });
-        
+
         html += '</div>';
         return html;
     },
-    
+
     /**
      * Render single list item with icon (matching dashboard style)
      * @param {object} item Item data
@@ -204,27 +204,27 @@ const SearchResults = {
      */
     renderListItem(item, type) {
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
-        
+
         // Get icon and color for each type (matching dashboard event style)
         const typeConfig = this.getListItemTypeConfig(type);
-        
+
         let html = `<div class="search-result-item flex items-start gap-3 p-3 rounded-lg border border-border/40 hover:bg-muted/50 hover:border-primary/30 cursor-pointer transition-colors" data-item-id="${item.id}" data-item-type="${type}">`;
-        
+
         // Icon circle (matching dashboard event icon style)
         html += `<div class="relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ${typeConfig.iconBg} ring-3 ring-background shadow-sm flex items-center justify-center">`;
         html += `<i data-lucide="${typeConfig.icon}" class="h-4 w-4 ${typeConfig.iconColor}"></i>`;
         html += `</div>`;
-        
+
         // Content
         html += `<div class="flex-1 min-w-0">`;
-        
+
         // Title/Name with badge (matching dashboard style)
         const title = item.name || item.title || `Item ${item.id}`;
         html += `<div class="flex items-center gap-1.5 mb-1 flex-wrap">`;
         html += `<h3 class="text-sm font-semibold text-foreground">${this.escapeHtml(title)}</h3>`;
         html += `<span class="${typeConfig.badgeClass} text-[10px] px-1.5 py-0.5 rounded">${typeConfig.label}</span>`;
         html += `</div>`;
-        
+
         // Additional info based on type (with icons matching dashboard style)
         if (type === 'users' || type === 'contacts') {
             if (item.email) {
@@ -279,12 +279,12 @@ const SearchResults = {
                 html += `</div>`;
             }
         }
-        
+
         html += `</div>`; // Close content div
         html += `</div>`; // Close item div
         return html;
     },
-    
+
     /**
      * Get type configuration for list items (matching dashboard event style)
      * @param {string} type Item type
@@ -292,7 +292,13 @@ const SearchResults = {
      */
     getListItemTypeConfig(type) {
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
-        
+
+        // Use EntityConfig if available, otherwise fallback to hardcoded values
+        if (typeof EntityConfig !== 'undefined' && EntityConfig.getListItemConfig) {
+            return EntityConfig.getListItemConfig(type, t);
+        }
+
+        // Fallback to hardcoded configs if EntityConfig not loaded
         const configs = {
             'users': {
                 icon: 'user',
@@ -330,7 +336,7 @@ const SearchResults = {
                 label: t('js.search.results.locations') || 'Location'
             }
         };
-        
+
         return configs[type] || {
             icon: 'circle',
             iconBg: 'bg-muted',
@@ -339,7 +345,7 @@ const SearchResults = {
             label: type
         };
     },
-    
+
     /**
      * Fallback rendering for events when EventRenderer is not available
      * @param {array} events Event items
@@ -353,18 +359,18 @@ const SearchResults = {
                 isMobile: window.innerWidth < 768
             });
         }
-        
+
         // Last resort fallback - simple rendering with native links
         // Always use 'search' as module context since this is only used for search results
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         let html = '<div class="space-y-3">';
         const moduleContext = 'search';
-        
+
         events.forEach(event => {
             const isClickable = event.otype === 'R' || event.otype === 'C';
             const entityType = event.otype === 'C' ? 'concert' : 'rehearsal';
             const entityId = event.oid || event.id;
-            
+
             // Generate URL for clickable events
             let eventUrl = '#';
             if (isClickable && entityId) {
@@ -376,15 +382,15 @@ const SearchResults = {
                     eventUrl = `entity-detail.html?module=${moduleContext}&entity=${entityType}&id=${entityId}&mode=view`;
                 }
             }
-            
+
             const dateStr = event.begin ? new Date(event.begin).toLocaleDateString('de-DE') : '';
             const timeStr = event.begin ? new Date(event.begin).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
             const location = event.location || event.locationData?.name || (t('js.event.tba') || 'TBA');
             const title = event.title || (t('js.event.event') || 'Event');
-            
+
             const wrapperTag = isClickable ? 'a' : 'div';
             const wrapperAttrs = isClickable ? `href="${eventUrl}" class="block no-underline text-foreground hover:text-foreground"` : 'class="relative flex gap-3"';
-            
+
             html += `<${wrapperTag} ${wrapperAttrs}>`;
             html += `<div class="relative flex gap-3">`;
             html += `<div class="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-3">`;
@@ -394,11 +400,11 @@ const SearchResults = {
             html += `</div></div>`;
             html += `</${wrapperTag}>`;
         });
-        
+
         html += '</div>';
         return html;
     },
-    
+
     /**
      * Render empty state
      * @param {HTMLElement} container Container element
@@ -407,14 +413,14 @@ const SearchResults = {
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         // Try js.search.results.noResults first, fallback to js.search.noResults
         const message = t('js.search.results.noResults') || t('js.search.noResults') || 'No results found';
-        
+
         container.innerHTML = `
             <div class="text-center py-8 text-muted-foreground text-sm">
                 ${this.escapeHtml(message)}
             </div>
         `;
     },
-    
+
     /**
      * Render error state
      * @param {HTMLElement} container Container element
@@ -423,14 +429,14 @@ const SearchResults = {
     renderErrorState(container, error) {
         const t = (k) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(k) : k);
         const errorMessage = error?.message || error || (t('js.search.error') || 'Search failed. Please try again.');
-        
+
         container.innerHTML = `
             <div class="text-center py-8 text-destructive text-sm">
                 ${this.escapeHtml(errorMessage)}
             </div>
         `;
     },
-    
+
     /**
      * Format date for display
      * @param {string} dateString Date string
@@ -441,7 +447,7 @@ const SearchResults = {
         const date = new Date(dateString);
         return date.toLocaleDateString();
     },
-    
+
     /**
      * Escape HTML to prevent XSS
      * @param {string} text Text to escape

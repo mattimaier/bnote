@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,17 +13,33 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
-        .json-key { color: #005cc5; }
-        .json-string { color: #032f62; }
-        .json-number { color: #e36209; }
-        .json-boolean { color: #d73a49; }
-        .json-null { color: #6f42c1; }
+
+        .json-key {
+            color: #005cc5;
+        }
+
+        .json-string {
+            color: #032f62;
+        }
+
+        .json-number {
+            color: #e36209;
+        }
+
+        .json-boolean {
+            color: #d73a49;
+        }
+
+        .json-null {
+            color: #6f42c1;
+        }
     </style>
 </head>
+
 <body class="bg-background min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 class="text-3xl font-bold text-foreground mb-6">API Debug Tool</h1>
-        
+
         <!-- API Call Form -->
         <div class="bg-card shadow rounded-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Make API Call</h2>
@@ -30,40 +47,41 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-foreground mb-1">Module</label>
-                        <input type="text" id="module" name="module" value="dashboard" 
-                               class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground" 
-                               placeholder="e.g., auth, dashboard">
+                        <input type="text" id="module" name="module" value="dashboard"
+                            class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground"
+                            placeholder="e.g., auth, dashboard">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-foreground mb-1">Action</label>
-                        <input type="text" id="action" name="action" value="dashboard" 
-                               class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground" 
-                               placeholder="e.g., login, dashboard, inbox">
+                        <input type="text" id="action" name="action" value="dashboard"
+                            class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground"
+                            placeholder="e.g., login, dashboard, inbox">
                     </div>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-1">Method</label>
-                    <select id="method" name="method" class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground">
+                    <select id="method" name="method"
+                        class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground">
                         <option value="GET">GET</option>
                         <option value="POST">POST</option>
                     </select>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-1">Request Body (JSON for POST)</label>
-                    <textarea id="body" name="body" rows="4" 
-                              class="w-full border border-border rounded-md px-3 py-2 font-mono text-sm bg-background text-foreground"
-                              placeholder='{"username": "test", "password": "test"}'></textarea>
+                    <textarea id="body" name="body" rows="4"
+                        class="w-full border border-border rounded-md px-3 py-2 font-mono text-sm bg-background text-foreground"
+                        placeholder='{"username": "test", "password": "test"}'></textarea>
                 </div>
-                
-                <button type="submit" 
-                        class="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium">
+
+                <button type="submit"
+                    class="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium">
                     Send Request
                 </button>
             </form>
         </div>
-        
+
         <!-- Results Section -->
         <div id="results" class="hidden">
             <!-- Response -->
@@ -72,59 +90,68 @@
                     <h2 class="text-xl font-semibold text-foreground">Response</h2>
                     <div class="flex gap-2">
                         <span id="status-badge" class="px-3 py-1 rounded-full text-sm font-medium"></span>
-                        <button onclick="copyResponse()" 
-                                class="bg-muted hover:bg-muted/80 px-3 py-1 rounded text-sm text-foreground">
+                        <button onclick="copyResponse()"
+                            class="bg-muted hover:bg-muted/80 px-3 py-1 rounded text-sm text-foreground">
                             Copy JSON
                         </button>
                     </div>
                 </div>
-                <pre id="response-json" class="bg-muted p-4 rounded border border-border overflow-x-auto text-sm text-foreground"></pre>
+                <pre id="response-json"
+                    class="bg-muted p-4 rounded border border-border overflow-x-auto text-sm text-foreground"></pre>
             </div>
-            
+
             <!-- cURL Command -->
             <div class="bg-card shadow rounded-lg p-6 mb-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-semibold text-foreground">cURL Command</h2>
-                    <button onclick="copyCurl()" 
-                            class="bg-muted hover:bg-muted/80 px-3 py-1 rounded text-sm text-foreground">
+                    <button onclick="copyCurl()"
+                        class="bg-muted hover:bg-muted/80 px-3 py-1 rounded text-sm text-foreground">
                         Copy cURL
                     </button>
                 </div>
-                <pre id="curl-command" class="bg-muted p-4 rounded border border-border overflow-x-auto text-sm font-mono text-foreground"></pre>
+                <pre id="curl-command"
+                    class="bg-muted p-4 rounded border border-border overflow-x-auto text-sm font-mono text-foreground"></pre>
             </div>
-            
+
             <!-- Request Details -->
             <div class="bg-card shadow rounded-lg p-6">
                 <h2 class="text-xl font-semibold mb-4 text-foreground">Request Details</h2>
                 <div class="space-y-2 text-sm text-foreground">
                     <div><strong>URL:</strong> <span id="request-url" class="font-mono"></span></div>
                     <div><strong>Method:</strong> <span id="request-method"></span></div>
-                    <div><strong>Headers:</strong> <pre id="request-headers" class="bg-muted p-2 rounded mt-1 font-mono text-xs text-foreground"></pre></div>
-                    <div><strong>Body:</strong> <pre id="request-body-display" class="bg-muted p-2 rounded mt-1 font-mono text-xs text-foreground"></pre></div>
+                    <div><strong>Headers:</strong>
+                        <pre id="request-headers"
+                            class="bg-muted p-2 rounded mt-1 font-mono text-xs text-foreground"></pre>
+                    </div>
+                    <div><strong>Body:</strong>
+                        <pre id="request-body-display"
+                            class="bg-muted p-2 rounded mt-1 font-mono text-xs text-foreground"></pre>
+                    </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- Search Testing Section -->
         <div class="bg-card shadow rounded-lg p-6 mt-6">
             <h2 class="text-xl font-semibold mb-4 text-foreground">Search Feature Test</h2>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-1">Search Query</label>
-                    <input type="text" id="search-query" 
-                           class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground" 
-                           placeholder="Type at least 2 characters...">
+                    <input type="text" id="search-query"
+                        class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground"
+                        placeholder="Type at least 2 characters...">
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-foreground mb-1">Year Filter (optional)</label>
-                        <input type="number" id="search-year" 
-                               class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground" 
-                               placeholder="e.g., 2026">
+                        <input type="number" id="search-year"
+                            class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground"
+                            placeholder="e.g., 2026">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-foreground mb-1">Month Filter (optional)</label>
-                        <select id="search-month" class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground">
+                        <select id="search-month"
+                            class="w-full border border-border rounded-md px-3 py-2 bg-background text-foreground">
                             <option value="">No filter</option>
                             <option value="1">January</option>
                             <option value="2">February</option>
@@ -141,17 +168,18 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="testSearch()" 
-                        class="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium">
+                <button onclick="testSearch()"
+                    class="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium">
                     Test Search API
                 </button>
                 <div id="search-results-display" class="hidden mt-4">
                     <h3 class="text-lg font-semibold mb-2 text-foreground">Search Results</h3>
-                    <pre id="search-results-json" class="bg-muted p-4 rounded border border-border overflow-x-auto text-sm text-foreground"></pre>
+                    <pre id="search-results-json"
+                        class="bg-muted p-4 rounded border border-border overflow-x-auto text-sm text-foreground"></pre>
                 </div>
             </div>
         </div>
-        
+
         <!-- History Section -->
         <div class="bg-card shadow rounded-lg p-6 mt-6">
             <h2 class="text-xl font-semibold mb-4 text-foreground">Request History</h2>
@@ -159,9 +187,19 @@
                 <p class="text-muted-foreground text-sm">No requests yet</p>
             </div>
         </div>
+
+        <!-- Entity Configuration Display -->
+        <div class="bg-card shadow rounded-lg p-6 mt-6">
+            <h2 class="text-xl font-semibold mb-4 text-foreground">Entity Colors & Icons</h2>
+            <div id="entity-config-display" class="space-y-4">
+                <p class="text-muted-foreground text-sm">Loading entity configuration...</p>
+            </div>
+        </div>
     </div>
-    
+
     <script src="assets/js/api.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="assets/js/entity-config.js"></script>
     <script>
         const API_BASE_URL = (() => {
             const pathname = window.location.pathname;
@@ -183,9 +221,9 @@
             }
             return base + (base.endsWith('/') ? '' : '/') + 'api/index.php';
         })();
-        
+
         let requestHistory = JSON.parse(localStorage.getItem('api-debug-history') || '[]');
-        
+
         function syntaxHighlight(json) {
             if (typeof json != 'string') {
                 json = JSON.stringify(json, null, 2);
@@ -207,7 +245,7 @@
                 return '<span class="' + cls + '">' + match + '</span>';
             });
         }
-        
+
         function formatStatus(status) {
             const badge = document.getElementById('status-badge');
             if (status >= 200 && status < 300) {
@@ -221,26 +259,26 @@
                 return '✗ ' + status;
             }
         }
-        
+
         function generateCurl(method, url, headers, body) {
             let curl = `curl -X ${method} "${url}"`;
-            
+
             // Add headers
             Object.entries(headers).forEach(([key, value]) => {
                 curl += ` \\\n  -H "${key}: ${value}"`;
             });
-            
+
             // Add body for POST
             if (method === 'POST' && body) {
                 curl += ` \\\n  -d '${body}'`;
             }
-            
+
             // Add cookie handling
             curl += ` \\\n  -c cookies.txt -b cookies.txt`;
-            
+
             return curl;
         }
-        
+
         function addToHistory(request) {
             requestHistory.unshift(request);
             if (requestHistory.length > 50) {
@@ -249,17 +287,17 @@
             localStorage.setItem('api-debug-history', JSON.stringify(requestHistory));
             renderHistory();
         }
-        
+
         function renderHistory() {
             const historyList = document.getElementById('history-list');
             if (requestHistory.length === 0) {
                 historyList.innerHTML = '<p class="text-muted-foreground text-sm">No requests yet</p>';
                 return;
             }
-            
+
             historyList.innerHTML = requestHistory.map((req, index) => {
-                const statusColor = req.status >= 200 && req.status < 300 ? 'text-success' : 
-                                   req.status >= 400 ? 'text-danger' : 'text-muted-foreground';
+                const statusColor = req.status >= 200 && req.status < 300 ? 'text-success' :
+                    req.status >= 400 ? 'text-danger' : 'text-muted-foreground';
                 return `
                     <div class="border border-border rounded p-3 hover:bg-muted cursor-pointer" 
                          onclick="loadFromHistory(${index})">
@@ -272,7 +310,7 @@
                 `;
             }).join('');
         }
-        
+
         function loadFromHistory(index) {
             const req = requestHistory[index];
             document.getElementById('module').value = req.module;
@@ -281,35 +319,35 @@
             document.getElementById('body').value = req.body || '';
             document.getElementById('api-form').dispatchEvent(new Event('submit'));
         }
-        
+
         function copyResponse() {
             const text = document.getElementById('response-json').textContent;
             navigator.clipboard.writeText(text).then(() => {
                 alert('Response copied to clipboard!');
             });
         }
-        
+
         function copyCurl() {
             const text = document.getElementById('curl-command').textContent;
             navigator.clipboard.writeText(text).then(() => {
                 alert('cURL command copied to clipboard!');
             });
         }
-        
+
         document.getElementById('api-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const module = document.getElementById('module').value;
             const action = document.getElementById('action').value;
             const method = document.getElementById('method').value;
             const bodyText = document.getElementById('body').value.trim();
-            
+
             const url = `${API_BASE_URL}?module=${encodeURIComponent(module)}&action=${encodeURIComponent(action)}`;
-            
+
             const headers = {
                 'Content-Type': 'application/json'
             };
-            
+
             let body = null;
             if (method === 'POST' && bodyText) {
                 try {
@@ -319,33 +357,33 @@
                     return;
                 }
             }
-            
+
             // Display request details
             document.getElementById('request-url').textContent = url;
             document.getElementById('request-method').textContent = method;
             document.getElementById('request-headers').textContent = JSON.stringify(headers, null, 2);
             document.getElementById('request-body-display').textContent = body ? JSON.stringify(body, null, 2) : '(none)';
-            
+
             // Generate cURL command
             const curlCmd = generateCurl(method, url, headers, body ? JSON.stringify(body) : null);
             document.getElementById('curl-command').textContent = curlCmd;
-            
+
             try {
                 const fetchOptions = {
                     method: method,
                     headers: headers,
                     credentials: 'include' // Include cookies
                 };
-                
+
                 if (body) {
                     fetchOptions.body = JSON.stringify(body);
                 }
-                
+
                 const startTime = Date.now();
                 const response = await fetch(url, fetchOptions);
                 const endTime = Date.now();
                 const responseTime = endTime - startTime;
-                
+
                 let responseData;
                 const responseText = await response.text();
                 try {
@@ -353,11 +391,11 @@
                 } catch (e) {
                     responseData = { _raw: responseText };
                 }
-                
+
                 // Display response
                 document.getElementById('status-badge').textContent = formatStatus(response.status);
                 document.getElementById('response-json').innerHTML = syntaxHighlight(JSON.stringify(responseData, null, 2));
-                
+
                 // Add to history
                 addToHistory({
                     module,
@@ -368,7 +406,7 @@
                     responseTime,
                     timestamp: new Date().toISOString()
                 });
-                
+
                 document.getElementById('results').classList.remove('hidden');
             } catch (error) {
                 document.getElementById('status-badge').textContent = formatStatus(0);
@@ -376,21 +414,21 @@
                 document.getElementById('results').classList.remove('hidden');
             }
         });
-        
+
         // Initialize history display
         renderHistory();
-        
+
         // Search testing function
         async function testSearch() {
             const query = document.getElementById('search-query').value.trim();
             const year = document.getElementById('search-year').value;
             const month = document.getElementById('search-month').value;
-            
+
             if (query.length < 2) {
                 alert('Search query must be at least 2 characters long');
                 return;
             }
-            
+
             // Build URL with query parameters
             let url = `${API_BASE_URL}?module=search&q=${encodeURIComponent(query)}`;
             if (year) {
@@ -399,7 +437,7 @@
             if (month) {
                 url += `&filter[date_month]=${encodeURIComponent(month)}`;
             }
-            
+
             try {
                 const response = await fetch(url, {
                     method: 'GET',
@@ -408,7 +446,7 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                
+
                 const responseText = await response.text();
                 let responseData;
                 try {
@@ -416,17 +454,17 @@
                 } catch (e) {
                     responseData = { _raw: responseText, _error: 'Failed to parse JSON' };
                 }
-                
+
                 // Display results
                 document.getElementById('search-results-json').innerHTML = syntaxHighlight(JSON.stringify(responseData, null, 2));
                 document.getElementById('search-results-display').classList.remove('hidden');
-                
+
                 // Also add to main API form for detailed view
                 document.getElementById('module').value = 'search';
                 document.getElementById('action').value = '';
                 document.getElementById('method').value = 'GET';
                 document.getElementById('body').value = '';
-                
+
                 // Add to history
                 addToHistory({
                     module: 'search',
@@ -437,19 +475,150 @@
                     responseTime: 0,
                     timestamp: new Date().toISOString()
                 });
-                
+
             } catch (error) {
                 document.getElementById('search-results-json').textContent = 'Error: ' + error.message;
                 document.getElementById('search-results-display').classList.remove('hidden');
             }
         }
-        
+
         // Allow Enter key to trigger search
         document.getElementById('search-query').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 testSearch();
             }
         });
+
+        // Entity Configuration Display
+        async function renderEntityConfig() {
+            const container = document.getElementById('entity-config-display');
+
+            try {
+                // Wait for EntityConfig to load
+                await EntityConfig.load();
+
+                const config = EntityConfig._config;
+                if (!config || !config.entities) {
+                    container.innerHTML = '<p class="text-danger text-sm">Failed to load entity configuration</p>';
+                    return;
+                }
+
+                const entities = Object.entries(config.entities);
+
+                if (entities.length === 0) {
+                    container.innerHTML = '<p class="text-muted-foreground text-sm">No entities found in configuration</p>';
+                    return;
+                }
+
+                // Group entities (remove duplicates - some entities have both singular and plural forms)
+                const uniqueEntities = new Map();
+                entities.forEach(([key, value]) => {
+                    // Use the singular form as the key if both exist
+                    const singularKey = key.replace(/s$/, '');
+                    if (!uniqueEntities.has(singularKey) || !key.endsWith('s')) {
+                        uniqueEntities.set(key, value);
+                    }
+                });
+
+                // Create a style element for color-mix values
+                const styleId = 'entity-config-styles';
+                let styleEl = document.getElementById(styleId);
+                if (!styleEl) {
+                    styleEl = document.createElement('style');
+                    styleEl.id = styleId;
+                    document.head.appendChild(styleEl);
+                }
+
+                let styleContent = '';
+
+                const html = Array.from(uniqueEntities.entries()).map(([entityType, config], index) => {
+                    const color = config.color || '#000000';
+                    const icon = config.icon || 'circle';
+                    const safeEntityType = entityType.replace(/[^a-z0-9]/gi, '-');
+                    const varName = `--entity-${safeEntityType}`;
+
+                    // Generate color swatch
+                    const colorStyle = `background-color: ${color};`;
+
+                    // Get light and muted variants (these return color-mix strings)
+                    const lightColor = EntityConfig.getLightColor(color, 10);
+                    const mutedColor = EntityConfig.getMutedColor(color, 20);
+
+                    // Add CSS custom properties for color-mix values
+                    styleContent += `.entity-${safeEntityType}-light { background-color: ${lightColor}; }\n`;
+                    styleContent += `.entity-${safeEntityType}-muted { background-color: ${mutedColor}; }\n`;
+                    styleContent += `.entity-${safeEntityType}-badge { background-color: ${mutedColor}; color: ${color}; border-color: ${color}33; }\n`;
+
+                    return `
+                        <div class="border border-border rounded-lg p-4 hover:bg-muted/30 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <!-- Icon Display -->
+                                <div class="h-16 w-16 rounded-lg flex items-center justify-center shrink-0" style="${colorStyle}">
+                                    <i data-lucide="${icon}" class="h-8 w-8 text-white"></i>
+                                </div>
+                                
+                                <!-- Entity Info -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <h3 class="text-lg font-semibold text-foreground">${entityType}</h3>
+                                        <span class="px-2 py-1 bg-muted rounded text-xs text-muted-foreground font-mono">${icon}</span>
+                                    </div>
+                                    
+                                    <!-- Color Info -->
+                                    <div class="space-y-1 text-sm">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-muted-foreground w-20">Color:</span>
+                                            <span class="font-mono text-foreground">${color}</span>
+                                            <div class="h-5 w-5 rounded border border-border/40 shrink-0" style="${colorStyle}"></div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-muted-foreground w-20">Light:</span>
+                                            <div class="h-5 w-5 rounded border border-border/40 shrink-0 entity-${safeEntityType}-light"></div>
+                                            <span class="text-xs text-muted-foreground font-mono">10% opacity</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-muted-foreground w-20">Muted:</span>
+                                            <div class="h-5 w-5 rounded border border-border/40 shrink-0 entity-${safeEntityType}-muted"></div>
+                                            <span class="text-xs text-muted-foreground font-mono">20% opacity</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Badge Preview -->
+                                <div class="shrink-0">
+                                    <div class="flex flex-col gap-2 items-end">
+                                        <span class="px-3 py-1 rounded text-xs font-medium border entity-${safeEntityType}-badge">
+                                            Badge Preview
+                                        </span>
+                                        <div class="h-8 w-8 rounded-full flex items-center justify-center" style="${colorStyle}">
+                                            <i data-lucide="${icon}" class="h-4 w-4 text-white"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Update style element with generated CSS
+                styleEl.textContent = styleContent;
+
+                container.innerHTML = html;
+
+                // Initialize Lucide icons
+                if (typeof lucide !== 'undefined') {
+                    setTimeout(() => lucide.createIcons(), 100);
+                }
+
+            } catch (error) {
+                container.innerHTML = `<p class="text-danger text-sm">Error loading entity configuration: ${error.message}</p>`;
+                console.error('Error rendering entity config:', error);
+            }
+        }
+
+        // Load and render entity configuration when page loads
+        renderEntityConfig();
     </script>
 </body>
+
 </html>

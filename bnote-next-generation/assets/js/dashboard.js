@@ -94,7 +94,7 @@ const Dashboard = {
         if (greetingEl) {
             // Check if translations are loaded
             const translationsLoaded = typeof i18n !== 'undefined' && Object.keys(i18n.translations || {}).length > 0;
-            
+
             if (translationsLoaded) {
                 // Use translated welcome text if available
                 const welcomeText = i18n.t('banner_Logout.welcome');
@@ -528,7 +528,7 @@ const Dashboard = {
             // Check if event list actually changed (not just participation status)
             const oldEventIds = new Set((this.allEvents['events-needing-response'] || []).map(e => String(e.oid)));
             const newEventIds = new Set(eventsNeedingResponseArray.map(e => String(e.oid)));
-            const eventListChanged = oldEventIds.size !== newEventIds.size || 
+            const eventListChanged = oldEventIds.size !== newEventIds.size ||
                 Array.from(oldEventIds).some(id => !newEventIds.has(id)) ||
                 Array.from(newEventIds).some(id => !oldEventIds.has(id));
 
@@ -540,7 +540,7 @@ const Dashboard = {
             if (eventsNeedingResponse.config) {
                 this.maxDisplayCounts['events-needing-response'] = eventsNeedingResponse.config.max_show || 5;
             }
-            
+
             // Reset displayed count to match available events (after filtering)
             // This ensures we don't show "Load More" when there are no more events
             const filteredCount = this.applyFilters('events-needing-response', eventsNeedingResponseArray).length;
@@ -568,7 +568,7 @@ const Dashboard = {
             // can affect which events appear in this section (e.g., if participation is removed,
             // the event might no longer need a response)
             await this.renderEventsNeedingResponseWithAnimation(eventsNeedingResponseArray);
-            
+
             // Only re-render timeline if event list changed (events added/removed)
             // Timeline events are less affected by participation status changes
             if (eventListChanged) {
@@ -600,21 +600,21 @@ const Dashboard = {
         const events = Array.isArray(eventsNeedingResponse)
             ? eventsNeedingResponse
             : (eventsNeedingResponse.events || []);
-        
+
         // Apply filters first to get the actual events that should be displayed
         const filteredEvents = this.applyFilters('events-needing-response', events);
-        
+
         // Reset displayed count to match filtered events (but don't exceed max)
         // This ensures we don't show "Load More" when there are no more events
         const maxDisplay = this.maxDisplayCounts['events-needing-response'] || 5;
         this.displayedCounts['events-needing-response'] = Math.min(maxDisplay, filteredEvents.length);
-        
+
         // Get currently displayed event IDs from DOM
         const currentEventIds = new Set(
             Array.from(container.querySelectorAll('[data-event-id]'))
                 .map(el => el.getAttribute('data-event-id'))
         );
-        
+
         // Get new event IDs from filtered events (these are the events that should be displayed)
         const newEventIds = new Set(filteredEvents.map(e => String(e.oid)));
 
@@ -873,8 +873,8 @@ const Dashboard = {
                     ? i18n.t('js.event.tba')
                     : 'TBA';
                 const eventTitleFallback = typeof i18n !== 'undefined' && i18n.t ? i18n.t('js.event.event') : 'Event';
-                const location = event.location || event.locationData?.name || 
-                    (typeof EventRenderer !== 'undefined' && EventRenderer.extractLocationFromTitle ? EventRenderer.extractLocationFromTitle(event.title) : null) || 
+                const location = event.location || event.locationData?.name ||
+                    (typeof EventRenderer !== 'undefined' && EventRenderer.extractLocationFromTitle ? EventRenderer.extractLocationFromTitle(event.title) : null) ||
                     this.extractLocationFromTitle(event.title) || tbaText;
                 const isLast = index === eventsList.length - 1;
                 const title = event.title || eventTitleFallback;
@@ -892,11 +892,11 @@ const Dashboard = {
                 const isClickable = event.otype === 'R' || event.otype === 'C';
                 const entityType = event.otype === 'C' ? 'concert' : 'rehearsal';
                 const entityId = event.oid;
-                
+
                 // Generate entity detail URL
                 // Dashboard always uses 'dashboard' as module context
                 const moduleContext = 'dashboard';
-                
+
                 let eventUrl = '#';
                 if (isClickable && entityId) {
                     if (typeof EntityService !== 'undefined' && typeof EntityService.getEntityDetailUrl === 'function') {
@@ -905,7 +905,7 @@ const Dashboard = {
                         eventUrl = NavigationService.getEntityUrl(entityType, entityId, moduleContext, 'view');
                     }
                 }
-                
+
                 const linkClass = isClickable ? 'block no-underline text-foreground hover:text-foreground' : '';
                 const wrapperTag = isClickable ? 'a' : 'div';
                 const wrapperAttrs = isClickable ? `href="${eventUrl}"` : '';
@@ -1042,11 +1042,11 @@ const Dashboard = {
                     const searchResultsContainer = document.getElementById('search-results-container');
                     const searchResultsOverlay = document.getElementById('search-results-overlay');
                     const isFromSearch = (searchResultsContainer && searchResultsContainer.contains(eventElement)) ||
-                                       (searchResultsOverlay && searchResultsOverlay.contains(eventElement));
-                    
+                        (searchResultsOverlay && searchResultsOverlay.contains(eventElement));
+
                     let searchQuery = null;
                     let searchFilters = null;
-                    
+
                     if (isFromSearch) {
                         // Get search context from SearchResultsPage or Search component
                         if (typeof SearchResultsPage !== 'undefined' && SearchResultsPage.currentQuery) {
@@ -1057,7 +1057,7 @@ const Dashboard = {
                             searchFilters = Search.currentFilters || {};
                         }
                     }
-                    
+
                     e.preventDefault();
                     e.stopPropagation();
                     self.openEventDetail(eventType, parseInt(eventId), isFromSearch, searchQuery, searchFilters).catch(err => {
@@ -1205,8 +1205,12 @@ const Dashboard = {
         if (typeof EventRenderer !== 'undefined' && EventRenderer.getEventTypeConfig) {
             return EventRenderer.getEventTypeConfig(type);
         }
-        // Fallback
+        // Fallback to EntityConfig if available
         const getLabel = (key) => (typeof i18n !== 'undefined' && i18n.t ? i18n.t(key) : key);
+        if (typeof EntityConfig !== 'undefined' && EntityConfig.getEventConfig) {
+            return EntityConfig.getEventConfig(type, getLabel);
+        }
+        // Final fallback to hardcoded configs
         const configs = {
             rehearsal: {
                 badgeClass: 'event-badge',
@@ -1369,40 +1373,40 @@ const Dashboard = {
     async openEventDetail(eventType, eventId, fromSearch = false, searchQuery = null, searchFilters = null) {
         // Check for EventDetail - try both global scope and window
         let EventDetailComponent = null;
-        
+
         // Try to access EventDetail - it might be in global scope or window
         try {
             EventDetailComponent = typeof EventDetail !== 'undefined' ? EventDetail : null;
         } catch (e) {
             // EventDetail not in global scope, try window
         }
-        
+
         if (!EventDetailComponent && typeof window !== 'undefined') {
             EventDetailComponent = window.EventDetail || null;
         }
-        
+
         // Wait for EventDetail to load if not available yet
         if (!EventDetailComponent) {
             let attempts = 0;
             const maxAttempts = 40; // 2 seconds
             while (!EventDetailComponent && attempts < maxAttempts) {
                 await new Promise(resolve => setTimeout(resolve, 50));
-                
+
                 // Try both ways again
                 try {
                     EventDetailComponent = typeof EventDetail !== 'undefined' ? EventDetail : null;
                 } catch (e) {
                     // Continue
                 }
-                
+
                 if (!EventDetailComponent && typeof window !== 'undefined') {
                     EventDetailComponent = window.EventDetail || null;
                 }
-                
+
                 attempts++;
             }
         }
-        
+
         if (EventDetailComponent && typeof EventDetailComponent.init === 'function') {
             // Store search context if coming from search
             if (fromSearch && searchQuery) {

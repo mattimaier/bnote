@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <script src="assets/js/theme-toggle.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="assets/js/config.js"></script>
+    <script src="assets/js/entity-config.js"></script>
     <!-- Early auth check to prevent content flash -->
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
@@ -22,7 +24,7 @@
                     // Preserve current URL (including query params) for redirect after login
                     const currentUrl = window.location.pathname + window.location.search;
                     const loginUrl = `login.html?redirect=${encodeURIComponent(currentUrl)}`;
-                    
+
                     window.location.replace(loginUrl);
                     return;
                 }
@@ -36,11 +38,13 @@
         body {
             visibility: hidden;
         }
+
         body.auth-checked {
             visibility: visible;
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-background">
     <!-- Master-Detail Shell Layout -->
     <div class="flex flex-col md:flex-row h-screen overflow-hidden">
@@ -53,10 +57,12 @@
             <div id="topbar-container"></div>
 
             <!-- Mobile Search Overlay Backdrop (only on mobile) -->
-            <div id="search-overlay-backdrop" class="hidden fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-40 md:hidden"></div>
-            
+            <div id="search-overlay-backdrop"
+                class="hidden fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-40 md:hidden"></div>
+
             <!-- Mobile Search Overlay (fullscreen below topbar on mobile, overlay on desktop) -->
-            <div id="search-overlay" class="hidden fixed top-16 inset-x-0 bottom-0 md:inset-auto md:absolute md:top-16 md:bottom-auto md:max-h-[calc(100vh-4rem)] z-50 bg-card border-t md:border-t-0 md:border-b md:border-x border-border/60 shadow-2xl md:shadow-2xl overflow-y-auto">
+            <div id="search-overlay"
+                class="hidden fixed top-16 inset-x-0 bottom-0 md:inset-auto md:absolute md:top-16 md:bottom-auto md:max-h-[calc(100vh-4rem)] z-50 bg-card border-t md:border-t-0 md:border-b md:border-x border-border/60 shadow-2xl md:shadow-2xl overflow-y-auto">
                 <div id="search-overlay-content" class="pt-2 pb-6 px-4 md:pt-3 md:pb-6 md:px-6">
                     <!-- Content will be dynamically inserted here -->
                 </div>
@@ -75,14 +81,17 @@
     <!-- Participation Modal -->
     <div id="participation-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
         <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full mx-4 border border-border">
-            <h3 class="text-xl font-semibold mb-4 text-card-foreground"><span data-i18n="js.participation.reasonFor">Reason for </span><span id="modal-status-label"></span></h3>
+            <h3 class="text-xl font-semibold mb-4 text-card-foreground"><span
+                    data-i18n="js.participation.reasonFor">Reason for </span><span id="modal-status-label"></span></h3>
             <textarea id="participation-reason"
                 class="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
-                rows="4" data-i18n-placeholder="js.participation.reasonOptional" placeholder="Optional reason..."></textarea>
+                rows="4" data-i18n-placeholder="js.participation.reasonOptional"
+                placeholder="Optional reason..."></textarea>
             <div class="flex gap-3 mt-4 justify-end">
                 <button id="modal-cancel" data-i18n="js.common.cancel"
                     class="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors text-foreground">Cancel</button>
-                <button id="modal-confirm" data-i18n="js.common.confirm" class="px-4 py-2 rounded-md text-white transition-colors">Confirm</button>
+                <button id="modal-confirm" data-i18n="js.common.confirm"
+                    class="px-4 py-2 rounded-md text-white transition-colors">Confirm</button>
             </div>
         </div>
     </div>
@@ -123,4 +132,5 @@
     <script src="assets/js/participant-overview.js"></script>
     <script src="assets/js/app-shell.js"></script>
 </body>
+
 </html>
