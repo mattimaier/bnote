@@ -78,7 +78,7 @@ class LoginController extends DefaultController {
 		}
 		
 		$requestedUserId = $this->getData()->getUserIdForLogin($_POST["login"]);
-		if($requestedUserId < 0) {
+		if($requestedUserId < 0 || $requestedUserId === NULL) {
 			$requestedUserId = $this->getData()->getUserIdForEMail($_POST["login"]);
 		}
 		$isUserActive = $this->getData()->isUserActive($requestedUserId);

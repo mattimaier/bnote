@@ -95,9 +95,13 @@ class AuthModule {
         $db_pw = $this->loginData->getPasswordForLogin($username);
         $passwordHash = crypt($password, LoginController::ENCRYPTION_HASH);
         
-        $requestedUserId = $this->loginData->getUserIdForLogin($username);
-        if ($requestedUserId < 0) {
+        // Determine user ID based on whether login is email or username
+        if (strpos($username, "@") !== false) {
+            // Input is an email address
             $requestedUserId = $this->loginData->getUserIdForEMail($username);
+        } else {
+            // Input is a username
+            $requestedUserId = $this->loginData->getUserIdForLogin($username);
         }
         $isUserActive = $this->loginData->isUserActive($requestedUserId);
         
