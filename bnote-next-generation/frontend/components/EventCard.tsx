@@ -71,7 +71,7 @@ export function EventCard({
   const hasParticipation = showParticipation && isClickable && event.oid && event.otype;
   const DotIcon = getIcon(typeConfig.icon);
 
-  /* Desktop: timeline + card. Mobile: compact list item without timeline (match vanilla event-renderer) */
+  /* Desktop: timeline + card. Mobile: compact list item without timeline */
   const desktopContent = (
     <>
       {!isLast && (

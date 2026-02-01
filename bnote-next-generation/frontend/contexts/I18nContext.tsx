@@ -77,9 +77,10 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const t = useCallback(
     (key: string, params?: string[]) => {
       let value = state.translations[key] ?? key;
+      if (typeof value !== "string") value = key;
       if (params?.length) {
-        params.forEach((p, i) => {
-          value = value.replace(`%p`, p);
+        params.forEach((p) => {
+          value = value.replace(`%p`, String(p ?? ""));
         });
       }
       return value;

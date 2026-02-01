@@ -33,8 +33,10 @@
 
 ### 1.2 Base URL
 
+The PHP API is served under the bnote-next-generation document root. The Next.js frontend proxies `/api/*` to this backend in development.
+
 ```
-/next/api/index.php
+{bnote-next-generation}/api/index.php
 ```
 
 **URL Pattern:**
@@ -43,10 +45,10 @@
 ```
 
 **Examples:**
-- `GET /next/api/index.php?module=rehearsals&id=42`
-- `GET /next/api/index.php?module=dashboard&action=dashboard`
-- `POST /next/api/index.php?module=users&action=create`
-- `POST /next/api/index.php?module=participation&action=save`
+- `GET …/api/index.php?module=rehearsals&id=42`
+- `GET …/api/index.php?module=dashboard&action=dashboard`
+- `POST …/api/index.php?module=users&action=create`
+- `POST …/api/index.php?module=participation&action=save`
 
 ### 1.3 HTTP Methods
 
@@ -67,7 +69,7 @@
 ### 2.1 Directory Structure
 
 ```
-next/api/
+bnote-next-generation/api/
 ├── index.php                  # API router
 ├── bootstrap.php              # Backend initialization
 ├── auth.php                   # Authentication helpers
@@ -88,18 +90,18 @@ next/api/
 
 **Module-Action Pattern:**
 ```
-GET  /next/api/index.php?module={module}&action={action}&{params}
-POST /next/api/index.php?module={module}&action={action}
+GET  …/api/index.php?module={module}&action={action}&{params}
+POST …/api/index.php?module={module}&action={action}
 ```
 
 **Examples:**
 ```
-GET  /next/api/index.php?module=dashboard&action=dashboard
-GET  /next/api/index.php?module=rehearsals&id=42
-GET  /next/api/index.php?module=users&action=list
-POST /next/api/index.php?module=users&action=create
-POST /next/api/index.php?module=participation&action=save
-GET  /next/api/index.php?module=translations&action=get&lang=de
+GET  …/api/index.php?module=dashboard&action=dashboard
+GET  …/api/index.php?module=rehearsals&id=42
+GET  …/api/index.php?module=users&action=list
+POST …/api/index.php?module=users&action=create
+POST …/api/index.php?module=participation&action=save
+GET  …/api/index.php?module=translations&action=get&lang=de
 ```
 
 **Module Handler Pattern:**
@@ -159,7 +161,7 @@ if (isset($_SESSION['user'])) {
 
 **Login:**
 ```
-POST /next/api/index.php?module=auth&action=login
+POST …/api/index.php?module=auth&action=login
 Body: {
     "username": "user@example.com",
     "password": "password123"
@@ -174,7 +176,7 @@ Response: {
 
 **Logout:**
 ```
-POST /next/api/index.php?module=auth&action=logout
+POST …/api/index.php?module=auth&action=logout
 Response: {
     "success": true,
     "data": true
@@ -183,7 +185,7 @@ Response: {
 
 **Session Check:**
 ```
-GET /next/api/index.php?module=auth&action=session
+GET …/api/index.php?module=auth&action=session
 Response: {
     "success": true,
     "data": {
@@ -195,7 +197,7 @@ Response: {
 
 **Get User Language:**
 ```
-GET /next/api/index.php?module=auth&action=getUserLang
+GET …/api/index.php?module=auth&action=getUserLang
 Response: {
     "success": true,
     "data": {
@@ -245,7 +247,7 @@ Authorization: Bearer {token}  # Optional
 
 **Query Parameters:**
 ```
-GET /next/api/index.php?module=rehearsals&action=list&page=1&limit=50&sort=begin&order=asc&filter[status]=confirmed
+GET …/api/index.php?module=rehearsals&action=list&page=1&limit=50&sort=begin&order=asc&filter[status]=confirmed
 ```
 
 **Common Query Parameters:**
@@ -406,7 +408,7 @@ class ErrorHandler {
 
 ## 6. API Infrastructure
 
-### 6.1 Router (`next/api/index.php`)
+### 6.1 Router (`api/index.php`)
 
 **Responsibilities:**
 - Parse module and action from query parameters
@@ -423,8 +425,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Change to project root
-chdir(__DIR__ . '/../..');
+// Change to bnote root (paths.php defines BNOTE_ROOT)
+chdir(__DIR__ . '/..');
 
 // Load BNote core
 require_once 'dirs.php';
@@ -466,7 +468,7 @@ $result = $handler->handle();
 Response::success($result);
 ```
 
-### 6.2 Response Helper (`next/api/response.php`)
+### 6.2 Response Helper (`api/response.php`)
 
 ```php
 class Response {
@@ -493,7 +495,7 @@ class Response {
 }
 ```
 
-### 6.3 Authentication Helper (`next/api/auth.php`)
+### 6.3 Authentication Helper (`api/auth.php`)
 
 ```php
 class Auth {
@@ -545,7 +547,7 @@ class DashboardModule {
 }
 ```
 
-### 6.5 Logger (`next/api/logger.php`)
+### 6.5 Logger (`api/logger.php`)
 
 ```php
 class ApiLogger {
@@ -571,7 +573,7 @@ class ApiLogger {
 
 **Get Dashboard:**
 ```
-GET /next/api/index.php?module=dashboard&action=dashboard
+GET …/api/index.php?module=dashboard&action=dashboard
 Response: {
     "success": true,
     "data": {
@@ -584,7 +586,7 @@ Response: {
 
 **Get Events Needing Response:**
 ```
-GET /next/api/index.php?module=dashboard&action=eventsNeedingResponse
+GET …/api/index.php?module=dashboard&action=eventsNeedingResponse
 Response: {
     "success": true,
     "data": [
@@ -597,7 +599,7 @@ Response: {
 
 **List Users:**
 ```
-GET /next/api/index.php?module=users&action=list
+GET …/api/index.php?module=users&action=list
 Response: {
     "success": true,
     "data": [
@@ -608,7 +610,7 @@ Response: {
 
 **Get User:**
 ```
-GET /next/api/index.php?module=users&action=get&id=5
+GET …/api/index.php?module=users&action=get&id=5
 Response: {
     "success": true,
     "data": {
@@ -621,7 +623,7 @@ Response: {
 
 **Create User:**
 ```
-POST /next/api/index.php?module=users&action=create
+POST …/api/index.php?module=users&action=create
 Body: {
     "name": "John",
     "surname": "Doe",
@@ -641,7 +643,7 @@ Response: {
 
 **Get Participation Status:**
 ```
-GET /next/api/index.php?module=participation&action=get&event_id=42&event_type=R
+GET …/api/index.php?module=participation&action=get&event_id=42&event_type=R
 Response: {
     "success": true,
     "data": {
@@ -653,7 +655,7 @@ Response: {
 
 **Save Participation:**
 ```
-POST /next/api/index.php?module=participation&action=save
+POST …/api/index.php?module=participation&action=save
 Body: {
     "event_id": 42,
     "event_type": "R",
@@ -670,7 +672,7 @@ Response: {
 
 **Get Translations:**
 ```
-GET /next/api/index.php?module=translations&action=get&lang=de
+GET …/api/index.php?module=translations&action=get&lang=de
 Response: {
     "success": true,
     "data": {
@@ -772,9 +774,9 @@ class RateLimiter {
 ### 9.1 Caching Strategy
 
 **Cacheable Endpoints (Future):**
-- `GET /next/api/index.php?module=instruments&action=list` - Static data
-- `GET /next/api/index.php?module=groups&action=list` - Changes infrequently
-- `GET /next/api/index.php?module=locations&action=list` - Changes infrequently
+- `GET …/api/index.php?module=instruments&action=list` - Static data
+- `GET …/api/index.php?module=groups&action=list` - Changes infrequently
+- `GET …/api/index.php?module=locations&action=list` - Changes infrequently
 
 **Cache Headers:**
 ```
@@ -836,7 +838,7 @@ class Cache {
 
 **Field Selection (Future):**
 ```
-GET /next/api/index.php?module=rehearsals&action=list&fields=id,begin,end,location
+GET …/api/index.php?module=rehearsals&action=list&fields=id,begin,end,location
 ```
 
 **Response:**
@@ -978,4 +980,4 @@ if (!$system_data->userHasPermission($moduleId)) {
 
 **Document Status:** Updated  
 **Last Updated:** 2026-01-27  
-**See Also:** [README.md](../next/README.md) for overview
+**See Also:** [README.md](../README.md) for overview; [FEATURES_AND_BEHAVIORS.md](FEATURES_AND_BEHAVIORS.md) for UI behavior.

@@ -25,15 +25,18 @@ interface DashboardData {
 /**
  * Normalize company/band name from API response.
  * Handles string, array, or object formats (e.g., from SimpleXMLElement JSON encoding).
+ * Recurses into nested objects so we never render [object Object].
  */
 function normalizeCompany(val: unknown): string {
   if (val == null) return "";
   if (typeof val === "string") return val.trim();
-  if (Array.isArray(val)) return val[0] != null ? String(val[0]).trim() : "";
+  if (Array.isArray(val)) return normalizeCompany(val[0]);
   if (typeof val === "object") {
     const obj = val as Record<string, unknown>;
-    const v = obj["0"] ?? obj["name"] ?? Object.values(obj)[0];
-    return v != null ? String(v).trim() : "";
+    const v = obj["0"] ?? obj["name"] ?? obj["value"] ?? Object.values(obj)[0];
+    if (v == null) return "";
+    if (typeof v === "string") return v.trim();
+    return normalizeCompany(v);
   }
   return "";
 }
@@ -217,7 +220,7 @@ export default function DashboardPage() {
   }
 
   const firstName = session?.user?.name || t("js.common.user");
-  const companyName = normalizeCompany(dashboard?.company) || t("js.common.appName");
+  const companyName = String(normalizeCompany(dashboard?.company) || t("js.common.appName")).trim();
   const subtitle = t("js.dashboard.subtitle", [companyName]);
 
   const quickActions = [
@@ -299,7 +302,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="space-y-4">
-        {/* Quick actions (match vanilla: border-border/40 hover:border-primary/30 hover:shadow-md hover:bg-primary/5) */}
+        {/* Quick actions: border-border/40 hover:border-primary/30 hover:shadow-md hover:bg-primary/5 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 rounded-xl border border-border/40 p-4 shadow-sm bg-card text-card-foreground">
           {quickActions.map((action) => {
             const Icon = getIcon(action.icon);
@@ -321,7 +324,7 @@ export default function DashboardPage() {
           })}
         </div>
 
-        {/* Events needing response (match vanilla: md:border-border/40, section border-border/30, px-1 md:px-4 lg:px-5) */}
+        {/* Events needing response: md:border-border/40, section border-border/30, px-1 md:px-4 lg:px-5 */}
         <div className="flex flex-col gap-4 py-2 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-card text-card-foreground md:bg-card">
           <div className="px-1 md:px-4 lg:px-5 pb-2 md:border-b md:border-border/30">
             <h2 className="text-sm md:text-base font-semibold text-foreground">{t("js.dashboard.responseNeeded")}</h2>

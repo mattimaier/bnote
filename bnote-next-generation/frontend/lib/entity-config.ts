@@ -1,7 +1,7 @@
 /**
  * BNote Next Generation - Entity icon/color configuration
  * Single source of truth for entity types (rehearsal, concert, task, location, etc.).
- * Transferred from vanilla JS entity-config.js; use consistently for badges, bubbles, and icons.
+ * Use consistently for badges, bubbles, and icons (entity-config.json).
  *
  * Copyright (C) 2026 BNote Contributors
  */

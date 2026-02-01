@@ -95,7 +95,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
         onClick={onClose}
         aria-hidden
       />
-      {/* Panel: full-screen like vanilla app */}
+      {/* Panel: full-screen on mobile */}
       <div
         className="fixed inset-0 flex flex-col"
         style={{

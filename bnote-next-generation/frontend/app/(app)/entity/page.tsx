@@ -15,7 +15,8 @@ import { ParticipationWidget } from "@/components/ParticipationWidget";
 import { ParticipationDiagram, type ParticipationStats } from "@/components/ParticipationDiagram";
 import { ParticipantOverview, type InstrumentGroup } from "@/components/ParticipantOverview";
 import { getIcon } from "@/components/icons";
-import { getEventTypeConfig } from "@/lib/event-utils";
+import { getEventTypeConfig, type EventDisplayType } from "@/lib/event-utils";
+import { safeString } from "@/lib/string-utils";
 import { ChevronLeft, MapPin } from "lucide-react";
 
 interface LocationObj {
@@ -111,10 +112,13 @@ function formatDateTime(str: string | undefined, lang: string): string {
 }
 
 function formatAddress(addr: LocationObj["address"]): string {
-  if (!addr) return "";
-  const parts = [addr.street, [addr.zip, addr.city].filter(Boolean).join(" "), addr.state, addr.country].filter(
-    Boolean
-  );
+  if (!addr || typeof addr !== "object") return "";
+  const street = safeString((addr as Record<string, unknown>).street);
+  const zip = safeString((addr as Record<string, unknown>).zip);
+  const city = safeString((addr as Record<string, unknown>).city);
+  const state = safeString((addr as Record<string, unknown>).state);
+  const country = safeString((addr as Record<string, unknown>).country);
+  const parts = [street, [zip, city].filter(Boolean).join(" "), state, country].filter(Boolean);
   return parts.join(", ");
 }
 
@@ -188,11 +192,12 @@ function EntityDetailContent() {
 
   const loc = data.location as LocationObj | undefined;
   const conductor = data.conductor as ConductorObj | undefined;
-  const locationName = loc?.name;
+  const locationName = safeString(loc?.name);
+  const conductorName = safeString(conductor?.name);
   const title =
-    (data.title as string) ??
-    locationName ??
-    conductor?.name ??
+    safeString(data.title) ||
+    locationName ||
+    conductorName ||
     (type === "concert" ? t("js.event.performance") : t("js.event.rehearsal"));
   const begin = (data.begin ?? data.date ?? data.event_begin) as string | undefined;
   const end = data.end as string | undefined;
@@ -219,7 +224,8 @@ function EntityDetailContent() {
   const conditions = data.conditions as string | undefined;
   const contact = data.contact as ContactObj | undefined;
 
-  const eventTypeConfig = getEventTypeConfig(type === "concert" ? "performance" : type, t);
+  const displayType: EventDisplayType = type === "concert" ? "performance" : (type as EventDisplayType);
+  const eventTypeConfig = getEventTypeConfig(displayType, t);
   const EventIcon = getIcon(eventTypeConfig.icon);
 
   const statusLabel =
@@ -231,14 +237,6 @@ function EntityDetailContent() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center gap-1 text-sm font-medium"
-        style={{ color: "var(--primary)" }}
-      >
-        <ChevronLeft className="h-4 w-4" />
-        {t("js.dashboard.backToDashboard")}
-      </Link>
 
       {/* Header + participation widget */}
       <div
@@ -327,7 +325,7 @@ function EntityDetailContent() {
               <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
                 {t("js.event.detail.conductor")}:
               </span>
-              <span className="ml-2 text-sm">{conductor.name}</span>
+              <span className="ml-2 text-sm">{conductorName}</span>
             </div>
           )}
           {type === "concert" && meetingtime && (
@@ -430,27 +428,27 @@ function EntityDetailContent() {
                     ? t("js.event.metadata.besetzung")
                     : "Groups"}:
                 </span>
-                <span className="ml-2 text-sm">{groups.map((g) => g.name).filter(Boolean).join(", ")}</span>
+                <span className="ml-2 text-sm">{groups.map((g) => safeString(g.name)).filter(Boolean).join(", ")}</span>
               </div>
             )}
-            {program?.name && (
+            {safeString(program?.name) && (
               <div>
                 <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
                   {t("js.event.metadata.programm") !== "js.event.metadata.programm"
                     ? t("js.event.metadata.programm")
                     : "Program"}:
                 </span>
-                <span className="ml-2 text-sm">{program.name}</span>
+                <span className="ml-2 text-sm">{safeString(program?.name)}</span>
               </div>
             )}
-            {outfit?.name && (
+            {safeString(outfit?.name) && (
               <div>
                 <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
                   {t("js.event.metadata.outfit") !== "js.event.metadata.outfit"
                     ? t("js.event.metadata.outfit")
                     : "Outfit"}:
                 </span>
-                <span className="ml-2 text-sm">{outfit.name}</span>
+                <span className="ml-2 text-sm">{safeString(outfit?.name)}</span>
               </div>
             )}
             {equipment.length > 0 && (
@@ -460,7 +458,7 @@ function EntityDetailContent() {
                     ? t("js.event.metadata.equipment")
                     : "Equipment"}:
                 </span>
-                <span className="ml-2 text-sm">{equipment.map((e) => e.name).filter(Boolean).join(", ")}</span>
+                <span className="ml-2 text-sm">{equipment.map((e) => safeString(e.name)).filter(Boolean).join(", ")}</span>
               </div>
             )}
           </div>
@@ -470,14 +468,14 @@ function EntityDetailContent() {
               : "Details"}
           </h3>
           <div className="space-y-2">
-            {accommodation?.name && (
+            {safeString(accommodation?.name) && (
               <div>
                 <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
                   {t("js.event.metadata.unterkunft") !== "js.event.metadata.unterkunft"
                     ? t("js.event.metadata.unterkunft")
                     : "Accommodation"}:
                 </span>
-                <span className="ml-2 text-sm">{accommodation.name}</span>
+                <span className="ml-2 text-sm">{safeString(accommodation?.name)}</span>
               </div>
             )}
             {payment != null && payment !== undefined && (
@@ -513,7 +511,7 @@ function EntityDetailContent() {
                 <span className="ml-2 text-sm">{formatDateTime(meetingtime, lang)}</span>
               </div>
             )}
-            {contact && (contact.name || contact.phone || contact.mobile || contact.email) && (
+            {contact && (safeString(contact.name) || safeString(contact.phone) || safeString(contact.mobile) || safeString(contact.email)) && (
               <div>
                 <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
                   {t("js.event.metadata.kontakt") !== "js.event.metadata.kontakt"
@@ -521,7 +519,7 @@ function EntityDetailContent() {
                     : "Contact"}:
                 </span>
                 <span className="ml-2 text-sm">
-                  {[contact.name, contact.phone, contact.mobile, contact.email].filter(Boolean).join(" | ")}
+                  {[safeString(contact.name), safeString(contact.phone), safeString(contact.mobile), safeString(contact.email)].filter(Boolean).join(" | ")}
                 </span>
               </div>
             )}

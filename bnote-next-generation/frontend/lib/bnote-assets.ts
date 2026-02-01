@@ -30,7 +30,10 @@ export function getBnoteBaseUrl(): string {
   return "";
 }
 
+/**
+ * Logo is bundled in the Next.js app at public/BNote_Logo_white_transparent.svg.
+ * Use that path so it works in dev and static export without depending on BNote folder.
+ */
 export function getBnoteLogoUrl(): string {
-  const base = getBnoteBaseUrl();
-  return base ? `${base}style/images/BNote_Logo_white_transparent.svg` : "";
+  return "/BNote_Logo_white_transparent.svg";
 }

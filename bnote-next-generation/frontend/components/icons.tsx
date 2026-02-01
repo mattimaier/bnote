@@ -1,6 +1,6 @@
 /**
  * BNote Next Generation - Icon mapping (Lucide)
- * Parity with vanilla app (data-lucide) and entity-config.json.
+ * Icons for entity config and UI; names align with entity-config.json.
  *
  * Copyright (C) 2026 BNote Contributors
  */

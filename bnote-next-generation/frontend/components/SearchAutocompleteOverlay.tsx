@@ -117,11 +117,22 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
         <div className="h-0.5 w-full shrink-0" style={{ background: "var(--primary)" }} />
 
         {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--primary)" }} />
-          </div>
-        ) : results ? (
           <div className="py-3">
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--primary)" }} />
+            </div>
+            <Link
+              {...linkProps(`/search?q=${encodeURIComponent(trimmed)}`)}
+              className="block mx-4 mt-3 pt-3 border-t text-center text-sm font-semibold"
+              style={{ borderColor: "var(--border)", color: "var(--primary)" }}
+            >
+              {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show all results"}
+            </Link>
+          </div>
+        ) : (
+          <div className="py-3">
+            {results && (
+            <>
             {CATEGORIES.map((cat) => {
               const arr = results[cat.key];
               const list = Array.isArray(arr) ? arr.slice(0, MAX_ITEMS_PER_CATEGORY) : [];
@@ -314,19 +325,20 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                 </div>
               );
             })}
-
+            </>
+            )}
             <Link
-              href={`/search?q=${encodeURIComponent(trimmed)}`}
               {...linkProps(`/search?q=${encodeURIComponent(trimmed)}`)}
               className="block mx-4 mt-3 pt-3 border-t text-center text-sm font-semibold"
               style={{ borderColor: "var(--border)", color: "var(--primary)" }}
             >
               {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show all results"}
             </Link>
-          </div>
-        ) : (
-          <div className="py-6 px-4 text-center text-sm" style={{ color: "var(--muted-foreground)" }}>
-            {t("js.search.noResults") !== "js.search.noResults" ? t("js.search.noResults") : "No results"}
+            {!results && !loading && (
+              <div className="py-4 px-4 text-center text-sm" style={{ color: "var(--muted-foreground)" }}>
+                {t("js.search.noResults") !== "js.search.noResults" ? t("js.search.noResults") : "No results"}
+              </div>
+            )}
           </div>
         )}
       </div>

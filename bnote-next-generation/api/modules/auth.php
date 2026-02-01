@@ -232,20 +232,20 @@ class AuthModule {
         $userReg = $system_data->getDynamicConfigParameter('user_registration');
         $showRegistration = strval($userReg) == '1';
         
-        // Module name to route/icon/i18n mappings
+        // Module name to route/icon/i18n mappings (Next.js paths)
         $moduleMappings = [
             'Start' => [
-                'route' => 'dashboard.html',
+                'route' => '/dashboard',
                 'icon' => 'layout-dashboard',
                 'i18n' => 'js.sidebar.dashboard'
             ],
             'User' => [
-                'route' => 'users.html',
+                'route' => '/users',
                 'icon' => 'user-cog',
                 'i18n' => 'js.sidebar.users'
             ],
             'Kontakte' => [
-                'route' => 'contacts.html',
+                'route' => '/contacts',
                 'icon' => 'users',
                 'i18n' => 'js.sidebar.contacts'
             ]

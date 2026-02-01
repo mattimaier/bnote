@@ -18,11 +18,12 @@ import { api } from "@/lib/api";
 import { I18nProvider, useI18n } from "@/contexts/I18nContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getBnoteLogoUrl } from "@/lib/bnote-assets";
+import { safeString } from "@/lib/string-utils";
 
 interface PublicConfig {
   lang?: string;
   country?: string | null;
-  company?: string;
+  company?: unknown;
 }
 
 function LoginFormInner() {
@@ -50,7 +51,7 @@ function LoginFormInner() {
     api
       .get<PublicConfig>("auth", "getPublicConfig")
       .then((config) => {
-        const company = config?.company ?? "";
+        const company = safeString(config?.company);
         setWelcomeText(
           company ? t("js.dashboard.subtitle", [company]) : t("js.common.appName")
         );
@@ -96,7 +97,7 @@ function LoginFormInner() {
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
       </div>
-      {/* Construction tape banner (match vanilla login.html) */}
+      {/* Construction tape banner */}
       <div className="construction-tape">
         <div className="construction-tape-text">
           <span className="font-bold">BNote Next Generation</span>

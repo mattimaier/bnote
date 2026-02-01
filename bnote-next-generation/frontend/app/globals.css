@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* BNote semantic theme (match vanilla app.css) */
+/* BNote semantic theme */
 :root {
   --primary: #3399ff;
   --primary-foreground: #ffffff;
@@ -63,7 +63,7 @@
   --radius: var(--radius);
 }
 
-/* Construction tape banner (match vanilla login) */
+/* Construction tape banner (login) */
 .construction-tape {
   background: repeating-linear-gradient(
     45deg,
@@ -112,7 +112,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Participation buttons – light colors when inactive, saturated border; solid when active (match vanilla app) */
+/* Participation buttons – light when inactive, saturated border; solid when active */
 .participation-btn {
   border-width: 1px !important;
   transform-origin: center;
@@ -148,7 +148,7 @@ body {
   color: white !important;
 }
 
-/* Filter bubbles – light colors with saturated borders; selected = solid (match vanilla app).
+/* Filter bubbles – light colors with saturated borders; selected = solid.
    Colors align with entity-config: rehearsal = --primary, performance = --accent (see lib/entity-config.ts). */
 .filter-bubble {
   display: inline-flex;
@@ -185,7 +185,7 @@ body {
   color: white;
 }
 
-/* Event type badges – light colors with saturated border (match vanilla app).
+/* Event type badges – light colors with saturated border.
    .event-badge = rehearsal (primary), .accent = concert, .chart-3 = meeting; see lib/entity-config.ts. */
 .event-badge {
   display: inline-flex;
@@ -211,7 +211,7 @@ body {
   color: var(--chart-3);
 }
 
-/* Timeline connector (match vanilla app.css) */
+/* Timeline connector */
 .timeline-connector {
   background: linear-gradient(
     to bottom,

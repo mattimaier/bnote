@@ -26,7 +26,7 @@
 This is BNote - an open source ensemble management system for bands, orchestras, and choirs.
 - **Architecture:** 3-tier MVC (data/logic/presentation)
 - **Old UI:** PHP-generated HTML with inline CSS (`/BNote/src/presentation/`) - **READ ONLY**
-- **New UI:** BNote Next Generation - Modern JavaScript SPA (`/bnote-next-generation/`) - **ONLY MODIFY THIS**
+- **New UI:** BNote Next Generation - Next.js app in `frontend/` (`/bnote-next-generation/`) - **ONLY MODIFY THIS**
 - **License:** GPL-3.0 (all code must remain GPL-compliant)
 
 ## Project Structure
@@ -39,7 +39,8 @@ This is BNote - an open source ensemble management system for bands, orchestras,
 │   └── config/
 └── bnote-next-generation/      ← New app (ONLY MODIFY THIS)
     ├── api/
-    ├── assets/
+    ├── frontend/               ← Next.js UI (only UI)
+    ├── lang/
     └── docs/
 ```
 
@@ -60,11 +61,8 @@ This is BNote - an open source ensemble management system for bands, orchestras,
 ## Core Principles
 
 ### 1. Code Style (Next Generation Only)
-- Use modern JavaScript (ES6+)
-- Use English variable names (no German)
-- Use meaningful, descriptive names
-- Keep indentation consistent
-- Add comments for complex logic
+- **Frontend:** TypeScript/React in `frontend/`; use English variable names (no German), meaningful names, consistent indentation; add comments for complex logic.
+- **API:** PHP in `api/`; same naming and style principles.
 
 ### 2. Browser Compatibility
 - Target modern browsers (last 2 versions)
@@ -76,33 +74,23 @@ This is BNote - an open source ensemble management system for bands, orchestras,
 
 **CRITICAL:** ALL user-facing strings MUST use the i18n system. No hardcoded text.
 
-**For Next Generation UI (`/bnote-next-generation/`):**
-- **HTML:** Use `data-i18n`, `data-i18n-placeholder`, `data-i18n-label` attributes
-- **JavaScript:** Always use `i18n.t(key)` for user-facing strings
-- **Translation Files:** Add keys to all language files (`bnote-next-generation/lang/*.json`)
-- **Key Format:** `js.{module}.{key}` (e.g., `js.dashboard.welcome`)
-- **Never hardcode:** No English, German, or other language strings in code
-- **German text:** Only exists in `bnote-next-generation/lang/de.json` (translation file)
+**For Next Generation UI (`frontend/`):**
+- **React/TSX:** Use the i18n context `t(key)` for all user-facing strings (e.g. `t("js.dashboard.welcome")`).
+- **Translation Files:** Add keys to all language files (`bnote-next-generation/lang/*.json`).
+- **Key Format:** `js.{module}.{key}` (e.g., `js.dashboard.welcome`).
+- **Never hardcode:** No user-facing strings in code; use translation keys.
+- **German text:** Only in `bnote-next-generation/lang/de.json` (translation file).
 
 **Examples:**
-```html
-<!-- GOOD -->
-<h1 data-i18n="js.dashboard.welcome">Welcome</h1>
-<input data-i18n-placeholder="js.login.usernamePlaceholder" />
-
-<!-- BAD -->
-<h1>Welcome</h1>
-<input placeholder="Username" />
-```
-
-```javascript
+```tsx
 // GOOD
-showToast(i18n.t('js.users.created'));
-const errorMsg = i18n.t('js.error.loadFailed');
+<h1>{t("js.dashboard.welcome")}</h1>
+<input placeholder={t("js.login.usernamePlaceholder")} />
+showToast(t("js.users.created"));
 
 // BAD
+<h1>Welcome</h1>
 showToast('User created');
-const errorMsg = 'Failed to load';
 ```
 
 ### 4. Dark Mode Support - MANDATORY
@@ -110,8 +98,8 @@ const errorMsg = 'Failed to load';
 **CRITICAL:** ALL UI components MUST support dark mode.
 
 **CSS Variables:**
-- Use semantic color variables from `next/assets/css/app.css`
-- Variables automatically adapt to dark mode via `.dark` class
+- Use semantic color variables from `frontend/app/globals.css` (e.g. `var(--background)`, `var(--foreground)`, `var(--primary)`)
+- Variables adapt to dark mode via theme class/attribute
 - Never hardcode colors
 
 **Tailwind Classes:**
@@ -128,9 +116,7 @@ const errorMsg = 'Failed to load';
 ```
 
 **Theme Toggle:**
-- Use `ThemeToggle.toggle()` to switch themes
-- Theme preference saved in localStorage
-- Respects system preference on first load
+- Theme toggle component in `frontend/components/ThemeToggle.tsx`; preference saved in localStorage; respects system preference on first load.
 
 **Testing:**
 - Always test components in both light and dark modes
@@ -149,32 +135,15 @@ const errorMsg = 'Failed to load';
 
 **Examples:**
 
-```javascript
-// ✅ GOOD - Shared EventRenderer component
-// File: assets/js/event-renderer.js
-const EventRenderer = {
-    renderEventItem(event, options) { /* shared rendering logic */ },
-    formatEventDate(dateStr) { /* shared formatting */ }
-};
-
-// Dashboard uses EventRenderer
-Dashboard.renderEventsWidget() {
-    return EventRenderer.renderEvents(events);
-}
-
-// Search uses EventRenderer (no Dashboard dependency)
-SearchResults.renderEventItems(events) {
-    return EventRenderer.renderEvents(events);
-}
+```tsx
+// ✅ GOOD - Shared EventCard / event-utils
+// frontend/components/EventCard.tsx, frontend/lib/event-utils.ts
+// Dashboard and Search use same components/utilities; no cross-module dependencies.
 ```
 
-```javascript
-// ❌ BAD - Duplicate implementations
-// Dashboard has its own event rendering
-Dashboard.renderEventsWidget() { /* custom rendering */ }
-
-// Search has its own event rendering (duplicate code)
-SearchResults.renderEventItems() { /* duplicate rendering */ }
+```tsx
+// ❌ BAD - Duplicate implementations in different pages
+// Each page implementing its own event card rendering instead of using EventCard.
 ```
 
 **When to Create Shared Components:**
@@ -184,16 +153,14 @@ SearchResults.renderEventItems() { /* duplicate rendering */ }
 - When design consistency is required across modules
 
 **Shared Component Structure:**
-- Place in `assets/js/` with descriptive names (e.g., `event-renderer.js`, `user-card.js`)
-- Include GPL v3 license header
-- Export via `window.ComponentName` for global access
-- Include fallback implementations if needed
-- Support all required options (mobile/desktop, participation widgets, etc.)
+- Place in `frontend/components/` or `frontend/lib/` with descriptive names (e.g. `EventCard.tsx`, `event-utils.ts`)
+- Include GPL v3 license header where applicable
+- Export components and utilities for use across pages
+- Support required options (mobile/desktop, participation widgets, etc.)
 
 **Architectural Independence:**
-- Feature modules (Dashboard, Search, Contacts, etc.) should NOT depend on each other
-- They SHOULD depend on shared components/utilities
-- Example: Search should use `EventRenderer`, not `Dashboard.renderEventsWidget()`
+- Pages (dashboard, search, contacts, etc.) should NOT depend on each other
+- They SHOULD use shared components and lib utilities (e.g. EventCard, entity-config, event-utils)
 
 ### 6. License Compliance
 
@@ -205,26 +172,24 @@ SearchResults.renderEventItems() { /* duplicate rendering */ }
 
 ## Next Generation UI Development
 
-**Location:** `/bnote-next-generation/` directory ONLY
+**Location:** `/bnote-next-generation/` directory ONLY; **UI code:** `frontend/` (Next.js)
 
 **Key Requirements:**
-1. **MANDATORY i18n:** All user-facing strings must use `i18n.t()` or `data-i18n` attributes
-2. **MANDATORY Dark Mode:** All components must use semantic CSS variables
-3. **MANDATORY Shared Components:** Extract reusable functionality into shared components, avoid duplicate implementations
-4. **GPL Headers:** All source files must include GPL v3 license headers
-5. **API Pattern:** Use module-based API (`/bnote-next-generation/api/index.php?module=X&action=Y`)
-6. **Translation Files:** Add keys to all language files (`bnote-next-generation/lang/*.json`)
-7. **Path Configuration:** Use `BNOTE_ROOT` constant (from `bnote-next-generation/api/paths.php`) to reference old codebase
-8. **Architectural Independence:** Feature modules should not depend on each other, only on shared components
+1. **MANDATORY i18n:** All user-facing strings must use `t(key)` from i18n context (`lang/*.json` keys)
+2. **MANDATORY Dark Mode:** All components must use semantic CSS variables from `frontend/app/globals.css`
+3. **MANDATORY Shared Components:** Reuse components in `frontend/components/` and lib in `frontend/lib/`; avoid duplicate implementations
+4. **GPL Headers:** All source files must include GPL v3 license headers where applicable
+5. **API:** Use API client in `frontend/lib/api.ts`; backend is module-based (`api/index.php?module=X&action=Y`)
+6. **Translation Files:** Add keys to all `bnote-next-generation/lang/*.json` files
+7. **Path Configuration:** API uses `BNOTE_ROOT` from `bnote-next-generation/api/paths.php` to reference BNote codebase
+8. **Architectural Independence:** Pages should not depend on each other, only on shared components and lib
 
 **Technology Stack:**
-- Vanilla JavaScript (no frameworks)
-- Tailwind CSS (via CDN)
-- Lucide Icons (via CDN)
-- Custom i18n service (`next/assets/js/i18n.js`)
-- Theme toggle (`next/assets/js/theme-toggle.js`)
+- Next.js (static export), React, TypeScript in `frontend/`
+- Tailwind CSS, Lucide Icons
+- I18n via context and `lang/*.json`; theme toggle in `frontend/components/ThemeToggle.tsx`
 
-**See:** [bnote-next-generation/README.md](bnote-next-generation/README.md) for architecture details
+**See:** [bnote-next-generation/README.md](bnote-next-generation/README.md) and [docs/FEATURES_AND_BEHAVIORS.md](bnote-next-generation/docs/FEATURES_AND_BEHAVIORS.md)
 
 ## Workflow
 
@@ -242,42 +207,13 @@ SearchResults.renderEventItems() { /* duplicate rendering */ }
 
 ### Example: Component with i18n and Dark Mode
 
-```html
-<!-- GOOD - Uses i18n and semantic colors -->
-<div class="bg-card border border-border rounded-lg p-4">
-    <h2 class="text-xl font-semibold text-card-foreground mb-4" 
-        data-i18n="js.dashboard.welcome">Welcome</h2>
-    <p class="text-muted-foreground" data-i18n="js.dashboard.subtitle">Welcome to %p</p>
-    <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg"
-            data-i18n-label="js.common.save">Save</button>
+```tsx
+// GOOD - Uses t() and semantic CSS variables
+<div className="rounded-lg p-4" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderWidth: 1 }}>
+    <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--card-foreground)' }}>{t("js.dashboard.welcome")}</h2>
+    <p style={{ color: 'var(--muted-foreground)' }}>{t("js.dashboard.subtitle").replace("%p", company)}</p>
+    <button className="px-4 py-2 rounded-lg text-white" style={{ background: 'var(--primary)' }}>{t("js.common.save")}</button>
 </div>
-```
-
-```javascript
-// GOOD - Uses i18n for all strings
-const Dashboard = {
-    async loadData() {
-        try {
-            const data = await DashboardApi.getDashboard();
-            this.render(data);
-        } catch (error) {
-            // Use i18n for error message
-            showToast(i18n.t('js.error.dashboardLoadFailed'));
-        }
-    },
-    
-    render(data) {
-        // All text uses i18n
-        container.innerHTML = `
-            <h1 data-i18n="js.dashboard.welcome">Welcome</h1>
-            <div class="bg-card border border-border">
-                <!-- Content -->
-            </div>
-        `;
-        // Translate after rendering
-        i18n.translatePage();
-    }
-};
 ```
 
 ## Priority Order

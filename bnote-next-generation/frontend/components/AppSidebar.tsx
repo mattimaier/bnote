@@ -86,12 +86,13 @@ export function AppSidebar() {
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1.5">
         {modules.map((m) => {
-          const route = m.route || "dashboard";
-          const isActive = currentRoute === route;
+          const rawRoute = (m.route ?? "").replace(/^\/+/, "") || "dashboard";
+          const route = rawRoute.startsWith("/") ? rawRoute : `/${rawRoute}`;
+          const isActive = currentRoute === rawRoute || currentRoute === route.replace(/^\//, "");
           return (
             <Link
               key={m.id}
-              href={`/${route}`}
+              href={route.startsWith("/") ? route : `/${route}`}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                 isActive
                   ? "bg-[var(--primary)]/12 text-[var(--primary)] font-semibold shadow-sm"
