@@ -1,0 +1,216 @@
+/**
+ * BNote Next Generation - Login Page
+ *
+ * Copyright (C) 2026 BNote Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { checkSession, login } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { I18nProvider, useI18n } from "@/contexts/I18nContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { getBnoteLogoUrl } from "@/lib/bnote-assets";
+
+interface PublicConfig {
+  lang?: string;
+  country?: string | null;
+  company?: string;
+}
+
+function LoginFormInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { t, ready } = useI18n();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [welcomeText, setWelcomeText] = useState("Welcome");
+  const [logoUrl, setLogoUrl] = useState("");
+
+  useEffect(() => {
+    checkSession().then((session) => {
+      if (session.authenticated) {
+        const redirect = searchParams.get("redirect") ?? "/dashboard";
+        router.replace(redirect);
+      }
+    });
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    if (!ready) return;
+    api
+      .get<PublicConfig>("auth", "getPublicConfig")
+      .then((config) => {
+        const company = config?.company ?? "";
+        setWelcomeText(
+          company ? t("js.dashboard.subtitle", [company]) : t("js.common.appName")
+        );
+      })
+      .catch(() => {
+        setWelcomeText(t("js.common.appName"));
+      });
+  }, [ready, t]);
+
+  useEffect(() => {
+    setLogoUrl(getBnoteLogoUrl());
+  }, []);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await login(username, password);
+      const redirect = searchParams.get("redirect") ?? "/dashboard";
+      router.replace(redirect);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : t("js.login.loginFailed")
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!ready) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--background)]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-4 w-full max-w-md">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+      {/* Construction tape banner (match vanilla login.html) */}
+      <div className="construction-tape">
+        <div className="construction-tape-text">
+          <span className="font-bold">BNote Next Generation</span>
+          <svg
+            className="inline-block h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+            />
+          </svg>
+          <span>Under Construction</span>
+        </div>
+      </div>
+
+      <div className="relative overflow-hidden rounded-b-lg bg-[var(--card)] p-8 shadow-lg">
+        <div className="mb-8 text-center">
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt="BNote"
+              className="mx-auto mb-4 h-16 w-16"
+              style={{
+                filter:
+                  "brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%)",
+              }}
+            />
+          ) : (
+            <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-[var(--primary)] opacity-80" />
+          )}
+          <h1 className="mb-2 text-2xl font-bold text-[var(--foreground)]">
+            {t("js.common.appName")}
+          </h1>
+          <p className="text-[var(--muted-foreground)]">{welcomeText}</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label
+              htmlFor="username"
+              className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+            >
+              {t("js.login.usernameLabel")}
+            </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              placeholder={t("js.login.usernamePlaceholder")}
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)] outline-none focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-30"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+            >
+              {t("js.login.passwordLabel")}
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder={t("js.login.passwordPlaceholder")}
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)] outline-none focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-30"
+            />
+          </div>
+          {error && (
+            <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 px-4 py-3 text-sm text-[var(--destructive-foreground)]">
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-[var(--primary-foreground)] outline-none transition-colors hover:opacity-90 focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 disabled:opacity-50"
+          >
+            {loading ? t("js.login.loggingIn") : t("js.login.login")}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function LoginForm() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[var(--background)]">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        </div>
+      }
+    >
+      <LoginFormInner />
+    </Suspense>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <I18nProvider>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4">
+        <LoginForm />
+      </div>
+    </I18nProvider>
+  );
+}

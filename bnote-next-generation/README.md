@@ -71,10 +71,8 @@ Frontend (Browser)          Backend (PHP)
 ### Technology Stack
 
 **Frontend:**
-- Vanilla JavaScript (ES6+) - no frameworks
-- Tailwind CSS (via CDN) - utility-first styling
-- Lucide Icons - modern icon library
-- Fetch API - HTTP requests
+- **Vanilla UI** (HTML/JS in repo root): Vanilla JavaScript (ES6+), Tailwind CSS (via CDN), Lucide Icons, Fetch API.
+- **Next.js UI** (optional, in `frontend/`): React + Next.js with static export (`output: 'export'`). Same PHP API; no Node server at runtime. See "Local development (Next.js frontend)" and "Build and distribute (Next.js frontend)" below.
 
 **Backend:**
 - PHP REST API router (`/next/api/index.php`)
@@ -137,6 +135,51 @@ next/
 Access via: `http://your-bnote-installation/bnote-next-generation/`
 
 The system automatically routes to login or dashboard based on session.
+
+### Local development (Next.js frontend)
+
+The React/Next.js frontend lives in `frontend/` and uses **static export** (no Node server at runtime). To run it locally:
+
+**Requirements:** Node.js 18+ (LTS recommended). Install from [nodejs.org](https://nodejs.org) or use nvm/fnm.
+
+**One-time setup – copy-paste** (run from `bnote-next-generation/`). Ensure your PHP/BNote server is running at `http://localhost:8888/Bnote/bnote-next-generation/` (capital **B** in Bnote):
+
+```bash
+# Node 18+ required. Install from https://nodejs.org or use nvm/fnm.
+node -e "const m=parseInt(process.versions.node.split('.')[0],10); if(m<18) { console.error('Node 18+ required'); process.exit(1); }" && \
+cd frontend && npm install && \
+(test -f .env.example && cp -n .env.example .env.local) || true
+```
+
+Then start the dev server:
+
+```bash
+cd frontend && npm run dev
+```
+
+Open http://localhost:3000. **Login and API:** In dev, requests to `/api/*` are proxied to the PHP backend. By default the proxy targets `http://localhost:8888/Bnote/bnote-next-generation` (note: capital **B** in **Bnote**). Run your PHP/BNote server at that URL (e.g. MAMP, XAMPP, or `php -S`). If the API runs on a different URL, set `NEXT_PUBLIC_API_BASE` in `frontend/.env.local` (e.g. `http://localhost:8888/Bnote/bnote-next-generation`).
+
+Optional: in `frontend/` run `nvm use` if you use nvm (`.nvmrc` is set to Node 20).
+
+### Build and distribute (Next.js frontend)
+
+To build the static frontend for deployment:
+
+1. **Build:** From `bnote-next-generation/` run:
+   ```bash
+   cd frontend && npm run build
+   ```
+   This produces the static export in `frontend/out/` (HTML, JS, CSS).
+
+2. **Deploy:** Copy the **contents** of `frontend/out/` into the web document root that already serves the PHP API (e.g. the `bnote-next-generation` folder on the server). Do **not** overwrite `api/`, `config/`, or `lang/`; only add or update the static frontend files (e.g. `index.html`, `_next/`, `dashboard/`, `login/`, etc.).
+
+3. **Server config:** Ensure requests to `…/api/*` are handled by PHP; all other requests serve static files from the same docroot. With static export, each route has its own HTML file (e.g. `dashboard/index.html`), so no catch-all is required for basic routing.
+
+**Copy-paste for distributors:**
+
+```bash
+cd frontend && npm run build && echo "Copy the contents of frontend/out/ to your web root (do not overwrite api/, config/, lang/)."
+```
 
 ## Routing and Navigation
 

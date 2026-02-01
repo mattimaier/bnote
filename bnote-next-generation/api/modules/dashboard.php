@@ -97,7 +97,7 @@ class DashboardModule {
                 'concert_show_max' => $concertMax,
                 'max_show' => $maxShow
             ],
-            'company' => $system_data->getCompany(), // Band/company name for localization
+            'company' => (string)$system_data->getCompany(), // Band/company name for localization (cast from SimpleXMLElement)
             'total' => count($formattedInbox),
             'hasMore' => count($formattedInbox) > $maxShow,
             'stats' => [

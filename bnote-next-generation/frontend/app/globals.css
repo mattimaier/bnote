@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+/* BNote semantic theme (match vanilla app.css) */
+:root {
+  --primary: #3399ff;
+  --primary-foreground: #ffffff;
+  --danger: #e52b3c;
+  --warning: #ffaa1a;
+  --success: #25a65a;
+  --accent: oklch(0.68 0.20 80);
+  --accent-foreground: oklch(1 0 0);
+  --chart-3: oklch(0.62 0.18 150);
+  --chart-4: oklch(0.58 0.22 20);
+  --background: oklch(0.99 0.001 250);
+  --foreground: oklch(0.18 0.01 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.01 250);
+  --muted: oklch(0.96 0.002 250);
+  --muted-foreground: oklch(0.5 0.01 250);
+  --destructive: var(--danger);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.93 0.002 250);
+  --input: oklch(0.95 0.002 250);
+  --ring: var(--primary);
+  --radius: 0.875rem;
+  --sidebar: oklch(0.995 0.001 250);
+  --sidebar-foreground: oklch(0.18 0.01 250);
+  --sidebar-accent: oklch(0.96 0.002 250);
+  --sidebar-border: oklch(0.92 0.002 250);
+  --spacing: 0.25rem;
+  --text-xs: 0.75rem;
+  --font-weight-medium: 500;
+}
+
+.dark {
+  --background: oklch(0.22 0.01 250);
+  --foreground: oklch(0.95 0.01 250);
+  --card: oklch(0.25 0.01 250);
+  --card-foreground: oklch(0.95 0.01 250);
+  --muted: oklch(0.24 0.01 250);
+  --muted-foreground: oklch(0.7 0.01 250);
+  --destructive-foreground: oklch(0.95 0.01 250);
+  --border: oklch(0.32 0.001 0);
+  --input: oklch(0.28 0.001 0);
+  --sidebar: oklch(0.25 0.01 250);
+  --sidebar-foreground: oklch(0.95 0.01 250);
+  --sidebar-accent: oklch(0.25 0.01 250);
+  --sidebar-border: oklch(0.32 0.001 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+}
+
+/* Construction tape banner (match vanilla login) */
+.construction-tape {
+  background: repeating-linear-gradient(
+    45deg,
+    #000000,
+    #000000 8.5px,
+    var(--warning) 8.5px,
+    var(--warning) 17px
+  );
+  background-size: 24.04px 24.04px;
+  padding: 0.625rem 0;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: -1px;
+  border-radius: 0.5rem 0.5rem 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: tape-move 3s linear infinite;
+}
+
+@keyframes tape-move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 24.04px 24.04px;
+  }
+}
+
+.construction-tape-text {
+  background: var(--warning);
+  width: 100%;
+  padding: 0.25rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: black;
+  font-weight: bold;
+  font-size: 0.9375rem;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Participation buttons – light colors when inactive, saturated border; solid when active (match vanilla app) */
+.participation-btn {
+  border-width: 1px !important;
+  transform-origin: center;
+}
+.participation-btn-yes:not(.participation-active) {
+  border-color: color-mix(in oklch, var(--success) 20%, transparent) !important;
+  background-color: color-mix(in oklch, var(--success) 10%, transparent) !important;
+  color: var(--success) !important;
+}
+.participation-btn-maybe:not(.participation-active) {
+  border-color: color-mix(in oklch, var(--warning) 20%, transparent) !important;
+  background-color: color-mix(in oklch, var(--warning) 10%, transparent) !important;
+  color: var(--warning) !important;
+}
+.participation-btn-no:not(.participation-active) {
+  border-color: color-mix(in oklch, var(--destructive) 20%, transparent) !important;
+  background-color: color-mix(in oklch, var(--destructive) 10%, transparent) !important;
+  color: var(--destructive) !important;
+}
+.participation-btn.participation-active-yes {
+  border-color: var(--success) !important;
+  background-color: var(--success) !important;
+  color: white !important;
+}
+.participation-btn.participation-active-maybe {
+  border-color: var(--warning) !important;
+  background-color: var(--warning) !important;
+  color: white !important;
+}
+.participation-btn.participation-active-no {
+  border-color: var(--destructive) !important;
+  background-color: var(--destructive) !important;
+  color: white !important;
+}
+
+/* Filter bubbles – light colors with saturated borders; selected = solid (match vanilla app).
+   Colors align with entity-config: rehearsal = --primary, performance = --accent (see lib/entity-config.ts). */
+.filter-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0.5rem;
+  padding-block: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid;
+  transition: all 150ms ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.filter-bubble-rehearsal {
+  border-color: color-mix(in oklch, var(--primary) 20%, transparent);
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+.filter-bubble-rehearsal.selected {
+  border-color: var(--primary);
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+.filter-bubble-performance {
+  border-color: color-mix(in oklch, var(--accent) 20%, transparent);
+  background-color: color-mix(in oklch, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+.filter-bubble-performance.selected {
+  border-color: var(--accent);
+  background-color: var(--accent);
+  color: white;
+}
+
+/* Event type badges – light colors with saturated border (match vanilla app).
+   .event-badge = rehearsal (primary), .accent = concert, .chart-3 = meeting; see lib/entity-config.ts. */
+.event-badge {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 0.5rem;
+  padding-block: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid;
+  border-color: color-mix(in oklch, var(--primary) 20%, transparent);
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+.event-badge.accent {
+  border-color: color-mix(in oklch, var(--accent) 20%, transparent);
+  background-color: color-mix(in oklch, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+.event-badge.chart-3 {
+  border-color: color-mix(in oklch, var(--chart-3) 20%, transparent);
+  background-color: color-mix(in oklch, var(--chart-3) 10%, transparent);
+  color: var(--chart-3);
+}
+
+/* Timeline connector (match vanilla app.css) */
+.timeline-connector {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--border) 100%, transparent),
+    color-mix(in oklch, var(--border) 40%, transparent),
+    color-mix(in oklch, var(--border) 10%, transparent)
+  );
+}

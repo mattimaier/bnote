@@ -1,0 +1,165 @@
+/**
+ * BNote Next Generation - Mobile navigation drawer (full-screen overlay)
+ *
+ * Copyright (C) 2026 BNote Contributors
+ */
+
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useI18n } from "@/contexts/I18nContext";
+import { getBnoteLogoUrl } from "@/lib/bnote-assets";
+import { getIcon } from "@/components/icons";
+import { api } from "@/lib/api";
+import { X } from "lucide-react";
+
+interface SidebarModule {
+  id: number;
+  name: string;
+  route: string;
+  icon: string;
+  i18n: string;
+}
+
+interface MobileNavDrawerProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
+  const pathname = usePathname();
+  const { t } = useI18n();
+  const [modules, setModules] = useState<SidebarModule[]>([]);
+  const [logoUrl, setLogoUrl] = useState("");
+
+  useEffect(() => {
+    api
+      .get<SidebarModule[] | { modules: SidebarModule[] }>("auth", "getModules")
+      .then((res) => {
+        const list = Array.isArray(res) ? res : (res as { modules: SidebarModule[] }).modules ?? [];
+        setModules(
+          list.map((m) => ({
+            ...m,
+            route: (m.route ?? "").replace(".html", "") || m.name.toLowerCase(),
+          }))
+        );
+      })
+      .catch(() => {
+        setModules([
+          { id: 1, name: "Start", route: "dashboard", icon: "layout-dashboard", i18n: "js.sidebar.dashboard" },
+          { id: 3, name: "Kontakte", route: "contacts", icon: "users", i18n: "js.sidebar.contacts" },
+          { id: 4, name: "Benutzer", route: "users", icon: "user", i18n: "js.sidebar.users" },
+        ]);
+      });
+    setLogoUrl(getBnoteLogoUrl());
+  }, []);
+
+  const currentRoute = pathname?.replace("/", "") || "dashboard";
+
+  // Prevent body scroll when open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] md:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu"
+    >
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden
+      />
+      {/* Panel: full-screen like vanilla app */}
+      <div
+        className="fixed inset-0 flex flex-col"
+        style={{
+          background: "var(--background)",
+          color: "var(--foreground)",
+        }}
+      >
+        <div
+          className="flex items-center justify-between h-16 px-4 lg:px-6 border-b shrink-0"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg flex items-center justify-center ring-1 bg-gradient-to-br from-[var(--primary)]/30 to-[var(--primary)]/10 ring-[var(--primary)]/20">
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt="BNote"
+                  className="h-5 w-5"
+                  style={{
+                    filter:
+                      "brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%)",
+                  }}
+                />
+              ) : (
+                <span className="text-[var(--primary)] font-bold text-xs">B</span>
+              )}
+            </div>
+            <span className="font-semibold text-sm">BNote</span>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-9 w-9 rounded-md flex items-center justify-center transition-colors hover:bg-[var(--muted)]/60"
+            style={{ color: "var(--muted-foreground)" }}
+            aria-label={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+          {modules.map((m) => {
+            const route = m.route || "dashboard";
+            const href = `/${route}`;
+            const isActive = currentRoute === route;
+            const Icon = getIcon(m.icon);
+            return (
+              <Link
+                key={m.id}
+                href={href}
+                onClick={onClose}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                  isActive
+                    ? "bg-[var(--primary)]/12 text-[var(--primary)] font-semibold shadow-sm"
+                    : "hover:bg-[var(--muted)]/60 font-medium"
+                }`}
+                style={!isActive ? { color: "var(--foreground)" } : undefined}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="flex-1 truncate">{t(m.i18n) || m.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+    </div>
+  );
+}
