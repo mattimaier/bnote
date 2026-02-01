@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
 
+/** Default base path for subfolder deployment. Set NEXT_PUBLIC_BASE_PATH="" for local dev at root. */
+const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "/bnote-next-generation").replace(/\/$/, "");
+
 const nextConfig: NextConfig = {
   output: "export",
-  // If the app is served under a subpath (e.g. /bnote-next-generation/), set:
-  // basePath: "/bnote-next-generation",
+  basePath: basePath || undefined,
+  trailingSlash: true,
   // In dev, proxy /api to the PHP backend so login works without CORS (same origin).
   async rewrites() {
     const base =

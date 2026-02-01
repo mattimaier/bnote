@@ -24,7 +24,7 @@
  * 
  * Note: This file is loaded after api/index.php has changed working directory to project root
  */
-require_once __DIR__ . '/../../src/data/modules/searchdata.php';
+require_once __DIR__ . '/../searchdata.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 

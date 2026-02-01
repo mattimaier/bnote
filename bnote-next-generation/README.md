@@ -58,29 +58,25 @@ cd frontend && npm install && \
 cd frontend && npm run dev
 ```
 
-Open http://localhost:3000. Requests to `/api/*` are proxied to the PHP backend. Set `NEXT_PUBLIC_API_BASE` in `frontend/.env.local` if the API runs at a different URL.
+Open http://localhost:3000/bnote-next-generation (default base path). Requests to `/api/*` are proxied to the PHP backend. Set `NEXT_PUBLIC_API_BASE` in `frontend/.env.local` if the API runs at a different URL. To run the app at root (http://localhost:3000), use `NEXT_PUBLIC_BASE_PATH= npm run dev`.
 
 Optional: in `frontend/` run `nvm use` (`.nvmrc` is set to Node 20).
 
-### Build and distribute (Next.js frontend)
+### Build (single folder to upload)
 
-1. **Build:** From `bnote-next-generation/`:
-   ```bash
-   cd frontend && npm run build
-   ```
-   This produces the static export in `frontend/out/`.
-
-2. **Deploy:** Copy the **contents** of `frontend/out/` into the web document root that already serves the PHP API (e.g. the `bnote-next-generation` folder). Do **not** overwrite `api/` or `lang/`; only add or update the static frontend files (e.g. `index.html`, `_next/`, `dashboard/`, `login/`, etc.).
-
-3. **Server:** Ensure `…/api/*` is handled by PHP; all other requests serve static files. With static export, each route has its own HTML (e.g. `dashboard/index.html`), so no catch-all is required for basic routing.
-
-The root `index.html` in production is the one from `frontend/out/index.html` (Next.js).
-
-**Copy-paste for distributors:**
+Use the build script to build the frontend and assemble **one folder** you can upload (api + frontend + lang + config):
 
 ```bash
-cd frontend && npm run build && echo "Copy the contents of frontend/out/ to your web root (do not overwrite api/, lang/)."
+./build.sh
 ```
+
+This creates `build/` with everything. Copy the **contents** of `build/` to your server (e.g. into the folder served at `…/bnote-next-generation/`).
+
+For local debugging use `npm run dev` (see Local development above); the dev server proxies API requests to your PHP backend.
+
+**Options:**
+
+- `./build.sh --out myfolder` – output folder name (default: `build/`)
 
 ## Routing and Navigation
 

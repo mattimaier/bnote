@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { logout } from "@/lib/auth";
+import { prefixPath } from "@/lib/path";
 import { useSearch } from "@/contexts/SearchContext";
 import { SearchAutocompleteOverlay } from "@/components/SearchAutocompleteOverlay";
 import { useEffect, useRef, useState } from "react";
@@ -81,7 +82,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
       )}
       {/* Search: full width */}
       <div ref={searchAnchorRef} className="relative flex-1 min-w-0">
-          <form action="/search" method="get" role="search" className="relative flex items-center w-full">
+          <form action={prefixPath("/search/")} method="get" role="search" className="relative flex items-center w-full">
             <Search
               className="absolute left-3 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]/60 z-10 top-1/2 pointer-events-none"
               aria-hidden

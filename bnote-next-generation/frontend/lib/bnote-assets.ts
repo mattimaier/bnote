@@ -9,31 +9,13 @@
  * (at your option) any later version.
  */
 
-/**
- * Base URL for BNote folder (sibling to bnote-next-generation).
- * Used for logo: BNote/style/images/BNote_Logo_white_transparent.svg
- */
-export function getBnoteBaseUrl(): string {
-  if (typeof window === "undefined") return "";
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE ?? "";
-  if (apiBase) {
-    const u = apiBase.replace(/\/bnote-next-generation\/?$/i, "");
-    return u ? `${u}/BNote/` : "";
-  }
-  const pathname = window.location.pathname;
-  const idx = pathname.toLowerCase().indexOf("/bnote-next-generation");
-  if (idx !== -1) {
-    const before = pathname.slice(0, idx) || "/";
-    const origin = window.location.origin;
-    return `${origin}${before.endsWith("/") ? before : before + "/"}BNote/`;
-  }
-  return "";
-}
+import { getBasePath } from "./path";
 
 /**
  * Logo is bundled in the Next.js app at public/BNote_Logo_white_transparent.svg.
- * Use that path so it works in dev and static export without depending on BNote folder.
+ * Path always includes basePath (default /bnote-next-generation).
  */
 export function getBnoteLogoUrl(): string {
-  return "/BNote_Logo_white_transparent.svg";
+  const basePath = getBasePath();
+  return basePath ? `${basePath}/BNote_Logo_white_transparent.svg` : "/BNote_Logo_white_transparent.svg";
 }

@@ -14,7 +14,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { checkSession } from "@/lib/auth";
-
 export function Redirect() {
   const router = useRouter();
   const [done, setDone] = useState(false);

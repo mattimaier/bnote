@@ -9,6 +9,8 @@
  * (at your option) any later version.
  */
 
+import { getBasePath } from "./path";
+
 function getApiBase(): string {
   if (typeof window !== "undefined") {
     const base = process.env.NEXT_PUBLIC_API_BASE ?? "";
@@ -20,8 +22,10 @@ function getApiBase(): string {
 export function getApiUrl(): string {
   const base = getApiBase();
   if (base) return `${base}/api/index.php`;
-  if (typeof window !== "undefined") return `${window.location.origin}/api/index.php`;
-  return "/api/index.php";
+  const basePath = getBasePath();
+  const prefix = basePath ? `${basePath}` : "";
+  if (typeof window !== "undefined") return `${window.location.origin}${prefix}/api/index.php`;
+  return `${prefix}/api/index.php`;
 }
 
 export async function apiRequest<T>(

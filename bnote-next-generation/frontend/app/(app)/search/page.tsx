@@ -20,6 +20,7 @@ import {
   getPillStyle,
   getDotStyle,
 } from "@/lib/entity-config";
+import { prefixPath } from "@/lib/path";
 import { Search as SearchIcon, MapPin, User, Users, Music, CheckSquare, FileText } from "lucide-react";
 
 const CATEGORIES: { key: keyof SearchResults; labelKey: string; type: "events" | "list" }[] = [
@@ -120,15 +121,13 @@ function SearchContent() {
   const total = results?.total ?? 0;
   const hasFilters = yearParam || monthParam || typeParam;
 
-  if (!ready) return null;
-
   return (
     <div className="mx-auto max-w-4xl space-y-4">
       <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
         {t("js.dashboard.searchPlaceholder")}
       </h1>
 
-      <form action="/search" method="get" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <form action={prefixPath("/search/")} method="get" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <input type="hidden" name="year" value={yearParam ?? ""} />
         <input type="hidden" name="month" value={monthParam ?? ""} />
         <input type="hidden" name="type" value={typeParam ?? ""} />
@@ -325,7 +324,12 @@ function SearchListItemRow({
   categoryLabel: string;
 }) {
   const title = item.name ?? item.title ?? `#${item.id}`;
-  const href = category === "users" ? `/users?id=${item.id}` : category === "contacts" ? `/contacts?id=${item.id}` : "#";
+  const href =
+    category === "users"
+      ? `/users?id=${item.id}`
+      : category === "contacts"
+        ? `/contacts?id=${item.id}`
+        : "#";
   const entityType = getEntityTypeForSearchCategory(category);
   const entityColor = getColor(entityType);
   const iconName = getIconName(entityType);
