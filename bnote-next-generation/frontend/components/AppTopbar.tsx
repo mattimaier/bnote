@@ -94,7 +94,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setOverlayOpen(true)}
               placeholder={t("js.dashboard.searchPlaceholder")}
-              className="pl-9 pr-9 h-9 w-full rounded-md text-sm border outline-none focus:ring-1 focus:ring-[var(--primary)]/30 bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground/60 focus:bg-muted/60"
+              className="pl-9 pr-56 h-9 w-full rounded-md text-sm border outline-none focus:ring-1 focus:ring-[var(--primary)]/30 bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground/60 focus:bg-muted/60"
               aria-label={t("js.dashboard.searchPlaceholder")}
               aria-autocomplete="list"
               aria-controls={query.trim().length >= 2 ? "search-autocomplete" : undefined}
@@ -104,10 +104,19 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 rounded-md flex items-center justify-center z-10 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-40 top-1/2 -translate-y-1/2 h-5 w-5 rounded-md flex items-center justify-center z-10 text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={t("js.search.clear") !== "js.search.clear" ? t("js.search.clear") : "Clear search"}
               >
                 <X className="h-4 w-4" />
+              </button>
+            )}
+            {query.length > 0 && (
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 rounded-md px-2.5 text-[11px] font-medium text-white"
+                style={{ background: "var(--primary)" }}
+              >
+                {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show results"}
               </button>
             )}
           </form>

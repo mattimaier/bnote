@@ -64,5 +64,22 @@
       "color": "#F97316",
       "icon": "map-pin"
     }
+  },
+  "statuses": {
+    "planned": {
+      "color": "var(--muted-foreground)"
+    },
+    "confirmed": {
+      "color": "var(--success)"
+    },
+    "cancelled": {
+      "color": "var(--destructive)"
+    },
+    "active": {
+      "color": "var(--success)"
+    },
+    "inactive": {
+      "color": "var(--destructive)"
+    }
   }
 }

@@ -19,6 +19,7 @@ import React, {
   useState,
 } from "react";
 import { api } from "@/lib/api";
+import { formatDateShort, formatDateTimeShort, formatTimeShort } from "@/lib/date-time";
 
 interface I18nState {
   lang: string;
@@ -39,12 +40,14 @@ const I18nContext = createContext<
     t: (key: string, params?: string[]) => string;
     formatDate: (date: Date) => string;
     formatTime: (date: Date) => string;
+    formatDateTime: (date: Date) => string;
   }
 >({
   ...defaultState,
   t: (key) => key,
   formatDate: (d) => d.toLocaleDateString(),
   formatTime: (d) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+  formatDateTime: (d) => d.toLocaleString(),
 });
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
@@ -89,14 +92,15 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   );
 
   const formatDate = useCallback((date: Date) => {
-    return date.toLocaleDateString(state.lang === "de" ? "de-DE" : "en-US");
+    return formatDateShort(date, state.lang) ?? date.toLocaleDateString();
   }, [state.lang]);
 
   const formatTime = useCallback((date: Date) => {
-    return date.toLocaleTimeString(
-      state.lang === "de" ? "de-DE" : "en-US",
-      { hour: "2-digit", minute: "2-digit" }
-    );
+    return formatTimeShort(date, state.lang) ?? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }, [state.lang]);
+
+  const formatDateTime = useCallback((date: Date) => {
+    return formatDateTimeShort(date, state.lang) ?? date.toLocaleString();
   }, [state.lang]);
 
   return (
@@ -106,6 +110,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
         t,
         formatDate,
         formatTime,
+        formatDateTime,
       }}
     >
       {children}

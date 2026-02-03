@@ -12,10 +12,12 @@ import { useToast } from "@/contexts/ToastContext";
 import { usersApi, type User, type UserDetail, type ContactOption, type PrivilegesResponse } from "@/lib/users-api";
 import { Modal } from "@/components/Modal";
 import { compareNumber, compareString, compareDate, type SortDirection } from "@/lib/table-sort";
+import { formatDateTimeShort } from "@/lib/date-time";
+import { getStatusPillStyle } from "@/lib/entity-config";
 import { Plus, Key, CheckCircle, XCircle, Pencil, Trash2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 
 export default function UsersPage() {
-  const { t, ready } = useI18n();
+  const { t, ready, lang } = useI18n();
   const { showToast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [contacts, setContacts] = useState<ContactOption[]>([]);
@@ -216,12 +218,7 @@ export default function UsersPage() {
 
   const formatDate = (v: string | null | undefined) => {
     if (!v) return "—";
-    try {
-      const d = new Date(v);
-      return d.toLocaleDateString(undefined, { dateStyle: "short" }) + " " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-    } catch {
-      return "—";
-    }
+    return formatDateTimeShort(v, lang) ?? "—";
   };
 
   if (!ready) {
@@ -309,7 +306,10 @@ export default function UsersPage() {
                       <td className="p-3">{u.firstName ?? u.name ?? "—"}</td>
                       <td className="p-3">{u.lastName ?? "—"}</td>
                       <td className="p-3">
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${u.isActive ? "bg-amber-500/20 text-amber-700 dark:text-amber-400" : "bg-[var(--destructive)]/20 text-[var(--destructive)]"}`}>
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium border"
+                          style={getStatusPillStyle(u.isActive ? "active" : "inactive")}
+                        >
                           {u.isActive ? (t("js.users.active") !== "js.users.active" ? t("js.users.active") : "Active") : (t("js.users.inactive") !== "js.users.inactive" ? t("js.users.inactive") : "Inactive")}
                         </span>
                       </td>

@@ -28,6 +28,8 @@
 require_once BNOTE_ROOT . '/src/data/modules/probendata.php';
 require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
 require_once BNOTE_ROOT . '/src/data/modules/locationsdata.php';
+require_once BNOTE_ROOT . '/src/data/modules/gruppendata.php';
+require_once BNOTE_ROOT . '/src/data/modules/repertoiredata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
@@ -61,6 +63,14 @@ class RehearsalsModule {
             return $this->getRehearsal($id);
         }
         
+        if ($action === 'meta') {
+            return $this->getMeta();
+        }
+
+        if ($action === 'update') {
+            return $this->updateRehearsal();
+        }
+
         // Handle explicit actions if needed in the future
         if ($action) {
             Response::error('Unknown action: ' . $action, 400);
@@ -94,6 +104,9 @@ class RehearsalsModule {
             Response::error('Access denied to this rehearsal', 403);
         }
         
+        $moduleId = $system_data->getModuleId('Proben');
+        $canEdit = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+
         // Get location with address
         $location = null;
         if ($rehearsal['location']) {
@@ -134,6 +147,28 @@ class RehearsalsModule {
                 'id' => intval($song['id']),
                 'title' => $song['title'],
                 'notes' => $song['notes'] ?? null
+            ];
+        }
+
+        // Get groups
+        $groups = $this->data->getRehearsalGroups($id);
+        unset($groups[0]); // Remove header
+        $groupList = [];
+        foreach ($groups as $group) {
+            $groupList[] = [
+                'id' => intval($group['id']),
+                'name' => $group['name'] ?? null
+            ];
+        }
+
+        // Get event contacts
+        $eventContacts = [];
+        $contacts = $this->data->getRehearsalContacts($id);
+        unset($contacts[0]); // Remove header
+        foreach ($contacts as $contact) {
+            $eventContacts[] = [
+                'id' => intval($contact['id']),
+                'name' => $contact['name'] ?? null
             ];
         }
         
@@ -235,6 +270,10 @@ class RehearsalsModule {
             'location' => $location,
             'conductor' => $conductor,
             'songsToPractice' => $songsToPractice,
+            'groups' => $groupList,
+            'eventContacts' => $eventContacts,
+            'canEdit' => $canEdit,
+            'canEditParticipation' => $canEdit,
             'participantsByInstrument' => $participantsByInstrument,
             'participationStats' => [
                 'yes' => $totalStats['yes'],
@@ -246,6 +285,212 @@ class RehearsalsModule {
         ];
         
         return $response;
+    }
+
+    private function getMeta() {
+        global $system_data;
+
+        $locationsData = new LocationsData();
+        $groupData = new GruppenData();
+        $repertoireData = new RepertoireData();
+
+        $locationsSel = $locationsData->findAllNoRef();
+        $groupsSel = $groupData->findAllNoRef();
+        $songsSel = $repertoireData->findAllNoRef();
+        $conductorsSel = $this->data->adp()->getConductors();
+        $contactsSel = $this->data->getContacts();
+
+        $locations = [];
+        for ($i = 1; $i < count($locationsSel); $i++) {
+            $locations[] = [
+                'id' => intval($locationsSel[$i]['id']),
+                'name' => $locationsSel[$i]['name'] ?? null
+            ];
+        }
+
+        $groups = [];
+        for ($i = 1; $i < count($groupsSel); $i++) {
+            $groups[] = [
+                'id' => intval($groupsSel[$i]['id']),
+                'name' => $groupsSel[$i]['name'] ?? null
+            ];
+        }
+
+        $songs = [];
+        for ($i = 1; $i < count($songsSel); $i++) {
+            $songs[] = [
+                'id' => intval($songsSel[$i]['id']),
+                'title' => urldecode($songsSel[$i]['title'] ?? '')
+            ];
+        }
+
+        $conductors = [];
+        for ($i = 1; $i < count($conductorsSel); $i++) {
+            $conductors[] = [
+                'id' => intval($conductorsSel[$i]['id']),
+                'name' => trim(($conductorsSel[$i]['name'] ?? '') . ' ' . ($conductorsSel[$i]['surname'] ?? ''))
+            ];
+        }
+
+        $contacts = [];
+        for ($i = 1; $i < count($contactsSel); $i++) {
+            $contacts[] = [
+                'id' => intval($contactsSel[$i]['id']),
+                'name' => $contactsSel[$i]['fullname'] ?? trim(($contactsSel[$i]['name'] ?? '') . ' ' . ($contactsSel[$i]['surname'] ?? ''))
+            ];
+        }
+
+        return [
+            'locations' => $locations,
+            'groups' => $groups,
+            'songs' => $songs,
+            'conductors' => $conductors,
+            'contacts' => $contacts,
+            'statusOptions' => $this->data->getStatusOptions()
+        ];
+    }
+
+    private function updateRehearsal() {
+        global $system_data;
+
+        $payload = $this->getRequestData();
+        $id = $payload['id'] ?? null;
+        if (!$id || !is_numeric($id)) {
+            Response::error('Invalid rehearsal ID', 400);
+        }
+        $id = intval($id);
+
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToRehearsal($id, $userId)) {
+            Response::error('Access denied to this rehearsal', 403);
+        }
+
+        $fields = $payload['fields'] ?? [];
+        $values = [
+            'begin' => $fields['begin'] ?? '',
+            'end' => $fields['end'] ?? '',
+            'approve_until' => $fields['approve_until'] ?? '',
+            'status' => $fields['status'] ?? 'planned',
+            'notes' => $fields['notes'] ?? '',
+            'location' => $fields['location'] ?? 0,
+            'conductor' => $fields['conductor'] ?? 0
+        ];
+
+        if (empty($values['approve_until']) && !empty($values['begin'])) {
+            $values['approve_until'] = $values['begin'];
+        }
+
+        $this->data->validate($values);
+        $this->data->update($id, $values);
+
+        if (array_key_exists('groups', $payload)) {
+            $groups = array_map('intval', $payload['groups'] ?? []);
+            $system_data->dbcon->execute("DELETE FROM rehearsal_group WHERE rehearsal = ?", [['i', $id]]);
+            if (count($groups) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($groups as $groupId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $id];
+                    $params[] = ['i', $groupId];
+                }
+                $query = "INSERT INTO rehearsal_group (rehearsal, `group`) VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+        }
+
+        if (array_key_exists('contacts', $payload)) {
+            $contacts = array_map('intval', $payload['contacts'] ?? []);
+            $system_data->dbcon->execute("DELETE FROM rehearsal_contact WHERE rehearsal = ?", [['i', $id]]);
+            if (count($contacts) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($contacts as $contactId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $id];
+                    $params[] = ['i', $contactId];
+                }
+                $query = "INSERT INTO rehearsal_contact VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+
+            if (count($contacts) > 0) {
+                $placeholders = implode(",", array_fill(0, count($contacts), "?"));
+                $params = [['i', $id]];
+                foreach ($contacts as $contactId) {
+                    $params[] = ['i', $contactId];
+                }
+                $query = "DELETE ru FROM rehearsal_user ru JOIN user u ON ru.user = u.id WHERE ru.rehearsal = ? AND u.contact NOT IN ($placeholders)";
+                $system_data->dbcon->execute($query, $params);
+            } else {
+                $system_data->dbcon->execute("DELETE FROM rehearsal_user WHERE rehearsal = ?", [['i', $id]]);
+            }
+        }
+
+        if (array_key_exists('songs', $payload)) {
+            $songs = $payload['songs'] ?? [];
+            $system_data->dbcon->execute("DELETE FROM rehearsal_song WHERE rehearsal = ?", [['i', $id]]);
+            if (count($songs) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($songs as $song) {
+                    $songId = intval($song['id'] ?? 0);
+                    if ($songId <= 0) continue;
+                    $tuples[] = "(?, ?, ?)";
+                    $params[] = ['i', $songId];
+                    $params[] = ['i', $id];
+                    $params[] = ['s', $song['notes'] ?? ''];
+                }
+                if (count($tuples) > 0) {
+                    $query = "INSERT INTO rehearsal_song (song, rehearsal, notes) VALUES " . join(",", $tuples);
+                    $system_data->dbcon->execute($query, $params);
+                }
+            }
+        }
+
+        if (array_key_exists('participants', $payload)) {
+            $participants = $payload['participants'] ?? [];
+            foreach ($participants as $participant) {
+                $userId = intval($participant['userId'] ?? 0);
+                if ($userId <= 0) continue;
+                $participate = $participant['participate'] ?? null;
+                if ($participate === null || $participate === '') {
+                    $system_data->dbcon->execute(
+                        "DELETE FROM rehearsal_user WHERE rehearsal = ? AND user = ?",
+                        [['i', $id], ['i', $userId]]
+                    );
+                    continue;
+                }
+                $participate = intval($participate);
+                $exists = $system_data->dbcon->colValue(
+                    "SELECT count(*) as cnt FROM rehearsal_user WHERE rehearsal = ? AND user = ?",
+                    "cnt",
+                    [['i', $id], ['i', $userId]]
+                );
+                if (intval($exists) > 0) {
+                    $system_data->dbcon->execute(
+                        "UPDATE rehearsal_user SET participate = ? WHERE rehearsal = ? AND user = ?",
+                        [['i', $participate], ['i', $id], ['i', $userId]]
+                    );
+                } else {
+                    $system_data->dbcon->execute(
+                        "INSERT INTO rehearsal_user (rehearsal, user, participate, replyon) VALUES (?, ?, ?, NOW())",
+                        [['i', $id], ['i', $userId], ['i', $participate]]
+                    );
+                }
+            }
+        }
+
+        return ['success' => true];
+    }
+
+    private function getRequestData() {
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+        if (!$data) {
+            $data = $_POST;
+        }
+        return $data;
     }
     
     /**

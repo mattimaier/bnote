@@ -17,6 +17,7 @@ import {
 import { ParticipationWidget } from "./ParticipationWidget";
 import { getIcon } from "@/components/icons";
 import { MapPin, Clock } from "lucide-react";
+import { AddressLink } from "@/components/AddressLink";
 
 export interface InboxEvent {
   otype: string;
@@ -60,8 +61,9 @@ export function EventCard({
 }: EventCardProps) {
   const eventType = mapOtypeToEventType(event.otype);
   const typeConfig = getEventTypeConfig(eventType, t);
-  const dateStr = formatEventDate(event.eventBegin || event.dueDate || event.begin, lang);
-  const timeStr = formatEventTime(event.eventBegin || event.dueDate || event.begin, lang);
+  const tba = t("js.event.tba");
+  const dateStr = formatEventDate(event.eventBegin || event.dueDate || event.begin, lang, tba);
+  const timeStr = formatEventTime(event.eventBegin || event.dueDate || event.begin, lang, tba);
   const location = extractLocation(event);
   const title = event.title || t("js.event.event");
   const hideTitleWhenDuplicate = title === typeConfig.label;
@@ -112,7 +114,7 @@ export function EventCard({
         <div className="flex items-center text-xs pt-2 border-t border-border/30 text-muted-foreground/70">
           <span className="flex items-center gap-1.5">
             <MapPin className="h-3 w-3 text-primary/50" />
-            {location}
+            <AddressLink value={location} t={t} renderRawIfNoAddress />
           </span>
         </div>
       </div>
@@ -150,7 +152,7 @@ export function EventCard({
       <div className="flex items-center text-[10px] text-muted-foreground/70 pt-1 px-1">
         <span className="flex items-center gap-1">
           <MapPin className="h-2.5 w-2.5 text-primary/50" />
-          {location}
+          <AddressLink value={location} t={t} renderRawIfNoAddress />
         </span>
       </div>
     </>

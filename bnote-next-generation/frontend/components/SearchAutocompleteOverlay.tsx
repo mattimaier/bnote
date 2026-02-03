@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSearch } from "@/contexts/SearchContext";
 import { getIcon } from "@/components/icons";
+import { AddressLink } from "@/components/AddressLink";
 import { formatEventDate, formatEventTime, getEventTypeConfig } from "@/lib/event-utils";
 import {
   getEntityTypeForSearchCategory,
@@ -157,8 +158,9 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                         const eventType = cat.key === "concerts" ? "performance" : "rehearsal";
                         const typeConfig = getEventTypeConfig(eventType, t);
                         const Icon = getIcon(typeConfig.icon);
-                        const dateStr = formatEventDate(item.eventBegin ?? item.begin ?? item.dueDate, lang);
-                        const timeStr = formatEventTime(item.eventBegin ?? item.begin ?? item.dueDate, lang);
+                        const tba = t("js.event.tba");
+                        const dateStr = formatEventDate(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
+                        const timeStr = formatEventTime(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
                         const location = formatLocation(item);
                         const title = item.title ?? (cat.key === "concerts" ? t("js.event.performance") : t("js.event.rehearsal"));
 
@@ -192,7 +194,7 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                                 {location && location !== "—" && (
                                   <span className="flex items-center gap-1">
                                     <MapPin className="h-3 w-3 opacity-70" />
-                                    {location}
+                                    <AddressLink value={location} t={t} renderRawIfNoAddress />
                                   </span>
                                 )}
                               </div>
@@ -262,7 +264,7 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                         }
 
                         if (cat.key === "locations") {
-                          const address = [item.street, item.city].filter(Boolean).join(", ") || "—";
+                          const address = [item.street, item.city].filter(Boolean).join(", ");
                           return (
                             <Link
                               key={`${cat.key}-${item.id}`}
@@ -286,10 +288,10 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                                     {sectionLabel}
                                   </span>
                                 </div>
-                                {address !== "—" && (
+                                {address && (
                                   <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
                                     <MapPin className="h-3 w-3 opacity-70 shrink-0" />
-                                    {address}
+                                    <AddressLink value={address} t={t} renderRawIfNoAddress />
                                   </p>
                                 )}
                               </div>

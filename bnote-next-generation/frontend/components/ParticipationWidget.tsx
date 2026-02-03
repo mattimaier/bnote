@@ -16,9 +16,10 @@ interface ParticipationWidgetProps {
   eventId: number;
   eventType: string;
   onStatusChange?: () => void;
+  disabled?: boolean;
 }
 
-export function ParticipationWidget({ eventId, eventType, onStatusChange }: ParticipationWidgetProps) {
+export function ParticipationWidget({ eventId, eventType, onStatusChange, disabled = false }: ParticipationWidgetProps) {
   const { t } = useI18n();
   const { showToast } = useToast();
   const [status, setStatus] = useState<ParticipationStatus>("undecided");
@@ -72,7 +73,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange }: Part
 
   const handleClick = useCallback(
     (clicked: ParticipationStatus) => {
-      if (isLocked || loading) return;
+      if (isLocked || loading || disabled) return;
       if (clicked === status && status !== "undecided") {
         updateStatus("undecided", "");
         return;
@@ -84,7 +85,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange }: Part
         setModalOpen(true);
       }
     },
-    [status, isLocked, loading, updateStatus]
+    [status, isLocked, loading, disabled, updateStatus]
   );
 
   const handleModalConfirm = useCallback(
@@ -141,7 +142,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange }: Part
           {showYes && (
             <button
               type="button"
-              disabled={isLocked || saving}
+              disabled={isLocked || saving || disabled}
               className={btn("yes", status === "yes")}
               onClick={() => handleClick("yes")}
               aria-label={t("js.participation.participate")}
@@ -154,7 +155,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange }: Part
           {showMaybe && (
             <button
               type="button"
-              disabled={isLocked || saving}
+              disabled={isLocked || saving || disabled}
               className={btn("maybe", status === "maybe")}
               onClick={() => handleClick("maybe")}
               aria-label={t("js.participation.maybe")}
@@ -167,7 +168,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange }: Part
           {showNo && (
             <button
               type="button"
-              disabled={isLocked || saving}
+              disabled={isLocked || saving || disabled}
               className={btn("no", status === "no")}
               onClick={() => handleClick("no")}
               aria-label={t("js.participation.doNotParticipate")}

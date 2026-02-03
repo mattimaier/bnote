@@ -28,6 +28,11 @@
 require_once BNOTE_ROOT . '/src/data/modules/konzertedata.php';
 require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
 require_once BNOTE_ROOT . '/src/data/modules/locationsdata.php';
+require_once BNOTE_ROOT . '/src/data/modules/gruppendata.php';
+require_once BNOTE_ROOT . '/src/data/modules/programdata.php';
+require_once BNOTE_ROOT . '/src/data/modules/outfitsdata.php';
+require_once BNOTE_ROOT . '/src/data/modules/equipmentdata.php';
+require_once BNOTE_ROOT . '/src/data/modules/kontaktedata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
@@ -61,6 +66,14 @@ class ConcertsModule {
             return $this->getConcert($id);
         }
         
+        if ($action === 'meta') {
+            return $this->getMeta();
+        }
+
+        if ($action === 'update') {
+            return $this->updateConcert();
+        }
+
         // Handle explicit actions if needed in the future
         if ($action) {
             Response::error('Unknown action: ' . $action, 400);
@@ -94,6 +107,9 @@ class ConcertsModule {
             Response::error('Access denied to this concert', 403);
         }
         
+        $moduleId = $system_data->getModuleId('Konzerte');
+        $canEdit = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+
         // Get location with address
         $location = null;
         if ($concert['location']) {
@@ -174,6 +190,17 @@ class ConcertsModule {
             $groups[] = [
                 'id' => intval($group['id']),
                 'name' => $group['name'] ?? null
+            ];
+        }
+
+        // Get event contacts
+        $eventContacts = [];
+        $contacts = $this->data->getConcertContacts($id);
+        unset($contacts[0]); // Remove header
+        foreach ($contacts as $contactRow) {
+            $eventContacts[] = [
+                'id' => intval($contactRow['id']),
+                'name' => $contactRow['fullname'] ?? null
             ];
         }
         
@@ -304,6 +331,9 @@ class ConcertsModule {
             'groups' => $groups,
             'accommodation' => $accommodation,
             'participantsByInstrument' => $participantsByInstrument,
+            'eventContacts' => $eventContacts,
+            'canEdit' => $canEdit,
+            'canEditParticipation' => $canEdit,
             'participationStats' => [
                 'yes' => $totalStats['yes'],
                 'maybe' => $totalStats['maybe'],
@@ -314,6 +344,229 @@ class ConcertsModule {
         ];
         
         return $response;
+    }
+
+    private function getMeta() {
+        $locationsData = new LocationsData();
+        $groupData = new GruppenData();
+        $programData = new ProgramData();
+        $outfitData = new OutfitsData();
+        $equipmentData = new EquipmentData();
+        $contactData = new KontakteData();
+
+        $locationsSel = $locationsData->findAllNoRef();
+        $groupsSel = $groupData->findAllNoRef();
+        $programsSel = $programData->findAllNoRef();
+        $outfitsSel = $outfitData->findAllNoRef();
+        $equipmentSel = $equipmentData->findAllNoRef();
+        $contactsSel = $contactData->getAllContacts();
+
+        $locations = [];
+        for ($i = 1; $i < count($locationsSel); $i++) {
+            $locations[] = [
+                'id' => intval($locationsSel[$i]['id']),
+                'name' => $locationsSel[$i]['name'] ?? null
+            ];
+        }
+
+        $groups = [];
+        for ($i = 1; $i < count($groupsSel); $i++) {
+            $groups[] = [
+                'id' => intval($groupsSel[$i]['id']),
+                'name' => $groupsSel[$i]['name'] ?? null
+            ];
+        }
+
+        $programs = [];
+        for ($i = 1; $i < count($programsSel); $i++) {
+            $programs[] = [
+                'id' => intval($programsSel[$i]['id']),
+                'name' => $programsSel[$i]['name'] ?? null
+            ];
+        }
+
+        $outfits = [];
+        for ($i = 1; $i < count($outfitsSel); $i++) {
+            $outfits[] = [
+                'id' => intval($outfitsSel[$i]['id']),
+                'name' => $outfitsSel[$i]['name'] ?? null
+            ];
+        }
+
+        $equipment = [];
+        for ($i = 1; $i < count($equipmentSel); $i++) {
+            $equipment[] = [
+                'id' => intval($equipmentSel[$i]['id']),
+                'name' => $equipmentSel[$i]['name'] ?? null
+            ];
+        }
+
+        $contacts = [];
+        for ($i = 1; $i < count($contactsSel); $i++) {
+            $contacts[] = [
+                'id' => intval($contactsSel[$i]['id']),
+                'name' => trim(($contactsSel[$i]['name'] ?? '') . ' ' . ($contactsSel[$i]['surname'] ?? ''))
+            ];
+        }
+
+        return [
+            'locations' => $locations,
+            'groups' => $groups,
+            'programs' => $programs,
+            'outfits' => $outfits,
+            'equipment' => $equipment,
+            'contacts' => $contacts,
+            'statusOptions' => $this->data->getStatusOptions()
+        ];
+    }
+
+    private function updateConcert() {
+        global $system_data;
+
+        $payload = $this->getRequestData();
+        $id = $payload['id'] ?? null;
+        if (!$id || !is_numeric($id)) {
+            Response::error('Invalid concert ID', 400);
+        }
+        $id = intval($id);
+
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToConcert($id, $userId)) {
+            Response::error('Access denied to this concert', 403);
+        }
+
+        $fields = $payload['fields'] ?? [];
+        $values = [
+            'title' => $fields['title'] ?? '',
+            'begin' => $fields['begin'] ?? '',
+            'end' => $fields['end'] ?? '',
+            'meetingtime' => $fields['meetingtime'] ?? '',
+            'approve_until' => $fields['approve_until'] ?? '',
+            'status' => $fields['status'] ?? 'planned',
+            'notes' => $fields['notes'] ?? '',
+            'organizer' => $fields['organizer'] ?? '',
+            'payment' => $fields['payment'] ?? '',
+            'conditions' => $fields['conditions'] ?? '',
+            'location' => $fields['location'] ?? 0,
+            'contact' => $fields['contact'] ?? 0,
+            'program' => $fields['program'] ?? 0,
+            'outfit' => $fields['outfit'] ?? 0,
+            'accommodation' => $fields['accommodation'] ?? 0
+        ];
+
+        if ($values['payment'] === '' || $values['payment'] === null) {
+            $values['payment'] = 0;
+        }
+        if (empty($values['approve_until']) && !empty($values['begin'])) {
+            $values['approve_until'] = $values['begin'];
+        }
+
+        $this->data->validate($values);
+        $this->data->update($id, $values);
+
+        if (array_key_exists('groups', $payload)) {
+            $groups = array_map('intval', $payload['groups'] ?? []);
+            $system_data->dbcon->execute("DELETE FROM concert_group WHERE concert = ?", [['i', $id]]);
+            if (count($groups) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($groups as $groupId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $id];
+                    $params[] = ['i', $groupId];
+                }
+                $query = "INSERT INTO concert_group (concert, `group`) VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+        }
+
+        if (array_key_exists('equipment', $payload)) {
+            $equipment = array_map('intval', $payload['equipment'] ?? []);
+            $system_data->dbcon->execute("DELETE FROM concert_equipment WHERE concert = ?", [['i', $id]]);
+            if (count($equipment) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($equipment as $equipmentId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $id];
+                    $params[] = ['i', $equipmentId];
+                }
+                $query = "INSERT INTO concert_equipment (concert, `equipment`) VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+        }
+
+        if (array_key_exists('contacts', $payload)) {
+            $contacts = array_map('intval', $payload['contacts'] ?? []);
+            $system_data->dbcon->execute("DELETE FROM concert_contact WHERE concert = ?", [['i', $id]]);
+            if (count($contacts) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($contacts as $contactId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $id];
+                    $params[] = ['i', $contactId];
+                }
+                $query = "INSERT INTO concert_contact VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+
+            if (count($contacts) > 0) {
+                $placeholders = implode(",", array_fill(0, count($contacts), "?"));
+                $params = [['i', $id]];
+                foreach ($contacts as $contactId) {
+                    $params[] = ['i', $contactId];
+                }
+                $query = "DELETE cu FROM concert_user cu JOIN user u ON cu.user = u.id WHERE cu.concert = ? AND u.contact NOT IN ($placeholders)";
+                $system_data->dbcon->execute($query, $params);
+            } else {
+                $system_data->dbcon->execute("DELETE FROM concert_user WHERE concert = ?", [['i', $id]]);
+            }
+        }
+
+        if (array_key_exists('participants', $payload)) {
+            $participants = $payload['participants'] ?? [];
+            foreach ($participants as $participant) {
+                $userId = intval($participant['userId'] ?? 0);
+                if ($userId <= 0) continue;
+                $participate = $participant['participate'] ?? null;
+                if ($participate === null || $participate === '') {
+                    $system_data->dbcon->execute(
+                        "DELETE FROM concert_user WHERE concert = ? AND user = ?",
+                        [['i', $id], ['i', $userId]]
+                    );
+                    continue;
+                }
+                $participate = intval($participate);
+                $exists = $system_data->dbcon->colValue(
+                    "SELECT count(*) as cnt FROM concert_user WHERE concert = ? AND user = ?",
+                    "cnt",
+                    [['i', $id], ['i', $userId]]
+                );
+                if (intval($exists) > 0) {
+                    $system_data->dbcon->execute(
+                        "UPDATE concert_user SET participate = ? WHERE concert = ? AND user = ?",
+                        [['i', $participate], ['i', $id], ['i', $userId]]
+                    );
+                } else {
+                    $system_data->dbcon->execute(
+                        "INSERT INTO concert_user (participate, user, concert, replyon) VALUES (?, ?, ?, NOW())",
+                        [['i', $participate], ['i', $userId], ['i', $id]]
+                    );
+                }
+            }
+        }
+
+        return ['success' => true];
+    }
+
+    private function getRequestData() {
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+        if (!$data) {
+            $data = $_POST;
+        }
+        return $data;
     }
     
     /**

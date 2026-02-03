@@ -33,12 +33,18 @@ interface EntityEntry {
   icon: string;
 }
 
+interface StatusEntry {
+  color: string;
+}
+
 interface EntityConfigShape {
   entities: Record<string, EntityEntry>;
+  statuses?: Record<string, StatusEntry>;
 }
 
 const config = entityConfigData as EntityConfigShape;
 const entities = config?.entities ?? {};
+const statuses = config?.statuses ?? {};
 
 export function getEntityConfig(entityType: string): EntityEntry | null {
   const key = entityType?.toLowerCase?.() ?? "";
@@ -176,4 +182,10 @@ export interface EntityDotStyle {
 export function getDotStyle(color: string | null): EntityDotStyle {
   if (!color) return { background: "var(--chart-3)", color: "white" };
   return { background: color, color: "white" };
+}
+
+export function getStatusPillStyle(status: string): EntityPillStyle {
+  const key = status?.toLowerCase?.() ?? "";
+  const color = statuses[key]?.color ?? null;
+  return getPillStyle(color);
 }

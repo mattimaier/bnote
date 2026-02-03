@@ -9,6 +9,7 @@ import {
   getEventTypeConfig as getEventTypeConfigFromEntity,
   type EventDisplayType as EntityEventDisplayType,
 } from "./entity-config";
+import { formatDateShort, formatTimeShort } from "@/lib/date-time";
 
 export type EventDisplayType = EntityEventDisplayType;
 
@@ -24,31 +25,14 @@ export function mapOtypeToEventType(otype: string): EventDisplayType {
   return OTYPE_MAP[otype] ?? "meeting";
 }
 
-export function formatEventDate(dateStr: string | undefined, locale: string): string {
-  if (!dateStr) return "TBA";
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString(locale === "de" ? "de-DE" : "en-US", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  } catch {
-    return "TBA";
-  }
+export function formatEventDate(dateStr: string | undefined, locale: string, fallback = "TBA"): string {
+  const formatted = formatDateShort(dateStr, locale);
+  return formatted ?? fallback;
 }
 
-export function formatEventTime(dateStr: string | undefined, locale: string): string {
-  if (!dateStr) return "TBA";
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleTimeString(locale === "de" ? "de-DE" : "en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  } catch {
-    return "TBA";
-  }
+export function formatEventTime(dateStr: string | undefined, locale: string, fallback = "TBA"): string {
+  const formatted = formatTimeShort(dateStr, locale);
+  return formatted ?? fallback;
 }
 
 export interface EventTypeConfig {

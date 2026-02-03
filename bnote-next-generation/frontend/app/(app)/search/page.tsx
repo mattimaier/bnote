@@ -13,6 +13,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { performSearch, getSearchYears, type SearchResults, type SearchFilters, type SearchEventItem, type SearchListItem } from "@/lib/search";
 import { EventCard, type InboxEvent } from "@/components/EventCard";
 import { getIcon } from "@/components/icons";
+import { AddressLink } from "@/components/AddressLink";
 import {
   getEntityTypeForSearchCategory,
   getColor,
@@ -21,6 +22,7 @@ import {
   getDotStyle,
 } from "@/lib/entity-config";
 import { prefixPath } from "@/lib/path";
+import { formatMonthName } from "@/lib/date-time";
 import { Search as SearchIcon, MapPin, User, Users, Music, CheckSquare, FileText } from "lucide-react";
 
 const CATEGORIES: { key: keyof SearchResults; labelKey: string; type: "events" | "list" }[] = [
@@ -220,7 +222,7 @@ function SearchContent() {
             <option value="">{t("js.search.filter.month") || "Month"}</option>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => (
               <option key={m} value={m}>
-                {new Date(2000, m - 1, 1).toLocaleString(lang === "de" ? "de-DE" : "en-US", { month: "long" })}
+                {formatMonthName(m, lang)}
               </option>
             ))}
           </select>
@@ -371,7 +373,7 @@ function SearchListItemRow({
         )}
         {item.city && (
           <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
-            {[item.street, item.city].filter(Boolean).join(", ")}
+            <AddressLink value={[item.street, item.city].filter(Boolean).join(", ")} t={t} renderRawIfNoAddress />
           </p>
         )}
       </div>
