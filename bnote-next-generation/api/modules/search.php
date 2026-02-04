@@ -30,6 +30,22 @@ require_once __DIR__ . '/../auth.php';
 
 class SearchModule {
     private $data;
+
+    private function filterValidItems($items) {
+        if (!is_array($items)) {
+            return array();
+        }
+        $filtered = array();
+        foreach ($items as $item) {
+            if (!is_array($item)) continue;
+            if (!isset($item['id'])) continue;
+            $id = intval($item['id']);
+            if ($id > 0) {
+                $filtered[] = $item;
+            }
+        }
+        return $filtered;
+    }
     
     public function __construct() {
         // Check authentication
@@ -111,7 +127,11 @@ class SearchModule {
             'contacts' => array(),
             'tasks' => array(),
             'repertoire' => array(),
-            'locations' => array()
+            'locations' => array(),
+            'equipment' => array(),
+            'outfits' => array(),
+            'songs' => array(),
+            'votes' => array()
         );
         
         try {
@@ -126,78 +146,122 @@ class SearchModule {
                 'contacts' => 0,
                 'tasks' => 0,
                 'repertoire' => 0,
-                'locations' => 0
+                'locations' => 0,
+                'equipment' => 0,
+                'outfits' => 0,
+                'songs' => 0,
+                'votes' => 0
             );
             
             if (!$moduleType || $moduleType === 'rehearsal') {
                 $rehearsalResult = $this->data->searchRehearsals($query, $filters, $limit);
                 // Handle both old format (array) and new format (array with 'items' and 'total')
                 if (isset($rehearsalResult['items'])) {
-                    $results['rehearsals'] = $rehearsalResult['items'];
-                    $totals['rehearsals'] = $rehearsalResult['total'];
+                    $results['rehearsals'] = $this->filterValidItems($rehearsalResult['items']);
+                    $totals['rehearsals'] = count($results['rehearsals']);
                 } else {
-                    $results['rehearsals'] = $rehearsalResult;
-                    $totals['rehearsals'] = count($rehearsalResult);
+                    $results['rehearsals'] = $this->filterValidItems($rehearsalResult);
+                    $totals['rehearsals'] = count($results['rehearsals']);
                 }
             }
             if (!$moduleType || $moduleType === 'concert' || $moduleType === 'performance') {
                 $concertResult = $this->data->searchConcerts($query, $filters, $limit);
                 if (isset($concertResult['items'])) {
-                    $results['concerts'] = $concertResult['items'];
-                    $totals['concerts'] = $concertResult['total'];
+                    $results['concerts'] = $this->filterValidItems($concertResult['items']);
+                    $totals['concerts'] = count($results['concerts']);
                 } else {
-                    $results['concerts'] = $concertResult;
-                    $totals['concerts'] = count($concertResult);
+                    $results['concerts'] = $this->filterValidItems($concertResult);
+                    $totals['concerts'] = count($results['concerts']);
                 }
             }
             if (!$moduleType || $moduleType === 'user') {
                 $userResult = $this->data->searchUsers($query, $filters, $limit);
                 if (isset($userResult['items'])) {
-                    $results['users'] = $userResult['items'];
-                    $totals['users'] = $userResult['total'];
+                    $results['users'] = $this->filterValidItems($userResult['items']);
+                    $totals['users'] = count($results['users']);
                 } else {
-                    $results['users'] = $userResult;
-                    $totals['users'] = count($userResult);
+                    $results['users'] = $this->filterValidItems($userResult);
+                    $totals['users'] = count($results['users']);
                 }
             }
             if (!$moduleType || $moduleType === 'contact') {
                 $contactResult = $this->data->searchContacts($query, $filters, $limit);
                 if (isset($contactResult['items'])) {
-                    $results['contacts'] = $contactResult['items'];
-                    $totals['contacts'] = $contactResult['total'];
+                    $results['contacts'] = $this->filterValidItems($contactResult['items']);
+                    $totals['contacts'] = count($results['contacts']);
                 } else {
-                    $results['contacts'] = $contactResult;
-                    $totals['contacts'] = count($contactResult);
+                    $results['contacts'] = $this->filterValidItems($contactResult);
+                    $totals['contacts'] = count($results['contacts']);
                 }
             }
             if (!$moduleType || $moduleType === 'task') {
                 $taskResult = $this->data->searchTasks($query, $filters, $limit);
                 if (isset($taskResult['items'])) {
-                    $results['tasks'] = $taskResult['items'];
-                    $totals['tasks'] = $taskResult['total'];
+                    $results['tasks'] = $this->filterValidItems($taskResult['items']);
+                    $totals['tasks'] = count($results['tasks']);
                 } else {
-                    $results['tasks'] = $taskResult;
-                    $totals['tasks'] = count($taskResult);
+                    $results['tasks'] = $this->filterValidItems($taskResult);
+                    $totals['tasks'] = count($results['tasks']);
                 }
             }
             if (!$moduleType || $moduleType === 'repertoire') {
                 $repertoireResult = $this->data->searchRepertoire($query, $filters, $limit);
                 if (isset($repertoireResult['items'])) {
-                    $results['repertoire'] = $repertoireResult['items'];
-                    $totals['repertoire'] = $repertoireResult['total'];
+                    $results['repertoire'] = $this->filterValidItems($repertoireResult['items']);
+                    $totals['repertoire'] = count($results['repertoire']);
                 } else {
-                    $results['repertoire'] = $repertoireResult;
-                    $totals['repertoire'] = count($repertoireResult);
+                    $results['repertoire'] = $this->filterValidItems($repertoireResult);
+                    $totals['repertoire'] = count($results['repertoire']);
                 }
             }
             if (!$moduleType || $moduleType === 'location') {
                 $locationResult = $this->data->searchLocations($query, $filters, $limit);
                 if (isset($locationResult['items'])) {
-                    $results['locations'] = $locationResult['items'];
-                    $totals['locations'] = $locationResult['total'];
+                    $results['locations'] = $this->filterValidItems($locationResult['items']);
+                    $totals['locations'] = count($results['locations']);
                 } else {
-                    $results['locations'] = $locationResult;
-                    $totals['locations'] = count($locationResult);
+                    $results['locations'] = $this->filterValidItems($locationResult);
+                    $totals['locations'] = count($results['locations']);
+                }
+            }
+            if (!$moduleType || $moduleType === 'equipment') {
+                $equipmentResult = $this->data->searchEquipment($query, $filters, $limit);
+                if (isset($equipmentResult['items'])) {
+                    $results['equipment'] = $this->filterValidItems($equipmentResult['items']);
+                    $totals['equipment'] = count($results['equipment']);
+                } else {
+                    $results['equipment'] = $this->filterValidItems($equipmentResult);
+                    $totals['equipment'] = count($results['equipment']);
+                }
+            }
+            if (!$moduleType || $moduleType === 'outfit') {
+                $outfitsResult = $this->data->searchOutfits($query, $filters, $limit);
+                if (isset($outfitsResult['items'])) {
+                    $results['outfits'] = $this->filterValidItems($outfitsResult['items']);
+                    $totals['outfits'] = count($results['outfits']);
+                } else {
+                    $results['outfits'] = $this->filterValidItems($outfitsResult);
+                    $totals['outfits'] = count($results['outfits']);
+                }
+            }
+            if (!$moduleType || $moduleType === 'song') {
+                $songsResult = $this->data->searchSongs($query, $filters, $limit);
+                if (isset($songsResult['items'])) {
+                    $results['songs'] = $this->filterValidItems($songsResult['items']);
+                    $totals['songs'] = count($results['songs']);
+                } else {
+                    $results['songs'] = $this->filterValidItems($songsResult);
+                    $totals['songs'] = count($results['songs']);
+                }
+            }
+            if (!$moduleType || $moduleType === 'vote') {
+                $votesResult = $this->data->searchVotes($query, $filters, $limit);
+                if (isset($votesResult['items'])) {
+                    $results['votes'] = $this->filterValidItems($votesResult['items']);
+                    $totals['votes'] = count($results['votes']);
+                } else {
+                    $results['votes'] = $this->filterValidItems($votesResult);
+                    $totals['votes'] = count($results['votes']);
                 }
             }
             

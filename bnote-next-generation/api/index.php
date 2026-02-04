@@ -28,6 +28,12 @@
  * Note: BNOTE_ROOT constant is defined in paths.php and points to the original BNote codebase
  */
 
+// Ensure no stray output (warnings/notices) breaks JSON responses
+if (!ob_get_level()) {
+    ob_start();
+}
+ini_set('display_errors', 0);
+
 // Load path configuration first (defines BNOTE_ROOT)
 require_once __DIR__ . '/paths.php';
 

@@ -170,6 +170,20 @@ class ContactsModule {
         
         // Get contact groups
         $groups = $this->data->getContactGroupsArray($id);
+        $groupIds = [];
+        if (is_array($groups)) {
+            foreach ($groups as $group) {
+                if (is_array($group)) {
+                    if (isset($group['id'])) {
+                        $groupIds[] = intval($group['id']);
+                    } elseif (isset($group['group_id'])) {
+                        $groupIds[] = intval($group['group_id']);
+                    }
+                } elseif (is_numeric($group)) {
+                    $groupIds[] = intval($group);
+                }
+            }
+        }
         
         // Format response
         $result = [
@@ -193,7 +207,7 @@ class ContactsModule {
             'street' => $contact['street'] ?? '',
             'city' => $contact['city'] ?? '',
             'zip' => $contact['zip'] ?? '',
-            'groups' => $groups,
+            'groups' => $groupIds,
             'share_address' => intval($contact['share_address'] ?? 0) === 1,
             'share_phones' => intval($contact['share_phones'] ?? 0) === 1,
             'share_birthday' => intval($contact['share_birthday'] ?? 0) === 1,

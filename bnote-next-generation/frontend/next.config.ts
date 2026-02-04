@@ -7,14 +7,17 @@ const nextConfig: NextConfig = {
   output: "export",
   basePath: basePath || undefined,
   trailingSlash: true,
-  // In dev, proxy /api to the PHP backend so login works without CORS (same origin).
-  async rewrites() {
-    const base =
-      process.env.NEXT_PUBLIC_API_BASE ||
-      "http://localhost:8888/Bnote/bnote-next-generation";
-    const target = base.endsWith("/") ? base.slice(0, -1) : base;
-    return [{ source: "/api/:path*", destination: `${target}/api/:path*` }];
-  },
+  // In dev only: proxy /api to the PHP backend so login works without CORS (same origin).
+  // With output: "export", rewrites are not applied in production — set NEXT_PUBLIC_API_BASE to your API URL instead.
+  ...(process.env.NODE_ENV === "development" && {
+    async rewrites() {
+      const base =
+        process.env.NEXT_PUBLIC_API_BASE ||
+        "http://localhost:8888/Bnote/bnote-next-generation";
+      const target = base.endsWith("/") ? base.slice(0, -1) : base;
+      return [{ source: "/api/:path*", destination: `${target}/api/:path*` }];
+    },
+  }),
 };
 
 export default nextConfig;

@@ -58,6 +58,10 @@ class RehearsalsModule {
             return $this->getRehearsal($id);
         }
         
+        if ($action === 'list') {
+            return $this->listRehearsals();
+        }
+        
         if ($action === 'meta') {
             $this->requireRehearsalsModulePermission();
             return $this->getMeta();
@@ -74,6 +78,103 @@ class RehearsalsModule {
         }
         
         Response::error('Method not supported or missing ID', 400);
+    }
+    
+    /**
+     * List rehearsals the current user can see (future only, access-controlled).
+     */
+    private function listRehearsals() {
+        $userId = Auth::getUserId();
+        $rehearsals = $this->getAccessibleRehearsals($userId);
+        $list = [];
+        if (is_array($rehearsals)) {
+            for ($i = 1; $i < count($rehearsals); $i++) {
+                $r = $rehearsals[$i];
+                $participationStats = $this->getParticipationStatsForRehearsal($r['id'] ?? null);
+                $list[] = [
+                    'id' => intval($r['id']),
+                    'begin' => $r['begin'] ?? '',
+                    'end' => $r['end'] ?? '',
+                    'approve_until' => $r['approve_until'] ?? '',
+                    'location_name' => $r['location_name'] ?? '',
+                    'notes' => $r['notes'] ?? '',
+                    'status' => $r['status'] ?? '',
+                    'conductor' => isset($r['conductor']) ? intval($r['conductor']) : null,
+                    'participationStats' => $participationStats
+                ];
+            }
+        }
+        return $list;
+    }
+
+    private function getAccessibleRehearsals($userId) {
+        global $system_data;
+        $uid = intval($userId);
+        if ($system_data->isUserSuperUser($uid)) {
+            $query = "SELECT r.id, r.begin, r.end, r.approve_until, r.conductor, r.notes, r.status, l.name as location_name
+                      FROM rehearsal r
+                      JOIN location l ON r.location = l.id
+                      ORDER BY r.begin DESC";
+            return $system_data->dbcon->getSelection($query);
+        }
+
+        $startData = new StartData();
+        $usersPhases = $startData->adp()->getUsersPhases($uid);
+        $rehearsalIds = array_merge(
+            $this->getRehearsalsForUser($uid),
+            $this->getRehearsalsForPhases($usersPhases)
+        );
+        $rehearsalIds = array_map('intval', array_unique($rehearsalIds));
+        if (count($rehearsalIds) === 0) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($rehearsalIds), '?'));
+        $params = array_map(fn($id) => ['i', $id], $rehearsalIds);
+        $query = "SELECT r.id, r.begin, r.end, r.approve_until, r.conductor, r.notes, r.status, l.name as location_name
+                  FROM rehearsal r
+                  JOIN location l ON r.location = l.id
+                  WHERE r.id IN ($placeholders)
+                  ORDER BY r.begin DESC";
+        return $system_data->dbcon->getSelection($query, $params);
+    }
+
+    private function getParticipationStatsForRehearsal($rehearsalId) {
+        global $system_data;
+        if (!$rehearsalId || !is_numeric($rehearsalId)) {
+            return [
+                'yes' => 0,
+                'maybe' => 0,
+                'no' => 0,
+                'pending' => 0,
+                'total' => 0
+            ];
+        }
+        $rid = intval($rehearsalId);
+        $query = "SELECT 
+                    SUM(CASE WHEN ru.participate = 1 THEN 1 ELSE 0 END) as yes,
+                    SUM(CASE WHEN ru.participate = 2 THEN 1 ELSE 0 END) as maybe,
+                    SUM(CASE WHEN ru.participate = 0 THEN 1 ELSE 0 END) as no,
+                    SUM(CASE WHEN ru.participate IS NULL OR ru.participate < 0 THEN 1 ELSE 0 END) as pending
+                  FROM rehearsal_contact rc
+                  JOIN contact ct ON rc.contact = ct.id
+                  JOIN user u ON u.contact = ct.id
+                  LEFT JOIN rehearsal_user ru ON ru.user = u.id AND ru.rehearsal = ?
+                  WHERE rc.rehearsal = ?";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $rid], ['i', $rid]]);
+        $row = is_array($rows) && isset($rows[1]) ? $rows[1] : null;
+        $yes = isset($row['yes']) ? intval($row['yes']) : 0;
+        $maybe = isset($row['maybe']) ? intval($row['maybe']) : 0;
+        $no = isset($row['no']) ? intval($row['no']) : 0;
+        $pending = isset($row['pending']) ? intval($row['pending']) : 0;
+        $total = $yes + $maybe + $no + $pending;
+        return [
+            'yes' => $yes,
+            'maybe' => $maybe,
+            'no' => $no,
+            'pending' => $pending,
+            'total' => $total
+        ];
     }
     
     /**

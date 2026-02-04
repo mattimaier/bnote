@@ -21,6 +21,8 @@ interface AddressLinkProps {
   className?: string;
   textClassName?: string;
   renderRawIfNoAddress?: boolean;
+  /** When false, render plain text only (no button/popover). Use when inside another interactive element (e.g. list row). */
+  interactive?: boolean;
 }
 
 export function AddressLink({
@@ -30,6 +32,7 @@ export function AddressLink({
   className,
   textClassName,
   renderRawIfNoAddress = false,
+  interactive = true,
 }: AddressLinkProps) {
   const info = getAddressInfo(value);
   const [open, setOpen] = useState(false);
@@ -63,8 +66,10 @@ export function AddressLink({
 
   const displayText =
     typeof value === "string"
-      ? info.formatted.replace(/,\\s*/g, "\n")
-      : formatAddressPartsMultiline(value);
+      ? info.formatted.replace(/,\s*/g, "\n")
+      : value != null
+        ? formatAddressPartsMultiline(value)
+        : info.formatted.replace(/,\s*/g, "\n");
   const nameText = name ? name.trim() : "";
   const combinedText = [nameText, displayText].filter(Boolean).join("\n");
 
@@ -75,6 +80,14 @@ export function AddressLink({
     window.open(href, "_blank", "noopener,noreferrer");
     setOpen(false);
   };
+
+  if (!interactive) {
+    return (
+      <span className={`whitespace-pre-line text-left ${textClassName ?? ""} ${className ?? ""}`}>
+        {combinedText}
+      </span>
+    );
+  }
 
   return (
     <span ref={ref} className={`relative inline-flex ${className ?? ""}`}>

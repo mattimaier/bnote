@@ -7,6 +7,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
 import { useI18n } from "@/contexts/I18nContext";
 import { ParticipationDiagram, type ParticipationStats } from "@/components/ParticipationDiagram";
 import { Check, X, HelpCircle, Clock } from "lucide-react";
@@ -25,8 +26,13 @@ export interface InstrumentGroup {
   stats?: { yes: number; maybe: number; no: number; pending: number };
 }
 
+/** When provided, participant names are rendered as links to the entity (contact or user). */
+export type GetEntityHref = (entityType: "contact" | "user", id: number) => string | null;
+
 interface ParticipantOverviewProps {
   participantsByInstrument: InstrumentGroup[] | null | undefined;
+  /** Optional: when set, participant names link to entity detail when user has view rights */
+  getEntityHref?: GetEntityHref | null;
 }
 
 function getGroupName(group: InstrumentGroup, mode: "category" | "instrument"): string {
@@ -109,13 +115,31 @@ function StatusIcon({ participate }: { participate: number | null }) {
   );
 }
 
-function ParticipantRow({ participant }: { participant: ParticipantItem }) {
+function ParticipantRow({
+  participant,
+  getEntityHref,
+}: {
+  participant: ParticipantItem;
+  getEntityHref?: GetEntityHref | null;
+}) {
   const initials = participant.name
     ?.trim()
     .split(/\s+/)
     .reduce((acc, part, i, arr) => acc + (i === 0 || i === arr.length - 1 ? part[0] ?? "" : ""), "")
     .toUpperCase()
     .slice(0, 2) || "?";
+
+  const entityType: "contact" | "user" = "contact";
+  const entityId = participant.id;
+  const href = getEntityHref?.(entityType, entityId) ?? null;
+
+  const nameNode = href ? (
+    <Link href={href} className="text-sm font-medium text-inherit no-underline">
+      {participant.name}
+    </Link>
+  ) : (
+    <span className="text-sm font-medium">{participant.name}</span>
+  );
 
   return (
     <div
@@ -134,7 +158,7 @@ function ParticipantRow({ participant }: { participant: ParticipantItem }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium">{participant.name}</span>
+          {nameNode}
           <StatusIcon participate={participant.participate} />
         </div>
         {participant.reason?.trim() && (
@@ -147,7 +171,7 @@ function ParticipantRow({ participant }: { participant: ParticipantItem }) {
   );
 }
 
-export function ParticipantOverview({ participantsByInstrument }: ParticipantOverviewProps) {
+export function ParticipantOverview({ participantsByInstrument, getEntityHref }: ParticipantOverviewProps) {
   const { t } = useI18n();
   const [groupMode, setGroupMode] = useState<"category" | "instrument">("category");
 
@@ -222,7 +246,11 @@ export function ParticipantOverview({ participantsByInstrument }: ParticipantOve
               )}
               <div className="space-y-2">
                 {group.participants?.map((p) => (
-                  <ParticipantRow key={`${p.id}-${p.userId ?? p.name}`} participant={p} />
+                  <ParticipantRow
+                    key={`${p.id}-${p.userId ?? p.name}`}
+                    participant={p}
+                    getEntityHref={getEntityHref}
+                  />
                 ))}
               </div>
             </div>

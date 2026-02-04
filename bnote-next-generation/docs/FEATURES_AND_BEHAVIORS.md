@@ -2,6 +2,8 @@
 
 This document describes each feature and expected behavior of the Next.js app. Use it for regression checks and bug fixing.
 
+**Shared UI patterns** (lists, detail/edit, delete, URL for edit mode) are documented in **[UI_PATTERNS.md](UI_PATTERNS.md)**. All modules and entity pages must follow those patterns.
+
 ---
 
 ## 1. Overview
@@ -47,9 +49,9 @@ This document describes each feature and expected behavior of the Next.js app. U
 - **Title/subtitle:** i18n `js.users.title`, `js.users.subtitle`.
 - **Actions:** “Add User” (primary), optional GDPR (shield) if implemented.
 - **Search:** Client-side filter by login, first name, last name.
-- **Table:** Columns: ID, Login, First name, Last name, Status, Last login, Actions. All columns sortable; **date sorting for Last login** uses timestamp comparison (null/missing sorts to end in asc).
+- **Table (see [UI_PATTERNS.md](UI_PATTERNS.md)):** Columns: **Login, First name, Last name, Status, Last login, Actions**. No ID column. No Edit (pencil) or Delete (trash) in list rows. All columns sortable; **date sorting for Last login** uses timestamp comparison (null/missing sorts to end in asc).
 - **Status pills:** Active = amber; Inactive = red (destructive-style).
-- **Row actions:** Edit (pencil), Manage privileges (key), Activate/Deactivate (X/check), Delete (trash, destructive). Icons: Pencil, Key, XCircle, CheckCircle, Trash2.
+- **Row actions:** Manage privileges (key), Activate/Deactivate (X/check) only. Edit and Delete are not in the list; editing is via modal (e.g. from URL `?id=…`); delete is not offered from the list.
 - **Modals:** Add user (login, password, contact, isActive); Edit user (password optional, contact, isActive); Manage privileges (checkboxes per module).
 
 ---
@@ -61,8 +63,8 @@ This document describes each feature and expected behavior of the Next.js app. U
 - **Actions:** “Add Contact” (primary). Secondary (Integration, Groups, Print, vCard, Datenschutz) as implemented.
 - **Filter tabs:** “All” + group tabs from API; selection filters list.
 - **Search:** Client-side filter by name, surname, nickname, email.
-- **Table:** Columns: ID, First name, Last name, Nickname, Instrument, Email, Phone, City, Actions. All columns sortable (string/number comparators).
-- **Row click:** Opens edit modal. Action buttons: Edit, Delete.
+- **Table (see [UI_PATTERNS.md](UI_PATTERNS.md)):** Columns: **First name, Last name, Nickname, Instrument, Email, Phone, City**. No ID column. No Edit or Delete buttons in list rows.
+- **Row click:** Opens edit modal. Edit and Delete are not in the list.
 - **Modals:** Add/Edit contact form: name, surname, nickname, email, phone, mobile, street, zip, city, notes, groups (checkboxes).
 
 ---
@@ -77,12 +79,13 @@ This document describes each feature and expected behavior of the Next.js app. U
 
 ## 8. Entity Detail
 
-- **Route:** `/entity` with query params (e.g. `id`, `entity` type, `module` for back-context). Page: `app/(app)/entity/page.tsx`.
-- **Header:** Event type title + icon + tag from entity config.
+- **Routes (see [UI_PATTERNS.md](UI_PATTERNS.md)):** Path-based: view = `/entity/[type]/[id]`, edit = `/entity/[type]/[id]/edit`. Legacy `/entity` with query params redirects to path-based URL. Edit mode is in the URL.
+- **Header:** Event type title + icon + tag from entity config. **DetailPageHeader** with **DetailEditButton** (right, baseline-aligned).
 - **Metadata:** Date, time, status, response deadline, conductor, location (full address). Buttons: “In Google Maps öffnen”, “In Apple Maps öffnen” (or equivalent).
 - **Participation widget:** Yes / Maybe / No with correct colors (green, orange, red). Submission via API.
 - **Participation overview:** Bar showing counts by status (e.g. 10 green, 2 red, 13 grey).
 - **Participants:** “Group by: Category | Instrument”. Group headers with summary bars; rows with initials, status icon (clock = pending, check = confirmed). Components: `ParticipationDiagram`, `ParticipantOverview`.
+- **Delete:** For entity types that support delete (e.g. location, equipment, outfit, song, vote), delete is only in the **edit view**: **DetailDeleteSection** at the bottom with a Delete button that opens **ConfirmModal** (confirm/cancel). Shown only when the user has delete rights (`canDelete`). See [UI_PATTERNS.md](UI_PATTERNS.md).
 
 ---
 
@@ -121,10 +124,11 @@ This document describes each feature and expected behavior of the Next.js app. U
 
 - **Branding:** Logo and “BNote” in sidebar/mobile/login; favicon if required.
 - **Dashboard:** Greeting + company subtitle; events needing response; event cards; Quick Actions (if enabled); filters.
-- **Users:** Title/subtitle; Add User; search; sortable table (including correct last-login date sort); Active/Inactive pills; row actions (Edit, Privileges, Activate/Deactivate, Delete).
-- **Contacts:** Title/subtitle; Add Contact; group tabs; search; sortable table; row click to edit; Edit/Delete.
+- **Users:** Title/subtitle; Add User; search; sortable table (no ID column; correct last-login date sort); Active/Inactive pills; row actions only Privileges and Activate/Deactivate (no Edit/Delete in list).
+- **Contacts:** Title/subtitle; Add Contact; group tabs; search; sortable table (no ID column; no Edit/Delete in list); row click opens edit modal.
+- **Lists (all modules):** No ID column; no Edit (pencil) or Delete (trash) in list rows. See [UI_PATTERNS.md](UI_PATTERNS.md).
 - **Search:** Top-bar overlay; search results page with query in URL; filters; result list with type icon, date, tag, time, location.
-- **Entity detail:** Type title + icon + tag; metadata; map links; participation widget; overview bar; participants with group-by and status icons.
+- **Entity detail:** Path-based view/edit; type title + icon + tag; metadata; map links; participation widget; overview bar; participants with group-by and status icons. Edit mode in URL; delete only in edit view (DetailDeleteSection + ConfirmModal).
 - **Shell:** Sidebar, mobile drawer, top bar (search, theme, user); logo everywhere.
 - **Translations:** No “[module module]” or raw keys; company name in subtitle; all strings from lang/ or API.
 - **Icons:** All entity types and actions use icons from `entity-config` + `icons.tsx`; logo loads; no broken placeholders.

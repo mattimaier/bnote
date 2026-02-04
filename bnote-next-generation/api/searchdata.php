@@ -132,11 +132,61 @@ class SearchData extends AbstractData {
     }
 
     /**
+     * Search votes by name.
+     */
+    public function searchVotes($query, $filters, $limit) {
+        $like = "%" . $query . "%";
+        $sql = "SELECT id, name FROM vote WHERE name LIKE ? ORDER BY name LIMIT ?";
+        $rows = $this->database->getSelection($sql, array(array("s", $like), array("i", $limit)));
+        return is_array($rows) ? $rows : array();
+    }
+
+    /**
+     * Search songs (repertoire/song table) by title, composer, or notes.
+     */
+    public function searchSongs($query, $filters, $limit) {
+        $like = "%" . $query . "%";
+        $sql = "SELECT s.id, s.title as title, c.name as composer
+                FROM song s
+                LEFT JOIN composer c ON s.composer = c.id
+                WHERE s.title LIKE ? OR c.name LIKE ? OR s.notes LIKE ?
+                ORDER BY s.title LIMIT ?";
+        $rows = $this->database->getSelection($sql, array(
+            array("s", $like), array("s", $like), array("s", $like), array("i", $limit)
+        ));
+        return is_array($rows) ? $rows : array();
+    }
+
+    /**
      * Search repertoire (programs) by name or notes.
      */
     public function searchRepertoire($query, $filters, $limit) {
         $like = "%" . $query . "%";
         $sql = "SELECT id, name as title, notes FROM program WHERE name LIKE ? OR notes LIKE ? ORDER BY name LIMIT ?";
+        $rows = $this->database->getSelection($sql, array(array("s", $like), array("s", $like), array("i", $limit)));
+        return is_array($rows) ? $rows : array();
+    }
+
+    /**
+     * Search equipment by name, make, model, or notes.
+     */
+    public function searchEquipment($query, $filters, $limit) {
+        $like = "%" . $query . "%";
+        $sql = "SELECT id, name, make, model, notes FROM equipment
+                WHERE name LIKE ? OR make LIKE ? OR model LIKE ? OR notes LIKE ?
+                ORDER BY name LIMIT ?";
+        $rows = $this->database->getSelection($sql, array(
+            array("s", $like), array("s", $like), array("s", $like), array("s", $like), array("i", $limit)
+        ));
+        return is_array($rows) ? $rows : array();
+    }
+
+    /**
+     * Search outfits by name or description.
+     */
+    public function searchOutfits($query, $filters, $limit) {
+        $like = "%" . $query . "%";
+        $sql = "SELECT id, name, description FROM outfit WHERE name LIKE ? OR description LIKE ? ORDER BY name LIMIT ?";
         $rows = $this->database->getSelection($sql, array(array("s", $like), array("s", $like), array("i", $limit)));
         return is_array($rows) ? $rows : array();
     }

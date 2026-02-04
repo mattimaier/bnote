@@ -14,10 +14,12 @@ import {
   formatEventTime,
   getEventTypeConfig,
 } from "@/lib/event-utils";
+import { getEntityPath } from "@/lib/entities/paths";
 import { ParticipationWidget } from "./ParticipationWidget";
 import { getIcon } from "@/components/icons";
 import { MapPin, Clock } from "lucide-react";
 import { AddressLink } from "@/components/AddressLink";
+import { getStatusPillStyle } from "@/lib/entity-config";
 
 export interface InboxEvent {
   otype: string;
@@ -26,6 +28,7 @@ export interface InboxEvent {
   eventBegin?: string;
   dueDate?: string;
   begin?: string;
+  status?: string;
   location?: { name?: string } | string;
   locationName?: string;
   locationData?: { name?: string };
@@ -69,8 +72,10 @@ export function EventCard({
   const hideTitleWhenDuplicate = title === typeConfig.label;
   const isClickable = event.otype === "R" || event.otype === "C";
   const entityType = event.otype === "C" ? "concert" : "rehearsal";
-  const href = isClickable ? `/entity?type=${entityType}&id=${event.oid}` : "#";
+  const href = isClickable ? getEntityPath(entityType, event.oid) : "#";
   const hasParticipation = showParticipation && isClickable && event.oid && event.otype;
+  const status = String(event.status ?? "").toLowerCase();
+  const isCancelled = status === "cancelled" || status === "canceled" || status === "abgesagt";
   const DotIcon = getIcon(typeConfig.icon);
 
   /* Desktop: timeline + card. Mobile: compact list item without timeline */
@@ -95,6 +100,16 @@ export function EventCard({
                 </h3>
               )}
               <span className={`event-badge ${typeConfig.badgeClass}`}>{typeConfig.label}</span>
+              {isCancelled && (
+                <span
+                  className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
+                  style={getStatusPillStyle("cancelled")}
+                >
+                  {t("js.event.status.cancelled") !== "js.event.status.cancelled"
+                    ? t("js.event.status.cancelled")
+                    : "Cancelled"}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground/80">
               <Clock className="h-3 w-3 text-primary/60" />
@@ -107,6 +122,7 @@ export function EventCard({
                 eventId={event.oid}
                 eventType={event.otype}
                 onStatusChange={onParticipationChange}
+                disabled={isCancelled}
               />
             </div>
           )}
@@ -133,6 +149,16 @@ export function EventCard({
               </h3>
             )}
             <span className={`event-badge ${typeConfig.badgeClass} text-[10px]`}>{typeConfig.label}</span>
+            {isCancelled && (
+              <span
+                className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium border"
+                style={getStatusPillStyle("cancelled")}
+              >
+                {t("js.event.status.cancelled") !== "js.event.status.cancelled"
+                  ? t("js.event.status.cancelled")
+                  : "Cancelled"}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground/80">
             <Clock className="h-2.5 w-2.5 text-primary/60" />
@@ -145,6 +171,7 @@ export function EventCard({
               eventId={event.oid}
               eventType={event.otype}
               onStatusChange={onParticipationChange}
+              disabled={isCancelled}
             />
           </div>
         )}

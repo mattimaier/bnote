@@ -11,6 +11,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { getBnoteLogoUrl } from "@/lib/bnote-assets";
+import { getEntityConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 import { api } from "@/lib/api";
 import { X } from "lucide-react";
@@ -135,16 +136,21 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
             <X className="h-5 w-5" />
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-2">
           {modules.map((m) => {
-            const route = m.route || "dashboard";
-            const href = `/${route}`;
-            const isActive = currentRoute === route;
-            const Icon = getIcon(m.icon);
+            const rawRoute = (m.route ?? "").replace(/^\/+/, "") || "dashboard";
+            const path = rawRoute.startsWith("/") ? rawRoute : `/${rawRoute}`;
+            const href = path.endsWith("/") ? path : `${path}/`;
+            const isActive = currentRoute === rawRoute || currentRoute === path.replace(/^\//, "") || currentRoute === rawRoute.replace(/\/$/, "");
+            const entityConfig = getEntityConfig(rawRoute);
+            const iconName = entityConfig?.icon ?? m.icon;
+            const Icon = getIcon(iconName);
+            const iconColor = entityConfig?.color ?? undefined;
             return (
               <Link
                 key={m.id}
                 href={href}
+                prefetch={false}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                   isActive
@@ -153,7 +159,12 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
                 }`}
                 style={!isActive ? { color: "var(--foreground)" } : undefined}
               >
-                <Icon className="h-5 w-5 shrink-0" />
+                <span
+                  className="flex shrink-0 items-center justify-center"
+                  style={isActive ? undefined : iconColor ? { color: iconColor } : undefined}
+                >
+                  <Icon className="h-5 w-5" />
+                </span>
                 <span className="flex-1 truncate">{t(m.i18n) || m.name}</span>
               </Link>
             );

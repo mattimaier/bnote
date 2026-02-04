@@ -19,11 +19,12 @@ export interface Toast {
   id: string;
   message: string;
   type: ToastType;
+  entityType?: string;
 }
 
 interface ToastContextValue {
   toasts: Toast[];
-  showToast: (message: string, type?: ToastType) => void;
+  showToast: (message: string, type?: ToastType, entityType?: string) => void;
   dismiss: (id: string) => void;
 }
 
@@ -37,9 +38,9 @@ function nextId() {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback((message: string, type: ToastType = "default") => {
+  const showToast = useCallback((message: string, type: ToastType = "default", entityType?: string) => {
     const id = nextId();
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message, type, entityType }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 3000);

@@ -11,6 +11,7 @@
 
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -20,7 +21,7 @@ import { useSearch } from "@/contexts/SearchContext";
 import { SearchAutocompleteOverlay } from "@/components/SearchAutocompleteOverlay";
 import { useEffect, useRef, useState } from "react";
 import { checkSession } from "@/lib/auth";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, LogOut, User } from "lucide-react";
 
 function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);
@@ -43,7 +44,9 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const { t } = useI18n();
   const { query, setQuery, setOverlayOpen } = useSearch();
   const [user, setUser] = useState<{ name?: string; surname?: string } | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const searchAnchorRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   useEffect(() => {
@@ -51,6 +54,17 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
       if (s.user) setUser(s.user);
     });
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [menuOpen]);
 
   const initials =
     user?.name || user?.surname
@@ -65,7 +79,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b flex h-16 items-center gap-3 px-4 lg:px-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-0 z-50 w-full border-b flex h-16 items-center gap-3 px-3 md:px-4 lg:px-6 bg-[var(--background)] md:bg-background/95 md:backdrop-blur"
       style={{ borderColor: "color-mix(in oklch, var(--border) 40%, transparent)" }}
     >
       {/* Hamburger: visible only on mobile */}
@@ -94,7 +108,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setOverlayOpen(true)}
               placeholder={t("js.dashboard.searchPlaceholder")}
-              className="pl-9 pr-56 h-9 w-full rounded-md text-sm border outline-none focus:ring-1 focus:ring-[var(--primary)]/30 bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground/60 focus:bg-muted/60"
+              className="pl-9 pr-9 md:pr-56 h-9 w-full rounded-md text-sm border outline-none focus:ring-1 focus:ring-[var(--primary)]/30 bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground/60 focus:bg-muted/60"
               aria-label={t("js.dashboard.searchPlaceholder")}
               aria-autocomplete="list"
               aria-controls={query.trim().length >= 2 ? "search-autocomplete" : undefined}
@@ -104,7 +118,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="absolute right-40 top-1/2 -translate-y-1/2 h-5 w-5 rounded-md flex items-center justify-center z-10 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-2 md:right-40 top-1/2 -translate-y-1/2 h-5 w-5 rounded-md flex items-center justify-center z-10 text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={t("js.search.clear") !== "js.search.clear" ? t("js.search.clear") : "Clear search"}
               >
                 <X className="h-4 w-4" />
@@ -113,7 +127,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
             {query.length > 0 && (
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 rounded-md px-2.5 text-[11px] font-medium text-white"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 rounded-md px-2.5 text-[11px] font-medium text-white hidden md:inline-flex items-center justify-center"
                 style={{ background: "var(--primary)" }}
               >
                 {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show results"}
@@ -128,25 +142,60 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
       <div className="flex shrink-0 items-center gap-3">
         <ThemeToggle inline />
         <div className="h-6 w-px hidden sm:block opacity-30" style={{ background: "var(--border)" }} />
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors user-info-btn"
-        >
-          <div
-            className="h-8 w-8 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-semibold user-info-initials"
-            style={{
-              borderColor: "color-mix(in oklch, var(--primary) 20%, transparent)",
-              background: "color-mix(in oklch, var(--primary) 10%, transparent)",
-              color: "var(--primary)",
-            }}
+        <div ref={userMenuRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            className="flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors user-info-btn"
+            aria-expanded={menuOpen}
+            aria-haspopup="true"
           >
-            {initials}
-          </div>
-          <span className="hidden sm:block text-xs font-semibold text-left" style={{ color: "var(--foreground)" }}>
-            {fullName}
-          </span>
-        </button>
+            <div
+              className="h-8 w-8 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-semibold user-info-initials"
+              style={{
+                borderColor: "color-mix(in oklch, var(--primary) 20%, transparent)",
+                background: "color-mix(in oklch, var(--primary) 10%, transparent)",
+                color: "var(--primary)",
+              }}
+            >
+              {initials}
+            </div>
+            <span className="hidden sm:block text-xs font-semibold text-left" style={{ color: "var(--foreground)" }}>
+              {fullName}
+            </span>
+          </button>
+          {menuOpen && (
+            <div
+              className="absolute right-0 top-full mt-1 py-1 min-w-[180px] rounded-lg border shadow-lg z-50"
+              style={{
+                background: "var(--background)",
+                borderColor: "var(--border)",
+              }}
+            >
+              <Link
+                href="/profile/"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted/60 transition-colors"
+                style={{ color: "var(--foreground)" }}
+              >
+                <User className="h-4 w-4" />
+                {t("js.profile.menuMyData") !== "js.profile.menuMyData" ? t("js.profile.menuMyData") : "Meine Kontaktdaten"}
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleLogout();
+                }}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-muted/60 transition-colors text-left"
+                style={{ color: "var(--foreground)" }}
+              >
+                <LogOut className="h-4 w-4" />
+                {t("js.profile.menuLogout") !== "js.profile.menuLogout" ? t("js.profile.menuLogout") : "Logout"}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

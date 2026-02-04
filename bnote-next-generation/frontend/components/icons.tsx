@@ -41,6 +41,10 @@ import {
   Phone,
   Tag,
   Bell,
+  Shirt,
+  Vote,
+  MicVocal,
+  FileMusic,
   type LucideIcon,
 } from "lucide-react";
 
@@ -53,7 +57,10 @@ const iconMap: Record<string, LucideIcon> = {
   "calendar-days": CalendarDays,
   "message-square": MessageSquare,
   music: Music,
-  trumpet: Music, // Lucide has no trumpet; entity-config uses "trumpet" for concert
+  trumpet: Music,
+  mic: MicVocal,
+  "mic-vocal": MicVocal,
+  "file-music": FileMusic,
   calendar: Calendar,
   "map-pin": MapPin,
   "chevron-left": ChevronLeft,
@@ -81,6 +88,8 @@ const iconMap: Record<string, LucideIcon> = {
   phone: Phone,
   tag: Tag,
   bell: Bell,
+  shirt: Shirt,
+  vote: Vote,
 };
 
 export function getIcon(name: string): LucideIcon {

@@ -61,6 +61,10 @@ class ConcertsModule {
             return $this->getConcert($id);
         }
         
+        if ($action === 'list') {
+            return $this->listConcerts();
+        }
+        
         if ($action === 'meta') {
             $this->requireConcertsModulePermission();
             return $this->getMeta();
@@ -77,6 +81,110 @@ class ConcertsModule {
         }
         
         Response::error('Method not supported or missing ID', 400);
+    }
+    
+    /**
+     * List concerts the current user can see (future only, access-controlled via adp).
+     */
+    private function listConcerts() {
+        $userId = Auth::getUserId();
+        $concerts = $this->getAccessibleConcerts($userId);
+        $list = [];
+        if (is_array($concerts)) {
+            for ($i = 1; $i < count($concerts); $i++) {
+                $c = $concerts[$i];
+                $participationStats = $this->getParticipationStatsForConcert($c['id'] ?? null);
+                $list[] = [
+                    'id' => intval($c['id']),
+                    'title' => $c['title'] ?? '',
+                    'begin' => $c['begin'] ?? '',
+                    'end' => $c['end'] ?? '',
+                    'approve_until' => $c['approve_until'] ?? '',
+                    'location_name' => $c['location_name'] ?? '',
+                    'notes' => $c['notes'] ?? '',
+                    'status' => $c['status'] ?? '',
+                    'participationStats' => $participationStats
+                ];
+            }
+        }
+        return $list;
+    }
+
+    private function getAccessibleConcerts($userId) {
+        global $system_data;
+        $uid = intval($userId);
+        if ($system_data->isUserSuperUser($uid)) {
+            $query = "SELECT c.id, c.title, c.begin, c.end, c.approve_until, c.notes, c.status, l.name as location_name
+                      FROM concert c
+                      LEFT JOIN location l ON c.location = l.id
+                      ORDER BY c.begin DESC";
+            return $system_data->dbcon->getSelection($query);
+        }
+
+        $phases = $this->data->adp()->getUsersPhases($uid);
+        $params = [];
+        if (count($phases) > 0) {
+            $phaseWhere = [];
+            foreach ($phases as $p) {
+                $phaseWhere[] = 'rehearsalphase = ?';
+                $params[] = ['i', $p];
+            }
+            $phaseQuery = "SELECT concert FROM rehearsalphase_concert WHERE " . join(' OR ', $phaseWhere);
+        } else {
+            $phaseQuery = "SELECT concert FROM rehearsalphase_concert WHERE 0 = 1";
+        }
+
+        $contactId = $this->data->adp()->getUserContact($uid);
+        $params[] = ['i', $contactId];
+
+        $query = "SELECT DISTINCT c.id, c.title, c.begin, c.end, c.approve_until, c.notes, c.status, l.name as location_name
+                  FROM concert c
+                  LEFT JOIN location l ON c.location = l.id
+                  JOIN (
+                    $phaseQuery
+                    UNION ALL
+                    SELECT concert FROM concert_contact WHERE contact = ?
+                  ) AS concerts ON c.id = concerts.concert
+                  ORDER BY c.begin DESC";
+        return $system_data->dbcon->getSelection($query, $params);
+    }
+
+    private function getParticipationStatsForConcert($concertId) {
+        global $system_data;
+        if (!$concertId || !is_numeric($concertId)) {
+            return [
+                'yes' => 0,
+                'maybe' => 0,
+                'no' => 0,
+                'pending' => 0,
+                'total' => 0
+            ];
+        }
+        $cid = intval($concertId);
+        $query = "SELECT 
+                    SUM(CASE WHEN cu.participate = 1 THEN 1 ELSE 0 END) as yes,
+                    SUM(CASE WHEN cu.participate = 2 THEN 1 ELSE 0 END) as maybe,
+                    SUM(CASE WHEN cu.participate = 0 THEN 1 ELSE 0 END) as no,
+                    SUM(CASE WHEN cu.participate IS NULL OR cu.participate < 0 THEN 1 ELSE 0 END) as pending
+                  FROM concert_contact cc
+                  JOIN contact ct ON cc.contact = ct.id
+                  JOIN user u ON u.contact = ct.id
+                  LEFT JOIN concert_user cu ON cu.user = u.id AND cu.concert = ?
+                  WHERE cc.concert = ?";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $cid], ['i', $cid]]);
+        $row = is_array($rows) && isset($rows[1]) ? $rows[1] : null;
+        $yes = isset($row['yes']) ? intval($row['yes']) : 0;
+        $maybe = isset($row['maybe']) ? intval($row['maybe']) : 0;
+        $no = isset($row['no']) ? intval($row['no']) : 0;
+        $pending = isset($row['pending']) ? intval($row['pending']) : 0;
+        $total = $yes + $maybe + $no + $pending;
+        return [
+            'yes' => $yes,
+            'maybe' => $maybe,
+            'no' => $no,
+            'pending' => $pending,
+            'total' => $total
+        ];
     }
     
     /**
@@ -145,9 +253,15 @@ class ConcertsModule {
         if ($concert['contact'] && $concert['contact'] > 0) {
             $contactData = $this->data->getContact($concert['contact']);
             if ($contactData) {
+                $firstName = $contactData['name'] ?? null;
+                $lastName = $contactData['surname'] ?? null;
+                $fullName = trim(($firstName ?? '') . ' ' . ($lastName ?? ''));
                 $contact = [
                     'id' => intval($concert['contact']),
                     'name' => $contactData['name'] ?? null,
+                    'firstname' => $firstName,
+                    'surname' => $lastName,
+                    'fullname' => $fullName !== '' ? $fullName : ($contactData['name'] ?? null),
                     'phone' => $contactData['phone'] ?? null,
                     'mobile' => $contactData['mobile'] ?? null,
                     'email' => $contactData['email'] ?? null

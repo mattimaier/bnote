@@ -14,6 +14,7 @@ import { checkSession, type Session } from "@/lib/auth";
 import { mapOtypeToEventType } from "@/lib/event-utils";
 import { EventCard, type InboxEvent } from "@/components/EventCard";
 import { getIcon } from "@/components/icons";
+import { isQuickActionsEnabled } from "@/lib/entity-config";
 
 interface DashboardData {
   inbox: InboxEvent[];
@@ -302,27 +303,29 @@ export default function DashboardPage() {
       </div>
 
       <div className="space-y-4">
-        {/* Quick actions: border-border/40 hover:border-primary/30 hover:shadow-md hover:bg-primary/5 */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 rounded-xl border border-border/40 p-4 shadow-sm bg-card text-card-foreground">
-          {quickActions.map((action) => {
-            const Icon = getIcon(action.icon);
-            return (
-              <Link
-                key={action.titleKey}
-                href={action.href}
-                className={`group flex flex-col items-center gap-3 p-4 rounded-lg border border-border/40 transition-all duration-200 hover:border-primary/30 hover:shadow-md hover:bg-primary/5 ${action.colorClass}`}
-              >
-                <div className="p-2 rounded-lg bg-current/10 group-hover:bg-current/15 transition-colors">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div className="text-center">
-                  <p className="font-semibold text-sm leading-tight">{t(action.titleKey)}</p>
-                  <p className="text-xs mt-1 text-muted-foreground/70 font-normal">{t(action.descKey)}</p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+        {/* Quick actions (config: features.showQuickActions) */}
+        {isQuickActionsEnabled() && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 rounded-xl border border-border/40 p-4 shadow-sm bg-card text-card-foreground">
+            {quickActions.map((action) => {
+              const Icon = getIcon(action.icon);
+              return (
+                <Link
+                  key={action.titleKey}
+                  href={action.href}
+                  className={`group flex flex-col items-center gap-3 p-4 rounded-lg border border-border/40 transition-all duration-200 hover:border-primary/30 hover:shadow-md hover:bg-primary/5 ${action.colorClass}`}
+                >
+                  <div className="p-2 rounded-lg bg-current/10 group-hover:bg-current/15 transition-colors">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-sm leading-tight">{t(action.titleKey)}</p>
+                    <p className="text-xs mt-1 text-muted-foreground/70 font-normal">{t(action.descKey)}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         {/* Events needing response: md:border-border/40, section border-border/30, px-1 md:px-4 lg:px-5 */}
         <div className="flex flex-col gap-4 py-2 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-card text-card-foreground md:bg-card">

@@ -1,0 +1,92 @@
+/**
+ * BNote Next Generation - Entity path helpers
+ * Use for all entity view/edit links so path-based routes stay consistent.
+ *
+ * Copyright (C) 2026 BNote Contributors
+ */
+
+export type EventEntityType = "rehearsal" | "concert";
+
+const EVENT_TYPES: EventEntityType[] = ["rehearsal", "concert"];
+
+export function isEventEntityType(type: string): type is EventEntityType {
+  return EVENT_TYPES.includes(type as EventEntityType);
+}
+
+/**
+ * Build path for entity view or edit (query-based; scales with static export).
+ * Do not add basePath (Next.js does that).
+ */
+export function getEntityPath(
+  type: string,
+  id: string | number,
+  mode?: "view" | "edit"
+): string {
+  const idStr = String(id);
+  const params = new URLSearchParams({ type, id: idStr });
+  if (mode === "edit") params.set("edit", "1");
+  return `/entity?${params.toString()}`;
+}
+
+/**
+ * Redirect targets for non-event entity types (contact, user, location, etc.).
+ * Used when user opens /entity/contact/5 etc. so "open entity" still works.
+ */
+export interface EntityRedirectTarget {
+  pathname: string;
+  query?: Record<string, string>;
+}
+
+const NON_EVENT_REDIRECT: Record<string, EntityRedirectTarget> = {
+  contact: { pathname: "/entity", query: { type: "contact", id: "__id__" } },
+  contacts: { pathname: "/entity", query: { type: "contact", id: "__id__" } },
+  user: { pathname: "/entity", query: { type: "user", id: "__id__" } },
+  users: { pathname: "/entity", query: { type: "user", id: "__id__" } },
+  location: { pathname: "/locations" },
+  locations: { pathname: "/locations" },
+  task: { pathname: "/dashboard" },
+  tasks: { pathname: "/dashboard" },
+  repertoire: { pathname: "/repertoire", query: { id: "__id__" } },
+  song: { pathname: "/repertoire", query: { id: "__id__" } },
+  meeting: { pathname: "/dashboard" },
+  appointment: { pathname: "/dashboard" },
+  equipment: { pathname: "/equipment", query: { id: "__id__" } },
+  outfit: { pathname: "/outfits", query: { id: "__id__" } },
+  outfits: { pathname: "/outfits", query: { id: "__id__" } },
+  vote: { pathname: "/votes", query: { id: "__id__" } },
+  votes: { pathname: "/votes", query: { id: "__id__" } },
+  tour: { pathname: "/dashboard" },
+};
+
+/**
+ * Get redirect target for a non-event entity type. Replace __id__ in query with actual id.
+ */
+export function getRedirectForEntityType(
+  type: string,
+  id: string | number
+): EntityRedirectTarget | null {
+  const key = type?.toLowerCase?.() ?? "";
+  const target = NON_EVENT_REDIRECT[key];
+  if (!target) return null;
+  const pathname =
+    target.pathname.includes("__id__")
+      ? target.pathname.replace("__id__", String(id))
+      : target.pathname;
+  if (target.query?.id === "__id__") {
+    return {
+      pathname,
+      query: { ...target.query, id: String(id) },
+    };
+  }
+  return { ...target, pathname };
+}
+
+/** Build full path string for redirect (pathname + query). */
+export function getRedirectPath(type: string, id: string | number): string {
+  const target = getRedirectForEntityType(type, id);
+  if (!target) return "/dashboard";
+  const qs = target.query
+    ? "?" + new URLSearchParams(target.query).toString()
+    : "";
+  return target.pathname + qs;
+}

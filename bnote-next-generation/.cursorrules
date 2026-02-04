@@ -162,7 +162,42 @@ showToast('User created');
 - Pages (dashboard, search, contacts, etc.) should NOT depend on each other
 - They SHOULD use shared components and lib utilities (e.g. EventCard, entity-config, event-utils)
 
-### 6. License Compliance
+### 6. Detail and Edit Mode – Shared Behavior and Optics (MANDATORY)
+
+**CRITICAL:** All entity detail views and profile/edit screens MUST share the same behavior and optics. Use the same patterns and components everywhere.
+
+#### 6.1 Edit mode in the URL
+
+**Edit mode MUST be represented in the URL** so that refresh, back/forward, and sharing links behave correctly.
+
+- **Entities:** View = `/entity/{type}/{id}`; Edit = `/entity/{type}/{id}/edit`. Use `getEntityPath(type, id, "edit")` from `lib/entities/paths.ts`. Derive edit mode from the route (e.g. `mode === "edit"` or pathname includes `/edit`); use `router.push` / `router.replace` when toggling, not local state only.
+- **Profile:** View = `/profile/`; Edit = `/profile/edit/`. Route at `profile/edit/page.tsx` renders the same profile component. Derive `isEditing` from `usePathname()` (pathname ends with `/edit` or `/edit/`); use `router.push("/profile/edit/")` and `router.replace("/profile/")` on Cancel/Save.
+
+**Rule:** URL is the source of truth for view vs edit. Use `usePathname()` or route params and `useRouter()` to sync.
+
+#### 6.2 Shared components (use these everywhere)
+
+- **DetailPageHeader** (`components/DetailPageHeader.tsx`) – Every detail page: title (left), optional subtitle, optional right slot. Edit button always **right, baseline-aligned** with title.
+- **DetailEditButton** (same file) – Right slot when not editing. Standard Edit button (primary, Pencil icon).
+- **EditingBar** (`components/EditingBar.tsx`) – In edit mode: Save/Cancel, optional form submit. Same on all entities and profile.
+- **SelectPicker** (`components/SelectPicker.tsx`) – Single-select in edit (instruments, conductors, locations, etc.). **Never** native `<select>` for entity/profile pickers.
+- **DetailCard** (`components/DetailCard.tsx`) – Wrap detail content (view and edit) in at least one card: `rounded-xl border p-6 shadow-sm`, `var(--card)` (white/card boxes like rehearsals).
+
+#### 6.3 Layout and styling rules
+
+- **Header:** Title + subtitle left; Edit (or other actions) right, **baseline-aligned** with title. Use `DetailPageHeader` + `DetailEditButton`.
+- **Body:** Content (view or edit) MUST sit in at least one **DetailCard** so sections match rehearsals/concerts (white/card boxes).
+- **Edit mode:** **EditingBar** at top; **SelectPicker** for single-select fields (no system UI). Same behavior and optics for all entities and profile.
+
+### 7. Date and Time Formatting – MANDATORY
+
+**CRITICAL:** All dates and times MUST be formatted the same way across the app.
+
+- Use **`lib/date-time.ts`** only: `formatDateShort`, `formatDateTimeShort`, `formatTimeShort`, or **`formatDateShortDisplay`** for date-only display (handles null/empty/`0000-00-00` and returns a consistent empty label like "—").
+- **Never** format dates with ad-hoc code (e.g. `.slice(0, 10)`, raw `toLocaleDateString()`, or custom strings). Always use the shared formatters with the current `lang` from `useI18n()`.
+- For **display**: date-only → `formatDateShortDisplay(value, lang)`; date+time → `formatDateTimeShort(value, lang)`; time-only → `formatTimeShort(value, lang)`. Use the same pattern for events, profile, votes, users, and any entity.
+
+### 8. License Compliance
 
 - All code must remain GPL-3.0
 - **MANDATORY:** Add GPL v3 license headers to all source files in `/next/`
@@ -178,11 +213,13 @@ showToast('User created');
 1. **MANDATORY i18n:** All user-facing strings must use `t(key)` from i18n context (`lang/*.json` keys)
 2. **MANDATORY Dark Mode:** All components must use semantic CSS variables from `frontend/app/globals.css`
 3. **MANDATORY Shared Components:** Reuse components in `frontend/components/` and lib in `frontend/lib/`; avoid duplicate implementations
-4. **GPL Headers:** All source files must include GPL v3 license headers where applicable
-5. **API:** Use API client in `frontend/lib/api.ts`; backend is module-based (`api/index.php?module=X&action=Y`)
-6. **Translation Files:** Add keys to all `bnote-next-generation/lang/*.json` files
-7. **Path Configuration:** API uses `BNOTE_ROOT` from `bnote-next-generation/api/paths.php` to reference BNote codebase
-8. **Architectural Independence:** Pages should not depend on each other, only on shared components and lib
+4. **MANDATORY Detail/Edit shared behavior (see §6):** Edit mode in URL; DetailPageHeader + DetailEditButton (Edit right, baseline); EditingBar in edit mode; SelectPicker for single-select (no native `<select>`); DetailCard for content sections (white boxes)
+5. **MANDATORY Date/time formatting (see §7):** Use only `lib/date-time.ts` formatters with `lang` from `useI18n()`; no ad-hoc date formatting
+6. **GPL Headers:** All source files must include GPL v3 license headers where applicable
+7. **API:** Use API client in `frontend/lib/api.ts`; backend is module-based (`api/index.php?module=X&action=Y`)
+8. **Translation Files:** Add keys to all `bnote-next-generation/lang/*.json` files
+9. **Path Configuration:** API uses `BNOTE_ROOT` from `bnote-next-generation/api/paths.php` to reference BNote codebase
+10. **Architectural Independence:** Pages should not depend on each other, only on shared components and lib
 
 **Technology Stack:**
 - Next.js (static export), React, TypeScript in `frontend/`
@@ -199,9 +236,11 @@ showToast('User created');
 3. Extract shared functionality into reusable components (no duplicate implementations)
 4. Feature modules should be independent (no cross-dependencies, only shared components)
 5. Use semantic CSS variables for colors
-6. Test in both light and dark modes
-7. Add translation keys to all language files
-8. Add GPL v3 headers to all new/modified files
+6. **Detail/edit:** Edit mode in URL; use DetailPageHeader, DetailEditButton, EditingBar, SelectPicker, DetailCard (see §6)
+7. **Dates:** Use `lib/date-time.ts` formatters only; pass `lang` from `useI18n()` (see §7)
+8. Test in both light and dark modes
+9. Add translation keys to all language files
+10. Add GPL v3 headers to all new/modified files
 
 ## Next Generation UI Examples
 
@@ -237,4 +276,5 @@ showToast('User created');
 - Cursor should generate clean, readable code
 - Preserve existing functionality 100%
 - For Next Generation: Always use i18n and support dark mode
+- **Shared behavior:** Detail/edit (§6): URL for edit mode, DetailPageHeader, DetailEditButton, EditingBar, SelectPicker, DetailCard. Dates (§7): `lib/date-time.ts` only with `lang` from `useI18n()`.
 - **NEVER modify old codebase** - work only in `/bnote-next-generation/` directory

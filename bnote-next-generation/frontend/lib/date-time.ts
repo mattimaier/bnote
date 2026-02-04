@@ -5,7 +5,7 @@
  */
 
 import { format, isValid, parseISO } from "date-fns";
-import { de, enUS, es, fr } from "date-fns/locale";
+import { de, enUS, es, fr, type Locale } from "date-fns/locale";
 
 const LOCALE_MAP: Record<string, Locale> = {
   de,
@@ -41,6 +41,18 @@ export function formatDateValue(
 
 export function formatDateShort(value: string | Date | null | undefined, lang: string): string | null {
   return formatDateValue(value, lang, "P");
+}
+
+/** Format a date for display; returns emptyLabel for null, undefined, "", or "0000-00-00". Use everywhere for consistent date display. */
+export function formatDateShortDisplay(
+  value: string | Date | null | undefined,
+  lang: string,
+  emptyLabel = "—"
+): string {
+  if (value == null || value === "") return emptyLabel;
+  const s = String(value).trim();
+  if (s === "0000-00-00" || s === "0000-00-00 00:00:00") return emptyLabel;
+  return formatDateShort(value, lang) ?? emptyLabel;
 }
 
 export function formatTimeShort(value: string | Date | null | undefined, lang: string): string | null {

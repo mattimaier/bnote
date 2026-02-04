@@ -7,12 +7,14 @@
 
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSearch } from "@/contexts/SearchContext";
 import { getIcon } from "@/components/icons";
+import { EntityListRow } from "@/components/EntityListRow";
 import { AddressLink } from "@/components/AddressLink";
 import { formatEventDate, formatEventTime, getEventTypeConfig } from "@/lib/event-utils";
 import {
@@ -22,6 +24,7 @@ import {
   getPillStyle,
   getDotStyle,
 } from "@/lib/entity-config";
+import { getEntityPath } from "@/lib/entities/paths";
 import { Clock, MapPin, Calendar, User, Loader2 } from "lucide-react";
 import type { SearchResults, SearchEventItem, SearchListItem } from "@/lib/search";
 
@@ -33,6 +36,10 @@ const CATEGORIES: { key: keyof SearchResults; labelKey: string; type: "events" |
   { key: "tasks", labelKey: "js.search.results.tasks", type: "list" },
   { key: "repertoire", labelKey: "js.search.results.repertoire", type: "list" },
   { key: "locations", labelKey: "js.search.results.locations", type: "list" },
+  { key: "equipment", labelKey: "js.search.results.equipment", type: "list" },
+  { key: "outfits", labelKey: "js.search.results.outfits", type: "list" },
+  { key: "songs", labelKey: "js.search.results.songs", type: "list" },
+  { key: "votes", labelKey: "js.search.results.votes", type: "list" },
 ];
 
 const MAX_ITEMS_PER_CATEGORY = 4;
@@ -43,15 +50,16 @@ interface SearchAutocompleteOverlayProps {
   isDesktop?: boolean;
 }
 
-function formatLocation(item: SearchEventItem): string {
+function formatLocation(item: SearchEventItem, emptyText: string): string {
   const loc = item.location;
   if (typeof loc === "string") return loc;
-  if (loc && typeof loc === "object" && "name" in loc) return (loc as { name?: string }).name ?? "—";
-  return item.locationName ?? (item.locationData as { name?: string } | undefined)?.name ?? "—";
+  if (loc && typeof loc === "object" && "name" in loc) return (loc as { name?: string }).name ?? emptyText;
+  return item.locationName ?? (item.locationData as { name?: string } | undefined)?.name ?? emptyText;
 }
 
 export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = true }: SearchAutocompleteOverlayProps) {
   const { t, lang } = useI18n();
+  const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
   const router = useRouter();
   const { query, results, loading, setOverlayOpen, setQuery } = useSearch();
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -70,16 +78,10 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
 
   const trimmed = query.trim();
   const showOverlay = trimmed.length >= 2;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   if (!showOverlay) return null;
-
-  const mobileBackdrop = !isDesktop && (
-    <div
-      className="fixed inset-0 z-[99] bg-black/20 md:bg-black/40 backdrop-blur-sm md:hidden"
-      aria-hidden
-      onClick={() => setOverlayOpen(false)}
-    />
-  );
 
   const handleLinkClick = (href: string) => {
     setOverlayOpen(false);
@@ -96,9 +98,15 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
     },
   });
 
-  return (
+  const overlayContent = (
     <>
-      {mobileBackdrop}
+      {!isDesktop && (
+        <div
+          className="fixed top-16 left-0 right-0 bottom-0 z-[9998] bg-black/25"
+          aria-hidden
+          onClick={() => setOverlayOpen(false)}
+        />
+      )}
       <div
         id="search-autocomplete"
         role="listbox"
@@ -106,11 +114,11 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
         className={
           isDesktop
             ? "absolute left-0 right-0 top-full z-[100] overflow-hidden rounded-b-lg border-x border-b shadow-2xl max-h-[min(70vh,420px)] overflow-y-auto"
-            : "fixed top-16 left-0 right-0 bottom-0 z-[100] border-t overflow-y-auto md:hidden"
+            : "fixed top-16 left-0 right-0 bottom-0 z-[9999] border-t overflow-y-auto md:hidden shadow-2xl"
         }
         style={{
           background: "var(--card)",
-          borderColor: "color-mix(in oklch, var(--border) 60%, transparent)",
+          borderColor: "var(--border)",
           color: "var(--card-foreground)",
         }}
       >
@@ -154,52 +162,44 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                       (list as SearchEventItem[]).map((item) => {
                         const oid = item.oid ?? item.id;
                         const entityType = cat.key === "concerts" ? "concert" : "rehearsal";
-                        const href = oid != null ? `/entity?type=${entityType}&id=${oid}` : "#";
+                        const href = oid != null ? getEntityPath(entityType, oid) : "#";
                         const eventType = cat.key === "concerts" ? "performance" : "rehearsal";
                         const typeConfig = getEventTypeConfig(eventType, t);
                         const Icon = getIcon(typeConfig.icon);
                         const tba = t("js.event.tba");
                         const dateStr = formatEventDate(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
                         const timeStr = formatEventTime(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
-                        const location = formatLocation(item);
+                        const location = formatLocation(item, emptyText);
                         const title = item.title ?? (cat.key === "concerts" ? t("js.event.performance") : t("js.event.rehearsal"));
 
                         return (
-                          <Link
-                            key={`${cat.key}-${oid}`}
-                            {...linkProps(href)}
-                            className="flex gap-3 px-4 py-2.5 transition-colors hover:bg-[var(--muted)]/60 text-left"
-                            style={{ color: "var(--foreground)" }}
-                          >
-                            <div
-                              className={`mt-0.5 h-6 w-6 shrink-0 rounded-full flex items-center justify-center text-white ${typeConfig.dotClass}`}
-                            >
-                              <Icon className="h-3 w-3" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-bold leading-tight" style={{ color: "var(--primary)" }}>
-                                {dateStr}
-                              </p>
-                              <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                                <span className="text-sm">{title}</span>
-                                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium event-badge ${typeConfig.badgeClass}`}>
-                                  {typeConfig.label}
+                          <div key={`${cat.key}-${oid}`}>
+                            <EntityListRow
+                              icon={
+                                <span className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}>
+                                  <Icon className="h-3 w-3" />
                                 </span>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-3 mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                              }
+                                primary={<span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>{dateStr}</span>}
+                              badge={<span className="text-sm">{title}</span>}
+                              secondary={
+                              <>
                                 <span className="flex items-center gap-1">
                                   <Clock className="h-3 w-3 opacity-70" />
                                   {timeStr}
                                 </span>
-                                {location && location !== "—" && (
+                                {location && location !== emptyText && (
                                   <span className="flex items-center gap-1">
                                     <MapPin className="h-3 w-3 opacity-70" />
-                                    <AddressLink value={location} t={t} renderRawIfNoAddress />
+                                    <AddressLink value={location} t={t} renderRawIfNoAddress interactive={false} />
                                   </span>
                                 )}
-                              </div>
-                            </div>
-                          </Link>
+                              </>
+                              }
+                              href={href}
+                              onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
+                            />
+                          </div>
                         );
                       })}
                     {cat.type === "list" &&
@@ -207,12 +207,22 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                         const title = item.name ?? item.title ?? `#${item.id}`;
                         const href =
                           cat.key === "users"
-                            ? `/users?id=${item.id}`
+                            ? getEntityPath("user", item.id)
                             : cat.key === "contacts"
-                              ? "/contacts"
-                              : cat.key === "tasks"
-                                ? "#"
-                                : "#";
+                              ? getEntityPath("contact", item.id)
+                              : cat.key === "locations"
+                                ? getEntityPath("location", item.id)
+                                : cat.key === "equipment"
+                                  ? getEntityPath("equipment", item.id)
+                                    : cat.key === "outfits"
+                                    ? getEntityPath("outfit", item.id)
+                                    : cat.key === "songs"
+                                      ? getEntityPath("song", item.id)
+                                      : cat.key === "votes"
+                                        ? getEntityPath("vote", item.id)
+                                        : cat.key === "tasks"
+                                    ? "#"
+                                    : "#";
                         const entityType = getEntityTypeForSearchCategory(cat.key);
                         const entityColor = getColor(entityType);
                         const iconName = getIconName(entityType);
@@ -222,105 +232,103 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
 
                         if (cat.key === "tasks") {
                           return (
-                            <Link
-                              key={`${cat.key}-${item.id}`}
-                              {...linkProps(href)}
-                              className="flex gap-3 px-4 py-2.5 transition-colors hover:bg-[var(--muted)]/60 text-left"
-                              style={{ color: "var(--foreground)" }}
-                            >
-                              <div
-                                className="mt-0.5 h-6 w-6 shrink-0 rounded flex items-center justify-center"
-                                style={dotStyle}
-                              >
-                                <Icon className="h-3.5 w-3.5" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center gap-1.5">
-                                  <span className="text-sm font-medium">{title}</span>
-                                  <span
-                                    className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
-                                    style={pillStyle}
-                                  >
-                                    {sectionLabel}
-                                  </span>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-3 mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
-                                  {item.dueAt && (
-                                    <span className="flex items-center gap-1">
-                                      <Calendar className="h-3 w-3 opacity-70" />
-                                      Due: {item.dueAt}
-                                    </span>
-                                  )}
-                                  {item.assignee && (
-                                    <span className="flex items-center gap-1">
-                                      <User className="h-3 w-3 opacity-70" />
-                                      Assigned to: {item.assignee}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </Link>
+                            <div key={`${cat.key}-${item.id}`}>
+                              <EntityListRow
+                                icon={<span className="rounded flex items-center justify-center w-6 h-6" style={dotStyle}><Icon className="h-3.5 w-3.5" /></span>}
+                                primary={title}
+                                secondary={
+                                  (item.dueAt || item.assignee) ? (
+                                    <>
+                                      {item.dueAt && <span className="flex items-center gap-1"><Calendar className="h-3 w-3 opacity-70" />Due: {item.dueAt}</span>}
+                                      {item.assignee && <span className="flex items-center gap-1"><User className="h-3 w-3 opacity-70" />Assigned to: {item.assignee}</span>}
+                                    </>
+                                  ) : undefined
+                                }
+                                href={href}
+                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
+                              />
+                            </div>
                           );
                         }
 
                         if (cat.key === "locations") {
                           const address = [item.street, item.city].filter(Boolean).join(", ");
                           return (
-                            <Link
-                              key={`${cat.key}-${item.id}`}
-                              {...linkProps(href)}
-                              className="flex gap-3 px-4 py-2.5 transition-colors hover:bg-[var(--muted)]/60 text-left"
-                              style={{ color: "var(--foreground)" }}
-                            >
-                              <div
-                                className="mt-0.5 h-6 w-6 shrink-0 rounded-full flex items-center justify-center"
-                                style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}
-                              >
-                                <Icon className="h-3.5 w-3.5" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center gap-1.5">
-                                  <span className="text-sm font-medium">{title}</span>
-                                  <span
-                                    className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
-                                    style={pillStyle}
-                                  >
-                                    {sectionLabel}
-                                  </span>
-                                </div>
-                                {address && (
-                                  <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
-                                    <MapPin className="h-3 w-3 opacity-70 shrink-0" />
-                                    <AddressLink value={address} t={t} renderRawIfNoAddress />
-                                  </p>
-                                )}
-                              </div>
-                            </Link>
+                            <div key={`${cat.key}-${item.id}`}>
+                              <EntityListRow
+                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                                primary={title}
+                                secondary={address ? <span className="flex items-center gap-1"><MapPin className="h-3 w-3 opacity-70 shrink-0" /><AddressLink value={address} t={t} renderRawIfNoAddress interactive={false} /></span> : undefined}
+                                href={href}
+                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
+                              />
+                            </div>
+                          );
+                        }
+
+                        if (cat.key === "equipment") {
+                          return (
+                            <div key={`${cat.key}-${item.id}`}>
+                              <EntityListRow
+                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                                primary={title}
+                                href={href}
+                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
+                              />
+                            </div>
+                          );
+                        }
+
+                        if (cat.key === "outfits") {
+                          return (
+                            <div key={`${cat.key}-${item.id}`}>
+                              <EntityListRow
+                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                                primary={title}
+                                href={href}
+                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
+                              />
+                            </div>
+                          );
+                        }
+
+                        if (cat.key === "songs") {
+                          return (
+                            <div key={`${cat.key}-${item.id}`}>
+                              <EntityListRow
+                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                                primary={title}
+                                secondary={item.composer ? <span>{item.composer}</span> : undefined}
+                                href={href}
+                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
+                              />
+                            </div>
+                          );
+                        }
+
+                        if (cat.key === "votes") {
+                          return (
+                            <div key={`${cat.key}-${item.id}`}>
+                              <EntityListRow
+                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                                primary={title}
+                                href={href}
+                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
+                              />
+                            </div>
                           );
                         }
 
                         return (
-                          <Link
-                            key={`${cat.key}-${item.id}`}
-                            {...linkProps(href)}
-                            className="flex gap-3 px-4 py-2.5 transition-colors hover:bg-[var(--muted)]/60 text-left"
-                            style={{ color: "var(--foreground)" }}
-                          >
-                            <div
-                              className="mt-0.5 h-6 w-6 shrink-0 rounded-full flex items-center justify-center"
-                              style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}
-                            >
-                              <Icon className="h-3.5 w-3.5" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <span className="text-sm font-medium">{title}</span>
-                              {(item.email || item.phone || item.instrument) && (
-                                <p className="text-xs mt-0.5 truncate" style={{ color: "var(--muted-foreground)" }}>
-                                  {[item.email, item.phone, item.instrument].filter(Boolean).join(" · ")}
-                                </p>
-                              )}
-                            </div>
-                          </Link>
+                          <div key={`${cat.key}-${item.id}`}>
+                            <EntityListRow
+                              icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                              primary={title}
+                              secondary={(item.email || item.phone || item.instrument) ? <span className="truncate">{[item.email, item.phone, item.instrument].filter(Boolean).join(" · ")}</span> : undefined}
+                              href={href}
+                              onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
+                            />
+                          </div>
                         );
                       })}
                   </div>
@@ -346,4 +354,9 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
       </div>
     </>
   );
+
+  if (!isDesktop && mounted && typeof document !== "undefined") {
+    return createPortal(overlayContent, document.body);
+  }
+  return overlayContent;
 }

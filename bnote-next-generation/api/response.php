@@ -30,6 +30,9 @@ class Response {
      * @param mixed $data Response data
      */
     public static function success($data) {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         header('Content-Type: application/json; charset=utf-8');
         http_response_code(200);
         echo json_encode([
@@ -45,6 +48,9 @@ class Response {
      * @param int $code HTTP status code (default: 400)
      */
     public static function error($message, $code = 400) {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($code);
         echo json_encode([

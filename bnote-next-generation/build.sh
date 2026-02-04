@@ -35,8 +35,8 @@ echo ""
 # 1. Build frontend
 echo "Building frontend..."
 cd "$SCRIPT_DIR/frontend"
-if ! npm run build >/dev/null 2>&1; then
-  echo "Frontend build failed. Run: cd frontend && npm run build"
+if ! npm run build; then
+  echo "Frontend build failed."
   exit 1
 fi
 cd "$SCRIPT_DIR"

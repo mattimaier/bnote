@@ -8,6 +8,7 @@
 
 import entityConfigData from "@/config/entity-config.json";
 
+/** Canonical entity keys; module routes (e.g. "locations", "users") resolve to these via getEntityConfig. */
 export type EntityType =
   | "rehearsal"
   | "concert"
@@ -21,10 +22,8 @@ export type EntityType =
   | "appointment"
   | "equipment"
   | "tour"
-  | "users"
-  | "contacts"
-  | "tasks"
-  | "locations";
+  | "outfit"
+  | "vote";
 
 export type EventDisplayType = "rehearsal" | "performance" | "meeting";
 
@@ -38,17 +37,36 @@ interface StatusEntry {
 }
 
 interface EntityConfigShape {
+  features?: { showQuickActions?: boolean };
   entities: Record<string, EntityEntry>;
   statuses?: Record<string, StatusEntry>;
 }
 
 const config = entityConfigData as EntityConfigShape;
+
+/** Whether quick actions (dashboard and detail pages) are shown. */
+export function isQuickActionsEnabled(): boolean {
+  return config?.features?.showQuickActions === true;
+}
 const entities = config?.entities ?? {};
 const statuses = config?.statuses ?? {};
 
+/** Module route or plural form → canonical entity key (same color/icon for module and entity). */
+const ROUTE_OR_PLURAL_TO_CANONICAL: Record<string, string> = {
+  users: "user",
+  contacts: "contact",
+  locations: "location",
+  tasks: "task",
+  outfits: "outfit",
+  votes: "vote",
+  rehearsals: "rehearsal",
+  concerts: "concert",
+  songs: "song",
+};
+
 export function getEntityConfig(entityType: string): EntityEntry | null {
-  const key = entityType?.toLowerCase?.() ?? "";
-  return entities[key] ?? null;
+  const key = (entityType?.toLowerCase?.() ?? "").replace(/^\/+|\/+$/g, "");
+  return entities[key] ?? entities[ROUTE_OR_PLURAL_TO_CANONICAL[key]] ?? null;
 }
 
 export function getColor(entityType: string): string | null {
@@ -135,6 +153,10 @@ const SEARCH_CATEGORY_TO_ENTITY: Record<string, string> = {
   tasks: "task",
   repertoire: "repertoire",
   locations: "location",
+  equipment: "equipment",
+  outfits: "outfit",
+  songs: "song",
+  votes: "vote",
 };
 
 export function getEntityTypeForSearchCategory(categoryKey: string): string {

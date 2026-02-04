@@ -239,6 +239,16 @@ class AuthModule {
                 'icon' => 'layout-dashboard',
                 'i18n' => 'js.sidebar.dashboard'
             ],
+            'Proben' => [
+                'route' => '/rehearsals',
+                'icon' => 'music',
+                'i18n' => 'js.sidebar.rehearsals'
+            ],
+            'Konzerte' => [
+                'route' => '/concerts',
+                'icon' => 'trumpet',
+                'i18n' => 'js.sidebar.concerts'
+            ],
             'User' => [
                 'route' => '/users',
                 'icon' => 'user-cog',
@@ -248,6 +258,31 @@ class AuthModule {
                 'route' => '/contacts',
                 'icon' => 'users',
                 'i18n' => 'js.sidebar.contacts'
+            ],
+            'Locations' => [
+                'route' => '/locations',
+                'icon' => 'map-pin',
+                'i18n' => 'js.sidebar.locations'
+            ],
+            'Equipment' => [
+                'route' => '/equipment',
+                'icon' => 'package',
+                'i18n' => 'js.sidebar.equipment'
+            ],
+            'Outfits' => [
+                'route' => '/outfits',
+                'icon' => 'shirt',
+                'i18n' => 'js.sidebar.outfits'
+            ],
+            'Repertoire' => [
+                'route' => '/repertoire',
+                'icon' => 'music',
+                'i18n' => 'js.sidebar.repertoire'
+            ],
+            'Abstimmung' => [
+                'route' => '/votes',
+                'icon' => 'vote',
+                'i18n' => 'js.sidebar.votes'
             ]
         ];
         
@@ -294,11 +329,26 @@ class AuthModule {
             error_log("getModules: Added module $modName");
         }
         
-        // Sort by module ID to maintain consistent order
-        usort($modules, function($a, $b) {
+        // Sort: use config order if available, otherwise by module ID
+        $orderConfigPath = __DIR__ . '/../../frontend/config/sidebar-module-order.json';
+        $orderNames = null;
+        if (is_readable($orderConfigPath)) {
+            $orderConfig = json_decode(file_get_contents($orderConfigPath), true);
+            if (!empty($orderConfig['order']) && is_array($orderConfig['order'])) {
+                $orderNames = array_flip($orderConfig['order']);
+            }
+        }
+        usort($modules, function($a, $b) use ($orderNames) {
+            if ($orderNames !== null) {
+                $posA = isset($orderNames[$a['name']]) ? $orderNames[$a['name']] : PHP_INT_MAX;
+                $posB = isset($orderNames[$b['name']]) ? $orderNames[$b['name']] : PHP_INT_MAX;
+                if ($posA !== $posB) {
+                    return $posA <=> $posB;
+                }
+            }
             return $a['id'] <=> $b['id'];
         });
-        
+
         error_log('getModules: Returning ' . count($modules) . ' modules');
         
         // Debug: Also return debug info if requested

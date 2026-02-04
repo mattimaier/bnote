@@ -8,12 +8,30 @@
 
 import React from "react";
 import { useToast, type ToastType } from "@/contexts/ToastContext";
+import { getIcon } from "@/components/icons";
+import { getIconName } from "@/lib/entity-config";
+import { Info, CheckCircle, AlertCircle, X } from "lucide-react";
 
 const typeStyles: Record<ToastType, string> = {
-  default: "bg-[var(--background)] text-[var(--foreground)] border-[var(--border)]",
-  success: "bg-[var(--accent)] text-[var(--accent-foreground)] border-[var(--accent)]",
-  error: "bg-[var(--destructive)] text-[var(--destructive-foreground)] border-[var(--destructive)]",
+  default: "bg-[var(--primary)] text-white border-[var(--primary)] shadow-[0_4px_14px_rgba(51,153,255,0.35)]",
+  success: "bg-[var(--primary)] text-white border-[var(--primary)] shadow-[0_4px_14px_rgba(51,153,255,0.35)]",
+  error: "bg-[var(--destructive)] text-white border-[var(--destructive)] shadow-[0_4px_14px_rgba(229,43,60,0.35)]",
 };
+
+function ToastIcon({ type, entityType }: { type: ToastType; entityType?: string }) {
+  if (entityType) {
+    const IconComponent = getIcon(getIconName(entityType));
+    return <IconComponent className="h-6 w-6 shrink-0 opacity-95" aria-hidden />;
+  }
+  switch (type) {
+    case "success":
+      return <CheckCircle className="h-6 w-6 shrink-0 opacity-95" aria-hidden />;
+    case "error":
+      return <AlertCircle className="h-6 w-6 shrink-0 opacity-95" aria-hidden />;
+    default:
+      return <Info className="h-6 w-6 shrink-0 opacity-95" aria-hidden />;
+  }
+}
 
 export function ToastContainer() {
   const { toasts, dismiss } = useToast();
@@ -22,24 +40,23 @@ export function ToastContainer() {
 
   return (
     <div
-      className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-[420px]"
+      className="fixed top-4 left-1/2 z-[100] flex w-full max-w-[520px] -translate-x-1/2 flex-col gap-3 px-4"
       aria-live="polite"
     >
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`group pointer-events-auto flex w-full items-center justify-between gap-4 overflow-hidden rounded-md border p-4 pr-10 shadow-lg transition-all ${typeStyles[toast.type]}`}
+          className={`group pointer-events-auto relative flex w-full items-center gap-4 overflow-hidden rounded-xl border p-5 pr-12 transition-all ${typeStyles[toast.type]}`}
         >
-          <p className="text-sm font-semibold flex-1">{toast.message}</p>
+          <ToastIcon type={toast.type} entityType={toast.entityType} />
+          <p className="min-w-0 flex-1 text-base font-medium leading-snug">{toast.message}</p>
           <button
             type="button"
             onClick={() => dismiss(toast.id)}
-            className="absolute right-2 top-2 rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:opacity-100"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 opacity-90 transition-opacity hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Dismiss"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="h-5 w-5" />
           </button>
         </div>
       ))}

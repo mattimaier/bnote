@@ -5,6 +5,7 @@
 
 "use client";
 
+import Link from "next/link";
 import { useState, useCallback } from "react";
 import { getApiUrl } from "@/lib/api";
 import { getIcon } from "@/components/icons";
@@ -92,6 +93,34 @@ export default function DebugPage() {
     <div className="min-h-screen bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6">
       <div className="max-w-4xl mx-auto space-y-8">
         <h1 className="text-2xl font-bold">Debug</h1>
+
+        {/* Entity debug (all types) */}
+        <section className="rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 p-4 shadow-sm">
+          <h2 className="text-lg font-semibold mb-3">Entity debug views</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3">
+            View or edit entity pages for all types. Rehearsal and concert use mock data; others show a placeholder and link to the app.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/debug/entity"
+              className="px-3 py-2 rounded-md text-sm bg-blue-600 text-white hover:bg-blue-700"
+            >
+              All entity types
+            </Link>
+            <Link
+              href="/debug/entity/rehearsal"
+              className="px-3 py-2 rounded-md text-sm bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600"
+            >
+              Rehearsal
+            </Link>
+            <Link
+              href="/debug/entity/concert"
+              className="px-3 py-2 rounded-md text-sm bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600"
+            >
+              Concert
+            </Link>
+          </div>
+        </section>
 
         {/* API Tester */}
         <section className="rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 p-4 shadow-sm">

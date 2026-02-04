@@ -130,6 +130,7 @@ class DashboardModule {
             
             $otype = $item['otype'] ?? null;
             $oid = $item['oid'] ?? null;
+            $status = null;
             
             if ($otype && $oid) {
                 if ($otype === 'R') {
@@ -146,6 +147,10 @@ class DashboardModule {
                     // Get location
                     $rehearsal = $this->data->getRehearsal($oid);
                     if ($rehearsal && isset($rehearsal['name'])) {
+                        $status = $rehearsal['status'] ?? null;
+                        if ($status === 'hidden') {
+                            continue;
+                        }
                         $locationName = $rehearsal['name'];
                         $location = [
                             'name' => $rehearsal['name'],
@@ -166,10 +171,15 @@ class DashboardModule {
                     if (count($parts) > 1) {
                         $locationName = trim($parts[1]);
                         $location = ['name' => $locationName];
-                    } else {
-                        // Fallback: try to get from concert data
-                        $concert = $this->data->getConcert($oid);
-                        if ($concert && isset($concert['location_name'])) {
+                    }
+                    // Always load concert to get status (and location fallback)
+                    $concert = $this->data->getConcert($oid);
+                    if ($concert) {
+                        $status = $concert['status'] ?? null;
+                        if ($status === 'hidden') {
+                            continue;
+                        }
+                        if (!$locationName && isset($concert['location_name'])) {
                             $locationName = $concert['location_name'];
                             $location = ['name' => $locationName];
                         }
@@ -187,6 +197,7 @@ class DashboardModule {
                 'participation' => $item['participation'] ?? null,
                 'eventBegin' => $item['eventBegin'] ?? null,
                 'replyUntil' => $item['replyUntil'] ?? null,
+                'status' => $status,
                 'location' => $locationName,
                 'locationData' => $location
             ];

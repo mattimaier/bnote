@@ -133,13 +133,17 @@ class UsersModule {
             Response::error('Access denied', 403);
         }
         
-        // Get user with joined contact info
-        $user = $this->data->findByIdJoined($id, ['contact' => ['name', 'surname']]);
-        
-        if (!$user) {
+        // Use explicit join query to ensure contact id is returned correctly.
+        $query = "SELECT u.id, u.login, u.isActive, u.lastlogin, u.contact, ";
+        $query .= "c.name as contactname, c.surname as contactsurname ";
+        $query .= "FROM user u LEFT JOIN contact c ON u.contact = c.id ";
+        $query .= "WHERE u.id = ?";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $id]]);
+        if (!$rows || count($rows) < 2) {
             Response::error('User not found', 404);
         }
-        
+        $user = $rows[1];
+
         // Format response
         $result = [
             'id' => intval($user['id']),
@@ -148,14 +152,14 @@ class UsersModule {
             'lastlogin' => $user['lastlogin'] ?? null,
             'contact' => intval($user['contact'] ?? 0)
         ];
-        
+
         // Add contact info if available
         if (isset($user['contactname']) || isset($user['contactsurname'])) {
             $result['contactName'] = trim(($user['contactname'] ?? '') . ' ' . ($user['contactsurname'] ?? ''));
             $result['contactSurname'] = $user['contactsurname'] ?? '';
             $result['contactFirstName'] = $user['contactname'] ?? '';
         }
-        
+
         return $result;
     }
     
@@ -243,19 +247,50 @@ class UsersModule {
                 $_POST['password'] = $password;
             }
         }
-        // If password is not set or is empty, don't include it in $_POST at all
-        
+
         if (isset($data['contact'])) {
             $_POST['contact'] = $data['contact'] == 0 ? '0' : $data['contact'];
         }
-        
+
         if (isset($data['isActive'])) {
             $_POST['isActive'] = $data['isActive'] ? 'on' : '';
         }
-        
+
+        // If password is not provided, bypass UserData password validation by performing a direct update.
+        $hasPassword = isset($_POST['password']);
+        if (!$hasPassword) {
+            $fields = [];
+            $params = [];
+            if (isset($_POST['contact'])) {
+                $fields[] = "contact = ?";
+                $params[] = ['i', intval($_POST['contact'])];
+            }
+            if (isset($_POST['isActive'])) {
+                $fields[] = "isActive = ?";
+                $params[] = ['i', $_POST['isActive'] === 'on' ? 1 : 0];
+            }
+            if (count($fields) === 0) {
+                return [
+                    'success' => true,
+                    'message' => 'No changes'
+                ];
+            }
+            $params[] = ['i', intval($id)];
+            $query = "UPDATE user SET " . join(", ", $fields) . " WHERE id = ?";
+            try {
+                $system_data->dbcon->execute($query, $params);
+                return [
+                    'success' => true,
+                    'message' => 'User updated successfully'
+                ];
+            } catch (BNoteError $e) {
+                Response::error($e->getMessage(), 400);
+            }
+        }
+
         try {
             $this->data->update($id, $_POST);
-            
+
             return [
                 'success' => true,
                 'message' => 'User updated successfully'

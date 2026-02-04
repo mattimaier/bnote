@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useI18n } from "@/contexts/I18nContext";
 import { getBnoteLogoUrl } from "@/lib/bnote-assets";
+import { getEntityConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 
 interface SidebarModule {
@@ -87,12 +88,19 @@ export function AppSidebar() {
       <nav className="flex-1 overflow-y-auto p-3 space-y-1.5">
         {modules.map((m) => {
           const rawRoute = (m.route ?? "").replace(/^\/+/, "") || "dashboard";
-          const route = rawRoute.startsWith("/") ? rawRoute : `/${rawRoute}`;
-          const isActive = currentRoute === rawRoute || currentRoute === route.replace(/^\//, "");
+          const path = rawRoute.startsWith("/") ? rawRoute : `/${rawRoute}`;
+          // Match next.config trailingSlash: true so links resolve correctly with basePath
+          const href = path.endsWith("/") ? path : `${path}/`;
+          const isActive = currentRoute === rawRoute || currentRoute === path.replace(/^\//, "") || currentRoute === rawRoute.replace(/\/$/, "");
+          const entityConfig = getEntityConfig(rawRoute);
+          const iconName = entityConfig?.icon ?? m.icon;
+          const Icon = getIcon(iconName);
+          const iconColor = entityConfig?.color ?? undefined;
           return (
             <Link
               key={m.id}
-              href={route.startsWith("/") ? route : `/${route}`}
+              href={href}
+              prefetch={false}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                 isActive
                   ? "bg-[var(--primary)]/12 text-[var(--primary)] font-semibold shadow-sm"
@@ -100,10 +108,12 @@ export function AppSidebar() {
               }`}
               style={!isActive ? { color: "var(--sidebar-foreground)" } : undefined}
             >
-              {(() => {
-                const Icon = getIcon(m.icon);
-                return <Icon className="h-5 w-5 shrink-0" />;
-              })()}
+              <span
+                className="flex shrink-0 items-center justify-center"
+                style={isActive ? undefined : iconColor ? { color: iconColor } : undefined}
+              >
+                <Icon className="h-5 w-5" />
+              </span>
               <span className="flex-1 truncate">{t(m.i18n) || m.name}</span>
             </Link>
           );
