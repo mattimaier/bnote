@@ -46,13 +46,8 @@ class ConcertsModule {
             Response::error('Authentication required', 401);
         }
         
-        // Check module permission
-        global $system_data;
-        $moduleId = $system_data->getModuleId('Konzerte');
-        if ($moduleId && !$system_data->userHasPermission($moduleId)) {
-            Response::error('Access denied to Concerts', 403);
-        }
-        
+        // Module permission is not required for read access (GET concert).
+        // Write actions (getMeta, update) check permission in handle().
         $this->data = new KonzerteData();
     }
     
@@ -67,10 +62,12 @@ class ConcertsModule {
         }
         
         if ($action === 'meta') {
+            $this->requireConcertsModulePermission();
             return $this->getMeta();
         }
 
         if ($action === 'update') {
+            $this->requireConcertsModulePermission();
             return $this->updateConcert();
         }
 
@@ -80,6 +77,18 @@ class ConcertsModule {
         }
         
         Response::error('Method not supported or missing ID', 400);
+    }
+    
+    /**
+     * Require Concerts (Konzerte) module permission for write operations.
+     * Users without the module still have read access to concerts they are allowed to see.
+     */
+    private function requireConcertsModulePermission() {
+        global $system_data;
+        $moduleId = $system_data->getModuleId('Konzerte');
+        if ($moduleId && !$system_data->userHasPermission($moduleId)) {
+            Response::error('Access denied to Concerts', 403);
+        }
     }
     
     /**
@@ -347,6 +356,8 @@ class ConcertsModule {
     }
 
     private function getMeta() {
+        global $system_data;
+
         $locationsData = new LocationsData();
         $groupData = new GruppenData();
         $programData = new ProgramData();
@@ -403,10 +414,38 @@ class ConcertsModule {
 
         $contacts = [];
         for ($i = 1; $i < count($contactsSel); $i++) {
+            $instrumentName = null;
+            $instrumentId = $contactsSel[$i]['instrument'] ?? null;
+            if ($instrumentId && $instrumentId > 0) {
+                $instrumentName = $system_data->dbcon->colValue(
+                    "SELECT name FROM instrument WHERE id = ?",
+                    "name",
+                    [['i', $instrumentId]]
+                );
+            }
             $contacts[] = [
                 'id' => intval($contactsSel[$i]['id']),
-                'name' => trim(($contactsSel[$i]['name'] ?? '') . ' ' . ($contactsSel[$i]['surname'] ?? ''))
+                'name' => trim(($contactsSel[$i]['name'] ?? '') . ' ' . ($contactsSel[$i]['surname'] ?? '')),
+                'subtitle' => $instrumentName
             ];
+        }
+
+        $groupMembers = [];
+        $groupMembersSel = $system_data->dbcon->getSelection(
+            "SELECT `group` as group_id, contact as contact_id FROM contact_group",
+            []
+        );
+        unset($groupMembersSel[0]);
+        foreach ($groupMembersSel as $row) {
+            $groupId = intval($row['group_id'] ?? 0);
+            $contactId = intval($row['contact_id'] ?? 0);
+            if ($groupId <= 0 || $contactId <= 0) {
+                continue;
+            }
+            if (!array_key_exists(strval($groupId), $groupMembers)) {
+                $groupMembers[strval($groupId)] = [];
+            }
+            $groupMembers[strval($groupId)][] = $contactId;
         }
 
         return [
@@ -416,7 +455,8 @@ class ConcertsModule {
             'outfits' => $outfits,
             'equipment' => $equipment,
             'contacts' => $contacts,
-            'statusOptions' => $this->data->getStatusOptions()
+            'statusOptions' => $this->data->getStatusOptions(),
+            'groupMembers' => $groupMembers
         ];
     }
 

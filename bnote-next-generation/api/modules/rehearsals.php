@@ -43,13 +43,8 @@ class RehearsalsModule {
             Response::error('Authentication required', 401);
         }
         
-        // Check module permission
-        global $system_data;
-        $moduleId = $system_data->getModuleId('Proben');
-        if ($moduleId && !$system_data->userHasPermission($moduleId)) {
-            Response::error('Access denied to Rehearsals', 403);
-        }
-        
+        // Module permission is not required for read access (GET rehearsal).
+        // Write actions (getMeta, update) check permission in handle().
         $this->data = new ProbenData();
     }
     
@@ -64,10 +59,12 @@ class RehearsalsModule {
         }
         
         if ($action === 'meta') {
+            $this->requireRehearsalsModulePermission();
             return $this->getMeta();
         }
 
         if ($action === 'update') {
+            $this->requireRehearsalsModulePermission();
             return $this->updateRehearsal();
         }
 
@@ -77,6 +74,18 @@ class RehearsalsModule {
         }
         
         Response::error('Method not supported or missing ID', 400);
+    }
+    
+    /**
+     * Require Rehearsals (Proben) module permission for write operations.
+     * Users without the module still have read access to rehearsals they are allowed to see.
+     */
+    private function requireRehearsalsModulePermission() {
+        global $system_data;
+        $moduleId = $system_data->getModuleId('Proben');
+        if ($moduleId && !$system_data->userHasPermission($moduleId)) {
+            Response::error('Access denied to Rehearsals', 403);
+        }
     }
     
     /**
@@ -334,10 +343,38 @@ class RehearsalsModule {
 
         $contacts = [];
         for ($i = 1; $i < count($contactsSel); $i++) {
+            $instrumentName = null;
+            $instrumentId = $contactsSel[$i]['instrument'] ?? null;
+            if ($instrumentId && $instrumentId > 0) {
+                $instrumentName = $system_data->dbcon->colValue(
+                    "SELECT name FROM instrument WHERE id = ?",
+                    "name",
+                    [['i', $instrumentId]]
+                );
+            }
             $contacts[] = [
                 'id' => intval($contactsSel[$i]['id']),
-                'name' => $contactsSel[$i]['fullname'] ?? trim(($contactsSel[$i]['name'] ?? '') . ' ' . ($contactsSel[$i]['surname'] ?? ''))
+                'name' => $contactsSel[$i]['fullname'] ?? trim(($contactsSel[$i]['name'] ?? '') . ' ' . ($contactsSel[$i]['surname'] ?? '')),
+                'subtitle' => $instrumentName
             ];
+        }
+
+        $groupMembers = [];
+        $groupMembersSel = $system_data->dbcon->getSelection(
+            "SELECT `group` as group_id, contact as contact_id FROM contact_group",
+            []
+        );
+        unset($groupMembersSel[0]);
+        foreach ($groupMembersSel as $row) {
+            $groupId = intval($row['group_id'] ?? 0);
+            $contactId = intval($row['contact_id'] ?? 0);
+            if ($groupId <= 0 || $contactId <= 0) {
+                continue;
+            }
+            if (!array_key_exists(strval($groupId), $groupMembers)) {
+                $groupMembers[strval($groupId)] = [];
+            }
+            $groupMembers[strval($groupId)][] = $contactId;
         }
 
         return [
@@ -346,7 +383,8 @@ class RehearsalsModule {
             'songs' => $songs,
             'conductors' => $conductors,
             'contacts' => $contacts,
-            'statusOptions' => $this->data->getStatusOptions()
+            'statusOptions' => $this->data->getStatusOptions(),
+            'groupMembers' => $groupMembers
         ];
     }
 

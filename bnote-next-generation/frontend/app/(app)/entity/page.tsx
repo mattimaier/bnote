@@ -7,7 +7,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useI18n } from "@/contexts/I18nContext";
@@ -22,7 +22,7 @@ import { MarkdownText } from "@/components/MarkdownText";
 import { getAddressInfo } from "@/lib/address-utils";
 import { formatDateShort, formatDateTimeShort, formatTimeShort } from "@/lib/date-time";
 import { getStatusPillStyle } from "@/lib/entity-config";
-import { ChevronLeft, Pencil, Save, X } from "lucide-react";
+import { ChevronLeft, LayoutList, Pencil, Save, Trash2, X } from "lucide-react";
 
 interface LocationObj {
   id?: number;
@@ -79,6 +79,7 @@ interface ContactObj {
 interface SimpleOption {
   id: number;
   name: string | null;
+  subtitle?: string | null;
 }
 
 interface SongOption {
@@ -93,6 +94,7 @@ interface RehearsalMeta {
   conductors: SimpleOption[];
   contacts: SimpleOption[];
   statusOptions: string[];
+  groupMembers?: Record<string, number[]>;
 }
 
 interface ConcertMeta {
@@ -103,6 +105,7 @@ interface ConcertMeta {
   equipment: SimpleOption[];
   contacts: SimpleOption[];
   statusOptions: string[];
+  groupMembers?: Record<string, number[]>;
 }
 
 interface EventContact {
@@ -197,17 +200,32 @@ function MultiSelect({
   selected,
   onChange,
   placeholder = "Search…",
+  showChips = true,
+  labelSelect = "Select…",
+  labelSelectedCount,
+  labelNoSelection = "No selection",
+  labelNoMatches = "No matches",
+  labelClose = "Close",
+  labelRemove = "Remove",
 }: {
   options: SimpleOption[];
   selected: number[];
   onChange: (next: number[]) => void;
   placeholder?: string;
+  showChips?: boolean;
+  labelSelect?: string;
+  labelSelectedCount?: (count: number) => string;
+  labelNoSelection?: string;
+  labelNoMatches?: string;
+  labelClose?: string;
+  labelRemove?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const rootRef = useRef<HTMLDivElement | null>(null);
   const selectedSet = new Set(selected);
   const filtered = options.filter((opt) => (opt.name ?? "").toLowerCase().includes(query.toLowerCase()));
+  const useFullscreen = options.length > 5;
 
   const toggle = (id: number) => {
     if (selectedSet.has(id)) {
@@ -230,38 +248,61 @@ function MultiSelect({
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative space-y-2">
+    <div ref={rootRef} className="relative w-full">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="w-full rounded-md border px-3 py-2 text-left text-sm"
-        style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+        className="w-full rounded-md border px-3 py-2 text-sm font-medium"
+        style={{
+          borderColor: "var(--border)",
+          color: "var(--foreground)",
+          background: "color-mix(in oklch, var(--muted) 45%, var(--card))",
+        }}
       >
-        {selected.length === 0 ? "Select…" : `${selected.length} selected`}
+        <span className="flex items-center justify-between gap-2">
+          <span>{labelSelect}</span>
+          <LayoutList className="h-4 w-4" />
+        </span>
       </button>
-      <div className="flex flex-wrap gap-2">
-        {selected.length === 0 && (
-          <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-            No selection
-          </span>
-        )}
-        {selected.map((id) => {
-          const opt = options.find((o) => o.id === id);
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => toggle(id)}
-              className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs"
-              style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
-            >
-              {opt?.name ?? "-"}
-              <span aria-hidden="true">×</span>
-            </button>
-          );
-        })}
-      </div>
-      {open && (
+      {showChips && (
+        <div className="mt-4 w-full space-y-2">
+          {selected.length === 0 && (
+            <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+              {labelNoSelection}
+            </span>
+          )}
+          {selected.map((id) => {
+            const opt = options.find((o) => o.id === id);
+            if (!opt?.name) return null;
+            return (
+              <div
+                key={id}
+                className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <div className="flex flex-col">
+                  <span className="font-medium">{opt.name}</span>
+                  {opt.subtitle ? (
+                    <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                      {opt.subtitle}
+                    </span>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => toggle(id)}
+                  className="inline-flex items-center justify-center rounded-md border px-2 py-2 text-sm hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
+                  style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                  aria-label={labelRemove}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {open && !useFullscreen && (
         <div
           className="absolute left-0 top-full z-50 mt-2 w-full rounded-md border p-3 shadow-lg"
           style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
@@ -274,22 +315,89 @@ function MultiSelect({
             className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
             style={{ color: "var(--foreground)" }}
           />
-          <div className="max-h-60 overflow-y-auto rounded-md border" style={{ borderColor: "var(--border)" }}>
-            {filtered.map((opt) => (
+          <div className="max-h-80 overflow-y-auto rounded-md border" style={{ borderColor: "var(--border)" }}>
+              {filtered.map((opt) => (
               <label
                 key={opt.id}
-                className="flex items-center gap-2 px-3 py-2 text-sm border-b"
+                className="flex items-center gap-3 px-3 py-3 text-sm border-b hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
                 style={{ borderColor: "var(--border)" }}
               >
                 <input type="checkbox" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
-                <span>{opt.name ?? "-"}</span>
-              </label>
-            ))}
+                <span className="flex flex-col">
+                    <span>{opt.name ?? "-"}</span>
+                    {opt.subtitle ? (
+                      <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                        {opt.subtitle}
+                      </span>
+                    ) : null}
+                  </span>
+                </label>
+              ))}
             {filtered.length === 0 && (
               <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
-                No matches
+                {labelNoMatches}
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {open && useFullscreen && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0"
+            style={{ background: "color-mix(in oklch, var(--foreground) 20%, transparent)" }}
+            onClick={() => setOpen(false)}
+          />
+          <div
+            className="absolute inset-0 flex h-full w-full flex-col rounded-none border shadow-xl md:left-1/2 md:top-1/2 md:h-[90vh] md:w-[min(98vw,980px)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg"
+            style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
+          >
+          <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--border)" }}>
+            <div className="text-sm font-semibold">{labelSelect}</div>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-1 text-sm"
+              style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+            >
+              {labelClose}
+            </button>
+          </div>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={placeholder}
+              className="mx-4 mt-4 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+              style={{ color: "var(--foreground)" }}
+            />
+            <div
+              className="mx-4 mb-4 mt-3 flex-1 min-h-0 overflow-y-auto rounded-md border md:max-h-[78vh]"
+              style={{ borderColor: "var(--border)" }}
+            >
+              {filtered.map((opt) => (
+                <label
+                  key={opt.id}
+                  className="flex items-center gap-3 px-3 py-3 text-sm border-b hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  <input type="checkbox" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
+                  <span className="flex flex-col">
+                    <span>{opt.name ?? "-"}</span>
+                    {opt.subtitle ? (
+                      <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                        {opt.subtitle}
+                      </span>
+                    ) : null}
+                  </span>
+                </label>
+              ))}
+              {filtered.length === 0 && (
+                <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+                  {labelNoMatches}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -303,18 +411,25 @@ function SelectPicker({
   onChange,
   placeholder = "Search…",
   emptyLabel = "—",
+  labelSelect = "Select…",
+  labelNoMatches = "No matches",
+  labelClose = "Close",
 }: {
   options: SimpleOption[];
   value: number;
   onChange: (next: number) => void;
   placeholder?: string;
   emptyLabel?: string;
+  labelSelect?: string;
+  labelNoMatches?: string;
+  labelClose?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const rootRef = useRef<HTMLDivElement | null>(null);
   const filtered = options.filter((opt) => (opt.name ?? "").toLowerCase().includes(query.toLowerCase()));
   const selected = options.find((opt) => opt.id === value);
+  const useFullscreen = options.length > 5;
 
   useEffect(() => {
     if (!open) return;
@@ -333,12 +448,19 @@ function SelectPicker({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="w-full rounded-md border px-3 py-2 text-left text-sm"
-        style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+        className="w-full rounded-md border px-3 py-2 text-sm font-medium"
+        style={{
+          borderColor: "var(--border)",
+          color: "var(--foreground)",
+          background: "color-mix(in oklch, var(--muted) 45%, var(--card))",
+        }}
       >
-        {selected?.name ?? emptyLabel}
+        <span className="flex items-center justify-between gap-2">
+          <span>{selected?.name ?? emptyLabel}</span>
+          <LayoutList className="h-4 w-4" />
+        </span>
       </button>
-      {open && (
+      {open && !useFullscreen && (
         <div
           className="absolute left-0 top-full z-50 mt-2 w-full rounded-md border p-3 shadow-lg"
           style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
@@ -351,7 +473,7 @@ function SelectPicker({
             className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
             style={{ color: "var(--foreground)" }}
           />
-          <div className="max-h-56 overflow-y-auto rounded-md border" style={{ borderColor: "var(--border)" }}>
+          <div className="max-h-80 overflow-y-auto rounded-md border" style={{ borderColor: "var(--border)" }}>
             {filtered.map((opt) => (
               <button
                 key={opt.id}
@@ -360,7 +482,7 @@ function SelectPicker({
                   onChange(opt.id);
                   setOpen(false);
                 }}
-                className="w-full text-left px-3 py-2 text-sm border-b hover:bg-[var(--muted)]/40"
+                className="w-full text-left px-3 py-3 text-sm border-b hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
                 style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
               >
                 {opt.name ?? emptyLabel}
@@ -368,12 +490,129 @@ function SelectPicker({
             ))}
             {filtered.length === 0 && (
               <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
-                No matches
+                {labelNoMatches}
               </div>
             )}
           </div>
         </div>
       )}
+      {open && useFullscreen && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0"
+            style={{ background: "color-mix(in oklch, var(--foreground) 20%, transparent)" }}
+            onClick={() => setOpen(false)}
+          />
+          <div
+            className="absolute inset-0 flex h-full w-full flex-col rounded-none border shadow-xl md:left-1/2 md:top-1/2 md:h-[90vh] md:w-[min(98vw,980px)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg"
+            style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
+          >
+            <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--border)" }}>
+              <div className="text-sm font-semibold">{labelSelect}</div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center gap-2 rounded-md border px-3 py-1 text-sm"
+                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+              >
+                {labelClose}
+              </button>
+            </div>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={placeholder}
+              className="mx-4 mt-4 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+              style={{ color: "var(--foreground)" }}
+            />
+            <div
+              className="mx-4 mb-4 mt-3 flex-1 min-h-0 overflow-y-auto rounded-md border md:max-h-[78vh]"
+              style={{ borderColor: "var(--border)" }}
+            >
+              {filtered.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => {
+                  onChange(opt.id);
+                  setOpen(false);
+                }}
+                className="w-full text-left px-3 py-3 text-sm border-b hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
+                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+              >
+                {opt.name ?? emptyLabel}
+              </button>
+              ))}
+              {filtered.length === 0 && (
+                <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+                  {labelNoMatches}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SelectedItemsList({
+  options,
+  selected,
+  onRemove,
+  labelRemove = "Remove",
+  emptyLabel = "No selection",
+  className = "",
+}: {
+  options: SimpleOption[];
+  selected: number[];
+  onRemove: (id: number) => void;
+  labelRemove?: string;
+  emptyLabel?: string;
+  className?: string;
+}) {
+  if (selected.length === 0) {
+    return (
+      <div className={className}>
+        <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+          {emptyLabel}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`space-y-2 ${className}`.trim()}>
+      {selected.map((id) => {
+        const opt = options.find((o) => o.id === id);
+        if (!opt?.name) return null;
+        return (
+          <div
+            key={id}
+            className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <div className="flex flex-col">
+              <span className="font-medium">{opt.name}</span>
+              {opt.subtitle ? (
+                <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  {opt.subtitle}
+                </span>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              onClick={() => onRemove(id)}
+              className="inline-flex items-center justify-center rounded-md border px-2 py-2 text-sm hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
+              style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+              aria-label={labelRemove}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -382,17 +621,16 @@ function StatusPicker({
   options,
   value,
   onChange,
-  placeholder = "Search…",
+  labelFor,
 }: {
   options: string[];
   value: string;
   onChange: (next: string) => void;
-  placeholder?: string;
+  labelFor?: (value: string) => string;
 }) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const filtered = options.filter((opt) => opt.toLowerCase().includes(query.toLowerCase()));
+  const displayLabel = labelFor ? labelFor(value) : value;
 
   useEffect(() => {
     if (!open) return;
@@ -414,23 +652,15 @@ function StatusPicker({
         className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
         style={getStatusPillStyle(value)}
       >
-        {value}
+        {displayLabel}
       </button>
       {open && (
         <div
-          className="absolute left-0 top-full z-50 mt-2 w-full rounded-md border p-3 shadow-lg"
+          className="absolute left-0 top-full z-50 mt-2 min-w-[160px] rounded-md border p-2 shadow-lg"
           style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
         >
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={placeholder}
-            className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-            style={{ color: "var(--foreground)" }}
-          />
-          <div className="flex flex-wrap gap-2">
-            {filtered.map((opt) => (
+          <div className="flex flex-col gap-2">
+            {options.map((opt) => (
               <button
                 key={opt}
                 type="button"
@@ -438,17 +668,12 @@ function StatusPicker({
                   onChange(opt);
                   setOpen(false);
                 }}
-                className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
+                className="inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-medium border"
                 style={getStatusPillStyle(opt)}
               >
-                {opt}
+                {labelFor ? labelFor(opt) : opt}
               </button>
             ))}
-            {filtered.length === 0 && (
-              <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-                No matches
-              </span>
-            )}
           </div>
         </div>
       )}
@@ -458,10 +683,12 @@ function StatusPicker({
 
 function ParticipantEditor({
   participants,
+  onRemoveContact,
   onChange,
   t,
 }: {
   participants: EditableParticipant[];
+  onRemoveContact: (contactId: number) => void;
   onChange: (next: EditableParticipant[]) => void;
   t: (key: string) => string;
 }) {
@@ -494,19 +721,29 @@ function ParticipantEditor({
                 {participant.instrument}
               </div>
             </div>
-            <ParticipationTrafficLight
-              value={participant.participate}
-              disabled={participant.userId <= 0}
-              onChange={(next) =>
-                onChange(
-                  participants.map((entry) =>
-                    entry.userId === participant.userId && entry.contactId === participant.contactId
-                      ? { ...entry, participate: next }
-                      : entry
+            <div className="flex items-center gap-3">
+              <ParticipationTrafficLight
+                value={participant.participate}
+                onChange={(next) =>
+                  onChange(
+                    participants.map((entry) =>
+                      entry.userId === participant.userId && entry.contactId === participant.contactId
+                        ? { ...entry, participate: next }
+                        : entry
+                    )
                   )
-                )
-              }
-            />
+                }
+              />
+              <button
+                type="button"
+                onClick={() => onRemoveContact(participant.contactId)}
+                className="inline-flex items-center justify-center rounded-md border px-2 py-2 text-sm"
+                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                aria-label={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         ))}
         {participants.length === 0 && (
@@ -528,6 +765,7 @@ function ParticipantEditor({
 
 function EntityDetailContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { t, ready, lang } = useI18n();
   const type = searchParams.get("type") || "";
   const id = searchParams.get("id") || "";
@@ -558,6 +796,9 @@ function EntityDetailContent() {
     groups: number[];
     equipment: number[];
     eventContacts: number[];
+    manualContacts: number[];
+    excludedContacts: number[];
+    manualContactsInitialized: boolean;
     songs: EditableSong[];
     participants: EditableParticipant[];
   } | null>(null);
@@ -594,6 +835,25 @@ function EntityDetailContent() {
     if (value === "maybe") return 2;
     if (value === "no") return 0;
     return null;
+  };
+
+  const arraysEqual = (a: number[], b: number[]) => {
+    if (a.length !== b.length) return false;
+    const aSorted = [...a].sort((x, y) => x - y);
+    const bSorted = [...b].sort((x, y) => x - y);
+    return aSorted.every((val, idx) => val === bSorted[idx]);
+  };
+
+  const getGroupContacts = (groupIds: number[]) => {
+    const members =
+      type === "concert" ? (meta as ConcertMeta | null)?.groupMembers : (meta as RehearsalMeta | null)?.groupMembers;
+    const result = new Set<number>();
+    if (!members) return result;
+    groupIds.forEach((groupId) => {
+      const ids = members[String(groupId)] ?? [];
+      ids.forEach((id) => result.add(id));
+    });
+    return result;
   };
 
   const module = type === "rehearsal" ? "rehearsals" : "concerts";
@@ -636,6 +896,53 @@ function EntityDetailContent() {
 
   const rehearsalMeta = type === "rehearsal" ? (meta as RehearsalMeta | null) : null;
   const concertMeta = type === "concert" ? (meta as ConcertMeta | null) : null;
+  const shouldEdit = searchParams.get("edit") === "1";
+
+  useEffect(() => {
+    if (!shouldEdit || !canEdit || !data) return;
+    if (!isEditing) {
+      setForm(buildForm());
+      setIsEditing(true);
+      if (!meta) {
+        loadMeta();
+      }
+    }
+  }, [shouldEdit, canEdit, data, isEditing, meta, loadMeta]);
+
+  useEffect(() => {
+    if (shouldEdit || !isEditing) return;
+    setIsEditing(false);
+    setForm(null);
+    setSaveError("");
+  }, [shouldEdit, isEditing]);
+
+  useEffect(() => {
+    if (!isEditing || !form || form.manualContactsInitialized || !meta) return;
+    const groupContacts = getGroupContacts(form.groups);
+    const nextManual = form.eventContacts.filter((id) => !groupContacts.has(id));
+    setForm({ ...form, manualContacts: nextManual, manualContactsInitialized: true });
+  }, [isEditing, form?.manualContactsInitialized, form?.groups, form?.eventContacts, form, meta]);
+
+  useEffect(() => {
+    if (!isEditing || !form) return;
+    const groupContacts = getGroupContacts(form.groups);
+    const manualContacts = new Set(form.manualContacts);
+    const validExcluded = form.excludedContacts.filter((id) => groupContacts.has(id));
+    const excludedContacts = new Set(validExcluded);
+    const nextContacts = new Set<number>();
+
+    groupContacts.forEach((id) => {
+      if (!excludedContacts.has(id)) {
+        nextContacts.add(id);
+      }
+    });
+    manualContacts.forEach((id) => nextContacts.add(id));
+
+    const nextList = Array.from(nextContacts);
+    if (!arraysEqual(nextList, form.eventContacts) || !arraysEqual(validExcluded, form.excludedContacts)) {
+      setForm({ ...form, eventContacts: nextList, excludedContacts: validExcluded });
+    }
+  }, [isEditing, form?.groups, form?.manualContacts, form?.excludedContacts, form, meta, type, setForm]);
 
   useEffect(() => {
     if (!isEditing || !form) return;
@@ -750,6 +1057,19 @@ function EntityDetailContent() {
       : status === "cancelled"
         ? t("js.event.status.cancelled")
         : t("js.event.status.planned");
+  const statusLabelFor = (value: string) =>
+    value === "confirmed"
+      ? t("js.event.status.confirmed")
+      : value === "cancelled"
+        ? t("js.event.status.cancelled")
+        : value === "hidden"
+          ? t("js.event.status.hidden")
+          : t("js.event.status.planned");
+  const selectedCountLabel = (count: number) =>
+    (t("js.common.selectedCount") !== "js.common.selectedCount" ? t("js.common.selectedCount") : "{count} selected").replace(
+      "{count}",
+      String(count)
+    );
 
   const safeDate = (value?: string) => {
     if (!value) return null;
@@ -803,6 +1123,9 @@ function EntityDetailContent() {
       groups: groups.map((g) => g.id ?? 0).filter((g) => g > 0),
       equipment: equipment.map((e) => e.id ?? 0).filter((e) => e > 0),
       eventContacts: initialContacts,
+      manualContacts: initialContacts,
+      excludedContacts: [],
+      manualContactsInitialized: false,
       songs:
         songsToPractice
           ?.filter((song) => typeof song.id === "number" && song.id > 0)
@@ -822,12 +1145,18 @@ function EntityDetailContent() {
     if (!meta) {
       loadMeta();
     }
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("edit", "1");
+    router.push(`/entity?${params.toString()}`);
   };
 
   const cancelEdit = () => {
     setIsEditing(false);
     setForm(null);
     setSaveError("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("edit");
+    router.replace(`/entity?${params.toString()}`);
   };
 
   const saveEdit = async () => {
@@ -880,6 +1209,9 @@ function EntityDetailContent() {
       });
       setIsEditing(false);
       setForm(null);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("edit");
+      router.replace(`/entity?${params.toString()}`);
       await loadData();
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Failed to save");
@@ -906,6 +1238,47 @@ function EntityDetailContent() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      {isEditing && (
+        <div
+          className="sticky top-0 z-30 rounded-xl border px-4 py-3 shadow-sm"
+          style={{
+            borderColor: "var(--border)",
+            background: "color-mix(in oklch, var(--primary) 12%, var(--card))",
+            color: "var(--card-foreground)",
+          }}
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm font-medium">
+              {t("js.common.editing") !== "js.common.editing" ? t("js.common.editing") : "Editing"}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={saveEdit}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white"
+                style={{ background: "var(--primary)" }}
+              >
+                <Save className="h-4 w-4" />
+                {t("js.common.save") !== "js.common.save" ? t("js.common.save") : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={cancelEdit}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium"
+                style={{
+                  borderColor: "color-mix(in oklch, var(--destructive) 60%, var(--border))",
+                  color: "var(--destructive)",
+                }}
+              >
+                <X className="h-4 w-4" />
+                {t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header + participation widget */}
       <div
@@ -961,46 +1334,21 @@ function EntityDetailContent() {
             )}
             {/* Top section only shows name + date/time (address in details card) */}
           </div>
-          <div className="shrink-0 flex flex-col items-start gap-2">
-            {canEdit && (
-              <div className="flex items-center gap-2">
-                {isEditing ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={saveEdit}
-                      disabled={saving}
-                      className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white"
-                      style={{ background: "var(--primary)" }}
-                    >
-                      <Save className="h-4 w-4" />
-                      {t("js.common.save") !== "js.common.save" ? t("js.common.save") : "Save"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={cancelEdit}
-                      disabled={saving}
-                      className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium"
-                      style={{ color: "var(--foreground)", borderColor: "var(--border)" }}
-                    >
-                      <X className="h-4 w-4" />
-                      {t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={startEdit}
-                    className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium"
-                    style={{ color: "var(--foreground)", borderColor: "var(--border)" }}
-                  >
-                    <Pencil className="h-4 w-4" />
-                    {t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"}
-                  </button>
-                )}
+          <div className="shrink-0 flex flex-col items-end gap-2">
+            {canEdit && !isEditing && (
+              <div className="flex items-baseline">
+                <button
+                  type="button"
+                  onClick={startEdit}
+                  className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white"
+                  style={{ background: "var(--primary)" }}
+                >
+                  <Pencil className="h-4 w-4" />
+                  {t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"}
+                </button>
               </div>
             )}
-            {(type === "rehearsal" || type === "concert") && (
+            {!isEditing && (type === "rehearsal" || type === "concert") && (
               <ParticipationWidget
                 eventId={numId}
                 eventType={eventType}
@@ -1077,17 +1425,19 @@ function EntityDetailContent() {
               {t("js.event.detail.status")}:
             </span>
             {isEditing && form ? (
-              <StatusPicker
-                options={(type === "concert" ? concertMeta?.statusOptions : rehearsalMeta?.statusOptions) ?? [
-                  "planned",
-                  "confirmed",
-                  "cancelled",
-                  "hidden",
-                ]}
-                value={form.status}
-                onChange={(next) => setForm({ ...form, status: next })}
-                placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-              />
+              <span className="ml-2 inline-flex items-center gap-2 align-middle">
+                <StatusPicker
+                  options={(type === "concert" ? concertMeta?.statusOptions : rehearsalMeta?.statusOptions) ?? [
+                    "planned",
+                    "confirmed",
+                    "cancelled",
+                    "hidden",
+                  ]}
+                  value={form.status}
+                  onChange={(next) => setForm({ ...form, status: next })}
+                  labelFor={statusLabelFor}
+                />
+              </span>
             ) : (
               <span
                 className="ml-2 inline-flex rounded-full px-2 py-0.5 text-xs font-medium border align-middle"
@@ -1127,6 +1477,9 @@ function EntityDetailContent() {
                 onChange={(next) => setForm({ ...form, conductorId: next })}
                 placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
                 emptyLabel="-"
+                labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
               />
             ) : (
                 <span className="ml-2 text-sm">{conductorName}</span>
@@ -1167,6 +1520,9 @@ function EntityDetailContent() {
                 onChange={(next) => setForm({ ...form, locationId: next })}
                 placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
                 emptyLabel="-"
+                labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
               />
             ) : (
               <div className="mt-1 flex items-center gap-2 flex-wrap text-sm">
@@ -1180,55 +1536,6 @@ function EntityDetailContent() {
               </div>
             )}
           </div>
-          {type === "rehearsal" && (isEditing || (Array.isArray(songsToPractice) && songsToPractice.length > 0)) && (
-            <div className="md:col-span-2">
-              <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
-                {t("js.event.detail.songsToPractice")}:
-              </span>
-              {isEditing && form ? (
-                <div className="mt-2 space-y-3">
-                  <MultiSelect
-                    options={(rehearsalMeta?.songs ?? []).map((song) => ({ id: song.id, name: song.title }))}
-                    selected={form.songs.map((song) => song.id)}
-                    onChange={(next) => updateSongSelection(next)}
-                    placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-                  />
-                  {form.songs.map((song) => (
-                    <div key={song.id} className="rounded-md border px-3 py-2" style={{ borderColor: "var(--border)" }}>
-                      <div className="text-sm font-medium">{song.title}</div>
-                      <textarea
-                        value={song.notes}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            songs: form.songs.map((entry) =>
-                              entry.id === song.id ? { ...entry, notes: event.target.value } : entry
-                            ),
-                          })
-                        }
-                        className="mt-2 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
-                        style={{ color: "var(--foreground)" }}
-                        rows={2}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <ul className="list-disc list-inside space-y-1 mt-1 text-sm">
-                  {songsToPractice?.map((song, i) => (
-                    <li key={song.id ?? i}>
-                      {song.title}
-                      {song.notes?.trim() ? (
-                        <div className="mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
-                          <MarkdownText value={song.notes} />
-                        </div>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
           {type === "concert" && (notes?.trim() || isEditing) && (
             <div className="md:col-span-2">
               <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
@@ -1255,20 +1562,41 @@ function EntityDetailContent() {
           className="rounded-xl border p-6 shadow-sm"
           style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
         >
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--foreground)" }}>
-            {t("js.event.metadata.besetzung") !== "js.event.metadata.besetzung"
-              ? t("js.event.metadata.besetzung")
-              : "Groups"}
-          </h2>
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+              {t("js.event.metadata.besetzung") !== "js.event.metadata.besetzung"
+                ? t("js.event.metadata.besetzung")
+                : "Groups"}
+            </h2>
+            {isEditing && form ? (
+              <div className="w-[min(100%,260px)]">
+                <MultiSelect
+                  options={rehearsalMeta?.groups ?? []}
+                  selected={form.groups}
+                  onChange={(next) => setForm({ ...form, groups: next })}
+                  placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                  showChips={false}
+                  labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                  labelSelectedCount={selectedCountLabel}
+                  labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                  labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                  labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                  labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                />
+              </div>
+            ) : null}
+          </div>
           {isEditing && form ? (
-            <MultiSelect
+            <SelectedItemsList
               options={rehearsalMeta?.groups ?? []}
               selected={form.groups}
-              onChange={(next) => setForm({ ...form, groups: next })}
-              placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+              onRemove={(id) => setForm({ ...form, groups: form.groups.filter((gid) => gid !== id) })}
+              labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+              emptyLabel={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+              className="mt-4"
             />
           ) : (
-            <div className="text-sm">
+            <div className="mt-4 text-sm">
               {groups.map((group) => safeString(group.name)).filter(Boolean).join(", ") || "—"}
             </div>
           )}
@@ -1276,7 +1604,7 @@ function EntityDetailContent() {
       )}
 
       {/* Participation overview (diagram) */}
-      {participationStats && (participationStats.total ?? 0) > 0 && (
+      {!isEditing && participationStats && (participationStats.total ?? 0) > 0 && (
         <div
           className="rounded-xl border p-6 shadow-sm"
           style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
@@ -1290,40 +1618,75 @@ function EntityDetailContent() {
         </div>
       )}
 
-      {isEditing && form && canEdit && (
-        <div
-          className="rounded-xl border p-6 shadow-sm"
-          style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
-        >
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--foreground)" }}>
-            {t("js.event.detail.contacts") !== "js.event.detail.contacts" ? t("js.event.detail.contacts") : "Event contacts"}
-          </h2>
-          <MultiSelect
-            options={(type === "concert" ? concertMeta?.contacts : rehearsalMeta?.contacts) ?? []}
-            selected={form.eventContacts}
-            onChange={(next) => setForm({ ...form, eventContacts: next })}
-            placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-          />
-        </div>
-      )}
-
       {/* Participants by instrument */}
       {participantsByInstrument && participantsByInstrument.length > 0 && (
         <div
           className="rounded-xl border p-6 shadow-sm"
           style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
         >
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--foreground)" }}>
-            {t("js.event.detail.participants") !== "js.event.detail.participants"
-              ? t("js.event.detail.participants")
-              : "Participants"}
-          </h2>
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+              {t("js.event.detail.participants") !== "js.event.detail.participants"
+                ? t("js.event.detail.participants")
+                : "Participants"}
+            </h2>
+            {isEditing && form && canEditParticipation ? (
+              <div className="w-[min(100%,260px)]">
+                <MultiSelect
+                  options={(type === "concert" ? concertMeta?.contacts : rehearsalMeta?.contacts) ?? []}
+                  selected={form.eventContacts}
+                  onChange={(next) => {
+                    if (!form) return;
+                    const groupContacts = getGroupContacts(form.groups);
+                    const nextManual = next.filter((id) => !groupContacts.has(id));
+                    const nextExcluded = form.excludedContacts.filter((id) => next.includes(id));
+                    setForm({
+                      ...form,
+                      manualContacts: nextManual,
+                      excludedContacts: nextExcluded,
+                      manualContactsInitialized: true,
+                    });
+                  }}
+                  placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                  showChips={false}
+                  labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                  labelSelectedCount={selectedCountLabel}
+                  labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                  labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                  labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                  labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                />
+              </div>
+            ) : null}
+          </div>
           {isEditing && form && canEditParticipation ? (
-            <ParticipantEditor
+            <div className="mt-4">
+              <ParticipantEditor
               participants={form.participants}
+              onRemoveContact={(contactId) => {
+                if (!form) return;
+                const groupContacts = getGroupContacts(form.groups);
+                if (groupContacts.has(contactId)) {
+                  if (!form.excludedContacts.includes(contactId)) {
+                    setForm({
+                      ...form,
+                      excludedContacts: [...form.excludedContacts, contactId],
+                      manualContacts: form.manualContacts.filter((id) => id !== contactId),
+                      manualContactsInitialized: true,
+                    });
+                  }
+                } else {
+                  setForm({
+                    ...form,
+                    manualContacts: form.manualContacts.filter((id) => id !== contactId),
+                    manualContactsInitialized: true,
+                  });
+                }
+              }}
               onChange={(next) => setForm({ ...form, participants: next })}
               t={t}
-            />
+              />
+            </div>
           ) : (
             <ParticipantOverview participantsByInstrument={participantsByInstrument} />
           )}
@@ -1353,21 +1716,46 @@ function EntityDetailContent() {
           <div className="space-y-4">
             {(isEditing || groups.length > 0) && (
               <div>
-                <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
-                  {t("js.event.metadata.besetzung") !== "js.event.metadata.besetzung"
-                    ? t("js.event.metadata.besetzung")
-                    : "Groups"}:
-                </span>
+                <div className="flex flex-wrap items-baseline justify-between gap-3">
+                  <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                    {t("js.event.metadata.besetzung") !== "js.event.metadata.besetzung"
+                      ? t("js.event.metadata.besetzung")
+                      : "Groups"}
+                    :
+                  </span>
+                  {isEditing && form ? (
+                    <div className="w-[min(100%,260px)]">
+                      <MultiSelect
+                        options={concertMeta?.groups ?? []}
+                        selected={form.groups}
+                        onChange={(next) => setForm({ ...form, groups: next })}
+                        placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                        showChips={false}
+                        labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                        labelSelectedCount={selectedCountLabel}
+                        labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                        labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                        labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                        labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+                {!isEditing && (
+                  <div className="mt-4 text-sm">
+                    {groups.map((g) => safeString(g.name)).filter(Boolean).join(", ") || "—"}
+                  </div>
+                )}
                 {isEditing && form ? (
-                  <MultiSelect
+                  <SelectedItemsList
                     options={concertMeta?.groups ?? []}
                     selected={form.groups}
-                    onChange={(next) => setForm({ ...form, groups: next })}
-                    placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                    onRemove={(id) => setForm({ ...form, groups: form.groups.filter((gid) => gid !== id) })}
+                    labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                    emptyLabel={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                    className="mt-4"
                   />
-                ) : (
-                  <span className="ml-2 text-sm">{groups.map((g) => safeString(g.name)).filter(Boolean).join(", ")}</span>
-                )}
+                ) : null}
               </div>
             )}
             {(isEditing || safeString(program?.name)) && (
@@ -1384,6 +1772,9 @@ function EntityDetailContent() {
                     onChange={(next) => setForm({ ...form, programId: next })}
                     placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
                     emptyLabel="-"
+                    labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                    labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                    labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
                   />
                 ) : (
                   <span className="ml-2 text-sm">{safeString(program?.name)}</span>
@@ -1404,6 +1795,9 @@ function EntityDetailContent() {
                     onChange={(next) => setForm({ ...form, outfitId: next })}
                     placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
                     emptyLabel="-"
+                    labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                    labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                    labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
                   />
                 ) : (
                   <span className="ml-2 text-sm">{safeString(outfit?.name)}</span>
@@ -1412,21 +1806,46 @@ function EntityDetailContent() {
             )}
             {(isEditing || equipment.length > 0) && (
               <div>
-                <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
-                  {t("js.event.metadata.equipment") !== "js.event.metadata.equipment"
-                    ? t("js.event.metadata.equipment")
-                    : "Equipment"}:
-                </span>
+                <div className="flex flex-wrap items-baseline justify-between gap-3">
+                  <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                    {t("js.event.metadata.equipment") !== "js.event.metadata.equipment"
+                      ? t("js.event.metadata.equipment")
+                      : "Equipment"}
+                    :
+                  </span>
+                  {isEditing && form ? (
+                    <div className="w-[min(100%,260px)]">
+                      <MultiSelect
+                        options={concertMeta?.equipment ?? []}
+                        selected={form.equipment}
+                        onChange={(next) => setForm({ ...form, equipment: next })}
+                        placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                        showChips={false}
+                        labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                        labelSelectedCount={selectedCountLabel}
+                        labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                        labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                        labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                        labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+                {!isEditing && (
+                  <div className="mt-4 text-sm">
+                    {equipment.map((e) => safeString(e.name)).filter(Boolean).join(", ") || "—"}
+                  </div>
+                )}
                 {isEditing && form ? (
-                  <MultiSelect
+                  <SelectedItemsList
                     options={concertMeta?.equipment ?? []}
                     selected={form.equipment}
-                    onChange={(next) => setForm({ ...form, equipment: next })}
-                    placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                    onRemove={(id) => setForm({ ...form, equipment: form.equipment.filter((eid) => eid !== id) })}
+                    labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                    emptyLabel={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                    className="mt-4"
                   />
-                ) : (
-                  <span className="ml-2 text-sm">{equipment.map((e) => safeString(e.name)).filter(Boolean).join(", ")}</span>
-                )}
+                ) : null}
               </div>
             )}
           </div>
@@ -1450,6 +1869,9 @@ function EntityDetailContent() {
                     onChange={(next) => setForm({ ...form, accommodationId: next })}
                     placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
                     emptyLabel="-"
+                    labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                    labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                    labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
                   />
                 ) : (
                   <span className="ml-2 text-sm">{safeString(accommodation?.name)}</span>
@@ -1524,6 +1946,9 @@ function EntityDetailContent() {
                     onChange={(next) => setForm({ ...form, contactId: next })}
                     placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
                     emptyLabel="-"
+                    labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                    labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                    labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
                   />
                 ) : (
                   <span className="ml-2 text-sm">
@@ -1574,6 +1999,88 @@ function EntityDetailContent() {
               <MarkdownText value={notes} className="text-sm" />
             )}
           </div>
+        </div>
+      )}
+
+      {type === "rehearsal" && (isEditing || (Array.isArray(songsToPractice) && songsToPractice.length > 0)) && (
+        <div
+          className="rounded-xl border p-6 shadow-sm"
+          style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+              {t("js.event.detail.songsToPractice")}
+            </h2>
+            {isEditing && form ? (
+              <div className="w-[min(100%,260px)]">
+                <MultiSelect
+                  options={(rehearsalMeta?.songs ?? []).map((song) => ({ id: song.id, name: song.title }))}
+                  selected={form.songs.map((song) => song.id)}
+                  onChange={(next) => updateSongSelection(next)}
+                  placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                  showChips={false}
+                  labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                labelSelectedCount={selectedCountLabel}
+                labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+              />
+              </div>
+            ) : null}
+          </div>
+          {isEditing && form ? (
+            <div className="mt-6 space-y-2">
+              {form.songs.map((song) => (
+                <div key={song.id} className="rounded-md border px-3 py-2" style={{ borderColor: "var(--border)" }}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="text-sm font-medium">{song.title}</div>
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, songs: form.songs.filter((entry) => entry.id !== song.id) })}
+                      className="inline-flex items-center justify-center rounded-md border px-2 py-2 text-sm"
+                      style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                      aria-label={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <textarea
+                    value={song.notes}
+                    onChange={(event) =>
+                      setForm({
+                        ...form,
+                        songs: form.songs.map((entry) =>
+                          entry.id === song.id ? { ...entry, notes: event.target.value } : entry
+                        ),
+                      })
+                    }
+                    className="mt-2 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
+                    style={{ color: "var(--foreground)" }}
+                    rows={2}
+                  />
+                </div>
+              ))}
+              {form.songs.length === 0 && (
+                <div className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+                  {t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                </div>
+              )}
+            </div>
+          ) : (
+            <ul className="list-disc list-inside space-y-1 text-sm">
+              {songsToPractice?.map((song, i) => (
+                <li key={song.id ?? i}>
+                  {song.title}
+                  {song.notes?.trim() ? (
+                    <div className="mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                      <MarkdownText value={song.notes} />
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>

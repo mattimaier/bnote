@@ -24,7 +24,7 @@ const SEGMENT_COLORS = {
   yes: "var(--success)",
   maybe: "var(--warning)",
   no: "var(--destructive)",
-  pending: "var(--muted-foreground)",
+  pending: "color-mix(in oklch, var(--muted) 70%, var(--foreground) 30%)",
 };
 
 export function ParticipationDiagram({ stats }: ParticipationDiagramProps) {

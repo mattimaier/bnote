@@ -70,7 +70,10 @@ function StatusIcon({ participate }: { participate: number | null }) {
     return (
       <div
         className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white border-2"
-        style={{ backgroundColor: "var(--muted-foreground)", borderColor: "var(--muted-foreground)" }}
+        style={{
+          backgroundColor: "color-mix(in oklch, var(--muted) 70%, var(--foreground) 30%)",
+          borderColor: "color-mix(in oklch, var(--muted) 70%, var(--foreground) 30%)",
+        }}
       >
         <Clock className="h-5 w-5" />
       </div>
