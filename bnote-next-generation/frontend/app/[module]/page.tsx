@@ -18,6 +18,7 @@ import VotesPage from "@/app/_modules/votes/page";
 import ConcertsPage from "@/app/_modules/concerts/page";
 import RehearsalsPage from "@/app/_modules/rehearsals/page";
 import SearchPage from "@/app/_modules/search/page";
+import SharePage from "@/app/_modules/share/page";
 
 const MODULE_PAGES: Record<string, () => ReactNode> = {
   dashboard: () => <DashboardPage />,
@@ -31,6 +32,7 @@ const MODULE_PAGES: Record<string, () => ReactNode> = {
   concerts: () => <ConcertsPage />,
   rehearsals: () => <RehearsalsPage />,
   search: () => <SearchPage />,
+  share: () => <SharePage />,
 };
 
 const MODULE_KEYS = Object.keys(MODULE_PAGES);

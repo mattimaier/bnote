@@ -1,0 +1,41 @@
+{
+  "mimeTypes": {
+    "application/pdf": "file-text",
+    "image/jpeg": "file-image",
+    "image/png": "file-image",
+    "image/gif": "file-image",
+    "image/webp": "file-image",
+    "image/svg+xml": "file-image",
+    "audio/mpeg": "file-audio",
+    "audio/ogg": "file-audio",
+    "audio/wav": "file-audio",
+    "audio/mp3": "file-audio",
+    "video/mp4": "file-video",
+    "video/webm": "file-video",
+    "text/plain": "file-text",
+    "text/html": "file-code",
+    "application/json": "file-code",
+    "application/zip": "file-archive"
+  },
+  "extensions": {
+    "pdf": "file-text",
+    "jpg": "file-image",
+    "jpeg": "file-image",
+    "png": "file-image",
+    "gif": "file-image",
+    "webp": "file-image",
+    "svg": "file-image",
+    "mp3": "file-audio",
+    "ogg": "file-audio",
+    "wav": "file-audio",
+    "m4a": "file-audio",
+    "mp4": "file-video",
+    "webm": "file-video",
+    "txt": "file-text",
+    "md": "file-text",
+    "html": "file-code",
+    "json": "file-code",
+    "zip": "file-archive"
+  },
+  "default": "file-text"
+}

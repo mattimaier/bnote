@@ -259,6 +259,11 @@ class AuthModule {
                 'icon' => 'users',
                 'i18n' => 'js.sidebar.contacts'
             ],
+            'Share' => [
+                'route' => '/share',
+                'icon' => 'share',
+                'i18n' => 'js.sidebar.share'
+            ],
             'Locations' => [
                 'route' => '/locations',
                 'icon' => 'map-pin',
