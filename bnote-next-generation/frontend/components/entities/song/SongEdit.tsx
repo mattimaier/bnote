@@ -145,7 +145,7 @@ export function SongEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -153,7 +153,7 @@ export function SongEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -161,7 +161,7 @@ export function SongEdit() {
   if (!isNew && error && !title) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">{error}</p>
+        <p className="text-sm text-error">{error}</p>
       </div>
     );
   }
@@ -186,25 +186,12 @@ export function SongEdit() {
       />
       <form id="song-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div
-            className="rounded-lg border px-4 py-3 text-sm"
-            style={{
-              borderColor: "var(--destructive)",
-              background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-              color: "var(--destructive-foreground)",
-            }}
-          >
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
             {error}
           </div>
         )}
 
-        <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-xl md:border md:shadow-sm md:p-6 bg-[var(--background)] md:bg-[var(--card)]"
-          style={{
-            borderColor: "var(--border)",
-            color: "var(--card-foreground)",
-          }}
-        >
+        <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium">
@@ -216,8 +203,7 @@ export function SongEdit() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="input input-sm w-full text-base-content"
               />
             </div>
             <div>
@@ -230,8 +216,7 @@ export function SongEdit() {
                 type="text"
                 value={composer}
                 onChange={(e) => setComposer(e.target.value)}
-                className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="input input-sm w-full text-base-content"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -279,8 +264,7 @@ export function SongEdit() {
                   value={length}
                   onChange={(e) => setLength(e.target.value)}
                   placeholder="mm:ss"
-                  className="input input-sm w-full"
-                  style={{ color: "var(--foreground)" }}
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
               <div>
@@ -294,8 +278,7 @@ export function SongEdit() {
                   min={0}
                   value={bpm}
                   onChange={(e) => setBpm(e.target.value)}
-                  className="input input-sm w-full"
-                  style={{ color: "var(--foreground)" }}
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
               <div>
@@ -308,8 +291,7 @@ export function SongEdit() {
                   type="text"
                   value={musicKey}
                   onChange={(e) => setMusicKey(e.target.value)}
-                  className="input input-sm w-full"
-                  style={{ color: "var(--foreground)" }}
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
             </div>
@@ -323,8 +305,7 @@ export function SongEdit() {
                 type="text"
                 value={setting}
                 onChange={(e) => setSetting(e.target.value)}
-                className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="input input-sm w-full text-base-content"
               />
             </div>
             <div>

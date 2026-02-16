@@ -94,7 +94,7 @@ export function UserDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -107,7 +107,7 @@ export function UserDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -115,7 +115,7 @@ export function UserDetail() {
   if (error || !user) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">{error || "User not found."}</p>
+        <p className="text-sm text-error">{error || "User not found."}</p>
       </div>
     );
   }
@@ -143,7 +143,7 @@ export function UserDetail() {
 
       <DetailCard className="space-y-6">
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium text-base-content/60">
             {t("js.users.status") !== "js.users.status" ? t("js.users.status") : "Status"}
           </span>
           <div className="mt-1">
@@ -157,22 +157,21 @@ export function UserDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium text-base-content/60">
             {t("js.users.lastLogin") !== "js.users.lastLogin" ? t("js.users.lastLogin") : "Last login"}
           </span>
-          <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)" }}>{formattedLastLogin}</p>
+          <p className="text-sm mt-1" className="text-base-content/60">{formattedLastLogin}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium text-base-content/60">
             {t("js.users.contact") !== "js.users.contact" ? t("js.users.contact") : "Contact"}
           </span>
           <div className="text-sm mt-1">
             {contactInfo.id > 0 ? (
               <Link
                 href={getEntityPath("contact", contactInfo.id)}
-                className="no-underline"
-                style={{ color: "var(--foreground)" }}
+                className="no-underline text-base-content"
               >
                 {contactInfo.label}
               </Link>
@@ -183,7 +182,7 @@ export function UserDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium text-base-content/60">
             {t("js.users.privileges") !== "js.users.privileges"
               ? t("js.users.privileges")
               : "Berechtigungen"}
@@ -193,20 +192,12 @@ export function UserDetail() {
               {privileges.modules
                 .filter((mod) => mod.hasAccess)
                 .map((mod) => (
-                  <span
-                    key={mod.id}
-                    className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border"
-                    style={{
-                      borderColor: "color-mix(in oklch, var(--primary) 40%, var(--border))",
-                      background: "color-mix(in oklch, var(--primary) 12%, transparent)",
-                      color: "var(--primary)",
-                    }}
-                  >
+                  <span key={mod.id} className="badge badge-primary badge-sm">
                     {mod.name}
                   </span>
                 ))}
               {privileges.modules.filter((mod) => mod.hasAccess).length === 0 && (
-                <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-sm text-base-content/60">
                   {t("js.common.noSelection") !== "js.common.noSelection"
                     ? t("js.common.noSelection")
                     : "No selection"}
@@ -214,7 +205,7 @@ export function UserDetail() {
               )}
             </div>
           ) : (
-            <p className="mt-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+            <p className="mt-2 text-sm text-base-content/60">
               {t("js.common.loading") !== "js.common.loading" ? t("js.common.loading") : "Loading"}
             </p>
           )}

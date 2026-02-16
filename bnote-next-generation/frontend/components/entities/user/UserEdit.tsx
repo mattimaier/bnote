@@ -251,7 +251,7 @@ export function UserEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -259,7 +259,7 @@ export function UserEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -267,7 +267,7 @@ export function UserEdit() {
   if (!isNew && error && !login) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">{error}</p>
+        <p className="text-sm text-error">{error}</p>
       </div>
     );
   }
@@ -283,25 +283,12 @@ export function UserEdit() {
 
       <form id="user-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div
-            className="rounded-lg border px-4 py-3 text-sm"
-            style={{
-              borderColor: "var(--destructive)",
-              background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-              color: "var(--destructive-foreground)",
-            }}
-          >
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
             {error}
           </div>
         )}
 
-        <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-xl md:border md:shadow-sm md:p-6 bg-[var(--background)] md:bg-[var(--card)]"
-          style={{
-            borderColor: "var(--border)",
-            color: "var(--card-foreground)",
-          }}
-        >
+        <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">
@@ -314,8 +301,7 @@ export function UserEdit() {
                 onChange={(e) => setLogin(e.target.value)}
                 readOnly={!isNew}
                 disabled={!isNew}
-                className={`w-full rounded-md border border-[var(--border)] px-3 py-2 text-sm ${!isNew ? "bg-[var(--muted)] cursor-not-allowed" : "bg-[var(--background)]"}`}
-                style={{ color: "var(--foreground)" }}
+                className={`w-full rounded-field border border-base-300 px-3 py-2 text-sm text-base-content ${!isNew ? "bg-base-200 cursor-not-allowed" : "bg-base-100"}`}
               />
             </div>
 
@@ -339,8 +325,7 @@ export function UserEdit() {
                     ? t("js.users.passwordPlaceholder")
                     : t("js.users.passwordLeaveEmpty")
                 }
-                className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="input input-sm w-full text-base-content"
               />
             </div>
 
@@ -377,7 +362,7 @@ export function UserEdit() {
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="rounded border-[var(--border)]"
+                className="checkbox checkbox-primary checkbox-sm"
               />
               <span className="text-sm">
                 {t("js.users.active") !== "js.users.active" ? t("js.users.active") : "Active"}
@@ -388,21 +373,15 @@ export function UserEdit() {
       </form>
 
       {!isNew && (
-        <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-xl md:border md:shadow-sm md:p-6 bg-[var(--background)] md:bg-[var(--card)]"
-          style={{
-            borderColor: "var(--border)",
-            color: "var(--card-foreground)",
-          }}
-        >
+        <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h3 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+              <h3 className="text-sm font-semibold text-base-content">
                 {t("js.users.managePrivileges") !== "js.users.managePrivileges"
                   ? t("js.users.managePrivileges")
                   : "Manage Privileges"}
               </h3>
-              <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-xs mt-1 text-base-content/60">
                 Select modules this user can access.
               </p>
             </div>
@@ -428,13 +407,13 @@ export function UserEdit() {
                         const nextSelected = nextModules.filter((m) => m.hasAccess).map((m) => m.id);
                         handlePrivilegesSave(nextSelected);
                       }}
-                      className="rounded border-[var(--border)]"
+                      className="checkbox checkbox-primary checkbox-sm"
                     />
                     <span className="text-sm">{mod.name}</span>
                   </label>
                 ))}
                 {selectedPrivileges.length === 0 && (
-                  <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  <p className="text-xs" className="text-base-content/60">
                     {t("js.common.noSelection") !== "js.common.noSelection"
                       ? t("js.common.noSelection")
                       : "No selection"}
@@ -442,7 +421,7 @@ export function UserEdit() {
                 )}
               </div>
             ) : (
-              <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-sm text-base-content/60">
                 {t("js.common.loading") !== "js.common.loading" ? t("js.common.loading") : "Loading"}
               </p>
             )}

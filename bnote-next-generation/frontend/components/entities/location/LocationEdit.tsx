@@ -99,7 +99,7 @@ export function LocationEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -107,7 +107,7 @@ export function LocationEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -115,7 +115,7 @@ export function LocationEdit() {
   if (!isNew && error && !name && !city) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">{error}</p>
+        <p className="text-sm text-error">{error}</p>
       </div>
     );
   }
@@ -132,22 +132,14 @@ export function LocationEdit() {
         {error && (
           <div
             className="rounded-lg border px-4 py-3 text-sm"
-            style={{
-              borderColor: "var(--destructive)",
-              background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-              color: "var(--destructive-foreground)",
-            }}
+            className="border border-error bg-error/15 text-error"
           >
             {error}
           </div>
         )}
 
         <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-xl md:border md:shadow-sm md:p-6 bg-[var(--background)] md:bg-[var(--card)]"
-          style={{
-            borderColor: "var(--border)",
-            color: "var(--card-foreground)",
-          }}
+          className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content"
         >
           <div className="space-y-4">
             <div>

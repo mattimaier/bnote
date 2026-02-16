@@ -101,7 +101,7 @@ export function LocationDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -114,7 +114,7 @@ export function LocationDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -122,7 +122,7 @@ export function LocationDetail() {
   if (error || !location) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">{error || "Location not found."}</p>
+        <p className="text-sm text-error">{error || "Location not found."}</p>
       </div>
     );
   }
@@ -153,7 +153,7 @@ export function LocationDetail() {
 
       <DetailCard className="space-y-4">
         <div>
-          <h2 className="text-sm font-semibold" style={{ color: "var(--muted-foreground)" }}>
+          <h2 className="text-sm font-semibold" className="text-base-content/60">
             {t("js.locations.notes") !== "js.locations.notes" ? t("js.locations.notes") : "Notes"}
           </h2>
           <div className="mt-1 prose prose-sm max-w-none dark:prose-invert">
@@ -163,7 +163,7 @@ export function LocationDetail() {
 
         {addressValue && (
           <div>
-            <h2 className="text-sm font-semibold" style={{ color: "var(--muted-foreground)" }}>
+            <h2 className="text-sm font-semibold" className="text-base-content/60">
               {t("js.event.detail.location") !== "js.event.detail.location"
                 ? t("js.event.detail.location")
                 : "Address"}
@@ -177,12 +177,12 @@ export function LocationDetail() {
 
       {events.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+          <h2 className="text-lg font-semibold text-base-content">
             {t("js.locations.eventsAtLocation")}
           </h2>
           {eventsLoading ? (
-            <div className="mt-3 flex items-center justify-center rounded-none border-0 py-12 md:rounded-xl md:border md:py-12 bg-[var(--background)] md:bg-[var(--card)]" style={{ borderColor: "var(--border)" }}>
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+            <div className="mt-3 flex items-center justify-center rounded-none border-0 py-12 md:rounded-box md:border md:border-base-300 md:py-12 bg-base-100 md:bg-base-100">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
           ) : (
             <div className="mt-3 space-y-6">
@@ -234,7 +234,7 @@ function SortableTh({
         type="button"
         onClick={() => onSort(sortKey)}
         className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-        style={{ color: "var(--foreground)" }}
+        className="text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />
@@ -299,15 +299,11 @@ function LocationEventsTable({
 
   return (
     <div>
-      <h3 className="text-base font-semibold" style={{ color: "var(--foreground)" }}>
+      <h3 className="text-base font-semibold text-base-content">
         {year}
       </h3>
       <div
-        className="mt-2 overflow-hidden rounded-none border-0 bg-[var(--background)] md:rounded-xl md:border md:bg-[var(--card)]"
-        style={{
-          borderColor: "var(--border)",
-          color: "var(--card-foreground)",
-        }}
+        className="mt-2 overflow-hidden rounded-none border-0 bg-base-100 md:rounded-box md:border md:border-base-300 md:bg-base-100 text-base-content"
       >
         <ResponsiveTable<LocationEventItem, EventSortKey>
           rows={sortedItems}
@@ -328,7 +324,7 @@ function LocationEventsTable({
                     <Icon className="h-3 w-3" />
                   </span>
                 }
-                primary={hasCustomTitle ? primaryText : <span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>{primaryText}</span>}
+                primary={hasCustomTitle ? primaryText : <span className="font-bold leading-tight text-primary">{primaryText}</span>}
                 badge={
                   <>
                     {hasCustomTitle && <span className="text-sm">{dateStr}</span>}
@@ -373,7 +369,7 @@ function LocationEventsTable({
             <thead>
               <tr
                 className="border-b"
-                style={{ borderColor: "var(--border)", background: "var(--muted)/30" }}
+                className="border-b border-base-300 bg-base-200/50"
               >
                 <SortableTh
                   columnId="title"
@@ -406,8 +402,7 @@ function LocationEventsTable({
                 <tr>
                   <td
                     colSpan={3}
-                    className="p-8 text-center"
-                    style={{ color: "var(--muted-foreground)" }}
+                    className="p-8 text-center text-base-content/60"
                   >
                     {t("js.locations.noEventsAtLocation")}
                   </td>
@@ -421,14 +416,13 @@ function LocationEventsTable({
                   return (
                     <tr
                       key={`${row.type}-${row.id}`}
-                      className="cursor-pointer border-b transition-colors hover:bg-[var(--muted)]/30"
-                      style={{ borderColor: "var(--border)" }}
+                      className="cursor-pointer border-b border-base-300 transition-colors hover:bg-base-200/50"
                       onClick={() => onRowClick(row.type, row.id)}
                     >
                       <td className="p-3">
                         <div className="flex items-center gap-2">
                           <div
-                            className={`h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-white ring-2 ring-[var(--background)] shadow-sm ${typeConfig.dotClass}`}
+                            className={`h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-white ring-2 ring-base-100 shadow-sm ${typeConfig.dotClass}`}
                           >
                             <Icon className="h-3.5 w-3.5" />
                           </div>

@@ -97,19 +97,10 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
         aria-hidden
       />
       {/* Panel: full-screen on mobile */}
-      <div
-        className="fixed inset-0 flex flex-col"
-        style={{
-          background: "var(--background)",
-          color: "var(--foreground)",
-        }}
-      >
-        <div
-          className="flex items-center justify-between h-16 px-4 lg:px-6 border-b shrink-0"
-          style={{ borderColor: "var(--border)" }}
-        >
+      <div className="fixed inset-0 flex flex-col bg-base-100 text-base-content">
+        <div className="flex items-center justify-between h-16 px-4 lg:px-6 border-b border-base-300 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg flex items-center justify-center ring-1 bg-gradient-to-br from-[var(--primary)]/30 to-[var(--primary)]/10 ring-[var(--primary)]/20">
+            <div className="h-9 w-9 rounded-box flex items-center justify-center ring-1 bg-gradient-to-br from-primary/30 to-primary/10 ring-primary/20">
               {logoUrl ? (
                 <img
                   src={logoUrl}
@@ -121,7 +112,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
                   }}
                 />
               ) : (
-                <span className="text-[var(--primary)] font-bold text-xs">B</span>
+                <span className="text-primary font-bold text-xs">B</span>
               )}
             </div>
             <span className="font-semibold text-sm">BNote</span>
@@ -151,12 +142,11 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
                 href={href}
                 prefetch={false}
                 onClick={onClose}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-box transition-all duration-200 ${
                   isActive
-                    ? "bg-[var(--primary)]/12 text-[var(--primary)] font-semibold shadow-sm"
-                    : "hover:bg-[var(--muted)]/60 font-medium"
+                    ? "bg-primary/15 text-primary font-semibold shadow-sm"
+                    : "hover:bg-base-200 font-medium text-base-content"
                 }`}
-                style={!isActive ? { color: "var(--foreground)" } : undefined}
               >
                 <span
                   className="flex shrink-0 items-center justify-center"

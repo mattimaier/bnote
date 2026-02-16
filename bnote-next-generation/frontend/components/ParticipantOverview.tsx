@@ -74,42 +74,27 @@ function groupByCategory(groups: InstrumentGroup[]): InstrumentGroup[] {
 function StatusIcon({ participate }: { participate: number | null }) {
   if (participate === null || participate === undefined || participate < 0) {
     return (
-      <div
-        className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white border-2"
-        style={{
-          backgroundColor: "color-mix(in oklch, var(--muted) 70%, var(--foreground) 30%)",
-          borderColor: "color-mix(in oklch, var(--muted) 70%, var(--foreground) 30%)",
-        }}
-      >
+      <div className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white border-2 border-base-content/40 bg-base-content/30">
         <Clock className="h-5 w-5" />
       </div>
     );
   }
   if (participate === 1) {
     return (
-      <div
-        className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white border-2"
-        style={{ backgroundColor: "var(--success)", borderColor: "var(--success)" }}
-      >
+      <div className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white border-2 border-success bg-success">
         <Check className="h-5 w-5" />
       </div>
     );
   }
   if (participate === 2) {
     return (
-      <div
-        className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white border-2"
-        style={{ backgroundColor: "var(--warning)", borderColor: "var(--warning)" }}
-      >
+      <div className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white border-2 border-warning bg-warning">
         <HelpCircle className="h-5 w-5" />
       </div>
     );
   }
   return (
-    <div
-      className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white border-2"
-      style={{ backgroundColor: "var(--destructive)", borderColor: "var(--destructive)" }}
-    >
+    <div className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white border-2 border-error bg-error">
       <X className="h-5 w-5" />
     </div>
   );
@@ -142,18 +127,8 @@ function ParticipantRow({
   );
 
   return (
-    <div
-      className="flex items-start gap-3 py-2 px-2 rounded-md hover:bg-[var(--muted)]/50 transition-colors"
-      style={{ color: "var(--foreground)" }}
-    >
-      <div
-        className="h-8 w-8 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-semibold"
-        style={{
-          borderColor: "color-mix(in oklch, var(--primary) 30%, transparent)",
-          background: "color-mix(in oklch, var(--primary) 12%, transparent)",
-          color: "var(--primary)",
-        }}
-      >
+    <div className="flex items-start gap-3 py-2 px-2 rounded-md border border-base-300/60 bg-base-100 hover:bg-base-200/70 transition-colors text-base-content">
+      <div className="h-8 w-8 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-semibold border-primary/50 bg-primary/15 text-primary">
         {initials}
       </div>
       <div className="flex-1 min-w-0">
@@ -162,7 +137,7 @@ function ParticipantRow({
           <StatusIcon participate={participant.participate} />
         </div>
         {participant.reason?.trim() && (
-          <p className="text-xs mt-1 italic" style={{ color: "var(--muted-foreground)" }}>
+          <p className="text-xs mt-1 italic text-base-content/70">
             {participant.reason}
           </p>
         )}
@@ -185,7 +160,7 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
 
   if (!hasParticipants) {
     return (
-      <div className="text-center py-8 text-sm" style={{ color: "var(--muted-foreground)" }}>
+      <div className="text-center py-8 text-sm text-base-content/70">
         {t("js.participants.noParticipantsYet") !== "js.participants.noParticipantsYet"
           ? t("js.participants.noParticipantsYet")
           : "No participants yet"}
@@ -196,7 +171,7 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
   return (
     <div className="participant-overview space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+        <span className="text-sm font-medium text-base-content/80">
           {t("js.participants.groupBy") !== "js.participants.groupBy" ? t("js.participants.groupBy") : "Group by"}
         </span>
         <button
@@ -233,10 +208,9 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
           return (
             <div
               key={`${name}-${idx}`}
-              className="rounded-lg border p-4 shadow-sm"
-              style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
+              className="rounded-lg border-2 border-base-300 bg-white p-4 shadow-sm text-base-content"
             >
-              <h3 className="text-base font-semibold text-center mb-2" style={{ color: "var(--foreground)" }}>
+              <h3 className="text-base font-semibold text-center mb-2 text-base-content">
                 {name}
               </h3>
               {(stats.total ?? 0) > 0 && (

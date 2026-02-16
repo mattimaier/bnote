@@ -64,21 +64,21 @@ export function MultiSelect({
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative w-full">
+    <div ref={rootRef} className="relative w-full min-w-[12rem] max-w-[12rem]">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         className="btn btn-outline w-full justify-between"
       >
-        <span className="flex items-center justify-between gap-2">
-          <span>{labelSelect}</span>
+        <span className="flex items-center justify-between gap-2 w-full min-w-0">
+          <span className="text-right flex-1 truncate whitespace-nowrap min-w-0">{labelSelect}</span>
           <LayoutList className="h-4 w-4" />
         </span>
       </button>
       {showChips && (
         <div className="mt-4 w-full space-y-2">
           {selected.length === 0 && (
-            <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs text-base-content/60">
               {labelNoSelection}
             </span>
           )}
@@ -88,13 +88,12 @@ export function MultiSelect({
             return (
               <div
                 key={id}
-                className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm"
-                style={{ borderColor: "var(--border)" }}
+                className="flex items-center justify-between gap-3 rounded-field border border-base-300 px-3 py-2 text-sm"
               >
                 <div className="flex flex-col">
                   <span className="font-medium">{opt.name}</span>
                   {opt.subtitle ? (
-                    <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                    <span className="text-xs text-base-content/60">
                       {opt.subtitle}
                     </span>
                   ) : null}
@@ -113,10 +112,7 @@ export function MultiSelect({
         </div>
       )}
       {open && !useFullscreen && (
-        <div
-          className="absolute left-0 top-full z-50 mt-2 w-full rounded-md border p-3 shadow-lg"
-          style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
-        >
+        <div className="absolute left-0 top-full z-50 mt-2 w-full rounded-box border border-base-300 bg-base-100 text-base-content p-3 shadow-lg">
           <input
             type="search"
             value={query}
@@ -124,18 +120,17 @@ export function MultiSelect({
             placeholder={placeholder}
             className="input input-sm w-full"
           />
-          <div className="max-h-80 overflow-y-auto rounded-md border" style={{ borderColor: "var(--border)" }}>
+          <div className="max-h-80 overflow-y-auto rounded-field border border-base-300">
             {filtered.map((opt) => (
               <label
                 key={opt.id}
-                className="flex items-center gap-3 px-3 py-3 text-sm border-b hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
-                style={{ borderColor: "var(--border)" }}
+                className="flex items-center gap-3 px-3 py-3 text-sm border-b border-base-300 hover:bg-base-200/60 active:bg-base-200"
               >
                 <input type="checkbox" className="checkbox checkbox-primary checkbox-sm" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
                 <span className="flex flex-col">
                   <span>{opt.name ?? "-"}</span>
                   {opt.subtitle ? (
-                    <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                    <span className="text-xs text-base-content/60">
                       {opt.subtitle}
                     </span>
                   ) : null}
@@ -143,7 +138,7 @@ export function MultiSelect({
               </label>
             ))}
             {filtered.length === 0 && (
-              <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+              <div className="px-3 py-2 text-sm text-base-content/60">
                 {labelNoMatches}
               </div>
             )}
@@ -152,16 +147,9 @@ export function MultiSelect({
       )}
       {open && useFullscreen && (
         <div className="fixed inset-0 z-50">
-          <div
-            className="absolute inset-0"
-            style={{ background: "color-mix(in oklch, var(--foreground) 20%, transparent)" }}
-            onClick={() => setOpen(false)}
-          />
-          <div
-            className="absolute inset-0 flex h-full w-full flex-col rounded-none border shadow-xl md:left-1/2 md:top-1/2 md:h-[90vh] md:w-[min(98vw,980px)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg"
-            style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
-          >
-            <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--border)" }}>
+          <div className="absolute inset-0 bg-base-content/20" onClick={() => setOpen(false)} />
+          <div className="absolute inset-0 flex h-full w-full flex-col rounded-none border border-base-300 shadow-xl md:left-1/2 md:top-1/2 md:h-[90vh] md:w-[min(98vw,980px)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-box bg-base-100 text-base-content">
+            <div className="flex items-center justify-between border-b border-base-300 px-4 py-3">
               <div className="text-sm font-semibold">{labelSelect}</div>
               <button
                 type="button"
@@ -178,21 +166,17 @@ export function MultiSelect({
               placeholder={placeholder}
               className="input input-sm w-full mx-4 mt-4"
             />
-            <div
-              className="mx-4 mb-4 mt-3 flex-1 min-h-0 overflow-y-auto rounded-md border md:max-h-[78vh]"
-              style={{ borderColor: "var(--border)" }}
-            >
+            <div className="mx-4 mb-4 mt-3 flex-1 min-h-0 overflow-y-auto rounded-field border border-base-300 md:max-h-[78vh]">
               {filtered.map((opt) => (
                 <label
                   key={opt.id}
-                  className="flex items-center gap-3 px-3 py-3 text-sm border-b hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
-                  style={{ borderColor: "var(--border)" }}
+                className="flex items-center gap-3 px-3 py-3 text-sm border-b border-base-300 hover:bg-base-200/60 active:bg-base-200"
                 >
                   <input type="checkbox" className="checkbox checkbox-primary checkbox-sm" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
                   <span className="flex flex-col">
                     <span>{opt.name ?? "-"}</span>
                     {opt.subtitle ? (
-                      <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="text-xs text-base-content/60">
                         {opt.subtitle}
                       </span>
                     ) : null}
@@ -200,7 +184,7 @@ export function MultiSelect({
                 </label>
               ))}
               {filtered.length === 0 && (
-                <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <div className="px-3 py-2 text-sm text-base-content/60">
                   {labelNoMatches}
                 </div>
               )}

@@ -303,7 +303,7 @@ export function EventDetail({
   if (!ready || loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -311,14 +311,7 @@ export function EventDetail({
   if (error || !data) {
     return (
       <div className="w-full max-w-none px-0 py-0 md:max-w-4xl md:mx-auto md:p-6">
-        <div
-          className="rounded-lg border px-4 py-3"
-          style={{
-            borderColor: "var(--destructive)",
-            background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-            color: "var(--destructive-foreground)",
-          }}
-        >
+        <div className="rounded-lg border border-error bg-error/15 text-error px-4 py-3">
           {error || "Not found"}
         </div>
       </div>
@@ -612,17 +605,13 @@ export function EventDetail({
 
       {/* Header + participation widget */}
       <div
-        className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:shadow-sm md:p-6 bg-transparent md:bg-[var(--card)]"
-        style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+        className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between md:gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <div
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
-                style={{
-                  background: type === "rehearsal" ? "var(--primary)" : "var(--accent)",
-                }}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${type === "rehearsal" ? "bg-primary" : "bg-accent"}`}
               >
                 <EventIcon className="h-5 w-5" />
               </div>
@@ -632,33 +621,32 @@ export function EventDetail({
                     type="text"
                     value={form.title}
                     onChange={(event) => setForm({ ...form, title: event.target.value })}
-                    className="text-2xl font-bold rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 min-w-0 flex-1"
-                    style={{ color: "var(--foreground)" }}
+                    className="text-2xl font-bold rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 min-w-0 flex-1"
                   />
                 ) : (
-                  <h1 className="text-2xl font-bold truncate" style={{ color: "var(--foreground)" }}>
+                  <h1 className="text-2xl font-bold truncate text-base-content">
                     {title}
                   </h1>
                 )}
                 <span className={`event-badge ${eventTypeConfig.badgeClass}`}>{eventTypeConfig.label}</span>
               </div>
             </div>
-            <p className="mt-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+            <p className="mt-2 text-sm text-base-content/60">
               {dateStr} · {timeStr}
               {endTimeStr ? ` - ${endTimeStr}` : ""}
             </p>
             {locationName && (
-              <p className="mt-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
+              <p className="mt-1 text-sm text-base-content/60">
                 <EntityLink entityType="location" id={loc?.id} name={locationName} modules={modules} />
               </p>
             )}
             {isPastEvent && (
-              <p className="mt-2 text-xs font-medium" style={{ color: "var(--destructive)" }}>
+              <p className="mt-2 text-xs font-medium text-error">
                 {t("js.event.detail.pastEvent")}
               </p>
             )}
             {!isPastEvent && isPastDeadline && (
-              <p className="mt-2 text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <p className="mt-2 text-xs font-medium text-base-content/60">
                 {t("js.event.detail.participationClosed")}
               </p>
             )}
@@ -683,14 +671,7 @@ export function EventDetail({
       </div>
 
       {saveError && (
-        <div
-          className="rounded-lg border px-4 py-3 text-sm"
-          style={{
-            borderColor: "var(--destructive)",
-            background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-            color: "var(--destructive-foreground)",
-          }}
-        >
+        <div className="rounded-lg border border-error bg-error/15 text-error px-4 py-3 text-sm">
           {saveError}
         </div>
       )}
@@ -698,24 +679,22 @@ export function EventDetail({
       {/* Event actions (view mode only; config: features.showQuickActions) */}
       {!isEditing && isQuickActionsEnabled() && (type === "rehearsal" || type === "concert") && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:shadow-sm md:p-6 bg-transparent md:bg-[var(--card)]"
-          style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
         >
-          <h2 className="text-sm font-semibold mb-2 md:mb-3" style={{ color: "var(--muted-foreground)" }}>
+          <h2 className="text-sm font-semibold mb-2 md:mb-3 text-base-content/60">
             {t("js.event.actions.title") !== "js.event.actions.title" ? t("js.event.actions.title") : "Actions"}
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             {getEventViewActions(type as "rehearsal" | "concert").map((action) => {
               const Icon = getIcon(action.icon);
-              const cardClass = `group flex flex-col items-center gap-3 p-4 rounded-lg border border-[var(--border)] transition-colors ${action.comingSoon ? "opacity-90 cursor-not-allowed" : "hover:border-[var(--primary)]/30 hover:shadow-md"} ${action.colorClass ?? ""}`;
+              const cardClass = `group flex flex-col items-center gap-3 p-4 rounded-lg border border-base-300 transition-colors ${action.comingSoon ? "opacity-90 cursor-not-allowed" : "hover:border-primary/30 hover:shadow-md"} ${action.colorClass ?? ""}`;
               const content = (
                 <>
                   <div className="p-2 rounded-lg bg-current/10 group-hover:bg-current/15 transition-colors relative">
                     <Icon className="h-5 w-5" />
                     {action.comingSoon && (
                       <span
-                        className="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 rounded font-medium"
-                        style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}
+                        className="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 rounded font-medium bg-base-200 text-base-content/60"
                       >
                         {t("js.event.actions.comingSoon") !== "js.event.actions.comingSoon" ? t("js.event.actions.comingSoon") : "Coming soon"}
                       </span>
@@ -747,17 +726,16 @@ export function EventDetail({
 
       {/* Basic info */}
       <div
-        className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:shadow-sm md:p-6 bg-transparent md:bg-[var(--card)]"
-        style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+        className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
       >
-        <h2 className="text-lg font-semibold mb-2 md:mb-4" style={{ color: "var(--foreground)" }}>
+        <h2 className="text-lg font-semibold mb-2 md:mb-4 text-base-content">
           {t("js.event.detail.additionalInfo") !== "js.event.detail.additionalInfo"
             ? t("js.event.detail.additionalInfo")
             : "Details"}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
           <div>
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium text-base-content/60">
               {t("js.event.detail.start") !== "js.event.detail.start" ? t("js.event.detail.start") : "Start"}:
             </span>
             {isEditing && form ? (
@@ -769,15 +747,14 @@ export function EventDetail({
                   const nextEnd = syncEndDate(nextBegin, form.end);
                   setForm({ ...form, begin: nextBegin, end: nextEnd });
                 }}
-                className="ml-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
-                style={{ color: "var(--foreground)" }}
+                className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
               />
             ) : (
               <span className="ml-2 text-sm">{formatDateTimeShort(begin, lang) ?? tba}</span>
             )}
           </div>
           <div>
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium text-base-content/60">
               {t("js.event.detail.end") !== "js.event.detail.end" ? t("js.event.detail.end") : "End"}:
             </span>
             {isEditing && form ? (
@@ -785,15 +762,14 @@ export function EventDetail({
                 type="datetime-local"
                 value={form.end}
                 onChange={(event) => setForm({ ...form, end: event.target.value })}
-                className="ml-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
-                style={{ color: "var(--foreground)" }}
+                className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
               />
             ) : (
               <span className="ml-2 text-sm">{formatDateTimeShort(end, lang) ?? tba}</span>
             )}
           </div>
           <div>
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium text-base-content/60">
               {t("js.event.detail.status")}:
             </span>
             {isEditing && form ? (
@@ -821,7 +797,7 @@ export function EventDetail({
           </div>
           {(approveUntil || isEditing) && (
             <div>
-              <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <span className="text-xs font-medium text-base-content/60">
                 {t("js.event.detail.deadline") !== "js.event.detail.deadline" ? t("js.event.detail.deadline") : "Reply by"}:
               </span>
               {isEditing && form ? (
@@ -829,8 +805,7 @@ export function EventDetail({
                   type="datetime-local"
                   value={form.approveUntil}
                   onChange={(event) => setForm({ ...form, approveUntil: event.target.value })}
-                  className="ml-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
-                  style={{ color: "var(--foreground)" }}
+                  className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
                 />
               ) : (
                 <span className="ml-2 text-sm">{formatDateTimeShort(approveUntil, lang) ?? tba}</span>
@@ -839,7 +814,7 @@ export function EventDetail({
           )}
           {type === "rehearsal" && (conductor?.name || isEditing) && (
             <div>
-              <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <span className="text-xs font-medium text-base-content/60">
                 {t("js.event.detail.conductor")}:
               </span>
             {isEditing && form ? (
@@ -862,7 +837,7 @@ export function EventDetail({
           )}
           {type === "concert" && (meetingtime || isEditing) && (
             <div>
-              <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <span className="text-xs font-medium text-base-content/60">
                 {t("js.event.detail.meetingTime") !== "js.event.detail.meetingTime"
                   ? t("js.event.detail.meetingTime")
                   : "Meeting time"}:
@@ -872,8 +847,7 @@ export function EventDetail({
                   type="datetime-local"
                   value={form.meetingtime}
                   onChange={(event) => setForm({ ...form, meetingtime: event.target.value })}
-                  className="ml-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
-                  style={{ color: "var(--foreground)" }}
+                  className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
                 />
               ) : (
                 <span className="ml-2 text-sm">{formatDateTimeShort(meetingtime, lang) ?? tba}</span>
@@ -881,7 +855,7 @@ export function EventDetail({
             </div>
           )}
           <div className="md:col-span-2">
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium text-base-content/60">
               {t("js.event.detail.location")}:
             </span>
             {isEditing && form ? (
@@ -918,15 +892,14 @@ export function EventDetail({
           </div>
           {type === "concert" && (notes?.trim() || isEditing) && (
             <div className="md:col-span-2">
-              <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <span className="text-xs font-medium text-base-content/60">
                 {t("js.event.detail.notes")}:
               </span>
               {isEditing && form ? (
                 <textarea
                   value={form.notes}
                   onChange={(event) => setForm({ ...form, notes: event.target.value })}
-                  className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                  style={{ color: "var(--foreground)" }}
+                  className="mt-1 w-full rounded-md border border-base-300 bg-base-100 text-base-content px-3 py-2 text-sm"
                   rows={4}
                 />
               ) : (
@@ -939,11 +912,10 @@ export function EventDetail({
 
       {type === "rehearsal" && (isEditing || groups.length > 0) && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:shadow-sm md:p-6 bg-transparent md:bg-[var(--card)]"
-          style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+            <h2 className="text-lg font-semibold text-base-content">
               {t("js.event.metadata.besetzung") !== "js.event.metadata.besetzung"
                 ? t("js.event.metadata.besetzung")
                 : "Groups"}
@@ -986,10 +958,9 @@ export function EventDetail({
       {/* Participation overview (diagram) */}
       {!isEditing && participationStats && (participationStats.total ?? 0) > 0 && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:shadow-sm md:p-6 bg-transparent md:bg-[var(--card)]"
-          style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
         >
-          <h2 className="text-lg font-semibold mb-2 md:mb-4" style={{ color: "var(--foreground)" }}>
+          <h2 className="text-lg font-semibold mb-2 md:mb-4 text-base-content">
             {t("js.event.detail.participationOverview") !== "js.event.detail.participationOverview"
               ? t("js.event.detail.participationOverview")
               : "Participation overview"}
@@ -1001,11 +972,10 @@ export function EventDetail({
       {/* Participants by instrument */}
       {participantsByInstrument && participantsByInstrument.length > 0 && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:shadow-sm md:p-6 bg-transparent md:bg-[var(--card)]"
-          style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+            <h2 className="text-lg font-semibold text-base-content">
               {t("js.event.detail.participants") !== "js.event.detail.participants"
                 ? t("js.event.detail.participants")
                 : "Participants"}
@@ -1093,10 +1063,9 @@ export function EventDetail({
           conditions ||
           contact) && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:shadow-sm md:p-6 bg-transparent md:bg-[var(--card)]"
-          style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
         >
-          <h2 className="text-lg font-semibold mb-2 md:mb-4" style={{ color: "var(--foreground)" }}>
+          <h2 className="text-lg font-semibold mb-2 md:mb-4 text-base-content">
             {t("js.event.metadata.organisation") !== "js.event.metadata.organisation"
               ? t("js.event.metadata.organisation")
               : "Organisation"}
@@ -1105,7 +1074,7 @@ export function EventDetail({
             {(isEditing || groups.length > 0) && (
               <div>
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                  <span className="text-xs font-medium text-base-content/60">
                     {t("js.event.metadata.besetzung") !== "js.event.metadata.besetzung"
                       ? t("js.event.metadata.besetzung")
                       : "Groups"}
@@ -1148,7 +1117,7 @@ export function EventDetail({
             )}
             {(isEditing || safeString(program?.name)) && (
               <div>
-                <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-xs font-medium text-base-content/60">
                   {t("js.event.metadata.programm") !== "js.event.metadata.programm"
                     ? t("js.event.metadata.programm")
                     : "Program"}:
@@ -1171,7 +1140,7 @@ export function EventDetail({
             )}
             {(isEditing || safeString(outfit?.name)) && (
               <div>
-                <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-xs font-medium text-base-content/60">
                   {t("js.event.metadata.outfit") !== "js.event.metadata.outfit"
                     ? t("js.event.metadata.outfit")
                     : "Outfit"}:
@@ -1195,7 +1164,7 @@ export function EventDetail({
             {(isEditing || equipment.length > 0) && (
               <div>
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                  <span className="text-xs font-medium text-base-content/60">
                     {t("js.event.metadata.equipment") !== "js.event.metadata.equipment"
                       ? t("js.event.metadata.equipment")
                       : "Equipment"}
@@ -1237,7 +1206,7 @@ export function EventDetail({
               </div>
             )}
           </div>
-          <h3 className="text-sm font-semibold mt-3 mb-2 md:mt-6 md:mb-3" style={{ color: "var(--foreground)" }}>
+          <h3 className="text-sm font-semibold mt-3 mb-2 md:mt-6 md:mb-3 text-base-content">
             {t("js.event.metadata.details") !== "js.event.metadata.details"
               ? t("js.event.metadata.details")
               : "Details"}
@@ -1245,7 +1214,7 @@ export function EventDetail({
           <div className="space-y-2">
             {(isEditing || safeString(accommodation?.name)) && (
               <div>
-                <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-xs font-medium text-base-content/60">
                   {t("js.event.metadata.unterkunft") !== "js.event.metadata.unterkunft"
                     ? t("js.event.metadata.unterkunft")
                     : "Accommodation"}:
@@ -1268,7 +1237,7 @@ export function EventDetail({
             )}
             {(isEditing || (payment != null && payment !== undefined)) && (
               <div>
-                <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-xs font-medium text-base-content/60">
                   {t("js.event.metadata.gage") !== "js.event.metadata.gage" ? t("js.event.metadata.gage") : "Payment"}:
                 </span>
                 {isEditing && form ? (
@@ -1276,8 +1245,7 @@ export function EventDetail({
                     type="number"
                     value={form.payment}
                     onChange={(event) => setForm({ ...form, payment: event.target.value })}
-                    className="ml-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
-                    style={{ color: "var(--foreground)" }}
+                    className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
                   />
                 ) : (
                   <span className="ml-2 text-sm">
@@ -1291,7 +1259,7 @@ export function EventDetail({
             )}
             {(isEditing || conditions?.trim()) && (
               <div>
-                <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-xs font-medium text-base-content/60">
                   {t("js.event.metadata.konditionen") !== "js.event.metadata.konditionen"
                     ? t("js.event.metadata.konditionen")
                     : "Conditions"}:
@@ -1300,8 +1268,7 @@ export function EventDetail({
                   <textarea
                     value={form.conditions}
                     onChange={(event) => setForm({ ...form, conditions: event.target.value })}
-                    className="mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                    style={{ color: "var(--foreground)" }}
+                    className="mt-1 w-full rounded-md border border-base-300 bg-base-100 text-base-content px-3 py-2 text-sm"
                     rows={3}
                   />
                 ) : (
@@ -1312,7 +1279,7 @@ export function EventDetail({
             {(isEditing ||
               (contact && (safeString(contact.name) || safeString(contact.phone) || safeString(contact.mobile) || safeString(contact.email)))) && (
               <div>
-                <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-xs font-medium text-base-content/60">
                   {t("js.event.metadata.kontakt") !== "js.event.metadata.kontakt"
                     ? t("js.event.metadata.kontakt")
                     : "Contact"}:
@@ -1343,15 +1310,14 @@ export function EventDetail({
             )}
             {isEditing && form && (
               <div>
-                <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-xs font-medium text-base-content/60">
                   {t("js.event.metadata.organizer") !== "js.event.metadata.organizer" ? t("js.event.metadata.organizer") : "Organizer"}:
                 </span>
                 <input
                   type="text"
                   value={form.organizer}
                   onChange={(event) => setForm({ ...form, organizer: event.target.value })}
-                  className="ml-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
-                  style={{ color: "var(--foreground)" }}
+                  className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
                 />
               </div>
             )}
@@ -1362,19 +1328,17 @@ export function EventDetail({
       {/* Notes (rehearsal) */}
       {type === "rehearsal" && (notes?.trim() || isEditing) && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:shadow-sm md:p-6 bg-transparent md:bg-[var(--card)]"
-          style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
         >
-          <h2 className="text-lg font-semibold mb-2" style={{ color: "var(--foreground)" }}>
+          <h2 className="text-lg font-semibold mb-2 text-base-content">
             {t("js.event.detail.notes")}
           </h2>
-          <div style={{ color: "var(--muted-foreground)" }}>
+          <div className="text-base-content/60">
             {isEditing && form ? (
               <textarea
                 value={form.notes}
                 onChange={(event) => setForm({ ...form, notes: event.target.value })}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                style={{ color: "var(--foreground)" }}
+                className="w-full rounded-md border border-base-300 bg-base-100 text-base-content px-3 py-2 text-sm"
                 rows={4}
               />
             ) : (
@@ -1386,11 +1350,10 @@ export function EventDetail({
 
       {type === "rehearsal" && (isEditing || (Array.isArray(songsToPractice) && songsToPractice.length > 0)) && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:shadow-sm md:p-6 bg-transparent md:bg-[var(--card)]"
-          style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+            <h2 className="text-lg font-semibold text-base-content">
               {t("js.event.detail.songsToPractice")}
             </h2>
             {isEditing && form ? (
@@ -1414,14 +1377,13 @@ export function EventDetail({
           {isEditing && form ? (
             <div className="mt-3 space-y-2 md:mt-6">
               {form.songs.map((song) => (
-                <div key={song.id} className="rounded-md border px-3 py-2" style={{ borderColor: "var(--border)" }}>
+                <div key={song.id} className="rounded-md border border-base-300 px-3 py-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="text-sm font-medium">{song.title}</div>
                     <button
                       type="button"
                       onClick={() => setForm({ ...form, songs: form.songs.filter((entry) => entry.id !== song.id) })}
-                      className="inline-flex items-center justify-center rounded-md border px-2 py-2 text-sm"
-                      style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                      className="inline-flex items-center justify-center rounded-md border border-base-300 text-base-content px-2 py-2 text-sm"
                       aria-label={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -1437,14 +1399,13 @@ export function EventDetail({
                         ),
                       })
                     }
-                    className="mt-2 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
-                    style={{ color: "var(--foreground)" }}
+                    className="mt-2 w-full rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
                     rows={2}
                   />
                 </div>
               ))}
               {form.songs.length === 0 && (
-                <div className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <div className="text-sm text-base-content/60">
                   {t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
                 </div>
               )}
@@ -1455,7 +1416,7 @@ export function EventDetail({
                 <li key={song.id ?? i}>
                   {song.title}
                   {song.notes?.trim() ? (
-                    <div className="mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                    <div className="mt-1 text-xs text-base-content/60">
                       <MarkdownText value={song.notes} />
                     </div>
                   ) : null}

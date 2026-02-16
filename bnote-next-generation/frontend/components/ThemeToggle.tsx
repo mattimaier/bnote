@@ -49,8 +49,8 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
       onClick={toggle}
       className={
         inline
-          ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-          : "fixed top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+          ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-box text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content"
+          : "fixed top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-box text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content"
       }
       title="Toggle theme"
       aria-label="Toggle theme"

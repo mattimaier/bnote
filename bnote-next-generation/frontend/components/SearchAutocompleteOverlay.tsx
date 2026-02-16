@@ -118,17 +118,16 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
         }
       >
         {/* Blue separator line (like results page) */}
-        <div className="h-0.5 w-full shrink-0" style={{ background: "var(--primary)" }} />
+        <div className="h-0.5 w-full shrink-0 bg-primary" />
 
         {loading ? (
           <div className="py-3">
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--primary)" }} />
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
             <Link
               {...linkProps(`/search?q=${encodeURIComponent(trimmed)}`)}
-              className="block mx-4 mt-3 pt-3 border-t text-center text-sm font-semibold"
-              style={{ borderColor: "var(--border)", color: "var(--primary)" }}
+              className="block mx-4 mt-3 pt-3 border-t border-base-300 text-center text-sm font-semibold text-primary"
             >
               {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show all results"}
             </Link>
@@ -146,10 +145,7 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
               const sectionLabel = t(cat.labelKey);
               return (
                 <div key={cat.key} className="mb-4 last:mb-0">
-                  <h3
-                    className="px-4 py-1.5 text-xs font-semibold"
-                    style={{ color: "var(--muted-foreground)" }}
-                  >
+                  <h3 className="px-4 py-1.5 text-xs font-semibold text-base-content/60">
                     {sectionLabel} ({totalCount})
                   </h3>
                   <div className="space-y-0.5">
@@ -175,7 +171,7 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                                   <Icon className="h-3 w-3" />
                                 </span>
                               }
-                                primary={<span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>{dateStr}</span>}
+                                primary={<span className="font-bold leading-tight text-primary">{dateStr}</span>}
                               badge={<span className="text-sm">{title}</span>}
                               secondary={
                               <>
@@ -334,13 +330,12 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
             )}
             <Link
               {...linkProps(`/search?q=${encodeURIComponent(trimmed)}`)}
-              className="block mx-4 mt-3 pt-3 border-t text-center text-sm font-semibold"
-              style={{ borderColor: "var(--border)", color: "var(--primary)" }}
+              className="block mx-4 mt-3 pt-3 border-t border-base-300 text-center text-sm font-semibold text-primary"
             >
               {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show all results"}
             </Link>
             {!results && !loading && (
-              <div className="py-4 px-4 text-center text-sm" style={{ color: "var(--muted-foreground)" }}>
+              <div className="py-4 px-4 text-center text-sm text-base-content/60">
                 {t("js.search.noResults") !== "js.search.noResults" ? t("js.search.noResults") : "No results"}
               </div>
             )}

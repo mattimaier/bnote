@@ -85,7 +85,7 @@ export function VoteDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -97,7 +97,7 @@ export function VoteDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -105,7 +105,7 @@ export function VoteDetail() {
   if (error || !item) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">
+        <p className="text-sm text-error">
           {error || "Vote not found."}
         </p>
       </div>
@@ -127,7 +127,7 @@ export function VoteDetail() {
       />
 
       <DetailCard>
-        <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+        <p className="text-sm text-base-content/60">
           {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "End"}: {item.end ?? emptyText}
           {item.is_finished && (
             <span
@@ -149,7 +149,7 @@ export function VoteDetail() {
 
         {item.options.length > 0 && (
           <div className="mt-4">
-            <h2 className="text-sm font-semibold" style={{ color: "var(--muted-foreground)" }}>
+            <h2 className="text-sm font-semibold text-base-content/60">
               {t("js.votes.options") !== "js.votes.options" ? t("js.votes.options") : "Options"}
             </h2>
             <ul className="mt-2 list-inside list-disc space-y-1">
@@ -162,7 +162,7 @@ export function VoteDetail() {
 
         {item.is_active && item.options.length > 0 && (
           <form onSubmit={handleSubmitVote} className="mt-6 space-y-4">
-            <h2 className="text-sm font-semibold" style={{ color: "var(--muted-foreground)" }}>
+            <h2 className="text-sm font-semibold text-base-content/60">
               {t("js.votes.castVote") !== "js.votes.castVote" ? t("js.votes.castVote") : "Cast your vote"}
             </h2>
             {item.is_multi ? (
@@ -170,14 +170,13 @@ export function VoteDetail() {
                 {item.options.map((opt) => (
                   <div key={opt.id} className="flex flex-wrap items-center gap-2">
                     <span className="w-48">{optionLabel(opt)}</span>
-                    <select
-                      value={choices[opt.id] ?? ""}
-                      onChange={(e) =>
-                        setChoices((c) => ({ ...c, [opt.id]: e.target.value }))
-                      }
-                      className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm"
-                      style={{ color: "var(--foreground)" }}
-                    >
+                    <div className="select select-sm w-32">
+                      <select
+                        value={choices[opt.id] ?? ""}
+                        onChange={(e) =>
+                          setChoices((c) => ({ ...c, [opt.id]: e.target.value }))
+                        }
+                      >
                       <option value="">{emptyText}</option>
                       <option value="yes">
                         {t("js.votes.yes") !== "js.votes.yes" ? t("js.votes.yes") : "Yes"}
@@ -189,20 +188,21 @@ export function VoteDetail() {
                         {t("js.votes.maybe") !== "js.votes.maybe" ? t("js.votes.maybe") : "Maybe"}
                       </option>
                     </select>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="space-y-2">
                 {item.options.map((opt) => (
-                  <label key={opt.id} className="flex items-center gap-2">
+                  <label key={opt.id} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
                       name="voteOption"
                       value={opt.id}
                       checked={singleChoice === opt.id}
                       onChange={() => setSingleChoice(opt.id)}
-                      className="rounded-full border-[var(--border)]"
+                      className="radio radio-primary"
                     />
                     <span>{optionLabel(opt)}</span>
                   </label>
@@ -212,8 +212,7 @@ export function VoteDetail() {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white"
-              style={{ background: "var(--primary)" }}
+              className="btn btn-primary btn-sm gap-2"
             >
               <CheckCircle className="h-4 w-4" />
               {t("js.votes.submit") !== "js.votes.submit" ? t("js.votes.submit") : "Submit"}
@@ -223,10 +222,10 @@ export function VoteDetail() {
 
         {item.is_finished && item.result && Array.isArray(item.result) ? (
           <div className="mt-4">
-            <h2 className="text-sm font-semibold" style={{ color: "var(--muted-foreground)" }}>
+            <h2 className="text-sm font-semibold text-base-content/60">
               {t("js.votes.results") !== "js.votes.results" ? t("js.votes.results") : "Results"}
             </h2>
-            <pre className="mt-2 overflow-auto rounded border border-[var(--border)] p-2 text-xs">
+            <pre className="mt-2 overflow-auto rounded-field border border-base-300 p-2 text-xs text-base-content">
               {JSON.stringify(item.result, null, 2)}
             </pre>
           </div>

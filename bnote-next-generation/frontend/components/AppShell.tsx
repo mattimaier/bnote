@@ -15,10 +15,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
-    <div
-      className="flex flex-col md:flex-row h-screen overflow-hidden"
-      style={{ background: "var(--background)" }}
-    >
+    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-base-100">
       <AppSidebar />
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         <AppTopbar onOpenMobileNav={() => setMobileNavOpen(true)} />

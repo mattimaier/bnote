@@ -61,17 +61,17 @@ export function SelectPicker({
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative space-y-2">
+    <div ref={rootRef} className="relative w-full min-w-[12rem] max-w-[12rem] space-y-2">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         className="btn btn-outline w-full justify-between"
       >
-        <span className="flex items-center justify-between gap-2">
-          <span className="flex flex-col text-left">
-            <span>{selected?.name ?? resolvedEmptyLabel}</span>
+        <span className="flex items-center justify-between gap-2 w-full min-w-0">
+          <span className="flex min-w-0 flex-1 flex-col items-end text-right overflow-hidden">
+            <span className="truncate whitespace-nowrap">{selected?.name ?? resolvedEmptyLabel}</span>
             {selected?.subtitle ? (
-              <span className="text-xs font-normal" style={{ color: "var(--muted-foreground)" }}>
+              <span className="text-xs font-normal truncate whitespace-nowrap text-base-content/60">
                 {selected.subtitle}
               </span>
             ) : null}

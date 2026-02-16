@@ -45,8 +45,7 @@ export function StatusPicker({ options, value, onChange, labelFor }: StatusPicke
       </button>
       {open && (
         <div
-          className="absolute left-0 top-full z-50 mt-2 min-w-[160px] rounded-md border p-2 shadow-lg"
-          style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
+          className="absolute left-0 top-full z-50 mt-2 min-w-[160px] rounded-md border border-base-300 bg-base-100 text-base-content p-2 shadow-lg"
         >
           <div className="flex flex-col gap-2">
             {options.map((opt) => (

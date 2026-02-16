@@ -59,13 +59,10 @@ export function AppSidebar() {
   const currentRoute = pathname?.replace("/", "") || "dashboard";
 
   return (
-    <aside
-      className="hidden md:flex md:flex-col md:h-full md:w-64 md:shrink-0 border-r bg-sidebar"
-      style={{ borderColor: "var(--sidebar-border)", background: "var(--sidebar)" }}
-    >
+    <aside className="hidden md:flex md:flex-col md:h-full md:w-64 md:shrink-0 border-r border-base-300 bg-base-200">
       <div className="flex h-16 items-center px-4 lg:px-6">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg flex items-center justify-center ring-1 ring-[var(--primary)]/20 bg-gradient-to-br from-[var(--primary)]/30 to-[var(--primary)]/10">
+          <div className="h-9 w-9 rounded-box flex items-center justify-center ring-1 ring-primary/20 bg-gradient-to-br from-primary/30 to-primary/10">
             {logoUrl ? (
               <img
                 src={logoUrl}
@@ -77,12 +74,10 @@ export function AppSidebar() {
                 }}
               />
             ) : (
-              <span className="text-[var(--primary)] font-bold text-xs">B</span>
+              <span className="text-primary font-bold text-xs">B</span>
             )}
           </div>
-          <span className="font-semibold text-sm" style={{ color: "var(--sidebar-foreground, var(--foreground))" }}>
-            BNote
-          </span>
+          <span className="font-semibold text-sm text-base-content">BNote</span>
         </div>
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1.5">
@@ -101,12 +96,11 @@ export function AppSidebar() {
               key={m.id}
               href={href}
               prefetch={false}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-box transition-all duration-200 ${
                 isActive
-                  ? "bg-[var(--primary)]/12 text-[var(--primary)] font-semibold shadow-sm"
-                  : "text-[var(--sidebar-foreground)]/70 hover:text-[var(--sidebar-foreground)] hover:bg-[var(--sidebar-accent)]/60 text-sm font-medium"
+                  ? "bg-primary/15 text-primary font-semibold shadow-sm"
+                  : "text-base-content/70 hover:text-base-content hover:bg-base-300/60 text-sm font-medium"
               }`}
-              style={!isActive ? { color: "var(--sidebar-foreground)" } : undefined}
             >
               <span
                 className="flex shrink-0 items-center justify-center"

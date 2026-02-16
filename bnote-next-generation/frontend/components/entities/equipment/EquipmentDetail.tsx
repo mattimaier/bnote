@@ -45,7 +45,7 @@ export function EquipmentDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -58,7 +58,7 @@ export function EquipmentDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -66,7 +66,7 @@ export function EquipmentDetail() {
   if (error || !item) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">
+        <p className="text-sm text-error">
           {error || "Equipment not found."}
         </p>
       </div>
@@ -87,7 +87,7 @@ export function EquipmentDetail() {
         <dl className="grid gap-3 sm:grid-cols-2">
           {item.make != null && item.make !== "" && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium" className="text-base-content/60">
                 {t("js.equipment.make") !== "js.equipment.make"
                   ? t("js.equipment.make")
                   : "Make"}
@@ -97,7 +97,7 @@ export function EquipmentDetail() {
           )}
           {item.model != null && item.model !== "" && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium" className="text-base-content/60">
                 {t("js.equipment.model") !== "js.equipment.model"
                   ? t("js.equipment.model")
                   : "Model"}
@@ -107,7 +107,7 @@ export function EquipmentDetail() {
           )}
           {item.quantity != null && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium" className="text-base-content/60">
                 {t("js.equipment.quantity") !== "js.equipment.quantity"
                   ? t("js.equipment.quantity")
                   : "Quantity"}
@@ -117,7 +117,7 @@ export function EquipmentDetail() {
           )}
           {item.purchase_price != null && String(item.purchase_price).trim() !== "" && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium" className="text-base-content/60">
                 {t("js.equipment.purchase_price") !== "js.equipment.purchase_price"
                   ? t("js.equipment.purchase_price")
                   : "Purchase price"}
@@ -127,7 +127,7 @@ export function EquipmentDetail() {
           )}
           {item.current_value != null && String(item.current_value).trim() !== "" && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium" className="text-base-content/60">
                 {t("js.equipment.current_value") !== "js.equipment.current_value"
                   ? t("js.equipment.current_value")
                   : "Current value"}
@@ -138,7 +138,7 @@ export function EquipmentDetail() {
         </dl>
 
         <div>
-          <h2 className="text-sm font-semibold" style={{ color: "var(--muted-foreground)" }}>
+          <h2 className="text-sm font-semibold" className="text-base-content/60">
             {t("js.equipment.notes") !== "js.equipment.notes"
               ? t("js.equipment.notes")
               : "Notes"}

@@ -85,17 +85,17 @@ export function EventCard({
         <div className="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector" />
       )}
       <div
-        className={`relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ring-2 ring-[var(--background)] shadow-sm flex items-center justify-center text-white ${typeConfig.dotClass}`}
+        className={`relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ring-2 ring-base-100 shadow-sm flex items-center justify-center text-white ${typeConfig.dotClass}`}
       >
         <DotIcon className="h-3 w-3" />
       </div>
-      <div className="flex-1 rounded-lg border border-border/40 bg-gradient-to-br from-muted/20 to-transparent p-3 transition-all duration-200 hover:shadow-md hover:border-primary/30 group">
+      <div className="flex-1 rounded-box border border-base-300/60 bg-gradient-to-br from-base-200/50 to-transparent p-3 transition-all duration-200 hover:shadow-md hover:border-primary/30 group">
         <div className="flex items-start gap-3 mb-2">
           <div className="flex-1 min-w-0">
-            <p className="text-base font-bold leading-tight text-foreground mb-1.5">{dateStr}</p>
+            <p className="text-base font-bold leading-tight text-base-content mb-1.5">{dateStr}</p>
             <div className="flex items-center gap-2 mb-1.5">
               {!hideTitleWhenDuplicate && (
-                <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                <h3 className="text-sm font-semibold text-base-content group-hover:text-primary transition-colors">
                   {title}
                 </h3>
               )}
@@ -111,7 +111,7 @@ export function EventCard({
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/80">
+            <div className="flex items-center gap-1.5 text-xs text-base-content/80">
               <Clock className="h-3 w-3 text-primary/60" />
               <span>{timeStr}</span>
             </div>
@@ -127,7 +127,7 @@ export function EventCard({
             </div>
           )}
         </div>
-        <div className="flex items-center text-xs pt-2 border-t border-border/30 text-muted-foreground/70">
+        <div className="flex items-center text-xs pt-2 border-t border-base-300/50 text-base-content/70">
           <span className="flex items-center gap-1.5">
             <MapPin className="h-3 w-3 text-primary/50" />
             <AddressLink value={location} t={t} renderRawIfNoAddress />
@@ -141,10 +141,10 @@ export function EventCard({
     <>
       <div className="flex items-start gap-2 mb-1.5 px-1">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground leading-tight mb-1">{dateStr}</p>
+          <p className="text-sm font-bold text-base-content leading-tight mb-1">{dateStr}</p>
           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
             {!hideTitleWhenDuplicate && (
-              <h3 className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
+              <h3 className="text-xs font-semibold text-base-content group-hover:text-primary transition-colors">
                 {title}
               </h3>
             )}
@@ -160,7 +160,7 @@ export function EventCard({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground/80">
+          <div className="flex items-center gap-1 text-[10px] text-base-content/80">
             <Clock className="h-2.5 w-2.5 text-primary/60" />
             <span>{timeStr}</span>
           </div>
@@ -176,7 +176,7 @@ export function EventCard({
           </div>
         )}
       </div>
-      <div className="flex items-center text-[10px] text-muted-foreground/70 pt-1 px-1">
+      <div className="flex items-center text-[10px] text-base-content/70 pt-1 px-1">
         <span className="flex items-center gap-1">
           <MapPin className="h-2.5 w-2.5 text-primary/50" />
           <AddressLink value={location} t={t} renderRawIfNoAddress />
@@ -189,7 +189,7 @@ export function EventCard({
     <>
       <div className="hidden md:flex relative gap-3 w-full">{desktopContent}</div>
       <div
-        className={`md:hidden relative w-full px-1 transition-all duration-200 group ${!isLast ? "border-b border-border/30 pb-2 mb-2" : ""}`}
+        className={`md:hidden relative w-full px-1 transition-all duration-200 group ${!isLast ? "border-b border-base-300/50 pb-2 mb-2" : ""}`}
       >
         {mobileContent}
       </div>
@@ -200,7 +200,7 @@ export function EventCard({
     return (
       <Link
         href={href}
-        className="relative flex flex-col md:flex-row md:gap-3 block no-underline w-full text-foreground hover:text-foreground group"
+        className="relative flex flex-col md:flex-row md:gap-3 block no-underline w-full text-base-content hover:text-base-content group"
       >
         {content}
       </Link>

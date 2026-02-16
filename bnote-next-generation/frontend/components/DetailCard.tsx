@@ -17,11 +17,7 @@ export interface DetailCardProps {
 export function DetailCard({ children, className = "" }: DetailCardProps) {
   return (
     <div
-      className={`rounded-none border-0 shadow-none bg-transparent p-3 md:rounded-xl md:border md:shadow-sm md:p-6 md:bg-[var(--card)] ${className}`.trim()}
-      style={{
-        borderColor: "var(--border)",
-        color: "var(--card-foreground)",
-      }}
+      className={`rounded-none border-0 shadow-none bg-transparent p-3 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 md:bg-base-100 text-base-content ${className}`.trim()}
     >
       {children}
     </div>

@@ -21,10 +21,10 @@ interface ParticipationDiagramProps {
 }
 
 const SEGMENT_COLORS = {
-  yes: "var(--success)",
-  maybe: "var(--warning)",
-  no: "var(--destructive)",
-  pending: "color-mix(in oklch, var(--muted) 70%, var(--foreground) 30%)",
+  yes: "var(--color-success)",
+  maybe: "var(--color-warning)",
+  no: "var(--color-error)",
+  pending: "oklch(0.5 0.02 250)",
 };
 
 export function ParticipationDiagram({ stats }: ParticipationDiagramProps) {
@@ -32,7 +32,7 @@ export function ParticipationDiagram({ stats }: ParticipationDiagramProps) {
   const { yes = 0, maybe = 0, no = 0, pending = 0, total = 0 } = stats;
   if (total === 0) {
     return (
-      <div className="text-center py-4 text-sm" style={{ color: "var(--muted-foreground)" }}>
+      <div className="text-center py-4 text-sm text-base-content/70">
         No participants yet
       </div>
     );
@@ -48,10 +48,7 @@ export function ParticipationDiagram({ stats }: ParticipationDiagramProps) {
 
   return (
     <div className="participation-diagram">
-      <div
-        className="flex items-center gap-0 rounded-lg overflow-hidden shadow-sm"
-        style={{ background: "var(--muted)" }}
-      >
+      <div className="flex items-center gap-0 rounded-lg overflow-hidden shadow-sm border border-base-300 bg-base-200">
         {segments.map((seg, i) => {
           const isFirst = i === 0;
           const isLast = i === segments.length - 1;

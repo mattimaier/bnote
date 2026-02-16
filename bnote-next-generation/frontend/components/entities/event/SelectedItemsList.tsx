@@ -29,7 +29,7 @@ export function SelectedItemsList({
   if (selected.length === 0) {
     return (
       <div className={className}>
-        <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+        <span className="text-sm text-base-content/60">
           {emptyLabel}
         </span>
       </div>
@@ -44,13 +44,12 @@ export function SelectedItemsList({
         return (
           <div
             key={id}
-            className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm"
-            style={{ borderColor: "var(--border)" }}
+            className="flex items-center justify-between gap-3 rounded-md border border-base-300 px-3 py-2 text-sm"
           >
             <div className="flex flex-col">
               <span className="font-medium">{opt.name}</span>
               {opt.subtitle ? (
-                <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-xs text-base-content/60">
                   {opt.subtitle}
                 </span>
               ) : null}
@@ -58,8 +57,7 @@ export function SelectedItemsList({
             <button
               type="button"
               onClick={() => onRemove(id)}
-              className="inline-flex items-center justify-center rounded-md border px-2 py-2 text-sm hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
-              style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+              className="inline-flex items-center justify-center rounded-md border border-base-300 text-base-content px-2 py-2 text-sm hover:bg-base-200/50 active:bg-base-200/70"
               aria-label={labelRemove}
             >
               <Trash2 className="h-4 w-4" />

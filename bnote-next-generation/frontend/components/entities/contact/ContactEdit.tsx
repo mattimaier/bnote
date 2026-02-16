@@ -195,7 +195,7 @@ export function ContactEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -203,7 +203,7 @@ export function ContactEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -211,7 +211,7 @@ export function ContactEdit() {
   if (!isNew && error && !name && !surname) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">{error}</p>
+        <p className="text-sm text-error">{error}</p>
       </div>
     );
   }
@@ -229,22 +229,14 @@ export function ContactEdit() {
         {error && (
           <div
             className="rounded-lg border px-4 py-3 text-sm"
-            style={{
-              borderColor: "var(--destructive)",
-              background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-              color: "var(--destructive-foreground)",
-            }}
+            className="border border-error bg-error/15 text-error"
           >
             {error}
           </div>
         )}
 
         <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-xl md:border md:shadow-sm md:p-6 bg-[var(--background)] md:bg-[var(--card)]"
-          style={{
-            borderColor: "var(--border)",
-            color: "var(--card-foreground)",
-          }}
+          className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content"
         >
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -258,7 +250,7 @@ export function ContactEdit() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="input input-sm w-full"
-                  style={{ color: "var(--foreground)" }}
+                  className="text-base-content"
                 />
               </div>
               <div>
@@ -271,7 +263,7 @@ export function ContactEdit() {
                   value={surname}
                   onChange={(e) => setSurname(e.target.value)}
                   className="input input-sm w-full"
-                  style={{ color: "var(--foreground)" }}
+                  className="text-base-content"
                 />
               </div>
             </div>
@@ -286,7 +278,7 @@ export function ContactEdit() {
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="text-base-content"
               />
             </div>
 
@@ -300,7 +292,7 @@ export function ContactEdit() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="text-base-content"
               />
             </div>
 
@@ -316,7 +308,7 @@ export function ContactEdit() {
                 value={birthday}
                 onChange={(e) => setBirthday(e.target.value)}
                 className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="text-base-content"
               />
             </div>
 
@@ -360,11 +352,7 @@ export function ContactEdit() {
               ) : (
                 <div
                   className="rounded-md border px-3 py-2 text-sm"
-                  style={{
-                    borderColor: "var(--border)",
-                    background: "var(--muted)/30",
-                    color: "var(--muted-foreground)",
-                  }}
+                  className="border border-base-300 bg-base-200/50 text-base-content/60"
                 >
                   {instrumentName || emptyText}
                   <p className="text-xs mt-1">
@@ -388,7 +376,7 @@ export function ContactEdit() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="input input-sm w-full"
-                  style={{ color: "var(--foreground)" }}
+                  className="text-base-content"
                 />
               </div>
               <div>
@@ -401,7 +389,7 @@ export function ContactEdit() {
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
                   className="input input-sm w-full"
-                  style={{ color: "var(--foreground)" }}
+                  className="text-base-content"
                 />
               </div>
             </div>
@@ -418,7 +406,7 @@ export function ContactEdit() {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="text-base-content"
               />
             </div>
 
@@ -434,7 +422,7 @@ export function ContactEdit() {
                 value={business}
                 onChange={(e) => setBusiness(e.target.value)}
                 className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="text-base-content"
               />
             </div>
 
@@ -450,7 +438,7 @@ export function ContactEdit() {
                 value={web}
                 onChange={(e) => setWeb(e.target.value)}
                 className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="text-base-content"
               />
             </div>
 
@@ -464,7 +452,7 @@ export function ContactEdit() {
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
                 className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="text-base-content"
               />
             </div>
 
@@ -479,7 +467,7 @@ export function ContactEdit() {
                   value={zip}
                   onChange={(e) => setZip(e.target.value)}
                   className="input input-sm w-full"
-                  style={{ color: "var(--foreground)" }}
+                  className="text-base-content"
                 />
               </div>
               <div>
@@ -492,7 +480,7 @@ export function ContactEdit() {
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   className="input input-sm w-full"
-                  style={{ color: "var(--foreground)" }}
+                  className="text-base-content"
                 />
               </div>
             </div>
@@ -510,8 +498,8 @@ export function ContactEdit() {
               />
             </div>
 
-            <div className="space-y-3 rounded-none border-0 p-4 md:rounded-lg md:border md:p-4 bg-[var(--background)] md:bg-transparent" style={{ borderColor: "var(--border)" }}>
-              <h3 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+            <div className="space-y-3 rounded-none border-0 p-4 md:rounded-box md:border md:border-base-300 md:p-4 bg-base-100 md:bg-transparent">
+              <h3 className="text-sm font-semibold text-base-content">
                 {t("js.profile.privacyTitle") !== "js.profile.privacyTitle"
                   ? t("js.profile.privacyTitle")
                   : "Visibility"}
@@ -523,7 +511,7 @@ export function ContactEdit() {
                     name="share_email"
                     checked={shareEmail}
                     onChange={(e) => setShareEmail(e.target.checked)}
-                    className="rounded border-[var(--border)]"
+                    className="checkbox checkbox-primary checkbox-sm"
                   />
                   <span className="text-sm">
                     {t("js.profile.shareEmail") !== "js.profile.shareEmail"
@@ -537,7 +525,7 @@ export function ContactEdit() {
                     name="share_address"
                     checked={shareAddress}
                     onChange={(e) => setShareAddress(e.target.checked)}
-                    className="rounded border-[var(--border)]"
+                    className="checkbox checkbox-primary checkbox-sm"
                   />
                   <span className="text-sm">
                     {t("js.profile.shareAddress") !== "js.profile.shareAddress"
@@ -551,7 +539,7 @@ export function ContactEdit() {
                     name="share_phones"
                     checked={sharePhones}
                     onChange={(e) => setSharePhones(e.target.checked)}
-                    className="rounded border-[var(--border)]"
+                    className="checkbox checkbox-primary checkbox-sm"
                   />
                   <span className="text-sm">
                     {t("js.profile.sharePhones") !== "js.profile.sharePhones"
@@ -565,7 +553,7 @@ export function ContactEdit() {
                     name="share_birthday"
                     checked={shareBirthday}
                     onChange={(e) => setShareBirthday(e.target.checked)}
-                    className="rounded border-[var(--border)]"
+                    className="checkbox checkbox-primary checkbox-sm"
                   />
                   <span className="text-sm">
                     {t("js.profile.shareBirthday") !== "js.profile.shareBirthday"
@@ -579,7 +567,7 @@ export function ContactEdit() {
                     name="is_conductor"
                     checked={isConductor}
                     onChange={(e) => setIsConductor(e.target.checked)}
-                    className="rounded border-[var(--border)]"
+                    className="checkbox checkbox-primary checkbox-sm"
                   />
                   <span className="text-sm">
                     {t("js.contacts.isConductor") !== "js.contacts.isConductor"

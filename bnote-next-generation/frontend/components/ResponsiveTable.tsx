@@ -102,8 +102,7 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
             <button
               type="button"
               onClick={() => onSort(sortKey)}
-              className="p-1.5 rounded-md transition-opacity hover:opacity-80"
-              style={{ color: "var(--foreground)" }}
+              className="p-1.5 rounded-field transition-opacity hover:opacity-80 text-base-content"
               title={sortDir === "asc" ? "Ascending" : "Descending"}
               aria-label={sortDir === "asc" ? "Sort ascending" : "Sort descending"}
             >
@@ -117,7 +116,7 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
         </div>
       )}
       {rows.length === 0 ? (
-        <div className="py-8 text-center text-sm" style={{ color: "var(--muted-foreground)" }}>
+        <div className="py-8 text-center text-sm text-base-content/60">
           {emptyMessage}
         </div>
       ) : (
@@ -125,21 +124,20 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
           {rows.map((row, index) => (
             <li
               key={getRowKey(row)}
-              className={index < rows.length - 1 ? "border-b" : ""}
-              style={{ borderColor: "var(--border)" }}
+              className={index < rows.length - 1 ? "border-b border-base-300" : ""}
             >
               {useCustomRow ? (
                 renderMobileRow(row)
               ) : (
                 <button
                   type="button"
-                  className="w-full text-left cursor-pointer py-3 transition-colors hover:bg-[var(--muted)]/30"
+                  className="w-full text-left cursor-pointer py-3 transition-colors hover:bg-base-200/50"
                   onClick={() => onRowClick(row)}
                 >
-                  <div className="font-semibold text-sm" style={{ color: "var(--foreground)" }}>
+                  <div className="font-semibold text-sm text-base-content">
                     {getMobileTitle!(row)}
                   </div>
-                  <div className="text-sm mt-0.5" style={{ color: "var(--muted-foreground)" }}>
+                  <div className="text-sm mt-0.5 text-base-content/60">
                     {normalizeSubtitle(getMobileSubtitle!(row))}
                   </div>
                 </button>

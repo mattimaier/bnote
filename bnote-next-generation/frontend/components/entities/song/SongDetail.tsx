@@ -46,7 +46,7 @@ export function SongDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -59,7 +59,7 @@ export function SongDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -67,7 +67,7 @@ export function SongDetail() {
   if (error || !item) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">
+        <p className="text-sm text-error">
           {error || "Song not found."}
         </p>
       </div>
@@ -106,7 +106,7 @@ export function SongDetail() {
         <dl className="grid gap-3 sm:grid-cols-2">
           {item.composer && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.repertoire.composer") !== "js.repertoire.composer"
                   ? t("js.repertoire.composer")
                   : "Composer"}
@@ -116,7 +116,7 @@ export function SongDetail() {
           )}
           {item.genrename && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.repertoire.genre") !== "js.repertoire.genre" ? t("js.repertoire.genre") : "Genre"}
               </dt>
               <dd>{item.genrename}</dd>
@@ -124,7 +124,7 @@ export function SongDetail() {
           )}
           {item.length != null && item.length !== "" && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.repertoire.length") !== "js.repertoire.length"
                   ? t("js.repertoire.length")
                   : "Length"}
@@ -134,7 +134,7 @@ export function SongDetail() {
           )}
           {item.bpm != null && item.bpm > 0 && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.repertoire.bpm") !== "js.repertoire.bpm"
                   ? t("js.repertoire.bpm")
                   : "BPM"}
@@ -144,7 +144,7 @@ export function SongDetail() {
           )}
           {item.music_key != null && item.music_key !== "" && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.repertoire.musicKey") !== "js.repertoire.musicKey"
                   ? t("js.repertoire.musicKey")
                   : "Key"}
@@ -154,7 +154,7 @@ export function SongDetail() {
           )}
           {item.setting != null && item.setting !== "" && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.repertoire.setting") !== "js.repertoire.setting"
                   ? t("js.repertoire.setting")
                   : "Setting"}
@@ -164,7 +164,7 @@ export function SongDetail() {
           )}
           {songStatusLabel && (
             <>
-              <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.repertoire.status") !== "js.repertoire.status" ? t("js.repertoire.status") : "Status"}
               </dt>
               <dd>
@@ -177,7 +177,7 @@ export function SongDetail() {
               </dd>
             </>
           )}
-          <dt className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <dt className="text-sm font-medium text-base-content/60">
             {t("js.repertoire.isActive") !== "js.repertoire.isActive"
               ? t("js.repertoire.isActive")
               : "Active"}
@@ -193,7 +193,7 @@ export function SongDetail() {
         </dl>
 
         <div className="mt-4">
-          <h2 className="text-sm font-semibold" style={{ color: "var(--muted-foreground)" }}>
+          <h2 className="text-sm font-semibold text-base-content/60">
             {t("js.repertoire.notes") !== "js.repertoire.notes"
               ? t("js.repertoire.notes")
               : "Notes"}

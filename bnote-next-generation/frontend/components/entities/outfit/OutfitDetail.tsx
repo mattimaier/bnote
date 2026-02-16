@@ -45,7 +45,7 @@ export function OutfitDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -58,7 +58,7 @@ export function OutfitDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -66,7 +66,7 @@ export function OutfitDetail() {
   if (error || !item) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">
+        <p className="text-sm text-error">
           {error || "Outfit not found."}
         </p>
       </div>
@@ -85,7 +85,7 @@ export function OutfitDetail() {
 
       <DetailCard className="space-y-4">
         <div>
-          <h2 className="text-sm font-semibold" style={{ color: "var(--muted-foreground)" }}>
+          <h2 className="text-sm font-semibold text-base-content/60">
             {t("js.outfits.description") !== "js.outfits.description"
               ? t("js.outfits.description")
               : "Description"}

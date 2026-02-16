@@ -152,7 +152,7 @@ export function VoteEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -160,7 +160,7 @@ export function VoteEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -168,7 +168,7 @@ export function VoteEdit() {
   if (!isNew && error && !name) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">{error}</p>
+        <p className="text-sm text-error">{error}</p>
       </div>
     );
   }
@@ -183,25 +183,12 @@ export function VoteEdit() {
       />
       <form id="vote-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div
-            className="rounded-lg border px-4 py-3 text-sm"
-            style={{
-              borderColor: "var(--destructive)",
-              background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-              color: "var(--destructive-foreground)",
-            }}
-          >
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
             {error}
           </div>
         )}
 
-        <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-xl md:border md:shadow-sm md:p-6 bg-[var(--background)] md:bg-[var(--card)]"
-          style={{
-            borderColor: "var(--border)",
-            color: "var(--card-foreground)",
-          }}
-        >
+        <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium">
@@ -211,8 +198,7 @@ export function VoteEdit() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="input input-sm w-full text-base-content"
               />
             </div>
             <div>
@@ -223,28 +209,27 @@ export function VoteEdit() {
                 type="datetime-local"
                 value={end ? end.replace(" ", "T").slice(0, 16) : ""}
                 onChange={(e) => setEnd(e.target.value ? e.target.value.replace("T", " ") + ":00" : "")}
-                className="input input-sm w-full"
-                style={{ color: "var(--foreground)" }}
+                className="input input-sm w-full text-base-content"
               />
             </div>
             <div className="flex flex-wrap gap-4">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isDate}
                   onChange={(e) => setIsDate(e.target.checked)}
                   disabled={!isNew}
-                  className="rounded border-[var(--border)]"
+                  className="checkbox checkbox-primary checkbox-sm"
                 />
                 {t("js.votes.isDate") !== "js.votes.isDate" ? t("js.votes.isDate") : "Date vote"}
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isMulti}
                   onChange={(e) => setIsMulti(e.target.checked)}
                   disabled={!isNew}
-                  className="rounded border-[var(--border)]"
+                  className="checkbox checkbox-primary checkbox-sm"
                 />
                 {t("js.votes.isMulti") !== "js.votes.isMulti" ? t("js.votes.isMulti") : "Multiple choice"}
               </label>
@@ -253,14 +238,8 @@ export function VoteEdit() {
         </div>
 
         {!isNew && item && (
-          <div
-            className="rounded-none border-0 shadow-none p-4 md:rounded-xl md:border md:shadow-sm md:p-6 bg-[var(--background)] md:bg-[var(--card)]"
-            style={{
-              borderColor: "var(--border)",
-              color: "var(--card-foreground)",
-            }}
-          >
-            <h2 className="text-sm font-semibold" style={{ color: "var(--muted-foreground)" }}>
+          <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
+            <h2 className="text-sm font-semibold text-base-content/60">
               {t("js.votes.options") !== "js.votes.options" ? t("js.votes.options") : "Options"}
             </h2>
             <ul className="mt-2 space-y-2">
@@ -271,7 +250,7 @@ export function VoteEdit() {
                     <button
                       type="button"
                       onClick={() => handleRemoveOption(opt.id)}
-                      className="rounded p-1 text-[var(--destructive)] hover:bg-[var(--destructive)]/20"
+                      className="rounded p-1 text-error hover:bg-error/20"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -286,8 +265,7 @@ export function VoteEdit() {
                     type="datetime-local"
                     value={newOptionDate ? newOptionDate.replace(" ", "T").slice(0, 16) : ""}
                     onChange={(e) => setNewOptionDate(e.target.value ? e.target.value.replace("T", " ") + ":00" : "")}
-                    className="input input-sm"
-                    style={{ color: "var(--foreground)" }}
+                    className="input input-sm text-base-content"
                   />
                 ) : (
                   <input
@@ -295,15 +273,13 @@ export function VoteEdit() {
                     value={newOptionName}
                     onChange={(e) => setNewOptionName(e.target.value)}
                     placeholder={t("js.votes.optionName") !== "js.votes.optionName" ? t("js.votes.optionName") : "Option"}
-                    className="input input-sm"
-                    style={{ color: "var(--foreground)" }}
+                    className="input input-sm text-base-content"
                   />
                 )}
                 <button
                   type="button"
                   onClick={handleAddOption}
-                  className="btn btn-outline btn-sm gap-1"
-                  style={{ color: "var(--foreground)" }}
+                  className="btn btn-outline btn-sm gap-1 text-base-content"
                 >
                   <Plus className="h-4 w-4" />
                   {t("js.votes.addOption") !== "js.votes.addOption" ? t("js.votes.addOption") : "Add"}
@@ -315,8 +291,7 @@ export function VoteEdit() {
                 <button
                   type="button"
                   onClick={handleFinish}
-                  className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium"
-                  style={{ background: "var(--destructive)", color: "white" }}
+                  className="btn btn-error btn-sm gap-2"
                 >
                   {t("js.votes.finish") !== "js.votes.finish" ? t("js.votes.finish") : "Finish vote"}
                 </button>

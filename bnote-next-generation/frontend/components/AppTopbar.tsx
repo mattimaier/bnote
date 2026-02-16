@@ -78,10 +78,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   }
 
   return (
-    <header
-      className="sticky top-0 z-50 w-full border-b flex h-16 items-center gap-3 px-3 md:px-4 lg:px-6 bg-[var(--background)] md:bg-background/95 md:backdrop-blur"
-      style={{ borderColor: "color-mix(in oklch, var(--border) 40%, transparent)" }}
-    >
+    <header className="sticky top-0 z-50 w-full border-b border-base-300 flex h-16 items-center gap-3 px-3 md:px-4 lg:px-6 bg-base-100/95 backdrop-blur">
       {/* Hamburger: visible only on mobile */}
       {onOpenMobileNav && (
         <button
@@ -97,7 +94,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
       <div ref={searchAnchorRef} className="relative flex-1 min-w-0">
           <form action={prefixPath("/search/")} method="get" role="search" className="relative flex items-center w-full">
             <Search
-              className="absolute left-3 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]/60 z-10 top-1/2 pointer-events-none"
+              className="absolute left-3 h-4 w-4 -translate-y-1/2 text-base-content/50 z-10 top-1/2 pointer-events-none"
               aria-hidden
             />
             <input
@@ -139,42 +136,30 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
       {/* Theme + user: shrink-0 so they don't overlap */}
       <div className="flex shrink-0 items-center gap-3">
         <ThemeToggle inline />
-        <div className="h-6 w-px hidden sm:block opacity-30" style={{ background: "var(--border)" }} />
+        <div className="h-6 w-px hidden sm:block opacity-30 bg-base-300" />
         <div ref={userMenuRef} className="relative">
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex items-center gap-3 pl-3 pr-2 py-1 rounded-lg hover:bg-muted/50 transition-colors user-info-btn"
+            className="flex items-center gap-3 pl-3 pr-2 py-1 rounded-box hover:bg-base-200 transition-colors user-info-btn"
             aria-expanded={menuOpen}
             aria-haspopup="true"
           >
-            <div
-              className="h-8 w-8 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-semibold user-info-initials"
-              style={{
-                borderColor: "color-mix(in oklch, var(--primary) 20%, transparent)",
-                background: "color-mix(in oklch, var(--primary) 10%, transparent)",
-                color: "var(--primary)",
-              }}
-            >
-              {initials}
+            <div className="avatar avatar-placeholder">
+              <span className="rounded-full bg-primary text-primary-content size-8 text-xs font-semibold">
+                {initials}
+              </span>
             </div>
-            <span className="hidden sm:block text-xs font-semibold text-left" style={{ color: "var(--foreground)" }}>
+            <span className="hidden sm:block text-xs font-semibold text-left text-base-content">
               {fullName}
             </span>
           </button>
           {menuOpen && (
-            <div
-              className="absolute right-0 top-full mt-1 py-1 min-w-[180px] rounded-lg border shadow-lg z-50"
-              style={{
-                background: "var(--background)",
-                borderColor: "var(--border)",
-              }}
-            >
+            <div className="absolute right-0 top-full mt-1 py-1 min-w-[180px] rounded-box border border-base-300 bg-base-100 shadow-lg z-50">
               <Link
                 href="/profile/"
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted/60 transition-colors"
-                style={{ color: "var(--foreground)" }}
+                className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
               >
                 <User className="h-4 w-4" />
                 {t("js.profile.menuMyData") !== "js.profile.menuMyData" ? t("js.profile.menuMyData") : "Meine Kontaktdaten"}
@@ -185,8 +170,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                   setMenuOpen(false);
                   handleLogout();
                 }}
-                className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-muted/60 transition-colors text-left"
-                style={{ color: "var(--foreground)" }}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-base-200 transition-colors text-left text-base-content"
               >
                 <LogOut className="h-4 w-4" />
                 {t("js.profile.menuLogout") !== "js.profile.menuLogout" ? t("js.profile.menuLogout") : "Logout"}

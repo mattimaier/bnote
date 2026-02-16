@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEntityParams } from "@/lib/entities/use-entity-params";
 import { useI18n } from "@/contexts/I18nContext";
@@ -61,7 +61,7 @@ export function ContactDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -74,7 +74,7 @@ export function ContactDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -82,7 +82,7 @@ export function ContactDetail() {
   if (error || !contact) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
-        <p className="text-sm text-[var(--destructive)]">{error || "Contact not found."}</p>
+        <p className="text-sm text-error">{error || "Contact not found."}</p>
       </div>
     );
   }
@@ -99,14 +99,8 @@ export function ContactDetail() {
     t("js.common.yes") !== "js.common.yes" ? t("js.common.yes") : "Yes";
   const noLabel =
     t("js.common.no") !== "js.common.no" ? t("js.common.no") : "No";
-  const getBadgeStyle = (value?: boolean): CSSProperties => {
-    const colorVar = value ? "var(--success)" : "var(--destructive)";
-    return {
-      borderColor: `color-mix(in oklch, ${colorVar} 60%, var(--border))`,
-      background: `color-mix(in oklch, ${colorVar} 15%, transparent)`,
-      color: colorVar,
-    };
-  };
+  const getBadgeClass = (value?: boolean) =>
+    value ? "badge badge-success badge-sm" : "badge badge-error badge-sm";
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 p-4 md:space-y-6 md:p-6">
@@ -123,13 +117,13 @@ export function ContactDetail() {
       <DetailCard className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium" className="text-base-content/60">
               {label("js.contacts.firstName", "First name")}
             </span>
             <p className="text-sm mt-1">{contact.name || emptyText}</p>
           </div>
           <div>
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium" className="text-base-content/60">
               {label("js.contacts.lastName", "Last name")}
             </span>
             <p className="text-sm mt-1">{contact.surname || emptyText}</p>
@@ -137,28 +131,28 @@ export function ContactDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.nickname", "Nickname")}
           </span>
           <p className="text-sm mt-1">{contact.nickname || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.instrument", "Instrument")}
           </span>
           <p className="text-sm mt-1">{contact.instrumentname || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.email", "E-Mail")}
           </span>
           <p className="text-sm mt-1">{contact.email || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.birthday", "Birthday")}
           </span>
           <p className="text-sm mt-1">{birthdayValue}</p>
@@ -166,13 +160,13 @@ export function ContactDetail() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium" className="text-base-content/60">
               {label("js.contacts.phone", "Phone")}
             </span>
             <p className="text-sm mt-1">{contact.phone || emptyText}</p>
           </div>
           <div>
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium" className="text-base-content/60">
               {label("js.contacts.mobile", "Mobile")}
             </span>
             <p className="text-sm mt-1">{contact.mobile || emptyText}</p>
@@ -180,7 +174,7 @@ export function ContactDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.street", "Street")}
           </span>
           <p className="text-sm mt-1">{contact.street || emptyText}</p>
@@ -188,13 +182,13 @@ export function ContactDetail() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium" className="text-base-content/60">
               {label("js.contacts.zip", "ZIP")}
             </span>
             <p className="text-sm mt-1">{contact.zip || emptyText}</p>
           </div>
           <div>
-            <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-medium" className="text-base-content/60">
               {label("js.contacts.city", "City")}
             </span>
             <p className="text-sm mt-1">{contact.city || emptyText}</p>
@@ -202,28 +196,28 @@ export function ContactDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.company", "Company")}
           </span>
           <p className="text-sm mt-1">{contact.company || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.business", "Business")}
           </span>
           <p className="text-sm mt-1">{contact.business || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.web", "Website")}
           </span>
           <p className="text-sm mt-1">{contact.web || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.notes", "Notes")}
           </span>
           <div className="text-sm mt-1 prose prose-sm max-w-none dark:prose-invert">
@@ -232,65 +226,53 @@ export function ContactDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+          <span className="text-xs font-medium" className="text-base-content/60">
             {label("js.contacts.groups", "Groups")}
           </span>
           <p className="text-sm mt-1">{groupLabels}</p>
         </div>
 
-        <div className="rounded-none border-0 p-4 md:rounded-lg md:border md:p-4 bg-[var(--background)] md:bg-transparent" style={{ borderColor: "var(--border)" }}>
-          <h3 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+        <div className="rounded-none border-0 p-4 md:rounded-box md:border md:border-base-300 md:p-4 bg-base-100 md:bg-transparent">
+          <h3 className="text-sm font-semibold text-base-content">
             {label("js.profile.privacyTitle", "Visibility")}
           </h3>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <span className="text-xs font-medium" className="text-base-content/60">
                 {label("js.profile.shareEmail", "Share email")}
               </span>
               <div className="mt-1">
-                <span
-                  className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border"
-                  style={getBadgeStyle(contact.share_email)}
-                >
+                <span className={getBadgeClass(contact.share_email)}>
                   {contact.share_email ? yesLabel : noLabel}
                 </span>
               </div>
             </div>
             <div>
-              <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <span className="text-xs font-medium" className="text-base-content/60">
                 {label("js.profile.shareAddress", "Share address")}
               </span>
               <div className="mt-1">
-                <span
-                  className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border"
-                  style={getBadgeStyle(contact.share_address)}
-                >
+                <span className={getBadgeClass(contact.share_address)}>
                   {contact.share_address ? yesLabel : noLabel}
                 </span>
               </div>
             </div>
             <div>
-              <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <span className="text-xs font-medium" className="text-base-content/60">
                 {label("js.profile.sharePhones", "Share phones")}
               </span>
               <div className="mt-1">
-                <span
-                  className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border"
-                  style={getBadgeStyle(contact.share_phones)}
-                >
+                <span className={getBadgeClass(contact.share_phones)}>
                   {contact.share_phones ? yesLabel : noLabel}
                 </span>
               </div>
             </div>
             <div>
-              <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+              <span className="text-xs font-medium" className="text-base-content/60">
                 {label("js.profile.shareBirthday", "Share birthday")}
               </span>
               <div className="mt-1">
-                <span
-                  className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border"
-                  style={getBadgeStyle(contact.share_birthday)}
-                >
+                <span className={getBadgeClass(contact.share_birthday)}>
                   {contact.share_birthday ? yesLabel : noLabel}
                 </span>
               </div>

@@ -115,7 +115,7 @@ export default function UsersPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -124,18 +124,17 @@ export default function UsersPage() {
     <div className="mx-auto max-w-5xl space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+          <h1 className="text-2xl font-bold text-base-content">
             {t("js.users.title") !== "js.users.title" ? t("js.users.title") : "User Management"}
           </h1>
-          <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)" }}>
+          <p className="text-sm mt-1 text-base-content/60">
             {t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"}
           </p>
         </div>
         <button
           type="button"
           onClick={() => router.push(getEntityPath("user", "new", "edit"))}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white shrink-0"
-          style={{ background: "var(--primary)" }}
+          className="btn btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-box text-sm font-medium shrink-0"
         >
           <Plus className="h-4 w-4" />
           {t("js.users.addUser") !== "js.users.addUser" ? t("js.users.addUser") : "Add User"}
@@ -143,7 +142,7 @@ export default function UsersPage() {
       </div>
 
       {error && (
-        <div className="rounded-lg border px-4 py-3 text-sm" style={{ borderColor: "var(--destructive)", background: "color-mix(in oklch, var(--destructive) 15%, transparent)", color: "var(--destructive-foreground)" }}>
+        <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
           {error}
         </div>
       )}
@@ -154,15 +153,14 @@ export default function UsersPage() {
           placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="input input-sm w-full max-w-xs"
-          style={{ color: "var(--foreground)" }}
+          className="input input-sm w-full max-w-xs text-base-content"
         />
       </div>
 
-      <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}>
+      <div className="rounded-box border border-base-300 overflow-hidden bg-base-100 text-base-content">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : (
           <ResponsiveTable<User, "login" | "firstName" | "lastName" | "status" | "lastLogin">
@@ -202,7 +200,7 @@ export default function UsersPage() {
           >
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b" style={{ borderColor: "var(--border)", background: "var(--muted)/30" }}>
+                <tr className="border-b border-base-300 bg-base-200/50">
                   <SortableTh label={t("js.users.login")} sortKey="login" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                   <SortableTh label={t("js.users.firstName")} sortKey="firstName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                   <SortableTh label={t("js.users.lastName")} sortKey="lastName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
@@ -213,7 +211,7 @@ export default function UsersPage() {
               <tbody>
                 {sortedUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center" style={{ color: "var(--muted-foreground)" }}>
+                    <td colSpan={5} className="p-8 text-center text-base-content/60">
                       {t("js.users.noUsers") !== "js.users.noUsers" ? t("js.users.noUsers") : "No users found"}
                     </td>
                   </tr>
@@ -221,8 +219,7 @@ export default function UsersPage() {
                   sortedUsers.map((u) => (
                     <tr
                       key={u.id}
-                      className="border-b hover:bg-[var(--muted)]/30 transition-colors cursor-pointer"
-                      style={{ borderColor: "var(--border)" }}
+                      className="border-b border-base-300 hover:bg-base-200/50 transition-colors cursor-pointer"
                       onClick={() => openDetail(u.id)}
                     >
                       <td className="p-3 font-medium">{u.login}</td>
@@ -236,7 +233,7 @@ export default function UsersPage() {
                           {u.isActive ? (t("js.users.active") !== "js.users.active" ? t("js.users.active") : "Active") : (t("js.users.inactive") !== "js.users.inactive" ? t("js.users.inactive") : "Inactive")}
                         </span>
                       </td>
-                      <td className="p-3" style={{ color: "var(--muted-foreground)" }}>{formatDate(u.lastlogin)}</td>
+                      <td className="p-3 text-base-content/60">{formatDate(u.lastlogin)}</td>
                     </tr>
                   ))
                 )}
@@ -269,8 +266,7 @@ function SortableTh({
       <button
         type="button"
         onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
-        style={{ color: "var(--foreground)" }}
+        className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />
