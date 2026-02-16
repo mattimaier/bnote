@@ -13,9 +13,9 @@ import { getIconName } from "@/lib/entity-config";
 import { Info, CheckCircle, AlertCircle, X } from "@/components/icons";
 
 const typeStyles: Record<ToastType, string> = {
-  default: "bg-[var(--primary)] text-white border-[var(--primary)] shadow-[0_4px_14px_rgba(51,153,255,0.35)]",
-  success: "bg-[var(--primary)] text-white border-[var(--primary)] shadow-[0_4px_14px_rgba(51,153,255,0.35)]",
-  error: "bg-[var(--destructive)] text-white border-[var(--destructive)] shadow-[0_4px_14px_rgba(229,43,60,0.35)]",
+  default: "bg-primary text-primary-content border-primary shadow-lg",
+  success: "bg-primary text-primary-content border-primary shadow-lg",
+  error: "bg-error text-error-content border-error shadow-lg",
 };
 
 function ToastIcon({ type, entityType }: { type: ToastType; entityType?: string }) {

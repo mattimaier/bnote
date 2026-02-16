@@ -120,7 +120,7 @@ export default function RepertoirePage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -129,12 +129,12 @@ export default function RepertoirePage() {
     <div className="mx-auto max-w-5xl space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+          <h1 className="text-2xl font-bold text-base-content">
             {t("js.repertoire.title") !== "js.repertoire.title"
               ? t("js.repertoire.title")
               : "Repertoire"}
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
+          <p className="mt-1 text-sm text-base-content/60">
             {t("js.repertoire.subtitle") !== "js.repertoire.subtitle"
               ? t("js.repertoire.subtitle")
               : "Manage songs and repertoire"}
@@ -142,8 +142,7 @@ export default function RepertoirePage() {
         </div>
         <Link
           href={getEntityPath("song", "new", "edit")}
-          className="inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
-          style={{ background: "var(--primary)" }}
+          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white"
         >
           <Plus className="h-4 w-4" />
           {t("js.repertoire.addSong") !== "js.repertoire.addSong"
@@ -155,18 +154,14 @@ export default function RepertoirePage() {
       {error && (
         <div
           className="rounded-lg border px-4 py-3 text-sm"
-          style={{
-            borderColor: "var(--destructive)",
-            background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-            color: "var(--destructive-foreground)",
-          }}
+          className="border border-error bg-error/15 text-error"
         >
           {error}
         </div>
       )}
 
       <div className="flex items-center gap-2">
-        <div className="flex w-full items-center gap-3 rounded-lg px-3 py-2" style={{ background: "var(--muted)" }}>
+        <div className="flex w-full items-center gap-3 rounded-lg px-3 py-2 bg-base-200">
           <input
             type="search"
             placeholder={
@@ -176,23 +171,15 @@ export default function RepertoirePage() {
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent px-0 py-1 text-sm outline-none"
-            style={{ color: "var(--foreground)" }}
+            className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
           />
         </div>
       </div>
 
-      <div
-        className="overflow-hidden rounded-xl border"
-        style={{
-          borderColor: "var(--border)",
-          background: "var(--card)",
-          color: "var(--card-foreground)",
-        }}
-      >
+      <div className="overflow-hidden rounded-box border border-base-300 bg-base-100 text-base-content">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : (
           <ResponsiveTable<Song, SortKey>
@@ -313,7 +300,7 @@ export default function RepertoirePage() {
                     <td
                       colSpan={7}
                       className="p-8 text-center"
-                      style={{ color: "var(--muted-foreground)" }}
+                      className="text-base-content/60"
                     >
                       {t("js.repertoire.noSongs") !== "js.repertoire.noSongs"
                         ? t("js.repertoire.noSongs")
@@ -397,7 +384,7 @@ function SortableTh({
         type="button"
         onClick={() => onSort(sortKey)}
         className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-        style={{ color: "var(--foreground)" }}
+        className="text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />

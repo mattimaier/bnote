@@ -105,10 +105,10 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange, disabl
   if (loading) {
     return (
       <div className="flex flex-col gap-2 items-end">
-        <p className="text-xs font-medium opacity-50" style={{ color: "var(--muted-foreground)" }}>
+        <p className="text-xs font-medium opacity-50" className="text-base-content/60">
           {t("js.event.participation")}
         </p>
-        <div className="h-10 w-10 rounded-full border-2 border-[var(--border)] animate-pulse" />
+        <div className="h-10 w-10 rounded-full border-2 border-base-300 animate-pulse" />
       </div>
     );
   }
@@ -135,7 +135,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange, disabl
   return (
     <>
       <div className="flex flex-col gap-2 items-end shrink-0">
-        <p className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+        <p className="text-xs font-medium" className="text-base-content/60">
           {t("js.event.participation")}
         </p>
         <div className="flex items-center gap-3 justify-end">

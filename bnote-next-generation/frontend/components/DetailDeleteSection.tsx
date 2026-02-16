@@ -44,7 +44,7 @@ export function DetailDeleteSection({ canDelete, onDelete, entityTitle }: Detail
     <>
       <DetailCard>
         <div className="flex items-center justify-between gap-4">
-          <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+          <p className="text-sm text-base-content/60">
             {t("js.common.deleteSectionHint") !== "js.common.deleteSectionHint"
               ? t("js.common.deleteSectionHint")
               : "Permanently remove this item."}

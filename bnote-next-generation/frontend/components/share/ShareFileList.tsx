@@ -80,7 +80,7 @@ export function ShareFileList({
     return (
       <th
         className="px-4 py-3 text-left text-sm font-medium cursor-pointer select-none hover:opacity-80"
-        style={{ color: "var(--foreground)" }}
+        className="text-base-content"
         onClick={() => handleSort(columnKey)}
       >
         <span className="inline-flex items-center gap-1.5">
@@ -92,20 +92,10 @@ export function ShareFileList({
   };
 
   return (
-    <div
-      className="overflow-hidden rounded-xl border"
-      style={{
-        borderColor: "var(--border)",
-        background: "var(--card)",
-        color: "var(--card-foreground)",
-      }}
-    >
+    <div className="overflow-hidden rounded-box border border-base-300 bg-base-100 text-base-content">
       <table className="w-full text-sm">
         <thead>
-          <tr
-            className="border-b"
-            style={{ borderColor: "var(--border)", background: "var(--muted)/30" }}
-          >
+          <tr className="border-b border-base-300 bg-base-200/50">
             <SortTh label="Name" columnKey="name" />
             <SortTh label="Size" columnKey="size" />
             <SortTh label="Type" columnKey="type" />
@@ -116,11 +106,7 @@ export function ShareFileList({
         <tbody>
           {items.length === 0 ? (
             <tr>
-              <td
-                colSpan={5}
-                className="px-4 py-8 text-center"
-                style={{ color: "var(--muted-foreground)" }}
-              >
+              <td colSpan={5} className="px-4 py-8 text-center text-base-content/60">
                 No files or folders
               </td>
             </tr>
@@ -131,8 +117,7 @@ export function ShareFileList({
               return (
                 <tr
                   key={item.path}
-                  className="border-b transition-colors hover:bg-[var(--muted)]/30 cursor-pointer"
-                  style={{ borderColor: "var(--border)" }}
+                  className="border-b border-base-300 transition-colors hover:bg-base-200/50 cursor-pointer"
                   onClick={() => {
                     if (isFolder) {
                       onNavigate(item.path);
@@ -145,7 +130,7 @@ export function ShareFileList({
                     <span className="inline-flex items-center gap-2">
                       <Icon
                         className="h-5 w-5 shrink-0"
-                        style={{ color: "var(--muted-foreground)" }}
+                        className="text-base-content/60"
                       />
                       <span className="font-medium">{item.name}</span>
                     </span>
@@ -164,7 +149,7 @@ export function ShareFileList({
                       <button
                         type="button"
                         onClick={() => onDelete(item)}
-                        className="p-1.5 rounded hover:bg-[var(--destructive)]/20 text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
+                        className="p-1.5 rounded hover:bg-error/20 text-base-content/60 hover:text-error"
                         aria-label="Delete"
                       >
                         <Trash2 className="h-4 w-4" />

@@ -61,7 +61,7 @@ export function SelectPicker({
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative w-full min-w-[12rem] max-w-[12rem] space-y-2">
+    <div ref={rootRef} className="relative w-full min-w-[12rem] max-w-[20rem] space-y-2">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
@@ -69,7 +69,9 @@ export function SelectPicker({
       >
         <span className="flex items-center justify-between gap-2 w-full min-w-0">
           <span className="flex min-w-0 flex-1 flex-col items-end text-right overflow-hidden">
-            <span className="truncate whitespace-nowrap">{selected?.name ?? resolvedEmptyLabel}</span>
+            <span className="truncate whitespace-nowrap" title={selected?.name ?? resolvedEmptyLabel ?? undefined}>
+              {selected?.name ?? resolvedEmptyLabel}
+            </span>
             {selected?.subtitle ? (
               <span className="text-xs font-normal truncate whitespace-nowrap text-base-content/60">
                 {selected.subtitle}
@@ -80,10 +82,7 @@ export function SelectPicker({
         </span>
       </button>
       {open && !useFullscreen && (
-        <div
-          className="absolute left-0 top-full z-50 mt-2 w-full rounded-md border p-3 shadow-lg"
-          style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
-        >
+        <div className="absolute left-0 top-full z-50 mt-2 w-full rounded-md border border-base-300 bg-base-100 text-base-content p-3 shadow-lg">
           <input
             type="search"
             value={query}
@@ -91,7 +90,7 @@ export function SelectPicker({
             placeholder={placeholder}
             className="input input-sm w-full"
           />
-          <div className="max-h-80 overflow-y-auto rounded-md border" style={{ borderColor: "var(--border)" }}>
+          <div className="max-h-80 overflow-y-auto rounded-md border border-base-300">
             {filtered.map((opt) => (
               <button
                 key={opt.id}
@@ -100,13 +99,12 @@ export function SelectPicker({
                   onChange(opt.id);
                   setOpen(false);
                 }}
-                className="w-full text-left px-3 py-3 text-sm border-b hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
-                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                className="w-full text-left px-3 py-3 text-sm border-b border-base-300 text-base-content hover:bg-base-200/60 active:bg-base-200"
               >
                 <span className="flex flex-col">
                   <span>{opt.name ?? resolvedEmptyLabel}</span>
                   {opt.subtitle ? (
-                    <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                    <span className="text-xs text-base-content/60">
                       {opt.subtitle}
                     </span>
                   ) : null}
@@ -114,7 +112,7 @@ export function SelectPicker({
               </button>
             ))}
             {filtered.length === 0 && (
-              <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+              <div className="px-3 py-2 text-sm text-base-content/60">
                 {labelNoMatches}
               </div>
             )}
@@ -124,15 +122,11 @@ export function SelectPicker({
       {open && useFullscreen && (
         <div className="fixed inset-0 z-50">
           <div
-            className="absolute inset-0"
-            style={{ background: "color-mix(in oklch, var(--foreground) 20%, transparent)" }}
+            className="absolute inset-0 bg-base-content/20"
             onClick={() => setOpen(false)}
           />
-          <div
-            className="absolute inset-0 flex h-full w-full flex-col rounded-none border shadow-xl md:left-1/2 md:top-1/2 md:h-[90vh] md:w-[min(98vw,980px)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg"
-            style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}
-          >
-            <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--border)" }}>
+          <div className="absolute inset-0 flex h-full w-full flex-col rounded-none border border-base-300 bg-base-100 text-base-content shadow-xl md:left-1/2 md:top-1/2 md:h-[90vh] md:w-[min(98vw,980px)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-box">
+            <div className="flex items-center justify-between border-b border-base-300 px-4 py-3">
               <div className="text-sm font-semibold">{labelSelect}</div>
               <button
                 type="button"
@@ -149,10 +143,7 @@ export function SelectPicker({
               placeholder={placeholder}
               className="input input-sm w-full mx-4 mt-4"
             />
-            <div
-              className="mx-4 mb-4 mt-3 flex-1 min-h-0 overflow-y-auto rounded-md border md:max-h-[78vh]"
-              style={{ borderColor: "var(--border)" }}
-            >
+            <div className="mx-4 mb-4 mt-3 flex-1 min-h-0 overflow-y-auto rounded-md border border-base-300 md:max-h-[78vh]">
               {filtered.map((opt) => (
                 <button
                   key={opt.id}
@@ -161,13 +152,12 @@ export function SelectPicker({
                     onChange(opt.id);
                     setOpen(false);
                   }}
-                  className="w-full text-left px-3 py-3 text-sm border-b hover:bg-[var(--muted)]/40 active:bg-[var(--muted)]/60"
-                  style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                  className="w-full text-left px-3 py-3 text-sm border-b border-base-300 text-base-content hover:bg-base-200/60 active:bg-base-200"
                 >
                   <span className="flex flex-col">
                     <span>{opt.name ?? emptyLabel}</span>
                     {opt.subtitle ? (
-                      <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="text-xs text-base-content/60">
                         {opt.subtitle}
                       </span>
                     ) : null}
@@ -175,7 +165,7 @@ export function SelectPicker({
                 </button>
               ))}
               {filtered.length === 0 && (
-                <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <div className="px-3 py-2 text-sm text-base-content/60">
                   {labelNoMatches}
                 </div>
               )}

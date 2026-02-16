@@ -86,8 +86,8 @@ function LoginFormInner() {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-base-100">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -118,7 +118,7 @@ function LoginFormInner() {
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-b-lg bg-[var(--card)] p-8 shadow-lg">
+      <div className="relative overflow-hidden rounded-b-lg bg-base-100 p-8 shadow-lg">
         <div className="mb-8 text-center">
           {logoUrl ? (
             <img
@@ -131,19 +131,19 @@ function LoginFormInner() {
               }}
             />
           ) : (
-            <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-[var(--primary)] opacity-80" />
+            <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary opacity-80" />
           )}
-          <h1 className="mb-2 text-2xl font-bold text-[var(--foreground)]">
+          <h1 className="mb-2 text-2xl font-bold text-base-content">
             {t("js.common.appName")}
           </h1>
-          <p className="text-[var(--muted-foreground)]">{welcomeText}</p>
+          <p className="text-base-content/60">{welcomeText}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
               htmlFor="username"
-              className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+              className="mb-2 block text-sm font-medium text-base-content"
             >
               {t("js.login.usernameLabel")}
             </label>
@@ -160,7 +160,7 @@ function LoginFormInner() {
           <div>
             <label
               htmlFor="password"
-              className="mb-2 block text-sm font-medium text-[var(--foreground)]"
+              className="mb-2 block text-sm font-medium text-base-content"
             >
               {t("js.login.passwordLabel")}
             </label>
@@ -175,7 +175,7 @@ function LoginFormInner() {
             />
           </div>
           {error && (
-            <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 px-4 py-3 text-sm text-[var(--destructive-foreground)]">
+            <div className="rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
               {error}
             </div>
           )}
@@ -196,8 +196,8 @@ function LoginForm() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[var(--background)]">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="flex min-h-screen items-center justify-center bg-base-100">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       }
     >
@@ -209,7 +209,7 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <I18nProvider>
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4">
+      <div className="flex min-h-screen items-center justify-center bg-base-100 px-4">
         <LoginForm />
       </div>
     </I18nProvider>

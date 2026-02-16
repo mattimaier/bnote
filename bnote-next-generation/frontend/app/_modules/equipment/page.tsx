@@ -128,7 +128,7 @@ export default function EquipmentPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -137,12 +137,12 @@ export default function EquipmentPage() {
     <div className="mx-auto max-w-5xl space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+          <h1 className="text-2xl font-bold" className="text-base-content">
             {t("js.equipment.title") !== "js.equipment.title"
               ? t("js.equipment.title")
               : "Equipment"}
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
+          <p className="mt-1 text-sm" className="text-base-content/60">
             {t("js.equipment.subtitle") !== "js.equipment.subtitle"
               ? t("js.equipment.subtitle")
               : "Manage inventory and assets"}
@@ -151,7 +151,7 @@ export default function EquipmentPage() {
         <Link
           href={getEntityPath("equipment", "new", "edit")}
           className="inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
-          style={{ background: "var(--primary)" }}
+          className="bg-primary"
         >
           <Plus className="h-4 w-4" />
           {t("js.equipment.addEquipment") !== "js.equipment.addEquipment"
@@ -163,18 +163,14 @@ export default function EquipmentPage() {
       {error && (
         <div
           className="rounded-lg border px-4 py-3 text-sm"
-          style={{
-            borderColor: "var(--destructive)",
-            background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-            color: "var(--destructive-foreground)",
-          }}
+          className="border border-error bg-error/15 text-error"
         >
           {error}
         </div>
       )}
 
       <div className="flex items-center gap-2">
-        <div className="flex w-full items-center gap-3 rounded-lg px-3 py-2" style={{ background: "var(--muted)" }}>
+        <div className="flex w-full items-center gap-3 rounded-lg bg-base-200 px-3 py-2">
           <input
             type="search"
             placeholder={
@@ -185,22 +181,18 @@ export default function EquipmentPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-transparent px-0 py-1 text-sm outline-none"
-            style={{ color: "var(--foreground)" }}
+            className="text-base-content"
           />
         </div>
       </div>
 
       <div
         className="overflow-hidden rounded-xl border"
-        style={{
-          borderColor: "var(--border)",
-          background: "var(--card)",
-          color: "var(--card-foreground)",
-        }}
+        className="border border-base-300 bg-base-100 text-base-content"
       >
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : (
           <ResponsiveTable<Equipment, SortKey>
@@ -253,13 +245,7 @@ export default function EquipmentPage() {
               ]}
             >
               <thead>
-                <tr
-                  className="border-b"
-                  style={{
-                    borderColor: "var(--border)",
-                    background: "var(--muted)/30",
-                  }}
-                >
+                <tr className="border-b border-base-300 bg-base-200/50">
                   <SortableTh
                     label={
                       t("js.equipment.name") !== "js.equipment.name"
@@ -325,11 +311,7 @@ export default function EquipmentPage() {
               <tbody>
                 {sorted.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className="p-8 text-center"
-                      style={{ color: "var(--muted-foreground)" }}
-                    >
+                    <td colSpan={6} className="p-8 text-center text-base-content/60">
                       {t("js.equipment.noEquipment") !== "js.equipment.noEquipment"
                         ? t("js.equipment.noEquipment")
                         : "No equipment found"}
@@ -339,8 +321,7 @@ export default function EquipmentPage() {
                   sorted.map((item) => (
                     <tr
                       key={item.id}
-                      className="cursor-pointer border-b transition-colors hover:bg-[var(--muted)]/30"
-                      style={{ borderColor: "var(--border)" }}
+                      className="cursor-pointer border-b border-base-300 transition-colors hover:bg-base-200/50"
                       onClick={() => handleRowClick(item.id)}
                     >
                       <td className="p-3 font-medium">{item.name ?? emptyText}</td>
@@ -387,7 +368,7 @@ function SortableTh({
         type="button"
         onClick={() => onSort(sortKey)}
         className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-        style={{ color: "var(--foreground)" }}
+        className="text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />

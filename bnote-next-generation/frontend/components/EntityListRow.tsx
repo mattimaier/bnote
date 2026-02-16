@@ -28,9 +28,8 @@ export interface EntityListRowProps {
 }
 
 const rowClass =
-  "flex gap-3 px-2 py-2.5 md:px-4 transition-colors hover:bg-[var(--muted)]/60 active:bg-[var(--muted)]/80 text-left w-full items-start no-underline border-0 bg-transparent cursor-pointer font-inherit select-none";
+  "flex gap-3 px-2 py-2.5 md:px-4 transition-colors hover:bg-base-200/60 active:bg-base-200/80 text-left w-full items-start no-underline border-0 bg-transparent cursor-pointer font-inherit select-none text-base-content";
 const rowStyle: React.CSSProperties = {
-  color: "var(--foreground)",
   WebkitTapHighlightColor: "transparent",
 } as React.CSSProperties;
 
@@ -60,7 +59,7 @@ export function EntityListRow({
         {secondary != null && secondary !== false && (
           <div
             className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs leading-snug"
-            style={{ color: "var(--muted-foreground)" }}
+            className="text-base-content/60"
           >
             {secondary}
           </div>

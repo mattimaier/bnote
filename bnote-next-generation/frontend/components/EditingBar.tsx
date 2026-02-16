@@ -32,14 +32,7 @@ export function EditingBar({
     : (t("js.common.save") !== "js.common.save" ? t("js.common.save") : "Save");
 
   return (
-    <div
-      className="sticky top-0 z-30 rounded-xl border px-4 py-3 shadow-sm"
-      style={{
-        borderColor: "var(--border)",
-        background: "color-mix(in oklch, var(--primary) 12%, var(--card))",
-        color: "var(--card-foreground)",
-      }}
-    >
+    <div className="sticky top-0 z-30 rounded-box border border-base-300 bg-primary/10 px-4 py-3 shadow-sm text-base-content">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-sm font-medium">
           {t("js.common.editing") !== "js.common.editing"

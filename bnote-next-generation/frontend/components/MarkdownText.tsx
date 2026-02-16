@@ -34,7 +34,7 @@ export function MarkdownText({ value, className, inline = false }: MarkdownTextP
         href={href}
         target="_blank"
         rel="noreferrer noopener"
-        className="underline underline-offset-2 hover:text-[var(--primary)]"
+        className="underline underline-offset-2 hover:text-primary"
       >
         {children}
       </a>
@@ -42,10 +42,10 @@ export function MarkdownText({ value, className, inline = false }: MarkdownTextP
     strong: ({ children }: { children?: React.ReactNode }) => <strong className="font-semibold">{children}</strong>,
     em: ({ children }: { children?: React.ReactNode }) => <em className="italic">{children}</em>,
     code: ({ children }: { children?: React.ReactNode }) => (
-      <code className="rounded bg-[var(--muted)] px-1 py-0.5 text-[0.95em]">{children}</code>
+      <code className="rounded bg-base-200 px-1 py-0.5 text-[0.95em]">{children}</code>
     ),
     pre: ({ children }: { children?: React.ReactNode }) => (
-      <pre className="mt-2 overflow-x-auto rounded-md bg-[var(--muted)] p-3 text-xs">{children}</pre>
+      <pre className="mt-2 overflow-x-auto rounded-md bg-base-200 p-3 text-xs">{children}</pre>
     ),
   };
 

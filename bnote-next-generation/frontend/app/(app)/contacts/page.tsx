@@ -131,7 +131,7 @@ export default function ContactsPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -140,10 +140,10 @@ export default function ContactsPage() {
     <div className="mx-auto max-w-5xl space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+          <h1 className="text-2xl font-bold" className="text-base-content">
             {t("js.contacts.title") !== "js.contacts.title" ? t("js.contacts.title") : "Contacts"}
           </h1>
-          <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)" }}>
+          <p className="text-sm mt-1" className="text-base-content/60">
             {t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
           </p>
         </div>
@@ -151,7 +151,7 @@ export default function ContactsPage() {
           type="button"
           onClick={() => router.push(getEntityPath("contact", "new", "edit"))}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white shrink-0"
-          style={{ background: "var(--primary)" }}
+          className="bg-primary"
         >
           <Plus className="h-4 w-4" />
           {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
@@ -159,7 +159,7 @@ export default function ContactsPage() {
       </div>
 
       {error && (
-        <div className="rounded-lg border px-4 py-3 text-sm" style={{ borderColor: "var(--destructive)", background: "color-mix(in oklch, var(--destructive) 15%, transparent)", color: "var(--destructive-foreground)" }}>
+        <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">
           {error}
         </div>
       )}
@@ -186,22 +186,22 @@ export default function ContactsPage() {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="flex w-full items-center gap-3 rounded-lg px-3 py-2" style={{ background: "var(--muted)" }}>
+        <div className="flex w-full items-center gap-3 rounded-lg bg-base-200 px-3 py-2">
           <input
             type="search"
             placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-transparent px-0 py-1 text-sm outline-none"
-            style={{ color: "var(--foreground)" }}
+            className="text-base-content"
           />
         </div>
       </div>
 
-      <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}>
+      <div className="rounded-box border border-base-300 overflow-hidden bg-base-100 text-base-content">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : (
           <ResponsiveTable<Contact, ContactsSortKey>
@@ -239,7 +239,7 @@ export default function ContactsPage() {
           >
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b" style={{ borderColor: "var(--border)", background: "var(--muted)/30" }}>
+                <tr className="border-b border-base-300 bg-base-200/50">
                   <ContactsSortableTh label={t("js.contacts.firstName")} sortKey="name" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                   <ContactsSortableTh label={t("js.contacts.lastName")} sortKey="surname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                   <ContactsSortableTh label={t("js.contacts.nickname")} sortKey="nickname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
@@ -252,7 +252,7 @@ export default function ContactsPage() {
               <tbody>
                 {sortedContacts.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center" style={{ color: "var(--muted-foreground)" }}>
+                    <td colSpan={7} className="p-8 text-center" className="text-base-content/60">
                       {t("js.contacts.noContacts") !== "js.contacts.noContacts" ? t("js.contacts.noContacts") : "No contacts found"}
                     </td>
                   </tr>
@@ -260,8 +260,7 @@ export default function ContactsPage() {
                   sortedContacts.map((c) => (
                     <tr
                       key={c.id}
-                      className="border-b hover:bg-[var(--muted)]/30 transition-colors cursor-pointer"
-                      style={{ borderColor: "var(--border)" }}
+                      className="border-b border-base-300 hover:bg-base-200/50 transition-colors cursor-pointer"
                       onClick={() => openDetail(c.id)}
                     >
                       <td className="p-3 font-medium">{c.name ?? emptyText}</td>
@@ -306,7 +305,7 @@ function ContactsSortableTh({
         type="button"
         onClick={() => onSort(sortKey)}
         className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
-        style={{ color: "var(--foreground)" }}
+        className="text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />

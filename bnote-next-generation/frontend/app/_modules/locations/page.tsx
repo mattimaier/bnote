@@ -119,7 +119,7 @@ export default function LocationsPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -128,10 +128,10 @@ export default function LocationsPage() {
     <div className="mx-auto max-w-5xl space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+          <h1 className="text-2xl font-bold text-base-content">
             {t("js.locations.title") !== "js.locations.title" ? t("js.locations.title") : "Locations"}
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
+          <p className="mt-1 text-sm text-base-content/60">
             {t("js.locations.subtitle") !== "js.locations.subtitle"
               ? t("js.locations.subtitle")
               : "Manage venues and rehearsal rooms"}
@@ -139,8 +139,7 @@ export default function LocationsPage() {
         </div>
         <Link
           href={getEntityPath("location", "new", "edit")}
-          className="inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
-          style={{ background: "var(--primary)" }}
+          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white"
         >
           <Plus className="h-4 w-4" />
           {t("js.locations.addLocation") !== "js.locations.addLocation"
@@ -152,18 +151,14 @@ export default function LocationsPage() {
       {error && (
         <div
           className="rounded-lg border px-4 py-3 text-sm"
-          style={{
-            borderColor: "var(--destructive)",
-            background: "color-mix(in oklch, var(--destructive) 15%, transparent)",
-            color: "var(--destructive-foreground)",
-          }}
+          className="border border-error bg-error/15 text-error"
         >
           {error}
         </div>
       )}
 
       <div className="flex items-center gap-2">
-        <div className="flex w-full items-center gap-3 rounded-lg px-3 py-2" style={{ background: "var(--muted)" }}>
+        <div className="flex w-full items-center gap-3 rounded-lg bg-base-200 px-3 py-2">
           <input
             type="search"
             placeholder={
@@ -171,23 +166,18 @@ export default function LocationsPage() {
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent px-0 py-1 text-sm outline-none"
-            style={{ color: "var(--foreground)" }}
+            className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
           />
         </div>
       </div>
 
       <div
         className="overflow-hidden rounded-xl border"
-        style={{
-          borderColor: "var(--border)",
-          background: "var(--card)",
-          color: "var(--card-foreground)",
-        }}
+        className="border border-base-300 bg-base-100 text-base-content"
       >
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : (
           <ResponsiveTable<Location, SortKey>
@@ -248,7 +238,7 @@ export default function LocationsPage() {
               <thead>
                 <tr
                   className="border-b"
-                  style={{ borderColor: "var(--border)", background: "var(--muted)/30" }}
+                  className="border-b border-base-300 bg-base-200/50"
                 >
                   <SortableTh
                     label={t("js.locations.name") !== "js.locations.name" ? t("js.locations.name") : "Name"}
@@ -274,11 +264,7 @@ export default function LocationsPage() {
               <tbody>
                 {sortedLocations.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={3}
-                      className="p-8 text-center"
-                      style={{ color: "var(--muted-foreground)" }}
-                    >
+                    <td colSpan={3} className="p-8 text-center text-base-content/60">
                       {t("js.locations.noLocations") !== "js.locations.noLocations"
                         ? t("js.locations.noLocations")
                         : "No locations found"}
@@ -288,8 +274,7 @@ export default function LocationsPage() {
                   sortedLocations.map((loc) => (
                     <tr
                       key={loc.id}
-                      className="cursor-pointer border-b transition-colors hover:bg-[var(--muted)]/30"
-                      style={{ borderColor: "var(--border)" }}
+                      className="cursor-pointer border-b border-base-300 transition-colors hover:bg-base-200/50"
                       onClick={() => handleRowClick(loc.id)}
                     >
                       <td className="p-3 font-medium">{loc.name ?? emptyText}</td>
@@ -336,7 +321,7 @@ function SortableTh({
         type="button"
         onClick={() => onSort(sortKey)}
         className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-        style={{ color: "var(--foreground)" }}
+        className="text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />

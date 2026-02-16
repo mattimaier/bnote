@@ -74,12 +74,8 @@ export function ShareUploadZone({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       className={`relative rounded-lg border-2 border-dashed p-6 transition-colors ${
-        isDragging && !disabled ? "border-[var(--primary)] bg-[var(--primary)]/5" : ""
-      } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-[var(--border)]"}`}
-      style={{
-        borderColor: isDragging && !disabled ? "var(--primary)" : "var(--border)",
-        background: isDragging && !disabled ? "color-mix(in oklch, var(--primary) 5%, transparent)" : "var(--muted)/30",
-      }}
+        isDragging && !disabled ? "border-primary bg-primary/5" : "border-base-300 bg-base-200/50"
+      } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-base-300"}`}
     >
       <input
         type="file"
@@ -91,12 +87,12 @@ export function ShareUploadZone({
       <div className="flex flex-col items-center justify-center gap-2 text-center">
         <Upload
           className="h-10 w-10 shrink-0"
-          style={{ color: "var(--muted-foreground)" }}
+          className="text-base-content/60"
         />
-        <p className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+        <p className="text-sm font-medium text-base-content">
           {uploading ? "Uploading…" : "Drag files here or click to select"}
         </p>
-        <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+        <p className="text-xs text-base-content/60">
           Multiple files supported
         </p>
       </div>

@@ -93,7 +93,7 @@ export function AddressLink({
     <span ref={ref} className={`relative inline-flex ${className ?? ""}`}>
       <button
         type="button"
-        className={`inline-flex items-center gap-1 rounded-md hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/30 ${textClassName ?? ""}`}
+        className={`inline-flex items-center gap-1 rounded-md hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${textClassName ?? ""}`}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
@@ -111,14 +111,13 @@ export function AddressLink({
         <span
           id={menuId}
           role="menu"
-          className="absolute left-0 top-full z-[60] mt-2 min-w-[220px] rounded-lg border px-2 py-2 text-sm shadow-lg"
-          style={{ background: "var(--card)", borderColor: "var(--border)", color: "var(--card-foreground)" }}
+          className="absolute left-0 top-full z-[60] mt-2 min-w-[220px] rounded-lg border border-base-300 bg-base-100 text-base-content px-2 py-2 text-sm shadow-lg"
           onClick={(event) => event.stopPropagation()}
         >
           <button
             type="button"
             role="menuitem"
-            className="flex w-full items-center rounded-md px-2 py-1.5 text-left hover:bg-[var(--muted)]"
+            className="flex w-full items-center rounded-md px-2 py-1.5 text-left hover:bg-base-200"
             onClick={() => openLink(googleHref)}
           >
             {t("js.address.openInGoogleMaps")}
@@ -126,7 +125,7 @@ export function AddressLink({
           <button
             type="button"
             role="menuitem"
-            className="flex w-full items-center rounded-md px-2 py-1.5 text-left hover:bg-[var(--muted)]"
+            className="flex w-full items-center rounded-md px-2 py-1.5 text-left hover:bg-base-200"
             onClick={() => openLink(appleHref)}
           >
             {t("js.address.openInAppleMaps")}

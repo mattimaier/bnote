@@ -64,14 +64,16 @@ export function MultiSelect({
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative w-full min-w-[12rem] max-w-[12rem]">
+    <div ref={rootRef} className="relative w-full min-w-[12rem] max-w-[20rem]">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         className="btn btn-outline w-full justify-between"
       >
         <span className="flex items-center justify-between gap-2 w-full min-w-0">
-          <span className="text-right flex-1 truncate whitespace-nowrap min-w-0">{labelSelect}</span>
+          <span className="text-right flex-1 truncate whitespace-nowrap min-w-0" title={labelSelect}>
+            {labelSelect}
+          </span>
           <LayoutList className="h-4 w-4" />
         </span>
       </button>

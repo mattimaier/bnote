@@ -24,11 +24,11 @@ export function DetailPageHeader({ title, subtitle, right }: DetailPageHeaderPro
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold truncate" style={{ color: "var(--foreground)" }}>
+        <h1 className="text-2xl font-bold truncate text-base-content">
           {title}
         </h1>
         {subtitle != null && (
-          <p className="mt-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
+          <p className="mt-1 text-sm text-base-content/60">
             {subtitle}
           </p>
         )}
