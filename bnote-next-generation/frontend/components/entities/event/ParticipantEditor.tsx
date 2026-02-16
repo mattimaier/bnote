@@ -7,7 +7,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "@/components/icons";
 import type { EditableParticipant } from "@/lib/entities/event/types";
 import { ParticipationTrafficLight } from "./ParticipationTrafficLight";
 
@@ -37,7 +37,7 @@ export function ParticipantEditor({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-        className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+        className="input input-sm w-full"
         style={{ color: "var(--foreground)" }}
       />
       <div className="space-y-3 text-sm">

@@ -17,7 +17,7 @@ import {
 import { getEntityPath } from "@/lib/entities/paths";
 import { ParticipationWidget } from "./ParticipationWidget";
 import { getIcon } from "@/components/icons";
-import { MapPin, Clock } from "lucide-react";
+import { MapPin, Clock } from "@/components/icons";
 import { AddressLink } from "@/components/AddressLink";
 import { getStatusPillStyle } from "@/lib/entity-config";
 

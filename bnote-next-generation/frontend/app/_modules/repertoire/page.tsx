@@ -20,7 +20,7 @@ import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
-import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 
 type SortKey = "title" | "composer" | "genre" | "status";
 const toStatusKey = (value: string) => value.trim().toLowerCase().replace(/\s+/g, "-");

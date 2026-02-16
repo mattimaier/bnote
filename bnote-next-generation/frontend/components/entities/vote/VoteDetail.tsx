@@ -14,7 +14,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { votesApi, type VoteDetail as VoteDetailType } from "@/lib/votes-api";
 import { formatDateShortDisplay } from "@/lib/date-time";
 import { getEntityPath } from "@/lib/entities/paths";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle } from "@/components/icons";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
 import { getStatusPillStyle } from "@/lib/entity-config";

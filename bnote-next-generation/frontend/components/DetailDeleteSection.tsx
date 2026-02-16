@@ -9,7 +9,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "@/components/icons";
 import { useI18n } from "@/contexts/I18nContext";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { DetailCard } from "@/components/DetailCard";
@@ -52,8 +52,7 @@ export function DetailDeleteSection({ canDelete, onDelete, entityTitle }: Detail
           <button
             type="button"
             onClick={() => setConfirmOpen(true)}
-            className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium border"
-            style={{ borderColor: "var(--destructive)", color: "var(--destructive)" }}
+            className="btn btn-outline btn-error btn-sm gap-2"
           >
             <Trash2 className="h-4 w-4" />
             {confirmLabel}

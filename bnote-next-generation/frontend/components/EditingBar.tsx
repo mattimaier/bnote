@@ -8,7 +8,7 @@
 "use client";
 
 import { useI18n } from "@/contexts/I18nContext";
-import { Save, X } from "lucide-react";
+import { Save, X } from "@/components/icons";
 
 interface EditingBarProps {
   isNew?: boolean;
@@ -52,8 +52,7 @@ export function EditingBar({
               type="submit"
               form={submitFormId}
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white"
-              style={{ background: "var(--primary)" }}
+              className="btn btn-primary btn-sm gap-2"
             >
               <Save className="h-4 w-4" />
               {saveLabel}
@@ -63,8 +62,7 @@ export function EditingBar({
               type="button"
               onClick={onSave}
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white"
-              style={{ background: "var(--primary)" }}
+              className="btn btn-primary btn-sm gap-2"
             >
               <Save className="h-4 w-4" />
               {saveLabel}
@@ -74,11 +72,7 @@ export function EditingBar({
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium"
-            style={{
-              borderColor: "color-mix(in oklch, var(--destructive) 60%, var(--border))",
-              color: "var(--destructive)",
-            }}
+            className="btn btn-outline btn-error btn-sm gap-2"
           >
             <X className="h-4 w-4" />
             {t("js.common.cancel") !== "js.common.cancel"

@@ -48,7 +48,7 @@ import { ParticipantEditor } from "@/components/entities/event/ParticipantEditor
 import { SelectPicker } from "@/components/entities/event/SelectPicker";
 import { SelectedItemsList } from "@/components/entities/event/SelectedItemsList";
 import { StatusPicker } from "@/components/entities/event/StatusPicker";
-import { ChevronLeft, LayoutList, Pencil, Save, Trash2, X } from "lucide-react";
+import { ChevronLeft, LayoutList, Pencil, Save, Trash2, X } from "@/components/icons";
 
 export interface EventDetailProps {
   type?: string;

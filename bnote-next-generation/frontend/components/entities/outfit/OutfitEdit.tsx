@@ -159,7 +159,7 @@ export function OutfitEdit() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -173,8 +173,7 @@ export function OutfitEdit() {
                 rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                style={{ color: "var(--foreground)" }}
+                className="textarea textarea-sm w-full"
               />
             </div>
           </div>

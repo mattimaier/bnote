@@ -21,7 +21,7 @@ import { ShareFileList } from "@/components/share/ShareFileList";
 import { ShareUploadZone } from "@/components/share/ShareUploadZone";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { getIcon } from "@/components/icons";
-import { ChevronRight, FolderPlus, Download } from "lucide-react";
+import { ChevronRight, FolderPlus, Download } from "@/components/icons";
 import type { ShareSortKey, SortDirection } from "@/components/share/ShareFileList";
 
 export default function SharePage() {

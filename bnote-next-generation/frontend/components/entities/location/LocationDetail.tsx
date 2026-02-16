@@ -27,7 +27,7 @@ import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { formatEventDate, formatEventTime } from "@/lib/event-utils";
-import { ArrowDown, ArrowUp, ArrowUpDown, Clock } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Clock } from "@/components/icons";
 
 export function LocationDetail() {
   const { id } = useEntityParams();

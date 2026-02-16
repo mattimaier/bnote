@@ -10,7 +10,7 @@
 import { useCallback } from "react";
 import { getIcon } from "@/components/icons";
 import type { ShareItem, SharePermissions } from "@/lib/share-api";
-import { ArrowUp, ArrowDown, ArrowUpDown, Trash2 } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown, Trash2 } from "@/components/icons";
 
 export type ShareSortKey = "name" | "size" | "type" | "modifiedAt";
 export type SortDirection = "asc" | "desc";

@@ -1,12 +1,12 @@
 /**
- * BNote Next Generation - Confirm modal (e.g. delete confirmation)
+ * BNote Next Generation - Confirm modal (FlyonUI/Preline overlay)
  *
  * Copyright (C) 2026 BNote Contributors
  */
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useId, useRef } from "react";
 
 export interface ConfirmModalProps {
   open: boolean;
@@ -19,6 +19,15 @@ export interface ConfirmModalProps {
   variant?: "danger" | "default";
 }
 
+declare global {
+  interface Window {
+    HSOverlay?: {
+      open: (el: string | HTMLElement) => void;
+      close: (el: string | HTMLElement) => void;
+    };
+  }
+}
+
 export function ConfirmModal({
   open,
   onClose,
@@ -29,20 +38,26 @@ export function ConfirmModal({
   onConfirm,
   variant = "danger",
 }: ConfirmModalProps) {
-  useEffect(() => {
-    if (!open) return;
-    const handle = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handle);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", handle);
-      document.body.style.overflow = "";
-    };
-  }, [open, onClose]);
+  const id = useId().replace(/:/g, "-") || "confirm-1";
+  const modalId = `bn-confirm-${id}`;
+  const ref = useRef<HTMLDivElement>(null);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (!ref.current || typeof window === "undefined") return;
+    const el = ref.current;
+    const handleClose = () => onClose();
+    el.addEventListener("close.overlay", handleClose);
+    return () => el.removeEventListener("close.overlay", handleClose);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.HSOverlay || !ref.current) return;
+    if (open) {
+      window.HSOverlay.open(ref.current);
+    } else {
+      window.HSOverlay.close(ref.current);
+    }
+  }, [open]);
 
   const handleConfirm = async () => {
     await onConfirm();
@@ -51,38 +66,35 @@ export function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      id={modalId}
+      ref={ref}
+      className="overlay modal hidden"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby={`${modalId}-title`}
     >
-      <div
-        className="w-full max-w-md rounded-lg border border-[var(--border)] bg-[var(--card)] shadow-xl p-4"
-        style={{ color: "var(--card-foreground)" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        <p className="text-sm mb-6" style={{ color: "var(--muted-foreground)" }}>
-          {message}
-        </p>
-        <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-md border text-sm font-medium"
-            style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
-          >
-            {cancelLabel}
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            className="px-4 py-2 rounded-md text-sm font-medium text-white"
-            style={{
-              background: variant === "danger" ? "var(--destructive)" : "var(--primary)",
-              color: variant === "danger" ? "var(--destructive-foreground)" : undefined,
-            }}
-          >
-            {confirmLabel}
-          </button>
+      <div className="modal-dialog modal-dialog-sm modal-middle">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3 id={`${modalId}-title`} className="modal-title">
+              {title}
+            </h3>
+          </div>
+          <div className="modal-body">
+            <p className="text-sm text-base-content/70">{message}</p>
+          </div>
+          <div className="modal-footer">
+            <button type="button" onClick={onClose} className="btn btn-outline btn-sm">
+              {cancelLabel}
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirm}
+              className={variant === "danger" ? "btn btn-error btn-sm" : "btn btn-primary btn-sm"}
+            >
+              {confirmLabel}
+            </button>
+          </div>
         </div>
       </div>
     </div>

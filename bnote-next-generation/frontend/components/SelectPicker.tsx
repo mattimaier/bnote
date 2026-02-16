@@ -9,7 +9,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
-import { LayoutList } from "lucide-react";
+import { LayoutList } from "@/components/icons";
 
 /** Option shape: id + optional name (compatible with SimpleOption, InstrumentOption, etc.). */
 export interface SelectPickerOption {
@@ -65,12 +65,7 @@ export function SelectPicker({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="w-full rounded-md border px-3 py-2 text-sm font-medium"
-        style={{
-          borderColor: "var(--border)",
-          color: "var(--foreground)",
-          background: "color-mix(in oklch, var(--muted) 45%, var(--card))",
-        }}
+        className="btn btn-outline w-full justify-between"
       >
         <span className="flex items-center justify-between gap-2">
           <span className="flex flex-col text-left">
@@ -94,8 +89,7 @@ export function SelectPicker({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={placeholder}
-            className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-            style={{ color: "var(--foreground)" }}
+            className="input input-sm w-full"
           />
           <div className="max-h-80 overflow-y-auto rounded-md border" style={{ borderColor: "var(--border)" }}>
             {filtered.map((opt) => (
@@ -143,8 +137,7 @@ export function SelectPicker({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="inline-flex items-center gap-2 rounded-md border px-3 py-1 text-sm"
-                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                className="btn btn-outline btn-sm"
               >
                 {labelClose}
               </button>
@@ -154,8 +147,7 @@ export function SelectPicker({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={placeholder}
-              className="mx-4 mt-4 rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-              style={{ color: "var(--foreground)" }}
+              className="input input-sm w-full mx-4 mt-4"
             />
             <div
               className="mx-4 mb-4 mt-3 flex-1 min-h-0 overflow-y-auto rounded-md border md:max-h-[78vh]"

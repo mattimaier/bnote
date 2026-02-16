@@ -18,7 +18,7 @@ import { getStatusPillStyle, getColor, getPillStyle, getDotStyle } from "@/lib/e
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
-import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 
 export default function UsersPage() {
   const searchParams = useSearchParams();
@@ -154,7 +154,7 @@ export default function UsersPage() {
           placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm w-full max-w-xs"
+          className="input input-sm w-full max-w-xs"
           style={{ color: "var(--foreground)" }}
         />
       </div>

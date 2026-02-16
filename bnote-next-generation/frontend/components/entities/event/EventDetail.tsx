@@ -51,7 +51,7 @@ import { StatusPicker } from "@/components/entities/event/StatusPicker";
 import { getEventViewActions } from "@/lib/entities/event/actions";
 import { EditingBar } from "@/components/EditingBar";
 import { DetailEditButton } from "@/components/DetailPageHeader";
-import { LayoutList, Trash2 } from "lucide-react";
+import { LayoutList, Trash2 } from "@/components/icons";
 
 export interface EventDetailProps {
   type?: string;

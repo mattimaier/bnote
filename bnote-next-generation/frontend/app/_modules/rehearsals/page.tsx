@@ -21,7 +21,7 @@ import { getIcon } from "@/components/icons";
 import { formatEventDate, formatEventTime } from "@/lib/event-utils";
 import { getEventTypeConfig } from "@/lib/entity-config";
 import { ParticipationDiagram } from "@/components/ParticipationDiagram";
-import { ArrowDown, ArrowUp, ArrowUpDown, Clock, MapPin } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Clock, MapPin } from "@/components/icons";
 
 export default function RehearsalsPage() {
   const router = useRouter();

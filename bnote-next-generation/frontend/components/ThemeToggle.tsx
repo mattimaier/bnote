@@ -30,12 +30,14 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
         window.matchMedia("(prefers-color-scheme: dark)").matches);
     setDark(isDark);
     document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.setAttribute("data-theme", isDark ? "bnotedark" : "bnotelight");
   }, []);
 
   function toggle() {
     const next = !dark;
     setDark(next);
     document.documentElement.classList.toggle("dark", next);
+    document.documentElement.setAttribute("data-theme", next ? "bnotedark" : "bnotelight");
     localStorage.setItem("theme", next ? "dark" : "light");
   }
 

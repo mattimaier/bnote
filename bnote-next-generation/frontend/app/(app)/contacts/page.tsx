@@ -17,7 +17,7 @@ import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
-import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 
 export default function ContactsPage() {
   const searchParams = useSearchParams();

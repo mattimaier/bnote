@@ -20,7 +20,7 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { formatDateTimeShort } from "@/lib/date-time";
-import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 
 type SortKey = "name" | "end" | "status";
 

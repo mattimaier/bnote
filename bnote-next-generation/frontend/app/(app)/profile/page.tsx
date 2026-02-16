@@ -222,24 +222,24 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">{t("js.contacts.firstName") !== "js.contacts.firstName" ? t("js.contacts.firstName") : "Vorname"}</label>
-            <input name="name" type="text" defaultValue={c.name} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+            <input name="name" type="text" defaultValue={c.name} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">{t("js.contacts.lastName") !== "js.contacts.lastName" ? t("js.contacts.lastName") : "Nachname"}</label>
-            <input name="surname" type="text" defaultValue={c.surname} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+            <input name="surname" type="text" defaultValue={c.surname} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
           </div>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{t("js.contacts.nickname") !== "js.contacts.nickname" ? t("js.contacts.nickname") : "Spitzname"}</label>
-          <input name="nickname" type="text" defaultValue={c.nickname} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+          <input name="nickname" type="text" defaultValue={c.nickname} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{t("js.contacts.email") !== "js.contacts.email" ? t("js.contacts.email") : "E-Mail"}</label>
-          <input name="email" type="email" defaultValue={c.email} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+          <input name="email" type="email" defaultValue={c.email} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{t("js.contacts.birthday") !== "js.contacts.birthday" ? t("js.contacts.birthday") : "Geburtstag"}</label>
-          <input name="birthday" type="date" defaultValue={birthdayValue} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+          <input name="birthday" type="date" defaultValue={birthdayValue} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{label("js.contacts.instrument", "Instrument")}</label>
@@ -273,38 +273,38 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">{t("js.contacts.phone") !== "js.contacts.phone" ? t("js.contacts.phone") : "Telefon"}</label>
-            <input name="phone" type="text" defaultValue={c.phone} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+            <input name="phone" type="text" defaultValue={c.phone} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">{t("js.contacts.mobile") !== "js.contacts.mobile" ? t("js.contacts.mobile") : "Mobil"}</label>
-            <input name="mobile" type="text" defaultValue={c.mobile} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+            <input name="mobile" type="text" defaultValue={c.mobile} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
           </div>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{t("js.contacts.company") !== "js.contacts.company" ? t("js.contacts.company") : "Firma"}</label>
-          <input name="company" type="text" defaultValue={c.company} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+          <input name="company" type="text" defaultValue={c.company} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{t("js.contacts.business") !== "js.contacts.business" ? t("js.contacts.business") : "Geschäftlich"}</label>
-          <input name="business" type="text" defaultValue={c.business} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+          <input name="business" type="text" defaultValue={c.business} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{t("js.contacts.street") !== "js.contacts.street" ? t("js.contacts.street") : "Straße"}</label>
-          <input name="street" type="text" defaultValue={c.street} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+          <input name="street" type="text" defaultValue={c.street} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">{t("js.contacts.zip") !== "js.contacts.zip" ? t("js.contacts.zip") : "PLZ"}</label>
-            <input name="zip" type="text" defaultValue={c.zip} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+            <input name="zip" type="text" defaultValue={c.zip} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">{t("js.contacts.city") !== "js.contacts.city" ? t("js.contacts.city") : "Ort"}</label>
-            <input name="city" type="text" defaultValue={c.city} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+            <input name="city" type="text" defaultValue={c.city} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
           </div>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{t("js.contacts.notes") !== "js.contacts.notes" ? t("js.contacts.notes") : "Notizen"}</label>
-          <textarea name="notes" rows={3} defaultValue={c.notes} className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm" style={{ color: "var(--foreground)" }} />
+          <textarea name="notes" rows={3} defaultValue={c.notes} className="input input-sm w-full" style={{ color: "var(--foreground)" }} />
         </div>
 
         {/* Privacy / share settings */}

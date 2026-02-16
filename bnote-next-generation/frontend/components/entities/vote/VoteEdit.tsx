@@ -16,7 +16,7 @@ import { formatDateShortDisplay } from "@/lib/date-time";
 import { getEntityPath } from "@/lib/entities/paths";
 import { EditingBar } from "@/components/EditingBar";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "@/components/icons";
 
 export function VoteEdit() {
   const { id } = useEntityParams();
@@ -211,7 +211,7 @@ export function VoteEdit() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -223,7 +223,7 @@ export function VoteEdit() {
                 type="datetime-local"
                 value={end ? end.replace(" ", "T").slice(0, 16) : ""}
                 onChange={(e) => setEnd(e.target.value ? e.target.value.replace("T", " ") + ":00" : "")}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -286,7 +286,7 @@ export function VoteEdit() {
                     type="datetime-local"
                     value={newOptionDate ? newOptionDate.replace(" ", "T").slice(0, 16) : ""}
                     onChange={(e) => setNewOptionDate(e.target.value ? e.target.value.replace("T", " ") + ":00" : "")}
-                    className="rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                    className="input input-sm"
                     style={{ color: "var(--foreground)" }}
                   />
                 ) : (
@@ -295,14 +295,14 @@ export function VoteEdit() {
                     value={newOptionName}
                     onChange={(e) => setNewOptionName(e.target.value)}
                     placeholder={t("js.votes.optionName") !== "js.votes.optionName" ? t("js.votes.optionName") : "Option"}
-                    className="rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                    className="input input-sm"
                     style={{ color: "var(--foreground)" }}
                   />
                 )}
                 <button
                   type="button"
                   onClick={handleAddOption}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
+                  className="btn btn-outline btn-sm gap-1"
                   style={{ color: "var(--foreground)" }}
                 >
                   <Plus className="h-4 w-4" />

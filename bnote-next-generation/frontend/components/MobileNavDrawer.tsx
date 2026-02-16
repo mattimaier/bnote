@@ -14,7 +14,7 @@ import { getBnoteLogoUrl } from "@/lib/bnote-assets";
 import { getEntityConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 import { api } from "@/lib/api";
-import { X } from "lucide-react";
+import { X } from "@/components/icons";
 
 interface SidebarModule {
   id: number;
@@ -129,8 +129,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
           <button
             type="button"
             onClick={onClose}
-            className="h-9 w-9 rounded-md flex items-center justify-center transition-colors hover:bg-[var(--muted)]/60"
-            style={{ color: "var(--muted-foreground)" }}
+            className="btn btn-soft btn-square btn-sm"
             aria-label={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
           >
             <X className="h-5 w-5" />

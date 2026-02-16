@@ -1,4 +1,53 @@
 @import "tailwindcss";
+@plugin "flyonui" {
+  themes: bnotelight --default, bnotedark --prefersdark;
+}
+@plugin "flyonui/theme" {
+  name: "bnotelight";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-primary: #3399ff;
+  --color-primary-content: #ffffff;
+  --color-base-100: oklch(1 0 0);
+  --color-base-200: oklch(0.96 0.002 250);
+  --color-base-300: oklch(0.93 0.002 250);
+  --color-base-content: oklch(0.18 0.01 250);
+  --color-secondary: oklch(0.68 0.20 80);
+  --color-accent: oklch(0.68 0.20 80);
+  --color-neutral: oklch(0.18 0.01 250);
+  --color-info: #3399ff;
+  --color-success: #25a65a;
+  --color-warning: #ffaa1a;
+  --color-error: #e52b3c;
+  --radius-selector: 0.25rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+}
+@plugin "flyonui/theme" {
+  name: "bnotedark";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+  --color-primary: #3399ff;
+  --color-primary-content: #ffffff;
+  --color-base-100: oklch(0.25 0.01 250);
+  --color-base-200: oklch(0.24 0.01 250);
+  --color-base-300: oklch(0.32 0.001 0);
+  --color-base-content: oklch(0.95 0.01 250);
+  --color-secondary: oklch(0.68 0.20 80);
+  --color-accent: oklch(0.68 0.20 80);
+  --color-neutral: oklch(0.95 0.01 250);
+  --color-info: #3399ff;
+  --color-success: #25a65a;
+  --color-warning: #ffaa1a;
+  --color-error: #e52b3c;
+  --radius-selector: 0.25rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+}
+@plugin "@iconify/tailwind4";
+@import "flyonui/variants.css";
 
 /* BNote semantic theme */
 :root {

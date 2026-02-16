@@ -154,7 +154,7 @@ function LoginFormInner() {
               onChange={(e) => setUsername(e.target.value)}
               required
               placeholder={t("js.login.usernamePlaceholder")}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)] outline-none focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-30"
+              className="input input-md w-full"
             />
           </div>
           <div>
@@ -171,7 +171,7 @@ function LoginFormInner() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder={t("js.login.passwordPlaceholder")}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)] outline-none focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-30"
+              className="input input-md w-full"
             />
           </div>
           {error && (
@@ -182,7 +182,7 @@ function LoginFormInner() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-[var(--primary-foreground)] outline-none transition-colors hover:opacity-90 focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 disabled:opacity-50"
+            className="btn btn-primary btn-block"
           >
             {loading ? t("js.login.loggingIn") : t("js.login.login")}
           </button>

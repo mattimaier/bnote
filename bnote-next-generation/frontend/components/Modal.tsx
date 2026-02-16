@@ -1,13 +1,13 @@
 /**
- * BNote Next Generation - Modal
+ * BNote Next Generation - Modal (FlyonUI/Preline overlay)
  *
  * Copyright (C) 2026 BNote Contributors
  */
 
 "use client";
 
-import React, { useEffect } from "react";
-import { X } from "lucide-react";
+import React, { useEffect, useId, useRef } from "react";
+import { X } from "@/components/icons";
 
 interface ModalProps {
   open: boolean;
@@ -16,44 +16,67 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-export function Modal({ open, onClose, title, children }: ModalProps) {
-  useEffect(() => {
-    if (!open) return;
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+declare global {
+  interface Window {
+    HSOverlay?: {
+      open: (el: string | HTMLElement) => void;
+      close: (el: string | HTMLElement) => void;
     };
-    document.addEventListener("keydown", handleEscape);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
-    };
-  }, [open, onClose]);
+  }
+}
 
-  if (!open) return null;
+export function Modal({ open, onClose, title, children }: ModalProps) {
+  const id = useId().replace(/:/g, "-") || "modal-1";
+  const modalId = `bn-modal-${id}`;
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current || typeof window === "undefined") return;
+    const el = ref.current;
+
+    const handleClose = () => {
+      onClose();
+    };
+
+    el.addEventListener("close.overlay", handleClose);
+    return () => el.removeEventListener("close.overlay", handleClose);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.HSOverlay || !ref.current) return;
+    if (open) {
+      window.HSOverlay.open(ref.current);
+    } else {
+      window.HSOverlay.close(ref.current);
+    }
+  }, [open]);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      id={modalId}
+      ref={ref}
+      className="overlay modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={`${modalId}-title`}
     >
-      <div
-        className="w-full max-w-md rounded-lg border border-[var(--border)] bg-[var(--card)] shadow-xl max-h-[90vh] flex flex-col"
-        style={{ color: "var(--card-foreground)" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between p-4 border-b shrink-0" style={{ borderColor: "var(--border)" }}>
-          <h3 className="text-xl font-semibold">{title}</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded p-1 transition-colors hover:bg-[var(--muted)]"
-            aria-label="Close"
-          >
-            <X className="h-5 w-5" />
-          </button>
+      <div className="modal-dialog modal-dialog-sm modal-middle">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3 id={`${modalId}-title`} className="modal-title">
+              {title}
+            </h3>
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn btn-soft btn-square btn-sm"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="modal-body max-h-[70vh] overflow-y-auto">{children}</div>
         </div>
-        <div className="p-4 overflow-y-auto flex-1">{children}</div>
       </div>
     </div>
   );

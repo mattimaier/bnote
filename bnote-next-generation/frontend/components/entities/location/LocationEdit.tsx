@@ -158,8 +158,7 @@ export function LocationEdit() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                style={{ color: "var(--foreground)" }}
+                className="input input-sm w-full"
               />
             </div>
             <div>
@@ -170,8 +169,7 @@ export function LocationEdit() {
                 rows={3}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                style={{ color: "var(--foreground)" }}
+                className="textarea textarea-sm w-full"
               />
             </div>
             <div>
@@ -182,8 +180,7 @@ export function LocationEdit() {
                 type="text"
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                style={{ color: "var(--foreground)" }}
+                className="input input-sm w-full"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -195,8 +192,7 @@ export function LocationEdit() {
                   type="text"
                   value={zip}
                   onChange={(e) => setZip(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                  style={{ color: "var(--foreground)" }}
+                  className="input input-sm w-full"
                 />
               </div>
               <div>
@@ -207,8 +203,7 @@ export function LocationEdit() {
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                  style={{ color: "var(--foreground)" }}
+                  className="input input-sm w-full"
                 />
               </div>
             </div>
@@ -221,8 +216,7 @@ export function LocationEdit() {
                   type="text"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                  style={{ color: "var(--foreground)" }}
+                  className="input input-sm w-full"
                 />
               </div>
               <div>
@@ -233,8 +227,7 @@ export function LocationEdit() {
                   type="text"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                  style={{ color: "var(--foreground)" }}
+                  className="input input-sm w-full"
                 />
               </div>
             </div>

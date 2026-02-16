@@ -216,7 +216,7 @@ export function SongEdit() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -230,7 +230,7 @@ export function SongEdit() {
                 type="text"
                 value={composer}
                 onChange={(e) => setComposer(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -279,7 +279,7 @@ export function SongEdit() {
                   value={length}
                   onChange={(e) => setLength(e.target.value)}
                   placeholder="mm:ss"
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                  className="input input-sm w-full"
                   style={{ color: "var(--foreground)" }}
                 />
               </div>
@@ -294,7 +294,7 @@ export function SongEdit() {
                   min={0}
                   value={bpm}
                   onChange={(e) => setBpm(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                  className="input input-sm w-full"
                   style={{ color: "var(--foreground)" }}
                 />
               </div>
@@ -308,7 +308,7 @@ export function SongEdit() {
                   type="text"
                   value={musicKey}
                   onChange={(e) => setMusicKey(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                  className="input input-sm w-full"
                   style={{ color: "var(--foreground)" }}
                 />
               </div>
@@ -323,7 +323,7 @@ export function SongEdit() {
                 type="text"
                 value={setting}
                 onChange={(e) => setSetting(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -337,8 +337,7 @@ export function SongEdit() {
                 rows={3}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                style={{ color: "var(--foreground)" }}
+                className="textarea textarea-sm w-full"
               />
             </div>
             <div className="flex flex-col gap-2">

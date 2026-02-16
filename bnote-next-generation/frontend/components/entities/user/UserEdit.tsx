@@ -339,7 +339,7 @@ export function UserEdit() {
                     ? t("js.users.passwordPlaceholder")
                     : t("js.users.passwordLeaveEmpty")
                 }
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>

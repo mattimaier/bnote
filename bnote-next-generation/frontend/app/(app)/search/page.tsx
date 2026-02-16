@@ -23,7 +23,7 @@ import {
 } from "@/lib/entity-config";
 import { prefixPath } from "@/lib/path";
 import { formatMonthName } from "@/lib/date-time";
-import { Search as SearchIcon, MapPin, User, Users, Music, CheckSquare, FileText } from "lucide-react";
+import { Search as SearchIcon, MapPin, User, Users, Music, CheckSquare, FileText } from "@/components/icons";
 
 const CATEGORIES: { key: keyof SearchResults; labelKey: string; type: "events" | "list" }[] = [
   { key: "rehearsals", labelKey: "js.search.results.rehearsals", type: "events" },

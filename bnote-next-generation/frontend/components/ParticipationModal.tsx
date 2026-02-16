@@ -1,12 +1,12 @@
 /**
- * BNote Next Generation - Participation Modal (reason for maybe/no)
+ * BNote Next Generation - Participation Modal (FlyonUI/Preline overlay)
  *
  * Copyright (C) 2026 BNote Contributors
  */
 
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 
 export type ParticipationModalStatus = "maybe" | "no";
 
@@ -22,6 +22,15 @@ interface ParticipationModalProps {
   reasonForLabel: string;
 }
 
+declare global {
+  interface Window {
+    HSOverlay?: {
+      open: (el: string | HTMLElement) => void;
+      close: (el: string | HTMLElement) => void;
+    };
+  }
+}
+
 export function ParticipationModal({
   open,
   status,
@@ -35,6 +44,9 @@ export function ParticipationModal({
 }: ParticipationModalProps) {
   const [reason, setReason] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const id = useId().replace(/:/g, "-") || "participation-1";
+  const modalId = `bn-participation-${id}`;
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -43,7 +55,22 @@ export function ParticipationModal({
     }
   }, [open, status]);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (!ref.current || typeof window === "undefined") return;
+    const el = ref.current;
+    const handleClose = () => onCancel();
+    el.addEventListener("close.overlay", handleClose);
+    return () => el.removeEventListener("close.overlay", handleClose);
+  }, [onCancel]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.HSOverlay || !ref.current) return;
+    if (open) {
+      window.HSOverlay.open(ref.current);
+    } else {
+      window.HSOverlay.close(ref.current);
+    }
+  }, [open]);
 
   const handleConfirm = () => {
     onConfirm(reason.trim());
@@ -51,44 +78,42 @@ export function ParticipationModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={(e) => e.target === e.currentTarget && onCancel()}
+      id={modalId}
+      ref={ref}
+      className="overlay modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={`${modalId}-title`}
     >
-      <div
-        className="mx-4 w-full max-w-md rounded-lg border border-[var(--border)] bg-[var(--card)] p-6 shadow-xl"
-        style={{ color: "var(--card-foreground)" }}
-      >
-        <h3 className="mb-4 text-xl font-semibold">
-          {reasonForLabel} {statusLabel}
-        </h3>
-        <textarea
-          ref={textareaRef}
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          placeholder={reasonPlaceholder}
-          rows={4}
-          className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30"
-          style={{ color: "var(--foreground)" }}
-        />
-        <div className="mt-4 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-md border border-[var(--border)] px-4 py-2 transition-colors hover:bg-[var(--muted)]"
-            style={{ color: "var(--foreground)" }}
-          >
-            {cancelLabel}
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            className="rounded-md px-4 py-2 text-white transition-opacity hover:opacity-90"
-            style={{
-              background: status === "maybe" ? "var(--warning, #eab308)" : "var(--destructive)",
-            }}
-          >
-            {confirmLabel}
-          </button>
+      <div className="modal-dialog modal-dialog-sm modal-middle">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3 id={`${modalId}-title`} className="modal-title">
+              {reasonForLabel} {statusLabel}
+            </h3>
+          </div>
+          <div className="modal-body">
+            <textarea
+              ref={textareaRef}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder={reasonPlaceholder}
+              rows={4}
+              className="textarea textarea-md w-full"
+            />
+          </div>
+          <div className="modal-footer">
+            <button type="button" onClick={onCancel} className="btn btn-outline btn-sm">
+              {cancelLabel}
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirm}
+              className={status === "maybe" ? "btn btn-warning btn-sm" : "btn btn-error btn-sm"}
+            >
+              {confirmLabel}
+            </button>
+          </div>
         </div>
       </div>
     </div>

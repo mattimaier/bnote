@@ -8,7 +8,7 @@
 "use client";
 
 import React from "react";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown } from "@/components/icons";
 
 export type ResponsiveTableSubtitle = React.ReactNode | string | (React.ReactNode | string)[];
 
@@ -90,12 +90,7 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
           <select
             value={sortKey ?? sortOptions[0]?.key ?? ""}
             onChange={(e) => onSort(e.target.value as TSortKey)}
-            className="rounded-md border px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-[var(--primary)]/30"
-            style={{
-              borderColor: "var(--border)",
-              background: "var(--background)",
-              color: "var(--foreground)",
-            }}
+            className="input input-sm"
           >
             {sortOptions.map((opt) => (
               <option key={opt.key} value={opt.key}>

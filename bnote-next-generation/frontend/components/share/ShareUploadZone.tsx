@@ -8,7 +8,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload } from "@/components/icons";
 
 export interface ShareUploadZoneProps {
   onUpload: (files: File[]) => Promise<void>;

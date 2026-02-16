@@ -10,7 +10,7 @@ import React from "react";
 import { useToast, type ToastType } from "@/contexts/ToastContext";
 import { getIcon } from "@/components/icons";
 import { getIconName } from "@/lib/entity-config";
-import { Info, CheckCircle, AlertCircle, X } from "lucide-react";
+import { Info, CheckCircle, AlertCircle, X } from "@/components/icons";
 
 const typeStyles: Record<ToastType, string> = {
   default: "bg-[var(--primary)] text-white border-[var(--primary)] shadow-[0_4px_14px_rgba(51,153,255,0.35)]",

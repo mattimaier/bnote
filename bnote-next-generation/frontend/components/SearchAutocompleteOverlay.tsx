@@ -25,7 +25,7 @@ import {
   getDotStyle,
 } from "@/lib/entity-config";
 import { getEntityPath } from "@/lib/entities/paths";
-import { Clock, MapPin, Calendar, User, Loader2 } from "lucide-react";
+import { Clock, MapPin, Calendar, User, Loader2 } from "@/components/icons";
 import type { SearchResults, SearchEventItem, SearchListItem } from "@/lib/search";
 
 const CATEGORIES: { key: keyof SearchResults; labelKey: string; type: "events" | "list" }[] = [
@@ -113,14 +113,9 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
         ref={overlayRef}
         className={
           isDesktop
-            ? "absolute left-0 right-0 top-full z-[100] overflow-hidden rounded-b-lg border-x border-b shadow-2xl max-h-[min(70vh,420px)] overflow-y-auto"
-            : "fixed top-16 left-0 right-0 bottom-0 z-[9999] border-t overflow-y-auto md:hidden shadow-2xl"
+            ? "dropdown-menu absolute left-0 right-0 top-full z-[100] overflow-hidden max-h-[min(70vh,420px)] overflow-y-auto opacity-100"
+            : "fixed top-16 left-0 right-0 bottom-0 z-[9999] overflow-y-auto md:hidden bg-base-100 border-t border-base-300 shadow-2xl"
         }
-        style={{
-          background: "var(--card)",
-          borderColor: "var(--border)",
-          color: "var(--card-foreground)",
-        }}
       >
         {/* Blue separator line (like results page) */}
         <div className="h-0.5 w-full shrink-0" style={{ background: "var(--primary)" }} />

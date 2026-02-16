@@ -21,7 +21,7 @@ import { useSearch } from "@/contexts/SearchContext";
 import { SearchAutocompleteOverlay } from "@/components/SearchAutocompleteOverlay";
 import { useEffect, useRef, useState } from "react";
 import { checkSession } from "@/lib/auth";
-import { Search, Menu, X, LogOut, User } from "lucide-react";
+import { Search, Menu, X, LogOut, User } from "@/components/icons";
 
 function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);
@@ -87,8 +87,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
         <button
           type="button"
           onClick={onOpenMobileNav}
-          className="md:hidden h-9 w-9 shrink-0 rounded-md flex items-center justify-center transition-colors hover:bg-[var(--muted)]/60"
-          style={{ color: "var(--muted-foreground)" }}
+          className="btn btn-soft btn-square btn-sm md:hidden"
           aria-label={t("js.common.menu") !== "js.common.menu" ? t("js.common.menu") : "Menu"}
         >
           <Menu className="h-5 w-5" />
@@ -108,7 +107,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setOverlayOpen(true)}
               placeholder={t("js.dashboard.searchPlaceholder")}
-              className="pl-9 pr-9 md:pr-56 h-9 w-full rounded-md text-sm border outline-none focus:ring-1 focus:ring-[var(--primary)]/30 bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground/60 focus:bg-muted/60"
+              className="input input-sm w-full pl-9 pr-9 md:pr-56"
               aria-label={t("js.dashboard.searchPlaceholder")}
               aria-autocomplete="list"
               aria-controls={query.trim().length >= 2 ? "search-autocomplete" : undefined}
@@ -118,7 +117,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="absolute right-2 md:right-40 top-1/2 -translate-y-1/2 h-5 w-5 rounded-md flex items-center justify-center z-10 text-muted-foreground hover:text-foreground transition-colors"
+                className="btn btn-soft btn-square btn-xs absolute right-2 md:right-40 top-1/2 -translate-y-1/2 z-10"
                 aria-label={t("js.search.clear") !== "js.search.clear" ? t("js.search.clear") : "Clear search"}
               >
                 <X className="h-4 w-4" />
@@ -127,8 +126,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
             {query.length > 0 && (
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 rounded-md px-2.5 text-[11px] font-medium text-white hidden md:inline-flex items-center justify-center"
-                style={{ background: "var(--primary)" }}
+                className="btn btn-primary btn-sm absolute right-2 top-1/2 -translate-y-1/2 hidden md:inline-flex"
               >
                 {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show results"}
               </button>

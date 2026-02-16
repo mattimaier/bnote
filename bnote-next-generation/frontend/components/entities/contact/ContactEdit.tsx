@@ -257,7 +257,7 @@ export function ContactEdit() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                  className="input input-sm w-full"
                   style={{ color: "var(--foreground)" }}
                 />
               </div>
@@ -270,7 +270,7 @@ export function ContactEdit() {
                   type="text"
                   value={surname}
                   onChange={(e) => setSurname(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                  className="input input-sm w-full"
                   style={{ color: "var(--foreground)" }}
                 />
               </div>
@@ -285,7 +285,7 @@ export function ContactEdit() {
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -299,7 +299,7 @@ export function ContactEdit() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -315,7 +315,7 @@ export function ContactEdit() {
                 type="date"
                 value={birthday}
                 onChange={(e) => setBirthday(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -387,7 +387,7 @@ export function ContactEdit() {
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                  className="input input-sm w-full"
                   style={{ color: "var(--foreground)" }}
                 />
               </div>
@@ -400,7 +400,7 @@ export function ContactEdit() {
                   type="text"
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                  className="input input-sm w-full"
                   style={{ color: "var(--foreground)" }}
                 />
               </div>
@@ -417,7 +417,7 @@ export function ContactEdit() {
                 type="text"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -433,7 +433,7 @@ export function ContactEdit() {
                 type="text"
                 value={business}
                 onChange={(e) => setBusiness(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -449,7 +449,7 @@ export function ContactEdit() {
                 type="text"
                 value={web}
                 onChange={(e) => setWeb(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -463,7 +463,7 @@ export function ContactEdit() {
                 type="text"
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="input input-sm w-full"
                 style={{ color: "var(--foreground)" }}
               />
             </div>
@@ -478,7 +478,7 @@ export function ContactEdit() {
                   type="text"
                   value={zip}
                   onChange={(e) => setZip(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                  className="input input-sm w-full"
                   style={{ color: "var(--foreground)" }}
                 />
               </div>
@@ -491,7 +491,7 @@ export function ContactEdit() {
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
+                  className="input input-sm w-full"
                   style={{ color: "var(--foreground)" }}
                 />
               </div>
@@ -506,8 +506,7 @@ export function ContactEdit() {
                 rows={3}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-                style={{ color: "var(--foreground)" }}
+                className="textarea textarea-sm w-full"
               />
             </div>
 

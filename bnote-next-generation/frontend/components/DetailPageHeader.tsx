@@ -8,7 +8,7 @@
 
 "use client";
 
-import { Pencil } from "lucide-react";
+import { Pencil } from "@/components/icons";
 import { useI18n } from "@/contexts/I18nContext";
 
 export interface DetailPageHeaderProps {
@@ -56,8 +56,7 @@ export function DetailEditButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white"
-      style={{ background: "var(--primary)" }}
+      className="btn btn-primary btn-sm gap-2"
     >
       <Pencil className="h-4 w-4" />
       {text}

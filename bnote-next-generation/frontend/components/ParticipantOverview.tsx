@@ -10,7 +10,7 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/contexts/I18nContext";
 import { ParticipationDiagram, type ParticipationStats } from "@/components/ParticipationDiagram";
-import { Check, X, HelpCircle, Clock } from "lucide-react";
+import { Check, X, HelpCircle, Clock } from "@/components/icons";
 
 export interface ParticipantItem {
   id: number;

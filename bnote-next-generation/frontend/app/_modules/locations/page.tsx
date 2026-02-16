@@ -21,7 +21,7 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { AddressLink } from "@/components/AddressLink";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
-import { Plus, ArrowUp, ArrowDown, ArrowUpDown, MapPin } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, ArrowUpDown, MapPin } from "@/components/icons";
 
 type SortKey = "name" | "city" | "zip";
 

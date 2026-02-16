@@ -6,7 +6,7 @@
 
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "@/components/icons";
 import type { SimpleOption } from "@/lib/entities/event/types";
 
 export interface SelectedItemsListProps {
