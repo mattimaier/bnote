@@ -1,13 +1,13 @@
 {
 	"require" : {
-		"shuchkin/simplexlsx" : "^1.0",
-		"phpmailer/phpmailer" : "^6.6",
-		"tinymce/tinymce" : "^7.6",
-		"components/jquery" : "^3.6",
+		"shuchkin/simplexlsx" : "^1.1",
+		"phpmailer/phpmailer" : "^7.0",
+		"tinymce/tinymce" : "^8.3",
+		"components/jquery" : "^3.7",
 		"fullcalendar/fullcalendar" : "^3.10",
 		"datatables/datatables" : "^1.10",
-		"twbs/bootstrap" : "^5.1",
-		"twbs/bootstrap-icons" : "^1.8.1",
+		"twbs/bootstrap" : "^5.3",
+		"twbs/bootstrap-icons" : "^1.13",
 		"enyo/dropzone": "^5.9"
 	},
 	"name" : "mattimaier/bnote",
