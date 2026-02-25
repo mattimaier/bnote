@@ -19,7 +19,12 @@ import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
 import { getStatusPillStyle } from "@/lib/entity-config";
 
-export function VoteDetail() {
+export interface VoteDetailProps {
+  /** Optional content to render inside the root container after the main content (e.g. comments). */
+  renderAfterContent?: React.ReactNode;
+}
+
+export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
   const { id } = useEntityParams();
   const router = useRouter();
   const { t, ready, lang } = useI18n();
@@ -231,6 +236,7 @@ export function VoteDetail() {
           </div>
         ) : null}
       </DetailCard>
+      {renderAfterContent}
     </div>
   );
 }

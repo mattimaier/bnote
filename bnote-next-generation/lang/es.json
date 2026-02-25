@@ -477,5 +477,17 @@
   "js.profile.shareAddress": "Compartir dirección con otros miembros",
   "js.profile.sharePhones": "Compartir teléfonos con otros miembros",
   "js.profile.shareBirthday": "Compartir cumpleaños con otros miembros",
-  "js.profile.instrumentsEmpty": "No hay instrumentos configurados. Un administrador puede añadirlos en Configuración."
+  "js.profile.instrumentsEmpty": "No hay instrumentos configurados. Un administrador puede añadirlos en Configuración.",
+  "js.chat.title": "Chat",
+  "js.chat.commentsHeading": "Comentarios",
+  "js.chat.send": "Enviar",
+  "js.chat.placeholder": "Escribe un mensaje…",
+  "js.chat.noComments": "Aún no hay comentarios.",
+  "js.chat.delete": "Eliminar",
+  "js.chat.deleteConfirm": "¿Eliminar este comentario? No se puede deshacer.",
+  "js.chat.cancel": "Cancelar",
+  "js.chat.deleteConfirmButton": "Eliminar",
+  "js.chat.sendError": "No se pudo enviar el mensaje.",
+  "js.chat.deleteError": "No se pudo eliminar el comentario.",
+  "js.chat.seen": "Visto"
 }

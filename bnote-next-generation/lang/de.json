@@ -477,5 +477,17 @@
   "js.profile.shareAddress": "Adresse mit anderen Mitgliedern teilen",
   "js.profile.sharePhones": "Telefonnummern mit anderen Mitgliedern teilen",
   "js.profile.shareBirthday": "Geburtstag mit anderen Mitgliedern teilen",
-  "js.profile.instrumentsEmpty": "Keine Instrumente hinterlegt. Ein Administrator kann Instrumente in der Konfiguration anlegen."
+  "js.profile.instrumentsEmpty": "Keine Instrumente hinterlegt. Ein Administrator kann Instrumente in der Konfiguration anlegen.",
+  "js.chat.title": "Chat",
+  "js.chat.commentsHeading": "Kommentare",
+  "js.chat.send": "Senden",
+  "js.chat.placeholder": "Nachricht schreiben…",
+  "js.chat.noComments": "Noch keine Kommentare.",
+  "js.chat.delete": "Löschen",
+  "js.chat.deleteConfirm": "Diesen Kommentar löschen? Das kann nicht rückgängig gemacht werden.",
+  "js.chat.cancel": "Abbrechen",
+  "js.chat.deleteConfirmButton": "Löschen",
+  "js.chat.sendError": "Nachricht konnte nicht gesendet werden.",
+  "js.chat.deleteError": "Kommentar konnte nicht gelöscht werden.",
+  "js.chat.seen": "Gelesen"
 }

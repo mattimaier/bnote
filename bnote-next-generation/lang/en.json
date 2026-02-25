@@ -477,5 +477,17 @@
   "js.profile.shareAddress": "Share address with other members",
   "js.profile.sharePhones": "Share phone numbers with other members",
   "js.profile.shareBirthday": "Share birthday with other members",
-  "js.profile.instrumentsEmpty": "No instruments configured. An administrator can add instruments in Configuration."
+  "js.profile.instrumentsEmpty": "No instruments configured. An administrator can add instruments in Configuration.",
+  "js.chat.title": "Chat",
+  "js.chat.commentsHeading": "Comments",
+  "js.chat.send": "Send",
+  "js.chat.placeholder": "Write a message…",
+  "js.chat.noComments": "No comments yet.",
+  "js.chat.delete": "Delete",
+  "js.chat.deleteConfirm": "Delete this comment? This cannot be undone.",
+  "js.chat.cancel": "Cancel",
+  "js.chat.deleteConfirmButton": "Delete",
+  "js.chat.sendError": "Failed to send message.",
+  "js.chat.deleteError": "Failed to delete comment.",
+  "js.chat.seen": "Seen"
 }

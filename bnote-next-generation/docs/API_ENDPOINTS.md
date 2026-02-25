@@ -24,7 +24,8 @@
 15. [Groups](#groups)
 16. [Instruments](#instruments)
 17. [Votes/Polls](#votespolls)
-18. [Appointments](#appointments)
+18. [Comments (Discussion)](#comments-discussion)
+19. [Appointments](#appointments)
 19. [Tours](#tours)
 20. [Travel](#travel)
 21. [Accommodations](#accommodations)
@@ -1183,6 +1184,65 @@ Submit vote.
     "option": 5,  // Option ID
     "choice": "yes"  // yes, no, maybe
 }
+```
+
+---
+
+## Comments (Discussion)
+
+Comments (chat) for rehearsals, concerts, and votes. Requires `discussion_on` config to be enabled; otherwise list/add return 403.
+
+**Actual URL pattern:** `GET|POST .../api/index.php?module=comments&action=...`
+
+### GET comments list
+
+`?module=comments&action=list&otype=R|C|V&oid={id}`
+
+- `otype`: `R` (rehearsal), `C` (concert), or `V` (vote)
+- `oid`: Entity ID
+
+**Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "author": "John Doe",
+    "author_id": 5,
+    "message": "See you there!",
+    "created_at": "2026-02-25 14:30:00"
+  }
+]
+```
+
+Order: oldest first. Returns 403 if discussion is disabled or user has no access.
+
+---
+
+### POST add comment
+
+`POST ?module=comments&action=add` with body:
+
+```json
+{
+  "otype": "R",
+  "oid": 123,
+  "message": "My comment text"
+}
+```
+
+**Response (200):** The new comment object (same shape as list items). Sends email notification to contacts with notification enabled (skipped in DemoMode). Returns 403 if discussion disabled or no access; 400 if message empty or invalid.
+
+---
+
+### POST delete comment
+
+`POST ?module=comments&action=delete` with body `{ "id": 123 }` or query `id=123`.
+
+Only the comment author can delete. Returns 404 if comment not found, 403 if not author.
+
+**Response (200):**
+```json
+{ "deleted": true }
 ```
 
 ---

@@ -61,6 +61,8 @@ export interface EventDetailProps {
   mode?: "view" | "edit";
   /** When provided (e.g. debug), used as data and no API load is performed. */
   initialData?: Record<string, unknown>;
+  /** Optional content to render inside the root container after the main content (e.g. comments). */
+  renderAfterContent?: React.ReactNode;
 }
 
 /** Renders name as link to entity when user has view permission, else plain text. */
@@ -93,6 +95,7 @@ export function EventDetail({
   id: idProp,
   mode: modeProp,
   initialData: initialDataProp,
+  renderAfterContent,
 }: EventDetailProps = {}) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -1452,6 +1455,7 @@ export function EventDetail({
           )}
         </div>
       )}
+      {renderAfterContent}
     </div>
   );
 }
