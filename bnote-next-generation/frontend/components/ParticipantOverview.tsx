@@ -207,7 +207,7 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
           return (
             <div
               key={`${name}-${idx}`}
-              className="rounded-lg border-2 border-base-300 bg-white p-4 shadow-sm text-base-content"
+              className="rounded-lg border-2 border-base-300 bg-base-100 p-4 shadow-sm text-base-content"
             >
               <h3 className="text-base font-semibold text-center mb-2 text-base-content">
                 {name}
