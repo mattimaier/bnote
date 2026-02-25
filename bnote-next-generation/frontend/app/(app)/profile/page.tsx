@@ -7,15 +7,16 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
+import { useEditingBar } from "@/contexts/EditingBarContext";
 import { kontaktdatenApi, type MyContactDetail, type InstrumentOption } from "@/lib/kontaktdaten-api";
-import { EditingBar } from "@/components/EditingBar";
 import { DetailPageHeader, DetailEditButton } from "@/components/DetailPageHeader";
 import { DetailCard } from "@/components/DetailCard";
 import { SelectPicker } from "@/components/SelectPicker";
-import { MarkdownText } from "@/components/MarkdownText";
+import { NotesContent } from "@/components/NotesContent";
+import { NotesEditor } from "@/components/NotesEditor";
 import { formatDateShortDisplay } from "@/lib/date-time";
 
 export default function ProfilePage() {
@@ -32,6 +33,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [instrumentId, setInstrumentId] = useState(0);
+  const [profileNotes, setProfileNotes] = useState("");
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -59,6 +61,12 @@ export default function ProfilePage() {
   useEffect(() => {
     if (contact != null && contact !== undefined && typeof (contact as MyContactDetail).instrument === "number") {
       setInstrumentId((contact as MyContactDetail).instrument ?? 0);
+    }
+  }, [contact]);
+
+  useEffect(() => {
+    if (contact != null && contact !== undefined) {
+      setProfileNotes((contact as MyContactDetail).notes ?? "");
     }
   }, [contact]);
 
@@ -99,9 +107,33 @@ export default function ProfilePage() {
     }
   }
 
-  function handleCancel() {
+  const handleCancel = useCallback(() => {
     router.replace("/profile/");
-  }
+  }, [router]);
+
+  const { setEditingBar, clearEditingBar } = useEditingBar();
+  const onCancelRef = useRef(handleCancel);
+  onCancelRef.current = handleCancel;
+  const barTokenRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!isEditing) {
+      barTokenRef.current = null;
+      setEditingBar(null);
+      return;
+    }
+    const token = setEditingBar({
+      submitFormId: "profile-form",
+      saving,
+      onCancel: () => onCancelRef.current?.(),
+    });
+    barTokenRef.current = typeof token === "number" ? token : null;
+    return () => {
+      if (barTokenRef.current != null) {
+        clearEditingBar(barTokenRef.current);
+        barTokenRef.current = null;
+      }
+    };
+  }, [isEditing, saving, setEditingBar, clearEditingBar]);
 
   if (!ready || loading) {
     return (
@@ -130,14 +162,6 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      {isEditing && (
-        <EditingBar
-          submitFormId="profile-form"
-          saving={saving}
-          onCancel={handleCancel}
-        />
-      )}
-
       <DetailPageHeader
         title={t("js.profile.title") !== "js.profile.title" ? t("js.profile.title") : "Meine Kontaktdaten"}
         subtitle={t("js.profile.subtitle") !== "js.profile.subtitle" ? t("js.profile.subtitle") : "Persönliche Daten bearbeiten"}
@@ -209,7 +233,7 @@ export default function ProfilePage() {
           <div>
             <span className="text-xs font-medium text-base-content/60">{label("js.contacts.notes", "Notizen")}</span>
             <div className="text-sm mt-1 prose prose-sm max-w-none dark:prose-invert">
-              {c.notes ? <MarkdownText value={c.notes} /> : <p>{emptyText}</p>}
+              {c.notes ? <NotesContent value={c.notes} /> : <p>{emptyText}</p>}
             </div>
           </div>
         </DetailCard>
@@ -301,7 +325,13 @@ export default function ProfilePage() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{t("js.contacts.notes") !== "js.contacts.notes" ? t("js.contacts.notes") : "Notizen"}</label>
-          <textarea name="notes" rows={3} defaultValue={c.notes} className="input input-sm w-full text-base-content" />
+          <input type="hidden" name="notes" value={profileNotes} />
+          <NotesEditor
+            value={profileNotes}
+            onChange={setProfileNotes}
+            placeholder={t("js.contacts.notes") !== "js.contacts.notes" ? t("js.contacts.notes") : "Notizen"}
+            id="profile-notes-editor"
+          />
         </div>
 
         {/* Privacy / share settings */}

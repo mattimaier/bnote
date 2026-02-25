@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useI18n } from "@/contexts/I18nContext";
 import { ParticipationWidget } from "@/components/ParticipationWidget";
@@ -19,6 +19,8 @@ import { getEventTypeConfig, type EventDisplayType } from "@/lib/event-utils";
 import { safeString } from "@/lib/string-utils";
 import { AddressLink } from "@/components/AddressLink";
 import { MarkdownText } from "@/components/MarkdownText";
+import { NotesContent } from "@/components/NotesContent";
+import { NotesEditor } from "@/components/NotesEditor";
 import { getAddressInfo } from "@/lib/address-utils";
 import { formatDateShort, formatDateTimeShort, formatTimeShort } from "@/lib/date-time";
 import { getStatusPillStyle, isQuickActionsEnabled } from "@/lib/entity-config";
@@ -49,7 +51,7 @@ import { SelectPicker } from "@/components/SelectPicker";
 import { SelectedItemsList } from "@/components/entities/event/SelectedItemsList";
 import { StatusPicker } from "@/components/entities/event/StatusPicker";
 import { getEventViewActions } from "@/lib/entities/event/actions";
-import { EditingBar } from "@/components/EditingBar";
+import { useEditingBar } from "@/contexts/EditingBarContext";
 import { DetailEditButton } from "@/components/DetailPageHeader";
 import { LayoutList, Trash2 } from "@/components/icons";
 
@@ -299,6 +301,32 @@ export function EventDetail({
       setForm({ ...form, participants: nextParticipants });
     }
   }, [isEditing, form?.eventContacts, form?.participants, form, setForm, type, concertMeta, rehearsalMeta]);
+
+  const cancelEditRef = useRef(() => {});
+  const saveEditRef = useRef(async () => {});
+  const { setEditingBar, clearEditingBar } = useEditingBar();
+  const barTokenRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!isEditing) {
+      barTokenRef.current = null;
+      setEditingBar(null);
+      return;
+    }
+    const token = setEditingBar({
+      isNew: !!isNew,
+      saving,
+      submitFormId: "",
+      onCancel: () => cancelEditRef.current?.(),
+      onSave: () => saveEditRef.current?.(),
+    });
+    barTokenRef.current = typeof token === "number" ? token : null;
+    return () => {
+      if (barTokenRef.current != null) {
+        clearEditingBar(barTokenRef.current);
+        barTokenRef.current = null;
+      }
+    };
+  }, [isEditing, saving, setEditingBar, clearEditingBar, isNew]);
 
   if (!ready || loading) {
     return (
@@ -575,6 +603,9 @@ export function EventDetail({
     }
   };
 
+  cancelEditRef.current = cancelEdit;
+  saveEditRef.current = saveEdit;
+
   const updateSongSelection = (selectedIds: number[]) => {
     if (!form) return;
     const available = (type === "rehearsal" ? (meta as RehearsalMeta | null)?.songs : []) ?? [];
@@ -593,16 +624,6 @@ export function EventDetail({
 
   return (
     <div className="w-full max-w-none px-0 py-0 space-y-2 md:max-w-4xl md:mx-auto md:space-y-6 md:p-6">
-      {isEditing && (
-        <EditingBar
-          isNew={!!isNew}
-          saving={saving}
-          onCancel={cancelEdit}
-          submitFormId=""
-          onSave={saveEdit}
-        />
-      )}
-
       {/* Header + participation widget */}
       <div
         className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
@@ -896,14 +917,16 @@ export function EventDetail({
                 {t("js.event.detail.notes")}:
               </span>
               {isEditing && form ? (
-                <textarea
-                  value={form.notes}
-                  onChange={(event) => setForm({ ...form, notes: event.target.value })}
-                  className="mt-1 w-full rounded-md border border-base-300 bg-base-100 text-base-content px-3 py-2 text-sm"
-                  rows={4}
-                />
+                <div className="mt-1">
+                  <NotesEditor
+                    value={form.notes}
+                    onChange={(next) => setForm({ ...form, notes: next })}
+                    placeholder={t("js.event.detail.notes")}
+                    id="event-concert-notes-editor"
+                  />
+                </div>
               ) : (
-                <MarkdownText value={notes ?? ""} className="mt-1 text-sm" />
+                <NotesContent value={notes ?? ""} className="mt-1 text-sm" />
               )}
             </div>
           )}
@@ -1335,14 +1358,14 @@ export function EventDetail({
           </h2>
           <div className="text-base-content/60">
             {isEditing && form ? (
-              <textarea
+              <NotesEditor
                 value={form.notes}
-                onChange={(event) => setForm({ ...form, notes: event.target.value })}
-                className="w-full rounded-md border border-base-300 bg-base-100 text-base-content px-3 py-2 text-sm"
-                rows={4}
+                onChange={(next) => setForm({ ...form, notes: next })}
+                placeholder={t("js.event.detail.notes")}
+                id="event-rehearsal-notes-editor"
               />
             ) : (
-              <MarkdownText value={notes ?? ""} className="text-sm" />
+              <NotesContent value={notes ?? ""} className="text-sm" />
             )}
           </div>
         </div>
@@ -1389,19 +1412,22 @@ export function EventDetail({
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
-                  <textarea
-                    value={song.notes}
-                    onChange={(event) =>
-                      setForm({
-                        ...form,
-                        songs: form.songs.map((entry) =>
-                          entry.id === song.id ? { ...entry, notes: event.target.value } : entry
-                        ),
-                      })
-                    }
-                    className="mt-2 w-full rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
-                    rows={2}
-                  />
+                  <div className="mt-2">
+                    <NotesEditor
+                      value={song.notes}
+                      onChange={(next) =>
+                        setForm({
+                          ...form,
+                          songs: form.songs.map((entry) =>
+                            entry.id === song.id ? { ...entry, notes: next } : entry
+                          ),
+                        })
+                      }
+                      placeholder={t("js.event.detail.notes")}
+                      minHeight="80px"
+                      id={`event-song-notes-editor-${song.id}`}
+                    />
+                  </div>
                 </div>
               ))}
               {form.songs.length === 0 && (
@@ -1417,7 +1443,7 @@ export function EventDetail({
                   {song.title}
                   {song.notes?.trim() ? (
                     <div className="mt-1 text-xs text-base-content/60">
-                      <MarkdownText value={song.notes} />
+                      <NotesContent value={song.notes} />
                     </div>
                   ) : null}
                 </li>

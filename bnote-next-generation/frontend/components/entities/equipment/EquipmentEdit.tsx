@@ -8,13 +8,14 @@
 
 import { useRouter } from "next/navigation";
 import { useEntityParams } from "@/lib/entities/use-entity-params";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
+import { useEditingBar } from "@/contexts/EditingBarContext";
 import { equipmentApi, type EquipmentDetail } from "@/lib/equipment-api";
 import { getEntityPath } from "@/lib/entities/paths";
-import { EditingBar } from "@/components/EditingBar";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
+import { NotesEditor } from "@/components/NotesEditor";
 
 export function EquipmentEdit() {
   const { id } = useEntityParams();
@@ -110,10 +111,30 @@ export function EquipmentEdit() {
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (isNew) router.push("/equipment");
     else router.push(getEntityPath("equipment", id, "view"));
-  };
+  }, [isNew, id, router]);
+
+  const { setEditingBar, clearEditingBar } = useEditingBar();
+  const onCancelRef = useRef(handleCancel);
+  onCancelRef.current = handleCancel;
+  const barTokenRef = useRef<number | null>(null);
+  useEffect(() => {
+    const token = setEditingBar({
+      isNew,
+      saving,
+      submitFormId: "equipment-edit-form",
+      onCancel: () => onCancelRef.current?.(),
+    });
+    barTokenRef.current = typeof token === "number" ? token : null;
+    return () => {
+      if (barTokenRef.current != null) {
+        clearEditingBar(barTokenRef.current);
+        barTokenRef.current = null;
+      }
+    };
+  }, [isNew, saving, setEditingBar, clearEditingBar]);
 
   if (!ready) {
     return (
@@ -141,12 +162,6 @@ export function EquipmentEdit() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-4 md:space-y-6 md:p-6">
-      <EditingBar
-        isNew={isNew}
-        saving={saving}
-        onCancel={handleCancel}
-        submitFormId="equipment-edit-form"
-      />
       <form id="equipment-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div
@@ -249,11 +264,11 @@ export function EquipmentEdit() {
                   ? t("js.equipment.notes")
                   : "Notes"}
               </label>
-              <textarea
-                rows={3}
+              <NotesEditor
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="textarea textarea-sm w-full"
+                onChange={setNotes}
+                placeholder={t("js.equipment.notes") !== "js.equipment.notes" ? t("js.equipment.notes") : "Notes"}
+                id="equipment-notes-editor"
               />
             </div>
           </div>

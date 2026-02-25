@@ -12,6 +12,7 @@ import { AuthGuard } from "@/components/AuthGuard";
 import { I18nProvider } from "@/contexts/I18nContext";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { SearchProvider } from "@/contexts/SearchContext";
+import { EditingBarProvider } from "@/contexts/EditingBarContext";
 import { AppShell } from "@/components/AppShell";
 import { ToastContainer } from "@/components/ToastContainer";
 
@@ -39,10 +40,12 @@ export default function AppShellLayout({
     <I18nProvider>
       <ToastProvider>
         <SearchProvider>
-          <AuthGuard>
-            <AppShell>{children}</AppShell>
-            <ToastContainer />
-          </AuthGuard>
+          <EditingBarProvider>
+            <AuthGuard>
+              <AppShell>{children}</AppShell>
+              <ToastContainer />
+            </AuthGuard>
+          </EditingBarProvider>
         </SearchProvider>
       </ToastProvider>
     </I18nProvider>

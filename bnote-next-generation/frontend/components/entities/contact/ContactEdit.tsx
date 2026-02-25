@@ -6,18 +6,19 @@
 
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEntityParams } from "@/lib/entities/use-entity-params";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
+import { useEditingBar } from "@/contexts/EditingBarContext";
 import { contactsApi, type ContactDetail, type ContactGroup } from "@/lib/contacts-api";
 import { kontaktdatenApi, type InstrumentOption } from "@/lib/kontaktdaten-api";
 import { getEntityPath } from "@/lib/entities/paths";
-import { EditingBar } from "@/components/EditingBar";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { SelectPicker } from "@/components/SelectPicker";
 import { MultiSelect } from "@/components/entities/event/MultiSelect";
+import { NotesEditor } from "@/components/NotesEditor";
 
 export function ContactEdit() {
   const { id } = useEntityParams();
@@ -171,10 +172,30 @@ export function ContactEdit() {
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (isNew) router.push("/contacts");
     else router.push(getEntityPath("contact", id, "view"));
-  };
+  }, [isNew, id, router]);
+
+  const { setEditingBar, clearEditingBar } = useEditingBar();
+  const onCancelRef = useRef(handleCancel);
+  onCancelRef.current = handleCancel;
+  const barTokenRef = useRef<number | null>(null);
+  useEffect(() => {
+    const token = setEditingBar({
+      isNew,
+      saving,
+      submitFormId: "contact-edit-form",
+      onCancel: () => onCancelRef.current?.(),
+    });
+    barTokenRef.current = typeof token === "number" ? token : null;
+    return () => {
+      if (barTokenRef.current != null) {
+        clearEditingBar(barTokenRef.current);
+        barTokenRef.current = null;
+      }
+    };
+  }, [isNew, saving, setEditingBar, clearEditingBar]);
 
   const handleDelete = async () => {
     if (isNew) return;
@@ -218,13 +239,6 @@ export function ContactEdit() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-4 md:space-y-6 md:p-6">
-      <EditingBar
-        isNew={isNew}
-        saving={saving}
-        onCancel={handleCancel}
-        submitFormId="contact-edit-form"
-      />
-
       <form id="contact-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div
@@ -474,12 +488,11 @@ export function ContactEdit() {
               <label className="block text-sm font-medium mb-1">
                 {t("js.contacts.notes")}
               </label>
-              <textarea
-                name="notes"
-                rows={3}
+              <NotesEditor
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="textarea textarea-sm w-full"
+                onChange={setNotes}
+                placeholder={t("js.contacts.notes")}
+                id="contact-notes-editor"
               />
             </div>
 
