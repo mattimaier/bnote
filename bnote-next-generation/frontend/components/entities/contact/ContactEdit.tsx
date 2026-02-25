@@ -19,8 +19,6 @@ import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { SelectPicker } from "@/components/SelectPicker";
 import { MultiSelect } from "@/components/entities/event/MultiSelect";
 import { NotesEditor } from "@/components/NotesEditor";
-import { editorJsonToPlainText } from "@/lib/editorjs-notes";
-import { getRichNotes, saveRichNotes } from "@/lib/rich-notes-api";
 
 export function ContactEdit() {
   const { id } = useEntityParams();
@@ -84,7 +82,7 @@ export function ContactEdit() {
     setLoading(true);
     contactsApi
       .get(numId)
-      .then(async (contact: ContactDetail) => {
+      .then((contact: ContactDetail) => {
         setName(contact.name ?? "");
         setSurname(contact.surname ?? "");
         setNickname(contact.nickname ?? "");
@@ -107,8 +105,6 @@ export function ContactEdit() {
         setSharePhones(Boolean(contact.share_phones));
         setShareBirthday(Boolean(contact.share_birthday));
         setIsConductor(Boolean(contact.is_conductor));
-        const rich = await getRichNotes("contact", String(numId));
-        if (rich != null) setNotes(rich);
       })
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"))
       .finally(() => setLoading(false));
@@ -141,7 +137,7 @@ export function ContactEdit() {
         street,
         zip,
         city,
-        notes: editorJsonToPlainText(notes),
+        notes,
         groups: selectedGroups,
         share_email: shareEmail,
         share_address: shareAddress,
@@ -152,9 +148,6 @@ export function ContactEdit() {
 
       if (isNew) {
         const res = await contactsApi.create(payload);
-        if (res?.id != null) {
-          await saveRichNotes("contact", String(res.id), notes);
-        }
         showToast(
           t("js.contacts.contactCreated") !== "js.contacts.contactCreated"
             ? t("js.contacts.contactCreated")
@@ -164,7 +157,6 @@ export function ContactEdit() {
         router.replace(getEntityPath("contact", res.id, "view"));
       } else {
         await contactsApi.update(parseInt(id, 10), payload);
-        await saveRichNotes("contact", id, notes);
         showToast(
           t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved",
           "success"

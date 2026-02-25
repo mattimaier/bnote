@@ -17,8 +17,6 @@ import { DetailCard } from "@/components/DetailCard";
 import { SelectPicker } from "@/components/SelectPicker";
 import { NotesContent } from "@/components/NotesContent";
 import { NotesEditor } from "@/components/NotesEditor";
-import { editorJsonToPlainText } from "@/lib/editorjs-notes";
-import { getRichNotes, saveRichNotes } from "@/lib/rich-notes-api";
 import { formatDateShortDisplay } from "@/lib/date-time";
 
 export default function ProfilePage() {
@@ -67,14 +65,9 @@ export default function ProfilePage() {
   }, [contact]);
 
   useEffect(() => {
-    if (contact == null || contact === undefined) return;
-    const c = contact as MyContactDetail;
-    setProfileNotes(c.notes ?? "");
-    getRichNotes("contact", String(c.id))
-      .then((rich) => {
-        if (rich != null) setProfileNotes(rich);
-      })
-      .catch(() => {});
+    if (contact != null && contact !== undefined) {
+      setProfileNotes((contact as MyContactDetail).notes ?? "");
+    }
   }, [contact]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -95,7 +88,7 @@ export default function ProfilePage() {
       mobile: formData.get("mobile") ?? "",
       company: formData.get("company") ?? "",
       business: formData.get("business") ?? "",
-      notes: editorJsonToPlainText(profileNotes),
+      notes: formData.get("notes") ?? "",
       share_email: formData.get("share_email") === "on",
       share_address: formData.get("share_address") === "on",
       share_phones: formData.get("share_phones") === "on",
@@ -104,9 +97,6 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       await kontaktdatenApi.updateMine(data);
-      if (contact && (contact as MyContactDetail).id != null) {
-        await saveRichNotes("contact", String((contact as MyContactDetail).id), profileNotes);
-      }
       router.replace("/profile/");
       loadData();
       showToast(t("js.profile.saved") !== "js.profile.saved" ? t("js.profile.saved") : "Data saved successfully", "success");

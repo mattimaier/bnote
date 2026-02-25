@@ -25,7 +25,6 @@
 require_once BNOTE_ROOT . '/src/data/modules/repertoiredata.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
-require_once __DIR__ . '/../rich_notes_helper.php';
 
 class RepertoireModule {
     private $data;
@@ -233,7 +232,6 @@ class RepertoireModule {
 
         try {
             $this->data->delete($id);
-            rich_notes_delete_for_entity('song', (string) $id);
             return [
                 'success' => true,
                 'message' => 'Song deleted successfully',

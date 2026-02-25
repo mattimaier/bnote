@@ -16,8 +16,6 @@ import { equipmentApi, type EquipmentDetail } from "@/lib/equipment-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { NotesEditor } from "@/components/NotesEditor";
-import { editorJsonToPlainText } from "@/lib/editorjs-notes";
-import { getRichNotes, saveRichNotes } from "@/lib/rich-notes-api";
 
 export function EquipmentEdit() {
   const { id } = useEntityParams();
@@ -47,7 +45,7 @@ export function EquipmentEdit() {
     setLoading(true);
     equipmentApi
       .get(numId)
-      .then(async (eq: EquipmentDetail) => {
+      .then((eq: EquipmentDetail) => {
         setName(eq.name ?? "");
         setMake(eq.make ?? "");
         setModel(eq.model ?? "");
@@ -57,8 +55,6 @@ export function EquipmentEdit() {
         setPurchasePrice(eq.purchase_price ?? "");
         setCurrentValue(eq.current_value ?? "");
         setNotes(eq.notes ?? "");
-        const rich = await getRichNotes("equipment", String(numId));
-        if (rich != null) setNotes(rich);
       })
       .catch((err) =>
         setError(err instanceof Error ? err.message : "Failed to load")
@@ -83,11 +79,10 @@ export function EquipmentEdit() {
         quantity: quantity === "" ? undefined : parseInt(quantity, 10),
         purchase_price: purchasePrice || undefined,
         current_value: currentValue || undefined,
-        notes: editorJsonToPlainText(notes),
+        notes,
       };
       if (isNew) {
         const res = await equipmentApi.create(payload);
-        if (res?.id != null) await saveRichNotes("equipment", String(res.id), notes);
         showToast(
           t("js.equipment.created") !== "js.equipment.created"
             ? t("js.equipment.created")
@@ -97,7 +92,6 @@ export function EquipmentEdit() {
         router.replace(getEntityPath("equipment", res.id, "view"));
       } else {
         await equipmentApi.update(parseInt(id, 10), payload);
-        await saveRichNotes("equipment", id, notes);
         showToast(
           t("js.common.saved") !== "js.common.saved"
             ? t("js.common.saved")

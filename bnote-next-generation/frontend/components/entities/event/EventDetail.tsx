@@ -21,8 +21,6 @@ import { AddressLink } from "@/components/AddressLink";
 import { MarkdownText } from "@/components/MarkdownText";
 import { NotesContent } from "@/components/NotesContent";
 import { NotesEditor } from "@/components/NotesEditor";
-import { editorJsonToPlainText } from "@/lib/editorjs-notes";
-import { getRichNotes, saveRichNotes } from "@/lib/rich-notes-api";
 import { getAddressInfo } from "@/lib/address-utils";
 import { formatDateShort, formatDateTimeShort, formatTimeShort } from "@/lib/date-time";
 import { getStatusPillStyle, isQuickActionsEnabled } from "@/lib/entity-config";
@@ -306,48 +304,8 @@ export function EventDetail({
 
   const cancelEditRef = useRef(() => {});
   const saveEditRef = useRef(async () => {});
-  const richNotesFetchedRef = useRef<string | null>(null);
   const { setEditingBar, clearEditingBar } = useEditingBar();
   const barTokenRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!isEditing || !form || isNew || !numId) {
-      if (!isEditing) richNotesFetchedRef.current = null;
-      return;
-    }
-    const key = `${type}-${numId}`;
-    if (richNotesFetchedRef.current === key) return;
-    richNotesFetchedRef.current = key;
-    (async () => {
-      try {
-        const entityType = type === "rehearsal" ? "rehearsal" : "concert";
-        const [notesRich, conditionsRich] = await Promise.all([
-          getRichNotes(entityType, String(numId)),
-          type === "concert" ? getRichNotes("concert_conditions", String(numId)) : Promise.resolve(null),
-        ]);
-        setForm((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            notes: notesRich ?? prev.notes,
-            conditions: type === "concert" && conditionsRich != null ? conditionsRich : prev.conditions,
-          };
-        });
-        if (type === "rehearsal" && form.songs.length > 0) {
-          const songRich = await Promise.all(
-            form.songs.map(async (song) => {
-              const content = await getRichNotes("rehearsal_song", `${numId}_${song.id}`);
-              return { ...song, notes: content ?? song.notes };
-            })
-          );
-          setForm((prev) => (prev ? { ...prev, songs: songRich } : prev));
-        }
-      } catch {
-        richNotesFetchedRef.current = null;
-      }
-    })();
-  }, [isEditing, form, isNew, numId, type]);
-
   useEffect(() => {
     if (!isEditing) {
       barTokenRef.current = null;
@@ -559,8 +517,6 @@ export function EventDetail({
     if (!form) return;
     setSaving(true);
     setSaveError("");
-    const notesPlain = editorJsonToPlainText(form.notes);
-    const conditionsPlain = type === "concert" ? editorJsonToPlainText(form.conditions) : "";
     try {
       const baseFields =
         type === "concert"
@@ -571,10 +527,10 @@ export function EventDetail({
               meetingtime: fromInputDateTime(form.meetingtime),
               approve_until: fromInputDateTime(form.approveUntil),
               status: form.status,
-              notes: notesPlain,
+              notes: form.notes,
               organizer: form.organizer,
               payment: form.payment,
-              conditions: conditionsPlain,
+              conditions: form.conditions,
               location: form.locationId,
               contact: form.contactId,
               program: form.programId,
@@ -586,15 +542,10 @@ export function EventDetail({
               end: fromInputDateTime(form.end),
               approve_until: fromInputDateTime(form.approveUntil),
               status: form.status,
-              notes: notesPlain,
+              notes: form.notes,
               location: form.locationId,
               conductor: form.conductorId,
             };
-
-      const songsPayload =
-        type === "rehearsal"
-          ? form.songs.map((song) => ({ id: song.id, notes: editorJsonToPlainText(song.notes) }))
-          : undefined;
 
       if (isNew) {
         const payload = {
@@ -602,7 +553,7 @@ export function EventDetail({
           groups: form.groups,
           equipment: type === "concert" ? form.equipment : undefined,
           contacts: form.eventContacts,
-          songs: songsPayload,
+          songs: type === "rehearsal" ? form.songs.map((song) => ({ id: song.id, notes: song.notes })) : undefined,
           participants: canEditParticipation
             ? form.participants.map((participant) => ({
                 userId: participant.userId,
@@ -611,22 +562,9 @@ export function EventDetail({
             : undefined,
         };
         const result = await api.post<{ id?: number }>(module, "create", payload);
-        const newId = result?.id;
-        if (newId != null && newId > 0) {
-          await saveRichNotes(type === "rehearsal" ? "rehearsal" : "concert", String(newId), form.notes);
-          if (type === "concert") {
-            await saveRichNotes("concert_conditions", String(newId), form.conditions);
-          }
-          if (type === "rehearsal" && songsPayload) {
-            await Promise.all(
-              form.songs.map((song, i) =>
-                saveRichNotes("rehearsal_song", `${newId}_${song.id}`, form!.songs[i]!.notes)
-              )
-            );
-          }
-        }
         setIsEditing(false);
         setForm(null);
+        const newId = result?.id;
         if (typeProp !== undefined && newId != null && newId > 0) {
           router.replace(getEntityPath(typeProp, String(newId), "view"));
         } else {
@@ -639,7 +577,7 @@ export function EventDetail({
           groups: form.groups,
           equipment: type === "concert" ? form.equipment : undefined,
           contacts: form.eventContacts,
-          songs: songsPayload,
+          songs: type === "rehearsal" ? form.songs.map((song) => ({ id: song.id, notes: song.notes })) : undefined,
           participants: canEditParticipation
             ? form.participants.map((participant) => ({
                 userId: participant.userId,
@@ -647,17 +585,6 @@ export function EventDetail({
               }))
             : undefined,
         });
-        await saveRichNotes(type === "rehearsal" ? "rehearsal" : "concert", String(numId), form.notes);
-        if (type === "concert") {
-          await saveRichNotes("concert_conditions", String(numId), form.conditions);
-        }
-        if (type === "rehearsal") {
-          await Promise.all(
-            form.songs.map((song, i) =>
-              saveRichNotes("rehearsal_song", `${numId}_${song.id}`, form.songs[i]!.notes)
-            )
-          );
-        }
         setIsEditing(false);
         setForm(null);
         if (typeProp !== undefined && idProp !== undefined) {

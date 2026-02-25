@@ -28,7 +28,6 @@ require_once BNOTE_ROOT . '/src/data/modules/locationsdata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
 require_once __DIR__ . '/../response.php';
-require_once __DIR__ . '/../rich_notes_helper.php';
 require_once __DIR__ . '/../auth.php';
 
 class LocationsModule {
@@ -208,7 +207,6 @@ class LocationsModule {
 
         try {
             $this->data->delete($id);
-            rich_notes_delete_for_entity('location', (string) $id);
             return [
                 'success' => true,
                 'message' => 'Location deleted successfully',

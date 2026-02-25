@@ -13,8 +13,6 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { api } from "@/lib/api";
 import { NotesEditor } from "@/components/NotesEditor";
-import { editorJsonToPlainText } from "@/lib/editorjs-notes";
-import { getRichNotes, saveRichNotes } from "@/lib/rich-notes-api";
 
 interface NewsGetResponse {
   content: string;
@@ -40,13 +38,12 @@ export default function NewsPage() {
     setError("");
     setForbidden(false);
 
-    Promise.all([
-      api.get<NewsGetResponse>("news", "get"),
-      getRichNotes("news", "0").catch(() => null),
-    ]).then(([res, rich]) => {
-      if (cancelled) return;
-      setContent(rich ?? res?.content ?? "");
-    })
+    api
+      .get<NewsGetResponse>("news", "get")
+      .then((res) => {
+        if (cancelled) return;
+        setContent(res?.content ?? "");
+      })
       .catch((err: unknown) => {
         if (cancelled) return;
         const status = (err as { status?: number })?.status;
@@ -85,11 +82,7 @@ export default function NewsPage() {
     if (autosaveTimeoutRef.current) clearTimeout(autosaveTimeoutRef.current);
     autosaveTimeoutRef.current = setTimeout(() => {
       autosaveTimeoutRef.current = null;
-      const plain = editorJsonToPlainText(content);
-      Promise.all([
-        api.post("news", "save", { content: plain }),
-        saveRichNotes("news", "0", content),
-      ]).catch(() => {
+      api.post("news", "save", { content }).catch(() => {
         // Silent fail for autosave
       });
     }, 2000);
@@ -104,9 +97,7 @@ export default function NewsPage() {
   const handleSave = useCallback(async () => {
     setSaving(true);
     try {
-      const plain = editorJsonToPlainText(content);
-      await api.post("news", "save", { content: plain });
-      await saveRichNotes("news", "0", content);
+      await api.post("news", "save", { content });
       showToast(
         t("js.news.saved") !== "js.news.saved" ? t("js.news.saved") : "News saved",
         "success"
