@@ -228,8 +228,7 @@ export function ContactEdit() {
       <form id="contact-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div
-            className="rounded-lg border px-4 py-3 text-sm"
-            className="border border-error bg-error/15 text-error"
+            className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
           >
             {error}
           </div>
@@ -249,8 +248,7 @@ export function ContactEdit() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
               <div>
@@ -262,8 +260,7 @@ export function ContactEdit() {
                   type="text"
                   value={surname}
                   onChange={(e) => setSurname(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
             </div>
@@ -277,8 +274,7 @@ export function ContactEdit() {
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
 
@@ -291,8 +287,7 @@ export function ContactEdit() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
 
@@ -307,8 +302,7 @@ export function ContactEdit() {
                 type="date"
                 value={birthday}
                 onChange={(e) => setBirthday(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
 
@@ -351,8 +345,7 @@ export function ContactEdit() {
                 />
               ) : (
                 <div
-                  className="rounded-md border px-3 py-2 text-sm"
-                  className="border border-base-300 bg-base-200/50 text-base-content/60"
+                  className="rounded-md border border-base-300 bg-base-200/50 px-3 py-2 text-sm text-base-content/60"
                 >
                   {instrumentName || emptyText}
                   <p className="text-xs mt-1">
@@ -375,8 +368,7 @@ export function ContactEdit() {
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
               <div>
@@ -388,8 +380,7 @@ export function ContactEdit() {
                   type="text"
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
             </div>
@@ -405,8 +396,7 @@ export function ContactEdit() {
                 type="text"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
 
@@ -421,8 +411,7 @@ export function ContactEdit() {
                 type="text"
                 value={business}
                 onChange={(e) => setBusiness(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
 
@@ -437,8 +426,7 @@ export function ContactEdit() {
                 type="text"
                 value={web}
                 onChange={(e) => setWeb(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
 
@@ -451,8 +439,7 @@ export function ContactEdit() {
                 type="text"
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
 
@@ -466,8 +453,7 @@ export function ContactEdit() {
                   type="text"
                   value={zip}
                   onChange={(e) => setZip(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
               <div>
@@ -479,8 +465,7 @@ export function ContactEdit() {
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
             </div>

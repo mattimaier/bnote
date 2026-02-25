@@ -113,7 +113,7 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
         ref={overlayRef}
         className={
           isDesktop
-            ? "dropdown-menu absolute left-0 right-0 top-full z-[100] overflow-hidden max-h-[min(70vh,420px)] overflow-y-auto opacity-100"
+            ? "dropdown-menu absolute left-0 right-0 top-full z-[100] overflow-hidden max-h-[min(70vh,420px)] overflow-y-auto opacity-100 rounded-box border border-base-300 bg-base-100 shadow-xl"
             : "fixed top-16 left-0 right-0 bottom-0 z-[9999] overflow-y-auto md:hidden bg-base-100 border-t border-base-300 shadow-2xl"
         }
       >

@@ -131,8 +131,7 @@ export function LocationEdit() {
       <form id="location-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div
-            className="rounded-lg border px-4 py-3 text-sm"
-            className="border border-error bg-error/15 text-error"
+            className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
           >
             {error}
           </div>

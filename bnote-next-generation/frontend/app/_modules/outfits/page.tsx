@@ -145,8 +145,7 @@ export default function OutfitsPage() {
 
       {error && (
         <div
-          className="rounded-lg border px-4 py-3 text-sm"
-          className="border border-error bg-error/15 text-error"
+          className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
         >
           {error}
         </div>
@@ -295,8 +294,7 @@ function SortableTh({
       <button
         type="button"
         onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-        className="text-base-content"
+        className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />

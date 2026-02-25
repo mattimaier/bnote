@@ -130,8 +130,7 @@ export function OutfitEdit() {
       <form id="outfit-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div
-            className="rounded-lg border px-4 py-3 text-sm"
-            className="border border-error bg-error/15 text-error"
+            className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
           >
             {error}
           </div>
@@ -151,8 +150,7 @@ export function OutfitEdit() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
             <div>

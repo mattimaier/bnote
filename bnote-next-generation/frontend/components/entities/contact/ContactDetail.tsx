@@ -117,13 +117,13 @@ export function ContactDetail() {
       <DetailCard className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <span className="text-xs font-medium" className="text-base-content/60">
+            <span className="text-xs font-medium text-base-content/60">
               {label("js.contacts.firstName", "First name")}
             </span>
             <p className="text-sm mt-1">{contact.name || emptyText}</p>
           </div>
           <div>
-            <span className="text-xs font-medium" className="text-base-content/60">
+            <span className="text-xs font-medium text-base-content/60">
               {label("js.contacts.lastName", "Last name")}
             </span>
             <p className="text-sm mt-1">{contact.surname || emptyText}</p>
@@ -131,28 +131,28 @@ export function ContactDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.nickname", "Nickname")}
           </span>
           <p className="text-sm mt-1">{contact.nickname || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.instrument", "Instrument")}
           </span>
           <p className="text-sm mt-1">{contact.instrumentname || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.email", "E-Mail")}
           </span>
           <p className="text-sm mt-1">{contact.email || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.birthday", "Birthday")}
           </span>
           <p className="text-sm mt-1">{birthdayValue}</p>
@@ -160,13 +160,13 @@ export function ContactDetail() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <span className="text-xs font-medium" className="text-base-content/60">
+            <span className="text-xs font-medium text-base-content/60">
               {label("js.contacts.phone", "Phone")}
             </span>
             <p className="text-sm mt-1">{contact.phone || emptyText}</p>
           </div>
           <div>
-            <span className="text-xs font-medium" className="text-base-content/60">
+            <span className="text-xs font-medium text-base-content/60">
               {label("js.contacts.mobile", "Mobile")}
             </span>
             <p className="text-sm mt-1">{contact.mobile || emptyText}</p>
@@ -174,7 +174,7 @@ export function ContactDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.street", "Street")}
           </span>
           <p className="text-sm mt-1">{contact.street || emptyText}</p>
@@ -182,13 +182,13 @@ export function ContactDetail() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <span className="text-xs font-medium" className="text-base-content/60">
+            <span className="text-xs font-medium text-base-content/60">
               {label("js.contacts.zip", "ZIP")}
             </span>
             <p className="text-sm mt-1">{contact.zip || emptyText}</p>
           </div>
           <div>
-            <span className="text-xs font-medium" className="text-base-content/60">
+            <span className="text-xs font-medium text-base-content/60">
               {label("js.contacts.city", "City")}
             </span>
             <p className="text-sm mt-1">{contact.city || emptyText}</p>
@@ -196,28 +196,28 @@ export function ContactDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.company", "Company")}
           </span>
           <p className="text-sm mt-1">{contact.company || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.business", "Business")}
           </span>
           <p className="text-sm mt-1">{contact.business || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.web", "Website")}
           </span>
           <p className="text-sm mt-1">{contact.web || emptyText}</p>
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.notes", "Notes")}
           </span>
           <div className="text-sm mt-1 prose prose-sm max-w-none dark:prose-invert">
@@ -226,7 +226,7 @@ export function ContactDetail() {
         </div>
 
         <div>
-          <span className="text-xs font-medium" className="text-base-content/60">
+          <span className="text-xs font-medium text-base-content/60">
             {label("js.contacts.groups", "Groups")}
           </span>
           <p className="text-sm mt-1">{groupLabels}</p>
@@ -238,7 +238,7 @@ export function ContactDetail() {
           </h3>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="text-xs font-medium" className="text-base-content/60">
+              <span className="text-xs font-medium text-base-content/60">
                 {label("js.profile.shareEmail", "Share email")}
               </span>
               <div className="mt-1">
@@ -248,7 +248,7 @@ export function ContactDetail() {
               </div>
             </div>
             <div>
-              <span className="text-xs font-medium" className="text-base-content/60">
+              <span className="text-xs font-medium text-base-content/60">
                 {label("js.profile.shareAddress", "Share address")}
               </span>
               <div className="mt-1">
@@ -258,7 +258,7 @@ export function ContactDetail() {
               </div>
             </div>
             <div>
-              <span className="text-xs font-medium" className="text-base-content/60">
+              <span className="text-xs font-medium text-base-content/60">
                 {label("js.profile.sharePhones", "Share phones")}
               </span>
               <div className="mt-1">
@@ -268,7 +268,7 @@ export function ContactDetail() {
               </div>
             </div>
             <div>
-              <span className="text-xs font-medium" className="text-base-content/60">
+              <span className="text-xs font-medium text-base-content/60">
                 {label("js.profile.shareBirthday", "Share birthday")}
               </span>
               <div className="mt-1">

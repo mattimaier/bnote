@@ -8,6 +8,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useI18n } from "@/contexts/I18nContext";
 import { Upload } from "@/components/icons";
 
 export interface ShareUploadZoneProps {
@@ -21,6 +22,7 @@ export function ShareUploadZone({
   disabled = false,
   className = "",
 }: ShareUploadZoneProps) {
+  const { t } = useI18n();
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -86,14 +88,13 @@ export function ShareUploadZone({
       />
       <div className="flex flex-col items-center justify-center gap-2 text-center">
         <Upload
-          className="h-10 w-10 shrink-0"
-          className="text-base-content/60"
+          className="h-10 w-10 shrink-0 text-base-content/60"
         />
         <p className="text-sm font-medium text-base-content">
-          {uploading ? "Uploading…" : "Drag files here or click to select"}
+          {uploading ? t("js.share.uploading") : t("js.share.dragOrClick")}
         </p>
         <p className="text-xs text-base-content/60">
-          Multiple files supported
+          {t("js.share.multipleFilesSupported")}
         </p>
       </div>
     </div>

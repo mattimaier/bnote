@@ -160,7 +160,7 @@ export function UserDetail() {
           <span className="text-xs font-medium text-base-content/60">
             {t("js.users.lastLogin") !== "js.users.lastLogin" ? t("js.users.lastLogin") : "Last login"}
           </span>
-          <p className="text-sm mt-1" className="text-base-content/60">{formattedLastLogin}</p>
+          <p className="text-sm mt-1 text-base-content/60">{formattedLastLogin}</p>
         </div>
 
         <div>

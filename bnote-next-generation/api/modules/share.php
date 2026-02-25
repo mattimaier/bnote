@@ -132,6 +132,15 @@ class ShareModule {
         $roots = [];
         $secManager = $this->adp->getSecurityManager();
 
+        // Common Share (Tauschordner) – first and default
+        if ($secManager->canUserAccessFile('/')) {
+            $roots[] = [
+                'id' => 'common',
+                'name' => 'Common Share',
+                'path' => '',
+            ];
+        }
+
         // My Files (user home)
         $userHome = $this->sysdata->getUsersHomeDir();
         $userHomeRelative = preg_replace('#^' . preg_quote($this->shareRoot, '#') . '#', '', $userHome);
@@ -141,15 +150,6 @@ class ShareModule {
                 'id' => 'myfiles',
                 'name' => 'My Files',
                 'path' => $userHomeRelative,
-            ];
-        }
-
-        // Common Share (root)
-        if ($secManager->canUserAccessFile('/')) {
-            $roots[] = [
-                'id' => 'common',
-                'name' => 'Common Share',
-                'path' => '',
             ];
         }
 
@@ -222,6 +222,9 @@ class ShareModule {
         foreach ($entries as $entry) {
             if ($entry === '.' || $entry === '..') {
                 continue;
+            }
+            if ($entry[0] === '.') {
+                continue; // hide hidden files/folders
             }
             $entryPath = $path === '' ? $entry : $path . '/' . $entry;
             $entryFullPath = $fullPath . '/' . $entry;
@@ -416,6 +419,10 @@ class ShareModule {
                 continue;
             }
 
+            if ($name[0] === '.') {
+                $errors[] = $name . ': Hidden files not allowed';
+                continue;
+            }
             $targetName = $name;
             foreach ($replaceChars as $c) {
                 $targetName = str_replace($c, '', $targetName);
@@ -564,8 +571,9 @@ class ShareModule {
 
         $mime = getFileMimeType($fullPath) ?: 'application/octet-stream';
         $filename = basename($path);
+        $disposition = isset($_GET['inline']) ? 'inline' : 'attachment';
         header('Content-Type: ' . $mime);
-        header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"');
+        header('Content-Disposition: ' . $disposition . '; filename="' . addslashes($filename) . '"');
         header('Content-Length: ' . filesize($fullPath));
         readfile($fullPath);
         exit;

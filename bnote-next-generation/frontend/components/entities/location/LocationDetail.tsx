@@ -153,7 +153,7 @@ export function LocationDetail() {
 
       <DetailCard className="space-y-4">
         <div>
-          <h2 className="text-sm font-semibold" className="text-base-content/60">
+          <h2 className="text-sm font-semibold text-base-content/60">
             {t("js.locations.notes") !== "js.locations.notes" ? t("js.locations.notes") : "Notes"}
           </h2>
           <div className="mt-1 prose prose-sm max-w-none dark:prose-invert">
@@ -163,7 +163,7 @@ export function LocationDetail() {
 
         {addressValue && (
           <div>
-            <h2 className="text-sm font-semibold" className="text-base-content/60">
+            <h2 className="text-sm font-semibold text-base-content/60">
               {t("js.event.detail.location") !== "js.event.detail.location"
                 ? t("js.event.detail.location")
                 : "Address"}
@@ -233,8 +233,7 @@ function SortableTh({
       <button
         type="button"
         onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-        className="text-base-content"
+        className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />
@@ -368,7 +367,6 @@ function LocationEventsTable({
           >
             <thead>
               <tr
-                className="border-b"
                 className="border-b border-base-300 bg-base-200/50"
               >
                 <SortableTh

@@ -19,7 +19,6 @@ import {
 } from "@/lib/share-api";
 import { ShareFileList } from "@/components/share/ShareFileList";
 import { ShareUploadZone } from "@/components/share/ShareUploadZone";
-import { ConfirmModal } from "@/components/ConfirmModal";
 import { getIcon } from "@/components/icons";
 import { ChevronRight, FolderPlus, Download } from "@/components/icons";
 import type { ShareSortKey, SortDirection } from "@/components/share/ShareFileList";
@@ -48,9 +47,9 @@ export default function SharePage() {
       const res = await shareApi.listRoots();
       setRoots(res.roots ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load");
+      setError(err instanceof Error ? err.message : t("js.share.failedToLoad"));
     }
-  }, []);
+  }, [t]);
 
   const loadBrowse = useCallback(
     async (path: string) => {
@@ -65,13 +64,13 @@ export default function SharePage() {
         setBrowseResult(res);
         setCurrentPath(path);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load");
+        setError(err instanceof Error ? err.message : t("js.share.failedToLoad"));
         setBrowseResult(null);
       } finally {
         setLoading(false);
       }
     },
-    [sortKey, sortDir]
+    [sortKey, sortDir, t]
   );
 
   useEffect(() => {
@@ -111,8 +110,8 @@ export default function SharePage() {
       if (res.uploaded.length > 0) {
         showToast(
           res.uploaded.length === 1
-            ? `Uploaded ${res.uploaded[0]}`
-            : `Uploaded ${res.uploaded.length} files`,
+            ? t("js.share.uploadedSingle").replace("%s", res.uploaded[0])
+            : t("js.share.uploadedMultiple").replace("%s", String(res.uploaded.length)),
           "success"
         );
         loadBrowse(effectivePath);
@@ -121,21 +120,21 @@ export default function SharePage() {
         showToast(res.errors.join("; "), "error");
       }
     },
-    [effectivePath, showToast, loadBrowse]
+    [effectivePath, showToast, loadBrowse, t]
   );
 
   const handleDelete = useCallback(
     async (item: ShareItem) => {
       try {
         await shareApi.delete(item.path);
-        showToast("Deleted", "success");
+        showToast(t("js.common.deleted"), "success");
         setDeleteModal(null);
         loadBrowse(effectivePath);
       } catch (err) {
-        showToast(err instanceof Error ? err.message : "Delete failed", "error");
+        showToast(err instanceof Error ? err.message : t("js.share.deleteFailed"), "error");
       }
     },
-    [effectivePath, showToast, loadBrowse]
+    [effectivePath, showToast, loadBrowse, t]
   );
 
   const handleDownload = useCallback((item: ShareItem) => {
@@ -155,15 +154,15 @@ export default function SharePage() {
       if (!name) return;
       try {
         await shareApi.createFolder(effectivePath, name);
-        showToast("Folder created", "success");
+        showToast(t("js.share.folderCreated"), "success");
         setCreateFolderModal(false);
         setNewFolderName("");
         loadBrowse(effectivePath);
       } catch (err) {
-        showToast(err instanceof Error ? err.message : "Failed to create folder", "error");
+        showToast(err instanceof Error ? err.message : t("js.share.createFolderFailed"), "error");
       }
     },
-    [effectivePath, newFolderName, showToast, loadBrowse]
+    [effectivePath, newFolderName, showToast, loadBrowse, t]
   );
 
   const title = t("js.share.title") !== "js.share.title" ? t("js.share.title") : "Share";
@@ -213,9 +212,6 @@ export default function SharePage() {
             color: "var(--card-foreground)",
           }}
         >
-          <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--muted-foreground)" }}>
-            {t("js.share.quickAccess") !== "js.share.quickAccess" ? t("js.share.quickAccess") : "Quick access"}
-          </h3>
           <nav className="space-y-0.5">
             {roots.map((root) => {
               const isActive = effectivePath === root.path;
@@ -233,7 +229,13 @@ export default function SharePage() {
                   }}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{root.name}</span>
+                  <span className="truncate">
+                    {root.id.startsWith("group_") && root.name.startsWith("Group ")
+                      ? t("js.share.root.groupFallback").replace("%s", root.id.replace("group_", ""))
+                      : t(`js.share.root.${root.id}`) !== `js.share.root.${root.id}`
+                        ? t(`js.share.root.${root.id}`)
+                        : root.name}
+                  </span>
                 </button>
               );
             })}
@@ -254,7 +256,7 @@ export default function SharePage() {
                     className="hover:underline"
                     style={{ color: "var(--foreground)" }}
                   >
-                    {crumb.name}
+                    {crumb.path === "" ? t("js.share.breadcrumbRoot") : crumb.name}
                   </button>
                 </span>
               ))}
@@ -320,22 +322,45 @@ export default function SharePage() {
       </div>
 
       {/* Delete confirmation */}
-      <ConfirmModal
-        open={!!deleteModal}
-        onClose={() => setDeleteModal(null)}
-        title={t("js.common.confirmDeleteTitle") !== "js.common.confirmDeleteTitle" ? t("js.common.confirmDeleteTitle") : "Delete?"}
-        message={
-          deleteModal
-            ? (t("js.common.confirmDeleteMessageNamed") !== "js.common.confirmDeleteMessageNamed"
+      {deleteModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => setDeleteModal(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-lg border bg-[var(--card)] p-4 shadow-xl"
+            style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold mb-3">
+              {t("js.common.confirmDeleteTitle") !== "js.common.confirmDeleteTitle" ? t("js.common.confirmDeleteTitle") : "Delete?"}
+            </h3>
+            <p className="text-sm mb-4" style={{ color: "var(--muted-foreground)" }}>
+              {t("js.common.confirmDeleteMessageNamed") !== "js.common.confirmDeleteMessageNamed"
                 ? t("js.common.confirmDeleteMessageNamed").replace("%s", deleteModal.name)
-                : `Delete "${deleteModal.name}"? This cannot be undone.`)
-            : ""
-        }
-        confirmLabel={t("js.common.delete") !== "js.common.delete" ? t("js.common.delete") : "Delete"}
-        cancelLabel={t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
-        onConfirm={() => deleteModal && handleDelete(deleteModal)}
-        variant="danger"
-      />
+                : `Delete "${deleteModal.name}"? This cannot be undone.`}
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDeleteModal(null)}
+                className="px-4 py-2 rounded-lg border text-sm font-medium"
+                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+              >
+                {t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete(deleteModal)}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-white"
+                style={{ background: "var(--destructive)", color: "var(--destructive-foreground)" }}
+              >
+                {t("js.common.delete") !== "js.common.delete" ? t("js.common.delete") : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create folder modal */}
       {createFolderModal && (
@@ -355,7 +380,7 @@ export default function SharePage() {
               type="text"
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
-              placeholder="Folder name"
+              placeholder={t("js.share.folderName")}
               className="w-full rounded-lg border px-3 py-2 text-sm mb-4"
               style={{
                 borderColor: "var(--border)",

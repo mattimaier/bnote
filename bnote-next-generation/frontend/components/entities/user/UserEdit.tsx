@@ -413,7 +413,7 @@ export function UserEdit() {
                   </label>
                 ))}
                 {selectedPrivileges.length === 0 && (
-                  <p className="text-xs" className="text-base-content/60">
+                  <p className="text-xs text-base-content/60">
                     {t("js.common.noSelection") !== "js.common.noSelection"
                       ? t("js.common.noSelection")
                       : "No selection"}

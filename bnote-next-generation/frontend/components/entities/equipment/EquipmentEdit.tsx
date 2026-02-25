@@ -150,8 +150,7 @@ export function EquipmentEdit() {
       <form id="equipment-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div
-            className="rounded-lg border px-4 py-3 text-sm"
-            className="border border-error bg-error/15 text-error"
+            className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
           >
             {error}
           </div>
@@ -171,8 +170,7 @@ export function EquipmentEdit() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -186,8 +184,7 @@ export function EquipmentEdit() {
                   type="text"
                   value={make}
                   onChange={(e) => setMake(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
               <div>
@@ -200,8 +197,7 @@ export function EquipmentEdit() {
                   type="text"
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
             </div>
@@ -216,8 +212,7 @@ export function EquipmentEdit() {
                 min={0}
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="input input-sm w-full"
-                className="text-base-content"
+                className="input input-sm w-full text-base-content"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -231,8 +226,7 @@ export function EquipmentEdit() {
                   type="text"
                   value={purchasePrice}
                   onChange={(e) => setPurchasePrice(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
               <div>
@@ -245,8 +239,7 @@ export function EquipmentEdit() {
                   type="text"
                   value={currentValue}
                   onChange={(e) => setCurrentValue(e.target.value)}
-                  className="input input-sm w-full"
-                  className="text-base-content"
+                  className="input input-sm w-full text-base-content"
                 />
               </div>
             </div>

@@ -8,11 +8,12 @@
 "use client";
 
 import { useCallback } from "react";
+import { useI18n } from "@/contexts/I18nContext";
 import { getIcon } from "@/components/icons";
 import type { ShareItem, SharePermissions } from "@/lib/share-api";
 import { ArrowUp, ArrowDown, ArrowUpDown, Trash2 } from "@/components/icons";
 
-export type ShareSortKey = "name" | "size" | "type" | "modifiedAt";
+export type ShareSortKey = "name" | "size" | "modifiedAt";
 export type SortDirection = "asc" | "desc";
 
 export interface ShareFileListProps {
@@ -61,6 +62,7 @@ export function ShareFileList({
   onDownload,
   onDownloadZip,
 }: ShareFileListProps) {
+  const { t } = useI18n();
   const handleSort = useCallback(
     (key: ShareSortKey) => {
       onSort(key);
@@ -79,8 +81,7 @@ export function ShareFileList({
     const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
     return (
       <th
-        className="px-4 py-3 text-left text-sm font-medium cursor-pointer select-none hover:opacity-80"
-        className="text-base-content"
+        className="px-4 py-3 text-left text-sm font-medium cursor-pointer select-none hover:opacity-80 text-base-content"
         onClick={() => handleSort(columnKey)}
       >
         <span className="inline-flex items-center gap-1.5">
@@ -96,18 +97,17 @@ export function ShareFileList({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-base-300 bg-base-200/50">
-            <SortTh label="Name" columnKey="name" />
-            <SortTh label="Size" columnKey="size" />
-            <SortTh label="Type" columnKey="type" />
-            <SortTh label="Modified" columnKey="modifiedAt" />
+            <SortTh label={t("js.share.name")} columnKey="name" />
+            <SortTh label={t("js.share.size")} columnKey="size" />
+            <SortTh label={t("js.share.modified")} columnKey="modifiedAt" />
             <th className="px-4 py-3 w-12" />
           </tr>
         </thead>
         <tbody>
           {items.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-4 py-8 text-center text-base-content/60">
-                No files or folders
+              <td colSpan={4} className="px-4 py-8 text-center text-base-content/60">
+                {t("js.share.noFilesOrFolders")}
               </td>
             </tr>
           ) : (
@@ -128,20 +128,14 @@ export function ShareFileList({
                 >
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center gap-2">
-                      <Icon
-                        className="h-5 w-5 shrink-0"
-                        className="text-base-content/60"
-                      />
+                      <Icon className="h-5 w-5 shrink-0 text-base-content/60" />
                       <span className="font-medium">{item.name}</span>
                     </span>
                   </td>
-                  <td className="px-4 py-3" style={{ color: "var(--muted-foreground)" }}>
+                  <td className="px-4 py-3 text-base-content/60">
                     {isFolder ? "—" : formatSize(item.size)}
                   </td>
-                  <td className="px-4 py-3" style={{ color: "var(--muted-foreground)" }}>
-                    {isFolder ? "Folder" : item.mimeType || "—"}
-                  </td>
-                  <td className="px-4 py-3" style={{ color: "var(--muted-foreground)" }}>
+                  <td className="px-4 py-3 text-base-content/60">
                     {formatDate(item.modifiedAt)}
                   </td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -150,7 +144,7 @@ export function ShareFileList({
                         type="button"
                         onClick={() => onDelete(item)}
                         className="p-1.5 rounded hover:bg-error/20 text-base-content/60 hover:text-error"
-                        aria-label="Delete"
+                        aria-label={t("js.share.deleteAria")}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

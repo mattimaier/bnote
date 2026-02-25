@@ -137,12 +137,12 @@ export default function EquipmentPage() {
     <div className="mx-auto max-w-5xl space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold" className="text-base-content">
+          <h1 className="text-2xl font-bold text-base-content">
             {t("js.equipment.title") !== "js.equipment.title"
               ? t("js.equipment.title")
               : "Equipment"}
           </h1>
-          <p className="mt-1 text-sm" className="text-base-content/60">
+          <p className="mt-1 text-sm text-base-content/60">
             {t("js.equipment.subtitle") !== "js.equipment.subtitle"
               ? t("js.equipment.subtitle")
               : "Manage inventory and assets"}
@@ -150,8 +150,7 @@ export default function EquipmentPage() {
         </div>
         <Link
           href={getEntityPath("equipment", "new", "edit")}
-          className="inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
-          className="bg-primary"
+          className="btn btn-primary btn-sm gap-2 shrink-0"
         >
           <Plus className="h-4 w-4" />
           {t("js.equipment.addEquipment") !== "js.equipment.addEquipment"
@@ -162,8 +161,7 @@ export default function EquipmentPage() {
 
       {error && (
         <div
-          className="rounded-lg border px-4 py-3 text-sm"
-          className="border border-error bg-error/15 text-error"
+          className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
         >
           {error}
         </div>
@@ -180,15 +178,13 @@ export default function EquipmentPage() {
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent px-0 py-1 text-sm outline-none"
-            className="text-base-content"
+            className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
           />
         </div>
       </div>
 
       <div
-        className="overflow-hidden rounded-xl border"
-        className="border border-base-300 bg-base-100 text-base-content"
+        className="overflow-hidden rounded-xl border border-base-300 bg-base-100 text-base-content"
       >
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -367,8 +363,7 @@ function SortableTh({
       <button
         type="button"
         onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-        className="text-base-content"
+        className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80 text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />

@@ -92,38 +92,40 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
       )}
       {/* Search: full width */}
       <div ref={searchAnchorRef} className="relative flex-1 min-w-0">
-          <form action={prefixPath("/search/")} method="get" role="search" className="relative flex items-center w-full">
-            <Search
-              className="absolute left-3 h-4 w-4 -translate-y-1/2 text-base-content/50 z-10 top-1/2 pointer-events-none"
-              aria-hidden
-            />
-            <input
-              type="search"
-              name="q"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => setOverlayOpen(true)}
-              placeholder={t("js.dashboard.searchPlaceholder")}
-              className="input input-sm w-full pl-9 pr-9 md:pr-56"
-              aria-label={t("js.dashboard.searchPlaceholder")}
-              aria-autocomplete="list"
-              aria-controls={query.trim().length >= 2 ? "search-autocomplete" : undefined}
-              id="topbar-search"
-            />
-            {query.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                className="btn btn-soft btn-square btn-xs absolute right-2 md:right-40 top-1/2 -translate-y-1/2 z-10"
-                aria-label={t("js.search.clear") !== "js.search.clear" ? t("js.search.clear") : "Clear search"}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
+          <form action={prefixPath("/search/")} method="get" role="search" className="flex items-center gap-2 w-full">
+            <div className="relative flex-1 min-w-0">
+              <Search
+                className="absolute left-3 h-4 w-4 -translate-y-1/2 text-base-content/50 z-10 top-1/2 pointer-events-none"
+                aria-hidden
+              />
+              <input
+                type="search"
+                name="q"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => setOverlayOpen(true)}
+                placeholder={t("js.dashboard.searchPlaceholder")}
+                className="input input-sm w-full pl-9 pr-9"
+                aria-label={t("js.dashboard.searchPlaceholder")}
+                aria-autocomplete="list"
+                aria-controls={query.trim().length >= 2 ? "search-autocomplete" : undefined}
+                id="topbar-search"
+              />
+              {query.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="btn btn-soft btn-square btn-xs absolute right-2 top-1/2 -translate-y-1/2 z-10"
+                  aria-label={t("js.search.clear") !== "js.search.clear" ? t("js.search.clear") : "Clear search"}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
             {query.length > 0 && (
               <button
                 type="submit"
-                className="btn btn-primary btn-sm absolute right-2 top-1/2 -translate-y-1/2 hidden md:inline-flex"
+                className="btn btn-primary btn-sm shrink-0 hidden md:inline-flex"
               >
                 {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show results"}
               </button>

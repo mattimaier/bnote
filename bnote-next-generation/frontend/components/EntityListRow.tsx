@@ -58,8 +58,7 @@ export function EntityListRow({
         </div>
         {secondary != null && secondary !== false && (
           <div
-            className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs leading-snug"
-            className="text-base-content/60"
+            className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs leading-snug text-base-content/60"
           >
             {secondary}
           </div>

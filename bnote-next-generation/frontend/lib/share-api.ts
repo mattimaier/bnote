@@ -154,7 +154,7 @@ export const shareApi = {
       { path, name }
     ),
 
-  getDownloadUrl: (path: string): string => {
+  getDownloadUrl: (path: string, inline = true): string => {
     const apiUrl = getApiUrl();
     const url =
       apiUrl.startsWith("http")
@@ -163,6 +163,7 @@ export const shareApi = {
     url.searchParams.set("module", "share");
     url.searchParams.set("action", "download");
     url.searchParams.set("path", path);
+    if (inline) url.searchParams.set("inline", "1");
     return url.toString();
   },
 

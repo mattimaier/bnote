@@ -140,18 +140,17 @@ export default function ContactsPage() {
     <div className="mx-auto max-w-5xl space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold" className="text-base-content">
+          <h1 className="text-2xl font-bold text-base-content">
             {t("js.contacts.title") !== "js.contacts.title" ? t("js.contacts.title") : "Contacts"}
           </h1>
-          <p className="text-sm mt-1" className="text-base-content/60">
+          <p className="text-sm mt-1 text-base-content/60">
             {t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
           </p>
         </div>
         <button
           type="button"
           onClick={() => router.push(getEntityPath("contact", "new", "edit"))}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white shrink-0"
-          className="bg-primary"
+          className="btn btn-primary btn-sm gap-2 shrink-0"
         >
           <Plus className="h-4 w-4" />
           {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
@@ -192,8 +191,7 @@ export default function ContactsPage() {
             placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent px-0 py-1 text-sm outline-none"
-            className="text-base-content"
+            className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
           />
         </div>
       </div>
@@ -252,7 +250,7 @@ export default function ContactsPage() {
               <tbody>
                 {sortedContacts.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center" className="text-base-content/60">
+                    <td colSpan={7} className="p-8 text-center text-base-content/60">
                       {t("js.contacts.noContacts") !== "js.contacts.noContacts" ? t("js.contacts.noContacts") : "No contacts found"}
                     </td>
                   </tr>
@@ -304,8 +302,7 @@ function ContactsSortableTh({
       <button
         type="button"
         onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
-        className="text-base-content"
+        className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity text-base-content"
       >
         {label}
         <Icon className="h-4 w-4 opacity-70" />

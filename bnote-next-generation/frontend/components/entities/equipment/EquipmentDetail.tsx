@@ -87,7 +87,7 @@ export function EquipmentDetail() {
         <dl className="grid gap-3 sm:grid-cols-2">
           {item.make != null && item.make !== "" && (
             <>
-              <dt className="text-sm font-medium" className="text-base-content/60">
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.equipment.make") !== "js.equipment.make"
                   ? t("js.equipment.make")
                   : "Make"}
@@ -97,7 +97,7 @@ export function EquipmentDetail() {
           )}
           {item.model != null && item.model !== "" && (
             <>
-              <dt className="text-sm font-medium" className="text-base-content/60">
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.equipment.model") !== "js.equipment.model"
                   ? t("js.equipment.model")
                   : "Model"}
@@ -107,7 +107,7 @@ export function EquipmentDetail() {
           )}
           {item.quantity != null && (
             <>
-              <dt className="text-sm font-medium" className="text-base-content/60">
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.equipment.quantity") !== "js.equipment.quantity"
                   ? t("js.equipment.quantity")
                   : "Quantity"}
@@ -117,7 +117,7 @@ export function EquipmentDetail() {
           )}
           {item.purchase_price != null && String(item.purchase_price).trim() !== "" && (
             <>
-              <dt className="text-sm font-medium" className="text-base-content/60">
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.equipment.purchase_price") !== "js.equipment.purchase_price"
                   ? t("js.equipment.purchase_price")
                   : "Purchase price"}
@@ -127,7 +127,7 @@ export function EquipmentDetail() {
           )}
           {item.current_value != null && String(item.current_value).trim() !== "" && (
             <>
-              <dt className="text-sm font-medium" className="text-base-content/60">
+              <dt className="text-sm font-medium text-base-content/60">
                 {t("js.equipment.current_value") !== "js.equipment.current_value"
                   ? t("js.equipment.current_value")
                   : "Current value"}
@@ -138,7 +138,7 @@ export function EquipmentDetail() {
         </dl>
 
         <div>
-          <h2 className="text-sm font-semibold" className="text-base-content/60">
+          <h2 className="text-sm font-semibold text-base-content/60">
             {t("js.equipment.notes") !== "js.equipment.notes"
               ? t("js.equipment.notes")
               : "Notes"}
