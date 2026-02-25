@@ -17,7 +17,7 @@ import { checkSession, login } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { I18nProvider, useI18n } from "@/contexts/I18nContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { getBnoteLogoUrl } from "@/lib/bnote-assets";
+import { BNoteLogo } from "@/components/BNoteLogo";
 import { safeString } from "@/lib/string-utils";
 import { Spinner } from "@/components/Spinner";
 
@@ -36,7 +36,6 @@ function LoginFormInner() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [welcomeText, setWelcomeText] = useState("Welcome");
-  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
     checkSession().then((session) => {
@@ -61,10 +60,6 @@ function LoginFormInner() {
         setWelcomeText(t("js.common.appName"));
       });
   }, [ready, t]);
-
-  useEffect(() => {
-    setLogoUrl(getBnoteLogoUrl());
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -121,19 +116,9 @@ function LoginFormInner() {
 
       <div className="relative overflow-hidden rounded-b-lg bg-base-100 p-8 shadow-lg">
         <div className="mb-8 text-center">
-          {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt="BNote"
-              className="mx-auto mb-4 h-16 w-16"
-              style={{
-                filter:
-                  "brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%)",
-              }}
-            />
-          ) : (
-            <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary opacity-80" />
-          )}
+          <div className="mx-auto mb-4 flex justify-center">
+            <BNoteLogo size="lg" padding="tight" />
+          </div>
           <h1 className="mb-2 text-2xl font-bold text-base-content">
             {t("js.common.appName")}
           </h1>

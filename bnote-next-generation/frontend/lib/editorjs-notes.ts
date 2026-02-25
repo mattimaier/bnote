@@ -21,6 +21,19 @@ export function isEditorJson(value: string): boolean {
   }
 }
 
+/** True if value is EditorJS JSON with no blocks (empty document). Normalize to "" so it is never stored or shown. */
+export function isEmptyEditorJson(value: string): boolean {
+  if (!value || typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!trimmed || !trimmed.startsWith("{")) return false;
+  try {
+    const parsed = JSON.parse(trimmed) as { blocks?: unknown[] };
+    return Array.isArray(parsed?.blocks) && parsed.blocks.length === 0;
+  } catch {
+    return false;
+  }
+}
+
 /** Parse notes string to EditorJS initial data. Returns undefined for empty; single paragraph for plain text. */
 export function parseNotesInitialData(value: string): { blocks?: unknown[] } | undefined {
   if (!value || typeof value !== "string") return undefined;

@@ -16,7 +16,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useI18n } from "@/contexts/I18nContext";
-import { getBnoteLogoUrl } from "@/lib/bnote-assets";
+import { BNoteLogo } from "@/components/BNoteLogo";
 import { getEntityConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 
@@ -32,7 +32,6 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { t } = useI18n();
   const [modules, setModules] = useState<SidebarModule[]>([]);
-  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
     api
@@ -53,7 +52,6 @@ export function AppSidebar() {
           { id: 4, name: "Benutzer", route: "users", icon: "user", i18n: "js.sidebar.users" },
         ]);
       });
-    setLogoUrl(getBnoteLogoUrl());
   }, []);
 
   const currentRoute = pathname?.replace("/", "") || "dashboard";
@@ -62,21 +60,7 @@ export function AppSidebar() {
     <aside className="hidden md:flex md:flex-col md:h-full md:w-64 md:shrink-0 border-r border-base-300 bg-base-200">
       <div className="flex h-16 items-center px-4 lg:px-6">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-box flex items-center justify-center ring-1 ring-primary/20 bg-gradient-to-br from-primary/30 to-primary/10">
-            {logoUrl ? (
-              <img
-                src={logoUrl}
-                alt="BNote"
-                className="h-5 w-5"
-                style={{
-                  filter:
-                    "brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%)",
-                }}
-              />
-            ) : (
-              <span className="text-primary font-bold text-xs">B</span>
-            )}
-          </div>
+          <BNoteLogo size="sm" />
           <span className="font-semibold text-sm text-base-content">BNote</span>
         </div>
       </div>

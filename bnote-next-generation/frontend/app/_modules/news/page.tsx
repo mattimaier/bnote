@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { api } from "@/lib/api";
+import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { NotesEditor } from "@/components/NotesEditor";
 import { Spinner } from "@/components/Spinner";
 
@@ -43,7 +44,8 @@ export default function NewsPage() {
       .get<NewsGetResponse>("news", "get")
       .then((res) => {
         if (cancelled) return;
-        setContent(res?.content ?? "");
+        const raw = res?.content ?? "";
+        setContent(isEmptyEditorJson(raw) ? "" : raw);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -83,7 +85,8 @@ export default function NewsPage() {
     if (autosaveTimeoutRef.current) clearTimeout(autosaveTimeoutRef.current);
     autosaveTimeoutRef.current = setTimeout(() => {
       autosaveTimeoutRef.current = null;
-      api.post("news", "save", { content }).catch(() => {
+      const payload = isEmptyEditorJson(content) ? "" : content;
+      api.post("news", "save", { content: payload }).catch(() => {
         // Silent fail for autosave
       });
     }, 2000);
@@ -98,7 +101,8 @@ export default function NewsPage() {
   const handleSave = useCallback(async () => {
     setSaving(true);
     try {
-      await api.post("news", "save", { content });
+      const payload = isEmptyEditorJson(content) ? "" : content;
+      await api.post("news", "save", { content: payload });
       showToast(
         t("js.news.saved") !== "js.news.saved" ? t("js.news.saved") : "News saved",
         "success"
@@ -190,7 +194,7 @@ export default function NewsPage() {
             {!loading && (
               <NotesEditor
                 key="news-editor"
-                value={content}
+                value={isEmptyEditorJson(content) ? "" : content}
                 onChange={setContent}
                 placeholder={
                   t("js.news.editorPlaceholder") !== "js.news.editorPlaceholder"
