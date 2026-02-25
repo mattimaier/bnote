@@ -32,7 +32,6 @@ export default function SharePage() {
   const [browseResult, setBrowseResult] = useState<ShareBrowseResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [currentPath, setCurrentPath] = useState("");
   const [sortKey, setSortKey] = useState<ShareSortKey | null>("name");
   const [sortDir, setSortDir] = useState<SortDirection>("asc");
   const [deleteModal, setDeleteModal] = useState<ShareItem | null>(null);
@@ -40,7 +39,7 @@ export default function SharePage() {
   const [newFolderName, setNewFolderName] = useState("");
 
   const pathFromUrl = searchParams.get("path");
-  const effectivePath = pathFromUrl !== null ? pathFromUrl : currentPath;
+  const effectivePath = pathFromUrl ?? "";
 
   const loadRoots = useCallback(async () => {
     try {
@@ -62,7 +61,6 @@ export default function SharePage() {
           sortDir
         );
         setBrowseResult(res);
-        setCurrentPath(path);
       } catch (err) {
         setError(err instanceof Error ? err.message : t("js.share.failedToLoad"));
         setBrowseResult(null);
@@ -87,10 +85,8 @@ export default function SharePage() {
     (path: string) => {
       const query = path ? `?path=${encodeURIComponent(path)}` : "";
       router.push(`/share${query}`);
-      setCurrentPath(path);
-      loadBrowse(path);
     },
-    [router, loadBrowse]
+    [router]
   );
 
   const handleSort = useCallback((key: ShareSortKey) => {

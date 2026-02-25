@@ -9,6 +9,7 @@
 
 import { useCallback } from "react";
 import { useI18n } from "@/contexts/I18nContext";
+import { formatDateTimeShort } from "@/lib/date-time";
 import { getIcon } from "@/components/icons";
 import type { ShareItem, SharePermissions } from "@/lib/share-api";
 import { ArrowUp, ArrowDown, ArrowUpDown, Trash2 } from "@/components/icons";
@@ -36,21 +37,6 @@ function formatSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 }
 
-function formatDate(iso: string): string {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
-
 export function ShareFileList({
   items,
   permissions,
@@ -62,7 +48,7 @@ export function ShareFileList({
   onDownload,
   onDownloadZip,
 }: ShareFileListProps) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const handleSort = useCallback(
     (key: ShareSortKey) => {
       onSort(key);
@@ -93,8 +79,8 @@ export function ShareFileList({
   };
 
   return (
-    <div className="overflow-hidden rounded-box border border-base-300 bg-base-100 text-base-content">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-box border border-base-300 bg-base-100 text-base-content">
+      <table className="w-full min-w-[32rem] text-sm">
         <thead>
           <tr className="border-b border-base-300 bg-base-200/50">
             <SortTh label={t("js.share.name")} columnKey="name" />
@@ -135,8 +121,8 @@ export function ShareFileList({
                   <td className="px-4 py-3 text-base-content/60">
                     {isFolder ? "—" : formatSize(item.size)}
                   </td>
-                  <td className="px-4 py-3 text-base-content/60">
-                    {formatDate(item.modifiedAt)}
+                  <td className="px-4 py-3 text-base-content/60 whitespace-nowrap" title={item.modifiedAt}>
+                    {formatDateTimeShort(item.modifiedAt, lang) ?? "—"}
                   </td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     {item.canDelete && permissions.canDelete ? (

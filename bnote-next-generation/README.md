@@ -78,6 +78,8 @@ For local debugging use `npm run dev` (see Local development above); the dev ser
 
 - `./build.sh --out myfolder` – output folder name (default: `build/`)
 
+**Share module not appearing / "Module not found: share":** The Share module requires `api/modules/share.php` on the server. Use `./build.sh` to create a full build that includes the API. If you deploy only `frontend/out/`, the API folder (and share.php) will be missing. The Share module must exist in BNote and the user must have permission (as in the old app).
+
 ## Routing and Navigation
 
 Routing is handled by the Next.js App Router (static export).
@@ -100,7 +102,7 @@ Routing is handled by the Next.js App Router (static export).
 - Search (top-bar overlay and search results page)
 - Entity detail (rehearsal/concert with participation)
 
-**API modules:** auth, dashboard, users, contacts, rehearsals, concerts, participation, translations
+**API modules:** auth, dashboard, users, contacts, rehearsals, concerts, participation, translations, share
 
 ### Not yet implemented
 

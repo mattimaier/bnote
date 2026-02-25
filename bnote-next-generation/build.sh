@@ -46,30 +46,39 @@ if [[ ! -d "frontend/out" ]]; then
   exit 1
 fi
 
-# 2. Create build folder and copy everything
+# 2. Create build folder with bnote-next-generation subfolder (matches deployment path)
 echo "Assembling build folder..."
 rm -rf "$SCRIPT_DIR/$OUT_DIR"
-mkdir -p "$SCRIPT_DIR/$OUT_DIR"
+mkdir -p "$SCRIPT_DIR/$OUT_DIR/bnote-next-generation"
+DEPLOY_DIR="$SCRIPT_DIR/$OUT_DIR/bnote-next-generation"
 
-cp -R "$SCRIPT_DIR/api"       "$SCRIPT_DIR/$OUT_DIR/"
-cp -R "$SCRIPT_DIR/lang"      "$SCRIPT_DIR/$OUT_DIR/"
-cp    "$SCRIPT_DIR/iso3166-alpha3-to-alpha2.json" "$SCRIPT_DIR/$OUT_DIR/" 2>/dev/null || true
+# Verify required API modules exist before copying
+if [[ ! -f "$SCRIPT_DIR/api/modules/share.php" ]]; then
+  echo "ERROR: api/modules/share.php is missing. Share module will not work in production."
+  exit 1
+fi
 
-# Merge frontend static export into build root (index.html, _next/, login/, etc.)
+cp -R "$SCRIPT_DIR/api"       "$DEPLOY_DIR/"
+cp -R "$SCRIPT_DIR/lang"      "$DEPLOY_DIR/"
+cp    "$SCRIPT_DIR/iso3166-alpha3-to-alpha2.json" "$DEPLOY_DIR/" 2>/dev/null || true
+
+# Merge frontend static export (index.html, _next/, login/, etc.)
 for item in "$SCRIPT_DIR/frontend/out"/*; do
-  [[ -e "$item" ]] && cp -R "$item" "$SCRIPT_DIR/$OUT_DIR/"
+  [[ -e "$item" ]] && cp -R "$item" "$DEPLOY_DIR/"
 done
 # Copy hidden files from out if any (e.g. .nojekyll)
 for item in "$SCRIPT_DIR/frontend/out"/.*; do
-  [[ -e "$item" && "$item" != */. && "$item" != */.. ]] && cp -R "$item" "$SCRIPT_DIR/$OUT_DIR/"
+  [[ -e "$item" && "$item" != */. && "$item" != */.. ]] && cp -R "$item" "$DEPLOY_DIR/"
 done 2>/dev/null || true
 
 # Drop a short README in the build folder
-cat > "$SCRIPT_DIR/$OUT_DIR/BUILD_README.txt" << 'EOF'
+cat > "$SCRIPT_DIR/$OUT_DIR/BUILD_README.txt" << EOF
 BNote Next Generation – build bundle
 
-Upload the *contents* of this folder to your server so the app is served at:
+Upload the folder $OUT_DIR/bnote-next-generation/ to your server so the app is served at:
   https://your-domain/.../bnote-next-generation/
+
+Folder structure matches deployment path (bnote-next-generation/ contains api/, lang/, index.html, etc.).
 
 Required on server:
   - PHP (for api/index.php)
@@ -78,7 +87,10 @@ Required on server:
 Local debug: use npm run dev in frontend/ (see repo README).
 EOF
 
-echo "Build folder ready: $SCRIPT_DIR/$OUT_DIR"
+echo "Build folder ready: $SCRIPT_DIR/$OUT_DIR/bnote-next-generation/"
 echo ""
-echo "Upload: copy the *contents* of $OUT_DIR/ to your server (e.g. into the folder that will be served at .../bnote-next-generation/)."
+echo "Upload: copy the folder $OUT_DIR/bnote-next-generation/ to your server (same name = same path)."
+echo ""
+echo "IMPORTANT for Share module: The api/ folder (including api/modules/share.php) MUST be deployed."
+echo "If you only deploy frontend/out/, the API will return 'Module not found: share' and Share will not appear."
 echo ""
