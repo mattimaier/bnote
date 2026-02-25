@@ -11,11 +11,13 @@ import Link from "next/link";
 import { useI18n } from "@/contexts/I18nContext";
 import { ParticipationDiagram, type ParticipationStats } from "@/components/ParticipationDiagram";
 import { Check, X, HelpCircle, Clock } from "@/components/icons";
+import { Avatar } from "@/components/Avatar";
 
 export interface ParticipantItem {
   id: number;
   userId?: number;
   name: string;
+  email?: string | null;
   participate: number | null; // 1=yes, 2=maybe, 0=no, null=pending
   reason?: string | null;
 }
@@ -107,13 +109,6 @@ function ParticipantRow({
   participant: ParticipantItem;
   getEntityHref?: GetEntityHref | null;
 }) {
-  const initials = participant.name
-    ?.trim()
-    .split(/\s+/)
-    .reduce((acc, part, i, arr) => acc + (i === 0 || i === arr.length - 1 ? part[0] ?? "" : ""), "")
-    .toUpperCase()
-    .slice(0, 2) || "?";
-
   const entityType: "contact" | "user" = "contact";
   const entityId = participant.id;
   const href = getEntityHref?.(entityType, entityId) ?? null;
@@ -128,9 +123,13 @@ function ParticipantRow({
 
   return (
     <div className="flex items-start gap-3 py-2 px-2 rounded-md border border-base-300/60 bg-base-100 hover:bg-base-200/70 transition-colors text-base-content">
-      <div className="h-8 w-8 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-semibold border-primary/50 bg-primary/15 text-primary">
-        {initials}
-      </div>
+      <Avatar
+        email={participant.email}
+        name={participant.name}
+        size={32}
+        variant="soft"
+        className="shrink-0"
+      />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
           {nameNode}

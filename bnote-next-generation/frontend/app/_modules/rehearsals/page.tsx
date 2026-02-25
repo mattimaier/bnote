@@ -13,7 +13,7 @@ import { rehearsalsApi, type RehearsalListItem } from "@/lib/rehearsals-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { compareDate, compareString, type SortDirection } from "@/lib/table-sort";
 import { getStatusPillStyle } from "@/lib/entity-config";
-import { MarkdownText } from "@/components/MarkdownText";
+import { NotesContent } from "@/components/NotesContent";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
@@ -492,7 +492,7 @@ function EventsTable({
                       </td>
                       <td className="p-3">
                         {row.notes ? (
-                          <MarkdownText value={row.notes} className="max-w-[200px] whitespace-pre-wrap break-words" />
+                          <NotesContent value={row.notes} className="max-w-[200px] whitespace-pre-wrap break-words" />
                         ) : (
                           emptyText
                         )}

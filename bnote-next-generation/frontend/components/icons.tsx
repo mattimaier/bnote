@@ -77,6 +77,7 @@ const TABLER_MAP: Record<string, string> = {
   clock: "icon-[tabler--clock]",
   save: "icon-[tabler--device-floppy]",
   info: "icon-[tabler--info-circle]",
+  newspaper: "icon-[tabler--news]",
 };
 
 export interface IconProps {

@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { equipmentApi, type EquipmentDetail as EquipmentDetailType } from "@/lib/equipment-api";
 import { getEntityPath } from "@/lib/entities/paths";
-import { MarkdownText } from "@/components/MarkdownText";
+import { NotesContent } from "@/components/NotesContent";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
 
@@ -144,7 +144,7 @@ export function EquipmentDetail() {
               : "Notes"}
           </h2>
           <div className="mt-1 prose prose-sm max-w-none dark:prose-invert">
-            {notes.length > 0 ? <MarkdownText value={notes} /> : <p>{emptyLabel}</p>}
+            {notes.length > 0 ? <NotesContent value={notes} /> : <p>{emptyLabel}</p>}
           </div>
         </div>
       </DetailCard>

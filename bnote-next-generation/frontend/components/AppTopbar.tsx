@@ -20,8 +20,9 @@ import { prefixPath } from "@/lib/path";
 import { useSearch } from "@/contexts/SearchContext";
 import { SearchAutocompleteOverlay } from "@/components/SearchAutocompleteOverlay";
 import { useEffect, useRef, useState } from "react";
-import { checkSession } from "@/lib/auth";
+import { checkSession, type SessionUser } from "@/lib/auth";
 import { Search, Menu, X, LogOut, User } from "@/components/icons";
+import { Avatar } from "@/components/Avatar";
 
 function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);
@@ -43,7 +44,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const router = useRouter();
   const { t } = useI18n();
   const { query, setQuery, setOverlayOpen } = useSearch();
-  const [user, setUser] = useState<{ name?: string; surname?: string } | null>(null);
+  const [user, setUser] = useState<SessionUser | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const searchAnchorRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -66,10 +67,6 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [menuOpen]);
 
-  const initials =
-    user?.name || user?.surname
-      ? [user.name?.charAt(0) ?? "", user.surname?.charAt(0) ?? ""].join("").toUpperCase() || "U"
-      : "U";
   const fullName = [user?.name, user?.surname].filter(Boolean).join(" ") || t("js.common.user");
 
   async function handleLogout() {
@@ -147,11 +144,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
             aria-expanded={menuOpen}
             aria-haspopup="true"
           >
-            <div className="avatar avatar-placeholder">
-              <span className="rounded-full bg-primary text-primary-content size-8 text-xs font-semibold">
-                {initials}
-              </span>
-            </div>
+            <Avatar email={user?.email} name={fullName} size={32} variant="solid" />
             <span className="hidden sm:block text-xs font-semibold text-left text-base-content">
               {fullName}
             </span>

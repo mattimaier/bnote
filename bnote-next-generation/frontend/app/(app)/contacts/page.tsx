@@ -15,6 +15,7 @@ import { getEntityPath } from "@/lib/entities/paths";
 import { compareString, type SortDirection } from "@/lib/table-sort";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
+import { Avatar } from "@/components/Avatar";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
@@ -238,6 +239,7 @@ export default function ContactsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-base-300 bg-base-200/50">
+                  <th className="w-12 p-3" aria-hidden />
                   <ContactsSortableTh label={t("js.contacts.firstName")} sortKey="name" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                   <ContactsSortableTh label={t("js.contacts.lastName")} sortKey="surname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                   <ContactsSortableTh label={t("js.contacts.nickname")} sortKey="nickname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
@@ -250,7 +252,7 @@ export default function ContactsPage() {
               <tbody>
                 {sortedContacts.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center text-base-content/60">
+                    <td colSpan={8} className="p-8 text-center text-base-content/60">
                       {t("js.contacts.noContacts") !== "js.contacts.noContacts" ? t("js.contacts.noContacts") : "No contacts found"}
                     </td>
                   </tr>
@@ -261,6 +263,14 @@ export default function ContactsPage() {
                       className="border-b border-base-300 hover:bg-base-200/50 transition-colors cursor-pointer"
                       onClick={() => openDetail(c.id)}
                     >
+                      <td className="p-3 w-12 align-middle">
+                        <Avatar
+                          email={c.email}
+                          name={[c.name, c.surname].filter(Boolean).join(" ").trim() || emptyText}
+                          size={32}
+                          variant="soft"
+                        />
+                      </td>
                       <td className="p-3 font-medium">{c.name ?? emptyText}</td>
                       <td className="p-3">{c.surname ?? emptyText}</td>
                       <td className="p-3">{c.nickname ?? emptyText}</td>

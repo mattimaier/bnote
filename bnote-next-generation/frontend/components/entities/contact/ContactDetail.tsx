@@ -14,7 +14,8 @@ import { contactsApi, type ContactDetail, type ContactGroup } from "@/lib/contac
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
-import { MarkdownText } from "@/components/MarkdownText";
+import { Avatar } from "@/components/Avatar";
+import { NotesContent } from "@/components/NotesContent";
 import { formatDateShortDisplay } from "@/lib/date-time";
 
 export function ContactDetail() {
@@ -88,6 +89,18 @@ export function ContactDetail() {
   }
 
   const title = `${contact.name ?? ""} ${contact.surname ?? ""}`.trim() || emptyText;
+  const titleWithAvatar = (
+    <div className="flex items-center gap-3">
+      <Avatar
+        email={contact.email}
+        name={title}
+        size={40}
+        variant="solid"
+        className="shrink-0"
+      />
+      <span className="truncate">{title}</span>
+    </div>
+  );
   const birthdayValue =
     contact.birthday && contact.birthday !== "0000-00-00"
       ? formatDateShortDisplay(contact.birthday, lang)
@@ -105,7 +118,7 @@ export function ContactDetail() {
   return (
     <div className="mx-auto max-w-2xl space-y-4 p-4 md:space-y-6 md:p-6">
       <DetailPageHeader
-        title={title}
+        title={titleWithAvatar}
         subtitle={label("js.contacts.subtitle", "Manage contacts and groups")}
         right={
           <DetailEditButton
@@ -221,7 +234,7 @@ export function ContactDetail() {
             {label("js.contacts.notes", "Notes")}
           </span>
           <div className="text-sm mt-1 prose prose-sm max-w-none dark:prose-invert">
-            {contact.notes ? <MarkdownText value={contact.notes} /> : <p>{emptyText}</p>}
+            {contact.notes ? <NotesContent value={contact.notes} /> : <p>{emptyText}</p>}
           </div>
         </div>
 

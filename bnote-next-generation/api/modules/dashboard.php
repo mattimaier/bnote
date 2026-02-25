@@ -30,6 +30,7 @@
 // Just load the module-specific data class
 // Use BNOTE_ROOT constant from paths.php (loaded by api/index.php)
 require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
+require_once BNOTE_ROOT . '/src/data/modules/nachrichtendata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
@@ -70,7 +71,9 @@ class DashboardModule {
     private function getDashboard() {
         global $system_data;
         
-        $news = $this->data->getNews();
+        // Raw news content (for EditorJS JSON or legacy HTML/text)
+        $newsData = new NachrichtenData($GLOBALS['dir_prefix'] ?? '');
+        $news = $newsData->fetchContent();
         
         // Get ALL inbox items (not limited)
         $allInboxItems = $this->getAllInboxItems();
@@ -89,7 +92,7 @@ class DashboardModule {
         $futureConcerts = $this->data->adp()->getFutureConcerts();
         
         return [
-            'news' => $news ?: [],
+            'news' => $news !== false ? (string) $news : '',
             'inbox' => $formattedInbox, // All formatted events
             'counts' => $counts,
             'config' => [

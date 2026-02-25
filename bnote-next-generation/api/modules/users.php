@@ -84,7 +84,7 @@ class UsersModule {
         global $system_data;
         $query = "SELECT u.id, u.isActive, u.login, ";
         $query .= "c.name as firstName, c.surname as lastName, ";
-        $query .= "CONCAT_WS(' ', c.name, c.surname) as name, u.lastlogin";
+        $query .= "CONCAT_WS(' ', c.name, c.surname) as name, c.email, u.lastlogin";
         $query .= " FROM user u LEFT JOIN contact c ON u.contact = c.id";
         
         $params = [];
@@ -110,6 +110,7 @@ class UsersModule {
                 'name' => $user['name'] ?? '', // Keep for backward compatibility
                 'firstName' => $user['firstName'] ?? '',
                 'lastName' => $user['lastName'] ?? '',
+                'email' => $user['email'] ?? null,
                 'isActive' => intval($user['isActive']) === 1,
                 'lastlogin' => $user['lastlogin'] ?? null
             ];
@@ -135,7 +136,7 @@ class UsersModule {
         
         // Use explicit join query to ensure contact id is returned correctly.
         $query = "SELECT u.id, u.login, u.isActive, u.lastlogin, u.contact, ";
-        $query .= "c.name as contactname, c.surname as contactsurname ";
+        $query .= "c.name as contactname, c.surname as contactsurname, c.email as contact_email ";
         $query .= "FROM user u LEFT JOIN contact c ON u.contact = c.id ";
         $query .= "WHERE u.id = ?";
         $rows = $system_data->dbcon->getSelection($query, [['i', $id]]);
@@ -158,6 +159,9 @@ class UsersModule {
             $result['contactName'] = trim(($user['contactname'] ?? '') . ' ' . ($user['contactsurname'] ?? ''));
             $result['contactSurname'] = $user['contactsurname'] ?? '';
             $result['contactFirstName'] = $user['contactname'] ?? '';
+        }
+        if (array_key_exists('contact_email', $user)) {
+            $result['contactEmail'] = $user['contact_email'] ?? null;
         }
 
         return $result;

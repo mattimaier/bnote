@@ -15,9 +15,12 @@ import { mapOtypeToEventType } from "@/lib/event-utils";
 import { EventCard, type InboxEvent } from "@/components/EventCard";
 import { getIcon } from "@/components/icons";
 import { isQuickActionsEnabled } from "@/lib/entity-config";
+import { useModules } from "@/lib/use-modules";
+import edjsHTML from "editorjs-html";
 
 interface DashboardData {
   inbox: InboxEvent[];
+  news?: string;
   company?: string | Record<string, string> | string[];
   counts?: { rehearsal: number; performance: number; meeting: number };
   config?: { max_show?: number };
@@ -57,6 +60,28 @@ function isHiddenEvent(event: InboxEvent): boolean {
 type SectionId = "events-needing-response" | "events-timeline";
 
 const MAX_SHOW_DEFAULT = 5;
+
+/** Render news content: EditorJS JSON → HTML via editorjs-html; legacy → HTML (newlines to br). */
+function useNewsHtml(news: string | undefined): string {
+  return useMemo(() => {
+    if (!news || typeof news !== "string") return "";
+    const trimmed = news.trim();
+    if (!trimmed) return "";
+    if (trimmed.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(trimmed) as { blocks?: unknown[] };
+        if (Array.isArray(parsed?.blocks)) {
+          const parser = edjsHTML();
+          const html = parser.parse(parsed as import("@editorjs/editorjs").OutputData);
+          return typeof html === "string" ? html : "";
+        }
+      } catch {
+        // fall through to legacy
+      }
+    }
+    return trimmed.replace(/\n/g, "<br />\n");
+  }, [news]);
+}
 
 export default function DashboardPage() {
   const { t, ready, lang } = useI18n();
@@ -99,11 +124,11 @@ export default function DashboardPage() {
         "events-timeline": maxTimeline,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load dashboard");
+      setError(t("js.dashboard.loadError") !== "js.dashboard.loadError" ? t("js.dashboard.loadError") : err instanceof Error ? err.message : "Failed to load dashboard");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!ready) return;
@@ -193,6 +218,12 @@ export default function DashboardPage() {
       [sectionId]: prev[sectionId] + max,
     }));
   }, [maxNeed, maxTimeline]);
+
+  const modules = useModules();
+  const canEditNews = Boolean(modules?.some((m) => (m.route ?? "").replace(/^\//, "").toLowerCase() === "news" || m.name === "Nachrichten"));
+  const newsContent = dashboard?.news;
+  const hasNews = Boolean(newsContent && String(newsContent).trim());
+  const newsHtml = useNewsHtml(hasNews ? String(newsContent) : undefined);
 
   const defaultCounts = { rehearsal: 0, performance: 0, meeting: 0 };
   const filterCountsNeed: { rehearsal: number; performance: number; meeting: number } =
@@ -310,6 +341,33 @@ export default function DashboardPage() {
       </div>
 
       <div className="space-y-4">
+        {/* News card (FlyonUI Card) – top of dashboard when news is present */}
+        {hasNews && newsHtml && (
+          <div
+            className="card card-border shadow-sm rounded-xl overflow-hidden"
+            style={{
+              borderColor: "color-mix(in oklch, var(--primary) 25%, transparent)",
+              backgroundColor: "color-mix(in oklch, var(--primary) 10%, transparent)",
+              color: "var(--color-base-content)",
+            }}
+          >
+            <div className="card-header px-4 py-3 border-b border-border/30 flex flex-row items-center justify-between gap-3">
+              <h2 className="card-title text-base font-semibold m-0">
+                {t("js.sidebar.news") !== "js.sidebar.news" ? t("js.sidebar.news") : "News"}
+              </h2>
+              {canEditNews && (
+                <Link href="/news/" className="btn btn-soft btn-sm btn-primary text-sm shrink-0">
+                  {t("js.news.edit") !== "js.news.edit" ? t("js.news.edit") : "Edit"}
+                </Link>
+              )}
+            </div>
+            <div
+              className="card-body px-4 py-3 text-base-content/90 rich-text-content"
+              dangerouslySetInnerHTML={{ __html: newsHtml }}
+            />
+          </div>
+        )}
+
         {/* Quick actions (config: features.showQuickActions) */}
         {isQuickActionsEnabled() && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 rounded-xl border border-border/40 p-4 shadow-sm bg-card text-card-foreground">
@@ -391,7 +449,7 @@ export default function DashboardPage() {
           <div className="relative space-y-2 md:space-y-3 px-1 md:px-4 lg:px-5">
             {showTimeline.length === 0 ? (
               <p className="text-sm py-8 text-center" style={{ color: "var(--muted-foreground)" }}>
-                No upcoming events scheduled.
+                {t("js.dashboard.noUpcomingEvents") !== "js.dashboard.noUpcomingEvents" ? t("js.dashboard.noUpcomingEvents") : "No upcoming events scheduled."}
               </p>
             ) : (
               showTimeline.map((ev, idx) => (

@@ -17,6 +17,7 @@ import { formatDateTimeShort } from "@/lib/date-time";
 import { getStatusPillStyle, getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
+import { Avatar } from "@/components/Avatar";
 import { getIcon } from "@/components/icons";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 
@@ -201,6 +202,7 @@ export default function UsersPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-base-300 bg-base-200/50">
+                  <th className="w-12 p-3" aria-hidden />
                   <SortableTh label={t("js.users.login")} sortKey="login" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                   <SortableTh label={t("js.users.firstName")} sortKey="firstName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                   <SortableTh label={t("js.users.lastName")} sortKey="lastName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
@@ -211,7 +213,7 @@ export default function UsersPage() {
               <tbody>
                 {sortedUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-base-content/60">
+                    <td colSpan={6} className="p-8 text-center text-base-content/60">
                       {t("js.users.noUsers") !== "js.users.noUsers" ? t("js.users.noUsers") : "No users found"}
                     </td>
                   </tr>
@@ -222,6 +224,14 @@ export default function UsersPage() {
                       className="border-b border-base-300 hover:bg-base-200/50 transition-colors cursor-pointer"
                       onClick={() => openDetail(u.id)}
                     >
+                      <td className="p-3 w-12 align-middle">
+                        <Avatar
+                          email={u.email}
+                          name={[u.firstName ?? u.name, u.lastName].filter(Boolean).join(" ").trim() || u.login}
+                          size={32}
+                          variant="soft"
+                        />
+                      </td>
                       <td className="p-3 font-medium">{u.login}</td>
                       <td className="p-3">{u.firstName ?? u.name ?? emptyText}</td>
                       <td className="p-3">{u.lastName ?? emptyText}</td>

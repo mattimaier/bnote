@@ -19,9 +19,11 @@ import ConcertsPage from "@/app/_modules/concerts/page";
 import RehearsalsPage from "@/app/_modules/rehearsals/page";
 import SearchPage from "@/app/_modules/search/page";
 import SharePage from "@/app/_modules/share/page";
+import NewsPage from "@/app/_modules/news/page";
 
 const MODULE_PAGES: Record<string, () => ReactNode> = {
   dashboard: () => <DashboardPage />,
+  news: () => <NewsPage />,
   locations: () => <LocationsPage />,
   contacts: () => <ContactsPage />,
   users: () => <UsersPage />,

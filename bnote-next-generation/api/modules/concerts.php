@@ -367,7 +367,7 @@ class ConcertsModule {
             
             // Custom query to get participants with reason and category info
             $partQuery = "SELECT i.id as instrument_id, i.name as instrument, i.category as category_id, c.name as category_name,
-                         ct.id as contact_id, CONCAT(ct.name, ' ', ct.surname) as contactname, 
+                         ct.id as contact_id, CONCAT(ct.name, ' ', ct.surname) as contactname, ct.email as contact_email,
                          u.id as user_id, IFNULL(cu.participate, -1) as participate, cu.reason
                          FROM concert_contact cc
                          JOIN contact ct ON cc.contact = ct.id
@@ -412,6 +412,7 @@ class ConcertsModule {
                         'id' => intval($participant['contact_id']),
                         'userId' => intval($participant['user_id']),
                         'name' => $participant['contactname'],
+                        'email' => $participant['contact_email'] ?? null,
                         'participate' => $participate,
                         'reason' => $participant['reason'] ?? null
                     ];
@@ -615,7 +616,15 @@ class ConcertsModule {
             $values['approve_until'] = $values['begin'];
         }
 
+        // Legacy KonzertData::validate uses Regex::isText() which rejects " and \ (EditorJS JSON).
+        // Validate with notes/conditions cleared, then restore so update() stores the real values.
+        $notesBackup = $values['notes'];
+        $conditionsBackup = $values['conditions'];
+        $values['notes'] = '';
+        $values['conditions'] = '';
         $this->data->validate($values);
+        $values['notes'] = $notesBackup;
+        $values['conditions'] = $conditionsBackup;
         $this->data->update($id, $values);
 
         if (array_key_exists('groups', $payload)) {

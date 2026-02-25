@@ -288,6 +288,11 @@ class AuthModule {
                 'route' => '/votes',
                 'icon' => 'vote',
                 'i18n' => 'js.sidebar.votes'
+            ],
+            'Nachrichten' => [
+                'route' => '/news',
+                'icon' => 'newspaper',
+                'i18n' => 'js.sidebar.news'
             ]
         ];
         

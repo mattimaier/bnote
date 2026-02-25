@@ -19,7 +19,7 @@ import { getEntityPath } from "@/lib/entities/paths";
 import { getStatusPillStyle, getEventTypeConfig } from "@/lib/entity-config";
 import { compareDate, compareString, type SortDirection } from "@/lib/table-sort";
 import { AddressLink } from "@/components/AddressLink";
-import { MarkdownText } from "@/components/MarkdownText";
+import { NotesContent } from "@/components/NotesContent";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
@@ -157,7 +157,7 @@ export function LocationDetail() {
             {t("js.locations.notes") !== "js.locations.notes" ? t("js.locations.notes") : "Notes"}
           </h2>
           <div className="mt-1 prose prose-sm max-w-none dark:prose-invert">
-            {notes.length > 0 ? <MarkdownText value={notes} /> : <p>{emptyLabel}</p>}
+            {notes.length > 0 ? <NotesContent value={notes} /> : <p>{emptyLabel}</p>}
           </div>
         </div>
 

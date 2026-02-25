@@ -12,6 +12,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   name?: string;
+  email?: string | null;
   isActive: boolean;
   lastlogin?: string | null;
 }
@@ -25,6 +26,7 @@ export interface UserDetail {
   contactName?: string;
   contactFirstName?: string;
   contactSurname?: string;
+  contactEmail?: string | null;
 }
 
 export interface ContactOption {

@@ -17,6 +17,7 @@ import { formatDateTimeShort } from "@/lib/date-time";
 import { getStatusPillStyle } from "@/lib/entity-config";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
+import { Avatar } from "@/components/Avatar";
 
 function normalizeName(value: string) {
   return value.trim().toLowerCase();
@@ -121,6 +122,20 @@ export function UserDetail() {
   }
 
   const title = user.login || emptyText;
+  const contactDisplayName =
+    [user.contactFirstName, user.contactSurname].filter(Boolean).join(" ").trim() || title;
+  const titleWithAvatar = (
+    <div className="flex items-center gap-3">
+      <Avatar
+        email={user.contactEmail}
+        name={contactDisplayName}
+        size={40}
+        variant="solid"
+        className="shrink-0"
+      />
+      <span className="truncate">{title}</span>
+    </div>
+  );
   const statusLabel = user.isActive
     ? t("js.users.active") !== "js.users.active"
       ? t("js.users.active")
@@ -136,7 +151,7 @@ export function UserDetail() {
   return (
     <div className="mx-auto max-w-2xl space-y-4 p-4 md:space-y-6 md:p-6">
       <DetailPageHeader
-        title={title}
+        title={titleWithAvatar}
         subtitle={t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"}
         right={<DetailEditButton onClick={() => router.push(getEntityPath("user", user.id, "edit"))} />}
       />

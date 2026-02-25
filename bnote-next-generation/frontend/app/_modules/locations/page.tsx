@@ -14,7 +14,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { locationsApi, type Location } from "@/lib/locations-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { compareNumber, compareString, type SortDirection } from "@/lib/table-sort";
-import { MarkdownText } from "@/components/MarkdownText";
+import { NotesContent } from "@/components/NotesContent";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
@@ -277,7 +277,7 @@ export default function LocationsPage() {
                       <td className="p-3 font-medium">{loc.name ?? emptyText}</td>
                       <td className="p-3">
                         {loc.notes ? (
-                          <MarkdownText value={loc.notes} className="max-w-[200px] whitespace-pre-wrap break-words" />
+                          <NotesContent value={loc.notes} className="max-w-[200px] whitespace-pre-wrap break-words" />
                         ) : (
                           emptyText
                         )}
