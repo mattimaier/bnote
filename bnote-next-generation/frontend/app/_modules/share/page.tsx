@@ -21,6 +21,8 @@ import { ShareFileList } from "@/components/share/ShareFileList";
 import { ShareUploadZone } from "@/components/share/ShareUploadZone";
 import { getIcon } from "@/components/icons";
 import { ChevronRight, FolderPlus, Download } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 import type { ShareSortKey, SortDirection } from "@/components/share/ShareFileList";
 
 export default function SharePage() {
@@ -46,7 +48,7 @@ export default function SharePage() {
       const res = await shareApi.listRoots();
       setRoots(res.roots ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("js.share.failedToLoad"));
+      setError(getErrorMessage(err, t, "js.share.failedToLoad"));
     }
   }, [t]);
 
@@ -62,7 +64,7 @@ export default function SharePage() {
         );
         setBrowseResult(res);
       } catch (err) {
-        setError(err instanceof Error ? err.message : t("js.share.failedToLoad"));
+        setError(getErrorMessage(err, t, "js.share.failedToLoad"));
         setBrowseResult(null);
       } finally {
         setLoading(false);
@@ -167,9 +169,7 @@ export default function SharePage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div
-          className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent"
-        />
+        <Spinner />
       </div>
     );
   }
@@ -298,7 +298,7 @@ export default function SharePage() {
           {/* File list */}
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+              <Spinner />
             </div>
           ) : browseResult ? (
             <ShareFileList

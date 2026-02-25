@@ -15,6 +15,8 @@ import { getEntityPath } from "@/lib/entities/paths";
 import { MarkdownText } from "@/components/MarkdownText";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export function OutfitDetail() {
   const { id } = useEntityParams();
@@ -37,7 +39,7 @@ export function OutfitDetail() {
       .get(numId)
       .then(setItem)
       .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load")
+        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
       )
       .finally(() => setLoading(false));
   }, [id, ready]);
@@ -45,7 +47,7 @@ export function OutfitDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -58,7 +60,7 @@ export function OutfitDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

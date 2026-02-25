@@ -21,6 +21,8 @@ import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { formatDateTimeShort } from "@/lib/date-time";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 type SortKey = "name" | "end" | "status";
 
@@ -46,7 +48,7 @@ export default function VotesPage() {
       setItems(list ?? []);
       setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load votes");
+      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
       if ((err as { status?: number }).status === 403) {
         showToast(
           t("js.error.votesAccessDenied") !== "js.error.votesAccessDenied"
@@ -140,7 +142,7 @@ export default function VotesPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -181,7 +183,7 @@ export default function VotesPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+          <Spinner />
         </div>
       ) : (
         <>
@@ -341,7 +343,7 @@ function VotesTable({
       >
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+            <Spinner />
           </div>
         ) : (
           <ResponsiveTable<Vote, SortKey>

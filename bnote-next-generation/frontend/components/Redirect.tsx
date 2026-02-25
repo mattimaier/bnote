@@ -14,6 +14,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { checkSession } from "@/lib/auth";
+import { Spinner } from "@/components/Spinner";
 export function Redirect() {
   const router = useRouter();
   const [done, setDone] = useState(false);
@@ -37,7 +38,7 @@ export function Redirect() {
   if (!done) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent dark:border-zinc-500" />
+        <Spinner variant="muted" />
       </div>
     );
   }

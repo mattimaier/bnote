@@ -19,6 +19,7 @@ import { I18nProvider, useI18n } from "@/contexts/I18nContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getBnoteLogoUrl } from "@/lib/bnote-assets";
 import { safeString } from "@/lib/string-utils";
+import { Spinner } from "@/components/Spinner";
 
 interface PublicConfig {
   lang?: string;
@@ -87,7 +88,7 @@ function LoginFormInner() {
   if (!ready) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-base-100">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -197,7 +198,7 @@ function LoginForm() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-base-100">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <Spinner />
         </div>
       }
     >

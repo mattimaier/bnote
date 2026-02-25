@@ -30,9 +30,11 @@ Output is in `out/`. Copy the **contents** of `out/` into the same web root that
 ## Project layout
 
 - `app/` – App Router pages (login, dashboard, users, contacts, search, entity)
-- `components/` – Shared React components
-- `lib/` – API client, auth, entity config, utilities
+- `components/` – Shared React components (see below)
+- `lib/` – API client, auth, entity config, utilities, error helpers
 - `config/` – e.g. `entity-config.json`
 - `contexts/` – I18n, toast, search
+
+**Key shared components:** `Spinner` (loading), `DetailSection` / `DETAIL_SECTION_CLASS` (detail page cards), `EntityLink` (entity links with permission check), `components/dashboard/DashboardContent`, `components/search/SearchPageContent`. Error messages use `getErrorMessage()` from `lib/error-utils.ts` with i18n keys (`js.common.failedToLoad`, `js.common.saveFailed`, etc.).
 
 See the repo root [README.md](../README.md) and [docs/FEATURES_AND_BEHAVIORS.md](../docs/FEATURES_AND_BEHAVIORS.md) for behavior and regression reference.

@@ -16,6 +16,8 @@ import { locationsApi, type LocationDetail } from "@/lib/locations-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { NotesEditor } from "@/components/NotesEditor";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export function LocationEdit() {
   const { id } = useEntityParams();
@@ -54,7 +56,7 @@ export function LocationEdit() {
         setState(loc.state ?? "");
         setCountry(loc.country ?? "");
       })
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"))
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
@@ -85,8 +87,9 @@ export function LocationEdit() {
         router.replace(getEntityPath("location", id, "view"));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
-      showToast(err instanceof Error ? err.message : "Save failed", "error");
+      const msg = getErrorMessage(err, t, "js.common.saveFailed");
+      setError(msg);
+      showToast(msg, "error");
     } finally {
       setSaving(false);
     }
@@ -120,7 +123,7 @@ export function LocationEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -128,7 +131,7 @@ export function LocationEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

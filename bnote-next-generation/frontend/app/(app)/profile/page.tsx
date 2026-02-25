@@ -18,6 +18,8 @@ import { SelectPicker } from "@/components/SelectPicker";
 import { NotesContent } from "@/components/NotesContent";
 import { NotesEditor } from "@/components/NotesEditor";
 import { formatDateShortDisplay } from "@/lib/date-time";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -46,8 +48,9 @@ export default function ProfilePage() {
       setContact(contactRes ?? null);
       setInstruments(instrumentsRes ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load profile");
-      showToast(t("js.profile.loadError") !== "js.profile.loadError" ? t("js.profile.loadError") : "Failed to load profile", "error");
+      const msg = getErrorMessage(err, t, "js.profile.loadError");
+      setError(msg);
+      showToast(msg, "error");
     } finally {
       setLoading(false);
     }
@@ -101,7 +104,7 @@ export default function ProfilePage() {
       loadData();
       showToast(t("js.profile.saved") !== "js.profile.saved" ? t("js.profile.saved") : "Data saved successfully", "success");
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Failed to save", "error");
+      showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
     } finally {
       setSaving(false);
     }
@@ -138,7 +141,7 @@ export default function ProfilePage() {
   if (!ready || loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

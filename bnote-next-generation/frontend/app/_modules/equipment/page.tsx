@@ -20,6 +20,8 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 type SortKey = "name" | "make" | "model" | "quantity" | "current_value";
 
@@ -44,7 +46,7 @@ export default function EquipmentPage() {
       setItems(list ?? []);
       setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load equipment");
+      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
       if ((err as { status?: number }).status === 403) {
         showToast(
           t("js.error.equipmentAccessDenied") !== "js.error.equipmentAccessDenied"
@@ -128,7 +130,7 @@ export default function EquipmentPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -188,7 +190,7 @@ export default function EquipmentPage() {
       >
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Spinner />
           </div>
         ) : (
           <ResponsiveTable<Equipment, SortKey>

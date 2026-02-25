@@ -41,7 +41,9 @@ export async function POST(request: NextRequest) {
     const json = await res.json();
     return NextResponse.json(json, { status: res.status });
   } catch (err) {
-    console.error("Share upload proxy error:", err);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Share upload proxy error:", err);
+    }
     return NextResponse.json(
       { success: false, error: "Upload proxy failed" },
       { status: 500 }

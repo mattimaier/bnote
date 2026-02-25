@@ -79,7 +79,9 @@ bnote-next-generation/api/
     ├── auth.php               # Authentication module
     ├── dashboard.php          # Dashboard module
     ├── users.php              # Users module
-    ├── contacts.php           # Contacts module
+    ├── contacts.php           # Contacts module (dispatches to contacts/* handlers)
+    ├── contacts/               # Contacts sub-handlers (CRUD, etc.)
+    │   └── ContactsCRUD.php   # list, get, create, update, delete
     ├── rehearsals.php         # Rehearsals module
     ├── concerts.php           # Concerts module
     ├── participation.php      # Participation module

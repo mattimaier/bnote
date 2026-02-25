@@ -16,6 +16,8 @@ import { equipmentApi, type EquipmentDetail } from "@/lib/equipment-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { NotesEditor } from "@/components/NotesEditor";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export function EquipmentEdit() {
   const { id } = useEntityParams();
@@ -57,7 +59,7 @@ export function EquipmentEdit() {
         setNotes(eq.notes ?? "");
       })
       .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load")
+        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
       )
       .finally(() => setLoading(false));
   }, [id, isNew]);
@@ -101,11 +103,9 @@ export function EquipmentEdit() {
         router.replace(getEntityPath("equipment", id, "view"));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
-      showToast(
-        err instanceof Error ? err.message : "Save failed",
-        "error"
-      );
+      const msg = getErrorMessage(err, t, "js.common.saveFailed");
+      setError(msg);
+      showToast(msg, "error");
     } finally {
       setSaving(false);
     }
@@ -139,7 +139,7 @@ export function EquipmentEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -147,7 +147,7 @@ export function EquipmentEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

@@ -20,6 +20,8 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { Avatar } from "@/components/Avatar";
 import { getIcon } from "@/components/icons";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export default function UsersPage() {
   const searchParams = useSearchParams();
@@ -41,7 +43,7 @@ export default function UsersPage() {
       setUsers(list ?? []);
       setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load users");
+      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
       if ((err as { status?: number }).status === 403) {
         showToast(t("js.error.usersAccessDenied") !== "js.error.usersAccessDenied" ? t("js.error.usersAccessDenied") : "Access denied", "error");
       }
@@ -116,7 +118,7 @@ export default function UsersPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -161,7 +163,7 @@ export default function UsersPage() {
       <div className="rounded-box border border-base-300 overflow-hidden bg-base-100 text-base-content">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Spinner />
           </div>
         ) : (
           <ResponsiveTable<User, "login" | "firstName" | "lastName" | "status" | "lastLogin">

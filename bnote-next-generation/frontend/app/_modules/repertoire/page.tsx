@@ -21,6 +21,8 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 type SortKey = "title" | "composer" | "genre" | "status";
 const toStatusKey = (value: string) => value.trim().toLowerCase().replace(/\s+/g, "-");
@@ -46,7 +48,7 @@ export default function RepertoirePage() {
       setItems(list ?? []);
       setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load repertoire");
+      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
       if ((err as { status?: number }).status === 403) {
         showToast(
           t("js.error.repertoireAccessDenied") !== "js.error.repertoireAccessDenied"
@@ -120,7 +122,7 @@ export default function RepertoirePage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -178,7 +180,7 @@ export default function RepertoirePage() {
       <div className="overflow-hidden rounded-box border border-base-300 bg-base-100 text-base-content">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Spinner />
           </div>
         ) : (
           <ResponsiveTable<Song, SortKey>

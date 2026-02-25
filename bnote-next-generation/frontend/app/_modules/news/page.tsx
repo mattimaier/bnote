@@ -13,6 +13,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { api } from "@/lib/api";
 import { NotesEditor } from "@/components/NotesEditor";
+import { Spinner } from "@/components/Spinner";
 
 interface NewsGetResponse {
   content: string;
@@ -119,7 +120,7 @@ export default function NewsPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -183,7 +184,7 @@ export default function NewsPage() {
           <div className="bg-white shadow-base-300/20 rounded-box w-full p-4 min-h-[280px]">
             {loading && (
               <div className="flex items-center justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+                <Spinner />
               </div>
             )}
             {!loading && (

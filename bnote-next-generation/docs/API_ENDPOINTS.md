@@ -555,6 +555,8 @@ Save user participation (same as rehearsals).
 
 ## Contacts
 
+The contacts module is implemented with delegated handlers: `ContactsModule` in `modules/contacts.php` dispatches by action. CRUD actions (list, get, create, update, delete) are handled by `ContactsCRUD` in `modules/contacts/ContactsCRUD.php`. The public API and URL/request format are unchanged.
+
 ### GET /api/v1/contacts
 
 List all contacts.

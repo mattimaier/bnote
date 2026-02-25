@@ -15,6 +15,8 @@ import { useEditingBar } from "@/contexts/EditingBarContext";
 import { outfitsApi, type OutfitDetail } from "@/lib/outfits-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export function OutfitEdit() {
   const { id } = useEntityParams();
@@ -44,7 +46,7 @@ export function OutfitEdit() {
         setDescription(o.description ?? "");
       })
       .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load")
+        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
       )
       .finally(() => setLoading(false));
   }, [id, isNew]);
@@ -118,7 +120,7 @@ export function OutfitEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -126,7 +128,7 @@ export function OutfitEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

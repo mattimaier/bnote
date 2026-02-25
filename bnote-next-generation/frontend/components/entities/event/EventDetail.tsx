@@ -54,6 +54,11 @@ import { getEventViewActions } from "@/lib/entities/event/actions";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { DetailEditButton } from "@/components/DetailPageHeader";
 import { LayoutList, Trash2 } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
+import { DETAIL_SECTION_CLASS } from "@/components/DetailSection";
+import { EntityLink } from "@/components/EntityLink";
+import { useEventDetailData } from "@/lib/entities/event/useEventDetailData";
 
 export interface EventDetailProps {
   type?: string;
@@ -63,31 +68,6 @@ export interface EventDetailProps {
   initialData?: Record<string, unknown>;
   /** Optional content to render inside the root container after the main content (e.g. comments). */
   renderAfterContent?: React.ReactNode;
-}
-
-/** Renders name as link to entity when user has view permission, else plain text. */
-function EntityLink({
-  entityType,
-  id,
-  name,
-  modules,
-  children,
-  emptyLabel = "",
-}: {
-  entityType: string;
-  id: number | undefined;
-  name: string;
-  modules: ReturnType<typeof useModules>;
-  children?: React.ReactNode;
-  emptyLabel?: string;
-}) {
-  const text = (children ?? name) || emptyLabel;
-  if (!id || !canViewEntityType(entityType, modules)) return <span>{text}</span>;
-  return (
-    <Link href={getEntityPath(entityType, id)} className="text-inherit no-underline">
-      {text}
-    </Link>
-  );
 }
 
 export function EventDetail({
@@ -104,10 +84,13 @@ export function EventDetail({
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
   const type = typeProp ?? searchParams.get("type") ?? "";
   const id = idProp ?? searchParams.get("id") ?? "";
-  const [data, setData] = useState<Record<string, unknown> | null>(initialDataProp ?? null);
-  const [loading, setLoading] = useState(!initialDataProp);
-  const [error, setError] = useState("");
-  const [meta, setMeta] = useState<RehearsalMeta | ConcertMeta | null>(null);
+  const { data, meta, loading, error, setError, reload: loadData, loadMeta } = useEventDetailData(
+    type,
+    id,
+    initialDataProp ?? null,
+    ready,
+    t
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -172,51 +155,6 @@ export function EventDetail({
   const eventType = type === "rehearsal" ? "R" : "C";
   const canEdit = isNew || Boolean((data as { canEdit?: boolean } | null)?.canEdit);
   const canEditParticipation = isNew || Boolean((data as { canEditParticipation?: boolean } | null)?.canEditParticipation);
-
-  const loadData = useCallback(async () => {
-    if (!ready || !type || !id || isNaN(numId)) return;
-    try {
-      const result = await api.get<Record<string, unknown>>(module, "", { id: String(numId) });
-      setData(result);
-      setError("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load");
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [ready, type, id, numId, module]);
-
-  const loadMeta = useCallback(async () => {
-    if (!ready || !canEdit) return;
-    try {
-      const result = await api.get<RehearsalMeta | ConcertMeta>(module, "meta");
-      setMeta(result);
-    } catch {
-      setMeta(null);
-    }
-  }, [ready, canEdit, module]);
-
-  useEffect(() => {
-    if (initialDataProp != null) {
-      setLoading(false);
-      return;
-    }
-    if (!ready || !type || !id) {
-      setLoading(false);
-      return;
-    }
-    if (isNew) {
-      setData({ canEdit: true, canEditParticipation: true });
-      setLoading(false);
-      return;
-    }
-    if (isNaN(numId)) {
-      setLoading(false);
-      return;
-    }
-    loadData();
-  }, [ready, type, id, numId, loadData, initialDataProp, isNew]);
 
   const rehearsalMeta = type === "rehearsal" ? (meta as RehearsalMeta | null) : null;
   const concertMeta = type === "concert" ? (meta as ConcertMeta | null) : null;
@@ -334,7 +272,7 @@ export function EventDetail({
   if (!ready || loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -629,7 +567,7 @@ export function EventDetail({
     <div className="w-full max-w-none px-0 py-0 space-y-2 md:max-w-4xl md:mx-auto md:space-y-6 md:p-6">
       {/* Header + participation widget */}
       <div
-        className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
+        className={DETAIL_SECTION_CLASS}
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between md:gap-4">
           <div className="flex-1 min-w-0">
@@ -703,7 +641,7 @@ export function EventDetail({
       {/* Event actions (view mode only; config: features.showQuickActions) */}
       {!isEditing && isQuickActionsEnabled() && (type === "rehearsal" || type === "concert") && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
+          className={DETAIL_SECTION_CLASS}
         >
           <h2 className="text-sm font-semibold mb-2 md:mb-3 text-base-content/60">
             {t("js.event.actions.title") !== "js.event.actions.title" ? t("js.event.actions.title") : "Actions"}
@@ -750,7 +688,7 @@ export function EventDetail({
 
       {/* Basic info */}
       <div
-        className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
+        className={DETAIL_SECTION_CLASS}
       >
         <h2 className="text-lg font-semibold mb-2 md:mb-4 text-base-content">
           {t("js.event.detail.additionalInfo") !== "js.event.detail.additionalInfo"
@@ -938,7 +876,7 @@ export function EventDetail({
 
       {type === "rehearsal" && (isEditing || groups.length > 0) && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
+          className={DETAIL_SECTION_CLASS}
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-base-content">
@@ -984,7 +922,7 @@ export function EventDetail({
       {/* Participation overview (diagram) */}
       {!isEditing && participationStats && (participationStats.total ?? 0) > 0 && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
+          className={DETAIL_SECTION_CLASS}
         >
           <h2 className="text-lg font-semibold mb-2 md:mb-4 text-base-content">
             {t("js.event.detail.participationOverview") !== "js.event.detail.participationOverview"
@@ -998,7 +936,7 @@ export function EventDetail({
       {/* Participants by instrument */}
       {participantsByInstrument && participantsByInstrument.length > 0 && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
+          className={DETAIL_SECTION_CLASS}
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-base-content">
@@ -1089,7 +1027,7 @@ export function EventDetail({
           conditions ||
           contact) && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
+          className={DETAIL_SECTION_CLASS}
         >
           <h2 className="text-lg font-semibold mb-2 md:mb-4 text-base-content">
             {t("js.event.metadata.organisation") !== "js.event.metadata.organisation"
@@ -1354,7 +1292,7 @@ export function EventDetail({
       {/* Notes (rehearsal) */}
       {type === "rehearsal" && (notes?.trim() || isEditing) && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
+          className={DETAIL_SECTION_CLASS}
         >
           <h2 className="text-lg font-semibold mb-2 text-base-content">
             {t("js.event.detail.notes")}
@@ -1376,7 +1314,7 @@ export function EventDetail({
 
       {type === "rehearsal" && (isEditing || (Array.isArray(songsToPractice) && songsToPractice.length > 0)) && (
         <div
-          className="rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content"
+          className={DETAIL_SECTION_CLASS}
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-base-content">

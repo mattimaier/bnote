@@ -16,6 +16,8 @@ import { NotesContent } from "@/components/NotesContent";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
 import { getStatusPillStyle } from "@/lib/entity-config";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export function SongDetail() {
   const { id } = useEntityParams();
@@ -38,7 +40,7 @@ export function SongDetail() {
       .get(numId)
       .then(setItem)
       .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load")
+        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
       )
       .finally(() => setLoading(false));
   }, [id, ready]);
@@ -46,7 +48,7 @@ export function SongDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -59,7 +61,7 @@ export function SongDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

@@ -19,6 +19,8 @@ import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { SelectPicker } from "@/components/SelectPicker";
 import { MultiSelect } from "@/components/entities/event/MultiSelect";
 import { NotesEditor } from "@/components/NotesEditor";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export function ContactEdit() {
   const { id } = useEntityParams();
@@ -106,7 +108,7 @@ export function ContactEdit() {
         setShareBirthday(Boolean(contact.share_birthday));
         setIsConductor(Boolean(contact.is_conductor));
       })
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"))
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
@@ -164,7 +166,7 @@ export function ContactEdit() {
         router.replace(getEntityPath("contact", id, "view"));
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Save failed";
+      const message = getErrorMessage(err, t, "js.common.saveFailed");
       setError(message);
       showToast(message, "error");
     } finally {
@@ -207,7 +209,7 @@ export function ContactEdit() {
       );
       router.replace("/contacts");
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Delete failed", "error");
+      showToast(getErrorMessage(err, t, "js.common.deleteFailed"), "error");
     }
   };
 
@@ -216,7 +218,7 @@ export function ContactEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -224,7 +226,7 @@ export function ContactEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

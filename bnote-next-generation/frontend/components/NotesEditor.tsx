@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { parseNotesInitialData } from "@/lib/editorjs-notes";
+import { Spinner } from "@/components/Spinner";
 
 type EditorJSInstance = import("@editorjs/editorjs").default;
 type OutputData = import("@editorjs/editorjs").OutputData;
@@ -153,7 +154,7 @@ export function NotesEditor({
       style={{ minHeight: ready ? undefined : minHeight }}
     >
       {!ready && (
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <Spinner />
       )}
     </div>
   );

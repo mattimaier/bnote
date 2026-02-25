@@ -17,6 +17,8 @@ import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeade
 import { Avatar } from "@/components/Avatar";
 import { NotesContent } from "@/components/NotesContent";
 import { formatDateShortDisplay } from "@/lib/date-time";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export function ContactDetail() {
   const { id } = useEntityParams();
@@ -46,7 +48,7 @@ export function ContactDetail() {
         setGroups(groupList ?? []);
         setError("");
       })
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"))
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, ready]);
 
@@ -62,7 +64,7 @@ export function ContactDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -75,7 +77,7 @@ export function ContactDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

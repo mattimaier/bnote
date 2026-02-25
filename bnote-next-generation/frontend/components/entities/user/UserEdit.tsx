@@ -21,6 +21,8 @@ import {
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { SelectPicker } from "@/components/SelectPicker";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 function normalizeName(value: string) {
   return value.trim().toLowerCase();
@@ -105,7 +107,7 @@ export function UserEdit() {
         setIsActive(Boolean(user.isActive));
         setContactResolved(false);
       })
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"))
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
@@ -180,7 +182,7 @@ export function UserEdit() {
         router.replace(getEntityPath("user", id, "view"));
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Save failed";
+      const message = getErrorMessage(err, t, "js.common.saveFailed");
       setError(message);
       showToast(message, "error");
     } finally {
@@ -239,7 +241,7 @@ export function UserEdit() {
         "success"
       );
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Save failed", "error");
+      showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
     } finally {
       setSavingPrivileges(false);
     }
@@ -271,7 +273,7 @@ export function UserEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -279,7 +281,7 @@ export function UserEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

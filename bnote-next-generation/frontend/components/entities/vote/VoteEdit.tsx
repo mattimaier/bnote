@@ -17,6 +17,8 @@ import { formatDateShortDisplay } from "@/lib/date-time";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { Plus, Trash2 } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export function VoteEdit() {
   const { id } = useEntityParams();
@@ -55,7 +57,7 @@ export function VoteEdit() {
         setIsMulti(v.is_multi ?? false);
       })
       .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load")
+        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
       )
       .finally(() => setLoading(false));
   }, [id, isNew]);
@@ -96,8 +98,9 @@ export function VoteEdit() {
         loadVote();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
-      showToast(err instanceof Error ? err.message : "Save failed", "error");
+      const msg = getErrorMessage(err, t, "js.common.saveFailed");
+      setError(msg);
+      showToast(msg, "error");
     } finally {
       setSaving(false);
     }
@@ -172,7 +175,7 @@ export function VoteEdit() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -180,7 +183,7 @@ export function VoteEdit() {
   if (!isNew && loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

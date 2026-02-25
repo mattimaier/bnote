@@ -11,7 +11,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { commentsApi, type Comment, type CommentOtype } from "@/lib/comments-api";
 import { Avatar } from "@/components/Avatar";
-import { Loader2 } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
 
 const POLL_INTERVAL_MS = 20000;
 const TEXTAREA_MAX_HEIGHT_PX = 120;
@@ -158,7 +158,7 @@ export function EventChatPanel({
       <div className="p-4 flex flex-col gap-4 min-h-0">
         {loading && comments.length === 0 ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Spinner />
           </div>
         ) : listError && comments.length === 0 ? (
           <p className="text-xs text-error px-2">{listError}</p>
@@ -233,7 +233,7 @@ export function EventChatPanel({
             className="btn btn-primary join-item"
           >
             {sending ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Spinner size="sm" />
             ) : (
               sendLabel
             )}

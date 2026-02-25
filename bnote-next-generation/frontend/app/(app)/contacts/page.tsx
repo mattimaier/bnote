@@ -19,6 +19,8 @@ import { Avatar } from "@/components/Avatar";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export default function ContactsPage() {
   const searchParams = useSearchParams();
@@ -52,7 +54,7 @@ export default function ContactsPage() {
       setContacts(list ?? []);
       setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load contacts");
+      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
       if ((err as { status?: number }).status === 403) {
         showToast(t("js.error.contactsAccessDenied") !== "js.error.contactsAccessDenied" ? t("js.error.contactsAccessDenied") : "Access denied", "error");
       }
@@ -132,7 +134,7 @@ export default function ContactsPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -200,7 +202,7 @@ export default function ContactsPage() {
       <div className="rounded-box border border-base-300 overflow-hidden bg-base-100 text-base-content">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Spinner />
           </div>
         ) : (
           <ResponsiveTable<Contact, ContactsSortKey>

@@ -18,6 +18,8 @@ import { CheckCircle } from "@/components/icons";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
 import { getStatusPillStyle } from "@/lib/entity-config";
+import { getErrorMessage } from "@/lib/error-utils";
+import { Spinner } from "@/components/Spinner";
 
 export interface VoteDetailProps {
   /** Optional content to render inside the root container after the main content (e.g. comments). */
@@ -49,7 +51,7 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
       .get(numId)
       .then(setItem)
       .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load")
+        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
       )
       .finally(() => setLoading(false));
   };
@@ -90,7 +92,7 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -102,7 +104,7 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }

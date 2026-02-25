@@ -28,6 +28,9 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { formatEventDate, formatEventTime } from "@/lib/event-utils";
 import { ArrowDown, ArrowUp, ArrowUpDown, Clock } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
+import { DETAIL_SECTION_CLASS } from "@/components/DetailSection";
 
 export function LocationDetail() {
   const { id } = useEntityParams();
@@ -84,7 +87,7 @@ export function LocationDetail() {
     locationsApi
       .get(numId)
       .then(setLocation)
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"))
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, ready]);
 
@@ -101,7 +104,7 @@ export function LocationDetail() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -114,7 +117,7 @@ export function LocationDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -181,8 +184,8 @@ export function LocationDetail() {
             {t("js.locations.eventsAtLocation")}
           </h2>
           {eventsLoading ? (
-            <div className="mt-3 flex items-center justify-center rounded-none border-0 py-12 md:rounded-box md:border md:border-base-300 md:py-12 bg-base-100 md:bg-base-100">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <div className={`mt-3 flex items-center justify-center py-12 ${DETAIL_SECTION_CLASS}`}>
+              <Spinner />
             </div>
           ) : (
             <div className="mt-3 space-y-6">
@@ -302,7 +305,7 @@ function LocationEventsTable({
         {year}
       </h3>
       <div
-        className="mt-2 overflow-hidden rounded-none border-0 bg-base-100 md:rounded-box md:border md:border-base-300 md:bg-base-100 text-base-content"
+        className={`mt-2 overflow-hidden ${DETAIL_SECTION_CLASS}`}
       >
         <ResponsiveTable<LocationEventItem, EventSortKey>
           rows={sortedItems}

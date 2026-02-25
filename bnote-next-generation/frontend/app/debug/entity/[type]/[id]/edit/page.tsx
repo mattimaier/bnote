@@ -7,6 +7,7 @@
 import { Suspense } from "react";
 import { ALL_DEBUG_ENTITY_TYPES, hasFullMockView } from "@/lib/entities/debug/entity-types";
 import { DebugEntityEdit } from "./DebugEntityEdit";
+import { Spinner } from "@/components/Spinner";
 
 interface PageProps {
   params: Promise<{ type: string; id: string }>;
@@ -26,7 +27,7 @@ export async function generateStaticParams() {
 
 export default function DebugEntityEditPage(props: PageProps) {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-12"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center py-12"><Spinner /></div>}>
       <DebugEntityEdit params={props.params} />
     </Suspense>
   );

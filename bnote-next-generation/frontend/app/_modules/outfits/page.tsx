@@ -13,6 +13,8 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { outfitsApi, type Outfit } from "@/lib/outfits-api";
 import { getEntityPath } from "@/lib/entities/paths";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 import { compareNumber, compareString, type SortDirection } from "@/lib/table-sort";
 import { MarkdownText } from "@/components/MarkdownText";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
@@ -45,7 +47,7 @@ export default function OutfitsPage() {
       setItems(list ?? []);
       setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load outfits");
+      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
       if ((err as { status?: number }).status === 403) {
         showToast(
           t("js.error.outfitsAccessDenied") !== "js.error.outfitsAccessDenied"
@@ -112,7 +114,7 @@ export default function OutfitsPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -170,7 +172,7 @@ export default function OutfitsPage() {
       <div className="overflow-hidden rounded-box border border-base-300 bg-base-100 text-base-content">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <Spinner />
           </div>
         ) : (
           <ResponsiveTable<Outfit, SortKey>

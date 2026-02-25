@@ -27,6 +27,7 @@ import { SongEdit } from "@/components/entities/song/SongEdit";
 import { VoteEdit } from "@/components/entities/vote/VoteEdit";
 import { ContactEdit } from "@/components/entities/contact/ContactEdit";
 import { UserEdit } from "@/components/entities/user/UserEdit";
+import { Spinner } from "@/components/Spinner";
 
 const ENTITY_TYPES_WITH_VIEW: Record<string, boolean> = {
   rehearsal: true,
@@ -51,12 +52,6 @@ const ENTITY_TYPES_WITH_EDIT: Record<string, boolean> = {
   user: true,
   vote: true,
 };
-
-const Spinner = () => (
-  <div className="flex items-center justify-center py-12">
-    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-  </div>
-);
 
 const CHAT_ENTITY_TYPES: Record<string, boolean> = {
   rehearsal: true,
@@ -152,18 +147,22 @@ function EntityContent() {
       }
     }
     return (
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<div className="flex items-center justify-center py-12"><Spinner /></div>}>
         <EventDetail type={type} id={id} mode="view" />
       </Suspense>
     );
   }
 
-  return <Spinner />;
+  return (
+    <div className="flex items-center justify-center py-12">
+      <Spinner />
+    </div>
+  );
 }
 
 export default function EntityPage() {
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<div className="flex items-center justify-center py-12"><Spinner /></div>}>
       <EntityContent />
     </Suspense>
   );

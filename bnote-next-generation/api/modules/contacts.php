@@ -31,37 +31,39 @@ require_once BNOTE_ROOT . '/src/data/modules/gruppendata.php';
 require_once BNOTE_ROOT . '/src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/contacts/ContactsCRUD.php';
 
 class ContactsModule {
     private $data;
     private $groupData;
-    
+    private $crud;
+
     public function __construct() {
-        // Check module permission - use 'Kontakte' as module name (German name in system)
         global $system_data;
         $moduleId = $system_data->getModuleId('Kontakte');
         if (!$moduleId || !$system_data->userHasPermission($moduleId)) {
             Response::error('Access denied to Contact Management', 403);
         }
-        
+
         $this->data = new KontakteData();
         $this->groupData = new GruppenData();
+        $this->crud = new ContactsCRUD($this->data);
     }
-    
+
     public function handle() {
         $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
-        
+
         switch ($action) {
             case 'list':
-                return $this->listContacts();
+                return $this->crud->listContacts();
             case 'get':
-                return $this->getContact();
+                return $this->crud->getContact();
             case 'create':
-                return $this->createContact();
+                return $this->crud->createContact();
             case 'update':
-                return $this->updateContact();
+                return $this->crud->updateContact();
             case 'delete':
-                return $this->deleteContact();
+                return $this->crud->deleteContact();
             case 'getGroups':
                 return $this->getGroups();
             case 'getGroupContacts':
@@ -111,260 +113,7 @@ class ContactsModule {
                 Response::error('Unknown action: ' . $action, 400);
         }
     }
-    
-    /**
-     * List contacts, optionally filtered by group
-     */
-    private function listContacts() {
-        $groupId = $_GET['group'] ?? null;
-        
-        if ($groupId === 'all' || $groupId === null) {
-            $contacts = $this->data->getAllContacts();
-        } else {
-            $contacts = $this->data->getGroupContacts($groupId);
-        }
-        
-        // Convert to array format (skip first row which is header)
-        $result = [];
-        for ($i = 1; $i < count($contacts); $i++) {
-            $contact = $contacts[$i];
-            $result[] = [
-                'id' => intval($contact['id']),
-                'name' => $contact['name'] ?? '',
-                'surname' => $contact['surname'] ?? '',
-                'nickname' => $contact['nickname'] ?? '',
-                'company' => $contact['company'] ?? '',
-                'phone' => $contact['phone'] ?? '',
-                'mobile' => $contact['mobile'] ?? '',
-                'business' => $contact['business'] ?? '',
-                'email' => $contact['email'] ?? '',
-                'web' => $contact['web'] ?? '',
-                'instrumentname' => $contact['instrumentname'] ?? '',
-                'instrument' => intval($contact['instrument'] ?? 0),
-                'is_conductor' => intval($contact['is_conductor'] ?? 0) === 1,
-                'birthday' => $contact['birthday'] ?? null,
-                'status' => $contact['status'] ?? '',
-                'street' => $contact['street'] ?? '',
-                'city' => $contact['city'] ?? '',
-                'zip' => $contact['zip'] ?? '',
-                'address' => intval($contact['address'] ?? 0)
-            ];
-        }
-        
-        return $result;
-    }
-    
-    /**
-     * Get single contact by ID
-     */
-    private function getContact() {
-        $id = $_GET['id'] ?? $_POST['id'] ?? null;
-        if (!$id) {
-            Response::error('Contact ID required', 400);
-        }
-        
-        $contact = $this->data->getContact($id);
-        if (!$contact) {
-            Response::error('Contact not found', 404);
-        }
-        
-        // Get contact groups
-        $groups = $this->data->getContactGroupsArray($id);
-        $groupIds = [];
-        if (is_array($groups)) {
-            foreach ($groups as $group) {
-                if (is_array($group)) {
-                    if (isset($group['id'])) {
-                        $groupIds[] = intval($group['id']);
-                    } elseif (isset($group['group_id'])) {
-                        $groupIds[] = intval($group['group_id']);
-                    }
-                } elseif (is_numeric($group)) {
-                    $groupIds[] = intval($group);
-                }
-            }
-        }
-        
-        // Format response
-        $result = [
-            'id' => intval($contact['id']),
-            'name' => $contact['name'] ?? '',
-            'surname' => $contact['surname'] ?? '',
-            'nickname' => $contact['nickname'] ?? '',
-            'company' => $contact['company'] ?? '',
-            'phone' => $contact['phone'] ?? '',
-            'mobile' => $contact['mobile'] ?? '',
-            'business' => $contact['business'] ?? '',
-            'email' => $contact['email'] ?? '',
-            'web' => $contact['web'] ?? '',
-            'notes' => $contact['notes'] ?? '',
-            'instrument' => intval($contact['instrument'] ?? 0),
-            'instrumentname' => $contact['instrumentname'] ?? '',
-            'is_conductor' => intval($contact['is_conductor'] ?? 0) === 1,
-            'birthday' => $contact['birthday'] ?? null,
-            'status' => $contact['status'] ?? '',
-            'address' => intval($contact['address'] ?? 0),
-            'street' => $contact['street'] ?? '',
-            'city' => $contact['city'] ?? '',
-            'zip' => $contact['zip'] ?? '',
-            'groups' => $groupIds,
-            'share_address' => intval($contact['share_address'] ?? 0) === 1,
-            'share_phones' => intval($contact['share_phones'] ?? 0) === 1,
-            'share_birthday' => intval($contact['share_birthday'] ?? 0) === 1,
-            'share_email' => intval($contact['share_email'] ?? 0) === 1
-        ];
-        
-        return $result;
-    }
-    
-    /**
-     * Create new contact
-     */
-    private function createContact() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        
-        if (!$data) {
-            $data = $_POST;
-        }
-        
-        // Validate required fields
-        if (empty($data['name']) && empty($data['surname']) && empty($data['nickname'])) {
-            Response::error('At least one of name, surname, or nickname is required', 400);
-        }
-        
-        // Prepare values for KontakteData->create()
-        $values = [];
-        foreach (['name', 'surname', 'nickname', 'company', 'phone', 'mobile', 'business', 'email', 'web', 'notes', 'instrument', 'is_conductor', 'birthday', 'status'] as $field) {
-            if (isset($data[$field])) {
-                $values[$field] = $data[$field];
-            }
-        }
-        
-        // Handle address fields
-        if (isset($data['street']) || isset($data['city']) || isset($data['zip'])) {
-            $values['street'] = $data['street'] ?? '';
-            $values['city'] = $data['city'] ?? '';
-            $values['zip'] = $data['zip'] ?? '';
-        }
-        
-        // Handle share flags
-        foreach (['share_address', 'share_phones', 'share_birthday', 'share_email'] as $field) {
-            if (isset($data[$field])) {
-                $values[$field] = $data[$field] ? 'on' : '';
-            }
-        }
-        
-        // Handle groups (will be processed in createContactGroupEntries)
-        $groupIds = $data['groups'] ?? [];
-        
-        try {
-            // Simulate $_POST for group selection
-            $_POST = $values;
-            foreach ($groupIds as $gid) {
-                $_POST['group_' . $gid] = 'on';
-            }
-            
-            $contactId = $this->data->create($values);
-            
-            return [
-                'success' => true,
-                'id' => intval($contactId),
-                'message' => 'Contact created successfully'
-            ];
-        } catch (BNoteError $e) {
-            Response::error($e->getMessage(), 400);
-        }
-    }
-    
-    /**
-     * Update contact
-     */
-    private function updateContact() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        
-        if (!$data) {
-            $data = $_POST;
-        }
-        
-        $id = $data['id'] ?? $_GET['id'] ?? null;
-        if (!$id) {
-            Response::error('Contact ID required', 400);
-        }
-        
-        // Prepare values for KontakteData->update()
-        $values = [];
-        foreach (['name', 'surname', 'nickname', 'company', 'phone', 'mobile', 'business', 'email', 'web', 'notes', 'instrument', 'is_conductor', 'birthday', 'status'] as $field) {
-            if (isset($data[$field])) {
-                $values[$field] = $data[$field];
-            }
-        }
-        
-        // Handle address fields
-        if (isset($data['street']) || isset($data['city']) || isset($data['zip'])) {
-            $values['street'] = $data['street'] ?? '';
-            $values['city'] = $data['city'] ?? '';
-            $values['zip'] = $data['zip'] ?? '';
-        }
-        
-        // Handle share flags
-        foreach (['share_address', 'share_phones', 'share_birthday', 'share_email'] as $field) {
-            if (isset($data[$field])) {
-                $values[$field] = $data[$field] ? 'on' : '';
-            }
-        }
-        
-        // Handle groups
-        $groupIds = $data['groups'] ?? [];
-        
-        try {
-            // Simulate $_POST for group selection
-            $_POST = $values;
-            foreach ($groupIds as $gid) {
-                $_POST['group_' . $gid] = 'on';
-            }
-            $_GET['id'] = $id;
-            
-            $this->data->update($id, $values);
-            
-            return [
-                'success' => true,
-                'message' => 'Contact updated successfully'
-            ];
-        } catch (BNoteError $e) {
-            Response::error($e->getMessage(), 400);
-        }
-    }
-    
-    /**
-     * Delete contact
-     */
-    private function deleteContact() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        
-        if (!$data) {
-            $data = $_POST;
-        }
-        
-        $id = $data['id'] ?? $_GET['id'] ?? null;
-        if (!$id) {
-            Response::error('Contact ID required', 400);
-        }
-        
-        try {
-            $this->data->delete($id);
-            
-            return [
-                'success' => true,
-                'message' => 'Contact deleted successfully'
-            ];
-        } catch (BNoteError $e) {
-            Response::error($e->getMessage(), 400);
-        }
-    }
-    
+
     /**
      * Get all groups
      */

@@ -22,6 +22,8 @@ import { formatEventDate, formatEventTime } from "@/lib/event-utils";
 import { getEventTypeConfig } from "@/lib/entity-config";
 import { ParticipationDiagram } from "@/components/ParticipationDiagram";
 import { ArrowDown, ArrowUp, ArrowUpDown, Clock, MapPin } from "@/components/icons";
+import { Spinner } from "@/components/Spinner";
+import { getErrorMessage } from "@/lib/error-utils";
 
 export default function RehearsalsPage() {
   const router = useRouter();
@@ -46,7 +48,7 @@ export default function RehearsalsPage() {
       setItems(list ?? []);
       setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load rehearsals");
+      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
     } finally {
       setLoading(false);
     }
@@ -130,7 +132,7 @@ export default function RehearsalsPage() {
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        <Spinner />
       </div>
     );
   }
@@ -338,7 +340,7 @@ function EventsTable({
       >
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+            <Spinner />
           </div>
         ) : (
           <ResponsiveTable<RehearsalListItem, "begin" | "status" | "location" | "notes">
