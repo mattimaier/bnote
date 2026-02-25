@@ -1443,7 +1443,7 @@ export function EventDetail({
                   {song.title}
                   {song.notes?.trim() ? (
                     <div className="mt-1 text-xs text-base-content/60">
-                      <NotesContent value={song.notes} />
+                      <NotesContent value={song.notes} maxLines={3} />
                     </div>
                   ) : null}
                 </li>

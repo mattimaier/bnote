@@ -277,7 +277,7 @@ export default function LocationsPage() {
                       <td className="p-3 font-medium">{loc.name ?? emptyText}</td>
                       <td className="p-3">
                         {loc.notes ? (
-                          <NotesContent value={loc.notes} className="max-w-[200px] whitespace-pre-wrap break-words" />
+                          <NotesContent value={loc.notes} className="max-w-[200px] whitespace-pre-wrap break-words" maxLines={3} />
                         ) : (
                           emptyText
                         )}

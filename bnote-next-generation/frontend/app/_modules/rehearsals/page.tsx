@@ -492,7 +492,7 @@ function EventsTable({
                       </td>
                       <td className="p-3">
                         {row.notes ? (
-                          <NotesContent value={row.notes} className="max-w-[200px] whitespace-pre-wrap break-words" />
+                          <NotesContent value={row.notes} className="max-w-[200px] whitespace-pre-wrap break-words" maxLines={3} />
                         ) : (
                           emptyText
                         )}
