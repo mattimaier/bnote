@@ -16,6 +16,8 @@ import { locationsApi, type LocationDetail } from "@/lib/locations-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { NotesEditor } from "@/components/NotesEditor";
+import { editorJsonToPlainText } from "@/lib/editorjs-notes";
+import { getRichNotes, saveRichNotes } from "@/lib/rich-notes-api";
 
 export function LocationEdit() {
   const { id } = useEntityParams();
@@ -45,7 +47,7 @@ export function LocationEdit() {
     setLoading(true);
     locationsApi
       .get(numId)
-      .then((loc: LocationDetail) => {
+      .then(async (loc: LocationDetail) => {
         setName(loc.name ?? "");
         setNotes(loc.notes ?? "");
         setStreet(loc.street ?? "");
@@ -53,6 +55,8 @@ export function LocationEdit() {
         setCity(loc.city ?? "");
         setState(loc.state ?? "");
         setCountry(loc.country ?? "");
+        const rich = await getRichNotes("location", String(numId));
+        if (rich != null) setNotes(rich);
       })
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"))
       .finally(() => setLoading(false));
@@ -68,9 +72,18 @@ export function LocationEdit() {
     setSaving(true);
     setError("");
     try {
-      const payload = { name, notes, street, zip, city, state, country };
+      const payload = {
+        name,
+        notes: editorJsonToPlainText(notes),
+        street,
+        zip,
+        city,
+        state,
+        country,
+      };
       if (isNew) {
         const res = await locationsApi.create(payload);
+        if (res?.id != null) await saveRichNotes("location", String(res.id), notes);
         showToast(
           t("js.locations.created") !== "js.locations.created" ? t("js.locations.created") : "Location created",
           "success"
@@ -78,6 +91,7 @@ export function LocationEdit() {
         router.replace(getEntityPath("location", res.id, "view"));
       } else {
         await locationsApi.update(parseInt(id, 10), payload);
+        await saveRichNotes("location", id, notes);
         showToast(
           t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved",
           "success"

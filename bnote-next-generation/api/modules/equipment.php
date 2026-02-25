@@ -25,6 +25,7 @@
 require_once BNOTE_ROOT . '/src/data/modules/equipmentdata.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../rich_notes_helper.php';
 
 class EquipmentModule {
     private $data;
@@ -200,6 +201,7 @@ class EquipmentModule {
 
         try {
             $this->data->delete($id);
+            rich_notes_delete_for_entity('equipment', (string) $id);
             return [
                 'success' => true,
                 'message' => 'Equipment deleted successfully',

@@ -113,6 +113,7 @@ Additional BNote modules (Calendar, Messages, Venues, etc.) and features (advanc
 - **[docs/FEATURES_AND_BEHAVIORS.md](docs/FEATURES_AND_BEHAVIORS.md)** – Feature and behavior reference for regression checks and bug fixing.
 - **[docs/API_ARCHITECTURE.md](docs/API_ARCHITECTURE.md)** – PHP API structure and patterns.
 - **[docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** – API endpoint reference.
+- **[docs/RICH_NOTES.md](docs/RICH_NOTES.md)** – Rich notes (EditorJS): why plain text and JSON are stored separately, load/save flow, and orphan cleanup. The `rich_notes` table is created automatically on first use of the rich-notes API; no manual migration is required.
 
 ## License
 

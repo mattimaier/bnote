@@ -18,6 +18,8 @@ import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { SelectPicker } from "@/components/SelectPicker";
 import { StatusPicker } from "@/components/entities/event/StatusPicker";
 import { NotesEditor } from "@/components/NotesEditor";
+import { editorJsonToPlainText } from "@/lib/editorjs-notes";
+import { getRichNotes, saveRichNotes } from "@/lib/rich-notes-api";
 
 export function SongEdit() {
   const { id } = useEntityParams();
@@ -63,7 +65,7 @@ export function SongEdit() {
     setLoading(true);
     repertoireApi
       .get(numId)
-      .then((s: SongDetail) => {
+      .then(async (s: SongDetail) => {
         setTitle(s.title ?? "");
         setLength(s.length ?? "");
         setGenre(s.genre != null ? String(s.genre) : "");
@@ -74,6 +76,8 @@ export function SongEdit() {
         setSetting(s.setting ?? "");
         setNotes(s.notes ?? "");
         setIsActive(s.is_active ?? true);
+        const rich = await getRichNotes("song", String(numId));
+        if (rich != null) setNotes(rich);
       })
       .catch((err) =>
         setError(err instanceof Error ? err.message : "Failed to load")
@@ -105,11 +109,12 @@ export function SongEdit() {
         composer: composer || undefined,
         status: status === "" ? undefined : parseInt(status, 10),
         setting: setting || undefined,
-        notes: notes || undefined,
+        notes: editorJsonToPlainText(notes) || undefined,
         is_active: isActive,
       };
       if (isNew) {
         const res = await repertoireApi.create(payload);
+        if (res?.id != null) await saveRichNotes("song", String(res.id), notes);
         showToast(
           t("js.repertoire.created") !== "js.repertoire.created"
             ? t("js.repertoire.created")
@@ -119,6 +124,7 @@ export function SongEdit() {
         router.replace(getEntityPath("song", res.id, "view"));
       } else {
         await repertoireApi.update(parseInt(id, 10), payload);
+        await saveRichNotes("song", id, notes);
         showToast(
           t("js.common.saved") !== "js.common.saved"
             ? t("js.common.saved")

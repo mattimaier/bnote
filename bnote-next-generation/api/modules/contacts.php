@@ -28,6 +28,7 @@
 require_once BNOTE_ROOT . '/src/logic/defaultcontroller.php';
 require_once BNOTE_ROOT . '/src/data/modules/kontaktedata.php';
 require_once BNOTE_ROOT . '/src/data/modules/gruppendata.php';
+require_once __DIR__ . '/../rich_notes_helper.php';
 require_once BNOTE_ROOT . '/src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
@@ -355,7 +356,7 @@ class ContactsModule {
         
         try {
             $this->data->delete($id);
-            
+            rich_notes_delete_for_entity('contact', (string) $id);
             return [
                 'success' => true,
                 'message' => 'Contact deleted successfully'
