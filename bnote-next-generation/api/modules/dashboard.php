@@ -86,6 +86,7 @@ class DashboardModule {
         $rehearsalMax = intval($system_data->getDynamicConfigParameter('rehearsal_show_max'));
         $concertMax = intval($system_data->getDynamicConfigParameter('concert_show_max'));
         $maxShow = max($rehearsalMax, $concertMax, 5); // Default to 5 if both are 0
+        $discussionOn = $system_data->getDynamicConfigParameter('discussion_on') == 1;
         
         // Get stats
         $futureRehearsals = $this->data->adp()->getFutureRehearsals();
@@ -98,7 +99,8 @@ class DashboardModule {
             'config' => [
                 'rehearsal_show_max' => $rehearsalMax,
                 'concert_show_max' => $concertMax,
-                'max_show' => $maxShow
+                'max_show' => $maxShow,
+                'discussion_on' => $discussionOn
             ],
             'company' => (string)$system_data->getCompany(), // Band/company name for localization (cast from SimpleXMLElement)
             'total' => count($formattedInbox),
@@ -365,6 +367,7 @@ class DashboardModule {
         $rehearsalMax = intval($system_data->getDynamicConfigParameter('rehearsal_show_max'));
         $concertMax = intval($system_data->getDynamicConfigParameter('concert_show_max'));
         $maxShow = max($rehearsalMax, $concertMax, 5); // Default to 5 if both are 0
+        $discussionOn = $system_data->getDynamicConfigParameter('discussion_on') == 1;
         
         return [
             'events' => $formatted, // ALL events, not limited
@@ -372,7 +375,8 @@ class DashboardModule {
             'config' => [
                 'rehearsal_show_max' => $rehearsalMax,
                 'concert_show_max' => $concertMax,
-                'max_show' => $maxShow
+                'max_show' => $maxShow,
+                'discussion_on' => $discussionOn
             ],
             'total' => count($formatted),
             'hasMore' => count($formatted) > $maxShow
