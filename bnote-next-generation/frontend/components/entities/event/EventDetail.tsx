@@ -57,6 +57,7 @@ import { LayoutList, Trash2 } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { DETAIL_SECTION_CLASS } from "@/components/DetailSection";
+import { DatePicker } from "@/components/DatePicker";
 import { EntityLink } from "@/components/EntityLink";
 import { useEventDetailData } from "@/lib/entities/event/useEventDetailData";
 
@@ -110,9 +111,12 @@ export function EventDetail({
 
   const syncEndDate = (startValue: string, endValue: string) => {
     if (!startValue) return endValue;
-    const [startDate] = startValue.split("T");
-    if (!endValue) return `${startDate}T${startValue.split("T")[1] ?? "00:00"}`;
-    const [, endTime] = endValue.split("T");
+    const startNorm = startValue.replace(" ", "T");
+    const [startDate, startTime] = startNorm.split("T");
+    if (!startDate) return endValue;
+    if (!endValue) return `${startDate}T${startTime ?? "00:00"}`;
+    const endNorm = endValue.replace(" ", "T");
+    const [, endTime] = endNorm.split("T");
     return `${startDate}T${endTime ?? "00:00"}`;
   };
 
@@ -701,15 +705,16 @@ export function EventDetail({
               {t("js.event.detail.start") !== "js.event.detail.start" ? t("js.event.detail.start") : "Start"}:
             </span>
             {isEditing && form ? (
-              <input
-                type="datetime-local"
-                value={form.begin}
-                onChange={(event) => {
-                  const nextBegin = event.target.value;
+              <DatePicker
+                value={toInputDateTime(form.begin).replace("T", " ")}
+                onChange={(val) => {
+                  const nextBegin = val ? val.replace(" ", "T") : "";
                   const nextEnd = syncEndDate(nextBegin, form.end);
                   setForm({ ...form, begin: nextBegin, end: nextEnd });
                 }}
-                className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
+                mode="datetime"
+                locale={lang}
+                className="ml-2 input input-sm text-base-content"
               />
             ) : (
               <span className="ml-2 text-sm">{formatDateTimeShort(begin, lang) ?? tba}</span>
@@ -720,11 +725,12 @@ export function EventDetail({
               {t("js.event.detail.end") !== "js.event.detail.end" ? t("js.event.detail.end") : "End"}:
             </span>
             {isEditing && form ? (
-              <input
-                type="datetime-local"
-                value={form.end}
-                onChange={(event) => setForm({ ...form, end: event.target.value })}
-                className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
+              <DatePicker
+                value={toInputDateTime(form.end).replace("T", " ")}
+                onChange={(val) => setForm({ ...form, end: val ? val.replace(" ", "T") : "" })}
+                mode="datetime"
+                locale={lang}
+                className="ml-2 input input-sm text-base-content"
               />
             ) : (
               <span className="ml-2 text-sm">{formatDateTimeShort(end, lang) ?? tba}</span>
@@ -763,11 +769,12 @@ export function EventDetail({
                 {t("js.event.detail.deadline") !== "js.event.detail.deadline" ? t("js.event.detail.deadline") : "Reply by"}:
               </span>
               {isEditing && form ? (
-                <input
-                  type="datetime-local"
-                  value={form.approveUntil}
-                  onChange={(event) => setForm({ ...form, approveUntil: event.target.value })}
-                  className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
+                <DatePicker
+                  value={toInputDateTime(form.approveUntil).replace("T", " ")}
+                  onChange={(val) => setForm({ ...form, approveUntil: val ? val.replace(" ", "T") : "" })}
+                  mode="datetime"
+                  locale={lang}
+                  className="ml-2 input input-sm text-base-content"
                 />
               ) : (
                 <span className="ml-2 text-sm">{formatDateTimeShort(approveUntil, lang) ?? tba}</span>
@@ -805,11 +812,12 @@ export function EventDetail({
                   : "Meeting time"}:
               </span>
               {isEditing && form ? (
-                <input
-                  type="datetime-local"
-                  value={form.meetingtime}
-                  onChange={(event) => setForm({ ...form, meetingtime: event.target.value })}
-                  className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
+                <DatePicker
+                  value={toInputDateTime(form.meetingtime).replace("T", " ")}
+                  onChange={(val) => setForm({ ...form, meetingtime: val ? val.replace(" ", "T") : "" })}
+                  mode="datetime"
+                  locale={lang}
+                  className="ml-2 input input-sm text-base-content"
                 />
               ) : (
                 <span className="ml-2 text-sm">{formatDateTimeShort(meetingtime, lang) ?? tba}</span>

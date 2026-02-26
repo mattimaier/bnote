@@ -19,6 +19,7 @@ import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { MultiSelect } from "@/components/entities/event/MultiSelect";
+import { DatePicker } from "@/components/DatePicker";
 import { RemoveOptionButton } from "@/components/RemoveOptionButton";
 import { Plus } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
@@ -320,10 +321,12 @@ export function VoteEdit() {
               <label className="mb-1 block text-sm font-medium">
                 {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "End (datetime)"}
               </label>
-              <input
-                type="datetime-local"
-                value={end ? end.replace(" ", "T").slice(0, 16) : ""}
-                onChange={(e) => setEnd(e.target.value ? e.target.value.replace("T", " ") + ":00" : "")}
+              <DatePicker
+                value={end ? end.slice(0, 16) : ""}
+                onChange={setEnd}
+                mode="datetime"
+                locale={lang}
+                appendSeconds
                 className="input input-sm w-full text-base-content"
               />
             </div>
@@ -419,11 +422,9 @@ export function VoteEdit() {
             {((isNew && !item) || (item && !item.is_finished && item.is_author)) && (
               <div className="mt-4 space-y-3">
                 {(isNew ? isDate : item!.is_date) ? (
-                  <input
-                    type="date"
+                  <DatePicker
                     value={newOptionDate ? newOptionDate.slice(0, 10) : ""}
-                    onChange={(e) => {
-                      const val = e.target.value || "";
+                    onChange={(val) => {
                       setNewOptionDate(val);
                       if (val) {
                         if (isNew) {
@@ -437,6 +438,8 @@ export function VoteEdit() {
                         }
                       }
                     }}
+                    mode="date"
+                    locale={lang}
                     className="input input-sm w-full max-w-md text-base-content"
                   />
                 ) : (

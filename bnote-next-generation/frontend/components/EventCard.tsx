@@ -140,7 +140,7 @@ export function EventCard({
             )}
           </div>
           {(hasParticipation || hasVoteWidget) && (
-            <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="shrink-0">
+            <div onClick={(e) => e.stopPropagation()} className="shrink-0">
               {hasVoteWidget ? (
                 <DashboardVoteWidget
                   voteId={event.oid}
@@ -212,7 +212,7 @@ export function EventCard({
           )}
         </div>
         {(hasParticipation || hasVoteWidget) && (
-          <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="shrink-0">
+          <div onClick={(e) => e.stopPropagation()} className="shrink-0">
             {hasVoteWidget ? (
               <DashboardVoteWidget
                 voteId={event.oid}

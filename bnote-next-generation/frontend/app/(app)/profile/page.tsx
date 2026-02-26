@@ -12,6 +12,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { kontaktdatenApi, type MyContactDetail, type InstrumentOption } from "@/lib/kontaktdaten-api";
+import { DatePicker } from "@/components/DatePicker";
 import { DetailPageHeader, DetailEditButton } from "@/components/DetailPageHeader";
 import { DetailCard } from "@/components/DetailCard";
 import { SelectPicker } from "@/components/SelectPicker";
@@ -71,6 +72,13 @@ export default function ProfilePage() {
   useEffect(() => {
     if (contact != null && contact !== undefined) {
       setProfileNotes((contact as MyContactDetail).notes ?? "");
+    }
+  }, [contact]);
+
+  useEffect(() => {
+    if (contact != null && contact !== undefined) {
+      const b = (contact as MyContactDetail).birthday;
+      setBirthday(b && b !== "0000-00-00" ? String(b).slice(0, 10) : "");
     }
   }, [contact]);
 
@@ -161,7 +169,6 @@ export default function ProfilePage() {
   }
 
   const c = contact as MyContactDetail;
-  const birthdayValue = c.birthday && c.birthday !== "0000-00-00" ? String(c.birthday).slice(0, 10) : "";
   const label = (key: string, fallback: string) => (t(key) !== key ? t(key) : fallback);
 
   return (
@@ -264,7 +271,14 @@ export default function ProfilePage() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{t("js.contacts.birthday") !== "js.contacts.birthday" ? t("js.contacts.birthday") : "Geburtstag"}</label>
-          <input name="birthday" type="date" defaultValue={birthdayValue} className="input input-sm w-full text-base-content" />
+          <input type="hidden" name="birthday" value={birthday} />
+          <DatePicker
+            value={birthday}
+            onChange={setBirthday}
+            mode="date"
+            locale={lang}
+            className="input input-sm w-full text-base-content"
+          />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">{label("js.contacts.instrument", "Instrument")}</label>

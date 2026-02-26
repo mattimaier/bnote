@@ -11,7 +11,6 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { ParticipationTrafficLight } from "@/components/entities/event/ParticipationTrafficLight";
 import { formatDateShortDisplay } from "@/lib/date-time";
-import { getColor } from "@/lib/entity-config";
 import { votesApi } from "@/lib/votes-api";
 
 interface VoteOption {
@@ -51,21 +50,26 @@ export function DashboardVoteWidget({
     });
     return init;
   });
-  const [singleChoice, setSingleChoice] = useState<number | null>(() => {
-    if (isMulti) return null;
-    const entry = Object.entries(userChoices).find(([, v]) => v === "yes");
-    return entry ? parseInt(entry[0], 10) : null;
-  });
+  const getSelectedOptionId = (choices: Record<number, string> | Record<string, string>): number | null => {
+    const entry = Object.entries(choices).find(([, v]) => v === "yes");
+    if (!entry) return null;
+    const id = parseInt(entry[0], 10);
+    return Number.isNaN(id) ? null : id;
+  };
+
+  const [singleChoice, setSingleChoice] = useState<number | null>(() =>
+    isMulti ? null : getSelectedOptionId(userChoices as Record<string, string>)
+  );
 
   useEffect(() => {
     const init: Record<number, string> = {};
     options.forEach((o) => {
-      init[o.id] = userChoices[o.id] ?? "no";
+      const id = Number(o.id);
+      init[id] = (userChoices as Record<string, string>)[id] ?? (userChoices as Record<string, string>)[String(id)] ?? "no";
     });
     setChoices(init);
     if (!isMulti) {
-      const entry = Object.entries(userChoices).find(([, v]) => v === "yes");
-      setSingleChoice(entry ? parseInt(entry[0], 10) : null);
+      setSingleChoice(getSelectedOptionId(userChoices as Record<string, string>));
     }
   }, [options, userChoices, isMulti]);
 
@@ -131,24 +135,28 @@ export function DashboardVoteWidget({
     );
   }
 
-  const voteColor = getColor("vote") ?? "#A855F7";
   return (
     <div
-      className="mt-1 flex flex-col gap-1.5 rounded-field border border-base-300 p-2"
-      onClick={(e) => e.preventDefault()}
+      className="mt-1 flex flex-col gap-2 rounded-field border border-base-300 p-3"
+      onClick={(e) => e.stopPropagation()}
       role="radiogroup"
-      style={{ ["--input-color" as string]: voteColor }}
+      aria-label={
+        t("js.votes.castVote") !== "js.votes.castVote"
+          ? t("js.votes.castVote")
+          : "Cast your vote"
+      }
     >
       {options.map((opt) => (
         <label
           key={opt.id}
-          className="label-text flex cursor-pointer items-center gap-2 text-xs"
+          className="label flex cursor-pointer gap-2"
         >
-            <input
+          <input
             type="radio"
             name={`vote-dash-${voteId}`}
-            className="radio radio-sm"
-            checked={singleChoice === opt.id}
+            className="radio radio-primary"
+            checked={singleChoice !== null && Number(opt.id) === singleChoice}
+            aria-checked={singleChoice !== null && Number(opt.id) === singleChoice}
             disabled={submitting || disabled}
             onChange={async () => {
               if (singleChoice === opt.id) return;
@@ -161,7 +169,7 @@ export function DashboardVoteWidget({
               }
             }}
           />
-          <span className="truncate text-base-content/90 min-w-0">{optionLabel(opt)}</span>
+          <span className="label-text truncate min-w-0">{optionLabel(opt)}</span>
         </label>
       ))}
     </div>

@@ -52,10 +52,14 @@ export function ConfirmModal({
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.HSOverlay || !ref.current) return;
-    if (open) {
-      window.HSOverlay.open(ref.current);
-    } else {
-      window.HSOverlay.close(ref.current);
+    try {
+      if (open) {
+        window.HSOverlay.open(ref.current);
+      } else {
+        window.HSOverlay.close(ref.current);
+      }
+    } catch {
+      /* HSOverlay can throw if $hsOverlayCollection is undefined or overlay not registered */
     }
   }, [open]);
 

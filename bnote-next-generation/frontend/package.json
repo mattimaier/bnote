@@ -21,6 +21,7 @@
     "@editorjs/warning": "^1.4.1",
     "date-fns": "^4.1.0",
     "editorjs-html": "^4.0.5",
+    "flatpickr": "^4.6.13",
     "flyonui": "^2.4.1",
     "gravatar-url": "^4.0.1",
     "next": "16.1.6",

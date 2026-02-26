@@ -17,6 +17,7 @@ import { kontaktdatenApi, type InstrumentOption } from "@/lib/kontaktdaten-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
+import { DatePicker } from "@/components/DatePicker";
 import { SelectPicker } from "@/components/SelectPicker";
 import { MultiSelect } from "@/components/entities/event/MultiSelect";
 import { NotesEditor } from "@/components/NotesEditor";
@@ -26,7 +27,7 @@ import { getErrorMessage } from "@/lib/error-utils";
 export function ContactEdit() {
   const { id } = useEntityParams();
   const router = useRouter();
-  const { t, ready } = useI18n();
+  const { t, ready, lang } = useI18n();
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
   const { showToast } = useToast();
   const isNew = id === "new";
@@ -314,11 +315,11 @@ export function ContactEdit() {
                   ? t("js.contacts.birthday")
                   : "Birthday"}
               </label>
-              <input
-                name="birthday"
-                type="date"
+              <DatePicker
                 value={birthday}
-                onChange={(e) => setBirthday(e.target.value)}
+                onChange={setBirthday}
+                mode="date"
+                locale={lang}
                 className="input input-sm w-full text-base-content"
               />
             </div>

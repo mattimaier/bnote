@@ -456,7 +456,6 @@ class DashboardModule {
         $allInboxItems = $this->getAllInboxItems();
         
         // Filter items where participation is -1 (not responded yet)
-        // Only include rehearsals (R) and concerts (C)
         $eventsNeedingResponse = [];
         foreach ($allInboxItems as $item) {
             $participation = $item['participation'] ?? null;
