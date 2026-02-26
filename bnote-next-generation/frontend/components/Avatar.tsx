@@ -9,7 +9,7 @@
 import { useState } from "react";
 import gravatarUrl from "gravatar-url";
 
-export type AvatarVariant = "solid" | "soft";
+export type AvatarVariant = "solid" | "soft" | "birthday";
 
 const SIZE_CLASSES = {
   24: "size-6",
@@ -19,6 +19,7 @@ const SIZE_CLASSES = {
 
 const PLACEHOLDER_SOLID = "bg-primary text-primary-content";
 const PLACEHOLDER_SOFT = "bg-primary/10 text-primary";
+const PLACEHOLDER_BIRTHDAY = "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300";
 
 function getInitials(name: string): string {
   if (!name?.trim()) return "?";
@@ -51,7 +52,11 @@ export function Avatar({
   const initials = getInitials(name);
   const sizeClass = SIZE_CLASSES[size];
   const placeholderClasses =
-    variant === "soft" ? PLACEHOLDER_SOFT : PLACEHOLDER_SOLID;
+    variant === "birthday"
+      ? PLACEHOLDER_BIRTHDAY
+      : variant === "soft"
+        ? PLACEHOLDER_SOFT
+        : PLACEHOLDER_SOLID;
   const showImage = email?.trim() && !usePlaceholder;
   const gravatarSrc = email?.trim()
     ? gravatarUrl(email.trim(), { size: size * 2, default: "404" })

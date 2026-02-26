@@ -25,7 +25,7 @@ export type EntityType =
   | "outfit"
   | "vote";
 
-export type EventDisplayType = "rehearsal" | "performance" | "meeting" | "vote" | "task";
+export type EventDisplayType = "rehearsal" | "performance" | "meeting" | "vote" | "task" | "reservation" | "appointment";
 
 interface EntityEntry {
   color: string;
@@ -62,6 +62,7 @@ const ROUTE_OR_PLURAL_TO_CANONICAL: Record<string, string> = {
   rehearsals: "rehearsal",
   concerts: "concert",
   songs: "song",
+  reservations: "reservation",
 };
 
 export function getEntityConfig(entityType: string): EntityEntry | null {
@@ -86,6 +87,8 @@ const EVENT_TO_ENTITY: Record<EventDisplayType, string> = {
   meeting: "meeting",
   vote: "vote",
   task: "task",
+  reservation: "reservation",
+  appointment: "appointment",
 };
 
 /**
@@ -104,6 +107,10 @@ function colorToEventClasses(color: string | null): { dotClass: string; badgeCla
     return { dotClass: "bg-[#a855f7]", badgeClass: "event-badge event-badge-vote" };
   if (color.includes("#25A65A"))
     return { dotClass: "bg-[#25A65A]", badgeClass: "event-badge event-badge-task" };
+  if (color.includes("#F97316") || color.includes("#f97316"))
+    return { dotClass: "bg-[#f97316]", badgeClass: "event-badge event-badge-reservation" };
+  if (color.includes("#8b6914") || color.includes("oklch(0.58 0.22 20)"))
+    return { dotClass: "bg-[#8b6914]", badgeClass: "event-badge event-badge-appointment" };
   return { dotClass: "bg-[var(--chart-3)]", badgeClass: "event-badge chart-3" };
 }
 
@@ -131,7 +138,11 @@ export function getEventTypeConfig(
           ? "js.sidebar.votes"
           : eventType === "task"
             ? "js.sidebar.tasks"
-            : "js.event.meeting";
+            : eventType === "reservation"
+              ? "js.calendar.reservationLabel"
+              : eventType === "appointment"
+                ? "js.calendar.appointmentLabel"
+                : "js.event.meeting";
   const label = t(labelKey);
   if (!entity) {
     const fallback = colorToEventClasses(null);
@@ -154,6 +165,46 @@ export function getEventTypeConfig(
   };
 }
 
+/**
+ * Map bnoteType (from calendar API) to entity color.
+ * Uses hex for rehearsal/concert to ensure consistent rendering in color-mix across browsers.
+ */
+export function getColorForBnoteType(bnoteType: string): string | null {
+  const c = getEntityConfig(bnoteType);
+  if (c?.color) {
+    if (bnoteType === "rehearsal") return "#3399FF";
+    if (bnoteType === "concert") return "#E8A84D";
+    return c.color;
+  }
+  if (bnoteType === "phase") return "#3D9970";
+  return null;
+}
+
+/** Map bnoteType (from calendar API) to event-badge CSS class */
+export function getBadgeClassForBnoteType(bnoteType: string): string {
+  switch (bnoteType) {
+    case "rehearsal":
+      return "event-badge";
+    case "concert":
+      return "event-badge accent";
+    case "vote":
+      return "event-badge event-badge-vote";
+    case "task":
+      return "event-badge event-badge-task";
+    case "phase":
+    case "meeting":
+      return "event-badge chart-3";
+    case "contact":
+      return "event-badge event-badge-birthday";
+    case "reservation":
+      return "event-badge event-badge-reservation";
+    case "appointment":
+      return "event-badge event-badge-appointment";
+    default:
+      return "event-badge chart-3";
+  }
+}
+
 /** Map search result category key to entity type for config */
 const SEARCH_CATEGORY_TO_ENTITY: Record<string, string> = {
   rehearsals: "rehearsal",
@@ -167,6 +218,7 @@ const SEARCH_CATEGORY_TO_ENTITY: Record<string, string> = {
   outfits: "outfit",
   songs: "song",
   votes: "vote",
+  reservations: "reservation",
 };
 
 export function getEntityTypeForSearchCategory(categoryKey: string): string {

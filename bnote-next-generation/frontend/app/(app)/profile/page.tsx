@@ -38,6 +38,7 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [instrumentId, setInstrumentId] = useState(0);
   const [profileNotes, setProfileNotes] = useState("");
+  const [birthday, setBirthday] = useState("");
 
   const loadData = useCallback(async () => {
     setLoading(true);

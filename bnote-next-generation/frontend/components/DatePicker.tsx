@@ -7,12 +7,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import flatpickr, { type Instance } from "flatpickr";
+import flatpickr from "flatpickr";
 import { German } from "flatpickr/dist/l10n/de";
 import { Spanish } from "flatpickr/dist/l10n/es";
 import { French } from "flatpickr/dist/l10n/fr";
 
-const LOCALE_MAP: Record<string, object> = {
+const LOCALE_MAP: Record<string, object | undefined> = {
   de: German,
   en: undefined,
   es: Spanish,
@@ -94,7 +94,7 @@ export function DatePicker({
   appendSeconds = false,
 }: DatePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const fpRef = useRef<Instance | null>(null);
+  const fpRef = useRef<flatpickr.Instance | null>(null);
 
   useEffect(() => {
     const el = inputRef.current;

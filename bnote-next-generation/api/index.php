@@ -131,6 +131,8 @@ if ($method === 'POST') {
             $action = $requestBody['action'];
         }
     }
+    // php://input can only be read once; store for modules (appointments, reservations, etc.)
+    $GLOBALS['API_REQUEST_BODY'] = $requestBody;
 }
 $requestStartTime = microtime(true);
 ApiLogger::logRequest($module, $action ?? '', $method, $requestParams, $requestBody);

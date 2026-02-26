@@ -50,7 +50,10 @@ const NON_EVENT_REDIRECT: Record<string, EntityRedirectTarget> = {
   repertoire: { pathname: "/repertoire", query: { id: "__id__" } },
   song: { pathname: "/repertoire", query: { id: "__id__" } },
   meeting: { pathname: "/dashboard" },
-  appointment: { pathname: "/dashboard" },
+  appointment: { pathname: "/entity", query: { type: "appointment", id: "__id__" } },
+  appointments: { pathname: "/entity", query: { type: "appointment", id: "__id__" } },
+  reservation: { pathname: "/entity", query: { type: "reservation", id: "__id__" } },
+  reservations: { pathname: "/entity", query: { type: "reservation", id: "__id__" } },
   equipment: { pathname: "/equipment", query: { id: "__id__" } },
   outfit: { pathname: "/outfits", query: { id: "__id__" } },
   outfits: { pathname: "/outfits", query: { id: "__id__" } },
@@ -60,7 +63,7 @@ const NON_EVENT_REDIRECT: Record<string, EntityRedirectTarget> = {
 };
 
 /**
- * Get redirect target for a non-event entity type. Replace __id__ in query with actual id.
+ * Get redirect target for a non-event entity type. Replace __id__ in pathname and query values with actual id.
  */
 export function getRedirectForEntityType(
   type: string,
@@ -69,17 +72,20 @@ export function getRedirectForEntityType(
   const key = type?.toLowerCase?.() ?? "";
   const target = NON_EVENT_REDIRECT[key];
   if (!target) return null;
+  const idStr = String(id);
   const pathname =
     target.pathname.includes("__id__")
-      ? target.pathname.replace("__id__", String(id))
+      ? target.pathname.replace("__id__", idStr)
       : target.pathname;
-  if (target.query?.id === "__id__") {
-    return {
-      pathname,
-      query: { ...target.query, id: String(id) },
-    };
-  }
-  return { ...target, pathname };
+  const query = target.query
+    ? Object.fromEntries(
+        Object.entries(target.query).map(([k, v]) => [
+          k,
+          v === "__id__" ? idStr : v,
+        ])
+      )
+    : undefined;
+  return { pathname, query };
 }
 
 /** Build full path string for redirect (pathname + query). */

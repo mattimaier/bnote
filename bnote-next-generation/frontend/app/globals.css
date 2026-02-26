@@ -392,6 +392,40 @@ input[type="search"]::-webkit-search-results-decoration {
   color: white;
 }
 
+/* FullCalendar month view – allow multiline event titles, single border on inner content */
+.fc-daygrid-event {
+  overflow: visible !important;
+  border: none !important;
+  background: transparent !important;
+}
+.fc-daygrid-event .fc-event-main {
+  overflow: visible !important;
+  border: none !important;
+  background: transparent !important;
+}
+.fc-daygrid-event .fc-event-main-frame {
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+/* FullCalendar toolbar – transparent/soft secondary style */
+.fc .fc-toolbar .fc-button,
+.fc .fc-button-primary {
+  background: transparent !important;
+  border-color: var(--color-base-300) !important;
+  color: var(--color-base-content) !important;
+}
+.fc .fc-toolbar .fc-button:hover,
+.fc .fc-button-primary:hover {
+  background: var(--color-base-200) !important;
+  border-color: var(--color-base-300) !important;
+  color: var(--color-base-content) !important;
+}
+.fc .fc-toolbar .fc-button:focus,
+.fc .fc-button-primary:focus {
+  box-shadow: 0 0 0 2px var(--color-ring) !important;
+}
+
 /* Event type badges – light colors with saturated border.
    .event-badge = rehearsal (primary), .accent = concert, .chart-3 = meeting; see lib/entity-config.ts. */
 .event-badge {
@@ -426,6 +460,42 @@ input[type="search"]::-webkit-search-results-decoration {
   border-color: color-mix(in oklch, #25a65a 20%, transparent);
   background-color: color-mix(in oklch, #25a65a 10%, transparent);
   color: #25a65a;
+}
+.event-badge.event-badge-birthday {
+  border-color: color-mix(in oklch, #14b8a6 20%, transparent);
+  background-color: color-mix(in oklch, #14b8a6 10%, transparent);
+  color: #14b8a6;
+}
+.event-badge.event-badge-reservation {
+  border-color: color-mix(in oklch, #f97316 20%, transparent);
+  background-color: color-mix(in oklch, #f97316 10%, transparent);
+  color: #f97316;
+}
+.event-badge.event-badge-appointment {
+  border-color: color-mix(in oklch, #8b6914 20%, transparent);
+  background-color: color-mix(in oklch, #8b6914 10%, transparent);
+  color: #8b6914;
+}
+
+.filter-bubble-reservation {
+  border-color: color-mix(in oklch, #f97316 20%, transparent);
+  background-color: color-mix(in oklch, #f97316 10%, transparent);
+  color: #f97316;
+}
+.filter-bubble-reservation.selected {
+  border-color: #f97316;
+  background-color: #f97316;
+  color: white;
+}
+.filter-bubble-appointment {
+  border-color: color-mix(in oklch, #8b6914 20%, transparent);
+  background-color: color-mix(in oklch, #8b6914 10%, transparent);
+  color: #8b6914;
+}
+.filter-bubble-appointment.selected {
+  border-color: #8b6914;
+  background-color: #8b6914;
+  color: white;
 }
 
 /* Dashboard task checkbox – 32x32 with light border (like traffic lights) */

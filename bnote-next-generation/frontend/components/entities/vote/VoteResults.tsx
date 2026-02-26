@@ -282,7 +282,7 @@ export function VoteResults({ result, options, isDate, isMulti, lang }: VoteResu
             return (
               <div key={optId} className="space-y-1">
                 <span className="text-sm font-medium text-base-content">{row.label}</span>
-                {stats.total > 0 ? (
+                {(stats.total ?? 0) > 0 ? (
                   <ParticipationDiagram stats={stats} />
                 ) : (
                   <div className="flex h-8 items-center rounded-lg border border-base-300 bg-base-200 px-3 text-xs text-base-content/60">

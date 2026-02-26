@@ -1,12 +1,13 @@
 /**
- * BNote Next Generation - Confirm modal (FlyonUI/Preline overlay)
+ * BNote Next Generation - Confirm modal (React-controlled overlay)
  *
  * Copyright (C) 2026 BNote Contributors
  */
 
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ActionButton } from "@/components/ActionButton";
 
 export interface ConfirmModalProps {
@@ -20,15 +21,6 @@ export interface ConfirmModalProps {
   variant?: "danger" | "default";
 }
 
-declare global {
-  interface Window {
-    HSOverlay?: {
-      open: (el: string | HTMLElement) => void;
-      close: (el: string | HTMLElement) => void;
-    };
-  }
-}
-
 export function ConfirmModal({
   open,
   onClose,
@@ -39,57 +31,53 @@ export function ConfirmModal({
   onConfirm,
   variant = "danger",
 }: ConfirmModalProps) {
-  const id = useId().replace(/:/g, "-") || "confirm-1";
-  const modalId = `bn-confirm-${id}`;
-  const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    if (!ref.current || typeof window === "undefined") return;
-    const el = ref.current;
-    const handleClose = () => onClose();
-    el.addEventListener("close.overlay", handleClose);
-    return () => el.removeEventListener("close.overlay", handleClose);
-  }, [onClose]);
+    if (!open) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "";
+    };
+  }, [open, onClose]);
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.HSOverlay || !ref.current) return;
-    try {
-      if (open) {
-        window.HSOverlay.open(ref.current);
-      } else {
-        window.HSOverlay.close(ref.current);
-      }
-    } catch {
-      /* HSOverlay can throw if $hsOverlayCollection is undefined or overlay not registered */
-    }
-  }, [open]);
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) onClose();
+  };
 
   const handleConfirm = async () => {
     await onConfirm();
     onClose();
   };
 
-  return (
+  if (!open) return null;
+
+  const modalContent = (
     <div
-      id={modalId}
-      ref={ref}
-      className="overlay modal overlay-open:opacity-100 overlay-open:duration-300 hidden"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
-      tabIndex={-1}
       aria-modal="true"
-      aria-labelledby={`${modalId}-title`}
+      aria-labelledby="bn-confirm-title"
     >
-      <div className="modal-dialog modal-dialog-sm modal-middle">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h3 id={`${modalId}-title`} className="modal-title">
+      <div
+        className="absolute inset-0 bg-base-content/20"
+        aria-hidden="true"
+        onClick={handleBackdropClick}
+      />
+      <div className="modal-dialog modal-dialog-sm modal-middle relative z-10 w-full max-w-md">
+        <div className="modal-content rounded-box border border-base-300 bg-base-100 shadow-xl">
+          <div className="modal-header p-4">
+            <h3 id="bn-confirm-title" className="modal-title text-lg font-semibold text-base-content">
               {title}
             </h3>
           </div>
-          <div className="modal-body">
+          <div className="modal-body p-4 pt-0">
             <p className="text-sm text-base-content/70">{message}</p>
           </div>
-          <div className="modal-footer flex gap-2">
+          <div className="modal-footer flex gap-2 p-4 pt-0">
             <ActionButton variant="outline" onClick={onClose}>
               {cancelLabel}
             </ActionButton>
@@ -104,4 +92,6 @@ export function ConfirmModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalContent, document.body) : null;
 }

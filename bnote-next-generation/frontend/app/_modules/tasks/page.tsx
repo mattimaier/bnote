@@ -23,6 +23,7 @@ import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { notesToPlainText } from "@/lib/editorjs-notes";
 import { PageContent } from "@/components/PageContent";
 
 type SortKey = "title" | "assignee" | "due_at";
@@ -123,7 +124,7 @@ export default function TasksPage() {
     if (!q) return openItems;
     return openItems.filter(
       (item) =>
-        [item.title, item.assignee, item.description].filter(Boolean).join(" ").toLowerCase().includes(q)
+        [notesToPlainText(item.title ?? ""), item.assignee, notesToPlainText(item.description ?? "")].filter(Boolean).join(" ").toLowerCase().includes(q)
     );
   }, [openItems, search]);
 
@@ -132,7 +133,7 @@ export default function TasksPage() {
     if (!q) return completedItems;
     return completedItems.filter(
       (item) =>
-        [item.title, item.assignee, item.description].filter(Boolean).join(" ").toLowerCase().includes(q)
+        [notesToPlainText(item.title ?? ""), item.assignee, notesToPlainText(item.description ?? "")].filter(Boolean).join(" ").toLowerCase().includes(q)
     );
   }, [completedItems, search]);
 
@@ -374,7 +375,7 @@ function TasksTable({
                   <Icon className="h-3.5 w-3.5" />
                 </span>
               }
-              primary={row.title ?? emptyText}
+              primary={notesToPlainText(row.title ?? "") || emptyText}
               secondary={
                 <span>
                   {row.assignee && `${row.assignee}`}
@@ -466,7 +467,7 @@ function TasksTable({
                         />
                       </td>
                     )}
-                    <td className="p-3 font-medium">{row.title ?? emptyText}</td>
+                    <td className="p-3 font-medium">{notesToPlainText(row.title ?? "") || emptyText}</td>
                     <td className="p-3">{row.assignee ?? emptyText}</td>
                     <td className="p-3">
                       {(isCompleted ? row.completed_at ?? row.due_at : row.due_at)

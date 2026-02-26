@@ -78,6 +78,8 @@ const TABLER_MAP: Record<string, string> = {
   save: "icon-[tabler--device-floppy]",
   info: "icon-[tabler--info-circle]",
   newspaper: "icon-[tabler--news]",
+  cake: "icon-[tabler--cake]",
+  "calendar-check": "icon-[tabler--calendar-check]",
 };
 
 export interface IconProps {

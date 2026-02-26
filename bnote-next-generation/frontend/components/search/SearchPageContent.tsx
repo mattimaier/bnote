@@ -29,6 +29,7 @@ import { formatMonthName } from "@/lib/date-time";
 import { Search as SearchIcon } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { notesToPlainText } from "@/lib/editorjs-notes";
 
 const CATEGORIES: { key: keyof SearchResults; labelKey: string; type: "events" | "list" }[] = [
   { key: "rehearsals", labelKey: "js.search.results.rehearsals", type: "events" },
@@ -45,7 +46,7 @@ function toInboxEvent(item: SearchEventItem, category: "rehearsals" | "concerts"
   return {
     otype,
     oid: item.oid ?? item.id ?? 0,
-    title: item.title,
+    title: notesToPlainText(item.title ?? ""),
     eventBegin: item.eventBegin ?? item.begin,
     dueDate: item.dueDate,
     begin: item.begin,
@@ -66,7 +67,7 @@ function SearchListItemRow({
   t: (k: string) => string;
   categoryLabel: string;
 }) {
-  const title = item.name ?? item.title ?? `#${item.id}`;
+  const title = item.name ?? (notesToPlainText(item.title ?? "") || `#${item.id}`);
   const href =
     category === "users"
       ? `/users?id=${item.id}`

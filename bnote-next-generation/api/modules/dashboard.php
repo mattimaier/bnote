@@ -252,6 +252,14 @@ class DashboardModule {
                     $eventName = $item['title'] ?? '';
                 } elseif ($otype === 'T') {
                     $eventName = $item['title'] ?? '';
+                } elseif ($otype === 'RS') {
+                    $eventName = $item['title'] ?? '';
+                    $locationName = $item['location'] ?? null;
+                    $location = $locationName ? ['name' => $locationName] : null;
+                } elseif ($otype === 'AP') {
+                    $eventName = $item['title'] ?? '';
+                    $locationName = $item['location'] ?? null;
+                    $location = $locationName ? ['name' => $locationName] : null;
                 }
             }
 
@@ -392,6 +400,47 @@ class DashboardModule {
                 'vote_is_date' => !empty($v['is_date']),
                 'vote_is_multi' => !empty($v['is_multi']),
             ];
+        }
+
+        // Reservations: future reservations (Calendar module; show only if user has permission)
+        global $system_data;
+        $calendarModuleId = $system_data->getModuleId('Calendar');
+        if ($calendarModuleId && $system_data->userHasPermission($calendarModuleId)) {
+            $reservations = $this->data->getReservations();
+            if (is_array($reservations)) {
+                for ($i = 1; $i < count($reservations); $i++) {
+                    $r = $reservations[$i];
+                    $items[] = [
+                        'otype' => 'RS',
+                        'oid' => (int) $r['id'],
+                        'title' => $r['name'] ?? '',
+                        'preview' => ($r['name'] ?? '') . ', ' . ($r['locationname'] ?? ''),
+                        'due' => null,
+                        'eventBegin' => $r['begin'] ?? null,
+                        'replyUntil' => $r['begin'] ?? null,
+                        'status' => null,
+                        'location' => $r['locationname'] ?? null,
+                    ];
+                }
+            }
+            // Appointments: where user is in invited group
+            $appointments = $this->data->getAppointments(false);
+            if (is_array($appointments)) {
+                for ($i = 1; $i < count($appointments); $i++) {
+                    $a = $appointments[$i];
+                    $items[] = [
+                        'otype' => 'AP',
+                        'oid' => (int) $a['id'],
+                        'title' => $a['name'] ?? '',
+                        'preview' => ($a['name'] ?? '') . ', ' . ($a['locationname'] ?? ''),
+                        'due' => null,
+                        'eventBegin' => $a['begin'] ?? null,
+                        'replyUntil' => $a['begin'] ?? null,
+                        'status' => null,
+                        'location' => $a['locationname'] ?? null,
+                    ];
+                }
+            }
         }
 
         // Tasks: open tasks assigned to current user
@@ -542,7 +591,9 @@ class DashboardModule {
             'performance' => 0,
             'meeting' => 0,
             'vote' => 0,
-            'task' => 0
+            'task' => 0,
+            'reservation' => 0,
+            'appointment' => 0,
         ];
 
         foreach ($events as $event) {
@@ -555,6 +606,10 @@ class DashboardModule {
                 $counts['vote']++;
             } elseif ($otype === 'T') {
                 $counts['task']++;
+            } elseif ($otype === 'RS') {
+                $counts['reservation']++;
+            } elseif ($otype === 'AP') {
+                $counts['appointment']++;
             } else {
                 $counts['meeting']++;
             }

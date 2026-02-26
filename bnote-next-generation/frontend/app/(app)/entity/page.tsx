@@ -28,6 +28,10 @@ import { VoteEdit } from "@/components/entities/vote/VoteEdit";
 import { TaskDetail } from "@/components/entities/task/TaskDetail";
 import { TaskEdit } from "@/components/entities/task/TaskEdit";
 import { GroupTaskEdit } from "@/components/entities/group-task/GroupTaskEdit";
+import { ReservationDetail } from "@/components/entities/reservation/ReservationDetail";
+import { ReservationEdit } from "@/components/entities/reservation/ReservationEdit";
+import { AppointmentDetail } from "@/components/entities/appointment/AppointmentDetail";
+import { AppointmentEdit } from "@/components/entities/appointment/AppointmentEdit";
 import { ContactEdit } from "@/components/entities/contact/ContactEdit";
 import { UserEdit } from "@/components/entities/user/UserEdit";
 import { Spinner } from "@/components/Spinner";
@@ -43,6 +47,8 @@ const ENTITY_TYPES_WITH_VIEW: Record<string, boolean> = {
   task: true,
   contact: true,
   user: true,
+  reservation: true,
+  appointment: true,
 };
 
 const ENTITY_TYPES_WITH_EDIT: Record<string, boolean> = {
@@ -57,6 +63,8 @@ const ENTITY_TYPES_WITH_EDIT: Record<string, boolean> = {
   vote: true,
   task: true,
   group_task: true,
+  reservation: true,
+  appointment: true,
 };
 
 const CHAT_ENTITY_TYPES: Record<string, boolean> = {
@@ -102,6 +110,8 @@ function EntityContent() {
 
   if (showEdit) {
     if (typeKey === "location") return <LocationEdit />;
+    if (typeKey === "reservation") return <ReservationEdit />;
+    if (typeKey === "appointment") return <AppointmentEdit />;
     if (typeKey === "equipment") return <EquipmentEdit />;
     if (typeKey === "outfit") return <OutfitEdit />;
     if (typeKey === "song") return <SongEdit />;
@@ -122,6 +132,8 @@ function EntityContent() {
     const withChat = CHAT_ENTITY_TYPES[typeKey] && !Number.isNaN(entityIdNum) && entityIdNum > 0;
 
     if (typeKey === "location") return <LocationDetail />;
+    if (typeKey === "reservation") return <ReservationDetail />;
+    if (typeKey === "appointment") return <AppointmentDetail />;
     if (typeKey === "equipment") return <EquipmentDetail />;
     if (typeKey === "outfit") return <OutfitDetail />;
     if (typeKey === "song") return <SongDetail />;

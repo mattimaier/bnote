@@ -298,6 +298,16 @@ class AuthModule {
                 'route' => '/tasks',
                 'icon' => 'check-square',
                 'i18n' => 'js.sidebar.tasks'
+            ],
+            'Calendar' => [
+                'route' => '/calendar',
+                'icon' => 'calendar-days',
+                'i18n' => 'js.sidebar.calendar'
+            ],
+            'Kalender' => [
+                'route' => '/calendar',
+                'icon' => 'calendar-days',
+                'i18n' => 'js.sidebar.calendar'
             ]
         ];
         

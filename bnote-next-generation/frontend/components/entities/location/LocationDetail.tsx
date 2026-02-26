@@ -17,6 +17,7 @@ import {
 } from "@/lib/locations-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
+import { notesToPlainText } from "@/lib/editorjs-notes";
 import { getStatusPillStyle, getEventTypeConfig } from "@/lib/entity-config";
 import { compareDate, compareString, type SortDirection } from "@/lib/table-sort";
 import { AddressLink } from "@/components/AddressLink";
@@ -247,7 +248,8 @@ function SortableTh({
 }
 
 function getEventDisplayTitle(row: LocationEventItem, t: (k: string) => string): string {
-  if (row.type === "concert" && (row.title ?? "").trim()) return row.title!.trim();
+  const title = notesToPlainText(row.title ?? "").trim();
+  if (row.type === "concert" && title) return title;
   return row.type === "concert"
     ? t("js.event.performance")
     : t("js.event.rehearsal");
@@ -318,8 +320,9 @@ function LocationEventsTable({
             const tba = t("js.event.tba");
             const dateStr = formatEventDate(row.begin, lang, tba);
             const timeStr = formatEventTime(row.begin, lang, tba);
-            const hasCustomTitle = row.type === "concert" && (row.title ?? "").trim();
-            const primaryText = hasCustomTitle ? (row.title ?? "").trim() : dateStr;
+            const customTitle = notesToPlainText(row.title ?? "").trim();
+            const hasCustomTitle = row.type === "concert" && customTitle;
+            const primaryText = hasCustomTitle ? customTitle : dateStr;
             return (
               <EntityListRow
                 icon={

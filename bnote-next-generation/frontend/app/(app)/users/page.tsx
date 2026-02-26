@@ -170,7 +170,7 @@ export default function UsersPage() {
             renderMobileRow={(u) => {
               const fullName = [u.firstName ?? u.name ?? "", u.lastName ?? ""].filter(Boolean).join(" ") || emptyText;
               const statusLabel = u.isActive ? (t("js.users.active") !== "js.users.active" ? t("js.users.active") : "Active") : (t("js.users.inactive") !== "js.users.inactive" ? t("js.users.inactive") : "Inactive");
-              const secondary = [fullName, u.instrument].filter(Boolean).join(" · ") || undefined;
+              const secondary = fullName || undefined;
               return (
                 <EntityListRow
                   icon={<Avatar email={u.email} name={fullName || u.login} size={24} variant="soft" />}

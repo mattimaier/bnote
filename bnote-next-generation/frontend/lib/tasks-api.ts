@@ -44,9 +44,9 @@ export const tasksApi = {
   get: (id: number) =>
     api.get<Task>("tasks", "get", { id: String(id) }),
   create: (data: TaskCreate) =>
-    api.post<{ id: number; success: boolean }>("tasks", "create", data as Record<string, unknown>),
+    api.post<{ id: number; success: boolean }>("tasks", "create", data as unknown as Record<string, unknown>),
   update: (id: number, data: TaskUpdate) =>
-    api.post<{ success: boolean }>("tasks", "update", { id, ...data } as Record<string, unknown>),
+    api.post<{ success: boolean }>("tasks", "update", { id, ...data } as unknown as Record<string, unknown>),
   delete: (id: number) =>
     api.post<{ success: boolean }>("tasks", "delete", { id }),
   complete: (id: number, complete: boolean) =>
@@ -60,7 +60,7 @@ export const tasksApi = {
     description?: string;
     due_at?: string | null;
   }) =>
-    api.post<{ success: boolean; created: number }>("tasks", "createGroupTasks", data as Record<string, unknown>),
+    api.post<{ success: boolean; created: number }>("tasks", "createGroupTasks", data as unknown as Record<string, unknown>),
   getContacts: () =>
     api.get<Array<{ id: number; name: string; email?: string | null; instrument?: string | null }>>("tasks", "getContacts"),
   getGroups: () =>

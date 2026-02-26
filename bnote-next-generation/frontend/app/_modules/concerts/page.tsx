@@ -23,6 +23,7 @@ import { ParticipationDiagram } from "@/components/ParticipationDiagram";
 import { ArrowDown, ArrowUp, ArrowUpDown, Clock, MapPin } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { notesToPlainText } from "@/lib/editorjs-notes";
 import { PageContent } from "@/components/PageContent";
 
 export default function ConcertsPage() {
@@ -346,7 +347,7 @@ function EventsTable({
               const dateStr = formatEventDate(row.begin, lang, tba);
               const timeStr = formatEventTime(row.begin, lang, tba);
               const loc = row.location_name || emptyText;
-              const title = (row.title ?? "").trim() || typeConfig.label;
+              const title = notesToPlainText(row.title ?? "").trim() || typeConfig.label;
               return (
                 <EntityListRow
                   icon={
@@ -466,7 +467,7 @@ function EventsTable({
                       style={{ borderColor: "var(--border)" }}
                       onClick={() => onRowClick(row.id)}
                     >
-                      <td className="p-3 font-medium">{row.title || emptyText}</td>
+                      <td className="p-3 font-medium">{notesToPlainText(row.title ?? "") || emptyText}</td>
                       <td className="p-3">
                         {row.begin ? formatDateTime(new Date(row.begin)) : emptyText}
                       </td>

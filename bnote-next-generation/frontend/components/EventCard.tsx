@@ -22,6 +22,7 @@ import { AddressLink } from "@/components/AddressLink";
 import { getStatusPillStyle } from "@/lib/entity-config";
 import { DashboardVoteWidget } from "@/components/dashboard/DashboardVoteWidget";
 import { tasksApi } from "@/lib/tasks-api";
+import { notesToPlainText } from "@/lib/editorjs-notes";
 
 export interface VoteOption {
   id: number;
@@ -89,11 +90,21 @@ export function EventCard({
   const location = extractLocation(event);
   const isVote = event.otype === "V";
   const isTask = event.otype === "T";
-  const title = event.title || t("js.event.event");
+  const title = notesToPlainText(event.title ?? "") || t("js.event.event");
   const hideTitleWhenDuplicate = title === typeConfig.label;
-  const isClickable = event.otype === "R" || event.otype === "C" || event.otype === "V" || event.otype === "T";
+  const isClickable = event.otype === "R" || event.otype === "C" || event.otype === "V" || event.otype === "T" || event.otype === "RS" || event.otype === "AP";
   const entityType =
-    event.otype === "C" ? "concert" : event.otype === "V" ? "vote" : event.otype === "T" ? "task" : "rehearsal";
+    event.otype === "C"
+      ? "concert"
+      : event.otype === "V"
+        ? "vote"
+        : event.otype === "T"
+          ? "task"
+          : event.otype === "RS"
+            ? "reservation"
+            : event.otype === "AP"
+              ? "appointment"
+              : "rehearsal";
   const href = isClickable ? getEntityPath(entityType, event.oid) : "#";
   const hasParticipation =
     showParticipation && (event.otype === "R" || event.otype === "C") && event.oid && event.otype;

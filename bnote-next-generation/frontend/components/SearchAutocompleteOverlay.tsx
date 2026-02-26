@@ -28,6 +28,7 @@ import {
 import { getEntityPath } from "@/lib/entities/paths";
 import { Clock, MapPin, Calendar, User, Loader2 } from "@/components/icons";
 import type { SearchResults, SearchEventItem, SearchListItem } from "@/lib/search";
+import { notesToPlainText } from "@/lib/editorjs-notes";
 
 const CATEGORIES: { key: keyof SearchResults; labelKey: string; type: "events" | "list" }[] = [
   { key: "rehearsals", labelKey: "js.search.results.rehearsals", type: "events" },
@@ -162,7 +163,7 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                         const dateStr = formatEventDate(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
                         const timeStr = formatEventTime(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
                         const location = formatLocation(item, emptyText);
-                        const title = item.title ?? (cat.key === "concerts" ? t("js.event.performance") : t("js.event.rehearsal"));
+                        const title = notesToPlainText(item.title ?? "") || (cat.key === "concerts" ? t("js.event.performance") : t("js.event.rehearsal"));
 
                         return (
                           <div key={`${cat.key}-${oid}`}>
@@ -196,7 +197,7 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                       })}
                     {cat.type === "list" &&
                       (list as SearchListItem[]).map((item) => {
-                        const title = item.name ?? item.title ?? `#${item.id}`;
+                        const title = item.name ?? (notesToPlainText(item.title ?? "") || `#${item.id}`);
                         const href =
                           cat.key === "users"
                             ? getEntityPath("user", item.id)

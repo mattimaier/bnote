@@ -19,6 +19,8 @@ const OTYPE_MAP: Record<string, EventDisplayType> = {
   A: "meeting",
   T: "task",
   V: "vote",
+  RS: "reservation",
+  AP: "appointment",
 };
 
 export function mapOtypeToEventType(otype: string): EventDisplayType {

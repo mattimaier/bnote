@@ -23,14 +23,14 @@ export interface DashboardData {
   inbox: InboxEvent[];
   news?: string;
   company?: string | Record<string, string> | string[];
-  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number; task?: number };
+  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number; task?: number; reservation?: number; appointment?: number };
   config?: { max_show?: number };
 }
 
 export interface EventsNeedingResponse {
   events: InboxEvent[];
   config?: { max_show?: number };
-  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number; task?: number };
+  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number; task?: number; reservation?: number; appointment?: number };
 }
 
 export type SectionId = "events-needing-response" | "events-timeline";
@@ -125,7 +125,7 @@ export default function DashboardContent({
   );
 
   const countByType = useCallback((events: InboxEvent[]) => {
-    const c = { rehearsal: 0, performance: 0, meeting: 0, vote: 0, task: 0 };
+    const c = { rehearsal: 0, performance: 0, meeting: 0, vote: 0, task: 0, reservation: 0, appointment: 0 };
     events.forEach((e) => {
       const type = mapOtypeToEventType(e.otype);
       if (type in c) (c as Record<string, number>)[type]++;
@@ -178,14 +178,14 @@ export default function DashboardContent({
   const hasNews = Boolean(newsContent && String(newsContent).trim());
   const newsHtml = useNewsHtml(hasNews ? String(newsContent) : undefined);
 
-  const defaultCounts = { rehearsal: 0, performance: 0, meeting: 0, vote: 0, task: 0 };
+  const defaultCounts = { rehearsal: 0, performance: 0, meeting: 0, vote: 0, task: 0, reservation: 0, appointment: 0 };
   const needResponseCounts = needResponse?.counts ?? defaultCounts;
   const timelineCounts = dashboard?.counts ?? defaultCounts;
-  const filterCountsNeed: { rehearsal: number; performance: number; meeting: number; vote: number; task: number } =
+  const filterCountsNeed: { rehearsal: number; performance: number; meeting: number; vote: number; task: number; reservation: number; appointment: number } =
     filters["events-needing-response"]?.size > 0
       ? countByType(needResponseFiltered)
       : { ...defaultCounts, ...needResponseCounts };
-  const filterCountsTimeline: { rehearsal: number; performance: number; meeting: number; vote: number; task: number } =
+  const filterCountsTimeline: { rehearsal: number; performance: number; meeting: number; vote: number; task: number; reservation: number; appointment: number } =
     filters["events-timeline"]?.size > 0
       ? countByType(timelineFiltered)
       : { ...defaultCounts, ...timelineCounts };
@@ -197,10 +197,10 @@ export default function DashboardContent({
       unfilteredCounts,
     }: {
       sectionId: SectionId;
-      counts: { rehearsal: number; performance: number; meeting: number; vote: number; task: number };
-      unfilteredCounts: { rehearsal: number; performance: number; meeting: number; vote: number; task: number };
+      counts: { rehearsal: number; performance: number; meeting: number; vote: number; task: number; reservation: number; appointment: number };
+      unfilteredCounts: { rehearsal: number; performance: number; meeting: number; vote: number; task: number; reservation: number; appointment: number };
     }) => {
-      const entityTypesWithItems = (["rehearsal", "performance", "vote", "task"] as const).filter(
+      const entityTypesWithItems = (["rehearsal", "performance", "vote", "task", "reservation", "appointment"] as const).filter(
         (k) => (unfilteredCounts[k] ?? 0) > 0
       );
       if (entityTypesWithItems.length < 2) return null;
@@ -219,7 +219,13 @@ export default function DashboardContent({
                 ? "filter-bubble filter-bubble-performance"
                 : filterType === "vote"
                   ? "filter-bubble filter-bubble-vote"
-                  : "filter-bubble filter-bubble-task";
+                  : filterType === "task"
+                    ? "filter-bubble filter-bubble-task"
+                    : filterType === "reservation"
+                      ? "filter-bubble filter-bubble-reservation"
+                      : filterType === "appointment"
+                        ? "filter-bubble filter-bubble-appointment"
+                        : "filter-bubble filter-bubble-task";
           const labelKey =
             filterType === "rehearsal"
               ? "js.event.rehearsal"
@@ -227,7 +233,13 @@ export default function DashboardContent({
                 ? "js.event.performance"
                 : filterType === "vote"
                   ? "js.sidebar.votes"
-                  : "js.sidebar.tasks";
+                  : filterType === "task"
+                    ? "js.sidebar.tasks"
+                    : filterType === "reservation"
+                      ? "js.calendar.reservationLabel"
+                      : filterType === "appointment"
+                        ? "js.calendar.appointmentLabel"
+                        : "js.sidebar.tasks";
           return (
             <button
               key={filterType}
@@ -282,7 +294,7 @@ export default function DashboardContent({
   const subtitle = t("js.dashboard.subtitle", [companyName]);
 
   const quickActions = [
-    { titleKey: "js.dashboard.quickAction.viewCalendar", descKey: "js.dashboard.quickAction.viewCalendarDesc", icon: "calendar-days", colorClass: "bg-primary/10 text-primary hover:bg-primary/20", href: "#" },
+    { titleKey: "js.dashboard.quickAction.viewCalendar", descKey: "js.dashboard.quickAction.viewCalendarDesc", icon: "calendar-days", colorClass: "bg-primary/10 text-primary hover:bg-primary/20", href: "/calendar" },
     { titleKey: "js.dashboard.quickAction.contactBand", descKey: "js.dashboard.quickAction.contactBandDesc", icon: "message-square", colorClass: "bg-accent/10 text-accent hover:bg-accent/20", href: "#" },
     { titleKey: "js.dashboard.quickAction.bandDirectory", descKey: "js.dashboard.quickAction.bandDirectoryDesc", icon: "users", colorClass: "bg-chart-3/10 text-chart-3 hover:bg-chart-3/20", href: "/contacts" },
     { titleKey: "js.dashboard.quickAction.myProfile", descKey: "js.dashboard.quickAction.myProfileDesc", icon: "music", colorClass: "bg-chart-4/10 text-chart-4 hover:bg-chart-4/20", href: "#" },
