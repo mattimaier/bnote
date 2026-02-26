@@ -14,6 +14,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { contactsApi, type ContactDetail, type ContactGroup } from "@/lib/contacts-api";
 import { kontaktdatenApi, type InstrumentOption } from "@/lib/kontaktdaten-api";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { SelectPicker } from "@/components/SelectPicker";
@@ -233,14 +234,14 @@ export function ContactEdit() {
 
   if (!isNew && error && !name && !surname) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+      <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4 p-4 md:space-y-6 md:p-6">
+    <div className={PAGE_CONTENT_CLASS}>
       <form id="contact-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div

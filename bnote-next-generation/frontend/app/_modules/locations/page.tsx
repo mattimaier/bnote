@@ -24,6 +24,7 @@ import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown, MapPin } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { PageContent } from "@/components/PageContent";
 
 type SortKey = "name" | "city" | "zip";
 
@@ -127,7 +128,7 @@ export default function LocationsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
+    <PageContent>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-base-content">
@@ -293,7 +294,7 @@ export default function LocationsPage() {
           </ResponsiveTable>
         )}
       </div>
-    </div>
+    </PageContent>
   );
 }
 

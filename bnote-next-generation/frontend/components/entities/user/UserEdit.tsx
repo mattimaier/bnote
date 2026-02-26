@@ -18,6 +18,7 @@ import {
   type PrivilegesResponse,
   type UserDetail,
 } from "@/lib/users-api";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { SelectPicker } from "@/components/SelectPicker";
@@ -288,14 +289,14 @@ export function UserEdit() {
 
   if (!isNew && error && !login) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+      <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4 p-4 md:space-y-6 md:p-6">
+    <div className={PAGE_CONTENT_CLASS}>
       <form id="user-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">

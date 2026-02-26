@@ -23,6 +23,7 @@ import { getIcon } from "@/components/icons";
 import { ChevronRight, FolderPlus, Download } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import type { ShareSortKey, SortDirection } from "@/components/share/ShareFileList";
 
 export default function SharePage() {
@@ -175,7 +176,7 @@ export default function SharePage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
+    <div className={PAGE_CONTENT_CLASS}>
       <div>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
           {title}

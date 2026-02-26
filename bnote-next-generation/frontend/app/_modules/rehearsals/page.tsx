@@ -24,6 +24,7 @@ import { ParticipationDiagram } from "@/components/ParticipationDiagram";
 import { ArrowDown, ArrowUp, ArrowUpDown, Clock, MapPin } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { PageContent } from "@/components/PageContent";
 
 export default function RehearsalsPage() {
   const router = useRouter();
@@ -138,7 +139,7 @@ export default function RehearsalsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
+    <PageContent>
       <div>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
           {t("js.sidebar.rehearsals") !== "js.sidebar.rehearsals"
@@ -231,7 +232,7 @@ export default function RehearsalsPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageContent>
   );
 }
 

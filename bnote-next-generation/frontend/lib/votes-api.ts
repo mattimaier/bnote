@@ -57,7 +57,7 @@ export const votesApi = {
       "create",
       data as Record<string, unknown>
     ),
-  update: (id: number, data: { name?: string; end?: string }) =>
+  update: (id: number, data: { name?: string; end?: string; is_finished?: boolean }) =>
     api.post<{ success: boolean; message: string }>(
       "votes",
       "update",

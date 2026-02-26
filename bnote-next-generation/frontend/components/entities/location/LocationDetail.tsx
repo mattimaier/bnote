@@ -15,6 +15,7 @@ import {
   type LocationDetail as LocationDetailType,
   type LocationEventItem,
 } from "@/lib/locations-api";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { getStatusPillStyle, getEventTypeConfig } from "@/lib/entity-config";
 import { compareDate, compareString, type SortDirection } from "@/lib/table-sort";
@@ -124,7 +125,7 @@ export function LocationDetail() {
 
   if (error || !location) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+      <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">{error || "Location not found."}</p>
       </div>
     );
@@ -148,7 +149,7 @@ export function LocationDetail() {
     : null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-4 md:space-y-6 md:p-6">
+    <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
         title={location.name || emptyText}
         right={<DetailEditButton onClick={() => router.push(getEntityPath("location", location.id, "edit"))} />}

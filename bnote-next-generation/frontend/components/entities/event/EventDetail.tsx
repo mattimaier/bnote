@@ -279,7 +279,7 @@ export function EventDetail({
 
   if (error || !data) {
     return (
-      <div className="w-full max-w-none px-0 py-0 md:max-w-4xl md:mx-auto md:p-6">
+      <div className="w-full max-w-none px-0 py-0 md:max-w-7xl md:mx-auto md:px-4 md:py-3">
         <div className="rounded-lg border border-error bg-error/15 text-error px-4 py-3">
           {error || "Not found"}
         </div>
@@ -564,7 +564,7 @@ export function EventDetail({
   };
 
   return (
-    <div className="w-full max-w-none px-0 py-0 space-y-2 md:max-w-4xl md:mx-auto md:space-y-6 md:p-6">
+    <div className="w-full max-w-none px-0 py-0 space-y-2 md:max-w-7xl md:mx-auto md:space-y-6 md:px-4 md:py-3">
       {/* Header + participation widget */}
       <div
         className={DETAIL_SECTION_CLASS}

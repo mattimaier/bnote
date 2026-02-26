@@ -70,6 +70,60 @@ class DashboardModule {
                 Response::error('Unknown action: ' . $action, 400);
         }
     }
+
+    /**
+     * Get user's choices for a vote (optionId => "yes"|"no"|"maybe").
+     * Implemented in API only (AbstimmungData::getUserChoices does not exist).
+     */
+    private function getUserChoicesForVote($vid, $uid) {
+        global $system_data;
+        $query = "SELECT vo.id as option_id, vou.choice
+                  FROM vote_option vo
+                  LEFT JOIN vote_option_user vou ON vo.id = vou.vote_option AND vou.user = ?
+                  WHERE vo.vote = ?";
+        $rows = $system_data->dbcon->getSelection($query, [['i', (int) $uid], ['i', (int) $vid]]);
+        $choices = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $r = $rows[$i];
+                $optId = (int) ($r['option_id'] ?? 0);
+                $choice = isset($r['choice']) ? (int) $r['choice'] : 0;
+                $choices[$optId] = $choice === 2 ? 'maybe' : ($choice === 1 ? 'yes' : 'no');
+            }
+        }
+        return $choices;
+    }
+
+    /**
+     * Check if user has voted for at least one option of this vote.
+     * AbstimmungData has no hasUserVoted() - implemented in API only.
+     */
+    private function hasUserVoted($vid, $uid) {
+        global $system_data;
+        $query = "SELECT COUNT(*) as cnt FROM vote_option vo
+                  JOIN vote_option_user vou ON vo.id = vou.vote_option AND vou.user = ?
+                  WHERE vo.vote = ?";
+        $rows = $system_data->dbcon->getSelection($query, [['i', (int) $uid], ['i', (int) $vid]]);
+        return is_array($rows) && isset($rows[1]['cnt']) && (int) $rows[1]['cnt'] > 0;
+    }
+
+    /**
+     * Check if user has voted for all options (for multi-date votes).
+     * AbstimmungData has no hasUserVotedForAllOptions() - implemented in API only.
+     */
+    private function hasUserVotedForAllOptions($vid, $uid) {
+        global $system_data;
+        $optQuery = "SELECT COUNT(*) as cnt FROM vote_option WHERE vote = ?";
+        $optRows = $system_data->dbcon->getSelection($optQuery, [['i', (int) $vid]]);
+        $optCount = (is_array($optRows) && isset($optRows[1]['cnt'])) ? (int) $optRows[1]['cnt'] : 0;
+        if ($optCount === 0) return true;
+        $votedQuery = "SELECT COUNT(DISTINCT vo.id) as cnt FROM vote_option vo
+                       JOIN vote_option_user vou ON vo.id = vou.vote_option
+                       WHERE vo.vote = ? AND vou.user = ?";
+        $votedRows = $system_data->dbcon->getSelection($votedQuery, [['i', (int) $vid], ['i', (int) $uid]]);
+        $votedCount = (is_array($votedRows) && isset($votedRows[1]['cnt'])) ? (int) $votedRows[1]['cnt'] : 0;
+        return $votedCount >= $optCount;
+    }
     
     private function getDashboard() {
         global $system_data;
@@ -291,15 +345,16 @@ class DashboardModule {
         for ($i = 1; $i < count($votesSel); $i++) {
             $v = $votesSel[$i];
             $vid = intval($v['id']);
-            $optCount = $this->voteData->getOptionCount($vid);
+            $opts = $this->voteData->getOptions($vid);
+            $optCount = is_array($opts) ? max(0, count($opts) - 1) : 0;
             if ($optCount < 1) {
                 continue;
             }
             // For multi-date: only "complete" when user has voted for ALL options
             $isMultiDate = !empty($v['is_date']) && !empty($v['is_multi']);
             $participation = $isMultiDate
-                ? ($this->voteData->hasUserVotedForAllOptions($vid, $userId) ? 1 : -1)
-                : ($this->voteData->hasUserVoted($vid, $userId) ? 1 : -1);
+                ? ($this->hasUserVotedForAllOptions($vid, $userId) ? 1 : -1)
+                : ($this->hasUserVoted($vid, $userId) ? 1 : -1);
             $options = $this->voteData->getOptions($vid);
             $optionsList = [];
             if (is_array($options)) {
@@ -312,7 +367,7 @@ class DashboardModule {
                     ];
                 }
             }
-            $userChoices = $this->voteData->getUserChoices($vid, $userId);
+            $userChoices = $this->getUserChoicesForVote($vid, $userId);
             $items[] = [
                 'otype' => 'V',
                 'oid' => $vid,

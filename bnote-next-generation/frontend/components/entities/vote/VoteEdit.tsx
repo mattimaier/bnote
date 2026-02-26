@@ -15,8 +15,8 @@ import { useEditingBar } from "@/contexts/EditingBarContext";
 import { votesApi, type VoteDetail } from "@/lib/votes-api";
 import { contactsApi, type ContactGroup } from "@/lib/contacts-api";
 import { formatDateShortDisplay } from "@/lib/date-time";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
-import { ConfirmModal } from "@/components/ConfirmModal";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { MultiSelect } from "@/components/entities/event/MultiSelect";
 import { RemoveOptionButton } from "@/components/RemoveOptionButton";
@@ -46,8 +46,6 @@ export function VoteEdit() {
   const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
   /** Pending options for new vote (before save) */
   const [pendingOptions, setPendingOptions] = useState<Array<{ id: string; name?: string; odate?: string }>>([]);
-  const [finishConfirmOpen, setFinishConfirmOpen] = useState(false);
-
   const loadVote = useCallback(() => {
     if (isNew || !id) return;
     const numId = parseInt(id, 10);
@@ -236,27 +234,6 @@ export function VoteEdit() {
     }
   };
 
-  const handleFinish = async () => {
-    if (!id || isNew) return;
-    try {
-      await votesApi.finish(parseInt(id, 10));
-      showToast(
-        t("js.votes.finishDone") !== "js.votes.finishDone" ? t("js.votes.finishDone") : "Vote finished",
-        "success"
-      );
-      loadVote();
-    } catch (err) {
-      showToast(
-          err instanceof Error
-            ? err.message
-            : t("js.votes.finishFailed") !== "js.votes.finishFailed"
-              ? t("js.votes.finishFailed")
-              : "Finish failed",
-          "error"
-        );
-    }
-  };
-
   const handleCancel = useCallback(() => {
     if (isNew) router.push("/votes");
     else router.push(getEntityPath("vote", id, "view"));
@@ -300,7 +277,7 @@ export function VoteEdit() {
 
   if (!isNew && error && !name) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+      <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">{error}</p>
       </div>
     );
@@ -312,37 +289,12 @@ export function VoteEdit() {
   const pageSubtitle = t("js.votes.subtitle") !== "js.votes.subtitle" ? t("js.votes.subtitle") : "Polls and voting";
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4 p-4 md:space-y-6 md:p-6">
+    <div className={PAGE_CONTENT_CLASS}>
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <h1 className="text-2xl font-bold text-base-content">{pageTitle}</h1>
           <p className="mt-1 text-sm text-base-content/60">{pageSubtitle}</p>
         </div>
-        {!isNew && item && !item.is_finished && item.is_author && (
-          <>
-            <button
-              type="button"
-              onClick={() => setFinishConfirmOpen(true)}
-              className="btn btn-error btn-sm shrink-0 gap-2 text-white"
-            >
-              {t("js.votes.finish") !== "js.votes.finish" ? t("js.votes.finish") : "Finish vote"}
-            </button>
-            <ConfirmModal
-              open={finishConfirmOpen}
-              onClose={() => setFinishConfirmOpen(false)}
-              title={t("js.votes.finish") !== "js.votes.finish" ? t("js.votes.finish") : "Finish vote"}
-              message={
-                t("js.votes.finishConfirm") !== "js.votes.finishConfirm"
-                  ? t("js.votes.finishConfirm")
-                  : "Finish this vote? Results will be final."
-              }
-              confirmLabel={t("js.votes.finish") !== "js.votes.finish" ? t("js.votes.finish") : "Finish vote"}
-              cancelLabel={t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
-              onConfirm={handleFinish}
-              variant="danger"
-            />
-          </>
-        )}
       </div>
       <form id="vote-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (

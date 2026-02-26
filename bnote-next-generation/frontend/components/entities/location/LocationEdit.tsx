@@ -13,6 +13,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { locationsApi, type LocationDetail } from "@/lib/locations-api";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { NotesEditor } from "@/components/NotesEditor";
@@ -138,14 +139,14 @@ export function LocationEdit() {
 
   if (!isNew && error && !name && !city) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+      <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4 p-4 md:space-y-6 md:p-6">
+    <div className={PAGE_CONTENT_CLASS}>
       <form id="location-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div

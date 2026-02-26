@@ -24,6 +24,7 @@ import { formatDateTimeShort } from "@/lib/date-time";
 import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { PageContent } from "@/components/PageContent";
 
 type SortKey = "name" | "end" | "status";
 
@@ -149,7 +150,7 @@ export default function VotesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
+    <PageContent>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
@@ -256,7 +257,7 @@ export default function VotesPage() {
           </div>
         </>
       )}
-    </div>
+    </PageContent>
   );
 }
 

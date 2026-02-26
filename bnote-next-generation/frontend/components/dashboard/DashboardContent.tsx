@@ -17,6 +17,7 @@ import { isQuickActionsEnabled } from "@/lib/entity-config";
 import { useModules } from "@/lib/use-modules";
 import { normalizeCompany, useNewsHtml, MAX_SHOW_DEFAULT } from "@/lib/dashboard-utils";
 import { Spinner } from "@/components/Spinner";
+import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 
 export interface DashboardData {
   inbox: InboxEvent[];
@@ -268,7 +269,7 @@ export default function DashboardContent({
   ];
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className={PAGE_CONTENT_BASE_CLASS}>
       <div className="mb-6 pb-4 border-b border-border/30">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">{greeting}, {firstName}</h1>
         <p className="text-sm font-medium mt-1 text-muted-foreground">{subtitle}</p>

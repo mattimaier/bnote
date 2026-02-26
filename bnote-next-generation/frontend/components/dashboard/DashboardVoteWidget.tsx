@@ -11,6 +11,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { ParticipationTrafficLight } from "@/components/entities/event/ParticipationTrafficLight";
 import { formatDateShortDisplay } from "@/lib/date-time";
+import { getColor } from "@/lib/entity-config";
 import { votesApi } from "@/lib/votes-api";
 
 interface VoteOption {
@@ -90,6 +91,7 @@ export function DashboardVoteWidget({
             : "Submit failed",
         "error"
       );
+      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -129,44 +131,34 @@ export function DashboardVoteWidget({
     );
   }
 
+  const voteColor = getColor("vote") ?? "#A855F7";
   return (
     <div
-      className="flex flex-col gap-1.5 mt-1"
+      className="mt-1 flex flex-col gap-1.5 rounded-field border border-base-300 p-2"
       onClick={(e) => e.preventDefault()}
       role="radiogroup"
+      style={{ ["--input-color" as string]: voteColor }}
     >
-      <label className="label-text flex cursor-pointer items-center gap-2 text-xs">
-        <input
-          type="radio"
-          name={`vote-dash-${voteId}`}
-          className="radio radio-primary radio-sm"
-          checked={singleChoice === null}
-          disabled={submitting || disabled}
-          onChange={async () => {
-            if (singleChoice === null) return;
-            setSingleChoice(null);
-            await submit({ uservote: null });
-          }}
-        />
-        <span className="truncate text-base-content/90">
-          {t("js.votes.noVote") !== "js.votes.noVote" ? t("js.votes.noVote") : "No selection"}
-        </span>
-      </label>
       {options.map((opt) => (
         <label
           key={opt.id}
           className="label-text flex cursor-pointer items-center gap-2 text-xs"
         >
-          <input
+            <input
             type="radio"
             name={`vote-dash-${voteId}`}
-            className="radio radio-primary radio-sm"
+            className="radio radio-sm"
             checked={singleChoice === opt.id}
             disabled={submitting || disabled}
             onChange={async () => {
               if (singleChoice === opt.id) return;
+              const prev = singleChoice;
               setSingleChoice(opt.id);
-              await submit({ uservote: opt.id });
+              try {
+                await submit({ uservote: opt.id });
+              } catch {
+                setSingleChoice(prev);
+              }
             }}
           />
           <span className="truncate text-base-content/90 min-w-0">{optionLabel(opt)}</span>

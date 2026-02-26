@@ -130,7 +130,7 @@ export function EntityChatLayout({
     (children.type as React.ComponentType) !== React.Suspense;
 
   return (
-    <div className="flex flex-col min-h-0 flex-1 w-full max-w-none md:max-w-4xl md:mx-auto">
+    <div className="flex flex-col min-h-0 flex-1 w-full max-w-none md:max-w-7xl md:mx-auto">
       <div className="min-w-0">
         {canInject
           ? React.cloneElement(children as React.ReactElement<{ renderAfterContent?: React.ReactNode }>, {

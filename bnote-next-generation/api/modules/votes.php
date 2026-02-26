@@ -76,6 +76,29 @@ class VotesModule {
     }
 
     /**
+     * Get user's choices for a vote (optionId => "yes"|"no"|"maybe").
+     * Implemented in API only (never modify BNote). Uses global dbcon.
+     */
+    private function getUserChoicesForVote($vid, $uid) {
+        global $system_data;
+        $query = "SELECT vo.id as option_id, vou.choice
+                  FROM vote_option vo
+                  LEFT JOIN vote_option_user vou ON vo.id = vou.vote_option AND vou.user = ?
+                  WHERE vo.vote = ?";
+        $rows = $system_data->dbcon->getSelection($query, [['i', (int) $uid], ['i', (int) $vid]]);
+        $choices = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $r = $rows[$i];
+                $optId = (int) ($r['option_id'] ?? 0);
+                $choice = isset($r['choice']) ? (int) $r['choice'] : 0;
+                $choices[$optId] = $choice === 2 ? 'maybe' : ($choice === 1 ? 'yes' : 'no');
+            }
+        }
+        return $choices;
+    }
+
+    /**
      * List votes for current user (active and finished)
      */
     private function listVotes() {
@@ -200,7 +223,7 @@ class VotesModule {
         // Return result for live display (active and finished votes)
         $result = $this->data->getResult($id);
         $uid = $this->getUserId();
-        $userChoices = $this->data->getUserChoices($id, $uid);
+        $userChoices = $this->getUserChoicesForVote($id, $uid);
         return [
             'id' => intval($vote['id']),
             'name' => $vote['name'] ?? '',
@@ -265,6 +288,15 @@ class VotesModule {
         ];
         try {
             $this->data->update($id, $values);
+            // Status (is_finished): update via API only (never modify BNote)
+            if (array_key_exists('is_finished', $data)) {
+                global $system_data;
+                $finished = $data['is_finished'] ? 1 : 0;
+                $system_data->dbcon->execute(
+                    'UPDATE vote SET is_finished = ? WHERE id = ?',
+                    [['i', $finished], ['i', (int) $id]]
+                );
+            }
             return ['success' => true, 'message' => 'Vote updated'];
         } catch (BNoteError $e) {
             Response::error($e->getMessage(), 400);
@@ -403,7 +435,25 @@ class VotesModule {
                 $startData->saveVote($vid, $values, $uid);
             } else {
                 $optionId = $data['uservote'] ?? $data['option_id'] ?? null;
-                $startData->saveVote($vid, ['uservote' => ($optionId !== null && $optionId !== '') ? $optionId : null], $uid);
+                if ($optionId !== null && $optionId !== '') {
+                    $optionId = (int) $optionId;
+                    $startData->saveVote($vid, ['uservote' => $optionId], $uid);
+                } else {
+                    // Clear single-choice vote (StartData::saveVote inserts null otherwise and can fail)
+                    $options = $startData->getOptionsForVote($vid);
+                    $params = [];
+                    $tuples = [];
+                    for ($i = 1; $i < count($options); $i++) {
+                        $tuples[] = 'vote_option = ?';
+                        $params[] = ['i', (int) $options[$i]['id']];
+                    }
+                    if (!empty($tuples)) {
+                        $params[] = ['i', (int) $uid];
+                        $system_data = $GLOBALS['system_data'];
+                        $query = 'DELETE FROM vote_option_user WHERE (' . implode(' OR ', $tuples) . ') AND user = ?';
+                        $system_data->dbcon->execute($query, $params);
+                    }
+                }
             }
             return ['success' => true, 'message' => 'Vote submitted'];
         } catch (Exception $e) {

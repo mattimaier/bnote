@@ -13,9 +13,11 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { votesApi, type VoteDetail as VoteDetailType } from "@/lib/votes-api";
 import { formatDateShortDisplay, formatDateTimeShort } from "@/lib/date-time";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailCard } from "@/components/DetailCard";
 import { ParticipationTrafficLight } from "@/components/entities/event/ParticipationTrafficLight";
+import { StatusPicker } from "@/components/entities/event/StatusPicker";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
 import { getStatusPillStyle } from "@/lib/entity-config";
 import { getErrorMessage } from "@/lib/error-utils";
@@ -100,7 +102,7 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
 
   if (error || !item) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+      <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">
           {error ||
             (t("js.votes.notFound") !== "js.votes.notFound" ? t("js.votes.notFound") : "Vote not found.")}
@@ -113,7 +115,7 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
     opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? emptyText);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-4 md:space-y-6 md:p-6">
+    <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
         title={item.name || emptyText}
         right={
@@ -124,28 +126,67 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
       />
 
       <DetailCard>
-        <p className="text-sm text-base-content/60">
-          {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "End"}:{" "}
-          {item.end
-            ? (formatDateTimeShort(item.end, lang) ?? item.end)
-            : emptyText}
-          {item.is_finished && (
-            <span
-              className="ml-2 inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
-              style={getStatusPillStyle("inactive")}
-            >
-              {t("js.votes.finished") !== "js.votes.finished" ? t("js.votes.finished") : "Finished"}
-            </span>
-          )}
-          {!item.is_finished && item.is_active && (
-            <span
-              className="ml-2 inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
-              style={getStatusPillStyle("active")}
-            >
-              {t("js.common.active") !== "js.common.active" ? t("js.common.active") : "Active"}
-            </span>
-          )}
-        </p>
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <div>
+            <span className="text-base-content/60">
+              {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "End"}:
+            </span>{" "}
+            {item.end ? (formatDateTimeShort(item.end, lang) ?? item.end) : emptyText}
+          </div>
+          <div>
+            <span className="text-base-content/60">
+              {t("js.event.detail.status") !== "js.event.detail.status" ? t("js.event.detail.status") : "Status"}:
+            </span>{" "}
+            {item.is_author ? (
+              <span className="ml-0.5 inline-flex align-middle">
+                <StatusPicker
+                  options={["active", "finished"]}
+                  value={item.is_finished ? "finished" : "active"}
+                  onChange={async (next) => {
+                    setSubmitting(true);
+                    try {
+                      await votesApi.update(item.id, { is_finished: next === "finished" });
+                      showToast(
+                        next === "finished"
+                          ? (t("js.votes.finishDone") !== "js.votes.finishDone" ? t("js.votes.finishDone") : "Vote finished")
+                          : (t("js.votes.updated") !== "js.votes.updated" ? t("js.votes.updated") : "Vote updated"),
+                        "success"
+                      );
+                      loadVote();
+                    } catch (err) {
+                      showToast(
+                        err instanceof Error
+                          ? err.message
+                          : t("js.votes.submitFailed") !== "js.votes.submitFailed"
+                            ? t("js.votes.submitFailed")
+                            : "Submit failed",
+                        "error"
+                      );
+                    } finally {
+                      setSubmitting(false);
+                    }
+                  }}
+                  labelFor={(v) =>
+                    v === "finished"
+                      ? (t("js.votes.finished") !== "js.votes.finished" ? t("js.votes.finished") : "Finished")
+                      : (t("js.common.active") !== "js.common.active" ? t("js.common.active") : "Active")
+                  }
+                />
+              </span>
+            ) : (
+              <span
+                className="ml-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium border align-middle"
+                style={getStatusPillStyle(item.is_finished ? "inactive" : "active")}
+              >
+                {item.is_finished
+                  ? (t("js.votes.finished") !== "js.votes.finished" ? t("js.votes.finished") : "Finished")
+                  : t("js.common.active") !== "js.common.active"
+                    ? t("js.common.active")
+                    : "Active"}
+              </span>
+            )}
+          </div>
+        </div>
 
         {item.is_active && item.options.length > 0 && (
           <div className="mt-6 space-y-4">
@@ -201,7 +242,7 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
               </div>
             ) : (
               <div
-                className="flex flex-col gap-2"
+                className="flex flex-col gap-2 rounded-field border border-base-300 p-3"
                 role="radiogroup"
                 aria-label={
                   t("js.votes.castVote") !== "js.votes.castVote"
@@ -209,44 +250,6 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
                     : "Cast your vote"
                 }
               >
-                <label className="label-text flex cursor-pointer items-center gap-2">
-                  <input
-                    type="radio"
-                    name={`vote-${item.id}`}
-                    className="radio radio-primary"
-                    checked={singleChoice === null}
-                    disabled={submitting}
-                    onChange={async () => {
-                      if (singleChoice === null) return;
-                      setSubmitting(true);
-                      try {
-                        setSingleChoice(null);
-                        await votesApi.submit(item.id, { uservote: null });
-                        showToast(
-                          t("js.votes.retracted") !== "js.votes.retracted"
-                            ? t("js.votes.retracted")
-                            : "Vote retracted",
-                          "success"
-                        );
-                        loadVote();
-                      } catch (err) {
-                        showToast(
-                          err instanceof Error
-                            ? err.message
-                            : t("js.votes.submitFailed") !== "js.votes.submitFailed"
-                              ? t("js.votes.submitFailed")
-                              : "Submit failed",
-                          "error"
-                        );
-                      } finally {
-                        setSubmitting(false);
-                      }
-                    }}
-                  />
-                  <span className="text-base">
-                    {t("js.votes.noVote") !== "js.votes.noVote" ? t("js.votes.noVote") : "No selection"}
-                  </span>
-                </label>
                 {item.options.map((opt) => (
                   <label
                     key={opt.id}

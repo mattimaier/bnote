@@ -13,6 +13,7 @@ import { getEntityTypeLabel } from "@/lib/entities/debug/entity-types";
 import { isEventEntityType } from "@/lib/entities/paths";
 import { getRedirectPath } from "@/lib/entities/paths";
 import Link from "next/link";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 
 interface Props {
   params: Promise<{ type: string; id: string }>;
@@ -63,7 +64,7 @@ export function DebugEntityEdit({ params }: Props) {
     );
   }
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
+    <div className={PAGE_CONTENT_CLASS}>
       <div className="flex items-center gap-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
         <Link href="/debug" className="underline">Debug</Link>
         <span>/</span>

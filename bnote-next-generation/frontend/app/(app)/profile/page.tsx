@@ -20,6 +20,7 @@ import { NotesEditor } from "@/components/NotesEditor";
 import { formatDateShortDisplay } from "@/lib/date-time";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { PAGE_CONTENT_BASE_CLASS, PAGE_CONTENT_CLASS } from "@/lib/layout";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -148,7 +149,7 @@ export default function ProfilePage() {
 
   if (contact === null) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4">
+      <div className={PAGE_CONTENT_CLASS}>
         <DetailPageHeader
           title={t("js.profile.title") !== "js.profile.title" ? t("js.profile.title") : "Meine Kontaktdaten"}
         />
@@ -164,7 +165,7 @@ export default function ProfilePage() {
   const label = (key: string, fallback: string) => (t(key) !== key ? t(key) : fallback);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className={`${PAGE_CONTENT_BASE_CLASS} space-y-6`}>
       <DetailPageHeader
         title={t("js.profile.title") !== "js.profile.title" ? t("js.profile.title") : "Meine Kontaktdaten"}
         subtitle={t("js.profile.subtitle") !== "js.profile.subtitle" ? t("js.profile.subtitle") : "Persönliche Daten bearbeiten"}

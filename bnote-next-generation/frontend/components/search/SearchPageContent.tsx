@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { performSearch, getSearchYears, type SearchResults, type SearchFilters, type SearchEventItem, type SearchListItem } from "@/lib/search";
 import { EventCard, type InboxEvent } from "@/components/EventCard";
 import { getIcon } from "@/components/icons";
@@ -193,7 +194,7 @@ export default function SearchPageContent() {
   const hasFilters = yearParam || monthParam || typeParam;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
+    <div className={PAGE_CONTENT_CLASS}>
       <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
         {t("js.dashboard.searchPlaceholder")}
       </h1>

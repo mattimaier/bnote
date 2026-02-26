@@ -23,6 +23,7 @@ import { ParticipationDiagram } from "@/components/ParticipationDiagram";
 import { ArrowDown, ArrowUp, ArrowUpDown, Clock, MapPin } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { PageContent } from "@/components/PageContent";
 
 export default function ConcertsPage() {
   const router = useRouter();
@@ -138,7 +139,7 @@ export default function ConcertsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
+    <PageContent>
       <div>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
           {t("js.sidebar.concerts") !== "js.sidebar.concerts"
@@ -223,7 +224,7 @@ export default function ConcertsPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageContent>
   );
 }
 

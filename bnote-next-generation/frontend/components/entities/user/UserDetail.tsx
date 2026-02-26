@@ -12,6 +12,7 @@ import { useEntityParams } from "@/lib/entities/use-entity-params";
 import Link from "next/link";
 import { useI18n } from "@/contexts/I18nContext";
 import { usersApi, type UserDetail, type ContactOption, type PrivilegesResponse } from "@/lib/users-api";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { formatDateTimeShort } from "@/lib/date-time";
 import { getStatusPillStyle } from "@/lib/entity-config";
@@ -117,7 +118,7 @@ export function UserDetail() {
 
   if (error || !user) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+      <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">{error || "User not found."}</p>
       </div>
     );
@@ -151,7 +152,7 @@ export function UserDetail() {
     : emptyText;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-4 md:space-y-6 md:p-6">
+    <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
         title={titleWithAvatar}
         subtitle={t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"}

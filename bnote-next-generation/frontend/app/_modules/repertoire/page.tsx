@@ -23,6 +23,7 @@ import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 
 type SortKey = "title" | "composer" | "genre" | "status";
 const toStatusKey = (value: string) => value.trim().toLowerCase().replace(/\s+/g, "-");
@@ -128,7 +129,7 @@ export default function RepertoirePage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
+    <div className={PAGE_CONTENT_CLASS}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-base-content">

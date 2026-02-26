@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useEntityParams } from "@/lib/entities/use-entity-params";
 import { useI18n } from "@/contexts/I18nContext";
 import { contactsApi, type ContactDetail, type ContactGroup } from "@/lib/contacts-api";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
@@ -84,7 +85,7 @@ export function ContactDetail() {
 
   if (error || !contact) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+      <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">{error || "Contact not found."}</p>
       </div>
     );
@@ -118,7 +119,7 @@ export function ContactDetail() {
     value ? "badge badge-success badge-sm" : "badge badge-error badge-sm";
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-4 md:space-y-6 md:p-6">
+    <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
         title={titleWithAvatar}
         subtitle={label("js.contacts.subtitle", "Manage contacts and groups")}

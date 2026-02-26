@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
+import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 import { useToast } from "@/contexts/ToastContext";
 import { api } from "@/lib/api";
 import { isEmptyEditorJson } from "@/lib/editorjs-notes";
@@ -131,7 +132,7 @@ export default function NewsPage() {
 
   if (forbidden) {
     return (
-      <div className="mx-auto max-w-4xl">
+      <div className={PAGE_CONTENT_BASE_CLASS}>
         <div
           className="rounded-lg border border-border/40 p-6 bg-card text-card-foreground"
           style={{ borderColor: "var(--destructive)" }}
@@ -158,7 +159,7 @@ export default function NewsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className={PAGE_CONTENT_BASE_CLASS}>
       <div className="mb-6 pb-4 border-b border-border/30">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           {t("js.sidebar.news") !== "js.sidebar.news" ? t("js.sidebar.news") : "News"}

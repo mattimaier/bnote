@@ -11,6 +11,7 @@ import { useEntityParams } from "@/lib/entities/use-entity-params";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { equipmentApi, type EquipmentDetail as EquipmentDetailType } from "@/lib/equipment-api";
+import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { NotesContent } from "@/components/NotesContent";
 import { DetailCard } from "@/components/DetailCard";
@@ -67,7 +68,7 @@ export function EquipmentDetail() {
 
   if (error || !item) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
+      <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">
           {error || "Equipment not found."}
         </p>
@@ -79,7 +80,7 @@ export function EquipmentDetail() {
   const emptyLabel = emptyText;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-4 md:space-y-6 md:p-6">
+    <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
         title={item.name || emptyText}
         right={<DetailEditButton onClick={() => router.push(getEntityPath("equipment", item.id, "edit"))} />}

@@ -10,6 +10,7 @@ import { useState, useCallback } from "react";
 import { getApiUrl } from "@/lib/api";
 import { getIcon } from "@/components/icons";
 import { getPillStyle, getDotStyle } from "@/lib/entity-config";
+import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 import entityConfigData from "@/config/entity-config.json";
 
 const ENTITIES = (entityConfigData as { entities?: Record<string, { color: string; icon: string }> }).entities ?? {};
@@ -91,7 +92,7 @@ export default function DebugPage() {
 
   return (
     <div className="min-h-screen bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className={`${PAGE_CONTENT_BASE_CLASS} space-y-8`}>
         <h1 className="text-2xl font-bold">Debug</h1>
 
         {/* Entity debug (all types) */}
