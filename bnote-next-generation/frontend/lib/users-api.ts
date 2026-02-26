@@ -35,6 +35,7 @@ export interface ContactOption {
   name?: string;
   surname?: string;
   instrument?: string;
+  email?: string | null;
 }
 
 export interface PrivilegeModule {

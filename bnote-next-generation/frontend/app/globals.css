@@ -49,34 +49,33 @@
 @plugin "@iconify/tailwind4";
 @import "flyonui/variants.css";
 @import "flyonui/src/vendor/editor.css";
+/* FlyonUI Flatpickr: base first (visibility, layout), then override (styling) – per docs */
+@import "flatpickr/dist/flatpickr.css";
 @import "flyonui/src/vendor/flatpickr.css";
 
-/* Flatpickr: FlyonUI override uses .invisible on base; show calendar when open */
+/* Flatpickr: ensure .open overrides FlyonUI's .invisible; fix truncation for datetime */
 .flatpickr-calendar.open,
 .flatpickr-calendar.inline {
-  visibility: visible;
+  visibility: visible !important;
   opacity: 1;
 }
-.flatpickr-calendar.open {
-  display: inline-block;
-  z-index: 99999;
+.flatpickr-calendar.hasTime {
+  min-width: 22rem;
+  max-width: 26rem;
+  overflow: visible;
 }
 
-/* Flatpickr: fix truncation – FlyonUI max-w-72 + overflow-hidden clip datetime picker */
+/* Flatpickr: shadow and contrast for better visibility */
 .flatpickr-calendar {
-  max-width: 22rem;
-  min-width: 20rem;
-  overflow: visible !important;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.15),
+    0 10px 15px -3px rgb(0 0 0 / 0.15),
+    0 0 0 1px rgb(0 0 0 / 0.06);
 }
-.flatpickr-calendar.hasTime {
-  min-width: 24rem;
-  max-width: none;
-}
-.flatpickr-days {
-  overflow: visible !important;
-}
-.flatpickr-calendar .flatpickr-innerContainer {
-  overflow: visible;
+.flatpickr-calendar .flatpickr-day.selected,
+.flatpickr-calendar .flatpickr-day.startRange,
+.flatpickr-calendar .flatpickr-day.endRange {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
 }
 
 /* Input/textarea/select contrast: use base-200 background so fields are visibly editable */
@@ -193,6 +192,12 @@
   color: black;
   font-weight: bold;
   font-size: 0.9375rem;
+}
+
+/* Rich text editor (EditorJS) – horizontally centered */
+.codex-editor {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Rich text (EditorJS / news) – formatted display in view mode */
@@ -376,6 +381,16 @@ input[type="search"]::-webkit-search-results-decoration {
   background-color: #a855f7;
   color: white;
 }
+.filter-bubble-task {
+  border-color: color-mix(in oklch, #25a65a 20%, transparent);
+  background-color: color-mix(in oklch, #25a65a 10%, transparent);
+  color: #25a65a;
+}
+.filter-bubble-task.selected {
+  border-color: #25a65a;
+  background-color: #25a65a;
+  color: white;
+}
 
 /* Event type badges – light colors with saturated border.
    .event-badge = rehearsal (primary), .accent = concert, .chart-3 = meeting; see lib/entity-config.ts. */
@@ -406,6 +421,23 @@ input[type="search"]::-webkit-search-results-decoration {
   border-color: color-mix(in oklch, #a855f7 20%, transparent);
   background-color: color-mix(in oklch, #a855f7 10%, transparent);
   color: #a855f7;
+}
+.event-badge.event-badge-task {
+  border-color: color-mix(in oklch, #25a65a 20%, transparent);
+  background-color: color-mix(in oklch, #25a65a 10%, transparent);
+  color: #25a65a;
+}
+
+/* Dashboard task checkbox – 32x32 with light border (like traffic lights) */
+.dashboard-task-checkbox {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  border: 1px solid color-mix(in oklch, var(--color-base-content) 18%, transparent) !important;
+}
+.dashboard-task-checkbox:checked {
+  border-color: var(--color-primary) !important;
 }
 
 /* Timeline connector */

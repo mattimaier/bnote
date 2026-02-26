@@ -22,6 +22,8 @@ import {
   getPillStyle,
   getDotStyle,
 } from "@/lib/entity-config";
+import { Avatar } from "@/components/Avatar";
+import { getEntityPath } from "@/lib/entities/paths";
 import { prefixPath } from "@/lib/path";
 import { formatMonthName } from "@/lib/date-time";
 import { Search as SearchIcon } from "@/components/icons";
@@ -70,7 +72,9 @@ function SearchListItemRow({
       ? `/users?id=${item.id}`
       : category === "contacts"
         ? `/contacts?id=${item.id}`
-        : "#";
+        : category === "tasks"
+          ? getEntityPath("task", item.id)
+          : "#";
   const entityType = getEntityTypeForSearchCategory(category);
   const entityColor = getColor(entityType);
   const iconName = getIconName(entityType);
@@ -78,18 +82,24 @@ function SearchListItemRow({
   const pillStyle = getPillStyle(entityColor);
   const dotStyle = getDotStyle(entityColor);
 
+  const isPerson = category === "users" || category === "contacts";
+
   return (
     <Link
       href={href}
       className="flex items-start gap-3 rounded-lg border border-[var(--border)] p-3 transition-colors hover:border-[var(--primary)]/30 hover:bg-[var(--muted)]/50"
       style={{ color: "var(--foreground)" }}
     >
-      <div
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
-        style={dotStyle}
-      >
-        <Icon className="h-4 w-4" />
-      </div>
+      {isPerson ? (
+        <Avatar email={item.email} name={title} size={32} variant="soft" className="shrink-0" />
+      ) : (
+        <div
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+          style={dotStyle}
+        >
+          <Icon className="h-4 w-4" />
+        </div>
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
           <p className="font-semibold text-sm">{title}</p>
@@ -100,12 +110,22 @@ function SearchListItemRow({
             {categoryLabel}
           </span>
         </div>
-        {(item.email || item.phone || item.mobile) && (
+        {isPerson && item.instrument && (
+          <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
+            {item.instrument}
+          </p>
+        )}
+        {!isPerson && (item.email || item.phone || item.mobile) && (
           <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
             {[item.email, item.phone, item.mobile].filter(Boolean).join(" · ")}
           </p>
         )}
-        {item.instrument && (
+        {category === "tasks" && item.assignee && (
+          <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
+            {item.assignee}
+          </p>
+        )}
+        {!isPerson && item.instrument && (
           <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
             {item.instrument}
           </p>

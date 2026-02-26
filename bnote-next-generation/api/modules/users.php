@@ -503,7 +503,8 @@ class UsersModule {
                 'label' => $label,
                 'name' => $contact['name'] ?? '',
                 'surname' => $contact['surname'] ?? '',
-                'instrument' => $instrument
+                'instrument' => $instrument,
+                'email' => $contact['email'] ?? null,
             ];
         }
         

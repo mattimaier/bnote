@@ -20,6 +20,7 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { ActionButton } from "@/components/ActionButton";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -151,15 +152,12 @@ export default function EquipmentPage() {
               : "Manage inventory and assets"}
           </p>
         </div>
-        <Link
-          href={getEntityPath("equipment", "new", "edit")}
-          className="btn btn-primary btn-sm gap-2 shrink-0"
-        >
+        <ActionButton href={getEntityPath("equipment", "new", "edit")}>
           <Plus className="h-4 w-4" />
           {t("js.equipment.addEquipment") !== "js.equipment.addEquipment"
             ? t("js.equipment.addEquipment")
             : "Add Equipment"}
-        </Link>
+        </ActionButton>
       </div>
 
       {error && (

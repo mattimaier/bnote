@@ -17,7 +17,7 @@ const OTYPE_MAP: Record<string, EventDisplayType> = {
   R: "rehearsal",
   C: "performance",
   A: "meeting",
-  T: "meeting",
+  T: "task",
   V: "vote",
 };
 

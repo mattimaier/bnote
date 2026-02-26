@@ -10,12 +10,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { LayoutList } from "@/components/icons";
+import { PersonOptionRow } from "@/components/PersonOptionRow";
 
 /** Option shape: id + optional name (compatible with SimpleOption, InstrumentOption, etc.). */
 export interface SelectPickerOption {
   id: number;
   name?: string | null;
   subtitle?: string | null;
+  /** For person options: email for Gravatar */
+  email?: string | null;
+  /** For person options: instrument (always shown as subtitle) */
+  instrument?: string | null;
 }
 
 export interface SelectPickerProps {
@@ -68,17 +73,28 @@ export function SelectPicker({
         className="btn btn-outline w-full justify-between"
       >
         <span className="flex items-center justify-between gap-2 w-full min-w-0">
-          <span className="flex min-w-0 flex-1 flex-col items-end text-right overflow-hidden">
-            <span className="truncate whitespace-nowrap" title={selected?.name ?? resolvedEmptyLabel ?? undefined}>
-              {selected?.name ?? resolvedEmptyLabel}
-            </span>
-            {selected?.subtitle ? (
-              <span className="text-xs font-normal truncate whitespace-nowrap text-base-content/60">
-                {selected.subtitle}
+          {selected && (selected.email != null || selected.instrument != null) ? (
+            <PersonOptionRow
+              name={selected.name ?? resolvedEmptyLabel ?? ""}
+              email={selected.email}
+              instrument={selected.instrument ?? selected.subtitle}
+              avatarSize={24}
+              compact
+              className="min-w-0 flex-1"
+            />
+          ) : (
+            <span className="flex min-w-0 flex-1 flex-col items-end text-right overflow-hidden">
+              <span className="truncate whitespace-nowrap" title={selected?.name ?? resolvedEmptyLabel ?? undefined}>
+                {selected?.name ?? resolvedEmptyLabel}
               </span>
-            ) : null}
-          </span>
-          <LayoutList className="h-4 w-4" />
+              {(selected?.subtitle ?? selected?.instrument) ? (
+                <span className="text-xs font-normal truncate whitespace-nowrap text-base-content/60">
+                  {selected?.instrument ?? selected?.subtitle}
+                </span>
+              ) : null}
+            </span>
+          )}
+          <LayoutList className="h-4 w-4 shrink-0" />
         </span>
       </button>
       {open && !useFullscreen && (
@@ -101,14 +117,23 @@ export function SelectPicker({
                 }}
                 className="w-full text-left px-3 py-3 text-sm border-b border-base-300 text-base-content hover:bg-base-200/60 active:bg-base-200"
               >
-                <span className="flex flex-col">
-                  <span>{opt.name ?? resolvedEmptyLabel}</span>
-                  {opt.subtitle ? (
-                    <span className="text-xs text-base-content/60">
-                      {opt.subtitle}
-                    </span>
-                  ) : null}
-                </span>
+                {(opt.email != null || opt.instrument != null) ? (
+                  <PersonOptionRow
+                    name={opt.name ?? resolvedEmptyLabel ?? ""}
+                    email={opt.email}
+                    instrument={opt.instrument ?? opt.subtitle}
+                    avatarSize={32}
+                  />
+                ) : (
+                  <span className="flex flex-col">
+                    <span>{opt.name ?? resolvedEmptyLabel}</span>
+                    {(opt.subtitle ?? opt.instrument) ? (
+                      <span className="text-xs text-base-content/60">
+                        {opt.instrument ?? opt.subtitle}
+                      </span>
+                    ) : null}
+                  </span>
+                )}
               </button>
             ))}
             {filtered.length === 0 && (
@@ -154,14 +179,23 @@ export function SelectPicker({
                   }}
                   className="w-full text-left px-3 py-3 text-sm border-b border-base-300 text-base-content hover:bg-base-200/60 active:bg-base-200"
                 >
-                  <span className="flex flex-col">
-                    <span>{opt.name ?? emptyLabel}</span>
-                    {opt.subtitle ? (
-                      <span className="text-xs text-base-content/60">
-                        {opt.subtitle}
-                      </span>
-                    ) : null}
-                  </span>
+                  {(opt.email != null || opt.instrument != null) ? (
+                    <PersonOptionRow
+                      name={opt.name ?? resolvedEmptyLabel ?? ""}
+                      email={opt.email}
+                      instrument={opt.instrument ?? opt.subtitle}
+                      avatarSize={32}
+                    />
+                  ) : (
+                    <span className="flex flex-col">
+                      <span>{opt.name ?? emptyLabel}</span>
+                      {(opt.subtitle ?? opt.instrument) ? (
+                        <span className="text-xs text-base-content/60">
+                          {opt.instrument ?? opt.subtitle}
+                        </span>
+                      ) : null}
+                    </span>
+                  )}
                 </button>
               ))}
               {filtered.length === 0 && (

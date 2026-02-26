@@ -23,14 +23,14 @@ export interface DashboardData {
   inbox: InboxEvent[];
   news?: string;
   company?: string | Record<string, string> | string[];
-  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number };
+  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number; task?: number };
   config?: { max_show?: number };
 }
 
 export interface EventsNeedingResponse {
   events: InboxEvent[];
   config?: { max_show?: number };
-  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number };
+  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number; task?: number };
 }
 
 export type SectionId = "events-needing-response" | "events-timeline";
@@ -125,7 +125,7 @@ export default function DashboardContent({
   );
 
   const countByType = useCallback((events: InboxEvent[]) => {
-    const c = { rehearsal: 0, performance: 0, meeting: 0, vote: 0 };
+    const c = { rehearsal: 0, performance: 0, meeting: 0, vote: 0, task: 0 };
     events.forEach((e) => {
       const type = mapOtypeToEventType(e.otype);
       if (type in c) (c as Record<string, number>)[type]++;
@@ -178,37 +178,56 @@ export default function DashboardContent({
   const hasNews = Boolean(newsContent && String(newsContent).trim());
   const newsHtml = useNewsHtml(hasNews ? String(newsContent) : undefined);
 
-  const defaultCounts = { rehearsal: 0, performance: 0, meeting: 0, vote: 0 };
+  const defaultCounts = { rehearsal: 0, performance: 0, meeting: 0, vote: 0, task: 0 };
   const needResponseCounts = needResponse?.counts ?? defaultCounts;
-  const filterCountsNeed: { rehearsal: number; performance: number; meeting: number; vote: number } =
+  const timelineCounts = dashboard?.counts ?? defaultCounts;
+  const filterCountsNeed: { rehearsal: number; performance: number; meeting: number; vote: number; task: number } =
     filters["events-needing-response"]?.size > 0
       ? countByType(needResponseFiltered)
       : { ...defaultCounts, ...needResponseCounts };
-  const filterCountsTimeline: { rehearsal: number; performance: number; meeting: number; vote: number } =
+  const filterCountsTimeline: { rehearsal: number; performance: number; meeting: number; vote: number; task: number } =
     filters["events-timeline"]?.size > 0
       ? countByType(timelineFiltered)
-      : { ...defaultCounts, ...(dashboard?.counts ?? {}) };
+      : { ...defaultCounts, ...timelineCounts };
 
   const FilterBubbles = useCallback(
-    ({ sectionId, counts }: { sectionId: SectionId; counts: { rehearsal: number; performance: number; meeting: number; vote: number } }) => (
+    ({
+      sectionId,
+      counts,
+      unfilteredCounts,
+    }: {
+      sectionId: SectionId;
+      counts: { rehearsal: number; performance: number; meeting: number; vote: number; task: number };
+      unfilteredCounts: { rehearsal: number; performance: number; meeting: number; vote: number; task: number };
+    }) => {
+      const entityTypesWithItems = (["rehearsal", "performance", "vote", "task"] as const).filter(
+        (k) => (unfilteredCounts[k] ?? 0) > 0
+      );
+      if (entityTypesWithItems.length < 2) return null;
+      return (
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
-          {t("js.common.filter")}:
+          {t("js.common.filter")}
         </span>
-        {(["rehearsal", "performance", "vote"] as const).map((filterType) => {
+        {entityTypesWithItems.map((filterType) => {
+          const count = counts[filterType] ?? 0;
           const selected = filters[sectionId]?.has(filterType);
           const bubbleClass =
             filterType === "rehearsal"
               ? "filter-bubble filter-bubble-rehearsal"
               : filterType === "performance"
                 ? "filter-bubble filter-bubble-performance"
-                : "filter-bubble filter-bubble-vote";
+                : filterType === "vote"
+                  ? "filter-bubble filter-bubble-vote"
+                  : "filter-bubble filter-bubble-task";
           const labelKey =
             filterType === "rehearsal"
               ? "js.event.rehearsal"
               : filterType === "performance"
                 ? "js.event.performance"
-                : "js.sidebar.votes";
+                : filterType === "vote"
+                  ? "js.sidebar.votes"
+                  : "js.sidebar.tasks";
           return (
             <button
               key={filterType}
@@ -217,7 +236,7 @@ export default function DashboardContent({
               className={`${bubbleClass} ${selected ? "selected" : ""}`}
             >
               {t(labelKey)}{" "}
-              <span className="opacity-70 ml-1">({counts[filterType] ?? 0})</span>
+              <span className="opacity-70 ml-1">({count})</span>
             </button>
           );
         })}
@@ -230,7 +249,8 @@ export default function DashboardContent({
           {t("js.common.clear")}
         </button>
       </div>
-    ),
+    );
+    },
     [t, filters, toggleFilter, clearFilters]
   );
 
@@ -330,7 +350,11 @@ export default function DashboardContent({
             <h2 className="text-sm md:text-base font-semibold text-foreground">{t("js.dashboard.responseNeeded")}</h2>
           </div>
           <div className="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
-            <FilterBubbles sectionId="events-needing-response" counts={filterCountsNeed} />
+            <FilterBubbles
+              sectionId="events-needing-response"
+              counts={filterCountsNeed}
+              unfilteredCounts={{ ...defaultCounts, ...needResponseCounts }}
+            />
           </div>
           <div className="relative space-y-2 md:space-y-3 px-1 md:px-4 lg:px-5">
             {showNeed.length === 0 ? (
@@ -349,6 +373,7 @@ export default function DashboardContent({
                   showParticipation
                   isLast={idx === showNeed.length - 1 && !hasMoreNeed}
                   onParticipationChange={onReload}
+                  onTaskComplete={onReload}
                 />
               ))
             )}
@@ -375,7 +400,11 @@ export default function DashboardContent({
             <h2 className="text-sm md:text-base font-semibold text-foreground">{t("js.dashboard.upcomingEvents")}</h2>
           </div>
           <div className="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
-            <FilterBubbles sectionId="events-timeline" counts={filterCountsTimeline} />
+            <FilterBubbles
+              sectionId="events-timeline"
+              counts={filterCountsTimeline}
+              unfilteredCounts={{ ...defaultCounts, ...timelineCounts }}
+            />
           </div>
           <div className="relative space-y-2 md:space-y-3 px-1 md:px-4 lg:px-5">
             {showTimeline.length === 0 ? (
@@ -392,6 +421,7 @@ export default function DashboardContent({
                   showParticipation
                   isLast={idx === showTimeline.length - 1 && !hasMoreTimeline}
                   onParticipationChange={onReload}
+                  onTaskComplete={onReload}
                 />
               ))
             )}

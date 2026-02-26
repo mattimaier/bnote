@@ -226,7 +226,10 @@ export function UserEdit() {
       );
       router.replace("/users");
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Delete failed", "error");
+      showToast(
+        err instanceof Error ? err.message : (t("js.common.deleteFailed") !== "js.common.deleteFailed" ? t("js.common.deleteFailed") : "Delete failed"),
+        "error"
+      );
     }
   };
 
@@ -258,6 +261,8 @@ export function UserEdit() {
         id: c.id,
         name: [c.name, c.surname].filter(Boolean).join(" ").trim() || c.label,
         subtitle: c.instrument ?? "",
+        email: c.email ?? null,
+        instrument: c.instrument ?? null,
       })),
     ];
     if (contactId > 0 && !options.some((opt) => opt.id === contactId)) {
@@ -357,17 +362,17 @@ export function UserEdit() {
                 labelSelect={
                   t("js.common.select") !== "js.common.select"
                     ? t("js.common.select")
-                    : "Auswählen…"
+                    : "Select…"
                 }
                 labelNoMatches={
                   t("js.common.noMatches") !== "js.common.noMatches"
                     ? t("js.common.noMatches")
-                    : "Keine Treffer"
+                    : "No matches"
                 }
                 labelClose={
                   t("js.common.close") !== "js.common.close"
                     ? t("js.common.close")
-                    : "Schließen"
+                    : "Close"
                 }
               />
             </div>
@@ -398,7 +403,9 @@ export function UserEdit() {
                   : "Manage Privileges"}
               </h3>
               <p className="text-xs mt-1 text-base-content/60">
-                Select modules this user can access.
+                {t("js.users.privilegesHint") !== "js.users.privilegesHint"
+                  ? t("js.users.privilegesHint")
+                  : "Select modules this user can access."}
               </p>
             </div>
           </div>

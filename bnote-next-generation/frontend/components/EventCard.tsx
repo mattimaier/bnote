@@ -6,7 +6,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   mapOtypeToEventType,
@@ -21,6 +21,7 @@ import { MapPin, Clock } from "@/components/icons";
 import { AddressLink } from "@/components/AddressLink";
 import { getStatusPillStyle } from "@/lib/entity-config";
 import { DashboardVoteWidget } from "@/components/dashboard/DashboardVoteWidget";
+import { tasksApi } from "@/lib/tasks-api";
 
 export interface VoteOption {
   id: number;
@@ -43,6 +44,9 @@ export interface InboxEvent {
   vote_user_choices?: Record<number, string>;
   vote_is_date?: boolean;
   vote_is_multi?: boolean;
+  assignee?: string | null;
+  assigneeFullName?: string | null;
+  is_complete?: number;
 }
 
 interface EventCardProps {
@@ -52,10 +56,11 @@ interface EventCardProps {
   showParticipation?: boolean;
   isLast?: boolean;
   onParticipationChange?: () => void;
+  onTaskComplete?: () => void;
 }
 
 function extractLocation(event: InboxEvent): string | null {
-  if (event.otype === "V") return null;
+  if (event.otype === "V" || event.otype === "T") return null;
   const loc = event.location;
   if (typeof loc === "string") return loc;
   return (
@@ -73,7 +78,9 @@ export function EventCard({
   showParticipation = false,
   isLast = false,
   onParticipationChange,
+  onTaskComplete,
 }: EventCardProps) {
+  const [taskCompleting, setTaskCompleting] = useState(false);
   const eventType = mapOtypeToEventType(event.otype);
   const typeConfig = getEventTypeConfig(eventType, t);
   const tba = t("js.event.tba");
@@ -81,14 +88,30 @@ export function EventCard({
   const timeStr = formatEventTime(event.eventBegin || event.dueDate || event.begin, lang, tba);
   const location = extractLocation(event);
   const isVote = event.otype === "V";
+  const isTask = event.otype === "T";
   const title = event.title || t("js.event.event");
   const hideTitleWhenDuplicate = title === typeConfig.label;
-  const isClickable = event.otype === "R" || event.otype === "C" || event.otype === "V";
+  const isClickable = event.otype === "R" || event.otype === "C" || event.otype === "V" || event.otype === "T";
   const entityType =
-    event.otype === "C" ? "concert" : event.otype === "V" ? "vote" : "rehearsal";
+    event.otype === "C" ? "concert" : event.otype === "V" ? "vote" : event.otype === "T" ? "task" : "rehearsal";
   const href = isClickable ? getEntityPath(entityType, event.oid) : "#";
   const hasParticipation =
     showParticipation && (event.otype === "R" || event.otype === "C") && event.oid && event.otype;
+  const hasTaskCheckbox =
+    showParticipation && isTask && event.oid && (event.is_complete ?? 0) === 0;
+  const TASK_COMPLETE_DELAY_MS = 2000;
+  const handleTaskCheck = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    if (taskCompleting) return;
+    if (!e.target.checked) return;
+    setTaskCompleting(true);
+    try {
+      await tasksApi.complete(event.oid, true);
+      setTimeout(() => onTaskComplete?.(), TASK_COMPLETE_DELAY_MS);
+    } catch {
+      setTaskCompleting(false);
+    }
+  };
   const hasVoteWidget =
     showParticipation &&
     isVote &&
@@ -139,9 +162,19 @@ export function EventCard({
               </div>
             )}
           </div>
-          {(hasParticipation || hasVoteWidget) && (
+          {(hasParticipation || hasVoteWidget || hasTaskCheckbox) && (
             <div onClick={(e) => e.stopPropagation()} className="shrink-0">
-              {hasVoteWidget ? (
+              {hasTaskCheckbox ? (
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-primary dashboard-task-checkbox"
+                    checked={taskCompleting}
+                    onChange={handleTaskCheck}
+                    disabled={taskCompleting}
+                  />
+                </label>
+              ) : hasVoteWidget ? (
                 <DashboardVoteWidget
                   voteId={event.oid}
                   options={event.vote_options!}
@@ -211,9 +244,19 @@ export function EventCard({
             </div>
           )}
         </div>
-        {(hasParticipation || hasVoteWidget) && (
+        {(hasParticipation || hasVoteWidget || hasTaskCheckbox) && (
           <div onClick={(e) => e.stopPropagation()} className="shrink-0">
-            {hasVoteWidget ? (
+            {hasTaskCheckbox ? (
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-primary dashboard-task-checkbox"
+                  checked={taskCompleting}
+                  onChange={handleTaskCheck}
+                  disabled={taskCompleting}
+                />
+              </label>
+            ) : hasVoteWidget ? (
               <DashboardVoteWidget
                 voteId={event.oid}
                 options={event.vote_options!}

@@ -19,6 +19,22 @@ const LOCALE_MAP: Record<string, object> = {
   fr: French,
 };
 
+/** Locale-specific display format (matches date-fns P / BNote conventions) */
+const ALT_FORMAT_BY_LOCALE: Record<string, string> = {
+  de: "d.m.Y",
+  en: "n/j/Y",
+  es: "d/m/Y",
+  fr: "d/m/Y",
+};
+
+/** Locale-specific placeholders for date/time inputs */
+const PLACEHOLDER_BY_LOCALE: Record<string, { date: string; time: string; datetime: string }> = {
+  de: { date: "TT.MM.JJJJ", time: "HH:MM", datetime: "TT.MM.JJJJ HH:MM" },
+  en: { date: "MM/DD/YYYY", time: "HH:MM", datetime: "MM/DD/YYYY HH:MM" },
+  es: { date: "DD/MM/YYYY", time: "HH:MM", datetime: "DD/MM/YYYY HH:MM" },
+  fr: { date: "JJ/MM/AAAA", time: "HH:MM", datetime: "JJ/MM/AAAA HH:MM" },
+};
+
 export type DatePickerMode = "date" | "time" | "datetime";
 
 export interface DatePickerProps {
@@ -35,14 +51,19 @@ export interface DatePickerProps {
 }
 
 function getBaseOptions(mode: DatePickerMode, locale?: string) {
+  const langKey = locale?.split("-")[0]?.toLowerCase() ?? "en";
+  const fpLocale = LOCALE_MAP[langKey] ?? undefined;
+  const altFmt = ALT_FORMAT_BY_LOCALE[langKey] ?? "Y-m-d";
+
   const opts: Parameters<typeof flatpickr>[1] = {
     allowInput: true,
     monthSelectorType: "static",
-    locale: locale ? LOCALE_MAP[locale.split("-")[0]?.toLowerCase() ?? "en"] ?? undefined : undefined,
+    locale: fpLocale,
   };
+
   switch (mode) {
     case "date":
-      return { ...opts, dateFormat: "Y-m-d" };
+      return { ...opts, dateFormat: "Y-m-d", altInput: true, altFormat: altFmt };
     case "time":
       return {
         ...opts,
@@ -55,6 +76,8 @@ function getBaseOptions(mode: DatePickerMode, locale?: string) {
         ...opts,
         enableTime: true,
         dateFormat: "Y-m-d H:i",
+        altInput: true,
+        altFormat: `${altFmt} H:i`,
       };
   }
 }
@@ -80,8 +103,10 @@ export function DatePicker({
     const base = getBaseOptions(mode, locale);
     fpRef.current = flatpickr(el, {
       ...base,
+      ...(base.altInput && { altInputClass: className ?? "input max-w-sm" }),
       defaultDate: value || undefined,
-      onChange: (_dates, dateStr) => {
+      closeOnSelect: true,
+      onChange: (_dates, dateStr, instance) => {
         if (!dateStr) {
           onChange("");
           return;
@@ -91,10 +116,28 @@ export function DatePicker({
         } else {
           onChange(dateStr);
         }
+        if (mode === "date" || mode === "time") {
+          instance.close();
+        } else if (mode === "datetime" && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(dateStr)) {
+          instance.close();
+        }
       },
     });
 
+    if (base.altInput) {
+      el.style.position = "absolute";
+      el.style.width = "1px";
+      el.style.height = "1px";
+      el.style.padding = "0";
+      el.style.margin = "-1px";
+      el.style.overflow = "hidden";
+      el.style.clip = "rect(0,0,0,0)";
+      el.style.whiteSpace = "nowrap";
+      el.style.borderWidth = "0";
+    }
+
     return () => {
+      el.style.cssText = "";
       fpRef.current?.destroy();
       fpRef.current = null;
     };
@@ -117,20 +160,21 @@ export function DatePicker({
     fp.input.disabled = !!disabled;
   }, [disabled]);
 
+  const langKey = locale?.split("-")[0]?.toLowerCase() ?? "en";
+  const localePlaceholders = PLACEHOLDER_BY_LOCALE[langKey] ?? PLACEHOLDER_BY_LOCALE.en;
   const placeholderFallback =
     mode === "date"
-      ? "YYYY-MM-DD"
+      ? localePlaceholders.date
       : mode === "time"
-        ? "HH:MM"
-        : "YYYY-MM-DD HH:MM";
+        ? localePlaceholders.time
+        : localePlaceholders.datetime;
 
   return (
     <input
       ref={inputRef}
       type="text"
-      data-input
+      className={className ?? "input max-w-sm"}
       placeholder={placeholder ?? placeholderFallback}
-      className={className}
       disabled={disabled}
       id={id}
       autoComplete="off"

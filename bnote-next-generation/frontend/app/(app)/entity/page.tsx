@@ -25,6 +25,9 @@ import { EquipmentEdit } from "@/components/entities/equipment/EquipmentEdit";
 import { OutfitEdit } from "@/components/entities/outfit/OutfitEdit";
 import { SongEdit } from "@/components/entities/song/SongEdit";
 import { VoteEdit } from "@/components/entities/vote/VoteEdit";
+import { TaskDetail } from "@/components/entities/task/TaskDetail";
+import { TaskEdit } from "@/components/entities/task/TaskEdit";
+import { GroupTaskEdit } from "@/components/entities/group-task/GroupTaskEdit";
 import { ContactEdit } from "@/components/entities/contact/ContactEdit";
 import { UserEdit } from "@/components/entities/user/UserEdit";
 import { Spinner } from "@/components/Spinner";
@@ -37,6 +40,7 @@ const ENTITY_TYPES_WITH_VIEW: Record<string, boolean> = {
   outfit: true,
   song: true,
   vote: true,
+  task: true,
   contact: true,
   user: true,
 };
@@ -51,6 +55,8 @@ const ENTITY_TYPES_WITH_EDIT: Record<string, boolean> = {
   contact: true,
   user: true,
   vote: true,
+  task: true,
+  group_task: true,
 };
 
 const CHAT_ENTITY_TYPES: Record<string, boolean> = {
@@ -100,6 +106,8 @@ function EntityContent() {
     if (typeKey === "outfit") return <OutfitEdit />;
     if (typeKey === "song") return <SongEdit />;
     if (typeKey === "vote") return <VoteEdit />;
+    if (typeKey === "task") return <TaskEdit />;
+    if (typeKey === "group_task") return <GroupTaskEdit />;
     if (typeKey === "contact") return <ContactEdit />;
     if (typeKey === "user") return <UserEdit />;
     return (
@@ -131,6 +139,7 @@ function EntityContent() {
       }
       return <VoteDetail />;
     }
+    if (typeKey === "task") return <TaskDetail />;
     if (typeKey === "contact") return <ContactDetail />;
     if (typeKey === "user") return <UserDetail />;
     if (typeKey === "rehearsal" || typeKey === "concert") {

@@ -8,6 +8,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LayoutList, Trash2 } from "@/components/icons";
+import { PersonOptionRow } from "@/components/PersonOptionRow";
 import type { SimpleOption } from "@/lib/entities/event/types";
 
 export interface MultiSelectProps {
@@ -92,14 +93,24 @@ export function MultiSelect({
                 key={id}
                 className="flex items-center justify-between gap-3 rounded-field border border-base-300 px-3 py-2 text-sm"
               >
-                <div className="flex flex-col">
-                  <span className="font-medium">{opt.name}</span>
-                  {opt.subtitle ? (
-                    <span className="text-xs text-base-content/60">
-                      {opt.subtitle}
-                    </span>
-                  ) : null}
-                </div>
+                {(opt.email != null || opt.instrument != null) ? (
+                  <PersonOptionRow
+                    name={opt.name}
+                    email={opt.email}
+                    instrument={opt.instrument ?? opt.subtitle}
+                    avatarSize={24}
+                    compact
+                  />
+                ) : (
+                  <div className="flex flex-col">
+                    <span className="font-medium">{opt.name}</span>
+                    {(opt.subtitle ?? opt.instrument) ? (
+                      <span className="text-xs text-base-content/60">
+                        {opt.instrument ?? opt.subtitle}
+                      </span>
+                    ) : null}
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => toggle(id)}
@@ -126,17 +137,26 @@ export function MultiSelect({
             {filtered.map((opt) => (
               <label
                 key={opt.id}
-                className="flex items-center gap-3 px-3 py-3 text-sm border-b border-base-300 hover:bg-base-200/60 active:bg-base-200"
+                className="flex items-center gap-3 px-3 py-3 text-sm border-b border-base-300 hover:bg-base-200/60 active:bg-base-200 cursor-pointer"
               >
-                <input type="checkbox" className="checkbox checkbox-primary checkbox-sm" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
-                <span className="flex flex-col">
-                  <span>{opt.name ?? "-"}</span>
-                  {opt.subtitle ? (
-                    <span className="text-xs text-base-content/60">
-                      {opt.subtitle}
-                    </span>
-                  ) : null}
-                </span>
+                <input type="checkbox" className="checkbox checkbox-primary checkbox-sm shrink-0" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
+                {(opt.email != null || opt.instrument != null) ? (
+                  <PersonOptionRow
+                    name={opt.name ?? "-"}
+                    email={opt.email}
+                    instrument={opt.instrument ?? opt.subtitle}
+                    avatarSize={32}
+                  />
+                ) : (
+                  <span className="flex flex-col">
+                    <span>{opt.name ?? "-"}</span>
+                    {(opt.subtitle ?? opt.instrument) ? (
+                      <span className="text-xs text-base-content/60">
+                        {opt.instrument ?? opt.subtitle}
+                      </span>
+                    ) : null}
+                  </span>
+                )}
               </label>
             ))}
             {filtered.length === 0 && (
@@ -172,17 +192,26 @@ export function MultiSelect({
               {filtered.map((opt) => (
                 <label
                   key={opt.id}
-                className="flex items-center gap-3 px-3 py-3 text-sm border-b border-base-300 hover:bg-base-200/60 active:bg-base-200"
+                  className="flex items-center gap-3 px-3 py-3 text-sm border-b border-base-300 hover:bg-base-200/60 active:bg-base-200 cursor-pointer"
                 >
-                  <input type="checkbox" className="checkbox checkbox-primary checkbox-sm" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
-                  <span className="flex flex-col">
-                    <span>{opt.name ?? "-"}</span>
-                    {opt.subtitle ? (
-                      <span className="text-xs text-base-content/60">
-                        {opt.subtitle}
-                      </span>
-                    ) : null}
-                  </span>
+                  <input type="checkbox" className="checkbox checkbox-primary checkbox-sm shrink-0" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
+                  {(opt.email != null || opt.instrument != null) ? (
+                    <PersonOptionRow
+                      name={opt.name ?? "-"}
+                      email={opt.email}
+                      instrument={opt.instrument ?? opt.subtitle}
+                      avatarSize={32}
+                    />
+                  ) : (
+                    <span className="flex flex-col">
+                      <span>{opt.name ?? "-"}</span>
+                      {(opt.subtitle ?? opt.instrument) ? (
+                        <span className="text-xs text-base-content/60">
+                          {opt.instrument ?? opt.subtitle}
+                        </span>
+                      ) : null}
+                    </span>
+                  )}
                 </label>
               ))}
               {filtered.length === 0 && (

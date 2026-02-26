@@ -157,7 +157,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                 className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
               >
                 <User className="h-4 w-4" />
-                {t("js.profile.menuMyData") !== "js.profile.menuMyData" ? t("js.profile.menuMyData") : "Meine Kontaktdaten"}
+                {t("js.profile.menuMyData") !== "js.profile.menuMyData" ? t("js.profile.menuMyData") : "My Contact Data"}
               </Link>
               <button
                 type="button"

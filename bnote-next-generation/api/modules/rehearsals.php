@@ -437,16 +437,29 @@ class RehearsalsModule {
 
         $conductors = [];
         for ($i = 1; $i < count($conductorsSel); $i++) {
+            $c = $conductorsSel[$i];
+            $instrumentName = null;
+            $instrumentId = $c['instrument'] ?? null;
+            if ($instrumentId && $instrumentId > 0) {
+                $instrumentName = $system_data->dbcon->colValue(
+                    "SELECT name FROM instrument WHERE id = ?",
+                    "name",
+                    [['i', $instrumentId]]
+                );
+            }
             $conductors[] = [
-                'id' => intval($conductorsSel[$i]['id']),
-                'name' => trim(($conductorsSel[$i]['name'] ?? '') . ' ' . ($conductorsSel[$i]['surname'] ?? ''))
+                'id' => intval($c['id']),
+                'name' => trim(($c['name'] ?? '') . ' ' . ($c['surname'] ?? '')),
+                'email' => $c['email'] ?? null,
+                'instrument' => $instrumentName,
             ];
         }
 
         $contacts = [];
         for ($i = 1; $i < count($contactsSel); $i++) {
+            $c = $contactsSel[$i];
             $instrumentName = null;
-            $instrumentId = $contactsSel[$i]['instrument'] ?? null;
+            $instrumentId = $c['instrument'] ?? null;
             if ($instrumentId && $instrumentId > 0) {
                 $instrumentName = $system_data->dbcon->colValue(
                     "SELECT name FROM instrument WHERE id = ?",
@@ -455,9 +468,11 @@ class RehearsalsModule {
                 );
             }
             $contacts[] = [
-                'id' => intval($contactsSel[$i]['id']),
-                'name' => $contactsSel[$i]['fullname'] ?? trim(($contactsSel[$i]['name'] ?? '') . ' ' . ($contactsSel[$i]['surname'] ?? '')),
-                'subtitle' => $instrumentName
+                'id' => intval($c['id']),
+                'name' => $c['fullname'] ?? trim(($c['name'] ?? '') . ' ' . ($c['surname'] ?? '')),
+                'subtitle' => $instrumentName,
+                'email' => $c['email'] ?? null,
+                'instrument' => $instrumentName,
             ];
         }
 

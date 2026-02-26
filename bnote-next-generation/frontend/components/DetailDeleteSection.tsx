@@ -10,6 +10,7 @@
 
 import { useState } from "react";
 import { Trash2 } from "@/components/icons";
+import { ActionButton } from "@/components/ActionButton";
 import { useI18n } from "@/contexts/I18nContext";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { DetailCard } from "@/components/DetailCard";
@@ -49,14 +50,13 @@ export function DetailDeleteSection({ canDelete, onDelete, entityTitle }: Detail
               ? t("js.common.deleteSectionHint")
               : "Permanently remove this item."}
           </p>
-          <button
-            type="button"
+          <ActionButton
+            variant="outline-error"
             onClick={() => setConfirmOpen(true)}
-            className="btn btn-outline btn-error btn-sm gap-2"
           >
             <Trash2 className="h-4 w-4" />
             {confirmLabel}
-          </button>
+          </ActionButton>
         </div>
       </DetailCard>
       <ConfirmModal

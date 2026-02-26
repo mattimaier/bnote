@@ -1,0 +1,413 @@
+<?php
+/**
+ * BNote Next Generation - Tasks API Module
+ *
+ * Copyright (C) 2026 BNote Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Tasks API module
+ * Provides task (Aufgaben) CRUD, completion, group tasks, tour links, and email notifications
+ */
+require_once BNOTE_ROOT . '/src/data/modules/aufgabendata.php';
+require_once BNOTE_ROOT . '/src/data/modules/tourdata.php';
+require_once BNOTE_ROOT . '/src/logic/mailing.php';
+require_once __DIR__ . '/../response.php';
+require_once __DIR__ . '/../auth.php';
+
+class TasksModule {
+    private $data;
+    private $tourData;
+
+    public function __construct() {
+        global $system_data;
+        $moduleId = $system_data->getModuleId('Aufgaben');
+        if (!$moduleId || !$system_data->userHasPermission($moduleId)) {
+            Response::error('Access denied to Tasks', 403);
+        }
+
+        $this->data = new AufgabenData();
+        $this->tourData = new TourData();
+    }
+
+    public function handle() {
+        $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
+
+        switch ($action) {
+            case 'list':
+                return $this->listTasks();
+            case 'get':
+                return $this->getTask();
+            case 'create':
+                return $this->createTask();
+            case 'update':
+                return $this->updateTask();
+            case 'delete':
+                return $this->deleteTask();
+            case 'complete':
+                return $this->completeTask();
+            case 'createGroupTasks':
+                return $this->createGroupTasks();
+            case 'getContacts':
+                return $this->getContacts();
+            case 'getGroups':
+                return $this->getGroups();
+            case 'getTours':
+                return $this->getTours();
+            default:
+                Response::error('Unknown action: ' . $action, 400);
+        }
+    }
+
+    private function getUserId() {
+        return Auth::getUserId();
+    }
+
+    private function getPayload() {
+        $rawInput = file_get_contents('php://input');
+        $data = $rawInput ? json_decode($rawInput, true) : null;
+        return $data ?? $_POST;
+    }
+
+    /**
+     * Map API assigned_to to the key AufgabenData expects
+     */
+    private function prepareValuesForCreate($values) {
+        $key = Lang::txt('AufgabenView_add_editEntityForm.assigned_to');
+        $values[$key] = $values['assigned_to'] ?? null;
+        return $values;
+    }
+
+    private function prepareValuesForUpdate($values) {
+        return $this->prepareValuesForCreate($values);
+    }
+
+    /**
+     * Send email notification to assignee.
+     * Skipped in demo mode so task creation/update succeeds regardless of email.
+     */
+    private function sendCreateNotification($assignedTo, $title, $description) {
+        global $system_data;
+        if ($system_data->inDemoMode()) return;
+        $to = $this->data->getContactmail($assignedTo);
+        if (empty($to)) return;
+        $subject = Lang::txt('AufgabenController_informUser.title_1') . $title;
+        $body = Lang::txt('AufgabenController_informUser.body_1');
+        $body .= Lang::txt('AufgabenController_informUser.body_2');
+        $body .= $description ?? '';
+        try {
+            $mail = new Mailing($subject, $body);
+            $mail->setTo($to);
+            $mail->sendMailWithFailError();
+        } catch (Exception $e) {
+            // Log but don't fail the API request
+            error_log('TasksModule: Failed to send create notification: ' . $e->getMessage());
+        }
+    }
+
+    private function sendUpdateNotification($assignedTo, $title) {
+        global $system_data;
+        if ($system_data->inDemoMode()) return;
+        $to = $this->data->getContactmail($assignedTo);
+        if (empty($to)) return;
+        $subject = Lang::txt('AufgabenController_informUser.title_2') . $title;
+        $body = Lang::txt('AufgabenController_informUser.body_3');
+        $body .= Lang::txt('AufgabenController_informUser.body_4');
+        try {
+            $mail = new Mailing($subject, $body);
+            $mail->setTo($to);
+            $mail->sendMailWithFailError();
+        } catch (Exception $e) {
+            error_log('TasksModule: Failed to send update notification: ' . $e->getMessage());
+        }
+    }
+
+    private function listTasks() {
+        $openOnly = !isset($_GET['open']) || $_GET['open'] !== '0';
+        $tourId = isset($_GET['tour_id']) ? (int) $_GET['tour_id'] : null;
+
+        if ($tourId > 0) {
+            $sel = $this->tourData->getTasks($tourId, $openOnly);
+        } else {
+            $sel = $this->data->getTasks($openOnly);
+        }
+
+        $list = [];
+        if (is_array($sel)) {
+            for ($i = 1; $i < count($sel); $i++) {
+                $row = $sel[$i];
+                $list[] = $this->formatTaskRow($row);
+            }
+        }
+        return $list;
+    }
+
+    private function formatTaskRow($row) {
+        return [
+            'id' => (int) $row['id'],
+            'title' => $row['title'] ?? '',
+            'description' => $row['description'] ?? '',
+            'created_at' => $row['created_at'] ?? null,
+            'due_at' => $row['due_at'] ?? null,
+            'is_complete' => !empty($row['is_complete']),
+            'completed_at' => $row['completed_at'] ?? null,
+            'assigned_to' => isset($row['assigned_to']) ? (int) $row['assigned_to'] : null,
+            'assignee' => $row['assignee'] ?? null,
+            'creator' => $row['creator'] ?? null,
+        ];
+    }
+
+    private function getTask() {
+        $id = $_GET['id'] ?? $_POST['id'] ?? null;
+        if (!$id) {
+            Response::error('Missing id', 400);
+        }
+        $id = (int) $id;
+
+        $sel = $this->data->getTasks(false);
+        $task = null;
+        if (is_array($sel)) {
+            for ($i = 1; $i < count($sel); $i++) {
+                if ((int) $sel[$i]['id'] === $id) {
+                    $task = $sel[$i];
+                    break;
+                }
+            }
+        }
+        if (!$task) {
+            $sel = $this->data->getTasks(true);
+            if (is_array($sel)) {
+                for ($i = 1; $i < count($sel); $i++) {
+                    if ((int) $sel[$i]['id'] === $id) {
+                        $task = $sel[$i];
+                        break;
+                    }
+                }
+            }
+        }
+        if (!$task) {
+            Response::error('Task not found', 404);
+        }
+
+        $result = $this->formatTaskRow($task);
+
+        // Add tour IDs if linked
+        global $system_data;
+        $tourTaskSel = $system_data->dbcon->getSelection(
+            'SELECT tour FROM tour_task WHERE task = ?',
+            [['i', $id]]
+        );
+        $tourIds = [];
+        if (is_array($tourTaskSel)) {
+            for ($j = 1; $j < count($tourTaskSel); $j++) {
+                $tourIds[] = (int) $tourTaskSel[$j]['tour'];
+            }
+        }
+        $result['tourIds'] = $tourIds;
+
+        return $result;
+    }
+
+    private function createTask() {
+        $data = $this->getPayload();
+        $title = trim($data['title'] ?? '');
+        if ($title === '') {
+            Response::error('Title is required', 400);
+        }
+
+        $values = [
+            'title' => $title,
+            'description' => $data['description'] ?? '',
+            'due_at' => $data['due_at'] ?? null,
+            'assigned_to' => isset($data['assigned_to']) ? (int) $data['assigned_to'] : null,
+        ];
+        $values = $this->prepareValuesForCreate($values);
+
+        $taskId = $this->data->create($values);
+        if (!$taskId) {
+            Response::error('Failed to create task', 500);
+        }
+
+        $tourId = isset($data['tour_id']) ? (int) $data['tour_id'] : null;
+        if ($tourId > 0) {
+            $this->tourData->addReference($tourId, 'task', $taskId);
+        }
+
+        $assignedTo = $values['assigned_to'] ?? null;
+        if ($assignedTo) {
+            $this->sendCreateNotification($assignedTo, $title, $values['description'] ?? '');
+        }
+
+        return ['id' => (int) $taskId, 'success' => true];
+    }
+
+    private function updateTask() {
+        $data = $this->getPayload();
+        $id = $data['id'] ?? $_GET['id'] ?? null;
+        if (!$id) {
+            Response::error('Missing id', 400);
+        }
+        $id = (int) $id;
+
+        $values = [
+            'title' => isset($data['title']) ? trim($data['title']) : null,
+            'description' => $data['description'] ?? null,
+            'due_at' => $data['due_at'] ?? null,
+            'assigned_to' => isset($data['assigned_to']) ? (int) $data['assigned_to'] : null,
+        ];
+        $values = array_filter($values, function ($v) {
+            return $v !== null;
+        });
+        if (empty($values)) {
+            Response::error('No fields to update', 400);
+        }
+
+        $values = $this->prepareValuesForUpdate($values);
+        $this->data->update($id, $values);
+
+        $assignedTo = $values['assigned_to'] ?? null;
+        $title = $values['title'] ?? '';
+        if ($assignedTo && $title) {
+            $this->sendUpdateNotification($assignedTo, $title);
+        }
+
+        return ['success' => true];
+    }
+
+    private function deleteTask() {
+        $id = $_GET['id'] ?? $_POST['id'] ?? null;
+        if (!$id) {
+            Response::error('Missing id', 400);
+        }
+        $id = (int) $id;
+
+        global $system_data;
+        $system_data->dbcon->execute('DELETE FROM tour_task WHERE task = ?', [['i', $id]]);
+        $this->data->delete($id);
+
+        return ['success' => true];
+    }
+
+    private function completeTask() {
+        $data = $this->getPayload();
+        $id = $data['id'] ?? $_GET['id'] ?? null;
+        $complete = isset($data['complete']) ? (bool) $data['complete'] : (isset($_GET['complete']) && $_GET['complete'] === '1');
+        if (!$id) {
+            Response::error('Missing id', 400);
+        }
+        $id = (int) $id;
+
+        $this->data->markTask($id, $complete ? 1 : 0);
+
+        return ['success' => true, 'is_complete' => $complete];
+    }
+
+    private function createGroupTasks() {
+        $data = $this->getPayload();
+        $groupIds = $data['groupIds'] ?? $data['group_ids'] ?? [];
+        if (!is_array($groupIds)) {
+            $groupIds = [];
+        }
+        $groupIds = array_map('intval', array_filter($groupIds));
+        if (empty($groupIds)) {
+            Response::error('At least one group is required', 400);
+        }
+
+        $title = trim($data['title'] ?? '');
+        if ($title === '') {
+            Response::error('Title is required', 400);
+        }
+
+        $description = $data['description'] ?? '';
+        $dueAt = $data['due_at'] ?? null;
+        $key = Lang::txt('AufgabenView_add_editEntityForm.assigned_to');
+
+        $adp = $this->data->adp();
+        $created = 0;
+
+        foreach ($groupIds as $gid) {
+            $contacts = $adp->getGroupContacts($gid);
+            if (!is_array($contacts)) continue;
+            for ($j = 1; $j < count($contacts); $j++) {
+                $contactId = (int) ($contacts[$j]['id'] ?? 0);
+                if ($contactId <= 0) continue;
+
+                $values = [
+                    'title' => $title,
+                    'description' => $description,
+                    'due_at' => $dueAt,
+                    'assigned_to' => $contactId,
+                ];
+                $values[$key] = $contactId;
+                $this->data->create($values);
+                $created++;
+
+                $this->sendCreateNotification($contactId, $title, $description);
+            }
+        }
+
+        return ['success' => true, 'created' => $created];
+    }
+
+    private function getContacts() {
+        $adp = $this->data->adp();
+        $sel = $adp->getContacts();
+        $list = [];
+        if (is_array($sel)) {
+            for ($i = 1; $i < count($sel); $i++) {
+                $c = $sel[$i];
+                $list[] = [
+                    'id' => (int) $c['id'],
+                    'name' => trim(($c['name'] ?? '') . ' ' . ($c['surname'] ?? '')),
+                    'email' => $c['email'] ?? null,
+                    'instrument' => $c['instrumentname'] ?? null,
+                ];
+            }
+        }
+        return $list;
+    }
+
+    private function getGroups() {
+        $adp = $this->data->adp();
+        $sel = $adp->getGroups();
+        $list = [];
+        if (is_array($sel)) {
+            for ($i = 1; $i < count($sel); $i++) {
+                $g = $sel[$i];
+                $list[] = [
+                    'id' => (int) $g['id'],
+                    'name' => $g['name'] ?? '',
+                ];
+            }
+        }
+        return $list;
+    }
+
+    private function getTours() {
+        $sel = $this->data->adp()->getTours();
+        $list = [];
+        if (is_array($sel)) {
+            for ($i = 1; $i < count($sel); $i++) {
+                $t = $sel[$i];
+                $list[] = [
+                    'id' => (int) $t['id'],
+                    'name' => $t['name'] ?? '',
+                ];
+            }
+        }
+        return $list;
+    }
+}

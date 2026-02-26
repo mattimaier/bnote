@@ -19,6 +19,7 @@ import { Avatar } from "@/components/Avatar";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { ActionButton } from "@/components/ActionButton";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -151,14 +152,10 @@ export default function ContactsPage() {
             {t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => router.push(getEntityPath("contact", "new", "edit"))}
-          className="btn btn-primary btn-sm gap-2 shrink-0"
-        >
+        <ActionButton onClick={() => router.push(getEntityPath("contact", "new", "edit"))}>
           <Plus className="h-4 w-4" />
           {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
-        </button>
+        </ActionButton>
       </div>
 
       {error && (
@@ -210,14 +207,10 @@ export default function ContactsPage() {
             rows={sortedContacts}
             getRowKey={(c) => c.id}
             renderMobileRow={(c) => {
-              const entityColor = getColor("contact");
-              const pillStyle = getPillStyle(entityColor);
-              const dotStyle = getDotStyle(entityColor);
-              const Icon = getIcon("user-circle");
               const fullName = [c.name ?? "", c.surname ?? ""].filter(Boolean).join(" ") || emptyText;
               return (
                 <EntityListRow
-                  icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                  icon={<Avatar email={c.email} name={fullName} size={24} variant="soft" />}
                   primary={fullName}
                   secondary={c.instrumentname ? <span>{c.instrumentname}</span> : undefined}
                   onClick={() => openDetail(c.id)}

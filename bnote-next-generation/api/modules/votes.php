@@ -282,12 +282,17 @@ class VotesModule {
         if (!$this->data->isUserAuthorOfVote($uid, $id)) {
             Response::error('Only the author can update this vote', 403);
         }
-        $values = [
-            'name' => $data['name'] ?? '',
-            'end' => $data['end'] ?? '',
-        ];
         try {
-            $this->data->update($id, $values);
+            $hasNameOrEnd = array_key_exists('name', $data) || array_key_exists('end', $data);
+            if ($hasNameOrEnd) {
+                // AbstimmungData::update requires non-empty name and end - fetch current values for missing fields
+                $vote = $this->data->findByIdNoRef($id);
+                $values = [
+                    'name' => array_key_exists('name', $data) ? ($data['name'] ?? '') : ($vote['name'] ?? ''),
+                    'end' => array_key_exists('end', $data) ? ($data['end'] ?? '') : ($vote['end'] ?? ''),
+                ];
+                $this->data->update($id, $values);
+            }
             // Status (is_finished): update via API only (never modify BNote)
             if (array_key_exists('is_finished', $data)) {
                 global $system_data;

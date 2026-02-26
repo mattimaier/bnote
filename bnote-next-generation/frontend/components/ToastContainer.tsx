@@ -8,6 +8,7 @@
 
 import React from "react";
 import { useToast, type ToastType } from "@/contexts/ToastContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { getIcon } from "@/components/icons";
 import { getIconName } from "@/lib/entity-config";
 import { Info, CheckCircle, AlertCircle, X } from "@/components/icons";
@@ -34,7 +35,9 @@ function ToastIcon({ type, entityType }: { type: ToastType; entityType?: string 
 }
 
 export function ToastContainer() {
+  const { t } = useI18n();
   const { toasts, dismiss } = useToast();
+  const dismissLabel = t("js.common.dismiss") !== "js.common.dismiss" ? t("js.common.dismiss") : "Dismiss";
 
   if (toasts.length === 0) return null;
 
@@ -54,7 +57,7 @@ export function ToastContainer() {
             type="button"
             onClick={() => dismiss(toast.id)}
             className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 opacity-90 transition-opacity hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/50"
-            aria-label="Dismiss"
+            aria-label={dismissLabel}
           >
             <X className="h-5 w-5" />
           </button>

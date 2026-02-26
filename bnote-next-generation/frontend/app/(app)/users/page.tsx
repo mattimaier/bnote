@@ -20,6 +20,7 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { Avatar } from "@/components/Avatar";
 import { getIcon } from "@/components/icons";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { ActionButton } from "@/components/ActionButton";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -135,14 +136,10 @@ export default function UsersPage() {
             {t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => router.push(getEntityPath("user", "new", "edit"))}
-          className="btn btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-box text-sm font-medium shrink-0"
-        >
+        <ActionButton onClick={() => router.push(getEntityPath("user", "new", "edit"))}>
           <Plus className="h-4 w-4" />
           {t("js.users.addUser") !== "js.users.addUser" ? t("js.users.addUser") : "Add User"}
-        </button>
+        </ActionButton>
       </div>
 
       {error && (
@@ -171,20 +168,17 @@ export default function UsersPage() {
             rows={sortedUsers}
             getRowKey={(u) => u.id}
             renderMobileRow={(u) => {
-              const entityColor = getColor("user");
-              const pillStyle = getPillStyle(entityColor);
-              const dotStyle = getDotStyle(entityColor);
-              const Icon = getIcon("user");
               const fullName = [u.firstName ?? u.name ?? "", u.lastName ?? ""].filter(Boolean).join(" ") || emptyText;
               const statusLabel = u.isActive ? (t("js.users.active") !== "js.users.active" ? t("js.users.active") : "Active") : (t("js.users.inactive") !== "js.users.inactive" ? t("js.users.inactive") : "Inactive");
+              const secondary = [fullName, u.instrument].filter(Boolean).join(" · ") || undefined;
               return (
                 <EntityListRow
-                  icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                  icon={<Avatar email={u.email} name={fullName || u.login} size={24} variant="soft" />}
                   primary={u.login}
                   badge={
                     <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(u.isActive ? "active" : "inactive")}>{statusLabel}</span>
                   }
-                  secondary={fullName ? <span>{fullName}</span> : undefined}
+                  secondary={secondary ? <span>{secondary}</span> : undefined}
                   onClick={() => openDetail(u.id)}
                 />
               );

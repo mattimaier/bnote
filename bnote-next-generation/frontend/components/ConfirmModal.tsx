@@ -7,6 +7,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import { ActionButton } from "@/components/ActionButton";
 
 export interface ConfirmModalProps {
   open: boolean;
@@ -88,17 +89,16 @@ export function ConfirmModal({
           <div className="modal-body">
             <p className="text-sm text-base-content/70">{message}</p>
           </div>
-          <div className="modal-footer">
-            <button type="button" onClick={onClose} className="btn btn-outline btn-sm">
+          <div className="modal-footer flex gap-2">
+            <ActionButton variant="outline" onClick={onClose}>
               {cancelLabel}
-            </button>
-            <button
-              type="button"
+            </ActionButton>
+            <ActionButton
+              variant={variant === "danger" ? "danger" : "primary"}
               onClick={handleConfirm}
-              className={variant === "danger" ? "btn btn-error btn-sm text-white" : "btn btn-primary btn-sm"}
             >
               {confirmLabel}
-            </button>
+            </ActionButton>
           </div>
         </div>
       </div>

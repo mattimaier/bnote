@@ -60,6 +60,10 @@ export interface SimpleOption {
   id: number;
   name: string | null;
   subtitle?: string | null;
+  /** For person options: email for Gravatar */
+  email?: string | null;
+  /** For person options: instrument (always shown as subtitle) */
+  instrument?: string | null;
 }
 
 export interface SongOption {

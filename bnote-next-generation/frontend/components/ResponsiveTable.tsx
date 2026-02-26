@@ -9,6 +9,7 @@
 
 import React from "react";
 import { ArrowUp, ArrowDown } from "@/components/icons";
+import { useI18n } from "@/contexts/I18nContext";
 
 export type ResponsiveTableSubtitle = React.ReactNode | string | (React.ReactNode | string)[];
 
@@ -79,7 +80,12 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
   onSort,
   children,
 }: ResponsiveTableProps<TRow, TSortKey>) {
+  const { t } = useI18n();
   const useCustomRow = typeof renderMobileRow === "function";
+  const sortAscTitle = t("js.table.ascending") !== "js.table.ascending" ? t("js.table.ascending") : "Ascending";
+  const sortDescTitle = t("js.table.descending") !== "js.table.descending" ? t("js.table.descending") : "Descending";
+  const sortAscLabel = t("js.table.sortAscending") !== "js.table.sortAscending" ? t("js.table.sortAscending") : "Sort ascending";
+  const sortDescLabel = t("js.table.sortDescending") !== "js.table.sortDescending" ? t("js.table.sortDescending") : "Sort descending";
 
   return (
     <>
@@ -103,8 +109,8 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
               type="button"
               onClick={() => onSort(sortKey)}
               className="p-1.5 rounded-field transition-opacity hover:opacity-80 text-base-content"
-              title={sortDir === "asc" ? "Ascending" : "Descending"}
-              aria-label={sortDir === "asc" ? "Sort ascending" : "Sort descending"}
+              title={sortDir === "asc" ? sortAscTitle : sortDescTitle}
+              aria-label={sortDir === "asc" ? sortAscLabel : sortDescLabel}
             >
               {sortDir === "asc" ? (
                 <ArrowUp className="h-4 w-4" />

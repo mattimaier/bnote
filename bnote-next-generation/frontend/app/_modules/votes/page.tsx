@@ -22,6 +22,7 @@ import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { formatDateTimeShort } from "@/lib/date-time";
 import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "@/components/icons";
+import { ActionButton } from "@/components/ActionButton";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PageContent } from "@/components/PageContent";
@@ -164,15 +165,12 @@ export default function VotesPage() {
               : "Polls and surveys"}
           </p>
         </div>
-        <Link
-          href={getEntityPath("vote", "new", "edit")}
-          className="btn btn-primary btn-sm gap-2 shrink-0"
-        >
+        <ActionButton href={getEntityPath("vote", "new", "edit")}>
           <Plus className="h-4 w-4" />
           {t("js.votes.addVote") !== "js.votes.addVote"
             ? t("js.votes.addVote")
             : "Add Vote"}
-        </Link>
+        </ActionButton>
       </div>
 
       {error && (

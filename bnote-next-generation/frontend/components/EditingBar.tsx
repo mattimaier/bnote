@@ -9,6 +9,7 @@
 
 import { useI18n } from "@/contexts/I18nContext";
 import { Save, X } from "@/components/icons";
+import { ActionButton, actionButtonClassNames } from "@/components/ActionButton";
 
 export interface EditingBarProps {
   isNew?: boolean;
@@ -45,33 +46,31 @@ export function EditingBar({
               type="submit"
               form={submitFormId}
               disabled={saving}
-              className="btn btn-primary btn-sm gap-2"
+              className={actionButtonClassNames("primary")}
             >
               <Save className="h-4 w-4" />
               {saveLabel}
             </button>
           ) : (
-            <button
+            <ActionButton
               type="button"
               onClick={onSave}
               disabled={saving}
-              className="btn btn-primary btn-sm gap-2"
             >
               <Save className="h-4 w-4" />
               {saveLabel}
-            </button>
+            </ActionButton>
           )}
-          <button
-            type="button"
+          <ActionButton
+            variant="outline-error"
             onClick={onCancel}
             disabled={saving}
-            className="btn btn-outline btn-error btn-sm gap-2"
           >
             <X className="h-4 w-4" />
             {t("js.common.cancel") !== "js.common.cancel"
               ? t("js.common.cancel")
               : "Cancel"}
-          </button>
+          </ActionButton>
         </div>
       </div>
     </div>

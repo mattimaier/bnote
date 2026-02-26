@@ -293,6 +293,11 @@ class AuthModule {
                 'route' => '/news',
                 'icon' => 'newspaper',
                 'i18n' => 'js.sidebar.news'
+            ],
+            'Aufgaben' => [
+                'route' => '/tasks',
+                'icon' => 'check-square',
+                'i18n' => 'js.sidebar.tasks'
             ]
         ];
         

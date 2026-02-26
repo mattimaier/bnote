@@ -12,6 +12,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface ThemeToggleProps {
   /** When true, render inline in the topbar (no fixed positioning). When false, fixed top-right (e.g. login page). */
@@ -19,7 +20,9 @@ interface ThemeToggleProps {
 }
 
 export function ThemeToggle({ inline = false }: ThemeToggleProps) {
+  const { t } = useI18n();
   const [dark, setDark] = useState(false);
+  const toggleLabel = t("js.common.toggleTheme") !== "js.common.toggleTheme" ? t("js.common.toggleTheme") : "Toggle theme";
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -52,8 +55,8 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
           ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-box text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content"
           : "fixed top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-box text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content"
       }
-      title="Toggle theme"
-      aria-label="Toggle theme"
+      title={toggleLabel}
+      aria-label={toggleLabel}
     >
       {dark ? (
         <svg

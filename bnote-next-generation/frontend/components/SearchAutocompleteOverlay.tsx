@@ -15,6 +15,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useSearch } from "@/contexts/SearchContext";
 import { getIcon } from "@/components/icons";
 import { EntityListRow } from "@/components/EntityListRow";
+import { Avatar } from "@/components/Avatar";
 import { AddressLink } from "@/components/AddressLink";
 import { formatEventDate, formatEventTime, getEventTypeConfig } from "@/lib/event-utils";
 import {
@@ -310,6 +311,19 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                           );
                         }
 
+                        if (cat.key === "users" || cat.key === "contacts") {
+                          return (
+                            <div key={`${cat.key}-${item.id}`}>
+                              <EntityListRow
+                                icon={<Avatar email={item.email} name={title} size={24} variant="soft" />}
+                                primary={title}
+                                secondary={item.instrument ? <span>{item.instrument}</span> : undefined}
+                                href={href}
+                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
+                              />
+                            </div>
+                          );
+                        }
                         return (
                           <div key={`${cat.key}-${item.id}`}>
                             <EntityListRow

@@ -9,6 +9,7 @@
 "use client";
 
 import { Pencil } from "@/components/icons";
+import { ActionButton } from "@/components/ActionButton";
 import { useI18n } from "@/contexts/I18nContext";
 
 export interface DetailPageHeaderProps {
@@ -53,13 +54,9 @@ export function DetailEditButton({
   const { t } = useI18n();
   const text = label ?? (t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Bearbeiten");
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="btn btn-primary btn-sm gap-2"
-    >
+    <ActionButton onClick={onClick}>
       <Pencil className="h-4 w-4" />
       {text}
-    </button>
+    </ActionButton>
   );
 }

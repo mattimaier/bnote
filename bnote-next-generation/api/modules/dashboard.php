@@ -66,6 +66,8 @@ class DashboardModule {
                 return $this->getEventsNeedingResponse();
             case 'respondToEvent':
                 return $this->respondToEvent();
+            case 'completeTask':
+                return $this->completeTask();
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
@@ -248,6 +250,8 @@ class DashboardModule {
                     }
                 } elseif ($otype === 'V') {
                     $eventName = $item['title'] ?? '';
+                } elseif ($otype === 'T') {
+                    $eventName = $item['title'] ?? '';
                 }
             }
 
@@ -265,6 +269,11 @@ class DashboardModule {
                 'location' => $locationName,
                 'locationData' => $location
             ];
+            if ($otype === 'T') {
+                $row['assignee'] = $item['assignee'] ?? null;
+                $row['assigneeFullName'] = $item['assigneeFullName'] ?? ($item['assignee'] ?? null);
+                $row['is_complete'] = $item['is_complete'] ?? 0;
+            }
             if ($otype === 'V') {
                 $row['vote_options'] = $item['vote_options'] ?? [];
                 $row['vote_user_choices'] = $item['vote_user_choices'] ?? [];
@@ -385,6 +394,27 @@ class DashboardModule {
             ];
         }
 
+        // Tasks: open tasks assigned to current user
+        $tasks = $this->data->adp()->getUserTasks($userId);
+        for ($i = 1; $i < count($tasks); $i++) {
+            $t = $tasks[$i];
+            $dueAt = $t['due_at'] ?? null;
+            $eventBegin = $dueAt && $dueAt !== '-' ? $dueAt : ($t['created_at'] ?? null);
+            $replyUntil = $dueAt && $dueAt !== '-' ? $dueAt : null;
+            $items[] = [
+                'otype' => 'T',
+                'oid' => (int) $t['id'],
+                'title' => $t['title'] ?? '',
+                'preview' => isset($t['description']) ? substr($t['description'], 0, 50) : '',
+                'due' => $dueAt ? Data::convertDateFromDb($dueAt) : null,
+                'eventBegin' => $eventBegin,
+                'replyUntil' => $replyUntil,
+                'assignee' => trim($t['assignee'] ?? ''),
+                'assigneeFullName' => trim($t['assignee'] ?? ''),
+                'is_complete' => 0,
+            ];
+        }
+
         return $items;
     }
     
@@ -455,12 +485,13 @@ class DashboardModule {
         // Get ALL inbox items (not limited)
         $allInboxItems = $this->getAllInboxItems();
         
-        // Filter items where participation is -1 (not responded yet)
+        // Filter items where participation is -1 (not responded yet) or open tasks
         $eventsNeedingResponse = [];
         foreach ($allInboxItems as $item) {
             $participation = $item['participation'] ?? null;
             $otype = $item['otype'] ?? null;
-            
+            $isComplete = $item['is_complete'] ?? 0;
+
             // Include rehearsals, concerts, and votes that need response
             if (($otype === 'R' || $otype === 'C' || $otype === 'V') && $participation === -1) {
                 if ($otype === 'V') {
@@ -469,6 +500,9 @@ class DashboardModule {
                         continue; // Exclude past votes from Response Needed
                     }
                 }
+                $eventsNeedingResponse[] = $item;
+            } elseif ($otype === 'T' && $isComplete == 0) {
+                // Include open (incomplete) tasks in the top section
                 $eventsNeedingResponse[] = $item;
             }
         }
@@ -507,7 +541,8 @@ class DashboardModule {
             'rehearsal' => 0,
             'performance' => 0,
             'meeting' => 0,
-            'vote' => 0
+            'vote' => 0,
+            'task' => 0
         ];
 
         foreach ($events as $event) {
@@ -518,6 +553,8 @@ class DashboardModule {
                 $counts['performance']++;
             } elseif ($otype === 'V') {
                 $counts['vote']++;
+            } elseif ($otype === 'T') {
+                $counts['task']++;
             } else {
                 $counts['meeting']++;
             }
@@ -572,6 +609,33 @@ class DashboardModule {
             'success' => true,
             'message' => 'Response saved successfully'
         ];
+    }
+
+    /**
+     * Complete or reopen a task (otype T).
+     * POST: { otype: 'T', oid: number, complete: boolean }
+     */
+    private function completeTask() {
+        $userId = Auth::getUserId();
+        if (!$userId) {
+            Response::error('Not authenticated', 401);
+        }
+
+        $rawInput = file_get_contents('php://input');
+        $data = $rawInput ? json_decode($rawInput, true) : $_POST;
+        $otype = $data['otype'] ?? null;
+        $oid = $data['oid'] ?? $data['id'] ?? null;
+        $complete = isset($data['complete']) ? (bool) $data['complete'] : true;
+
+        if ($otype !== 'T' || !$oid) {
+            Response::error('Missing or invalid otype/oid for task completion', 400);
+        }
+
+        require_once BNOTE_ROOT . '/src/data/modules/aufgabendata.php';
+        $taskData = new AufgabenData();
+        $taskData->markTask((int) $oid, $complete ? 1 : 0);
+
+        return ['success' => true, 'is_complete' => $complete];
     }
     
     private function getInbox() {

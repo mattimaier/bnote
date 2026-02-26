@@ -6,6 +6,8 @@
 
 "use client";
 
+import { useI18n } from "@/contexts/I18nContext";
+
 export type SpinnerVariant = "primary" | "muted";
 
 const variantClasses: Record<SpinnerVariant, string> = {
@@ -33,6 +35,8 @@ export function Spinner({
   size = "default",
   className = "",
 }: SpinnerProps) {
+  const { t } = useI18n();
+  const loadingLabel = t("js.common.loading") !== "js.common.loading" ? t("js.common.loading") : "Loading";
   const borderClass =
     variant === "primary"
       ? variantClasses.primary
@@ -41,7 +45,7 @@ export function Spinner({
     <div
       className={`animate-spin rounded-full ${sizeClasses[size]} ${borderClass} ${className}`.trim()}
       role="status"
-      aria-label="Loading"
+      aria-label={loadingLabel}
     />
   );
 }

@@ -15,6 +15,7 @@ import EquipmentPage from "@/app/_modules/equipment/page";
 import OutfitsPage from "@/app/_modules/outfits/page";
 import RepertoirePage from "@/app/_modules/repertoire/page";
 import VotesPage from "@/app/_modules/votes/page";
+import TasksPage from "@/app/_modules/tasks/page";
 import ConcertsPage from "@/app/_modules/concerts/page";
 import RehearsalsPage from "@/app/_modules/rehearsals/page";
 import SearchPage from "@/app/_modules/search/page";
@@ -31,6 +32,7 @@ const MODULE_PAGES: Record<string, () => ReactNode> = {
   outfits: () => <OutfitsPage />,
   repertoire: () => <RepertoirePage />,
   votes: () => <VotesPage />,
+  tasks: () => <TasksPage />,
   concerts: () => <ConcertsPage />,
   rehearsals: () => <RehearsalsPage />,
   search: () => <SearchPage />,

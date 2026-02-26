@@ -529,8 +529,9 @@ class ConcertsModule {
 
         $contacts = [];
         for ($i = 1; $i < count($contactsSel); $i++) {
+            $c = $contactsSel[$i];
             $instrumentName = null;
-            $instrumentId = $contactsSel[$i]['instrument'] ?? null;
+            $instrumentId = $c['instrument'] ?? null;
             if ($instrumentId && $instrumentId > 0) {
                 $instrumentName = $system_data->dbcon->colValue(
                     "SELECT name FROM instrument WHERE id = ?",
@@ -539,9 +540,11 @@ class ConcertsModule {
                 );
             }
             $contacts[] = [
-                'id' => intval($contactsSel[$i]['id']),
-                'name' => trim(($contactsSel[$i]['name'] ?? '') . ' ' . ($contactsSel[$i]['surname'] ?? '')),
-                'subtitle' => $instrumentName
+                'id' => intval($c['id']),
+                'name' => trim(($c['name'] ?? '') . ' ' . ($c['surname'] ?? '')),
+                'subtitle' => $instrumentName,
+                'email' => $c['email'] ?? null,
+                'instrument' => $instrumentName,
             ];
         }
 

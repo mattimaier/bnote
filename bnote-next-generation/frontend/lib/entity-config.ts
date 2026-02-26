@@ -25,7 +25,7 @@ export type EntityType =
   | "outfit"
   | "vote";
 
-export type EventDisplayType = "rehearsal" | "performance" | "meeting" | "vote";
+export type EventDisplayType = "rehearsal" | "performance" | "meeting" | "vote" | "task";
 
 interface EntityEntry {
   color: string;
@@ -85,6 +85,7 @@ const EVENT_TO_ENTITY: Record<EventDisplayType, string> = {
   performance: "concert",
   meeting: "meeting",
   vote: "vote",
+  task: "task",
 };
 
 /**
@@ -101,6 +102,8 @@ function colorToEventClasses(color: string | null): { dotClass: string; badgeCla
     return { dotClass: "bg-[var(--chart-3)]", badgeClass: "event-badge chart-3" };
   if (color.includes("#A855F7") || color.includes("#a855f7"))
     return { dotClass: "bg-[#a855f7]", badgeClass: "event-badge event-badge-vote" };
+  if (color.includes("#25A65A"))
+    return { dotClass: "bg-[#25A65A]", badgeClass: "event-badge event-badge-task" };
   return { dotClass: "bg-[var(--chart-3)]", badgeClass: "event-badge chart-3" };
 }
 
@@ -126,7 +129,9 @@ export function getEventTypeConfig(
         ? "js.event.performance"
         : eventType === "vote"
           ? "js.sidebar.votes"
-          : "js.event.meeting";
+          : eventType === "task"
+            ? "js.sidebar.tasks"
+            : "js.event.meeting";
   const label = t(labelKey);
   if (!entity) {
     const fallback = colorToEventClasses(null);

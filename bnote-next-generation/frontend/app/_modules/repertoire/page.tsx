@@ -21,6 +21,7 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { ActionButton } from "@/components/ActionButton";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -143,15 +144,12 @@ export default function RepertoirePage() {
               : "Manage songs and repertoire"}
           </p>
         </div>
-        <Link
-          href={getEntityPath("song", "new", "edit")}
-          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white"
-        >
+        <ActionButton href={getEntityPath("song", "new", "edit")}>
           <Plus className="h-4 w-4" />
           {t("js.repertoire.addSong") !== "js.repertoire.addSong"
             ? t("js.repertoire.addSong")
             : "Add Song"}
-        </Link>
+        </ActionButton>
       </div>
 
       {error && (

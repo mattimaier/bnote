@@ -150,7 +150,7 @@ export function NotesEditor({
       ref={holderRef}
       id={id}
       onBlur={handleBlur}
-      className={ready ? "" : "min-h-[120px] flex items-center justify-center"}
+      className={ready ? "w-full" : "w-full min-h-[120px] flex items-center justify-center"}
       style={{ minHeight: ready ? undefined : minHeight }}
     >
       {!ready && (

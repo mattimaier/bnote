@@ -8,6 +8,7 @@
 
 import React, { useEffect, useId, useRef } from "react";
 import { X } from "@/components/icons";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface ModalProps {
   open: boolean;
@@ -26,7 +27,9 @@ declare global {
 }
 
 export function Modal({ open, onClose, title, children }: ModalProps) {
+  const { t } = useI18n();
   const id = useId().replace(/:/g, "-") || "modal-1";
+  const closeLabel = t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close";
   const modalId = `bn-modal-${id}`;
   const ref = useRef<HTMLDivElement>(null);
 
@@ -70,7 +73,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
               type="button"
               onClick={onClose}
               className="btn btn-soft btn-square btn-sm"
-              aria-label="Close"
+              aria-label={closeLabel}
             >
               <X className="h-5 w-5" />
             </button>

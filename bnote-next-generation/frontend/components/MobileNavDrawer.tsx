@@ -86,7 +86,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
       className="fixed inset-0 z-[100] md:hidden"
       role="dialog"
       aria-modal="true"
-      aria-label="Menu"
+      aria-label={t("js.common.menu") !== "js.common.menu" ? t("js.common.menu") : "Menu"}
     >
       {/* Backdrop */}
       <div

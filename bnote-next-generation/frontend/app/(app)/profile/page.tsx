@@ -159,7 +159,7 @@ export default function ProfilePage() {
     return (
       <div className={PAGE_CONTENT_CLASS}>
         <DetailPageHeader
-          title={t("js.profile.title") !== "js.profile.title" ? t("js.profile.title") : "Meine Kontaktdaten"}
+          title={t("js.profile.title") !== "js.profile.title" ? t("js.profile.title") : "My Contact Data"}
         />
         <p className="rounded-box border border-base-300 px-4 py-3 text-sm text-base-content/60">
           {t("js.profile.noContact") !== "js.profile.noContact" ? t("js.profile.noContact") : "Ihrem Benutzer wurde kein Kontakt zugeordnet."}
@@ -174,8 +174,8 @@ export default function ProfilePage() {
   return (
     <div className={`${PAGE_CONTENT_BASE_CLASS} space-y-6`}>
       <DetailPageHeader
-        title={t("js.profile.title") !== "js.profile.title" ? t("js.profile.title") : "Meine Kontaktdaten"}
-        subtitle={t("js.profile.subtitle") !== "js.profile.subtitle" ? t("js.profile.subtitle") : "Persönliche Daten bearbeiten"}
+        title={t("js.profile.title") !== "js.profile.title" ? t("js.profile.title") : "My Contact Data"}
+        subtitle={t("js.profile.subtitle") !== "js.profile.subtitle" ? t("js.profile.subtitle") : "Edit your personal data"}
         right={!isEditing ? <DetailEditButton onClick={() => router.push("/profile/edit/")} /> : undefined}
       />
 
