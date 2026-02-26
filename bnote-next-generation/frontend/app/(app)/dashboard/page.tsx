@@ -21,10 +21,11 @@ export default function DashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [eventsNeedingResponse, setEventsNeedingResponse] = useState<InboxEvent[]>([]);
   const [needResponseConfig, setNeedResponseConfig] = useState<{ max_show?: number }>({});
-  const [needResponseCounts, setNeedResponseCounts] = useState<{ rehearsal: number; performance: number; meeting: number }>({
+  const [needResponseCounts, setNeedResponseCounts] = useState<{ rehearsal: number; performance: number; meeting: number; vote: number }>({
     rehearsal: 0,
     performance: 0,
     meeting: 0,
+    vote: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -42,7 +43,13 @@ export default function DashboardPage() {
       setDashboard(dash);
       setEventsNeedingResponse(needResp?.events ?? []);
       setNeedResponseConfig(needResp?.config ?? {});
-      setNeedResponseCounts(needResp?.counts ?? { rehearsal: 0, performance: 0, meeting: 0 });
+      const c = needResp?.counts;
+      setNeedResponseCounts({
+        rehearsal: c?.rehearsal ?? 0,
+        performance: c?.performance ?? 0,
+        meeting: c?.meeting ?? 0,
+        vote: c?.vote ?? 0,
+      });
     } catch (err) {
       setError(getErrorMessage(err, t, "js.dashboard.loadError"));
     } finally {

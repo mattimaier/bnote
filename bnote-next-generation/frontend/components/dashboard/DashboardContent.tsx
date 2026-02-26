@@ -22,14 +22,14 @@ export interface DashboardData {
   inbox: InboxEvent[];
   news?: string;
   company?: string | Record<string, string> | string[];
-  counts?: { rehearsal: number; performance: number; meeting: number };
+  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number };
   config?: { max_show?: number };
 }
 
 export interface EventsNeedingResponse {
   events: InboxEvent[];
   config?: { max_show?: number };
-  counts?: { rehearsal: number; performance: number; meeting: number };
+  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number };
 }
 
 export type SectionId = "events-needing-response" | "events-timeline";
@@ -46,7 +46,7 @@ export interface DashboardContentProps {
   needResponse: {
     events: InboxEvent[];
     config?: { max_show?: number };
-    counts?: { rehearsal: number; performance: number; meeting: number };
+    counts?: { rehearsal: number; performance: number; meeting: number; vote?: number };
   };
   loading: boolean;
   error: string;
@@ -124,7 +124,7 @@ export default function DashboardContent({
   );
 
   const countByType = useCallback((events: InboxEvent[]) => {
-    const c = { rehearsal: 0, performance: 0, meeting: 0 };
+    const c = { rehearsal: 0, performance: 0, meeting: 0, vote: 0 };
     events.forEach((e) => {
       const type = mapOtypeToEventType(e.otype);
       if (type in c) (c as Record<string, number>)[type]++;
@@ -177,29 +177,37 @@ export default function DashboardContent({
   const hasNews = Boolean(newsContent && String(newsContent).trim());
   const newsHtml = useNewsHtml(hasNews ? String(newsContent) : undefined);
 
-  const defaultCounts = { rehearsal: 0, performance: 0, meeting: 0 };
+  const defaultCounts = { rehearsal: 0, performance: 0, meeting: 0, vote: 0 };
   const needResponseCounts = needResponse?.counts ?? defaultCounts;
-  const filterCountsNeed: { rehearsal: number; performance: number; meeting: number } =
+  const filterCountsNeed: { rehearsal: number; performance: number; meeting: number; vote: number } =
     filters["events-needing-response"]?.size > 0
       ? countByType(needResponseFiltered)
       : { ...defaultCounts, ...needResponseCounts };
-  const filterCountsTimeline: { rehearsal: number; performance: number; meeting: number } =
+  const filterCountsTimeline: { rehearsal: number; performance: number; meeting: number; vote: number } =
     filters["events-timeline"]?.size > 0
       ? countByType(timelineFiltered)
       : { ...defaultCounts, ...(dashboard?.counts ?? {}) };
 
   const FilterBubbles = useCallback(
-    ({ sectionId, counts }: { sectionId: SectionId; counts: { rehearsal: number; performance: number; meeting: number } }) => (
+    ({ sectionId, counts }: { sectionId: SectionId; counts: { rehearsal: number; performance: number; meeting: number; vote: number } }) => (
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
           {t("js.common.filter")}:
         </span>
-        {(["rehearsal", "performance"] as const).map((filterType) => {
+        {(["rehearsal", "performance", "vote"] as const).map((filterType) => {
           const selected = filters[sectionId]?.has(filterType);
           const bubbleClass =
             filterType === "rehearsal"
               ? "filter-bubble filter-bubble-rehearsal"
-              : "filter-bubble filter-bubble-performance";
+              : filterType === "performance"
+                ? "filter-bubble filter-bubble-performance"
+                : "filter-bubble filter-bubble-vote";
+          const labelKey =
+            filterType === "rehearsal"
+              ? "js.event.rehearsal"
+              : filterType === "performance"
+                ? "js.event.performance"
+                : "js.sidebar.votes";
           return (
             <button
               key={filterType}
@@ -207,7 +215,7 @@ export default function DashboardContent({
               onClick={() => toggleFilter(sectionId, filterType)}
               className={`${bubbleClass} ${selected ? "selected" : ""}`}
             >
-              {t(filterType === "rehearsal" ? "js.event.rehearsal" : "js.event.performance")}{" "}
+              {t(labelKey)}{" "}
               <span className="opacity-70 ml-1">({counts[filterType] ?? 0})</span>
             </button>
           );

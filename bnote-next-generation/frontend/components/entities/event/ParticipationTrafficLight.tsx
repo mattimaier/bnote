@@ -11,15 +11,19 @@ import type { EditableParticipant } from "@/lib/entities/event/types";
 const PARTICIPATION_BTN_BASE =
   "participation-btn w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-md";
 
+export type ParticipationValue = EditableParticipant["participate"];
+
 export function ParticipationTrafficLight({
   value,
   onChange,
   allowMaybe = true,
+  allowDeselect = true,
   disabled = false,
 }: {
-  value: EditableParticipant["participate"];
-  onChange: (next: EditableParticipant["participate"]) => void;
+  value: ParticipationValue;
+  onChange: (next: ParticipationValue) => void;
   allowMaybe?: boolean;
+  allowDeselect?: boolean;
   disabled?: boolean;
 }) {
   const btnClass = (status: "yes" | "maybe" | "no", active: boolean) => {
@@ -39,17 +43,19 @@ export function ParticipationTrafficLight({
     return `${PARTICIPATION_BTN_BASE} ${roleClass} ${activeClass}`.trim();
   };
 
-  const handleClick = (next: EditableParticipant["participate"]) => {
+  const handleClick = (next: ParticipationValue) => {
     if (disabled) return;
-    if (next === value && value !== "pending") {
+    if (allowDeselect && next === value && value !== "pending") {
       onChange("pending");
       return;
     }
     onChange(next);
   };
 
+  const isPending = value === "pending";
+
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${isPending ? "participation-pending" : ""}`}>
       <button type="button" className={btnClass("yes", value === "yes")} onClick={() => handleClick("yes")}>
         <svg className="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

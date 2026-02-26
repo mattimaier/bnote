@@ -20,6 +20,13 @@ import { getIcon } from "@/components/icons";
 import { MapPin, Clock } from "@/components/icons";
 import { AddressLink } from "@/components/AddressLink";
 import { getStatusPillStyle } from "@/lib/entity-config";
+import { DashboardVoteWidget } from "@/components/dashboard/DashboardVoteWidget";
+
+export interface VoteOption {
+  id: number;
+  name?: string;
+  odate?: string | null;
+}
 
 export interface InboxEvent {
   otype: string;
@@ -32,6 +39,10 @@ export interface InboxEvent {
   location?: { name?: string } | string;
   locationName?: string;
   locationData?: { name?: string };
+  vote_options?: VoteOption[];
+  vote_user_choices?: Record<number, string>;
+  vote_is_date?: boolean;
+  vote_is_multi?: boolean;
 }
 
 interface EventCardProps {
@@ -43,7 +54,8 @@ interface EventCardProps {
   onParticipationChange?: () => void;
 }
 
-function extractLocation(event: InboxEvent): string {
+function extractLocation(event: InboxEvent): string | null {
+  if (event.otype === "V") return null;
   const loc = event.location;
   if (typeof loc === "string") return loc;
   return (
@@ -68,12 +80,21 @@ export function EventCard({
   const dateStr = formatEventDate(event.eventBegin || event.dueDate || event.begin, lang, tba);
   const timeStr = formatEventTime(event.eventBegin || event.dueDate || event.begin, lang, tba);
   const location = extractLocation(event);
+  const isVote = event.otype === "V";
   const title = event.title || t("js.event.event");
   const hideTitleWhenDuplicate = title === typeConfig.label;
-  const isClickable = event.otype === "R" || event.otype === "C";
-  const entityType = event.otype === "C" ? "concert" : "rehearsal";
+  const isClickable = event.otype === "R" || event.otype === "C" || event.otype === "V";
+  const entityType =
+    event.otype === "C" ? "concert" : event.otype === "V" ? "vote" : "rehearsal";
   const href = isClickable ? getEntityPath(entityType, event.oid) : "#";
-  const hasParticipation = showParticipation && isClickable && event.oid && event.otype;
+  const hasParticipation =
+    showParticipation && (event.otype === "R" || event.otype === "C") && event.oid && event.otype;
+  const hasVoteWidget =
+    showParticipation &&
+    isVote &&
+    event.oid &&
+    (event as InboxEvent).vote_options &&
+    (event as InboxEvent).vote_options!.length > 0;
   const status = String(event.status ?? "").toLowerCase();
   const isCancelled = status === "cancelled" || status === "canceled" || status === "abgesagt";
   const DotIcon = getIcon(typeConfig.icon);
@@ -111,28 +132,51 @@ export function EventCard({
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-base-content/80">
-              <Clock className="h-3 w-3 text-primary/60" />
-              <span>{timeStr}</span>
-            </div>
+            {!isVote && (
+              <div className="flex items-center gap-1.5 text-xs text-base-content/80">
+                <Clock className="h-3 w-3 text-primary/60" />
+                <span>{timeStr}</span>
+              </div>
+            )}
           </div>
-          {hasParticipation && (
+          {(hasParticipation || hasVoteWidget) && (
             <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="shrink-0">
-              <ParticipationWidget
+              {hasVoteWidget ? (
+                <DashboardVoteWidget
+                  voteId={event.oid}
+                  options={event.vote_options!}
+                  userChoices={event.vote_user_choices ?? {}}
+                  isDate={event.vote_is_date ?? false}
+                  isMulti={event.vote_is_multi ?? false}
+                  lang={lang}
+                  onVoteChange={onParticipationChange}
+                />
+              ) : hasParticipation ? (
+                <ParticipationWidget
                 eventId={event.oid}
                 eventType={event.otype}
                 onStatusChange={onParticipationChange}
                 disabled={isCancelled}
               />
+              ) : null}
             </div>
           )}
         </div>
-        <div className="flex items-center text-xs pt-2 border-t border-base-300/50 text-base-content/70">
-          <span className="flex items-center gap-1.5">
-            <MapPin className="h-3 w-3 text-primary/50" />
-            <AddressLink value={location} t={t} renderRawIfNoAddress />
-          </span>
-        </div>
+        {(location !== null || isVote) && !hasVoteWidget && (
+          <div className="flex items-center text-xs pt-2 border-t border-base-300/50 text-base-content/70">
+            {isVote ? (
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-3 w-3 text-primary/50" />
+                {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "Ends"}: {dateStr}
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-primary/50" />
+                <AddressLink value={location!} t={t} renderRawIfNoAddress />
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </>
   );
@@ -160,28 +204,51 @@ export function EventCard({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-base-content/80">
-            <Clock className="h-2.5 w-2.5 text-primary/60" />
-            <span>{timeStr}</span>
-          </div>
+          {!isVote && (
+            <div className="flex items-center gap-1 text-[10px] text-base-content/80">
+              <Clock className="h-2.5 w-2.5 text-primary/60" />
+              <span>{timeStr}</span>
+            </div>
+          )}
         </div>
-        {hasParticipation && (
+        {(hasParticipation || hasVoteWidget) && (
           <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="shrink-0">
-            <ParticipationWidget
-              eventId={event.oid}
-              eventType={event.otype}
-              onStatusChange={onParticipationChange}
-              disabled={isCancelled}
-            />
+            {hasVoteWidget ? (
+              <DashboardVoteWidget
+                voteId={event.oid}
+                options={event.vote_options!}
+                userChoices={event.vote_user_choices ?? {}}
+                isDate={event.vote_is_date ?? false}
+                isMulti={event.vote_is_multi ?? false}
+                lang={lang}
+                onVoteChange={onParticipationChange}
+              />
+            ) : (
+              <ParticipationWidget
+                eventId={event.oid}
+                eventType={event.otype}
+                onStatusChange={onParticipationChange}
+                disabled={isCancelled}
+              />
+            )}
           </div>
         )}
       </div>
-      <div className="flex items-center text-[10px] text-base-content/70 pt-1 px-1">
-        <span className="flex items-center gap-1">
-          <MapPin className="h-2.5 w-2.5 text-primary/50" />
-          <AddressLink value={location} t={t} renderRawIfNoAddress />
-        </span>
-      </div>
+      {(location !== null || isVote) && !hasVoteWidget && (
+        <div className="flex items-center text-[10px] text-base-content/70 pt-1 px-1">
+          {isVote ? (
+            <span className="flex items-center gap-1">
+              <Clock className="h-2.5 w-2.5 text-primary/50" />
+              {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "Ends"}: {dateStr}
+            </span>
+          ) : (
+            <span className="flex items-center gap-1">
+              <MapPin className="h-2.5 w-2.5 text-primary/50" />
+              <AddressLink value={location!} t={t} renderRawIfNoAddress />
+            </span>
+          )}
+        </div>
+      )}
     </>
   );
 

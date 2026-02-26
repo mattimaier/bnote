@@ -68,8 +68,9 @@ export function ConfirmModal({
     <div
       id={modalId}
       ref={ref}
-      className="overlay modal hidden"
-      role="alertdialog"
+      className="overlay modal overlay-open:opacity-100 overlay-open:duration-300 hidden"
+      role="dialog"
+      tabIndex={-1}
       aria-modal="true"
       aria-labelledby={`${modalId}-title`}
     >
@@ -90,7 +91,7 @@ export function ConfirmModal({
             <button
               type="button"
               onClick={handleConfirm}
-              className={variant === "danger" ? "btn btn-error btn-sm" : "btn btn-primary btn-sm"}
+              className={variant === "danger" ? "btn btn-error btn-sm text-white" : "btn btn-primary btn-sm"}
             >
               {confirmLabel}
             </button>

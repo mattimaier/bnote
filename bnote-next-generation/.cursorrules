@@ -4,6 +4,8 @@
 
 **🚫 NEVER MODIFY ANY CODE OUTSIDE THE `/bnote-next-generation/` FOLDER 🚫**
 
+**BEFORE EVERY EDIT:** Verify the file path. If it starts with `BNote/` or is outside `bnote-next-generation/`, STOP. Do not edit. Ask the user.
+
 **ABSOLUTE PROHIBITION:**
 - ❌ **DO NOT** touch `/BNote/src/` directory (old PHP codebase)
 - ❌ **DO NOT** modify `/BNote/main.php`, `/BNote/content.php`, or any files in `/BNote/` folder
@@ -57,6 +59,8 @@ This is BNote - an open source ensemble management system for bands, orchestras,
 - Any file or directory outside `/bnote-next-generation/` - **DO NOT TOUCH**
 
 **Exception:** Only modify old code if user explicitly requests it for critical security fixes AND confirms in writing.
+
+**To add features that need BNote data:** Implement in `bnote-next-generation/api/` using `global $system_data->dbcon` for custom queries, or call existing BNote data methods. Never add methods or change files in `/BNote/`.
 
 ## Core Principles
 

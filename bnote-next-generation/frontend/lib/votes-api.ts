@@ -27,6 +27,8 @@ export interface VoteDetail extends Vote {
   is_active: boolean;
   options: VoteOption[];
   result?: unknown;
+  /** Current user's choices: optionId -> "yes"|"no"|"maybe" */
+  user_choices?: Record<number, string>;
 }
 
 export const votesApi = {
@@ -34,6 +36,21 @@ export const votesApi = {
     api.get<Vote[]>("votes", "list", params ? { active: params.active ?? "" } : {}),
   get: (id: number) =>
     api.get<VoteDetail>("votes", "get", { id: String(id) }),
+  getVoters: (id: number) =>
+    api.get<
+      Array<{
+        instrument: { id: number; name: string; category: { id: number; name: string } };
+        participants: Array<{
+          id: number;
+          userId?: number;
+          name: string;
+          email?: string | null;
+          participate: number | null;
+          reason?: string | null;
+        }>;
+        stats: { yes: number; maybe: number; no: number; pending: number };
+      }>
+    >("votes", "getVoters", { id: String(id) }),
   create: (data: { name: string; end: string; is_date: boolean; is_multi: boolean; groups?: number[] }) =>
     api.post<{ success: boolean; id: number; message: string }>(
       "votes",
@@ -66,7 +83,7 @@ export const votesApi = {
     }),
   submit: (
     voteId: number,
-    data: { choices?: Record<number, string>; uservote?: number }
+    data: { choices?: Record<number, string>; uservote?: number | null }
   ) =>
     api.post<{ success: boolean; message: string }>("votes", "submit", {
       vote_id: voteId,

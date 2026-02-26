@@ -12,14 +12,16 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { votesApi, type VoteDetail as VoteDetailType } from "@/lib/votes-api";
-import { formatDateShortDisplay } from "@/lib/date-time";
+import { formatDateShortDisplay, formatDateTimeShort } from "@/lib/date-time";
 import { getEntityPath } from "@/lib/entities/paths";
-import { CheckCircle } from "@/components/icons";
 import { DetailCard } from "@/components/DetailCard";
+import { ParticipationTrafficLight } from "@/components/entities/event/ParticipationTrafficLight";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
 import { getStatusPillStyle } from "@/lib/entity-config";
 import { getErrorMessage } from "@/lib/error-utils";
 import { Spinner } from "@/components/Spinner";
+import { VoteResults } from "./VoteResults";
+import { VoteEligibleVotersCard } from "./VoteEligibleVotersCard";
 
 export interface VoteDetailProps {
   /** Optional content to render inside the root container after the main content (e.g. comments). */
@@ -60,34 +62,21 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
     loadVote();
   }, [id, ready]);
 
-  const handleSubmitVote = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!item) return;
-    setSubmitting(true);
-    try {
-      if (item.is_multi) {
-        await votesApi.submit(item.id, { choices });
-      } else {
-        if (singleChoice == null) {
-          showToast("Please select an option", "error");
-          setSubmitting(false);
-          return;
-        }
-        await votesApi.submit(item.id, { uservote: singleChoice });
+  useEffect(() => {
+    if (!item?.user_choices) return;
+    const uc = item.user_choices;
+    if (item.is_multi) {
+      const next: Record<number, string> = {};
+      for (const [k, v] of Object.entries(uc)) {
+        const kid = parseInt(k, 10);
+        if (!Number.isNaN(kid)) next[kid] = v;
       }
-      showToast(
-        t("js.votes.submitted") !== "js.votes.submitted"
-          ? t("js.votes.submitted")
-          : "Vote submitted",
-        "success"
-      );
-      loadVote();
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "Submit failed", "error");
-    } finally {
-      setSubmitting(false);
+      setChoices(next);
+    } else {
+      const selected = Object.entries(uc).find(([, v]) => v === "yes");
+      setSingleChoice(selected ? parseInt(selected[0], 10) : null);
     }
-  };
+  }, [item?.id, item?.is_multi, item?.user_choices]);
 
   if (!ready) {
     return (
@@ -113,7 +102,8 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-6">
         <p className="text-sm text-error">
-          {error || "Vote not found."}
+          {error ||
+            (t("js.votes.notFound") !== "js.votes.notFound" ? t("js.votes.notFound") : "Vote not found.")}
         </p>
       </div>
     );
@@ -135,7 +125,10 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
 
       <DetailCard>
         <p className="text-sm text-base-content/60">
-          {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "End"}: {item.end ?? emptyText}
+          {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "End"}:{" "}
+          {item.end
+            ? (formatDateTimeShort(item.end, lang) ?? item.end)
+            : emptyText}
           {item.is_finished && (
             <span
               className="ml-2 inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
@@ -154,90 +147,163 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
           )}
         </p>
 
-        {item.options.length > 0 && (
-          <div className="mt-4">
-            <h2 className="text-sm font-semibold text-base-content/60">
-              {t("js.votes.options") !== "js.votes.options" ? t("js.votes.options") : "Options"}
-            </h2>
-            <ul className="mt-2 list-inside list-disc space-y-1">
-              {item.options.map((opt) => (
-                <li key={opt.id}>{optionLabel(opt)}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {item.is_active && item.options.length > 0 && (
-          <form onSubmit={handleSubmitVote} className="mt-6 space-y-4">
+          <div className="mt-6 space-y-4">
             <h2 className="text-sm font-semibold text-base-content/60">
               {t("js.votes.castVote") !== "js.votes.castVote" ? t("js.votes.castVote") : "Cast your vote"}
             </h2>
             {item.is_multi ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {item.options.map((opt) => (
-                  <div key={opt.id} className="flex flex-wrap items-center gap-2">
-                    <span className="w-48">{optionLabel(opt)}</span>
-                    <div className="select select-sm w-32">
-                      <select
-                        value={choices[opt.id] ?? ""}
-                        onChange={(e) =>
-                          setChoices((c) => ({ ...c, [opt.id]: e.target.value }))
+                  <div
+                    key={opt.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-field border border-base-300 px-3 py-2"
+                  >
+                    <span className="font-medium">{optionLabel(opt)}</span>
+                    <ParticipationTrafficLight
+                      value={(choices[opt.id] || "pending") as "yes" | "maybe" | "no" | "pending"}
+                      onChange={async (next) => {
+                        const val = next === "pending" ? "no" : next;
+                        const nextChoices = { ...choices, [opt.id]: val };
+                        setChoices(nextChoices);
+                        setSubmitting(true);
+                        try {
+                          const fullChoices: Record<number, string> = {};
+                          item.options.forEach((o) => {
+                            fullChoices[o.id] = nextChoices[o.id] ?? "no";
+                          });
+                          await votesApi.submit(item.id, { choices: fullChoices });
+                          showToast(
+                            t("js.votes.submitted") !== "js.votes.submitted"
+                              ? t("js.votes.submitted")
+                              : "Vote submitted",
+                            "success"
+                          );
+                          loadVote();
+                        } catch (err) {
+                          showToast(
+                            err instanceof Error
+                              ? err.message
+                              : t("js.votes.submitFailed") !== "js.votes.submitFailed"
+                                ? t("js.votes.submitFailed")
+                                : "Submit failed",
+                            "error"
+                          );
+                        } finally {
+                          setSubmitting(false);
                         }
-                      >
-                      <option value="">{emptyText}</option>
-                      <option value="yes">
-                        {t("js.votes.yes") !== "js.votes.yes" ? t("js.votes.yes") : "Yes"}
-                      </option>
-                      <option value="no">
-                        {t("js.votes.no") !== "js.votes.no" ? t("js.votes.no") : "No"}
-                      </option>
-                      <option value="maybe">
-                        {t("js.votes.maybe") !== "js.votes.maybe" ? t("js.votes.maybe") : "Maybe"}
-                      </option>
-                    </select>
-                    </div>
+                      }}
+                      allowMaybe={item.is_date}
+                      disabled={submitting}
+                    />
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="space-y-2">
+              <div
+                className="flex flex-col gap-2"
+                role="radiogroup"
+                aria-label={
+                  t("js.votes.castVote") !== "js.votes.castVote"
+                    ? t("js.votes.castVote")
+                    : "Cast your vote"
+                }
+              >
+                <label className="label-text flex cursor-pointer items-center gap-2">
+                  <input
+                    type="radio"
+                    name={`vote-${item.id}`}
+                    className="radio radio-primary"
+                    checked={singleChoice === null}
+                    disabled={submitting}
+                    onChange={async () => {
+                      if (singleChoice === null) return;
+                      setSubmitting(true);
+                      try {
+                        setSingleChoice(null);
+                        await votesApi.submit(item.id, { uservote: null });
+                        showToast(
+                          t("js.votes.retracted") !== "js.votes.retracted"
+                            ? t("js.votes.retracted")
+                            : "Vote retracted",
+                          "success"
+                        );
+                        loadVote();
+                      } catch (err) {
+                        showToast(
+                          err instanceof Error
+                            ? err.message
+                            : t("js.votes.submitFailed") !== "js.votes.submitFailed"
+                              ? t("js.votes.submitFailed")
+                              : "Submit failed",
+                          "error"
+                        );
+                      } finally {
+                        setSubmitting(false);
+                      }
+                    }}
+                  />
+                  <span className="text-base">
+                    {t("js.votes.noVote") !== "js.votes.noVote" ? t("js.votes.noVote") : "No selection"}
+                  </span>
+                </label>
                 {item.options.map((opt) => (
-                  <label key={opt.id} className="flex items-center gap-2 cursor-pointer">
+                  <label
+                    key={opt.id}
+                    className="label-text flex cursor-pointer items-center gap-2"
+                  >
                     <input
                       type="radio"
-                      name="voteOption"
-                      value={opt.id}
-                      checked={singleChoice === opt.id}
-                      onChange={() => setSingleChoice(opt.id)}
+                      name={`vote-${item.id}`}
                       className="radio radio-primary"
+                      checked={singleChoice === opt.id}
+                      disabled={submitting}
+                      onChange={async () => {
+                        if (singleChoice === opt.id) return;
+                        setSubmitting(true);
+                        try {
+                          setSingleChoice(opt.id);
+                          await votesApi.submit(item.id, { uservote: opt.id });
+                          showToast(
+                            t("js.votes.submitted") !== "js.votes.submitted"
+                              ? t("js.votes.submitted")
+                              : "Vote submitted",
+                            "success"
+                          );
+                          loadVote();
+                        } catch (err) {
+                          showToast(
+                            err instanceof Error
+                              ? err.message
+                              : t("js.votes.submitFailed") !== "js.votes.submitFailed"
+                                ? t("js.votes.submitFailed")
+                                : "Submit failed",
+                            "error"
+                          );
+                        } finally {
+                          setSubmitting(false);
+                        }
+                      }}
                     />
-                    <span>{optionLabel(opt)}</span>
+                    <span className="text-base font-medium">{optionLabel(opt)}</span>
                   </label>
                 ))}
               </div>
             )}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="btn btn-primary btn-sm gap-2"
-            >
-              <CheckCircle className="h-4 w-4" />
-              {t("js.votes.submit") !== "js.votes.submit" ? t("js.votes.submit") : "Submit"}
-            </button>
-          </form>
+          </div>
         )}
 
-        {item.is_finished && item.result && Array.isArray(item.result) ? (
-          <div className="mt-4">
-            <h2 className="text-sm font-semibold text-base-content/60">
-              {t("js.votes.results") !== "js.votes.results" ? t("js.votes.results") : "Results"}
-            </h2>
-            <pre className="mt-2 overflow-auto rounded-field border border-base-300 p-2 text-xs text-base-content">
-              {JSON.stringify(item.result, null, 2)}
-            </pre>
-          </div>
+        {item.result != null && Array.isArray(item.result) ? (
+          <VoteResults
+            result={item.result}
+            options={item.options}
+            isDate={item.is_date}
+            isMulti={item.is_multi}
+            lang={lang}
+          />
         ) : null}
       </DetailCard>
+      <VoteEligibleVotersCard voteId={item.id} />
       {renderAfterContent}
     </div>
   );

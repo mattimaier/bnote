@@ -64,6 +64,8 @@ class VotesModule {
                 return $this->finish();
             case 'submit':
                 return $this->submit();
+            case 'getVoters':
+                return $this->getVoters();
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
@@ -104,6 +106,74 @@ class VotesModule {
     }
 
     /**
+     * Get eligible voters with vote status (participantsByInstrument format for ParticipantOverview).
+     * Implemented in API only (never modify BNote). Uses global dbcon for custom query.
+     */
+    private function getVoters() {
+        $id = $_GET['id'] ?? $_POST['id'] ?? null;
+        if (!$id || !is_numeric($id)) {
+            Response::error('Vote ID required', 400);
+        }
+        $vote = $this->data->findByIdNoRef($id);
+        if (!$vote || empty($vote)) {
+            Response::error('Vote not found', 404);
+        }
+        global $system_data;
+        $params = [['i', (int) $id], ['i', (int) $id]];
+        $query = "SELECT vg.user as user_id, c.id as contact_id, CONCAT(c.name, ' ', c.surname) as name, c.email,
+                  i.id as instrument_id, i.name as instrument_name, cat.id as category_id, cat.name as category_name,
+                  (SELECT COUNT(*) FROM vote_option_user vou
+                   JOIN vote_option vo ON vou.vote_option = vo.id
+                   WHERE vo.vote = ? AND vou.user = vg.user) as voted
+                  FROM vote_group vg
+                  JOIN user u ON vg.user = u.id
+                  JOIN contact c ON u.contact = c.id
+                  LEFT JOIN instrument i ON c.instrument = i.id
+                  LEFT JOIN category cat ON i.category = cat.id
+                  WHERE vg.vote = ?
+                  ORDER BY COALESCE(cat.name, 'zzz'), i.name, c.name, c.surname";
+        $rows = $system_data->dbcon->getSelection($query, $params);
+        if (!is_array($rows) || count($rows) < 2) {
+            return [];
+        }
+        $byInstrument = [];
+        for ($i = 1; $i < count($rows); $i++) {
+            $r = $rows[$i];
+            $instId = (int) ($r['instrument_id'] ?? 0);
+            $instName = $r['instrument_name'] ?? '';
+            if ($instName === '') {
+                $instName = 'Uncategorized';
+            }
+            $catId = (int) ($r['category_id'] ?? 0);
+            $catName = $r['category_name'] ?? 'Uncategorized';
+            $key = $instId > 0 ? ('i' . $instId) : ('u' . $r['contact_id']);
+            if (!isset($byInstrument[$key])) {
+                $byInstrument[$key] = [
+                    'instrument' => ['id' => $instId, 'name' => $instName, 'category' => ['id' => $catId, 'name' => $catName]],
+                    'participants' => [],
+                    'stats' => ['yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0],
+                ];
+            }
+            $hasVoted = (int) ($r['voted'] ?? 0) > 0;
+            $participate = $hasVoted ? 1 : null;
+            if ($hasVoted) {
+                $byInstrument[$key]['stats']['yes']++;
+            } else {
+                $byInstrument[$key]['stats']['pending']++;
+            }
+            $byInstrument[$key]['participants'][] = [
+                'id' => (int) $r['contact_id'],
+                'userId' => (int) $r['user_id'],
+                'name' => $r['name'] ?? '',
+                'email' => $r['email'] ?? null,
+                'participate' => $participate,
+                'reason' => null,
+            ];
+        }
+        return array_values($byInstrument);
+    }
+
+    /**
      * Get single vote with options and (if finished) result
      */
     private function getVote() {
@@ -127,11 +197,10 @@ class VotesModule {
                 ];
             }
         }
-        $result = null;
-        if (!empty($vote['is_finished'])) {
-            $result = $this->data->getResult($id);
-        }
+        // Return result for live display (active and finished votes)
+        $result = $this->data->getResult($id);
         $uid = $this->getUserId();
+        $userChoices = $this->data->getUserChoices($id, $uid);
         return [
             'id' => intval($vote['id']),
             'name' => $vote['name'] ?? '',
@@ -144,6 +213,7 @@ class VotesModule {
             'is_active' => $this->data->isVoteActive($id),
             'options' => $optionsList,
             'result' => $result,
+            'user_choices' => $userChoices,
         ];
     }
 
@@ -333,10 +403,7 @@ class VotesModule {
                 $startData->saveVote($vid, $values, $uid);
             } else {
                 $optionId = $data['uservote'] ?? $data['option_id'] ?? null;
-                if ($optionId === null || $optionId === '') {
-                    Response::error('Option required for single choice vote', 400);
-                }
-                $startData->saveVote($vid, ['uservote' => $optionId], $uid);
+                $startData->saveVote($vid, ['uservote' => ($optionId !== null && $optionId !== '') ? $optionId : null], $uid);
             }
             return ['success' => true, 'message' => 'Vote submitted'];
         } catch (Exception $e) {

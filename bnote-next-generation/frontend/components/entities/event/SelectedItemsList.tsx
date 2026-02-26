@@ -6,7 +6,7 @@
 
 "use client";
 
-import { Trash2 } from "@/components/icons";
+import { RemoveOptionButton } from "@/components/RemoveOptionButton";
 import type { SimpleOption } from "@/lib/entities/event/types";
 
 export interface SelectedItemsListProps {
@@ -54,14 +54,10 @@ export function SelectedItemsList({
                 </span>
               ) : null}
             </div>
-            <button
-              type="button"
+            <RemoveOptionButton
               onClick={() => onRemove(id)}
-              className="inline-flex items-center justify-center rounded-md border border-base-300 text-base-content px-2 py-2 text-sm hover:bg-base-200/50 active:bg-base-200/70"
-              aria-label={labelRemove}
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+              ariaLabel={labelRemove}
+            />
           </div>
         );
       })}

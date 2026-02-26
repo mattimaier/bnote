@@ -13,10 +13,14 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { votesApi, type VoteDetail } from "@/lib/votes-api";
+import { contactsApi, type ContactGroup } from "@/lib/contacts-api";
 import { formatDateShortDisplay } from "@/lib/date-time";
 import { getEntityPath } from "@/lib/entities/paths";
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
-import { Plus, Trash2 } from "@/components/icons";
+import { MultiSelect } from "@/components/entities/event/MultiSelect";
+import { RemoveOptionButton } from "@/components/RemoveOptionButton";
+import { Plus } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 
@@ -38,6 +42,11 @@ export function VoteEdit() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [groups, setGroups] = useState<ContactGroup[]>([]);
+  const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
+  /** Pending options for new vote (before save) */
+  const [pendingOptions, setPendingOptions] = useState<Array<{ id: string; name?: string; odate?: string }>>([]);
+  const [finishConfirmOpen, setFinishConfirmOpen] = useState(false);
 
   const loadVote = useCallback(() => {
     if (isNew || !id) return;
@@ -67,35 +76,96 @@ export function VoteEdit() {
     loadVote();
   }, [ready, loadVote]);
 
+  useEffect(() => {
+    if (!ready || !isNew) return;
+    contactsApi.getGroups().then(setGroups).catch(() => setGroups([]));
+  }, [ready, isNew]);
+
+  const addPendingOption = () => {
+    if (isDate) {
+      if (!newOptionDate.trim()) return;
+      setPendingOptions((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), odate: newOptionDate.trim() + "T00:00:00" },
+      ]);
+      setNewOptionDate("");
+    } else {
+      if (!newOptionName.trim()) return;
+      setPendingOptions((prev) => [...prev, { id: crypto.randomUUID(), name: newOptionName.trim() }]);
+      setNewOptionName("");
+    }
+  };
+
+  const removePendingOption = (id: string) => {
+    setPendingOptions((prev) => prev.filter((o) => o.id !== id));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isNew && selectedGroups.length === 0) {
+      setError(
+        t("js.votes.groupsRequired") !== "js.votes.groupsRequired"
+          ? t("js.votes.groupsRequired")
+          : "At least one group must be selected"
+      );
+      showToast(
+        t("js.votes.groupsRequired") !== "js.votes.groupsRequired"
+          ? t("js.votes.groupsRequired")
+          : "At least one group must be selected",
+        "error"
+      );
+      return;
+    }
+    if (isNew && pendingOptions.length === 0) {
+      setError(
+        t("js.votes.optionsRequired") !== "js.votes.optionsRequired"
+          ? t("js.votes.optionsRequired")
+          : "Add at least one option"
+      );
+      showToast(
+        t("js.votes.optionsRequired") !== "js.votes.optionsRequired"
+          ? t("js.votes.optionsRequired")
+          : "Add at least one option",
+        "error"
+      );
+      return;
+    }
     setSaving(true);
     setError("");
     try {
       if (isNew) {
+        const endForApi = end ? end.replace(" ", "T") : "";
         const res = await votesApi.create({
           name,
-          end,
+          end: endForApi,
           is_date: isDate,
           is_multi: isMulti,
-          groups: [],
+          groups: selectedGroups,
         });
+        for (const opt of pendingOptions) {
+          if (opt.odate) {
+            await votesApi.addOption(res.id, { odate: opt.odate });
+          } else if (opt.name) {
+            await votesApi.addOption(res.id, { name: opt.name });
+          }
+        }
         showToast(
           t("js.votes.created") !== "js.votes.created"
             ? t("js.votes.created")
             : "Vote created",
           "success"
         );
-        router.replace(getEntityPath("vote", res.id, "edit"));
+        router.replace(getEntityPath("vote", res.id, "view"));
       } else {
-        await votesApi.update(parseInt(id, 10), { name, end });
+        const endForApi = end ? end.replace(" ", "T") : "";
+        await votesApi.update(parseInt(id, 10), { name, end: endForApi });
         showToast(
           t("js.common.saved") !== "js.common.saved"
             ? t("js.common.saved")
             : "Saved",
           "success"
         );
-        loadVote();
+        router.replace(getEntityPath("vote", id, "view"));
       }
     } catch (err) {
       const msg = getErrorMessage(err, t, "js.common.saveFailed");
@@ -111,7 +181,8 @@ export function VoteEdit() {
     const numId = parseInt(id, 10);
     try {
       if (isDate) {
-        await votesApi.addOption(numId, { odate: newOptionDate });
+        const odate = newOptionDate.includes("T") ? newOptionDate : newOptionDate + "T00:00:00";
+        await votesApi.addOption(numId, { odate });
         setNewOptionDate("");
       } else {
         await votesApi.addOption(numId, { name: newOptionName });
@@ -119,7 +190,33 @@ export function VoteEdit() {
       }
       loadVote();
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Add option failed", "error");
+      showToast(
+          err instanceof Error
+            ? err.message
+            : t("js.votes.addOptionFailed") !== "js.votes.addOptionFailed"
+              ? t("js.votes.addOptionFailed")
+              : "Add option failed",
+          "error"
+        );
+    }
+  };
+
+  const handleAddOptionForDate = async (dateStr: string) => {
+    if (!id || isNew || !dateStr) return;
+    const numId = parseInt(id, 10);
+    const odate = dateStr.includes("T") ? dateStr : dateStr + "T00:00:00";
+    try {
+      await votesApi.addOption(numId, { odate });
+      loadVote();
+    } catch (err) {
+      showToast(
+          err instanceof Error
+            ? err.message
+            : t("js.votes.addOptionFailed") !== "js.votes.addOptionFailed"
+              ? t("js.votes.addOptionFailed")
+              : "Add option failed",
+          "error"
+        );
     }
   };
 
@@ -128,13 +225,19 @@ export function VoteEdit() {
       await votesApi.removeOption(optionId);
       loadVote();
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Remove failed", "error");
+      showToast(
+          err instanceof Error
+            ? err.message
+            : t("js.votes.removeFailed") !== "js.votes.removeFailed"
+              ? t("js.votes.removeFailed")
+              : "Remove failed",
+          "error"
+        );
     }
   };
 
   const handleFinish = async () => {
     if (!id || isNew) return;
-    if (!confirm(t("js.votes.finishConfirm") !== "js.votes.finishConfirm" ? t("js.votes.finishConfirm") : "Finish this vote? Results will be final.")) return;
     try {
       await votesApi.finish(parseInt(id, 10));
       showToast(
@@ -143,7 +246,14 @@ export function VoteEdit() {
       );
       loadVote();
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Finish failed", "error");
+      showToast(
+          err instanceof Error
+            ? err.message
+            : t("js.votes.finishFailed") !== "js.votes.finishFailed"
+              ? t("js.votes.finishFailed")
+              : "Finish failed",
+          "error"
+        );
     }
   };
 
@@ -196,8 +306,44 @@ export function VoteEdit() {
     );
   }
 
+  const pageTitle = isNew
+    ? (t("js.votes.addVote") !== "js.votes.addVote" ? t("js.votes.addVote") : "Add Vote")
+    : (item?.name ?? (t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"));
+  const pageSubtitle = t("js.votes.subtitle") !== "js.votes.subtitle" ? t("js.votes.subtitle") : "Polls and voting";
+
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-4 md:space-y-6 md:p-6">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-base-content">{pageTitle}</h1>
+          <p className="mt-1 text-sm text-base-content/60">{pageSubtitle}</p>
+        </div>
+        {!isNew && item && !item.is_finished && item.is_author && (
+          <>
+            <button
+              type="button"
+              onClick={() => setFinishConfirmOpen(true)}
+              className="btn btn-error btn-sm shrink-0 gap-2 text-white"
+            >
+              {t("js.votes.finish") !== "js.votes.finish" ? t("js.votes.finish") : "Finish vote"}
+            </button>
+            <ConfirmModal
+              open={finishConfirmOpen}
+              onClose={() => setFinishConfirmOpen(false)}
+              title={t("js.votes.finish") !== "js.votes.finish" ? t("js.votes.finish") : "Finish vote"}
+              message={
+                t("js.votes.finishConfirm") !== "js.votes.finishConfirm"
+                  ? t("js.votes.finishConfirm")
+                  : "Finish this vote? Results will be final."
+              }
+              confirmLabel={t("js.votes.finish") !== "js.votes.finish" ? t("js.votes.finish") : "Finish vote"}
+              cancelLabel={t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
+              onConfirm={handleFinish}
+              variant="danger"
+            />
+          </>
+        )}
+      </div>
       <form id="vote-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
@@ -251,67 +397,122 @@ export function VoteEdit() {
                 {t("js.votes.isMulti") !== "js.votes.isMulti" ? t("js.votes.isMulti") : "Multiple choice"}
               </label>
             </div>
+            {isNew && groups.length > 0 && (
+              <div>
+                <label className="mb-1 block text-sm font-medium">
+                  {t("js.votes.voterGroups") !== "js.votes.voterGroups" ? t("js.votes.voterGroups") : "Who can vote"}
+                </label>
+                <MultiSelect
+                  options={groups.map((g) => ({ id: g.id, name: g.name }))}
+                  selected={selectedGroups}
+                  onChange={setSelectedGroups}
+                  placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                  showChips
+                  labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                  labelSelectedCount={(count) => {
+                    const template = t("js.common.selectedCount");
+                    if (template && template !== "js.common.selectedCount") {
+                      return template.replace("{count}", String(count));
+                    }
+                    return `${count} selected`;
+                  }}
+                  labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                  labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                  labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                  labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                />
+                <p className="mt-1 text-xs text-base-content/60">
+                  {t("js.votes.groupsHint") !== "js.votes.groupsHint"
+                    ? t("js.votes.groupsHint")
+                    : "Members of selected groups can vote."}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
-        {!isNew && item && (
+        {/* Options: show on create (pendingOptions) or on edit (item.options) */}
+        {(isNew || item) && (
           <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
             <h2 className="text-sm font-semibold text-base-content/60">
               {t("js.votes.options") !== "js.votes.options" ? t("js.votes.options") : "Options"}
             </h2>
-            <ul className="mt-2 space-y-2">
-              {item.options.map((opt) => (
-                <li key={opt.id} className="flex items-center justify-between gap-2">
-                  <span>{opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? emptyText)}</span>
-                  {!item.is_finished && item.is_author && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveOption(opt.id)}
-                      className="rounded p-1 text-error hover:bg-error/20"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
-                </li>
-              ))}
+            <ul className="list-group mt-2 divide-y divide-base-300">
+              {isNew
+                ? pendingOptions.map((opt) => (
+                    <li key={opt.id} className="list-group-item flex items-center justify-between gap-2 py-2">
+                      <span>
+                        {opt.odate
+                          ? formatDateShortDisplay(opt.odate, lang)
+                          : (opt.name ?? emptyText)}
+                      </span>
+                      <RemoveOptionButton
+                        onClick={() => removePendingOption(opt.id)}
+                        ariaLabel={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                      />
+                    </li>
+                  ))
+                : item!.options.map((opt) => (
+                    <li key={opt.id} className="list-group-item flex items-center justify-between gap-2 py-2">
+                      <span>{opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? emptyText)}</span>
+                      {!item!.is_finished && item!.is_author && (
+                        <RemoveOptionButton
+                          onClick={() => handleRemoveOption(opt.id)}
+                          ariaLabel={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                        />
+                      )}
+                    </li>
+                  ))}
             </ul>
-            {!item.is_finished && item.is_author && (
-              <div className="mt-4 flex flex-wrap items-end gap-2">
-                {item.is_date ? (
+            {((isNew && !item) || (item && !item.is_finished && item.is_author)) && (
+              <div className="mt-4 space-y-3">
+                {(isNew ? isDate : item!.is_date) ? (
                   <input
-                    type="datetime-local"
-                    value={newOptionDate ? newOptionDate.replace(" ", "T").slice(0, 16) : ""}
-                    onChange={(e) => setNewOptionDate(e.target.value ? e.target.value.replace("T", " ") + ":00" : "")}
-                    className="input input-sm text-base-content"
+                    type="date"
+                    value={newOptionDate ? newOptionDate.slice(0, 10) : ""}
+                    onChange={(e) => {
+                      const val = e.target.value || "";
+                      setNewOptionDate(val);
+                      if (val) {
+                        if (isNew) {
+                          setPendingOptions((prev) => [
+                            ...prev,
+                            { id: crypto.randomUUID(), odate: val + "T00:00:00" },
+                          ]);
+                          setNewOptionDate("");
+                        } else {
+                          handleAddOptionForDate(val);
+                        }
+                      }
+                    }}
+                    className="input input-sm w-full max-w-md text-base-content"
                   />
                 ) : (
-                  <input
-                    type="text"
-                    value={newOptionName}
-                    onChange={(e) => setNewOptionName(e.target.value)}
-                    placeholder={t("js.votes.optionName") !== "js.votes.optionName" ? t("js.votes.optionName") : "Option"}
-                    className="input input-sm text-base-content"
-                  />
+                  <div className="join join-horizontal w-full max-w-md">
+                    <input
+                      type="text"
+                      value={newOptionName}
+                      onChange={(e) => setNewOptionName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          isNew ? addPendingOption() : handleAddOption();
+                        }
+                      }}
+                      placeholder={t("js.votes.optionName") !== "js.votes.optionName" ? t("js.votes.optionName") : "Option"}
+                      className="input input-sm join-item flex-1 text-base-content"
+                    />
+                    <button
+                      type="button"
+                      onClick={isNew ? addPendingOption : handleAddOption}
+                      disabled={!newOptionName.trim()}
+                      className="btn btn-outline btn-sm join-item gap-1 text-base-content"
+                    >
+                      <Plus className="h-4 w-4" />
+                      {t("js.votes.addOption") !== "js.votes.addOption" ? t("js.votes.addOption") : "Add"}
+                    </button>
+                  </div>
                 )}
-                <button
-                  type="button"
-                  onClick={handleAddOption}
-                  className="btn btn-outline btn-sm gap-1 text-base-content"
-                >
-                  <Plus className="h-4 w-4" />
-                  {t("js.votes.addOption") !== "js.votes.addOption" ? t("js.votes.addOption") : "Add"}
-                </button>
-              </div>
-            )}
-            {!item.is_finished && item.is_author && (
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={handleFinish}
-                  className="btn btn-error btn-sm gap-2"
-                >
-                  {t("js.votes.finish") !== "js.votes.finish" ? t("js.votes.finish") : "Finish vote"}
-                </button>
               </div>
             )}
           </div>

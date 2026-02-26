@@ -7,6 +7,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
@@ -20,7 +21,7 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { formatDateTimeShort } from "@/lib/date-time";
-import { ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 
@@ -149,12 +150,28 @@ export default function VotesPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-          {t("js.votes.title") !== "js.votes.title"
-            ? t("js.votes.title")
-            : "Votes"}
-        </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+            {t("js.votes.title") !== "js.votes.title"
+              ? t("js.votes.title")
+              : "Votes"}
+          </h1>
+          <p className="mt-1 text-sm text-base-content/60">
+            {t("js.votes.subtitle") !== "js.votes.subtitle"
+              ? t("js.votes.subtitle")
+              : "Polls and surveys"}
+          </p>
+        </div>
+        <Link
+          href={getEntityPath("vote", "new", "edit")}
+          className="btn btn-primary btn-sm gap-2 shrink-0"
+        >
+          <Plus className="h-4 w-4" />
+          {t("js.votes.addVote") !== "js.votes.addVote"
+            ? t("js.votes.addVote")
+            : "Add Vote"}
+        </Link>
       </div>
 
       {error && (

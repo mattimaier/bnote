@@ -258,6 +258,14 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 /* Participation buttons – light when inactive, saturated border; solid when active */
+/* When pending (unselected), all buttons use neutral grey styling */
+.participation-pending .participation-btn.participation-btn-yes,
+.participation-pending .participation-btn.participation-btn-maybe,
+.participation-pending .participation-btn.participation-btn-no {
+  border-color: color-mix(in oklch, var(--base-content) 15%, transparent) !important;
+  background-color: color-mix(in oklch, var(--base-content) 5%, transparent) !important;
+  color: var(--base-content) !important;
+}
 .participation-btn {
   border-width: 1px !important;
   transform-origin: center;
@@ -329,6 +337,16 @@ input[type="search"]::-webkit-search-results-decoration {
   background-color: var(--accent);
   color: white;
 }
+.filter-bubble-vote {
+  border-color: color-mix(in oklch, #a855f7 20%, transparent);
+  background-color: color-mix(in oklch, #a855f7 10%, transparent);
+  color: #a855f7;
+}
+.filter-bubble-vote.selected {
+  border-color: #a855f7;
+  background-color: #a855f7;
+  color: white;
+}
 
 /* Event type badges – light colors with saturated border.
    .event-badge = rehearsal (primary), .accent = concert, .chart-3 = meeting; see lib/entity-config.ts. */
@@ -354,6 +372,11 @@ input[type="search"]::-webkit-search-results-decoration {
   border-color: color-mix(in oklch, var(--chart-3) 20%, transparent);
   background-color: color-mix(in oklch, var(--chart-3) 10%, transparent);
   color: var(--chart-3);
+}
+.event-badge.event-badge-vote {
+  border-color: color-mix(in oklch, #a855f7 20%, transparent);
+  background-color: color-mix(in oklch, #a855f7 10%, transparent);
+  color: #a855f7;
 }
 
 /* Timeline connector */

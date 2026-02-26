@@ -31,13 +31,15 @@
 // Use BNOTE_ROOT constant from paths.php (loaded by api/index.php)
 require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
 require_once BNOTE_ROOT . '/src/data/modules/nachrichtendata.php';
+require_once BNOTE_ROOT . '/src/data/modules/abstimmungdata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 
 class DashboardModule {
     private $data;
-    
+    private $voteData;
+
     public function __construct() {
         // Check module permission (Start module is usually public, but check anyway)
         global $system_data;
@@ -47,6 +49,7 @@ class DashboardModule {
         }
         
         $this->data = new StartData();
+        $this->voteData = new AbstimmungData();
     }
     
     public function handle() {
@@ -189,10 +192,12 @@ class DashboardModule {
                             $location = ['name' => $locationName];
                         }
                     }
+                } elseif ($otype === 'V') {
+                    $eventName = $item['title'] ?? '';
                 }
             }
-            
-            $formatted[] = [
+
+            $row = [
                 'otype' => $otype,
                 'oid' => $oid,
                 'title' => $eventName,
@@ -206,6 +211,13 @@ class DashboardModule {
                 'location' => $locationName,
                 'locationData' => $location
             ];
+            if ($otype === 'V') {
+                $row['vote_options'] = $item['vote_options'] ?? [];
+                $row['vote_user_choices'] = $item['vote_user_choices'] ?? [];
+                $row['vote_is_date'] = !empty($item['vote_is_date']);
+                $row['vote_is_multi'] = !empty($item['vote_is_multi']);
+            }
+            $formatted[] = $row;
         }
         
         return $formatted;
@@ -273,7 +285,51 @@ class DashboardModule {
                 'status' => $c['status']
             ];
         }
-        
+
+        // Votes: get votes user is entitled to (vote_group), exclude 0-option votes
+        $votesSel = $this->data->getVotesForUser($userId);
+        for ($i = 1; $i < count($votesSel); $i++) {
+            $v = $votesSel[$i];
+            $vid = intval($v['id']);
+            $optCount = $this->voteData->getOptionCount($vid);
+            if ($optCount < 1) {
+                continue;
+            }
+            // For multi-date: only "complete" when user has voted for ALL options
+            $isMultiDate = !empty($v['is_date']) && !empty($v['is_multi']);
+            $participation = $isMultiDate
+                ? ($this->voteData->hasUserVotedForAllOptions($vid, $userId) ? 1 : -1)
+                : ($this->voteData->hasUserVoted($vid, $userId) ? 1 : -1);
+            $options = $this->voteData->getOptions($vid);
+            $optionsList = [];
+            if (is_array($options)) {
+                for ($j = 1; $j < count($options); $j++) {
+                    $row = $options[$j];
+                    $optionsList[] = [
+                        'id' => intval($row['id']),
+                        'name' => $row['name'] ?? '',
+                        'odate' => $row['odate'] ?? null,
+                    ];
+                }
+            }
+            $userChoices = $this->voteData->getUserChoices($vid, $userId);
+            $items[] = [
+                'otype' => 'V',
+                'oid' => $vid,
+                'title' => $v['name'] ?? '',
+                'preview' => $v['name'] ?? '',
+                'due' => Data::convertDateFromDb($v['end']),
+                'eventBegin' => $v['end'],
+                'replyUntil' => $v['end'],
+                'participation' => $participation,
+                'status' => null,
+                'vote_options' => $optionsList,
+                'vote_user_choices' => $userChoices,
+                'vote_is_date' => !empty($v['is_date']),
+                'vote_is_multi' => !empty($v['is_multi']),
+            ];
+        }
+
         return $items;
     }
     
@@ -351,8 +407,14 @@ class DashboardModule {
             $participation = $item['participation'] ?? null;
             $otype = $item['otype'] ?? null;
             
-            // Only include rehearsals and concerts that need response
-            if (($otype === 'R' || $otype === 'C') && $participation === -1) {
+            // Include rehearsals, concerts, and votes that need response
+            if (($otype === 'R' || $otype === 'C' || $otype === 'V') && $participation === -1) {
+                if ($otype === 'V') {
+                    $endRaw = $item['eventBegin'] ?? $item['replyUntil'] ?? null;
+                    if ($endRaw && strtotime($endRaw) < time()) {
+                        continue; // Exclude past votes from Response Needed
+                    }
+                }
                 $eventsNeedingResponse[] = $item;
             }
         }
@@ -390,20 +452,23 @@ class DashboardModule {
         $counts = [
             'rehearsal' => 0,
             'performance' => 0,
-            'meeting' => 0
+            'meeting' => 0,
+            'vote' => 0
         ];
-        
+
         foreach ($events as $event) {
             $otype = $event['otype'] ?? null;
             if ($otype === 'R') {
                 $counts['rehearsal']++;
             } elseif ($otype === 'C') {
                 $counts['performance']++;
+            } elseif ($otype === 'V') {
+                $counts['vote']++;
             } else {
                 $counts['meeting']++;
             }
         }
-        
+
         return $counts;
     }
     
