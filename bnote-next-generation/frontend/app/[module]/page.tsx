@@ -22,6 +22,7 @@ import SearchPage from "@/app/_modules/search/page";
 import SharePage from "@/app/_modules/share/page";
 import NewsPage from "@/app/_modules/news/page";
 import CalendarPage from "@/app/_modules/calendar/page";
+import BandOverviewPage from "@/app/_modules/band-overview/page";
 
 const MODULE_PAGES: Record<string, () => ReactNode> = {
   dashboard: () => <DashboardPage />,
@@ -39,6 +40,7 @@ const MODULE_PAGES: Record<string, () => ReactNode> = {
   search: () => <SearchPage />,
   share: () => <SharePage />,
   calendar: () => <CalendarPage />,
+  "band-overview": () => <BandOverviewPage />,
 };
 
 const MODULE_KEYS = Object.keys(MODULE_PAGES);

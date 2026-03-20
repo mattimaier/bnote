@@ -22,6 +22,11 @@ export interface SessionUser {
 export interface Session {
   authenticated: boolean;
   user: SessionUser | null;
+  isAdmin?: boolean;
+}
+
+export function isAdmin(session: Session | null): boolean {
+  return Boolean(session?.isAdmin);
 }
 
 export async function checkSession(): Promise<Session> {

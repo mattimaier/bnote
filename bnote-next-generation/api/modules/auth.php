@@ -150,14 +150,19 @@ class AuthModule {
         if (!Auth::check()) {
             return [
                 'authenticated' => false,
-                'user' => null
+                'user' => null,
+                'isAdmin' => false
             ];
         }
         
+        global $system_data;
         $userInfo = Auth::getUserInfo();
+        $userId = Auth::getUserId();
+        $isAdmin = $system_data->isUserSuperUser($userId) || $system_data->isUserMemberGroup(1, $userId);
         return [
             'authenticated' => true,
-            'user' => $userInfo
+            'user' => $userInfo,
+            'isAdmin' => $isAdmin
         ];
     }
     
@@ -373,6 +378,28 @@ class AuthModule {
             }
             return $a['id'] <=> $b['id'];
         });
+
+        // Add Band Overview for admins only (synthetic module, not from BNote DB)
+        $userId = Auth::getUserId();
+        $isAdmin = $userId && ($system_data->isUserSuperUser($userId) || $system_data->isUserMemberGroup(1, $userId));
+        if ($isAdmin) {
+            $bandOverview = [
+                'id' => -1,
+                'name' => 'BandOverview',
+                'route' => '/band-overview',
+                'icon' => 'layout-dashboard',
+                'i18n' => 'js.sidebar.bandOverview'
+            ];
+            // Insert after Dashboard (Start) if present
+            $insertIndex = 0;
+            foreach ($modules as $idx => $m) {
+                if (($m['name'] ?? '') === 'Start') {
+                    $insertIndex = $idx + 1;
+                    break;
+                }
+            }
+            array_splice($modules, $insertIndex, 0, [$bandOverview]);
+        }
 
         error_log('getModules: Returning ' . count($modules) . ' modules');
         

@@ -80,6 +80,9 @@ const TABLER_MAP: Record<string, string> = {
   newspaper: "icon-[tabler--news]",
   cake: "icon-[tabler--cake]",
   "calendar-check": "icon-[tabler--calendar-check]",
+  "grip-vertical": "icon-[tabler--grip-vertical]",
+  settings: "icon-[tabler--settings]",
+  "alert-triangle": "icon-[tabler--alert-triangle]",
 };
 
 export interface IconProps {

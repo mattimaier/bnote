@@ -32,6 +32,7 @@
 require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
 require_once BNOTE_ROOT . '/src/data/modules/nachrichtendata.php';
 require_once BNOTE_ROOT . '/src/data/modules/abstimmungdata.php';
+require_once BNOTE_ROOT . '/src/data/modules/aufgabendata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
@@ -68,6 +69,16 @@ class DashboardModule {
                 return $this->respondToEvent();
             case 'completeTask':
                 return $this->completeTask();
+            case 'getAdminOverview':
+                return $this->getAdminOverview();
+            case 'getActivityFeed':
+                return $this->getActivityFeed();
+            case 'getInstruments':
+                return $this->getInstruments();
+            case 'getInstrumentMinimums':
+                return $this->getInstrumentMinimums();
+            case 'setInstrumentMinimums':
+                return $this->setInstrumentMinimums();
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
@@ -716,5 +727,710 @@ class DashboardModule {
         return [
             'news' => $this->data->getNews()
         ];
+    }
+
+    /**
+     * Get activity feed: recent comments (R/C/V) and task creation for the current user.
+     */
+    private function getActivityFeed() {
+        global $system_data;
+        $uid = Auth::getUserId();
+        if (!$uid) {
+            Response::error('Not authenticated', 401);
+        }
+
+        $discussionOn = $system_data->getDynamicConfigParameter('discussion_on') == 1;
+        $items = [];
+
+        if ($discussionOn) {
+            $userRehearsals = $this->getUserRehearsalIds($uid);
+            $userConcerts = $this->getConcertIdsForUser($uid);
+            $userVotes = $this->getVoteIdsForUser($uid);
+
+            $allOids = [];
+            foreach ($userRehearsals as $rid) {
+                $allOids[] = ['otype' => 'R', 'oid' => $rid];
+            }
+            foreach ($userConcerts as $cid) {
+                $allOids[] = ['otype' => 'C', 'oid' => $cid];
+            }
+            foreach ($userVotes as $vid) {
+                $allOids[] = ['otype' => 'V', 'oid' => $vid];
+            }
+
+            if (count($allOids) > 0) {
+                $placeholders = [];
+                $params = [];
+                foreach ($allOids as $row) {
+                    $placeholders[] = '(otype = ? AND oid = ?)';
+                    $params[] = ['s', $row['otype']];
+                    $params[] = ['i', $row['oid']];
+                }
+                $params[] = ['i', 15];
+                $query = "SELECT c.id, c.otype, c.oid, c.author, c.message, c.created_at,
+                          CONCAT(ct.name, ' ', ct.surname) as author_name
+                          FROM comment c
+                          JOIN user u ON c.author = u.id
+                          JOIN contact ct ON u.contact = ct.id
+                          WHERE (" . implode(' OR ', $placeholders) . ")
+                          ORDER BY c.created_at DESC LIMIT ?";
+                $rows = $system_data->dbcon->getSelection($query, $params);
+                if (is_array($rows)) {
+                    for ($i = 1; $i < count($rows); $i++) {
+                        $r = $rows[$i];
+                        $entityTitle = $this->getEntityTitleForActivity($r['otype'], $r['oid']);
+                        $items[] = [
+                            'activity_type' => 'comment',
+                            'id' => (int) $r['id'],
+                            'otype' => $r['otype'],
+                            'oid' => (int) $r['oid'],
+                            'author' => (int) $r['author'],
+                            'author_name' => $r['author_name'] ?? '',
+                            'message' => isset($r['message']) ? urldecode($r['message']) : '',
+                            'created_at' => $r['created_at'] ?? '',
+                            'entity_title' => $entityTitle,
+                        ];
+                    }
+                }
+            }
+        }
+
+        $taskQuery = "SELECT t.id, t.title, t.created_at, CONCAT(ct.name, ' ', ct.surname) as assignee_name
+                      FROM task t
+                      LEFT JOIN contact ct ON t.assigned_to = ct.id
+                      ORDER BY t.created_at DESC LIMIT 5";
+        $taskRows = $system_data->dbcon->getSelection($taskQuery, []);
+        if (is_array($taskRows)) {
+            for ($i = 1; $i < count($taskRows); $i++) {
+                $r = $taskRows[$i];
+                $items[] = [
+                    'activity_type' => 'task_created',
+                    'id' => (int) $r['id'],
+                    'title' => $r['title'] ?? '',
+                    'assignee_name' => $r['assignee_name'] ?? '',
+                    'created_at' => $r['created_at'] ?? '',
+                ];
+            }
+        }
+
+        usort($items, function ($a, $b) {
+            return strcmp($b['created_at'] ?? '', $a['created_at'] ?? '');
+        });
+
+        return ['items' => array_slice($items, 0, 15)];
+    }
+
+    private function getConcertIdsForUser($uid) {
+        $concerts = $this->data->adp()->getFutureConcerts($uid);
+        $ids = [];
+        if (is_array($concerts)) {
+            for ($i = 1; $i < count($concerts); $i++) {
+                $ids[] = (int) ($concerts[$i]['id'] ?? 0);
+            }
+        }
+        return array_filter($ids);
+    }
+
+    private function getVoteIdsForUser($uid) {
+        $votes = $this->data->getVotesForUser($uid);
+        $ids = [];
+        if (is_array($votes)) {
+            for ($i = 1; $i < count($votes); $i++) {
+                $vid = (int) ($votes[$i]['id'] ?? 0);
+                if ($vid > 0) $ids[] = $vid;
+            }
+        }
+        return $ids;
+    }
+
+    private function getEntityTitleForActivity($otype, $oid) {
+        if ($otype === 'R') {
+            $r = $this->data->getRehearsal($oid);
+            return isset($r['name']) ? $r['name'] : "Rehearsal #$oid";
+        }
+        if ($otype === 'C') {
+            $c = $this->data->getConcert($oid);
+            return isset($c['title']) ? $c['title'] : "Concert #$oid";
+        }
+        if ($otype === 'V') {
+            $v = $this->voteData->findByIdNoRef($oid);
+            return isset($v['name']) ? $v['name'] : "Vote #$oid";
+        }
+        return '';
+    }
+
+    /**
+     * Get aggregated admin overview data (admin-only).
+     */
+    private function getAdminOverview() {
+        global $system_data;
+        $uid = Auth::getUserId();
+        if (!$uid) {
+            Response::error('Not authenticated', 401);
+        }
+        if (!$system_data->isUserSuperUser($uid) && !$system_data->isUserMemberGroup(1, $uid)) {
+            Response::error('Admin access required', 403);
+        }
+
+        $participationGaps = $this->getAdminParticipationGaps($uid);
+        $missedDeadlines = $this->getAdminMissedDeadlines($uid);
+        $votesSummary = $this->getAdminVotesSummary();
+        $tasksOverview = $this->getAdminTasksOverview();
+        $cancellations = $this->getAdminCancellations($uid);
+        $instrumentGaps = $this->getAdminInstrumentGaps($uid);
+        $pendingInvitations = $this->getAdminPendingInvitations($uid);
+        $upcomingEvents = $this->getAdminUpcomingEvents($uid);
+
+        $actionNeeded = count($participationGaps['events'])
+            + count($votesSummary['votes_closing_soon'])
+            + count($missedDeadlines['events'])
+            + $cancellations['total_count']
+            + $tasksOverview['overdue_count']
+            + $tasksOverview['open_count'];
+
+        return [
+            'participation_gaps' => $participationGaps,
+            'missed_deadlines' => $missedDeadlines,
+            'votes_summary' => $votesSummary,
+            'tasks_overview' => $tasksOverview,
+            'cancellations' => $cancellations,
+            'instrument_gaps' => $instrumentGaps,
+            'pending_invitations' => $pendingInvitations,
+            'upcoming_events' => $upcomingEvents,
+            'action_needed_count' => $actionNeeded,
+        ];
+    }
+
+    private function getAdminParticipationGaps($uid) {
+        global $system_data;
+        $events = [];
+        $threshold = 0.5; // low yes-rate threshold
+
+        $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
+        for ($i = 1; $i < count($allRehearsals); $i++) {
+            $r = $allRehearsals[$i];
+            $rid = (int) ($r['id'] ?? 0);
+            if (!$rid) continue;
+            $stats = $this->getParticipationStatsForRehearsal($rid);
+            $pending = (int) ($stats['pending'] ?? 0);
+            $yes = (int) ($stats['yes'] ?? 0);
+            $total = (int) ($stats['total'] ?? 0);
+            $lowYes = $total > 0 && ($yes / $total) < $threshold;
+            if ($pending > 0 || $lowYes) {
+                $events[] = [
+                    'id' => $rid,
+                    'otype' => 'R',
+                    'title' => Lang::txt('StartData_inboxItems.rehearsalOn') . ' ' . Data::convertDateFromDb($r['begin'] ?? ''),
+                    'begin' => $r['begin'] ?? '',
+                    'approve_until' => $r['approve_until'] ?? null,
+                    'participation_stats' => $stats,
+                ];
+            }
+        }
+
+        $allConcerts = $this->data->adp()->getFutureConcerts($uid);
+        for ($i = 1; $i < count($allConcerts); $i++) {
+            $c = $allConcerts[$i];
+            $cid = (int) ($c['id'] ?? 0);
+            if (!$cid) continue;
+            $stats = $this->getParticipationStatsForConcert($cid);
+            $pending = (int) ($stats['pending'] ?? 0);
+            $yes = (int) ($stats['yes'] ?? 0);
+            $total = (int) ($stats['total'] ?? 0);
+            $lowYes = $total > 0 && ($yes / $total) < $threshold;
+            if ($pending > 0 || $lowYes) {
+                $events[] = [
+                    'id' => $cid,
+                    'otype' => 'C',
+                    'title' => ($c['title'] ?? '') . ' – ' . Data::convertDateFromDb($c['begin'] ?? ''),
+                    'begin' => $c['begin'] ?? '',
+                    'approve_until' => $c['approve_until'] ?? null,
+                    'participation_stats' => $stats,
+                ];
+            }
+        }
+
+        usort($events, function ($a, $b) {
+            return strcmp($a['begin'] ?? '', $b['begin'] ?? '');
+        });
+
+        return ['count' => count($events), 'events' => array_slice($events, 0, 10)];
+    }
+
+    private function getAdminMissedDeadlines($uid) {
+        global $system_data;
+        $now = date('Y-m-d H:i:s');
+        $events = [];
+
+        $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
+        for ($i = 1; $i < count($allRehearsals); $i++) {
+            $r = $allRehearsals[$i];
+            $approveUntil = $r['approve_until'] ?? null;
+            if (!$approveUntil) continue;
+            if ($approveUntil >= $now) continue;
+            $rid = (int) ($r['id'] ?? 0);
+            $stats = $this->getParticipationStatsForRehearsal($rid);
+            if ((int) ($stats['pending'] ?? 0) > 0) {
+                $events[] = [
+                    'id' => $rid,
+                    'otype' => 'R',
+                    'title' => Lang::txt('StartData_inboxItems.rehearsalOn') . ' ' . Data::convertDateFromDb($r['begin'] ?? ''),
+                    'begin' => $r['begin'] ?? '',
+                    'approve_until' => $approveUntil,
+                ];
+            }
+        }
+
+        $allConcerts = $this->data->adp()->getFutureConcerts($uid);
+        for ($i = 1; $i < count($allConcerts); $i++) {
+            $c = $allConcerts[$i];
+            $approveUntil = $c['approve_until'] ?? null;
+            if (!$approveUntil) continue;
+            if ($approveUntil >= $now) continue;
+            $cid = (int) ($c['id'] ?? 0);
+            $stats = $this->getParticipationStatsForConcert($cid);
+            if ((int) ($stats['pending'] ?? 0) > 0) {
+                $events[] = [
+                    'id' => $cid,
+                    'otype' => 'C',
+                    'title' => ($c['title'] ?? '') . ' – ' . Data::convertDateFromDb($c['begin'] ?? ''),
+                    'begin' => $c['begin'] ?? '',
+                    'approve_until' => $approveUntil,
+                ];
+            }
+        }
+
+        usort($events, function ($a, $b) {
+            return strcmp($a['approve_until'] ?? '', $b['approve_until'] ?? '');
+        });
+
+        return ['count' => count($events), 'events' => array_slice($events, 0, 10)];
+    }
+
+    private function getAdminVotesSummary() {
+        $votesSel = $this->voteData->getAllActiveVotes();
+        $openVotes = [];
+        $closingSoon = [];
+        $now = time();
+        $closingSoonCutoff = $now + 48 * 3600;
+
+        if (is_array($votesSel)) {
+            for ($i = 1; $i < count($votesSel); $i++) {
+                $v = $votesSel[$i];
+                $end = $v['end'] ?? null;
+                if (!$end) continue;
+                $endTs = strtotime($end);
+                if ($endTs <= $now) continue;
+                $vid = (int) ($v['id'] ?? 0);
+                $entry = [
+                    'id' => $vid,
+                    'name' => $v['name'] ?? '',
+                    'end' => $end,
+                ];
+                $openVotes[] = $entry;
+                if ($endTs <= $closingSoonCutoff) {
+                    $closingSoon[] = $entry;
+                }
+            }
+        }
+
+        return [
+            'open_count' => count($openVotes),
+            'open_votes' => $openVotes,
+            'votes_closing_soon' => $closingSoon,
+        ];
+    }
+
+    private function getAdminTasksOverview() {
+        $taskData = new AufgabenData();
+        $rows = $taskData->getTasks(true);
+        $openCount = 0;
+        $overdueCount = 0;
+        $now = date('Y-m-d H:i:s');
+
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $t = $rows[$i];
+                $openCount++;
+                $dueAt = $t['due_at'] ?? null;
+                if ($dueAt && $dueAt !== '-' && $dueAt < $now) {
+                    $overdueCount++;
+                }
+            }
+        }
+
+        return [
+            'open_count' => $openCount,
+            'overdue_count' => $overdueCount,
+        ];
+    }
+
+    private function getAdminCancellations($uid) {
+        global $system_data;
+        $totalCount = 0;
+
+        $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
+        for ($i = 1; $i < count($allRehearsals); $i++) {
+            $r = $allRehearsals[$i];
+            $stats = $this->getParticipationStatsForRehearsal((int) ($r['id'] ?? 0));
+            $totalCount += (int) ($stats['no'] ?? 0);
+        }
+
+        $allConcerts = $this->data->adp()->getFutureConcerts($uid);
+        for ($i = 1; $i < count($allConcerts); $i++) {
+            $c = $allConcerts[$i];
+            $stats = $this->getParticipationStatsForConcert((int) ($c['id'] ?? 0));
+            $totalCount += (int) ($stats['no'] ?? 0);
+        }
+
+        return [
+            'total_count' => $totalCount,
+        ];
+    }
+
+    private function getAdminInstrumentGaps($uid) {
+        global $system_data;
+        $minimums = $this->getInstrumentMinimumsFromConfig();
+        if (empty($minimums)) {
+            return ['count' => 0, 'events' => []];
+        }
+
+        $eventsWithGaps = [];
+        $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
+        for ($i = 1; $i < count($allRehearsals); $i++) {
+            $r = $allRehearsals[$i];
+            $gaps = $this->getInstrumentGapsForRehearsal((int) ($r['id'] ?? 0), $minimums);
+            if (!empty($gaps)) {
+                $eventsWithGaps[] = [
+                    'id' => (int) ($r['id'] ?? 0),
+                    'otype' => 'R',
+                    'title' => Lang::txt('StartData_inboxItems.rehearsalOn') . ' ' . Data::convertDateFromDb($r['begin'] ?? ''),
+                    'begin' => $r['begin'] ?? '',
+                    'gaps' => $gaps,
+                ];
+            }
+        }
+
+        $allConcerts = $this->data->adp()->getFutureConcerts($uid);
+        for ($i = 1; $i < count($allConcerts); $i++) {
+            $c = $allConcerts[$i];
+            $gaps = $this->getInstrumentGapsForConcert((int) ($c['id'] ?? 0), $minimums);
+            if (!empty($gaps)) {
+                $eventsWithGaps[] = [
+                    'id' => (int) ($c['id'] ?? 0),
+                    'otype' => 'C',
+                    'title' => ($c['title'] ?? '') . ' – ' . Data::convertDateFromDb($c['begin'] ?? ''),
+                    'begin' => $c['begin'] ?? '',
+                    'gaps' => $gaps,
+                ];
+            }
+        }
+
+        return ['count' => count($eventsWithGaps), 'events' => array_slice($eventsWithGaps, 0, 10)];
+    }
+
+    private function getInstrumentMinimumsFromConfig() {
+        global $system_data;
+        $val = $system_data->getDynamicConfigParameter('instrument_minimums');
+        if (!$val) return [];
+        $decoded = json_decode($val, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Get list of instruments (id, name). Available to any authenticated user.
+     */
+    private function getInstruments() {
+        global $system_data;
+        if (!Auth::check()) {
+            Response::error('Not authenticated', 401);
+        }
+        $query = "SELECT id, name FROM instrument ORDER BY name ASC";
+        $rows = $system_data->dbcon->getSelection($query, []);
+        $list = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $r = $rows[$i];
+                $list[] = ['id' => (int) ($r['id'] ?? 0), 'name' => $r['name'] ?? ''];
+            }
+        }
+        return ['instruments' => $list];
+    }
+
+    /**
+     * Get instrument minimums config. Available to any authenticated user.
+     */
+    private function getInstrumentMinimums() {
+        if (!Auth::check()) {
+            Response::error('Not authenticated', 401);
+        }
+        $minimums = $this->getInstrumentMinimumsFromConfig();
+        return ['minimums' => $minimums];
+    }
+
+    /**
+     * Set instrument minimums (admin-only). Expects POST body: { minimums: { [instrumentId]: minimum } }
+     */
+    private function setInstrumentMinimums() {
+        global $system_data;
+        $uid = Auth::getUserId();
+        if (!$uid) {
+            Response::error('Not authenticated', 401);
+        }
+        if (!$system_data->isUserSuperUser($uid) && !$system_data->isUserMemberGroup(1, $uid)) {
+            Response::error('Admin access required', 403);
+        }
+        $rawInput = file_get_contents('php://input');
+        $data = $rawInput ? json_decode($rawInput, true) : $_POST;
+        $minimums = $data['minimums'] ?? [];
+        if (!is_array($minimums)) {
+            $minimums = [];
+        }
+        $sanitized = [];
+        foreach ($minimums as $instId => $min) {
+            $id = is_numeric($instId) ? intval($instId) : 0;
+            $val = is_numeric($min) ? intval($min) : 0;
+            if ($id > 0 && $val >= 0) {
+                $sanitized[(string) $id] = $val;
+            }
+        }
+        $json = json_encode($sanitized);
+        $existing = $system_data->dbcon->colValue(
+            "SELECT value FROM configuration WHERE param = ?",
+            "value",
+            [['s', 'instrument_minimums']]
+        );
+        if ($existing !== null && $existing !== false) {
+            $system_data->dbcon->execute(
+                "UPDATE configuration SET value = ? WHERE param = ?",
+                [['s', $json], ['s', 'instrument_minimums']]
+            );
+        } else {
+            $system_data->dbcon->prepStatement(
+                "INSERT INTO configuration (param, value, is_active) VALUES (?, ?, 1)",
+                [['s', 'instrument_minimums'], ['s', $json]]
+            );
+        }
+        $system_data->cfg_dynamic = null;
+        return ['success' => true, 'minimums' => $sanitized];
+    }
+
+    private function getInstrumentGapsForRehearsal($rid, $minimums) {
+        global $system_data;
+        $query = "SELECT i.id as instrument_id, i.name as instrument_name,
+                  SUM(CASE WHEN ru.participate IN (1,2) THEN 1 ELSE 0 END) as attending
+                  FROM rehearsal_contact rc
+                  JOIN contact ct ON rc.contact = ct.id
+                  LEFT JOIN instrument i ON ct.instrument = i.id
+                  LEFT JOIN user u ON u.contact = ct.id
+                  LEFT JOIN rehearsal_user ru ON ru.user = u.id AND ru.rehearsal = ?
+                  WHERE rc.rehearsal = ?
+                  GROUP BY i.id, i.name";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $rid], ['i', $rid]]);
+        $gaps = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                $instId = (int) ($row['instrument_id'] ?? 0);
+                if ($instId <= 0) continue;
+                $min = isset($minimums[$instId]) ? (int) $minimums[$instId] : null;
+                if ($min === null || $min <= 0) continue;
+                $attending = (int) ($row['attending'] ?? 0);
+                if ($attending < $min) {
+                    $gaps[] = [
+                        'instrument_id' => $instId,
+                        'instrument_name' => $row['instrument_name'] ?? '',
+                        'current' => $attending,
+                        'minimum' => $min,
+                    ];
+                }
+            }
+        }
+        return $gaps;
+    }
+
+    private function getInstrumentGapsForConcert($cid, $minimums) {
+        global $system_data;
+        $query = "SELECT i.id as instrument_id, i.name as instrument_name,
+                  SUM(CASE WHEN cu.participate IN (1,2) THEN 1 ELSE 0 END) as attending
+                  FROM concert_contact cc
+                  JOIN contact ct ON cc.contact = ct.id
+                  LEFT JOIN instrument i ON ct.instrument = i.id
+                  LEFT JOIN user u ON u.contact = ct.id
+                  LEFT JOIN concert_user cu ON cu.user = u.id AND cu.concert = ?
+                  WHERE cc.concert = ?
+                  GROUP BY i.id, i.name";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $cid], ['i', $cid]]);
+        $gaps = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                $instId = (int) ($row['instrument_id'] ?? 0);
+                if ($instId <= 0) continue;
+                $min = isset($minimums[$instId]) ? (int) $minimums[$instId] : null;
+                if ($min === null || $min <= 0) continue;
+                $attending = (int) ($row['attending'] ?? 0);
+                if ($attending < $min) {
+                    $gaps[] = [
+                        'instrument_id' => $instId,
+                        'instrument_name' => $row['instrument_name'] ?? '',
+                        'current' => $attending,
+                        'minimum' => $min,
+                    ];
+                }
+            }
+        }
+        return $gaps;
+    }
+
+    private function getAdminPendingInvitations($uid) {
+        global $system_data;
+        $events = [];
+        $totalMembers = 0;
+
+        $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
+        for ($i = 1; $i < count($allRehearsals); $i++) {
+            $r = $allRehearsals[$i];
+            $rid = (int) ($r['id'] ?? 0);
+            $pending = $this->getPendingUsersForRehearsal($rid);
+            if (!empty($pending)) {
+                $events[] = [
+                    'id' => $rid,
+                    'otype' => 'R',
+                    'title' => Lang::txt('StartData_inboxItems.rehearsalOn') . ' ' . Data::convertDateFromDb($r['begin'] ?? ''),
+                    'begin' => $r['begin'] ?? '',
+                    'pending_users' => $pending,
+                ];
+                $totalMembers += count($pending);
+            }
+        }
+
+        $allConcerts = $this->data->adp()->getFutureConcerts($uid);
+        for ($i = 1; $i < count($allConcerts); $i++) {
+            $c = $allConcerts[$i];
+            $cid = (int) ($c['id'] ?? 0);
+            $pending = $this->getPendingUsersForConcert($cid);
+            if (!empty($pending)) {
+                $events[] = [
+                    'id' => $cid,
+                    'otype' => 'C',
+                    'title' => ($c['title'] ?? '') . ' – ' . Data::convertDateFromDb($c['begin'] ?? ''),
+                    'begin' => $c['begin'] ?? '',
+                    'pending_users' => $pending,
+                ];
+                $totalMembers += count($pending);
+            }
+        }
+
+        usort($events, function ($a, $b) {
+            return strcmp($a['begin'] ?? '', $b['begin'] ?? '');
+        });
+
+        return [
+            'count' => count($events),
+            'total_members' => $totalMembers,
+            'events' => array_slice($events, 0, 10),
+        ];
+    }
+
+    private function getPendingUsersForRehearsal($rid) {
+        global $system_data;
+        $query = "SELECT u.id, CONCAT(ct.name, ' ', ct.surname) as name
+                  FROM rehearsal_contact rc
+                  JOIN contact ct ON rc.contact = ct.id
+                  JOIN user u ON u.contact = ct.id
+                  LEFT JOIN rehearsal_user ru ON ru.user = u.id AND ru.rehearsal = ?
+                  WHERE rc.rehearsal = ? AND (ru.participate IS NULL OR ru.participate < 0)";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $rid], ['i', $rid]]);
+        $list = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $r = $rows[$i];
+                $list[] = ['id' => (int) $r['id'], 'name' => $r['name'] ?? ''];
+            }
+        }
+        return $list;
+    }
+
+    private function getPendingUsersForConcert($cid) {
+        global $system_data;
+        $query = "SELECT u.id, CONCAT(ct.name, ' ', ct.surname) as name
+                  FROM concert_contact cc
+                  JOIN contact ct ON cc.contact = ct.id
+                  JOIN user u ON u.contact = ct.id
+                  LEFT JOIN concert_user cu ON cu.user = u.id AND cu.concert = ?
+                  WHERE cc.concert = ? AND (cu.participate IS NULL OR cu.participate < 0)";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $cid], ['i', $cid]]);
+        $list = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $r = $rows[$i];
+                $list[] = ['id' => (int) $r['id'], 'name' => $r['name'] ?? ''];
+            }
+        }
+        return $list;
+    }
+
+    private function getAdminUpcomingEvents($uid) {
+        $allInbox = $this->getAllInboxItems();
+        $formatted = $this->formatInboxItems($allInbox);
+        usort($formatted, function ($a, $b) {
+            $da = $a['eventBegin'] ?? $a['replyUntil'] ?? '';
+            $db = $b['eventBegin'] ?? $b['replyUntil'] ?? '';
+            return strcmp($da, $db);
+        });
+        return ['events' => array_slice($formatted, 0, 7)];
+    }
+
+    private function getParticipationStatsForRehearsal($rehearsalId) {
+        global $system_data;
+        if (!$rehearsalId || !is_numeric($rehearsalId)) {
+            return ['yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0, 'total' => 0];
+        }
+        $rid = intval($rehearsalId);
+        $query = "SELECT
+                    SUM(CASE WHEN ru.participate = 1 THEN 1 ELSE 0 END) as yes,
+                    SUM(CASE WHEN ru.participate = 2 THEN 1 ELSE 0 END) as maybe,
+                    SUM(CASE WHEN ru.participate = 0 THEN 1 ELSE 0 END) as no,
+                    SUM(CASE WHEN ru.participate IS NULL OR ru.participate < 0 THEN 1 ELSE 0 END) as pending
+                  FROM rehearsal_contact rc
+                  JOIN contact ct ON rc.contact = ct.id
+                  JOIN user u ON u.contact = ct.id
+                  LEFT JOIN rehearsal_user ru ON ru.user = u.id AND ru.rehearsal = ?
+                  WHERE rc.rehearsal = ?";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $rid], ['i', $rid]]);
+        $row = is_array($rows) && isset($rows[1]) ? $rows[1] : null;
+        $yes = isset($row['yes']) ? intval($row['yes']) : 0;
+        $maybe = isset($row['maybe']) ? intval($row['maybe']) : 0;
+        $no = isset($row['no']) ? intval($row['no']) : 0;
+        $pending = isset($row['pending']) ? intval($row['pending']) : 0;
+        $total = $yes + $maybe + $no + $pending;
+        return ['yes' => $yes, 'maybe' => $maybe, 'no' => $no, 'pending' => $pending, 'total' => $total];
+    }
+
+    private function getParticipationStatsForConcert($concertId) {
+        global $system_data;
+        if (!$concertId || !is_numeric($concertId)) {
+            return ['yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0, 'total' => 0];
+        }
+        $cid = intval($concertId);
+        $query = "SELECT
+                    SUM(CASE WHEN cu.participate = 1 THEN 1 ELSE 0 END) as yes,
+                    SUM(CASE WHEN cu.participate = 2 THEN 1 ELSE 0 END) as maybe,
+                    SUM(CASE WHEN cu.participate = 0 THEN 1 ELSE 0 END) as no,
+                    SUM(CASE WHEN cu.participate IS NULL OR cu.participate < 0 THEN 1 ELSE 0 END) as pending
+                  FROM concert_contact cc
+                  JOIN contact ct ON cc.contact = ct.id
+                  JOIN user u ON u.contact = ct.id
+                  LEFT JOIN concert_user cu ON cu.user = u.id AND cu.concert = ?
+                  WHERE cc.concert = ?";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $cid], ['i', $cid]]);
+        $row = is_array($rows) && isset($rows[1]) ? $rows[1] : null;
+        $yes = isset($row['yes']) ? intval($row['yes']) : 0;
+        $maybe = isset($row['maybe']) ? intval($row['maybe']) : 0;
+        $no = isset($row['no']) ? intval($row['no']) : 0;
+        $pending = isset($row['pending']) ? intval($row['pending']) : 0;
+        $total = $yes + $maybe + $no + $pending;
+        return ['yes' => $yes, 'maybe' => $maybe, 'no' => $no, 'pending' => $pending, 'total' => $total];
     }
 }
