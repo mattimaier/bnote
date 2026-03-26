@@ -60,6 +60,8 @@ import { DETAIL_SECTION_CLASS } from "@/components/DetailSection";
 import { DatePicker } from "@/components/DatePicker";
 import { EntityLink } from "@/components/EntityLink";
 import { useEventDetailData } from "@/lib/entities/event/useEventDetailData";
+import { EventParticipationShareModal } from "@/components/entities/event/EventParticipationShareModal";
+import { normalizeCompany } from "@/lib/dashboard-utils";
 
 export interface EventDetailProps {
   type?: string;
@@ -93,6 +95,8 @@ export function EventDetail({
     t
   );
   const [isEditing, setIsEditing] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [configuredBandName, setConfiguredBandName] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [form, setForm] = useState<EventDetailForm | null>(null);
@@ -272,6 +276,24 @@ export function EventDetail({
       }
     };
   }, [isEditing, saving, setEditingBar, clearEditingBar, isNew]);
+  const appName = t("js.common.appName") !== "js.common.appName" ? t("js.common.appName") : "BNote";
+  useEffect(() => {
+    if (!ready) return;
+    let cancelled = false;
+    api
+      .get<{ company?: unknown }>("auth", "getPublicConfig")
+      .then((config) => {
+        if (cancelled) return;
+        const normalized = normalizeCompany(config?.company);
+        setConfiguredBandName(normalized || appName);
+      })
+      .catch(() => {
+        if (!cancelled) setConfiguredBandName(appName);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, appName]);
 
   if (!ready || loading) {
     return (
@@ -339,6 +361,7 @@ export function EventDetail({
   const displayType: EventDisplayType = type === "concert" ? "performance" : (type as EventDisplayType);
   const eventTypeConfig = getEventTypeConfig(displayType, t);
   const EventIcon = getIcon(eventTypeConfig.icon);
+  const ShareIcon = getIcon("share");
 
   const statusLabel =
     status === "confirmed"
@@ -373,6 +396,7 @@ export function EventDetail({
   const isPastEvent = eventEnd ? eventEnd.getTime() < now.getTime() : false;
   const isPastDeadline = deadlineDate ? deadlineDate.getTime() < now.getTime() : false;
   const participationDisabled = isPastEvent || isPastDeadline;
+  const shareBandName = configuredBandName || appName;
 
   const buildForm = () => {
     const participantRows: EditableParticipant[] =
@@ -622,6 +646,20 @@ export function EventDetail({
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center md:justify-end">
             {canEdit && !isEditing && <DetailEditButton onClick={startEdit} />}
+            {!isEditing && participationStats && (participationStats.total ?? 0) > 0 && (
+              <button
+                type="button"
+                className="btn btn-soft btn-primary"
+                onClick={() => setShareModalOpen(true)}
+              >
+                <ShareIcon className="h-4 w-4" />
+                <span>
+                  {t("js.event.share.button") !== "js.event.share.button"
+                    ? t("js.event.share.button")
+                    : "Share overview"}
+                </span>
+              </button>
+            )}
             {!isEditing && (type === "rehearsal" || type === "concert") && (
               <div className="sm:ml-auto">
                 <ParticipationWidget
@@ -1402,6 +1440,26 @@ export function EventDetail({
         </div>
       )}
       {renderAfterContent}
+      {participationStats && participantsByInstrument && participantsByInstrument.length > 0 && (
+        <EventParticipationShareModal
+          open={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          title={title}
+          bandName={shareBandName}
+          eventBadgeLabel={eventTypeConfig.label}
+          eventBadgeClassName={eventTypeConfig.badgeClass}
+          fileDateIso={typeof begin === "string" && begin.length >= 10 ? begin.slice(0, 10) : new Date().toISOString().slice(0, 10)}
+          fileEventType={eventTypeConfig.label}
+          fileLocation={locationName || "Location"}
+          locale={lang}
+          dateText={dateStr}
+          timeText={`${timeStr}${endTimeStr ? ` - ${endTimeStr}` : ""}`}
+          locationText={type === "rehearsal" ? undefined : locationName}
+          stats={participationStats}
+          participantsByInstrument={participantsByInstrument}
+          t={t}
+        />
+      )}
     </div>
   );
 }

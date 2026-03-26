@@ -16,9 +16,10 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  bodyClassName?: string;
 }
 
-export function Modal({ open, onClose, title, children }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyClassName = "" }: ModalProps) {
   const { t } = useI18n();
   const closeLabel = t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close";
 
@@ -68,7 +69,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
               <X className="h-5 w-5" />
             </button>
           </div>
-          <div className="modal-body max-h-[70vh] overflow-y-auto p-4 pt-0">{children}</div>
+          <div className={`modal-body max-h-[70vh] overflow-y-auto p-4 pt-0 ${bodyClassName}`.trim()}>{children}</div>
         </div>
       </div>
     </div>

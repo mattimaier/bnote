@@ -12,7 +12,7 @@ import Link from "next/link";
 import type { ComponentPropsWithoutRef } from "react";
 
 const BASE =
-  "inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-center text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 const VARIANTS = {
   primary:

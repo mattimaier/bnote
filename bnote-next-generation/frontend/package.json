@@ -34,6 +34,7 @@
     "flatpickr": "^4.6.13",
     "flyonui": "^2.4.1",
     "gravatar-url": "^4.0.1",
+    "html-to-image": "^1.11.13",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
