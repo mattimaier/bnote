@@ -168,7 +168,7 @@ function LoginFormInner() {
           <button
             type="submit"
             disabled={loading}
-            className="btn btn-primary btn-block"
+            className="btn btn-primary btn-lg btn-block"
           >
             {loading ? t("js.login.loggingIn") : t("js.login.login")}
           </button>
