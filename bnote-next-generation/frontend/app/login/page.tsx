@@ -193,46 +193,6 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  useEffect(() => {
-    const root = document.documentElement;
-    const body = document.body;
-    const metaThemeColor = document.getElementById("app-theme-color");
-    const previousBodyBackground = body.style.backgroundColor;
-    const previousMetaThemeColor =
-      metaThemeColor?.getAttribute("content") ?? null;
-
-    const applyLoginBackground = () => {
-      const isDark = root.classList.contains("dark");
-      const base200 = getComputedStyle(root)
-        .getPropertyValue("--color-base-200")
-        .trim();
-      const fallback = isDark ? "#2d2e38" : "#f4f6f8";
-
-      body.style.backgroundColor = base200 || fallback;
-      if (metaThemeColor) {
-        metaThemeColor.setAttribute("content", fallback);
-      }
-    };
-
-    applyLoginBackground();
-
-    const observer = new MutationObserver(() => {
-      applyLoginBackground();
-    });
-    observer.observe(root, {
-      attributes: true,
-      attributeFilter: ["class", "data-theme"],
-    });
-
-    return () => {
-      observer.disconnect();
-      body.style.backgroundColor = previousBodyBackground;
-      if (metaThemeColor && previousMetaThemeColor !== null) {
-        metaThemeColor.setAttribute("content", previousMetaThemeColor);
-      }
-    };
-  }, []);
-
   return (
     <I18nProvider>
       <div className="flex min-h-screen items-center justify-center bg-base-200 sm:bg-base-100 px-0 sm:px-4">

@@ -136,6 +136,32 @@
   --sidebar-border: oklch(0.32 0.001 0);
 }
 
+/* Root canvas: keep html/body in sync with theme tokens. */
+html {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Before JS/theme attribute is applied, follow system dark preference. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    background-color: oklch(0.22 0.01 250);
+    color: oklch(0.95 0.01 250);
+    color-scheme: dark;
+  }
+
+  html:not([data-theme]) body {
+    background-color: oklch(0.22 0.01 250);
+    color: oklch(0.95 0.01 250);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -283,9 +309,8 @@
 }
 
 body {
-  background: var(--color-base-100);
-  color: var(--color-base-content);
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 @media (max-width: 767px) {

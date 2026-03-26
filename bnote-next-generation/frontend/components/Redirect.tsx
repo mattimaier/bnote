@@ -37,7 +37,7 @@ export function Redirect() {
 
   if (!done) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+      <div className="flex min-h-screen items-center justify-center bg-base-100 text-base-content">
         <Spinner variant="muted" />
       </div>
     );
