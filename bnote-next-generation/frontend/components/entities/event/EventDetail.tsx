@@ -169,8 +169,8 @@ export function EventDetail({
   const shouldEdit = modeProp === "edit" || searchParams.get("edit") === "1";
 
   useEffect(() => {
+    if (!ready || loading || error || !data) return;
     if (!shouldEdit || !canEdit) return;
-    if (!data && !isNew) return;
     if (!isEditing) {
       setForm(buildForm());
       setIsEditing(true);
@@ -178,7 +178,7 @@ export function EventDetail({
         loadMeta();
       }
     }
-  }, [shouldEdit, canEdit, data, isEditing, meta, loadMeta, isNew]);
+  }, [ready, loading, error, shouldEdit, canEdit, data, isEditing, meta, loadMeta]);
 
   useEffect(() => {
     if (shouldEdit || !isEditing) return;
@@ -186,12 +186,6 @@ export function EventDetail({
     setForm(null);
     setSaveError("");
   }, [shouldEdit, isEditing]);
-
-  useEffect(() => {
-    if (isNew && !shouldEdit && typeProp !== undefined && idProp !== undefined) {
-      router.replace(getEntityPath(typeProp, "new", "edit"));
-    }
-  }, [isNew, shouldEdit, typeProp, idProp, router]);
 
   useEffect(() => {
     if (!isEditing || !form || form.manualContactsInitialized || !meta) return;
@@ -307,7 +301,7 @@ export function EventDetail({
     return (
       <div className="w-full max-w-none px-0 py-0 md:max-w-7xl md:mx-auto md:px-4 md:py-3">
         <div className="rounded-lg border border-error bg-error/15 text-error px-4 py-3">
-          {error || "Not found"}
+          {error || (t("js.common.notFound") !== "js.common.notFound" ? t("js.common.notFound") : "Not found")}
         </div>
       </div>
     );
@@ -327,10 +321,18 @@ export function EventDetail({
     (type === "concert" ? t("js.event.performance") : t("js.event.rehearsal"));
   const begin = (data.begin ?? data.date ?? data.event_begin) as string | undefined;
   const end = data.end as string | undefined;
+  const currentBegin = isEditing && form ? fromInputDateTime(form.begin) : begin;
+  const currentEnd = isEditing && form ? fromInputDateTime(form.end) : end;
+  const currentLocationId = isEditing && form ? form.locationId : (loc?.id ?? 0);
+  const currentLocationName = isEditing && form
+    ? (((type === "concert" ? concertMeta?.locations : rehearsalMeta?.locations) ?? []).find(
+        (option) => option.id === currentLocationId
+      )?.name ?? "")
+    : locationName;
   const tba = t("js.event.tba");
-  const dateStr = formatDateShort(begin, lang) ?? tba;
-  const timeStr = formatTimeShort(begin, lang) ?? tba;
-  const endTimeStr = end ? formatTimeShort(end, lang) ?? tba : null;
+  const dateStr = formatDateShort(currentBegin, lang) ?? tba;
+  const timeStr = formatTimeShort(currentBegin, lang) ?? tba;
+  const endTimeStr = currentEnd ? formatTimeShort(currentEnd, lang) ?? tba : null;
   const status = (data.status as string) ?? "planned";
   const approveUntil = data.approve_until as string | undefined;
   const notes = data.notes as string | undefined;
@@ -398,7 +400,7 @@ export function EventDetail({
   const participationDisabled = isPastEvent || isPastDeadline;
   const shareBandName = configuredBandName || appName;
 
-  const buildForm = () => {
+  function buildForm() {
     const participantRows: EditableParticipant[] =
       participantsByInstrument?.flatMap((group) =>
         group.participants
@@ -419,7 +421,7 @@ export function EventDetail({
     );
 
     return {
-      title: safeString(data.title) || "",
+      title: safeString(data?.title) || "",
       begin: toInputDateTime(begin),
       end: toInputDateTime(end),
       approveUntil: toInputDateTime(approveUntil),
@@ -451,7 +453,7 @@ export function EventDetail({
           })) ?? [],
       participants: participantRows,
     };
-  };
+  }
 
   const startEdit = () => {
     setSaveError("");
@@ -473,6 +475,10 @@ export function EventDetail({
     setIsEditing(false);
     setForm(null);
     setSaveError("");
+    if (isNew) {
+      router.replace(type === "rehearsal" ? "/rehearsals" : "/concerts");
+      return;
+    }
     if (typeProp !== undefined && idProp !== undefined) {
       router.replace(getEntityPath(typeProp, idProp, "view"));
     } else {
@@ -566,7 +572,7 @@ export function EventDetail({
         await loadData();
       }
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save");
+      setSaveError(getErrorMessage(err, t, "js.common.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -614,7 +620,7 @@ export function EventDetail({
                     className="text-2xl font-bold rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 min-w-0 flex-1"
                   />
                 ) : (
-                  <h1 className="text-2xl font-bold truncate text-base-content">
+                  <h1 className="text-2xl font-bold text-base-content break-words whitespace-normal leading-tight">
                     {title}
                   </h1>
                 )}
@@ -626,9 +632,9 @@ export function EventDetail({
                 {dateStr} · {timeStr}
                 {endTimeStr ? ` - ${endTimeStr}` : ""}
               </p>
-              {locationName && (
+              {currentLocationName && (
                 <p className="text-sm text-base-content/60">
-                  <EntityLink entityType="location" id={loc?.id} name={locationName} modules={modules} />
+                  <EntityLink entityType="location" id={currentLocationId} name={currentLocationName} modules={modules} />
                 </p>
               )}
             </div>

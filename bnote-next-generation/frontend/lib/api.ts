@@ -54,7 +54,7 @@ export async function apiRequest<T>(
   try {
     json = await res.json();
   } catch {
-    json = { success: false, error: "Invalid response" };
+    json = { success: false, error: "js.common.invalidResponse" };
   }
 
   if (!res.ok || json.success === false) {

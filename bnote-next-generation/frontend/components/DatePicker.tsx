@@ -95,6 +95,11 @@ export function DatePicker({
 }: DatePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const fpRef = useRef<flatpickr.Instance | null>(null);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
     const el = inputRef.current;
@@ -108,13 +113,13 @@ export function DatePicker({
       closeOnSelect: true,
       onChange: (_dates, dateStr, instance) => {
         if (!dateStr) {
-          onChange("");
+          onChangeRef.current("");
           return;
         }
         if (mode === "datetime" && appendSeconds && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(dateStr)) {
-          onChange(dateStr + ":00");
+          onChangeRef.current(dateStr + ":00");
         } else {
-          onChange(dateStr);
+          onChangeRef.current(dateStr);
         }
         if (mode === "date" || mode === "time") {
           instance.close();

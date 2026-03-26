@@ -21,7 +21,8 @@ import { getIcon } from "@/components/icons";
 import { formatEventDate, formatEventTime } from "@/lib/event-utils";
 import { getEventTypeConfig } from "@/lib/entity-config";
 import { ParticipationDiagram } from "@/components/ParticipationDiagram";
-import { ArrowDown, ArrowUp, ArrowUpDown, Clock, MapPin } from "@/components/icons";
+import { ArrowDown, ArrowUp, ArrowUpDown, Clock, MapPin, Plus } from "@/components/icons";
+import { ActionButton } from "@/components/ActionButton";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PageContent } from "@/components/PageContent";
@@ -140,12 +141,20 @@ export default function RehearsalsPage() {
 
   return (
     <PageContent className="px-1 md:px-4">
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-          {t("js.sidebar.rehearsals") !== "js.sidebar.rehearsals"
-            ? t("js.sidebar.rehearsals")
-            : "Rehearsals"}
-        </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+            {t("js.sidebar.rehearsals") !== "js.sidebar.rehearsals"
+              ? t("js.sidebar.rehearsals")
+              : "Rehearsals"}
+          </h1>
+        </div>
+        <ActionButton href={getEntityPath("rehearsal", "new", "edit")}>
+          <Plus className="h-4 w-4" />
+          {t("js.rehearsals.addRehearsal") !== "js.rehearsals.addRehearsal"
+            ? t("js.rehearsals.addRehearsal")
+            : "Add Rehearsal"}
+        </ActionButton>
       </div>
 
       {error && (

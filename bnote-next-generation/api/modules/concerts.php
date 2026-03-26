@@ -74,6 +74,11 @@ class ConcertsModule {
             $this->requireConcertsModulePermission();
             return $this->updateConcert();
         }
+        
+        if ($action === 'create') {
+            $this->requireConcertsModulePermission();
+            return $this->createConcert();
+        }
 
         // Handle explicit actions if needed in the future
         if ($action) {
@@ -726,6 +731,135 @@ class ConcertsModule {
         return ['success' => true];
     }
 
+    private function createConcert() {
+        global $system_data;
+
+        $payload = $this->getRequestData();
+        $fields = $payload['fields'] ?? [];
+        $values = [
+            'title' => $fields['title'] ?? '',
+            'begin' => $fields['begin'] ?? '',
+            'end' => $fields['end'] ?? '',
+            'meetingtime' => $fields['meetingtime'] ?? '',
+            'approve_until' => $fields['approve_until'] ?? '',
+            'status' => $fields['status'] ?? 'planned',
+            'notes' => $fields['notes'] ?? '',
+            'organizer' => $fields['organizer'] ?? '',
+            'payment' => $fields['payment'] ?? '',
+            'conditions' => $fields['conditions'] ?? '',
+            'location' => $fields['location'] ?? 0,
+            'contact' => $fields['contact'] ?? 0,
+            'program' => $fields['program'] ?? 0,
+            'outfit' => $fields['outfit'] ?? 0,
+            'accommodation' => $fields['accommodation'] ?? 0
+        ];
+
+        if ($values['payment'] === '' || $values['payment'] === null) {
+            $values['payment'] = 0;
+        }
+        if (empty($values['approve_until']) && !empty($values['begin'])) {
+            $values['approve_until'] = $values['begin'];
+        }
+
+        // Legacy KonzertData::validate uses Regex::isText() which rejects " and \ (EditorJS JSON).
+        // Validate with notes/conditions cleared, then restore so insert stores the real values.
+        $notesBackup = $values['notes'];
+        $conditionsBackup = $values['conditions'];
+        $values['notes'] = '';
+        $values['conditions'] = '';
+        $this->data->validate($values);
+        $values['notes'] = $notesBackup;
+        $values['conditions'] = $conditionsBackup;
+
+        $newId = $system_data->dbcon->prepStatement(
+            "INSERT INTO concert (title, begin, end, meetingtime, approve_until, status, notes, organizer, payment, conditions, location, contact, program, outfit, accommodation)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                ['s', $values['title']],
+                ['s', $values['begin']],
+                ['s', $values['end']],
+                ['s', $values['meetingtime']],
+                ['s', $values['approve_until']],
+                ['s', $values['status']],
+                ['s', $values['notes']],
+                ['s', $values['organizer']],
+                ['d', floatval($values['payment'])],
+                ['s', $values['conditions']],
+                ['i', intval($values['location'])],
+                ['i', intval($values['contact'])],
+                ['i', intval($values['program'])],
+                ['i', intval($values['outfit'])],
+                ['i', intval($values['accommodation'])],
+            ]
+        );
+        if (!$newId || intval($newId) <= 0) {
+            Response::error('Failed to create concert', 500);
+        }
+        $newId = intval($newId);
+
+        if (array_key_exists('groups', $payload)) {
+            $groups = array_map('intval', $payload['groups'] ?? []);
+            if (count($groups) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($groups as $groupId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $newId];
+                    $params[] = ['i', $groupId];
+                }
+                $query = "INSERT INTO concert_group (concert, `group`) VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+        }
+
+        if (array_key_exists('equipment', $payload)) {
+            $equipment = array_map('intval', $payload['equipment'] ?? []);
+            if (count($equipment) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($equipment as $equipmentId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $newId];
+                    $params[] = ['i', $equipmentId];
+                }
+                $query = "INSERT INTO concert_equipment (concert, `equipment`) VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+        }
+
+        if (array_key_exists('contacts', $payload)) {
+            $contacts = array_map('intval', $payload['contacts'] ?? []);
+            if (count($contacts) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($contacts as $contactId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $newId];
+                    $params[] = ['i', $contactId];
+                }
+                $query = "INSERT INTO concert_contact VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+        }
+
+        if (array_key_exists('participants', $payload)) {
+            $participants = $payload['participants'] ?? [];
+            foreach ($participants as $participant) {
+                $userId = intval($participant['userId'] ?? 0);
+                if ($userId <= 0) continue;
+                $participate = $participant['participate'] ?? null;
+                if ($participate === null || $participate === '') continue;
+                $participate = intval($participate);
+                $system_data->dbcon->execute(
+                    "INSERT INTO concert_user (participate, user, concert, replyon) VALUES (?, ?, ?, NOW())",
+                    [['i', $participate], ['i', $userId], ['i', $newId]]
+                );
+            }
+        }
+
+        return ['id' => $newId];
+    }
+
     private function getRequestData() {
         $rawInput = file_get_contents('php://input');
         $data = json_decode($rawInput, true);
@@ -742,6 +876,13 @@ class ConcertsModule {
         global $system_data;
         
         $concertId = intval($concertId);
+        
+        // Users with Concerts module permission can always access all concerts.
+        $moduleId = $system_data->getModuleId('Konzerte');
+        if ($moduleId && $system_data->userHasPermission($moduleId)) {
+            $concert = $this->data->findByIdNoRef($concertId);
+            return $concert !== null && count($concert) > 0;
+        }
         
         // Super users see all concerts (past and future)
         if ($system_data->isUserSuperUser($userId)) {

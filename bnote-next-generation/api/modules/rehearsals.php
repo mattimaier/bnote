@@ -71,6 +71,11 @@ class RehearsalsModule {
             $this->requireRehearsalsModulePermission();
             return $this->updateRehearsal();
         }
+        
+        if ($action === 'create') {
+            $this->requireRehearsalsModulePermission();
+            return $this->createRehearsal();
+        }
 
         // Handle explicit actions if needed in the future
         if ($action) {
@@ -644,6 +649,118 @@ class RehearsalsModule {
         return ['success' => true];
     }
 
+    private function createRehearsal() {
+        global $system_data;
+
+        $payload = $this->getRequestData();
+        $fields = $payload['fields'] ?? [];
+        $values = [
+            'begin' => $fields['begin'] ?? '',
+            'end' => $fields['end'] ?? '',
+            'approve_until' => $fields['approve_until'] ?? '',
+            'status' => $fields['status'] ?? 'planned',
+            'notes' => $fields['notes'] ?? '',
+            'location' => $fields['location'] ?? 0,
+            'conductor' => $fields['conductor'] ?? 0
+        ];
+
+        if (empty($values['approve_until']) && !empty($values['begin'])) {
+            $values['approve_until'] = $values['begin'];
+        }
+
+        // Legacy ProbenData::validate uses Regex::isText() which rejects " and \ (EditorJS JSON).
+        // Validate with notes cleared, then restore so insert stores the real value.
+        $notesBackup = $values['notes'];
+        $values['notes'] = '';
+        $this->data->validate($values);
+        $values['notes'] = $notesBackup;
+
+        $newId = $system_data->dbcon->prepStatement(
+            "INSERT INTO rehearsal (begin, end, approve_until, status, notes, location, conductor)
+             VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+                ['s', $values['begin']],
+                ['s', $values['end']],
+                ['s', $values['approve_until']],
+                ['s', $values['status']],
+                ['s', $values['notes']],
+                ['i', intval($values['location'])],
+                ['i', intval($values['conductor'])],
+            ]
+        );
+        if (!$newId || intval($newId) <= 0) {
+            Response::error('Failed to create rehearsal', 500);
+        }
+        $newId = intval($newId);
+
+        if (array_key_exists('groups', $payload)) {
+            $groups = array_map('intval', $payload['groups'] ?? []);
+            if (count($groups) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($groups as $groupId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $newId];
+                    $params[] = ['i', $groupId];
+                }
+                $query = "INSERT INTO rehearsal_group (rehearsal, `group`) VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+        }
+
+        if (array_key_exists('contacts', $payload)) {
+            $contacts = array_map('intval', $payload['contacts'] ?? []);
+            if (count($contacts) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($contacts as $contactId) {
+                    $tuples[] = "(?, ?)";
+                    $params[] = ['i', $newId];
+                    $params[] = ['i', $contactId];
+                }
+                $query = "INSERT INTO rehearsal_contact VALUES " . join(",", $tuples);
+                $system_data->dbcon->execute($query, $params);
+            }
+        }
+
+        if (array_key_exists('songs', $payload)) {
+            $songs = $payload['songs'] ?? [];
+            if (count($songs) > 0) {
+                $tuples = [];
+                $params = [];
+                foreach ($songs as $song) {
+                    $songId = intval($song['id'] ?? 0);
+                    if ($songId <= 0) continue;
+                    $tuples[] = "(?, ?, ?)";
+                    $params[] = ['i', $songId];
+                    $params[] = ['i', $newId];
+                    $params[] = ['s', $song['notes'] ?? ''];
+                }
+                if (count($tuples) > 0) {
+                    $query = "INSERT INTO rehearsal_song (song, rehearsal, notes) VALUES " . join(",", $tuples);
+                    $system_data->dbcon->execute($query, $params);
+                }
+            }
+        }
+
+        if (array_key_exists('participants', $payload)) {
+            $participants = $payload['participants'] ?? [];
+            foreach ($participants as $participant) {
+                $userId = intval($participant['userId'] ?? 0);
+                if ($userId <= 0) continue;
+                $participate = $participant['participate'] ?? null;
+                if ($participate === null || $participate === '') continue;
+                $participate = intval($participate);
+                $system_data->dbcon->execute(
+                    "INSERT INTO rehearsal_user (rehearsal, user, participate, replyon) VALUES (?, ?, ?, NOW())",
+                    [['i', $newId], ['i', $userId], ['i', $participate]]
+                );
+            }
+        }
+
+        return ['id' => $newId];
+    }
+
     private function getRequestData() {
         $rawInput = file_get_contents('php://input');
         $data = json_decode($rawInput, true);
@@ -661,6 +778,13 @@ class RehearsalsModule {
         global $system_data;
         
         $rehearsalId = intval($rehearsalId);
+        
+        // Users with Rehearsals module permission can always access all rehearsals.
+        $moduleId = $system_data->getModuleId('Proben');
+        if ($moduleId && $system_data->userHasPermission($moduleId)) {
+            $rehearsal = $this->data->findByIdNoRef($rehearsalId);
+            return $rehearsal !== null && count($rehearsal) > 0;
+        }
         
         // Super users see all rehearsals (past and future)
         if ($system_data->isUserSuperUser($userId)) {

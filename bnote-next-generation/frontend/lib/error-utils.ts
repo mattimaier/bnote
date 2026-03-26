@@ -16,7 +16,9 @@ export function getErrorMessage(
   fallbackKey: string
 ): string {
   if (err instanceof Error && err.message?.trim()) {
-    return err.message.trim();
+    const raw = err.message.trim();
+    const translated = t(raw);
+    return translated !== raw ? translated : raw;
   }
   const fallback = t(fallbackKey);
   return fallback !== fallbackKey ? fallback : "An error occurred";
