@@ -302,22 +302,22 @@ export default function DashboardContent({
 
   return (
     <div className={PAGE_CONTENT_BASE_CLASS}>
-      <div className="mb-6 pb-4 border-b border-border/30">
+      <div className="mb-4 pb-3 border-b border-border/30 md:mb-6 md:pb-4">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">{greeting}, {firstName}</h1>
         <p className="text-sm font-medium mt-1 text-muted-foreground">{subtitle}</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 md:space-y-4">
         {hasNews && newsHtml && (
           <div
-            className="card card-border shadow-sm rounded-xl overflow-hidden"
+            className="overflow-hidden border-0 rounded-none shadow-none md:card md:card-border md:shadow-sm md:rounded-xl"
             style={{
               borderColor: "color-mix(in oklch, var(--primary) 25%, transparent)",
-              backgroundColor: "color-mix(in oklch, var(--primary) 10%, transparent)",
+              backgroundColor: "color-mix(in oklch, var(--primary) 6%, transparent)",
               color: "var(--color-base-content)",
             }}
           >
-            <div className="card-header px-4 py-3 border-b border-border/30 flex flex-row items-center justify-between gap-3">
+            <div className="px-2 py-2 border-b border-border/20 md:card-header md:px-4 md:py-3 md:border-border/30 flex flex-row items-center justify-between gap-3">
               <h2 className="card-title text-base font-semibold m-0">
                 {t("js.sidebar.news") !== "js.sidebar.news" ? t("js.sidebar.news") : "News"}
               </h2>
@@ -328,21 +328,21 @@ export default function DashboardContent({
               )}
             </div>
             <div
-              className="card-body px-4 py-3 text-base-content/90 rich-text-content"
+              className="px-2 py-2 md:card-body md:px-4 md:py-3 text-base-content/90 rich-text-content"
               dangerouslySetInnerHTML={{ __html: newsHtml }}
             />
           </div>
         )}
 
         {isQuickActionsEnabled() && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 rounded-xl border border-border/40 p-4 shadow-sm bg-card text-card-foreground">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 rounded-none border-0 p-0 shadow-none bg-transparent text-card-foreground md:rounded-xl md:border md:border-border/40 md:p-4 md:shadow-sm md:bg-card">
             {quickActions.map((action) => {
               const Icon = getIcon(action.icon);
               return (
                 <Link
                   key={action.titleKey}
                   href={action.href}
-                  className={`group flex flex-col items-center gap-3 p-4 rounded-lg border border-border/40 transition-all duration-200 hover:border-primary/30 hover:shadow-md hover:bg-primary/5 ${action.colorClass}`}
+                    className={`group flex flex-col items-center gap-2 p-3 md:gap-3 md:p-4 rounded-lg border border-border/20 md:border-border/40 transition-all duration-200 hover:border-primary/30 md:hover:shadow-md hover:bg-primary/5 ${action.colorClass}`}
                 >
                   <div className="p-2 rounded-lg bg-current/10 group-hover:bg-current/15 transition-colors">
                     <Icon className="h-5 w-5" />
@@ -357,18 +357,18 @@ export default function DashboardContent({
           </div>
         )}
 
-        <div className="flex flex-col gap-4 py-2 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-card text-card-foreground md:bg-card">
-          <div className="px-1 md:px-4 lg:px-5 pb-2 md:border-b md:border-border/30">
+        <div className="flex flex-col gap-4 md:gap-4 py-2 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-transparent md:bg-card text-card-foreground">
+          <div className="px-0 md:px-4 lg:px-5 pb-2 md:pb-2 md:border-b md:border-border/30">
             <h2 className="text-sm md:text-base font-semibold text-foreground">{t("js.dashboard.responseNeeded")}</h2>
           </div>
-          <div className="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
+          <div className="px-0 md:px-4 lg:px-5 pb-2 md:pb-3">
             <FilterBubbles
               sectionId="events-needing-response"
               counts={filterCountsNeed}
               unfilteredCounts={{ ...defaultCounts, ...needResponseCounts }}
             />
           </div>
-          <div className="relative space-y-2 md:space-y-3 px-1 md:px-4 lg:px-5">
+          <div className="relative space-y-2 md:space-y-3 px-0 md:px-4 lg:px-5">
             {showNeed.length === 0 ? (
               <p className="text-sm py-8 text-center" style={{ color: "var(--muted-foreground)" }}>
                 {t("js.dashboard.noEventsNeedingResponse") !== "js.dashboard.noEventsNeedingResponse"
@@ -407,18 +407,18 @@ export default function DashboardContent({
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 py-2 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-card text-card-foreground md:bg-card">
-          <div className="px-1 md:px-4 lg:px-5 pb-2 md:border-b md:border-border/30">
+        <div className="flex flex-col gap-4 md:gap-4 py-2 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-transparent md:bg-card text-card-foreground">
+          <div className="px-0 md:px-4 lg:px-5 pb-2 md:pb-2 md:border-b md:border-border/30">
             <h2 className="text-sm md:text-base font-semibold text-foreground">{t("js.dashboard.upcomingEvents")}</h2>
           </div>
-          <div className="px-1 md:px-4 lg:px-5 pb-2 md:pb-3">
+          <div className="px-0 md:px-4 lg:px-5 pb-2 md:pb-3">
             <FilterBubbles
               sectionId="events-timeline"
               counts={filterCountsTimeline}
               unfilteredCounts={{ ...defaultCounts, ...timelineCounts }}
             />
           </div>
-          <div className="relative space-y-2 md:space-y-3 px-1 md:px-4 lg:px-5">
+          <div className="relative space-y-2 md:space-y-3 px-0 md:px-4 lg:px-5">
             {showTimeline.length === 0 ? (
               <p className="text-sm py-8 text-center" style={{ color: "var(--muted-foreground)" }}>
                 {t("js.dashboard.noUpcomingEvents") !== "js.dashboard.noUpcomingEvents" ? t("js.dashboard.noUpcomingEvents") : "No upcoming events scheduled."}

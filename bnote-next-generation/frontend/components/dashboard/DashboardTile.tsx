@@ -75,9 +75,9 @@ export function DashboardTile({
 
   return (
     <div
-      className={`stats stats-vertical shadow stats-border bg-base-100 rounded-box overflow-hidden min-h-[160px] w-full max-w-full ${className}`}
+      className={`stats stats-vertical bg-base-100 border-0 rounded-none shadow-none md:shadow md:stats-border md:rounded-box overflow-hidden min-h-[160px] w-full max-w-full ${className}`}
     >
-      <div className="stat py-4 px-4 md:py-5 md:px-5">
+      <div className="stat py-3 px-3 md:py-5 md:px-5">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {icon && (() => {

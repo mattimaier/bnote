@@ -90,13 +90,13 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
   return (
     <>
       <div className="hidden md:block overflow-x-auto">{children}</div>
-      <div className="md:hidden flex flex-col px-2 pb-3">
+      <div className="md:hidden flex flex-col px-0 pb-3 overflow-x-hidden">
       {sortOptions.length > 0 && onSort && (
-        <div className="flex items-center justify-end gap-2 py-2">
+        <div className="flex items-center justify-end gap-2 px-2 py-2">
           <select
             value={sortKey ?? sortOptions[0]?.key ?? ""}
             onChange={(e) => onSort(e.target.value as TSortKey)}
-            className="input input-sm"
+            className="input input-sm h-8 min-h-8"
           >
             {sortOptions.map((opt) => (
               <option key={opt.key} value={opt.key}>
@@ -108,7 +108,7 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
             <button
               type="button"
               onClick={() => onSort(sortKey)}
-              className="p-1.5 rounded-field transition-opacity hover:opacity-80 text-base-content"
+              className="p-1 rounded-field transition-opacity hover:opacity-80 text-base-content"
               title={sortDir === "asc" ? sortAscTitle : sortDescTitle}
               aria-label={sortDir === "asc" ? sortAscLabel : sortDescLabel}
             >
@@ -126,7 +126,7 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
           {emptyMessage}
         </div>
       ) : (
-        <ul className="list-none p-0 m-0 space-y-0.5">
+        <ul className="list-none p-0 m-0 space-y-1 overflow-x-hidden">
           {rows.map((row, index) => (
             <li
               key={getRowKey(row)}

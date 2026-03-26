@@ -227,19 +227,21 @@ export function EventCard({
 
   const mobileContent = (
     <>
-      <div className="flex items-start gap-2 mb-1.5 px-1">
+      <div className="flex items-start gap-2 mb-2">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-base-content leading-tight mb-1">{dateStr}</p>
           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+            <p className="text-sm font-bold text-base-content leading-tight">{dateStr}</p>
+            <span className={`event-badge ${typeConfig.badgeClass} text-xs`}>{typeConfig.label}</span>
+          </div>
+          <div className="flex items-start gap-1.5 mb-1 flex-wrap">
             {!hideTitleWhenDuplicate && (
-              <h3 className="text-xs font-semibold text-base-content group-hover:text-primary transition-colors">
+              <h3 className="text-sm font-semibold text-base-content group-hover:text-primary transition-colors min-w-0 break-words whitespace-normal leading-snug">
                 {title}
               </h3>
             )}
-            <span className={`event-badge ${typeConfig.badgeClass} text-[10px]`}>{typeConfig.label}</span>
             {isCancelled && (
               <span
-                className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium border"
+                className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
                 style={getStatusPillStyle("cancelled")}
               >
                 {t("js.event.status.cancelled") !== "js.event.status.cancelled"
@@ -249,9 +251,19 @@ export function EventCard({
             )}
           </div>
           {!isVote && (
-            <div className="flex items-center gap-1 text-[10px] text-base-content/80">
-              <Clock className="h-2.5 w-2.5 text-primary/60" />
-              <span>{timeStr}</span>
+            <div className="space-y-0.5 text-sm text-base-content/80">
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-primary/60" />
+                <span>{timeStr}</span>
+              </div>
+              {location !== null && (
+                <div className="flex items-center gap-1.5 text-base-content/70">
+                  <MapPin className="h-3.5 w-3.5 text-primary/50" />
+                  <span className="min-w-0 break-words whitespace-normal leading-snug">
+                    <AddressLink value={location} t={t} renderRawIfNoAddress interactive={false} />
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -288,19 +300,12 @@ export function EventCard({
           </div>
         )}
       </div>
-      {(location !== null || isVote) && !hasVoteWidget && (
-        <div className="flex items-center text-[10px] text-base-content/70 pt-1 px-1">
-          {isVote ? (
-            <span className="flex items-center gap-1">
-              <Clock className="h-2.5 w-2.5 text-primary/50" />
-              {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "Ends"}: {dateStr}
-            </span>
-          ) : (
-            <span className="flex items-center gap-1">
-              <MapPin className="h-2.5 w-2.5 text-primary/50" />
-              <AddressLink value={location!} t={t} renderRawIfNoAddress />
-            </span>
-          )}
+      {isVote && !hasVoteWidget && (
+        <div className="flex items-center text-sm text-base-content/70 pt-1">
+          <span className="flex items-center gap-1">
+            <Clock className="h-3.5 w-3.5 text-primary/50" />
+            {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "Ends"}: {dateStr}
+          </span>
         </div>
       )}
     </>
@@ -310,7 +315,7 @@ export function EventCard({
     <>
       <div className="hidden md:flex relative gap-3 w-full">{desktopContent}</div>
       <div
-        className={`md:hidden relative w-full px-1 transition-all duration-200 group ${!isLast ? "border-b border-base-300/50 pb-2 mb-2" : ""}`}
+        className={`md:hidden relative w-full transition-all duration-200 group ${!isLast ? "border-b border-base-300/50 pb-3 mb-3" : ""}`}
       >
         {mobileContent}
       </div>

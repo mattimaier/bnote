@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         <AppTopbar onOpenMobileNav={() => setMobileNavOpen(true)} />
         {editingBar != null && <EditingBar {...editingBar} />}
-        <main className="flex-1 overflow-y-auto pt-16 px-2 pb-2 md:pt-4 md:px-3 md:py-3 min-h-0">{children}</main>
+        <main className="flex-1 overflow-y-auto pt-2 px-2 pb-2 md:pt-4 md:px-3 md:py-3 min-h-0">{children}</main>
       </div>
       <MobileNavDrawer open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
     </div>

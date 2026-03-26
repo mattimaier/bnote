@@ -358,7 +358,7 @@ function EventsTable({
                   primary={<span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>{dateStr}</span>}
                   badge={
                     <>
-                      <span className="text-sm">{title}</span>
+                      <span className="text-sm min-w-0 break-words whitespace-normal leading-snug">{title}</span>
                       {row.status && (
                         <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(row.status)}>
                           {statusLabelFor(row.status)}
@@ -367,7 +367,7 @@ function EventsTable({
                     </>
                   }
                   secondary={
-                    <>
+                    <span className="flex w-full flex-col gap-0.5">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3 opacity-70" />
                         {timeStr}
@@ -375,10 +375,10 @@ function EventsTable({
                       {loc && loc !== emptyText && (
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3 opacity-70" />
-                          {loc}
+                          <span className="min-w-0 break-words whitespace-normal leading-snug">{loc}</span>
                         </span>
                       )}
-                    </>
+                    </span>
                   }
                   onClick={() => onRowClick(row.id)}
                 />

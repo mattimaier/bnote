@@ -165,7 +165,7 @@ export default function ContactsPage() {
       )}
 
       {/* Group tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 pb-2">
         <button
           type="button"
           onClick={() => setSelectedGroup(null)}
@@ -197,7 +197,7 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      <div className="rounded-box border border-base-300 overflow-hidden bg-base-100 text-base-content">
+      <div className="rounded-none border-0 shadow-none overflow-hidden bg-transparent text-base-content md:rounded-box md:border md:border-base-300 md:bg-base-100">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Spinner />

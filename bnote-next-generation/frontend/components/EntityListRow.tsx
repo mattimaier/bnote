@@ -49,9 +49,9 @@ export function EntityListRow({
       </div>
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 min-w-0">
-          <span className="text-sm font-medium min-w-0 truncate">{primary}</span>
+          <span className="text-sm font-medium min-w-0 break-words whitespace-normal">{primary}</span>
           {badge != null && badge !== false && (
-            <span className="flex-shrink-0 flex flex-wrap items-center gap-1.5">
+            <span className="min-w-0 flex flex-wrap items-center gap-1.5">
               {badge}
             </span>
           )}

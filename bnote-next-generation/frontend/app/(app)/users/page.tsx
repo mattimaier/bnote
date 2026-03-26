@@ -158,7 +158,7 @@ export default function UsersPage() {
         />
       </div>
 
-      <div className="rounded-box border border-base-300 overflow-hidden bg-base-100 text-base-content">
+      <div className="rounded-none border-0 shadow-none overflow-hidden bg-transparent text-base-content md:rounded-box md:border md:border-base-300 md:bg-base-100">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Spinner />

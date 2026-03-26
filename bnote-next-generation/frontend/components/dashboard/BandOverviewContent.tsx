@@ -206,7 +206,7 @@ export function BandOverviewContent({
 
   return (
     <main className={PAGE_CONTENT_BASE_CLASS}>
-      <div className="space-y-8 max-w-6xl mx-auto">
+      <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto">
         {error && (
           <div className="alert alert-error" role="alert">
             <span>{error}</span>
@@ -218,7 +218,7 @@ export function BandOverviewContent({
 
         {session?.isAdmin && adminOverview && (
           <section>
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3 md:mb-4">
               <h2 className="text-xl font-semibold">{t("js.bandOverview.sectionTitle")}</h2>
               <span className="badge badge-soft badge-info">{t("js.bandOverview.admin")}</span>
             </div>
@@ -228,7 +228,7 @@ export function BandOverviewContent({
               onDragEnd={handleDragEnd}
             >
               <SortableContext items={tileOrder} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5 items-start">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5 items-start">
                   {tileOrder.map((tileId) => (
                     <SortableTile key={tileId} id={tileId}>
                       {(handleProps) =>
@@ -250,8 +250,8 @@ export function BandOverviewContent({
         )}
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">{t("js.bandOverview.yourOverview")}</h2>
-          <div className="space-y-6">
+          <h2 className="text-xl font-semibold mb-3 md:mb-4">{t("js.bandOverview.yourOverview")}</h2>
+          <div className="space-y-4 md:space-y-6">
             {Array.isArray(activityFeed) && activityFeed.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium mb-2">{t("js.bandOverview.recentActivity")}</h3>
@@ -283,7 +283,7 @@ export function BandOverviewContent({
               {needResponseEvents.length === 0 ? (
                 <p className="text-sm text-base-content/70">{t("js.common.empty") || "—"}</p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   {needResponseEvents.slice(0, 10).map((ev) => (
                     <EventCard
                       key={`${ev.otype}-${ev.oid}`}
@@ -304,7 +304,7 @@ export function BandOverviewContent({
               {upcomingEvents.length === 0 ? (
                 <p className="text-sm text-base-content/70">{t("js.common.empty") || "—"}</p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   {upcomingEvents.slice(0, 7).map((ev) => (
                     <EventCard
                       key={`${ev.otype}-${ev.oid}`}

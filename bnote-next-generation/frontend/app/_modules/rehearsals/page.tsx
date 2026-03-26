@@ -368,7 +368,7 @@ function EventsTable({
                     </span>
                   ) : undefined}
                   secondary={
-                    <>
+                    <span className="flex w-full flex-col gap-0.5">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3 opacity-70" />
                         {timeStr}
@@ -376,10 +376,10 @@ function EventsTable({
                       {loc && loc !== emptyText && (
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3 opacity-70" />
-                          {loc}
+                          <span className="min-w-0 break-words whitespace-normal leading-snug">{loc}</span>
                         </span>
                       )}
-                    </>
+                    </span>
                   }
                   onClick={() => onRowClick(row.id)}
                 />
