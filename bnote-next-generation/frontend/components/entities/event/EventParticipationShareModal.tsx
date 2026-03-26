@@ -5,7 +5,7 @@ import { toBlob } from "html-to-image";
 import { Modal } from "@/components/Modal";
 import type { ParticipationStats } from "@/components/ParticipationDiagram";
 import type { InstrumentGroup } from "@/components/ParticipantOverview";
-import { getBnoteLogoUrl } from "@/lib/bnote-assets";
+import { BNoteLogo } from "@/components/BNoteLogo";
 import { getApiUrl } from "@/lib/api";
 
 interface EventParticipationShareModalProps {
@@ -97,6 +97,50 @@ interface ShareCardCreateResult {
   expiresAt: number;
 }
 
+async function waitForImagesToBeReady(container: HTMLElement): Promise<void> {
+  const images = Array.from(container.querySelectorAll("img"));
+  if (images.length === 0) return;
+
+  await Promise.all(
+    images.map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          let resolved = false;
+          const done = () => {
+            if (!resolved) {
+              resolved = true;
+              resolve();
+            }
+          };
+
+          if (img.complete && img.naturalWidth > 0) {
+            done();
+            return;
+          }
+
+          const onLoad = () => {
+            img.removeEventListener("load", onLoad);
+            img.removeEventListener("error", onError);
+            done();
+          };
+          const onError = () => {
+            img.removeEventListener("load", onLoad);
+            img.removeEventListener("error", onError);
+            done();
+          };
+
+          img.addEventListener("load", onLoad, { once: true });
+          img.addEventListener("error", onError, { once: true });
+
+          const maybeDecode = (img as HTMLImageElement).decode;
+          if (typeof maybeDecode === "function") {
+            maybeDecode.call(img).then(done).catch(done);
+          }
+        })
+    )
+  );
+}
+
 export function EventParticipationShareModal({
   open,
   onClose,
@@ -128,7 +172,6 @@ export function EventParticipationShareModal({
   const shareNowLabel = getLabel(t, "js.event.share.now", "Share");
   const modalTitle = getLabel(t, "js.event.share.modalTitle", "Share Participation");
   const sectionFallbackLabel = getLabel(t, "js.event.share.sectionFallback", "Section");
-  const logoUrl = getBnoteLogoUrl();
   const generatedAt = new Intl.DateTimeFormat(locale || undefined, {
     dateStyle: "medium",
     timeStyle: "short",
@@ -154,6 +197,7 @@ export function EventParticipationShareModal({
 
   const createShareBlob = async (): Promise<Blob> => {
     if (!previewRef.current) throw new Error("No preview");
+    await waitForImagesToBeReady(previewRef.current);
     const blob = await toBlob(previewRef.current, {
       cacheBust: true,
       pixelRatio: 3,
@@ -260,7 +304,7 @@ export function EventParticipationShareModal({
     preparedShareIdRef.current = "";
     didClickShareRef.current = false;
 
-    // Wait one frame so the preview card is painted before html-to-image runs.
+    // Wait one frame so the preview card is painted before export runs.
     const timer = window.setTimeout(async () => {
       try {
         const prepared = await prepareShareUrl();
@@ -332,17 +376,7 @@ export function EventParticipationShareModal({
                 <span className={`event-badge ${eventBadgeClassName}`}>
                   {eventBadgeLabel}
                 </span>
-                <div className="rounded-box flex h-9 w-9 items-center justify-center bg-gradient-to-br from-primary/30 to-primary/10 ring-1 ring-primary/20">
-                  <img
-                    src={logoUrl}
-                    alt="BNote"
-                    className="h-5 w-5"
-                    style={{
-                      filter:
-                        "brightness(0) saturate(100%) invert(58%) sepia(95%) saturate(2878%) hue-rotate(195deg) brightness(102%) contrast(101%)",
-                    }}
-                  />
-                </div>
+                <BNoteLogo size="sm" />
               </div>
               <div className="mt-3">
                 <h3 className="line-clamp-2 text-lg font-bold">{title}</h3>

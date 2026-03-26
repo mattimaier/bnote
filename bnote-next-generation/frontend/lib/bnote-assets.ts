@@ -11,11 +11,24 @@
 
 import { getBasePath } from "./path";
 
+function getRuntimeBasePath(): string {
+  if (typeof window === "undefined") return "";
+  const pathname = window.location.pathname || "";
+  const match = pathname.match(/^(.*?\/bnote-next-generation)(?:\/|$)/i);
+  return match?.[1] ?? "";
+}
+
 /**
- * Logo is bundled in the Next.js app at public/BNote_Logo_white_transparent.svg.
+ * Logo is pre-rendered at build time to avoid runtime SVG quirks.
  * Path always includes basePath (default /bnote-next-generation).
  */
 export function getBnoteLogoUrl(): string {
-  const basePath = getBasePath();
-  return basePath ? `${basePath}/BNote_Logo_white_transparent.svg` : "/BNote_Logo_white_transparent.svg";
+  const runtimeBasePath = getRuntimeBasePath();
+  if (runtimeBasePath) {
+    return `${runtimeBasePath}/BNote_Logo_prebuilt.png?v=2`;
+  }
+  const configBasePath = getBasePath();
+  return configBasePath
+    ? `${configBasePath}/BNote_Logo_prebuilt.png?v=2`
+    : "/BNote_Logo_prebuilt.png?v=2";
 }
