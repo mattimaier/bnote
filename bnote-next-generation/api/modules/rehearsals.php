@@ -187,11 +187,43 @@ class RehearsalsModule {
      * Users without the module still have read access to rehearsals they are allowed to see.
      */
     private function requireRehearsalsModulePermission() {
-        global $system_data;
-        $moduleId = $system_data->getModuleId('Proben');
-        if ($moduleId && !$system_data->userHasPermission($moduleId)) {
+        $userId = Auth::getUserId();
+        if (!$this->canManageRehearsalParticipation($userId)) {
             Response::error('Access denied to Rehearsals', 403);
         }
+    }
+
+    private function hasRehearsalsModulePermission() {
+        global $system_data;
+        $moduleId = $system_data->getModuleId('Proben');
+        return $moduleId ? $system_data->userHasPermission($moduleId) : false;
+    }
+
+    private function canManageRehearsalParticipation($userId) {
+        global $system_data;
+        $uid = intval($userId);
+        return $system_data->isUserSuperUser($uid)
+            || $system_data->isUserMemberGroup(1, $uid)
+            || $this->hasRehearsalsModulePermission();
+    }
+
+    private function isUserInvitedToRehearsal($rehearsalId, $userId) {
+        global $system_data;
+        $rid = intval($rehearsalId);
+        $uid = intval($userId);
+        if ($rid <= 0 || $uid <= 0) {
+            return false;
+        }
+
+        $count = $system_data->dbcon->colValue(
+            "SELECT COUNT(*) AS cnt
+             FROM rehearsal_contact rc
+             JOIN user u ON u.contact = rc.contact
+             WHERE rc.rehearsal = ? AND u.id = ?",
+            "cnt",
+            [['i', $rid], ['i', $uid]]
+        );
+        return intval($count) > 0;
     }
     
     /**
@@ -219,8 +251,8 @@ class RehearsalsModule {
             Response::error('Access denied to this rehearsal', 403);
         }
         
-        $moduleId = $system_data->getModuleId('Proben');
-        $canEdit = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+        $canEdit = $this->canManageRehearsalParticipation($userId);
+        $canEditParticipation = $this->canManageRehearsalParticipation($userId);
 
         // Get location with address
         $location = null;
@@ -389,7 +421,7 @@ class RehearsalsModule {
             'groups' => $groupList,
             'eventContacts' => $eventContacts,
             'canEdit' => $canEdit,
-            'canEditParticipation' => $canEdit,
+            'canEditParticipation' => $canEditParticipation,
             'participantsByInstrument' => $participantsByInstrument,
             'participationStats' => [
                 'yes' => $totalStats['yes'],
@@ -619,6 +651,7 @@ class RehearsalsModule {
             foreach ($participants as $participant) {
                 $userId = intval($participant['userId'] ?? 0);
                 if ($userId <= 0) continue;
+                if (!$this->isUserInvitedToRehearsal($id, $userId)) continue;
                 $participate = $participant['participate'] ?? null;
                 if ($participate === null || $participate === '') {
                     $system_data->dbcon->execute(
@@ -749,6 +782,7 @@ class RehearsalsModule {
             foreach ($participants as $participant) {
                 $userId = intval($participant['userId'] ?? 0);
                 if ($userId <= 0) continue;
+                if (!$this->isUserInvitedToRehearsal($newId, $userId)) continue;
                 $participate = $participant['participate'] ?? null;
                 if ($participate === null || $participate === '') continue;
                 $participate = intval($participate);

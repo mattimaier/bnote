@@ -197,11 +197,43 @@ class ConcertsModule {
      * Users without the module still have read access to concerts they are allowed to see.
      */
     private function requireConcertsModulePermission() {
-        global $system_data;
-        $moduleId = $system_data->getModuleId('Konzerte');
-        if ($moduleId && !$system_data->userHasPermission($moduleId)) {
+        $userId = Auth::getUserId();
+        if (!$this->canManageConcertParticipation($userId)) {
             Response::error('Access denied to Concerts', 403);
         }
+    }
+
+    private function hasConcertsModulePermission() {
+        global $system_data;
+        $moduleId = $system_data->getModuleId('Konzerte');
+        return $moduleId ? $system_data->userHasPermission($moduleId) : false;
+    }
+
+    private function canManageConcertParticipation($userId) {
+        global $system_data;
+        $uid = intval($userId);
+        return $system_data->isUserSuperUser($uid)
+            || $system_data->isUserMemberGroup(1, $uid)
+            || $this->hasConcertsModulePermission();
+    }
+
+    private function isUserInvitedToConcert($concertId, $userId) {
+        global $system_data;
+        $cid = intval($concertId);
+        $uid = intval($userId);
+        if ($cid <= 0 || $uid <= 0) {
+            return false;
+        }
+
+        $count = $system_data->dbcon->colValue(
+            "SELECT COUNT(*) AS cnt
+             FROM concert_contact cc
+             JOIN user u ON u.contact = cc.contact
+             WHERE cc.concert = ? AND u.id = ?",
+            "cnt",
+            [['i', $cid], ['i', $uid]]
+        );
+        return intval($count) > 0;
     }
     
     /**
@@ -229,8 +261,8 @@ class ConcertsModule {
             Response::error('Access denied to this concert', 403);
         }
         
-        $moduleId = $system_data->getModuleId('Konzerte');
-        $canEdit = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+        $canEdit = $this->canManageConcertParticipation($userId);
+        $canEditParticipation = $this->canManageConcertParticipation($userId);
 
         // Get location with address
         $location = null;
@@ -462,7 +494,7 @@ class ConcertsModule {
             'participantsByInstrument' => $participantsByInstrument,
             'eventContacts' => $eventContacts,
             'canEdit' => $canEdit,
-            'canEditParticipation' => $canEdit,
+            'canEditParticipation' => $canEditParticipation,
             'participationStats' => [
                 'yes' => $totalStats['yes'],
                 'maybe' => $totalStats['maybe'],
@@ -704,6 +736,7 @@ class ConcertsModule {
             foreach ($participants as $participant) {
                 $userId = intval($participant['userId'] ?? 0);
                 if ($userId <= 0) continue;
+                if (!$this->isUserInvitedToConcert($id, $userId)) continue;
                 $participate = $participant['participate'] ?? null;
                 if ($participate === null || $participate === '') {
                     $system_data->dbcon->execute(
@@ -855,6 +888,7 @@ class ConcertsModule {
             foreach ($participants as $participant) {
                 $userId = intval($participant['userId'] ?? 0);
                 if ($userId <= 0) continue;
+                if (!$this->isUserInvitedToConcert($newId, $userId)) continue;
                 $participate = $participant['participate'] ?? null;
                 if ($participate === null || $participate === '') continue;
                 $participate = intval($participate);
