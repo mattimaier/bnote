@@ -620,6 +620,10 @@ class ConcertsModule {
         if ($values['payment'] === '' || $values['payment'] === null) {
             $values['payment'] = 0;
         }
+        if (empty($values['meetingtime']) && empty($values['approve_until']) && !empty($values['begin'])) {
+            $values['meetingtime'] = $values['begin'];
+            $values['approve_until'] = $values['begin'];
+        }
         if (empty($values['approve_until']) && !empty($values['begin'])) {
             $values['approve_until'] = $values['begin'];
         }
@@ -756,6 +760,10 @@ class ConcertsModule {
 
         if ($values['payment'] === '' || $values['payment'] === null) {
             $values['payment'] = 0;
+        }
+        if (empty($values['meetingtime']) && empty($values['approve_until']) && !empty($values['begin'])) {
+            $values['meetingtime'] = $values['begin'];
+            $values['approve_until'] = $values['begin'];
         }
         if (empty($values['approve_until']) && !empty($values['begin'])) {
             $values['approve_until'] = $values['begin'];

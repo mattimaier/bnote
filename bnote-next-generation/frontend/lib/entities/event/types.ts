@@ -79,6 +79,7 @@ export interface RehearsalMeta {
   contacts: SimpleOption[];
   statusOptions: string[];
   groupMembers?: Record<string, number[]>;
+  defaultDurationMinutes?: number;
 }
 
 export interface ConcertMeta {

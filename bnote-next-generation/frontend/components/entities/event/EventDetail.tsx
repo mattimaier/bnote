@@ -124,6 +124,22 @@ export function EventDetail({
     return `${startDate}T${endTime ?? "00:00"}`;
   };
 
+  const addMinutesToInputDateTime = (startValue: string, minutes: number) => {
+    if (!startValue) return "";
+    const normalized = startValue.replace(" ", "T");
+    const date = new Date(normalized);
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+    date.setMinutes(date.getMinutes() + minutes);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  };
+
   const mapParticipationToStatus = (value: number | null | undefined): EditableParticipant["participate"] => {
     if (value === 1) return "yes";
     if (value === 2) return "maybe";
@@ -753,8 +769,31 @@ export function EventDetail({
                 value={toInputDateTime(form.begin).replace("T", " ")}
                 onChange={(val) => {
                   const nextBegin = val ? val.replace(" ", "T") : "";
-                  const nextEnd = syncEndDate(nextBegin, form.end);
-                  setForm({ ...form, begin: nextBegin, end: nextEnd });
+                    const isFirstBeginSet = !form.begin && !!nextBegin;
+                    const rehearsalDuration =
+                      type === "rehearsal" ? Number(rehearsalMeta?.defaultDurationMinutes ?? 0) : 0;
+                    const shouldAutofillRehearsalEnd =
+                      type === "rehearsal" &&
+                      isFirstBeginSet &&
+                      !form.end &&
+                      Number.isFinite(rehearsalDuration) &&
+                      rehearsalDuration > 0;
+                    const nextEnd = shouldAutofillRehearsalEnd
+                      ? addMinutesToInputDateTime(nextBegin, rehearsalDuration) || syncEndDate(nextBegin, form.end)
+                      : syncEndDate(nextBegin, form.end);
+                    const shouldAutofillConcertTimes = type === "concert" && isFirstBeginSet;
+                    const shouldAutofillRehearsalDeadline = type === "rehearsal" && isFirstBeginSet;
+                    setForm({
+                      ...form,
+                      begin: nextBegin,
+                      end: nextEnd,
+                      approveUntil:
+                        (shouldAutofillConcertTimes || shouldAutofillRehearsalDeadline) && !form.approveUntil
+                          ? nextBegin
+                          : form.approveUntil,
+                      meetingtime:
+                        shouldAutofillConcertTimes && !form.meetingtime ? nextBegin : form.meetingtime,
+                    });
                 }}
                 mode="datetime"
                 locale={lang}

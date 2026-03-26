@@ -506,7 +506,8 @@ class RehearsalsModule {
             'conductors' => $conductors,
             'contacts' => $contacts,
             'statusOptions' => $this->data->getStatusOptions(),
-            'groupMembers' => $groupMembers
+            'groupMembers' => $groupMembers,
+            'defaultDurationMinutes' => intval($this->data->getDefaultDuration())
         ];
     }
 
