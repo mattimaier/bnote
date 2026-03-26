@@ -82,7 +82,7 @@ function LoginFormInner() {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-base-200">
+      <div className="flex min-h-screen items-center justify-center bg-base-200 sm:bg-base-100">
         <Spinner />
       </div>
     );
@@ -114,7 +114,7 @@ function LoginFormInner() {
         </div>
       </div>
 
-      <div className="login-form rounded-xl bg-base-200 p-4 shadow-none sm:relative sm:overflow-hidden sm:rounded-b-lg sm:bg-base-100 sm:p-8 sm:shadow-lg">
+      <div className="login-form rounded-xl bg-base-200 p-4 shadow-none sm:relative sm:overflow-hidden sm:rounded-b-lg sm:bg-base-200 sm:p-8 sm:shadow-lg">
         <div className="mb-6 text-center sm:mb-8">
           <div className="mx-auto mb-4 flex justify-center">
             <BNoteLogo size="lg" padding="tight" />
@@ -182,7 +182,7 @@ function LoginForm() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-base-200">
+        <div className="flex min-h-screen items-center justify-center bg-base-200 sm:bg-base-100">
           <Spinner />
         </div>
       }
@@ -235,7 +235,7 @@ export default function LoginPage() {
 
   return (
     <I18nProvider>
-      <div className="flex min-h-screen items-center justify-center bg-base-200 px-0 sm:px-4">
+      <div className="flex min-h-screen items-center justify-center bg-base-200 sm:bg-base-100 px-0 sm:px-4">
         <LoginForm />
       </div>
     </I18nProvider>
