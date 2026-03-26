@@ -72,7 +72,9 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange, disabl
   );
 
   const handleClick = useCallback(
-    (clicked: ParticipationStatus) => {
+    (event: React.MouseEvent<HTMLButtonElement>, clicked: ParticipationStatus) => {
+      event.preventDefault();
+      event.stopPropagation();
       if (isLocked || loading || disabled) return;
       if (clicked === status && status !== "undecided") {
         updateStatus("undecided", "");
@@ -144,7 +146,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange, disabl
               type="button"
               disabled={isLocked || saving || disabled}
               className={btn("yes", status === "yes")}
-              onClick={() => handleClick("yes")}
+              onClick={(event) => handleClick(event, "yes")}
               aria-label={t("js.participation.participate")}
             >
               <svg className="h-5 w-5 md:h-6 md:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +159,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange, disabl
               type="button"
               disabled={isLocked || saving || disabled}
               className={btn("maybe", status === "maybe")}
-              onClick={() => handleClick("maybe")}
+              onClick={(event) => handleClick(event, "maybe")}
               aria-label={t("js.participation.maybe")}
             >
               <svg className="h-5 w-5 md:h-6 md:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +172,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange, disabl
               type="button"
               disabled={isLocked || saving || disabled}
               className={btn("no", status === "no")}
-              onClick={() => handleClick("no")}
+              onClick={(event) => handleClick(event, "no")}
               aria-label={t("js.participation.doNotParticipate")}
             >
               <svg className="h-5 w-5 md:h-6 md:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

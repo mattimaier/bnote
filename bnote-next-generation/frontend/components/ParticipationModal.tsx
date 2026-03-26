@@ -58,11 +58,15 @@ export function ParticipationModal({
     };
   }, [open, onCancel]);
 
-  const handleConfirm = () => {
+  const handleConfirm = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     onConfirm(reason.trim());
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (e.target === e.currentTarget) onCancel();
   };
 
@@ -81,7 +85,10 @@ export function ParticipationModal({
         aria-hidden="true"
         onClick={handleBackdropClick}
       />
-      <div className="relative z-10 w-full max-w-md rounded-box border border-base-300 bg-base-100 p-4 shadow-xl">
+      <div
+        className="relative z-10 w-full max-w-md rounded-box border border-base-300 bg-base-100 p-4 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mb-4">
           <h3 id={`${modalId}-title`} className="text-lg font-semibold text-base-content">
             {reasonForLabel} {statusLabel}
@@ -98,7 +105,15 @@ export function ParticipationModal({
           />
         </div>
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="btn btn-outline btn-sm">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onCancel();
+            }}
+            className="btn btn-outline btn-sm"
+          >
             {cancelLabel}
           </button>
           <button
