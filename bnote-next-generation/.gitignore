@@ -1,2 +1,5 @@
 # Build script output
 build/
+
+# Local deploy configuration (contains server details)
+.deploy.env

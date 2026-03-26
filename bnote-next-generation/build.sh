@@ -6,13 +6,15 @@
 # For local debug use: cd frontend && npm run dev (see README).
 #
 # Usage:
-#   ./build.sh [--out DIR]   # Create build folder (default: build/)
+#   ./build.sh [--out DIR] [--verify-only]
+#     --verify-only: only check existing build output, do not build
 #
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT_DIR="build"
+VERIFY_ONLY="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -20,9 +22,13 @@ while [[ $# -gt 0 ]]; do
       OUT_DIR="$2"
       shift 2
       ;;
+    --verify-only)
+      VERIFY_ONLY="true"
+      shift
+      ;;
     *)
       echo "Unknown option: $1"
-      echo "Usage: $0 [--out DIR]"
+      echo "Usage: $0 [--out DIR] [--verify-only]"
       exit 1
       ;;
   esac
@@ -30,7 +36,19 @@ done
 
 echo "=== BNote Next Generation build ==="
 echo "Output folder: $OUT_DIR"
+echo "Verify only: $VERIFY_ONLY"
 echo ""
+
+if [[ "$VERIFY_ONLY" == "true" ]]; then
+  DEPLOY_DIR="$SCRIPT_DIR/$OUT_DIR/bnote-next-generation"
+  if [[ ! -d "$DEPLOY_DIR" ]]; then
+    echo "Build output not found: $DEPLOY_DIR"
+    echo "Run ./build.sh --out $OUT_DIR first."
+    exit 1
+  fi
+  echo "Build output exists: $DEPLOY_DIR"
+  exit 0
+fi
 
 # 1. Build frontend
 echo "Building frontend..."

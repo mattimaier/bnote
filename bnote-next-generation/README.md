@@ -78,6 +78,37 @@ For local debugging use `npm run dev` (see Local development above); the dev ser
 
 - `./build.sh --out myfolder` – output folder name (default: `build/`)
 
+### Deploy via SFTP (with 1Password credentials)
+
+Use the deploy script to upload the built bundle directly over SFTP. Credentials are read at runtime from 1Password, and deploy config stays local.
+
+1. Copy and fill local config:
+
+```bash
+cp .deploy.env.example .deploy.env
+```
+
+2. Set your local values in `.deploy.env`:
+   - `SFTP_URL` (your SFTP target)
+   - `OP_USERNAME_REF` and `OP_PASSWORD_REF` (1Password secret references)
+   - `DEPLOY_WITH_BUILD` and `BUILD_DIR` as needed
+
+3. Run deploy:
+
+```bash
+./deploy.sh --with-build   # build + deploy
+./deploy.sh --no-build     # deploy existing build only
+./deploy.sh                # uses DEPLOY_WITH_BUILD from .deploy.env
+```
+
+Requirements:
+- `op` (1Password CLI, signed in)
+- `lftp` (for recursive SFTP upload)
+
+Security notes:
+- `.deploy.env` is gitignored, so real URL and secret references stay local.
+- No password is stored in the repository; credentials are fetched from 1Password on each deploy run.
+
 **Share module not appearing / "Module not found: share":** The Share module requires `api/modules/share.php` on the server. Use `./build.sh` to create a full build that includes the API. If you deploy only `frontend/out/`, the API folder (and share.php) will be missing. The Share module must exist in BNote and the user must have permission (as in the old app).
 
 ## Routing and Navigation
