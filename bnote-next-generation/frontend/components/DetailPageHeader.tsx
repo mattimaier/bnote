@@ -25,7 +25,7 @@ export function DetailPageHeader({ title, subtitle, right }: DetailPageHeaderPro
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold truncate text-base-content">
+        <h1 className="text-2xl font-bold text-base-content break-words whitespace-normal leading-tight">
           {title}
         </h1>
         {subtitle != null && (

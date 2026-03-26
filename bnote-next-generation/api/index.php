@@ -150,8 +150,9 @@ if (!file_exists($moduleFile)) {
 
 require_once $moduleFile;
 
-// Check authentication (except for auth and translations – login page needs both)
-if ($module !== 'auth' && $module !== 'translations' && !Auth::check()) {
+// Check authentication (except for auth/translations and public share-card image fetch)
+$isPublicShareCard = ($module === 'share' && $action === 'shareCard');
+if ($module !== 'auth' && $module !== 'translations' && !$isPublicShareCard && !Auth::check()) {
     Response::error('Authentication required', 403);
 }
 

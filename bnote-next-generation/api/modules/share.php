@@ -34,12 +34,18 @@ class ShareModule {
     private $adp;
     private $sysdata;
     private $shareRoot;
+    private $action;
     /** Path segments that must never appear (browse/create). */
     private $reservedPathSegments = ['.', '..', '.thumbnails', '.htaccess', '_temp'];
     /** Folder names not allowed at root (createFolder only). */
     private $reservedRootFolderNames = ['users', 'groups'];
 
     public function __construct() {
+        $this->action = $_GET['action'] ?? $_POST['action'] ?? 'list';
+        $this->shareRoot = $GLOBALS['DATA_PATHS']['share'];
+        if ($this->action === 'shareCard') {
+            return;
+        }
         global $system_data;
         $this->sysdata = $system_data;
         $moduleId = $system_data->getModuleId('Share');
@@ -48,11 +54,10 @@ class ShareModule {
         }
         $startData = new StartData();
         $this->adp = $startData->adp();
-        $this->shareRoot = $GLOBALS['DATA_PATHS']['share'];
     }
 
     public function handle() {
-        $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
+        $action = $this->action;
 
         switch ($action) {
             case 'list':
@@ -63,6 +68,10 @@ class ShareModule {
                 return $this->getPermissions();
             case 'upload':
                 return $this->upload();
+            case 'uploadShareCard':
+                return $this->uploadShareCard();
+            case 'deleteShareCard':
+                return $this->deleteShareCard();
             case 'delete':
                 return $this->delete();
             case 'createFolder':
@@ -71,9 +80,210 @@ class ShareModule {
                 return $this->download();
             case 'downloadZip':
                 return $this->downloadZip();
+            case 'shareCard':
+                return $this->serveShareCard();
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
+    }
+
+    private function getShareCardTempDir() {
+        return rtrim($this->shareRoot, '/') . '/_temp/share-cards';
+    }
+
+    private function cleanupExpiredShareCards($dir) {
+        if (!is_dir($dir)) {
+            return;
+        }
+        $metaFiles = @glob($dir . '/*.json');
+        if (!$metaFiles) {
+            return;
+        }
+        $now = time();
+        foreach ($metaFiles as $metaPath) {
+            $raw = @file_get_contents($metaPath);
+            $meta = $raw ? json_decode($raw, true) : null;
+            $shareId = basename($metaPath, '.json');
+            $imgPath = $dir . '/' . $shareId . '.png';
+            $expiresAt = is_array($meta) ? intval($meta['expiresAt'] ?? 0) : 0;
+            if ($expiresAt > 0 && $expiresAt <= $now) {
+                @unlink($metaPath);
+                @unlink($imgPath);
+            }
+        }
+    }
+
+    private function buildPublicApiUrl($params, $scriptFile = 'index.php') {
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/api/index.php';
+        $baseDir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+        if ($baseDir === '' || $baseDir === '.') {
+            $baseDir = '/api';
+        }
+        $scriptPath = $baseDir . '/' . ltrim($scriptFile, '/');
+
+        $publicBase = trim(getenv('BNOTE_PUBLIC_BASE_URL') ?: '');
+        if ($publicBase !== '') {
+            $publicBase = rtrim($publicBase, '/');
+            // Allow base values with or without /api suffix.
+            $basePath = parse_url($publicBase, PHP_URL_PATH) ?: '';
+            if (substr($basePath, -4) === '/api') {
+                $url = $publicBase . '/' . ltrim($scriptFile, '/');
+            } else {
+                $url = $publicBase . $scriptPath;
+            }
+            return $url . '?' . http_build_query($params);
+        }
+
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || intval($_SERVER['SERVER_PORT'] ?? 0) === 443;
+        $scheme = $isHttps ? 'https' : 'http';
+        $serverName = trim($_SERVER['SERVER_NAME'] ?? '');
+        $serverPort = intval($_SERVER['SERVER_PORT'] ?? 0);
+        $host = $serverName !== '' ? $serverName : 'localhost';
+        if ($serverPort > 0 && $serverPort !== 80 && $serverPort !== 443 && strpos($host, ':') === false) {
+            $host .= ':' . strval($serverPort);
+        }
+        return $scheme . '://' . $host . $scriptPath . '?' . http_build_query($params);
+    }
+
+    private function uploadShareCard() {
+        if (!isset($_FILES['file'])) {
+            Response::error('No file uploaded', 400);
+        }
+        if (!is_uploaded_file($_FILES['file']['tmp_name'])) {
+            Response::error('Invalid upload', 400);
+        }
+        $mime = getFileMimeType($_FILES['file']['tmp_name']) ?: ($_FILES['file']['type'] ?? '');
+        if (strpos($mime, 'image/png') !== 0 && strpos($mime, 'image/jpeg') !== 0) {
+            Response::error('Only PNG or JPEG is allowed', 400);
+        }
+        $tempDir = $this->getShareCardTempDir();
+        if (!is_dir($tempDir) && !mkdir($tempDir, 0755, true)) {
+            Response::error('Failed to create temp folder', 500);
+        }
+        $this->cleanupExpiredShareCards($tempDir);
+
+        $shareId = bin2hex(random_bytes(16));
+        $imgPath = $tempDir . '/' . $shareId . '.png';
+        $fileName = trim($_POST['name'] ?? '');
+        if ($fileName === '') {
+            $fileName = trim($_FILES['file']['name'] ?? '');
+        }
+        if ($fileName === '') {
+            $fileName = 'share-card.png';
+        }
+        $fileName = preg_replace('/[<>:"\/\\\\|?*\x00-\x1F]/', '', $fileName);
+        if ($fileName === '') {
+            $fileName = 'share-card.png';
+        }
+
+        if (!move_uploaded_file($_FILES['file']['tmp_name'], $imgPath)) {
+            Response::error('Failed to save uploaded image', 500);
+        }
+
+        $expiresAt = time() + 24 * 60 * 60;
+        $meta = [
+            'fileName' => $fileName,
+            'expiresAt' => $expiresAt,
+            'createdAt' => time(),
+        ];
+        if (@file_put_contents($tempDir . '/' . $shareId . '.json', json_encode($meta, JSON_UNESCAPED_SLASHES)) === false) {
+            @unlink($imgPath);
+            Response::error('Failed to save metadata', 500);
+        }
+
+        $url = $this->buildPublicApiUrl([
+            'shareId' => $shareId,
+        ], 'participation-card.php');
+        return [
+            'url' => $url,
+            'shareId' => $shareId,
+            'expiresAt' => $expiresAt,
+        ];
+    }
+
+    private function serveShareCard() {
+        $shareId = strtolower(trim($_GET['shareId'] ?? ''));
+        if (!preg_match('/^[a-f0-9]{32}$/', $shareId)) {
+            http_response_code(404);
+            echo 'Not found';
+            exit;
+        }
+        $tempDir = $this->getShareCardTempDir();
+        $metaPath = $tempDir . '/' . $shareId . '.json';
+        $imgPath = $tempDir . '/' . $shareId . '.png';
+        if (!is_file($metaPath) || !is_file($imgPath)) {
+            http_response_code(404);
+            echo 'Not found';
+            exit;
+        }
+        $raw = @file_get_contents($metaPath);
+        $meta = $raw ? json_decode($raw, true) : null;
+        $expiresAt = is_array($meta) ? intval($meta['expiresAt'] ?? 0) : 0;
+        if ($expiresAt <= 0 || $expiresAt <= time()) {
+            @unlink($metaPath);
+            @unlink($imgPath);
+            http_response_code(410);
+            echo 'Expired';
+            exit;
+        }
+        $fileName = is_array($meta) ? trim($meta['fileName'] ?? 'share-card.png') : 'share-card.png';
+        $fileName = str_replace('"', '', $fileName);
+        $rawImageUrl = $this->buildPublicApiUrl([
+            'module' => 'share',
+            'action' => 'shareCard',
+            'shareId' => $shareId,
+            'raw' => '1',
+        ]);
+        $isRaw = ($_GET['raw'] ?? '') === '1';
+        $isView = ($_GET['view'] ?? '') === '1';
+
+        if ($isView && !$isRaw) {
+            $title = preg_replace('/\.(png|jpe?g)$/i', '', $fileName);
+            if (!$title) {
+                $title = 'Participation card';
+            }
+            $safeTitle = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+            $safeImageUrl = htmlspecialchars($rawImageUrl, ENT_QUOTES, 'UTF-8');
+            header('Content-Type: text/html; charset=utf-8');
+            header('Cache-Control: public, max-age=300');
+            echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">';
+            echo '<title>' . $safeTitle . '</title>';
+            echo '<meta property="og:title" content="' . $safeTitle . '">';
+            echo '<meta property="og:image" content="' . $safeImageUrl . '">';
+            echo '<meta name="twitter:card" content="summary_large_image">';
+            echo '</head><body style="margin:0;background:#111;color:#fff;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif">';
+            echo '<div style="max-width:960px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px">';
+            echo '<div style="font-size:14px;opacity:.9">' . $safeTitle . '</div>';
+            echo '<img src="' . $safeImageUrl . '" alt="' . $safeTitle . '" style="width:100%;height:auto;border-radius:12px;display:block;background:#fff">';
+            echo '<a href="' . $safeImageUrl . '" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#2563eb;color:#fff;text-decoration:none;font-weight:600;width:max-content">Open image</a>';
+            echo '</div></body></html>';
+            exit;
+        }
+
+        header('Content-Type: image/png');
+        header('Content-Disposition: inline; filename="' . $fileName . '"');
+        header('Cache-Control: public, max-age=300');
+        header('Content-Length: ' . filesize($imgPath));
+        readfile($imgPath);
+        exit;
+    }
+
+    private function deleteShareCard() {
+        $shareId = strtolower(trim($_POST['shareId'] ?? $_GET['shareId'] ?? ''));
+        if (!preg_match('/^[a-f0-9]{32}$/', $shareId)) {
+            Response::error('Invalid shareId', 400);
+        }
+        $tempDir = $this->getShareCardTempDir();
+        $metaPath = $tempDir . '/' . $shareId . '.json';
+        $imgPath = $tempDir . '/' . $shareId . '.png';
+        if (is_file($metaPath)) {
+            @unlink($metaPath);
+        }
+        if (is_file($imgPath)) {
+            @unlink($imgPath);
+        }
+        return ['deleted' => true];
     }
 
     /**

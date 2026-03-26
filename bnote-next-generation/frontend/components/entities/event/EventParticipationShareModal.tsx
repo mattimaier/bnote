@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toBlob } from "html-to-image";
 import { Modal } from "@/components/Modal";
 import type { ParticipationStats } from "@/components/ParticipationDiagram";
 import type { InstrumentGroup } from "@/components/ParticipantOverview";
 import { getBnoteLogoUrl } from "@/lib/bnote-assets";
+import { getApiUrl } from "@/lib/api";
 
 interface EventParticipationShareModalProps {
   open: boolean;
@@ -90,6 +91,12 @@ function toFilePart(input: string): string {
   return safe || "unknown";
 }
 
+interface ShareCardCreateResult {
+  url: string;
+  shareId: string;
+  expiresAt: number;
+}
+
 export function EventParticipationShareModal({
   open,
   onClose,
@@ -109,8 +116,14 @@ export function EventParticipationShareModal({
   t,
 }: EventParticipationShareModalProps) {
   const [busy, setBusy] = useState(false);
+  const [preparing, setPreparing] = useState(false);
+  const [preparedShareUrl, setPreparedShareUrl] = useState("");
+  const [preparedShareId, setPreparedShareId] = useState("");
+  const [didClickShare, setDidClickShare] = useState(false);
   const [error, setError] = useState("");
   const previewRef = useRef<HTMLDivElement | null>(null);
+  const preparedShareIdRef = useRef("");
+  const didClickShareRef = useRef(false);
 
   const shareNowLabel = getLabel(t, "js.event.share.now", "Share");
   const modalTitle = getLabel(t, "js.event.share.modalTitle", "Share Participation");
@@ -154,58 +167,146 @@ export function EventParticipationShareModal({
 
   const fileName = `${toFilePart(fileDateIso)} - ${toFilePart(fileEventType)} - ${toFilePart(fileLocation)}.png`;
 
-  const downloadBlob = (blob: Blob) => {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    link.rel = "noopener";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    // Revoke with delay to avoid Safari/WebKit race where immediate revoke cancels download.
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    // Extra fallback for browsers that ignore the download attribute on blob URLs.
-    window.setTimeout(() => {
-      try {
-        window.open(url, "_blank", "noopener,noreferrer");
-      } catch {
-        // no-op
+  const createShareUrl = async (blob: Blob): Promise<ShareCardCreateResult> => {
+    const formData = new FormData();
+    const file = new File([blob], fileName, { type: "image/png" });
+    formData.set("file", file);
+    formData.set("name", fileName);
+    const apiUrl = getApiUrl();
+    const shareCardEndpoint =
+      apiUrl.startsWith("http")
+        ? new URL(apiUrl)
+        : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    shareCardEndpoint.searchParams.set("module", "share");
+    shareCardEndpoint.searchParams.set("action", "uploadShareCard");
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 20000);
+    let res: Response;
+    try {
+      res = await fetch(shareCardEndpoint.toString(), {
+        method: "POST",
+        body: formData,
+        credentials: "same-origin",
+        headers: {
+          Accept: "application/json",
+        },
+        signal: controller.signal,
+      });
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        throw new Error("Share upload timed out");
       }
-    }, 50);
+      throw err;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+    const raw = await res.text();
+    let json: { success?: boolean; data?: ShareCardCreateResult; error?: string } | null = null;
+    try {
+      json = JSON.parse(raw) as { success?: boolean; data?: ShareCardCreateResult; error?: string };
+    } catch {
+      throw new Error("Share endpoint returned non-JSON response");
+    }
+    if (!res.ok || json.success === false || !json.data?.url || !json.data?.shareId) {
+      throw new Error(json.error ?? "Failed to create share URL");
+    }
+    return json.data;
   };
+
+  const deleteShareCard = async (shareId: string): Promise<void> => {
+    if (!shareId) return;
+    const apiUrl = getApiUrl();
+    const endpoint =
+      apiUrl.startsWith("http")
+        ? new URL(apiUrl)
+        : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    endpoint.searchParams.set("module", "share");
+    endpoint.searchParams.set("action", "deleteShareCard");
+    const body = new URLSearchParams();
+    body.set("shareId", shareId);
+    await fetch(endpoint.toString(), {
+      method: "POST",
+      body,
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+    });
+  };
+
+  const prepareShareUrl = async (): Promise<ShareCardCreateResult> => {
+    const blob = await createShareBlob();
+    return createShareUrl(blob);
+  };
+
+  useEffect(() => {
+    if (!open) {
+      if (preparedShareIdRef.current && !didClickShareRef.current) {
+        void deleteShareCard(preparedShareIdRef.current);
+      }
+      setPreparing(false);
+      setPreparedShareUrl("");
+      setPreparedShareId("");
+      setDidClickShare(false);
+      preparedShareIdRef.current = "";
+      didClickShareRef.current = false;
+      return;
+    }
+
+    let cancelled = false;
+    setError("");
+    setPreparing(true);
+    setPreparedShareUrl("");
+    setPreparedShareId("");
+    setDidClickShare(false);
+    preparedShareIdRef.current = "";
+    didClickShareRef.current = false;
+
+    // Wait one frame so the preview card is painted before html-to-image runs.
+    const timer = window.setTimeout(async () => {
+      try {
+        const prepared = await prepareShareUrl();
+        if (!cancelled) {
+          setPreparedShareUrl(prepared.url);
+          setPreparedShareId(prepared.shareId);
+          preparedShareIdRef.current = prepared.shareId;
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const fallback = getLabel(t, "js.event.share.shareError", "Failed to share image.");
+          setError(err instanceof Error && err.message ? err.message : fallback);
+        }
+      } finally {
+        if (!cancelled) {
+          setPreparing(false);
+        }
+      }
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [open, fileName, t]);
 
   const handleShare = async () => {
     setBusy(true);
     setError("");
     try {
-      const blob = await createShareBlob();
-      const file = new File([blob], fileName, { type: "image/png" });
-      const nav = navigator as Navigator & {
-        canShare?: (data: ShareData) => boolean;
-      };
-      if (nav.share && (!nav.canShare || nav.canShare({ files: [file] }))) {
-        try {
-          await nav.share({
-            files: [file],
-            title,
-            text: `${title} - ${dateText} ${timeText}`,
-          });
-          return;
-        } catch (err) {
-          if (err instanceof DOMException && err.name === "AbortError") {
-            // If share sheet was dismissed/canceled, still provide the file via download fallback.
-            downloadBlob(blob);
-            return;
-          }
-          downloadBlob(blob);
-          return;
-        }
-      } else {
-        downloadBlob(blob);
+      setDidClickShare(true);
+      didClickShareRef.current = true;
+      const prepared = preparedShareUrl ? { url: preparedShareUrl, shareId: preparedShareId } : await prepareShareUrl();
+      const shareUrl = prepared.url;
+      if (!preparedShareUrl) {
+        setPreparedShareUrl(prepared.url);
+        setPreparedShareId(prepared.shareId);
+        preparedShareIdRef.current = prepared.shareId;
       }
-    } catch {
-      setError(getLabel(t, "js.event.share.shareError", "Failed to share image."));
+      if (typeof window !== "undefined") {
+        window.open(shareUrl, "_blank", "noopener,noreferrer");
+      }
+    } catch (err) {
+      const fallback = getLabel(t, "js.event.share.shareError", "Failed to share image.");
+      const message = err instanceof Error && err.message ? err.message : fallback;
+      setError(message);
     } finally {
       setBusy(false);
     }
@@ -216,11 +317,12 @@ export function EventParticipationShareModal({
       open={open}
       onClose={onClose}
       title={modalTitle}
-      bodyClassName="max-h-[90dvh]"
+      bodyClassName="max-h-[90dvh] p-0 pt-0"
     >
-      <div className="space-y-4">
-        <div className="flex justify-center">
-          <div className="inline-block rounded-xl border border-base-300 bg-transparent p-2">
+      <div className="flex max-h-[90dvh] flex-col">
+        <div className="overflow-y-auto p-4">
+          <div className="flex justify-center">
+            <div className="inline-block rounded-xl border border-base-300 bg-transparent p-2">
             <div
               ref={previewRef}
               className="mx-auto w-[320px] rounded-2xl bg-white p-4 text-[#111827]"
@@ -343,11 +445,12 @@ export function EventParticipationShareModal({
           </div>
         </div>
 
-        {error ? <div className="rounded-md border border-error bg-error/10 p-2 text-sm text-error">{error}</div> : null}
+          {error ? <div className="mt-4 rounded-md border border-error bg-error/10 p-2 text-sm text-error">{error}</div> : null}
+        </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <button type="button" onClick={handleShare} disabled={busy} className="btn btn-primary">
-            {busy ? `${shareNowLabel}...` : shareNowLabel}
+        <div className="sticky bottom-0 border-t border-base-300 bg-base-100 p-4">
+          <button type="button" onClick={handleShare} disabled={busy || preparing} className="btn btn-primary w-full">
+            {preparing ? "Preparing..." : busy ? `${shareNowLabel}...` : shareNowLabel}
           </button>
         </div>
       </div>

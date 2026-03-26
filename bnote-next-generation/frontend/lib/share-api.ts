@@ -107,16 +107,13 @@ export const shareApi = {
     shareRequest<SharePermissions>("permissions", { path }),
 
   upload: async (path: string, files: File | File[]): Promise<ShareUploadResult> => {
-    const basePath =
-      (process.env.NEXT_PUBLIC_BASE_PATH ?? "/bnote-next-generation").replace(
-        /\/$/,
-        ""
-      );
-    // Always use proxy for uploads (avoids CORS, rewrite body issues). Proxy forwards to PHP.
+    const apiUrl = getApiUrl();
     const uploadUrl =
-      typeof window !== "undefined"
-        ? `${window.location.origin}${basePath}/share-upload/`
-        : `${basePath}/share-upload/`;
+      apiUrl.startsWith("http")
+        ? new URL(apiUrl)
+        : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    uploadUrl.searchParams.set("module", "share");
+    uploadUrl.searchParams.set("action", "upload");
 
     const formData = new FormData();
     formData.set("path", path);
@@ -127,7 +124,7 @@ export const shareApi = {
       fileList.forEach((f) => formData.append("files", f));
     }
 
-    const res = await fetch(uploadUrl, {
+    const res = await fetch(uploadUrl.toString(), {
       method: "POST",
       body: formData,
       credentials: "same-origin",
