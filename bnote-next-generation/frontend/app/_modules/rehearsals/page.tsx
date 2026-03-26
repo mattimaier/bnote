@@ -374,8 +374,8 @@ function EventsTable({
                         {timeStr}
                       </span>
                       {loc && loc !== emptyText && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3 opacity-70" />
+                        <span className="flex items-start gap-1">
+                          <MapPin className="mt-0.5 h-3 w-3 opacity-70 shrink-0" />
                           <span className="min-w-0 break-words whitespace-normal leading-snug">{loc}</span>
                         </span>
                       )}

@@ -182,8 +182,8 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                                   {timeStr}
                                 </span>
                                 {location && location !== emptyText && (
-                                  <span className="flex items-center gap-1">
-                                    <MapPin className="h-3 w-3 opacity-70" />
+                                  <span className="flex items-start gap-1">
+                                    <MapPin className="mt-0.5 h-3 w-3 opacity-70 shrink-0" />
                                     <AddressLink value={location} t={t} renderRawIfNoAddress interactive={false} />
                                   </span>
                                 )}
@@ -251,7 +251,7 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                               <EntityListRow
                                 icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
                                 primary={title}
-                                secondary={address ? <span className="flex items-center gap-1"><MapPin className="h-3 w-3 opacity-70 shrink-0" /><AddressLink value={address} t={t} renderRawIfNoAddress interactive={false} /></span> : undefined}
+                                secondary={address ? <span className="flex items-start gap-1"><MapPin className="mt-0.5 h-3 w-3 opacity-70 shrink-0" /><AddressLink value={address} t={t} renderRawIfNoAddress interactive={false} /></span> : undefined}
                                 href={href}
                                 onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
                               />

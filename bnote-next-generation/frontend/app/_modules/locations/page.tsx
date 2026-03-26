@@ -201,8 +201,8 @@ export default function LocationsPage() {
                   primary={loc.name ?? emptyText}
                   secondary={
                     address ? (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3 opacity-70 shrink-0" />
+                      <span className="flex items-start gap-1">
+                        <MapPin className="mt-0.5 h-3 w-3 opacity-70 shrink-0" />
                         <AddressLink value={address} t={t} renderRawIfNoAddress interactive={false} />
                       </span>
                     ) : undefined
