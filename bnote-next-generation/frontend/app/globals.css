@@ -194,6 +194,19 @@
   font-size: 0.9375rem;
 }
 
+/* Login page inputs should keep default white/light surface */
+.login-form .input {
+  background-color: #ffffff !important;
+}
+
+.dark .login-form .input {
+  background-color: var(--color-base-300) !important;
+}
+
+.dark .login-form {
+  background-color: var(--color-base-100) !important;
+}
+
 /* Rich text editor (EditorJS) – horizontally centered */
 .codex-editor {
   margin-left: auto;

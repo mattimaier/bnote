@@ -82,19 +82,19 @@ function LoginFormInner() {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-base-100">
+      <div className="flex min-h-screen items-center justify-center bg-base-200">
         <Spinner />
       </div>
     );
   }
 
   return (
-    <div className="mx-4 w-full max-w-md">
-      <div className="fixed top-4 right-4 z-50">
+    <div className="w-full max-w-md pb-6 sm:mx-4 sm:pb-0">
+      <div className="fixed top-3 right-3 z-50 sm:top-4 sm:right-4">
         <ThemeToggle />
       </div>
       {/* Construction tape banner */}
-      <div className="construction-tape">
+      <div className="construction-tape fixed right-0 bottom-0 left-0 z-40 sm:static">
         <div className="construction-tape-text">
           <span className="font-bold">BNote Next Generation</span>
           <svg
@@ -114,8 +114,8 @@ function LoginFormInner() {
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-b-lg bg-base-100 p-8 shadow-lg">
-        <div className="mb-8 text-center">
+      <div className="login-form rounded-xl bg-base-200 p-4 shadow-none sm:relative sm:overflow-hidden sm:rounded-b-lg sm:bg-base-100 sm:p-8 sm:shadow-lg">
+        <div className="mb-6 text-center sm:mb-8">
           <div className="mx-auto mb-4 flex justify-center">
             <BNoteLogo size="lg" padding="tight" />
           </div>
@@ -125,7 +125,7 @@ function LoginFormInner() {
           <p className="text-base-content/60">{welcomeText}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           <div>
             <label
               htmlFor="username"
@@ -182,7 +182,7 @@ function LoginForm() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-base-100">
+        <div className="flex min-h-screen items-center justify-center bg-base-200">
           <Spinner />
         </div>
       }
@@ -193,9 +193,49 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    const metaThemeColor = document.getElementById("app-theme-color");
+    const previousBodyBackground = body.style.backgroundColor;
+    const previousMetaThemeColor =
+      metaThemeColor?.getAttribute("content") ?? null;
+
+    const applyLoginBackground = () => {
+      const isDark = root.classList.contains("dark");
+      const base200 = getComputedStyle(root)
+        .getPropertyValue("--color-base-200")
+        .trim();
+      const fallback = isDark ? "#2d2e38" : "#f4f6f8";
+
+      body.style.backgroundColor = base200 || fallback;
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute("content", fallback);
+      }
+    };
+
+    applyLoginBackground();
+
+    const observer = new MutationObserver(() => {
+      applyLoginBackground();
+    });
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme"],
+    });
+
+    return () => {
+      observer.disconnect();
+      body.style.backgroundColor = previousBodyBackground;
+      if (metaThemeColor && previousMetaThemeColor !== null) {
+        metaThemeColor.setAttribute("content", previousMetaThemeColor);
+      }
+    };
+  }, []);
+
   return (
     <I18nProvider>
-      <div className="flex min-h-screen items-center justify-center bg-base-100 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-base-200 px-0 sm:px-4">
         <LoginForm />
       </div>
     </I18nProvider>
