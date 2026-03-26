@@ -180,7 +180,7 @@ export default function TasksPage() {
   }
 
   return (
-    <PageContent>
+    <PageContent className="px-1 md:px-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>

@@ -75,7 +75,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-base-300 flex h-16 items-center gap-3 px-3 md:px-4 lg:px-6 bg-base-100/95 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b border-base-300 flex h-16 items-center gap-2 md:gap-3 px-3 md:px-4 lg:px-6 bg-base-100/95 backdrop-blur">
       {/* Hamburger: visible only on mobile */}
       {onOpenMobileNav && (
         <button
@@ -89,7 +89,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
       )}
       {/* Search: full width */}
       <div ref={searchAnchorRef} className="relative flex-1 min-w-0">
-          <form action={prefixPath("/search/")} method="get" role="search" className="flex items-center gap-2 w-full">
+          <form action={prefixPath("/search/")} method="get" role="search" className="flex items-center gap-1 md:gap-2 w-full">
             <div className="relative flex-1 min-w-0">
               <Search
                 className="absolute left-3 h-4 w-4 -translate-y-1/2 text-base-content/50 z-10 top-1/2 pointer-events-none"
@@ -102,7 +102,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setOverlayOpen(true)}
                 placeholder={t("js.dashboard.searchPlaceholder")}
-                className="input input-sm w-full pl-9 pr-9"
+                className="input input-sm h-10 md:h-8 w-full pl-9 pr-9"
                 aria-label={t("js.dashboard.searchPlaceholder")}
                 aria-autocomplete="list"
                 aria-controls={query.trim().length >= 2 ? "search-autocomplete" : undefined}
@@ -133,14 +133,14 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
           )}
       </div>
       {/* Theme + user: shrink-0 so they don't overlap */}
-      <div className="flex shrink-0 items-center gap-3">
+      <div className="flex shrink-0 items-center gap-1.5 md:gap-3">
         <ThemeToggle inline />
         <div className="h-6 w-px hidden sm:block opacity-30 bg-base-300" />
         <div ref={userMenuRef} className="relative">
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex items-center gap-3 pl-3 pr-2 py-1 rounded-box hover:bg-base-200 transition-colors user-info-btn"
+            className="flex items-center gap-2 md:gap-3 pl-2 md:pl-3 pr-1.5 md:pr-2 py-1 rounded-box hover:bg-base-200 transition-colors user-info-btn"
             aria-expanded={menuOpen}
             aria-haspopup="true"
           >

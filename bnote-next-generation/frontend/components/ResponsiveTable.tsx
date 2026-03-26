@@ -92,7 +92,7 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
       <div className="hidden md:block overflow-x-auto">{children}</div>
       <div className="md:hidden flex flex-col px-0 pb-3 overflow-x-hidden">
       {sortOptions.length > 0 && onSort && (
-        <div className="flex items-center justify-end gap-2 px-2 py-2">
+        <div className="flex items-center justify-end gap-2 px-1.5 py-2">
           <select
             value={sortKey ?? sortOptions[0]?.key ?? ""}
             onChange={(e) => onSort(e.target.value as TSortKey)}

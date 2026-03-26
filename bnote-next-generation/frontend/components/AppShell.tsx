@@ -18,12 +18,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { editingBar } = useEditingBar();
 
   return (
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-base-100">
+    <div className="flex min-h-screen flex-col bg-base-100 md:h-screen md:flex-row md:overflow-hidden">
       <AppSidebar />
-      <div className="flex-1 flex flex-col min-w-0 min-h-0">
+      <div className="flex min-w-0 flex-1 flex-col md:min-h-0">
         <AppTopbar onOpenMobileNav={() => setMobileNavOpen(true)} />
         {editingBar != null && <EditingBar {...editingBar} />}
-        <main className="flex-1 overflow-y-auto pt-2 px-2 pb-2 md:pt-4 md:px-3 md:py-3 min-h-0">{children}</main>
+        <main className="flex-1 px-2 pb-2 pt-2 md:min-h-0 md:overflow-y-auto md:px-3 md:py-3">{children}</main>
       </div>
       <MobileNavDrawer open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
     </div>

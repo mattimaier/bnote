@@ -25,23 +25,62 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
   const toggleLabel = t("js.common.toggleTheme") !== "js.common.toggleTheme" ? t("js.common.toggleTheme") : "Toggle theme";
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const isDark =
-      localStorage.getItem("theme") === "dark" ||
-      (localStorage.getItem("theme") == null &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches);
-    setDark(isDark);
+  const applyTheme = (isDark: boolean) => {
+    const themeColor = isDark ? "#2d2e38" : "#fcfcfd";
     document.documentElement.classList.toggle("dark", isDark);
     document.documentElement.setAttribute("data-theme", isDark ? "bnotedark" : "bnotelight");
+    document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+    const themeMeta = document.getElementById("app-theme-color");
+    if (themeMeta) {
+      themeMeta.setAttribute("content", themeColor);
+    }
+  };
+
+  const readStoredTheme = (): "dark" | "light" | null => {
+    let storedTheme: string | null = null;
+    try {
+      storedTheme = localStorage.getItem("theme");
+    } catch (_error) {
+      storedTheme = null;
+    }
+    if (storedTheme === "dark" || storedTheme === "light") return storedTheme;
+    const cookieMatch = document.cookie.match(/(?:^|;\s*)theme=(dark|light)(?:;|$)/);
+    if (cookieMatch?.[1] === "dark" || cookieMatch?.[1] === "light") return cookieMatch[1];
+    return null;
+  };
+
+  const persistTheme = (value: "dark" | "light") => {
+    try {
+      localStorage.setItem("theme", value);
+    } catch (_error) {
+      // Ignore storage failures (private mode / blocked storage).
+    }
+    document.cookie = `theme=${value}; path=/; max-age=31536000; SameSite=Lax`;
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const storedTheme = readStoredTheme();
+    const isDark = storedTheme ? storedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setDark(isDark);
+    applyTheme(isDark);
+
+    // Follow system changes only while no explicit user preference exists.
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onSystemThemeChange = (event: MediaQueryListEvent) => {
+      if (readStoredTheme() !== null) return;
+      setDark(event.matches);
+      applyTheme(event.matches);
+    };
+    media.addEventListener("change", onSystemThemeChange);
+    return () => media.removeEventListener("change", onSystemThemeChange);
   }, []);
 
   function toggle() {
     const next = !dark;
     setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    document.documentElement.setAttribute("data-theme", next ? "bnotedark" : "bnotelight");
-    localStorage.setItem("theme", next ? "dark" : "light");
+    applyTheme(next);
+    persistTheme(next ? "dark" : "light");
   }
 
   if (!mounted) return null;

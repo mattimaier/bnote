@@ -6,7 +6,7 @@
   "js.dashboard.upcomingEvents": "Upcoming Events",
   "js.dashboard.backToDashboard": "Back to Dashboard",
   "js.dashboard.quickActions": "Quick Actions",
-  "js.dashboard.searchPlaceholder": "Search events, members…",
+  "js.dashboard.searchPlaceholder": "BNote durchsuchen...",
   "js.users.searchPlaceholder": "Search users, members…",
   "js.contacts.searchPlaceholder": "Search contacts…",
   "js.table.searchPlaceholder": "Search…",

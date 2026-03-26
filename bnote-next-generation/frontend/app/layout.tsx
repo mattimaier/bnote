@@ -11,10 +11,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fcfcfd" },
-    { media: "(prefers-color-scheme: dark)", color: "#2d2e38" },
-  ],
 };
 
 export default function RootLayout({
@@ -25,9 +21,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta id="app-theme-color" name="theme-color" content="#fcfcfd" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t=localStorage.getItem("theme");var d=!t&&window.matchMedia("(prefers-color-scheme: dark)").matches;var dark=t==="dark"||d;document.documentElement.setAttribute("data-theme",dark?"bnotedark":"bnotelight");document.documentElement.classList.toggle("dark",dark);})();`,
+            __html: `(function(){function readTheme(){var t=null;try{t=localStorage.getItem("theme");}catch(e){}if(t==="dark"||t==="light"){return t;}var m=document.cookie.match(/(?:^|;\\s*)theme=(dark|light)(?:;|$)/);return m?m[1]:null;}var pref=readTheme();var dark=pref?pref==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;var c=dark?"#2d2e38":"#fcfcfd";document.documentElement.setAttribute("data-theme",dark?"bnotedark":"bnotelight");document.documentElement.classList.toggle("dark",dark);document.documentElement.style.colorScheme=dark?"dark":"light";var meta=document.getElementById("app-theme-color");if(meta){meta.setAttribute("content",c);}})();`,
           }}
         />
       </head>

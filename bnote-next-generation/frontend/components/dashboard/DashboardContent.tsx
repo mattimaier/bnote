@@ -205,8 +205,8 @@ export default function DashboardContent({
       );
       if (entityTypesWithItems.length < 2) return null;
       return (
-      <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 md:gap-3">
+        <span className="text-xs font-medium tracking-wide uppercase" style={{ color: "var(--muted-foreground)" }}>
           {t("js.common.filter")}
         </span>
         {entityTypesWithItems.map((filterType) => {
@@ -255,7 +255,7 @@ export default function DashboardContent({
         <button
           type="button"
           onClick={() => clearFilters(sectionId)}
-          className="text-xs px-2 py-1 rounded-md transition-colors hover:bg-[var(--muted)]"
+          className="text-xs px-2 py-1 rounded-md transition-colors hover:bg-[var(--muted)] whitespace-nowrap ml-auto sm:ml-0"
           style={{ color: "var(--muted-foreground)" }}
         >
           {t("js.common.clear")}
@@ -302,12 +302,12 @@ export default function DashboardContent({
 
   return (
     <div className={PAGE_CONTENT_BASE_CLASS}>
-      <div className="mb-4 pb-3 border-b border-border/30 md:mb-6 md:pb-4">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">{greeting}, {firstName}</h1>
-        <p className="text-sm font-medium mt-1 text-muted-foreground">{subtitle}</p>
+      <div className="mb-5 pb-4 border-b border-border/30 md:mb-6 md:pb-4">
+        <h1 className="text-2xl md:text-3xl leading-tight font-bold tracking-tight text-foreground">{greeting}, {firstName}</h1>
+        <p className="text-sm mt-1.5 text-muted-foreground/90">{subtitle}</p>
       </div>
 
-      <div className="space-y-4 md:space-y-4">
+      <div className="space-y-5 md:space-y-4">
         {hasNews && newsHtml && (
           <div
             className="overflow-hidden border-0 rounded-none shadow-none md:card md:card-border md:shadow-sm md:rounded-xl"
@@ -317,7 +317,7 @@ export default function DashboardContent({
               color: "var(--color-base-content)",
             }}
           >
-            <div className="px-2 py-2 border-b border-border/20 md:card-header md:px-4 md:py-3 md:border-border/30 flex flex-row items-center justify-between gap-3">
+            <div className="px-3 py-2.5 border-b border-border/20 md:card-header md:px-4 md:py-3 md:border-border/30 flex flex-row items-center justify-between gap-3">
               <h2 className="card-title text-base font-semibold m-0">
                 {t("js.sidebar.news") !== "js.sidebar.news" ? t("js.sidebar.news") : "News"}
               </h2>
@@ -328,7 +328,7 @@ export default function DashboardContent({
               )}
             </div>
             <div
-              className="px-2 py-2 md:card-body md:px-4 md:py-3 text-base-content/90 rich-text-content"
+              className="px-3 py-2.5 md:card-body md:px-4 md:py-3 text-base-content/90 rich-text-content"
               dangerouslySetInnerHTML={{ __html: newsHtml }}
             />
           </div>
@@ -357,20 +357,20 @@ export default function DashboardContent({
           </div>
         )}
 
-        <div className="flex flex-col gap-4 md:gap-4 py-2 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-transparent md:bg-card text-card-foreground">
-          <div className="px-0 md:px-4 lg:px-5 pb-2 md:pb-2 md:border-b md:border-border/30">
-            <h2 className="text-sm md:text-base font-semibold text-foreground">{t("js.dashboard.responseNeeded")}</h2>
+        <div className="flex flex-col gap-4 md:gap-4 py-3 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-transparent md:bg-card text-card-foreground">
+          <div className="px-0 md:px-4 lg:px-5 pb-2.5 md:pb-2 md:border-b md:border-border/30">
+            <h2 className="text-base md:text-base font-semibold text-foreground">{t("js.dashboard.responseNeeded")}</h2>
           </div>
-          <div className="px-0 md:px-4 lg:px-5 pb-2 md:pb-3">
+          <div className="px-0 md:px-4 lg:px-5 pb-2.5 md:pb-3">
             <FilterBubbles
               sectionId="events-needing-response"
               counts={filterCountsNeed}
               unfilteredCounts={{ ...defaultCounts, ...needResponseCounts }}
             />
           </div>
-          <div className="relative space-y-2 md:space-y-3 px-0 md:px-4 lg:px-5">
+          <div className="relative space-y-3 md:space-y-3 px-0 md:px-4 lg:px-5">
             {showNeed.length === 0 ? (
-              <p className="text-sm py-8 text-center" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-sm py-10 text-center" style={{ color: "var(--muted-foreground)" }}>
                 {t("js.dashboard.noEventsNeedingResponse") !== "js.dashboard.noEventsNeedingResponse"
                   ? t("js.dashboard.noEventsNeedingResponse")
                   : "No events need your response at this time."}
@@ -407,20 +407,20 @@ export default function DashboardContent({
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 md:gap-4 py-2 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-transparent md:bg-card text-card-foreground">
-          <div className="px-0 md:px-4 lg:px-5 pb-2 md:pb-2 md:border-b md:border-border/30">
-            <h2 className="text-sm md:text-base font-semibold text-foreground">{t("js.dashboard.upcomingEvents")}</h2>
+        <div className="flex flex-col gap-4 md:gap-4 py-3 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-transparent md:bg-card text-card-foreground">
+          <div className="px-0 md:px-4 lg:px-5 pb-2.5 md:pb-2 md:border-b md:border-border/30">
+            <h2 className="text-base md:text-base font-semibold text-foreground">{t("js.dashboard.upcomingEvents")}</h2>
           </div>
-          <div className="px-0 md:px-4 lg:px-5 pb-2 md:pb-3">
+          <div className="px-0 md:px-4 lg:px-5 pb-2.5 md:pb-3">
             <FilterBubbles
               sectionId="events-timeline"
               counts={filterCountsTimeline}
               unfilteredCounts={{ ...defaultCounts, ...timelineCounts }}
             />
           </div>
-          <div className="relative space-y-2 md:space-y-3 px-0 md:px-4 lg:px-5">
+          <div className="relative space-y-3 md:space-y-3 px-0 md:px-4 lg:px-5">
             {showTimeline.length === 0 ? (
-              <p className="text-sm py-8 text-center" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-sm py-10 text-center" style={{ color: "var(--muted-foreground)" }}>
                 {t("js.dashboard.noUpcomingEvents") !== "js.dashboard.noUpcomingEvents" ? t("js.dashboard.noUpcomingEvents") : "No upcoming events scheduled."}
               </p>
             ) : (

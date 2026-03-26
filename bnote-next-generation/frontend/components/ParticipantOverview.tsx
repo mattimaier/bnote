@@ -122,7 +122,7 @@ function ParticipantRow({
   );
 
   return (
-    <div className="flex items-start gap-3 py-2 px-2 rounded-md border border-base-300/60 bg-base-100 hover:bg-base-200/70 transition-colors text-base-content">
+    <div className="flex items-start gap-3 px-3 py-3 text-base-content md:rounded-md md:border md:border-base-300/60 md:bg-base-100 md:px-2 md:py-2 md:hover:bg-base-200/70 md:transition-colors">
       <Avatar
         email={participant.email}
         name={participant.name}
@@ -136,7 +136,7 @@ function ParticipantRow({
           <StatusIcon participate={participant.participate} />
         </div>
         {participant.reason?.trim() && (
-          <p className="text-xs mt-1 italic text-base-content/70">
+          <p className="mt-1 text-xs italic text-base-content/70">
             {participant.reason}
           </p>
         )}
@@ -207,17 +207,17 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
           return (
             <div
               key={`${name}-${idx}`}
-              className="rounded-lg border-2 border-base-300 bg-base-100 p-4 shadow-sm text-base-content"
+              className="overflow-hidden pb-4 text-base-content md:rounded-lg md:border-2 md:border-base-300 md:bg-base-100 md:p-4 md:shadow-sm"
             >
-              <h3 className="text-base font-semibold text-center mb-2 text-base-content">
+              <h3 className="mb-2 px-1 pt-1 text-center text-base font-semibold text-base-content md:px-0 md:pt-0">
                 {name}
               </h3>
               {(stats.total ?? 0) > 0 && (
-                <div className="mb-3">
+                <div className="mb-3 px-1 md:px-0">
                   <ParticipationDiagram stats={stats} />
                 </div>
               )}
-              <div className="space-y-2">
+              <div className="divide-y divide-base-300/60 bg-transparent md:space-y-2 md:divide-y-0 md:border-0 md:bg-transparent">
                 {group.participants?.map((p) => (
                   <ParticipantRow
                     key={`${p.id}-${p.userId ?? p.name}`}

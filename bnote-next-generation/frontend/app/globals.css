@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin "flyonui" {
-  themes: bnotelight --default, bnotedark --prefersdark;
+  themes: bnotelight --default, bnotedark;
 }
 @plugin "flyonui/theme" {
   name: "bnotelight";
@@ -27,7 +27,7 @@
 @plugin "flyonui/theme" {
   name: "bnotedark";
   default: false;
-  prefersdark: true;
+  prefersdark: false;
   color-scheme: dark;
   --color-primary: #3399ff;
   --color-primary-content: #ffffff;
@@ -278,6 +278,30 @@ body {
 @media (max-width: 767px) {
   body {
     overflow-x: hidden;
+    font-size: 16.5px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Mobile readability: lift tiny utility text closer to iOS defaults */
+  .text-xs {
+    font-size: 0.8125rem;
+    line-height: 1.2rem;
+  }
+
+  .text-sm {
+    font-size: 0.95rem;
+    line-height: 1.4rem;
+  }
+
+  .text-base {
+    font-size: 1.02rem;
+    line-height: 1.5rem;
+  }
+
+  /* Keep compact UI chips readable on phones */
+  .event-badge,
+  .filter-bubble {
+    font-size: 0.8125rem;
   }
 }
 
@@ -289,6 +313,13 @@ input[type="search"]::-webkit-search-results-decoration {
   -webkit-appearance: none;
   appearance: none;
   display: none;
+}
+
+/* iOS Safari: prevent zoom on focus for topbar search input */
+@media (max-width: 767px) {
+  #topbar-search {
+    font-size: 16px !important;
+  }
 }
 
 /* Participation buttons – light when inactive, saturated border; solid when active */

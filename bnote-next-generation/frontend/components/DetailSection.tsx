@@ -8,7 +8,7 @@
 
 /** Reusable card/section class for entity detail pages (mobile: flat, desktop: rounded card). */
 export const DETAIL_SECTION_CLASS =
-  "rounded-none border-0 shadow-none px-0 py-1 md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 bg-transparent md:bg-base-100 text-base-content";
+  "rounded-lg border border-base-300/70 bg-base-100/80 px-3 py-3 shadow-sm md:rounded-xl md:border md:border-base-300 md:shadow-sm md:p-6 md:bg-base-100 text-base-content";
 
 export interface DetailSectionProps {
   children: React.ReactNode;

@@ -568,12 +568,12 @@ export function EventDetail({
   };
 
   return (
-    <div className="w-full max-w-none px-0 py-0 space-y-2 md:max-w-7xl md:mx-auto md:space-y-6 md:px-4 md:py-3">
+    <div className="w-full max-w-none px-0 py-0 space-y-3 md:max-w-7xl md:mx-auto md:space-y-6 md:px-4 md:py-3">
       {/* Header + participation widget */}
       <div
         className={DETAIL_SECTION_CLASS}
       >
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between md:gap-4">
+        <div className="flex flex-col gap-3 md:gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <div
@@ -597,15 +597,17 @@ export function EventDetail({
                 <span className={`event-badge ${eventTypeConfig.badgeClass}`}>{eventTypeConfig.label}</span>
               </div>
             </div>
-            <p className="mt-2 text-sm text-base-content/60">
-              {dateStr} · {timeStr}
-              {endTimeStr ? ` - ${endTimeStr}` : ""}
-            </p>
-            {locationName && (
-              <p className="mt-1 text-sm text-base-content/60">
-                <EntityLink entityType="location" id={loc?.id} name={locationName} modules={modules} />
+            <div className="mt-2 space-y-1">
+              <p className="text-sm text-base-content/60">
+                {dateStr} · {timeStr}
+                {endTimeStr ? ` - ${endTimeStr}` : ""}
               </p>
-            )}
+              {locationName && (
+                <p className="text-sm text-base-content/60">
+                  <EntityLink entityType="location" id={loc?.id} name={locationName} modules={modules} />
+                </p>
+              )}
+            </div>
             {isPastEvent && (
               <p className="mt-2 text-xs font-medium text-error">
                 {t("js.event.detail.pastEvent")}
@@ -618,19 +620,17 @@ export function EventDetail({
             )}
             {/* Top section only shows name + date/time (address in details card) */}
           </div>
-          <div className="shrink-0 flex flex-col items-end gap-2">
-            {canEdit && !isEditing && (
-              <div className="flex items-baseline">
-                <DetailEditButton onClick={startEdit} />
-              </div>
-            )}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center md:justify-end">
+            {canEdit && !isEditing && <DetailEditButton onClick={startEdit} />}
             {!isEditing && (type === "rehearsal" || type === "concert") && (
-              <ParticipationWidget
-                eventId={numId}
-                eventType={eventType}
-                onStatusChange={loadData}
-                disabled={participationDisabled}
-              />
+              <div className="sm:ml-auto">
+                <ParticipationWidget
+                  eventId={numId}
+                  eventType={eventType}
+                  onStatusChange={loadData}
+                  disabled={participationDisabled}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -694,12 +694,12 @@ export function EventDetail({
       <div
         className={DETAIL_SECTION_CLASS}
       >
-        <h2 className="text-lg font-semibold mb-2 md:mb-4 text-base-content">
+        <h2 className="text-lg font-semibold mb-3 md:mb-4 text-base-content">
           {t("js.event.detail.additionalInfo") !== "js.event.detail.additionalInfo"
             ? t("js.event.detail.additionalInfo")
             : "Details"}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           <div>
             <span className="text-xs font-medium text-base-content/60">
               {t("js.event.detail.start") !== "js.event.detail.start" ? t("js.event.detail.start") : "Start"}:
@@ -932,7 +932,7 @@ export function EventDetail({
         <div
           className={DETAIL_SECTION_CLASS}
         >
-          <h2 className="text-lg font-semibold mb-2 md:mb-4 text-base-content">
+          <h2 className="text-lg font-semibold mb-3 md:mb-4 text-base-content">
             {t("js.event.detail.participationOverview") !== "js.event.detail.participationOverview"
               ? t("js.event.detail.participationOverview")
               : "Participation overview"}
@@ -1037,12 +1037,12 @@ export function EventDetail({
         <div
           className={DETAIL_SECTION_CLASS}
         >
-          <h2 className="text-lg font-semibold mb-2 md:mb-4 text-base-content">
+          <h2 className="text-lg font-semibold mb-3 md:mb-4 text-base-content">
             {t("js.event.metadata.organisation") !== "js.event.metadata.organisation"
               ? t("js.event.metadata.organisation")
               : "Organisation"}
           </h2>
-          <div className="space-y-2 md:space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {(isEditing || groups.length > 0) && (
               <div>
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -1178,12 +1178,12 @@ export function EventDetail({
               </div>
             )}
           </div>
-          <h3 className="text-sm font-semibold mt-3 mb-2 md:mt-6 md:mb-3 text-base-content">
+          <h3 className="text-sm font-semibold mt-4 mb-3 md:mt-6 md:mb-3 text-base-content">
             {t("js.event.metadata.details") !== "js.event.metadata.details"
               ? t("js.event.metadata.details")
               : "Details"}
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {(isEditing || safeString(accommodation?.name)) && (
               <div>
                 <span className="text-xs font-medium text-base-content/60">

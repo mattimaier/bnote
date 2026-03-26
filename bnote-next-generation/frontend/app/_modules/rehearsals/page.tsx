@@ -139,7 +139,7 @@ export default function RehearsalsPage() {
   }
 
   return (
-    <PageContent>
+    <PageContent className="px-1 md:px-4">
       <div>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
           {t("js.sidebar.rehearsals") !== "js.sidebar.rehearsals"
