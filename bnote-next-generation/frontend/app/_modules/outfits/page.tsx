@@ -25,6 +25,7 @@ import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 
 type SortKey = "name";
 
@@ -123,26 +124,18 @@ export default function OutfitsPage() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-base-content">
-            {t("js.outfits.title") !== "js.outfits.title"
-              ? t("js.outfits.title")
-              : "Outfits"}
-          </h1>
-          <p className="mt-1 text-sm text-base-content/60">
-            {t("js.outfits.subtitle") !== "js.outfits.subtitle"
-              ? t("js.outfits.subtitle")
-              : "Manage costumes and uniforms"}
-          </p>
-        </div>
-        <ActionButton href={getEntityPath("outfit", "new", "edit")}>
-          <Plus className="h-4 w-4" />
-          {t("js.outfits.addOutfit") !== "js.outfits.addOutfit"
-            ? t("js.outfits.addOutfit")
-            : "Add Outfit"}
-        </ActionButton>
-      </div>
+      <AppPageHeader
+        title={t("js.outfits.title") !== "js.outfits.title" ? t("js.outfits.title") : "Outfits"}
+        subtitle={t("js.outfits.subtitle") !== "js.outfits.subtitle" ? t("js.outfits.subtitle") : "Manage costumes and uniforms"}
+        actions={(
+          <ActionButton href={getEntityPath("outfit", "new", "edit")}>
+            <Plus className="h-4 w-4" />
+            {t("js.outfits.addOutfit") !== "js.outfits.addOutfit"
+              ? t("js.outfits.addOutfit")
+              : "Add Outfit"}
+          </ActionButton>
+        )}
+      />
 
       {error && (
         <div

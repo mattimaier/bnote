@@ -23,6 +23,7 @@ import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { formatDateTimeShort } from "@/lib/date-time";
 import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PageContent } from "@/components/PageContent";
@@ -152,26 +153,18 @@ export default function VotesPage() {
 
   return (
     <PageContent>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-            {t("js.votes.title") !== "js.votes.title"
-              ? t("js.votes.title")
-              : "Votes"}
-          </h1>
-          <p className="mt-1 text-sm text-base-content/60">
-            {t("js.votes.subtitle") !== "js.votes.subtitle"
-              ? t("js.votes.subtitle")
-              : "Polls and surveys"}
-          </p>
-        </div>
-        <ActionButton href={getEntityPath("vote", "new", "edit")}>
-          <Plus className="h-4 w-4" />
-          {t("js.votes.addVote") !== "js.votes.addVote"
-            ? t("js.votes.addVote")
-            : "Add Vote"}
-        </ActionButton>
-      </div>
+      <AppPageHeader
+        title={t("js.votes.title") !== "js.votes.title" ? t("js.votes.title") : "Votes"}
+        subtitle={t("js.votes.subtitle") !== "js.votes.subtitle" ? t("js.votes.subtitle") : "Polls and surveys"}
+        actions={(
+          <ActionButton href={getEntityPath("vote", "new", "edit")}>
+            <Plus className="h-4 w-4" />
+            {t("js.votes.addVote") !== "js.votes.addVote"
+              ? t("js.votes.addVote")
+              : "Add Vote"}
+          </ActionButton>
+        )}
+      />
 
       {error && (
         <div

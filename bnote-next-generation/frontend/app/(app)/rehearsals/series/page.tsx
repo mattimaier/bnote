@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { PageContent } from "@/components/PageContent";
 import { Spinner } from "@/components/Spinner";
 import { EntityListRow } from "@/components/EntityListRow";
@@ -10,7 +11,7 @@ import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { useI18n } from "@/contexts/I18nContext";
 import { getErrorMessage } from "@/lib/error-utils";
 import { rehearsalsApi, type RehearsalSeriesSummary } from "@/lib/rehearsals-api";
-import { Plus } from "@/components/icons";
+import { CalendarDays, Plus } from "@/components/icons";
 
 export default function RehearsalSeriesListPage() {
   const router = useRouter();
@@ -57,17 +58,15 @@ export default function RehearsalSeriesListPage() {
 
   return (
     <PageContent className="px-1 md:px-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-          {t("js.rehearsals.series.listTitle") !== "js.rehearsals.series.listTitle" ? t("js.rehearsals.series.listTitle") : "Rehearsal series"}
-        </h1>
-        <div className="flex items-center gap-2">
+      <AppPageHeader
+        title={t("js.rehearsals.series.listTitle") !== "js.rehearsals.series.listTitle" ? t("js.rehearsals.series.listTitle") : "Rehearsal series"}
+        actions={(
           <ActionButton href="/rehearsals/series/detail?new=1&edit=1">
             <Plus className="h-4 w-4" />
             {t("js.rehearsals.series.createButton") !== "js.rehearsals.series.createButton" ? t("js.rehearsals.series.createButton") : "Create series"}
           </ActionButton>
-        </div>
-      </div>
+        )}
+      />
 
       {error && <div className="rounded-lg border border-error bg-error/15 text-error px-4 py-3 text-sm">{error}</div>}
 
@@ -130,6 +129,7 @@ function SeriesTableSection({
           onRowClick={(row) => onOpen(row.id)}
           renderMobileRow={(row) => (
             <EntityListRow
+              icon={<CalendarDays className="h-4 w-4" />}
               primary={<span className="font-semibold">{row.name || `#${row.id}`}</span>}
               secondary={<span>{localizeDate(row.firstSession)} - {localizeDate(row.lastSession)} ({row.rehearsalCount})</span>}
               onClick={() => onOpen(row.id)}

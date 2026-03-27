@@ -21,6 +21,7 @@ import { Avatar } from "@/components/Avatar";
 import { getIcon } from "@/components/icons";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -127,20 +128,16 @@ export default function UsersPage() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-base-content">
-            {t("js.users.title") !== "js.users.title" ? t("js.users.title") : "User Management"}
-          </h1>
-          <p className="text-sm mt-1 text-base-content/60">
-            {t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"}
-          </p>
-        </div>
-        <ActionButton onClick={() => router.push(getEntityPath("user", "new", "edit"))}>
-          <Plus className="h-4 w-4" />
-          {t("js.users.addUser") !== "js.users.addUser" ? t("js.users.addUser") : "Add User"}
-        </ActionButton>
-      </div>
+      <AppPageHeader
+        title={t("js.users.title") !== "js.users.title" ? t("js.users.title") : "User Management"}
+        subtitle={t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"}
+        actions={(
+          <ActionButton onClick={() => router.push(getEntityPath("user", "new", "edit"))}>
+            <Plus className="h-4 w-4" />
+            {t("js.users.addUser") !== "js.users.addUser" ? t("js.users.addUser") : "Add User"}
+          </ActionButton>
+        )}
+      />
 
       {error && (
         <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">

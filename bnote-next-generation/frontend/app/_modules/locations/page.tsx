@@ -23,6 +23,7 @@ import { AddressLink } from "@/components/AddressLink";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown, MapPin } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PageContent } from "@/components/PageContent";
@@ -130,24 +131,18 @@ export default function LocationsPage() {
 
   return (
     <PageContent>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-base-content">
-            {t("js.locations.title") !== "js.locations.title" ? t("js.locations.title") : "Locations"}
-          </h1>
-          <p className="mt-1 text-sm text-base-content/60">
-            {t("js.locations.subtitle") !== "js.locations.subtitle"
-              ? t("js.locations.subtitle")
-              : "Manage venues and rehearsal rooms"}
-          </p>
-        </div>
-        <ActionButton href={getEntityPath("location", "new", "edit")}>
-          <Plus className="h-4 w-4" />
-          {t("js.locations.addLocation") !== "js.locations.addLocation"
-            ? t("js.locations.addLocation")
-            : "Add Location"}
-        </ActionButton>
-      </div>
+      <AppPageHeader
+        title={t("js.locations.title") !== "js.locations.title" ? t("js.locations.title") : "Locations"}
+        subtitle={t("js.locations.subtitle") !== "js.locations.subtitle" ? t("js.locations.subtitle") : "Manage venues and rehearsal rooms"}
+        actions={(
+          <ActionButton href={getEntityPath("location", "new", "edit")}>
+            <Plus className="h-4 w-4" />
+            {t("js.locations.addLocation") !== "js.locations.addLocation"
+              ? t("js.locations.addLocation")
+              : "Add Location"}
+          </ActionButton>
+        )}
+      />
 
       {error && (
         <div

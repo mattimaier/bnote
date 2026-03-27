@@ -20,6 +20,7 @@ import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -143,20 +144,16 @@ export default function ContactsPage() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-base-content">
-            {t("js.contacts.title") !== "js.contacts.title" ? t("js.contacts.title") : "Contacts"}
-          </h1>
-          <p className="text-sm mt-1 text-base-content/60">
-            {t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
-          </p>
-        </div>
-        <ActionButton onClick={() => router.push(getEntityPath("contact", "new", "edit"))}>
-          <Plus className="h-4 w-4" />
-          {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
-        </ActionButton>
-      </div>
+      <AppPageHeader
+        title={t("js.contacts.title") !== "js.contacts.title" ? t("js.contacts.title") : "Contacts"}
+        subtitle={t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
+        actions={(
+          <ActionButton onClick={() => router.push(getEntityPath("contact", "new", "edit"))}>
+            <Plus className="h-4 w-4" />
+            {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
+          </ActionButton>
+        )}
+      />
 
       {error && (
         <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">

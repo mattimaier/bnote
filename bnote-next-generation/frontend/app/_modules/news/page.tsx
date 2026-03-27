@@ -15,6 +15,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { api } from "@/lib/api";
 import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { NotesEditor } from "@/components/NotesEditor";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 
 interface NewsGetResponse {
@@ -160,16 +161,10 @@ export default function NewsPage() {
 
   return (
     <div className={PAGE_CONTENT_BASE_CLASS}>
-      <div className="mb-6 pb-4 border-b border-border/30">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          {t("js.sidebar.news") !== "js.sidebar.news" ? t("js.sidebar.news") : "News"}
-        </h1>
-        <p className="text-sm font-medium mt-1 text-muted-foreground">
-          {t("js.news.subtitle") !== "js.news.subtitle"
-            ? t("js.news.subtitle")
-            : "Edit the message shown on the dashboard."}
-        </p>
-      </div>
+      <AppPageHeader
+        title={t("js.sidebar.news") !== "js.sidebar.news" ? t("js.sidebar.news") : "News"}
+        subtitle={t("js.news.subtitle") !== "js.news.subtitle" ? t("js.news.subtitle") : "Edit the message shown on the dashboard."}
+      />
 
       {error && (
         <div

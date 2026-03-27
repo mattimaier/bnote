@@ -14,6 +14,7 @@ import { getEntityPath } from "@/lib/entities/paths";
 import { type SortDirection } from "@/lib/table-sort";
 import { CalendarDays, Plus } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PageContent } from "@/components/PageContent";
@@ -133,29 +134,25 @@ export default function RehearsalsPage() {
 
   return (
     <PageContent className="px-1 md:px-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-            {t("js.sidebar.rehearsals") !== "js.sidebar.rehearsals"
-              ? t("js.sidebar.rehearsals")
-              : "Rehearsals"}
-          </h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <ActionButton variant="outline" href="/rehearsals/series">
-            <CalendarDays className="h-4 w-4" />
-            {t("js.rehearsals.series.openButton") !== "js.rehearsals.series.openButton"
-              ? t("js.rehearsals.series.openButton")
-              : "Open series"}
-          </ActionButton>
-          <ActionButton href={getEntityPath("rehearsal", "new", "edit")}>
-            <Plus className="h-4 w-4" />
-            {t("js.rehearsals.addRehearsal") !== "js.rehearsals.addRehearsal"
-              ? t("js.rehearsals.addRehearsal")
-              : "Add Rehearsal"}
-          </ActionButton>
-        </div>
-      </div>
+      <AppPageHeader
+        title={t("js.sidebar.rehearsals") !== "js.sidebar.rehearsals" ? t("js.sidebar.rehearsals") : "Rehearsals"}
+        actions={(
+          <>
+            <ActionButton variant="outline" href="/rehearsals/series">
+              <CalendarDays className="h-4 w-4" />
+              {t("js.rehearsals.series.openButton") !== "js.rehearsals.series.openButton"
+                ? t("js.rehearsals.series.openButton")
+                : "Open series"}
+            </ActionButton>
+            <ActionButton href={getEntityPath("rehearsal", "new", "edit")}>
+              <Plus className="h-4 w-4" />
+              {t("js.rehearsals.addRehearsal") !== "js.rehearsals.addRehearsal"
+                ? t("js.rehearsals.addRehearsal")
+                : "Add Rehearsal"}
+            </ActionButton>
+          </>
+        )}
+      />
 
       {error && (
         <div

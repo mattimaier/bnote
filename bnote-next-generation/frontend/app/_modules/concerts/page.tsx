@@ -22,6 +22,7 @@ import { getEventTypeConfig } from "@/lib/entity-config";
 import { ParticipationDiagram } from "@/components/ParticipationDiagram";
 import { ArrowDown, ArrowUp, ArrowUpDown, Clock, MapPin, Plus } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { notesToPlainText } from "@/lib/editorjs-notes";
@@ -142,21 +143,17 @@ export default function ConcertsPage() {
 
   return (
     <PageContent className="px-1 md:px-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-            {t("js.sidebar.concerts") !== "js.sidebar.concerts"
-              ? t("js.sidebar.concerts")
-              : "Concerts"}
-          </h1>
-        </div>
-        <ActionButton href={getEntityPath("concert", "new", "edit")}>
-          <Plus className="h-4 w-4" />
-          {t("js.concerts.addConcert") !== "js.concerts.addConcert"
-            ? t("js.concerts.addConcert")
-            : "Add Concert"}
-        </ActionButton>
-      </div>
+      <AppPageHeader
+        title={t("js.sidebar.concerts") !== "js.sidebar.concerts" ? t("js.sidebar.concerts") : "Concerts"}
+        actions={(
+          <ActionButton href={getEntityPath("concert", "new", "edit")}>
+            <Plus className="h-4 w-4" />
+            {t("js.concerts.addConcert") !== "js.concerts.addConcert"
+              ? t("js.concerts.addConcert")
+              : "Add Concert"}
+          </ActionButton>
+        )}
+      />
 
       {error && (
         <div

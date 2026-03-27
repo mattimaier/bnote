@@ -21,6 +21,7 @@ import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -139,26 +140,18 @@ export default function EquipmentPage() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-base-content">
-            {t("js.equipment.title") !== "js.equipment.title"
-              ? t("js.equipment.title")
-              : "Equipment"}
-          </h1>
-          <p className="mt-1 text-sm text-base-content/60">
-            {t("js.equipment.subtitle") !== "js.equipment.subtitle"
-              ? t("js.equipment.subtitle")
-              : "Manage inventory and assets"}
-          </p>
-        </div>
-        <ActionButton href={getEntityPath("equipment", "new", "edit")}>
-          <Plus className="h-4 w-4" />
-          {t("js.equipment.addEquipment") !== "js.equipment.addEquipment"
-            ? t("js.equipment.addEquipment")
-            : "Add Equipment"}
-        </ActionButton>
-      </div>
+      <AppPageHeader
+        title={t("js.equipment.title") !== "js.equipment.title" ? t("js.equipment.title") : "Equipment"}
+        subtitle={t("js.equipment.subtitle") !== "js.equipment.subtitle" ? t("js.equipment.subtitle") : "Manage inventory and assets"}
+        actions={(
+          <ActionButton href={getEntityPath("equipment", "new", "edit")}>
+            <Plus className="h-4 w-4" />
+            {t("js.equipment.addEquipment") !== "js.equipment.addEquipment"
+              ? t("js.equipment.addEquipment")
+              : "Add Equipment"}
+          </ActionButton>
+        )}
+      />
 
       {error && (
         <div

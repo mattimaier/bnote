@@ -22,6 +22,7 @@ import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -131,26 +132,18 @@ export default function RepertoirePage() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-base-content">
-            {t("js.repertoire.title") !== "js.repertoire.title"
-              ? t("js.repertoire.title")
-              : "Repertoire"}
-          </h1>
-          <p className="mt-1 text-sm text-base-content/60">
-            {t("js.repertoire.subtitle") !== "js.repertoire.subtitle"
-              ? t("js.repertoire.subtitle")
-              : "Manage songs and repertoire"}
-          </p>
-        </div>
-        <ActionButton href={getEntityPath("song", "new", "edit")}>
-          <Plus className="h-4 w-4" />
-          {t("js.repertoire.addSong") !== "js.repertoire.addSong"
-            ? t("js.repertoire.addSong")
-            : "Add Song"}
-        </ActionButton>
-      </div>
+      <AppPageHeader
+        title={t("js.repertoire.title") !== "js.repertoire.title" ? t("js.repertoire.title") : "Repertoire"}
+        subtitle={t("js.repertoire.subtitle") !== "js.repertoire.subtitle" ? t("js.repertoire.subtitle") : "Manage songs and repertoire"}
+        actions={(
+          <ActionButton href={getEntityPath("song", "new", "edit")}>
+            <Plus className="h-4 w-4" />
+            {t("js.repertoire.addSong") !== "js.repertoire.addSong"
+              ? t("js.repertoire.addSong")
+              : "Add Song"}
+          </ActionButton>
+        )}
+      />
 
       {error && (
         <div

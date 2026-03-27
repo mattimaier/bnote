@@ -21,6 +21,7 @@ import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { formatDateTimeShort } from "@/lib/date-time";
 import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { notesToPlainText } from "@/lib/editorjs-notes";
@@ -181,25 +182,21 @@ export default function TasksPage() {
 
   return (
     <PageContent className="px-1 md:px-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-            {t("js.sidebar.tasks") !== "js.sidebar.tasks" ? t("js.sidebar.tasks") : "Tasks"}
-          </h1>
-          <p className="mt-1 text-sm text-base-content/60">
-            {t("js.tasks.subtitle") !== "js.tasks.subtitle" ? t("js.tasks.subtitle") : "Assign and track tasks"}
-          </p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <ActionButton variant="outline" href={getEntityPath("group_task", "new", "edit")}>
-            {t("js.tasks.addGroupTask") !== "js.tasks.addGroupTask" ? t("js.tasks.addGroupTask") : "Add group task"}
-          </ActionButton>
-          <ActionButton href={getEntityPath("task", "new", "edit")}>
-            <Plus className="h-4 w-4" />
-            {t("js.tasks.addTask") !== "js.tasks.addTask" ? t("js.tasks.addTask") : "Add Task"}
-          </ActionButton>
-        </div>
-      </div>
+      <AppPageHeader
+        title={t("js.sidebar.tasks") !== "js.sidebar.tasks" ? t("js.sidebar.tasks") : "Tasks"}
+        subtitle={t("js.tasks.subtitle") !== "js.tasks.subtitle" ? t("js.tasks.subtitle") : "Assign and track tasks"}
+        actions={(
+          <>
+            <ActionButton variant="outline" href={getEntityPath("group_task", "new", "edit")}>
+              {t("js.tasks.addGroupTask") !== "js.tasks.addGroupTask" ? t("js.tasks.addGroupTask") : "Add group task"}
+            </ActionButton>
+            <ActionButton href={getEntityPath("task", "new", "edit")}>
+              <Plus className="h-4 w-4" />
+              {t("js.tasks.addTask") !== "js.tasks.addTask" ? t("js.tasks.addTask") : "Add Task"}
+            </ActionButton>
+          </>
+        )}
+      />
 
       {error && (
         <div

@@ -17,6 +17,7 @@ import { PageContent } from "@/components/PageContent";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { ActionButton } from "@/components/ActionButton";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { Plus } from "@/components/icons";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
@@ -192,29 +193,25 @@ export default function CalendarPage() {
 
   return (
     <PageContent>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-base-content">
-            {t("js.sidebar.calendar") !== "js.sidebar.calendar"
-              ? t("js.sidebar.calendar")
-              : "Kalender"}
-          </h1>
-        </div>
-        <div className="flex gap-2">
-          <ActionButton onClick={() => router.push(getEntityPath("reservation", "new", "edit"))}>
-            <Plus className="h-4 w-4" />
-            {t("js.calendar.addReservation") !== "js.calendar.addReservation"
-              ? t("js.calendar.addReservation")
-              : "Add Reservation"}
-          </ActionButton>
-          <ActionButton onClick={() => router.push(getEntityPath("appointment", "new", "edit"))}>
-            <Plus className="h-4 w-4" />
-            {t("js.calendar.addAppointment") !== "js.calendar.addAppointment"
-              ? t("js.calendar.addAppointment")
-              : "Add Appointment"}
-          </ActionButton>
-        </div>
-      </div>
+      <AppPageHeader
+        title={t("js.sidebar.calendar") !== "js.sidebar.calendar" ? t("js.sidebar.calendar") : "Kalender"}
+        actions={(
+          <>
+            <ActionButton onClick={() => router.push(getEntityPath("reservation", "new", "edit"))}>
+              <Plus className="h-4 w-4" />
+              {t("js.calendar.addReservation") !== "js.calendar.addReservation"
+                ? t("js.calendar.addReservation")
+                : "Add Reservation"}
+            </ActionButton>
+            <ActionButton onClick={() => router.push(getEntityPath("appointment", "new", "edit"))}>
+              <Plus className="h-4 w-4" />
+              {t("js.calendar.addAppointment") !== "js.calendar.addAppointment"
+                ? t("js.calendar.addAppointment")
+                : "Add Appointment"}
+            </ActionButton>
+          </>
+        )}
+      />
 
       {error && (
         <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">

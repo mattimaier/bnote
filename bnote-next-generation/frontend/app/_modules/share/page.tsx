@@ -22,6 +22,7 @@ import { ShareUploadZone } from "@/components/share/ShareUploadZone";
 import { getIcon } from "@/components/icons";
 import { ChevronRight, FolderPlus, Download } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import type { ShareSortKey, SortDirection } from "@/components/share/ShareFileList";
@@ -177,14 +178,7 @@ export default function SharePage() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-          {title}
-        </h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
-          {subtitle}
-        </p>
-      </div>
+      <AppPageHeader title={title} subtitle={subtitle} />
 
       {error && (
         <div
