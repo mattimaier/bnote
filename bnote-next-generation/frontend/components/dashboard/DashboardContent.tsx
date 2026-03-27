@@ -12,10 +12,12 @@ import { useI18n } from "@/contexts/I18nContext";
 import { type Session } from "@/lib/auth";
 import { mapOtypeToEventType } from "@/lib/event-utils";
 import { EventCard, type InboxEvent } from "@/components/EventCard";
+import { DashboardGreeting } from "@/components/dashboard/DashboardGreeting";
 import { getIcon } from "@/components/icons";
 import { isQuickActionsEnabled } from "@/lib/entity-config";
 import { useModules } from "@/lib/use-modules";
-import { normalizeCompany, useNewsHtml, MAX_SHOW_DEFAULT } from "@/lib/dashboard-utils";
+import { useNewsHtml, MAX_SHOW_DEFAULT } from "@/lib/dashboard-utils";
+import { getDashboardEmptyResponseMessage } from "@/lib/dashboard-empty-state";
 import { Spinner } from "@/components/Spinner";
 import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 
@@ -75,23 +77,6 @@ export default function DashboardContent({
     "events-needing-response": MAX_SHOW_DEFAULT,
     "events-timeline": MAX_SHOW_DEFAULT,
   });
-  const [greeting, setGreeting] = useState("Hello");
-
-  useEffect(() => {
-    if (!ready) return;
-    const welcomeText = t("banner_Logout.welcome");
-    if (welcomeText && welcomeText !== "banner_Logout.welcome") {
-      setGreeting(welcomeText);
-    } else {
-      const hour = new Date().getHours();
-      const morning = t("js.common.greeting.morning");
-      const afternoon = t("js.common.greeting.afternoon");
-      const evening = t("js.common.greeting.evening");
-      if (hour < 12) setGreeting(morning !== "js.common.greeting.morning" ? morning : "Good morning");
-      else if (hour < 18) setGreeting(afternoon !== "js.common.greeting.afternoon" ? afternoon : "Good afternoon");
-      else setGreeting(evening !== "js.common.greeting.evening" ? evening : "Good evening");
-    }
-  }, [ready, t]);
 
   useEffect(() => {
     const maxNeed = needResponse?.config?.max_show ?? MAX_SHOW_DEFAULT;
@@ -153,6 +138,15 @@ export default function DashboardContent({
     () => applyFilters("events-timeline", timelineEvents),
     [timelineEvents, applyFilters, filters["events-timeline"]]
   );
+  const allEvents = useMemo(() => {
+    const source = [...(dashboard?.inbox ?? []), ...(needResponse?.events ?? [])];
+    const dedup = new Map<string, InboxEvent>();
+    source.forEach((event) => {
+      const key = `${event.otype}-${event.oid}`;
+      if (!dedup.has(key)) dedup.set(key, event);
+    });
+    return [...dedup.values()];
+  }, [dashboard?.inbox, needResponse?.events]);
 
   const maxNeed = needResponse?.config?.max_show ?? MAX_SHOW_DEFAULT;
   const maxTimeline = dashboard?.config?.max_show ?? MAX_SHOW_DEFAULT;
@@ -265,6 +259,15 @@ export default function DashboardContent({
     },
     [t, filters, toggleFilter, clearFilters]
   );
+  const emptyNeedResponseMessage = useMemo(
+    () =>
+      getDashboardEmptyResponseMessage({
+        userName: session?.user?.name,
+        variantCount: 10,
+        t,
+      }),
+    [session?.user?.name, t]
+  );
 
   if (!ready || loading) {
     return (
@@ -289,9 +292,50 @@ export default function DashboardContent({
     );
   }
 
-  const firstName = session?.user?.name || t("js.common.user");
-  const companyName = String(normalizeCompany(dashboard?.company) || t("js.common.appName")).trim();
-  const subtitle = t("js.dashboard.subtitle", [companyName]);
+  const getWeekBounds = (): { start: Date; end: Date } => {
+    const now = new Date();
+    const start = new Date(now);
+    const day = (now.getDay() + 6) % 7; // Monday=0 ... Sunday=6
+    start.setDate(now.getDate() - day);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+    return { start, end };
+  };
+  const getEventDate = (event: InboxEvent): Date | null => {
+    const raw = event.eventBegin || event.dueDate || event.begin;
+    if (!raw) return null;
+    const date = new Date(raw);
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+  const isInCurrentWeek = (event: InboxEvent): boolean => {
+    const date = getEventDate(event);
+    if (!date) return false;
+    const { start, end } = getWeekBounds();
+    return date >= start && date < end;
+  };
+
+  const pendingResponses = (needResponse?.events ?? []).length;
+  const weekEvents = timelineEvents.filter(isInCurrentWeek);
+  const weekUpcomingEvents = weekEvents.length;
+  const weekRehearsals = weekEvents.filter((e) => mapOtypeToEventType(e.otype) === "rehearsal").length;
+  const weekConcerts = weekEvents.filter((e) => mapOtypeToEventType(e.otype) === "performance").length;
+
+  const isSameLocalDay = (dateValue?: string): boolean => {
+    if (!dateValue) return false;
+    const d = new Date(dateValue);
+    if (Number.isNaN(d.getTime())) return false;
+    const now = new Date();
+    return (
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+    );
+  };
+
+  const todayDueTasks = allEvents.filter((event) => event.otype === "T" && isSameLocalDay(event.dueDate || event.eventBegin || event.begin)).length;
+  const todayRehearsals = allEvents.filter((event) => event.otype === "R" && isSameLocalDay(event.eventBegin || event.begin || event.dueDate)).length;
+  const todayConcerts = allEvents.filter((event) => event.otype === "C" && isSameLocalDay(event.eventBegin || event.begin || event.dueDate)).length;
 
   const quickActions = [
     { titleKey: "js.dashboard.quickAction.viewCalendar", descKey: "js.dashboard.quickAction.viewCalendarDesc", icon: "calendar-days", colorClass: "bg-primary/10 text-primary hover:bg-primary/20", href: "/calendar" },
@@ -303,8 +347,17 @@ export default function DashboardContent({
   return (
     <div className={PAGE_CONTENT_BASE_CLASS}>
       <div className="mb-5 pb-4 border-b border-border/30 md:mb-6 md:pb-4">
-        <h1 className="text-2xl md:text-3xl leading-tight font-bold tracking-tight text-foreground">{greeting}, {firstName}</h1>
-        <p className="text-sm mt-1.5 text-muted-foreground/90">{subtitle}</p>
+        <DashboardGreeting
+          session={session}
+          dashboard={dashboard}
+          pendingResponses={pendingResponses}
+          upcomingEvents={weekUpcomingEvents}
+          upcomingRehearsals={weekRehearsals}
+          upcomingConcerts={weekConcerts}
+          todayDueTasks={todayDueTasks}
+          todayRehearsals={todayRehearsals}
+          todayConcerts={todayConcerts}
+        />
       </div>
 
       <div className="space-y-5 md:space-y-4">
@@ -371,9 +424,7 @@ export default function DashboardContent({
           <div className="relative space-y-3 md:space-y-3 px-0 md:px-4 lg:px-5">
             {showNeed.length === 0 ? (
               <p className="text-sm py-10 text-center" style={{ color: "var(--muted-foreground)" }}>
-                {t("js.dashboard.noEventsNeedingResponse") !== "js.dashboard.noEventsNeedingResponse"
-                  ? t("js.dashboard.noEventsNeedingResponse")
-                  : "No events need your response at this time."}
+                {emptyNeedResponseMessage}
               </p>
             ) : (
               showNeed.map((ev, idx) => (
