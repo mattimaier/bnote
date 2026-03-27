@@ -80,6 +80,8 @@ export interface RehearsalMeta {
   statusOptions: string[];
   groupMembers?: Record<string, number[]>;
   defaultDurationMinutes?: number;
+  defaultStartTime?: string;
+  defaultConductorId?: number;
 }
 
 export interface ConcertMeta {

@@ -13,6 +13,7 @@ export interface SelectedItemsListProps {
   options: SimpleOption[];
   selected: number[];
   onRemove: (id: number) => void;
+  removable?: boolean;
   labelRemove?: string;
   emptyLabel?: string;
   className?: string;
@@ -22,6 +23,7 @@ export function SelectedItemsList({
   options,
   selected,
   onRemove,
+  removable = true,
   labelRemove = "Remove",
   emptyLabel = "No selection",
   className = "",
@@ -54,10 +56,12 @@ export function SelectedItemsList({
                 </span>
               ) : null}
             </div>
-            <RemoveOptionButton
-              onClick={() => onRemove(id)}
-              ariaLabel={labelRemove}
-            />
+            {removable ? (
+              <RemoveOptionButton
+                onClick={() => onRemove(id)}
+                ariaLabel={labelRemove}
+              />
+            ) : null}
           </div>
         );
       })}

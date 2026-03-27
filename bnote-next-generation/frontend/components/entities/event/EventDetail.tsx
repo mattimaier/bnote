@@ -62,6 +62,12 @@ import { EntityLink } from "@/components/EntityLink";
 import { useEventDetailData } from "@/lib/entities/event/useEventDetailData";
 import { EventParticipationShareModal } from "@/components/entities/event/EventParticipationShareModal";
 import { normalizeCompany } from "@/lib/dashboard-utils";
+import {
+  addMinutesToInputDateTime,
+  deriveEventContacts,
+  getGroupContacts,
+  syncEndDate,
+} from "@/lib/entities/event/rehearsal-prefill";
 
 export interface EventDetailProps {
   type?: string;
@@ -113,32 +119,6 @@ export function EventDetail({
     return normalized.length === 16 ? `${normalized}:00` : normalized;
   };
 
-  const syncEndDate = (startValue: string, endValue: string) => {
-    if (!startValue) return endValue;
-    const startNorm = startValue.replace(" ", "T");
-    const [startDate, startTime] = startNorm.split("T");
-    if (!startDate) return endValue;
-    if (!endValue) return `${startDate}T${startTime ?? "00:00"}`;
-    const endNorm = endValue.replace(" ", "T");
-    const [, endTime] = endNorm.split("T");
-    return `${startDate}T${endTime ?? "00:00"}`;
-  };
-
-  const addMinutesToInputDateTime = (startValue: string, minutes: number) => {
-    if (!startValue) return "";
-    const normalized = startValue.replace(" ", "T");
-    const date = new Date(normalized);
-    if (Number.isNaN(date.getTime())) {
-      return "";
-    }
-    date.setMinutes(date.getMinutes() + minutes);
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    const hh = String(date.getHours()).padStart(2, "0");
-    const min = String(date.getMinutes()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-  };
 
   const mapParticipationToStatus = (value: number | null | undefined): EditableParticipant["participate"] => {
     if (value === 1) return "yes";
@@ -159,18 +139,6 @@ export function EventDetail({
     const aSorted = [...a].sort((x, y) => x - y);
     const bSorted = [...b].sort((x, y) => x - y);
     return aSorted.every((val, idx) => val === bSorted[idx]);
-  };
-
-  const getGroupContacts = (groupIds: number[]) => {
-    const members =
-      type === "concert" ? (meta as ConcertMeta | null)?.groupMembers : (meta as RehearsalMeta | null)?.groupMembers;
-    const result = new Set<number>();
-    if (!members) return result;
-    groupIds.forEach((groupId) => {
-      const ids = members[String(groupId)] ?? [];
-      ids.forEach((id) => result.add(id));
-    });
-    return result;
   };
 
   const module = type === "rehearsal" ? "rehearsals" : "concerts";
@@ -205,29 +173,25 @@ export function EventDetail({
 
   useEffect(() => {
     if (!isEditing || !form || form.manualContactsInitialized || !meta) return;
-    const groupContacts = getGroupContacts(form.groups);
+    const members =
+      type === "concert" ? (meta as ConcertMeta | null)?.groupMembers : (meta as RehearsalMeta | null)?.groupMembers;
+    const groupContacts = getGroupContacts(form.groups, members);
     const nextManual = form.eventContacts.filter((id) => !groupContacts.has(id));
     setForm({ ...form, manualContacts: nextManual, manualContactsInitialized: true });
   }, [isEditing, form?.manualContactsInitialized, form?.groups, form?.eventContacts, form, meta]);
 
   useEffect(() => {
     if (!isEditing || !form) return;
-    const groupContacts = getGroupContacts(form.groups);
-    const manualContacts = new Set(form.manualContacts);
-    const validExcluded = form.excludedContacts.filter((id) => groupContacts.has(id));
-    const excludedContacts = new Set(validExcluded);
-    const nextContacts = new Set<number>();
-
-    groupContacts.forEach((id) => {
-      if (!excludedContacts.has(id)) {
-        nextContacts.add(id);
-      }
-    });
-    manualContacts.forEach((id) => nextContacts.add(id));
-
-    const nextList = Array.from(nextContacts);
-    if (!arraysEqual(nextList, form.eventContacts) || !arraysEqual(validExcluded, form.excludedContacts)) {
-      setForm({ ...form, eventContacts: nextList, excludedContacts: validExcluded });
+    const members =
+      type === "concert" ? (meta as ConcertMeta | null)?.groupMembers : (meta as RehearsalMeta | null)?.groupMembers;
+    const { eventContacts, validExcludedContacts } = deriveEventContacts(
+      form.groups,
+      form.manualContacts,
+      form.excludedContacts,
+      members
+    );
+    if (!arraysEqual(eventContacts, form.eventContacts) || !arraysEqual(validExcludedContacts, form.excludedContacts)) {
+      setForm({ ...form, eventContacts, excludedContacts: validExcludedContacts });
     }
   }, [isEditing, form?.groups, form?.manualContacts, form?.excludedContacts, form, meta, type, setForm]);
 
@@ -1042,7 +1006,10 @@ export function EventDetail({
                   selected={form.eventContacts}
                   onChange={(next) => {
                     if (!form) return;
-                    const groupContacts = getGroupContacts(form.groups);
+                    const groupContacts = getGroupContacts(
+                      form.groups,
+                      type === "concert" ? concertMeta?.groupMembers : rehearsalMeta?.groupMembers
+                    );
                     const nextManual = next.filter((id) => !groupContacts.has(id));
                     const nextExcluded = form.excludedContacts.filter((id) => next.includes(id));
                     setForm({
@@ -1070,7 +1037,10 @@ export function EventDetail({
               participants={form.participants}
               onRemoveContact={(contactId) => {
                 if (!form) return;
-                const groupContacts = getGroupContacts(form.groups);
+                const groupContacts = getGroupContacts(
+                  form.groups,
+                  type === "concert" ? concertMeta?.groupMembers : rehearsalMeta?.groupMembers
+                );
                 if (groupContacts.has(contactId)) {
                   if (!form.excludedContacts.includes(contactId)) {
                     setForm({

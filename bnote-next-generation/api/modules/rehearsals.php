@@ -78,6 +78,36 @@ class RehearsalsModule {
             return $this->normalizeResponse($this->createRehearsal(), $action);
         }
 
+        if ($action === 'create_series') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->createSeries(), $action);
+        }
+
+        if ($action === 'list_series') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->listSeries(), $action);
+        }
+
+        if ($action === 'get_series') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->getSeries(), $action);
+        }
+
+        if ($action === 'update_series') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->updateSeries(), $action);
+        }
+
+        if ($action === 'list_by_series') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->listRehearsalsBySeries(), $action);
+        }
+
+        if ($action === 'delete_series') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->deleteSeries(), $action);
+        }
+
         // Handle explicit actions if needed in the future
         if ($action) {
             Response::error('Unknown action: ' . $action, 400);
@@ -547,7 +577,9 @@ class RehearsalsModule {
             'contacts' => $contacts,
             'statusOptions' => $this->data->getStatusOptions(),
             'groupMembers' => $groupMembers,
-            'defaultDurationMinutes' => intval($this->data->getDefaultDuration())
+            'defaultDurationMinutes' => intval($this->data->getDefaultDuration()),
+            'defaultStartTime' => strval($this->data->getDefaultTime()),
+            'defaultConductorId' => intval($system_data->getDynamicConfigParameter('default_conductor'))
         ];
     }
 
@@ -692,11 +724,9 @@ class RehearsalsModule {
     }
 
     private function createRehearsal() {
-        global $system_data;
-
         $payload = $this->getRequestData();
         $fields = $payload['fields'] ?? [];
-        $values = [
+        $rehearsalFields = [
             'begin' => $fields['begin'] ?? '',
             'end' => $fields['end'] ?? '',
             'approve_until' => $fields['approve_until'] ?? '',
@@ -706,37 +736,649 @@ class RehearsalsModule {
             'conductor' => $fields['conductor'] ?? 0
         ];
 
+        if (empty($rehearsalFields['approve_until']) && !empty($rehearsalFields['begin'])) {
+            $rehearsalFields['approve_until'] = $rehearsalFields['begin'];
+        }
+
+        $newId = $this->insertRehearsalWithRelations($payload, $rehearsalFields, null);
+        return ['id' => $newId];
+    }
+
+    private function createSeries() {
+        global $system_data;
+        $payload = $this->getRequestData();
+
+        $cycle = intval($payload['cycle'] ?? 0);
+        if ($cycle !== 1 && $cycle !== 2) {
+            Response::error('js.rehearsals.series.error.invalidCycle', 400);
+        }
+
+        $firstSession = trim(strval($payload['firstSession'] ?? ''));
+        $lastSession = trim(strval($payload['lastSession'] ?? ''));
+        if ($firstSession === '' || $lastSession === '') {
+            Response::error('js.rehearsals.series.error.requiredDates', 400);
+        }
+        if (strtotime($firstSession) === false || strtotime($lastSession) === false) {
+            Response::error('js.rehearsals.series.error.invalidDate', 400);
+        }
+        if (strtotime($lastSession) < strtotime($firstSession)) {
+            Response::error('js.rehearsals.series.error.dateRange', 400);
+        }
+
+        $duration = intval($payload['duration'] ?? 0);
+        if ($duration <= 0) {
+            Response::error('js.rehearsals.series.error.durationPositive', 400);
+        }
+        $defaultTime = trim(strval($payload['defaultTime'] ?? ''));
+        if (!preg_match('/^\d{2}:\d{2}$/', $defaultTime)) {
+            Response::error('js.rehearsals.series.error.invalidTime', 400);
+        }
+
+        $groupIds = array_values(array_filter(array_map('intval', $payload['groupIds'] ?? []), fn($id) => $id > 0));
+        if (count($groupIds) === 0) {
+            Response::error('js.rehearsals.series.error.requiredGroups', 400);
+        }
+        $locationId = intval($payload['location'] ?? 0);
+        if ($locationId <= 0) {
+            Response::error('js.rehearsals.series.error.requiredLocation', 400);
+        }
+
+        $conductorId = intval($payload['conductor'] ?? 0);
+        $notes = strval($payload['notes'] ?? '');
+        $statusRaw = trim(strval($payload['status'] ?? 'planned'));
+        $status = $statusRaw !== '' ? $statusRaw : 'planned';
+        $seriesName = trim(strval($payload['name'] ?? ''));
+        if ($seriesName === '') {
+            Response::error('js.rehearsals.series.error.requiredName', 400);
+        }
+        if (strlen($seriesName) > 190) {
+            Response::error('js.rehearsals.series.error.nameTooLong', 400);
+        }
+
+        $dates = $this->generateSeriesDates($firstSession, $lastSession, $cycle);
+        if (count($dates) === 0) {
+            Response::error('js.rehearsals.series.error.noSessionsGenerated', 400);
+        }
+
+        $seriesId = null;
+        $createdCount = 0;
+        try {
+            $seriesId = $system_data->dbcon->prepStatement(
+                "INSERT INTO rehearsalserie (name) VALUES (?)",
+                [['s', $seriesName]]
+            );
+            if (!$seriesId || intval($seriesId) <= 0) {
+                throw new Exception('Failed to create series');
+            }
+
+            $seriesId = intval($seriesId);
+            $payloadForChildren = [
+                'groups' => $groupIds,
+                'contacts' => $this->buildContactsForGroups($groupIds, $payload['contacts'] ?? []),
+                'songs' => $payload['songs'] ?? [],
+                'participants' => [],
+            ];
+
+            foreach ($dates as $sessionDate) {
+                $beginIso = $sessionDate . 'T' . $defaultTime . ':00';
+                $endIso = date('Y-m-d\TH:i:s', strtotime($beginIso) + ($duration * 60));
+                $fields = [
+                    'begin' => $beginIso,
+                    'end' => $endIso,
+                    'approve_until' => $beginIso,
+                    'status' => $status,
+                    'notes' => $notes,
+                    'location' => $locationId,
+                    'conductor' => $conductorId,
+                ];
+                $this->insertRehearsalWithRelations($payloadForChildren, $fields, $seriesId);
+                $createdCount++;
+            }
+        } catch (Throwable $e) {
+            if ($seriesId !== null && intval($seriesId) > 0) {
+                $sid = intval($seriesId);
+                // Best-effort cleanup when true DB transactions are unavailable in this protocol.
+                $system_data->dbcon->execute("DELETE FROM rehearsal WHERE serie = ?", [['i', $sid]]);
+                $system_data->dbcon->execute("DELETE FROM rehearsalserie WHERE id = ?", [['i', $sid]]);
+            }
+            error_log('create_series failed: ' . $e->getMessage());
+            Response::error('js.rehearsals.series.error.createFailed: ' . $e->getMessage(), 500);
+        }
+
+        return [
+            'seriesId' => intval($seriesId),
+            'createdCount' => $createdCount,
+        ];
+    }
+
+    private function listSeries() {
+        global $system_data;
+        $rows = $system_data->dbcon->preparedQuery(
+            "SELECT s.id, s.name, MIN(r.begin) AS first_session, MAX(r.begin) AS last_session, COUNT(r.id) AS rehearsal_count
+             FROM rehearsalserie s
+             JOIN rehearsal r ON r.serie = s.id
+             GROUP BY s.id, s.name
+             ORDER BY MAX(r.begin) DESC",
+            []
+        );
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = [
+                'id' => intval($row['id'] ?? 0),
+                'name' => $row['name'] ?? '',
+                'firstSession' => $row['first_session'] ?? '',
+                'lastSession' => $row['last_session'] ?? '',
+                'rehearsalCount' => intval($row['rehearsal_count'] ?? 0),
+            ];
+        }
+        return $result;
+    }
+
+    private function getSeries() {
+        global $system_data;
+        $id = intval($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error('js.rehearsals.series.error.invalidSeriesId', 400);
+        }
+
+        $series = $system_data->dbcon->fetchRow(
+            "SELECT id, name FROM rehearsalserie WHERE id = ?",
+            [['i', $id]]
+        );
+        if (!$series) {
+            Response::error('js.rehearsals.series.error.seriesNotFound', 404);
+        }
+
+        $rehearsals = $system_data->dbcon->preparedQuery(
+            "SELECT id, begin, end, approve_until, status, notes, location, conductor
+             FROM rehearsal
+             WHERE serie = ?
+             ORDER BY begin ASC",
+            [['i', $id]]
+        );
+        if (count($rehearsals) === 0) {
+            return [
+                'id' => intval($series['id']),
+                'name' => strval($series['name'] ?? ''),
+                'cycle' => 1,
+                'firstSession' => '',
+                'lastSession' => '',
+                'defaultTime' => '',
+                'duration' => 0,
+                'status' => 'planned',
+                'location' => 0,
+                'conductor' => 0,
+                'notes' => '',
+                'groupIds' => [],
+                'rehearsals' => [],
+            ];
+        }
+
+        $first = $rehearsals[0];
+        $last = $rehearsals[count($rehearsals) - 1];
+        $firstTs = strtotime($first['begin'] ?? '');
+        $endTs = strtotime($first['end'] ?? '');
+        $duration = ($firstTs && $endTs && $endTs >= $firstTs) ? intval(round(($endTs - $firstTs) / 60)) : 0;
+        $cycle = 1;
+        if (count($rehearsals) > 1) {
+            $firstDate = strtotime($rehearsals[0]['begin'] ?? '');
+            $secondDate = strtotime($rehearsals[1]['begin'] ?? '');
+            if ($firstDate && $secondDate) {
+                $days = intval(round(($secondDate - $firstDate) / 86400));
+                $cycle = ($days >= 13) ? 2 : 1;
+            }
+        }
+
+        $groupRows = $system_data->dbcon->preparedQuery(
+            "SELECT DISTINCT rg.`group` AS group_id
+             FROM rehearsal_group rg
+             JOIN rehearsal r ON r.id = rg.rehearsal
+             WHERE r.serie = ?
+             ORDER BY rg.`group` ASC",
+            [['i', $id]]
+        );
+        $groupIds = array_map(fn($row) => intval($row['group_id'] ?? 0), $groupRows);
+        $groupIds = array_values(array_filter($groupIds, fn($gid) => $gid > 0));
+
+        $contactRows = $system_data->dbcon->preparedQuery(
+            "SELECT DISTINCT rc.contact AS contact_id
+             FROM rehearsal_contact rc
+             JOIN rehearsal r ON r.id = rc.rehearsal
+             WHERE r.serie = ?
+             ORDER BY rc.contact ASC",
+            [['i', $id]]
+        );
+        $contactIds = array_map(fn($row) => intval($row['contact_id'] ?? 0), $contactRows);
+        $contactIds = array_values(array_filter($contactIds, fn($cid) => $cid > 0));
+
+        return [
+            'id' => intval($series['id']),
+            'name' => strval($series['name'] ?? ''),
+            'cycle' => $cycle,
+            'firstSession' => ($first['begin'] ?? '') !== '' ? substr($first['begin'], 0, 10) : '',
+            'lastSession' => ($last['begin'] ?? '') !== '' ? substr($last['begin'], 0, 10) : '',
+            'defaultTime' => ($first['begin'] ?? '') !== '' ? substr($first['begin'], 11, 5) : '',
+            'duration' => $duration,
+            'status' => strval($first['status'] ?? 'planned'),
+            'location' => intval($first['location'] ?? 0),
+            'conductor' => intval($first['conductor'] ?? 0),
+            'notes' => strval($first['notes'] ?? ''),
+            'groupIds' => $groupIds,
+            'contacts' => $contactIds,
+            'rehearsals' => array_map(function ($row) {
+                return [
+                    'id' => intval($row['id'] ?? 0),
+                    'begin' => strval($row['begin'] ?? ''),
+                    'end' => strval($row['end'] ?? ''),
+                    'approve_until' => strval($row['approve_until'] ?? ''),
+                    'status' => strval($row['status'] ?? ''),
+                    'notes' => strval($row['notes'] ?? ''),
+                    'location' => intval($row['location'] ?? 0),
+                    'conductor' => intval($row['conductor'] ?? 0),
+                ];
+            }, $rehearsals),
+        ];
+    }
+
+    private function listRehearsalsBySeries() {
+        global $system_data;
+        $seriesId = intval($_GET['seriesId'] ?? 0);
+        if ($seriesId <= 0) {
+            Response::error('js.rehearsals.series.error.invalidSeriesId', 400);
+        }
+        $rows = $system_data->dbcon->preparedQuery(
+            "SELECT r.id, r.begin, r.end, r.approve_until, r.notes, r.status, r.conductor, l.name AS location_name
+             FROM rehearsal r
+             JOIN location l ON r.location = l.id
+             WHERE r.serie = ?
+             ORDER BY r.begin ASC",
+            [['i', $seriesId]]
+        );
+        $result = [];
+        foreach ($rows as $r) {
+            $result[] = [
+                'id' => intval($r['id'] ?? 0),
+                'begin' => strval($r['begin'] ?? ''),
+                'end' => strval($r['end'] ?? ''),
+                'approve_until' => strval($r['approve_until'] ?? ''),
+                'location_name' => strval($r['location_name'] ?? ''),
+                'notes' => strval($r['notes'] ?? ''),
+                'status' => strval($r['status'] ?? ''),
+                'conductor' => isset($r['conductor']) ? intval($r['conductor']) : null,
+                'participationStats' => $this->getParticipationStatsForRehearsal($r['id'] ?? null),
+            ];
+        }
+        return $result;
+    }
+
+    private function updateSeries() {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $seriesId = intval($payload['id'] ?? 0);
+        if ($seriesId <= 0) {
+            Response::error('js.rehearsals.series.error.invalidSeriesId', 400);
+        }
+        $exists = intval($system_data->dbcon->colValue(
+            "SELECT COUNT(*) AS cnt FROM rehearsalserie WHERE id = ?",
+            "cnt",
+            [['i', $seriesId]]
+        ));
+        if ($exists <= 0) {
+            Response::error('js.rehearsals.series.error.seriesNotFound', 404);
+        }
+
+        $seriesName = trim(strval($payload['name'] ?? ''));
+        if ($seriesName === '') {
+            Response::error('js.rehearsals.series.error.requiredName', 400);
+        }
+        if (strlen($seriesName) > 190) {
+            Response::error('js.rehearsals.series.error.nameTooLong', 400);
+        }
+
+        $cycle = intval($payload['cycle'] ?? 0);
+        if ($cycle !== 1 && $cycle !== 2) {
+            Response::error('js.rehearsals.series.error.invalidCycle', 400);
+        }
+        $firstSession = trim(strval($payload['firstSession'] ?? ''));
+        $lastSession = trim(strval($payload['lastSession'] ?? ''));
+        if ($firstSession === '' || $lastSession === '') {
+            Response::error('js.rehearsals.series.error.requiredDates', 400);
+        }
+        if (strtotime($firstSession) === false || strtotime($lastSession) === false) {
+            Response::error('js.rehearsals.series.error.invalidDate', 400);
+        }
+        if (strtotime($lastSession) < strtotime($firstSession)) {
+            Response::error('js.rehearsals.series.error.dateRange', 400);
+        }
+        $duration = intval($payload['duration'] ?? 0);
+        if ($duration <= 0) {
+            Response::error('js.rehearsals.series.error.durationPositive', 400);
+        }
+        $defaultTime = trim(strval($payload['defaultTime'] ?? ''));
+        if (!preg_match('/^\d{2}:\d{2}$/', $defaultTime)) {
+            Response::error('js.rehearsals.series.error.invalidTime', 400);
+        }
+        $groupIds = array_values(array_filter(array_map('intval', $payload['groupIds'] ?? []), fn($id) => $id > 0));
+        if (count($groupIds) === 0) {
+            Response::error('js.rehearsals.series.error.requiredGroups', 400);
+        }
+        $locationId = intval($payload['location'] ?? 0);
+        if ($locationId <= 0) {
+            Response::error('js.rehearsals.series.error.requiredLocation', 400);
+        }
+        $conductorId = intval($payload['conductor'] ?? 0);
+        $statusRaw = trim(strval($payload['status'] ?? 'planned'));
+        $status = $statusRaw !== '' ? $statusRaw : 'planned';
+        $notes = strval($payload['notes'] ?? '');
+
+        $dates = $this->generateSeriesDates($firstSession, $lastSession, $cycle);
+        if (count($dates) === 0) {
+            Response::error('js.rehearsals.series.error.noSessionsGenerated', 400);
+        }
+
+        try {
+            $system_data->dbcon->execute(
+                "UPDATE rehearsalserie SET name = ? WHERE id = ?",
+                [['s', $seriesName], ['i', $seriesId]]
+            );
+            $existingRows = $system_data->dbcon->preparedQuery(
+                "SELECT id, begin FROM rehearsal WHERE serie = ? ORDER BY begin ASC, id ASC",
+                [['i', $seriesId]]
+            );
+            $existingByDate = [];
+            foreach ($existingRows as $row) {
+                $dateKey = substr(strval($row['begin'] ?? ''), 0, 10);
+                if ($dateKey === '') {
+                    $dateKey = '__unknown__';
+                }
+                if (!array_key_exists($dateKey, $existingByDate)) {
+                    $existingByDate[$dateKey] = [];
+                }
+                $existingByDate[$dateKey][] = intval($row['id'] ?? 0);
+            }
+
+            $groupsForChildren = $groupIds;
+            $contactsForChildren = $this->buildContactsForGroups($groupIds, $payload['contacts'] ?? []);
+            $updatedCount = 0;
+            $createdCount = 0;
+            $usedIds = [];
+
+            foreach ($dates as $sessionDate) {
+                $beginIso = $sessionDate . 'T' . $defaultTime . ':00';
+                $endIso = date('Y-m-d\TH:i:s', strtotime($beginIso) + ($duration * 60));
+                $fields = [
+                    'begin' => $beginIso,
+                    'end' => $endIso,
+                    'approve_until' => $beginIso,
+                    'status' => $status,
+                    'notes' => $notes,
+                    'location' => $locationId,
+                    'conductor' => $conductorId,
+                ];
+                $candidateIds = $existingByDate[$sessionDate] ?? [];
+                $matchedId = null;
+                if (count($candidateIds) > 0) {
+                    $matchedId = intval(array_shift($candidateIds));
+                    $existingByDate[$sessionDate] = $candidateIds;
+                }
+                if ($matchedId !== null && $matchedId > 0) {
+                    $system_data->dbcon->execute(
+                        "UPDATE rehearsal
+                         SET begin = ?, end = ?, approve_until = ?, status = ?, notes = ?, location = ?, conductor = ?
+                         WHERE id = ?",
+                        [
+                            ['s', $fields['begin']],
+                            ['s', $fields['end']],
+                            ['s', $fields['approve_until']],
+                            ['s', $fields['status']],
+                            ['s', $fields['notes']],
+                            ['i', intval($fields['location'])],
+                            ['i', intval($fields['conductor'])],
+                            ['i', $matchedId],
+                        ]
+                    );
+                    $this->syncRehearsalRelations($matchedId, $groupsForChildren, $contactsForChildren);
+                    $usedIds[$matchedId] = true;
+                    $updatedCount++;
+                } else {
+                    $payloadForChildren = [
+                        'groups' => $groupsForChildren,
+                        'contacts' => $contactsForChildren,
+                        'songs' => [],
+                        'participants' => [],
+                    ];
+                    $newId = $this->insertRehearsalWithRelations($payloadForChildren, $fields, $seriesId);
+                    $usedIds[intval($newId)] = true;
+                    $createdCount++;
+                }
+            }
+
+            $removeIds = [];
+            foreach ($existingByDate as $ids) {
+                foreach ($ids as $id) {
+                    $idInt = intval($id);
+                    if ($idInt > 0 && !isset($usedIds[$idInt])) {
+                        $removeIds[] = $idInt;
+                    }
+                }
+            }
+            $removedCount = 0;
+            foreach ($removeIds as $removeId) {
+                $system_data->dbcon->execute("DELETE FROM rehearsal WHERE id = ?", [['i', $removeId]]);
+                $removedCount++;
+            }
+            $totalInSeries = intval($system_data->dbcon->colValue(
+                "SELECT COUNT(*) AS cnt FROM rehearsal WHERE serie = ?",
+                "cnt",
+                [['i', $seriesId]]
+            ));
+            return [
+                'seriesId' => $seriesId,
+                'updated' => true,
+                'updatedRehearsals' => $updatedCount,
+                'createdRehearsals' => $createdCount,
+                'removedRehearsals' => $removedCount,
+                'totalRehearsals' => $totalInSeries,
+            ];
+        } catch (Throwable $e) {
+            error_log('update_series failed: ' . $e->getMessage());
+            Response::error('js.rehearsals.series.error.updateFailed: ' . $e->getMessage(), 500);
+        }
+        return ['seriesId' => $seriesId, 'updated' => true];
+    }
+
+    private function deleteSeries() {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $seriesId = intval($payload['seriesId'] ?? 0);
+        if ($seriesId <= 0) {
+            Response::error('js.rehearsals.series.error.invalidSeriesId', 400);
+        }
+        $exists = intval($system_data->dbcon->colValue(
+            "SELECT COUNT(*) AS cnt FROM rehearsalserie WHERE id = ?",
+            "cnt",
+            [['i', $seriesId]]
+        ));
+        if ($exists <= 0) {
+            Response::error('js.rehearsals.series.error.seriesNotFound', 404);
+        }
+
+        $deletedCount = 0;
+        try {
+            $deletedCount = intval($system_data->dbcon->colValue(
+                "SELECT COUNT(*) AS cnt FROM rehearsal WHERE serie = ?",
+                "cnt",
+                [['i', $seriesId]]
+            ));
+            $system_data->dbcon->execute("DELETE FROM rehearsal WHERE serie = ?", [['i', $seriesId]]);
+            $system_data->dbcon->execute("DELETE FROM rehearsalserie WHERE id = ?", [['i', $seriesId]]);
+        } catch (Throwable $e) {
+            error_log('delete_series failed: ' . $e->getMessage());
+            Response::error('js.rehearsals.series.error.deleteFailed: ' . $e->getMessage(), 500);
+        }
+
+        return ['deletedCount' => $deletedCount];
+    }
+
+    private function generateSeriesDates($firstSession, $lastSession, $cycle) {
+        $result = [];
+        $first = DateTime::createFromFormat('Y-m-d', $firstSession);
+        $last = DateTime::createFromFormat('Y-m-d', $lastSession);
+        if (!$first || !$last) {
+            return $result;
+        }
+        $cursor = clone $first;
+        $stepDays = $cycle === 2 ? 14 : 7;
+        $safety = 0;
+        while ($cursor <= $last && $safety < 520) {
+            $result[] = $cursor->format('Y-m-d');
+            $cursor->modify('+' . $stepDays . ' day');
+            $safety++;
+        }
+        return $result;
+    }
+
+    private function buildContactsForGroups($groupIds, $explicitContacts = []) {
+        global $system_data;
+        $contacts = [];
+        foreach ($explicitContacts as $contactId) {
+            $cid = intval($contactId);
+            if ($cid > 0) {
+                $contacts[$cid] = true;
+            }
+        }
+        if (count($groupIds) === 0) {
+            return array_map('intval', array_keys($contacts));
+        }
+        $where = implode(',', array_fill(0, count($groupIds), '?'));
+        $params = [];
+        foreach ($groupIds as $groupId) {
+            $params[] = ['i', intval($groupId)];
+        }
+        $rows = $system_data->dbcon->preparedQuery(
+            "SELECT contact FROM contact_group WHERE `group` IN ($where)",
+            $params
+        );
+        foreach ($rows as $row) {
+            $cid = intval($row['contact'] ?? 0);
+            if ($cid > 0) {
+                $contacts[$cid] = true;
+            }
+        }
+        return array_map('intval', array_keys($contacts));
+    }
+
+    private function syncRehearsalRelations($rehearsalId, $groups, $contacts) {
+        global $system_data;
+        $rid = intval($rehearsalId);
+        if ($rid <= 0) {
+            return;
+        }
+        $system_data->dbcon->execute("DELETE FROM rehearsal_group WHERE rehearsal = ?", [['i', $rid]]);
+        $groupIds = array_values(array_filter(array_map('intval', $groups ?? []), fn($id) => $id > 0));
+        if (count($groupIds) > 0) {
+            $tuples = [];
+            $params = [];
+            foreach ($groupIds as $groupId) {
+                $tuples[] = "(?, ?)";
+                $params[] = ['i', $rid];
+                $params[] = ['i', $groupId];
+            }
+            $system_data->dbcon->execute(
+                "INSERT INTO rehearsal_group (rehearsal, `group`) VALUES " . join(",", $tuples),
+                $params
+            );
+        }
+
+        $system_data->dbcon->execute("DELETE FROM rehearsal_contact WHERE rehearsal = ?", [['i', $rid]]);
+        $contactIds = array_values(array_filter(array_map('intval', $contacts ?? []), fn($id) => $id > 0));
+        if (count($contactIds) > 0) {
+            $tuples = [];
+            $params = [];
+            foreach ($contactIds as $contactId) {
+                $tuples[] = "(?, ?)";
+                $params[] = ['i', $rid];
+                $params[] = ['i', $contactId];
+            }
+            $system_data->dbcon->execute(
+                "INSERT INTO rehearsal_contact VALUES " . join(",", $tuples),
+                $params
+            );
+            $placeholders = implode(",", array_fill(0, count($contactIds), "?"));
+            $params = [['i', $rid]];
+            foreach ($contactIds as $contactId) {
+                $params[] = ['i', $contactId];
+            }
+            $system_data->dbcon->execute(
+                "DELETE ru FROM rehearsal_user ru JOIN user u ON ru.user = u.id
+                 WHERE ru.rehearsal = ? AND u.contact NOT IN ($placeholders)",
+                $params
+            );
+        } else {
+            $system_data->dbcon->execute("DELETE FROM rehearsal_user WHERE rehearsal = ?", [['i', $rid]]);
+        }
+    }
+
+    private function insertRehearsalWithRelations($payload, $fields, $seriesId = null) {
+        global $system_data;
+        $values = [
+            'begin' => $fields['begin'] ?? '',
+            'end' => $fields['end'] ?? '',
+            'approve_until' => $fields['approve_until'] ?? '',
+            'status' => '',
+            'notes' => $fields['notes'] ?? '',
+            'location' => intval($fields['location'] ?? 0),
+            'conductor' => intval($fields['conductor'] ?? 0),
+        ];
+        $statusRaw = trim(strval($fields['status'] ?? 'planned'));
+        $values['status'] = $statusRaw !== '' ? $statusRaw : 'planned';
+
         if (empty($values['approve_until']) && !empty($values['begin'])) {
             $values['approve_until'] = $values['begin'];
         }
 
-        // Legacy ProbenData::validate uses Regex::isText() which rejects " and \ (EditorJS JSON).
-        // Validate with notes cleared, then restore so insert stores the real value.
         $notesBackup = $values['notes'];
         $values['notes'] = '';
         $this->data->validate($values);
         $values['notes'] = $notesBackup;
 
-        $newId = $system_data->dbcon->prepStatement(
-            "INSERT INTO rehearsal (begin, end, approve_until, status, notes, location, conductor)
-             VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [
-                ['s', $values['begin']],
-                ['s', $values['end']],
-                ['s', $values['approve_until']],
-                ['s', $values['status']],
-                ['s', $values['notes']],
-                ['i', intval($values['location'])],
-                ['i', intval($values['conductor'])],
-            ]
-        );
+        if ($seriesId !== null) {
+            $newId = $system_data->dbcon->prepStatement(
+                "INSERT INTO rehearsal (begin, end, approve_until, status, notes, location, conductor, serie)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                    ['s', $values['begin']],
+                    ['s', $values['end']],
+                    ['s', $values['approve_until']],
+                    ['s', $values['status']],
+                    ['s', $values['notes']],
+                    ['i', intval($values['location'])],
+                    ['i', intval($values['conductor'])],
+                    ['i', intval($seriesId)],
+                ]
+            );
+        } else {
+            $newId = $system_data->dbcon->prepStatement(
+                "INSERT INTO rehearsal (begin, end, approve_until, status, notes, location, conductor)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [
+                    ['s', $values['begin']],
+                    ['s', $values['end']],
+                    ['s', $values['approve_until']],
+                    ['s', $values['status']],
+                    ['s', $values['notes']],
+                    ['i', intval($values['location'])],
+                    ['i', intval($values['conductor'])],
+                ]
+            );
+        }
         if (!$newId || intval($newId) <= 0) {
-            Response::error('Failed to create rehearsal', 500);
+            Response::error('js.rehearsals.series.error.createFailed', 500);
         }
         $newId = intval($newId);
 
         if (array_key_exists('groups', $payload)) {
-            $groups = array_map('intval', $payload['groups'] ?? []);
+            $groups = array_values(array_filter(array_map('intval', $payload['groups'] ?? []), fn($id) => $id > 0));
             if (count($groups) > 0) {
                 $tuples = [];
                 $params = [];
@@ -751,7 +1393,7 @@ class RehearsalsModule {
         }
 
         if (array_key_exists('contacts', $payload)) {
-            $contacts = array_map('intval', $payload['contacts'] ?? []);
+            $contacts = array_values(array_filter(array_map('intval', $payload['contacts'] ?? []), fn($id) => $id > 0));
             if (count($contacts) > 0) {
                 $tuples = [];
                 $params = [];
@@ -772,7 +1414,9 @@ class RehearsalsModule {
                 $params = [];
                 foreach ($songs as $song) {
                     $songId = intval($song['id'] ?? 0);
-                    if ($songId <= 0) continue;
+                    if ($songId <= 0) {
+                        continue;
+                    }
                     $tuples[] = "(?, ?, ?)";
                     $params[] = ['i', $songId];
                     $params[] = ['i', $newId];
@@ -789,19 +1433,21 @@ class RehearsalsModule {
             $participants = $payload['participants'] ?? [];
             foreach ($participants as $participant) {
                 $userId = intval($participant['userId'] ?? 0);
-                if ($userId <= 0) continue;
-                if (!$this->isUserInvitedToRehearsal($newId, $userId)) continue;
+                if ($userId <= 0 || !$this->isUserInvitedToRehearsal($newId, $userId)) {
+                    continue;
+                }
                 $participate = $participant['participate'] ?? null;
-                if ($participate === null || $participate === '') continue;
-                $participate = intval($participate);
+                if ($participate === null || $participate === '') {
+                    continue;
+                }
                 $system_data->dbcon->execute(
                     "INSERT INTO rehearsal_user (rehearsal, user, participate, replyon) VALUES (?, ?, ?, NOW())",
-                    [['i', $newId], ['i', $userId], ['i', $participate]]
+                    [['i', $newId], ['i', $userId], ['i', intval($participate)]]
                 );
             }
         }
 
-        return ['id' => $newId];
+        return $newId;
     }
 
     private function getRequestData() {
