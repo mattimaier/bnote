@@ -25,6 +25,7 @@
 require_once BNOTE_ROOT . '/src/data/modules/repertoiredata.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../text_normalizer.php';
 
 class RepertoireModule {
     private $data;
@@ -44,20 +45,28 @@ class RepertoireModule {
 
         switch ($action) {
             case 'list':
-                return $this->listSongs();
+                return $this->normalizeResponse($this->listSongs(), $action);
             case 'get':
-                return $this->getSong();
+                return $this->normalizeResponse($this->getSong(), $action);
             case 'create':
-                return $this->createSong();
+                return $this->normalizeResponse($this->createSong(), $action);
             case 'update':
-                return $this->updateSong();
+                return $this->normalizeResponse($this->updateSong(), $action);
             case 'delete':
-                return $this->deleteSong();
+                return $this->normalizeResponse($this->deleteSong(), $action);
             case 'meta':
-                return $this->getMeta();
+                return $this->normalizeResponse($this->getMeta(), $action);
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
+    }
+
+    private function normalizeResponse($payload, $action) {
+        $textFields = ['title', 'composer', 'genrename', 'statusname', 'setting', 'notes', 'name', 'status'];
+        $stats = ['count' => 0, 'samples' => []];
+        $normalized = TextNormalizer::normalizeFieldsRecursive($payload, $textFields, $stats, true);
+        TextNormalizer::logStats('repertoire', $action, $stats);
+        return $normalized;
     }
 
     /**

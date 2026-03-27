@@ -31,6 +31,7 @@ require_once BNOTE_ROOT . '/src/data/modules/gruppendata.php';
 require_once BNOTE_ROOT . '/src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../text_normalizer.php';
 require_once __DIR__ . '/contacts/ContactsCRUD.php';
 
 class ContactsModule {
@@ -55,63 +56,74 @@ class ContactsModule {
 
         switch ($action) {
             case 'list':
-                return $this->crud->listContacts();
+                return $this->normalizeResponse($this->crud->listContacts(), $action);
             case 'get':
-                return $this->crud->getContact();
+                return $this->normalizeResponse($this->crud->getContact(), $action);
             case 'create':
-                return $this->crud->createContact();
+                return $this->normalizeResponse($this->crud->createContact(), $action);
             case 'update':
-                return $this->crud->updateContact();
+                return $this->normalizeResponse($this->crud->updateContact(), $action);
             case 'delete':
-                return $this->crud->deleteContact();
+                return $this->normalizeResponse($this->crud->deleteContact(), $action);
             case 'getGroups':
-                return $this->getGroups();
+                return $this->normalizeResponse($this->getGroups(), $action);
             case 'getGroupContacts':
-                return $this->getGroupContacts();
+                return $this->normalizeResponse($this->getGroupContacts(), $action);
             // Integration
             case 'getMembers':
-                return $this->getMembers();
+                return $this->normalizeResponse($this->getMembers(), $action);
             case 'getRehearsals':
-                return $this->getRehearsals();
+                return $this->normalizeResponse($this->getRehearsals(), $action);
             case 'getPhases':
-                return $this->getPhases();
+                return $this->normalizeResponse($this->getPhases(), $action);
             case 'getConcerts':
-                return $this->getConcerts();
+                return $this->normalizeResponse($this->getConcerts(), $action);
             case 'getVotes':
-                return $this->getVotes();
+                return $this->normalizeResponse($this->getVotes(), $action);
             case 'integrate':
-                return $this->integrate();
+                return $this->normalizeResponse($this->integrate(), $action);
             // Groups submodule
             case 'listGroups':
-                return $this->listGroups();
+                return $this->normalizeResponse($this->listGroups(), $action);
             case 'getGroup':
-                return $this->getGroup();
+                return $this->normalizeResponse($this->getGroup(), $action);
             case 'createGroup':
-                return $this->createGroup();
+                return $this->normalizeResponse($this->createGroup(), $action);
             case 'updateGroup':
-                return $this->updateGroup();
+                return $this->normalizeResponse($this->updateGroup(), $action);
             case 'deleteGroup':
-                return $this->deleteGroup();
+                return $this->normalizeResponse($this->deleteGroup(), $action);
             case 'getGroupMembers':
-                return $this->getGroupMembers();
+                return $this->normalizeResponse($this->getGroupMembers(), $action);
             // Printing
             case 'getPrintData':
-                return $this->getPrintData();
+                return $this->normalizeResponse($this->getPrintData(), $action);
             // VCard
             case 'importVCard':
-                return $this->importVCard();
+                return $this->normalizeResponse($this->importVCard(), $action);
             // GDPR
             case 'getGdprStatus':
-                return $this->getGdprStatus();
+                return $this->normalizeResponse($this->getGdprStatus(), $action);
             case 'generateGdprCodes':
-                return $this->generateGdprCodes();
+                return $this->normalizeResponse($this->generateGdprCodes(), $action);
             case 'sendGdprMail':
-                return $this->sendGdprMail();
+                return $this->normalizeResponse($this->sendGdprMail(), $action);
             case 'deleteGdprNok':
-                return $this->deleteGdprNok();
+                return $this->normalizeResponse($this->deleteGdprNok(), $action);
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
+    }
+
+    private function normalizeResponse($payload, $action) {
+        $textFields = [
+            'name', 'surname', 'label', 'nickname', 'instrument', 'notes', 'message',
+            'groupName', 'title', 'status', 'business', 'address', 'city', 'street', 'zip'
+        ];
+        $stats = ['count' => 0, 'samples' => []];
+        $normalized = TextNormalizer::normalizeFieldsRecursive($payload, $textFields, $stats, true);
+        TextNormalizer::logStats('contacts', $action, $stats);
+        return $normalized;
     }
 
     /**

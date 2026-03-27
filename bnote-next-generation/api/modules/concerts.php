@@ -36,6 +36,7 @@ require_once BNOTE_ROOT . '/src/data/modules/kontaktedata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../text_normalizer.php';
 
 class ConcertsModule {
     private $data;
@@ -58,26 +59,26 @@ class ConcertsModule {
         
         // If no action specified but ID is provided, treat as GET request
         if ($method === 'GET' && $id && ($action === null || $action === '')) {
-            return $this->getConcert($id);
+            return $this->normalizeResponse($this->getConcert($id), 'get');
         }
         
         if ($action === 'list') {
-            return $this->listConcerts();
+            return $this->normalizeResponse($this->listConcerts(), $action);
         }
         
         if ($action === 'meta') {
             $this->requireConcertsModulePermission();
-            return $this->getMeta();
+            return $this->normalizeResponse($this->getMeta(), $action);
         }
 
         if ($action === 'update') {
             $this->requireConcertsModulePermission();
-            return $this->updateConcert();
+            return $this->normalizeResponse($this->updateConcert(), $action);
         }
         
         if ($action === 'create') {
             $this->requireConcertsModulePermission();
-            return $this->createConcert();
+            return $this->normalizeResponse($this->createConcert(), $action);
         }
 
         // Handle explicit actions if needed in the future
@@ -86,6 +87,13 @@ class ConcertsModule {
         }
         
         Response::error('Method not supported or missing ID', 400);
+    }
+
+    private function normalizeResponse($payload, $action) {
+        $stats = ['count' => 0, 'samples' => []];
+        $normalized = TextNormalizer::normalizeAllStringsRecursive($payload, $stats, true);
+        TextNormalizer::logStats('concerts', $action, $stats);
+        return $normalized;
     }
     
     /**

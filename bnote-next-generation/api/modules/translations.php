@@ -29,6 +29,7 @@
 require_once BNOTE_ROOT . '/lang/lang_base.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../text_normalizer.php';
 
 class TranslationsModule {
     
@@ -221,6 +222,11 @@ class TranslationsModule {
         // Filter by user permissions when authenticated; otherwise return public subset for login page
         $filtered = Auth::check() ? $this->filterByPermissions($merged) : $this->getPublicTranslations($merged);
         
+        // Defensive cleanup for legacy mojibake/entity artifacts in translation values.
+        $stats = ['count' => 0, 'samples' => []];
+        $filtered = TextNormalizer::normalizeAllStringsRecursive($filtered, $stats, true);
+        TextNormalizer::logStats('translations', 'get', $stats);
+
         // Debug logging
         error_log('TranslationsModule: Loaded ' . count($phpTranslations) . ' PHP translations, ' . 
                   count($jsTranslations) . ' JSON translations, ' . 

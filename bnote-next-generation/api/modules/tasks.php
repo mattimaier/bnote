@@ -27,6 +27,7 @@ require_once BNOTE_ROOT . '/src/data/modules/tourdata.php';
 require_once BNOTE_ROOT . '/src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../text_normalizer.php';
 
 class TasksModule {
     private $data;
@@ -48,28 +49,36 @@ class TasksModule {
 
         switch ($action) {
             case 'list':
-                return $this->listTasks();
+                return $this->normalizeResponse($this->listTasks(), $action);
             case 'get':
-                return $this->getTask();
+                return $this->normalizeResponse($this->getTask(), $action);
             case 'create':
-                return $this->createTask();
+                return $this->normalizeResponse($this->createTask(), $action);
             case 'update':
-                return $this->updateTask();
+                return $this->normalizeResponse($this->updateTask(), $action);
             case 'delete':
-                return $this->deleteTask();
+                return $this->normalizeResponse($this->deleteTask(), $action);
             case 'complete':
-                return $this->completeTask();
+                return $this->normalizeResponse($this->completeTask(), $action);
             case 'createGroupTasks':
-                return $this->createGroupTasks();
+                return $this->normalizeResponse($this->createGroupTasks(), $action);
             case 'getContacts':
-                return $this->getContacts();
+                return $this->normalizeResponse($this->getContacts(), $action);
             case 'getGroups':
-                return $this->getGroups();
+                return $this->normalizeResponse($this->getGroups(), $action);
             case 'getTours':
-                return $this->getTours();
+                return $this->normalizeResponse($this->getTours(), $action);
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
+    }
+
+    private function normalizeResponse($payload, $action) {
+        $textFields = ['title', 'description', 'assignee', 'creator', 'name', 'instrument', 'message'];
+        $stats = ['count' => 0, 'samples' => []];
+        $normalized = TextNormalizer::normalizeFieldsRecursive($payload, $textFields, $stats, true);
+        TextNormalizer::logStats('tasks', $action, $stats);
+        return $normalized;
     }
 
     private function getUserId() {

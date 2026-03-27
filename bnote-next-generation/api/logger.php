@@ -128,6 +128,28 @@ class ApiLogger {
         
         self::writeLog($logEntry);
     }
+
+    /**
+     * Log text-normalization metrics for encoding cleanup diagnostics.
+     */
+    public static function logNormalization($module, $action, $normalizedCount, $sampleFields = []) {
+        if (!self::isEnabled()) {
+            return;
+        }
+
+        $logEntry = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'type' => 'normalization',
+            'module' => $module,
+            'action' => $action,
+            'normalized_count' => intval($normalizedCount),
+            'sample_fields' => is_array($sampleFields) ? $sampleFields : [],
+            'session_id' => session_id(),
+            'user_id' => $_SESSION['user'] ?? null,
+        ];
+
+        self::writeLog($logEntry);
+    }
     
     /**
      * Write log entry to file

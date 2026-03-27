@@ -27,6 +27,7 @@
 require_once BNOTE_ROOT . '/src/data/modules/nachrichtendata.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../text_normalizer.php';
 
 class NewsModule {
     /** @var NachrichtenData */
@@ -46,12 +47,20 @@ class NewsModule {
 
         switch ($action) {
             case 'get':
-                return $this->get();
+                return $this->normalizeResponse($this->get(), $action);
             case 'save':
-                return $this->save();
+                return $this->normalizeResponse($this->save(), $action);
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
+    }
+
+    private function normalizeResponse($payload, $action) {
+        $textFields = ['content'];
+        $stats = ['count' => 0, 'samples' => []];
+        $normalized = TextNormalizer::normalizeFieldsRecursive($payload, $textFields, $stats, true);
+        TextNormalizer::logStats('news', $action, $stats);
+        return $normalized;
     }
 
     /** Return raw content for the editor (no preparedContent). */

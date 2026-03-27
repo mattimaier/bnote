@@ -33,6 +33,7 @@ require_once BNOTE_ROOT . '/src/data/modules/repertoiredata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../text_normalizer.php';
 
 class RehearsalsModule {
     private $data;
@@ -55,26 +56,26 @@ class RehearsalsModule {
         
         // If no action specified but ID is provided, treat as GET request
         if ($method === 'GET' && $id && ($action === null || $action === '')) {
-            return $this->getRehearsal($id);
+            return $this->normalizeResponse($this->getRehearsal($id), 'get');
         }
         
         if ($action === 'list') {
-            return $this->listRehearsals();
+            return $this->normalizeResponse($this->listRehearsals(), $action);
         }
         
         if ($action === 'meta') {
             $this->requireRehearsalsModulePermission();
-            return $this->getMeta();
+            return $this->normalizeResponse($this->getMeta(), $action);
         }
 
         if ($action === 'update') {
             $this->requireRehearsalsModulePermission();
-            return $this->updateRehearsal();
+            return $this->normalizeResponse($this->updateRehearsal(), $action);
         }
         
         if ($action === 'create') {
             $this->requireRehearsalsModulePermission();
-            return $this->createRehearsal();
+            return $this->normalizeResponse($this->createRehearsal(), $action);
         }
 
         // Handle explicit actions if needed in the future
@@ -83,6 +84,13 @@ class RehearsalsModule {
         }
         
         Response::error('Method not supported or missing ID', 400);
+    }
+
+    private function normalizeResponse($payload, $action) {
+        $stats = ['count' => 0, 'samples' => []];
+        $normalized = TextNormalizer::normalizeAllStringsRecursive($payload, $stats, true);
+        TextNormalizer::logStats('rehearsals', $action, $stats);
+        return $normalized;
     }
     
     /**

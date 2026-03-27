@@ -32,6 +32,7 @@ require_once BNOTE_ROOT . '/src/data/database.php';
 require_once BNOTE_ROOT . '/src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../text_normalizer.php';
 
 class CommentsModule {
     /** @var ApplicationDataProvider */
@@ -61,16 +62,24 @@ class CommentsModule {
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
         if ($action === 'list') {
-            return $this->listComments();
+            return $this->normalizeResponse($this->listComments(), $action);
         }
         if ($action === 'add') {
-            return $this->addComment();
+            return $this->normalizeResponse($this->addComment(), $action);
         }
         if ($action === 'delete') {
-            return $this->deleteComment();
+            return $this->normalizeResponse($this->deleteComment(), $action);
         }
 
         Response::error('Unknown action', 400);
+    }
+
+    private function normalizeResponse($payload, $action) {
+        $textFields = ['author', 'message', 'reason'];
+        $stats = ['count' => 0, 'samples' => []];
+        $normalized = TextNormalizer::normalizeFieldsRecursive($payload, $textFields, $stats, true);
+        TextNormalizer::logStats('comments', $action, $stats);
+        return $normalized;
     }
 
     private function discussionOn() {
