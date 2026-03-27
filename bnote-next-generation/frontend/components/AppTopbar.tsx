@@ -75,7 +75,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-base-300 flex h-16 items-center gap-2 md:gap-3 px-3 md:px-4 lg:px-6 bg-base-100/95 backdrop-blur">
+    <header className="app-topbar-safe fixed inset-x-0 top-0 z-50 w-full border-b border-base-300 flex items-center gap-2 px-3 md:sticky md:left-auto md:right-auto md:gap-3 md:px-4 lg:px-6 bg-base-100">
       {/* Hamburger: visible only on mobile */}
       {onOpenMobileNav && (
         <button

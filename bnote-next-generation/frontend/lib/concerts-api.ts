@@ -28,4 +28,5 @@ export interface ConcertListItem {
 
 export const concertsApi = {
   list: () => api.get<ConcertListItem[]>("concerts", "list"),
+  delete: (id: number) => api.post<{ success: boolean }>("concerts", "delete", { id }),
 };

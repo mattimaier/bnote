@@ -81,6 +81,11 @@ class ConcertsModule {
             return $this->normalizeResponse($this->createConcert(), $action);
         }
 
+        if ($action === 'delete') {
+            $this->requireConcertsModulePermission();
+            return $this->normalizeResponse($this->deleteConcert(), $action);
+        }
+
         // Handle explicit actions if needed in the future
         if ($action) {
             Response::error('Unknown action: ' . $action, 400);
@@ -908,6 +913,28 @@ class ConcertsModule {
         }
 
         return ['id' => $newId];
+    }
+
+    private function deleteConcert() {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $id = intval($payload['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error('Invalid concert ID', 400);
+        }
+
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToConcert($id, $userId)) {
+            Response::error('Access denied to this concert', 403);
+        }
+
+        $system_data->dbcon->execute("DELETE FROM concert_group WHERE concert = ?", [['i', $id]]);
+        $system_data->dbcon->execute("DELETE FROM concert_contact WHERE concert = ?", [['i', $id]]);
+        $system_data->dbcon->execute("DELETE FROM concert_equipment WHERE concert = ?", [['i', $id]]);
+        $system_data->dbcon->execute("DELETE FROM concert_user WHERE concert = ?", [['i', $id]]);
+        $system_data->dbcon->execute("DELETE FROM concert WHERE id = ?", [['i', $id]]);
+
+        return ['success' => true];
     }
 
     private function getRequestData() {

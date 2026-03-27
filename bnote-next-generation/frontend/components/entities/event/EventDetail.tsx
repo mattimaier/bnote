@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useI18n } from "@/contexts/I18nContext";
+import { useToast } from "@/contexts/ToastContext";
 import { ParticipationWidget } from "@/components/ParticipationWidget";
 import { ParticipationDiagram, type ParticipationStats } from "@/components/ParticipationDiagram";
 import { ParticipantOverview, type InstrumentGroup } from "@/components/ParticipantOverview";
@@ -61,6 +62,7 @@ import { DatePicker } from "@/components/DatePicker";
 import { EntityLink } from "@/components/EntityLink";
 import { useEventDetailData } from "@/lib/entities/event/useEventDetailData";
 import { EventParticipationShareModal } from "@/components/entities/event/EventParticipationShareModal";
+import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { normalizeCompany } from "@/lib/dashboard-utils";
 import {
   addMinutesToInputDateTime,
@@ -68,6 +70,8 @@ import {
   getGroupContacts,
   syncEndDate,
 } from "@/lib/entities/event/rehearsal-prefill";
+import { concertsApi } from "@/lib/concerts-api";
+import { rehearsalsApi } from "@/lib/rehearsals-api";
 
 export interface EventDetailProps {
   type?: string;
@@ -90,6 +94,7 @@ export function EventDetail({
   const router = useRouter();
   const modules = useModules();
   const { t, ready, lang } = useI18n();
+  const { showToast } = useToast();
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
   const type = typeProp ?? searchParams.get("type") ?? "";
   const id = idProp ?? searchParams.get("id") ?? "";
@@ -560,6 +565,22 @@ export function EventDetail({
 
   cancelEditRef.current = cancelEdit;
   saveEditRef.current = saveEdit;
+
+  const deleteCurrentEvent = async () => {
+    if (isNew || Number.isNaN(numId) || numId <= 0) return;
+    try {
+      if (type === "rehearsal") {
+        await rehearsalsApi.delete(numId);
+      } else {
+        await concertsApi.delete(numId);
+      }
+      showToast(t("js.common.deleted") !== "js.common.deleted" ? t("js.common.deleted") : "Deleted", "success");
+      router.push(type === "rehearsal" ? "/rehearsals" : "/concerts");
+    } catch (err) {
+      setSaveError(getErrorMessage(err, t, "js.common.deleteFailed"));
+      throw err;
+    }
+  };
 
   const updateSongSelection = (selectedIds: number[]) => {
     if (!form) return;
@@ -1453,6 +1474,13 @@ export function EventDetail({
             </ul>
           )}
         </div>
+      )}
+      {isEditing && !isNew && canEdit && (
+        <DetailDeleteSection
+          canDelete
+          entityTitle={title || undefined}
+          onDelete={deleteCurrentEvent}
+        />
       )}
       {renderAfterContent}
       {participationStats && participantsByInstrument && participantsByInstrument.length > 0 && (

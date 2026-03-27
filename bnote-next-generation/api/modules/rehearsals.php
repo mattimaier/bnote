@@ -78,6 +78,11 @@ class RehearsalsModule {
             return $this->normalizeResponse($this->createRehearsal(), $action);
         }
 
+        if ($action === 'delete') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->deleteRehearsal(), $action);
+        }
+
         if ($action === 'create_series') {
             $this->requireRehearsalsModulePermission();
             return $this->normalizeResponse($this->createSeries(), $action);
@@ -742,6 +747,28 @@ class RehearsalsModule {
 
         $newId = $this->insertRehearsalWithRelations($payload, $rehearsalFields, null);
         return ['id' => $newId];
+    }
+
+    private function deleteRehearsal() {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $id = intval($payload['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error('Invalid rehearsal ID', 400);
+        }
+
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToRehearsal($id, $userId)) {
+            Response::error('Access denied to this rehearsal', 403);
+        }
+
+        $system_data->dbcon->execute("DELETE FROM rehearsal_group WHERE rehearsal = ?", [['i', $id]]);
+        $system_data->dbcon->execute("DELETE FROM rehearsal_contact WHERE rehearsal = ?", [['i', $id]]);
+        $system_data->dbcon->execute("DELETE FROM rehearsal_song WHERE rehearsal = ?", [['i', $id]]);
+        $system_data->dbcon->execute("DELETE FROM rehearsal_user WHERE rehearsal = ?", [['i', $id]]);
+        $system_data->dbcon->execute("DELETE FROM rehearsal WHERE id = ?", [['i', $id]]);
+
+        return ['success' => true];
     }
 
     private function createSeries() {

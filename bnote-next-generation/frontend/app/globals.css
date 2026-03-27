@@ -313,6 +313,40 @@ body {
   color: var(--foreground);
 }
 
+/* App topbar safe-area handling:
+   - Keep topbar below iOS status bar
+   - Keep topbar sticky on all breakpoints */
+.app-topbar-safe {
+  min-height: calc(4rem + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+}
+
+.app-shell-mobile-topbar-offset {
+  padding-top: calc(4rem + env(safe-area-inset-top));
+}
+
+@media (min-width: 768px) {
+  .app-topbar-safe {
+    min-height: 4rem;
+    padding-top: 0;
+  }
+
+  .app-shell-mobile-topbar-offset {
+    padding-top: 0;
+  }
+}
+
+@supports (padding-top: constant(safe-area-inset-top)) {
+  .app-topbar-safe {
+    min-height: calc(4rem + constant(safe-area-inset-top));
+    padding-top: constant(safe-area-inset-top);
+  }
+
+  .app-shell-mobile-topbar-offset {
+    padding-top: calc(4rem + constant(safe-area-inset-top));
+  }
+}
+
 @media (max-width: 767px) {
   body {
     overflow-x: hidden;
@@ -353,9 +387,14 @@ input[type="search"]::-webkit-search-results-decoration {
   display: none;
 }
 
-/* iOS Safari: prevent zoom on focus for topbar search input */
+/* iOS Safari: prevent focus zoom on form controls */
 @media (max-width: 767px) {
-  #topbar-search {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select,
+  .input,
+  .textarea,
+  .select {
     font-size: 16px !important;
   }
 }

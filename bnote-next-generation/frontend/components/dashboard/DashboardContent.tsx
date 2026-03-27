@@ -17,7 +17,7 @@ import { getIcon } from "@/components/icons";
 import { isQuickActionsEnabled } from "@/lib/entity-config";
 import { useModules } from "@/lib/use-modules";
 import { useNewsHtml, MAX_SHOW_DEFAULT } from "@/lib/dashboard-utils";
-import { getDashboardEmptyResponseMessage } from "@/lib/dashboard-empty-state";
+import { pickDashboardEmptyResponseVariantKey, resolveDashboardEmptyResponseMessage } from "@/lib/dashboard-empty-state";
 import { Spinner } from "@/components/Spinner";
 import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 
@@ -77,6 +77,7 @@ export default function DashboardContent({
     "events-needing-response": MAX_SHOW_DEFAULT,
     "events-timeline": MAX_SHOW_DEFAULT,
   });
+  const [emptyNeedResponseKey] = useState(() => pickDashboardEmptyResponseVariantKey(10));
 
   useEffect(() => {
     const maxNeed = needResponse?.config?.max_show ?? MAX_SHOW_DEFAULT;
@@ -260,13 +261,8 @@ export default function DashboardContent({
     [t, filters, toggleFilter, clearFilters]
   );
   const emptyNeedResponseMessage = useMemo(
-    () =>
-      getDashboardEmptyResponseMessage({
-        userName: session?.user?.name,
-        variantCount: 10,
-        t,
-      }),
-    [session?.user?.name, t]
+    () => resolveDashboardEmptyResponseMessage(emptyNeedResponseKey, t),
+    [emptyNeedResponseKey, t]
   );
 
   if (!ready || loading) {

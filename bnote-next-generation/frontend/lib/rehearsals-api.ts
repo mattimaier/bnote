@@ -91,9 +91,11 @@ export interface UpdateRehearsalSeriesResult {
 export const rehearsalsApi = {
   list: () => api.get<RehearsalListItem[]>("rehearsals", "list"),
   meta: () => api.get<Record<string, unknown>>("rehearsals", "meta"),
+  delete: (id: number) => api.post<{ success: boolean }>("rehearsals", "delete", { id }),
   listSeries: () => api.get<RehearsalSeriesSummary[]>("rehearsals", "list_series"),
-  getSeries: (id: number) => api.get<RehearsalSeriesDetail>("rehearsals", "get_series", { id }),
-  listBySeries: (seriesId: number) => api.get<RehearsalListItem[]>("rehearsals", "list_by_series", { seriesId }),
+  getSeries: (id: number) => api.get<RehearsalSeriesDetail>("rehearsals", "get_series", { id: String(id) }),
+  listBySeries: (seriesId: number) =>
+    api.get<RehearsalListItem[]>("rehearsals", "list_by_series", { seriesId: String(seriesId) }),
   createSeries: (payload: CreateRehearsalSeriesPayload) =>
     api.post<CreateRehearsalSeriesResult>("rehearsals", "create_series", payload as unknown as Record<string, unknown>),
   updateSeries: (payload: UpdateRehearsalSeriesPayload) =>

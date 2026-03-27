@@ -22,14 +22,6 @@ interface DashboardGreetingProps {
   todayConcerts: number;
 }
 
-function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-}
-
 export function DashboardGreeting({
   session,
   dashboard,
@@ -58,11 +50,6 @@ export function DashboardGreeting({
 
   const firstName = session?.user?.name || t("js.common.user");
   const companyName = String(normalizeCompany(dashboard?.company) || t("js.common.appName")).trim();
-
-  const stableSeed = useMemo(() => {
-    const userToken = session?.user?.name || "user";
-    return hashString(userToken);
-  }, [session?.user?.name]);
 
   const subtitleVariants = useMemo(
     () => [
@@ -105,32 +92,14 @@ export function DashboardGreeting({
   const eligibleSubtitles = subtitleVariants.filter((variant) => variant.enabled !== false);
 
   useEffect(() => {
-    // Lock selection after the first valid pick per reload.
     if (selectedSubtitleKey) return;
     if (eligibleSubtitles.length === 0) return;
-
-    const storageKey = "dashboard-subtitle-last-key";
-    let previousKey = "";
-    try {
-      previousKey = sessionStorage.getItem(storageKey) || "";
-    } catch {
-      // ignore storage access failures
-    }
-
-    const pool = eligibleSubtitles.filter((variant) => variant.key !== previousKey);
-    const source = pool.length > 0 ? pool : eligibleSubtitles;
-    const randomOffset = Math.floor(Math.random() * 1_000_000);
-    const picked = source[(stableSeed + randomOffset) % source.length];
+    // Fresh random pick per page load.
+    const picked = eligibleSubtitles[Math.floor(Math.random() * eligibleSubtitles.length)];
     const nextKey = picked?.key ?? null;
-
     if (!nextKey) return;
     setSelectedSubtitleKey(nextKey);
-    try {
-      sessionStorage.setItem(storageKey, nextKey);
-    } catch {
-      // ignore storage access failures
-    }
-  }, [eligibleSubtitles, selectedSubtitleKey, stableSeed]);
+  }, [eligibleSubtitles, selectedSubtitleKey]);
 
   const selectedSubtitle = eligibleSubtitles.find((variant) => variant.key === selectedSubtitleKey);
   const baseSubtitle =

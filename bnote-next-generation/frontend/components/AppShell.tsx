@@ -20,7 +20,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-base-100 md:h-screen md:flex-row md:overflow-hidden">
       <AppSidebar />
-      <div className="flex min-w-0 flex-1 flex-col md:min-h-0">
+      <div className="app-shell-mobile-topbar-offset flex min-w-0 flex-1 flex-col md:min-h-0">
         <AppTopbar onOpenMobileNav={() => setMobileNavOpen(true)} />
         {editingBar != null && <EditingBar {...editingBar} />}
         <main className="flex-1 px-2 pb-2 pt-2 md:min-h-0 md:overflow-y-auto md:px-3 md:py-3">{children}</main>
