@@ -35,7 +35,7 @@ final class NextGenMailer {
         if (!defined('BNOTE_ROOT')) {
             require_once dirname(__DIR__) . '/paths.php';
         }
-        require_once BNOTE_ROOT . '/src/logic/mailrecipientpolicy.php';
+        require_once __DIR__ . '/MailRecipientPolicy.php';
         if (!class_exists(PHPMailer::class)) {
             error_log('NextGenMailer: PHPMailer not installed (run composer install in bnote-next-generation/api).');
             return false;

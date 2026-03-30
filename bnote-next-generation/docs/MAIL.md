@@ -8,7 +8,7 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 
 ## Subsystem map (handover)
 
-**Two stacks:** Next Gen uses **`NextGenMailer`** + **`MailEnv`** (SMTP). Legacy uses **`Mailing`** in **`BNote/src/logic/mailing.php`**. Both respect **`MailRecipientPolicy`** ([`BNote/src/logic/mailrecipientpolicy.php`](../../BNote/src/logic/mailrecipientpolicy.php)): outbound delivery is skipped for `example.com` and `*.example.com` (reserved / placeholder domains).
+**Two stacks:** Next Gen uses **`NextGenMailer`** + **`MailEnv`** (SMTP). Legacy uses **`Mailing`** in **`BNote/src/logic/mailing.php`** (PHP `mail()` transport). **`MailRecipientPolicy`** ([`api/mail/MailRecipientPolicy.php`](../api/mail/MailRecipientPolicy.php)) applies **only to Next Gen** outbound mail: delivery is skipped for `example.com` and `*.example.com` (reserved / placeholder domains). Legacy `Mailing` does not use this policy.
 
 | Flow | Entry point | Builder / notifier | Transactional policy? | Send API |
 |------|-------------|--------------------|------------------------|----------|

@@ -5,7 +5,7 @@
 declare(strict_types=1);
 
 require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
-require_once BNOTE_ROOT . '/src/logic/mailrecipientpolicy.php';
+require_once __DIR__ . '/MailRecipientPolicy.php';
 require_once __DIR__ . '/NextGenMailPolicy.php';
 require_once __DIR__ . '/NextGenMailer.php';
 require_once __DIR__ . '/builders/CommentDiscussionMailBuilder.php';

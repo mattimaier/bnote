@@ -5,7 +5,7 @@
 declare(strict_types=1);
 
 require_once BNOTE_ROOT . '/src/data/modules/kontaktedata.php';
-require_once BNOTE_ROOT . '/src/logic/mailrecipientpolicy.php';
+require_once __DIR__ . '/MailRecipientPolicy.php';
 require_once __DIR__ . '/MailEnv.php';
 require_once __DIR__ . '/MailI18n.php';
 require_once __DIR__ . '/MailHtmlShell.php';

@@ -40,7 +40,6 @@ class EquipmentData extends AbstractData {
 	function create($values) {
 		$id = parent::create($values);
 		$this->createCustomFieldData(EquipmentData::$CUSTOM_DATA_OTYPE, $id, $values);
-		return $id;
 	}
 	
 	function update($id, $values) {

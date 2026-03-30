@@ -23,6 +23,7 @@
  * Provides equipment (inventory) management endpoints
  */
 require_once BNOTE_ROOT . '/src/data/modules/equipmentdata.php';
+require_once __DIR__ . '/../data/NextGenEquipmentData.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 
@@ -36,7 +37,7 @@ class EquipmentModule {
             Response::error('Access denied to Equipment', 403);
         }
 
-        $this->data = new EquipmentData();
+        $this->data = new NextGenEquipmentData();
     }
 
     public function handle() {
