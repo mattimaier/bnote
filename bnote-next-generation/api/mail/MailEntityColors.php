@@ -1,7 +1,7 @@
 <?php
 /**
  * Entity accent colors from frontend/config/entity-config.json — same source as frontend/lib/entity-config.ts.
- * oklch values are mapped to mail-safe hex where needed (aligned with getColorForBnoteType).
+ * oklch values are mapped to mail-safe hex. Concert uses the solid app accent (see globals.css --accent / bg-accent), not the lighter calendar mix hex.
  */
 declare(strict_types=1);
 
@@ -53,11 +53,11 @@ final class MailEntityColors {
         return self::fallbackHex($key);
     }
 
-    /** @see getColorForBnoteType — hex for concert where oklch is not email-safe */
+    /** Concert: oklch(0.68 0.20 80) → solid accent for icon circle + badge label (matches EventDetail bg-accent / .event-badge.accent color). */
     private static function oklchToMailHex(string $key, string $raw): string {
         $r = strtolower($raw);
         if ($key === 'concert' && str_contains($r, '0.68') && str_contains($r, '80')) {
-            return '#e8a84d';
+            return '#d18000';
         }
         if ($key === 'meeting' && str_contains($r, '0.62') && str_contains($r, '150')) {
             return '#3d9970';
@@ -69,7 +69,7 @@ final class MailEntityColors {
     private static function fallbackHex(string $key): string {
         return match ($key) {
             'rehearsal' => '#3399ff',
-            'concert' => '#e8a84d',
+            'concert' => '#d18000',
             'vote' => '#a855f7',
             default => '#6b7280',
         };

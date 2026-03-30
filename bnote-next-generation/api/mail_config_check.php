@@ -52,6 +52,7 @@ echo json_encode(
             'previewLongDemoEn' => $apiBase . '/mail_preview.php?template=long_demo&locale=en',
             'previewCommentDiscussionRehearsalShortEn' => $apiBase . '/mail_preview.php?template=comment_discussion_rehearsal_short&locale=en',
             'previewCommentDiscussionConcertEn' => $apiBase . '/mail_preview.php?template=comment_discussion_concert&locale=en',
+            'commentDiscussionRecipientsExample' => $apiBase . '/mail_comment_recipients.php?otype=R&id=641',
         ],
     ],
     JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES

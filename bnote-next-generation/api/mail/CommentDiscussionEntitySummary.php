@@ -4,17 +4,19 @@
  */
 declare(strict_types=1);
 
-require_once BNOTE_ROOT . '/src/data/data.php';
 require_once BNOTE_ROOT . '/src/data/modules/probendata.php';
 require_once BNOTE_ROOT . '/src/data/modules/konzertedata.php';
 require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
 require_once __DIR__ . '/MailI18n.php';
 require_once __DIR__ . '/MailEntityColors.php';
+require_once __DIR__ . '/MailEntityIcons.php';
+require_once __DIR__ . '/MailLocaleDateTime.php';
 
 final class CommentDiscussionEntitySummary {
     /**
      * @return array{
      *   icon_bg:string,
+     *   icon_inner_html:string,
      *   icon_char:string,
      *   title:string,
      *   badge_label:string,
@@ -44,15 +46,6 @@ final class CommentDiscussionEntitySummary {
         return method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
     }
 
-    private static function timeHm(?string $dbDt): string {
-        if ($dbDt === null || strlen($dbDt) < 16) {
-            return '';
-        }
-        $ts = strtotime($dbDt);
-
-        return $ts ? date('H:i', $ts) : '';
-    }
-
     /** @return array|null */
     private static function loadRehearsal(int $oid, $system_data) {
         $locale = self::localeFrom($system_data);
@@ -73,26 +66,18 @@ final class CommentDiscussionEntitySummary {
             }
         }
         $title = $locName !== '' ? $locName : ($conductorName !== '' ? $conductorName
-            : MailI18n::t('mail.commentDiscussion.fallbackRehearsalTitle', $locale));
+            : MailI18n::t('js.event.rehearsal', $locale));
         $begin = (string) ($r['begin'] ?? '');
         $end = (string) ($r['end'] ?? '');
-        $datePart = strlen($begin) >= 10 ? Data::convertDateFromDb(substr($begin, 0, 10)) : '';
-        $t0 = self::timeHm($begin);
-        $t1 = self::timeHm($end);
-        $meta = $datePart;
-        if ($t0 !== '') {
-            $meta .= ($meta !== '' ? ' · ' : '') . $t0;
-            if ($t1 !== '') {
-                $meta .= ' - ' . $t1;
-            }
-        }
+        $meta = MailLocaleDateTime::formatEventMetaLine($begin, $end, $locale);
         $acc = MailEntityColors::commentDiscussionCardAccents('rehearsal');
 
         return [
             'icon_bg' => $acc['icon_bg'],
+            'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
             'icon_char' => "\u{266B}",
             'title' => $title,
-            'badge_label' => MailI18n::t('mail.commentDiscussion.badgeRehearsal', $locale),
+            'badge_label' => MailI18n::t('js.event.rehearsal', $locale),
             'badge_bg' => $acc['badge_bg'],
             'badge_border' => $acc['badge_border'],
             'badge_text' => $acc['badge_text'],
@@ -121,27 +106,19 @@ final class CommentDiscussionEntitySummary {
             }
         }
         if ($title === '') {
-            $title = $locName !== '' ? $locName : MailI18n::t('mail.commentDiscussion.fallbackConcertTitle', $locale);
+            $title = $locName !== '' ? $locName : MailI18n::t('js.event.performance', $locale);
         }
         $begin = (string) ($c['begin'] ?? '');
         $end = (string) ($c['end'] ?? '');
-        $datePart = strlen($begin) >= 10 ? Data::convertDateFromDb(substr($begin, 0, 10)) : '';
-        $t0 = self::timeHm($begin);
-        $t1 = self::timeHm($end);
-        $meta = $datePart;
-        if ($t0 !== '') {
-            $meta .= ($meta !== '' ? ' · ' : '') . $t0;
-            if ($t1 !== '') {
-                $meta .= ' - ' . $t1;
-            }
-        }
+        $meta = MailLocaleDateTime::formatEventMetaLine($begin, $end, $locale);
         $acc = MailEntityColors::commentDiscussionCardAccents('concert');
 
         return [
             'icon_bg' => $acc['icon_bg'],
+            'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('concert'),
             'icon_char' => "\u{266A}",
             'title' => $title,
-            'badge_label' => MailI18n::t('mail.commentDiscussion.badgeConcert', $locale),
+            'badge_label' => MailI18n::t('js.event.performance', $locale),
             'badge_bg' => $acc['badge_bg'],
             'badge_border' => $acc['badge_border'],
             'badge_text' => $acc['badge_text'],
@@ -163,15 +140,16 @@ final class CommentDiscussionEntitySummary {
             $name = MailI18n::t('mail.commentDiscussion.fallbackVoteTitle', $locale);
         }
         $end = (string) ($v['end'] ?? '');
-        $meta = $end !== '' ? Data::convertDateFromDb($end) : '';
+        $meta = $end !== '' ? MailLocaleDateTime::formatVoteEndLine($end, $locale) : '';
         $finished = isset($v['is_finished']) && ($v['is_finished'] == '1' || $v['is_finished'] === 1 || $v['is_finished'] === true);
         $badgeLabel = $finished
-            ? MailI18n::t('mail.commentDiscussion.badgeVoteFinished', $locale)
-            : MailI18n::t('mail.commentDiscussion.badgeVoteActive', $locale);
+            ? MailI18n::t('js.votes.finished', $locale)
+            : MailI18n::t('js.votes.active', $locale);
         $acc = MailEntityColors::commentDiscussionCardAccents('vote');
 
         return [
             'icon_bg' => $acc['icon_bg'],
+            'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('vote'),
             'icon_char' => 'V',
             'title' => $name,
             'badge_label' => $badgeLabel,

@@ -30,16 +30,26 @@ final class CommentDiscussionNotifier {
                 return;
             }
 
+            $authorContactId = 0;
+            $sender = $system_data->getUsersContact($authorUserId);
+            if (is_array($sender)) {
+                $authorContactId = (int) ($sender['id'] ?? 0);
+            }
+
             /** @var list<array{email:string,firstName:string}> $recipients */
             $recipients = [];
             $seen = [];
             for ($i = 1; $i < count($contacts); $i++) {
                 $contact = $contacts[$i];
-                if (!$system_data->contactEmailNotificationOn($contact['id'])) {
+                $cid = self::contactRowId($contact);
+                if ($authorContactId > 0 && $cid === $authorContactId) {
                     continue;
                 }
                 $e = trim((string) ($contact['email'] ?? ''));
                 if ($e === '' || !filter_var($e, FILTER_VALIDATE_EMAIL) || isset($seen[$e])) {
+                    continue;
+                }
+                if (!self::shouldNotifyContactForDiscussion($system_data, $cid, $e)) {
                     continue;
                 }
                 if (MailRecipientPolicy::shouldSkipOutboundDelivery($e)) {
@@ -48,7 +58,7 @@ final class CommentDiscussionNotifier {
                 $seen[$e] = true;
                 $recipients[] = [
                     'email' => $e,
-                    'firstName' => trim((string) ($contact['name'] ?? '')),
+                    'firstName' => self::contactRowSalutationName($contact),
                 ];
             }
             if (count($recipients) < 1) {
@@ -58,7 +68,6 @@ final class CommentDiscussionNotifier {
             $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
 
             $authorLine = '';
-            $sender = $system_data->getUsersContact($authorUserId);
             if (is_array($sender)) {
                 $authorLine = trim(($sender['name'] ?? '') . ' ' . ($sender['surname'] ?? ''));
             }
@@ -125,5 +134,126 @@ final class CommentDiscussionNotifier {
         }
 
         return $list;
+    }
+
+    /**
+     * contactEmailNotificationOn() is false for contacts with no BNote user — only linked users could get mail.
+     * For entity discussion we also notify contacts listed on the rehearsal/concert/vote who have an email but no login.
+     * If a user account exists, we still respect user email_notification.
+     *
+     * @param mixed $system_data Systemdata
+     */
+    private static function shouldNotifyContactForDiscussion($system_data, int $contactId, string $email): bool {
+        if ($contactId < 1 || $email === '') {
+            return false;
+        }
+        if (!isset($system_data->dbcon)) {
+            return false;
+        }
+        $uid = $system_data->dbcon->colValue(
+            'SELECT id FROM user WHERE contact = ? AND isActive = 1',
+            'id',
+            [['i', $contactId]]
+        );
+        if ($uid === null) {
+            return true;
+        }
+
+        return $system_data->userEmailNotificationOn((int) $uid);
+    }
+
+    /** @param array<string,mixed> $contact */
+    private static function contactRowId(array $contact): int {
+        foreach (['id', 'Id', 'ID'] as $k) {
+            if (isset($contact[$k]) && $contact[$k] !== '' && $contact[$k] !== null) {
+                return (int) $contact[$k];
+            }
+        }
+
+        return 0;
+    }
+
+    /** @param array<string,mixed> $contact */
+    private static function contactRowSalutationName(array $contact): string {
+        $n = trim((string) ($contact['name'] ?? $contact['fullname'] ?? $contact['Fullname'] ?? ''));
+
+        return $n;
+    }
+
+    /**
+     * Local debug: who would receive (loopback script). Same rules as sendSafe.
+     *
+     * @return array<string,mixed>
+     */
+    public static function describeRecipients($system_data, $startData, string $otype, int $oid, int $authorUserId = 0): array {
+        $otype = strtoupper($otype);
+        $out = [
+            'otype' => $otype,
+            'oid' => $oid,
+            'would_send_if_comment_added' => NextGenMailPolicy::shouldSendPublicMail($system_data),
+            'rows' => [],
+            'recipients_emails' => [],
+        ];
+        if (!in_array($otype, ['R', 'C', 'V'], true) || $oid < 1) {
+            $out['error'] = 'invalid otype or oid';
+
+            return $out;
+        }
+        $contacts = $startData->getContactsForObject($otype, $oid);
+        if ($contacts === null) {
+            $out['note'] = 'getContactsForObject returned null';
+
+            return $out;
+        }
+        $out['raw_row_count_including_header'] = count($contacts);
+        if (count($contacts) <= 1) {
+            $out['note'] = 'no contact rows';
+
+            return $out;
+        }
+        $authorContactId = 0;
+        if ($authorUserId > 0) {
+            $sender = $system_data->getUsersContact($authorUserId);
+            if (is_array($sender)) {
+                $authorContactId = (int) ($sender['id'] ?? 0);
+            }
+        }
+        $seen = [];
+        for ($i = 1; $i < count($contacts); $i++) {
+            $contact = $contacts[$i];
+            $cid = self::contactRowId($contact);
+            $e = trim((string) ($contact['email'] ?? ''));
+            $reasons = [];
+            $skipAuthor = $authorContactId > 0 && $cid === $authorContactId;
+            if ($skipAuthor) {
+                $reasons[] = 'skipped_author';
+            }
+            $validEmail = $e !== '' && filter_var($e, FILTER_VALIDATE_EMAIL);
+            if (!$validEmail) {
+                $reasons[] = 'invalid_or_empty_email';
+            }
+            $policyOk = $validEmail && !MailRecipientPolicy::shouldSkipOutboundDelivery($e);
+            if ($validEmail && !$policyOk) {
+                $reasons[] = 'mail_recipient_policy';
+            }
+            $gateOk = $cid >= 1 && $validEmail && self::shouldNotifyContactForDiscussion($system_data, $cid, $e);
+            if (!$skipAuthor && $validEmail && $policyOk && !$gateOk) {
+                $reasons[] = 'user_email_notification_disabled';
+            }
+            $would = !$skipAuthor && $validEmail && $policyOk && $gateOk && !isset($seen[strtolower($e)]);
+            if ($would) {
+                $seen[strtolower($e)] = true;
+                $out['recipients_emails'][] = $e;
+            }
+            $out['rows'][] = [
+                'contact_id' => $cid,
+                'email' => $e,
+                'name' => self::contactRowSalutationName($contact),
+                'would_receive' => $would,
+                'reasons' => $reasons,
+            ];
+        }
+
+        return $out;
     }
 }

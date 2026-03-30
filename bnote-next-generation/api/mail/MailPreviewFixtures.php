@@ -4,6 +4,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/MailEnv.php';
 require_once __DIR__ . '/MailI18n.php';
 require_once __DIR__ . '/MailEntityColors.php';
+require_once __DIR__ . '/MailEntityIcons.php';
+require_once __DIR__ . '/MailLocaleDateTime.php';
 
 final class MailPreviewFixtures {
     public static function systemData(): object {
@@ -56,10 +58,11 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Rehearsal 02.04.2026',
             'authorLine' => 'River P.',
             'entityCard' => array_merge($acc, [
+                'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
                 'icon_char' => "\u{266B}",
                 'title' => 'Haus der Vereine',
-                'badge_label' => MailI18n::t('mail.commentDiscussion.badgeRehearsal', $locale),
-                'meta_line' => '02.04.2026 · 03:30 - 05:09',
+                'badge_label' => MailI18n::t('js.event.rehearsal', $locale),
+                'meta_line' => MailLocaleDateTime::formatEventMetaLine('2026-04-02 03:30:00', '2026-04-02 05:09:00', $locale),
                 'location_line' => 'Haus der Vereine',
             ]),
             'thread' => [
@@ -93,10 +96,11 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Rehearsal 15.04.2026',
             'authorLine' => 'Member 14',
             'entityCard' => array_merge($acc, [
+                'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
                 'icon_char' => "\u{266B}",
                 'title' => 'Studio A',
-                'badge_label' => MailI18n::t('mail.commentDiscussion.badgeRehearsal', $locale),
-                'meta_line' => '15.04.2026 · 19:00 - 21:30',
+                'badge_label' => MailI18n::t('js.event.rehearsal', $locale),
+                'meta_line' => MailLocaleDateTime::formatEventMetaLine('2026-04-15 19:00:00', '2026-04-15 21:30:00', $locale),
                 'location_line' => 'Studio A',
             ]),
             'thread' => $thread,
@@ -117,10 +121,11 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Concert 20.05.2026',
             'authorLine' => 'Jordan W.',
             'entityCard' => array_merge($acc, [
+                'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('concert'),
                 'icon_char' => "\u{266A}",
                 'title' => 'Summer Open Air',
-                'badge_label' => MailI18n::t('mail.commentDiscussion.badgeConcert', $locale),
-                'meta_line' => '20.05.2026 · 18:00 - 22:30',
+                'badge_label' => MailI18n::t('js.event.performance', $locale),
+                'meta_line' => MailLocaleDateTime::formatEventMetaLine('2026-05-20 18:00:00', '2026-05-20 22:30:00', $locale),
                 'location_line' => 'Parkbühne, Musterstadt',
             ]),
             'thread' => [
@@ -143,10 +148,11 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Vote: Spring concert program',
             'authorLine' => 'Casey L.',
             'entityCard' => array_merge($acc, [
+                'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('vote'),
                 'icon_char' => 'V',
                 'title' => 'Spring concert program',
-                'badge_label' => MailI18n::t('mail.commentDiscussion.badgeVoteActive', $locale),
-                'meta_line' => '2026-04-15 23:59',
+                'badge_label' => MailI18n::t('js.votes.active', $locale),
+                'meta_line' => MailLocaleDateTime::formatVoteEndLine('2026-04-15 23:59:00', $locale),
                 'location_line' => '',
             ]),
             'thread' => [
@@ -169,10 +175,11 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Concert 12.04.2026',
             'authorLine' => 'Taylor N.',
             'entityCard' => array_merge($acc, [
+                'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('concert'),
                 'icon_char' => "\u{266A}",
                 'title' => 'Spring Gala',
-                'badge_label' => MailI18n::t('mail.commentDiscussion.badgeConcert', $locale),
-                'meta_line' => '12.04.2026 · 19:00 - 22:00',
+                'badge_label' => MailI18n::t('js.event.performance', $locale),
+                'meta_line' => MailLocaleDateTime::formatEventMetaLine('2026-04-12 19:00:00', '2026-04-12 22:00:00', $locale),
                 'location_line' => 'City Hall',
             ]),
             'thread' => [

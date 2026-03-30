@@ -5,8 +5,6 @@
  */
 declare(strict_types=1);
 
-require_once __DIR__ . '/MailEntityColors.php';
-
 final class MailEntityIcons {
     /**
      * @return array{color:string, icon?:string}|null
@@ -59,26 +57,31 @@ final class MailEntityIcons {
     private static function svgWrap(string $innerPath): string {
         return '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" '
             . 'stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" '
-            . 'role="img" aria-hidden="true" style="display:block;vertical-align:middle;">'
+            . 'role="img" aria-hidden="true" style="display:block;margin:0 auto;">'
             . $innerPath
             . '</svg>';
     }
 
     private static function svgMusic(): string {
+        // Tabler outline "music" (beamed notes)
         return self::svgWrap(
-            '<path d="M6 5h12v12a3 3 0 1 1 -3 3a3 3 0 0 1 3 -3v-6h-4v7a3 3 0 1 1 -3 3a3 3 0 0 1 3 -3v-6z" />'
+            '<path d="M3 17a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />'
+            . '<path d="M13 17h8v-13h-8z" />'
+            . '<path d="M13 4l-5 8" />'
         );
     }
 
     private static function svgMicrophone(): string {
+        // Tabler outline "microphone"
         return self::svgWrap(
-            '<path d="M9 5a3 3 0 1 1 6 0v6a3 3 0 1 1 -6 0v-6z" />'
-            . '<path d="M5 10a3 3 0 0 0 3 3h8a3 3 0 0 0 3 -3" />'
-            . '<path d="M12 19v3" />'
+            '<path d="M9 5a3 3 0 0 1 6 0v6a3 3 0 0 1 -6 0v-6z" />'
+            . '<path d="M5 10a7 7 0 0 0 14 0" />'
+            . '<path d="M12 19v4" />'
         );
     }
 
     private static function svgVote(): string {
+        // Tabler outline "circle-dot"
         return self::svgWrap(
             '<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />'
             . '<path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />'
