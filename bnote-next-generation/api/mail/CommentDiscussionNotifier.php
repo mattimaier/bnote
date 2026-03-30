@@ -137,29 +137,28 @@ final class CommentDiscussionNotifier {
     }
 
     /**
-     * contactEmailNotificationOn() is false for contacts with no BNote user — only linked users could get mail.
-     * For entity discussion we also notify contacts listed on the rehearsal/concert/vote who have an email but no login.
-     * If a user account exists, we still respect user email_notification.
+     * Same rules as {@see NextGenMailPolicy::contactTransactionalMailDenyReason}, plus email/contact validation
+     * for this notifier’s describeRecipients output.
      *
+     * @param mixed $system_data Systemdata
+     * @return null|string null = would notify; otherwise a machine reason for describeRecipients
+     */
+    private static function contactDiscussionDenyReason($system_data, int $contactId, string $email): ?string {
+        if ($contactId < 1 || $email === '') {
+            return 'invalid_contact_or_email';
+        }
+        if (!isset($system_data->dbcon)) {
+            return 'no_db';
+        }
+
+        return NextGenMailPolicy::contactTransactionalMailDenyReason($system_data, $contactId);
+    }
+
+    /**
      * @param mixed $system_data Systemdata
      */
     private static function shouldNotifyContactForDiscussion($system_data, int $contactId, string $email): bool {
-        if ($contactId < 1 || $email === '') {
-            return false;
-        }
-        if (!isset($system_data->dbcon)) {
-            return false;
-        }
-        $uid = $system_data->dbcon->colValue(
-            'SELECT id FROM user WHERE contact = ? AND isActive = 1',
-            'id',
-            [['i', $contactId]]
-        );
-        if ($uid === null) {
-            return true;
-        }
-
-        return $system_data->userEmailNotificationOn((int) $uid);
+        return self::contactDiscussionDenyReason($system_data, $contactId, $email) === null;
     }
 
     /** @param array<string,mixed> $contact */
@@ -236,9 +235,10 @@ final class CommentDiscussionNotifier {
             if ($validEmail && !$policyOk) {
                 $reasons[] = 'mail_recipient_policy';
             }
-            $gateOk = $cid >= 1 && $validEmail && self::shouldNotifyContactForDiscussion($system_data, $cid, $e);
-            if (!$skipAuthor && $validEmail && $policyOk && !$gateOk) {
-                $reasons[] = 'user_email_notification_disabled';
+            $deny = ($cid >= 1 && $validEmail) ? self::contactDiscussionDenyReason($system_data, $cid, $e) : 'invalid_contact_or_email';
+            $gateOk = $deny === null;
+            if (!$skipAuthor && $validEmail && $policyOk && !$gateOk && $deny !== null) {
+                $reasons[] = $deny;
             }
             $would = !$skipAuthor && $validEmail && $policyOk && $gateOk && !isset($seen[strtolower($e)]);
             if ($would) {

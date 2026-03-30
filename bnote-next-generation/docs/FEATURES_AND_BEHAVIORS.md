@@ -121,6 +121,7 @@ This document describes each feature and expected behavior of the Next.js app. U
   - Participation: get participation, set participation.  
   - Translations: list of keys or full locale JSON.
 - **Module routes:** API returns sidebar modules with `route` (e.g. `/dashboard`, `/users`, `/contacts`). Frontend uses these as Next.js paths (e.g. `dashboard/index.html`, `users/index.html` in static export).
+- **Transactional email (PHP):** Event invites, task notifications, and entity discussion mail use **`NextGenMailPolicy`**: contacts **without** a BNote user still receive mail when appropriate; contacts linked only to an **inactive** user do **not**; active users follow the **`email_notification`** preference. Details: **[MAIL.md](MAIL.md)** (“Transactional mail: who receives it”).
 
 ---
 

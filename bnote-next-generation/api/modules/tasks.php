@@ -24,10 +24,12 @@
  */
 require_once BNOTE_ROOT . '/src/data/modules/aufgabendata.php';
 require_once BNOTE_ROOT . '/src/data/modules/tourdata.php';
-require_once BNOTE_ROOT . '/src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../text_normalizer.php';
+require_once __DIR__ . '/../mail/NextGenMailPolicy.php';
+require_once __DIR__ . '/../mail/NextGenMailer.php';
+require_once __DIR__ . '/../mail/builders/TaskNotificationMailBuilder.php';
 
 class TasksModule {
     private $data;
@@ -105,49 +107,98 @@ class TasksModule {
     }
 
     /**
-     * Send email notification to assignee.
-     * Skipped in demo mode so task creation/update succeeds regardless of email.
+     * Send Next Gen HTML mail to assignee. Skipped in demo / when mail not configured.
      */
-    private function sendCreateNotification($assignedTo, $title, $description) {
+    private function sendCreateNotification(int $assignedTo, string $title, string $description, int $taskId): void {
         global $system_data;
-        if ($system_data->inDemoMode()) return;
-        if (!$system_data->contactEmailNotificationOn($assignedTo)) {
+        if ($system_data->inDemoMode()) {
+            return;
+        }
+        if (!NextGenMailPolicy::shouldSendPublicMail($system_data)) {
+            return;
+        }
+        if (!NextGenMailPolicy::contactAllowsTransactionalNotification($system_data, $assignedTo)) {
             return;
         }
         $to = $this->data->getContactmail($assignedTo);
-        if (empty($to)) return;
-        $subject = Lang::txt('AufgabenController_informUser.title_1') . $title;
-        $body = Lang::txt('AufgabenController_informUser.body_1');
-        $body .= Lang::txt('AufgabenController_informUser.body_2');
-        $body .= $description ?? '';
+        if (empty($to)) {
+            return;
+        }
+        $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
         try {
-            $mail = new Mailing($subject, $body);
-            $mail->setTo($to);
-            $mail->sendMailWithFailError();
-        } catch (Exception $e) {
-            // Log but don't fail the API request
+            $msg = TaskNotificationMailBuilder::build(
+                $system_data,
+                $locale,
+                TaskNotificationMailBuilder::MODE_CREATE,
+                $title,
+                $description,
+                $taskId,
+                [$to],
+                []
+            );
+            NextGenMailer::send($msg);
+        } catch (Throwable $e) {
             error_log('TasksModule: Failed to send create notification: ' . $e->getMessage());
         }
     }
 
-    private function sendUpdateNotification($assignedTo, $title) {
+    private function sendUpdateNotification(int $assignedTo, string $title, string $description, int $taskId): void {
         global $system_data;
-        if ($system_data->inDemoMode()) return;
-        if (!$system_data->contactEmailNotificationOn($assignedTo)) {
+        if ($system_data->inDemoMode()) {
+            return;
+        }
+        if (!NextGenMailPolicy::shouldSendPublicMail($system_data)) {
+            return;
+        }
+        if (!NextGenMailPolicy::contactAllowsTransactionalNotification($system_data, $assignedTo)) {
             return;
         }
         $to = $this->data->getContactmail($assignedTo);
-        if (empty($to)) return;
-        $subject = Lang::txt('AufgabenController_informUser.title_2') . $title;
-        $body = Lang::txt('AufgabenController_informUser.body_3');
-        $body .= Lang::txt('AufgabenController_informUser.body_4');
+        if (empty($to)) {
+            return;
+        }
+        $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
         try {
-            $mail = new Mailing($subject, $body);
-            $mail->setTo($to);
-            $mail->sendMailWithFailError();
-        } catch (Exception $e) {
+            $msg = TaskNotificationMailBuilder::build(
+                $system_data,
+                $locale,
+                TaskNotificationMailBuilder::MODE_UPDATE,
+                $title,
+                $description,
+                $taskId,
+                [$to],
+                []
+            );
+            NextGenMailer::send($msg);
+        } catch (Throwable $e) {
             error_log('TasksModule: Failed to send update notification: ' . $e->getMessage());
         }
+    }
+
+    private function getTaskTitleById(int $id): string {
+        $sel = $this->data->getTasks(false);
+        if (!is_array($sel)) {
+            return '';
+        }
+        for ($i = 1; $i < count($sel); $i++) {
+            if ((int) ($sel[$i]['id'] ?? 0) === $id) {
+                return trim((string) ($sel[$i]['title'] ?? ''));
+            }
+        }
+        return '';
+    }
+
+    private function getTaskDescriptionById(int $id): string {
+        $sel = $this->data->getTasks(false);
+        if (!is_array($sel)) {
+            return '';
+        }
+        for ($i = 1; $i < count($sel); $i++) {
+            if ((int) ($sel[$i]['id'] ?? 0) === $id) {
+                return (string) ($sel[$i]['description'] ?? '');
+            }
+        }
+        return '';
     }
 
     private function listTasks() {
@@ -263,7 +314,7 @@ class TasksModule {
 
         $assignedTo = $values['assigned_to'] ?? null;
         if ($assignedTo) {
-            $this->sendCreateNotification($assignedTo, $title, $values['description'] ?? '');
+            $this->sendCreateNotification((int) $assignedTo, $title, (string) ($values['description'] ?? ''), (int) $taskId);
         }
 
         return ['id' => (int) $taskId, 'success' => true];
@@ -293,10 +344,16 @@ class TasksModule {
         $values = $this->prepareValuesForUpdate($values);
         $this->data->update($id, $values);
 
-        $assignedTo = $values['assigned_to'] ?? null;
-        $title = $values['title'] ?? '';
-        if ($assignedTo && $title) {
-            $this->sendUpdateNotification($assignedTo, $title);
+        $assignedTo = isset($values['assigned_to']) ? (int) $values['assigned_to'] : null;
+        if ($assignedTo) {
+            $title = isset($values['title']) ? trim((string) $values['title']) : '';
+            if ($title === '') {
+                $title = $this->getTaskTitleById($id);
+            }
+            if ($title !== '') {
+                $desc = isset($values['description']) ? (string) $values['description'] : $this->getTaskDescriptionById($id);
+                $this->sendUpdateNotification($assignedTo, $title, $desc, $id);
+            }
         }
 
         return ['success' => true];

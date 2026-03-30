@@ -157,6 +157,25 @@ Templates and subjects live in **`bnote-next-generation/lang/<locale>.json`** un
 1. Add `mail.*` strings to all `lang/*.json` files.
 2. Add a small builder under `api/mail/builders/` that returns a `NextGenMailMessage`.
 3. Call `NextGenMailer` from feature code; treat `false` as non-fatal and log.
+4. For any **fan-out to contacts** (not one-off system mail), decide whether the message is **transactional** (activity on rehearsals, concerts, tasks, entity discussion). If yes, gate recipients with **`NextGenMailPolicy::contactAllowsTransactionalNotification()`** — see the next section.
+
+---
+
+## Transactional mail: who receives it (contact vs user)
+
+Some Next Gen mail goes to **contacts** attached to events or tasks. Recipient rules are centralized in **`api/mail/NextGenMailPolicy.php`**:
+
+| Linked `user` row | `user.isActive` | Mail sent? |
+|-------------------|-----------------|------------|
+| **None** (contact only, no login) | — | **Yes** (subject to SMTP, demo mode, valid address, and feature-specific rules). |
+| Present | **0** (inactive / deactivated) | **No** — inactive accounts must not receive transactional mail. |
+| Present | **1** (active) | **Only if** the user has email notifications enabled (`email_notification` / `userEmailNotificationOn()`). |
+
+**Features that use this policy today:** rehearsal/concert participation invites (`EventParticipantNotifier`), task assignee create/update mail (`api/modules/tasks.php`), and comment/discussion notifications (`CommentDiscussionNotifier`).
+
+**Legacy caveat:** `Systemdata::contactEmailNotificationOn()` returns **false** when the contact has **no** user. That matches “only notify logged-in members” in older code paths but **wrong** for Next Gen transactional fan-out, where **guest contacts** on an event should still get invites and discussion mail. New code should call **`contactAllowsTransactionalNotification()`** (or **`contactTransactionalMailDenyReason()`** when you need a machine-readable skip reason, e.g. for `mail_comment_recipients.php` / `CommentDiscussionNotifier::describeRecipients`).
+
+**Not gated by this policy:** password reset, self-registration / activation links, admin notices for new registrations, user activation email from admin — those are **system mail** and ignore the contact/user rules above.
 
 ---
 
