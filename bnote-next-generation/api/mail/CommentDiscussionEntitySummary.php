@@ -1,0 +1,185 @@
+<?php
+/**
+ * Entity “detail header” context for comment discussion mail (mirrors EventDetail + overview rows).
+ */
+declare(strict_types=1);
+
+require_once BNOTE_ROOT . '/src/data/data.php';
+require_once BNOTE_ROOT . '/src/data/modules/probendata.php';
+require_once BNOTE_ROOT . '/src/data/modules/konzertedata.php';
+require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
+require_once __DIR__ . '/MailI18n.php';
+require_once __DIR__ . '/MailEntityColors.php';
+
+final class CommentDiscussionEntitySummary {
+    /**
+     * @return array{
+     *   icon_bg:string,
+     *   icon_char:string,
+     *   title:string,
+     *   badge_label:string,
+     *   badge_bg:string,
+     *   badge_border:string,
+     *   badge_text:string,
+     *   meta_line:string,
+     *   location_line:string
+     * }|null
+     */
+    public static function load(string $otype, int $oid, $system_data): ?array {
+        $otype = strtoupper($otype);
+        if ($otype === 'R') {
+            return self::loadRehearsal($oid, $system_data);
+        }
+        if ($otype === 'C') {
+            return self::loadConcert($oid, $system_data);
+        }
+        if ($otype === 'V') {
+            return self::loadVote($oid, $system_data);
+        }
+
+        return null;
+    }
+
+    private static function localeFrom($system_data): string {
+        return method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
+    }
+
+    private static function timeHm(?string $dbDt): string {
+        if ($dbDt === null || strlen($dbDt) < 16) {
+            return '';
+        }
+        $ts = strtotime($dbDt);
+
+        return $ts ? date('H:i', $ts) : '';
+    }
+
+    /** @return array|null */
+    private static function loadRehearsal(int $oid, $system_data) {
+        $locale = self::localeFrom($system_data);
+        $pd = new ProbenData();
+        $r = $pd->getRehearsal($oid);
+        if (!is_array($r) || empty($r['id'])) {
+            return null;
+        }
+        $locName = trim((string) ($r['name'] ?? ''));
+        $conductorName = '';
+        if (!empty($r['conductor']) && $system_data && isset($system_data->dbcon)) {
+            $row = $system_data->dbcon->fetchRow(
+                'SELECT name, surname FROM contact WHERE id = ?',
+                [['i', (int) $r['conductor']]]
+            );
+            if (is_array($row)) {
+                $conductorName = trim(($row['name'] ?? '') . ' ' . ($row['surname'] ?? ''));
+            }
+        }
+        $title = $locName !== '' ? $locName : ($conductorName !== '' ? $conductorName
+            : MailI18n::t('mail.commentDiscussion.fallbackRehearsalTitle', $locale));
+        $begin = (string) ($r['begin'] ?? '');
+        $end = (string) ($r['end'] ?? '');
+        $datePart = strlen($begin) >= 10 ? Data::convertDateFromDb(substr($begin, 0, 10)) : '';
+        $t0 = self::timeHm($begin);
+        $t1 = self::timeHm($end);
+        $meta = $datePart;
+        if ($t0 !== '') {
+            $meta .= ($meta !== '' ? ' · ' : '') . $t0;
+            if ($t1 !== '') {
+                $meta .= ' - ' . $t1;
+            }
+        }
+        $acc = MailEntityColors::commentDiscussionCardAccents('rehearsal');
+
+        return [
+            'icon_bg' => $acc['icon_bg'],
+            'icon_char' => "\u{266B}",
+            'title' => $title,
+            'badge_label' => MailI18n::t('mail.commentDiscussion.badgeRehearsal', $locale),
+            'badge_bg' => $acc['badge_bg'],
+            'badge_border' => $acc['badge_border'],
+            'badge_text' => $acc['badge_text'],
+            'meta_line' => $meta,
+            'location_line' => $locName,
+        ];
+    }
+
+    /** @return array|null */
+    private static function loadConcert(int $oid, $system_data) {
+        $locale = self::localeFrom($system_data);
+        $kd = new KonzerteData();
+        $c = $kd->getConcert($oid);
+        if (!is_array($c) || empty($c['id'])) {
+            return null;
+        }
+        $title = trim((string) ($c['title'] ?? ''));
+        $locName = '';
+        if (!empty($c['location']) && isset($system_data->dbcon)) {
+            $row = $system_data->dbcon->fetchRow(
+                'SELECT name FROM location WHERE id = ?',
+                [['i', (int) $c['location']]]
+            );
+            if (is_array($row)) {
+                $locName = trim((string) ($row['name'] ?? ''));
+            }
+        }
+        if ($title === '') {
+            $title = $locName !== '' ? $locName : MailI18n::t('mail.commentDiscussion.fallbackConcertTitle', $locale);
+        }
+        $begin = (string) ($c['begin'] ?? '');
+        $end = (string) ($c['end'] ?? '');
+        $datePart = strlen($begin) >= 10 ? Data::convertDateFromDb(substr($begin, 0, 10)) : '';
+        $t0 = self::timeHm($begin);
+        $t1 = self::timeHm($end);
+        $meta = $datePart;
+        if ($t0 !== '') {
+            $meta .= ($meta !== '' ? ' · ' : '') . $t0;
+            if ($t1 !== '') {
+                $meta .= ' - ' . $t1;
+            }
+        }
+        $acc = MailEntityColors::commentDiscussionCardAccents('concert');
+
+        return [
+            'icon_bg' => $acc['icon_bg'],
+            'icon_char' => "\u{266A}",
+            'title' => $title,
+            'badge_label' => MailI18n::t('mail.commentDiscussion.badgeConcert', $locale),
+            'badge_bg' => $acc['badge_bg'],
+            'badge_border' => $acc['badge_border'],
+            'badge_text' => $acc['badge_text'],
+            'meta_line' => $meta,
+            'location_line' => $locName,
+        ];
+    }
+
+    /** @return array|null */
+    private static function loadVote(int $oid, $system_data) {
+        $locale = self::localeFrom($system_data);
+        $sd = new StartData();
+        $v = $sd->getVote($oid);
+        if (!is_array($v) || empty($v['id'])) {
+            return null;
+        }
+        $name = trim((string) ($v['name'] ?? ''));
+        if ($name === '') {
+            $name = MailI18n::t('mail.commentDiscussion.fallbackVoteTitle', $locale);
+        }
+        $end = (string) ($v['end'] ?? '');
+        $meta = $end !== '' ? Data::convertDateFromDb($end) : '';
+        $finished = isset($v['is_finished']) && ($v['is_finished'] == '1' || $v['is_finished'] === 1 || $v['is_finished'] === true);
+        $badgeLabel = $finished
+            ? MailI18n::t('mail.commentDiscussion.badgeVoteFinished', $locale)
+            : MailI18n::t('mail.commentDiscussion.badgeVoteActive', $locale);
+        $acc = MailEntityColors::commentDiscussionCardAccents('vote');
+
+        return [
+            'icon_bg' => $acc['icon_bg'],
+            'icon_char' => 'V',
+            'title' => $name,
+            'badge_label' => $badgeLabel,
+            'badge_bg' => $acc['badge_bg'],
+            'badge_border' => $acc['badge_border'],
+            'badge_text' => $acc['badge_text'],
+            'meta_line' => $meta,
+            'location_line' => '',
+        ];
+    }
+}

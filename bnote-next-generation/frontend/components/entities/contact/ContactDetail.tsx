@@ -13,8 +13,9 @@ import { useI18n } from "@/contexts/I18nContext";
 import { contactsApi, type ContactDetail, type ContactGroup } from "@/lib/contacts-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
-import { DetailCard } from "@/components/DetailCard";
-import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
+import { DETAIL_CARD_SUBSECTION_CLASS } from "@/components/DetailCard";
+import { DetailEditButton } from "@/components/DetailPageHeader";
+import { EntityDetailViewLayout } from "@/components/EntityDetailViewLayout";
 import { Avatar } from "@/components/Avatar";
 import { NotesContent } from "@/components/NotesContent";
 import { formatDateShortDisplay } from "@/lib/date-time";
@@ -119,18 +120,15 @@ export function ContactDetail() {
     value ? "badge badge-success badge-sm" : "badge badge-error badge-sm";
 
   return (
-    <div className={PAGE_CONTENT_CLASS}>
-      <DetailPageHeader
-        title={titleWithAvatar}
-        subtitle={label("js.contacts.subtitle", "Manage contacts and groups")}
-        right={
-          <DetailEditButton
-            onClick={() => router.push(getEntityPath("contact", contact.id, "edit"))}
-          />
-        }
-      />
-
-      <DetailCard className="space-y-6">
+    <EntityDetailViewLayout
+      title={titleWithAvatar}
+      subtitle={label("js.contacts.subtitle", "Manage contacts and groups")}
+      right={
+        <DetailEditButton
+          onClick={() => router.push(getEntityPath("contact", contact.id, "edit"))}
+        />
+      }
+    >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <span className="text-xs font-medium text-base-content/60">
@@ -295,7 +293,6 @@ export function ContactDetail() {
             </div>
           </div>
         </div>
-      </DetailCard>
-    </div>
+    </EntityDetailViewLayout>
   );
 }

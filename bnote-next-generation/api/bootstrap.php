@@ -37,7 +37,7 @@ require_once $GLOBALS['DIR_DATA'] . 'abstractdata.php';
 require_once $GLOBALS['DIR_DATA'] . 'abstractlocationdata.php';
 
 // Some data classes (e.g. UserData, Systemdata, AbstimmungData) require
-// LoginController, which itself extends DefaultController. In the classic
+// LoginController, which itself extends DefaultController. In the main
 // web entrypoints, DefaultController is loaded early by main.php/controller.php.
 // The Next API runs without those entrypoints, so we must ensure
 // DefaultController is available before any LoginController includes happen

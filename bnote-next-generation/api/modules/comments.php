@@ -29,7 +29,7 @@ require_once BNOTE_ROOT . '/src/data/modules/probendata.php';
 require_once BNOTE_ROOT . '/src/data/modules/konzertedata.php';
 require_once BNOTE_ROOT . '/src/data/modules/abstimmungdata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
-require_once BNOTE_ROOT . '/src/logic/mailing.php';
+require_once __DIR__ . '/../mail/CommentDiscussionNotifier.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../text_normalizer.php';
@@ -282,12 +282,12 @@ class CommentsModule {
             Response::error('Failed to add comment', 500);
         }
 
-        $this->sendCommentNotification($otype, $oid, $message, $uid);
+        global $system_data;
+        CommentDiscussionNotifier::sendSafe($system_data, $this->startData, $otype, $oid, $uid);
 
         $created = $this->getCommentById($commentId);
         $authorName = '';
         $authorEmail = null;
-        global $system_data;
         $contact = $system_data->getUsersContact($uid);
         if (is_array($contact)) {
             $authorName = trim(($contact['name'] ?? '') . ' ' . ($contact['surname'] ?? ''));
@@ -301,40 +301,6 @@ class CommentsModule {
             'message' => $message,
             'created_at' => $created['created_at'] ?? date('Y-m-d H:i:s'),
         ];
-    }
-
-    private function sendCommentNotification($otype, $oid, $message, $uid) {
-        global $system_data;
-        if ($system_data->inDemoMode()) {
-            return;
-        }
-        try {
-            $contacts = $this->startData->getContactsForObject($otype, $oid);
-            if ($contacts === null || count($contacts) <= 1) return;
-            $subject = 'Diskussion: ' . $this->startData->getObjectTitle($otype, $oid);
-            $body = '<h3>Neue Nachricht zu Diskussion</h3>';
-            $sender = $system_data->getUsersContact($uid);
-            $body .= '<p>von ' . (is_array($sender) ? (($sender['name'] ?? '') . ' ' . ($sender['surname'] ?? '')) : '') . '</p>';
-            $body .= '<p>' . htmlspecialchars($message) . '</p>';
-            $bcc = [];
-            for ($i = 1; $i < count($contacts); $i++) {
-                $contact = $contacts[$i];
-                if ($system_data->contactEmailNotificationOn($contact['id'])) {
-                    if (!empty($contact['email'])) {
-                        $bcc[] = $contact['email'];
-                    }
-                }
-            }
-            if (count($bcc) === 0) return;
-            require_once $GLOBALS['DIR_LOGIC'] . 'mailing.php';
-            $mail = new Mailing($subject, null);
-            $mail->setBodyInHtml($body);
-            $mail->setFromUser($uid);
-            $mail->setBcc($bcc);
-            $mail->sendMail();
-        } catch (Exception $e) {
-            error_log('Comment notification send failed: ' . $e->getMessage());
-        }
     }
 
     /**

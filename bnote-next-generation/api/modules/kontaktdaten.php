@@ -46,11 +46,27 @@ class KontaktdatenModule {
                 return $this->getMine();
             case 'updateMine':
                 return $this->updateMine();
+            case 'getUserPreferences':
+                return $this->getUserPreferences();
+            case 'updateUserPreferences':
+                return $this->updateUserPreferences();
             case 'getInstruments':
                 return $this->getInstruments();
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
+    }
+
+    /**
+     * Persist user.email_notification (direct update on user table).
+     */
+    private function persistUserEmailNotification($uid, $enabled) {
+        global $system_data;
+        $emn = $enabled ? 1 : 0;
+        $system_data->dbcon->execute(
+            'UPDATE user SET email_notification = ? WHERE id = ?',
+            [['i', $emn], ['i', $uid]]
+        );
     }
 
     /**
@@ -65,6 +81,8 @@ class KontaktdatenModule {
         if (!$uid) {
             Response::error('Session invalid', 403);
         }
+
+        global $system_data;
 
         $contact = $this->data->getContactForUser($uid);
         if (!$contact || !is_array($contact) || empty($contact['id'])) {
@@ -100,6 +118,7 @@ class KontaktdatenModule {
             'share_phones' => intval($contact['share_phones'] ?? 0) === 1,
             'share_birthday' => intval($contact['share_birthday'] ?? 0) === 1,
             'share_email' => intval($contact['share_email'] ?? 0) === 1,
+            'email_notification' => $system_data->userEmailNotificationOn($uid),
         ];
     }
 
@@ -122,6 +141,13 @@ class KontaktdatenModule {
             $data = $_POST;
         }
 
+        if (array_key_exists('email_notification', $data)) {
+            $raw = $data['email_notification'];
+            $on = ($raw === true || $raw === 1 || $raw === '1' || $raw === 'on');
+            $this->persistUserEmailNotification($uid, $on);
+            unset($data['email_notification']);
+        }
+
         $values = [];
         foreach (['name', 'surname', 'nickname', 'company', 'phone', 'mobile', 'business', 'email', 'web', 'notes', 'instrument', 'birthday', 'status'] as $field) {
             if (isset($data[$field])) {
@@ -141,6 +167,13 @@ class KontaktdatenModule {
             }
         }
 
+        if (empty($values)) {
+            return [
+                'success' => true,
+                'message' => 'Preferences updated successfully',
+            ];
+        }
+
         $_POST = array_merge($_POST ?? [], $values);
 
         try {
@@ -152,6 +185,49 @@ class KontaktdatenModule {
         } catch (BNoteError $e) {
             Response::error($e->getMessage(), 400);
         }
+    }
+
+    /**
+     * User-level preferences (no contact record required).
+     */
+    private function getUserPreferences() {
+        if (!Auth::check()) {
+            Response::error('Authentication required', 403);
+        }
+        $uid = $_SESSION['user'] ?? null;
+        if (!$uid) {
+            Response::error('Session invalid', 403);
+        }
+        global $system_data;
+        return [
+            'email_notification' => $system_data->userEmailNotificationOn($uid),
+        ];
+    }
+
+    private function updateUserPreferences() {
+        if (!Auth::check()) {
+            Response::error('Authentication required', 403);
+        }
+        $uid = $_SESSION['user'] ?? null;
+        if (!$uid) {
+            Response::error('Session invalid', 403);
+        }
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+        if (!$data) {
+            $data = $_POST;
+        }
+        if (!array_key_exists('email_notification', $data)) {
+            Response::error('email_notification is required', 400);
+        }
+        $raw = $data['email_notification'];
+        $on = ($raw === true || $raw === 1 || $raw === '1' || $raw === 'on');
+        $this->persistUserEmailNotification($uid, $on);
+        return [
+            'success' => true,
+            'message' => 'Preferences updated successfully',
+            'email_notification' => $on,
+        ];
     }
 
     /**

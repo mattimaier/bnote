@@ -363,18 +363,18 @@ class UsersModule {
         try {
             $wasActivated = $this->data->changeUserStatus($id);
             
-            // Send email if user was activated
+            // System mail: always notify on activation (ignore user email_notification preference).
             if ($wasActivated) {
                 $to = $this->data->getUsermail($id);
                 if ($to) {
                     $subject = Lang::txt("UserController_activate.message_1");
-                    $body = Lang::txt("UserController_activate.message_2") . 
-                            $system_data->getCompany() . 
+                    $body = Lang::txt("UserController_activate.message_2") .
+                            $system_data->getCompany() .
                             Lang::txt("UserController_activate.message_3");
-                    $body .= Lang::txt("UserController_activate.message_4") . 
-                            $system_data->getSystemURL() . 
+                    $body .= Lang::txt("UserController_activate.message_4") .
+                            $system_data->getSystemURL() .
                             Lang::txt("UserController_activate.message_5");
-                    
+
                     $mail = new Mailing($subject, $body);
                     $mail->setTo($to);
                     $mail->sendMail(); // Don't fail if email fails

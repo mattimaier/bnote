@@ -6,7 +6,8 @@
 
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { commentsApi, type CommentOtype } from "@/lib/comments-api";
 import { EventChatPanel } from "./EventChatPanel";
@@ -51,6 +52,8 @@ export function EntityChatLayout({
   children,
 }: EntityChatLayoutProps) {
   const { t } = useI18n();
+  const searchParams = useSearchParams();
+  const commentsAnchorRef = useRef<HTMLDivElement | null>(null);
   const [discussionOn, setDiscussionOn] = useState<boolean | null>(null);
   const isSidebar = useMinWidth(SIDEBAR_BREAKPOINT_PX);
   const isMobile = !useMinWidth(MOBILE_BREAKPOINT_PX);
@@ -77,6 +80,15 @@ export function EntityChatLayout({
     if (hasChat) checkDiscussion();
   }, [hasChat, checkDiscussion]);
 
+  useEffect(() => {
+    if (searchParams?.get("focus") !== "comments") return;
+    if (discussionOn !== true) return;
+    const scrollTimer = window.setTimeout(() => {
+      commentsAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+    return () => window.clearTimeout(scrollTimer);
+  }, [searchParams, discussionOn]);
+
   const commentsTitle = t("js.chat.commentsHeading");
 
   if (!hasChat) {
@@ -85,6 +97,7 @@ export function EntityChatLayout({
 
   const commentsSection = discussionOn === true && (
     <>
+      <div id="entity-discussion-comments" ref={commentsAnchorRef} className="scroll-mt-4" />
       <h2 className="text-lg font-semibold text-base-content mb-2 px-0 md:px-6">
         {commentsTitle}
       </h2>

@@ -1256,7 +1256,7 @@ Order: oldest first. Returns 403 if discussion is disabled or user has no access
 }
 ```
 
-**Response (200):** The new comment object (same shape as list items). Sends email notification to contacts with notification enabled (skipped in DemoMode). Returns 403 if discussion disabled or no access; 400 if message empty or invalid.
+**Response (200):** The new comment object (same shape as list items). Sends a Next Gen HTML email (discussion thread + deep link) to contacts with notification enabled when SMTP is configured (skipped in DemoMode or if mail is not configured). Returns 403 if discussion disabled or no access; 400 if message empty or invalid.
 
 ---
 

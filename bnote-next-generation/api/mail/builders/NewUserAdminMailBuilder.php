@@ -9,6 +9,7 @@ require_once dirname(__DIR__) . '/MailAssets.php';
 require_once dirname(__DIR__) . '/MailBodyText.php';
 require_once dirname(__DIR__) . '/MailSubject.php';
 require_once dirname(__DIR__) . '/MailBranding.php';
+require_once dirname(__DIR__) . '/MailGreeting.php';
 require_once dirname(__DIR__) . '/NextGenMailMessage.php';
 
 final class NewUserAdminMailBuilder {
@@ -25,8 +26,9 @@ final class NewUserAdminMailBuilder {
      * @param array{userId:int,contactId:int,name:string,surname:string,email:string,login:string,autoUserActivation:bool} $ctx
      * @param list<string> $to
      * @param list<string> $bcc
+     * @param string $recipientFirstName Admin recipient contact `name`; greeting omitted when empty.
      */
-    public static function build($system_data, string $locale, array $ctx, array $to, array $bcc): NextGenMailMessage {
+    public static function build($system_data, string $locale, array $ctx, array $to, array $bcc, string $recipientFirstName = ''): NextGenMailMessage {
         $company = method_exists($system_data, 'getCompany') ? (string) $system_data->getCompany() : '';
         $fullName = trim(($ctx['name'] ?? '') . ' ' . ($ctx['surname'] ?? ''));
         $email = (string) ($ctx['email'] ?? '');
@@ -76,7 +78,8 @@ final class NewUserAdminMailBuilder {
                 . htmlspecialchars(MailI18n::t('mail.newUserAdmin.noDeepLink', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>';
         }
 
-        $inner = '<p class="em-lead" style="margin:0 0 12px;">' . $intro . '</p>' . $detailList
+        $inner = MailGreeting::htmlLeadParagraph($locale, $recipientFirstName)
+            . '<p class="em-lead" style="margin:0 0 12px;">' . $intro . '</p>' . $detailList
             . '<p class="em-lead" style="margin:16px 0 0;">' . htmlspecialchars($activationNote, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>' . $links;
 
         $senderLine = MailBranding::bnoteBandLine($locale, $company);

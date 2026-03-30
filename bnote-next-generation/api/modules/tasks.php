@@ -111,6 +111,9 @@ class TasksModule {
     private function sendCreateNotification($assignedTo, $title, $description) {
         global $system_data;
         if ($system_data->inDemoMode()) return;
+        if (!$system_data->contactEmailNotificationOn($assignedTo)) {
+            return;
+        }
         $to = $this->data->getContactmail($assignedTo);
         if (empty($to)) return;
         $subject = Lang::txt('AufgabenController_informUser.title_1') . $title;
@@ -130,6 +133,9 @@ class TasksModule {
     private function sendUpdateNotification($assignedTo, $title) {
         global $system_data;
         if ($system_data->inDemoMode()) return;
+        if (!$system_data->contactEmailNotificationOn($assignedTo)) {
+            return;
+        }
         $to = $this->data->getContactmail($assignedTo);
         if (empty($to)) return;
         $subject = Lang::txt('AufgabenController_informUser.title_2') . $title;

@@ -28,6 +28,12 @@ export interface MyContactDetail {
   share_phones?: boolean;
   share_birthday?: boolean;
   share_email?: boolean;
+  /** User preference: receive notification emails. */
+  email_notification?: boolean;
+}
+
+export interface UserPreferences {
+  email_notification: boolean;
 }
 
 export interface InstrumentOption {
@@ -39,5 +45,12 @@ export const kontaktdatenApi = {
   getMine: () => api.get<MyContactDetail | null>("kontaktdaten", "getMine"),
   updateMine: (data: Partial<MyContactDetail>) =>
     api.post<{ success: boolean; message: string }>("kontaktdaten", "updateMine", data as Record<string, unknown>),
+  getUserPreferences: () => api.get<UserPreferences>("kontaktdaten", "getUserPreferences"),
+  updateUserPreferences: (data: UserPreferences) =>
+    api.post<{ success: boolean; message: string; email_notification?: boolean }>(
+      "kontaktdaten",
+      "updateUserPreferences",
+      data as unknown as Record<string, unknown>
+    ),
   getInstruments: () => api.get<InstrumentOption[]>("kontaktdaten", "getInstruments"),
 };

@@ -74,6 +74,7 @@ After saving, reload the site and trigger a test (e.g. password reset). If **`ge
 | `MAIL_FROM_ADDRESS` | From header | Usually same as mailbox |
 | `MAIL_FROM_NAME` | From display name | e.g. band name |
 | `NEXTGEN_PUBLIC_URL` | Base URL for links in mail | `https://domain/path` — **no** trailing `/` |
+| `NEXTGEN_MAIL_BULK_DELAY_MS` | Pause between each message when notifying many recipients (comment thread, new-user admins). Milliseconds; **`0`** = send back-to-back. If unset, defaults to **100** to reduce SMTP rate limits (e.g. ~50 recipients). | `150` or `0` |
 
 Optional fallback instead of `NEXTGEN_PUBLIC_URL`: set **`NEXTGEN_PUBLIC_ORIGIN`** (e.g. `https://www.example.de`) and **`NEXT_PUBLIC_BASE_PATH`** (e.g. `/bnote-next-generation`); PHP combines them.
 
@@ -112,7 +113,14 @@ These scripts work only from **127.0.0.1** or **::1** and are **not** shipped in
 2. **Test send** — **required** query parameter **`to`**:  
    `…/api/mail_test_send.php?to=you@example.com`
 
-3. **HTML preview** (no SMTP): open **`mail_debug.php`** for a list of transactional templates and locales, or call **`mail_preview.php?template=password_reset&locale=en`**. Templates include a **long layout demo** (`template=long_demo`) with lorem ipsum and multiple sections for stress-testing the shell. The JSON from **`mail_config_check.php`** includes a **`mailDebug`** object with the same paths. Logo uses a data URL in the browser; real sends use a CID attachment.
+3. **HTML preview** (no SMTP): open **`mail_debug.php`** for a list of transactional templates and locales, or call **`mail_preview.php?template=password_reset&locale=en`**. Templates include a **long layout demo** (`template=long_demo`) with lorem ipsum and multiple sections for stress-testing the shell. **Comment / discussion** notifications can be previewed without the database using:
+   - `comment_discussion_rehearsal_short`
+   - `comment_discussion_rehearsal_long`
+   - `comment_discussion_concert`
+   - `comment_discussion_vote`
+   - `comment_discussion_single_new`  
+   Example: `mail_preview.php?template=comment_discussion_rehearsal_short&locale=de`  
+   The JSON from **`mail_config_check.php`** includes a **`mailDebug`** object with the same paths. Logo uses a data URL in the browser; real sends use a CID attachment.
 
 **Dark mode:** HTML mail sets `color-scheme: light dark`, meta `color-scheme` / `supported-color-schemes`, and **`@media (prefers-color-scheme: dark)`** using dark palette tokens in **`frontend/mail-design-tokens.json`** (aligned with FlyonUI `bnotedark`). Apple Mail and many iOS clients follow this; Gmail and other webmail may keep a light canvas or apply their own rules.
 
@@ -149,6 +157,19 @@ Templates and subjects live in **`bnote-next-generation/lang/<locale>.json`** un
 1. Add `mail.*` strings to all `lang/*.json` files.
 2. Add a small builder under `api/mail/builders/` that returns a `NextGenMailMessage`.
 3. Call `NextGenMailer` from feature code; treat `false` as non-fatal and log.
+
+---
+
+## Comment / discussion notification (Next Gen API only)
+
+When a user posts a comment via the **Next Gen** `comments` module (`api/index.php?module=comments&action=add`), **`CommentDiscussionNotifier`** sends one transactional mail per eligible recipient (personalized greeting, optional **entity header card** aligned with the app detail view—icon, title, type pill, date/time, location—then chat-style bubbles and **Open discussion**).
+
+- **Entity context** is loaded in **`CommentDiscussionEntitySummary`** from `ProbenData` / `KonzerteData` / `StartData` (no extra API).
+- **Deep links** use **`NEXTGEN_PUBLIC_URL`** + `/entity?type=rehearsal|concert|vote&id=…&focus=comments` (same routing as the SPA entity page). Vote detail uses `type=vote`, not `/votes?id=`.
+- **Legacy `BNote/`** is unchanged: classic UI and the old API still use their own paths. A comment created **only** through the Next Gen API does **not** call `StartController::notifyContactsOnComment` or `BNoteApiImpl::addComment`; there is **no** `BNoteApiImpl` reference under `bnote-next-generation/api/`.
+- Strings: `mail.commentDiscussion.*` and `mail.shell.headlineCommentDiscussion` in **`lang/*.json`**.
+
+In the app, `?focus=comments` scrolls the discussion block into view on entity pages that use **`EntityChatLayout`**.
 
 ---
 

@@ -4,8 +4,38 @@ declare(strict_types=1);
 use PHPMailer\PHPMailer\PHPMailer;
 
 final class NextGenMailer {
+    /**
+     * Send several messages in order, pausing between sends when bulk delay is non-zero (see MailEnv::bulkSendDelayMicroseconds).
+     *
+     * @param list<NextGenMailMessage> $messages
+     * @return int Number of messages for which {@see send()} returned true
+     */
+    public static function sendBulk(array $messages): int {
+        require_once __DIR__ . '/MailEnv.php';
+        $delayUs = MailEnv::bulkSendDelayMicroseconds();
+        $ok = 0;
+        $last = count($messages) - 1;
+        foreach ($messages as $i => $message) {
+            if (!$message instanceof NextGenMailMessage) {
+                continue;
+            }
+            if (self::send($message)) {
+                $ok++;
+            }
+            if ($i < $last && $delayUs > 0) {
+                usleep($delayUs);
+            }
+        }
+
+        return $ok;
+    }
+
     public static function send(NextGenMailMessage $message): bool {
         require_once __DIR__ . '/bootstrap.php';
+        if (!defined('BNOTE_ROOT')) {
+            require_once dirname(__DIR__) . '/paths.php';
+        }
+        require_once BNOTE_ROOT . '/src/logic/mailrecipientpolicy.php';
         if (!class_exists(PHPMailer::class)) {
             error_log('NextGenMailer: PHPMailer not installed (run composer install in bnote-next-generation/api).');
             return false;
@@ -13,8 +43,23 @@ final class NextGenMailer {
         if ($message->subject === '' || $message->htmlBody === '') {
             return false;
         }
-        if (count($message->to) < 1) {
-            return false;
+
+        $to = [];
+        foreach ($message->to as $addr) {
+            $addr = trim((string) $addr);
+            if ($addr !== '' && !MailRecipientPolicy::shouldSkipOutboundDelivery($addr)) {
+                $to[] = $addr;
+            }
+        }
+        $bcc = [];
+        foreach ($message->bcc as $addr) {
+            $addr = trim((string) $addr);
+            if ($addr !== '' && !MailRecipientPolicy::shouldSkipOutboundDelivery($addr)) {
+                $bcc[] = $addr;
+            }
+        }
+        if (count($to) < 1 && count($bcc) < 1) {
+            return true;
         }
 
         $mail = new PHPMailer(true);
@@ -40,17 +85,11 @@ final class NextGenMailer {
             $fromName = MailEnv::fromName();
             $mail->setFrom($from, $fromName !== '' ? $fromName : $from);
 
-            foreach ($message->to as $addr) {
-                $addr = trim($addr);
-                if ($addr !== '') {
-                    $mail->addAddress($addr);
-                }
+            foreach ($to as $addr) {
+                $mail->addAddress($addr);
             }
-            foreach ($message->bcc as $addr) {
-                $addr = trim($addr);
-                if ($addr !== '') {
-                    $mail->addBCC($addr);
-                }
+            foreach ($bcc as $addr) {
+                $mail->addBCC($addr);
             }
 
             foreach ($message->embeds as $embed) {

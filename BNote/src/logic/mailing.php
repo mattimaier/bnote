@@ -135,6 +135,36 @@ class Mailing {
 			}
 		}
 		
+		require_once __DIR__ . '/mailrecipientpolicy.php';
+		
+		$hadNonEmptyTo = ($to !== "");
+		$hadNonEmptyBcc = false;
+		if($this->bcc != null) {
+			foreach($this->bcc as $address) {
+				if($address != "") {
+					$hadNonEmptyBcc = true;
+					break;
+				}
+			}
+		}
+		
+		if($to !== "" && MailRecipientPolicy::shouldSkipOutboundDelivery($to)) {
+			$to = "";
+		}
+		
+		$filteredBcc = array();
+		if($this->bcc != NULL) {
+			foreach($this->bcc as $address) {
+				if($address != "" && !MailRecipientPolicy::shouldSkipOutboundDelivery($address)) {
+					array_push($filteredBcc, $address);
+				}
+			}
+		}
+		
+		if($to === "" && count($filteredBcc) === 0 && ($hadNonEmptyTo || $hadNonEmptyBcc)) {
+			return true;
+		}
+		
 		// validation
 		if($this->bcc == null && $this->to == null) {
 			new BNoteError(Lang::txt("Mailing_sendMail.BNoteError_2"));
@@ -187,16 +217,14 @@ class Mailing {
 			$mail->isMail();  // use mail() function from PHP
 			$mail->CharSet = PHPMailer::CHARSET_UTF8;
 			$mail->setFrom($fromEmail, $fromName);
-			if(isset($replyTo)) {
+			if(isset($replyTo) && !MailRecipientPolicy::shouldSkipOutboundDelivery($replyTo)) {
 				$mail->addReplyTo($replyTo);
 			}
-			$mail->addAddress($to);
-			if($this->bcc != NULL) {
-				foreach($this->bcc as $address) {
-					if($address != "") {
-						$mail->addBCC($address);
-					}
-				}
+			if($to !== "") {
+				$mail->addAddress($to);
+			}
+			foreach($filteredBcc as $address) {
+				$mail->addBCC($address);
 			}
 			$mail->isHTML(true);
 			$mail->Subject = $subject;

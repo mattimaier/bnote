@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 require_once BNOTE_ROOT . '/src/data/modules/kontaktedata.php';
+require_once BNOTE_ROOT . '/src/logic/mailrecipientpolicy.php';
 require_once __DIR__ . '/MailEnv.php';
 require_once __DIR__ . '/MailI18n.php';
 require_once __DIR__ . '/MailHtmlShell.php';
@@ -23,27 +24,44 @@ final class RegistrationAdminNotifier {
             }
             $kd = new KontakteData();
             $admins = $kd->getAdmins();
-            $emails = [];
+            /** @var list<array{email:string,firstName:string}> $recipients */
+            $recipients = [];
+            $seen = [];
             $n = is_array($admins) ? count($admins) : 0;
             for ($i = 1; $i < $n; $i++) {
                 $row = $admins[$i];
                 $e = trim((string) ($row['email'] ?? ''));
-                if ($e !== '' && filter_var($e, FILTER_VALIDATE_EMAIL)) {
-                    $emails[] = $e;
+                if ($e === '' || !filter_var($e, FILTER_VALIDATE_EMAIL) || isset($seen[$e])) {
+                    continue;
                 }
+                if (MailRecipientPolicy::shouldSkipOutboundDelivery($e)) {
+                    continue;
+                }
+                $seen[$e] = true;
+                $recipients[] = [
+                    'email' => $e,
+                    'firstName' => trim((string) ($row['name'] ?? '')),
+                ];
             }
-            $emails = array_values(array_unique($emails));
-            if (count($emails) < 1) {
+            if (count($recipients) < 1) {
                 return;
             }
 
-            $toAddr = array_shift($emails);
-            $bcc = $emails;
             $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
 
             require_once __DIR__ . '/builders/NewUserAdminMailBuilder.php';
-            $msg = NewUserAdminMailBuilder::build($system_data, $locale, $ctx, [$toAddr], $bcc);
-            NextGenMailer::send($msg);
+            $messages = [];
+            foreach ($recipients as $r) {
+                $messages[] = NewUserAdminMailBuilder::build(
+                    $system_data,
+                    $locale,
+                    $ctx,
+                    [$r['email']],
+                    [],
+                    $r['firstName']
+                );
+            }
+            NextGenMailer::sendBulk($messages);
         } catch (Throwable $e) {
             error_log('RegistrationAdminNotifier: ' . $e->getMessage());
         }

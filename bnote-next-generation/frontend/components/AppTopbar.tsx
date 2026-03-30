@@ -21,7 +21,7 @@ import { useSearch } from "@/contexts/SearchContext";
 import { SearchAutocompleteOverlay } from "@/components/SearchAutocompleteOverlay";
 import { useEffect, useRef, useState } from "react";
 import { checkSession, type SessionUser } from "@/lib/auth";
-import { Search, Menu, X, LogOut, User } from "@/components/icons";
+import { Search, Menu, X, LogOut, User, getIcon } from "@/components/icons";
 import { Avatar } from "@/components/Avatar";
 
 function useMediaQuery(query: string): boolean {
@@ -68,6 +68,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   }, [menuOpen]);
 
   const fullName = [user?.name, user?.surname].filter(Boolean).join(" ") || t("js.common.user");
+  const SettingsMenuIcon = getIcon("settings");
 
   async function handleLogout() {
     await logout();
@@ -158,6 +159,14 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
               >
                 <User className="h-4 w-4" />
                 {t("js.profile.menuMyData") !== "js.profile.menuMyData" ? t("js.profile.menuMyData") : "My Contact Data"}
+              </Link>
+              <Link
+                href="/settings/"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
+              >
+                <SettingsMenuIcon className="h-4 w-4" />
+                {t("js.profile.menuSettings") !== "js.profile.menuSettings" ? t("js.profile.menuSettings") : "Preferences"}
               </Link>
               <button
                 type="button"

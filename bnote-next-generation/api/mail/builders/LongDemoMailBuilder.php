@@ -12,10 +12,11 @@ require_once dirname(__DIR__) . '/MailAssets.php';
 require_once dirname(__DIR__) . '/MailBodyText.php';
 require_once dirname(__DIR__) . '/MailSubject.php';
 require_once dirname(__DIR__) . '/MailBranding.php';
+require_once dirname(__DIR__) . '/MailGreeting.php';
 require_once dirname(__DIR__) . '/NextGenMailMessage.php';
 
 final class LongDemoMailBuilder {
-    public static function build($system_data, string $locale, string $toEmail): NextGenMailMessage {
+    public static function build($system_data, string $locale, string $toEmail, string $recipientFirstName = ''): NextGenMailMessage {
         $company = method_exists($system_data, 'getCompany') ? (string) $system_data->getCompany() : '';
 
         $h2First = 'margin:0 0 10px;';
@@ -24,7 +25,8 @@ final class LongDemoMailBuilder {
 
         $esc = static fn (string $key) => htmlspecialchars(MailI18n::t($key, $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-        $bodyHtml = '<h2 class="em-section-title" style="' . $h2First . '">' . $esc('mail.longDemo.section1Title') . '</h2>'
+        $bodyHtml = MailGreeting::htmlLeadParagraph($locale, $recipientFirstName)
+            . '<h2 class="em-section-title" style="' . $h2First . '">' . $esc('mail.longDemo.section1Title') . '</h2>'
             . '<p class="em-section-p" style="' . $p . '">' . $esc('mail.longDemo.section1Body') . '</p>'
             . '<p class="em-section-p-muted" style="margin:0 0 14px;">' . $esc('mail.longDemo.section1Aside') . '</p>'
             . '<hr class="em-hr"/>'

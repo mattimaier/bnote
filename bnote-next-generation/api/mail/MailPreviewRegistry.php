@@ -5,6 +5,7 @@ require_once __DIR__ . '/MailPreviewFixtures.php';
 require_once __DIR__ . '/builders/PasswordResetMailBuilder.php';
 require_once __DIR__ . '/builders/NewUserAdminMailBuilder.php';
 require_once __DIR__ . '/builders/LongDemoMailBuilder.php';
+require_once __DIR__ . '/builders/CommentDiscussionMailBuilder.php';
 require_once __DIR__ . '/NextGenMailMessage.php';
 
 final class MailPreviewRegistry {
@@ -14,6 +15,11 @@ final class MailPreviewRegistry {
             ['id' => 'password_reset', 'label' => 'Password reset'],
             ['id' => 'new_user_admin', 'label' => 'New user (admin notification)'],
             ['id' => 'long_demo', 'label' => 'Long layout demo (lorem)'],
+            ['id' => 'comment_discussion_rehearsal_short', 'label' => 'Comment discussion (rehearsal, short thread)'],
+            ['id' => 'comment_discussion_rehearsal_long', 'label' => 'Comment discussion (rehearsal, long thread)'],
+            ['id' => 'comment_discussion_concert', 'label' => 'Comment discussion (concert, short thread)'],
+            ['id' => 'comment_discussion_vote', 'label' => 'Comment discussion (vote)'],
+            ['id' => 'comment_discussion_single_new', 'label' => 'Comment discussion (single new message)'],
         ];
     }
 
@@ -33,10 +39,71 @@ final class MailPreviewRegistry {
                     $locale,
                     MailPreviewFixtures::newUserCtx(),
                     [MailPreviewFixtures::previewToEmail()],
-                    []
+                    [],
+                    MailPreviewFixtures::recipientPreviewFirstName()
                 );
             case 'long_demo':
-                return LongDemoMailBuilder::build($sd, $locale, MailPreviewFixtures::previewToEmail());
+                return LongDemoMailBuilder::build(
+                    $sd,
+                    $locale,
+                    MailPreviewFixtures::previewToEmail(),
+                    MailPreviewFixtures::recipientPreviewFirstName()
+                );
+            case 'comment_discussion_rehearsal_short':
+                $ctxShort = MailPreviewFixtures::commentDiscussionRehearsalShort($locale);
+                $ctxShort['recipientFirstName'] = MailPreviewFixtures::recipientPreviewFirstName();
+
+                return CommentDiscussionMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    $ctxShort,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'comment_discussion_rehearsal_long':
+                $ctxLong = MailPreviewFixtures::commentDiscussionRehearsalLong($locale);
+                $ctxLong['recipientFirstName'] = MailPreviewFixtures::recipientPreviewFirstName();
+
+                return CommentDiscussionMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    $ctxLong,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'comment_discussion_concert':
+                $ctxConcert = MailPreviewFixtures::commentDiscussionConcert($locale);
+                $ctxConcert['recipientFirstName'] = MailPreviewFixtures::recipientPreviewFirstName();
+
+                return CommentDiscussionMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    $ctxConcert,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'comment_discussion_vote':
+                $ctxVote = MailPreviewFixtures::commentDiscussionVote($locale);
+                $ctxVote['recipientFirstName'] = MailPreviewFixtures::recipientPreviewFirstName();
+
+                return CommentDiscussionMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    $ctxVote,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'comment_discussion_single_new':
+                $ctxSingle = MailPreviewFixtures::commentDiscussionSingleNew($locale);
+                $ctxSingle['recipientFirstName'] = MailPreviewFixtures::recipientPreviewFirstName();
+
+                return CommentDiscussionMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    $ctxSingle,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
             default:
                 throw new InvalidArgumentException('Unknown template: ' . $templateId);
         }

@@ -77,6 +77,30 @@ final class MailEnv {
         return ($prefix === '' ? '' : $prefix) . $suffix;
     }
 
+    /**
+     * Delay between consecutive sends when using {@see NextGenMailer::sendBulk()} (comment / admin fan-out).
+     * Env `NEXTGEN_MAIL_BULK_DELAY_MS`: milliseconds, 0 = no pause. Unset defaults to 100 ms to reduce SMTP rate limits.
+     */
+    public static function bulkSendDelayMicroseconds(): int {
+        $raw = getenv('NEXTGEN_MAIL_BULK_DELAY_MS');
+        if ($raw === false || $raw === null) {
+            return 100_000;
+        }
+        $s = trim((string) $raw);
+        if ($s === '') {
+            return 100_000;
+        }
+        $ms = (int) $s;
+        if ($ms < 0) {
+            $ms = 0;
+        }
+        if ($ms > 10_000) {
+            $ms = 10_000;
+        }
+
+        return $ms * 1000;
+    }
+
     private static function getenvTrim(string $key): string {
         $v = getenv($key);
         return is_string($v) ? trim($v) : '';

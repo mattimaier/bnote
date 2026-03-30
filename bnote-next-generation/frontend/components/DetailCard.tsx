@@ -7,6 +7,13 @@
 
 "use client";
 
+/**
+ * Nested panel inside {@link DetailCard} (e.g. visibility, notification prefs).
+ * Same surface as the contact detail “Visibility” block: flat on small screens, bordered inset on md+.
+ */
+export const DETAIL_CARD_SUBSECTION_CLASS =
+  "rounded-none border-0 p-4 md:rounded-box md:border md:border-base-300 md:p-4 bg-base-100 md:bg-transparent";
+
 export interface DetailCardProps {
   children: React.ReactNode;
   /** Optional extra className (e.g. space-y-6 for inner spacing) */
