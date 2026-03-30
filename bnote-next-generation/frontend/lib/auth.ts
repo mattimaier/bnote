@@ -52,3 +52,31 @@ export async function login(
 export async function logout(): Promise<void> {
   await api.post("auth", "logout", {});
 }
+
+/** Set by /reset-password/confirm after success; login page shows one-time banner then clears. */
+export const LOGIN_POST_RESET_BANNER_KEY = "bnote_pw_reset_ok";
+
+export interface PasswordResetRequestResult {
+  ok: boolean;
+  dev_reset_url?: string;
+}
+
+export async function requestPasswordReset(
+  identifier: string
+): Promise<PasswordResetRequestResult> {
+  return api.post<PasswordResetRequestResult>("auth", "requestPasswordReset", {
+    identifier,
+  });
+}
+
+export async function completePasswordReset(
+  token: string,
+  pw1: string,
+  pw2: string
+): Promise<{ ok: boolean }> {
+  return api.post<{ ok: boolean }>("auth", "completePasswordReset", {
+    token,
+    pw1,
+    pw2,
+  });
+}

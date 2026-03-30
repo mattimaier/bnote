@@ -53,6 +53,14 @@ final class NextGenMailer {
                 }
             }
 
+            foreach ($message->embeds as $embed) {
+                $path = isset($embed['path']) ? (string) $embed['path'] : '';
+                $cid = isset($embed['cid']) ? (string) $embed['cid'] : '';
+                if ($path !== '' && $cid !== '' && is_readable($path)) {
+                    $mail->addEmbeddedImage($path, $cid, basename($path));
+                }
+            }
+
             $mail->Subject = $message->subject;
             $mail->isHTML(true);
             $mail->Body = $message->htmlBody;

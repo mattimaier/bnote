@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "generate:logo": "node scripts/generate-logo-png.mjs",
+    "sync:mail-design": "node scripts/sync-mail-design.mjs",
     "dev": "next dev",
     "dev:webpack": "next dev --webpack",
-    "build": "npm run generate:logo && next build",
+    "build": "npm run generate:logo && npm run sync:mail-design && next build",
     "start": "next start",
     "lint": "eslint"
   },

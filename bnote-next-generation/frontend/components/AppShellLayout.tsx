@@ -1,6 +1,6 @@
 /**
  * BNote Next Generation - Conditional app shell wrapper
- * Wraps authenticated routes with AppShell; public routes (see PUBLIC_PATHS) stay unwrapped.
+ * Wraps authenticated routes with AppShell; public routes (login, register, password reset, legal) stay unwrapped.
  *
  * Copyright (C) 2026 BNote Contributors
  */
@@ -20,6 +20,7 @@ const PUBLIC_PATHS = [
   "/",
   "/login",
   "/register",
+  "/reset-password",
   "/legal/imprint",
   "/legal/privacy",
   "/legal/terms",

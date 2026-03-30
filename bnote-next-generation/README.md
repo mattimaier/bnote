@@ -78,6 +78,12 @@ For local debugging use `npm run dev` (see Local development above); the dev ser
 
 - `./build.sh --out myfolder` – output folder name (default: `build/`)
 
+### Email (password reset, notifications)
+
+Outbound mail is sent by **PHP** on your server (SMTP), not by the Next.js app. You set **`MAIL_*`** and **`NEXTGEN_PUBLIC_URL`** in the **web server / PHP environment** (e.g. Strato **`.htaccess`** with `SetEnv`). Never put the SMTP password in git or in any **`NEXT_PUBLIC_*`** variable.
+
+Step-by-step setup—including a **Strato shared hosting** tutorial, security notes, and other hosts—is in **[docs/MAIL.md](docs/MAIL.md)**. The `./build.sh` script runs **Composer** in `api/` so **PHPMailer** is included in the folder you upload.
+
 ### Deploy via SFTP (with 1Password credentials)
 
 Use the deploy script to upload the built bundle directly over SFTP. Credentials are read at runtime from 1Password, and deploy config stays local.
@@ -141,6 +147,7 @@ Additional BNote modules (Calendar, Messages, Venues, etc.) and features (advanc
 
 ## Documentation
 
+- **[docs/MAIL.md](docs/MAIL.md)** – SMTP and `NEXTGEN_PUBLIC_URL` for password reset and mail (Strato `.htaccess` tutorial).
 - **[docs/FEATURES_AND_BEHAVIORS.md](docs/FEATURES_AND_BEHAVIORS.md)** – Feature and behavior reference for regression checks and bug fixing.
 - **[docs/API_ARCHITECTURE.md](docs/API_ARCHITECTURE.md)** – PHP API structure and patterns.
 - **[docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** – API endpoint reference.

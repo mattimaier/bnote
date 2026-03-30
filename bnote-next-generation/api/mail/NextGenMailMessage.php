@@ -11,10 +11,13 @@ final class NextGenMailMessage {
     public string $textBody = '';
     /** For logging only */
     public string $templateId = '';
+    /** @var list<array{path: string, cid: string}> */
+    public array $embeds = [];
 
     /**
      * @param list<string> $to
      * @param list<string> $bcc
+     * @param list<array{path: string, cid: string}> $embeds
      */
     public function __construct(
         array $to = [],
@@ -22,7 +25,8 @@ final class NextGenMailMessage {
         string $subject = '',
         string $htmlBody = '',
         string $textBody = '',
-        string $templateId = ''
+        string $templateId = '',
+        array $embeds = []
     ) {
         $this->to = $to;
         $this->bcc = $bcc;
@@ -30,5 +34,6 @@ final class NextGenMailMessage {
         $this->htmlBody = $htmlBody;
         $this->textBody = $textBody;
         $this->templateId = $templateId;
+        $this->embeds = $embeds;
     }
 }

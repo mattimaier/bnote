@@ -34,7 +34,9 @@ require_once BNOTE_ROOT . '/src/data/modules/logindata.php';
 require_once BNOTE_ROOT . '/src/logic/modules/logincontroller.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../register_rate_limit.php';
+require_once __DIR__ . '/../password_reset_rate_limit.php';
 require_once __DIR__ . '/../nextgen_registration.php';
+require_once __DIR__ . '/../nextgen_password_reset.php';
 require_once __DIR__ . '/../auth.php';
 
 class AuthModule {
@@ -62,6 +64,10 @@ class AuthModule {
                 return $this->getRegistrationOptions();
             case 'register':
                 return $this->registerAction();
+            case 'requestPasswordReset':
+                return $this->requestPasswordReset();
+            case 'completePasswordReset':
+                return $this->completePasswordReset();
             case 'getModules':
                 return $this->getModules();
             default:
@@ -196,6 +202,7 @@ class AuthModule {
             'company' => $company ?: '',
             'user_registration' => strval($userReg) === '1',
             'auto_user_activation' => $system_data->autoUserActivation(),
+            'demo_mode' => $system_data->inDemoMode(),
         ];
         $debug = isset($_GET['debug']) && $_GET['debug'] === '1';
         if ($debug) {
@@ -552,5 +559,83 @@ class AuthModule {
             'autoUserActivation' => $auto,
             'nextStep' => $nextStep,
         ];
+    }
+
+    /**
+     * Public: request password reset email (neutral response; no account enumeration).
+     */
+    private function requestPasswordReset(): array {
+        PasswordResetRateLimit::consumeOr429();
+
+        $body = $GLOBALS['API_REQUEST_BODY'] ?? null;
+        $identifier = '';
+        if (is_array($body) && isset($body['identifier']) && is_string($body['identifier'])) {
+            $identifier = $body['identifier'];
+        }
+
+        $out = ['ok' => true];
+        global $system_data;
+
+        $resolved = NextGenPasswordReset::resolveActiveUserForReset(
+            $identifier,
+            $this->loginData,
+            $system_data
+        );
+        if ($resolved === null) {
+            return $out;
+        }
+
+        try {
+            $db = $system_data->dbcon;
+            $tokenInfo = NextGenPasswordReset::newTokenRow($resolved['userId'], $db);
+            $plain = $tokenInfo['plainToken'];
+
+            require_once __DIR__ . '/../mail/MailEnv.php';
+            $base = MailEnv::nextgenPublicBaseUrl();
+            $resetUrlForEmail = $base !== '' ? $base . '/reset-password/confirm/?token=' . rawurlencode($plain) : '';
+            $demoResetUrl = $resetUrlForEmail !== '' ? $resetUrlForEmail : MailEnv::nextgenPasswordResetRelativeUrl($plain);
+
+            require_once __DIR__ . '/../mail/NextGenMailPolicy.php';
+            require_once __DIR__ . '/../mail/NextGenMailer.php';
+            require_once __DIR__ . '/../mail/builders/PasswordResetMailBuilder.php';
+
+            $mailSent = false;
+            if (NextGenMailPolicy::shouldSendPublicMail($system_data)) {
+                $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
+                $msg = PasswordResetMailBuilder::build($system_data, $locale, $resolved['email'], $resetUrlForEmail);
+                $mailSent = NextGenMailer::send($msg);
+            }
+
+            if ($system_data->inDemoMode() && !$mailSent) {
+                $out['dev_reset_url'] = $demoResetUrl;
+            }
+        } catch (Throwable $e) {
+            error_log('AuthModule::requestPasswordReset ' . $e->getMessage());
+        }
+
+        return $out;
+    }
+
+    /**
+     * Public: set new password using token from email.
+     */
+    private function completePasswordReset(): array {
+        $body = $GLOBALS['API_REQUEST_BODY'] ?? null;
+        if (!is_array($body)) {
+            Response::error('register_validation', 400);
+        }
+
+        $token = isset($body['token']) && is_string($body['token']) ? $body['token'] : '';
+        $pw1 = isset($body['pw1']) && is_string($body['pw1']) ? $body['pw1'] : '';
+        $pw2 = isset($body['pw2']) && is_string($body['pw2']) ? $body['pw2'] : '';
+
+        global $system_data;
+        $db = $system_data->dbcon;
+
+        $userId = NextGenPasswordReset::loadValidTokenUserId($token, $db);
+        NextGenPasswordReset::applyNewPassword($userId, $pw1, $pw2, $this->loginData);
+        NextGenPasswordReset::deleteTokensForUser($userId, $db);
+
+        return ['ok' => true];
     }
 }

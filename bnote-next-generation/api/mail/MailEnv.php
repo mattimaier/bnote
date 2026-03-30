@@ -52,6 +52,31 @@ final class MailEnv {
         return '';
     }
 
+    /**
+     * Next.js base path only (leading slash, no trailing slash), for same-origin links when no absolute URL is configured.
+     * Matches frontend default in next.config.ts when NEXT_PUBLIC_BASE_PATH is unset in PHP.
+     */
+    public static function nextgenAppPathPrefix(): string {
+        $v = getenv('NEXT_PUBLIC_BASE_PATH');
+        if ($v === false || $v === null) {
+            return '/bnote-next-generation';
+        }
+        $p = trim((string) $v);
+        if ($p === '') {
+            return '';
+        }
+        return '/' . trim($p, '/');
+    }
+
+    /**
+     * Root-relative password reset URL (always usable on the same host as the SPA).
+     */
+    public static function nextgenPasswordResetRelativeUrl(string $plainToken): string {
+        $prefix = self::nextgenAppPathPrefix();
+        $suffix = '/reset-password/confirm/?token=' . rawurlencode($plainToken);
+        return ($prefix === '' ? '' : $prefix) . $suffix;
+    }
+
     private static function getenvTrim(string $key): string {
         $v = getenv($key);
         return is_string($v) ? trim($v) : '';

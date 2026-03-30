@@ -14,7 +14,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
-import { checkSession, login } from "@/lib/auth";
+import { checkSession, login, LOGIN_POST_RESET_BANNER_KEY } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { I18nProvider, useI18n } from "@/contexts/I18nContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -41,6 +41,14 @@ function LoginFormInner() {
   const [loading, setLoading] = useState(false);
   const [welcomeText, setWelcomeText] = useState("Welcome");
   const [userRegistration, setUserRegistration] = useState(false);
+  const [resetSuccessBanner, setResetSuccessBanner] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && sessionStorage.getItem(LOGIN_POST_RESET_BANNER_KEY)) {
+      setResetSuccessBanner(true);
+      sessionStorage.removeItem(LOGIN_POST_RESET_BANNER_KEY);
+    }
+  }, []);
 
   useEffect(() => {
     checkSession().then((session) => {
@@ -131,6 +139,12 @@ function LoginFormInner() {
           <p className="text-base-content/60">{welcomeText}</p>
         </div>
 
+        {resetSuccessBanner ? (
+          <div className="mb-4 rounded-lg border border-success/25 bg-success/10 px-4 py-3 text-sm text-success">
+            {t("js.login.passwordResetSuccess")}
+          </div>
+        ) : null}
+
         <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           <div>
             <label
@@ -183,14 +197,21 @@ function LoginFormInner() {
             {loading ? t("js.login.loggingIn") : t("js.login.login")}
           </button>
         </form>
-        {userRegistration ? (
-          <p className="mt-6 text-center text-sm text-base-content/70">
-            {t("js.login.signUpQuestion")}{" "}
-            <Link href="/register/" className="link link-primary font-medium">
-              {t("js.login.signUpLink")}
+        <div className="mt-6 space-y-3 text-center text-sm text-base-content/70">
+          <p>
+            <Link href="/reset-password/" className="link link-primary font-medium">
+              {t("js.login.forgotPasswordLink")}
             </Link>
           </p>
-        ) : null}
+          {userRegistration ? (
+            <p>
+              {t("js.login.signUpQuestion")}{" "}
+              <Link href="/register/" className="link link-primary font-medium">
+                {t("js.login.signUpLink")}
+              </Link>
+            </p>
+          ) : null}
+        </div>
       </div>
       <LegalFooter />
     </div>
