@@ -1,6 +1,6 @@
 # Known Issues
 
-This file tracks current known issues discovered during ongoing refactors and QA. Update as fixes land.
+This file tracks current known issues discovered during ongoing refactors and QA. Update as fixes land. Next Gen–specific mail and SMTP setup issues are covered in **[MAIL.md](MAIL.md)** (troubleshooting).
 
 ---
 

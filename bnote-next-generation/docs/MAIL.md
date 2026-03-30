@@ -1,8 +1,39 @@
 # Outbound mail for BNote Next Generation (PHP)
 
-Next Gen sends mail from **`bnote-next-generation/api/mail/`** with **PHPMailer** (password reset, registration, etc.). Legacy `BNote/src/logic/Mailing.php` is not used for these features.
+Next Gen sends mail from **`bnote-next-generation/api/mail/`** with **PHPMailer** over **SMTP** (see `MailEnv`). Legacy **`BNote/src/logic/mailing.php`** uses PHP’s `mail()` and is **not** used for Next Gen features; classic BNote UI/API paths still use it.
 
 If SMTP is not configured, or BNote runs in **demo mode**, those emails are skipped. Password-reset links in mail need **`NEXTGEN_PUBLIC_URL`** set to your real site address, or the message will explain that the link cannot be generated.
+
+---
+
+## Subsystem map (handover)
+
+**Two stacks:** Next Gen uses **`NextGenMailer`** + **`MailEnv`** (SMTP). Legacy uses **`Mailing`** in **`BNote/src/logic/mailing.php`**. Both respect **`MailRecipientPolicy`** ([`BNote/src/logic/mailrecipientpolicy.php`](../../BNote/src/logic/mailrecipientpolicy.php)): outbound delivery is skipped for `example.com` and `*.example.com` (reserved / placeholder domains).
+
+| Flow | Entry point | Builder / notifier | Transactional policy? | Send API |
+|------|-------------|--------------------|------------------------|----------|
+| Password reset | `api/modules/auth.php` → `requestPasswordReset` | `PasswordResetMailBuilder` | No (system mail) | `NextGenMailer::send` |
+| New registration → administrators | `api/nextgen_registration.php` | `RegistrationAdminNotifier` / `NewUserAdminMailBuilder` | No (system mail) | `NextGenMailer::sendBulk` |
+| Rehearsal/concert participant added | `api/modules/rehearsals.php`, `api/modules/concerts.php` | `EventParticipantNotifier` / `EventParticipantInviteMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::sendBulk` |
+| Task assignee create/update | `api/modules/tasks.php` | `TaskNotificationMailBuilder` | Yes | `NextGenMailer::send` |
+| Entity comment added | `api/modules/comments.php` | `CommentDiscussionNotifier` / `CommentDiscussionMailBuilder` | Yes | `NextGenMailer::sendBulk` |
+
+**Preview template IDs** (for `mail_preview.php?template=…`): canonical list is **`MailPreviewRegistry::templates()`** in [`api/mail/MailPreviewRegistry.php`](../api/mail/MailPreviewRegistry.php) — `password_reset`, `new_user_admin`, `long_demo`, `comment_discussion_*`, `event_invite_*`, `task_assigned`, `task_updated`.
+
+**Local JSON helper:** [`api/mail_comment_recipients.php`](../api/mail_comment_recipients.php) exposes who would receive discussion mail (same rules as `CommentDiscussionNotifier`).
+
+---
+
+## Recent evolution (branch themes)
+
+- **SMTP + `MailEnv`:** Next Gen outbound mail uses PHPMailer SMTP and env vars; not the legacy `mail()` transport.
+- **Password reset:** `password_reset_token` table (`PasswordResetSchema`), rate limiting, `PasswordResetMailBuilder`, links via `MailEnv::nextgenPublicBaseUrl` / path helpers.
+- **Registration:** `RegistrationAdminNotifier` emails administrators after public signup (first admin in To, rest BCC).
+- **HTML shell:** Shared layout, branding, CID logo, dark-mode-oriented tokens in `frontend/mail-design-tokens.json`; previews via `mail_debug.php` / `mail_preview.php`.
+- **`NextGenMailPolicy`:** Transactional fan-out respects guest contacts, inactive users, and `email_notification` for active users (do not use `contactEmailNotificationOn` for these paths).
+- **Comments:** `CommentDiscussionNotifier` — entity cards, thread bubbles, deep links to `/entity?…&focus=comments`.
+- **Participation invites:** `EventParticipantNotifier` + magic-link URLs from `MailEnv` (`nextgenParticipationRespondAbsoluteUrl`, etc.).
+- **Bulk fan-out:** `NextGenMailer::sendBulk` with optional **`NEXTGEN_MAIL_BULK_DELAY_MS`** between messages.
 
 ---
 
@@ -113,13 +144,7 @@ These scripts work only from **127.0.0.1** or **::1** and are **not** shipped in
 2. **Test send** — **required** query parameter **`to`**:  
    `…/api/mail_test_send.php?to=you@example.com`
 
-3. **HTML preview** (no SMTP): open **`mail_debug.php`** for a list of transactional templates and locales, or call **`mail_preview.php?template=password_reset&locale=en`**. Templates include a **long layout demo** (`template=long_demo`) with lorem ipsum and multiple sections for stress-testing the shell. **Comment / discussion** notifications can be previewed without the database using:
-   - `comment_discussion_rehearsal_short`
-   - `comment_discussion_rehearsal_long`
-   - `comment_discussion_concert`
-   - `comment_discussion_vote`
-   - `comment_discussion_single_new`  
-   Example: `mail_preview.php?template=comment_discussion_rehearsal_short&locale=de`  
+3. **HTML preview** (no SMTP): open **`mail_debug.php`** for a list of templates and locales, or call **`mail_preview.php?template=password_reset&locale=en`**. Every supported `template=` id is listed in **`MailPreviewRegistry::templates()`** (see [Subsystem map](#subsystem-map-handover)); examples include **`long_demo`** (stress-test layout), **`comment_discussion_*`**, **`event_invite_*`**, **`task_assigned`** / **`task_updated`**. Example: `mail_preview.php?template=comment_discussion_rehearsal_short&locale=de`  
    The JSON from **`mail_config_check.php`** includes a **`mailDebug`** object with the same paths. Logo uses a data URL in the browser; real sends use a CID attachment.
 
 **Dark mode:** HTML mail sets `color-scheme: light dark`, meta `color-scheme` / `supported-color-schemes`, and **`@media (prefers-color-scheme: dark)`** using dark palette tokens in **`frontend/mail-design-tokens.json`** (aligned with FlyonUI `bnotedark`). Apple Mail and many iOS clients follow this; Gmail and other webmail may keep a light canvas or apply their own rules.

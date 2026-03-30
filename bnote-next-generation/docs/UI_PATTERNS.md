@@ -22,10 +22,10 @@ Applies to: Users, Contacts, Locations, Equipment, Outfits, Repertoire (songs), 
 
 ### Entities (rehearsal, concert, location, equipment, etc.)
 
-- **View:** `/entity?type={type}&id={id}` (e.g. `/entity?type=location&id=5`)
-- **Edit:** `/entity?type={type}&id={id}&edit=1` (e.g. `/entity?type=location&id=5&edit=1`)
-- Use **`getEntityPath(type, id, "edit")`** from `lib/entities/paths.ts` for links.
-- The detail component derives edit mode from URL params (for example `edit === "1"` or `mode === "edit"`) and uses **`router.push` / `router.replace`** when toggling edit or after save/cancel.
+- **View (shipped app):** `/entity?type={type}&id={id}` — e.g. `/entity?type=location&id=5`. **Edit:** same with **`&edit=1`** (see **`(app)/entity/page.tsx`**).
+- Use **`getEntityPath(type, id, "view" | "edit")`** from `lib/entities/paths.ts`; it builds these query URLs (do not hand-roll query strings).
+- The detail component reads **`type`**, **`id`**, and **`edit`** from the URL (see **`useEntityParams`**). Use **`router.push` / `router.replace`** when toggling edit or after save/cancel.
+- **Debug only:** Path-shaped URLs exist under **`/debug/entity/[type]/[id]`** for development. A future path-based **`/entity/[type]/[id]`** app route is described in **[entity-view-edit-plan.md](entity-view-edit-plan.md)** but is not the production entry yet.
 
 ### Profile (my contact data)
 

@@ -1,7 +1,8 @@
 # UI/UX Optimization Report
 
 **Date:** February 2026  
-**Scope:** Codebase review for UI/UX improvements
+**Scope:** Codebase review for UI/UX improvements  
+**Note (2026-03):** This is a **historical** report (duplicate `className` fixes listed were merged). For current patterns, prefer **[UI_PATTERNS.md](UI_PATTERNS.md)**.
 
 ---
 

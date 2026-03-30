@@ -1,6 +1,7 @@
 # FlyonUI Migration Analysis
 
 **Date:** February 2026  
+**Status (2026-03):** The migration described here has largely **landed** in the frontend (see git history on `Feature/bnote-next-generation`). This document remains a useful **retrospective**; for current UI rules see **[UI_PATTERNS.md](UI_PATTERNS.md)** and **[FEATURES_AND_BEHAVIORS.md](FEATURES_AND_BEHAVIORS.md)**.  
 **Scope:** Migration from custom CSS variables + raw HTML elements to FlyonUI component classes and semantic tokens across 36 frontend files.
 
 ---

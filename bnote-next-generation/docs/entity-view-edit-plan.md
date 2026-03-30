@@ -35,7 +35,7 @@ This document merges the original refactor plan, the feasibility review, edge ca
 
 ## 3. Entity Coverage and Scope
 
-**Backend modules present:** `rehearsals`, `concerts`, `contacts`, `users`, `search`, `dashboard`, `participation`.
+**Backend API (as of 2026-03):** The Next Gen PHP API exposes many modules under `api/modules/` — not only the list below. **Authoritative inventory:** files in [`api/modules/`](../api/modules/) (e.g. `auth`, `dashboard`, `users`, `contacts`, `rehearsals`, `concerts`, `participation`, `search`, `tasks`, `comments`, `votes`, `news`, `share`, `calendar`, `appointments`, `reservations`, `repertoire`, `equipment`, `outfits`, `locations`, `kontaktdaten`, `translations`). This plan’s **UI scope** for unified entity detail/edit remains focused on **rehearsal** and **concert** first; other types follow the redirect / module-specific rules in later sections.
 
 **Search categories returned:** `rehearsals`, `concerts`, `users`, `contacts`, `tasks`, `repertoire`, `locations`.
 

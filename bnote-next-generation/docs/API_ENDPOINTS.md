@@ -143,6 +143,32 @@ Create a new inactive user (same rules as legacy registration). JSON body: `name
 
 **Errors:** JSON `{ "success": false, "error": "<code>" }` with stable codes such as `register_validation`, `register_email_in_use`, `register_password_mismatch`, `register_terms_required`, `register_deactivated`, `register_rate_limited`. **429** when the per-IP rate limit is exceeded (~5 attempts / 15 minutes).
 
+**Mail:** On success, the server may notify administrators via the Next Gen mail stack (SMTP env vars, skipped in demo mode or when mail is not configured). Failures are logged only. See **[MAIL.md](MAIL.md)**.
+
+---
+
+### POST `api/index.php?module=auth&action=requestPasswordReset`
+
+Public. Request a password-reset email (neutral response; does not reveal whether the account exists).
+
+**Body (JSON):** `{ "identifier": "<login or email>" }`
+
+**Response (200):** `{ "success": true, "data": { "ok": true } }`. In **demo mode**, if mail was not sent, **`data`** may include **`dev_reset_url`** for local testing.
+
+**Mail:** When SMTP is configured and demo mode is off, sends HTML mail via **`PasswordResetMailBuilder`** / **`NextGenMailer`**. Requires **`NEXTGEN_PUBLIC_URL`** (or origin + base path) for an absolute reset link in the email. **429** when the per-IP rate limit for reset requests is exceeded.
+
+---
+
+### POST `api/index.php?module=auth&action=completePasswordReset`
+
+Public. Set a new password using the token from the reset email.
+
+**Body (JSON):** `{ "token": "<token>", "pw1": "<password>", "pw2": "<password>" }`
+
+**Response (200):** `{ "success": true, "data": { "ok": true } }` on success.
+
+**Errors:** **400** with `error` such as `password_reset_invalid` or `register_validation` (invalid/expired token or password validation failure).
+
 ---
 
 ## Dashboard

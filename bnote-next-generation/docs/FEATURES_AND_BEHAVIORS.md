@@ -9,7 +9,7 @@ This document describes each feature and expected behavior of the Next.js app. U
 ## 1. Overview
 
 - **App:** Next.js UI (static export) in `frontend/`, PHP REST API in `api/`.
-- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/register` (when `user_registration` is enabled in BNote config), `/dashboard`, `/users`, `/contacts`, `/search`, `/entity` (entity detail).
+- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/register` (when `user_registration` is enabled), `/reset-password`, `/reset-password/confirm`, `/participation/respond`, `/dashboard`, `/users`, `/contacts`, `/contacts/integration`, `/search`, `/settings`, `/profile`, `/profile/edit`, legal routes under `/legal/*`, module pages under **`frontend/app/_modules/*`**, entity detail at **`/entity?type=…&id=…`** (and **`&edit=1`** in edit mode; see **[UI_PATTERNS.md](UI_PATTERNS.md)**).
 - **Auth:** Session-based; API uses PHP session cookie. Unauthenticated users are redirected to `/login?redirect=…`.
 
 ---
@@ -36,11 +36,11 @@ This document describes each feature and expected behavior of the Next.js app. U
 
 ## 4. Dashboard
 
-- **Greeting:** Time-based greeting (e.g. Good morning) + user name; state and effect must run before any early returns (hooks order).
+- **Greeting:** Time-based greeting (e.g. Good morning) + user name; optional **week-based** personalized line when implemented; state and effect must run before any early returns (hooks order).
 - **Company subtitle:** Band/company name from API `company`; use `normalizeCompany()` so SimpleXMLElement/cast issues are handled. Translation key `js.dashboard.subtitle` with `%p` for company.
 - **Quick actions:** Card with quick action buttons; currently visible (product decision: was hidden in legacy UI).
 - **Events needing response:** Section listing events where the user has not yet responded. Event cards show date, title, type tag, time, location; link to entity detail.
-- **Admin overview (administrators only):** Includes a **Pending accounts** tile when there are users with **`isActive = 0`** whose contact has **no** rows in **`rehearsal_contact`**, **`concert_contact`**, **`rehearsalphase_contact`**, **`tour_contact`**, and **no** **`vote_group`** row for that user—i.e. inactive accounts that still need **phase-in** (typically brand-new registrations), not every deactivated user. The count is included in **`action_needed_count`**. The tile links to **Contacts → integration** with the default member group when applicable.
+- **Admin overview (administrators only):** Includes a **Pending accounts** tile when there are users with **`isActive = 0`** whose contact has **no** rows in **`rehearsal_contact`**, **`concert_contact`**, **`rehearsalphase_contact`**, **`tour_contact`**, and **no** **`vote_group`** row for that user—i.e. inactive accounts that still need **phase-in** (typically brand-new registrations), not every deactivated user. The count is included in **`action_needed_count`**. The tile links to **Contacts → integration** with the default member group when applicable. Additional **band overview** / admin tiles may show actionable summaries (votes, tasks, etc.) when present in the API response.
 - **Event cards:** Desktop: timeline + card layout. Mobile: compact list item without timeline.
 - **Filters:** By type (rehearsal/concert), year, month if applicable.
 
@@ -83,7 +83,7 @@ This document describes each feature and expected behavior of the Next.js app. U
 
 ## 8. Entity Detail
 
-- **Routes (see [UI_PATTERNS.md](UI_PATTERNS.md)):** Path-based: view = `/entity/[type]/[id]`, edit = `/entity/[type]/[id]/edit`. Legacy `/entity` with query params redirects to path-based URL. Edit mode is in the URL.
+- **Routes (see [UI_PATTERNS.md](UI_PATTERNS.md)):** Production uses **query params** on **`/entity`:** `type`, `id`, optional **`edit=1`**. Links must use **`getEntityPath`** from `lib/entities/paths.ts`. Path-segment URLs exist under **`/debug/entity/…`** only; a path-based `(app)/entity/[type]/[id]` route may land later (see **[entity-view-edit-plan.md](entity-view-edit-plan.md)**).
 - **Header:** Event type title + icon + tag from entity config. **DetailPageHeader** with **DetailEditButton** (right, baseline-aligned).
 - **Metadata:** Date, time, status, response deadline, conductor, location (full address). Buttons: “In Google Maps öffnen”, “In Apple Maps öffnen” (or equivalent).
 - **Participation widget:** Yes / Maybe / No with correct colors (green, orange, red). Submission via API.
@@ -113,15 +113,17 @@ This document describes each feature and expected behavior of the Next.js app. U
 - **Base URL:** In dev, `/api/*` is proxied to PHP backend (e.g. `NEXT_PUBLIC_API_BASE` or default `http://localhost:8888/Bnote/bnote-next-generation`). For static export, same origin or configure proxy so `/api` hits PHP.
 - **Auth:** Session cookie; requests are same-origin or credentials included so cookie is sent.
 - **Main endpoints used by UI:**  
-  - Auth: login, me, logout.  
-  - Dashboard: company, events, events needing response.  
+  - Auth: login, session/me, logout, getPublicConfig, getRegistrationOptions, register, requestPasswordReset, completePasswordReset, participation token helpers as needed.  
+  - Dashboard: company, events, events needing response, admin/action summaries.  
   - Users: list, get, create, update, delete, activate, getPrivileges, updatePrivileges, getContacts.  
   - Contacts: list, get, create, update, delete, getGroups, getIntegrationBundle, integrate.  
+  - Rehearsals / concerts / calendar / appointments / reservations: per module.  
+  - Tasks, votes, comments, news, share: per module.  
   - Search: search (with filters).  
   - Participation: get participation, set participation.  
   - Translations: list of keys or full locale JSON.
 - **Module routes:** API returns sidebar modules with `route` (e.g. `/dashboard`, `/users`, `/contacts`). Frontend uses these as Next.js paths (e.g. `dashboard/index.html`, `users/index.html` in static export).
-- **Transactional email (PHP):** Event invites, task notifications, and entity discussion mail use **`NextGenMailPolicy`**: contacts **without** a BNote user still receive mail when appropriate; contacts linked only to an **inactive** user do **not**; active users follow the **`email_notification`** preference. Details: **[MAIL.md](MAIL.md)** (“Transactional mail: who receives it”).
+- **Transactional email (PHP):** When contacts are added to rehearsals/concerts (participation invites), when tasks are assigned/updated, and when entity discussion notifications fire, mail uses **`NextGenMailPolicy`**: contacts **without** a BNote user still receive mail when appropriate; contacts linked only to an **inactive** user do **not**; active users follow the **`email_notification`** preference. Invites include participation magic-link URLs when configured. Details: **[MAIL.md](MAIL.md)** (subsystem map and “Transactional mail: who receives it”).
 
 ---
 

@@ -1,6 +1,6 @@
 # BNote Next Generation REST API Architecture
-**Version:** 2.0  
-**Date:** 2026-01-27  
+**Version:** 2.1  
+**Date:** 2026-03-30  
 **Purpose:** REST API architecture for BNote Next Generation backend
 
 ---
@@ -68,25 +68,50 @@ The PHP API is served under the bnote-next-generation document root. The Next.js
 
 ### 2.1 Directory Structure
 
+The router is **`index.php`**. Handlers live under **`modules/`** (one PHP file per `module` name). Cross-cutting helpers and integrations sit at **`api/`** root.
+
 ```
 bnote-next-generation/api/
 ├── index.php                  # API router
 ├── bootstrap.php              # Backend initialization
-├── auth.php                   # Authentication helpers
-├── response.php               # Response helper
+├── paths.php                  # BNOTE_ROOT and includes
+├── auth.php                   # Authentication helpers (session)
+├── response.php               # JSON response helper
 ├── logger.php                 # API logger
+├── nextgen_registration.php   # Public registration (used by auth module)
+├── nextgen_password_reset.php # Password reset tokens
+├── password_reset_schema.php / password_reset_rate_limit.php
+├── register_rate_limit.php
+├── mail/                      # Next Gen outbound mail (PHPMailer, builders, notifiers)
+├── mail_config_check.php, mail_test_send.php, mail_preview.php, …  # dev/diagnostics (see MAIL.md)
 └── modules/
-    ├── auth.php               # Authentication module
-    ├── dashboard.php          # Dashboard module
-    ├── users.php              # Users module
-    ├── contacts.php           # Contacts module (dispatches to contacts/* handlers)
-    ├── contacts/               # Contacts sub-handlers (CRUD, etc.)
-    │   └── ContactsCRUD.php   # list, get, create, update, delete
-    ├── rehearsals.php         # Rehearsals module
-    ├── concerts.php           # Concerts module
-    ├── participation.php      # Participation module
-    └── translations.php       # Translations module
+    ├── auth.php
+    ├── dashboard.php
+    ├── users.php
+    ├── contacts.php           # dispatches to contacts/ContactsCRUD.php where needed
+    ├── contacts/
+    │   └── ContactsCRUD.php
+    ├── rehearsals.php
+    ├── concerts.php
+    ├── participation.php
+    ├── translations.php
+    ├── search.php
+    ├── tasks.php
+    ├── comments.php
+    ├── votes.php
+    ├── news.php
+    ├── share.php
+    ├── calendar.php
+    ├── appointments.php
+    ├── reservations.php
+    ├── repertoire.php
+    ├── equipment.php
+    ├── outfits.php
+    ├── locations.php
+    └── kontaktdaten.php
 ```
+
+**Authoritative list:** `ls api/modules/*.php` (new modules should add a file and register routing in `index.php` if required).
 
 ### 2.2 URL Patterns
 
@@ -111,15 +136,32 @@ Each module implements a `{Module}Module` class with a `handle()` method that pr
 
 ### 2.3 Module Naming
 
-**Module Names (lowercase):**
-- `auth` - Authentication
-- `dashboard` - Dashboard data
-- `users` - User management
-- `contacts` - Contact management
-- `rehearsals` - Rehearsal data
-- `concerts` - Concert data
-- `participation` - Participation status
-- `translations` - Translation strings
+**Module names (lowercase, `?module=`):** each maps to `api/modules/{module}.php` except where noted.
+
+| Module | Role |
+|--------|------|
+| `auth` | Login, session, registration, password reset, participation token, public config |
+| `dashboard` | Dashboard aggregates, events needing response |
+| `users` | User CRUD, privileges, activation |
+| `contacts` | Contacts, groups, integration / phase-in |
+| `kontaktdaten` | Contact field data helpers |
+| `rehearsals` | Rehearsals (incl. series-related actions) |
+| `concerts` | Concerts |
+| `participation` | Participation save/load |
+| `calendar` | Calendar views |
+| `appointments` | Appointments |
+| `reservations` | Reservations |
+| `tasks` | Tasks |
+| `comments` | Entity discussion threads |
+| `votes` | Votes / polls |
+| `news` | News |
+| `share` | File sharing |
+| `search` | Global search |
+| `repertoire` | Repertoire / songs |
+| `equipment` | Equipment |
+| `outfits` | Outfits |
+| `locations` | Locations |
+| `translations` | i18n strings |
 
 **Action Names:**
 - `list` - List resources
@@ -208,6 +250,8 @@ Response: {
     }
 }
 ```
+
+**Outbound mail:** Password reset, registration admin notification, transactional notifications (event invites, tasks, comment threads), and related HTML templates live under **`bnote-next-generation/api/mail/`**. PHPMailer sends via SMTP using environment variables (`MAIL_*`, `NEXTGEN_PUBLIC_URL`, etc.). This is separate from the legacy `BNote/src/logic/mailing.php` stack. Setup and behavior are documented in **[MAIL.md](MAIL.md)**.
 
 ### 3.3 Authorization (Permissions)
 

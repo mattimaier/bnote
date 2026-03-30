@@ -119,38 +119,52 @@ Security notes:
 
 ## Routing and Navigation
 
-Routing is handled by the Next.js App Router (static export).
+Routing uses the Next.js App Router (static export). Module pages under **`frontend/app/_modules/*`** map to BNote modules returned by the API (sidebar `route`). Other flows live beside them in **`frontend/app/`**.
 
-**Main routes:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/dashboard`, `/users`, `/contacts`, `/search`, `/entity` (entity detail with query params).
+**Core:** `/` (dashboard or login), `/login`, `/register` (when enabled in config), `/dashboard`, `/users`, `/contacts`, `/contacts/integration`, `/search`, `/settings`, `/profile`, `/profile/edit`.
 
-**Deep linking:** Unauthenticated users hitting a protected URL are redirected to `/login?redirect=…`. After login they are sent to the original URL.
+**Auth / mail flows:** `/reset-password`, `/reset-password/confirm`, `/participation/respond` (magic-link participation from invite mail).
+
+**Legal:** `/legal/terms`, `/legal/privacy`, `/legal/imprint` (and mirrored `_modules/*` where used).
+
+**Entities:** The main entity screen is **`/entity`** with **query params** `type`, `id`, and optional `edit=1` (see **`docs/UI_PATTERNS.md`**). Debug builds also expose path-shaped URLs under **`/debug/entity/…`**.
+
+**Rehearsals:** `/rehearsals/series`, `/rehearsals/series/detail` (series flows).
+
+**Debug (development):** `/debug`, `/debug/entity`, etc.
+
+**Deep linking:** Unauthenticated users on a protected URL go to `/login?redirect=…`; after login they return to the original URL.
 
 ## Current Status
 
-### Completed
+### PHP API (`api/modules/`)
 
-- REST API router and authentication
-- Login and dashboard
-- Users module (CRUD, privileges, sortable table including date column)
-- Contacts module (CRUD, groups, sortable table)
-- Event participation system
-- Internationalization (DE, EN, ES, FR)
-- Dark mode and responsive sidebar
-- Search (top-bar overlay and search results page)
-- Entity detail (rehearsal/concert with participation)
+Each file is one **`?module=`** handler (see **[docs/API_ARCHITECTURE.md](docs/API_ARCHITECTURE.md)**):
 
-**API modules:** auth, dashboard, users, contacts, rehearsals, concerts, participation, translations, share
+- **Core:** `auth`, `dashboard`, `users`, `contacts`, `translations`, `search`, `participation`, `kontaktdaten`
+- **Events & scheduling:** `rehearsals`, `concerts`, `calendar`, `appointments`, `reservations`
+- **Tasks & collaboration:** `tasks`, `comments`, `votes`, `news`
+- **Resources:** `locations`, `equipment`, `outfits`, `repertoire`, `share`
 
-### Not yet implemented
+Outbound mail, registration, and password-reset helpers live beside the router under **`api/`** (e.g. **`api/mail/`**, `nextgen_registration.php`, `nextgen_password_reset.php`); see **[docs/MAIL.md](docs/MAIL.md)**.
 
-Additional BNote modules (Calendar, Messages, Venues, etc.) and features (advanced search, bulk operations, exports, etc.) as needed.
+### Frontend (summary)
+
+Session auth; REST API via `api/index.php`; internationalization (DE, EN, ES, FR); FlyonUI-based UI; dark/light theme; entity detail with participation, discussion, and module-specific lists (votes, tasks, news, share, calendar, etc.). Behavior details: **[docs/FEATURES_AND_BEHAVIORS.md](docs/FEATURES_AND_BEHAVIORS.md)**.
+
+### Not covered in this UI (examples)
+
+Legacy-only or not exposed as first-class Next Gen features may still exist in BNote core (e.g. some “Messages” workflows). Extend the app by adding routes and wiring new **`api/modules/*`** handlers as needed.
 
 ## Documentation
 
-- **[docs/MAIL.md](docs/MAIL.md)** – SMTP and `NEXTGEN_PUBLIC_URL` for password reset and mail (Strato `.htaccess` tutorial).
-- **[docs/FEATURES_AND_BEHAVIORS.md](docs/FEATURES_AND_BEHAVIORS.md)** – Feature and behavior reference for regression checks and bug fixing.
+- **[docs/MAIL.md](docs/MAIL.md)** – SMTP, subsystem map, transactional mail, password reset.
+- **[docs/FEATURES_AND_BEHAVIORS.md](docs/FEATURES_AND_BEHAVIORS.md)** – Feature and behavior reference for regression checks.
+- **[docs/UI_PATTERNS.md](docs/UI_PATTERNS.md)** – Lists, entity edit URLs, delete patterns.
 - **[docs/API_ARCHITECTURE.md](docs/API_ARCHITECTURE.md)** – PHP API structure and patterns.
-- **[docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** – API endpoint reference.
+- **[docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** – Endpoint reference.
+- **[docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md)** – Known backend/UI issues (legacy + mitigations).
+- **[docs/entity-view-edit-plan.md](docs/entity-view-edit-plan.md)** – Entity view/edit refactor notes.
 
 ## License
 
