@@ -55,6 +55,7 @@ const TABLER_MAP: Record<string, string> = {
   "share-2": "icon-[tabler--share]",
   printer: "icon-[tabler--printer]",
   "shield-alert": "icon-[tabler--shield-exclamation]",
+  "shield-check": "icon-[tabler--shield-check]",
   mail: "icon-[tabler--mail]",
   phone: "icon-[tabler--phone]",
   tag: "icon-[tabler--tag]",
@@ -83,6 +84,7 @@ const TABLER_MAP: Record<string, string> = {
   "grip-vertical": "icon-[tabler--grip-vertical]",
   settings: "icon-[tabler--settings]",
   "alert-triangle": "icon-[tabler--alert-triangle]",
+  building: "icon-[tabler--building]",
 };
 
 export interface IconProps {

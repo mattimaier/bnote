@@ -391,7 +391,7 @@ export default function DashboardContent({
                 <Link
                   key={action.titleKey}
                   href={action.href}
-                    className={`group flex flex-col items-center gap-2 p-3 md:gap-3 md:p-4 rounded-lg border border-border/20 md:border-border/40 transition-all duration-200 hover:border-primary/30 md:hover:shadow-md hover:bg-primary/5 ${action.colorClass}`}
+                    className={`group flex flex-col items-center gap-2 p-3 md:gap-3 md:p-4 rounded-lg border border-border/20 md:border-border/40 transition-colors duration-200 hover:border-primary/30 hover:bg-primary/5 ${action.colorClass}`}
                 >
                   <div className="p-2 rounded-lg bg-current/10 group-hover:bg-current/15 transition-colors">
                     <Icon className="h-5 w-5" />
@@ -406,7 +406,7 @@ export default function DashboardContent({
           </div>
         )}
 
-        <div className="flex flex-col gap-4 md:gap-4 py-3 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-transparent md:bg-card text-card-foreground">
+        <div className="flex flex-col gap-4 md:gap-4 py-3 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm bg-transparent md:bg-card text-card-foreground">
           <div className="px-0 md:px-4 lg:px-5 pb-2.5 md:pb-2 md:border-b md:border-border/30">
             <h2 className="text-base md:text-base font-semibold text-foreground">{t("js.dashboard.responseNeeded")}</h2>
           </div>
@@ -441,7 +441,7 @@ export default function DashboardContent({
                 <button
                   type="button"
                   onClick={() => loadMore("events-needing-response")}
-                  className="load-more-btn px-6 py-3 text-sm font-semibold rounded-lg border-2 border-primary transition-all shadow-sm hover:shadow-md hover:border-primary/50"
+                  className="load-more-btn px-6 py-3 text-sm font-semibold rounded-lg border-2 border-primary transition-colors shadow-sm hover:border-primary/50"
                   style={{
                     color: "var(--primary)",
                     background: "color-mix(in oklch, var(--primary) 10%, transparent)",
@@ -454,7 +454,7 @@ export default function DashboardContent({
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 md:gap-4 py-3 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm md:hover:shadow-md transition-shadow bg-transparent md:bg-card text-card-foreground">
+        <div className="flex flex-col gap-4 md:gap-4 py-3 md:py-4 md:rounded-xl md:border md:border-border/40 md:shadow-sm bg-transparent md:bg-card text-card-foreground">
           <div className="px-0 md:px-4 lg:px-5 pb-2.5 md:pb-2 md:border-b md:border-border/30">
             <h2 className="text-base md:text-base font-semibold text-foreground">{t("js.dashboard.upcomingEvents")}</h2>
           </div>
@@ -489,7 +489,7 @@ export default function DashboardContent({
                 <button
                   type="button"
                   onClick={() => loadMore("events-timeline")}
-                  className="load-more-btn px-6 py-3 text-sm font-semibold rounded-lg border-2 border-primary transition-all shadow-sm hover:shadow-md hover:border-primary/50"
+                  className="load-more-btn px-6 py-3 text-sm font-semibold rounded-lg border-2 border-primary transition-colors shadow-sm hover:border-primary/50"
                   style={{
                     color: "var(--primary)",
                     background: "color-mix(in oklch, var(--primary) 10%, transparent)",

@@ -9,7 +9,7 @@
 import type { EditableParticipant } from "@/lib/entities/event/types";
 
 const PARTICIPATION_BTN_BASE =
-  "participation-btn w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-md";
+  "participation-btn w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-colors duration-200";
 
 export type ParticipationValue = EditableParticipant["participate"];
 

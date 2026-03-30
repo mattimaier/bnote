@@ -16,7 +16,7 @@ import { EditingBarProvider } from "@/contexts/EditingBarContext";
 import { AppShell } from "@/components/AppShell";
 import { ToastContainer } from "@/components/ToastContainer";
 
-const PUBLIC_PATHS = ["/", "/login"];
+const PUBLIC_PATHS = ["/", "/login", "/legal/imprint", "/legal/privacy"];
 
 function isPublicPath(pathname: string | null): boolean {
   if (!pathname) return true;

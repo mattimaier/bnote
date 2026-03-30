@@ -144,7 +144,7 @@ export function EventCard({
       >
         <DotIcon className="h-3 w-3" />
       </div>
-      <div className="flex-1 rounded-box border border-base-300/60 bg-gradient-to-br from-base-200/50 to-transparent p-3 transition-all duration-200 hover:shadow-md hover:border-primary/30 group">
+      <div className="flex-1 rounded-box border border-base-300/60 bg-gradient-to-br from-base-200/50 to-transparent p-3 transition-colors duration-200 hover:border-primary/30 group">
         <div className="flex items-start gap-3 mb-2">
           <div className="flex-1 min-w-0">
             <p className="text-base font-bold leading-tight text-base-content mb-1.5">{dateStr}</p>
@@ -315,7 +315,7 @@ export function EventCard({
     <>
       <div className="hidden md:flex relative gap-3 w-full">{desktopContent}</div>
       <div
-        className={`md:hidden relative w-full transition-all duration-200 group ${!isLast ? "border-b border-base-300/50 pb-3 mb-3" : ""}`}
+        className={`md:hidden relative w-full group ${!isLast ? "border-b border-base-300/50 pb-3 mb-3" : ""}`}
       >
         {mobileContent}
       </div>

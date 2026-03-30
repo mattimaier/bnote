@@ -410,7 +410,6 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 .participation-btn {
   border-width: 1px !important;
-  transform-origin: center;
 }
 .participation-btn-yes:not(.participation-active) {
   border-color: color-mix(in oklch, var(--success) 20%, transparent) !important;
@@ -455,7 +454,10 @@ input[type="search"]::-webkit-search-results-decoration {
   font-weight: 500;
   border-radius: var(--radius-field);
   border: 1px solid;
-  transition: all 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
   cursor: pointer;
   white-space: nowrap;
 }

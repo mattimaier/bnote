@@ -15,6 +15,7 @@ import { getEntityConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 import { api } from "@/lib/api";
 import { X } from "@/components/icons";
+import { getSidebarModuleKey, isImprintNavActive, isPrivacyNavActive } from "@/lib/sidebar-active";
 
 interface SidebarModule {
   id: number;
@@ -55,7 +56,16 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
       });
   }, []);
 
-  const currentRoute = pathname?.replace("/", "") || "dashboard";
+  const activeModuleKey = getSidebarModuleKey(pathname);
+
+  const imprintEntity = getEntityConfig("imprint");
+  const privacyEntity = getEntityConfig("privacy");
+  const ImprintFooterIcon = getIcon(imprintEntity?.icon ?? "building");
+  const PrivacyFooterIcon = getIcon(privacyEntity?.icon ?? "shield-check");
+  const imprintIconColor = imprintEntity?.color;
+  const privacyIconColor = privacyEntity?.color;
+  const isImprintActive = isImprintNavActive(pathname);
+  const isPrivacyActive = isPrivacyNavActive(pathname);
 
   // Prevent body scroll when open
   useEffect(() => {
@@ -101,7 +111,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
             href="/dashboard/"
             prefetch={false}
             onClick={onClose}
-            className="flex h-full min-h-0 w-full min-w-0 items-center gap-3 rounded-box px-3 py-2.5 transition-all duration-200 hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            className="flex h-full min-h-0 w-full min-w-0 items-center gap-3 rounded-box px-3 py-2.5 transition-colors duration-200 hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             aria-label={
               t("js.sidebar.dashboard") !== "js.sidebar.dashboard"
                 ? t("js.sidebar.dashboard")
@@ -122,10 +132,11 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
         </div>
         <nav className="flex-1 overflow-y-auto p-3 space-y-2">
           {modules.map((m) => {
-            const rawRoute = (m.route ?? "").replace(/^\/+/, "") || "dashboard";
+            const rawRoute = (m.route ?? "").replace(/^\/+/, "").replace(/\/+$/, "") || "dashboard";
             const path = rawRoute.startsWith("/") ? rawRoute : `/${rawRoute}`;
             const href = path.endsWith("/") ? path : `${path}/`;
-            const isActive = currentRoute === rawRoute || currentRoute === path.replace(/^\//, "") || currentRoute === rawRoute.replace(/\/$/, "");
+            const routeKey = rawRoute.toLowerCase();
+            const isActive = activeModuleKey === routeKey;
             const entityConfig = getEntityConfig(rawRoute);
             const iconName = entityConfig?.icon ?? m.icon;
             const Icon = getIcon(iconName);
@@ -136,9 +147,9 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
                 href={href}
                 prefetch={false}
                 onClick={onClose}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-box transition-all duration-200 ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-box transition-colors duration-200 ${
                   isActive
-                    ? "bg-primary/15 text-primary font-semibold shadow-sm"
+                    ? "bg-primary/15 text-primary font-medium"
                     : "hover:bg-base-200 font-medium text-base-content"
                 }`}
               >
@@ -153,6 +164,44 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
             );
           })}
         </nav>
+        <div className="shrink-0 space-y-2 border-t border-base-300 p-3">
+          <Link
+            href="/imprint/"
+            prefetch={false}
+            onClick={onClose}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-box transition-colors duration-200 ${
+              isImprintActive
+                ? "bg-primary/15 text-primary font-medium"
+                : "hover:bg-base-200 font-medium text-base-content"
+            }`}
+          >
+            <span
+              className="flex shrink-0 items-center justify-center"
+              style={isImprintActive ? undefined : imprintIconColor ? { color: imprintIconColor } : undefined}
+            >
+              <ImprintFooterIcon className="h-5 w-5" />
+            </span>
+            <span className="flex-1 truncate">Impressum</span>
+          </Link>
+          <Link
+            href="/privacy/"
+            prefetch={false}
+            onClick={onClose}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-box transition-colors duration-200 ${
+              isPrivacyActive
+                ? "bg-primary/15 text-primary font-medium"
+                : "hover:bg-base-200 font-medium text-base-content"
+            }`}
+          >
+            <span
+              className="flex shrink-0 items-center justify-center"
+              style={isPrivacyActive ? undefined : privacyIconColor ? { color: privacyIconColor } : undefined}
+            >
+              <PrivacyFooterIcon className="h-5 w-5" />
+            </span>
+            <span className="flex-1 truncate">Datenschutz</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@
 
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import { checkSession, login } from "@/lib/auth";
@@ -173,6 +174,17 @@ function LoginFormInner() {
             {loading ? t("js.login.loggingIn") : t("js.login.login")}
           </button>
         </form>
+      </div>
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-1 text-center text-xs text-base-content/60 sm:mt-10">
+        <Link href="/legal/imprint/" className="transition-colors hover:text-base-content">
+          Impressum
+        </Link>
+        <span aria-hidden className="text-base-content/30">
+          ·
+        </span>
+        <Link href="/legal/privacy/" className="transition-colors hover:text-base-content">
+          Datenschutz
+        </Link>
       </div>
     </div>
   );

@@ -121,7 +121,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange, disabl
 
   const btn = (s: ParticipationStatus, active: boolean) => {
     const base =
-      "participation-btn w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100";
+      "participation-btn w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
     const roleClass =
       s === "yes" ? "participation-btn-yes" : s === "maybe" ? "participation-btn-maybe" : "participation-btn-no";
     const activeClass = active
