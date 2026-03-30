@@ -48,6 +48,7 @@ echo json_encode(
             'index' => $apiBase . '/mail_debug.php',
             'previewPasswordResetEn' => $apiBase . '/mail_preview.php?template=password_reset&locale=en',
             'previewNewUserAdminEn' => $apiBase . '/mail_preview.php?template=new_user_admin&locale=en',
+            'previewLongDemoEn' => $apiBase . '/mail_preview.php?template=long_demo&locale=en',
         ],
     ],
     JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES

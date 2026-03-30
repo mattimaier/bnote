@@ -112,6 +112,10 @@ These scripts work only from **127.0.0.1** or **::1** and are **not** shipped in
 2. **Test send** — **required** query parameter **`to`**:  
    `…/api/mail_test_send.php?to=you@example.com`
 
+3. **HTML preview** (no SMTP): open **`mail_debug.php`** for a list of transactional templates and locales, or call **`mail_preview.php?template=password_reset&locale=en`**. Templates include a **long layout demo** (`template=long_demo`) with lorem ipsum and multiple sections for stress-testing the shell. The JSON from **`mail_config_check.php`** includes a **`mailDebug`** object with the same paths. Logo uses a data URL in the browser; real sends use a CID attachment.
+
+**Dark mode:** HTML mail sets `color-scheme: light dark`, meta `color-scheme` / `supported-color-schemes`, and **`@media (prefers-color-scheme: dark)`** using dark palette tokens in **`frontend/mail-design-tokens.json`** (aligned with FlyonUI `bnotedark`). Apple Mail and many iOS clients follow this; Gmail and other webmail may keep a light canvas or apply their own rules.
+
 ---
 
 ## Troubleshooting

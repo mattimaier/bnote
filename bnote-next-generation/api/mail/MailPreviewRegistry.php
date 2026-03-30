@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/MailPreviewFixtures.php';
 require_once __DIR__ . '/builders/PasswordResetMailBuilder.php';
 require_once __DIR__ . '/builders/NewUserAdminMailBuilder.php';
+require_once __DIR__ . '/builders/LongDemoMailBuilder.php';
 require_once __DIR__ . '/NextGenMailMessage.php';
 
 final class MailPreviewRegistry {
@@ -12,6 +13,7 @@ final class MailPreviewRegistry {
         return [
             ['id' => 'password_reset', 'label' => 'Password reset'],
             ['id' => 'new_user_admin', 'label' => 'New user (admin notification)'],
+            ['id' => 'long_demo', 'label' => 'Long layout demo (lorem)'],
         ];
     }
 
@@ -33,6 +35,8 @@ final class MailPreviewRegistry {
                     [MailPreviewFixtures::previewToEmail()],
                     []
                 );
+            case 'long_demo':
+                return LongDemoMailBuilder::build($sd, $locale, MailPreviewFixtures::previewToEmail());
             default:
                 throw new InvalidArgumentException('Unknown template: ' . $templateId);
         }

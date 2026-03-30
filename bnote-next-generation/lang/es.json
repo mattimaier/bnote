@@ -761,6 +761,7 @@
   "mail.newUserAdmin.labelEmail": "Correo",
   "mail.newUserAdmin.labelLogin": "Usuario",
   "mail.newUserAdmin.labelUserId": "ID de usuario",
+  "mail.newUserAdmin.userIdLine": "ID de usuario: {userId}",
   "mail.newUserAdmin.noteAuto": "Es posible que deba confirmar el correo antes de iniciar sesión.",
   "mail.newUserAdmin.noteManual": "La cuenta está inactiva hasta que un administrador la active.",
   "mail.newUserAdmin.linkDashboard": "Abrir el panel",

@@ -761,6 +761,7 @@
   "mail.newUserAdmin.labelEmail": "Email",
   "mail.newUserAdmin.labelLogin": "Login",
   "mail.newUserAdmin.labelUserId": "User ID",
+  "mail.newUserAdmin.userIdLine": "User ID: {userId}",
   "mail.newUserAdmin.noteAuto": "The user may need to confirm their email before they can sign in.",
   "mail.newUserAdmin.noteManual": "The account is inactive until an administrator activates it.",
   "mail.newUserAdmin.linkDashboard": "Open dashboard",

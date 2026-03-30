@@ -8,9 +8,19 @@ require_once dirname(__DIR__) . '/MailDesignTokens.php';
 require_once dirname(__DIR__) . '/MailAssets.php';
 require_once dirname(__DIR__) . '/MailBodyText.php';
 require_once dirname(__DIR__) . '/MailSubject.php';
+require_once dirname(__DIR__) . '/MailBranding.php';
 require_once dirname(__DIR__) . '/NextGenMailMessage.php';
 
 final class NewUserAdminMailBuilder {
+    /**
+     * Reduce client auto-linking of addresses in intro text; still renders as @ in mail clients.
+     */
+    private static function textForIntro(string $raw): string {
+        $e = htmlspecialchars($raw, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+        return str_replace('@', '&#64;', $e);
+    }
+
     /**
      * @param array{userId:int,contactId:int,name:string,surname:string,email:string,login:string,autoUserActivation:bool} $ctx
      * @param list<string> $to
@@ -24,7 +34,9 @@ final class NewUserAdminMailBuilder {
         $base = MailEnv::nextgenPublicBaseUrl();
         $dashboardUrl = $base !== '' ? $base . '/dashboard/' : '';
         $integrationUrl = $base !== '' ? $base . '/contacts/integration/' : '';
-        $primary = htmlspecialchars(MailDesignTokens::get('primary'), ENT_QUOTES, 'UTF-8');
+        $primary = MailDesignTokens::get('primary');
+        $primaryEsc = htmlspecialchars($primary, ENT_QUOTES, 'UTF-8');
+        $linkStyle = 'color:' . $primaryEsc . ' !important;text-decoration:underline !important;font-weight:600;';
 
         $activationNote = ($ctx['autoUserActivation'] ?? false)
             ? MailI18n::t('mail.newUserAdmin.noteAuto', $locale)
@@ -32,44 +44,48 @@ final class NewUserAdminMailBuilder {
 
         $intro = MailI18n::interpolate(MailI18n::t('mail.newUserAdmin.intro', $locale), [
             'fullName' => htmlspecialchars($fullName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            'email' => htmlspecialchars($email, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            'login' => htmlspecialchars($login, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            'email' => self::textForIntro($email),
+            'login' => self::textForIntro($login),
             'company' => htmlspecialchars($company, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
         ]);
 
-        $lines = '<ul style="margin:16px 0;padding-left:20px;color:' . MailDesignTokens::get('text') . ';">';
-        $lines .= '<li><strong>' . htmlspecialchars(MailI18n::t('mail.newUserAdmin.labelName', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</strong> ' . htmlspecialchars($fullName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>';
-        $lines .= '<li><strong>' . htmlspecialchars(MailI18n::t('mail.newUserAdmin.labelEmail', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</strong> ' . htmlspecialchars($email, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>';
-        $lines .= '<li><strong>' . htmlspecialchars(MailI18n::t('mail.newUserAdmin.labelLogin', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</strong> ' . htmlspecialchars($login, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>';
-        $lines .= '<li><strong>' . htmlspecialchars(MailI18n::t('mail.newUserAdmin.labelUserId', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</strong> ' . (int) ($ctx['userId'] ?? 0) . '</li>';
-        $lines .= '</ul>';
+        $uid = (string) (int) ($ctx['userId'] ?? 0);
+        $detailList = '<ul class="em-list-plain" style="list-style:none;padding-left:0;margin:16px 0;">'
+            . '<li style="margin:0 0 8px;"><strong>' . htmlspecialchars(MailI18n::t('mail.newUserAdmin.labelName', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</strong> '
+            . htmlspecialchars($fullName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</li>'
+            . '<li style="margin:0 0 8px;"><strong>' . htmlspecialchars(MailI18n::t('mail.newUserAdmin.labelEmail', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</strong> '
+            . self::textForIntro($email) . '</li>'
+            . '<li style="margin:0 0 8px;"><strong>' . htmlspecialchars(MailI18n::t('mail.newUserAdmin.labelLogin', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</strong> '
+            . self::textForIntro($login) . '</li>'
+            . '<li style="margin:0 0 8px;"><strong>' . htmlspecialchars(MailI18n::t('mail.newUserAdmin.labelUserId', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</strong> ' . htmlspecialchars($uid, ENT_QUOTES, 'UTF-8') . '</li>'
+            . '</ul>';
 
         $links = '';
         if ($dashboardUrl !== '') {
             $du = htmlspecialchars($dashboardUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-            $links .= '<p style="margin:16px 0;"><a href="' . $du . '" style="color:' . $primary . ';font-weight:600;">'
+            $links .= '<p style="margin:16px 0 0;"><a href="' . $du . '" style="' . $linkStyle . '">'
                 . htmlspecialchars(MailI18n::t('mail.newUserAdmin.linkDashboard', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</a></p>';
         }
         if ($integrationUrl !== '') {
             $iu = htmlspecialchars($integrationUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-            $links .= '<p style="margin:16px 0;"><a href="' . $iu . '" style="color:' . $primary . ';font-weight:600;">'
+            $links .= '<p style="margin:12px 0 0;"><a href="' . $iu . '" style="' . $linkStyle . '">'
                 . htmlspecialchars(MailI18n::t('mail.newUserAdmin.linkIntegration', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</a></p>';
         }
         if ($base === '') {
-            $links .= '<p style="color:' . htmlspecialchars(MailDesignTokens::get('textMuted'), ENT_QUOTES, 'UTF-8') . ';font-size:13px;">'
+            $links .= '<p class="em-muted" style="font-size:13px;margin-top:16px;">'
                 . htmlspecialchars(MailI18n::t('mail.newUserAdmin.noDeepLink', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>';
         }
 
-        $inner = '<p style="margin:0 0 12px;">' . $intro . '</p>' . $lines
-            . '<p style="margin:16px 0 0;">' . htmlspecialchars($activationNote, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>' . $links;
+        $inner = '<p class="em-lead" style="margin:0 0 12px;">' . $intro . '</p>' . $detailList
+            . '<p class="em-lead" style="margin:16px 0 0;">' . htmlspecialchars($activationNote, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>' . $links;
 
-        $footerCompanyEsc = htmlspecialchars($company !== '' ? $company : 'BNote', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $senderLine = MailBranding::bnoteBandLine($locale, $company);
         $footer = MailI18n::interpolate(MailI18n::t('mail.footer.generic', $locale), [
-            'company' => $footerCompanyEsc,
+            'sender' => $senderLine,
         ]);
 
         $headline = htmlspecialchars(MailI18n::t('mail.shell.headlineNewUserAdmin', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $companyLine = htmlspecialchars($company !== '' ? $company : '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $companyLine = $senderLine;
 
         $html = MailHtmlShell::wrapTransactional(
             $headline,
