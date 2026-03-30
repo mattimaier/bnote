@@ -58,11 +58,20 @@ export function AppSidebar() {
 
   return (
     <aside className="hidden md:flex md:flex-col md:h-full md:w-64 md:shrink-0 border-r border-base-300 bg-base-200">
-      <div className="flex h-16 items-center px-4 lg:px-6">
-        <div className="flex items-center gap-3">
+      <div className="flex h-16 min-w-0 items-center px-3">
+        <Link
+          href="/dashboard/"
+          prefetch={false}
+          className="flex min-h-0 w-full min-w-0 items-center gap-3 rounded-box px-3 py-2.5 transition-colors hover:bg-base-300/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          aria-label={
+            t("js.sidebar.dashboard") !== "js.sidebar.dashboard"
+              ? t("js.sidebar.dashboard")
+              : "Dashboard"
+          }
+        >
           <BNoteLogo size="sm" />
           <span className="font-semibold text-sm text-base-content">BNote</span>
-        </div>
+        </Link>
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1.5">
         {modules.map((m) => {

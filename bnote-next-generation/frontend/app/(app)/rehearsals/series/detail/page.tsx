@@ -18,6 +18,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { type RehearsalMeta, type SimpleOption } from "@/lib/entities/event/types";
 import { getEntityPath } from "@/lib/entities/paths";
+import { formatDateShortDisplay } from "@/lib/date-time";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { rehearsalsApi, type RehearsalListItem } from "@/lib/rehearsals-api";
@@ -38,10 +39,11 @@ interface SeriesFormState {
 export default function RehearsalSeriesDetailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { t, ready, lang, formatDate, formatDateTime } = useI18n();
+  const { t, ready, lang, formatDateTime } = useI18n();
   const { showToast } = useToast();
   const isNew = searchParams.get("new") === "1";
   const seriesId = useMemo(() => Number(searchParams.get("seriesId") ?? 0), [searchParams]);
+  const isEditing = isNew || searchParams.get("edit") === "1";
   const [meta, setMeta] = useState<RehearsalMeta | null>(null);
   const [rehearsals, setRehearsals] = useState<RehearsalListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,6 @@ export default function RehearsalSeriesDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showPropagationWarning, setShowPropagationWarning] = useState(false);
   const [error, setError] = useState("");
-  const [isEditing, setIsEditing] = useState(isNew || searchParams.get("edit") === "1");
   const [sortKey, setSortKey] = useState<"begin" | "status" | "location" | "notes" | null>("begin");
   const [sortDir, setSortDir] = useState<SortDirection>("asc");
   const [originalForm, setOriginalForm] = useState<SeriesFormState | null>(null);
@@ -233,6 +234,21 @@ export default function RehearsalSeriesDetailPage() {
 
   const { setEditingBar, clearEditingBar } = useEditingBar();
   const barTokenRef = useRef<number | null>(null);
+  const toSeriesDetailPath = useCallback(
+    (edit: boolean) => {
+      const params = new URLSearchParams();
+      if (isNew) {
+        params.set("new", "1");
+      } else if (seriesId > 0) {
+        params.set("seriesId", String(seriesId));
+      }
+      if (edit) params.set("edit", "1");
+      const query = params.toString();
+      return query ? `/rehearsals/series/detail?${query}` : "/rehearsals/series/detail";
+    },
+    [isNew, seriesId]
+  );
+
   useEffect(() => {
     if (!isEditing) return;
     const token = setEditingBar({
@@ -242,7 +258,7 @@ export default function RehearsalSeriesDetailPage() {
       onCancel: () => {
         if (isNew) router.push("/rehearsals/series");
         else {
-          setIsEditing(false);
+          router.replace(toSeriesDetailPath(false));
           void load();
         }
       },
@@ -254,7 +270,7 @@ export default function RehearsalSeriesDetailPage() {
         barTokenRef.current = null;
       }
     };
-  }, [isEditing, isNew, saving, setEditingBar, clearEditingBar, router, load]);
+  }, [isEditing, isNew, saving, setEditingBar, clearEditingBar, router, load, toSeriesDetailPath]);
 
   if (!ready || loading) {
     return <div className="flex items-center justify-center py-12"><Spinner /></div>;
@@ -263,12 +279,7 @@ export default function RehearsalSeriesDetailPage() {
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
   const locationOptions: SimpleOption[] = [{ id: 0, name: "-" }, ...((meta?.locations ?? []).map((entry) => ({ ...entry, name: entry.name || `#${entry.id}` })))];
   const conductorOptions: SimpleOption[] = [{ id: 0, name: "-" }, ...((meta?.conductors ?? []).map((entry) => ({ ...entry, name: entry.name || `#${entry.id}` })))];
-  const localizeDate = (value: string) => {
-    if (!value) return emptyText;
-    const [year, month, day] = value.split("-").map((part) => Number(part));
-    if (!year || !month || !day) return value;
-    return formatDate(new Date(year, month - 1, day));
-  };
+  const localizeDate = (value: string) => formatDateShortDisplay(value, lang, emptyText);
   const locationName = locationOptions.find((entry) => entry.id === form.location)?.name || emptyText;
   const conductorName = conductorOptions.find((entry) => entry.id === form.conductor)?.name || emptyText;
   const pageTitle = form.name.trim() || (
@@ -285,7 +296,7 @@ export default function RehearsalSeriesDetailPage() {
         </h1>
         <div className="flex items-center gap-2">
           {!isEditing && (
-            <ActionButton onClick={() => setIsEditing(true)}>
+            <ActionButton onClick={() => router.push(toSeriesDetailPath(true))}>
               {t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"}
             </ActionButton>
           )}

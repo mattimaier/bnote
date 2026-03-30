@@ -100,23 +100,18 @@ function Icon({ name, className = "h-5 w-5", ...props }: IconProps & { name: str
 export function getIcon(name: string): React.ComponentType<IconProps> {
   const key = String(name || "").toLowerCase().trim();
   const iconName = Object.keys(TABLER_MAP).find((k) => k === key) ?? "layout-dashboard";
-  return (props: IconProps) => <Icon name={iconName} {...props} />;
+  const IconComponent = (props: IconProps) => <Icon name={iconName} {...props} />;
+  IconComponent.displayName = `Icon(${iconName})`;
+  return IconComponent;
 }
 
 /** Pre-built icon components for direct use */
-export const LayoutDashboard = (p: IconProps) => <Icon name="layout-dashboard" {...p} />;
 export const Users = (p: IconProps) => <Icon name="users" {...p} />;
 export const User = (p: IconProps) => <Icon name="user" {...p} />;
 export const CalendarDays = (p: IconProps) => <Icon name="calendar-days" {...p} />;
-export const MessageSquare = (p: IconProps) => <Icon name="message-square" {...p} />;
-export const Music = (p: IconProps) => <Icon name="music" {...p} />;
 export const Calendar = (p: IconProps) => <Icon name="calendar" {...p} />;
 export const MapPin = (p: IconProps) => <Icon name="map-pin" {...p} />;
-export const ChevronLeft = (p: IconProps) => <Icon name="chevron-left" {...p} />;
 export const Search = (p: IconProps) => <Icon name="search" {...p} />;
-export const UserCircle = (p: IconProps) => <Icon name="user-circle" {...p} />;
-export const CheckSquare = (p: IconProps) => <Icon name="check-square" {...p} />;
-export const Package = (p: IconProps) => <Icon name="package" {...p} />;
 export const Map = (p: IconProps) => <Icon name="map" {...p} />;
 export const X = (p: IconProps) => <Icon name="x" {...p} />;
 export const Menu = (p: IconProps) => <Icon name="menu" {...p} />;
@@ -140,4 +135,3 @@ export const LogOut = (p: IconProps) => <Icon name="log-out" {...p} />;
 export const FolderPlus = (p: IconProps) => <Icon name="folder-plus" {...p} />;
 export const Download = (p: IconProps) => <Icon name="download" {...p} />;
 export const Upload = (p: IconProps) => <Icon name="upload" {...p} />;
-export const FileText = (p: IconProps) => <Icon name="file-text" {...p} />;

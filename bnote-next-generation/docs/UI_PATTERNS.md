@@ -22,10 +22,10 @@ Applies to: Users, Contacts, Locations, Equipment, Outfits, Repertoire (songs), 
 
 ### Entities (rehearsal, concert, location, equipment, etc.)
 
-- **View:** `/entity/{type}/{id}` (e.g. `/entity/location/5`)
-- **Edit:** `/entity/{type}/{id}/edit` (e.g. `/entity/location/5/edit`)
+- **View:** `/entity?type={type}&id={id}` (e.g. `/entity?type=location&id=5`)
+- **Edit:** `/entity?type={type}&id={id}&edit=1` (e.g. `/entity?type=location&id=5&edit=1`)
 - Use **`getEntityPath(type, id, "edit")`** from `lib/entities/paths.ts` for links.
-- The detail component derives “edit mode” from the route (e.g. pathname includes `/edit` or `mode === "edit"`) and uses **`router.push` / `router.replace`** when toggling edit or after save/cancel.
+- The detail component derives edit mode from URL params (for example `edit === "1"` or `mode === "edit"`) and uses **`router.push` / `router.replace`** when toggling edit or after save/cancel.
 
 ### Profile (my contact data)
 
@@ -113,7 +113,7 @@ Add these to all `lang/*.json` files (de, en, es, fr).
 ## 8. Summary Checklist
 
 - [ ] Lists: no ID column; no Edit (pencil) or Delete (trash) in rows.
-- [ ] Edit mode in URL: entities use `/entity/{type}/{id}/edit`; profile uses `/profile/edit/`.
+- [ ] Edit mode in URL: entities use `/entity?type={type}&id={id}&edit=1`; profile uses `/profile/edit/`.
 - [ ] Detail views: DetailPageHeader + DetailEditButton (right, baseline); body in DetailCard(s).
 - [ ] Edit mode: EditingBar at top; SelectPicker for single-select (no native `<select>`).
 - [ ] Status fields: render as badge in view mode; use StatusPicker in edit mode.
